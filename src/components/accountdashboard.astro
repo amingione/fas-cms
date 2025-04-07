@@ -1,0 +1,32 @@
+<div class="fixed inset-0 z-[9998] pointer-events-none">
+  <button id="closeAccountDashboard" class="fixed top-24 right-72 z-[10001] bg-transparent text-white p-2 rounded-full border-2 border-red-600 shadow-lg hover:transparent hover:text-red-500 transition-all duration-200">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  </button>
+  <aside id="accountDashboard" style="background-color: #2a2a2a" class="w-64 h-full font-ethno text-white pt-30 px-6 shadow-lg space-y-6 fixed top-20 right-0 z-[9999] pointer-events-auto">
+    <h2 class="text-sm font-bold mb-4 font-ethno border-b border-gray-700 pb-2">Account</h2>
+    <nav class="flex flex-col space-y-4 font-kwajong font-semibold">
+      <a href="/account/orders" class="hover:text-primary font-bold font-kwajong transition-colors">Orders</a>
+      <a href="/account/settings" class="hover:text-primary font-kwajong transition-colors">Settings</a>
+      <a href="/account/security" class="hover:text-primary font-kwajong transition-colors">Security</a>
+      <a href="/account/addresses" class="hover:text-primary font-kwajong transition-colors">Addresses</a>
+      <a href="/account/logout" class="mt-10 text-red-500 hover:text-white transition-colors">Logout</a>
+    </nav>
+  </aside>
+</div>
+<script type="module">
+  window.addEventListener('DOMContentLoaded', () => {
+    const closeBtn = document.getElementById('closeAccountDashboard');
+    const dashboard = document.getElementById('accountDashboard');
+
+    if (closeBtn && dashboard) {
+      closeBtn.addEventListener('click', () => {
+        dashboard.classList.add('hidden');
+      });
+    } else {
+      console.warn('Close button or dashboard not found');
+    }
+  });
+</script>

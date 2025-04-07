@@ -1,0 +1,177 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --color-primary: #ea1d26;
+    --color-secondary: #eef2fb;
+    --color-accent: #fde4b2;
+    --color-graylight: #d1d0d0;
+    --color-background: #00000000;
+}
+
+@font-face {
+    font-family: 'American Captain';
+    src: url('/fonts/AmericanCaptain.woff2') format('woff2'),
+        url('/fonts/AmericanCaptain.woff') format('woff'),
+        url('/fonts/AmericanCaptain.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Ethnocentric';
+    src: url('/fonts/Ethnocentric-Regular.woff2') format('woff2'),
+         url('/fonts/Ethnocentric-Regular.woff') format('woff'),
+         url('/fonts/Ethnocentric-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Ethnocentric';
+    src: url('/fonts/Ethnocentric-Italic.woff2') format('woff2'),
+         url('/fonts/Ethnocentric-Italic.woff') format('woff'),
+         url('/fonts/Ethnocentric-Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Kwajong';
+    src: url('/fonts/Kwajong.woff2') format('woff2'),
+         url('/fonts/Kwajong.woff') format('woff'),
+         url('/fonts/Kwajong.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Kwajong';
+    src: url('/fonts/Kwajong-Italic.woff2') format('woff2'),
+         url('/fonts/Kwajong-Italic.woff') format('woff'),
+         url('/fonts/Kwajong-Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Cyber Princess';
+    src: url('/fonts/CyberPrincess-Regular.woff2') format('woff2'),
+         url('/fonts/CyberPrincess-Regular.woff') format('woff'),
+         url('/fonts/CyberPrincess-Regular.ttf') format('truetype');
+    font-style: normal;
+    font-weight: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Cyber Princess';
+    src: url('/fonts/CyberPrincess-Italic.woff2') format('woff2'),
+         url('/fonts/CyberPrincess-Italic.woff') format('woff'),
+         url('/fonts/CyberPrincess-Italic.ttf') format('truetype');
+    font-style: italic;
+    font-weight: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Cyber Princess 3D';
+    src: url('/fonts/CyberPrincess3D-Regular.woff2') format('woff2'),
+         url('/fonts/CyberPrincess3D-Regular.woff') format('woff'),
+         url('/fonts/CyberPrincess3D.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Cyber Princess 3D';
+    src: url('/fonts/CyberPrincess3D-Italic.woff2') format('woff2'),
+         url('/fonts/CyberPrincess3D-Italic.woff') format('woff'),
+         url('/fonts/CyberPrincess3D-Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Cyber Princess 3D Filled';
+    src: url('/fonts/CyberPrincess3DFilled-Regular.woff2') format('woff2'),
+         url('/fonts/CyberPrincess3DFilled-Regular.woff') format('woff'),
+         url('/fonts/CyberPrincess3DFilled.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Cyber Princess 3D Filled';
+    src: url('/fonts/CyberPrincess3DFilled-Italic.woff2') format('woff2'),
+         url('/fonts/CyberPrincess3DFilled-Italic.woff') format('woff'),
+         url('/fonts/CyberPrincess3DFilled-Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Borgsquad Italic';
+    src: url('/fonts/BorgsquadItalic.woff2') format('woff2'),
+         url('/fonts/BorgsquadItalic.woff') format('woff'),
+         url('/fonts/BorgsquadItalic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+    font-display: swap;
+}
+
+@layer utilities {
+    .font-ethno { font-family: 'Ethnocentric', sans-serif; }
+    .font-ethno-italic { font-family: 'Ethnocentric', sans-serif; font-style: italic; }
+
+    .font-kwajong { font-family: 'Kwajong', sans-serif; }
+    .font-kwajong-italic { font-family: 'Kwajong', sans-serif; font-style: italic; }
+
+    .font-borg { font-family: 'Borgsquad Italic', sans-serif; }
+
+    .font-cyber { font-family: 'Cyber Princess', sans-serif; }
+    .font-cyber-italic { font-family: 'Cyber Princess', sans-serif; font-style: italic; }
+
+    .font-cyber3d { font-family: 'Cyber Princess 3D', sans-serif; }
+    .font-cyber3d-italic { font-family: 'Cyber Princess 3D', sans-serif; font-style: italic; }
+
+    .font-cyber3dfilled { font-family: 'Cyber Princess 3D Filled', sans-serif; }
+    .font-cyber3dfilled-italic { font-family: 'Cyber Princess 3D Filled', sans-serif; font-style: italic; }
+
+    .font-captain { font-family: 'American Captain', sans-serif; letter-spacing: 1.1px !important; }
+    
+
+    .text-primary { color: var(--color-primary); }
+    .text-secondary { color: var(--color-secondary); }
+    .text-accent { color: var(--color-accent); }
+    .text-graylight { color: var(--color-graylight); }
+
+    .bg-primary { background-color: var(--color-primary); }
+    .bg-secondary { background-color: var(--color-secondary); }
+    .bg-accent { background-color: var(--color-accent); }
+    .bg-graylight { background-color: var(--color-graylight); }
+    .bg-base { background-color: var(--color-background); }
+
+
+
+    .transition-color {
+        transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    a {
+        transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    a:not(.text-primary):hover { color: var(--color-primary); }
+    a.text-primary:hover { color: var(--color-secondary); }
+}

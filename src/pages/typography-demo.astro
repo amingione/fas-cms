@@ -1,0 +1,107 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/Button.astro';
+---
+
+
+<BaseLayout>
+  <section class="p-10 space-y-10 bg-black text-white max-w-5xl mx-auto">
+    <h1 class="text-3xl font-bold mb-6">🧠 Font Cheat Sheet</h1>
+
+    <!-- Cyber Princess -->
+    <div>
+      <h2 class="font-cyber text-xl font-semibold mb-2">Cyber Princess</h2>
+      <p class="font-cyber text-base text-accent">This is Cyber Princess Regular</p>
+      <p class="font-cyber-italic text-lg text-secondary italic">This is Cyber Princess Italic</p>
+    </div>
+
+    <!-- Cyber Princess 3D -->
+    <div>
+      <h2 class="font-cyber3d text-xl font-semibold mb-2">Cyber Princess 3D</h2>
+      <p class="font-cyber3d text-base text-primary">Cyber Princess 3D Regular</p>
+      <p class="font-cyber3d-italic text-lg text-accent italic">Cyber Princess 3D Italic</p>
+    </div>
+
+    <!-- Cyber Princess 3D Filled -->
+    <div>
+      <h2 class="font-cyber3dfilled text-xl font-semibold mb-2">Cyber 3D Filled</h2>
+      <p class="font-cyber3dfilled text-base text-primary">Cyber 3D Filled Regular</p>
+      <p class="font-cyber3dfilled-italic text-lg text-graylight italic">Cyber 3D Filled Italic</p>
+    </div>
+
+    <!-- Kwajong -->
+    <div>
+      <h2 class="font-kwajong text-xl font-semibold mb-2">Kwajong</h2>
+      <p class="font-kwajong text-base text-accent">Kwajong Regular</p>
+      <p class="font-kwajong-italic text-lg text-secondary italic">Kwajong Italic</p>
+    </div>
+
+    <!-- Ethnocentric -->
+    <div>
+      <h2 class="font-ethno text-xl font-semibold mb-2">Ethnocentric</h2>
+      <p class="font-ethno text-base text-primary uppercase">Ethnocentric Regular</p>
+      <p class="font-ethno-italic text-lg text-accent uppercase italic">Ethnocentric Italic</p>
+    </div>
+
+    <!-- American Captain -->
+    <div>
+      <h2 class="font-body text-xl font-semibold mb-2">American Captain (Body)</h2>
+      <p class="font-body text-base text-graylight">Body font with base size and light gray</p>
+      <p class="font-body text-xl text-secondary">Body font with xl size and secondary color</p>
+    </div>
+
+    <!-- Inline Switches -->
+    <div>
+      <h2 class="font-borg text-xl font-semibold mb-2">Inline Switch Examples</h2>
+      <p class="font-captain text-base text-graylight">
+        <span class="font-cyber text-accent">Cyber</span> and
+        <span class="font-kwajong text-secondary">Kwajong</span> in the same line,
+        switching <span class="text-primary">colors</span> and
+        <span class="font-ethno text-accent">fonts</span> as needed.
+      </p>
+    </div>
+     <div>
+        <h1 class="font-borg text-secondary font-bold mb-2">F.a.S. <span class="font-ethno text-secondary font-bold">Motorsports</span></h1>
+     </div>
+      <div>
+        <h1 class="font-borg text-accent font-bold mb-2 shine-quiver">
+          F.a.S. <span class="font-ethno text-primary font-bold">Motorsports</span>
+        </h1>
+     </div>   
+     <div>
+      <h1 class="font-borg text-primary font-bold mb-2 shine-quiver">
+        F.a.S. <span class="font-ethno text-secondary font-bold">Motorsports</span>
+      </h1>
+      <h1 class="font-borg text-primary font-bold mb-2 worm-slide">
+        F.a.S. <span class="font-ethno text-secondary font-bold">Motorsports</span>
+      </h1>
+      <h1 class="font-borg text-primary font-bold mb-2 ripple-in">
+        F.a.S. <span class="font-ethno text-secondary font-bold">Motorsports</span>
+      </h1>
+      <h1 class="font-borg text-primary font-bold mb-2 ripple-wipe">
+        F.a.S. <span class="font-ethno text-secondary font-bold">Motorsports</span>
+      </h1>
+   </div> 
+   
+   <!-- Button Demo -->
+  <section class="space-y-4 mt-10 font-cyber text-white text-sm font-semibold">
+    <Button text="Default Button" variant="default" href="#" />
+    <Button text="Swipe Button" variant="swipe" href="#" />
+    <Button text="Multi-Swipe Button" variant="multi-swipe" href="#" />
+    <!-- Button Demo square-->
+    <Button text="Square Swipe" variant="swipe" href="#" rounded={false} />
+    <Button text="Square Default" variant="default" href="#" rounded={false} />
+    <Button text="Square Multi-Swipe" variant="multi-swipe" href="#" rounded={false} />
+    <!-- Button Demo round ethno-->
+    <Button text="Ethno Default" variant="default-v2" />
+    <Button text="Ethno Swipe" variant="swipe-v2" />
+    <Button text="Ethno Multi-Swipe" variant="multi-swipe-v2" />
+    <!-- Button Demo square ethno-->
+    <Button text="Ethno Default" variant="default-v2" href="#" rounded={false} />
+    <Button text="Ethno Swipe" variant="swipe-v2" href="#" rounded={false} />
+    <Button text="Ethno Multi-Swipe" variant="multi-swipe-v2" href="#" rounded={false} />
+  </section>
+
+  <div class="shadow-product-inset hover:shadow-product-hover"></div>
+
+</BaseLayout>

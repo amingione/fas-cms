@@ -1,0 +1,17 @@
+<button id="openSideCart" class="fixed bottom-6 right-6 z-50 bg-white text-black p-4 rounded-full shadow-lg hover:bg-primary hover:text-white transition-all duration-300 flex items-center justify-center">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 6h11.1M7 13L5.4 5M16 16a2 2 0 100 4 2 2 0 000-4zm-8 0a2 2 0 100 4 2 2 0 000-4z" />
+  </svg>
+</button>
+
+<script type="module">
+  document.addEventListener('DOMContentLoaded', () => {
+    const openBtn = document.getElementById('openSideCart');
+    const sideCart = document.getElementById('side-cart');
+
+    openBtn?.addEventListener('click', () => {
+      sideCart?.classList.remove('translate-x-full');
+      sideCart?.classList.add('translate-x-0');
+    });
+  });
+</script>

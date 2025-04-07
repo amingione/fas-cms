@@ -1,11 +1,189 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<BaseLayout>
+  <!-- Your page content here -->
+  <style>
+    @font-face {
+      font-family: 'Borgsquad Italic';
+      src: url('/fonts/BorgsquadItalic.woff2') format('woff2'),
+           url('/fonts/BorgsquadItalic.woff') format('woff'),
+           url('/fonts/BorgsquadItalic.ttf') format('truetype');
+      font-weight: normal;
+      font-style: italic;
+      font-display: swap;
+    }
+    .font-ethno {
+      font-family: 'Ethnocentric', sans-serif;
+    }
+    .font-cyber-italic {
+      font-family: 'Cyber Princess', sans-serif;
+    }
+    .text-secondary { color: #f7f6f4; }
+    .text-primary { color: #a3002b; }
+  </style>
+
+<!-- Hero Section -->
+<section class="fit w-full h-screen overflow-hidden m-0 p-0 flex items-center justify-center">
+  <img src="/images/hp-herofas.png" alt="Hero Background" class="fixed top-0 left-0 w-full h-screen object-cover z-[-1]" />
+</section>
+<!-- Carousel Section -->
+<section class="relative w-full h-[500px] overflow-hidden z-10 -mt-40 bg-transparent shadow-[inset_0_0_10px_rgba(0,0,0,0.6)] rounded-[20px]">
+	<div class="relative w-full h-full">
+  
+	  <!-- Slide 1 -->
+	  <div class="relative w-full h-full transition-opacity duration-1000 carousel-slide opacity-100">
+		<div class="relative h-full w-full">
+		  <div class="absolute inset-0 bg-black/30 z-0"></div>
+		  <div class="grid grid-cols-1 md:grid-cols-2 h-full w-full relative z-10">
+			<div class="flex items-center justify-center">
+			  <img src="/images/FAS Homepage copy.png" alt="Slide 1" class="object-contain max-w-[80%] max-h-[80%]" />
+			</div>
+			<div class="flex flex-col justify-center items-start text-left px-10 text-white">
+			  <h2 class="font-borg text-xl font-bold uppercase text-primary">
+				CUSTOM SUPERCHARGER PAINTING
+			  </h2>
+			  <h1 class="text-4xl font-bold mt-2 font-ethno text-accent">
+				Any Style. <span class="text-primary">Any Color.</span>
+			  </h1>
+			  <p class="mt-4 text-xl font-cyber-italic text-grayLight">
+				Transform Your Engine Bay with a Show-Stopping Finish!
+			  </p>
+			  <a href="#" class="mt-6 inline-block px-6 py-2 border border-white font-cyber text-white hover:bg-white hover:text-black transition">
+				Shop Now
+			  </a>
+			</div>
+		  </div>
+		</div>
+	  </div>
+  
+	  <!-- Slide 2 -->
+	  <div class="absolute top-0 left-0 w-full h-full transition-opacity duration-1000 carousel-slide opacity-0">
+		<div class="relative h-full w-full">
+		  <div class="absolute inset-0 bg-black/30 z-0"></div>
+		  <div class="grid grid-cols-1 md:grid-cols-2 h-full w-full relative z-10">
+			<div class="flex items-center justify-center">
+			  <img src="/images/fas pred pully HP{ copy.png" alt="Slide 2" class="object-contain max-w-[80%] max-h-[80%]" />
+			</div>
+			<div class="flex flex-col justify-center items-start text-left px-10 text-white">
+			  <h2 class="font-borg text-xl font-bold uppercase text-primary">
+				F.a.S. Predator Pulley
+			  </h2>
+			  <h1 class="text-4xl font-bold mt-2 font-ethno text-accent">
+				No Tune <span class="text-primary">Required!</span>
+			  </h1>
+			  <p class="mt-4 text-xl font-kwajong text-grayLight">
+				Patent Pending Design. 100% Bolt-On. <br />Precision Engineered for Maximum Performance.
+			  </p>
+			  <a href="#" class="mt-6 inline-block px-6 py-2 border font-cyber border-white text-white hover:bg-white hover:text-black transition">
+				Shop Now
+			  </a>
+			</div>
+		  </div>
+		</div>
+	  </div>
+  
+	  <!-- Slide 3 -->
+	  <div class="absolute top-0 left-0 w-full h-full transition-opacity duration-1000 carousel-slide opacity-0">
+		<div class="relative h-full w-full">
+		  <div class="absolute inset-0 bg-black/30 z-0"></div>
+		  <div class="grid grid-cols-1 md:grid-cols-2 h-full w-full relative z-10">
+			<div class="flex items-center justify-center">
+			  <img src="/images/painted supercharger whippel pulley copy.png" alt="Slide 3" class="object-contain max-w-[80%] max-h-[80%]" />
+			</div>
+			<div class="flex flex-col justify-center items-start text-left px-10 text-white">
+			  <h1 class="font-borg text-xl font-bold uppercase text-primary">
+				Painted & Race-Ported Whipple Supercharger
+			  </h1>
+			  <h1 class="text-4xl font-bold mt-2 font-ethno text-accent">
+				Bold Looks. <span class="text-primary">Brutal Power.</span>
+			  </h1>
+			  <p class="mt-4 text-xl font-kwajong text-grayLight">
+				Patent Pending Design. 100% Bolt-On. <br />Precision Engineered for Maximum Performance.
+			  </p>
+			  <a href="#" class="mt-6 inline-block px-6 py-2 border font-cyber border-white text-white hover:bg-white hover:text-black transition">
+				Shop Now
+			  </a>
+			</div>
+		  </div>
+		</div>
+	  </div>
+  
+	</div>
+  </section>
+
+
+
+  <!-- Identity Section -->
+  <section class="text-center py-20 bg-transparent text-white ripple-in">
+    <h2 class="text-5xl" style="font-family: 'Borgsquad Italic', sans-serif;">F.a.S. <span class="font-ethno">Motorsports</span></h2>
+    <p class="mt-4 text-xl font-ethno text-accent">Precision.  <span class="text-primary">Power.</span>  Performance.</p>
+  </section>
+
+  <!-- Product Banners Placeholder -->
+  <section class="bg-transparent shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] rounded-[20px] px-4 text-white py-16 bg-cover bg-center" style="background-image: url('/images/Home:BR FAS copy.png');">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto px-4">
+      <div class="bg-transparent p-6 rounded-lg shadow-lg">
+		<div class="flex items-center justify-center">
+			<img src="/images/predatoru pulley homepage copy.png" alt="Slide 3" class="object-contain max-w-[80%] max-h-[80%]" />
+		  </div>
+        <h3 style="font-family: 'Ethnocentric', sans-serif;" class="text-2xl font-bold">No Tune Predator Pulley</h3>
+        <p class="text-primary text-lg mt-2 font-captain">
+          Only From <span class="text-accent font-borg">$899.99</span>
+        </p>
+        <a href="#" class="font-cyber3d mt-4 inline-block border px-4 py-2">Shop Now</a>
+      </div>
+      <div class="bg-transparent px-4 p-6 rounded-lg shadow-lg">
+		<div class="flex items-center justify-center">
+			<img src="/images/ported-snoutfas.png" alt="Slide 3" class="object-contain max-w-[80%] max-h-[80%]" />
+		  </div>
+        <h3 style="font-family: 'Ethnocentric', sans-serif;" class="text-2xl font-bold">Hellcat Snout Porting</h3>
+        <p class="text-primary text-lg font-captain mt-2">Only From <span class="font-borg text-accent">$699.00</span></p>
+        <a href="#" class="font-cyber3d mt-4 inline-block border px-4 py-2">Shop Now</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- RAM TRX Highlight -->
+  <section class="bg-transparent px-4 text-white py-20 text-center">
+    <h2 class="text-5xl font-bold" style="font-family: 'Borgsquad Italic', sans-serif;">RAM TRX</h2>
+    <p class="text-xl mt-2">Truck Packages</p>
+    <p class="mt-6 text-lg">Turn your TRX into a pavement-shredding monster. From 1200 to 1600+ WHP, our custom packages are built to dominate.</p>
+    <a href="#" class="mt-6 inline-block border px-6 py-2">Shop Now</a>
+  </section>
+
+  <!-- IGLA Installer Feature -->
+  <section class="bg-black px-4 text-white py-20">
+    <div class="max-w-5xl mx-auto px-4 flex flex-col md:flex-row items-center gap-8">
+      <img src="/img/igla.webp" alt="IGLA Certified Installer" class="w-full md:w-1/2 rounded-lg" />
+      <div>
+        <h2 class="text-3xl font-bold text-accent">Certified IGLA Installers</h2>
+        <p class="text-xl mt-2">#1 Igla Installer in SWFL</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Instagram Feed Static -->
+  <section class="bg-black px-4 text-white py-10 text-center">
+    <h2 class="text-2xl font-bold mb-4">Follow us on Instagram</h2>
+    <div class="flex justify-center gap-4">
+      <img src="/images/FAS Homepage copy.png" class="w-24 h-24 object-cover rounded" />
+      <img src="/img/insta2.jpg" class="w-24 h-24 object-cover rounded" />
+      <img src="/img/insta3.jpg" class="w-24 h-24 object-cover rounded" />
+    </div>
+  </section>
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const slides = document.querySelectorAll('.carousel-slide');
+    let index = 0;
+    setInterval(() => {
+      slides.forEach((slide, i) => {
+        slide.style.opacity = i === index ? '1' : '0';
+      });
+      index = (index + 1) % slides.length;
+    }, 4000);
+  });
+</script>
+</BaseLayout>
