@@ -1,0 +1,26 @@
+---
+import HorsepowerSlider from '../components/HorsepowerSlider.jsx';
+import BuildVisualizer from '../components/BuildVisualizer.jsx';
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout>
+  <div class="max-w-6xl mx-auto px-4 py-12 bg-black text-white">
+    <h1 class="text-4xl font-bold mb-8 text-center">Build & Quote Your Beast</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div>
+        <!-- Render React components with hydration directives -->
+        <BuildVisualizer vehicle="Charger" client:load />
+        <HorsepowerSlider client:load onHPChange={(hp) => console.log('Current HP:', hp)} />
+      </div>
+
+      <div>
+        <!-- Sidebar & quote form coming next -->
+        <p>Quote Sidebar coming 🔜</p>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<!-- Removed inline BuildVisualizer definition -->

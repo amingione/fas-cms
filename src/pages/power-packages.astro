@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Button from '../components/Button.astro';
+import Button from '../components/Button';
 ---
 
 <BaseLayout>
@@ -67,12 +67,11 @@ import Button from '../components/Button.astro';
       </div>
     </div>
   </section>
-    <!-- Call to Action -->
-    <section class="bg-transparent py-16 px-10 font-ethno text-center">
-        <Button text="Shop all Packages" variant="multi-swipe-v2" href="#" rounded={false} />
-       <div class="py-4">
-        <Button text="Customize Your Build" variant="multi-swipe-v2" href="#" rounded={false} />
-    </section>
-
-  
+   <!-- Call to Action -->
+<section class="bg-transparent py-16 px-10 font-ethno text-center">
+  <div class="flex flex-col gap-6 items-center">
+    <Button text="Shop all Packages" variant="multi-swipe-v2" href="#" />
+    <Button text="Customize Your Build" variant="multi-swipe-v2" href="#" />
+  </div>
+</section>
 </BaseLayout>

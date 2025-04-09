@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Button from '../components/Button.astro';
+import Button from '../components/Button';
 ---
 
 
@@ -100,6 +100,13 @@ import Button from '../components/Button.astro';
     <Button text="Ethno Default" variant="default-v2" href="#" rounded={false} />
     <Button text="Ethno Swipe" variant="swipe-v2" href="#" rounded={false} />
     <Button text="Ethno Multi-Swipe" variant="multi-swipe-v2" href="#" rounded={false} />
+  </section>
+  
+  <section class="space-y-4 mt-10 font-cyber text-white text-sm font-semibold">
+    <Button text="Swipe Fill Left" variant="swipe-left" href="#" />
+    <Button text="Swipe Fill Center" variant="swipe-center" href="#" />
+    <Button text="Primary Red" variant="primary" href="#" />
+    <Button text="Outline White" variant="outline" href="#" />
   </section>
 
   <div class="shadow-product-inset hover:shadow-product-hover"></div>

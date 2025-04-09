@@ -1,3 +1,6 @@
+import modCategory from './documents/modCategory'
+import modListItem from './objects/modListItem'
+import {buildQuoteType} from './objects/buildQuote'
 import {accordionGroupType} from './objects/module/accordionGroupType'
 import {accordionType} from './objects/module/accordionType'
 import {calloutType} from './objects/module/calloutType'
@@ -45,6 +48,7 @@ import {spotType} from './objects/hotspot/spotType'
 const annotations = [linkEmailType, linkExternalType, linkInternalType, linkProductType]
 
 const objects = [
+  modListItem,
   accordionGroupType,
   accordionType,
   calloutType,
@@ -96,11 +100,11 @@ import {pageType} from './documents/page'
 import {productType} from './documents/product'
 import {productVariantType} from './documents/productVariant'
 
-const documents = [collectionType, colorThemeType, pageType, productType, productVariantType]
+const documents = [collectionType, colorThemeType, pageType, productType, productVariantType, modCategory]
 
 import {homeType} from './singletons/homeType'
 import {settingsType} from './singletons/settingsType'
 
 const singletons = [homeType, settingsType]
 
-export const schemaTypes = [...annotations, ...objects, ...singletons, ...blocks, ...documents]
+export const schemaTypes = [...annotations, ...objects, ...singletons, ...blocks, ...documents, buildQuoteType]

@@ -1,0 +1,14 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BuildPageWrapper from '../components/BuildPageWrapper.jsx';
+
+// This version removes server-side savedBuilds and shifts logic to React state
+---
+
+<BaseLayout>
+  <div class="max-w-6xl mx-auto px-4 py-12 bg-black text-white">
+    <h1 class="text-4xl font-bold mb-8 text-center">Build & Quote Your Beast</h1>
+
+    <BuildPageWrapper client:only="react" />
+  </div>
+</BaseLayout>
