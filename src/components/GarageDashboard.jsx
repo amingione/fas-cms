@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types'; // Import PropTypes
 
 const GarageDashboard = ({ savedBuilds }) => {
   const [filtered, setFiltered] = useState(savedBuilds);
@@ -101,6 +102,20 @@ const GarageDashboard = ({ savedBuilds }) => {
       </div>
     </div>
   );
+};
+
+// Prop validation for the props passed to this component
+GarageDashboard.propTypes = {
+  savedBuilds: PropTypes.arrayOf(
+    PropTypes.shape({
+      vehicleModel: PropTypes.string.isRequired,
+      modifications: PropTypes.string,
+      horsepower: PropTypes.number.isRequired,
+      price: PropTypes.number.isRequired,
+      addOns: PropTypes.string,
+      modList: PropTypes.array,
+    })
+  ).isRequired,
 };
 
 export default GarageDashboard;
