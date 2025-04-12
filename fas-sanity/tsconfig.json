@@ -9,14 +9,10 @@
     "module": "Preserve",
     "moduleDetection": "force",
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
     "outDir": "./dist"
   },
   "include": ["**/*.ts", "**/*.tsx", "./sanity.config.js"],
-  "exclude": [
-  "node_modules",
-  "sanity.config.js",
-  "schemaTypes/objects/buildQuote.js"
-]
+  "exclude": ["node_modules", "schemaTypes/objects/buildQuote.js"]
 }

@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 import modCategory from './documents/modCategory'
 import modListItem from './objects/modListItem'
 import {buildQuoteType} from './objects/buildQuote'
+=======
+import wooProduct from './documents/wooProduct'
+import bill from './documents/bill'
+import {buildQuote} from './objects/buildQuote'
+>>>>>>> a7d54e1436cfecac2658fc7e25d184451744a816
 import {accordionGroupType} from './objects/module/accordionGroupType'
 import {accordionType} from './objects/module/accordionType'
 import {calloutType} from './objects/module/calloutType'
@@ -87,6 +93,7 @@ const objects = [
   shopifyProductType,
   shopifyProductVariantType,
   spotType,
+  { name: 'siteSettings', type: 'document', title: 'Site Settings', fields: [{ name: 'title', type: 'string', title: 'Site Title' }, { name: 'description', type: 'text', title: 'Site Description' }, { name: 'logo', type: 'image', title: 'Logo', options: { hotspot: true } }, { name: 'favicon', type: 'image', title: 'Favicon', options: { hotspot: true } }, { name: 'seo', type: 'seo', title: 'Global SEO' }] }
 ]
 
 import {portableTextType} from './portableText/portableTextType'
@@ -99,12 +106,38 @@ import {colorThemeType} from './documents/colorTheme'
 import {pageType} from './documents/page'
 import {productType} from './documents/product'
 import {productVariantType} from './documents/productVariant'
+import category from './documents/category'
+import vehicleModel from './documents/vehicleModel'
+import { productBundle } from './documents/productBundle'
+import quote from './documents/quote'
+import shippingLabel from './documents/shippingLabel'
+import invoice from './documents/invoice'
+import vendor from './documents/vendor'
 
+<<<<<<< HEAD
 const documents = [collectionType, colorThemeType, pageType, productType, productVariantType, modCategory]
+=======
+const documents = [
+  collectionType,
+  colorThemeType,
+  pageType,
+  productType,
+  productVariantType,
+  category,
+  vehicleModel,
+  quote,
+  shippingLabel,
+  invoice,
+  vendor,
+  bill
+]
+>>>>>>> a7d54e1436cfecac2658fc7e25d184451744a816
 
 import {homeType} from './singletons/homeType'
-import {settingsType} from './singletons/settingsType'
+import { settingsType as siteSettingsType } from './singletons/siteSettingsType'
+import customer from './documents/customer'
+import shippingOption from './documents/shippingOption'
 
-const singletons = [homeType, settingsType]
+const singletons = [homeType, siteSettingsType]
 
-export const schemaTypes = [...annotations, ...objects, ...singletons, ...blocks, ...documents, buildQuoteType]
+export const schemaTypes = [...annotations, ...objects, ...singletons, ...blocks, ...documents, buildQuote, wooProduct, productBundle, customer, shippingOption]
