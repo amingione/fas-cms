@@ -1,0 +1,59 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout>
+    <!-- Hero Section -->
+<section class="relative w-full h-screen overflow-hidden m-0 p-0">
+  <img src="/images/About FAS MOTO  Page Banner copy.png" alt="Hero Background" class="fixed top-0 left-0 w-full h-screen object-cover z-[-1]" />
+  <div class="absolute top-24 left-40 z-10">
+    <div class="flex items-center gap-4">
+      <img src="/logo/1.png" alt="FAS Logo" class="w-12 h-12 object-contain scale-[5]" />
+    </div>
+<h1 class="text-2xl font-ethno text-white drop-shadow-[1px_1px_6px_rgba (0,0,0,0.7)]">Schedule Today</h1>
+</div>
+</section>
+<div class="h-[2px] w-full bg-primary"></div>
+
+  <!-- Hero Section -->
+  <section class="relative bg-fixed bg-center bg-cover h-[70vh] flex items-center justify-center text-center px-6" style="background-image: url('/images/services-hero-placeholder.webp');">
+    <div class="bg-black/60 p-10 rounded">
+      <h1 class="text-6xl font-borg text-accent mb-4 drop-shadow-[1px_1px_6px rgba(0,0,0,0.7)]">Our Services</h1>
+      <p class="text-lg font-captain tracking-[1.2px] text-white drop-shadow-[1px_1px_6px rgba(0,0,0,0.7)]">
+        Built for the street, dialed for the track. Explore our expert vehicle performance services.
+      </p>
+    </div>
+  </section>
+
+  <!-- Service Overview -->
+  <section class="py-20 px-6 max-w-7xl mx-auto text-center">
+    <h2 class="text-4xl font-cyber text-primary mb-6">Performance Expertise</h2>
+    <p class="text-lg font-captain tracking-[1.2px] text-white max-w-3xl mx-auto mb-12">
+      From full porting and tuning to race-ready builds, F.A.S. delivers high-performance service solutions that are dyno proven and street tested.
+    </p>
+
+    <!-- Service Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="relative bg-black rounded shadow-lg aspect-[4/3] overflow-hidden bg-cover bg-center" style="background-image: url('/images/placeholder-1.webp');">
+        <div class="absolute top-4 left-4 text-left">
+          <h3 class="text-2xl font-ethno text-primary mb-1 drop-shadow-[1px_1px_6px_rgba(0,0,0,0.7)]">Porting Services</h3>
+          <p class="text-sm font-captain text-white drop-shadow-[1px_1px_6px rgba(0,0,0,0.7)]">Cylinder heads, superchargers, snouts & more.</p>
+        </div>
+      </div>
+
+      <div class="relative bg-black rounded shadow-lg aspect-[4/3] overflow-hidden bg-cover bg-center" style="background-image: url('/images/placeholder-2.webp');">
+        <div class="absolute top-4 left-4 text-left">
+          <h3 class="text-2xl font-ethno text-primary mb-1 drop-shadow-[1px_1px_6px rgba(0,0,0,0.7)]">Custom Tuning</h3>
+          <p class="text-sm font-captain text-white drop-shadow-[1px_1px_6px rgba(0,0,0,0.7)]">Street, E85, flex fuel, and dyno-tested tuning.</p>
+        </div>
+      </div>
+
+      <div class="relative bg-black rounded shadow-lg aspect-[4/3] overflow-hidden bg-cover bg-center" style="background-image: url('/images/placeholder-3.webp');">
+        <div class="absolute top-4 left-4 text-left">
+          <h3 class="text-2xl font-ethno text-primary mb-1 drop-shadow-[1px_1px_6px rgba(0,0,0,0.7)]">Builds & Installations</h3>
+          <p class="text-sm font-captain text-white drop-shadow-[1px_1px_6px rgba(0,0,0,0.7)]">From mild to wild. Power packages, fuel systems, headers & more.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

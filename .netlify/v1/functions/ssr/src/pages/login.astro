@@ -1,0 +1,12 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout>
+  <section class="min-h-screen flex items-center justify-center bg-black text-white">
+    <div class="w-full max-w-md p-6 bg-white/5 rounded-xl backdrop-blur border border-white/10">
+      <h1 class="text-center text-2xl font-bold mb-4">Sign In to FAS Motorsports</h1>
+      <clerk-sign-in></clerk-sign-in>
+    </div>
+  </section>
+</BaseLayout>
