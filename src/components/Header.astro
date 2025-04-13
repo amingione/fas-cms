@@ -1,6 +1,4 @@
-<file name=0 path=/Users/ambermin/fas-cms/src/components/Header.astro>
-  <!-- Top Fixed Bar -->
-  <div class="fixed top-0 w-full bg-primary text-white text-base font-captain z-50">
+<div class="fixed top-0 w-full bg-primary text-white text-base font-captain z-50">
     <div class="max-w-screen-xl mx-auto px-6 py-2 flex justify-start gap-6">
       <a href="/about" class="hover:!text-black hover:underline">About</a>
       <span class="text-white/50">|</span>
@@ -17,14 +15,13 @@
       </nav>
       <div class="flex items-center gap-4">
         <a href="/" class="text-sm hover:text-accent">Search</a>
-        <a href="/" class="text-sm hover:text-accent">Cart</a>
       </div>
     </div>
   
     <!-- Mobile Header -->
     <div class="flex md:hidden justify-between items-center bg-black bg-opacity-90 text-white px-4 py-3 mx-[5px] mt-[10px] rounded-[20px] shadow-md">
       <img src="https://fasmotorsports.com/wp-content/uploads/2025/03/FAS-Motorsports-Logo-e1742004093813.png" alt="FAS Logo" class="h-10">
-      <button aria-label="Open Menu" class="text-white focus:outline-none">
+      <button id="mobileMenuToggle" aria-label="Open Menu" class="text-white focus:outline-none">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
         </svg>
@@ -91,15 +88,6 @@
           <a href="/shop" class="hover:text-accent">Shop</a>
         </nav>
   
-        <!-- Right: Cart + Subtotal -->
-        <div class="flex justify-end items-center gap-2">
-          <span class="text-sm">$0.00</span>
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4" />
-            <circle cx="9" cy="21" r="1" />
-            <circle cx="20" cy="21" r="1" />
-          </svg>
-        </div>
       </div>
     </div>
   
@@ -224,6 +212,16 @@
           accountDashboard.classList.add("hidden");
         });
       }
+
+      const mobileMenuToggle = document.getElementById("mobileMenuToggle");
+      const mobileMenuDropdown = document.getElementById("mobileMenuDropdown");
+
+      if (mobileMenuToggle && mobileMenuDropdown) {
+        mobileMenuToggle.addEventListener("click", () => {
+          mobileMenuDropdown.classList.toggle("hidden");
+          console.log("Mobile toggle clicked");
+        });
+      }
     });
   </script>
   
@@ -240,4 +238,4 @@
       pointer-events: auto;
       transform: translateY(0);
     }
-  </style></file>
+  </style>

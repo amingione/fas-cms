@@ -1,0 +1,22 @@
+---
+// src/components/FloatingGarageLogin.astro
+---
+<style>
+  .garage-login-btn {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 1000;
+    background-color: #1f1f1f;
+    color: white;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+</style>
+
+<div class="garage-login-btn" onclick="window.location.href='/garage-login'">
+  🔧 Garage Login
+</div>

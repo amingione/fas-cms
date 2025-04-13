@@ -1,0 +1,51 @@
+---
+// src/layouts/MobileLayout.astro
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FAS Motorsports</title>
+  </head>
+  <body class="bg-black text-white font-sans">
+    <main class="min-h-screen pb-20">
+      <slot />
+    </main>
+
+    <!-- Bottom Nav -->
+    <nav class="fixed bottom-0 left-0 w-full bg-[#111111] text-white flex justify-around py-3 border-t border-white/10 z-50">
+      <a href="/" class="flex flex-col items-center text-sm hover:text-primary">
+        <span>🏠</span>
+        <span>Home</span>
+      </a>
+      <!-- <a href="/garage" class="flex flex-col items-center text-sm hover:text-primary">
+        <span>🚗</span>
+        <span>Garage</span>
+      </a> -->
+      <a href="/shop" class="flex flex-col items-center text-sm hover:text-primary">
+        <span>🛒</span>
+        <span>Shop</span>
+      </a>
+      <button onclick="document.getElementById('mobileAccountDrawer').classList.remove('translate-y-full')" class="flex flex-col items-center text-sm hover:text-primary">
+        <span>👤</span>
+        <span>Account</span>
+      </button>
+    </nav>
+
+    <!-- Bottom Drawer Account Panel -->
+    <div id="mobileAccountDrawer" class="fixed bottom-0 left-0 w-full h-[70vh] bg-[#1a1a1a] text-white rounded-t-xl z-50 transform translate-y-full transition-transform duration-300 ease-in-out shadow-xl p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-bold">My Account</h2>
+        <button onclick="document.getElementById('mobileAccountDrawer').classList.add('translate-y-full')">✕</button>
+      </div>
+      <ul class="space-y-3 text-sm">
+        <li><a href="/account" class="block">Dashboard</a></li>
+        <li><a href="#" class="block">Orders (Coming Soon)</a></li>
+        <li><a href="#" class="block">Settings (Coming Soon)</a></li>
+        <li><a href="#" class="block">Garage Dashboard (Coming Soon)</a></li>
+        <li><button class="text-red-500">Logout</button></li>
+      </ul>
+    </div>
+  </body>
+</html>

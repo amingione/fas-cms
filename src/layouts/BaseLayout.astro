@@ -3,6 +3,8 @@ import '../styles/global.css';
 import '../styles/fas-theme.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/footer.astro';
+import FloatingLoginGarage from '../components/FloatingLoginGarage.astro';
+import FloatingCartWidget from '../components/floatingwidget.jsx';
 ---
 
 <!DOCTYPE html>
@@ -11,6 +13,11 @@ import Footer from '../components/footer.astro';
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><slot name="title" /></title>
+    <script
+      async
+      data-clerk-frontend-api={import.meta.env.PUBLIC_CLERK_FRONTEND_API}
+      src="https://clerk.js.cool"
+    ></script>
   </head>
   <body class="relative bg-cover bg-center bg-fixed text-white"
   style="background-image: url('/images/bg-texture copy.png'); background-color: transparent;">
@@ -23,6 +30,8 @@ import Footer from '../components/footer.astro';
       <slot />
     </main>
     <Footer />
+    <FloatingCartWidget client:load />
+    <FloatingLoginGarage />
   </div>
 </body>
 </html>

@@ -7,19 +7,47 @@
   </button>
   <aside id="accountDashboard" style="background-color: #2a2a2a" class="w-64 h-full font-ethno text-white pt-30 px-6 shadow-lg space-y-6 fixed top-20 right-0 z-[9999] pointer-events-auto">
     <h2 class="text-sm font-bold mb-4 font-ethno border-b border-gray-700 pb-2">Account</h2>
+    <p id="userEmail" class="text-xs text-gray-400 mb-2"></p>
     <nav class="flex flex-col space-y-4 font-kwajong font-semibold">
       <a href="/account/orders" class="hover:text-primary font-bold font-kwajong transition-colors">Orders</a>
       <a href="/account/settings" class="hover:text-primary font-kwajong transition-colors">Settings</a>
       <a href="/account/addresses" class="hover:text-primary font-kwajong transition-colors">Addresses</a>
       <a href="/garage-dashboard" class="hover:text-primary font-kwajong transition-colors">Garage Dashboard</a>
-      <a href="/account/logout" class="mt-10 text-red-500 hover:text-white transition-colors">Logout</a>
+      <a href="https://clerk.dev/sign-out" class="mt-10 text-red-500 hover:text-white transition-colors">Logout</a>
     </nav>
   </aside>
 </div>
 <script type="module">
-  window.addEventListener('DOMContentLoaded', () => {
+  import { Clerk } from '@clerk/clerk-js';
+
+  window.addEventListener('DOMContentLoaded', async () => {
     const closeBtn = document.getElementById('closeAccountDashboard');
     const dashboard = document.getElementById('accountDashboard');
+    
+    const clerk = new Clerk(import.meta.env.PUBLIC_CLERK_FRONTEND_API);
+    await clerk.load();
+
+    if (!clerk.user) {
+      dashboard.innerHTML = '<p class="text-white">You are not signed in.</p>';
+      return;
+    }
+
+    const email = clerk.user.emailAddresses[0].emailAddress;
+    document.getElementById("userEmail").textContent = email;
+
+    const sanityRes = await fetch(`https://${import.meta.env.SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/production?query=${encodeURIComponent(`*[_type == "customer" && email == "${email}"][0]`)}`, {
+      headers: {
+        Authorization: `Bearer ${import.meta.env.SANITY_API_TOKEN}`,
+      },
+    });
+    const sanityData = await sanityRes.json();
+    const customer = sanityData.result;
+
+    if (customer) {
+      dashboard.innerHTML += `<p class="text-xs text-green-400">Customer found in Sanity ✅</p>`;
+    } else {
+      dashboard.innerHTML += `<p class="text-xs text-red-500">No customer record in Sanity ⚠️</p>`;
+    }
 
     if (closeBtn && dashboard) {
       closeBtn.addEventListener('click', () => {

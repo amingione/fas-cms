@@ -1,13 +1,11 @@
-// /src/lib/sanityClient.js
-
 import sanityClient from '@sanity/client';
 
 const client = sanityClient({
-  projectId: 'r4og35qd',
+  projectId: import.meta.env.SANITY_PROJECT_ID,
   dataset: 'production',
-  useCdn: false, // required for write operations
-  apiVersion: '2024-04-08',
-  token: import.meta.env.PUBLIC_SANITY_WRITE_TOKEN // or from .env
+  apiVersion: '2023-06-07', // use your version
+  token: import.meta.env.SANITY_API_TOKEN,
+  useCdn: false, // always fetch fresh for cart, etc.
 });
 
 export default client;

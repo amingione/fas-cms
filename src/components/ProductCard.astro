@@ -1,22 +1,92 @@
 ---
 const { product } = Astro.props;
+const productImage = product.images?.[0]?.asset?.url || '/images/placeholder-product.png';
+const productPrice = product.price ? `$${product.price.toFixed(2)}` : '—';
+
+const start = 0; // Define the starting index
+const end = 10; // Define the ending index
+
+const query = `*[_type == "wooProduct"] | order(_createdAt desc)[${start}...${end}] {
+  _id,
+  name,
+  price,
+  horsepower,
+  tune_required,
+  slug,
+  images[]{ asset->{ url } }
+}`;
 ---
 
-<div class="bg-transparent rounded-[10px] shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.5)] overflow-hidden transform transition-all duration-300 group">
-  <div class="p-4 h-64 flex justify-center items-center overflow-hidden">
-    <img src={product.images[0]?.src} alt={product.name} class="h-full object-contain transition-transform duration-300 ease-in-out group-hover:scale-110 group-hover:-rotate-2" />
+<div class="bg-black/10 rounded-[10px] shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.5)] overflow-hidden transform transition-all duration-300 group">
+  <div class="p-4 h-52 sm:h-64 flex justify-center items-center overflow-hidden">
+    <img src={productImage} alt={product.name} class="h-full max-h-full object-contain transition-transform duration-300 ease-in-out group-hover:scale-105 group-hover:-rotate-1" />
   </div>
-  <div class="p-4 space-y-2">
-    <h2 class="text-sm font-ethno font-semibold">{product.name}</h2>
-    <p class="text-xl font-captain text-primary" set:html={product.price_html}></p>
-    <a href={`https://fasmotorsports.com/?add-to-cart=${product.id}`} class="relative group inline-block w-full px-6 py-2 text-white bg-transparent border border-transparent uppercase tracking-wider font-semibold overflow-hidden transition-all duration-300">
-        <span class="relative z-10 flex items-center font-cyber justify-center gap-2 group-hover:text-white">
-        Add to Cart
-        <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-        </svg>
-      </span>
-      <span class="absolute inset-0 bg-primary transform -translate-x-full group-hover:translate-x-0 text-black transition-transform duration-300 z-0"></span>
-    </a>
+  <div class="p-4 space-y-2 text-center">
+    <h2 class="text-base sm:text-sm font-ethno font-semibold">{product.name}</h2>
+    <p class="text-lg sm:text-xl font-captain text-primary">{productPrice}</p>
+    <div class="flex items-center justify-center gap-2 mt-4">
+      <button
+        class="add-to-cart relative group inline-block px-4 py-1.5 text-sm text-white bg-transparent border border-white uppercase tracking-wider font-kwajong overflow-hidden transition-all duration-300"
+        data-product-id={product._id}
+      >
+        <span class="relative z-10 flex items-center justify-center gap-2 group-hover:text-white">
+          Add
+        </span>
+        <span class="absolute inset-0 bg-primary transform -translate-x-full group-hover:translate-x-0 text-black transition-transform duration-300 z-0"></span>
+      </button>
+      {product.slug?.current ? (
+        <a
+          href={`/shop/${product.slug.current}`}
+          class="px-4 py-1.5 text-sm border border-white text-white font-kwajong hover:scale-105 transition-transform duration-300 uppercase tracking-wider flex items-center gap-2"
+        >
+          Details
+          <svg class="w-3.5 h-3.5 transform transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+      ) : (
+        <span class="text-gray-500 text-sm">No details available</span>
+      )}
+    </div>
   </div>
 </div>
+<div id="product-toast" class="fixed top-20 right-6 z-50 hidden px-4 py-3 backdrop-blur bg-white/10 text-white font-bold shadow-lg transition-all duration-300"></div>
+<script>
+  function showProductToast(message, success = true) {
+    const toast = document.getElementById('product-toast');
+    if (!toast) return;
+    toast.textContent = message;
+    toast.className = `fixed top-20 right-6 z-50 px-4 py-3 backdrop-blur font-bold shadow-lg transition-all duration-300 ${
+      success ? 'bg-green-500/10 text-green-300' : 'bg-red-500/10 text-red-400'
+    }`;
+    toast.classList.remove('hidden', 'opacity-0');
+    toast.classList.add('opacity-100');
+    setTimeout(() => {
+      toast.classList.remove('opacity-100');
+      toast.classList.add('opacity-0');
+      setTimeout(() => toast.classList.add('hidden'), 300);
+    }, 2500);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.add-to-cart').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const productId = btn.getAttribute('data-product-id');
+        fetch('/api/cart', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            productId,
+            quantity: 1,
+            sessionId: localStorage.getItem('fas_session') || 'guest-session',
+          }),
+        })
+          .then((res) => {
+            if (res.ok) showProductToast('✅ Added to cart!', true);
+            else showProductToast('❌ Failed to add to cart.', false);
+          })
+          .catch(() => showProductToast('❌ Error adding to cart.', false));
+      });
+    });
+  });
+</script>
