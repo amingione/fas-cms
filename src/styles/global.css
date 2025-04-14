@@ -72,6 +72,24 @@
   }
 }
 
+@layer utilities {
+  .delay-100  { transition-delay: 100ms; }
+  .delay-150  { transition-delay: 150ms; }
+  .delay-200  { transition-delay: 200ms; }
+  .delay-250  { transition-delay: 250ms; }
+  .delay-300  { transition-delay: 300ms; }
+  .delay-350  { transition-delay: 350ms; }
+  .delay-400  { transition-delay: 400ms; }
+  .delay-450  { transition-delay: 450ms; }
+  .delay-500  { transition-delay: 500ms; }
+  .delay-550  { transition-delay: 550ms; }
+}
+
+@layer utilities {
+  .opacity-100 { opacity: 1; }
+  .translate-y-0 { transform: translateY(0); }
+}
+
 @keyframes shine {
     0% {
       background-position: -100%;
