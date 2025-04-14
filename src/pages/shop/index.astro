@@ -2,6 +2,9 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
 export const prerender = false;
+
+const SANITY_PROJECT_ID = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
+const SANITY_API_TOKEN = import.meta.env.PUBLIC_SANITY_API_TOKEN;
 ---
 
 <BaseLayout>
@@ -38,6 +41,9 @@ export const prerender = false;
   </section>
 
   <script is:inline>
+    const SANITY_PROJECT_ID = "{{ SANITY_PROJECT_ID }}";
+    const SANITY_API_TOKEN = "{{ SANITY_API_TOKEN }}";
+
     const grid = document.getElementById('product-grid');
     const pagination = document.getElementById('pagination');
     const tabs = document.querySelectorAll('.tab');
@@ -64,10 +70,10 @@ export const prerender = false;
       }`;
 
       const result = await fetch(
-        \`https://${import.meta.env.SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/production?query=\${encodeURIComponent(query)}\`,
+        \`https://\${SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/production?query=\${encodeURIComponent(query)}\`,
         {
           headers: {
-            Authorization: \`Bearer ${import.meta.env.SANITY_API_TOKEN}\`,
+            Authorization: \`Bearer \${SANITY_API_TOKEN}\`,
           },
         }
       ).then(res => res.json());
@@ -82,10 +88,10 @@ export const prerender = false;
       }
       const query = \`count(*[${filters.join(' && ') || ''}])\`;
       const result = await fetch(
-        \`https://${import.meta.env.SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/production?query=\${encodeURIComponent(query)}\`,
+        \`https://\${SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/production?query=\${encodeURIComponent(query)}\`,
         {
           headers: {
-            Authorization: \`Bearer ${import.meta.env.SANITY_API_TOKEN}\`,
+            Authorization: \`Bearer \${SANITY_API_TOKEN}\`,
           },
         }
       ).then(res => res.json());
@@ -130,86 +136,4 @@ export const prerender = false;
       let start = Math.max(1, currentPage - half);
       let end = Math.min(pages, start + maxVisible - 1);
 
-      if (end - start < maxVisible - 1) start = Math.max(1, end - maxVisible + 1);
-
-      if (start > 1) {
-        const first = document.createElement('a');
-        first.textContent = '1';
-        first.href = '#';
-        first.className = 'px-3 py-1 hover:text-accent';
-        first.onclick = (e) => { e.preventDefault(); currentPage = 1; update(); };
-        wrapper.appendChild(first);
-        wrapper.innerHTML += '<span class="text-gray-400">...</span>';
-      }
-
-      for (let i = start; i <= end; i++) {
-        const btn = document.createElement('a');
-        btn.textContent = i;
-        btn.href = '#';
-        btn.className = \`px-3 py-1 rounded-md \${i === currentPage ? 'bg-accent text-black font-bold' : 'hover:text-accent'}\`;
-        btn.onclick = (e) => { e.preventDefault(); currentPage = i; update(); };
-        wrapper.appendChild(btn);
-      }
-
-      if (end < pages) {
-        wrapper.innerHTML += '<span class="text-gray-400">...</span>';
-        const last = document.createElement('a');
-        last.textContent = pages;
-        last.href = '#';
-        last.className = 'px-3 py-1 hover:text-accent';
-        last.onclick = (e) => { e.preventDefault(); currentPage = pages; update(); };
-        wrapper.appendChild(last);
-      }
-
-      if (currentPage < pages) {
-        const next = document.createElement('a');
-        next.textContent = 'Next';
-        next.href = '#';
-        next.className = 'px-3 py-1 hover:text-accent';
-        next.onclick = (e) => { e.preventDefault(); currentPage++; update(); };
-        wrapper.appendChild(next);
-      }
-
-      pagination.appendChild(wrapper);
-    };
-
-    const update = async () => {
-      history.replaceState(null, '', \`?category=\${currentCategory}&sort=\${currentSort}&page=\${currentPage}\`);
-      await renderProducts();
-      await renderPagination();
-    };
-
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        tabs.forEach(t => t.classList.remove('active', 'bg-accent'));
-        tab.classList.add('active', 'bg-accent');
-        currentCategory = tab.dataset.category;
-        currentPage = 1;
-        update();
-      });
-    });
-
-    sortSelect.addEventListener('change', () => {
-      currentSort = sortSelect.value;
-      currentPage = 1;
-      update();
-    });
-
-    window.addEventListener('DOMContentLoaded', () => {
-      const url = new URLSearchParams(location.search);
-      currentCategory = url.get('category') || '';
-      currentSort = url.get('sort') || 'price';
-      currentPage = parseInt(url.get('page')) || 1;
-      update();
-    });
-  </script>
-
-  <style>
-    .tab {
-      @apply px-4 py-2 rounded-full bg-black border border-white/10 hover:bg-accent transition-colors;
-    }
-    .tab.active {
-      @apply bg-accent text-black font-bold;
-    }
-  </style>
-</BaseLayout>
+      if (end - start < maxVisible - 1) start = Math.max(1, end - maxVisible 
