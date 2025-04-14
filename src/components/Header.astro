@@ -245,6 +245,24 @@
           console.log("Mobile toggle clicked");
         });
       }
+      document.addEventListener("DOMContentLoaded", function () {
+    const mobileMenuToggle = document.getElementById("mobileMenuToggle");
+    const mobileMenuDropdown = document.getElementById("mobileMenuDropdown");
+
+    if (mobileMenuToggle && mobileMenuDropdown) {
+      mobileMenuToggle.addEventListener("click", () => {
+        mobileMenuDropdown.classList.toggle("hidden");
+      });
+
+      // Auto-close dropdown on link click
+      mobileMenuDropdown.querySelectorAll("a").forEach(link => {
+        link.addEventListener("click", () => {
+          mobileMenuDropdown.classList.add("hidden");
+        });
+      });
+    }
+
+    // (Other header JS stays unchanged here...)
     });
   </script>
   
