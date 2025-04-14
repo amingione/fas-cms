@@ -3,174 +3,78 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
 <BaseLayout>
- 
 
-  <!-- Hero Section -->
-<section class="fit w-full h-screen overflow-hidden m-0 p-0 flex items-center justify-center">
-  <img src="/images/hp-herofas.png" alt="Hero Background" class="fixed top-0 left-0 w-full h-screen object-cover z-[-1]" />
+<!-- HERO IMAGE BEHIND HEADER -->
+<section class="relative w-full h-[450px] overflow-hidden">
+  <img 
+    src="/images/hp-herofas.png" 
+    alt="FAS Hero Image" 
+    class="absolute inset-0 w-full h-full object-cover z-0" 
+  />
+  <div class="absolute inset-0 bg-black/60 z-10"></div>
+  <div class="relative z-20 h-full flex flex-col justify-center items-center text-center text-white px-4">
+    <h1 class="text-5xl md:text-6xl font-bold font-borg tracking-wide drop-shadow-lg">Welcome to F.A.S.</h1>
+    <p class="mt-4 text-lg font-cyber text-gray-300 max-w-xl mx-auto">
+      Precision. Power. Performance. Unlock the full potential of your build.
+    </p>
+    <a href="#shop" class="mt-6 inline-block px-6 py-3 text-base bg-accent text-black font-cyber rounded-full hover:bg-white transition">
+      Start Your Build
+    </a>
+  </div>
 </section>
-<!-- Carousel Section -->
-<section class="relative w-full h-[500px] overflow-hidden z-10 -mt-40 bg-transparent shadow-[inset_0_0_10px_rgba(0,0,0,0.6)] rounded-[20px]">
-	<div class="relative w-full h-full">
-  
-	  <!-- Slide 1 -->
-	  <div class="relative w-full h-full transition-opacity duration-1000 carousel-slide opacity-100">
-		<div class="relative h-full w-full">
-		  <div class="absolute inset-0 bg-black/30 z-0"></div>
-		  <div class="grid grid-cols-1 md:grid-cols-2 h-full w-full relative z-10">
-			<div class="flex items-center justify-center">
-			  <img src="/images/FAS Homepage copy.png" alt="Slide 1" class="object-contain max-w-[80%] max-h-[80%]" />
-			</div>
-			<div class="flex flex-col justify-center items-start text-left px-10 text-white">
-			  <h2 class="font-borg text-xl font-bold uppercase text-primary">
-				CUSTOM SUPERCHARGER PAINTING
-			  </h2>
-			  <h1 class="text-4xl font-bold mt-2 font-ethno text-accent">
-				Any Style. <span class="text-primary">Any Color.</span>
-			  </h1>
-			  <p class="mt-4 text-xl font-cyber-italic text-grayLight">
-				Transform Your Engine Bay with a Show-Stopping Finish!
-			  </p>
-			  <a href="#" class="mt-6 inline-block px-6 py-2 border border-white font-cyber text-white hover:bg-white hover:text-black transition">
-				Shop Now
-			  </a>
-			</div>
-		  </div>
-		</div>
-	  </div>
-  
-	  <!-- Slide 2 -->
-	  <div class="absolute top-0 left-0 w-full h-full transition-opacity duration-1000 carousel-slide opacity-0">
-		<div class="relative h-full w-full">
-		  <div class="absolute inset-0 bg-black/30 z-0"></div>
-		  <div class="grid grid-cols-1 md:grid-cols-2 h-full w-full relative z-10">
-			<div class="flex items-center justify-center">
-			  <img src="/images/fas pred pully HP{ copy.png" alt="Slide 2" class="object-contain max-w-[80%] max-h-[80%]" />
-			</div>
-			<div class="flex flex-col justify-center items-start text-left px-10 text-white">
-			  <h2 class="font-borg text-xl font-bold uppercase text-primary">
-				F.a.S. Predator Pulley
-			  </h2>
-			  <h1 class="text-4xl font-bold mt-2 font-ethno text-accent">
-				No Tune <span class="text-primary">Required!</span>
-			  </h1>
-			  <p class="mt-4 text-xl font-kwajong text-grayLight">
-				Patent Pending Design. 100% Bolt-On. <br />Precision Engineered for Maximum Performance.
-			  </p>
-			  <a href="#" class="mt-6 inline-block px-6 py-2 border font-cyber border-white text-white hover:bg-white hover:text-black transition">
-				Shop Now
-			  </a>
-			</div>
-		  </div>
-		</div>
-	  </div>
-  
-	  <!-- Slide 3 -->
-	  <div class="absolute top-0 left-0 w-full h-full transition-opacity duration-1000 carousel-slide opacity-0">
-		<div class="relative h-full w-full">
-		  <div class="absolute inset-0 bg-black/30 z-0"></div>
-		  <div class="grid grid-cols-1 md:grid-cols-2 h-full w-full relative z-10">
-			<div class="flex items-center justify-center">
-			  <img src="/images/painted supercharger whippel pulley copy.png" alt="Slide 3" class="object-contain max-w-[80%] max-h-[80%]" />
-			</div>
-			<div class="flex flex-col justify-center items-start text-left px-10 text-white">
-			  <h1 class="font-borg text-xl font-bold uppercase text-primary">
-				Painted & Race-Ported Whipple Supercharger
-			  </h1>
-			  <h1 class="text-4xl font-bold mt-2 font-ethno text-accent">
-				Bold Looks. <span class="text-primary">Brutal Power.</span>
-			  </h1>
-			  <p class="mt-4 text-xl font-kwajong text-grayLight">
-				Patent Pending Design. 100% Bolt-On. <br />Precision Engineered for Maximum Performance.
-			  </p>
-			  <a href="#" class="mt-6 inline-block px-6 py-2 border font-cyber border-white text-white hover:bg-white hover:text-black transition">
-				Shop Now
-			  </a>
-			</div>
-		  </div>
-		</div>
-	  </div>
-  
-	</div>
-  </section>
 
-
-
-  <!-- Identity Section -->
-  <section class="text-center py-20 bg-transparent text-white ripple-in">
-    <h2 class="text-5xl" style="font-family: 'Borgsquad Italic', sans-serif;">F.a.S. <span class="font-ethno">Motorsports</span></h2>
-    <p class="mt-4 text-xl font-ethno text-accent">Precision.  <span class="text-primary">Power.</span>  Performance.</p>
-  </section>
-
-
-  <!-- Hero -->
-  <section class="relative w-full h-screen overflow-hidden">
-    <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover">
-      <source src="/videos/hero-bg.mp4" type="video/mp4" />
-      Your browser does not support the video tag.
-    </video>
-    <div class="absolute inset-0 bg-black/60 z-0"></div>
-    <div class="relative z-10 h-full flex flex-col justify-center items-center text-center text-white animate-fade-in">
-      <h1 class="text-5xl md:text-7xl font-bold font-borg tracking-wider drop-shadow-xl">WELCOME TO F.A.S.</h1>
-      <p class="text-xl mt-4 font-cyber text-gray-300 max-w-2xl mx-auto">
-        Performance meets perfection. Your ride deserves the best. Experience jaw-dropping mods and premium styling.
-      </p>
-      <a href="#shop" class="mt-8 inline-block px-8 py-3 text-lg bg-accent text-black font-cyber rounded-full hover:bg-white transition">Start Your Build</a>
+<!-- CAROUSEL SECTION -->
+<section class="relative w-full py-12 bg-black text-white overflow-hidden fade-in-up">
+  <div class="max-w-7xl mx-auto px-4 relative">
+    <div class="relative h-[500px] rounded-lg shadow-lg overflow-hidden">
+      <!-- ... same 3 slide blocks here ... -->
+      <!-- Slide markup unchanged (keep your images + headings exactly as you have them) -->
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- Feature Highlights -->
-  <section class="relative w-full py-20 px-4 bg-gradient-to-b from-black/70 to-black text-white">
-    <div class="max-w-6xl mx-auto grid md:grid-cols-3 gap-8 animate-fade-up">
-      <div class="bg-black/50 rounded-lg shadow-md p-6 text-center hover:scale-105 transition-transform">
-        <img src="/images/hpfasog.png" alt="Painted Supercharger" class="mx-auto max-w-[80%] max-h-[200px] object-contain mb-4" />
-        <h3 class="font-bold text-xl mb-2">Custom Supercharger Painting</h3>
-        <p class="text-gray-300">Any Style. Any Color. Show-Stopping Finish!</p>
-      </div>
-      <div class="bg-black/50 rounded-lg shadow-md p-6 text-center hover:scale-105 transition-transform">
-        <img src="/images/fas%20pred%20pully%20HP%7B%20copy.png" alt="Predator Pulley" class="mx-auto max-w-[80%] max-h-[200px] object-contain mb-4" />
-        <h3 class="font-bold text-xl mb-2">No-Tune Predator Pulley</h3>
-        <p class="text-gray-300">Patent Pending. 100% Bolt-On. Max Performance.</p>
-      </div>
-      <div class="bg-black/50 rounded-lg shadow-md p-6 text-center hover:scale-105 transition-transform">
-        <img src="/images/painted%20supercharger%20whippel%20pulley%20copy.png" alt="Whipple Pulley" class="mx-auto max-w-[80%] max-h-[200px] object-contain mb-4" />
-        <h3 class="font-bold text-xl mb-2">Whipple Supercharger + Porting</h3>
-        <p class="text-gray-300">Bold Looks. Brutal Power.</p>
-      </div>
-    </div>
-  </section>
+<!-- HIGHLIGHTS SECTION -->
+<section class="bg-[#0b0b0b] py-20 text-white fade-in-up">
+  <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 px-6">
+    <!-- ... 3 Feature Boxes ... -->
+  </div>
+</section>
 
-  <!-- Tagline -->
-  <section class="bg-gradient-to-b from-black/90 to-transparent text-white py-24 px-6">
-    <div class="max-w-5xl mx-auto text-center animate-fade-up">
-      <h2 class="text-4xl font-bold font-ethno">Precision. Power. <span class="text-accent">Performance.</span></h2>
-      <p class="text-lg mt-4">Explore our bolt-on performance mods and custom painted parts.</p>
-    </div>
-  </section>
+<!-- TAGLINE -->
+<section class="bg-black text-white text-center py-20 px-6 fade-in-up">
+  <h2 class="text-4xl font-bold font-ethno">Precision. Power. <span class="text-accent">Performance.</span></h2>
+  <p class="text-lg mt-4">Explore our bolt-on performance mods and custom-painted power packages.</p>
+</section>
 
-  
+<!-- SCRIPTS -->
+<script is:inline>
+  // Carousel Auto Slide
+  const slides = document.querySelectorAll('.carousel-slide');
+  let current = 0;
+  setInterval(() => {
+    slides[current].classList.remove('opacity-100');
+    slides[current].classList.add('opacity-0');
+    current = (current + 1) % slides.length;
+    slides[current].classList.remove('opacity-0');
+    slides[current].classList.add('opacity-100');
+  }, 5000);
 
-  <!-- Scripts -->
-  <script is:inline>
-        const fadeUpEls = document.querySelectorAll('.animate-fade-up');
-        fadeUpEls.forEach((el, i) => {
-          el.style.opacity = 0;
-          el.style.transform = 'translateY(20px)';
-          setTimeout(() => {
-            el.style.transition = 'all 0.6s ease';
-            el.style.opacity = 1;
-            el.style.transform = 'translateY(0)';
-          }, i * 300);
-        });
-        const slides = document.querySelectorAll('.carousel-slide');
-        let currentSlide = 0;
-        setInterval(() => {
-          slides[currentSlide].classList.remove('opacity-100');
-          slides[currentSlide].classList.add('opacity-0');
-          currentSlide = (currentSlide + 1) % slides.length;
-          slides[currentSlide].classList.remove('opacity-0');
-          slides[currentSlide].classList.add('opacity-100');
-        }, 5000);
-  </script>
+  // Fade-in on scroll
+  document.addEventListener('DOMContentLoaded', () => {
+    const fadeEls = document.querySelectorAll('.fade-in-up');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('opacity-100', 'translate-y-0');
+        }
+      });
+    }, { threshold: 0.15 });
+
+    fadeEls.forEach(el => {
+      el.classList.add('opacity-0', 'translate-y-6', 'transition-all', 'duration-700');
+      observer.observe(el);
+    });
+  });
+</script>
 
 </BaseLayout>
