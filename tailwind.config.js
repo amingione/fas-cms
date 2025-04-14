@@ -34,3 +34,9 @@ module.exports = {
   },
   plugins: [],
 }
+
+safelist: [
+  {
+    pattern: /delay-\[\d+ms\]/, // ensures delay-[100ms] etc. aren't purged
+  },
+],
