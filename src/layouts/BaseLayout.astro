@@ -35,3 +35,20 @@ import FloatingCartWidget from '../components/floatingwidget.jsx';
   </div>
 </body>
 </html>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const elements = document.querySelectorAll('.fade-in-up');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('opacity-100', 'translate-y-0');
+        }
+      });
+    }, { threshold: 0.15 });
+
+    elements.forEach(el => {
+      el.classList.add('opacity-0', 'translate-y-6', 'transition-all', 'duration-700');
+      observer.observe(el);
+    });
+  });
+</script>
