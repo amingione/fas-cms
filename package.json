@@ -21,6 +21,7 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^6.30.0",
+    "resend": "^4.2.0",
     "stripe": "^18.0.0",
     "uuid": "^11.1.0"
   },
