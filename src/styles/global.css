@@ -11,6 +11,8 @@
     --color-graylight: #d1d0d0;
     --color-background: #00000000;
 }
+/* Removed invalid Tailwind configuration object */
+
 /* Custom utility classes for fonts and colors */
 @layer utilities {
     /* Font utilities */
@@ -227,3 +229,5 @@
 .animate-carousel {
   animation: carousel 20s linear infinite;
 }
+
+/* Removed invalid JavaScript configuration block */

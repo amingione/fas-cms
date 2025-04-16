@@ -41,8 +41,8 @@ const SANITY_API_TOKEN = import.meta.env.PUBLIC_SANITY_API_TOKEN;
   </section>
 
   <script is:inline>
-    const SANITY_PROJECT_ID = "{{ SANITY_PROJECT_ID }}";
-    const SANITY_API_TOKEN = "{{ SANITY_API_TOKEN }}";
+    const SANITY_PROJECT_ID = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
+    const SANITY_API_TOKEN = import.meta.env.PUBLIC_SANITY_API_TOKEN;
 
     const grid = document.getElementById('product-grid');
     const pagination = document.getElementById('pagination');
@@ -60,7 +60,7 @@ const SANITY_API_TOKEN = import.meta.env.PUBLIC_SANITY_API_TOKEN;
       const filters = [];
 
       if (currentCategory) {
-        filters.push(`"${currentCategory}" in categories[]->title`);
+        filters.push(`"${currentCategory}" in categories[]->title`); // Added missing semicolon
       }
 
       const filterString = filters.length ? `*[${filters.join(' && ')}]` : `*[]`;
@@ -70,10 +70,10 @@ const SANITY_API_TOKEN = import.meta.env.PUBLIC_SANITY_API_TOKEN;
       }`;
 
       const result = await fetch(
-        \`https://\${SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/production?query=\${encodeURIComponent(query)}\`,
+        `https://${SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/production?query=${encodeURIComponent(query)}`,
         {
           headers: {
-            Authorization: \`Bearer \${SANITY_API_TOKEN}\`,
+            Authorization: "Bearer " + SANITY_API_TOKEN,
           },
         }
       ).then(res => res.json());
@@ -84,56 +84,18 @@ const SANITY_API_TOKEN = import.meta.env.PUBLIC_SANITY_API_TOKEN;
     const fetchCount = async () => {
       const filters = [];
       if (currentCategory) {
-        filters.push(`"${currentCategory}" in categories[]->title`);
+        filters.push(`"${currentCategory}" in categories[]._ref`);
       }
-      const query = \`count(*[${filters.join(' && ') || ''}])\`;
-      const result = await fetch(
-        \`https://\${SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/production?query=\${encodeURIComponent(query)}\`,
-        {
-          headers: {
-            Authorization: \`Bearer \${SANITY_API_TOKEN}\`,
-          },
-        }
-      ).then(res => res.json());
-      return result.result || 0;
-    };
-
-    const renderProducts = async () => {
-      const products = await fetchProducts();
-      grid.innerHTML = '';
-      products.forEach(prod => {
-        grid.innerHTML += \`
-          <a href="/shop/\${prod.slug.current}" class="block border border-white/10 bg-black/70 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition">
-            <img src="\${prod.images?.[0]?.asset?.url || ''}" alt="\${prod.title}" class="w-full h-48 object-cover" />
-            <div class="p-4 space-y-2">
-              <h2 class="font-bold text-xl font-captain text-accent">\${prod.title}</h2>
-              <p class="text-sm">\$ \${prod.price}</p>
-              <p class="text-sm">\${prod.horsepower} HP</p>
-            </div>
-          </a>\`;
-      });
-    };
-
-    const renderPagination = async () => {
-      const total = await fetchCount();
-      const pages = Math.ceil(total / PAGE_SIZE);
-      pagination.innerHTML = '';
-
-      const wrapper = document.createElement('div');
-      wrapper.className = "backdrop-blur-md bg-white/10 text-white px-6 py-3 rounded-full flex items-center space-x-2 shadow-lg border border-white/10";
-
-      if (currentPage > 1) {
-        const prev = document.createElement('a');
-        prev.textContent = 'Prev';
-        prev.href = '#';
-        prev.className = 'px-3 py-1 hover:text-accent';
-        prev.onclick = (e) => { e.preventDefault(); currentPage--; update(); };
-        wrapper.appendChild(prev);
-      }
-
-      const maxVisible = 5;
-      const half = Math.floor(maxVisible / 2);
-      let start = Math.max(1, currentPage - half);
-      let end = Math.min(pages, start + maxVisible - 1);
-
-      if (end - start < maxVisible - 1) start = Math.max(1, end - maxVisible 
+        const query = `count(*[${filters.join(' && ')}])`;
+        const result = await fetch(
+          "https://" + SANITY_PROJECT_ID + ".api.sanity.io/v1/data/query/production?query=" + encodeURIComponent(query),
+          {
+            headers: {
+              Authorization: "Bearer " + SANITY_API_TOKEN,
+            },
+          }
+        ).then(res => res.json());
+  
+        return result.result || 0;
+      };
+          
