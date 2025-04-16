@@ -16,6 +16,8 @@ import Testimonials from '../components/Testimonials.astro';
       <p class="text-accent text-lg font-captain">Precision. Power. Performance.</p>
     </div>
   </section>
+  <!-- NOTE: Verify responsive scaling on mobile (bg image, text center alignment, and button padding) -->
+
 
   <!-- Performance Block -->
   <section class="bg-[#121212] text-white py-20 px-6 fade-in-up">
@@ -30,9 +32,31 @@ import Testimonials from '../components/Testimonials.astro';
         <p class="text-graylight font-captain leading-relaxed">
           Born from a deep passion for high-performance street and track builds, F.A.S. Motorsports specializes in Dodge, Jeep, and Ram platforms. From IGLA anti-theft installs to custom-tuned power packages — our work speaks for itself.
         </p>
+
+  <section class="max-w-5xl mx-auto py-16 px-6 space-y-12 text-white">
+    <div class="space-y-4">
+      <h2 class="text-2xl font-bold font-cyber text-primary">Performance | Precision | Power</h2>
+      <!-- TODO: Add meta description and keywords for SEO boost -->
+      <p class="font-captain text-graylight leading-relaxed">
+        F.A.S. Motorsports was born from a passion for building some of the fastest cars in the nation. We specialize in high-performance Dodge, Jeep, and Ram platforms, offering tuning, IGLA anti-theft solutions, porting, custom power packages, and more.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+      <!-- NOTE: Consider lazy-loading this image or using a WebP version for performance -->
+      <img src="https://fasmotorsports.com/wp-content/uploads/2023/04/fas-motorsports-about-engine-bay.jpg" alt="Engine Bay" class="rounded-lg shadow-md" />
+      <div class="space-y-4">
+        <h2 class="font-ethno text-xl uppercase">Why Choose F.A.S.?</h2>
+        <ul class="list-disc list-inside text-graylight font-captain">
+          <li>Certified IGLA Anti-Theft Installer</li>
+          <li>Custom Horsepower Packages</li>
+          <li>Extensive experience with Hellcats, Trackhawks, and TRX</li>
+          <li>Proven track records and customer satisfaction</li>
+        </ul>
       </div>
     </div>
   </section>
+
 
   <!-- Why Choose -->
   <section class="bg-black text-white py-20 px-6 fade-in-up">
@@ -51,6 +75,14 @@ import Testimonials from '../components/Testimonials.astro';
         alt="Track Ready" 
         class="rounded-lg shadow-md border border-gray-700"
       />
+
+    <div class="text-center mt-20">
+      <h3 class="text-xl font-bold font-cyber text-secondary mb-4">Ready to transform your build?</h3>
+      <a href="/schedule" class="inline-block font-ethno uppercase bg-accent text-black px-8 py-3 rounded hover:bg-secondary transition">
+        Schedule Your Install
+      </a>
+      <!-- TODO: Confirm /schedule route is active and styled -->
+
     </div>
   </section>
 
