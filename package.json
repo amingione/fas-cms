@@ -14,7 +14,7 @@
     "@clerk/clerk-js": "^5.60.0",
     "@clerk/nextjs": "^6.14.3",
     "@sanity/client": "^6.29.0",
-    "@stackbit/cms-sanity": "^0.2.90",
+    "@stackbit/cms-sanity": "^0.0.19",
     "@tailwindcss/vite": "^4.1.3",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.1",

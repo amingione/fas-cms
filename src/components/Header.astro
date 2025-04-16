@@ -1,5 +1,10 @@
-<header class="bg-transparent text-white w-full pt-[40px]">
+<!--
+⚠️ DO NOT TOUCH THIS HEADER ⚠️
+Last stable version. Touching will cause death to Amber's career. If you need to make edits, clone this file and work off `HeaderBackup.astro`.
+-->
 
+<header class="bg-transparent text-white w-full pt-[40px]">
+  
     <!-- Top Red Bar -->
     <div class="fixed top-0 w-full bg-primary text-white text-base font-captain z-50">
       <div class="max-w-screen-xl mx-auto px-6 py-2 flex justify-start gap-6">
@@ -12,8 +17,7 @@
     </div>
   
     <!-- Mobile Header -->
-    <div class="flex md:hidden justify-between items-center bg-black bg-opacity-90 text-white px-4 py-3 mx-[5px] mt-[70px] rounded-[20px] shadow-md">
-      <img src="/images/faslogochroma.png" alt="FAS Logo" class="h-10" />
+    <div class="fixed top-[35px] z-40 left-[5px] w-[calc(100%-10px)] flex md:hidden justify-between items-center bg-black bg-opacity-90 text-white px-4 py-3 rounded-[20px] shadow-md">      <img src="/images/faslogochroma.png" alt="FAS Logo" class="h-10" />
       <button id="mobileMenuToggle" aria-label="Toggle Menu" class="text-white focus:outline-none transition-transform duration-300">
         <svg id="burgerIcon" class="w-6 h-6 transition-all duration-300" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path id="burgerLine1" stroke-linecap="round" stroke-linejoin="round" d="M4 6h16" />
@@ -24,8 +28,8 @@
     </div>
   
     <!-- Mobile Dropdown -->
-    <div id="mobileMenuDropdown" class="md:hidden hidden bg-[#1a1a1a] text-white font-captain text-sm rounded-lg shadow-lg mx-4 mt-2 py-4 px-6 border border-white/10 z-40">
-      <div id="mobileMenuLinks" class="space-y-2">
+    <div id="mobileMenuDropdown" class="md:hidden hidden fixed top-[85px] left-[5px] w-[calc(100%-10px)] bg-[#1a1a1a] text-white font-captain text-sm rounded-lg shadow-lg py-4 px-6 border border-white/10 z-40">
+      <div id="mobileMenuLinks" class="space-y-2">
         <a href="/" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[100ms] hover:text-accent">Home</a>
         <a href="/about" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[150ms] hover:text-accent">About</a>
         <a href="/contact" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[200ms] hover:text-accent">Contact</a>
@@ -43,56 +47,96 @@
     </div>
   
     <!-- Main Desktop Header -->
-    <div class="hidden md:block bg-transparent text-white px-6 pt-4 w-full">
-      <div class="grid grid-cols-3 items-center h-16 w-full px-5">
-        <div class="flex items-center gap-2">
-          <input type="text" placeholder="Search" class="bg-transparent border-b border-white text-white text-sm placeholder:text-white/70 focus:outline-none h-6 px-1" />
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
+    <div class="hidden md:block bg-transparent font-ethno-italic text-white px-6 pt-4 w-full">
+      <div class="grid grid-cols-3 items-center h-16 w-full px-10">
+        <div class="flex justify-start items-center gap-3 px-4">
+          <!-- Search Input -->
+          <input type="text" placeholder="Search" class="bg-transparent border-b border-white text-white text-sm placeholder:text-primary/70 focus:outline-none w-32" />
         </div>
         <div class="flex justify-center">
           <img src="/images/faslogochroma.png" alt="FAS Chrome Logo" class="h-16 transform scale-[2]" />
         </div>
-        <div class="flex justify-end">
-          <a href="/login" class="text-sm font-ethno hover:text-accent">Garage Login</a>
+        <div class="flex justify-end items-center">
+          <!-- Account Dashboard Toggle -->
+          <button id="accountDashboardToggle" aria-label="Toggle Account Dashboard" class="text-white ml-4">
+            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <div id="accountDashboardPanel" class="hidden fixed top-0 right-0 h-full w-4/5 bg-[#1a1a1a] text-white font-captain transform translate-x-full transition-transform duration-300 ease-in-out z-50 shadow-lg border-l border-white/10">
+            <iframe src="/components/accountdashboard.astro" class="w-full h-full border-0"></iframe>
+          </div>
         </div>
       </div>
       <div class="w-[90%] h-px bg-white/40 mx-auto my-4"></div>
       <div class="grid grid-cols-3 items-center px-5 max-w-7xl mx-auto">
-        <div class="flex items-center gap-4">
-          <a href="/igla" class="text-sm hover:text-accent">IGLA</a>
-          <a href="/power-packages" class="text-sm hover:text-accent">Power</a>
-          <a href="/porting" class="text-sm hover:text-accent">Porting</a>
+        <div class="flex justify-start items-center gap-3 px-4">
+          <div class="relative">
+            <button id="desktopCategoryToggleMain" aria-label="Toggle Categories" class="text-white hover:shadow-md hover:shadow-primary/40 transition-all duration-300">
+              <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <div id="desktopCategoryDropdownMain" class="hidden absolute top-[42px] left-0 ml-4 w-[300px] bg-black/80 backdrop-blur-md text-white font-ethno text-sm rounded-xl shadow-2xl py-4 px-6 border border-white/10 z-[60] space-y-2 transition-all duration-300">
+              <div class="flex justify-end">
+                <button id="closeDesktopMainDropdown" class="text-red-500 hover:text-white text-lg font-bold -mt-4 -mr-2 px-2 py-1 rounded-full transition-all">×</button>
+              </div>
+              <a href="/igla" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[100ms] hover:text-primary">IGLA</a>
+              <a href="/porting" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[150ms] hover:text-primary">Porting</a>
+              <a href="/services" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[200ms] hover:text-primary">Services</a>
+              <a href="/power-packages" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[200ms] hover:text-primary">Power Packages</a>
+              <a href="/schedule" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[250ms] hover:text-primary">Schedule Install</a>
+            </div>
+          </div>
         </div>
-        <nav class="flex justify-center gap-4 text-sm font-ethno uppercase tracking-wider">
+        <div class="flex justify-center gap-2 text-sm font-ethno">
           <a href="/" class="hover:text-accent">Home</a>
+          <span class="text-white/50">|</span>
           <a href="/shop" class="hover:text-accent">Shop</a>
-        </nav>
-        <div class="flex justify-end">
-          <a href="/schedule" class="text-sm hover:text-accent">Schedule Install</a>
         </div>
       </div>
     </div>
   
     <!-- Sticky Desktop Header -->
     <div class="my-sticky-header fixed top-[35px] w-full z-50 hidden md:flex justify-center">
-      <div class="w-[90%] max-w-[1200px] mx-auto bg-black/20 backdrop-blur-md border border-white/10 rounded-[20px] px-4 py-3">
-        <div class="flex items-center justify-between w-full max-w-7xl mx-auto">
-          <img src="/logo/chromelogofas.png" alt="FAS Chrome Logo" class="h-10" />
-          <nav class="flex gap-4 text-sm font-ethno uppercase tracking-wider">
-            <a href="/" class="hover:text-accent">Home</a>
-            <a href="/shop" class="hover:text-accent">Shop</a>
-            <a href="/about" class="hover:text-accent">About</a>
-            <a href="/contact" class="hover:text-accent">Contact</a>
-          </nav>
-          <div class="flex items-center gap-2">
-            <input type="text" placeholder="Search" class="bg-transparent border-b border-white text-white text-sm placeholder:text-white/70 focus:outline-none w-32" />
-          </div>
-        </div>
-      </div>
-    </div>
+    <div class="w-[90%] max-w-[1200px] mx-auto bg-black/70 backdrop-blur-md border border-white/10 rounded-[20px] px-16 py-5 flex items-center justify-between gap-20">
+        <div class="flex items-center justify-between w-full max-w-7xl mx-auto">
+          <img src="/logo/chromelogofas.png" alt="FAS Chrome Logo" class="h-14" />
+  <div class="grid grid-cols-3 items-center gap-8 px-8 w-full max-w-7xl mx-auto">
+  
+    <!-- Column 1: Search -->
+    <div class="flex font-ethno justify-start px-4">
+      <input type="text" placeholder="Search.." class="bg-transparent border-b border-white font-ethno-italic placeholder:text-primary/70 text-white px-4 py-1 w-40 text-sm focus:outline-none" />
+    </div>
+  
+    <!-- Column 2: Nav -->
+    <div class="flex justify-center gap-3 font-ethno text-white text-sm">
+      <a href="/" class="hover:text-accent">Home</a>
+      <span class="text-white/50">|</span>
+      <a href="/shop" class="hover:text-accent">Shop</a>
+    </div>
+  
+    <!-- Column 3: Hamburger -->
+    <div class="flex justify-end relative">
+      <button id="desktopCategoryToggleSticky" class="text-white hover:shadow-md hover:shadow-primary/40 transition-all duration-300">
+        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+  
+      <div id="desktopCategoryDropdownSticky" class="hidden absolute top-[42px] right-0 w-[300px] bg-black/80 backdrop-blur-md text-white font-ethno text-sm rounded-xl shadow-2xl py-4 px-6 border border-white/10 z-[60] space-y-2 transition-all duration-300">
+        <div class="flex justify-end">
+          <button id="closeStickyDropdown" class="text-red-500 hover:text-white text-lg font-bold -mt-4 -mr-2 px-2 py-1 rounded-full transition-all">×</button>
+        </div>
+        <a href="/igla" class="block py-1 ...">IGLA</a>
+        <a href="/porting" class="block py-1 ...">Porting</a>
+        <a href="/services" class="block py-1 ...">Services</a>
+        <a href="/power-packages" class="block py-1 ...">Power Packages</a>
+        <a href="/schedule" class="block py-1 ...">Schedule Install</a>
+      </div>
+    </div>
+  </div>
+  
   </header>
   
   <script is:inline>
@@ -104,7 +148,7 @@
       const line3 = document.getElementById("burgerLine3");
       const links = [...document.querySelectorAll("#mobileMenuLinks a"), ...document.querySelectorAll("#mobileMenuCategories a")];
       let isOpen = false;
-  
+
       const animateOpen = () => {
         menu.classList.remove("hidden");
         setTimeout(() => {
@@ -117,7 +161,7 @@
         line2.setAttribute("d", "");
         line3.setAttribute("d", "M6 18l12 -12");
       };
-  
+
       const animateClose = () => {
         links.forEach(link => {
           link.classList.add("opacity-0", "translate-y-4");
@@ -131,16 +175,121 @@
         line3.setAttribute("d", "M4 18h16");
       };
   
+      const dashboardToggle = document.getElementById("accountDashboardToggle");
+      const dashboardPanel = document.getElementById("accountDashboardPanel");
+      let isDashboardOpen = false;
+
+      if (dashboardToggle && dashboardPanel) {
+        dashboardToggle.addEventListener("click", () => {
+          if (!isDashboardOpen) {
+            dashboardPanel.classList.remove("hidden");
+            setTimeout(() => dashboardPanel.classList.remove("translate-x-full"), 10);
+          } else {
+            dashboardPanel.classList.add("translate-x-full");
+            setTimeout(() => dashboardPanel.classList.add("hidden"), 300);
+          }
+          isDashboardOpen = !isDashboardOpen;
+        });
+      }
+
+      const desktopCategoryToggleMain = document.getElementById("desktopCategoryToggleMain");
+      const desktopCategoryDropdownMain = document.getElementById("desktopCategoryDropdownMain");
+      const desktopMainLinks = [...desktopCategoryDropdownMain?.querySelectorAll("a") || []];
+      const closeMainBtn = document.getElementById("closeDesktopMainDropdown");
+
+      let isDesktopOpenMain = false;
+
+      const animateMainOpen = () => {
+        desktopCategoryDropdownMain.classList.remove("hidden");
+        setTimeout(() => {
+          desktopMainLinks.forEach(link => {
+            link.classList.remove("opacity-0", "translate-y-4");
+            link.classList.add("opacity-100", "translate-y-0");
+          });
+        }, 10);
+      };
+
+      const animateMainClose = () => {
+        desktopMainLinks.forEach(link => {
+          link.classList.add("opacity-0", "translate-y-4");
+          link.classList.remove("opacity-100", "translate-y-0");
+        });
+        setTimeout(() => {
+          desktopCategoryDropdownMain.classList.add("hidden");
+        }, 600);
+      };
+
+      if (desktopCategoryToggleMain && desktopCategoryDropdownMain) {
+        desktopCategoryToggleMain.addEventListener("click", () => {
+          isDesktopOpenMain ? animateMainClose() : animateMainOpen();
+          isDesktopOpenMain = !isDesktopOpenMain;
+        });
+
+        desktopMainLinks.forEach(link => {
+          link.addEventListener("click", () => {
+            animateMainClose();
+            isDesktopOpenMain = false;
+          });
+        });
+
+        if (closeMainBtn) {
+          closeMainBtn.addEventListener("click", () => {
+            animateMainClose();
+            isDesktopOpenMain = false;
+          });
+        }
+      }
+
+      const stickyToggle = document.getElementById("desktopCategoryToggleSticky");
+      const stickyDropdown = document.getElementById("desktopCategoryDropdownSticky");
+      const stickyLinks = [...stickyDropdown?.querySelectorAll("a") || []];
+      const stickyClose = stickyDropdown?.querySelector("#closeStickyDropdown");
+      let isStickyOpen = false;
+
+      const openSticky = () => {
+        stickyDropdown.classList.remove("hidden");
+        setTimeout(() => {
+          stickyLinks.forEach(link => {
+            link.classList.remove("opacity-0", "translate-y-4");
+            link.classList.add("opacity-100", "translate-y-0");
+          });
+        }, 10);
+      };
+
+      const closeSticky = () => {
+        stickyLinks.forEach(link => {
+          link.classList.add("opacity-0", "translate-y-4");
+          link.classList.remove("opacity-100", "translate-y-0");
+        });
+        setTimeout(() => {
+          stickyDropdown.classList.add("hidden");
+        }, 600);
+      };
+
+      if (stickyToggle && stickyDropdown) {
+        stickyToggle.addEventListener("click", () => {
+          isStickyOpen ? closeSticky() : openSticky();
+          isStickyOpen = !isStickyOpen;
+        });
+
+        stickyLinks.forEach(link => {
+          link.addEventListener("click", () => {
+            closeSticky();
+            isStickyOpen = false;
+          });
+        });
+
+        if (stickyClose) {
+          stickyClose.addEventListener("click", () => {
+            closeSticky();
+            isStickyOpen = false;
+          });
+        }
+      }
+
       toggle.addEventListener("click", () => {
         isOpen ? animateClose() : animateOpen();
         isOpen = !isOpen;
-      });
-  
-      links.forEach(link => {
-        link.addEventListener("click", () => {
-          animateClose();
-          isOpen = false;
-        });
       });
   
       const sticky = document.querySelector(".my-sticky-header");
@@ -156,187 +305,15 @@
   </script>
   
   <style>
-    .my-sticky-header {
-      opacity: 0;
-      pointer-events: none;
-      transform: translateY(-100%);
-      transition: all 0.3s ease;
-    }
-    .my-sticky-header.show {
-      opacity: 1;
-      pointer-events: auto;
-      transform: translateY(0);
-    }
-  </style>
-  ---
-  ---
-  <header class="bg-transparent text-white w-full pt-[40px]">
-  
-    <!-- Top Red Bar -->
-    <div class="fixed top-0 w-full bg-primary text-white text-base font-captain z-50">
-      <div class="max-w-screen-xl mx-auto px-6 py-2 flex justify-start gap-6">
-        <a href="/about" class="hover:!text-black hover:underline">About</a>
-        <span class="text-white/50">|</span>
-        <a href="/contact" class="hover:!text-black hover:underline">Contact</a>
-        <span class="text-white/50">|</span>
-        <a href="/faq" class="hover:!text-black hover:underline">FAQ</a>
-      </div>
-    </div>
-  
-    <!-- Mobile Header -->
-    <div class="flex md:hidden justify-between items-center bg-black bg-opacity-90 text-white px-4 py-3 mx-[5px] mt-[70px] rounded-[20px] shadow-md">
-      <img src="/images/faslogochroma.png" alt="FAS Logo" class="h-10" />
-      <button id="mobileMenuToggle" aria-label="Toggle Menu" class="text-white focus:outline-none transition-transform duration-300">
-        <svg id="burgerIcon" class="w-6 h-6 transition-all duration-300" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path id="burgerLine1" stroke-linecap="round" stroke-linejoin="round" d="M4 6h16" />
-          <path id="burgerLine2" stroke-linecap="round" stroke-linejoin="round" d="M4 12h16" />
-          <path id="burgerLine3" stroke-linecap="round" stroke-linejoin="round" d="M4 18h16" />
-        </svg>
-      </button>
-    </div>
-  
-    <!-- Mobile Dropdown -->
-    <div id="mobileMenuDropdown" class="md:hidden hidden bg-[#1a1a1a] text-white font-captain text-sm rounded-lg shadow-lg mx-4 mt-2 py-4 px-6 border border-white/10 z-40">
-      <div id="mobileMenuLinks" class="space-y-2">
-        <a href="/" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[100ms] hover:text-accent">Home</a>
-        <a href="/about" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[150ms] hover:text-accent">About</a>
-        <a href="/contact" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[200ms] hover:text-accent">Contact</a>
-        <a href="/faq" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[250ms] hover:text-accent">FAQ</a>
-        <a href="/shop" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[300ms] hover:text-accent">Shop</a>
-        <a href="/schedule" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[350ms] hover:text-accent">Schedule Install</a>
-      </div>
-      <div id="mobileMenuCategories" class="space-y-2 mt-6">
-        <p class="text-accent uppercase text-xs tracking-wide">Categories</p>
-        <a href="/igla" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[400ms] hover:text-accent">IGLA Anti-Theft</a>
-        <a href="/power-packages" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[450ms] hover:text-accent">Power Packages</a>
-        <a href="/porting" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[500ms] hover:text-accent">Porting</a>
-        <a href="/services" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[550ms] hover:text-accent">Services</a>
-      </div>
-    </div>
-  
-    <!-- Main Desktop Header -->
-    <div class="hidden md:block bg-transparent text-white px-6 pt-4 w-full">
-      <div class="grid grid-cols-3 items-center h-16 w-full px-5">
-        <div class="flex items-center gap-2">
-          <input type="text" placeholder="Search" class="bg-transparent border-b border-white text-white text-sm placeholder:text-white/70 focus:outline-none h-6 px-1" />
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-        </div>
-        <div class="flex justify-center">
-          <img src="/images/faslogochroma.png" alt="FAS Chrome Logo" class="h-16 transform scale-[2]" />
-        </div>
-        <div class="flex justify-end">
-          <a href="/login" class="text-sm font-ethno hover:text-accent">Garage Login</a>
-        </div>
-      </div>
-      <div class="w-[90%] h-px bg-white/40 mx-auto my-4"></div>
-      <div class="grid grid-cols-3 items-center px-5 max-w-7xl mx-auto">
-        <div class="flex items-center gap-4">
-          <a href="/igla" class="text-sm hover:text-accent">IGLA</a>
-          <a href="/power-packages" class="text-sm hover:text-accent">Power</a>
-          <a href="/porting" class="text-sm hover:text-accent">Porting</a>
-        </div>
-        <nav class="flex justify-center gap-4 text-sm font-ethno uppercase tracking-wider">
-          <a href="/" class="hover:text-accent">Home</a>
-          <a href="/shop" class="hover:text-accent">Shop</a>
-        </nav>
-        <div class="flex justify-end">
-          <a href="/schedule" class="text-sm hover:text-accent">Schedule Install</a>
-        </div>
-      </div>
-    </div>
-  
-    <!-- Sticky Desktop Header -->
-    <div class="my-sticky-header fixed top-[35px] w-full z-50 hidden md:flex justify-center">
-      <div class="w-[90%] max-w-[1200px] mx-auto bg-black/20 backdrop-blur-md border border-white/10 rounded-[20px] px-4 py-3">
-        <div class="flex items-center justify-between w-full max-w-7xl mx-auto">
-          <img src="/logo/chromelogofas.png" alt="FAS Chrome Logo" class="h-10" />
-          <nav class="flex gap-4 text-sm font-ethno uppercase tracking-wider">
-            <a href="/" class="hover:text-accent">Home</a>
-            <a href="/shop" class="hover:text-accent">Shop</a>
-            <a href="/about" class="hover:text-accent">About</a>
-            <a href="/contact" class="hover:text-accent">Contact</a>
-          </nav>
-          <div class="flex items-center gap-2">
-            <input type="text" placeholder="Search" class="bg-transparent border-b border-white text-white text-sm placeholder:text-white/70 focus:outline-none w-32" />
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
-  
-  <script is:inline>
-    document.addEventListener("DOMContentLoaded", function () {
-      const menu = document.getElementById("mobileMenuDropdown");
-      const toggle = document.getElementById("mobileMenuToggle");
-      const line1 = document.getElementById("burgerLine1");
-      const line2 = document.getElementById("burgerLine2");
-      const line3 = document.getElementById("burgerLine3");
-      const links = [...document.querySelectorAll("#mobileMenuLinks a"), ...document.querySelectorAll("#mobileMenuCategories a")];
-      let isOpen = false;
-  
-      const animateOpen = () => {
-        menu.classList.remove("hidden");
-        setTimeout(() => {
-          links.forEach(link => {
-            link.classList.remove("opacity-0", "translate-y-4");
-            link.classList.add("opacity-100", "translate-y-0");
-          });
-        }, 10);
-        line1.setAttribute("d", "M6 6l12 12");
-        line2.setAttribute("d", "");
-        line3.setAttribute("d", "M6 18l12 -12");
-      };
-  
-      const animateClose = () => {
-        links.forEach(link => {
-          link.classList.add("opacity-0", "translate-y-4");
-          link.classList.remove("opacity-100", "translate-y-0");
-        });
-        setTimeout(() => {
-          menu.classList.add("hidden");
-        }, 600);
-        line1.setAttribute("d", "M4 6h16");
-        line2.setAttribute("d", "M4 12h16");
-        line3.setAttribute("d", "M4 18h16");
-      };
-  
-      toggle.addEventListener("click", () => {
-        isOpen ? animateClose() : animateOpen();
-        isOpen = !isOpen;
-      });
-  
-      links.forEach(link => {
-        link.addEventListener("click", () => {
-          animateClose();
-          isOpen = false;
-        });
-      });
-  
-      const sticky = document.querySelector(".my-sticky-header");
-      const threshold = 150;
-      window.addEventListener("scroll", () => {
-        if (window.scrollY > threshold) {
-          sticky.classList.add("show");
-        } else {
-          sticky.classList.remove("show");
-        }
-      });
-    });
-  </script>
-  
-  <style>
-    .my-sticky-header {
-      opacity: 0;
-      pointer-events: none;
-      transform: translateY(-100%);
-      transition: all 0.3s ease;
-    }
-    .my-sticky-header.show {
-      opacity: 1;
-      pointer-events: auto;
-      transform: translateY(0);
-    }
+.my-sticky-header {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-100%);
+  transition: all 0.3s ease;
+}
+.my-sticky-header.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
   </style>
