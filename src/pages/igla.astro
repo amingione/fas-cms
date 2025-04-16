@@ -1,8 +1,11 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import MobileBaseLayout from '../layouts/MobileBaseLayout.jsx';
+const isMobile = Astro.request.headers.get('user-agent')?.toLowerCase().includes('mobile');
+const Layout = isMobile ? MobileBaseLayout : BaseLayout;
 ---
 
-<BaseLayout>
+<Layout>
   <section class="relative text-white pt-64 pb-32 px-6 mt-16">
     <span class="absolute inset-0 bg-cover bg-center bg-no-repeat" style="background-image: url('/images/igla-anti-theft.webp');"></span>
     <div class="absolute inset-0 bg-black/50"></div>
@@ -172,4 +175,4 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </h2>
     </div>
   </section>
-</BaseLayout>
+</Layout>
