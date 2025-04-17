@@ -2,7 +2,7 @@ import { Resend } from 'resend';
 
 const resend = new Resend(import.meta.env.RESEND_API_KEY);
 
-export async function POST({ request }) {
+export async function POST({ request }: { request: Request }) {
   const data = await request.formData();
   const name = data.get('name');
   const email = data.get('email');
@@ -13,7 +13,7 @@ export async function POST({ request }) {
       from: 'FAS Motorsports <contact@updates.fasmotorsports.com>',
       to: ['support@fasmotorsports.com'],
       subject: `New Contact Form Submission from ${name}`,
-      reply_to: email as string,
+      replyTo: email as string,
       html: `
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
@@ -22,8 +22,18 @@ export async function POST({ request }) {
       `,
     });
 
-    return Response.redirect('/contact?success=true', 303);
+    return new Response(null, {
+      status: 303,
+      headers: {
+        Location: '/contact?success=true',
+      },
+    });
   } catch (error) {
-    return Response.redirect('/contact?error=true', 303);
+    return new Response(null, {
+      status: 303,
+      headers: {
+        Location: '/contact?error=true',
+      },
+    });
   }
 }

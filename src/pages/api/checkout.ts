@@ -22,7 +22,7 @@ export async function POST({ request }: { request: Request }) {
 
   const cartRes = await fetch(url, {
     headers: {
-      Authorization: `Bearer ${import.meta.env.PUBLIC_SANITY_WRITE_TOKEN}`,
+      Authorization: `Bearer ${import.meta.env.SANITY_API_TOKEN}`,
     },
   });
 

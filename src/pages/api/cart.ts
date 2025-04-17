@@ -18,10 +18,17 @@ export async function POST({ request }: { request: Request }) {
 
   const { productId, quantity, sessionId } = body;
 
-  const res = await fetch(`https://${import.meta.env.SANITY_PROJECT_ID}.api.sanity.io/v2021-06-07/data/mutate/production`, {
+  if (!productId || !quantity || !sessionId) {
+    return new Response(JSON.stringify({ error: "Missing required fields" }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  const res = await fetch(`https://${import.meta.env.SANITY_PROJECT_ID}.api.sanity.io/${import.meta.env.SANITY_API_VERSION}/data/mutate/${import.meta.env.SANITY_DATASET}`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${import.meta.env.PUBLIC_SANITY_WRITE_TOKEN}`,
+      Authorization: `Bearer ${import.meta.env.SANITY_API_TOKEN}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
