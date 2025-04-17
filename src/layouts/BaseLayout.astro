@@ -10,6 +10,20 @@ import FloatingCartWidget from '../components/floatingwidget.jsx';
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <script
+  async
+  crossorigin="anonymous"
+  data-clerk-publishable-key={import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY}
+  src="https://cdn.clerk.dev/clerk.js"
+></script>
+
+<script>
+  window.addEventListener("load", () => {
+    if (window.Clerk) {
+      window.Clerk.load();
+    }
+  });
+</script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><slot name="title" /></title>

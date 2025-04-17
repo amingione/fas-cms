@@ -3,6 +3,10 @@
 Last stable version. Touching will cause death to Amber's career. If you need to make edits, clone this file and work off `HeaderBackup.astro`.
 -->
 
+---
+import AccountDashboard from './accountdashboard.astro';
+---
+
 <header class="bg-black text-white w-full pt-[40px]">
   
     <!-- Top Red Bar -->
@@ -63,8 +67,8 @@ Last stable version. Touching will cause death to Amber's career. If you need to
               <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <div id="accountDashboardPanel" class="hidden fixed top-0 right-0 h-full w-4/5 bg-[#1a1a1a] text-white font-captain transform translate-x-full transition-transform duration-300 ease-in-out z-50 shadow-lg border-l border-white/10">
-            <iframe src="/components/accountdashboard.astro" class="w-full h-full border-0"></iframe>
+            <div id="accountDashboardPanel" class="hidden fixed top-0 right-0 h-full w-[220px] bg-[#1a1a1a] text-white font-captain transform translate-x-full transition-transform duration-300 ease-in-out z-50 shadow-lg border-l border-white/10">
+              <AccountDashboard />
           </div>
         </div>
       </div>
@@ -148,6 +152,16 @@ Last stable version. Touching will cause death to Amber's career. If you need to
       const line3 = document.getElementById("burgerLine3");
       const links = [...document.querySelectorAll("#mobileMenuLinks a"), ...document.querySelectorAll("#mobileMenuCategories a")];
       let isOpen = false;
+     const dashboardCloseBtn = document.getElementById("closeAccountDashboard");
+
+      if (dashboardCloseBtn) {
+      dashboardCloseBtn.addEventListener("click", () => {
+      dashboardPanel.classList.add("translate-x-full");
+      setTimeout(() => {
+      dashboardPanel.classList.add("hidden");
+    }, 300);
+  });
+}
 
       const animateOpen = () => {
         menu.classList.remove("hidden");

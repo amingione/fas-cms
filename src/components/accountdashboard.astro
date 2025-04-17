@@ -1,60 +1,158 @@
-<div class="fixed inset-0 z-[9998] pointer-events-none">
-  <button id="closeAccountDashboard" class="fixed top-24 right-72 z-[10001] bg-transparent text-white p-2 rounded-full border-2 border-red-600 shadow-lg hover:transparent hover:text-red-500 transition-all duration-200">
+<div id="accountDashboardOverlay" class="fixed inset-0 z-[9998] bg-black/30 backdrop-blur-lg pointer-events-auto transition-opacity duration-300 ease-in-out">
+  <button id="closeAccountDashboard" class="absolute top-10 right-4 z-[10001] bg-transparent border-none text-primary p-2 rounded-full border-2 shadow-lg hover:transparent hover:text-red-500 transition-all duration-200">
     <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <line x1="18" y1="6" x2="6" y2="18" />
       <line x1="6" y1="6" x2="18" y2="18" />
     </svg>
   </button>
-  <aside id="accountDashboard" style="background-color: #2a2a2a" class="w-64 h-full font-ethno text-white pt-30 px-6 shadow-lg space-y-6 fixed top-20 right-0 z-[9999] pointer-events-auto">
-    <h2 class="text-sm font-bold mb-4 font-ethno border-b border-gray-700 pb-2">Account</h2>
+  <aside id="accountDashboard" style="background-color: bg-transparent backdrop-blur-lg" class="w-[220px] h-full font-ethno text-white pt-30 px-4 shadow-lg space-y-6 fixed top-20 right-0 z-[9999] pointer-events-auto transition-transform duration-300 ease-in-out">
+    <div class="border-b border-white/10 pb-2 mb-4">
+      <h2 class="text-lg font-captain text-primary tracking-wide">Account Dashboard</h2>
+    </div>
     <p id="userEmail" class="text-xs text-gray-400 mb-2"></p>
-    <nav class="flex flex-col space-y-4 font-kwajong font-semibold">
-      <a href="/account/orders" class="hover:text-primary font-bold font-kwajong transition-colors">Orders</a>
-      <a href="/account/settings" class="hover:text-primary font-kwajong transition-colors">Settings</a>
-      <a href="/account/addresses" class="hover:text-primary font-kwajong transition-colors">Addresses</a>
-      <a href="/garage-dashboard" class="hover:text-primary font-kwajong transition-colors">Garage Dashboard</a>
-      <a href="https://clerk.dev/sign-out" class="mt-10 text-red-500 hover:text-white transition-colors">Logout</a>
+    <nav id="dashboardNav" class="flex flex-col space-y-6 font-ethno-bold">
     </nav>
   </aside>
 </div>
-<script type="module">
-  import { Clerk } from '@clerk/clerk-js';
+<script>
+  declare global {
+    interface Window {
+      Clerk?: {
+        user?: {
+          emailAddresses: { emailAddress: string }[];
+        };
+      };
+    }
+  }
 
   window.addEventListener('DOMContentLoaded', async () => {
     const closeBtn = document.getElementById('closeAccountDashboard');
     const dashboard = document.getElementById('accountDashboard');
-    
-    const clerk = new Clerk(import.meta.env.PUBLIC_CLERK_FRONTEND_API);
-    await clerk.load();
 
-    if (!clerk.user) {
-      dashboard.innerHTML = '<p class="text-white">You are not signed in.</p>';
+    const emailElem = document.getElementById("userEmail");
+
+    const frontendApi = import.meta.env.PUBLIC_CLERK_FRONTEND_API;
+    const sanityToken = import.meta.env.SANITY_API_TOKEN;
+    const sanityProjectId = import.meta.env.SANITY_PROJECT_ID;
+
+    if (!window.Clerk || !window.Clerk.user) {
+      if (dashboard && emailElem) {
+        emailElem.textContent = '';
+        const dashboardNav = document.getElementById('dashboardNav');
+        if (dashboardNav) {
+          dashboardNav.innerHTML = `
+            <a href="/sign-in" ...>LOGIN</a>
+            <a href="/sign-up" ...>SIGNUP</a>
+            <div class="border-t border-white/10 my-4"></div>
+            <p class="text-xs text-gray-400">Partner with <span class="text-primary font-bold">F.A.S.</span> Motorsports</p>
+            <div class="mt-6 p-2 border border-white/10 rounded shadow-inner bg-white/5 text-xs space-y-2">
+              <h3 class="text-primary font-captain text-lg tracking-wide uppercase border-b border-white/10 pb-1 mb-2">Vendor Portal</h3>
+              <a href="/vendor/partner-login" class="block hover:text-red-500 font-ethno">Login</a>
+              <a href="/vendor/request-partnership" class="block hover:text-red-500 font-ethno">Apply</a>
+            </div>
+          `;
+        }
+      }
       return;
     }
 
-    const email = clerk.user.emailAddresses[0].emailAddress;
-    document.getElementById("userEmail").textContent = email;
+    const email = window.Clerk.user.emailAddresses[0].emailAddress;
+    emailElem.textContent = email;
 
-    const sanityRes = await fetch(`https://${import.meta.env.SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/production?query=${encodeURIComponent(`*[_type == "customer" && email == "${email}"][0]`)}`, {
+    const query = encodeURIComponent(`*[_type == "customer" && email == "${email}"][0]`);
+    const url = `https://${sanityProjectId}.api.sanity.io/v2023-05-30/data/query/production?query=${query}`;
+
+    const response = await fetch(url, {
       headers: {
-        Authorization: `Bearer ${import.meta.env.SANITY_API_TOKEN}`,
-      },
+        Authorization: `Bearer ${sanityToken}`
+      }
     });
-    const sanityData = await sanityRes.json();
-    const customer = sanityData.result;
+    const result = await response.json();
+    const customer = result.result;
 
-    if (customer) {
-      dashboard.innerHTML += `<p class="text-xs text-green-400">Customer found in Sanity ✅</p>`;
-    } else {
-      dashboard.innerHTML += `<p class="text-xs text-red-500">No customer record in Sanity ⚠️</p>`;
+    const dashboardNav = document.getElementById('dashboardNav');
+    if (dashboardNav) {
+      dashboardNav.innerHTML = `
+  <div class="space-y-4">
+    <h3 class="text-xs text-white/50 uppercase tracking-wide">Recent Orders</h3>
+    <ul class="text-xs space-y-2">
+      <li class="text-white/80">Order #12345 - <span class="text-green-400">Shipped</span></li>
+      <li class="text-white/80">Order #12346 - <span class="text-yellow-400">Processing</span></li>
+    </ul>
+    <a href="/account/orders" class="block text-primary hover:underline text-xs mt-2">View All Orders</a>
+  </div>
+
+  <div class="border-t border-white/10 my-4 pt-4 space-y-4">
+    <h3 class="text-xs text-white/50 uppercase tracking-wide">Saved Quotes</h3>
+    <ul class="text-xs space-y-2">
+      <li class="text-white/80">Quote #A23 - <span class="text-gray-400">Pending</span></li>
+      <li class="text-white/80">Quote #B99 - <span class="text-green-400">Approved</span></li>
+    </ul>
+    <a href="/account/quotes" class="block text-primary hover:underline text-xs mt-2">View All Quotes</a>
+  </div>
+
+  ${customer?.addresses?.length ? `
+    <div class="border-t border-white/10 my-4 pt-4 space-y-4">
+      <h3 class="text-xs text-white/50 uppercase tracking-wide">Saved Addresses</h3>
+      <ul class="text-xs space-y-4">
+        ${customer.addresses.map((addr, index) => `
+          <li class="text-white/80 space-y-1 border border-white/10 p-2 rounded-md">
+            <label class="block">
+              <span class="text-white/40 text-[10px] uppercase">Label</span>
+              <input type="text" value="${addr.label || ''}" class="w-full bg-black/30 text-white text-xs p-1 rounded border border-white/10" />
+            </label>
+            <label class="block">
+              <span class="text-white/40 text-[10px] uppercase">Street</span>
+              <input type="text" value="${addr.street || ''}" class="w-full bg-black/30 text-white text-xs p-1 rounded border border-white/10" />
+            </label>
+            <label class="block">
+              <span class="text-white/40 text-[10px] uppercase">City</span>
+              <input type="text" value="${addr.city || ''}" class="w-full bg-black/30 text-white text-xs p-1 rounded border border-white/10" />
+            </label>
+            <label class="block">
+              <span class="text-white/40 text-[10px] uppercase">State</span>
+              <input type="text" value="${addr.state || ''}" class="w-full bg-black/30 text-white text-xs p-1 rounded border border-white/10" />
+            </label>
+            <label class="block">
+              <span class="text-white/40 text-[10px] uppercase">ZIP</span>
+              <input type="text" value="${addr.zip || ''}" class="w-full bg-black/30 text-white text-xs p-1 rounded border border-white/10" />
+            </label>
+            <label class="block">
+              <span class="text-white/40 text-[10px] uppercase">Country</span>
+              <input type="text" value="${addr.country || ''}" class="w-full bg-black/30 text-white text-xs p-1 rounded border border-white/10" />
+            </label>
+          </li>
+        `).join('')}
+      </ul>
+      <a href="/account/addresses" class="block text-primary hover:underline text-xs mt-2">Manage Addresses</a>
+    </div>
+  ` : ''}
+
+  <a href="/account/addresses" class="hover:text-red-500 font-ethno transition-colors text-sm">ADDRESSES</a>
+  <a href="/account/wishlist" class="hover:text-red-500 font-ethno transition-colors text-sm">WISHLIST</a>
+
+  <a href="https://clerk.dev/sign-out" class="mt-8 text-red-500 hover:text-white transition-colors text-center text-sm">LOGOUT</a>
+
+  <div class="mt-10 p-4 border border-white/10 rounded-lg shadow-inner bg-white/5 space-y-2">
+    <h3 class="text-primary font-captain text-sm tracking-wide uppercase border-b border-white/10 pb-1 mb-3">Vendor Portal</h3>
+    <a href="/vendor/partner-login" class="block hover:text-red-500 font-ethno transition-colors text-sm mb-1">Partner Login</a>
+    <a href="/vendor/request-partnership" class="block hover:text-red-500 font-ethno transition-colors text-sm">Request Partnership</a>
+  </div>
+`;
     }
 
-    if (closeBtn && dashboard) {
+    if (closeBtn) {
       closeBtn.addEventListener('click', () => {
-        dashboard.classList.add('hidden');
+        const dashboardPanel = document.getElementById('accountDashboard');
+        const overlay = document.getElementById('accountDashboardOverlay');
+        if (dashboardPanel && overlay) {
+          dashboardPanel.classList.add('translate-x-full');
+          setTimeout(() => {
+            overlay.classList.add('hidden');
+            dashboardPanel.classList.remove('translate-x-full'); // reset state for next open
+          }, 300); // must match transition duration
+        }
       });
-    } else {
-      console.warn('Close button or dashboard not found');
     }
   });
 </script>

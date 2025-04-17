@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@astrojs/netlify": "^6.2.5",
+    "@astrojs/node": "^9.2.0",
     "@astrojs/react": "^4.2.3",
-    "@clerk/clerk-js": "^5.60.0",
+    "@clerk/astro": "^2.6.4",
+    "@clerk/clerk-js": "^5.61.0",
     "@clerk/nextjs": "^6.14.3",
     "@sanity/client": "^6.29.0",
     "@stackbit/cms-sanity": "^0.0.19",
