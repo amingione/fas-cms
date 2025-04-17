@@ -1,4 +1,4 @@
-import { sanityContentSource } from '@stackbit/cms-sanity';
+import { SanityContentSource } from '@stackbit/cms-sanity';
 import path from 'path';
 
 import { defineStackbitConfig } from '@stackbit/types';
@@ -8,7 +8,7 @@ export default defineStackbitConfig({
     "nodeVersion": "18",
     "ssgName": "astro",
     "contentSources": [
-        sanityContentSource({
+        SanityContentSource({
             projectId: process.env.SANITY_PROJECT_ID!,
             token: process.env.SANITY_ACCESS_TOKEN!,
             dataset: process.env.SANITY_DATASET || 'production',
