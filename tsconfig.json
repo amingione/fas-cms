@@ -1,9 +1,10 @@
 {
-  "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
     "types": ["@clerk/astro"],
     "jsx": "react-jsx",
     "jsxImportSource": "react",
+    "module": "es2020",
+    "moduleResolution": "bundler",
     "baseUrl": ".",
     "paths": {
       "@components/*": ["src/components/*"],
@@ -17,7 +18,6 @@
   ],
   "exclude": [
     "dist",
-    "node_modules",
-    "src/**/*.astro"
+    "node_modules"
   ]
 }
