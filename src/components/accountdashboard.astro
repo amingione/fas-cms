@@ -22,17 +22,14 @@
     </nav>
   </aside>
 </div>
-<script>
-  declare global {
-    interface Window {
-      Clerk?: {
-        user?: {
-          emailAddresses: { emailAddress: string }[];
-        };
-        signOut?: () => void;
-      };
+  <script>
+    export {};
+    
+    declare global {
+      interface Window {
+        Clerk?: import('@clerk/clerk-js').Clerk;
+      }
     }
-  }
 
   window.addEventListener('DOMContentLoaded', async () => {
     const closeBtn = document.getElementById('closeAccountDashboard');
@@ -50,8 +47,8 @@
         const dashboardNav = document.getElementById('dashboardNav');
         if (dashboardNav) {
           dashboardNav.innerHTML = `
-            <a href="/sign-in" ...>LOGIN</a>
-            <a href="/sign-up" ...>SIGNUP</a>
+            <a href="https://fas-motorsports-nhwqt6zkg-ambers-projects-cf80bdf2.vercel.app/sign-in" target="_blank" rel="noopener noreferrer" ...>LOGIN</a>
+            <a href="https://fas-motorsports-nhwqt6zkg-ambers-projects-cf80bdf2.vercel.app/sign-up" target="_blank" rel="noopener noreferrer" ...>SIGNUP</a>
             <div class="border-t border-white/10 my-4"></div>
             <p class="text-xs text-gray-400">Partner with <span class="text-primary font-bold">F.A.S.</span> Motorsports</p>
             <div class="mt-6 p-2 border border-white/10 rounded shadow-inner bg-white/5 text-xs space-y-2">
