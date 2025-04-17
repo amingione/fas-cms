@@ -13,4 +13,7 @@ export default defineConfig({
       external: ['resend'],
     },
   },
+  vite: {
+    envPrefix: ['PUBLIC_', 'SANITY_', 'PUBLIC_SANITY_'],
+  },
 });
