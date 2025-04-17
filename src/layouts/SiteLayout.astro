@@ -1,0 +1,30 @@
+---
+import { SignedIn, SignedOut, UserButton, SignInButton } from '@clerk/astro/components'
+
+const { title } = Astro.props
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" href="/images/New Red FAS Logo.png" />
+    <meta name="generator" content={Astro.generator} />
+  </head>
+  <body class="bg-black text-white font-sans min-h-screen">
+    <header class="p-4 flex justify-between items-center border-b border-white/10">
+      <h1 class="text-lg font-bold text-primary">{title}</h1>
+      <nav class="flex items-center gap-4">
+        <SignedOut>
+          <SignInButton mode="modal" />
+        </SignedOut>
+        <SignedIn>
+          <UserButton />
+        </SignedIn>
+      </nav>
+    </header>
+    <main class="p-6 max-w-5xl mx-auto">
+      <slot />
+    </main>
+  </body>
+</html>

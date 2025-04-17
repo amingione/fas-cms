@@ -1,0 +1,78 @@
+---
+// filepath: /Users/ambermin/Documents/Workspace/DevProjects/GitHub/fas-cms/src/pages/account/edit.astro
+import { getCustomerData } from '../../lib/customer';
+
+let customer = null;
+---
+
+<html lang="en">
+  <head>
+    <title>Edit Account Info</title>
+  </head>
+<body class="bg-black text-white p-6">
+    <h1 class="text-3xl font-bold mb-6">Manage Your Account</h1>
+    <div id="alert" class="hidden mb-4 px-4 py-2 rounded text-center font-semibold"></div>
+    
+    <p class="text-center text-red-500 text-lg font-bold">
+      Loading customer info...
+    </p>
+
+    <script type="module">
+      import { Clerk } from '@clerk/clerk-js';
+
+      const clerk = new Clerk();
+      clerk.load().then(() => {
+        const user = clerk.user;
+        if (!user) {
+          window.location.href = '/sign-in';
+        }
+        fetch(`/api/customer/${user.id}`)
+          .then(res => res.json())
+          .then(data => {
+            // Set `customer` dynamically here if you decide to hydrate the form later
+            console.log('Fetched customer:', data);
+          });
+      });
+    </script>
+
+    <script type="module">
+      const form = document.querySelector('form');
+      form?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const updates = {
+          email: formData.get('email'),
+          phone: formData.get('phone'),
+          billingAddress: formData.get('billingAddress'),
+          shippingAddress: formData.get('shippingAddress'),
+        };
+        const res = await fetch('/api/updateCustomer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updates),
+        });
+        const alertBox = document.getElementById('alert');
+        alertBox.textContent = res.ok ? 'Account updated successfully!' : 'Error updating account.';
+        alertBox.className = res.ok
+          ? 'mb-4 px-4 py-2 rounded text-center font-semibold bg-green-600 text-white'
+          : 'mb-4 px-4 py-2 rounded text-center font-semibold bg-red-600 text-white';
+        setTimeout(() => {
+          alertBox.className = 'hidden';
+        }, 4000);
+      });
+
+      document.querySelectorAll('button[data-id]').forEach(button => {
+        button.addEventListener('click', async () => {
+          const id = button.getAttribute('data-id');
+          const res = await fetch('/api/deleteQuote', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ quoteId: id }),
+          });
+          if (res.ok) location.reload();
+          else alert('Failed to delete quote.');
+        });
+      });
+    </script>
+  </body>
+</html>
