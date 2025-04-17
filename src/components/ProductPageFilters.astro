@@ -1,0 +1,70 @@
+<div id="product-filters" class="w-full bg-white/5 border border-white/10 rounded-lg p-6 backdrop-blur-md space-y-6">
+  <div>
+    <h3 class="text-lg font-semibold mb-2">Vehicle Model</h3>
+    <div class="flex flex-wrap gap-2" id="vehicle-models">
+      <button class="filter-btn" data-value="Charger">Charger</button>
+      <button class="filter-btn" data-value="Challenger">Challenger</button>
+      <button class="filter-btn" data-value="TRX">TRX</button>
+      <button class="filter-btn" data-value="Trackhawk">Trackhawk</button>
+      <button class="filter-btn" data-value="Durango">Durango</button>
+      <button class="filter-btn" data-value="Mustang">Mustang</button>
+      <button class="filter-btn" data-value="Raptor">Raptor</button>
+      <button class="filter-btn" data-value="F150">F150</button>
+      <button class="filter-btn" data-value="F250">F250</button>
+      <button class="filter-btn" data-value="F350">F350</button>
+      <button class="filter-btn" data-value="F450">F450</button>
+    </div>
+  </div>
+
+  <div>
+    <h3 class="text-lg font-semibold mb-2">Tune Required</h3>
+    <div class="flex gap-4" id="tune-options">
+      <button class="filter-btn" data-value="Required">Required</button>
+      <button class="filter-btn" data-value="Not Required">Not Required</button>
+    </div>
+  </div>
+
+  <div>
+    <h3 class="text-lg font-semibold mb-2">Horsepower Range</h3>
+    <input type="range" min="600" max="1500" step="50" value="600" id="hp-slider" />
+    <div class="text-sm text-gray-400 mt-1" id="hp-output">Selected WHP: 600</div>
+  </div>
+</div>
+
+<script>
+  const filterState = {
+    vehicle: null,
+    tune: null,
+    horsepower: 600,
+  };
+
+  document.querySelectorAll('#vehicle-models .filter-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      filterState.vehicle = target.dataset.value;
+      dispatchFilterChange();
+    });
+  });
+
+  document.querySelectorAll('#tune-options .filter-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      filterState.tune = target.dataset.value;
+      dispatchFilterChange();
+    });
+  });
+
+  const slider = document.getElementById('hp-slider');
+  const output = document.getElementById('hp-output');
+  slider.addEventListener('input', (e) => {
+    const target = e.target as HTMLInputElement;
+    filterState.horsepower = parseInt(target.value, 10);
+    output.textContent = `Selected WHP: ${filterState.horsepower}`;
+    dispatchFilterChange();
+  });
+
+  function dispatchFilterChange() {
+    const event = new CustomEvent('filterChange', { detail: filterState });
+    document.dispatchEvent(event);
+  }
+</script>

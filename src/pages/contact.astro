@@ -84,7 +84,7 @@ const isError = url.searchParams.get('error') === 'true';
     <script>
       window.addEventListener('DOMContentLoaded', () => {
         const form = document.getElementById('contact-form');
-        if (form) form.reset();
+        if (form instanceof HTMLFormElement) form.reset();
       });
     </script>
   )}

@@ -13,11 +13,7 @@ const SANITY_API_TOKEN = import.meta.env.PUBLIC_SANITY_API_TOKEN;
 
     <!-- Category Tabs -->
     <div id="category-tabs" class="flex flex-wrap gap-3 text-sm font-captain">
-      <button class="tab active" data-category="">All</button>
-      <button class="tab" data-category="Charger">Charger</button>
-      <button class="tab" data-category="Challenger">Challenger</button>
-      <button class="tab" data-category="Trackhawk">Trackhawk</button>
-      <button class="tab" data-category="TRX">TRX</button>
+      <!-- JS will populate tabs here -->
     </div>
 
     <!-- Sort -->
@@ -46,7 +42,7 @@ const SANITY_API_TOKEN = import.meta.env.PUBLIC_SANITY_API_TOKEN;
 
     const grid = document.getElementById('product-grid');
     const pagination = document.getElementById('pagination');
-    const tabs = document.querySelectorAll('.tab');
+    const categoryTabs = document.getElementById("category-tabs");
     const sortSelect = document.getElementById('sort');
 
     const PAGE_SIZE = 9;
@@ -63,11 +59,16 @@ const SANITY_API_TOKEN = import.meta.env.PUBLIC_SANITY_API_TOKEN;
         filters.push(`"${currentCategory}" in categories[]->title`); // Added missing semicolon
       }
 
-      const filterString = filters.length ? `*[${filters.join(' && ')}]` : `*[]`;
+      const filterString = filters.length ? `*[_type == "wooProduct" && ${filters.join(' && ')}]` : `*[_type == "wooProduct"]`;
       const sortString = `| order(${currentSort} asc)[${start}...${end}]`;
       const query = `${filterString} ${sortString} {
-        _id, title, price, horsepower, tune_required, slug { current }, images[]{ asset->{ url } }
+        _id,
+        title,
+        slug,
+        price,
+        images[]{ asset->{ url } }
       }`;
+      console.log("SANITY QUERY:", query);
 
       const result = await fetch(
         `https://${SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/production?query=${encodeURIComponent(query)}`,
@@ -77,6 +78,7 @@ const SANITY_API_TOKEN = import.meta.env.PUBLIC_SANITY_API_TOKEN;
           },
         }
       ).then(res => res.json());
+      console.log("Products fetched:", result.result);
 
       return result.result || [];
     };
@@ -86,7 +88,7 @@ const SANITY_API_TOKEN = import.meta.env.PUBLIC_SANITY_API_TOKEN;
       if (currentCategory) {
         filters.push(`"${currentCategory}" in categories[]._ref`);
       }
-        const query = `count(*[${filters.join(' && ')}])`;
+        const query = `count(*[_type == "wooProduct"${filters.length ? ' && ' + filters.join(' && ') : ''}])`;
         const result = await fetch(
           "https://" + SANITY_PROJECT_ID + ".api.sanity.io/v1/data/query/production?query=" + encodeURIComponent(query),
           {
@@ -98,4 +100,58 @@ const SANITY_API_TOKEN = import.meta.env.PUBLIC_SANITY_API_TOKEN;
   
         return result.result || 0;
       };
-          
+
+    const fetchCategories = async () => {
+      const query = `*[_type == "category"]{ title }`;
+      const result = await fetch(
+        `https://${SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/production?query=${encodeURIComponent(query)}`,
+        {
+          headers: {
+            Authorization: "Bearer " + SANITY_API_TOKEN,
+          },
+        }
+      ).then(res => res.json());
+      return result.result || [];
+    };
+
+    const renderCategoryTabs = async () => {
+      const categories = await fetchCategories();
+      categoryTabs.innerHTML = `<button class="tab active" data-category="">All</button>`;
+      categories.forEach(cat => {
+        const btn = document.createElement("button");
+        btn.className = "tab";
+        btn.setAttribute("data-category", cat.title);
+        btn.innerText = cat.title;
+        categoryTabs.appendChild(btn);
+      });
+    };
+
+    renderCategoryTabs();
+    
+    const renderProducts = async () => {
+      const products = await fetchProducts();
+      grid.innerHTML = products.map(product => {
+        const title = product.title ?? 'Untitled';
+        const slug = product.slug?.current ?? '#';
+        const image = product.images?.[0]?.asset?.url ?? '/images/placeholder-product.png';
+        const price = typeof product.price === 'number'
+          ? `$${parseFloat(product.price).toFixed(2)}`
+          : '—';
+    
+        return `
+          <div class="bg-white/5 border border-white/10 rounded-lg overflow-hidden shadow-lg backdrop-blur-md hover:scale-[1.02] transition-all">
+            <a href="/shop/${slug}">
+              <img src="${image}" alt="${title}" class="w-full h-60 object-cover" />
+              <div class="p-4 space-y-2">
+                <h3 class="font-semibold text-lg">${title}</h3>
+                <p class="text-primary font-bold">${price}</p>
+              </div>
+            </a>
+          </div>
+        `;
+      }).join('');
+    };
+    
+    renderProducts();
+  </script>
+</BaseLayout>

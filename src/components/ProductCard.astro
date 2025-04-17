@@ -1,28 +1,16 @@
 ---
 const { product } = Astro.props;
-const productImage = product.images?.[0]?.asset?.url || '/images/placeholder-product.png';
-const productPrice = product.price ? `$${product.price.toFixed(2)}` : '—';
+const productImage = product.images?.[0]?.asset?.url ?? '/images/placeholder-product.png';
+const productPrice = typeof product.price === 'number' ? `$${product.price.toFixed(2)}` : '—';
 
-const start = 0; // Define the starting index
-const end = 10; // Define the ending index
-
-const query = `*[_type == "wooProduct"] | order(_createdAt desc)[${start}...${end}] {
-  _id,
-  name,
-  price,
-  horsepower,
-  tune_required,
-  slug,
-  images[]{ asset->{ url } }
-}`;
 ---
 
 <div class="bg-black/10 rounded-[10px] shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.5)] overflow-hidden transform transition-all duration-300 group">
   <div class="p-4 h-52 sm:h-64 flex justify-center items-center overflow-hidden">
-    <img src={productImage} alt={product.name} class="h-full max-h-full object-contain transition-transform duration-300 ease-in-out group-hover:scale-105 group-hover:-rotate-1" />
+    <img src={productImage} alt={product.title} class="h-full max-h-full object-contain transition-transform duration-300 ease-in-out group-hover:scale-105 group-hover:-rotate-1" />
   </div>
   <div class="p-4 space-y-2 text-center">
-    <h2 class="text-base sm:text-sm font-ethno font-semibold">{product.name}</h2>
+    <h2 class="text-base sm:text-sm font-ethno font-semibold">{product.title}</h2>
     <p class="text-lg sm:text-xl font-captain text-primary">{productPrice}</p>
     <div class="flex items-center justify-center gap-2 mt-4">
       <button
