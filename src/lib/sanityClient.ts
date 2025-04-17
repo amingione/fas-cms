@@ -1,8 +1,7 @@
-// This is the ONLY file that sets up and exports the Sanity client
 import { createClient } from '@sanity/client';
 
-const projectId = process.env.SANITY_PROJECT_ID;
-const token = process.env.SANITY_API_TOKEN;
+const projectId = process.env.SANITY_PROJECT_ID || process.env.PUBLIC_SANITY_PROJECT_ID;
+const token = process.env.SANITY_API_TOKEN || process.env.PUBLIC_SANITY_API_TOKEN;
 
 if (!projectId || !token) {
   throw new Error("Missing Sanity environment variables: SANITY_PROJECT_ID or SANITY_API_TOKEN");
