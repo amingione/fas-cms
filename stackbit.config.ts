@@ -1,4 +1,4 @@
-import sanityContentSource from '@stackbit/cms-sanity';
+import { sanityContentSource } from '@stackbit/cms-sanity';
 import path from 'path';
 
 import { defineStackbitConfig } from '@stackbit/types';
@@ -13,7 +13,6 @@ export default defineStackbitConfig({
             token: process.env.SANITY_ACCESS_TOKEN!,
             dataset: process.env.SANITY_DATASET || 'production',
             rootPath: __dirname,
-            studioPath: path.resolve(__dirname, 'studio'),
             studioUrl: process.env.SANITY_STUDIO_URL || ''
         }),
     ],
