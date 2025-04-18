@@ -5,14 +5,14 @@ const { slug } = Astro.params;
 
 // Fetch the product details based on the slug
 const query = `*[_type == "wooProduct" && slug.current == "${slug}"][0]{
-  _id,
-  title,
-  price,
-  horsepower,
-  tune_required,
-  "slug": slug.current,
-  images[]{ asset->{ url } },
-  description
+    _id,
+    title,
+    price,
+    horsepower,
+    tune_required,
+    "slug": slug.current,
+    images[]{ asset->{ url } },
+    description
 }`;
 
 const response = await fetch(`https://${import.meta.env.SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/production?query=${encodeURIComponent(query)}`, {
@@ -22,7 +22,7 @@ const response = await fetch(`https://${import.meta.env.SANITY_PROJECT_ID}.api.s
 });
 
 const json = await response.json();
-const product = json.result;
+const product = json.result || null;
 
 if (!product) {
   console.error(`❌ Product with slug "${slug}" not found.`);

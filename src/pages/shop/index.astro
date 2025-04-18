@@ -7,11 +7,25 @@ console.log("🔍 SANITY_PROJECT_ID (inline script):", import.meta.env.PUBLIC_SA
 ---
 
 <BaseLayout>
-  <section class="max-w-7xl mx-auto px-6 py-12 text-white space-y-10">
-    <h1 class="text-3xl font-ethno font-bold text-accent">Shop</h1>
+  <section class="max-w-7xl mx-auto text-white">
 
+    <!-- Hero Section -->
+    <div class="relative w-full h-[60vh] sm:h-[70vh] lg:h-[80vh] xl:h-[90vh] overflow-hidden">
+      <img src="/images/shop background.png" alt="Shop Banner" class="w-full h-full object-cover shadow-lg" />
+      
+      <!-- Overlay Content -->
+      <div class="absolute inset-0 flex flex-col items-center justify-end text-center pb-[16vh] sm:pb-[18vh] md:pb-[20vh] lg:pb-[22vh] xl:pb-[24vh]">
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-borg text-primary leading-none">SHOP</h1>
+        <p class="mt-2 text-base sm:text-xl lg:text-2xl font-ethno text-white tracking-wide">
+          Precision. Power. Performance.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="max-w-7xl mx-10 px-4">
     <!-- Category Tabs -->
-    <div id="category-tabs" class="flex flex-wrap gap-3 text-sm font-captain">
+    <div id="category-tabs" class="flex flex-wrap gap-3 text-sm font-captain mt-10">
       <!-- JS will populate tabs here -->
     </div>
 
@@ -25,7 +39,7 @@ console.log("🔍 SANITY_PROJECT_ID (inline script):", import.meta.env.PUBLIC_SA
     </div>
 
     <!-- Product Grid -->
-    <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 pt-6">
+    <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 pt-8">
       <!-- JS populates this -->
     </div>
 
@@ -56,7 +70,7 @@ console.log("🔍 SANITY_PROJECT_ID (inline script):", import.meta.env.PUBLIC_SA
     };
 
     const fetchCategories = async () => {
-      const query = `*[_type == "category"]{ title }`;
+      const query = `*[_type == "category"]{ title, "slug": slug.current }`;
       const result = await fetch(
         `https://${import.meta.env.PUBLIC_SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/production?query=${encodeURIComponent(query)}`,
         {
@@ -70,11 +84,12 @@ console.log("🔍 SANITY_PROJECT_ID (inline script):", import.meta.env.PUBLIC_SA
 
     const renderCategoryTabs = async () => {
       const categories = await fetchCategories();
+      console.log("📦 Categories fetched:", categories);
       categoryTabs.innerHTML = `<button class="tab active" data-category="">All</button>`;
       categories.forEach(cat => {
         const btn = document.createElement("button");
         btn.className = "tab";
-        btn.setAttribute("data-category", cat.title);
+        btn.setAttribute("data-category", cat.slug || cat.title);
         btn.innerText = cat.title;
         categoryTabs.appendChild(btn);
       });
@@ -102,6 +117,22 @@ console.log("🔍 SANITY_PROJECT_ID (inline script):", import.meta.env.PUBLIC_SA
           </div>
         `;
       }).join('');
+      renderPagination(products.length);
+    };
+
+    const renderPagination = (total = 27) => {
+      const totalPages = Math.ceil(total / PAGE_SIZE);
+      pagination.innerHTML = '';
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.innerText = i;
+        btn.className = `mx-1 px-3 py-1 rounded ${i === currentPage ? 'bg-accent text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`;
+        btn.addEventListener('click', () => {
+          currentPage = i;
+          renderProducts();
+        });
+        pagination.appendChild(btn);
+      }
     };
 
     renderCategoryTabs();
