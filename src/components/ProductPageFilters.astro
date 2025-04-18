@@ -1,33 +1,39 @@
-<div id="product-filters" class="w-full bg-white/5 border border-white/10 rounded-lg p-6 backdrop-blur-md space-y-6">
-  <div>
-    <h3 class="text-lg font-semibold mb-2">Vehicle Model</h3>
-    <div class="flex flex-wrap gap-2" id="vehicle-models">
-      <button class="filter-btn" data-value="Charger">Charger</button>
-      <button class="filter-btn" data-value="Challenger">Challenger</button>
-      <button class="filter-btn" data-value="TRX">TRX</button>
-      <button class="filter-btn" data-value="Trackhawk">Trackhawk</button>
-      <button class="filter-btn" data-value="Durango">Durango</button>
-      <button class="filter-btn" data-value="Mustang">Mustang</button>
-      <button class="filter-btn" data-value="Raptor">Raptor</button>
-      <button class="filter-btn" data-value="F150">F150</button>
-      <button class="filter-btn" data-value="F250">F250</button>
-      <button class="filter-btn" data-value="F350">F350</button>
-      <button class="filter-btn" data-value="F450">F450</button>
+<div id="product-filters" class="w-full flex flex-wrap justify-center items-center gap-4 sm:gap-10 py-4 px-2 border-b border-white/10 backdrop-blur-md">
+  <div class="flex flex-wrap justify-center items-center gap-4 sm:gap-10 w-full">
+    <div>
+      <label for="vehicle-select" class="block mb-1 text-white">Select Vehicle</label>
+      <select id="vehicle-select" class="bg-black text-white px-4 py-2 border border-white/20 rounded">
+        <option value="">-- Select Vehicle --</option>
+        <option value="Charger">Charger</option>
+        <option value="Challenger">Challenger</option>
+        <option value="TRX">TRX</option>
+        <option value="Trackhawk">Trackhawk</option>
+        <option value="Durango">Durango</option>
+        <option value="Mustang">Mustang</option>
+        <option value="Raptor">Raptor</option>
+        <option value="F150">F150</option>
+        <option value="F250">F250</option>
+        <option value="F350">F350</option>
+        <option value="F450">F450</option>
+      </select>
     </div>
-  </div>
 
-  <div>
-    <h3 class="text-lg font-semibold mb-2">Tune Required</h3>
-    <div class="flex gap-4" id="tune-options">
-      <button class="filter-btn" data-value="Required">Required</button>
-      <button class="filter-btn" data-value="Not Required">Not Required</button>
+    <div>
+      <label for="tune-select" class="block mb-1 text-white">Select Tune</label>
+      <select id="tune-select" class="bg-black text-white px-4 py-2 border border-white/20 rounded">
+        <option value="">-- Select Tune --</option>
+        <option value="Required">Required</option>
+        <option value="Not Required">Not Required</option>
+      </select>
     </div>
-  </div>
 
-  <div>
-    <h3 class="text-lg font-semibold mb-2">Horsepower Range</h3>
-    <input type="range" min="600" max="1500" step="50" value="600" id="hp-slider" />
-    <div class="text-sm text-gray-400 mt-1" id="hp-output">Selected WHP: 600</div>
+    <div>
+      <label for="hp-slider" class="block mb-1 text-white text-sm">Horsepower</label>
+      <div class="flex items-center gap-2">
+        <input type="range" min="600" max="1500" step="50" value="600" id="hp-slider" />
+        <div class="text-xs text-gray-400" id="hp-output">600 WHP</div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -39,20 +45,16 @@
     horsepower: 600,
   };
 
-  document.querySelectorAll('#vehicle-models .filter-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const target = e.target as HTMLElement;
-      filterState.vehicle = target.dataset.value;
-      dispatchFilterChange(); // Emit filter change event for Astro page to listen
-    });
+  document.getElementById('vehicle-select').addEventListener('change', (e) => {
+    const target = e.target as HTMLSelectElement;
+    filterState.vehicle = target.value;
+    dispatchFilterChange();
   });
 
-  document.querySelectorAll('#tune-options .filter-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const target = e.target as HTMLElement;
-      filterState.tune = target.dataset.value;
-      dispatchFilterChange(); // Emit filter change event for Astro page to listen
-    });
+  document.getElementById('tune-select').addEventListener('change', (e) => {
+    const target = e.target as HTMLSelectElement;
+    filterState.tune = target.value;
+    dispatchFilterChange();
   });
 
   const slider = document.getElementById('hp-slider');

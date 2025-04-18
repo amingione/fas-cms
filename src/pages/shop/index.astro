@@ -75,7 +75,7 @@ if (endPage < totalPages) {
     <ProductPageFilters currentCategory={currentCategory} />
 
     <!-- Product Grid -->
-    <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 pt-8">
+    <div id="product-grid" class="relative isolation-isolate z-0 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 pt-8">
       {products.map(product => (
         <ProductCard product={product} />
       ))}
