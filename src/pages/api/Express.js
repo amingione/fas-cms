@@ -6,7 +6,7 @@ app.get('/api/products', async (req, res) => {
     const end = start + pageSize;
 
     const query = `*[
-      _type == "wooProduct" &&
+      _type == "product" &&
       (!defined(category) || category == $category) &&
       (!defined(tune) || tune_required == $tune) &&
       (!defined(hp) || horsepower <= $hp)
@@ -30,7 +30,7 @@ app.get('/api/products', async (req, res) => {
 
     const products = await sanityClient.fetch(query, params);
     const totalCount = await sanityClient.fetch(`count(*[
-      _type == "wooProduct" &&
+      _type == "product" &&
       (!defined(category) || category == $category) &&
       (!defined(tune) || tune_required == $tune) &&
       (!defined(hp) || horsepower <= $hp)

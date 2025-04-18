@@ -7,6 +7,17 @@ console.log("🔍 SANITY_PROJECT_ID (inline script):", import.meta.env.PUBLIC_SA
 ---
 
 <BaseLayout>
+  <script type="module" is:inline>
+    const sanityProjectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
+    const sanityApiToken = import.meta.env.PUBLIC_SANITY_API_TOKEN;
+    if (sanityProjectId && sanityApiToken) {
+      window.SANITY_PROJECT_ID = sanityProjectId;
+      window.SANITY_API_TOKEN = sanityApiToken;
+    } else {
+      console.error("Missing Sanity credentials");
+    }
+  </script>
+  
   <section class="max-w-7xl mx-auto text-white">
 
     <!-- Hero Section -->
@@ -87,10 +98,10 @@ console.log("🔍 SANITY_PROJECT_ID (inline script):", import.meta.env.PUBLIC_SA
     const fetchCategories = async () => {
       const query = `*[_type == "category"]{ title, "slug": slug.current }`;
       const result = await fetch(
-        `https://${import.meta.env.PUBLIC_SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/production?query=${encodeURIComponent(query)}`,
+        `https://${window.SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/production?query=${encodeURIComponent(query)}`,
         {
           headers: {
-            Authorization: "Bearer " + import.meta.env.PUBLIC_SANITY_API_TOKEN,
+            Authorization: "Bearer " + window.SANITY_API_TOKEN,
           },
         }
       ).then(res => res.json());
@@ -123,7 +134,11 @@ console.log("🔍 SANITY_PROJECT_ID (inline script):", import.meta.env.PUBLIC_SA
       const { products, totalCount } = await fetchProducts();
       grid.innerHTML = products.map(product => {
         const title = product.title ?? 'Untitled';
-        const slug = product.slug?.current ?? '#';
+        const slug = typeof product.slug === 'object' && product.slug?.current
+          ? product.slug.current
+          : typeof product.slug === 'string'
+            ? product.slug
+            : '#';
         const image = product.images?.[0]?.asset?.url ?? '/images/placeholder-product.png';
         const price = typeof product.price === 'number'
           ? `$${parseFloat(product.price).toFixed(2)}`
@@ -204,13 +219,12 @@ console.log("🔍 SANITY_PROJECT_ID (inline script):", import.meta.env.PUBLIC_SA
     };
 
     renderCategoryTabs();
-
+    renderProducts();
+    
     document.addEventListener("filterChange", (e) => {
       currentFilters = e.detail;
       currentPage = 1;
       renderProducts();
     });
-
-    renderProducts();
   </script>
 </BaseLayout>

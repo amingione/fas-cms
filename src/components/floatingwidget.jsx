@@ -1,10 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function FloatingCartWidget() {
   const [isOpen, setIsOpen] = useState(false);
-  const [cartItems, setCartItems] = useState([
-    { id: 1, name: 'Stage 2 Charger Tune', quantity: 1, price: 2499.00 }
-  ]);
+  const [cartItems, setCartItems] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('fas_cart');
+      return saved ? JSON.parse(saved) : [];
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('fas_cart', JSON.stringify(cartItems));
+  }, [cartItems]);
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.quantity * item.price, 0);
 

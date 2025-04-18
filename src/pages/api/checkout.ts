@@ -17,7 +17,14 @@ export async function POST({ request }: { request: Request }) {
   
   const { sessionId } = body;
 
-  const query = import.meta.env.SANITY_QUERY_CART_ITEMS.replace('$SESSION_ID', sessionId);
+  const rawQuery = import.meta.env.SANITY_QUERY_CART_ITEMS;
+  if (!rawQuery) {
+    return new Response(JSON.stringify({ error: 'Missing SANITY_QUERY_CART_ITEMS environment variable' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+  const query = rawQuery.replace('$SESSION_ID', sessionId);
   const url = `https://${import.meta.env.SANITY_PROJECT_ID}.api.sanity.io/v${import.meta.env.SANITY_API_VERSION}/data/query/${import.meta.env.SANITY_DATASET}?query=${encodeURIComponent(query)}`;
 
   const cartRes = await fetch(url, {
@@ -26,7 +33,21 @@ export async function POST({ request }: { request: Request }) {
     },
   });
 
+  if (!cartRes.ok) {
+    return new Response(JSON.stringify({ error: 'Failed to fetch cart items from Sanity' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   const { result: cartItems }: { result: { product: { name: string; price: number }; quantity: number }[] } = await cartRes.json();
+
+  if (!Array.isArray(cartItems) || cartItems.length === 0) {
+    return new Response(JSON.stringify({ error: 'Cart is empty or invalid' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
 
   const lineItems = cartItems.map((item: { product: { name: string; price: number }; quantity: number }) => ({
     price_data: {

@@ -4,15 +4,29 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 const { slug } = Astro.params;
 
 // Fetch the product details based on the slug
-const query = `*[_type == "wooProduct" && slug.current == "${slug}"][0]{
+const query = `*[_type == "product" && (slug.current == "${slug}" || slug == "${slug}")][0]{
+  _id,
+  title,
+  price,
+  averageHorsepower,
+  tune_required,
+  "slug": coalesce(slug.current, slug),
+  images[]{ asset->{ url } },
+  description,
+  relatedProducts[]->{
     _id,
     title,
     price,
-    horsepower,
-    tune_required,
-    "slug": slug.current,
-    images[]{ asset->{ url } },
-    description
+    "slug": coalesce(slug.current, slug),
+    images[]{ asset->{ url } }
+  },
+  upsellProducts[]->{
+    _id,
+    title,
+    price,
+    "slug": coalesce(slug.current, slug),
+    images[]{ asset->{ url } }
+  }
 }`;
 
 const response = await fetch(`https://${import.meta.env.SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/production?query=${encodeURIComponent(query)}`, {
@@ -93,7 +107,7 @@ if (!product) {
           <p class="text-white/80 mb-6">{product.description || 'No description available.'}</p>
 
           <ul class="text-white/60 mb-6 space-y-1 text-sm">
-            <li><strong>Horsepower:</strong> {product.horsepower || 'N/A'}</li>
+            <li><strong>Horsepower:</strong> {product.averageHorsepower || 'N/A'}</li>
             <li><strong>Tune Required:</strong> {product.tune_required || 'Unknown'}</li>
           </ul>
 
@@ -121,11 +135,47 @@ if (!product) {
   )}
 </BaseLayout>
 
-<section class="mt-20">
-  <h2 class="text-2xl font-semibold text-white mb-6">Related Products</h2>
-  <div class="grid md:grid-cols-3 gap-6">
-    <div class="bg-white/5 rounded-lg p-4 text-white text-center opacity-50">Coming Soon</div>
-    <div class="bg-white/5 rounded-lg p-4 text-white text-center opacity-50">Coming Soon</div>
-    <div class="bg-white/5 rounded-lg p-4 text-white text-center opacity-50">Coming Soon</div>
-  </div>
-</section>
+{product.relatedProducts?.length > 0 && (
+  <section class="mt-20 max-w-6xl mx-auto px-4">
+    <h2 class="text-2xl font-semibold text-white mb-6">Related Products</h2>
+    <div class="grid md:grid-cols-3 gap-6">
+      {product.relatedProducts.map((related) => (
+        <a
+          href={`/shop/${related.slug}`}
+          class="block bg-white/5 rounded-lg p-4 text-white hover:bg-white/10 transition"
+        >
+          <img
+            src={related.images?.[0]?.url || '/images/placeholder.png'}
+            alt={related.title}
+            class="rounded w-full h-40 object-cover mb-4"
+          />
+          <h3 class="text-lg font-bold">{related.title}</h3>
+          <p class="text-accent font-semibold">${related.price}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+)}
+
+{product.upsellProducts?.length > 0 && (
+  <section class="mt-20 max-w-6xl mx-auto px-4">
+    <h2 class="text-2xl font-semibold text-white mb-6">You May Also Like</h2>
+    <div class="grid md:grid-cols-3 gap-6">
+      {product.upsellProducts.map((upsell) => (
+        <a
+          href={`/shop/${upsell.slug}`}
+          class="block bg-white/5 rounded-lg p-4 text-white hover:bg-white/10 transition"
+        >
+          <img
+            src={upsell.images?.[0]?.url || '/images/placeholder.png'}
+            alt={upsell.title}
+            class="rounded w-full h-40 object-cover mb-4"
+          />
+          <h3 class="text-lg font-bold">{upsell.title}</h3>
+          <p class="text-accent font-semibold">${upsell.price}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+)}
+</file>

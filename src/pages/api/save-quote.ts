@@ -9,24 +9,51 @@ const client = createClient({
 });
 
 export async function POST({ request }: { request: Request }) {
-  const data = await request.json();
-
-  // ✅ Full validation
-  if (!data.vehicleModel || !data.modifications || !data.horsepower || !data.price) {
-    return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 });
+  let data: {
+    vehicleModel: string;
+    modifications: string[];
+    horsepower: number;
+    price: number;
+  };
+ 
+  try {
+    data = await request.json();
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid JSON body' }), { status: 400 });
+  }
+ 
+  const { vehicleModel, modifications, horsepower, price } = data;
+ 
+  if (
+    typeof vehicleModel !== 'string' ||
+    !Array.isArray(modifications) ||
+    typeof horsepower !== 'number' ||
+    typeof price !== 'number'
+  ) {
+    return new Response(JSON.stringify({ error: 'Missing or invalid fields' }), { status: 400 });
   }
 
   try {
     const newDoc = await client.create({
       _type: 'buildQuote',
-      ...data,
+      submittedAt: new Date().toISOString(),
+      vehicleModel,
+      modifications,
+      horsepower,
+      price,
     });
 
-    return new Response(JSON.stringify({ success: true, id: newDoc._id }), {
+    return new Response(JSON.stringify({
+      success: true,
+      id: newDoc._id,
+      createdAt: newDoc._createdAt,
+      vehicleModel: data.vehicleModel
+    }), {
       status: 200,
     });
-  } catch (err) {
-    console.error('Sanity write failed:', err);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    console.error('Sanity write failed:', message);
     return new Response(JSON.stringify({ error: 'Failed to write to Sanity' }), {
       status: 500,
     });

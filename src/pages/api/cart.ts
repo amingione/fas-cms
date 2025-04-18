@@ -18,8 +18,31 @@ export async function POST({ request }: { request: Request }) {
 
   const { productId, quantity, sessionId } = body;
 
-  if (!productId || !quantity || !sessionId) {
-    return new Response(JSON.stringify({ error: "Missing required fields" }), {
+  if (!productId || !quantity || !sessionId || !Number.isInteger(quantity) || quantity <= 0) {
+    return new Response(JSON.stringify({ error: "Missing or invalid fields" }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  // Verify the referenced document is a product
+  const validateRes = await fetch(`https://${import.meta.env.SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/${import.meta.env.SANITY_DATASET}?query=*[_id == "${productId}"][0]{_type}`, {
+    headers: {
+      Authorization: `Bearer ${import.meta.env.SANITY_API_TOKEN}`
+    }
+  });
+
+  if (!validateRes.ok) {
+    return new Response(JSON.stringify({ error: "Failed to validate product with Sanity" }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  const { result: productCheck } = await validateRes.json();
+
+  if (!productCheck || productCheck._type !== 'product') {
+    return new Response(JSON.stringify({ error: "Invalid product reference" }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     });

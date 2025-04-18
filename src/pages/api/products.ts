@@ -19,12 +19,55 @@ export async function GET({ url }: { url: URL }) {
   const end = Number(url.searchParams.get('end')) || 9;
   const sort = url.searchParams.get('sort') || 'price';
 
-  const allQuery = `*[_type == "wooProduct"] | order(${sort} asc) {
+  const category = url.searchParams.get('category');
+  const vehicle = url.searchParams.get('vehicle');
+  const tune = url.searchParams.get('tune');
+  const minHp = url.searchParams.get('minHp');
+
+  let filters = [`_type == "product"`];
+
+  if (category) filters.push(`"${category}" in categories[]->slug.current`);
+  if (vehicle) filters.push(`"${vehicle}" in compatibleVehicles[]->slug.current`);
+  if (tune) filters.push(`tune == "${tune}"`);
+  if (minHp) filters.push(`averageHorsepower >= ${minHp}`);
+
+  const allQuery = `*[
+    ${filters.join(' && ')}
+  ] | order(${sort} asc) {
     _id,
     title,
     slug,
     price,
-    images[]{ asset->{ url } }
+    averageHorsepower,
+    description,
+    sku,
+    onSale,
+    salePrice,
+    inventory,
+    featured,
+    productType,
+    categories[]->{
+      title,
+      slug
+    },
+    images[]{
+      asset->{
+        url
+      },
+      alt
+    },
+    upsells[]->{
+      _id,
+      title,
+      slug,
+      price,
+      images[]{
+        asset->{
+          url
+        },
+        alt
+      }
+    }
   }`;
 
   const allProducts = await client.fetch(allQuery);
