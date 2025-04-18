@@ -1,6 +1,9 @@
 module.exports = {
   content: [
     './src/**/*.{astro,html,js,jsx,ts,tsx,vue,svelte}',
+    './components/**/*.{astro,html,js,jsx,ts,tsx}',
+    './layouts/**/*.{astro,html,js,jsx,ts,tsx}',
+    './pages/**/*.{astro,html,js,jsx,ts,tsx}',
   ],
   safelist: [
     'font-captain',

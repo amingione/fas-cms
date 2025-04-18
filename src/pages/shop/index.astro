@@ -1,10 +1,41 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { fetchProductsFromSanity } from '../../lib/sanity-utils';
+import ProductPageFilters from '../../components/ProductPageFilters.astro';
 
 export const prerender = false;
 
-console.log("🔍 SANITY_PROJECT_ID (inline script):", import.meta.env.PUBLIC_SANITY_PROJECT_ID);
+const PAGE_SIZE = 12;
+const url = new URL(Astro.request.url);
+const currentPage = parseInt(url.searchParams.get("page") || "1");
+const currentCategory = url.searchParams.get("category");
+const start = (currentPage - 1) * PAGE_SIZE;
+const end = start + PAGE_SIZE;
+
+const allProducts = await fetchProductsFromSanity(currentCategory);
+const totalCount = allProducts.length;
+const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+const products = allProducts.slice(start, end);
+
+const paginationLinks = [];
+const maxVisiblePages = 5;
+const pageGroup = Math.floor((currentPage - 1) / maxVisiblePages);
+const startPage = pageGroup * maxVisiblePages + 1;
+const endPage = Math.min(startPage + maxVisiblePages - 1, totalPages);
+if (startPage > 1) {
+  paginationLinks.push({ label: "←", page: startPage - 1 });
+}
+
+for (let page = startPage; page <= endPage; page++) {
+  paginationLinks.push({ label: page.toString(), page });
+}
+
+if (endPage < totalPages) {
+  paginationLinks.push({ label: "→", page: endPage + 1 });
+}
 ---
+
 
 <BaseLayout>
   <script type="module" is:inline>
@@ -40,63 +71,40 @@ console.log("🔍 SANITY_PROJECT_ID (inline script):", import.meta.env.PUBLIC_SA
       <!-- JS will populate tabs here -->
     </div>
 
-    <!-- Sort -->
-    <div class="flex items-center gap-4 text-sm font-captain">
-      <label for="sort" class="text-primary">Sort:</label>
-      <select id="sort" class="bg-black border border-gray-700 px-3 py-1 rounded">
-        <option value="price">Price</option>
-        <option value="horsepower">Horsepower</option>
-      </select>
-    </div>
+    <!-- Product Page Filters -->
+    <ProductPageFilters currentCategory={currentCategory} />
 
     <!-- Product Grid -->
     <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 pt-8">
-      <!-- JS populates this -->
+      {products.map(product => (
+        <ProductCard product={product} />
+      ))}
     </div>
 
-    <!-- Pagination -->
-    <div id="pagination" class="flex justify-center mt-12">
-      <!-- JS populates this -->
+    <div id="pagination" class="flex justify-center mt-12 gap-2">
+      {
+        paginationLinks.map(({ label, page }) => {
+          const isActive = page === currentPage;
+          return (
+            <a
+              href={`/shop?page=${page}`}
+              class={`px-3 py-1 rounded-md transition duration-200 text-sm font-bold ${
+                isActive 
+                  ? 'bg-primary text-black shadow-md'
+                : 'bg-black/50 text-white hover:bg-red-600 hover:text-white'
+              }`}
+            >
+              {label}
+            </a>
+          );
+        })
+      }
     </div>
   </section>
 
   <script type="module" is:inline>
-    // Now using /api/products server route to fetch data securely
-    const grid = document.getElementById('product-grid');
-    const pagination = document.getElementById('pagination');
-    const categoryTabs = document.getElementById("category-tabs");
-    const sortSelect = document.getElementById('sort');
-    let currentFilters = {};
-
-    const PAGE_SIZE = 9;
-    let currentPage = 1;
-    let currentCategory = '';
-    let currentSort = 'price';
-
-    const fetchProducts = async () => {
-      const start = (currentPage - 1) * PAGE_SIZE;
-      const end = start + PAGE_SIZE;
-      const params = new URLSearchParams({
-        start: start.toString(),
-        end: end.toString(),
-        category: currentCategory,
-        sort: currentSort,
-      });
-
-      if (currentFilters.vehicle) params.set("vehicle", currentFilters.vehicle);
-      if (currentFilters.tune) params.set("tune", currentFilters.tune);
-      if (currentFilters.horsepower) params.set("minHp", currentFilters.horsepower);
-
-      const res = await fetch(`/api/products?${params.toString()}`);
-      const data = await res.json();
-      return {
-        products: data.products || [],
-        totalCount: data.totalCount || 0
-      };
-    };
-
     const fetchCategories = async () => {
-      const query = `*[_type == "category"]{ title, "slug": slug.current }`;
+      const query = `*[_type == "category"]{ "title": title, "slug": slug.current }`;
       const result = await fetch(
         `https://${window.SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/production?query=${encodeURIComponent(query)}`,
         {
@@ -111,120 +119,31 @@ console.log("🔍 SANITY_PROJECT_ID (inline script):", import.meta.env.PUBLIC_SA
     const renderCategoryTabs = async () => {
       const categories = await fetchCategories();
       console.log("📦 Categories fetched:", categories);
-      categoryTabs.innerHTML = `<button class="tab active" data-category="">All</button>`;
+      categoryTabs.innerHTML = `<a href="/shop" class="tab ${!currentCategory ? 'active' : ''}">All</a>`;
       categories.forEach(cat => {
-        const btn = document.createElement("button");
-        btn.className = "tab";
-        btn.setAttribute("data-category", cat.slug || cat.title);
-        btn.innerText = cat.title;
-        categoryTabs.appendChild(btn);
+        const slug = cat.slug || cat.title;
+        const isActive = slug === currentCategory;
+        const a = document.createElement("a");
+        a.href = `/shop?category=${slug}`;
+        a.className = `tab ${isActive ? 'active' : ''}`;
+        a.innerText = cat.title;
+        categoryTabs.appendChild(a);
       });
-      categoryTabs.querySelectorAll("button").forEach(btn => {
-        btn.addEventListener("click", () => {
-          currentCategory = btn.getAttribute("data-category") || '';
-          currentPage = 1;
-          categoryTabs.querySelectorAll("button").forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-          renderProducts();
-        });
-      });
+      
     };
-
-    const renderProducts = async () => {
-      const { products, totalCount } = await fetchProducts();
-      grid.innerHTML = products.map(product => {
-        const title = product.title ?? 'Untitled';
-        const slug = typeof product.slug === 'object' && product.slug?.current
-          ? product.slug.current
-          : typeof product.slug === 'string'
-            ? product.slug
-            : '#';
-        const image = product.images?.[0]?.asset?.url ?? '/images/placeholder-product.png';
-        const price = typeof product.price === 'number'
-          ? `$${parseFloat(product.price).toFixed(2)}`
-          : '—';
-
-        return `
-          <div class="bg-white/5 border border-white/10 rounded-lg overflow-hidden shadow-lg backdrop-blur-md hover:scale-[1.02] transition-all">
-            <a href="/shop/${slug}">
-              <img src="${image}" alt="${title}" class="w-full h-60 object-cover" />
-              <div class="p-4 space-y-2">
-                <h3 class="font-semibold text-lg">${title}</h3>
-                <p class="text-primary font-bold">${price}</p>
-              </div>
-            </a>
-          </div>
-        `;
-      }).join('');
-      renderPagination(totalCount);
-    };
-
-    const renderPagination = (total = 27) => {
-      const totalPages = Math.ceil(total / PAGE_SIZE);
-      pagination.innerHTML = '';
-
-      const createButton = (text, page, classes = '') => {
-        const btn = document.createElement('button');
-        btn.innerText = text;
-        btn.className = `mx-1 px-3 py-1 rounded bg-black/50 backdrop-blur-md ${classes}`;
-        btn.addEventListener('click', () => {
-          currentPage = page;
-          renderProducts();
-        });
-        return btn;
-      };
-
-      if (currentPage > 1) {
-        pagination.appendChild(createButton('«', currentPage - 1, 'text-white hover:bg-red-600'));
-      }
-
-      const maxVisible = 5;
-      let startPage = Math.max(currentPage - 2, 1);
-      let endPage = Math.min(startPage + maxVisible - 1, totalPages);
-
-      if (endPage - startPage < maxVisible - 1) {
-        startPage = Math.max(endPage - maxVisible + 1, 1);
-      }
-
-      if (startPage > 1) {
-        pagination.appendChild(createButton('1', 1, 'text-white hover:bg-red-600'));
-        if (startPage > 2) {
-          const dots = document.createElement('span');
-          dots.innerText = '...';
-          dots.className = 'mx-1 text-gray-400';
-          pagination.appendChild(dots);
-        }
-      }
-
-      for (let i = startPage; i <= endPage; i++) {
-        const isActive = i === currentPage;
-        pagination.appendChild(createButton(i, i, isActive
-          ? 'bg-primary text-white'
-          : 'text-white hover:bg-red-600'));
-      }
-
-      if (endPage < totalPages) {
-        if (endPage < totalPages - 1) {
-          const dots = document.createElement('span');
-          dots.innerText = '...';
-          dots.className = 'mx-1 text-gray-400';
-          pagination.appendChild(dots);
-        }
-        pagination.appendChild(createButton(totalPages, totalPages, 'text-white hover:bg-red-600'));
-      }
-
-      if (currentPage < totalPages) {
-        pagination.appendChild(createButton('»', currentPage + 1, 'text-white hover:bg-red-600'));
-      }
-    };
-
-    renderCategoryTabs();
-    renderProducts();
     
+    const currentCategory = new URLSearchParams(window.location.search).get("category");
+    renderCategoryTabs();
+
     document.addEventListener("filterChange", (e) => {
       currentFilters = e.detail;
       currentPage = 1;
-      renderProducts();
+      // renderProducts();
     });
   </script>
+  <style>
+       #pagination a:hover {
+      color: black !important;
+    }
+  </style>
 </BaseLayout>
