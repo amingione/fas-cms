@@ -55,6 +55,7 @@ console.log("🔍 SANITY_PROJECT_ID (inline script):", import.meta.env.PUBLIC_SA
     const pagination = document.getElementById('pagination');
     const categoryTabs = document.getElementById("category-tabs");
     const sortSelect = document.getElementById('sort');
+    let currentFilters = {};
 
     const PAGE_SIZE = 9;
     let currentPage = 1;
@@ -64,7 +65,18 @@ console.log("🔍 SANITY_PROJECT_ID (inline script):", import.meta.env.PUBLIC_SA
     const fetchProducts = async () => {
       const start = (currentPage - 1) * PAGE_SIZE;
       const end = start + PAGE_SIZE;
-      const res = await fetch(`/api/products?start=${start}&end=${end}&category=${currentCategory}&sort=${currentSort}`);
+      const params = new URLSearchParams({
+        start: start.toString(),
+        end: end.toString(),
+        category: currentCategory,
+        sort: currentSort,
+      });
+
+      if (currentFilters.vehicle) params.set("vehicle", currentFilters.vehicle);
+      if (currentFilters.tune) params.set("tune", currentFilters.tune);
+      if (currentFilters.horsepower) params.set("minHp", currentFilters.horsepower);
+
+      const res = await fetch(`/api/products?${params.toString()}`);
       const data = await res.json();
       return {
         products: data.products || [],
@@ -192,6 +204,13 @@ console.log("🔍 SANITY_PROJECT_ID (inline script):", import.meta.env.PUBLIC_SA
     };
 
     renderCategoryTabs();
+
+    document.addEventListener("filterChange", (e) => {
+      currentFilters = e.detail;
+      currentPage = 1;
+      renderProducts();
+    });
+
     renderProducts();
   </script>
 </BaseLayout>

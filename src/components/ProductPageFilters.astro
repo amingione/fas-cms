@@ -32,6 +32,7 @@
 </div>
 
 <script>
+  // Dispatch system to communicate filter changes to the main Astro page
   const filterState = {
     vehicle: null,
     tune: null,
@@ -42,7 +43,7 @@
     btn.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
       filterState.vehicle = target.dataset.value;
-      dispatchFilterChange();
+      dispatchFilterChange(); // Emit filter change event for Astro page to listen
     });
   });
 
@@ -50,7 +51,7 @@
     btn.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
       filterState.tune = target.dataset.value;
-      dispatchFilterChange();
+      dispatchFilterChange(); // Emit filter change event for Astro page to listen
     });
   });
 
@@ -60,11 +61,11 @@
     const target = e.target as HTMLInputElement;
     filterState.horsepower = parseInt(target.value, 10);
     output.textContent = `Selected WHP: ${filterState.horsepower}`;
-    dispatchFilterChange();
+    dispatchFilterChange(); // Emit filter change event for Astro page to listen
   });
 
   function dispatchFilterChange() {
     const event = new CustomEvent('filterChange', { detail: filterState });
-    document.dispatchEvent(event);
+    document.dispatchEvent(event); // Dispatch the event with current filter state
   }
 </script>
