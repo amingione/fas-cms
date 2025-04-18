@@ -66,7 +66,10 @@ console.log("🔍 SANITY_PROJECT_ID (inline script):", import.meta.env.PUBLIC_SA
       const end = start + PAGE_SIZE;
       const res = await fetch(`/api/products?start=${start}&end=${end}&category=${currentCategory}&sort=${currentSort}`);
       const data = await res.json();
-      return data || [];
+      return {
+        products: data.products || [],
+        totalCount: data.totalCount || 0
+      };
     };
 
     const fetchCategories = async () => {
@@ -93,10 +96,19 @@ console.log("🔍 SANITY_PROJECT_ID (inline script):", import.meta.env.PUBLIC_SA
         btn.innerText = cat.title;
         categoryTabs.appendChild(btn);
       });
+      categoryTabs.querySelectorAll("button").forEach(btn => {
+        btn.addEventListener("click", () => {
+          currentCategory = btn.getAttribute("data-category") || '';
+          currentPage = 1;
+          categoryTabs.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          renderProducts();
+        });
+      });
     };
 
     const renderProducts = async () => {
-      const products = await fetchProducts();
+      const { products, totalCount } = await fetchProducts();
       grid.innerHTML = products.map(product => {
         const title = product.title ?? 'Untitled';
         const slug = product.slug?.current ?? '#';
@@ -117,21 +129,65 @@ console.log("🔍 SANITY_PROJECT_ID (inline script):", import.meta.env.PUBLIC_SA
           </div>
         `;
       }).join('');
-      renderPagination(products.length);
+      renderPagination(totalCount);
     };
 
     const renderPagination = (total = 27) => {
       const totalPages = Math.ceil(total / PAGE_SIZE);
       pagination.innerHTML = '';
-      for (let i = 1; i <= totalPages; i++) {
+
+      const createButton = (text, page, classes = '') => {
         const btn = document.createElement('button');
-        btn.innerText = i;
-        btn.className = `mx-1 px-3 py-1 rounded ${i === currentPage ? 'bg-accent text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`;
+        btn.innerText = text;
+        btn.className = `mx-1 px-3 py-1 rounded bg-black/50 backdrop-blur-md ${classes}`;
         btn.addEventListener('click', () => {
-          currentPage = i;
+          currentPage = page;
           renderProducts();
         });
-        pagination.appendChild(btn);
+        return btn;
+      };
+
+      if (currentPage > 1) {
+        pagination.appendChild(createButton('«', currentPage - 1, 'text-white hover:bg-red-600'));
+      }
+
+      const maxVisible = 5;
+      let startPage = Math.max(currentPage - 2, 1);
+      let endPage = Math.min(startPage + maxVisible - 1, totalPages);
+
+      if (endPage - startPage < maxVisible - 1) {
+        startPage = Math.max(endPage - maxVisible + 1, 1);
+      }
+
+      if (startPage > 1) {
+        pagination.appendChild(createButton('1', 1, 'text-white hover:bg-red-600'));
+        if (startPage > 2) {
+          const dots = document.createElement('span');
+          dots.innerText = '...';
+          dots.className = 'mx-1 text-gray-400';
+          pagination.appendChild(dots);
+        }
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        const isActive = i === currentPage;
+        pagination.appendChild(createButton(i, i, isActive
+          ? 'bg-primary text-white'
+          : 'text-white hover:bg-red-600'));
+      }
+
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+          const dots = document.createElement('span');
+          dots.innerText = '...';
+          dots.className = 'mx-1 text-gray-400';
+          pagination.appendChild(dots);
+        }
+        pagination.appendChild(createButton(totalPages, totalPages, 'text-white hover:bg-red-600'));
+      }
+
+      if (currentPage < totalPages) {
+        pagination.appendChild(createButton('»', currentPage + 1, 'text-white hover:bg-red-600'));
       }
     };
 

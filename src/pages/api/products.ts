@@ -1,4 +1,3 @@
-// src/pages/api/products/index.ts
 import { createClient } from '@sanity/client';
 
 const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID || import.meta.env.SANITY_PROJECT_ID;
@@ -15,8 +14,12 @@ const client = createClient({
   useCdn: false,
 });
 
-export async function GET() {
-  const query = `*[_type == "wooProduct"] | order(price asc)[0...9] {
+export async function GET({ url }: { url: URL }) {
+  const start = Number(url.searchParams.get('start')) || 0;
+  const end = Number(url.searchParams.get('end')) || 9;
+  const sort = url.searchParams.get('sort') || 'price';
+
+  const allQuery = `*[_type == "wooProduct"] | order(${sort} asc) {
     _id,
     title,
     slug,
@@ -24,8 +27,14 @@ export async function GET() {
     images[]{ asset->{ url } }
   }`;
 
-  const products = await client.fetch(query);
-  return new Response(JSON.stringify(products), {
-    headers: { 'Content-Type': 'application/json' },
-  });
+  const allProducts = await client.fetch(allQuery);
+  const slicedProducts = allProducts.slice(start, end);
+
+  return new Response(
+    JSON.stringify({
+      products: slicedProducts,
+      totalCount: allProducts.length,
+    }),
+    { headers: { 'Content-Type': 'application/json' } }
+  );
 }
