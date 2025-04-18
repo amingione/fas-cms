@@ -1,38 +1,41 @@
 {
   "name": "fas-cms",
-  "type": "module",
-  "version": "0.0.1",
+  "packageManager": "yarn@4.9.1",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "preview": "astro preview"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.1",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/stripe": "^8.0.417",
+    "@vitejs/plugin-react": "^4.4.0",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.24.0",
+    "eslint-config-prettier": "^10.1.2",
+    "postcss": "^8.5.3",
+    "prettier": "^3.5.3",
+    "tailwindcss": "3.3.5"
   },
   "dependencies": {
-    "@astrojs/netlify": "^6.2.5",
-    "@astrojs/node": "^9.2.0",
-    "@astrojs/react": "^4.2.3",
-    "@clerk/astro": "^2.6.5",
-    "@clerk/clerk-js": "^5.61.0",
+    "@astrojs/image": "^0.18.0",
+    "@astrojs/netlify": "^6.3.0",
+    "@astrojs/react": "^4.2.4",
+    "@astrojs/tailwind": "^6.0.2",
+    "@clerk/astro": "^2.6.6",
+    "@clerk/clerk-js": "^5.61.2",
+    "@clerk/clerk-react": "^5.28.2",
     "@sanity/client": "^6.29.0",
-    "@tailwindcss/vite": "^4.1.3",
-    "astro": "^5.6.1",
+    "@sanity/icons": "^3.7.0",
+    "@sanity/types": "^3.85.1",
+    "@sanity/ui": "^2.15.13",
+    "astro": "^5.7.3",
     "next-sanity": "^9.10.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "resend": "^4.3.0",
-    "sanity": "^3.85.1",
-    "stripe": "^18.0.0",
-    "uuid": "^11.1.0"
-  },
-  "devDependencies": {
-    "@astrojs/tailwind": "^6.0.2",
-    "@types/react": "^19.1.2",
-    "@types/react-dom": "^19.1.2",
-    "autoprefixer": "^10.4.21",
-    "postcss": "^8.5.3",
-    "rollup": "^4.40.0",
-    "tailwindcss": "^3.4.17"
-  },
-  "packageManager": "yarn@4.9.1"
+    "stripe": "^18.0.0"
+  }
 }

@@ -1,8 +1,21 @@
-/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./src/**/*.{astro,html,js,jsx,ts,tsx,css}",
-    "./public/**/*.html",
+    './src/**/*.{astro,html,js,jsx,ts,tsx,vue,svelte}',
+  ],
+  safelist: [
+    'font-captain',
+    'font-borg',
+    'font-ethno',
+    'font-ethno-italic',
+    'font-cyber',
+    'font-cyber-italic',
+    'font-cyber3d',
+    'font-cyber3d-italic',
+    'font-cyber3dfilled',
+    'font-cyber3dfilled-italic',
+    'font-kwajong',
+    'font-kwajong-italic',
+    'font-body',
   ],
   theme: {
     extend: {

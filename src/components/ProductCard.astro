@@ -1,41 +1,42 @@
 ---
-const { product } = Astro.props;
-const productImage = product.images?.[0]?.asset?.url ?? '/images/placeholder-product.png';
-const productPrice = typeof product.price === 'number' ? `$${product.price.toFixed(2)}` : '—';
-
+const { productImage, product } = Astro.props;
+const productPrice =
+  typeof product.price === "number"
+    ? `$${parseFloat(product.price).toFixed(2)}`
+    : "—";
 ---
-
-<div class="bg-black/10 rounded-[10px] shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.5)] overflow-hidden transform transition-all duration-300 group">
+<div class="relative z-10 bg-black/10 rounded-[10px] shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.5)] overflow-hidden transform transition-all duration-300 group font-sans">
   <div class="p-4 h-52 sm:h-64 flex justify-center items-center overflow-hidden">
-    <img src={productImage} alt={product.title} class="h-full max-h-full object-contain transition-transform duration-300 ease-in-out group-hover:scale-105 group-hover:-rotate-1" />
+    <img src={productImage} alt={product.title} class="w-full h-full object-contain transition-transform duration-300 ease-in-out group-hover:scale-105 group-hover:-rotate-1" />
   </div>
   <div class="p-4 space-y-2 text-center">
     <h2 class="text-base sm:text-sm font-ethno font-semibold">{product.title}</h2>
     <p class="text-lg sm:text-xl font-captain text-primary">{productPrice}</p>
-    <div class="flex items-center justify-center gap-2 mt-4">
-      <button
-        class="add-to-cart relative group inline-block px-4 py-1.5 text-sm text-white bg-transparent border border-white uppercase tracking-wider font-kwajong overflow-hidden transition-all duration-300"
-        data-product-id={product._id}
-      >
-        <span class="relative z-10 flex items-center justify-center gap-2 group-hover:text-white">
-          Add
-        </span>
-        <span class="absolute inset-0 bg-primary transform -translate-x-full group-hover:translate-x-0 text-black transition-transform duration-300 z-0"></span>
-      </button>
-      {product.slug?.current ? (
+    {product.slug?.current ? (
+      <div class="flex items-center justify-center gap-2 mt-4">
+        <button
+          class="add-to-cart relative group inline-block px-4 py-1.5 text-sm text-white bg-transparent border border-white uppercase tracking-wider font-kwajong overflow-hidden transition-all duration-300"
+          data-product-id={product._id}
+        >
+          <span class="relative z-10 flex items-center justify-center gap-2 group-hover:text-white">
+            Add
+          </span>
+          <span class="absolute inset-0 bg-primary transform -translate-x-full group-hover:translate-x-0 text-black transition-transform duration-300 z-0"></span>
+        </button>
         <a
           href={`/shop/${product.slug.current}`}
-          class="px-4 py-1.5 text-sm border border-white text-white font-kwajong hover:scale-105 transition-transform duration-300 uppercase tracking-wider flex items-center gap-2"
+          class="px-4 py-1.5 text-sm border border-red-500 text-red-500 bg-black font-kwajong transition-all duration-300 uppercase tracking-wider flex items-center gap-2 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 z-[9999]"
+          style="border: 2px dashed lime; background-color: rgba(255, 0, 0, 0.2);"
         >
           Details
           <svg class="w-3.5 h-3.5 transform transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
           </svg>
         </a>
-      ) : (
-        <span class="text-gray-500 text-sm">No details available</span>
-      )}
-    </div>
+      </div>
+    ) : (
+      <span class="text-gray-500 text-sm">No details available</span>
+    )}
   </div>
 </div>
 <div id="product-toast" class="fixed top-20 right-6 z-50 hidden px-4 py-3 backdrop-blur bg-white/10 text-white font-bold shadow-lg transition-all duration-300"></div>
