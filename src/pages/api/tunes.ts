@@ -1,6 +1,6 @@
 import { sanityFetch } from '@/lib/sanityFetch';
 
-export default async function handler(req: Request): Promise<Response> {
+export async function GET(): Promise<Response> {
   console.log("🧪 TUNE API DEBUG →", {
     tokenPrefix: process.env.SANITY_API_TOKEN?.slice(0, 8),
     projectId: process.env.PUBLIC_SANITY_PROJECT_ID,
