@@ -1,7 +1,7 @@
 import { createClient } from '@sanity/client';
 
-const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID || import.meta.env.SANITY_PROJECT_ID;
-const token = import.meta.env.PUBLIC_SANITY_API_TOKEN || import.meta.env.SANITY_API_TOKEN;
+const projectId = process.env.PUBLIC_SANITY_PROJECT_ID || process.env.SANITY_PROJECT_ID;
+const token = process.env.SANITY_API_TOKEN;
 
 if (!projectId) throw new Error('Missing Sanity projectId');
 if (!token) throw new Error('Missing Sanity token');

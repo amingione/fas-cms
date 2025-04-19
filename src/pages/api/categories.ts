@@ -3,6 +3,12 @@ import { sanityFetch } from "../../lib/sanityFetch";
 import { groq } from "next-sanity";
 
 export const GET: APIRoute = async () => {
+  console.log("🧪 CATEGORY API DEBUG →", {
+    tokenPrefix: process.env.SANITY_API_TOKEN?.slice(0, 8),
+    projectId: process.env.PUBLIC_SANITY_PROJECT_ID,
+    dataset: process.env.PUBLIC_SANITY_DATASET
+  });
+  
   const query = groq`*[_type == "category"]{_id, title, slug}`;
   try {
     const categories = await sanityFetch({ query });

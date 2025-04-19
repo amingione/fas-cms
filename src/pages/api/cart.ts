@@ -26,9 +26,9 @@ export async function POST({ request }: { request: Request }) {
   }
 
   // Verify the referenced document is a product
-  const validateRes = await fetch(`https://${import.meta.env.SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/${import.meta.env.SANITY_DATASET}?query=*[_id == "${productId}"][0]{_type}`, {
+  const validateRes = await fetch(`https://${process.env.PUBLIC_SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/${process.env.PUBLIC_SANITY_DATASET}?query=*[_id == "${productId}"][0]{_type}`, {
     headers: {
-      Authorization: `Bearer ${import.meta.env.SANITY_API_TOKEN}`
+      Authorization: `Bearer ${process.env.SANITY_API_TOKEN}`
     }
   });
 
@@ -48,10 +48,10 @@ export async function POST({ request }: { request: Request }) {
     });
   }
 
-  const res = await fetch(`https://${import.meta.env.SANITY_PROJECT_ID}.api.sanity.io/${import.meta.env.SANITY_API_VERSION}/data/mutate/${import.meta.env.SANITY_DATASET}`, {
+  const res = await fetch(`https://${process.env.PUBLIC_SANITY_PROJECT_ID}.api.sanity.io/${process.env.SANITY_API_VERSION}/data/mutate/${process.env.PUBLIC_SANITY_DATASET}`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${import.meta.env.SANITY_API_TOKEN}`,
+      Authorization: `Bearer ${process.env.SANITY_API_TOKEN}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({

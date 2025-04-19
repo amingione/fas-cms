@@ -44,8 +44,8 @@ if (endPage < totalPages) {
 
 <BaseLayout>
   <script type="module" is:inline>
-    window.SANITY_PROJECT_ID = "${import.meta.env.PUBLIC_SANITY_PROJECT_ID || ''}";
-    window.SANITY_API_TOKEN = "${import.meta.env.PUBLIC_SANITY_API_TOKEN || ''}";
+    window.SANITY_PROJECT_ID = "${process.env.PUBLIC_SANITY_PROJECT_ID || ''}";
+    window.SANITY_API_TOKEN = ""; // Prevent leaking token to client
 
     if (!window.SANITY_PROJECT_ID || !window.SANITY_API_TOKEN) {
       console.error("🚨 Sanity env vars missing — check Netlify env or local .env config.");
@@ -115,9 +115,7 @@ if (endPage < totalPages) {
       return []; // Return an empty array or handle the error appropriately
     }
     const result = await fetch(`https://${projectId}.api.sanity.io/v1/data/query/production?query=${encodeURIComponent(query)}`, {
-        headers: {
-            Authorization: "Bearer " + window.SANITY_API_TOKEN,
-        },
+        // No headers; public query only
     }).then(res => res.json());
 return result.result || [];
 };

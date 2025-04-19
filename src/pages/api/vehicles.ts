@@ -1,8 +1,8 @@
 import { sanityFetch } from '@/lib/sanityFetch';
 
-export const GET = async () => {
+export default async function handler(req: Request): Promise<Response> {
   console.log("🧪 VEHICLE API DEBUG →", {
-    tokenPrefix: process.env.PUBLIC_SANITY_API_TOKEN?.slice(0, 8),
+    tokenPrefix: process.env.SANITY_API_TOKEN?.slice(0, 8),
     projectId: process.env.PUBLIC_SANITY_PROJECT_ID,
     dataset: process.env.PUBLIC_SANITY_DATASET
   });
@@ -10,7 +10,7 @@ export const GET = async () => {
   const query = `*[_type == "vehicleModel"]{ model }`;
 
   if (
-    !process.env.PUBLIC_SANITY_API_TOKEN ||
+    !process.env.SANITY_API_TOKEN ||
     !process.env.PUBLIC_SANITY_PROJECT_ID ||
     !process.env.PUBLIC_SANITY_DATASET
   ) {
@@ -31,4 +31,4 @@ export const GET = async () => {
       status: 500
     });
   }
-};
+}
