@@ -32,6 +32,7 @@
     }
 
   window.addEventListener('DOMContentLoaded', async () => {
+    await window.Clerk?.load();
     const closeBtn = document.getElementById('closeAccountDashboard');
     const dashboard = document.getElementById('accountDashboard');
 
@@ -62,7 +63,11 @@
       return;
     }
 
-    const email = window.Clerk.user.emailAddresses[0].emailAddress;
+    const email = window.Clerk.user?.emailAddresses?.[0]?.emailAddress;
+    if (!email) {
+      console.warn("⚠️ Clerk user email not found.");
+      return;
+    }
     emailElem.textContent = email;
 
     const query = encodeURIComponent(`*[_type == "customer" && email == "${email}"][0]`);
@@ -75,6 +80,10 @@
     });
     const result = await response.json();
     const customer = result.result;
+
+    if (!customer) {
+      console.warn("⚠️ No customer record found in Sanity for email:", email);
+    }
 
     const dashboardNav = document.getElementById('dashboardNav');
     if (dashboardNav) {
