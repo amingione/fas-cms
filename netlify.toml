@@ -7,6 +7,3 @@
   GO_VERSION = "1.20"
   PUBLIC_SANITY_PROJECT_ID = "r4og35qd"
   PUBLIC_SANITY_API_TOKEN = "skoeoWxQQxLGGnG1ImQglnNm1vrxk4R6wWTfvoHAuSAW4RbqBCFCH7KKW8dlH1CBiaIZiZ3jIJf1ALLz2qoApjokBbCaFe3Pdh1k3734VE6iFXVHdqrpIgs18zg0PfOtAHg09ZlR4scOSJ49vdbBFU5E8iPPDfnFJKSQArwdwVYvOK4tM1Gv"
-
-[[plugins]]
-  package = "@netlify/astro-functions"
