@@ -131,9 +131,9 @@ return result.result || [];
       console.log("📦 Categories fetched:", categories);
       categoryTabs.innerHTML = `<a href="/shop" class="tab ${!currentCategory ? 'active' : ''}">All</a>`;
       categories.forEach(cat => {
-        const isActive = slug === selectedCategory;
+        const isActive = cat.slug === selectedCategory;
         const a = document.createElement("a");
-        a.href = `/shop?category=${slug}`;
+        a.href = `/shop?category=${cat.slug}`;
         a.className = `tab ${isActive ? 'active' : ''}`;
         a.innerText = cat.title;
         categoryTabs.appendChild(a);

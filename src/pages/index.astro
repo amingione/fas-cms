@@ -6,8 +6,8 @@ import Button from '../components/Button.astro';
 <BaseLayout>
 
 <!-- HERO -->
-<section class="relative h-[700px] bg-black/20">
-  <img src="/images/hp-herofas.png" alt="FAS Hero TRX" class="absolute inset-0 w-full h-full object-cover z-0" />
+<section class="relative h-[500px] md:h-[700px] bg-black/20">
+  <img src="/images/hp-herofas.png" alt="FAS Hero TRX" class="absolute inset-0 w-full h-full object-cover object-top md:object-center z-0" />
   <div class="absolute inset-0 bg-gradient-to-b from-black/50 to-black/20 z-10"></div>
 </div>
 <!-- Floating Brand Tag -->
@@ -20,40 +20,40 @@ import Button from '../components/Button.astro';
 
 <!-- NO TUNE PULLEY CTA -->
 <section class="bg-black py-20 text-white text-center relative overflow-hidden">
-  <div class="max-w-6xl mx-auto px-6">
+  <div class="w-full max-w-6xl mx-auto px-6">
     <div class="relative w-full overflow-hidden px-6 md:px-12" id="pulley-carousel">
       <div class="flex transition-transform duration-700 ease-in-out" style="transform: translateX(0%)" id="carousel-track">
         <!-- Slide 1 -->
-        <div class="w-full flex-shrink-0 flex flex-col md:flex-row justify-between items-center gap-10 max-w-6xl mx-auto animate-fade-in-up opacity-0 transform translate-y-10">
-          <div class="text-left">
+        <div class="w-full flex-shrink-0 flex flex-col-reverse md:flex-row justify-between items-center gap-10 max-w-6xl mx-auto animate-fade-in-up opacity-0 transform translate-y-10">
+          <div class="text-center md:text-left w-full">
             <h2 class="font-cyber text-lg tracking-widest text-gray-400">F.A.S. PREDATOR PULLEY</h2>
             <h3 class="text-4xl md:text-5xl text-accent font-borg mt-2 mb-2">NO TUNE REQUIRED.</h3>
             <p class="text-sm px-4 text-gray-400 font-cyber max-w-md">Patent-pending innovation – precision-engineered for flawless performance.</p><br>
             <Button href="/shop" text="Shop Now" variant="multi-swipe-v2" />
           </div>
-          <img src="/images/predatoru pulley homepage copy.png" class="max-w-sm" alt="FAS Pulley Stack" />
+          <img src="/images/predatoru pulley homepage copy.png" class="max-w-[90%] md:max-w-sm mx-auto" alt="FAS Pulley Stack" />
         </div>
 
         <!-- Slide 2 -->
-        <div class="w-full flex-shrink-0 flex flex-col md:flex-row justify-between items-center gap-10 max-w-6xl mx-auto animate-fade-in-up opacity-0 transform translate-y-10">
-          <div class="text-left">
+        <div class="w-full flex-shrink-0 flex flex-col-reverse md:flex-row justify-between items-center gap-10 max-w-6xl mx-auto animate-fade-in-up opacity-0 transform translate-y-10">
+          <div class="text-center md:text-left w-full">
             <h2 class="font-cyber text-lg tracking-widest text-gray-400">HELLCAT SNOUT PORTING</h2>
             <h3 class="text-4xl md:text-5xl text-accent font-borg mt-2 mb-2">PRECISION MATCHED FLOW</h3>
             <p class="text-sm text-gray-400 font-cyber px-4 max-w-md">Increase throttle response and airflow efficiency with CNC porting.</p><br>
             <Button href="/shop" text="Shop Now" variant="multi-swipe-v2" />
           </div>
-          <img src="/images/ported-snoutfas.png" class="max-w-sm" alt="FAS Supercharger Package" />
+          <img src="/images/ported-snoutfas.png" class="max-w-[90%] md:max-w-sm mx-auto" alt="FAS Supercharger Package" />
         </div>
 
         <!-- Slide 3 -->
-        <div class="w-full flex-shrink-0 flex flex-col md:flex-row justify-between items-center gap-10 max-w-6xl mx-auto animate-fade-in-up opacity-0 transform translate-y-10">
-          <div class="text-left">
+        <div class="w-full flex-shrink-0 flex flex-col-reverse md:flex-row justify-between items-center gap-10 max-w-6xl mx-auto animate-fade-in-up opacity-0 transform translate-y-10">
+          <div class="text-center md:text-left w-full">
             <h2 class="font-cyber text-lg tracking-widest text-gray-400">F.A.S. RACE HUB</h2>
             <h3 class="text-4xl md:text-5xl text-accent font-borg mt-2 mb-2">INTERCOOLED DOMINANCE</h3>
             <p class="text-sm text-gray-400 font-cyber px-4 max-w-md">Custom billet hub with integrated cooling for sustained performance.</p><br>
             <Button href="/shop" text="Shop Now" variant="multi-swipe-v2" />
           </div>
-          <img src="/images/painted supercharger whippel pulley copy.png" class="max-w-sm" alt="Race Hub" />
+          <img src="/images/painted supercharger whippel pulley copy.png" class="max-w-[90%] md:max-w-sm mx-auto" alt="Race Hub" />
       </div>
     </div>
   </div>

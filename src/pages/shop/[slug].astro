@@ -152,7 +152,7 @@ if (!product) {
     <div class="grid md:grid-cols-3 gap-6">
       {product.relatedProducts.map((related) => (
         <a
-          href={`/shop/${related.slug}`}
+          href={`/shop/${encodeURIComponent(related.slug)}`}
           class="block bg-white/5 rounded-lg p-4 text-white hover:bg-white/10 transition"
         >
           <img
@@ -174,7 +174,7 @@ if (!product) {
     <div class="grid md:grid-cols-3 gap-6">
       {product.upsellProducts.map((upsell) => (
         <a
-          href={`/shop/${upsell.slug}`}
+          href={`/shop/${encodeURIComponent(upsell.slug)}`}
           class="block bg-white/5 rounded-lg p-4 text-white hover:bg-white/10 transition"
         >
           <img
@@ -189,4 +189,3 @@ if (!product) {
     </div>
   </section>
 )}
-</file>
