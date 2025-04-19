@@ -4,26 +4,13 @@
       <label for="vehicle-select" class="block mb-1 text-white">Select Vehicle</label>
       <select id="vehicle-select" class="bg-black text-white px-4 py-2 border border-white/20 rounded">
         <option value="">-- Select Vehicle --</option>
-        <option value="Charger">Charger</option>
-        <option value="Challenger">Challenger</option>
-        <option value="TRX">TRX</option>
-        <option value="Trackhawk">Trackhawk</option>
-        <option value="Durango">Durango</option>
-        <option value="Mustang">Mustang</option>
-        <option value="Raptor">Raptor</option>
-        <option value="F150">F150</option>
-        <option value="F250">F250</option>
-        <option value="F350">F350</option>
-        <option value="F450">F450</option>
       </select>
     </div>
 
     <div>
       <label for="tune-select" class="block mb-1 text-white">Select Tune</label>
       <select id="tune-select" class="bg-black text-white px-4 py-2 border border-white/20 rounded">
-        <option value="">-- Select Tune --</option>
-        <option value="Required">Required</option>
-        <option value="Not Required">Not Required</option>
+      <option value="">-- Select Tune --</option>
       </select>
     </div>
 
@@ -38,6 +25,52 @@
 </div>
 
 <script>
+  declare global {
+    interface Window {
+      SANITY_PROJECT_ID?: string;
+      SANITY_API_TOKEN?: string;
+    }
+  }
+
+  const sanityProjectId = window?.SANITY_PROJECT_ID;
+  const sanityToken = window?.SANITY_API_TOKEN;
+
+  if (!sanityProjectId || !sanityToken) {
+    console.error("🚨 Sanity credentials missing from window context.");
+  }
+
+  fetch('/api/vehicles')
+    .then(res => res.json())
+    .then(data => {
+      const models = data.result || [];
+      const select = document.getElementById('vehicle-select');
+      models.forEach(vehicle => {
+        const option = document.createElement('option');
+        option.value = vehicle.model;
+        option.textContent = vehicle.model;
+        select.appendChild(option);
+      });
+    })
+    .catch(err => {
+      console.error("❌ Failed to fetch vehicle models:", err);
+    });
+  
+  fetch('/api/tunes')
+    .then(res => res.json())
+    .then(data => {
+      const tunes = data.result || [];
+      const select = document.getElementById('tune-select');
+      tunes.forEach(tune => {
+        const option = document.createElement('option');
+        option.value = tune.title;
+        option.textContent = tune.title;
+        select.appendChild(option);
+      });
+    })
+    .catch(err => {
+      console.error("❌ Failed to fetch tunes:", err);
+    });
+
   // Dispatch system to communicate filter changes to the main Astro page
   const filterState = {
     vehicle: null,

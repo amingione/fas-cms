@@ -1,5 +1,8 @@
 import { clerkMiddleware } from "@clerk/astro/server";
 
-export const onRequest = clerkMiddleware({
-  publishableKey: import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY,
-});
+export const onRequest = clerkMiddleware();
+
+export const config = {
+  runtime: "edge",
+  ignoredRoutes: ["/api/**"]
+};

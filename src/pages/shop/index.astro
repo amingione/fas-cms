@@ -133,7 +133,7 @@ return result.result || [];
       categoryTabs.innerHTML = `<a href="/shop" class="tab ${!currentCategory ? 'active' : ''}">All</a>`;
       categories.forEach(cat => {
         const slug = cat.slug || cat.title;
-        const isActive = slug === currentCategory;
+        const isActive = slug === selectedCategory;
         const a = document.createElement("a");
         a.href = `/shop?category=${slug}`;
         a.className = `tab ${isActive ? 'active' : ''}`;
@@ -141,8 +141,7 @@ return result.result || [];
         categoryTabs.appendChild(a);
       });
     };
-    
-    const currentCategory = new URLSearchParams(window.location.search).get("category");
+    const selectedCategory = new URLSearchParams(window.location.search).get("category");
     renderCategoryTabs();
 
     document.addEventListener("filterChange", (e) => {

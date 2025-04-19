@@ -22,6 +22,14 @@ const productPrice =
       See Details
     </a>
   )}
+  {product._id && (
+    <button
+      class="add-to-cart absolute top-0 left-0 m-2 px-4 py-1 bg-primary text-black font-bold rounded text-xs sm:text-sm"
+      data-product-id={product._id}
+    >
+      Add to Cart
+    </button>
+  )}
 </div>
 <div id="product-toast" class="fixed top-20 right-6 z-50 hidden px-4 py-3 backdrop-blur bg-white/10 text-white font-bold shadow-lg transition-all duration-300"></div>
 <script>
