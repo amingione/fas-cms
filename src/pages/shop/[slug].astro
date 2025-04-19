@@ -3,6 +3,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
 const { slug } = Astro.params;
 
+if (!slug) {
+  console.error("❌ Missing slug parameter.");
+  throw new Error("Missing slug parameter.");
+}
+
 // Fetch the product details based on the slug
 const query = `*[_type == "product" && (slug.current == "${slug}" || slug == "${slug}")][0]{
   _id,
@@ -29,14 +34,20 @@ const query = `*[_type == "product" && (slug.current == "${slug}" || slug == "${
   }
 }`;
 
-const response = await fetch(`https://${process.env.PUBLIC_SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/${process.env.PUBLIC_SANITY_DATASET}?query=${encodeURIComponent(query)}`, {
-  headers: {
-    Authorization: `Bearer ${process.env.SANITY_API_TOKEN}`
-  }
-});
+let product = null;
 
-const json = await response.json();
-const product = json.result || null;
+try {
+  const response = await fetch(`https://${process.env.PUBLIC_SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/${process.env.PUBLIC_SANITY_DATASET}?query=${encodeURIComponent(query)}`, {
+    headers: {
+      Authorization: `Bearer ${process.env.SANITY_API_TOKEN}`
+    }
+  });
+
+  const json = await response.json();
+  product = json.result || null;
+} catch (err) {
+  console.error(`❌ Failed to fetch product with slug "${slug}":`, err);
+}
 
 if (!product) {
   console.error(`❌ Product with slug "${slug}" not found.`);
