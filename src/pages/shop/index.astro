@@ -106,6 +106,7 @@ if (endPage < totalPages) {
   </section>
 
   <script type="module" is:inline>
+    const currentCategory = "${currentCategory || ''}";
     const fetchCategories = async () => {
     const query = `*[_type == "category"]{ "title": title, "slug": slug.current }`;
     // Access the project ID from window.SANITY_PROJECT_ID
@@ -130,7 +131,6 @@ return result.result || [];
       console.log("📦 Categories fetched:", categories);
       categoryTabs.innerHTML = `<a href="/shop" class="tab ${!currentCategory ? 'active' : ''}">All</a>`;
       categories.forEach(cat => {
-        const slug = cat.slug || cat.title;
         const isActive = slug === selectedCategory;
         const a = document.createElement("a");
         a.href = `/shop?category=${slug}`;

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "types": ["@clerk/astro", "node"],
+    "types": ["@clerk/astro", "astro/client", "node"],
     "jsx": "react-jsx",
     "jsxImportSource": "react",
     "module": "es2020",

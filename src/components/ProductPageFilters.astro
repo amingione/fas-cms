@@ -25,20 +25,6 @@
 </div>
 
 <script>
-  declare global {
-    interface Window {
-      SANITY_PROJECT_ID?: string;
-      SANITY_API_TOKEN?: string;
-    }
-  }
-
-  const sanityProjectId = window?.SANITY_PROJECT_ID;
-  const sanityToken = window?.SANITY_API_TOKEN;
-
-  if (!sanityProjectId || !sanityToken) {
-    console.error("🚨 Sanity credentials missing from window context.");
-  }
-
   fetch('/api/vehicles')
     .then(res => res.json())
     .then(data => {

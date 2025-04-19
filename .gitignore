@@ -24,3 +24,4 @@ pnpm-debug.log*
 
 # Netlify build output
 .netlify/
+sandbox/**

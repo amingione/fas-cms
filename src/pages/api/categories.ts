@@ -1,15 +1,15 @@
-import type { APIRoute } from "astro";
 import { sanityFetch } from "../../lib/sanityFetch";
 import { groq } from "next-sanity";
 
-export const GET: APIRoute = async () => {
+export default async function handler(req: Request): Promise<Response> {
   console.log("🧪 CATEGORY API DEBUG →", {
-    tokenPrefix: process.env.SANITY_API_TOKEN?.slice(0, 8),
-    projectId: process.env.PUBLIC_SANITY_PROJECT_ID,
-    dataset: process.env.PUBLIC_SANITY_DATASET
+    tokenPrefix: process.env.SANITY_API_TOKEN?.slice(0, 8) || "undefined",
+    projectId: process.env.PUBLIC_SANITY_PROJECT_ID || "undefined",
+    dataset: process.env.PUBLIC_SANITY_DATASET || "undefined"
   });
-  
+
   const query = groq`*[_type == "category"]{_id, title, slug}`;
+
   try {
     const categories = await sanityFetch({ query });
     return new Response(JSON.stringify(categories), {
@@ -22,4 +22,4 @@ export const GET: APIRoute = async () => {
       headers: { "Content-Type": "application/json" },
     });
   }
-};
+}
