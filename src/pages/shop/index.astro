@@ -13,7 +13,13 @@ const currentCategory = url.searchParams.get("category");
 const start = (currentPage - 1) * PAGE_SIZE;
 const end = start + PAGE_SIZE;
 
-const allProducts = await fetchProductsFromSanity(currentCategory);
+let allProducts = [];
+
+try {
+  allProducts = await fetchProductsFromSanity(currentCategory);
+} catch (err) {
+  console.error("🔥 Sanity Fetch Failed:", err);
+}
 const totalCount = allProducts.length;
 const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 const products = allProducts.slice(start, end);
