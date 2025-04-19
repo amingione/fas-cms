@@ -146,7 +146,7 @@ if (!product) {
   )}
 </BaseLayout>
 
-{product.relatedProducts?.length > 0 && (
+{product?.relatedProducts?.length > 0 && (
   <section class="mt-20 max-w-6xl mx-auto px-4">
     <h2 class="text-2xl font-semibold text-white mb-6">Related Products</h2>
     <div class="grid md:grid-cols-3 gap-6">
@@ -168,7 +168,7 @@ if (!product) {
   </section>
 )}
 
-{product.upsellProducts?.length > 0 && (
+{product?.upsellProducts?.length > 0 && (
   <section class="mt-20 max-w-6xl mx-auto px-4">
     <h2 class="text-2xl font-semibold text-white mb-6">You May Also Like</h2>
     <div class="grid md:grid-cols-3 gap-6">
