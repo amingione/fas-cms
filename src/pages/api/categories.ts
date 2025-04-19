@@ -10,7 +10,8 @@ export const GET: APIRoute = async () => {
       headers: { "Content-Type": "application/json" },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: "Failed to fetch categories" }), {
+    console.error("❌ API /categories failed:", err);
+    return new Response(JSON.stringify({ error: "Failed to fetch categories", details: err instanceof Error ? err.message : String(err) }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });

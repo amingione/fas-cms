@@ -1,10 +1,10 @@
 import { createClient } from '@sanity/client';
 
-const projectId = process.env.SANITY_PROJECT_ID || process.env.PUBLIC_SANITY_PROJECT_ID;
-const token = process.env.SANITY_API_TOKEN || process.env.PUBLIC_SANITY_API_TOKEN;
+const projectId = process.env.PUBLIC_SANITY_PROJECT_ID || import.meta.env.PUBLIC_SANITY_PROJECT_ID;
+const token = process.env.PUBLIC_SANITY_API_TOKEN || import.meta.env.PUBLIC_SANITY_API_TOKEN;
 
 if (!projectId || !token) {
-  throw new Error("Missing Sanity environment variables: SANITY_PROJECT_ID or SANITY_API_TOKEN");
+  throw new Error("Missing PUBLIC_SANITY_PROJECT_ID or PUBLIC_SANITY_API_TOKEN");
 }
 
 export const client = createClient({
@@ -16,7 +16,7 @@ export const client = createClient({
 });
 
 export async function fetchProducts() {
-  const query = `*[_type == "wooProduct"] | order(price asc)[0...9] {
+  const query = `*[_type == "products"] | order(price asc)[0...9] {
     _id,
     title,
     slug,

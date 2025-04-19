@@ -1,4 +1,4 @@
-import { client } from './sanityClient.ts';
+import { client } from './sanityClient';
 
 export async function getCustomerData(userId: string) {
   const query = `*[_type == "customer" && _id == $userId][0]{

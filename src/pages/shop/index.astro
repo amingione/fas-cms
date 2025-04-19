@@ -42,16 +42,13 @@ if (endPage < totalPages) {
 }
 ---
 
-
 <BaseLayout>
   <script type="module" is:inline>
-    const sanityProjectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
-    const sanityApiToken = import.meta.env.PUBLIC_SANITY_API_TOKEN;
-    if (sanityProjectId && sanityApiToken) {
-      window.SANITY_PROJECT_ID = sanityProjectId;
-      window.SANITY_API_TOKEN = sanityApiToken;
-    } else {
-      console.error("Missing Sanity credentials");
+    window.SANITY_PROJECT_ID = "${import.meta.env.PUBLIC_SANITY_PROJECT_ID || ''}";
+    window.SANITY_API_TOKEN = "${import.meta.env.PUBLIC_SANITY_API_TOKEN || ''}";
+
+    if (!window.SANITY_PROJECT_ID || !window.SANITY_API_TOKEN) {
+      console.error("🚨 Sanity env vars missing — check Netlify env or local .env config.");
     }
   </script>
   
@@ -110,19 +107,27 @@ if (endPage < totalPages) {
 
   <script type="module" is:inline>
     const fetchCategories = async () => {
-      const query = `*[_type == "category"]{ "title": title, "slug": slug.current }`;
-      const result = await fetch(
-        `https://${window.SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/production?query=${encodeURIComponent(query)}`,
-        {
-          headers: {
+    const query = `*[_type == "category"]{ "title": title, "slug": slug.current }`;
+    // Access the project ID from window.SANITY_PROJECT_ID
+    const projectId = window.SANITY_PROJECT_ID;  
+    if (!projectId) {
+      console.error("SANITY_PROJECT_ID is not defined in the client-side environment.");
+      return []; // Return an empty array or handle the error appropriately
+    }
+    const result = await fetch(`https://${projectId}.api.sanity.io/v1/data/query/production?query=${encodeURIComponent(query)}`, {
+        headers: {
             Authorization: "Bearer " + window.SANITY_API_TOKEN,
-          },
-        }
-      ).then(res => res.json());
-      return result.result || [];
-    };
+        },
+    }).then(res => res.json());
+return result.result || [];
+};
 
     const renderCategoryTabs = async () => {
+      const categoryTabs = document.getElementById("category-tabs");
+      if (!categoryTabs) {
+        console.error("🚨 Element with ID 'category-tabs' not found.");
+        return;
+      }
       const categories = await fetchCategories();
       console.log("📦 Categories fetched:", categories);
       categoryTabs.innerHTML = `<a href="/shop" class="tab ${!currentCategory ? 'active' : ''}">All</a>`;
@@ -135,7 +140,6 @@ if (endPage < totalPages) {
         a.innerText = cat.title;
         categoryTabs.appendChild(a);
       });
-      
     };
     
     const currentCategory = new URLSearchParams(window.location.search).get("category");

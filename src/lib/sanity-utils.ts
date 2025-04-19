@@ -45,6 +45,16 @@ export async function fetchProductsFromSanity(currentCategory?: string): Promise
       slug,
       price,
       images,
+      averageHorsepower,
+      tune->{
+        title,
+        slug
+      },
+      compatibleVehicles[]->{
+        make,
+        model,
+        slug
+      },
       categories[]->{
         _id,
         title,
