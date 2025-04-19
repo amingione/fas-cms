@@ -9,7 +9,7 @@ if (!slug) {
 }
 
 // Fetch the product details based on the slug
-const query = `*[_type == "product" && (slug.current == "${slug}" || slug == "${slug}")][0]{
+const query = `*[_type == "product" && slug.current == "${slug}"][0]{
   _id,
   title,
   price,
