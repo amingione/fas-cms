@@ -1,10 +1,10 @@
 import { createClient } from '@sanity/client';
 
-const projectId = process.env.PUBLIC_SANITY_PROJECT_ID || process.env.SANITY_PROJECT_ID;
-const token = process.env.SANITY_API_TOKEN;
+const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID || import.meta.env.SANITY_PROJECT_ID;
+const token = import.meta.env.SANITY_API_TOKEN;
 
-if (!projectId) throw new Error('Missing Sanity projectId');
-if (!token) throw new Error('Missing Sanity token');
+if (!projectId) throw new Error('Missing Sanity projectId (check .env or deployment settings)');
+if (!token) throw new Error('Missing Sanity API token (check .env or deployment settings)');
 
 const client = createClient({
   projectId,

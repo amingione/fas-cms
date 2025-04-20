@@ -44,7 +44,7 @@ if (endPage < totalPages) {
 
 <BaseLayout>
   <script type="module" is:inline>
-    window.SANITY_PROJECT_ID = "${process.env.PUBLIC_SANITY_PROJECT_ID || ''}";
+    window.SANITY_PROJECT_ID = "${import.meta.env.PUBLIC_SANITY_PROJECT_ID || ''}";
     window.SANITY_API_TOKEN = ""; // Prevent leaking token to client
 
     if (!window.SANITY_PROJECT_ID || !window.SANITY_API_TOKEN) {
@@ -115,7 +115,7 @@ if (endPage < totalPages) {
       console.error("SANITY_PROJECT_ID is not defined in the client-side environment.");
       return []; // Return an empty array or handle the error appropriately
     }
-    const result = await fetch(`https://${projectId}.api.sanity.io/v1/data/query/production?query=${encodeURIComponent(query)}`, {
+    const result = await fetch(`https://${window.SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/production?query=${encodeURIComponent(query)}`, {
         // No headers; public query only
     }).then(res => res.json());
 return result.result || [];

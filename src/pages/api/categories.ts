@@ -3,9 +3,9 @@ import { groq } from "next-sanity";
 
 export default async function handler(req: Request): Promise<Response> {
   console.log("🧪 CATEGORY API DEBUG →", {
-    tokenPrefix: process.env.SANITY_API_TOKEN?.slice(0, 8) || "undefined",
-    projectId: process.env.PUBLIC_SANITY_PROJECT_ID || "undefined",
-    dataset: process.env.PUBLIC_SANITY_DATASET || "undefined"
+    tokenPrefix: import.meta.env.SANITY_API_TOKEN?.slice(0, 8) || "undefined",
+    projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID || "undefined",
+    dataset: import.meta.env.PUBLIC_SANITY_DATASET || "undefined"
   });
 
   const query = groq`*[_type == "category"]{_id, title, slug}`;
