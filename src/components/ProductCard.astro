@@ -10,9 +10,7 @@ import { sanity } from '../lib/sanity-utils';
 
 const builder = imageUrlBuilder(sanity);
 
-const imageUrl = productImage?.asset?._ref
-  ? builder.image(productImage).width(800).url()
-  : (typeof productImage === 'string' ? productImage : '/placeholder.png');
+const imageUrl = productImage?.asset?.url || '/placeholder.png';
 ---
 <div class="relative z-0 text-white bg-black/10 rounded-[10px] shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.5)] overflow-hidden transform transition-all duration-500 group font-sans">
   <div class="p-4 h-52 sm:h-64 flex justify-center items-center overflow-hidden">
