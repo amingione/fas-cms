@@ -98,8 +98,24 @@ if (!product) {
           });
 
           if (res.ok) {
+            if (typeof window !== 'undefined') {
+              const existingCart = JSON.parse(localStorage.getItem('fas_cart')) || [];
+
+              const found = existingCart.find(item => item.productId === product._id);
+              if (found) {
+                found.quantity += 1;
+              } else {
+                existingCart.push({
+                  productId: product._id,
+                  quantity: 1,
+                  sessionId: localStorage.getItem('fas_session') || 'guest-session'
+                });
+              }
+
+              localStorage.setItem('fas_cart', JSON.stringify(existingCart));
+              window.dispatchEvent(new Event('cart-updated'));
+            }
             showToast('✅ Added to cart!');
-            window.dispatchEvent(new Event('cart-updated'));
           } else {
             showToast('❌ Failed to add to cart.');
           }

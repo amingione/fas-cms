@@ -65,24 +65,20 @@ const imageUrl = productImage?.asset?.url || '/placeholder.png';
     document.querySelectorAll('.add-to-cart').forEach((btn) => {
       btn.addEventListener('click', () => {
         const productId = btn.getAttribute('data-product-id');
-        fetch('/api/cart', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            productId,
-            quantity: 1,
-            sessionId: localStorage.getItem('fas_session') || 'guest-session',
-          }),
-        })
-          .then((res) => {
-            if (res.ok) {
-              showProductToast('✅ Added to cart!', true);
-              window.dispatchEvent(new Event('cart-updated'));
-            } else {
-              showProductToast('❌ Failed to add to cart.', false);
-            }
-          })
-          .catch(() => showProductToast('❌ Error adding to cart.', false));
+        if (!productId) return;
+
+        const cart = JSON.parse(localStorage.getItem('fas_cart') || '[]');
+        const existing = cart.find((item) => item.productId === productId);
+
+        if (existing) {
+          existing.quantity += 1;
+        } else {
+          cart.push({ productId, quantity: 1 });
+        }
+
+        localStorage.setItem('fas_cart', JSON.stringify(cart));
+        showProductToast('✅ Added to cart!', true);
+        window.dispatchEvent(new Event('cart-updated'));
       });
     });
   });
