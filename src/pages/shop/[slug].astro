@@ -77,20 +77,34 @@ if (!product) {
     const productDataScript = document.getElementById('product-data');
     const product = productDataScript?.textContent ? JSON.parse(productDataScript.textContent) : null;
 
+    if (typeof window === 'undefined' || !window.localStorage) {
+      console.warn('🚫 LocalStorage or window is not defined. Skipping cart init.');
+      return;
+    }
+
     if (addToCartBtn && product) {
-      addToCartBtn.addEventListener('click', () => {
-        fetch('/api/cart', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            productId: product._id,
-            quantity: 1,
-            sessionId: window.localStorage.getItem('fas_session') || 'guest-session'
-          })
-        }).then(res => {
-          if (res.ok) showToast('✅ Added to cart!');
-          else showToast('❌ Failed to add to cart.');
-        });
+      addToCartBtn.addEventListener('click', async () => {
+        try {
+          const res = await fetch('/api/cart', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              productId: product._id,
+              quantity: 1,
+              sessionId: window.localStorage.getItem('fas_session') || 'guest-session'
+            })
+          });
+
+          if (res.ok) {
+            showToast('✅ Added to cart!');
+            window.dispatchEvent(new Event('cart-updated'));
+          } else {
+            showToast('❌ Failed to add to cart.');
+          }
+        } catch (err) {
+          console.error('❌ Add to cart error:', err);
+          showToast('❌ Something went wrong.');
+        }
       });
     }
   });
@@ -191,4 +205,3 @@ if (!product) {
     </div>
   </section>
 )}
-</file>

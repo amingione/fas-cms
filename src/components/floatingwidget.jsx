@@ -7,11 +7,14 @@ export default function FloatingCartWidget() {
       const saved = localStorage.getItem('fas_cart');
       return saved ? JSON.parse(saved) : [];
     }
+    console.warn('Cart: running server-side');
     return [];
   });
 
   useEffect(() => {
-    localStorage.setItem('fas_cart', JSON.stringify(cartItems));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('fas_cart', JSON.stringify(cartItems));
+    }
   }, [cartItems]);
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.quantity * item.price, 0);
