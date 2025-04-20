@@ -32,8 +32,8 @@
       const select = document.getElementById('vehicle-select');
       models.forEach(vehicle => {
         const option = document.createElement('option');
-        option.value = vehicle.model;
-        option.textContent = vehicle.model;
+        option.value = vehicle.slug;
+        option.textContent = `${vehicle.make} ${vehicle.model}`;
         select.appendChild(option);
       });
     })
@@ -48,7 +48,7 @@
       const select = document.getElementById('tune-select');
       tunes.forEach(tune => {
         const option = document.createElement('option');
-        option.value = tune.title;
+        option.value = tune.slug;
         option.textContent = tune.title;
         select.appendChild(option);
       });

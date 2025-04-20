@@ -29,9 +29,9 @@ const productPrice =
       <p class="text-xl font-captain text-primary mt-1">{productPrice}</p>
     </div>
   </div>
-  {product.slug && typeof product.slug === 'string' && (
+  {product.slug && (
     <a
-      href={`/shop/${encodeURIComponent(product.slug)}`}
+      href={`/shop/${encodeURIComponent(typeof product.slug === 'string' ? product.slug : product.slug.current || '')}`}
       class="absolute bottom-0 right-0 mb-2 transform translate-x-full opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500 ease-in-out text-white text-base font-bold font-captain tracking-wider border-l-4 border-primary bg-black/40 px-5 py-2 uppercase shadow-md z-20"    >
       See Details
     </a>
