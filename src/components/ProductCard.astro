@@ -9,16 +9,16 @@ const productPrice =
   <div class="p-4 h-52 sm:h-64 flex justify-center items-center overflow-hidden">
     <img
       src={
-        typeof productImage === 'string'
-          ? productImage
-          : productImage?.asset?.url
-          ? productImage.asset.url
-          : productImage?.asset?._ref
-          ? `https://cdn.sanity.io/images/${import.meta.env.SANITY_STUDIO_PROJECT_ID}/${import.meta.env.SANITY_STUDIO_DATASET}/${productImage.asset._ref
+        productImage?.asset?._ref
+          ? `https://cdn.sanity.io/images/${import.meta.env.PUBLIC_SANITY_PROJECT_ID}/${import.meta.env.PUBLIC_SANITY_DATASET}/${productImage.asset._ref
               .replace('image-', '')
               .replace('-webp', '.webp')
               .replace('-jpg', '.jpg')
               .replace('-png', '.png')}`
+          : productImage?.asset?.url
+          ? productImage.asset.url
+          : typeof productImage === 'string'
+          ? productImage
           : '/placeholder.png'
       }
       alt={product.title}
