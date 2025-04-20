@@ -2,14 +2,23 @@ import { useState, useEffect } from 'react';
 
 export default function FloatingCartWidget() {
   const [isOpen, setIsOpen] = useState(false);
-  const [cartItems, setCartItems] = useState(() => {
+  const [cartItems, setCartItems] = useState([]);
+
+  useEffect(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('fas_cart');
-      return saved ? JSON.parse(saved) : [];
+      setCartItems(saved ? JSON.parse(saved) : []);
     }
-    console.warn('Cart: running server-side');
-    return [];
-  });
+  }, []);
+
+  useEffect(() => {
+    const updateCart = () => {
+      const saved = localStorage.getItem('fas_cart');
+      setCartItems(saved ? JSON.parse(saved) : []);
+    };
+    window.addEventListener('cart-updated', updateCart);
+    return () => window.removeEventListener('cart-updated', updateCart);
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {

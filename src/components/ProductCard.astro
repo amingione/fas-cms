@@ -5,17 +5,19 @@ const productPrice =
     ? `$${parseFloat(product.price).toFixed(2)}`
     : "—";
 
-const imageRef = productImage?.asset?._ref;
-const imageUrl = imageRef
-  ? `https://cdn.sanity.io/images/${import.meta.env.PUBLIC_SANITY_PROJECT_ID}/${import.meta.env.PUBLIC_SANITY_DATASET}/${imageRef
-      .replace('image-', '')
-      .replace(/-(webp|jpg|png|jpeg)$/, '.$1')}`
-  : productImage?.asset?.url || (typeof productImage === 'string' ? productImage : '/placeholder.png');
+import imageUrlBuilder from '@sanity/image-url';
+import { sanity } from '../lib/sanity-utils';
+
+const builder = imageUrlBuilder(sanity);
+
+const imageUrl = productImage?.asset?._ref
+  ? builder.image(productImage).width(800).url()
+  : (typeof productImage === 'string' ? productImage : '/images/placeholder.png');
 ---
 <div class="relative z-0 text-white bg-black/10 rounded-[10px] shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.5)] overflow-hidden transform transition-all duration-500 group font-sans">
   <div class="p-4 h-52 sm:h-64 flex justify-center items-center overflow-hidden">
     <img
-      src={imageUrl || '/placeholder.png'}
+      src={imageUrl || '/images/placeholder.png'}
       alt={product.title}
       class="w-full h-full object-contain transition-transform duration-300 ease-in-out group-hover:scale-105 group-hover:-rotate-1"
     />

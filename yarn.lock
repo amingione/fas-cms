@@ -1923,6 +1923,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sanity/asset-utils@npm:^2.2.1":
+  version: 2.2.1
+  resolution: "@sanity/asset-utils@npm:2.2.1"
+  checksum: 10c0/b346c4b1664ceebfeec24774d641afcd8982fd3dc6421fe7dd7c340737588afb4224dfbebc3fd5519e5ec98c2acdc563c83fbd0d8b235102f39fb79d586a4372
+  languageName: node
+  linkType: hard
+
 "@sanity/client@npm:^6.22.4, @sanity/client@npm:^6.29.0":
   version: 6.29.0
   resolution: "@sanity/client@npm:6.29.0"
@@ -1977,6 +1984,13 @@ __metadata:
   peerDependencies:
     react: ^18.3 || ^19.0.0-0
   checksum: 10c0/d1204b9f434a6724bd4c194b2a6c753e0e79a8ebe3fdf46d1dcf40901a8a720dadf1b765d417ea16948d5cfe9cc2c3df5d69e49c2bec1e291a8f5823f0cd8d0a
+  languageName: node
+  linkType: hard
+
+"@sanity/image-url@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@sanity/image-url@npm:1.1.0"
+  checksum: 10c0/ae7bf95e79871f1d4673d74eab96e107bb60068878b80f0891b67708bd4683e525b8dfb5c97afdf6f0427529f1001acb2cb22b1d409315cce4a079d49f65e687
   languageName: node
   linkType: hard
 
@@ -4697,8 +4711,10 @@ __metadata:
     "@clerk/astro": "npm:^2.6.6"
     "@clerk/clerk-js": "npm:^5.61.2"
     "@clerk/clerk-react": "npm:^5.28.2"
+    "@sanity/asset-utils": "npm:^2.2.1"
     "@sanity/client": "npm:^6.29.0"
     "@sanity/icons": "npm:^3.7.0"
+    "@sanity/image-url": "npm:^1.1.0"
     "@sanity/types": "npm:^3.85.1"
     "@sanity/ui": "npm:^2.15.13"
     "@types/node": "npm:^22.14.1"
