@@ -24,7 +24,12 @@ export interface Product {
   slug: { current: string }
   price: number
   description?: string
-  images: any[]
+  images: {
+    asset: {
+      _id: string
+      url: string
+    }
+  }[]
   categories: {
     _id: string
     title: string
@@ -44,7 +49,12 @@ export async function fetchProductsFromSanity(currentCategory?: string): Promise
       title,
       slug,
       price,
-      images,
+      images[]{
+        asset->{
+          _id,
+          url
+        }
+      },
       averageHorsepower,
       tune->{
         title,
@@ -78,7 +88,12 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       slug,
       price,
       description,
-      images,
+      images[]{
+        asset->{
+          _id,
+          url
+        }
+      },
       categories[]->{
         _id,
         title,
