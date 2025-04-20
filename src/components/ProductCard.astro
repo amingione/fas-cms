@@ -5,17 +5,13 @@ const productPrice =
     ? `$${parseFloat(product.price).toFixed(2)}`
     : "—";
 
-import imageUrlBuilder from '@sanity/image-url';
-import { sanity } from '../lib/sanity-utils';
-
-const builder = imageUrlBuilder(sanity);
-
 const imageUrl = productImage?.asset?.url || '/placeholder.png';
 ---
+
 <div class="relative z-0 text-white bg-black/10 rounded-[10px] shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.5)] overflow-hidden transform transition-all duration-500 group font-sans">
   <div class="p-4 h-52 sm:h-64 flex justify-center items-center overflow-hidden">
     <img
-      src={imageUrl || '/placeholder.png'}
+      src={imageUrl}
       alt={product.title}
       class="w-full h-full object-contain transition-transform duration-300 ease-in-out group-hover:scale-105 group-hover:-rotate-1"
     />
@@ -26,13 +22,16 @@ const imageUrl = productImage?.asset?.url || '/placeholder.png';
       <p class="text-xl font-captain text-primary mt-1">{productPrice}</p>
     </div>
   </div>
+
   {product.slug && (
     <a
       href={`/shop/${encodeURIComponent(typeof product.slug === 'string' ? product.slug : product.slug.current || '')}`}
-      class="absolute bottom-0 right-0 mb-2 transform translate-x-full opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500 ease-in-out text-white text-base font-bold font-captain tracking-wider border-l-4 border-primary bg-black/40 px-5 py-2 uppercase shadow-md z-20"    >
+      class="absolute bottom-0 right-0 mb-2 transform translate-x-full opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500 ease-in-out text-white text-base font-bold font-captain tracking-wider border-l-4 border-primary bg-black/40 px-5 py-2 uppercase shadow-md z-20"
+    >
       See Details
     </a>
   )}
+
   {product._id && (
     <button
       class="add-to-cart absolute top-0 left-0 m-2 px-4 py-1 bg-primary text-black font-bold rounded text-xs sm:text-sm"
@@ -42,7 +41,9 @@ const imageUrl = productImage?.asset?.url || '/placeholder.png';
     </button>
   )}
 </div>
+
 <div id="product-toast" class="fixed top-20 right-6 z-50 hidden px-4 py-3 backdrop-blur bg-white/10 text-white font-bold shadow-lg transition-all duration-300"></div>
+
 <script>
   function showProductToast(message, success = true) {
     const toast = document.getElementById('product-toast');
@@ -74,8 +75,12 @@ const imageUrl = productImage?.asset?.url || '/placeholder.png';
           }),
         })
           .then((res) => {
-            if (res.ok) showProductToast('✅ Added to cart!', true);
-            else showProductToast('❌ Failed to add to cart.', false);
+            if (res.ok) {
+              showProductToast('✅ Added to cart!', true);
+              window.dispatchEvent(new Event('cart-updated'));
+            } else {
+              showProductToast('❌ Failed to add to cart.', false);
+            }
           })
           .catch(() => showProductToast('❌ Error adding to cart.', false));
       });
