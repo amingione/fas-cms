@@ -12,12 +12,12 @@ const productPrice =
         typeof productImage === 'string'
           ? productImage
           : productImage?.asset?._ref
-          ? `https://cdn.sanity.io/images/${import.meta.env.SANITY_PROJECT_ID}/${import.meta.env.SANITY_DATASET}/${productImage.asset._ref
+          ? `https://cdn.sanity.io/images/${import.meta.env.SANITY_STUDIO_PROJECT_ID}/${import.meta.env.SANITY_STUDIO_DATASET}/${productImage.asset._ref
               .replace('image-', '')
               .replace('-webp', '.webp')
               .replace('-jpg', '.jpg')
               .replace('-png', '.png')}`
-          : ''
+          : '/placeholder.png'
       }
       alt={product.title}
       class="w-full h-full object-contain transition-transform duration-300 ease-in-out group-hover:scale-105 group-hover:-rotate-1"
