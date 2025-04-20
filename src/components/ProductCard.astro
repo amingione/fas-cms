@@ -7,7 +7,21 @@ const productPrice =
 ---
 <div class="relative z-0 text-white bg-black/10 rounded-[10px] shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.5)] overflow-hidden transform transition-all duration-500 group font-sans">
   <div class="p-4 h-52 sm:h-64 flex justify-center items-center overflow-hidden">
-    <img src={productImage} alt={product.title} class="w-full h-full object-contain transition-transform duration-300 ease-in-out group-hover:scale-105 group-hover:-rotate-1" />
+    <img
+      src={
+        typeof productImage === 'string'
+          ? productImage
+          : productImage?.asset?._ref
+          ? `https://cdn.sanity.io/images/${import.meta.env.SANITY_PROJECT_ID}/${import.meta.env.SANITY_DATASET}/${productImage.asset._ref
+              .replace('image-', '')
+              .replace('-webp', '.webp')
+              .replace('-jpg', '.jpg')
+              .replace('-png', '.png')}`
+          : ''
+      }
+      alt={product.title}
+      class="w-full h-full object-contain transition-transform duration-300 ease-in-out group-hover:scale-105 group-hover:-rotate-1"
+    />
   </div>
   <div class="p-4 space-y-2 text-center">
     <div class="mt-4 px-4 text-left">
@@ -15,9 +29,9 @@ const productPrice =
       <p class="text-xl font-captain text-primary mt-1">{productPrice}</p>
     </div>
   </div>
-  {product.slug?.current && typeof product.slug.current === 'string' && (
+  {product.slug && typeof product.slug === 'string' && (
     <a
-      href={`/shop/${encodeURIComponent(product.slug.current)}`}
+      href={`/shop/${encodeURIComponent(product.slug)}`}
       class="absolute bottom-0 right-0 mb-2 transform translate-x-full opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500 ease-in-out text-white text-base font-bold font-captain tracking-wider border-l-4 border-primary bg-black/40 px-5 py-2 uppercase shadow-md z-20"    >
       See Details
     </a>
