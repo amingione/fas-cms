@@ -16,7 +16,7 @@ export const client = createClient({
 });
 
 export async function fetchProducts() {
-  const query = `*[_type == "products"] | order(price asc)[0...9] {
+  const query = `*[_type == "product"] | order(price asc)[0...9] {
     _id,
     title,
     slug,
