@@ -128,7 +128,7 @@ if (!product) {
       </nav>
 
       <div class="grid md:grid-cols-2 gap-10 items-start">
-        <img src={product.images?.[0]?.url || '/images/placeholder.png'} alt={product?.title || 'Product image'} class="rounded-lg w-full object-cover shadow-lg" />
+        <img src={product.images && product.images.length > 0 && product.images[0]?.asset?.url ? product.images[0].asset.url : '/placeholder.png'} alt={product?.title || 'Product image'} class="rounded-lg w-full object-cover shadow-lg" />
 
         <div>
           <h1 class="text-4xl font-bold text-white mb-4">{product.title}</h1>
@@ -141,9 +141,9 @@ if (!product) {
           </ul>
 
           <div class="flex space-x-4 overflow-x-auto mb-6">
-            {product.images?.map((img, i) => (
-              <img src={img.url} alt={`Image ${i + 1}`} class="h-24 w-24 rounded object-cover border border-white/10" />
-            ))}
+          {product.images?.map((img, i) => (
+              <img src={img.asset?.url || '/placeholder.png'} alt={`Image ${i + 1}`} class="h-24 w-24 rounded object-cover border border-white/10" />
+          ))}
           </div>
 
           <button
