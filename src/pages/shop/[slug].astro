@@ -96,9 +96,11 @@ if (!product) {
   });
 </script>
 
-<script type="application/json" id="product-data">
-  {JSON.stringify(product || {})}
-</script>
+{product && (
+  <script type="application/json" id="product-data">
+    {JSON.stringify(product).replace(/</g, '\\u003c')}
+  </script>
+)}
 
 <BaseLayout>
   {product ? (
