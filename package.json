@@ -8,11 +8,11 @@
     "lint": "eslint \"src/**/*.{js,ts,jsx,tsx}\""
   },
   "lint-staged": {
-  "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
-    "prettier --write",
-    "eslint --fix"
-  ]
-},
+    "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
+      "prettier --write",
+      "eslint --fix"
+    ]
+  },
   "devDependencies": {
     "@eslint/js": "^9.25.1",
     "@types/node": "^22.14.1",
