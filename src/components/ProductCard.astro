@@ -8,7 +8,10 @@ const productPrice =
 const imageUrl = productImage?.asset?.url || '/placeholder.png';
 ---
 
-<div class="relative z-0 text-white bg-black/10 rounded-[10px] shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.5)] overflow-hidden transform transition-all duration-500 group font-sans">
+<a
+  href={`/shop/${encodeURIComponent(typeof product.slug === 'string' ? product.slug : product.slug.current || '')}`}
+  class="relative z-0 text-white bg-black/10 rounded-[10px] shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.5)] overflow-hidden transform transition-all duration-500 group font-sans block"
+>
   <div class="p-4 h-52 sm:h-64 flex justify-center items-center overflow-hidden">
     <img
       src={imageUrl}
@@ -19,28 +22,22 @@ const imageUrl = productImage?.asset?.url || '/placeholder.png';
   <div class="p-4 space-y-2 text-center">
     <div class="mt-4 px-4 text-left">
       <h2 class="text-sm sm:text-sm font-ethno font-semibold text-white">{product.title}</h2>
-      <p class="text-xl font-captain text-primary mt-1">{productPrice}</p>
+      <div class="flex justify-between items-center mt-2">
+        <p class="text-xl font-captain text-primary">{productPrice}</p>
+        {product._id && (
+          <button
+            class="add-to-cart bg-white text-black px-4 py-2 font-ethno hover:bg-primary transition rounded-none text-xs sm:text-sm"
+            data-product-id={product._id}
+            data-product-name={product.title}
+            data-product-price={product.price}
+          >
+            Add to Cart
+          </button>
+        )}
+      </div>
     </div>
   </div>
-
-  {product.slug && (
-    <a
-      href={`/shop/${encodeURIComponent(typeof product.slug === 'string' ? product.slug : product.slug.current || '')}`}
-      class="absolute bottom-0 right-0 mb-2 transform translate-x-full opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500 ease-in-out text-white text-base font-bold font-captain tracking-wider border-l-4 border-primary bg-black/40 px-5 py-2 uppercase shadow-md z-20"
-    >
-      See Details
-    </a>
-  )}
-
-  {product._id && (
-    <button
-      class="add-to-cart absolute top-0 left-0 m-2 px-4 py-1 bg-primary text-black font-bold rounded text-xs sm:text-sm"
-      data-product-id={product._id}
-    >
-      Add to Cart
-    </button>
-  )}
-</div>
+</a>
 
 <div id="product-toast" class="fixed top-20 right-6 z-50 hidden px-4 py-3 backdrop-blur bg-white/10 text-white font-bold shadow-lg transition-all duration-300"></div>
 
@@ -65,8 +62,8 @@ const imageUrl = productImage?.asset?.url || '/placeholder.png';
     document.querySelectorAll('.add-to-cart').forEach((btn) => {
       btn.addEventListener('click', () => {
         const productId = btn.getAttribute('data-product-id');
-        const productName = btn.closest('.relative')?.querySelector('h2')?.textContent || 'Unknown Product';
-        const productPrice = btn.closest('.relative')?.querySelector('p.text-xl')?.textContent?.replace('$', '') || '0';
+        const productName = btn.closest('a')?.querySelector('h2')?.textContent || 'Unknown Product';
+        const productPrice = btn.closest('a')?.querySelector('p.text-xl')?.textContent?.replace('$', '') || '0';
 
         if (!productId) return;
 
