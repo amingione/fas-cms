@@ -51,11 +51,29 @@ const MobileBaseLayout = ({ children }) => {
           </button>
         </div>
         <ul className="space-y-3 text-sm">
-          <li><a href="/account" className="block">Dashboard</a></li>
-          <li><a href="#" className="block">Orders (Coming Soon)</a></li>
-          <li><a href="#" className="block">Settings (Coming Soon)</a></li>
-          <li><a href="#" className="block">Garage Dashboard (Coming Soon)</a></li>
-          <li><button className="text-red-500">Logout</button></li>
+          <li>
+            <a href="/account" className="block">
+              Dashboard
+            </a>
+          </li>
+          <li>
+            <a href="#" className="block">
+              Orders (Coming Soon)
+            </a>
+          </li>
+          <li>
+            <a href="#" className="block">
+              Settings (Coming Soon)
+            </a>
+          </li>
+          <li>
+            <a href="#" className="block">
+              Garage Dashboard (Coming Soon)
+            </a>
+          </li>
+          <li>
+            <button className="text-red-500">Logout</button>
+          </li>
         </ul>
       </div>
     </div>

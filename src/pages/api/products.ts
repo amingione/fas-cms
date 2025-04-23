@@ -11,7 +11,7 @@ const client = createClient({
   dataset: 'production',
   apiVersion: '2023-06-07',
   token,
-  useCdn: false,
+  useCdn: false
 });
 
 export async function GET({ url }: { url: URL }) {
@@ -24,7 +24,7 @@ export async function GET({ url }: { url: URL }) {
   const tune = url.searchParams.get('tune');
   const minHp = url.searchParams.get('minHp');
 
-  let filters = [`_type == "product"`];
+  const filters = [`_type == "product"`];
 
   if (category) filters.push(`"${category}" in categories[]->slug.current`);
   if (vehicle) filters.push(`"${vehicle}" in compatibleVehicles[]->slug.current`);
@@ -76,7 +76,7 @@ export async function GET({ url }: { url: URL }) {
   return new Response(
     JSON.stringify({
       products: slicedProducts,
-      totalCount: allProducts.length,
+      totalCount: allProducts.length
     }),
     { headers: { 'Content-Type': 'application/json' } }
   );

@@ -13,12 +13,6 @@
       "@pages/*": ["src/pages/*"]
     }
   },
-  "include": [
-    "src",
-    ".astro/types.d.ts"
-  ],
-  "exclude": [
-    "dist",
-    "node_modules"
-  ]
+  "include": ["src", ".astro/types.d.ts"],
+  "exclude": ["dist", "node_modules"]
 }

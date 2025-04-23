@@ -5,43 +5,90 @@
 @tailwind utilities;
 
 :root {
-    --color-primary: #ea1d26;
-    --color-secondary: #eef2fb;
-    --color-accent: #fde4b2;
-    --color-graylight: #d1d0d0;
-    --color-background: #00000000;
+  --color-primary: #ea1d26;
+  --color-secondary: #eef2fb;
+  --color-accent: #fde4b2;
+  --color-graylight: #d1d0d0;
+  --color-background: #00000000;
 }
 
 /* Custom utility classes for fonts and colors */
 @layer utilities {
-    /* Font utilities */
+  /* Font utilities */
 
-    /* ───── Brand Headers ───── */
-    .font-ethno { font-family: 'Ethnocentric', sans-serif; font-weight: normal; }
-    .font-ethno-italic { font-family: 'Ethnocentric', sans-serif; font-style: italic; font-weight: normal; }
+  /* ───── Brand Headers ───── */
+  .font-ethno {
+    font-family: 'Ethnocentric', sans-serif;
+    font-weight: normal;
+  }
+  .font-ethno-italic {
+    font-family: 'Ethnocentric', sans-serif;
+    font-style: italic;
+    font-weight: normal;
+  }
 
-    .font-captain { font-family: 'American Captain', sans-serif; font-weight: normal; }
-    .font-borg { font-family: 'Borgsquad Italic', sans-serif; font-style: italic; font-weight: normal; }
+  .font-captain {
+    font-family: 'American Captain', sans-serif;
+    font-weight: normal;
+  }
+  .font-borg {
+    font-family: 'Borgsquad Italic', sans-serif;
+    font-style: italic;
+    font-weight: normal;
+  }
 
-    /* ───── Cyber Princess ───── */
-    .font-cyber { font-family: 'Cyber Princess', sans-serif; font-weight: normal; }
-    .font-cyber-italic { font-family: 'Cyber Princess', sans-serif; font-style: italic; font-weight: normal; }
+  /* ───── Cyber Princess ───── */
+  .font-cyber {
+    font-family: 'Cyber Princess', sans-serif;
+    font-weight: normal;
+  }
+  .font-cyber-italic {
+    font-family: 'Cyber Princess', sans-serif;
+    font-style: italic;
+    font-weight: normal;
+  }
 
-    /* ───── Cyber Princess 3D ───── */
-    .font-cyber3d { font-family: 'Cyber Princess 3D', sans-serif; font-style: normal; font-weight: normal; }
-    .font-cyber3d-italic { font-family: 'Cyber Princess 3D', sans-serif; font-style: italic; font-weight: normal; }
+  /* ───── Cyber Princess 3D ───── */
+  .font-cyber3d {
+    font-family: 'Cyber Princess 3D', sans-serif;
+    font-style: normal;
+    font-weight: normal;
+  }
+  .font-cyber3d-italic {
+    font-family: 'Cyber Princess 3D', sans-serif;
+    font-style: italic;
+    font-weight: normal;
+  }
 
-    /* ───── Cyber Princess 3D Filled ───── */
-    .font-cyber3dfilled { font-family: 'Cyber Princess 3D Filled', sans-serif; font-style: normal; font-weight: normal; }
-    .font-cyber3dfilled-italic { font-family: 'Cyber Princess 3D Filled', sans-serif; font-style: italic; font-weight: normal; }
+  /* ───── Cyber Princess 3D Filled ───── */
+  .font-cyber3dfilled {
+    font-family: 'Cyber Princess 3D Filled', sans-serif;
+    font-style: normal;
+    font-weight: normal;
+  }
+  .font-cyber3dfilled-italic {
+    font-family: 'Cyber Princess 3D Filled', sans-serif;
+    font-style: italic;
+    font-weight: normal;
+  }
 
-    /* ───── Kwajong ───── */
-    .font-kwajong { font-family: 'Kwajong', sans-serif; font-weight: normal; }
-    .font-kwajong-italic { font-family: 'Kwajong', sans-serif; font-style: italic; font-weight: normal; }
+  /* ───── Kwajong ───── */
+  .font-kwajong {
+    font-family: 'Kwajong', sans-serif;
+    font-weight: normal;
+  }
+  .font-kwajong-italic {
+    font-family: 'Kwajong', sans-serif;
+    font-style: italic;
+    font-weight: normal;
+  }
 
-    /* Hover and transition effects */
+  /* Hover and transition effects */
   a {
-    transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+    transition:
+      color 0.3s ease,
+      background-color 0.3s ease,
+      border-color 0.3s ease;
   }
 
   a:not(.text-primary):hover {
@@ -51,22 +98,45 @@
   a.text-primary:hover {
     color: var(--color-secondary);
   }
-    
-    /* Color utilities */
-    .text-primary { color: var(--color-primary); }
-    .text-secondary { color: var(--color-secondary); }
-    .text-accent { color: var(--color-accent); }
-    .text-graylight { color: var(--color-graylight); }
-    
-    .bg-primary { background-color: var(--color-primary); }
-    .bg-secondary { background-color: var(--color-secondary); }
-    .bg-accent { background-color: var(--color-accent); }
-    .bg-graylight { background-color: var(--color-graylight); }
-    .bg-base { background-color: var(--color-background); }
+
+  /* Color utilities */
+  .text-primary {
+    color: var(--color-primary);
+  }
+  .text-secondary {
+    color: var(--color-secondary);
+  }
+  .text-accent {
+    color: var(--color-accent);
+  }
+  .text-graylight {
+    color: var(--color-graylight);
+  }
+
+  .bg-primary {
+    background-color: var(--color-primary);
+  }
+  .bg-secondary {
+    background-color: var(--color-secondary);
+  }
+  .bg-accent {
+    background-color: var(--color-accent);
+  }
+  .bg-graylight {
+    background-color: var(--color-graylight);
+  }
+  .bg-base {
+    background-color: var(--color-background);
+  }
 }
 
 @layer base {
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: inherit;
     font-weight: inherit;
     font-style: inherit;
@@ -74,146 +144,191 @@
 }
 
 @layer utilities {
-  .delay-100  { transition-delay: 100ms; }
-  .delay-150  { transition-delay: 150ms; }
-  .delay-200  { transition-delay: 200ms; }
-  .delay-250  { transition-delay: 250ms; }
-  .delay-300  { transition-delay: 300ms; }
-  .delay-350  { transition-delay: 350ms; }
-  .delay-400  { transition-delay: 400ms; }
-  .delay-450  { transition-delay: 450ms; }
-  .delay-500  { transition-delay: 500ms; }
-  .delay-550  { transition-delay: 550ms; }
+  .delay-100 {
+    transition-delay: 100ms;
+  }
+  .delay-150 {
+    transition-delay: 150ms;
+  }
+  .delay-200 {
+    transition-delay: 200ms;
+  }
+  .delay-250 {
+    transition-delay: 250ms;
+  }
+  .delay-300 {
+    transition-delay: 300ms;
+  }
+  .delay-350 {
+    transition-delay: 350ms;
+  }
+  .delay-400 {
+    transition-delay: 400ms;
+  }
+  .delay-450 {
+    transition-delay: 450ms;
+  }
+  .delay-500 {
+    transition-delay: 500ms;
+  }
+  .delay-550 {
+    transition-delay: 550ms;
+  }
 }
 
 @layer utilities {
-  .opacity-100 { opacity: 1; }
-  .translate-y-0 { transform: translateY(0); }
+  .opacity-100 {
+    opacity: 1;
+  }
+  .translate-y-0 {
+    transform: translateY(0);
+  }
 }
 
 @keyframes shine {
-    0% {
-      background-position: -100%;
-    }
-    100% {
-      background-position: 200%;
-    }
+  0% {
+    background-position: -100%;
   }
-  
-  @keyframes quiver {
-    0%, 100% {
-      transform: translateX(0);
-    }
-    25% {
-      transform: translateX(-2px);
-    }
-    75% {
-      transform: translateX(2px);
-    }
+  100% {
+    background-position: 200%;
   }
-  
-  /* This class creates the shining overlay using a pseudo-element */
-  .shine-quiver {
-    position: relative;
-    display: inline-block;
-    overflow: hidden; /* ensure pseudo-element doesn't overflow */
-  }
-  
-  .shine-quiver::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.6), transparent);
-    transform: skewX(-25deg);
-    animation: shine 2s linear infinite;
-    pointer-events: none;
-  }
-  
-  /* Trigger a slight quiver on hover */
-  .shine-quiver:hover {
-    animation: quiver 0.1s infinite;
-  }
+}
 
-  @keyframes worm-slide {
-    0%   { transform: translateX(0) rotate(0deg); }
-    20%  { transform: translateX(2px) rotate(0.5deg); }
-    40%  { transform: translateY(-1px) rotate(-0.5deg); }
-    60%  { transform: translateX(-2px) rotate(0.4deg); }
-    80%  { transform: translateY(1px) rotate(-0.2deg); }
-    100% { transform: translateX(0) rotate(0deg); }
+@keyframes quiver {
+  0%,
+  100% {
+    transform: translateX(0);
   }
-  .worm-slide {
-    animation: worm-slide 2.5s ease-in-out 1;
+  25% {
+    transform: translateX(-2px);
   }
+  75% {
+    transform: translateX(2px);
+  }
+}
 
-  @keyframes ripple-in {
-    0% {
-      opacity: 0;
-      transform: scale(0.8) translateY(20px);
-      filter: blur(4px);
-    }
-    50% {
-      opacity: 0.5;
-      transform: scale(1.05) translateY(0px);
-      filter: blur(2px);
-    }
-    100% {
-      opacity: 1;
-      transform: scale(1) translateY(0px);
-      filter: blur(0);
-    }
-  }
-  
-  .ripple-in {
-    animation: ripple-in 1.2s ease-out both;
-  }
-  @keyframes ripple-wipe {
-    0% {
-      opacity: 0;
-      transform: scale(0.8) translateX(-50%);
-      clip-path: inset(0 100% 0 0);
-      filter: brightness(1.5);
-    }
-    30% {
-      transform: scale(1.05);
-      clip-path: inset(0 60% 0 0);
-      filter: brightness(1.2);
-    }
-    60% {
-      transform: scale(1.1);
-      clip-path: inset(0 20% 0 0);
-      filter: brightness(1.4);
-    }
-    100% {
-      opacity: 1;
-      transform: scale(1) translateX(0);
-      clip-path: inset(0 0 0 0);
-      filter: brightness(1);
-    }
-  }
-  
-  .ripple-wipe {
-    animation: ripple-wipe 1.8s ease-out both;
-  }
+/* This class creates the shining overlay using a pseudo-element */
+.shine-quiver {
+  position: relative;
+  display: inline-block;
+  overflow: hidden; /* ensure pseudo-element doesn't overflow */
+}
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+.shine-quiver::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  transform: skewX(-25deg);
+  animation: shine 2s linear infinite;
+  pointer-events: none;
+}
+
+/* Trigger a slight quiver on hover */
+.shine-quiver:hover {
+  animation: quiver 0.1s infinite;
+}
+
+@keyframes worm-slide {
+  0% {
+    transform: translateX(0) rotate(0deg);
   }
-  
-  .fade-in-observer {
+  20% {
+    transform: translateX(2px) rotate(0.5deg);
+  }
+  40% {
+    transform: translateY(-1px) rotate(-0.5deg);
+  }
+  60% {
+    transform: translateX(-2px) rotate(0.4deg);
+  }
+  80% {
+    transform: translateY(1px) rotate(-0.2deg);
+  }
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
+}
+.worm-slide {
+  animation: worm-slide 2.5s ease-in-out 1;
+}
+
+@keyframes ripple-in {
+  0% {
     opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    transform: scale(0.8) translateY(20px);
+    filter: blur(4px);
   }
-  
-  .fade-in-active {
+  50% {
+    opacity: 0.5;
+    transform: scale(1.05) translateY(0px);
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0px);
+    filter: blur(0);
+  }
+}
+
+.ripple-in {
+  animation: ripple-in 1.2s ease-out both;
+}
+@keyframes ripple-wipe {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateX(-50%);
+    clip-path: inset(0 100% 0 0);
+    filter: brightness(1.5);
+  }
+  30% {
+    transform: scale(1.05);
+    clip-path: inset(0 60% 0 0);
+    filter: brightness(1.2);
+  }
+  60% {
+    transform: scale(1.1);
+    clip-path: inset(0 20% 0 0);
+    filter: brightness(1.4);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+    clip-path: inset(0 0 0 0);
+    filter: brightness(1);
+  }
+}
+
+.ripple-wipe {
+  animation: ripple-wipe 1.8s ease-out both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.fade-in-observer {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.8s ease-out,
+    transform 0.8s ease-out;
+}
+
+.fade-in-active {
+  opacity: 1;
+  transform: translateY(0);
+}
 
 .fade-in-up {
   opacity: 0;
@@ -222,8 +337,12 @@
 }
 
 @keyframes carousel {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 .animate-carousel {
   animation: carousel 20s linear infinite;

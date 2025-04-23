@@ -19,21 +19,22 @@ export async function POST({ request }: { request: Request }) {
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>Message:</strong></p>
         <p>${message}</p>
-      `,
+      `
     });
 
     return new Response(null, {
       status: 303,
       headers: {
-        Location: '/contact?success=true',
-      },
+        Location: '/contact?success=true'
+      }
     });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     return new Response(null, {
       status: 303,
       headers: {
-        Location: '/contact?error=true',
-      },
+        Location: '/contact?error=true'
+      }
     });
   }
 }

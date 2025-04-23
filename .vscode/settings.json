@@ -1,7 +1,7 @@
 {
-    "haselerdev.aiquickfix.model": "GPT-4",
-    "haselerdev.aiquickfix.promptSuffix": "Please, please remember to only send the fixed code, and nothing else or it will break the user's code and make them sad-",
-    "haselerdev.aiquickfix.problemCodePrefix": "gpt-4",
-    "haselerdev.aiquickfix.apiKey": "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",
-    "CodeGPT.apiKey": "CodeGPT Plus"
+  "haselerdev.aiquickfix.model": "GPT-4",
+  "haselerdev.aiquickfix.promptSuffix": "Please, please remember to only send the fixed code, and nothing else or it will break the user's code and make them sad-",
+  "haselerdev.aiquickfix.problemCodePrefix": "gpt-4",
+  "haselerdev.aiquickfix.apiKey": "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",
+  "CodeGPT.apiKey": "CodeGPT Plus"
 }

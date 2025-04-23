@@ -34,8 +34,19 @@ export default function FloatingCartWidget() {
         onClick={() => setIsOpen(true)}
         className="fixed bottom-20 right-6 z-50 bg-white text-black p-4 rounded-full shadow-lg hover:bg-primary hover:text-white transition-all duration-300 flex items-center justify-center"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 6h11.1M7 13L5.4 5M16 16a2 2 0 100 4 2 2 0 000-4zm-8 0a2 2 0 100 4 2 2 0 000-4z" />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 6h11.1M7 13L5.4 5M16 16a2 2 0 100 4 2 2 0 000-4zm-8 0a2 2 0 100 4 2 2 0 000-4z"
+          />
         </svg>
       </button>
 
@@ -47,7 +58,9 @@ export default function FloatingCartWidget() {
       >
         <div className="p-4 flex justify-between items-center border-b border-white/10">
           <h2 className="text-xl font-bold font-captain">Cart</h2>
-          <button onClick={() => setIsOpen(false)} className="text-white text-2xl">×</button>
+          <button onClick={() => setIsOpen(false)} className="text-white text-2xl">
+            ×
+          </button>
         </div>
 
         <div className="p-4 overflow-y-auto h-[calc(100%-12rem)]">
@@ -62,16 +75,21 @@ export default function FloatingCartWidget() {
               </a>
             </div>
           ) : (
-            cartItems.map(item => (
-              <div key={item.id} className="flex justify-between items-center border-b border-white/10 py-3">
+            cartItems.map((item) => (
+              <div
+                key={item.id}
+                className="flex justify-between items-center border-b border-white/10 py-3"
+              >
                 <div>
                   <p className="text-sm font-semibold">{item.name}</p>
-                  <p className="text-xs text-gray-400">{item.quantity}x • ${item.price.toFixed(2)}</p>
+                  <p className="text-xs text-gray-400">
+                    {item.quantity}x • ${item.price.toFixed(2)}
+                  </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-bold">${(item.quantity * item.price).toFixed(2)}</p>
                   <button
-                    onClick={() => setCartItems(cartItems.filter(ci => ci.id !== item.id))}
+                    onClick={() => setCartItems(cartItems.filter((ci) => ci.id !== item.id))}
                     className="text-red-400 hover:text-red-600 text-lg"
                     title="Remove"
                   >
@@ -90,26 +108,26 @@ export default function FloatingCartWidget() {
           </div>
           <button
             onClick={async () => {
-             const res = await fetch('/api/checkout', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-              sessionId: window.localStorage.getItem('fas_session') || 'guest-session',
-        }),
-     });
+              const res = await fetch('/api/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  sessionId: window.localStorage.getItem('fas_session') || 'guest-session'
+                })
+              });
 
-    const data = await res.json();
+              const data = await res.json();
 
-    if (data.url) {
-      window.location.href = data.url;
-    } else {
-      alert('Unable to start checkout. Please try again.');
-    }
-  }}
-  className="block w-full bg-primary text-black py-3 rounded hover:opacity-90 transition-all font-bold tracking-wide"
->
-  Proceed to Checkout
-</button>
+              if (data.url) {
+                window.location.href = data.url;
+              } else {
+                alert('Unable to start checkout. Please try again.');
+              }
+            }}
+            className="block w-full bg-primary text-black py-3 rounded hover:opacity-90 transition-all font-bold tracking-wide"
+          >
+            Proceed to Checkout
+          </button>
         </div>
       </div>
     </>

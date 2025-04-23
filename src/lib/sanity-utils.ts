@@ -1,12 +1,14 @@
-import { createClient } from '@sanity/client'
+import { createClient } from '@sanity/client';
 
-const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID
-const dataset = import.meta.env.PUBLIC_SANITY_DATASET
-const apiVersion = '2023-01-01'
-const token = import.meta.env.SANITY_API_TOKEN
+const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
+const dataset = import.meta.env.PUBLIC_SANITY_DATASET;
+const apiVersion = '2023-01-01';
+const token = import.meta.env.SANITY_API_TOKEN;
 
 if (!projectId || !dataset) {
-  throw new Error('Missing PUBLIC_SANITY_PROJECT_ID or PUBLIC_SANITY_DATASET in environment variables.')
+  throw new Error(
+    'Missing PUBLIC_SANITY_PROJECT_ID or PUBLIC_SANITY_DATASET in environment variables.'
+  );
 }
 
 export const sanity = createClient({
@@ -15,26 +17,26 @@ export const sanity = createClient({
   apiVersion,
   useCdn: false,
   token
-})
+});
 
 // Define basic product type (you can extend this as needed)
 export interface Product {
-  _id: string
-  title: string
-  slug: { current: string }
-  price: number
-  description?: string
+  _id: string;
+  title: string;
+  slug: { current: string };
+  price: number;
+  description?: string;
   images: {
     asset: {
-      _id: string
-      url: string
-    }
-  }[]
+      _id: string;
+      url: string;
+    };
+  }[];
   categories: {
-    _id: string
-    title: string
-    slug: { current: string }
-  }[]
+    _id: string;
+    title: string;
+    slug: { current: string };
+  }[];
 }
 
 // Fetch all products
@@ -70,12 +72,12 @@ export async function fetchProductsFromSanity(currentCategory?: string): Promise
         title,
         slug
       }
-    }`
+    }`;
 
-    return await sanity.fetch(query)
+    return await sanity.fetch(query);
   } catch (err) {
-    console.error('Failed to fetch products:', err)
-    return []
+    console.error('Failed to fetch products:', err);
+    return [];
   }
 }
 
@@ -99,10 +101,10 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
         title,
         slug
       }
-    }`
-    return await sanity.fetch(query, { slug })
+    }`;
+    return await sanity.fetch(query, { slug });
   } catch (err) {
-    console.error(`Failed to fetch product with slug "${slug}":`, err)
-    return null
+    console.error(`Failed to fetch product with slug "${slug}":`, err);
+    return null;
   }
 }

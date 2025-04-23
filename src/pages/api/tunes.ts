@@ -1,7 +1,7 @@
 import { sanityFetch } from '@/lib/sanityFetch';
 
 export async function GET(): Promise<Response> {
-  console.log("🧪 TUNE API DEBUG →", {
+  console.log('🧪 TUNE API DEBUG →', {
     tokenPrefix: import.meta.env.SANITY_API_TOKEN?.slice(0, 8),
     projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID,
     dataset: import.meta.env.PUBLIC_SANITY_DATASET
@@ -14,7 +14,7 @@ export async function GET(): Promise<Response> {
     !import.meta.env.PUBLIC_SANITY_PROJECT_ID ||
     !import.meta.env.PUBLIC_SANITY_DATASET
   ) {
-    return new Response(JSON.stringify({ error: "Missing Sanity credentials" }), {
+    return new Response(JSON.stringify({ error: 'Missing Sanity credentials' }), {
       status: 500
     });
   }
@@ -25,13 +25,16 @@ export async function GET(): Promise<Response> {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
-  } catch (err: any) {
-    console.error("❌ Tune fetch failed:", err);
-    return new Response(JSON.stringify({
-      error: "Tune fetch error",
-      details: err.message || "Unknown error"
-    }), {
-      status: 500
-    });
+  } catch (err: unknown) {
+    console.error('❌ Tune fetch failed:', err);
+    return new Response(
+      JSON.stringify({
+        error: 'Tune fetch error',
+        details: err instanceof Error ? err.message : 'Unknown error'
+      }),
+      {
+        status: 500
+      }
+    );
   }
 }

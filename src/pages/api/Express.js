@@ -1,3 +1,8 @@
+import express from 'express';
+import { sanityClient } from '@/lib/sanityClient';
+
+const app = express();
+
 app.get('/api/products', async (req, res) => {
   try {
     const { category, tune, hp, page = 1 } = req.query;
@@ -29,16 +34,19 @@ app.get('/api/products', async (req, res) => {
     };
 
     const products = await sanityClient.fetch(query, params);
-    const totalCount = await sanityClient.fetch(`count(*[
+    const totalCount = await sanityClient.fetch(
+      `count(*[
       _type == "product" &&
       (!defined(category) || category == $category) &&
       (!defined(tune) || tune_required == $tune) &&
       (!defined(hp) || horsepower <= $hp)
-    ])`, params);
+    ])`,
+      params
+    );
 
     res.json({ products, totalPages: Math.ceil(totalCount / pageSize) });
-  } catch (err) {
-    console.error(err);
+  } catch (_err) {
+    console.error(_err);
     res.status(500).json({ error: 'Failed to fetch products' });
   }
 });
