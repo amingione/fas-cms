@@ -65,15 +65,23 @@ const imageUrl = productImage?.asset?.url || '/placeholder.png';
     document.querySelectorAll('.add-to-cart').forEach((btn) => {
       btn.addEventListener('click', () => {
         const productId = btn.getAttribute('data-product-id');
+        const productName = btn.closest('.relative')?.querySelector('h2')?.textContent || 'Unknown Product';
+        const productPrice = btn.closest('.relative')?.querySelector('p.text-xl')?.textContent?.replace('$', '') || '0';
+
         if (!productId) return;
 
         const cart = JSON.parse(localStorage.getItem('fas_cart') || '[]');
-        const existing = cart.find((item) => item.productId === productId);
+        const existing = cart.find((item) => item.id === productId);
 
         if (existing) {
           existing.quantity += 1;
         } else {
-          cart.push({ productId, quantity: 1 });
+          cart.push({
+            id: productId,
+            name: productName,
+            price: parseFloat(productPrice),
+            quantity: 1
+          });
         }
 
         localStorage.setItem('fas_cart', JSON.stringify(cart));

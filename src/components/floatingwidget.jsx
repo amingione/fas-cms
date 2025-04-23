@@ -14,7 +14,11 @@ export default function FloatingCartWidget() {
   useEffect(() => {
     const updateCart = () => {
       const saved = localStorage.getItem('fas_cart');
-      setCartItems(saved ? JSON.parse(saved) : []);
+      const parsed = saved ? JSON.parse(saved) : [];
+      setCartItems(parsed);
+      if (parsed.length > 0) {
+        setIsOpen(true); // ✅ auto-open the drawer when items are added
+      }
     };
     window.addEventListener('cart-updated', updateCart);
     return () => window.removeEventListener('cart-updated', updateCart);
