@@ -5,7 +5,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "lint": "eslint \"src/**/*.{js,ts,jsx,tsx}\""
+    "lint": "eslint \"src/**/*.{js,ts,jsx,tsx}\"",
+    "prepare": "husky install"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
