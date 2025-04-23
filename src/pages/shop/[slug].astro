@@ -93,44 +93,24 @@ if (!product) {
         }
 
         if (addToCartBtn && product) {
-          addToCartBtn.addEventListener('click', async () => {
-            try {
-              const res = await fetch('/api/cart', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  productId: product._id,
-                  quantity: 1,
-                  sessionId: window.localStorage.getItem('fas_session') || 'guest-session'
-                })
+          addToCartBtn.addEventListener('click', () => {
+            const existingCart = JSON.parse(localStorage.getItem('fas_cart')) || [];
+
+            const found = existingCart.find(item => item.id === product._id);
+            if (found) {
+              found.quantity += 1;
+            } else {
+              existingCart.push({
+                id: product._id,
+                name: product.title,
+                price: product.price,
+                quantity: 1
               });
-
-              if (res.ok) {
-                if (typeof window !== 'undefined') {
-                  const existingCart = JSON.parse(localStorage.getItem('fas_cart')) || [];
-
-                  const found = existingCart.find(item => item.productId === product._id);
-                  if (found) {
-                    found.quantity += 1;
-                  } else {
-                    existingCart.push({
-                      productId: product._id,
-                      quantity: 1,
-                      sessionId: localStorage.getItem('fas_session') || 'guest-session'
-                    });
-                  }
-
-                  localStorage.setItem('fas_cart', JSON.stringify(existingCart));
-                  window.dispatchEvent(new Event('cart-updated'));
-                }
-                showToast('✅ Added to cart!');
-              } else {
-                showToast('❌ Failed to add to cart.');
-              }
-            } catch (err) {
-              console.error('❌ Add to cart error:', err);
-              showToast('❌ Something went wrong.');
             }
+
+            localStorage.setItem('fas_cart', JSON.stringify(existingCart));
+            window.dispatchEvent(new Event('cart-updated'));
+            showToast('✅ Added to cart!');
           });
         }
       });
