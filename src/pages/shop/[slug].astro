@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProductCard from '../../components/ProductCard.astro';
 
 const { slug } = Astro.params;
 
@@ -8,7 +9,6 @@ if (!slug) {
   throw new Error("Missing slug parameter.");
 }
 
-// Fetch the product details based on the slug
 const query = `*[_type == "product" && slug.current == "${slug}"][0]{
   _id,
   title,
@@ -18,14 +18,22 @@ const query = `*[_type == "product" && slug.current == "${slug}"][0]{
   "slug": coalesce(slug.current, slug),
   images[]{ asset->{ url } },
   description,
-  relatedProducts[]->{
+  "relatedProducts": *[
+    _type == "product" &&
+    _id != ^._id &&
+    count(categories[@._ref in ^.categories[]._ref]) > 0
+  ][4...8]{
     _id,
     title,
     price,
     "slug": coalesce(slug.current, slug),
     images[]{ asset->{ url } }
   },
-  upsellProducts[]->{
+  "upsellProducts": *[
+    _type == "product" &&
+    _id != ^._id &&
+    count(categories[@._ref in ^.categories[]._ref]) > 0
+  ][0...4]{
     _id,
     title,
     price,
@@ -119,8 +127,6 @@ if (!product) {
             window.dispatchEvent(new Event('cart-updated'));
             showToast('✅ Added to cart!');
           });
-        } else {
-          console.warn('🚫 Add to Cart setup skipped due to missing button or product.');
         }
       });
     </script>
@@ -141,7 +147,7 @@ if (!product) {
           </nav>
 
           <div class="grid md:grid-cols-2 gap-10 items-start">
-            <img src={product.images && product.images.length > 0 && product.images[0]?.asset?.url ? product.images[0].asset.url : '/placeholder.png'} alt={product?.title || 'Product image'} class="rounded-lg w-full object-cover shadow-lg" />
+            <img src={product.images?.[0]?.asset?.url || '/placeholder.png'} alt={product?.title || 'Product image'} class="rounded-lg w-full object-cover shadow-lg" />
 
             <div>
               <h1 class="text-4xl font-ethno text-white mb-4">{product.title}</h1>
@@ -154,15 +160,12 @@ if (!product) {
               </ul>
 
               <div class="flex space-x-4 overflow-x-auto mb-6">
-              {product.images?.map((img, i) => (
+                {product.images?.map((img, i) => (
                   <img src={img.asset?.url || '/placeholder.png'} alt={`Image ${i + 1}`} class="h-24 w-24 rounded object-cover border border-white/10" />
-              ))}
+                ))}
               </div>
 
-              <button
-                id="add-to-cart"
-                class="bg-white text-black px-6 py-3 font-ethno hover:bg-red-600 transition"
-              >
+              <button id="add-to-cart" class="bg-white text-black px-6 py-3 font-ethno hover:bg-red-600 transition">
                 Add to Cart
               </button>
             </div>
@@ -182,18 +185,7 @@ if (!product) {
         <h2 class="text-2xl font-semibold font-borg text-white mb-6">Related Products</h2>
         <div class="grid md:grid-cols-3 gap-6">
           {product.relatedProducts.map((related) => (
-            <a
-              href={`/shop/${encodeURIComponent(related.slug)}`}
-              class="block bg-white/5 rounded-lg p-4 text-white hover:bg-white/10 transition"
-            >
-              <img
-                src={related.images?.[0]?.url || '/images/placeholder.png'}
-                alt={related.title}
-                class="rounded w-full h-40 object-cover mb-4"
-              />
-              <h3 class="text-lg font-bold">{related.title}</h3>
-              <p class="text-accent font-semibold">${related.price}</p>
-            </a>
+            <ProductCard product={related} productImage={related.images?.[0]} />
           ))}
         </div>
       </section>
@@ -204,18 +196,7 @@ if (!product) {
         <h2 class="text-2xl font-semibold font-borg text-white mb-6">You May Also Like</h2>
         <div class="grid md:grid-cols-3 gap-6">
           {product.upsellProducts.map((upsell) => (
-            <a
-              href={`/shop/${encodeURIComponent(upsell.slug)}`}
-              class="block bg-white/5 rounded-lg p-4 font-ethno text-white hover:bg-white/10 transition"
-            >
-              <img
-                src={upsell.images?.[0]?.url || '/images/placeholder.png'}
-                alt={upsell.title}
-                class="rounded w-full h-40 object-cover mb-4"
-              />
-              <h3 class="text-lg font-cyber font-bold">{upsell.title}</h3>
-              <p class="text-accent font-ethno font-semibold">${upsell.price}</p>
-            </a>
+            <ProductCard product={upsell} productImage={upsell.images?.[0]} />
           ))}
         </div>
       </section>

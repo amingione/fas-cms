@@ -42,8 +42,10 @@ export interface Product {
 // Fetch all products
 export async function fetchProductsFromSanity(currentCategory?: string): Promise<Product[]> {
   try {
+    console.log('[Sanity Fetch] Category filter:', currentCategory);
+
     const categoryFilter = currentCategory
-      ? `&& "${currentCategory}" in categories[]->slug.current`
+      ? `&& count(categories[slug.current == "${currentCategory}"]) > 0`
       : '';
 
     const query = `*[_type == "product" ${categoryFilter}]{

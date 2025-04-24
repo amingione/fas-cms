@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const url = new URL(Astro.request.url);
+const sessionId = url.searchParams.get('session_id');
+---
+
+<BaseLayout>
+  <section class="pt-32 pb-12 max-w-3xl mx-auto px-4 text-white text-center">
+    <h1 class="text-3xl font-bold mb-4">Thanks for your order!</h1>
+    <p class="text-lg mb-4">We’re processing your payment.</p>
+    <p class="text-sm text-gray-400">If anything goes wrong, please <a href="/contact" class="underline text-primary">contact us</a>.</p>
+  </section>
+
+  <script type="module" is:inline>
+    const sessionId = new URLSearchParams(window.location.search).get('session_id');
+    const cart = JSON.parse(localStorage.getItem('fas_cart') || '[]');
+
+    if (sessionId && cart.length) {
+      fetch('/api/save-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, cart })
+      }).then(() => {
+        localStorage.removeItem('fas_cart');
+        window.dispatchEvent(new Event('cart-updated'));
+      }).catch(console.error);
+    }
+  </script>
+</BaseLayout>

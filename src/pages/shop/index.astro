@@ -143,9 +143,35 @@ return result.result || [];
     renderCategoryTabs();
 
     document.addEventListener("filterChange", (e) => {
-      currentFilters = e.detail;
-      currentPage = 1;
-      // renderProducts();
+      const filters = e.detail;
+      const url = new URL(window.location.href);
+
+      if (filters.category) {
+        url.searchParams.set("category", filters.category);
+      } else {
+        url.searchParams.delete("category");
+      }
+
+      if (filters.vehicle) {
+        url.searchParams.set("vehicle", filters.vehicle);
+      } else {
+        url.searchParams.delete("vehicle");
+      }
+
+      if (filters.tune) {
+        url.searchParams.set("tune", filters.tune);
+      } else {
+        url.searchParams.delete("tune");
+      }
+
+      if (filters.horsepower) {
+        url.searchParams.set("hp", filters.horsepower);
+      } else {
+        url.searchParams.delete("hp");
+      }
+
+      url.searchParams.set("page", "1");
+      window.location.href = url.toString();
     });
   </script>
   <style>

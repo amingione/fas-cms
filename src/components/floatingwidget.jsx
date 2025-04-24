@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 export default function FloatingCartWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [cartItems, setCartItems] = useState([]);
+  const [crossSellProducts, setCrossSellProducts] = useState([]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -28,6 +29,43 @@ export default function FloatingCartWidget() {
     if (typeof window !== 'undefined') {
       localStorage.setItem('fas_cart', JSON.stringify(cartItems));
     }
+  }, [cartItems]);
+
+  useEffect(() => {
+    const fetchCrossSells = async () => {
+      if (cartItems.length === 0) return;
+
+      const categoryRefs = cartItems
+        .flatMap((item) => item.categories || [])
+        .map((ref) => `"${ref}"`)
+        .join(',');
+      if (!categoryRefs) return;
+
+      const query = `*[_type == "product" && count(categories[@._ref in [${categoryRefs}]]) > 0][0...4]{
+        _id,
+        title,
+        price,
+        "slug": slug.current,
+        images[]{ asset->{ url } }
+      }`;
+
+      try {
+        const res = await fetch(
+          `https://r4og35qd.api.sanity.io/v1/data/query/production?query=${encodeURIComponent(query)}`,
+          {
+            headers: {
+              Authorization: `Bearer ${import.meta.env.SANITY_API_TOKEN}`
+            }
+          }
+        );
+        const json = await res.json();
+        setCrossSellProducts(json.result || []);
+      } catch (err) {
+        console.error('❌ Failed to fetch cross-sells:', err);
+      }
+    };
+
+    fetchCrossSells();
   }, [cartItems]);
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.quantity * item.price, 0);
@@ -105,6 +143,24 @@ export default function FloatingCartWidget() {
           )}
         </div>
 
+        {crossSellProducts.length > 0 && (
+          <div className="p-4 border-t border-white/10">
+            <h3 className="text-lg font-bold mb-4">You Might Also Like</h3>
+            <div className="grid grid-cols-1 gap-4">
+              {crossSellProducts.map((product) => (
+                <a
+                  key={product._id}
+                  href={`/shop/${product.slug}`}
+                  className="block bg-white/10 p-4 rounded hover:bg-white/20 transition"
+                >
+                  <p className="font-semibold">{product.title}</p>
+                  <p className="text-sm text-white/60">${product.price}</p>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="p-4 border-t border-white/10">
           <div className="flex justify-between mb-4">
             <span className="font-semibold text-lg">Subtotal</span>
@@ -112,20 +168,31 @@ export default function FloatingCartWidget() {
           </div>
           <button
             onClick={async () => {
-              const res = await fetch('/api/checkout', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  sessionId: window.localStorage.getItem('fas_session') || 'guest-session'
-                })
-              });
+              const cart = JSON.parse(localStorage.getItem('fas_cart') || '[]');
 
-              const data = await res.json();
+              if (!cart.length) {
+                alert('Your cart is empty.');
+                return;
+              }
 
-              if (data.url) {
-                window.location.href = data.url;
-              } else {
-                alert('Unable to start checkout. Please try again.');
+              try {
+                const res = await fetch('/api/checkout', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ cart })
+                });
+
+                const data = await res.json();
+
+                if (data.url) {
+                  window.location.href = data.url;
+                } else {
+                  console.error('Checkout failed response:', data);
+                  alert('Unable to proceed to checkout. Please try again later.');
+                }
+              } catch (err) {
+                console.error('Checkout error:', err);
+                alert('An error occurred during checkout.');
               }
             }}
             className="block w-full bg-primary text-black py-3 rounded hover:opacity-90 transition-all font-bold tracking-wide"
