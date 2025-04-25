@@ -1,9 +1,9 @@
 import { createClient } from '@sanity/client';
 
-const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
-const dataset = import.meta.env.PUBLIC_SANITY_DATASET;
+const projectId = import.meta.env.VITE_SANITY_PROJECT_ID;
+const dataset = import.meta.env.VITE_SANITY_DATASET;
 const apiVersion = '2023-01-01';
-const token = import.meta.env.SANITY_API_TOKEN;
+const token = import.meta.env.VITE_SANITY_API_TOKEN;
 
 if (!projectId || !dataset) {
   throw new Error(
@@ -108,5 +108,35 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   } catch (err) {
     console.error(`Failed to fetch product with slug "${slug}":`, err);
     return null;
+  }
+}
+// Fetch similar products based on categories
+export async function getSimilarProducts(
+  categories: { slug: { current: string } }[],
+  currentSlug: string
+): Promise<Product[]> {
+  try {
+    // Extract category slugs
+    const categorySlugs = categories.map((category) => category.slug.current);
+
+    // Build the GROQ query
+    const query = `*[_type == "product" && slug.current != $currentSlug && count(categories[slug.current in $categorySlugs]) > 0][0...3]{
+      _id,
+      title,
+      slug,
+      price,
+      images[]{
+        asset->{
+          _id,
+          url
+        }
+      }
+    }`;
+
+    // Fetch similar products
+    return await sanity.fetch(query, { currentSlug, categorySlugs });
+  } catch (err) {
+    console.error('Failed to fetch similar products:', err);
+    return [];
   }
 }

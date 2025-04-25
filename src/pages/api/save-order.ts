@@ -38,7 +38,19 @@ export const POST = async ({ request }: { request: Request }) => {
 
     const validatedCart = cartValidation.data;
 
-    const session = await stripeClient.checkout.sessions.retrieve(sessionId);
+    const session = await stripeClient.checkout.sessions.retrieve(sessionId, {
+      expand: ['customer_details']
+    });
+
+    const projectId = process.env.SANITY_PROJECT_ID;
+    const token = process.env.SANITY_API_TOKEN;
+
+    if (!projectId || !token) {
+      return new Response(JSON.stringify({ error: 'Missing Sanity project ID or API token' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
 
     const orderPayload = {
       _type: 'order',
@@ -56,17 +68,14 @@ export const POST = async ({ request }: { request: Request }) => {
       createdAt: new Date().toISOString()
     };
 
-    const sanityRes = await fetch(
-      `https://${process.env.SANITY_PROJECT_ID}.api.sanity.io/v1/data/mutate/production`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${process.env.SANITY_API_TOKEN}`
-        },
-        body: JSON.stringify({ mutations: [{ create: orderPayload }] })
-      }
-    );
+    const sanityRes = await fetch(`https://${projectId}.api.sanity.io/v1/data/mutate/production`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ mutations: [{ create: orderPayload }] })
+    });
 
     if (!sanityRes.ok) {
       const errorDetails = await sanityRes.text();

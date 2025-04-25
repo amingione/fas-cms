@@ -1,205 +1,117 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import ProductCard from '../../components/ProductCard.astro';
+import { getProductBySlug, getSimilarProducts } from '../../lib/sanity-utils';
 
 const { slug } = Astro.params;
 
-if (!slug) {
-  console.error("❌ Missing slug parameter.");
-  throw new Error("Missing slug parameter.");
-}
-
-const query = `*[_type == "product" && slug.current == "${slug}"][0]{
-  _id,
-  title,
-  price,
-  averageHorsepower,
-  tune_required,
-  "slug": coalesce(slug.current, slug),
-  images[]{ asset->{ url } },
-  description,
-  "relatedProducts": *[
-    _type == "product" &&
-    _id != ^._id &&
-    count(categories[@._ref in ^.categories[]._ref]) > 0
-  ][4...8]{
-    _id,
-    title,
-    price,
-    "slug": coalesce(slug.current, slug),
-    images[]{ asset->{ url } }
-  },
-  "upsellProducts": *[
-    _type == "product" &&
-    _id != ^._id &&
-    count(categories[@._ref in ^.categories[]._ref]) > 0
-  ][0...4]{
-    _id,
-    title,
-    price,
-    "slug": coalesce(slug.current, slug),
-    images[]{ asset->{ url } }
-  }
-}`;
-
+// Fetch product data based on the slug
 let product = null;
-
+let similarProducts = [];
 try {
-  const response = await fetch(`https://r4og35qd.api.sanity.io/v1/data/query/production?query=${encodeURIComponent(query)}`, {
-    headers: {
-      Authorization: `Bearer ${import.meta.env.SANITY_API_TOKEN}`
-    }
-  });
+  product = await getProductBySlug(slug);
+  if (!product) {
+    throw new Error(`Product with slug "${slug}" not found.`);
+  }
 
-  const json = await response.json();
-  product = json.result || null;
+  // Fetch similar products based on category or tags
+  similarProducts = await getSimilarProducts(product.category, slug);
 } catch (err) {
-  console.error(`❌ Failed to fetch product with slug "${slug}":`, err);
-}
-
-if (!product) {
-  console.error(`❌ Product with slug "${slug}" not found.`);
+  console.error("❌ Failed to fetch product or similar products:", err);
+  return Astro.redirect('/shop'); // Redirect to shop if product not found
 }
 ---
 
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{product?.title || 'Product'}</title>
-  </head>
-  <body>
-    <div id="toast" class="fixed bottom-6 right-6 z-50 hidden px-4 py-3 rounded-lg bg-white/90 text-black shadow-lg font-semibold transition-all duration-300 opacity-0"></div>
+<BaseLayout>
+  <div class="container mx-auto px-4 py-10 text-white" style="padding-top: 150px;">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <!-- Product Image -->
+      <div class="flex justify-center items-center">
+        <img
+          src={product.images?.[0]?.asset?.url || '/placeholder.png'}
+          alt={product.title}
+           class="w-full max-w-md object-contain rounded-lg shadow-lg"
+        />
+      </div>
 
-    <script>
-      function showToast(message) {
-        const toast = document.getElementById('toast');
-        if (!toast) return;
-        toast.textContent = message;
-        toast.classList.remove('hidden', 'opacity-0');
-        toast.classList.add('opacity-100');
-        setTimeout(() => {
-          toast.classList.remove('opacity-100');
-          toast.classList.add('opacity-0');
-          setTimeout(() => {
-            toast.classList.add('hidden');
-          }, 300);
-        }, 2500);
+      <!-- Product Details -->
+      <div>
+        <h1 class="text-3xl font-ethno mb-4">{product.title}</h1>
+        <p class="text-xl text-primary font-borg mb-4">
+          {typeof product.price === 'number' ? `$${product.price.toFixed(2)}` : 'Price not available'}
+        </p>
+        <p class="text-gray-300 font-cyber mb-6">{product.description || 'No description available.'}</p>
+
+        <!-- Add to Cart Button -->
+        <button
+          id="add-to-cart"
+          class="bg-primary font-kwajong text-white px-6 py-2 rounded-lg hover:bg-red-600 transition"
+        >
+          Add to Cart
+        </button>
+
+        <!-- Hidden Product Data -->
+        <div id="product-json" class="hidden">
+          {JSON.stringify(product)}
+        </div>
+      </div>
+    </div>
+
+    <!-- You May Also Like Section -->
+    <div class="mt-16">
+      <h2 class="text-2xl font-borg mb-6">You May Also Like</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {similarProducts.map(similarProduct => (
+          <a
+            href={`/shop/${similarProduct.slug.current}`}
+            class="block bg-black/10 rounded-lg shadow-md hover:shadow-lg transition p-4"
+          >
+            <img
+              src={similarProduct.images?.[0]?.asset?.url || '/placeholder.png'}
+              alt={similarProduct.title}
+              class="w-full h-48 object-cover rounded-md mb-4"
+            />
+            <h3 class="text-lg font-semibold">{similarProduct.title}</h3>
+            <p class="text-primary font-bold">
+              {typeof similarProduct.price === 'number' ? `$${similarProduct.price.toFixed(2)}` : 'Price not available'}
+            </p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const data = document.getElementById('product-json');
+      const button = document.getElementById('add-to-cart');
+
+      if (!data || !button) return;
+
+      let product;
+      try {
+        product = JSON.parse(data.textContent.trim());
+      } catch (err) {
+        console.error("❌ Could not parse product data:", err);
+        return;
       }
 
-      document.addEventListener('DOMContentLoaded', () => {
-        const addToCartBtn = document.getElementById('add-to-cart');
-        const productDataScript = document.getElementById('product-data');
-
-        let product = null;
+      button.addEventListener('click', () => {
         try {
-          if (productDataScript?.textContent) {
-            const decoded = decodeURIComponent(escape(atob(productDataScript.textContent)));
-            product = JSON.parse(decoded);
+          const cart = JSON.parse(localStorage.getItem('fas_cart') || '[]');
+          const found = cart.find(item => item.id === product._id);
+          if (found) {
+            found.quantity += 1;
+          } else {
+            cart.push({ id: product._id, name: product.title, price: product.price, quantity: 1 });
           }
+          localStorage.setItem('fas_cart', JSON.stringify(cart));
+          window.dispatchEvent(new Event('cart-updated'));
+          alert("✅ Added to cart!");
         } catch (err) {
-          console.error('❌ Failed to parse product data:', err);
-        }
-
-        if (typeof window === 'undefined' || !window.localStorage) {
-          console.warn('🚫 LocalStorage or window is not defined. Skipping cart init.');
-          return;
-        }
-
-        if (addToCartBtn && product) {
-          addToCartBtn.addEventListener('click', () => {
-            const existingCart = JSON.parse(localStorage.getItem('fas_cart') || '[]');
-
-            const found = existingCart.find(item => item.id === product._id);
-            if (found) {
-              found.quantity += 1;
-            } else {
-              existingCart.push({
-                id: product._id,
-                name: product.title,
-                price: product.price,
-                quantity: 1
-              });
-            }
-
-            localStorage.setItem('fas_cart', JSON.stringify(existingCart));
-            window.dispatchEvent(new Event('cart-updated'));
-            showToast('✅ Added to cart!');
-          });
+          console.error("❌ Failed to update cart", err);
+          alert("⚠️ Could not add to cart.");
         }
       });
-    </script>
-
-    {product && (
-      <script type="application/json" id="product-data">
-        {btoa(unescape(encodeURIComponent(JSON.stringify(product))))}
-      </script>
-    )}
-
-    <BaseLayout>
-      {product ? (
-        <section class="pt-28 pb-12 max-w-6xl mx-auto px-4">
-          <nav class="text-sm text-gray-400 mb-6">
-            <a href="/" class="hover:text-white">Home</a> / 
-            <a href="/shop" class="hover:text-white">Shop</a> / 
-            <span class="text-white font-medium">{product.title}</span>
-          </nav>
-
-          <div class="grid md:grid-cols-2 gap-10 items-start">
-            <img src={product.images?.[0]?.asset?.url || '/placeholder.png'} alt={product?.title || 'Product image'} class="rounded-lg w-full object-cover shadow-lg" />
-
-            <div>
-              <h1 class="text-4xl font-ethno text-white mb-4">{product.title}</h1>
-              <p class="text-2xl text-accent font-kwajong mb-4">${product.price}</p>
-              <p class="text-white/80 mb-6 font-cyber">{product.description || 'No description available.'}</p>
-
-              <ul class="text-white/60 mb-6 space-y-1 text-sm">
-                <li><strong>Horsepower:</strong> {product.averageHorsepower || 'N/A'}</li>
-                <li><strong>Tune Required:</strong> {product.tune_required || 'Unknown'}</li>
-              </ul>
-
-              <div class="flex space-x-4 overflow-x-auto mb-6">
-                {product.images?.map((img, i) => (
-                  <img src={img.asset?.url || '/placeholder.png'} alt={`Image ${i + 1}`} class="h-24 w-24 rounded object-cover border border-white/10" />
-                ))}
-              </div>
-
-              <button id="add-to-cart" class="bg-white text-black px-6 py-3 font-ethno hover:bg-red-600 transition">
-                Add to Cart
-              </button>
-            </div>
-          </div>
-        </section>
-      ) : (
-        <section class="py-12 max-w-6xl mx-auto px-4 text-center text-white">
-          <h1 class="text-3xl font-bold mb-4">Product Not Found</h1>
-          <p>We couldn’t find the product you're looking for.</p>
-          <a href="/shop" class="text-accent underline mt-4 inline-block">Back to Shop</a>
-        </section>
-      )}
-    </BaseLayout>
-
-    {product?.relatedProducts?.length > 0 && (
-      <section class="mt-20 max-w-6xl mx-auto px-4">
-        <h2 class="text-2xl font-semibold font-borg text-white mb-6">Related Products</h2>
-        <div class="grid md:grid-cols-3 gap-6">
-          {product.relatedProducts.map((related) => (
-            <ProductCard product={related} productImage={related.images?.[0]} />
-          ))}
-        </div>
-      </section>
-    )}
-
-    {product?.upsellProducts?.length > 0 && (
-      <section class="mt-20 max-w-6xl mx-auto px-4">
-        <h2 class="text-2xl font-semibold font-borg text-white mb-6">You May Also Like</h2>
-        <div class="grid md:grid-cols-3 gap-6">
-          {product.upsellProducts.map((upsell) => (
-            <ProductCard product={upsell} productImage={upsell.images?.[0]} />
-          ))}
-        </div>
-      </section>
-    )}
-  </body>
-</html>
+    });
+  </script>
+</BaseLayout>

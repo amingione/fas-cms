@@ -1,18 +1,19 @@
 import { createClient } from '@sanity/client';
 
-const projectId = process.env.PUBLIC_SANITY_PROJECT_ID || import.meta.env.PUBLIC_SANITY_PROJECT_ID;
-const token = process.env.PUBLIC_SANITY_API_TOKEN || import.meta.env.PUBLIC_SANITY_API_TOKEN;
+const projectId = import.meta.env.VITE_SANITY_PROJECT_ID;
+const dataset = import.meta.env.VITE_SANITY_DATASET;
+const token = import.meta.env.VITE_SANITY_API_TOKEN;
 
-if (!projectId || !token) {
-  throw new Error('Missing PUBLIC_SANITY_PROJECT_ID or PUBLIC_SANITY_API_TOKEN');
+if (!projectId || !dataset || !token) {
+  throw new Error('Missing required environment variables for Sanity');
 }
 
-export const client = createClient({
+export const sanityClient = createClient({
   projectId,
-  dataset: 'production',
+  dataset,
   apiVersion: '2023-06-07',
-  token,
-  useCdn: false
+  useCdn: false,
+  token
 });
 
 export async function fetchProducts() {
@@ -24,6 +25,6 @@ export async function fetchProducts() {
     images[]{ asset->{ url } }
   }`;
 
-  const result = await client.fetch(query);
+  const result = await sanityClient.fetch(query);
   return result || [];
 }

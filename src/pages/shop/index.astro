@@ -20,6 +20,7 @@ try {
 } catch (err) {
   console.error("🔥 Sanity Fetch Failed:", err);
 }
+
 const totalCount = allProducts.length;
 const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 const products = allProducts.slice(start, end);
@@ -29,6 +30,7 @@ const maxVisiblePages = 5;
 const pageGroup = Math.floor((currentPage - 1) / maxVisiblePages);
 const startPage = pageGroup * maxVisiblePages + 1;
 const endPage = Math.min(startPage + maxVisiblePages - 1, totalPages);
+
 if (startPage > 1) {
   paginationLinks.push({ label: "←", page: startPage - 1 });
 }
@@ -43,21 +45,12 @@ if (endPage < totalPages) {
 ---
 
 <BaseLayout>
-  <script type="module" is:inline>
-    window.SANITY_PROJECT_ID = "${import.meta.env.PUBLIC_SANITY_PROJECT_ID || ''}";
-    window.SANITY_API_TOKEN = ""; // Prevent leaking token to client
-
-    if (!window.SANITY_PROJECT_ID || !window.SANITY_API_TOKEN) {
-      console.error("🚨 Sanity env vars missing — check Netlify env or local .env config.");
-    }
-  </script>
-  
   <section class="max-w-7xl mx-auto text-white">
 
     <!-- Hero Section -->
     <div class="relative w-full h-[60vh] sm:h-[70vh] lg:h-[80vh] xl:h-[90vh] overflow-hidden">
       <img src="/images/shop background.png" alt="Shop Banner" class="w-full h-full object-cover shadow-lg" />
-      
+
       <!-- Overlay Content -->
       <div class="absolute inset-0 flex flex-col items-center justify-end text-center pb-[16vh] sm:pb-[18vh] md:pb-[20vh] lg:pb-[22vh] xl:pb-[24vh]">
         <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-borg text-primary leading-none">SHOP</h1>
@@ -69,10 +62,6 @@ if (endPage < totalPages) {
   </section>
 
   <section class="max-w-7xl mx-10 px-4">
-    <!-- Category Tabs -->
-    <div id="category-tabs" class="flex flex-wrap gap-3 text-sm font-captain mt-10">
-      <!-- JS will populate tabs here -->
-    </div>
 
     <!-- Product Page Filters -->
     <ProductPageFilters currentCategory={currentCategory} />
@@ -84,6 +73,7 @@ if (endPage < totalPages) {
       ))}
     </div>
 
+    <!-- Pagination -->
     <div id="pagination" class="flex justify-center mt-12 gap-2">
       {
         paginationLinks.map(({ label, page }) => {
@@ -94,7 +84,7 @@ if (endPage < totalPages) {
               class={`px-3 py-1 rounded-md transition duration-200 text-sm font-bold ${
                 isActive 
                   ? 'bg-primary text-black shadow-md'
-                : 'bg-black/50 text-white hover:bg-red-600 hover:text-white'
+                  : 'bg-black/50 text-white hover:bg-red-600 hover:text-white'
               }`}
             >
               {label}
@@ -106,42 +96,6 @@ if (endPage < totalPages) {
   </section>
 
   <script type="module" is:inline>
-    const currentCategory = "${currentCategory || ''}";
-    const fetchCategories = async () => {
-    const query = `*[_type == "category"]{ "title": title, "slug": slug.current }`;
-    // Access the project ID from window.SANITY_PROJECT_ID
-    const projectId = window.SANITY_PROJECT_ID;  
-    if (!projectId) {
-      console.error("SANITY_PROJECT_ID is not defined in the client-side environment.");
-      return []; // Return an empty array or handle the error appropriately
-    }
-    const result = await fetch(`https://${window.SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/production?query=${encodeURIComponent(query)}`, {
-        // No headers; public query only
-    }).then(res => res.json());
-return result.result || [];
-};
-
-    const renderCategoryTabs = async () => {
-      const categoryTabs = document.getElementById("category-tabs");
-      if (!categoryTabs) {
-        console.error("🚨 Element with ID 'category-tabs' not found.");
-        return;
-      }
-      const categories = await fetchCategories();
-      console.log("📦 Categories fetched:", categories);
-      categoryTabs.innerHTML = `<a href="/shop" class="tab ${!currentCategory ? 'active' : ''}">All</a>`;
-      categories.forEach(cat => {
-        const isActive = cat.slug === selectedCategory;
-        const a = document.createElement("a");
-        a.href = `/shop?category=${cat.slug}`;
-        a.className = `tab ${isActive ? 'active' : ''}`;
-        a.innerText = cat.title;
-        categoryTabs.appendChild(a);
-      });
-    };
-    const selectedCategory = new URLSearchParams(window.location.search).get("category");
-    renderCategoryTabs();
-
     document.addEventListener("filterChange", (e) => {
       const filters = e.detail;
       const url = new URL(window.location.href);
@@ -152,30 +106,19 @@ return result.result || [];
         url.searchParams.delete("category");
       }
 
-      if (filters.vehicle) {
-        url.searchParams.set("vehicle", filters.vehicle);
+      if (filters.productFilter) {
+        url.searchParams.set("filter", filters.productFilter);
       } else {
-        url.searchParams.delete("vehicle");
-      }
-
-      if (filters.tune) {
-        url.searchParams.set("tune", filters.tune);
-      } else {
-        url.searchParams.delete("tune");
-      }
-
-      if (filters.horsepower) {
-        url.searchParams.set("hp", filters.horsepower);
-      } else {
-        url.searchParams.delete("hp");
+        url.searchParams.delete("filter");
       }
 
       url.searchParams.set("page", "1");
       window.location.href = url.toString();
     });
   </script>
+
   <style>
-       #pagination a:hover {
+    #pagination a:hover {
       color: black !important;
     }
   </style>
