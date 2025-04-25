@@ -3,6 +3,16 @@
 
 /fonts/*.woff2
   Content-Type: font/woff2
+  Access-Control-Allow-Origin: *
 
 /fonts/*.woff
   Content-Type: font/woff
+  Access-Control-Allow-Origin: *
+
+/fonts/*.ttf
+  Content-Type: font/ttf
+  Access-Control-Allow-Origin: *
+
+/fonts/*.otf
+  Content-Type: font/otf
+  Access-Control-Allow-Origin: *
