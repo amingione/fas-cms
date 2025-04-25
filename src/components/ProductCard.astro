@@ -30,7 +30,11 @@ const imageUrl = productImage?.asset?.url || '/placeholder.png';
             data-product-id={product._id}
             data-product-name={product.title}
             data-product-price={product.price}
+<<<<<<< HEAD
             data-product-categories={JSON.stringify((product.categories || []).filter(Boolean).map(c => c._ref || c._id || ''))}
+=======
+            data-product-categories={JSON.stringify(product.categories?.map(c => c._ref || c._id || '') || [])}
+>>>>>>> 85d9128 (Refactor code structure for improved readability and maintainability)
           >
             Add to Cart
           </button>
