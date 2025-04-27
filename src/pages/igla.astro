@@ -1,10 +1,10 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/Button.astro';
 ---
 
 <BaseLayout>
-  <section class="relative text-white pt-64 pb-32 px-6 mt-16">
-    <span class="absolute inset-0 bg-cover bg-center bg-no-repeat" style="background-image: url('/images/igla-header-page.png');"></span>
+  <section class="relative text-white pt-64 pb-32 px-6 ">
     <div class="absolute inset-0 bg-black/50"></div>
     <div class="relative z-10 max-w-6xl mx-auto">
       <h1 class="text-4xl font-cyber font-bold text-primary mb-6">Ready to protect what moves you? </h1>
@@ -22,37 +22,21 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <li>Does not interfere with factory wiring or warranty</li>
             <li>Silent operation — no indication it's installed</li>
           </ul>
-          <a href="/contact" class="relative group inline-block font-cyber-italic mt-6 px-6 py-3 text-black bg-white border border-white uppercase tracking-wider font-bold overflow-hidden transition-all duration-300 hover:bg-primary hover:text-white">
-            <span class="relative z-10 flex items-center justify-center gap-2 group-hover:text-white">
-              Request Installation
-              <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </span>
-            <span class="absolute inset-0 bg-primary transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 z-0"></span>
-          </a>
+          <Button href="/contact" text="Contact Us for More Info" variant="default" />
         </div>
         <div>
         </div>
       </div>
     </div>
   </section>
-  <section class="relative text-white py-64 px-6 overflow-hidden my-[30px]">
-    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat z-0" style="background-image: url('/images/igla-header-page.png');"></div>
+  <section class="relative text-white py-64 px-6 overflow-hidden ">
+    <div class="absolute inset-0 bg-full bg-center bg-no-repeat z-0" style="background-image: url('/images/igla-header-page.png');"></div>
     <div class="absolute inset-0 bg-transparent z-0"></div>
     <div class="relative z-10 max-w-8xl mx-auto text-center space-y-12">
       <div id="carousel" class="space-y-6 transition-opacity duration-500">
         <h1 id="carousel-title" class="text-4xl font-cyber text-primary">IGLA FEATURE</h1>
         <h2 id="carousel-subtitle" class="text-xl font-ethno text-white">Smart Anti-Theft with Full System Control</h2>
-        <a href="/shop" class="relative group inline-block mt-6 px-6 py-3 text-black bg-white border border-white uppercase tracking-wider font-semibold overflow-hidden transition-all duration-300 hover:bg-primary hover:text-white">
-          <span class="relative z-10 flex items-center justify-center gap-2 group-hover:text-white">
-            Shop Now
-            <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </span>
-          <span class="absolute inset-0 bg-primary transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 z-0"></span>
-        </a>
+        <Button href="/shop" text="Shop Now" variant="default" />
       </div>
     </div>
 
@@ -158,19 +142,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <p class="text-[#1d92ea] font-captain tracking-[1.2px] max-w-3xl mx-auto mb-10">
         Our certified team will assess your vehicle’s specific needs to determine the best IGLA solution for your setup — completely seamless, with no disruption to your factory wiring.
       </p>
-      <a href="/contact" class="relative group inline-block px-8 py-4 bg-green-600 text-white font-cyber uppercase tracking-wider overflow-hidden transition-all duration-300 hover:text-black">
-        <span class="relative z-10 flex items-center justify-center gap-2 group-hover:text-black">
-          Schedule Your Install
-          <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-          </svg>
-        </span>
-        <span class="absolute inset-0 bg-white transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 z-0"></span>
-      </a>
+      <Button href="/schedule" text="Schedule Your Install" variant="default" />
       <h2 class="mt-12 text-white font-kwajong text-base max-w-4xl mx-auto md:mx-0">
         Pricing varies depending on the vehicle and system version. We believe in full transparency, so our team is always available to provide a detailed breakdown and answer questions before you commit.
       </h2>
     </div>
   </section>
 </BaseLayoutr>
-</file>
