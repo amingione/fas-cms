@@ -2516,6 +2516,36 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@splinetool/react-spline@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "@splinetool/react-spline@npm:4.0.0"
+  dependencies:
+    blurhash: "npm:2.0.5"
+    lodash.debounce: "npm:4.0.8"
+    react-merge-refs: "npm:2.1.1"
+    thumbhash: "npm:0.1.1"
+  peerDependencies:
+    "@splinetool/runtime": "*"
+    next: ">=14.2.0"
+    react: "*"
+    react-dom: "*"
+  peerDependenciesMeta:
+    next:
+      optional: true
+  checksum: 10c0/0e271d593d576f3dec5cec4f011ff8a6df31ae15eb8a622a0d611a6fffb0db883cb2480456491efc76777fb9887afba5600be31706887431a2131535be7ce7bb
+  languageName: node
+  linkType: hard
+
+"@splinetool/runtime@npm:^1.9.86":
+  version: 1.9.86
+  resolution: "@splinetool/runtime@npm:1.9.86"
+  dependencies:
+    on-change: "npm:^4.0.0"
+    semver-compare: "npm:^1.0.0"
+  checksum: 10c0/f06a44ba3023eaee52d794e6faf43bcb1c9cddb47ceb6546e8840731cfa2bc5df3048f5f629df9f5f2fb8a18e5989676aebf53bc347be54e7ae413cbac19091f
+  languageName: node
+  linkType: hard
+
 "@stripe/react-stripe-js@npm:3.1.1":
   version: 3.1.1
   resolution: "@stripe/react-stripe-js@npm:3.1.1"
@@ -3608,6 +3638,13 @@ __metadata:
   version: 1.2.9
   resolution: "blob-to-buffer@npm:1.2.9"
   checksum: 10c0/ff8d3327f030fcd98b28c7557158721bc36b2102452bb4d8808d7bf497a6feee34623a40f80ec8a097851c866369fc76ef948cee4e78373f34738b70ab3f8cf6
+  languageName: node
+  linkType: hard
+
+"blurhash@npm:2.0.5":
+  version: 2.0.5
+  resolution: "blurhash@npm:2.0.5"
+  checksum: 10c0/75d5f042b5bb8ead977524a985048378a033af866534abbaee73c80030cc9fc34e6c5b7d483c68bbdb600e0ae438f2ea6140b1f46d75fcfa57a902208ae8b85e
   languageName: node
   linkType: hard
 
@@ -5505,6 +5542,8 @@ __metadata:
     "@sanity/image-url": "npm:^1.1.0"
     "@sanity/types": "npm:^3.85.1"
     "@sanity/ui": "npm:^2.15.13"
+    "@splinetool/react-spline": "npm:^4.0.0"
+    "@splinetool/runtime": "npm:^1.9.86"
     "@types/next": "npm:^9.0.0"
     "@types/node": "npm:^22.14.1"
     "@types/react": "npm:^19"
@@ -5516,6 +5555,7 @@ __metadata:
     eslint: "npm:^9.25.1"
     eslint-config-prettier: "npm:^10.1.2"
     eslint-plugin-react: "npm:^7.37.5"
+    framer-motion: "npm:^12.9.2"
     globals: "npm:^16.0.0"
     husky: "npm:^9.1.7"
     lint-staged: "npm:^15.5.1"
@@ -5822,6 +5862,28 @@ __metadata:
     react-dom:
       optional: true
   checksum: 10c0/5168678ba5fb52039e23283ab0f4443b365b49758c410cd2f9f7b4df68a3ce1ce154aa064291dd4d0f29d4d95491b796f04cb5f3a20e356cdc5b08d59c6a5b16
+  languageName: node
+  linkType: hard
+
+"framer-motion@npm:^12.9.2":
+  version: 12.9.2
+  resolution: "framer-motion@npm:12.9.2"
+  dependencies:
+    motion-dom: "npm:^12.9.1"
+    motion-utils: "npm:^12.8.3"
+    tslib: "npm:^2.4.0"
+  peerDependencies:
+    "@emotion/is-prop-valid": "*"
+    react: ^18.0.0 || ^19.0.0
+    react-dom: ^18.0.0 || ^19.0.0
+  peerDependenciesMeta:
+    "@emotion/is-prop-valid":
+      optional: true
+    react:
+      optional: true
+    react-dom:
+      optional: true
+  checksum: 10c0/467a486675b04c612168151f5f8fc66d9f8d85016cff025351b33da8889521e98185e08e43f9ae050f982c810ca9fa22089839afff22ea5d0c602610d8c6f020
   languageName: node
   linkType: hard
 
@@ -7410,7 +7472,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash.debounce@npm:^4.0.8":
+"lodash.debounce@npm:4.0.8, lodash.debounce@npm:^4.0.8":
   version: 4.0.8
   resolution: "lodash.debounce@npm:4.0.8"
   checksum: 10c0/762998a63e095412b6099b8290903e0a8ddcb353ac6e2e0f2d7e7d03abd4275fe3c689d88960eb90b0dde4f177554d51a690f22a343932ecbc50a5d111849987
@@ -8338,10 +8400,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"motion-dom@npm:^12.9.1":
+  version: 12.9.1
+  resolution: "motion-dom@npm:12.9.1"
+  dependencies:
+    motion-utils: "npm:^12.8.3"
+  checksum: 10c0/008875fbbfdff639f03b1e7a07c17327d590d0d270de270c4ad65e642bfaa4feb5caeadada235249f88412ce15c0f51a96218b9f3293aaf98bb4d5309c124c0b
+  languageName: node
+  linkType: hard
+
 "motion-utils@npm:^12.7.2":
   version: 12.7.2
   resolution: "motion-utils@npm:12.7.2"
   checksum: 10c0/ef974eee10d647f2cdfb80a3a739d60c5e8eb627818cbd80d92bd8b52b222735177fe3aecea7ec153b36fd348e8fdfbb233d4be68ed26b8eaa369fd7a06f4851
+  languageName: node
+  linkType: hard
+
+"motion-utils@npm:^12.8.3":
+  version: 12.8.3
+  resolution: "motion-utils@npm:12.8.3"
+  checksum: 10c0/94eb9e1692ccf9f13ad98ba6fabc39159da9885ae06c7a5afcbaf96fdbbd55f6093b922b74bbf174783152dbf7126f439851d8e5a787459a7d634510795f8ab2
   languageName: node
   linkType: hard
 
@@ -8805,6 +8883,13 @@ __metadata:
   version: 2.0.11
   resolution: "ohash@npm:2.0.11"
   checksum: 10c0/d07c8d79cc26da082c1a7c8d5b56c399dd4ed3b2bd069fcae6bae78c99a9bcc3ad813b1e1f49ca2f335292846d689c6141a762cf078727d2302a33d414e69c79
+  languageName: node
+  linkType: hard
+
+"on-change@npm:^4.0.0":
+  version: 4.0.2
+  resolution: "on-change@npm:4.0.2"
+  checksum: 10c0/f803698daa72b988db1d92f900aa54bda42d7bcee07512f538d413489d377d4d6e78d09057b5f9f013a69551c285112299b0b9d93e00c8f8f77f8f3e9c07b0e4
   languageName: node
   linkType: hard
 
@@ -9547,6 +9632,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-merge-refs@npm:2.1.1":
+  version: 2.1.1
+  resolution: "react-merge-refs@npm:2.1.1"
+  checksum: 10c0/b68cbc4ea51fd96f77247733388738630769d928f32958e63262ce43dff10c6b20f18a0483c6a640a1ffba48f32be26059d4ee9711881cacc63297b01311c8f6
+  languageName: node
+  linkType: hard
+
 "react-promise-suspense@npm:0.3.4":
   version: 0.3.4
   resolution: "react-promise-suspense@npm:0.3.4"
@@ -10234,6 +10326,13 @@ __metadata:
   dependencies:
     parseley: "npm:^0.12.0"
   checksum: 10c0/c2ad8313a0dbf3c0b74752a8d03cfbc0931ae77a36679cdb64733eb732c1762f95a5174249bf7e8b8103874cb0e013a030f9c8b72f5d41e62f1d847d4a845d39
+  languageName: node
+  linkType: hard
+
+"semver-compare@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "semver-compare@npm:1.0.0"
+  checksum: 10c0/9ef4d8b81847556f0865f46ddc4d276bace118c7cb46811867af82e837b7fc473911981d5a0abc561fa2db487065572217e5b06e18701c4281bcdd2a1affaff1
   languageName: node
   linkType: hard
 
@@ -11138,6 +11237,13 @@ __metadata:
     readable-stream: "npm:~2.3.6"
     xtend: "npm:~4.0.1"
   checksum: 10c0/cbfe5b57943fa12b4f8c043658c2a00476216d79c014895cef1ac7a1d9a8b31f6b438d0e53eecbb81054b93128324a82ecd59ec1a4f91f01f7ac113dcb14eade
+  languageName: node
+  linkType: hard
+
+"thumbhash@npm:0.1.1":
+  version: 0.1.1
+  resolution: "thumbhash@npm:0.1.1"
+  checksum: 10c0/9a23fe65a32b82400a966968a426f7e8a1bee352eedfc24b5342ebfe63f36e2cf8bba5b93adddf220bba625da2ad819ae5fbb6e9d5caa6f215e9ae274249bf87
   languageName: node
   linkType: hard
 
