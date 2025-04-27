@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/Button.astro';
 ---
 
 <BaseLayout>
@@ -11,33 +12,41 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   <!-- Service Overview -->
   <section class="py-20 px-6 max-w-7xl mx-auto text-center">
-    <h2 class="text-4xl font-cyber text-primary mb-6">Performance Expertise</h2>
-    <p class="text-lg font-captain tracking-[1.2px] text-white max-w-3xl mx-auto mb-12">
+    <h2 class="text-4xl font-borg text-primary mb-6">Performance Expertise</h2>
+    <p class="text-2xl font-captain rem-1.2 tracking-[1.2px] text-white max-w-3xl mx-auto mb-12">
       From full porting and tuning to race-ready builds, F.A.S. delivers high-performance service solutions that are dyno proven and street tested.
     </p>
 
     <!-- Service Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div class="relative bg-black rounded shadow-lg aspect-[4/3] overflow-hidden bg-cover bg-center" style="background-image: url('/images/placeholder.png');">
-        <div class="absolute top-4 left-4 text-left">
-          <h3 class="text-2xl font-ethno text-primary mb-1 drop-shadow-[1px_1px_6px_rgba(0,0,0,0.7)]">Porting Services</h3>
-          <p class="text-sm font-captain text-white drop-shadow-[1px_1px_6px rgba(0,0,0,0.7)]">Cylinder heads, superchargers, snouts & more.</p>
-        </div>
+      <div class="flex flex-col items-center bg-black rounded shadow-lg overflow-hidden p-4">
+        <img src="/placeholder.png" alt="Service" class="w-full h-auto rounded mb-4" />
+        <h3 class="text-2xl font-ethno text-primary mb-1 text-center">Porting Services</h3>
+        <p class="text-base rem1-.2 font-captain text-white text-center">Cylinder heads, superchargers, snouts & more.</p>
       </div>
 
-      <div class="relative bg-black rounded shadow-lg aspect-[4/3] overflow-hidden bg-cover bg-center" style="background-image: url('/images/placeholder.png');">
-        <div class="absolute top-4 left-4 text-left">
-          <h3 class="text-2xl font-ethno text-primary mb-1 drop-shadow-[1px_1px_6px rgba(0,0,0,0.7)]">Custom Tuning</h3>
-          <p class="text-sm font-captain text-white drop-shadow-[1px_1px_6px rgba(0,0,0,0.7)]">Street, E85, flex fuel, and dyno-tested tuning.</p>
-        </div>
+      <div class="flex flex-col items-center bg-black rounded shadow-lg overflow-hidden p-4">
+        <img src="/placeholder.png" alt="Service" class="w-full h-auto rounded mb-4" />
+        <h3 class="text-2xl font-ethno text-primary mb-1 text-center">Custom Tuning</h3>
+        <p class="text-base font-captain rem-1.2 text-white text-center">Street, E85, flex fuel, and dyno-tested tuning.</p>
       </div>
 
-      <div class="relative bg-black rounded shadow-lg aspect-[4/3] overflow-hidden bg-cover bg-center" style="background-image: url('/images/placeholder.png');">
-        <div class="absolute top-4 left-4 text-left">
-          <h3 class="text-2xl font-ethno text-primary mb-1 drop-shadow-[1px_1px_6px rgba(0,0,0,0.7)]">Builds & Installations</h3>
-          <p class="text-sm font-captain text-white drop-shadow-[1px_1px_6px rgba(0,0,0,0.7)]">From mild to wild. Power packages, fuel systems, headers & more.</p>
-        </div>
+      <div class="flex flex-col items-center bg-black rounded shadow-lg overflow-hidden p-4">
+        <img src="/placeholder.png" alt="Service" class="w-full h-auto rounded mb-4" />
+        <h3 class="text-xl font-ethno text-primary mb-1 text-center">Builds & Installations</h3>
+        <p class="text-base font-captain rem-1.2 text-white text-center">Schedule a dropoff for Power Package builds.</p>
+      </div>
+
+      <div class="flex flex-col items-center bg-black rounded shadow-lg overflow-hidden p-4">
+        <img src="/placeholder.png" alt="Service" class="w-full h-auto rounded mb-4" />
+        <h3 class="text-xl font-ethno text-primary mb-1 text-center">Igla Install</h3>
+        <p class="text-base font-captain rem-1.2 text-white text-center">Be confident your vehicle is protected 24/7.</p>
       </div>
     </div>
   </section>
+
+<section class="flex justify-center py-10">
+  <Button href="/schedule" text="Schedule Dropoff" variant="multi-swipe-v2" />
+</section>
+
 </BaseLayout>
