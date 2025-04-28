@@ -349,3 +349,12 @@
 }
 
 /* Removed invalid JavaScript configuration block */
+
+.custom-swiper-pagination .swiper-pagination-bullet {
+  background-color: rgba(211, 211, 211, 0.5); /* lightgray with 50% opacity */
+  opacity: 1; /* make bullets fully visible */
+}
+
+.custom-swiper-pagination .swiper-pagination-bullet-active {
+  background-color: var(--color-primary); /* your theme primary color */
+}

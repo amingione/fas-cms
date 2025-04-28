@@ -6,25 +6,22 @@ import Button from '../components/Button.astro';
 <BaseLayout>
   <!-- Parallax Hero Section -->
   <section 
-    class="relative bg-contain bg-center bg-no-repeat bg-fixed h-[80vh] flex items-center justify-center text-center px-4" 
+    class="relative bg-contain bg-center bg-no-repeat h-[80vh] flex items-center justify-center text-center px-4" 
     style="background-image: url('/images/TRX Truck Package FAS copy.png');"
   >
-    <div class="max-w-3xl mx-auto">
-      <img src="/logo/power packages from FAS.png" alt="F.A.S. Power Packages Animation" class="mx-auto rounded shadow-lg" />
-    </div>
   </section>
 
   <!-- Featured Package -->
   <section class="bg-black/40 py-16 px-6">
     <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-10 items-center">
-      <div>
-        <img src="/images/FASpowerpckg.gif" alt="FAS Chrome Logo GIF" class="rounded shadow-lg">
+      <div class="max-w-3xl mx-auto">
+        <img src="/logo/power packages from FAS.png" alt="F.A.S. Power Packages Animation" class="mx-auto rounded shadow-lg max-w-full h-auto" />
       </div>
       <div>
-        <h2 class="text-6xl font-ethno text-white mb-4 drop-shadow-[1px_1px_6px_rgba(0,0,0,0.7)]">Starting From <span class="text-red-500">$1,349.00</span></h2>
-        <p class="text-lg font-captain text-gray-300 tracking-[1.2px] mb-4">
+        <h2 class="text-4xl font-ethno text-white mb-4 drop-shadow-[1px_1px_6px_rgba(0,0,0,0.7)]">Starting From <span class="text-red-600">$1,349.00</span></h2>
+        <p class="text-lg font-captain rem-1.4 text-gray-300 tracking-[1.2px] mb-4">
             Our entry-level package includes everything you need to elevate your build        </p>
-        <p class="text-lg font-ethno text-accent">no tune required</p>
+        <p class="text-2xl font-ethno text-accent">no tune required</p>
       </div>
     </div>
   </section>
@@ -70,8 +67,8 @@ import Button from '../components/Button.astro';
    <!-- Call to Action -->
 <section class="bg-transparent py-16 px-10 font-ethno text-center">
   <div class="flex flex-col gap-6 items-center">
-    <Button text="Shop all Packages" variant="multi-swipe-v2" href="#" />
-    <Button text="Customize Your Build" variant="multi-swipe-v2" href="#" />
+    <Button text="Shop all Packages" variant="multi-swipe-v2" href="/shop/power-packages" />
+    <Button text="Customize Your Build" variant="multi-swipe-v2" href="https://clerk.fasmotorsports.com/" />
   </div>
 </section>
 </BaseLayout>

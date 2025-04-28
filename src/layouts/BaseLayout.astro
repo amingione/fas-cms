@@ -17,80 +17,85 @@ import FloatingCartWidget from '../components/floatingwidget.jsx';
     <meta name="apple-mobile-web-app-title" content="FAS Moto" />
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="icon" type="image/png" href="/images/faslogochroma.png" />
+    
+    <!-- ✅ Correct Clerk Script -->
     <script
-  async
-  crossorigin="anonymous"
-  data-clerk-publishable-key={import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY}
-  src="https://cdn.clerk.dev/clerk.js"
-></script>
+      async
+      crossorigin="anonymous"
+      src={`https://${import.meta.env.PUBLIC_CLERK_FRONTEND_API}.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js`}
+      data-clerk-publishable-key={import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY}
+    ></script>
 
-<script>
-  window.addEventListener("load", () => {
-    if (window.Clerk) {
-      window.Clerk.load();
-    }
-  });
-</script>
+    <script>
+      window.addEventListener('load', async () => {
+        if (window.Clerk) {
+          await window.Clerk.load();
+        }
+      });
+    </script>
+
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>F.A.S. Motorsports</title>
-    <script
-      async
-      data-clerk-frontend-api={import.meta.env.PUBLIC_CLERK_FRONTEND_API}
-      src="https://clerk.js.cool"
-    ></script>
   </head>
+
   <body class="relative bg-cover bg-center text-white"
-  style="background-image: url('/images/bg-texture copy.png'); background-color: transparent;">
-  
-  <div class="absolute inset-0 bg-black/10 backdrop-blur-sm z-0"></div>
+    style="background-image: url('/images/bg-texture copy.png'); background-color: transparent;">
+    
+    <div class="absolute inset-0 bg-black/10 backdrop-blur-sm z-0"></div>
 
-  <div class="relative z-10">
-    <Header />
-    <!-- Animated Brand Tag -->
-    <div class="hidden md:block fixed top-[175px] left-6 z-30 animate-slide-in-left">
-      <p class="text-white text-3xl font-borg leading-tight tracking-wide">
-        F.a.S.<p class="text-primary font-ethno-italic">MOTORSPORTS</p>
-      </p>
+    <div class="relative z-10">
+      <Header />
+
+      <!-- Animated Brand Tag -->
+      <div class="hidden md:block fixed top-[175px] left-6 z-30 animate-slide-in-left">
+        <p class="text-white text-3xl font-borg leading-tight tracking-wide">
+          F.a.S.<p class="text-primary font-ethno-italic">MOTORSPORTS</p>
+        </p>
+      </div>
+
+      <main class="min-h-screen bg-transparent -mt-0">
+        <slot />
+      </main>
+
+      <Footer />
+      <FloatingCartWidget client:load />
+      <FloatingLoginGarage />
     </div>
-    <main class="min-h-screen bg-transparent -mt-0">
-      <slot />
-    </main>
-    <Footer />
-    <FloatingCartWidget client:load />
-    <FloatingLoginGarage />
-  </div>
-</body>
-</html>
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const elements = document.querySelectorAll('.fade-in-up');
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('opacity-100', 'translate-y-0');
-        }
-      });
-    }, { threshold: 0.15 });
 
-    elements.forEach(el => {
-      el.classList.add('opacity-0', 'translate-y-6', 'transition-all', 'duration-700');
-      observer.observe(el);
-    });
-  });
-</script>
-<style>
-@keyframes slide-in-left {
-  0% {
-    opacity: 0;
-    transform: translateX(-50px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-.animate-slide-in-left {
-  animation: slide-in-left 0.8s ease-out forwards;
-}
-</style>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const elements = document.querySelectorAll('.fade-in-up');
+        const observer = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('opacity-100', 'translate-y-0');
+            }
+          });
+        }, { threshold: 0.15 });
+
+        elements.forEach(el => {
+          el.classList.add('opacity-0', 'translate-y-6', 'transition-all', 'duration-700');
+          observer.observe(el);
+        });
+      });
+    </script>
+
+    <style>
+      @keyframes slide-in-left {
+        0% {
+          opacity: 0;
+          transform: translateX(-50px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+      .animate-slide-in-left {
+        animation: slide-in-left 0.8s ease-out forwards;
+      }
+    </style>
+
+  </body>
+</html>

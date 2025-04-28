@@ -1,67 +1,102 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Testimonials from '../components/Testimonials.astro';
+import Testimonials from '../components/Testimonials';
+import Button from '../components/Button.astro';
 ---
 
 <BaseLayout>
   <!-- Hero -->
-  <section class="relative w-full h-[80vh] bg-black text-white flex items-center justify-center">
+  <section class="relative bg-black/20 fade-in-up">
     <img 
-      src="/images/fas-logo-car-smoke.webp"
+      src="/images/About FAS MOTO  Page Banner copy.png" class="relative inset-0 w-full h-full object-cover object-top md:object-center z-0"
       alt="FAS Background" 
-      class="absolute inset-0 w-full h-full object-cover opacity-20" 
+      class="absolute inset-0 w-full h-full object-cover opacity-100 max-w-full" 
     />
-    <div class="relative text-center p-8 bg-black/70 rounded-md shadow-xl max-w-3xl mx-auto">
-      <h1 class="text-5xl font-ethno uppercase text-white mb-4 tracking-wide">About F.A.S. Motorsports</h1>
-      <p class="text-accent text-lg font-captain">Precision. Power. Performance.</p>
-    </div>
   </section>
   <!-- NOTE: Verify responsive scaling on mobile (bg image, text center alignment, and button padding) -->
 
-
   <!-- Performance Block -->
-  <section class="bg-[#121212] text-white py-20 px-6 fade-in-up">
-    <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-      <img 
-        src="https://fasmotorsports.com/wp-content/uploads/2023/04/fas-motorsports-about-engine-bay.jpg" 
-        alt="Engine Bay" 
-        class="rounded-lg shadow-lg border border-gray-700"
-      />
-      <div>
-        <h2 class="text-3xl font-cyber text-primary mb-4">Built by Racers. Tuned for Victory.</h2>
-        <p class="text-graylight font-captain leading-relaxed">
-          Born from a deep passion for high-performance street and track builds, F.A.S. Motorsports specializes in Dodge, Jeep, and Ram platforms. From IGLA anti-theft installs to custom-tuned power packages — our work speaks for itself.
-        </p>
+  <section class="text-white mt-5 px-10 fade-in-up">
+    <h2 class="text-3xl font-cyber text-primary mb-4">Built by Racers. Tuned for Victory.</h2>
+    <p class="text-graylight text-xl font-captain rem-1.5 leading-relaxed">
+      Born from a deep rooted love for high-performance street and track builds, <span class="font-borg text-primary">F.a.S. </span><span class="font-ethno text-lg">Motorsports</span> specializes in Dodge, Jeep, and Ram platforms. From IGLA anti-theft installs to custom-tuned power packages — our work speaks for itself.
+    </p>
+  </section>
 
   <section class="max-w-5xl mx-auto py-16 px-6 space-y-12 text-white">
     <div class="space-y-4">
       <h2 class="text-2xl font-bold font-cyber text-primary">Performance | Precision | Power</h2>
-      <!-- TODO: Add meta description and keywords for SEO boost -->
-      <p class="font-captain text-graylight leading-relaxed">
+      <p class="font-captain text-xl rem-1.5 text-graylight leading-relaxed">
         F.A.S. Motorsports was born from a passion for building some of the fastest cars in the nation. We specialize in high-performance Dodge, Jeep, and Ram platforms, offering tuning, IGLA anti-theft solutions, porting, custom power packages, and more.
       </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-      <!-- NOTE: Consider lazy-loading this image or using a WebP version for performance -->
-      <img src="https://fasmotorsports.com/wp-content/uploads/2023/04/fas-motorsports-about-engine-bay.jpg" alt="Engine Bay" class="rounded-lg shadow-md" />
-      <div class="space-y-4">
-        <h2 class="font-ethno text-xl uppercase">Why Choose F.A.S.?</h2>
-        <ul class="list-disc list-inside text-graylight font-captain">
-          <li>Certified IGLA Anti-Theft Installer</li>
-          <li>Custom Horsepower Packages</li>
-          <li>Extensive experience with Hellcats, Trackhawks, and TRX</li>
-          <li>Proven track records and customer satisfaction</li>
-        </ul>
-      </div>
-    </div>
   </section>
 
+  <section class="w-full px-6 py-16 text-white fade-in-up">
+    <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+      <!-- Frank Mingione II Block -->
+      <div class="space-y-6 text-center md:text-left">
+        <h2 class="text-3xl md:text-4xl font-ethno text-accent mb-4">Our Legacy Begins</h2>
+        <p class="text-lg font-captain md:text-xl leading-relaxed">
+          FAS Motorsports' passion for high-performance vehicles began with <strong>Frank Mingione II</strong>, a professional racer whose relentless pursuit of precision and innovation ignited a generational love for cars. 
+          Frank's influence shaped an entire family culture built around craftsmanship, speed, and performance. 
+          Though he passed on <strong>December 12, 2011</strong>, his spirit continues to drive every horsepower milestone we achieve today.
+        </p>
+      </div>
+      <img
+        src="/images/Frank Mingione The First.png"
+        alt="Frank Mingione The Second"
+        class="rounded-lg shadow-lg mx-auto md:mx-0 max-w-sm"
+      />
+    </div>
+  
+    <!-- Frank Mingione III Block -->
+    <div class="space-y-6 text-center md:text-left"> <br>
+      <h2 class="text-3xl md:text-4xl font-ethno text-accent mb-4">Carrying the Torch</h2>
+      <p class="text-lg font-captain md:text-xl leading-relaxed">
+        <strong>Frank Mingione III</strong> carried forward the spirit passed down from his father, <strong>Frank Mingione II</strong>. 
+        His dedication to mastering the art of racing, modification, and automotive performance built the foundation that FAS Motorsports stands on today.
+        Teaching everything he learned to his own children, Frank III ensured that the love for building, innovating, and pushing performance limits would continue for generations to come.
+      </p>
+      <img
+        src="/images/Frank Mingione The 2nd.png"
+        alt="Frank Mingione The Second"
+        class="rounded-lg shadow-lg mx-auto md:mx-0 max-w-sm"
+      />
+    </div>
+    </section>
+
+    <section class="w-full px-6 py-16 bg-black/60 text-white fade-in-up">
+      <div class="max-w-6xl mx-auto flex flex-col items-center text-center space-y-8">
+        <div class="space-y-6">
+          <h2 class="text-3xl md:text-4xl font-borg text-primary">
+            F.a.S. <span class="font-ethno text-white">Motorsports</span>
+          </h2>
+          <h3 class="text-2xl md:text-3xl text-primary font-cyber">
+            Where Passion Meets Performance
+          </h3>
+          <p class="text-base md:text-lg font-captain leading-relaxed max-w-3xl mx-auto">
+            At FAS Motorsports, we believe racing isn't just about horsepower — it's about heart, discipline, and the relentless pursuit of perfection.<br /><br />
+            Captured here at our local track in Bradenton, Florida, this moment reflects the bond between <strong>Frank Mingione IV</strong>, the owner of FAS Motorsports, his father <strong>Frank Mingione III</strong>, and the team who continues to chase excellence at every event.<br /><br />
+            Together, we embody the spirit of family, legacy, and high-performance innovation — both on and off the track.
+          </p>
+        </div>
+    
+        <div class="w-full">
+          <img 
+            src="/images/FAS-Team-Testing-Day.png" 
+            alt="FAS Motorsports Team Testing Day" 
+            class="w-full max-w-5xl mx-auto rounded-lg shadow-lg h-auto"
+          />
+        </div>
+      </div>
+    </section>
 
   <!-- Why Choose -->
-  <section class="bg-black text-white py-20 px-6 fade-in-up">
+  <section class="bg-black/30 text-white py-20 rounded px-6 fade-in-up">
     <div class="max-w-5xl mx-auto text-center mb-12">
-      <h2 class="text-4xl font-ethno uppercase text-accent tracking-wide">Why Choose F.A.S.?</h2>
+      <h2 class="text-4xl font-ethno uppercase text-white tracking-wide">Why Choose <span class="font-borg text-primary">F.a.S.</span> ?</h2>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
       <ul class="space-y-4 text-graylight font-captain text-lg list-disc list-inside">
@@ -71,18 +106,19 @@ import Testimonials from '../components/Testimonials.astro';
         <li>Proven Track Results & Loyal Client Base</li>
       </ul>
       <img 
-        src="https://fasmotorsports.com/wp-content/uploads/2023/04/fas-motorsports-track.jpg" 
-        alt="Track Ready" 
-        class="rounded-lg shadow-md border border-gray-700"
+        src="/images/ram copy.webp" 
+        alt="Track Ready Packages" 
+        class="max-w-full h-auto"
       />
+    </div>
 
     <div class="text-center mt-20">
       <h3 class="text-xl font-bold font-cyber text-secondary mb-4">Ready to transform your build?</h3>
-      <a href="/schedule" class="inline-block font-ethno uppercase bg-accent text-black px-8 py-3 rounded hover:bg-secondary transition">
-        Schedule Your Install
-      </a>
-      <!-- TODO: Confirm /schedule route is active and styled -->
-
+      <Button 
+        href="/schedule" 
+        text="Schedule Your Install" 
+        variant="multi-swipe-v2" 
+      />
     </div>
   </section>
 
@@ -92,18 +128,17 @@ import Testimonials from '../components/Testimonials.astro';
       <h2 class="text-4xl font-ethno uppercase text-accent">What Our Clients Say</h2>
       <p class="text-graylight font-captain mt-2">Real builds. Real results.</p>
     </div>
-    <Testimonials />
+    <Testimonials client:only="react" />
   </section>
 
   <!-- CTA -->
   <section class="bg-[#121212] text-center py-20 px-6 fade-in-up">
-    <h3 class="text-2xl font-cyber text-secondary mb-6">Ready to transform your build?</h3>
-    <a 
-      href="/schedule" 
-      class="inline-block font-ethno uppercase bg-accent text-black px-10 py-4 rounded hover:bg-secondary transition"
-    >
-      Schedule Your Install
-    </a>
+    <h3 class="text-2xl font-cyber text-secondary mb-6">Have Questions About Getting Started?</h3>
+    <Button 
+      href="/contact" 
+      text="Contact Us" 
+      variant="multi-swipe-v2" 
+    />
   </section>
 
   <!-- Fade-in Script -->
