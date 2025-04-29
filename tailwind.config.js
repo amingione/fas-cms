@@ -36,11 +36,11 @@ module.exports = {
         kwajong: ['Kwajong', 'sans-serif'],
         'kwajong-italic': ['Kwajong', 'sans-serif'],
         body: ['American Captain', 'sans-serif']
+      },
+      boxShadow: {
+        'product-inset': 'inset 0 0 10px rgba(0, 0, 0, 0.5)',
+        'product-hover': '0 8px 20px rgba(0, 0, 0, 0.7)'
       }
-    },
-    boxShadow: {
-      'product-inset': 'inset 0 0 10px rgba(0, 0, 0, 0.5)',
-      'product-hover': '0 8px 20px rgba(0, 0, 0, 0.7)'
     }
   }
 };
