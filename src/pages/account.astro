@@ -1,19 +1,78 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+
+// Fetch user data from APIs
+const customerRes = await fetch('/api/get-customer-profile');
+const ordersRes = await fetch('/api/get-user-orders');
+const quotesRes = await fetch('/api/get-user-quotes');
+
+const customerProfile = customerRes.ok ? await customerRes.json() : null;
+const userOrders = ordersRes.ok ? await ordersRes.json() : null;
+const userQuotes = quotesRes.ok ? await quotesRes.json() : null;
 ---
+<style>
+  .gauge-spinner {
+    margin: 20px auto;
+    width: 50px;
+    height: 50px;
+    border: 6px solid lightgray;
+    border-top: 6px solid #dc2626; /* red like a revving RPM */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  section {
+    margin-bottom: 2rem;
+  }
+</style>
 
 <BaseLayout>
-  <h1>My Account</h1>
+  <h1>My Garage</h1>
 
-  <script type="module">
-    import { Clerk } from '@clerk/clerk-js';
+  <section>
+    <h2>Service Orders</h2>
+    {userOrders === null ? (
+      <div class="gauge-spinner"></div>
+    ) : userOrders.length > 0 ? (
+      <ul>
+        {userOrders.map(order => (
+          <li>{order.title} - {order.status}</li>
+        ))}
+      </ul>
+    ) : (
+      <p>No service orders yet — time to hit the track!</p>
+    )}
+  </section>
 
-    const clerk = new Clerk(import.meta.env.PUBLIC_CLERK_FRONTEND_API);
-    await clerk.load();
+  <section>
+    <h2>Custom Build Quotes</h2>
+    {userQuotes === null ? (
+      <div class="gauge-spinner"></div>
+    ) : userQuotes.length > 0 ? (
+      <ul>
+        {userQuotes.map(quote => (
+          <li>{quote.title} - {quote.status}</li>
+        ))}
+      </ul>
+    ) : (
+      <p>No custom quotes yet — let's start building your dream ride!</p>
+    )}
+  </section>
 
-    if (clerk.user) {
-      const email = clerk.user.emailAddresses[0].emailAddress;
-      document.body.innerHTML += `<p>Welcome, ${email}</p>`;
-    }
-  </script>
+  <section>
+    <h2>Driver Profile</h2>
+    {customerProfile === null ? (
+      <div class="gauge-spinner"></div>
+    ) : (
+      <>
+        <p>Name: {customerProfile.customer.name}</p>
+        <p>Phone: {customerProfile.customer.phone}</p>
+      </>
+    )}
+  </section>
 </BaseLayout>

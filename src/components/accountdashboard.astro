@@ -1,181 +1,185 @@
-<div id="accountDashboardOverlay" class="fixed inset-0 z-[9998] bg-black/30 backdrop-blur-lg pointer-events-auto transition-opacity duration-300 ease-in-out">
-  <button id="closeAccountDashboard" class="absolute top-10 right-4 z-[10001] bg-transparent border-none text-primary p-2 rounded-full border-2 shadow-lg hover:transparent hover:text-red-500 transition-all duration-200">
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <line x1="18" y1="6" x2="6" y2="18" />
-      <line x1="6" y1="6" x2="18" y2="18" />
-    </svg>
-  </button>
-  <aside id="accountDashboard" style="background-color: bg-transparent backdrop-blur-lg" class="w-[220px] h-full font-ethno text-white pt-30 px-4 shadow-lg space-y-6 fixed top-20 right-0 z-[9999] pointer-events-auto transition-transform duration-300 ease-in-out">
-    <div class="border-b border-white/10 pb-2 mb-4">
-      <h2 class="text-lg font-captain text-primary tracking-wide">Account Dashboard</h2>
-    </div>
-    <p id="userEmail" class="text-xs text-gray-400 mb-2"></p>
-    <div class="mt-2">
-      <a href="/account/edit" class="text-xs text-primary underline inline-flex items-center gap-1 hover:text-red-500 transition-colors">
-        Edit Account Information
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-        </svg>
-      </a>
-    </div>
-    <nav id="dashboardNav" class="flex flex-col space-y-6 font-ethno-bold">
-    </nav>
-  </aside>
-</div>
-  <script>
-    export {};
-    
-    declare global {
-      interface Window {
-        Clerk?: import('@clerk/clerk-js').Clerk;
-      }
-    }
+<script>
+  export {};
+
+  declare global {
+  interface Window {
+    Clerk: {
+      user?: any;
+      loaded?: boolean;
+      load?: () => Promise<void>;
+      signOut?: () => Promise<void>;
+      addListener?: (event: any, callback?: () => void) => void;
+    };
+  }
+}
 
   window.addEventListener('DOMContentLoaded', async () => {
     await window.Clerk?.load();
+
     const closeBtn = document.getElementById('closeAccountDashboard');
-    const dashboard = document.getElementById('accountDashboard');
-
-    const emailElem = document.getElementById("userEmail");
-
-    const frontendApi = import.meta.env.PUBLIC_CLERK_FRONTEND_API;
+    const dashboardNav = document.getElementById('dashboardNav');
+    const emailElem = document.getElementById('userEmail');
     const sanityToken = import.meta.env.SANITY_API_TOKEN;
     const sanityProjectId = import.meta.env.SANITY_PROJECT_ID;
 
-    if (!window.Clerk || !window.Clerk.user) {
-      if (dashboard && emailElem) {
-        emailElem.textContent = '';
-        const dashboardNav = document.getElementById('dashboardNav');
-        if (dashboardNav) {
-          dashboardNav.innerHTML = `
-            <a href="https://clerk.fasmotorsports.com/sign-in" target="_blank" rel="noopener noreferrer" ...>LOGIN</a>
-            <a href="https://clerk.fasmotorsports.com/sign-up" target="_blank" rel="noopener noreferrer" ...>SIGNUP</a>
-            <div class="border-t border-white/10 my-4"></div>
-            <p class="text-xs text-gray-400">Partner with <span class="text-primary font-bold">F.A.S.</span> Motorsports</p>
-            <div class="mt-6 p-2 border border-white/10 rounded shadow-inner bg-white/5 text-xs space-y-2">
-              <h3 class="text-primary font-captain text-lg tracking-wide uppercase border-b border-white/10 pb-1 mb-2">Vendor Portal</h3>
-              <a href="/vendor/partner-login" class="block hover:text-red-500 font-ethno">Login</a>
-              <a href="/vendor/request-partnership" class="block hover:text-red-500 font-ethno">Apply</a>
-            </div>
-          `;
+    if (!dashboardNav) {
+      console.warn("⚠️ No dashboardNav element found.");
+      return;
+    }
+
+    async function fetchCustomerData(email) {
+      try {
+        const customerQuery = encodeURIComponent(`*[_type == "customer" && email == "${email}"][0]`);
+        const customerUrl = `https://${sanityProjectId}.api.sanity.io/v2023-05-30/data/query/production?query=${customerQuery}`;
+        const response = await fetch(customerUrl, {
+          headers: { Authorization: `Bearer ${sanityToken}` },
+        });
+        if (!response.ok) throw new Error("Failed to fetch customer data");
+        const result = await response.json();
+        return result.result;
+      } catch (err) {
+        console.error("🚨 Failed to fetch customer data:", err);
+        return null;
+      }
+    }
+
+    async function fetchOrders() {
+      try {
+        const response = await fetch('/api/get-user-orders');
+        if (!response.ok) throw new Error("Failed to fetch orders");
+        return await response.json();
+      } catch (err) {
+        console.error("🚨 Failed to fetch orders:", err);
+        return [];
+      }
+    }
+
+    async function fetchQuotes() {
+      try {
+        const response = await fetch('/api/get-user-quotes');
+        if (!response.ok) throw new Error("Failed to fetch quotes");
+        return await response.json();
+      } catch (err) {
+        console.error("🚨 Failed to fetch quotes:", err);
+        return [];
+      }
+    }
+
+    async function loadDashboard() {
+      const user = window.Clerk?.user;
+      if (!user) {
+        console.warn("⚠️ No Clerk user found.");
+        dashboardNav.innerHTML = `
+          <div class="text-center space-y-4">
+            <a href="/sign-in" class="text-xs text-primary underline hover:text-red-500">LOGIN</a>
+            <a href="/sign-up" class="text-xs text-primary underline hover:text-red-500">SIGNUP</a>
+          </div>
+        `;
+        if (emailElem) emailElem.textContent = '';
+        return;
+      }
+
+      const email = user.emailAddresses?.[0]?.emailAddress || '';
+      if (emailElem) emailElem.textContent = email;
+
+      try {
+        const [customer, orders, quotes] = await Promise.all([
+          fetchCustomerData(email),
+          fetchOrders(),
+          fetchQuotes(),
+        ]);
+
+        dashboardNav.innerHTML = `
+          <div class="space-y-4">
+            <h3 class="text-xs text-white/50 uppercase tracking-wide">Recent Orders</h3>
+            <ul class="text-xs space-y-2">
+              ${
+                orders.length
+                  ? orders.slice(0, 3).map(order => `
+                      <li class="text-white/80">${order.title || order._id} - <span class="text-green-400">${order.status}</span></li>
+                    `).join('')
+                  : `<li class="text-white/50">No orders yet</li>`
+              }
+            </ul>
+            <a href="/account/orders" class="block text-primary hover:underline text-xs mt-2">View All Orders</a>
+          </div>
+
+          <div class="border-t border-white/10 my-4 pt-4 space-y-4">
+            <h3 class="text-xs text-white/50 uppercase tracking-wide">Saved Quotes</h3>
+            <ul class="text-xs space-y-2">
+              ${
+                quotes.length
+                  ? quotes.slice(0, 3).map(quote => `
+                      <li class="text-white/80">${quote.title || quote._id} - <span class="text-gray-400">${quote.status}</span></li>
+                    `).join('')
+                  : `<li class="text-white/50">No quotes yet</li>`
+              }
+            </ul>
+            <a href="/account/quotes" class="block text-primary hover:underline text-xs mt-2">View All Quotes</a>
+          </div>
+
+          ${
+            customer?.addresses?.length
+              ? `
+                <div class="border-t border-white/10 my-4 pt-4 space-y-4">
+                  <h3 class="text-xs text-white/50 uppercase tracking-wide">Saved Addresses</h3>
+                  <ul class="text-xs space-y-4">
+                    ${customer.addresses.map(addr => `
+                      <li class="text-white/80 border border-white/10 p-2 rounded-md">
+                        <p>${addr.label || addr.street}</p>
+                        <p class="text-xs">${addr.city}, ${addr.state} ${addr.zip}</p>
+                      </li>
+                    `).join('')}
+                  </ul>
+                  <a href="/account/addresses" class="block text-primary hover:underline text-xs mt-2">Manage Addresses</a>
+                </div>
+              `
+              : ''
+          }
+
+          <a href="/account/wishlist" class="hover:text-red-500 text-sm">WISHLIST</a>
+
+          <button id="logoutBtn" class="mt-8 text-red-500 hover:text-white text-sm w-full">LOGOUT</button>
+        `;
+
+        const logoutBtn = document.getElementById('logoutBtn');
+        logoutBtn?.addEventListener('click', async () => {
+          await window.Clerk?.signOut();
+          window.location.href = '/';
+        });
+      } catch (err) {
+        console.error("🚨 Failed to load dashboard:", err);
+        dashboardNav.innerHTML = `<p class="text-red-500 text-xs">Failed to load dashboard</p>`;
+      }
+    }
+
+    if (window.Clerk) {
+      const tryLoadDashboard = () => {
+        const user = window.Clerk?.user;
+        if (user) {
+          loadDashboard();
         }
+      };
+
+      if (window.Clerk.loaded) {
+        tryLoadDashboard();
+      } else {
+        window.Clerk.addListener('loaded', tryLoadDashboard);
       }
-      return;
+
+      window.Clerk.addListener({ signedIn: tryLoadDashboard });
+    } else {
+      console.error('🚨 Clerk not initialized.');
     }
 
-    const email = window.Clerk.user?.emailAddresses?.[0]?.emailAddress;
-    if (!email) {
-      console.warn("⚠️ Clerk user email not found.");
-      return;
-    }
-    emailElem.textContent = email;
-
-    const query = encodeURIComponent(`*[_type == "customer" && email == "${email}"][0]`);
-    const url = `https://${sanityProjectId}.api.sanity.io/v2023-05-30/data/query/production?query=${query}`;
-
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${sanityToken}`
-      }
+    closeBtn?.addEventListener('click', () => {
+      const dashboardPanel = document.getElementById('accountDashboard');
+      const overlay = document.getElementById('accountDashboardOverlay');
+      dashboardPanel?.classList.add('translate-x-full');
+      setTimeout(() => {
+        overlay?.classList.add('hidden');
+        dashboardPanel?.classList.remove('translate-x-full');
+      }, 300);
     });
-    const result = await response.json();
-    const customer = result.result;
-
-    if (!customer) {
-      console.warn("⚠️ No customer record found in Sanity for email:", email);
-    }
-
-    const dashboardNav = document.getElementById('dashboardNav');
-    if (dashboardNav) {
-      dashboardNav.innerHTML = `
-  <div class="space-y-4">
-    <h3 class="text-xs text-white/50 uppercase tracking-wide">Recent Orders</h3>
-    <ul class="text-xs space-y-2">
-      <li class="text-white/80">Order #12345 - <span class="text-green-400">Shipped</span></li>
-      <li class="text-white/80">Order #12346 - <span class="text-yellow-400">Processing</span></li>
-    </ul>
-    <a href="/account/orders" class="block text-primary hover:underline text-xs mt-2">View All Orders</a>
-  </div>
-
-  <div class="border-t border-white/10 my-4 pt-4 space-y-4">
-    <h3 class="text-xs text-white/50 uppercase tracking-wide">Saved Quotes</h3>
-    <ul class="text-xs space-y-2">
-      <li class="text-white/80">Quote #A23 - <span class="text-gray-400">Pending</span></li>
-      <li class="text-white/80">Quote #B99 - <span class="text-green-400">Approved</span></li>
-    </ul>
-    <a href="/account/quotes" class="block text-primary hover:underline text-xs mt-2">View All Quotes</a>
-  </div>
-
-  ${customer?.addresses?.length ? `
-    <div class="border-t border-white/10 my-4 pt-4 space-y-4">
-      <h3 class="text-xs text-white/50 uppercase tracking-wide">Saved Addresses</h3>
-      <ul class="text-xs space-y-4">
-        ${customer.addresses.map((addr, index) => `
-          <li class="text-white/80 space-y-1 border border-white/10 p-2 rounded-md">
-            <label class="block">
-              <span class="text-white/40 text-[10px] uppercase">Label</span>
-              <input type="text" value="${addr.label || ''}" class="w-full bg-black/30 text-white text-xs p-1 rounded border border-white/10" />
-            </label>
-            <label class="block">
-              <span class="text-white/40 text-[10px] uppercase">Street</span>
-              <input type="text" value="${addr.street || ''}" class="w-full bg-black/30 text-white text-xs p-1 rounded border border-white/10" />
-            </label>
-            <label class="block">
-              <span class="text-white/40 text-[10px] uppercase">City</span>
-              <input type="text" value="${addr.city || ''}" class="w-full bg-black/30 text-white text-xs p-1 rounded border border-white/10" />
-            </label>
-            <label class="block">
-              <span class="text-white/40 text-[10px] uppercase">State</span>
-              <input type="text" value="${addr.state || ''}" class="w-full bg-black/30 text-white text-xs p-1 rounded border border-white/10" />
-            </label>
-            <label class="block">
-              <span class="text-white/40 text-[10px] uppercase">ZIP</span>
-              <input type="text" value="${addr.zip || ''}" class="w-full bg-black/30 text-white text-xs p-1 rounded border border-white/10" />
-            </label>
-            <label class="block">
-              <span class="text-white/40 text-[10px] uppercase">Country</span>
-              <input type="text" value="${addr.country || ''}" class="w-full bg-black/30 text-white text-xs p-1 rounded border border-white/10" />
-            </label>
-          </li>
-        `).join('')}
-      </ul>
-      <a href="/account/addresses" class="block text-primary hover:underline text-xs mt-2">Manage Addresses</a>
-    </div>
-  ` : ''}
-
-  <a href="/account/addresses" class="hover:text-red-500 font-ethno transition-colors text-sm">ADDRESSES</a>
-  <a href="/account/wishlist" class="hover:text-red-500 font-ethno transition-colors text-sm">WISHLIST</a>
-
-  <button id="logoutBtn" class="mt-8 text-red-500 hover:text-white transition-colors text-center text-sm w-full">LOGOUT</button>
-
-  <div class="mt-10 p-4 border border-white/10 rounded-lg shadow-inner bg-white/5 space-y-2">
-    <h3 class="text-primary font-captain text-sm tracking-wide uppercase border-b border-white/10 pb-1 mb-3">Vendor Portal</h3>
-    <a href="/vendor/partner-login" class="block hover:text-red-500 font-ethno transition-colors text-sm mb-1">Partner Login</a>
-    <a href="/vendor/request-partnership" class="block hover:text-red-500 font-ethno transition-colors text-sm">Request Partnership</a>
-  </div>
-`;
-    }
-
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn && window.Clerk) {
-      logoutBtn.addEventListener('click', async () => {
-        await window.Clerk.signOut?.();
-        window.location.href = '/';
-      });
-    }
-
-    if (closeBtn) {
-      closeBtn.addEventListener('click', () => {
-        const dashboardPanel = document.getElementById('accountDashboard');
-        const overlay = document.getElementById('accountDashboardOverlay');
-        if (dashboardPanel && overlay) {
-          dashboardPanel.classList.add('translate-x-full');
-          setTimeout(() => {
-            overlay.classList.add('hidden');
-            dashboardPanel.classList.remove('translate-x-full'); // reset state for next open
-          }, 300); // must match transition duration
-        }
-      });
-    }
   });
 </script>
