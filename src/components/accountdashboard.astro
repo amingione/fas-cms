@@ -2,23 +2,23 @@
   export {};
 
   declare global {
-  interface Window {
-    Clerk: {
-      user?: any;
-      loaded?: boolean;
-      load?: () => Promise<void>;
-      signOut?: () => Promise<void>;
-      addListener?: (event: any, callback?: () => void) => void;
-    };
+    interface Window {
+      Clerk: {
+        user?: any;
+        loaded?: boolean;
+        load?: () => Promise<void>;
+        signOut?: () => Promise<void>;
+        addListener?: (events: any) => void;
+      };
+    }
   }
-}
 
   window.addEventListener('DOMContentLoaded', async () => {
     await window.Clerk?.load();
 
     const closeBtn = document.getElementById('closeAccountDashboard');
     const dashboardNav = document.getElementById('dashboardNav');
-    const emailElem = document.getElementById('userEmail');
+    const overlay = document.getElementById('accountDashboardOverlay');
     const sanityToken = import.meta.env.SANITY_API_TOKEN;
     const sanityProjectId = import.meta.env.SANITY_PROJECT_ID;
 
@@ -68,19 +68,15 @@
     async function loadDashboard() {
       const user = window.Clerk?.user;
       if (!user) {
-        console.warn("⚠️ No Clerk user found.");
         dashboardNav.innerHTML = `
           <div class="text-center space-y-4">
-            <a href="/sign-in" class="text-xs text-primary underline hover:text-red-500">LOGIN</a>
-            <a href="/sign-up" class="text-xs text-primary underline hover:text-red-500">SIGNUP</a>
+            <a href="/sign-in" class="text-primary underline text-xs">Login</a>
           </div>
         `;
-        if (emailElem) emailElem.textContent = '';
         return;
       }
 
       const email = user.emailAddresses?.[0]?.emailAddress || '';
-      if (emailElem) emailElem.textContent = email;
 
       try {
         const [customer, orders, quotes] = await Promise.all([
@@ -90,8 +86,8 @@
         ]);
 
         dashboardNav.innerHTML = `
-          <div class="space-y-4">
-            <h3 class="text-xs text-white/50 uppercase tracking-wide">Recent Orders</h3>
+          <div class="space-y-4 p-4">
+            <h3 class="text-xs text-white/50 uppercase">Recent Orders</h3>
             <ul class="text-xs space-y-2">
               ${
                 orders.length
@@ -101,11 +97,9 @@
                   : `<li class="text-white/50">No orders yet</li>`
               }
             </ul>
-            <a href="/account/orders" class="block text-primary hover:underline text-xs mt-2">View All Orders</a>
-          </div>
+            <a href="/account/orders" class="text-primary hover:underline text-xs">View All Orders</a>
 
-          <div class="border-t border-white/10 my-4 pt-4 space-y-4">
-            <h3 class="text-xs text-white/50 uppercase tracking-wide">Saved Quotes</h3>
+            <h3 class="text-xs text-white/50 uppercase mt-6">Saved Quotes</h3>
             <ul class="text-xs space-y-2">
               ${
                 quotes.length
@@ -115,31 +109,13 @@
                   : `<li class="text-white/50">No quotes yet</li>`
               }
             </ul>
-            <a href="/account/quotes" class="block text-primary hover:underline text-xs mt-2">View All Quotes</a>
+            <a href="/account/quotes" class="text-primary hover:underline text-xs">View All Quotes</a>
+
+            <div class="mt-6">
+              <a href="/account/wishlist" class="text-red-500 hover:text-white text-sm block">Wishlist</a>
+              <button id="logoutBtn" class="mt-4 text-red-500 hover:text-white text-sm w-full">Logout</button>
+            </div>
           </div>
-
-          ${
-            customer?.addresses?.length
-              ? `
-                <div class="border-t border-white/10 my-4 pt-4 space-y-4">
-                  <h3 class="text-xs text-white/50 uppercase tracking-wide">Saved Addresses</h3>
-                  <ul class="text-xs space-y-4">
-                    ${customer.addresses.map(addr => `
-                      <li class="text-white/80 border border-white/10 p-2 rounded-md">
-                        <p>${addr.label || addr.street}</p>
-                        <p class="text-xs">${addr.city}, ${addr.state} ${addr.zip}</p>
-                      </li>
-                    `).join('')}
-                  </ul>
-                  <a href="/account/addresses" class="block text-primary hover:underline text-xs mt-2">Manage Addresses</a>
-                </div>
-              `
-              : ''
-          }
-
-          <a href="/account/wishlist" class="hover:text-red-500 text-sm">WISHLIST</a>
-
-          <button id="logoutBtn" class="mt-8 text-red-500 hover:text-white text-sm w-full">LOGOUT</button>
         `;
 
         const logoutBtn = document.getElementById('logoutBtn');
@@ -148,38 +124,39 @@
           window.location.href = '/';
         });
       } catch (err) {
-        console.error("🚨 Failed to load dashboard:", err);
+        console.error("🚨 Error loading dashboard:", err);
         dashboardNav.innerHTML = `<p class="text-red-500 text-xs">Failed to load dashboard</p>`;
       }
     }
 
     if (window.Clerk) {
-      const tryLoadDashboard = () => {
-        const user = window.Clerk?.user;
-        if (user) {
-          loadDashboard();
-        }
-      };
-
       if (window.Clerk.loaded) {
-        tryLoadDashboard();
+        loadDashboard();
       } else {
-        window.Clerk.addListener('loaded', tryLoadDashboard);
+        window.Clerk.addListener({ loaded: loadDashboard });
       }
 
-      window.Clerk.addListener({ signedIn: tryLoadDashboard });
+      window.Clerk.addListener({ signedIn: loadDashboard });
     } else {
       console.error('🚨 Clerk not initialized.');
     }
 
     closeBtn?.addEventListener('click', () => {
-      const dashboardPanel = document.getElementById('accountDashboard');
-      const overlay = document.getElementById('accountDashboardOverlay');
-      dashboardPanel?.classList.add('translate-x-full');
-      setTimeout(() => {
-        overlay?.classList.add('hidden');
-        dashboardPanel?.classList.remove('translate-x-full');
-      }, 300);
+      document.getElementById('accountDashboard')?.classList.add('translate-x-full');
+      overlay?.classList.add('hidden');
     });
   });
 </script>
+
+<!-- ✅ Sidebar structure clean -->
+<div id="accountDashboardOverlay" class="fixed inset-0 z-40 hidden bg-black/70 transition-opacity duration-300 ease-in-out">
+  <div id="accountDashboard" class="fixed right-0 top-0 h-full w-80 bg-black shadow-xl transform transition-all duration-500 ease-in-out translate-x-full">
+    
+    <div id="dashboardNav" class="p-4 space-y-6 text-white">
+      <!-- JS will inject dashboard here -->
+    </div>
+
+    <button id="closeAccountDashboard" class="absolute top-2 right-2 text-white text-2xl">&times;</button>
+
+  </div>
+</div>
