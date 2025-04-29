@@ -1,21 +1,20 @@
 <script>
+  import Clerk, { Clerk as ClerkType } from '@clerk/clerk-js';
+
   export {};
 
-  declare global {
-    interface Window {
-      Clerk: {
-        user?: any;
-        loaded?: boolean;
-        load?: () => Promise<void>;
-        signOut?: () => Promise<void>;
-        addListener?: (events: any) => void;
-      };
-    }
+declare global {
+  interface Window {
+    Clerk: ClerkType;
   }
+}
+window.addEventListener('DOMContentLoaded', async () => {
+  if (window.Clerk?.load) {
+    await window.Clerk.load();
+  }
+});
 
   window.addEventListener('DOMContentLoaded', async () => {
-    await window.Clerk?.load();
-
     const closeBtn = document.getElementById('closeAccountDashboard');
     const dashboardNav = document.getElementById('dashboardNav');
     const overlay = document.getElementById('accountDashboardOverlay');
@@ -43,28 +42,6 @@
       }
     }
 
-    async function fetchOrders() {
-      try {
-        const response = await fetch('/api/get-user-orders');
-        if (!response.ok) throw new Error("Failed to fetch orders");
-        return await response.json();
-      } catch (err) {
-        console.error("🚨 Failed to fetch orders:", err);
-        return [];
-      }
-    }
-
-    async function fetchQuotes() {
-      try {
-        const response = await fetch('/api/get-user-quotes');
-        if (!response.ok) throw new Error("Failed to fetch quotes");
-        return await response.json();
-      } catch (err) {
-        console.error("🚨 Failed to fetch quotes:", err);
-        return [];
-      }
-    }
-
     async function loadDashboard() {
       const user = window.Clerk?.user;
       if (!user) {
@@ -79,42 +56,13 @@
       const email = user.emailAddresses?.[0]?.emailAddress || '';
 
       try {
-        const [customer, orders, quotes] = await Promise.all([
-          fetchCustomerData(email),
-          fetchOrders(),
-          fetchQuotes(),
-        ]);
-
+        const customer = await fetchCustomerData(email);
         dashboardNav.innerHTML = `
           <div class="space-y-4 p-4">
-            <h3 class="text-xs text-white/50 uppercase">Recent Orders</h3>
-            <ul class="text-xs space-y-2">
-              ${
-                orders.length
-                  ? orders.slice(0, 3).map(order => `
-                      <li class="text-white/80">${order.title || order._id} - <span class="text-green-400">${order.status}</span></li>
-                    `).join('')
-                  : `<li class="text-white/50">No orders yet</li>`
-              }
-            </ul>
-            <a href="/account/orders" class="text-primary hover:underline text-xs">View All Orders</a>
-
-            <h3 class="text-xs text-white/50 uppercase mt-6">Saved Quotes</h3>
-            <ul class="text-xs space-y-2">
-              ${
-                quotes.length
-                  ? quotes.slice(0, 3).map(quote => `
-                      <li class="text-white/80">${quote.title || quote._id} - <span class="text-gray-400">${quote.status}</span></li>
-                    `).join('')
-                  : `<li class="text-white/50">No quotes yet</li>`
-              }
-            </ul>
-            <a href="/account/quotes" class="text-primary hover:underline text-xs">View All Quotes</a>
-
-            <div class="mt-6">
-              <a href="/account/wishlist" class="text-red-500 hover:text-white text-sm block">Wishlist</a>
-              <button id="logoutBtn" class="mt-4 text-red-500 hover:text-white text-sm w-full">Logout</button>
-            </div>
+            <h3 class="text-xs text-white/50 uppercase">Welcome, ${email}</h3>
+            <a href="/account/orders" class="text-primary hover:underline text-xs">View Orders</a>
+            <a href="/account/quotes" class="text-primary hover:underline text-xs">View Quotes</a>
+            <button id="logoutBtn" class="mt-4 text-red-500 hover:text-white text-sm w-full">Logout</button>
           </div>
         `;
 
@@ -130,13 +78,29 @@
     }
 
     if (window.Clerk) {
+      const tryLoadDashboard = () => {
+        const user = window.Clerk?.user;
+        if (user) {
+          loadDashboard();
+        }
+      };
+
       if (window.Clerk.loaded) {
-        loadDashboard();
+        tryLoadDashboard();
       } else {
-        window.Clerk.addListener({ loaded: loadDashboard });
+        window.addEventListener('clerk:loaded', tryLoadDashboard);
       }
 
-      window.Clerk.addListener({ signedIn: loadDashboard });
+      if (!window.Clerk?.frontendApi || window.Clerk.frontendApi !== import.meta.env.PUBLIC_CLERK_FRONTEND_API) {
+        console.warn("⚠️ Clerk frontend API mismatch or not initialized. Forcing reload...");
+        const script = document.createElement("script");
+        script.setAttribute("data-clerk-publishable-key", import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
+        script.setAttribute("data-clerk-frontend-api", import.meta.env.PUBLIC_CLERK_FRONTEND_API);
+        script.src = `https://${import.meta.env.PUBLIC_CLERK_FRONTEND_API}/npm/@clerk/clerk-js@latest/dist/clerk.browser.js`;
+        script.async = true;
+        document.body.appendChild(script);
+      }
+      
     } else {
       console.error('🚨 Clerk not initialized.');
     }
