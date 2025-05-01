@@ -17,6 +17,7 @@
   "devDependencies": {
     "@eslint/js": "^9.25.1",
     "@types/add": "^2",
+    "@types/jsonwebtoken": "^9",
     "@types/next": "^9.0.0",
     "@types/node": "^22.15.3",
     "@types/react": "^19.1.2",
@@ -52,6 +53,7 @@
     "@splinetool/runtime": "^1.9.86",
     "astro": "^5.7.3",
     "framer-motion": "^12.9.2",
+    "jsonwebtoken": "^9.0.2",
     "next": "^15.3.1",
     "next-sanity": "^9.10.2",
     "react": "^19.1.0",
