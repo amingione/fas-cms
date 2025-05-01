@@ -1,1 +1,0 @@
-/// <reference types="@clerk/astro/env" />

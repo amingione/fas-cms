@@ -18,21 +18,6 @@ import FloatingCartWidget from '../components/floatingwidget.jsx';
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="icon" type="image/png" href="/images/faslogochroma.png" />
     
-    <!-- ✅ Correct Clerk Script -->
-    <script
-      async
-      crossorigin="anonymous"
-      src={`https://${import.meta.env.PUBLIC_CLERK_FRONTEND_API}.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js`}
-      data-clerk-publishable-key={import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY}
-    ></script>
-
-    <script>
-      window.addEventListener('load', async () => {
-        if (window.Clerk) {
-          await window.Clerk.load();
-        }
-      });
-    </script>
 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />

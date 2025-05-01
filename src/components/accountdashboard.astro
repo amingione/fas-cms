@@ -1,126 +1,74 @@
-<script>
-  import Clerk, { Clerk as ClerkType } from '@clerk/clerk-js';
+<div class="fixed top-0 right-0 z-[9998] pointer-events-auto w-72 bg-[#1a1a1a]">
 
-  export {};
-
-declare global {
-  interface Window {
-    Clerk: ClerkType;
-  }
-}
-window.addEventListener('DOMContentLoaded', async () => {
-  if (window.Clerk?.load) {
-    await window.Clerk.load();
-  }
-});
+  <aside
+    id="accountDashboard"
+    style="background-color: #1e1e1e"
+    class="w-[220px] h-screen font-ethno text-white pt-0 px-6 shadow-lg space-y-6 fixed top-20 right-0 z-[9999] pointer-events-auto"
+  >
+    <p id="userEmail" class="text-xs text-gray-400 mb-2"></p>
+    <nav class="flex flex-col space-y-4 font-kwajong font-bold">
+      <a href="/sign-in" id="loginLink" class="mt-10 text-red-500 hover:text-white transition-colors hidden">Login</a>
+      <a href="/logout" id="logoutLink" class="mt-10 text-red-500 hover:text-white transition-colors hidden">Logout</a>
+      <a href="/account" class="hover:text-primary font-bold font-kwajong transition-colors">My Account</a>
+    </nav>
+    <div class="mt-8 border-t border-gray-700 pt-4">
+      <h3 class="text-xs font-bold text-gray-400 mb-2">Vendor Access</h3>
+      <nav class="flex flex-col space-y-2 text-sm font-kwajong">
+        <a href="/vendor/login" class="text-blue-400 hover:text-white transition">Vendor Login</a>
+        <a href="/vendor/dashboard" class="text-blue-400 hover:text-white transition">Vendor Dashboard</a>
+      </nav>
+    </div>
+    <div class="mt-8 border-t border-gray-700 pt-4 text-[1.2rem] font-captain">
+      <p class="mb-2 text-gray-300">Need help?</p>
+      <div class="flex items-center space-x-2 mb-1">
+        <span class="text-xs font-captain rem-1.2 text-gray-400">support@fasmotorsports.com</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h1.5a2 2 0 011.8 1.2l1.2 2.8a2 2 0 01-.45 2.2l-1.1 1.1a16 16 0 006.6 6.6l1.1-1.1a2 2 0 012.2-.45l2.8 1.2a2 2 0 011.2 1.8V19a2 2 0 01-2 2h-1C9.4 21 3 14.6 3 7V6a2 2 0 012-2z"/>
+        </svg>
+        <span class="text-xs font-captain rem-1.2 text-gray-400">(812) 200-9012</span>
+      </div>
+    </div>
+  </aside>
+</div>
+<script type="module">
 
   window.addEventListener('DOMContentLoaded', async () => {
-    const closeBtn = document.getElementById('closeAccountDashboard');
-    const dashboardNav = document.getElementById('dashboardNav');
-    const overlay = document.getElementById('accountDashboardOverlay');
-    const sanityToken = import.meta.env.SANITY_API_TOKEN;
-    const sanityProjectId = import.meta.env.SANITY_PROJECT_ID;
+    const dashboard = document.getElementById('accountDashboard');
 
-    if (!dashboardNav) {
-      console.warn("⚠️ No dashboardNav element found.");
-      return;
-    }
+    const loginLink = document.getElementById('loginLink');
+    const logoutLink = document.getElementById('logoutLink');
+    const emailEl = document.getElementById('userEmail');
+    const email = localStorage.getItem('userEmail');
 
-    async function fetchCustomerData(email) {
-      try {
-        const customerQuery = encodeURIComponent(`*[_type == "customer" && email == "${email}"][0]`);
-        const customerUrl = `https://${sanityProjectId}.api.sanity.io/v2023-05-30/data/query/production?query=${customerQuery}`;
-        const response = await fetch(customerUrl, {
-          headers: { Authorization: `Bearer ${sanityToken}` },
-        });
-        if (!response.ok) throw new Error("Failed to fetch customer data");
-        const result = await response.json();
-        return result.result;
-      } catch (err) {
-        console.error("🚨 Failed to fetch customer data:", err);
-        return null;
-      }
-    }
-
-    async function loadDashboard() {
-      const user = window.Clerk?.user;
-      if (!user) {
-        dashboardNav.innerHTML = `
-          <div class="text-center space-y-4">
-            <a href="/sign-in" class="text-primary underline text-xs">Login</a>
-          </div>
-        `;
-        return;
-      }
-
-      const email = user.emailAddresses?.[0]?.emailAddress || '';
-
-      try {
-        const customer = await fetchCustomerData(email);
-        dashboardNav.innerHTML = `
-          <div class="space-y-4 p-4">
-            <h3 class="text-xs text-white/50 uppercase">Welcome, ${email}</h3>
-            <a href="/account/orders" class="text-primary hover:underline text-xs">View Orders</a>
-            <a href="/account/quotes" class="text-primary hover:underline text-xs">View Quotes</a>
-            <button id="logoutBtn" class="mt-4 text-red-500 hover:text-white text-sm w-full">Logout</button>
-          </div>
-        `;
-
-        const logoutBtn = document.getElementById('logoutBtn');
-        logoutBtn?.addEventListener('click', async () => {
-          await window.Clerk?.signOut();
-          window.location.href = '/';
-        });
-      } catch (err) {
-        console.error("🚨 Error loading dashboard:", err);
-        dashboardNav.innerHTML = `<p class="text-red-500 text-xs">Failed to load dashboard</p>`;
-      }
-    }
-
-    if (window.Clerk) {
-      const tryLoadDashboard = () => {
-        const user = window.Clerk?.user;
-        if (user) {
-          loadDashboard();
-        }
-      };
-
-      if (window.Clerk.loaded) {
-        tryLoadDashboard();
-      } else {
-        window.addEventListener('clerk:loaded', tryLoadDashboard);
-      }
-
-      if (!window.Clerk?.frontendApi || window.Clerk.frontendApi !== import.meta.env.PUBLIC_CLERK_FRONTEND_API) {
-        console.warn("⚠️ Clerk frontend API mismatch or not initialized. Forcing reload...");
-        const script = document.createElement("script");
-        script.setAttribute("data-clerk-publishable-key", import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
-        script.setAttribute("data-clerk-frontend-api", import.meta.env.PUBLIC_CLERK_FRONTEND_API);
-        script.src = `https://${import.meta.env.PUBLIC_CLERK_FRONTEND_API}/npm/@clerk/clerk-js@latest/dist/clerk.browser.js`;
-        script.async = true;
-        document.body.appendChild(script);
-      }
-      
+    if (email) {
+      logoutLink.classList.remove('hidden');
+      loginLink.classList.add('hidden');
+      if (emailEl) emailEl.textContent = email;
     } else {
-      console.error('🚨 Clerk not initialized.');
+      loginLink.classList.remove('hidden');
+      logoutLink.classList.add('hidden');
     }
 
-    closeBtn?.addEventListener('click', () => {
-      document.getElementById('accountDashboard')?.classList.add('translate-x-full');
-      overlay?.classList.add('hidden');
+    logoutLink?.addEventListener('click', (e) => {
+      e.preventDefault();
+      localStorage.removeItem('userEmail');
+      location.reload();
     });
+
+    const sanityRes = await fetch(`https://${import.meta.env.SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/production?query=${encodeURIComponent(`*[_type == "customer" && email == "${email}"][0]`)}`, {
+      headers: {
+        Authorization: `Bearer ${import.meta.env.SANITY_API_TOKEN}`,
+      },
+    });
+    const sanityData = await sanityRes.json();
+    const customer = sanityData.result;
+
+    if (customer) {
+      dashboard.innerHTML += `<p class="text-xs text-green-400">Customer found in Sanity ✅</p>`;
+    } else {
+      dashboard.innerHTML += `<p class="text-xs text-red-500">No customer record in Sanity ⚠️</p>`;
+    }
   });
 </script>
-
-<!-- ✅ Sidebar structure clean -->
-<div id="accountDashboardOverlay" class="fixed inset-0 z-40 hidden bg-black/70 transition-opacity duration-300 ease-in-out">
-  <div id="accountDashboard" class="fixed right-0 top-0 h-full w-80 bg-black shadow-xl transform transition-all duration-500 ease-in-out translate-x-full">
-    
-    <div id="dashboardNav" class="p-4 space-y-6 text-white">
-      <!-- JS will inject dashboard here -->
-    </div>
-
-    <button id="closeAccountDashboard" class="absolute top-2 right-2 text-white text-2xl">&times;</button>
-
-  </div>
-</div>

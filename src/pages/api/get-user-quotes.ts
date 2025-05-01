@@ -1,17 +1,19 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getAuth } from '@clerk/nextjs/server';
 import { sanityClient } from '@/lib/sanityClient';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const { userId } = getAuth(req);
+    const token = req.headers.authorization?.replace('Bearer ', '');
 
-    if (!userId) {
-      return res.status(401).json({ message: 'Unauthorized' });
+    if (!token) {
+      return res.status(401).json({ message: 'Missing token' });
     }
 
-    // Fetch quotes associated with this userId (stored as clerkId in Sanity)
-    const query = `*[_type == "quote" && clerkId == $userId] | order(_createdAt desc) {
+    // TODO: replace with actual JWT verification logic
+    const userId = 'mock-user-id'; // This should come from verified JWT payload
+
+    // Fetch quotes associated with this userId (stored as customerId in Sanity)
+    const query = `*[_type == "quote" && customerId == $userId] | order(_createdAt desc) {
       _id,
       _createdAt,
       status,
