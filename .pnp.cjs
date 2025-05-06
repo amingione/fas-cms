@@ -67,6 +67,7 @@ const RAW_RUNTIME_STATE =
           ["next-sanity", "virtual:0c95dda208001619af9cda79d813118d9414719f9a1a07dbaf45967565dffba491ead8702b2dd670d9583c456154434ddea4ace420be5532de9525ed58c86a18#npm:9.10.6"],\
           ["postcss", "npm:8.5.3"],\
           ["preact", "npm:10.26.5"],\
+          ["prettier", "npm:3.5.3"],\
           ["react", "npm:19.1.0"],\
           ["react-dom", "virtual:0c95dda208001619af9cda79d813118d9414719f9a1a07dbaf45967565dffba491ead8702b2dd670d9583c456154434ddea4ace420be5532de9525ed58c86a18#npm:19.1.0"],\
           ["react-is", "npm:19.1.0"],\
@@ -11578,6 +11579,7 @@ const RAW_RUNTIME_STATE =
           ["next-sanity", "virtual:0c95dda208001619af9cda79d813118d9414719f9a1a07dbaf45967565dffba491ead8702b2dd670d9583c456154434ddea4ace420be5532de9525ed58c86a18#npm:9.10.6"],\
           ["postcss", "npm:8.5.3"],\
           ["preact", "npm:10.26.5"],\
+          ["prettier", "npm:3.5.3"],\
           ["react", "npm:19.1.0"],\
           ["react-dom", "virtual:0c95dda208001619af9cda79d813118d9414719f9a1a07dbaf45967565dffba491ead8702b2dd670d9583c456154434ddea4ace420be5532de9525ed58c86a18#npm:19.1.0"],\
           ["react-is", "npm:19.1.0"],\
