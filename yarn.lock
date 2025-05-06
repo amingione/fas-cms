@@ -164,7 +164,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/netlify@npm:^6.3.0":
+"@astrojs/netlify@npm:^6.3.2":
   version: 6.3.2
   resolution: "@astrojs/netlify@npm:6.3.2"
   dependencies:
@@ -8759,7 +8759,7 @@ __metadata:
   resolution: "fas-cms@workspace:."
   dependencies:
     "@astrojs/image": "npm:^0.18.0"
-    "@astrojs/netlify": "npm:^6.3.0"
+    "@astrojs/netlify": "npm:^6.3.2"
     "@astrojs/react": "npm:^4.2.4"
     "@astrojs/tailwind": "npm:^6.0.2"
     "@eslint/js": "npm:^9.25.1"
