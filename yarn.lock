@@ -8763,6 +8763,7 @@ __metadata:
     "@astrojs/react": "npm:^4.2.4"
     "@astrojs/tailwind": "npm:^6.0.2"
     "@eslint/js": "npm:^9.25.1"
+    "@netlify/blobs": "npm:^9.0.0"
     "@sanity/asset-utils": "npm:^2.2.1"
     "@sanity/client": "npm:^7.0.0"
     "@sanity/icons": "npm:^3.7.0"

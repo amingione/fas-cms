@@ -33,6 +33,7 @@ const RAW_RUNTIME_STATE =
           ["@astrojs/react", "virtual:0c95dda208001619af9cda79d813118d9414719f9a1a07dbaf45967565dffba491ead8702b2dd670d9583c456154434ddea4ace420be5532de9525ed58c86a18#npm:4.2.7"],\
           ["@astrojs/tailwind", "virtual:0c95dda208001619af9cda79d813118d9414719f9a1a07dbaf45967565dffba491ead8702b2dd670d9583c456154434ddea4ace420be5532de9525ed58c86a18#npm:6.0.2"],\
           ["@eslint/js", "npm:9.26.0"],\
+          ["@netlify/blobs", "npm:9.0.0"],\
           ["@sanity/asset-utils", "npm:2.2.1"],\
           ["@sanity/client", "npm:7.0.0"],\
           ["@sanity/icons", "virtual:0c95dda208001619af9cda79d813118d9414719f9a1a07dbaf45967565dffba491ead8702b2dd670d9583c456154434ddea4ace420be5532de9525ed58c86a18#npm:3.7.0"],\
@@ -11546,6 +11547,7 @@ const RAW_RUNTIME_STATE =
           ["@astrojs/react", "virtual:0c95dda208001619af9cda79d813118d9414719f9a1a07dbaf45967565dffba491ead8702b2dd670d9583c456154434ddea4ace420be5532de9525ed58c86a18#npm:4.2.7"],\
           ["@astrojs/tailwind", "virtual:0c95dda208001619af9cda79d813118d9414719f9a1a07dbaf45967565dffba491ead8702b2dd670d9583c456154434ddea4ace420be5532de9525ed58c86a18#npm:6.0.2"],\
           ["@eslint/js", "npm:9.26.0"],\
+          ["@netlify/blobs", "npm:9.0.0"],\
           ["@sanity/asset-utils", "npm:2.2.1"],\
           ["@sanity/client", "npm:7.0.0"],\
           ["@sanity/icons", "virtual:0c95dda208001619af9cda79d813118d9414719f9a1a07dbaf45967565dffba491ead8702b2dd670d9583c456154434ddea4ace420be5532de9525ed58c86a18#npm:3.7.0"],\
