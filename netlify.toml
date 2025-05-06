@@ -1,5 +1,5 @@
 [build]
-  command = "corepack enable && yarn install && yarn build"
+  command = "yarn install && yarn build"
   publish = "dist"
 
 [build.environment]
