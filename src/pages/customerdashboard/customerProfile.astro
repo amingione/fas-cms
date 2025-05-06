@@ -1,0 +1,99 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { createClient } from '@sanity/client'
+import { useEffect, useState } from 'react'
+
+const client = createClient({
+  projectId: 'r4og35qd',
+  dataset: 'production',
+  useCdn: false,
+  apiVersion: '2023-01-01',
+})
+
+type Customer = {
+  address?: string;
+  billingAddress?: { street?: string };
+  phone?: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  emailOptIn?: boolean;
+  textOptIn?: boolean;
+  marketingOptIn?: boolean;
+};
+
+const [customer, setCustomer] = useState<Customer | null>(null);
+
+useEffect(() => {
+  async function fetchCustomer() {
+    const email = localStorage.getItem('customerEmail')
+    const data = await client.fetch(`*[_type == "customer" && email == $email][0]`, {
+      email,
+    })
+    setCustomer(data)
+  }
+  fetchCustomer()
+}, [])
+---
+
+<BaseLayout>
+  <section class="overflow-hidden profile-section text-white font-cyber p-8">
+    <h1 class="text-center text-4xl text-red-600 font-bold mb-8">PROFILE</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div>
+        <h2 class="text-red-500 text-xl mb-2">ADDRESSES</h2>
+        <div class="mb-4">
+          <label class="block mb-1">SHIPPING</label>
+          <input type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value={customer?.address || ''} />
+        </div>
+        <div class="mb-4">
+          <label class="block mb-1">BILLING</label>
+          <input type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value={customer?.billingAddress?.street || ''} />
+        </div>
+
+        <h2 class="text-red-500 text-xl mb-2">CONTACT INFO</h2>
+        <div class="mb-4">
+          <label class="block mb-1">PHONE</label>
+          <input type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value={customer?.phone || ''} />
+        </div>
+        <div class="mb-4">
+          <label class="block mb-1">EMAIL</label>
+          <input type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value={customer?.email || ''} />
+        </div>
+      </div>
+
+      <div>
+        <h2 class="text-red-500 text-xl mb-2">NAME</h2>
+        <div class="mb-4">
+          <label class="block mb-1">FIRST</label>
+          <input type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value={customer?.firstName || ''} />
+        </div>
+        <div class="mb-4">
+          <label class="block mb-1">LAST</label>
+          <input type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value={customer?.lastName || ''} />
+        </div>
+
+        <h2 class="text-red-500 text-xl mb-2">PREFERENCES</h2>
+        <div class="mb-2">
+          <label>
+            <input type="checkbox" class="mr-2" checked={customer?.emailOptIn} />
+            OPT IN TO F.A.S. EMAIL UPDATES FOR ORDERS
+          </label>
+        </div>
+        <div class="mb-2">
+          <label>
+            <input type="checkbox" class="mr-2" checked={customer?.textOptIn} />
+            OPT IN TO F.A.S. TEXT UPDATES FOR ORDERS
+          </label>
+        </div>
+        <div class="mb-2">
+          <label>
+            <input type="checkbox" class="mr-2" checked={customer?.marketingOptIn} />
+            I WOULD LIKE TO RECEIVE MARKETING EMAILS
+          </label>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

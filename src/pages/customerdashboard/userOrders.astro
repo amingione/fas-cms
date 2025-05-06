@@ -1,0 +1,51 @@
+---
+import cfetch from '../../utils/cfetch';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+type Order = {
+  _id: string;
+  orderNumber: string;
+  orderDate: string;
+  status: string;
+  trackingNumber: string;
+  total: number;
+};
+
+let orders: Order[] = [];
+let error: string | null = null;
+
+try {
+  const res = await cfetch('/api/get-user-order');
+  if (!res.ok) throw new Error(await res.text());
+  orders = await res.json();
+} catch (err) {
+  console.error('Failed to load orders:', err);
+  error = 'Unable to load your orders.';
+}
+---
+<BaseLayout>
+<section class="orders-section mx-auto mt-20 pt-20 text-white p-6">
+  <h1 class="text-3xl font-borg mb-4">Your Orders</h1>
+  {
+    error ? (
+      <p>{error}</p>
+    ) : orders.length > 0 ? (
+      <ul class="space-y-4">
+        {
+          orders.map(order => (
+            <li class="border border-gray-600 p-4 rounded-lg bg-black/40">
+              <div><strong>Order #:</strong> {order.orderNumber}</div>
+              <div><strong>Date:</strong> {new Date(order.orderDate).toLocaleDateString()}</div>
+              <div><strong>Status:</strong> {order.status}</div>
+              <div><strong>Tracking:</strong> {order.trackingNumber}</div>
+              <div><strong>Total:</strong> ${order.total}</div>
+            </li>
+          ))
+        }
+      </ul>
+    ) : (
+      <p>No orders found.</p>
+    )
+  }
+</section>
+</BaseLayout>

@@ -4,14 +4,14 @@ import react from '@astrojs/react';
 import tailwind from '@astrojs/tailwind';
 
 // Bridge env vars for SSR/serverless
-if (!process.env.PUBLIC_SANITY_PROJECT_ID) {
-  process.env.PUBLIC_SANITY_PROJECT_ID = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
+if (!import.meta.env.PUBLIC_SANITY_PROJECT_ID) {
+  import.meta.env.PUBLIC_SANITY_PROJECT_ID = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
 }
-if (!process.env.PUBLIC_SANITY_API_TOKEN) {
-  process.env.PUBLIC_SANITY_API_TOKEN = import.meta.env.PUBLIC_SANITY_API_TOKEN;
+if (!import.meta.env.PUBLIC_SANITY_API_TOKEN) {
+  import.meta.env.PUBLIC_SANITY_API_TOKEN = import.meta.env.PUBLIC_SANITY_API_TOKEN;
 }
-if (!process.env.PUBLIC_SANITY_DATASET) {
-  process.env.PUBLIC_SANITY_DATASET = import.meta.env.PUBLIC_SANITY_DATASET || 'production';
+if (!import.meta.env.PUBLIC_SANITY_DATASET) {
+  import.meta.env.PUBLIC_SANITY_DATASET = import.meta.env.PUBLIC_SANITY_DATASET || 'production';
 }
 
 export default defineConfig({

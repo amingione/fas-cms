@@ -1,0 +1,52 @@
+---
+import { createClient } from '@sanity/client'
+import { useEffect, useState } from 'react'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+
+
+const client = createClient({
+  projectId: 'r4og35qd', // replace this with your Sanity project ID
+  dataset: 'production',
+  useCdn: false,
+  apiVersion: '2023-01-01'
+})
+
+const [quotes, setQuotes] = useState([])
+
+useEffect(() => {
+  async function fetchQuotes() {
+    const email = localStorage.getItem('customerEmail')
+    const data = await client.fetch(`*[_type == "customer" && email == $email][0].quotes`, {
+      email
+    })
+    setQuotes(data || [])
+  }
+
+  fetchQuotes()
+}, [])
+---
+
+<BaseLayout>
+  <section class="text-white p-8 font-captain">
+    <h1 class="text-4xl font-cyber mb-6 text-center">Saved Quotes</h1>
+
+    {
+      quotes.length > 0 ? (
+        <ul class="space-y-4">
+          {
+            quotes.map(quote => (
+              <li class="border border-gray-600 p-4 rounded-lg bg-black/30">
+                <div><strong>Quote ID:</strong> {quote.quoteId}</div>
+                <div><strong>Status:</strong> {quote.status}</div>
+                <div><strong>Requested:</strong> {new Date(quote.dateRequested).toLocaleDateString()}</div>
+                <div><strong>Notes:</strong> {quote.notes}</div>
+              </li>
+            ))
+          }
+        </ul>
+      ) : (
+        <p>No quotes found in your account.</p>
+      )
+    }
+  </section>
+</BaseLayout>

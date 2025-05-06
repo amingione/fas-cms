@@ -1,0 +1,51 @@
+---
+import { createClient } from '@sanity/client'
+import { useEffect, useState } from 'react'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+
+const client = createClient({
+  projectId: 'r4og35qd', // replace this with your actual ID
+  dataset: 'production',
+  useCdn: false,
+  apiVersion: '2023-01-01',
+})
+
+const [invoices, setInvoices] = useState([])
+
+useEffect(() => {
+  async function fetchInvoices() {
+    const email = localStorage.getItem('customerEmail')
+    const data = await client.fetch(`*[_type == "customer" && email == $email][0].invoices`, {
+      email
+    })
+    setInvoices(data || [])
+  }
+
+  fetchInvoices()
+}, [])
+---
+
+<BaseLayout>
+  <section class="text-white p-8 font-captain">
+    <h1 class="text-4xl font-cyber mb-6 text-center">My Invoices</h1>
+
+    {
+      invoices.length > 0 ? (
+        <ul class="space-y-4">
+          {
+            invoices.map(invoice => (
+              <li class="border border-gray-600 p-4 rounded-lg bg-black/30">
+                <div><strong>Invoice #:</strong> {invoice.invoiceNumber}</div>
+                <div><strong>Date:</strong> {new Date(invoice.dateIssued).toLocaleDateString()}</div>
+                <div><strong>Status:</strong> {invoice.status}</div>
+                <div><strong>Total:</strong> ${invoice.amount}</div>
+              </li>
+            ))
+          }
+        </ul>
+      ) : (
+        <p>You don't have any invoices yet.</p>
+      )
+    }
+  </section>
+</BaseLayout>

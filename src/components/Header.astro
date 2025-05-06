@@ -1,13 +1,8 @@
-<!--
-⚠️ DO NOT TOUCH THIS HEADER ⚠️
-Last stable version. Touching will cause death to Amber's career. If you need to make edits, clone this file and work off `HeaderBackup.astro`.
--->
-
 ---
 import AccountDashboard from './accountdashboard.astro';
 ---
 
-<header class="bg-black text-white w-full pt-[40px]">
+<header class="bg-black/80 shadow-xl shadow-outline text-white w-full pt-[40px]">
   
     <!-- Top Red Bar -->
     <div class="fixed top-0 w-full bg-primary text-white text-base font-captain z-50">
@@ -21,7 +16,7 @@ import AccountDashboard from './accountdashboard.astro';
     </div>
   
     <!-- Mobile Header -->
-    <div class="fixed top-[35px] z-40 left-[5px] w-[calc(100%-10px)] flex md:hidden justify-between items-center bg-black bg-opacity-90 text-white px-4 py-3 rounded-[20px] shadow-md">      <img src="/images/faslogochroma.png" alt="FAS Logo" class="h-10" />
+    <div class="fixed top-[35px] mt-3 z-40 left-[5px] w-[calc(100%-10px)] flex md:hidden justify-between items-center bg-black bg-opacity-90 text-white px-4 py-3 rounded-[20px] shadow-md">      <img src="/images/faslogochroma.png" alt="FAS Logo" class="h-10" />
       <button id="mobileMenuToggle" aria-label="Toggle Menu" class="text-white focus:outline-none transition-transform duration-300">
         <svg id="burgerIcon" class="w-6 h-6 transition-all duration-300" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path id="burgerLine1" stroke-linecap="round" stroke-linejoin="round" d="M4 6h16" />
@@ -31,8 +26,8 @@ import AccountDashboard from './accountdashboard.astro';
       </button>
     </div>
   
-    <!-- Mobile Dropdown -->
-    <div id="mobileMenuDropdown" class="md:hidden hidden fixed top-[85px] left-[5px] w-[calc(100%-10px)] bg-[#1a1a1a] text-white font-captain text-sm rounded-lg shadow-lg py-4 px-6 border border-white/10 z-40">
+   <!-- Mobile Dropdown -->
+   <div id="mobileMenuDropdown" class="md:hidden hidden fixed top-[85px] right-0 w-[90%] max-w-[320px] bg-black/80 backdrop-blur-md text-white font-ethno text-sm rounded-lg shadow-lg py-4 px-6 border border-white/10 z-40 transition-all duration-300 opacity-0 translate-y-4">
       <div id="mobileMenuLinks" class="space-y-2">
         <a href="/" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[100ms] hover:text-accent">Home</a>
       <a href="/shop" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[300ms] hover:text-accent">Shop</a>
@@ -153,14 +148,14 @@ import AccountDashboard from './accountdashboard.astro';
   </header>
   
   <script is:inline>
-    document.addEventListener("DOMContentLoaded", function () {
-      const menu = document.getElementById("mobileMenuDropdown");
-      const toggle = document.getElementById("mobileMenuToggle");
-      const line1 = document.getElementById("burgerLine1");
-      const line2 = document.getElementById("burgerLine2");
-      const line3 = document.getElementById("burgerLine3");
-      const links = [...document.querySelectorAll("#mobileMenuLinks a"), ...document.querySelectorAll("#mobileMenuCategories a")];
-      let isOpen = false;
+   document.addEventListener("DOMContentLoaded", function () {
+     const menu = document.getElementById("mobileMenuDropdown");
+     const toggle = document.getElementById("mobileMenuToggle");
+     const line1 = document.getElementById("burgerLine1");
+     const line2 = document.getElementById("burgerLine2");
+     const line3 = document.getElementById("burgerLine3");
+     const links = [...document.querySelectorAll("#mobileMenuLinks a"), ...document.querySelectorAll("#mobileMenuCategories a")];
+     let isOpen = false;
      const dashboardCloseBtn = document.getElementById("closeAccountDashboard");
 
       if (dashboardCloseBtn) {
@@ -172,31 +167,36 @@ import AccountDashboard from './accountdashboard.astro';
   });
 }
 
-      const animateOpen = () => {
-        menu.classList.remove("hidden");
-        setTimeout(() => {
-          links.forEach(link => {
-            link.classList.remove("opacity-0", "translate-y-4");
-            link.classList.add("opacity-100", "translate-y-0");
-          });
-        }, 10);
-        line1.setAttribute("d", "M6 6l12 12");
-        line2.setAttribute("d", "");
-        line3.setAttribute("d", "M6 18l12 -12");
-      };
+     const animateOpen = () => {
+       menu.classList.remove("hidden");
+       menu.classList.add("transition-all", "duration-300");
+       menu.classList.remove("opacity-0", "translate-y-4");
+       menu.classList.add("opacity-100", "translate-y-0");
+       setTimeout(() => {
+         links.forEach(link => {
+           link.classList.remove("opacity-0", "translate-y-4");
+           link.classList.add("opacity-100", "translate-y-0");
+         });
+       }, 10);
+       line1.setAttribute("d", "M6 6l12 12");
+       line2.setAttribute("d", "");
+       line3.setAttribute("d", "M6 18l12 -12");
+     };
 
-      const animateClose = () => {
-        links.forEach(link => {
-          link.classList.add("opacity-0", "translate-y-4");
-          link.classList.remove("opacity-100", "translate-y-0");
-        });
-        setTimeout(() => {
-          menu.classList.add("hidden");
-        }, 600);
-        line1.setAttribute("d", "M4 6h16");
-        line2.setAttribute("d", "M4 12h16");
-        line3.setAttribute("d", "M4 18h16");
-      };
+     const animateClose = () => {
+       links.forEach(link => {
+         link.classList.add("opacity-0", "translate-y-4");
+         link.classList.remove("opacity-100", "translate-y-0");
+       });
+       menu.classList.remove("opacity-100", "translate-y-0");
+       menu.classList.add("opacity-0", "translate-y-4");
+       setTimeout(() => {
+         menu.classList.add("hidden");
+       }, 600);
+       line1.setAttribute("d", "M4 6h16");
+       line2.setAttribute("d", "M4 12h16");
+       line3.setAttribute("d", "M4 18h16");
+     };
   
       const dashboardToggle = document.getElementById("accountDashboardToggle");
       const dashboardPanel = document.getElementById("accountDashboardPanel");
@@ -309,13 +309,14 @@ import AccountDashboard from './accountdashboard.astro';
           });
         }
       }
+  const closeBtn = document.getElementById("closeAccountDashboard");
+  const dashboard = document.getElementById("accountDashboardPanel");
+
   if (closeBtn && dashboard) {
-      closeBtn.addEventListener('click', () => {
-        dashboard.classList.add('hidden');
-      });
-    } else {
-      console.warn('Close button or dashboard not found');
-    }
+    closeBtn.addEventListener('click', () => {
+      dashboard.classList.add('hidden');
+    });
+  }
 
       toggle.addEventListener("click", () => {
         isOpen ? animateClose() : animateOpen();
@@ -345,5 +346,8 @@ import AccountDashboard from './accountdashboard.astro';
   opacity: 1;
   pointer-events: auto;
   transform: translateY(0);
+}
+#mobileMenuDropdown {
+  transition: all 0.3s ease;
 }
   </style>

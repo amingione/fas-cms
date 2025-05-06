@@ -1,76 +1,72 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import BaseLayout from "../layouts/BaseLayout.astro"
 
-const baseURL = import.meta.env.PUBLIC_API_URL || 'https://fasmotorsports.com';
+const url = new URL('https://fasmotorsports.io/api/me');
 
-const customerRes = await fetch(`${baseURL}/api/get-customer-profile`);
-const ordersRes = await fetch(`${baseURL}/api/get-user-orders`);
-const quotesRes = await fetch(`${baseURL}/api/get-user-quotes`);
 
-const customerProfile = customerRes.ok ? await customerRes.json() : null;
-const userOrders = ordersRes.ok ? await ordersRes.json() : null;
-const userQuotes = quotesRes.ok ? await quotesRes.json() : null;
+const response = await fetch(url.toString(), {
+  headers: {
+    ...Astro.request.headers,
+  },
+  credentials: 'include'
+});
+console.log('TOKEN:', Astro.cookies.get('token')?.value);
+console.log('FETCHING:', url.toString());
+
+let data = null;
+let error = null;
+
+if (response.ok) {
+  data = await response.json();
+} 
+if (!response.ok) {
+  console.log('STATUS:', response.status);
+  console.log('RESPONSE BODY:', await response.text());
+} else {
+  error = 'Unable to load account data. Please login.';
+}
 ---
-<style>
-  .gauge-spinner {
-    margin: 20px auto;
-    width: 50px;
-    height: 50px;
-    border: 6px solid lightgray;
-    border-top: 6px solid #dc2626; /* red like a revving RPM */
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-</style>
 
 <BaseLayout>
-  <main class="px-6 py-8 text-white font-captain">
-    <h1 class="text-4xl font-cyber mb-6">My Garage</h1>
+  <main class="flex min-h-screen pt-10 overflow-hidden text-white font-captain">
+    <!-- Mobile nav -->
+    <nav class="sm:hidden w-[100%] h-[250px] bg-black/80 border-b border-white/10 p-4 ml-2 flex-wrap mt-20 pt-20 justify-center gap-4 text-xs font-captain rem-1.2 scroll-smooth">
+      <a href="/customerdashboard/customerProfile" class="hover:text-red-500">My Profile</a>
+      <a href="/customerdashboard/userOrders" class="hover:text-red-500">Orders</a>
+      <a href="/customerdashboard/UserQuotes" class="hover:text-red-500">Quotes</a>
+      <a href="/customerdashboard/userInvoices" class="hover:text-red-500">Invoices</a>
+      <a href="/customerdashboard/userAppointments" class="hover:text-red-500">Appointments</a>
+      <a href="/logout" class="text-red-600 hover:underline">Logout</a>
+    </nav>
+    <!-- Sidebar -->
+    <aside class="hidden sm:block bg-black/70 border-white/10 p-4 sm:p-6 border-b sm:border-b-0 sm:border-r sm:mt-12 sm:pt-10 sm:mb-3 sm:mx-3 sm:w-64 space-y-6 w-full">
+    
+      <p class="uppercase pt-20">Welcome, <span class="text-red-500">{data?.firstName || 'Guest'}</span></p>
+      <nav class="mt-6 pt-5 space-y-3 text-base font-ethno">
+        <a href="/customerdashboard/customerProfile" class="block hover:text-red-500">My Profile</a>
+        <a href="/customerdashboard/userOrders" class="block hover:text-red-500">Orders</a>
+        <a href="/customerdashboard/UserQuotes" class="block hover:text-red-500">Quotes</a>
+        <a href="/customerdashboard/userInvoices" class="block hover:text-red-500">Invoices</a>
+        <a href="/customerdashboard/userAppointments" class="block hover:text-red-500">Appointments</a>
+        <a href="/logout" class="block pt-10 text-red-600 hover:underline mt-4">Logout</a>
+      </nav>
+    </aside>
 
-    <section>
-      <h2 class="text-2xl font-borg mb-4">Service Orders</h2>
-      {userOrders === null ? (
-        <div class="gauge-spinner"></div>
-      ) : userOrders.length > 0 ? (
-        <ul>
-          {userOrders.map(order => (
-            <li>{order.title} - {order.status}</li>
-          ))}
-        </ul>
-      ) : (
-        <p>No service orders yet — time to hit the track!</p>
-      )}
-    </section>
+    <!-- Main panel -->
+    <section class="relative flex-auto content-start mt-10 p-20">
+      <h1 class="text-3xl mr-20 pr-10 font-borg text-primary text-left mb-2">F.a.S.</h1>
+      <h1 class="text-2xl font-ethno text-white pr-10 mr-20 text-left mb-6">Motorsports</h1>
+      <h2 class="text-base pr-12 mr-10 font-cyber-italic text-left mb-6">ACCOUNT DASHBOARD</h2>
 
-    <section>
-      <h2 class="text-2xl font-borg mb-4">Custom Build Quotes</h2>
-      {userQuotes === null ? (
-        <div class="gauge-spinner"></div>
-      ) : userQuotes.length > 0 ? (
-        <ul>
-          {userQuotes.map(quote => (
-            <li>{quote.title} - {quote.status}</li>
-          ))}
-        </ul>
+      {error ? (
+        <p class="text-red-500 text-center">{error}</p>
+      ) : data ? (
+        <div>
+          <!-- Default intro or dynamic content slot -->
+          <p class="text-center text-lg">Welcome to your account dashboard. Use the menu to view your profile, orders, and more.</p>
+        </div>
       ) : (
-        <p>No custom quotes yet — let's start building your dream ride!</p>
-      )}
-    </section>
-
-    <section>
-      <h2 class="text-2xl font-borg mb-4">Driver Profile</h2>
-      {customerProfile === null ? (
         <div class="gauge-spinner"></div>
-      ) : (
-        <>
-          <p class="mb-2">Name: {customerProfile.customer.name}</p>
-          <p class="mb-2">Phone: {customerProfile.customer.phone}</p>
-        </>
       )}
     </section>
   </main>

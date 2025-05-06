@@ -4,10 +4,10 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { createClient } from '@sanity/client';
 
 const client = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
+  projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID!,
+  dataset: import.meta.env.PUBLIC_SANITY_DATASET!,
   apiVersion: '2023-01-01',
-  token: process.env.SANITY_API_TOKEN,
+  token: import.meta.env.SANITY_API_TOKEN,
   useCdn: false
 });
 

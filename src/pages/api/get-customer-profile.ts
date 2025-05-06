@@ -1,29 +1,40 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
+// src/pages/api/get-customer-profile.ts
 import { sanityClient } from '@/lib/sanityClient';
 import jwt from 'jsonwebtoken';
+import type { APIRoute } from 'astro';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const authHeader = req.headers.authorization;
+export const GET: APIRoute = async ({ request }) => {
+  console.log('Incoming request to /api/get-customer-profile', request.headers);
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Unauthorized' });
+  const cookieHeader = request.headers.get('cookie') || '';
+  const token = cookieHeader
+    .split('; ')
+    .find((row) => row.startsWith('token='))
+    ?.split('=')[1];
+
+  if (!token) {
+    return new Response(JSON.stringify({ message: 'Missing token' }), { status: 401 });
   }
 
-  const token = authHeader.split(' ')[1];
+  console.log('Extracted JWT token:', token);
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { _id: string };
+    const decoded = jwt.verify(token, import.meta.env.JWT_SECRET) as { _id: string };
 
     const customer = await sanityClient.fetch(`*[_type == "customer" && _id == $id][0]`, {
       id: decoded._id
     });
 
     if (!customer) {
-      return res.status(404).json({ message: 'Customer not found' });
+      return new Response(JSON.stringify({ message: 'Customer not found' }), { status: 404 });
     }
 
-    return res.status(200).json(customer);
-  } catch {
-    return res.status(401).json({ message: 'Invalid or expired token' });
+    return new Response(JSON.stringify(customer), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (err) {
+    console.error('JWT verification failed:', err);
+    return new Response(JSON.stringify({ message: 'Invalid or expired token' }), { status: 401 });
   }
-}
+};

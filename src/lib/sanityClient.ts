@@ -1,8 +1,8 @@
 import { createClient } from '@sanity/client';
 
-const projectId = import.meta.env.VITE_SANITY_PROJECT_ID;
-const dataset = import.meta.env.VITE_SANITY_DATASET;
-const token = import.meta.env.VITE_SANITY_API_TOKEN;
+const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
+const dataset = import.meta.env.PUBLIC_SANITY_DATASET;
+const token = import.meta.env.PUBLIC_SANITY_API_TOKEN;
 
 if (!projectId || !dataset || !token) {
   throw new Error('Missing required environment variables for Sanity');

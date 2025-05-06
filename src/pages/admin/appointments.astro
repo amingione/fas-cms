@@ -1,0 +1,32 @@
+
+
+---
+import { fetchAppointments } from '../../lib/calcom';
+const appointments = await fetchAppointments();
+---
+
+<html lang="en">
+  <head>
+    <title>Admin Appointments | FAS Motorsports</title>
+  </head>
+  <body class="bg-black text-white p-10 font-cyber">
+    <h1 class="text-3xl mb-6">All Booked Appointments</h1>
+
+    {
+      appointments?.length > 0 ? (
+        <ul class="space-y-4">
+          {appointments.map((appt) => (
+            <li class="border border-white p-4 rounded">
+              <strong>{appt.eventType?.title || 'Appointment'}</strong><br />
+              Customer: {appt.customer.name || appt.customer.email}<br />
+              Time: {new Date(appt.startTime).toLocaleString()}<br />
+              Status: {appt.status}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No appointments found.</p>
+      )
+    }
+  </body>
+</html>

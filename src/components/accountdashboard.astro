@@ -7,7 +7,7 @@
   >
     <p id="userEmail" class="text-xs text-gray-400 mb-2"></p>
     <nav class="flex flex-col space-y-4 font-kwajong font-bold">
-      <a href="/sign-in" id="loginLink" class="mt-10 text-red-500 hover:text-white transition-colors hidden">Login</a>
+      <a href="https://fasmotorsports.io/sign-in" id="loginLink" class="mt-10 text-red-500 hover:text-white transition-colors hidden">Login</a>
       <a href="/logout" id="logoutLink" class="mt-10 text-red-500 hover:text-white transition-colors hidden">Logout</a>
       <a href="/account" class="hover:text-primary font-bold font-kwajong transition-colors">My Account</a>
     </nav>
@@ -33,10 +33,8 @@
   </aside>
 </div>
 <script type="module">
-
   window.addEventListener('DOMContentLoaded', async () => {
     const dashboard = document.getElementById('accountDashboard');
-
     const loginLink = document.getElementById('loginLink');
     const logoutLink = document.getElementById('logoutLink');
     const emailEl = document.getElementById('userEmail');
@@ -57,18 +55,22 @@
       location.reload();
     });
 
-    const sanityRes = await fetch(`https://${import.meta.env.SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/production?query=${encodeURIComponent(`*[_type == "customer" && email == "${email}"][0]`)}`, {
-      headers: {
-        Authorization: `Bearer ${import.meta.env.SANITY_API_TOKEN}`,
-      },
-    });
-    const sanityData = await sanityRes.json();
-    const customer = sanityData.result;
+    try {
+      const res = await fetch('https://fasmotorsports.io/api/me', {
+  credentials: 'include'
+});
+      const user = await res.json();
 
-    if (customer) {
-      dashboard.innerHTML += `<p class="text-xs text-green-400">Customer found in Sanity ✅</p>`;
-    } else {
-      dashboard.innerHTML += `<p class="text-xs text-red-500">No customer record in Sanity ⚠️</p>`;
+      if (user && user._type === 'customer') {
+        dashboard.innerHTML += `<p class="text-xs text-green-400">Customer found in Sanity ✅</p>`;
+      } else if (user && user._type === 'vendor') {
+        dashboard.innerHTML += `<p class="text-xs text-blue-400">Vendor found in Sanity ✅</p>`;
+      } else {
+        dashboard.innerHTML += `<p class="text-xs text-red-500">No matching user record in Sanity ⚠️</p>`;
+      }
+    } catch (err) {
+      console.error('Failed to fetch user data:', err);
+      dashboard.innerHTML += `<p class="text-xs text-red-500">Unable to verify user status ⚠️</p>`;
     }
   });
 </script>

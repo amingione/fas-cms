@@ -1,7 +1,7 @@
 import Stripe from 'stripe';
 import { z } from 'zod';
 
-const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+const stripeClient = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-04-30.basil'
 });
 
@@ -42,8 +42,8 @@ export const POST = async ({ request }: { request: Request }) => {
       expand: ['customer_details']
     });
 
-    const projectId = process.env.SANITY_PROJECT_ID;
-    const token = process.env.SANITY_API_TOKEN;
+    const projectId = import.meta.env.SANITY_PROJECT_ID;
+    const token = import.meta.env.SANITY_API_TOKEN;
 
     if (!projectId || !token) {
       return new Response(JSON.stringify({ error: 'Missing Sanity project ID or API token' }), {
