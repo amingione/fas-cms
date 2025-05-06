@@ -108,23 +108,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/image@npm:^0.18.0":
-  version: 0.18.0
-  resolution: "@astrojs/image@npm:0.18.0"
+"@astrojs/image@npm:0.17.0":
+  version: 0.17.0
+  resolution: "@astrojs/image@npm:0.17.0"
   dependencies:
     "@altano/tiny-async-pool": "npm:^1.0.2"
-    http-cache-semantics: "npm:^4.1.1"
+    http-cache-semantics: "npm:^4.1.0"
     image-size: "npm:^1.0.2"
     kleur: "npm:^4.1.5"
-    magic-string: "npm:^0.30.2"
+    magic-string: "npm:^0.27.0"
     mime: "npm:^3.0.0"
   peerDependencies:
-    astro: ^2.10.15
+    astro: ^2.6.0
     sharp: ">=0.31.0"
   peerDependenciesMeta:
     sharp:
       optional: true
-  checksum: 10c0/aa3bb4b7e31bc712df12f17059f2b6e65d0975b3877e2f3501a79636b80dc5b0859bbc65a6663b29c1fd2bbe56b144c20dbb020577381c9c998713f15b35565e
+  checksum: 10c0/6bb2983fa62e9369eaeefa9b3783633316834af323723f2959a40cf6055694750610411a6d3fe77aaa9838a00f763f3c5a4cac5fb6860ba1c494c62aabcb897d
   languageName: node
   linkType: hard
 
@@ -164,9 +164,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/netlify@npm:^6.3.2":
-  version: 6.3.2
-  resolution: "@astrojs/netlify@npm:6.3.2"
+"@astrojs/netlify@npm:6.3.1":
+  version: 6.3.1
+  resolution: "@astrojs/netlify@npm:6.3.1"
   dependencies:
     "@astrojs/internal-helpers": "npm:0.6.1"
     "@astrojs/underscore-redirects": "npm:0.6.1"
@@ -175,10 +175,10 @@ __metadata:
     "@vercel/nft": "npm:^0.29.2"
     esbuild: "npm:^0.25.0"
     tinyglobby: "npm:^0.2.12"
-    vite: "npm:^6.3.4"
+    vite: "npm:^6.2.6"
   peerDependencies:
     astro: ^5.3.0
-  checksum: 10c0/ebf9f2fd834b3bb73207dbdee20d60334423f3b1c05cb7d4ccf74074c85e43a88cd8522f9ea9d451d3592a96f97d202ac773185ddb7c94329ce306562a8fab7c
+  checksum: 10c0/a8bbbdcf1c4353a3fc1aa60d06d997f3c0effa01fe8fa9930f67e40672dbbb74e3e187f92e2b6da302ac2c170bf03616999080c173f2c0cac203e5b7fd1ba7a1
   languageName: node
   linkType: hard
 
@@ -207,9 +207,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/tailwind@npm:^6.0.2":
-  version: 6.0.2
-  resolution: "@astrojs/tailwind@npm:6.0.2"
+"@astrojs/tailwind@npm:6.0.1":
+  version: 6.0.1
+  resolution: "@astrojs/tailwind@npm:6.0.1"
   dependencies:
     autoprefixer: "npm:^10.4.21"
     postcss: "npm:^8.5.3"
@@ -217,7 +217,7 @@ __metadata:
   peerDependencies:
     astro: ^3.0.0 || ^4.0.0 || ^5.0.0
     tailwindcss: ^3.0.24
-  checksum: 10c0/6dca55a6f89db3ebd4b4de10ba437568000f7a04e568e746b6aa00c1b0db8219a6b2b1f5999aa2dd435aae71028401f57e5c087b08a22e007b5e0d32ee7c128d
+  checksum: 10c0/10ce8d0a6659b316d457aa6998686963afea9c92928cfca953438889d70dd4b70d09c7991be3cda92ccdccce8262ea3e860c2f1d3cc1beb78eca887e966d5395
   languageName: node
   linkType: hard
 
@@ -2971,7 +2971,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jridgewell/sourcemap-codec@npm:^1.4.10, @jridgewell/sourcemap-codec@npm:^1.4.14, @jridgewell/sourcemap-codec@npm:^1.5.0":
+"@jridgewell/sourcemap-codec@npm:^1.4.10, @jridgewell/sourcemap-codec@npm:^1.4.13, @jridgewell/sourcemap-codec@npm:^1.4.14, @jridgewell/sourcemap-codec@npm:^1.5.0":
   version: 1.5.0
   resolution: "@jridgewell/sourcemap-codec@npm:1.5.0"
   checksum: 10c0/2eb864f276eb1096c3c11da3e9bb518f6d9fc0023c78344cdc037abadc725172c70314bdb360f2d4b7bffec7f5d657ce006816bc5d4ecb35e61b66132db00c18
@@ -8758,10 +8758,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "fas-cms@workspace:."
   dependencies:
-    "@astrojs/image": "npm:^0.18.0"
-    "@astrojs/netlify": "npm:^6.3.2"
+    "@astrojs/image": "npm:0.17.0"
+    "@astrojs/netlify": "npm:6.3.1"
     "@astrojs/react": "npm:^4.2.4"
-    "@astrojs/tailwind": "npm:^6.0.2"
+    "@astrojs/tailwind": "npm:6.0.1"
     "@eslint/js": "npm:^9.25.1"
     "@netlify/blobs": "npm:^9.0.0"
     "@sanity/asset-utils": "npm:^2.2.1"
@@ -10066,7 +10066,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"http-cache-semantics@npm:^4.1.1":
+"http-cache-semantics@npm:^4.1.0, http-cache-semantics@npm:^4.1.1":
   version: 4.1.1
   resolution: "http-cache-semantics@npm:4.1.1"
   checksum: 10c0/ce1319b8a382eb3cbb4a37c19f6bfe14e5bb5be3d09079e885e8c513ab2d3cd9214902f8a31c9dc4e37022633ceabfc2d697405deeaf1b8f3552bb4ed996fdfc
@@ -11607,7 +11607,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"magic-string@npm:^0.30.17, magic-string@npm:^0.30.2":
+"magic-string@npm:^0.27.0":
+  version: 0.27.0
+  resolution: "magic-string@npm:0.27.0"
+  dependencies:
+    "@jridgewell/sourcemap-codec": "npm:^1.4.13"
+  checksum: 10c0/cddacfea14441ca57ae8a307bc3cf90bac69efaa4138dd9a80804cffc2759bf06f32da3a293fb13eaa96334b7d45b7768a34f1d226afae25d2f05b05a3bb37d8
+  languageName: node
+  linkType: hard
+
+"magic-string@npm:^0.30.17":
   version: 0.30.17
   resolution: "magic-string@npm:0.30.17"
   dependencies:
@@ -18027,7 +18036,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^6.0.11, vite@npm:^6.3.4, vite@npm:^6.3.5":
+"vite@npm:^6.0.11, vite@npm:^6.2.6, vite@npm:^6.3.4, vite@npm:^6.3.5":
   version: 6.3.5
   resolution: "vite@npm:6.3.5"
   dependencies:
