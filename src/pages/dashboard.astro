@@ -3,27 +3,28 @@ import BaseLayout from "../layouts/BaseLayout.astro"
 
 const url = new URL('https://fasmotorsports.io/api/me');
 
-
-const response = await fetch(url.toString(), {
-  headers: {
-    ...Astro.request.headers,
-  },
-  credentials: 'include'
-});
-console.log('TOKEN:', Astro.cookies.get('token')?.value);
-console.log('FETCHING:', url.toString());
-
 let data = null;
 let error = null;
 
-if (response.ok) {
-  data = await response.json();
-} 
-if (!response.ok) {
-  console.log('STATUS:', response.status);
-  console.log('RESPONSE BODY:', await response.text());
-} else {
-  error = 'Unable to load account data. Please login.';
+try {
+  const response = await fetch(url.toString(), {
+    method: 'GET',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    console.error('STATUS:', response.status);
+    console.error('RESPONSE BODY:', await response.text());
+    error = 'Unable to load account data. Please login.';
+  } else {
+    data = await response.json();
+  }
+} catch (err) {
+  console.error('Fetch error:', err);
+  error = 'Something went wrong fetching your data.';
 }
 ---
 
