@@ -25,3 +25,15 @@ pnpm-debug.log*
 # Netlify build output
 .netlify/
 sandbox/**
+build/
+
+# Node modules & Yarn files
+node_modules/
+.pnp.*
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.yarnrc.yml
+yarn.lock
