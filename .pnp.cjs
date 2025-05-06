@@ -81,7 +81,8 @@ const RAW_RUNTIME_STATE =
           ["typescript", "patch:typescript@npm%3A5.8.3#optional!builtin<compat/typescript>::version=5.8.3&hash=5786d5"],\
           ["typescript-eslint", "virtual:0c95dda208001619af9cda79d813118d9414719f9a1a07dbaf45967565dffba491ead8702b2dd670d9583c456154434ddea4ace420be5532de9525ed58c86a18#npm:8.32.0"],\
           ["vite", "virtual:0c95dda208001619af9cda79d813118d9414719f9a1a07dbaf45967565dffba491ead8702b2dd670d9583c456154434ddea4ace420be5532de9525ed58c86a18#npm:6.3.5"],\
-          ["yarn", "npm:1.22.22"]\
+          ["yarn", "npm:1.22.22"],\
+          ["zod", "npm:3.24.4"]\
         ],\
         "linkType": "SOFT"\
       }]\
@@ -11593,7 +11594,8 @@ const RAW_RUNTIME_STATE =
           ["typescript", "patch:typescript@npm%3A5.8.3#optional!builtin<compat/typescript>::version=5.8.3&hash=5786d5"],\
           ["typescript-eslint", "virtual:0c95dda208001619af9cda79d813118d9414719f9a1a07dbaf45967565dffba491ead8702b2dd670d9583c456154434ddea4ace420be5532de9525ed58c86a18#npm:8.32.0"],\
           ["vite", "virtual:0c95dda208001619af9cda79d813118d9414719f9a1a07dbaf45967565dffba491ead8702b2dd670d9583c456154434ddea4ace420be5532de9525ed58c86a18#npm:6.3.5"],\
-          ["yarn", "npm:1.22.22"]\
+          ["yarn", "npm:1.22.22"],\
+          ["zod", "npm:3.24.4"]\
         ],\
         "linkType": "SOFT"\
       }]\
