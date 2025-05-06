@@ -7,7 +7,7 @@ interface AvailabilityData {
   timezone?: string;
 }
 
-const CALCOM_API_SECRET = import.meta.env.CALCOM_API_SECRET;
+const CALCOM_API_KEY = process.env.CALCOM_API_KEY;
 const cache = new Map<string, AvailabilityData>();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -30,7 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   // Optional token-based auth
-  if (CALCOM_API_SECRET && token !== CALCOM_API_SECRET) {
+  if (CALCOM_API_KEY && token !== CALCOM_API_KEY) {
     return res.status(403).json({
       status: 'error',
       message: 'Unauthorized. Invalid API token.'
