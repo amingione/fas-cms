@@ -15,7 +15,7 @@
     ]
   },
   "devDependencies": {
-    "@eslint/js": "^9.25.1",
+    "@eslint/js": "^9.26.0",
     "@types/add": "^2",
     "@types/jsonwebtoken": "^9",
     "@types/next": "^9.0.0",
@@ -41,10 +41,10 @@
     "yarn": "^1.22.22"
   },
   "dependencies": {
-    "@astrojs/image": "0.17.0",
-    "@astrojs/netlify": "6.3.1",
-    "@astrojs/react": "^4.2.4",
-    "@astrojs/tailwind": "6.0.1",
+    "@astrojs/image": "0.18.0",
+    "@astrojs/netlify": "6.3.2",
+    "@astrojs/react": "^4.2.7",
+    "@astrojs/tailwind": "6.0.2",
     "@netlify/blobs": "^9.0.0",
     "@sanity/asset-utils": "^2.2.1",
     "@sanity/client": "^7.0.0",
