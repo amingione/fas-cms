@@ -92,7 +92,7 @@
   src:
     url('/fonts/CyberPrincess3D-Regular.woff2') format('woff2'),
     url('/fonts/CyberPrincess3D-Regular.woff') format('woff'),
-    url('/fonts/CyberPrincess3D.ttf') format('truetype');
+    url('/fonts/CyberPrincess3D-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -114,7 +114,7 @@
   src:
     url('/fonts/CyberPrincess3DFilled-Regular.woff2') format('woff2'),
     url('/fonts/CyberPrincess3DFilled-Regular.woff') format('woff'),
-    url('/fonts/CyberPrincess3DFilled.ttf') format('truetype');
+    url('/fonts/CyberPrincess3DFilled-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
