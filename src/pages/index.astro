@@ -4,11 +4,27 @@ import Button from '../components/Button.astro';
 import SplinePortingShowcase from '../components/SplinePortingShowcase.jsx';
 ---
 
+<style>
+html, body {
+  overflow-x: hidden;
+}
+
+#carousel-track {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+}
+
+.carousel-slide {
+  min-width: 100%;
+  box-sizing: border-box;
+}
+</style>
+
 <BaseLayout>
 
 <!-- HERO -->
 <section class="relative bg-black/20">
-  <img src="/images/hp-herofas.png" alt="FAS Hero TRX" class="relative inset-0 w-full h-auto max-w-full object-cover object-top md:object-center z-0" />
+  <img src="/images/hp-herofas.png" alt="FAS Hero TRX" class="w-full h-auto object-cover object-top md:object-center overflow-hidden" />
 </section>
 
 <!-- NO TUNE PULLEY CTA -->
@@ -17,7 +33,7 @@ import SplinePortingShowcase from '../components/SplinePortingShowcase.jsx';
     <div class="relative w-full overflow-x-hidden px-6 md:px-12" id="pulley-carousel">
       <div class="flex transition-transform duration-700 ease-in-out w-full" style="transform: translateX(0%)" id="carousel-track">
         <!-- Slide 1 -->
-        <div class="w-full flex-shrink-0 flex flex-col-reverse md:flex-row justify-between items-center gap-10 max-w-6xl mx-auto px-4 md:px-0 animate-fade-in-up opacity-0 transform translate-y-10">
+        <div class="carousel-slide w-full flex-shrink-0 flex flex-col-reverse md:flex-row justify-between items-center gap-10 max-w-6xl mx-auto px-4 md:px-0 animate-fade-in-up opacity-0 transform translate-y-10">
           <div class="text-center md:text-left w-full">
             <h2 class="font-cyber text-lg tracking-widest text-gray-400">F.A.S. PREDATOR PULLEY</h2>
             <h3 class="text-4xl md:text-5xl text-accent font-borg mt-2 mb-2">NO TUNE REQUIRED.</h3>
@@ -28,7 +44,7 @@ import SplinePortingShowcase from '../components/SplinePortingShowcase.jsx';
         </div>
 
         <!-- Slide 2 -->
-        <div class="w-full flex-shrink-0 flex flex-col-reverse md:flex-row justify-between items-center gap-10 max-w-6xl mx-auto px-4 md:px-0 animate-fade-in-up opacity-0 transform translate-y-10">
+        <div class="carousel-slide w-full flex-shrink-0 flex flex-col-reverse md:flex-row justify-between items-center gap-10 max-w-6xl mx-auto px-4 md:px-0 animate-fade-in-up opacity-0 transform translate-y-10">
           <div class="text-center md:text-left w-full">
             <h2 class="font-cyber text-lg tracking-widest text-gray-400">HELLCAT SNOUT PORTING</h2>
             <h3 class="text-4xl md:text-5xl text-accent font-borg mt-2 mb-2">PRECISION MATCHED FLOW</h3>
@@ -39,7 +55,7 @@ import SplinePortingShowcase from '../components/SplinePortingShowcase.jsx';
         </div>
 
         <!-- Slide 3 -->
-        <div class="w-full flex-shrink-0 flex flex-col-reverse md:flex-row justify-between items-center gap-10 max-w-6xl mx-auto px-4 md:px-0 animate-fade-in-up opacity-0 transform translate-y-10">
+        <div class="carousel-slide w-full flex-shrink-0 flex flex-col-reverse md:flex-row justify-between items-center gap-10 max-w-6xl mx-auto px-4 md:px-0 animate-fade-in-up opacity-0 transform translate-y-10">
           <div class="text-center md:text-left w-full">
             <h2 class="font-cyber text-lg tracking-widest text-gray-400">F.A.S. 3.0L Whipple</h2>
             <h3 class="text-4xl md:text-5xl text-accent font-borg mt-2 mb-2">Precision Porting </h3>
@@ -53,31 +69,28 @@ import SplinePortingShowcase from '../components/SplinePortingShowcase.jsx';
 </section>
 
 <!-- 3D Porting Showcase Section -->
-<SplinePortingShowcase client:load />
+<div class="overflow-hidden">
+  <SplinePortingShowcase client:load />
+</div>
 
 <script is:inline>
-  let index = 0;
-  const track = document.getElementById('carousel-track');
-  const slides = track.children;
-  const total = slides.length;
+  document.addEventListener("DOMContentLoaded", () => {
+    let index = 0;
+    const track = document.getElementById('carousel-track');
+    const slides = document.querySelectorAll('.carousel-slide');
+    const total = slides.length;
 
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        [...slides].forEach(slide => slide.classList.remove('opacity-100', 'translate-y-0'));
-        slides[index].classList.add('opacity-100', 'translate-y-0');
-      }
+    // Set initial state
+    slides.forEach((slide, idx) => {
+      slide.style.transform = `translateX(${idx * 100}%)`;
     });
-  }, { threshold: 0.5 });
 
-  observer.observe(track);
-
-  setInterval(() => {
-    index = (index + 1) % total;
-    track.style.transform = `translateX(-${index * 100}%)`;
-    [...slides].forEach(slide => slide.classList.remove('opacity-100', 'translate-y-0'));
-    slides[index].classList.add('opacity-100', 'translate-y-0');
-  }, 5000);
+    // Auto-slide every 5 seconds
+    setInterval(() => {
+      index = (index + 1) % total;
+      track.style.transform = `translateX(-${index * 100}%)`;
+    }, 5000);
+  });
 </script>
 
 <style>
@@ -98,7 +111,7 @@ import SplinePortingShowcase from '../components/SplinePortingShowcase.jsx';
 
 
 <!-- FEATURED PRODUCTS -->
-<section class="bg-transparent py-20 text-white px-4 sm:px-0">
+<section class="bg-transparent py-20 text-white px-4 sm:px-0 overflow-hidden">
   <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 px-6 text-center">
     <div class="bg-black/50 backdrop-blur-lg rounded-xl p-8 shadow-md border border-black/10">
       <img src="/images/fas pred pully HP{ copy.png" class="mx-auto h-40 object-contain" />
@@ -122,7 +135,7 @@ import SplinePortingShowcase from '../components/SplinePortingShowcase.jsx';
   <div class="flex justify-center gap-2 mb-10">
     <img src="/images/fas predator icon border copy.png" class="h-6" />
   </div>
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 px-6">
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 px-6 overflow-hidden">
     <div class="bg-black/50 backdrop-blur-lg p-4 rounded-lg shadow">
       <img src="/images/fas-1x-2.png" class="h-28 mx-auto" />
       <p class="mt-3 font-cyber text-sm">F.A.S. 1100 Package </p><br>
@@ -151,23 +164,31 @@ import SplinePortingShowcase from '../components/SplinePortingShowcase.jsx';
 </section>
 
 <!-- TRUCK CTA -->
-<section class="relative bg-cover bg-bottom py-32 md:py-40 min-h-[600px] md:min-h-[700px] flex flex-col justify-center items-center text-center text-white" style="background-image: url('/images/TRX Truck Package FAS copy.png')">
+<section class="relative bg-black text-white text-center py-10 md:py-16 overflow-hidden">
   <div class="absolute inset-0 bg-black/40 z-0"></div>
   <div class="relative z-10">
-    <h2 class="text-3xl text-primary md:text-4xl font-ethno">TRUCK PACKAGES <span class="text-white">RAM TRX</span></h2>
-    <p class="mt-3 text-red font-cyber text-md">From mild to wild – our custom packages are built to dominate.</p><br>
-    <Button href="/power-packages" text="Shop Packages" variant="default" class="mt-6" />
+    <h2 class="text-3xl text-primary md:text-4xl font-ethno mb-2">TRUCK PACKAGES <span class="text-white">RAM TRX</span></h2>
+    <p class="text-red font-cyber text-md mb-2">From mild to wild – our custom packages are built to dominate.</p>
+    
+    <div class="flex items-center justify-center relative z-10 mt-4">
+      <img src="/images/TRX Truck Package FAS copy.png" class="mx-auto max-w-4xl" alt="TRX Truck Package" />
+    </div>
+
+    <Button href="/power-packages" text="Shop Packages" variant="default" class="mt-4 z-10" />
   </div>
+
+  <!-- Background Image Overlay -->
+  <img src="/images/ram-trx-background.webp" class="absolute inset-0 object-cover w-full h-full opacity-20 z-0" alt="RAM TRX Background" />
 </section>
 
 <!-- IGLA INSTALLER CTA -->
-<section class="bg-black/50 backdrop-blur-lg text-white text-center py-20 px-4" style="background-image: url('/images/igla-page-trackhwak.webp')">
+<section class="bg-black text-white text-center py-20 px-4 overflow-hidden">
   <h3 class="font-ethno text-lg text-accent mb-2">#1 IGLA INSTALLER IN SWFL</h3>
   <p class="font-cyber text-xl font-bold text-white mb-8">CERTIFIED IGLA INSTALLERS</p>
 
   <div class="flex flex-col items-center justify-center">
-    <img src="/images/IGLA-Category-Image.webp" class="mx-auto mt-6 mb-8 max-w-lg" />
-    <Button href="/igla" text="Learn More About IGLA" class="mt-4" />
+    <img src="/images/igla-page-trackhwak.webp" class="mx-auto mt-6 mb-5 max-w-lg" alt="IGLA Installation" />
+    <Button href="/igla" text="Learn More About IGLA" class="mt-2" />
   </div>
 </section>
 
