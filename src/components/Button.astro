@@ -33,7 +33,7 @@ const { href = "#", text = "Button", variant = "default", rounded = false } = As
     <span class="absolute inset-0 bg-primary transform translate-x-full group-hover:translate-x-0 transition-transform duration-300 z-0"></span>
   </a>
 ) : variant === "swipe-v2" ? (
-  <a href={href} class={`relative group inline-block px-6 py-2 text-white text-base bg-black border border-white uppercase tracking-wider font-ethno overflow-hidden transition-all duration-300 shadow-md hover:scale-105 ${rounded ? 'rounded-full' : ''}`}>
+  <a href={href} class={`relative group inline-block px-4 py-1.5 text-white text-base bg-black border border-white uppercase tracking-wider font-ethno overflow-hidden transition-all duration-300 shadow-md hover:scale-105 ${rounded ? 'rounded-full' : ''} whitespace-nowrap`}>
     <span class="relative z-10 flex items-center justify-center gap-4 group-hover:text-white transition-colors duration-300">
       {text}
       <svg class="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
