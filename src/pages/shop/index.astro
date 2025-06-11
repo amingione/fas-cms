@@ -98,6 +98,8 @@ if (endPage < totalPages) {
   <script type="module" is:inline>
     document.addEventListener("filterChange", (e) => {
       const filters = e.detail;
+      console.log("🛠️ filterChange event detail:", filters);
+      // filters.category should be the expected slug value sent via URL query
       const url = new URL(window.location.href);
 
       if (filters.category) {

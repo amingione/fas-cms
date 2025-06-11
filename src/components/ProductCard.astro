@@ -8,37 +8,41 @@ const productPrice =
 const imageUrl = productImage?.asset?.url || '/placeholder.png';
 ---
 
-<a
-  href={`/shop/${encodeURIComponent(typeof product.slug === 'string' ? product.slug : product.slug.current || '')}`}
-  class="relative z-0 text-white bg-black/10 rounded-[10px] shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.5)] overflow-hidden transform transition-all duration-500 group font-sans block"
->
-  <div class="p-4 h-52 sm:h-64 flex justify-center items-center overflow-hidden">
-    <img
-      src={imageUrl}
-      alt={product.title}
-      class="w-full h-full object-contain transition-transform duration-300 ease-in-out group-hover:scale-105 group-hover:-rotate-1"
-    />
-  </div>
-  <div class="p-4 space-y-2 text-center">
-    <div class="mt-4 px-4 text-left">
-      <h2 class="text-sm sm:text-sm font-ethno font-semibold text-white">{product.title}</h2>
-      <div class="flex justify-between items-center mt-2">
-        <p class="text-xl font-captain text-primary">{productPrice}</p>
-        {product._id && (
-          <button
-            class="add-to-cart bg-white text-black px-4 py-2 font-ethno hover:bg-primary transition rounded-none text-xs sm:text-sm"
-            data-product-id={product._id}
-            data-product-name={product.title}
-            data-product-price={product.price}
-            data-product-categories={JSON.stringify((product.categories || []).filter(Boolean).map(c => c._ref || c._id || ''))}
-          >
-            Add to Cart
-          </button>
-        )}
+<div class="relative z-0 text-white bg-black/10 rounded-[10px] shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.5)] overflow-hidden transform transition-all duration-500 group font-sans block">
+  <a
+    href={`/shop/${encodeURIComponent(typeof product.slug === 'string' ? product.slug : product.slug.current || '')}`}
+    class="block"
+  >
+    <div class="p-4 h-52 sm:h-64 flex justify-center items-center overflow-hidden">
+      <img
+        src={imageUrl}
+        alt={product.title}
+        class="w-full h-full object-contain transition-transform duration-300 ease-in-out group-hover:scale-105 group-hover:-rotate-1"
+      />
+    </div>
+    <div class="p-4 space-y-2 text-center">
+      <div class="mt-4 px-4 text-left">
+        <h2 class="text-sm sm:text-sm font-ethno font-semibold text-white">{product.title}</h2>
       </div>
     </div>
+  </a>
+  <div class="px-4 pb-4 text-left">
+    <div class="flex justify-between items-center mt-2">
+      <p class="text-xl font-captain text-primary">{productPrice}</p>
+      {product._id && (
+        <button
+          class="add-to-cart bg-white text-black px-4 py-2 font-ethno hover:bg-primary transition rounded-none text-xs sm:text-sm"
+          data-product-id={product._id}
+          data-product-name={product.title}
+          data-product-price={product.price}
+          data-product-categories={JSON.stringify((product.categories || []).filter(Boolean).map(c => c._ref || c._id || ''))}
+        >
+          Add to Cart
+        </button>
+      )}
+    </div>
   </div>
-</a>
+</div>
 
 <div id="product-toast" class="fixed top-20 right-6 z-50 hidden px-4 py-3 backdrop-blur bg-white/10 text-white font-bold shadow-lg transition-all duration-300"></div>
 
@@ -59,7 +63,7 @@ const imageUrl = productImage?.asset?.url || '/placeholder.png';
     }, 2500);
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  function bindCartButtons() {
     document.querySelectorAll('.add-to-cart').forEach((btn) => {
       btn.addEventListener('click', () => {
         const productId = btn.getAttribute('data-product-id');
@@ -88,5 +92,8 @@ const imageUrl = productImage?.asset?.url || '/placeholder.png';
         window.dispatchEvent(new Event('cart-updated'));
       });
     });
-  });
+  }
+
+  document.addEventListener('astro:after-swap', bindCartButtons);
+  document.addEventListener('DOMContentLoaded', bindCartButtons);
 </script>

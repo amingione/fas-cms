@@ -8,6 +8,7 @@ export const GET: APIRoute = async () => {
   const url = `https://${projectId}.api.sanity.io/v2023-06-07/data/query/${dataset}?query=${encodeURIComponent(categoryQuery)}`;
 
   try {
+    console.log('Sanity URL:', url);
     const res = await fetch(url);
     const data = await res.json();
     return new Response(JSON.stringify(data.result), {

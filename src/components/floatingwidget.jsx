@@ -82,9 +82,21 @@ export default function FloatingCartWidget() {
               >
                 <div>
                   <p className="text-sm font-semibold">{item.name}</p>
-                  <p className="text-xs text-gray-400">
-                    {item.quantity}x • ${item.price.toFixed(2)}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      min="1"
+                      value={item.quantity}
+                      onChange={(e) => {
+                        const newQty = Math.max(1, parseInt(e.target.value) || 1);
+                        setCartItems((prev) =>
+                          prev.map((ci) => (ci.id === item.id ? { ...ci, quantity: newQty } : ci))
+                        );
+                      }}
+                      className="w-12 text-sm text-black px-1 rounded"
+                    />
+                    <span className="text-xs text-gray-400">• ${item.price.toFixed(2)}</span>
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-bold">${(item.quantity * item.price).toFixed(2)}</p>
@@ -119,18 +131,36 @@ export default function FloatingCartWidget() {
               }
 
               try {
+                console.log('Sending cart to checkout:', cart);
                 const res = await fetch('/api/checkout', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ cart })
                 });
 
-                const data = await res.json();
+                console.log('Checkout fetch status:', res.status);
+
+                if (!res.ok) {
+                  console.error('Non-OK HTTP status:', res.status);
+                  alert('Checkout failed. Please try again.');
+                  return;
+                }
+
+                let data;
+                try {
+                  data = await res.json();
+                } catch (jsonErr) {
+                  console.error('Failed to parse JSON:', jsonErr);
+                  alert('Invalid response from server.');
+                  return;
+                }
+
+                console.log('Checkout response:', data);
 
                 if (data.url) {
                   window.location.href = data.url;
                 } else {
-                  console.error('Checkout failed response:', data);
+                  console.error('Missing redirect URL in response:', data);
                   alert('Unable to proceed to checkout. Please try again later.');
                 }
               } catch (err) {

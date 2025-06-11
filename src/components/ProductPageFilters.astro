@@ -82,6 +82,7 @@ document.getElementById('reset-filters').addEventListener('click', () => {
 });
 
 function dispatchFilterChange() {
+  console.log('Dispatching filterChange with:', filterState);
   const event = new CustomEvent('filterChange', { detail: filterState });
   document.dispatchEvent(event);
 }
