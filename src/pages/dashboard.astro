@@ -1,31 +1,5 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro"
-
-const url = new URL('https://fasmotorsports.io/api/me');
-
-let data = null;
-let error = null;
-
-try {
-  const response = await fetch(url.toString(), {
-    method: 'GET',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  if (!response.ok) {
-    console.error('STATUS:', response.status);
-    console.error('RESPONSE BODY:', await response.text());
-    error = 'Unable to load account data. Please login.';
-  } else {
-    data = await response.json();
-  }
-} catch (err) {
-  console.error('Fetch error:', err);
-  error = 'Something went wrong fetching your data.';
-}
 ---
 
 <BaseLayout>
@@ -42,7 +16,7 @@ try {
     <!-- Sidebar -->
     <aside class="hidden sm:block bg-black/70 border-white/10 p-4 sm:p-6 border-b sm:border-b-0 sm:border-r sm:mt-12 sm:pt-10 sm:mb-3 sm:mx-3 sm:w-64 space-y-6 w-full">
     
-      <p class="uppercase pt-20">Welcome, <span class="text-red-500">{data?.firstName || 'Guest'}</span></p>
+      <p class="uppercase pt-20">Welcome, <span class="text-red-500">Guest</span></p>
       <nav class="mt-6 pt-5 space-y-3 text-base font-ethno">
         <a href="/customerdashboard/customerProfile" class="block hover:text-red-500">My Profile</a>
         <a href="/customerdashboard/userOrders" class="block hover:text-red-500">Orders</a>
@@ -59,16 +33,7 @@ try {
       <h1 class="text-2xl font-ethno text-white pr-10 mr-20 text-left mb-6">Motorsports</h1>
       <h2 class="text-base pr-12 mr-10 font-cyber-italic text-left mb-6">ACCOUNT DASHBOARD</h2>
 
-      {error ? (
-        <p class="text-red-500 text-center">{error}</p>
-      ) : data ? (
-        <div>
-          <!-- Default intro or dynamic content slot -->
-          <p class="text-center text-lg">Welcome to your account dashboard. Use the menu to view your profile, orders, and more.</p>
-        </div>
-      ) : (
-        <div class="gauge-spinner"></div>
-      )}
+      <p class="text-center text-lg">Welcome to your account dashboard. Use the menu to view your profile, orders, and more.</p>
     </section>
   </main>
 </BaseLayout>

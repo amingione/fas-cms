@@ -54,30 +54,5 @@
       localStorage.removeItem('userEmail');
       location.reload();
     });
-
-    try {
-  const res = await fetch('https://fasmotorsports.io/api/me', {
-    method: 'GET',
-    credentials: 'include', // ✅ send cookies
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  if (!res.ok) throw new Error(`Request failed with ${res.status}`);
-
-  const user = await res.json();
-
-  if (user && user._type === 'customer') {
-    dashboard.innerHTML += `<p class="text-xs text-green-400">Customer found in Sanity ✅</p>`;
-  } else if (user && user._type === 'vendor') {
-    dashboard.innerHTML += `<p class="text-xs text-blue-400">Vendor found in Sanity ✅</p>`;
-  } else {
-    dashboard.innerHTML += `<p class="text-xs text-red-500">No matching user record in Sanity ⚠️</p>`;
-  }
-} catch (err) {
-  console.error('Failed to fetch user data:', err);
-  dashboard.innerHTML += `<p class="text-xs text-red-500">Unable to verify user status ⚠️</p>`;
-}
   });
 </script>
