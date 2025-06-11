@@ -5,7 +5,7 @@ export const GET: APIRoute = async ({ request }) => {
   const dataset = import.meta.env.VITE_SANITY_DATASET;
 
   const urlParams = new URL(request.url).searchParams;
-  const categorySlug = urlParams.get('category');
+  const categorySlug = urlParams.get('categorySlug');
 
   console.log('[Sanity Filter] categorySlug:', categorySlug);
 
@@ -16,7 +16,7 @@ export const GET: APIRoute = async ({ request }) => {
     });
   }
 
-  const query = `*[_type=="product" && references(*[_type=="category" && slug.current=="${categorySlug}"]._id)]{title, slug, price, images, _id}`;
+  const query = `*[_type == "product" && count(category[]._ref) > 0 && references(*[_type == "category" && slug.current == "${categorySlug}"]._id)]{title, slug, price, images, _id}`;
 
   const url = `https://${projectId}.api.sanity.io/v2023-06-07/data/query/${dataset}?query=${encodeURIComponent(query)}`;
 

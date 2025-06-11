@@ -63,14 +63,24 @@ if (endPage < totalPages) {
 
   <section class="max-w-7xl mx-10 px-4">
 
-    <!-- Product Page Filters -->
-    <ProductPageFilters currentCategory={currentCategory} />
+    <div class="flex flex-col md:flex-row gap-6 pt-8">
+      <aside class="w-full md:w-1/4 border-r border-white/20 pr-4">
+        <div id="category-sidebar" class="flex flex-col gap-2">
+          <!-- Category buttons will be dynamically injected -->
+        </div>
+      </aside>
 
-    <!-- Product Grid -->
-    <div id="product-grid" class="relative isolation-isolate z-0 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 pt-8">
-      {products.map(product => (
-        <ProductCard product={product} productImage={product.images?.[0]} />
-      ))}
+      <div class="w-full md:w-3/4">
+        <!-- Product Page Filters -->
+        <ProductPageFilters currentCategory={currentCategory} />
+
+        <!-- Product Grid -->
+        <div id="product-grid" class="relative isolation-isolate z-0 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-10 pt-4">
+          {products.map(product => (
+            <ProductCard product={product} productImage={product.images?.[0]} />
+          ))}
+        </div>
+      </div>
     </div>
 
     <!-- Pagination -->
@@ -99,13 +109,28 @@ if (endPage < totalPages) {
     document.addEventListener("filterChange", (e) => {
       const filters = e.detail;
       console.log("🛠️ filterChange event detail:", filters);
+      console.log("🌐 Redirecting to:", (function() {
+        const url = new URL(window.location.href);
+        if (filters.category) {
+          url.searchParams.set("categorySlug", filters.category);
+        } else {
+          url.searchParams.delete("categorySlug");
+        }
+        if (filters.productFilter) {
+          url.searchParams.set("filter", filters.productFilter);
+        } else {
+          url.searchParams.delete("filter");
+        }
+        url.searchParams.set("page", "1");
+        return url.toString();
+      })());
       // filters.category should be the expected slug value sent via URL query
       const url = new URL(window.location.href);
 
       if (filters.category) {
-        url.searchParams.set("category", filters.category);
+        url.searchParams.set("categorySlug", filters.category);
       } else {
-        url.searchParams.delete("category");
+        url.searchParams.delete("categorySlug");
       }
 
       if (filters.productFilter) {

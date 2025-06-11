@@ -1,10 +1,7 @@
 <div id="product-filters" class="w-full flex flex-wrap justify-center items-center gap-4 sm:gap-10 py-6 px-4 border-b border-white/10 backdrop-blur-md">
-  <!-- Category Dropdown -->
-  <div>
-    <label for="category-select" class="block text-sm text-white mb-1">Category</label>
-    <select id="category-select" class="bg-black border border-white/20 text-white px-4 py-2 rounded min-w-[180px]">
-      <option value="">All Categories</option>
-    </select>
+  <!-- Category Sidebar -->
+  <div id="category-sidebar" class="w-full sm:w-auto flex flex-wrap sm:flex-col gap-2 sm:gap-4 p-4">
+    <!-- Category buttons will be appended here -->
   </div>
 
   <!-- Filter Dropdown -->
@@ -29,17 +26,32 @@ const filterState = {
   productFilter: '',
 };
 
-// Fetch categories
+// Fetch categories and build sidebar
 fetch('/api/sanity/categories')
   .then(res => res.json())
   .then((categories) => {
-    const select = document.getElementById('category-select');
+    const sidebar = document.getElementById('category-sidebar');
     categories.forEach(cat => {
-      const option = document.createElement('option');
-      option.value = cat.slug.current;
-      option.textContent = cat.title;
-      select.appendChild(option);
+      const button = document.createElement('button');
+      button.textContent = cat.title;
+      button.className = 'px-4 py-2 text-sm text-white bg-black border border-white/20 rounded hover:bg-primary transition';
+      button.addEventListener('click', () => {
+        console.log('🧭 Category clicked:', cat);
+        filterState.category = cat?.slug?.current || '';
+        dispatchFilterChange();
+      });
+      sidebar.appendChild(button);
     });
+
+    // Add "All Categories" button
+    const allBtn = document.createElement('button');
+    allBtn.textContent = 'All';
+    allBtn.className = 'px-4 py-2 text-sm text-white bg-black border border-white/20 rounded hover:bg-primary transition';
+    allBtn.addEventListener('click', () => {
+      filterState.category = '';
+      dispatchFilterChange();
+    });
+    sidebar.insertBefore(allBtn, sidebar.firstChild);
   })
   .catch(err => console.error("❌ Failed to fetch categories:", err));
 
@@ -57,13 +69,7 @@ fetch('/api/sanity/filters')
   })
   .catch(err => console.error("❌ Failed to fetch filters:", err));
 
-// Dropdown change listeners
-document.getElementById('category-select')?.addEventListener('change', (e) => {
-  const target = e.target as HTMLSelectElement;
-  filterState.category = target.value;
-  dispatchFilterChange();
-});
-
+// Dropdown change listener for filter only (category handled by sidebar)
 document.getElementById('filter-select')?.addEventListener('change', (e) => {
   const target = e.target as HTMLSelectElement;
   filterState.productFilter = target.value;
@@ -75,13 +81,21 @@ document.getElementById('reset-filters').addEventListener('click', () => {
   filterState.category = '';
   filterState.productFilter = '';
 
-  (document.getElementById('category-select') as HTMLSelectElement).value = '';
+  // (document.getElementById('category-select') as HTMLSelectElement).value = '';
   (document.getElementById('filter-select') as HTMLSelectElement).value = '';
 
   dispatchFilterChange();
 });
 
 function dispatchFilterChange() {
+  // Clean up bad values from dropdowns
+  if (filterState.category === 'null' || filterState.category === 'undefined') {
+    filterState.category = '';
+  }
+  if (filterState.productFilter === 'null' || filterState.productFilter === 'undefined') {
+    filterState.productFilter = '';
+  }
+
   console.log('Dispatching filterChange with:', filterState);
   const event = new CustomEvent('filterChange', { detail: filterState });
   document.dispatchEvent(event);
