@@ -1,8 +1,8 @@
 import { type APIRoute } from 'astro';
 
 export const GET: APIRoute = async ({ request }) => {
-  const projectId = import.meta.env.VITE_SANITY_PROJECT_ID;
-  const dataset = import.meta.env.VITE_SANITY_DATASET;
+  const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
+  const dataset = import.meta.env.PUBLIC_SANITY_DATASET;
 
   const urlParams = new URL(request.url, 'http://localhost').searchParams;
   const categorySlug = urlParams.get('categorySlug') || urlParams.get('category');
