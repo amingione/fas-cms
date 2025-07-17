@@ -9,7 +9,7 @@ export const prerender = false;
 const PAGE_SIZE = 12;
 const url = new URL(Astro.request.url);
 const currentPage = parseInt(url.searchParams.get("page") || "1");
-const currentCategory = url.searchParams.get("category");
+const currentCategory = url.searchParams.get("categorySlug") || url.searchParams.get("category");
 const start = (currentPage - 1) * PAGE_SIZE;
 const end = start + PAGE_SIZE;
 
@@ -109,26 +109,12 @@ if (endPage < totalPages) {
     document.addEventListener("filterChange", (e) => {
       const filters = e.detail;
       console.log("🛠️ filterChange event detail:", filters);
-      console.log("🌐 Redirecting to:", (function() {
-        const url = new URL(window.location.href);
-        if (filters.category) {
-          url.searchParams.set("categorySlug", filters.category);
-        } else {
-          url.searchParams.delete("categorySlug");
-        }
-        if (filters.productFilter) {
-          url.searchParams.set("filter", filters.productFilter);
-        } else {
-          url.searchParams.delete("filter");
-        }
-        url.searchParams.set("page", "1");
-        return url.toString();
-      })());
-      // filters.category should be the expected slug value sent via URL query
-      const url = new URL(window.location.href);
 
-      if (filters.category) {
-        url.searchParams.set("categorySlug", filters.category);
+      const url = new URL(window.location.href);
+      const categorySlug = filters.categorySlug || filters.category;
+
+      if (categorySlug) {
+        url.searchParams.set("categorySlug", categorySlug);
       } else {
         url.searchParams.delete("categorySlug");
       }
@@ -140,6 +126,8 @@ if (endPage < totalPages) {
       }
 
       url.searchParams.set("page", "1");
+
+      console.log("🌐 Redirecting to:", url.toString());
       window.location.href = url.toString();
     });
   </script>

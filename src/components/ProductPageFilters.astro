@@ -97,7 +97,12 @@ function dispatchFilterChange() {
   }
 
   console.log('Dispatching filterChange with:', filterState);
-  const event = new CustomEvent('filterChange', { detail: filterState });
+  const event = new CustomEvent('filterChange', {
+    detail: {
+      categorySlug: filterState.category,
+      productFilter: filterState.productFilter
+    }
+  });
   document.dispatchEvent(event);
 }
 </script>
