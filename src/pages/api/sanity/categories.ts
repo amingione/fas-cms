@@ -1,8 +1,9 @@
 import { type APIRoute } from 'astro';
 
 export const GET: APIRoute = async () => {
-  const projectId = import.meta.env.VITE_SANITY_PROJECT_ID;
-  const dataset = import.meta.env.VITE_SANITY_DATASET;
+  // Use the same public env vars as the rest of the app
+  const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
+  const dataset = import.meta.env.PUBLIC_SANITY_DATASET;
 
   const categoryQuery = '*[_type=="category"]{title, slug}';
   const url = `https://${projectId}.api.sanity.io/v2023-06-07/data/query/${dataset}?query=${encodeURIComponent(categoryQuery)}`;
