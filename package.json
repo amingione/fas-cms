@@ -18,7 +18,7 @@
     "node": "18.x"
   },
   "resolutions": {
-    "esbuild": "0.25.5"
+    "esbuild": "0.25.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.26.0",
@@ -34,7 +34,7 @@
     "add": "^2.0.6",
     "autoprefixer": "^10.4.21",
     "cssnano": "^7.0.6",
-    "esbuild": "0.25.5",
+    "esbuild": "0.25.6",
     "eslint": "^9.25.1",
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-react": "^7.37.5",
