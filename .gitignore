@@ -36,4 +36,4 @@ node_modules/
 !.yarn/sdks
 !.yarn/versions
 .yarnrc.yml
-yarn.lock
+yarn.lock.netlify/plugins/
