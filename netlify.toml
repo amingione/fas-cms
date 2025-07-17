@@ -9,5 +9,5 @@
   NETLIFY_EXPERIMENTAL_YARN_BERRY = "true"
   YARN_VERSION = "3.6.4"
 
-  [plugins]
+[plugins]
   package = ""
