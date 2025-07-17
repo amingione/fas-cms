@@ -14,6 +14,12 @@
       "eslint --fix"
     ]
   },
+  "engines": {
+    "node": "18.x"
+  },
+  "resolutions": {
+    "esbuild": "0.25.6"
+  },
   "devDependencies": {
     "@eslint/js": "^9.26.0",
     "@types/add": "^2",
