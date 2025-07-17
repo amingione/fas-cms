@@ -1,7 +1,5 @@
 import { type APIRoute } from 'astro';
 
-export const GET: APIRoute = async ({ request }) => {
-  // Use the same public env vars as the rest of the app
   const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
   const dataset = import.meta.env.PUBLIC_SANITY_DATASET;
 
