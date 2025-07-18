@@ -28,6 +28,7 @@ try {
       <div class="flex justify-center items-center">
         <img
           src={product.images?.[0]?.asset?.url || '/placeholder.png'}
+          loading="lazy"
           alt={product.title}
            class="w-full max-w-md object-contain rounded-lg shadow-lg"
         />
@@ -102,7 +103,14 @@ try {
           if (found) {
             found.quantity += 1;
           } else {
-            cart.push({ id: product._id, name: product.title, price: product.price, quantity: 1 });
+            cart.push({
+              id: product._id,
+              name: product.title,
+              slug: product.slug?.current,
+              image: product.images?.[0]?.asset?.url,
+              price: product.price,
+              quantity: 1
+            });
           }
           localStorage.setItem('fas_cart', JSON.stringify(cart));
           window.dispatchEvent(new Event('cart-updated'));

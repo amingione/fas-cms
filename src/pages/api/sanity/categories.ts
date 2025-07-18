@@ -4,7 +4,7 @@ export const GET: APIRoute = async () => {
   const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
   const dataset = import.meta.env.PUBLIC_SANITY_DATASET;
 
-  const categoryQuery = '*[_type=="category"]{title, slug}';
+  const categoryQuery = '*[_type=="category"] | order(title asc){_id, title, "slug": slug.current}';
   const url = `https://${projectId}.api.sanity.io/v2023-06-07/data/query/${dataset}?query=${encodeURIComponent(categoryQuery)}`;
 
   try {

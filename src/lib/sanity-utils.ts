@@ -19,7 +19,7 @@ export const sanity = createClient({
   token
 });
 
-// Define basic product type (you can extend this as needed)
+// Define basic product type
 export interface Product {
   _id: string;
   title: string;
@@ -39,27 +39,42 @@ export interface Product {
   }[];
 }
 
-// Fetch all products
-export async function fetchProductsFromSanity(currentCategory?: string): Promise<Product[]> {
+// Fetch all products (optionally filtered by category slug)
+export async function fetchProductsFromSanity({
+  categorySlug,
+  tuneSlug,
+  vehicleSlug,
+  minHp
+}: {
+  categorySlug?: string;
+  tuneSlug?: string;
+  vehicleSlug?: string;
+  minHp?: number;
+}): Promise<Product[]> {
   try {
-    console.log('[Sanity Fetch] Category filter:', currentCategory);
+    const filters = [
+      categorySlug
+        ? `references(*[_type == "category" && slug.current == "${categorySlug}"][0]._id)`
+        : '',
+      tuneSlug ? `tune->slug.current == "${tuneSlug}"` : '',
+      vehicleSlug ? `"${vehicleSlug}" in compatibleVehicles[]->slug.current` : '',
+      typeof minHp === 'number' ? `averageHorsepower >= ${minHp}` : ''
+    ]
+      .filter(Boolean)
+      .join(' && ');
 
-    const categoryFilter = currentCategory
-      ? `&& count(categories[slug.current == "${currentCategory}"]) > 0`
-      : '';
-
-    const query = `*[_type == "product" ${categoryFilter}]{
+    const query = `*[_type == "product"${filters ? ` && ${filters}` : ''}]{
       _id,
       title,
       slug,
       price,
+      averageHorsepower,
       images[]{
         asset->{
           _id,
           url
         }
       },
-      averageHorsepower,
       tune->{
         title,
         slug
@@ -110,16 +125,15 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
     return null;
   }
 }
+
 // Fetch similar products based on categories
 export async function getSimilarProducts(
   categories: { slug: { current: string } }[],
   currentSlug: string
 ): Promise<Product[]> {
   try {
-    // Extract category slugs
     const categorySlugs = categories.map((category) => category.slug.current);
 
-    // Build the GROQ query
     const query = `*[_type == "product" && slug.current != $currentSlug && count(categories[slug.current in $categorySlugs]) > 0][0...3]{
       _id,
       title,
@@ -133,7 +147,6 @@ export async function getSimilarProducts(
       }
     }`;
 
-    // Fetch similar products
     return await sanity.fetch(query, { currentSlug, categorySlugs });
   } catch (err) {
     console.error('Failed to fetch similar products:', err);

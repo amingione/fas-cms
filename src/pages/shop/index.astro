@@ -16,7 +16,16 @@ const end = start + PAGE_SIZE;
 let allProducts = [];
 
 try {
-  allProducts = await fetchProductsFromSanity(currentCategory);
+const tuneSlug = url.searchParams.get("tuneSlug");
+const vehicleSlug = url.searchParams.get("vehicleSlug");
+const minHp = url.searchParams.get("minHp");
+
+allProducts = await fetchProductsFromSanity({
+  categorySlug: currentCategory,
+  tuneSlug,
+  vehicleSlug,
+  minHp: minHp ? parseInt(minHp) : undefined
+});
 } catch (err) {
   console.error("🔥 Sanity Fetch Failed:", err);
 }
@@ -90,7 +99,11 @@ if (endPage < totalPages) {
           const isActive = page === currentPage;
           return (
             <a
-              href={`/shop?page=${page}`}
+              href={`/shop?${(() => {
+  const params = new URLSearchParams(url.searchParams);
+  params.set('page', page.toString());
+  return params.toString();
+})()}`}
               class={`px-3 py-1 rounded-md transition duration-200 text-sm font-bold ${
                 isActive 
                   ? 'bg-primary text-black shadow-md'
@@ -119,11 +132,23 @@ if (endPage < totalPages) {
         url.searchParams.delete("categorySlug");
       }
 
-      if (filters.productFilter) {
-        url.searchParams.set("filter", filters.productFilter);
-      } else {
-        url.searchParams.delete("filter");
-      }
+      if (filters.tuneSlug) {
+  url.searchParams.set("tuneSlug", filters.tuneSlug);
+} else {
+  url.searchParams.delete("tuneSlug");
+}
+
+if (filters.vehicleSlug) {
+  url.searchParams.set("vehicleSlug", filters.vehicleSlug);
+} else {
+  url.searchParams.delete("vehicleSlug");
+}
+
+if (filters.minHp) {
+  url.searchParams.set("minHp", filters.minHp);
+} else {
+  url.searchParams.delete("minHp");
+}
 
       url.searchParams.set("page", "1");
 
