@@ -1,5 +1,5 @@
 [build]
-  command = "yarn install --ignore-optional && yarn build"
+  command = "yarn install --immutable && yarn build"
   publish = "dist"
 
 [build.environment]
