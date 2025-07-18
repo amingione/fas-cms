@@ -1,3 +1,8 @@
+[[redirects]]
+  from = "/site.webmanifest"
+  to = "/site.webmanifest"
+  status = 200
+
 [build]
   command = "yarn install --immutable && yarn build"
   publish = "dist"
