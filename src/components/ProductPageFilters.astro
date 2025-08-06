@@ -1,108 +1,90 @@
-<div id="product-filters" class="w-full flex flex-wrap justify-center items-center gap-4 sm:gap-10 py-6 px-4 border-b border-white/10 backdrop-blur-md">
-  <!-- Category Sidebar -->
-  <div id="category-sidebar" class="w-full sm:w-auto flex flex-wrap sm:flex-col gap-2 sm:gap-4 p-4">
-    <!-- Category buttons will be appended here -->
-  </div>
+--- // src/components/ProductPageFilters.astro
+import { fetchTunes, fetchVehicles } from '@lib/sanity-utils';
+import type { Tune, Vehicle } from '@lib/sanity-utils';
 
-  <!-- Filter Dropdown -->
+const currentCategory = Astro.props.currentCategory as string | undefined;
+const url = new URL(Astro.request.url);
+const currentTuneSlug = url.searchParams.get('tuneSlug') || '';
+const currentVehicleSlug = url.searchParams.get('vehicleSlug') || '';
+const currentMinHp = url.searchParams.get('minHp') || '';
+
+let tunes: Tune[] = [];
+let vehicles: Vehicle[] = [];
+try {
+  tunes = await fetchTunes();
+  vehicles = await fetchVehicles();
+} catch (err) {
+  console.error('Error fetching tunes or vehicles:', err);
+}
+---
+
+<form id="product-filters" class="flex flex-col gap-4">
   <div>
-    <label for="filter-select" class="block text-sm text-white mb-1">Filter</label>
-    <select id="filter-select" class="bg-black border border-white/20 text-white px-4 py-2 rounded min-w-[180px]">
-      <option value="">All Filters</option>
+    <label for="tuneSlug" class="text-white">Tune</label>
+    <select id="tuneSlug" name="tuneSlug" class="bg-black/50 text-white p-2 rounded">
+      <option value="">All Tunes</option>
+      {tunes.map(tune => (
+        <option value={tune.slug.current} selected={tune.slug.current === currentTuneSlug}>
+          {tune.title}
+        </option>
+      ))}
     </select>
   </div>
-
-  <!-- Reset Button -->
-  <div class="pt-6">
-    <button id="reset-filters" class="px-4 py-2 bg-primary text-white rounded hover:bg-primary/80 transition">
-      Reset Filters
-    </button>
+  <div>
+    <label for="vehicleSlug" class="text-white">Vehicle</label>
+    <select id="vehicleSlug" name="vehicleSlug" class="bg-black/50 text-white p-2 rounded">
+      <option value="">All Vehicles</option>
+      {vehicles.map(vehicle => (
+        <option
+          value={vehicle.slug?.current || ''}
+          selected={vehicle.slug?.current === currentVehicleSlug}
+        >
+          {vehicle.title}
+        </option>
+      ))}
+    </select>
   </div>
-</div>
+  <div>
+    <label for="minHp" class="text-white">Minimum Horsepower</label>
+    <input
+      id="minHp"
+      name="minHp"
+      type="number"
+      value={currentMinHp}
+      class="bg-black/50 text-white p-2 rounded"
+      placeholder="Enter min HP"
+    />
+  </div>
+</form>
 
 <script>
-const filterState = {
-  category: '',
-  productFilter: '',
-};
-
-// Fetch categories and build sidebar
-fetch('/api/sanity/categories')
-  .then(res => res.json())
-  .then((categories) => {
-    const sidebar = document.getElementById('category-sidebar');
-    categories.forEach(cat => {
-      const button = document.createElement('button');
-      button.textContent = cat.title;
-      button.className = 'px-4 py-2 text-sm text-white bg-black border border-white/20 rounded hover:bg-primary transition';
-      button.addEventListener('click', () => {
-        console.log('🧭 Category clicked:', cat);
-        filterState.category = cat?.slug?.current || '';
-        dispatchFilterChange();
-      });
-      sidebar.appendChild(button);
-    });
-
-    // Add "All Categories" button
-    const allBtn = document.createElement('button');
-    allBtn.textContent = 'All';
-    allBtn.className = 'px-4 py-2 text-sm text-white bg-black border border-white/20 rounded hover:bg-primary transition';
-    allBtn.addEventListener('click', () => {
-      filterState.category = '';
-      dispatchFilterChange();
-    });
-    sidebar.insertBefore(allBtn, sidebar.firstChild);
-  })
-  .catch(err => console.error("❌ Failed to fetch categories:", err));
-
-// Fetch filters
-fetch('/api/sanity/filters')
-  .then(res => res.json())
-  .then((filters) => {
-    const select = document.getElementById('filter-select');
-    filters.forEach(filter => {
-      const option = document.createElement('option');
-      option.value = filter.slug.current;
-      option.textContent = filter.title;
-      select.appendChild(option);
-    });
-  })
-  .catch(err => console.error("❌ Failed to fetch filters:", err));
-
-// Dropdown change listener for filter only (category handled by sidebar)
-document.getElementById('filter-select')?.addEventListener('change', (e) => {
-  const target = e.target as HTMLSelectElement;
-  filterState.productFilter = target.value;
-  dispatchFilterChange();
-});
-
-// Reset button logic
-document.getElementById('reset-filters').addEventListener('click', () => {
-  filterState.category = '';
-  filterState.productFilter = '';
-
-  // (document.getElementById('category-select') as HTMLSelectElement).value = '';
-  (document.getElementById('filter-select') as HTMLSelectElement).value = '';
-
-  dispatchFilterChange();
-});
-
-function dispatchFilterChange() {
-  // Clean up bad values from dropdowns
-  if (filterState.category === 'null' || filterState.category === 'undefined') {
-    filterState.category = '';
-  }
-  if (filterState.productFilter === 'null' || filterState.productFilter === 'undefined') {
-    filterState.productFilter = '';
+  function handleFilterChange(form: HTMLFormElement) {
+    const formData = new FormData(form);
+    const minHpValue = formData.get('minHp');
+    return {
+      categorySlug: new URLSearchParams(window.location.search).get('categorySlug'),
+      tuneSlug: formData.get('tuneSlug'),
+      vehicleSlug: formData.get('vehicleSlug'),
+      minHp: minHpValue ? parseInt(minHpValue.toString()) : undefined,
+    };
   }
 
-  console.log('Dispatching filterChange with:', filterState);
-  const event = new CustomEvent('filterChange', {
-    detail: {
-      categorySlug: filterState.category,
-      productFilter: filterState.productFilter
-    }
-  });
-  document.dispatchEvent(event);
-}
+  const form = document.getElementById('product-filters') as HTMLFormElement;
+  if (form) {
+    form.addEventListener('change', () => {
+      const filters = handleFilterChange(form);
+      console.log('Dispatching filterChange:', filters);
+      const event = new CustomEvent('filterChange', { detail: filters });
+      document.dispatchEvent(event);
+    });
+  }
 </script>
+
+<style>
+  @media (max-width: 768px) {
+    #product-filters select,
+    #product-filters input {
+      width: 100%;
+    }
+  }
+</style>

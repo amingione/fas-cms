@@ -1,31 +1,34 @@
----
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import ProductCard from '../../components/ProductCard.astro';
-import { fetchProductsFromSanity } from '../../lib/sanity-utils';
-import ProductPageFilters from '../../components/ProductPageFilters.astro';
+--- // src/pages/shop.astro
+import BaseLayout from '@layouts/BaseLayout.astro';
+import ProductCard from '@components/ProductCard.astro';
+import { fetchProductsFromSanity, fetchCategories } from '@lib/sanity-utils';
+import ProductPageFilters from '@components/ProductPageFilters.astro';
+import type { Product, Category } from '@lib/sanity-utils';
 
 export const prerender = false;
 
 const PAGE_SIZE = 12;
 const url = new URL(Astro.request.url);
 const currentPage = parseInt(url.searchParams.get("page") || "1");
-const currentCategory = url.searchParams.get("categorySlug") || url.searchParams.get("category");
+const currentCategory = url.searchParams.get("categorySlug") || url.searchParams.get("category") || "";
 const start = (currentPage - 1) * PAGE_SIZE;
 const end = start + PAGE_SIZE;
 
-let allProducts = [];
+let allProducts: Product[] = [];
+let categories: Category[] = [];
 
 try {
-const tuneSlug = url.searchParams.get("tuneSlug");
-const vehicleSlug = url.searchParams.get("vehicleSlug");
-const minHp = url.searchParams.get("minHp");
+  const tuneSlug = url.searchParams.get("tuneSlug") || undefined;
+  const vehicleSlug = url.searchParams.get("vehicleSlug") || undefined;
+  const minHp = url.searchParams.get("minHp");
 
-allProducts = await fetchProductsFromSanity({
-  categorySlug: currentCategory,
-  tuneSlug,
-  vehicleSlug,
-  minHp: minHp ? parseInt(minHp) : undefined
-});
+  allProducts = await fetchProductsFromSanity({
+    categorySlug: currentCategory || undefined,
+    tuneSlug,
+    vehicleSlug,
+    minHp: minHp ? parseInt(minHp) : undefined,
+  });
+  categories = await fetchCategories();
 } catch (err) {
   console.error("🔥 Sanity Fetch Failed:", err);
 }
@@ -43,11 +46,9 @@ const endPage = Math.min(startPage + maxVisiblePages - 1, totalPages);
 if (startPage > 1) {
   paginationLinks.push({ label: "←", page: startPage - 1 });
 }
-
 for (let page = startPage; page <= endPage; page++) {
   paginationLinks.push({ label: page.toString(), page });
 }
-
 if (endPage < totalPages) {
   paginationLinks.push({ label: "→", page: endPage + 1 });
 }
@@ -55,12 +56,8 @@ if (endPage < totalPages) {
 
 <BaseLayout>
   <section class="max-w-7xl mx-auto text-white">
-
-    <!-- Hero Section -->
     <div class="relative w-full h-[60vh] sm:h-[70vh] lg:h-[80vh] xl:h-[90vh] overflow-hidden">
       <img src="/images/shop background.png" alt="Shop Banner" class="w-full h-full object-cover shadow-lg" />
-
-      <!-- Overlay Content -->
       <div class="absolute inset-0 flex flex-col items-center justify-center text-center pb-[8vh] sm:pb-[10vh] md:pb-[12vh] lg:pb-[14vh] xl:pb-[16vh]">
         <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-borg text-primary leading-none">SHOP</h1>
         <p class="mt-2 text-base sm:text-xl lg:text-2xl font-ethno text-white tracking-wide">
@@ -71,95 +68,84 @@ if (endPage < totalPages) {
   </section>
 
   <section class="max-w-7xl mx-10 px-4">
-
     <div class="flex flex-col md:flex-row gap-6 pt-8">
       <aside class="w-full md:w-1/4 border-r border-white/20 pr-4">
         <div id="category-sidebar" class="flex flex-col gap-2">
-          <!-- Category buttons will be dynamically injected -->
+          <a
+            href="/shop"
+            class={`py-2 px-4 rounded-md ${!currentCategory ? 'bg-primary text-black' : 'bg-black/50 text-white hover:bg-red-600 hover:text-white'}`}
+          >
+            All Categories
+          </a>
+          {categories.length > 0 ? (
+            categories.map(category => (
+              <a
+                href={`/shop?categorySlug=${category.slug.current}`}
+                class={`py-2 px-4 rounded-md ${currentCategory === category.slug.current ? 'bg-primary text-black' : 'bg-black/50 text-white hover:bg-red-600 hover:text-white'}`}
+              >
+                {category.title}
+              </a>
+            ))
+          ) : (
+            <p>No categories available.</p>
+          )}
         </div>
       </aside>
 
       <div class="w-full md:w-3/4">
-        <!-- Product Page Filters -->
         <ProductPageFilters currentCategory={currentCategory} />
-
-        <!-- Product Grid -->
         <div id="product-grid" class="relative isolation-isolate z-0 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-10 pt-4">
-          {products.map(product => (
-            <ProductCard product={product} productImage={product.images?.[0]} />
-          ))}
+          {products.length > 0 ? (
+            products.map(product => (
+              <ProductCard product={product} productImage={product.images?.[0]} />
+            ))
+          ) : (
+            <p>No products found.</p>
+          )}
         </div>
       </div>
     </div>
 
-    <!-- Pagination -->
     <div id="pagination" class="flex justify-center mt-12 gap-2">
-      {
-        paginationLinks.map(({ label, page }) => {
-          const isActive = page === currentPage;
-          return (
-            <a
-              href={`/shop?${(() => {
-  const params = new URLSearchParams(url.searchParams);
-  params.set('page', page.toString());
-  return params.toString();
-})()}`}
-              class={`px-3 py-1 rounded-md transition duration-200 text-sm font-bold ${
-                isActive 
-                  ? 'bg-primary text-black shadow-md'
-                  : 'bg-black/50 text-white hover:bg-red-600 hover:text-white'
-              }`}
-            >
-              {label}
-            </a>
-          );
-        })
-      }
+      {paginationLinks.map(({ label, page }) => {
+        const isActive = page === currentPage;
+        return (
+          <a
+            href={`/shop?${(() => {
+              const params = new URLSearchParams(url.searchParams);
+              params.set('page', page.toString());
+              return params.toString();
+            })()}`}
+            class={`px-3 py-1 rounded-md transition duration-200 text-sm font-bold ${
+              isActive ? 'bg-primary text-black shadow-md' : 'bg-black/50 text-white hover:bg-red-600 hover:text-white'
+            }`}
+          >
+            {label}
+          </a>
+        );
+      })}
     </div>
   </section>
 
-  <script type="module" is:inline>
-    document.addEventListener("filterChange", (e) => {
-      const filters = e.detail;
-      console.log("🛠️ filterChange event detail:", filters);
-
-      const url = new URL(window.location.href);
-      const categorySlug = filters.categorySlug || filters.category;
-
-      if (categorySlug) {
-        url.searchParams.set("categorySlug", categorySlug);
-      } else {
-        url.searchParams.delete("categorySlug");
-      }
-
-      if (filters.tuneSlug) {
-  url.searchParams.set("tuneSlug", filters.tuneSlug);
-} else {
-  url.searchParams.delete("tuneSlug");
-}
-
-if (filters.vehicleSlug) {
-  url.searchParams.set("vehicleSlug", filters.vehicleSlug);
-} else {
-  url.searchParams.delete("vehicleSlug");
-}
-
-if (filters.minHp) {
-  url.searchParams.set("minHp", filters.minHp);
-} else {
-  url.searchParams.delete("minHp");
-}
-
-      url.searchParams.set("page", "1");
-
-      console.log("🌐 Redirecting to:", url.toString());
-      window.location.href = url.toString();
-    });
-  </script>
+  
 
   <style>
     #pagination a:hover {
       color: black !important;
+    }
+
+    /* Explicitly set text color to white on hover for category links */
+    #category-sidebar a:hover {
+      color: #ffffff !important;
+    }
+
+    @media (max-width: 768px) {
+      #category-sidebar {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
     }
   </style>
 </BaseLayout>

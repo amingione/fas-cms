@@ -35,7 +35,7 @@ const imageUrl = productImage?.asset?.url || '/placeholder.png';
           data-product-id={product._id}
           data-product-name={product.title}
           data-product-price={product.price}
-          data-product-categories={JSON.stringify((product.categories || []).filter(Boolean).map(c => c._ref || c._id || ''))}
+          data-product-categories={JSON.stringify((product.categories || []).filter(Boolean).map((c: { _ref?: string; _id?: string }) => c._ref || c._id || ''))}
         >
           Add to Cart
         </button>
@@ -47,53 +47,20 @@ const imageUrl = productImage?.asset?.url || '/placeholder.png';
 <div id="product-toast" class="fixed top-20 right-6 z-50 hidden px-4 py-3 backdrop-blur bg-white/10 text-white font-bold shadow-lg transition-all duration-300"></div>
 
 <script>
-  function showProductToast(message, success = true) {
+  interface CartItem {
+    id: string;
+    name: string;
+    price: number;
+    quantity: number;
+    categories: string[];
+  }
+
+  function showProductToast(message: string, success = true) {
     const toast = document.getElementById('product-toast');
     if (!toast) return;
     toast.textContent = message;
     toast.className = `fixed top-20 right-6 z-50 px-4 py-3 backdrop-blur font-bold shadow-lg transition-all duration-300 ${
       success ? 'bg-green-500/10 text-green-300' : 'bg-red-500/10 text-red-400'
     }`;
-    toast.classList.remove('hidden', 'opacity-0');
-    toast.classList.add('opacity-100');
-    setTimeout(() => {
-      toast.classList.remove('opacity-100');
-      toast.classList.add('opacity-0');
-      setTimeout(() => toast.classList.add('hidden'), 300);
-    }, 2500);
-  }
-
-  function bindCartButtons() {
-    document.querySelectorAll('.add-to-cart').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const productId = btn.getAttribute('data-product-id');
-        const productName = btn.closest('a')?.querySelector('h2')?.textContent || 'Unknown Product';
-        const productPrice = btn.closest('a')?.querySelector('p.text-xl')?.textContent?.replace('$', '') || '0';
-
-        if (!productId) return;
-
-        const cart = JSON.parse(localStorage.getItem('fas_cart') || '[]');
-        const existing = cart.find((item) => item.id === productId);
-
-        if (existing) {
-          existing.quantity += 1;
-        } else {
-          cart.push({
-            id: productId,
-            name: productName,
-            price: parseFloat(productPrice),
-            quantity: 1,
-            categories: JSON.parse(btn.getAttribute('data-product-categories') || '[]')
-          });
-        }
-
-        localStorage.setItem('fas_cart', JSON.stringify(cart));
-        showProductToast('✅ Added to cart!', true);
-        window.dispatchEvent(new Event('cart-updated'));
-      });
-    });
-  }
-
-  document.addEventListener('astro:after-swap', bindCartButtons);
-  document.addEventListener('DOMContentLoaded', bindCartButtons);
-</script>
+      toast.classList.remove('hidden');
+    }

@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getProductBySlug, getSimilarProducts } from '../../lib/sanity-utils';
+import { getProductBySlug, getSimilarProducts, type Product } from '../../lib/sanity-utils';
 
 const { slug } = Astro.params;
 
@@ -8,13 +8,16 @@ const { slug } = Astro.params;
 let product = null;
 let similarProducts = [];
 try {
+  if (typeof slug !== 'string') {
+    throw new Error('Product slug is missing or invalid.');
+  }
   product = await getProductBySlug(slug);
   if (!product) {
     throw new Error(`Product with slug "${slug}" not found.`);
   }
 
-  // Fetch similar products based on category or tags
-  similarProducts = await getSimilarProducts(product.category, slug);
+  // Fetch similar products based on the product's categories
+  similarProducts = await getSimilarProducts(product.categories || [], slug);
 } catch (err) {
   console.error("❌ Failed to fetch product or similar products:", err);
   return Astro.redirect('/shop'); // Redirect to shop if product not found
@@ -30,7 +33,7 @@ try {
           src={product.images?.[0]?.asset?.url || '/placeholder.png'}
           loading="lazy"
           alt={product.title}
-           class="w-full max-w-md object-contain rounded-lg shadow-lg"
+          class="w-full max-w-md object-contain rounded-lg shadow-lg"
         />
       </div>
 
@@ -82,15 +85,28 @@ try {
   </div>
 
   <script>
+    import type { Product } from '../../lib/sanity-utils';
+
+    interface CartItem {
+      id: string;
+      name: string;
+      slug?: string;
+      image?: string;
+      price: number;
+      quantity: number;
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       const data = document.getElementById('product-json');
       const button = document.getElementById('add-to-cart');
 
       if (!data || !button) return;
 
-      let product;
+      let product: Product;
       try {
-        product = JSON.parse(data.textContent.trim());
+        const text = data.textContent;
+        if (!text) throw new Error("Product data is missing.");
+        product = JSON.parse(text.trim()) as Product;
       } catch (err) {
         console.error("❌ Could not parse product data:", err);
         return;
@@ -98,8 +114,8 @@ try {
 
       button.addEventListener('click', () => {
         try {
-          const cart = JSON.parse(localStorage.getItem('fas_cart') || '[]');
-          const found = cart.find(item => item.id === product._id);
+          const cart: CartItem[] = JSON.parse(localStorage.getItem('fas_cart') || '[]');
+          const found = cart.find((item: CartItem) => item.id === product._id);
           if (found) {
             found.quantity += 1;
           } else {

@@ -1,3 +1,4 @@
+// astro.config.mjs
 import { defineConfig } from 'astro/config';
 import netlify from '@astrojs/netlify';
 import react from '@astrojs/react';
@@ -24,6 +25,15 @@ export default defineConfig({
     }
   },
   vite: {
-    envPrefix: ['PUBLIC_', 'SANITY_', 'PUBLIC_SANITY_']
+    envPrefix: ['PUBLIC_', 'SANITY_', 'PUBLIC_SANITY_'],
+    resolve: {
+      alias: {
+        '@': '/src',
+        '@components': '/src/components',
+        '@layouts': '/src/layouts',
+        '@pages': '/src/pages',
+        '@lib': '/src/lib'
+      }
+    }
   }
 });

@@ -1,17 +1,24 @@
 {
+  "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
     "types": ["astro/client", "node"],
-    "jsx": "react-jsx",
-    "jsxImportSource": "react",
     "module": "es2020",
-    "moduleResolution": "bundler",
+    "target": "es2015",
+    "outDir": "dist", // Direct compiled output to a separate directory
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
       "@components/*": ["src/components/*"],
       "@layouts/*": ["src/layouts/*"],
-      "@pages/*": ["src/pages/*"]
-    }
+      "@pages/*": ["src/pages/*"],
+      "@lib/*": ["src/lib/*"]
+    },
+    "esModuleInterop": true,
+    "strict": true,
+    "allowJs": true,
+    "checkJs": false, // Disable type-checking for .js files to avoid processing LegacySanityQuery.js
+    "resolveJsonModule": true
   },
-  "include": ["src", ".astro/types.d.ts"]
+  "include": ["src/**/*", "*.astro", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules", "dist", "src/dev/LegacySanityQuery.js"] // Exclude the problematic file
 }
