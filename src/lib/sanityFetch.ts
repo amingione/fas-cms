@@ -8,9 +8,8 @@ const client = createClient({
   token: import.meta.env.PUBLIC_SANITY_API_TOKEN // ❗️ Use secure/private token here
 });
 
-export async function sanityFetch<T>(params: {
-  query: string;
-  params?: Record<string, unknown>;
-}): Promise<T> {
-  return client.fetch<T>(params.query, params.params);
+type QueryParams = Record<string, string | number | boolean>;
+
+export async function sanityFetch<T>(params: { query: string; params?: QueryParams }): Promise<T> {
+  return client.fetch<T>(params.query, params.params ?? {});
 }
