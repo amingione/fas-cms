@@ -37,3 +37,4 @@ node_modules/
 !.yarn/versions
 .yarnrc.yml
 yarn.lock.netlify/plugins/
+.astro/
