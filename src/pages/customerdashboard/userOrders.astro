@@ -1,7 +1,10 @@
- ---
- import cfetch from '../../utils/cfetch';
- import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+import cfetch from '../../utils/cfetch';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { AuthProvider, useAuth } from '../../components/AuthProvider.jsx';
+import RequireLogin from '../../components/RequireLogin.jsx';
 import { useEffect, useState } from 'react';
+import { getAuth0Client } from '../../lib/auth';
  
  type Order = {
    _id: string;
@@ -20,7 +23,9 @@ const [error, setError] = useState<string | null>(null);
 useEffect(() => {
   const fetchOrders = async () => {
     try {
-      const email = localStorage.getItem('customerEmail');
+      const auth0 = await getAuth0Client();
+      const user = await auth0.getUser();
+      const email = user?.email;
       if (!email) {
         setError('No email found for user.');
         return;
@@ -39,27 +44,33 @@ useEffect(() => {
   fetchOrders();
 }, []);
  ---
- <BaseLayout>
- <section class="orders-section mx-auto mt-20 pt-20 text-white p-6">
-   <h1 class="text-3xl font-borg mb-4">Your Orders</h1>
-   {
-     error ? (
-       <p>{error}</p>
-     ) : orders.length > 0 ? (
-       <ul class="space-y-4">
-         {
-           orders.map(order => (
-             <li class="border border-gray-600 p-4 rounded-lg bg-black/40">
-               <div><strong>Order #:</strong> {order.orderNumber}</div>
-               <div><strong>Date:</strong> {new Date(order.orderDate).toLocaleDateString()}</div>
-               <div><strong>Status:</strong> {order.status}</div>
-               <div><strong>Tracking:</strong> {order.trackingNumber}</div>
-               <div><strong>Total:</strong> ${order.total}</div>
-             </li>
-           ))
-         }
-       </ul>
-     ) : (
-       <p>No orders found.</p>
-     )
-   }
+<AuthProvider>
+  <RequireLogin>
+    <BaseLayout>
+      <section class="orders-section mx-auto mt-20 pt-20 text-white p-6">
+        <h1 class="text-3xl font-borg mb-4">Your Orders</h1>
+        {
+          error ? (
+            <p>{error}</p>
+          ) : orders.length > 0 ? (
+            <ul class="space-y-4">
+              {
+                orders.map(order => (
+                  <li class="border border-gray-600 p-4 rounded-lg bg-black/40">
+                    <div><strong>Order #:</strong> {order.orderNumber}</div>
+                    <div><strong>Date:</strong> {new Date(order.orderDate).toLocaleDateString()}</div>
+                    <div><strong>Status:</strong> {order.status}</div>
+                    <div><strong>Tracking:</strong> {order.trackingNumber}</div>
+                    <div><strong>Total:</strong> ${order.total}</div>
+                  </li>
+                ))
+              }
+            </ul>
+          ) : (
+            <p>No orders found.</p>
+          )
+        }
+      </section>
+    </BaseLayout>
+  </RequireLogin>
+</AuthProvider>
