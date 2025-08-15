@@ -1,17 +1,23 @@
 ---
+import { AuthProvider } from '../../components/AuthProvider.jsx';
+import RequireLogin from '../../components/RequireLogin.jsx';
 let customer = null;
 ---
 
-<html lang="en">
-  <head>
-    <title>Edit Account Info</title>
-  </head>
-<body class="bg-black text-white p-6">
-  <h1 class="text-3xl font-bold mb-6">Manage Your Account</h1>
-  <div id="alert" class="hidden mb-4 px-4 py-2 rounded text-center font-semibold"></div>
+<AuthProvider>
+  <RequireLogin>
+    <html lang="en">
+      <head>
+        <title>Edit Account Info</title>
+      </head>
+      <body class="bg-black text-white p-6">
+        <h1 class="text-3xl font-bold mb-6">Manage Your Account</h1>
+        <div id="alert" class="hidden mb-4 px-4 py-2 rounded text-center font-semibold"></div>
 
-  <p class="text-center text-yellow-400 text-lg font-semibold">
-    Account editor will be re-enabled after login system is updated.
-  </p>
-</body>
-</html>
+        <p class="text-center text-yellow-400 text-lg font-semibold">
+          Account editor will be re-enabled after login system is updated.
+        </p>
+      </body>
+    </html>
+  </RequireLogin>
+</AuthProvider>

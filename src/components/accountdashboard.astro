@@ -6,16 +6,29 @@
     class="w-[220px] h-screen font-ethno text-white pt-0 px-6 shadow-lg space-y-6 fixed top-20 right-0 z-[9999] pointer-events-auto"
   >
     <p id="userEmail" class="text-xs text-gray-400 mb-2"></p>
+    <p id="userGreeting" class="text-sm text-white font-ethno"></p>
     <nav class="flex flex-col space-y-4 font-kwajong font-bold">
-      <a href="https://fasmotorsports.io/sign-in" id="loginLink" class="mt-10 text-red-500 hover:text-white transition-colors hidden">Login</a>
-      <a href="/logout" id="logoutLink" class="mt-10 text-red-500 hover:text-white transition-colors hidden">Logout</a>
+      <button
+        id="loginLink"
+        type="button"
+        class="mt-10 text-red-500 hover:text-white transition-colors hidden focus:outline-none focus:ring-2 focus:ring-red-400 rounded"
+      >
+        Login
+      </button>
+      <button
+        id="logoutLink"
+        type="button"
+        class="mt-10 text-red-500 hover:text-white transition-colors hidden focus:outline-none focus:ring-2 focus:ring-red-400 rounded"
+      >
+        Logout
+      </button>
       <a href="/account" class="hover:text-primary font-bold font-kwajong transition-colors">My Account</a>
     </nav>
     <div class="mt-8 border-t border-gray-700 pt-4">
       <h3 class="text-xs font-bold text-gray-400 mb-2">Vendor Access</h3>
       <nav class="flex flex-col space-y-2 text-sm font-kwajong">
         <a href="/vendor/login" class="text-blue-400 hover:text-white transition">Vendor Login</a>
-        <a href="/vendor/dashboard" class="text-blue-400 hover:text-white transition">Vendor Dashboard</a>
+        <a href="https://fasmotorsports.io/vendor/apply" class="text-blue-400 hover:text-white transition">New Dealer Application</a>
       </nav>
     </div>
     <div class="mt-8 border-t border-gray-700 pt-4 text-[1.2rem] font-captain">
@@ -33,26 +46,36 @@
   </aside>
 </div>
 <script type="module">
+  import { getAuth0Client } from '../../lib/auth';
   window.addEventListener('DOMContentLoaded', async () => {
     const dashboard = document.getElementById('accountDashboard');
     const loginLink = document.getElementById('loginLink');
     const logoutLink = document.getElementById('logoutLink');
     const emailEl = document.getElementById('userEmail');
-    const email = localStorage.getItem('userEmail');
+    const greetingEl = document.getElementById('userGreeting');
 
-    if (email) {
+    const auth0 = await getAuth0Client();
+    const isAuthenticated = await auth0.isAuthenticated();
+    const user = isAuthenticated ? await auth0.getUser() : null;
+
+    if (isAuthenticated && user?.email) {
       logoutLink.classList.remove('hidden');
       loginLink.classList.add('hidden');
-      if (emailEl) emailEl.textContent = email;
+      if (emailEl) emailEl.textContent = user.email;
+      if (greetingEl) greetingEl.textContent = `Hello, ${user.given_name || user.name || user.email}`;
     } else {
       loginLink.classList.remove('hidden');
       logoutLink.classList.add('hidden');
     }
 
-    logoutLink?.addEventListener('click', (e) => {
+    loginLink?.addEventListener('click', async (e) => {
       e.preventDefault();
-      localStorage.removeItem('userEmail');
-      location.reload();
+      await auth0.loginWithRedirect();
+    });
+
+    logoutLink?.addEventListener('click', async (e) => {
+      e.preventDefault();
+      await auth0.logout({ returnTo: window.location.origin });
     });
   });
 </script>

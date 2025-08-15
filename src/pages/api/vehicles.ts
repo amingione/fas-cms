@@ -1,6 +1,26 @@
 import { sanityFetch } from '@/lib/sanityFetch';
+import { jwtVerify, createRemoteJWKSet } from 'jose';
 
-export async function GET(): Promise<Response> {
+const AUTH0_DOMAIN = import.meta.env.AUTH0_DOMAIN;
+const AUTH0_CLIENT_ID = import.meta.env.AUTH0_CLIENT_ID;
+const JWKS = createRemoteJWKSet(new URL(`https://${AUTH0_DOMAIN}/.well-known/jwks.json`));
+
+export async function GET({ request }: { request: Request }): Promise<Response> {
+  const authHeader = request.headers.get('authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return new Response(JSON.stringify({ error: 'Missing or invalid authorization header' }), {
+      status: 401
+    });
+  }
+  const token = authHeader.split(' ')[1];
+  const { payload } = await jwtVerify(token, JWKS, {
+    issuer: `https://${AUTH0_DOMAIN}/`,
+    audience: AUTH0_CLIENT_ID
+  });
+  if (typeof payload.email !== 'string') {
+    return new Response(JSON.stringify({ error: 'Invalid token payload' }), { status: 401 });
+  }
+
   console.log('🧪 VEHICLE API DEBUG →', {
     tokenPrefix: import.meta.env.SANITY_API_TOKEN?.slice(0, 8),
     projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID,
@@ -27,7 +47,8 @@ export async function GET(): Promise<Response> {
     });
   } catch (err) {
     console.error('❌ Vehicle fetch failed:', err);
-    return new Response(JSON.stringify({ error: 'Vehicle fetch error', details: err.message }), {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    return new Response(JSON.stringify({ error: 'Vehicle fetch error', details: message }), {
       status: 500
     });
   }

@@ -1,6 +1,6 @@
 // src/pages/api/get-customer-profile.ts
 import { sanityClient } from '@/lib/sanityClient';
-import jwt from 'jsonwebtoken';
+import { jwtVerify, createRemoteJWKSet } from 'jose';
 import type { APIRoute } from 'astro';
 
 export const GET: APIRoute = async ({ request }) => {
@@ -17,12 +17,21 @@ export const GET: APIRoute = async ({ request }) => {
   }
 
   console.log('Extracted JWT token:', token);
-
+  // Auth0 JWKS + jose verification
+  const AUTH0_DOMAIN = import.meta.env.AUTH0_DOMAIN;
+  const JWKS = createRemoteJWKSet(new URL(`https://${AUTH0_DOMAIN}/.well-known/jwks.json`));
   try {
-    const decoded = jwt.verify(token, import.meta.env.JWT_SECRET) as { _id: string };
+    const { payload } = await jwtVerify(token, JWKS, {
+      issuer: `https://${AUTH0_DOMAIN}/`,
+      audience: import.meta.env.AUTH0_CLIENT_ID
+    });
 
-    const customer = await sanityClient.fetch(`*[_type == "customer" && _id == $id][0]`, {
-      id: decoded._id
+    if (!payload.email) {
+      return new Response(JSON.stringify({ message: 'Email not found in token' }), { status: 400 });
+    }
+
+    const customer = await sanityClient.fetch(`*[_type == "customer" && email == $email][0]`, {
+      email: payload.email
     });
 
     if (!customer) {

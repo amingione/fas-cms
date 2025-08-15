@@ -1,19 +1,29 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import type { NextApiRequest, NextApiResponse } from 'next';
 import { sanityClient } from '@/lib/sanityClient';
+import { jwtVerify, createRemoteJWKSet } from 'jose';
+
+const AUTH0_DOMAIN = process.env.AUTH0_DOMAIN;
+const AUTH0_CLIENT_ID = process.env.AUTH0_CLIENT_ID;
+const JWKS = createRemoteJWKSet(new URL(`https://${AUTH0_DOMAIN}/.well-known/jwks.json`));
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const token = req.headers.authorization?.replace('Bearer ', '');
-
-    if (!token) {
-      return res.status(401).json({ message: 'Missing token' });
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'Missing or invalid Authorization header' });
     }
 
-    // TODO: replace with actual JWT verification logic
-    const userId = 'mock-user-id'; // This should come from verified JWT payload
+    const token = authHeader.split(' ')[1];
+    const { payload } = await jwtVerify(token, JWKS, {
+      issuer: `https://${AUTH0_DOMAIN}/`,
+      audience: AUTH0_CLIENT_ID
+    });
 
-    // Fetch quotes associated with this userId (stored as customerId in Sanity)
-    const query = `*[_type == "quote" && customerId == $userId] | order(_createdAt desc) {
+    if (typeof payload.email !== 'string') {
+      return res.status(400).json({ message: 'Email not found in token' });
+    }
+
+    const query = `*[_type == "quote" && customer->email == $email] | order(_createdAt desc) {
       _id,
       _createdAt,
       status,
@@ -27,8 +37,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       notes
     }`;
 
-    // ✅ Corrected this line:
-    const quotes = await sanityClient.fetch(query, { userId });
+    const quotes = await sanityClient.fetch(query, { email: payload.email });
 
     return res.status(200).json({ quotes });
   } catch (error) {

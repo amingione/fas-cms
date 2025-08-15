@@ -1,9 +1,14 @@
 import Stripe from 'stripe';
 import { z } from 'zod';
+import { jwtVerify, createRemoteJWKSet } from 'jose';
 
 const stripeClient = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-04-30.basil'
+  apiVersion: '2025-07-30.basil'
 });
+
+const AUTH0_DOMAIN = import.meta.env.AUTH0_DOMAIN;
+const AUTH0_CLIENT_ID = import.meta.env.AUTH0_CLIENT_ID;
+const JWKS = createRemoteJWKSet(new URL(`https://${AUTH0_DOMAIN}/.well-known/jwks.json`));
 
 const CartItemSchema = z.object({
   id: z.string(),
@@ -16,6 +21,24 @@ const CartSchema = z.array(CartItemSchema);
 
 export const POST = async ({ request }: { request: Request }) => {
   try {
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({ error: 'Missing or invalid authorization header' }), {
+        status: 401
+      });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const { payload } = await jwtVerify(token, JWKS, {
+      issuer: `https://${AUTH0_DOMAIN}/`,
+      audience: AUTH0_CLIENT_ID
+    });
+
+    const customerEmail = payload?.email;
+    if (typeof customerEmail !== 'string') {
+      return new Response(JSON.stringify({ error: 'Email not found in token' }), { status: 400 });
+    }
+
     const { sessionId, cart } = await request.json();
 
     if (!sessionId || !cart) {
@@ -43,19 +66,28 @@ export const POST = async ({ request }: { request: Request }) => {
     });
 
     const projectId = import.meta.env.SANITY_PROJECT_ID;
-    const token = import.meta.env.SANITY_API_TOKEN;
+    const tokenSanity = import.meta.env.SANITY_API_TOKEN;
 
-    if (!projectId || !token) {
+    if (!projectId || !tokenSanity) {
       return new Response(JSON.stringify({ error: 'Missing Sanity project ID or API token' }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    const orderPayload = {
+    const customerRes = await fetch(
+      `https://${projectId}.api.sanity.io/v1/data/query/production?query=${encodeURIComponent('*[_type == "customer" && email == $email][0]')}&$email=${customerEmail}`,
+      {
+        headers: { Authorization: `Bearer ${tokenSanity}` }
+      }
+    );
+
+    const customerData = await customerRes.json();
+    const customerId = customerData.result?._id;
+
+    const orderPayload: any = {
       _type: 'order',
       stripeSessionId: sessionId,
-      customerEmail: session.customer_details?.email || '',
       cart: validatedCart.map((item) => ({
         id: item.id,
         name: item.name,
@@ -68,11 +100,15 @@ export const POST = async ({ request }: { request: Request }) => {
       createdAt: new Date().toISOString()
     };
 
+    if (customerId) {
+      orderPayload.customer = { _type: 'reference', _ref: customerId };
+    }
+
     const sanityRes = await fetch(`https://${projectId}.api.sanity.io/v1/data/mutate/production`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${tokenSanity}`
       },
       body: JSON.stringify({ mutations: [{ create: orderPayload }] })
     });

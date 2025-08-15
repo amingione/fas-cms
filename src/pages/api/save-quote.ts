@@ -1,3 +1,4 @@
+import { jwtVerify, createRemoteJWKSet } from 'jose';
 import { createClient } from '@sanity/client';
 
 const client = createClient({
@@ -8,7 +9,44 @@ const client = createClient({
   useCdn: false
 });
 
+const AUTH0_DOMAIN = import.meta.env.AUTH0_DOMAIN;
+const AUTH0_CLIENT_ID = import.meta.env.AUTH0_CLIENT_ID;
+const JWKS = createRemoteJWKSet(new URL(`https://${AUTH0_DOMAIN}/.well-known/jwks.json`));
+
 export async function POST({ request }: { request: Request }) {
+  // Auth0 JWT verification
+  const authHeader = request.headers.get('authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return new Response(JSON.stringify({ error: 'Missing or invalid authorization header' }), {
+      status: 401
+    });
+  }
+
+  const token = authHeader.split(' ')[1];
+  let payload: any;
+  try {
+    ({ payload } = await jwtVerify(token, JWKS, {
+      issuer: `https://${AUTH0_DOMAIN}/`,
+      audience: AUTH0_CLIENT_ID
+    }));
+  } catch (err) {
+    return new Response(JSON.stringify({ error: 'Invalid or expired token' }), { status: 401 });
+  }
+
+  const customerEmail = payload?.email;
+  if (typeof customerEmail !== 'string') {
+    return new Response(JSON.stringify({ error: 'Email not found in token' }), { status: 400 });
+  }
+
+  // Look up customer in Sanity
+  const customer = await client.fetch('*[_type == "customer" && email == $email][0]{ _id }', {
+    email: customerEmail
+  });
+
+  if (!customer?._id) {
+    return new Response(JSON.stringify({ error: 'Customer not found' }), { status: 404 });
+  }
+
   let data: {
     vehicleModel: string;
     modifications: string[];
@@ -42,7 +80,8 @@ export async function POST({ request }: { request: Request }) {
       vehicleModel,
       modifications,
       horsepower,
-      price
+      price,
+      customer: { _type: 'reference', _ref: customer._id }
     });
 
     return new Response(

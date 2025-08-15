@@ -2,6 +2,7 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createClient } from '@sanity/client';
+import { jwtVerify, createRemoteJWKSet } from 'jose';
 
 const client = createClient({
   projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID!,
@@ -11,6 +12,30 @@ const client = createClient({
   useCdn: false
 });
 
+// Setup Auth0 JWKS for JWT verification
+const AUTH0_DOMAIN = process.env.AUTH0_DOMAIN;
+const AUTH0_CLIENT_ID = process.env.AUTH0_CLIENT_ID;
+const JWKS = AUTH0_DOMAIN
+  ? createRemoteJWKSet(new URL(`https://${AUTH0_DOMAIN}/.well-known/jwks.json`))
+  : null;
+
+async function verifyAuth(req: NextApiRequest) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
+  const token = authHeader.split(' ')[1];
+  try {
+    if (!JWKS || !AUTH0_DOMAIN || !AUTH0_CLIENT_ID) throw new Error('Auth0 env not set');
+    const { payload } = await jwtVerify(token, JWKS, {
+      issuer: `https://${AUTH0_DOMAIN}/`,
+      audience: AUTH0_CLIENT_ID
+    });
+    return payload;
+  } catch (err) {
+    console.error('JWT verification failed:', err);
+    return null;
+  }
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { id } = req.query;
 
@@ -18,10 +43,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ message: 'Missing or invalid order ID' });
   }
 
+  // Authenticate user for GET and PATCH
+  const user = await verifyAuth(req);
+  if (!user || typeof user.email !== 'string') {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
   if (req.method === 'GET') {
     try {
-      const order = await client.getDocument(id);
-      if (!order) return res.status(404).json({ message: 'Order not found' });
+      // Secure query: only allow if user email matches order's customer
+      const order = await client.fetch(
+        `*[_type == "order" && _id == $id && customer->email == $email][0]`,
+        { id, email: user.email }
+      );
+      if (!order) return res.status(404).json({ message: 'Order not found or access denied' });
       return res.status(200).json(order);
     } catch (err) {
       console.error('Error fetching order:', err);
@@ -31,6 +66,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'PATCH') {
     try {
+      // Only allow PATCH if user is owner of order
+      const existing = await client.fetch(
+        `*[_type == "order" && _id == $id && customer->email == $email][0]`,
+        { id, email: user.email }
+      );
+      if (!existing) return res.status(403).json({ message: 'Access denied' });
+
       const data = req.body;
       const result = await client.patch(id).set(data).commit();
       return res.status(200).json(result);
