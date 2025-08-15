@@ -1,5 +1,11 @@
-import { jwtVerify, createRemoteJWKSet } from 'jose';
+import { jwtVerify, createRemoteJWKSet, type JWTPayload } from 'jose';
 import { createClient } from '@sanity/client';
+
+const json = (obj: unknown, status = 200) =>
+  new Response(JSON.stringify(obj), {
+    status,
+    headers: { 'content-type': 'application/json' }
+  });
 
 const client = createClient({
   projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID,
@@ -11,37 +17,46 @@ const client = createClient({
 
 const AUTH0_DOMAIN = import.meta.env.AUTH0_DOMAIN;
 const AUTH0_CLIENT_ID = import.meta.env.AUTH0_CLIENT_ID;
+
+if (!AUTH0_DOMAIN || !AUTH0_CLIENT_ID) {
+  throw new Error('Auth0 environment variables are not configured');
+}
+
 const JWKS = createRemoteJWKSet(new URL(`https://${AUTH0_DOMAIN}/.well-known/jwks.json`));
+
+type TokenPayload = JWTPayload & { email?: string };
 
 export async function POST({ request }: { request: Request }) {
   // Auth0 JWT verification
   const authHeader = request.headers.get('authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return new Response(JSON.stringify({ error: 'Missing or invalid authorization header' }), {
-      status: 401
-    });
+    return json({ error: 'Missing or invalid authorization header' }, 401);
   }
 
   const token = authHeader.split(' ')[1];
-  let payload: any;
+  let payload: TokenPayload;
   try {
-    ({ payload } = await jwtVerify(token, JWKS, {
+    const verified = await jwtVerify(token, JWKS, {
       issuer: `https://${AUTH0_DOMAIN}/`,
       audience: AUTH0_CLIENT_ID
-    }));
-  } catch (err) {
-    return new Response(JSON.stringify({ error: 'Invalid or expired token' }), { status: 401 });
+    });
+    payload = verified.payload as TokenPayload;
+  } catch {
+    return json({ error: 'Invalid or expired token' }, 401);
   }
 
   const customerEmail = payload?.email;
   if (typeof customerEmail !== 'string') {
-    return new Response(JSON.stringify({ error: 'Email not found in token' }), { status: 400 });
+    return json({ error: 'Email not found in token' }, 400);
   }
 
   // Look up customer in Sanity
-  const customer = await client.fetch('*[_type == "customer" && email == $email][0]{ _id }', {
-    email: customerEmail
-  });
+  const customer = await client.fetch<{ _id: string } | null>(
+    '*[_type == "customer" && email == $email][0]{ _id }',
+    {
+      email: customerEmail
+    }
+  );
 
   if (!customer?._id) {
     return new Response(JSON.stringify({ error: 'Customer not found' }), { status: 404 });
@@ -57,9 +72,7 @@ export async function POST({ request }: { request: Request }) {
   try {
     data = await request.json();
   } catch {
-    return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
-      status: 400
-    });
+    return json({ error: 'Invalid JSON body' }, 400);
   }
 
   const { vehicleModel, modifications, horsepower, price } = data;
@@ -70,7 +83,7 @@ export async function POST({ request }: { request: Request }) {
     typeof horsepower !== 'number' ||
     typeof price !== 'number'
   ) {
-    return new Response(JSON.stringify({ error: 'Missing or invalid fields' }), { status: 400 });
+    return json({ error: 'Missing or invalid fields' }, 400);
   }
 
   try {
@@ -84,22 +97,18 @@ export async function POST({ request }: { request: Request }) {
       customer: { _type: 'reference', _ref: customer._id }
     });
 
-    return new Response(
-      JSON.stringify({
+    return json(
+      {
         success: true,
         id: newDoc._id,
         createdAt: newDoc._createdAt,
         vehicleModel: data.vehicleModel
-      }),
-      {
-        status: 200
-      }
+      },
+      200
     );
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     console.error('Sanity write failed:', message);
-    return new Response(JSON.stringify({ error: 'Failed to write to Sanity' }), {
-      status: 500
-    });
+    return json({ error: 'Failed to write to Sanity' }, 500);
   }
 }

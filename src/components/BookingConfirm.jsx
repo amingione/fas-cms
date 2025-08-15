@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import { useEffect, useState } from 'react';
 
 export default function BookingConfirm() {
@@ -18,7 +19,7 @@ export default function BookingConfirm() {
         </div>
       ) : (
         <p className="text-red-500 font-semibold">
-          We couldn't find a booking ID. Please check your confirmation email.
+          We couldn&apos;t find a booking ID. Please check your confirmation email.
         </p>
       )}
     </div>

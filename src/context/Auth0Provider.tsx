@@ -1,18 +1,25 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import * as Auth0 from '@auth0/auth0-spa-js';
+
+type Auth0User = {
+  sub?: string;
+  email?: string;
+  name?: string;
+  [key: string]: unknown;
+};
 
 interface AuthContextType {
   auth0Client: Auth0.Auth0Client | null;
   isAuthenticated: boolean;
-  user: any; // Optionally, replace `any` with Auth0 user type
+  user: Auth0User | undefined;
   loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [auth0Client, setAuth0Client] = useState<Auth0.Auth0Client | null>(null);
-  const [user, setUser] = useState<any>(undefined);
+  const [user, setUser] = useState<Auth0User | undefined>(undefined);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -35,7 +42,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setIsAuthenticated(isAuthenticated);
 
       if (isAuthenticated) {
-        const user = await auth0.getUser();
+        const user = await auth0.getUser<Auth0User>();
         setUser(user);
       }
 

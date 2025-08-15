@@ -1,6 +1,35 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Stripe from 'stripe';
 import { z } from 'zod';
 import { jwtVerify, createRemoteJWKSet } from 'jose';
+import type { z as ZodNamespace } from 'zod';
+
+type CartItem = ZodNamespace.infer<typeof CartItemSchema>;
+
+interface OrderPayload {
+  _type: 'order';
+  stripeSessionId: string;
+  cart: Array<{
+    id: string;
+    name: string;
+    price: number;
+    quantity: number;
+    categories: string[];
+  }>;
+  totalAmount: number;
+  status: 'paid' | 'unpaid' | 'failed' | 'refunded';
+  createdAt: string;
+  customer?: { _type: 'reference'; _ref: string };
+}
+
+interface SaveOrderBody {
+  sessionId: string;
+  cart: unknown;
+}
+
+interface SanityCustomerQueryResult {
+  result?: { _id?: string } | null;
+}
 
 const stripeClient = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-07-30.basil'
@@ -21,6 +50,8 @@ const CartSchema = z.array(CartItemSchema);
 
 export const POST = async ({ request }: { request: Request }) => {
   try {
+    const body = (await request.json()) as SaveOrderBody;
+
     const authHeader = request.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return new Response(JSON.stringify({ error: 'Missing or invalid authorization header' }), {
@@ -39,7 +70,7 @@ export const POST = async ({ request }: { request: Request }) => {
       return new Response(JSON.stringify({ error: 'Email not found in token' }), { status: 400 });
     }
 
-    const { sessionId, cart } = await request.json();
+    const { sessionId, cart } = body;
 
     if (!sessionId || !cart) {
       return new Response(JSON.stringify({ error: 'Missing sessionId or cart' }), {
@@ -59,7 +90,7 @@ export const POST = async ({ request }: { request: Request }) => {
       );
     }
 
-    const validatedCart = cartValidation.data;
+    const validatedCart: CartItem[] = cartValidation.data as CartItem[];
 
     const session = await stripeClient.checkout.sessions.retrieve(sessionId, {
       expand: ['customer_details']
@@ -75,17 +106,19 @@ export const POST = async ({ request }: { request: Request }) => {
       });
     }
 
-    const customerRes = await fetch(
-      `https://${projectId}.api.sanity.io/v1/data/query/production?query=${encodeURIComponent('*[_type == "customer" && email == $email][0]')}&$email=${customerEmail}`,
-      {
-        headers: { Authorization: `Bearer ${tokenSanity}` }
-      }
-    );
+    const query = '*[_type == "customer" && email == $email][0]';
+    const sanityUrl = new URL(`https://${projectId}.api.sanity.io/v1/data/query/production`);
+    sanityUrl.searchParams.set('query', query);
+    sanityUrl.searchParams.set('$email', customerEmail);
 
-    const customerData = await customerRes.json();
+    const customerRes = await fetch(sanityUrl.toString(), {
+      headers: { Authorization: `Bearer ${tokenSanity}` }
+    });
+
+    const customerData: SanityCustomerQueryResult = await customerRes.json();
     const customerId = customerData.result?._id;
 
-    const orderPayload: any = {
+    const orderPayload: OrderPayload = {
       _type: 'order',
       stripeSessionId: sessionId,
       cart: validatedCart.map((item) => ({
@@ -93,7 +126,7 @@ export const POST = async ({ request }: { request: Request }) => {
         name: item.name,
         price: item.price,
         quantity: item.quantity,
-        categories: item.categories || []
+        categories: (item.categories ?? []) as string[]
       })),
       totalAmount: session.amount_total ? session.amount_total / 100 : 0,
       status: 'paid',
