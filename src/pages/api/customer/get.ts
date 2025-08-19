@@ -1,52 +1,74 @@
-import { defineEventHandler, readBody, setHeader, eventHandler } from 'h3';
+// src/pages/api/customer/get.ts (Astro APIRoute)
+import type { APIRoute } from 'astro';
 import { createClient } from '@sanity/client';
 
-const handler = defineEventHandler(async (event) => {
-  setHeader(event, 'Access-Control-Allow-Origin', '*');
-  setHeader(event, 'Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-  setHeader(event, 'Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  setHeader(event, 'Content-Type', 'application/json');
+const cors = {
+  'access-control-allow-origin': '*',
+  'access-control-allow-methods': 'POST, OPTIONS',
+  'access-control-allow-headers': 'content-type, authorization'
+};
 
-  if (event.req.method === 'OPTIONS') {
-    return '';
-  }
+export const OPTIONS: APIRoute = async () => new Response(null, { status: 204, headers: cors });
 
-  const projectId = import.meta.env.SANITY_PROJECT_ID || import.meta.env.VITE_SANITY_PROJECT_ID;
-  const dataset = import.meta.env.SANITY_DATASET || import.meta.env.VITE_SANITY_DATASET;
-  const token =
-    import.meta.env.SANITY_READ_TOKEN ||
-    import.meta.env.SANITY_TOKEN ||
-    import.meta.env.VITE_SANITY_TOKEN;
-  const apiVersion = import.meta.env.SANITY_API_VERSION || '2024-10-01';
-
-  if (!projectId || !dataset) {
-    return {
-      error: 'Server misconfigured: missing SANITY_PROJECT_ID or SANITY_DATASET'
-    };
-  }
-
-  const client = createClient({
-    projectId,
-    dataset,
-    apiVersion,
-    token, // optional for public datasets
-    useCdn: false
-  });
-
+export const POST: APIRoute = async ({ request }) => {
   try {
-    const { email } = (await readBody(event)) || {};
-    const emailLc = (email || '').toString().trim().toLowerCase();
-    if (!emailLc) {
-      return { error: 'Missing email' };
+    const projectId =
+      (import.meta.env.SANITY_PROJECT_ID as string | undefined) ||
+      (import.meta.env.VITE_SANITY_PROJECT_ID as string | undefined) ||
+      (import.meta.env.PUBLIC_SANITY_PROJECT_ID as string | undefined);
+
+    const dataset =
+      (import.meta.env.SANITY_DATASET as string | undefined) ||
+      (import.meta.env.VITE_SANITY_DATASET as string | undefined) ||
+      (import.meta.env.PUBLIC_SANITY_DATASET as string | undefined);
+
+    const token =
+      (import.meta.env.SANITY_READ_TOKEN as string | undefined) ||
+      (import.meta.env.SANITY_TOKEN as string | undefined) ||
+      (import.meta.env.VITE_SANITY_TOKEN as string | undefined) ||
+      (import.meta.env.VITE_SANITY_API_TOKEN as string | undefined);
+
+    const apiVersion = (import.meta.env.SANITY_API_VERSION as string | undefined) || '2024-10-01';
+
+    if (!projectId || !dataset) {
+      return new Response(
+        JSON.stringify({
+          error: 'Server misconfigured: missing SANITY_PROJECT_ID or SANITY_DATASET'
+        }),
+        { status: 500, headers: { ...cors, 'content-type': 'application/json' } }
+      );
     }
 
-    const data = await client.fetch(`*[_type == "customer" && email == $email][0]`, {
+    const { email } = (await request.json().catch(() => ({}))) as { email?: string };
+    const emailLc = (email || '').toString().trim().toLowerCase();
+    if (!emailLc) {
+      return new Response(JSON.stringify({ error: 'Missing email' }), {
+        status: 400,
+        headers: { ...cors, 'content-type': 'application/json' }
+      });
+    }
+
+    const client = createClient({
+      projectId,
+      dataset,
+      apiVersion,
+      token, // optional for public datasets; required if private
+      useCdn: false
+    });
+
+    const customer = await client.fetch(`*[_type == "customer" && email == $email][0]`, {
       email: emailLc
     });
-    return data || null;
-  } catch (err) {
-    return { error: 'Failed to fetch customer data' };
-  }
-});
 
-export default handler;
+    return new Response(JSON.stringify(customer || null), {
+      status: 200,
+      headers: { ...cors, 'content-type': 'application/json' }
+    });
+  } catch (err: any) {
+    console.error('customer/get error:', err?.message || err);
+    return new Response(JSON.stringify({ error: 'Server error' }), {
+      status: 500,
+      headers: { ...cors, 'content-type': 'application/json' }
+    });
+  }
+};
