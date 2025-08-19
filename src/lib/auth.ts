@@ -9,7 +9,7 @@ export async function getAuth0Client(): Promise<Auth0Client> {
       domain: import.meta.env.PUBLIC_AUTH0_DOMAIN,
       clientId: import.meta.env.PUBLIC_AUTH0_CLIENT_ID,
       authorizationParams: {
-        redirect_uri: window.location.origin
+        redirect_uri: window.location.origin + '/account'
       }
     });
   }

@@ -1,42 +1,8 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro'
-import { createClient } from '@sanity/client'
-import { useEffect, useState } from 'react'
-
-const client = createClient({
-  projectId: 'r4og35qd',
-  dataset: 'production',
-  useCdn: false,
-  apiVersion: '2023-01-01',
-})
-
-type Customer = {
-  address?: string;
-  billingAddress?: { street?: string };
-  phone?: string;
-  email?: string;
-  firstName?: string;
-  lastName?: string;
-  emailOptIn?: boolean;
-  textOptIn?: boolean;
-  marketingOptIn?: boolean;
-};
-
-const [customer, setCustomer] = useState<Customer | null>(null);
-
-useEffect(() => {
-  async function fetchCustomer() {
-    const email = localStorage.getItem('customerEmail')
-    const data = await client.fetch(`*[_type == "customer" && email == $email][0]`, {
-      email,
-    })
-    setCustomer(data)
-  }
-  fetchCustomer()
-}, [])
+import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
 
-<BaseLayout>
+<BaseLayout hideBrandTag>
   <section class="overflow-hidden profile-section text-white font-cyber p-8">
     <h1 class="text-center text-4xl text-red-600 font-bold mb-8">PROFILE</h1>
 
@@ -45,21 +11,21 @@ useEffect(() => {
         <h2 class="text-red-500 text-xl mb-2">ADDRESSES</h2>
         <div class="mb-4">
           <label class="block mb-1">SHIPPING</label>
-          <input type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value={customer?.address || ''} />
+          <input id="shippingAddress" type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value="" />
         </div>
         <div class="mb-4">
           <label class="block mb-1">BILLING</label>
-          <input type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value={customer?.billingAddress?.street || ''} />
+          <input id="billingStreet" type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value="" />
         </div>
 
         <h2 class="text-red-500 text-xl mb-2">CONTACT INFO</h2>
         <div class="mb-4">
           <label class="block mb-1">PHONE</label>
-          <input type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value={customer?.phone || ''} />
+          <input id="phone" type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value="" />
         </div>
         <div class="mb-4">
           <label class="block mb-1">EMAIL</label>
-          <input type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value={customer?.email || ''} />
+          <input id="email" type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value="" />
         </div>
       </div>
 
@@ -67,33 +33,190 @@ useEffect(() => {
         <h2 class="text-red-500 text-xl mb-2">NAME</h2>
         <div class="mb-4">
           <label class="block mb-1">FIRST</label>
-          <input type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value={customer?.firstName || ''} />
+          <input id="firstName" type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value="" />
         </div>
         <div class="mb-4">
           <label class="block mb-1">LAST</label>
-          <input type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value={customer?.lastName || ''} />
+          <input id="lastName" type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value="" />
         </div>
 
         <h2 class="text-red-500 text-xl mb-2">PREFERENCES</h2>
         <div class="mb-2">
           <label>
-            <input type="checkbox" class="mr-2" checked={customer?.emailOptIn} />
+            <input id="emailOptIn" type="checkbox" class="mr-2" />
             OPT IN TO F.A.S. EMAIL UPDATES FOR ORDERS
           </label>
         </div>
         <div class="mb-2">
           <label>
-            <input type="checkbox" class="mr-2" checked={customer?.textOptIn} />
+            <input id="textOptIn" type="checkbox" class="mr-2" />
             OPT IN TO F.A.S. TEXT UPDATES FOR ORDERS
           </label>
         </div>
         <div class="mb-2">
           <label>
-            <input type="checkbox" class="mr-2" checked={customer?.marketingOptIn} />
+            <input id="marketingOptIn" type="checkbox" class="mr-2" />
             I WOULD LIKE TO RECEIVE MARKETING EMAILS
           </label>
+        </div>
+        <div class="mt-6 flex gap-3">
+          <button id="saveProfile" type="button" class="px-4 py-2 bg-primary text-black font-ethno disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.98] transition-transform">
+            Save
+          </button>
+          <button id="revertProfile" type="button" class="px-4 py-2 border border-white/40 font-ethno active:scale-[0.98] transition-transform">
+            Revert
+          </button>
+          <span id="saveStatus" class="ml-2 text-sm opacity-80"></span>
         </div>
       </div>
     </div>
   </section>
+
+  <script type="module">
+    import { getAuth0Client } from '/src/lib/auth.ts';
+
+    const $ = (id) => document.getElementById(id);
+
+    async function resolveEmail() {
+      try {
+        const auth0 = await getAuth0Client();
+        const authed = await auth0.isAuthenticated();
+        if (authed) {
+          const user = await auth0.getUser();
+          if (user?.email) return user.email;
+        }
+      } catch {}
+      return localStorage.getItem('customerEmail') || '';
+    }
+
+    async function loadCustomer() {
+      const email = await resolveEmail();
+      if (!email) return; // nothing to load
+
+      try {
+        const res = await fetch('/api/customer/get', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        if (!data) return;
+
+        $('email').value = data.email || '';
+        $('phone').value = data.phone || '';
+        $('shippingAddress').value = data.address || '';
+        $('billingStreet').value = data.billingAddress?.street || '';
+        $('firstName').value = data.firstName || '';
+        $('lastName').value = data.lastName || '';
+        $('emailOptIn').checked = !!data.emailOptIn;
+        $('textOptIn').checked = !!data.textOptIn;
+        $('marketingOptIn').checked = !!data.marketingOptIn;
+      } catch (e) {
+        console.error('Failed to fetch customer via API', e);
+      }
+    }
+
+    loadCustomer();
+
+    // Ensure DOM is ready before binding handlers
+    window.addEventListener('DOMContentLoaded', () => {
+      // --- Local draft autosave helpers ---
+      const DRAFT_KEY = 'fas_profile_draft_v1';
+      const saveBtn = document.getElementById('saveProfile');
+      const revertBtn = document.getElementById('revertProfile');
+      const statusEl = document.getElementById('saveStatus');
+      let lastSnapshot = null;
+
+      const $v = (id) => /** @type {HTMLInputElement} */(document.getElementById(id));
+
+      function snapshot() {
+        return {
+          email: $v('email')?.value.trim() || '',
+          phone: $v('phone')?.value.trim() || '',
+          address: $v('shippingAddress')?.value.trim() || '',
+          billingAddress: { street: $v('billingStreet')?.value.trim() || '' },
+          firstName: $v('firstName')?.value.trim() || '',
+          lastName: $v('lastName')?.value.trim() || '',
+          emailOptIn: !!$v('emailOptIn')?.checked,
+          textOptIn: !!$v('textOptIn')?.checked,
+          marketingOptIn: !!$v('marketingOptIn')?.checked,
+        };
+      }
+
+      function applySnapshot(snap) {
+        if (!snap) return;
+        $v('email').value = snap.email || '';
+        $v('phone').value = snap.phone || '';
+        $v('shippingAddress').value = snap.address || '';
+        $v('billingStreet').value = snap.billingAddress?.street || '';
+        $v('firstName').value = snap.firstName || '';
+        $v('lastName').value = snap.lastName || '';
+        $v('emailOptIn').checked = !!snap.emailOptIn;
+        $v('textOptIn').checked = !!snap.textOptIn;
+        $v('marketingOptIn').checked = !!snap.marketingOptIn;
+      }
+
+      function setSaving(isSaving, msg) {
+        if (saveBtn) saveBtn.disabled = isSaving;
+        if (statusEl) statusEl.textContent = msg || (isSaving ? 'Saving…' : '');
+      }
+
+      // Restore local draft first so typing survives reloads
+      try {
+        const draftRaw = localStorage.getItem(DRAFT_KEY);
+        if (draftRaw) {
+          const draft = JSON.parse(draftRaw);
+          applySnapshot(draft);
+        }
+      } catch {}
+
+      // After Sanity load completes, take a baseline snapshot
+      setTimeout(() => { lastSnapshot = snapshot(); }, 500);
+
+      // Autosave draft on input changes
+      const inputIds = ['email','phone','shippingAddress','billingStreet','firstName','lastName','emailOptIn','textOptIn','marketingOptIn'];
+      inputIds.forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const evt = el instanceof HTMLInputElement && el.type === 'checkbox' ? 'change' : 'input';
+        el.addEventListener(evt, () => {
+          try { localStorage.setItem(DRAFT_KEY, JSON.stringify(snapshot())); } catch {}
+        });
+      });
+
+      revertBtn?.addEventListener('click', () => {
+        if (!lastSnapshot) return;
+        applySnapshot(lastSnapshot);
+        setSaving(false, 'Reverted');
+        setTimeout(() => setSaving(false, ''), 1200);
+      });
+
+      saveBtn?.addEventListener('click', async () => {
+        setSaving(true);
+        try {
+          const auth0 = await getAuth0Client();
+          const user = await auth0.getUser();
+          const sub = user?.sub || '';
+          const body = { sub, ...snapshot() };
+
+          const res = await fetch('/api/customer/update', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+
+          if (!res.ok) throw new Error(await res.text());
+          lastSnapshot = snapshot();
+          try { localStorage.removeItem(DRAFT_KEY); } catch {}
+          setSaving(false, 'Saved');
+          setTimeout(() => setSaving(false, ''), 1200);
+        } catch (e) {
+          console.error(e);
+          setSaving(false, 'Save failed');
+          setTimeout(() => setSaving(false, ''), 1600);
+        }
+      });
+    });
+  </script>
 </BaseLayout>

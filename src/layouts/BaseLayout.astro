@@ -5,6 +5,8 @@ import Header from '../components/Header.astro';
 import Footer from '../components/footer.astro';
 import FloatingLoginGarage from '../components/FloatingLoginGarage.astro';
 import FloatingCartWidget from '../components/floatingwidget.jsx';
+
+const { hideBrandTag = false } = Astro.props;
 ---
 
 <!DOCTYPE html>
@@ -33,11 +35,13 @@ import FloatingCartWidget from '../components/floatingwidget.jsx';
       <Header />
 
       <!-- Animated Brand Tag -->
-      <div class="hidden md:block fixed top-[200px] left-6 z-30 animate-slide-in-left">
-        <p class="text-white text-3xl font-borg leading-tight tracking-wide">
-          F.a.S.<p class="text-primary font-ethno-italic">MOTORSPORTS</p>
-        </p>
-      </div>
+      {!hideBrandTag && (
+        <div class="hidden md:block fixed top-[200px] left-6 z-30 animate-slide-in-left pointer-events-none opacity-80 hover:opacity-100 transition-opacity duration-200">
+          <p class="text-white text-3xl font-borg leading-tight tracking-wide">
+            F.a.S.<p class="text-primary font-ethno-italic">MOTORSPORTS</p>
+          </p>
+        </div>
+      )}
 
       <main class="min-h-screen bg-transparent -mt-0">
         <slot />

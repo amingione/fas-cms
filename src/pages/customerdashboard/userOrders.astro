@@ -1,76 +1,70 @@
 ---
 import cfetch from '../../utils/cfetch';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { AuthProvider, useAuth } from '../../components/AuthProvider.jsx';
+import { AuthProvider } from '../../components/AuthProvider.jsx';
 import RequireLogin from '../../components/RequireLogin.jsx';
-import { useEffect, useState } from 'react';
-import { getAuth0Client } from '../../lib/auth';
- 
- type Order = {
-   _id: string;
-   orderNumber: string;
-   orderDate: string;
-   status: string;
-   trackingNumber: string;
-   total: number;
- };
- 
-
-const [orders, setOrders] = useState<Order[]>([]);
-const [error, setError] = useState<string | null>(null);
- 
-
-useEffect(() => {
-  const fetchOrders = async () => {
-    try {
-      const auth0 = await getAuth0Client();
-      const user = await auth0.getUser();
-      const email = user?.email;
-      if (!email) {
-        setError('No email found for user.');
-        return;
-      }
-
-      const res = await cfetch(`/api/get-user-order?email=${encodeURIComponent(email)}`);
-      if (!res.ok) throw new Error(await res.text());
-      const data = await res.json();
-      setOrders(data);
-    } catch (err) {
-      console.error('Failed to load orders:', err);
-      setError('Unable to load your orders.');
-    }
-  };
-
-  fetchOrders();
-}, []);
- ---
-<AuthProvider>
-  <RequireLogin>
-    <BaseLayout>
+---
+<AuthProvider client:load>
+  <RequireLogin client:load>
+    <BaseLayout hideBrandTag>
       <section class="orders-section mx-auto mt-20 pt-20 text-white p-6">
         <h1 class="text-3xl font-borg mb-4">Your Orders</h1>
-        {
-          error ? (
-            <p>{error}</p>
-          ) : orders.length > 0 ? (
-            <ul class="space-y-4">
-              {
-                orders.map(order => (
-                  <li class="border border-gray-600 p-4 rounded-lg bg-black/40">
-                    <div><strong>Order #:</strong> {order.orderNumber}</div>
-                    <div><strong>Date:</strong> {new Date(order.orderDate).toLocaleDateString()}</div>
-                    <div><strong>Status:</strong> {order.status}</div>
-                    <div><strong>Tracking:</strong> {order.trackingNumber}</div>
-                    <div><strong>Total:</strong> ${order.total}</div>
-                  </li>
-                ))
-              }
-            </ul>
-          ) : (
-            <p>No orders found.</p>
-          )
-        }
+        <div id="orders-root" class="space-y-4">
+          <p>Loading…</p>
+        </div>
       </section>
+
+      <script type="module">
+        import { getAuth0Client } from '/src/lib/auth.ts';
+
+        const root = document.getElementById('orders-root');
+        const renderError = (msg) => {
+          root.innerHTML = `<p>${msg}</p>`;
+        };
+        const renderEmpty = () => {
+          root.innerHTML = `<p>No orders found.</p>`;
+        };
+        const renderList = (orders) => {
+          root.innerHTML = '<ul class="space-y-4"></ul>';
+          const ul = root.querySelector('ul');
+          for (const order of orders) {
+            const li = document.createElement('li');
+            li.className = 'border border-gray-600 p-4 rounded-lg bg-black/40';
+            li.innerHTML = `
+              <div><strong>Order #:</strong> ${order.orderNumber ?? order._id}</div>
+              <div><strong>Date:</strong> ${order.orderDate ? new Date(order.orderDate).toLocaleDateString() : ''}</div>
+              <div><strong>Status:</strong> ${order.status ?? ''}</div>
+              <div><strong>Tracking:</strong> ${order.trackingNumber ?? ''}</div>
+              <div><strong>Total:</strong> $${order.total ?? ''}</div>
+            `;
+            ul.appendChild(li);
+          }
+        };
+
+        (async () => {
+          try {
+            const auth0 = await getAuth0Client();
+            const isAuthed = await auth0.isAuthenticated();
+            if (!isAuthed) {
+              // Let RequireLogin component handle gating; just show a hint
+              renderError('Please log in to view your orders.');
+              return;
+            }
+            const user = await auth0.getUser();
+            const email = user?.email;
+            if (!email) return renderError('No email found for user.');
+
+            const res = await cfetch(`/api/get-user-order?email=${encodeURIComponent(email)}`);
+            if (!res.ok) throw new Error(await res.text());
+            const data = await res.json();
+            if (!Array.isArray(data) || data.length === 0) return renderEmpty();
+            renderList(data);
+          } catch (err) {
+            console.error('Failed to load orders:', err);
+            renderError('Unable to load your orders.');
+          }
+        })();
+      </script>
     </BaseLayout>
   </RequireLogin>
 </AuthProvider>

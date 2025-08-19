@@ -1,0 +1,66 @@
+---
+// src/pages/account/index.astro
+import BaseLayout from "../../layouts/BaseLayout.astro";
+---
+<BaseLayout hideBrandTag>
+  <main class="min-h-screen text-white p-8">
+    <div id="account-view"><p>Loading…</p></div>
+
+    <script type="module">
+      import { getAuth0Client } from "/src/lib/auth.ts";
+
+      const root = document.getElementById("account-view");
+
+      (async () => {
+        const auth0 = await getAuth0Client();
+
+        // Complete Auth0 redirect if we're returning from the login/signup page
+        if (window.location.search.includes("code=")) {
+          await auth0.handleRedirectCallback();
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        const authed = await auth0.isAuthenticated();
+
+        if (!authed) {
+          root.innerHTML = `
+            <h1 class="text-2xl mb-4 font-borg text-primary">Account</h1>
+            <p class="mb-6">Log in or create an account to access your dashboard.</p>
+            <div class="flex gap-4">
+              <button id="login" class="px-4 py-2 bg-primary text-black font-ethno">Log in</button>
+              <button id="signup" class="px-4 py-2 border border-white/40 font-ethno">Sign up</button>
+            </div>
+          `;
+          document.getElementById("login")?.addEventListener("click", () =>
+            auth0.loginWithRedirect({
+              authorizationParams: { screen_hint: "login", redirect_uri: window.location.origin + "/account" },
+            })
+          );
+          document.getElementById("signup")?.addEventListener("click", () =>
+            auth0.loginWithRedirect({
+              authorizationParams: { screen_hint: "signup", redirect_uri: window.location.origin + "/account" },
+            })
+          );
+          return;
+        }
+
+        const user = await auth0.getUser();
+        const claims = await auth0.getIdTokenClaims();
+        const token = claims?.__raw;
+        if (token) {
+          document.cookie = `token=${token}; path=/; SameSite=Lax; ${window.location.protocol === "https:" ? "Secure;" : ""} expires=${new Date(claims.exp * 1000).toUTCString()}`;
+        }
+        localStorage.setItem("customerEmail", user.email);
+
+        const name = user?.given_name || user?.name || user?.email || "there";
+        // Show greeting + link (or auto-redirect if you want)
+        root.innerHTML = `
+          <p class="mb-6">Hello, <span class="text-red-500">${name}</span></p>
+          <a href="/customerdashboard/customerProfile" class="underline">My Account →</a>
+        `;
+        // If you prefer to skip this screen altogether:
+        // window.location.replace("/customerdashboard/customerProfile");
+      })();
+    </script>
+  </main>
+</BaseLayout>

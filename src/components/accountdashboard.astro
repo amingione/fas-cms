@@ -46,7 +46,7 @@
   </aside>
 </div>
 <script type="module">
-  import { getAuth0Client } from '../../lib/auth';
+  import { getAuth0Client } from '/src/lib/auth.ts';
   window.addEventListener('DOMContentLoaded', async () => {
     const dashboard = document.getElementById('accountDashboard');
     const loginLink = document.getElementById('loginLink');
@@ -70,12 +70,14 @@
 
     loginLink?.addEventListener('click', async (e) => {
       e.preventDefault();
-      await auth0.loginWithRedirect();
+      await auth0.loginWithRedirect({
+        authorizationParams: { redirect_uri: window.location.origin + '/account' }
+      });
     });
 
     logoutLink?.addEventListener('click', async (e) => {
       e.preventDefault();
-      await auth0.logout({ returnTo: window.location.origin });
+      await auth0.logout({ logoutParams: { returnTo: window.location.origin } });
     });
   });
 </script>
