@@ -2,6 +2,76 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Button from '../components/Button.astro';
 import SplinePortingShowcase from '../components/SplinePortingShowcase.jsx';
+import * as sanity from '../lib/sanity-utils';
+
+let featuredProducts: any[] = [];
+try {
+  // Try to resolve a configured Sanity client from your utils module
+  const _client: any = (sanity as any).sanityClient
+    ?? (sanity as any).client
+    ?? ((sanity as any).getClient ? (sanity as any).getClient() : null);
+
+  if (_client && typeof _client.fetch === 'function') {
+    // 1) Prefer PUBLISHED docs where featured is a boolean true
+    let booleanTry: any[] = [];
+    try {
+      booleanTry = await _client.fetch(
+        `*[_type == "product" && !(_id in path("drafts.**")) && coalesce(featured, false) == true && defined(slug.current)][0..7]{
+          _id,
+          name,
+          title,
+          "slug": slug.current,
+          price,
+          "imageUrl": coalesce(
+            image.asset->url,
+            mainImage.asset->url,
+            images[0].asset->url,
+            thumbnail.asset->url,
+            thumb.asset->url
+          )
+        }`
+      );
+    } catch {}
+    console.log('[Featured] boolean=true count:', Array.isArray(booleanTry) ? booleanTry.length : 0);
+    try {
+      const cfg = (sanity as any).config || (sanity as any).clientConfig || (sanity as any).defaultClientConfig || {};
+      console.log('[Sanity] projectId:', cfg.projectId, 'dataset:', cfg.dataset);
+    } catch {}
+
+    featuredProducts = Array.isArray(booleanTry) ? booleanTry : [];
+
+    // 2) Fallback: some datasets store featured as a string "true"
+    if (!featuredProducts.length) {
+      let stringTry: any[] = [];
+      try {
+        stringTry = await _client.fetch(
+          `*[_type == "product" && !(_id in path("drafts.**")) && featured == "true" && defined(slug.current)][0..7]{
+            _id,
+            name,
+            title,
+            "slug": slug.current,
+            price,
+            "imageUrl": coalesce(
+              image.asset->url,
+              mainImage.asset->url,
+              images[0].asset->url,
+              thumbnail.asset->url,
+              thumb.asset->url
+            )
+          }`
+        );
+      } catch {}
+      console.log('[Featured] string "true" count:', Array.isArray(stringTry) ? stringTry.length : 0);
+      try {
+        const cfg = (sanity as any).config || (sanity as any).clientConfig || (sanity as any).defaultClientConfig || {};
+        console.log('[Sanity] projectId:', cfg.projectId, 'dataset:', cfg.dataset);
+      } catch {}
+      featuredProducts = Array.isArray(stringTry) ? stringTry : [];
+    }
+  }
+} catch (err) {
+  console.error('Featured products fetch failed', err);
+}
 ---
 
 <style>
@@ -128,39 +198,31 @@ html, body {
   </div>
 </section>
 
-<!-- SHOP HIGHLIGHTS -->
 <section class="bg-black/30 backdrop-blur-lg py-20 px-4 text-white text-center">
   <h2 class="text-accent font-cyber tracking-wide text-sm mb-2">SUPERCHARGER ENGINEERING & MODIFICATION</h2>
   <h3 class="text-3xl font-borg mb-6">F.a.S. <p class="font-ethno text-white"><span></span></p> MOTORSPORTS</h3>
   <div class="flex justify-center gap-2 mb-10">
     <img src="/images/fas predator icon border copy.png" class="h-6" />
   </div>
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 px-6 overflow-hidden">
-    <div class="bg-black/50 backdrop-blur-lg p-4 rounded-lg shadow">
-      <img src="/images/fas-1x-2.png" class="h-28 mx-auto" />
-      <p class="mt-3 font-cyber text-sm">F.A.S. 1100 Package </p><br>
-      <p class="font-bold font-ethno text-accent">$29,999</p>
-      <Button href="/shop/fas-1100-package" text="Shop Now" variant="swipe" class="mt-4" />
+
+  {featuredProducts && featuredProducts.length ? (
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 px-6 overflow-hidden">
+      {featuredProducts.map((p: any) => (
+        <div class="bg-black/50 backdrop-blur-lg p-4 rounded-lg shadow">
+          <img src={p.imageUrl || '/images/placeholder.png'} alt={p.title || p.name || 'Product image'} class="h-28 mx-auto object-contain" />
+          <p class="mt-3 font-cyber text-sm truncate">{p.name || p.title || 'Product'}</p><br />
+          <p class="font-bold font-ethno text-accent">
+            {typeof p.price === 'number' && isFinite(p.price) ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD'}).format(p.price) : ''}
+          </p>
+          <Button href={p.slug ? `/shop/${p.slug}` : '#'} text="Shop Now" variant="swipe" class="mt-4" />
+        </div>
+      ))}
     </div>
-    <div class="bg-black/50 backdrop-blur-lg p-4 rounded-lg shadow">
-      <img src="/images/billet bearing plate.png" class="h-28 mx-auto" />
-      <p class="mt-3 font-cyber text-sm">F.A.S. Hellcat Billet Supercharger Snout</p><br>
-      <p class="font-bold font-ethno text-accent">$1,399.00</p>
-      <Button href="/shop/2-4l-hellcat-billet-turbo-snout" text="Shop Now" variant="swipe" class="mt-4" />
+  ) : (
+    <div class="px-6">
+      <p class="text-white/70">No featured products yet. Mark products with <span class="font-mono">featured: true</span> in Sanity to populate this section.</p>
     </div>
-    <div class="bg-black/50 backdrop-blur-lg p-4 rounded-lg shadow">
-      <img src="/images/2.7 dominator package.png" class="h-28 mx-auto" />
-      <p class="mt-3 font-cyber text-sm">F.A.S. Dominator Race Porting Package</p><br>
-      <p class="font-bold font-ethno text-accent">$2,175</p>
-      <Button href="/shop/2-4l-hellcat-dominator-race-porting-package" text="Shop Now" variant="swipe" class="mt-4" />
-    </div>
-    <div class="bg-black/50 backdrop-blur-lg p-4 rounded-lg shadow">
-      <img src="/images/dominator race package.png" class="h-28 mx-auto" />
-      <p class="mt-3 font-cyber text-sm">F.A.S. Custom Supercharger Painting</p><br>
-      <p class="font-bold font-ethno text-accent">$1,000.00</p>
-      <Button href="/shop/custom-supercharger-painting" text="Shop Now" variant="swipe" class="mt-4" />
-    </div>
-  </div>
+  )}
 </section>
 
 <!-- TRUCK CTA -->
