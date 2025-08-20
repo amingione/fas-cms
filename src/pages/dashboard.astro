@@ -6,24 +6,25 @@ import BaseLayout from "../layouts/BaseLayout.astro"
   <main class="flex min-h-screen pt-10 overflow-hidden text-white font-captain">
     <!-- Mobile nav -->
     <nav class="sm:hidden w-[100%] h-[250px] bg-black/80 border-b border-white/10 p-4 ml-2 flex-wrap mt-20 pt-20 justify-center gap-4 text-xs font-captain rem-1.2 scroll-smooth">
-      <a href="/customerdashboard/customerProfile" class="hover:text-red-500">My Profile</a>
-      <a href="/customerdashboard/userOrders" class="hover:text-red-500">Orders</a>
-      <a href="/customerdashboard/UserQuotes" class="hover:text-red-500">Quotes</a>
-      <a href="/customerdashboard/userInvoices" class="hover:text-red-500">Invoices</a>
-      <a href="/customerdashboard/userAppointments" class="hover:text-red-500">Appointments</a>
-      <a href="/logout" class="text-red-600 hover:underline">Logout</a>
+      <p class="uppercase w-full mb-2">Welcome, <span id="customer-name-mobile" class="text-red-500">Guest</span></p>
+      <a href="#" data-view="profile" class="js-view hover:text-red-500">My Profile</a>
+      <a href="#" data-view="orders" class="js-view hover:text-red-500">Orders <span id="orders-count-mobile" class="ml-2 px-2 py-0.5 text-xs bg-red-600/80 rounded">0</span></a>
+      <a href="#" data-view="quotes" class="js-view hover:text-red-500">Quotes <span id="quotes-count-mobile" class="ml-2 px-2 py-0.5 text-xs bg-red-600/80 rounded">0</span></a>
+      <a href="#" data-view="invoices" class="js-view hover:text-red-500">Invoices <span id="invoices-count-mobile" class="ml-2 px-2 py-0.5 text-xs bg-red-600/80 rounded">0</span></a>
+      <a href="#" data-view="appointments" class="js-view hover:text-red-500">Appointments <span id="appts-count-mobile" class="ml-2 px-2 py-0.5 text-xs bg-red-600/80 rounded">0</span></a>
+      <a href="#" class="logout-link text-red-600 hover:underline">Logout</a>
     </nav>
     <!-- Sidebar -->
     <aside class="hidden sm:block bg-black/70 border-white/10 p-4 sm:p-6 border-b sm:border-b-0 sm:border-r sm:mt-12 sm:pt-10 sm:mb-3 sm:mx-3 sm:w-64 space-y-6 w-full">
     
-      <p class="uppercase pt-20">Welcome, <span class="text-red-500">Guest</span></p>
+      <p class="uppercase pt-20">Welcome, <span id="customer-name" class="text-red-500">Guest</span></p>
       <nav class="mt-6 pt-5 space-y-3 text-base font-ethno">
-        <a href="/customerdashboard/customerProfile" class="block hover:text-red-500">My Profile</a>
-        <a href="/customerdashboard/userOrders" class="block hover:text-red-500">Orders</a>
-        <a href="/customerdashboard/UserQuotes" class="block hover:text-red-500">Quotes</a>
-        <a href="/customerdashboard/userInvoices" class="block hover:text-red-500">Invoices</a>
-        <a href="/customerdashboard/userAppointments" class="block hover:text-red-500">Appointments</a>
-        <a href="/logout" class="block pt-10 text-red-600 hover:underline mt-4">Logout</a>
+        <a href="#" data-view="profile" class="js-view block hover:text-red-500">My Profile</a>
+        <a href="#" data-view="orders" class="js-view block hover:text-red-500">Orders <span id="orders-count" class="ml-2 px-2 py-0.5 text-xs bg-red-600/80 rounded">0</span></a>
+        <a href="#" data-view="quotes" class="js-view block hover:text-red-500">Quotes <span id="quotes-count" class="ml-2 px-2 py-0.5 text-xs bg-red-600/80 rounded">0</span></a>
+        <a href="#" data-view="invoices" class="js-view block hover:text-red-500">Invoices <span id="invoices-count" class="ml-2 px-2 py-0.5 text-xs bg-red-600/80 rounded">0</span></a>
+        <a href="#" data-view="appointments" class="js-view block hover:text-red-500">Appointments <span id="appts-count" class="ml-2 px-2 py-0.5 text-xs bg-red-600/80 rounded">0</span></a>
+        <a href="#" class="logout-link block pt-10 text-red-600 hover:underline mt-4">Logout</a>
       </nav>
     </aside>
 
@@ -33,7 +34,246 @@ import BaseLayout from "../layouts/BaseLayout.astro"
       <h1 class="text-2xl font-ethno text-white pr-10 mr-20 text-left mb-6">Motorsports</h1>
       <h2 class="text-base pr-12 mr-10 font-cyber-italic text-left mb-6">ACCOUNT DASHBOARD</h2>
 
-      <p class="text-center text-lg">Welcome to your account dashboard. Use the menu to view your profile, orders, and more.</p>
+      <div id="dash-content" class="text-left text-base">
+        <p class="opacity-80">Welcome to your account dashboard. Use the menu to view your profile, orders, and more.</p>
+      </div>
     </section>
+    <script type="module">
+      import { getAuth0Client } from "/src/lib/auth.ts";
+
+      const nameEls = [
+        document.getElementById('customer-name'),
+        document.getElementById('customer-name-mobile')
+      ].filter(Boolean);
+
+      function setName(name) {
+        nameEls.forEach(el => el && (el.textContent = name || 'Guest'));
+      }
+
+      (async () => {
+        try {
+          const auth0 = await getAuth0Client();
+
+          // If not logged in, kick user over to /account to log in
+          const authed = await auth0.isAuthenticated();
+          if (!authed) {
+            location.replace('/account');
+            return;
+          }
+
+          const user = await auth0.getUser();
+          const email = user?.email || '';
+          if (email) {
+            try { localStorage.setItem('customerEmail', email); } catch {}
+          }
+
+          // Default name from Auth0
+          const defaultName = user?.given_name || user?.name || email || 'Guest';
+          setName(defaultName);
+
+          // Try to load the richer profile from Sanity and prefer its name
+          try {
+            const res = await fetch('/api/customer/get', {
+              method: 'POST',
+              headers: { 'content-type': 'application/json' },
+              body: JSON.stringify({ email })
+            });
+            if (res.ok) {
+              const data = await res.json();
+              const fullName = [data?.firstName, data?.lastName].filter(Boolean).join(' ').trim();
+              const preferred = fullName || data?.name || defaultName;
+              setName(preferred);
+            }
+          } catch (e) {
+            // Non-fatal: keep Auth0 name
+            console.warn('Could not load customer profile', e);
+          }
+
+          // ----- Counts (Orders / Quotes / Invoices / Appointments) -----
+          function setCount(idDesktop, idMobile, n) {
+            const d = document.getElementById(idDesktop);
+            const m = document.getElementById(idMobile);
+            if (d) d.textContent = String(n);
+            if (m) m.textContent = String(n);
+          }
+
+          async function fetchCount(url) {
+            try {
+              const res = await fetch(url);
+              if (!res.ok) return 0;
+              const data = await res.json();
+              if (Array.isArray(data)) return data.length;
+              if (data && Array.isArray(data.items)) return data.items.length;
+              return 0;
+            } catch { return 0; }
+          }
+
+          if (email) {
+            // Orders
+            fetchCount(`/api/get-user-order?email=${encodeURIComponent(email)}`).then(n => setCount('orders-count','orders-count-mobile', n));
+            // Quotes (update URL if your endpoint differs)
+            fetchCount(`/api/get-user-quotes?email=${encodeURIComponent(email)}`).then(n => setCount('quotes-count','quotes-count-mobile', n));
+            // Invoices
+            fetchCount(`/api/get-user-invoices?email=${encodeURIComponent(email)}`).then(n => setCount('invoices-count','invoices-count-mobile', n));
+            // Appointments
+            fetchCount(`/api/get-user-appointments?email=${encodeURIComponent(email)}`).then(n => setCount('appts-count','appts-count-mobile', n));
+          }
+
+          // ---------- In-panel view loader ----------
+          const content = document.getElementById('dash-content');
+          const setLoading = (msg = 'Loading...') => { content.innerHTML = `<p class="opacity-80">${msg}</p>`; };
+          const renderEmpty = (label) => { content.innerHTML = `<p class="opacity-80">No ${label} found.</p>`; };
+
+          async function renderProfile() {
+            setLoading();
+            try {
+              const res = await fetch('/api/customer/get', {
+                method: 'POST',
+                headers: { 'content-type': 'application/json' },
+                body: JSON.stringify({ email })
+              });
+              if (!res.ok) return renderEmpty('profile');
+              const c = (await res.json()) || {};
+              const addr = [c.address1, c.address2, c.city, c.state, c.postalCode].filter(Boolean).join(', ');
+              content.innerHTML = `
+                <h3 class="font-ethno text-xl mb-4">My Profile</h3>
+                <div class="grid sm:grid-cols-2 gap-4 text-sm">
+                  <div><div class="opacity-70">First Name</div><div class="font-semibold">${c.firstName || ''}</div></div>
+                  <div><div class="opacity-70">Last Name</div><div class="font-semibold">${c.lastName || ''}</div></div>
+                  <div><div class="opacity-70">Email</div><div class="font-semibold">${c.email || email}</div></div>
+                  <div><div class="opacity-70">Phone</div><div class="font-semibold">${c.phone || ''}</div></div>
+                  <div class="sm:col-span-2"><div class="opacity-70">Address</div><div class="font-semibold">${addr}</div></div>
+                </div>
+                <p class="mt-6 text-xs opacity-70">Need changes? <a class="underline" href="/customerdashboard/customerProfile">Edit profile</a>.</p>
+              `;
+            } catch { renderEmpty('profile'); }
+          }
+
+          async function renderOrders() {
+            setLoading();
+            try {
+              const claims = await auth0.getIdTokenClaims().catch(() => null);
+              const token = claims?.__raw;
+              const res = await fetch(`/api/get-user-order?email=${encodeURIComponent(email)}`, {
+                headers: token ? { authorization: `Bearer ${token}` } : {}
+              });
+              if (!res.ok) return renderEmpty('orders');
+              const items = await res.json();
+              if (!Array.isArray(items) || !items.length) return renderEmpty('orders');
+              content.innerHTML = `
+                <h3 class="font-ethno text-xl mb-4">Orders</h3>
+                <div class="space-y-3">${items.map(o => `
+                  <div class=\"border border-white/10 rounded p-4 bg-black/40\">
+                    <div class=\"flex justify-between\">
+                      <div class=\"font-semibold\">#${o.orderNumber ?? o._id}</div>
+                      <div class=\"opacity-70\">${o.status ?? ''}</div>
+                    </div>
+                    <div class=\"text-xs opacity-70 mt-1\">${o._createdAt ? new Date(o._createdAt).toLocaleDateString() : ''}</div>
+                    ${o.total ? `<div class=\\"mt-1 text-sm\\">Total: $${o.total}</div>` : ''}
+                    ${o.trackingNumber ? `<div class=\\"mt-1 text-xs opacity-70\\">Tracking: ${o.trackingNumber}</div>` : ''}
+                  </div>
+                `).join('')}</div>
+              `;
+            } catch { renderEmpty('orders'); }
+          }
+
+          async function renderQuotes() {
+            setLoading();
+            try {
+              const res = await fetch(`/api/get-user-quotes?email=${encodeURIComponent(email)}`);
+              if (!res.ok) return renderEmpty('quotes');
+              const items = await res.json();
+              if (!Array.isArray(items) || !items.length) return renderEmpty('quotes');
+              content.innerHTML = `
+                <h3 class="font-ethno text-xl mb-4">Quotes</h3>
+                <div class="space-y-3">${items.map(q => `
+                  <div class=\"border border-white/10 rounded p-4 bg-black/40\">
+                    <div class=\"flex justify-between\"><div class=\"font-semibold\">${q._id}</div><div class=\"opacity-70\">${q.status ?? ''}</div></div>
+                    <div class=\"text-xs opacity-70 mt-1\">${q._createdAt ? new Date(q._createdAt).toLocaleDateString() : ''}</div>
+                    ${q.total ? `<div class=\\"mt-1 text-sm\\">Total: $${q.total}</div>` : ''}
+                  </div>
+                `).join('')}</div>
+              `;
+            } catch { renderEmpty('quotes'); }
+          }
+
+          async function renderInvoices() {
+            setLoading();
+            try {
+              const res = await fetch(`/api/get-user-invoices?email=${encodeURIComponent(email)}`);
+              if (!res.ok) return renderEmpty('invoices');
+              const items = await res.json();
+              if (!Array.isArray(items) || !items.length) return renderEmpty('invoices');
+              content.innerHTML = `
+                <h3 class="font-ethno text-xl mb-4">Invoices</h3>
+                <div class="space-y-3">${items.map(i => `
+                  <div class=\"border border-white/10 rounded p-4 bg-black/40\">
+                    <div class=\"flex justify-between\"><div class=\"font-semibold\">${i._id}</div><div class=\"opacity-70\">${i.status ?? ''}</div></div>
+                    <div class=\"text-xs opacity-70 mt-1\">${i._createdAt ? new Date(i._createdAt).toLocaleDateString() : ''}</div>
+                    ${i.total ? `<div class=\\"mt-1 text-sm\\">Total: $${i.total}</div>` : ''}
+                  </div>
+                `).join('')}</div>
+              `;
+            } catch { renderEmpty('invoices'); }
+          }
+
+          async function renderAppointments() {
+            setLoading();
+            try {
+              const res = await fetch(`/api/get-user-appointments?email=${encodeURIComponent(email)}`);
+              if (!res.ok) return renderEmpty('appointments');
+              const items = await res.json();
+              if (!Array.isArray(items) || !items.length) return renderEmpty('appointments');
+              content.innerHTML = `
+                <h3 class="font-ethno text-xl mb-4">Appointments</h3>
+                <div class="space-y-3">${items.map(a => `
+                  <div class=\"border border-white/10 rounded p-4 bg-black/40\">
+                    <div class=\"flex justify-between\"><div class=\"font-semibold\">${a._id}</div><div class=\"opacity-70\">${a.status ?? ''}</div></div>
+                    <div class=\"text-xs opacity-70 mt-1\">${a.scheduledAt ? new Date(a.scheduledAt).toLocaleString() : ''}</div>
+                    ${a.location ? `<div class=\\"mt-1 text-xs opacity-70\\">${a.location}</div>` : ''}
+                  </div>
+                `).join('')}</div>
+              `;
+            } catch { renderEmpty('appointments'); }
+          }
+
+          function load(view) {
+            switch (view) {
+              case 'orders': return renderOrders();
+              case 'quotes': return renderQuotes();
+              case 'invoices': return renderInvoices();
+              case 'appointments': return renderAppointments();
+              case 'profile':
+              default: return renderProfile();
+            }
+          }
+
+          // Attach menu handlers
+          document.querySelectorAll('.js-view').forEach(a => {
+            a.addEventListener('click', (e) => {
+              e.preventDefault();
+              const view = a.getAttribute('data-view');
+              load(view);
+            });
+          });
+
+          // Default view
+          load('profile');
+        } catch (err) {
+          console.error('Dashboard auth init failed', err);
+        }
+      })();
+
+      function logout() {
+        try { localStorage.clear(); } catch {}
+        window.location.href = '/api/auth/logout';
+      }
+      document.querySelectorAll('.logout-link').forEach(el => {
+        el.addEventListener('click', e => {
+          e.preventDefault();
+          logout();
+        });
+      });
+    </script>
   </main>
 </BaseLayout>

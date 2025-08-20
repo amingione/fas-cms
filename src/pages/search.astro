@@ -1,0 +1,139 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout hideBrandTag>
+  <main class="min-h-screen text-white px-4 sm:px-8 py-10">
+    <h1 class="font-ethno text-2xl sm:text-3xl mb-6">Search</h1>
+
+    <div class="mb-6">
+      <form action="/search" method="GET" class="flex gap-2 items-center">
+        <input
+          type="text"
+          name="q"
+          placeholder="Search..."
+          class="bg-transparent border-b border-white/60 focus:border-white text-white placeholder:text-white/50 focus:outline-none w-full sm:w-96 py-1"
+        />
+        <button type="submit" class="px-4 py-1 bg-primary text-black font-ethno rounded">Search</button>
+      </form>
+      <p id="query-label" class="mt-2 text-sm text-white/70"></p>
+    </div>
+
+    <div id="results" class="space-y-10">
+      <p class="text-white/70">Type a query above and press Enter.</p>
+    </div>
+
+    <script type="module">
+      const resultsEl = document.getElementById('results');
+      const qLabel = document.getElementById('query-label');
+      const form = document.querySelector('form[action="/search"]');
+      const input = form?.querySelector('input[name="q"]');
+
+      const params = new URLSearchParams(window.location.search);
+      const q = (params.get('q') || '').trim();
+      if (input) input.value = q;
+      if (q) qLabel.textContent = `Results for "${q}"`;
+
+      async function search(query) {
+        if (!query) {
+          resultsEl.innerHTML = '<p class="text-white/70">Type a query above and press Enter.</p>';
+          return;
+        }
+        resultsEl.innerHTML = '<p class="text-white/70">Loading...</p>';
+        try {
+          const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+          if (!res.ok) throw new Error('Search failed');
+          const data = await res.json();
+          const items = Array.isArray(data?.results) ? data.results : [];
+          render(items);
+        } catch (e) {
+          console.error(e);
+          resultsEl.innerHTML = '<p class="text-red-400">Something went wrong while searching.</p>';
+        }
+      }
+
+      function render(items) {
+        if (!items.length) {
+          resultsEl.innerHTML = '<p class="text-white/70">No results found.</p>';
+          return;
+        }
+
+        const groups = items.reduce((acc, it) => {
+          const t = (it._type || 'other');
+          (acc[t] ||= []).push(it);
+          return acc;
+        }, {});
+
+        const order = ['product', 'service', 'quote', 'invoice', 'appointment', 'page', 'other'];
+        const sortedTypes = Object.keys(groups).sort((a,b) => order.indexOf(a) - order.indexOf(b));
+
+        resultsEl.innerHTML = sortedTypes.map(type => section(type, groups[type])).join('');
+      }
+
+      function section(type, items) {
+        const titleMap = {
+          product: 'Products',
+          service: 'Services',
+          quote: 'Quotes',
+          invoice: 'Invoices',
+          appointment: 'Appointments',
+          page: 'Pages',
+          other: 'Other'
+        };
+        return `
+          <section>
+            <h2 class="font-ethno text-xl mb-3">${titleMap[type] || type}</h2>
+            <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              ${items.map(card).join('')}
+            </ul>
+          </section>
+        `;
+      }
+
+      function card(it) {
+        const title = it.title || it.name || it._type || 'Untitled';
+        const desc = (it.description || '').toString().slice(0, 140);
+        const href = resolveLink(it);
+        return `
+          <li class="border border-white/10 rounded bg-black/30 p-4 hover:bg-black/40 transition">
+            <div class="text-sm uppercase text-white/60 mb-1">${it._type || ''}</div>
+            <a ${href ? `href="${href}"` : ''} class="font-semibold block mb-1 hover:underline">${escapeHtml(title)}</a>
+            ${desc ? `<p class="text-sm text-white/70">${escapeHtml(desc)}${it.description && it.description.length > 140 ? '…' : ''}</p>` : ''}
+          </li>
+        `;
+      }
+
+      function resolveLink(it) {
+        // Try to build a link for common types
+        switch (it._type) {
+          case 'product':
+            return it.slug?.current ? `/product/${it.slug.current}` : '';
+          case 'service':
+            return it.slug?.current ? `/service/${it.slug.current}` : '';
+          case 'quote':
+            return `/dashboard`; // can deep-link later
+          case 'invoice':
+            return `/dashboard`;
+          case 'appointment':
+            return `/dashboard`;
+          case 'page':
+            return it.slug?.current ? `/${it.slug.current}` : '';
+          default:
+            return '';
+        }
+      }
+
+      function escapeHtml(s) {
+        return String(s)
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;')
+          .replaceAll("'", '&#39;');
+      }
+
+      // Kick off initial search if ?q= is present
+      search(q);
+    </script>
+  </main>
+</BaseLayout>

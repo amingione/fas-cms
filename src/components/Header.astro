@@ -49,10 +49,14 @@ import AccountDashboard from './accountdashboard.astro';
   <!-- Main Desktop Header -->
   <div class="hidden md:block bg-transparent font-ethno-italic text-white px-6 pt-4 w-full z-40 relative">
       <div class="grid grid-cols-3 items-center h-16 w-full px-10">
-        <div class="flex justify-start items-center gap-3 px-4">
-          <!-- Search Input -->
-          <input type="text" placeholder="Search" class="bg-transparent border-b border-white text-white text-sm placeholder:text-primary/70 focus:outline-none w-32" />
-        </div>
+      <div class="flex justify-start items-center gap-3 px-4">
+        <div class="relative" id="mainHeaderSearch">
+          <form action="/search" method="GET" class="inline-block" id="mainHeaderSearchForm">
+            <input type="text" name="q" placeholder="Search" class="bg-transparent border-b border-white text-white text-sm placeholder:text-primary/70 focus:outline-none w-32" autocomplete="off" />
+          </form>
+          <div id="mainSearchSuggest" class="absolute left-0 mt-2 w-72 bg-black/90 backdrop-blur-md border border-white/10 rounded-lg shadow-xl hidden z-[70]"></div>
+        </div>
+      </div>
         <div class="flex justify-center">
           <img src="/images/faslogochroma.png" alt="FAS Chrome Logo" class="h-16 transform scale-[2]" />
         </div>
@@ -118,7 +122,12 @@ import AccountDashboard from './accountdashboard.astro';
   
     <!-- Column 1: Search -->
     <div class="flex font-ethno justify-start px-4">
-      <input type="text" placeholder="Search.." class="bg-transparent border-b border-white font-ethno-italic placeholder:text-primary/70 text-white px-4 py-1 w-40 text-sm focus:outline-none" />
+      <div class="relative" id="stickyHeaderSearch">
+        <form action="/search" method="GET" class="inline-block" id="stickyHeaderSearchForm">
+          <input type="text" name="q" placeholder="Search..." class="bg-transparent border-b border-white font-ethno-italic placeholder:text-primary/70 text-white px-4 py-1 w-40 text-sm focus:outline-none" autocomplete="off" />
+        </form>
+        <div id="stickySearchSuggest" class="absolute left-0 mt-2 w-80 bg-black/90 backdrop-blur-md border border-white/10 rounded-lg shadow-xl hidden z-[70]"></div>
+      </div>
     </div>
   
     <!-- Column 2: Nav -->
@@ -167,7 +176,7 @@ import AccountDashboard from './accountdashboard.astro';
       const name = user?.given_name || user?.name || user?.email || "there";
       badge.innerHTML = `
         <span class="mr-3">Hello, ${name}</span>
-        <a href="/customerdashboard/customerProfile" class="hover:underline">My Account</a>
+        <a href="/dashboard" class="hover:!text-black hover:underline">My Account</a>
       `;
     } catch (e) {
       // Safe fallback
@@ -185,6 +194,100 @@ import AccountDashboard from './accountdashboard.astro';
      const line3 = document.getElementById("burgerLine3");
      const links = [...document.querySelectorAll("#mobileMenuLinks a"), ...document.querySelectorAll("#mobileMenuCategories a")];
      let isOpen = false;
+    // Search forms: trim input and prevent empty submits
+    const mainSearchForm = document.getElementById('mainHeaderSearchForm');
+    const stickySearchForm = document.getElementById('stickyHeaderSearchForm');
+    [mainSearchForm, stickySearchForm].forEach((form) => {
+      if (!form) return;
+      form.addEventListener('submit', (e) => {
+        const input = form.querySelector('input[name="q"]');
+        if (!input) return;
+        const value = (input.value || '').trim();
+        if (!value) {
+          e.preventDefault();
+          return;
+        }
+        input.value = value; // submit trimmed value
+      });
+    });
+
+    // --- Typeahead Suggestions ---
+    function debounce(fn, delay = 200) {
+      let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay); };
+    }
+
+    function renderSuggestions(panel, items, query) {
+      if (!panel) return;
+      if (!items || !items.length) { panel.classList.add('hidden'); panel.innerHTML = ''; return; }
+      const esc = (s) => String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'", '&#39;');
+      const list = items.slice(0, 6).map(it => {
+        const title = it.title || it.name || it._type || 'Untitled';
+        const href = resolveLink(it);
+        return `<a href="${href || `/search?q=${encodeURIComponent(query)}` }" class="block px-3 py-2 hover:bg-white/10">
+          <div class="text-xs uppercase text-white/60">${esc(it._type || '')}</div>
+          <div class="text-sm font-medium truncate">${esc(title)}</div>
+        </a>`;
+      }).join('');
+      const footer = `<a href="/search?q=${encodeURIComponent(query)}" class="block px-3 py-2 text-center text-xs text-white/70 hover:bg-white/10">See all results for “${esc(query)}”</a>`;
+      panel.innerHTML = list + '<div class="border-t border-white/10"></div>' + footer;
+      panel.classList.remove('hidden');
+    }
+
+    function resolveLink(it) {
+      switch (it._type) {
+        case 'product': return it.slug?.current ? `/product/${it.slug.current}` : '';
+        case 'service': return it.slug?.current ? `/service/${it.slug.current}` : '';
+        case 'quote':
+        case 'invoice':
+        case 'appointment': return '/dashboard';
+        case 'page': return it.slug?.current ? `/${it.slug.current}` : '';
+        default: return '';
+      }
+    }
+
+    function setupTypeahead(rootId, formId, panelId) {
+      const root = document.getElementById(rootId);
+      const form = document.getElementById(formId);
+      const input = form?.querySelector('input[name="q"]');
+      const panel = document.getElementById(panelId);
+      if (!root || !form || !input || !panel) return;
+
+      let active = -1; // keyboard selection index
+      const close = () => { panel.classList.add('hidden'); panel.innerHTML=''; active = -1; };
+
+      const doSearch = debounce(async () => {
+        const q = (input.value || '').trim();
+        if (q.length < 2) { close(); return; }
+        try {
+          const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+          if (!res.ok) throw new Error('search failed');
+          const data = await res.json();
+          const items = Array.isArray(data?.results) ? data.results : [];
+          renderSuggestions(panel, items, q);
+        } catch { close(); }
+      }, 200);
+
+      input.addEventListener('input', doSearch);
+      input.addEventListener('focus', doSearch);
+      input.addEventListener('blur', () => setTimeout(close, 150));
+
+      // keyboard navigation
+      input.addEventListener('keydown', (e) => {
+        const links = panel.querySelectorAll('a');
+        if (panel.classList.contains('hidden') || !links.length) return;
+        if (e.key === 'ArrowDown' || e.key === 'Tab') { e.preventDefault(); active = (active + 1) % links.length; links[active].focus(); }
+        if (e.key === 'ArrowUp') { e.preventDefault(); active = (active - 1 + links.length) % links.length; links[active].focus(); }
+        if (e.key === 'Escape') { close(); }
+      });
+
+      // close on outside click
+      document.addEventListener('click', (evt) => {
+        if (!root.contains(evt.target)) close();
+      });
+    }
+
+    setupTypeahead('mainHeaderSearch', 'mainHeaderSearchForm', 'mainSearchSuggest');
+    setupTypeahead('stickyHeaderSearch', 'stickyHeaderSearchForm', 'stickySearchSuggest');
      const dashboardCloseBtn = document.getElementById("closeAccountDashboard");
 
       if (dashboardCloseBtn) {

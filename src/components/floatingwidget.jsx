@@ -4,34 +4,68 @@ import Button from './button';
 export default function FloatingCartWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [cartItems, setCartItems] = useState([]);
+  const [mounted, setMounted] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('fas_cart');
-      setCartItems(saved ? JSON.parse(saved) : []);
-    }
+    setMounted(true);
   }, []);
 
   useEffect(() => {
-    const updateCart = () => {
-      const saved = localStorage.getItem('fas_cart');
+    const updateFromStorage = () => {
+      const saved = localStorage.getItem('cart');
       const parsed = saved ? JSON.parse(saved) : [];
-      setCartItems(parsed);
-      if (parsed.length > 0) {
-        setIsOpen(true); // ✅ auto-open the drawer when items are added
+
+      // Shallow compare to avoid unnecessary re-renders
+      const sameLength = Array.isArray(parsed) && parsed.length === cartItems.length;
+      const sameItems =
+        sameLength &&
+        parsed.every(
+          (p, i) =>
+            p?.id === cartItems[i]?.id &&
+            Number(p?.quantity) === Number(cartItems[i]?.quantity) &&
+            Number(p?.price) === Number(cartItems[i]?.price)
+        );
+
+      if (!sameItems) {
+        setCartItems(parsed);
       }
+      if (!loaded) setLoaded(true);
+      if (parsed.length > 0) setIsOpen(true);
     };
-    window.addEventListener('cart-updated', updateCart);
-    return () => window.removeEventListener('cart-updated', updateCart);
-  }, []);
+
+    // Listen for custom app event (dispatched by ProductCard)
+    window.addEventListener('cart:updated', updateFromStorage);
+
+    return () => {
+      window.removeEventListener('cart:updated', updateFromStorage);
+    };
+  }, [cartItems, loaded]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('fas_cart', JSON.stringify(cartItems));
+      const saved = localStorage.getItem('cart');
+      setCartItems(saved ? JSON.parse(saved) : []);
+      setLoaded(true);
     }
-  }, [cartItems]);
+  }, []);
 
-  const subtotal = cartItems.reduce((acc, item) => acc + item.quantity * item.price, 0);
+  useEffect(() => {
+    if (!loaded) return; // avoid clobbering storage on first mount
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('cart', JSON.stringify(cartItems));
+      // Do NOT dispatch 'cart:updated' here to avoid event feedback loop.
+      // ProductCard dispatches this event when it updates the cart.
+    }
+  }, [cartItems, loaded]);
+
+  const subtotal = cartItems.reduce(
+    (acc, item) => acc + (Number(item.quantity) || 0) * (Number(item.price) || 0),
+    0
+  );
+
+  // Avoid SSR markup and first-paint mismatch; render only after client mounts
+  if (!mounted) return null;
 
   return (
     <>
@@ -64,7 +98,7 @@ export default function FloatingCartWidget() {
         <div className="p-4 flex justify-between items-center border-b border-white/10">
           <h2 className="text-xl font-bold font-captain">Cart</h2>
           <button onClick={() => setIsOpen(false)} className="text-white text-2xl">
-            ×
+            {'\u00D7'}
           </button>
         </div>
 
@@ -95,17 +129,21 @@ export default function FloatingCartWidget() {
                       }}
                       className="w-12 text-sm text-black px-1 rounded"
                     />
-                    <span className="text-xs text-gray-400">• ${item.price.toFixed(2)}</span>
+                    <span className="text-xs text-gray-400">
+                      • ${(Number(item.price) || 0).toFixed(2)}
+                    </span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <p className="text-sm font-bold">${(item.quantity * item.price).toFixed(2)}</p>
+                  <p className="text-sm font-bold">
+                    ${((Number(item.quantity) || 0) * (Number(item.price) || 0)).toFixed(2)}
+                  </p>
                   <button
                     onClick={() => setCartItems(cartItems.filter((ci) => ci.id !== item.id))}
                     className="text-red-400 hover:text-red-600 text-lg"
                     title="Remove"
                   >
-                    ×
+                    {'\u00D7'}
                   </button>
                 </div>
               </div>
@@ -123,7 +161,7 @@ export default function FloatingCartWidget() {
             text="Proceed to Checkout"
             onClick={async (e) => {
               e.preventDefault();
-              const cart = JSON.parse(localStorage.getItem('fas_cart') || '[]');
+              const cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
               if (!cart.length) {
                 alert('Your cart is empty.');

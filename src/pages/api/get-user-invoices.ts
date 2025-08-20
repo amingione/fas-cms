@@ -1,4 +1,4 @@
-// src/pages/api/get-user-order.ts
+// src/pages/api/get-user-invoices.ts
 import type { APIRoute } from 'astro';
 import { sanityClient } from '@/lib/sanityClient';
 import { jwtVerify, createRemoteJWKSet } from 'jose';
@@ -27,10 +27,9 @@ export const OPTIONS: APIRoute = async () => new Response(null, { status: 204, h
 
 export const GET: APIRoute = async ({ request, url }) => {
   try {
-    // Allow either query param or token-derived email
+    // Prefer email from query string for simple counts, else derive from Auth0 token
     let email = (url.searchParams.get('email') || '').trim().toLowerCase();
 
-    // If no email in query, try to verify an Auth0 token
     if (!email) {
       const AUTH0_DOMAIN =
         (import.meta.env.PUBLIC_AUTH0_DOMAIN as string | undefined) ||
@@ -52,7 +51,6 @@ export const GET: APIRoute = async ({ request, url }) => {
             email = payload.email.toLowerCase();
           }
         } catch (err) {
-          // If a token was supplied but failed verification, treat as unauthorized
           return new Response(JSON.stringify({ error: 'Invalid or expired token' }), {
             status: 401,
             headers: { ...cors, 'content-type': 'application/json' }
@@ -68,22 +66,28 @@ export const GET: APIRoute = async ({ request, url }) => {
       });
     }
 
-    const query = `*[_type == "order" && customer->email == $email] | order(_createdAt desc){
+    const query = `*[_type == "invoice" && customer->email == $email] | order(_createdAt desc) {
       _id,
-      title,
+      _createdAt,
       status,
-      _createdAt
+      invoiceNumber,
+      number,
+      amount,
+      total,
+      dateIssued,
+      date,
+      dueDate
     }`;
 
-    const orders = await sanityClient.fetch(query, { email });
+    const invoices = await sanityClient.fetch(query, { email });
 
-    return new Response(JSON.stringify(orders || []), {
+    return new Response(JSON.stringify(invoices || []), {
       status: 200,
       headers: { ...cors, 'content-type': 'application/json' }
     });
-  } catch (err: any) {
-    console.error('get-user-order error:', err?.message || err);
-    return new Response(JSON.stringify({ error: 'Failed to fetch orders' }), {
+  } catch (error: any) {
+    console.error('get-user-invoices error:', error?.message || error);
+    return new Response(JSON.stringify({ error: 'Failed to fetch user invoices' }), {
       status: 500,
       headers: { ...cors, 'content-type': 'application/json' }
     });

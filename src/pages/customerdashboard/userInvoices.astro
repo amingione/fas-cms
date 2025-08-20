@@ -1,51 +1,76 @@
 ---
-import { createClient } from '@sanity/client'
-import { useEffect, useState } from 'react'
 import BaseLayout from '../../layouts/BaseLayout.astro'
-
-const client = createClient({
-  projectId: 'r4og35qd', // replace this with your actual ID
-  dataset: 'production',
-  useCdn: false,
-  apiVersion: '2023-01-01',
-})
-
-const [invoices, setInvoices] = useState([])
-
-useEffect(() => {
-  async function fetchInvoices() {
-    const email = localStorage.getItem('customerEmail')
-    const data = await client.fetch(`*[_type == "customer" && email == $email][0].invoices`, {
-      email
-    })
-    setInvoices(data || [])
-  }
-
-  fetchInvoices()
-}, [])
 ---
 
 <BaseLayout>
   <section class="text-white p-8 font-captain">
     <h1 class="text-4xl font-cyber mb-6 text-center">My Invoices</h1>
-
-    {
-      invoices.length > 0 ? (
-        <ul class="space-y-4">
-          {
-            invoices.map(invoice => (
-              <li class="border border-gray-600 p-4 rounded-lg bg-black/30">
-                <div><strong>Invoice #:</strong> {invoice.invoiceNumber}</div>
-                <div><strong>Date:</strong> {new Date(invoice.dateIssued).toLocaleDateString()}</div>
-                <div><strong>Status:</strong> {invoice.status}</div>
-                <div><strong>Total:</strong> ${invoice.amount}</div>
-              </li>
-            ))
-          }
-        </ul>
-      ) : (
-        <p>You don't have any invoices yet.</p>
-      )
-    }
+    <div id="invoices-container" class="space-y-4">
+      <p>Loading invoices...</p>
+    </div>
   </section>
+
+  <script type="module">
+    async function fetchInvoices() {
+      const container = document.getElementById('invoices-container');
+      container.innerHTML = '<p>Loading...</p>';
+
+      // Prefer email from localStorage (set during login), else rely on cookie token
+      const email = (localStorage.getItem('customerEmail') || '').trim().toLowerCase();
+      let url = '/api/get-user-invoices';
+      if (email) url += `?email=${encodeURIComponent(email)}`;
+
+      try {
+        const response = await fetch(url, { credentials: 'include' });
+        if (!response.ok) throw new Error(await response.text());
+        const invoices = await response.json();
+
+        if (!Array.isArray(invoices) || invoices.length === 0) {
+          container.innerHTML = "<p>You don't have any invoices yet.</p>";
+          return;
+        }
+
+        // Optional client sort (server already orders desc by _createdAt)
+        invoices.sort((a, b) => new Date(b._createdAt || b.dateIssued || b.date || 0) - new Date(a._createdAt || a.dateIssued || a.date || 0));
+
+        const money = new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' });
+
+        const ul = document.createElement('ul');
+        ul.className = 'space-y-4';
+
+        invoices.forEach((invoice) => {
+          const li = document.createElement('li');
+          li.className = 'border border-gray-600 p-4 rounded-lg bg-black/30';
+
+          const invoiceNumber = invoice.invoiceNumber || invoice.number || invoice._id || 'N/A';
+          const dateIssuedRaw = invoice.dateIssued || invoice.date || invoice._createdAt;
+          const dateIssued = dateIssuedRaw ? new Date(dateIssuedRaw).toLocaleDateString() : 'N/A';
+          const status = invoice.status || 'N/A';
+          const amountRaw = invoice.amount ?? invoice.total;
+          const amount = typeof amountRaw === 'number' ? money.format(amountRaw) : (amountRaw ? `$${amountRaw}` : 'N/A');
+
+          li.innerHTML = `
+            <div class="flex items-center justify-between">
+              <div class="font-semibold">Invoice #${invoiceNumber}</div>
+              <div class="text-xs opacity-70">${dateIssued}</div>
+            </div>
+            <div class="mt-1 flex items-center justify-between">
+              <div class="opacity-80">Status: <span class="font-medium">${status}</span></div>
+              <div class="font-medium">${amount}</div>
+            </div>
+          `;
+
+          ul.appendChild(li);
+        });
+
+        container.innerHTML = '';
+        container.appendChild(ul);
+      } catch (error) {
+        console.error('Failed to load invoices:', error);
+        container.innerHTML = '<p>Unable to load invoices right now.</p>';
+      }
+    }
+
+    fetchInvoices();
+  </script>
 </BaseLayout>

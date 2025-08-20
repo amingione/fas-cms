@@ -1,47 +1,91 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
+// src/pages/api/get-user-quotes.ts
+import type { APIRoute } from 'astro';
 import { sanityClient } from '@/lib/sanityClient';
 import { jwtVerify, createRemoteJWKSet } from 'jose';
 
-const AUTH0_DOMAIN = process.env.AUTH0_DOMAIN;
-const AUTH0_CLIENT_ID = process.env.AUTH0_CLIENT_ID;
-const JWKS = createRemoteJWKSet(new URL(`https://${AUTH0_DOMAIN}/.well-known/jwks.json`));
+const cors = {
+  'access-control-allow-origin': '*',
+  'access-control-allow-methods': 'GET, OPTIONS',
+  'access-control-allow-headers': 'authorization, content-type'
+};
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+function getBearer(req: Request): string | null {
+  const auth = req.headers.get('authorization') || '';
+  return auth.toLowerCase().startsWith('bearer ') ? auth.slice(7).trim() : null;
+}
+
+function getCookie(req: Request, name: string): string | null {
+  const cookie = req.headers.get('cookie') || '';
+  for (const part of cookie.split(/;\s*/)) {
+    const [k, v] = part.split('=');
+    if (k === name && typeof v === 'string') return decodeURIComponent(v);
+  }
+  return null;
+}
+
+export const OPTIONS: APIRoute = async () => new Response(null, { status: 204, headers: cors });
+
+export const GET: APIRoute = async ({ request, url }) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ message: 'Missing or invalid Authorization header' });
+    // Prefer email from query string for simple counts, else derive from Auth0 token
+    let email = (url.searchParams.get('email') || '').trim().toLowerCase();
+
+    if (!email) {
+      const AUTH0_DOMAIN =
+        (import.meta.env.PUBLIC_AUTH0_DOMAIN as string | undefined) ||
+        (import.meta.env.AUTH0_DOMAIN as string | undefined);
+      const AUTH0_CLIENT_ID =
+        (import.meta.env.PUBLIC_AUTH0_CLIENT_ID as string | undefined) ||
+        (import.meta.env.AUTH0_CLIENT_ID as string | undefined);
+
+      const token = getBearer(request) || getCookie(request, 'token');
+
+      if (token && AUTH0_DOMAIN && AUTH0_CLIENT_ID) {
+        try {
+          const JWKS = createRemoteJWKSet(new URL(`https://${AUTH0_DOMAIN}/.well-known/jwks.json`));
+          const { payload } = await jwtVerify(token, JWKS, {
+            issuer: `https://${AUTH0_DOMAIN}/`,
+            audience: AUTH0_CLIENT_ID
+          });
+          if (typeof payload.email === 'string') {
+            email = payload.email.toLowerCase();
+          }
+        } catch (err) {
+          return new Response(JSON.stringify({ error: 'Invalid or expired token' }), {
+            status: 401,
+            headers: { ...cors, 'content-type': 'application/json' }
+          });
+        }
+      }
     }
 
-    const token = authHeader.split(' ')[1];
-    const { payload } = await jwtVerify(token, JWKS, {
-      issuer: `https://${AUTH0_DOMAIN}/`,
-      audience: AUTH0_CLIENT_ID
-    });
-
-    if (typeof payload.email !== 'string') {
-      return res.status(400).json({ message: 'Email not found in token' });
+    if (!email) {
+      return new Response(JSON.stringify({ error: 'Missing email' }), {
+        status: 400,
+        headers: { ...cors, 'content-type': 'application/json' }
+      });
     }
 
     const query = `*[_type == "quote" && customer->email == $email] | order(_createdAt desc) {
       _id,
       _createdAt,
       status,
-      items[] {
-        _key,
-        title,
-        quantity,
-        price
-      },
+      items[]{ _key, title, quantity, price },
       total,
       notes
     }`;
 
-    const quotes = await sanityClient.fetch(query, { email: payload.email });
+    const quotes = await sanityClient.fetch(query, { email });
 
-    return res.status(200).json({ quotes });
-  } catch (error) {
-    console.error('Failed to fetch user quotes:', error);
-    return res.status(500).json({ message: 'Failed to fetch user quotes' });
+    return new Response(JSON.stringify(quotes || []), {
+      status: 200,
+      headers: { ...cors, 'content-type': 'application/json' }
+    });
+  } catch (error: any) {
+    console.error('get-user-quotes error:', error?.message || error);
+    return new Response(JSON.stringify({ error: 'Failed to fetch user quotes' }), {
+      status: 500,
+      headers: { ...cors, 'content-type': 'application/json' }
+    });
   }
-}
+};

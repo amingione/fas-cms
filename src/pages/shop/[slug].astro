@@ -1,12 +1,31 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getProductBySlug, getSimilarProducts, type Product } from '../../lib/sanity-utils';
+import { getProductBySlug, getRelatedProducts, getUpsellProducts, type Product } from '../../lib/sanity-utils';
+import PortableTextRenderer from "../../components/PortableTextRenderer.jsx";
+
+export type KitItem = { item: string; quantity?: number };
+export type VehicleCompat = { make?: string; model?: string; trim?: string };
+export type SpecItem = { label?: string; name?: string; value?: string; detail?: string };
+export type AttrItem = { key?: string; value?: string };
+
+export type ProductWithKit = Product & {
+  includedInKit?: KitItem[];
+  requiresPaintCode?: boolean;
+  compatibleVehicles?: VehicleCompat[];
+  tune?: { title?: string } | null;
+  averageHorsepower?: number | null;
+  specifications?: SpecItem[];
+  attributes?: AttrItem[];
+  filters?: string[];
+  categories?: { slug?: { current?: string } | string; title?: string }[];
+};
 
 const { slug } = Astro.params;
 
 // Fetch product data based on the slug
-let product = null;
-let similarProducts = [];
+let product: ProductWithKit | null = null;
+let relatedProducts: Product[] = [];
+let upsellProducts: Product[] = [];
 try {
   if (typeof slug !== 'string') {
     throw new Error('Product slug is missing or invalid.');
@@ -16,126 +35,377 @@ try {
     throw new Error(`Product with slug "${slug}" not found.`);
   }
 
-  // Fetch similar products based on the product's categories
-  similarProducts = await getSimilarProducts(product.categories || [], slug);
+  // Build inputs for auto-related / upsell
+  const catIds = ((product as any).category || (product as any).categories || [])
+    .map((c: any) => c?._id || c?._ref)
+    .filter(Boolean);
+  const tagFilters = Array.isArray((product as any).filters) ? (product as any).filters : [];
+  const basePrice = typeof (product as any).price === 'number' ? (product as any).price : undefined;
+
+  // Auto-related and upsell
+  relatedProducts = await getRelatedProducts(slug, catIds, tagFilters, 6);
+  upsellProducts = await getUpsellProducts(slug, catIds, basePrice, 6);
+
+  // Prepare a plain description string for client-side script (avoid TS in inline JS)
+  const descriptionText: string = (((product as any)?.shortDescription ?? (product as any)?.description) ?? '').toString();
 } catch (err) {
-  console.error("❌ Failed to fetch product or similar products:", err);
+  console.error('❌ Failed to fetch product or similar products:', err);
   return Astro.redirect('/shop'); // Redirect to shop if product not found
 }
 ---
 
 <BaseLayout>
   <div class="container mx-auto px-4 py-10 text-white" style="padding-top: 80px;">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <!-- Product Image -->
-      <div class="flex justify-center items-center">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+      <!-- LEFT: Sticky Image on desktop -->
+      <div class="md:sticky md:top-28 flex justify-center items-start">
         <img
-          src={product.images?.[0]?.asset?.url || '/placeholder.png'}
+          src={(product as any).images?.[0]?.asset?.url || '/placeholder.png'}
           loading="lazy"
-          alt={product.title}
-          class="w-full max-w-md object-contain rounded-lg shadow-lg"
+          alt={(product as any).title}
+          class="w-full max-w-xl object-contain rounded-lg shadow-lg bg-black/20 p-4"
         />
       </div>
 
-      <!-- Product Details -->
+      <!-- RIGHT: Title, price, short intro, add-to-cart, then accordion -->
       <div>
-        <h1 class="text-3xl font-ethno mb-4">{product.title}</h1>
+        <h1 class="text-3xl font-ethno mb-3">{(product as any).title}</h1>
         <p class="text-xl text-primary font-borg mb-4">
-          {typeof product.price === 'number' ? `$${product.price.toFixed(2)}` : 'Price not available'}
+          {typeof (product as any).price === 'number' ? `$${(product as any).price.toFixed(2)}` : 'Price not available'}
         </p>
-        <p class="text-gray-300 font-cyber mb-6">{product.description || 'No description available.'}</p>
+
+        <!-- Short intro (truncated) -->
+        <PortableTextRenderer value={product.shortDescription} />
 
         <!-- Add to Cart Button -->
         <button
-          id="add-to-cart"
-          class="bg-primary font-kwajong text-white px-6 py-2 rounded-lg hover:bg-red-600 transition"
+          type="button"
+          class="add-to-cart inline-flex items-center gap-2 border border-white/20 px-4 py-2 rounded-full hover:bg-primary hover:text-black transition relative z-10 pointer-events-auto"
+          data-product-id={(product as any)._id}
+          data-product-name={(product as any).title}
+          data-product-price={(product as any).price}
+          data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
         >
-          Add to Cart
+          <!-- bag icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+            <path d="M8 7a4 4 0 118 0h3a1 1 0 011 1v12a2 2 0 01-2 2H6a2 2 0 01-2-2V8a1 1 0 011-1h3zm2 0a2 2 0 104 0H10z"/>
+          </svg>
+          <span class="text-sm font-kwajong">Add to Cart</span>
         </button>
 
-        <!-- Hidden Product Data -->
-        <div id="product-json" class="hidden">
-          {JSON.stringify(product)}
+        <!-- Accordion -->
+        <div class="mt-8 divide-y divide-white/10 border border-white/10 rounded-lg overflow-hidden">
+          <!-- Details / Full Description -->
+          <details class="group" id="acc-details">
+            <summary class="cursor-pointer select-none bg-black/30 px-4 py-3 font-ethno text-lg flex items-center justify-between">
+              <span>Product Details</span>
+              <span class="transition-transform group-open:rotate-180">▾</span>
+            </summary>
+            <div class="px-4 py-4 text-white/90 font-arial leading-relaxed whitespace-pre-line">
+              <PortableTextRenderer value={product.description} />
+              {/* Specifications Table */}
+              {product.specifications && product.specifications.length > 0 && (
+                <div class="mt-6">
+                  <h3 class="font-bold text-lg mb-2">Specifications</h3>
+                  <table class="table-auto border border-gray-300 w-full text-left text-sm">
+                    <tbody>
+                      {product.specifications.map((spec: { label?: string; key?: string; value?: string }) => (
+                        <tr>
+                          <td class="border px-2 py-1">{spec.label || spec.key}</td>
+                          <td class="border px-2 py-1">{spec.value}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              {/* Attributes Table */}
+              {product.attributes && product.attributes.length > 0 && (
+                <div class="mt-6">
+                  <h3 class="font-bold text-lg mb-2">Attributes</h3>
+                  <table class="table-auto border border-gray-300 w-full text-left text-sm">
+                    <tbody>
+                      {product.attributes.map((attr: { name?: string; value?: string }) => (
+                        <tr>
+                          <td class="border px-2 py-1">{attr.name}</td>
+                          <td class="border px-2 py-1">{attr.value}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              {/* Kit Includes Table */}
+              {Array.isArray(product?.includedInKit) && product.includedInKit.length > 0 && (
+                <div class="mt-6">
+                  <h3 class="font-bold text-lg mb-2">Included in Kit</h3>
+                  <table class="table-auto border border-gray-300 w-full text-left text-sm">
+                    <tbody>
+                      {product.includedInKit.map((kit: KitItem, idx: number) => (
+                        <tr>
+                          <td class="border px-2 py-1">{kit.item ?? 'Item'}</td>
+                          <td class="border px-2 py-1">{kit.quantity ?? 1}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </details>
+
+          {product.importantNotes && (
+            <div class="mt-6 p-4 border border-red-500 bg-slate-400 text-red-700 rounded">
+              <h3 class="font-bold text-lg mb-2">Important Notes</h3>
+              <PortableTextRenderer value={product.importantNotes} />
+            </div>
+          )}
+
+          {product.requiresPaintCode && (
+            <div class="mt-6 p-4 border border-yellow-500 bg-yellow-50 text-yellow-700 rounded">
+              <h3 class="font-bold text-lg mb-2">Custom Paint Required</h3>
+              <p>Please provide your paint code before adding this product to cart.</p>
+              <input 
+                type="text" 
+                placeholder="Enter Paint Code" 
+                class="w-full mt-2 p-2 border rounded"
+                name="paintCode"
+                required
+              />
+            </div>
+          )}
+
+          <!-- Specifications (removed, now handled in Product Details accordion) -->
+
+          <!-- Compatibility -->
+          {(Array.isArray((product as any).compatibleVehicles) && (product as any).compatibleVehicles.length > 0) || (product as any).tune || (product as any).averageHorsepower ? (
+            <details class="group">
+              <summary class="cursor-pointer select-none bg-black/30 px-4 py-3 font-ethno text-lg flex items-center justify-between">
+                <span>Compatibility</span>
+                <span class="transition-transform group-open:rotate-180">▾</span>
+              </summary>
+              <div class="px-4 py-4 space-y-4">
+                {Array.isArray((product as any).compatibleVehicles) && (product as any).compatibleVehicles.length > 0 && (
+                  <div>
+                    <div class="font-semibold mb-2">Compatible Vehicles</div>
+                    <ul class="list-disc list-inside text-white/90">
+                      {(product as any).compatibleVehicles.map((v: { make?: string; model?: string; trim?: string }) => (
+                        <li>{[v.make, v.model, v.trim].filter(Boolean).join(' ')}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {(product as any).tune && (
+                  <div class="text-white/90"><span class="font-semibold">Tune:</span> {(product as any).tune.title}</div>
+                )}
+                {typeof (product as any).averageHorsepower === 'number' && (
+                  <div class="text-white/90"><span class="font-semibold">Average Horsepower:</span> {(product as any).averageHorsepower}</div>
+                )}
+              </div>
+            </details>
+          ) : null}
+
+          {/* Categories & Filters (inline minimal) */}
+        {/* Inline Categories & Filters at the bottom, centered */}
+        {(((product as any).categories?.length ?? 0) > 0) || (((product as any).filters?.length ?? 0) > 0) ? (
+          <div class="mt-8 text-left text-sm text-white/70">
+            {(product as any).categories?.length > 0 && (
+              <div class="mb-1">
+                <span class="font-semibold text-white">Categories:</span>{' '}
+                {(product as any).categories.map((c: any, idx: number) => (
+                  <>
+                    <a href={`/shop?categorySlug=${c.slug?.current || c.slug}`} class="hover:underline">
+                      {c.title}
+                    </a>
+                    {idx < (product as any).categories.length - 1 ? ', ' : ''}
+                  </>
+                ))}
+              </div>
+            )}
+            {(product as any).filters?.length > 0 && (
+              <div>
+                <span class="font-semibold text-white">Filters:</span>{' '}
+                {(product as any).filters.map((f: any, idx: number) => (
+                  <>
+                    <a href={`/shop?filters=${encodeURIComponent(String(f).toLowerCase())}`} class="hover:underline capitalize">
+                      {String(f)}
+                    </a>
+                    {idx < (product as any).filters.length - 1 ? ', ' : ''}
+                  </>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : null}
         </div>
       </div>
     </div>
 
-    <!-- You May Also Like Section -->
-    <div class="mt-16">
-      <h2 class="text-2xl font-borg mb-6">You May Also Like</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {similarProducts.map(similarProduct => (
-          <a
-            href={`/shop/${similarProduct.slug.current}`}
-            class="block bg-black/10 rounded-lg shadow-md hover:shadow-lg transition p-4"
-          >
-            <img
-              src={similarProduct.images?.[0]?.asset?.url || '/placeholder.png'}
-              alt={similarProduct.title}
-              class="w-full h-48 object-cover rounded-md mb-4"
-            />
-            <h3 class="text-lg font-semibold">{similarProduct.title}</h3>
-            <p class="text-primary font-bold">
-              {typeof similarProduct.price === 'number' ? `$${similarProduct.price.toFixed(2)}` : 'Price not available'}
-            </p>
-          </a>
-        ))}
-      </div>
+    <!-- Related Products -->
+{Array.isArray(relatedProducts) && relatedProducts.length > 0 && (
+  <div class="mt-16">
+    <h2 class="text-2xl font-borg mb-6">Related Products</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      {(relatedProducts || [])
+        .filter((p: any) => p && p.slug && (p.slug.current || typeof p.slug === 'string'))
+        .map((p: any) => {
+          const s = (p.slug && (p.slug.current || p.slug)) as string;
+          if (!s) return null;
+          const img = p?.images?.[0]?.asset?.url || '/placeholder.png';
+          const alt = p?.images?.[0]?.alt || p?.title || 'Product image';
+          const price =
+            typeof p?.price === 'number' ? `$${p.price.toFixed(2)}` : '';
+          return (
+            <>
+              {p.slug?.current ? (
+                <a href={`/shop/${p.slug.current}`} class="block bg-black/10 rounded-lg shadow-md hover:shadow-lg transition p-4">
+                  <img src={img} alt={alt} class="w-full h-48 object-cover rounded-md mb-4" />
+                  <h3 class="text-lg font-semibold">{p?.title || 'Untitled product'}</h3>
+                  <p class="text-primary font-bold">{price}</p>
+                </a>
+              ) : (
+                <span class="block bg-black/10 rounded-lg shadow-md transition p-4">
+                  <h3 class="text-lg font-semibold">{p?.title || 'Untitled product'}</h3>
+                  <p class="text-primary font-bold">{price}</p>
+                </span>
+              )}
+            </>
+          );
+        })}
     </div>
   </div>
+)}
 
+<!-- Recommended Upgrades / Upsell -->
+{Array.isArray(upsellProducts) && upsellProducts.length > 0 && (
+  <div class="mt-12">
+    <h2 class="text-2xl font-borg mb-6">Recommended Upgrades</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      {(upsellProducts || [])
+        .filter((p: any) => p && p.slug && (p.slug.current || typeof p.slug === 'string'))
+        .map((p: any) => {
+          const s = (p.slug && (p.slug.current || p.slug)) as string;
+          if (!s) return null;
+          const img = p?.images?.[0]?.asset?.url || '/placeholder.png';
+          const alt = p?.images?.[0]?.alt || p?.title || 'Product image';
+          const price =
+            typeof p?.price === 'number' ? `$${p.price.toFixed(2)}` : '';
+          return (
+            <>
+              {p.slug?.current ? (
+                <a href={`/shop/${p.slug.current}`} class="block bg-black/10 rounded-lg shadow-md hover:shadow-lg transition p-4">
+                  <img src={img} alt={alt} class="w-full h-48 object-cover rounded-md mb-4" />
+                  <h3 class="text-lg font-semibold">{p?.title || 'Untitled product'}</h3>
+                  <p class="text-primary font-bold">{price}</p>
+                </a>
+              ) : (
+                <span class="block bg-black/10 rounded-lg shadow-md transition p-4">
+                  <h3 class="text-lg font-semibold">{p?.title || 'Untitled product'}</h3>
+                  <p class="text-primary font-bold">{price}</p>
+                </span>
+              )}
+            </>
+          );
+        })}
+    </div>
+  </div>
+)}
+  </div>
+
+  
+</BaseLayout>
+  <style>
+    /* Ensure transparent overlays don’t block clicks on this product page */
+    [class~="absolute"][class~="inset-0"][class*="bg-black/10"][class~="z-0"] { pointer-events: none; }
+  </style>
   <script>
-    import type { Product } from '../../lib/sanity-utils';
-
-    interface CartItem {
-      id: string;
-      name: string;
-      slug?: string;
-      image?: string;
-      price: number;
-      quantity: number;
+  // Ultra-robust Add to Cart: supports multiple cart keys & events (TypeScript-safe)
+  (function () {
+    function safeParseJSON(str: string, fallback: any): any {
+      try { return JSON.parse(String(str || "")); } catch { return fallback; }
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const data = document.getElementById('product-json');
-      const button = document.getElementById('add-to-cart');
+    function getCart(keys: string[]): { key: string; data: any[] } {
+      for (const key of keys) {
+        try {
+          const raw = localStorage.getItem(key);
+          if (!raw) continue;
+          const data = JSON.parse(raw);
+          if (Array.isArray(data)) return { key, data };
+        } catch {}
+      }
+      return { key: keys[0], data: [] };
+    }
 
-      if (!data || !button) return;
+    function setCart(key: string, cart: any[]): void {
+      try { localStorage.setItem(key, JSON.stringify(cart)); } catch {}
+      // Mirror to a second key for compatibility
+      try { if (key !== "fas_cart") localStorage.setItem("fas_cart", JSON.stringify(cart)); } catch {}
+      try { if (key !== "cart") localStorage.setItem("cart", JSON.stringify(cart)); } catch {}
+      // Expose globally for quick debugging
+      try { (window as any).cart = cart; } catch {}
+    }
 
-      let product: Product;
-      try {
-        const text = data.textContent;
-        if (!text) throw new Error("Product data is missing.");
-        product = JSON.parse(text.trim()) as Product;
-      } catch (err) {
-        console.error("❌ Could not parse product data:", err);
-        return;
+    function emitAll(cart: any[]): void {
+      try { window.dispatchEvent(new CustomEvent("cartUpdated", { detail: cart })); } catch {}
+      try { window.dispatchEvent(new CustomEvent("cart-change", { detail: cart })); } catch {}
+      try { window.dispatchEvent(new CustomEvent("cart:updated", { detail: cart })); } catch {}
+    }
+
+    // Click delegation for any .add-to-cart
+    document.addEventListener("click", (evt: MouseEvent) => {
+      const target = evt.target as Element | null;
+      const el = target && typeof (target as any).closest === 'function' 
+        ? (target as Element).closest(".add-to-cart") as HTMLElement | null
+        : null;
+      if (!el) return;
+      evt.preventDefault();
+      evt.stopPropagation();
+
+      const ds = (el as HTMLElement).dataset as DOMStringMap;
+      const product = {
+        id: ds.productId || "",
+        name: ds.productName || "Item",
+        price: parseFloat(ds.productPrice || "0"),
+        categories: safeParseJSON(ds.productCategories || "[]", []),
+        qty: 1,
+      };
+
+      // Try both common keys
+      const keys: string[] = ["cart", "fas_cart"];
+      const { key, data } = getCart(keys);
+      const cart: any[] = Array.isArray(data) ? data : [];
+
+      const existing = cart.find((p: any) => p && p.id === product.id);
+      if (existing) {
+        existing.qty = (existing.qty || 1) + 1;
+      } else {
+        cart.push(product);
       }
 
-      button.addEventListener('click', () => {
-        try {
-          const cart: CartItem[] = JSON.parse(localStorage.getItem('fas_cart') || '[]');
-          const found = cart.find((item: CartItem) => item.id === product._id);
-          if (found) {
-            found.quantity += 1;
-          } else {
-            cart.push({
-              id: product._id,
-              name: product.title,
-              slug: product.slug?.current,
-              image: product.images?.[0]?.asset?.url,
-              price: product.price,
-              quantity: 1
-            });
-          }
-          localStorage.setItem('fas_cart', JSON.stringify(cart));
-          window.dispatchEvent(new Event('cart-updated'));
-          alert("✅ Added to cart!");
-        } catch (err) {
-          console.error("❌ Failed to update cart", err);
-          alert("⚠️ Could not add to cart.");
-        }
-      });
-    });
+      setCart(key, cart);
+      emitAll(cart);
+
+      // Toast notification
+      try {
+        const toast = document.createElement("div");
+        toast.textContent = `${product.name} added to cart`;
+        toast.style.position = "fixed";
+        toast.style.bottom = "20px";
+        toast.style.right = "20px";
+        toast.style.background = "rgba(255,255,255,0.9)";
+        toast.style.color = "#16a34a";
+        toast.style.padding = "10px 16px";
+        toast.style.borderRadius = "6px";
+        toast.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)";
+        toast.style.zIndex = "9999";
+        document.body.appendChild(toast);
+        setTimeout(() => {
+          toast.style.transition = "opacity 0.5s";
+          toast.style.opacity = "0";
+          setTimeout(() => toast.remove(), 500);
+        }, 2000);
+      } catch {}
+    }, true);
+  })();
   </script>
-</BaseLayout>

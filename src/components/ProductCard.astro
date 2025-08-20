@@ -31,36 +31,90 @@ const imageUrl = productImage?.asset?.url || '/placeholder.png';
       <p class="text-xl font-captain text-primary">{productPrice}</p>
       {product._id && (
         <button
-          class="add-to-cart bg-white text-black px-4 py-2 font-ethno hover:bg-primary transition rounded-none text-xs sm:text-sm"
+          class="add-to-cart p-2 text-primary hover:text-white hover:bg-primary transition rounded-full"
           data-product-id={product._id}
           data-product-name={product.title}
           data-product-price={product.price}
           data-product-categories={JSON.stringify((product.categories || []).filter(Boolean).map((c: { _ref?: string; _id?: string }) => c._ref || c._id || ''))}
         >
-          Add to Cart
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.293 1.293a1 1 0 00-.293.707V17a1 1 0 001 1h12a1 1 0 001-1v-2a1 1 0 00-1-1H7z" />
+          </svg>
         </button>
       )}
     </div>
   </div>
 </div>
 
-<div id="product-toast" class="fixed top-20 right-6 z-50 hidden px-4 py-3 backdrop-blur bg-white/10 text-white font-bold shadow-lg transition-all duration-300"></div>
+<script is:inline>
+  (function () {
+    // Prevent double-binding when multiple cards are on the page
+    if (window.__fasCartBound) return;
+    window.__fasCartBound = true;
 
-<script>
-  interface CartItem {
-    id: string;
-    name: string;
-    price: number;
-    quantity: number;
-    categories: string[];
-  }
-
-  function showProductToast(message: string, success = true) {
-    const toast = document.getElementById('product-toast');
-    if (!toast) return;
-    toast.textContent = message;
-    toast.className = `fixed top-20 right-6 z-50 px-4 py-3 backdrop-blur font-bold shadow-lg transition-all duration-300 ${
-      success ? 'bg-green-500/10 text-green-300' : 'bg-red-500/10 text-red-400'
-    }`;
-      toast.classList.remove('hidden');
+    function getCart() {
+      try {
+        const raw = localStorage.getItem('cart');
+        return raw ? JSON.parse(raw) : [];
+      } catch { return []; }
     }
+
+    function saveCart(cart) {
+      try { localStorage.setItem('cart', JSON.stringify(cart)); } catch {}
+      // Let other widgets (mini cart, header badge) react if they listen
+      try { window.dispatchEvent(new CustomEvent('cart:updated', { detail: { cart } })); } catch {}
+    }
+
+    function showProductToast(message, success = true) {
+      let toast = document.getElementById('product-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'product-toast';
+        toast.className = 'fixed top-20 right-6 z-50 px-4 py-3 backdrop-blur font-bold shadow-lg transition-all duration-300 rounded hidden';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = message;
+      toast.classList.remove('hidden');
+      toast.classList.remove('bg-red-500/10', 'text-red-400');
+      toast.classList.remove('bg-green-500/10', 'text-green-300');
+      toast.classList.add(success ? 'bg-green-500/10' : 'bg-red-500/10');
+      toast.classList.add(success ? 'text-green-300' : 'text-red-400');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => { toast.classList.add('hidden'); }, 1800);
+    }
+
+    function addToCart(item) {
+      const cart = getCart();
+      const idx = cart.findIndex((c) => c.id === item.id);
+      if (idx >= 0) {
+        cart[idx].quantity += item.quantity || 1;
+      } else {
+        cart.push({ id: item.id, name: item.name, price: item.price, quantity: item.quantity || 1, categories: item.categories || [] });
+      }
+      saveCart(cart);
+    }
+
+    // Event delegation for all .add-to-cart buttons
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('.add-to-cart');
+      if (!btn) return;
+      e.preventDefault();
+      try {
+        const id = btn.getAttribute('data-product-id');
+        const name = btn.getAttribute('data-product-name') || 'Item';
+        const priceRaw = btn.getAttribute('data-product-price');
+        const catsRaw = btn.getAttribute('data-product-categories') || '[]';
+        const price = Number.parseFloat(String(priceRaw ?? '0')) || 0;
+        let categories = [];
+        try { categories = JSON.parse(catsRaw) || []; } catch { categories = []; }
+        if (!id) { showProductToast('Unable to add item (missing id)', false); return; }
+
+        addToCart({ id, name, price, quantity: 1, categories });
+        showProductToast(`Added to cart: ${name}`);
+      } catch (err) {
+        console.error('add-to-cart failed', err);
+        showProductToast('Something went wrong adding to cart', false);
+      }
+    });
+  })();
+</script>

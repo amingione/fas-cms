@@ -1,4 +1,4 @@
-// src/pages/api/get-user-order.ts
+// src/pages/api/get-user-appointments.ts
 import type { APIRoute } from 'astro';
 import { sanityClient } from '@/lib/sanityClient';
 import { jwtVerify, createRemoteJWKSet } from 'jose';
@@ -27,10 +27,9 @@ export const OPTIONS: APIRoute = async () => new Response(null, { status: 204, h
 
 export const GET: APIRoute = async ({ request, url }) => {
   try {
-    // Allow either query param or token-derived email
+    // Allow simple `?email=` usage for counts, otherwise derive from Auth0 token
     let email = (url.searchParams.get('email') || '').trim().toLowerCase();
 
-    // If no email in query, try to verify an Auth0 token
     if (!email) {
       const AUTH0_DOMAIN =
         (import.meta.env.PUBLIC_AUTH0_DOMAIN as string | undefined) ||
@@ -40,7 +39,6 @@ export const GET: APIRoute = async ({ request, url }) => {
         (import.meta.env.AUTH0_CLIENT_ID as string | undefined);
 
       const token = getBearer(request) || getCookie(request, 'token');
-
       if (token && AUTH0_DOMAIN && AUTH0_CLIENT_ID) {
         try {
           const JWKS = createRemoteJWKSet(new URL(`https://${AUTH0_DOMAIN}/.well-known/jwks.json`));
@@ -52,7 +50,6 @@ export const GET: APIRoute = async ({ request, url }) => {
             email = payload.email.toLowerCase();
           }
         } catch (err) {
-          // If a token was supplied but failed verification, treat as unauthorized
           return new Response(JSON.stringify({ error: 'Invalid or expired token' }), {
             status: 401,
             headers: { ...cors, 'content-type': 'application/json' }
@@ -68,22 +65,25 @@ export const GET: APIRoute = async ({ request, url }) => {
       });
     }
 
-    const query = `*[_type == "order" && customer->email == $email] | order(_createdAt desc){
+    // Query Sanity for appointments tied to the customer's email
+    const query = `*[_type == "appointment" && customer->email == $email] | order(_createdAt desc) {
       _id,
-      title,
+      _createdAt,
       status,
-      _createdAt
+      scheduledAt,
+      location,
+      notes
     }`;
 
-    const orders = await sanityClient.fetch(query, { email });
+    const appts = await sanityClient.fetch(query, { email });
 
-    return new Response(JSON.stringify(orders || []), {
+    return new Response(JSON.stringify(appts || []), {
       status: 200,
       headers: { ...cors, 'content-type': 'application/json' }
     });
   } catch (err: any) {
-    console.error('get-user-order error:', err?.message || err);
-    return new Response(JSON.stringify({ error: 'Failed to fetch orders' }), {
+    console.error('get-user-appointments error:', err?.message || err);
+    return new Response(JSON.stringify({ error: 'Failed to fetch appointments' }), {
       status: 500,
       headers: { ...cors, 'content-type': 'application/json' }
     });

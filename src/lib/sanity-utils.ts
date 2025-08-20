@@ -28,11 +28,20 @@ export interface Product {
   slug: { current: string };
   price: number;
   description?: string;
+  shortDescription?: any;
+  metaTitle?: string;
+  metaDescription?: string;
+  canonicalUrl?: string;
+  noindex?: boolean;
+  brand?: string;
+  gtin?: string;
+  mpn?: string;
   images: {
     asset: {
       _id: string;
       url: string;
     };
+    alt?: string;
   }[];
   categories: {
     _id: string;
@@ -49,6 +58,13 @@ export interface Product {
     slug: { current: string };
   }[];
   averageHorsepower?: number;
+  filters?: string[];
+  specifications?: { key: string; value: string }[];
+  attributes?: { key: string; value: string }[];
+  productType?: string;
+  requiresPaintCode?: boolean;
+  importantNotes?: any;
+  socialImage?: { asset: { _id: string; url: string }; alt?: string };
 }
 
 export interface Category {
@@ -108,28 +124,34 @@ export async function fetchProductsFromSanity({
       _id,
       title,
       slug,
+      metaTitle,
+      metaDescription,
       price,
       averageHorsepower,
-      images[]{
-        asset->{
-          _id,
-          url
-        }
-      },
-      tune->{
-        title,
-        slug
-      },
-      compatibleVehicles[]->{
-        make,
-        model,
-        slug
-      },
-      categories[]->{
-        _id,
-        title,
-        slug
-      }
+      description,
+      shortDescription,
+      importantNotes,
+      brand,
+      gtin,
+      mpn,
+      canonicalUrl,
+      noindex,
+      socialImage{ asset->{ _id, url }, alt },
+      specifications,
+      attributes,
+      includedInKit[]{ item, quantity, notes },
+      productType,
+      requiresPaintCode,
+      images[]{ asset->{ _id, url }, alt },
+      tune->{ title, slug },
+      compatibleVehicles[]->{ make, model, slug },
+      // include free-form filter tags from schema
+      filters[],
+      // support either field name: "categories" or "category"
+      "categories": select(
+        defined(categories) => categories[]->{ _id, title, slug },
+        defined(category) => category[]->{ _id, title, slug }
+      )
     }`;
 
     return await sanity.fetch<Product[]>(query, params);
@@ -192,18 +214,29 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       title,
       slug,
       price,
+      // rich text fields may be arrays
+      shortDescription,
       description,
-      images[]{
-        asset->{
-          _id,
-          url
-        }
-      },
-      categories[]->{
-        _id,
-        title,
-        slug
-      }
+      importantNotes,
+      specifications,
+      attributes,
+      includedInKit[]{ item, quantity, notes },
+      productType,
+      requiresPaintCode,
+      images[]{ asset->{ _id, url }, alt },
+      filters[],
+      brand,
+      gtin,
+      mpn,
+      metaTitle,
+      metaDescription,
+      canonicalUrl,
+      noindex,
+      socialImage{ asset->{ _id, url }, alt },
+      "categories": select(
+        defined(categories) => categories[]->{ _id, title, slug },
+        defined(category) => category[]->{ _id, title, slug }
+      )
     }`;
     return await sanity.fetch<Product | null>(query, { slug });
   } catch (err) {
@@ -212,45 +245,69 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   }
 }
 
-// Fetch similar products based on categories
-export async function getSimilarProducts(
-  categories: { slug: { current: string } }[],
-  currentSlug: string
-): Promise<Product[]> {
-  try {
-    if (!categories || categories.length === 0) return [];
-    const categorySlugs = categories.map((category) => category.slug.current);
-
-    const query = `*[_type == "product" && slug.current != $currentSlug && count(categories[slug.current in $categorySlugs]) > 0][0...4]{
+// Auto-related products based on overlapping categories/filters (computed at query time)
+export async function getRelatedProducts(
+  slug: string,
+  categoryIds: string[] = [],
+  filters: string[] = [],
+  limit = 6
+) {
+  const ids = Array.isArray(categoryIds) ? categoryIds : [];
+  const flt = Array.isArray(filters) ? filters : [];
+  const query = `
+    *[_type == "product" && slug.current != $slug]{
       _id,
       title,
       slug,
       price,
-      averageHorsepower,
-      images[]{
-        asset->{
-          _id,
-          url
-        }
-      },
-      tune->{
-        title,
-        slug
-      },
-      compatibleVehicles[]->{
-        make,
-        model,
-        slug
-      },
-      categories[]->{
-        _id,
-        title,
-        slug
-      }
-    }`;
-    return await sanity.fetch<Product[]>(query, { currentSlug, categorySlugs });
-  } catch (err) {
-    console.error('Failed to fetch similar products:', err);
-    return [];
-  }
+      images[]{asset->{url}, alt},
+      "categories": select(
+        defined(categories) => categories[]->{ _id, title, slug },
+        defined(category) => category[]->{ _id, title, slug }
+      ),
+      // relevance: category overlap (supports either field name) + filter overlap
+      "rel": count(coalesce(category[]._ref, categories[]._ref, [])[ @ in $catIds ]) + count(coalesce(filters, [])[ @ in $filters ])
+    } | order(rel desc, onSale desc, coalesce(salePrice, price, 9e9) asc, _createdAt desc)[0...$limit]
+  `;
+  const params = { slug, catIds: ids, filters: flt, limit } as Record<string, any>;
+  return sanity.fetch<Product[]>(query, params);
+}
+
+// Auto-upsell: same category, higher (or equal) price than current item
+export async function getUpsellProducts(
+  slug: string,
+  categoryIds: string[] = [],
+  basePrice?: number,
+  limit = 6
+) {
+  const ids = Array.isArray(categoryIds) ? categoryIds : [];
+  const hasPrice = typeof basePrice === 'number' && !Number.isNaN(basePrice);
+  const query = `
+    *[_type == "product" && slug.current != $slug
+      && count(coalesce(category[]._ref, categories[]._ref, [])[ @ in $catIds ]) > 0
+      ${hasPrice ? '&& defined(price) && price >= $price' : ''}]{
+      _id,
+      title,
+      slug,
+      price,
+      images[]{asset->{url}, alt},
+      "categories": select(
+        defined(categories) => categories[]->{ _id, title, slug },
+        defined(category) => category[]->{ _id, title, slug }
+      )
+    } | order(price asc, _createdAt desc)[0...$limit]
+  `;
+  const params: Record<string, any> = { slug, catIds: ids, limit };
+  if (hasPrice) params.price = basePrice;
+  return sanity.fetch<Product[]>(query, params);
+}
+
+// Backwards-compatible alias to old name
+export async function getSimilarProducts(
+  categories: { slug?: { current?: string } }[] = [],
+  currentSlug: string,
+  limit = 6
+): Promise<Product[]> {
+  const catIds = (categories || []).map((c: any) => c?._id || c?._ref).filter(Boolean);
+  return getRelatedProducts(currentSlug, catIds, [], limit);
 }

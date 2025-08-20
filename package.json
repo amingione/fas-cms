@@ -53,6 +53,7 @@
     "@astrojs/tailwind": "^6.0.2",
     "@auth0/auth0-spa-js": "^2.3.0",
     "@netlify/blobs": "^9.0.0",
+    "@portabletext/react": "^3.2.1",
     "@sanity/asset-utils": "^2.2.1",
     "@sanity/client": "latest",
     "@sanity/icons": "^3.7.0",
