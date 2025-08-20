@@ -216,31 +216,65 @@ import AccountDashboard from './accountdashboard.astro';
       let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay); };
     }
 
+    // helpers for thumbnails and prices
+    function getThumb(it) {
+      // Try common Sanity image fields
+      const byPath = it?.image?.asset?.url
+        || it?.mainImage?.asset?.url
+        || (Array.isArray(it?.images) && it.images[0]?.asset?.url)
+        || it?.thumbnail?.asset?.url
+        || it?.thumb?.asset?.url
+        || it?.imageUrl
+        || '';
+      return typeof byPath === 'string' ? byPath : '';
+    }
+
+    function formatPrice(v) {
+      const n = Number(v);
+      if (!isFinite(n) || n <= 0) return '';
+      try { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(n); } catch { return `$${n.toFixed(2)}`; }
+    }
+
     function renderSuggestions(panel, items, query) {
       if (!panel) return;
       if (!items || !items.length) { panel.classList.add('hidden'); panel.innerHTML = ''; return; }
       const esc = (s) => String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'", '&#39;');
-      const list = items.slice(0, 6).map(it => {
+      const list = items.slice(0, 8).map(it => {
         const title = it.title || it.name || it._type || 'Untitled';
-        const href = resolveLink(it);
-        return `<a href="${href || `/search?q=${encodeURIComponent(query)}` }" class="block px-3 py-2 hover:bg-white/10">
-          <div class="text-xs uppercase text-white/60">${esc(it._type || '')}</div>
-          <div class="text-sm font-medium truncate">${esc(title)}</div>
-        </a>`;
+        const href = resolveLink(it) || `/search?q=${encodeURIComponent(query)}`;
+        const img = getThumb(it);
+        const price = formatPrice(it.price);
+        return `
+          <a href="${href}" class="block px-3 py-2 hover:bg-white/10">
+            <div class="flex items-center gap-3" style="font-family: Arial, sans-serif; font-size: 12px; line-height: 1.2;">
+              ${img ? `<img src="${esc(img)}" alt="" class="w-10 h-10 object-cover rounded border border-white/10" />` : ''}
+              <div class="min-w-0">
+                <div class="truncate font-semibold" style="font-family: Arial, sans-serif; font-size: 12px;">${esc(title)}</div>
+                <div class="flex items-center gap-2 text-white/70" style="font-family: Arial, sans-serif; font-size: 11px;">
+                  <span class="uppercase">${esc(it._type || '')}</span>
+                  ${price ? `<span class="text-accent">${esc(price)}</span>` : ''}
+                </div>
+              </div>
+            </div>
+          </a>
+        `;
       }).join('');
-      const footer = `<a href="/search?q=${encodeURIComponent(query)}" class="block px-3 py-2 text-center text-xs text-white/70 hover:bg-white/10">See all results for “${esc(query)}”</a>`;
+      const footer = `<a href="/search?q=${encodeURIComponent(query)}" class="block px-3 py-2 text-center text-xs text-white/70 hover:bg-white/10" style="font-family: Arial, sans-serif; font-size: 12px;">See all results for “${esc(query)}”</a>`;
       panel.innerHTML = list + '<div class="border-t border-white/10"></div>' + footer;
       panel.classList.remove('hidden');
     }
 
     function resolveLink(it) {
-      switch (it._type) {
-        case 'product': return it.slug?.current ? `/product/${it.slug.current}` : '';
-        case 'service': return it.slug?.current ? `/service/${it.slug.current}` : '';
-        case 'quote':
-        case 'invoice':
-        case 'appointment': return '/dashboard';
-        case 'page': return it.slug?.current ? `/${it.slug.current}` : '';
+      // Prefer API-provided url if present
+      if (it && typeof it.url === 'string' && it.url) return it.url;
+      const slug = (it && it.slug && (it.slug.current || it.slug)) || '';
+      switch (it && it._type) {
+        case 'product': return slug ? `/shop/${slug}` : '';
+        case 'service': return slug ? `/service/${slug}` : '';
+        case 'quote': return `/dashboard/quotes/${it._id || ''}`;
+        case 'invoice': return `/dashboard/invoices/${it._id || ''}`;
+        case 'appointment': return `/dashboard/appointments/${it._id || ''}`;
+        case 'page': return slug ? `/${slug}` : '';
         default: return '';
       }
     }

@@ -94,30 +94,44 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         const title = it.title || it.name || it._type || 'Untitled';
         const desc = (it.description || '').toString().slice(0, 140);
         const href = resolveLink(it);
+        if (href) {
+          return `
+            <li>
+              <a href="${href}" class="block border border-white/10 rounded bg-black/30 p-4 hover:bg-black/40 transition focus:outline-none focus:ring-2 focus:ring-primary">
+                <div class="text-sm uppercase text-white/60 mb-1">${it._type || ''}</div>
+                <div class="font-semibold mb-1 hover:underline">${escapeHtml(title)}</div>
+                ${desc ? `<p class="text-sm text-white/70">${escapeHtml(desc)}${it.description && it.description.length > 140 ? '…' : ''}</p>` : ''}
+              </a>
+            </li>
+          `;
+        }
+        // Fallback: non-clickable if we couldn't resolve a URL
         return `
-          <li class="border border-white/10 rounded bg-black/30 p-4 hover:bg-black/40 transition">
+          <li class="border border-white/10 rounded bg-black/30 p-4">
             <div class="text-sm uppercase text-white/60 mb-1">${it._type || ''}</div>
-            <a ${href ? `href="${href}"` : ''} class="font-semibold block mb-1 hover:underline">${escapeHtml(title)}</a>
+            <div class="font-semibold mb-1">${escapeHtml(title)}</div>
             ${desc ? `<p class="text-sm text-white/70">${escapeHtml(desc)}${it.description && it.description.length > 140 ? '…' : ''}</p>` : ''}
           </li>
         `;
       }
 
       function resolveLink(it) {
-        // Try to build a link for common types
+        // Prefer API-provided url if present
+        if (it.url && typeof it.url === 'string') return it.url;
+        const slug = (it.slug && (it.slug.current || it.slug)) || '';
         switch (it._type) {
           case 'product':
-            return it.slug?.current ? `/product/${it.slug.current}` : '';
+            return slug ? `/shop/${slug}` : '';
           case 'service':
-            return it.slug?.current ? `/service/${it.slug.current}` : '';
+            return slug ? `/service/${slug}` : '';
           case 'quote':
-            return `/dashboard`; // can deep-link later
+            return `/dashboard/quotes/${it._id || ''}`;
           case 'invoice':
-            return `/dashboard`;
+            return `/dashboard/invoices/${it._id || ''}`;
           case 'appointment':
-            return `/dashboard`;
+            return `/dashboard/appointments/${it._id || ''}`;
           case 'page':
-            return it.slug?.current ? `/${it.slug.current}` : '';
+            return slug ? `/${slug}` : '';
           default:
             return '';
         }
