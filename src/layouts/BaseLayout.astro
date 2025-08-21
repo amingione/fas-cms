@@ -5,6 +5,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/footer.astro';
 import FloatingLoginGarage from '../components/FloatingLoginGarage.astro';
 import FloatingCartWidget from '../components/floatingwidget.jsx';
+import MobileBaseLayout from '../layouts/MobileBaseLayout.jsx';
 
 const { hideBrandTag = false } = Astro.props;
 ---
@@ -31,25 +32,31 @@ const { hideBrandTag = false } = Astro.props;
     
     <div class="absolute inset-0 bg-black/10 z-0"></div>
 
-    <div class="relative z-10">
+    <!-- Animated Brand Tag -->
+    {!hideBrandTag && (
+      <div id="brand-tag" class="hidden md:block fixed top-[200px] left-6 z-30 animate-slide-in-left pointer-events-none opacity-80 hover:opacity-100 transition-opacity duration-200">
+        <p class="text-white text-3xl font-borg leading-tight tracking-wide">
+          F.a.S.<p class="text-primary font-ethno-italic">MOTORSPORTS</p>
+        </p>
+      </div>
+    )}
+
+
+    <!-- Mobile layout (React island), only renders <640px) -->
+    <div class="sm:hidden">
+      <MobileBaseLayout client:load>
+        <slot />
+      </MobileBaseLayout>
+    </div>
+
+    <!-- Desktop layout (Astro), hidden on small screens -->
+    <div class="hidden sm:block relative z-10">
       <Header />
-
-      <!-- Animated Brand Tag -->
-      {!hideBrandTag && (
-        <div id="brand-tag" class="hidden md:block fixed top-[200px] left-6 z-30 animate-slide-in-left pointer-events-none opacity-80 hover:opacity-100 transition-opacity duration-200">
-          <p class="text-white text-3xl font-borg leading-tight tracking-wide">
-            F.a.S.<p class="text-primary font-ethno-italic">MOTORSPORTS</p>
-          </p>
-        </div>
-      )}
-
       <main class="min-h-screen bg-transparent -mt-0">
         <slot />
       </main>
-
       <Footer />
-      <FloatingCartWidget client:load />
-      <!-- <FloatingLoginGarage /> -->
+      <FloatingCartWidget client:media="(min-width: 640px)" />
     </div>
 
     <script>

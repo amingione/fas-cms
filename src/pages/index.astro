@@ -3,6 +3,21 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Button from '../components/Button.astro';
 import SplinePortingShowcase from '../components/SplinePortingShowcase.jsx';
 import * as sanity from '../lib/sanity-utils';
+import { Hero } from '@components/Hero.tsx';
+import { Services } from '@components/Services.tsx';
+import { Products } from '@components/Products.tsx';
+import { About } from '@components/About.tsx';
+import { Contact } from '@components/Contact.tsx';
+import { Footer } from '@components/Footer.tsx';
+import { IGLASecurity } from '@components/IGLASecurity.tsx';
+import { TruckPackagesHero } from '@components/TruckPackagesHero.tsx';
+import { LuxuryFeatures } from '@components/LuxuryFeatures.tsx';
+import { CustomFabrication } from '@components/CustomFabrication.tsx';
+import { LuxuryTestimonials } from '@components/LuxuryTestimonials.tsx';
+import { WheelsHero } from '@/components/WheelsHero.tsx';
+
+const url = new URL(Astro.request.url);
+const showV2 = url.searchParams.get('v2') === '1';
 
 let featuredProducts: any[] = [];
 try {
@@ -74,21 +89,6 @@ try {
 }
 ---
 
-<style>
-html, body {
-  overflow-x: hidden;
-}
-
-#carousel-track {
-  display: flex;
-  transition: transform 0.5s ease-in-out;
-}
-
-.carousel-slide {
-  min-width: 100%;
-  box-sizing: border-box;
-}
-</style>
 
 <BaseLayout>
 
@@ -97,159 +97,63 @@ html, body {
   <img src="/images/hp-herofas.png" alt="FAS Hero TRX" class="w-full h-auto object-cover object-top md:object-center overflow-hidden" />
 </section>
 
-<!-- NO TUNE PULLEY CTA -->
-<section class="bg-black py-5 text-white text-center relative overflow-hidden">
-  <div class="w-full max-w-6xl mx-auto px-6">
-    <div class="relative w-full overflow-x-hidden px-6 md:px-12" id="pulley-carousel">
-      <div class="flex transition-transform duration-700 ease-in-out w-full" style="transform: translateX(0%)" id="carousel-track">
-        <!-- Slide 1 -->
-        <div class="carousel-slide w-full flex-shrink-0 flex flex-col-reverse md:flex-row justify-between items-center gap-10 max-w-6xl mx-auto px-4 md:px-0 animate-fade-in-up opacity-0 transform translate-y-10">
-          <div class="text-center md:text-left w-full">
-            <h2 class="font-cyber text-lg tracking-widest text-gray-400">F.A.S. PREDATOR PULLEY</h2>
-            <h3 class="text-4xl md:text-5xl text-accent font-borg mt-2 mb-2">NO TUNE REQUIRED.</h3>
-            <p class="text-sm px-4 text-gray-400 font-cyber max-w-md">Patent-pending innovation – precision-engineered for flawless performance.</p><br>
-            <Button href="/shop/fas-predator-lower-pulley-no-tune-required" text="Shop Now" variant="multi-swipe-v2" />
-          </div>
-          <img src="/images/predatoru pulley homepage copy.png" class="w-[70%] md:w-[40%] object-contain mx-auto max-h-[300px]" alt="FAS Pulley Stack" />
-        </div>
+{showV2 && (
+  <>
+    <!-- Figma sections (header untouched) -->
+    <main class="flex flex-col">
+      
+      <section id="hero" class="px-4 md:px-6">
+        <Hero client:load />
+      </section>
 
-        <!-- Slide 2 -->
-        <div class="carousel-slide w-full flex-shrink-0 flex flex-col-reverse md:flex-row justify-between items-center gap-10 max-w-6xl mx-auto px-4 md:px-0 animate-fade-in-up opacity-0 transform translate-y-10">
-          <div class="text-center md:text-left w-full">
-            <h2 class="font-cyber text-lg tracking-widest text-gray-400">HELLCAT SNOUT PORTING</h2>
-            <h3 class="text-4xl md:text-5xl text-accent font-borg mt-2 mb-2">PRECISION MATCHED FLOW</h3>
-            <p class="text-sm text-gray-400 font-cyber px-4 max-w-md">Increase throttle response and airflow efficiency with CNC porting.</p><br>
-            <Button href="/shop/hellcat-108mm-package-snout-porting-and-billet-throttle-body" text="SHOP SALE" variant="multi-swipe-v2" />
-          </div>
-          <img src="/images/ported-snoutfas.png" class="w-[70%] md:w-[40%] object-contain mx-auto max-h-[300px]" alt="FAS Supercharger Package" />
-        </div>
+      <section id="TruckPackagesHero" class="px-4 md:px-6">
+        <TruckPackagesHero client:load />
+      </section>
 
-        <!-- Slide 3 -->
-        <div class="carousel-slide w-full flex-shrink-0 flex flex-col-reverse md:flex-row justify-between items-center gap-10 max-w-6xl mx-auto px-4 md:px-0 animate-fade-in-up opacity-0 transform translate-y-10">
-          <div class="text-center md:text-left w-full">
-            <h2 class="font-cyber text-lg tracking-widest text-gray-400">F.A.S. 3.0L Whipple</h2>
-            <h3 class="text-4xl md:text-5xl text-accent font-borg mt-2 mb-2">Precision Porting </h3>
-            <p class="text-sm text-gray-400 font-cyber px-4 max-w-md">Supplying the most smooth & efficient finish possible</p><br>
-            <Button href="/shop/3-0l-whipple-porting-service-hellcat" text="Shop Now" variant="multi-swipe-v2" />
-          </div>
-          <img src="/images/painted supercharger whippel pulley copy.png" class="w-[70%] md:w-[40%] object-contain mx-auto max-h-[300px]" alt="Race Hub" />
-      </div>
-    </div>
-  </div>
-</section>
+      <section id="CustomFabrication" class="px-4 md:px-6">
+        <CustomFabrication client:load />
+      </section>
 
-<!-- 3D Porting Showcase Section -->
-<div class="overflow-hidden">
-  <SplinePortingShowcase client:load />
-</div>
+      <section id="IGLASecurity" class="px-4 md:px-6">
+        <IGLASecurity client:load />
+      </section>
 
-<script is:inline>
-  document.addEventListener("DOMContentLoaded", () => {
-    let index = 0;
-    const track = document.getElementById('carousel-track');
-    const slides = document.querySelectorAll('.carousel-slide');
-    const total = slides.length;
+      <section id="LuxuryFeatures" class="px-4 md:px-6">
+        <LuxuryFeatures client:load />
+      </section>
 
-    // Set initial state
-    slides.forEach((slide, idx) => {
-      slide.style.transform = `translateX(${idx * 100}%)`;
-    });
+      <section id="services" class="px-4 md:px-6">
+        <Services client:load />
+      </section>
 
-    // Auto-slide every 5 seconds
-    setInterval(() => {
-      index = (index + 1) % total;
-      track.style.transform = `translateX(-${index * 100}%)`;
-    }, 5000);
-  });
-</script>
+      <section id="WheelsHero" class="px-4 md:px-6">
+        <WheelsHero client:load />
+      </section>
 
-<style>
-@keyframes fade-in-up {
-  0% {
-    opacity: 0;
-    transform: translateY(40px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-.animate-fade-in-up {
-  animation: fade-in-up 1s ease-out forwards;
-}
-</style>
+      <section id="highlights" class="px-4 md:px-6">
+        <!-- TODO: Wire Sanity featured later; styling-only for now -->
+        <Products client:load />
+      </section>
 
 
-<!-- FEATURED PRODUCTS -->
-<section class="bg-transparent py-20 text-white px-4 sm:px-0 overflow-hidden">
-  <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 px-6 text-center">
-    <div class="bg-black/50 backdrop-blur-lg rounded-xl p-8 shadow-md border border-black/10">
-      <img src="/images/fas pred pully HP{ copy.png" class="mx-auto h-40 object-contain" />
-      <h4 class="font-bold text-primary font-borg text-xl mt-4">No Tune Predator Pulley</h4>
-      <p class="text-accent font-ethno-italic mt-1">From $899.99</p><br>
-      <Button href="/shop/fas-predator-lower-pulley-no-tune-required" text="Shop Now" variant="multi-swipe-v2" class="mt-4" />
-    </div>
-    <div class="bg-black/40 backdrop-blur-lg rounded-xl p-8 shadow-md border border-black/10">
-      <img src="/images/billet bearing plate.png" class="mx-auto h-40 object-contain" />
-      <h4 class="font-bold font-borg text-primary text-xl mt-4">Billet Bearing Plate</h4>
-      <p class="text-accent font-ethno-italic mt-1">From $699.00</p><br>
-      <Button href="/shop/2-4l-hellcat-billet-bearing-plate" text="Shop Now" variant="multi-swipe-v2" class="mt-4" />
-    </div>
-  </div>
-</section>
+      <section id="about" class="px-4 md:px-6">
+        <About client:load />
+      </section>
 
-<section class="bg-black/30 backdrop-blur-lg py-20 px-4 text-white text-center">
-  <h2 class="text-accent font-cyber tracking-wide text-sm mb-2">SUPERCHARGER ENGINEERING & MODIFICATION</h2>
-  <h3 class="text-3xl font-borg mb-6">F.a.S. <p class="font-ethno text-white"><span></span></p> MOTORSPORTS</h3>
-  <div class="flex justify-center gap-2 mb-10">
-    <img src="/images/fas predator icon border copy.png" class="h-6" />
-  </div>
+      <section id="contact" class="px-4 md:px-6">
+        <Contact client:load />
+      </section>
 
-  {featuredProducts && featuredProducts.length ? (
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 px-6 overflow-hidden">
-      {featuredProducts.map((p: any) => (
-        <div class="bg-black/50 backdrop-blur-lg p-4 rounded-lg shadow">
-          <img src={p.imageUrl || '/images/placeholder.png'} alt={p.title || p.name || 'Product image'} class="h-28 mx-auto object-contain" />
-          <p class="mt-3 font-cyber text-sm truncate">{p.name || p.title || 'Product'}</p><br />
-          <p class="font-bold font-ethno text-accent">
-            {typeof p.price === 'number' && isFinite(p.price) ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD'}).format(p.price) : ''}
-          </p>
-          <Button href={p.slug ? `/shop/${p.slug}` : '#'} text="Shop Now" variant="swipe" class="mt-4" />
-        </div>
-      ))}
-    </div>
-  ) : (
-    <div class="px-6">
-      <p class="text-white/70">No featured products yet. Mark products with <span class="font-mono">featured: true</span> in Sanity to populate this section.</p>
-    </div>
-  )}
-</section>
+      <section id="LuxuryTestimonials" class="px-4 md:px-6">
+        <LuxuryTestimonials client:load />
+      </section>
+    </main>
 
-<!-- TRUCK CTA -->
-<section class="relative w-full h-[600px] md:h-[800px] bg-black text-white overflow-hidden">
-  <div class="absolute inset-0">
-    <img src="/images/TRX Truck Package FAS copy.png" alt="TRX Truck Package" class="w-full h-full object-cover object-center" />
-    <div class="absolute inset-0 bg-black/30"></div>
-  </div>
-  <div class="relative z-10 flex flex-col justify-center items-center h-full">
-    <h2 class="text-5xl text-primary md:text-6xl font-ethno mb-4">TRUCK PACKAGES <span class="text-white">RAM TRX</span></h2>
-    <p class="text-red font-cyber text-lg mb-6">From mild to wild – our custom packages are built to dominate.</p>
-    <Button href="/power-packages" text="Shop Packages" variant="default" class="z-10" />
-  </div>
-</section>
 
-<!-- IGLA INSTALLER CTA -->
-<section class="relative w-full h-[500px] md:h-[600px] bg-black text-white overflow-hidden">
-  <div class="absolute inset-0 flex flex-row items-center">
-    <div class="w-1/2 flex flex-col justify-center items-start pl-10 z-10">
-      <h3 class="font-ethno text-lg text-accent mb-2">#1 IGLA INSTALLER IN SWFL</h3>
-      <p class="font-cyber text-xl font-bold text-white mb-8">CERTIFIED IGLA INSTALLERS</p>
-      <Button href="/igla" text="Learn More About IGLA" variant="swipe-v2" class="mt-2" />
-    </div>
-    <div class="w-1/2 relative">
-      <img src="/images/igla-page-trackhwak.webp" alt="IGLA Installation" class="w-full h-full object-cover object-center" />
-    </div>
-  </div>
-</section>
+    <footer class="mt-24">
+      <Footer client:load />
+    </footer>
+  </>
+)}
 
 </BaseLayout>

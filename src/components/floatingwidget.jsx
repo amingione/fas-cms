@@ -1,15 +1,43 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import Button from './button';
 
-export default function FloatingCartWidget() {
+/** variant: 'auto' | 'fab' | 'icon' */
+export default function FloatingCartWidget({ variant = 'auto' }) {
   const [isOpen, setIsOpen] = useState(false);
   const [cartItems, setCartItems] = useState([]);
   const [mounted, setMounted] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
+  const [isMobile, setIsMobile] = useState(false);
+  const svgRef = useRef(null);
+  const [useEmoji, setUseEmoji] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    const handler = (e) => setIsMobile(e.matches);
+    handler(mq);
+    mq.addEventListener?.('change', handler);
+    return () => mq.removeEventListener?.('change', handler);
+  }, []);
+
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    const el = svgRef.current;
+    if (!el) return;
+    try {
+      const rect = el.getBoundingClientRect();
+      const cs = window.getComputedStyle(el);
+      const hidden = cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0';
+      if (hidden || rect.width < 4 || rect.height < 4) {
+        setUseEmoji(true);
+      }
+    } catch (_) {}
+  }, [mounted]);
 
   useEffect(() => {
     const updateFromStorage = () => {
@@ -43,6 +71,16 @@ export default function FloatingCartWidget() {
   }, [cartItems, loaded]);
 
   useEffect(() => {
+    const onToggle = () => setIsOpen((v) => !v);
+    window.addEventListener('cart:toggle', onToggle);
+    window.openFloatingCart = () => setIsOpen(true);
+    return () => {
+      window.removeEventListener('cart:toggle', onToggle);
+      delete window.openFloatingCart;
+    };
+  }, []);
+
+  useEffect(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('cart');
       setCartItems(saved ? JSON.parse(saved) : []);
@@ -64,14 +102,46 @@ export default function FloatingCartWidget() {
     0
   );
 
-  // Avoid SSR markup and first-paint mismatch; render only after client mounts
-  if (!mounted) return null;
-
-  return (
-    <>
+  const wantIcon = variant === 'icon' || (variant === 'auto' && isMobile);
+  const Trigger = () =>
+    wantIcon ? (
+      <button
+        onClick={() => setIsOpen(true)}
+        className="cart-icon-btn relative z-50 inline-flex items-center justify-center w-9 h-9 min-w-[36px] min-h-[36px] shrink-0 text-white focus:outline-none focus:ring-2 focus:ring-white/40 overflow-visible pointer-events-auto bg-transparent hover:bg-transparent"
+        aria-label="Cart"
+        style={{ width: 36, height: 36, WebkitTapHighlightColor: 'transparent' }}
+      >
+        {useEmoji ? (
+          <span aria-hidden className="text-lg leading-none">
+            🛒
+          </span>
+        ) : (
+          <span
+            aria-hidden
+            className="cart-icon-bg"
+            style={{
+              width: 20,
+              height: 20,
+              display: 'block',
+              position: 'relative',
+              zIndex: 1,
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'center',
+              backgroundSize: '20px 20px',
+              backgroundColor: 'transparent',
+              filter: 'drop-shadow(0 0 1px rgba(255,255,255,0.85))',
+              outline: '1px solid rgba(255,255,255,0.15)', // TEMP debug: remove later
+              backgroundImage:
+                "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='9' cy='21' r='1'/%3E%3Ccircle cx='20' cy='21' r='1'/%3E%3Cpath d='M1 1h3l2.6 12.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6L23 6H6'/%3E%3C/svg%3E\")"
+            }}
+          />
+        )}
+      </button>
+    ) : (
       <button
         onClick={() => setIsOpen(true)}
         className="fixed bottom-20 right-6 z-50 bg-white text-black p-4 rounded-full shadow-lg hover:bg-primary hover:text-white transition-all duration-300 flex items-center justify-center"
+        aria-label="Cart"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -84,20 +154,44 @@ export default function FloatingCartWidget() {
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth="2"
-            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 6h11.1M7 13L5.4 5M16 16a2 2 0 100 4 2 2 0 000-4zm-8 0a2 2 0 100 4 2 2 0 000-4z"
+            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 6h11.1M7 13L5.4 5M16 16a2 2 0 100 4 2 2 0 000-4zm-8 0a 2 2 0 100 4 2 2 0 000-4z"
           />
         </svg>
       </button>
+    );
 
+  const panel = (
+    <>
+      {/* Backdrop */}
+      <div
+        className={`fixed inset-0 z-[75] bg-black/40 transition-opacity duration-300 ${
+          isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={() => setIsOpen(false)}
+        style={{
+          paddingTop: 'env(safe-area-inset-top)',
+          paddingRight: 'env(safe-area-inset-right)'
+        }}
+      />
+
+      {/* Side Cart Panel (portaled to body to ignore header transforms) */}
       <div
         id="side-cart"
-        className={`fixed top-0 right-0 w-full sm:w-[450px] h-full bg-black/90 text-white z-50 transition-transform duration-300 transform ${
+        className={`fixed top-0 right-0 w-full sm:w-[450px] h-full bg-black/90 text-white z-[80] transition-transform duration-300 transform ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
+        style={{
+          paddingTop: 'calc(1rem + env(safe-area-inset-top))',
+          paddingRight: 'env(safe-area-inset-right)'
+        }}
       >
         <div className="p-4 flex justify-between items-center border-b border-white/10">
           <h2 className="text-xl font-bold font-captain">Cart</h2>
-          <button onClick={() => setIsOpen(false)} className="text-white text-2xl">
+          <button
+            onClick={() => setIsOpen(false)}
+            className="text-white text-2xl"
+            aria-label="Close cart"
+          >
             {'\u00D7'}
           </button>
         </div>
@@ -169,36 +263,21 @@ export default function FloatingCartWidget() {
               }
 
               try {
-                console.log('Sending cart to checkout:', cart);
                 const res = await fetch('/api/checkout', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ cart })
                 });
 
-                console.log('Checkout fetch status:', res.status);
-
                 if (!res.ok) {
-                  console.error('Non-OK HTTP status:', res.status);
                   alert('Checkout failed. Please try again.');
                   return;
                 }
 
-                let data;
-                try {
-                  data = await res.json();
-                } catch (jsonErr) {
-                  console.error('Failed to parse JSON:', jsonErr);
-                  alert('Invalid response from server.');
-                  return;
-                }
-
-                console.log('Checkout response:', data);
-
+                const data = await res.json();
                 if (data.url) {
                   window.location.href = data.url;
                 } else {
-                  console.error('Missing redirect URL in response:', data);
                   alert('Unable to proceed to checkout. Please try again later.');
                 }
               } catch (err) {
@@ -209,6 +288,13 @@ export default function FloatingCartWidget() {
           />
         </div>
       </div>
+    </>
+  );
+
+  return (
+    <>
+      <Trigger />
+      {mounted ? createPortal(panel, document.body) : null}
     </>
   );
 }

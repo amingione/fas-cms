@@ -18,10 +18,10 @@ try {
 }
 ---
 
-<form id="product-filters" class="flex flex-col gap-4">
+<form id="product-filters" class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-fx-xl border border-fx bg-fx-surface-2 shadow-fx-subtle">
   <div>
-    <label for="tuneSlug" class="text-white">Tune</label>
-    <select id="tuneSlug" name="tuneSlug" class="bg-black/50 text-white p-2 rounded">
+    <label for="tuneSlug" class="block mb-1 fas-label text-muted-foreground">Tune</label>
+    <select id="tuneSlug" name="tuneSlug" class="w-full h-10 px-3 rounded-fx-md border border-fx bg-fx-surface-2 fas-body-sm text-white placeholder:text-fx-muted focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent">
       <option value="">All Tunes</option>
       {tunes.map(tune => (
         <option value={tune.slug.current} selected={tune.slug.current === currentTuneSlug}>
@@ -31,8 +31,8 @@ try {
     </select>
   </div>
   <div>
-    <label for="vehicleSlug" class="text-white">Vehicle</label>
-    <select id="vehicleSlug" name="vehicleSlug" class="bg-black/50 text-white p-2 rounded">
+    <label for="vehicleSlug" class="block mb-1 fas-label text-muted-foreground">Vehicle</label>
+    <select id="vehicleSlug" name="vehicleSlug" class="w-full h-10 px-3 rounded-fx-md border border-fx bg-fx-surface-2 fas-body-sm text-white placeholder:text-fx-muted focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent">
       <option value="">All Vehicles</option>
       {vehicles.map(vehicle => (
         <option
@@ -45,13 +45,13 @@ try {
     </select>
   </div>
   <div>
-    <label for="minHp" class="text-white">Minimum Horsepower</label>
+    <label for="minHp" class="block mb-1 fas-label text-muted-foreground">Minimum Horsepower</label>
     <input
       id="minHp"
       name="minHp"
       type="number"
       value={currentMinHp}
-      class="bg-black/50 text-white p-2 rounded"
+      class="w-full h-10 px-3 rounded-fx-md border border-fx bg-fx-surface-2 fas-body-sm text-white placeholder:text-fx-muted focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent"
       placeholder="Enter min HP"
     />
   </div>

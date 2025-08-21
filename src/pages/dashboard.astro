@@ -1,23 +1,55 @@
 ---
-import BaseLayout from "../layouts/BaseLayout.astro"
+import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout>
-  <main class="flex min-h-screen pt-10 overflow-hidden text-white font-captain">
-    <!-- Mobile nav -->
-    <nav class="sm:hidden w-[100%] h-[250px] bg-black/80 border-b border-white/10 p-4 ml-2 flex-wrap mt-20 pt-20 justify-center gap-4 text-xs font-captain rem-1.2 scroll-smooth">
-      <p class="uppercase w-full mb-2">Welcome, <span id="customer-name-mobile" class="text-red-500">Guest</span></p>
-      <a href="#" data-view="profile" class="js-view hover:text-red-500">My Profile</a>
-      <a href="#" data-view="orders" class="js-view hover:text-red-500">Orders <span id="orders-count-mobile" class="ml-2 px-2 py-0.5 text-xs bg-red-600/80 rounded">0</span></a>
-      <a href="#" data-view="quotes" class="js-view hover:text-red-500">Quotes <span id="quotes-count-mobile" class="ml-2 px-2 py-0.5 text-xs bg-red-600/80 rounded">0</span></a>
-      <a href="#" data-view="invoices" class="js-view hover:text-red-500">Invoices <span id="invoices-count-mobile" class="ml-2 px-2 py-0.5 text-xs bg-red-600/80 rounded">0</span></a>
-      <a href="#" data-view="appointments" class="js-view hover:text-red-500">Appointments <span id="appts-count-mobile" class="ml-2 px-2 py-0.5 text-xs bg-red-600/80 rounded">0</span></a>
-      <a href="#" class="logout-link text-red-600 hover:underline">Logout</a>
-    </nav>
+ 
+  <style>
+    @media (max-width: 639px) {
+      [data-desktop-dash] { display: none !important; }
+      [data-mobile-dash] { display: block !important; }
+    }
+    @media (min-width: 640px) {
+      [data-mobile-dash] { display: none !important; }
+    }
+  </style>
+  <!-- MOBILE DASHBOARD (auto on <640px) -->
+  <main data-mobile-dash class="block sm:hidden min-h-screen pt-20 pb-24 px-4 text-white">
+    <header class="mb-6">
+      <h1 class="text-lg font-ethno">My Account</h1>
+      <p class="opacity-80 text-sm">Welcome, <span id="customer-name-mobile" class="text-primary"></span></p>
+    </header>
+
+    <!-- Simple dropdown menu -->
+    <div class="mb-4">
+      <label for="mobile-account-select" class="sr-only">Choose a section</label>
+      <select id="mobile-account-select" class="w-full bg-white/5 border border-white/15 rounded-lg px-3 py-2 text-sm">
+        <option value="dashboard" selected>Dashboard</option>
+        <option value="orders">Orders</option>
+        <option value="quotes">Quotes</option>
+        <option value="invoices">Invoices</option>
+        <option value="appointments">Appointments</option>
+        <option value="details">Account details</option>
+      </select>
+    </div>
+
+    <!-- Intro copy -->
+    <section class="mb-6 space-y-1">
+      <h1 class="text-3xl mr-20 pr-10 font-borg text-primary text-left mb-2">F.a.S.</h1>
+      <h1 class="text-2xl font-ethno text-white pr-10 mr-20 text-left mb-6">Motorsports</h1>
+      <h3 class="font-cyber-italic text-sm tracking-wide opacity-90">ACCOUNT DASHBOARD</h3>
+      <p class="text-xs opacity-80">Welcome to your account dashboard. Use the menu to view your profile, orders, and more.</p>
+    </section>
+
+    <!-- Content area -->
+    <section id="dash-content-mobile" data-dash-content class="mt-6 text-sm"></section>
+  </main>
+
+  <!-- DESKTOP DASHBOARD (auto on >=640px) -->
+  <main data-desktop-dash class="hidden sm:flex min-h-screen pt-10 overflow-hidden text-white font-captain">
     <!-- Sidebar -->
-    <aside class="hidden sm:block bg-black/70 border-white/10 p-4 sm:p-6 border-b sm:border-b-0 sm:border-r sm:mt-12 sm:pt-10 sm:mb-3 sm:mx-3 sm:w-64 space-y-6 w-full">
-    
-      <p class="uppercase pt-20">Welcome, <span id="customer-name" class="text-red-500">Guest</span></p>
+    <aside class="bg-black/70 border-white/10 p-6 border-r mt-12 pt-10 mb-3 mx-3 w-64 space-y-6">
+     <p class="uppercase">Welcome, <span id="customer-name" class="text-primary"></span></p>
       <nav class="mt-6 pt-5 space-y-3 text-base font-ethno">
         <a href="#" data-view="profile" class="js-view block hover:text-red-500">My Profile</a>
         <a href="#" data-view="orders" class="js-view block hover:text-red-500">Orders <span id="orders-count" class="ml-2 px-2 py-0.5 text-xs bg-red-600/80 rounded">0</span></a>
@@ -33,247 +65,272 @@ import BaseLayout from "../layouts/BaseLayout.astro"
       <h1 class="text-3xl mr-20 pr-10 font-borg text-primary text-left mb-2">F.a.S.</h1>
       <h1 class="text-2xl font-ethno text-white pr-10 mr-20 text-left mb-6">Motorsports</h1>
       <h2 class="text-base pr-12 mr-10 font-cyber-italic text-left mb-6">ACCOUNT DASHBOARD</h2>
-
-      <div id="dash-content" class="text-left text-base">
-        <p class="opacity-80">Welcome to your account dashboard. Use the menu to view your profile, orders, and more.</p>
-      </div>
+      <div id="dash-content-desktop" data-dash-content class="text-left text-base"></div>
     </section>
-    <script type="module">
-      import { getAuth0Client } from "/src/lib/auth.ts";
+  </main>
 
-      const nameEls = [
+  <script type="module">
+    import { getAuth0Client } from "/src/lib/auth.ts";
+
+    // Choose the visible dash content container
+    function getVisibleDashContent() {
+      const nodes = Array.from(document.querySelectorAll('[data-dash-content]'));
+      // prefer the one that is visible (mobile or desktop)
+      const visible = nodes.find(n => n.offsetParent !== null) || nodes[0];
+      return visible;
+    }
+
+    // Elements that display the customer name (mobile + desktop). Re-query each time in case islands re-render.
+    function getNameEls() {
+      return [
         document.getElementById('customer-name'),
         document.getElementById('customer-name-mobile')
       ].filter(Boolean);
+    }
 
-      function setName(name) {
-        nameEls.forEach(el => el && (el.textContent = name || 'Guest'));
-      }
+    function setName(name) {
+      const els = getNameEls();
+      els.forEach(el => (el.textContent = name || 'Guest'));
+    }
 
-      (async () => {
-        try {
-          const auth0 = await getAuth0Client();
+    (async () => {
+      try {
+        const auth0 = await getAuth0Client();
 
-          // If not logged in, kick user over to /account to log in
-          const authed = await auth0.isAuthenticated();
-          if (!authed) {
-            location.replace('/account');
-            return;
-          }
+        // Require login
+        const authed = await auth0.isAuthenticated();
+        if (!authed) {
+          location.replace('/account');
+          return;
+        }
 
-          const user = await auth0.getUser();
-          const email = user?.email || '';
-          if (email) {
-            try { localStorage.setItem('customerEmail', email); } catch {}
-          }
+        const user = await auth0.getUser();
+        const email = user?.email || '';
+        if (email) { try { localStorage.setItem('customerEmail', email); } catch {} }
 
-          // Default name from Auth0
-          const defaultName = user?.given_name || user?.name || email || 'Guest';
+        const defaultName = user?.given_name || user?.name || email || 'Guest';
+        try { localStorage.setItem('customerName', defaultName); } catch {}
+        setName(defaultName);
+        // Defensive: retry setting the name a few times in case an island re-mounts and replaces nodes
+        let retry = 0;
+        const retryId = setInterval(() => {
           setName(defaultName);
+          if (++retry > 10) clearInterval(retryId); // ~10 tries over ~1s
+        }, 100);
 
-          // Try to load the richer profile from Sanity and prefer its name
+        // Load enriched profile
+        try {
+          const res = await fetch('/api/customer/get', {
+            method: 'POST', headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ email })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const fullName = [data?.firstName, data?.lastName].filter(Boolean).join(' ').trim();
+            const preferred = fullName || data?.name || defaultName;
+            setName(preferred);
+            try { localStorage.setItem('customerName', preferred); } catch {}
+            let r2 = 0;
+            const r2id = setInterval(() => {
+              setName(preferred);
+              if (++r2 > 10) clearInterval(r2id);
+            }, 100);
+          }
+        } catch {}
+
+        // Badge updater
+        function setCount(idDesktop, idMobile, n) {
+          const d = document.getElementById(idDesktop);
+          const m = document.getElementById(idMobile);
+          if (d) d.textContent = String(n);
+          if (m) m.textContent = String(n);
+        }
+        async function fetchCount(url) {
+          try {
+            const res = await fetch(url);
+            if (!res.ok) return 0;
+            const data = await res.json();
+            if (Array.isArray(data)) return data.length;
+            if (data && Array.isArray(data.items)) return data.items.length;
+            return 0;
+          } catch { return 0; }
+        }
+
+        if (email) {
+          fetchCount(`/api/get-user-order?email=${encodeURIComponent(email)}`).then(n => setCount('orders-count','orders-count-mobile', n));
+          fetchCount(`/api/get-user-quotes?email=${encodeURIComponent(email)}`).then(n => setCount('quotes-count','quotes-count-mobile', n));
+          fetchCount(`/api/get-user-invoices?email=${encodeURIComponent(email)}`).then(n => setCount('invoices-count','invoices-count-mobile', n));
+          fetchCount(`/api/get-user-appointments?email=${encodeURIComponent(email)}`).then(n => setCount('appts-count','appts-count-mobile', n));
+        }
+
+        // ---------- View rendering (shared) ----------
+        const content = () => getVisibleDashContent();
+        const sel = document.getElementById('mobile-account-select');
+        if (sel) sel.addEventListener('change', () => load(sel.value));
+        const isMobile = () => window.matchMedia('(max-width: 639px)').matches;
+        const setLoading = (msg = 'Loading...') => { content().innerHTML = `<p class="opacity-80">${msg}</p>`; };
+        const renderEmpty = (label) => { content().innerHTML = `<p class="opacity-80">No ${label} found.</p>`; };
+
+        async function renderDashboard() {
+          setLoading();
           try {
             const res = await fetch('/api/customer/get', {
-              method: 'POST',
-              headers: { 'content-type': 'application/json' },
+              method: 'POST', headers: { 'content-type': 'application/json' },
               body: JSON.stringify({ email })
             });
-            if (res.ok) {
-              const data = await res.json();
-              const fullName = [data?.firstName, data?.lastName].filter(Boolean).join(' ').trim();
-              const preferred = fullName || data?.name || defaultName;
-              setName(preferred);
-            }
-          } catch (e) {
-            // Non-fatal: keep Auth0 name
-            console.warn('Could not load customer profile', e);
-          }
-
-          // ----- Counts (Orders / Quotes / Invoices / Appointments) -----
-          function setCount(idDesktop, idMobile, n) {
-            const d = document.getElementById(idDesktop);
-            const m = document.getElementById(idMobile);
-            if (d) d.textContent = String(n);
-            if (m) m.textContent = String(n);
-          }
-
-          async function fetchCount(url) {
-            try {
-              const res = await fetch(url);
-              if (!res.ok) return 0;
-              const data = await res.json();
-              if (Array.isArray(data)) return data.length;
-              if (data && Array.isArray(data.items)) return data.items.length;
-              return 0;
-            } catch { return 0; }
-          }
-
-          if (email) {
-            // Orders
-            fetchCount(`/api/get-user-order?email=${encodeURIComponent(email)}`).then(n => setCount('orders-count','orders-count-mobile', n));
-            // Quotes (update URL if your endpoint differs)
-            fetchCount(`/api/get-user-quotes?email=${encodeURIComponent(email)}`).then(n => setCount('quotes-count','quotes-count-mobile', n));
-            // Invoices
-            fetchCount(`/api/get-user-invoices?email=${encodeURIComponent(email)}`).then(n => setCount('invoices-count','invoices-count-mobile', n));
-            // Appointments
-            fetchCount(`/api/get-user-appointments?email=${encodeURIComponent(email)}`).then(n => setCount('appts-count','appts-count-mobile', n));
-          }
-
-          // ---------- In-panel view loader ----------
-          const content = document.getElementById('dash-content');
-          const setLoading = (msg = 'Loading...') => { content.innerHTML = `<p class="opacity-80">${msg}</p>`; };
-          const renderEmpty = (label) => { content.innerHTML = `<p class="opacity-80">No ${label} found.</p>`; };
-
-          async function renderProfile() {
-            setLoading();
-            try {
-              const res = await fetch('/api/customer/get', {
-                method: 'POST',
-                headers: { 'content-type': 'application/json' },
-                body: JSON.stringify({ email })
-              });
-              if (!res.ok) return renderEmpty('profile');
-              const c = (await res.json()) || {};
-              const addr = [c.address1, c.address2, c.city, c.state, c.postalCode].filter(Boolean).join(', ');
-              content.innerHTML = `
-                <h3 class="font-ethno text-xl mb-4">My Profile</h3>
-                <div class="grid sm:grid-cols-2 gap-4 text-sm">
-                  <div><div class="opacity-70">First Name</div><div class="font-semibold">${c.firstName || ''}</div></div>
-                  <div><div class="opacity-70">Last Name</div><div class="font-semibold">${c.lastName || ''}</div></div>
-                  <div><div class="opacity-70">Email</div><div class="font-semibold">${c.email || email}</div></div>
-                  <div><div class="opacity-70">Phone</div><div class="font-semibold">${c.phone || ''}</div></div>
-                  <div class="sm:col-span-2"><div class="opacity-70">Address</div><div class="font-semibold">${addr}</div></div>
-                </div>
-                <p class="mt-6 text-xs opacity-70">Need changes? <a class="underline" href="/customerdashboard/customerProfile">Edit profile</a>.</p>
-              `;
-            } catch { renderEmpty('profile'); }
-          }
-
-          async function renderOrders() {
-            setLoading();
-            try {
-              const claims = await auth0.getIdTokenClaims().catch(() => null);
-              const token = claims?.__raw;
-              const res = await fetch(`/api/get-user-order?email=${encodeURIComponent(email)}`, {
-                headers: token ? { authorization: `Bearer ${token}` } : {}
-              });
-              if (!res.ok) return renderEmpty('orders');
-              const items = await res.json();
-              if (!Array.isArray(items) || !items.length) return renderEmpty('orders');
-              content.innerHTML = `
-                <h3 class="font-ethno text-xl mb-4">Orders</h3>
-                <div class="space-y-3">${items.map(o => `
-                  <div class=\"border border-white/10 rounded p-4 bg-black/40\">
-                    <div class=\"flex justify-between\">
-                      <div class=\"font-semibold\">#${o.orderNumber ?? o._id}</div>
-                      <div class=\"opacity-70\">${o.status ?? ''}</div>
-                    </div>
-                    <div class=\"text-xs opacity-70 mt-1\">${o._createdAt ? new Date(o._createdAt).toLocaleDateString() : ''}</div>
-                    ${o.total ? `<div class=\\"mt-1 text-sm\\">Total: $${o.total}</div>` : ''}
-                    ${o.trackingNumber ? `<div class=\\"mt-1 text-xs opacity-70\\">Tracking: ${o.trackingNumber}</div>` : ''}
-                  </div>
-                `).join('')}</div>
-              `;
-            } catch { renderEmpty('orders'); }
-          }
-
-          async function renderQuotes() {
-            setLoading();
-            try {
-              const res = await fetch(`/api/get-user-quotes?email=${encodeURIComponent(email)}`);
-              if (!res.ok) return renderEmpty('quotes');
-              const items = await res.json();
-              if (!Array.isArray(items) || !items.length) return renderEmpty('quotes');
-              content.innerHTML = `
-                <h3 class="font-ethno text-xl mb-4">Quotes</h3>
-                <div class="space-y-3">${items.map(q => `
-                  <div class=\"border border-white/10 rounded p-4 bg-black/40\">
-                    <div class=\"flex justify-between\"><div class=\"font-semibold\">${q._id}</div><div class=\"opacity-70\">${q.status ?? ''}</div></div>
-                    <div class=\"text-xs opacity-70 mt-1\">${q._createdAt ? new Date(q._createdAt).toLocaleDateString() : ''}</div>
-                    ${q.total ? `<div class=\\"mt-1 text-sm\\">Total: $${q.total}</div>` : ''}
-                  </div>
-                `).join('')}</div>
-              `;
-            } catch { renderEmpty('quotes'); }
-          }
-
-          async function renderInvoices() {
-            setLoading();
-            try {
-              const res = await fetch(`/api/get-user-invoices?email=${encodeURIComponent(email)}`);
-              if (!res.ok) return renderEmpty('invoices');
-              const items = await res.json();
-              if (!Array.isArray(items) || !items.length) return renderEmpty('invoices');
-              content.innerHTML = `
-                <h3 class="font-ethno text-xl mb-4">Invoices</h3>
-                <div class="space-y-3">${items.map(i => `
-                  <div class=\"border border-white/10 rounded p-4 bg-black/40\">
-                    <div class=\"flex justify-between\"><div class=\"font-semibold\">${i._id}</div><div class=\"opacity-70\">${i.status ?? ''}</div></div>
-                    <div class=\"text-xs opacity-70 mt-1\">${i._createdAt ? new Date(i._createdAt).toLocaleDateString() : ''}</div>
-                    ${i.total ? `<div class=\\"mt-1 text-sm\\">Total: $${i.total}</div>` : ''}
-                  </div>
-                `).join('')}</div>
-              `;
-            } catch { renderEmpty('invoices'); }
-          }
-
-          async function renderAppointments() {
-            setLoading();
-            try {
-              const res = await fetch(`/api/get-user-appointments?email=${encodeURIComponent(email)}`);
-              if (!res.ok) return renderEmpty('appointments');
-              const items = await res.json();
-              if (!Array.isArray(items) || !items.length) return renderEmpty('appointments');
-              content.innerHTML = `
-                <h3 class="font-ethno text-xl mb-4">Appointments</h3>
-                <div class="space-y-3">${items.map(a => `
-                  <div class=\"border border-white/10 rounded p-4 bg-black/40\">
-                    <div class=\"flex justify-between\"><div class=\"font-semibold\">${a._id}</div><div class=\"opacity-70\">${a.status ?? ''}</div></div>
-                    <div class=\"text-xs opacity-70 mt-1\">${a.scheduledAt ? new Date(a.scheduledAt).toLocaleString() : ''}</div>
-                    ${a.location ? `<div class=\\"mt-1 text-xs opacity-70\\">${a.location}</div>` : ''}
-                  </div>
-                `).join('')}</div>
-              `;
-            } catch { renderEmpty('appointments'); }
-          }
-
-          function load(view) {
-            switch (view) {
-              case 'orders': return renderOrders();
-              case 'quotes': return renderQuotes();
-              case 'invoices': return renderInvoices();
-              case 'appointments': return renderAppointments();
-              case 'profile':
-              default: return renderProfile();
-            }
-          }
-
-          // Attach menu handlers
-          document.querySelectorAll('.js-view').forEach(a => {
-            a.addEventListener('click', (e) => {
-              e.preventDefault();
-              const view = a.getAttribute('data-view');
-              load(view);
-            });
-          });
-
-          // Default view
-          load('profile');
-        } catch (err) {
-          console.error('Dashboard auth init failed', err);
+            const c = res.ok ? (await res.json()) : {};
+            const name = [c.firstName, c.lastName].filter(Boolean).join(' ') || defaultName;
+            content().innerHTML = `
+              <h3 class="font-ethno text-base mb-3">Dashboard</h3>
+              <div class="font-sans space-y-2 opacity-90 text-base">
+                <p>Hello, <strong>${name}</strong>.</p>
+                <p class="text-base">From your account dashboard you can view your <a href="#" data-view="orders" class="underline js-view">recent orders</a>, manage your <a href="/customerdashboard/customerProfile" class="underline">account details</a>, and more.</p>
+              </div>`;
+          } catch { renderEmpty('dashboard'); }
         }
-      })();
 
-      function logout() {
-        try { localStorage.clear(); } catch {}
-        window.location.href = '/api/auth/logout';
-      }
-      document.querySelectorAll('.logout-link').forEach(el => {
-        el.addEventListener('click', e => {
-          e.preventDefault();
-          logout();
+        async function renderProfile() {
+          setLoading();
+          try {
+            const res = await fetch('/api/customer/get', {
+              method: 'POST', headers: { 'content-type': 'application/json' },
+              body: JSON.stringify({ email })
+            });
+            if (!res.ok) return renderEmpty('profile');
+            const c = (await res.json()) || {};
+            const addr = [c.address1, c.address2, c.city, c.state, c.postalCode].filter(Boolean).join(', ');
+            content().innerHTML = `
+              <h3 class="font-ethno text-lg mb-3">My Profile</h3>
+              <div class="grid sm:grid-cols-2 gap-3 text-sm">
+                <div><div class="opacity-70">First Name</div><div class="font-semibold">${c.firstName || ''}</div></div>
+                <div><div class="opacity-70">Last Name</div><div class="font-semibold">${c.lastName || ''}</div></div>
+                <div><div class="opacity-70">Email</div><div class="font-semibold">${c.email || email}</div></div>
+                <div><div class="opacity-70">Phone</div><div class="font-semibold">${c.phone || ''}</div></div>
+                <div class="sm:col-span-2"><div class="opacity-70">Address</div><div class="font-semibold">${addr}</div></div>
+              </div>
+              <p class="mt-5 text-xs opacity-70">Need changes? <a class="underline" href="/customerdashboard/customerProfile">Edit profile</a>.</p>
+            `;
+          } catch { renderEmpty('profile'); }
+        }
+
+        async function renderOrders() {
+          setLoading();
+          try {
+            const claims = await auth0.getIdTokenClaims().catch(() => null);
+            const token = claims?.__raw;
+            const res = await fetch(`/api/get-user-order?email=${encodeURIComponent(email)}`, {
+              headers: token ? { authorization: `Bearer ${token}` } : {}
+            });
+            if (!res.ok) return renderEmpty('orders');
+            const items = await res.json();
+            if (!Array.isArray(items) || !items.length) return renderEmpty('orders');
+            content().innerHTML = `
+              <h3 class="font-ethno text-lg mb-3">Orders</h3>
+              <div class="space-y-3">${items.map(o => `
+                <div class=\"border border-white/10 rounded p-4 bg-black/40\">
+                  <div class=\"flex justify-between\"><div class=\"font-semibold\">#${o.orderNumber ?? o._id}</div><div class=\"opacity-70\">${o.status ?? ''}</div></div>
+                  <div class=\"text-xs opacity-70 mt-1\">${o._createdAt ? new Date(o._createdAt).toLocaleDateString() : ''}</div>
+                  ${o.total ? `<div class=\\\"mt-1 text-sm\\\">Total: $${o.total}</div>` : ''}
+                  ${o.trackingNumber ? `<div class=\\\"mt-1 text-xs opacity-70\\\">Tracking: ${o.trackingNumber}</div>` : ''}
+                </div>
+              `).join('')}</div>`;
+          } catch { renderEmpty('orders'); }
+        }
+
+        async function renderQuotes() {
+          setLoading();
+          try {
+            const res = await fetch(`/api/get-user-quotes?email=${encodeURIComponent(email)}`);
+            if (!res.ok) return renderEmpty('quotes');
+            const items = await res.json();
+            if (!Array.isArray(items) || !items.length) return renderEmpty('quotes');
+            content().innerHTML = `
+              <h3 class="font-ethno text-lg mb-3">Quotes</h3>
+              <div class="space-y-3">${items.map(q => `
+                <div class=\"border border-white/10 rounded p-4 bg-black/40\">
+                  <div class=\"flex justify-between\"><div class=\"font-semibold\">${q._id}</div><div class=\"opacity-70\">${q.status ?? ''}</div></div>
+                  <div class=\"text-xs opacity-70 mt-1\">${q._createdAt ? new Date(q._createdAt).toLocaleDateString() : ''}</div>
+                  ${q.total ? `<div class=\\\"mt-1 text-sm\\\">Total: $${q.total}</div>` : ''}
+                </div>
+              `).join('')}</div>`;
+          } catch { renderEmpty('quotes'); }
+        }
+
+        async function renderInvoices() {
+          setLoading();
+          try {
+            const res = await fetch(`/api/get-user-invoices?email=${encodeURIComponent(email)}`);
+            if (!res.ok) return renderEmpty('invoices');
+            const items = await res.json();
+            if (!Array.isArray(items) || !items.length) return renderEmpty('invoices');
+            content().innerHTML = `
+              <h3 class="font-ethno text-lg mb-3">Invoices</h3>
+              <div class="space-y-3">${items.map(i => `
+                <div class=\"border border-white/10 rounded p-4 bg-black/40\">
+                  <div class=\"flex justify-between\"><div class=\"font-semibold\">${i._id}</div><div class=\"opacity-70\">${i.status ?? ''}</div></div>
+                  <div class=\"text-xs opacity-70 mt-1\">${i._createdAt ? new Date(i._createdAt).toLocaleDateString() : ''}</div>
+                  ${i.total ? `<div class=\\\"mt-1 text-sm\\\">Total: $${i.total}</div>` : ''}
+                </div>
+              `).join('')}</div>`;
+          } catch { renderEmpty('invoices'); }
+        }
+
+        async function renderAppointments() {
+          setLoading();
+          try {
+            const res = await fetch(`/api/get-user-appointments?email=${encodeURIComponent(email)}`);
+            if (!res.ok) return renderEmpty('appointments');
+            const items = await res.json();
+            if (!Array.isArray(items) || !items.length) return renderEmpty('appointments');
+            content().innerHTML = `
+              <h3 class="font-ethno text-lg mb-3">Appointments</h3>
+              <div class="space-y-3">${items.map(a => `
+                <div class=\"border border-white/10 rounded p-4 bg-black/40\">
+                  <div class=\"flex justify-between\"><div class=\"font-semibold\">${a._id}</div><div class=\"opacity-70\">${a.status ?? ''}</div></div>
+                  <div class=\"text-xs opacity-70 mt-1\">${a.scheduledAt ? new Date(a.scheduledAt).toLocaleString() : ''}</div>
+                  ${a.location ? `<div class=\\\"mt-1 text-xs opacity-70\\\">${a.location}</div>` : ''}
+                </div>
+              `).join('')}</div>`;
+          } catch { renderEmpty('appointments'); }
+        }
+
+        function load(view) {
+          switch (view) {
+            case 'orders': return renderOrders();
+            case 'quotes': return renderQuotes();
+            case 'invoices': return renderInvoices();
+            case 'appointments': return renderAppointments();
+            case 'details': return renderProfile();
+            case 'dashboard':
+            default: return renderDashboard();
+          }
+        }
+
+        // Attach menu handlers
+        document.querySelectorAll('.js-view').forEach(a => {
+          a.addEventListener('click', (e) => {
+            e.preventDefault();
+            const view = a.getAttribute('data-view');
+            load(view);
+          });
         });
+
+        // Default view
+        load('dashboard');
+      } catch (err) {
+        console.error('Dashboard auth init failed', err);
+      }
+    })();
+
+    function logout() {
+      try { localStorage.clear(); } catch {}
+      window.location.href = '/api/auth/logout';
+    }
+    document.querySelectorAll('.logout-link').forEach(el => {
+      el.addEventListener('click', e => {
+        e.preventDefault();
+        logout();
       });
-    </script>
-  </main>
+    });
+  </script>
 </BaseLayout>
