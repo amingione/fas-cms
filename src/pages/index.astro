@@ -1,7 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Button from '../components/Button.astro';
-import SplinePortingShowcase from '../components/SplinePortingShowcase.jsx';
 import * as sanity from '../lib/sanity-utils';
 import { Hero } from '@components/Hero.tsx';
 import { Services } from '@components/Services.tsx';
@@ -17,7 +15,9 @@ import { LuxuryTestimonials } from '@components/LuxuryTestimonials.tsx';
 import { WheelsHero } from '@/components/WheelsHero.tsx';
 
 const url = new URL(Astro.request.url);
-const showV2 = url.searchParams.get('v2') === '1';
+const v2Param = url.searchParams.get('v2');
+// Default to the new V2 homepage; allow opt-out via ?v2=0
+const showV2 = v2Param === '0' ? false : true;
 
 let featuredProducts: any[] = [];
 try {
