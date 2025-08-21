@@ -511,17 +511,7 @@ export function TruckPackagesHero() {
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 2.5, duration: 0.8 }}
-          >
-            <div className="flex flex-col items-center space-y-2 text-graylight">
-              <div className="text-xs font-medium tracking-wider font-ethno">EXPLORE PACKAGES</div>
-              <motion.div
-                animate={{ y: [0, 8, 0] }}
-                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-              >
-                <ArrowRight className="w-4 h-4 rotate-90" />
-              </motion.div>
-            </div>
-          </motion.div>
+          />
         )}
       </div>
     </section>
