@@ -1722,14 +1722,60 @@ svg.cart-icon-svg {
 }
 
 /* =========================================================
-   Carousel Navigation Button Overrides (Desktop Safe)
+   Carousel Navigation & Pointer-Events Fixes (Desktop Safe)
    ========================================================= */
+/* Ensure the gallery itself forms a positioning context */
+#gallery {
+  position: relative !important;
+}
+
+/* Make buttons reliably clickable and visible above everything */
 #gallery #prev,
 #gallery #next {
   position: absolute !important;
-  top: 50%;
+  top: 50% !important;
   transform: translateY(-50%);
   z-index: 9999 !important;
   pointer-events: auto !important;
   cursor: pointer;
+  /* small tap area padding to help hit target on desktop */
+  padding: 0.25rem;
+}
+#gallery #prev {
+  left: 0.75rem;
+}
+#gallery #next {
+  right: 0.75rem;
+}
+
+/* Some layouts apply pointer-events:none on wrappers; forcibly re-enable
+   interactions inside the gallery for desktop pointers */
+@media (pointer: fine) {
+  #gallery,
+  #gallery > *,
+  #gallery .thumbnails,
+  #gallery .thumbnails *,
+  #gallery #prev,
+  #gallery #next {
+    pointer-events: auto !important;
+  }
+}
+
+/* Scroller defaults that play nicely with our JS (no snap lock).
+   These are safe defaults; page-level styles can still override. */
+#gallery-track {
+  position: relative;
+  display: flex;
+  overflow-x: hidden; /* the viewport element scrolls, not the track */
+  will-change: transform;
+}
+#gallery-track > * {
+  flex: 0 0 100%;
+}
+
+/* Images should fit without distorting; keeps desktop centering consistent */
+#gallery img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
