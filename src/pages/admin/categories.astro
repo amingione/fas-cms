@@ -1,0 +1,138 @@
+---
+import DashboardShell from '../../components/admin/DashboardShell.tsx'
+---
+<DashboardShell>
+  <h1 class="text-2xl md:text-3xl font-bold mb-6">Categories</h1>
+
+  <div class="space-y-4">
+    <div class="flex gap-2">
+      <input id="new-cat-title" placeholder="New category title"
+             class="bg-transparent border border-white/20 rounded px-3 py-2 flex-1" />
+      <button id="add-cat"
+              class="px-4 py-2 rounded bg-white text-black hover:bg-white/90 transition">
+        Add
+      </button>
+    </div>
+
+    <div id="cats-list" class="space-y-2"></div>
+  </div>
+
+  <script type="module">
+    const $ = (sel, root=document) => root.querySelector(sel)
+    const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel))
+
+    const listEl = $('#cats-list')
+    const inputEl = $('#new-cat-title')
+    const addBtn  = $('#add-cat')
+
+    async function fetchJSON(url, opts) {
+      const res = await fetch(url, opts)
+      if (!res.ok) throw new Error(await res.text())
+      return res.json()
+    }
+
+    async function load() {
+      const data = await fetchJSON('/.netlify/functions/categories-list')
+      render(data)
+    }
+
+    function rowTpl(cat) {
+      const div = document.createElement('div')
+      div.className = 'flex items-center justify-between rounded border border-white/10 bg-white/5 px-3 py-2 transition'
+      div.dataset.id = cat._id
+
+      const left = document.createElement('div')
+      left.className = 'font-medium truncate'
+      left.textContent = cat.title
+      left.title = cat.title
+
+      const actions = document.createElement('div')
+      actions.className = 'flex gap-2'
+
+      const renameBtn = document.createElement('button')
+      renameBtn.className = 'px-3 py-1 rounded border border-white/20 hover:bg-white/10 transition'
+      renameBtn.textContent = 'Rename'
+      renameBtn.addEventListener('click', () => enterEdit(div, cat))
+
+      const delBtn = document.createElement('button')
+      delBtn.className = 'px-3 py-1 rounded border border-red-500/40 text-red-300 hover:bg-red-500/10 transition'
+      delBtn.textContent = 'Delete'
+      delBtn.addEventListener('click', async () => {
+        if (!confirm('Delete this category?')) return
+        await fetchJSON('/.netlify/functions/categories-delete', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ _id: cat._id }),
+        })
+        div.classList.add('opacity-0', 'scale-[0.98]')
+        setTimeout(load, 120)
+      })
+
+      actions.append(renameBtn, delBtn)
+      div.append(left, actions)
+      return div
+    }
+
+    function render(list) {
+      listEl.innerHTML = ''
+      list.forEach(cat => listEl.appendChild(rowTpl(cat)))
+    }
+
+    function enterEdit(row, cat) {
+      row.innerHTML = ''
+      const form = document.createElement('div')
+      form.className = 'flex items-center gap-2 w-full'
+
+      const input = document.createElement('input')
+      input.className = 'bg-transparent border border-white/20 rounded px-2 py-1 w-full'
+      input.value = cat.title
+      input.autofocus = true
+
+      const save = document.createElement('button')
+      save.className = 'px-3 py-1 rounded bg-white text-black hover:bg-white/90 transition'
+      save.textContent = 'Save'
+      save.addEventListener('click', async () => {
+        const title = input.value.trim()
+        if (!title) return alert('Title required')
+        await fetchJSON('/.netlify/functions/categories-upsert', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ _id: cat._id, title }),
+        })
+        await load()
+      })
+
+      const cancel = document.createElement('button')
+      cancel.className = 'px-3 py-1 rounded border border-white/20 hover:bg-white/10 transition'
+      cancel.textContent = 'Cancel'
+      cancel.addEventListener('click', load)
+
+      form.append(input, save, cancel)
+      row.appendChild(form)
+      input.focus()
+      input.select()
+    }
+
+    addBtn.addEventListener('click', async () => {
+      const title = inputEl.value.trim()
+      if (!title) return
+      await fetchJSON('/.netlify/functions/categories-upsert', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ title }),
+      })
+      inputEl.value = ''
+      await load()
+    })
+
+    inputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') addBtn.click()
+    })
+
+    // initial
+    load().catch(err => {
+      listEl.innerHTML = '<div class="text-white/60 text-sm">Failed to load categories.</div>'
+      console.error(err)
+    })
+  </script>
+</DashboardShell>

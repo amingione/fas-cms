@@ -6399,6 +6399,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/node-fetch@npm:^2.6.13":
+  version: 2.6.13
+  resolution: "@types/node-fetch@npm:2.6.13"
+  dependencies:
+    "@types/node": "*"
+    form-data: ^4.0.4
+  checksum: e4b4db3a8c23309dadf0beb87e88882af1157f0c08b7b76027ac40add6ed363c924e2fa275f42ae45eacf776b25ed439d14400d9d6372eb39634dd4c7e7e1ad8
+  languageName: node
+  linkType: hard
+
 "@types/node@npm:*, @types/node@npm:^24.2.0":
   version: 24.2.0
   resolution: "@types/node@npm:24.2.0"
@@ -10484,6 +10494,7 @@ __metadata:
     "@types/jsonwebtoken": ^9
     "@types/next": ^9.0.0
     "@types/node": ^24.2.0
+    "@types/node-fetch": ^2.6.13
     "@types/react": ^19.1.2
     "@types/react-dom": ^19.1.2
     "@types/react-is": ^19
@@ -10511,6 +10522,7 @@ __metadata:
     lucide-react: ^0.540.0
     next-sanity: ^9.10.2
     next-themes: ^0.4.6
+    node-fetch: ^3.3.2
     postcss: ^8.5.3
     postcss-nesting: ^13.0.2
     preact: ^10.26.5
@@ -10525,7 +10537,7 @@ __metadata:
     sanity: ^3.87.1
     solid-js: ^1.9.6
     sonner: 2.0.3
-    stripe: ^18.0.0
+    stripe: ^18.4.0
     styled-components: ^6.1.17
     swiper: ^11.2.6
     tailwind-merge: ^3.3.1
@@ -10899,7 +10911,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"form-data@npm:^4.0.0":
+"form-data@npm:^4.0.0, form-data@npm:^4.0.4":
   version: 4.0.4
   resolution: "form-data@npm:4.0.4"
   dependencies:
@@ -14861,7 +14873,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-fetch@npm:^3.0.0":
+"node-fetch@npm:^3.0.0, node-fetch@npm:^3.3.2":
   version: 3.3.2
   resolution: "node-fetch@npm:3.3.2"
   dependencies:
@@ -18905,7 +18917,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stripe@npm:*, stripe@npm:^18.0.0":
+"stripe@npm:*, stripe@npm:^18.4.0":
   version: 18.4.0
   resolution: "stripe@npm:18.4.0"
   dependencies:

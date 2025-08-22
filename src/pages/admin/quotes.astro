@@ -1,0 +1,73 @@
+---
+import DashboardShell from '../../components/admin/DashboardShell.tsx'
+---
+<DashboardShell>
+  <h1 class="text-2xl md:text-3xl font-bold mb-4">Quotes</h1>
+  <div class="mb-4 flex items-center justify-between">
+    <p class="text-white/70 text-sm">Draft, send, convert to invoice.</p>
+    <button id="newQuote" class="px-4 py-2 rounded bg-white text-black hover:bg-white/90">New Quote</button>
+  </div>
+  <div id="quotes-root"></div>
+
+  <script>
+    // Extend Window interface for __newQuote
+    declare global {
+      interface Window {
+        __newQuote?: () => void;
+      }
+    }
+    import React, { useEffect, useState } from 'react'
+    import ReactDOM from 'react-dom/client'
+    import QuoteEditorDrawer from '@components/admin/QuoteEditorDrawer.tsx'
+
+    function QuotesApp(){
+      const [rows, setRows] = useState<any[]>([])
+      const [open, setOpen] = useState(false)
+      const [initial, setInitial] = useState<any>(null)
+
+      async function load(){ setRows(await (await fetch('/.netlify/functions/quotes-list')).json()) }
+      useEffect(()=>{ load() },[])
+      function newQuote(){ setInitial(null); setOpen(true) }
+
+      // Assign newQuote to window.__newQuote for global access
+      if (typeof window !== 'undefined') {
+        (window as any).__newQuote = newQuote;
+      }
+
+      return (
+        React.createElement(React.Fragment, null,
+          React.createElement('div',{className:'overflow-x-auto border border-white/10 rounded-lg'},
+            React.createElement('table',{className:'min-w-full text-sm'},
+              React.createElement('thead',{className:'bg-white/5'},
+                React.createElement('tr',null,['Quote','Customer','Status','Total',''].map(h=>React.createElement('th',{className:'text-left px-3 py-2',key:h},h)))
+              ),
+              React.createElement('tbody',null,
+                rows.map((r:any)=>React.createElement('tr',{key:r._id,className:'border-t border-white/10 hover:bg-white/5 transition'},
+                  React.createElement('td',{className:'px-3 py-2'}, r.number||r._id.slice(-6)),
+                  React.createElement('td',{className:'px-3 py-2'}, r.customerName||'—'),
+                  React.createElement('td',{className:'px-3 py-2'}, r.status),
+                  React.createElement('td',{className:'px-3 py-2'}, `$${Number(r.total||0).toFixed(2)}`),
+                  React.createElement('td',{className:'px-3 py-2 text-right'},
+                    React.createElement('button',{className:'px-3 py-1 rounded border border-white/20 hover:bg-white/10', onClick:()=>{ setInitial(r); setOpen(true) }}, 'Edit')
+                  )
+                ))
+              )
+            )
+          ),
+          React.createElement(QuoteEditorDrawer,{ open, onClose:()=>setOpen(false), initial, reload:load })
+        )
+      )
+    }
+
+    const newQuoteBtn = document.getElementById('newQuote');
+    if (newQuoteBtn) {
+      newQuoteBtn.addEventListener('click', () => window.__newQuote && window.__newQuote());
+    }
+    const quotesRoot = document.getElementById('quotes-root');
+    if (quotesRoot) {
+      const root = ReactDOM.createRoot(quotesRoot);
+      const App = React.createElement(QuotesApp);
+      root.render(App);
+    }
+  </script>
+</DashboardShell>
