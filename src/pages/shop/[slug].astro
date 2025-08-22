@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getProductBySlug, getRelatedProducts, getUpsellProducts, type Product } from '../../lib/sanity-utils';
 import PortableTextRenderer from "../../components/PortableTextRenderer.jsx";
+import SlugCarousel from '@/components/slugCarousel.astro';
 
 export type KitItem = { item: string; quantity?: number };
 export type VehicleCompat = { make?: string; model?: string; trim?: string };
@@ -26,6 +27,9 @@ const { slug } = Astro.params;
 let product: ProductWithKit | null = null;
 let relatedProducts: Product[] = [];
 let upsellProducts: Product[] = [];
+let options: any[] = [];
+let addOns: any[] = [];
+let customs: any[] = [];
 try {
   if (typeof slug !== 'string') {
     throw new Error('Product slug is missing or invalid.');
@@ -48,6 +52,11 @@ try {
 
   // Prepare a plain description string for client-side script (avoid TS in inline JS)
   const descriptionText: string = (((product as any)?.shortDescription ?? (product as any)?.description) ?? '').toString();
+
+  // ---- Options/Upgrades normalization (support multiple schema shapes) ----
+  options = ((product as any).options || (product as any).optionGroups || (product as any).variations || []) as any[];
+  addOns  = ((product as any).addOns  || (product as any).upgrades     || (product as any).extras     || []) as any[];
+  customs = ((product as any).customizations || (product as any).customOptions || []) as any[];
 } catch (err) {
   console.error('❌ Failed to fetch product or similar products:', err);
   return Astro.redirect('/shop'); // Redirect to shop if product not found
@@ -59,11 +68,11 @@ try {
     <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
       <!-- LEFT: Sticky Image on desktop -->
       <div class="md:sticky md:top-28 flex justify-center items-start">
-        <img
-          src={(product as any).images?.[0]?.asset?.url || '/placeholder.png'}
-          loading="lazy"
-          alt={(product as any).title}
-          class="w-full max-w-xl object-contain rounded-lg shadow-lg bg-black/20 p-4"
+        <SlugCarousel
+          images={(product as any).images?.map((img: any) => ({
+            url: img?.asset?.url || '/placeholder.png',
+            alt: img?.alt || (product as any).title
+          })) || []}
         />
       </div>
 
@@ -74,11 +83,109 @@ try {
           {typeof (product as any).price === 'number' ? `$${(product as any).price.toFixed(2)}` : 'Price not available'}
         </p>
 
+        {((options && options.length) || (addOns && addOns.length) || (customs && customs.length)) && (
+          <form id="product-options" class="mb-6 space-y-4">
+            {/* Variant Options (radio/select) */}
+            {Array.isArray(options) && options.length > 0 && options.map((group: any) => (
+              <div class="bg-black/20 rounded-lg p-3 border border-white/10">
+                <div class="font-semibold mb-2">{group.title || group.name || 'Option'}</div>
+                {/* Prefer select if many values, else radios */}
+                {(Array.isArray(group.values) ? group.values : (group.items || [])).length > 4 ? (
+                  <select
+                    class="w-full bg-black/30 border border-white/10 rounded px-2 py-2"
+                    name={(group.key || group.name || group.title || 'option').toString()}
+                    data-group={(group.key || group.name || group.title || 'option').toString()}
+                  >
+                    {(Array.isArray(group.values) ? group.values : (group.items || [])).map((v: any) => (
+                      <option
+                        value={(v.value || v.name || v.title || v.label || '').toString()}
+                        data-price={(typeof v.priceDelta === 'number' ? v.priceDelta : (typeof v.delta === 'number' ? v.delta : 0)).toString()}
+                      >
+                        {(v.label || v.title || v.name || v.value || 'Choice')}
+                        {typeof v.priceDelta === 'number' && v.priceDelta !== 0 ? ` (+$${Number(v.priceDelta).toFixed(2)})` : ''}
+                        {typeof v.delta === 'number' && v.delta !== 0 ? ` (+$${Number(v.delta).toFixed(2)})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {(Array.isArray(group.values) ? group.values : (group.items || [])).map((v: any, i: number) => (
+                      <label class="flex items-center gap-2 bg-black/30 border border-white/10 rounded px-2 py-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name={(group.key || group.name || group.title || 'option').toString()}
+                          value={(v.value || v.name || v.title || v.label || '').toString()}
+                          data-group={(group.key || group.name || group.title || 'option').toString()}
+                          data-price={typeof v.priceDelta === 'number' ? v.priceDelta : (typeof v.delta === 'number' ? v.delta : 0)}
+                          checked={i === 0}
+                        />
+                        <span class="text-sm">{v.label || v.title || v.name || v.value || 'Choice'}</span>
+                        <span class="ml-auto text-xs opacity-70">
+                          {typeof v.priceDelta === 'number' && v.priceDelta !== 0 ? `+$${Number(v.priceDelta).toFixed(2)}` : ''}
+                          {typeof v.delta === 'number' && v.delta !== 0 ? `+$${Number(v.delta).toFixed(2)}` : ''}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {/* Add-ons (checkbox) */}
+            {Array.isArray(addOns) && addOns.length > 0 && (
+              <div class="bg-black/20 rounded-lg p-3 border border-white/10">
+                <div class="font-semibold mb-2">Optional Upgrades</div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {addOns.map((a: any) => (
+                    <label class="flex items-center gap-2 bg-black/30 border border-white/10 rounded px-2 py-2 cursor-pointer">
+                      <input type="checkbox"
+                        name={(a.key || a.slug || a.id || a.name || a.title || 'addon').toString()}
+                        value={(a.value || a.name || a.title || '').toString()}
+                        data-group={(a.group || 'addOn').toString()}
+                        data-price={(typeof a.priceDelta === 'number' ? a.priceDelta : (typeof a.price === 'number' ? a.price : (typeof a.delta === 'number' ? a.delta : 0))).toString()}
+                      />
+                      <span class="text-sm">{a.label || a.title || a.name || 'Upgrade'}</span>
+                      <span class="ml-auto text-xs opacity-70">
+                        {typeof a.priceDelta === 'number' ? `+$${Number(a.priceDelta).toFixed(2)}` : (typeof a.price === 'number' ? `+$${Number(a.price).toFixed(2)}` : (typeof a.delta === 'number' ? `+$${Number(a.delta).toFixed(2)}` : ''))}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Custom fields (e.g., paint code with fixed surcharge) */}
+            {Array.isArray(customs) && customs.length > 0 && customs.map((c: any) => (
+              <div class="bg-black/20 rounded-lg p-3 border border-white/10">
+                <div class="font-semibold mb-2">{c.label || c.title || 'Custom Option'}</div>
+                <input
+                  type={c.type === 'number' ? 'number' : 'text'}
+                  name={(c.key || c.name || 'custom').toString()}
+                  placeholder={(c.placeholder || '').toString()}
+                  class="w-full bg-black/30 border border-white/10 rounded px-2 py-2"
+                  data-group={(c.group || 'custom').toString()}
+                  data-price={(typeof c.priceDelta === 'number' ? c.priceDelta : (typeof c.price === 'number' ? c.price : (typeof c.delta === 'number' ? c.delta : 0))).toString()}
+                />
+                {(typeof c.priceDelta === 'number' || typeof c.price === 'number' || typeof c.delta === 'number') && (
+                  <div class="mt-1 text-xs opacity-70">Surcharge: +${Number(c.priceDelta ?? c.price ?? c.delta ?? 0).toFixed(2)}</div>
+                )}
+              </div>
+            ))}
+
+            {/* Live price */}
+            <div class="flex items-center justify-between bg-black/20 rounded-lg p-3 border border-white/10">
+              <span class="text-sm opacity-80">Configured Price</span>
+              <span id="price-total" class="text-lg font-bold">$ {(typeof (product as any).price === 'number' ? (product as any).price.toFixed(2) : '0.00')}</span>
+            </div>
+          </form>
+        )}
+
         <!-- Short intro (truncated) -->
         <PortableTextRenderer value={product.shortDescription} />
 
         <!-- Add to Cart Button -->
         <button
+          id="add-to-cart-btn"
           type="button"
           class="add-to-cart inline-flex items-center gap-2 border border-white/20 px-4 py-2 rounded-full hover:bg-primary hover:text-black transition relative z-10 pointer-events-auto"
           data-product-id={(product as any)._id}
@@ -245,7 +352,7 @@ try {
 {Array.isArray(relatedProducts) && relatedProducts.length > 0 && (
   <div class="mt-16">
     <h2 class="text-2xl font-borg mb-6">Related Products</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {(relatedProducts || [])
         .filter((p: any) => p && p.slug && (p.slug.current || typeof p.slug === 'string'))
         .map((p: any) => {
@@ -259,12 +366,17 @@ try {
             <>
               {p.slug?.current ? (
                 <a href={`/shop/${p.slug.current}`} class="block bg-black/10 rounded-lg shadow-md hover:shadow-lg transition p-4">
-                  <img src={img} alt={alt} class="w-full h-48 object-cover rounded-md mb-4" />
+                  <div class="w-full aspect-square bg-black/20 rounded-md mb-4 overflow-hidden grid place-items-center">
+                    <img src={img} alt={alt} class="max-w-full max-h-full object-contain" />
+                  </div>
                   <h3 class="text-lg font-semibold">{p?.title || 'Untitled product'}</h3>
                   <p class="text-primary font-bold">{price}</p>
                 </a>
               ) : (
                 <span class="block bg-black/10 rounded-lg shadow-md transition p-4">
+                  <div class="w-full aspect-square bg-black/20 rounded-md mb-4 overflow-hidden grid place-items-center">
+                    <img src={img} alt={alt} class="max-w-full max-h-full object-contain" />
+                  </div>
                   <h3 class="text-lg font-semibold">{p?.title || 'Untitled product'}</h3>
                   <p class="text-primary font-bold">{price}</p>
                 </span>
@@ -280,7 +392,7 @@ try {
 {Array.isArray(upsellProducts) && upsellProducts.length > 0 && (
   <div class="mt-12">
     <h2 class="text-2xl font-borg mb-6">Recommended Upgrades</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {(upsellProducts || [])
         .filter((p: any) => p && p.slug && (p.slug.current || typeof p.slug === 'string'))
         .map((p: any) => {
@@ -294,12 +406,17 @@ try {
             <>
               {p.slug?.current ? (
                 <a href={`/shop/${p.slug.current}`} class="block bg-black/10 rounded-lg shadow-md hover:shadow-lg transition p-4">
-                  <img src={img} alt={alt} class="w-full h-48 object-cover rounded-md mb-4" />
+                  <div class="w-full aspect-square bg-black/20 rounded-md mb-4 overflow-hidden grid place-items-center">
+                    <img src={img} alt={alt} class="max-w-full max-h-full object-contain" />
+                  </div>
                   <h3 class="text-lg font-semibold">{p?.title || 'Untitled product'}</h3>
                   <p class="text-primary font-bold">{price}</p>
                 </a>
               ) : (
                 <span class="block bg-black/10 rounded-lg shadow-md transition p-4">
+                  <div class="w-full aspect-square bg-black/20 rounded-md mb-4 overflow-hidden grid place-items-center">
+                    <img src={img} alt={alt} class="max-w-full max-h-full object-contain" />
+                  </div>
                   <h3 class="text-lg font-semibold">{p?.title || 'Untitled product'}</h3>
                   <p class="text-primary font-bold">{price}</p>
                 </span>
@@ -368,6 +485,7 @@ try {
         name: ds.productName || "Item",
         price: parseFloat(ds.productPrice || "0"),
         categories: safeParseJSON(ds.productCategories || "[]", []),
+        options: safeParseJSON(ds.productOptions || "[]", []),
         qty: 1,
       };
 
@@ -407,5 +525,79 @@ try {
         }, 2000);
       } catch {}
     }, true);
+    // ---- Product Options pricing & selection ----
+    function readConfiguredOptions() {
+      const form = document.getElementById('product-options');
+      const result = { selections: [], extra: 0 } as any;
+      if (!form) return result;
+
+      const fields = form.querySelectorAll('[data-group]');
+      fields.forEach((el: any) => {
+        const tag = (el.tagName || '').toLowerCase();
+        const group = el.getAttribute('data-group') || 'option';
+        const priceDelta = parseFloat(el.getAttribute('data-price') || '0') || 0;
+        if (tag === 'select') {
+          const opt = el.options[el.selectedIndex];
+          const delta = parseFloat(opt?.getAttribute('data-price') || '0') || 0;
+          result.selections.push({ group, value: opt?.value || '', priceDelta: delta });
+          result.extra += delta;
+        } else if (tag === 'input') {
+          const type = (el.getAttribute('type') || 'text').toLowerCase();
+          if (type === 'radio') {
+            if (el.checked) {
+              result.selections.push({ group, value: el.value, priceDelta });
+              result.extra += priceDelta;
+            }
+          } else if (type === 'checkbox') {
+            if (el.checked) {
+              result.selections.push({ group, value: el.value || 'on', priceDelta });
+              result.extra += priceDelta;
+            }
+          } else { // text/number
+            if (el.value && el.value.trim().length > 0) {
+              result.selections.push({ group, value: el.value, priceDelta });
+              result.extra += priceDelta;
+            }
+          }
+        }
+      });
+      return result;
+    }
+
+    function updateConfiguredPriceUI() {
+      const priceEl = document.getElementById('price-total');
+      const btn = document.getElementById('add-to-cart-btn') as HTMLElement | null;
+      const base = parseFloat(String((btn && (btn as any).dataset.productPrice) || '0')) || 0;
+      const cfg = readConfiguredOptions();
+      const total = Math.max(0, base + (cfg.extra || 0));
+      if (priceEl) priceEl.textContent = `$ ${total.toFixed(2)}`;
+      if (btn) (btn as any).dataset.productPrice = String(total);
+      return { total, cfg };
+    }
+
+    // Recalc on changes within the form
+    document.addEventListener('input', (e: any) => {
+      const form = document.getElementById('product-options');
+      if (form && form.contains(e.target as Node)) {
+        updateConfiguredPriceUI();
+      }
+    });
+
+    // Patch Add-to-Cart to include selections
+    const origHandler = document.onclick;
+    // (We already delegate clicks to .add-to-cart above; augment the payload there)
+    const _oldListener = (document as any)._fasAddToCartAugment;
+    if (!_oldListener) {
+      (document as any)._fasAddToCartAugment = true;
+      document.addEventListener('click', (evt: MouseEvent) => {
+        const target = evt.target as Element | null;
+        const btn = target && typeof (target as any).closest === 'function' ? (target as Element).closest('#add-to-cart-btn') as HTMLElement | null : null;
+        if (!btn) return;
+        // compute latest price + selections and stash on the element dataset for the upstream handler
+        const { cfg, total } = updateConfiguredPriceUI();
+        try { (btn as any).dataset.productOptions = JSON.stringify(cfg.selections || []); } catch {}
+        try { (btn as any).dataset.productPrice = String(total); } catch {}
+      }, true);
+    }
   })();
   </script>

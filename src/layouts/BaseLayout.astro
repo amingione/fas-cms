@@ -104,6 +104,18 @@ const { hideBrandTag = false } = Astro.props;
       .animate-slide-in-left {
         animation: slide-in-left 0.8s ease-out forwards;
       }
+
+      /* =========================================================
+         Safe zone for interactive controls (carousel arrows etc.)
+         Ensures they stay above overlays and wrappers
+         ========================================================= */
+      #gallery-controls button,
+      #gallery #prev,
+      #gallery #next {
+        position: relative;
+        z-index: 9999 !important;
+        pointer-events: auto !important;
+      }
     </style>
 
   </body>
