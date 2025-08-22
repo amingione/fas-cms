@@ -1,3 +1,5 @@
+import 'dotenv/config'
+
 import type { Handler } from '@netlify/functions';
 import crypto from 'crypto';
 

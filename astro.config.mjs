@@ -41,6 +41,16 @@ export default defineConfig({
         '/.netlify/functions': {
           target: 'http://127.0.0.1:5050',
           changeOrigin: true,
+          secure: false,
+          configure: (proxy) => {
+            proxy.on('proxyReq', (_proxyReq, req) => {
+              console.log('[proxy→functions]', req.url);
+            });
+          }
+        },
+        '/.netlify/functions/': {
+          target: 'http://127.0.0.1:5050',
+          changeOrigin: true,
           secure: false
         }
       }
