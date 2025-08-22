@@ -16,17 +16,7 @@ export const handler: Handler = async (event) => {
   const code = params.get('code');
   if (!code) return { statusCode: 400, body: 'Missing code' };
 
-  // Parse cookies
-  const cookies = Object.fromEntries(
-    (event.headers.cookie || '')
-      .split(';')
-      .map((c) => c.trim())
-      .filter(Boolean)
-      .map((c) => c.split('='))
-  ) as Record<string, string>;
-  const verifier = cookies['pkce_verifier'];
-
-  // Resolve required env vars (tolerate variants)
+  // Resolve required env vars
   const domain = resolveDomain();
   const clientId = getEnv('AUTH0_CLIENT_ID') || getEnv('PUBLIC_AUTH0_CLIENT_ID');
   const clientSecret = getEnv('AUTH0_CLIENT_SECRET');
@@ -48,7 +38,7 @@ export const handler: Handler = async (event) => {
 
   const issuer = domain.startsWith('http') ? domain : `https://${domain}`;
 
-  // Exchange code for tokens
+  // Exchange code for tokens (no PKCE)
   const tokenRes = await fetch(`${issuer}/oauth/token`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
@@ -57,19 +47,26 @@ export const handler: Handler = async (event) => {
       client_id: clientId,
       client_secret: clientSecret,
       code,
-      redirect_uri: redirectUri,
-      code_verifier: verifier
+      redirect_uri: redirectUri
     })
   });
 
   if (!tokenRes.ok) {
     const text = await tokenRes.text().catch(() => '');
-    return { statusCode: 502, body: `Token exchange failed${text ? `: ${text}` : ''}` };
+    const safeReport = {
+      status: tokenRes.status,
+      issuer,
+      clientIdTail: (clientId || '').slice(-6),
+      redirectUri,
+      body: text.slice(0, 500)
+    };
+    console.error('[auth-callback] token exchange failed', safeReport);
+    return { statusCode: 502, body: `Token exchange failed: ${JSON.stringify(safeReport)}` };
   }
 
   const tokens = (await tokenRes.json()) as { id_token: string };
 
-  // Create a short, signed **session** cookie from ID token claims you need
+  // Create a signed session cookie from ID token claims
   const idClaims = jwt.decode(tokens.id_token) as any;
   const roles =
     idClaims?.['https://fasmotorsport.com/fas/roles'] || idClaims?.['https://fas/roles'] || [];
@@ -78,12 +75,12 @@ export const handler: Handler = async (event) => {
     expiresIn: '7d'
   });
 
+  const isLocal =
+    (redirectUri || '').startsWith('http://localhost') ||
+    (redirectUri || '').startsWith('http://127.0.0.1');
+  const sessionFlags = `HttpOnly; Path=/; Max-Age=604800; SameSite=Lax${isLocal ? '' : '; Secure'}`;
   const headers = {
-    'Set-Cookie': [
-      `session=${session}; HttpOnly; Secure; Path=/; Max-Age=604800; SameSite=Lax`,
-      'pkce_verifier=; Max-Age=0; Path=/',
-      'oauth_state=; Max-Age=0; Path=/'
-    ].join(', '),
+    'Set-Cookie': [`session=${session}; ${sessionFlags}`].join(', '),
     Location: '/admin'
   };
 
