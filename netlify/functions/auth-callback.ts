@@ -32,11 +32,11 @@ export const handler: Handler = async (event) => {
 
   // Create a short, signed **session** cookie from the ID token claims you need
   const idClaims = jwt.decode(tokens.id_token) as any;
-  const session = jwt.sign(
-    { sub: idClaims.sub, email: idClaims.email, roles: idClaims['https://fas/roles'] || [] },
-    SESSION_SECRET!,
-    { expiresIn: '7d' }
-  );
+  const roles =
+    idClaims?.['https://fasmotorsport.com/fas/roles'] || idClaims?.['https://fas/roles'] || [];
+  const session = jwt.sign({ sub: idClaims?.sub, email: idClaims?.email, roles }, SESSION_SECRET!, {
+    expiresIn: '7d'
+  });
 
   const headers = {
     'Set-Cookie': [
