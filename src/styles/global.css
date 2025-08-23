@@ -1015,19 +1015,19 @@
 /* Luxury Glow Effects */
 .luxury-gold-glow {
   box-shadow:
-    0 0 25px rgba(212, 175, 55, 0.3),
-    0 0 50px rgba(212, 175, 55, 0.15),
-    0 0 75px rgba(212, 175, 55, 0.1),
-    inset 0 1px 0 rgba(255, 215, 0, 0.2);
+    0 0 25px rgba(212, 78, 55, 0.3),
+    0 0 50px rgba(212, 63, 55, 0.15),
+    0 0 75px rgba(212, 71, 55, 0.1),
+    inset 0 1px 0 rgba(255, 0, 0, 0.2);
   transition: box-shadow 0.4s ease;
 }
 
 .luxury-gold-glow:hover {
   box-shadow:
-    0 0 35px rgba(212, 175, 55, 0.5),
-    0 0 70px rgba(212, 175, 55, 0.3),
-    0 0 100px rgba(212, 175, 55, 0.2),
-    inset 0 1px 0 rgba(255, 215, 0, 0.3);
+    0 0 35px rgba(212, 73, 55, 0.5),
+    0 0 70px rgba(212, 65, 55, 0.3),
+    0 0 100px rgba(212, 55, 55, 0.2),
+    inset 0 1px 0 rgba(255, 8, 0, 0.3);
 }
 
 .luxury-platinum-glow {

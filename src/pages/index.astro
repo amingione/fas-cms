@@ -13,6 +13,7 @@ import { LuxuryFeatures } from '@components/LuxuryFeatures.tsx';
 import { CustomFabrication } from '@components/CustomFabrication.tsx';
 import { LuxuryTestimonials } from '@components/LuxuryTestimonials.tsx';
 import { WheelsHero } from '@/components/WheelsHero.tsx';
+import HeroBanner from '@/components/HeroBanner.astro';
 
 const url = new URL(Astro.request.url);
 const v2Param = url.searchParams.get('v2');
@@ -92,10 +93,16 @@ try {
 
 <BaseLayout>
 
-<!-- HERO -->
-<section class="relative bg-black/20">
-  <img src="/images/hp-herofas.png" alt="FAS Hero TRX" class="w-full h-auto object-cover object-top md:object-center overflow-hidden" />
-</section>
+<!-- New HERO -->
+<HeroBanner
+  imageSrc="/images/ram copy.webp"
+  headline="Power Up Your Ride"
+  subtext="Unleash your car's potential with our premium performance upgrades."
+  ctaText="Explore Now"
+  ctaLink="/shop"
+  altText="TRX Package by FAS"
+/>
+
 
 {showV2 && (
   <>

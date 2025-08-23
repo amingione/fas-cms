@@ -1,0 +1,135 @@
+---
+import '@/styles/components.css';
+import '@/styles/global.css'
+import '@/styles/fas-theme.css'
+
+// Remove redundant particlesJS initialization; handled in <script> below.
+interface Props {
+  imageSrc: string;
+  headline: string;
+  subtext: string;
+  ctaText: string;
+  ctaLink: string;
+  altText?: string;
+}
+
+const { imageSrc, headline, subtext, ctaText, ctaLink, altText = 'Performance Shop Hero' } = Astro.props;
+---
+
+<section class="hero-banner">
+  {/* Background Effects */}
+  <div class="absolute inset-0 grunge-overlay"></div>
+  <div class="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/80"></div>
+  <div class="parallax-bg">
+    <img src={imageSrc} alt={altText} class="bg-image" />
+  </div>
+  <div class="content">
+    <h1 class="headline font-ethno text-primary">{headline}</h1>
+    <p class="subtext font-bold font-kwajong text-accent">{subtext}</p>
+    <a href={ctaLink} class="btn btn-glass font-ethno">{ctaText}</a>
+  </div>
+  <div class="particles" id="particles-js"></div>
+</section>
+
+<script>
+  // Load particles.js only on the client
+  if (typeof window !== 'undefined') {
+    import('particles.js')
+      .then(() => {
+        // particles.js attaches a global `particlesJS`
+        if (window && typeof window.particlesJS === 'function') {
+          window.particlesJS('particles-js', {
+            particles: {
+              number: { value: 50, density: { enable: true, value_area: 800 } },
+              color: { value: '#ffffff' },
+              shape: { type: 'circle' },
+              opacity: { value: 0.3, random: true },
+              size: { value: 3, random: true },
+              move: { enable: true, speed: 1, direction: 'top', random: true }
+            },
+            interactivity: { enable: false }
+          });
+        }
+      })
+      .catch((err) => {
+        console.warn('particles.js failed to load:', err);
+      });
+  }
+</script>
+
+<style>
+  .hero-banner {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    height: 600px;
+  }
+
+  .parallax-bg {
+    position: absolute;
+    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+
+  .bg-image {
+    width: contain;
+    height: relative;
+    object-fit: contain;
+    transition-property: transform;
+    transition-duration: 100ms;
+    transition-timing-function: ease-out;
+  }
+
+  .hero-banner:hover .bg-image {
+    transform: scale(1.10);
+  }
+
+  .content {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .headline {
+    /* Tailwind: text-5xl (base), md:text-6xl, tracking-tight, mb-4, font-ethno, text-primary */
+    font-size: 3rem;         /* 48px */
+    line-height: 1;
+    letter-spacing: -0.025em;
+    margin-bottom: 1rem;
+    color: var(--color-primary, #ffffff);
+  }
+
+  @media (min-width: 768px) {
+    .headline {
+      font-size: 3.75rem;    /* 60px (text-6xl) */
+      line-height: 1;
+    }
+  }
+
+  .subtext {
+    /* Tailwind: text-xl, font-kwajong, text-secondary, mb-6, max-w-2xl */
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    color: var(--color-secondary);
+    margin-bottom: 1.5rem;
+    max-width: 42rem; /* 2xl = 42rem */
+  }
+
+
+  .particles {
+    position: absolute;
+    inset: 0;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+</style>

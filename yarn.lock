@@ -10523,6 +10523,7 @@ __metadata:
     next-sanity: ^9.10.2
     next-themes: ^0.4.6
     node-fetch: ^3.3.2
+    particles.js: ^2.0.0
     postcss: ^8.5.3
     postcss-nesting: ^13.0.2
     preact: ^10.26.5
@@ -15666,6 +15667,13 @@ __metadata:
     leac: ^0.6.0
     peberminta: ^0.9.0
   checksum: 147760bce6c4a4f8c62af021a84ced262f078f60a1119e6891eba69567a953e06295ad2c70e5e89892ad1d4af0126f0856742d657a19a29ebf58422cf3bfd4f3
+  languageName: node
+  linkType: hard
+
+"particles.js@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "particles.js@npm:2.0.0"
+  checksum: bef578f5a1eaf81266eb45dc21ab721c4af9a73d86b980a077f3f5e9b9f5c5ae60c35522326f9fba74d05c46b629b87d15c3ac8a138c7ff7a071800eff480158
   languageName: node
   linkType: hard
 

@@ -192,16 +192,21 @@ export function TruckPackagesHero() {
               >
                 <div className="flex flex-col gap-3 max-w-sm mx-auto">
                   <motion.div whileTap={{ scale: 0.98 }}>
-                    <Button className="group bg-primary hover:bg-primary/90 text-white w-full py-3 text-sm font-bold shadow-xl shadow-primary/25 transition-all duration-300 rounded-xl metallic-btn font-ethno mobile-touch-target">
-                      <Zap className="w-4 h-4 mr-2" />
-                      SHOP PACKAGES
-                      <motion.div
-                        className="ml-2"
-                        animate={{ x: [0, 3, 0] }}
-                        transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-                      >
-                        <ArrowRight className="w-4 h-4" />
-                      </motion.div>
+                    <Button
+                      className="group bg-primary hover:bg-primary/90 text-white w-full py-3 text-sm font-bold shadow-xl shadow-primary/25 transition-all duration-300 rounded-xl metallic-btn font-ethno mobile-touch-target"
+                      asChild
+                    >
+                      <a href="/truckPackages">
+                        <Zap className="w-4 h-4 mr-2" />
+                        SHOP PACKAGES
+                        <motion.div
+                          className="ml-2"
+                          animate={{ x: [0, 3, 0] }}
+                          transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                        >
+                          <ArrowRight className="w-4 h-4" />
+                        </motion.div>
+                      </a>
                     </Button>
                   </motion.div>
 
@@ -209,9 +214,12 @@ export function TruckPackagesHero() {
                     <Button
                       variant="outline"
                       className="border-2 border-graylight/50 text-graylight hover:bg-primary/20 hover:text-white hover:border-primary/70 w-full py-3 text-sm font-medium backdrop-blur-sm hover:backdrop-blur-md rounded-xl transition-all duration-300 industrial-glow font-ethno mobile-touch-target"
+                      asChild
                     >
-                      <Settings className="w-4 h-4 mr-2" />
-                      CUSTOM QUOTE
+                      <a href="#contact">
+                        <Settings className="w-4 h-4 mr-2" />
+                        CUSTOM QUOTE
+                      </a>
                     </Button>
                   </motion.div>
                 </div>
@@ -396,7 +404,7 @@ export function TruckPackagesHero() {
                   <motion.div whileTap={{ scale: 0.98 }}>
                     <Button size="lg" className="group font-ethno" asChild>
                       <a
-                        href="#truck-packages"
+                        href="/truckPackages"
                         onClick={() => {
                           /* handle shop packages click */
                         }}
@@ -417,7 +425,7 @@ export function TruckPackagesHero() {
                   <motion.div whileTap={{ scale: 0.98 }}>
                     <Button size="lg" variant="outline" className="font-ethno" asChild>
                       <a
-                        href="#quote"
+                        href="#contact"
                         onClick={() => {
                           /* handle custom quote click */
                         }}
