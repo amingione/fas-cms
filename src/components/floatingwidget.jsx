@@ -3,61 +3,63 @@ import { createPortal } from 'react-dom';
 import Button from './button';
 
 /** variant: 'auto' | 'fab' | 'icon' */
-export default function FloatingCartWidget({ variant = 'auto' }) {
+export default function FloatingCartWidget({ variant = 'fab' }) {
   const [isOpen, setIsOpen] = useState(false);
   const [cartItems, setCartItems] = useState([]);
   const [mounted, setMounted] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
-  const [isMobile, setIsMobile] = useState(false);
-  const svgRef = useRef(null);
-  const [useEmoji, setUseEmoji] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 767px)');
-    const handler = (e) => setIsMobile(e.matches);
-    handler(mq);
-    mq.addEventListener?.('change', handler);
-    return () => mq.removeEventListener?.('change', handler);
-  }, []);
+  // Ensure only ONE primary cart instance renders panel/backdrop & listeners
+  const instanceIdRef = useRef(typeof Symbol === 'function' ? Symbol('fas-cart') : Math.random());
+  const [isPrimary, setIsPrimary] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  // Claim singleton role so only one cart panel/backdrop exists
   useEffect(() => {
-    if (!mounted) return;
-    const el = svgRef.current;
-    if (!el) return;
-    try {
-      const rect = el.getBoundingClientRect();
-      const cs = window.getComputedStyle(el);
-      const hidden = cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0';
-      if (hidden || rect.width < 4 || rect.height < 4) {
-        setUseEmoji(true);
+    const key = '__fasCartSingleton';
+    if (!window[key]) {
+      window[key] = instanceIdRef.current;
+      setIsPrimary(true);
+    } else {
+      setIsPrimary(window[key] === instanceIdRef.current);
+    }
+    return () => {
+      // Release if we were the owner
+      if (window[key] === instanceIdRef.current) {
+        delete window[key];
       }
-    } catch (_) {}
-  }, [mounted]);
+    };
+  }, []);
 
   useEffect(() => {
+    if (!isPrimary) return;
     const updateFromStorage = () => {
       const saved = localStorage.getItem('cart');
-      const parsed = saved ? JSON.parse(saved) : [];
+      const raw = saved ? JSON.parse(saved) : [];
+      const parsed = Array.isArray(raw)
+        ? raw.map((p, idx) => ({
+            ...p,
+            quantity: Number(p?.quantity ?? p?.qty ?? 1) || 1,
+            signature: p?.signature || (Array.isArray(p?.options) ? JSON.stringify(p.options) : ''),
+            __key: `${p?.id || 'item'}-${p?.signature || idx}`
+          }))
+        : [];
 
-      // Shallow compare to avoid unnecessary re-renders
-      const sameLength = Array.isArray(parsed) && parsed.length === cartItems.length;
+      const sameLength = parsed.length === cartItems.length;
       const sameItems =
         sameLength &&
         parsed.every(
           (p, i) =>
             p?.id === cartItems[i]?.id &&
+            p?.signature === cartItems[i]?.signature &&
             Number(p?.quantity) === Number(cartItems[i]?.quantity) &&
             Number(p?.price) === Number(cartItems[i]?.price)
         );
 
-      if (!sameItems) {
-        setCartItems(parsed);
-      }
+      if (!sameItems) setCartItems(parsed);
       if (!loaded) setLoaded(true);
       if (parsed.length > 0) setIsOpen(true);
     };
@@ -68,9 +70,15 @@ export default function FloatingCartWidget({ variant = 'auto' }) {
     return () => {
       window.removeEventListener('cart:updated', updateFromStorage);
     };
-  }, [cartItems, loaded]);
+  }, [cartItems, loaded, isPrimary]);
 
   useEffect(() => {
+    if (!isPrimary) {
+      window.openFloatingCart = () => {
+        window.dispatchEvent(new CustomEvent('cart:toggle'));
+      };
+      return;
+    }
     const onToggle = () => setIsOpen((v) => !v);
     window.addEventListener('cart:toggle', onToggle);
     window.openFloatingCart = () => setIsOpen(true);
@@ -78,87 +86,70 @@ export default function FloatingCartWidget({ variant = 'auto' }) {
       window.removeEventListener('cart:toggle', onToggle);
       delete window.openFloatingCart;
     };
-  }, []);
+  }, [isPrimary]);
 
   useEffect(() => {
+    if (!isPrimary) return;
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('cart');
-      setCartItems(saved ? JSON.parse(saved) : []);
+      const raw = saved ? JSON.parse(saved) : [];
+      const parsed = Array.isArray(raw)
+        ? raw.map((p, idx) => ({
+            ...p,
+            quantity: Number(p?.quantity ?? p?.qty ?? 1) || 1,
+            signature: p?.signature || (Array.isArray(p?.options) ? JSON.stringify(p.options) : ''),
+            __key: `${p?.id || 'item'}-${p?.signature || idx}`
+          }))
+        : [];
+      setCartItems(parsed);
       setLoaded(true);
     }
-  }, []);
+  }, [isPrimary]);
 
   useEffect(() => {
+    if (!isPrimary) return;
     if (!loaded) return; // avoid clobbering storage on first mount
     if (typeof window !== 'undefined') {
-      localStorage.setItem('cart', JSON.stringify(cartItems));
+      const toSave = cartItems.map((p) => ({
+        ...p,
+        qty: p.quantity // keep legacy field for any older readers
+      }));
+      localStorage.setItem('cart', JSON.stringify(toSave));
       // Do NOT dispatch 'cart:updated' here to avoid event feedback loop.
       // ProductCard dispatches this event when it updates the cart.
     }
-  }, [cartItems, loaded]);
+  }, [cartItems, loaded, isPrimary]);
 
   const subtotal = cartItems.reduce(
     (acc, item) => acc + (Number(item.quantity) || 0) * (Number(item.price) || 0),
     0
   );
 
-  const wantIcon = variant === 'icon' || (variant === 'auto' && isMobile);
-  const Trigger = () =>
-    wantIcon ? (
-      <button
-        onClick={() => setIsOpen(true)}
-        className="cart-icon-btn relative z-50 inline-flex items-center justify-center w-9 h-9 min-w-[36px] min-h-[36px] shrink-0 text-white focus:outline-none focus:ring-2 focus:ring-white/40 overflow-visible pointer-events-auto bg-transparent hover:bg-transparent"
-        aria-label="Cart"
-        style={{ width: 36, height: 36, WebkitTapHighlightColor: 'transparent' }}
+  const Trigger = () => (
+    <button
+      onClick={() => {
+        if (isPrimary) setIsOpen(true);
+        else if (typeof window.openFloatingCart === 'function') window.openFloatingCart();
+      }}
+      className="fixed bottom-20 right-6 z-50 bg-white text-black p-4 rounded-full shadow-lg hover:bg-primary hover:text-white transition-all duration-300 flex items-center justify-center"
+      aria-label="Cart"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-6 w-6"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
       >
-        {useEmoji ? (
-          <span aria-hidden className="text-lg leading-none">
-            🛒
-          </span>
-        ) : (
-          <span
-            aria-hidden
-            className="cart-icon-bg"
-            style={{
-              width: 20,
-              height: 20,
-              display: 'block',
-              position: 'relative',
-              zIndex: 1,
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'center',
-              backgroundSize: '20px 20px',
-              backgroundColor: 'transparent',
-              filter: 'drop-shadow(0 0 1px rgba(255,255,255,0.85))',
-              outline: '1px solid rgba(255,255,255,0.15)', // TEMP debug: remove later
-              backgroundImage:
-                "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='9' cy='21' r='1'/%3E%3Ccircle cx='20' cy='21' r='1'/%3E%3Cpath d='M1 1h3l2.6 12.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6L23 6H6'/%3E%3C/svg%3E\")"
-            }}
-          />
-        )}
-      </button>
-    ) : (
-      <button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-20 right-6 z-50 bg-white text-black p-4 rounded-full shadow-lg hover:bg-primary hover:text-white transition-all duration-300 flex items-center justify-center"
-        aria-label="Cart"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 6h11.1M7 13L5.4 5M16 16a2 2 0 100 4 2 2 0 000-4zm-8 0a 2 2 0 100 4 2 2 0 000-4z"
-          />
-        </svg>
-      </button>
-    );
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 6h11.1M7 13L5.4 5M16 16a2 2 0 100 4 2 2 0 000-4zm-8 0a 2 2 0 100 4 2 2 0 000-4z"
+        />
+      </svg>
+    </button>
+  );
 
   const panel = (
     <>
@@ -205,7 +196,7 @@ export default function FloatingCartWidget({ variant = 'auto' }) {
           ) : (
             cartItems.map((item) => (
               <div
-                key={item.id}
+                key={item.__key || `${item.id}-${item.signature || 'base'}`}
                 className="flex justify-between items-center border-b border-white/10 py-3"
               >
                 <div>
@@ -218,7 +209,11 @@ export default function FloatingCartWidget({ variant = 'auto' }) {
                       onChange={(e) => {
                         const newQty = Math.max(1, parseInt(e.target.value) || 1);
                         setCartItems((prev) =>
-                          prev.map((ci) => (ci.id === item.id ? { ...ci, quantity: newQty } : ci))
+                          prev.map((ci, idx) =>
+                            ci.id === item.id && (ci.signature || idx) === (item.signature || idx)
+                              ? { ...ci, quantity: newQty }
+                              : ci
+                          )
                         );
                       }}
                       className="w-12 text-sm text-black px-1 rounded"
@@ -233,7 +228,16 @@ export default function FloatingCartWidget({ variant = 'auto' }) {
                     ${((Number(item.quantity) || 0) * (Number(item.price) || 0)).toFixed(2)}
                   </p>
                   <button
-                    onClick={() => setCartItems(cartItems.filter((ci) => ci.id !== item.id))}
+                    onClick={() =>
+                      setCartItems(
+                        cartItems.filter(
+                          (ci, idx) =>
+                            !(
+                              ci.id === item.id && (ci.signature || idx) === (item.signature || idx)
+                            )
+                        )
+                      )
+                    }
                     className="text-red-400 hover:text-red-600 text-lg"
                     title="Remove"
                   >
@@ -294,7 +298,55 @@ export default function FloatingCartWidget({ variant = 'auto' }) {
   return (
     <>
       <Trigger />
-      {mounted ? createPortal(panel, document.body) : null}
+      {mounted && isPrimary ? createPortal(panel, document.body) : null}
     </>
+  );
+}
+
+export function MobileCartButton() {
+  const svgRef = useRef(null);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  // ensure an opener exists even if the primary widget isn't mounted yet
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !window.openFloatingCart) {
+      window.openFloatingCart = () => {
+        window.dispatchEvent(new CustomEvent('cart:toggle'));
+      };
+    }
+  }, []);
+
+  return (
+    <button
+      onClick={() => {
+        if (typeof window !== 'undefined') {
+          if (typeof window.openFloatingCart === 'function') window.openFloatingCart();
+          else window.dispatchEvent(new CustomEvent('cart:toggle'));
+        }
+      }}
+      className="cart-icon-btn relative z-50 inline-flex items-center justify-center w-9 h-9 min-w-[36px] min-h-[36px] shrink-0 focus:outline-none focus:ring-2 focus:ring-white/40 overflow-visible pointer-events-auto bg-black/60 rounded-full text-white"
+      aria-label="Cart"
+      style={{ width: 36, height: 36, WebkitTapHighlightColor: 'transparent' }}
+    >
+      <span aria-hidden ref={svgRef} className="inline-block" style={{ lineHeight: 0 }}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          width="22"
+          height="22"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{ display: 'block' }}
+        >
+          <circle cx="9" cy="21" r="1" />
+          <circle cx="20" cy="21" r="1" />
+          <path d="M1 1h3l2.6 12.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6L23 6H6" />
+        </svg>
+      </span>
+    </button>
   );
 }

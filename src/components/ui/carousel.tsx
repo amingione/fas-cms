@@ -134,7 +134,7 @@ function Carousel({
     >
       <div
         onKeyDownCapture={handleKeyDown}
-        className={cn('relative', className)}
+        className={cn('relative overflow-visible', className)}
         role="region"
         aria-roledescription="carousel"
         data-slot="carousel"
@@ -150,9 +150,17 @@ function CarouselContent({ className, ...props }: React.ComponentProps<'div'>) {
   const { carouselRef, orientation } = useCarousel();
 
   return (
-    <div ref={carouselRef} className="overflow-hidden" data-slot="carousel-content">
+    <div
+      ref={carouselRef}
+      className="overflow-x-auto md:overflow-hidden overscroll-x-contain touch-pan-x"
+      data-slot="carousel-content"
+    >
       <div
-        className={cn('flex', orientation === 'horizontal' ? '-ml-4' : '-mt-4 flex-col', className)}
+        className={cn(
+          'flex will-change-transform',
+          orientation === 'horizontal' ? '-ml-4' : '-mt-4 flex-col',
+          className
+        )}
         {...props}
       />
     </div>

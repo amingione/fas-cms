@@ -1,9 +1,16 @@
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Zap, Shield, Wrench } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export function Hero() {
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const update = () => setIsMobile(window.innerWidth < 640);
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
   return (
     <section
       id="home"
@@ -49,7 +56,7 @@ export function Hero() {
           {/* Content Section */}
           <motion.div
             className="space-y-6 lg:space-y-8 max-w-3xl mx-auto xl:mx-0"
-            initial={{ opacity: 0, x: -100 }}
+            initial={false}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1, ease: 'easeOut' }}
           >

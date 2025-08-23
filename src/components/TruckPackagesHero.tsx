@@ -88,9 +88,10 @@ export function TruckPackagesHero() {
             {/* Mobile Content Section */}
             <motion.div
               className="relative space-y-4"
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              initial={{ opacity: 0, x: 0, y: 30, scale: 1 }}
+              animate={isInView ? { opacity: 1, x: 0, y: 0, scale: 1 } : {}}
               transition={{ duration: 0.8, ease: 'easeOut' }}
+              style={{ transform: 'none' }}
             >
               {/* Mobile Logo & Badge */}
               <motion.div
@@ -235,17 +236,19 @@ export function TruckPackagesHero() {
             {/* Mobile Truck Showcase */}
             <motion.div
               className="relative mt-6"
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              initial={{ opacity: 0, x: 0, y: 30, scale: 1 }}
+              animate={isInView ? { opacity: 1, x: 0, y: 0, scale: 1 } : {}}
               transition={{ delay: 1.4, duration: 0.8 }}
+              style={{ transform: 'none' }}
             >
               <div className="relative">
                 {/* Mobile truck image */}
                 <motion.div
                   className="relative z-10"
-                  initial={{ scale: 0.9 }}
-                  animate={isInView ? { scale: 1 } : {}}
+                  initial={{ opacity: 0, x: 0, y: 0, scale: 1 }}
+                  animate={isInView ? { opacity: 1, x: 0, y: 0, scale: 1 } : {}}
                   transition={{ delay: 1.6, duration: 0.6 }}
+                  style={{ transform: 'none' }}
                 >
                   <img
                     src="images/TRX Truck Package FAS copy.png"

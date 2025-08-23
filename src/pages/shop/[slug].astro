@@ -95,7 +95,8 @@ try {
       <!-- RIGHT: Title, price, short intro, add-to-cart, then accordion -->
       <div>
         <h1 class="text-3xl font-ethno mb-3">{(product as any).title}</h1>
-        <h2 class="text-4xl text-accent font-captain mb-4">
+        <h2 class="text-4xl text-accent
+         font-captain mb-4">
           {typeof (product as any).price === 'number' ? `$${(product as any).price.toFixed(2)}` : 'Price not available'}
         </h2>
 
@@ -489,7 +490,7 @@ try {
       try { window.dispatchEvent(new CustomEvent("cart:updated", { detail: cart })); } catch {}
     }
 
-    // Add-to-cart delegation
+    // Add-to-cart delegation (compute latest config first)
     document.addEventListener("click", (evt) => {
       const target = evt.target;
       const el = target?.closest(".add-to-cart");
@@ -497,21 +498,50 @@ try {
       evt.preventDefault();
       evt.stopPropagation();
 
+      // Compute latest configured price & selections
+      const calc = updateConfiguredPriceUI();
+      const selections = (calc && calc.cfg && Array.isArray(calc.cfg.selections)) ? calc.cfg.selections : [];
+      const extra = (calc && calc.cfg && typeof calc.cfg.extra === 'number') ? calc.cfg.extra : 0;
+
       const ds = el.dataset || {};
+      const basePrice = parseFloat(ds.productBasePrice || ds.productPrice || "0") || 0;
+      const total = (typeof calc?.total === 'number') ? calc.total : (basePrice + extra);
+
+      // Stable config signature for line dedup (same options -> same line)
+      const signature = JSON.stringify(selections.slice().sort((a,b)=>{
+        const ga=(a.group||'')+':' + (a.value||'');
+        const gb=(b.group||'')+':' + (b.value||'');
+        return ga.localeCompare(gb);
+      }));
+
       const product = {
         id: ds.productId || "",
         name: ds.productName || "Item",
-        price: parseFloat(ds.productPrice || "0"),
+        price: total,                 // line item price reflects configured total
+        basePrice: basePrice,         // keep base for reference
+        extra: total - basePrice,     // summed deltas
         categories: safeParseJSON(ds.productCategories || "[]", []),
-        options: safeParseJSON(ds.productOptions || "[]", []),
+        options: selections,          // selected upgrades/options
+        signature,                    // used to deduplicate
         qty: 1,
       };
 
       const { key, data } = getCart(["cart", "fas_cart"]);
       const cart = Array.isArray(data) ? data : [];
-      const existing = cart.find((p) => p && p.id === product.id);
-      if (existing) existing.qty = (existing.qty || 1) + 1;
-      else cart.push(product);
+
+      // Find existing line with same product id AND same configuration signature
+      const existing = cart.find((p) => p && p.id === product.id && p.signature === product.signature);
+      if (existing) {
+        existing.qty = (existing.qty || 1) + 1;
+        // Always keep price in sync with current configuration
+        existing.price = product.price;
+        existing.extra = product.extra;
+        existing.basePrice = product.basePrice;
+        existing.options = product.options;
+      } else {
+        cart.push(product);
+      }
+
       setCart(key, cart);
       emitAll(cart);
     }, true);
@@ -525,11 +555,15 @@ try {
     }
 
     function readConfiguredOptions() {
-      const form = document.getElementById('product-options');
       const result = { selections: [], extra: 0 };
-      if (!form) return result;
 
-      const fields = form.querySelectorAll('[data-group]');
+      // Prefer scoped lookup; fall back to global if needed
+      let fields = document.querySelectorAll('#product-options [data-group]');
+      if (!fields || fields.length === 0) {
+        fields = document.querySelectorAll('[data-group]');
+      }
+      if (!fields || fields.length === 0) return result;
+
       fields.forEach((el) => {
         const tag = (el.tagName || '').toLowerCase();
         const group = el.getAttribute('data-group') || 'option';
@@ -569,31 +603,30 @@ try {
 
     function updateConfiguredPriceUI() {
       const __dbg = false;
-      const priceEl = document.getElementById('price-total');
       const btn = document.getElementById('add-to-cart-btn');
       const base = parseFloat(String(btn?.dataset?.productBasePrice || '0')) || 0;
       const cfg = readConfiguredOptions();
       const total = Math.max(0, base + (cfg.extra || 0));
-      if (priceEl) priceEl.textContent = `$ ${total.toFixed(2)}`;
+
+      // Update any configured-price displays (support multiple targets)
+      try {
+        const nodes = document.querySelectorAll('#price-total, [data-price-target="configured"], .js-configured-price');
+        nodes.forEach((n) => { n.textContent = `$ ${total.toFixed(2)}`; });
+      } catch {}
+
       if (btn?.dataset) btn.dataset.productPrice = String(total);
       if (__dbg) {
-        try {
-          console.debug('[FAS] base=', base, 'extra=', cfg.extra, 'selections=', cfg.selections);
-        } catch {}
+        try { console.debug('[FAS] base=', base, 'extra=', cfg.extra, 'selections=', cfg.selections); } catch {}
       }
       return { total, cfg };
     }
 
-    // First update
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => scheduleUpdate(updateConfiguredPriceUI));
-    } else {
+    // Initialize strictly after full window load to avoid hydration races
+    window.addEventListener('load', () => {
       scheduleUpdate(updateConfiguredPriceUI);
-    }
-
-    // Micro/macro task catch-up
-    scheduleUpdate(updateConfiguredPriceUI);
-    setTimeout(() => scheduleUpdate(updateConfiguredPriceUI), 200);
+      setTimeout(() => scheduleUpdate(updateConfiguredPriceUI), 0);
+      setTimeout(() => scheduleUpdate(updateConfiguredPriceUI), 200);
+    });
 
     // Recalc on input/change
     function maybeRecalc(e) {
@@ -601,24 +634,15 @@ try {
       if (form && form.contains(e.target)) scheduleUpdate(updateConfiguredPriceUI);
     }
 
-    if (!window.__fasPriceListeners) {
-      window.__fasPriceListeners = true;
-      ['input', 'change'].forEach((evt) => document.addEventListener(evt, maybeRecalc, true));
+    function attachListenersOnce() {
+      if (!window.__fasPriceListeners) {
+        window.__fasPriceListeners = true;
+        ['input', 'change'].forEach((evt) => document.addEventListener(evt, maybeRecalc, true));
+      }
     }
 
-    // Update product options just before cart add
-    if (!window.__fasAddToCartAug) {
-      window.__fasAddToCartAug = true;
-      document.addEventListener('click', (evt) => {
-        const btn = evt.target?.closest('#add-to-cart-btn');
-        if (!btn) return;
-        scheduleUpdate(() => {
-          const res = updateConfiguredPriceUI();
-          try { btn.dataset.productOptions = JSON.stringify(res.cfg.selections || []); } catch {}
-          try { btn.dataset.productPrice = String(res.total); } catch {}
-        });
-      }, true);
-    }
+    if (document.readyState === 'complete') attachListenersOnce();
+    else window.addEventListener('load', attachListenersOnce);
 
     // ✅ Expose for debugging
     window.readConfiguredOptions = readConfiguredOptions;

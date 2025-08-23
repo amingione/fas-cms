@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import '../styles/global.css';
 import Dashboard from '@/pages/dashboard.astro';
-import FloatingWidget from '@/components/floatingwidget.jsx';
+import FloatingCartWidget from '@/components/floatingwidget.jsx';
 
 const MobileBaseLayout = ({ children }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -52,8 +52,12 @@ const MobileBaseLayout = ({ children }) => {
       <div className="fixed top-4 left-4 z-40">
         <img src="/images/faslogochroma.png" alt="FAS Logo" className="w-16 h-auto opacity-80" />
       </div>
+      {/* Floating Cart Button */}
+      <div className="fixed top-4 right-8 z-[60] flex items-center gap-2 transition-transform duration-300">
+        <FloatingCartWidget client:media="(min-width: 320px)" />
+      </div>
 
-      {/* Floating Controls (Cart + Menu) */}
+      {/* Floating Controls (Menu) */}
       <div
         className={cx(
           'fixed top-0 right-0 z-[60] flex items-center gap-2 transition-transform duration-300',
@@ -70,9 +74,7 @@ const MobileBaseLayout = ({ children }) => {
             drawerOpen ? 'pointer-events-none opacity-40' : 'pointer-events-auto'
           )}
           aria-hidden={drawerOpen}
-        >
-          <FloatingWidget variant="icon" />
-        </div>
+        ></div>
         <button
           aria-label="Open menu"
           onClick={() => setDrawerOpen(true)}

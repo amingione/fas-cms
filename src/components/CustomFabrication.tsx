@@ -74,10 +74,10 @@ export function CustomFabrication() {
         animate={isInView ? { opacity: 1, y: 0 } : {}}
         transition={{ delay: 1 + index * 0.2, duration: 0.6 }}
         whileHover={!isMobile ? { x: 10, scale: 1.02 } : {}}
-        className={`group cursor-pointer ${isMobile ? 'mobile-carousel-item' : ''}`}
+        className={`group cursor-pointer ${isMobile ? 'snap-start shrink-0 w-[85%]' : ''}`}
       >
         <Card
-          className={`border-gray-700/50  relative hover:border-primary/50 transition-all duration-500 bg-gradient-to-br from-gray-900/90 to-gray-800/90 backdrop-blur-sm industrial-card ${isMobile ? 'mobile-compact-card' : ''}`}
+          className={`border-gray-700/50  relative hover:border-primary/50 transition-all duration-500 bg-gradient-to-br from-gray-900/90 to-gray-800/90 backdrop-blur-sm industrial-card ${isMobile ? 'h-full' : ''}`}
         >
           <CardHeader
             className={`flex items-center space-y-0 ${isMobile ? 'flex-col space-y-2 p-3' : 'flex-row space-x-4'}`}
@@ -102,7 +102,7 @@ export function CustomFabrication() {
           </CardHeader>
 
           <CardContent className={isMobile ? 'p-3' : ''}>
-            <div className={`flex flex-wrap ${isMobile ? 'gap-1' : 'gap-2'}`}>
+            <div className={`flex flex-wrap ${isMobile ? 'gap-1.5' : 'gap-2'}`}>
               {service.features.map((feature: string, featureIndex: number) => (
                 <Badge
                   key={featureIndex}
@@ -122,7 +122,7 @@ export function CustomFabrication() {
   return (
     <section
       id="customfabrication"
-      className={`relative asphalt-texture ${isMobile ? 'py-4 min-h-auto overflow-x-hidden mobile-section-padding' : 'py-24 overflow-hidden'}`}
+      className={`relative asphalt-texture ${isMobile ? 'py-4 min-h-auto mobile-section-padding' : 'py-24 overflow-visible'}`}
     >
       {/* Background effects */}
       <div className="absolute inset-0 grunge-overlay"></div>
@@ -160,7 +160,7 @@ export function CustomFabrication() {
       )}
 
       <div
-        className={`mx-auto relative z-10 ${isMobile ? 'w-full max-w-full px-4' : 'container px-4 lg:px-6'}`}
+        className={`mx-auto relative z-10 ${isMobile ? 'w-full max-w-screen-sm px-4' : 'container px-4 lg:px-6'}`}
         ref={ref}
       >
         {/* Section Header */}
@@ -214,15 +214,18 @@ export function CustomFabrication() {
 
         {/* Mobile layout vs Desktop layout */}
         {isMobile ? (
-          <div className="space-y-4">
+          <div className="space-y-4 overflow-visible overflow-x-visible">
             {/* Mobile Fabrication Services Carousel */}
             <motion.div
-              className="mobile-carousel -mx-4"
+              className="overflow-x-auto snap-x snap-mandatory overscroll-x-contain -mx-4 px-0"
+              style={{ WebkitOverflowScrolling: 'touch' }}
+              role="region"
+              aria-label="Fabrication services carousel"
               initial={{ opacity: 0, x: -100 }}
               animate={isInView ? { opacity: 1, x: 0 } : {}}
               transition={{ delay: 0.8, duration: 0.8 }}
             >
-              <div className="mobile-carousel-container">
+              <div className="flex gap-3 px-4">
                 {fabricationServices.map((service, index) => (
                   <ServiceCard key={index} service={service} index={index} />
                 ))}
@@ -232,17 +235,20 @@ export function CustomFabrication() {
             {/* Mobile Image Grid - Simplified */}
             <motion.div
               className="mt-4"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={isInView ? { opacity: 1, scale: 1 } : {}}
+              initial={{ opacity: 0, x: 0, scale: 1 }}
+              animate={isInView ? { opacity: 1, x: 0, scale: 1 } : {}}
               transition={{ delay: 1, duration: 1 }}
+              /** Ensure Framer Motion never writes any transform string here */
+              transformTemplate={() => 'none'}
+              style={{ transform: 'none' }}
             >
               <div className="space-y-3">
                 {/* TIG Welding Card */}
-                <div className="relative rounded-xl overflow-hidden shadow-lg industrial-glow aspect-[16/9]">
+                <div className="relative mx-auto w-full max-w-[420px] rounded-2xl overflow-hidden shadow-lg industrial-glow bg-black/60 aspect-[4/3] sm:aspect-[16/9]">
                   <img
                     src="images/FAS-Welding.png"
                     alt="Precision TIG Welding"
-                    className="w-full h-full object-cover"
+                    className={`w-full h-full ${isMobile ? 'object-contain' : 'object-cover'} object-center max-w-full`}
                     loading="lazy"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent"></div>
@@ -259,11 +265,11 @@ export function CustomFabrication() {
                 </div>
 
                 {/* Exhaust Work Card */}
-                <div className="relative rounded-xl overflow-hidden shadow-lg industrial-glow aspect-[16/9]">
+                <div className="relative mx-auto w-full max-w-[420px] rounded-2xl overflow-hidden shadow-lg industrial-glow bg-black/60 aspect-[4/3] sm:aspect-[16/9]">
                   <img
                     src="images/FAS-Fabrication-Installation.png"
                     alt="Custom Exhaust Systems"
-                    className="w-full h-full object-cover"
+                    className={`w-full h-full ${isMobile ? 'object-contain' : 'object-cover'} object-center max-w-full`}
                     loading="lazy"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-blue-600/80 via-blue-600/20 to-transparent"></div>
