@@ -65,6 +65,31 @@ export interface Product {
   requiresPaintCode?: boolean;
   importantNotes?: any;
   socialImage?: { asset: { _id: string; url: string }; alt?: string };
+  addOns?: Array<{
+    label?: string;
+    priceDelta?: number;
+    description?: string;
+    skuSuffix?: string;
+    defaultSelected?: boolean;
+    group?: string;
+    key?: string;
+    name?: string;
+    title?: string;
+    value?: string;
+    price?: number;
+    delta?: number;
+  }>;
+  customPaint?: {
+    enabled?: boolean;
+    additionalPrice?: number;
+    paintCodeRequired?: boolean;
+    codeLabel?: string;
+    instructions?: string;
+  };
+  variationOptions?: any[];
+  optionGroups?: any[];
+  variations?: any[];
+  options?: any[];
 }
 
 export interface Category {
@@ -222,7 +247,6 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       attributes,
       includedInKit[]{ item, quantity, notes },
       productType,
-      requiresPaintCode,
       images[]{ asset->{ _id, url }, alt },
       filters[],
       brand,
@@ -233,6 +257,31 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       canonicalUrl,
       noindex,
       socialImage{ asset->{ _id, url }, alt },
+
+      // --- Variants/Options (support multiple shapes)
+      options[]->{ title, name, key, values, items },
+      optionGroups[]->{ title, name, key, values, items },
+      variationOptions[]{ title, name, key, values, items },
+      variations[]->{ title, name, key, values, items },
+
+      // --- Upgrades & Custom Paint ---
+      addOns[]{
+        label,
+        priceDelta,
+        description,
+        skuSuffix,
+        defaultSelected,
+        group, key, name, title, value, price, delta
+      },
+      customPaint{
+        enabled,
+        additionalPrice,
+        paintCodeRequired,
+        codeLabel,
+        instructions
+      },
+
+      // --- Categories (support either field name) ---
       "categories": select(
         defined(categories) => categories[]->{ _id, title, slug },
         defined(category) => category[]->{ _id, title, slug }

@@ -54,9 +54,25 @@ try {
   const descriptionText: string = (((product as any)?.shortDescription ?? (product as any)?.description) ?? '').toString();
 
   // ---- Options/Upgrades normalization (support multiple schema shapes) ----
-  options = ((product as any).options || (product as any).optionGroups || (product as any).variations || []) as any[];
+  options = ((product as any).options || (product as any).optionGroups || (product as any).variationOptions || (product as any).variations || []) as any[];
   addOns  = ((product as any).addOns  || (product as any).upgrades     || (product as any).extras     || []) as any[];
   customs = ((product as any).customizations || (product as any).customOptions || []) as any[];
+  // Map Sanity customPaint object -> a custom text input with optional surcharge
+  const cp = (product as any).customPaint;
+  if (cp?.enabled) {
+    customs = Array.isArray(customs) ? customs.slice() : [];
+    customs.push({
+      key: 'paintCode',
+      name: 'paintCode',
+      label: cp.codeLabel || 'OEM Paint Code',
+      placeholder: '',
+      group: 'customPaint',
+      type: 'text',
+      required: cp.paintCodeRequired === true,
+      priceDelta: typeof cp.additionalPrice === 'number' ? cp.additionalPrice : 0,
+      instructions: cp.instructions || ''
+    });
+  }
 } catch (err) {
   console.error('❌ Failed to fetch product or similar products:', err);
   return Astro.redirect('/shop'); // Redirect to shop if product not found
@@ -79,11 +95,11 @@ try {
       <!-- RIGHT: Title, price, short intro, add-to-cart, then accordion -->
       <div>
         <h1 class="text-3xl font-ethno mb-3">{(product as any).title}</h1>
-        <p class="text-xl text-primary font-borg mb-4">
+        <h2 class="text-4xl text-accent font-captain mb-4">
           {typeof (product as any).price === 'number' ? `$${(product as any).price.toFixed(2)}` : 'Price not available'}
-        </p>
+        </h2>
 
-        {((options && options.length) || (addOns && addOns.length) || (customs && customs.length)) && (
+        {(((options?.length || 0) + (addOns?.length || 0) + (customs?.length || 0)) > 0) && (
           <form id="product-options" class="mb-6 space-y-4">
             {/* Variant Options (radio/select) */}
             {Array.isArray(options) && options.length > 0 && options.map((group: any) => (
@@ -143,6 +159,7 @@ try {
                         value={(a.value || a.name || a.title || '').toString()}
                         data-group={(a.group || 'addOn').toString()}
                         data-price={(typeof a.priceDelta === 'number' ? a.priceDelta : (typeof a.price === 'number' ? a.price : (typeof a.delta === 'number' ? a.delta : 0))).toString()}
+                        checked={!!a.defaultSelected}
                       />
                       <span class="text-sm">{a.label || a.title || a.name || 'Upgrade'}</span>
                       <span class="ml-auto text-xs opacity-70">
@@ -165,7 +182,11 @@ try {
                   class="w-full bg-black/30 border border-white/10 rounded px-2 py-2"
                   data-group={(c.group || 'custom').toString()}
                   data-price={(typeof c.priceDelta === 'number' ? c.priceDelta : (typeof c.price === 'number' ? c.price : (typeof c.delta === 'number' ? c.delta : 0))).toString()}
+                  required={!!c.required}
                 />
+                {c.instructions && (
+                  <div class="mt-1 text-xs opacity-80">{String(c.instructions)}</div>
+                )}
                 {(typeof c.priceDelta === 'number' || typeof c.price === 'number' || typeof c.delta === 'number') && (
                   <div class="mt-1 text-xs opacity-70">Surcharge: +${Number(c.priceDelta ?? c.price ?? c.delta ?? 0).toFixed(2)}</div>
                 )}
@@ -191,6 +212,7 @@ try {
           data-product-id={(product as any)._id}
           data-product-name={(product as any).title}
           data-product-price={(product as any).price}
+          data-product-base-price={(product as any).price}
           data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
         >
           <!-- bag icon -->
@@ -268,19 +290,6 @@ try {
             </div>
           )}
 
-          {product.requiresPaintCode && (
-            <div class="mt-6 p-4 border border-yellow-500 bg-yellow-50 text-yellow-700 rounded">
-              <h3 class="font-bold text-lg mb-2">Custom Paint Required</h3>
-              <p>Please provide your paint code before adding this product to cart.</p>
-              <input 
-                type="text" 
-                placeholder="Enter Paint Code" 
-                class="w-full mt-2 p-2 border rounded"
-                name="paintCode"
-                required
-              />
-            </div>
-          )}
 
           <!-- Specifications (removed, now handled in Product Details accordion) -->
 
@@ -436,13 +445,26 @@ try {
     [class~="absolute"][class~="inset-0"][class*="bg-black/10"][class~="z-0"] { pointer-events: none; }
   </style>
   <script>
-  // Ultra-robust Add to Cart: supports multiple cart keys & events (TypeScript-safe)
+  // @ts-nocheck
   (function () {
-    function safeParseJSON(str: string, fallback: any): any {
+    if (window.__fasPriceInit) return; // prevent double-init on HMR/nav
+    window.__fasPriceInit = true;
+
+    let __rafPending = false;
+    function scheduleUpdate(fn) {
+      if (__rafPending) return;
+      __rafPending = true;
+      requestAnimationFrame(() => {
+        __rafPending = false;
+        try { fn(); } catch (_) {}
+      });
+    }
+
+    function safeParseJSON(str, fallback) {
       try { return JSON.parse(String(str || "")); } catch { return fallback; }
     }
 
-    function getCart(keys: string[]): { key: string; data: any[] } {
+    function getCart(keys) {
       for (const key of keys) {
         try {
           const raw = localStorage.getItem(key);
@@ -454,32 +476,28 @@ try {
       return { key: keys[0], data: [] };
     }
 
-    function setCart(key: string, cart: any[]): void {
+    function setCart(key, cart) {
       try { localStorage.setItem(key, JSON.stringify(cart)); } catch {}
-      // Mirror to a second key for compatibility
       try { if (key !== "fas_cart") localStorage.setItem("fas_cart", JSON.stringify(cart)); } catch {}
       try { if (key !== "cart") localStorage.setItem("cart", JSON.stringify(cart)); } catch {}
-      // Expose globally for quick debugging
-      try { (window as any).cart = cart; } catch {}
+      try { window.cart = cart; } catch {}
     }
 
-    function emitAll(cart: any[]): void {
+    function emitAll(cart) {
       try { window.dispatchEvent(new CustomEvent("cartUpdated", { detail: cart })); } catch {}
       try { window.dispatchEvent(new CustomEvent("cart-change", { detail: cart })); } catch {}
       try { window.dispatchEvent(new CustomEvent("cart:updated", { detail: cart })); } catch {}
     }
 
-    // Click delegation for any .add-to-cart
-    document.addEventListener("click", (evt: MouseEvent) => {
-      const target = evt.target as Element | null;
-      const el = target && typeof (target as any).closest === 'function' 
-        ? (target as Element).closest(".add-to-cart") as HTMLElement | null
-        : null;
+    // Add-to-cart delegation
+    document.addEventListener("click", (evt) => {
+      const target = evt.target;
+      const el = target?.closest(".add-to-cart");
       if (!el) return;
       evt.preventDefault();
       evt.stopPropagation();
 
-      const ds = (el as HTMLElement).dataset as DOMStringMap;
+      const ds = el.dataset || {};
       const product = {
         id: ds.productId || "",
         name: ds.productName || "Item",
@@ -489,115 +507,122 @@ try {
         qty: 1,
       };
 
-      // Try both common keys
-      const keys: string[] = ["cart", "fas_cart"];
-      const { key, data } = getCart(keys);
-      const cart: any[] = Array.isArray(data) ? data : [];
-
-      const existing = cart.find((p: any) => p && p.id === product.id);
-      if (existing) {
-        existing.qty = (existing.qty || 1) + 1;
-      } else {
-        cart.push(product);
-      }
-
+      const { key, data } = getCart(["cart", "fas_cart"]);
+      const cart = Array.isArray(data) ? data : [];
+      const existing = cart.find((p) => p && p.id === product.id);
+      if (existing) existing.qty = (existing.qty || 1) + 1;
+      else cart.push(product);
       setCart(key, cart);
       emitAll(cart);
-
-      // Toast notification
-      try {
-        const toast = document.createElement("div");
-        toast.textContent = `${product.name} added to cart`;
-        toast.style.position = "fixed";
-        toast.style.bottom = "20px";
-        toast.style.right = "20px";
-        toast.style.background = "rgba(255,255,255,0.9)";
-        toast.style.color = "#16a34a";
-        toast.style.padding = "10px 16px";
-        toast.style.borderRadius = "6px";
-        toast.style.boxShadow = "0 2px 6px rgba(0,0,0,0.3)";
-        toast.style.zIndex = "9999";
-        document.body.appendChild(toast);
-        setTimeout(() => {
-          toast.style.transition = "opacity 0.5s";
-          toast.style.opacity = "0";
-          setTimeout(() => toast.remove(), 500);
-        }, 2000);
-      } catch {}
     }, true);
-    // ---- Product Options pricing & selection ----
+
+    // ---- Price calculator ----
+    function normalizeDelta(v) {
+      if (v == null) return 0;
+      const s = String(v).replace(/[^0-9.+-]/g, '');
+      const n = parseFloat(s);
+      return isNaN(n) ? 0 : n;
+    }
+
     function readConfiguredOptions() {
       const form = document.getElementById('product-options');
-      const result = { selections: [], extra: 0 } as any;
+      const result = { selections: [], extra: 0 };
       if (!form) return result;
 
       const fields = form.querySelectorAll('[data-group]');
-      fields.forEach((el: any) => {
+      fields.forEach((el) => {
         const tag = (el.tagName || '').toLowerCase();
         const group = el.getAttribute('data-group') || 'option';
-        const priceDelta = parseFloat(el.getAttribute('data-price') || '0') || 0;
+        const baseDelta = normalizeDelta(el.dataset?.price ?? el.getAttribute('data-price'));
+
         if (tag === 'select') {
-          const opt = el.options[el.selectedIndex];
-          const delta = parseFloat(opt?.getAttribute('data-price') || '0') || 0;
+          const sel = el;
+          const opt = sel.options[sel.selectedIndex];
+          const delta = normalizeDelta(opt?.dataset?.price ?? opt?.getAttribute?.('data-price'));
           result.selections.push({ group, value: opt?.value || '', priceDelta: delta });
           result.extra += delta;
-        } else if (tag === 'input') {
-          const type = (el.getAttribute('type') || 'text').toLowerCase();
-          if (type === 'radio') {
-            if (el.checked) {
-              result.selections.push({ group, value: el.value, priceDelta });
-              result.extra += priceDelta;
-            }
-          } else if (type === 'checkbox') {
-            if (el.checked) {
-              result.selections.push({ group, value: el.value || 'on', priceDelta });
-              result.extra += priceDelta;
-            }
-          } else { // text/number
-            if (el.value && el.value.trim().length > 0) {
-              result.selections.push({ group, value: el.value, priceDelta });
-              result.extra += priceDelta;
-            }
+          return;
+        }
+
+        if (tag === 'input') {
+          const type = el.getAttribute('type')?.toLowerCase() || 'text';
+          if (type === 'radio' && el.checked) {
+            result.selections.push({ group, value: el.value, priceDelta: baseDelta });
+            result.extra += baseDelta;
+            return;
           }
+          if (type === 'checkbox' && el.checked) {
+            result.selections.push({ group, value: el.value || 'on', priceDelta: baseDelta });
+            result.extra += baseDelta;
+            return;
+          }
+          const val = (el.value || '').toString().trim();
+          if (val.length > 0) {
+            result.selections.push({ group, value: val, priceDelta: baseDelta });
+            result.extra += baseDelta;
+          }
+          return;
         }
       });
       return result;
     }
 
     function updateConfiguredPriceUI() {
+      const __dbg = false;
       const priceEl = document.getElementById('price-total');
-      const btn = document.getElementById('add-to-cart-btn') as HTMLElement | null;
-      const base = parseFloat(String((btn && (btn as any).dataset.productPrice) || '0')) || 0;
+      const btn = document.getElementById('add-to-cart-btn');
+      const base = parseFloat(String(btn?.dataset?.productBasePrice || '0')) || 0;
       const cfg = readConfiguredOptions();
       const total = Math.max(0, base + (cfg.extra || 0));
       if (priceEl) priceEl.textContent = `$ ${total.toFixed(2)}`;
-      if (btn) (btn as any).dataset.productPrice = String(total);
+      if (btn?.dataset) btn.dataset.productPrice = String(total);
+      if (__dbg) {
+        try {
+          console.debug('[FAS] base=', base, 'extra=', cfg.extra, 'selections=', cfg.selections);
+        } catch {}
+      }
       return { total, cfg };
     }
 
-    // Recalc on changes within the form
-    document.addEventListener('input', (e: any) => {
-      const form = document.getElementById('product-options');
-      if (form && form.contains(e.target as Node)) {
-        updateConfiguredPriceUI();
-      }
-    });
+    // First update
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => scheduleUpdate(updateConfiguredPriceUI));
+    } else {
+      scheduleUpdate(updateConfiguredPriceUI);
+    }
 
-    // Patch Add-to-Cart to include selections
-    const origHandler = document.onclick;
-    // (We already delegate clicks to .add-to-cart above; augment the payload there)
-    const _oldListener = (document as any)._fasAddToCartAugment;
-    if (!_oldListener) {
-      (document as any)._fasAddToCartAugment = true;
-      document.addEventListener('click', (evt: MouseEvent) => {
-        const target = evt.target as Element | null;
-        const btn = target && typeof (target as any).closest === 'function' ? (target as Element).closest('#add-to-cart-btn') as HTMLElement | null : null;
+    // Micro/macro task catch-up
+    scheduleUpdate(updateConfiguredPriceUI);
+    setTimeout(() => scheduleUpdate(updateConfiguredPriceUI), 200);
+
+    // Recalc on input/change
+    function maybeRecalc(e) {
+      const form = document.getElementById('product-options');
+      if (form && form.contains(e.target)) scheduleUpdate(updateConfiguredPriceUI);
+    }
+
+    if (!window.__fasPriceListeners) {
+      window.__fasPriceListeners = true;
+      ['input', 'change'].forEach((evt) => document.addEventListener(evt, maybeRecalc, true));
+    }
+
+    // Update product options just before cart add
+    if (!window.__fasAddToCartAug) {
+      window.__fasAddToCartAug = true;
+      document.addEventListener('click', (evt) => {
+        const btn = evt.target?.closest('#add-to-cart-btn');
         if (!btn) return;
-        // compute latest price + selections and stash on the element dataset for the upstream handler
-        const { cfg, total } = updateConfiguredPriceUI();
-        try { (btn as any).dataset.productOptions = JSON.stringify(cfg.selections || []); } catch {}
-        try { (btn as any).dataset.productPrice = String(total); } catch {}
+        scheduleUpdate(() => {
+          const res = updateConfiguredPriceUI();
+          try { btn.dataset.productOptions = JSON.stringify(res.cfg.selections || []); } catch {}
+          try { btn.dataset.productPrice = String(res.total); } catch {}
+        });
       }, true);
     }
+
+    // ✅ Expose for debugging
+    window.readConfiguredOptions = readConfiguredOptions;
+    window.updateConfiguredPriceUI = updateConfiguredPriceUI;
+
   })();
-  </script>
+</script>
