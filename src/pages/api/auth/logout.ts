@@ -19,10 +19,24 @@ export const GET: APIRoute = async ({ request }) => {
 
     const url = new URL(request.url);
     const inferredOrigin = `${url.protocol}//${url.host}`;
-    const returnTo = url.searchParams.get('returnTo') || SITE_URL || inferredOrigin;
 
-    // Build the Auth0 logout URL
-    const logoutUrl = `https://${DOMAIN}/v2/logout?client_id=${encodeURIComponent(CLIENT_ID)}&returnTo=${encodeURIComponent(returnTo)}`;
+    // Preferred return target from query or env, else current origin
+    const rawReturn = url.searchParams.get('returnTo') || SITE_URL || inferredOrigin;
+
+    // Normalize: force https in prod, strip leading www. (Auth0 requires exact match)
+    let rt: string;
+    try {
+      const r = new URL(rawReturn);
+      const isLocal = /localhost|127\.0\.0\.1/.test(r.hostname);
+      const hostNoWww = r.hostname.replace(/^www\./, '');
+      const proto = isLocal ? r.protocol : 'https:';
+      rt = `${proto}//${hostNoWww}${r.port && isLocal ? `:${r.port}` : ''}`;
+    } catch {
+      rt = inferredOrigin;
+    }
+
+    // Build the Auth0 logout URL using normalized returnTo
+    const logoutUrl = `https://${DOMAIN}/v2/logout?client_id=${encodeURIComponent(CLIENT_ID)}&returnTo=${encodeURIComponent(rt + '/account')}`;
 
     // Clear the token cookie used by server routes
     const clearCookie = `token=; Path=/; Max-Age=0; SameSite=Lax${url.protocol === 'https:' ? '; Secure' : ''}`;

@@ -20,10 +20,14 @@ export async function getAuth0Client(): Promise<Auth0Client> {
       domain,
       clientId,
       authorizationParams: {
-        redirect_uri: window.location.origin + '/account'
+        redirect_uri:
+          typeof window !== 'undefined' ? window.location.origin + '/account' : undefined,
+        scope: 'openid profile email'
       },
       cacheLocation: 'localstorage',
-      useRefreshTokens: true
+      useRefreshTokens: true,
+      useRefreshTokensFallback: true,
+      leeway: 60
     });
   }
   return auth0Client;

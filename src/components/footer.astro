@@ -1,27 +1,213 @@
-<footer class="mt-20 bg-black text-white text-sm font-captain tracking-wider px-4 py-6">
-  <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-[auto_1fr_auto] items-center gap-6 text-center">
-    <!-- Left: FAS Logo -->
-    <div class="flex-shrink-0">
-      <img src="/images/faslogochroma.png" alt="F.A.S. Motorsports Logo" class="h-12" />
+---
+// No imports needed; icons are lightweight SVGs inline below.
+// If you prefer lucide, you can paste their raw SVGs here.
+const ROUTE_BASE: Record<string, string> = {
+  PRODUCTS: '/shop',      // fixed
+  SERVICES: '/services',
+  COMPANY: '/company',
+  VENDORS: '/vendors'
+};
+
+function slugify(label: string) {
+  return label
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)+/g, '');
+}
+
+function routeFor(category: string, label: string) {
+  const base = ROUTE_BASE[category] || '/';
+  if (category === 'COMPANY') {
+    if (/about/i.test(label)) return '/about';
+    if (/contact/i.test(label)) return '/contact';
+    if (/faq/i.test(label)) return '/faq';
+  }
+  if (category === 'VENDORS') {
+    if (/login/i.test(label)) return 'https://fasmotorsports.io/login';
+    if (/dashboard/i.test(label)) return 'https://fasmotorsports.io';
+    if (/application/i.test(label)) return 'https://fasmotorsports.io/vendor/apply';
+  }
+  return `${base}/${slugify(label)}`;
+}
+
+const footerGroups: Record<string, { label: string; href: string }[]> = {
+  MENU: [
+    { label: 'Shop', href: '/shop' },
+    { label: 'Power Packages', href: '/power-packages' },
+    { label: 'Truck Packages', href: '/truckPackages' },
+    { label: 'Core Exchange', href: '/coreExchange' },
+    { label: 'IGLA', href: '/igla' },
+  ],
+  SERVICES: [
+    { label: 'Services', href: '/services' },
+    { label: 'Porting', href: '/porting' },
+    { label: 'Schedule Service', href: '/schedule' },
+  ],
+  COMPANY: [
+    { label: 'About F.A.S.', href: '/about' },
+    { label: 'FAQ', href: '/faq' },
+    { label: 'Contact', href: '/contact' },
+  ],
+  VENDORS: [
+    { label: 'Login', href: 'https://fasmotorsports.io/vendor/login' },
+    { label: 'Dashboard', href: 'https://fasmotorsports.io' },
+    { label: 'Application', href: 'https://fasmotorsports.io/vendor/apply' },
+  ],
+  ACCOUNT: [
+    { label: 'My Account', href: '/account' },
+    { label: 'Customer Dashboard', href: '/dashboard' },
+  ],
+};
+
+const socialLinks = [
+  { name: 'Instagram', href: 'https://instagram.com/fas_moto', handle: '@fas_moto' },
+  { name: 'Facebook', href: 'https://facebook.com/fasmotorsports', handle: 'F.A.S. Motorsports' }
+];
+---
+<footer class="mt-20 bg-gradient-to-b from-gray-900 to-black text-white text-sm font-captain tracking-wider px-4 py-10 relative overflow-hidden">
+  <!-- background effects -->
+  <div class="absolute inset-0 asphalt-texture opacity-30"></div>
+  <div class="absolute inset-0 tire-tracks opacity-20"></div>
+
+  <div class="container mx-auto px-4 lg:px-6 py-16 relative z-10">
+    <div class="grid md:grid-cols-3 lg:grid-cols-7 gap-8">
+      <!-- Brand Section -->
+      <div class="lg:col-span-2 space-y-6">
+        <div class="flex items-center space-x-4 group cursor-pointer transition-transform duration-300 hover:scale-[1.02]">
+          <div class="w-16 h-16 flex items-center justify-center">
+            <img
+              src="/images/faslogochroma.png"
+              alt="F.A.S. Motorsports"
+              class="w-14 h-14 object-contain drop-shadow-lg"
+            />
+          </div>
+          <div>
+            <span class="text-2xl font-black bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent block font-borg">
+              F.a.S. MOTORSPORTS
+            </span>
+            <span class="text-sm text-primary font-bold tracking-widest font-ethno">
+              FAST • AGGRESSIVE • SUPERIOR
+            </span>
+          </div>
+        </div>
+
+        <p class="text-graylight max-w-md leading-relaxed font-kwajong">
+          Precision-engineered supercharger components and custom modifications for the ultimate
+          in automotive performance. Racing heritage since 2000.
+        </p>
+
+        <div class="font-borg text-accent text-xs tracking-widest">
+          — CHAMPIONSHIP HERITAGE • PROVEN PERFORMANCE —
+        </div>
+
+        <!-- Quick Contact -->
+        <div class="space-y-3">
+          <a href="/contact#location" class="flex items-center space-x-3 text-graylight hover:text-white transition-colors cursor-pointer">
+            <!-- MapPin -->
+            <svg class="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 21s-6-5.33-6-10a6 6 0 1 1 12 0c0 4.67-6 10-6 10z"/><circle cx="12" cy="11" r="2"/>
+            </svg>
+            <span class="text-sm font-medium font-kwajong">Punta Gorda, FL - F.A.S. Motorsports</span>
+          </a>
+          <a href="#contact" class="flex items-center space-x-3 text-graylight hover:text-white transition-colors cursor-pointer">
+            <!-- Phone -->
+            <svg class="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.1 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.3 1.77.57 2.61a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.47-1.1a2 2 0 0 1 2.11-.45c.84.27 1.71.45 2.61.57A2 2 0 0 1 22 16.92z"/>
+            </svg>
+            <span class="text-sm font-medium font-kwajong">+1 (239) 200-9012</span>
+          </a>
+          <a href="mailto:support@fasmotorsports.com" class="flex items-center space-x-3 text-graylight hover:text-white transition-colors cursor-pointer">
+            <!-- Mail -->
+            <svg class="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16v16H4z"/><path d="m22 6-10 7L2 6"/>
+            </svg>
+            <span class="text-sm font-medium font-kwajong">support@fasmotorsports.com</span>
+          </a>
+        </div>
+
+        <!-- Social Links -->
+        <div class="flex space-x-6">
+          {socialLinks.map((social) => (
+            <a href={social.href} class="text-gray-400 hover:text-primary transition-colors font-medium text-sm group">
+              <div class="space-y-1">
+                <div class="font-bold font-ethno">{social.name}</div>
+                <div class="text-xs text-gray-500 font-kwajong">{social.handle}</div>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <!-- Links Sections -->
+      {['MENU','SERVICES','COMPANY','VENDORS','ACCOUNT'].map((category) => (
+        <div class="space-y-4">
+          <h4 class="font-black text-white tracking-widest text-sm border-l-4 border-primary pl-3 font-ethno">
+            {category}
+          </h4>
+          <ul class="space-y-3">
+            {footerGroups[category].map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  class="text-gray-400 hover:text-white transition-all duration-300 text-sm font-medium group flex items-center space-x-2 font-kwajong"
+                >
+                  <span class="w-1 h-1 bg-primary rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                  <span class="group-hover:translate-x-1 transition-transform duration-300">{item.label}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
     </div>
 
-    <!-- Right: Text and Links -->
-    <div class="col-span-full md:col-span-2">
-      <div class="mb-4">
-        <p class="uppercase">Copyright © 2025 F.A.S. Motorsports</p>
-        <p class="uppercase">All Rights Reserved by F.A.S. Motorsports</p>
+    <div class="my-12 h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent"></div>
+
+    <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+      <div class="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-8">
+        <p class="text-gray-400 text-sm font-medium font-kwajong">
+          © 2025 F.A.S. Motorsports. All rights reserved.
+        </p>
+        <p class="text-primary text-center text-sm font-bold font-ethno">
+          BUILT FAST. ENGINEERED AGGRESSIVE. PROVEN SUPERIOR.
+        </p>
+      </div>
+
+      <div class="flex justify-end text-end space-x-4 text-sm">
+        <a href="/privacypolicy" class="text-gray-400 hover:text-white transition-colors font-medium font-kwajong">Privacy Policy</a>
+        <span class="text-primary">|</span>
+        <a href="/termsandconditions" class="text-gray-400 hover:text-white transition-colors font-medium font-kwajong">Terms &amp; Conditions</a>
+        <span class="text-primary">|</span>
+        <a href="/warranty" class="text-gray-400 hover:text-white transition-colors font-medium font-kwajong">Warranty</a>
+      </div>
+    </div>
+
+    <!-- Performance Badge -->
+    <div class="mt-8 text-center">
+      <div class="inline-flex items-center space-x-3 bg-gradient-to-r from-primary/10 to-blue-500/10 border border-primary/20 rounded-full px-8 py-3 industrial-card">
+        <img src="/images/faslogochroma.png" alt="F.A.S. Logo" class="w-6 h-6 object-contain" />
+        <span class="text-sm font-bold text-graylight tracking-widest font-ethno">
+          CHAMPIONSHIP WINNING PERFORMANCE SINCE 2000
+        </span>
+      </div>
+    </div>
+
+    <div class="mt-6 text-center font-borg text-accent text-xs tracking-widest">
+      — WHERE SPEED MEETS PRECISION • WHERE DREAMS BECOME HORSEPOWER —
+    </div>
+  </div>
+
+  <!-- Racing stripe at bottom -->
+  <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-white to-primary"></div>
+
+    <!-- Right: Launchewell SO -->
         <p class="text-xs font-montserrat text-white/50 mt-2 flex items-center justify-center gap-2">
           <img src="/logo/launchwell brands logo white.png" alt="LaunchWell Brands logo" class="h-4" />
           Website by <a href="https://launchwellbrands.com" class="font-montserrat hover:text-accent">LaunchWell Brands</a>
         </p>
       </div>
-      <div class="space-x-2">
-        <a href="/privacypolicy" class="hover:text-accent transition-colors duration-300">Privacy Policy</a>
-        <span class="text-white/50">|</span>
-        <a href="/warranty" class="hover:text-accent transition-colors duration-300">Warranty</a>
-        <span class="text-white/50">|</span>
-        <a href="/termsandconditions" class="hover:text-accent transition-colors duration-300">Terms &amp; Conditions</a>
-      </div>
-    </div>
-  </div>
+
+   <!-- Racing stripe at bottom -->
+  <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-white to-primary"></div>
 </footer>

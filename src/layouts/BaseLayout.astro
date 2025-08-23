@@ -52,10 +52,12 @@ const { hideBrandTag = false } = Astro.props;
     <!-- Desktop layout (Astro), hidden on small screens -->
     <div class="hidden sm:block relative z-10">
       <Header />
-      <main class="min-h-screen bg-transparent -mt-0">
+      <main class="fullbleed overflow-x-hidden -mt-0">
         <slot />
       </main>
-      <Footer />
+      <div class="m-0 p-0">
+        <Footer class="m-0 p-0" />
+      </div>
       <FloatingCartWidget client:media="(min-width: 640px)" />
     </div>
 

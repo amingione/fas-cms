@@ -29,7 +29,7 @@ import { Button } from '@/components/ui/button';
   </section>
 
   <!-- Packages Section -->
-  <section class="packages section-divider section-divider-gold luxury-carbon-effect industrial-glow">
+  <section class="packages section-divider section-divider-carbon luxury-carbon-effect">
     <h2 class="font-ethno text-primary">
       <!-- Editable: Change section title -->
       Our Truck Packages
@@ -91,7 +91,7 @@ import { Button } from '@/components/ui/button';
   </section>
 
   <!-- Features Section with Subtle Parallax -->
-  <section class="features parallax-section section-divider luxury-platinum-glow luxury-glass">
+  <section class="features relative section-divider-carbon">
     <div class="background-layer features-bg"></div>
     <div class="foreground-layer">
       <h2 class="font-ethno text-primary">
@@ -196,11 +196,19 @@ import { Button } from '@/components/ui/button';
       filter: drop-shadow(0 4px 12px var(--shadow-depth));
     }
 
-    .foreground-layer {
+    /* Foreground spacing — scope to sections */
+    .parallax-section .foreground-layer {
       position: relative;
       z-index: 3;
       text-align: center;
-      padding-top: 30vh;
+      padding-top: 30vh; /* only the hero uses this large offset */
+    }
+
+    .features .foreground-layer {
+      position: relative;
+      z-index: 3;
+      text-align: center;
+      padding-top: clamp(12px, 2.5vw, 24px); /* small, responsive top space on mobile */
     }
 
     .accent-image {
@@ -224,9 +232,9 @@ import { Button } from '@/components/ui/button';
     }
     /* Gold/Red glow */
     .section-divider-gold::before {
-      background: linear-gradient(90deg, transparent 0%, rgba(212, 78, 55, 0.9) 15%, rgba(212, 63, 55, 1) 50%, rgba(212, 78, 55, 0.9) 85%, transparent 100%);
+      background: linear-gradient(90deg, transparent 0%, rgba(212, 78, 55, 0.705) 15%, rgba(212, 63, 55, 0.665) 50%, rgba(212, 78, 55, 0.716) 85%, transparent 100%);
       box-shadow:
-        0 0 25px rgba(212, 78, 55, 0.35),
+        0 0 25px rgba(212, 78, 55, 0.261),
         0 0 50px rgba(212, 63, 55, 0.2),
         0 0 75px rgba(212, 71, 55, 0.15);
     }
@@ -284,7 +292,11 @@ import { Button } from '@/components/ui/button';
 
     /* Features Section */
     .features {
-      padding: 60px 20px;
+      padding: 40px 16px 96px; /* more bottom padding to avoid FAB/footer overlap */
+    }
+
+    @media (min-width: 768px) {
+      .features { padding: 60px 20px 80px; }
     }
 
     .features-bg {

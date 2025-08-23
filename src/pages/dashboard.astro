@@ -72,12 +72,24 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   <script type="module">
     import { getAuth0Client } from "/src/lib/auth.ts";
 
-    // Choose the visible dash content container
+    // Track the current view so we can re-render on breakpoint changes
+    let currentView = 'dashboard';
+
+    function selectDashContainer() {
+      const desktop = document.querySelector('[data-desktop-dash] [data-dash-content]');
+      const mobile  = document.querySelector('[data-mobile-dash] [data-dash-content]');
+      // Prefer container based on breakpoint, fall back to whichever exists
+      if (window.matchMedia('(min-width: 640px)').matches) {
+        return desktop || mobile;
+      }
+      return mobile || desktop;
+    }
+
+    // Choose the visible dash content container (desktop or mobile by breakpoint)
     function getVisibleDashContent() {
-      const nodes = Array.from(document.querySelectorAll('[data-dash-content]'));
-      // prefer the one that is visible (mobile or desktop)
-      const visible = nodes.find(n => n.offsetParent !== null) || nodes[0];
-      return visible;
+      const el = selectDashContainer();
+      if (!el) throw new Error('Dashboard content container not found');
+      return el;
     }
 
     // Elements that display the customer name (mobile + desktop). Re-query each time in case islands re-render.
@@ -93,14 +105,34 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       els.forEach(el => (el.textContent = name || 'Guest'));
     }
 
+    function withTimeout(p, ms = 4000) {
+      return Promise.race([
+        p,
+        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))
+      ]);
+    }
+
     (async () => {
       try {
         const auth0 = await getAuth0Client();
 
-        // Require login
-        const authed = await auth0.isAuthenticated();
+        // Require login (with timeout & desktop-friendly fallback)
+        let authed = false;
+        try {
+          authed = await withTimeout(auth0.isAuthenticated(), 4000);
+        } catch { authed = false; }
+
         if (!authed) {
-          location.replace('/account');
+          const c = getVisibleDashContent();
+          c.innerHTML = `
+            <div class="space-y-3">
+              <p class="opacity-90">You're not signed in.</p>
+              <a id="dash-login" href="/api/auth/login" class="inline-block px-4 py-2 bg-primary text-black font-ethno rounded">Log in</a>
+              <a id="dash-signup" href="/api/auth/login" class="inline-block px-4 py-2 border border-white/30 font-ethno rounded">Sign up</a>
+            </div>`;
+          const go = (e) => { e?.preventDefault?.(); window.location.href = '/api/auth/login'; };
+          document.getElementById('dash-login')?.addEventListener('click', go);
+          document.getElementById('dash-signup')?.addEventListener('click', go);
           return;
         }
 
@@ -171,14 +203,25 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         const setLoading = (msg = 'Loading...') => { content().innerHTML = `<p class="opacity-80">${msg}</p>`; };
         const renderEmpty = (label) => { content().innerHTML = `<p class="opacity-80">No ${label} found.</p>`; };
 
+        // --- fetch helper with timeout ---
+        async function fetchJSON(url, options = {}, ms = 5000) {
+          return await Promise.race([
+            fetch(url, options),
+            new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))
+          ]).then(async (res) => {
+            if (res && 'ok' in res && !res.ok) throw new Error('bad status');
+            if (!res || !(res instanceof Response)) return {};
+            try { return await res.json(); } catch { return {}; }
+          });
+        }
+
         async function renderDashboard() {
           setLoading();
           try {
-            const res = await fetch('/api/customer/get', {
+            const c = await fetchJSON('/api/customer/get', {
               method: 'POST', headers: { 'content-type': 'application/json' },
               body: JSON.stringify({ email })
-            });
-            const c = res.ok ? (await res.json()) : {};
+            }, 5000).catch(() => ({}));
             const name = [c.firstName, c.lastName].filter(Boolean).join(' ') || defaultName;
             content().innerHTML = `
               <h3 class="font-ethno text-base mb-3">Dashboard</h3>
@@ -192,12 +235,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         async function renderProfile() {
           setLoading();
           try {
-            const res = await fetch('/api/customer/get', {
+            const c = await fetchJSON('/api/customer/get', {
               method: 'POST', headers: { 'content-type': 'application/json' },
               body: JSON.stringify({ email })
-            });
-            if (!res.ok) return renderEmpty('profile');
-            const c = (await res.json()) || {};
+            }, 5000).catch(() => null);
+            if (!c) return renderEmpty('profile');
             const addr = [c.address1, c.address2, c.city, c.state, c.postalCode].filter(Boolean).join(', ');
             content().innerHTML = `
               <h3 class="font-ethno text-lg mb-3">My Profile</h3>
@@ -218,11 +260,9 @@ import BaseLayout from "../layouts/BaseLayout.astro";
           try {
             const claims = await auth0.getIdTokenClaims().catch(() => null);
             const token = claims?.__raw;
-            const res = await fetch(`/api/get-user-order?email=${encodeURIComponent(email)}`, {
+            const items = await fetchJSON(`/api/get-user-order?email=${encodeURIComponent(email)}`, {
               headers: token ? { authorization: `Bearer ${token}` } : {}
-            });
-            if (!res.ok) return renderEmpty('orders');
-            const items = await res.json();
+            }, 5000).catch(() => []);
             if (!Array.isArray(items) || !items.length) return renderEmpty('orders');
             content().innerHTML = `
               <h3 class="font-ethno text-lg mb-3">Orders</h3>
@@ -240,9 +280,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         async function renderQuotes() {
           setLoading();
           try {
-            const res = await fetch(`/api/get-user-quotes?email=${encodeURIComponent(email)}`);
-            if (!res.ok) return renderEmpty('quotes');
-            const items = await res.json();
+            const items = await fetchJSON(`/api/get-user-quotes?email=${encodeURIComponent(email)}`, {}, 5000).catch(() => []);
             if (!Array.isArray(items) || !items.length) return renderEmpty('quotes');
             content().innerHTML = `
               <h3 class="font-ethno text-lg mb-3">Quotes</h3>
@@ -259,9 +297,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         async function renderInvoices() {
           setLoading();
           try {
-            const res = await fetch(`/api/get-user-invoices?email=${encodeURIComponent(email)}`);
-            if (!res.ok) return renderEmpty('invoices');
-            const items = await res.json();
+            const items = await fetchJSON(`/api/get-user-invoices?email=${encodeURIComponent(email)}`, {}, 5000).catch(() => []);
             if (!Array.isArray(items) || !items.length) return renderEmpty('invoices');
             content().innerHTML = `
               <h3 class="font-ethno text-lg mb-3">Invoices</h3>
@@ -278,9 +314,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         async function renderAppointments() {
           setLoading();
           try {
-            const res = await fetch(`/api/get-user-appointments?email=${encodeURIComponent(email)}`);
-            if (!res.ok) return renderEmpty('appointments');
-            const items = await res.json();
+            const items = await fetchJSON(`/api/get-user-appointments?email=${encodeURIComponent(email)}`, {}, 5000).catch(() => []);
             if (!Array.isArray(items) || !items.length) return renderEmpty('appointments');
             content().innerHTML = `
               <h3 class="font-ethno text-lg mb-3">Appointments</h3>
@@ -295,11 +329,13 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         }
 
         function load(view) {
+          currentView = view || 'dashboard';
           switch (view) {
             case 'orders': return renderOrders();
             case 'quotes': return renderQuotes();
             case 'invoices': return renderInvoices();
             case 'appointments': return renderAppointments();
+            case 'profile':
             case 'details': return renderProfile();
             case 'dashboard':
             default: return renderDashboard();
@@ -317,6 +353,15 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
         // Default view
         load('dashboard');
+        try {
+          const mq = window.matchMedia('(min-width: 640px)');
+          const reRender = () => {
+            // re-run the current view into the now-active container
+            load(currentView);
+          };
+          if (mq.addEventListener) mq.addEventListener('change', reRender);
+          else if (mq.addListener) mq.addListener(reRender); // Safari fallback
+        } catch {}
       } catch (err) {
         console.error('Dashboard auth init failed', err);
       }
