@@ -35,12 +35,12 @@ module.exports = {
     container: {
       center: true,
       padding: {
-        DEFAULT: '1rem', // 16px mobile gutters
-        sm: '1.25rem', // 20px
-        md: '1.5rem', // 24px
-        lg: '2rem', // 32px
-        xl: '2.5rem', // 40px
-        '2xl': '3rem' // 48px
+        DEFAULT: '0px', // 16px mobile gutters
+        sm: '0px', // 20px
+        md: '0px', // 24px
+        lg: '0px', // 32px
+        xl: '0px', // 40px
+        '2xl': '0px' // 48px
       }
     },
 

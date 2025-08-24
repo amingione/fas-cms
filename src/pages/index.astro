@@ -92,70 +92,67 @@ try {
 
 <BaseLayout>
 
-<!-- New HERO -->
-<HeroBanner
-  imageSrc="/images/ram copy.webp"
-  headline="Power Up Your Ride"
-  subtext="Unleash your car's potential with our premium performance upgrades."
-  ctaText="Explore Now"
-  ctaLink="/shop"
-  altText="TRX Package by FAS"
-/>
-
-
 {showV2 && (
-  <>
-    <!-- Figma sections (header untouched) -->
-    <main class="flex flex-col">
-      
-      <section id="hero" class="px-4 md:px-6">
+
+    <main class="relative flex flex-col">
+
+      <section class="contain w-full relative">
+        <HeroBanner
+          imageSrc="/images/ram copy.webp"
+          headline="Power Up Your Ride"
+          subtext="Unleash your car's potential with our premium performance upgrades."
+          ctaText="Explore Now"
+          ctaLink="/shop"
+        />
+      </section>
+
+      <section id="hero">
         <Hero client:load />
       </section>
 
-      <section id="TruckPackagesHero" class="px-4 md:px-6">
+      <section id="TruckPackagesHero" >
         <TruckPackagesHero client:load />
       </section>
 
-      <section id="CustomFabrication" class="px-4 md:px-6">
+      <section id="CustomFabrication" >
         <CustomFabrication client:load />
       </section>
 
-      <section id="IGLASecurity" class="px-4 md:px-6">
+      <section id="IGLASecurity">
         <IGLASecurity client:load />
       </section>
 
-      <section id="LuxuryFeatures" class="px-4 md:px-6">
+      <section id="LuxuryFeatures">
         <LuxuryFeatures client:load />
       </section>
 
-      <section id="services" class="px-4 md:px-6">
+      <section id="services">
         <Services client:load />
       </section>
 
-      <section id="WheelsHero" class="px-4 md:px-6">
+      <section id="WheelsHero">
         <WheelsHero client:load />
       </section>
 
-      <section id="highlights" class="px-4 md:px-6">
+      <section id="highlights">
         <!-- TODO: Wire Sanity featured later; styling-only for now -->
         <Products client:load />
       </section>
 
 
-      <section id="about" class="px-4 md:px-6">
+      <section id="about">
         <About client:load />
       </section>
 
-      <section id="contact" class="px-4 md:px-6">
+      <section id="contact">
         <Contact client:load />
       </section>
 
-      <section id="LuxuryTestimonials" class="px-4 md:px-6">
+      <section id="LuxuryTestimonials">
         <LuxuryTestimonials client:load />
       </section>
     </main>
 
-  </>
 )}
 
 </BaseLayout>

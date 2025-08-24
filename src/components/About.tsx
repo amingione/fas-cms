@@ -25,10 +25,7 @@ export function About() {
   const isInView = useInView(ref, { once: true });
 
   return (
-    <section
-      ref={ref}
-      className="relative py-8 md:py-16 lg:py-20 overflow-hidden mobile-section-padding"
-    >
+    <section ref={ref} className="relative py-8 md:py-16 lg:py-20 overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 asphalt-texture">
         <div className="absolute inset-0 bg-gradient-to-br from-black/95 via-gray-900/85 to-black/95"></div>

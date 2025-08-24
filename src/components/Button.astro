@@ -1,75 +1,47 @@
 ---
-const { href = "#", text = "Button", variant = "default", rounded = false } = Astro.props;
+type Variant = 'default' | 'secondary' | 'dark' | 'outline' | 'ghost' | 'link';
+type Size = 'xs' | 'sm' | 'md' | 'lg' | 'icon';
+
+const {
+  href = undefined,
+  text = '',
+  className = '',
+  variant: variantProp = 'default',
+  size: sizeProp = 'md',
+  attrs = {}
+} = Astro.props;
+
+const variant = variantProp as Variant;
+const size = sizeProp as Size;
+
+const base = 'btn-glass inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*="size-"])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none';
+
+const variantMap = {
+  default: 'btn-primary',
+  secondary: 'btn-secondary',
+  dark: 'btn-dark',
+  outline: 'btn-dark bg-transparent btn-glass',
+  ghost: 'bg-transparent border border-transparent hover:bg-[rgba(255,255,255,0.05)] btn-glass',
+  link: 'bg-transparent border-none shadow-none underline underline-offset-4 hover:opacity-90'
+};
+
+const sizeMap = {
+  xs: 'btn-xs',
+  sm: 'btn-sm',
+  md: 'btn-md',
+  lg: 'btn-lg',
+  icon: 'rounded-full size-9 p-0'
+};
+
+const classes = [base, variantMap[variant] || variantMap.default, sizeMap[size] || sizeMap.md, className].join(' ').trim();
 ---
 
-{variant === "multi-swipe" ? (
-  <a href={href} class={`relative group inline-block fas-label px-3 py-1 text-xs sm:text-sm md:text-base leading-tight text-white bg-transparent border border-white uppercase tracking-wider font-cyber-italic overflow-hidden transition-all duration-300 shadow-fx-xs hover:scale-105 ${rounded ? 'rounded-full' : 'rounded-fx-md'} whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-primary/40`}>
-    <span class="relative z-10 flex items-center justify-center gap-2 sm:gap-3 group-hover:text-white transition-colors duration-300">
-      {text}
-      <svg class="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-      </svg>
-    </span>
-    <span class="absolute inset-0 z-0 bg-primary scale-0 group-hover:scale-150 transition-transform duration-500 ease-out origin-center ${rounded ? 'rounded-full' : ''}"></span>
-  </a>
-) : variant === "multi-swipe-v2" ? (
-  <a href={href} class={`relative group inline-block fas-label px-3 py-1 text-xs sm:text-sm md:text-base leading-tight text-white bg-transparent border border-white uppercase tracking-wider font-ethno overflow-hidden transition-all duration-300 shadow-fx-xs hover:scale-105 ${rounded ? 'rounded-full' : 'rounded-fx-md'} whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-primary/40`}>
-    <span class="relative z-10 flex items-center justify-center gap-2 sm:gap-3 group-hover:text-white transition-colors duration-300">
-      {text}
-      <svg class="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-      </svg>
-    </span>
-    <span class="absolute inset-0 z-0 bg-primary scale-0 group-hover:scale-150 transition-transform duration-500 ease-out origin-center ${rounded ? 'rounded-full' : ''}"></span>
-  </a>
-) : variant === "swipe" ? (
-  <a href={href} class={`relative group inline-block fas-label w-auto px-3 py-1 text-xs sm:text-sm md:text-base leading-tight text-white bg-black border border-white uppercase tracking-wider font-cyber-italic overflow-hidden transition-all duration-300 shadow-fx-xs hover:scale-105 ${rounded ? 'rounded-full' : 'rounded-fx-md'} whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-primary/40`}>
-    <span class="relative z-10 flex items-center justify-center gap-2 sm:gap-3 group-hover:text-white transition-colors duration-300">
-      {text}
-      <svg class="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-      </svg>
-    </span>
-    <span class="absolute inset-0 bg-primary transform translate-x-full group-hover:translate-x-0 transition-transform duration-300 z-0"></span>
-  </a>
-) : variant === "swipe-v2" ? (
-  <a href={href} class={`relative group inline-block fas-label px-3 py-1 text-xs sm:text-sm md:text-base leading-tight text-white bg-black border border-white uppercase tracking-wider font-ethno overflow-hidden transition-all duration-300 shadow-fx-xs hover:scale-105 ${rounded ? 'rounded-full' : 'rounded-fx-md'} whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-primary/40`}>
-    <span class="relative z-10 flex items-center justify-center gap-2 sm:gap-3 group-hover:text-white transition-colors duration-300">
-      {text}
-      <svg class="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-      </svg>
-    </span>
-    <span class="absolute inset-0 bg-primary transform translate-x-full group-hover:translate-x-0 transition-transform duration-300 z-0"></span>
-  </a>
-) : variant === "default" ? (
-  <a href={href} class={`relative group inline-block fas-label px-3 py-1 text-xs sm:text-sm md:text-base leading-tight text-white bg-black border border-white uppercase tracking-wider font-ethno font-semibold overflow-hidden transition-all duration-300 shadow-fx-xs hover:scale-105 ${rounded ? 'rounded-full' : 'rounded-fx-md'} whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-primary/40`}>
-    <span class="relative z-10 flex items-center justify-center gap-2 sm:gap-3 group-hover:text-white transition-colors duration-300">
-      {text}
-      <svg class="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-      </svg>
-    </span>
-    <span class="absolute inset-0 bg-primary transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 z-0"></span>
-  </a>
-) : variant === "default-v2" ? (
-  <a href={href} class={`relative group inline-block fas-label px-3 py-1 text-xs sm:text-sm md:text-base leading-tight text-white bg-black border border-white uppercase tracking-wider font-ethno overflow-hidden transition-all duration-300 shadow-fx-xs hover:scale-105 ${rounded ? 'rounded-full' : 'rounded-fx-md'} whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-primary/40`}>
-    <span class="relative z-10 flex items-center justify-center gap-2 sm:gap-3 group-hover:text-black transition-colors duration-300">
-      {text}
-      <svg class="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-      </svg>
-    </span>
-    <span class="absolute inset-0 bg-primary transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 z-0"></span>
+{href ? (
+  <a href={href} class={classes} {...attrs}>
+    {Astro.slots.has('default') ? <slot /> : text}
   </a>
 ) : (
-  <a href={href} class={`relative group inline-block fas-label px-3 py-1 text-xs sm:text-sm md:text-base leading-tight text-white bg-black border border-white uppercase tracking-wider font-ethno overflow-hidden transition-all duration-300 shadow-fx-xs hover:scale-105 ${rounded ? 'rounded-full' : 'rounded-fx-md'} whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-primary/40`}>
-    <span class="relative z-10 flex items-center justify-center gap-2 sm:gap-3 group-hover:text-black transition-colors duration-300">
-      {text}
-      <svg class="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-      </svg>
-    </span>
-    <span class="absolute inset-0 bg-primary transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 z-0"></span>
-  </a>
+  <button class={classes} type="button" {...attrs}>
+    {Astro.slots.has('default') ? <slot /> : text}
+  </button>
 )}

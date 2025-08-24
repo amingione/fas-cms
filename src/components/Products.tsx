@@ -22,13 +22,14 @@ export function Products() {
   const products = [
     {
       id: 1,
-      name: 'Billet Supercharger Plate',
+      name: 'Billet Bearing Plate',
       description:
         'Designed for maximum durability and airflow efficiency, eliminates weak points found in factory cast plates, improves reliability under extreme boost.',
       image: '/images/billet bearing plate.png',
       features: ['2+PSI Average Gain', '50-100whp', 'CNC-Machined Billet'],
       price: '$900',
       popular: true,
+      specHref: '/BilletBearingPlateSpecs',
       icon: Settings
     },
     {
@@ -40,6 +41,7 @@ export function Products() {
       features: ['Grip-Coated Billet', 'Internal ½” Hex Drive', 'Industry-Leading Hub Design'],
       price: '$220',
       popular: true,
+      specHref: '/HellcatPulleyHubSpecSheet',
       icon: Zap
     },
     {
@@ -51,6 +53,7 @@ export function Products() {
       features: ['1.5-2psi Gain', 'Slip On Design', 'No Tune Required'],
       price: 'From $899',
       popular: true,
+      specHref: '/PredatorPulleySpecsSheet',
       icon: Wrench
     }
   ];
@@ -170,19 +173,38 @@ export function Products() {
               >
                 {product.price}
               </span>
-              <Button
-                size={isMobile ? 'sm' : 'sm'}
-                className={`group/btn bg-gradient-to-r from-primary to-red-600 hover:from-primary/90 hover:to-red-700 shadow-lg shadow-primary/25 font-ethno ${isMobile ? 'text-xs px-3 py-2' : 'text-[11px]'}`}
-              >
-                VIEW SPECS
-                <motion.div
-                  className="ml-2"
-                  animate={{ x: [0, 3, 0] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
+              {product.specHref ? (
+                <Button
+                  asChild
+                  size={isMobile ? 'sm' : 'sm'}
+                  className={`group/btn bg-gradient-to-r from-primary to-red-600 hover:from-primary/90 hover:to-red-700 shadow-lg shadow-primary/25 font-ethno ${isMobile ? 'text-xs px-3 py-2' : 'text-[11px]'}`}
                 >
-                  <ArrowRight className={`${isMobile ? 'w-3 h-3' : 'w-3 h-3'}`} />
-                </motion.div>
-              </Button>
+                  <a href={product.specHref}>
+                    VIEW SPECS
+                    <motion.div
+                      className="ml-2"
+                      animate={{ x: [0, 3, 0] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    >
+                      <ArrowRight className={`${isMobile ? 'w-3 h-3' : 'w-3 h-3'}`} />
+                    </motion.div>
+                  </a>
+                </Button>
+              ) : (
+                <Button
+                  size={isMobile ? 'sm' : 'sm'}
+                  className={`group/btn bg-gradient-to-r from-primary to-red-600 hover:from-primary/90 hover:to-red-700 shadow-lg shadow-primary/25 font-ethno ${isMobile ? 'text-xs px-3 py-2' : 'text-[11px]'}`}
+                >
+                  VIEW SPECS
+                  <motion.div
+                    className="ml-2"
+                    animate={{ x: [0, 3, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    <ArrowRight className={`${isMobile ? 'w-3 h-3' : 'w-3 h-3'}`} />
+                  </motion.div>
+                </Button>
+              )}
             </div>
           </CardContent>
 

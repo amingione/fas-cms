@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Button from '../components/Button.astro';
+import Button from '@/components/Button.astro';
 
 const portingItems = [
   { title: "Supercharger", desc: "Improves airflow and boost efficiency. Gains of 20–40+ WHP are common when paired with tuning." },
@@ -14,79 +14,147 @@ const portingItems = [
 ---
 
 <BaseLayout>
-  <!-- Hero Section -->
-  <section class="bg-transparent text-white pt-32 pb-20 px-6 sm:px-8">
-    <div class="max-w-7xl mx-auto">
-      <div class="text-center mb-16">
-        <h1 class="text-5xl font-borg text-accent mb-6">
-          F.a.S. <span class="font-ethno">Porting Services</span>
-        </h1>
-        <p class="text-xl font-captain tracking-[1.2px] text-primary max-w-3xl mx-auto">
-          Porting is the core of what built FAS Motorsports — the foundation of our performance legacy. Our precision porting services are designed to maximize airflow and power across platforms.
+  <!-- HERO (compact header, no full-screen background) -->
+  <section class="section-divider section-divider-carbon bg-black/70 border-b border-white/10">
+    <div class="mx-auto w-full max-w-7xl px-0 md:px-6 py-8 md:py-10 grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr] gap-6 items-center">
+      <div>
+        <h1 class="text-3xl md:text-5xl font-ethno text-accent mb-3">Porting Services</h1>
+        <p class="text-white/80 max-w-[68ch] font-captain text-base md:text-lg">
+          Superchargers, snouts, throttle bodies, intake manifolds, and cylinder heads — blueprint‑level porting for real, repeatable gains.
         </p>
+        <div class="mt-5 flex flex-wrap gap-3 luxury-hover-scale">
+          <span class="btn-glass btn-dark btn-xs">Flow‑bench guided</span>
+          <span class="btn-glass btn-dark btn-xs">CNC + hand finish</span>
+          <span class="btn-glass btn-dark btn-xs">Matched interfaces</span>
+          <span class="btn-glass btn-dark btn-xs">OEM‑level fit</span>
+        </div>
+        <div class="mt-6 flex flex-col sm:flex-row gap-4">
+          <Button href="/contact" text="Ask a Porting Specialist" size="md" variant="default" />
+          <Button href="/schedule" text="Schedule Dropoff" size="md" variant="ghost" />
+        </div>
+      </div>
+      <div class="order-first md:order-last">
+        <figure class="rounded-xl border border-white/10 bg-black/50 overflow-hidden shadow-xl">
+          <img src="/images/fas-ported-snout.png" alt="Ported snout detail" class="w-full h-[220px] md:h-[260px] object-cover" />
+          <figcaption class="p-3 text-white/60 text-xs">Ported snout: smoother transition, corrected CSA, matched to throttle body and case.</figcaption>
+        </figure>
       </div>
     </div>
   </section>
 
-  <!-- CTA Section -->
-  <div class="font-ethno text-center mb-28">
-    <Button text="Our Core Exchange Program" href="/coreExchange" variant="swipe" />
-  </div>
-
-  <!-- What is Porting Section -->
-  <div class="grid md:grid-cols-2 gap-12 items-start mb-20 px-6 sm:px-8">
-    <div>
-      <h2 class="text-3xl font-cyber text-white mb-4">What is Porting?</h2>
-      <p class="text-base font-captain tracking-[1.2px] text-gray-300 mb-4">
-        Porting refers to the process of modifying the intake and exhaust ports of an internal combustion engine to improve airflow. By removing restrictions and reshaping passages, porting enhances combustion efficiency and maximizes power output.
-      </p>
-      <p class="text-base font-captain tracking-[1.2px] text-gray-300 mb-4">
-        At FAS Motorsports, we apply proven race and dyno-tested porting strategies tailored to your platform. Whether it’s cylinder heads, superchargers, throttle bodies or manifolds, every component is CNC matched and hand-finished for optimal performance.
-      </p>
-      <p class="text-base font-captain tracking-[1.2px] text-gray-300">
-        This isn't guesswork — it's precision craftsmanship backed by real-world data. Porting is the critical link between air, fuel, and horsepower, and we do it better than anyone in the business.
-      </p>
-    </div>
-    <div class="rounded overflow-hidden shadow-lg">
-      <img src="/images/E2A36CB5-549B-4B17-9E4A-6F1DEB8D8A82.PNG" alt="Ported Supercharger Example by FAS" class="w-full h-auto rounded shadow-md" />
-    </div>
-  </div>
-
-  <!-- Porting Packages -->
-  <div class="mt-24">
-    <h2 class="text-4xl font-borg text-primary mb-8 text-center">Popular Porting Packages</h2>
-    <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 justify-center">
-      <div class="bg-transparent p-6 rounded shadow-md text-left">
-        <img src="/images/dominator race package.png" alt="2.4L Hellcat Dominator" class="rounded mb-4" />
-        <h3 class="text-base font-ethno text-white mb-2">2.4L Hellcat “DOMINATOR” Race Porting Package</h3>
-        <p class="text-xl font-cyber tracking-[1.2px] text-primary">$2,175.00</p>
-        <Button text="Shop Now" href="/shop/2-4l-hellcat-dominator-race-porting-package" variant="swipe" class="mt-4" />
-      </div>
-      <div class="bg-transparent p-6 rounded shadow-md text-left">
-        <img src="/images/2.7 dominator package.png" alt="2.7L Redeye Demon Dominator" class="rounded mb-4" />
-        <h3 class="text-base font-ethno text-white mb-2">2.7L Redeye/Demon “DOMINATOR” Race Porting Package</h3>
-        <p class="text-xl font-cyber tracking-[1.2px] text-primary">$2,175.00</p>
-        <Button text="Shop Now" href="/shop/2-7l-redeye-demon-dominator-race-porting-package" variant="swipe" class="mt-4" />
-      </div>
-    </div>
-  </div>
-
-  <!-- What Can You Send In -->
-  <div class="mt-24">
-    <h2 class="text-4xl font-cyber text-accent mb-8 text-center">What Can You Send In?</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {portingItems.map(item => (
-        <div class="bg-[#1a1a1a] p-6 rounded shadow-md">
-          <h3 class="text-2xl font-borg text-white mb-2">{item.title}</h3>
-          <p class="text-sm font-cyber-italic tracking-[1.2px] text-gray-300">{item.desc}</p>
+  <!-- OVERVIEW STRIP -->
+  <section class="industrial-glow luxury-hover-scale luxury-carbon-effect relative w-full bg-black/60 backdrop-blur-md border-b border-white/10">
+    <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-0">
+        <div class="flex items-center gap-3 py-4 px-4 border-r border-white/10">
+          <div class="w-2 h-2 rounded-full bg-accent"></div>
+          <div class="text-white/80 text-xs md:text-sm font-captain tracking-[0.14em]">Flow‑Bench Guided</div>
         </div>
-      ))}
+        <div class="flex items-center gap-3 py-4 px-4 border-r border-white/10">
+          <div class="w-2 h-2 rounded-full bg-accent"></div>
+          <div class="text-white/80 text-xs md:text-sm font-captain tracking-[0.14em]">CNC &amp; Hand‑Finish</div>
+        </div>
+        <div class="flex items-center gap-3 py-4 px-4 border-r border-white/10">
+          <div class="w-2 h-2 rounded-full bg-accent"></div>
+          <div class="text-white/80 text-xs md:text-sm font-captain tracking-[0.14em]">Matched Components</div>
+        </div>
+        <div class="flex items-center gap-3 py-4 px-4">
+          <div class="w-2 h-2 rounded-full bg-accent"></div>
+          <div class="text-white/80 text-xs md:text-sm font-captain tracking-[0.14em]">OEM‑Level Fit &amp; Finish</div>
+        </div>
+      </div>
     </div>
-  </div>
+    <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 py-4">
+        <div class="rounded-lg border border-white/10 bg-black/50 p-3 text-center">
+          <div class="text-2xl font-borg text-white">±0.5%</div>
+          <div class="text-xs text-white/60">CSA variance target</div>
+        </div>
+        <div class="rounded-lg border border-white/10 bg-black/50 p-3 text-center">
+          <div class="text-2xl font-borg text-white">≤0.001"</div>
+          <div class="text-xs text-white/60">Flatness at flanges</div>
+        </div>
+        <div class="rounded-lg border border-white/10 bg-black/50 p-3 text-center">
+          <div class="text-2xl font-borg text-white">20–40+ whp</div>
+          <div class="text-xs text-white/60">Typical SC gains*</div>
+        </div>
+        <div class="rounded-lg border border-white/10 bg-black/50 p-3 text-center">
+          <div class="text-2xl font-borg text-white">Bench‑guided</div>
+          <div class="text-xs text-white/60">Validation process</div>
+        </div>
+      </div>
+      <p class="text-white/50 text-[11px] pb-4">* With proper tuning and supporting mods. Results vary by platform.</p>
+    </div>
+  </section>
 
-  <!-- CTA Bottom -->
-  <div class="font-ethno text-primary text-center mt-20">
-    <Button text="Let's Talk Porting" href="/contact" variant="default" />
-    <Button text="Shop Porting" href="/shop/porting" variant="default" />
-  </div>
+  <!-- WHAT WE PORT (driven by data array) -->
+  <section class="py-12 md:py-16">
+    <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
+      <h2 class="text-center text-3xl md:text-4xl font-ethno text-accent mb-8 md:mb-12 tracking-wide">What We Port</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        {portingItems.map((item) => (
+          <div class="group relative rounded-xl border border-white/10 bg-[#0b0b0c] overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
+            <div class="relative p-5 z-10">
+              <div class="text-primary font-ethno text-xl drop-shadow">{item.title}</div>
+              <p class="text-white/75 text-sm font-captain mt-2 max-w-[60ch]">
+                {item.desc}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- METHOD & DELIVERABLES -->
+  <section class="bg-black/70 border-y border-white/10 py-10 md:py-14">
+    <div class="mx-auto w-full max-w-7xl px-0 md:px-6 grid md:grid-cols-2 gap-6 md:gap-10">
+      <div class="rounded-xl border border-white/10 bg-black/60 p-5 shadow-xl">
+        <h3 class="text-xl font-borg text-white mb-2">Methodology</h3>
+        <ul class="list-disc pl-5 text-white/70 text-sm space-y-2">
+          <li>Baseline measurement and inspection; document casting lines and restrictions.</li>
+          <li>CNC rough‑in to targeted CSA; hand‑blend for surface finish and transition quality.</li>
+          <li>Port‑matching across interfaces (snout ⇄ TB ⇄ case ⇄ manifold).</li>
+          <li>Final inspection: CSA verification, concentricity, fastener land integrity.</li>
+        </ul>
+      </div>
+      <div class="rounded-xl border border-white/10 bg-black/60 p-5 shadow-xl">
+        <h3 class="text-xl font-borg text-white mb-2">Deliverables</h3>
+        <ul class="list-disc pl-5 text-white/70 text-sm space-y-2">
+          <li>Before/after photos &amp; notes.</li>
+          <li>Recommended TB size / injector / belt guidance where applicable.</li>
+          <li>Gasket surfaces protected; threads chased; components cleaned and bagged.</li>
+          <li>Optional polish or ceramic coat on request.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- TURNAROUND / NOTES -->
+  <section class="py-10 md:py-14">
+    <div class="mx-auto w-full max-w-7xl px-0 md:px-6 grid md:grid-cols-3 gap-6">
+      <div class="rounded-xl border border-white/10 bg-black/60 p-5 shadow-xl">
+        <h3 class="text-lg font-borg text-white mb-2">Typical Gains</h3>
+        <p class="text-white/70 text-sm leading-relaxed">Supercharger/snout pairs commonly see +20–40 WHP with proper tuning and supporting mods. Cylinder head &amp; intake work supports higher RPM power retention.</p>
+      </div>
+      <div class="rounded-xl border border-white/10 bg-black/60 p-5 shadow-xl">
+        <h3 class="text-lg font-borg text-white mb-2">Turnaround</h3>
+        <p class="text-white/70 text-sm leading-relaxed">Most jobs 5–10 business days after parts are received. Expedited options available.</p>
+      </div>
+      <div class="rounded-xl border border-white/10 bg-black/60 p-5 shadow-xl">
+        <h3 class="text-lg font-borg text-white mb-2">Compatibility</h3>
+        <p class="text-white/70 text-sm leading-relaxed">Hellcat/Redeye/Demon, Trackhawk/Durango, HEMI 5.7/6.1/6.4, Whipple &amp; other positive displacement blowers. Ask about other platforms.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="bg-transparent py-12 md:py-16 text-center">
+    <div class="flex flex-col gap-5 items-center">
+      <Button href="/contact" text="Start a Porting Project" size="lg" variant="default" />
+      <Button href="/schedule" text="Book Install or Dropoff" size="md" variant="ghost" />
+    </div>
+  </section>
 </BaseLayout>

@@ -313,7 +313,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@auth0/auth0-spa-js@npm:^2.3.0":
+"@auth0/auth0-react@npm:^2.4.0":
+  version: 2.4.0
+  resolution: "@auth0/auth0-react@npm:2.4.0"
+  dependencies:
+    "@auth0/auth0-spa-js": ^2.2.0
+  peerDependencies:
+    react: ^16.11.0 || ^17 || ^18 || ^19
+    react-dom: ^16.11.0 || ^17 || ^18 || ^19
+  checksum: 9f03d3db7f0c63304ba99499974f89d6cf243f8dddc965b84fe400ebea57bf6a70f0fbc5c21f32a464d957c965bbc80ff9c18dd86b22e812fe799a705321c821
+  languageName: node
+  linkType: hard
+
+"@auth0/auth0-spa-js@npm:^2.2.0, @auth0/auth0-spa-js@npm:^2.3.0":
   version: 2.3.0
   resolution: "@auth0/auth0-spa-js@npm:2.3.0"
   checksum: 6f9c84cd300ba7215a7b894690418010cd743ada5970083f0753f189a39208b4262a9828f28c8f932ca33c1dfe6e587b057a6c956e40632aea9dbed5099220fd
@@ -10456,6 +10468,7 @@ __metadata:
     "@astrojs/netlify": ^6.5.6
     "@astrojs/react": ^4.3.0
     "@astrojs/tailwind": ^6.0.2
+    "@auth0/auth0-react": ^2.4.0
     "@auth0/auth0-spa-js": ^2.3.0
     "@eslint/js": ^9.26.0
     "@netlify/blobs": ^9.0.0

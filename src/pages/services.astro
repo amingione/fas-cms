@@ -4,49 +4,156 @@ import Button from '../components/Button.astro';
 ---
 
 <BaseLayout>
-    <!-- Hero Section -->
-<section class="relative bg-black/20">
-  <img src="/images/About FAS MOTO  Page Banner copy.png" alt="Services Hero" class="relative inset-0 w-full h-full object-cover object-top md:object-center z-0" />
-</div>
-</section>
-
-  <!-- Service Overview -->
-  <section class="py-20 px-6 max-w-7xl mx-auto text-center">
-    <h2 class="text-4xl font-borg text-primary mb-6">Performance Expertise</h2>
-    <p class="text-2xl font-captain rem-1.2 tracking-[1.2px] text-white max-w-3xl mx-auto mb-12">
-      From full porting and tuning to race-ready builds, F.A.S. delivers high-performance service solutions that are dyno proven and street tested.
-    </p>
-
-    <!-- Service Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div class="flex flex-col items-center bg-black rounded shadow-lg overflow-hidden p-4">
-        <img src="/placeholder.png" alt="Service" class="w-full h-auto rounded mb-4" />
-        <h3 class="text-2xl font-ethno text-primary mb-1 text-center">Porting Services</h3>
-        <p class="text-base rem1-.2 font-captain text-white text-center">Cylinder heads, superchargers, snouts & more.</p>
-      </div>
-
-      <div class="flex flex-col items-center bg-black rounded shadow-lg overflow-hidden p-4">
-        <img src="/placeholder.png" alt="Service" class="w-full h-auto rounded mb-4" />
-        <h3 class="text-2xl font-ethno text-primary mb-1 text-center">Custom Tuning</h3>
-        <p class="text-base font-captain rem-1.2 text-white text-center">Street, E85, flex fuel, and dyno-tested tuning.</p>
-      </div>
-
-      <div class="flex flex-col items-center bg-black rounded shadow-lg overflow-hidden p-4">
-        <img src="/placeholder.png" alt="Service" class="w-full h-auto rounded mb-4" />
-        <h3 class="text-xl font-ethno text-primary mb-1 text-center">Builds & Installations</h3>
-        <p class="text-base font-captain rem-1.2 text-white text-center">Schedule a dropoff for Power Package builds.</p>
-      </div>
-
-      <div class="flex flex-col items-center bg-black rounded shadow-lg overflow-hidden p-4">
-        <img src="/placeholder.png" alt="Service" class="w-full h-auto rounded mb-4" />
-        <h3 class="text-xl font-ethno text-primary mb-1 text-center">Igla Install</h3>
-        <p class="text-base font-captain rem-1.2 text-white text-center">Be confident your vehicle is protected 24/7.</p>
+  <!-- HERO: full-bleed parallax with carbon divider -->
+  <section class="parallax-section section-divider section-divider-carbon">
+    <div class="background-layer">
+      <img src="/images/About FAS MOTO  Page Banner copy.png" alt="FAS Motorsports Services" class="absolute inset-0 w-full h-full object-cover object-center" />
+    </div>
+    <div class="foreground-layer">
+      <h1 class="text-4xl md:text-6xl font-ethno text-accent drop-shadow mb-3 tracking-[0.08em]">
+        Services
+      </h1>
+      <p class="text-white/80 max-w-3xl mx-auto font-captain text-base md:text-xl tracking-[0.12em]">
+        In‑house performance, fabrication, and security installs — engineered for flow, reliability, and OEM‑level fit &amp; finish.
+      </p>
+      <div class="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
+        <Button href="/schedule" text="Schedule Dropoff" size="lg" variant="default" />
+        <Button href="/contact" text="Ask a Tech" size="md" variant="ghost" />
       </div>
     </div>
   </section>
 
-<section class="flex justify-center py-10">
-  <Button href="/schedule" text="Schedule Dropoff" variant="multi-swipe-v2" />
-</section>
+  <!-- HIGHLIGHTS STRIP -->
+  <section class="luxury-carbon-effect relative w-full bg-black/70 backdrop-blur-md border-y border-white/10">
+    <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-0">
+        <div class="flex items-center gap-3 py-4 px-4 border-r border-white/10">
+          <div class="w-2 h-2 rounded-full bg-accent"></div>
+          <div class="text-white/80 text-xs md:text-sm font-captain tracking-[0.14em]">Dyno‑Proven</div>
+        </div>
+        <div class="flex items-center gap-3 py-4 px-4 border-r border-white/10">
+          <div class="w-2 h-2 rounded-full bg-accent"></div>
+          <div class="text-white/80 text-xs md:text-sm font-captain tracking-[0.14em]">OEM‑Fit &amp; Finish</div>
+        </div>
+        <div class="flex items-center gap-3 py-4 px-4 border-r border-white/10">
+          <div class="w-2 h-2 rounded-full bg-accent"></div>
+          <div class="text-white/80 text-xs md:text-sm font-captain tracking-[0.14em]">In‑House Fabrication</div>
+        </div>
+        <div class="flex items-center gap-3 py-4 px-4">
+          <div class="w-2 h-2 rounded-full bg-accent"></div>
+          <div class="text-white/80 text-xs md:text-sm font-captain tracking-[0.14em]">Warranty‑Friendly</div>
+        </div>
+      </div>
+    </div>
+  </section>
 
+  <!-- SERVICE CATEGORIES (animated cards) -->
+  <section class="py-12 md:py-16">
+    <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
+      <h2 class="text-center text-3xl md:text-4xl font-ethno text-accent mb-8 md:mb-12 tracking-wide">What We Do</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        <!-- Porting -->
+        <a href="/porting" class="group relative rounded-xl border border-white/10 bg-[#0b0b0c] overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50">
+          <img src="/images/porting page banner FAS.png" alt="Porting Services" class="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+          <div class="relative p-5 z-10">
+            <div class="text-primary font-ethno text-xl drop-shadow">Precision</div>
+            <div class="text-white font-borg text-2xl leading-none drop-shadow mb-2">Porting Services</div>
+            <p class="text-white/75 text-sm font-captain max-w-[46ch]">
+              Cylinder heads, superchargers, and snouts — airflow optimized and validated on the bench and road.
+            </p>
+          </div>
+        </a>
+
+        <!-- Custom Tuning -->
+        <a href="/tuning" class="group relative rounded-xl border border-white/10 bg-[#0b0b0c] overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50">
+          <img src="/images/tuning banner FAS.png" alt="Custom Tuning" class="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+          <div class="relative p-5 z-10">
+            <div class="text-primary font-ethno text-xl drop-shadow">Calibration</div>
+            <div class="text-white font-borg text-2xl leading-none drop-shadow mb-2">Custom Tuning</div>
+            <p class="text-white/75 text-sm font-captain max-w-[46ch]">
+              Street, E85, flex‑fuel, and dyno strategies that keep drivability intact.
+            </p>
+          </div>
+        </a>
+
+        <!-- Builds & Installs -->
+        <a href="/schedule" class="group relative rounded-xl border border-white/10 bg-[#0b0b0c] overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50">
+          <img src="/images/TRX Truck Package FAS copy.png" alt="Builds & Installations" class="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+          <div class="relative p-5 z-10">
+            <div class="text-primary font-ethno text-xl drop-shadow">Install</div>
+            <div class="text-white font-borg text-2xl leading-none drop-shadow mb-2">Builds &amp; Installations</div>
+            <p class="text-white/75 text-sm font-captain max-w-[46ch]">
+              Power Packages and full systems installed by the same team who engineered them.
+            </p>
+          </div>
+        </a>
+      </div>
+
+      <!-- Secondary row -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mt-4 md:mt-6">
+        <!-- IGLA -->
+        <a href="/igla" class="group relative rounded-xl border border-white/10 bg-[#0b0b0c] overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50">
+          <img src="/images/igla banner FAS.png" alt="IGLA Install" class="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+          <div class="relative p-5 z-10">
+            <div class="text-primary font-ethno text-xl drop-shadow">Security</div>
+            <div class="text-white font-borg text-2xl leading-none drop-shadow mb-2">IGLA Install</div>
+            <p class="text-white/75 text-sm font-captain max-w-[60ch]">
+              Anti‑theft immobilizer installs with factory‑like integration and clean wiring practices.
+            </p>
+          </div>
+        </a>
+
+        <!-- Custom Fabrication -->
+        <a href="/customFab" class="group relative rounded-xl border border-white/10 bg-[#0b0b0c] overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50">
+          <img src="/images/FAS-Fabrication-1.png" alt="Custom Fabrication & Welding" class="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+          <div class="relative p-5 z-10">
+            <div class="text-primary font-ethno text-xl drop-shadow">Fabrication</div>
+            <div class="text-white font-borg text-2xl leading-none drop-shadow mb-2">Custom Fab &amp; Welding</div>
+            <p class="text-white/75 text-sm font-captain max-w-[60ch]">
+              Pipes, cats, and exhaust — gasoline and diesel. Designed and built in‑house to your spec.
+            </p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS (thin stepper) -->
+  <section class="bg-black/70 border-y border-white/10 py-10 md:py-14">
+    <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
+      <h2 class="text-2xl md:text-3xl font-ethno text-accent mb-6">How It Works</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+        <div class="rounded-xl border border-white/10 bg-black/60 p-4 text-white/80">
+          <div class="text-primary font-borg mb-1">1. Consult</div>
+          <div class="text-sm">We scope your goals, platform, and budget.</div>
+        </div>
+        <div class="rounded-xl border border-white/10 bg-black/60 p-4 text-white/80">
+          <div class="text-primary font-borg mb-1">2. Plan</div>
+          <div class="text-sm">Parts list, timeline, and clear quote.</div>
+        </div>
+        <div class="rounded-xl border border-white/10 bg-black/60 p-4 text-white/80">
+          <div class="text-primary font-borg mb-1">3. Execute</div>
+          <div class="text-sm">Install, fab, and calibration in‑house.</div>
+        </div>
+        <div class="rounded-xl border border-white/10 bg-black/60 p-4 text-white/80">
+          <div class="text-primary font-borg mb-1">4. Validate</div>
+          <div class="text-sm">Fitment &amp; road test — ready for delivery.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="bg-transparent py-12 md:py-16 text-center">
+    <div class="flex flex-col gap-5 items-center">
+      <Button href="/schedule" text="Schedule Dropoff" size="lg" variant="default" />
+      <Button href="/contact" text="Talk to a Specialist" size="md" variant="ghost" />
+    </div>
+  </section>
 </BaseLayout>

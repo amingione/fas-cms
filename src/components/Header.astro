@@ -4,164 +4,208 @@ import AccountDashboard from './accountdashboard.astro';
 
 <header class="bg-black/80 shadow-xl shadow-outline text-white w-full pt-[40px]">
   
-    <!-- Top Red Bar -->
-<div class="fixed top-0 w-full bg-primary text-white text-base font-captain z-50">
+  <!-- Top Red Bar (always visible) -->
+<div id="topRedBar" class="fixed top-0 w-full bg-primary text-white text-base font-captain z-50">
   <div class="max-w-screen-xl mx-auto px-6 py-2 flex items-center justify-between">
-    <div class="flex items-center gap-6">
+    
+    <!-- Left links -->
+    <div class="flex items-center gap-0">
       <a href="/about" class="hover:!text-black hover:underline">About</a>
       <span class="text-white/50">|</span>
       <a href="/contact" class="hover:!text-black hover:underline">Contact</a>
       <span class="text-white/50">|</span>
       <a href="/faq" class="hover:!text-black hover:underline">FAQ</a>
     </div>
-    <!-- RIGHT: Auth badge -->
-    <div id="account-top-badge" class="text-white/90 text-sm"></div>
+
+    <!-- ✅ Right side: account badge -->
+    <div id="account-top-badge" class="flex items-center gap-4">
+      <!-- Auth0 script will replace this with login/signup or greeting -->
+    </div>
+
   </div>
 </div>
-  
-    <!-- Mobile Header -->
-    <div class="fixed top-[35px] mt-3 z-40 left-[5px] w-[calc(100%-10px)] flex md:hidden justify-between items-center bg-black bg-opacity-90 text-white px-4 py-3 rounded-[20px] shadow-md">      <img src="/images/faslogochroma.png" alt="FAS Logo" class="h-10" />
-      <button id="mobileMenuToggle" aria-label="Toggle Menu" class="text-white focus:outline-none transition-transform duration-300">
-        <svg id="burgerIcon" class="w-6 h-6 transition-all duration-300" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path id="burgerLine1" stroke-linecap="round" stroke-linejoin="round" d="M4 6h16" />
-          <path id="burgerLine2" stroke-linecap="round" stroke-linejoin="round" d="M4 12h16" />
-          <path id="burgerLine3" stroke-linecap="round" stroke-linejoin="round" d="M4 18h16" />
-        </svg>
-      </button>
-    </div>
-  
-   <!-- Mobile Dropdown -->
-   <div id="mobileMenuDropdown" class="md:hidden hidden fixed top-[85px] right-0 w-[90%] max-w-[320px] bg-black/80 backdrop-blur-md text-white font-ethno text-sm rounded-lg shadow-lg py-4 px-6 border border-white/10 z-40 transition-all duration-300 opacity-0 translate-y-4">
-      <div id="mobileMenuLinks" class="space-y-2">
-        <a href="/" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[100ms] hover:text-accent">Home</a>
-      <a href="/shop" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[300ms] hover:text-accent">Shop</a>
-      </div>
-      <div id="mobileMenuCategories" class="space-y-2 mt-6">
-        <p class="text-accent uppercase text-xs tracking-wide">Categories</p>
-        <a href="/igla" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[400ms] hover:text-accent">IGLA Anti-Theft</a>
-        <a href="/power-packages" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[450ms] hover:text-accent">Power Packages</a>
-        <a href="/porting" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[500ms] hover:text-accent">Porting</a>
-        <a href="/services" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[550ms] hover:text-accent">Services</a>
-        <a href="/schedule" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[350ms] hover:text-accent">Schedule Install</a>
-      </div>
-    </div>
-  
-  <!-- Main Desktop Header -->
+
+<!-- ✅ Mobile Header -->
+<div id="mheader" class="md:hidden fixed top-[40px] left-0 right-0 z-[49] transition-all duration-300 ease-out">
+  <div class="w-full bg-black/80 backdrop-blur-md shadow-xl flex items-center justify-between px-4 h-16 transition-all duration-300 ease-out overflow-visible">
+    <!-- SVG Toggle (hamburger→X) -->
+    <button id="mnavToggle"
+            aria-label="Open menu"
+            aria-expanded="false"
+            aria-controls="mnavDrawer"
+            class="p-2 rounded-lg hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40">
+      <svg id="mnavIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2">
+        <path id="mline1" stroke-linecap="round" stroke-linejoin="round" d="M4 7h16"/>
+        <path id="mline2" stroke-linecap="round" stroke-linejoin="round" d="M4 12h16"/>
+        <path id="mline3" stroke-linecap="round" stroke-linejoin="round" d="M4 17h16"/>
+      </svg>
+    </button>
+
+    <!-- Center Logo -->
+    <a href="/" class="block">
+      <img src="/images/faslogochroma.png" alt="FAS Chrome Logo" class="h-8 transition-all duration-300 ease-out" />
+    </a>
+
+    <!-- Right side: Mobile Search -->
+    <div class="relative" id="mobileHeaderSearch">
+      <form action="/search" method="GET" class="inline-block" id="mobileHeaderSearchForm">
+        <input
+          type="text"
+          name="q"
+          placeholder="Search"
+          class="bg-transparent border-b border-white text-white text-sm placeholder:text-primary/70 focus:outline-none w-36"
+          autocomplete="off"
+          aria-label="Search"
+        />
+      </form>
+      <div id="mobileSearchSuggest" class="fixed left-4 right-4 top-[84px] bg-black/90 backdrop-blur-md border border-white/10 rounded-lg shadow-xl hidden z-[100] pointer-events-auto"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Drawer + Scrim -->
+<div id="mnavScrim" class="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[59] hidden opacity-0 transition-opacity duration-300"></div>
+<aside id="mnavDrawer" class="md:hidden fixed top-0 left-0 h-full w-[84%] max-w-[360px] bg-[#0b0b0c]/95 border-r border-white/10 z-[60] -translate-x-full transition-transform duration-300 ease-out overflow-y-auto will-change-transform">
+  <div class="pt-[104px] pb-8 px-4">
+    <!-- Pages (match desktop) -->
+    <nav class="space-y-1 text-white">
+      <a href="/" class="block px-3 py-3 rounded-lg hover:bg-white/10 font-ethno">Home</a>
+      <a href="/shop" class="block px-3 py-3 rounded-lg hover:bg-white/10 font-ethno">Shop</a>
+      <a href="/about" class="block px-3 py-3 rounded-lg hover:bg-white/10 font-ethno">About</a>
+      <a href="/contact" class="block px-3 py-3 rounded-lg hover:bg-white/10 font-ethno">Contact</a>
+      <a href="/faq" class="block px-3 py-3 rounded-lg hover:bg-white/10 font-ethno">FAQ</a>
+    </nav>
+
+    <div class="my-5 border-t border-white/10"></div>
+
+    <!-- Categories (match desktop dropdowns) -->
+    <div>
+      <div class="px-3 py-2 text-xs tracking-wide uppercase text-white/60 font-ethno">Categories</div>
+      <nav id="mobileMenuCategories" class="space-y-1 text-white">
+        <a href="/igla" class="block px-3 py-3 rounded-lg hover:bg-white/10 font-ethno">IGLA</a>
+        <a href="/porting" class="block px-3 py-3 rounded-lg hover:bg-white/10 font-ethno">Porting</a>
+        <a href="/services" class="block px-3 py-3 rounded-lg hover:bg-white/10 font-ethno">Services</a>
+        <a href="/power-packages" class="block px-3 py-3 rounded-lg hover:bg-white/10 font-ethno">Power Packages</a>
+        <a href="/schedule" class="block px-3 py-3 rounded-lg hover:bg-white/10 font-ethno">Schedule Install</a>
+      </nav>
+    </div>
+  </div>
+</aside>
+
+  <!-- ✅ Main Desktop Header -->
   <div class="hidden md:block bg-transparent font-ethno-italic text-white px-6 pt-4 w-full z-40 relative">
-      <div class="grid grid-cols-3 items-center h-16 w-full px-10">
-      <div class="flex justify-start items-center gap-3 px-4">
-        <div class="relative" id="mainHeaderSearch">
-          <form action="/search" method="GET" class="inline-block" id="mainHeaderSearchForm">
-            <input type="text" name="q" placeholder="Search" class="bg-transparent border-b border-white text-white text-sm placeholder:text-primary/70 focus:outline-none w-32" autocomplete="off" />
-          </form>
-          <div id="mainSearchSuggest" class="absolute left-0 mt-2 w-72 bg-black/90 backdrop-blur-md border border-white/10 rounded-lg shadow-xl hidden z-[70]"></div>
-        </div>
-      </div>
-        <div class="flex justify-center">
-          <img src="/images/faslogochroma.png" alt="FAS Chrome Logo" class="h-16 transform scale-[2]" />
-        </div>
-        <div class="flex justify-end items-center">
-          <!-- Account Dashboard Toggle -->
-          <button id="accountDashboardToggle" aria-label="Toggle Account Dashboard" class="text-white ml-4">
-            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-            <div id="accountDashboardPanel" class="hidden fixed top-0 right-0 h-full w-[220px] bg-[#1a1a1a] transform translate-x-full transition-transform duration-300 ease-in-out z-50 shadow-lg border-l border-white/10 slide-in">
-              <h2 class="z-[10001] text-white mx-5 pt-12 font-borg rem-1.5">ACCOUNT</h2>
-                <button id="closeAccountDashboard" class="group absolute top-10 right-4 z-[10001] bg-transparent text-white p-2 rounded-full shadow hover:text-red-500 transition ai-style-change-1">
-                  <svg xmlns="http://www.w3.org/2000/svg"
-                       stroke="currentColor"
-                       class="w-4 h-4 stroke-white group-hover:stroke-red-500 !important; transition"
-                       viewBox="0 0 24 24"
-                       fill="none"
-                       stroke-width="4">
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
-                </button>
-              <AccountDashboard />
-          </div>
-        </div>
-      </div>
-      <div class="w-[90%] h-px bg-white/40 mx-auto my-4"></div>
-      <div class="grid grid-cols-3 items-center px-5 max-w-7xl mx-auto">
-        <div class="flex justify-start items-center gap-3 px-4">
-          <div class="relative">
-            <button id="desktopCategoryToggleMain" aria-label="Toggle Categories" class="text-white hover:shadow-md hover:shadow-primary/40 transition-all duration-300">
-              <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-            <div id="desktopCategoryDropdownMain" class="hidden absolute top-[42px] left-0 ml-4 w-[300px] bg-black/80 backdrop-blur-md text-white font-ethno text-sm rounded-xl shadow-2xl py-4 px-6 border border-white/10 z-[60] space-y-2 transition-all duration-300">
-              <div class="flex justify-end">
-                <button id="closeDesktopMainDropdown" class="text-red-500 hover:text-white text-lg font-bold -mt-4 -mr-2 px-2 py-1 rounded-full transition-all">×</button>
-              </div>
-              <a href="/igla" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[100ms] hover:text-primary">IGLA</a>
-              <a href="/porting" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[150ms] hover:text-primary">Porting</a>
-              <a href="/services" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[200ms] hover:text-primary">Services</a>
-              <a href="/power-packages" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[200ms] hover:text-primary">Power Packages</a>
-              <a href="/schedule" class="block py-1 transform transition-all duration-300 opacity-0 translate-y-4 delay-[250ms] hover:text-primary">Schedule Install</a>
-            </div>
-          </div>
-        </div>
-        <div class="flex justify-center gap-2 text-sm font-ethno">
-          <a href="/" class="hover:text-accent">Home</a>
-          <span class="text-white/50">|</span>
-          <a href="/shop" class="hover:text-accent">Shop</a>
-        </div>
-      </div>
-    </div>
-  
-    <!-- Sticky Desktop Header -->
-    <div class="my-sticky-header fixed top-[35px] w-full z-50 hidden md:flex justify-center">
-    <div class="w-[90%] max-w-[1200px] mx-auto bg-black/70 backdrop-blur-md border border-white/10 rounded-[20px] px-16 py-5 flex items-center justify-between gap-20">
-        <div class="flex items-center justify-between w-full max-w-7xl mx-auto">
-          <img src="/logo/chromelogofas.png" alt="FAS Chrome Logo" class="h-14" />
-  <div class="grid grid-cols-3 items-center gap-8 px-8 w-full max-w-7xl mx-auto">
-  
-    <!-- Column 1: Search -->
-    <div class="flex font-ethno justify-start px-4">
-      <div class="relative" id="stickyHeaderSearch">
-        <form action="/search" method="GET" class="inline-block" id="stickyHeaderSearchForm">
-          <input type="text" name="q" placeholder="Search..." class="bg-transparent border-b border-white font-ethno-italic placeholder:text-primary/70 text-white px-4 py-1 w-40 text-sm focus:outline-none" autocomplete="off" />
-        </form>
-        <div id="stickySearchSuggest" class="absolute left-0 mt-2 w-80 bg-black/90 backdrop-blur-md border border-white/10 rounded-lg shadow-xl hidden z-[70]"></div>
+    <div class="grid grid-cols-3 items-center h-16 w-full px-10">
+      <div class="flex justify-start items-center gap-3 px-4">
+        <div class="relative" id="mainHeaderSearch">
+          <form action="/search" method="GET" class="inline-block" id="mainHeaderSearchForm">
+            <input type="text" name="q" placeholder="Search" class="bg-transparent border-b border-white text-white text-sm placeholder:text-primary/70 focus:outline-none w-32" autocomplete="off" />
+          </form>
+          <div id="mainSearchSuggest" class="absolute left-0 mt-2 w-72 bg-black/90 backdrop-blur-md border border-white/10 rounded-lg shadow-xl hidden z-[70]"></div>
+        </div>
+      </div>
+      <div class="flex justify-center">
+        <img src="/images/faslogochroma.png" alt="FAS Chrome Logo" class="h-16 transform scale-[2]" />
+      </div>
+      <div class="flex justify-end items-center">
+        <!-- Account Dashboard Toggle -->
+        <button id="accountDashboardToggle" aria-label="Toggle Account Dashboard" class="text-white ml-4">
+          <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+        <div id="accountDashboardPanel" class="hidden fixed top-0 right-0 h-full w-[220px] bg-[#1a1a1a] transform translate-x-full transition-transform duration-300 ease-in-out z-50 shadow-lg border-l border-white/10 slide-in">
+          <h2 class="z-[10001] text-white mx-5 pt-12 font-borg rem-1.5">ACCOUNT</h2>
+          <button id="closeAccountDashboard" class="group absolute top-10 right-4 z-[10001] bg-transparent text-white p-2 rounded-full shadow hover:text-red-500 transition ai-style-change-1">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 stroke="currentColor"
+                 class="w-4 h-4 stroke-white group-hover:stroke-red-500 transition"
+                 viewBox="0 0 24 24"
+                 fill="none"
+                 stroke-width="4">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+          <AccountDashboard />
+        </div>
       </div>
     </div>
-  
-    <!-- Column 2: Nav -->
-    <div class="flex justify-center gap-3 font-ethno text-white text-sm">
-      <a href="/" class="hover:text-accent">Home</a>
-      <span class="text-white/50">|</span>
-      <a href="/shop" class="hover:text-accent">Shop</a>
-    </div>
-  
-    <!-- Column 3: Hamburger -->
-    <div class="flex justify-end relative">
-      <button id="desktopCategoryToggleSticky" class="text-white hover:shadow-md hover:shadow-primary/40 transition-all duration-300">
-        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
-  
-      <div id="desktopCategoryDropdownSticky" class="hidden absolute top-[42px] right-0 w-[300px] bg-black/80 backdrop-blur-md text-white font-ethno text-sm rounded-xl shadow-2xl py-4 px-6 border border-white/10 z-[60] space-y-2 transition-all duration-300">
-        <div class="flex justify-end">
-          <button id="closeStickyDropdown" class="text-red-500 hover:text-white text-lg font-bold -mt-4 -mr-2 px-2 py-1 rounded-full transition-all">×</button>
+    <div class="w-[90%] h-px bg-white/40 mx-auto my-4"></div>
+    <div class="grid grid-cols-3 items-center px-5 max-w-7xl mx-auto">
+      <div class="flex justify-start items-center gap-3 px-4">
+        <div class="relative">
+          <button id="desktopCategoryToggleMain" aria-label="Toggle Categories" class="text-white hover:shadow-md hover:shadow-primary/40 transition-all duration-300">
+            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <div id="desktopCategoryDropdownMain" class="hidden absolute top-[42px] left-0 ml-4 w-[300px] bg-black/80 backdrop-blur-md text-white font-ethno text-sm rounded-xl shadow-2xl py-4 px-6 border border-white/10 z-[60] space-y-2 transition-all duration-300">
+            <div class="flex justify-end">
+              <button id="closeDesktopMainDropdown" class="text-red-500 hover:text-white text-lg font-bold -mt-4 -mr-2 px-2 py-1 rounded-full transition-all">×</button>
+            </div>
+            <a href="/igla" class="block py-1 hover:text-primary">IGLA</a>
+            <a href="/porting" class="block py-1 hover:text-primary">Porting</a>
+            <a href="/services" class="block py-1 hover:text-primary">Services</a>
+            <a href="/power-packages" class="block py-1 hover:text-primary">Power Packages</a>
+            <a href="/schedule" class="block py-1 hover:text-primary">Schedule Install</a>
+          </div>
         </div>
-        <a href="/igla" class="block py-1 ...">IGLA</a>
-        <a href="/porting" class="block py-1 ...">Porting</a>
-        <a href="/services" class="block py-1 ...">Services</a>
-        <a href="/power-packages" class="block py-1 ...">Power Packages</a>
-        <a href="/schedule" class="block py-1 ...">Schedule Install</a>
+      </div>
+      <div class="flex justify-center gap-2 text-sm font-ethno">
+        <a href="/" class="hover:text-accent">Home</a>
+        <span class="text-white/50">|</span>
+        <a href="/shop" class="hover:text-accent">Shop</a>
       </div>
     </div>
   </div>
-  
-  </header>
+
+  <!-- ✅ Sticky Desktop Header -->
+  <div class="my-sticky-header fixed top-[35px] w-full z-50 hidden md:flex justify-center">
+    <div class="w-[90%] max-w-[1200px] mx-auto bg-black/70 backdrop-blur-md border border-white/10 rounded-[20px] px-16 py-5 flex items-center justify-between gap-20">
+      <div class="flex items-center justify-between w-full max-w-7xl mx-auto">
+        <img src="/logo/chromelogofas.png" alt="FAS Chrome Logo" class="h-14" />
+        <div class="grid grid-cols-3 items-center gap-8 px-8 w-full max-w-7xl mx-auto">
+          <!-- Column 1: Search -->
+          <div class="flex font-ethno justify-start px-4">
+            <div class="relative" id="stickyHeaderSearch">
+              <form action="/search" method="GET" class="inline-block" id="stickyHeaderSearchForm">
+                <input type="text" name="q" placeholder="Search..." class="bg-transparent border-b border-white font-ethno-italic placeholder:text-primary/70 text-white px-4 py-1 w-40 text-sm focus:outline-none" autocomplete="off" />
+              </form>
+              <div id="stickySearchSuggest" class="absolute left-0 mt-2 w-80 bg-black/90 backdrop-blur-md border border-white/10 rounded-lg shadow-xl hidden z-[70]"></div>
+            </div>
+          </div>
+          <!-- Column 2: Nav -->
+          <div class="flex justify-center gap-3 font-ethno text-white text-sm">
+            <a href="/" class="hover:text-accent">Home</a>
+            <span class="text-white/50">|</span>
+            <a href="/shop" class="hover:text-accent">Shop</a>
+          </div>
+          <!-- Column 3: Hamburger -->
+          <div class="flex justify-end relative">
+            <button id="desktopCategoryToggleSticky" class="text-white hover:shadow-md hover:shadow-primary/40 transition-all duration-300">
+              <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <div id="desktopCategoryDropdownSticky" class="hidden absolute top-[42px] right-0 w-[300px] bg-black/80 backdrop-blur-md text-white font-ethno text-sm rounded-xl shadow-2xl py-4 px-6 border border-white/10 z-[60] space-y-2 transition-all duration-300">
+              <div class="flex justify-end">
+                <button id="closeStickyDropdown" class="text-red-500 hover:text-white text-lg font-bold -mt-4 -mr-2 px-2 py-1 rounded-full transition-all">×</button>
+              </div>
+              <a href="/igla" class="block py-1 hover:text-primary">IGLA</a>
+              <a href="/porting" class="block py-1 hover:text-primary">Porting</a>
+              <a href="/services" class="block py-1 hover:text-primary">Services</a>
+              <a href="/power-packages" class="block py-1 hover:text-primary">Power Packages</a>
+              <a href="/schedule" class="block py-1 hover:text-primary">Schedule Install</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
   
 <script type="module">
-  import { getAuth0Client } from "/src/lib/auth.ts";
+  import { getAuth0Client } from '../../lib/auth';      // ✅ from pages/*
   const badge = document.getElementById("account-top-badge");
   (async () => {
     if (!badge) return;
@@ -186,18 +230,39 @@ import AccountDashboard from './accountdashboard.astro';
 </script>
 
   <script is:inline>
-   document.addEventListener("DOMContentLoaded", function () {
-     const menu = document.getElementById("mobileMenuDropdown");
-     const toggle = document.getElementById("mobileMenuToggle");
-     const line1 = document.getElementById("burgerLine1");
-     const line2 = document.getElementById("burgerLine2");
-     const line3 = document.getElementById("burgerLine3");
-     const links = [...document.querySelectorAll("#mobileMenuLinks a"), ...document.querySelectorAll("#mobileMenuCategories a")];
-     let isOpen = false;
+  document.addEventListener("DOMContentLoaded", function () {
+    // --- Mobile sticky + drawer ---
+    const mheader = document.getElementById("mheader");
+    const mnavToggle = document.getElementById("mnavToggle");
+    const mnavDrawer = document.getElementById("mnavDrawer");
+    const mnavScrim  = document.getElementById("mnavScrim");
+    const mline1 = document.getElementById("mline1");
+    const mline2 = document.getElementById("mline2");
+    const mline3 = document.getElementById("mline3");
+    const topBar = document.getElementById("topRedBar");
+    let mnavOpen = false;
+
+    function syncMobileHeaderTop() {
+      const barHeight = topBar ? Math.round(topBar.getBoundingClientRect().height) : 40;
+      if (mheader) mheader.style.top = `${barHeight}px`;
+    }
+
+    function lockScroll(lock) {
+      document.documentElement.style.overflow = lock ? 'hidden' : '';
+      document.body.style.overflow = lock ? 'hidden' : '';
+      document.body.style.touchAction = lock ? 'none' : '';
+    }
+
+    // Keep the mobile header tight under the red bar
+    syncMobileHeaderTop();
+    window.addEventListener('resize', syncMobileHeaderTop, { passive: true });
+    window.addEventListener('orientationchange', syncMobileHeaderTop);
+
     // Search forms: trim input and prevent empty submits
     const mainSearchForm = document.getElementById('mainHeaderSearchForm');
     const stickySearchForm = document.getElementById('stickyHeaderSearchForm');
-    [mainSearchForm, stickySearchForm].forEach((form) => {
+    const mobileSearchForm = document.getElementById('mobileHeaderSearchForm');
+    [mainSearchForm, stickySearchForm, mobileSearchForm].forEach((form) => {
       if (!form) return;
       form.addEventListener('submit', (e) => {
         const input = form.querySelector('input[name="q"]');
@@ -211,14 +276,12 @@ import AccountDashboard from './accountdashboard.astro';
       });
     });
 
-    // --- Typeahead Suggestions ---
+    // --- Typeahead Suggestions (shared desktop + mobile) ---
     function debounce(fn, delay = 200) {
       let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay); };
     }
 
-    // helpers for thumbnails and prices
     function getThumb(it) {
-      // Try common Sanity image fields
       const byPath = it?.image?.asset?.url
         || it?.mainImage?.asset?.url
         || (Array.isArray(it?.images) && it.images[0]?.asset?.url)
@@ -233,6 +296,20 @@ import AccountDashboard from './accountdashboard.astro';
       const n = Number(v);
       if (!isFinite(n) || n <= 0) return '';
       try { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(n); } catch { return `$${n.toFixed(2)}`; }
+    }
+
+    function resolveLink(it) {
+      if (it && typeof it.url === 'string' && it.url) return it.url;
+      const slug = (it && it.slug && (it.slug.current || it.slug)) || '';
+      switch (it && it._type) {
+        case 'product': return slug ? `/shop/${slug}` : '';
+        case 'service': return slug ? `/service/${slug}` : '';
+        case 'quote': return `/dashboard/quotes/${it._id || ''}`;
+        case 'invoice': return `/dashboard/invoices/${it._id || ''}`;
+        case 'appointment': return `/dashboard/appointments/${it._id || ''}`;
+        case 'page': return slug ? `/${slug}` : '';
+        default: return '';
+      }
     }
 
     function renderSuggestions(panel, items, query) {
@@ -262,32 +339,53 @@ import AccountDashboard from './accountdashboard.astro';
       const footer = `<a href="/search?q=${encodeURIComponent(query)}" class="block px-3 py-2 text-center text-xs text-white/70 hover:bg-white/10" style="font-family: Arial, sans-serif; font-size: 12px;">See all results for “${esc(query)}”</a>`;
       panel.innerHTML = list + '<div class="border-t border-white/10"></div>' + footer;
       panel.classList.remove('hidden');
-    }
-
-    function resolveLink(it) {
-      // Prefer API-provided url if present
-      if (it && typeof it.url === 'string' && it.url) return it.url;
-      const slug = (it && it.slug && (it.slug.current || it.slug)) || '';
-      switch (it && it._type) {
-        case 'product': return slug ? `/shop/${slug}` : '';
-        case 'service': return slug ? `/service/${slug}` : '';
-        case 'quote': return `/dashboard/quotes/${it._id || ''}`;
-        case 'invoice': return `/dashboard/invoices/${it._id || ''}`;
-        case 'appointment': return `/dashboard/appointments/${it._id || ''}`;
-        case 'page': return slug ? `/${slug}` : '';
-        default: return '';
-      }
+      panel.style.display = 'block';
     }
 
     function setupTypeahead(rootId, formId, panelId) {
       const root = document.getElementById(rootId);
       const form = document.getElementById(formId);
       const input = form?.querySelector('input[name="q"]');
-      const panel = document.getElementById(panelId);
+      let panel = document.getElementById(panelId);
       if (!root || !form || !input || !panel) return;
 
-      let active = -1; // keyboard selection index
-      const close = () => { panel.classList.add('hidden'); panel.innerHTML=''; active = -1; };
+      // ---- Portal the panel to <body> to avoid clipping/z-index issues (mobile-safe) ----
+      if (panel.dataset.portaled !== '1') {
+        document.body.appendChild(panel);
+        panel.dataset.portaled = '1';
+        panel.style.position = 'fixed';
+        panel.style.zIndex = '2147483647'; // sit above everything
+        panel.style.maxHeight = '60vh';
+        panel.style.overflow = 'auto';
+        panel.style.borderRadius = '12px';
+        panel.style.boxSizing = 'border-box';
+        // keep existing classes for dark UI
+      }
+
+      function positionPanel() {
+        const r = input.getBoundingClientRect();
+        const vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+        const margin = 8;
+        const maxWidth = Math.min(380, vw - margin * 2);
+        const width = Math.min(Math.max(r.width, 280), maxWidth);
+        const spaceRight = vw - r.right;
+        const spaceLeft = r.left;
+        // Prefer aligning left with input, but if it would overflow, shift left; if near right edge, align panel's right to input's right.
+        let left = r.left;
+        if (left + width + margin > vw) {
+          // Too close to the right edge; try snapping to input's right edge
+          left = Math.max(margin, r.right - width);
+        }
+        // Final clamp within viewport
+        left = Math.max(margin, Math.min(left, vw - width - margin));
+        panel.style.left = `${Math.round(left)}px`;
+        panel.style.top = `${Math.round(r.bottom + 8)}px`;
+        panel.style.width = `${Math.round(width)}px`;
+      }
+
+      let active = -1;
+      const close = () => { panel.classList.add('hidden'); panel.style.display='none'; panel.innerHTML=''; active = -1; };
+      const open = () => { positionPanel(); panel.classList.remove('hidden'); panel.style.display='block'; };
 
       const doSearch = debounce(async () => {
         const q = (input.value || '').trim();
@@ -297,15 +395,16 @@ import AccountDashboard from './accountdashboard.astro';
           if (!res.ok) throw new Error('search failed');
           const data = await res.json();
           const items = Array.isArray(data?.results) ? data.results : [];
+          if (!items.length) { close(); return; }
           renderSuggestions(panel, items, q);
+          open();
         } catch { close(); }
       }, 200);
 
       input.addEventListener('input', doSearch);
-      input.addEventListener('focus', doSearch);
+      input.addEventListener('focus', () => { positionPanel(); doSearch(); });
       input.addEventListener('blur', () => setTimeout(close, 150));
 
-      // keyboard navigation
       input.addEventListener('keydown', (e) => {
         const links = panel.querySelectorAll('a');
         if (panel.classList.contains('hidden') || !links.length) return;
@@ -314,194 +413,179 @@ import AccountDashboard from './accountdashboard.astro';
         if (e.key === 'Escape') { close(); }
       });
 
-      // close on outside click
       document.addEventListener('click', (evt) => {
-        if (!root.contains(evt.target)) close();
+        if (!root.contains(evt.target) && !panel.contains(evt.target)) close();
+      });
+      window.addEventListener('resize', () => { if (!panel.classList.contains('hidden')) positionPanel(); }, { passive: true });
+      window.addEventListener('scroll', () => { if (!panel.classList.contains('hidden')) positionPanel(); }, { passive: true });
+    }
+
+    // Wire up all three search bars
+    setupTypeahead('mainHeaderSearch', 'mainHeaderSearchForm', 'mainSearchSuggest');
+    setupTypeahead('stickyHeaderSearch', 'stickyHeaderSearchForm', 'stickySearchSuggest');
+    setupTypeahead('mobileHeaderSearch', 'mobileHeaderSearchForm', 'mobileSearchSuggest');
+
+    // --- Mobile Nav Drawer handlers ---
+    function openMnav() {
+      if (!mnavDrawer || !mnavScrim) return;
+      mnavDrawer.classList.remove("-translate-x-full");
+      mnavScrim.classList.remove("hidden");
+      setTimeout(() => { mnavScrim.classList.remove("opacity-0"); }, 10);
+      mline1.setAttribute("d", "M6 6l12 12");
+      mline2.setAttribute("d", "");
+      mline3.setAttribute("d", "M6 18l12 -12");
+      mnavToggle.setAttribute("aria-expanded", "true");
+      lockScroll(true);
+      mnavOpen = true;
+    }
+    function closeMnav() {
+      if (!mnavDrawer || !mnavScrim) return;
+      mnavDrawer.classList.add("-translate-x-full");
+      mnavScrim.classList.add("opacity-0");
+      setTimeout(() => { mnavScrim.classList.add("hidden"); }, 300);
+      mline1.setAttribute("d", "M4 7h16");
+      mline2.setAttribute("d", "M4 12h16");
+      mline3.setAttribute("d", "M4 17h16");
+      mnavToggle.setAttribute("aria-expanded", "false");
+      lockScroll(false);
+      mnavOpen = false;
+    }
+    if (mnavToggle) mnavToggle.addEventListener("click", () => (mnavOpen ? closeMnav() : openMnav()));
+    if (mnavScrim) mnavScrim.addEventListener("click", closeMnav);
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && mnavOpen) closeMnav(); });
+
+    // Shrink mobile header on scroll
+    const mShrinkThreshold = 120;
+    function applyMobileShrink(y) {
+      if (!mheader) return;
+      if (y > mShrinkThreshold) mheader.classList.add("m-shrink");
+      else mheader.classList.remove("m-shrink");
+    }
+    applyMobileShrink(window.scrollY);
+    window.addEventListener("scroll", () => { applyMobileShrink(window.scrollY); syncMobileHeaderTop(); }, { passive: true });
+
+    // --- Existing desktop dropdown logic (unchanged) ---
+    const dashboardToggle = document.getElementById("accountDashboardToggle");
+    const dashboardPanel = document.getElementById("accountDashboardPanel");
+    let isDashboardOpen = false;
+    if (dashboardToggle && dashboardPanel) {
+      dashboardToggle.addEventListener("click", () => {
+        if (!isDashboardOpen) {
+          dashboardPanel.classList.remove("hidden");
+          setTimeout(() => dashboardPanel.classList.remove("translate-x-full"), 10);
+        } else {
+          dashboardPanel.classList.add("translate-x-full");
+          setTimeout(() => dashboardPanel.classList.add("hidden"), 300);
+        }
+        isDashboardOpen = !isDashboardOpen;
       });
     }
 
-    setupTypeahead('mainHeaderSearch', 'mainHeaderSearchForm', 'mainSearchSuggest');
-    setupTypeahead('stickyHeaderSearch', 'stickyHeaderSearchForm', 'stickySearchSuggest');
-     const dashboardCloseBtn = document.getElementById("closeAccountDashboard");
-
-      if (dashboardCloseBtn) {
-      dashboardCloseBtn.addEventListener("click", () => {
-      dashboardPanel.classList.add("translate-x-full");
+    const desktopCategoryToggleMain = document.getElementById("desktopCategoryToggleMain");
+    const desktopCategoryDropdownMain = document.getElementById("desktopCategoryDropdownMain");
+    const desktopMainLinks = [...desktopCategoryDropdownMain?.querySelectorAll("a") || []];
+    const closeMainBtn = document.getElementById("closeDesktopMainDropdown");
+    let isDesktopOpenMain = false;
+    const animateMainOpen = () => {
+      desktopCategoryDropdownMain.classList.remove("hidden");
       setTimeout(() => {
-      dashboardPanel.classList.add("hidden");
-    }, 300);
-  });
-}
+        desktopMainLinks.forEach(link => {
+          link.classList.remove("opacity-0", "translate-y-4");
+          link.classList.add("opacity-100", "translate-y-0");
+        });
+      }, 10);
+    };
+    const animateMainClose = () => {
+      desktopMainLinks.forEach(link => {
+        link.classList.add("opacity-0", "translate-y-4");
+        link.classList.remove("opacity-100", "translate-y-0");
+      });
+      setTimeout(() => {
+        desktopCategoryDropdownMain.classList.add("hidden");
+      }, 600);
+    };
+    if (desktopCategoryToggleMain && desktopCategoryDropdownMain) {
+      desktopCategoryToggleMain.addEventListener("click", () => {
+        isDesktopOpenMain ? animateMainClose() : animateMainOpen();
+        isDesktopOpenMain = !isDesktopOpenMain;
+      });
+      desktopMainLinks.forEach(link => {
+        link.addEventListener("click", () => {
+          animateMainClose();
+          isDesktopOpenMain = false;
+        });
+      });
+      if (closeMainBtn) {
+        closeMainBtn.addEventListener("click", () => {
+          animateMainClose();
+          isDesktopOpenMain = false;
+        });
+      }
+    }
 
-     const animateOpen = () => {
-       menu.classList.remove("hidden");
-       menu.classList.add("transition-all", "duration-300");
-       menu.classList.remove("opacity-0", "translate-y-4");
-       menu.classList.add("opacity-100", "translate-y-0");
-       setTimeout(() => {
-         links.forEach(link => {
-           link.classList.remove("opacity-0", "translate-y-4");
-           link.classList.add("opacity-100", "translate-y-0");
-         });
-       }, 10);
-       line1.setAttribute("d", "M6 6l12 12");
-       line2.setAttribute("d", "");
-       line3.setAttribute("d", "M6 18l12 -12");
-     };
+    const stickyToggle = document.getElementById("desktopCategoryToggleSticky");
+    const stickyDropdown = document.getElementById("desktopCategoryDropdownSticky");
+    const stickyLinks = [...stickyDropdown?.querySelectorAll("a") || []];
+    const stickyClose = stickyDropdown?.querySelector("#closeStickyDropdown");
+    let isStickyOpen = false;
+    const openSticky = () => {
+      stickyDropdown.classList.remove("hidden");
+      setTimeout(() => {
+        stickyLinks.forEach(link => {
+          link.classList.remove("opacity-0", "translate-y-4");
+          link.classList.add("opacity-100", "translate-y-0");
+        });
+      }, 10);
+    };
+    const closeSticky = () => {
+      stickyLinks.forEach(link => {
+        link.classList.add("opacity-0", "translate-y-4");
+        link.classList.remove("opacity-100", "translate-y-0");
+      });
+      setTimeout(() => {
+        stickyDropdown.classList.add("hidden");
+      }, 600);
+    };
+    if (stickyToggle && stickyDropdown) {
+      stickyToggle.addEventListener("click", () => {
+        isStickyOpen ? closeSticky() : openSticky();
+        isStickyOpen = !isStickyOpen;
+      });
+      stickyLinks.forEach(link => {
+        link.addEventListener("click", () => {
+          closeSticky();
+          isStickyOpen = false;
+        });
+      });
+      if (stickyClose) {
+        stickyClose.addEventListener("click", () => {
+          closeSticky();
+          isStickyOpen = false;
+        });
+      }
+    }
 
-     const animateClose = () => {
-       links.forEach(link => {
-         link.classList.add("opacity-0", "translate-y-4");
-         link.classList.remove("opacity-100", "translate-y-0");
-       });
-       menu.classList.remove("opacity-100", "translate-y-0");
-       menu.classList.add("opacity-0", "translate-y-4");
-       setTimeout(() => {
-         menu.classList.add("hidden");
-       }, 600);
-       line1.setAttribute("d", "M4 6h16");
-       line2.setAttribute("d", "M4 12h16");
-       line3.setAttribute("d", "M4 18h16");
-     };
-  
-      const dashboardToggle = document.getElementById("accountDashboardToggle");
-      const dashboardPanel = document.getElementById("accountDashboardPanel");
-      let isDashboardOpen = false;
+    const closeBtn = document.getElementById("closeAccountDashboard");
+    const dashboard = document.getElementById("accountDashboardPanel");
+    if (closeBtn && dashboard) {
+      closeBtn.addEventListener('click', () => {
+        dashboard.classList.add('hidden');
+      });
+    }
 
-      if (dashboardToggle && dashboardPanel) {
-        dashboardToggle.addEventListener("click", () => {
-          if (!isDashboardOpen) {
-            dashboardPanel.classList.remove("hidden");
-            setTimeout(() => dashboardPanel.classList.remove("translate-x-full"), 10);
-          } else {
-            dashboardPanel.classList.add("translate-x-full");
-            setTimeout(() => dashboardPanel.classList.add("hidden"), 300);
-          }
-          isDashboardOpen = !isDashboardOpen;
-        });
-      }
-
-      const desktopCategoryToggleMain = document.getElementById("desktopCategoryToggleMain");
-      const desktopCategoryDropdownMain = document.getElementById("desktopCategoryDropdownMain");
-      const desktopMainLinks = [...desktopCategoryDropdownMain?.querySelectorAll("a") || []];
-      const closeMainBtn = document.getElementById("closeDesktopMainDropdown");
-
-      let isDesktopOpenMain = false;
-
-      const animateMainOpen = () => {
-        desktopCategoryDropdownMain.classList.remove("hidden");
-        setTimeout(() => {
-          desktopMainLinks.forEach(link => {
-            link.classList.remove("opacity-0", "translate-y-4");
-            link.classList.add("opacity-100", "translate-y-0");
-          });
-        }, 10);
-      };
-
-      const animateMainClose = () => {
-        desktopMainLinks.forEach(link => {
-          link.classList.add("opacity-0", "translate-y-4");
-          link.classList.remove("opacity-100", "translate-y-0");
-        });
-        setTimeout(() => {
-          desktopCategoryDropdownMain.classList.add("hidden");
-        }, 600);
-      };
-
-      if (desktopCategoryToggleMain && desktopCategoryDropdownMain) {
-        desktopCategoryToggleMain.addEventListener("click", () => {
-          isDesktopOpenMain ? animateMainClose() : animateMainOpen();
-          isDesktopOpenMain = !isDesktopOpenMain;
-        });
-
-        desktopMainLinks.forEach(link => {
-          link.addEventListener("click", () => {
-            animateMainClose();
-            isDesktopOpenMain = false;
-          });
-        });
-
-        if (closeMainBtn) {
-          closeMainBtn.addEventListener("click", () => {
-            animateMainClose();
-            isDesktopOpenMain = false;
-          });
-        }
-      }
-
-      const stickyToggle = document.getElementById("desktopCategoryToggleSticky");
-      const stickyDropdown = document.getElementById("desktopCategoryDropdownSticky");
-      const stickyLinks = [...stickyDropdown?.querySelectorAll("a") || []];
-      const stickyClose = stickyDropdown?.querySelector("#closeStickyDropdown");
-      let isStickyOpen = false;
-
-      const openSticky = () => {
-        stickyDropdown.classList.remove("hidden");
-        setTimeout(() => {
-          stickyLinks.forEach(link => {
-            link.classList.remove("opacity-0", "translate-y-4");
-            link.classList.add("opacity-100", "translate-y-0");
-          });
-        }, 10);
-      };
-
-      const closeSticky = () => {
-        stickyLinks.forEach(link => {
-          link.classList.add("opacity-0", "translate-y-4");
-          link.classList.remove("opacity-100", "translate-y-0");
-        });
-        setTimeout(() => {
-          stickyDropdown.classList.add("hidden");
-        }, 600);
-      };
-
-      if (stickyToggle && stickyDropdown) {
-        stickyToggle.addEventListener("click", () => {
-          isStickyOpen ? closeSticky() : openSticky();
-          isStickyOpen = !isStickyOpen;
-        });
-
-        stickyLinks.forEach(link => {
-          link.addEventListener("click", () => {
-            closeSticky();
-            isStickyOpen = false;
-          });
-        });
-
-        if (stickyClose) {
-          stickyClose.addEventListener("click", () => {
-            closeSticky();
-            isStickyOpen = false;
-          });
-        }
-      }
-  const closeBtn = document.getElementById("closeAccountDashboard");
-  const dashboard = document.getElementById("accountDashboardPanel");
-
-  if (closeBtn && dashboard) {
-    closeBtn.addEventListener('click', () => {
-      dashboard.classList.add('hidden');
+    const sticky = document.querySelector(".my-sticky-header");
+    const threshold = 150;
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > threshold) {
+        sticky.classList.add("show");
+      } else {
+        sticky.classList.remove("show");
+      }
     });
-  }
-
-      toggle.addEventListener("click", () => {
-        isOpen ? animateClose() : animateOpen();
-        isOpen = !isOpen;
-      });
-  
-      const sticky = document.querySelector(".my-sticky-header");
-      const threshold = 150;
-      window.addEventListener("scroll", () => {
-        if (window.scrollY > threshold) {
-          sticky.classList.add("show");
-        } else {
-          sticky.classList.remove("show");
-        }
-      });
-    });
+  });
   </script>
   
-  <style>
+.  <style>
 .my-sticky-header {
   opacity: 0;
   pointer-events: none;
@@ -516,4 +600,12 @@ import AccountDashboard from './accountdashboard.astro';
 #mobileMenuDropdown {
   transition: all 0.3s ease;
 }
+/* Mobile sticky header shrink states */
+#mheader > div { height: 4rem; } /* 64px default */
+#mheader.m-shrink > div { height: 3.25rem; } /* ~52px when shrunk */
+#mheader img { height: 2rem; } /* 32px logo default */
+#mheader.m-shrink img { height: 1.5rem; } /* 24px when shrunk */
+
+/* Mobile header positioning to hug the red bar (JS keeps this exact) */
+#mheader { top: 40px; } /* default; JS overrides with computed bar height */
   </style>

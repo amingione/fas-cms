@@ -33,7 +33,9 @@ export default defineConfig({
         '@components': fileURLToPath(new URL('./src/components', import.meta.url)),
         '@layouts': fileURLToPath(new URL('./src/layouts', import.meta.url)),
         '@pages': fileURLToPath(new URL('./src/pages', import.meta.url)),
-        '@lib': fileURLToPath(new URL('./src/lib', import.meta.url))
+        '@lib': fileURLToPath(new URL('./src/lib', import.meta.url)),
+        '/lib': fileURLToPath(new URL('./src/lib', import.meta.url)),
+        lib: fileURLToPath(new URL('./src/lib', import.meta.url))
       }
     },
     server: {

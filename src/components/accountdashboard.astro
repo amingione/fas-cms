@@ -44,7 +44,7 @@
   </aside>
 </div>
 <script type="module">
-  import { getAuth0Client } from '/src/lib/auth.ts';
+  import { getAuth0Client } from '../../lib/auth';      // ✅ from pages/*
   window.addEventListener('DOMContentLoaded', async () => {
     const dashboard = document.getElementById('accountDashboard');
     const loginLink = document.getElementById('loginLink');

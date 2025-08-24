@@ -1,0 +1,132 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/Button.astro';
+---
+
+<BaseLayout>
+  <!-- HERO -->
+  <section class="parallax-section section-divider section-divider-carbon">
+    <div class="background-layer">
+      <img
+        src="/images/FAS Pulley & Hub Kit.png"
+        alt="FAS Motorsports Pulley & Hub Kit"
+        class="absolute inset-0 w-full h-full object-cover object-center"
+        loading="eager"
+      />
+    </div>
+    <div class="foreground-layer">
+      <h1 class="text-4xl md:text-6xl font-ethno text-accent drop-shadow mb-3">
+        Pulley &amp; Hub Kit — Spec Sheet
+      </h1>
+      <p class="text-white/80 max-w-2xl mx-auto font-captain text-base md:text-xl tracking-wide">
+        Engineered by FAS Motorsports for Hellcat/Redeye/Demon/TRX platforms, this billet pulley &amp; hub system ensures superior boost stability, strength, and serviceability compared to press-fit OE assemblies.
+      </p>
+    </div>
+  </section>
+
+  <!-- VALUE PILLARS -->
+  <section class="packages">
+    <h2 class="text-3xl md:text-4xl font-ethno text-accent mb-6">Why Upgrade?</h2>
+    <div class="package-grid">
+      <div class="package-card">
+        <h3 class="text-xl font-borg text-white mb-3">Billet Strength</h3>
+        <p class="text-white/70 text-sm leading-relaxed">
+          Hub CNC-machined from 4140 chromoly steel; pulleys from 7075‑T6 billet aluminum. Provides ultimate durability under high boost conditions with zero slip or distortion.
+        </p>
+      </div>
+      <div class="package-card">
+        <h3 class="text-xl font-borg text-white mb-3">Serviceability</h3>
+        <p class="text-white/70 text-sm leading-relaxed">
+          Modular hub system allows pulley swaps without pressing off the factory snout. Change ratios in minutes without risk of damaging supercharger bearings or shafts.
+        </p>
+      </div>
+      <div class="package-card">
+        <h3 class="text-xl font-borg text-white mb-3">Boost Stability</h3>
+        <p class="text-white/70 text-sm leading-relaxed">
+          Interference-fit and keyed hub interface eliminates pulley walk. Tested to 22,000 rpm shaft speeds with less than 0.0015&quot; runout. Provides consistent boost curve and belt life.
+        </p>
+      </div>
+      <div class="package-card">
+        <h3 class="text-xl font-borg text-white mb-3">Thermal &amp; Corrosion Protection</h3>
+        <p class="text-white/70 text-sm leading-relaxed">
+          Black hard anodized pulleys with nickel‑plated hub for long-term protection against oxidation and belt friction heat cycles.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TECHNICAL SPECIFICATIONS -->
+  <section class="features features-bg">
+    <h2 class="text-3xl md:text-4xl font-ethno text-accent mb-10 text-center">Technical Specifications</h2>
+    <div class="feature-grid">
+      <div class="feature-item">
+        <h3 class="text-lg font-borg text-white mb-2">Hub Material</h3>
+        <p class="text-white/70 text-sm">4140 chromoly steel, CNC-machined, nickel plated</p>
+      </div>
+      <div class="feature-item">
+        <h3 class="text-lg font-borg text-white mb-2">Pulley Material</h3>
+        <p class="text-white/70 text-sm">7075‑T6 billet aluminum, Type III hard anodized</p>
+      </div>
+      <div class="feature-item">
+        <h3 class="text-lg font-borg text-white mb-2">Sizes</h3>
+        <p class="text-white/70 text-sm">2.65&quot;, 2.75&quot;, 2.85&quot;, 3.00&quot;, 3.25&quot;, 3.50&quot; (others by request)</p>
+      </div>
+      <div class="feature-item">
+        <h3 class="text-lg font-borg text-white mb-2">Rib Options</h3>
+        <p class="text-white/70 text-sm">8‑rib and 10‑rib configurations available</p>
+      </div>
+      <div class="feature-item">
+        <h3 class="text-lg font-borg text-white mb-2">Runout</h3>
+        <p class="text-white/70 text-sm">&lt;= 0.0015&quot; at hub and pulley OD</p>
+      </div>
+      <div class="feature-item">
+        <h3 class="text-lg font-borg text-white mb-2">Balancing</h3>
+        <p class="text-white/70 text-sm">ISO 21940‑11 G2.5 at 20,000 rpm</p>
+      </div>
+      <div class="feature-item">
+        <h3 class="text-lg font-borg text-white mb-2">Compatibility</h3>
+        <p class="text-white/70 text-sm">Dodge Hellcat, Redeye, Demon, TRX, Trackhawk, Durango SRT</p>
+      </div>
+      <div class="feature-item">
+        <h3 class="text-lg font-borg text-white mb-2">Weight</h3>
+        <p class="text-white/70 text-sm">Hub: 1.9 lbs, Pulley: 0.8–1.2 lbs depending on diameter</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- INSTALLATION & TESTING -->
+  <section class="py-10 md:py-14">
+    <div class="mx-auto w-full max-w-7xl px-0 md:px-6 grid md:grid-cols-2 gap-6 md:gap-10">
+      <div class="rounded-xl border border-white/10 bg-black/60 p-5 shadow-xl">
+        <h3 class="text-xl font-borg text-white mb-3">Testing &amp; Validation</h3>
+        <ul class="list-disc pl-5 text-white/70 text-sm space-y-2">
+          <li>Tested beyond 1,200 whp applications without slippage or hub movement.</li>
+          <li>Thermal soak validation at 300°F for 3 hours; no dimensional drift beyond 0.0008&quot;.</li>
+          <li>Track-proven on drag and roll-racing builds with repeated pulley swaps.</li>
+          <li>Belt tracking endurance test: 6 hr cyclic loads; no belt walk or premature wear observed.</li>
+        </ul>
+      </div>
+      <div class="rounded-xl border border-white/10 bg-black/60 p-5 shadow-xl">
+        <h3 class="text-xl font-borg text-white mb-3">Installation Notes</h3>
+        <ul class="list-disc pl-5 text-white/70 text-sm space-y-2">
+          <li>Press-fit hub requires proper installation tools to ensure interference fit.</li>
+          <li>Pulleys bolt onto hub with stainless hardware; torque to spec with Loctite 242.</li>
+          <li>Re-check belt alignment and tension after initial heat cycle.</li>
+          <li>When running smaller pulleys, ensure tune, fuel, and intercooling are addressed.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="bg-black/70 border-t border-white/10 py-12 text-center">
+    <h2 class="text-2xl md:text-3xl font-ethno text-accent mb-6">Upgrade Your Boost Control</h2>
+    <p class="text-white/70 mb-6 max-w-xl mx-auto font-captain text-lg">
+      The FAS Motorsports Pulley &amp; Hub Kit is the foundation for reliable, repeatable boost in your Hellcat platform.
+    </p>
+    <div class="flex gap-4 justify-center">
+      <Button href="/shop/pulley-hub-kit" text="Shop Pulley & Hub Kit" variant="default" size="lg" />
+      <Button href="/contact" text="Ask a Tech" variant="ghost" size="md" />
+    </div>
+  </section>
+</BaseLayout>

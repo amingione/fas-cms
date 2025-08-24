@@ -1,48 +1,73 @@
 ---
 // src/pages/account/index.astro
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import MobileBaseLayout from "@/layouts/MobileBaseLayout";
 ---
 <BaseLayout hideBrandTag>
-  <main class="min-h-screen text-white p-8">
-    <div id="account-view"><p>Loading…</p></div>
+  <main class="relative text-white p-8">
+    <!-- Shared container for both mobile + desktop -->
+    <div id="account-view"></div>
 
     <script type="module">
-      import { getAuth0Client } from "/src/lib/auth.ts";
+      import { getAuth0Client } from '../../lib/auth';
+
+      const buttonGroup = `
+        <div class="relative flex gap-4">
+          <button id="login" class="relative px-4 py-2 bg-primary text-black font-ethno">Log in</button>
+          <button id="signup" class="relative px-4 py-2 border border-white/40 font-ethno">Sign up</button>
+        </div>`;
+
+      const root = document.getElementById("account-view");
+
+      const show = (html) => {
+        if (root) {
+          root.innerHTML = html;
+          root.dataset.viewReady = "true";
+        }
+      };
+
+      // Fallback: if still empty after 5s, show login/signup
+      setTimeout(() => {
+        if (root && (!root.dataset.viewReady || root.textContent.includes("Loading"))) {
+          console.warn("⏰ Fallback triggered — forcing login/signup UI");
+          show(`
+            <h1 class="text-2xl mb-4 font-ethno text-primary">Account</h1>
+            <p class="mb-4">Could not confirm login status. Please log in.</p>
+            ${buttonGroup}
+          `);
+        }
+      }, 5000);
 
       (async () => {
-        const root = document.getElementById("account-view");
-        const show = (html) => { if (root) root.innerHTML = html; };
-        const buttonGroup = `
-          <div class="flex gap-4">
-            <button id="login" class="px-4 py-2 bg-primary text-black font-ethno">Log in</button>
-            <button id="signup" class="px-4 py-2 border border-white/40 font-ethno">Sign up</button>
-          </div>`;
+        console.log("🚀 account page script loaded");
 
-        const withTimeout = (p, ms = 5000) => Promise.race([
+        const withTimeout = (p, ms = 8000) => Promise.race([
           p,
           new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))
         ]);
 
         try {
-          // Create client with timeout to avoid stuck states
-          const auth0 = await withTimeout(getAuth0Client(), 6000);
+          const auth0 = await withTimeout(getAuth0Client(), 8000);
+          window._auth0 = auth0;
+          console.log("✅ auth0 client ready");
 
-          // Complete Auth0 redirect if returning from the login/signup page
+          // Handle redirect callback
           if (window.location.search.includes("code=")) {
             try {
-              await withTimeout(auth0.handleRedirectCallback(), 6000);
+              await withTimeout(auth0.handleRedirectCallback(), 8000);
             } catch (e) {
-              // Continue even if this fails; we’ll fall back to non‑authed UI
+              console.warn("Redirect handling failed", e);
             }
             window.history.replaceState({}, document.title, window.location.pathname);
           }
 
           let authed = false;
           try {
-            authed = await withTimeout(auth0.isAuthenticated(), 5000);
+            authed = await withTimeout(auth0.isAuthenticated(), 8000);
           } catch (e) {
-            authed = false; // fall back gracefully
+            console.warn("isAuthenticated failed", e);
           }
+          console.log("🔍 authed?", authed);
 
           if (!authed) {
             show(`
@@ -50,22 +75,26 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
               <p class="mb-6">Log in or create an account to access your dashboard.</p>
               ${buttonGroup}
             `);
-            document.getElementById("login")?.addEventListener("click", () =>
+            document.getElementById("login")?.addEventListener("click", () => {
+              localStorage.removeItem("customerEmail");
+              document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
               auth0.loginWithRedirect({
                 authorizationParams: { screen_hint: "login", redirect_uri: window.location.origin + "/account" },
-              })
-            );
-            document.getElementById("signup")?.addEventListener("click", () =>
+              });
+            });
+            document.getElementById("signup")?.addEventListener("click", () => {
+              localStorage.removeItem("customerEmail");
+              document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
               auth0.loginWithRedirect({
                 authorizationParams: { screen_hint: "signup", redirect_uri: window.location.origin + "/account" },
-              })
-            );
+              });
+            });
             return;
           }
 
           // Authenticated path
-          const user = await withTimeout(auth0.getUser(), 5000).catch(() => ({}));
-          const claims = await withTimeout(auth0.getIdTokenClaims(), 5000).catch(() => null);
+          const user = await withTimeout(auth0.getUser(), 8000).catch(() => ({}));
+          const claims = await withTimeout(auth0.getIdTokenClaims(), 8000).catch(() => null);
           const token = claims?.__raw;
           if (token && claims?.exp) {
             try {
@@ -82,20 +111,12 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
             <a href="/customerdashboard/customerProfile" class="underline">My Account →</a>
           `);
         } catch (err) {
-          // Hard fail fallback — offer login/signup instead of hanging
+          console.error("❌ account script error", err);
           show(`
             <h1 class="text-2xl mb-4 font-borg text-primary">Account</h1>
             <p class="mb-4">We couldn’t load your account. ${err?.message === 'timeout' ? 'Request timed out.' : 'Please try again.'}</p>
             ${buttonGroup}
           `);
-          // Bind buttons after error render
-          const auth0 = await getAuth0Client().catch(() => null);
-          document.getElementById("login")?.addEventListener("click", () =>
-            auth0?.loginWithRedirect?.({ authorizationParams: { screen_hint: "login", redirect_uri: window.location.origin + "/account" } })
-          );
-          document.getElementById("signup")?.addEventListener("click", () =>
-            auth0?.loginWithRedirect?.({ authorizationParams: { screen_hint: "signup", redirect_uri: window.location.origin + "/account" } })
-          );
         }
       })();
     </script>

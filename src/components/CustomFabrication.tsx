@@ -122,11 +122,11 @@ export function CustomFabrication() {
   return (
     <section
       id="customfabrication"
-      className={`relative asphalt-texture ${isMobile ? 'py-4 min-h-auto mobile-section-padding' : 'py-24 overflow-visible'}`}
+      className={`relative ${isMobile ? 'py-4 min-h-auto mobile-section-padding' : 'py-24 overflow-visible'}`}
     >
       {/* Background effects */}
-      <div className="absolute inset-0 grunge-overlay"></div>
-      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70"></div>
+      <div className="absolute inset-0"></div>
+      <div className="absolute inset-0"></div>
 
       {/* Welding spark effects - reduced on mobile */}
       {!isMobile && (
@@ -251,7 +251,7 @@ export function CustomFabrication() {
                     className={`w-full h-full ${isMobile ? 'object-contain' : 'object-cover'} object-center max-w-full`}
                     loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent"></div>
+                  <div className="absolute inset-0"></div>
                   <div className="absolute bottom-0 left-0 right-0 p-3">
                     <div className="bg-black/90 backdrop-blur-sm rounded-lg p-3 border border-primary/30">
                       <h3 className="text-white font-bold text-sm font-ethno text-center">
@@ -321,7 +321,7 @@ export function CustomFabrication() {
               animate={isInView ? { opacity: 1, x: 0, scale: 1 } : {}}
               transition={{ delay: 1, duration: 1, ease: 'easeOut' }}
             >
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 gap-0">
                 <div className="space-y-6">
                   <motion.div
                     className="relative rounded-2xl overflow-hidden shadow-2xl group"
@@ -397,7 +397,7 @@ export function CustomFabrication() {
 
               {/* Floating quality badge */}
               <motion.div
-                className="absolute -bottom-8 -left-8 bg-gradient-to-br from-primary/90 to-red-600/90 rounded-2xl p-6 backdrop-blur-sm border border-primary/20 shadow-2xl"
+                className="absolute -bottom-8 -left-8 bg-gradient-to-br from-primary/90 to-red-600/90 rounded-2xl p-0 backdrop-blur-sm border border-primary/20 shadow-2xl"
                 initial={{ opacity: 0, scale: 0 }}
                 animate={isInView ? { opacity: 1, scale: 1 } : {}}
                 transition={{ delay: 1.5, duration: 0.6 }}
@@ -486,17 +486,20 @@ export function CustomFabrication() {
           >
             <motion.div whileTap={{ scale: 0.98 }}>
               <Button
+                asChild
                 size={isMobile ? 'sm' : 'lg'}
                 className={`group bg-gradient-to-r from-primary to-red-600 hover:from-primary/90 hover:to-red-700 text-white font-bold shadow-lg shadow-primary/25 metallic-btn font-ethno mobile-touch-target ${isMobile ? 'w-full px-6 py-3 text-sm' : 'px-8 py-4 text-lg'}`}
               >
-                VIEW PORTFOLIO
-                <motion.div
-                  className="ml-2"
-                  animate={{ x: [0, 5, 0] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                >
-                  <ArrowRight className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
-                </motion.div>
+                <a href="/customFab">
+                  VIEW PORTFOLIO
+                  <motion.div
+                    className="ml-2"
+                    animate={{ x: [0, 5, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    <ArrowRight className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
+                  </motion.div>
+                </a>
               </Button>
             </motion.div>
 

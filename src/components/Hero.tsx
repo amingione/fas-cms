@@ -12,19 +12,16 @@ export function Hero() {
     return () => window.removeEventListener('resize', update);
   }, []);
   return (
-    <section
-      id="home"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden asphalt-texture"
-    >
+    <section id="home" className="relative min-h-screen flex items-center justify-center">
       {/* Background Effects */}
-      <div className="absolute inset-0 grunge-overlay"></div>
-      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/80"></div>
+      <div className="absolute inset-0"></div>
+      <div className="absolute inset-0"></div>
 
       {/* Racing stripes */}
       <div className="absolute inset-0 racing-stripe opacity-20"></div>
 
       {/* Animated performance indicators */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="absolute inset-0">
         {[...Array(12)].map((_, i) => (
           <motion.div
             key={i}
@@ -272,15 +269,10 @@ export function Hero() {
             </div>
           </motion.div>
         </div>
-
-        {/* Scroll indicator */}
-        <motion.div
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 3, duration: 0.8 }}
-        ></motion.div>
       </div>
     </section>
   );
 }
+
+// Remove the CSS from the TypeScript file.
+// If you need this style, move it to a CSS file, e.g., Hero.module.css or global.css, and import it.
