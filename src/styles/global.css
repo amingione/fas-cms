@@ -921,7 +921,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background-image: url('images/backgrounds/FAS-BG-Texture.png');
+  background-image: url('/images/FAS-BG-Texture.png');
   background-size: 300px 225px;
   background-repeat: repeat;
   opacity: 0.02;
@@ -944,7 +944,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background-image: url('images/backgrounds/FAS-BG-Texture.png');
+  background-image: url('images/FAS-BG-Texture.png');
   background-size: 200px 150px;
   background-repeat: repeat;
   opacity: 0.08;

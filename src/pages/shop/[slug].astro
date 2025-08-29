@@ -97,7 +97,7 @@ try {
   <div class="container mx-auto px-4 py-10 text-white" style="padding-top: 80px;">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
       <!-- LEFT: Sticky Image on desktop -->
-      <div class="md:sticky md:top-28 flex justify-center items-start">
+      <div class="md:sticky md:top-28 flex justify-center items-start z-0">
         <SlugCarousel
           images={(product as any).images?.map((img: any) => ({
             url: img?.asset?.url || '/placeholder.png',
@@ -107,7 +107,7 @@ try {
       </div>
 
       <!-- RIGHT: Title, price, short intro, add-to-cart, then accordion -->
-      <div>
+      <div class="relative z-10">
         <h1 class="text-3xl font-ethno mb-3">{(product as any).title}</h1>
         <h2 class="text-4xl text-accent
          font-captain mb-4">
@@ -126,7 +126,7 @@ try {
                   {/* Prefer select if many values, else radios */}
                   {values.length > 4 ? (
                     <select
-                      class="w-full bg-black/30 border border-white/10 rounded px-2 py-2"
+                      class="w-full border border-white/10 rounded px-2 py-2"
                       name={groupKey}
                       data-group={groupKey}
                     >
@@ -462,6 +462,17 @@ try {
   <style>
     /* Ensure transparent overlays don’t block clicks on this product page */
     [class~="absolute"][class~="inset-0"][class*="bg-black/10"][class~="z-0"] { pointer-events: none; }
+
+    /* Make sure the right column (options) sits above the sticky image on desktop */
+    @media (min-width: 768px) {
+      .md\:sticky { z-index: 0; }
+    }
+
+    /* Raise interactive panels/forms */
+    #product-options, #acc-details { position: relative; z-index: 10; }
+
+    /* Safety: any full-bleed overlay divs should not eat clicks */
+    [class~="absolute"][class~="inset-0"] { pointer-events: none; }
   </style>
   <script>
   // @ts-nocheck
