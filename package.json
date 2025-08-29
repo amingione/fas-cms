@@ -6,7 +6,9 @@
     "build": "astro build",
     "preview": "astro preview",
     "lint": "eslint \"src/**/*.{js,ts,jsx,tsx}\"",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "stackbit:dev": "dotenv -e .env -- stackbit dev",
+    "stackbit:dev:verbose": "dotenv -e .env -- stackbit dev --verbose"
   },
   "lint-staged": {
     "*": [
@@ -21,6 +23,9 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.26.0",
+    "@stackbit/cli": "latest",
+    "@stackbit/cms-git": "^1.0.35",
+    "@stackbit/types": "^2.1.14",
     "@types/add": "^2",
     "@types/jsonwebtoken": "^9",
     "@types/next": "^9.0.0",
@@ -35,6 +40,7 @@
     "autoprefixer": "^10.4.21",
     "class-variance-authority": "^0.7.1",
     "cssnano": "^7.0.6",
+    "dotenv-cli": "^7.4.1",
     "esbuild": "0.25.5",
     "eslint": "^9.25.1",
     "eslint-config-prettier": "^10.1.2",
@@ -89,6 +95,7 @@
     "@sanity/ui": "^2.15.13",
     "@splinetool/react-spline": "^4.0.0",
     "@splinetool/runtime": "^1.9.86",
+    "@stackbit/cms-sanity": "latest",
     "astro": "5.12.8",
     "cmdk": "1.1.1",
     "embla-carousel-react": "8.6.0",

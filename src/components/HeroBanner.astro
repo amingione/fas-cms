@@ -4,14 +4,6 @@ import '@/styles/global.css'
 import '@/styles/fas-theme.css'
 
 // Remove redundant particlesJS initialization; handled in <script> below.
-interface Props {
-  imageSrc: string;
-  headline: string;
-  subtext: string;
-  ctaText: string;
-  ctaLink: string;
-  altText?: string;
-}
 
 const { imageSrc, headline, subtext, ctaText, ctaLink, altText = 'Performance Shop Hero' } = Astro.props;
 ---
