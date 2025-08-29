@@ -265,7 +265,7 @@ export default function Shop({
       <div
         className="absolute inset-0 opacity-30"
         style={{
-          backgroundImage: 'url(images/bg-texture copy.png)',
+          backgroundImage: 'url(/images/FAS-BG-Texture.png)',
           backgroundSize: '800px 600px',
           backgroundRepeat: 'repeat',
           backgroundPosition: '0 0'

@@ -61,7 +61,7 @@ function AppShell({ children }: { children: React.ReactNode }) {
       <div
         className="fixed inset-0 z-0 opacity-20 md:opacity-20"
         style={{
-          backgroundImage: "url('/images/bg-texture copy.png')",
+          backgroundImage: "url('/images/FAS-BG-Texture.png')",
           backgroundSize: isMobile ? '300px 225px' : '600px 450px',
           backgroundRepeat: 'repeat',
           backgroundPosition: '0 0'
