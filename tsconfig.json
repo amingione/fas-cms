@@ -17,7 +17,8 @@
     "strict": true,
     "allowJs": true,
     "checkJs": false, // Disable type-checking for .js files to avoid processing LegacySanityQuery.js
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "moduleResolution": "node"
   },
   "include": ["src/**/*", "*.astro", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules", "dist", "src/dev/LegacySanityQuery.js"] // Exclude the problematic file

@@ -42,44 +42,12 @@ var stackbit_config_default = (0, import_types.defineStackbitConfig)({
       passthrough: ["/vite-hmr/**"]
     }
   },
-  // Content sources for visual editing
+  // ...
   contentSources: [
-    // Git-based content (Markdown/MDX/JSON/YAML) from this repo
     new import_cms_git.GitContentSource({
       rootPath: "/Users/ambermin/Documents/Workspace/DevProjects/GitHub/fas-cms",
       contentDirs: ["content"],
       models: [
-        // ========= Global Theme =========
-        {
-          name: "Theme",
-          type: "data",
-          filePath: "content/theme.json",
-          fields: [
-            { name: "brandName", type: "string", required: true },
-            {
-              name: "colors",
-              type: "object",
-              fields: [
-                { name: "primary", type: "string", required: true },
-                { name: "secondary", type: "string" },
-                { name: "accent", type: "string" },
-                { name: "background", type: "string" },
-                { name: "foreground", type: "string" }
-              ]
-            },
-            {
-              name: "buttons",
-              type: "list",
-              items: {
-                type: "object",
-                fields: [
-                  { name: "variant", type: "string", required: true },
-                  { name: "className", type: "string" }
-                ]
-              }
-            }
-          ]
-        },
         // ========= Reusable Blocks =========
         {
           name: "HeroBlock",
@@ -89,7 +57,7 @@ var stackbit_config_default = (0, import_types.defineStackbitConfig)({
             { name: "eyebrow", type: "string" },
             { name: "headline", type: "string", required: true },
             { name: "subtext", type: "string" },
-            { name: "imageSrc", type: "string" },
+            { name: "imageSrc", type: "image" },
             {
               name: "cta",
               type: "object",
@@ -114,21 +82,30 @@ var stackbit_config_default = (0, import_types.defineStackbitConfig)({
         {
           name: "Page",
           type: "page",
+          labelField: "title",
+          fieldGroups: [{ name: "design", label: "Design" }],
           urlPath: "/{slug}",
           filePath: "content/pages/{slug}.json",
           fields: [
+            {
+              name: "slug",
+              type: "string",
+              required: true,
+              description: 'URL slug ("index" becomes "/")'
+            },
             { name: "title", type: "string", required: true },
             {
               name: "sections",
               type: "list",
               items: {
+                fieldGroups: [{ name: "design", label: "Design" }],
                 type: "object",
                 fields: [
-                  { name: "blockType", type: "string", required: true },
                   // For inline content
+                  { name: "blockType", type: "string", required: true },
                   { name: "headline", type: "string" },
                   { name: "subtext", type: "string" },
-                  { name: "imageSrc", type: "string" },
+                  { name: "imageSrc", type: "image" },
                   {
                     name: "cta",
                     type: "object",
@@ -154,33 +131,37 @@ var stackbit_config_default = (0, import_types.defineStackbitConfig)({
     // Optionally enable Sanity (toggle via ENABLE_SANITY=true)
     ...enableSanity ? [
       new import_cms_sanity.SanityContentSource({
+        // Minimal local manifest root so the resolver doesn't crawl your external Studio
         rootPath: "/Users/ambermin/Documents/Workspace/DevProjects/GitHub/fas-cms",
+        // Not used during schema fetch, but required by the type
+        studioUrl: process.env.SANITY_STUDIO_URL || "http://localhost:3333",
+        // Fetch schema via API (avoids loading your Studio deps)
         projectId: process.env.SANITY_PROJECT_ID,
         dataset: process.env.SANITY_DATASET || "production",
-        token: process.env.SANITY_ACCESS_TOKEN,
-        // READ token
-        studioUrl: process.env.SANITY_STUDIO_URL || "https://fassanity.fasmotorsports.com",
-        studioInstallCommand: "echo 'skipping install'"
+        token: process.env.SANITY_ACCESS_TOKEN
       })
     ] : []
   ],
   siteMap: ({ documents, models }) => {
     const pageModels = models.filter((m) => m.type === "page");
-    const entries = [];
-    for (const doc of documents) {
-      const isPageModel = pageModels.some((m) => m.name === doc.modelName);
-      if (!isPageModel) continue;
-      const slug = doc.slug || doc.fields?.slug || doc.id;
-      const isHome = slug === "index";
-      const urlPath = isHome ? "/" : `/${slug}`;
-      entries.push({
-        stableId: doc.id,
-        urlPath,
-        document: doc,
-        isHomePage: isHome
-      });
-    }
-    return entries;
+    return documents.filter((d) => pageModels.some((m) => m.name === d.modelName)).map((document) => {
+      const urlModel = (() => {
+        switch (document.modelName) {
+          case "Page":
+            return "otherPage";
+          case "Blog":
+            return "otherBlog";
+          default:
+            return null;
+        }
+      })();
+      return {
+        stableId: document.id,
+        urlPath: `/${urlModel}/${document.id}`,
+        document,
+        isHomePage: false
+      };
+    }).filter(Boolean);
   },
   ...enableSanity ? {
     modelExtensions: [
@@ -189,4 +170,4 @@ var stackbit_config_default = (0, import_types.defineStackbitConfig)({
     ]
   } : {}
 });
-//# sourceMappingURL=stackbit.config.MLSAIRHN.cjs.map
+//# sourceMappingURL=stackbit.config.G3JQPBX7.cjs.map

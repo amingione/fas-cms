@@ -1,6 +1,7 @@
 {
   "name": "fas-cms",
   "packageManager": "yarn@3.6.4",
+  "version": "1.0.0",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -8,7 +9,9 @@
     "lint": "eslint \"src/**/*.{js,ts,jsx,tsx}\"",
     "prepare": "husky install",
     "stackbit:dev": "dotenv -e .env -- stackbit dev",
-    "stackbit:dev:verbose": "dotenv -e .env -- stackbit dev --verbose"
+    "stackbit:dev:verbose": "dotenv -e .env -- stackbit dev --verbose",
+    "stackbit:dev:cloud": "dotenv -e .env -- stackbit dev --cloudinary-cloud-name $CLOUDINARY_CLOUD_NAME --cloudinary-api-key $CLOUDINARY_API_KEY",
+    "stackbit:dev:sanity": "dotenv -e .env -- cross-env ENABLE_SANITY=true stackbit dev"
   },
   "lint-staged": {
     "*": [
@@ -23,8 +26,10 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.26.0",
+    "@sanity/core": "2.36.2",
     "@stackbit/cli": "latest",
     "@stackbit/cms-git": "^1.0.35",
+    "@stackbit/cms-sanity": "latest",
     "@stackbit/types": "^2.1.14",
     "@types/add": "^2",
     "@types/jsonwebtoken": "^9",
@@ -39,6 +44,7 @@
     "add": "^2.0.6",
     "autoprefixer": "^10.4.21",
     "class-variance-authority": "^0.7.1",
+    "cross-env": "^7.0.3",
     "cssnano": "^7.0.6",
     "dotenv-cli": "^7.4.1",
     "esbuild": "0.25.5",
@@ -116,7 +122,6 @@
     "react-resizable-panels": "^3.0.4",
     "recharts": "^3.1.2",
     "resend": "^4.5.0",
-    "sanity": "^3.87.1",
     "solid-js": "^1.9.6",
     "sonner": "2.0.3",
     "stripe": "^18.4.0",

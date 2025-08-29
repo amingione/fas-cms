@@ -24,45 +24,12 @@ export default defineStackbitConfig({
     }
   },
 
-  // Content sources for visual editing
+  // ...
   contentSources: [
-    // Git-based content (Markdown/MDX/JSON/YAML) from this repo
     new GitContentSource({
       rootPath: __dirname,
       contentDirs: ['content'],
       models: [
-        // ========= Global Theme =========
-        {
-          name: 'Theme',
-          type: 'data',
-          filePath: 'content/theme.json',
-          fields: [
-            { name: 'brandName', type: 'string', required: true },
-            {
-              name: 'colors',
-              type: 'object',
-              fields: [
-                { name: 'primary', type: 'string', required: true },
-                { name: 'secondary', type: 'string' },
-                { name: 'accent', type: 'string' },
-                { name: 'background', type: 'string' },
-                { name: 'foreground', type: 'string' }
-              ]
-            },
-            {
-              name: 'buttons',
-              type: 'list',
-              items: {
-                type: 'object',
-                fields: [
-                  { name: 'variant', type: 'string', required: true },
-                  { name: 'className', type: 'string' }
-                ]
-              }
-            }
-          ]
-        },
-
         // ========= Reusable Blocks =========
         {
           name: 'HeroBlock',
@@ -72,7 +39,7 @@ export default defineStackbitConfig({
             { name: 'eyebrow', type: 'string' },
             { name: 'headline', type: 'string', required: true },
             { name: 'subtext', type: 'string' },
-            { name: 'imageSrc', type: 'string' },
+            { name: 'imageSrc', type: 'image' },
             {
               name: 'cta',
               type: 'object',
@@ -98,21 +65,30 @@ export default defineStackbitConfig({
         {
           name: 'Page',
           type: 'page',
+          labelField: 'title',
+          fieldGroups: [{ name: 'design', label: 'Design' }],
           urlPath: '/{slug}',
           filePath: 'content/pages/{slug}.json',
           fields: [
+            {
+              name: 'slug',
+              type: 'string',
+              required: true,
+              description: 'URL slug ("index" becomes "/")'
+            },
             { name: 'title', type: 'string', required: true },
             {
               name: 'sections',
               type: 'list',
               items: {
+                fieldGroups: [{ name: 'design', label: 'Design' }],
                 type: 'object',
                 fields: [
-                  { name: 'blockType', type: 'string', required: true },
                   // For inline content
+                  { name: 'blockType', type: 'string', required: true },
                   { name: 'headline', type: 'string' },
                   { name: 'subtext', type: 'string' },
-                  { name: 'imageSrc', type: 'string' },
+                  { name: 'imageSrc', type: 'image' },
                   {
                     name: 'cta',
                     type: 'object',
@@ -135,43 +111,48 @@ export default defineStackbitConfig({
         }
       ]
     }),
-
     // Optionally enable Sanity (toggle via ENABLE_SANITY=true)
     ...(enableSanity
       ? [
           new SanityContentSource({
-            rootPath: __dirname,
-            projectId: process.env.SANITY_PROJECT_ID!,
-            dataset: process.env.SANITY_DATASET || 'production',
-            token: process.env.SANITY_ACCESS_TOKEN!, // READ token
-            studioUrl: process.env.SANITY_STUDIO_URL || 'https://fassanity.fasmotorsports.com',
-            studioInstallCommand: "echo 'skipping install'"
-          })
+            projectId: process.env.SANITY_PROJECT_ID as string,
+            dataset: (process.env.SANITY_DATASET || 'production') as string,
+            token: process.env.SANITY_ACCESS_TOKEN as string
+          } as unknown as any)
         ]
       : [])
   ],
   siteMap: ({ documents, models }) => {
-    // Find all models defined as pages
+    // 1. Filter all page models
     const pageModels = models.filter((m) => m.type === 'page');
 
-    // For each document whose model is a page, build a URL using its slug
-    const entries: SiteMapEntry[] = [];
-    for (const doc of documents) {
-      const isPageModel = pageModels.some((m) => m.name === doc.modelName);
-      if (!isPageModel) continue;
+    return (
+      documents
+        // 2. Filter all documents which are of a page model
+        .filter((d) => pageModels.some((m) => m.name === d.modelName))
+        // 3. Map each document to a SiteMapEntry
+        .map((document) => {
+          // Map the model name to its corresponding URL
+          const urlModel = (() => {
+            switch (document.modelName) {
+              case 'Page':
+                return 'otherPage';
+              case 'Blog':
+                return 'otherBlog';
+              default:
+                return null;
+            }
+          })();
 
-      const slug = (doc as any).slug || (doc as any).fields?.slug || doc.id;
-      const isHome = slug === 'index';
-      const urlPath = isHome ? '/' : `/${slug}`;
-
-      entries.push({
-        stableId: doc.id,
-        urlPath,
-        document: doc,
-        isHomePage: isHome
-      });
-    }
-    return entries;
+          return {
+            stableId: document.id,
+            urlPath: `/${urlModel}/${document.id}`,
+            document,
+            isHomePage: false
+          };
+        })
+        .filter(Boolean) as SiteMapEntry[]
+    );
   },
   ...(enableSanity
     ? {
