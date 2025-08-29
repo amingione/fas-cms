@@ -64,7 +64,7 @@ import AccountDashboard from './accountdashboard.astro';
 </div>
 
 <!-- Drawer + Scrim -->
-<div id="mnavScrim" class="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[59] hidden opacity-0 transition-opacity duration-300"></div>
+<div id="mnavScrim" aria-hidden="true" class="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[59] hidden opacity-0 transition-opacity duration-300 pointer-events-none"></div>
 <aside id="mnavDrawer" class="md:hidden fixed top-0 left-0 h-full w-[84%] max-w-[360px] bg-[#0b0b0c]/95 border-r border-white/10 z-[60] -translate-x-full transition-transform duration-300 ease-out overflow-y-auto will-change-transform">
   <div class="pt-[104px] pb-8 px-4">
     <!-- Pages (match desktop) -->
@@ -430,6 +430,8 @@ import AccountDashboard from './accountdashboard.astro';
       if (!mnavDrawer || !mnavScrim) return;
       mnavDrawer.classList.remove("-translate-x-full");
       mnavScrim.classList.remove("hidden");
+      mnavScrim.classList.remove("pointer-events-none");
+      mnavScrim.setAttribute("aria-hidden", "false");
       setTimeout(() => { mnavScrim.classList.remove("opacity-0"); }, 10);
       mline1.setAttribute("d", "M6 6l12 12");
       mline2.setAttribute("d", "");
@@ -440,6 +442,8 @@ import AccountDashboard from './accountdashboard.astro';
     }
     function closeMnav() {
       if (!mnavDrawer || !mnavScrim) return;
+      mnavScrim.classList.add("pointer-events-none");
+      mnavScrim.setAttribute("aria-hidden", "true");
       mnavDrawer.classList.add("-translate-x-full");
       mnavScrim.classList.add("opacity-0");
       setTimeout(() => { mnavScrim.classList.add("hidden"); }, 300);

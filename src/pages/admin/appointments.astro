@@ -1,7 +1,13 @@
-
-
 ---
 import { fetchAppointments } from '../../lib/calcom';
+// Define the Appointment type or import it from the correct location
+type Appointment = {
+  eventType?: { title?: string };
+  customer: { name?: string; email?: string };
+  startTime: string | number | Date;
+  status: string;
+};
+
 const appointments = await fetchAppointments();
 ---
 
@@ -15,7 +21,7 @@ const appointments = await fetchAppointments();
     {
       appointments?.length > 0 ? (
         <ul class="space-y-4">
-          {appointments.map((appt) => (
+          {appointments.map((appt: Appointment) => (
             <li class="border border-white p-4 rounded">
               <strong>{appt.eventType?.title || 'Appointment'}</strong><br />
               Customer: {appt.customer.name || appt.customer.email}<br />

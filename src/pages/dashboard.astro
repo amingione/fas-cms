@@ -12,6 +12,23 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     @media (min-width: 640px) {
       [data-mobile-dash] { display: none !important; }
     }
+
+    /* --- Clickability guard: ensure dashboard UI is above any global overlays and accepts clicks --- */
+    [data-mobile-dash],
+    [data-desktop-dash] {
+      position: relative;
+      z-index: 50; /* higher than typical site headers/overlays */
+    }
+    /* Make sure interactive elements always receive pointer events even if an ancestor disables them */
+    [data-dash-content],
+    .js-view,
+    #mobile-account-select,
+    .logout-link,
+    a,
+    button,
+    select {
+      pointer-events: auto !important;
+    }
   </style>
   <!-- MOBILE DASHBOARD (auto on <640px) -->
   <main data-mobile-dash class="block sm:hidden min-h-screen pt-20 pb-24 px-4 text-white">
@@ -394,6 +411,24 @@ import BaseLayout from "../layouts/BaseLayout.astro";
             const view = a.getAttribute('data-view');
             load(view);
           });
+        });
+
+        // Delegation fallback: catch clicks on any future .js-view links
+        document.addEventListener('click', (e) => {
+          const target = e.target instanceof Element ? e.target.closest('.js-view') : null;
+          if (target) {
+            e.preventDefault();
+            const v = target.getAttribute('data-view');
+            load(v);
+          }
+        });
+
+        // Delegation for the mobile selector in case it re-renders
+        document.addEventListener('change', (e) => {
+          const sel = e.target instanceof HTMLSelectElement ? e.target : null;
+          if (sel && sel.id === 'mobile-account-select') {
+            load(sel.value);
+          }
         });
 
         // Default view

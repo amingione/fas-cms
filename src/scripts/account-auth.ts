@@ -7,9 +7,10 @@ declare global {
     fasAuth?: {
       isAuthenticated: () => Promise<boolean>;
       getUser: () => Promise<any>;
+      getIdTokenClaims: () => Promise<any>;
       loginTo: (returnTo: string) => Promise<void>;
       logout: (returnTo?: string) => Promise<void>;
-      hasRole: (role: string) => Promise<boolean>;
+      hasRole: (role: string | string[]) => Promise<boolean>;
     };
   }
 }
@@ -54,6 +55,7 @@ setTimeout(() => {
     window.fasAuth = {
       isAuthenticated: () => auth0.isAuthenticated(),
       getUser: () => auth0.getUser(),
+      getIdTokenClaims: () => auth0.getIdTokenClaims(),
       loginTo: (returnTo: string) =>
         auth0.loginWithRedirect({
           appState: { returnTo },
@@ -75,10 +77,14 @@ setTimeout(() => {
             (claims?.['https://fasmotorsports.com/roles'] as string[]) ||
             (claims?.['https://schemas.quickstarts.auth0.com/roles'] as string[]) ||
             [];
+
+          const norm = (s: string) => (s || '').toLowerCase();
+          const have = new Set(roles.map(norm));
+
           if (Array.isArray(role)) {
-            return role.some((r) => roles.includes(r));
+            return role.map(norm).some((r) => have.has(r));
           }
-          return roles.includes(role);
+          return have.has(norm(role));
         } catch {
           return false;
         }

@@ -11,7 +11,15 @@ const client = createClient({
   apiVersion: '2023-01-01'
 })
 
-const [quotes, setQuotes] = useState([])
+// Define the Quote type
+type Quote = {
+  quoteId: string
+  status: string
+  dateRequested: string
+  notes: string
+}
+
+const [quotes, setQuotes] = useState<Quote[]>([])
 
 useEffect(() => {
   async function fetchQuotes() {

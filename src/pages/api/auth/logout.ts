@@ -10,33 +10,27 @@ export const GET: APIRoute = async ({ request }) => {
       'zMZZoiIamhK5ItezIjPMJ0b3TLj7LDCY') as string;
     const SITE_URL = import.meta.env.PUBLIC_SITE_URL as string | undefined;
 
-    if (!DOMAIN || !CLIENT_ID) {
-      return new Response(JSON.stringify({ error: 'Auth0 env not configured' }), {
-        status: 500,
-        headers: { 'content-type': 'application/json' }
-      });
-    }
-
     const url = new URL(request.url);
-    const inferredOrigin = `${url.protocol}//${url.host}`;
 
-    // Preferred return target from query or env, else current origin
-    const rawReturn = url.searchParams.get('returnTo') || SITE_URL || inferredOrigin;
+    // Use the exact current origin by default to match Auth0 Allowed Logout URLs
+    const currentOrigin = `${url.protocol}//${url.host}`;
 
-    // Normalize: force https in prod, strip leading www. (Auth0 requires exact match)
-    let rt: string;
+    // If a fully-qualified returnTo is provided, trust it; else prefer PUBLIC_SITE_URL; else use current origin
+    let baseReturn = url.searchParams.get('returnTo') || SITE_URL || currentOrigin;
+
+    // Ensure baseReturn is a valid URL and keep its exact origin (no www stripping / protocol forcing)
     try {
-      const r = new URL(rawReturn);
-      const isLocal = /localhost|127\.0\.0\.1/.test(r.hostname);
-      const hostNoWww = r.hostname.replace(/^www\./, '');
-      const proto = isLocal ? r.protocol : 'https:';
-      rt = `${proto}//${hostNoWww}${r.port && isLocal ? `:${r.port}` : ''}`;
+      const u = new URL(baseReturn);
+      baseReturn = `${u.protocol}//${u.host}`; // origin only
     } catch {
-      rt = inferredOrigin;
+      baseReturn = currentOrigin;
     }
+
+    // Final returnTo path — send users back to /account
+    const rt = `${baseReturn}/account`;
 
     // Build the Auth0 logout URL using normalized returnTo
-    const logoutUrl = `https://${DOMAIN}/v2/logout?client_id=${encodeURIComponent(CLIENT_ID)}&returnTo=${encodeURIComponent(rt + '/account')}`;
+    const logoutUrl = `https://${DOMAIN}/v2/logout?client_id=${encodeURIComponent(CLIENT_ID)}&returnTo=${encodeURIComponent(rt)}`;
 
     // Clear the token cookie used by server routes
     const clearCookie = `token=; Path=/; Max-Age=0; SameSite=Lax${url.protocol === 'https:' ? '; Secure' : ''}`;

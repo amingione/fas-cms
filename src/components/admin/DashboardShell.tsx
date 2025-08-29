@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ToastProvider } from './Toast';
+import '../../styles/global.css';
 
 export default function DashboardShell({ children }: { children: React.ReactNode }) {
   return (

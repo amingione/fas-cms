@@ -2,10 +2,15 @@
 import DashboardShell from '@components/admin/DashboardShell.tsx'
 import Card from '@components/admin/Card.tsx'
 import accountAuthUrl from "../../scripts/account-auth.ts?url";
-const stats = await fetch('/.netlify/functions/orders-list').then(r=>r.json()).catch(()=>({data:[]}))
+const base = import.meta.env.PUBLIC_BASE_URL || (Astro.site ? new URL(Astro.site).origin : new URL(Astro.request.url).origin);
+let stats: any = { data: [] };
+try {
+  const res = await fetch(`${base}/.netlify/functions/orders-list`);
+  if (res.ok) stats = await res.json();
+} catch {}
 const countOrders = stats?.data?.length || 0
 ---
-<DashboardShell>
+<DashboardShell client:only="react">
   <script type="module" src={accountAuthUrl}></script>
   <script>
     (async () => {
@@ -16,19 +21,53 @@ const countOrders = stats?.data?.length || 0
           return fx.loginTo('/admin');
         }
         // Allow either "employee" or "owner" to access /admin
-        const ok = await fx.hasRole?.('employee') || await fx.hasRole?.('owner');
+        const ok = await (fx as any).hasRole?.(['employee','owner']);
         if (location.origin.startsWith('http://localhost:4321')) {
           try {
-            const user = await window.fasAuth?.getUser();
+            const claims = await (window.fasAuth as any)?.getIdTokenClaims();
             console.debug('[admin] roles claim:',
-              user?.['https://login.fasmotorsport.com/fas/roles'] ||
-              user?.['https://fasmotorsports.com/roles'] ||
-              user?.['https://schemas.quickstarts.auth0.com/roles'] || []
+              claims?.['https://login.fasmotorsport.com/fas/roles'] ||
+              claims?.['https://fasmotorsports.com/roles'] ||
+              claims?.['https://schemas.quickstarts.auth0.com/roles'] || []
             );
           } catch {}
         }
         if (ok === false) {
-          document.body.innerHTML = '<main class="p-8 text-center text-red-400">Forbidden: employee account required.</main>';
+          const isLocal = location.origin.startsWith('http://localhost:4321');
+          if (!isLocal) {
+            document.body.innerHTML = '<main class="p-8 text-center text-red-400">Forbidden: employee or owner role required. Please contact an administrator.</main>';
+          } else {
+            try {
+              const claims = await (window.fasAuth as any)?.getIdTokenClaims();
+              const roles =
+                claims?.['https://login.fasmotorsport.com/fas/roles'] ||
+                claims?.['https://fasmotorsports.com/roles'] ||
+                claims?.['https://schemas.quickstarts.auth0.com/roles'] || [];
+              const pretty = document.createElement('div');
+              pretty.className = 'mx-auto my-12 max-w-xl rounded-md border border-red-300 bg-red-50 p-6 text-red-900';
+              pretty.innerHTML = `
+                <h2 class="text-lg font-semibold mb-2">Forbidden</h2>
+                <p class="mb-4">Your token does not include the required role (<code>employee</code> or <code>owner</code>).</p>
+                <div class="mb-2"><strong>Roles claim:</strong> <code>${'${JSON.stringify(roles)}'}</code></div>
+                <div class="mb-4 text-sm text-red-800">Claim namespaces checked:<br>
+                  <code>https://login.fasmotorsport.com/fas/roles</code><br>
+                  <code>https://fasmotorsports.com/roles</code><br>
+                  <code>https://schemas.quickstarts.auth0.com/roles</code>
+                </div>
+                <div class="flex gap-3">
+                  <button id="admin-logout" class="rounded bg-red-600 px-3 py-1.5 text-white">Logout & Re-login</button>
+                  <a href="/account" class="rounded border px-3 py-1.5">Go to Account</a>
+                </div>
+              `;
+              document.body.innerHTML = '';
+              document.body.appendChild(pretty);
+              document.getElementById('admin-logout')?.addEventListener('click', async () => {
+                await window.fasAuth?.logout(location.origin + '/account');
+              });
+            } catch {
+              document.body.innerHTML = '<main class="p-8 text-center text-red-400">Forbidden: employee or owner role required. (Unable to read token claims.)</main>';
+            }
+          }
         }
       };
       // Retry a couple times in case fasAuth attaches slightly later
