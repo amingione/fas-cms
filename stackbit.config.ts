@@ -124,36 +124,26 @@ export default defineStackbitConfig({
       : [])
   ],
   siteMap: ({ documents, models }) => {
-    // 1. Filter all page models
-    const pageModels = models.filter((m) => m.type === 'page');
+    const pageModelNames = new Set(models.filter((m) => m.type === 'page').map((m) => m.name));
 
-    return (
-      documents
-        // 2. Filter all documents which are of a page model
-        .filter((d) => pageModels.some((m) => m.name === d.modelName))
-        // 3. Map each document to a SiteMapEntry
-        .map((document) => {
-          // Map the model name to its corresponding URL
-          const urlModel = (() => {
-            switch (document.modelName) {
-              case 'Page':
-                return 'otherPage';
-              case 'Blog':
-                return 'otherBlog';
-              default:
-                return null;
-            }
-          })();
+    const entries: SiteMapEntry[] = documents
+      .filter((d) => pageModelNames.has(d.modelName))
+      .map((d) => {
+        const doc: any = d as any; // allow access to optional fields without TS errors
+        const slug: string | undefined = doc.fields?.slug ?? doc.slug;
+        const computedUrl: string =
+          doc.urlPath ?? (slug ? (slug === 'index' ? '/' : `/${slug}`) : '/');
 
-          return {
-            stableId: document.id,
-            urlPath: `/${urlModel}/${document.id}`,
-            document,
-            isHomePage: false
-          };
-        })
-        .filter(Boolean) as SiteMapEntry[]
-    );
+        const entry: SiteMapEntry = {
+          stableId: d.id,
+          urlPath: computedUrl,
+          document: d,
+          isHomePage: computedUrl === '/'
+        };
+        return entry;
+      });
+
+    return entries;
   },
   ...(enableSanity
     ? {
