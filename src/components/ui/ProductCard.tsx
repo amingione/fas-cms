@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingCart } from 'lucide-react';
+import { getCart, saveCart } from '@lib/cart';
 
 interface Product {
   _id: string;
@@ -34,7 +35,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
     try {
       // Get current cart
-      const cart = JSON.parse(localStorage.getItem('fas-cart') || '[]');
+      const cart = getCart();
 
       // Check if item already exists
       const existingIndex = cart.findIndex((item: any) => item.id === product._id);
@@ -54,15 +55,8 @@ export function ProductCard({ product }: ProductCardProps) {
         });
       }
 
-      // Save cart
-      localStorage.setItem('fas-cart', JSON.stringify(cart));
-
-      // Dispatch custom event for cart updates
-      window.dispatchEvent(
-        new CustomEvent('fas-cart:updated', {
-          detail: { cart }
-        })
-      );
+      // Save + emit
+      saveCart(cart);
 
       // Show success feedback
       showToast(`Added to cart: ${product.title}`, true);

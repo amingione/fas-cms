@@ -494,29 +494,21 @@ try {
       try { return JSON.parse(String(str || "")); } catch { return fallback; }
     }
 
-    function getCart(keys) {
-      for (const key of keys) {
-        try {
-          const raw = localStorage.getItem(key);
-          if (!raw) continue;
-          const data = JSON.parse(raw);
-          if (Array.isArray(data)) return { key, data };
-        } catch {}
-      }
-      return { key: keys[0], data: [] };
+    function getCart() {
+      try {
+        const raw = localStorage.getItem('cart');
+        const data = raw ? JSON.parse(raw) : [];
+        return Array.isArray(data) ? data : [];
+      } catch { return []; }
     }
 
-    function setCart(key, cart) {
-      try { localStorage.setItem(key, JSON.stringify(cart)); } catch {}
-      try { if (key !== "fas_cart") localStorage.setItem("fas_cart", JSON.stringify(cart)); } catch {}
-      try { if (key !== "cart") localStorage.setItem("cart", JSON.stringify(cart)); } catch {}
+    function setCart(cart) {
+      try { localStorage.setItem('cart', JSON.stringify(cart)); } catch {}
       try { window.cart = cart; } catch {}
     }
 
-    function emitAll(cart) {
-      try { window.dispatchEvent(new CustomEvent("cartUpdated", { detail: cart })); } catch {}
-      try { window.dispatchEvent(new CustomEvent("cart-change", { detail: cart })); } catch {}
-      try { window.dispatchEvent(new CustomEvent("cart:updated", { detail: cart })); } catch {}
+    function emitCartUpdated(cart) {
+      try { window.dispatchEvent(new CustomEvent('cart:updated', { detail: { cart } })); } catch {}
     }
 
     // Add-to-cart delegation (compute latest config first)
@@ -552,16 +544,15 @@ try {
         categories: safeParseJSON(ds.productCategories || "[]", []),
         options: selections,          // selected upgrades/options
         signature,                    // used to deduplicate
-        qty: 1,
+        quantity: 1,
       };
 
-      const { key, data } = getCart(["cart", "fas_cart"]);
-      const cart = Array.isArray(data) ? data : [];
+      const cart = getCart();
 
       // Find existing line with same product id AND same configuration signature
       const existing = cart.find((p) => p && p.id === product.id && p.signature === product.signature);
       if (existing) {
-        existing.qty = (existing.qty || 1) + 1;
+        existing.quantity = (existing.quantity || 1) + 1;
         // Always keep price in sync with current configuration
         existing.price = product.price;
         existing.extra = product.extra;
@@ -571,8 +562,8 @@ try {
         cart.push(product);
       }
 
-      setCart(key, cart);
-      emitAll(cart);
+      setCart(cart);
+      emitCartUpdated(cart);
     }, true);
 
     // ---- Price calculator ----

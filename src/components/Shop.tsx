@@ -198,7 +198,7 @@ export default function Shop({
   useEffect(() => {
     const updateCartCount = () => {
       try {
-        const cart = JSON.parse(localStorage.getItem('fas-cart') || '[]');
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
         const count = cart.reduce((total: number, item: any) => total + (item.quantity || 0), 0);
         setCartItems(count);
       } catch {
@@ -207,8 +207,11 @@ export default function Shop({
     };
 
     updateCartCount();
-    window.addEventListener('fas-cart:updated', updateCartCount);
-    return () => window.removeEventListener('fas-cart:updated', updateCartCount);
+    // Listen only to the normalized event
+    window.addEventListener('cart:updated', updateCartCount);
+    return () => {
+      window.removeEventListener('cart:updated', updateCartCount);
+    };
   }, []);
 
   // Filter and sort products

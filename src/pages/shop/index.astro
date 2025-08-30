@@ -1,6 +1,8 @@
 --- 
 import BaseLayout from '@layouts/BaseLayout.astro';
-import ProductCard from '@components/ProductCard.astro';
+import ProductCard from '@components/ProductCard';
+import ShopTopControls from '@components/shop/ShopTopControls';
+import ShopSidebarFilters from '@components/shop/ShopSidebarFilters';
 import { fetchProductsFromSanity, fetchCategories } from '@lib/sanity-utils';
 import type { Product, Category } from '@lib/sanity-utils';
 
@@ -73,124 +75,32 @@ if (endPage < totalPages) {
 
 <BaseLayout>
   <section class="max-w-7xl mx-auto px-4 md:px-6 mt-11 pt-10">
-    <!-- Top Filters (small screens only; hidden on md and up, hidden on xs by default since sm breakpoint is 640px) -->
-    <div id="mobile-filters-wrap" class="block md:hidden mb-4 relative isolation-isolate z-49">
-      <div class="rounded-2xl bg-fx-surface-2/70 backdrop-blur ring-1 ring-white/10 shadow-fx-subtle overflow-visible">
-        <!-- Top row: Categories + Filters triggers -->
-        <div class="flex items-center justify-between px-4 py-3 border-b border-white/10">
-          <!-- Categories Dropdown (labelled with active category name) -->
-          <details id="mobile-cats" class="relative group">
-            <details open class="rounded-fx-xl bg-fx-surface-2 shadow-fx-subtle">
-            <summary class="px-3 py-2 cursor-pointer fas-label text-muted-foreground">Categories</summary>
-            <div class="px-3 py-2 space-y-2">
-              <label class="block fas-body-sm text-white/90 cursor-pointer select-none hover:bg-white/5">
-                <input type="radio" name="category" value="" class="mr-2 cursor-pointer" checked={!currentCategory} />
-                All Categories
-              </label>
-              {categories.length > 0 ? (
-                categories.map((category) => (
-                  <label class="block fas-body-sm text-white/90 cursor-pointer select-none hover:bg-white/5">
-                    <input type="radio" name="category" value={category.slug.current} class="mr-2 cursor-pointer" checked={currentCategory === category.slug.current} />
-                    {category.title}
-                  </label>
-                ))
-              ) : (
-                <p>No categories available.</p>
-              )}
-          </details>
-
-          <!-- Filters Dropdown -->
-          <details id="mobile-filts" class="relative group">
-            <summary class="flex items-center gap-2 fas-label text-white/90 cursor-pointer select-none">
-              <span>Filters</span>
-              <svg class="w-4 h-4 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.085l3.71-3.855a.75.75 0 111.08 1.04l-4.25 4.416a.75.75 0 01-1.08 0L5.25 8.27a.75.75 0 01-.02-1.06z" clip-rule="evenodd"/></svg>
-            </summary>
-            <div id="filters-sm" class="absolute right-0 mt-2 w-[calc(100vw-2rem)] max-w-[22rem] rounded-xl bg-fx-surface-2 ring-1 ring-white/10 shadow-lg p-3 space-y-2 z-49 max-h-64 overflow-auto">
-              {uniqueFilters.length > 0 ? (
-                uniqueFilters.map((tag) => (
-                  <label class="flex items-center gap-2 fas-body-sm text-white/90 cursor-pointer select-none hover:bg-white/5 rounded-md px-2 py-1">
-                    <input type="checkbox" value={tag} class="filter-checkbox cursor-pointer" checked={selectedFilters.includes(tag)} />
-                    <span class="capitalize">{tag}</span>
-                  </label>
-                ))
-              ) : (
-                <p class="text-sm opacity-70">No filters available.</p>
-              )}
-            </div>
-          </details>
-        </div>
-
-        <!-- Chips row -->
-        <div class="px-4 py-3 bg-fx-surface-1/50">
-          <div class="fas-label text-muted-foreground mb-2">Filters</div>
-          <div class="flex flex-wrap gap-2">
-            {selectedFilters.length > 0 ? (
-              selectedFilters.map((tag) => (
-                <button type="button" class="inline-flex items-center gap-1 rounded-full border border-white/15 bg-fx-surface-2 px-3 py-1 text-sm capitalize hover:bg-white/10 remove-chip-sm" data-filter={tag}>
-                  {tag}
-                  <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
-                </button>
-              ))
-            ) : (
-              <span class="text-sm opacity-70">None selected</span>
-            )}
-          </div>
-        </div>
-
-        <div class="px-4 pb-4">
-          <button id="apply-filters-sm" type="button" class="btn-glass btn-primary btn-md inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none w-full mt-3">Apply</button>
-        </div>
-      </div>
+    <div class="mb-4">
+      <ShopTopControls
+        client:load
+        categories={categories}
+        availableFilters={uniqueFilters}
+        currentCategory={currentCategory}
+        selectedFilters={selectedFilters}
+      />
     </div>
 
     <div class="flex flex-col md:flex-row gap-0 pt-8">
       <aside class="w-full md:w-1/4 md:block hidden pr-4">
-        <div id="category-sidebar" class="flex flex-col gap-2">
-          <details open class="rounded-fx-xl bg-fx-surface-2 shadow-fx-subtle">
-            <summary class="px-3 py-2 cursor-pointer fas-label text-muted-foreground">Categories</summary>
-            <div class="px-3 py-2 space-y-2">
-              <label class="block fas-body-sm text-white/90 cursor-pointer select-none hover:bg-white/5">
-                <input type="radio" name="category-md" value="" class="mr-2 cursor-pointer" checked={!currentCategory} />
-                All Categories
-              </label>
-              {categories.length > 0 ? (
-                categories.map((category) => (
-                  <label class="block fas-body-sm text-white/90 cursor-pointer select-none hover:bg-white/5">
-                    <input type="radio" name="category-md" value={category.slug.current} class="mr-2 cursor-pointer" checked={currentCategory === category.slug.current} />
-                    {category.title}
-                  </label>
-                ))
-              ) : (
-                <p>No categories available.</p>
-              )}
-            </div>
-          </details>
-
-          <details class="mt-3 rounded-fx-xl bg-fx-surface-2 shadow-fx-subtle">
-            <summary class="px-3 py-2 cursor-pointer fas-label text-muted-foreground">Filters</summary>
-            <div class="px-3 py-2 space-y-2" id="filters-md">
-              {uniqueFilters.length > 0 ? (
-                uniqueFilters.map((tag) => (
-                  <label class="flex items-center gap-2 fas-body-sm text-white/90 cursor-pointer select-none hover:bg-white/5 rounded-md px-1">
-                    <input type="checkbox" value={tag} class="filter-checkbox cursor-pointer" checked={selectedFilters.includes(tag)} />
-                    <span class="capitalize">{tag}</span>
-                  </label>
-                ))
-              ) : (
-                <p class="text-sm opacity-70">No filters available.</p>
-              )}
-            </div>
-          </details>
-
-          <button id="apply-filters-md" type="button" class="btn-glass btn-primary btn-md inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none w-full mt-3">Apply</button>
-        </div>
+        <ShopSidebarFilters
+          client:load
+          categories={categories}
+          availableFilters={uniqueFilters}
+          currentCategory={currentCategory}
+          selectedFilters={selectedFilters}
+        />
       </aside>
 
       <div class="w-full md:w-3/4">
         <div id="product-grid" class="relative isolation-isolate z-0 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-4">
           {products.length > 0 ? (
             products.map(product => (
-              <ProductCard product={product} productImage={product.images?.[0]} />
+              <ProductCard client:load product={product} productImage={product.images?.[0]} />
             ))
           ) : (
             <p>No products found.</p>
@@ -210,7 +120,7 @@ if (endPage < totalPages) {
               return params.toString();
             })()}`}
             class={`px-3 h-9 inline-flex items-center justify-center rounded-fx-md border border-fx transition duration-200 text-sm font-bold ${
-              isActive ? 'bg-primary text-black shadow-fx-xs' : 'bg-fx-surface-2 text-white hover:bg-primary/90 hover:text-black'
+              isActive ? ' text-black bg-primary/40 backdrop-blur-sm shadow-fx-xs' : 'bg-fx-surface-2 text-white hover:bg-primary/90 hover:text-black'
             }`}
           >
             {label}
@@ -221,108 +131,7 @@ if (endPage < totalPages) {
   </section>
 
   
-  <script is:inline>
-    (function () {
-      function readSelected(name) {
-        const el = document.querySelector(`input[name="${name}"]:checked`);
-        return (el && 'value' in el) ? /** @type {HTMLInputElement} */ (el).value : '';
-      }
-      function readChecked(containerId) {
-        const box = document.getElementById(containerId);
-        if (!box) return [];
-        return Array.from(box.querySelectorAll('input.filter-checkbox:checked'))
-          .map((i) => /** @type {HTMLInputElement} */ (i).value.toLowerCase())
-          .filter(Boolean);
-      }
-
-      function apply(from) {
-        const params = new URLSearchParams(window.location.search);
-
-        // Category: set new + legacy, clear both when empty
-        const cat = from === 'md' ? readSelected('category-md') : readSelected('category');
-        if (cat) {
-          params.set('categorySlug', cat);
-          params.set('category', cat);
-        } else {
-          params.delete('categorySlug');
-          params.delete('category');
-        }
-
-        // Filters: clear all prior keys, then set anew
-        // Remove any existing multi-`filter` keys
-        params.delete('filters');
-        // URLSearchParams has no direct way to delete all of a key with multiples other than loop
-        const toDelete = [];
-        for (const [k] of params.entries()) if (k === 'filter') toDelete.push(k);
-        toDelete.forEach((k) => params.delete(k));
-
-        const filters = readChecked(from === 'md' ? 'filters-md' : 'filters-sm');
-        if (filters.length) {
-          params.set('filters', filters.join(','));
-          filters.forEach((f) => params.append('filter', f));
-        }
-
-        // Reset pagination
-        params.set('page', '1');
-
-        // Navigate
-        window.location.href = `/shop?${params.toString()}`;
-      }
-
-      // Wire buttons
-      document.getElementById('apply-filters-sm')?.addEventListener('click', () => apply('sm'));
-      document.getElementById('apply-filters-md')?.addEventListener('click', () => apply('md'));
-
-
-    })();
-  </script>
-  <script is:inline>
-    (function () {
-      // Click on a chip's × should uncheck the matching filter input(s) and remove the chip from view
-      function uncheckFilterByTag(tag) {
-        if (!tag) return false;
-        const needle = String(tag).toLowerCase();
-        let changed = false;
-        // Uncheck in mobile popover
-        document.querySelectorAll('#filters-sm input.filter-checkbox').forEach((el) => {
-          const inp = /** @type {HTMLInputElement} */ (el);
-          if (String(inp.value).toLowerCase() === needle && inp.checked) {
-            inp.checked = false;
-            changed = true;
-          }
-        });
-        // Uncheck in desktop sidebar (if present)
-        document.querySelectorAll('#filters-md input.filter-checkbox').forEach((el) => {
-          const inp = /** @type {HTMLInputElement} */ (el);
-          if (String(inp.value).toLowerCase() === needle && inp.checked) {
-            inp.checked = false;
-            changed = true;
-          }
-        });
-        return changed;
-      }
-
-      function removeChipEl(btn) {
-        const chip = btn.closest('.remove-chip-sm');
-        // Our button *is* the chip element; remove it
-        if (chip && chip.parentElement) chip.parentElement.removeChild(chip);
-      }
-
-      document.querySelectorAll('.remove-chip-sm').forEach((btn) => {
-        btn.addEventListener('click', (ev) => {
-          ev.preventDefault();
-          const target = /** @type {HTMLElement} */ (ev.currentTarget);
-          const tag = target.getAttribute('data-filter');
-          if (!tag) return;
-          const changed = uncheckFilterByTag(tag);
-          // Remove the chip visually so the UI reflects the change immediately
-          removeChipEl(target);
-          // Do NOT auto-navigate; user will press Apply
-          // Optionally, we could enable the Apply button or show a subtle cue here.
-        });
-      });
-    })();
-  </script>
+  
 
   <style>
     #pagination a:hover {
@@ -396,9 +205,9 @@ if (endPage < totalPages) {
       try { window.showToast = showToast; } catch {}
 
       // If the product cards dispatch a cart event, echo a toast here too
-      window.addEventListener('cartUpdated', (ev) => {
+      window.addEventListener('cart:updated', (ev) => {
         try {
-          const cart = (ev && ev.detail) || [];
+          const cart = (ev && ev.detail && ev.detail.cart) || [];
           const last = Array.isArray(cart) ? cart[cart.length - 1] : null;
           const name = last && last.name ? last.name : 'Item';
           showToast(`${name} added to cart`);
