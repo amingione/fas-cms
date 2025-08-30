@@ -683,7 +683,7 @@
 /* Industrial Grunge Background Texture - Mobile Optimized */
 .asphalt-texture {
   background-image:
-    url('/images/FAS-BG-Texture.png'),
+    url('/images/bg-texture.webp'),
     radial-gradient(circle at 20% 80%, rgba(234, 29, 38, 0.08) 0%, transparent 50%),
     radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
     radial-gradient(circle at 40% 40%, rgba(168, 85, 247, 0.04) 0%, transparent 50%);
@@ -714,7 +714,7 @@
 /* Enhanced grunge texture with brand color overlays */
 .grunge-overlay {
   background-image:
-    url('/images/FAS-BG-Texture.png'),
+    url('/images/bg-texture.webp'),
     linear-gradient(
       135deg,
       rgba(234, 29, 38, 0.05) 0%,
@@ -738,7 +738,7 @@
 
 /* Subtle grunge for cards */
 .grunge-subtle {
-  background-image: url('/images/FAS-BG-Texture.png');
+  background-image: url('/images/bg-texture.webp');
   background-size: 400px 300px;
   background-repeat: repeat;
   opacity: 0.03;
@@ -921,7 +921,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background-image: url('/images/FAS-BG-Texture.png');
+  background-image: url('/images/bg-texture.webp');
   background-size: 300px 225px;
   background-repeat: repeat;
   opacity: 0.02;
@@ -944,7 +944,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background-image: url('images/FAS-BG-Texture.png');
+  background-image: url('i/images/bg-texture.webp');
   background-size: 200px 150px;
   background-repeat: repeat;
   opacity: 0.08;
@@ -1469,7 +1469,7 @@ html {
 
 ::-webkit-scrollbar-track {
   background: var(--background);
-  background-image: url('/images/FAS-BG-Texture.png');
+  background-image: url('/images/bg-texture.webp');
   background-size: 100px 75px;
   background-repeat: repeat;
 }
