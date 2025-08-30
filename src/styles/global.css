@@ -948,7 +948,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background-image: url('i/images/bg-texture.webp');
+  background-image: url('/images/bg-texture.webp');
   background-size: 200px 150px;
   background-repeat: repeat;
   opacity: 0.08;

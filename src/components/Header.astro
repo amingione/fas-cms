@@ -204,30 +204,7 @@ import AccountDashboard from './accountdashboard.astro';
   </div>
 </header>
   
-<script type="module">
-  import { getAuth0Client } from '../../lib/auth';      // ✅ from pages/*
-  const badge = document.getElementById("account-top-badge");
-  (async () => {
-    if (!badge) return;
-    try {
-      const auth0 = await getAuth0Client();
-      const authed = await auth0.isAuthenticated();
-      if (!authed) {
-        badge.innerHTML = `<a href="/account" class="hover:!text-black hover:underline">Log in / Sign up</a>`;
-        return;
-      }
-      const user = await auth0.getUser();
-      const name = user?.given_name || user?.name || user?.email || "there";
-      badge.innerHTML = `
-        <span class="mr-3">Hello, ${name}</span>
-        <a href="/dashboard" class="hover:!text-black hover:underline">My Account</a>
-      `;
-    } catch (e) {
-      // Safe fallback
-      badge.innerHTML = `<a href="/account" class="hover:!text-black hover:underline">My Account</a>`;
-    }
-  })();
-</script>
+<script type="module" src="../scripts/header-auth.ts"></script>
 
   <script is:inline>
   document.addEventListener("DOMContentLoaded", function () {
