@@ -139,7 +139,7 @@
     url('/fonts/borgsquadital.ttf') format('truetype');
   font-weight: normal;
   font-style: italic;
-  font-display: swap;
+  font-display: auto;
 }
 @font-face {
   font-family: 'Borgsquad';
@@ -148,7 +148,7 @@
     url('/fonts/Borgsquad.woff') format('woff'),
     url('/fonts/Borgsquad.ttf') format('truetype');
   font-weight: normal;
-  font-display: swap;
+  font-display: auto;
 }
 
 @layer utilities {
@@ -168,11 +168,11 @@
     font-style: italic;
   }
 
-  .font-borg {
+  .font-borg-italic {
     font-family: 'Borgsquad Italic', sans-serif;
   }
 
-  .font-borg-normal {
+  .font-borg {
     font-family: 'Borgsquad', sans-serif;
   }
 

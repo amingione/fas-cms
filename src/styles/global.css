@@ -300,6 +300,10 @@
   }
 
   .font-borg {
+    font-family: 'Borgsquad', sans-serif;
+  }
+
+  .font-borg-italic {
     font-family: 'Borgsquad Italic', sans-serif;
   }
 

@@ -8,6 +8,7 @@ module.exports = {
   safelist: [
     'font-captain',
     'font-borg',
+    'font-borg-italic',
     'font-ethno',
     'font-ethno-italic',
     'font-cyber',
