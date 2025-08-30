@@ -4,22 +4,27 @@ const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-04-30.basil'
 });
 
-const baseUrl = import.meta.env.PUBLIC_BASE_URL || 'http://localhost:4321';
+const configuredBaseUrl = import.meta.env.PUBLIC_BASE_URL || '';
 
-function validateBaseUrl(): Response | null {
+function validateBaseUrl(baseUrl: string): Response | null {
   if (!baseUrl || !baseUrl.startsWith('http')) {
-    console.error('❌ Invalid BASE_URL:', baseUrl);
+    console.error('❌ Invalid PUBLIC_BASE_URL:', baseUrl);
     return new Response(
-      JSON.stringify({ error: 'BASE_URL is missing or invalid. Must start with http or https.' }),
+      JSON.stringify({ error: 'PUBLIC_BASE_URL is missing or invalid. Must start with http or https.' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
   return null;
 }
 
-const validationError = validateBaseUrl();
-
 export async function POST({ request }: { request: Request }) {
+  // Resolve base URL: prefer explicit env var, else Origin header during dev/preview
+  const origin = request.headers.get('origin') || '';
+  const xfProto = request.headers.get('x-forwarded-proto') || '';
+  const xfHost = request.headers.get('x-forwarded-host') || '';
+  const forwarded = xfProto && xfHost ? `${xfProto}://${xfHost}` : '';
+  const baseUrl = configuredBaseUrl || forwarded || origin;
+  const validationError = validateBaseUrl(baseUrl);
   if (validationError) return validationError;
 
   let body;
@@ -50,6 +55,14 @@ export async function POST({ request }: { request: Request }) {
     quantity: item.quantity
   }));
 
+  // Persist compact cart metadata (Stripe metadata fields are strings and size-limited)
+  let metaCart = '';
+  try {
+    const compact = cart.map((i: any) => ({ n: i?.name, q: i?.quantity, p: i?.price }));
+    metaCart = JSON.stringify(compact);
+    if (metaCart.length > 450) metaCart = metaCart.slice(0, 450);
+  } catch {}
+
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -58,6 +71,31 @@ export async function POST({ request }: { request: Request }) {
       shipping_address_collection: {
         allowed_countries: ['US', 'CA'] // Add other countries if needed
       },
+      metadata: metaCart ? { cart: metaCart } : undefined,
+      shipping_options: [
+        {
+          shipping_rate_data: {
+            type: 'fixed_amount',
+            fixed_amount: { amount: 1500, currency: 'usd' },
+            display_name: 'Standard (5–7 business days)',
+            delivery_estimate: {
+              minimum: { unit: 'business_day', value: 5 },
+              maximum: { unit: 'business_day', value: 7 }
+            }
+          }
+        },
+        {
+          shipping_rate_data: {
+            type: 'fixed_amount',
+            fixed_amount: { amount: 3500, currency: 'usd' },
+            display_name: 'Expedited (2–3 business days)',
+            delivery_estimate: {
+              minimum: { unit: 'business_day', value: 2 },
+              maximum: { unit: 'business_day', value: 3 }
+            }
+          }
+        }
+      ],
       success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/checkout/cancel`
     });

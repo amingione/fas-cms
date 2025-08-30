@@ -17,3 +17,11 @@
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
+
+# Help Netlify Dev/Visual Editor choose the right framework command
+[dev]
+  framework = "astro"
+  command = "yarn dev"
+  targetPort = 3000
+  port = 8888
+  autoLaunch = false

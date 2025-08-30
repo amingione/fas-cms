@@ -1,44 +1,84 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import Stripe from 'stripe';
 
 const url = new URL(Astro.request.url);
 const sessionId = url.searchParams.get('session_id');
+let session: any = null;
+let items: any[] = [];
+let error: string | null = null;
+
+try {
+  if (!sessionId) throw new Error('Missing session_id');
+  const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', { apiVersion: '2025-04-30.basil' });
+  session = await stripe.checkout.sessions.retrieve(sessionId);
+  const lineItems = await stripe.checkout.sessions.listLineItems(sessionId, { limit: 100 });
+  items = lineItems.data || [];
+} catch (e: any) {
+  error = e?.message || 'Unable to load receipt';
+}
 ---
 
-<BaseLayout>
-  <section class="pt-32 pb-12 max-w-3xl mx-auto px-4 text-white text-center">
-    <h1 class="text-3xl font-bold mb-4">Thanks for your order!</h1>
-    <p class="text-lg mb-4">We’re processing your payment. 🚀</p>
-    <p class="text-sm text-gray-400">
-      If anything goes wrong, please
-      <a href="/contact" class="underline text-primary">contact us</a>.
-    </p>
+<main class="min-h-[70vh] bg-black text-white px-6 py-16 max-w-4xl mx-auto">
+  <h1 class="text-3xl font-ethno mb-2">Thank you for your order</h1>
+  {error ? (
+    <p class="text-red-400">{error}</p>
+  ) : (
+    <section class="mt-4 space-y-6">
+      <div class="bg-white/5 border border-white/10 rounded-lg p-4">
+        <div class="flex justify-between">
+          <div>
+            <div class="text-sm text-white/70">Order (Stripe session)</div>
+            <div class="font-mono break-all">{session.id}</div>
+          </div>
+          <div class="text-right">
+            <div class="text-sm text-white/70">Total</div>
+            <div class="text-xl">${(session?.amount_total || 0) / 100}</div>
+          </div>
+        </div>
+      </div>
 
-    { !sessionId && (
-      <p class="text-lg text-red-400 mt-8">
-        Missing session ID. If you reached this page by mistake, please <a href="/contact" class="underline text-primary">contact support</a>.
-      </p>
-    )}
-  </section>
+      <div class="bg-white/5 border border-white/10 rounded-lg p-4">
+        <div class="text-sm text-white/70 mb-2">Shipping to</div>
+        <div>{session?.customer_details?.name}</div>
+        <div class="text-white/80">
+          {session?.customer_details?.address?.line1}{session?.customer_details?.address?.line2 ? `, ${session.customer_details.address.line2}` : ''}
+        </div>
+        <div class="text-white/80">
+          {session?.customer_details?.address?.city}, {session?.customer_details?.address?.state} {session?.customer_details?.address?.postal_code}
+        </div>
+        <div class="text-white/80">{session?.customer_details?.address?.country}</div>
+        <div class="text-white/80 mt-1">{session?.customer_details?.email}</div>
+      </div>
 
-  <script type="module" is:inline>
-    (async () => {
-      const sessionId = new URLSearchParams(window.location.search).get('session_id');
-      const cart = JSON.parse(localStorage.getItem('fas_cart') || '[]');
+      <div class="bg-white/5 border border-white/10 rounded-lg">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left border-b border-white/10">
+              <th class="p-3">Item</th>
+              <th class="p-3">Qty</th>
+              <th class="p-3">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((it) => (
+              <tr class="border-b border-white/5">
+                <td class="p-3">{it.description}</td>
+                <td class="p-3">{it.quantity}</td>
+                <td class="p-3">${(it.amount_total || 0) / 100}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      if (sessionId && cart.length) {
-        try {
-          await fetch('/api/save-order', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ sessionId, cart })
-          });
-          localStorage.removeItem('fas_cart');
-          window.dispatchEvent(new Event('cart-updated'));
-        } catch (err) {
-          console.error('❌ Failed to save order:', err);
-        }
-      }
-    })();
-  </script>
-</BaseLayout>
+      <div class="text-white/70 text-sm">
+        A confirmation email will be sent to {session?.customer_details?.email}.
+      </div>
+    </section>
+  )}
+</main>
+
+<style>
+  .font-ethno { font-family: 'Ethnocentric', sans-serif; }
+</style>
+

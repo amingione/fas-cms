@@ -1,5 +1,6 @@
 ---
 import AccountDashboard from './accountdashboard.astro';
+import HeaderAuth from '@/components/HeaderAuth.tsx';
 ---
 
 <header class="bg-black/80 shadow-xl shadow-outline text-white w-full pt-[40px]">
@@ -202,9 +203,8 @@ import AccountDashboard from './accountdashboard.astro';
       </div>
     </div>
   </div>
+  <HeaderAuth client:load />
 </header>
-  
-<script type="module" src="../scripts/header-auth.ts"></script>
 
   <script is:inline>
   document.addEventListener("DOMContentLoaded", function () {

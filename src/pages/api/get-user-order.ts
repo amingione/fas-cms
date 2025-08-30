@@ -68,7 +68,7 @@ export const GET: APIRoute = async ({ request, url }) => {
       });
     }
 
-    const query = `*[_type == "order" && customer->email == $email] | order(_createdAt desc){
+    const query = `*[_type == "order" && (customer->email == $email || customerEmail == $email)] | order(_createdAt desc){
       _id,
       title,
       status,
