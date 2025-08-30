@@ -9,7 +9,7 @@ let error: string | null = null;
 
 try {
   if (!sessionId) throw new Error('Missing session_id');
-  const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', { apiVersion: '2025-04-30.basil' });
+  const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', { apiVersion: '2025-08-27.basil' });
   session = await stripe.checkout.sessions.retrieve(sessionId);
   const lineItems = await stripe.checkout.sessions.listLineItems(sessionId, { limit: 100 });
   items = lineItems.data || [];
