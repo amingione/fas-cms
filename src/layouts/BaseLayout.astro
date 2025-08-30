@@ -34,7 +34,7 @@ const { hideBrandTag = false } = Astro.props;
     <!-- Animated Brand Tag -->
     {!hideBrandTag && (
       <div id="brand-tag" class="hidden md:block fixed top-[200px] left-6 z-30 animate-slide-in-left pointer-events-none opacity-80 hover:opacity-100 transition-opacity duration-200">
-        <p class="text-white text-3xl font-borg-italic leading-tight tracking-wide">
+        <p class="text-white text-3xl font-borg leading-tight tracking-wide">
           F.a.S.<p class="text-primary font-ethno-italic">MOTORSPORTS</p>
         </p>
       </div>
@@ -42,7 +42,7 @@ const { hideBrandTag = false } = Astro.props;
 
 
     <!-- Desktop layout (Astro), hidden on small screens -->
-    <div class="relativez-10">
+    <div class="relative z-10">
       <Header />
             <main class="fullbleed px-0 w-screen max-w-[100vw] overflow-x-hidden -mt-0">
         <slot />

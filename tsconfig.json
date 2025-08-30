@@ -21,5 +21,9 @@
     "moduleResolution": "node"
   },
   "include": ["src/**/*", "*.astro", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules", "dist", "src/dev/LegacySanityQuery.js"] // Exclude the problematic file
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/dev/LegacySanityQuery.js"
+  ] // Exclude sample/react tsparticles component to avoid missing peer deps
 }

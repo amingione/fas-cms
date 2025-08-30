@@ -131,7 +131,7 @@ export default function FloatingCartWidget({ variant = 'fab' }) {
         if (isPrimary) setIsOpen(true);
         else if (typeof window.openFloatingCart === 'function') window.openFloatingCart();
       }}
-      className="fixed bottom-20 right-6 z-999 bg-white text-black p-4 rounded-full shadow-lg hover:bg-primary hover:text-white transition-all duration-300 flex items-center justify-center"
+      className="fixed bottom-20 right-6 z-[1000] bg-white text-black p-4 rounded-full shadow-lg hover:bg-primary hover:text-white transition-all duration-300 flex items-center justify-center"
       aria-label="Cart"
     >
       <svg
@@ -168,7 +168,7 @@ export default function FloatingCartWidget({ variant = 'fab' }) {
       {/* Side Cart Panel (portaled to body to ignore header transforms) */}
       <div
         id="side-cart"
-        className={`fixed top-0 right-0 w-full sm:w-[450px] h-full bg-black/90 text-white z-[80] transition-transform duration-300 transform ${
+        className={`fixed top-0 right-0 w-full sm:w-[450px] h-full bg-black/90 text-white z-[999] transition-transform duration-300 transform ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
         style={{
@@ -297,7 +297,8 @@ export default function FloatingCartWidget({ variant = 'fab' }) {
 
   return (
     <>
-      <Trigger />
+      {/* Portal the trigger as well to escape any transformed/overflow parents */}
+      {mounted ? createPortal(<Trigger />, document.body) : null}
       {mounted && isPrimary ? createPortal(panel, document.body) : null}
     </>
   );

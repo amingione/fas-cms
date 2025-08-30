@@ -2,52 +2,31 @@
 import '@/styles/components.css';
 import '@/styles/global.css';
 import '@/styles/fas-theme.css';
-
-// Remove redundant particlesJS initialization; handled in <script> below.
+import BasicParticles from '@/components/basicParticle.tsx';
 
 const { imageSrc, headline, subtext, ctaText, ctaLink, altText = 'Performance Shop Hero' } = Astro.props;
+
+// Using BasicParticles component; config lives internally for reuse
 ---
 
 <section class="hero-banner">
-  {/* Background Effects */}
-  <div class="absolute inset-0 grunge-overlay"></div>
-  <div class="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/80"></div>
-  <div class="parallax-bg">
-    <img src={imageSrc} alt={altText} class="bg-image" />
-  </div>
-  <div class="content">
-    <h1 class="headline font-ethno text-primary">{headline}</h1>
-    <p class="subtext font-bold font-kwajong text-accent">{subtext}</p>
-    <a href={ctaLink} class="btn btn-glass font-ethno">{ctaText}</a>
-  </div>
-  <div class="particles" id="particles-js"></div>
+  {/* Background Effects */}
+  <div class="absolute inset-0"></div>
+  <div class="absolute inset-0"></div>
+  <div class="parallax-bg">
+    <img src={imageSrc} alt={altText} class="bg-image" />
+  </div>
+  <div class="content">
+    <h1 class="headline font-ethno text-primary">{headline}</h1>
+    <p class="subtext font-bold font-kwajong text-accent">{subtext}</p>
+    <a href={ctaLink} class="btn btn-glass font-ethno">{ctaText}</a>
+  </div>
+  <div class="particles">
+    <BasicParticles client:load id="tsparticles-hero" style={{ width: '100%', height: '100%' }} />
+  </div>
 </section>
 
-<script>
-  // Load particles.js only on the client
-  if (typeof window !== 'undefined') {
-    import('particles.js')
-      .then(() => {
-        // particles.js attaches a global `particlesJS`
-        if (window && typeof window.particlesJS === 'function') {
-          window.particlesJS('particles-js', {
-            particles: {
-              number: { value: 50, density: { enable: true, value_area: 800 } },
-              color: { value: '#ffffff' },
-              shape: { type: 'circle' },
-              opacity: { value: 0.3, random: true },
-              size: { value: 3, random: true },
-              move: { enable: true, speed: 1, direction: 'top', random: true }
-            },
-            interactivity: { enable: false }
-          });
-        }
-      })
-      .catch((err) => {
-        console.warn('particles.js failed to load:', err);
-      });
-  }
-</script>
+
 
 <style>
   .hero-banner {
@@ -70,8 +49,9 @@ const { imageSrc, headline, subtext, ctaText, ctaLink, altText = 'Performance Sh
   .bg-image {
     width: 100%;
     height: 100%;
+    z-index: 10;
     display: block;
-    object-fit: cover;
+    object-fit: contain;
     object-position: center;
     transition-property: transform;
     transition-duration: 100ms;
@@ -96,9 +76,9 @@ const { imageSrc, headline, subtext, ctaText, ctaLink, altText = 'Performance Sh
   }
 
   .headline {
-    /* Tailwind: text-5xl (base), md:text-6xl, tracking-tight, mb-4, font-ethno, text-primary */
-    font-size: 3rem;         /* 48px */
-    line-height: 1;
+    /* Smaller on mobile, scale up on larger screens */
+    font-size: 2rem;         /* 32px on mobile */
+    line-height: 1.1;
     letter-spacing: -0.025em;
     margin-bottom: 1rem;
     color: var(--color-primary, #ffffff);
@@ -106,8 +86,14 @@ const { imageSrc, headline, subtext, ctaText, ctaLink, altText = 'Performance Sh
 
   @media (min-width: 768px) {
     .headline {
-      font-size: 3.75rem;    /* 60px (text-6xl) */
+      font-size: 3rem;       /* 48px on tablets */
       line-height: 1;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .headline {
+      font-size: 3.75rem;    /* 60px on desktops */
     }
   }
 
@@ -124,7 +110,8 @@ const { imageSrc, headline, subtext, ctaText, ctaLink, altText = 'Performance Sh
   .particles {
     position: absolute;
     inset: 0;
-    opacity: 0.5;
-    pointer-events: none;
+    opacity: 1;
+    pointer-events: auto; /* allow hover/click interactivity */
+    z-index: 5;
   }
 </style>
