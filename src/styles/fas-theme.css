@@ -141,6 +141,16 @@
   font-style: italic;
   font-display: swap;
 }
+@font-face {
+  font-family: 'Borgsquad';
+  src:
+    url('/fonts/Borgsquad.woff2') format('woff2'),
+    url('/fonts/Borgsquad.woff') format('woff'),
+    url('/fonts/Borgsquad.ttf') format('truetype');
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
 
 @layer utilities {
   .font-ethno {
@@ -161,6 +171,15 @@
 
   .font-borg {
     font-family: 'Borgsquad Italic', sans-serif;
+  }
+
+  .font-borg-italic {
+    font-family: 'Borgsquad Italic', sans-serif;
+    font-style: italic;
+  }
+
+  .font-borg-normal {
+    font-family: 'Borgsquad', sans-serif;
   }
 
   .font-cyber {
