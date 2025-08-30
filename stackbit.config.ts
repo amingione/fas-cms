@@ -115,6 +115,7 @@ export default defineStackbitConfig({
     ...(enableSanity
       ? [
           new SanityContentSource({
+            rootPath: '/Users/ambermin/Documents/Workspace/DevProjects/GitHub/fas-sanity',
             projectId: process.env.SANITY_PROJECT_ID as string,
             dataset: (process.env.SANITY_DATASET || 'production') as string,
             token: process.env.SANITY_ACCESS_TOKEN as string

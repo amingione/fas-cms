@@ -131,11 +131,7 @@ var stackbit_config_default = (0, import_types.defineStackbitConfig)({
     // Optionally enable Sanity (toggle via ENABLE_SANITY=true)
     ...enableSanity ? [
       new import_cms_sanity.SanityContentSource({
-        // Minimal local manifest root so the resolver doesn't crawl your external Studio
-        rootPath: "/Users/ambermin/Documents/Workspace/DevProjects/GitHub/fas-cms",
-        // Not used during schema fetch, but required by the type
-        studioUrl: process.env.SANITY_STUDIO_URL || "http://localhost:3333",
-        // Fetch schema via API (avoids loading your Studio deps)
+        rootPath: "/Users/ambermin/Documents/Workspace/DevProjects/GitHub/fas-sanity",
         projectId: process.env.SANITY_PROJECT_ID,
         dataset: process.env.SANITY_DATASET || "production",
         token: process.env.SANITY_ACCESS_TOKEN
@@ -170,4 +166,4 @@ var stackbit_config_default = (0, import_types.defineStackbitConfig)({
     ]
   } : {}
 });
-//# sourceMappingURL=stackbit.config.G3JQPBX7.cjs.map
+//# sourceMappingURL=stackbit.config.MGMRUUAL.cjs.map
