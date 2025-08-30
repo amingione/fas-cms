@@ -54,7 +54,7 @@ export function ProductCard({ product, productImage, className }: ProductCardPro
   return (
     <div
       className={cn(
-        'w-full luxury-particles luxury-hover-scale racing-strip h-auto bg-black/40 backdrop-blur-sm rounded-[24px] md:rounded-[32px] lg:rounded-[40px] relative overflow-hidden',
+        'w-full luxury-hover-scale racing-stripe h-auto bg-black/40 backdrop-blur-sm rounded-[5px] md:rounded-[10px] lg:rounded-[20px] relative overflow-hidden',
         'shadow-card-outer border border-[rgba(154,154,154,0)] transition-shadow',
         // Subtle default glow + drop (barely noticeable), stronger on hover (offset to upper-left)
         'shadow-[-1px_-1px_4px_rgba(234,29,38,0.08),_-1px_-2px_6px_rgba(0,0,0,0.12)] hover:shadow-[-1px_-1px_2px_rgba(234,29,38,0.35),_-2px_-2px_3px_rgba(0,0,0,0.35)]',
@@ -62,44 +62,58 @@ export function ProductCard({ product, productImage, className }: ProductCardPro
       )}
     >
       {/* Product image (uniform square, flows naturally) */}
-      <div className="px-6 md:px-8 lg:px-10 pt-12 md:pt-16">
+      <div className="px-3 package-card md:px-4 lg:px-5 pt-12 md:pt-8">
         <div className="relative mx-auto w-full aspect-square">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={imageUrl}
-            alt={name}
-            className="absolute inset-0 w-full h-full object-contain"
-          />
+          <a
+            href={getSlug(product) ? `/shop/${getSlug(product)}` : '#'}
+            className="inline-flex items-center justify-between gap-1"
+          >
+            <img
+              src={imageUrl}
+              alt={name}
+              className="absolute inset-0 w-full h-full object-contain"
+            />
+          </a>
         </div>
       </div>
 
       {/* Product details section */}
-      <div className="luxury-carbon-effect rounded-t-[20px] md:rounded-t-[28px] lg:rounded-t-[32px] p-5 md:p-6 lg:p-7 shadow-card-inner border-black/30 mt-4 flex flex-col min-h-[170px] md:min-h-[190px] lg:min-h-[200px]">
+      <div className="luxury-carbon-effect rounded-t-[20px] md:rounded-t-[28px] lg:rounded-t-[32px] p-5 md:p-6 lg:p-7 shadow-card-outer border-black/30 mt-2 flex flex-col min-h-[200px] md:min-h-[210px] lg:min-h-[220px]">
         {/* Product info */}
         <div className="">
           <h2 className="relative text-white font-ethno text-[12px] md:text-sm lg:text-base font-semibold leading-snug line-clamp-3">
             {name}
           </h2>
           <div>
-            <p className="relative mt-2 text-accent font-borg text-[12px] md:text-base font-medium line-clamp-2">
+            <p className="relative chrome-text mt-2 text-accent font-borg text-[15px] md:text-base font-base line-clamp-2">
               {subtitle}
             </p>
-            <div className="mt-4">
-              <button className="text-primary btn-glass font-cyber text-[10px] md:text-xs font-medium line-clamp-2">
-                <a href={getSlug(product) ? `/product/${getSlug(product)}` : '#'}>View Details</a>
+            <div className="mt-4 relative">
+              <button
+                className="text-white btn-glass luxury-btn font-ethno text-[10px] md:text-xs font-medium inline-flex items-center gap-1 px-3 py-1 rounded-full"
+                style={{ width: 'auto', minWidth: 0 }}
+              >
+                <a
+                  href={getSlug(product) ? `/shop/${getSlug(product)}` : '#'}
+                  className="inline-flex items-center justify-between gap-1"
+                >
+                  View Details
+                </a>
               </button>
             </div>
           </div>
         </div>
 
         {/* Price and Add to Cart */}
-        <div className="mt-auto pt-3 flex items-center justify-between gap-3">
-          <span className="text-white font-montserrat text-sm md:text-base lg:text-lg font-bold whitespace-nowrap">
+        <div className="mt-2 inline-flex items-center justify-between gap-1">
+          <span className="text-accent flex font-ethno text-[12px] md:text-[13px] lg:text-[13px] font-bold whitespace-nowrap">
             {priceLabel}
           </span>
           {product._id && (
             <button
-              className="btn-glass flex items-center gap-1.5 bg-black/60 text-white px-3 py-1.5 md:px-3.5 md:py-1.5 rounded-[12px] md:rounded-[14px] font-montserrat text-[10px] md:text-[11px] shadow-button border border-[rgba(255,255,255,0.65)] whitespace-nowrap"
+              className="btn-glass flex items-center gap-1.5 bg-black/30 text-white px-1 py-2 md:px-3.5 md:py-1.5 rounded-full md:rounded-full font-cyber text-[9px] shadow-button border border-[rgba(86,86,86,0.49)] whitespace-nowrap w-auto"
+              style={{ width: 'auto', minWidth: 0 }}
               onClick={(e) => {
                 e.preventDefault();
                 addToCart(product);
@@ -112,7 +126,7 @@ export function ProductCard({ product, productImage, className }: ProductCardPro
                 viewBox="0 0 16 16"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                className="transform -rotate-90"
+                className="transform -rotate-60"
               >
                 <path
                   d="M5.66675 3.33332L10.3334 7.99999L5.66675 12.6667"

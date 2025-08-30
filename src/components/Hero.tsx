@@ -12,9 +12,9 @@ export function Hero() {
     return () => window.removeEventListener('resize', update);
   }, []);
   return (
-    <section id="home" className="relative min-h-screen flex items-center justify-center">
+    <section id="home" className="relative flex items-center justify-center">
       {/* Background Effects */}
-      <div className="absolute inset-0"></div>
+      <div className="absolute luxury-particles inset-0"></div>
       <div className="absolute inset-0"></div>
 
       {/* Racing stripes */}
@@ -43,16 +43,16 @@ export function Hero() {
               ease: 'easeInOut'
             }}
           >
-            <div className="w-full h-full bg-gradient-to-b from-transparent via-primary/60 to-transparent"></div>
+            <div className="w-full h-full bg-gradient-to-b from-charcoal/20 via-primary/30 to-transparent"></div>
           </motion.div>
         ))}
       </div>
 
-      <div className="container mx-auto px-4 lg:px-6 relative z-10">
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 xl:gap-16 items-center min-h-screen py-20">
+      <div className="container mx-auto px-4 md:px-6 mb-10 relative z-10">
+        <div className="relative flex-auto items-center justify-items-center">
           {/* Content Section */}
           <motion.div
-            className="space-y-6 lg:space-y-8 max-w-3xl mx-auto xl:mx-0"
+            className="space-y-6 lg:space-y-8 max-w-3xl mx-auto text-center"
             initial={false}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1, ease: 'easeOut' }}
@@ -64,17 +64,17 @@ export function Hero() {
               transition={{ delay: 0.3, duration: 1 }}
               className="space-y-2"
             >
-              <h1 className="font-black leading-tight tracking-tight font-ethno">
-                <span className="block font-borg text-white text-3xl sm:text-4xl lg:text-6xl xl:text-7xl">
+              <h1 className="font-black justify-items-start leading-tight tracking-tight font-ethno">
+                <span className="block font-borg justify-start text-white text-3xl sm:text-4xl lg:text-6xl xl:text-7xl">
                   F.a.S.
                 </span>
-                <span className="block chrome-text font-ethno text-base sm:text-base lg:text-3xl xl:text-4xl">
+                <span className="justify-start block chrome-text font-ethno text-base sm:text-base lg:text-3xl xl:text-4xl">
                   MOTORSPORTS
                 </span>
               </h1>
 
               <motion.p
-                className="text-sm sm:text-base lg:text-lg xl:text-xl text-secondary font-light tracking-wide font-kwajong"
+                className="text-sm sm:text-base lg:text-lg xl:text-xl justify-center text-secondary font-light tracking-wide font-kwajong"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8, duration: 0.8 }}
@@ -83,7 +83,7 @@ export function Hero() {
               </motion.p>
 
               <motion.div
-                className="text-xs sm:text-sm text-accent font-borg tracking-widest"
+                className="text-xs justify-center sm:text-sm text-accent font-borg tracking-widest"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.1, duration: 0.8 }}
@@ -94,7 +94,7 @@ export function Hero() {
 
             {/* Feature Icons */}
             <motion.div
-              className="flex justify-center xl:justify-start items-center space-x-6 lg:space-x-8"
+              className="flex justify-center items-center space-x-6 lg:space-x-8"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.3, duration: 0.8 }}
@@ -108,7 +108,7 @@ export function Hero() {
                 return (
                   <motion.div
                     key={index}
-                    className="text-center group cursor-pointer"
+                    className="text-center justify-center group cursor-pointer"
                     whileHover={{ scale: 1.1, y: -5 }}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -133,24 +133,28 @@ export function Hero() {
 
             {/* Call to Action */}
             <motion.div
-              className="space-y-4"
+              className="space-y-4 justify-center"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.8, duration: 0.8 }}
             >
-              <div className="flex flex-col sm:flex-row gap-3 justify-center xl:justify-start">
+              <div className="relative w-full flex flex-col sm:flex-row gap-3 justify-center items-center">
                 <motion.div whileTap={{ scale: 0.98 }}>
-                  <Button size={isMobile ? 'sm' : 'lg'} className="group font-ethno" asChild>
+                  <Button
+                    size={isMobile ? 'xs' : 'xs'}
+                    className="w-full mt-2 sm:w-auto font-ethno mx-auto"
+                    asChild
+                  >
                     <a
-                      href="#build"
+                      href="/customBuild"
                       onClick={() => {
                         /* handle start build click */
                       }}
                     >
-                      <Zap className="relative inline-flex w-4 h-4 mr-2" />
+                      <Zap className="relative sm:w-auto inline-flex w-4 h-4 mr-2" />
                       START YOUR BUILD
                       <motion.div
-                        className="ml-2"
+                        className="ml-2 sm:w-auto"
                         animate={{ x: [0, 5, 0] }}
                         transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
                       />
@@ -160,9 +164,9 @@ export function Hero() {
 
                 <motion.div whileTap={{ scale: 0.98 }}>
                   <Button
-                    size={isMobile ? 'sm' : 'lg'}
+                    size={isMobile ? 'xs' : 'sm'}
                     variant="outline"
-                    className="font-ethno"
+                    className="font-ethno mt-2 w-full align-middle sm:w-auto mx-auto"
                     asChild
                   >
                     <a
@@ -180,7 +184,7 @@ export function Hero() {
 
               {/* Performance Stats */}
               <motion.div
-                className="grid grid-cols-3 gap-4 max-w-md mx-auto xl:mx-0"
+                className="grid grid-cols-3 gap-4 max-w-md mx-auto justify-center"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 2.3, duration: 0.8 }}
@@ -188,7 +192,7 @@ export function Hero() {
                 {[
                   { value: '15+', label: 'YEARS EXPERIENCE' },
                   { value: '500+', label: 'BUILDS COMPLETED' },
-                  { value: '1000+', label: 'HORSEPOWER GAINS' }
+                  { value: '1500+', label: 'HORSEPOWER GAINS' }
                 ].map((stat, index) => (
                   <motion.div
                     key={index}
@@ -217,56 +221,8 @@ export function Hero() {
             animate={{ opacity: 1, x: 0, scale: 1 }}
             transition={{ delay: 0.5, duration: 1.2, ease: 'easeOut' }}
           >
-            <div className="relative max-w-2xl mx-auto">
-              {/* Enhanced car image with effects */}
-              <motion.div
-                className="relative z-10"
-                whileHover={{ scale: 1.02, rotateY: 2 }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
-                style={{ perspective: '1000px' }}
-              >
-                <img
-                  src="/images/challenger FAS.png"
-                  alt="F.A.S. Motorsports High Performance Challenger - Custom Supercharger Build"
-                  className="w-full h-auto mx-auto drop-shadow-2xl rounded-2xl"
-                />
-              </motion.div>
-
-              {/* Glowing effects around car */}
-              <div className="absolute -top-8 -right-8 w-32 h-32 bg-gradient-to-br from-primary/40 to-accent/20 rounded-full blur-3xl"></div>
-              <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-gradient-to-br from-blue-500/30 to-cyan-500/20 rounded-full blur-2xl"></div>
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-gradient-to-br from-white/5 to-transparent rounded-full blur-3xl"></div>
-
-              {/* Performance indicators */}
-              <motion.div
-                className="absolute top-4 right-4 bg-black/80 rounded-xl p-3 backdrop-blur-sm border border-primary/30 industrial-card"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 2, duration: 0.6 }}
-                whileHover={{ scale: 1.05 }}
-              >
-                <div className="relative mr-8 ml-8 text-center">
-                  <div className="text-lg mr-2 ml-2 font-bold text-primary font-cyber">800+</div>
-                  <div className="text-xs text-graylight font-medium font-ethno">HP</div>
-                </div>
-              </motion.div>
-
-              <motion.div
-                className="absolute bottom-4 left-4 bg-black/80 rounded-xl p-3 backdrop-blur-sm border border-blue-500/30 industrial-card"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 2.2, duration: 0.6 }}
-                whileHover={{ scale: 1.05 }}
-              >
-                <div className="relative mr-8 ml-8 text-center">
-                  <div className="text-lg font-bold font-borg text-blue-400">F.a.S.</div>
-                  <div className="text-xs text-graylight font-medium font-ethno">TUNED</div>
-                </div>
-              </motion.div>
-
-              {/* Racing stripe effect */}
-              <div className="absolute inset-0 racing-stripe opacity-20"></div>
-            </div>
+            {/* Racing stripe effect */}
+            <div className="absolute inset-0 racing-stripe opacity-30"></div>
           </motion.div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 // src/components/RequireLogin.jsx
 import { useEffect, useState } from 'react';
-import { getAuth0Client } from '/src/lib/auth.ts';
+import { getAuth0Client } from '@/lib/auth';
 
 export default function RequireLogin({ children = null }) {
   const [ready, setReady] = useState(false);

@@ -146,6 +146,7 @@
   --color-accent: #fde4b2;
   --color-graylight: #d1d0d0;
   --color-background: #00000000;
+  --color-charcoal: #3a3a3ad0;
 
   /* Luxury color palette */
   --color-luxury-gold: #d4af37;
@@ -963,16 +964,22 @@
 .luxury-btn {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, var(--color-primary) 0%, rgba(234, 29, 38, 0.8) 100%);
-  border: 1px solid rgba(212, 175, 55, 0.3);
+  background: linear-gradient(135deg, var(--color-primary) 40%, rgba(234, 29, 39, 0.399) 100%);
+  border: 1px solid rgba(53, 53, 53, 0.178);
   transition: all 0.4s ease;
 }
 
+/* Luxury Button moving stripe */
 .luxury-btn::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(45deg, transparent 30%, rgba(212, 175, 55, 0.1) 50%, transparent 70%);
+  background: linear-gradient(
+    45deg,
+    transparent 60%,
+    rgba(108, 108, 108, 0.21) 50%,
+    transparent 70%
+  );
   transform: translateX(-100%);
   transition: transform 0.6s ease;
 }
@@ -982,20 +989,20 @@
 }
 
 .luxury-btn:hover {
-  background: linear-gradient(135deg, rgba(234, 29, 38, 0.9) 0%, var(--color-primary) 100%);
+  background: linear-gradient(135deg, rgba(230, 22, 32, 0.223) 30%, var(--color-charcoal) 100%);
   border-color: rgba(87, 87, 85, 0.5);
   box-shadow:
-    0 0 30px rgba(109, 109, 109, 0.3),
-    0 0 60px rgba(234, 29, 38, 0.2);
+    0 0 10px rgba(109, 109, 109, 0.3),
+    0 0 30px rgba(234, 29, 38, 0.2);
 }
 
 /* Premium Glass Effect */
 .luxury-glass {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.175);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 8px 32px rgba(38, 38, 38, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
@@ -1106,12 +1113,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    45deg,
-    transparent 30%,
-    rgba(212, 175, 55, 0.05) 50%,
-    transparent 70%
-  );
+  background: linear-gradient(45deg, transparent 30%, rgba(96, 96, 96, 0.075) 50%, transparent 70%);
   animation: carbon-shimmer 3s ease-in-out infinite;
 }
 
@@ -1575,7 +1577,7 @@ html {
     border-color 200ms ease;
 
   /* Subtle glass */
-  background: rgba(18, 18, 19, 0.55);
+  background: rgba(112, 9, 9, 0.55);
   color: #fff;
   backdrop-filter: blur(10px) saturate(140%);
   -webkit-backdrop-filter: blur(10px) saturate(140%);
@@ -1585,7 +1587,7 @@ html {
   box-shadow:
     inset 0 1px 1px rgba(255, 255, 255, 0.06),
     inset 0 -1px 2px rgba(0, 0, 0, 0.5),
-    0 2px 8px rgba(0, 0, 0, 0.45);
+    0 2px 8px rgba(63, 63, 63, 0.45);
   cursor: pointer;
 }
 
@@ -1670,25 +1672,34 @@ html {
   display: inline-flex;
 }
 
-/* Mobile ergonomics: keep it sleek but tappable */
+/* Mobile ergonomics: slimmer buttons while staying tappable */
 @media (max-width: 640px) {
   .btn-glass {
     width: 100%;
-    font-size: 0.82rem; /* smaller text on mobile */
-    padding: 0.55rem 0.9rem;
-    min-height: 44px; /* meets tap target */
+    font-size: 0.8rem; /* slightly smaller text on mobile */
+    padding: 0.4rem 0.8rem; /* thinner top/bottom padding */
+    min-height: 38px; /* was 44px */
   }
   .btn-glass.btn-xs {
-    min-height: 36px;
-    font-size: 0.75rem;
+    min-height: 32px;
+    font-size: 0.72rem;
+    padding: 0.25rem 0.5rem;
   }
   .btn-glass.btn-sm {
-    min-height: 40px;
-    font-size: 0.8rem;
+    min-height: 34px;
+    font-size: 0.78rem;
+    padding: 0.3rem 0.6rem;
   }
   .btn-glass.btn-lg {
-    min-height: 48px;
-    font-size: 0.9rem;
+    min-height: 44px;
+    font-size: 0.86rem;
+    padding: 0.5rem 0.9rem;
+  }
+  /* Optional ultra-compact variant */
+  .btn-glass.btn-compact {
+    min-height: 30px;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
   }
 }
 
@@ -1928,7 +1939,7 @@ stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='9' cy='21' r='1'/
 }
 
 .package-card {
-  background: color-mix(in srgb, var(--bg-dark) 95%, #000);
+  background: color-mix(in srgb, var(--bg-transparent) 95%, #00000000);
   border-radius: 10px;
   padding: 20px;
   box-shadow:

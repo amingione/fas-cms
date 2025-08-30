@@ -43,7 +43,9 @@ export function SortControls({
           onClick={() => onViewModeChange('grid')}
           className={cn(
             'p-2 transition-colors',
-            viewMode === 'grid' ? 'bg-primary text-white' : 'bg-gray-800/50 text-graylight hover:text-white'
+            viewMode === 'grid'
+              ? 'bg-primary text-white'
+              : 'bg-gray-800/50 text-graylight hover:text-white'
           )}
           aria-label="Grid view"
         >
@@ -53,7 +55,9 @@ export function SortControls({
           onClick={() => onViewModeChange('list')}
           className={cn(
             'p-2 transition-colors',
-            viewMode === 'list' ? 'bg-primary text-white' : 'bg-gray-800/50 text-graylight hover:text-white'
+            viewMode === 'list'
+              ? 'bg-primary text-white'
+              : 'bg-gray-800/50 text-graylight hover:text-white'
           )}
           aria-label="List view"
         >
@@ -62,7 +66,12 @@ export function SortControls({
       </div>
 
       {onClear && (
-        <Button variant="ghost" size="sm" onClick={onClear} className="text-graylight hover:text-white font-ethno">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onClear}
+          className="text-graylight hover:text-white font-ethno"
+        >
           <X className="w-4 h-4 mr-1" />
           Clear
         </Button>

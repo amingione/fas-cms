@@ -8,6 +8,8 @@ export default function FloatingCartWidget({ variant = 'fab' }) {
   const [cartItems, setCartItems] = useState([]);
   const [mounted, setMounted] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  // Track drawer open state globally so all instances can react (hide trigger)
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   // Ensure only ONE primary cart instance renders panel/backdrop & listeners
   const instanceIdRef = useRef(typeof Symbol === 'function' ? Symbol('fas-cart') : Math.random());
@@ -88,6 +90,27 @@ export default function FloatingCartWidget({ variant = 'fab' }) {
     };
   }, [isPrimary]);
 
+  // Broadcast open/close events when primary drawer state changes
+  useEffect(() => {
+    if (!isPrimary) return;
+    try {
+      const evt = new CustomEvent(isOpen ? 'cart:opened' : 'cart:closed');
+      window.dispatchEvent(evt);
+    } catch {}
+  }, [isOpen, isPrimary]);
+
+  // Listen for open/close events (all instances)
+  useEffect(() => {
+    const opened = () => setDrawerOpen(true);
+    const closed = () => setDrawerOpen(false);
+    window.addEventListener('cart:opened', opened);
+    window.addEventListener('cart:closed', closed);
+    return () => {
+      window.removeEventListener('cart:opened', opened);
+      window.removeEventListener('cart:closed', closed);
+    };
+  }, []);
+
   useEffect(() => {
     if (!isPrimary) return;
     if (typeof window !== 'undefined') {
@@ -131,12 +154,15 @@ export default function FloatingCartWidget({ variant = 'fab' }) {
         if (isPrimary) setIsOpen(true);
         else if (typeof window.openFloatingCart === 'function') window.openFloatingCart();
       }}
-      className="fixed bottom-20 right-6 z-[1000] bg-white text-black p-4 rounded-full shadow-lg hover:bg-primary hover:text-white transition-all duration-300 flex items-center justify-center"
+      className={`luxury-platinum-glow luxury-carbon-effect fixed right-5 bottom-[calc(1.5rem+env(safe-area-inset-bottom))] z-[1000] backdrop-blur-sm text-white rounded-full shadow-lg hover:bg-primary/30 hover:text-white transition-all duration-300 flex items-center justify-center border border-white/20 p-0 overflow-hidden ${
+        drawerOpen ? 'opacity-0 translate-y-2 pointer-events-none' : 'opacity-100'
+      }`}
+      style={{ width: '3.25rem', height: '3.25rem', borderRadius: '9999px' }}
       aria-label="Cart"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="h-6 w-6"
+        className="h-6 w-6 md:h-5 md:w-5 shrink-0"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -216,7 +242,7 @@ export default function FloatingCartWidget({ variant = 'fab' }) {
                           )
                         );
                       }}
-                      className="w-12 text-sm text-black px-1 rounded"
+                      className="w-12 text-sm text-black px-1"
                     />
                     <span className="text-xs text-gray-400">
                       • ${(Number(item.price) || 0).toFixed(2)}
