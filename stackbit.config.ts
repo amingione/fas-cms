@@ -2,6 +2,8 @@
 import { defineStackbitConfig } from '@stackbit/types';
 import type { SiteMapEntry } from '@stackbit/types';
 import { SanityContentSource } from '@stackbit/cms-sanity';
+import fs from 'fs';
+import path from 'path';
 import { GitContentSource } from '@stackbit/cms-git';
 
 const enableSanity = process.env.ENABLE_SANITY === 'true';
@@ -142,6 +144,53 @@ export default defineStackbitConfig({
         };
         return entry;
       });
+
+    // Also include Astro pages from src/pages (non-dynamic, non-API)
+    try {
+      const root = path.join(__dirname, 'src', 'pages');
+      const urls: string[] = [];
+      const walk = (dir: string) => {
+        const list = fs.readdirSync(dir, { withFileTypes: true });
+        for (const ent of list) {
+          const full = path.join(dir, ent.name);
+          const rel = path.relative(root, full);
+          if (ent.isDirectory()) {
+            if (rel.startsWith('api')) continue; // skip API endpoints
+            walk(full);
+          } else if (ent.isFile() && ent.name.endsWith('.astro')) {
+            if (rel.includes('[')) continue; // skip dynamic routes like [slug]
+            // Build URL path: strip extension and map index.astro appropriately
+            const noExt = rel.replace(/\\.astro$/, '');
+            let url = '/' + noExt.replace(/\\\\/g, '/');
+            url = url.replace(/\\/g, '/');
+            url = url.replace(/index$/i, '');
+            if (url.endsWith('/')) url = url.slice(0, -1);
+            if (url === '') url = '/';
+            urls.push(url);
+          }
+        }
+      };
+      if (fs.existsSync(root)) walk(root);
+      const astroEntries: SiteMapEntry[] = Array.from(new Set(urls)).map((url) => ({
+        stableId: `astro:${url}`,
+        urlPath: url,
+        isHomePage: url === '/',
+        document: {
+          srcType: 'astro',
+          srcProjectId: '',
+          modelName: 'astroPage',
+          id: `astro:${url}`
+        }
+      }));
+      // Merge and de-duplicate by urlPath (content docs take precedence)
+      const seen = new Set(entries.map((e) => e.urlPath));
+      for (const ae of astroEntries) {
+        if (!seen.has(ae.urlPath)) entries.push(ae);
+      }
+    } catch (e) {
+      // Ignore FS errors; Stackbit Cloud may limit FS access
+      console.warn('siteMap: failed to scan Astro pages:', e);
+    }
 
     return entries;
   },

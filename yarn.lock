@@ -216,7 +216,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/core@npm:^7.11.6, @babel/core@npm:^7.28.0":
+"@babel/core@npm:^7.11.6, @babel/core@npm:^7.28.0, @babel/core@npm:^7.28.3":
   version: 7.28.3
   resolution: "@babel/core@npm:7.28.3"
   dependencies:
@@ -12795,6 +12795,7 @@ __metadata:
     "@astrojs/tailwind": ^6.0.2
     "@auth0/auth0-react": ^2.4.0
     "@auth0/auth0-spa-js": ^2.3.0
+    "@babel/core": ^7.28.3
     "@eslint/js": ^9.26.0
     "@netlify/blobs": ^9.0.0
     "@portabletext/react": ^3.2.1
@@ -12877,7 +12878,7 @@ __metadata:
     preact: ^10.26.5
     prettier: ^3.5.3
     react: ^19.1.0
-    react-dom: ^19.1.0
+    react-dom: ^19.1.1
     react-is: ^19.1.0
     react-resizable-panels: ^3.0.4
     recharts: ^3.1.2
@@ -22031,7 +22032,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:^19.1.0":
+"react-dom@npm:^19.1.1":
   version: 19.1.1
   resolution: "react-dom@npm:19.1.1"
   dependencies:

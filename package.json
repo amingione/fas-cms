@@ -25,6 +25,7 @@
     "esbuild": "0.25.5"
   },
   "devDependencies": {
+    "@babel/core": "^7.28.3",
     "@eslint/js": "^9.26.0",
     "@sanity/core": "2.36.2",
     "@stackbit/cli": "latest",
@@ -120,7 +121,7 @@
     "node-fetch": "^3.3.2",
     "preact": "^10.26.5",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "react-dom": "^19.1.1",
     "react-is": "^19.1.0",
     "react-resizable-panels": "^3.0.4",
     "recharts": "^3.1.2",

@@ -1,7 +1,9 @@
 "use strict";
+var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __export = (target, all) => {
   for (var name in all)
@@ -15,6 +17,14 @@ var __copyProps = (to, from, except, desc) => {
   }
   return to;
 };
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // stackbit.config.ts
@@ -25,6 +35,8 @@ __export(stackbit_config_exports, {
 module.exports = __toCommonJS(stackbit_config_exports);
 var import_types = require("@stackbit/types");
 var import_cms_sanity = require("@stackbit/cms-sanity");
+var import_fs = __toESM(require("fs"));
+var import_path = __toESM(require("path"));
 var import_cms_git = require("@stackbit/cms-git");
 var enableSanity = process.env.ENABLE_SANITY === "true";
 var stackbit_config_default = (0, import_types.defineStackbitConfig)({
@@ -139,25 +151,56 @@ var stackbit_config_default = (0, import_types.defineStackbitConfig)({
     ] : []
   ],
   siteMap: ({ documents, models }) => {
-    const pageModels = models.filter((m) => m.type === "page");
-    return documents.filter((d) => pageModels.some((m) => m.name === d.modelName)).map((document) => {
-      const urlModel = (() => {
-        switch (document.modelName) {
-          case "Page":
-            return "otherPage";
-          case "Blog":
-            return "otherBlog";
-          default:
-            return null;
-        }
-      })();
-      return {
-        stableId: document.id,
-        urlPath: `/${urlModel}/${document.id}`,
-        document,
-        isHomePage: false
+    const pageModelNames = new Set(models.filter((m) => m.type === "page").map((m) => m.name));
+    const entries = documents.filter((d) => pageModelNames.has(d.modelName)).map((d) => {
+      const doc = d;
+      const slug = doc.fields?.slug ?? doc.slug;
+      const computedUrl = doc.urlPath ?? (slug ? slug === "index" ? "/" : `/${slug}` : "/");
+      const entry = {
+        stableId: d.id,
+        urlPath: computedUrl,
+        document: d,
+        isHomePage: computedUrl === "/"
       };
-    }).filter(Boolean);
+      return entry;
+    });
+    try {
+      const root = import_path.default.join("/Users/ambermin/Documents/Workspace/DevProjects/GitHub/fas-cms", "src", "pages");
+      const urls = [];
+      const walk = (dir) => {
+        const list = import_fs.default.readdirSync(dir, { withFileTypes: true });
+        for (const ent of list) {
+          const full = import_path.default.join(dir, ent.name);
+          const rel = import_path.default.relative(root, full);
+          if (ent.isDirectory()) {
+            if (rel.startsWith("api")) continue;
+            walk(full);
+          } else if (ent.isFile() && ent.name.endsWith(".astro")) {
+            if (rel.includes("[")) continue;
+            const noExt = rel.replace(/\\.astro$/, "");
+            let url = "/" + noExt.replace(/\\\\/g, "/");
+            url = url.replace(/\\/g, "/");
+            url = url.replace(/index$/i, "");
+            if (url.endsWith("/")) url = url.slice(0, -1);
+            if (url === "") url = "/";
+            urls.push(url);
+          }
+        }
+      };
+      if (import_fs.default.existsSync(root)) walk(root);
+      const astroEntries = Array.from(new Set(urls)).map((url) => ({
+        stableId: `astro:${url}`,
+        urlPath: url,
+        isHomePage: url === "/"
+      }));
+      const seen = new Set(entries.map((e) => e.urlPath));
+      for (const ae of astroEntries) {
+        if (!seen.has(ae.urlPath)) entries.push(ae);
+      }
+    } catch (e) {
+      console.warn("siteMap: failed to scan Astro pages:", e);
+    }
+    return entries;
   },
   ...enableSanity ? {
     modelExtensions: [
@@ -166,4 +209,4 @@ var stackbit_config_default = (0, import_types.defineStackbitConfig)({
     ]
   } : {}
 });
-//# sourceMappingURL=stackbit.config.MGMRUUAL.cjs.map
+//# sourceMappingURL=stackbit.config.CMQ4BCOX.cjs.map
