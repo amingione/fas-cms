@@ -136,7 +136,7 @@
   src:
     url('/fonts/BorgsquadItalic.woff2') format('woff2'),
     url('/fonts/BorgsquadItalic.woff') format('woff'),
-    url('/fonts/BorgsquadItalic.ttf') format('truetype');
+    url('/fonts/borgsquadital.ttf') format('truetype');
   font-weight: normal;
   font-style: italic;
   font-display: swap;
@@ -148,7 +148,6 @@
     url('/fonts/Borgsquad.woff') format('woff'),
     url('/fonts/Borgsquad.ttf') format('truetype');
   font-weight: normal;
-  font-style: italic;
   font-display: swap;
 }
 
@@ -171,11 +170,6 @@
 
   .font-borg {
     font-family: 'Borgsquad Italic', sans-serif;
-  }
-
-  .font-borg-italic {
-    font-family: 'Borgsquad Italic', sans-serif;
-    font-style: italic;
   }
 
   .font-borg-normal {
