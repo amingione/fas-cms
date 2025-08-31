@@ -2,7 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
 const pageDoc: any = await getGitPageDoc('truckPackages');
-import { Button } from '@/components/ui/button';
+// Use plain HTML buttons/links in this SSR page to avoid React SSR for UI primitives
 ---
 
 <BaseLayout title="Truck Packages">
@@ -25,9 +25,9 @@ import { Button } from '@/components/ui/button';
       </p>
       <!-- Editable: Replace src with your logo or accent image -->
       <img src="/images/jtx forged single.png" alt="Accent Placeholder" class="accent-image">
-      <Button className="bg-primary text-white font-ethno rounded-xl px-6 py-3 shadow-lg hover:bg-primary/90 transition-all duration-300">
+      <a href="#packages" class="inline-flex items-center justify-center bg-primary text-white font-ethno rounded-xl px-6 py-3 shadow-lg hover:bg-primary/90 transition-all duration-300">
         Get Started
-      </Button>
+      </a>
     </div>
   </section>
 
@@ -56,9 +56,9 @@ import { Button } from '@/components/ui/button';
           <li>Feature 2: Comfort Cabin</li>
           <li>Feature 3: Basic Warranty</li>
         </ul>
-        <Button className="bg-accent text-primary font-ethno rounded-lg px-5 py-2 shadow-md hover:bg-accent/90 transition-all duration-300">
+        <a href="#" class="inline-flex items-center justify-center bg-accent text-primary font-ethno rounded-lg px-5 py-2 shadow-md hover:bg-accent/90 transition-all duration-300">
           Learn More
-        </Button>
+        </a>
       </div>
 
       <!-- Package Card 2 -->
@@ -71,9 +71,9 @@ import { Button } from '@/components/ui/button';
           <li>Feature 2: Advanced Safety Systems</li>
           <li>Feature 3: Extended Warranty</li>
         </ul>
-        <Button className="bg-accent text-primary font-ethno rounded-lg px-5 py-2 shadow-md hover:bg-accent/90 transition-all duration-300">
+        <a href="#" class="inline-flex items-center justify-center bg-accent text-primary font-ethno rounded-lg px-5 py-2 shadow-md hover:bg-accent/90 transition-all duration-300">
           Learn More
-        </Button>
+        </a>
       </div>
 
       <!-- Package Card 3 -->
@@ -86,9 +86,9 @@ import { Button } from '@/components/ui/button';
           <li>Feature 2: Luxury Interior</li>
           <li>Feature 3: Lifetime Support</li>
         </ul>
-        <Button className="bg-accent text-primary font-ethno rounded-lg px-5 py-2 shadow-md hover:bg-accent/90 transition-all duration-300">
+        <a href="#" class="inline-flex items-center justify-center bg-accent text-primary font-ethno rounded-lg px-5 py-2 shadow-md hover:bg-accent/90 transition-all duration-300">
           Learn More
-        </Button>
+        </a>
       </div>
     </div>
   </section>

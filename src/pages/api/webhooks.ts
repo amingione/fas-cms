@@ -51,6 +51,7 @@ export async function POST({ request }: { request: Request }) {
   // Handle event types
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
+    let userIdFromMetadata: string | undefined = (session.metadata as any)?.userId || undefined;
 
     console.log('✅ Payment confirmed for session:', session.id);
     console.log('Customer Email:', session.customer_details?.email);
@@ -59,8 +60,20 @@ export async function POST({ request }: { request: Request }) {
       // Fetch line items to capture cart details
       const items = await stripe.checkout.sessions.listLineItems(session.id, { limit: 100 });
 
+      // Retrieve payment intent details (brand/last4/receipt)
+      let paymentIntent: Stripe.PaymentIntent | null = null;
+      try {
+        const piId = typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id;
+        if (piId) {
+          paymentIntent = await stripe.paymentIntents.retrieve(piId, { expand: ['latest_charge'] });
+        }
+      } catch (e) {
+        console.warn('Unable to retrieve PaymentIntent for session:', session.id);
+      }
+
       // Find or create a Customer document
       let customerRef: { _type: 'reference'; _ref: string } | undefined;
+      let userId: string | undefined = userIdFromMetadata;
       const email = session.customer_details?.email || '';
       if (email) {
         const existing = await sanity.fetch(
@@ -76,7 +89,13 @@ export async function POST({ request }: { request: Request }) {
           });
           customerId = created._id as string;
         }
-        if (customerId) customerRef = { _type: 'reference', _ref: customerId };
+        if (customerId) {
+          customerRef = { _type: 'reference', _ref: customerId };
+          try {
+            const cust: any = await sanity.fetch(`*[_id==$id][0]{authId}`, { id: customerId });
+            if (cust?.authId) userId = String(cust.authId);
+          } catch {}
+        }
       }
 
       // Prefer cart metadata if present
@@ -107,8 +126,19 @@ export async function POST({ request }: { request: Request }) {
       const newOrder = await sanity.create({
         _type: 'order',
         stripeSessionId: session.id,
+        paymentIntentId: typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id,
+        paymentStatus: paymentIntent?.status || session.payment_status || 'unknown',
+        chargeId: typeof (paymentIntent as any)?.latest_charge === 'string' ? (paymentIntent as any).latest_charge : (paymentIntent as any)?.latest_charge?.id,
+        cardBrand: (paymentIntent as any)?.charges?.data?.[0]?.payment_method_details?.card?.brand || '',
+        cardLast4: (paymentIntent as any)?.charges?.data?.[0]?.payment_method_details?.card?.last4 || '',
+        receiptUrl: (paymentIntent as any)?.charges?.data?.[0]?.receipt_url || '',
+        currency: session.currency || 'usd',
+        amountSubtotal: typeof session.amount_subtotal === 'number' ? session.amount_subtotal / 100 : undefined,
+        amountTax: typeof session.total_details?.amount_tax === 'number' ? session.total_details.amount_tax / 100 : undefined,
+        amountShipping: typeof session.shipping_cost?.amount_total === 'number' ? session.shipping_cost.amount_total / 100 : undefined,
         customerEmail: session.customer_details?.email || '',
         customer: customerRef,
+        userId,
         cart: cartLines,
         totalAmount: session.amount_total ? session.amount_total / 100 : 0, // Convert cents to dollars
         status: 'paid',

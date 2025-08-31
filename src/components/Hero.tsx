@@ -230,5 +230,7 @@ export function Hero() {
   );
 }
 
+export default Hero;
+
 // Remove the CSS from the TypeScript file.
 // If you need this style, move it to a CSS file, e.g., Hero.module.css or global.css, and import it.

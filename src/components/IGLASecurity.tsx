@@ -498,3 +498,5 @@ export function IGLASecurity() {
     </section>
   );
 }
+
+export default IGLASecurity;

@@ -345,3 +345,5 @@ export function WheelsHero() {
     </section>
   );
 }
+
+export default WheelsHero;

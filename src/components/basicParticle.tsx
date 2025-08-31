@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import Particles from 'react-tsparticles';
 import { loadSlim } from 'tsparticles-slim';
-import type { Engine, ISourceOptions } from 'tsparticles-engine';
+import type { Container, Engine, ISourceOptions } from 'tsparticles-engine';
 import type { CSSProperties } from 'react';
 
 type Props = {
@@ -139,7 +139,7 @@ const defaultOptions: ISourceOptions = {
     },
     number: {
       density: { enable: true, width: 1920, height: 1080 },
-      limit: { mode: 'delete', value: 0 },
+      limit: 0,
       value: 100
     },
     opacity: {
@@ -253,12 +253,8 @@ const BasicParticles = ({
   fullScreen,
   zIndex
 }: Props) => {
-  const [init, setInit] = useState(false);
-
-  useEffect(() => {
-    initParticlesEngine(async (engine) => {
-      await loadSlim(engine);
-    }).then(() => setInit(true));
+  const particlesInit = useCallback(async (engine: Engine) => {
+    await loadSlim(engine);
   }, []);
 
   const mergedOptions = useMemo(() => {
@@ -279,14 +275,13 @@ const BasicParticles = ({
     // noop; hook for debugging
   };
 
-  if (!init) return null;
-
   return (
     <Particles
       id={id}
       className={className}
       style={style}
-      particlesLoaded={particlesLoaded}
+      init={particlesInit}
+      loaded={particlesLoaded}
       options={mergedOptions}
     />
   );

@@ -1,4 +1,5 @@
 import Stripe from 'stripe';
+import { jwtVerify, createRemoteJWKSet } from 'jose';
 
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-08-27.basil'
@@ -48,10 +49,18 @@ export async function POST({ request }: { request: Request }) {
     });
   }
 
-  const lineItems = cart.map((item: { name: string; price: number; quantity: number }) => ({
+  type CartItem = { id?: string; sku?: string; name: string; price: number; quantity: number };
+  const lineItems = (cart as CartItem[]).map((item) => ({
     price_data: {
       currency: 'usd',
-      product_data: { name: item.name },
+      product_data: {
+        name: item.name,
+        // Help fulfillment map back to Sanity/Inventory
+        metadata: {
+          ...(item.sku ? { sku: String(item.sku) } : {}),
+          ...(item.id ? { sanity_product_id: String(item.id) } : {})
+        }
+      },
       unit_amount: Math.round(item.price * 100)
     },
     quantity: item.quantity
@@ -65,15 +74,51 @@ export async function POST({ request }: { request: Request }) {
     if (metaCart.length > 450) metaCart = metaCart.slice(0, 450);
   } catch {}
 
+  // Derive optional user identity for reliable joins in webhook
+  let userId: string | undefined;
+  let userEmail: string | undefined;
   try {
+    const authHeader = request.headers.get('authorization') || '';
+    const token = authHeader.toLowerCase().startsWith('bearer ')
+      ? authHeader.slice(7).trim()
+      : '';
+    const AUTH0_DOMAIN = (import.meta.env.PUBLIC_AUTH0_DOMAIN as string | undefined) ||
+      (import.meta.env.AUTH0_DOMAIN as string | undefined);
+    const AUTH0_CLIENT_ID = (import.meta.env.PUBLIC_AUTH0_CLIENT_ID as string | undefined) ||
+      (import.meta.env.AUTH0_CLIENT_ID as string | undefined);
+    if (token && AUTH0_DOMAIN && AUTH0_CLIENT_ID) {
+      const JWKS = createRemoteJWKSet(new URL(`https://${AUTH0_DOMAIN}/.well-known/jwks.json`));
+      const { payload } = await jwtVerify(token, JWKS, {
+        issuer: `https://${AUTH0_DOMAIN}/`,
+        audience: AUTH0_CLIENT_ID
+      });
+      if (typeof payload.sub === 'string') userId = payload.sub;
+      if (typeof payload.email === 'string') userEmail = payload.email;
+    }
+  } catch {
+    // non-fatal
+  }
+
+  try {
+    const sessionMetadata: Record<string, string> = {
+      ...(userId ? { userId } : {}),
+      ...(userEmail ? { userEmail } : {}),
+      site: baseUrl
+    };
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment',
       line_items: lineItems,
+      metadata: { ...sessionMetadata, ...(metaCart ? { cart: metaCart } : {}) },
+      payment_intent_data: { metadata: sessionMetadata },
+      tax_id_collection: { enabled: true },
+      // Enable Stripe Tax for automatic sales tax calculation
+      automatic_tax: { enabled: true },
       shipping_address_collection: {
         allowed_countries: ['US', 'CA'] // Add other countries if needed
       },
-      metadata: metaCart ? { cart: metaCart } : undefined,
+      phone_number_collection: { enabled: true },
       shipping_options: [
         {
           shipping_rate_data: {

@@ -528,3 +528,5 @@ export function TruckPackagesHero() {
     </section>
   );
 }
+
+export default TruckPackagesHero;

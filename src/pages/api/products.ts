@@ -6,9 +6,14 @@ const token = import.meta.env.SANITY_API_TOKEN;
 if (!projectId) throw new Error('Missing Sanity projectId (check .env or deployment settings)');
 if (!token) throw new Error('Missing Sanity API token (check .env or deployment settings)');
 
+const dataset =
+  (import.meta.env.PUBLIC_SANITY_DATASET as string | undefined) ||
+  (import.meta.env.SANITY_DATASET as string | undefined) ||
+  'production';
+
 const client = createClient({
   projectId,
-  dataset: 'production',
+  dataset,
   apiVersion: '2023-06-07',
   token,
   useCdn: false

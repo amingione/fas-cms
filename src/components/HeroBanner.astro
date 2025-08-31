@@ -21,7 +21,7 @@ const { imageSrc, headline, subtext, ctaText, ctaLink, altText = 'Performance Sh
     <a href={ctaLink} class="btn btn-glass font-ethno">{ctaText}</a>
   </div>
   <div class="particles">
-    <BasicParticles client:load id="tsparticles-hero" style={{ width: '100%', height: '100%' }} />
+    <BasicParticles client:only="react" id="tsparticles-hero" style={{ width: '100%', height: '100%' }} />
   </div>
 </section>
 

@@ -518,3 +518,5 @@ export function CustomFabrication() {
     </section>
   );
 }
+
+export default CustomFabrication;

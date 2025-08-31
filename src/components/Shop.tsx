@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import ProductCard from '@components/ProductCard.astro';
+import ProductCard from '@components/ProductCard';
 
 import {
   Search,

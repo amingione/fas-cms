@@ -96,8 +96,19 @@ export const POST = async ({ request }: { request: Request }) => {
       expand: ['customer_details']
     });
 
-    const projectId = import.meta.env.SANITY_PROJECT_ID;
-    const tokenSanity = import.meta.env.SANITY_API_TOKEN;
+    const projectId =
+      (import.meta.env.SANITY_PROJECT_ID as string | undefined) ||
+      (import.meta.env.PUBLIC_SANITY_PROJECT_ID as string | undefined) ||
+      (import.meta.env.VITE_SANITY_PROJECT_ID as string | undefined);
+    const dataset =
+      (import.meta.env.SANITY_DATASET as string | undefined) ||
+      (import.meta.env.PUBLIC_SANITY_DATASET as string | undefined) ||
+      (import.meta.env.VITE_SANITY_DATASET as string | undefined) ||
+      'production';
+    const tokenSanity =
+      (import.meta.env.SANITY_WRITE_TOKEN as string | undefined) ||
+      (import.meta.env.SANITY_API_TOKEN as string | undefined) ||
+      (import.meta.env.VITE_SANITY_API_TOKEN as string | undefined);
 
     if (!projectId || !tokenSanity) {
       return new Response(JSON.stringify({ error: 'Missing Sanity project ID or API token' }), {
@@ -107,7 +118,7 @@ export const POST = async ({ request }: { request: Request }) => {
     }
 
     const query = '*[_type == "customer" && email == $email][0]';
-    const sanityUrl = new URL(`https://${projectId}.api.sanity.io/v1/data/query/production`);
+    const sanityUrl = new URL(`https://${projectId}.api.sanity.io/v1/data/query/${dataset}`);
     sanityUrl.searchParams.set('query', query);
     sanityUrl.searchParams.set('$email', customerEmail);
 
@@ -137,7 +148,7 @@ export const POST = async ({ request }: { request: Request }) => {
       orderPayload.customer = { _type: 'reference', _ref: customerId };
     }
 
-    const sanityRes = await fetch(`https://${projectId}.api.sanity.io/v1/data/mutate/production`, {
+    const sanityRes = await fetch(`https://${projectId}.api.sanity.io/v1/data/mutate/${dataset}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

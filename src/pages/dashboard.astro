@@ -1,5 +1,17 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+// Simple auth guard: if no session or token cookie, redirect to /account
+const cookie = Astro.request.headers.get('cookie') || '';
+const readCookie = (name: string) => {
+  const m = new RegExp(`(?:^|;\\s*)${name}=([^;]+)`).exec(cookie);
+  return m?.[1] || null;
+};
+const hasSession = Boolean(readCookie('session'));
+const hasToken = Boolean(readCookie('token'));
+if (!hasSession && !hasToken) {
+  return Astro.redirect('/account');
+}
 ---
 
 <BaseLayout>
@@ -86,7 +98,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     </section>
   </main>
 
-  <script type="module" src={(Astro as any).resolve('@/scripts/dashboard-page.ts')}></script>
+  <script type="module" src="/scripts/dashboard-page.ts"></script>
   <!-- inlined script moved to src/scripts/dashboard-page.ts -->
 
     <!-- All dashboard logic is now handled in src/scripts/dashboard-page.ts -->

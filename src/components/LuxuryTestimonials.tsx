@@ -264,3 +264,5 @@ export function LuxuryTestimonials() {
     </section>
   );
 }
+
+export default LuxuryTestimonials;

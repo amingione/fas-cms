@@ -1,6 +1,11 @@
 // src/lib/sanity-utils.ts
 import { createClient } from '@sanity/client';
 
+type SanityFetch = <T>(query: string, params?: Record<string, any>) => Promise<T>;
+interface SanityClientLite {
+  fetch: SanityFetch;
+}
+
 // Initialize Sanity client
 const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
 const dataset = import.meta.env.PUBLIC_SANITY_DATASET;
@@ -15,9 +20,9 @@ if (!hasSanityConfig) {
   );
 }
 
-export const sanity: any = hasSanityConfig
-  ? createClient({ projectId, dataset, apiVersion, useCdn: false, token })
-  : {};
+export const sanity: SanityClientLite | null = hasSanityConfig
+  ? (createClient({ projectId, dataset, apiVersion, useCdn: false, token }) as unknown as SanityClientLite)
+  : null;
 // Back-compat aliases for callers expecting different names
 export const sanityClient = sanity as any;
 export const client = sanity as any;
@@ -185,7 +190,7 @@ export async function fetchProductsFromSanity({
       )
     }`;
 
-    return await sanity.fetch<Product[]>(query, params);
+    return await sanity!.fetch<Product[]>(query, params);
   } catch (err) {
     console.error('Failed to fetch products:', err);
     return [];
@@ -201,7 +206,7 @@ export async function fetchCategories(): Promise<Category[]> {
       title,
       slug
     }`;
-    return await sanity.fetch<Category[]>(query, {});
+    return await sanity!.fetch<Category[]>(query, {});
   } catch (err) {
     console.error('Failed to fetch categories:', err);
     return [];
@@ -217,7 +222,7 @@ export async function fetchTunes(): Promise<Tune[]> {
       title,
       slug
     }`;
-    return await sanity.fetch<Tune[]>(query, {});
+    return await sanity!.fetch<Tune[]>(query, {});
   } catch (err) {
     console.error('Failed to fetch tunes:', err);
     return [];
@@ -233,7 +238,7 @@ export async function fetchVehicles(): Promise<Vehicle[]> {
       title,
       slug
     }`;
-    return await sanity.fetch<Vehicle[]>(query, {});
+    return await sanity!.fetch<Vehicle[]>(query, {});
   } catch (err) {
     console.error('Failed to fetch vehicles:', err);
     return [];
@@ -297,7 +302,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
         defined(category) => category[]->{ _id, title, slug }
       )
     }`;
-    return await sanity.fetch<Product | null>(query, { slug });
+    return await sanity!.fetch<Product | null>(query, { slug });
   } catch (err) {
     console.error(`Failed to fetch product with slug "${slug}":`, err);
     return null;
@@ -330,7 +335,7 @@ export async function getRelatedProducts(
     } | order(rel desc, onSale desc, coalesce(salePrice, price, 9e9) asc, _createdAt desc)[0...$limit]
   `;
   const params = { slug, catIds: ids, filters: flt, limit } as Record<string, any>;
-  return sanity.fetch<Product[]>(query, params);
+  return sanity!.fetch<Product[]>(query, params);
 }
 
 // Auto-upsell: same category, higher (or equal) price than current item
@@ -360,7 +365,7 @@ export async function getUpsellProducts(
   `;
   const params: Record<string, any> = { slug, catIds: ids, limit };
   if (hasPrice) params.price = basePrice;
-  return sanity.fetch<Product[]>(query, params);
+  return sanity!.fetch<Product[]>(query, params);
 }
 
 // Backwards-compatible alias to old name

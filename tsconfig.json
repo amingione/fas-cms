@@ -1,7 +1,7 @@
 {
   "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
-    "types": ["astro/client", "node"],
+    "types": ["astro/client", "vite/client", "node"],
     "module": "es2020",
     "target": "es2015",
     "outDir": "dist", // Direct compiled output to a separate directory
@@ -18,12 +18,20 @@
     "allowJs": true,
     "checkJs": false, // Disable type-checking for .js files to avoid processing LegacySanityQuery.js
     "resolveJsonModule": true,
-    "moduleResolution": "node"
+    "moduleResolution": "bundler",
+    "skipLibCheck": true
   },
-  "include": ["src/**/*", "*.astro", "**/*.ts", "**/*.tsx"],
+  "include": [
+    "src/**/*",
+    "*.astro",
+    "**/*.ts",
+    "**/*.tsx",
+    "netlify/functions/**/*.ts"
+  ],
   "exclude": [
     "node_modules",
     "dist",
-    "src/dev/LegacySanityQuery.js"
+    "src/dev/LegacySanityQuery.js",
+    "stackbit.config.ts"
   ] // Exclude sample/react tsparticles component to avoid missing peer deps
 }

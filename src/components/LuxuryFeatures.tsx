@@ -278,3 +278,5 @@ export function LuxuryFeatures() {
     </section>
   );
 }
+
+export default LuxuryFeatures;

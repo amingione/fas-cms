@@ -228,13 +228,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/internal-helpers@npm:0.7.1":
-  version: 0.7.1
-  resolution: "@astrojs/internal-helpers@npm:0.7.1"
-  checksum: 6e1e442d2e3f6139ddf7efc027053d872cb5ba2945271cfff07af859d6f3660f9922582dab95b6eebeea589fade019a9899c94775643bcbe72ddb8b0757c0fb5
-  languageName: node
-  linkType: hard
-
 "@astrojs/internal-helpers@npm:0.7.2":
   version: 0.7.2
   resolution: "@astrojs/internal-helpers@npm:0.7.2"
@@ -242,11 +235,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@astrojs/markdown-remark@npm:6.3.5":
-  version: 6.3.5
-  resolution: "@astrojs/markdown-remark@npm:6.3.5"
+"@astrojs/markdown-remark@npm:6.3.6":
+  version: 6.3.6
+  resolution: "@astrojs/markdown-remark@npm:6.3.6"
   dependencies:
-    "@astrojs/internal-helpers": 0.7.1
+    "@astrojs/internal-helpers": 0.7.2
     "@astrojs/prism": 3.3.0
     github-slugger: ^2.0.0
     hast-util-from-html: ^2.0.3
@@ -267,11 +260,11 @@ __metadata:
     unist-util-visit: ^5.0.0
     unist-util-visit-parents: ^6.0.1
     vfile: ^6.0.3
-  checksum: ecb76a45a82be4d0d1bae56519955bd2aea3fd93725d0d083c31f85deb3593cf66126c654d5bd72f1ee4ec9f1d770a3b49ba774398724a19617249d461830912
+  checksum: 3ccdbea7eb3f5f9348c93b83807c6e139ea58678222391ab9e5d72c8fcb7961ee5df0aab2afd006de55ef20147b8e85510ab71d50196466be12ef1e5fd27a97c
   languageName: node
   linkType: hard
 
-"@astrojs/netlify@npm:^6.5.6":
+"@astrojs/netlify@npm:6.5.9":
   version: 6.5.9
   resolution: "@astrojs/netlify@npm:6.5.9"
   dependencies:
@@ -9309,13 +9302,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"astro@npm:5.12.8":
-  version: 5.12.8
-  resolution: "astro@npm:5.12.8"
+"astro@npm:5.13.5":
+  version: 5.13.5
+  resolution: "astro@npm:5.13.5"
   dependencies:
     "@astrojs/compiler": ^2.12.2
-    "@astrojs/internal-helpers": 0.7.1
-    "@astrojs/markdown-remark": 6.3.5
+    "@astrojs/internal-helpers": 0.7.2
+    "@astrojs/markdown-remark": 6.3.6
     "@astrojs/telemetry": 3.3.0
     "@capsizecss/unpack": ^2.4.0
     "@oslojs/encoding": ^1.1.0
@@ -9381,7 +9374,7 @@ __metadata:
       optional: true
   bin:
     astro: astro.js
-  checksum: 53e97b675b6da82a051a8b0da572b6f0e19aea679af6fa12640fa7077958d9a52bee3d7b02c7ab6e4c01ecf149107e3d2530da9540a95cbaecd804ff276a3a75
+  checksum: 3b78ba1ca8a967a883635cef7dbe467619dfc630e102d6060fafd92619bef0eb9e7b2ce25defedbd2fb4b53346552acb5efdf8b2722b2c13ba97647e8371b8aa
   languageName: node
   linkType: hard
 
@@ -15274,7 +15267,7 @@ __metadata:
   dependencies:
     "@apollo/client": ^4.0.3
     "@astrojs/image": 0.18.0
-    "@astrojs/netlify": ^6.5.6
+    "@astrojs/netlify": 6.5.9
     "@astrojs/react": ^4.3.0
     "@astrojs/tailwind": ^6.0.2
     "@auth0/auth0-react": ^2.4.0
@@ -15330,7 +15323,7 @@ __metadata:
     "@types/stripe": ^8.0.417
     "@vitejs/plugin-react": ^4.4.0
     add: ^2.0.6
-    astro: 5.12.8
+    astro: 5.13.5
     autoprefixer: ^10.4.21
     class-variance-authority: ^0.7.1
     cmdk: 1.1.1
