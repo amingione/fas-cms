@@ -41,8 +41,7 @@
 [[plugins]]
   package = "netlify-plugin-inline-critical-css"
   [plugins.inputs]
-    inlineFonts = true
-    minify = true
+  extract = true
 
 [[plugins]]
   package = "netlify-plugin-minify-html"
