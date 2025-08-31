@@ -1,9 +1,12 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { getGitPageDoc, sbFieldPath } from '@lib/stackbit';
+const pageDoc: any = await getGitPageDoc('truckPackages');
 import { Button } from '@/components/ui/button';
 ---
 
 <BaseLayout title="Truck Packages">
+  <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Truck Packages'}</div>
   <!-- Hero Section with Parallax -->
   <section class="parallax-section hero section-divider section-divider-carbon">
     <div class="background-layer"></div>
@@ -12,9 +15,8 @@ import { Button } from '@/components/ui/button';
       <img src="/images/DT FAS TRX Package copy.png" alt="Truck Midground Placeholder" class="midground-image">
     </div>
     <div class="foreground-layer">
-      <h1 class="font-ethno text-4xl md:text-5xl lg:text-6xl text-primary mb-4">
-        <!-- Editable: Change this headline text -->
-        Discover Premium Truck Packages
+      <h1 class="font-ethno text-4xl md:text-5xl lg:text-6xl text-primary mb-4" {...sbFieldPath('title')}>
+        {pageDoc?.title ?? 'Discover Premium Truck Packages'}
       </h1>
       <p class="font-body text-secondary text-lg md:text-xl mb-6 max-w-2xl mx-auto">
         <!-- Editable: Change this description text -->

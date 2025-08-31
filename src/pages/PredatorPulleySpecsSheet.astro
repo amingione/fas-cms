@@ -1,9 +1,12 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { getGitPageDoc, sbFieldPath } from '@lib/stackbit';
+const pageDoc: any = await getGitPageDoc('PredatorPulleySpecsSheet');
 import Button from '../components/Button.astro';
 ---
 
 <BaseLayout>
+  <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Predator Pulley — Spec Sheet'}</div>
   <!-- HERO -->
   <section class="parallax-section section-divider section-divider-carbon">
     <div class="background-layer">
@@ -16,8 +19,8 @@ import Button from '../components/Button.astro';
       />
     </div>
     <div class="foreground-layer">
-      <h1 class="text-4xl md:text-6xl font-ethno text-accent drop-shadow mb-3">
-        Predator&nbsp;Pulley — Spec Sheet
+      <h1 class="text-4xl md:text-6xl font-ethno text-accent drop-shadow mb-3" {...sbFieldPath('title')}>
+        {pageDoc?.title ?? 'Predator Pulley — Spec Sheet'}
       </h1>
       <p class="text-white/80 max-w-2xl mx-auto font-captain text-base md:text-xl tracking-wide">
         Engineered &amp; manufactured by FAS Motorsports for high-grip belt traction, precise drive ratios, and stable boost control at extreme RPM.

@@ -1,9 +1,12 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { getGitPageDoc, sbFieldPath } from '@lib/stackbit';
+const pageDoc: any = await getGitPageDoc('power-packages');
 import Button from '../components/Button.astro';
 ---
 
 <BaseLayout>
+  <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Power Packages'}</div>
   <!-- HERO: full-bleed, dark glass, tight under header -->
   <section
     class="relative w-full h-[72vh] md:h-[78vh] overflow-hidden"
@@ -17,8 +20,8 @@ import Button from '../components/Button.astro';
     <div class="absolute top-0 left-0 right-0 h-px bg-white/20"></div>
 
     <div class="relative z-10 h-full flex flex-col items-center justify-center text-center px-0 md:px-6">
-      <h1 class="text-5xl md:text-7xl font-ethno tracking-[0.08em] text-white drop-shadow-[0_6px_28px_rgba(0,0,0,0.8)]">
-        POWER&nbsp;PACKAGES
+      <h1 class="text-5xl md:text-7xl font-ethno tracking-[0.08em] text-white drop-shadow-[0_6px_28px_rgba(0,0,0,0.8)]" {...sbFieldPath('title')}>
+        {pageDoc?.title ?? 'POWER PACKAGES'}
       </h1>
       <p class="mt-3 text-base md:text-lg font-captain tracking-[0.12em] text-white/80 max-w-2xl">
         Platform‑tuned upgrade bundles engineered for clean installs, real gains, and factory‑like drivability.

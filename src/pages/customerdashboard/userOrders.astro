@@ -3,8 +3,6 @@ import cfetch from '../../utils/cfetch';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { AuthProvider } from '../../components/AuthProvider.jsx';
 import RequireLogin from '../../components/RequireLogin.jsx';
-// @ts-ignore - resolve is available at runtime
-const userOrdersScript = (Astro as any).resolve("@/scripts/user-orders-page.ts");
 ---
 <AuthProvider client:load>
   <RequireLogin client:load>
@@ -16,7 +14,7 @@ const userOrdersScript = (Astro as any).resolve("@/scripts/user-orders-page.ts")
         </div>
       </section>
 
-      <script type="module" src={userOrdersScript}></script>
+      <script type="module">import '/src/scripts/user-orders-page.ts';</script>
     </BaseLayout>
   </RequireLogin>
 </AuthProvider>

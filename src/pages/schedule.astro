@@ -1,5 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { getGitPageDoc, sbFieldPath } from '@lib/stackbit';
+const pageDoc: any = await getGitPageDoc('schedule');
 import BookingForm from '../components/BookingForm';
 import AppointmentCard from '../components/appointmentCard.astro';
 
@@ -14,8 +16,11 @@ const slots = data?.bookings || [];
 ---
 
 <BaseLayout>
+  <div aria-hidden=\"true\" class=\"hidden\" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Schedule'}</div>
   <section class="px-6 py-24 max-w-6xl mx-auto text-center">
-    <h1 class="text-4xl font-cyber text-accent mb-4">Schedule Your Install</h1>
+    <h1 class="text-4xl font-cyber text-accent mb-4" {...sbFieldPath('title')}>
+      {pageDoc?.title ?? 'Schedule Your Install'}
+    </h1>
     <p class="text-lg font-captain tracking-[1.2px] text-[#1d92ea] mb-12">
       Select a time that works for you — we’ll handle the rest. This is the first step toward securing your build.
     </p>

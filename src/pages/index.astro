@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { getGitPageDoc, sbFieldPath } from '@lib/stackbit';
 import * as sanity from '../lib/sanity-utils';
 import { Hero } from '@components/Hero.tsx';
 import { Services } from '@components/Services.tsx';
@@ -14,6 +15,7 @@ import { WheelsHero } from '@/components/WheelsHero.tsx';
 import HeroBanner from '@/components/HeroBanner.astro';
 
 const url = new URL(Astro.request.url);
+const pageDoc: any = await getGitPageDoc('index');
 const v2Param = url.searchParams.get('v2');
 // Default to the new V2 homepage; allow opt-out via ?v2=0
 const showV2 = v2Param === '0' ? false : true;
@@ -90,6 +92,7 @@ try {
 
 
 <BaseLayout>
+  <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Home'}</div>
 
 {showV2 && (
 

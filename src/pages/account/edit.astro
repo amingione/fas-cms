@@ -1,7 +1,5 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-// @ts-ignore - resolve is available at runtime
-const accountEditScript = (Astro as any).resolve("@/scripts/account-edit-page.ts");
 ---
 
 <BaseLayout hideBrandTag>
@@ -10,6 +8,6 @@ const accountEditScript = (Astro as any).resolve("@/scripts/account-edit-page.ts
       <p>Loading…</p>
     </div>
 
-    <script type="module" src={accountEditScript}></script>
+    <script type="module">import '/src/scripts/account-edit-page.ts';</script>
   </main>
 </BaseLayout>

@@ -1,11 +1,16 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getGitPageDoc, sbFieldPath } from '@lib/stackbit';
+const pageDoc: any = await getGitPageDoc('coreExchange');
 import Button from "@/components/Button.astro";
 ---
 
 <BaseLayout title="Core Exchange Program">
+  <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Core Exchange'}</div>
   <section class="text-white text-center pt-32 pb-20 px-6 sm:px-8">
-    <h1 class="font-borg text-5xl mb-6 text-accent">CORE Exchange Program</h1>
+    <h1 class="font-borg text-5xl mb-6 text-accent" {...sbFieldPath('title')}>
+      {pageDoc?.title ?? 'CORE Exchange Program'}
+    </h1>
     <p class="font-cyber-italic text-gray-300 text-lg max-w-2xl mx-auto mb-10">
       Don't want to wait for your snout to be ported? Our CORE Exchange Program lets you skip the downtime — receive a ready-to-install ported snout at your doorstep!
     </p>

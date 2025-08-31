@@ -1,17 +1,20 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { getGitPageDoc, sbFieldPath } from '@lib/stackbit';
+const pageDoc: any = await getGitPageDoc('BilletBearingPlateSpecs');
 import Button from '../components/Button.astro';
 ---
 
 <BaseLayout>
+  <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Billet Bearing Plate — Spec Sheet'}</div>
   <!-- Hero Section -->
   <section class="parallax-section section-divider section-divider-carbon">
     <div class="background-layer">
       <img src="/images/billet bearing plate.png" alt="Billet Bearing Plate" class="absolute inset-0 w-full h-full object-cover object-center" />
     </div>
     <div class="foreground-layer">
-      <h1 class="text-4xl md:text-6xl font-ethno text-accent drop-shadow mb-4">
-        Billet Bearing Plate
+      <h1 class="text-4xl md:text-6xl font-ethno text-accent drop-shadow mb-4" {...sbFieldPath('title')}>
+        {pageDoc?.title ?? 'Billet Bearing Plate'}
       </h1>
       <p class="text-white/80 max-w-2xl mx-auto font-captain text-lg md:text-xl tracking-wide">
         Engineered, fabricated, and rigorously tested by FAS Motorsports to deliver superior strength, precision, and reliability under extreme conditions.

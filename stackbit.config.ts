@@ -5,7 +5,6 @@ import fs from 'fs';
 import path from 'path';
 import { GitContentSource } from '@stackbit/cms-git';
 
-
 export default defineStackbitConfig({
   stackbitVersion: '~0.6.0',
   ssgName: 'custom',
@@ -183,7 +182,40 @@ export default defineStackbitConfig({
       console.warn('siteMap: failed to scan Astro pages:', e);
     }
 
+    // Ensure key routes always appear in the Editor (static + dynamic pattern)
+    const manualUrls = [
+      '/',
+      '/truckPackages',
+      '/power-packages',
+      '/porting',
+      '/customFab',
+      '/services',
+      '/schedule',
+      '/coreExchange',
+      // Spec sheet pages
+      '/BilletBearingPlateSpecs',
+      '/PredatorPulleySpecsSheet',
+      '/HellcatPulleyHubSpecSheet',
+      // Shop
+      '/shop',
+      '/shop/{slug}'
+    ];
+    for (const url of manualUrls) {
+      if (!entries.some((e) => e.urlPath === url)) {
+        entries.push({
+          stableId: `static:${url}`,
+          urlPath: url,
+          isHomePage: url === '/',
+          document: {
+            srcType: 'static',
+            srcProjectId: '',
+            modelName: 'staticPage',
+            id: `static:${url}`
+          }
+        });
+      }
+    }
+
     return entries;
-  },
-  
+  }
 });

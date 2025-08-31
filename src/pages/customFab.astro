@@ -1,8 +1,11 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { getGitPageDoc, sbFieldPath } from '@lib/stackbit';
+const pageDoc: any = await getGitPageDoc('customFab');
 ---
 
 <BaseLayout>
+  <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Custom Fabrication'}</div>
   <!-- HERO -->
   <section class="parallax-section section-divider section-divider-carbon">
     <div class="background-layer">
@@ -14,8 +17,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       />
     </div>
     <div class="foreground-layer">
-      <h1 class="text-4xl md:text-6xl font-ethno text-accent drop-shadow mb-3">
-        Custom Fabrication &amp; Welding
+      <h1 class="text-4xl md:text-6xl font-ethno text-accent drop-shadow mb-3" {...sbFieldPath('title')}>
+        {pageDoc?.title ?? 'Custom Fabrication & Welding'}
       </h1>
       <p class="text-white/80 max-w-3xl mx-auto font-captain text-base md:text-xl tracking-wide">
         FAS Motorsports offers in-house custom fabrication services for performance and diesel platforms. From pipes and cats to full exhaust systems, our welding department designs and builds everything to spec — no compromises.

@@ -1,17 +1,20 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { getGitPageDoc, sbFieldPath } from '@lib/stackbit';
+const pageDoc: any = await getGitPageDoc('services');
 import Button from '../components/Button.astro';
 ---
 
 <BaseLayout>
+  <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Services'}</div>
   <!-- HERO: full-bleed parallax with carbon divider -->
   <section class="parallax-section section-divider section-divider-carbon">
     <div class="background-layer">
       <img src="/images/About FAS MOTO  Page Banner copy.png" alt="FAS Motorsports Services" class="absolute inset-0 w-full h-full object-cover object-center" />
     </div>
     <div class="foreground-layer">
-      <h1 class="text-4xl md:text-6xl font-ethno text-accent drop-shadow mb-3 tracking-[0.08em]">
-        Services
+      <h1 class="text-4xl md:text-6xl font-ethno text-accent drop-shadow mb-3 tracking-[0.08em]" {...sbFieldPath('title')}>
+        {pageDoc?.title ?? 'Services'}
       </h1>
       <p class="text-white/80 max-w-3xl mx-auto font-captain text-base md:text-xl tracking-[0.12em]">
         In‑house performance, fabrication, and security installs — engineered for flow, reliability, and OEM‑level fit &amp; finish.

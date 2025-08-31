@@ -196,7 +196,39 @@ var stackbit_config_default = (0, import_types.defineStackbitConfig)({
     } catch (e) {
       console.warn("siteMap: failed to scan Astro pages:", e);
     }
+    const manualUrls = [
+      "/",
+      "/truckPackages",
+      "/power-packages",
+      "/porting",
+      "/customFab",
+      "/services",
+      "/schedule",
+      "/coreExchange",
+      // Spec sheet pages
+      "/BilletBearingPlateSpecs",
+      "/PredatorPulleySpecsSheet",
+      "/HellcatPulleyHubSpecSheet",
+      // Shop
+      "/shop",
+      "/shop/{slug}"
+    ];
+    for (const url of manualUrls) {
+      if (!entries.some((e) => e.urlPath === url)) {
+        entries.push({
+          stableId: `static:${url}`,
+          urlPath: url,
+          isHomePage: url === "/",
+          document: {
+            srcType: "static",
+            srcProjectId: "",
+            modelName: "staticPage",
+            id: `static:${url}`
+          }
+        });
+      }
+    }
     return entries;
   }
 });
-//# sourceMappingURL=stackbit.config.PAWYBCZX.cjs.map
+//# sourceMappingURL=stackbit.config.PGSWCISH.cjs.map

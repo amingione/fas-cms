@@ -1,5 +1,6 @@
 --- 
 import BaseLayout from '@layouts/BaseLayout.astro';
+import { getGitPageDoc, sbFieldPath } from '@lib/stackbit';
 import ProductCard from '@components/ProductCard';
 import ShopTopControls from '@components/shop/ShopTopControls';
 import ShopSidebarFilters from '@components/shop/ShopSidebarFilters';
@@ -16,6 +17,7 @@ const currentCategory = url.searchParams.get("categorySlug") || url.searchParams
 const start = (currentPage - 1) * PAGE_SIZE;
 const end = start + PAGE_SIZE;
 const sortParam = (url.searchParams.get('sort') || 'featured').toLowerCase();
+const pageDoc: any = await getGitPageDoc('shop');
 
 // Selected filter tags can come from ?filter=a&filter=b or ?filters=a,b
 const rawFilters = [
@@ -135,6 +137,7 @@ if (endPage < totalPages) {
 ---
 
 <BaseLayout>
+  <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Shop'}</div>
   <section class="max-w-7xl mx-auto px-4 md:px-6 mt-11 pt-10">
     <div class="mb-4">
       <ShopTopControls

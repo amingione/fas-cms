@@ -1,9 +1,12 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { getGitPageDoc, sbFieldPath } from '@lib/stackbit';
+const pageDoc: any = await getGitPageDoc('HellcatPulleyHubSpecSheet');
 import Button from '../components/Button.astro';
 ---
 
 <BaseLayout>
+  <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Pulley & Hub Kit — Spec Sheet'}</div>
   <!-- HERO -->
   <section class="parallax-section section-divider section-divider-carbon">
     <div class="background-layer">
@@ -15,8 +18,8 @@ import Button from '../components/Button.astro';
       />
     </div>
     <div class="foreground-layer">
-      <h1 class="text-4xl md:text-6xl font-ethno text-accent drop-shadow mb-3">
-        Pulley &amp; Hub Kit — Spec Sheet
+      <h1 class="text-4xl md:text-6xl font-ethno text-accent drop-shadow mb-3" {...sbFieldPath('title')}>
+        {pageDoc?.title ?? 'Pulley & Hub Kit — Spec Sheet'}
       </h1>
       <p class="text-white/80 max-w-2xl mx-auto font-captain text-base md:text-xl tracking-wide">
         Engineered by FAS Motorsports for Hellcat/Redeye/Demon/TRX platforms, this billet pulley &amp; hub system ensures superior boost stability, strength, and serviceability compared to press-fit OE assemblies.
