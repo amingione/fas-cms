@@ -72,4 +72,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     </div>
   </section>
 
-  <script type="module" src={Astro.resolve('@/scripts/customer-profile-page.ts')}></script></BaseLayout>
+  <script type="module">
+    import '@/scripts/customer-profile-page.ts';
+  </script>
+</BaseLayout>

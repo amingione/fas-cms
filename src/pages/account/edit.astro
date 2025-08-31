@@ -8,6 +8,8 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
       <p>Loading…</p>
     </div>
 
-    <script type="module" src={Astro.resolve('@/scripts/account-edit-page.ts')}></script>
+    <script type="module">
+      import '@/scripts/account-edit-page.ts';
+    </script>
   </main>
 </BaseLayout>

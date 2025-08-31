@@ -14,7 +14,9 @@ import RequireLogin from '../../components/RequireLogin.jsx';
         </div>
       </section>
 
-      <script type="module" src={Astro.resolve('@/scripts/user-orders-page.ts')}></script>
+      <script type="module">
+        import '@/scripts/user-orders-page.ts';
+      </script>
     </BaseLayout>
   </RequireLogin>
 </AuthProvider>

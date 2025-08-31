@@ -10,7 +10,9 @@ try {
 const countOrders = stats?.data?.length || 0
 ---
 <DashboardShell client:only="react">
-  <script type="module" src={Astro.resolve('@/scripts/account-auth.ts')}></script>
+  <script type="module">
+    import '@/scripts/account-auth.ts';
+  </script>
   <script>
     (async () => {
       const guard = async () => {

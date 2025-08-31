@@ -2,7 +2,7 @@ import Stripe from 'stripe';
 import { createClient } from '@sanity/client';
 
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-04-30.basil'
+  apiVersion: '2025-08-27.basil'
 });
 
 const sanity = createClient({
@@ -63,7 +63,10 @@ export async function POST({ request }: { request: Request }) {
       let customerRef: { _type: 'reference'; _ref: string } | undefined;
       const email = session.customer_details?.email || '';
       if (email) {
-        const existing = await sanity.fetch(`*[_type=="customer" && lower(email)==lower($email)][0]{_id}`, { email });
+        const existing = await sanity.fetch(
+          `*[_type=="customer" && lower(email)==lower($email)][0]{_id}`,
+          { email }
+        );
         let customerId = existing?._id as string | undefined;
         if (!customerId) {
           const created = await sanity.create({
@@ -83,7 +86,12 @@ export async function POST({ request }: { request: Request }) {
         try {
           const parsed = JSON.parse(metaCart);
           if (Array.isArray(parsed)) {
-            cartLines = parsed.map((l: any) => ({ _type: 'cartLine', description: l?.n, quantity: l?.q, amount_total: Number(l?.p || 0) }));
+            cartLines = parsed.map((l: any) => ({
+              _type: 'cartLine',
+              description: l?.n,
+              quantity: l?.q,
+              amount_total: Number(l?.p || 0)
+            }));
           }
         } catch {}
       }
@@ -123,10 +131,16 @@ export async function POST({ request }: { request: Request }) {
 
       // Send confirmation email via Resend if configured
       const RESEND_API_KEY = import.meta.env.RESEND_API_KEY as string | undefined;
-      const RESEND_FROM = (import.meta.env.RESEND_FROM as string | undefined) || 'noreply@fasmotorsports.com';
+      const RESEND_FROM =
+        (import.meta.env.RESEND_FROM as string | undefined) || 'noreply@fasmotorsports.com';
       const to = session.customer_details?.email;
       if (RESEND_API_KEY && to) {
-        const rows = cartLines.map((l: any) => `<tr><td style="padding:8px;border-bottom:1px solid #eee">${l.description || ''}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:center">${l.quantity || 1}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right">$${Number(l.amount_total || 0).toFixed(2)}</td></tr>`).join('');
+        const rows = cartLines
+          .map(
+            (l: any) =>
+              `<tr><td style="padding:8px;border-bottom:1px solid #eee">${l.description || ''}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:center">${l.quantity || 1}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right">$${Number(l.amount_total || 0).toFixed(2)}</td></tr>`
+          )
+          .join('');
         const html = `
           <div style="font-family:Arial,sans-serif;max-width:640px;margin:0 auto;color:#111">
             <div style="text-align:center;margin-bottom:16px">

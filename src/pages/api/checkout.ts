@@ -1,7 +1,7 @@
 import Stripe from 'stripe';
 
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-04-30.basil'
+  apiVersion: '2025-08-27.basil'
 });
 
 const configuredBaseUrl = import.meta.env.PUBLIC_BASE_URL || '';
@@ -10,7 +10,9 @@ function validateBaseUrl(baseUrl: string): Response | null {
   if (!baseUrl || !baseUrl.startsWith('http')) {
     console.error('❌ Invalid PUBLIC_BASE_URL:', baseUrl);
     return new Response(
-      JSON.stringify({ error: 'PUBLIC_BASE_URL is missing or invalid. Must start with http or https.' }),
+      JSON.stringify({
+        error: 'PUBLIC_BASE_URL is missing or invalid. Must start with http or https.'
+      }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
