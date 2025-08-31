@@ -1,11 +1,12 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getGitPageDoc, sbFieldPath } from '@lib/stackbit';
+import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
 const pageDoc: any = await getGitPageDoc('truckPackages');
 import { Button } from '@/components/ui/button';
 ---
 
 <BaseLayout title="Truck Packages">
+  <div {...sbObjectId('content/pages/truckPackages.json')}>
   <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Truck Packages'}</div>
   <!-- Hero Section with Parallax -->
   <section class="parallax-section hero section-divider section-divider-carbon">
@@ -91,6 +92,7 @@ import { Button } from '@/components/ui/button';
       </div>
     </div>
   </section>
+  </div>
 
   <!-- Features Section with Subtle Parallax -->
   <section class="features relative section-divider-carbon">

@@ -1,6 +1,6 @@
 --- 
 import BaseLayout from '@layouts/BaseLayout.astro';
-import { getGitPageDoc, sbFieldPath } from '@lib/stackbit';
+import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
 import ProductCard from '@components/ProductCard';
 import ShopTopControls from '@components/shop/ShopTopControls';
 import ShopSidebarFilters from '@components/shop/ShopSidebarFilters';
@@ -137,6 +137,7 @@ if (endPage < totalPages) {
 ---
 
 <BaseLayout>
+  <div {...sbObjectId('content/pages/shop.json')}>
   <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Shop'}</div>
   <section class="max-w-7xl mx-auto px-4 md:px-6 mt-11 pt-10">
     <div class="mb-4">
@@ -283,4 +284,5 @@ if (endPage < totalPages) {
       });
     })();
   </script>
+  </div>
 </BaseLayout>

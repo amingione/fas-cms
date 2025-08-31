@@ -1,11 +1,12 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getGitPageDoc, sbFieldPath } from '@lib/stackbit';
+import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
 const pageDoc: any = await getGitPageDoc('services');
 import Button from '../components/Button.astro';
 ---
 
 <BaseLayout>
+  <div {...sbObjectId('content/pages/services.json')}>
   <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Services'}</div>
   <!-- HERO: full-bleed parallax with carbon divider -->
   <section class="parallax-section section-divider section-divider-carbon">
@@ -159,4 +160,5 @@ import Button from '../components/Button.astro';
       <Button href="/contact" text="Talk to a Specialist" size="md" variant="ghost" />
     </div>
   </section>
+  </div>
 </BaseLayout>

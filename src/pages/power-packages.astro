@@ -1,11 +1,12 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getGitPageDoc, sbFieldPath } from '@lib/stackbit';
+import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
 const pageDoc: any = await getGitPageDoc('power-packages');
 import Button from '../components/Button.astro';
 ---
 
 <BaseLayout>
+  <div {...sbObjectId('content/pages/power-packages.json')}>
   <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Power Packages'}</div>
   <!-- HERO: full-bleed, dark glass, tight under header -->
   <section
@@ -130,4 +131,5 @@ import Button from '../components/Button.astro';
       <Button text="Book an Install" variant="multi-swipe-v2" href="/schedule"/>
     </div>
   </section>
+  </div>
 </BaseLayout>

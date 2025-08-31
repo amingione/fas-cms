@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getGitPageDoc, sbFieldPath } from '@lib/stackbit';
+import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
 import * as sanity from '../lib/sanity-utils';
 import { Hero } from '@components/Hero.tsx';
 import { Services } from '@components/Services.tsx';
@@ -92,6 +92,7 @@ try {
 
 
 <BaseLayout>
+  <div {...sbObjectId('content/pages/index.json')}>
   <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Home'}</div>
 
 {showV2 && (
@@ -153,4 +154,5 @@ try {
 
 )}
 
+  </div>
 </BaseLayout>

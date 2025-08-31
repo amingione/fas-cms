@@ -2,13 +2,14 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Testimonials from '../components/Testimonials';
 import Button from '../components/Button.astro';
-import { getGitPageDoc, sbFieldPath } from '@lib/stackbit';
+import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
 
 
 const pageDoc: any = await getGitPageDoc('about');
 ---
 
 <BaseLayout>
+  <div {...sbObjectId('content/pages/about.json')}>
   <!-- Hero -->
   <section class="relative bg-black/20 fade-in-up">
     <img 
@@ -168,4 +169,5 @@ const pageDoc: any = await getGitPageDoc('about');
       });
     });
   </script>
+  </div>
 </BaseLayout>

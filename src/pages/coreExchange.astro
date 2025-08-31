@@ -1,11 +1,12 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { getGitPageDoc, sbFieldPath } from '@lib/stackbit';
+import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
 const pageDoc: any = await getGitPageDoc('coreExchange');
 import Button from "@/components/Button.astro";
 ---
 
 <BaseLayout title="Core Exchange Program">
+  <div {...sbObjectId('content/pages/coreExchange.json')}>
   <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Core Exchange'}</div>
   <section class="text-white text-center pt-32 pb-20 px-6 sm:px-8">
     <h1 class="font-borg text-5xl mb-6 text-accent" {...sbFieldPath('title')}>
@@ -70,4 +71,5 @@ import Button from "@/components/Button.astro";
 
     <Button href="/contact" text="Contact Us for More Details" variant="default" />
   </section>
+  </div>
 </BaseLayout>

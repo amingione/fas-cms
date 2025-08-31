@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getGitPageDoc, sbFieldPath } from '@lib/stackbit';
+import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
 const pageDoc: any = await getGitPageDoc('porting');
 import Button from '@/components/Button.astro';
 
@@ -16,6 +16,7 @@ const portingItems = [
 ---
 
 <BaseLayout>
+  <div {...sbObjectId('content/pages/porting.json')}>
   <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Porting'}</div>
   <!-- HERO (compact header, no full-screen background) -->
   <section class="section-divider section-divider-carbon bg-black/70 border-b border-white/10">
@@ -162,4 +163,5 @@ const portingItems = [
       <Button href="/schedule" text="Book Install or Dropoff" size="md" variant="ghost" />
     </div>
   </section>
+  </div>
 </BaseLayout>

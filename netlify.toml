@@ -25,3 +25,57 @@
   targetPort = 3000
   port = 8888
   autoLaunch = false
+
+# Build plugins
+[[plugins]]
+  package = "netlify-plugin-cache"
+  [plugins.inputs]
+    paths = [
+      "node_modules/.cache",
+      ".astro",
+      ".cache",
+      "package-lock.json"
+    ]
+
+[[plugins]]
+  package = "netlify-plugin-compress"
+  [plugins.inputs]
+    brotli = true
+    gzip = true
+    minSize = 10240
+
+[[plugins]]
+  package = "netlify-plugin-inline-critical-css"
+  [plugins.inputs]
+    inlineFonts = true
+    minify = true
+
+[[plugins]]
+  package = "netlify-plugin-minify-html"
+
+[[plugins]]
+  package = "netlify-plugin-checklinks"
+
+[[plugins]]
+  package = "netlify-plugin-submit-sitemap"
+
+[[plugins]]
+  package = "netlify-plugin-robots-txt"
+
+[[plugins]]
+  package = "@netlify/plugin-lighthouse"
+
+
+[[plugins]]
+  package = "netlify-plugin-a11y"
+
+# Caching headers
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "public, max-age=300"
