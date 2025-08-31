@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import customerProfileScript from '@/scripts/customer-profile-page.ts?url';
 ---
 
 <BaseLayout hideBrandTag>
@@ -72,4 +73,4 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     </div>
   </section>
 
-  <script type="module">import '/src/scripts/customer-profile-page.ts';</script></BaseLayout>
+  <script type="module" src={customerProfileScript}></script></BaseLayout>

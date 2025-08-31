@@ -1,7 +1,3 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 :root {
   --color-primary: #ea1d26;
   --color-secondary: #eef2fb;
@@ -146,7 +142,7 @@
   src:
     url('/fonts/Borgsquad.woff2') format('woff2'),
     url('/fonts/Borgsquad.woff') format('woff'),
-    url('/fonts/Borgsquad.ttf') format('truetype');
+    url('/fonts/borgsquad.ttf') format('truetype');
   font-weight: normal;
   font-display: auto;
 }

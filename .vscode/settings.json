@@ -4,5 +4,20 @@
   "haselerdev.aiquickfix.problemCodePrefix": "gpt-4",
   "haselerdev.aiquickfix.apiKey": "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",
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode"
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  // Silence editor-only warnings for Tailwind directives
+  "css.lint.unknownAtRules": "ignore",
+  "scss.lint.unknownAtRules": "ignore",
+  "less.lint.unknownAtRules": "ignore",
+  // Ensure Tailwind extension understands Astro + class utilities
+  "tailwindCSS.includeLanguages": {
+    "astro": "html"
+  },
+  "tailwindCSS.experimental.configFile": "tailwind.config.js",
+  "tailwindCSS.emmetCompletions": true,
+  "tailwindCSS.experimental.classRegex": [
+    "cn\\(([^)]*)\\)",
+    "clsx\\(([^)]*)\\)",
+    "classnames\\(([^)]*)\\)"
+  ]
 }

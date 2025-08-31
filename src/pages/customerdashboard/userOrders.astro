@@ -3,6 +3,7 @@ import cfetch from '../../utils/cfetch';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { AuthProvider } from '../../components/AuthProvider.jsx';
 import RequireLogin from '../../components/RequireLogin.jsx';
+import userOrdersScript from '@/scripts/user-orders-page.ts?url';
 ---
 <AuthProvider client:load>
   <RequireLogin client:load>
@@ -14,7 +15,7 @@ import RequireLogin from '../../components/RequireLogin.jsx';
         </div>
       </section>
 
-      <script type="module">import '/src/scripts/user-orders-page.ts';</script>
+      <script type="module" src={userOrdersScript}></script>
     </BaseLayout>
   </RequireLogin>
 </AuthProvider>

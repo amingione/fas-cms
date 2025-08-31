@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import accountEditScript from '@/scripts/account-edit-page.ts?url';
 ---
 
 <BaseLayout hideBrandTag>
@@ -8,6 +9,6 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
       <p>Loading…</p>
     </div>
 
-    <script type="module">import '/src/scripts/account-edit-page.ts';</script>
+    <script type="module" src={accountEditScript}></script>
   </main>
 </BaseLayout>

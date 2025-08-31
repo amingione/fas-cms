@@ -20,6 +20,13 @@ export const sanity = createClient({
   useCdn: false,
   token
 });
+// Back-compat aliases for callers expecting different names
+export const sanityClient = sanity;
+export const client = sanity;
+export const getClient = () => sanity;
+export const config = { projectId, dataset, apiVersion } as const;
+export const clientConfig = config;
+export const defaultClientConfig = config;
 
 // Define interfaces
 export interface Product {
