@@ -54,9 +54,6 @@
   package = "netlify-plugin-submit-sitemap"
 
 [[plugins]]
-  package = "netlify-plugin-robots-txt"
-
-[[plugins]]
   package = "@netlify/plugin-lighthouse"
 
 
