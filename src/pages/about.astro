@@ -1,8 +1,12 @@
+---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Testimonials from '../components/Testimonials';
 import Button from '../components/Button.astro';
 import { getGitPageDoc, sbFieldPath } from '@lib/stackbit';
+
+
 const pageDoc: any = await getGitPageDoc('about');
+---
 
 <BaseLayout>
   <!-- Hero -->
