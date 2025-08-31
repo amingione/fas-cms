@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import Particles, { initParticlesEngine } from '@tsparticles/react';
-import type { Container, ISourceOptions } from '@tsparticles/engine';
+import Particles from 'react-tsparticles';
+import { loadSlim } from 'tsparticles-slim';
+import type { Engine, ISourceOptions } from 'tsparticles-engine';
 import type { CSSProperties } from 'react';
-import { loadSlim } from '@tsparticles/slim';
 
 type Props = {
   id?: string;
