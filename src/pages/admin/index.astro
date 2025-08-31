@@ -1,8 +1,6 @@
 ---
 import DashboardShell from '@components/admin/DashboardShell.tsx'
 import Card from '@components/admin/Card.tsx'
-// Load as a proper bundled module (avoid serving raw .ts)
-const accountAuthSrc = Astro.resolve("../../scripts/account-auth.ts");
 const base = import.meta.env.PUBLIC_BASE_URL || (Astro.site ? new URL(Astro.site).origin : new URL(Astro.request.url).origin);
 let stats: any = { data: [] };
 try {
@@ -12,7 +10,9 @@ try {
 const countOrders = stats?.data?.length || 0
 ---
 <DashboardShell client:only="react">
-  <script type="module" src={accountAuthSrc}></script>
+  <script type="module">
+    import '@/scripts/account-auth.ts';
+  </script>
   <script>
     (async () => {
       const guard = async () => {

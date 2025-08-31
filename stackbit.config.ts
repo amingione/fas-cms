@@ -1,20 +1,19 @@
 // stackbit.config.ts
 import { defineStackbitConfig } from '@stackbit/types';
 import type { SiteMapEntry } from '@stackbit/types';
-import { SanityContentSource } from '@stackbit/cms-sanity';
 import fs from 'fs';
 import path from 'path';
 import { GitContentSource } from '@stackbit/cms-git';
 
-const enableSanity = process.env.ENABLE_SANITY === 'true';
 
 export default defineStackbitConfig({
   stackbitVersion: '~0.6.0',
   ssgName: 'custom',
   nodeVersion: '18',
 
-  // Let NVE boot your Astro dev server on the port it chooses
-  devCommand: 'yarn astro dev --port 3000 --host 127.0.0.1',
+  // Let NVE boot your Astro dev server and choose the port
+  // Bind to 0.0.0.0 so the editor container can reach it
+  devCommand: 'yarn astro dev --host 0.0.0.0',
 
   // Astro integration (NVE watches for these)
   experimental: {
@@ -112,18 +111,7 @@ export default defineStackbitConfig({
           ]
         }
       ]
-    }),
-    // Optionally enable Sanity (toggle via ENABLE_SANITY=true)
-    ...(enableSanity
-      ? [
-          new SanityContentSource({
-            rootPath: '/Users/ambermin/Documents/Workspace/DevProjects/GitHub/fas-sanity',
-            projectId: process.env.SANITY_PROJECT_ID as string,
-            dataset: (process.env.SANITY_DATASET || 'production') as string,
-            token: process.env.SANITY_ACCESS_TOKEN as string
-          } as unknown as any)
-        ]
-      : [])
+    })
   ],
   siteMap: ({ documents, models }) => {
     const pageModelNames = new Set(models.filter((m) => m.type === 'page').map((m) => m.name));
@@ -157,10 +145,13 @@ export default defineStackbitConfig({
           if (ent.isDirectory()) {
             if (rel.startsWith('api')) continue; // skip API endpoints
             walk(full);
-          } else if (ent.isFile() && ent.name.endsWith('.astro')) {
+          } else if (
+            ent.isFile() &&
+            (ent.name.endsWith('.astro') || ent.name.endsWith('.md') || ent.name.endsWith('.mdx'))
+          ) {
             if (rel.includes('[')) continue; // skip dynamic routes like [slug]
             // Build URL path: strip extension and map index.astro appropriately
-            const noExt = rel.replace(/\\.astro$/, '');
+            const noExt = rel.replace(/\\.(astro|md|mdx)$/, '');
             let url = '/' + noExt.replace(/\\\\/g, '/');
             url = url.replace(/\\/g, '/');
             url = url.replace(/index$/i, '');
@@ -194,12 +185,5 @@ export default defineStackbitConfig({
 
     return entries;
   },
-  ...(enableSanity
-    ? {
-        modelExtensions: [
-          { name: 'product', type: 'page', urlPath: '/shop/{slug}' },
-          { name: 'category', type: 'page', urlPath: '/shop?category={slug}' }
-        ]
-      }
-    : {})
+  
 });

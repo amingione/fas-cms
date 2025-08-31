@@ -1,5 +1,6 @@
----
 import BaseLayout from "../layouts/BaseLayout.astro";
+// @ts-ignore - resolve is available at runtime
+const dashboardScript = (Astro as any).resolve("@/scripts/dashboard-page.ts");
 ---
 
 <BaseLayout>
@@ -86,11 +87,8 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     </section>
   </main>
 
-  <script type="module">
-    import { getAuth0Client } from '../../lib/auth';      // ✅ from pages/*
-
-    // Track the current view so we can re-render on breakpoint changes
-    let currentView = 'dashboard';
+  <script type="module" src={dashboardScript}></script>
+  <!-- inlined script moved to src/scripts/dashboard-page.ts -->
 
     function selectDashContainer() {
       const desktop = document.querySelector('[data-desktop-dash] [data-dash-content]');
@@ -492,5 +490,5 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         logout();
       });
     });
-  </script>
+  
 </BaseLayout>

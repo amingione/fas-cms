@@ -34,17 +34,16 @@ __export(stackbit_config_exports, {
 });
 module.exports = __toCommonJS(stackbit_config_exports);
 var import_types = require("@stackbit/types");
-var import_cms_sanity = require("@stackbit/cms-sanity");
 var import_fs = __toESM(require("fs"));
 var import_path = __toESM(require("path"));
 var import_cms_git = require("@stackbit/cms-git");
-var enableSanity = process.env.ENABLE_SANITY === "true";
 var stackbit_config_default = (0, import_types.defineStackbitConfig)({
   stackbitVersion: "~0.6.0",
   ssgName: "custom",
   nodeVersion: "18",
-  // Let NVE boot your Astro dev server on the port it chooses
-  devCommand: "yarn astro dev --port 3000 --host 127.0.0.1",
+  // Let NVE boot your Astro dev server and choose the port
+  // Bind to 0.0.0.0 so the editor container can reach it
+  devCommand: "yarn astro dev --host 0.0.0.0",
   // Astro integration (NVE watches for these)
   experimental: {
     ssg: {
@@ -139,16 +138,7 @@ var stackbit_config_default = (0, import_types.defineStackbitConfig)({
           ]
         }
       ]
-    }),
-    // Optionally enable Sanity (toggle via ENABLE_SANITY=true)
-    ...enableSanity ? [
-      new import_cms_sanity.SanityContentSource({
-        rootPath: "/Users/ambermin/Documents/Workspace/DevProjects/GitHub/fas-sanity",
-        projectId: process.env.SANITY_PROJECT_ID,
-        dataset: process.env.SANITY_DATASET || "production",
-        token: process.env.SANITY_ACCESS_TOKEN
-      })
-    ] : []
+    })
   ],
   siteMap: ({ documents, models }) => {
     const pageModelNames = new Set(models.filter((m) => m.type === "page").map((m) => m.name));
@@ -175,9 +165,9 @@ var stackbit_config_default = (0, import_types.defineStackbitConfig)({
           if (ent.isDirectory()) {
             if (rel.startsWith("api")) continue;
             walk(full);
-          } else if (ent.isFile() && ent.name.endsWith(".astro")) {
+          } else if (ent.isFile() && (ent.name.endsWith(".astro") || ent.name.endsWith(".md") || ent.name.endsWith(".mdx"))) {
             if (rel.includes("[")) continue;
-            const noExt = rel.replace(/\\.astro$/, "");
+            const noExt = rel.replace(/\\.(astro|md|mdx)$/, "");
             let url = "/" + noExt.replace(/\\\\/g, "/");
             url = url.replace(/\\/g, "/");
             url = url.replace(/index$/i, "");
@@ -207,12 +197,6 @@ var stackbit_config_default = (0, import_types.defineStackbitConfig)({
       console.warn("siteMap: failed to scan Astro pages:", e);
     }
     return entries;
-  },
-  ...enableSanity ? {
-    modelExtensions: [
-      { name: "product", type: "page", urlPath: "/shop/{slug}" },
-      { name: "category", type: "page", urlPath: "/shop?category={slug}" }
-    ]
-  } : {}
+  }
 });
-//# sourceMappingURL=stackbit.config.ZD2AWS4O.cjs.map
+//# sourceMappingURL=stackbit.config.PAWYBCZX.cjs.map
