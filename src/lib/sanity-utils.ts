@@ -7,23 +7,21 @@ const dataset = import.meta.env.PUBLIC_SANITY_DATASET;
 const apiVersion = '2023-01-01';
 const token = import.meta.env.SANITY_API_TOKEN;
 
-if (!projectId || !dataset) {
-  throw new Error(
-    'Missing PUBLIC_SANITY_PROJECT_ID or PUBLIC_SANITY_DATASET in environment variables.'
+// Gracefully handle missing env vars in preview/editor environments
+const hasSanityConfig = Boolean(projectId && dataset);
+if (!hasSanityConfig) {
+  console.warn(
+    '[sanity-utils] Missing PUBLIC_SANITY_PROJECT_ID or PUBLIC_SANITY_DATASET; Sanity client disabled.'
   );
 }
 
-export const sanity = createClient({
-  projectId,
-  dataset,
-  apiVersion,
-  useCdn: false,
-  token
-});
+export const sanity: any = hasSanityConfig
+  ? createClient({ projectId, dataset, apiVersion, useCdn: false, token })
+  : {};
 // Back-compat aliases for callers expecting different names
-export const sanityClient = sanity;
-export const client = sanity;
-export const getClient = () => sanity;
+export const sanityClient = sanity as any;
+export const client = sanity as any;
+export const getClient = () => sanity as any;
 export const config = { projectId, dataset, apiVersion } as const;
 export const clientConfig = config;
 export const defaultClientConfig = config;
@@ -132,6 +130,7 @@ export async function fetchProductsFromSanity({
   minHp?: number;
 }): Promise<Product[]> {
   try {
+    if (!hasSanityConfig) return [];
     const conditions: string[] = [];
     const params: QueryParams = {};
 
@@ -196,6 +195,7 @@ export async function fetchProductsFromSanity({
 // Fetch all categories
 export async function fetchCategories(): Promise<Category[]> {
   try {
+    if (!hasSanityConfig) return [];
     const query = `*[_type == "category" && defined(slug.current)] {
       _id,
       title,
@@ -211,6 +211,7 @@ export async function fetchCategories(): Promise<Category[]> {
 // Fetch all tunes
 export async function fetchTunes(): Promise<Tune[]> {
   try {
+    if (!hasSanityConfig) return [];
     const query = `*[_type == "tune" && defined(slug.current)] {
       _id,
       title,
@@ -226,6 +227,7 @@ export async function fetchTunes(): Promise<Tune[]> {
 // Fetch all vehicles
 export async function fetchVehicles(): Promise<Vehicle[]> {
   try {
+    if (!hasSanityConfig) return [];
     const query = `*[_type == "vehicleModel" && defined(slug.current)] {
       _id,
       title,
@@ -241,6 +243,7 @@ export async function fetchVehicles(): Promise<Vehicle[]> {
 // Fetch product by slug
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   try {
+    if (!hasSanityConfig) return null;
     const query = `*[_type == "product" && slug.current == $slug][0]{
       _id,
       title,
@@ -308,6 +311,7 @@ export async function getRelatedProducts(
   filters: string[] = [],
   limit = 6
 ) {
+  if (!hasSanityConfig) return [];
   const ids = Array.isArray(categoryIds) ? categoryIds : [];
   const flt = Array.isArray(filters) ? filters : [];
   const query = `
@@ -336,6 +340,7 @@ export async function getUpsellProducts(
   basePrice?: number,
   limit = 6
 ) {
+  if (!hasSanityConfig) return [];
   const ids = Array.isArray(categoryIds) ? categoryIds : [];
   const hasPrice = typeof basePrice === 'number' && !Number.isNaN(basePrice);
   const query = `

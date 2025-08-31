@@ -1,12 +1,11 @@
 ---
 // src/pages/account/index.astro
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import accountAuthSrc from '@/scripts/account-auth.ts?url';
 ---
 
 <BaseLayout hideBrandTag>
   <main class="relative text-white p-8">
     <div id="account-view"></div>
-    <script type="module" src={accountAuthSrc}></script>
+    <script type="module" src={Astro.resolve('@/scripts/account-auth.ts')}></script>
   </main>
 </BaseLayout>

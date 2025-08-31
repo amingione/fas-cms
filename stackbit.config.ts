@@ -10,9 +10,9 @@ export default defineStackbitConfig({
   ssgName: 'custom',
   nodeVersion: '18',
 
-  // Let NVE boot your Astro dev server and choose the port
-  // Bind to 0.0.0.0 so the editor container can reach it
-  devCommand: 'yarn astro dev --host 0.0.0.0',
+  // Let the Visual Editor set PORT; bind to 0.0.0.0 so the editor container can reach it
+  // Use the project script so corepack/yarn berry setup runs as expected
+  devCommand: 'yarn dev --host 0.0.0.0 --port $PORT',
 
   // Astro integration (NVE watches for these)
   experimental: {

@@ -1,6 +1,5 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import dashboardScript from '@/scripts/dashboard-page.ts?url';
 ---
 
 <BaseLayout>
@@ -87,7 +86,7 @@ import dashboardScript from '@/scripts/dashboard-page.ts?url';
     </section>
   </main>
 
-  <script type="module" src={dashboardScript}></script>
+  <script type="module" src={Astro.resolve('@/scripts/dashboard-page.ts')}></script>
   <!-- inlined script moved to src/scripts/dashboard-page.ts -->
 
     <!-- All dashboard logic is now handled in src/scripts/dashboard-page.ts -->

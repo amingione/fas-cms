@@ -1,5 +1,4 @@
 ---
-import panelScript from '@/scripts/account-dashboard-panel.ts?url';
 ---
 
 <div class="fixed top-0 right-0 z-[9998] pointer-events-auto w-72 bg-[#1a1a1a]">
@@ -47,4 +46,4 @@ import panelScript from '@/scripts/account-dashboard-panel.ts?url';
     </div>
   </aside>
 </div>
-<script type="module" src={panelScript}></script>
+<script type="module" src={Astro.resolve('@/scripts/account-dashboard-panel.ts')}></script>
