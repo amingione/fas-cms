@@ -4,7 +4,7 @@
   status = 200
 
 [build]
-  command = "yarn install --immutable && yarn build"
+  command = "yarn install && yarn build"
   publish = "dist"
 
 [build.environment]
