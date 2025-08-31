@@ -4795,7 +4795,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sanity/client@npm:^6.22.4":
+"@sanity/client@npm:^6.1.5, @sanity/client@npm:^6.22.4":
   version: 6.29.1
   resolution: "@sanity/client@npm:6.29.1"
   dependencies:
@@ -5283,6 +5283,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sanity/types@npm:3.14.4":
+  version: 3.14.4
+  resolution: "@sanity/types@npm:3.14.4"
+  dependencies:
+    "@sanity/client": ^6.1.5
+    "@types/react": ^18.0.25
+  checksum: ce06e51a50d225264fd096a4d22a43f90f30fe9871552bec2f07ec2f5187c530c1af5f125d204b921b50ee07c9b838ff5ba5fb3361a652035853e72ec9e342a1
+  languageName: node
+  linkType: hard
+
 "@sanity/types@npm:^3.31.0, @sanity/types@npm:^3.85.1":
   version: 3.99.0
   resolution: "@sanity/types@npm:3.99.0"
@@ -5339,6 +5349,18 @@ __metadata:
     "@types/uuid": ^8.0.0
     uuid: ^8.0.0
   checksum: e9174160a1b70e8560b91672bcd7dcb3f1ea792e0be905b0c8566b6eee4a4c1dca15dc6038173c0914d329f77ff11f1c07efd2c25526afc1c03e916368f98261
+  languageName: node
+  linkType: hard
+
+"@sanity/validation@npm:latest":
+  version: 3.14.4
+  resolution: "@sanity/validation@npm:3.14.4"
+  dependencies:
+    "@sanity/types": 3.14.4
+    date-fns: ^2.26.1
+    lodash: ^4.17.21
+    rxjs: ^7.8.0
+  checksum: 7f38a1cab49e2f6b31f9eba529aad7cb1b0015f03f2b9b3b7b12d02c27fb1a8bfc55696bf2b3f9e5dca5da3a8e481c4f669006ab4181e88ededdbe66e19f037c
   languageName: node
   linkType: hard
 
@@ -6740,6 +6762,16 @@ __metadata:
     "@types/scheduler": ^0.16
     csstype: ^3.0.2
   checksum: fe65e8bbb9028d4222075ae04c56217fb54d3030293585150bf93cbf1b8e00a5c44d9adfabf9cd3a556082b654d38531cce5580429bab42c37f4ad49ec71a446
+  languageName: node
+  linkType: hard
+
+"@types/react@npm:^18.0.25":
+  version: 18.3.24
+  resolution: "@types/react@npm:18.3.24"
+  dependencies:
+    "@types/prop-types": "*"
+    csstype: ^3.0.2
+  checksum: 852fd0430d721ceb431662ac90b6b41d6473ea55d29b5d92f7a81f4c6c397eb3b26a904fdd276fb71a5fad318d0d79cc0072867024611716bfb85e6b4907ae68
   languageName: node
   linkType: hard
 
@@ -10754,7 +10786,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"date-fns@npm:^2.16.1":
+"date-fns@npm:^2.16.1, date-fns@npm:^2.26.1":
   version: 2.30.0
   resolution: "date-fns@npm:2.30.0"
   dependencies:
@@ -12828,6 +12860,7 @@ __metadata:
     "@sanity/image-url": ^1.1.0
     "@sanity/types": ^3.85.1
     "@sanity/ui": ^2.15.13
+    "@sanity/validation": latest
     "@splinetool/react-spline": ^4.0.0
     "@splinetool/runtime": ^1.9.86
     "@stackbit/cli": latest
@@ -23266,7 +23299,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rxjs@npm:^7.0.0, rxjs@npm:^7.8.1, rxjs@npm:^7.8.2":
+"rxjs@npm:^7.0.0, rxjs@npm:^7.8.0, rxjs@npm:^7.8.1, rxjs@npm:^7.8.2":
   version: 7.8.2
   resolution: "rxjs@npm:7.8.2"
   dependencies:

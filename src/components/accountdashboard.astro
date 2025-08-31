@@ -1,3 +1,7 @@
+---
+const panelScript = '/scripts/account-dashboard-panel.ts';
+---
+
 <div class="fixed top-0 right-0 z-[9998] pointer-events-auto w-72 bg-[#1a1a1a]">
 
   <aside
@@ -43,34 +47,4 @@
     </div>
   </aside>
 </div>
-<script type="module">
-  import { getAuth0Client } from '@lib/auth';      // ✅ from pages/*
-  window.addEventListener('DOMContentLoaded', async () => {
-    const dashboard = document.getElementById('accountDashboard');
-    const loginLink = document.getElementById('loginLink');
-    const logoutLink = document.getElementById('logoutLink');
-
-    const auth0 = await getAuth0Client();
-    const isAuthenticated = await auth0.isAuthenticated();
-
-    if (isAuthenticated) {
-      logoutLink.classList.remove('hidden');
-      loginLink.classList.add('hidden');
-    } else {
-      loginLink.classList.remove('hidden');
-      logoutLink.classList.add('hidden');
-    }
-
-    loginLink?.addEventListener('click', async (e) => {
-      e.preventDefault();
-      await auth0.loginWithRedirect({
-        authorizationParams: { redirect_uri: window.location.origin + '/account' }
-      });
-    });
-
-    logoutLink?.addEventListener('click', async (e) => {
-      e.preventDefault();
-      await auth0.logout({ logoutParams: { returnTo: window.location.origin } });
-    });
-  });
-</script>
+<script type="module" src={panelScript}></script>
