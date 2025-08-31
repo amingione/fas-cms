@@ -34,7 +34,6 @@ export default defineConfig({
         '@layouts': fileURLToPath(new URL('./src/layouts', import.meta.url)),
         '@pages': fileURLToPath(new URL('./src/pages', import.meta.url)),
         '@lib': fileURLToPath(new URL('./src/lib', import.meta.url)),
-        '/lib': fileURLToPath(new URL('./src/lib', import.meta.url)),
         lib: fileURLToPath(new URL('./src/lib', import.meta.url))
       }
     },

@@ -1,5 +1,5 @@
 // src/scripts/account-auth.ts
-import { getAuth0Client } from '../lib/auth'; // note the path from scripts → lib
+import { getAuth0Client } from '@lib/auth'; // note the path from scripts → lib
 
 declare global {
   interface Window {
