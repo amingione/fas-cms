@@ -38,6 +38,11 @@ export default defineConfig({
       }
     },
     server: {
+      // Allow Netlify Visual Editor/DevServer hosts to connect
+      allowedHosts: [
+        'devserver-main--fasmoto.netlify.app',
+        /^(?:devserver|deploy-preview|branch|main)--.*\.netlify\.app$/
+      ],
       proxy: {
         '/.netlify/functions': {
           target: 'http://127.0.0.1:5050',

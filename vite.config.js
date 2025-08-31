@@ -9,5 +9,12 @@ export default defineConfig({
       '@': '/src'
     }
   },
-  envPrefix: ['PUBLIC_', 'VITE_']
+  envPrefix: ['PUBLIC_', 'VITE_'],
+  server: {
+    // Allow Netlify Visual Editor/devserver hostnames
+    allowedHosts: [
+      'devserver-main--fasmoto.netlify.app',
+      /^(?:devserver|deploy-preview|branch|main)--.*\.netlify\.app$/
+    ]
+  }
 });
