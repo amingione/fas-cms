@@ -11,8 +11,8 @@ export default defineStackbitConfig({
   nodeVersion: '18',
 
   // Let the Visual Editor set PORT; bind to 0.0.0.0 so the editor container can reach it
-  // Use the project script so corepack/yarn berry setup runs as expected
-  devCommand: 'yarn dev --host 0.0.0.0 --port $PORT',
+  // Call astro directly to avoid shell argument forwarding issues with yarn scripts
+  devCommand: 'astro dev --host 0.0.0.0 --port $PORT',
 
   // Astro integration (NVE watches for these)
   experimental: {

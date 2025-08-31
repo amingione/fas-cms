@@ -1,9 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-
-const url = new URL(Astro.request.url);
-const isSuccess = url.searchParams.get('success') === 'true';
-const isError = url.searchParams.get('error') === 'true';
 ---
 
 <BaseLayout>
@@ -24,21 +20,19 @@ const isError = url.searchParams.get('error') === 'true';
     <!-- Contact Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto px-6 py-16">
       
-      <!-- Contact Form -->
-      <form id="contact-form" method="POST" action="/api/contact" class="space-y-6 bg-[#121212] p-8 rounded-lg border border-gray-700 shadow-lg relative">
+      <!-- Contact Form (Netlify Forms; no JS/server required) -->
+      <form
+        id="contact-form"
+        name="contact"
+        method="POST"
+        data-netlify="true"
+        netlify-honeypot="bot-field"
+        action="/contact/success"
+        class="space-y-6 bg-[#121212] p-8 rounded-lg border border-gray-700 shadow-lg relative"
+      >
+        <input type="hidden" name="form-name" value="contact" />
+        <p class="hidden"><label>Don’t fill this out if you’re human: <input name="bot-field" /></label></p>
         <h2 class="text-3xl font-cyber text-accent mb-4">Send a Message</h2>
-
-        <!-- Success or Error Message -->
-        {isSuccess && (
-          <div class="absolute top-[-70px] left-0 w-full fade-in bg-green-800 border border-green-600 text-accent text-center py-3 rounded mb-4">
-            Message sent successfully! We'll get back to you soon.
-          </div>
-        )}
-        {isError && (
-          <div class="absolute top-[-70px] left-0 w-full fade-in bg-red-800 border border-red-600 text-accent text-center py-3 rounded mb-4">
-            Error sending message. Please try again.
-          </div>
-        )}
 
         <div>
           <label for="name" class="block text-sm text-graylight mb-1">Name</label>
@@ -67,8 +61,6 @@ const isError = url.searchParams.get('error') === 'true';
         <button type="submit" class="bg-primary hover:bg-accent text-black font-bold py-2 px-6 rounded transition duration-200">
           Send
         </button>
-        <!-- Honeypot field (anti-bot) -->
-        <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true" />
       </form>
 
       <!-- Contact Info -->
@@ -90,13 +82,5 @@ const isError = url.searchParams.get('error') === 'true';
     </div>
   </section>
 
-  <!-- Auto-reset form script on success -->
-  {isSuccess && (
-    <script>
-      window.addEventListener('DOMContentLoaded', () => {
-        const form = document.getElementById('contact-form');
-        if (form instanceof HTMLFormElement) form.reset();
-      });
-    </script>
-  )}
+  
 </BaseLayout>
