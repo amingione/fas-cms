@@ -12903,6 +12903,7 @@ __metadata:
     jsonwebtoken: ^9.0.2
     lint-staged: ^15.5.1
     lucide-react: ^0.540.0
+    netlify-plugin-cache: ^1.0.3
     next-sanity: ^9.10.2
     next-themes: ^0.4.6
     node-fetch: ^3.3.2
@@ -18740,6 +18741,13 @@ __metadata:
   version: 0.6.18
   resolution: "neotraverse@npm:0.6.18"
   checksum: 6ec0855db8d484a33672ba4533617bab4944167c881a6ab35a987bf3b92f12159eac5c19ad9cc203c193b279cc1a09f0bd7c7fb7752f9950625cbd866071ef72
+  languageName: node
+  linkType: hard
+
+"netlify-plugin-cache@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "netlify-plugin-cache@npm:1.0.3"
+  checksum: 967b9b7855711843ec1412a58be703850e46582e1df3e0edf086b5bcc3ac9b358a307eefed4520eafaeeec9011ecd4bf9b2919261454ece4699754653645891e
   languageName: node
   linkType: hard
 
