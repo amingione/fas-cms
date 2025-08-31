@@ -131,9 +131,9 @@
 @font-face {
   font-family: 'Borgsquad Italic';
   src:
-    url('/fonts/BorgsquadItalic.woff2') format('woff2'),
-    url('/fonts/BorgsquadItalic.woff') format('woff'),
-    url('/fonts/BorgsquadItalic.ttf') format('truetype');
+    url('/fonts/Borgsquaditalic.woff2') format('woff2'),
+    url('/fonts/Borgsquaditalic.woff') format('woff'),
+    url('/fonts/borgsquadital.ttf') format('truetype');
   font-weight: normal;
   font-style: italic;
   font-display: swap;
@@ -144,7 +144,7 @@
   src:
     url('/fonts/Borgsquad.woff2') format('woff2'),
     url('/fonts/Borgsquad.woff') format('woff'),
-    url('/fonts/Borgsquad.ttf') format('truetype');
+    url('/fonts/borgsquad.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
