@@ -1,5 +1,5 @@
 import type { Category } from '@lib/sanity-utils';
-import { FilterPanel } from '@components/FilterPanel';
+import FilterPanel from '@components/FilterPanel';
 import { Button } from '@components/ui/button';
 import { useState } from 'react';
 
@@ -8,19 +8,53 @@ export interface ShopSidebarFiltersProps {
   availableFilters: string[];
   currentCategory?: string;
   selectedFilters?: string[];
+  priceMin?: number;
+  priceMax?: number;
+  selectedVehicles?: string[];
+  availableVehicles?: string[];
 }
 
 export default function ShopSidebarFilters({
   categories,
   availableFilters,
   currentCategory = '',
-  selectedFilters = []
+  selectedFilters = [],
+  priceMin = 0,
+  priceMax = 10000,
+  selectedVehicles = [],
+  availableVehicles = []
 }: ShopSidebarFiltersProps) {
   const [category, setCategory] = useState<string>(currentCategory || 'all');
   const [filters, setFilters] = useState<string[]>(selectedFilters);
+  const [vehicles, setVehicles] = useState<string[]>(selectedVehicles || []);
+  const [price, setPrice] = useState<{ min: number; max: number }>({
+    min: typeof priceMin === 'number' ? Math.max(0, Math.min(10000, Math.floor(priceMin))) : 0,
+    max: typeof priceMax === 'number' ? Math.max(0, Math.min(10000, Math.floor(priceMax))) : 10000
+  });
+
+  const handleSidebarClick: React.MouseEventHandler<HTMLDivElement> = (ev) => {
+    const target = ev.target as HTMLElement;
+    if (target instanceof HTMLInputElement) return;
+    const label = target.closest('label');
+    if (!label) return;
+    let input = label.querySelector('input[type="radio"]') as HTMLInputElement | null;
+    if (!input) {
+      const prev = label.previousElementSibling as HTMLElement | null;
+      const next = label.nextElementSibling as HTMLElement | null;
+      if (prev && prev.matches('input[type="radio"]')) input = prev as HTMLInputElement;
+      else if (next && next.matches('input[type="radio"]')) input = next as HTMLInputElement;
+    }
+    if (!input || input.disabled) return;
+    // Only manage category radios here; let checkboxes (filters/vehicles) bubble to their own onChange
+    const val = (input.value || '').toLowerCase();
+    if (!input.checked) {
+      setCategory(val || 'all');
+    }
+  };
 
   const applyURL = () => {
     const params = new URLSearchParams(window.location.search);
+    // category
     if (category && category !== 'all') {
       params.set('categorySlug', category);
       params.set('category', category);
@@ -28,7 +62,7 @@ export default function ShopSidebarFilters({
       params.delete('categorySlug');
       params.delete('category');
     }
-
+    // filters (both plural and repeated singular for backward compatibility)
     params.delete('filters');
     const toDelete: string[] = [];
     for (const [k] of params.entries()) if (k === 'filter') toDelete.push(k);
@@ -37,13 +71,19 @@ export default function ShopSidebarFilters({
       params.set('filters', filters.join(','));
       filters.forEach((f) => params.append('filter', f));
     }
-
+    // vehicles
+    if (vehicles.length) params.set('vehicles', vehicles.join(','));
+    else params.delete('vehicles');
+    // price
+    params.set('priceMin', String(price.min));
+    params.set('priceMax', String(price.max));
+    // reset page
     params.set('page', '1');
     window.location.href = `/shop?${params.toString()}`;
   };
 
   return (
-    <div>
+    <div onClickCapture={handleSidebarClick}>
       <FilterPanel
         categories={categories}
         selectedCategory={category}
@@ -51,10 +91,24 @@ export default function ShopSidebarFilters({
         availableFilters={availableFilters}
         selectedFilters={filters}
         onFiltersChange={setFilters}
-        onClear={() => { setCategory('all'); setFilters([]); }}
+        availableVehicles={availableVehicles}
+        selectedVehicles={vehicles}
+        onVehiclesChange={setVehicles}
+        priceMin={price.min}
+        priceMax={price.max}
+        onPriceChange={(min, max) => setPrice({ min, max })}
+        hideSpecsAndAttributes={true}
+        onClear={() => {
+          setCategory('all');
+          setFilters([]);
+          setVehicles([]);
+          setPrice({ min: 0, max: 10000 });
+        }}
         showApplyButton={false}
       />
-      <Button onClick={applyURL} className="w-full mt-3">Apply</Button>
+      <Button onClick={applyURL} className="w-full mt-3">
+        Apply
+      </Button>
     </div>
   );
 }

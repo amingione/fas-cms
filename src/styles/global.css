@@ -2067,3 +2067,9 @@ svg.cart-icon-svg {
   height: 100%;
   object-fit: contain;
 }
+
+/* Input Styles for radio buttons*/
+input[type='radio'],
+input[type='checkbox'] {
+  accent-color: var(--fx-primary, #fb3636);
+}

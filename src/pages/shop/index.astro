@@ -4,7 +4,7 @@ import ProductCard from '@components/ProductCard';
 import ShopTopControls from '@components/shop/ShopTopControls';
 import ShopSidebarFilters from '@components/shop/ShopSidebarFilters';
 import { fetchProductsFromSanity, fetchCategories } from '@lib/sanity-utils';
-import type { Product, Category } from '@lib/sanity-utils';
+import type { Product, Category, } from '@lib/sanity-utils';
 
 
 export const prerender = false;
@@ -25,15 +25,38 @@ const rawFilters = [
   .map((s) => s.trim().toLowerCase())
   .filter(Boolean);
 const selectedFilters: string[] = Array.from(new Set(rawFilters));
+// Parse price range and vehicles from query params
+const priceMinParam = Number(url.searchParams.get('priceMin'));
+const priceMaxParam = Number(url.searchParams.get('priceMax'));
+const priceMin = Number.isFinite(priceMinParam) ? Math.max(0, Math.min(10000, Math.floor(priceMinParam))) : 0;
+const priceMax = Number.isFinite(priceMaxParam) ? Math.max(0, Math.min(10000, Math.floor(priceMaxParam))) : 10000;
+
+const vehiclesParam = url.searchParams.get('vehicles');
+const selectedVehicles: string[] = (vehiclesParam ? vehiclesParam.split(',') : [])
+  .map((s) => s.trim().toLowerCase())
+  .filter(Boolean);
 
 let allProducts: Product[] = [];
 let categories: Category[] = [];
+
+let availableVehicles: string[] = [];
 
 try {
   allProducts = await fetchProductsFromSanity({
     categorySlug: currentCategory || undefined,
   });
   categories = await fetchCategories();
+
+  // Build available vehicle compatibility options from Sanity references
+  availableVehicles = Array.from(new Set(
+    allProducts.flatMap((p: any) =>
+      Array.isArray(p?.compatibleVehicles)
+        ? p.compatibleVehicles
+            .map((v: any) => String((v?.slug?.current || v?.title || '')).toLowerCase().trim())
+            .filter(Boolean)
+        : []
+    )
+  )).sort();
 } catch (err) {
   console.error("🔥 Sanity Fetch Failed:", err);
 }
@@ -49,9 +72,30 @@ const uniqueFilters: string[] = Array.from(
 ).sort();
 
 // Apply selected filters (match-any). If none selected, keep all.
-const filteredProducts: Product[] = selectedFilters.length
+let filteredProducts: Product[] = selectedFilters.length
   ? allProducts.filter((p) => Array.isArray((p as any).filters) && (p as any).filters.some((f: any) => selectedFilters.includes(String(f).toLowerCase())))
-  : allProducts;
+  : allProducts.slice();
+
+// Price filter (inclusive). Products without a numeric price are kept.
+filteredProducts = filteredProducts.filter((p: any) => {
+  const price = Number(p?.price);
+  if (!Number.isFinite(price)) return true;
+  return price >= priceMin && price <= priceMax;
+});
+
+// Vehicles filter (match-any against p.vehicles OR fallback to p.filters)
+if (selectedVehicles.length > 0) {
+  filteredProducts = filteredProducts.filter((p: any) => {
+    const vehs: string[] = Array.isArray(p?.compatibleVehicles)
+      ? p.compatibleVehicles
+          .map((v: any) => String((v?.slug?.current || v?.title || '')).toLowerCase().trim())
+          .filter(Boolean)
+      : [];
+    const filts: string[] = Array.isArray(p?.filters) ? p.filters.map((v: any) => String(v).toLowerCase()) : [];
+    const haystack = new Set([...vehs, ...filts]);
+    return selectedVehicles.some((v) => haystack.has(v));
+  });
+}
 
 // Apply sorting
 const sortedProducts: Product[] = (() => {
@@ -99,6 +143,10 @@ if (endPage < totalPages) {
         availableFilters={uniqueFilters}
         currentCategory={currentCategory}
         selectedFilters={selectedFilters}
+        priceMin={priceMin}
+        priceMax={priceMax}
+        selectedVehicles={selectedVehicles}
+        availableVehicles={availableVehicles}
       />
     </div>
 

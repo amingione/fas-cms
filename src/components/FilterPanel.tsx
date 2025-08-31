@@ -1,188 +1,350 @@
-import type { Category } from '@lib/sanity-utils';
-import { cn } from '@components/ui/utils';
-import { Button } from '@components/ui/button';
+import * as React from 'react';
 
-interface FilterPanelProps {
+export type Category = {
+  _id?: string;
+  title?: string;
+  slug?: { current?: string };
+};
+
+type Props = {
   categories: Category[];
-  selectedCategory: string; // 'all' or slug/id
-  onCategoryChange: (value: string) => void;
+  selectedCategory: string; // slug or 'all'
+  onCategoryChange: (slug: string) => void;
 
-  availableFilters: string[]; // tags/filters in lowercase
-  selectedFilters: string[];
-  onFiltersChange: (values: string[]) => void;
+  availableFilters: string[]; // lowercased filter slugs/labels
+  selectedFilters: string[]; // lowercased
+  onFiltersChange: (next: string[]) => void;
 
-  onApply?: () => void;
+  // New optional groups
+  availableVehicles?: string[]; // lowercased vehicle names
+  selectedVehicles?: string[]; // lowercased
+  onVehiclesChange?: (next: string[]) => void;
+
+  priceMin?: number; // inclusive
+  priceMax?: number; // inclusive
+  onPriceChange?: (min: number, max: number) => void;
+
+  // Control rendering of extra groups elsewhere
+  hideSpecsAndAttributes?: boolean; // if true, do not render specs/attributes here
+
   onClear?: () => void;
-  className?: string;
   showApplyButton?: boolean;
-}
+};
 
-export function FilterPanel({
+const DEFAULT_VEHICLES = [
+  'charger',
+  'challenger',
+  'trx',
+  'trackhawk',
+  'demon',
+  'redeye',
+  'durango',
+  'mustang',
+  'raptor',
+  'shelby truck',
+  'f150',
+  'f250',
+  'f350',
+  'f450'
+];
+
+export default function FilterPanel({
   categories,
   selectedCategory,
   onCategoryChange,
   availableFilters,
   selectedFilters,
   onFiltersChange,
-  onApply,
+  availableVehicles,
+  selectedVehicles,
+  onVehiclesChange,
+  priceMin,
+  priceMax,
+  onPriceChange,
+  hideSpecsAndAttributes = true, // default hide here per shop page request
   onClear,
-  className,
-  showApplyButton = true
-}: FilterPanelProps) {
-  const toggleFilter = (tag: string) => {
-    const next = selectedFilters.includes(tag)
-      ? selectedFilters.filter((t) => t !== tag)
-      : [...selectedFilters, tag];
-    onFiltersChange(next);
+  showApplyButton = false
+}: Props) {
+  const norm = (s?: string) => (s || '').toLowerCase().trim();
+
+  // Local mirrors so sliders/inputs are responsive
+  const [minP, setMinP] = React.useState<number>(typeof priceMin === 'number' ? priceMin : 0);
+  const [maxP, setMaxP] = React.useState<number>(typeof priceMax === 'number' ? priceMax : 10000);
+
+  React.useEffect(() => {
+    if (typeof priceMin === 'number') setMinP(priceMin);
+    if (typeof priceMax === 'number') setMaxP(priceMax);
+  }, [priceMin, priceMax]);
+
+  const vehicles = (
+    availableVehicles && availableVehicles.length > 0 ? availableVehicles : DEFAULT_VEHICLES
+  ).map(norm);
+  const selVehicles = (selectedVehicles || []).map(norm);
+
+  const handleCategoryChange: React.ChangeEventHandler<HTMLInputElement> = (ev) => {
+    const val = norm(ev.target.value) || 'all';
+    onCategoryChange(val);
+  };
+
+  const handleFilterChange: React.ChangeEventHandler<HTMLInputElement> = (ev) => {
+    const val = norm(ev.target.value);
+    const checked = ev.target.checked;
+    const set = new Set(selectedFilters.map(norm));
+    if (checked) set.add(val);
+    else set.delete(val);
+    onFiltersChange(Array.from(set));
+  };
+
+  const handleVehicleChange: React.ChangeEventHandler<HTMLInputElement> = (ev) => {
+    const val = norm(ev.target.value);
+    const checked = ev.target.checked;
+    if (!onVehiclesChange) return;
+    const set = new Set(selVehicles);
+    if (checked) set.add(val);
+    else set.delete(val);
+    onVehiclesChange(Array.from(set));
+  };
+
+  const clampPrice = (n: number) => Math.max(0, Math.min(10000, Math.round(n)));
+
+  const commitPrice = (min: number, max: number) => {
+    const a = clampPrice(min);
+    const b = clampPrice(max);
+    const lo = Math.min(a, b);
+    const hi = Math.max(a, b);
+    setMinP(lo);
+    setMaxP(hi);
+    onPriceChange && onPriceChange(lo, hi);
+  };
+
+  const clearAll = () => {
+    onCategoryChange('all');
+    onFiltersChange([]);
+    onVehiclesChange && onVehiclesChange([]);
+    commitPrice(0, 10000);
+    onClear && onClear();
   };
 
   return (
-    <aside
-      className={cn(
-        'w-full md:w-64 bg-black/40 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-4 space-y-5',
-        className
-      )}
-    >
-      <section>
-        <h3 className="fas-label text-muted-foreground px-1 mb-2">Categories</h3>
-        <div className="space-y-2">
-          <label className="flex items-center gap-2 fas-body-sm text-white/90 cursor-pointer select-none hover:bg-white/5 rounded-md px-2 py-1">
-            <input
-              type="radio"
-              name="category-filter"
-              value="all"
-              checked={selectedCategory === 'all' || !selectedCategory}
-              onChange={(e) => onCategoryChange(e.target.value)}
-              className="sr-only"
-            />
-            <span
-              className={cn(
-                'h-4 w-4 rounded-full border flex items-center justify-center',
-                selectedCategory === 'all' || !selectedCategory
-                  ? 'border-primary'
-                  : 'border-gray-500'
-              )}
-            >
-              <span
-                className={cn(
-                  'h-2.5 w-2.5 rounded-full',
-                  selectedCategory === 'all' || !selectedCategory
-                    ? 'bg-primary opacity-100'
-                    : 'opacity-0'
-                )}
+    <div id="category-sidebar" className="text-white select-none">
+      {/* Categories */}
+      <details open className="mb-3 rounded-lg border border-zinc-700/60">
+        <summary className="flex items-center justify-between cursor-pointer px-3 py-2 text-sm uppercase tracking-wide text-zinc-300">
+          <span>Categories</span>
+          <span className="i-tabler-chevron-down" aria-hidden="true">
+            ▾
+          </span>
+        </summary>
+        <div className="px-3 pb-3">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <input
+                id="cat-all"
+                type="radio"
+                name="category"
+                value="all"
+                checked={norm(selectedCategory) === 'all' || !selectedCategory}
+                onChange={handleCategoryChange}
+                className="h-4 w-4 cursor-pointer appearance-auto"
+                // style removed to fix type error
               />
-            </span>
-            <span>All</span>
-          </label>
-          {Array.isArray(categories) && categories.length > 0 ? (
-            categories.map((cat) => {
-              const value = (cat as any).slug?.current || (cat as any).id || (cat as any)._id || '';
-              const label = (cat as any).title || (cat as any).name || value;
-              const checked = selectedCategory === value;
+              <label htmlFor="cat-all" className="cursor-pointer">
+                All
+              </label>
+            </div>
+            {categories?.map((c) => {
+              const slug = norm(c?.slug?.current || c?.title || '');
+              const id = `cat-${slug || 'untitled'}`;
               return (
-                <label
-                  key={value}
-                  className="flex items-center gap-2 fas-body-sm text-white/90 cursor-pointer select-none hover:bg-white/5 rounded-md px-2 py-1"
-                >
+                <div key={c?._id || id} className="flex items-center gap-2">
                   <input
+                    id={id}
                     type="radio"
-                    name="category-filter"
-                    value={value}
-                    checked={checked}
-                    onChange={(e) => onCategoryChange(e.target.value)}
-                    className="sr-only"
+                    name="category"
+                    value={slug}
+                    checked={norm(selectedCategory) === slug}
+                    onChange={handleCategoryChange}
+                    className="h-4 w-4 cursor-pointer appearance-auto"
+                    // style removed to fix type error
                   />
-                  <span
-                    className={cn(
-                      'h-4 w-4 rounded-full border flex items-center justify-center',
-                      checked ? 'border-primary' : 'border-gray-500'
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        'h-2.5 w-2.5 rounded-full',
-                        checked ? 'bg-primary opacity-100' : 'opacity-0'
-                      )}
-                    />
-                  </span>
-                  <span>{label}</span>
-                </label>
+                  <label htmlFor={id} className="cursor-pointer">
+                    {c?.title || slug || 'Untitled'}
+                  </label>
+                </div>
               );
-            })
-          ) : (
-            <p className="text-sm opacity-70 px-1">No categories available.</p>
-          )}
+            })}
+          </div>
         </div>
-      </section>
+      </details>
 
-      <section>
-        <div className="flex items-center justify-between px-1 mb-2">
-          <h3 className="fas-label text-muted-foreground">Filters</h3>
-          {onClear && (selectedFilters.length > 0 || selectedCategory !== 'all') && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-xs text-muted-foreground hover:text-white px-2 py-1 h-7"
-              onClick={(e) => {
-                e.preventDefault();
-                onCategoryChange('all');
-                onClear?.();
-              }}
-            >
-              Clear
-            </Button>
-          )}
+      {/* Price */}
+      <details className="mb-3 rounded-lg border border-zinc-700/60">
+        <summary className="flex items-center justify-between cursor-pointer px-3 py-2 text-sm uppercase tracking-wide text-zinc-300">
+          <span>Price</span>
+          <span className="i-tabler-chevron-down" aria-hidden="true">
+            ▾
+          </span>
+        </summary>
+        <div className="px-3 pb-3 space-y-3">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-zinc-400">Min</span>
+              <input
+                type="number"
+                inputMode="numeric"
+                min={0}
+                max={10000}
+                value={minP}
+                onChange={(e) => setMinP(clampPrice(Number(e.target.value)))}
+                onBlur={() => commitPrice(minP, maxP)}
+                className="w-24 rounded-md bg-zinc-900 border border-zinc-700/60 px-2 py-1 text-sm"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-zinc-400">Max</span>
+              <input
+                type="number"
+                inputMode="numeric"
+                min={0}
+                max={10000}
+                value={maxP}
+                onChange={(e) => setMaxP(clampPrice(Number(e.target.value)))}
+                onBlur={() => commitPrice(minP, maxP)}
+                className="w-24 rounded-md bg-zinc-900 border border-zinc-700/60 px-2 py-1 text-sm"
+              />
+            </div>
+          </div>
+          {/* Simple dual slider using two range inputs */}
+          <div className="px-1">
+            <input
+              type="range"
+              min={0}
+              max={10000}
+              step={50}
+              value={minP}
+              onChange={(e) => setMinP(clampPrice(Number(e.target.value)))}
+              onMouseUp={() => commitPrice(minP, maxP)}
+              onTouchEnd={() => commitPrice(minP, maxP)}
+              className="w-full"
+            />
+            <input
+              type="range"
+              min={0}
+              max={10000}
+              step={50}
+              value={maxP}
+              onChange={(e) => setMaxP(clampPrice(Number(e.target.value)))}
+              onMouseUp={() => commitPrice(minP, maxP)}
+              onTouchEnd={() => commitPrice(minP, maxP)}
+              className="w-full -mt-1"
+            />
+            <div className="mt-1 text-xs text-zinc-400">
+              ${minP} – ${maxP}
+            </div>
+          </div>
         </div>
-        <div className="space-y-2" id="filters-md">
-          {Array.isArray(availableFilters) && availableFilters.length > 0 ? (
-            availableFilters.map((tag) => (
-              <div
-                key={tag}
-                className="flex items-center gap-2 fas-body-sm text-white/90 cursor-pointer select-none hover:bg-white/5 rounded-md px-2 py-1"
-              >
-                <input
-                  type="checkbox"
-                  className="sr-only"
-                  checked={selectedFilters.includes(tag)}
-                  onChange={() => toggleFilter(tag)}
-                />
-                <span
-                  className={cn(
-                    'h-4 w-4 rounded-full border flex items-center justify-center',
-                    selectedFilters.includes(tag) ? 'border-primary' : 'border-gray-500'
-                  )}
-                >
-                  <span
-                    className={cn(
-                      'h-2.5 w-2.5 rounded-full',
-                      selectedFilters.includes(tag) ? 'bg-primary opacity-100' : 'opacity-0'
-                    )}
+      </details>
+
+      {/* Vehicle Compatibility */}
+      {vehicles.length > 0 && (
+        <details className="mb-3 rounded-lg border border-zinc-700/60">
+          <summary className="flex items-center justify-between cursor-pointer px-3 py-2 text-sm uppercase tracking-wide text-zinc-300">
+            <span>Vehicle Compatibility</span>
+            <span className="i-tabler-chevron-down" aria-hidden="true">
+              ▾
+            </span>
+          </summary>
+          <div className="px-3 pb-3 grid grid-cols-1 gap-2">
+            {vehicles.map((v) => {
+              const id = `veh-${v.replace(/\s+/g, '-')}`;
+              const checked = selVehicles.includes(v);
+              return (
+                <div className="flex items-center gap-2" key={id}>
+                  <input
+                    id={id}
+                    type="checkbox"
+                    value={v}
+                    checked={checked}
+                    onChange={handleVehicleChange}
+                    className="h-4 w-4 cursor-pointer appearance-auto"
+                    // style removed to fix type error
                   />
-                </span>
-                <span className="capitalize">{tag}</span>
-              </div>
-            ))
-          ) : (
-            <p className="text-sm opacity-70 px-1">No filters available.</p>
-          )}
-        </div>
-      </section>
+                  <label htmlFor={id} className="cursor-pointer capitalize">
+                    {v}
+                  </label>
+                </div>
+              );
+            })}
+          </div>
+        </details>
+      )}
 
-      {showApplyButton && (
-        <div className="flex gap-2 mt-2">
-          {onClear && (
-            <Button variant="outline" onClick={onClear} className="w-1/2">
-              Clear
-            </Button>
-          )}
-          <Button
-            onClick={onApply}
-            className={cn('btn-glass btn-primary btn-md', onClear ? 'w-1/2' : 'w-full')}
+      {/* Filters (non-specs/attributes) */}
+      <details className="mb-3 rounded-lg border border-zinc-700/60">
+        <summary className="flex items-center justify-between cursor-pointer px-3 py-2 text-sm uppercase tracking-wide text-zinc-300">
+          <span>Filters</span>
+          <span className="i-tabler-chevron-down" aria-hidden="true">
+            ▾
+          </span>
+        </summary>
+        <div className="px-3 pb-3 grid grid-cols-1 gap-2">
+          {availableFilters?.map((f) => {
+            const slug = norm(f);
+            const id = `flt-${slug || 'x'}`;
+            const checked = selectedFilters.map(norm).includes(slug);
+            return (
+              <div key={id} className="flex items-center gap-2">
+                <input
+                  id={id}
+                  type="checkbox"
+                  value={slug}
+                  checked={checked}
+                  onChange={handleFilterChange}
+                  className="h-4 w-4 cursor-pointer appearance-auto"
+                />
+                <label htmlFor={id} className="cursor-pointer capitalize">
+                  {f}
+                </label>
+              </div>
+            );
+          })}
+        </div>
+      </details>
+
+      {/* Specs/Attributes group intentionally omitted when hideSpecsAndAttributes is true */}
+      {!hideSpecsAndAttributes && (
+        <details className="mb-3 rounded-lg border border-zinc-700/60">
+          <summary className="flex items-center justify-between cursor-pointer px-3 py-2 text-sm uppercase tracking-wide text-zinc-300">
+            <span>Specifications & Attributes</span>
+            <span className="i-tabler-chevron-down" aria-hidden="true">
+              ▾
+            </span>
+          </summary>
+          <div className="px-3 pb-3 text-sm text-zinc-400">
+            {/* Render your specs/attributes controls here when used on other pages */}
+            Coming soon…
+          </div>
+        </details>
+      )}
+
+      <div className="flex items-center gap-2 mt-3">
+        <button
+          type="button"
+          onClick={clearAll}
+          className="px-3 py-2 text-xs rounded-md border border-zinc-600 hover:bg-zinc-800"
+        >
+          Clear
+        </button>
+        {showApplyButton && (
+          <button
+            type="button"
+            onClick={(e) => e.currentTarget.dispatchEvent(new Event('apply', { bubbles: true }))}
+            className="ml-auto px-3 py-2 text-xs rounded-md bg-primary/70 hover:bg-primary"
           >
             Apply
-          </Button>
-        </div>
-      )}
-    </aside>
+          </button>
+        )}
+      </div>
+    </div>
   );
 }

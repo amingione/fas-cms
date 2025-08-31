@@ -191,7 +191,13 @@ var stackbit_config_default = (0, import_types.defineStackbitConfig)({
       const astroEntries = Array.from(new Set(urls)).map((url) => ({
         stableId: `astro:${url}`,
         urlPath: url,
-        isHomePage: url === "/"
+        isHomePage: url === "/",
+        document: {
+          srcType: "astro",
+          srcProjectId: "",
+          modelName: "astroPage",
+          id: `astro:${url}`
+        }
       }));
       const seen = new Set(entries.map((e) => e.urlPath));
       for (const ae of astroEntries) {
@@ -209,4 +215,4 @@ var stackbit_config_default = (0, import_types.defineStackbitConfig)({
     ]
   } : {}
 });
-//# sourceMappingURL=stackbit.config.CMQ4BCOX.cjs.map
+//# sourceMappingURL=stackbit.config.ZD2AWS4O.cjs.map
