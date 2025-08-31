@@ -62,9 +62,6 @@
     ignore = ["/admin/*", "/studio/*"]
 
 [[plugins]]
-  package = "@netlify/plugin-compress"
-
-[[plugins]]
   package = "netlify-plugin-csp"
   [plugins.inputs]
     reportOnly = false
