@@ -57,9 +57,13 @@
 [[plugins]]
   package = "netlify-plugin-a11y"
   [plugins.inputs]
+    # Paths to scan for accessibility
     checkPaths = ["/"]
-    failOnError = false
-    ignore = ["/admin/*", "/studio/*"]
+    # Use supported options only; avoid build-failing mode
+    resultMode = "warn"
+    debugMode = false
+    # Skip whole directories (relative to publish dir)
+    ignoreDirectories = ["admin", "studio"]
 
 ## Removed netlify-plugin-csp (not on npm) in favor of static CSP header below
 
