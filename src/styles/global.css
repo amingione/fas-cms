@@ -550,6 +550,10 @@
     overflow-x: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory; /* scroll snapping belongs on the scroll container */
+    touch-action: pan-x; /* allow horizontal swipe on touch devices */
   }
 
   .mobile-carousel::-webkit-scrollbar {
@@ -560,11 +564,11 @@
     display: flex;
     gap: 12px;
     padding: 0 16px;
-    scroll-snap-type: x mandatory;
+    /* snap type moved to .mobile-carousel */
   }
 
   .mobile-carousel-item {
-    flex: 0 0 85%;
+    flex: 0 0 65%;
     scroll-snap-align: start;
     scroll-snap-stop: always;
   }
@@ -1514,7 +1518,6 @@ html {
 
   * {
     max-width: 100vw;
-    overflow-x: hidden;
     box-sizing: border-box;
   }
 }

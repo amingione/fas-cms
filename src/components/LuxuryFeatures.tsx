@@ -265,13 +265,14 @@ export function LuxuryFeatures() {
               Join the elite circle of F.A.S. Motorsports clients and experience automotive
               perfection.
             </p>
-            <motion.button
-              className={`luxury-btn text-white font-bold transition-all duration-300 rounded-xl font-ethno ${isMobile ? 'px-6 py-3 text-sm' : 'px-10 py-4 text-lg'}`}
+            <motion.a
+              href="/schedule"
+              className={`inline-block luxury-btn text-white font-bold transition-all duration-300 rounded-xl font-ethno ${isMobile ? 'px-6 py-3 text-sm' : 'px-10 py-4 text-lg'}`}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.98 }}
             >
               SCHEDULE CONSULTATION
-            </motion.button>
+            </motion.a>
           </div>
         </motion.div>
       </div>

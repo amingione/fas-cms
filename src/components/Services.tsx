@@ -18,6 +18,7 @@ export function Services() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+
   type Service = {
     icon: React.ElementType;
     title: string;
@@ -250,6 +251,11 @@ export function Services() {
             variants={containerVariants}
             initial="hidden"
             animate={isInView ? 'visible' : 'hidden'}
+            /** Prevent transforms on the scroll container to avoid iOS scroll issues */
+            transformTemplate={() => 'none'}
+            style={{ transform: 'none', WebkitOverflowScrolling: 'touch' as any }}
+            role="region"
+            aria-label="Services carousel"
           >
             <div className="mobile-carousel-container">
               {services.map((service, index) => (

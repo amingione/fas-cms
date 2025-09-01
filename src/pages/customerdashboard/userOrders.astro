@@ -1,5 +1,5 @@
 ---
-import userOrdersUrl from '@/scripts/user-orders-page.ts?url';
+// Load module directly so Vite transpiles to JS with correct MIME
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { AuthProvider } from '../../components/AuthProvider.jsx';
 import RequireLogin from '../../components/RequireLogin.jsx';
@@ -55,7 +55,7 @@ import RequireLogin from '../../components/RequireLogin.jsx';
         </div>
       </section>
 
-      <script type="module" src={userOrdersUrl}></script>
+      <script type="module" src="/src/scripts/user-orders-page.ts"></script>
     </BaseLayout>
   </RequireLogin>
 </AuthProvider>

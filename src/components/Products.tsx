@@ -19,6 +19,7 @@ export function Products() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+
   const products = [
     {
       id: 1,
@@ -122,7 +123,7 @@ export function Products() {
             <motion.img
               src={product.image}
               alt={product.name}
-              className={`w-full object-cover transition-all duration-500 group-hover:scale-110 ${isMobile ? 'h-40' : 'h-64'}`}
+              className={`w-full object-cover transition-all duration-500 group-hover:scale-110 ${isMobile ? 'h-32' : 'h-64'}`}
               loading="lazy"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -301,6 +302,11 @@ export function Products() {
             variants={containerVariants}
             initial="hidden"
             animate={isInView ? 'visible' : 'hidden'}
+            /** Prevent transforms on the scroll container to avoid iOS scroll issues */
+            transformTemplate={() => 'none'}
+            style={{ transform: 'none', WebkitOverflowScrolling: 'touch' as any }}
+            role="region"
+            aria-label="Products carousel"
           >
             <div className="mobile-carousel-container">
               {products.map((product, index) => (
@@ -331,15 +337,18 @@ export function Products() {
             size={isMobile ? 'sm' : 'lg'}
             variant="outline"
             className={`border-2 border-primary/30 text-primary hover:bg-primary hover:text-white font-bold backdrop-blur-sm group industrial-glow font-ethno ${isMobile ? 'px-6 py-3 text-sm' : 'px-8 py-4 text-lg'}`}
+            asChild
           >
-            VIEW ALL PRODUCTS
-            <motion.div
-              className="ml-2"
-              animate={{ x: [0, 5, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-            >
-              <ArrowRight className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
-            </motion.div>
+            <a href="/shop">
+              VIEW ALL PRODUCTS
+              <motion.div
+                className="ml-2"
+                animate={{ x: [0, 5, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              >
+                <ArrowRight className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
+              </motion.div>
+            </a>
           </Button>
         </motion.div>
       </div>

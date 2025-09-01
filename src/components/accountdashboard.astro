@@ -1,5 +1,5 @@
 ---
-import scriptUrl from '@/scripts/account-dashboard-panel.ts?url';
+// Load module directly so Vite transpiles to JS with correct MIME
 
 ---
 
@@ -48,4 +48,4 @@ import scriptUrl from '@/scripts/account-dashboard-panel.ts?url';
     </div>
   </aside>
 </div>
-<script type="module" src={scriptUrl}></script>
+<script type="module" src="/src/scripts/account-dashboard-panel.ts"></script>

@@ -1,0 +1,71 @@
+---
+const { items = [] } = Astro.props as { items?: any[] };
+---
+
+{Array.isArray(items) && items.length > 0 && (
+  <section class="container mx-auto px-4 lg:px-6 mb-10" aria-roledescription="carousel">
+    <h2 class="text-2xl md:text-3xl font-bold font-ethno text-white mb-4">Featured Products</h2>
+    <div class="hl-viewport" tabindex="0" aria-label="Featured products">
+      <div class="hl-track">
+        {items.map((p: any) => (
+          <a
+            href={p?.slug ? `/shop/${p.slug}` : '#'}
+            class="hl-item group"
+          >
+            <div class="hl-img">
+              <img
+                src={p?.imageUrl || '/placeholder.png'}
+                alt={(p?.title || p?.name || 'Product').toString()}
+                loading="lazy"
+                class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+            </div>
+            <div class="p-3">
+              <div class="text-white font-semibold truncate">
+                {(p?.title || p?.name || 'Untitled').toString()}
+              </div>
+              {p?.price !== undefined && p?.price !== null && (
+                <div class="text-sm text-accent mt-1">
+                  {typeof p.price === 'number' ? `$${p.price.toFixed(2)}` : (p.price as string)}
+                </div>
+              )}
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  .hl-viewport {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+  }
+  .hl-viewport::-webkit-scrollbar { display: none; }
+  .hl-track {
+    display: flex;
+    gap: 12px;
+  }
+  .hl-item {
+    flex: 0 0 85%;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(0,0,0,0.2);
+  }
+  .hl-item:hover { border-color: rgba(234,29,38,0.5); }
+  .hl-img { aspect-ratio: 4 / 3; width: 100%; background: rgba(0,0,0,0.3); overflow: hidden; }
+
+  @media (min-width: 768px) {
+    .hl-item { flex-basis: 45%; }
+  }
+  @media (min-width: 1024px) {
+    .hl-item { flex-basis: 30%; }
+  }
+</style>
+

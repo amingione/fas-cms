@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import dashboardScriptUrl from '@/scripts/dashboard-page.ts?url';
+// Load module directly so Vite transpiles to JS with correct MIME
 
 // Simple auth guard: if no session or token cookie, redirect to /account
 const cookie = Astro.request.headers.get('cookie') || '';
@@ -99,7 +99,7 @@ if (!hasSession && !hasToken) {
     </section>
   </main>
 
-  <script type="module" src={dashboardScriptUrl}></script>
+  <script type="module" src="/src/scripts/dashboard-page.ts"></script>
   <!-- inlined script moved to src/scripts/dashboard-page.ts -->
 
     <!-- All dashboard logic is now handled in src/scripts/dashboard-page.ts -->

@@ -304,19 +304,25 @@ export function WheelsHero() {
               <Button
                 className="bg-primary hover:bg-primary/90 text-white font-ethno px-8 py-4 text-base metallic-btn industrial-glow group"
                 size="lg"
+                asChild
               >
-                <ShoppingCart className="w-5 h-5 mr-2 group-hover:animate-bounce" />
-                SHOP WHEELS
-                <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
+                <a href="/shop">
+                  <ShoppingCart className="w-5 h-5 mr-2 group-hover:animate-bounce" />
+                  SHOP WHEELS
+                  <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
+                </a>
               </Button>
               <Button
                 variant="outline"
                 className="border-primary/50 text-primary hover:bg-primary/10 font-ethno px-8 py-4 text-base group"
                 size="lg"
+                asChild
               >
-                <Phone className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
-                GET QUOTE
-                <Star className="w-5 h-5 ml-2 group-hover:rotate-180 transition-transform duration-500" />
+                <a href="/contact">
+                  <Phone className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
+                  GET QUOTE
+                  <Star className="w-5 h-5 ml-2 group-hover:rotate-180 transition-transform duration-500" />
+                </a>
               </Button>
             </div>
 

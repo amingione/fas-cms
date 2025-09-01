@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import profileScriptUrl from '@/scripts/customer-profile-page.ts?url';
+// Load module directly so Vite transpiles to JS with correct MIME
 ---
 
 <BaseLayout hideBrandTag>
@@ -132,5 +132,5 @@ import profileScriptUrl from '@/scripts/customer-profile-page.ts?url';
     </form>
   </section>
 
-  <script type="module" src={profileScriptUrl}></script>
+  <script type="module" src="/src/scripts/customer-profile-page.ts"></script>
 </BaseLayout>

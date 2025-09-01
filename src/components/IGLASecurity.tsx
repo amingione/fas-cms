@@ -483,11 +483,7 @@ export function IGLASecurity() {
                 size={isMobile ? 'default' : 'lg'}
                 variant="outline"
                 className={`border-2 border-slate-600/50 text-slate-300 hover:bg-black/50 hover:text-white hover:border-slate-500/70 font-medium backdrop-blur-sm rounded-xl transition-all duration-500 industrial-glow font-ethno ${isMobile ? 'px-6 py-3 text-sm' : 'px-12 py-4 text-lg'}`}
-                href="#request-quote"
-                text="REQUEST QUOTE"
-                onClick={() => {
-                  /* handle request quote click */
-                }}
+                href="/contact"
               >
                 REQUEST QUOTE
               </Button>

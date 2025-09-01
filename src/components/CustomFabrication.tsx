@@ -19,6 +19,7 @@ export function CustomFabrication() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+
   const fabricationServices = [
     {
       icon: Flame,
@@ -218,7 +219,9 @@ export function CustomFabrication() {
             {/* Mobile Fabrication Services Carousel */}
             <motion.div
               className="overflow-x-auto snap-x snap-mandatory overscroll-x-contain -mx-4 px-0"
-              style={{ WebkitOverflowScrolling: 'touch' }}
+              /** Prevent transforms on the scroll container to avoid iOS scroll issues */
+              transformTemplate={() => 'none'}
+              style={{ transform: 'none', WebkitOverflowScrolling: 'touch' }}
               role="region"
               aria-label="Fabrication services carousel"
               initial={{ opacity: 0, x: -100 }}
@@ -508,8 +511,9 @@ export function CustomFabrication() {
                 size={isMobile ? 'sm' : 'lg'}
                 variant="outline"
                 className={`border-2 border-primary/30 text-primary hover:bg-primary hover:text-white font-bold backdrop-blur-sm industrial-glow font-ethno mobile-touch-target ${isMobile ? 'w-full px-6 py-3 text-sm' : 'px-8 py-4 text-lg'}`}
+                asChild
               >
-                CUSTOM QUOTE
+                <a href="/contact">CUSTOM QUOTE</a>
               </Button>
             </motion.div>
           </div>

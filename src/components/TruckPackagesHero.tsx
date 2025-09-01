@@ -216,7 +216,7 @@ export function TruckPackagesHero() {
                       className="border-2 border-graylight/50 text-graylight hover:bg-primary/20 hover:text-white hover:border-primary/70 w-full py-3 text-sm font-medium backdrop-blur-sm hover:backdrop-blur-md rounded-xl transition-all duration-300 industrial-glow font-ethno mobile-touch-target"
                       asChild
                     >
-                      <a href="#contact">
+                      <a href="/contact">
                         <Settings className="w-4 h-4 mr-2" />
                         CUSTOM QUOTE
                       </a>
@@ -425,7 +425,7 @@ export function TruckPackagesHero() {
                   <motion.div whileTap={{ scale: 0.98 }}>
                     <Button size="lg" variant="outline" className="font-ethno" asChild>
                       <a
-                        href="#contact"
+                        href="/contact"
                         onClick={() => {
                           /* handle custom quote click */
                         }}

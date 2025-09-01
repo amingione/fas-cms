@@ -1,12 +1,12 @@
 ---
 // src/pages/account/index.astro
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import accountAuthUrl from '@/scripts/account-auth.ts?url';
+// Load module directly so Vite transpiles to JS with correct MIME
 ---
 
 <BaseLayout hideBrandTag>
   <main class="relative text-white p-8">
     <div id="account-view"></div>
-    <script type="module" src={accountAuthUrl}></script>
+    <script type="module" src="/src/scripts/account-auth.ts"></script>
   </main>
 </BaseLayout>

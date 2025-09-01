@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import accountEditScriptUrl from '@/scripts/account-edit-page.ts?url';
+// Load module directly so Vite transpiles to JS with correct MIME
 ---
 
 <BaseLayout hideBrandTag>
@@ -66,6 +66,6 @@ import accountEditScriptUrl from '@/scripts/account-edit-page.ts?url';
     </div>
 
     <!-- Optional: JS enhancement keeps working if you prefer dynamic editing -->
-    <script type="module" src={accountEditScriptUrl}></script>
+    <script type="module" src="/src/scripts/account-edit-page.ts"></script>
   </main>
 </BaseLayout>
