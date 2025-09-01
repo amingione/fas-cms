@@ -61,7 +61,8 @@ const defaultOptions: ISourceOptions = {
         mix: false,
         opacity: 0.8,
         size: 40,
-        divs: { distance: 200, duration: 0.4, mix: false, selectors: {} }
+        // Avoid invalid selector type (must be string or string[])
+        divs: { distance: 200, duration: 0.4, mix: false, selectors: [] }
       },
       connect: { distance: 80, links: { opacity: 0.5 }, radius: 60 },
       grab: { distance: 400, links: { blink: false, consent: false, opacity: 1 } },
@@ -81,7 +82,8 @@ const defaultOptions: ISourceOptions = {
           speed: 1,
           maxSpeed: 50,
           easing: 'ease-out-quad',
-          selectors: {}
+          // Avoid invalid selector type (must be string or string[])
+          selectors: []
         }
       },
       slow: { factor: 3, radius: 200 },

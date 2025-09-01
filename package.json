@@ -102,6 +102,7 @@
     "@radix-ui/react-toggle-group": "^1.1.11",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@sanity/asset-utils": "^2.2.1",
+    "@sanity/cli": "^4.6.0",
     "@sanity/client": "latest",
     "@sanity/icons": "^3.7.0",
     "@sanity/image-url": "^1.1.0",
