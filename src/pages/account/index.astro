@@ -1,10 +1,12 @@
+---
 // src/pages/account/index.astro
 import BaseLayout from "../../layouts/BaseLayout.astro";
+const accountAuthScript = '/src/scripts/account-auth.ts';
 ---
 
-<BaseLayout hideBrandTag>
+<BaseLayout hideBrandTag={true}>
   <main class="relative text-white p-8">
     <div id="account-view"></div>
-    <script type="module">import "/src/scripts/account-auth.ts";</script>
+    <script type="module" src={accountAuthScript}></script>
   </main>
 </BaseLayout>
