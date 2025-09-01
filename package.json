@@ -57,6 +57,8 @@
     "husky": "^9.1.7",
     "lint-staged": "^15.5.1",
     "netlify-plugin-a11y": "^0.0.12",
+    "@netlify/plugin-lighthouse": "^0.8.1",
+    "@netlify/plugin-sitemap": "^0.8.1",
     "netlify-plugin-cache": "^1.0.3",
     "netlify-plugin-checklinks": "^4.1.1",
     "netlify-plugin-inline-critical-css": "^2.0.0",
