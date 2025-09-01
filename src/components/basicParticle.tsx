@@ -32,7 +32,7 @@ const defaultOptions: ISourceOptions = {
   defaultThemes: {},
   delay: 0,
   // Scoped by parent container; do not use fullScreen here
-  fullScreen: { enable: false, zIndex: 0 },
+  fullScreen: { enable: false, zIndex: 1 },
   detectRetina: true,
   duration: 0,
   fpsLimit: 120,
@@ -176,7 +176,7 @@ const defaultOptions: ISourceOptions = {
       }
     },
     stroke: { width: 0 },
-    zIndex: { value: 0, opacityRate: 1, sizeRate: 1, velocityRate: 1 },
+    zIndex: { value: 1, opacityRate: 1, sizeRate: 1, velocityRate: 1 },
     destroy: {
       bounds: {},
       mode: 'none',

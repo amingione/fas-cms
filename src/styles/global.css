@@ -1831,7 +1831,7 @@ html {
   width: 100%;
   height: 100%;
   background: url('/images/bg-texture.webp') no-repeat center/cover; /* Editable: Change background image */
-  z-index: 1;
+  z-index: 0;
   transform: translateY(0);
 }
 
