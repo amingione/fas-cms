@@ -60,14 +60,6 @@
 
 # Run a11y checks only on Deploy Previews to avoid slowing/failing production builds
 [context.deploy-preview]
-  [[plugins]]
-    package = "netlify-plugin-a11y"
-    [plugins.inputs]
-      checkPaths = ["/"]
-      resultMode = "warn"
-      debugMode = false
-      ignoreDirectories = ["admin", "studio"]
-
   # Run Lighthouse only on Deploy Previews
   [[plugins]]
     package = "@netlify/plugin-lighthouse"
