@@ -189,7 +189,7 @@ setTimeout(() => {
     const name = user?.given_name || user?.name || user?.email || 'there';
     show(`
             <p class="mb-6">Hello, <span class="text-red-500">${name}</span></p>
-            <a href="/customerdashboard/customerProfile" class="underline">My Account →</a>
+            <a href="/dashboard" class="underline">My Account →</a>
           `);
   } catch (err: any) {
     console.error('❌ account script error', err);

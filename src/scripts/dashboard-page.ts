@@ -4,8 +4,12 @@ import { getAuth0Client } from '@lib/auth';
 let currentView: string = 'dashboard';
 
 function selectDashContainer() {
-  const desktop = document.querySelector('[data-desktop-dash] [data-dash-content]') as HTMLElement | null;
-  const mobile = document.querySelector('[data-mobile-dash] [data-dash-content]') as HTMLElement | null;
+  const desktop = document.querySelector(
+    '[data-desktop-dash] [data-dash-content]'
+  ) as HTMLElement | null;
+  const mobile = document.querySelector(
+    '[data-mobile-dash] [data-dash-content]'
+  ) as HTMLElement | null;
   if (window.matchMedia('(min-width: 640px)').matches) {
     return desktop || mobile;
   }
@@ -52,7 +56,10 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
               <a id="dash-login" href="/api/auth/login" class="inline-block px-4 py-2 bg-primary text-black font-ethno rounded">Log in</a>
               <a id="dash-signup" href="/api/auth/login" class="inline-block px-4 py-2 border border-white/30 font-ethno rounded">Sign up</a>
             </div>`;
-          const go = (e?: Event) => { e?.preventDefault?.(); window.location.href = '/api/auth/login'; };
+          const go = (e?: Event) => {
+            e?.preventDefault?.();
+            window.location.href = '/api/auth/login';
+          };
           document.getElementById('dash-login')?.addEventListener('click', go);
           document.getElementById('dash-signup')?.addEventListener('click', go);
         }
@@ -69,7 +76,9 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
     let authed = false;
     try {
       authed = await withTimeout(auth0.isAuthenticated(), 4000);
-    } catch { authed = false; }
+    } catch {
+      authed = false;
+    }
 
     if (!authed) {
       const c = getVisibleDashContent();
@@ -79,7 +88,10 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
           <a id="dash-login" href="/api/auth/login" class="inline-block px-4 py-2 bg-primary text-black font-ethno rounded">Log in</a>
           <a id="dash-signup" href="/api/auth/login" class="inline-block px-4 py-2 border border-white/30 font-ethno rounded">Sign up</a>
         </div>`;
-      const go = (e?: Event) => { e?.preventDefault?.(); window.location.href = '/api/auth/login'; };
+      const go = (e?: Event) => {
+        e?.preventDefault?.();
+        window.location.href = '/api/auth/login';
+      };
       document.getElementById('dash-login')?.addEventListener('click', go);
       document.getElementById('dash-signup')?.addEventListener('click', go);
       return;
@@ -88,11 +100,16 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
     // Authenticated path
     const user = await auth0.getUser();
     const email = (user as any)?.email || '';
-    if (email) { try { localStorage.setItem('customerEmail', email); } catch {}
+    if (email) {
+      try {
+        localStorage.setItem('customerEmail', email);
+      } catch {}
     }
 
     const defaultName = (user as any)?.given_name || (user as any)?.name || email || 'Guest';
-    try { localStorage.setItem('customerName', defaultName); } catch {}
+    try {
+      localStorage.setItem('customerName', defaultName);
+    } catch {}
     setName(defaultName);
     let retry = 0;
     const retryId = setInterval(() => {
@@ -103,7 +120,8 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
     // Load enriched profile
     try {
       const res = await fetch('/api/customer/get', {
-        method: 'POST', headers: { 'content-type': 'application/json' },
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ email })
       });
       if (res.ok) {
@@ -111,7 +129,9 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
         const fullName = [data?.firstName, data?.lastName].filter(Boolean).join(' ').trim();
         const preferred = fullName || data?.name || defaultName;
         setName(preferred);
-        try { localStorage.setItem('customerName', preferred); } catch {}
+        try {
+          localStorage.setItem('customerName', preferred);
+        } catch {}
         let r2 = 0;
         const r2id = setInterval(() => {
           setName(preferred);
@@ -134,14 +154,24 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
         if (Array.isArray(data)) return data.length;
         if (data && Array.isArray((data as any).items)) return (data as any).items.length;
         return 0;
-      } catch { return 0; }
+      } catch {
+        return 0;
+      }
     }
 
     if (email) {
-      fetchCount(`/api/get-user-order?email=${encodeURIComponent(email)}`).then(n => setCount('orders-count','orders-count-mobile', n));
-      fetchCount(`/api/get-user-quotes?email=${encodeURIComponent(email)}`).then(n => setCount('quotes-count','quotes-count-mobile', n));
-      fetchCount(`/api/get-user-invoices?email=${encodeURIComponent(email)}`).then(n => setCount('invoices-count','invoices-count-mobile', n));
-      fetchCount(`/api/get-user-appointments?email=${encodeURIComponent(email)}`).then(n => setCount('appts-count','appts-count-mobile', n));
+      fetchCount(`/api/get-user-order?email=${encodeURIComponent(email)}`).then((n) =>
+        setCount('orders-count', 'orders-count-mobile', n)
+      );
+      fetchCount(`/api/get-user-quotes?email=${encodeURIComponent(email)}`).then((n) =>
+        setCount('quotes-count', 'quotes-count-mobile', n)
+      );
+      fetchCount(`/api/get-user-invoices?email=${encodeURIComponent(email)}`).then((n) =>
+        setCount('invoices-count', 'invoices-count-mobile', n)
+      );
+      fetchCount(`/api/get-user-appointments?email=${encodeURIComponent(email)}`).then((n) =>
+        setCount('appts-count', 'appts-count-mobile', n)
+      );
     }
 
     const content = () => getVisibleDashContent();
@@ -161,12 +191,17 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
             <a id="dash-login" href="/api/auth/login" class="inline-block px-4 py-2 bg-primary text-black font-ethno rounded">Log in</a>
             <a id="dash-signup" href="/api/auth/login" class="inline-block px-4 py-2 border border-white/30 font-ethno rounded">Sign up</a>
           </div>`;
-        const go = (e?: Event) => { e?.preventDefault?.(); window.location.href = '/api/auth/login'; };
+        const go = (e?: Event) => {
+          e?.preventDefault?.();
+          window.location.href = '/api/auth/login';
+        };
         document.getElementById('dash-login')?.addEventListener('click', go);
         document.getElementById('dash-signup')?.addEventListener('click', go);
       }, 6000);
     };
-    const renderEmpty = (label: string) => { content().innerHTML = `<p class="opacity-80">No ${label} found.</p>`; };
+    const renderEmpty = (label: string) => {
+      content().innerHTML = `<p class="opacity-80">No ${label} found.</p>`;
+    };
 
     async function fetchJSON(url: string, options: RequestInit = {}, ms = 5000) {
       return await Promise.race([
@@ -175,36 +210,55 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
       ]).then(async (res) => {
         if (res && 'ok' in res && !res.ok) throw new Error('bad status');
         if (!res || !(res instanceof Response)) return {} as any;
-        try { return await res.json(); } catch { return {}; }
+        try {
+          return await res.json();
+        } catch {
+          return {};
+        }
       });
     }
 
     async function renderDashboard() {
       setLoading();
       try {
-        const c = await fetchJSON('/api/customer/get', {
-          method: 'POST', headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ email })
-        }, 5000).catch(() => ({}));
-        const name = [(c as any).firstName, (c as any).lastName].filter(Boolean).join(' ') || defaultName;
+        const c = await fetchJSON(
+          '/api/customer/get',
+          {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ email })
+          },
+          5000
+        ).catch(() => ({}));
+        const name =
+          [(c as any).firstName, (c as any).lastName].filter(Boolean).join(' ') || defaultName;
         content().innerHTML = `
           <h3 class="font-ethno text-base mb-3">Dashboard</h3>
           <div class="font-sans space-y-2 opacity-90 text-base">
             <p>Hello, <strong>${name}</strong>.</p>
-            <p class="text-base">From your account dashboard you can view your <a href="#" data-view="orders" class="underline js-view">recent orders</a>, manage your <a href="/customerdashboard/customerProfile" class="underline">account details</a>, and more.</p>
+            <p class="text-base">From your account dashboard you can view your <a href="#" data-view="orders" class="underline js-view">recent orders</a>, manage your <a href="/dashboard" class="underline">account details</a>, and more.</p>
           </div>`;
-      } catch { renderEmpty('dashboard'); }
+      } catch {
+        renderEmpty('dashboard');
+      }
     }
 
     async function renderProfile() {
       setLoading();
       try {
-        const c: any = await fetchJSON('/api/customer/get', {
-          method: 'POST', headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ email })
-        }, 5000).catch(() => null);
+        const c: any = await fetchJSON(
+          '/api/customer/get',
+          {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ email })
+          },
+          5000
+        ).catch(() => null);
         if (!c) return renderEmpty('profile');
-        const addr = [c.address1, c.address2, c.city, c.state, c.postalCode].filter(Boolean).join(', ');
+        const addr = [c.address1, c.address2, c.city, c.state, c.postalCode]
+          .filter(Boolean)
+          .join(', ');
         content().innerHTML = `
           <h3 class="font-ethno text-lg mb-3">My Profile</h3>
           <div class="grid sm:grid-cols-2 gap-3 text-sm">
@@ -216,7 +270,9 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
           </div>
           <p class="mt-5 text-xs opacity-70">Need changes? <a class="underline" href="/customerdashboard/customerProfile">Edit profile</a>.</p>
         `;
-      } catch { renderEmpty('profile'); }
+      } catch {
+        renderEmpty('profile');
+      }
     }
 
     async function renderOrders() {
@@ -224,23 +280,33 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
       try {
         const claims: any = await auth0.getIdTokenClaims().catch(() => null);
         const token = claims?.__raw as string | undefined;
-        const items: any[] = await fetchJSON(`/api/get-user-order?email=${encodeURIComponent(email)}`, {
-          headers: token ? { authorization: `Bearer ${token}` } : {}
-        }, 5000).catch(() => []);
+        const items: any[] = await fetchJSON(
+          `/api/get-user-order?email=${encodeURIComponent(email)}`,
+          {
+            headers: token ? { authorization: `Bearer ${token}` } : {}
+          },
+          5000
+        ).catch(() => []);
         if (!Array.isArray(items) || !items.length) return renderEmpty('orders');
         content().innerHTML = `
           <h3 class="font-ethno text-lg mb-4">Orders</h3>
           <div class="space-y-3">
-            ${items.map((o: any) => `
+            ${items
+              .map(
+                (o: any) => `
               <div class=\"border border-white/10 rounded p-4 bg-black/40\">
                 <div class=\"flex justify-between\"><div class=\"font-semibold\">${o.orderNumber ?? o._id}</div><div class=\"opacity-70\">${o.status ?? ''}</div></div>
                 <div class=\"text-xs opacity-70 mt-1\">${o.orderDate ? new Date(o.orderDate).toLocaleDateString() : ''}</div>
                 ${o.trackingNumber ? `<div class=\\\"mt-1 text-xs opacity-70\\\">Tracking: ${o.trackingNumber}</div>` : ''}
                 <div class=\"mt-2\">Total: $${o.total ?? ''}</div>
               </div>
-            `).join('')}
+            `
+              )
+              .join('')}
           </div>`;
-      } catch { renderEmpty('orders'); }
+      } catch {
+        renderEmpty('orders');
+      }
     }
 
     async function renderQuotes() {
@@ -248,22 +314,32 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
       try {
         const claims: any = await auth0.getIdTokenClaims().catch(() => null);
         const token = claims?.__raw as string | undefined;
-        const items: any[] = await fetchJSON(`/api/get-user-quotes?email=${encodeURIComponent(email)}`, {
-          headers: token ? { authorization: `Bearer ${token}` } : {}
-        }, 5000).catch(() => []);
+        const items: any[] = await fetchJSON(
+          `/api/get-user-quotes?email=${encodeURIComponent(email)}`,
+          {
+            headers: token ? { authorization: `Bearer ${token}` } : {}
+          },
+          5000
+        ).catch(() => []);
         if (!Array.isArray(items) || !items.length) return renderEmpty('quotes');
         content().innerHTML = `
           <h3 class="font-ethno text-lg mb-4">Quotes</h3>
           <div class="space-y-3">
-            ${items.map((q: any) => `
+            ${items
+              .map(
+                (q: any) => `
               <div class=\"border border-white/10 rounded p-4 bg-black/40\">
                 <div class=\"flex justify-between\"><div class=\"font-semibold\">${q._id}</div><div class=\"opacity-70\">${q.status ?? ''}</div></div>
                 <div class=\"text-xs opacity-70 mt-1\">${q._createdAt ? new Date(q._createdAt).toLocaleDateString() : ''}</div>
                 <div class=\"mt-2\">Total: $${q.total ?? ''}</div>
               </div>
-            `).join('')}
+            `
+              )
+              .join('')}
           </div>`;
-      } catch { renderEmpty('quotes'); }
+      } catch {
+        renderEmpty('quotes');
+      }
     }
 
     async function renderInvoices() {
@@ -271,53 +347,78 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
       try {
         const claims: any = await auth0.getIdTokenClaims().catch(() => null);
         const token = claims?.__raw as string | undefined;
-        const items: any[] = await fetchJSON(`/api/get-user-invoices?email=${encodeURIComponent(email)}`, {
-          headers: token ? { authorization: `Bearer ${token}` } : {}
-        }, 5000).catch(() => []);
+        const items: any[] = await fetchJSON(
+          `/api/get-user-invoices?email=${encodeURIComponent(email)}`,
+          {
+            headers: token ? { authorization: `Bearer ${token}` } : {}
+          },
+          5000
+        ).catch(() => []);
         if (!Array.isArray(items) || !items.length) return renderEmpty('invoices');
         content().innerHTML = `
           <h3 class="font-ethno text-lg mb-4">Invoices</h3>
           <div class="space-y-3">
-            ${items.map((inv: any) => `
+            ${items
+              .map(
+                (inv: any) => `
               <div class=\"border border-white/10 rounded p-4 bg-black/40\">
                 <div class=\"flex justify-between\"><div class=\"font-semibold\">${inv._id}</div><div class=\"opacity-70\">${inv.status ?? ''}</div></div>
                 <div class=\"text-xs opacity-70 mt-1\">${inv._createdAt ? new Date(inv._createdAt).toLocaleDateString() : ''}</div>
                 <div class=\"mt-2\">Total: $${inv.total ?? ''}</div>
               </div>
-            `).join('')}
+            `
+              )
+              .join('')}
           </div>`;
-      } catch { renderEmpty('invoices'); }
+      } catch {
+        renderEmpty('invoices');
+      }
     }
 
     async function renderAppointments() {
       setLoading();
       try {
-        const items: any[] = await fetchJSON(`/api/get-user-appointments?email=${encodeURIComponent(email)}`, {}, 5000).catch(() => []);
+        const items: any[] = await fetchJSON(
+          `/api/get-user-appointments?email=${encodeURIComponent(email)}`,
+          {},
+          5000
+        ).catch(() => []);
         if (!Array.isArray(items) || !items.length) return renderEmpty('appointments');
         content().innerHTML = `
           <h3 class="font-ethno text-lg mb-4">Appointments</h3>
-          <div class="space-y-3">${
-            items.map((a: any) => `
+          <div class="space-y-3">${items
+            .map(
+              (a: any) => `
             <div class=\"border border-white/10 rounded p-4 bg-black/40\">
               <div class=\"flex justify-between\"><div class=\"font-semibold\">${a._id}</div><div class=\"opacity-70\">${a.status ?? ''}</div></div>
               <div class=\"text-xs opacity-70 mt-1\">${a.scheduledAt ? new Date(a.scheduledAt).toLocaleString() : ''}</div>
               ${a.location ? `<div class=\\\"mt-1 text-xs opacity-70\\\">${a.location}</div>` : ''}
             </div>
-          `).join('')}</div>`;
-      } catch { renderEmpty('appointments'); }
+          `
+            )
+            .join('')}</div>`;
+      } catch {
+        renderEmpty('appointments');
+      }
     }
 
     function load(view?: string | null) {
       currentView = view || 'dashboard';
       switch (view) {
-        case 'orders': return renderOrders();
-        case 'quotes': return renderQuotes();
-        case 'invoices': return renderInvoices();
-        case 'appointments': return renderAppointments();
+        case 'orders':
+          return renderOrders();
+        case 'quotes':
+          return renderQuotes();
+        case 'invoices':
+          return renderInvoices();
+        case 'appointments':
+          return renderAppointments();
         case 'profile':
-        case 'details': return renderProfile();
+        case 'details':
+          return renderProfile();
         case 'dashboard':
-        default: return renderDashboard();
+        default:
+          return renderDashboard();
       }
     }
 
@@ -357,7 +458,10 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
               <a id="dash-login" href="/api/auth/login" class="inline-block px-4 py-2 bg-primary text-black font-ethno rounded">Log in</a>
               <a id="dash-signup" href="/api/auth/login" class="inline-block px-4 py-2 border border-white/30 font-ethno rounded">Sign up</a>
             </div>`;
-          const go = (e?: Event) => { e?.preventDefault?.(); window.location.href = '/api/auth/login'; };
+          const go = (e?: Event) => {
+            e?.preventDefault?.();
+            window.location.href = '/api/auth/login';
+          };
           document.getElementById('dash-login')?.addEventListener('click', go);
           document.getElementById('dash-signup')?.addEventListener('click', go);
         }
@@ -366,16 +470,20 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
 
     try {
       const mq = window.matchMedia('(min-width: 640px)');
-      const reRender = () => { load(currentView); };
+      const reRender = () => {
+        load(currentView);
+      };
       if (mq.addEventListener) mq.addEventListener('change', reRender);
       else if ((mq as any).addListener) (mq as any).addListener(reRender);
     } catch {}
   } catch (err) {
     console.error('Dashboard auth init failed', err);
     try {
-      const c = (typeof getVisibleDashContent === 'function')
-        ? getVisibleDashContent()
-        : (document.getElementById('dash-content-desktop') || document.getElementById('dash-content-mobile')) as HTMLElement | null;
+      const c =
+        typeof getVisibleDashContent === 'function'
+          ? getVisibleDashContent()
+          : ((document.getElementById('dash-content-desktop') ||
+              document.getElementById('dash-content-mobile')) as HTMLElement | null);
       if (c) {
         c.innerHTML = `
           <div class="space-y-3">
@@ -383,7 +491,10 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
             <a id="dash-login" href="/api/auth/login" class="inline-block px-4 py-2 bg-primary text-black font-ethno rounded">Log in</a>
             <a id="dash-signup" href="/api/auth/login" class="inline-block px-4 py-2 border border-white/30 font-ethno rounded">Sign up</a>
           </div>`;
-        const go = (e?: Event) => { e?.preventDefault?.(); window.location.href = '/api/auth/login'; };
+        const go = (e?: Event) => {
+          e?.preventDefault?.();
+          window.location.href = '/api/auth/login';
+        };
         document.getElementById('dash-login')?.addEventListener('click', go);
         document.getElementById('dash-signup')?.addEventListener('click', go);
       }
@@ -392,13 +503,14 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
 })();
 
 function logout() {
-  try { localStorage.clear(); } catch {}
+  try {
+    localStorage.clear();
+  } catch {}
   window.location.href = '/api/auth/logout';
 }
-document.querySelectorAll('.logout-link').forEach(el => {
-  el.addEventListener('click', e => {
+document.querySelectorAll('.logout-link').forEach((el) => {
+  el.addEventListener('click', (e) => {
     e.preventDefault();
     logout();
   });
 });
-

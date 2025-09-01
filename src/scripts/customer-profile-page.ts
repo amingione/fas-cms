@@ -63,6 +63,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const saveBtn = document.getElementById('saveProfile') as HTMLButtonElement | null;
   const revertBtn = document.getElementById('revertProfile') as HTMLButtonElement | null;
   const statusEl = document.getElementById('saveStatus') as HTMLElement | null;
+  const backBtn = document.getElementById('backToDashboard') as HTMLButtonElement | null;
   let lastSnapshot: any = null;
 
   const $v = (id: string) => document.getElementById(id) as HTMLInputElement | null;
@@ -148,6 +149,7 @@ window.addEventListener('DOMContentLoaded', () => {
       lastSnapshot = snapshot();
       try { localStorage.removeItem(DRAFT_KEY); } catch {}
       setSaving(false, 'Saved');
+      if (backBtn) backBtn.classList.remove('hidden');
       setTimeout(() => setSaving(false, ''), 1200);
     } catch (e) {
       console.error(e);
@@ -160,4 +162,3 @@ window.addEventListener('DOMContentLoaded', () => {
   (window as any)._applySnapshot = applySnapshot;
   (window as any)._snapshot = snapshot;
 });
-

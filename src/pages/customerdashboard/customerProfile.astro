@@ -59,12 +59,15 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             I WOULD LIKE TO RECEIVE MARKETING EMAILS
           </label>
         </div>
-        <div class="mt-6 flex gap-3">
+        <div class="mt-6 flex gap-3 items-center">
           <button id="saveProfile" type="button" class="px-4 py-2 bg-primary text-black font-ethno disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.98] transition-transform">
             Save
           </button>
           <button id="revertProfile" type="button" class="px-4 py-2 border border-white/40 font-ethno active:scale-[0.98] transition-transform">
             Revert
+          </button>
+          <button id="backToDashboard" type="button" class="px-4 py-2 border border-white/40 font-ethno active:scale-[0.98] transition-transform" onclick="window.location.href='/dashboard'">
+            Back to Dashboard
           </button>
           <span id="saveStatus" class="ml-2 text-sm opacity-80"></span>
         </div>
