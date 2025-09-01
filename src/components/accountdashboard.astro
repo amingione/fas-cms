@@ -1,4 +1,7 @@
 ---
+// Resolve script through Astro/Vite so it's bundled and path-rewritten
+const panelScript = '/src/scripts/account-dashboard-panel.ts';
+---
 
 <div class="fixed top-0 right-0 z-[9998] pointer-events-auto w-72 bg-[#1a1a1a]">
 
@@ -45,4 +48,4 @@
     </div>
   </aside>
 </div>
-<script type="module">import "/src/scripts/account-dashboard-panel.ts";</script>
+<script type="module" src={panelScript}></script>
