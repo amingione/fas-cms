@@ -224,6 +224,36 @@ export const handler: Handler = async (event) => {
       } catch (e) {
         console.warn('[stripe-webhook] email send failed:', (e as any)?.message || e);
       }
+    } else if (evt.type === 'invoice.finalized') {
+      const inv = evt.data.object as Stripe.Invoice;
+      const stripeInvoiceId = inv.id;
+      try {
+        const quote = await sanity.fetch(`*[_type=="quote" && stripeInvoiceId==$id][0]{_id,status}`, { id: stripeInvoiceId });
+        if (quote?._id) {
+          await sanity
+            .patch(quote._id)
+            .set({
+              status: quote.status === 'paid' ? 'paid' : 'invoiced',
+              stripeInvoiceNumber: inv.number,
+              stripeHostedInvoiceUrl: inv.hosted_invoice_url,
+              stripeInvoiceTotal: typeof inv.total === 'number' ? inv.total / 100 : undefined
+            })
+            .commit();
+        }
+      } catch (e) {
+        console.warn('[stripe-webhook] update quote on invoice.finalized failed', (e as any)?.message || e);
+      }
+    } else if (evt.type === 'invoice.paid') {
+      const inv = evt.data.object as Stripe.Invoice;
+      const stripeInvoiceId = inv.id;
+      try {
+        const quote = await sanity.fetch(`*[_type=="quote" && stripeInvoiceId==$id][0]{_id,status}`, { id: stripeInvoiceId });
+        if (quote?._id && quote.status !== 'paid') {
+          await sanity.patch(quote._id).set({ status: 'paid' }).commit();
+        }
+      } catch (e) {
+        console.warn('[stripe-webhook] update quote on invoice.paid failed', (e as any)?.message || e);
+      }
     }
 
     return json(200, { received: true });

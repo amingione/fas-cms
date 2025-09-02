@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
+import SectionRenderer from '@/components/SectionRenderer.astro';
 const pageDoc: any = await getGitPageDoc('truckPackages');
 // Use plain HTML buttons/links in this SSR page to avoid React SSR for UI primitives
 ---
@@ -8,6 +9,9 @@ const pageDoc: any = await getGitPageDoc('truckPackages');
 <BaseLayout title="Truck Packages">
   <div {...sbObjectId('content/pages/truckPackages.json')}>
   <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Truck Packages'}</div>
+  {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
+    <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
+  )}
   <!-- Hero Section with Parallax -->
   <section class="parallax-section hero section-divider section-divider-carbon">
     <div class="background-layer"></div>

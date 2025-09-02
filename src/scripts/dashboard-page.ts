@@ -503,8 +503,12 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
 })();
 
 function logout() {
+  try { localStorage.clear(); } catch {}
   try {
-    localStorage.clear();
+    const fx: any = (window as any).fasAuth;
+    if (fx && typeof fx.logout === 'function') {
+      return fx.logout(location.origin + '/account');
+    }
   } catch {}
   window.location.href = '/api/auth/logout';
 }

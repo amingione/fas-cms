@@ -1,10 +1,21 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
+import SectionRenderer from '@/components/SectionRenderer.astro';
+
+const pageDoc: any = await getGitPageDoc('privacypolicy');
 ---
 
 <BaseLayout>
+  <div {...sbObjectId('content/pages/privacypolicy.json')}>
+  <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Privacy Policy'}</div>
+  {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
+    <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
+  )}
   <section class="py-20 px-4 max-w-5xl mx-auto text-white font-captain tracking-[1.2px]">
-    <h1 class="text-4xl font-cyber text-accent mb-10 text-center">Privacy Policy</h1>
+    <h1 class="text-4xl font-cyber text-accent mb-10 text-center" {...sbFieldPath('title')}>
+      {pageDoc?.title ?? 'Privacy Policy'}
+    </h1>
 
     <p class="mb-6">
       F.A.S. Motorsports respects your privacy and is committed to protecting your personal data. This Privacy Policy outlines how your information is collected, used, and shared when you visit or make a purchase from our website.
@@ -50,4 +61,5 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       For questions about this policy or your data, please contact us at <a href="mailto:info@fasmotorsports.com" class="text-accent hover:text-white">info@fasmotorsports.com</a>.
     </p>
   </section>
+  </div>
 </BaseLayout>

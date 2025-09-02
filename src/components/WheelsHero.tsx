@@ -3,8 +3,17 @@ import { useRef } from 'react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { ArrowRight, Zap, Award, Star, Phone, ShoppingCart } from 'lucide-react';
+import { sbFieldPath } from '@lib/stackbit';
 
-export function WheelsHero() {
+type WheelsHeroProps = {
+  fieldPathBase?: string;
+  badge?: string;
+  titleTop?: string;
+  titleBottom?: string;
+  intro?: string;
+};
+
+export function WheelsHero({ fieldPathBase, badge, titleTop, titleBottom, intro }: WheelsHeroProps) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
 
@@ -38,9 +47,9 @@ export function WheelsHero() {
             transition={{ delay: 0.2, duration: 0.6 }}
             className="mb-4"
           >
-            <Badge className="bg-primary/20 text-primary border-primary/30 px-4 py-2 font-ethno text-xs md:text-sm">
+            <Badge className="bg-primary/20 text-primary border-primary/30 px-4 py-2 font-ethno text-xs md:text-sm" {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.badge`) : {})}>
               <Award className="w-3 h-3 md:w-4 md:h-4 mr-2" />
-              AUTHORIZED DEALER
+              {badge ?? 'AUTHORIZED DEALER'}
             </Badge>
           </motion.div>
 
@@ -50,7 +59,7 @@ export function WheelsHero() {
             transition={{ delay: 0.4, duration: 0.8 }}
             className="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-4 font-cyber tracking-wider leading-tight"
           >
-            COMPLETE
+            <span {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.titleTop`) : {})}>{titleTop ?? 'COMPLETE'}</span>
           </motion.h1>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -58,7 +67,7 @@ export function WheelsHero() {
             transition={{ delay: 0.6, duration: 0.8 }}
             className="text-4xl md:text-6xl lg:text-7xl font-black text-primary mb-6 font-ethno-italic engine-pulse tracking-wider leading-tight"
           >
-            YOUR BUILD
+            <span {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.titleBottom`) : {})}>{titleBottom ?? 'YOUR BUILD'}</span>
           </motion.div>
 
           <motion.p
@@ -67,11 +76,15 @@ export function WheelsHero() {
             transition={{ delay: 0.8, duration: 0.8 }}
             className="text-base md:text-lg text-graylight max-w-3xl mx-auto font-kwajong leading-relaxed"
           >
-            F.A.S. Motorsports is your authorized dealer for{' '}
-            <span className="text-primary font-semibold">BelaK Wheels</span> and{' '}
-            <span className="text-primary font-semibold">JTX Forged Wheels</span>. From street
-            performance to show-stopping luxury, we have the perfect wheels to complete your custom
-            build.
+            <span {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.subtext`) : {})}>
+              {intro ?? (
+                <>F.A.S. Motorsports is your authorized dealer for{' '}
+                  <span className="text-primary font-semibold">BelaK Wheels</span> and{' '}
+                  <span className="text-primary font-semibold">JTX Forged Wheels</span>. From street
+                  performance to show-stopping luxury, we have the perfect wheels to complete your custom
+                  build.</>
+              )}
+            </span>
           </motion.p>
         </motion.div>
 

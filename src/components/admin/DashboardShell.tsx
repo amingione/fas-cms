@@ -45,6 +45,18 @@ export default function DashboardShell({ children }: { children: React.ReactNode
             </a>
             <a
               className="block rounded px-3 py-2 hover:bg-white/5 transition"
+              href="/admin/customers"
+            >
+              Customers
+            </a>
+            <a
+              className="block rounded px-3 py-2 hover:bg-white/5 transition"
+              href="/admin/appointments"
+            >
+              Appointments
+            </a>
+            <a
+              className="block rounded px-3 py-2 hover:bg-white/5 transition"
               href="/.netlify/functions/auth-logout"
             >
               Logout

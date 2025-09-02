@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Drawer from './Drawer';
 
 export default function QuoteEditorDrawer({
@@ -16,6 +16,9 @@ export default function QuoteEditorDrawer({
     initial || { number: '', customerName: '', customerEmail: '', items: [], status: 'draft' }
   );
   const [saving, setSaving] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [products, setProducts] = useState<any[]>([]);
+  const [filter, setFilter] = useState('');
 
   function addItem() {
     setQ((v: any) => ({ ...v, items: [...(v.items || []), { title: '', qty: 1, price: 0 }] }));
@@ -37,6 +40,26 @@ export default function QuoteEditorDrawer({
     if (!res.ok) return alert(await res.text());
     onClose();
     reload();
+  }
+
+  async function sendQuote() {
+    try {
+      setSending(true);
+      const payload = q._id ? q : (await (await fetch('/.netlify/functions/quotes-upsert', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(q) })).json());
+      const res = await fetch('/.netlify/functions/quotes-send', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ quoteId: (payload._id || q._id) })
+      });
+      setSending(false);
+      if (!res.ok) return alert(await res.text());
+      alert('Quote sent');
+      onClose();
+      reload();
+    } catch (e: any) {
+      setSending(false);
+      alert(e?.message || 'Send failed');
+    }
   }
 
   async function convertToInvoice() {
@@ -102,6 +125,51 @@ export default function QuoteEditorDrawer({
               Add Item
             </button>
           </div>
+          {/* Quick add from Sanity products */}
+          <div className="grid grid-cols-6 gap-2">
+            <input
+              placeholder="Search products..."
+              className="col-span-4 bg-transparent border border-white/20 rounded px-2 py-1"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+            />
+            <button
+              className="col-span-2 px-3 py-1 rounded border border-white/20 hover:bg-white/10"
+              onClick={async () => {
+                try {
+                  const res = await fetch('/.netlify/functions/products-list');
+                  const rows = (await res.json()) || [];
+                  setProducts(Array.isArray(rows) ? rows : []);
+                } catch {}
+              }}
+            >
+              Load Products
+            </button>
+          </div>
+          {products.length > 0 && (
+            <div className="max-h-48 overflow-auto border border-white/10 rounded">
+              {(products as any[])
+                .filter((p) => {
+                  const qstr = (filter || '').toLowerCase();
+                  if (!qstr) return true;
+                  return (
+                    (p.title || '').toLowerCase().includes(qstr) || (p.sku || '').toLowerCase().includes(qstr)
+                  );
+                })
+                .slice(0, 25)
+                .map((p) => (
+                  <div key={p._id} className="flex items-center justify-between px-3 py-1 border-b border-white/10">
+                    <div className="text-sm truncate">{p.title} <span className="text-white/50">{p.sku || ''}</span></div>
+                    <button
+                      className="px-2 py-1 rounded border border-white/20 hover:bg-white/10 text-xs"
+                      onClick={() => setQ((v: any) => ({ ...v, items: [...(v.items || []), { title: p.title, qty: 1, price: Number(p.price || 0) }] }))}
+                    >
+                      Add
+                    </button>
+                  </div>
+                ))}
+            </div>
+          )}
           <div className="space-y-2">
             {(q.items || []).map((it: any, i: number) => (
               <div key={i} className="grid grid-cols-6 gap-2">
@@ -141,6 +209,13 @@ export default function QuoteEditorDrawer({
             className="px-4 py-2 rounded bg-white text-black hover:bg-white/90"
           >
             {saving ? 'Saving…' : 'Save'}
+          </button>
+          <button
+            onClick={sendQuote}
+            disabled={sending}
+            className="px-4 py-2 rounded border border-white/20 hover:bg-white/10"
+          >
+            {sending ? 'Sending…' : 'Send to Customer'}
           </button>
           <button
             onClick={convertToInvoice}

@@ -60,16 +60,16 @@ export default function ProductEditDrawer({
       if (file) imageAssetId = await upload(file);
 
       const payload: any = {
+        _id: form._id || undefined,
         title: (form.title || '').trim(),
         sku: form.sku || undefined,
         price: Number(form.price) || 0,
         featured: !!form.featured,
         categoryIds: form.categoryIds || [],
-        images: imageAssetId ? [imageAssetId] : undefined,
-        socialImage: imageAssetId || undefined
+        imageAssetId: imageAssetId || undefined
       };
 
-      const res = await fetch(`${window.location.origin}/.netlify/functions/products-create`, {
+      const res = await fetch(`${window.location.origin}/.netlify/functions/products-upsert`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(payload)

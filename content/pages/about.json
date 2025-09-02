@@ -1,1 +1,19 @@
-{ "type": "Page", "slug": "about", "title": "About FAS", "sections": [] }
+{
+  "type": "Page",
+  "slug": "about",
+  "title": "About FAS",
+  "sections": [
+    {
+      "blockType": "Hero",
+      "headline": "Built by Racers. Tuned for Victory.",
+      "subtext": "Unleash performance with OEM-level fit & finish.",
+      "imageSrc": "/images/About FAS MOTO  Page Banner copy.png",
+      "cta": { "text": "Explore Packages", "href": "/power-packages" }
+    },
+    {
+      "blockType": "RichText",
+      "title": "Our Philosophy",
+      "body": "We build for flow, reliability, and repeatable results — on the street and track."
+    }
+  ]
+}

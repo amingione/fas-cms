@@ -68,8 +68,12 @@ export const handler: Handler = async (event) => {
 
   // Create a signed session cookie from ID token claims
   const idClaims = jwt.decode(tokens.id_token) as any;
+  // Normalize roles from common claim namespaces
   const roles =
-    idClaims?.['https://fasmotorsport.com/fas/roles'] || idClaims?.['https://fas/roles'] || [];
+    idClaims?.['https://login.fasmotorsports.com/fas/roles'] ||
+    idClaims?.['https://fasmotorsports.com/roles'] ||
+    idClaims?.['https://schemas.quickstarts.auth0.com/roles'] ||
+    [];
 
   const session = jwt.sign({ sub: idClaims?.sub, email: idClaims?.email, roles }, sessionSecret!, {
     expiresIn: '7d'

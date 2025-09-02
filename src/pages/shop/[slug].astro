@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getProductBySlug, getRelatedProducts, getUpsellProducts, type Product } from '../../lib/sanity-utils';
 import PortableTextRenderer from "../../components/PortableTextRenderer.jsx";
 import SlugCarousel from '@/components/SlugCarousel.astro';
+import { sbFieldPath, sbObjectId } from '@lib/stackbit';
 
 export type KitItem = { item: string; quantity?: number };
 export type VehicleCompat = { make?: string; model?: string; trim?: string };
@@ -94,10 +95,11 @@ try {
 ---
 
 <BaseLayout hideBrandTag>
+  <div {...sbObjectId((product as any)._id)}>
   <div class="container mx-auto px-4 py-10 text-white" style="padding-top: 80px;">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
       <!-- LEFT: Sticky Image on desktop -->
-      <div class="md:sticky md:top-28 flex justify-center items-start z-0">
+      <div class="md:sticky md:top-28 flex justify-center items-start z-0" {...sbFieldPath('images')}>
         <SlugCarousel
           images={(product as any).images?.map((img: any) => ({
             url: img?.asset?.url || '/placeholder.png',
@@ -108,9 +110,9 @@ try {
 
       <!-- RIGHT: Title, price, short intro, add-to-cart, then accordion -->
       <div class="relative z-10">
-        <h1 class="text-3xl font-ethno mb-3">{(product as any).title}</h1>
+        <h1 class="text-3xl font-ethno mb-3" {...sbFieldPath('title')}>{(product as any).title}</h1>
         <h2 class="text-4xl text-accent
-         font-captain mb-4">
+         font-captain mb-4" {...sbFieldPath('price')}>
           {typeof (product as any).price === 'number' ? `$${(product as any).price.toFixed(2)}` : 'Price not available'}
         </h2>
 
@@ -221,7 +223,9 @@ try {
         )}
 
         <!-- Short intro (truncated) -->
-        <PortableTextRenderer value={product.shortDescription} />
+        <div {...sbFieldPath('shortDescription')}>
+          <PortableTextRenderer value={product.shortDescription} />
+        </div>
 
         <!-- Add to Cart Button -->
         <button
@@ -250,7 +254,9 @@ try {
               <span class="transition-transform group-open:rotate-180">▾</span>
             </summary>
             <div class="px-4 py-4 text-white/90 font-arial leading-relaxed whitespace-pre-line">
-              <PortableTextRenderer value={product.description} />
+              <div {...sbFieldPath('description')}>
+                <PortableTextRenderer value={product.description} />
+              </div>
               {/* Specifications Table */}
               {product.specifications && product.specifications.length > 0 && (
                 <div class="mt-6">
@@ -303,7 +309,7 @@ try {
           </details>
 
           {product.importantNotes && (
-            <div class="mt-6 p-4 border border-red-500 bg-slate-400 text-red-700 rounded">
+            <div class="mt-6 p-4 border border-red-500 bg-slate-400 text-red-700 rounded" {...sbFieldPath('importantNotes')}>
               <h3 class="font-bold text-lg mb-2">Important Notes</h3>
               <PortableTextRenderer value={product.importantNotes} />
             </div>
@@ -455,6 +461,7 @@ try {
     </div>
   </div>
 )}
+  </div>
   </div>
 
   

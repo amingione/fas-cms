@@ -13,6 +13,7 @@ import { CustomFabrication } from '@components/CustomFabrication.tsx';
 import { LuxuryTestimonials } from '@components/LuxuryTestimonials.tsx';
 import { WheelsHero } from '@/components/WheelsHero.tsx';
 import HeroBanner from '@/components/HeroBanner.astro';
+import SectionRenderer from '@/components/SectionRenderer.astro';
 
 const url = new URL(Astro.request.url);
 const pageDoc: any = await getGitPageDoc('index');
@@ -96,61 +97,51 @@ try {
   <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Home'}</div>
 
 {showV2 && (
+  <main class="relative flex flex-col">
+    {/* Dynamic sections first so the Editor can add/reorder blocks */}
+    {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
+      <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
+    )}
 
-    <main class="relative flex flex-col">
+    {/* Keep existing curated sections below; we can convert later */}
+    <section class="contain w-full relative">
+      <HeroBanner
+        imageSrc="/images/ram copy.webp"
+        headline="Power Up Your Ride"
+        subtext="Unleash your car's potential with our premium performance upgrades."
+        ctaText="Explore Now"
+        ctaLink="/shop"
+      />
+    </section>
 
-      <section class="contain w-full relative">
-        <HeroBanner
-          imageSrc="/images/ram copy.webp"
-          headline="Power Up Your Ride"
-          subtext="Unleash your car's potential with our premium performance upgrades."
-          ctaText="Explore Now"
-          ctaLink="/shop"
-        />
-      </section>
+    <section id="hero">
+      <Hero client:only="react" />
+    </section>
 
-      <section id="hero">
-        <Hero client:only="react" />
-      </section>
+    <section id="TruckPackagesHero" >
+      <TruckPackagesHero client:only="react" />
+    </section>
 
-      <section id="TruckPackagesHero" >
-        <TruckPackagesHero client:only="react" />
-      </section>
+    <section id="CustomFabrication" >
+      <CustomFabrication client:only="react" />
+    </section>
 
-      <section id="CustomFabrication" >
-        <CustomFabrication client:only="react" />
-      </section>
+    <section id="IGLASecurity">
+      <IGLASecurity client:only="react" />
+    </section>
 
-      <section id="IGLASecurity">
-        <IGLASecurity client:only="react" />
-      </section>
+    <section id="LuxuryFeatures">
+      <LuxuryFeatures client:only="react" />
+    </section>
 
-      <section id="LuxuryFeatures">
-        <LuxuryFeatures client:only="react" />
-      </section>
+    <section id="WheelsHero">
+      <WheelsHero client:only="react" />
+    </section>
 
-      <section id="services">
-        <Services client:only="react" />
-      </section>
-
-      <section id="WheelsHero">
-        <WheelsHero client:only="react" />
-      </section>
-
-      <section id="highlights">
-        <Products client:only="react" />
-      </section>
-
-
-      <section id="about">
-        <About client:only="react" />
-      </section>
-
-      <section id="LuxuryTestimonials">
-        <LuxuryTestimonials client:only="react" />
-      </section>
-    </main>
-
+    <section id="about">
+      <About client:only="react" />
+    </section>
+  </main>
 )}
 
   </div>

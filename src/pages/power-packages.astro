@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
+import SectionRenderer from '@/components/SectionRenderer.astro';
 const pageDoc: any = await getGitPageDoc('power-packages');
 import Button from '../components/Button.astro';
 ---
@@ -8,6 +9,9 @@ import Button from '../components/Button.astro';
 <BaseLayout>
   <div {...sbObjectId('content/pages/power-packages.json')}>
   <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Power Packages'}</div>
+  {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
+    <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
+  )}
   <!-- HERO: full-bleed, dark glass, tight under header -->
   <section
     class="relative w-full h-[72vh] md:h-[78vh] overflow-hidden"

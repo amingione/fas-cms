@@ -1,13 +1,18 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getGitPageDoc, sbFieldPath } from '@lib/stackbit';
+import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
+import SectionRenderer from '@/components/SectionRenderer.astro';
 const pageDoc: any = await getGitPageDoc('customFab');
 ---
 
 <BaseLayout>
+  <div {...sbObjectId('content/pages/customFab.json')}>
   <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Custom Fabrication'}</div>
+  {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
+    <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
+  )}
   <!-- HERO -->
-  <section class="parallax-section section-divider section-divider-carbon">
+  <section class="parallax-section section-divider section-divider-carbon"> 
     <div class="background-layer">
       <img
         src="/images/FAS-Fabrication-1.png"
@@ -190,4 +195,5 @@ const pageDoc: any = await getGitPageDoc('customFab');
       Request a Quote
     </a>
   </section>
+  </div>
 </BaseLayout>

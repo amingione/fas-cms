@@ -2,6 +2,7 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
 import ProductCard from '@components/ProductCard';
+import SectionRenderer from '@/components/SectionRenderer.astro';
 import ShopTopControls from '@components/shop/ShopTopControls';
 import ShopSidebarFilters from '@components/shop/ShopSidebarFilters';
 import { fetchProductsFromSanity, fetchCategories } from '@lib/sanity-utils';
@@ -139,6 +140,9 @@ if (endPage < totalPages) {
 <BaseLayout>
   <div {...sbObjectId('content/pages/shop.json')}>
   <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Shop'}</div>
+  {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
+    <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
+  )}
   <section class="max-w-7xl mx-auto px-4 md:px-6 mt-11 pt-10">
     <div class="mb-4">
       <ShopTopControls

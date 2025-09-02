@@ -11,7 +11,10 @@ export function requireUser(event: { headers: { cookie?: string } }) {
   if (!raw) throw Object.assign(new Error('Unauthorized'), { statusCode: 401 });
   try {
     const user = jwt.verify(raw, SESSION_SECRET) as any;
-    const ok = user.roles?.some((r: string) => ['owner', 'staff'].includes(r));
+    const roles: string[] = Array.isArray(user?.roles)
+      ? user.roles.map((r: string) => (r || '').toLowerCase())
+      : [];
+    const ok = roles.includes('owner') || roles.includes('employee');
     if (!ok) throw Object.assign(new Error('Forbidden'), { statusCode: 403 });
     return user;
   } catch {

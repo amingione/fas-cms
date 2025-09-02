@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-const profileScript = '/src/scripts/customer-profile-page.ts';
+const profileScript = new URL('../../scripts/customer-profile-page.ts', import.meta.url).toString();
 ---
 
 <BaseLayout hideBrandTag>

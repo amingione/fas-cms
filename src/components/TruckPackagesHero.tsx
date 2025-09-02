@@ -3,8 +3,33 @@ import { Badge } from './ui/badge';
 import { ArrowRight, Zap, Settings, Award } from 'lucide-react';
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
+import { sbFieldPath } from '@lib/stackbit';
 
-export function TruckPackagesHero() {
+type TruckPackagesHeroProps = {
+  fieldPathBase?: string;
+  badge?: string;
+  titleTop?: string;
+  titleMid?: string;
+  titleBottom?: string;
+  kicker?: string;
+  ctaPrimaryText?: string;
+  ctaPrimaryHref?: string;
+  ctaSecondaryText?: string;
+  ctaSecondaryHref?: string;
+};
+
+export function TruckPackagesHero({
+  fieldPathBase,
+  badge,
+  titleTop,
+  titleMid,
+  titleBottom,
+  kicker,
+  ctaPrimaryText,
+  ctaPrimaryHref,
+  ctaSecondaryText,
+  ctaSecondaryHref
+}: TruckPackagesHeroProps) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
   const [isMobile, setIsMobile] = useState(false);
@@ -121,8 +146,9 @@ export function TruckPackagesHero() {
                 <Badge
                   variant="outline"
                   className="relative items-center bg-primary/20 border-primary/50 text-primary px-4 py-1 text-xs font-bold tracking-widest backdrop-blur-sm industrial-card font-ethno"
+                  {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.badge`) : {})}
                 >
-                  CUSTOM PERFORMANCE PACKAGES
+                  {badge ?? 'CUSTOM PERFORMANCE PACKAGES'}
                 </Badge>
               </motion.div>
 
@@ -134,9 +160,9 @@ export function TruckPackagesHero() {
                 transition={{ delay: 0.4, duration: 0.8 }}
               >
                 <h1 className="font-black leading-tight tracking-tight font-captain">
-                  <span className="block text-accent font-ethno text-xl">TRUCK</span>
-                  <span className="block text-accent font-ethno text-xl">PACKAGES</span>
-                  <span className="block chrome-text text-lg mt-1 font-borg">RAM TRX</span>
+                  <span className="block text-accent font-ethno text-xl" {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.titleTop`) : {})}>{titleTop ?? 'TRUCK'}</span>
+                  <span className="block text-accent font-ethno text-xl" {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.titleMid`) : {})}>{titleMid ?? 'PACKAGES'}</span>
+                  <span className="block chrome-text text-lg mt-1 font-borg" {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.titleBottom`) : {})}>{titleBottom ?? 'RAM TRX'}</span>
                 </h1>
 
                 <motion.p
@@ -145,9 +171,8 @@ export function TruckPackagesHero() {
                   animate={isInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ delay: 0.6, duration: 0.6 }}
                 >
-                  FROM MILD TO WILD —{' '}
-                  <span className="font-bold text-white">
-                    OUR CUSTOM PACKAGES ARE BUILT TO DOMINATE
+                  <span {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.kicker`) : {})}>
+                    {kicker ?? (<>FROM MILD TO WILD — <span className="font-bold text-white">OUR CUSTOM PACKAGES ARE BUILT TO DOMINATE</span></>)}
                   </span>
                 </motion.p>
               </motion.div>
@@ -196,9 +221,9 @@ export function TruckPackagesHero() {
                       className="group bg-primary hover:bg-primary/90 text-white w-full py-3 text-sm font-bold shadow-xl shadow-primary/25 transition-all duration-300 rounded-xl metallic-btn font-ethno mobile-touch-target"
                       asChild
                     >
-                      <a href="/truckPackages">
+                      <a href={ctaPrimaryHref ?? '/truckPackages'} {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.cta.text`) : {})}>
                         <Zap className="w-4 h-4 mr-2" />
-                        SHOP PACKAGES
+                        {ctaPrimaryText ?? 'SHOP PACKAGES'}
                         <motion.div
                           className="ml-2"
                           animate={{ x: [0, 3, 0] }}
@@ -216,9 +241,9 @@ export function TruckPackagesHero() {
                       className="border-2 border-graylight/50 text-graylight hover:bg-primary/20 hover:text-white hover:border-primary/70 w-full py-3 text-sm font-medium backdrop-blur-sm hover:backdrop-blur-md rounded-xl transition-all duration-300 industrial-glow font-ethno mobile-touch-target"
                       asChild
                     >
-                      <a href="/contact">
+                      <a href={ctaSecondaryHref ?? '/contact'} {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.ctaSecondary.text`) : {})}>
                         <Settings className="w-4 h-4 mr-2" />
-                        CUSTOM QUOTE
+                        {ctaSecondaryText ?? 'CUSTOM QUOTE'}
                       </a>
                     </Button>
                   </motion.div>
@@ -328,8 +353,9 @@ export function TruckPackagesHero() {
                 <Badge
                   variant="outline"
                   className="bg-primary/20 border-primary/50 text-primary px-6 py-2 text-sm font-bold tracking-widest backdrop-blur-sm industrial-card font-ethno"
+                  {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.badge`) : {})}
                 >
-                  CUSTOM PERFORMANCE PACKAGES
+                  {badge ?? 'CUSTOM PERFORMANCE PACKAGES'}
                 </Badge>
               </motion.div>
 
@@ -341,10 +367,10 @@ export function TruckPackagesHero() {
                 transition={{ delay: 0.4, duration: 1 }}
               >
                 <h1 className="text-5xl lg:text-8xl font-black leading-tight tracking-tight font-ethno">
-                  <span className="block text-accent">TRUCK</span>
-                  <span className="block text-accent">PACKAGES</span>
-                  <span className="block chrome-text text-4xl lg:text-6xl mt-2 font-borg">
-                    RAM TRX
+                  <span className="block text-accent" {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.titleTop`) : {})}>{titleTop ?? 'TRUCK'}</span>
+                  <span className="block text-accent" {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.titleMid`) : {})}>{titleMid ?? 'PACKAGES'}</span>
+                  <span className="block chrome-text text-4xl lg:text-6xl mt-2 font-borg" {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.titleBottom`) : {})}>
+                    {titleBottom ?? 'RAM TRX'}
                   </span>
                 </h1>
 
@@ -354,9 +380,8 @@ export function TruckPackagesHero() {
                   animate={isInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ delay: 0.8, duration: 0.8 }}
                 >
-                  FROM MILD TO WILD —{' '}
-                  <span className="font-bold text-white">
-                    OUR CUSTOM PACKAGES ARE BUILT TO DOMINATE
+                  <span {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.kicker`) : {})}>
+                    {kicker ?? (<>FROM MILD TO WILD — <span className="font-bold text-white">OUR CUSTOM PACKAGES ARE BUILT TO DOMINATE</span></>)}
                   </span>
                 </motion.p>
               </motion.div>
@@ -404,13 +429,14 @@ export function TruckPackagesHero() {
                   <motion.div whileTap={{ scale: 0.98 }}>
                     <Button size="lg" className="group font-ethno" asChild>
                       <a
-                        href="/truckPackages"
+                        href={ctaPrimaryHref ?? '/truckPackages'}
+                        {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.cta.text`) : {})}
                         onClick={() => {
                           /* handle shop packages click */
                         }}
                       >
                         <Zap className="w-5 h-5 mr-3" />
-                        SHOP PACKAGES
+                        {ctaPrimaryText ?? 'SHOP PACKAGES'}
                         <motion.div
                           className="ml-3"
                           animate={{ x: [0, 5, 0] }}
@@ -425,13 +451,14 @@ export function TruckPackagesHero() {
                   <motion.div whileTap={{ scale: 0.98 }}>
                     <Button size="lg" variant="outline" className="font-ethno" asChild>
                       <a
-                        href="/contact"
+                        href={ctaSecondaryHref ?? '/contact'}
+                        {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.ctaSecondary.text`) : {})}
                         onClick={() => {
                           /* handle custom quote click */
                         }}
                       >
                         <Settings className="w-5 h-5 mr-3" />
-                        CUSTOM QUOTE
+                        {ctaSecondaryText ?? 'CUSTOM QUOTE'}
                       </a>
                     </Button>
                   </motion.div>

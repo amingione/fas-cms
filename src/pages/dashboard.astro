@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-const dashboardScript = '/src/scripts/dashboard-page.ts';
+const dashboardScript = new URL('../scripts/dashboard-page.ts', import.meta.url).toString();
+const accountAuthScript = new URL('../scripts/account-auth.ts', import.meta.url).toString();
 
 // Simple auth guard: if no session or token cookie, redirect to /account
 const cookie = Astro.request.headers.get('cookie') || '';
@@ -10,7 +11,8 @@ const readCookie = (name: string) => {
 };
 const hasSession = Boolean(readCookie('session'));
 const hasToken = Boolean(readCookie('token'));
-if (!hasSession && !hasToken) {
+const isLoggedIn = hasSession || hasToken;
+if (!isLoggedIn) {
   return Astro.redirect('/account');
 }
 ---
@@ -63,6 +65,15 @@ if (!hasSession && !hasToken) {
       </select>
     </div>
 
+    <!-- Auth actions -->
+    <div class="mt-4">
+      {isLoggedIn ? (
+        <a href="/api/auth/logout" class="logout-link inline-flex items-center gap-2 px-3 py-2 rounded bg-white/10 border border-white/15 text-red-400">Logout</a>
+      ) : (
+        <a href="/account" class="inline-flex items-center gap-2 px-3 py-2 rounded bg-white/10 border border-white/15 text-primary">Login</a>
+      )}
+    </div>
+
     <!-- Intro copy -->
     <section class="mb-6 space-y-1">
       <h1 class="text-3xl mr-20 pr-10 font-borg text-primary text-left mb-2">F.a.S.</h1>
@@ -86,7 +97,11 @@ if (!hasSession && !hasToken) {
         <a href="#" data-view="quotes" class="js-view block hover:text-red-500">Quotes <span id="quotes-count" class="ml-2 px-2 py-0.5 text-xs bg-red-600/80 rounded">0</span></a>
         <a href="#" data-view="invoices" class="js-view block hover:text-red-500">Invoices <span id="invoices-count" class="ml-2 px-2 py-0.5 text-xs bg-red-600/80 rounded">0</span></a>
         <a href="#" data-view="appointments" class="js-view block hover:text-red-500">Appointments <span id="appts-count" class="ml-2 px-2 py-0.5 text-xs bg-red-600/80 rounded">0</span></a>
-        <a href="/api/auth/logout" class="logout-link block pt-10 text-red-600 hover:underline mt-4">Logout</a>
+        {isLoggedIn ? (
+          <a href="/api/auth/logout" class="logout-link block pt-10 text-red-600 hover:underline mt-4">Logout</a>
+        ) : (
+          <a href="/account" class="block pt-10 text-primary hover:underline mt-4">Login</a>
+        )}
       </nav>
     </aside>
 
@@ -99,6 +114,7 @@ if (!hasSession && !hasToken) {
     </section>
   </main>
 
+  <script type="module" src={accountAuthScript}></script>
   <script type="module" src={dashboardScript}></script>
   <!-- inlined script moved to src/scripts/dashboard-page.ts -->
 

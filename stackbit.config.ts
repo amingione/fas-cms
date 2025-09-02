@@ -1,9 +1,34 @@
 // stackbit.config.ts
-import { defineStackbitConfig } from '@stackbit/types';
-import type { SiteMapEntry } from '@stackbit/types';
+import { defineStackbitConfig, SiteMapEntry } from '@stackbit/types';
 import fs from 'fs';
 import path from 'path';
 import { GitContentSource } from '@stackbit/cms-git';
+import { SanityContentSource } from '@stackbit/cms-sanity';
+
+// Normalize Sanity env vars to strings to satisfy TS types
+const SANITY_PROJECT_ID: string = (
+  process.env.SANITY_PROJECT_ID ||
+  process.env.PUBLIC_SANITY_PROJECT_ID ||
+  process.env.SANITY_STUDIO_PROJECT_ID ||
+  ''
+);
+const SANITY_DATASET: string = (
+  process.env.SANITY_DATASET ||
+  process.env.PUBLIC_SANITY_DATASET ||
+  process.env.SANITY_STUDIO_DATASET ||
+  'production'
+);
+const SANITY_TOKEN: string = (
+  process.env.SANITY_WRITE_TOKEN ||
+  process.env.SANITY_API_TOKEN ||
+  process.env.VITE_SANITY_API_TOKEN ||
+  ''
+);
+const SANITY_STUDIO_URL: string = (
+  process.env.SANITY_STUDIO_URL ||
+  process.env.SANITY_STUDIO_NETLIFY_BASE ||
+  ''
+);
 
 export default defineStackbitConfig({
   stackbitVersion: '~0.6.0',
@@ -85,7 +110,12 @@ export default defineStackbitConfig({
                 type: 'object',
                 fields: [
                   // For inline content
-                  { name: 'blockType', type: 'string', required: true },
+                  {
+                    name: 'blockType',
+                    type: 'enum',
+                    options: ['Hero', 'RichText', 'Services', 'Products', 'Testimonials', 'IGLA', 'TruckPackagesHero', 'LuxuryFeatures', 'WheelsHero'],
+                    required: true
+                  },
                   { name: 'headline', type: 'string' },
                   { name: 'subtext', type: 'string' },
                   { name: 'imageSrc', type: 'image' },
@@ -98,6 +128,22 @@ export default defineStackbitConfig({
                       { name: 'variant', type: 'string' }
                     ]
                   },
+                  // Secondary CTA support for complex blocks
+                  {
+                    name: 'ctaSecondary',
+                    type: 'object',
+                    fields: [
+                      { name: 'text', type: 'string' },
+                      { name: 'href', type: 'string' },
+                      { name: 'variant', type: 'string' }
+                    ]
+                  },
+                  // Additional headings and badge/kicker lines for hero-style blocks
+                  { name: 'badge', type: 'string' },
+                  { name: 'titleTop', type: 'string' },
+                  { name: 'titleMid', type: 'string' },
+                  { name: 'titleBottom', type: 'string' },
+                  { name: 'kicker', type: 'string' },
                   // Or reference a reusable block by path
                   {
                     name: 'ref',
@@ -110,6 +156,13 @@ export default defineStackbitConfig({
           ]
         }
       ]
+    }),
+    new SanityContentSource({
+      rootPath: __dirname,
+      projectId: SANITY_PROJECT_ID,
+      token: SANITY_TOKEN,
+      dataset: SANITY_DATASET,
+      studioUrl: SANITY_STUDIO_URL
     })
   ],
   siteMap: ({ documents, models }) => {
@@ -119,9 +172,14 @@ export default defineStackbitConfig({
       .filter((d) => pageModelNames.has(d.modelName))
       .map((d) => {
         const doc: any = d as any; // allow access to optional fields without TS errors
-        const slug: string | undefined = doc.fields?.slug ?? doc.slug;
-        const computedUrl: string =
-          doc.urlPath ?? (slug ? (slug === 'index' ? '/' : `/${slug}`) : '/');
+        const rawSlug: any = (doc.fields && doc.fields.slug) ?? (doc as any).slug;
+        const slug: string | undefined =
+          typeof rawSlug === 'string' ? rawSlug : (rawSlug?.current ?? undefined);
+        let computedUrl: string = doc.urlPath ?? (slug ? (slug === 'index' ? '/' : `/${slug}`) : '/');
+        // Route Sanity product docs under /shop/{slug}
+        if ((d as any).srcType === 'sanity' && (d as any).modelName === 'product' && slug) {
+          computedUrl = `/shop/${slug}`;
+        }
 
         const entry: SiteMapEntry = {
           stableId: d.id,

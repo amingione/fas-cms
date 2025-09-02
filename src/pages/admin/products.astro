@@ -28,14 +28,13 @@ try {
 
   <div class="mb-4 flex items-center justify-between">
     <p class="text-white/70 text-sm">Manage products without opening Sanity.</p>
-    <button id="newProductBtn" class="px-4 py-2 rounded bg-white text-black hover:bg-white/90 transition">New Product</button>
   </div>
 
   <ProductTable
     rows={initial}
     refresh={async () => {
       try {
-        const res = await fetch(`${base}/.netlify/functions/products-list`);
+        const res = await fetch('/.netlify/functions/products-list');
         if (res.ok) {
           const j = await res.json();
           return Array.isArray(j) ? j : (j?.data ?? []);

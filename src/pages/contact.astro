@@ -1,8 +1,15 @@
----
 import BaseLayout from '../layouts/BaseLayout.astro';
----
+import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
+import SectionRenderer from '@/components/SectionRenderer.astro';
+
+const pageDoc: any = await getGitPageDoc('contact');
 
 <BaseLayout>
+  <div {...sbObjectId('content/pages/contact.json')}>
+  <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Contact'}</div>
+  {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
+    <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
+  )}
   <section class="min-h-screen bg-black text-white font-captain">
     <!-- Google Map Embed -->
     <div class="w-full h-[400px] grayscale contrast-125 saturate-0">
@@ -81,6 +88,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </div>
     </div>
   </section>
+  </div>
 
-  
 </BaseLayout>

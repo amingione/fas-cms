@@ -1,7 +1,7 @@
 ---
 // src/pages/account/index.astro
 import BaseLayout from "../../layouts/BaseLayout.astro";
-const accountAuthScript = '/src/scripts/account-auth.ts';
+const accountAuthScript = new URL('../../scripts/account-auth.ts', import.meta.url).toString();
 ---
 
 <BaseLayout hideBrandTag={true}>

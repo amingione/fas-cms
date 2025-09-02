@@ -1,6 +1,6 @@
 ---
 // Resolve script through Astro/Vite so it's bundled and path-rewritten
-const panelScript = '/src/scripts/account-dashboard-panel.ts';
+const panelScript = new URL('../scripts/account-dashboard-panel.ts', import.meta.url).toString();
 ---
 
 <div class="fixed top-0 right-0 z-[9998] pointer-events-auto w-72 bg-[#1a1a1a]">

@@ -16,10 +16,11 @@ export default function ProductTable({
   refresh
 }: {
   rows: Row[];
-  refresh: () => void | Promise<void>;
+  refresh: () => Row[] | Promise<Row[]> | void | Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<any>(null);
+  const [data, setData] = useState<Row[]>(Array.isArray(rows) ? rows : []);
 
   useEffect(() => {
     const openNew = () => {
@@ -50,7 +51,28 @@ export default function ProductTable({
     };
   }, []);
 
-  const sorted = useMemo(() => rows.slice().sort((a, b) => a.title.localeCompare(b.title)), [rows]);
+  // Sync external rows
+  useEffect(() => {
+    if (Array.isArray(rows) && rows.length) setData(rows);
+  }, [rows]);
+
+  // Auto-load on mount if no initial data
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        if (!Array.isArray(rows) || rows.length === 0) {
+          const res = await Promise.resolve(refresh() as any);
+          if (mounted && Array.isArray(res)) setData(res);
+        }
+      } catch {}
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const sorted = useMemo(() => data.slice().sort((a, b) => a.title.localeCompare(b.title)), [data]);
 
   return (
     <>
@@ -129,7 +151,8 @@ export default function ProductTable({
         onClose={() => setOpen(false)}
         product={selected || undefined}
         refresh={async () => {
-          await Promise.resolve(refresh());
+          const res = await Promise.resolve(refresh() as any);
+          if (Array.isArray(res)) setData(res);
           setOpen(false);
         }}
       />

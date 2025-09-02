@@ -1,1 +1,11 @@
-{ "type": "Page", "slug": "index", "title": "Home", "sections": [] }
+{
+  "type": "Page",
+  "slug": "index",
+  "title": "Home",
+  "sections": [
+    { "blockType": "Hero", "headline": "Power Up Your Ride", "subtext": "Premium performance upgrades.", "imageSrc": "/images/ram copy.webp", "cta": { "text": "Explore Now", "href": "/shop" } },
+    { "blockType": "Services" },
+    { "blockType": "Products" },
+    { "blockType": "Testimonials" }
+  ]
+}

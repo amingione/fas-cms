@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
+import SectionRenderer from '@/components/SectionRenderer.astro';
 const pageDoc: any = await getGitPageDoc('BilletBearingPlateSpecs');
 import Button from '../components/Button.astro';
 ---
@@ -8,6 +9,9 @@ import Button from '../components/Button.astro';
 <BaseLayout>
   <div {...sbObjectId('content/pages/BilletBearingPlateSpecs.json')}>
   <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Billet Bearing Plate — Spec Sheet'}</div>
+  {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
+    <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
+  )}
   <!-- Hero Section -->
   <section class="parallax-section section-divider section-divider-carbon">
     <div class="background-layer">

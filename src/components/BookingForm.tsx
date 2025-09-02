@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Button from './button.jsx';
 
 const BookingForm = () => {
   const [formData, setFormData] = useState({
@@ -45,7 +46,7 @@ const BookingForm = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-6 bg-zinc-900 border border-white p-6 rounded-lg shadow-md text-white font-cyber"
+      className="relative space-y-6 industrial-card backdrop-blur-sm border border-white/20 p-6 rounded-lg shadow-md border-shadow text-white font-sans"
     >
       <div>
         <label className="block text-sm mb-1">Name</label>
@@ -55,7 +56,7 @@ const BookingForm = () => {
           value={formData.name}
           onChange={handleChange}
           required
-          className="w-full px-4 py-2 bg-black border border-white rounded"
+          className="w-full px-4 py-2 bg-black/20 border border-white/20 rounded-sm"
         />
       </div>
       <div>
@@ -66,7 +67,7 @@ const BookingForm = () => {
           value={formData.email}
           onChange={handleChange}
           required
-          className="w-full px-4 py-2 bg-black border border-white rounded"
+          className="w-full px-4 py-2 bg-black/20 border border-white/20 rounded-sm"
         />
       </div>
       <div>
@@ -76,7 +77,7 @@ const BookingForm = () => {
           name="phone"
           value={formData.phone}
           onChange={handleChange}
-          className="w-full px-4 py-2 bg-black border border-white rounded"
+          className="w-full px-4 py-2 bg-black/20 border border-white/20 rounded-sm"
         />
       </div>
       <div>
@@ -86,12 +87,12 @@ const BookingForm = () => {
           value={formData.service}
           onChange={handleChange}
           required
-          className="w-full px-4 py-2 bg-black border border-white rounded"
+          className="w-full px-4 py-2 bg-black/20 border border-white/20 rounded-sm"
         >
           <option value="">Select a service</option>
-          <option value="consultation">Consultation</option>
-          <option value="power-package">Power Package Install</option>
+          <option value="custom-work">Custom Work</option>
           <option value="diagnostics">Diagnostics</option>
+          <option value="other">Other</option>
         </select>
       </div>
       <div>
@@ -101,7 +102,7 @@ const BookingForm = () => {
           name="datetime"
           value={formData.datetime}
           onChange={handleChange}
-          className="w-full px-4 py-2 bg-black border border-white rounded"
+          className="w-full px-4 py-2 bg-black/20 border border-white/20 rounded-sm"
         />
       </div>
       <div>
@@ -109,17 +110,16 @@ const BookingForm = () => {
         <textarea
           name="message"
           value={formData.message}
+          placeholder="Please tell us about your project..."
           onChange={handleChange}
           rows={4}
-          className="w-full px-4 py-2 bg-black border border-white rounded"
+          className="w-full px-4 py-2 bg-black/20 border border-white/20 rounded-sm"
         />
       </div>
-      <button
-        type="submit"
-        className="w-full py-3 bg-white text-black font-bold rounded hover:bg-gray-200 transition"
-      >
+
+      <Button type="submit" className="w-full" onClick={() => {}} href="#" text="Submit Booking">
         Submit Booking
-      </button>
+      </Button>
       {status && <p className="text-sm text-center mt-2">{status}</p>}
     </form>
   );
