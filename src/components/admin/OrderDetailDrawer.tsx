@@ -102,6 +102,20 @@ export default function OrderDetailDrawer({
             </div>
           </div>
 
+          {/* Payment summary */}
+          <div className="text-sm text-white/80 border border-white/10 rounded-lg p-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-white/60">Payment</div>
+                <div>{(data.cardBrand || '').toUpperCase()} •••• {data.cardLast4 || '—'}</div>
+                <div className="text-white/60">Status: {data.paymentStatus || data.status}</div>
+              </div>
+              {data.receiptUrl ? (
+                <a className="px-3 py-1.5 rounded border border-white/20 hover:bg-white/10" href={data.receiptUrl} target="_blank">Receipt</a>
+              ) : null}
+            </div>
+          </div>
+
           <div className="border border-white/10 rounded-lg overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-white/5">

@@ -1,5 +1,6 @@
 ---
 import Stripe from 'stripe';
+import TrustStrip from '@/components/TrustStrip.astro';
 
 const url = new URL(Astro.request.url);
 const sessionId = url.searchParams.get('session_id');
@@ -9,7 +10,7 @@ let error: string | null = null;
 
 try {
   if (!sessionId) throw new Error('Missing session_id');
-  const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', { apiVersion: '2025-08-27.basil' });
+  const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', { apiVersion: '2024-06-20' });
   session = await stripe.checkout.sessions.retrieve(sessionId);
   const lineItems = await stripe.checkout.sessions.listLineItems(sessionId, { limit: 100 });
   items = lineItems.data || [];
@@ -78,7 +79,10 @@ try {
   )}
 </main>
 
+<div class="max-w-4xl mx-auto px-6">
+  <TrustStrip />
+  </div>
+
 <style>
   .font-ethno { font-family: 'Ethnocentric', sans-serif; }
 </style>
-

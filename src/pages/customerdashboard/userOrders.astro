@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { AuthProvider } from '../../components/AuthProvider.jsx';
 import RequireLogin from '../../components/RequireLogin.jsx';
-const userOrdersScript = new URL('../../scripts/user-orders-page.ts', import.meta.url).toString();
+const userOrdersScript = Astro.resolve('../../scripts/user-orders-page.ts');
 ---
 <AuthProvider client:load>
   <RequireLogin client:load>

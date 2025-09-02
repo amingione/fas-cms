@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-const accountEditScript = new URL('../../scripts/account-edit-page.ts', import.meta.url).toString();
+const accountEditScript = Astro.resolve('../../scripts/account-edit-page.ts');
 ---
 
 <BaseLayout hideBrandTag>

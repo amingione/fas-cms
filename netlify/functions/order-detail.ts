@@ -8,8 +8,21 @@ export const handler: Handler = async (event) => {
     const id = new URLSearchParams(event.rawQuery || '').get('id');
     if (!id) return { statusCode: 400, body: 'Missing id' };
     const q = `*[_type=="order" && _id==$id][0]{
-      _id, orderNumber, status, total, orderDate, customerName, customerEmail, shippingAddress, billingAddress,
-      items[]{ title, sku, qty, price }, shipments[]{ carrier, trackingNumber, labelUrl, createdAt }
+      _id,
+      orderNumber,
+      status,
+      paymentStatus,
+      total,
+      orderDate,
+      customerName,
+      customerEmail,
+      cardBrand,
+      cardLast4,
+      receiptUrl,
+      shippingAddress,
+      billingAddress,
+      items[]{ title, sku, qty, price },
+      shipments[]{ carrier, trackingNumber, labelUrl, createdAt }
     }`;
     const data = await sanity.fetch(q, { id });
     return { statusCode: 200, body: JSON.stringify(data) };

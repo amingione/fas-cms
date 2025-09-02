@@ -1,0 +1,24 @@
+---
+const { compact = false } = Astro.props as { compact?: boolean };
+---
+<section class={`w-full ${compact ? 'py-3' : 'py-5'} bg-black/60 backdrop-blur border-y border-white/10`}>
+  <div class="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 text-white/85 text-xs md:text-sm">
+    <div class="flex items-center gap-2">
+      <svg class="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l9 4v6c0 5-3.8 9.7-9 12-5.2-2.3-9-7-9-12V5l9-4z"/></svg>
+      <span>Secure checkout (Stripe)</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <svg class="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 100 20 10 10 0 100-20zm1 5v6h5v2h-7V7h2z"/></svg>
+      <span>Fast processing</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <svg class="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="currentColor"><path d="M20 8h-3V4H7v4H4l8 8 8-8zM4 18h16v2H4z"/></svg>
+      <span>Performance parts warranty</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <svg class="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12l2-2 4 4L19 4l2 2-12 12z"/></svg>
+      <span>Expert support</span>
+    </div>
+  </div>
+</section>
+
