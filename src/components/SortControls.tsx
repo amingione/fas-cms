@@ -23,7 +23,7 @@ export function SortControls({
   className
 }: SortControlsProps) {
   return (
-    <div className={cn('flex items-center gap-3', className)}>
+    <div className={cn('relative flex items-center gap-3', className)}>
       <div className="relative">
         <select
           value={sortBy}

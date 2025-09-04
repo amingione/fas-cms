@@ -762,7 +762,7 @@
 
 /* Subtle grunge for cards */
 .grunge-subtle {
-  background-image: url('/images/bg-texture.webp');
+  background-image: url('/images/backgrounds/bg-asphalt-overlay.webp');
   background-size: 400px 300px;
   background-repeat: repeat;
   opacity: 0.03;
@@ -1574,9 +1574,11 @@ html {
 
 /* Slimmer, more legible public forms */
 .slim-ui form label { font-weight: 500; letter-spacing: .02em; }
-.slim-ui input,
-.slim-ui select,
-.slim-ui textarea {
+/*
+  Exclude design-system inputs (data-slot="input") from global slim-ui overrides
+  so component-level padding like pl-12/pr-10 in SearchBar can apply.
+*/
+.slim-ui :where(input, select, textarea):not([data-slot='input']):not([type='checkbox']):not([type='radio']):not([type='range']) {
   background-color: rgba(255,255,255,0.04) !important;
   border: 1px solid rgba(255,255,255,0.15) !important;
   border-radius: 10px !important;

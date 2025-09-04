@@ -1,7 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-const dashboardScript = Astro.resolve('../scripts/dashboard-page.ts');
-const accountAuthScript = Astro.resolve('../scripts/account-auth.ts');
+const dashboardScript = '/src/scripts/dashboard-page.ts';
+const accountAuthScript = '/src/scripts/account-auth.ts';
 
 // Simple auth guard: if no session or token cookie, redirect to /account
 const cookie = Astro.request.headers.get('cookie') || '';

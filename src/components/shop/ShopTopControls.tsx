@@ -12,6 +12,7 @@ import {
   SheetTrigger,
   SheetFooter
 } from '@components/ui/sheet';
+import { FilterIcon } from '@components/icons/FilterIcon';
 
 type SortValue = 'featured' | 'name' | 'price-low' | 'price-high';
 type ViewMode = 'grid' | 'list';
@@ -48,7 +49,7 @@ export default function ShopTopControls({
 
     // Prefer input inside the label
     let input = label.querySelector(
-      'input[type="checkbox"], input[type="radio"]'
+      'input[type="radio"], input[type="checkbox"]'
     ) as HTMLInputElement | null;
     // Or adjacent to the label
     if (!input) {
@@ -93,8 +94,8 @@ export default function ShopTopControls({
   const [filters, setFilters] = useState<string[]>(selectedFilters);
   const [vehicles, setVehicles] = useState<string[]>(selectedVehicles || []);
   const [price, setPrice] = useState<{ min: number; max: number }>({
-    min: typeof priceMin === 'number' ? Math.max(0, Math.min(10000, Math.floor(priceMin))) : 0,
-    max: typeof priceMax === 'number' ? Math.max(0, Math.min(10000, Math.floor(priceMax))) : 10000
+    min: typeof priceMin === 'number' ? Math.max(0, Math.min(100000, Math.floor(priceMin))) : 0,
+    max: typeof priceMax === 'number' ? Math.max(0, Math.min(100000, Math.floor(priceMax))) : 100000
   });
 
   // Keep states in sync if URL changes (e.g., back/forward)
@@ -104,7 +105,10 @@ export default function ShopTopControls({
         const url = new URL(window.location.href);
         setSearch(url.searchParams.get('q') || '');
         setSortBy((url.searchParams.get('sort') as SortValue) || 'featured');
-        const cat = url.searchParams.get('categorySlug') || url.searchParams.get('category') || '';
+        const cat =
+          url.searchParams.get('categorySlug') ||
+          url.searchParams.get('category') ||
+          'categorySlug';
         setCategory(cat || 'all');
         const raw = [
           ...url.searchParams.getAll('filter'),
@@ -126,8 +130,8 @@ export default function ShopTopControls({
         );
         const pm = Number(url.searchParams.get('priceMin'));
         const px = Number(url.searchParams.get('priceMax'));
-        const min = Number.isFinite(pm) ? Math.max(0, Math.min(10000, Math.floor(pm))) : 0;
-        const max = Number.isFinite(px) ? Math.max(0, Math.min(10000, Math.floor(px))) : 10000;
+        const min = Number.isFinite(pm) ? Math.max(0, Math.min(100000, Math.floor(pm))) : 0;
+        const max = Number.isFinite(px) ? Math.max(0, Math.min(100000, Math.floor(px))) : 100000;
         setPrice({ min, max });
       } catch {}
     };
@@ -199,7 +203,7 @@ export default function ShopTopControls({
     setCategory('all');
     setFilters([]);
     setVehicles([]);
-    setPrice({ min: 0, max: 10000 });
+    setPrice({ min: 0, max: 100000 });
     setSortBy('featured');
     const params = new URLSearchParams(window.location.search);
     params.delete('q');
@@ -221,25 +225,33 @@ export default function ShopTopControls({
   return (
     <div className="w-full">
       {/* Mobile: search + filters button */}
-      <div className="block md:hidden space-y-3">
+      <div className="block md:hidden w-1/2 space-y-3">
         <SearchBar
           value={search}
           onChange={setSearch}
           onClear={() => setSearch('')}
           onSubmit={() => applyURL({})}
         />
-        <div className="flex items-center justify-between">
+        <div className="flex w-1/2 gap-2 items-center justify-between">
           <Sheet>
             <SheetTrigger asChild>
-              <Button className="btn-glass btn-primary btn-md">Filters</Button>
+              <Button
+                aria-label="Filters"
+                className="h-10 w-10 bg-gray-800/60 hover:bg-gray-700/60 text-white flex items-center justify-center"
+              >
+                <FilterIcon className="w-5 h-5" />
+              </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="bg-black/90 border-gray-700/50 overflow-hidden">
+            <SheetContent
+              side="right"
+              className="backdrop-blur-md bg-black/80 w-2/3 border-gray-700/50 overflow-hidden"
+            >
               <SheetHeader>
-                <SheetTitle className="text-white">Filters</SheetTitle>
+                <SheetTitle className="text-white font-kwajong">Filters</SheetTitle>
               </SheetHeader>
               <div
                 id="mobile-filters-capture"
-                className="p-2 flex-1 overflow-y-auto"
+                className="p-2 w-full flex-auto overflow-y-auto"
                 onClickCapture={handleMobileFilterClick}
               >
                 <FilterPanel
@@ -260,13 +272,13 @@ export default function ShopTopControls({
                     setCategory('all');
                     setFilters([]);
                     setVehicles([]);
-                    setPrice({ min: 0, max: 10000 });
+                    setPrice({ min: 0, max: 100000 });
                   }}
                   showApplyButton={false}
                 />
               </div>
               <SheetFooter>
-                <div className="flex gap-2 w-full">
+                <div className="flex gap-2 w-1/2">
                   <Button
                     variant="outline"
                     className="w-1/2"
@@ -274,7 +286,7 @@ export default function ShopTopControls({
                       setCategory('all');
                       setFilters([]);
                       setVehicles([]);
-                      setPrice({ min: 0, max: 10000 });
+                      setPrice({ min: 0, max: 100000 });
                       applyURL({
                         withFilters: true,
                         withCategory: true,
@@ -308,6 +320,8 @@ export default function ShopTopControls({
             viewMode={viewMode}
             onViewModeChange={setViewMode}
             onClear={clearAll}
+            className="flex-1 min-w-0"
+            compactClear
           />
         </div>
       </div>
