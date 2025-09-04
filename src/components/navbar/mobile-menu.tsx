@@ -62,7 +62,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             </li>
             <li>
               <Link
-                href="/specs/predator-pulley"
+                href="/PredatorPulleySpecsSheet"
                 prefetch={true}
                 onClick={onNavigate}
                 className="text-black hover:text-neutral-500 dark:text-white"
@@ -72,7 +72,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             </li>
             <li>
               <Link
-                href="/specs/hub-and-pulley"
+                href="/HellcatPulleyHubSpecSheet"
                 prefetch={true}
                 onClick={onNavigate}
                 className="text-black hover:text-neutral-500 dark:text-white"
@@ -82,7 +82,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             </li>
             <li>
               <Link
-                href="/specs/billet-bearing-plate"
+                href="/BilletBearingPlateSpecs"
                 prefetch={true}
                 onClick={onNavigate}
                 className="text-black hover:text-neutral-500 dark:text-white"
@@ -113,7 +113,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
           <ul className="mt-2 ml-4 space-y-2 text-lg">
             <li>
               <Link
-                href="/packages/trucks"
+                href="/truckPackages"
                 prefetch={true}
                 onClick={onNavigate}
                 className="text-black hover:text-neutral-500 dark:text-white"
@@ -123,7 +123,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             </li>
             <li>
               <Link
-                href="/packages/power"
+                href="/power-packages"
                 prefetch={true}
                 onClick={onNavigate}
                 className="text-black hover:text-neutral-500 dark:text-white"
@@ -148,7 +148,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
           <ul className="mt-2 ml-4 space-y-2 text-lg">
             <li>
               <Link
-                href="/services/igla-security"
+                href="/igla"
                 prefetch={true}
                 onClick={onNavigate}
                 className="text-black hover:text-neutral-500 dark:text-white"
@@ -158,7 +158,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             </li>
             <li>
               <Link
-                href="/services/porting"
+                href="/porting"
                 prefetch={true}
                 onClick={onNavigate}
                 className="text-black hover:text-neutral-500 dark:text-white"
@@ -168,7 +168,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             </li>
             <li>
               <Link
-                href="/services/custom-fabrication"
+                href="s/customFab"
                 prefetch={true}
                 onClick={onNavigate}
                 className="text-black hover:text-neutral-500 dark:text-white"
@@ -178,7 +178,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             </li>
             <li>
               <Link
-                href="/services/core-exchange"
+                href="/coreExchange"
                 prefetch={true}
                 onClick={onNavigate}
                 className="text-black hover:text-neutral-500 dark:text-white"
@@ -188,7 +188,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             </li>
             <li>
               <Link
-                href="/services/schedule"
+                href="/schedule"
                 prefetch={true}
                 onClick={onNavigate}
                 className="text-black hover:text-neutral-500 dark:text-white"
