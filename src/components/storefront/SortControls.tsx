@@ -12,6 +12,8 @@ interface SortControlsProps {
   onViewModeChange: (mode: ViewMode) => void;
   onClear?: () => void;
   className?: string;
+  // When true, render a compact Clear button on mobile (icon-only)
+  compactClear?: boolean;
 }
 
 export function SortControls({
@@ -20,7 +22,8 @@ export function SortControls({
   viewMode,
   onViewModeChange,
   onClear,
-  className
+  className,
+  compactClear = false
 }: SortControlsProps) {
   return (
     <div className={cn('relative flex items-center gap-3', className)}>
@@ -70,10 +73,15 @@ export function SortControls({
           variant="ghost"
           size="sm"
           onClick={onClear}
-          className="text-graylight hover:text-white font-ethno"
+          className={cn(
+            'text-graylight hover:text-white font-ethno',
+            compactClear && 'h-9 w-9 p-0 sm:w-auto sm:px-3'
+          )}
+          aria-label="Clear"
+          title="Clear"
         >
-          <X className="w-4 h-4 mr-1" />
-          Clear
+          <X className={cn('w-4 h-4', compactClear ? '' : 'mr-1')} />
+          {compactClear ? <span className="hidden sm:inline ml-1">Clear</span> : 'Clear'}
         </Button>
       )}
     </div>

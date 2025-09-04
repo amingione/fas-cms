@@ -27,12 +27,12 @@ export interface Product {
   slug: string;
   price: number;
   image: string;
-  categories: Array<{ _ref?: string; slug?: string; _id?: string }>;
+  images?: Array<{ asset?: { url?: string } } | string>; // Add images property
+  categories: Array<{ _id: string; title: string; slug: { current: string } }>; // Updated to match ProductCard expected type
   featured?: boolean;
   filters?: string[];
 }
 
-// Mock product data for F.A.S. Motorsports (unchanged)
 const mockProducts = [
   {
     _id: '1',
@@ -40,6 +40,7 @@ const mockProducts = [
     slug: 'billet-supercharger-snout-lsa',
     price: 1299.99,
     image: 'images/billet bearing plate.png',
+    images: ['images/billet bearing plate.png'],
     categories: [{ _ref: 'supercharger' }, { _ref: 'lsa' }],
     featured: true,
     filters: []
@@ -50,6 +51,7 @@ const mockProducts = [
     slug: 'performance-pulley-system-2-8l',
     price: 649.99,
     image: 'images/fas pred pully HP{ copy.png',
+    images: ['images/fas pred pully HP{ copy.png'],
     categories: [{ _ref: 'pulleys' }, { _ref: 'boost' }],
     featured: true,
     filters: []
@@ -60,6 +62,7 @@ const mockProducts = [
     slug: 'hellcat-supercharger-kit',
     price: 4999.99,
     image: 'images/jeep trackhawk 900 package.png',
+    images: ['images/jeep trackhawk 900 package.png'],
     categories: [{ _ref: 'kits' }, { _ref: 'hellcat' }],
     featured: true,
     filters: []
@@ -70,6 +73,7 @@ const mockProducts = [
     slug: 'billet-supercharger-lid',
     price: 899.99,
     image: 'images/FAS-Billet-Snout-Front.png',
+    images: ['images/FAS-Billet-Snout-Front.png'],
     categories: [{ _ref: 'supercharger' }, { _ref: 'lsa' }],
     filters: []
   },
@@ -79,6 +83,7 @@ const mockProducts = [
     slug: 'throttle-body-spacer',
     price: 299.99,
     image: 'images/FAS Pulley & Hub Kit.png',
+    images: ['images/FAS Pulley & Hub Kit.png'],
     categories: [{ _ref: 'intake' }, { _ref: 'throttle' }],
     filters: []
   },
@@ -88,6 +93,7 @@ const mockProducts = [
     slug: 'port-polish-service',
     price: 1499.99,
     image: 'images/hpfasog.png',
+    images: ['images/hpfasog.png'],
     categories: [{ _ref: 'services' }, { _ref: 'porting' }],
     filters: []
   },
@@ -97,6 +103,7 @@ const mockProducts = [
     slug: 'racing-pulley-set',
     price: 799.99,
     image: 'images/fas pred pully HP{ copy.png',
+    images: ['images/fas pred pully HP{ copy.png'],
     categories: [{ _ref: 'pulleys' }, { _ref: 'racing' }],
     filters: []
   },
@@ -106,6 +113,7 @@ const mockProducts = [
     slug: 'demon-170-upgrade',
     price: 6999.99,
     image: 'images/painted supercharger whippel pulley copy.png',
+    images: ['images/painted supercharger whippel pulley copy.png'],
     categories: [{ _ref: 'kits' }, { _ref: 'demon' }],
     filters: []
   },
@@ -115,6 +123,7 @@ const mockProducts = [
     slug: 'billet-idler-pulley',
     price: 399.99,
     image: 'images/ported-snoutfas.png',
+    images: ['images/ported-snoutfas.png'],
     categories: [{ _ref: 'pulleys' }, { _ref: 'idler' }],
     filters: []
   },
@@ -124,6 +133,7 @@ const mockProducts = [
     slug: 'supercharger-rebuild',
     price: 2299.99,
     image: 'images/ram copy.webp',
+    images: ['images/ram copy.webp'],
     categories: [{ _ref: 'services' }, { _ref: 'rebuild' }],
     filters: []
   },
@@ -133,6 +143,7 @@ const mockProducts = [
     slug: 'performance-heat-exchanger',
     price: 1899.99,
     image: 'images/THpackage.png',
+    images: ['images/THpackage.png'],
     categories: [{ _ref: 'cooling' }, { _ref: 'heat-exchanger' }],
     filters: []
   },
@@ -142,6 +153,7 @@ const mockProducts = [
     slug: 'billet-drive-hub',
     price: 549.99,
     image: 'images/FAS-Billet-Snout.png',
+    images: ['images/FAS-Billet-Snout.png'],
     categories: [{ _ref: 'supercharger' }, { _ref: 'drive' }],
     filters: []
   }
@@ -339,13 +351,13 @@ export default function Shop({
           <div className="block md:hidden space-y-4">
             {/* Search - Full Width */}
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-graylight" />
+              <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-graylight pointer-events-none z-[1]" />
               <Input
                 type="text"
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 bg-gray-800/50 border-gray-600/50 text-white placeholder-graylight focus:border-primary focus:ring-primary/20 font-kwajong h-12 text-base"
+                className="pl-12 pr-10 bg-gray-800/50 border-gray-600/50 text-white placeholder-graylight focus:border-primary focus:ring-primary/20 font-kwajong h-12 text-base"
               />
             </div>
 
@@ -432,13 +444,13 @@ export default function Shop({
           <div className="hidden md:flex flex-col lg:flex-row gap-6 items-center">
             {/* Search */}
             <div className="flex-1 relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-graylight" />
+              <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-graylight pointer-events-none z-[1]" />
               <Input
                 type="text"
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 bg-gray-800/50 border-gray-600/50 text-white placeholder-graylight focus:border-primary focus:ring-primary/20 font-kwajong"
+                className="pl-12 pr-10 bg-gray-800/50 border-gray-600/50 text-white placeholder-graylight focus:border-primary focus:ring-primary/20 font-kwajong"
               />
             </div>
 
@@ -569,7 +581,28 @@ export default function Shop({
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 1.6 + index * 0.1, duration: 0.4 }}
             >
-              <ProductCard product={product} />
+              <ProductCard
+                product={{
+                  ...product,
+                  slug: typeof product.slug === 'string' ? { current: product.slug } : product.slug,
+                  images: (product.images || []).map((img) =>
+                    typeof img === 'string'
+                      ? { asset: { url: img, _id: '' }, alt: '' }
+                      : {
+                          asset: {
+                            url: img?.asset?.url || '',
+                            _id: ''
+                          },
+                          alt: ''
+                        }
+                  ),
+                  categories: (product.categories || []).map((cat: any, idx: number) => ({
+                    _id: cat._id || cat._ref || `cat-${idx}`,
+                    title: cat.title || cat._ref || cat.slug || `Category ${idx + 1}`,
+                    slug: { current: cat.slug?.current || cat.slug || cat._ref || cat._id || '' }
+                  }))
+                }}
+              />
             </motion.div>
           ))}
         </motion.div>

@@ -1,13 +1,13 @@
 --- 
 import BaseLayout from '@layouts/BaseLayout.astro';
-import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
-import ProductCard from '@components/ProductCard';
-import SectionRenderer from '@/components/SectionRenderer.astro';
 import ShopTopControls from '@components/shop/ShopTopControls';
-import ShopSidebarFilters from '@components/shop/ShopSidebarFilters';
+import ShopSidebarFilters from '@/components/storefront/ShopSidebarFilters';
 import { fetchProductsFromSanity, fetchCategories } from '@lib/sanity-utils';
-import type { Product, Category, } from '@lib/sanity-utils';
-
+import type { Product, Category } from '@lib/sanity-utils';
+import ProductGrid from '@/components/storefront/ProductGrid.astro';
+import FilterPanelMobile from '@/components/storefront/FilterPanelMobile.tsx';
+import Pagination from '@/components/storefront/Pagination.astro';
+import Breadcrumbs from '@/components/storefront/Breadcrumbs.astro';
 
 export const prerender = false;
 
@@ -18,7 +18,6 @@ const currentCategory = url.searchParams.get("categorySlug") || url.searchParams
 const start = (currentPage - 1) * PAGE_SIZE;
 const end = start + PAGE_SIZE;
 const sortParam = (url.searchParams.get('sort') || 'featured').toLowerCase();
-const pageDoc: any = await getGitPageDoc('shop');
 
 // Selected filter tags can come from ?filter=a&filter=b or ?filters=a,b
 const rawFilters = [
@@ -28,44 +27,20 @@ const rawFilters = [
   .map((s) => s.trim().toLowerCase())
   .filter(Boolean);
 const selectedFilters: string[] = Array.from(new Set(rawFilters));
-// Parse price range and vehicles from query params
-const priceMinParam = Number(url.searchParams.get('priceMin'));
-const priceMaxParam = Number(url.searchParams.get('priceMax'));
-const priceMin = Number.isFinite(priceMinParam) ? Math.max(0, Math.min(10000, Math.floor(priceMinParam))) : 0;
-const priceMax = Number.isFinite(priceMaxParam) ? Math.max(0, Math.min(10000, Math.floor(priceMaxParam))) : 10000;
-
-const vehiclesParam = url.searchParams.get('vehicles');
-const selectedVehicles: string[] = (vehiclesParam ? vehiclesParam.split(',') : [])
-  .map((s) => s.trim().toLowerCase())
-  .filter(Boolean);
 
 let allProducts: Product[] = [];
 let categories: Category[] = [];
-
-let availableVehicles: string[] = [];
 
 try {
   allProducts = await fetchProductsFromSanity({
     categorySlug: currentCategory || undefined,
   });
   categories = await fetchCategories();
-
-  // Build available vehicle compatibility options from Sanity references
-  availableVehicles = Array.from(new Set(
-    allProducts.flatMap((p: any) =>
-      Array.isArray(p?.compatibleVehicles)
-        ? p.compatibleVehicles
-            .map((v: any) => String((v?.slug?.current || v?.title || '')).toLowerCase().trim())
-            .filter(Boolean)
-        : []
-    )
-  )).sort();
 } catch (err) {
   console.error("🔥 Sanity Fetch Failed:", err);
 }
 
-// Surface the active category label for mobile dropdown tab
-const currentCategoryLabel = (currentCategory && categories.find((c) => c?.slug?.current === currentCategory)?.title) || 'All';
+const currentCategoryTitle = (currentCategory && categories.find((c:any) => c?.slug?.current === currentCategory)?.title) || 'All';
 
 // Build the available filters (category-aware)
 const uniqueFilters: string[] = Array.from(
@@ -75,46 +50,34 @@ const uniqueFilters: string[] = Array.from(
 ).sort();
 
 // Apply selected filters (match-any). If none selected, keep all.
-let filteredProducts: Product[] = selectedFilters.length
+const filteredProducts: Product[] = selectedFilters.length
   ? allProducts.filter((p) => Array.isArray((p as any).filters) && (p as any).filters.some((f: any) => selectedFilters.includes(String(f).toLowerCase())))
-  : allProducts.slice();
+  : allProducts;
 
-// Price filter (inclusive). Products without a numeric price are kept.
-filteredProducts = filteredProducts.filter((p: any) => {
-  const price = Number(p?.price);
-  if (!Number.isFinite(price)) return true;
-  return price >= priceMin && price <= priceMax;
-});
-
-// Vehicles filter (match-any against p.vehicles OR fallback to p.filters)
-if (selectedVehicles.length > 0) {
-  filteredProducts = filteredProducts.filter((p: any) => {
-    const vehs: string[] = Array.isArray(p?.compatibleVehicles)
-      ? p.compatibleVehicles
-          .map((v: any) => String((v?.slug?.current || v?.title || '')).toLowerCase().trim())
-          .filter(Boolean)
-      : [];
-    const filts: string[] = Array.isArray(p?.filters) ? p.filters.map((v: any) => String(v).toLowerCase()) : [];
-    const haystack = new Set([...vehs, ...filts]);
-    return selectedVehicles.some((v) => haystack.has(v));
-  });
-}
-
-// Apply sorting
-const sortedProducts: Product[] = (() => {
-  const copy = filteredProducts.slice();
+// Apply sorting before pagination
+let sortedProducts: Product[] = [...filteredProducts];
+try {
   switch (sortParam) {
     case 'price-low':
-      return copy.sort((a: any, b: any) => (Number(a?.price) || 0) - (Number(b?.price) || 0));
+      sortedProducts.sort((a: any, b: any) => (Number(a?.price) || 0) - (Number(b?.price) || 0));
+      break;
     case 'price-high':
-      return copy.sort((a: any, b: any) => (Number(b?.price) || 0) - (Number(a?.price) || 0));
+      sortedProducts.sort((a: any, b: any) => (Number(b?.price) || 0) - (Number(a?.price) || 0));
+      break;
     case 'name':
-      return copy.sort((a: any, b: any) => String(a?.title || '').localeCompare(String(b?.title || '')));
+      sortedProducts.sort((a: any, b: any) => String(a?.title || '').localeCompare(String(b?.title || '')));
+      break;
     case 'featured':
     default:
-      return copy.sort((a: any, b: any) => (b?.featured === true ? 1 : 0) - (a?.featured === true ? 1 : 0));
+      sortedProducts.sort((a: any, b: any) => {
+        const fa = Boolean((a as any)?.featured);
+        const fb = Boolean((b as any)?.featured);
+        if (fa && !fb) return -1;
+        if (!fa && fb) return 1;
+        return 0;
+      });
   }
-})();
+} catch {}
 
 const totalCount = sortedProducts.length;
 const totalPages = Math.ceil(totalCount / PAGE_SIZE);
@@ -138,28 +101,31 @@ if (endPage < totalPages) {
 ---
 
 <BaseLayout>
-  <div {...sbObjectId('content/pages/shop.json')}>
-  <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Shop'}</div>
-  {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
-    <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
-  )}
   <section class="max-w-7xl mx-auto px-4 md:px-6 mt-11 pt-10">
-    <div class="mb-4">
-      <ShopTopControls
-        client:load
-        categories={categories}
-        availableFilters={uniqueFilters}
-        currentCategory={currentCategory}
-        selectedFilters={selectedFilters}
-        priceMin={priceMin}
-        priceMax={priceMax}
-        selectedVehicles={selectedVehicles}
-        availableVehicles={availableVehicles}
-      />
+    <div class="mb-6 space-y-3">
+      <Breadcrumbs items={[{ href: '/', label: 'Home' }, { href: '/shop', label: 'Shop' }, ...(currentCategory ? [{ label: currentCategoryTitle }] : [])]} />
+      <div class="hidden md:block">
+        <ShopTopControls
+          client:load
+          categories={categories}
+          availableFilters={uniqueFilters}
+          currentCategory={currentCategory}
+          selectedFilters={selectedFilters}
+        />
+      </div>
+      <div class="md:hidden">
+        <FilterPanelMobile
+          client:load
+          categories={categories}
+          filters={uniqueFilters}
+          selectedCategory={currentCategory}
+          selectedFilters={selectedFilters}
+        />
+      </div>
     </div>
 
     <div class="flex flex-col md:flex-row gap-0 pt-8">
-      <aside class="w-full md:w-1/4 md:block hidden mr-10 pr-10">
+      <aside class="w-full md:w-1/4 hidden md:block pr-4">
         <ShopSidebarFilters
           client:load
           categories={categories}
@@ -169,86 +135,28 @@ if (endPage < totalPages) {
         />
       </aside>
 
-      <div class="w-full md:w-3/4">
-        <div id="product-grid" class="relative isolation-isolate z-0 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 ml-2 mx-1 gap-2 md:gap-2 pt-4">
-          {products.length > 0 ? (
-            products.map(product => (
-              <ProductCard client:load product={product} productImage={product.images?.[0]} />
-            ))
-          ) : (
-            <p>No products found.</p>
-          )}
-        </div>
+      <div class="justify-between w-full md:w-3/4">
+        <ProductGrid products={products} view={(url.searchParams.get('view') || 'grid') as 'grid' | 'list'} />
       </div>
     </div>
 
-    <div id="pagination" class="flex justify-center mt-12 gap-2">
-      {paginationLinks.map(({ label, page }) => {
-        const isActive = page === currentPage;
-        return (
-          <a
-            href={`/shop?${(() => {
-              const params = new URLSearchParams(url.searchParams);
-              params.set('page', page.toString());
-              return params.toString();
-            })()}`}
-            class={`px-3 h-9 inline-flex items-center justify-center rounded-fx-md border border-fx transition duration-200 text-sm font-bold ${
-              isActive ? ' text-black bg-primary/40 backdrop-blur-sm shadow-fx-xs' : 'bg-fx-surface-2 text-white hover:bg-primary/90 hover:text-black'
-            }`}
-          >
-            {label}
-          </a>
-        );
-      })}
-    </div>
+    <Pagination currentPage={currentPage} totalPages={Math.max(1, totalPages)} />
   </section>
 
   
-  
+  <!-- Client components handle filter interactions and URL updates -->
 
   <style>
     #pagination a:hover {
-      color: grey !important;
+      color: white !important;
     }
 
     /* Explicitly set text color to white on hover for category links */
     #category-sidebar a:hover {
-      color: #d8d8d8 !important;
+      color: #ffffff !important;
     }
 
-    @media (max-width: 800px) {
-      #category-sidebar {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 1rem;
-      }
-    }
-
-    /* Make radios/checkboxes visually responsive and ensure clicks are not blocked */
-    input[type="checkbox"], input[type="radio"] {
-      accent-color: var(--fx-primary, #fb3636);
-    }
-    #filters-sm label:focus-within, #filters-md label:focus-within,
-    #category-sidebar label:focus-within {
-    }
-    details > summary { cursor: pointer; }
-    /* Ensure panels can receive clicks even if a header scrim overlaps */
-    #category-sidebar, #filters-sm, #filters-md {
-      position: relative;
-      z-index: 10;
-      pointer-events: auto;
-    }
-
-    /* Ensure mobile categories can be tapped and are above any scrims */
-    #mobile-filters-wrap { position: relative; z-index: 20; }
-    #mobile-filters-wrap *, #mobile-filters-wrap details, #mobile-filters-wrap summary { pointer-events: auto; }
-
-    /* Mobile dropdown popover safety */
-    #mobile-filters-wrap .rounded-2xl { overflow: visible; }
-    @media (max-width: 480px) {
-      #mobile-cats > div, #mobile-filts > div { max-width: calc(100vw - 2rem); }
-    }
+    /* Remove legacy mobile flex that forced side-by-side groups inside the sheet */
   </style>
   <script is:inline>
     (function () {
@@ -278,9 +186,9 @@ if (endPage < totalPages) {
       try { window.showToast = showToast; } catch {}
 
       // If the product cards dispatch a cart event, echo a toast here too
-      window.addEventListener('cart:updated', (ev) => {
+      window.addEventListener('cartUpdated', (ev) => {
         try {
-          const cart = (ev && ev.detail && ev.detail.cart) || [];
+          const cart = (ev && ev.detail) || [];
           const last = Array.isArray(cart) ? cart[cart.length - 1] : null;
           const name = last && last.name ? last.name : 'Item';
           showToast(`${name} added to cart`);
@@ -288,5 +196,4 @@ if (endPage < totalPages) {
       });
     })();
   </script>
-  </div>
 </BaseLayout>

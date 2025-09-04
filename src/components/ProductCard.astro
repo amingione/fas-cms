@@ -1,5 +1,5 @@
 ---
-const { productImage, product } = Astro.props;
+const { productImage, product, layout = 'grid' } = Astro.props as any;
 const productPrice =
   typeof product.price === "number"
     ? `$${parseFloat(product.price).toFixed(2)}`
@@ -8,27 +8,31 @@ const productPrice =
 const imageUrl = productImage?.asset?.url || '/placeholder.png';
 ---
 
-<div class="relative z-0 text-white bg-black/40 rounded-[10px] shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.5)] overflow-hidden transform transition-all duration-500 group font-sans block">
+<div class={`relative z-0 text-white backdrop-blur-md bg-black/80 rounded-[10px] border border-white/20 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.5)] overflow-hidden transform transition-all duration-500 group font-sans ${layout === 'list' ? 'md:flex md:items-stretch' : 'block'}`}>
   <a
     href={`/shop/${encodeURIComponent(typeof product.slug === 'string' ? product.slug : product.slug.current || '')}`}
-    class="block"
+    class={`${layout === 'list' ? 'md:flex md:flex-row md:items-stretch w-full' : 'block'}`}
   >
-    <div class="p-4 h-52 sm:h-64 flex justify-center items-center overflow-hidden">
+    <div class={`flex justify-center items-center overflow-hidden ${layout === 'list' ? 'md:w-56 md:min-w-56 md:max-w-56 p-3' : 'p-4 h-52 sm:h-64'}`}>
       <img
         src={imageUrl}
         alt={product.title}
         class="w-full h-full object-contain transition-transform duration-300 ease-in-out group-hover:scale-105 group-hover:-rotate-1"
       />
     </div>
-    <div class="p-4 space-y-2 text-center">
-      <div class="mt-4 px-4 text-left">
-        <h2 class="text-sm sm:text-sm font-ethno font-semibold text-white">{product.title}</h2>
+    <div class={`${layout === 'list' ? 'flex-1 p-4 text-left' : 'p-4 space-y-2 text-center'}`}>
+      <div class={`${layout === 'list' ? '' : 'mt-4 px-4'} text-left`}>
+        <h2 class="text-sm sm:text-base font-ethno font-semibold text-white">{product.title}</h2>
       </div>
+      {layout === 'list' && (
+        <p class="mt-2 text-xs sm:text-sm text-white/70 line-clamp-2">
+        </p>
+      )}
     </div>
   </a>
-  <div class="px-4 pb-4 text-left">
+  <div class={`${layout === 'list' ? 'md:px-4 md:py-3 md:border-t-0 md:border-l md:border-white/10 md:flex md:items-center md:justify-between' : 'px-4 pb-4'} text-left`}>
     <div class="flex justify-between items-center mt-2">
-      <p class="text-3xl font-captain text-accent">{productPrice}</p>
+      <p class={`${layout === 'list' ? 'text-2xl md:text-xl' : 'text-3xl'} font-captain text-accent`}>{productPrice}</p>
       {product._id && (
         <button
           class="add-to-cart p-2 text-primary hover:text-white hover:bg-primary transition rounded-full"

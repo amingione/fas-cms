@@ -1,0 +1,74 @@
+---
+/**
+ * Pagination.astro — FAS theme
+ *
+ * Preserves existing query params (categorySlug, filters, q, sort, vehicles, priceMin/Max, etc.)
+ * and only updates the `page` param.
+ *
+ * Props:
+ *  - currentPage: number (1-based)
+ *  - totalPages: number (>=1)
+ *  - pageParam?: string (default 'page')
+ *  - maxVisible?: number (default 5) — numbered links shown at once
+ */
+interface Props {
+  currentPage: number;
+  totalPages: number;
+  pageParam?: string;
+  maxVisible?: number;
+  size?: 'default' | 'compact';
+}
+const {
+  currentPage = 1,
+  totalPages = 1,
+  pageParam = 'page',
+  maxVisible = 5,
+  size = 'default'
+} = Astro.props as Props;
+
+const url = new URL(Astro.request.url);
+
+function hrefFor(page: number) {
+  const params = new URLSearchParams(url.searchParams);
+  params.set(pageParam, String(page));
+  return `${url.pathname}?${params.toString()}`;
+}
+
+const safeCurrent = Math.max(1, Math.min(currentPage, totalPages));
+const show = Math.max(1, Math.min(maxVisible, 9));
+const group = Math.floor((safeCurrent - 1) / show);
+const start = group * show + 1;
+const end = Math.min(start + show - 1, totalPages);
+
+const items: Array<{ label: string; page: number; kind: 'num' | 'prev' | 'next' }>= [];
+if (safeCurrent > 1) items.push({ label: '←', page: safeCurrent - 1, kind: 'prev' });
+for (let p = start; p <= end; p++) items.push({ label: String(p), page: p, kind: 'num' });
+if (safeCurrent < totalPages) items.push({ label: '→', page: safeCurrent + 1, kind: 'next' });
+
+const gapCls = size === 'compact' ? 'gap-1.5' : 'gap-2';
+const common = size === 'compact'
+  ? 'px-2 h-8 inline-flex items-center justify-center rounded-full border border-white/20 bg-white/10 backdrop-blur-md transition duration-200 text-xs font-semibold'
+  : 'px-3 h-9 inline-flex items-center justify-center rounded-fx-md border border-white/20 bg-white/10 backdrop-blur-md transition duration-200 text-sm font-bold';
+const activeCls = 'text-white btn-glass bg-primary/40 backdrop-blur-sm shadow-fx-xs border-white/20';
+const idleCls = 'bg-fx-surface-2 backdrop-blur-lg rounded-full text-white/90 hover:bg-primary/90 hover:text-white/30  hover:border-white/10';
+---
+{totalPages > 1 && (
+  <nav class="flex justify-center mt-10" aria-label="Pagination">
+    <ul class={`inline-flex items-center ${gapCls}`}>
+      {items.map(({ label, page, kind }) => {
+        const isActive = page === safeCurrent && kind === 'num';
+        return (
+          <li>
+            <a
+              href={hrefFor(page)}
+              aria-current={isActive ? 'page' : undefined}
+              class={`${common} ${isActive ? activeCls : idleCls}`}
+            >
+              {label}
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  </nav>
+)}

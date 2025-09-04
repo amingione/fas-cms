@@ -1,6 +1,6 @@
 ---
-// Resolve script through Astro so it's bundled and path-rewritten
-const panelScript = '/scripts/account-dashboard-panel.ts';
+// Use Vite root absolute path so dev/build can resolve and bundle
+const panelScript = '/src/scripts/account-dashboard-panel.ts';
 ---
 
 <div class="fixed top-0 right-0 z-[9998] pointer-events-auto w-72 bg-[#1a1a1a]">

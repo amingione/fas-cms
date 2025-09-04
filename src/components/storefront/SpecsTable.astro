@@ -1,0 +1,33 @@
+---
+/**
+ * SpecsTable.astro — FAS theme
+ *
+ * Props:
+ *  - specs: Array<{ key: string; value: string }>
+ */
+interface Spec {
+  key: string;
+  value: string;
+}
+const { specs = [] } = Astro.props as { specs: Spec[] };
+---
+
+{specs.length > 0 && (
+  <div class="mt-6">
+    <div class="mb-2 text-sm uppercase tracking-wide fas-label text-muted-foreground">
+      Specifications
+    </div>
+    <div class="overflow-hidden rounded-lg border border-white/10">
+      <table class="w-full text-sm">
+        <tbody>
+          {specs.map((row) => (
+            <tr class="odd:bg-white/5 even:bg-transparent">
+              <td class="px-3 py-2 text-white/70 w-1/2">{row.key}</td>
+              <td class="px-3 py-2 text-white">{row.value}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+)}

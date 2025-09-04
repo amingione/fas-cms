@@ -156,6 +156,7 @@ export function About() {
                 className="group bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-lg shadow-green-500/25 px-6 md:px-8 py-3 md:py-4 text-sm md:text-base font-bold metallic-btn font-ethno w-full md:w-auto"
                 href="/about"
                 text="OUR STORY"
+                onClick={() => {}}
               >
                 OUR STORY
                 <motion.div

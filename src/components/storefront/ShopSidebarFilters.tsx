@@ -20,7 +20,7 @@ export default function ShopSidebarFilters({
   currentCategory = '',
   selectedFilters = [],
   priceMin = 0,
-  priceMax = 10000,
+  priceMax = 100000,
   selectedVehicles = [],
   availableVehicles = []
 }: ShopSidebarFiltersProps) {
@@ -28,8 +28,8 @@ export default function ShopSidebarFilters({
   const [filters, setFilters] = useState<string[]>(selectedFilters);
   const [vehicles, setVehicles] = useState<string[]>(selectedVehicles || []);
   const [price, setPrice] = useState<{ min: number; max: number }>({
-    min: typeof priceMin === 'number' ? Math.max(0, Math.min(10000, Math.floor(priceMin))) : 0,
-    max: typeof priceMax === 'number' ? Math.max(0, Math.min(10000, Math.floor(priceMax))) : 10000
+    min: typeof priceMin === 'number' ? Math.max(0, Math.min(100000, Math.floor(priceMin))) : 0,
+    max: typeof priceMax === 'number' ? Math.max(0, Math.min(100000, Math.floor(priceMax))) : 100000
   });
 
   const handleSidebarClick: React.MouseEventHandler<HTMLDivElement> = (ev) => {
@@ -83,7 +83,7 @@ export default function ShopSidebarFilters({
   };
 
   return (
-    <div onClickCapture={handleSidebarClick}>
+    <div onClickCapture={handleSidebarClick} className="space-y-3">
       <FilterPanel
         categories={categories}
         selectedCategory={category}
@@ -102,7 +102,7 @@ export default function ShopSidebarFilters({
           setCategory('all');
           setFilters([]);
           setVehicles([]);
-          setPrice({ min: 0, max: 10000 });
+          setPrice({ min: 0, max: 100000 });
         }}
         showApplyButton={false}
       />

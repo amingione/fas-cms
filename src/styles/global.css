@@ -445,7 +445,19 @@
     color: var(--foreground);
     -webkit-tap-highlight-color: rgba(234, 29, 38, 0.2);
     touch-action: manipulation;
-    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, 'American Captain', sans-serif;
+    font-family:
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      Segoe UI,
+      Roboto,
+      Ubuntu,
+      Cantarell,
+      Noto Sans,
+      Helvetica Neue,
+      Arial,
+      'American Captain',
+      sans-serif;
     line-height: 1.6;
   }
 }
@@ -707,7 +719,7 @@
 /* Industrial Grunge Background Texture - Mobile Optimized */
 .asphalt-texture {
   background-image:
-    url('/images/bg-texture.webp'),
+    url('/images/backgrounds/bg-asphalt-overlay.png'),
     radial-gradient(circle at 20% 80%, rgba(234, 29, 38, 0.08) 0%, transparent 50%),
     radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
     radial-gradient(circle at 40% 40%, rgba(168, 85, 247, 0.04) 0%, transparent 50%);
@@ -1563,24 +1575,49 @@ html {
 }
 
 /* Slim UI option — apply class="slim-ui" on body to tighten spacing */
-.slim-ui .p-8 { padding: 1.5rem; }
-.slim-ui .p-6 { padding: 1.25rem; }
-.slim-ui .py-16 { padding-top: 3rem; padding-bottom: 3rem; }
-.slim-ui .mt-10 { margin-top: 1.75rem; }
-.slim-ui .mb-10 { margin-bottom: 1.75rem; }
-.slim-ui .border { border-width: 1px; }
-.slim-ui table th, .slim-ui table td { padding: 0.5rem 0.625rem; }
-.slim-ui .rounded-xl, .slim-ui .rounded-lg { border-radius: calc(var(--radius) - 2px); }
+.slim-ui .p-8 {
+  padding: 1.5rem;
+}
+.slim-ui .p-6 {
+  padding: 1.25rem;
+}
+.slim-ui .py-16 {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+.slim-ui .mt-10 {
+  margin-top: 1.75rem;
+}
+.slim-ui .mb-10 {
+  margin-bottom: 1.75rem;
+}
+.slim-ui .border {
+  border-width: 1px;
+}
+.slim-ui table th,
+.slim-ui table td {
+  padding: 0.5rem 0.625rem;
+}
+.slim-ui .rounded-xl,
+.slim-ui .rounded-lg {
+  border-radius: calc(var(--radius) - 2px);
+}
 
 /* Slimmer, more legible public forms */
-.slim-ui form label { font-weight: 500; letter-spacing: .02em; }
+.slim-ui form label {
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
 /*
   Exclude design-system inputs (data-slot="input") from global slim-ui overrides
   so component-level padding like pl-12/pr-10 in SearchBar can apply.
 */
-.slim-ui :where(input, select, textarea):not([data-slot='input']):not([type='checkbox']):not([type='radio']):not([type='range']) {
-  background-color: rgba(255,255,255,0.04) !important;
-  border: 1px solid rgba(255,255,255,0.15) !important;
+.slim-ui
+  :where(input, select, textarea):not([data-slot='input']):not([type='checkbox']):not(
+    [type='radio']
+  ):not([type='range']) {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
   border-radius: 10px !important;
   padding: 9px 12px !important;
   font-weight: 400 !important;
@@ -1863,7 +1900,7 @@ html {
   left: 0;
   width: 100%;
   height: 100%;
-  background: url('/images/bg-texture.webp') no-repeat center/cover; /* Editable: Change background image */
+  background: url('/images/backgrounds/bg-hex-overlay.png') no-repeat center/cover; /* Editable: Change background image */
   z-index: 0;
   transform: translateY(0);
 }
@@ -2015,7 +2052,7 @@ html {
 }
 
 .features-bg {
-  background: url('/images/about page background FAS copy.png') no-repeat center/cover; /* Editable: Change image */
+  background: url('/images/backgrounds/bg-spiral-overlay.png') no-repeat center/cover; /* Editable: Change image */
 }
 
 .feature-grid {

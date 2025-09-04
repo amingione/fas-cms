@@ -1,6 +1,7 @@
 ---
 import AccountDashboard from './accountdashboard.astro';
-import HeaderAuth from '@/components/HeaderAuth.tsx';
+import MobileMenu from '@components/navbar/mobile-menu';
+import CartEntry from '@/components/cart/CartEntry.tsx';
 ---
 
 <header class="bg-black/80 shadow-xl shadow-outline text-white w-full pt-[40px]">
@@ -11,16 +12,17 @@ import HeaderAuth from '@/components/HeaderAuth.tsx';
     
     <!-- Left links -->
     <div class="flex items-center gap-0">
-      <a href="/about" class="hover:!text-black hover:underline">About</a>
-      <span class="text-white/50">|</span>
       <a href="/contact" class="hover:!text-black hover:underline">Contact</a>
-      <span class="text-white/50">|</span>
-      <a href="/faq" class="hover:!text-black hover:underline">FAQ</a>
     </div>
 
-    <!-- ✅ Right side: account badge -->
+    <!-- ✅ Right side: account/profile icon (opens account dashboard) -->
     <div id="account-top-badge" class="flex items-center gap-4">
-      <!-- Auth0 script will replace this with login/signup or greeting -->
+      <button id="accountDashboardToggleTop" aria-label="Open account dashboard" class="p-1.5 rounded-full hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5z" />
+          <path d="M3 22c0-3.866 3.582-7 9-7s9 3.134 9 7" />
+        </svg>
+      </button>
     </div>
 
   </div>
@@ -66,36 +68,16 @@ import HeaderAuth from '@/components/HeaderAuth.tsx';
 
 <!-- Drawer + Scrim -->
 <div id="mnavScrim" aria-hidden="true" class="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[59] hidden opacity-0 transition-opacity duration-300 pointer-events-none"></div>
+<!-- Desktop Scrim -->
+<div id="desktopScrim" aria-hidden="true" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[150] opacity-0 transition-opacity duration-300 pointer-events-none md:block"></div>
 <aside id="mnavDrawer" class="md:hidden fixed top-0 left-0 h-full w-[84%] max-w-[360px] bg-[#0b0b0c]/95 border-r border-white/10 z-[60] -translate-x-full transition-transform duration-300 ease-out overflow-y-auto will-change-transform">
   <div class="pt-[104px] pb-8 px-4">
-    <!-- Pages (match desktop) -->
-    <nav class="space-y-1 text-white">
-      <a href="/" class="block px-3 py-3 rounded-lg hover:bg-white/10 font-ethno">Home</a>
-      <a href="/shop" class="block px-3 py-3 rounded-lg hover:bg-white/10 font-ethno">Shop</a>
-      <a href="/about" class="block px-3 py-3 rounded-lg hover:bg-white/10 font-ethno">About</a>
-      <a href="/account" class="block px-3 py-3 rounded-lg hover:bg-white/10 font-ethno">Account</a>
-      <a href="/contact" class="block px-3 py-3 rounded-lg hover:bg-white/10 font-ethno">Contact</a>
-      <a href="/faq" class="block px-3 py-3 rounded-lg hover:bg-white/10 font-ethno">FAQ</a>
-    </nav>
-
-    <div class="my-5 border-t border-white/10"></div>
-
-    <!-- Categories (match desktop dropdowns) -->
-    <div>
-      <div class="px-3 py-2 text-xs tracking-wide uppercase text-white/60 font-ethno">Categories</div>
-      <nav id="mobileMenuCategories" class="space-y-1 text-white">
-        <a href="/igla" class="block px-3 py-3 rounded-lg hover:bg-white/10 font-ethno">IGLA</a>
-        <a href="/porting" class="block px-3 py-3 rounded-lg hover:bg-white/10 font-ethno">Porting</a>
-        <a href="/services" class="block px-3 py-3 rounded-lg hover:bg-white/10 font-ethno">Services</a>
-        <a href="/power-packages" class="block px-3 py-3 rounded-lg hover:bg-white/10 font-ethno">Power Packages</a>
-        <a href="/schedule" class="block px-3 py-3 rounded-lg hover:bg-white/10 font-ethno">Schedule Install</a>
-      </nav>
-    </div>
+    <MobileMenu mode="inline" client:load />
   </div>
 </aside>
 
   <!-- ✅ Main Desktop Header -->
-  <div class="hidden md:block bg-transparent font-ethno-italic text-white px-6 pt-4 w-full z-40 relative">
+  <div class="hidden md:block bg-transparent font-ethno-italic text-white px-6 pt-4 w-full z-[700] relative pointer-events-auto">
     <div class="grid grid-cols-3 items-center h-16 w-full px-10">
       <div class="flex justify-start items-center gap-3 px-4">
         <div class="relative" id="mainHeaderSearch">
@@ -109,13 +91,9 @@ import HeaderAuth from '@/components/HeaderAuth.tsx';
         <img src="/images/faslogochroma.png" alt="FAS Chrome Logo" class="h-16 transform scale-[2]" />
       </div>
       <div class="flex justify-end items-center">
-        <!-- Account Dashboard Toggle -->
-        <button id="accountDashboardToggle" aria-label="Toggle Account Dashboard" class="text-white ml-4">
-          <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
-        <div id="accountDashboardPanel" class="hidden fixed top-0 right-0 h-full w-[220px] bg-[#1a1a1a] transform translate-x-full transition-transform duration-300 ease-in-out z-50 shadow-lg border-l border-white/10 slide-in">
+        <!-- Cart Modal Trigger (desktop) -->
+        <CartEntry client:load />
+        <div id="accountDashboardPanel" class="hidden fixed top-0 right-0 h-full w-[220px] bg-[#1a1a1a] transform translate-x-full transition-transform duration-300 ease-in-out z-[600] shadow-lg border-l border-white/10 slide-in pointer-events-auto">
           <h2 class="z-[10001] text-white mx-5 pt-12 font-borg-italic rem-1.5">ACCOUNT</h2>
           <button id="closeAccountDashboard" class="group absolute top-10 right-4 z-[10001] bg-transparent text-white p-2 rounded-full shadow hover:text-red-500 transition ai-style-change-1">
             <svg xmlns="http://www.w3.org/2000/svg"
@@ -141,16 +119,14 @@ import HeaderAuth from '@/components/HeaderAuth.tsx';
               <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <div id="desktopCategoryDropdownMain" class="hidden absolute top-[42px] left-0 ml-4 w-[300px] bg-black/80 backdrop-blur-md text-white font-ethno text-sm rounded-xl shadow-2xl py-4 px-6 border border-white/10 z-[60] space-y-2 transition-all duration-300">
-            <div class="flex justify-end">
-              <button id="closeDesktopMainDropdown" class="text-red-500 hover:text-white text-lg font-bold -mt-4 -mr-2 px-2 py-1 rounded-full transition-all">×</button>
+          <aside id="desktopDrawerLeft" class="hidden md:block fixed top-0 left-0 h-full w-[360px] bg-black/90 border-r border-white/10 z-[500] -translate-x-full transition-transform duration-300 ease-out overflow-y-auto pointer-events-auto">
+            <div class="pt-16 pb-8 px-6 font-ethno text-white">
+              <div class="flex justify-end">
+                <button id="closeDesktopDrawerLeft" class="text-red-500 hover:text-white text-lg font-bold -mt-4 -mr-2 px-2 py-1 rounded-full transition-all">×</button>
+              </div>
+              <MobileMenu mode="inline" client:load />
             </div>
-            <a href="/igla" class="block py-1 hover:text-primary">IGLA</a>
-            <a href="/porting" class="block py-1 hover:text-primary">Porting</a>
-            <a href="/services" class="block py-1 hover:text-primary">Services</a>
-            <a href="/power-packages" class="block py-1 hover:text-primary">Power Packages</a>
-            <a href="/schedule" class="block py-1 hover:text-primary">Schedule Install</a>
-          </div>
+          </aside>
         </div>
       </div>
       <div class="flex justify-center gap-2 text-sm font-ethno">
@@ -161,54 +137,52 @@ import HeaderAuth from '@/components/HeaderAuth.tsx';
     </div>
   </div>
 
-  <!-- ✅ Sticky Desktop Header -->
-  <div class="my-sticky-header fixed top-[35px] w-full z-50 hidden md:flex justify-center">
-    <div class="w-[90%] max-w-[1200px] mx-auto bg-black/70 backdrop-blur-md border border-white/10 rounded-[20px] px-16 py-5 flex items-center justify-between gap-20">
-      <div class="flex items-center justify-between w-full max-w-7xl mx-auto">
-        <img src="/logo/chromelogofas.png" alt="FAS Chrome Logo" class="h-14" />
-        <div class="grid grid-cols-3 items-center gap-8 px-8 w-full max-w-7xl mx-auto">
-          <!-- Column 1: Search -->
-          <div class="flex font-ethno justify-start px-4">
-            <div class="relative" id="stickyHeaderSearch">
-              <form action="/search" method="GET" class="inline-block" id="stickyHeaderSearchForm">
-                <input type="text" name="q" placeholder="Search..." class="bg-transparent border-b border-white font-ethno-italic placeholder:text-primary/70 text-white px-4 py-1 w-40 text-sm focus:outline-none" autocomplete="off" />
-              </form>
-              <div id="stickySearchSuggest" class="absolute left-0 mt-2 w-80 bg-black/90 backdrop-blur-md border border-white/10 rounded-lg shadow-xl hidden z-[70]"></div>
-            </div>
-          </div>
-          <!-- Column 2: Nav -->
-          <div class="flex justify-center gap-3 font-ethno text-white text-sm">
-            <a href="/" class="hover:text-accent">Home</a>
-            <span class="text-white/50">|</span>
-            <a href="/shop" class="hover:text-accent">Shop</a>
-          </div>
-          <!-- Column 3: Hamburger -->
-          <div class="flex justify-end relative">
-            <button id="desktopCategoryToggleSticky" class="text-white hover:shadow-md hover:shadow-primary/40 transition-all duration-300">
-              <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-            <div id="desktopCategoryDropdownSticky" class="hidden absolute top-[42px] right-0 w-[300px] bg-black/80 backdrop-blur-md text-white font-ethno text-sm rounded-xl shadow-2xl py-4 px-6 border border-white/10 z-[60] space-y-2 transition-all duration-300">
-              <div class="flex justify-end">
-                <button id="closeStickyDropdown" class="text-red-500 hover:text-white text-lg font-bold -mt-4 -mr-2 px-2 py-1 rounded-full transition-all">×</button>
-              </div>
-              <a href="/igla" class="block py-1 hover:text-primary">IGLA</a>
-              <a href="/porting" class="block py-1 hover:text-primary">Porting</a>
-              <a href="/services" class="block py-1 hover:text-primary">Services</a>
-              <a href="/power-packages" class="block py-1 hover:text-primary">Power Packages</a>
-              <a href="/schedule" class="block py-1 hover:text-primary">Schedule Install</a>
-            </div>
-          </div>
+  <!-- ✅ Compact Sticky Desktop Header (appears on scroll) -->
+  <div id="desktopSticky" class="hidden md:block my-sticky-header fixed left-0 right-0 z-[700]">
+    <div class="w-full bg-black/85 backdrop-blur-md shadow-xl section-divider section-divider-carbon">
+      <div class="max-w-7xl mx-auto h-12 flex items-center justify-between px-6">
+        <!-- Left: small menu toggle for categories (optional) -->
+        <a href="/shop" class="text-white/80 hover:text-white text-sm font-ethno flex items-center gap-2">
+          <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          Shop
+        </a>
+        <!-- Center: compact logo -->
+        <a href="/" class="block">
+          <img src="/images/faslogochroma.png" alt="FAS Chrome Logo" class="h-8" />
+        </a>
+        <!-- Right: quick links -->
+        <div class="flex items-center gap-3 text-sm font-ethno">
+          <button id="desktopCategoryToggleSticky" aria-label="Toggle Menu" class="text-white/80 hover:text-white">
+            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
         </div>
+        <aside id="desktopDrawerRight" class="hidden md:block fixed top-0 right-0 h-full w-[360px] bg-black/90 border-l border-white/10 z-[500] translate-x-full transition-transform duration-300 ease-out overflow-y-auto pointer-events-auto">
+          <div class="pt-16 pb-8 px-6 font-ethno text-white">
+            <div class="flex justify-end">
+              <button id="closeDesktopDrawerRight" class="text-red-500 hover:text-white text-lg font-bold -mt-4 -mr-2 px-2 py-1 rounded-full transition-all">×</button>
+            </div>
+            <MobileMenu mode="inline" client:load />
+          </div>
+        </aside>
       </div>
     </div>
   </div>
-  <HeaderAuth client:load />
+
+  
 </header>
 
   <script is:inline>
   document.addEventListener("DOMContentLoaded", function () {
+    // Ensure the top bar shows only the profile icon (clear any injected login/signup text)
+    try {
+      const badge = document.getElementById('account-top-badge');
+      const btn = document.getElementById('accountDashboardToggleTop');
+      if (badge && btn) {
+        Array.from(badge.children).forEach((node) => { if (node !== btn) badge.removeChild(node); });
+      }
+    } catch {}
     // --- Mobile sticky + drawer ---
     const mheader = document.getElementById("mheader");
     const mnavToggle = document.getElementById("mnavToggle");
@@ -218,11 +192,17 @@ import HeaderAuth from '@/components/HeaderAuth.tsx';
     const mline2 = document.getElementById("mline2");
     const mline3 = document.getElementById("mline3");
     const topBar = document.getElementById("topRedBar");
+    const desktopSticky = document.getElementById('desktopSticky');
     let mnavOpen = false;
 
     function syncMobileHeaderTop() {
       const barHeight = topBar ? Math.round(topBar.getBoundingClientRect().height) : 40;
       if (mheader) mheader.style.top = `${barHeight}px`;
+    }
+
+    function syncDesktopStickyTop() {
+      const barHeight = topBar ? Math.round(topBar.getBoundingClientRect().height) : 40;
+      if (desktopSticky) desktopSticky.style.top = `${barHeight}px`;
     }
 
     function lockScroll(lock) {
@@ -233,8 +213,9 @@ import HeaderAuth from '@/components/HeaderAuth.tsx';
 
     // Keep the mobile header tight under the red bar
     syncMobileHeaderTop();
-    window.addEventListener('resize', syncMobileHeaderTop, { passive: true });
-    window.addEventListener('orientationchange', syncMobileHeaderTop);
+    syncDesktopStickyTop();
+    window.addEventListener('resize', () => { syncMobileHeaderTop(); syncDesktopStickyTop(); }, { passive: true });
+    window.addEventListener('orientationchange', () => { syncMobileHeaderTop(); syncDesktopStickyTop(); });
 
     // Search forms: trim input and prevent empty submits
     const mainSearchForm = document.getElementById('mainHeaderSearchForm');
@@ -446,112 +427,115 @@ import HeaderAuth from '@/components/HeaderAuth.tsx';
     applyMobileShrink(window.scrollY);
     window.addEventListener("scroll", () => { applyMobileShrink(window.scrollY); syncMobileHeaderTop(); }, { passive: true });
 
-    // --- Existing desktop dropdown logic (unchanged) ---
+    // --- Account dashboard open/close helpers ---
     const dashboardToggle = document.getElementById("accountDashboardToggle");
+    const dashboardToggleTop = document.getElementById("accountDashboardToggleTop");
     const dashboardPanel = document.getElementById("accountDashboardPanel");
     let isDashboardOpen = false;
-    if (dashboardToggle && dashboardPanel) {
-      dashboardToggle.addEventListener("click", () => {
-        if (!isDashboardOpen) {
-          dashboardPanel.classList.remove("hidden");
-          setTimeout(() => dashboardPanel.classList.remove("translate-x-full"), 10);
-        } else {
-          dashboardPanel.classList.add("translate-x-full");
-          setTimeout(() => dashboardPanel.classList.add("hidden"), 300);
-        }
-        isDashboardOpen = !isDashboardOpen;
-      });
-    }
 
-    const desktopCategoryToggleMain = document.getElementById("desktopCategoryToggleMain");
-    const desktopCategoryDropdownMain = document.getElementById("desktopCategoryDropdownMain");
-    const desktopMainLinks = [...desktopCategoryDropdownMain?.querySelectorAll("a") || []];
-    const closeMainBtn = document.getElementById("closeDesktopMainDropdown");
-    let isDesktopOpenMain = false;
-    const animateMainOpen = () => {
-      desktopCategoryDropdownMain.classList.remove("hidden");
-      setTimeout(() => {
-        desktopMainLinks.forEach(link => {
-          link.classList.remove("opacity-0", "translate-y-4");
-          link.classList.add("opacity-100", "translate-y-0");
-        });
-      }, 10);
-    };
-    const animateMainClose = () => {
-      desktopMainLinks.forEach(link => {
-        link.classList.add("opacity-0", "translate-y-4");
-        link.classList.remove("opacity-100", "translate-y-0");
-      });
-      setTimeout(() => {
-        desktopCategoryDropdownMain.classList.add("hidden");
-      }, 600);
-    };
-    if (desktopCategoryToggleMain && desktopCategoryDropdownMain) {
-      desktopCategoryToggleMain.addEventListener("click", () => {
-        isDesktopOpenMain ? animateMainClose() : animateMainOpen();
-        isDesktopOpenMain = !isDesktopOpenMain;
-      });
-      desktopMainLinks.forEach(link => {
-        link.addEventListener("click", () => {
-          animateMainClose();
-          isDesktopOpenMain = false;
-        });
-      });
-      if (closeMainBtn) {
-        closeMainBtn.addEventListener("click", () => {
-          animateMainClose();
-          isDesktopOpenMain = false;
-        });
-      }
+    function openDashboard() {
+      // Close desktop drawers if they are open so the panel can be interacted with
+      try { closeDesktopLeft && closeDesktopLeft(); } catch {}
+      try { closeDesktopRight && closeDesktopRight(); } catch {}
+      if (!dashboardPanel) return;
+      dashboardPanel.classList.remove('hidden');
+      requestAnimationFrame(() => dashboardPanel.classList.remove('translate-x-full'));
+      isDashboardOpen = true;
     }
+    function closeDashboard() {
+      if (!dashboardPanel) return;
+      dashboardPanel.classList.add('translate-x-full');
+      setTimeout(() => dashboardPanel.classList.add('hidden'), 300);
+      isDashboardOpen = false;
+    }
+    function bindToggle(btn) {
+      if (!btn) return;
+      btn.addEventListener('click', () => {
+        isDashboardOpen ? closeDashboard() : openDashboard();
+      });
+    }
+    bindToggle(dashboardToggle);
+    bindToggle(dashboardToggleTop);
 
-    const stickyToggle = document.getElementById("desktopCategoryToggleSticky");
-    const stickyDropdown = document.getElementById("desktopCategoryDropdownSticky");
-    const stickyLinks = [...stickyDropdown?.querySelectorAll("a") || []];
-    const stickyClose = stickyDropdown?.querySelector("#closeStickyDropdown");
-    let isStickyOpen = false;
-    const openSticky = () => {
-      stickyDropdown.classList.remove("hidden");
-      setTimeout(() => {
-        stickyLinks.forEach(link => {
-          link.classList.remove("opacity-0", "translate-y-4");
-          link.classList.add("opacity-100", "translate-y-0");
-        });
-      }, 10);
-    };
-    const closeSticky = () => {
-      stickyLinks.forEach(link => {
-        link.classList.add("opacity-0", "translate-y-4");
-        link.classList.remove("opacity-100", "translate-y-0");
+    // --- Desktop LEFT Drawer (Main header) ---
+    const desktopCategoryToggleMain = document.getElementById('desktopCategoryToggleMain');
+    const desktopDrawerLeft = document.getElementById('desktopDrawerLeft');
+    const closeDesktopDrawerLeft = document.getElementById('closeDesktopDrawerLeft');
+    const desktopScrim = document.getElementById('desktopScrim');
+    const brandTag = document.getElementById('brand-tag');
+    let isDesktopLeftOpen = false;
+
+    function openDesktopLeft() {
+      if (!desktopDrawerLeft || !desktopScrim) return;
+      desktopDrawerLeft.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        desktopDrawerLeft.classList.remove('-translate-x-full');
+        desktopScrim.classList.remove('hidden');
+        desktopScrim.classList.remove('pointer-events-none');
+        setTimeout(() => desktopScrim.classList.remove('opacity-0'), 10);
       });
-      setTimeout(() => {
-        stickyDropdown.classList.add("hidden");
-      }, 600);
-    };
-    if (stickyToggle && stickyDropdown) {
-      stickyToggle.addEventListener("click", () => {
-        isStickyOpen ? closeSticky() : openSticky();
-        isStickyOpen = !isStickyOpen;
-      });
-      stickyLinks.forEach(link => {
-        link.addEventListener("click", () => {
-          closeSticky();
-          isStickyOpen = false;
-        });
-      });
-      if (stickyClose) {
-        stickyClose.addEventListener("click", () => {
-          closeSticky();
-          isStickyOpen = false;
-        });
-      }
+      lockScroll(true);
+      isDesktopLeftOpen = true;
+      // Hide floating brand tag while menu is open
+      try { brandTag && brandTag.classList.add('hidden'); } catch {}
     }
+    function closeDesktopLeft() {
+      if (!desktopDrawerLeft || !desktopScrim) return;
+      desktopDrawerLeft.classList.add('-translate-x-full');
+      desktopScrim.classList.add('opacity-0');
+      desktopScrim.classList.add('pointer-events-none');
+      setTimeout(() => { desktopScrim.classList.add('hidden'); desktopDrawerLeft.classList.add('hidden'); }, 300);
+      lockScroll(false);
+      isDesktopLeftOpen = false;
+      // Restore brand tag if no other drawer is open
+      try { if (!isDesktopRightOpen) brandTag && brandTag.classList.remove('hidden'); } catch {}
+    }
+    if (desktopCategoryToggleMain) desktopCategoryToggleMain.addEventListener('click', () => (isDesktopLeftOpen ? closeDesktopLeft() : openDesktopLeft()));
+    if (closeDesktopDrawerLeft) closeDesktopDrawerLeft.addEventListener('click', closeDesktopLeft);
+
+    // --- Desktop RIGHT Drawer (Sticky header) ---
+    const stickyToggle = document.getElementById('desktopCategoryToggleSticky');
+    const desktopDrawerRight = document.getElementById('desktopDrawerRight');
+    const closeDesktopDrawerRight = document.getElementById('closeDesktopDrawerRight');
+    let isDesktopRightOpen = false;
+
+    function openDesktopRight() {
+      if (!desktopDrawerRight || !desktopScrim) return;
+      desktopDrawerRight.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        desktopDrawerRight.classList.remove('translate-x-full');
+        desktopScrim.classList.remove('hidden');
+        desktopScrim.classList.remove('pointer-events-none');
+        setTimeout(() => desktopScrim.classList.remove('opacity-0'), 10);
+      });
+      lockScroll(true);
+      isDesktopRightOpen = true;
+      // Hide floating brand tag while menu is open
+      try { brandTag && brandTag.classList.add('hidden'); } catch {}
+    }
+    function closeDesktopRight() {
+      if (!desktopDrawerRight || !desktopScrim) return;
+      desktopDrawerRight.classList.add('translate-x-full');
+      desktopScrim.classList.add('opacity-0');
+      desktopScrim.classList.add('pointer-events-none');
+      setTimeout(() => { desktopScrim.classList.add('hidden'); desktopDrawerRight.classList.add('hidden'); }, 300);
+      lockScroll(false);
+      isDesktopRightOpen = false;
+      // Restore brand tag if no other drawer is open
+      try { if (!isDesktopLeftOpen) brandTag && brandTag.classList.remove('hidden'); } catch {}
+    }
+    if (stickyToggle) stickyToggle.addEventListener('click', () => (isDesktopRightOpen ? closeDesktopRight() : openDesktopRight()));
+    if (closeDesktopDrawerRight) closeDesktopDrawerRight.addEventListener('click', closeDesktopRight);
+
+    // Close drawers by clicking scrim or ESC
+    if (desktopScrim) desktopScrim.addEventListener('click', () => { closeDesktopLeft(); closeDesktopRight(); closeDashboard(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeDesktopLeft(); closeDesktopRight(); closeDashboard(); } });
 
     const closeBtn = document.getElementById("closeAccountDashboard");
     const dashboard = document.getElementById("accountDashboardPanel");
     if (closeBtn && dashboard) {
       closeBtn.addEventListener('click', () => {
-        dashboard.classList.add('hidden');
+        closeDashboard();
       });
     }
 

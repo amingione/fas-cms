@@ -6,9 +6,14 @@ interface SanityClientLite {
   fetch: SanityFetch;
 }
 
-// Initialize Sanity client
-const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
-const dataset = import.meta.env.PUBLIC_SANITY_DATASET;
+// Initialize Sanity client (support both PUBLIC_* and server-side SANITY_* envs)
+const projectId =
+  (import.meta.env.PUBLIC_SANITY_PROJECT_ID as string | undefined) ||
+  (import.meta.env.SANITY_PROJECT_ID as string | undefined);
+const dataset =
+  (import.meta.env.PUBLIC_SANITY_DATASET as string | undefined) ||
+  (import.meta.env.SANITY_DATASET as string | undefined) ||
+  'production';
 const apiVersion = '2023-01-01';
 const token = import.meta.env.SANITY_API_TOKEN;
 
@@ -143,6 +148,7 @@ export async function fetchProductsFromSanity({
       conditions.push(`references(*[_type == "category" && slug.current == $categorySlug]._id)`);
       params.categorySlug = categorySlug;
     }
+    // Do not restrict by category when none is selected; show all products
     if (tuneSlug) {
       conditions.push(`tune->slug.current == $tuneSlug`);
       params.tuneSlug = tuneSlug;

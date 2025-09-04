@@ -79,7 +79,7 @@ export function ProductCard({ product, productImage, className }: ProductCardPro
       </div>
 
       {/* Product details section */}
-      <div className="luxury-carbon-effect rounded-t-[20px] md:rounded-t-[28px] lg:rounded-t-[32px] p-5 md:p-6 lg:p-7 shadow-card-outer border-black/30 mt-2 flex flex-col min-h-[200px] md:min-h-[210px] lg:min-h-[220px]">
+      <div className="luxury-carbon-effect rounded p-5 md:p-6 lg:p-7 shadow-card-outer border-black/30 -mt-4 flex flex-col min-h-[200px] md:min-h-[210px] lg:min-h-[220px]">
         {/* Product info */}
         <div className="">
           <h2 className="relative text-white font-ethno text-[12px] md:text-sm lg:text-base font-semibold leading-snug line-clamp-3">

@@ -14,6 +14,7 @@ interface SearchBarProps {
   className?: string;
   size?: 'default' | 'compact';
   enableSuggestions?: boolean;
+  variant?: 'default' | 'storefront';
 }
 
 export function SearchBar({
@@ -25,7 +26,8 @@ export function SearchBar({
   placeholder = 'Search products... ',
   className,
   size = 'default',
-  enableSuggestions = true
+  enableSuggestions = true,
+  variant = 'default'
 }: SearchBarProps) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
@@ -65,10 +67,12 @@ export function SearchBar({
     [onSubmit, value, action, enableSuggestions, open, active, items]
   );
 
-  const inputClasses = cn(
-    'pl-12 bg-gray-800/50 border-gray-600/50 text-white placeholder-graylight focus:border-primary focus:ring-primary/20 font-kwajong',
-    size === 'compact' ? 'h-10 text-sm' : 'h-12 text-base'
-  );
+  const baseDefault =
+    'pl-12 bg-gray-800/50 border-gray-600/50 text-white placeholder-graylight focus:border-primary focus:ring-primary/20 font-kwajong';
+  const sizeCls = size === 'compact' ? 'h-10 text-sm' : 'h-12 text-base';
+  const baseStorefront =
+    'pl-12 bg-black/60 border-white/10 text-white placeholder-white/40 focus:border-primary focus:ring-primary/20 font-kwajong rounded-fx-md';
+  const inputClasses = cn(variant === 'storefront' ? baseStorefront : baseDefault, sizeCls);
 
   // Debounced suggestions
   useEffect(() => {
@@ -129,7 +133,12 @@ export function SearchBar({
   return (
     <div className={cn('relative w-full', className)} ref={rootRef}>
       <form action={action} method="GET" onSubmit={submitHandler} className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-graylight" />
+        <Search
+          className={cn(
+            'absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5',
+            variant === 'storefront' ? 'text-white/50' : 'text-graylight'
+          )}
+        />
         <Input
           name="q"
           value={value}
@@ -149,7 +158,12 @@ export function SearchBar({
             type="button"
             aria-label="Clear search"
             onClick={onClear ?? (() => onChange(''))}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-graylight hover:text-white"
+            className={cn(
+              'absolute right-3 top-1/2 -translate-y-1/2',
+              variant === 'storefront'
+                ? 'text-white/50 hover:text-white'
+                : 'text-graylight hover:text-white'
+            )}
           >
             <X className="w-4 h-4" />
           </button>
@@ -157,7 +171,14 @@ export function SearchBar({
       </form>
 
       {enableSuggestions && open && items.length > 0 && (
-        <div className="absolute left-0 mt-2 w-full max-w-[380px] bg-black/90 backdrop-blur-md border border-white/10 rounded-lg shadow-xl z-[70] max-h-[60vh] overflow-auto">
+        <div
+          className={cn(
+            'absolute left-0 mt-2 w-full max-w-[380px] rounded-lg shadow-xl z-[70] max-h-[60vh] overflow-auto backdrop-blur-md',
+            variant === 'storefront'
+              ? 'bg-black/90 border-white/10'
+              : 'bg-black/85 border border-gray-700/50'
+          )}
+        >
           {items.slice(0, 8).map((it, idx) => {
             const q = value.trim();
             const href = resolveLink(it, q) || `${action || '/search'}?q=${encodeURIComponent(q)}`;
@@ -172,14 +193,29 @@ export function SearchBar({
                 className={cn('block px-3 py-2 hover:bg-white/10', isActive && 'bg-white/10')}
                 onMouseEnter={() => setActive(idx)}
               >
-                <div className="flex items-center gap-3" style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, lineHeight: 1.2 }}>
+                <div
+                  className="flex items-center gap-3"
+                  style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, lineHeight: 1.2 }}
+                >
                   {img ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={img} alt="" className="w-10 h-10 object-cover rounded border border-white/10" />
+                    <img
+                      src={img}
+                      alt=""
+                      className="w-10 h-10 object-cover rounded border border-white/10"
+                    />
                   ) : null}
                   <div className="min-w-0">
-                    <div className="truncate font-semibold" style={{ fontFamily: 'Arial, sans-serif', fontSize: 12 }}>{title}</div>
-                    <div className="flex items-center gap-2 text-white/70" style={{ fontFamily: 'Arial, sans-serif', fontSize: 11 }}>
+                    <div
+                      className="truncate font-semibold"
+                      style={{ fontFamily: 'Arial, sans-serif', fontSize: 12 }}
+                    >
+                      {title}
+                    </div>
+                    <div
+                      className="flex items-center gap-2 text-white/70"
+                      style={{ fontFamily: 'Arial, sans-serif', fontSize: 11 }}
+                    >
                       <span className="uppercase">{String(it?._type || '')}</span>
                       {price ? <span className="text-accent">{price}</span> : null}
                     </div>

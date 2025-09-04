@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { Category } from '@lib/sanity-utils';
+import type { Category, Product } from '@lib/sanity-utils';
 import { SearchBar } from '@components/SearchBar';
-import { SortControls } from '@components/SortControls';
+import { SortControls } from '@/components/storefront/SortControls';
 import FilterPanel from '@components/FilterPanel';
 import { Button } from '@components/ui/button';
 import {
@@ -12,7 +12,7 @@ import {
   SheetTrigger,
   SheetFooter
 } from '@components/ui/sheet';
-import { FilterIcon } from '@components/icons/FilterIcon';
+import FilterIcon from '@components/icons/FilterIcon';
 
 type SortValue = 'featured' | 'name' | 'price-low' | 'price-high';
 type ViewMode = 'grid' | 'list';
@@ -34,58 +34,10 @@ export default function ShopTopControls({
   currentCategory = '',
   selectedFilters = [],
   priceMin = 0,
-  priceMax = 10000,
+  priceMax = 100000,
   selectedVehicles = [],
   availableVehicles = []
 }: ShopTopControlsProps) {
-  // Delegated click handler so label taps always toggle inputs
-  const handleMobileFilterClick: React.MouseEventHandler<HTMLDivElement> = (ev) => {
-    // If an input itself was clicked, let normal behavior proceed
-    const target = ev.target as HTMLElement;
-    if (target instanceof HTMLInputElement) return;
-
-    const label = target.closest('label');
-    if (!label) return;
-
-    // Prefer input inside the label
-    let input = label.querySelector(
-      'input[type="radio"], input[type="checkbox"]'
-    ) as HTMLInputElement | null;
-    // Or adjacent to the label
-    if (!input) {
-      const prev = label.previousElementSibling as HTMLElement | null;
-      const next = label.nextElementSibling as HTMLElement | null;
-      if (prev && prev.matches('input[type="checkbox"], input[type="radio"]'))
-        input = prev as HTMLInputElement;
-      else if (next && next.matches('input[type="checkbox"], input[type="radio"]'))
-        input = next as HTMLInputElement;
-    }
-    if (!input || input.disabled) return;
-
-    ev.preventDefault();
-    ev.stopPropagation();
-
-    const val = (input.value || '').toLowerCase();
-    if (input.type === 'radio') {
-      if (!input.checked) {
-        // Update the radio
-        input.checked = true;
-        // Treat radios as category selector
-        setCategory(val || 'all');
-      }
-    } else if (input.type === 'checkbox') {
-      // Toggle the checkbox
-      const nextChecked = !input.checked;
-      input.checked = nextChecked;
-      setFilters((prev) => {
-        const has = prev.includes(val);
-        if (nextChecked && !has) return [...prev, val];
-        if (!nextChecked && has) return prev.filter((f) => f !== val);
-        return prev;
-      });
-    }
-  };
-
   // Local UI state
   const [search, setSearch] = useState<string>('');
   const [sortBy, setSortBy] = useState<SortValue>('featured');
@@ -106,9 +58,7 @@ export default function ShopTopControls({
         setSearch(url.searchParams.get('q') || '');
         setSortBy((url.searchParams.get('sort') as SortValue) || 'featured');
         const cat =
-          url.searchParams.get('categorySlug') ||
-          url.searchParams.get('category') ||
-          'categorySlug';
+          url.searchParams.get('categorySlug') || url.searchParams.get('category') || 'all';
         setCategory(cat || 'all');
         const raw = [
           ...url.searchParams.getAll('filter'),
@@ -145,12 +95,18 @@ export default function ShopTopControls({
     withCategory?: boolean;
     withSearch?: boolean;
     withSort?: boolean;
+    withView?: boolean;
+    sortValue?: SortValue;
+    viewValue?: ViewMode;
   }) => {
     const {
       withFilters = true,
       withCategory = true,
       withSearch = true,
-      withSort = true
+      withSort = true,
+      withView = false,
+      sortValue,
+      viewValue
     } = opts || {};
     const params = new URLSearchParams(window.location.search);
 
@@ -190,8 +146,15 @@ export default function ShopTopControls({
     }
 
     if (withSort) {
-      if (sortBy && sortBy !== 'featured') params.set('sort', sortBy);
+      const sv = (sortValue || sortBy) as SortValue;
+      if (sv && sv !== 'featured') params.set('sort', sv);
       else params.delete('sort');
+    }
+
+    if (withView) {
+      const vv = (viewValue || viewMode) as ViewMode;
+      if (vv && vv !== 'grid') params.set('view', vv);
+      else params.delete('view');
     }
 
     params.set('page', '1');
@@ -221,38 +184,40 @@ export default function ShopTopControls({
     window.location.href = `/shop?${params.toString()}`;
   };
 
+  // (mobile sheet uses native input/label behavior; no delegated click handler)
+
   // Mobile-only Filters sheet trigger + Search
   return (
     <div className="w-full">
       {/* Mobile: search + filters button */}
-      <div className="block md:hidden w-1/2 space-y-3">
+      <div className="block md:hidden w-full space-y-3">
         <SearchBar
           value={search}
           onChange={setSearch}
           onClear={() => setSearch('')}
           onSubmit={() => applyURL({})}
         />
-        <div className="flex w-1/2 gap-2 items-center justify-between">
+        <div className="flex w-full gap-3 items-center justify-between">
           <Sheet>
             <SheetTrigger asChild>
               <Button
                 aria-label="Filters"
-                className="h-10 w-10 bg-gray-800/60 hover:bg-gray-700/60 text-white flex items-center justify-center"
+                className="h-10 w-10 rounded-lg bg-gray-800/60 hover:bg-gray-700/60 text-white flex items-center justify-center"
               >
                 <FilterIcon className="w-5 h-5" />
               </Button>
             </SheetTrigger>
             <SheetContent
               side="right"
-              className="backdrop-blur-md bg-black/80 w-2/3 border-gray-700/50 overflow-hidden"
+              className="bg-black/90 border-gray-700/50 overflow-hidden w-[92vw] max-w-[440px] sm:max-w-[520px]"
             >
               <SheetHeader>
                 <SheetTitle className="text-white font-kwajong">Filters</SheetTitle>
               </SheetHeader>
               <div
                 id="mobile-filters-capture"
-                className="p-2 w-full flex-auto overflow-y-auto"
-                onClickCapture={handleMobileFilterClick}
+                className="p-3 flex-1 overflow-y-auto"
+                style={{ pointerEvents: 'auto' }}
               >
                 <FilterPanel
                   categories={categories}
@@ -278,7 +243,7 @@ export default function ShopTopControls({
                 />
               </div>
               <SheetFooter>
-                <div className="flex gap-2 w-1/2">
+                <div className="flex gap-2 w-full">
                   <Button
                     variant="outline"
                     className="w-1/2"
@@ -309,16 +274,27 @@ export default function ShopTopControls({
             sortBy={sortBy}
             onSortChange={(v) => {
               setSortBy(v);
-              // Apply immediately for a snappy feel on mobile
+              // Apply immediately and pass the chosen sort to avoid stale state
               applyURL({
                 withFilters: false,
                 withCategory: false,
                 withSearch: false,
-                withSort: true
+                withSort: true,
+                sortValue: v
               });
             }}
             viewMode={viewMode}
-            onViewModeChange={setViewMode}
+            onViewModeChange={(m) => {
+              setViewMode(m);
+              applyURL({
+                withFilters: false,
+                withCategory: false,
+                withSearch: false,
+                withSort: false,
+                withView: true,
+                viewValue: m
+              });
+            }}
             onClear={clearAll}
             className="flex-1 min-w-0"
             compactClear
@@ -339,16 +315,26 @@ export default function ShopTopControls({
         <SortControls
           sortBy={sortBy}
           onSortChange={(v) => {
-            setSortBy(v);
             applyURL({
               withFilters: false,
               withCategory: false,
               withSearch: false,
-              withSort: true
+              withSort: true,
+              sortValue: v
             });
           }}
           viewMode={viewMode}
-          onViewModeChange={setViewMode}
+          onViewModeChange={(m) => {
+            setViewMode(m);
+            applyURL({
+              withFilters: false,
+              withCategory: false,
+              withSearch: false,
+              withSort: false,
+              withView: true,
+              viewValue: m
+            });
+          }}
           onClear={clearAll}
         />
       </div>

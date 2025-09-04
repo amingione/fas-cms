@@ -6,6 +6,9 @@ export default function HeaderAuth() {
     const run = async () => {
       const badge = document.getElementById('account-top-badge');
       if (!badge) return;
+      // Respect a custom profile toggle already rendered in the top bar
+      const hasCustomProfile = document.getElementById('accountDashboardToggleTop');
+      if (hasCustomProfile) return;
       try {
         const auth0 = await getAuth0Client();
         const authed = await auth0.isAuthenticated();
@@ -29,4 +32,3 @@ export default function HeaderAuth() {
 
   return null;
 }
-

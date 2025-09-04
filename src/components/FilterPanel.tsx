@@ -145,8 +145,8 @@ export default function FilterPanel({
                 value="all"
                 checked={norm(selectedCategory) === 'all' || !selectedCategory}
                 onChange={handleCategoryChange}
-                className="h-4 w-4 cursor-pointer appearance-auto"
-                // style removed to fix type error
+                className="mr-2 accent-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
+                style={{ accentColor: 'var(--fx-primary, #fb3636)' }}
               />
               <label htmlFor="cat-all" className="cursor-pointer">
                 All
@@ -164,8 +164,8 @@ export default function FilterPanel({
                     value={slug}
                     checked={norm(selectedCategory) === slug}
                     onChange={handleCategoryChange}
-                    className="h-4 w-4 cursor-pointer appearance-auto"
-                    // style removed to fix type error
+                    className="mr-2 accent-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
+                    style={{ accentColor: 'var(--fx-primary, #fb3636)' }}
                   />
                   <label htmlFor={id} className="cursor-pointer">
                     {c?.title || slug || 'Untitled'}
@@ -266,8 +266,7 @@ export default function FilterPanel({
                     value={v}
                     checked={checked}
                     onChange={handleVehicleChange}
-                    className="h-4 w-4 cursor-pointer appearance-auto"
-                    // style removed to fix type error
+                    className="h-4 w-4 cursor-pointer accent-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
                   />
                   <label htmlFor={id} className="cursor-pointer capitalize">
                     {v}
@@ -300,7 +299,7 @@ export default function FilterPanel({
                   value={slug}
                   checked={checked}
                   onChange={handleFilterChange}
-                  className="h-4 w-4 cursor-pointer appearance-auto"
+                  className="h-4 w-4 cursor-pointer filter-checkbox accent-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
                 />
                 <label htmlFor={id} className="cursor-pointer capitalize">
                   {f}

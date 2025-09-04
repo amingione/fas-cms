@@ -30,6 +30,11 @@ const SANITY_STUDIO_URL: string = (
   ''
 );
 
+// Toggle Sanity source via env (defaults to disabled to avoid schema fetch errors)
+const ENABLE_SANITY: boolean =
+  String(process.env.ENABLE_SANITY || '').toLowerCase() === 'true' ||
+  String(process.env.ENABLE_SANITY || '') === '1';
+
 export default defineStackbitConfig({
   stackbitVersion: '~0.6.0',
   ssgName: 'custom',
@@ -156,15 +161,23 @@ export default defineStackbitConfig({
           ]
         }
       ]
-    }),
-    new SanityContentSource({
-      rootPath: __dirname,
-      projectId: SANITY_PROJECT_ID,
-      token: SANITY_TOKEN,
-      dataset: SANITY_DATASET,
-      studioUrl: SANITY_STUDIO_URL
     })
-  ],
+    // Conditionally include Sanity only when explicitly enabled and configured
+  ].concat(
+    ENABLE_SANITY && SANITY_PROJECT_ID && SANITY_DATASET
+      ? [
+          new SanityContentSource({
+            rootPath: __dirname,
+            // Point to the project root where sanity.config.ts lives
+            studioPath: __dirname,
+            projectId: SANITY_PROJECT_ID,
+            token: SANITY_TOKEN,
+            dataset: SANITY_DATASET,
+            studioUrl: SANITY_STUDIO_URL
+          })
+        ]
+      : []
+  ),
   siteMap: ({ documents, models }) => {
     const pageModelNames = new Set(models.filter((m) => m.type === 'page').map((m) => m.name));
 
