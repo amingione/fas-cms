@@ -6,29 +6,23 @@ import { GitContentSource } from '@stackbit/cms-git';
 import { SanityContentSource } from '@stackbit/cms-sanity';
 
 // Normalize Sanity env vars to strings to satisfy TS types
-const SANITY_PROJECT_ID: string = (
+const SANITY_PROJECT_ID: string =
   process.env.SANITY_PROJECT_ID ||
   process.env.PUBLIC_SANITY_PROJECT_ID ||
   process.env.SANITY_STUDIO_PROJECT_ID ||
-  ''
-);
-const SANITY_DATASET: string = (
+  '';
+const SANITY_DATASET: string =
   process.env.SANITY_DATASET ||
   process.env.PUBLIC_SANITY_DATASET ||
   process.env.SANITY_STUDIO_DATASET ||
-  'production'
-);
-const SANITY_TOKEN: string = (
+  'production';
+const SANITY_TOKEN: string =
   process.env.SANITY_WRITE_TOKEN ||
   process.env.SANITY_API_TOKEN ||
   process.env.VITE_SANITY_API_TOKEN ||
-  ''
-);
-const SANITY_STUDIO_URL: string = (
-  process.env.SANITY_STUDIO_URL ||
-  process.env.SANITY_STUDIO_NETLIFY_BASE ||
-  ''
-);
+  '';
+const SANITY_STUDIO_URL: string =
+  process.env.SANITY_STUDIO_URL || process.env.SANITY_STUDIO_NETLIFY_BASE || '';
 
 // Toggle Sanity source via env (defaults to disabled to avoid schema fetch errors)
 const ENABLE_SANITY: boolean =
@@ -118,7 +112,17 @@ export default defineStackbitConfig({
                   {
                     name: 'blockType',
                     type: 'enum',
-                    options: ['Hero', 'RichText', 'Services', 'Products', 'Testimonials', 'IGLA', 'TruckPackagesHero', 'LuxuryFeatures', 'WheelsHero'],
+                    options: [
+                      'Hero',
+                      'RichText',
+                      'Services',
+                      'Products',
+                      'Testimonials',
+                      'IGLA',
+                      'TruckPackagesHero',
+                      'LuxuryFeatures',
+                      'WheelsHero'
+                    ],
                     required: true
                   },
                   { name: 'headline', type: 'string' },
@@ -161,10 +165,9 @@ export default defineStackbitConfig({
           ]
         }
       ]
-    })
+    }),
     // Conditionally include Sanity only when explicitly enabled and configured
-  ].concat(
-    ENABLE_SANITY && SANITY_PROJECT_ID && SANITY_DATASET
+    ...(ENABLE_SANITY && SANITY_PROJECT_ID && SANITY_DATASET
       ? [
           new SanityContentSource({
             rootPath: __dirname,
@@ -176,8 +179,8 @@ export default defineStackbitConfig({
             studioUrl: SANITY_STUDIO_URL
           })
         ]
-      : []
-  ),
+      : [])
+  ],
   siteMap: ({ documents, models }) => {
     const pageModelNames = new Set(models.filter((m) => m.type === 'page').map((m) => m.name));
 
@@ -188,7 +191,8 @@ export default defineStackbitConfig({
         const rawSlug: any = (doc.fields && doc.fields.slug) ?? (doc as any).slug;
         const slug: string | undefined =
           typeof rawSlug === 'string' ? rawSlug : (rawSlug?.current ?? undefined);
-        let computedUrl: string = doc.urlPath ?? (slug ? (slug === 'index' ? '/' : `/${slug}`) : '/');
+        let computedUrl: string =
+          doc.urlPath ?? (slug ? (slug === 'index' ? '/' : `/${slug}`) : '/');
         // Route Sanity product docs under /shop/{slug}
         if ((d as any).srcType === 'sanity' && (d as any).modelName === 'product' && slug) {
           computedUrl = `/shop/${slug}`;
