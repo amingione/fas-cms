@@ -750,7 +750,7 @@
 /* Enhanced grunge texture with brand color overlays */
 .grunge-overlay {
   background-image:
-    url('/images/bg-texture.webp'),
+    url('/images/backgrounds/bg-texture.webp'),
     linear-gradient(
       135deg,
       rgba(234, 29, 38, 0.05) 0%,
@@ -774,7 +774,7 @@
 
 /* Subtle grunge for cards */
 .grunge-subtle {
-  background-image: url('/images/backgrounds/bg-asphalt-overlay.webp');
+  background-image: url('/images/backgrounds/bg-asphalt-overlay.png');
   background-size: 400px 300px;
   background-repeat: repeat;
   opacity: 0.03;
@@ -957,7 +957,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background-image: url('/images/bg-texture.webp');
+  background-image: url('/images/backgrounds/bg-texture.webp');
   background-size: 300px 225px;
   background-repeat: repeat;
   opacity: 0.02;
@@ -980,7 +980,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background-image: url('/images/bg-texture.webp');
+  background-image: url('/images/backgrounds/bg-texture.webp');
   background-size: 200px 150px;
   background-repeat: repeat;
   opacity: 0.08;
@@ -1506,7 +1506,7 @@ html {
 
 ::-webkit-scrollbar-track {
   background: var(--background);
-  background-image: url('/images/bg-texture.webp');
+  background-image: url('/images/backgrounds/bg-texture.webp');
   background-size: 100px 75px;
   background-repeat: repeat;
 }

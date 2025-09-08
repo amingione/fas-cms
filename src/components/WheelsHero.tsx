@@ -116,7 +116,7 @@ export function WheelsHero({
               <div className="relative w-full max-w-lg mx-auto lg:max-w-none aspect-square rounded-2xl overflow-hidden industrial-glow">
                 <div className="absolute inset-0 bg-gradient-to-br from-gray-800/20 to-black/60"></div>
                 <img
-                  src="images/belak custom red.png"
+                  src="images/wheels/belak custom red.png"
                   alt="BelaK Wheels - Street Performance"
                   className="w-full h-full object-contain object-center p-6 md:p-8"
                   loading="lazy"
@@ -249,7 +249,7 @@ export function WheelsHero({
               <div className="relative w-full max-w-lg mx-auto lg:max-w-none aspect-square rounded-2xl overflow-hidden industrial-glow">
                 <div className="absolute inset-0 bg-gradient-to-br from-red-900/20 to-black/60"></div>
                 <img
-                  src="/images/17x4-5-Series-3_2-e1692046131582-715x715-2.png"
+                  src="/images/wheels/17x4-5-Series-3_2-e1692046131582-715x715-2.png"
                   alt="BelaK Racing - Drag Strip Ready"
                   className="w-full h-full object-contain object-center p-6 md:p-8"
                   loading="lazy"

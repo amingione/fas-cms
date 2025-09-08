@@ -19,7 +19,6 @@ export function CustomFabrication() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-
   const fabricationServices = [
     {
       icon: Flame,
@@ -369,7 +368,7 @@ export function CustomFabrication() {
                     style={{ perspective: '1000px' }}
                   >
                     <img
-                      src="/images/FAS-Fabrication-1.png"
+                      src="/images/fabrication/FAS-Fabrication-1.png"
                       alt="Heat Treated Components"
                       className="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-500"
                     />

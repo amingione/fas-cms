@@ -1,8 +1,8 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
 import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
 const pageDoc: any = await getGitPageDoc('power-packages');
-import Button from '../components/Button.astro';
+import Button from '@/components/Button.astro';
 ---
 
 <BaseLayout>
@@ -11,10 +11,10 @@ import Button from '../components/Button.astro';
   <!-- HERO: full-bleed, dark glass, tight under header -->
   <section
     class="relative w-full h-[72vh] md:h-[78vh] overflow-hidden"
-    style="--hero:url('/images/TRX Truck Package FAS copy.png')"
+    style="--hero:url('/images/TRX-Truck-Package-FAS.png')"
     aria-label="Power Packages Hero"
   >
-    <img src="/images/TRX Truck Package FAS copy.png" alt="" class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none" />
+    <img src="/images/TRX-Truck-Package-FAS.png" alt="" class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none" />
     <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80"></div>
 
     <!-- top divider line matching theme -->

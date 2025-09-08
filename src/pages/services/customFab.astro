@@ -1,5 +1,5 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
 import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 const pageDoc: any = await getGitPageDoc('customFab');
@@ -15,7 +15,7 @@ const pageDoc: any = await getGitPageDoc('customFab');
   <section class="parallax-section section-divider section-divider-carbon"> 
     <div class="background-layer">
       <img
-        src="/images/FAS-Fabrication-1.png"
+        src="/images/fabrication/FAS-Fabrication-1.png"
         alt="FAS Motorsports Custom Fabrication"
         class="absolute inset-0 w-full h-full object-cover object-center"
         loading="eager"
@@ -137,15 +137,15 @@ const pageDoc: any = await getGitPageDoc('customFab');
   <section class="bg-black/70 py-10 md:py-14">
     <div class="mx-auto w-full max-w-7xl grid md:grid-cols-2 gap-6 px-0 md:px-6">
       <figure class="rounded-xl border border-white/10 bg-black/50 overflow-hidden shadow-xl">
-        <img src="/images/FAS-Fabrication-2.png" alt="Precision fitment on vehicle" class="w-full h-[320px] object-cover" />
+        <img src="/images/fabrication/FAS-Fabrication-2.png" alt="Precision fitment on vehicle" class="w-full h-[320px] object-cover" />
         <figcaption class="p-3 text-white/70 text-sm">Mock‑up &amp; fitment checks prior to final weld‑out.</figcaption>
       </figure>
       <figure class="rounded-xl border border-white/10 bg-black/50 overflow-hidden shadow-xl">
-        <img src="/images/FAS-Fabrication-Installation.png" alt="Installation stage" class="w-full h-[320px] object-cover" />
+        <img src="/images/fabrication/FAS-Fabrication-Installation.png" alt="Installation stage" class="w-full h-[320px] object-cover" />
         <figcaption class="p-3 text-white/70 text-sm">In‑house installation with documented torque and hanger positions.</figcaption>
       </figure>
       <figure class="rounded-xl border border-white/10 bg-black/50 overflow-hidden shadow-xl md:col-span-2">
-        <img src="/images/FAS-Welding.png" alt="Back‑purged TIG welding" class="w-full h-[380px] object-cover" />
+        <img src="/images/fabrication/FAS-Welding.png" alt="Back‑purged TIG welding" class="w-full h-[380px] object-cover" />
         <figcaption class="p-3 text-white/70 text-sm">Back‑purged TIG welds for corrosion resistance and interior smoothness.</figcaption>
       </figure>
     </div>
