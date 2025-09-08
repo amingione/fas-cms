@@ -228,7 +228,7 @@ export function IGLASecurity() {
                 transition={{ duration: 0.6, ease: 'easeOut' }}
               >
                 <img
-                  src="/images/igla-page-trackhwak.webp"
+                  src="/images/igla/igla-page-trackhwak.webp"
                   alt="IGLA Anti-Theft System - Premium Vehicle Protection"
                   className="w-full h-auto rounded-2xl shadow-2xl"
                 />

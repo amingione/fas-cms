@@ -497,7 +497,7 @@ const VEHICLES: Array<{ id: string; label: string; image: string; tokens: string
   {
     id: 'trackhawk',
     label: 'Jeep Trackhawk',
-    image: '/images/jeep trackhawk 900 package.png',
+    image: '/images/packages/jeep trackhawk 900 package.png',
     tokens: ['trackhawk', 'jeep']
   },
   {
@@ -509,7 +509,7 @@ const VEHICLES: Array<{ id: string; label: string; image: string; tokens: string
   {
     id: 'redeye',
     label: 'Redeye / Demon',
-    image: '/images/challenger FAS.png',
+    image: '/images/packages/challenger FAS.png',
     tokens: ['redeye', 'demon', 'challenger', 'charger']
   },
   {
