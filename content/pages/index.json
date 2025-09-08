@@ -10,8 +10,14 @@
       "imageSrc": "/images/ram copy.webp",
       "cta": { "text": "Explore Now", "href": "/shop" }
     },
-    { "blockType": "Services" },
+    { "blockType": "TruckPackagesHero" },
+    { "blockType": "CustomFabrication" },
     { "blockType": "Products" },
+    { "blockType": "IGLASecurity" },
+    { "blockType": "Services" },
+    { "blockType": "WheelsHero" },
+    { "blockType": "About" },
+    { "blockType": "LuxuryFeatures" },
     { "blockType": "Testimonials" }
   ]
 }
