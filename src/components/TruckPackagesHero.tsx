@@ -117,7 +117,7 @@ export function TruckPackagesHero({
         {/* RIGHT: BIG TRUCK IMAGE */}
         <div className="order-1 lg:order-2 object-contain relative z-20">
           <img
-            src="/images/packages/F250-FAS.png"
+            src="/images/packages/850-ram.webp"
             alt="F.A.S. Motorsports Custom RAM TRX Packages - Performance Truck Builds"
             className="w-[115%] max-w-none lg:w-[120%] xl:w-[130%] -mr-[15%] lg:-mr-[20%] h-auto drop-shadow-[0_30px_60px_rgba(0,0,0,0.6)] select-none"
             draggable={false}
