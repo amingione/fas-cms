@@ -2,27 +2,19 @@
 import AccountDashboard from './accountdashboard.astro';
 import MobileMenu from '@components/navbar/mobile-menu';
 import CartEntry from '@/components/cart/CartEntry.tsx';
+import { SearchBar } from '@components/SearchBar.tsx';
+
 ---
 
 <header class="bg-black/80 shadow-xl shadow-outline text-white w-full pt-[40px]">
   
   <!-- Top Red Bar (always visible) -->
-<div id="topRedBar" class="fixed top-0 w-full bg-primary text-white text-base font-captain z-50">
-  <div class="max-w-screen-xl mx-auto px-6 py-2 flex items-center justify-between">
+<div id="topRedBar" class="hidden md:block fixed top-0 w-full h-6 bg-primary text-white z-[50]">
+  <div class="max-w-screen-xl mx-auto px-6 flex pt-2 items-center justify-between">
     
     <!-- Left links -->
     <div class="flex items-center gap-0">
-      <a href="/contact" class="hover:!text-black hover:underline">Contact</a>
-    </div>
-
-    <!-- ✅ Right side: account/profile icon (opens account dashboard) -->
-    <div id="account-top-badge" class="flex items-center gap-4">
-      <button id="accountDashboardToggleTop" aria-label="Open account dashboard" class="p-1.5 rounded-full hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5z" />
-          <path d="M3 22c0-3.866 3.582-7 9-7s9 3.134 9 7" />
-        </svg>
-      </button>
+      <a href="/contact" class="hover:!text-black font-bold text-xs font-cyber hover:underline">Contact</a>
     </div>
 
   </div>
@@ -30,7 +22,7 @@ import CartEntry from '@/components/cart/CartEntry.tsx';
 
 <!-- ✅ Mobile Header -->
 <div id="mheader" class="md:hidden fixed top-[40px] left-0 right-0 z-[49] transition-all duration-300 ease-out">
-  <div class="w-full bg-black/80 backdrop-blur-md shadow-xl flex items-center justify-between px-4 h-16 transition-all duration-300 ease-out overflow-visible">
+  <div class="w-full bg-black/80 backdrop-blur-md shadow-xl flex items-center justify-between px-4 h-10 transition-all duration-300 ease-out overflow-visible">
     <!-- SVG Toggle (hamburger→X) -->
     <button id="mnavToggle"
             aria-label="Open menu"
@@ -46,49 +38,38 @@ import CartEntry from '@/components/cart/CartEntry.tsx';
 
     <!-- Center Logo -->
     <a href="/" class="block">
-      <img src="/images/faslogochroma.png" alt="FAS Chrome Logo" class="h-8 transition-all duration-300 ease-out" />
+      <img src="/images/faslogochroma.png" alt="FAS Chrome Logo" class="h-7 transition-all duration-300 ease-out" />
     </a>
 
-    <!-- Right side: Mobile Search -->
-    <div class="relative" id="mobileHeaderSearch">
-      <form action="/search" method="GET" class="inline-block" id="mobileHeaderSearchForm">
-        <input
-          type="text"
-          name="q"
-          placeholder="Search"
-          class="bg-transparent border-b border-white text-white text-sm placeholder:text-primary/70 focus:outline-none w-36"
-          autocomplete="off"
-          aria-label="Search"
-        />
-      </form>
-      <div id="mobileSearchSuggest" class="fixed left-4 right-4 top-[84px] bg-black/90 backdrop-blur-md border border-white/10 rounded-lg shadow-xl hidden z-[100] pointer-events-auto"></div>
+    <!-- Right side: Mobile Search + Cart -->
+    <div class="flex items-center gap-3" id="mobileHeaderRight">
+      <!-- Cart trigger (uses global CartProvider) -->
+      <CartEntry client:load />
     </div>
   </div>
 </div>
 
 <!-- Drawer + Scrim -->
 <div id="mnavScrim" aria-hidden="true" class="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[59] hidden opacity-0 transition-opacity duration-300 pointer-events-none"></div>
-<!-- Desktop Scrim -->
-<div id="desktopScrim" aria-hidden="true" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[150] opacity-0 transition-opacity duration-300 pointer-events-none md:block"></div>
 <aside id="mnavDrawer" class="md:hidden fixed top-0 left-0 h-full w-[84%] max-w-[360px] bg-[#0b0b0c]/95 border-r border-white/10 z-[60] -translate-x-full transition-transform duration-300 ease-out overflow-y-auto will-change-transform">
-  <div class="pt-[104px] pb-8 px-4">
+  <div class="pt-10 pb-8 px-4">
     <MobileMenu mode="inline" client:load />
+  </div>
+  <div class="flex justify-end">
+      <button id="closeDesktopDrawerRight" class="text-red-500 hover:text-white text-lg font-bold -mt-4 -mr-2 px-2 py-1 rounded-full transition-all">×</button>
   </div>
 </aside>
 
   <!-- ✅ Main Desktop Header -->
-  <div class="hidden md:block bg-transparent font-ethno-italic text-white px-6 pt-4 w-full z-[700] relative pointer-events-auto">
-    <div class="grid grid-cols-3 items-center h-16 w-full px-10">
+  <div id="dheader" class="hidden md:block fixed bg-black/20 backdrop-blur-sm font-ethno-italic text-white px-6 pt-2 w-full z-[700] pointer-events-auto transition-all duration-300 ease-out">
+    <div class="grid grid-cols-3 items-center h-16 w-full px-10 main-row transition-all duration-300 ease-out">
       <div class="flex justify-start items-center gap-3 px-4">
-        <div class="relative" id="mainHeaderSearch">
-          <form action="/search" method="GET" class="inline-block" id="mainHeaderSearchForm">
-            <input type="text" name="q" placeholder="Search" class="bg-transparent border-b border-white text-white text-sm placeholder:text-primary/70 focus:outline-none w-32" autocomplete="off" />
-          </form>
-          <div id="mainSearchSuggest" class="absolute left-0 mt-2 w-72 bg-black/90 backdrop-blur-md border border-white/10 rounded-lg shadow-xl hidden z-[70]"></div>
+        <div class="relative w-64" id="mainHeaderSearch">
+          <SearchBar client:load action="/search" enableSuggestions={true} size="compact" variant="storefront" placeholder="Search products..." />
         </div>
       </div>
       <div class="flex justify-center">
-        <img src="/images/faslogochroma.png" alt="FAS Chrome Logo" class="h-16 transform scale-[2]" />
+        <img src="/images/faslogochroma.png" alt="FAS Chrome Logo" class="h-16 transform scale-[2] desktop-logo transition-all duration-300 ease-out" />
       </div>
       <div class="flex justify-end items-center">
         <!-- Cart Modal Trigger (desktop) -->
@@ -110,8 +91,8 @@ import CartEntry from '@/components/cart/CartEntry.tsx';
         </div>
       </div>
     </div>
-    <div class="w-[90%] h-px bg-white/40 mx-auto my-4"></div>
-    <div class="grid grid-cols-3 items-center px-5 max-w-7xl mx-auto">
+    <div class="w-[90%] h-px bg-white/40 mx-auto my-4 divider transition-all duration-300 ease-out"></div>
+    <div class="grid grid-cols-3 items-center px-5 max-w-7xl mx-auto second-row transition-all duration-300 ease-out">
       <div class="flex justify-start items-center gap-3 px-4">
         <div class="relative">
           <button id="desktopCategoryToggleMain" aria-label="Toggle Categories" class="text-white hover:shadow-md hover:shadow-primary/40 transition-all duration-300">
@@ -119,14 +100,7 @@ import CartEntry from '@/components/cart/CartEntry.tsx';
               <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <aside id="desktopDrawerLeft" class="hidden md:block fixed top-0 left-0 h-full w-[360px] bg-black/90 border-r border-white/10 z-[500] -translate-x-full transition-transform duration-300 ease-out overflow-y-auto pointer-events-auto">
-            <div class="pt-16 pb-8 px-6 font-ethno text-white">
-              <div class="flex justify-end">
-                <button id="closeDesktopDrawerLeft" class="text-red-500 hover:text-white text-lg font-bold -mt-4 -mr-2 px-2 py-1 rounded-full transition-all">×</button>
-              </div>
-              <MobileMenu mode="inline" client:load />
-            </div>
-          </aside>
+          
         </div>
       </div>
       <div class="flex justify-center gap-2 text-sm font-ethno">
@@ -137,41 +111,19 @@ import CartEntry from '@/components/cart/CartEntry.tsx';
     </div>
   </div>
 
-  <!-- ✅ Compact Sticky Desktop Header (appears on scroll) -->
-  <div id="desktopSticky" class="hidden md:block my-sticky-header fixed left-0 right-0 z-[700]">
-    <div class="w-full bg-black/85 backdrop-blur-md shadow-xl section-divider section-divider-carbon">
-      <div class="max-w-7xl mx-auto h-12 flex items-center justify-between px-6">
-        <!-- Left: small menu toggle for categories (optional) -->
-        <a href="/shop" class="text-white/80 hover:text-white text-sm font-ethno flex items-center gap-2">
-          <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-          Shop
-        </a>
-        <!-- Center: compact logo -->
-        <a href="/" class="block">
-          <img src="/images/faslogochroma.png" alt="FAS Chrome Logo" class="h-8" />
-        </a>
-        <!-- Right: quick links -->
-        <div class="flex items-center gap-3 text-sm font-ethno">
-          <button id="desktopCategoryToggleSticky" aria-label="Toggle Menu" class="text-white/80 hover:text-white">
-            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-        </div>
-        <aside id="desktopDrawerRight" class="hidden md:block fixed top-0 right-0 h-full w-[360px] bg-black/90 border-l border-white/10 z-[500] translate-x-full transition-transform duration-300 ease-out overflow-y-auto pointer-events-auto">
-          <div class="pt-16 pb-8 px-6 font-ethno text-white">
-            <div class="flex justify-end">
-              <button id="closeDesktopDrawerRight" class="text-red-500 hover:text-white text-lg font-bold -mt-4 -mr-2 px-2 py-1 rounded-full transition-all">×</button>
-            </div>
-            <MobileMenu mode="inline" client:load />
-          </div>
-        </aside>
-      </div>
-    </div>
-  </div>
-
-  
 </header>
+
+<!-- Desktop Scrim and Drawers moved to root to avoid header clipping/stacking issues -->
+<div id="desktopScrim" aria-hidden="true" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[850] opacity-0 transition-opacity duration-300 pointer-events-none md:block"></div>
+<aside id="desktopDrawerLeft" class="hidden md:block fixed top-0 left-0 h-full w-[360px] bg-[#0b0b0c]/95 border-r border-white/10 z-[900] -translate-x-full transition-transform duration-300 ease-out overflow-y-auto pointer-events-auto">
+  <div class="pt-16 pb-8 px-6 font-ethno text-white">
+    <div class="flex justify-end">
+      <button id="closeDesktopDrawerLeft" class="text-red-500 hover:text-white text-lg font-bold -mt-4 -mr-2 px-2 py-1 rounded-full transition-all">×</button>
+    </div>
+    <MobileMenu mode="inline" client:load />
+  </div>
+ </aside>
+
 
   <script is:inline>
   document.addEventListener("DOMContentLoaded", function () {
@@ -185,6 +137,7 @@ import CartEntry from '@/components/cart/CartEntry.tsx';
     } catch {}
     // --- Mobile sticky + drawer ---
     const mheader = document.getElementById("mheader");
+    const dheader = document.getElementById("dheader");
     const mnavToggle = document.getElementById("mnavToggle");
     const mnavDrawer = document.getElementById("mnavDrawer");
     const mnavScrim  = document.getElementById("mnavScrim");
@@ -201,8 +154,13 @@ import CartEntry from '@/components/cart/CartEntry.tsx';
     }
 
     function syncDesktopStickyTop() {
-      const barHeight = topBar ? Math.round(topBar.getBoundingClientRect().height) : 40;
+      const barHeight = topBar ? Math.round(topBar.getBoundingClientRect().height) : 24;
       if (desktopSticky) desktopSticky.style.top = `${barHeight}px`;
+    }
+
+    function syncDesktopHeaderTop() {
+      const barHeight = topBar ? Math.round(topBar.getBoundingClientRect().height) : 24;
+      if (dheader) dheader.style.top = `${barHeight}px`;
     }
 
     function lockScroll(lock) {
@@ -211,178 +169,14 @@ import CartEntry from '@/components/cart/CartEntry.tsx';
       document.body.style.touchAction = lock ? 'none' : '';
     }
 
-    // Keep the mobile header tight under the red bar
+    // Keep headers tight under the red bar
     syncMobileHeaderTop();
     syncDesktopStickyTop();
-    window.addEventListener('resize', () => { syncMobileHeaderTop(); syncDesktopStickyTop(); }, { passive: true });
-    window.addEventListener('orientationchange', () => { syncMobileHeaderTop(); syncDesktopStickyTop(); });
+    syncDesktopHeaderTop();
+    window.addEventListener('resize', () => { syncMobileHeaderTop(); syncDesktopStickyTop(); syncDesktopHeaderTop(); }, { passive: true });
+    window.addEventListener('orientationchange', () => { syncMobileHeaderTop(); syncDesktopStickyTop(); syncDesktopHeaderTop(); });
 
-    // Search forms: trim input and prevent empty submits
-    const mainSearchForm = document.getElementById('mainHeaderSearchForm');
-    const stickySearchForm = document.getElementById('stickyHeaderSearchForm');
-    const mobileSearchForm = document.getElementById('mobileHeaderSearchForm');
-    [mainSearchForm, stickySearchForm, mobileSearchForm].forEach((form) => {
-      if (!form) return;
-      form.addEventListener('submit', (e) => {
-        const input = form.querySelector('input[name="q"]');
-        if (!input) return;
-        const value = (input.value || '').trim();
-        if (!value) {
-          e.preventDefault();
-          return;
-        }
-        input.value = value; // submit trimmed value
-      });
-    });
-
-    // --- Typeahead Suggestions (shared desktop + mobile) ---
-    function debounce(fn, delay = 200) {
-      let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay); };
-    }
-
-    function getThumb(it) {
-      const byPath = it?.image?.asset?.url
-        || it?.mainImage?.asset?.url
-        || (Array.isArray(it?.images) && it.images[0]?.asset?.url)
-        || it?.thumbnail?.asset?.url
-        || it?.thumb?.asset?.url
-        || it?.imageUrl
-        || '';
-      return typeof byPath === 'string' ? byPath : '';
-    }
-
-    function formatPrice(v) {
-      const n = Number(v);
-      if (!isFinite(n) || n <= 0) return '';
-      try { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(n); } catch { return `$${n.toFixed(2)}`; }
-    }
-
-    function resolveLink(it) {
-      if (it && typeof it.url === 'string' && it.url) return it.url;
-      const slug = (it && it.slug && (it.slug.current || it.slug)) || '';
-      switch (it && it._type) {
-        case 'product': return slug ? `/shop/${slug}` : '';
-        case 'service': return slug ? `/service/${slug}` : '';
-        case 'quote': return `/dashboard/quotes/${it._id || ''}`;
-        case 'invoice': return `/dashboard/invoices/${it._id || ''}`;
-        case 'appointment': return `/dashboard/appointments/${it._id || ''}`;
-        case 'page': return slug ? `/${slug}` : '';
-        default: return '';
-      }
-    }
-
-    function renderSuggestions(panel, items, query) {
-      if (!panel) return;
-      if (!items || !items.length) { panel.classList.add('hidden'); panel.innerHTML = ''; return; }
-      const esc = (s) => String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'", '&#39;');
-      const list = items.slice(0, 8).map(it => {
-        const title = it.title || it.name || it._type || 'Untitled';
-        const href = resolveLink(it) || `/search?q=${encodeURIComponent(query)}`;
-        const img = getThumb(it);
-        const price = formatPrice(it.price);
-        return `
-          <a href="${href}" class="block px-3 py-2 hover:bg-white/10">
-            <div class="flex items-center gap-3" style="font-family: Arial, sans-serif; font-size: 12px; line-height: 1.2;">
-              ${img ? `<img src="${esc(img)}" alt="" class="w-10 h-10 object-cover rounded border border-white/10" />` : ''}
-              <div class="min-w-0">
-                <div class="truncate font-semibold" style="font-family: Arial, sans-serif; font-size: 12px;">${esc(title)}</div>
-                <div class="flex items-center gap-2 text-white/70" style="font-family: Arial, sans-serif; font-size: 11px;">
-                  <span class="uppercase">${esc(it._type || '')}</span>
-                  ${price ? `<span class="text-accent">${esc(price)}</span>` : ''}
-                </div>
-              </div>
-            </div>
-          </a>
-        `;
-      }).join('');
-      const footer = `<a href="/search?q=${encodeURIComponent(query)}" class="block px-3 py-2 text-center text-xs text-white/70 hover:bg-white/10" style="font-family: Arial, sans-serif; font-size: 12px;">See all results for “${esc(query)}”</a>`;
-      panel.innerHTML = list + '<div class="border-t border-white/10"></div>' + footer;
-      panel.classList.remove('hidden');
-      panel.style.display = 'block';
-    }
-
-    function setupTypeahead(rootId, formId, panelId) {
-      const root = document.getElementById(rootId);
-      const form = document.getElementById(formId);
-      const input = form?.querySelector('input[name="q"]');
-      let panel = document.getElementById(panelId);
-      if (!root || !form || !input || !panel) return;
-
-      // ---- Portal the panel to <body> to avoid clipping/z-index issues (mobile-safe) ----
-      if (panel.dataset.portaled !== '1') {
-        document.body.appendChild(panel);
-        panel.dataset.portaled = '1';
-        panel.style.position = 'fixed';
-        panel.style.zIndex = '2147483647'; // sit above everything
-        panel.style.maxHeight = '60vh';
-        panel.style.overflow = 'auto';
-        panel.style.borderRadius = '12px';
-        panel.style.boxSizing = 'border-box';
-        // keep existing classes for dark UI
-      }
-
-      function positionPanel() {
-        const r = input.getBoundingClientRect();
-        const vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-        const margin = 8;
-        const maxWidth = Math.min(380, vw - margin * 2);
-        const width = Math.min(Math.max(r.width, 280), maxWidth);
-        const spaceRight = vw - r.right;
-        const spaceLeft = r.left;
-        // Prefer aligning left with input, but if it would overflow, shift left; if near right edge, align panel's right to input's right.
-        let left = r.left;
-        if (left + width + margin > vw) {
-          // Too close to the right edge; try snapping to input's right edge
-          left = Math.max(margin, r.right - width);
-        }
-        // Final clamp within viewport
-        left = Math.max(margin, Math.min(left, vw - width - margin));
-        panel.style.left = `${Math.round(left)}px`;
-        panel.style.top = `${Math.round(r.bottom + 8)}px`;
-        panel.style.width = `${Math.round(width)}px`;
-      }
-
-      let active = -1;
-      const close = () => { panel.classList.add('hidden'); panel.style.display='none'; panel.innerHTML=''; active = -1; };
-      const open = () => { positionPanel(); panel.classList.remove('hidden'); panel.style.display='block'; };
-
-      const doSearch = debounce(async () => {
-        const q = (input.value || '').trim();
-        if (q.length < 2) { close(); return; }
-        try {
-          const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
-          if (!res.ok) throw new Error('search failed');
-          const data = await res.json();
-          const items = Array.isArray(data?.results) ? data.results : [];
-          if (!items.length) { close(); return; }
-          renderSuggestions(panel, items, q);
-          open();
-        } catch { close(); }
-      }, 200);
-
-      input.addEventListener('input', doSearch);
-      input.addEventListener('focus', () => { positionPanel(); doSearch(); });
-      input.addEventListener('blur', () => setTimeout(close, 150));
-
-      input.addEventListener('keydown', (e) => {
-        const links = panel.querySelectorAll('a');
-        if (panel.classList.contains('hidden') || !links.length) return;
-        if (e.key === 'ArrowDown' || e.key === 'Tab') { e.preventDefault(); active = (active + 1) % links.length; links[active].focus(); }
-        if (e.key === 'ArrowUp') { e.preventDefault(); active = (active - 1 + links.length) % links.length; links[active].focus(); }
-        if (e.key === 'Escape') { close(); }
-      });
-
-      document.addEventListener('click', (evt) => {
-        if (!root.contains(evt.target) && !panel.contains(evt.target)) close();
-      });
-      window.addEventListener('resize', () => { if (!panel.classList.contains('hidden')) positionPanel(); }, { passive: true });
-      window.addEventListener('scroll', () => { if (!panel.classList.contains('hidden')) positionPanel(); }, { passive: true });
-    }
-
-    // Wire up all three search bars
-    setupTypeahead('mainHeaderSearch', 'mainHeaderSearchForm', 'mainSearchSuggest');
-    setupTypeahead('stickyHeaderSearch', 'stickyHeaderSearchForm', 'stickySearchSuggest');
-    setupTypeahead('mobileHeaderSearch', 'mobileHeaderSearchForm', 'mobileSearchSuggest');
+    // SearchBar React component handles suggestions client-side
 
     // --- Mobile Nav Drawer handlers ---
     function openMnav() {
@@ -426,6 +220,25 @@ import CartEntry from '@/components/cart/CartEntry.tsx';
     }
     applyMobileShrink(window.scrollY);
     window.addEventListener("scroll", () => { applyMobileShrink(window.scrollY); syncMobileHeaderTop(); }, { passive: true });
+
+      // Shrink desktop header on scroll (top red bar stays static)
+    const dShrinkThreshold = 120;
+    function applyDesktopShrink(y) {
+      if (!dheader) return;
+      if (y > dShrinkThreshold) {
+        dheader.classList.add("d-shrink");
+      } else {
+        dheader.classList.remove("d-shrink");
+      }
+    }
+    applyDesktopShrink(window.scrollY);
+    window.addEventListener("scroll", () => {
+      applyDesktopShrink(window.scrollY);
+      // Re-sync positions since the top bar height may change
+      syncMobileHeaderTop();
+      syncDesktopHeaderTop();
+      syncDesktopStickyTop();
+    }, { passive: true });
 
     // --- Account dashboard open/close helpers ---
     const dashboardToggle = document.getElementById("accountDashboardToggle");
@@ -550,8 +363,8 @@ import CartEntry from '@/components/cart/CartEntry.tsx';
     });
   });
   </script>
-  
-.  <style>
+
+  <style>
 .my-sticky-header {
   opacity: 0;
   pointer-events: none;
@@ -574,4 +387,19 @@ import CartEntry from '@/components/cart/CartEntry.tsx';
 
 /* Mobile header positioning to hug the red bar (JS keeps this exact) */
 #mheader { top: 40px; } /* default; JS overrides with computed bar height */
+
+/* Desktop main header positioning under the red bar (kept in sync via JS) */
+#dheader { top: 24px; }
+
+/* Desktop main header shrink states */
+#dheader .main-row { height: 4rem; padding-left: 2.5rem; padding-right: 2.5rem; }
+#dheader.d-shrink .main-row { height: 2.5rem; padding-left: 1rem; padding-right: 1rem; }
+#dheader .desktop-logo { height: 4rem; transform: scale(2); }
+#dheader.d-shrink .desktop-logo { height: 1.75rem; transform: scale(1); }
+#dheader .divider { margin-top: 1rem; margin-bottom: 1rem; }
+#dheader.d-shrink .divider { margin-top: 0.25rem; margin-bottom: 0.25rem; opacity: 0.7; }
+#dheader .second-row { padding-left: 1.25rem; padding-right: 1.25rem; padding-top: 0.25rem; padding-bottom: 0.25rem; }
+#dheader.d-shrink .second-row { padding-left: 0.75rem; padding-right: 0.75rem; padding-top: 0.125rem; padding-bottom: 0.125rem; }
+
+/* Red top bar (desktop only; element hidden on mobile) */
   </style>

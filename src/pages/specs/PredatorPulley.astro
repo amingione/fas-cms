@@ -7,7 +7,7 @@ import Button from '../components/Button.astro';
 ---
 
 <BaseLayout>
-  <div {...sbObjectId('content/pages/PredatorPulleySpecsSheet.json')}>
+  <div {...sbObjectId('content/pages/specs/PredatorPulley.json')}>
   <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Predator Pulley — Spec Sheet'}</div>
   {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
     <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />

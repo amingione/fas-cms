@@ -9,6 +9,9 @@ const pageDoc: any = await getGitPageDoc('about');
 ---
 
 <BaseLayout>
+    <section id="about">
+      <About client:only="react" />
+    </section>
   <div {...sbObjectId('content/pages/about.json')}>
   <!-- Hero -->
   <section class="relative bg-black/20 fade-in-up">
@@ -116,7 +119,7 @@ const pageDoc: any = await getGitPageDoc('about');
         <li>Proven Track Results & Loyal Client Base</li>
       </ul>
       <img 
-        src="/images/ram copy.webp" 
+        src="/images/packages/850-ram.webp" 
         alt="Track Ready Packages" 
         class="max-w-full h-auto"
       />

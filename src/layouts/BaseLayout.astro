@@ -39,7 +39,7 @@ import { Toaster } from 'sonner';
     <CartProvider client:load>
       <div class="relative z-10">
         <Header />
-        <main class="fullbleed bg-cover bg-center px-0 w-screen max-w-[100vw] overflow-x-hidden -mt-0">
+        <main class="fullbleed mt-14 md:mt-24 bg-cover bg-center px-0 w-screen max-w-[100vw] overflow-x-hidden">
           <slot />
         </main>
         <div class="m-0 p-0">
@@ -47,7 +47,7 @@ import { Toaster } from 'sonner';
         </div>
         
         <CookieBanner client:load />
-        <Toaster richColors position="bottom-center" />
+        <Toaster richColors position="bottom-left" />
       </div>
     </CartProvider>
 
@@ -67,18 +67,6 @@ import { Toaster } from 'sonner';
           observer.observe(el);
         });
 
-        // Hide the floating F.A.S. badge on pages where it can overlap content
-        const brand = document.getElementById('brand-tag');
-        const hideOn = [
-          /^\/account(\/|$)?/,
-          /^\/dashboard(\/|$)?/,
-          /^\/customerdashboard(\/|$)?/,
-          /^\/checkout(\/|$)?/,
-          /^\/cart(\/|$)?/,
-        ];
-        if (brand && hideOn.some(rx => rx.test(location.pathname))) {
-          brand.classList.add('hidden');
-        }
       });
     </script>
 

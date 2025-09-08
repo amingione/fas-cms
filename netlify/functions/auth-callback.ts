@@ -80,12 +80,12 @@ export const handler: Handler = async (event) => {
   });
 
   const isLocal =
-    (redirectUri || '').startsWith('http://localhost') ||
+    (redirectUri || '').startsWith('https://fasmotorsports.com') ||
     (redirectUri || '').startsWith('http://127.0.0.1');
   const sessionFlags = `HttpOnly; Path=/; Max-Age=604800; SameSite=Lax${isLocal ? '' : '; Secure'}`;
   const headers = {
     'Set-Cookie': [`session=${session}; ${sessionFlags}`].join(', '),
-    Location: '/admin'
+    Location: '/admin, /account'
   };
 
   return { statusCode: 302, headers };

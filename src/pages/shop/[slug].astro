@@ -237,6 +237,7 @@ try {
           data-product-name={(product as any).title}
           data-product-price={(product as any).price}
           data-product-base-price={(product as any).price}
+          data-product-image={(product as any).images?.[0]?.asset?.url || (product as any).images?.[0]?.url || ''}
           data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
         >
           <!-- bag icon -->
@@ -485,6 +486,7 @@ try {
     data-product-name={(product as any).title}
     data-product-price={(product as any).price}
     data-product-base-price={(product as any).price}
+    data-product-image={(product as any).images?.[0]?.asset?.url || (product as any).images?.[0]?.url || ''}
     data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
   >
     Add to Cart
@@ -559,21 +561,24 @@ try {
       try { return JSON.parse(String(str || "")); } catch { return fallback; }
     }
 
+    const CART_KEY = 'fas_cart_v1';
+
     function getCart() {
       try {
-        const raw = localStorage.getItem('cart');
-        const data = raw ? JSON.parse(raw) : [];
-        return Array.isArray(data) ? data : [];
-      } catch { return []; }
+        const raw = localStorage.getItem(CART_KEY);
+        const parsed = raw ? JSON.parse(raw) : null;
+        if (parsed && Array.isArray(parsed.items)) return parsed;
+        return { items: [] };
+      } catch { return { items: [] }; }
     }
 
     function setCart(cart) {
-      try { localStorage.setItem('cart', JSON.stringify(cart)); } catch {}
+      try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch {}
       try { window.cart = cart; } catch {}
     }
 
-    function emitCartUpdated(cart) {
-      try { window.dispatchEvent(new CustomEvent('cart:updated', { detail: { cart } })); } catch {}
+    function emitCartChanged(cart) {
+      try { window.dispatchEvent(new CustomEvent('cart:changed', { detail: { cart } })); } catch {}
     }
 
     // Add-to-cart delegation (compute latest config first)
@@ -600,35 +605,36 @@ try {
         return ga.localeCompare(gb);
       }));
 
+      const optionsMap = {};
+      try { selections.forEach((s) => { optionsMap[String(s.group||'option')] = String(s.value||''); }); } catch {}
+      const composedId = `${ds.productId || ''}::${signature}`;
+
       const product = {
-        id: ds.productId || "",
+        id: composedId,
         name: ds.productName || "Item",
         price: total,                 // line item price reflects configured total
         basePrice: basePrice,         // keep base for reference
         extra: total - basePrice,     // summed deltas
-        categories: safeParseJSON(ds.productCategories || "[]", []),
-        options: selections,          // selected upgrades/options
-        signature,                    // used to deduplicate
+        image: ds.productImage || '',
+        options: optionsMap,          // selected upgrades/options as map
+        signature,                    // keep signature for debug
         quantity: 1,
       };
-
       const cart = getCart();
-
-      // Find existing line with same product id AND same configuration signature
-      const existing = cart.find((p) => p && p.id === product.id && p.signature === product.signature);
+      const items = cart.items || [];
+      const existing = items.find((p) => p && p.id === product.id);
       if (existing) {
         existing.quantity = (existing.quantity || 1) + 1;
-        // Always keep price in sync with current configuration
         existing.price = product.price;
-        existing.extra = product.extra;
         existing.basePrice = product.basePrice;
+        existing.extra = product.extra;
         existing.options = product.options;
       } else {
-        cart.push(product);
+        items.push(product);
       }
-
+      cart.items = items;
       setCart(cart);
-      emitCartUpdated(cart);
+      emitCartChanged(cart);
     }, true);
 
     // ---- Price calculator ----

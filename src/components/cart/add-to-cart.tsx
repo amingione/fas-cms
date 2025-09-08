@@ -2,7 +2,7 @@
 
 import { PlusIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
-import { addItem } from '@components/cart/actions.tsx';
+import { addItem } from '@components/cart/actions';
 import * as React from 'react';
 
 /**

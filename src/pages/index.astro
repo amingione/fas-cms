@@ -96,7 +96,6 @@ try {
   <div {...sbObjectId('content/pages/index.json')}>
   <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Home'}</div>
 
-{showV2 && (
   <main class="relative flex flex-col">
     {/* Dynamic sections first so the Editor can add/reorder blocks */}
     {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
@@ -106,7 +105,7 @@ try {
     {/* Keep existing curated sections below; we can convert later */}
     <section class="contain w-full relative">
       <HeroBanner
-        imageSrc="/images/ram copy.webp"
+        imageSrc="/images/packages/850-ram.webp"
         headline="Power Up Your Ride"
         subtext="Unleash your car's potential with our premium performance upgrades."
         ctaText="Explore Now"
@@ -142,7 +141,5 @@ try {
       <About client:only="react" />
     </section>
   </main>
-)}
-
   </div>
 </BaseLayout>

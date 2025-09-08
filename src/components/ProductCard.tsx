@@ -39,7 +39,8 @@ function addToCart(product: SanityProduct) {
     const categories = Array.isArray(product.categories)
       ? product.categories.map((c: any) => c?._ref || c?._id || '').filter(Boolean)
       : [];
-    addItem({ id, name, price, quantity: 1, categories });
+    const image = product?.images?.[0]?.asset?.url || '/placeholder.png';
+    addItem({ id, name, price, quantity: 1, categories, image });
   } catch (e) {
     console.error('addToCart failed', e);
   }

@@ -1,108 +1,51 @@
 ---
 // No imports needed; icons are lightweight SVGs inline below.
 // If you prefer lucide, you can paste their raw SVGs here.
-const ROUTE_BASE: Record<string, string> = {
-  PRODUCTS: '/shop',      // fixed
-  SERVICES: '/services',
-  COMPANY: '/company',
-  VENDORS: '/vendors'
-};
 
-function slugify(label: string) {
-  return label
-    .toLowerCase()
-    .replace(/&/g, 'and')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)+/g, '');
-}
 
-function routeFor(category: string, label: string) {
-  const base = ROUTE_BASE[category] || '/';
-  if (category === 'COMPANY') {
-    if (/about/i.test(label)) return '/about';
-    if (/contact/i.test(label)) return '/contact';
-    if (/faq/i.test(label)) return '/faq';
-  }
-  if (category === 'VENDORS') {
-    if (/login/i.test(label)) return 'https://fasmotorsports.io/login';
-    if (/dashboard/i.test(label)) return 'https://fasmotorsports.io';
-    if (/application/i.test(label)) return 'https://fasmotorsports.io/vendor/apply';
-  }
-  return `${base}/${slugify(label)}`;
-}
 
-const footerGroups: Record<string, { label: string; href: string }[]> = {
-  MENU: [
-    { label: 'Shop', href: '/shop' },
-    { label: 'Power Packages', href: '/power-packages' },
-    { label: 'Truck Packages', href: '/truckPackages' },
-    { label: 'Core Exchange', href: '/coreExchange' },
-    { label: 'IGLA', href: '/igla' },
-  ],
-  SERVICES: [
-    { label: 'Services', href: '/services' },
-    { label: 'Porting', href: '/porting' },
-    { label: 'Schedule Service', href: '/schedule' },
-  ],
-  COMPANY: [
-    { label: 'About F.A.S.', href: '/about' },
-    { label: 'FAQ', href: '/faq' },
-    { label: 'Contact', href: '/contact' },
-  ],
-  VENDORS: [
-    { label: 'Login', href: 'https://fasmotorsports.io/vendor/login' },
-    { label: 'Dashboard', href: 'https://fasmotorsports.io' },
-    { label: 'Application', href: 'https://fasmotorsports.io/vendor/apply' },
-  ],
-  ACCOUNT: [
-    { label: 'My Account', href: '/account' },
-    { label: 'Customer Dashboard', href: '/dashboard' },
-  ],
-};
 
 const socialLinks = [
   { name: 'Instagram', href: 'https://instagram.com/fas_moto', handle: '@fas_moto' },
   { name: 'Facebook', href: 'https://facebook.com/fasmotorsports', handle: 'F.A.S. Motorsports' }
 ];
 ---
-<footer class="mt-20 bg-gradient-to-b from-gray-900 to-black text-white text-sm font-captain tracking-wider px-4 py-10 relative overflow-hidden">
+<footer class="mt-20 bg-gradient-to-b from-red-950/20 to-black/30 backdrop-blur-sm text-white text-sm font-captain tracking-wider px-4 py-10 relative overflow-hidden">
+   <div class="absolute top-0 h-px left-0 right-0 bg-gradient-to-r from-primary via-white/20 to-primary"></div>
   <!-- background effects -->
-  <div class="absolute inset-0 asphalt-texture opacity-30"></div>
-  <div class="absolute inset-0 tire-tracks opacity-20"></div>
+  <div class="inset-0 opacity-30"></div>
+  <div class="inset-0 opacity-20"></div>
 
-  <div class="container mx-auto px-4 lg:px-6 py-16 relative z-10">
-    <div class="grid md:grid-cols-3 lg:grid-cols-7 gap-8">
+  <div class="w-full justify-center text-center mx-auto px-4 lg:px-6 py-16 relative z-10">
+    <div class="w-full justify-center gap-8">
       <!-- Brand Section -->
-      <div class="lg:col-span-2 space-y-6">
-        <div class="flex items-center space-x-4 group cursor-pointer transition-transform duration-300 hover:scale-[1.02]">
+      <div class="w-full justify-center space-y-6">
+        <div class="flex w-full items-center justify-center text-center space-x-4 group cursor-pointer transition-transform duration-300 hover:scale-[1.02]">
           <div class="w-16 h-16 flex items-center justify-center">
             <img
               src="/images/faslogochroma.png"
               alt="F.A.S. Motorsports"
-              class="w-14 h-14 object-contain drop-shadow-lg"
+              class="w-14 h-14 object-contain justify-center drop-shadow-lg"
             />
           </div>
           <div>
-            <span class="text-2xl font-black bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent block font-borg">
+            <span class="w-full text-2xl justify-start text-left font-black bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent block font-borg">
               F.a.S. MOTORSPORTS
             </span>
-            <span class="text-sm text-primary font-bold tracking-widest font-ethno">
+            <span class="w-full text-sm text-primary font-bold tracking-widest font-ethno">
               FAST • AGGRESSIVE • SUPERIOR
             </span>
           </div>
         </div>
 
-        <p class="text-graylight max-w-md leading-relaxed font-kwajong">
+        <p class="w-full pb-3 text-graylight text-center justify-center mx-auto tracking-tight font-mono">
           Precision-engineered supercharger components and custom modifications for the ultimate
-          in automotive performance. Racing heritage since 2000.
+          in automotive performance.
         </p>
 
-        <div class="font-borg text-accent text-xs tracking-widest">
-          — CHAMPIONSHIP HERITAGE • PROVEN PERFORMANCE —
-        </div>
 
-        <!-- Quick Contact -->
-        <div class="space-y-3">
+       <!-- Quick Contact (hidden on mobile) -->
+        <div class="relative hidden md:flex gap-6 items-center justify-center text-center">
           <a href="/contact#location" class="flex items-center space-x-3 text-graylight hover:text-white transition-colors cursor-pointer">
             <!-- MapPin -->
             <svg class="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -115,7 +58,7 @@ const socialLinks = [
             <svg class="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.1 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.3 1.77.57 2.61a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.47-1.1a2 2 0 0 1 2.11-.45c.84.27 1.71.45 2.61.57A2 2 0 0 1 22 16.92z"/>
             </svg>
-            <span class="text-sm font-medium font-kwajong">+1 (239) 200-9012</span>
+            <span class="text-sm flex items-center font-kwajong">+1 (812) 200-9012</span>
           </a>
           <a href="mailto:support@fasmotorsports.com" class="flex items-center space-x-3 text-graylight hover:text-white transition-colors cursor-pointer">
             <!-- Mail -->
@@ -127,7 +70,7 @@ const socialLinks = [
         </div>
 
         <!-- Social Links -->
-        <div class="flex space-x-6">
+        <div class="flex relative justify-center items-center space-x-10 gap-5 pb-4 text-center">
           {socialLinks.map((social) => (
             <a href={social.href} class="text-gray-400 hover:text-primary transition-colors font-medium text-sm group">
               <div class="space-y-1">
@@ -137,44 +80,19 @@ const socialLinks = [
             </a>
           ))}
         </div>
-      </div>
 
-      <!-- Links Sections -->
-      {['MENU','SERVICES','COMPANY','VENDORS','ACCOUNT'].map((category) => (
-        <div class="space-y-4">
-          <h4 class="font-black text-white tracking-widest text-sm border-l-4 border-primary pl-3 font-ethno">
-            {category}
-          </h4>
-          <ul class="space-y-3">
-            {footerGroups[category].map((item) => (
-              <li>
-                <a
-                  href={item.href}
-                  class="text-gray-400 hover:text-white transition-all duration-300 text-sm font-medium group flex items-center space-x-2 font-kwajong"
-                >
-                  <span class="w-1 h-1 bg-primary rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-                  <span class="group-hover:translate-x-1 transition-transform duration-300">{item.label}</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
-    </div>
 
-    <div class="my-12 h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent"></div>
 
-    <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-      <div class="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-8">
+      <div class="relative flex justify-center items-center">
         <p class="text-gray-400 text-sm font-medium font-kwajong">
           © 2025 F.A.S. Motorsports. All rights reserved.
         </p>
-        <p class="text-primary text-center text-sm font-bold font-ethno">
-          BUILT FAST. ENGINEERED AGGRESSIVE. PROVEN SUPERIOR.
-        </p>
       </div>
 
-      <div class="flex justify-end text-end space-x-4 text-sm">
+        <!-- Racing stripe at bottom (centered, thinner) -->
+        <div class="mx-auto my-3 w-1/2 h-px bg-gradient-to-r from-primary via-white/20 to-primary rounded-full"></div>
+
+      <div class="relative bottom-0 pt-5 mb[-10] flex flex-wrap items-center justify-center gap-3 text-center text-sm">
         <a href="/privacypolicy" class="text-gray-400 hover:text-white transition-colors font-medium font-kwajong">Privacy Policy</a>
         <span class="text-primary">|</span>
         <a href="/termsandconditions" class="text-gray-400 hover:text-white transition-colors font-medium font-kwajong">Terms &amp; Conditions</a>
@@ -184,32 +102,10 @@ const socialLinks = [
         <a href="/returnRefundPolicy" class="text-gray-400 hover:text-white transition-colors font-medium font-kwajong">Refund &amp; Return/Refund Policy</a>
       </div>
     </div>
-
-    <!-- Performance Badge -->
-    <div class="mt-8 text-center">
-      <div class="inline-flex items-center space-x-3 bg-gradient-to-r from-primary/10 to-blue-500/10 border border-primary/20 rounded-full px-8 py-3 industrial-card">
-        <img src="/images/faslogochroma.png" alt="F.A.S. Logo" class="w-6 h-6 object-contain" />
-        <span class="text-sm font-bold text-graylight tracking-widest font-ethno">
-          CHAMPIONSHIP WINNING PERFORMANCE SINCE 2000
-        </span>
-      </div>
-    </div>
-
-    <div class="mt-6 text-center font-borg text-accent text-xs tracking-widest">
-      — WHERE SPEED MEETS PRECISION • WHERE DREAMS BECOME HORSEPOWER —
-    </div>
   </div>
-
-  <!-- Racing stripe at bottom -->
-  <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-white to-primary"></div>
-
-    <!-- Right: Launchewell SO -->
-        <p class="text-xs font-montserrat text-white/50 mt-2 flex items-center justify-center gap-2">
-          <img src="/logo/launchwell brands logo white.png" alt="LaunchWell Brands logo" class="h-4" />
+   <!-- Right: Launchewell SO -->
+        <p class="text-xs pt-6 font-montserrat text-white/50 flex items-center justify-center gap-1">
+          <img src="/logo/launchwell brands logo white.png" alt="LaunchWell Brands logo" class="h-5" />
           Website by <a href="https://launchwellbrands.com" class="font-montserrat hover:text-accent">LaunchWell Brands</a>
         </p>
-      </div>
-
-   <!-- Racing stripe at bottom -->
-  <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-white to-primary"></div>
 </footer>

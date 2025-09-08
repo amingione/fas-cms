@@ -7,13 +7,16 @@ export type CartItem = {
   image?: string;
 };
 
-export const CART_KEY = 'cart';
-export const CART_EVENT = 'cart:updated';
+export const CART_KEY = 'fas_cart_v1';
+export const CART_EVENT = 'cart:changed';
 
 export function getCart(): CartItem[] {
   try {
-    const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(CART_KEY) : null;
-    return raw ? (JSON.parse(raw) as CartItem[]) : [];
+    if (typeof localStorage === 'undefined') return [];
+    const raw = localStorage.getItem(CART_KEY);
+    const parsed = raw ? JSON.parse(raw) : null;
+    const items = parsed && Array.isArray(parsed.items) ? parsed.items : [];
+    return items as CartItem[];
   } catch {
     return [];
   }
@@ -22,7 +25,7 @@ export function getCart(): CartItem[] {
 export function saveCart(cart: CartItem[]): void {
   try {
     if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(CART_KEY, JSON.stringify(cart));
+      localStorage.setItem(CART_KEY, JSON.stringify({ items: cart }));
     }
     emitCartUpdated(cart);
   } catch {}
@@ -30,7 +33,7 @@ export function saveCart(cart: CartItem[]): void {
 
 export function emitCartUpdated(cart: CartItem[]): void {
   try {
-    const detail = { cart } as any;
+    const detail = { cart: { items: cart } } as any;
     if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
       window.dispatchEvent(new CustomEvent(CART_EVENT, { detail }));
     }
@@ -48,4 +51,3 @@ export function addItem(item: CartItem): CartItem[] {
   saveCart(cart);
   return cart;
 }
-

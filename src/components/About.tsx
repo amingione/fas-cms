@@ -183,7 +183,7 @@ export function About() {
                 transition={{ duration: 0.3 }}
               >
                 <img
-                  src="/images/FAS Pulley & Hub Kit.png"
+                  src="/images/billetParts/FAS-Pulley-Hub-Kit.png"
                   alt="Precision Billet Work"
                   className="w-full h-48 object-cover"
                   loading="lazy"
@@ -200,7 +200,7 @@ export function About() {
                 transition={{ duration: 0.3 }}
               >
                 <img
-                  src="/images/billet bearing plate.png"
+                  src="/images/billetParts/billet-bearing-plate.png"
                   alt="F.A.S. Components"
                   className="w-full h-48 object-cover"
                   loading="lazy"
@@ -240,7 +240,7 @@ export function About() {
                   style={{ perspective: '1000px' }}
                 >
                   <img
-                    src="/images/FAS Pulley & Hub Kit.png"
+                    src="/images/billetParts/FAS-Pulley-Hub-Kit.png"
                     alt="Billet Aluminum Components"
                     className="w-full h-32 lg:h-40 object-cover group-hover:scale-110 transition-transform duration-500"
                     loading="lazy"
@@ -278,7 +278,7 @@ export function About() {
                   style={{ perspective: '1000px' }}
                 >
                   <img
-                    src="/images/fas pred pully HP{ copy.png"
+                    src="/images/billetParts/predator-pulley-fas.png"
                     alt="Quality Control"
                     className="w-full h-48 lg:h-64 object-cover group-hover:scale-110 transition-transform duration-500"
                     loading="lazy"

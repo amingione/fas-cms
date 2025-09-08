@@ -7,10 +7,12 @@
  * - Title + subtitle styled in your FAS fonts
  * - Call-to-action buttons
  */
+import { Button } from '@/components/ui/button.tsx';
+import Carousel from '@/components/Carousel.astro';
+
 interface Props {
   title?: string;
   subtitle?: string;
-  image?: string;
   ctaPrimaryHref?: string;
   ctaPrimaryLabel?: string;
   ctaSecondaryHref?: string;
@@ -19,27 +21,24 @@ interface Props {
 const {
   title = 'Built for Speed',
   subtitle = 'Premium performance parts & custom builds',
-  image = '',
-  ctaPrimaryHref = '/shop',
-  ctaPrimaryLabel = 'Shop now',
-  ctaSecondaryHref = '/builds',
-  ctaSecondaryLabel = 'Custom builds'
+  ctaPrimaryHref = '/packages/power-packages',
+  ctaPrimaryLabel = 'Power Packages',
+  ctaSecondaryHref = '/BuildConfigurator',
+  ctaSecondaryLabel = 'Custom Build'
 } = Astro.props as Props;
 ---
 <section class="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-black to-black/90 text-white">
-  {image ? (
-    <img src={image} alt="" class="absolute inset-0 w-full h-full object-cover opacity-25 pointer-events-none" />
-  ) : null}
   <div class="relative z-10 max-w-7xl mx-auto px-4 md:px-6 py-16 text-center">
     <h1 class="font-ethno text-3xl md:text-5xl mb-3">{title}</h1>
     <p class="text-white/70 text-base md:text-lg">{subtitle}</p>
     <div class="mt-6 flex items-center justify-center gap-3">
-      <a href={ctaPrimaryHref} class="rounded-fx-md bg-primary text-black font-semibold px-5 py-2 hover:bg-primary/90">
-        {ctaPrimaryLabel}
-      </a>
-      <a href={ctaSecondaryHref} class="rounded-fx-md border border-white/20 px-5 py-2 hover:bg-white/10">
-        {ctaSecondaryLabel}
-      </a>
+      <Carousel class="relative" />
+      <Button asChild variant="default" size="md">
+        <a href={ctaPrimaryHref}>{ctaPrimaryLabel}</a>
+      </Button>
+      <Button asChild variant="secondary" size="md">
+        <a href={ctaSecondaryHref}>{ctaSecondaryLabel}</a>
+      </Button>
     </div>
   </div>
 </section>

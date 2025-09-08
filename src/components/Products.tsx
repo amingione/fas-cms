@@ -19,14 +19,13 @@ export function Products() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-
   const products = [
     {
       id: 1,
       name: 'Billet Bearing Plate',
       description:
         'Designed for maximum durability and airflow efficiency, eliminates weak points found in factory cast plates, improves reliability under extreme boost.',
-      image: '/images/billet bearing plate.png',
+      image: '/images/billetParts/billet-bearing-plate.png',
       features: ['2+PSI Average Gain', '50-100whp', 'CNC-Machined Billet'],
       price: '$900',
       popular: true,
@@ -38,7 +37,7 @@ export function Products() {
       name: 'Hellcat Pulley And Hub Kit',
       description:
         'Built for easy swaps and maximum reliability, this kit gives you the flexibility to dial in your setup without compromise.',
-      image: '/images/FAS Pulley & Hub Kit.png',
+      image: '/images/billetParts/FAS-Pulley-Hub-Kit.png',
       features: ['Grip-Coated Billet', 'Internal ½” Hex Drive', 'Industry-Leading Hub Design'],
       price: '$220',
       popular: true,
@@ -50,7 +49,7 @@ export function Products() {
       name: 'Predator Pulley',
       description:
         'FAS “PREDATOR” Slip On Lower Pulley. Patent-pending innovation – precision-engineered for flawless performance.',
-      image: '/images/predatoru pulley homepage copy.png',
+      image: '/images/billetParts/fas-pred-pully.png',
       features: ['1.5-2psi Gain', 'Slip On Design', 'No Tune Required'],
       price: 'From $899',
       popular: true,

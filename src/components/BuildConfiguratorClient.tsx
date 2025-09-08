@@ -503,7 +503,7 @@ const VEHICLES: Array<{ id: string; label: string; image: string; tokens: string
   {
     id: 'hellcat-durango',
     label: 'Hellcat Durango',
-    image: '/images/ram copy.webp',
+    image: '/images/packages/850-ram.webp',
     tokens: ['hellcat', 'durango']
   },
   {
@@ -515,13 +515,13 @@ const VEHICLES: Array<{ id: string; label: string; image: string; tokens: string
   {
     id: 'raptor-r',
     label: 'Raptor R',
-    image: '/images/TRX Truck Package FAS copy.png',
+    image: '/images/packages/D-FAS-TRX-Package.png',
     tokens: ['raptor', 'raptor-r']
   },
   {
     id: 'trx',
     label: 'Ram TRX',
-    image: '/images/TRX Truck Package FAS copy.png',
+    image: '/images/packages/850-ram.webp',
     tokens: ['trx', 'ram']
   }
 ];

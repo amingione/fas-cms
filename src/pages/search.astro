@@ -6,6 +6,7 @@ import { fetchProductsFromSanity, fetchCategories } from '@lib/sanity-utils';
 import type { Product, Category } from '@lib/sanity-utils';
 
 
+
 export interface ProductCardProps {
   product: SanityProduct;
   productImage?: { asset?: { url?: string } } | string | null;
@@ -48,7 +49,7 @@ if (endPage < totalPages) {
   paginationLinks.push({ label: "→", page: endPage + 1 });
 }
 ---
-<BaseLayout hideBrandTag>
+<BaseLayout>
   <main class="min-h-screen text-white px-4 sm:px-8 py-10">
     <h1 class="font-ethno text-2xl sm:text-3xl mb-6">Search</h1>
 
@@ -72,6 +73,8 @@ if (endPage < totalPages) {
 <div id="results" class="space-y-10">
   <p class="text-white/70">Type a query above and press Enter.</p>
 </div>
+
+
 
 <script type="module">
   const resultsEl = document.getElementById('results');

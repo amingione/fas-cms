@@ -62,23 +62,24 @@ function SheetContent({
 }: React.ComponentProps<typeof SheetPrimitive.Content> & {
   side?: 'top' | 'right' | 'bottom' | 'left';
 }) {
+  const BASE =
+    'bg-background fixed z-[81] flex flex-col gap-4 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500';
+  const SIDE_STYLES: Record<'top' | 'right' | 'bottom' | 'left', string> = {
+    right:
+      'right-0 inset-y-0 h-full w-[80vw] sm:w-[20rem] border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right',
+    left:
+      'left-0 inset-y-0 h-full w-[80vw] sm:w-[20rem] border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left',
+    top:
+      'top-0 inset-x-0 h-auto w-screen border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top',
+    bottom:
+      'bottom-0 inset-x-0 h-auto w-screen border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom'
+  };
   return (
     <SheetPortal>
       <SheetOverlay />
       <SheetPrimitive.Content
         data-slot="sheet-content"
-        className={cn(
-          'bg-background data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-[81] flex flex-col gap-4 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500',
-          side === 'right' &&
-            'data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right inset-y-0 right-0 h-full w-[80vw] sm:w-[20rem] border-l',
-          side === 'left' &&
-            'data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left inset-y-0 left-0 h-full w-3/4 border-r sm:max-w-sm',
-          side === 'top' &&
-            'data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top inset-x-0 top-0 h-auto border-b',
-          side === 'bottom' &&
-            'data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom inset-x-0 bottom-0 h-auto border-t',
-          className
-        )}
+        className={cn(BASE, SIDE_STYLES[side], className)}
         {...props}
       >
         {children}

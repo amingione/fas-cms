@@ -92,8 +92,8 @@ const mockProducts = [
     title: 'Custom Port & Polish Service',
     slug: 'port-polish-service',
     price: 1499.99,
-    image: 'images/hpfasog.png',
-    images: ['images/hpfasog.png'],
+    image: 'images/superchargers/hpfasog.png',
+    images: ['images/superchargers/hpfasog.png'],
     categories: [{ _ref: 'services' }, { _ref: 'porting' }],
     filters: []
   },
@@ -132,8 +132,8 @@ const mockProducts = [
     title: 'Supercharger Rebuild Service',
     slug: 'supercharger-rebuild',
     price: 2299.99,
-    image: 'images/ram copy.webp',
-    images: ['images/ram copy.webp'],
+    image: 'images/packages/850-ram.webp',
+    images: ['images/packages/850-ram.webp'],
     categories: [{ _ref: 'services' }, { _ref: 'rebuild' }],
     filters: []
   },
@@ -209,8 +209,10 @@ export default function Shop({
   useEffect(() => {
     const updateCartCount = () => {
       try {
-        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-        const count = cart.reduce((total: number, item: any) => total + (item.quantity || 0), 0);
+        const raw = localStorage.getItem('fas_cart_v1');
+        const parsed = raw ? JSON.parse(raw) : null;
+        const items: any[] = parsed && Array.isArray(parsed.items) ? parsed.items : [];
+        const count = items.reduce((total: number, item: any) => total + (item.quantity || 0), 0);
         setCartItems(count);
       } catch {
         setCartItems(0);
@@ -218,10 +220,9 @@ export default function Shop({
     };
 
     updateCartCount();
-    // Listen only to the normalized event
-    window.addEventListener('cart:updated', updateCartCount);
+    window.addEventListener('cart:changed', updateCartCount);
     return () => {
-      window.removeEventListener('cart:updated', updateCartCount);
+      window.removeEventListener('cart:changed', updateCartCount);
     };
   }, []);
 
@@ -279,7 +280,7 @@ export default function Shop({
       <div
         className="absolute inset-0 opacity-30"
         style={{
-          backgroundImage: 'url(/images/bg-texture.webp)',
+          backgroundImage: 'url(/images/backgrounds/bg-texture.webp)',
           backgroundSize: '800px 600px',
           backgroundRepeat: 'repeat',
           backgroundPosition: '0 0'

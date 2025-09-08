@@ -8,6 +8,7 @@ import ProductGrid from '@/components/storefront/ProductGrid.astro';
 import FilterPanelMobile from '@/components/storefront/FilterPanelMobile.tsx';
 import Pagination from '@/components/storefront/Pagination.astro';
 import Breadcrumbs from '@/components/storefront/Breadcrumbs.astro';
+import StoreHero from '@/components/storefront/StoreHero.astro';
 
 export const prerender = false;
 
@@ -101,6 +102,9 @@ if (endPage < totalPages) {
 ---
 
 <BaseLayout>
+  <section>
+    <StoreHero />
+  </section>
   <section class="max-w-7xl mx-auto px-4 md:px-6 mt-11 pt-10">
     <div class="mb-6 space-y-3">
       <Breadcrumbs items={[{ href: '/', label: 'Home' }, { href: '/shop', label: 'Shop' }, ...(currentCategory ? [{ label: currentCategoryTitle }] : [])]} />

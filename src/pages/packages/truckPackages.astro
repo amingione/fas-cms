@@ -1,0 +1,484 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
+import { Button } from '@/components/ui/button';
+
+const pageDoc: any = await getGitPageDoc('truckPackages');
+// Use plain HTML buttons/links in this SSR page to avoid React SSR for UI primitives
+---
+
+<BaseLayout title="Truck Packages">
+
+  <div {...sbObjectId('content/pages/truckPackages.json')}>
+  <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Truck Packages'}</div>
+  <!-- Hero Section with Parallax (responsive) -->
+  <section class="luxury-particles relative felx industrial-card hero-section parallax-section mt-10 md:mt-12 px-4 md:px-10 pt-8 md:pt-10 mb-5">
+    <div class="background-layer" aria-hidden="true"></div>
+    <div class="midground-layer" aria-hidden="true">
+      <!-- Editable: Replace src with your truck image path -->
+      <img src="/images/packages/F250-FAS.png" alt="" class="midground-image object-contain">
+    </div>
+    <div class="foreground-layer">
+      <div class="hero-inner">
+        <h1 class="font-borg text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-primary mb-3 md:mb-4" {...sbFieldPath('title')}>
+          {pageDoc?.title ?? 'Premium Truck Packages'}
+        </h1>
+        <p class="font-mono font-extrabold tracking-widest text-accent text-base sm:text-lg md:text-xl mb-5 md:mb-6 max-w-2xl mx-auto md:mx-0">
+          From minor bolt ons to packages that exceed 2000HP!
+        </p>
+        
+        <img src="/images/wheels/jtx-forged-truck-wheels.png" alt="JTX Forged Wheels" class="accent-image">
+        <Button className="outline font-ethno text-base transition-all duration-300">
+          <a href="/customBuild">
+            Get Started
+          </a>
+        </Button>
+        <div class="mobile-hero-media">
+          <img src="/images/wheels/jtx-forged-truck-wheels.png" alt="JTX Forged Wheels" class="wheel-mobile" />
+          <img src="/images/packages/F250-FAS.png" alt="FAS Built Trucks" class="truck-mobile" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Packages Section -->
+  <section class="packages section-divider section-divider-carbon">
+    <h2 class="font-borg text-primary text-6xl">
+      F.a.S
+    </h2>
+    <h2 class="font-ethno text-secondary text-5xl">
+      Truck Packages
+    </h2>
+    
+    <div class="package-grid">
+      <div class="package-card">
+        <div class="package-media">
+          <img src="/images/packages/Shelby-truck.png" alt="Shelby Truck Package by FAS" class="package-image">
+        </div>
+        <h3 class="font-ethno text-primary">
+          Turn Key 1000 HP Package
+        </h3>
+        <p class="font-ethno text-base tracking-tight text-accent">
+          <div class="my-2 font-captain text-lg tracking-wide text-white/60">Starting at $15,999</div>
+          <p class="font-ethno text-base tracking-tight text-accent">
+            for both street and track use
+          </p>
+        </p>
+        <ul class="font-mono font-bold pt-4 text-base tracking-tight leading-snug">
+          <li>• 64/66 Billet Wheel Twin Turbo Kit</li>
+          <li>• Dual Pump Fore Fuel System w/ billet rails</li>
+          <li>• 1000cc Injectors</li>
+          <li>• Custom Catch Can</li>
+          <li> <span class="font-ethno text-lg tracking-tight text-primary mt-3">And More!</span> </li>
+        </ul>
+        <Button className="my-3 ghost">
+          <a href="/shop/fas-1000-package-installed-and-tuned" class="font-cyber tracking-widest transition-all duration-300">
+            Shop Package ➟ 
+          </a>
+        </Button>
+      </div>
+
+      <!-- Package Card 2 -->
+      <div class="package-card">
+        <!-- Editable: Replace src with your package photo -->
+        <div class="package-media">
+          <img src="/images/packages/ram-trx-factory-freak.png" alt="TRX Truck Package by FAS" class="package-image">
+        </div>
+        <h3 class="font-ethno text-primary">
+          <span class="font-borg text-white">F.a.S TRX</span> “Factory Freak” <span class="font-ethno text-base tracking-tight text-white">Package</span>
+        </h3>
+        <p class="font-ethno text-base tracking-tight text-accent">
+          <div class="my-2 font-captain text-lg tracking-wide text-white/60">Starting at $1,599 </div>
+          <p class="font-ethno text-lg tracking-tight text-blue-500">
+            • NO TUNE REQUIRED •
+          </p>
+        </p>
+        <ul class="font-mono font-bold pt-4 text-base tracking-tight leading-snug">
+          <!-- Editable: Add/remove list items -->
+          <li>• Gains of 60-70+whp</li>
+          <li>• “Predator” Lower Pulley Kit</li>
+          <li>• Cornerstone Cold Air Intake</li>
+          <li>• For ALL Hellcat Platforms</li>
+        </ul>
+        <Button className="my-3 ghost">
+          <a href="/shop/fas-factory-freak-package-trx" class="font-cyber tracking-widest transition-all duration-300">
+            Shop Package ➟
+          </a>
+        </Button>
+      </div>
+
+
+      <!-- Package Card 3 -->
+     <div class="package-card">
+        <!-- Editable: Replace src with your package photo -->
+        <div class="package-media">
+          <img src="/images/packages/Shelby-truck.png" alt="Shelby Truck Package by FAS" class="package-image">
+        </div>
+        <h3 class="font-ethno text-primary">
+          Turn Key 1000 HP Package
+        </h3>
+        <p class="font-ethno text-base tracking-tight text-accent">
+          <div class="my-2 font-captain text-lg tracking-wide text-white/60">Starting at $19,999</div>
+          <p class="font-ethno text-base tracking-tight text-accent">
+            for both street and track use
+          </p>
+        </p>
+        <ul class="font-mono pt-4 text-base tracking-tight leading-snug">
+          <!-- Editable: Add/remove list items -->
+          <li>• 64/66 Billet Wheel Twin Turbo Kit</li>
+          <li>• Dual Pump Fore Fuel System w/ billet rails</li>
+          <li>• 1000cc Injectors</li>
+          <li>• Custom Catch Can</li>
+          <li>• And More!</li>
+        </ul>
+        <Button className="my-3 ghost">
+          <a href="/packages/1000-hp-package" class="font-cyber tracking-widest transition-all duration-300">
+            Shop Package ➟
+          </a>
+        </Button>
+      </div>
+
+    </div>
+  </section>
+  </div>
+
+</BaseLayout>
+
+  <style>
+    /* Dark UI Palette - Editable: Change colors via CSS variables */
+
+    /* 3D depth & glow helpers */
+    .parallax-section {
+      perspective: 1000px;
+      height: min(85vh, 900px);
+    }
+
+    .parallax-section .background-layer,
+    .parallax-section .midground-layer,
+    .parallax-section .foreground-layer {
+      transform-style: preserve-3d;
+      will-change: transform;
+      transition: transform 0.2s ease-out;
+    }
+
+    /* Dark gradient overlay + glow border on bg layer */
+    .parallax-section .background-layer {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      border-radius: 16px; /* soft corners for the 3D panel */
+      overflow: hidden;    /* clip inner overlays to corners */
+      box-shadow:
+        0 0 40px var(--shadow-glow),      /* outer subtle glow */
+        inset 0 0 60px rgba(0,0,0,0.4),   /* inner vignette */
+        0 12px 40px var(--shadow-depth);  /* depth shadow */
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .parallax-section .background-layer::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.35) 35%, rgba(0,0,0,0.65) 100%);
+      pointer-events: none;
+    }
+    /* Optional: subtle edge light on mid layer for pop */
+    .midground-layer {
+      position: absolute;
+      top: 18%;
+      left: 50%;
+      width: clamp(320px, 70vw, 900px);
+      z-index: 2;
+      transform: translateX(-50%);
+    }
+    @media (min-width: 1024px) {
+      .midground-layer {
+        top: 6%;
+        right: 4%;
+        left: auto;
+        width: min(48vw, 820px);
+        transform: none;
+      }
+    }
+
+    /* Parallax Sections */
+    .parallax-section {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .background-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      /* Subtle layered gradients instead of busy image for better scaling */
+      background:
+        radial-gradient(60% 40% at 20% 15%, rgba(255,255,255,0.06), transparent 60%),
+        radial-gradient(50% 35% at 80% 0%, rgba(234,29,38,0.10), transparent 70%),
+        linear-gradient(180deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.45) 45%, rgba(0,0,0,0.70) 100%);
+      z-index: 1;
+      transform: translateY(0);
+    }
+
+    .midground-image {
+      width: 100%;
+      height: auto;
+      max-width: none;
+      filter: drop-shadow(0 6px 18px var(--shadow-depth));
+    }
+
+    /* Foreground spacing — scope to sections */
+    .parallax-section .foreground-layer {
+      position: relative;
+      z-index: 3;
+      text-align: center;
+      padding-top: clamp(72px, 14vh, 220px);
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+    @media (min-width: 1024px) {
+      .parallax-section .foreground-layer {
+        text-align: left;
+        padding-top: clamp(56px, 10vh, 160px);
+        padding-left: clamp(24px, 4vw, 64px);
+        padding-right: clamp(24px, 4vw, 64px);
+        max-width: 1280px;
+        margin-inline: auto;
+      }
+    }
+
+    .hero-inner { max-width: 720px; margin: 0 auto; }
+    @media (min-width: 1024px) {
+      .hero-inner { max-width: 700px; margin-left: 0; }
+    }
+
+    .accent-image {
+      width: clamp(120px, 22vw, 180px);
+      margin: 16px auto 20px;
+      display: block;
+    }
+    @media (min-width: 1024px) {
+      .accent-image { margin: 8px 0 20px; }
+    }
+
+    /* Mobile: show a second inline truck image and hide the absolute one */
+    .truck-mobile { display: none; width: 100%; height: auto; filter: drop-shadow(0 6px 18px var(--shadow-depth)); margin-top: 12px; }
+    .mobile-hero-media { display: none; }
+    @media (max-width: 767px) {
+      .midground-layer { display: none; }
+      .accent-image { display: none; }
+      .mobile-hero-media {
+        position: relative;
+        display: block;
+        min-height: 200px;
+        margin-top: 8px;
+      }
+      .wheel-mobile {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 40vw; /* wheel off to the left */
+        transform: translateX(-6%);
+        z-index: 2;
+        filter: drop-shadow(0 6px 12px var(--shadow-depth));
+      }
+      .truck-mobile {
+        display: block;
+        width: 86vw; /* truck takes majority */
+        height: auto;
+        margin-left: auto; /* push to the right of wheel */
+        filter: drop-shadow(0 10px 22px var(--shadow-depth));
+        z-index: 1;
+      }
+    }
+
+    /* Section dividers with luxury glow */
+    .section-divider { position: relative; }
+    .section-divider::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 0; /* divider at top edge of each section */
+      width: min(92%, 1200px);
+      height: 2px;
+      border-radius: 999px;
+      opacity: 0.9;
+      pointer-events: none;
+    }
+    /* Gold/Red glow */
+    .section-divider-gold::before {
+      background: linear-gradient(90deg, transparent 0%, rgba(212, 78, 55, 0.705) 15%, rgba(212, 63, 55, 0.665) 50%, rgba(212, 78, 55, 0.716) 85%, transparent 100%);
+      box-shadow:
+        0 0 25px rgba(212, 78, 55, 0.261),
+        0 0 50px rgba(212, 63, 55, 0.2),
+        0 0 75px rgba(212, 71, 55, 0.15);
+    }
+    /* Platinum glow */
+    .section-divider-platinum::before {
+      background: linear-gradient(90deg, transparent 0%, rgba(229, 228, 226, 0.9) 15%, rgba(229, 228, 226, 1) 50%, rgba(229, 228, 226, 0.9) 85%, transparent 100%);
+      box-shadow:
+        0 0 25px rgba(229, 228, 226, 0.35),
+        0 0 50px rgba(229, 228, 226, 0.2),
+        0 0 75px rgba(229, 228, 226, 0.15);
+    }
+    /* Carbon subtle ice glow for hero */
+    .section-divider-carbon::before {
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.35) 15%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.35) 85%, transparent 100%);
+      box-shadow:
+        0 0 25px rgba(255,255,255,0.18),
+        0 0 50px rgba(255,255,255,0.12),
+        0 0 75px rgba(255,255,255,0.08);
+    }
+
+    /* Packages Section */
+    .packages {
+      padding: 60px 20px;
+      text-align: center;
+    }
+
+    .package-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .package-card {
+      background: color-mix(in srgb, var(--bg-dark) 95%, #000);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 8px 24px var(--shadow-glow), 0 4px 12px var(--shadow-depth);
+      transition: transform 0.3s ease;
+    }
+
+    .package-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 32px var(--shadow-glow), 0 6px 16px var(--shadow-depth);
+    }
+
+    .package-media {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16/9;
+      min-height: 200px;
+      overflow: hidden;
+      border-radius: 5px;
+    }
+
+    .package-image {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    /* Features Section */
+    .features {
+      padding: 40px 16px 96px; /* more bottom padding to avoid FAB/footer overlap */
+    }
+
+    @media (min-width: 768px) {
+      .features { padding: 60px 20px 80px; }
+    }
+
+    .features-bg {
+      background: url('/images/about page background FAS copy.png') no-repeat center/cover; /* Editable: Change image */
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .feature-item {
+      text-align: center;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      box-shadow: 0 4px 12px var(--shadow-depth);
+    }
+
+    .feature-image {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+      margin-bottom: 10px;
+    }
+  </style>
+
+  <script>
+    // Desktop-only tilt effect (no parallax on tablet/mobile). Cleaner on iPad.
+    document.addEventListener('DOMContentLoaded', function () {
+      var mqDesktop = window.matchMedia('(min-width: 1024px)');
+      var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+      var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+      function enabled() { return mqDesktop.matches && finePointer.matches && !reduceMotion.matches; }
+
+      /** @param {HTMLElement} section */
+      function bindTilt(section: HTMLElement) {
+        var bg = section.querySelector('.background-layer');
+        var mid = section.querySelector('.midground-layer');
+        /** @param {MouseEvent} e */
+        var onMove = function (e: MouseEvent) {
+          var r = section.getBoundingClientRect();
+          var px = (e.clientX - r.left) / Math.max(r.width, 1) - 0.5; // -0.5..0.5
+          var py = (e.clientY - r.top) / Math.max(r.height, 1) - 0.5;
+          var midTx = Math.round(-px * 16);
+          var midTy = Math.round(-py * 10);
+          var bgTx = Math.round(px * 8);
+          var bgTy = Math.round(py * 6);
+          if (mid) (mid as HTMLElement).style.transform = 'translate3d(' + midTx + 'px,' + midTy + 'px,0) rotateX(' + (py*2) + 'deg) rotateY(' + (px*2) + 'deg)';
+          if (bg) (bg as HTMLElement).style.transform = 'translate3d(' + bgTx + 'px,' + bgTy + 'px,0)';
+        };
+        var onLeave = function () {
+          if (mid) (mid as HTMLElement).style.transform = '';
+          if (bg) (bg as HTMLElement).style.transform = '';
+        };
+        (section as HTMLElement & { __tiltHandlers?: any }).__tiltHandlers = { onMove: onMove, onLeave: onLeave };
+        section.addEventListener('mousemove', onMove);
+        section.addEventListener('mouseleave', onLeave);
+      }
+
+      /** @param {HTMLElement} section */
+      function unbindTilt(section: HTMLElement) {
+        const s = section as HTMLElement & { [key: string]: any };
+        if (!s.__tiltHandlers) return;
+        section.removeEventListener('mousemove', s.__tiltHandlers.onMove);
+        section.removeEventListener('mouseleave', s.__tiltHandlers.onLeave);
+        var mid = section.querySelector('.midground-layer');
+        var bg = section.querySelector('.background-layer');
+        if (mid) (mid as HTMLElement).style.transform = '';
+        if (bg) (bg as HTMLElement).style.transform = '';
+        delete s.__tiltHandlers;
+      }
+
+      var sections = Array.prototype.slice.call(document.querySelectorAll('.parallax-section'));
+
+      function refresh() {
+        sections.forEach(function (s) {
+          if (enabled()) {
+            if (!s.__tiltHandlers) bindTilt(s);
+          } else {
+            unbindTilt(s);
+          }
+        });
+      }
+
+      mqDesktop.addEventListener('change', refresh);
+      finePointer.addEventListener('change', refresh);
+      reduceMotion.addEventListener('change', refresh);
+      window.addEventListener('orientationchange', refresh);
+      window.addEventListener('resize', refresh, { passive: true });
+      refresh();
+    });
+  </script>
+
+</BaseLayout>
