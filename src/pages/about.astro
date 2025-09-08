@@ -1,7 +1,8 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Testimonials from '../components/Testimonials';
-import Button from '../components/Button.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Testimonials from '@/components/Testimonials';
+import Button from '@/components/Button.astro';
+import AboutSection from '@/components/About';
 import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
 
 
@@ -10,7 +11,7 @@ const pageDoc: any = await getGitPageDoc('about');
 
 <BaseLayout>
     <section id="about">
-      <About client:only="react" />
+      <AboutSection client:only="react" />
     </section>
   <div {...sbObjectId('content/pages/about.json')}>
   <!-- Hero -->
