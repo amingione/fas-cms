@@ -1,7 +1,7 @@
 import type { Category } from '@lib/sanity-utils';
-import FilterPanel from '@components/FilterPanel';
+import FilterPanel from '@components/FilterPanel.tsx';
 import { Button } from '@components/ui/button';
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface ShopSidebarFiltersProps {
   categories: Category[];
@@ -37,11 +37,11 @@ export default function ShopSidebarFilters({
     if (target instanceof HTMLInputElement) return;
     const label = target.closest('label');
     if (!label) return;
-    let input = label.querySelector('input[type="radio"]') as HTMLInputElement | null;
+    let input = label.querySelector('input[type="checked"]') as HTMLInputElement | null;
     if (!input) {
       const prev = label.previousElementSibling as HTMLElement | null;
       const next = label.nextElementSibling as HTMLElement | null;
-      if (prev && prev.matches('input[type="radio"]')) input = prev as HTMLInputElement;
+      if (prev && prev.matches('input[type="checked"]')) input = prev as HTMLInputElement;
       else if (next && next.matches('input[type="radio"]')) input = next as HTMLInputElement;
     }
     if (!input || input.disabled) return;
@@ -52,7 +52,7 @@ export default function ShopSidebarFilters({
     }
   };
 
-  const applyURL = () => {
+  const applyURL = useCallback(() => {
     const params = new URLSearchParams(window.location.search);
     // category
     if (category && category !== 'all') {
@@ -80,7 +80,15 @@ export default function ShopSidebarFilters({
     // reset page
     params.set('page', '1');
     window.location.href = `/shop?${params.toString()}`;
-  };
+  }, [category, filters, vehicles, price.min, price.max]);
+
+  // Auto-apply category change on desktop so radios take effect immediately
+  const initialCategory = useRef<string>(category);
+  useEffect(() => {
+    if (initialCategory.current !== category) {
+      applyURL();
+    }
+  }, [category, applyURL]);
 
   return (
     <div onClickCapture={handleSidebarClick} className="space-y-3">
@@ -112,3 +120,12 @@ export default function ShopSidebarFilters({
     </div>
   );
 }
+
+/* Move the following CSS to your global stylesheet (e.g., styles/globals.css or styles.css):
+
+#mobile-filters-capture input[type="radio"] {
+  -webkit-appearance: radio !important;
+  appearance: auto !important;
+  accent-color: var(--fx-primary, #fb3636) !important;
+}
+*/

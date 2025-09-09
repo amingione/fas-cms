@@ -1,13 +1,4 @@
-import * as React from 'react';
-
-/**
- * FilterPanelMobile — FAS theme version
- *
- * - Mobile-only categories + filters panel
- * - Uses details/summary for collapsible UI
- * - Matches your accent color + rounded styling
- * - Updates URL params (categorySlug, filters) by default
- */
+import React, { useCallback, useState } from 'react';
 
 export interface FilterPanelMobileProps {
   categories: Array<{ title: string; slug: { current?: string } | string }>;
@@ -21,6 +12,18 @@ function normSlug(s?: string | { current?: string }): string {
   return typeof s === 'string' ? s : s.current || '';
 }
 
+function afterNextPaint(fn: () => void) {
+  // Two rAFs gives Safari/iOS time to commit the visual state before navigation
+  requestAnimationFrame(() => requestAnimationFrame(fn));
+}
+
+function nudgePaint(el?: HTMLElement | null) {
+  try {
+    if (!el) return;
+    void el.offsetHeight; // force reflow
+  } catch {}
+}
+
 export default function FilterPanelMobile({
   categories,
   filters,
@@ -28,16 +31,17 @@ export default function FilterPanelMobile({
   selectedFilters = []
 }: FilterPanelMobileProps) {
   const selected = normSlug(selectedCategory);
+  const [pendingCategory, setPendingCategory] = useState<string>(selected);
 
   function setCategory(slug: string) {
     const url = new URL(window.location.href);
-    if (slug) {
-      url.searchParams.set('categorySlug', slug);
-    } else {
-      url.searchParams.delete('categorySlug');
-    }
+    if (slug) url.searchParams.set('categorySlug', slug);
+    else url.searchParams.delete('categorySlug');
     url.searchParams.set('page', '1');
-    window.location.href = url.toString();
+    // Defer navigation until after the next paint so the radio fill is visible immediately
+    afterNextPaint(() => {
+      window.location.href = url.toString();
+    });
   }
 
   function toggleFilter(tag: string) {
@@ -59,15 +63,23 @@ export default function FilterPanelMobile({
           Categories
         </summary>
         <div className="px-3 py-2 space-y-2">
-          <label className="block fas-body-sm text-white/90 cursor-pointer select-none px-2 py-1 rounded-fx-sm hover:bg-white/5 transition">
+          <label className="block text-white/90 cursor-pointer select-none px-2 py-1 rounded-fx-sm hover:bg-white/5 transition">
             <input
-              type="radio"
+              type="checked"
               name="category"
               value=""
-              className="mr-2 fas-radio"
-              style={{ accentColor: 'var(--fx-primary, #fb3636)' }}
-              checked={!selected}
-              onChange={() => setCategory('')}
+              className="mr-2 checked:bg-fx-primary"
+              style={{
+                WebkitAppearance: 'radio',
+                appearance: 'auto',
+                accentColor: 'var(--fx-primary, #fb3636)'
+              }}
+              checked={pendingCategory === ''}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                setPendingCategory('');
+                nudgePaint(e.currentTarget);
+                setCategory('');
+              }}
             />
             All Categories
           </label>
@@ -79,13 +91,21 @@ export default function FilterPanelMobile({
                 className="block fas-body-sm text-white/90 cursor-pointer select-none px-2 py-1 rounded-fx-sm hover:bg-white/5 transition"
               >
                 <input
-                  type="radio"
+                  type="checked"
                   name="category"
                   value={slug}
-                  className="mr-2 fas-radio"
-                  style={{ accentColor: 'var(--fx-primary, #fb3636)' }}
-                  checked={selected === slug}
-                  onChange={() => setCategory(slug)}
+                  className="mr-2 checked:bg-fx-primary"
+                  style={{
+                    WebkitAppearance: 'radio',
+                    appearance: 'auto',
+                    accentColor: 'var(--fx-primary, #fb3636)'
+                  }}
+                  checked={pendingCategory === slug}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    setPendingCategory(slug);
+                    nudgePaint(e.currentTarget);
+                    setCategory(slug);
+                  }}
                 />
                 {c.title}
               </label>

@@ -1572,6 +1572,18 @@ html {
   }
 }
 
+/* Ensure tiny icon buttons (cart steppers, delete) are not inflated on mobile */
+@media (max-width: 640px) {
+  .btn-plain {
+    min-height: 0 !important;
+    padding: 0 !important;
+    border-radius: 9999px; /* keep circle */
+  }
+  .btn-plain svg {
+    display: block;
+  }
+}
+
 /* Slim UI option — apply class="slim-ui" on body to tighten spacing */
 .slim-ui .p-8 {
   padding: 1.5rem;
@@ -2161,41 +2173,24 @@ svg.cart-icon-svg {
   object-fit: contain;
 }
 
-/* Input Styles for radio buttons*/
+/* Input Styles for radio and checkbox buttons */
 input[type='radio'],
 input[type='checkbox'] {
-  accent-color: var(--fx-primary, #fb3636);
+  accent-color: var(--fx-primary, #fb3636) !important;
+  -webkit-appearance: auto !important; /* ensure UA control on Safari */
+  appearance: auto !important;
+  pointer-events: auto;
+  background-color: transparent;
 }
 
-/* Custom radio styling to ensure visible checked state across browsers */
-.fas-radio {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.45);
-  border-radius: 9999px;
-  display: inline-grid;
-  place-content: center;
-  background: transparent;
-  position: relative;
-}
-.fas-radio:focus-visible {
-  outline: 2px solid rgba(234, 29, 38, 0.45);
-  outline-offset: 2px;
-}
-.fas-radio::after {
-  content: '';
-  width: 8px;
-  height: 8px;
-  border-radius: 9999px;
-  transform: scale(0);
-  transition: transform 120ms ease-in-out;
-  background: var(--fx-primary, #fb3636);
-}
-.fas-radio:checked {
-  border-color: var(--fx-primary, #fb3636);
-}
-.fas-radio:checked::after {
-  transform: scale(1);
+/* Extra nudge for WebKit */
+@supports (-webkit-appearance: radio) {
+  input[type='radio'] {
+    -webkit-appearance: radio !important;
+    appearance: radio !important;
+  }
+  input[type='checkbox'] {
+    -webkit-appearance: checkbox !important;
+    appearance: checkbox !important;
+  }
 }

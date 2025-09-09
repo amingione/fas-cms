@@ -24,9 +24,9 @@ export function DeleteItemButton({ id }: { id: string }) {
         type="submit"
         aria-label="Remove cart item"
         disabled={loading}
-        className="flex h-5 w-5 items-center justify-center rounded-full bg-black disabled:opacity-50"
+        className="btn-plain flex size-6 items-center justify-center rounded-full text-white disabled:opacity-50"
       >
-        <XMarkIcon className="h-3 w-3 text-red-500" />
+        <XMarkIcon className="h-4 w-4 text-red-500" />
       </button>
     </form>
   );

@@ -96,6 +96,19 @@ import { Toaster } from 'sonner';
         z-index: 9999 !important;
         pointer-events: auto !important;
       }
+      /* Global CSS to fix radio appearance in mobile Safari */
+      #mobile-filters-capture input[type="radio"] {
+      -webkit-appearance: radio !important;
+      appearance: auto !important;
+      accent-color: var(--fx-primary, #fb3636) !important;
+      }
+      /* Input Styles for radio buttons*/
+      input[type='radio'],
+      input[type='checkbox'] {
+      accent-color: var(--fx-primary, #fb3636);
+      }
+
+
     </style>
 
   </body>

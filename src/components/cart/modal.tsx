@@ -88,11 +88,11 @@ export default function CartModal() {
                           className="flex w-full flex-col border-b border-neutral-300 dark:border-neutral-700"
                         >
                           <div className="relative flex w-full flex-row justify-between px-1 py-4">
-                            <div className="absolute z-40 -ml-1 -mt-2">
+                            <div className="hover:bg-white/20 absolute z-40 rounded-full bg-black/40 border border-white/10 -ml-1 -mt-5">
                               <DeleteItemButton id={item.id} />
                             </div>
-                            <div className="flex flex-row">
-                              <div className="relative h-16 w-16 overflow-hidden rounded-md border border-neutral-300 bg-neutral-300 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800">
+                            <div className="relative flex-row">
+                              <div className="ml-3 relative object-contain w-12 h-12 flex aspect-square overflow-hidden border border-neutral-300 bg-neutral-300 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800">
                                 {item.image ? (
                                   <img
                                     src={item.image}
@@ -121,10 +121,10 @@ export default function CartModal() {
                                 className="flex justify-end space-y-2 text-right text-sm"
                                 amount={(item.price || 0) * (item.quantity || 0)}
                               />
-                              <div className="ml-auto flex h-9 flex-row items-center rounded-full border border-neutral-200 dark:border-neutral-700">
+                              <div className="ml-auto flex h-9 flex-row items-center gap-1 rounded-full border border-neutral-200 dark:border-neutral-700 px-1">
                                 <EditItemQuantityButton item={item} type="minus" />
-                                <p className="w-6 text-center">
-                                  <span className="w-full text-sm">{item.quantity}</span>
+                                <p className="w-5 h-4 flex items-center justify-center">
+                                  <span className="text-sm leading-none">{item.quantity}</span>
                                 </p>
                                 <EditItemQuantityButton item={item} type="plus" />
                               </div>
@@ -159,8 +159,8 @@ export default function CartModal() {
 
 function CloseCart({ className }: { className?: string }) {
   return (
-    <div className="relative flex h-11 w-11 items-center justify-center rounded-md border border-neutral-200 text-black transition-colors dark:border-neutral-700 dark:text-white">
-      <XMarkIcon className={clsx('h-6 transition-all ease-in-out hover:scale-110', className)} />
+    <div className="relative hover:text-primary flex h-10 w-10 items-center justify-center rounded-lg text-black transition-colors dark:text-white">
+      <XMarkIcon className={clsx('h-5 transition-all ease-in-out hover:scale-110', className)} />
     </div>
   );
 }
@@ -179,7 +179,7 @@ function CheckoutButton() {
 
   return (
     <button
-      className="block w-full rounded-full bg-primary p-3 text-center text-sm font-medium text-black opacity-90 hover:opacity-100 disabled:opacity-60"
+      className="w-full btn-glass rounded-full bg-primary p-3 text-center text-sm font-medium text-black opacity-90 hover:opacity-100 disabled:opacity-60"
       type="button"
       disabled={loading}
       onClick={onClick}

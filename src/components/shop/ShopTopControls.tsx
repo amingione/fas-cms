@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Category, Product } from '@lib/sanity-utils';
-import { SearchBar } from '@components/SearchBar';
 import { SortControls } from '@/components/storefront/SortControls';
 import FilterPanel from '@components/FilterPanel';
 import { Button } from '@components/ui/button';
@@ -191,12 +190,6 @@ export default function ShopTopControls({
     <div className="w-full">
       {/* Mobile: search + filters button */}
       <div className="block md:hidden w-full space-y-3">
-        <SearchBar
-          value={search}
-          onChange={setSearch}
-          onClear={() => setSearch('')}
-          onSubmit={() => applyURL({})}
-        />
         <div className="flex w-full gap-3 items-center justify-between">
           <Sheet>
             <SheetTrigger asChild>
@@ -304,21 +297,13 @@ export default function ShopTopControls({
 
       {/* Desktop: search + sort */}
       <div className="hidden md:flex items-center gap-4">
-        <div className="flex-1">
-          <SearchBar
-            value={search}
-            onChange={setSearch}
-            onClear={() => setSearch('')}
-            onSubmit={() => applyURL({})}
-          />
-        </div>
+        <div className="flex-1"></div>
         <SortControls
           sortBy={sortBy}
           onSortChange={(v) => {
             applyURL({
               withFilters: false,
               withCategory: false,
-              withSearch: false,
               withSort: true,
               sortValue: v
             });
@@ -329,7 +314,6 @@ export default function ShopTopControls({
             applyURL({
               withFilters: false,
               withCategory: false,
-              withSearch: false,
               withSort: false,
               withView: true,
               viewValue: m

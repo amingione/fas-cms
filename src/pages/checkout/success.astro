@@ -1,6 +1,7 @@
 ---
 import Stripe from 'stripe';
 import TrustStrip from '@/components/TrustStrip.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
 
 const url = new URL(Astro.request.url);
 const sessionId = url.searchParams.get('session_id');
@@ -18,8 +19,8 @@ try {
   error = e?.message || 'Unable to load receipt';
 }
 ---
-
-<main class="min-h-[70vh] bg-black text-white px-6 py-16 max-w-4xl mx-auto">
+<BaseLayout title="Order Success - F.A.S Performance" description="Thank you for your order! Your order has been received and is being processed.">
+<main class="mt-14  min-h-[70vh] text-white px-6 py-20 max-w-4xl mx-auto">
   <h1 class="text-3xl font-ethno mb-2">Thank you for your order</h1>
   {error ? (
     <p class="text-red-400">{error}</p>
@@ -82,6 +83,7 @@ try {
 <div class="max-w-4xl mx-auto px-6">
   <TrustStrip />
   </div>
+</BaseLayout>
 
 <style>
   .font-ethno { font-family: 'Ethnocentric', sans-serif; }

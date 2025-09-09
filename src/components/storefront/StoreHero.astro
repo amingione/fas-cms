@@ -7,7 +7,7 @@
  * - Title + subtitle styled in your FAS fonts
  * - Call-to-action buttons
  */
-import { Button } from '@/components/ui/button';
+import Button from '../Button.astro';
 
 interface Props {
   title?: string;
@@ -38,9 +38,6 @@ const {
       <Button variant={ctaPrimaryVariant} size="md" asChild>
         <a href={ctaPrimaryHref}>{ctaPrimaryLabel}</a>
       </Button>
-      <Button variant={ctaSecondaryVariant} size="md" asChild>
-        <a href={ctaSecondaryHref}>{ctaSecondaryLabel}</a>
-      </Button>
-    </div>
+   
   </div>
 </section>

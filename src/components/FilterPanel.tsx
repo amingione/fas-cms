@@ -126,7 +126,7 @@ export default function FilterPanel({
   };
 
   return (
-    <div id="category-sidebar" className="text-white select-none">
+    <div id="category-sidebar" className="text-white select-none radio-checkbox" aria-live="polite">
       {/* Categories */}
       <details open className="mb-3 rounded-lg border border-zinc-700/60">
         <summary className="flex items-center justify-between cursor-pointer px-3 py-2 text-sm uppercase tracking-wide text-zinc-300">
