@@ -1,0 +1,85 @@
+---
+import ProductCard from "@/components/storefront/ProductCardLite.astro";
+import { sanityClient as client } from "@/lib/sanityClient";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+
+interface Props { params: { category: string } }
+const { params } = Astro as unknown as Props;
+
+// Get the category document by slug
+const categoryQuery = /* groq */ `
+*[_type == "category" && slug.current == $slug][0]{
+  _id, title, description
+}
+`;
+const category = await client.fetch(categoryQuery, { slug: params.category });
+
+// Fetch products that reference this category
+const productsQuery = /* groq */ `
+*[_type == "product" && references($catId)] | order(_createdAt desc){
+  _id,
+  title,
+  "slug": slug.current,
+  "image": coalesce(images[0].asset->url, mainImage.asset->url),
+  price,
+  excerpt
+}
+`;
+interface ProductItem {
+  _id: string;
+  title: string;
+  slug: string;
+  image?: string;
+  price?: number;
+  excerpt?: string;
+}
+
+const products: ProductItem[] = category
+  ? await client.fetch<ProductItem[]>(productsQuery, { catId: category._id })
+  : [];
+
+// Adapt to ProductCardLite.astro expected props
+type LiteAsset = { url: string };
+type LiteImage = { asset: LiteAsset };
+type LiteSlug = { current: string };
+type LiteProduct = {
+  _id: string;
+  title?: string;
+  slug?: LiteSlug | string;
+  price?: number;
+  images?: LiteImage[];
+};
+
+const liteProducts: LiteProduct[] = products.map((p) => ({
+  _id: p._id,
+  title: p.title,
+  slug: { current: p.slug } as LiteSlug,
+  price: p.price,
+  images: p.image ? [{ asset: { url: p.image } }] : []
+}));
+---
+<BaseLayout>
+  <div class="max-w-7xl mx-auto px-4 md:px-6 py-12">
+    <nav class="mb-6" aria-label="Breadcrumb">
+      <ol class="flex items-center">
+      </ol>
+{!category && (
+  <section class="py-16 text-center">
+    <h1 class="text-3xl font-semibold">Category not found</h1>
+  </section>
+)}
+
+{category && (
+  <>
+    <header class="mb-8">
+      <h1 class="text-3xl md:text-4xl font-semibold">{category.title}</h1>
+      {category.description && <p class="mt-2 text-sm opacity-80">{category.description}</p>}
+    </header>
+
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+      {liteProducts.map((p) => (
+        <ProductCard key={p._id} product={p} productImage={p.images?.[0]} />
+      ))}
+    </section>
+  </>
+)}

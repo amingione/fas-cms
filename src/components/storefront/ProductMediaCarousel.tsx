@@ -21,6 +21,25 @@ export type SanityImage = { asset?: { url?: string }; alt?: string } | string;
 export interface ProductMediaCarouselProps {
   images: SanityImage[];
   className?: string;
+  /**
+   * Optional per-image links (e.g., categories). If provided, each slide becomes clickable.
+   * Length should match `images` length.
+   */
+  links?: (string | undefined)[];
+  /**
+   * Optional per-image captions (shown in lower-left overlay).
+   * Length should match `images` length.
+   */
+  captions?: (string | undefined)[];
+  /**
+   * Optional autoplay in milliseconds. Example: 5000 for 5s.
+   * Set to 0 or undefined to disable.
+   */
+  autoplayMs?: number;
+  /**
+   * If true, keep advancing from last slide back to first.
+   */
+  loop?: boolean;
 }
 
 function getUrl(img: SanityImage): string {
@@ -35,11 +54,30 @@ function getAlt(img: SanityImage, fallbackIndex: number): string {
 
 export default function ProductMediaCarousel({
   images,
-  className = ''
+  className = '',
+  links,
+  captions,
+  autoplayMs,
+  loop = true
 }: ProductMediaCarouselProps) {
   const clean = (Array.isArray(images) ? images : []).filter(Boolean);
   const containerRef = React.useRef<HTMLUListElement | null>(null);
   const [index, setIndex] = React.useState(0);
+
+  // Optional autoplay
+  React.useEffect(() => {
+    if (!autoplayMs || autoplayMs <= 0) return;
+    const id = window.setInterval(() => {
+      if (!containerRef.current) return;
+      const nextIdx = index + 1;
+      if (nextIdx < clean.length) {
+        scrollToIdx(nextIdx);
+      } else if (loop) {
+        scrollToIdx(0);
+      }
+    }, autoplayMs);
+    return () => window.clearInterval(id);
+  }, [autoplayMs, index, loop, clean.length]);
 
   React.useEffect(() => {
     const el = containerRef.current;
@@ -62,7 +100,11 @@ export default function ProductMediaCarousel({
   }
 
   function next() {
-    scrollToIdx(index + 1);
+    if (index + 1 < clean.length) {
+      scrollToIdx(index + 1);
+    } else if (loop) {
+      scrollToIdx(0);
+    }
   }
   function prev() {
     scrollToIdx(index - 1);
@@ -106,23 +148,44 @@ export default function ProductMediaCarousel({
           className="relative flex snap-x snap-mandatory overflow-x-auto overflow-y-hidden scroll-smooth no-scrollbar rounded-xl border border-white/10 bg-black/60"
           style={{ scrollBehavior: 'smooth' }}
         >
-          {clean.map((img, i) => (
-            <li
-              key={getUrl(img) + i}
-              className="relative min-w-full snap-start aspect-square flex items-center justify-center bg-black"
-            >
-              <img
-                src={getUrl(img)}
-                alt={getAlt(img, i)}
-                className="max-h-[75vh] h-full w-full object-contain select-none"
-                draggable={false}
-              />
-              {/* index badge */}
-              <div className="pointer-events-none absolute bottom-2 right-2 rounded bg-black/60 px-2 py-0.5 text-xs text-white/80">
-                {i + 1}/{clean.length}
-              </div>
-            </li>
-          ))}
+          {clean.map((img, i) => {
+            const href = Array.isArray(links) ? links[i] : undefined;
+            const alt = getAlt(img, i);
+            const content = (
+              <>
+                <img
+                  src={getUrl(img)}
+                  alt={alt}
+                  className="max-h-[75vh] h-full w-full object-contain select-none"
+                  draggable={false}
+                />
+                {/* index badge */}
+                <div className="pointer-events-none absolute bottom-2 right-2 rounded bg-black/60 px-2 py-0.5 text-xs text-white/80">
+                  {i + 1}/{clean.length}
+                </div>
+                {/* optional caption */}
+                {captions?.[i] ? (
+                  <div className="pointer-events-none absolute left-2 bottom-2 mr-16 rounded bg-black/60 px-2 py-0.5 text-xs text-white/90">
+                    {captions[i]}
+                  </div>
+                ) : null}
+              </>
+            );
+            return (
+              <li
+                key={getUrl(img) + i}
+                className="relative min-w-full snap-start aspect-square flex items-center justify-center bg-black"
+              >
+                {href ? (
+                  <a href={href} aria-label={alt} className="block h-full w-full">
+                    {content}
+                  </a>
+                ) : (
+                  content
+                )}
+              </li>
+            );
+          })}
         </ul>
       </div>
 
@@ -135,6 +198,7 @@ export default function ProductMediaCarousel({
                 key={'thumb-' + i}
                 type="button"
                 onClick={() => scrollToIdx(i)}
+                title={links?.[i] ? `Open: ${links[i]}` : `Image ${i + 1}`}
                 className={`relative h-16 w-16 flex-none overflow-hidden rounded border ${
                   index === i
                     ? 'border-primary ring-2 ring-primary/60'

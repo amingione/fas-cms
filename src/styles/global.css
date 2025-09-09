@@ -155,7 +155,7 @@
   --color-secondary: #eef2fb;
   --color-accent: #fde4b2;
   --color-graylight: #d1d0d0;
-  --color-background: #00000000;
+  --color-background: #171717;
   --color-charcoal: #3a3a3ad0;
 
   /* Luxury color palette */
@@ -211,7 +211,7 @@
 }
 
 .dark {
-  --background: #000000;
+  --background: #171717;
   --foreground: oklch(0.985 0 0);
   --card: #0a0a0a;
   --card-foreground: oklch(0.985 0 0);
@@ -1715,6 +1715,24 @@ html {
   color: #eaeaea;
 }
 
+/* Outline + Ghost variants tuned for glass base */
+.btn-glass.btn-outline {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+.btn-glass.btn-outline:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+.btn-glass.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: #fff;
+}
+.btn-glass.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
 /* Sizes (compact by default) */
 .btn-glass.btn-xs {
   /* ultra-compact chips */
@@ -2149,4 +2167,37 @@ svg.cart-icon-svg {
 input[type='radio'],
 input[type='checkbox'] {
   accent-color: var(--fx-primary, #fb3636);
+}
+
+/* Custom radio styling to ensure visible checked state across browsers */
+.fas-radio {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  border-radius: 9999px;
+  display: inline-grid;
+  place-content: center;
+  background: transparent;
+  position: relative;
+}
+.fas-radio:focus-visible {
+  outline: 2px solid rgba(234, 29, 38, 0.45);
+  outline-offset: 2px;
+}
+.fas-radio::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  transform: scale(0);
+  transition: transform 120ms ease-in-out;
+  background: var(--fx-primary, #fb3636);
+}
+.fas-radio:checked {
+  border-color: var(--fx-primary, #fb3636);
+}
+.fas-radio:checked::after {
+  transform: scale(1);
 }

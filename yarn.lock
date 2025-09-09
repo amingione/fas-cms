@@ -63,13 +63,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@altano/tiny-async-pool@npm:^1.0.2":
-  version: 1.0.3
-  resolution: "@altano/tiny-async-pool@npm:1.0.3"
-  checksum: 250a87f1836dd6dd6511a295e5b742419c389b761ed59ab24bc53aea12f4192d86dd749ee6436c7887ca6d74b0d7cca5eb70ae2c586bbf1eeaf3b745d1b6b449
-  languageName: node
-  linkType: hard
-
 "@ampproject/remapping@npm:^2.2.0":
   version: 2.3.0
   resolution: "@ampproject/remapping@npm:2.3.0"
@@ -205,26 +198,6 @@ __metadata:
   version: 2.12.2
   resolution: "@astrojs/compiler@npm:2.12.2"
   checksum: 2bf2bec52fd3b633275ffae76f092017f5f587d364139978d7077a0280d0043e6d4ab473281efd95105904a82ee9d0c517d049a903bbb0d6f6e1f9c187e0cb84
-  languageName: node
-  linkType: hard
-
-"@astrojs/image@npm:0.18.0":
-  version: 0.18.0
-  resolution: "@astrojs/image@npm:0.18.0"
-  dependencies:
-    "@altano/tiny-async-pool": ^1.0.2
-    http-cache-semantics: ^4.1.1
-    image-size: ^1.0.2
-    kleur: ^4.1.5
-    magic-string: ^0.30.2
-    mime: ^3.0.0
-  peerDependencies:
-    astro: ^2.10.15
-    sharp: ">=0.31.0"
-  peerDependenciesMeta:
-    sharp:
-      optional: true
-  checksum: e7822401f1922cc6b2ecfb9543eae4013cf6c87d49eb31ed25c04d4719e843c9a4fa8195792c1c2997e29eed9c1151301980b405d6ee1214ab2fc8e1566e8405
   languageName: node
   linkType: hard
 
@@ -9053,7 +9026,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vitejs/plugin-react@npm:^4.4.0, @vitejs/plugin-react@npm:^4.4.1, @vitejs/plugin-react@npm:^4.6.0":
+"@vitejs/plugin-react@npm:^4.4.1, @vitejs/plugin-react@npm:^4.6.0":
   version: 4.7.0
   resolution: "@vitejs/plugin-react@npm:4.7.0"
   dependencies:
@@ -16092,7 +16065,6 @@ __metadata:
   resolution: "fas-cms@workspace:."
   dependencies:
     "@apollo/client": ^4.0.3
-    "@astrojs/image": 0.18.0
     "@astrojs/netlify": 6.5.9
     "@astrojs/react": ^4.3.0
     "@astrojs/tailwind": ^6.0.2
@@ -16151,7 +16123,6 @@ __metadata:
     "@types/react-dom": ^19.1.9
     "@types/react-is": ^19
     "@types/stripe": ^8.0.417
-    "@vitejs/plugin-react": ^4.4.0
     add: ^2.0.6
     astro: 5.13.5
     autoprefixer: ^10.4.21
@@ -16211,7 +16182,6 @@ __metadata:
     typescript: ^5.8.3
     typescript-eslint: ^8.31.0
     vaul: 1.1.2
-    vite: ^6.3.5
     zod: ^3.24.4
   languageName: unknown
   linkType: soft
@@ -18747,17 +18717,6 @@ __metadata:
   version: 0.2.1
   resolution: "image-meta@npm:0.2.1"
   checksum: 83bdb0f5dc0cfbc2e9c83f4b486b2f9cdaae5281d0d5bfa6b05525175778af775bb95626582c8ed0ebf27cd8c7b3daca7c4a88fcf478dd1d27ec58a9c5a1e7b9
-  languageName: node
-  linkType: hard
-
-"image-size@npm:^1.0.2":
-  version: 1.2.1
-  resolution: "image-size@npm:1.2.1"
-  dependencies:
-    queue: 6.0.2
-  bin:
-    image-size: bin/image-size.js
-  checksum: 8601ddd4edc1db16f097f5cf585c23214e29c3b8f4d8a8f8d59b8e3bae2338c8a5073236bfff421d8541091a98a38b802ed049203c745286a69d1aac4e5bc4c7
   languageName: node
   linkType: hard
 
@@ -21875,7 +21834,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"magic-string@npm:^0.30.17, magic-string@npm:^0.30.2":
+"magic-string@npm:^0.30.17":
   version: 0.30.18
   resolution: "magic-string@npm:0.30.18"
   dependencies:
@@ -27482,15 +27441,6 @@ __metadata:
   version: 1.2.3
   resolution: "queue-microtask@npm:1.2.3"
   checksum: b676f8c040cdc5b12723ad2f91414d267605b26419d5c821ff03befa817ddd10e238d22b25d604920340fd73efd8ba795465a0377c4adf45a4a41e4234e42dc4
-  languageName: node
-  linkType: hard
-
-"queue@npm:6.0.2":
-  version: 6.0.2
-  resolution: "queue@npm:6.0.2"
-  dependencies:
-    inherits: ~2.0.3
-  checksum: ebc23639248e4fe40a789f713c20548e513e053b3dc4924b6cb0ad741e3f264dcff948225c8737834dd4f9ec286dbc06a1a7c13858ea382d9379f4303bcc0916
   languageName: node
   linkType: hard
 

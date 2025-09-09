@@ -3,7 +3,13 @@
   "slug": "services",
   "title": "Services",
   "sections": [
-    { "blockType": "Hero", "headline": "What We Do", "subtext": "Dyno‑proven packages, OEM‑fit installs.", "imageSrc": "/images/About FAS MOTO  Page Banner copy.png", "cta": { "text": "Schedule", "href": "/schedule" } },
+    {
+      "blockType": "Hero",
+      "headline": "What We Do",
+      "subtext": "Dyno‑proven packages, OEM‑fit installs.",
+      "imageSrc": "/images/backgrounds/ab-bg-FAS.png",
+      "cta": { "text": "Schedule", "href": "/schedule" }
+    },
     { "blockType": "Services" },
     { "blockType": "Products" },
     { "blockType": "Testimonials" }

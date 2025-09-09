@@ -34,7 +34,7 @@ const price = typeof product?.price === 'number'
 ---
 {layout === 'list' ? (
   <a href={href}
-     class="group block rounded-sm border border-white/10 bg-black/20 transition-shadow duration-300 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary/60 md:flex md:items-stretch">
+     class="group block rounded-sm border border-[171717/40] bg-black transition-shadow duration-300 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary md:flex md:items-stretch">
     <!-- Image left -->
     <div class="relative bg-black/30 backdrop-blur-sm md:w-56 md:min-w-56 md:max-w-56 aspect-square md:aspect-auto flex items-center justify-center">
       <img src={img} alt={title}
@@ -53,7 +53,7 @@ const price = typeof product?.price === 'number'
   </a>
 ) : (
   <a href={href}
-     class="group block racing-stripe relative overflow-hidden rounded-sm border border-white/10 bg-black/20 transition-shadow duration-300 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary/60">
+     class="group block relative overflow-hidden rounded-sm border border-white/20 bg-black transition-shadow duration-300 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary">
     <!-- Image area: square, centered product, no cropping -->
     <div class="relative aspect-square object-contain contain flex pb-10 justify-center bg-black/30 backdrop-blur-sm">
       <img src={img} alt={title}

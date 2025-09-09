@@ -98,28 +98,43 @@ const featuredProducts = (Array.isArray(featuredRaw) ? featuredRaw : []).map((p:
   categories: p?.categories ?? []
 }));
 
+
 const tileClass = (i: number) => {
-  const base = "relative block rounded-xl overflow-hidden border border-white/10 bg-black group";
+  const base = "relative block h-full rounded-xl overflow-hidden border border-white/10 bg-black group";
   const small = "lg:col-span-2 lg:row-span-1";
   const large = "lg:col-span-4 lg:row-span-2";
-  // Pattern similar to the demo mosaic: make every 1st item large
-  return `${base} ${i % 5 === 0 ? large : small}`;
+  /**
+   * Mosaic pattern (repeats every 7 items):
+   * [L, S, S, S, S, S, L]
+   * This yields a hero-like large tile at the start of each row block,
+   * and another large tile at the end to balance the layout.
+   */
+  const pos = i % 7;
+  const isLarge = pos === 0 || pos === 6;
+  return `${base} ${isLarge ? large : small}`;
 };
 ---
 <BaseLayout>
-    <section class="mt-5 mb-3 pt-3">
-        <StoreHero />
+  <section class="mt-2 pt-4">
+     <StoreHero 
+       ctaPrimaryLabel="Shop All Products ➤"
+       ctaPrimaryHref="/shop"
+       ctaPrimaryVariant="default"
+       ctaSecondaryLabel="Shop Power Packages ➤"
+       ctaSecondaryHref="/packages/power-packages"
+       ctaSecondaryVariant="secondary"
+     />
     </section>
 
   <!-- CATEGORY MOSAIC GRID -->
-  <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 md:gap-6 auto-rows-[180px] md:auto-rows-[240px] lg:auto-rows-[220px]">
+  <section class="px-5 relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 grid-flow-dense gap-4 md:gap-6 auto-rows-[220px] mt-4 pt-4">
     {
       categories.map((c, i) => (
-        <a href={`/shop/${c.slug}`} class={tileClass(i)} aria-label={c.title}>
+        <a href={`/shop/categories/${c.slug}`} class={tileClass(i)} aria-label={c.title}>
           <img
-            src={categoryImageOverrides[c.slug] ?? (c.imageUrl ?? "/placeholder.png")}
+            src={categoryImageOverrides[c.slug] ?? (c.imageUrl ?? "/images/placeholders/category.jpg")}
             alt={c.title}
-            class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            class="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
             loading="lazy"
             decoding="async"
           />
@@ -127,16 +142,16 @@ const tileClass = (i: number) => {
           <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
           <!-- label pill -->
           <div class="absolute left-3 bottom-3">
-            <span class="rounded-full bg-white/10 px-3 py-1 text-xs uppercase tracking-wide text-white shadow">
+            <span class="rounded-full btn-glass border-white/20 px-3 py-1 text-xs uppercase tracking-wide text-white shadow">
               {c.title}
             </span>
-          </div>
+            </div>
         </a>
       ))
     }
   </section>
    <!-- HERO / CAROUSEL -->
-  <section class="mb-8">
+  <section class="mt-4 pt-4">
     <Carousel products={featuredProducts} images={featuredProducts.map(p => p.images)} speedSec={120} client:only="react" />
   </section>
 </BaseLayout>

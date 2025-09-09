@@ -1,6 +1,9 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
 import Button from '@/components/Button.astro';
+import { Image } from 'astro:assets';
+import IglaBox from '@/assets/igla/IGLA-Category-Image.webp';
+import SchedIgla from '@/assets/igla/sched-igla-install.webp';
 ---
 
 <BaseLayout>
@@ -97,7 +100,7 @@ import Button from '@/components/Button.astro';
     <!-- Right: Note and Image -->
     <div class="flex flex-col items-center justify-start space-y-6 text-center">
       <p class="font-kwajong text-white font-bold text-base">Note: Features may vary depending on your vehicles make, model, and Igla System Version.</p>
-      <img src="/images/IGLA-Category-Image.webp" alt="IGLA System Box" class="w-full max-w-sm" />
+      <Image src={IglaBox} alt="IGLA System Box" class="w-full max-w-sm" widths={[320,640]} sizes="(min-width: 768px) 320px, 100vw" />
       <div class="w-full h-[2px] bg-[#1d92ea]"></div>
     </div>
   </section>
@@ -135,7 +138,7 @@ import Button from '@/components/Button.astro';
   </section>
   <section class="grid md:grid-cols-2 items-center gap-10 px-6 py-20 max-w-6xl mx-auto">
     <div>
-      <img src="/images/sched-igla-install.webp" alt="Schedule Installation" class="w-full rounded shadow-lg" />
+      <Image src={SchedIgla} alt="Schedule Installation" class="w-full rounded shadow-lg" widths={[400,800,1200]} sizes="(min-width: 768px) 50vw, 100vw" />
     </div>
     <div class="text-center md:text-left">
       <h2 class="text-3xl font-cyber text-white mb-6">Schedule Your Installation</h2>
@@ -148,4 +151,4 @@ import Button from '@/components/Button.astro';
       </h2>
     </div>
   </section>
-</BaseLayoutr>
+</BaseLayout>

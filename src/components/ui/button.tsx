@@ -15,9 +15,9 @@ const buttonVariants = cva(
         default: 'btn-primary',
         secondary: 'btn-secondary',
         dark: 'btn-dark',
-        // low-chrome options
-        outline: 'btn-dark bg-transparent',
-        ghost: 'bg-transparent border border-transparent hover:bg-[rgba(255,255,255,0.05)]',
+        // low-chrome options (use explicit classes to avoid CSS precedence issues)
+        outline: 'btn-outline',
+        ghost: 'btn-ghost',
         link: 'bg-transparent border-none shadow-none underline underline-offset-4 hover:opacity-90'
       },
       size: {

@@ -64,7 +64,7 @@ export default function FilterPanelMobile({
               type="radio"
               name="category"
               value=""
-              className="mr-2 accent-primary"
+              className="mr-2 fas-radio"
               style={{ accentColor: 'var(--fx-primary, #fb3636)' }}
               checked={!selected}
               onChange={() => setCategory('')}
@@ -82,7 +82,7 @@ export default function FilterPanelMobile({
                   type="radio"
                   name="category"
                   value={slug}
-                  className="mr-2 accent-primary"
+                  className="mr-2 fas-radio"
                   style={{ accentColor: 'var(--fx-primary, #fb3636)' }}
                   checked={selected === slug}
                   onChange={() => setCategory(slug)}

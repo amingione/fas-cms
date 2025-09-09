@@ -7,7 +7,7 @@
       "blockType": "Hero",
       "headline": "Power Up Your Ride",
       "subtext": "Premium performance upgrades.",
-      "imageSrc": "/images/ram copy.webp",
+      "imageSrc": "packages/850-ram.webp",
       "cta": { "text": "Explore Now", "href": "/shop" }
     },
     { "blockType": "TruckPackagesHero" },

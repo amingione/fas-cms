@@ -248,7 +248,7 @@ export function CustomFabrication() {
                 {/* TIG Welding Card */}
                 <div className="relative mx-auto w-full max-w-[420px] rounded-2xl overflow-hidden shadow-lg industrial-glow bg-black/60 aspect-[4/3] sm:aspect-[16/9]">
                   <img
-                    src="images/FAS-Welding.png"
+                    src="images/fabrication/FAS-Welding.png"
                     alt="Precision TIG Welding"
                     className={`w-full h-full ${isMobile ? 'object-contain' : 'object-cover'} object-center max-w-full`}
                     loading="lazy"
@@ -269,7 +269,7 @@ export function CustomFabrication() {
                 {/* Exhaust Work Card */}
                 <div className="relative mx-auto w-full max-w-[420px] rounded-2xl overflow-hidden shadow-lg industrial-glow bg-black/60 aspect-[4/3] sm:aspect-[16/9]">
                   <img
-                    src="images/FAS-Fabrication-Installation.png"
+                    src="images/fabrication/FAS-Fabrication-Installation.png"
                     alt="Custom Exhaust Systems"
                     className={`w-full h-full ${isMobile ? 'object-contain' : 'object-cover'} object-center max-w-full`}
                     loading="lazy"
@@ -332,7 +332,7 @@ export function CustomFabrication() {
                     style={{ perspective: '1000px' }}
                   >
                     <img
-                      src="images/FAS-Welding.png"
+                      src="images/fabrication/FAS-Welding.png"
                       alt="Precision TIG Welding"
                       className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
                     />
@@ -349,7 +349,7 @@ export function CustomFabrication() {
                     style={{ perspective: '1000px' }}
                   >
                     <img
-                      src="images/FAS-Fabrication-2.png"
+                      src="images/fabrication/FAS-Fabrication-2.png"
                       alt="Custom Exhaust Component"
                       className="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-500"
                     />
@@ -385,7 +385,7 @@ export function CustomFabrication() {
                     style={{ perspective: '1000px' }}
                   >
                     <img
-                      src="images/FAS-Fabrication-Installation.png"
+                      src="images/fabrication/FAS-Fabrication-Installation.png"
                       alt="Artisan Craftsmanship"
                       className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
                     />

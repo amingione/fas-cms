@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import Image from 'next/image';
+// Replaced Next.js Image with native img tag for Astro/React
 import LogoIcon from '/images/faslogochroma.png';
 
 export default function LogoSquare({ size }: { size?: 'sm' | undefined }) {
@@ -13,8 +13,8 @@ export default function LogoSquare({ size }: { size?: 'sm' | undefined }) {
         }
       )}
     >
-      <Image
-        src={LogoIcon}
+      <img
+        src={LogoIcon as unknown as string}
         alt="Logo"
         className={clsx({
           'h-[16px] w-[16px]': !size,
