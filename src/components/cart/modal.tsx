@@ -32,6 +32,13 @@ export default function CartModal() {
     return () => window.removeEventListener('open-cart' as any, handleOpen);
   }, []);
 
+  // Notify other components when the cart drawer opens or closes
+  useEffect(() => {
+    try {
+      window.dispatchEvent(new Event(isOpen ? 'cart:open' : 'cart:close'));
+    } catch {}
+  }, [isOpen]);
+
   return (
     <>
       <Transition show={isOpen}>
