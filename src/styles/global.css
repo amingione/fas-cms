@@ -1618,6 +1618,24 @@ html {
   font-weight: 500;
   letter-spacing: 0.02em;
 }
+/*
+  Exclude design-system inputs (data-slot="input") from global slim-ui overrides
+  so component-level padding like pl-12/pr-10 in SearchBar can apply.
+*/
+.slim-ui
+  :where(input, select, textarea):not([data-slot='input']):not([type='checkbox']):not(
+    [type='radio']
+  ):not([type='range']) {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 10px !important;
+  padding: 9px 12px !important;
+  font-weight: 400 !important;
+}
+.slim-ui .btn,
+.slim-ui button {
+  border-width: 1px;
+}
 
 /* =========================================================
    Glassy Carbon‑Fiber Buttons — Compact, Rounded, Sleek
@@ -2153,4 +2171,26 @@ svg.cart-icon-svg {
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+
+/* Input Styles for radio and checkbox buttons */
+input[type='radio'],
+input[type='checkbox'] {
+  accent-color: var(--fx-primary, #fb3636) !important;
+  -webkit-appearance: auto !important; /* ensure UA control on Safari */
+  appearance: auto !important;
+  pointer-events: auto;
+  background-color: transparent;
+}
+
+/* Extra nudge for WebKit */
+@supports (-webkit-appearance: radio) {
+  input[type='radio'] {
+    -webkit-appearance: radio !important;
+    appearance: radio !important;
+  }
+  input[type='checkbox'] {
+    -webkit-appearance: checkbox !important;
+    appearance: checkbox !important;
+  }
 }
