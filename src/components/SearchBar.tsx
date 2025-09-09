@@ -44,7 +44,11 @@ export function SearchBar({
   const currentValue = isControlled ? (value as string) : innerValue;
 
   // Portal position state
-  const [panelPos, setPanelPos] = useState<{ left: number; top: number; width: number }>({ left: 0, top: 0, width: 0 });
+  const [panelPos, setPanelPos] = useState<{ left: number; top: number; width: number }>({
+    left: 0,
+    top: 0,
+    width: 0
+  });
   const [panelNode, setPanelNode] = useState<HTMLElement | null>(null);
 
   const handleKeyDown = useCallback(
@@ -86,9 +90,14 @@ export function SearchBar({
     'pl-12 bg-black/60 border-white/10 text-white placeholder-white/40 focus:border-primary focus:ring-primary/20 font-kwajong rounded-fx-md';
   const inputClasses = cn(variant === 'storefront' ? baseStorefront : baseDefault, sizeCls);
 
-  // Debounced suggestions
+  // If suggestions are disabled (e.g., header on /shop), immediately close/clear
   useEffect(() => {
-    if (!enableSuggestions) return;
+    if (!enableSuggestions) {
+      setOpen(false);
+      setActive(-1);
+      setItems([]);
+      return;
+    }
     const q = currentValue.trim();
     if (q.length < minChars) {
       setItems([]);
@@ -156,7 +165,11 @@ export function SearchBar({
     let left = r.left;
     if (left + width + margin > vw) left = Math.max(margin, r.right - width);
     left = Math.max(margin, Math.min(left, vw - width - margin));
-    setPanelPos({ left: Math.round(left), top: Math.round(r.bottom + 8), width: Math.round(width) });
+    setPanelPos({
+      left: Math.round(left),
+      top: Math.round(r.bottom + 8),
+      width: Math.round(width)
+    });
   }, []);
 
   // Keep panel positioned on scroll/resize when open
@@ -181,7 +194,9 @@ export function SearchBar({
     document.body.appendChild(node);
     setPanelNode(node);
     return () => {
-      try { document.body.removeChild(node); } catch {}
+      try {
+        document.body.removeChild(node);
+      } catch {}
     };
   }, [portal]);
 
@@ -218,7 +233,8 @@ export function SearchBar({
             type="button"
             aria-label="Clear search"
             onClick={
-              onClear ?? (() => {
+              onClear ??
+              (() => {
                 if (onChange) onChange('');
                 if (!isControlled) setInnerValue('');
               })
@@ -235,122 +251,146 @@ export function SearchBar({
         )}
       </form>
 
-      {enableSuggestions && open && items.length > 0 && (!portal ? (
-        <div
-          className={cn(
-            'absolute left-0 mt-2 w-full max-w-[380px] rounded-lg shadow-xl z-[70] max-h-[60vh] overflow-auto backdrop-blur-md',
-            variant === 'storefront' ? 'bg-black/90 border-white/10' : 'bg-black/85 border border-gray-700/50'
-          )}
-        >
-          {items.slice(0, 8).map((it, idx) => {
-            const q = currentValue.trim();
-            const href = resolveLink(it, q) || `${action || '/search'}?q=${encodeURIComponent(q)}`;
-            const title = it?.title || it?.name || it?._type || 'Untitled';
-            const img = getThumb(it);
-            const price = formatPrice(it?.price);
-            const isActive = idx === active;
-            return (
-              <a
-                key={String(it?._id || it?.slug?.current || idx)}
-                href={href}
-                className={cn('block px-3 py-2 hover:bg-white/10', isActive && 'bg-white/10')}
-                onMouseEnter={() => setActive(idx)}
-              >
-                <div
-                  className="flex items-center gap-3"
-                  style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, lineHeight: 1.2 }}
+      {enableSuggestions &&
+        open &&
+        items.length > 0 &&
+        (!portal ? (
+          <div
+            className={cn(
+              'absolute left-0 mt-2 w-full max-w-[380px] rounded-lg shadow-xl z-[70] max-h-[60vh] overflow-auto backdrop-blur-md',
+              variant === 'storefront'
+                ? 'bg-black/90 border-white/10'
+                : 'bg-black/85 border border-gray-700/50'
+            )}
+          >
+            {items.slice(0, 8).map((it, idx) => {
+              const q = currentValue.trim();
+              const href =
+                resolveLink(it, q) || `${action || '/search'}?q=${encodeURIComponent(q)}`;
+              const title = it?.title || it?.name || it?._type || 'Untitled';
+              const img = getThumb(it);
+              const price = formatPrice(it?.price);
+              const isActive = idx === active;
+              return (
+                <a
+                  key={String(it?._id || it?.slug?.current || idx)}
+                  href={href}
+                  className={cn('block px-3 py-2 hover:bg-white/10', isActive && 'bg-white/10')}
+                  onMouseEnter={() => setActive(idx)}
                 >
-                  {img ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={img}
-                      alt=""
-                      className="w-10 h-10 object-cover rounded border border-white/10"
-                    />
-                  ) : null}
-                  <div className="min-w-0">
-                    <div
-                      className="truncate font-semibold"
-                      style={{ fontFamily: 'Arial, sans-serif', fontSize: 12 }}
-                    >
-                      {title}
-                    </div>
-                    <div
-                      className="flex items-center gap-2 text-white/70"
-                      style={{ fontFamily: 'Arial, sans-serif', fontSize: 11 }}
-                    >
-                      <span className="uppercase">{String(it?._type || '')}</span>
-                      {price ? <span className="text-accent">{price}</span> : null}
+                  <div
+                    className="flex items-center gap-3"
+                    style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, lineHeight: 1.2 }}
+                  >
+                    {img ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={img}
+                        alt=""
+                        className="w-10 h-10 object-cover rounded border border-white/10"
+                      />
+                    ) : null}
+                    <div className="min-w-0">
+                      <div
+                        className="truncate font-semibold"
+                        style={{ fontFamily: 'Arial, sans-serif', fontSize: 12 }}
+                      >
+                        {title}
+                      </div>
+                      <div
+                        className="flex items-center gap-2 text-white/70"
+                        style={{ fontFamily: 'Arial, sans-serif', fontSize: 11 }}
+                      >
+                        <span className="uppercase">{String(it?._type || '')}</span>
+                        {price ? <span className="text-accent">{price}</span> : null}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </a>
-            );
-          })}
-          <div className="border-t border-white/10" />
-          <a
-            href={`${action || '/search'}?q=${encodeURIComponent(currentValue.trim())}`}
-            className="block px-3 py-2 text-center text-xs text-white/70 hover:bg-white/10"
-            style={{ fontFamily: 'Arial, sans-serif', fontSize: 12 }}
-          >
-            See all results for “{currentValue.trim()}”
-          </a>
-        </div>
-      ) : panelNode ? createPortal(
-        <div
-          className={cn(
-            'rounded-lg shadow-xl z-[2147483647] max-h-[60vh] overflow-auto backdrop-blur-md fixed',
-            variant === 'storefront' ? 'bg-black/90 border border-white/10' : 'bg-black/85 border border-gray-700/50'
-          )}
-          style={{ left: panelPos.left, top: panelPos.top, width: panelPos.width }}
-          onMouseDown={(e) => {
-            // Prevent root click handler from closing immediately
-            e.stopPropagation();
-          }}
-        >
-          {items.slice(0, 8).map((it, idx) => {
-            const q = currentValue.trim();
-            const href = resolveLink(it, q) || `${action || '/search'}?q=${encodeURIComponent(q)}`;
-            const title = it?.title || it?.name || it?._type || 'Untitled';
-            const img = getThumb(it);
-            const price = formatPrice(it?.price);
-            const isActive = idx === active;
-            return (
+                </a>
+              );
+            })}
+            <div className="border-t border-white/10" />
+            <a
+              href={`${action || '/search'}?q=${encodeURIComponent(currentValue.trim())}`}
+              className="block px-3 py-2 text-center text-xs text-white/70 hover:bg-white/10"
+              style={{ fontFamily: 'Arial, sans-serif', fontSize: 12 }}
+            >
+              See all results for “{currentValue.trim()}”
+            </a>
+          </div>
+        ) : panelNode ? (
+          createPortal(
+            <div
+              className={cn(
+                'rounded-lg shadow-xl z-[2147483647] max-h-[60vh] overflow-auto backdrop-blur-md fixed',
+                variant === 'storefront'
+                  ? 'bg-black/90 border-white/10'
+                  : 'bg-black/85 border border-gray-700/50'
+              )}
+              style={{ left: panelPos.left, top: panelPos.top, width: panelPos.width }}
+              onMouseDown={(e) => {
+                // Prevent root click handler from closing immediately
+                e.stopPropagation();
+              }}
+            >
+              {items.slice(0, 8).map((it, idx) => {
+                const q = currentValue.trim();
+                const href =
+                  resolveLink(it, q) || `${action || '/search'}?q=${encodeURIComponent(q)}`;
+                const title = it?.title || it?.name || it?._type || 'Untitled';
+                const img = getThumb(it);
+                const price = formatPrice(it?.price);
+                const isActive = idx === active;
+                return (
+                  <a
+                    key={String(it?._id || it?.slug?.current || idx)}
+                    href={href}
+                    className={cn('block px-3 py-2 hover:bg-white/10', isActive && 'bg-white/10')}
+                    onMouseEnter={() => setActive(idx)}
+                  >
+                    <div
+                      className="flex items-center gap-3"
+                      style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, lineHeight: 1.2 }}
+                    >
+                      {img ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={img}
+                          alt=""
+                          className="w-10 h-10 object-cover rounded border border-white/10"
+                        />
+                      ) : null}
+                      <div className="min-w-0">
+                        <div
+                          className="truncate font-semibold"
+                          style={{ fontFamily: 'Arial, sans-serif', fontSize: 12 }}
+                        >
+                          {title}
+                        </div>
+                        <div
+                          className="flex items-center gap-2 text-white/70"
+                          style={{ fontFamily: 'Arial, sans-serif', fontSize: 11 }}
+                        >
+                          <span className="uppercase">{String(it?._type || '')}</span>
+                          {price ? <span className="text-accent">{price}</span> : null}
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                );
+              })}
+              <div className="border-t border-white/10" />
               <a
-                key={String(it?._id || it?.slug?.current || idx)}
-                href={href}
-                className={cn('block px-3 py-2 hover:bg-white/10', isActive && 'bg-white/10')}
-                onMouseEnter={() => setActive(idx)}
+                href={`${action || '/search'}?q=${encodeURIComponent(currentValue.trim())}`}
+                className="block px-3 py-2 text-center text-xs text-white/70 hover:bg-white/10"
+                style={{ fontFamily: 'Arial, sans-serif', fontSize: 12 }}
               >
-                <div className="flex items-center gap-3" style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, lineHeight: 1.2 }}>
-                  {img ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={img} alt="" className="w-10 h-10 object-cover rounded border border-white/10" />
-                  ) : null}
-                  <div className="min-w-0">
-                    <div className="truncate font-semibold" style={{ fontFamily: 'Arial, sans-serif', fontSize: 12 }}>
-                      {title}
-                    </div>
-                    <div className="flex items-center gap-2 text-white/70" style={{ fontFamily: 'Arial, sans-serif', fontSize: 11 }}>
-                      <span className="uppercase">{String(it?._type || '')}</span>
-                      {price ? <span className="text-accent">{price}</span> : null}
-                    </div>
-                  </div>
-                </div>
+                See all results for “{currentValue.trim()}”
               </a>
-            );
-          })}
-          <div className="border-t border-white/10" />
-          <a
-            href={`${action || '/search'}?q=${encodeURIComponent(currentValue.trim())}`}
-            className="block px-3 py-2 text-center text-xs text-white/70 hover:bg-white/10"
-            style={{ fontFamily: 'Arial, sans-serif', fontSize: 12 }}
-          >
-            See all results for “{currentValue.trim()}”
-          </a>
-        </div>,
-        panelNode
-      ) : null)}
+            </div>,
+            panelNode
+          )
+        ) : null)}
     </div>
   );
 }

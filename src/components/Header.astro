@@ -7,7 +7,7 @@ import { SearchBar } from '@components/SearchBar.tsx';
 
 ---
 
-<header class="bg-black/80 shadow-xl shadow-outline text-white w-full pt-[40px]">
+<header class="bg-black/80 shadow-xl shadow-outline text-white w-full">
   <CartEntry client:load />
 
   <!-- Top Red Bar (always visible) -->
@@ -63,7 +63,7 @@ import { SearchBar } from '@components/SearchBar.tsx';
 </aside>
 
   <!-- ✅ Main Desktop Header -->
-  <div id="dheader" class="hidden md:block fixed font-ethno-italic text-white px-6 w-full z-[700] pointer-events-auto transition-all duration-300 ease-out">
+  <div id="dheader" class="hidden backdrop-blur-sm md:block fixed font-ethno-italic text-white px-6 w-full z-[700] pointer-events-auto transition-all duration-300 ease-out">
     <div class="grid grid-cols-3 items-center h-16 w-full px-10 main-row transition-all duration-300 ease-out">
       <div class="flex justify-start items-center gap-3 px-4">
         <div class="relative w-64" id="mainHeaderSearch">
