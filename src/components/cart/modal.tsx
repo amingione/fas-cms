@@ -10,13 +10,11 @@ import { redirectToCheckout } from './actions';
 import { useCart } from './cart-context';
 import { DeleteItemButton } from './delete-item-button';
 import { EditItemQuantityButton } from './edit-item-quantity-button';
-import OpenCart from './open-cart';
 
 export default function CartModal() {
   const { cart, totalQuantity, subtotal } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const quantityRef = useRef(totalQuantity);
-  const openCart = () => setIsOpen(true);
   const closeCart = () => setIsOpen(false);
 
   useEffect(() => {
@@ -26,11 +24,16 @@ export default function CartModal() {
     }
   }, [isOpen, totalQuantity]);
 
+  useEffect(() => {
+    function handleOpen() {
+      setIsOpen(true);
+    }
+    window.addEventListener('open-cart' as any, handleOpen);
+    return () => window.removeEventListener('open-cart' as any, handleOpen);
+  }, []);
+
   return (
     <>
-      <button aria-label="Open cart" onClick={openCart}>
-        <OpenCart quantity={totalQuantity} />
-      </button>
       <Transition show={isOpen}>
         <Dialog onClose={closeCart} className="relative z-50">
           <Transition.Child
@@ -53,7 +56,7 @@ export default function CartModal() {
             leaveFrom="translate-x-0"
             leaveTo="translate-x-full"
           >
-            <Dialog.Panel className="fixed bottom-0 right-0 top-0 flex h-full w-full flex-col border-l border-neutral-200 bg-white/80 p-6 text-black backdrop-blur-xl md:w-[390px] dark:border-neutral-700 dark:bg-black/80 dark:text-white">
+            <Dialog.Panel className="fixed bottom-0 right-0 top-0 flex h-full w-full flex-col overflow-y-auto border-l border-neutral-200 bg-white/80 p-6 text-black backdrop-blur-xl md:w-[390px] dark:border-neutral-700 dark:bg-black/80 dark:text-white">
               <div className="flex items-center justify-between">
                 <p className="text-lg font-semibold">My Cart</p>
                 <button aria-label="Close cart" onClick={closeCart}>
