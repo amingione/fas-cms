@@ -474,7 +474,7 @@ try {
   
 </BaseLayout>
 <!-- Sticky mobile add-to-cart bar -->
-<div class="md:hidden fixed bottom-0 left-0 right-0 z-[60] bg-black/90 border-t border-white/10 backdrop-blur px-3 py-2 flex items-center justify-between">
+<div id="mobile-add-to-cart" class="md:hidden fixed bottom-0 left-0 right-0 z-[60] bg-black/90 border-t border-white/10 backdrop-blur px-3 py-2 flex items-center justify-between">
   <div class="text-white/90 text-sm">
     <span class="text-white/60">Total:</span>
     <span id="sticky-price" class="font-bold">$ {(typeof (product as any).price === 'number' ? (product as any).price.toFixed(2) : '0.00')}</span>
@@ -504,6 +504,18 @@ try {
       const mo = new MutationObserver(sync);
       mo.observe(main, { childList: true, characterData: true, subtree: true });
       sync();
+    } catch {}
+  })();
+
+  // Hide sticky bar when cart drawer is open
+  (function(){
+    try {
+      const bar = document.getElementById('mobile-add-to-cart');
+      if (!bar) return;
+      const hide = () => bar.classList.add('hidden');
+      const show = () => bar.classList.remove('hidden');
+      window.addEventListener('cart:open', hide);
+      window.addEventListener('cart:close', show);
     } catch {}
   })();
 </script>
