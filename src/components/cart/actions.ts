@@ -121,7 +121,8 @@ export async function redirectToCheckout() {
     const res = await fetch('/api/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cart })
+      // API expects an array of cart items; send cart.items instead of entire cart object
+      body: JSON.stringify({ cart: cart.items })
     });
     if (!res.ok) throw new Error('Checkout failed');
     const data = await res.json();
