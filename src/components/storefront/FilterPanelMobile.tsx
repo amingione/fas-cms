@@ -1,4 +1,6 @@
 import React, { useCallback, useState } from 'react';
+import { Radio } from 'lucide-react';
+import { RadioGroup } from '@headlessui/react';
 
 export interface FilterPanelMobileProps {
   categories: Array<{ title: string; slug: { current?: string } | string }>;
@@ -15,13 +17,6 @@ function normSlug(s?: string | { current?: string }): string {
 function afterNextPaint(fn: () => void) {
   // Two rAFs gives Safari/iOS time to commit the visual state before navigation
   requestAnimationFrame(() => requestAnimationFrame(fn));
-}
-
-function nudgePaint(el?: HTMLElement | null) {
-  try {
-    if (!el) return;
-    void el.offsetHeight; // force reflow
-  } catch {}
 }
 
 export default function FilterPanelMobile({
@@ -58,61 +53,61 @@ export default function FilterPanelMobile({
   return (
     <div className="md:hidden space-y-3">
       {/* Categories */}
-      <details className="rounded-fx-xl bg-fx-surface-2 shadow-fx-subtle">
-        <summary className="px-3 py-2 cursor-pointer fas-label text-muted-foreground rounded-fx-sm hover:bg-white/5 transition">
-          Categories
-        </summary>
-        <div className="px-3 py-2 space-y-2">
-          <label className="block text-white/90 cursor-pointer select-none px-2 py-1 rounded-fx-sm hover:bg-white/5 transition">
-            <input
-              type="checked"
-              name="category"
-              value=""
-              className="mr-2 checked:bg-fx-primary"
-              style={{
-                WebkitAppearance: 'radio',
-                appearance: 'auto',
-                accentColor: 'var(--fx-primary, #fb3636)'
-              }}
-              checked={pendingCategory === ''}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setPendingCategory('');
-                nudgePaint(e.currentTarget);
-                setCategory('');
-              }}
-            />
-            All Categories
-          </label>
-          {categories.map((c) => {
-            const slug = normSlug(c.slug);
-            return (
-              <label
-                key={slug}
-                className="block fas-body-sm text-white/90 cursor-pointer select-none px-2 py-1 rounded-fx-sm hover:bg-white/5 transition"
-              >
-                <input
-                  type="checked"
-                  name="category"
-                  value={slug}
-                  className="mr-2 checked:bg-fx-primary"
-                  style={{
-                    WebkitAppearance: 'radio',
-                    appearance: 'auto',
-                    accentColor: 'var(--fx-primary, #fb3636)'
-                  }}
-                  checked={pendingCategory === slug}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    setPendingCategory(slug);
-                    nudgePaint(e.currentTarget);
-                    setCategory(slug);
-                  }}
-                />
-                {c.title}
-              </label>
-            );
-          })}
-        </div>
-      </details>
+      <RadioGroup value={pendingCategory} onChange={setPendingCategory}>
+        <details className="rounded-fx-xl bg-fx-surface-2 shadow-fx-subtle">
+          <summary className="px-3 py-2 cursor-pointer fas-label text-muted-foreground rounded-fx-sm hover:bg-white/5 transition">
+            Categories
+          </summary>
+          <div className="px-3 py-2 space-y-2">
+            <label className="block text-white/90 cursor-pointer select-none px-2 py-1 rounded-fx-sm hover:bg-white/5 transition">
+              <input
+                type="radio"
+                name="category"
+                value=""
+                className="mr-2"
+                style={{
+                  WebkitAppearance: 'radio',
+                  appearance: 'auto',
+                  accentColor: 'var(--fx-primary, #fb3636)'
+                }}
+                checked={pendingCategory === ''}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setPendingCategory('');
+                  setCategory('');
+                }}
+              />
+              All Categories
+            </label>
+            {categories.map((c) => {
+              const slug = normSlug(c.slug);
+              return (
+                <label
+                  key={slug}
+                  className="block fas-body-sm text-white/90 cursor-pointer select-none px-2 py-1 rounded-fx-sm hover:bg-white/5 transition"
+                >
+                  <input
+                    type="radio"
+                    name="category"
+                    value={slug}
+                    className="mr-2"
+                    style={{
+                      WebkitAppearance: 'radio',
+                      appearance: 'auto',
+                      accentColor: 'var(--fx-primary, #fb3636)'
+                    }}
+                    checked={pendingCategory === slug}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      setPendingCategory(slug);
+                      setCategory(slug);
+                    }}
+                  />
+                  {c.title}
+                </label>
+              );
+            })}
+          </div>
+        </details>
+      </RadioGroup>
 
       {/* Filters */}
       <details className="rounded-fx-xl bg-fx-surface-2 shadow-fx-subtle">
