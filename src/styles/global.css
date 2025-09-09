@@ -565,9 +565,7 @@
     scrollbar-width: none;
     -ms-overflow-style: none;
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior-x: contain;
     scroll-snap-type: x mandatory; /* scroll snapping belongs on the scroll container */
-    touch-action: pan-x; /* allow horizontal swipe on touch devices */
   }
 
   .mobile-carousel::-webkit-scrollbar {
