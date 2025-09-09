@@ -5,12 +5,14 @@ const Label = ({
   title,
   amount,
   currencyCode = 'USD',
-  position = 'bottom'
+  position = 'bottom',
+  showPrice = true
 }: {
   title: string;
   amount: number;
   currencyCode?: string;
   position?: 'bottom' | 'center';
+  showPrice?: boolean;
 }) => {
   return (
     <div
@@ -22,12 +24,14 @@ const Label = ({
         <h3 className="min-w-0 flex-1 mr-2 pl-1 text-sm leading-snug tracking-tight overflow-hidden [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical]">
           {title}
         </h3>
-        <Price
-          className="flex-none font-bold text-base rounded-full bg-primary px-3 py-1.5 text-black"
-          amount={amount}
-          currencyCode={currencyCode}
-          currencyCodeClassName="hidden @[275px]/label:inline"
-        />
+        {showPrice && (
+          <Price
+            className="flex-none font-bold text-base rounded-full bg-primary px-3 py-1.5 text-black"
+            amount={amount}
+            currencyCode={currencyCode}
+            currencyCodeClassName="hidden @[275px]/label:inline"
+          />
+        )}
       </div>
     </div>
   );

@@ -1,0 +1,142 @@
+---
+import { Carousel } from "@/components/storefront/carousel";
+import { sanityClient as client } from "@/lib/sanityClient";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import StoreHero from '@/components/storefront/StoreHero.astro';
+
+// Choose which categories (by slug) to show on this page.
+// Fill this list with the exact slugs you want featured. Leave empty to show all.
+const chosenSlugs: string[] = [
+  'custom-coating',
+  'porting',
+  'supercharger-rebuild'
+];
+
+// Optional: Manually override category images here by slug.
+// Example: 'porting': '/images/packages/porting-custom.png'
+const categoryImageOverrides: Record<string, string> = {
+  'custom-coating': '/images/superchargers/2-7-dominator-package.png',
+  'porting': '/images/snouts/fas-ported-snout.png',
+  'supercharger-rebuild': '/images/superchargers/Suupercharger-New.png'
+};
+
+// Base fields to select from categories
+const categoryFields = `
+  _id,
+  title,
+  "slug": slug.current,
+  "imageUrl": image.asset->url,
+  description
+`;
+
+// All visible categories
+const categoriesQueryAll = /* groq */ `
+*[_type == "category" && defined(slug.current)] | order(orderRank asc){
+  ${categoryFields}
+}`;
+
+// Only categories matching chosen slugs
+const categoriesQueryBySlugs = /* groq */ `
+*[_type == "category" && defined(slug.current) && slug.current in $slugs] | order(orderRank asc){
+  ${categoryFields}
+}`;
+
+interface Category {
+  _id: string;
+  title: string;
+  slug: string;
+  imageUrl: string;
+  description?: string;
+}
+
+// Fetch all categories for the grid
+const categoriesAll: Category[] = await client.fetch(categoriesQueryAll);
+// Fetch chosen categories for the grid/product cards
+const categories: Category[] = await client.fetch(
+  chosenSlugs.length ? categoriesQueryBySlugs : categoriesQueryAll,
+  chosenSlugs.length ? { slugs: chosenSlugs } : {}
+);
+
+// Fetch featured products for the carousel (boolean true, then string "true" fallback)
+let featuredRaw: any[] = [];
+try {
+  featuredRaw = await client.fetch(`*[_type == "product" && !(_id in path("drafts.**")) && coalesce(featured, false) == true && defined(slug.current)][0..11]{
+    _id,
+    name,
+    title,
+    "slug": slug.current,
+    price,
+    images[]{ asset->{ url } },
+    // common fallbacks used elsewhere
+    "imageUrl": coalesce(image.asset->url, mainImage.asset->url, images[0].asset->url, thumbnail.asset->url, thumb.asset->url)
+  }`);
+  if (!Array.isArray(featuredRaw) || featuredRaw.length === 0) {
+    featuredRaw = await client.fetch(`*[_type == "product" && !(_id in path("drafts.**")) && featured == "true" && defined(slug.current)][0..11]{
+      _id,
+      name,
+      title,
+      "slug": slug.current,
+      price,
+      images[]{ asset->{ url } },
+      "imageUrl": coalesce(image.asset->url, mainImage.asset->url, images[0].asset->url, thumbnail.asset->url, thumb.asset->url)
+    }`);
+  }
+} catch (e) {
+  console.error('Failed to fetch featured products for carousel', e);
+  featuredRaw = [];
+}
+
+// Normalize to the shape expected by ProductCardLiteReact (images[0].asset.url)
+const featuredProducts = (Array.isArray(featuredRaw) ? featuredRaw : []).map((p: any) => ({
+  _id: p?._id,
+  title: p?.title || p?.name || 'Product',
+  slug: p?.slug,
+  price: p?.price,
+  images: Array.isArray(p?.images) && p.images.length
+    ? p.images
+    : (p?.imageUrl ? [{ asset: { url: p.imageUrl } }] : []),
+  categories: p?.categories ?? []
+}));
+
+const tileClass = (i: number) => {
+  const base = "relative block rounded-xl overflow-hidden border border-white/10 bg-black group";
+  const small = "lg:col-span-2 lg:row-span-1";
+  const large = "lg:col-span-4 lg:row-span-2";
+  // Pattern similar to the demo mosaic: make every 1st item large
+  return `${base} ${i % 5 === 0 ? large : small}`;
+};
+---
+<BaseLayout>
+    <section class="mt-5 mb-3 pt-3">
+        <StoreHero />
+    </section>
+
+  <!-- CATEGORY MOSAIC GRID -->
+  <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 md:gap-6 auto-rows-[180px] md:auto-rows-[240px] lg:auto-rows-[220px]">
+    {
+      categories.map((c, i) => (
+        <a href={`/shop/${c.slug}`} class={tileClass(i)} aria-label={c.title}>
+          <img
+            src={categoryImageOverrides[c.slug] ?? (c.imageUrl ?? "/placeholder.png")}
+            alt={c.title}
+            class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
+            decoding="async"
+          />
+          <!-- dark gradient overlay -->
+          <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+          <!-- label pill -->
+          <div class="absolute left-3 bottom-3">
+            <span class="rounded-full bg-white/10 px-3 py-1 text-xs uppercase tracking-wide text-white shadow">
+              {c.title}
+            </span>
+          </div>
+        </a>
+      ))
+    }
+  </section>
+   <!-- HERO / CAROUSEL -->
+  <section class="mb-8">
+    <Carousel products={featuredProducts} images={featuredProducts.map(p => p.images)} speedSec={120} client:only="react" />
+  </section>
+</BaseLayout>
