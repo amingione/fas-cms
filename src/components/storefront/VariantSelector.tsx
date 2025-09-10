@@ -97,9 +97,9 @@ export default function VariantSelector({
 
   const base =
     'px-3 py-1 rounded-full text-sm border transition focus:outline-none focus:ring-2 focus:ring-primary/40';
-  const active = 'bg-primary text-black border-transparent';
-  const idle = 'border-white/20 text-white/90 hover:bg-white/10';
-  const disabled = 'opacity-50 line-through cursor-not-allowed border-white/10 text-white/50';
+  const active = 'bg-primary text-accent border-transparent';
+  const idle = 'border-white/30 text-white/90 hover:bg-white/80';
+  const disabled = 'opacity-50 line-through cursor-not-allowed border-white/20 text-white/80';
 
   return (
     <div className={clsx('space-y-6', className)}>

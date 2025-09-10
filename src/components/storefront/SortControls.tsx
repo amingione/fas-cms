@@ -38,7 +38,7 @@ export function SortControls({
           <option value="price-low">Price: Low to High</option>
           <option value="price-high">Price: High to Low</option>
         </select>
-        <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-graylight pointer-events-none" />
+        <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 pointer-events-none" />
       </div>
 
       <div className="flex border border-gray-600/50 rounded-lg overflow-hidden">
@@ -48,7 +48,7 @@ export function SortControls({
             'p-2 transition-colors',
             viewMode === 'grid'
               ? 'bg-primary text-white'
-              : 'bg-gray-800/50 text-graylight hover:text-white'
+              : 'bg-gray-800/50 text-white/60 hover:text-white'
           )}
           aria-label="Grid view"
         >
@@ -60,7 +60,7 @@ export function SortControls({
             'p-2 transition-colors',
             viewMode === 'list'
               ? 'bg-primary text-white'
-              : 'bg-gray-800/50 text-graylight hover:text-white'
+              : 'bg-gray-800/50 text-white/60 hover:text-white'
           )}
           aria-label="List view"
         >
@@ -74,7 +74,7 @@ export function SortControls({
           size="sm"
           onClick={onClear}
           className={cn(
-            'text-graylight hover:text-white font-ethno',
+            'text-white/60 hover:text-white font-ethno',
             compactClear && 'h-9 w-9 p-0 sm:w-auto sm:px-3'
           )}
           aria-label="Clear"

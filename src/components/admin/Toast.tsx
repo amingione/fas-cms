@@ -18,7 +18,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           {items.map((t) => (
             <div
               key={t.id}
-              className="backdrop-blur rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-sm shadow-lg transition"
+              className="backdrop-blur rounded-lg border border-white/15 bg-white/80 px-3 py-2 text-sm shadow-lg transition"
             >
               {t.msg}
             </div>

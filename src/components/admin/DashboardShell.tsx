@@ -7,7 +7,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
   return (
     <ToastProvider>
       <div className="min-h-screen bg-neutral-950 text-white flex">
-        <aside className="w-64 shrink-0 border-r border-white/10 p-4 hidden md:block">
+        <aside className="w-64 shrink-0 border-r border-white/20 p-4 hidden md:block">
           <div className="text-xl font-bold mb-6">Admin</div>
           <nav className="space-y-2">
             <a className="block rounded px-3 py-2 hover:bg-white/5 transition" href="/admin">

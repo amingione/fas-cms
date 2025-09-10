@@ -28,14 +28,14 @@ try {
 
     {
       appointments?.length > 0 ? (
-        <div class="overflow-x-auto border border-white/10 rounded-lg">
+        <div class="overflow-x-auto border border-white/20 rounded-lg">
           <table class="min-w-full text-sm">
             <thead class="bg-white/5">
               <tr><th class="text-left px-3 py-2">When</th><th class="text-left px-3 py-2">Service</th><th class="text-left px-3 py-2">Customer</th><th class="text-left px-3 py-2">Status</th></tr>
             </thead>
             <tbody>
               {appointments.map((appt: Appointment) => (
-                <tr class="border-t border-white/10 hover:bg-white/5 transition">
+                <tr class="border-t border-white/20 hover:bg-white/5 transition">
                   <td class="px-3 py-2">{new Date(appt.startTime).toLocaleString()}</td>
                   <td class="px-3 py-2">{appt.eventType?.title || 'Appointment'}</td>
                   <td class="px-3 py-2">{appt.customer?.name || appt.customer?.email || appt.customerEmail || appt.email || '—'}</td>

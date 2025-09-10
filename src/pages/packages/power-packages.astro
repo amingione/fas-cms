@@ -11,14 +11,14 @@ import Button from '@/components/Button.astro';
   <!-- HERO: full-bleed, dark glass, tight under header -->
   <section
     class="relative w-full h-[72vh] md:h-[78vh] overflow-hidden"
-    style="--hero:url('/images/packages/TRX-Truck-Package-FAS.png')"
+    style="--hero:url('/shop')"
     aria-label="Power Packages Hero"
   >
-    <img src="/images/packages/TRX-Truck-Package-FAS.png" alt="" class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none" />
+    <img src="/images/backgrounds/bg-path-overlay.png" alt="" class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none" />
     <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80"></div>
 
     <!-- top divider line matching theme -->
-    <div class="absolute top-0 left-0 right-0 h-px bg-white/20"></div>
+    <div class="absolute top-0 left-0 right-0 h-px bg-white/70"></div>
 
     <div class="relative z-10 h-full flex flex-col items-center justify-center text-center px-0 md:px-6">
       <h1 class="text-5xl md:text-7xl font-ethno tracking-[0.08em] text-white drop-shadow-[0_6px_28px_rgba(0,0,0,0.8)]" {...sbFieldPath('title')}>
@@ -30,9 +30,9 @@ import Button from '@/components/Button.astro';
 
       <!-- badges -->
       <div class="mt-6 flex flex-wrap gap-3 justify-center">
-        <span class="px-4 py-1.5 rounded-full border border-white/20 bg-black/50 text-white/90 text-xs font-ethno uppercase tracking-[0.18em]">No Tune Required (Base)</span>
-        <span class="px-4 py-1.5 rounded-full border border-white/20 bg-black/50 text-white/90 text-xs font-ethno uppercase tracking-[0.18em]">Financing Available</span>
-        <span class="px-4 py-1.5 rounded-full border border-white/20 bg-black/50 text-white/90 text-xs font-ethno uppercase tracking-[0.18em]">Bolt‑On Focus</span>
+        <span class="px-4 py-1.5 rounded-full border border-white/30 bg-black/50 text-white/90 text-xs font-ethno uppercase tracking-[0.18em]">No Tune Required (Base)</span>
+        <span class="px-4 py-1.5 rounded-full border border-white/30 bg-black/50 text-white/90 text-xs font-ethno uppercase tracking-[0.18em]">Financing Available</span>
+        <span class="px-4 py-1.5 rounded-full border border-white/30 bg-black/50 text-white/90 text-xs font-ethno uppercase tracking-[0.18em]">Bolt‑On Focus</span>
       </div>
 
       <!-- primary CTAs -->
@@ -44,18 +44,18 @@ import Button from '@/components/Button.astro';
   </section>
 
   <!-- HIGHLIGHTS STRIP -->
-  <section class="relative w-full bg-black/70 backdrop-blur-md border-y border-white/10 luxury-carbon-effect">
+  <section class="relative w-full bg-black/70 backdrop-blur-md border-y border-white/20 luxury-carbon-effect">
     <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-0">
-        <div class="flex items-center gap-3 py-4 px-4 border-r border-white/10">
+        <div class="flex items-center gap-3 py-4 px-4 border-r border-white/20">
           <div class="w-2 h-2 rounded-full bg-accent"></div>
           <div class="text-white/80 text-xs md:text-sm font-mono tracking-[0.14em]">Dyno‑Proven Options</div>
         </div>
-        <div class="flex items-center gap-3 py-4 px-4 border-r border-white/10">
+        <div class="flex items-center gap-3 py-4 px-4 border-r border-white/20">
           <div class="w-2 h-2 rounded-full bg-accent"></div>
           <div class="text-white/80 text-xs md:text-sm font-mono tracking-[0.14em]">OEM‑Style Fit &amp; Finish</div>
         </div>
-        <div class="flex items-center gap-3 py-4 px-4 border-r border-white/10">
+        <div class="flex items-center gap-3 py-4 px-4 border-r border-white/20">
           <div class="w-2 h-2 rounded-full bg-accent"></div>
           <div class="text-white/80 text-xs md:text-sm font-mono tracking-[0.14em]">Fast Turnaround</div>
         </div>
@@ -74,7 +74,7 @@ import Button from '@/components/Button.astro';
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 luxury-platinum-shine">
         <!-- Card template -->
-        <a href="/shop?platform=trx" class="group relative aspect-[4/3] overflow-hidden rounded-xl border border-white/10 bg-[#0b0b0c]">
+        <a href="/shop?platform=trx" class="group relative aspect-[4/3] overflow-hidden rounded-xl border border-white/20 bg-[#0b0b0c]">
           <img src="/images/packages/dodge-ram.png" alt="RAM TRX Packages" class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition" />
           <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
           <div class="absolute bottom-0 left-0 right-0 p-4">
@@ -83,7 +83,7 @@ import Button from '@/components/Button.astro';
           </div>
         </a>
 
-        <a href="/shop?platform=trackhawk" class="group relative aspect-[4/3] overflow-hidden rounded-xl border border-white/10 bg-[#0b0b0c]">
+        <a href="/shop?platform=trackhawk" class="group relative aspect-[4/3] overflow-hidden rounded-xl border border-white/20 bg-[#0b0b0c]">
           <img src="/images/packages/THpackage.png" alt="Trackhawk &amp; Durango Packages" class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition" />
           <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
           <div class="absolute bottom-0 left-0 right-0 p-4">
@@ -92,7 +92,7 @@ import Button from '@/components/Button.astro';
           </div>
         </a>
 
-        <a href="/shop?platform=lx" class="group relative aspect-[4/3] overflow-hidden rounded-xl border border-white/10 bg-[#0b0b0c]">
+        <a href="/shop?platform=lx" class="group relative aspect-[4/3] overflow-hidden rounded-xl border border-white/20 bg-[#0b0b0c]">
           <img src="/images/packages/1.png" alt="Challenger &amp; Charger Packages" class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition" />
           <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
           <div class="absolute bottom-0 left-0 right-0 p-4">
@@ -104,7 +104,7 @@ import Button from '@/components/Button.astro';
 
       <!-- F.A.S. Tiers -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6 mt-6 md:mt-10 racing-stripe">
-        <div class="group relative aspect-[4/3] overflow-hidden rounded-xl border border-white/10 bg-[#0b0b0c] ">
+        <div class="group relative aspect-[4/3] overflow-hidden rounded-xl border border-white/20 bg-[#0b0b0c] ">
           <img src="/images/packages/fas-1x-2.png" alt="F.A.S. 1X" class="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:opacity-100 transition" />
           <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
           <div class="absolute bottom-0 left-0 right-0 p-5">
@@ -112,7 +112,7 @@ import Button from '@/components/Button.astro';
             <div class="text-primary font-ethno text-6xl drop-shadow">1X</div>
           </div>
         </div>
-        <div class="group relative aspect-[4/3] overflow-hidden rounded-xl border border-white/10 bg-[#0b0b0c]">
+        <div class="group relative aspect-[4/3] overflow-hidden rounded-xl border border-white/20 bg-[#0b0b0c]">
           <img src="/images/packages/fas 2x.png" alt="F.A.S. 2X" class="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:opacity-100 transition" />
           <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
           <div class="absolute bottom-0 left-0 right-0 p-5">

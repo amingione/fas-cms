@@ -133,7 +133,7 @@ const countProducts = Array.isArray(products) ? products.length : 0;
     {upcomingAppointments.length > 0 ? (
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {upcomingAppointments.map((a: Appointment) => (
-          <div class="rounded-lg border border-white/10 bg-white/5 p-4">
+          <div class="rounded-lg border border-white/20 bg-white/5 p-4">
             <div class="flex items-start justify-between gap-3">
               <div>
                 <div class="font-semibold">{a.eventType?.title || 'Appointment'}</div>
@@ -141,22 +141,22 @@ const countProducts = Array.isArray(products) ? products.length : 0;
                   {new Date(a.startTime).toLocaleString()}
                 </div>
               </div>
-              <span class="text-xs px-2 py-0.5 rounded-full border border-white/15 text-white/80">
+              <span class="text-xs px-2 py-0.5 rounded-full border border-white/30 text-white/80">
                 {(a.status || 'scheduled').toUpperCase()}
               </span>
             </div>
             <div class="mt-3 text-sm text-white/80">
               <div class="truncate">
-                <span class="text-white/60">Customer: </span>
+                <span class="text-white/70">Customer: </span>
                 {a.customer?.name || a.customer?.email || a.customerEmail || a.email || '—'}
               </div>
             </div>
             <div class="mt-3 flex gap-2">
               {a.rescheduleUrl && (
-                <a class="px-3 py-1.5 rounded border border-white/15 hover:bg-white/10 text-xs" href={a.rescheduleUrl} target="_blank">Reschedule</a>
+                <a class="px-3 py-1.5 rounded border border-white/15 hover:bg-white/80 text-xs" href={a.rescheduleUrl} target="_blank">Reschedule</a>
               )}
               {a.cancelUrl && (
-                <a class="px-3 py-1.5 rounded border border-white/15 hover:bg-white/10 text-xs" href={a.cancelUrl} target="_blank">Cancel</a>
+                <a class="px-3 py-1.5 rounded border border-white/15 hover:bg-white/80 text-xs" href={a.cancelUrl} target="_blank">Cancel</a>
               )}
             </div>
           </div>

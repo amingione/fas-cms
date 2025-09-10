@@ -14,7 +14,7 @@ import ProductSpecSheet from '@components/specs/ProductSpecSheet.astro';
     {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
       <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
     )}
-
+    <section class="mt-5 pt-5"></section>
     <ProductSpecSheet
       title={pageDoc?.title ?? 'Billet Bearing Plate — Spec Sheet'}
       description="Engineered, fabricated, and validated by FAS Motorsports to deliver superior strength, precision, and reliability under extreme conditions."

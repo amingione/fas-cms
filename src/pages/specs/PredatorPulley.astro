@@ -14,7 +14,7 @@ import ProductSpecSheet from '@components/specs/ProductSpecSheet.astro';
     {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
       <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
     )}
-
+  <section class="mt-5 pt-5"></section>
     <ProductSpecSheet
       title={pageDoc?.title ?? 'Predator Pulley — Spec Sheet'}
       description="Engineered & manufactured by FAS Motorsports for high‑grip belt traction, precise drive ratios, and stable boost control at extreme RPM."

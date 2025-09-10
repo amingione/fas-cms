@@ -129,7 +129,7 @@ export default function FilterPanel({
     <div id="category-sidebar" className="text-white select-none radio-checkbox" aria-live="polite">
       {/* Categories */}
       <details open className="mb-3 rounded-lg border border-zinc-700/60">
-        <summary className="flex items-center justify-between cursor-pointer px-3 py-2 text-sm uppercase tracking-wide text-zinc-300">
+        <summary className="flex items-center justify-between cursor-pointer px-3 py-2 text-sm uppercase tracking-wide text-white-300">
           <span>Categories</span>
           <span className="i-tabler-chevron-down" aria-hidden="true">
             ▾
@@ -179,7 +179,7 @@ export default function FilterPanel({
 
       {/* Price */}
       <details className="mb-3 rounded-lg border border-zinc-700/60">
-        <summary className="flex items-center justify-between cursor-pointer px-3 py-2 text-sm uppercase tracking-wide text-zinc-300">
+        <summary className="flex items-center justify-between cursor-pointer px-3 py-2 text-sm uppercase tracking-wide text-white-300">
           <span>Price</span>
           <span className="i-tabler-chevron-down" aria-hidden="true">
             ▾
@@ -188,7 +188,7 @@ export default function FilterPanel({
         <div className="px-3 pb-3 space-y-3">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-xs text-zinc-400">Min</span>
+              <span className="text-xs text-white-400">Min</span>
               <input
                 type="number"
                 inputMode="numeric"
@@ -201,7 +201,7 @@ export default function FilterPanel({
               />
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-zinc-400">Max</span>
+              <span className="text-xs text-white-400">Max</span>
               <input
                 type="number"
                 inputMode="numeric"
@@ -238,7 +238,7 @@ export default function FilterPanel({
               onTouchEnd={() => commitPrice(minP, maxP)}
               className="w-full -mt-1"
             />
-            <div className="mt-1 text-xs text-zinc-400">
+            <div className="mt-1 text-xs text-white-400">
               ${minP} – ${maxP}
             </div>
           </div>
@@ -248,7 +248,7 @@ export default function FilterPanel({
       {/* Vehicle Compatibility */}
       {vehicles.length > 0 && (
         <details className="mb-3 rounded-lg border border-zinc-700/60">
-          <summary className="flex items-center justify-between cursor-pointer px-3 py-2 text-sm uppercase tracking-wide text-zinc-300">
+          <summary className="flex items-center justify-between cursor-pointer px-3 py-2 text-sm uppercase tracking-wide text-white-300">
             <span>Vehicle Compatibility</span>
             <span className="i-tabler-chevron-down" aria-hidden="true">
               ▾
@@ -280,7 +280,7 @@ export default function FilterPanel({
 
       {/* Filters (non-specs/attributes) */}
       <details className="mb-3 rounded-lg border border-zinc-700/60">
-        <summary className="flex items-center justify-between cursor-pointer px-3 py-2 text-sm uppercase tracking-wide text-zinc-300">
+        <summary className="flex items-center justify-between cursor-pointer px-3 py-2 text-sm uppercase tracking-wide text-white-300">
           <span>Filters</span>
           <span className="i-tabler-chevron-down" aria-hidden="true">
             ▾
@@ -313,13 +313,13 @@ export default function FilterPanel({
       {/* Specs/Attributes group intentionally omitted when hideSpecsAndAttributes is true */}
       {!hideSpecsAndAttributes && (
         <details className="mb-3 rounded-lg border border-zinc-700/60">
-          <summary className="flex items-center justify-between cursor-pointer px-3 py-2 text-sm uppercase tracking-wide text-zinc-300">
+          <summary className="flex items-center justify-between cursor-pointer px-3 py-2 text-sm uppercase tracking-wide text-white-300">
             <span>Specifications & Attributes</span>
             <span className="i-tabler-chevron-down" aria-hidden="true">
               ▾
             </span>
           </summary>
-          <div className="px-3 pb-3 text-sm text-zinc-400">
+          <div className="px-3 pb-3 text-sm text-white-400">
             {/* Render your specs/attributes controls here when used on other pages */}
             Coming soon…
           </div>

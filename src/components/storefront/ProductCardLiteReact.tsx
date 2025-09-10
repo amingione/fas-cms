@@ -43,7 +43,7 @@ export default function ProductCardLiteReact({
   ) : (
     <a
       href={href}
-      className="group block relative overflow-hidden rounded-sm border border-white/20 bg-black transition-shadow duration-300 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary"
+      className="group block relative overflow-hidden rounded-sm border border-white/30 bg-black transition-shadow duration-300 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary"
     >
       <div className="relative aspect-square object-contain contain flex pb-10 justify-center bg-black/30 backdrop-blur-sm">
         <img

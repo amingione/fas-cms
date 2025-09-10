@@ -87,7 +87,7 @@ export function SearchBar({
     'pl-12 bg-gray-800/50 border-gray-600/50 text-white placeholder-graylight focus:border-primary focus:ring-primary/20 font-kwajong';
   const sizeCls = size === 'compact' ? 'h-10 text-sm' : 'h-12 text-base';
   const baseStorefront =
-    'pl-12 bg-black/60 border-white/10 text-white placeholder-white/40 focus:border-primary focus:ring-primary/20 font-kwajong rounded-fx-md';
+    'pl-12 bg-black/60 border-white/20 text-white placeholder-white/70 focus:border-primary focus:ring-primary/20 font-kwajong rounded-fx-md';
   const inputClasses = cn(variant === 'storefront' ? baseStorefront : baseDefault, sizeCls);
 
   // If suggestions are disabled (e.g., header on /shop), immediately close/clear
@@ -206,7 +206,7 @@ export function SearchBar({
         <Search
           className={cn(
             'absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5',
-            variant === 'storefront' ? 'text-white/50' : 'text-graylight'
+            variant === 'storefront' ? 'text-white/70' : 'text-white/60'
           )}
         />
         <Input
@@ -242,8 +242,8 @@ export function SearchBar({
             className={cn(
               'absolute right-3 top-1/2 -translate-y-1/2',
               variant === 'storefront'
-                ? 'text-white/50 hover:text-white'
-                : 'text-graylight hover:text-white'
+                ? 'text-white/70 hover:text-white'
+                : 'text-white/60 hover:text-white'
             )}
           >
             <X className="w-4 h-4" />
@@ -259,7 +259,7 @@ export function SearchBar({
             className={cn(
               'absolute left-0 mt-2 w-full max-w-[380px] rounded-lg shadow-xl z-[70] max-h-[60vh] overflow-auto backdrop-blur-md',
               variant === 'storefront'
-                ? 'bg-black/90 border-white/10'
+                ? 'bg-black/90 border-white/20'
                 : 'bg-black/85 border border-gray-700/50'
             )}
           >
@@ -275,7 +275,7 @@ export function SearchBar({
                 <a
                   key={String(it?._id || it?.slug?.current || idx)}
                   href={href}
-                  className={cn('block px-3 py-2 hover:bg-white/10', isActive && 'bg-white/10')}
+                  className={cn('block px-3 py-2 hover:bg-white/80', isActive && 'bg-white/80')}
                   onMouseEnter={() => setActive(idx)}
                 >
                   <div
@@ -287,7 +287,7 @@ export function SearchBar({
                       <img
                         src={img}
                         alt=""
-                        className="w-10 h-10 object-cover rounded border border-white/10"
+                        className="w-10 h-10 object-cover rounded border border-white/20"
                       />
                     ) : null}
                     <div className="min-w-0">
@@ -309,10 +309,10 @@ export function SearchBar({
                 </a>
               );
             })}
-            <div className="border-t border-white/10" />
+            <div className="border-t border-white/20" />
             <a
               href={`${action || '/search'}?q=${encodeURIComponent(currentValue.trim())}`}
-              className="block px-3 py-2 text-center text-xs text-white/70 hover:bg-white/10"
+              className="block px-3 py-2 text-center text-xs text-white/70 hover:bg-white/80"
               style={{ fontFamily: 'Arial, sans-serif', fontSize: 12 }}
             >
               See all results for “{currentValue.trim()}”
@@ -324,7 +324,7 @@ export function SearchBar({
               className={cn(
                 'rounded-lg shadow-xl z-[2147483647] max-h-[60vh] overflow-auto backdrop-blur-md fixed',
                 variant === 'storefront'
-                  ? 'bg-black/90 border-white/10'
+                  ? 'bg-black/90 border-white/20'
                   : 'bg-black/85 border border-gray-700/50'
               )}
               style={{ left: panelPos.left, top: panelPos.top, width: panelPos.width }}
@@ -345,7 +345,7 @@ export function SearchBar({
                   <a
                     key={String(it?._id || it?.slug?.current || idx)}
                     href={href}
-                    className={cn('block px-3 py-2 hover:bg-white/10', isActive && 'bg-white/10')}
+                    className={cn('block px-3 py-2 hover:bg-white/80', isActive && 'bg-white/80')}
                     onMouseEnter={() => setActive(idx)}
                   >
                     <div
@@ -357,7 +357,7 @@ export function SearchBar({
                         <img
                           src={img}
                           alt=""
-                          className="w-10 h-10 object-cover rounded border border-white/10"
+                          className="w-10 h-10 object-cover rounded border border-white/20"
                         />
                       ) : null}
                       <div className="min-w-0">
@@ -379,10 +379,10 @@ export function SearchBar({
                   </a>
                 );
               })}
-              <div className="border-t border-white/10" />
+              <div className="border-t border-white/20" />
               <a
                 href={`${action || '/search'}?q=${encodeURIComponent(currentValue.trim())}`}
-                className="block px-3 py-2 text-center text-xs text-white/70 hover:bg-white/10"
+                className="block px-3 py-2 text-center text-xs text-white/70 hover:bg-white/80"
                 style={{ fontFamily: 'Arial, sans-serif', fontSize: 12 }}
               >
                 See all results for “{currentValue.trim()}”

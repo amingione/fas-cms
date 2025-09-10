@@ -45,11 +45,19 @@ export default function QuoteEditorDrawer({
   async function sendQuote() {
     try {
       setSending(true);
-      const payload = q._id ? q : (await (await fetch('/.netlify/functions/quotes-upsert', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(q) })).json());
+      const payload = q._id
+        ? q
+        : await (
+            await fetch('/.netlify/functions/quotes-upsert', {
+              method: 'POST',
+              headers: { 'content-type': 'application/json' },
+              body: JSON.stringify(q)
+            })
+          ).json();
       const res = await fetch('/.netlify/functions/quotes-send', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ quoteId: (payload._id || q._id) })
+        body: JSON.stringify({ quoteId: payload._id || q._id })
       });
       setSending(false);
       if (!res.ok) return alert(await res.text());
@@ -88,12 +96,12 @@ export default function QuoteEditorDrawer({
             placeholder="Quote #"
             value={q.number || ''}
             onChange={(e) => setQ({ ...q, number: e.target.value })}
-            className="bg-transparent border border-white/20 rounded px-3 py-2"
+            className="bg-transparent border border-white/30 rounded px-3 py-2"
           />
           <select
             value={q.status || 'draft'}
             onChange={(e) => setQ({ ...q, status: e.target.value })}
-            className="bg-transparent border border-white/20 rounded px-3 py-2"
+            className="bg-transparent border border-white/30 rounded px-3 py-2"
           >
             {['draft', 'sent', 'accepted', 'invoiced'].map((s) => (
               <option key={s} value={s}>
@@ -105,13 +113,13 @@ export default function QuoteEditorDrawer({
             placeholder="Customer name"
             value={q.customerName || ''}
             onChange={(e) => setQ({ ...q, customerName: e.target.value })}
-            className="bg-transparent border border-white/20 rounded px-3 py-2 col-span-2"
+            className="bg-transparent border border-white/30 rounded px-3 py-2 col-span-2"
           />
           <input
             placeholder="Customer email"
             value={q.customerEmail || ''}
             onChange={(e) => setQ({ ...q, customerEmail: e.target.value })}
-            className="bg-transparent border border-white/20 rounded px-3 py-2 col-span-2"
+            className="bg-transparent border border-white/30 rounded px-3 py-2 col-span-2"
           />
         </div>
 
@@ -120,7 +128,7 @@ export default function QuoteEditorDrawer({
             <div className="font-semibold">Items</div>
             <button
               onClick={addItem}
-              className="px-3 py-1 rounded border border-white/20 hover:bg-white/10"
+              className="px-3 py-1 rounded border border-white/30 hover:bg-white/80"
             >
               Add Item
             </button>
@@ -129,12 +137,12 @@ export default function QuoteEditorDrawer({
           <div className="grid grid-cols-6 gap-2">
             <input
               placeholder="Search products..."
-              className="col-span-4 bg-transparent border border-white/20 rounded px-2 py-1"
+              className="col-span-4 bg-transparent border border-white/30 rounded px-2 py-1"
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
             />
             <button
-              className="col-span-2 px-3 py-1 rounded border border-white/20 hover:bg-white/10"
+              className="col-span-2 px-3 py-1 rounded border border-white/30 hover:bg-white/80"
               onClick={async () => {
                 try {
                   const res = await fetch('/.netlify/functions/products-list');
@@ -147,22 +155,36 @@ export default function QuoteEditorDrawer({
             </button>
           </div>
           {products.length > 0 && (
-            <div className="max-h-48 overflow-auto border border-white/10 rounded">
+            <div className="max-h-48 overflow-auto border border-white/20 rounded">
               {(products as any[])
                 .filter((p) => {
                   const qstr = (filter || '').toLowerCase();
                   if (!qstr) return true;
                   return (
-                    (p.title || '').toLowerCase().includes(qstr) || (p.sku || '').toLowerCase().includes(qstr)
+                    (p.title || '').toLowerCase().includes(qstr) ||
+                    (p.sku || '').toLowerCase().includes(qstr)
                   );
                 })
                 .slice(0, 25)
                 .map((p) => (
-                  <div key={p._id} className="flex items-center justify-between px-3 py-1 border-b border-white/10">
-                    <div className="text-sm truncate">{p.title} <span className="text-white/50">{p.sku || ''}</span></div>
+                  <div
+                    key={p._id}
+                    className="flex items-center justify-between px-3 py-1 border-b border-white/20"
+                  >
+                    <div className="text-sm truncate">
+                      {p.title} <span className="text-white">{p.sku || ''}</span>
+                    </div>
                     <button
-                      className="px-2 py-1 rounded border border-white/20 hover:bg-white/10 text-xs"
-                      onClick={() => setQ((v: any) => ({ ...v, items: [...(v.items || []), { title: p.title, qty: 1, price: Number(p.price || 0) }] }))}
+                      className="px-2 py-1 rounded border border-white/30 hover:bg-white/80 text-xs"
+                      onClick={() =>
+                        setQ((v: any) => ({
+                          ...v,
+                          items: [
+                            ...(v.items || []),
+                            { title: p.title, qty: 1, price: Number(p.price || 0) }
+                          ]
+                        }))
+                      }
                     >
                       Add
                     </button>
@@ -174,14 +196,14 @@ export default function QuoteEditorDrawer({
             {(q.items || []).map((it: any, i: number) => (
               <div key={i} className="grid grid-cols-6 gap-2">
                 <input
-                  className="col-span-3 bg-transparent border border-white/20 rounded px-2 py-1"
+                  className="col-span-3 bg-transparent border border-white/30 rounded px-2 py-1"
                   placeholder="Title"
                   value={it.title || ''}
                   onChange={(e) => setItem(i, 'title', e.target.value)}
                 />
                 <input
                   type="number"
-                  className="col-span-1 bg-transparent border border-white/20 rounded px-2 py-1"
+                  className="col-span-1 bg-transparent border border-white/30 rounded px-2 py-1"
                   placeholder="Qty"
                   value={it.qty || 1}
                   onChange={(e) => setItem(i, 'qty', Number(e.target.value))}
@@ -189,7 +211,7 @@ export default function QuoteEditorDrawer({
                 <input
                   type="number"
                   step="0.01"
-                  className="col-span-2 bg-transparent border border-white/20 rounded px-2 py-1"
+                  className="col-span-2 bg-transparent border border-white/30 rounded px-2 py-1"
                   placeholder="Price"
                   value={it.price || 0}
                   onChange={(e) => setItem(i, 'price', Number(e.target.value))}
@@ -206,20 +228,20 @@ export default function QuoteEditorDrawer({
           <button
             onClick={save}
             disabled={saving}
-            className="px-4 py-2 rounded bg-white text-black hover:bg-white/90"
+            className="px-4 py-2 rounded bg-white text-accent hover:bg-white/90"
           >
             {saving ? 'Saving…' : 'Save'}
           </button>
           <button
             onClick={sendQuote}
             disabled={sending}
-            className="px-4 py-2 rounded border border-white/20 hover:bg-white/10"
+            className="px-4 py-2 rounded border border-white/30 hover:bg-white/80"
           >
             {sending ? 'Sending…' : 'Send to Customer'}
           </button>
           <button
             onClick={convertToInvoice}
-            className="px-4 py-2 rounded border border-white/20 hover:bg-white/10"
+            className="px-4 py-2 rounded border border-white/30 hover:bg-white/80"
           >
             Convert → Invoice
           </button>

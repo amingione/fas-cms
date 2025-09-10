@@ -34,7 +34,7 @@ export default function SplinePortingShowcase() {
         viewport={{ once: true }}
       >
         <h2 className="text-4xl font-bold mb-4 font-ethno">Ready to Unlock Power?</h2>
-        <p className="text-gray-400 mb-6 font-cyber">
+        <p className="text-white/70 mb-6 font-cyber">
           Explore our porting packages designed to dominate the track — built for performance,
           perfected for the street.
         </p>

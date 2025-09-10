@@ -1,16 +1,13 @@
 ---
 import '../styles/global.css';
-import Header from '../components/Header.astro';
-import Footer from '../components/footer.astro';
+import Header from '../components/header/header2.astro';
+import Footer from '@/components/footer.astro';
 import { CartProvider } from '@/components/cart/cart-context';
 import { CookieBanner } from '@/components/cookie-banner.tsx';
 import { Toaster } from 'sonner';
-
-
 ---
 
-<!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -28,28 +25,19 @@ import { Toaster } from 'sonner';
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   </head>
 
-  <body class="slim-ui min-h-screen bg-black bg-fit bg-center text-white overflow-x-clip w-full"
-    style="">
-    
-    <div class="absolute inset-0 z-0"></div>
-
-
-
-    <!-- App content wrapped with CartProvider so cart modal/badge work everywhere -->
+  <body class="bg-background pt-3 px-5 text-white font-mono min-h-screen flex flex-col">
     <CartProvider client:load>
-      <div class="relative z-10">
-        <Header />
-        <main class="fullbleed bg-cover bg-black bg-center px-0 w-full pt-[var(--header-offset,theme(spacing.16))]">
-          <slot />
-        </main>
-        <div class="m-0 p-0">
-          <Footer class="m-0 p-0" />
-        </div>
-        
-        <CookieBanner client:load />
-        <Toaster richColors position="bottom-left" />
+       <div class="relative z-10">
+      <Header />
+      <main class="mt-10 pt-5 flex-grow container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+        <slot />
+      </main>
+      <Footer />
+      <CookieBanner client:load />
+      <Toaster client:load />
       </div>
     </CartProvider>
+
 
     <script>
       document.addEventListener('DOMContentLoaded', () => {
@@ -70,46 +58,26 @@ import { Toaster } from 'sonner';
       });
     </script>
 
-    <style>
-      @keyframes slide-in-left {
-        0% {
-          opacity: 0;
-          transform: translateX(-50px);
-        }
-        100% {
-          opacity: 1;
-          transform: translateX(0);
-        }
-      }
-      .animate-slide-in-left {
-        animation: slide-in-left 0.8s ease-out forwards;
-      }
+<style>
+  /* Ensure images and banners don't overflow */
+  img, video, iframe {
+    max-width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
 
-      /* =========================================================
-         Safe zone for interactive controls (carousel arrows etc.)
-         Ensures they stay above overlays and wrappers
-         ========================================================= */
-      #gallery-controls button,
-      #gallery #prev,
-      #gallery #next {
-        position: relative;
-        z-index: 9999 !important;
-        pointer-events: auto !important;
-      }
-      /* Global CSS to fix radio appearance in mobile Safari */
-      #mobile-filters-capture input[type="radio"] {
-      -webkit-appearance: radio !important;
-      appearance: auto !important;
-      accent-color: var(--fx-primary, #fb3636) !important;
-      }
-      /* Input Styles for radio buttons*/
-      input[type='radio'],
-      input[type='checkbox'] {
-      accent-color: var(--fx-primary, #fb3636);
-      }
+  /* Smooth transitions for interactive elements */
+  button, a {
+    transition: all 0.3s ease;
+  }
+  button:hover, a:hover {
+    color: var(--color-primary);
+  }
 
-
-    </style>
-
+  /* Responsive container padding */
+  .container {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+</style>
   </body>
 </html>

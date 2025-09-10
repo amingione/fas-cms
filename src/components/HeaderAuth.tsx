@@ -13,18 +13,19 @@ export default function HeaderAuth() {
         const auth0 = await getAuth0Client();
         const authed = await auth0.isAuthenticated();
         if (!authed) {
-          badge.innerHTML = `<a href="/account" class="hover:!text-black hover:underline">Log in / Sign up</a>`;
+          badge.innerHTML = `<a href="/account" class="hover:!text-accent hover:underline">Log in / Sign up</a>`;
           return;
         }
         const user = await auth0.getUser();
-        const name = (user as any)?.given_name || (user as any)?.name || (user as any)?.email || 'there';
+        const name =
+          (user as any)?.given_name || (user as any)?.name || (user as any)?.email || 'there';
         badge.innerHTML = `
           <span class="mr-3">Hello, ${name}</span>
-          <a href="/dashboard" class="hover:!text-black hover:underline">My Account</a>
+          <a href="/dashboard" class="hover:!text-accent hover:underline">My Account</a>
         `;
       } catch (e) {
         // Fallback link
-        badge.innerHTML = `<a href="/account" class="hover:!text-black hover:underline">My Account</a>`;
+        badge.innerHTML = `<a href="/account" class="hover:!text-accent hover:underline">My Account</a>`;
       }
     };
     run();

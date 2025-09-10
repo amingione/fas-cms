@@ -17,16 +17,26 @@ const root = document.getElementById('account-edit');
         <h1 class="text-2xl mb-4 font-borg text-primary">Account</h1>
         <p class="mb-6">Log in or create an account to edit your profile.</p>
         <div class="flex gap-4">
-          <button id="login" class="px-4 py-2 bg-primary text-black font-ethno">Log in</button>
-          <button id="signup" class="px-4 py-2 border border-white/40 font-ethno">Sign up</button>
+          <button id="login" class="px-4 py-2 bg-primary text-accent font-ethno">Log in</button>
+          <button id="signup" class="px-4 py-2 border border-white/30 font-ethno">Sign up</button>
         </div>
       `;
     }
     document.getElementById('login')?.addEventListener('click', () =>
-      auth0.loginWithRedirect({ authorizationParams: { screen_hint: 'login', redirect_uri: window.location.origin + '/account' } })
+      auth0.loginWithRedirect({
+        authorizationParams: {
+          screen_hint: 'login',
+          redirect_uri: window.location.origin + '/account'
+        }
+      })
     );
     document.getElementById('signup')?.addEventListener('click', () =>
-      auth0.loginWithRedirect({ authorizationParams: { screen_hint: 'signup', redirect_uri: window.location.origin + '/account' } })
+      auth0.loginWithRedirect({
+        authorizationParams: {
+          screen_hint: 'signup',
+          redirect_uri: window.location.origin + '/account'
+        }
+      })
     );
     return;
   }
@@ -42,16 +52,16 @@ const root = document.getElementById('account-edit');
       <div class="space-y-6">
         <div>
           <label class="block text-sm opacity-70 mb-1">Name</label>
-          <input id="name" class="w-full bg-black/40 border border-white/20 px-3 py-2" value="${name}" />
+          <input id="name" class="w-full bg-black/40 border border-white/30 px-3 py-2" value="${name}" />
         </div>
         <div>
           <label class="block text-sm opacity-70 mb-1">Email</label>
-          <input id="email" class="w-full bg-black/40 border border-white/20 px-3 py-2" value="${email}" disabled />
+          <input id="email" class="w-full bg-black/40 border border-white/30 px-3 py-2" value="${email}" disabled />
           <p class="text-xs opacity-60 mt-1">Email comes from your login provider.</p>
         </div>
         <div class="flex gap-4">
-          <button id="save" class="px-4 py-2 bg-primary text-black font-ethno">Save</button>
-          <a href="/pages/dashboard" class="px-4 py-2 border border-white/40 font-ethno inline-flex items-center">Go to Dashboard</a>
+          <button id="save" class="px-4 py-2 bg-primary text-accent font-ethno">Save</button>
+          <a href="/pages/dashboard" class="px-4 py-2 border border-white/30 font-ethno inline-flex items-center">Go to Dashboard</a>
         </div>
       </div>
     `;
@@ -63,4 +73,3 @@ const root = document.getElementById('account-edit');
     alert('Saved (stub) – wire this to Sanity update next.');
   });
 })();
-

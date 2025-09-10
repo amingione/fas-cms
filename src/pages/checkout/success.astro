@@ -26,7 +26,7 @@ try {
     <p class="text-red-400">{error}</p>
   ) : (
     <section class="mt-4 space-y-6">
-      <div class="bg-white/5 border border-white/10 rounded-lg p-4">
+      <div class="bg-white/5 border border-white/20 rounded-lg p-4">
         <div class="flex justify-between">
           <div>
             <div class="text-sm text-white/70">Order (Stripe session)</div>
@@ -39,7 +39,7 @@ try {
         </div>
       </div>
 
-      <div class="bg-white/5 border border-white/10 rounded-lg p-4">
+      <div class="bg-white/5 border border-white/20 rounded-lg p-4">
         <div class="text-sm text-white/70 mb-2">Shipping to</div>
         <div>{session?.customer_details?.name}</div>
         <div class="text-white/80">
@@ -52,10 +52,10 @@ try {
         <div class="text-white/80 mt-1">{session?.customer_details?.email}</div>
       </div>
 
-      <div class="bg-white/5 border border-white/10 rounded-lg">
+      <div class="bg-white/5 border border-white/20 rounded-lg">
         <table class="w-full text-sm">
           <thead>
-            <tr class="text-left border-b border-white/10">
+            <tr class="text-left border-b border-white/20">
               <th class="p-3">Item</th>
               <th class="p-3">Qty</th>
               <th class="p-3">Total</th>

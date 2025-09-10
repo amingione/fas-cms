@@ -1,7 +1,7 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { ArrowRight, Flame, Wrench, Gauge, Zap, Settings, Award } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Flame, Wrench, Gauge, Settings, Award } from 'lucide-react';
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 
@@ -11,510 +11,250 @@ export function CustomFabrication() {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 640);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    setIsMobile(window.innerWidth <= 640);
+    const handleResize = () => setIsMobile(window.innerWidth <= 640);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  const variants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: 'easeOut' } }
+  };
 
   const fabricationServices = [
     {
       icon: Flame,
       title: 'Turbo & Supercharger Kits',
-      description:
-        'Complete forced induction systems designed for maximum performance and reliability.',
+      description: 'High-performance forced induction systems for maximum power.',
       features: ['Custom Piping', 'Heat Management', 'ECU Tuning', 'Dyno Testing']
     },
     {
       icon: Wrench,
       title: 'Exhaust Systems',
-      description: 'Hand-built exhaust systems optimized for flow, sound, and performance gains.',
+      description: 'Crafted for optimal flow and aggressive sound.',
       features: ['Stainless Steel', 'Custom Routing', 'Sound Tuning', 'Headers']
     },
     {
       icon: Gauge,
       title: 'Complete Builds',
-      description:
-        'Total vehicle transformations with custom measurements and one-off fabrication.',
+      description: 'Bespoke vehicle transformations from the ground up.',
       features: ['Engine Swaps', 'Suspension', 'Roll Cages', 'Interior Work']
     }
   ];
 
   const capabilities = [
-    {
-      icon: Flame,
-      label: 'TIG Welding',
-      description: 'Precision aluminum & steel'
-    },
-    {
-      icon: Settings,
-      label: 'CNC Machining',
-      description: 'Custom billet components'
-    },
-    {
-      icon: Gauge,
-      label: 'Dyno Tuning',
-      description: 'Performance optimization'
-    },
-    {
-      icon: Award,
-      label: 'R&D Testing',
-      description: 'Proven reliability'
-    }
+    { icon: Flame, label: 'TIG Welding', description: 'Precision aluminum & steel' },
+    { icon: Settings, label: 'CNC Machining', description: 'Custom billet components' },
+    { icon: Gauge, label: 'Dyno Tuning', description: 'Performance optimization' },
+    { icon: Award, label: 'R&D Testing', description: 'Proven reliability' }
   ];
 
-  const ServiceCard = ({ service, index }: { service: any; index: number }) => {
-    const Icon = service.icon;
-    return (
-      <motion.div
-        key={index}
-        initial={{ opacity: 0, y: 30 }}
-        animate={isInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ delay: 1 + index * 0.2, duration: 0.6 }}
-        whileHover={!isMobile ? { x: 10, scale: 1.02 } : {}}
-        className={`group cursor-pointer ${isMobile ? 'snap-start shrink-0 w-[85%]' : ''}`}
-      >
-        <Card
-          className={`border-gray-700/50  relative hover:border-primary/50 transition-all duration-500 bg-gradient-to-br from-gray-900/90 to-gray-800/90 backdrop-blur-sm industrial-card ${isMobile ? 'h-full' : ''}`}
-        >
-          <CardHeader
-            className={`flex items-center space-y-0 ${isMobile ? 'flex-col space-y-2 p-3' : 'flex-row space-x-4'}`}
-          >
-            <div
-              className={`bg-gradient-to-br from-primary to-red-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 engine-pulse ${isMobile ? 'w-10 h-10' : 'w-14 h-14'}`}
-            >
-              <Icon className={`${isMobile ? 'w-5 h-5' : 'w-7 h-7'} text-white`} />
-            </div>
-            <div className={`${isMobile ? 'text-center' : 'flex-1'}`}>
-              <CardTitle
-                className={`group-hover:text-primary transition-colors duration-300 font-bold font-ethno ${isMobile ? 'text-sm' : 'text-xl'}`}
-              >
-                {service.title}
-              </CardTitle>
-              <CardDescription
-                className={`text-graylight font-kwajong ${isMobile ? 'text-xs mt-1' : 'mt-2'}`}
-              >
-                {service.description}
-              </CardDescription>
-            </div>
-          </CardHeader>
+  // Marquee refs for capabilities loop
+  const marqueeRef = useRef<HTMLDivElement | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    let rafId = 0;
+    let x = 0;
+    const speed = 0.5; // px per frame
 
-          <CardContent className={isMobile ? 'p-3' : ''}>
-            <div className={`flex flex-wrap ${isMobile ? 'gap-1.5' : 'gap-2'}`}>
-              {service.features.map((feature: string, featureIndex: number) => (
-                <Badge
-                  key={featureIndex}
-                  variant="secondary"
-                  className={`bg-secondary text-black border-primary border-gray-600/50 hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-all duration-300 font-ethno ${isMobile ? 'text-xs px-2 py-1' : 'text-xs'}`}
-                >
-                  {feature}
-                </Badge>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-    );
-  };
+    const tick = () => {
+      const track = marqueeRef.current;
+      const inner = contentRef.current;
+      if (!track || !inner) {
+        rafId = requestAnimationFrame(tick);
+        return;
+      }
+      x -= speed;
+      const width = inner.getBoundingClientRect().width;
+      if (-x >= width) x = 0; // loop seamlessly after one copy width
+      track.style.transform = `translateX(${x}px)`;
+      rafId = requestAnimationFrame(tick);
+    };
+
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, [capabilities.length]);
 
   return (
     <section
       id="customfabrication"
-      className={`relative ${isMobile ? 'py-4 min-h-auto mobile-section-padding' : 'py-24 overflow-visible'}`}
+      className="py-20 md:py-32 bg-gradient-to-br from-background to-gray-900 relative overflow-hidden"
     >
-      {/* Background effects */}
-      <div className="absolute inset-0"></div>
-      <div className="absolute inset-0"></div>
-
-      {/* Welding spark effects - reduced on mobile */}
-      {!isMobile && (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(8)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute"
-              style={{
-                left: `${10 + i * 12}%`,
-                top: `${15 + (i % 4) * 25}%`,
-                width: '3px',
-                height: '3px'
-              }}
-              animate={{
-                opacity: [0, 1, 0],
-                scale: [0.5, 1.5, 0.5],
-                backgroundColor: ['#ff6b35', '#ffd700', '#ff6b35']
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                delay: i * 0.3,
-                ease: 'easeInOut'
-              }}
-            >
-              <div className="w-full h-full bg-orange-400 rounded-full shadow-lg shadow-orange-400/50"></div>
-            </motion.div>
-          ))}
-        </div>
-      )}
-
-      <div
-        className={`mx-auto relative z-10 ${isMobile ? 'w-full max-w-screen-sm px-4' : 'container px-4 lg:px-6'}`}
-        ref={ref}
-      >
-        {/* Section Header */}
+      <div className="absolute inset-0 grain-overlay opacity-10" />
+      <div className="container mx-auto px-4 md:px-6 relative z-10">
         <motion.div
-          className={`text-center space-y-3 ${isMobile ? 'mb-4' : 'mb-16'}`}
-          initial={{ opacity: 0, y: 50 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
+          className="text-center space-y-6 md:space-y-8 mb-12 md:mb-16"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={variants}
         >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={isInView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ delay: 0.2, duration: 0.6 }}
-          >
-            <Badge
-              variant="outline"
-              className={`mb-4 bg-primary/10 border-primary/30 text-primary font-bold tracking-widest font-ethno ${isMobile ? 'px-3 py-1 text-xs' : 'px-6 py-2 text-sm'}`}
-            >
-              HANDCRAFTED EXCELLENCE
-            </Badge>
-          </motion.div>
-
-          <motion.h2
-            className={`font-black leading-tight font-mono mobile-section-title ${isMobile ? 'text-lg' : 'text-3xl lg:text-6xl'}`}
-            initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: 0.4, duration: 0.8 }}
-          >
-            <span className={`block text-white ${isMobile ? 'text-sm' : ''}`}>PERFORMANCE</span>
-            <span
-              className={`block chrome-text font-cyber ${isMobile ? 'text-base' : 'text-4xl lg:text-7xl'}`}
-            >
-              FABRICATION
-            </span>
-            <span className={`block text-accent font-borg ${isMobile ? 'text-sm' : ''}`}>
-              IN-HOUSE
-            </span>
-          </motion.h2>
-
-          <motion.p
-            className={`text-graylight max-w-3xl mx-auto leading-relaxed font-kwajong ${isMobile ? 'text-xs px-4' : 'text-lg'}`}
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: 0.6, duration: 0.6 }}
-          >
-            Every component is meticulously designed, engineered, and hand-welded in our facility.
-            From custom turbo kits to complete exhaust systems, we craft performance perfection for
-            your unique build.
-          </motion.p>
+          <Badge className="bg-gray-800/50 backdrop-blur-sm text-blue-400 uppercase tracking-widest">
+            Custom Fabrication
+          </Badge>
+          <h2 className="text-4xl md:text-6xl font-display font-bold text-text">
+            Craft Your Vision
+          </h2>
+          <p className="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto">
+            From bold concepts to flawless execution, we build performance masterpieces tailored to
+            you.
+          </p>
         </motion.div>
 
-        {/* Mobile layout vs Desktop layout */}
-        {isMobile ? (
-          <div className="space-y-4 overflow-visible overflow-x-visible">
-            {/* Mobile Fabrication Services Carousel */}
-            <motion.div
-              className="overflow-x-auto snap-x snap-mandatory overscroll-x-contain -mx-4 px-0"
-              /** Prevent transforms on the scroll container to avoid iOS scroll issues */
-              transformTemplate={() => 'none'}
-              style={{ transform: 'none', WebkitOverflowScrolling: 'touch' }}
-              role="region"
-              aria-label="Fabrication services carousel"
-              initial={{ opacity: 0, x: -100 }}
-              animate={isInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ delay: 0.8, duration: 0.8 }}
-            >
-              <div className="flex gap-3 px-4">
-                {fabricationServices.map((service, index) => (
-                  <ServiceCard key={index} service={service} index={index} />
-                ))}
-              </div>
-            </motion.div>
-
-            {/* Mobile Image Grid - Simplified */}
-            <motion.div
-              className="mt-4"
-              initial={{ opacity: 0, x: 0, scale: 1 }}
-              animate={isInView ? { opacity: 1, x: 0, scale: 1 } : {}}
-              transition={{ delay: 1, duration: 1 }}
-              /** Ensure Framer Motion never writes any transform string here */
-              transformTemplate={() => 'none'}
-              style={{ transform: 'none' }}
-            >
-              <div className="space-y-3">
-                {/* TIG Welding Card */}
-                <div className="relative mx-auto w-full max-w-[420px] rounded-2xl overflow-hidden shadow-lg industrial-glow bg-black/60 aspect-[4/3] sm:aspect-[16/9]">
-                  <img
-                    src="images/fabrication/FAS-Welding.png"
-                    alt="Precision TIG Welding"
-                    className={`w-full h-full ${isMobile ? 'object-contain' : 'object-cover'} object-center max-w-full`}
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0"></div>
-                  <div className="absolute bottom-0 left-0 right-0 p-3">
-                    <div className="bg-black/90 backdrop-blur-sm rounded-lg p-3 border border-primary/30">
-                      <h3 className="text-white font-bold text-sm font-ethno text-center">
-                        TIG WELDING
-                      </h3>
-                      <p className="text-white/80 text-xs font-kwajong text-center mt-1">
-                        PRECISION JOINING
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Exhaust Work Card */}
-                <div className="relative mx-auto w-full max-w-[420px] rounded-2xl overflow-hidden shadow-lg industrial-glow bg-black/60 aspect-[4/3] sm:aspect-[16/9]">
-                  <img
-                    src="images/fabrication/FAS-Fabrication-Installation.png"
-                    alt="Custom Exhaust Systems"
-                    className={`w-full h-full ${isMobile ? 'object-contain' : 'object-cover'} object-center max-w-full`}
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-blue-600/80 via-blue-600/20 to-transparent"></div>
-                  <div className="absolute bottom-0 left-0 right-0 p-3">
-                    <div className="bg-black/90 backdrop-blur-sm rounded-lg p-3 border border-blue-500/30">
-                      <h3 className="text-white font-bold text-sm font-ethno text-center">
-                        EXHAUST WORK
-                      </h3>
-                      <p className="text-white/80 text-xs font-kwajong text-center mt-1">
-                        CUSTOM SYSTEMS
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Mobile Additional Info */}
-              <div className="mt-4 bg-gradient-to-r from-gray-900/90 to-black/90 rounded-xl p-4 border border-gray-700/50 industrial-glow">
-                <div className="text-center">
-                  <h3 className="text-white font-bold text-sm font-cyber3d mb-2">
-                    PRECISION FABRICATION
-                  </h3>
-                  <p className="text-graylight text-xs font-kwajong leading-relaxed">
-                    From TIG welding to custom exhaust systems, we deliver superior craftsmanship
-                    for every project.
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        ) : (
-          <div className="grid lg:grid-cols-2 gap-16 items-center mb-20">
-            {/* Desktop Fabrication Services */}
-            <motion.div
-              className="space-y-8"
-              initial={{ opacity: 0, x: -100 }}
-              animate={isInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ delay: 0.8, duration: 0.8 }}
-            >
-              {fabricationServices.map((service, index) => (
-                <ServiceCard key={index} service={service} index={index} />
-              ))}
-            </motion.div>
-
-            {/* Desktop Welding Gallery */}
-            <motion.div
-              className="relative"
-              initial={{ opacity: 0, x: 100, scale: 0.9 }}
-              animate={isInView ? { opacity: 1, x: 0, scale: 1 } : {}}
-              transition={{ delay: 1, duration: 1, ease: 'easeOut' }}
-            >
-              <div className="grid grid-cols-2 gap-0">
-                <div className="space-y-6">
-                  <motion.div
-                    className="relative rounded-2xl overflow-hidden shadow-2xl group"
-                    whileHover={{ scale: 1.05, rotateY: 5 }}
-                    transition={{ duration: 0.5 }}
-                    style={{ perspective: '1000px' }}
-                  >
-                    <img
-                      src="images/fabrication/FAS-Welding.png"
-                      alt="Precision TIG Welding"
-                      className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div className="absolute bottom-4 left-4 text-white font-bold text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-ethno">
-                      PRECISION TIG WELDING
-                    </div>
-                  </motion.div>
-
-                  <motion.div
-                    className="relative rounded-2xl overflow-hidden shadow-2xl group"
-                    whileHover={{ scale: 1.05, rotateY: -5 }}
-                    transition={{ duration: 0.5 }}
-                    style={{ perspective: '1000px' }}
-                  >
-                    <img
-                      src="images/fabrication/FAS-Fabrication-2.png"
-                      alt="Custom Exhaust Component"
-                      className="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-blue-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div className="absolute bottom-4 left-4 text-white font-bold text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-ethno">
-                      CUSTOM EXHAUST WORK
-                    </div>
-                  </motion.div>
-                </div>
-
-                <div className="space-y-6 pt-12">
-                  <motion.div
-                    className="relative rounded-2xl overflow-hidden shadow-2xl group"
-                    whileHover={{ scale: 1.05, rotateY: 5 }}
-                    transition={{ duration: 0.5 }}
-                    style={{ perspective: '1000px' }}
-                  >
-                    <img
-                      src="/images/fabrication/FAS-Fabrication-1.png"
-                      alt="Heat Treated Components"
-                      className="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-purple-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div className="absolute bottom-4 left-4 text-white font-bold text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-ethno">
-                      HEAT TREATED FINISH
-                    </div>
-                  </motion.div>
-
-                  <motion.div
-                    className="relative rounded-2xl overflow-hidden shadow-2xl group"
-                    whileHover={{ scale: 1.05, rotateY: -5 }}
-                    transition={{ duration: 0.5 }}
-                    style={{ perspective: '1000px' }}
-                  >
-                    <img
-                      src="images/fabrication/FAS-Fabrication-Installation.png"
-                      alt="Artisan Craftsmanship"
-                      className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-red-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div className="absolute bottom-4 left-4 text-white font-bold text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-ethno">
-                      ARTISAN CRAFTSMANSHIP
-                    </div>
-                  </motion.div>
-                </div>
-              </div>
-
-              {/* Floating quality badge */}
-              <motion.div
-                className="absolute -bottom-8 -left-8 bg-gradient-to-br from-primary/90 to-red-600/90 rounded-2xl p-0 backdrop-blur-sm border border-primary/20 shadow-2xl"
-                initial={{ opacity: 0, scale: 0 }}
-                animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                transition={{ delay: 1.5, duration: 0.6 }}
-                whileHover={{ scale: 1.05, y: -5 }}
-              >
-                <div className="text-center">
-                  <Flame className="w-8 h-8 text-white mx-auto mb-2" />
-                  <div className="text-2xl font-black text-white font-cyber">100%</div>
-                  <div className="text-sm text-orange-100 font-bold font-ethno">IN-HOUSE</div>
-                </div>
-              </motion.div>
-
-              {/* Glow effects */}
-              <div className="absolute -top-4 -right-4 w-32 h-32 bg-gradient-to-br from-primary/20 to-red-500/20 rounded-full blur-3xl"></div>
-              <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-2xl"></div>
-            </motion.div>
-          </div>
-        )}
-
-        {/* Capabilities Grid */}
         <motion.div
-          className={`grid gap-4 ${isMobile ? 'grid-cols-2 gap-3 mb-4 max-w-sm mx-auto' : 'grid-cols-2 md:grid-cols-4 mb-16'}`}
-          initial={{ opacity: 0, y: 50 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 1.8, duration: 0.8 }}
+          className="relative mb-12 md:mb-16"
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1 }}
         >
-          {capabilities.map((capability, index) => {
-            const Icon = capability.icon;
-            return (
+          <div className="grid grid-cols-2 gap-4 items-center">
+            <img
+              src="/images/fabrication/custom-fab-2.png"
+              alt="Custom Fabricated Performance Parts"
+              className="w-full h-40 sm:h-56 md:h-96 object-contain rounded-lg shadow-[0_0_30px_rgba(59,130,246,0.3)]"
+            />
+            <img
+              src="/images/fabrication/FAS-Fabrication-1.png"
+              alt="Custom Fabricated Exhaust System"
+              className="w-full h-40 sm:h-56 md:h-96 object-contain rounded-lg shadow-[0_0_30px_rgba(59,130,246,0.3)]"
+            />
+          </div>
+          <motion.div
+            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 1 }}
+          />
+        </motion.div>
+
+        <motion.div className="relative mb-12 md:mb-16" variants={variants}>
+          <div ref={ref} className="flex gap-4 overflow-x-auto snap-x snap-mandatory px-1">
+            {fabricationServices.map((service, index) => (
               <motion.div
                 key={index}
-                className="text-center group cursor-pointer"
-                whileHover={!isMobile ? { scale: 1.1, y: -10 } : {}}
-                initial={{ opacity: 0, y: 30 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ delay: 2 + index * 0.1, duration: 0.6 }}
+                className="snap-start flex-none w-[20rem] sm:w-[24rem] md:w-[26rem]"
+                whileHover={{ scale: 1.03, boxShadow: '0 0 20px rgba(59,130,246,0.3)' }}
+                variants={variants}
               >
-                <div
-                  className={`bg-gradient-to-br from-primary/20 to-red-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-xl group-hover:shadow-primary/25 transition-all duration-300 border border-primary/20 industrial-card ${isMobile ? 'w-12 h-12' : 'w-20 h-20'}`}
-                >
-                  <Icon className={`${isMobile ? 'w-6 h-6' : 'w-10 h-10'} text-primary`} />
-                </div>
-                <div
-                  className={`font-black text-white font-ethno ${isMobile ? 'text-sm' : 'text-xl'}`}
-                >
-                  {capability.label}
-                </div>
-                <div
-                  className={`text-graylight font-medium font-kwajong ${isMobile ? 'text-xs' : 'text-sm'}`}
-                >
-                  {capability.description}
-                </div>
+                <Card className="bg-gray-900/50 backdrop-blur-sm border-gray-800 h-full rounded-xl">
+                  <CardHeader className="flex flex-row items-center space-x-4 p-6">
+                    <motion.div
+                      className="w-12 h-12 rounded-full bg-gray-800/50 flex items-center justify-center"
+                      whileHover={{ scale: 1.1, backgroundColor: 'rgba(59,130,246,0.2)' }}
+                    >
+                      <service.icon className="w-6 h-6 text-blue-400" />
+                    </motion.div>
+                    <CardTitle className="text-xl md:text-2xl font-medium text-text">
+                      {service.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6 space-y-4">
+                    <p className="text-gray-400">{service.description}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {service.features.map((feature, fIndex) => (
+                        <Badge
+                          key={fIndex}
+                          className="bg-gray-800/50 text-gray-300 border-gray-700"
+                        >
+                          {feature}
+                        </Badge>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
               </motion.div>
-            );
-          })}
+            ))}
+          </div>
+          {/* Carousel controls */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 right-0 flex items-center justify-between px-1">
+            <button
+              type="button"
+              aria-label="Previous"
+              onClick={() => {
+                const el = ref.current as unknown as HTMLElement | null;
+                if (el)
+                  el.scrollBy({ left: -Math.round(el.clientWidth * 0.8), behavior: 'smooth' });
+              }}
+              className="pointer-events-auto inline-flex items-center justify-center w-9 h-9 rounded-full border border-white/10 text-white shadow"
+            >
+              <ArrowLeft className="w-2 h-2" />
+            </button>
+            <button
+              type="button"
+              aria-label="Next"
+              onClick={() => {
+                const el = ref.current as unknown as HTMLElement | null;
+                if (el) el.scrollBy({ left: Math.round(el.clientWidth * 0.8), behavior: 'smooth' });
+              }}
+              className="pointer-events-auto inline-flex items-center justify-center w-9 h-9 rounded-full bg-black/60 border border-white/10 text-white hover:bg-black/80 shadow"
+            >
+              <ArrowRight className="w-5 h-5" />
+            </button>
+          </div>
         </motion.div>
 
-        {/* Call to Action */}
-        <motion.div
-          className={`text-center ${isMobile ? 'space-y-3 pb-6' : 'space-y-8'}`}
-          initial={{ opacity: 0, y: 50 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 2.5, duration: 0.8 }}
-        >
-          <div className={`${isMobile ? 'space-y-2' : 'space-y-4'}`}>
-            <h3
-              className={`font-black text-white font-mono ${isMobile ? 'text-base leading-tight' : 'text-2xl lg:text-4xl'}`}
-            >
-              NEED SOMETHING <span className="text-primary font-cyber">TOTALLY CUSTOM?</span>
-            </h3>
-            <p
-              className={`text-graylight max-w-2xl mx-auto font-kwajong leading-relaxed ${isMobile ? 'text-xs px-2' : 'text-lg'}`}
-            >
-              Bring us your idea, measurements, or wildest performance dreams. We'll engineer and
-              fabricate a one-off solution that's uniquely yours.
-            </p>
-            <div
-              className={`font-borg text-accent tracking-widest ${isMobile ? 'text-xs' : 'text-sm'}`}
-            >
-              — BUILT TO YOUR EXACT SPECIFICATIONS —
+        {/* Infinite carousel for capabilities */}
+        <div className="relative mb-12 md:mb-16 overflow-hidden">
+          <div
+            ref={marqueeRef}
+            className="flex items-center gap-8 pr-8 will-change-transform"
+            style={{ transform: 'translateX(0)' }}
+          >
+            <div ref={contentRef} className="flex items-center gap-8 pr-8">
+              {capabilities.map((cap, index) => (
+                <div key={`cap-a-${index}`} className="text-center min-w-[12rem]">
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gray-800/50 backdrop-blur-sm flex items-center justify-center mx-auto mb-3 shadow-[0_0_15px_rgba(59,130,246,0.15)]">
+                    <cap.icon className="w-8 h-8 md:w-10 md:h-10 text-blue-400" />
+                  </div>
+                  <h4 className="text-base md:text-lg font-medium text-text">{cap.label}</h4>
+                  <p className="text-xs md:text-sm text-gray-400 mt-1">{cap.description}</p>
+                </div>
+              ))}
+            </div>
+            {/* Duplicate group for seamless loop */}
+            <div className="flex items-center gap-8 pr-8" aria-hidden="true">
+              {capabilities.map((cap, index) => (
+                <div key={`cap-b-${index}`} className="text-center min-w-[12rem]">
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gray-800/50 backdrop-blur-sm flex items-center justify-center mx-auto mb-3 shadow-[0_0_15px_rgba(59,130,246,0.15)]">
+                    <cap.icon className="w-8 h-8 md:w-10 md:h-10 text-blue-400" />
+                  </div>
+                  <h4 className="text-base md:text-lg font-medium text-text">{cap.label}</h4>
+                  <p className="text-xs md:text-sm text-gray-400 mt-1">{cap.description}</p>
+                </div>
+              ))}
             </div>
           </div>
+        </div>
 
-          <div
-            className={`flex justify-center ${isMobile ? 'flex-col gap-3 max-w-sm mx-auto' : 'flex-col sm:flex-row gap-4'}`}
-          >
-            <motion.div whileTap={{ scale: 0.98 }}>
-              <Button
-                asChild
-                size={isMobile ? 'sm' : 'lg'}
-                className={`group bg-gradient-to-r from-primary to-red-600 hover:from-primary/90 hover:to-red-700 text-white font-bold shadow-lg shadow-primary/25 metallic-btn font-ethno mobile-touch-target ${isMobile ? 'w-full px-6 py-3 text-sm' : 'px-8 py-4 text-lg'}`}
-              >
-                <a href="/customFab">
-                  VIEW PORTFOLIO
-                  <motion.div
-                    className="ml-2"
-                    animate={{ x: [0, 5, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                  >
-                    <ArrowRight className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
-                  </motion.div>
-                </a>
-              </Button>
-            </motion.div>
-
-            <motion.div whileTap={{ scale: 0.98 }}>
-              <Button
-                size={isMobile ? 'sm' : 'lg'}
-                variant="outline"
-                className={`border-2 border-primary/30 text-primary hover:bg-primary hover:text-white font-bold backdrop-blur-sm industrial-glow font-ethno mobile-touch-target ${isMobile ? 'w-full px-6 py-3 text-sm' : 'px-8 py-4 text-lg'}`}
-                asChild
-              >
-                <a href="/contact">CUSTOM QUOTE</a>
-              </Button>
-            </motion.div>
+        <motion.div
+          className="text-center space-y-6"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={variants}
+        >
+          <h3 className="text-3xl md:text-4xl font-display font-bold text-text">
+            Dream It. Build It.
+          </h3>
+          <p className="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto">
+            Your vision, our expertise. Let’s create something extraordinary.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Button
+              size={isMobile ? 'md' : 'lg'}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-full shadow-[0_0_15px_rgba(59,130,246,0.4)] hover:shadow-[0_0_25px_rgba(59,130,246,0.6)] transition-all"
+            >
+              View Portfolio
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+            <Button
+              size={isMobile ? 'md' : 'lg'}
+              variant="outline"
+              className="border-blue-600 text-blue-400 hover:bg-blue-600/10 rounded-full"
+            >
+              Get Custom Quote
+            </Button>
           </div>
         </motion.div>
       </div>

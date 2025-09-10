@@ -220,7 +220,7 @@ table {
   --color-accent: #fde4b2;
   --color-graylight: #d1d0d0;
   --color-background: #000000;
-  --color-charcoal: #3a3a3ad0;
+  --color-accentB: #969696d0;
 
   /* Luxury color palette */
   --color-luxury-gold: #d4af37;
@@ -232,22 +232,22 @@ table {
   /* System colors with brand integration */
   --font-size: 14px;
   --background: #000000;
-  --foreground: oklch(0.145 0 0);
-  --card: #00000043;
+  --foreground: oklch(25.197% 0.00003 271.152);
+  --card: #1a1a1a82;
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
+  --popover-foreground: oklch(26.985% 0.07155 23.146);
   --primary: #ea1d26;
   --primary-foreground: #ffffff;
   --secondary: #eef2fb;
-  --secondary-foreground: #030213;
+  --secondary-foreground: #100d45;
   --muted: #ececf0;
   --muted-foreground: #717182;
   --accent: #fde4b2;
   --accent-foreground: #030213;
   --destructive: #d4183d;
   --destructive-foreground: #ffffff;
-  --border: rgba(0, 0, 0, 0.1);
+  --border: rgba(80, 80, 80, 0.295);
   --input: transparent;
   --input-background: #f3f3f5;
   --switch-background: #cbced4;
@@ -275,41 +275,45 @@ table {
 }
 
 .dark {
+  --font-size: 14px;
   --background: #000000;
-  --foreground: oklch(0.985 0 0);
-  --card: #0a0a0a;
-  --card-foreground: oklch(0.985 0 0);
-  --popover: #0a0a0a;
-  --popover-foreground: oklch(0.985 0 0);
+  --foreground: oklch(25.197% 0.00003 271.152);
+  --card: #1a1a1a82;
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(73.481% 0.00008 271.152);
+  --popover-foreground: oklch(26.985% 0.07155 23.146);
   --primary: #ea1d26;
   --primary-foreground: #ffffff;
-  --secondary: #111111;
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: #111111;
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: #111111;
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: #333333;
-  --input: #111111;
-  --ring: oklch(0.439 0 0);
+  --secondary: #eef2fb;
+  --secondary-foreground: #100d45;
+  --muted: #7d7d7d;
+  --muted-foreground: #717182;
+  --accent: #fde4b2;
+  --accent-foreground: #030213;
+  --destructive: #d4183d;
+  --destructive-foreground: #686868;
+  --border: rgba(80, 80, 80, 0.295);
+  --input: transparent;
+  --input-background: #989898;
+  --switch-background: #cbced4;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(63.723% 0.24829 28.13 / 0.736);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
+  --ring: oklch(86.378% 0.0001 271.152 / 0.88);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 0.625rem;
+  --sidebar: oklch(41.654% 0.00005 271.152);
+  --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: #ea1d26;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
-  /* === Dark UI parallax/sections variables (dark) === */
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+  /* === Dark UI parallax/sections variables === */
   --bg-dark: #000000;
   --shadow-glow: rgba(234, 29, 38, 0.24);
   --shadow-depth: rgba(0, 0, 0, 0.6);
@@ -429,9 +433,7 @@ table {
   .text-accent {
     color: var(--color-accent);
   }
-  .text-graylight {
-    color: var(--color-graylight);
-  }
+  /* Tailwind provides text-white/60; no custom selector with '/' to avoid PostCSS parse errors. */
 
   .bg-primary {
     background-color: var(--color-primary);
@@ -1360,6 +1362,13 @@ section:not(.no-fade) {
  * Base typography. This is not applied to elements which have an ancestor with a Tailwind text class.
  */
 @layer base {
+  /* Global dark defaults: ensure readable text on black */
+  html,
+  body {
+    color: var(--color-foreground);
+    background-color: var(--color-background);
+  }
+
   :where(:not(:has([class*=' text-']), :not(:has([class^='text-'])))) {
     h1 {
       font-size: var(--text-2xl);
@@ -1562,16 +1571,39 @@ html {
   }
 }
 
-/* Custom industrial scrollbar with brand colors - Mobile Hidden */
-::-webkit-scrollbar {
-  width: 8px;
+/* Hide scrollbars globally (preserve scroll) */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE & old Edge */
+}
+*::-webkit-scrollbar {
+  width: 0 !important; /* Chrome/Safari/Opera */
+  height: 0 !important;
+  background: transparent;
 }
 
-@media (max-width: 640px) {
-  ::-webkit-scrollbar {
-    width: 0px;
-    background: transparent;
-  }
+/* Utility: re‑enable visible scrollbars for specific containers */
+.show-scroll {
+  scrollbar-width: thin; /* Firefox */
+  -ms-overflow-style: auto; /* IE & old Edge */
+}
+.show-scroll::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+}
+.show-scroll::-webkit-scrollbar-track {
+  background: var(--background);
+  background-image: url('/images/backgrounds/bg-texture.webp');
+  background-size: 100px 75px;
+  background-repeat: repeat;
+}
+.show-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, var(--primary), rgba(234, 29, 38, 0.8));
+  border-radius: 6px;
+  box-shadow: 0 0 8px rgba(234, 29, 38, 0.25);
+}
+.show-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, rgba(234, 29, 38, 0.9), var(--primary));
 }
 
 ::-webkit-scrollbar-track {
@@ -2395,4 +2427,14 @@ input[type='checkbox'] {
     -webkit-appearance: checkbox !important;
     appearance: checkbox !important;
   }
+}
+
+.grain-overlay {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(#noise)" opacity="0.05"/></svg>');
+}
+
+.luxury-carbon-effect {
+  background: url('/images/carbon-fiber.png') repeat;
+  background-size: 200px;
+  opacity: 0.05;
 }

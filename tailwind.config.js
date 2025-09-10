@@ -49,6 +49,11 @@ module.exports = {
 
     extend: {
       colors: {
+        // Brand palette used by utilities like text-primary, bg-accent, etc.
+        primary: '#ea1d26',
+        secondary: '#eef2fb',
+        accent: '#fde4b2',
+        'accent-foreground': '#030213',
         // Site background utility color
         background: '#000000',
         // Normalize common dark shades to your base background (if you want pure black globally)

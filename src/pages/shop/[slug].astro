@@ -124,12 +124,12 @@ try {
               const groupKey = (group?.key || group?.name || group?.title || 'option').toString();
               const values = Array.isArray(group?.values) ? group.values : (Array.isArray(group?.items) ? group.items : []);
               return (
-                <div class="bg-black/20 rounded-lg p-3 border border-white/10">
+                <div class="bg-black/20 rounded-lg p-3 border border-white/20">
                   <div class="font-semibold mb-2">{group?.title || group?.name || 'Option'}</div>
                   {/* Prefer select if many values, else radios */}
                   {values.length > 4 ? (
                     <select
-                      class="w-full border border-white/10 rounded px-2 py-2"
+                      class="w-full border border-white/20 rounded px-2 py-2"
                       name={groupKey}
                       data-group={groupKey}
                     >
@@ -147,7 +147,7 @@ try {
                   ) : (
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {values.map((v: any, i: number) => (
-                        <label class="flex items-center gap-2 bg-black/30 border border-white/10 rounded px-2 py-2 cursor-pointer">
+                        <label class="flex items-center gap-2 bg-black/30 border border-white/20 rounded px-2 py-2 cursor-pointer">
                           <input
                             type="radio"
                             name={groupKey}
@@ -171,11 +171,11 @@ try {
 
             {/* Add-ons (checkbox) */}
             {Array.isArray(addOns) && addOns.length > 0 && (
-              <div class="bg-black/20 rounded-lg p-3 border border-white/10">
+              <div class="bg-black/20 rounded-lg p-3 border border-white/20">
                 <div class="font-semibold mb-2">Optional Upgrades</div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {addOns.map((a: any) => (
-                    <label class="flex items-center gap-2 bg-black/30 border border-white/10 rounded px-2 py-2 cursor-pointer">
+                    <label class="flex items-center gap-2 bg-black/30 border border-white/20 rounded px-2 py-2 cursor-pointer">
                       <input type="checkbox"
                         name={(a.key || a.slug || a.id || a.name || a.title || 'addon').toString()}
                         value={(a.value || a.name || a.title || '').toString()}
@@ -195,13 +195,13 @@ try {
 
             {/* Custom fields (e.g., paint code with fixed surcharge) */}
             {Array.isArray(customs) && customs.length > 0 && customs.map((c: any) => (
-              <div class="bg-black/20 rounded-lg p-3 border border-white/10">
+              <div class="bg-black/20 rounded-lg p-3 border border-white/20">
                 <div class="font-semibold mb-2">{c.label || c.title || 'Custom Option'}</div>
                 <input
                   type={c.type === 'number' ? 'number' : 'text'}
                   name={(c.key || c.name || 'custom').toString()}
                   placeholder={(c.placeholder || '').toString()}
-                  class="w-full bg-black/30 border border-white/10 rounded px-2 py-2"
+                  class="w-full bg-black/30 border border-white/20 rounded px-2 py-2"
                   data-group={(c.group || 'custom').toString()}
                   data-price={(typeof c.priceDelta === 'number' ? c.priceDelta : (typeof c.price === 'number' ? c.price : (typeof c.delta === 'number' ? c.delta : 0))).toString()}
                   required={!!c.required}
@@ -216,7 +216,7 @@ try {
             ))}
 
             {/* Live price */}
-            <div class="flex items-center justify-between bg-black/20 rounded-lg p-3 border border-white/10">
+            <div class="flex items-center justify-between bg-black/20 rounded-lg p-3 border border-white/20">
               <span class="text-sm opacity-80">Configured Price</span>
               <span id="price-total" class="text-lg font-bold">$ {(typeof (product as any).price === 'number' ? (product as any).price.toFixed(2) : '0.00')}</span>
             </div>
@@ -232,7 +232,7 @@ try {
         <button
           id="add-to-cart-btn"
           type="button"
-          class="add-to-cart inline-flex items-center gap-2 border border-white/20 px-4 py-2 rounded-full hover:bg-primary hover:text-black transition relative z-10 pointer-events-auto"
+          class="add-to-cart inline-flex items-center gap-2 border border-white/30 px-4 py-2 rounded-full hover:bg-primary hover:text-accent transition relative z-10 pointer-events-auto"
           data-product-id={(product as any)._id}
           data-product-name={(product as any).title}
           data-product-price={(product as any).price}
@@ -253,7 +253,7 @@ try {
         </div>
 
         <!-- Accordion -->
-        <div class="mt-8 divide-y divide-white/10 border border-white/10 rounded-lg overflow-hidden">
+        <div class="mt-8 divide-y divide-white/80 border border-white/20 rounded-lg overflow-hidden">
           <!-- Details / Full Description -->
           <details class="group" id="acc-details">
             <summary class="cursor-pointer select-none bg-black/30 px-4 py-3 font-ethno text-lg flex items-center justify-between">
@@ -474,14 +474,14 @@ try {
   
 </BaseLayout>
 <!-- Sticky mobile add-to-cart bar -->
-<div id="mobile-add-to-cart" class="md:hidden fixed bottom-0 left-0 right-0 z-[60] bg-black/90 border-t border-white/10 backdrop-blur px-3 py-2 flex items-center justify-between">
+<div id="mobile-add-to-cart" class="md:hidden fixed bottom-0 left-0 right-0 z-[60] bg-black/90 border-t border-white/20 backdrop-blur px-3 py-2 flex items-center justify-between">
   <div class="text-white/90 text-sm">
-    <span class="text-white/60">Total:</span>
+    <span class="text-white/70">Total:</span>
     <span id="sticky-price" class="font-bold">$ {(typeof (product as any).price === 'number' ? (product as any).price.toFixed(2) : '0.00')}</span>
   </div>
   <button
     type="button"
-    class="add-to-cart inline-flex items-center gap-2 bg-primary text-black font-ethno px-4 py-2 rounded"
+    class="add-to-cart inline-flex items-center gap-2 bg-primary text-accent font-ethno px-4 py-2 rounded"
     data-product-id={(product as any)._id}
     data-product-name={(product as any).title}
     data-product-price={(product as any).price}

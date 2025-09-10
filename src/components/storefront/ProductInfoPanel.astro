@@ -84,7 +84,7 @@ function hiddenInput(name: string, value: string) {
     <h1 class="font-ethno text-2xl md:text-3xl">{title}</h1>
     <div class="mt-2 flex flex-wrap gap-2">
       {sku && (<span class="rounded-full border border-white/15 px-2 py-0.5 text-xs text-white/70">SKU: {sku}</span>)}
-      {isFeatured && (<span class="rounded-full bg-primary px-2 py-0.5 text-xs text-black">Featured</span>)}
+      {isFeatured && (<span class="rounded-full bg-primary px-2 py-0.5 text-xs text-accent">Featured</span>)}
       {badges.map((b) => (<span class="rounded-full border border-white/15 px-2 py-0.5 text-xs text-white/70">{b}</span>))}
     </div>
   </div>
@@ -110,10 +110,10 @@ function hiddenInput(name: string, value: string) {
     ))}
 
     <div class="flex items-center gap-2">
-      <button type="submit" class="inline-flex items-center justify-center rounded-fx-md bg-primary px-5 py-2 font-semibold text-black hover:bg-primary/90">
+      <button type="submit" class="inline-flex items-center justify-center rounded-fx-md bg-primary px-5 py-2 font-semibold text-accent hover:bg-primary/90">
         Add to Cart
       </button>
-      <a href="/contact" class="inline-flex items-center justify-center rounded-fx-md border border-white/20 px-4 py-2 hover:bg-white/10">
+      <a href="/contact" class="inline-flex items-center justify-center rounded-fx-md border border-white/30 px-4 py-2 hover:bg-white/80">
         Ask a question
       </a>
     </div>
@@ -123,7 +123,7 @@ function hiddenInput(name: string, value: string) {
   {Array.isArray(product?.specs) && product.specs.length > 0 && (
     <div class="mt-6">
       <div class="mb-2 text-sm uppercase tracking-wide fas-label text-muted-foreground">Specifications</div>
-      <div class="overflow-hidden rounded-lg border border-white/10">
+      <div class="overflow-hidden rounded-lg border border-white/20">
         <table class="w-full text-sm">
           <tbody>
             {product.specs.map((row: any) => (
@@ -144,7 +144,7 @@ function hiddenInput(name: string, value: string) {
       <div class="mb-2 text-sm uppercase tracking-wide fas-label text-muted-foreground">Attributes</div>
       <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
         {product.attributes.map((a: any) => (
-          <li class="rounded-md border border-white/10 px-3 py-2 text-white/80"><span class="text-white/60">{a.key}:</span> {a.value}</li>
+          <li class="rounded-md border border-white/20 px-3 py-2 text-white/80"><span class="text-white/70">{a.key}:</span> {a.value}</li>
         ))}
       </ul>
     </div>

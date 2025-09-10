@@ -68,9 +68,9 @@ if (!isLoggedIn) {
     <!-- Auth actions -->
     <div class="mt-4">
       {isLoggedIn ? (
-        <a href="/api/auth/logout" class="logout-link inline-flex items-center gap-2 px-3 py-2 rounded bg-white/10 border border-white/15 text-red-400">Logout</a>
+        <a href="/api/auth/logout" class="logout-link inline-flex items-center gap-2 px-3 py-2 rounded bg-white/80 border border-white/15 text-red-400">Logout</a>
       ) : (
-        <a href="/account" class="inline-flex items-center gap-2 px-3 py-2 rounded bg-white/10 border border-white/15 text-primary">Login</a>
+        <a href="/account" class="inline-flex items-center gap-2 px-3 py-2 rounded bg-white/80 border border-white/15 text-primary">Login</a>
       )}
     </div>
 
@@ -89,7 +89,7 @@ if (!isLoggedIn) {
   <!-- DESKTOP DASHBOARD (auto on >=640px) -->
   <main data-desktop-dash class="hidden sm:flex min-h-screen pt-10 overflow-hidden text-white font-mono">
     <!-- Sidebar -->
-    <aside class="bg-black/70 border-white/10 p-0 border-r mt-12 pt-10 mb-3 mx-3 w-64 space-y-6">
+    <aside class="bg-black/70 border-white/20 p-0 border-r mt-12 pt-10 mb-3 mx-3 w-64 space-y-6">
      <p class="uppercase">Welcome, <span id="customer-name" class="text-primary"></span></p>
       <nav class="mt-6 pt-5 space-y-3 text-base font-ethno">
         <a href="#" data-view="profile" class="js-view block hover:text-red-500">My Profile</a>

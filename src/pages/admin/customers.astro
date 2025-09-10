@@ -4,9 +4,9 @@ import DashboardShell from '../../components/admin/DashboardShell.tsx'
 <DashboardShell client:only="react">
   <h1 class="text-2xl md:text-3xl font-bold mb-4">Customers</h1>
   <div class="mb-4 flex items-center justify-between">
-    <input id="cust-search" placeholder="Search name or email" class="bg-transparent border border-white/20 rounded px-3 py-2 w-full max-w-sm" />
+    <input id="cust-search" placeholder="Search name or email" class="bg-transparent border border-white/30 rounded px-3 py-2 w-full max-w-sm" />
   </div>
-  <div class="overflow-x-auto border border-white/10 rounded-lg">
+  <div class="overflow-x-auto border border-white/20 rounded-lg">
     <table class="min-w-full text-sm">
       <thead class="bg-white/5">
         <tr>
@@ -22,10 +22,10 @@ import DashboardShell from '../../components/admin/DashboardShell.tsx'
 
   <div id="cust-modal" class="fixed inset-0 z-[1000] hidden">
     <div class="absolute inset-0 bg-black/60" data-close="1"></div>
-    <div class="absolute right-0 top-0 h-full w-full md:w-[520px] bg-neutral-950 border-l border-white/10 overflow-auto">
-      <div class="sticky top-0 px-4 py-3 border-b border-white/10 bg-neutral-950/95 backdrop-blur flex items-center justify-between">
+    <div class="absolute right-0 top-0 h-full w-full md:w-[520px] bg-neutral-950 border-l border-white/20 overflow-auto">
+      <div class="sticky top-0 px-4 py-3 border-b border-white/20 bg-neutral-950/95 backdrop-blur flex items-center justify-between">
         <div class="font-semibold">Customer</div>
-        <button id="cust-close" class="px-2 py-1 rounded border border-white/20 hover:bg-white/10">✕</button>
+        <button id="cust-close" class="px-2 py-1 rounded border border-white/30 hover:bg-white/80">✕</button>
       </div>
       <div id="cust-body" class="p-4 space-y-4"></div>
     </div>
@@ -40,13 +40,13 @@ import DashboardShell from '../../components/admin/DashboardShell.tsx'
       try { return new Date(iso).toLocaleString(); } catch { return ''; }
     };
     const row = (c) => `
-      <tr class="border-t border-white/10 hover:bg-white/5 transition">
+      <tr class="border-t border-white/20 hover:bg-white/5 transition">
         <td class="px-3 py-2">${c.name || '—'}</td>
         <td class="px-3 py-2">${c.email || '—'}</td>
         <td class="px-3 py-2">${fmt(c.created)}</td>
         <td class="px-3 py-2 text-right">
-          <button class="px-3 py-1 rounded border border-white/20 hover:bg-white/10 mr-2" data-view="${c.id}">View</button>
-          <a class="px-3 py-1 rounded border border-white/20 hover:bg-white/10" href="https://dashboard.stripe.com/${c.livemode ? '' : 'test/'}customers/${c.id}" target="_blank">Open in Stripe</a>
+          <button class="px-3 py-1 rounded border border-white/30 hover:bg-white/80 mr-2" data-view="${c.id}">View</button>
+          <a class="px-3 py-1 rounded border border-white/30 hover:bg-white/80" href="https://dashboard.stripe.com/${c.livemode ? '' : 'test/'}customers/${c.id}" target="_blank">Open in Stripe</a>
         </td>
       </tr>`;
 
@@ -110,23 +110,23 @@ import DashboardShell from '../../components/admin/DashboardShell.tsx'
         <div class=\"flex items-start justify-between\">
           <div class=\"text-lg font-semibold\">${c.name || '—'}</div>
           <div class=\"text-white/80\">${c.email || ''}</div>
-          <div class=\"text-white/60 text-sm\">Created: ${fmt(c.created)}</div>
+          <div class=\"text-white/70 text-sm\">Created: ${fmt(c.created)}</div>
           <div class=\"ml-auto\">
-            <button id=\"cust-new-invoice\" class=\"px-3 py-1.5 rounded border border-white/20 hover:bg-white/10 text-xs\" data-id=\"${c.id}\" data-live=\"${c.livemode ? '1':'0'}\">Create Draft Invoice</button>
+            <button id=\"cust-new-invoice\" class=\"px-3 py-1.5 rounded border border-white/30 hover:bg-white/80 text-xs\" data-id=\"${c.id}\" data-live=\"${c.livemode ? '1':'0'}\">Create Draft Invoice</button>
           </div>
         </div>
-        <div class=\"border-t border-white/10 pt-3\">
+        <div class=\"border-t border-white/20 pt-3\">
           <div class=\"font-semibold mb-2\">Payment Methods</div>
           ${pms.length ?
             `<ul class=\"space-y-1\">${pms.map((pm)=>`<li class=\"text-sm text-white/80\">${(pm.brand||'CARD').toUpperCase()} •••• ${pm.last4} &nbsp; exp ${pm.exp_month}/${pm.exp_year}</li>`).join('')}</ul>`
-            : '<div class=\"text-white/60 text-sm\">No cards on file.</div>'
+            : '<div class=\"text-white/70 text-sm\">No cards on file.</div>'
           }
         </div>
-        <div class=\"border-t border-white/10 pt-3\">
+        <div class=\"border-t border-white/20 pt-3\">
           <div class=\"font-semibold mb-2\">Invoices</div>
           ${invs.length ?
-            `<div class=\"overflow-x-auto border border-white/10 rounded\"><table class=\"min-w-full text-sm\"><thead class=\"bg-white/5\"><tr><th class=\"text-left px-3 py-2\">Number</th><th class=\"text-left px-3 py-2\">Status</th><th class=\"text-left px-3 py-2\">Total</th><th class=\"text-left px-3 py-2\">Created</th><th></th></tr></thead><tbody>${invs.map((inv)=>`<tr class=\"border-t border-white/10\"><td class=\"px-3 py-2\">${inv.number||inv.id}</td><td class=\"px-3 py-2\">${inv.status||''}</td><td class=\"px-3 py-2\">$${Number(inv.total||0).toFixed(2)}</td><td class=\"px-3 py-2\">${fmt(inv.created)}</td><td class=\"px-3 py-2 text-right\"><a class=\"px-3 py-1 rounded border border-white/20 hover:bg-white/10\" href=\"${inv.hostedInvoiceUrl}\" target=\"_blank\">Open</a></td></tr>`).join('')}</tbody></table></div>`
-            : '<div class=\"text-white/60 text-sm\">No invoices.</div>'
+            `<div class=\"overflow-x-auto border border-white/20 rounded\"><table class=\"min-w-full text-sm\"><thead class=\"bg-white/5\"><tr><th class=\"text-left px-3 py-2\">Number</th><th class=\"text-left px-3 py-2\">Status</th><th class=\"text-left px-3 py-2\">Total</th><th class=\"text-left px-3 py-2\">Created</th><th></th></tr></thead><tbody>${invs.map((inv)=>`<tr class=\"border-t border-white/20\"><td class=\"px-3 py-2\">${inv.number||inv.id}</td><td class=\"px-3 py-2\">${inv.status||''}</td><td class=\"px-3 py-2\">$${Number(inv.total||0).toFixed(2)}</td><td class=\"px-3 py-2\">${fmt(inv.created)}</td><td class=\"px-3 py-2 text-right\"><a class=\"px-3 py-1 rounded border border-white/30 hover:bg-white/80\" href=\"${inv.hostedInvoiceUrl}\" target=\"_blank\">Open</a></td></tr>`).join('')}</tbody></table></div>`
+            : '<div class=\"text-white/70 text-sm\">No invoices.</div>'
           }
         </div>
       `;

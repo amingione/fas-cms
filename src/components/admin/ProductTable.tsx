@@ -84,12 +84,12 @@ export default function ProductTable({
             setSelected({ title: '', price: 0, sku: '', featured: false, categoryIds: [] });
             setOpen(true);
           }}
-          className="px-3 py-1.5 rounded bg-white text-black hover:bg-white/90 transition border border-white/0"
+          className="px-3 py-1.5 rounded bg-white text-accent hover:bg-white/90 transition border border-white/0"
         >
           New Product
         </button>
       </div>
-      <div className="overflow-x-auto border border-white/10 rounded-lg">
+      <div className="overflow-x-auto border border-white/20 rounded-lg">
         <table className="min-w-full text-sm">
           <thead className="bg-white/5">
             <tr className="[&>th]:text-left [&>th]:px-3 [&>th]:py-2">
@@ -105,7 +105,7 @@ export default function ProductTable({
             {sorted.map((r) => (
               <tr
                 key={r._id}
-                className="border-t border-white/10 [&>td]:px-3 [&>td]:py-2 hover:bg-white/5 transition"
+                className="border-t border-white/20 [&>td]:px-3 [&>td]:py-2 hover:bg-white/5 transition"
               >
                 <td className="flex items-center gap-2">
                   {r.imageUrl ? (
@@ -135,7 +135,7 @@ export default function ProductTable({
                       });
                       setOpen(true);
                     }}
-                    className="px-3 py-1 rounded border border-white/20 hover:bg-white/10 transition"
+                    className="px-3 py-1 rounded border border-white/30 hover:bg-white/80 transition"
                   >
                     Edit
                   </button>

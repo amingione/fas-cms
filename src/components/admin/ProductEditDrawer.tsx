@@ -115,14 +115,14 @@ export default function ProductEditDrawer({
           <div className="absolute inset-0 bg-black/60" onClick={onClose} />
 
           {/* Panel */}
-          <div className="absolute right-0 top-0 h-full w-full max-w-md bg-[#0b0b0b] shadow-xl border-l border-white/10 overflow-auto">
-            <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 border-b border-white/10 bg-[#0b0b0b]/95 backdrop-blur">
+          <div className="absolute right-0 top-0 h-full w-full max-w-md bg-[#0b0b0b] shadow-xl border-l border-white/20 overflow-auto">
+            <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 border-b border-white/20 bg-[#0b0b0b]/95 backdrop-blur">
               <div className="text-base font-medium">
                 {form._id ? 'Edit Product' : 'New Product'}
               </div>
               <button
                 onClick={onClose}
-                className="px-2 py-1 rounded border border-white/20 hover:bg-white/10 transition"
+                className="px-2 py-1 rounded border border-white/30 hover:bg-white/80 transition"
                 aria-label="Close"
               >
                 ✕
@@ -135,7 +135,7 @@ export default function ProductEditDrawer({
                 <input
                   value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  className="bg-transparent border border-white/20 rounded px-3 py-2"
+                  className="bg-transparent border border-white/30 rounded px-3 py-2"
                 />
               </label>
 
@@ -145,7 +145,7 @@ export default function ProductEditDrawer({
                   <input
                     value={form.sku || ''}
                     onChange={(e) => setForm({ ...form, sku: e.target.value })}
-                    className="bg-transparent border border-white/20 rounded px-3 py-2"
+                    className="bg-transparent border border-white/30 rounded px-3 py-2"
                   />
                 </label>
                 <label className="grid gap-1">
@@ -155,7 +155,7 @@ export default function ProductEditDrawer({
                     step="0.01"
                     value={form.price}
                     onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
-                    className="bg-transparent border border-white/20 rounded px-3 py-2"
+                    className="bg-transparent border border-white/30 rounded px-3 py-2"
                   />
                 </label>
               </div>
@@ -177,7 +177,7 @@ export default function ProductEditDrawer({
                     <button
                       key={c._id}
                       onClick={() => toggleCat(c._id)}
-                      className={`px-3 py-1 rounded-full border transition ${form.categoryIds?.includes(c._id) ? 'bg-white text-black border-white' : 'border-white/20 hover:border-white/50'}`}
+                      className={`px-3 py-1 rounded-full border transition ${form.categoryIds?.includes(c._id) ? 'bg-white text-accent border-white' : 'border-white/30 hover:border-white/30'}`}
                     >
                       {c.title}
                     </button>
@@ -194,13 +194,13 @@ export default function ProductEditDrawer({
                 <button
                   onClick={save}
                   disabled={saving}
-                  className="px-4 py-2 rounded bg-white text-black hover:bg-white/90 transition"
+                  className="px-4 py-2 rounded bg-white text-accent hover:bg-white/90 transition"
                 >
                   {saving ? 'Saving…' : 'Save'}
                 </button>
                 <button
                   onClick={onClose}
-                  className="px-3 py-2 rounded border border-white/20 hover:bg-white/5 transition"
+                  className="px-3 py-2 rounded border border-white/30 hover:bg-white/5 transition"
                 >
                   Cancel
                 </button>

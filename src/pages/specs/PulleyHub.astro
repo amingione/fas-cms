@@ -14,7 +14,7 @@ import ProductSpecSheet from '@components/specs/ProductSpecSheet.astro';
     {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
       <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
     )}
-
+  <section class="mt-6 pt-6"></section>
     <ProductSpecSheet
       title={pageDoc?.title ?? 'Pulley & Hub Kit — Spec Sheet'}
       description="Engineered for Hellcat/Redeye/Demon/TRX platforms, this billet pulley & hub system delivers superior boost stability, strength, and fast ratio changes compared to press‑fit OE assemblies."
@@ -37,4 +37,5 @@ import ProductSpecSheet from '@components/specs/ProductSpecSheet.astro';
       ]}
     />
   </div>
+
 </BaseLayout>

@@ -25,20 +25,20 @@ const initial: any[] = [];
 
       return (
         React.createElement(React.Fragment, null,
-          React.createElement('div', { className:'overflow-x-auto border border-white/10 rounded-lg' },
+          React.createElement('div', { className:'overflow-x-auto border border-white/20 rounded-lg' },
             React.createElement('table', { className:'min-w-full text-sm' },
               React.createElement('thead', { className:'bg-white/5' }, 
                 React.createElement('tr', null, ['Order','# Items','Customer','Status','Total',''].map(h=>React.createElement('th',{className:'text-left px-3 py-2',key:h},h)))
               ),
               React.createElement('tbody', null,
-                rows.map((r:any)=>React.createElement('tr',{ key:r._id, className:'border-t border-white/10 hover:bg-white/5 transition' },
+                rows.map((r:any)=>React.createElement('tr',{ key:r._id, className:'border-t border-white/20 hover:bg-white/5 transition' },
                   React.createElement('td',{className:'px-3 py-2'}, r.orderNumber||r._id.slice(-6)),
                   React.createElement('td',{className:'px-3 py-2'}, (r.items||[]).length),
                   React.createElement('td',{className:'px-3 py-2'}, r.customerName||'—'),
                   React.createElement('td',{className:'px-3 py-2'}, r.status||'—'),
                   React.createElement('td',{className:'px-3 py-2'}, `$${Number(r.total||0).toFixed(2)}`),
                   React.createElement('td',{className:'px-3 py-2 text-right'},
-                    React.createElement('button',{className:'px-3 py-1 rounded border border-white/20 hover:bg-white/10', onClick:()=>{ setId(r._id); setOpen(true) }}, 'View')
+                    React.createElement('button',{className:'px-3 py-1 rounded border border-white/30 hover:bg-white/80', onClick:()=>{ setId(r._id); setOpen(true) }}, 'View')
                   )
                 ))
               )

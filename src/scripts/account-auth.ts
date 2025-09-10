@@ -17,8 +17,8 @@ declare global {
 
 const buttonGroup = `
         <div class="relative flex gap-4">
-          <button id="login" class="relative px-4 py-2 bg-primary text-black font-ethno">Log in</button>
-          <button id="signup" class="relative px-4 py-2 border border-white/40 font-ethno">Sign up</button>
+          <button id="login" class="relative px-4 py-2 bg-primary text-accent font-ethno">Log in</button>
+          <button id="signup" class="relative px-4 py-2 border border-white/30 font-ethno">Sign up</button>
         </div>`;
 
 const root = document.getElementById('account-view');

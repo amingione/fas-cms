@@ -86,7 +86,7 @@ const Price: React.FC<PriceProps> = ({
         {showCurrencyCode && (
           <span className={clsx('ml-1 inline', currencyCodeClassName)}>{currencyCode}</span>
         )}
-        <span className="ml-2 align-middle text-sm text-white/50 line-through">{orig}</span>
+        <span className="ml-2 align-middle text-sm text-white line-through">{orig}</span>
       </p>
     );
   }

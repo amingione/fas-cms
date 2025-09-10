@@ -35,7 +35,7 @@ export function TruckPackagesHero({
 
       {/* DIVIDER that appears behind content + truck */}
       <div className="pointer-events-none absolute left-0 right-0 top-1/2 z-0">
-        <div className="h-[2px] w-full bg-white/10" />
+        <div className="h-[2px] w-full bg-white/40" />
         <div className="h-px w-[80%] mx-auto bg-gradient-to-r from-transparent via-white/25 to-transparent" />
       </div>
 
@@ -59,26 +59,26 @@ export function TruckPackagesHero({
 
           <h1 className="font-ethno leading-[0.95]">
             <span
-              className="block text-accent text-4xl sm:text-5xl lg:text-6xl"
+              className="block text-white/60 text-4xl sm:text-5xl lg:text-6xl"
               {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.titleTop`) : {})}
             >
               {titleTop ?? 'TRUCK'}
             </span>
             <span
-              className="block text-accent text-4xl sm:text-5xl lg:text-6xl"
+              className="block text-white/80 text-4xl sm:text-5xl lg:text-6xl"
               {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.titleMid`) : {})}
             >
               {titleMid ?? 'PACKAGES'}
             </span>
             <span
-              className="block chrome-text text-2xl sm:text-3xl lg:text-5xl mt-2 font-borg"
+              className="block text-accent text-2xl sm:text-3xl lg:text-5xl mt-2 font-borg"
               {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.titleBottom`) : {})}
             >
               {titleBottom ?? 'RAM TRX'}
             </span>
           </h1>
 
-          <p className="text-secondary font-kwajong text-base sm:text-lg lg:text-xl max-w-xl">
+          <p className="text-primary font-kwajong text-base sm:text-lg lg:text-xl max-w-xl">
             <span {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.kicker`) : {})}>
               {kicker ?? (
                 <>
@@ -115,12 +115,11 @@ export function TruckPackagesHero({
         </div>
 
         {/* RIGHT: BIG TRUCK IMAGE */}
-        <div className="order-1 lg:order-2 object-contain relative z-20">
+        <div className="relative">
           <img
             src="/images/packages/850-ram.webp"
-            alt="F.A.S. Motorsports Custom RAM TRX Packages - Performance Truck Builds"
-            className="w-[115%] max-w-none lg:w-[120%] xl:w-[130%] -mr-[15%] lg:-mr-[20%] h-auto drop-shadow-[0_30px_60px_rgba(0,0,0,0.6)] select-none"
-            draggable={false}
+            alt="Custom RAM TRX Packages"
+            className="w-full h-auto rounded-lg shadow-2xl"
           />
         </div>
       </div>

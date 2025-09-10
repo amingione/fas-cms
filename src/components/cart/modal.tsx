@@ -63,7 +63,7 @@ export default function CartModal() {
             leaveFrom="translate-x-0"
             leaveTo="translate-x-full"
           >
-            <Dialog.Panel className="fixed bottom-0 right-0 top-0 flex h-full w-full flex-col overflow-y-auto border-l border-neutral-200 bg-white/80 p-6 text-black backdrop-blur-xl md:w-[390px] dark:border-neutral-700 dark:bg-black/80 dark:text-white">
+            <Dialog.Panel className="fixed bottom-0 right-0 top-0 flex h-full w-full flex-col overflow-y-auto border-l border-neutral-200 bg-white/80 p-6 text-accent backdrop-blur-xl md:w-[390px] dark:border-neutral-700 dark:bg-black/80 dark:text-white">
               <div className="flex items-center justify-between">
                 <p className="text-lg font-semibold">My Cart</p>
                 <button aria-label="Close cart" onClick={closeCart}>
@@ -88,7 +88,7 @@ export default function CartModal() {
                           className="flex w-full flex-col border-b border-neutral-300 dark:border-neutral-700"
                         >
                           <div className="relative flex w-full flex-row justify-between px-1 py-4">
-                            <div className="hover:bg-white/20 absolute z-40 rounded-full bg-black/40 border border-white/10 -ml-1 -mt-5">
+                            <div className="hover:bg-white/70 absolute z-40 rounded-full bg-black/40 border border-white/20 -ml-1 -mt-5">
                               <DeleteItemButton id={item.id} />
                             </div>
                             <div className="relative flex-row">
@@ -137,7 +137,7 @@ export default function CartModal() {
                     <div className="mb-3 flex items-center justify-between border-b border-neutral-200 pb-1 dark:border-neutral-700">
                       <p>Subtotal</p>
                       <Price
-                        className="text-right text-base text-black dark:text-white"
+                        className="text-right text-base text-accent dark:text-white"
                         amount={subtotal}
                       />
                     </div>
@@ -159,7 +159,7 @@ export default function CartModal() {
 
 function CloseCart({ className }: { className?: string }) {
   return (
-    <div className="relative hover:text-primary flex h-10 w-10 items-center justify-center rounded-lg text-black transition-colors dark:text-white">
+    <div className="relative hover:text-primary flex h-10 w-10 items-center justify-center rounded-lg text-accent transition-colors dark:text-white">
       <XMarkIcon className={clsx('h-5 transition-all ease-in-out hover:scale-110', className)} />
     </div>
   );
@@ -179,7 +179,7 @@ function CheckoutButton() {
 
   return (
     <button
-      className="w-full btn-glass rounded-full bg-primary p-3 text-center text-sm font-medium text-black opacity-90 hover:opacity-100 disabled:opacity-60"
+      className="w-full btn-glass rounded-full bg-primary p-3 text-center text-sm font-medium text-accent opacity-90 hover:opacity-100 disabled:opacity-60"
       type="button"
       disabled={loading}
       onClick={onClick}

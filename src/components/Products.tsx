@@ -144,7 +144,7 @@ export function Products() {
               {product.name}
             </CardTitle>
             <CardDescription
-              className={`text-graylight leading-relaxed font-kwajong ${isMobile ? 'text-xs' : ''}`}
+              className={`text-white/60 leading-relaxed font-kwajong ${isMobile ? 'text-xs' : ''}`}
             >
               {product.description}
             </CardDescription>
@@ -158,7 +158,7 @@ export function Products() {
                 <Badge
                   key={featureIndex}
                   variant="secondary"
-                  className={`bg-transparent text-black border border-gray-600/50 hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-all duration-300 font-ethno ${isMobile ? 'text-xs px-2 py-1' : 'text-xs'}`}
+                  className={`bg-transparent text-accent border border-gray-600/50 hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-all duration-300 font-ethno ${isMobile ? 'text-xs px-2 py-1' : 'text-xs'}`}
                 >
                   {feature}
                 </Badge>
@@ -276,7 +276,7 @@ export function Products() {
           </motion.h2>
 
           <motion.p
-            className={`text-graylight max-w-3xl mx-auto leading-relaxed font-kwajong ${isMobile ? 'text-xs px-4' : 'text-lg'}`}
+            className={`text-white/60 max-w-3xl mx-auto leading-relaxed font-kwajong ${isMobile ? 'text-xs px-4' : 'text-lg'}`}
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.6, duration: 0.6 }}

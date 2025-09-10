@@ -56,243 +56,240 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
       <div className="flex">
         <img src="/images/faslogochroma.png" alt="FAS Logo" className="h-8" />
       </div>
-      <div className="mb-4 w-full">
+      <div className="w-64">
         <SearchBar
-          value={search}
-          onChange={setSearch}
           action="/search"
-          variant="storefront"
-          size="compact"
           enableSuggestions={true}
-          portal={true}
-          placeholder="Search"
+          size="compact"
+          variant="storefront"
+          placeholder="Search products..."
         />
-        <ul className="flex w-full flex-col">
-          {/* Top Level: Home */}
-          <li className="py-2 text-xl text-black transition-colors hover:text-neutral-500 dark:text-white">
-            <a href="/" onClick={onNavigate}>
-              Home
-            </a>
-          </li>
-          {/* Top Level: Shop with subcategories */}
-          <li className="py-2">
-            <div className="text-xl text-black dark:text-white">Shop</div>
-            <ul className="mt-2 ml-4 space-y-2 text-lg">
-              <li>
-                <a
-                  href="/shop"
-                  onClick={onNavigate}
-                  className="text-black hover:text-neutral-500 dark:text-white"
-                >
-                  All Products
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/specs/PredatorPulley"
-                  onClick={onNavigate}
-                  className="text-black hover:text-neutral-500 dark:text-white"
-                >
-                  FAS Predator Pulley
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/specs/PulleyHub"
-                  onClick={onNavigate}
-                  className="text-black hover:text-neutral-500 dark:text-white"
-                >
-                  FAS Hub &amp; Pulley
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/specs/BilletBearingPlate"
-                  onClick={onNavigate}
-                  className="text-black hover:text-neutral-500 dark:text-white"
-                >
-                  FAS Billet Bearing Plate
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/specs/BilletSnout"
-                  onClick={onNavigate}
-                  className="text-black hover:text-neutral-500 dark:text-white"
-                >
-                  FAS Billet Snouts
-                </a>
-              </li>
-            </ul>
-          </li>
-          <li className="my-3">
-            <hr className="border-neutral-200 dark:border-neutral-700" />
-          </li>
-          {/* Packages */}
-          <li className="py-2">
-            <div className="text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
-              Packages
-            </div>
-            <ul className="mt-2 ml-4 space-y-2 text-lg">
-              <li>
-                <a
-                  href="/packages/truckPackages"
-                  onClick={onNavigate}
-                  className="text-black hover:text-neutral-500 dark:text-white"
-                >
-                  Truck Packages
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/packages/power-packages"
-                  onClick={onNavigate}
-                  className="text-black hover:text-neutral-500 dark:text-white"
-                >
-                  Power Packages
-                </a>
-              </li>
-            </ul>
-          </li>
-          {/* Services */}
-          <li className="py-2">
-            <div className="flex items-center justify-between">
-              <a
-                href="/services/AllServices"
-                onClick={onNavigate}
-                className="text-xl text-black hover:text-neutral-500 dark:text-white"
-              >
-                All Services
-              </a>
-            </div>
-            <ul className="mt-2 ml-4 space-y-2 text-lg">
-              <li>
-                <a
-                  href="/services/igla"
-                  onClick={onNavigate}
-                  className="text-black hover:text-neutral-500 dark:text-white"
-                >
-                  IGLA Security
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/services/porting"
-                  onClick={onNavigate}
-                  className="text-black hover:text-neutral-500 dark:text-white"
-                >
-                  Porting
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/services/customFab"
-                  onClick={onNavigate}
-                  className="text-black hover:text-neutral-500 dark:text-white"
-                >
-                  Custom Fabrication
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/services/coreExchange"
-                  onClick={onNavigate}
-                  className="text-black hover:text-neutral-500 dark:text-white"
-                >
-                  Core Exchange
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/schedule"
-                  onClick={onNavigate}
-                  className="text-black hover:text-neutral-500 dark:text-white"
-                >
-                  Schedule Service
-                </a>
-              </li>
-            </ul>
-          </li>
-          <li className="my-3">
-            <hr className="border-neutral-200 dark:border-neutral-700" />
-          </li>
-          {/* Build Your Package */}
-          <li className="py-2">
-            <a
-              href="/customBuild"
-              onClick={onNavigate}
-              className="text-xl text-primary hover:text-primary/90"
-            >
-              Build Your Package →
-            </a>
-          </li>
-          {/* Basic pages */}
-          <li className="py-2 text-xl text-black transition-colors hover:text-neutral-500 dark:text-white">
-            <a href="/about" onClick={onNavigate}>
-              About
-            </a>
-          </li>
-          <li className="py-2 text-xl text-black transition-colors hover:text-neutral-500 dark:text-white">
-            <a href="/faq" onClick={onNavigate}>
-              FAQ
-            </a>
-          </li>
-          <li className="py-2 text-xl text-black transition-colors hover:text-neutral-500 dark:text-white">
-            <a href="/contact" onClick={onNavigate}>
-              Contact
-            </a>
-          </li>
-          {/* Account / Auth */}
-          <li className="py-2">
-            {authed === null ? (
-              <a
-                href="/account"
-                onClick={onNavigate}
-                className="flex items-center gap-2 text-xl text-black hover:text-neutral-500 dark:text-white"
-              >
-                <UserCircleIcon className="h-6 w-6" />
-                <span>Account</span>
-              </a>
-            ) : authed ? (
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2 text-lg text-black dark:text-white">
-                  <UserCircleIcon className="h-6 w-6" />
-                  <span>{displayName || 'My Account'}</span>
-                </div>
-                <div className="ml-8 flex items-center gap-4">
-                  <a
-                    href="/dashboard"
-                    onClick={onNavigate}
-                    className="text-black hover:text-neutral-500 dark:text-white"
-                  >
-                    Dashboard
-                  </a>
-                  <button
-                    onClick={() => {
-                      auth0?.logout?.({ logoutParams: { returnTo: window.location.origin } });
-                      onNavigate && onNavigate();
-                    }}
-                    className="text-black hover:text-neutral-500 dark:text-white"
-                  >
-                    Log out
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button
-                onClick={() => {
-                  auth0?.loginWithRedirect?.();
-                  onNavigate && onNavigate();
-                }}
-                className="flex items-center gap-2 text-xl text-primary hover:text-primary/90"
-              >
-                <UserCircleIcon className="h-6 w-6" />
-                <span>Sign in</span>
-              </button>
-            )}
-          </li>
-        </ul>
       </div>
+      <ul className="flex w-full flex-col">
+        {/* Top Level: Home */}
+        <li className="py-2 text-xl text-accent transition-colors hover:text-neutral-500 dark:text-white">
+          <a href="/" onClick={onNavigate}>
+            Home
+          </a>
+        </li>
+        {/* Top Level: Shop with subcategories */}
+        <li className="py-2">
+          <div className="text-xl text-accent dark:text-white">Shop</div>
+          <ul className="mt-2 ml-4 space-y-2 text-lg">
+            <li>
+              <a
+                href="/shop"
+                onClick={onNavigate}
+                className="text-accent hover:text-neutral-500 dark:text-white"
+              >
+                All Products
+              </a>
+            </li>
+            <li>
+              <a
+                href="/specs/PredatorPulley"
+                onClick={onNavigate}
+                className="text-accent hover:text-neutral-500 dark:text-white"
+              >
+                FAS Predator Pulley
+              </a>
+            </li>
+            <li>
+              <a
+                href="/specs/PulleyHub"
+                onClick={onNavigate}
+                className="text-accent hover:text-neutral-500 dark:text-white"
+              >
+                FAS Hub &amp; Pulley
+              </a>
+            </li>
+            <li>
+              <a
+                href="/specs/BilletBearingPlate"
+                onClick={onNavigate}
+                className="text-accent hover:text-neutral-500 dark:text-white"
+              >
+                FAS Billet Bearing Plate
+              </a>
+            </li>
+            <li>
+              <a
+                href="/specs/BilletSnout"
+                onClick={onNavigate}
+                className="text-accent hover:text-neutral-500 dark:text-white"
+              >
+                FAS Billet Snouts
+              </a>
+            </li>
+          </ul>
+        </li>
+        <li className="my-3">
+          <hr className="border-neutral-200 dark:border-neutral-700" />
+        </li>
+        {/* Packages */}
+        <li className="py-2">
+          <div className="text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+            Packages
+          </div>
+          <ul className="mt-2 ml-4 space-y-2 text-lg">
+            <li>
+              <a
+                href="/packages/truckPackages"
+                onClick={onNavigate}
+                className="text-accent hover:text-neutral-500 dark:text-white"
+              >
+                Truck Packages
+              </a>
+            </li>
+            <li>
+              <a
+                href="/packages/power-packages"
+                onClick={onNavigate}
+                className="text-accent hover:text-neutral-500 dark:text-white"
+              >
+                Power Packages
+              </a>
+            </li>
+          </ul>
+        </li>
+        {/* Services */}
+        <li className="py-2">
+          <div className="flex items-center justify-between">
+            <a
+              href="/services/AllServices"
+              onClick={onNavigate}
+              className="text-xl text-accent hover:text-neutral-500 dark:text-white"
+            >
+              All Services
+            </a>
+          </div>
+          <ul className="mt-2 ml-4 space-y-2 text-lg">
+            <li>
+              <a
+                href="/services/igla"
+                onClick={onNavigate}
+                className="text-accent hover:text-neutral-500 dark:text-white"
+              >
+                IGLA Security
+              </a>
+            </li>
+            <li>
+              <a
+                href="/services/porting"
+                onClick={onNavigate}
+                className="text-accent hover:text-neutral-500 dark:text-white"
+              >
+                Porting
+              </a>
+            </li>
+            <li>
+              <a
+                href="/services/customFab"
+                onClick={onNavigate}
+                className="text-accent hover:text-neutral-500 dark:text-white"
+              >
+                Custom Fabrication
+              </a>
+            </li>
+            <li>
+              <a
+                href="/services/coreExchange"
+                onClick={onNavigate}
+                className="text-accent hover:text-neutral-500 dark:text-white"
+              >
+                Core Exchange
+              </a>
+            </li>
+            <li>
+              <a
+                href="/schedule"
+                onClick={onNavigate}
+                className="text-accent hover:text-neutral-500 dark:text-white"
+              >
+                Schedule Service
+              </a>
+            </li>
+          </ul>
+        </li>
+        <li className="my-3">
+          <hr className="border-neutral-200 dark:border-neutral-700" />
+        </li>
+        {/* Build Your Package */}
+        <li className="py-2">
+          <a
+            href="/customBuild"
+            onClick={onNavigate}
+            className="text-xl text-primary hover:text-primary/90"
+          >
+            Build Your Package →
+          </a>
+        </li>
+        {/* Basic pages */}
+        <li className="py-2 text-xl text-accent transition-colors hover:text-neutral-500 dark:text-white">
+          <a href="/about" onClick={onNavigate}>
+            About
+          </a>
+        </li>
+        <li className="py-2 text-xl text-accent transition-colors hover:text-neutral-500 dark:text-white">
+          <a href="/faq2" onClick={onNavigate}>
+            FAQ
+          </a>
+        </li>
+        <li className="py-2 text-xl text-accent transition-colors hover:text-neutral-500 dark:text-white">
+          <a href="/contact" onClick={onNavigate}>
+            Contact
+          </a>
+        </li>
+        {/* Account / Auth */}
+        <li className="py-2">
+          {authed === null ? (
+            <a
+              href="/account"
+              onClick={onNavigate}
+              className="flex items-center gap-2 text-xl text-accent hover:text-neutral-500 dark:text-white"
+            >
+              <UserCircleIcon className="h-6 w-6" />
+              <span>Account</span>
+            </a>
+          ) : authed ? (
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2 text-lg text-accent dark:text-white">
+                <UserCircleIcon className="h-6 w-6" />
+                <span>{displayName || 'My Account'}</span>
+              </div>
+              <div className="ml-8 flex items-center gap-4">
+                <a
+                  href="/dashboard"
+                  onClick={onNavigate}
+                  className="text-accent hover:text-neutral-500 dark:text-white"
+                >
+                  Dashboard
+                </a>
+                <button
+                  onClick={() => {
+                    auth0?.logout?.({ logoutParams: { returnTo: window.location.origin } });
+                    onNavigate && onNavigate();
+                  }}
+                  className="text-accent hover:text-neutral-500 dark:text-white"
+                >
+                  Log out
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => {
+                auth0?.loginWithRedirect?.();
+                onNavigate && onNavigate();
+              }}
+              className="flex items-center gap-2 text-xl text-primary hover:text-primary/90"
+            >
+              <UserCircleIcon className="h-6 w-6" />
+              <span>Sign in</span>
+            </button>
+          )}
+        </li>
+      </ul>
     </>
   );
 
@@ -305,7 +302,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
       <button
         onClick={openMobileMenu}
         aria-label="Open mobile menu"
-        className="flex h-11 w-11 items-center justify-center rounded-md border border-neutral-200 text-black transition-colors md:hidden dark:border-neutral-700 dark:text-white"
+        className="flex h-11 w-11 items-center justify-center rounded-md border border-neutral-200 text-accent transition-colors md:hidden dark:border-neutral-700 dark:text-white"
       >
         <Bars3Icon className="h-4" />
       </button>
@@ -320,7 +317,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             leaveFrom="opacity-100 backdrop-blur-[.5px]"
             leaveTo="opacity-0 backdrop-blur-none"
           >
-            <div className="fixed inset-0 bg-white/30" aria-hidden="true" />
+            <div className="fixed inset-0 bg-white/80" aria-hidden="true" />
           </Transition.Child>
           <Transition.Child
             as={Fragment}
@@ -331,10 +328,10 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             leaveFrom="translate-x-0"
             leaveTo="translate-x-[-100%]"
           >
-            <Dialog.Panel className="fixed bottom-0 left-0 right-0 top-0 flex h-full w-full flex-col bg-white pb-6 bg-white/30">
+            <Dialog.Panel className="fixed bottom-0 left-0 right-0 top-0 flex h-full w-full flex-col bg-white pb-6 bg-white/80">
               <div className="p-4">
                 <button
-                  className="mb-4 flex h-11 w-11 items-center justify-center rounded-md border border-neutral-200 text-black transition-colors dark:border-neutral-700 dark:text-white"
+                  className="mb-4 flex h-11 w-11 items-center justify-center rounded-md border border-neutral-200 text-accent transition-colors dark:border-neutral-700 dark:text-white"
                   onClick={closeMobileMenu}
                   aria-label="Close mobile menu"
                 >

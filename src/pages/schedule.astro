@@ -23,7 +23,7 @@ const slots = data?.bookings || [];
     <!-- HERO -->
     <section class="relative overflow-hidden">
       <div class="absolute w-[480px] h-[340px] -left-40 top-40 bg-primary blur-[80px] opacity-50 rounded-full"></div>
-      <div class="absolute w-[360px] h-[560px] right-10 -top-24 bg-white/20 blur-[90px] opacity-50 rounded-full"></div>
+      <div class="absolute w-[360px] h-[560px] right-10 -top-24 bg-white/70 blur-[90px] opacity-50 rounded-full"></div>
       <div class="relative max-w-7xl mx-auto px-6 md:px-10 py-16 md:py-24">
         <p class="text-[#FFA800] font-mono font-bold text-xl tracking-wide mb-2">Appointment Booking</p>
         <h1 class="text-white font-ethno text-4xl md:text-6xl leading-tight mb-4" {...sbFieldPath('title')}>
@@ -33,14 +33,14 @@ const slots = data?.bookings || [];
           Pick a time that fits your schedule. We’ll confirm, prep parts, and have your vehicle ready on time.
         </p>
         <div class="mt-6 flex gap-3">
-          <a href="#book" class="inline-flex items-center px-5 py-2.5 rounded-full bg-[#FFA800] text-black font-ethno hover:bg-[#ffb833] transition">Book now</a>
-          <a href="#faq" class="inline-flex items-center px-5 py-2.5 rounded-full border border-[#FFA800] text-[#FFA800] font-ethno hover:bg-[#FFA800] hover:text-black transition">FAQ</a>
+          <a href="#book" class="inline-flex items-center px-5 py-2.5 rounded-full bg-[#FFA800] text-accent font-ethno hover:bg-[#ffb833] transition">Book now</a>
+          <a href="#faq" class="inline-flex items-center px-5 py-2.5 rounded-full border border-[#FFA800] text-[#FFA800] font-ethno hover:bg-[#FFA800] hover:text-accent transition">FAQ</a>
         </div>
       </div>
     </section>
 
     <!-- PROMISE STRIP -->
-    <section class="bg-black/70 border-y border-white/10">
+    <section class="bg-black/70 border-y border-white/20">
       <div class="max-w-7xl mx-auto px-6 md:px-10 py-4 grid grid-cols-2 md:grid-cols-4 gap-2">
         <div class="flex items-center gap-3"><span class="w-2 h-2 rounded-full bg-[#FFA800]"></span><span class="text-white/80 text-sm font-mono tracking-[0.14em]">Warranty‑friendly</span></div>
         <div class="flex items-center gap-3"><span class="w-2 h-2 rounded-full bg-[#FFA800]"></span><span class="text-white/80 text-sm font-mono tracking-[0.14em]">OEM‑level fit</span></div>
@@ -54,13 +54,13 @@ const slots = data?.bookings || [];
       <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Calendar card -->
         <div class="lg:col-span-2">
-          <div class="rounded-xl border border-white/10 bg-[#0b0b0c]/90 shadow-xl shadow-black/40 overflow-hidden">
-            <div class="flex items-center justify-between px-4 md:px-6 py-3 border-b border-white/10 bg-black/60">
+          <div class="rounded-xl border border-white/20 bg-[#0b0b0c]/90 shadow-xl shadow-black/40 overflow-hidden">
+            <div class="flex items-center justify-between px-4 md:px-6 py-3 border-b border-white/20 bg-black/60">
               <div class="flex items-center gap-3">
                 <span class="inline-block w-2 h-2 rounded-full bg-[#FFA800]"></span>
                 <span class="text-white/90 font-ethno tracking-wide">Book with F.A.S.</span>
               </div>
-              <a href="https://cal.com/fasmotorsports" target="_blank" class="text-xs text-white/60 hover:text-white">Open in new tab</a>
+              <a href="https://cal.com/fasmotorsports" target="_blank" class="text-xs text-white/80 hover:text-white">Open in new tab</a>
             </div>
             <div class="p-0">
               <iframe
@@ -78,7 +78,7 @@ const slots = data?.bookings || [];
 
         <!-- Side panel: steps + help -->
         <aside class="space-y-6">
-          <div class="rounded-xl border border-white/10 bg-black/60 p-5">
+          <div class="rounded-xl border border-white/20 bg-black/60 p-5">
             <h3 class="text-white font-ethno text-xl mb-3">How it works</h3>
             <ol class="space-y-3 text-white/80 text-sm">
               <li><span class="text-[#FFA800] mr-2">1.</span>Choose a date and time.</li>
@@ -87,7 +87,7 @@ const slots = data?.bookings || [];
               <li><span class="text-[#FFA800] mr-2">4.</span>Drop off on time — we handle the rest.</li>
             </ol>
           </div>
-          <div class="rounded-xl border border-white/10 bg-black/60 p-5">
+          <div class="rounded-xl border border-white/20 bg-black/60 p-5">
             <h3 class="text-white font-borg text-xl mb-2">Need a custom slot?</h3>
             <p class="text-white/70 text-sm mb-4">Can’t find a time that works? Send a request and we’ll accommodate.</p>
             <BookingForm />
@@ -121,7 +121,7 @@ const slots = data?.bookings || [];
     <section id="faq" class="px-6 md:px-10 py-12">
       <div class="max-w-5xl mx-auto">
         <h2 class="text-white font-borg text-3xl mb-6">FAQs</h2>
-        <div class="divide-y divide-white/10 border border-white/10 rounded-xl overflow-hidden">
+        <div class="divide-y divide-white/80 border border-white/20 rounded-xl overflow-hidden">
           <details class="group open:bg-black/50">
             <summary class="cursor-pointer list-none px-5 py-4 text-white/90 font-ethno">
               What should I bring to my appointment?

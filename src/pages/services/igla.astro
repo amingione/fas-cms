@@ -4,21 +4,27 @@ import Button from '@/components/Button.astro';
 import { Image } from 'astro:assets';
 import IglaBox from '@/assets/igla/IGLA-Category-Image.webp';
 import SchedIgla from '@/assets/igla/sched-igla-install.webp';
+import IGLASecurity from '@/components/IGLASecurity.tsx';
 ---
 
 <BaseLayout>
+
+  <section id="IGLASecurity" class="mt-16">
+      <IGLASecurity client:only="react" />
+  </section>
+
   <section class="luxury-particles relative text-white pt-20 pb-32 px-6 ">
     <div class="absolute inset-0"></div>
     <div class="relative z-10 max-w-6xl mx-auto">
       <h1 class="text-4xl font-cyber font-bold text-primary mb-6">Ready to protect what moves you? </h1>
-      <p class="text-lg font-cyber text-gray-300 mb-10 max-w-2xl">
+      <p class="text-lg font-cyber text-white/70 mb-10 max-w-2xl">
           Get advanced vehicle security backed by expert installation at F.A.S. Motorsports — one of Southwest Florida’s certified IGLA providers. No subscriptions. No gimmicks. Just serious protection.
       </p>
 
       <div class="grid md:grid-cols-2 gap-12 items-start">
         <div class="space-y-6">
           <h2 class="text-2xl font-ethno font-semibold text-white">Key Features:</h2>
-          <ul class="list-disc font-mono font-bold list-inside text-gray-300 space-y-2">
+          <ul class="list-disc font-mono font-bold list-inside text-white/70 space-y-2">
             <li>Undetectable to standard scanners and thieves</li>
             <li>Prevents unauthorized engine start</li>
             <li>Smartphone authorization via mobile app</li>
@@ -120,19 +126,19 @@ import SchedIgla from '@/assets/igla/sched-igla-install.webp';
     <div class="space-y-4">
       <details class="bg-black border border-[#1d92ea] rounded">
         <summary class="cursor-pointer px-4 py-3 font-mono text-white tracking-wide">No Subscriptions or Hidden Fees</summary>
-        <p class="px-4 py-2 text-gray-300 font-mono">One-time install with full protection. No ongoing charges.</p>
+        <p class="px-4 py-2 text-white/70 font-mono">One-time install with full protection. No ongoing charges.</p>
       </details>
       <details class="bg-black border border-[#1d92ea] rounded">
         <summary class="cursor-pointer px-4 py-3 font-mono text-white tracking-wide">Compact and Discreet</summary>
-        <p class="px-4 py-2 text-gray-300 font-mono">Installs easily and remains invisible to thieves.</p>
+        <p class="px-4 py-2 text-white/70 font-mono">Installs easily and remains invisible to thieves.</p>
       </details>
       <details class="bg-black border border-[#1d92ea] rounded">
         <summary class="cursor-pointer px-4 py-3 font-mono text-white tracking-wide">Doesn’t Void Warranty</summary>
-        <p class="px-4 py-2 text-gray-300 font-mono">Factory wiring remains untouched and compliant.</p>
+        <p class="px-4 py-2 text-white/70 font-mono">Factory wiring remains untouched and compliant.</p>
       </details>
       <details class="bg-black border border-[#1d92ea] rounded">
         <summary class="cursor-pointer px-4 py-3 font-mono text-white tracking-wide">Blocks Engine and Transmission</summary>
-        <p class="px-4 py-2 text-gray-300 font-mono">Stops operation without needing to cut into circuits.</p>
+        <p class="px-4 py-2 text-white/70 font-mono">Stops operation without needing to cut into circuits.</p>
       </details>
     </div>
   </section>

@@ -53,8 +53,8 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
           c.innerHTML = `
             <div class="space-y-3">
               <p class="opacity-90">You're not signed in.</p>
-              <a id="dash-login" href="/api/auth/login" class="inline-block px-4 py-2 bg-primary text-black font-ethno rounded">Log in</a>
-              <a id="dash-signup" href="/api/auth/login" class="inline-block px-4 py-2 border border-white/30 font-ethno rounded">Sign up</a>
+              <a id="dash-login" href="/api/auth/login" class="inline-block px-4 py-2 bg-primary text-accent font-ethno rounded">Log in</a>
+              <a id="dash-signup" href="/api/auth/login" class="inline-block px-4 py-2 border border-white/20 font-ethno rounded">Sign up</a>
             </div>`;
           const go = (e?: Event) => {
             e?.preventDefault?.();
@@ -85,8 +85,8 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
       c.innerHTML = `
         <div class="space-y-3">
           <p class="opacity-90">You're not signed in.</p>
-          <a id="dash-login" href="/api/auth/login" class="inline-block px-4 py-2 bg-primary text-black font-ethno rounded">Log in</a>
-          <a id="dash-signup" href="/api/auth/login" class="inline-block px-4 py-2 border border-white/30 font-ethno rounded">Sign up</a>
+          <a id="dash-login" href="/api/auth/login" class="inline-block px-4 py-2 bg-primary text-accent font-ethno rounded">Log in</a>
+          <a id="dash-signup" href="/api/auth/login" class="inline-block px-4 py-2 border border-white/20 font-ethno rounded">Sign up</a>
         </div>`;
       const go = (e?: Event) => {
         e?.preventDefault?.();
@@ -188,8 +188,8 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
         c.innerHTML = `
           <div class="space-y-3">
             <p class="opacity-90">You're not signed in or the request timed out.</p>
-            <a id="dash-login" href="/api/auth/login" class="inline-block px-4 py-2 bg-primary text-black font-ethno rounded">Log in</a>
-            <a id="dash-signup" href="/api/auth/login" class="inline-block px-4 py-2 border border-white/30 font-ethno rounded">Sign up</a>
+            <a id="dash-login" href="/api/auth/login" class="inline-block px-4 py-2 bg-primary text-accent font-ethno rounded">Log in</a>
+            <a id="dash-signup" href="/api/auth/login" class="inline-block px-4 py-2 border border-white/20 font-ethno rounded">Sign up</a>
           </div>`;
         const go = (e?: Event) => {
           e?.preventDefault?.();
@@ -294,7 +294,7 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
             ${items
               .map(
                 (o: any) => `
-              <div class=\"border border-white/10 rounded p-4 bg-black/40\">
+              <div class=\"border border-white/20 rounded p-4 bg-black/40\">
                 <div class=\"flex justify-between\"><div class=\"font-semibold\">${o.orderNumber ?? o._id}</div><div class=\"opacity-70\">${o.status ?? ''}</div></div>
                 <div class=\"text-xs opacity-70 mt-1\">${o.orderDate ? new Date(o.orderDate).toLocaleDateString() : ''}</div>
                 ${o.trackingNumber ? `<div class=\\\"mt-1 text-xs opacity-70\\\">Tracking: ${o.trackingNumber}</div>` : ''}
@@ -328,7 +328,7 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
             ${items
               .map(
                 (q: any) => `
-              <div class=\"border border-white/10 rounded p-4 bg-black/40\">
+              <div class=\"border border-white/20 rounded p-4 bg-black/40\">
                 <div class=\"flex justify-between\"><div class=\"font-semibold\">${q._id}</div><div class=\"opacity-70\">${q.status ?? ''}</div></div>
                 <div class=\"text-xs opacity-70 mt-1\">${q._createdAt ? new Date(q._createdAt).toLocaleDateString() : ''}</div>
                 <div class=\"mt-2\">Total: $${q.total ?? ''}</div>
@@ -361,7 +361,7 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
             ${items
               .map(
                 (inv: any) => `
-              <div class=\"border border-white/10 rounded p-4 bg-black/40\">
+              <div class=\"border border-white/20 rounded p-4 bg-black/40\">
                 <div class=\"flex justify-between\"><div class=\"font-semibold\">${inv._id}</div><div class=\"opacity-70\">${inv.status ?? ''}</div></div>
                 <div class=\"text-xs opacity-70 mt-1\">${inv._createdAt ? new Date(inv._createdAt).toLocaleDateString() : ''}</div>
                 <div class=\"mt-2\">Total: $${inv.total ?? ''}</div>
@@ -389,7 +389,7 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
           <div class="space-y-3">${items
             .map(
               (a: any) => `
-            <div class=\"border border-white/10 rounded p-4 bg-black/40\">
+            <div class=\"border border-white/20 rounded p-4 bg-black/40\">
               <div class=\"flex justify-between\"><div class=\"font-semibold\">${a._id}</div><div class=\"opacity-70\">${a.status ?? ''}</div></div>
               <div class=\"text-xs opacity-70 mt-1\">${a.scheduledAt ? new Date(a.scheduledAt).toLocaleString() : ''}</div>
               ${a.location ? `<div class=\\\"mt-1 text-xs opacity-70\\\">${a.location}</div>` : ''}
@@ -455,8 +455,8 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
           c.innerHTML = `
             <div class="space-y-3">
               <p class="opacity-90">You're not signed in or the request timed out.</p>
-              <a id="dash-login" href="/api/auth/login" class="inline-block px-4 py-2 bg-primary text-black font-ethno rounded">Log in</a>
-              <a id="dash-signup" href="/api/auth/login" class="inline-block px-4 py-2 border border-white/30 font-ethno rounded">Sign up</a>
+              <a id="dash-login" href="/api/auth/login" class="inline-block px-4 py-2 bg-primary text-accent font-ethno rounded">Log in</a>
+              <a id="dash-signup" href="/api/auth/login" class="inline-block px-4 py-2 border border-white/20 font-ethno rounded">Sign up</a>
             </div>`;
           const go = (e?: Event) => {
             e?.preventDefault?.();
@@ -488,8 +488,8 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
         c.innerHTML = `
           <div class="space-y-3">
             <p class="opacity-90">You're not signed in.</p>
-            <a id="dash-login" href="/api/auth/login" class="inline-block px-4 py-2 bg-primary text-black font-ethno rounded">Log in</a>
-            <a id="dash-signup" href="/api/auth/login" class="inline-block px-4 py-2 border border-white/30 font-ethno rounded">Sign up</a>
+            <a id="dash-login" href="/api/auth/login" class="inline-block px-4 py-2 bg-primary text-accent font-ethno rounded">Log in</a>
+            <a id="dash-signup" href="/api/auth/login" class="inline-block px-4 py-2 border border-white/20 font-ethno rounded">Sign up</a>
           </div>`;
         const go = (e?: Event) => {
           e?.preventDefault?.();
@@ -503,7 +503,9 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
 })();
 
 function logout() {
-  try { localStorage.clear(); } catch {}
+  try {
+    localStorage.clear();
+  } catch {}
   try {
     const fx: any = (window as any).fasAuth;
     if (fx && typeof fx.logout === 'function') {

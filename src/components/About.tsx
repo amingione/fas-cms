@@ -71,7 +71,7 @@ export function About() {
               </motion.h2>
 
               <motion.p
-                className="text-sm md:text-base lg:text-lg text-graylight leading-relaxed font-kwajong"
+                className="text-sm md:text-base lg:text-lg text-white/60 leading-relaxed font-kwajong"
                 initial={{ opacity: 0, y: 20 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ delay: 0.6, duration: 0.6 }}
@@ -107,7 +107,7 @@ export function About() {
                   transition={{ delay: 1 + index * 0.1, duration: 0.4 }}
                 >
                   <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-400 mt-0.5 flex-shrink-0 group-hover:scale-110 transition-transform duration-300" />
-                  <span className="text-xs md:text-sm text-graylight group-hover:text-white transition-colors duration-300 font-medium font-kwajong leading-relaxed">
+                  <span className="text-xs md:text-sm text-white/60 group-hover:text-white transition-colors duration-300 font-medium font-kwajong leading-relaxed">
                     {achievement}
                   </span>
                 </motion.div>
@@ -136,7 +136,7 @@ export function About() {
                     <div className="text-lg md:text-xl font-black text-white font-borg">
                       {stat.value}
                     </div>
-                    <div className="text-xs md:text-sm text-graylight font-bold font-ethno">
+                    <div className="text-xs md:text-sm text-white/60 font-bold font-ethno">
                       {stat.label}
                     </div>
                   </motion.div>

@@ -61,13 +61,13 @@ const profileScript = '/src/scripts/customer-profile-page.ts';
           </label>
         </div>
         <div class="mt-6 flex gap-3 items-center">
-          <button id="saveProfile" type="button" class="px-4 py-2 bg-primary text-black font-ethno disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.98] transition-transform">
+          <button id="saveProfile" type="button" class="px-4 py-2 bg-primary text-accent font-ethno disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.98] transition-transform">
             Save
           </button>
-          <button id="revertProfile" type="button" class="px-4 py-2 border border-white/40 font-ethno active:scale-[0.98] transition-transform">
+          <button id="revertProfile" type="button" class="px-4 py-2 border border-white/30 font-ethno active:scale-[0.98] transition-transform">
             Revert
           </button>
-          <button id="backToDashboard" type="button" class="px-4 py-2 border border-white/40 font-ethno active:scale-[0.98] transition-transform" onclick="window.location.href='/dashboard'">
+          <button id="backToDashboard" type="button" class="px-4 py-2 border border-white/30 font-ethno active:scale-[0.98] transition-transform" onclick="window.location.href='/dashboard'">
             Back to Dashboard
           </button>
           <span id="saveStatus" class="ml-2 text-sm opacity-80"></span>
@@ -85,7 +85,7 @@ const profileScript = '/src/scripts/customer-profile-page.ts';
       data-netlify="true"
       netlify-honeypot="bot-field"
       action="/customerdashboard/profile/success"
-      class="space-y-4 rounded-lg border border-white/10 bg-black/50 p-6 shadow-md"
+      class="space-y-4 rounded-lg border border-white/20 bg-black/50 p-6 shadow-md"
     >
       <input type="hidden" name="form-name" value="profile" />
       <p class="hidden"><label>Don’t fill this out if you’re human: <input name="bot-field" /></label></p>
@@ -128,7 +128,7 @@ const profileScript = '/src/scripts/customer-profile-page.ts';
       </fieldset>
 
       <div class="mt-4" data-netlify-recaptcha="true"></div>
-      <button type="submit" class="rounded bg-primary px-4 py-2 text-black hover:bg-primary/90">Submit Request</button>
+      <button type="submit" class="rounded bg-primary px-4 py-2 text-accent hover:bg-primary/90">Submit Request</button>
     </form>
   </section>
 

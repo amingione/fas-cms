@@ -7,9 +7,9 @@ import DashboardShell from '../../components/admin/DashboardShell.tsx'
   <div class="space-y-4">
     <div class="flex gap-2">
       <input id="new-cat-title" placeholder="New category title"
-             class="bg-transparent border border-white/20 rounded px-3 py-2 flex-1" />
+             class="bg-transparent border border-white/30 rounded px-3 py-2 flex-1" />
       <button id="add-cat"
-              class="px-4 py-2 rounded bg-white text-black hover:bg-white/90 transition">
+              class="px-4 py-2 rounded bg-white text-accent hover:bg-white/90 transition">
         Add
       </button>
     </div>
@@ -38,7 +38,7 @@ import DashboardShell from '../../components/admin/DashboardShell.tsx'
 
     function rowTpl(cat) {
       const div = document.createElement('div')
-      div.className = 'flex items-center justify-between rounded border border-white/10 bg-white/5 px-3 py-2 transition'
+      div.className = 'flex items-center justify-between rounded border border-white/20 bg-white/5 px-3 py-2 transition'
       div.dataset.id = cat._id
 
       const left = document.createElement('div')
@@ -50,7 +50,7 @@ import DashboardShell from '../../components/admin/DashboardShell.tsx'
       actions.className = 'flex gap-2'
 
       const renameBtn = document.createElement('button')
-      renameBtn.className = 'px-3 py-1 rounded border border-white/20 hover:bg-white/10 transition'
+      renameBtn.className = 'px-3 py-1 rounded border border-white/30 hover:bg-white/80 transition'
       renameBtn.textContent = 'Rename'
       renameBtn.addEventListener('click', () => enterEdit(div, cat))
 
@@ -84,12 +84,12 @@ import DashboardShell from '../../components/admin/DashboardShell.tsx'
       form.className = 'flex items-center gap-2 w-full'
 
       const input = document.createElement('input')
-      input.className = 'bg-transparent border border-white/20 rounded px-2 py-1 w-full'
+      input.className = 'bg-transparent border border-white/30 rounded px-2 py-1 w-full'
       input.value = cat.title
       input.autofocus = true
 
       const save = document.createElement('button')
-      save.className = 'px-3 py-1 rounded bg-white text-black hover:bg-white/90 transition'
+      save.className = 'px-3 py-1 rounded bg-white text-accent hover:bg-white/90 transition'
       save.textContent = 'Save'
       save.addEventListener('click', async () => {
         const title = input.value.trim()
@@ -103,7 +103,7 @@ import DashboardShell from '../../components/admin/DashboardShell.tsx'
       })
 
       const cancel = document.createElement('button')
-      cancel.className = 'px-3 py-1 rounded border border-white/20 hover:bg-white/10 transition'
+      cancel.className = 'px-3 py-1 rounded border border-white/30 hover:bg-white/80 transition'
       cancel.textContent = 'Cancel'
       cancel.addEventListener('click', load)
 
@@ -131,7 +131,7 @@ import DashboardShell from '../../components/admin/DashboardShell.tsx'
 
     // initial
     load().catch(err => {
-      listEl.innerHTML = '<div class="text-white/60 text-sm">Failed to load categories.</div>'
+      listEl.innerHTML = '<div class="text-white/70 text-sm">Failed to load categories.</div>'
       console.error(err)
     })
   </script>

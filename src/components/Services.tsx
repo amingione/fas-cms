@@ -148,7 +148,7 @@ export function Services() {
                       className={`bg-gradient-to-r ${service.color} rounded-full group-hover/feature:scale-125 transition-transform duration-300 ${isMobile ? 'w-1.5 h-1.5' : 'w-2 h-2'}`}
                     ></div>
                     <span
-                      className={`text-graylight group-hover/feature:text-white transition-colors duration-300 font-medium font-ethno ${isMobile ? 'text-xs' : 'text-sm'}`}
+                      className={`text-white/60 group-hover/feature:text-white transition-colors duration-300 font-medium font-ethno ${isMobile ? 'text-xs' : 'text-sm'}`}
                     >
                       {feature}
                     </span>
@@ -225,7 +225,7 @@ export function Services() {
           </motion.h2>
 
           <motion.p
-            className={`text-graylight max-w-3xl mx-auto leading-relaxed font-kwajong ${isMobile ? 'text-xs px-4' : 'text-lg'}`}
+            className={`text-white/60 max-w-3xl mx-auto leading-relaxed font-kwajong ${isMobile ? 'text-xs px-4' : 'text-lg'}`}
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.6, duration: 0.6 }}
@@ -310,7 +310,7 @@ export function Services() {
                   {stat.value}
                 </div>
                 <div
-                  className={`text-graylight font-bold tracking-widest font-ethno ${isMobile ? 'text-xs' : 'text-sm'}`}
+                  className={`text-white/60 font-bold tracking-widest font-ethno ${isMobile ? 'text-xs' : 'text-sm'}`}
                 >
                   {stat.label}
                 </div>

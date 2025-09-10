@@ -2,6 +2,7 @@ import { motion, useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 import { Crown, Shield, Zap, Award, Wrench, Settings, Target, Clock } from 'lucide-react';
 import { Badge } from './ui/badge';
+import Button from '@/components/button';
 
 export function LuxuryFeatures() {
   const ref = useRef(null);
@@ -9,271 +10,119 @@ export function LuxuryFeatures() {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    setIsMobile(window.innerWidth <= 768);
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  const variants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } }
+  };
 
   const luxuryFeatures = [
     {
       icon: Crown,
       title: 'Bespoke Engineering',
-      description:
-        'Every component is custom-designed and manufactured to your exact specifications using aerospace-grade materials.',
-      highlights: ['CNC Machined', 'Hand-Finished', 'One-Off Design'],
-      gradient: 'from-luxury-gold/20 to-yellow-600/20',
-      glow: 'luxury-gold-glow'
+      description: 'Custom-designed components using aerospace-grade materials.',
+      highlights: ['CNC Machined', 'Hand-Finished', 'One-Off Design']
     },
     {
       icon: Shield,
       title: 'Lifetime Craftsmanship Warranty',
-      description:
-        'We stand behind our work with an unmatched lifetime warranty on all custom fabricated components.',
-      highlights: ['Lifetime Coverage', '24/7 Support', 'Quality Guarantee'],
-      gradient: 'from-luxury-platinum/20 to-gray-400/20',
-      glow: 'luxury-platinum-glow'
+      description: 'Unmatched lifetime warranty on all custom components.',
+      highlights: ['Lifetime Coverage', '24/7 Support', 'Quality Guarantee']
     },
     {
       icon: Target,
       title: 'Precision Performance',
-      description:
-        'Dyno-tuned to perfection with real-world testing to ensure every build exceeds expectations.',
-      highlights: ['Dyno Verified', 'Track Tested', 'Performance Proven'],
-      gradient: 'from-primary/20 to-red-600/20',
-      glow: 'industrial-glow'
+      description: 'Dyno-tuned with real-world testing for optimal results.',
+      highlights: ['Dyno Verified', 'Track Tested', 'Performance Proven']
     },
     {
       icon: Clock,
       title: 'White-Glove Service',
-      description:
-        'From consultation to completion, experience concierge-level service throughout your build journey.',
-      highlights: ['Personal Consultant', 'Progress Updates', 'VIP Treatment'],
-      gradient: 'from-luxury-bronze/20 to-orange-600/20',
-      glow: 'luxury-gold-glow'
+      description: 'Concierge-level service from consultation to completion.',
+      highlights: ['Personal Consultant', 'Progress Updates', 'VIP Treatment']
     }
   ];
 
   const premiumStats = [
-    {
-      number: '50+',
-      label: 'Years Combined Experience',
-      icon: Award
-    },
-    {
-      number: '500+',
-      label: 'Custom Builds Completed',
-      icon: Wrench
-    },
-    {
-      number: '1000+',
-      label: 'Horsepower Achieved',
-      icon: Zap
-    },
-    {
-      number: '100%',
-      label: 'Client Satisfaction',
-      icon: Crown
-    }
+    { number: '50+', label: 'Years Experience', icon: Award },
+    { number: '500+', label: 'Custom Builds', icon: Wrench },
+    { number: '1000+', label: 'Horsepower Achieved', icon: Zap },
+    { number: '100%', label: 'Client Satisfaction', icon: Crown }
   ];
 
-  const FeatureCard = ({ feature, index }: { feature: any; index: number }) => {
-    const Icon = feature.icon;
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 50, rotateX: 10 }}
-        animate={isInView ? { opacity: 1, y: 0, rotateX: 0 } : {}}
-        transition={{ delay: 0.2 + index * 0.15, duration: 0.8 }}
-        className={`relative luxury-glass luxury-hover-scale ${feature.glow} ${isMobile ? 'p-4' : 'p-6'} rounded-2xl border border-gray-700/50 luxury-float`}
-        style={{ perspective: '1000px' }}
-      >
-        {/* Background Pattern */}
-        <div className="absolute inset-0 luxury-carbon-effect rounded-2xl opacity-30"></div>
-
-        <div className="relative z-10">
-          {/* Icon */}
-          <div
-            className={`bg-gradient-to-br ${feature.gradient} rounded-xl flex items-center justify-center mb-4 border border-gray-600/30 ${isMobile ? 'w-12 h-12' : 'w-16 h-16'}`}
-          >
-            <Icon className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} text-white`} />
-          </div>
-
-          {/* Title */}
-          <h3
-            className={`font-black text-white font-ethno mb-3 ${isMobile ? 'text-sm' : 'text-xl'}`}
-          >
-            {feature.title}
-          </h3>
-
-          {/* Description */}
-          <p
-            className={`text-graylight leading-relaxed font-kwajong mb-4 ${isMobile ? 'text-xs' : 'text-sm'}`}
-          >
-            {feature.description}
-          </p>
-
-          {/* Highlights */}
-          <div className="flex flex-wrap gap-2">
-            {feature.highlights.map((highlight: string, idx: number) => (
-              <Badge
-                key={idx}
-                variant="outline"
-                className={`bg-gray-800/50 text-luxury-gold border border-luxury-gold/30 font-ethno ${isMobile ? 'text-xs px-2 py-0.5' : 'text-xs'}`}
-              >
-                {highlight}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      </motion.div>
-    );
-  };
-
-  const StatCard = ({ stat, index }: { stat: any; index: number }) => {
-    const Icon = stat.icon;
-    return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={isInView ? { opacity: 1, scale: 1 } : {}}
-        transition={{ delay: 0.8 + index * 0.1, duration: 0.6 }}
-        className={`text-center group luxury-hover-scale ${isMobile ? 'p-4' : 'p-6'} luxury-glass rounded-2xl border border-luxury-gold/20`}
-      >
-        <Icon
-          className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} text-luxury-gold mx-auto mb-2 group-hover:scale-110 transition-transform duration-300`}
-        />
-        <div
-          className={`luxury-gold-text font-black font-cyber mb-1 ${isMobile ? 'text-lg' : 'text-3xl'}`}
-        >
-          {stat.number}
-        </div>
-        <div className={`text-graylight font-kwajong ${isMobile ? 'text-xs' : 'text-sm'}`}>
-          {stat.label}
-        </div>
-      </motion.div>
-    );
-  };
-
   return (
-    <section className={`relative ${isMobile ? 'py-8' : 'py-20'} asphalt-texture overflow-hidden`}>
-      {/* Enhanced Background Effects */}
-      <div className="absolute inset-0 grunge-overlay"></div>
-      <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/70 to-black/90"></div>
-
-      {/* Luxury Particle Effects */}
-      {!isMobile && (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(8)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute"
-              style={{
-                left: `${5 + i * 12}%`,
-                top: `${10 + (i % 4) * 20}%`,
-                width: '3px',
-                height: '3px'
-              }}
-              animate={{
-                opacity: [0.2, 0.8, 0.2],
-                scale: [1, 2, 1],
-                backgroundColor: ['#d4af37', '#ffffff', '#e5e4e2', '#d4af37']
-              }}
-              transition={{
-                duration: 6,
-                repeat: Infinity,
-                delay: i * 0.8,
-                ease: 'easeInOut'
-              }}
-            >
-              <div className="w-full h-full rounded-full luxury-gold-glow"></div>
-            </motion.div>
-          ))}
-        </div>
-      )}
-
-      <div
-        className={`mx-auto relative z-10 ${isMobile ? 'px-4' : 'container px-6 lg:px-8'}`}
-        ref={ref}
-      >
-        {/* Section Header */}
+    <section className="py-20 md:py-32 bg-background text-text" ref={ref}>
+      <div className="container mx-auto px-4 md:px-6">
         <motion.div
-          className={`text-center ${isMobile ? 'mb-6 space-y-3' : 'mb-16 space-y-6'}`}
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
+          className="text-center space-y-4 md:space-y-6 mb-12 md:mb-16"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={variants}
         >
-          <Badge
-            variant="outline"
-            className={`bg-luxury-gold/10 border-luxury-gold/30 text-luxury-gold font-bold tracking-widest font-ethno luxury-gold-glow ${isMobile ? 'px-4 py-1 text-xs' : 'px-6 py-2 text-sm'}`}
-          >
-            PREMIUM EXCELLENCE
+          <Badge className="bg-gray-800 text-gray-400 uppercase tracking-wider">
+            Premium Excellence
           </Badge>
-
-          <h2
-            className={`font-black leading-tight font-mono ${isMobile ? 'text-lg' : 'text-4xl lg:text-6xl'}`}
-          >
-            <span className="block text-white">THE F.A.S.</span>
-            <span className="block luxury-gold-text font-cyber">DIFFERENCE</span>
-          </h2>
-
-          <p
-            className={`text-graylight max-w-3xl mx-auto font-kwajong ${isMobile ? 'text-xs leading-relaxed' : 'text-lg'}`}
-          >
-            Experience the pinnacle of automotive craftsmanship with our exclusive luxury services
-            and uncompromising attention to detail.
+          <h2 className="text-3xl md:text-5xl font-bold">The F.A.S. Difference</h2>
+          <p className="text-lg text-gray-400 max-w-3xl mx-auto">
+            Experience automotive craftsmanship at its finest.
           </p>
         </motion.div>
 
         {/* Features Grid */}
-        <div
-          className={`grid gap-6 mb-16 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'}`}
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 mb-12 md:mb-16"
+          variants={variants}
         >
           {luxuryFeatures.map((feature, index) => (
-            <FeatureCard key={index} feature={feature} index={index} />
-          ))}
-        </div>
-
-        {/* Premium Stats */}
-        <motion.div
-          className={`grid gap-4 ${isMobile ? 'grid-cols-2 max-w-sm mx-auto' : 'grid-cols-4 max-w-6xl mx-auto'}`}
-          initial={{ opacity: 0, y: 50 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.6, duration: 0.8 }}
-        >
-          {premiumStats.map((stat, index) => (
-            <StatCard key={index} stat={stat} index={index} />
+            <motion.div
+              key={index}
+              className="bg-gray-900 border-gray-800 rounded-lg p-6"
+              whileHover={{ scale: 1.02 }}
+              variants={variants}
+            >
+              <feature.icon className="w-12 h-12 text-blue-400 mb-4" />
+              <h3 className="text-xl font-medium mb-2">{feature.title}</h3>
+              <p className="text-gray-400 mb-4">{feature.description}</p>
+              <div className="flex flex-wrap gap-2">
+                {feature.highlights.map((highlight, hIndex) => (
+                  <Badge key={hIndex} variant="secondary" className="bg-gray-800 text-gray-300">
+                    {highlight}
+                  </Badge>
+                ))}
+              </div>
+            </motion.div>
           ))}
         </motion.div>
 
-        {/* Premium CTA */}
-        <motion.div
-          className={`text-center ${isMobile ? 'mt-8' : 'mt-16'}`}
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 1.2, duration: 0.8 }}
-        >
-          <div
-            className={`luxury-glass rounded-2xl border border-luxury-gold/20 luxury-gold-glow max-w-2xl mx-auto ${isMobile ? 'p-6' : 'p-8'}`}
+        {/* Stats Grid */}
+        <motion.div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8" variants={variants}>
+          {premiumStats.map((stat, index) => (
+            <div key={index} className="text-center">
+              <stat.icon className="w-12 h-12 text-blue-400 mx-auto mb-4" />
+              <h3 className="text-3xl font-bold text-blue-400">{stat.number}</h3>
+              <p className="text-sm text-gray-400 uppercase">{stat.label}</p>
+            </div>
+          ))}
+        </motion.div>
+
+        {/* CTA */}
+        <motion.div className="text-center mt-12" variants={variants}>
+          <Button
+            href="#"
+            text="Schedule Consultation"
+            onClick={() => {
+              /* handle click here */
+            }}
+            className="bg-blue-600 hover:bg-blue-700 rounded-full"
           >
-            <h3
-              className={`luxury-platinum-text font-bold font-cyber mb-3 ${isMobile ? 'text-base' : 'text-2xl'}`}
-            >
-              READY FOR THE ULTIMATE BUILD?
-            </h3>
-            <p className={`text-graylight font-kwajong mb-6 ${isMobile ? 'text-xs' : 'text-lg'}`}>
-              Join the elite circle of F.A.S. Motorsports clients and experience automotive
-              perfection.
-            </p>
-            <motion.a
-              href="/schedule"
-              className={`inline-block luxury-btn text-white font-bold transition-all duration-300 rounded-xl font-ethno ${isMobile ? 'px-6 py-3 text-sm' : 'px-10 py-4 text-lg'}`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              SCHEDULE CONSULTATION
-            </motion.a>
-          </div>
+            Schedule Consultation
+          </Button>
         </motion.div>
       </div>
     </section>

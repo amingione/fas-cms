@@ -201,7 +201,7 @@ const HeroCard: React.FC<HeroCardProps> = ({
         style={{ transform: 'translateZ(50px)' }}
       />
       <div
-        className="absolute bottom-1/4 right-1/4 w-2 h-2 bg-white/30 rounded-full animate-ping"
+        className="absolute bottom-1/4 right-1/4 w-2 h-2 bg-white/80 rounded-full animate-ping"
         style={{ transform: 'translateZ(30px)' }}
       />
       <div

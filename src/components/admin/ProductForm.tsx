@@ -42,19 +42,19 @@ export default function ProductForm({ onSaved }: { onSaved: () => void }) {
   return (
     <form
       onSubmit={onSubmit}
-      className="grid gap-3 bg-white/5 border border-white/10 rounded-lg p-4"
+      className="grid gap-3 bg-white/5 border border-white/20 rounded-lg p-4"
     >
       <div className="grid md:grid-cols-2 gap-3">
         <input
           name="title"
           placeholder="Title"
           required
-          className="bg-transparent border border-white/20 rounded px-3 py-2"
+          className="bg-transparent border border-white/30 rounded px-3 py-2"
         />
         <input
           name="sku"
           placeholder="SKU"
-          className="bg-transparent border border-white/20 rounded px-3 py-2"
+          className="bg-transparent border border-white/30 rounded px-3 py-2"
         />
         <input
           name="price"
@@ -62,7 +62,7 @@ export default function ProductForm({ onSaved }: { onSaved: () => void }) {
           type="number"
           step="0.01"
           required
-          className="bg-transparent border border-white/20 rounded px-3 py-2"
+          className="bg-transparent border border-white/30 rounded px-3 py-2"
         />
         <label className="inline-flex items-center gap-2 text-sm">
           <input type="checkbox" name="featured" className="accent-white/80" />
@@ -73,7 +73,7 @@ export default function ProductForm({ onSaved }: { onSaved: () => void }) {
       <div>
         <button
           disabled={saving}
-          className="px-4 py-2 rounded bg-white text-black hover:bg-white/90"
+          className="px-4 py-2 rounded bg-white text-accent hover:bg-white/90"
         >
           {saving ? 'Saving…' : 'Save Product'}
         </button>

@@ -6,25 +6,25 @@ import DashboardShell from '../../components/admin/DashboardShell.tsx'
 
   <div class="grid md:grid-cols-3 gap-4">
     <!-- Inbox -->
-    <div class="md:col-span-1 border border-white/10 rounded-lg overflow-hidden">
-      <ul id="messages-list" class="divide-y divide-white/10"></ul>
+    <div class="md:col-span-1 border border-white/20 rounded-lg overflow-hidden">
+      <ul id="messages-list" class="divide-y divide-white/80"></ul>
     </div>
 
     <!-- Detail / Reply -->
     <div class="md:col-span-2">
-      <div id="message-detail" class="border border-white/10 rounded-lg p-4 space-y-3 hidden">
+      <div id="message-detail" class="border border-white/20 rounded-lg p-4 space-y-3 hidden">
         <div class="text-xl font-semibold" id="msg-subject"></div>
         <div class="text-sm text-white/70" id="msg-from"></div>
         <div class="rounded bg-white/5 p-3 whitespace-pre-wrap" id="msg-body"></div>
 
-        <textarea id="reply-body" class="w-full h-40 bg-transparent border border-white/20 rounded p-2" placeholder="Write your reply..."></textarea>
+        <textarea id="reply-body" class="w-full h-40 bg-transparent border border-white/30 rounded p-2" placeholder="Write your reply..."></textarea>
         <div class="flex gap-2 justify-end">
-          <button id="close-detail" class="px-3 py-2 rounded border border-white/20 hover:bg-white/5 transition">Close</button>
-          <button id="send-reply" class="px-4 py-2 rounded bg-white text-black hover:bg-white/90 transition">Send Reply</button>
+          <button id="close-detail" class="px-3 py-2 rounded border border-white/30 hover:bg-white/5 transition">Close</button>
+          <button id="send-reply" class="px-4 py-2 rounded bg-white text-accent hover:bg-white/90 transition">Send Reply</button>
         </div>
       </div>
 
-      <div id="message-empty" class="text-white/60">Select a message.</div>
+      <div id="message-empty" class="text-white/70">Select a message.</div>
     </div>
   </div>
 
@@ -53,7 +53,7 @@ import DashboardShell from '../../components/admin/DashboardShell.tsx'
       li.className = 'p-3 hover:bg-white/5 cursor-pointer transition'
       li.dataset.id = m._id
       li.innerHTML = `
-        <div class="text-sm text-white/60">${new Date(m.createdAt).toLocaleString()}</div>
+        <div class="text-sm text-white/70">${new Date(m.createdAt).toLocaleString()}</div>
         <div class="font-medium truncate">${m.subject || '(No subject)'}</div>
         <div class="text-white/70 text-sm truncate">${m.fromEmail}</div>
       `
@@ -66,7 +66,7 @@ import DashboardShell from '../../components/admin/DashboardShell.tsx'
         const list = await fetchJSON('/.netlify/functions/messages-list')
         list.forEach(m => listEl.appendChild(liTemplate(m)))
       } catch (e) {
-        listEl.innerHTML = '<li class="p-3 text-white/60 text-sm">Failed to load messages.</li>'
+        listEl.innerHTML = '<li class="p-3 text-white/70 text-sm">Failed to load messages.</li>'
         console.error(e)
       }
     }

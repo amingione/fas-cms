@@ -130,7 +130,7 @@ export default function ProductMediaCarousel({
           type="button"
           onClick={prev}
           aria-label="Previous image"
-          className="absolute left-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-black/60 hover:bg-black/80 p-2 text-white border border-white/10"
+          className="absolute left-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-black/60 hover:bg-black/80 p-2 text-white border border-white/20"
         >
           ‹
         </button>
@@ -138,14 +138,14 @@ export default function ProductMediaCarousel({
           type="button"
           onClick={next}
           aria-label="Next image"
-          className="absolute right-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-black/60 hover:bg-black/80 p-2 text-white border border-white/10"
+          className="absolute right-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-black/60 hover:bg-black/80 p-2 text-white border border-white/20"
         >
           ›
         </button>
 
         <ul
           ref={containerRef}
-          className="relative flex snap-x snap-mandatory overflow-x-auto overflow-y-hidden scroll-smooth no-scrollbar rounded-xl border border-white/10 bg-black/60"
+          className="relative flex snap-x snap-mandatory overflow-x-auto overflow-y-hidden scroll-smooth no-scrollbar rounded-xl border border-white/20 bg-black/60"
           style={{ scrollBehavior: 'smooth' }}
         >
           {clean.map((img, i) => {
@@ -202,7 +202,7 @@ export default function ProductMediaCarousel({
                 className={`relative h-16 w-16 flex-none overflow-hidden rounded border ${
                   index === i
                     ? 'border-primary ring-2 ring-primary/60'
-                    : 'border-white/10 hover:border-white/30'
+                    : 'border-white/20 hover:border-white/20'
                 }`}
                 aria-label={`Go to image ${i + 1}`}
                 aria-current={index === i}

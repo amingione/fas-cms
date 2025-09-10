@@ -90,7 +90,7 @@ export function LuxuryTestimonials() {
 
         {/* Content */}
         <p
-          className={`text-graylight leading-relaxed font-kwajong ${isMobile ? 'text-xs mb-4' : 'text-sm mb-6'}`}
+          className={`text-white/60 leading-relaxed font-kwajong ${isMobile ? 'text-xs mb-4' : 'text-sm mb-6'}`}
         >
           "{testimonial.content}"
         </p>
@@ -111,7 +111,7 @@ export function LuxuryTestimonials() {
             <div className={`text-white font-bold font-ethno ${isMobile ? 'text-xs' : 'text-sm'}`}>
               {testimonial.name}
             </div>
-            <div className={`text-graylight font-kwajong ${isMobile ? 'text-xs' : 'text-xs'}`}>
+            <div className={`text-white/60 font-kwajong ${isMobile ? 'text-xs' : 'text-xs'}`}>
               {testimonial.title}
             </div>
             <Badge
@@ -189,7 +189,7 @@ export function LuxuryTestimonials() {
           </h2>
 
           <p
-            className={`text-graylight max-w-2xl mx-auto font-kwajong ${isMobile ? 'text-xs leading-relaxed' : 'text-lg'}`}
+            className={`text-white/60 max-w-2xl mx-auto font-kwajong ${isMobile ? 'text-xs leading-relaxed' : 'text-lg'}`}
           >
             Don't just take our word for it. Hear from the drivers who trust F.A.S. Motorsports with
             their most prized builds.
@@ -232,7 +232,7 @@ export function LuxuryTestimonials() {
                 >
                   {cert.title}
                 </div>
-                <div className={`text-graylight font-kwajong ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                <div className={`text-white/60 font-kwajong ${isMobile ? 'text-xs' : 'text-sm'}`}>
                   {cert.description}
                 </div>
               </motion.div>

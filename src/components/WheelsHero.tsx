@@ -35,8 +35,8 @@ export function WheelsHero({
       <div className="absolute inset-0">
         <div className="absolute left-0 top-0 bottom-0 w-2 bg-gradient-to-b from-transparent via-primary to-transparent opacity-40"></div>
         <div className="absolute right-0 top-0 bottom-0 w-2 bg-gradient-to-b from-transparent via-primary to-transparent opacity-40"></div>
-        <div className="absolute left-1/3 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent"></div>
-        <div className="absolute right-1/3 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent"></div>
+        <div className="absolute left-1/3 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/70 to-transparent"></div>
+        <div className="absolute right-1/3 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/70 to-transparent"></div>
       </div>
 
       <div className="relative z-10 container mx-auto px-4 md:px-6">
@@ -57,7 +57,7 @@ export function WheelsHero({
               className="bg-primary/20 text-white border-primary/30 px-4 py-2 font-ethno text-xs md:text-sm"
               {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.badge`) : {})}
             >
-              <Award className="w-3 h-3 md:w-4 md:h-4 mr-2 text-white/60" />
+              <Award className="w-3 h-3 md:w-4 md:h-4 mr-2 text-white/70" />
               {badge ?? 'AUTHORIZED DEALER'}
             </Badge>
           </motion.div>
@@ -87,7 +87,7 @@ export function WheelsHero({
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.8, duration: 0.8 }}
-            className="text-base md:text-lg text-graylight max-w-3xl mx-auto font-kwajong leading-relaxed"
+            className="text-base md:text-lg text-white/60 max-w-3xl mx-auto font-kwajong leading-relaxed"
           >
             <span {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.subtext`) : {})}>
               {intro ?? (
@@ -130,7 +130,7 @@ export function WheelsHero({
                     <p className="text-primary font-ethno-italic text-base md:text-lg mb-3">
                       STREET PERFORMANCE
                     </p>
-                    <div className="flex items-center text-sm text-graylight font-kwajong">
+                    <div className="flex items-center text-sm text-white/60 font-kwajong">
                       <Star className="w-4 h-4 text-primary mr-2" />
                       LIGHTWEIGHT FORGED
                     </div>
@@ -180,21 +180,21 @@ export function WheelsHero({
               transition={{ delay: 1.8, duration: 0.8 }}
               className="space-y-6"
             >
-              <div className="bg-gradient-to-r from-gray-900/90 to-black/90 backdrop-blur-sm rounded-xl p-6 md:p-8 border border-white/20 industrial-glow">
+              <div className="bg-gradient-to-r from-gray-900/90 to-black/90 backdrop-blur-sm rounded-xl p-6 md:p-8 border border-white/30 industrial-glow">
                 <h3 className="text-2xl md:text-3xl font-black text-white font-cyber3d mb-4">
                   AUTHORIZED
-                  <span className="block text-graylight font-ethno-italic">DEALER</span>
+                  <span className="block text-white/60 font-ethno-italic">DEALER</span>
                 </h3>
-                <p className="text-graylight text-base md:text-lg font-kwajong leading-relaxed mb-4">
+                <p className="text-white/60 text-base md:text-lg font-kwajong leading-relaxed mb-4">
                   Official dealer for BelaK & JTX Forged premium wheel brands. We provide authentic
                   products with full manufacturer warranties.
                 </p>
                 <div className="flex flex-wrap gap-3">
-                  <div className="flex items-center text-sm text-graylight font-kwajong">
+                  <div className="flex items-center text-sm text-white/60 font-kwajong">
                     <div className="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
                     FACTORY AUTHORIZED
                   </div>
-                  <div className="flex items-center text-sm text-graylight font-kwajong">
+                  <div className="flex items-center text-sm text-white/60 font-kwajong">
                     <div className="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
                     FULL WARRANTY
                   </div>
@@ -225,7 +225,7 @@ export function WheelsHero({
                     <p className="text-blue-400 font-ethno-italic text-base md:text-lg mb-3">
                       LUXURY PERFORMANCE
                     </p>
-                    <div className="flex items-center text-sm text-graylight font-kwajong">
+                    <div className="flex items-center text-sm text-white/60 font-kwajong">
                       <Star className="w-4 h-4 text-blue-400 mr-2" />
                       SHOW QUALITY
                     </div>
@@ -263,7 +263,7 @@ export function WheelsHero({
                     <p className="text-primary font-ethno-italic text-base md:text-lg mb-3">
                       DRAG STRIP READY
                     </p>
-                    <div className="flex items-center text-sm text-graylight font-kwajong">
+                    <div className="flex items-center text-sm text-white/60 font-kwajong">
                       <Zap className="w-4 h-4 text-primary mr-2" />
                       COMPETITION GRADE
                     </div>
@@ -284,20 +284,20 @@ export function WheelsHero({
                   PERFORMANCE
                   <span className="block text-primary font-ethno-italic">DRIVEN</span>
                 </h3>
-                <p className="text-graylight text-base md:text-lg font-kwajong leading-relaxed mb-4">
+                <p className="text-white/60 text-base md:text-lg font-kwajong leading-relaxed mb-4">
                   Built for the demands of racing and engineered for maximum performance. Every
                   wheel is tested to withstand extreme conditions.
                 </p>
                 <div className="space-y-3">
-                  <div className="flex items-center text-sm text-graylight font-kwajong">
+                  <div className="flex items-center text-sm text-white/60 font-kwajong">
                     <Zap className="w-4 h-4 text-primary mr-3" />
                     DRAG STRIP TESTED
                   </div>
-                  <div className="flex items-center text-sm text-graylight font-kwajong">
+                  <div className="flex items-center text-sm text-white/60 font-kwajong">
                     <Star className="w-4 h-4 text-primary mr-3" />
                     COMPETITION GRADE MATERIALS
                   </div>
-                  <div className="flex items-center text-sm text-graylight font-kwajong">
+                  <div className="flex items-center text-sm text-white/60 font-kwajong">
                     <Award className="w-4 h-4 text-primary mr-3" />
                     RACE PROVEN DESIGN
                   </div>
@@ -319,7 +319,7 @@ export function WheelsHero({
               <h2 className="text-2xl md:text-3xl font-black text-white font-cyber3d mb-3">
                 PREMIUM WHEELS FOR EVERY BUILD
               </h2>
-              <p className="text-sm md:text-base text-graylight font-kwajong max-w-2xl mx-auto">
+              <p className="text-sm md:text-base text-white/60 font-kwajong max-w-2xl mx-auto">
                 Whether you're building for the street, strip, or show - F.A.S. Motorsports has the
                 perfect wheels to complete your vision.
                 <span className="text-primary font-semibold"> BelaK</span> and
@@ -356,19 +356,19 @@ export function WheelsHero({
 
             {/* Brand Highlights */}
             <div className="flex flex-wrap justify-center gap-6 pt-6 border-t border-gray-700/30">
-              <div className="flex items-center text-sm text-graylight font-kwajong">
+              <div className="flex items-center text-sm text-white/60 font-kwajong">
                 <div className="w-3 h-3 bg-primary rounded-full mr-3"></div>
                 STREET PERFORMANCE
               </div>
-              <div className="flex items-center text-sm text-graylight font-kwajong">
+              <div className="flex items-center text-sm text-white/60 font-kwajong">
                 <div className="w-3 h-3 bg-blue-400 rounded-full mr-3"></div>
                 LUXURY FORGED
               </div>
-              <div className="flex items-center text-sm text-graylight font-kwajong">
+              <div className="flex items-center text-sm text-white/60 font-kwajong">
                 <div className="w-3 h-3 bg-red-400 rounded-full mr-3"></div>
                 DRAG OPTIMIZED
               </div>
-              <div className="flex items-center text-sm text-graylight font-kwajong">
+              <div className="flex items-center text-sm text-white/60 font-kwajong">
                 <div className="w-3 h-3 bg-accent rounded-full mr-3"></div>
                 CUSTOM FINISHES
               </div>

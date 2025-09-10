@@ -321,7 +321,7 @@ export default function Shop({
           </motion.h1>
 
           <motion.p
-            className="text-lg text-graylight max-w-3xl mx-auto leading-relaxed font-kwajong"
+            className="text-lg text-white/60 max-w-3xl mx-auto leading-relaxed font-kwajong"
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.6, duration: 0.6 }}
@@ -352,7 +352,7 @@ export default function Shop({
           <div className="block md:hidden space-y-4">
             {/* Search - Full Width */}
             <div className="relative">
-              <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-graylight pointer-events-none z-[1]" />
+              <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/60 pointer-events-none z-[1]" />
               <Input
                 type="text"
                 placeholder="Search products..."
@@ -381,7 +381,7 @@ export default function Shop({
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-graylight pointer-events-none" />
+                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/60 pointer-events-none" />
               </div>
 
               {/* Sort Dropdown */}
@@ -396,7 +396,7 @@ export default function Shop({
                   <option value="price-low">Price: Low to High</option>
                   <option value="price-high">Price: High to Low</option>
                 </select>
-                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-graylight pointer-events-none" />
+                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/60 pointer-events-none" />
               </div>
             </div>
 
@@ -409,7 +409,7 @@ export default function Shop({
                   className={`p-3 transition-colors mobile-touch-target ${
                     viewMode === 'grid'
                       ? 'bg-primary text-white'
-                      : 'bg-gray-800/50 text-graylight hover:text-white'
+                      : 'bg-gray-800/50 text-white/60 hover:text-white'
                   }`}
                 >
                   <Grid3X3 className="w-5 h-5" />
@@ -419,7 +419,7 @@ export default function Shop({
                   className={`p-3 transition-colors mobile-touch-target ${
                     viewMode === 'list'
                       ? 'bg-primary text-white'
-                      : 'bg-gray-800/50 text-graylight hover:text-white'
+                      : 'bg-gray-800/50 text-white/60 hover:text-white'
                   }`}
                 >
                   <List className="w-5 h-5" />
@@ -432,7 +432,7 @@ export default function Shop({
                   variant="ghost"
                   size="sm"
                   onClick={clearFilters}
-                  className="text-graylight hover:text-white font-ethno mobile-touch-target"
+                  className="text-white/60 hover:text-white font-ethno mobile-touch-target"
                 >
                   <X className="w-4 h-4 mr-2" />
                   Clear
@@ -445,7 +445,7 @@ export default function Shop({
           <div className="hidden md:flex flex-col lg:flex-row gap-6 items-center">
             {/* Search */}
             <div className="flex-1 relative">
-              <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-graylight pointer-events-none z-[1]" />
+              <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/60 pointer-events-none z-[1]" />
               <Input
                 type="text"
                 placeholder="Search products..."
@@ -472,7 +472,7 @@ export default function Shop({
                   </option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-graylight pointer-events-none" />
+              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/60 pointer-events-none" />
             </div>
 
             {/* Controls */}
@@ -489,7 +489,7 @@ export default function Shop({
                   <option value="price-low">Price: Low to High</option>
                   <option value="price-high">Price: High to Low</option>
                 </select>
-                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-graylight pointer-events-none" />
+                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/60 pointer-events-none" />
               </div>
 
               {/* View Toggle */}
@@ -499,7 +499,7 @@ export default function Shop({
                   className={`p-2 transition-colors ${
                     viewMode === 'grid'
                       ? 'bg-primary text-white'
-                      : 'bg-gray-800/50 text-graylight hover:text-white'
+                      : 'bg-gray-800/50 text-white/60 hover:text-white'
                   }`}
                 >
                   <Grid3X3 className="w-4 h-4" />
@@ -509,7 +509,7 @@ export default function Shop({
                   className={`p-2 transition-colors ${
                     viewMode === 'list'
                       ? 'bg-primary text-white'
-                      : 'bg-gray-800/50 text-graylight hover:text-white'
+                      : 'bg-gray-800/50 text-white/60 hover:text-white'
                   }`}
                 >
                   <List className="w-4 h-4" />
@@ -522,7 +522,7 @@ export default function Shop({
                   variant="ghost"
                   size="sm"
                   onClick={clearFilters}
-                  className="text-graylight hover:text-white font-ethno"
+                  className="text-white/60 hover:text-white font-ethno"
                 >
                   <X className="w-4 h-4 mr-1" />
                   Clear
@@ -539,7 +539,7 @@ export default function Shop({
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ delay: 1.2, duration: 0.4 }}
         >
-          <div className="text-graylight font-kwajong">
+          <div className="text-white/60 font-kwajong">
             Showing <span className="text-white font-bold">{filteredProducts.length}</span> products
             {selectedCategory !== 'all' && (
               <span className="ml-2">
@@ -616,9 +616,9 @@ export default function Shop({
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
           >
-            <Package className="w-16 h-16 text-graylight mx-auto mb-4" />
+            <Package className="w-16 h-16 text-white/60 mx-auto mb-4" />
             <h3 className="text-xl font-bold text-white mb-2 font-ethno">No products found</h3>
-            <p className="text-graylight font-kwajong">Try adjusting your search or filters</p>
+            <p className="text-white/60 font-kwajong">Try adjusting your search or filters</p>
             <Button
               onClick={clearFilters}
               className="mt-4 bg-primary hover:bg-primary/90 font-ethno"
@@ -638,7 +638,7 @@ export default function Shop({
           <h3 className="text-3xl lg:text-5xl font-black text-white mb-4 font-mono">
             CAN'T FIND WHAT YOU'RE <span className="font-cyber">LOOKING FOR?</span>
           </h3>
-          <p className="text-lg text-graylight mb-8 max-w-2xl mx-auto font-kwajong">
+          <p className="text-lg text-white/60 mb-8 max-w-2xl mx-auto font-kwajong">
             We specialize in custom fabrication and one-off builds. Contact our engineering team to
             discuss your specific performance requirements.
           </p>
@@ -658,7 +658,7 @@ export default function Shop({
             <Button
               size="lg"
               variant="outline"
-              className="border-2 border-graylight/50 text-graylight hover:bg-secondary/10 hover:text-white hover:border-secondary/70 px-8 py-4 text-lg font-medium backdrop-blur-sm industrial-glow font-ethno text-[11px]"
+              className="border-2 border-graylight/50 text-white/60 hover:bg-secondary/10 hover:text-white hover:border-secondary/70 px-8 py-4 text-lg font-medium backdrop-blur-sm industrial-glow font-ethno text-[11px]"
             >
               CONTACT ENGINEERING
             </Button>

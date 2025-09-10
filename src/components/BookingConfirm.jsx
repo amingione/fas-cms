@@ -14,7 +14,7 @@ export default function BookingConfirm() {
     <div className="text-center">
       {bookingId ? (
         <div className="bg-zinc-800 border border-white rounded-lg p-6 shadow-md">
-          <p className="mb-2 text-sm text-gray-400">Your Booking ID:</p>
+          <p className="mb-2 text-sm text-white/70">Your Booking ID:</p>
           <p className="text-xl font-semibold">{bookingId}</p>
         </div>
       ) : (

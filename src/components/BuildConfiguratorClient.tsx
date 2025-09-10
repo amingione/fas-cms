@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import type { Product } from '@lib/sanity-utils';
+import { Button } from './ui/button';
+import { motion } from 'framer-motion';
 
 interface Props {
   products: Product[];
@@ -20,17 +22,17 @@ function normalizeTags(arr?: any[]): string[] {
 export default function BuildConfiguratorClient({ products }: Props) {
   const [vehicle, setVehicle] = useState<string>('trackhawk');
   const [submitting, setSubmitting] = useState(false);
-
-  // Build state: product id -> { product, qty }
   const [build, setBuild] = useState<Record<string, { p: Product; qty: number }>>({});
-
-  // Faceted filters (separate sections)
   const [openAttrKey, setOpenAttrKey] = useState<string | null>(null);
   const [openSpecKey, setOpenSpecKey] = useState<string | null>(null);
   const [selectedAttrFacets, setSelectedAttrFacets] = useState<Record<string, string[]>>({});
   const [selectedSpecFacets, setSelectedSpecFacets] = useState<Record<string, string[]>>({});
 
-  // Helpers for extracting normalized pairs
+  const variants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } }
+  };
+
   const extractAttrPairs = (p: any) =>
     (Array.isArray(p?.attributes) ? p.attributes : [])
       .map((raw: any) => ({
@@ -38,6 +40,7 @@ export default function BuildConfiguratorClient({ products }: Props) {
         value: String(raw?.value ?? raw?.detail ?? raw?.name ?? '').trim()
       }))
       .filter((x: any) => x.key && x.value);
+
   const extractSpecPairs = (p: any) =>
     (Array.isArray(p?.specifications) ? p.specifications : [])
       .map((raw: any) => ({
@@ -48,42 +51,41 @@ export default function BuildConfiguratorClient({ products }: Props) {
 
   const attrFacets: Record<string, string[]> = useMemo(() => {
     const map = new Map<string, Set<string>>();
-    (Array.isArray(products) ? products : []).forEach((p: any) => {
+    products.forEach((p: any) => {
       extractAttrPairs(p).forEach(({ key, value }: { key: string; value: string }) => {
         if (!map.has(key)) map.set(key, new Set());
         map.get(key)!.add(value);
       });
     });
     const out: Record<string, string[]> = {};
-    for (const [k, vals] of map.entries()) out[k] = Array.from(vals.values()).sort();
+    map.forEach((vals, k) => (out[k] = Array.from(vals).sort()));
     return out;
   }, [products]);
 
   const specFacets: Record<string, string[]> = useMemo(() => {
     const map = new Map<string, Set<string>>();
-    (Array.isArray(products) ? products : []).forEach((p: any) => {
+    products.forEach((p: any) => {
       extractSpecPairs(p).forEach(({ key, value }: { key: string; value: string }) => {
         if (!map.has(key)) map.set(key, new Set());
         map.get(key)!.add(value);
       });
     });
     const out: Record<string, string[]> = {};
-    for (const [k, vals] of map.entries()) out[k] = Array.from(vals.values()).sort();
+    map.forEach((vals, k) => (out[k] = Array.from(vals).sort()));
     return out;
   }, [products]);
 
   const filteredProducts = useMemo(() => {
-    const v = (vehicle || 'trackhawk').toLowerCase();
+    const v = vehicle.toLowerCase();
     const vehicleTokens = VEHICLES.find((x) => x.id === v)?.tokens || [];
     const activeAttrKeys = Object.keys(selectedAttrFacets).filter(
-      (k) => (selectedAttrFacets[k] || []).length > 0
+      (k) => selectedAttrFacets[k].length > 0
     );
     const activeSpecKeys = Object.keys(selectedSpecFacets).filter(
-      (k) => (selectedSpecFacets[k] || []).length > 0
+      (k) => selectedSpecFacets[k].length > 0
     );
-    return (Array.isArray(products) ? products : []).filter((p: any) => {
-      // Vehicle filter: compatibleVehicles slug/model/make OR product.filters tokens
-      const comp = Array.isArray(p?.compatibleVehicles) ? p.compatibleVehicles : [];
+    return products.filter((p: any) => {
+      const comp = p?.compatibleVehicles || [];
       const hasVehicle =
         comp.some((cv: any) => {
           const slugMatch = String(cv?.slug?.current || cv?.slug || '').toLowerCase() === v;
@@ -94,28 +96,31 @@ export default function BuildConfiguratorClient({ products }: Props) {
         }) || normalizeTags(p?.filters).some((t) => vehicleTokens.includes(t));
       if (!hasVehicle) return false;
 
-      // Attribute filters (AND across keys, OR within values)
       if (activeAttrKeys.length > 0) {
         const pairs = extractAttrPairs(p);
         for (const key of activeAttrKeys) {
           const selected = selectedAttrFacets[key];
-          const ok = pairs.some(
-            (pair: { key: string; value: string }) =>
-              pair.key === key && selected.includes(pair.value)
-          );
-          if (!ok) return false;
+          if (
+            !pairs.some(
+              (pair: { key: string; value: string }) =>
+                pair.key === key && selected.includes(pair.value)
+            )
+          )
+            return false;
         }
       }
-      // Specification filters (AND across keys, OR within values)
+
       if (activeSpecKeys.length > 0) {
         const pairs = extractSpecPairs(p);
         for (const key of activeSpecKeys) {
           const selected = selectedSpecFacets[key];
-          const ok = pairs.some(
-            (pair: { key: string; value: string }) =>
-              pair.key === key && selected.includes(pair.value)
-          );
-          if (!ok) return false;
+          if (
+            !pairs.some(
+              (pair: { key: string; value: string }) =>
+                pair.key === key && selected.includes(pair.value)
+            )
+          )
+            return false;
         }
       }
       return true;
@@ -123,15 +128,14 @@ export default function BuildConfiguratorClient({ products }: Props) {
   }, [products, selectedAttrFacets, selectedSpecFacets, vehicle]);
 
   const subtotal = Object.values(build).reduce(
-    (acc, { p, qty }) => acc + (Number((p as any).price) || 0) * qty,
+    (acc, { p, qty }) => acc + (Number(p.price) || 0) * qty,
     0
   );
 
   const addToBuild = (p: Product) => {
     setBuild((prev) => {
-      const id = (p as any)._id;
-      const next = { ...prev } as typeof prev;
-      if (!id) return prev;
+      const id = p._id;
+      const next = { ...prev };
       next[id] = { p, qty: (prev[id]?.qty || 0) + 1 };
       return next;
     });
@@ -151,349 +155,278 @@ export default function BuildConfiguratorClient({ products }: Props) {
       return next;
     });
 
-  async function submitQuote(e: React.FormEvent<HTMLFormElement>) {
+  const submitQuote = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const form = e.currentTarget;
-    const fd = new FormData(form);
+    const fd = new FormData(e.currentTarget);
     const payload = {
-      name: String(fd.get('name') || ''),
-      email: String(fd.get('email') || ''),
-      phone: String(fd.get('phone') || ''),
+      name: fd.get('name') as string,
+      email: fd.get('email') as string,
+      phone: fd.get('phone') as string,
       vehicle,
-      items: Object.entries(build).map(([id, { p, qty }]) => ({
-        id,
-        name: (p as any).title || 'Item',
-        price: Number((p as any).price || 0) || 0,
+      items: Object.entries(build).map(([, { p, qty }]) => ({
+        id: p._id,
+        name: p.title || 'Item',
+        price: Number(p.price) || 0,
         qty
       })),
       subtotal,
-      notes: String(fd.get('notes') || '')
+      notes: fd.get('notes') as string
     };
-    if (!payload.items.length) {
-      alert('Please add at least one product to your build.');
-      return;
-    }
+    if (!payload.items.length) return alert('Add at least one product.');
     setSubmitting(true);
     try {
-      const res = await fetch('/api/build-quote', {
+      await fetch('/api/build-quote', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      if (!res.ok) throw new Error('Failed to submit');
-      alert('Your build was sent! We will contact you shortly.');
-      setBuild({});
-      form.reset();
+      alert('Quote submitted!');
     } catch (err) {
-      console.error(err);
-      alert('Sorry, something went wrong submitting your build.');
+      alert('Error submitting quote.');
     } finally {
       setSubmitting(false);
     }
-  }
-
-  const clearAllFacets = () => {
-    setSelectedAttrFacets({});
-    setSelectedSpecFacets({});
   };
-  const toggleAttrFacetValue = (key: string, value: string) => {
+
+  const toggleAttrFacetValue = (key: string, value: string) =>
     setSelectedAttrFacets((prev) => {
-      const current = prev[key] || [];
-      const exists = current.includes(value);
-      const nextVals = exists ? current.filter((v) => v !== value) : [...current, value];
-      const next = { ...prev, [key]: nextVals } as Record<string, string[]>;
-      if (next[key].length === 0) delete next[key];
+      const selected = prev[key] || [];
+      const next = { ...prev };
+      next[key] = selected.includes(value)
+        ? selected.filter((v) => v !== value)
+        : [...selected, value];
       return next;
     });
-  };
-  const toggleSpecFacetValue = (key: string, value: string) => {
-    setSelectedSpecFacets((prev) => {
-      const current = prev[key] || [];
-      const exists = current.includes(value);
-      const nextVals = exists ? current.filter((v) => v !== value) : [...current, value];
-      const next = { ...prev, [key]: nextVals } as Record<string, string[]>;
-      if (next[key].length === 0) delete next[key];
-      return next;
-    });
-  };
 
-  // No legacy category/tag panel; filtering is via attributes/specs only
+  const toggleSpecFacetValue = (key: string, value: string) =>
+    setSelectedSpecFacets((prev) => {
+      const selected = prev[key] || [];
+      const next = { ...prev };
+      next[key] = selected.includes(value)
+        ? selected.filter((v) => v !== value)
+        : [...selected, value];
+      return next;
+    });
 
   return (
-    <>
-      <div className="space-y-6 mt-5">
-        {/* Vehicle Picker */}
-        <section>
-          <h3 className="font-ethno text-accent text-lg mb-2">Select Your Vehicle</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-            {VEHICLES.map((v) => (
-              <button
-                key={v.id}
-                type="button"
-                className={
-                  'group rounded-lg border p-2 bg-black/30 hover:bg-black/40 transition ' +
-                  (vehicle === v.id ? 'border-primary text-primary' : 'border-white/15 text-white')
-                }
-                onClick={() => setVehicle(v.id)}
-              >
-                <div className="w-full aspect-video grid place-items-center overflow-hidden rounded mb-1 bg-black/20">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={v.image}
-                    alt={v.label}
-                    className="object-contain max-w-full max-h-full"
-                  />
+    <section className="py-20 md:py-32 bg-gradient-to-br from-background to-gray-900 relative overflow-hidden">
+      <div className="absolute inset-0 grain-overlay opacity-10" />
+      <div className="container mx-auto px-4 md:px-6 relative z-10">
+        <motion.div
+          className="text-center space-y-6 mb-12 md:mb-16"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={variants}
+        >
+          <h2 className="text-4xl md:text-6xl font-display font-bold text-text">
+            Configure Your Build
+          </h2>
+          <p className="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto">
+            Select your vehicle and components to create a custom performance package.
+          </p>
+        </motion.div>
+
+        <motion.div
+          className="flex gap-4 overflow-x-auto snap-x snap-mandatory px-1 md:px-0 md:grid md:grid-cols-5 md:gap-4 md:overflow-visible mb-12"
+          variants={variants}
+        >
+          {VEHICLES.map((v) => (
+            <motion.button
+              key={v.id}
+              onClick={() => setVehicle(v.id)}
+              className={`snap-start flex-none w-[12rem] md:w-auto p-4 rounded-xl bg-gray-900/50 backdrop-blur-sm border ${vehicle === v.id ? 'border-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.3)]' : 'border-gray-800'} hover:border-blue-400 transition-all`}
+              whileHover={{ scale: 1.05 }}
+            >
+              <img
+                src={v.image}
+                alt={v.label}
+                className="w-full h-28 md:h-32 object-cover rounded-lg mb-3"
+              />
+              <span className="text-sm md:text-base font-medium text-text">{v.label}</span>
+            </motion.button>
+          ))}
+        </motion.div>
+
+        {Object.keys(build).length > 0 && (
+          <motion.div
+            className="bg-gray-900/50 backdrop-blur-sm p-6 rounded-xl mb-12"
+            variants={variants}
+          >
+            <h3 className="text-xl md:text-2xl font-medium mb-4 text-text">Your Build</h3>
+            <div className="space-y-4">
+              {Object.entries(build).map(([id, { p, qty }]) => (
+                <div key={id} className="flex justify-between items-center text-gray-400">
+                  <span>
+                    {p.title} x {qty}
+                  </span>
+                  <div className="flex gap-3">
+                    <input
+                      type="number"
+                      value={qty}
+                      onChange={(e) => updateQty(id, parseInt(e.target.value))}
+                      className="w-16 bg-gray-800/50 border-gray-700 rounded p-2 text-text"
+                    />
+                    <button
+                      onClick={() => removeFromBuild(id)}
+                      className="text-red-400 hover:text-red-500"
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </div>
-                <div className="text-xs sm:text-sm font-medium">{v.label}</div>
-              </button>
-            ))}
-          </div>
-        </section>
-
-        {/* Build Summary */}
-        <section className="space-y-3 bg-black/30 border border-white/10 rounded-2xl p-4">
-          <h3 className="font-ethno text-lg">Your Build</h3>
-          {Object.keys(build).length === 0 ? (
-            <p className="text-white/70">No items yet.</p>
-          ) : (
-            <div className="space-y-2">
-              {Object.values(build).map(({ p, qty }) => {
-                const id = (p as any)._id;
-                return (
-                  <div
-                    key={id}
-                    className="flex items-center justify-between border border-white/10 rounded px-3 py-2"
-                  >
-                    <div className="text-sm">{(p as any).title}</div>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="number"
-                        min={1}
-                        value={qty}
-                        onChange={(e) => updateQty(id, parseInt(e.target.value) || 1)}
-                        className="w-14 text-black px-1 rounded"
-                      />
-                      <div className="text-accent font-bold text-sm">
-                        {typeof (p as any).price === 'number'
-                          ? `$${((p as any).price * qty).toFixed(2)}`
-                          : '—'}
-                      </div>
-                      <button
-                        onClick={() => removeFromBuild(id)}
-                        className="text-red-400 hover:text-red-600"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-              <div className="flex items-center justify-between border-t border-white/10 pt-2">
-                <span className="font-bold">Subtotal</span>
-                <span className="text-accent font-bold">${subtotal.toFixed(2)}</span>
-              </div>
-            </div>
-          )}
-        </section>
-
-        {/* Facets + Results (products) */}
-        <div className="space-y-3">
-          {/* Dropdown: Attributes */}
-          <details className="bg-black/30 border border-white/10 rounded-2xl p-4 space-y-3">
-            <summary className="flex items-center justify-between cursor-pointer list-none">
-              <span className="font-ethno text-base">Filter By Attributes</span>
-              <button
-                type="button"
-                className="text-xs text-white/70 hover:text-white"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setSelectedAttrFacets({});
-                  setOpenAttrKey(null);
-                }}
-              >
-                Clear
-              </button>
-            </summary>
-            {Object.keys(attrFacets).length === 0 ? (
-              <p className="text-sm text-white/60">No attributes available.</p>
-            ) : (
-              <div className="space-y-2">
-                {Object.entries(attrFacets).map(([key, values]) => (
-                  <div key={`attr-${key}`}>
-                    <button
-                      type="button"
-                      className="w-full text-left px-2 py-1 rounded border border-white/10 bg-black/20 hover:bg-black/30"
-                      onClick={() => setOpenAttrKey((cur) => (cur === key ? null : key))}
-                    >
-                      <span className="font-medium">{key}</span>
-                      <span className="ml-2 text-xs text-white/60">
-                        {(selectedAttrFacets[key] || []).length > 0
-                          ? `(${(selectedAttrFacets[key] || []).length} selected)`
-                          : ''}
-                      </span>
-                    </button>
-                    {openAttrKey === key && (
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {values.map((v) => {
-                          const active = (selectedAttrFacets[key] || []).includes(v);
-                          return (
-                            <button
-                              key={`attr-${key}-${v}`}
-                              type="button"
-                              onClick={() => toggleAttrFacetValue(key, v)}
-                              className={
-                                'text-xs px-2 py-1 rounded-full border transition ' +
-                                (active
-                                  ? 'bg-primary/20 border-primary text-primary'
-                                  : 'bg-black/30 border-white/15 text-white')
-                              }
-                            >
-                              {v}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </details>
-
-          {/* Dropdown: Specifications */}
-          <details className="bg-black/30 border border-white/10 rounded-2xl p-4 space-y-3">
-            <summary className="flex items-center justify-between cursor-pointer list-none">
-              <span className="font-ethno text-base">Filter By Specifications</span>
-              <button
-                type="button"
-                className="text-xs text-white/70 hover:text-white"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setSelectedSpecFacets({});
-                  setOpenSpecKey(null);
-                }}
-              >
-                Clear
-              </button>
-            </summary>
-            {Object.keys(specFacets).length === 0 ? (
-              <p className="text-sm text-white/60">No specifications available.</p>
-            ) : (
-              <div className="space-y-2">
-                {Object.entries(specFacets).map(([key, values]) => (
-                  <div key={`spec-${key}`}>
-                    <button
-                      type="button"
-                      className="w-full text-left px-2 py-1 rounded border border-white/10 bg-black/20 hover:bg-black/30"
-                      onClick={() => setOpenSpecKey((cur) => (cur === key ? null : key))}
-                    >
-                      <span className="font-medium">{key}</span>
-                      <span className="ml-2 text-xs text-white/60">
-                        {(selectedSpecFacets[key] || []).length > 0
-                          ? `(${(selectedSpecFacets[key] || []).length} selected)`
-                          : ''}
-                      </span>
-                    </button>
-                    {openSpecKey === key && (
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {values.map((v) => {
-                          const active = (selectedSpecFacets[key] || []).includes(v);
-                          return (
-                            <button
-                              key={`spec-${key}-${v}`}
-                              type="button"
-                              onClick={() => toggleSpecFacetValue(key, v)}
-                              className={
-                                'text-xs px-2 py-1 rounded-full border transition ' +
-                                (active
-                                  ? 'bg-primary/20 border-primary text-primary'
-                                  : 'bg-black/30 border-white/15 text-white')
-                              }
-                            >
-                              {v}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </details>
-          <div className="flex items-center justify-between">
-            <h3 className="font-ethno text-lg">Products</h3>
-            <div className="text-sm text-white/60">
-              {filteredProducts.length} result{filteredProducts.length === 1 ? '' : 's'}
-            </div>
-          </div>
-
-          {filteredProducts.length === 0 ? (
-            <p className="text-white/70">No products match the selected filters.</p>
-          ) : (
-            <ul className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-              {filteredProducts.map((p) => (
-                <li key={(p as any)._id} className="border border-white/10 rounded bg-black/30 p-3">
-                  <div className="text-[11px] text-white/80 line-clamp-2 mb-1">
-                    {(p as any).title}
-                  </div>
-                  <div className="text-accent font-bold text-sm mb-2">
-                    {typeof (p as any).price === 'number' ? `$${(p as any).price.toFixed(2)}` : '—'}
-                  </div>
-                  <button className="btn-glass btn-compact" onClick={() => addToBuild(p)}>
-                    Add
-                  </button>
-                </li>
               ))}
-            </ul>
-          )}
-        </div>
-      </div>
+              <div className="text-right text-xl font-bold text-blue-400">
+                Subtotal: ${subtotal.toFixed(2)}
+              </div>
+            </div>
+          </motion.div>
+        )}
 
-      {/* Quote Form (bottom of page) */}
-      <section className="bg-black/30 border border-white/10 rounded-2xl p-4">
-        <form onSubmit={submitQuote} className="grid gap-3 md:grid-cols-2">
-          <input
-            name="name"
-            placeholder="Your Name"
-            required
-            className="bg-black/30 border border-white/10 rounded px-2 py-2 md:col-span-1"
-          />
-          <input
-            name="email"
-            type="email"
-            placeholder="Email"
-            required
-            className="bg-black/30 border border-white/10 rounded px-2 py-2 md:col-span-1"
-          />
-          <input
-            name="phone"
-            placeholder="Phone"
-            className="bg-black/30 border border-white/10 rounded px-2 py-2 md:col-span-2"
-          />
-          <textarea
-            name="notes"
-            placeholder="Notes / goals"
-            rows={3}
-            className="bg-black/30 border border-white/10 rounded px-2 py-2 md:col-span-2"
-          />
-          <button
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-12">
+          <motion.div className="lg:col-span-1 space-y-6" variants={variants}>
+            <details className="bg-gray-900/50 backdrop-blur-sm p-4 rounded-xl">
+              <summary className="flex justify-between items-center cursor-pointer text-text">
+                <span className="text-lg font-medium">Attributes</span>
+                <button onClick={() => setSelectedAttrFacets({})} className="text-blue-400">
+                  Clear
+                </button>
+              </summary>
+              {Object.entries(attrFacets).map(([key, values]) => (
+                <div key={key} className="mt-4">
+                  <button
+                    onClick={() => setOpenAttrKey(openAttrKey === key ? null : key)}
+                    className="w-full text-left p-3 bg-gray-800/50 rounded-lg text-text"
+                  >
+                    {key}{' '}
+                    {selectedAttrFacets[key]?.length ? `(${selectedAttrFacets[key].length})` : ''}
+                  </button>
+                  {openAttrKey === key && (
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {values.map((v) => (
+                        <button
+                          key={v}
+                          onClick={() => toggleAttrFacetValue(key, v)}
+                          className={`px-3 py-1 rounded-full ${selectedAttrFacets[key]?.includes(v) ? 'bg-blue-600 text-white' : 'bg-gray-800/50 text-gray-400'} hover:bg-blue-600/80 transition-all`}
+                        >
+                          {v}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </details>
+            <details className="bg-gray-900/50 backdrop-blur-sm p-4 rounded-xl">
+              <summary className="flex justify-between items-center cursor-pointer text-text">
+                <span className="text-lg font-medium">Specifications</span>
+                <button onClick={() => setSelectedSpecFacets({})} className="text-blue-400">
+                  Clear
+                </button>
+              </summary>
+              {Object.entries(specFacets).map(([key, values]) => (
+                <div key={key} className="mt-4">
+                  <button
+                    onClick={() => setOpenSpecKey(openSpecKey === key ? null : key)}
+                    className="w-full text-left p-3 bg-gray-800/50 rounded-lg text-text"
+                  >
+                    {key}{' '}
+                    {selectedSpecFacets[key]?.length ? `(${selectedSpecFacets[key].length})` : ''}
+                  </button>
+                  {openSpecKey === key && (
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {values.map((v) => (
+                        <button
+                          key={v}
+                          onClick={() => toggleSpecFacetValue(key, v)}
+                          className={`px-3 py-1 rounded-full ${selectedSpecFacets[key]?.includes(v) ? 'bg-blue-600 text-white' : 'bg-gray-800/50 text-gray-400'} hover:bg-blue-600/80 transition-all`}
+                        >
+                          {v}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </details>
+          </motion.div>
+
+          <motion.div
+            className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+            variants={variants}
+          >
+            {filteredProducts.map((p) => (
+              <motion.div
+                key={p._id}
+                className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-4"
+                whileHover={{ scale: 1.03, boxShadow: '0 0 20px rgba(59,130,246,0.3)' }}
+              >
+                <img
+                  src={
+                    typeof p.images?.[0] === 'string'
+                      ? p.images[0]
+                      : p.images?.[0]?.asset?.url || '/placeholder.png'
+                  }
+                  alt={p.title}
+                  className="w-full h-48 object-cover rounded-lg mb-4"
+                />
+                <h4 className="text-lg font-medium text-text mb-2">{p.title}</h4>
+                <p className="text-blue-400 font-bold mb-4">${p.price?.toFixed(2)}</p>
+                <Button
+                  onClick={() => addToBuild(p)}
+                  className="w-full bg-blue-600 hover:bg-blue-700 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.4)]"
+                >
+                  Add to Build
+                </Button>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+
+        <motion.form
+          onSubmit={submitQuote}
+          className="sticky bottom-4 bg-gray-900/50 backdrop-blur-sm p-6 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+          variants={variants}
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            <input
+              name="name"
+              placeholder="Your Name"
+              required
+              className="bg-gray-800/50 border-gray-700 rounded-lg p-3 text-text"
+            />
+            <input
+              name="email"
+              type="email"
+              placeholder="Email"
+              required
+              className="bg-gray-800/50 border-gray-700 rounded-lg p-3 text-text"
+            />
+            <input
+              name="phone"
+              placeholder="Phone"
+              className="bg-gray-800/50 border-gray-700 rounded-lg p-3 text-text sm:col-span-2"
+            />
+            <textarea
+              name="notes"
+              placeholder="Notes / Goals"
+              rows={4}
+              className="bg-gray-800/50 border-gray-700 rounded-lg p-3 text-text sm:col-span-2"
+            />
+          </div>
+          <Button
             type="submit"
             disabled={submitting}
-            className="btn-glass btn-compact md:col-span-2"
+            className="w-full bg-blue-600 hover:bg-blue-700 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.4)]"
           >
-            {submitting ? 'Sending…' : 'Send Build for Quote'}
-          </button>
-        </form>
-      </section>
-    </>
+            {submitting ? 'Submitting...' : 'Submit for Quote'}
+          </Button>
+        </motion.form>
+      </div>
+    </section>
   );
 }
 
-// Vehicle presets + token mapping used to match product.filters when compatibleVehicles isn't present
-const VEHICLES: Array<{ id: string; label: string; image: string; tokens: string[] }> = [
+const VEHICLES = [
   {
     id: 'trackhawk',
     label: 'Jeep Trackhawk',

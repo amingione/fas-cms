@@ -52,7 +52,7 @@ export default function Testimonials() {
               <p className="text-accent text-center text-lg md:text-xl leading-snug mb-4">
                 &quot;{t.message}&quot;
               </p>
-              <p className="text-xs md:text-sm text-gray-400 text-center">
+              <p className="text-xs md:text-sm text-white/70 text-center">
                 – {t.name}, <span className="text-primary">{t.vehicle}</span>
               </p>
             </div>

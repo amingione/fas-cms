@@ -59,7 +59,7 @@ function SubmitButton({
   disabledReason?: string;
 }) {
   const buttonClasses =
-    'relative flex w-full items-center justify-center rounded-full bg-primary p-4 tracking-wide text-black font-semibold';
+    'relative flex w-full items-center justify-center rounded-full bg-primary p-4 tracking-wide text-accent font-semibold';
   const disabledClasses = 'cursor-not-allowed opacity-60 hover:opacity-60';
 
   if (!available) {

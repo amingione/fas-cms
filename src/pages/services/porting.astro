@@ -23,7 +23,7 @@ const portingItems = [
     <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
   )}
   <!-- HERO (compact header, no full-screen background) -->
-  <section class="section-divider section-divider-carbon bg-black/70 border-b border-white/10">
+  <section class="section-divider section-divider-carbon bg-black/70 border-b border-white/20">
     <div class="mx-auto w-full max-w-7xl px-0 md:px-6 py-8 md:py-10 grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr] gap-6 items-center">
       <div>
         <h1 class="text-3xl md:text-5xl font-ethno text-accent mb-3" {...sbFieldPath('title')}>
@@ -44,27 +44,27 @@ const portingItems = [
         </div>
       </div>
       <div class="order-first md:order-last">
-        <figure class="rounded-xl border border-white/10 bg-black/50 overflow-hidden shadow-xl">
+        <figure class="rounded-xl border border-white/20 bg-black/50 overflow-hidden shadow-xl">
           <img src="/images/snouts/fas-ported-snout.png" alt="Ported snout detail" class="w-full h-[220px] md:h-[260px] object-cover" />
-          <figcaption class="p-3 text-white/60 text-xs">Ported snout: smoother transition, corrected CSA, matched to throttle body and case.</figcaption>
+          <figcaption class="p-3 text-white/70 text-xs">Ported snout: smoother transition, corrected CSA, matched to throttle body and case.</figcaption>
         </figure>
       </div>
     </div>
   </section>
 
   <!-- OVERVIEW STRIP -->
-  <section class="industrial-glow luxury-hover-scale luxury-carbon-effect relative w-full bg-black/60 backdrop-blur-md border-b border-white/10">
+  <section class="industrial-glow luxury-hover-scale luxury-carbon-effect relative w-full bg-black/60 backdrop-blur-md border-b border-white/20">
     <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-0">
-        <div class="flex items-center gap-3 py-4 px-4 border-r border-white/10">
+        <div class="flex items-center gap-3 py-4 px-4 border-r border-white/20">
           <div class="w-2 h-2 rounded-full bg-accent"></div>
           <div class="text-white/80 text-xs md:text-sm font-mono tracking-[0.14em]">Flow‑Bench Guided</div>
         </div>
-        <div class="flex items-center gap-3 py-4 px-4 border-r border-white/10">
+        <div class="flex items-center gap-3 py-4 px-4 border-r border-white/20">
           <div class="w-2 h-2 rounded-full bg-accent"></div>
           <div class="text-white/80 text-xs md:text-sm font-mono tracking-[0.14em]">CNC &amp; Hand‑Finish</div>
         </div>
-        <div class="flex items-center gap-3 py-4 px-4 border-r border-white/10">
+        <div class="flex items-center gap-3 py-4 px-4 border-r border-white/20">
           <div class="w-2 h-2 rounded-full bg-accent"></div>
           <div class="text-white/80 text-xs md:text-sm font-mono tracking-[0.14em]">Matched Components</div>
         </div>
@@ -76,24 +76,24 @@ const portingItems = [
     </div>
     <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3 py-4">
-        <div class="rounded-lg border border-white/10 bg-black/50 p-3 text-center">
+        <div class="rounded-lg border border-white/20 bg-black/50 p-3 text-center">
           <div class="text-2xl font-borg text-white">±0.5%</div>
-          <div class="text-xs text-white/60">CSA variance target</div>
+          <div class="text-xs text-white/70">CSA variance target</div>
         </div>
-        <div class="rounded-lg border border-white/10 bg-black/50 p-3 text-center">
+        <div class="rounded-lg border border-white/20 bg-black/50 p-3 text-center">
           <div class="text-2xl font-borg text-white">≤0.001"</div>
-          <div class="text-xs text-white/60">Flatness at flanges</div>
+          <div class="text-xs text-white/70">Flatness at flanges</div>
         </div>
-        <div class="rounded-lg border border-white/10 bg-black/50 p-3 text-center">
+        <div class="rounded-lg border border-white/20 bg-black/50 p-3 text-center">
           <div class="text-2xl font-borg text-white">20–40+ whp</div>
-          <div class="text-xs text-white/60">Typical SC gains*</div>
+          <div class="text-xs text-white/70">Typical SC gains*</div>
         </div>
-        <div class="rounded-lg border border-white/10 bg-black/50 p-3 text-center">
+        <div class="rounded-lg border border-white/20 bg-black/50 p-3 text-center">
           <div class="text-2xl font-borg text-white">Bench‑guided</div>
-          <div class="text-xs text-white/60">Validation process</div>
+          <div class="text-xs text-white/70">Validation process</div>
         </div>
       </div>
-      <p class="text-white/50 text-[11px] pb-4">* With proper tuning and supporting mods. Results vary by platform.</p>
+      <p class="text-white/70 text-[11px] pb-4">* With proper tuning and supporting mods. Results vary by platform.</p>
     </div>
   </section>
 
@@ -104,7 +104,7 @@ const portingItems = [
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         {portingItems.map((item) => (
-          <div class="group relative rounded-xl border border-white/10 bg-[#0b0b0c] overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50">
+          <div class="group relative rounded-xl border border-white/20 bg-[#0b0b0c] overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50">
             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
             <div class="relative p-5 z-10">
               <div class="text-primary font-ethno text-xl drop-shadow">{item.title}</div>
@@ -119,9 +119,9 @@ const portingItems = [
   </section>
 
   <!-- METHOD & DELIVERABLES -->
-  <section class="bg-black/70 border-y border-white/10 py-10 md:py-14">
+  <section class="bg-black/70 border-y border-white/20 py-10 md:py-14">
     <div class="mx-auto w-full max-w-7xl px-0 md:px-6 grid md:grid-cols-2 gap-6 md:gap-10">
-      <div class="rounded-xl border border-white/10 bg-black/60 p-5 shadow-xl">
+      <div class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl">
         <h3 class="text-xl font-borg text-white mb-2">Methodology</h3>
         <ul class="list-disc pl-5 text-white/70 text-sm space-y-2">
           <li>Baseline measurement and inspection; document casting lines and restrictions.</li>
@@ -130,7 +130,7 @@ const portingItems = [
           <li>Final inspection: CSA verification, concentricity, fastener land integrity.</li>
         </ul>
       </div>
-      <div class="rounded-xl border border-white/10 bg-black/60 p-5 shadow-xl">
+      <div class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl">
         <h3 class="text-xl font-borg text-white mb-2">Deliverables</h3>
         <ul class="list-disc pl-5 text-white/70 text-sm space-y-2">
           <li>Before/after photos &amp; notes.</li>
@@ -145,15 +145,15 @@ const portingItems = [
   <!-- TURNAROUND / NOTES -->
   <section class="py-10 md:py-14">
     <div class="mx-auto w-full max-w-7xl px-0 md:px-6 grid md:grid-cols-3 gap-6">
-      <div class="rounded-xl border border-white/10 bg-black/60 p-5 shadow-xl">
+      <div class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl">
         <h3 class="text-lg font-borg text-white mb-2">Typical Gains</h3>
         <p class="text-white/70 text-sm leading-relaxed">Supercharger/snout pairs commonly see +20–40 WHP with proper tuning and supporting mods. Cylinder head &amp; intake work supports higher RPM power retention.</p>
       </div>
-      <div class="rounded-xl border border-white/10 bg-black/60 p-5 shadow-xl">
+      <div class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl">
         <h3 class="text-lg font-borg text-white mb-2">Turnaround</h3>
         <p class="text-white/70 text-sm leading-relaxed">Most jobs 5–10 business days after parts are received. Expedited options available.</p>
       </div>
-      <div class="rounded-xl border border-white/10 bg-black/60 p-5 shadow-xl">
+      <div class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl">
         <h3 class="text-lg font-borg text-white mb-2">Compatibility</h3>
         <p class="text-white/70 text-sm leading-relaxed">Hellcat/Redeye/Demon, Trackhawk/Durango, HEMI 5.7/6.1/6.4, Whipple &amp; other positive displacement blowers. Ask about other platforms.</p>
       </div>

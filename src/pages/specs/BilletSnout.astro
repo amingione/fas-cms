@@ -16,7 +16,7 @@ const pageDoc: any = await getGitPageDoc('BilletSnoutSpecs');
     {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
       <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
     )}
-
+  <section class="mt-5 pt-5">
     <ProductSpecSheet
       title={pageDoc?.title ?? 'Billet Supercharger Snout — Spec Sheet'}
       description="CNC‑machined billet snout designed for flow, strength, and precise alignment under high load."
@@ -37,4 +37,5 @@ const pageDoc: any = await getGitPageDoc('BilletSnoutSpecs');
       ]}
     />
   </div>
+  </section>
 </BaseLayout>

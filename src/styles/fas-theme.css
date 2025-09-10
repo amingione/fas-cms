@@ -210,9 +210,7 @@
   .text-accent {
     color: var(--color-accent);
   }
-  .text-graylight {
-    color: var(--color-graylight);
-  }
+  /* Use Tailwind's built-in text-white/60 utility; avoid custom selector with '/' */
 
   .bg-primary {
     background-color: var(--color-primary);

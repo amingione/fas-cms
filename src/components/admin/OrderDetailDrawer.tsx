@@ -70,17 +70,17 @@ export default function OrderDetailDrawer({
         <div className="space-y-5">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-sm text-white/60">
+              <div className="text-sm text-white/70">
                 {new Date(data.orderDate).toLocaleString()}
               </div>
               <div className="text-xl font-semibold">
                 {data.customerName}{' '}
-                <span className="text-white/60">({data.customerEmail || '—'})</span>
+                <span className="text-white/70">({data.customerEmail || '—'})</span>
               </div>
             </div>
             <div className="flex gap-2">
               <select
-                className="bg-transparent border border-white/20 rounded px-2 py-1"
+                className="bg-transparent border border-white/30 rounded px-2 py-1"
                 value={data.status}
                 onChange={(e) => {
                   setData({ ...data, status: e.target.value });
@@ -95,7 +95,7 @@ export default function OrderDetailDrawer({
               </select>
               <button
                 onClick={createLabel}
-                className="px-3 py-2 rounded bg-white text-black hover:bg-white/90"
+                className="px-3 py-2 rounded bg-white text-accent hover:bg-white/90"
               >
                 Create Label
               </button>
@@ -103,20 +103,28 @@ export default function OrderDetailDrawer({
           </div>
 
           {/* Payment summary */}
-          <div className="text-sm text-white/80 border border-white/10 rounded-lg p-3">
+          <div className="text-sm text-white/80 border border-white/20 rounded-lg p-3">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-white/60">Payment</div>
-                <div>{(data.cardBrand || '').toUpperCase()} •••• {data.cardLast4 || '—'}</div>
-                <div className="text-white/60">Status: {data.paymentStatus || data.status}</div>
+                <div className="text-white/70">Payment</div>
+                <div>
+                  {(data.cardBrand || '').toUpperCase()} •••• {data.cardLast4 || '—'}
+                </div>
+                <div className="text-white/70">Status: {data.paymentStatus || data.status}</div>
               </div>
               {data.receiptUrl ? (
-                <a className="px-3 py-1.5 rounded border border-white/20 hover:bg-white/10" href={data.receiptUrl} target="_blank">Receipt</a>
+                <a
+                  className="px-3 py-1.5 rounded border border-white/30 hover:bg-white/80"
+                  href={data.receiptUrl}
+                  target="_blank"
+                >
+                  Receipt
+                </a>
               ) : null}
             </div>
           </div>
 
-          <div className="border border-white/10 rounded-lg overflow-hidden">
+          <div className="border border-white/20 rounded-lg overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-white/5">
                 <tr>
@@ -127,7 +135,7 @@ export default function OrderDetailDrawer({
               </thead>
               <tbody>
                 {(data.items || []).map((it: any, i: number) => (
-                  <tr key={i} className="border-t border-white/10">
+                  <tr key={i} className="border-t border-white/20">
                     <td className="p-2">{it.title || it.sku}</td>
                     <td className="p-2">{it.qty}</td>
                     <td className="p-2">${Number(it.price || 0).toFixed(2)}</td>
@@ -143,7 +151,7 @@ export default function OrderDetailDrawer({
               {(data.shipments || []).map((s: any, i: number) => (
                 <li
                   key={i}
-                  className="flex items-center justify-between border border-white/10 rounded px-3 py-2"
+                  className="flex items-center justify-between border border-white/20 rounded px-3 py-2"
                 >
                   <span>
                     {s.carrier} • {s.trackingNumber || '—'}

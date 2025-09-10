@@ -11,7 +11,7 @@ type Row = {
 };
 export default function OrderTable({ rows }: { rows: Row[] }) {
   return (
-    <div className="overflow-x-auto border border-white/10 rounded-lg">
+    <div className="overflow-x-auto border border-white/20 rounded-lg">
       <table className="min-w-full text-sm">
         <thead className="bg-white/5">
           <tr className="[&>th]:text-left [&>th]:px-3 [&>th]:py-2">
@@ -24,7 +24,7 @@ export default function OrderTable({ rows }: { rows: Row[] }) {
         </thead>
         <tbody>
           {rows.map((r) => (
-            <tr key={r._id} className="border-t border-white/10 [&>td]:px-3 [&>td]:py-2">
+            <tr key={r._id} className="border-t border-white/20 [&>td]:px-3 [&>td]:py-2">
               <td>{r.orderNumber}</td>
               <td>{new Date(r.orderDate).toLocaleString()}</td>
               <td>{r.customerName || '—'}</td>

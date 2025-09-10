@@ -100,7 +100,7 @@ const featuredProducts = (Array.isArray(featuredRaw) ? featuredRaw : []).map((p:
 
 
 const tileClass = (i: number) => {
-  const base = "relative block h-full rounded-xl overflow-hidden border border-white/10 bg-black group";
+  const base = "relative block h-full rounded-xl overflow-hidden border border-white/20 bg-black group";
   const small = "lg:col-span-2 lg:row-span-1";
   const large = "lg:col-span-4 lg:row-span-2";
   /**
@@ -140,7 +140,7 @@ const tileClass = (i: number) => {
           <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
           <!-- label pill -->
           <div class="absolute left-3 bottom-3">
-            <span class="rounded-full btn-glass border-white/20 px-3 py-1 text-xs uppercase tracking-wide text-white shadow">
+            <span class="rounded-full btn-glass border-white/30 px-3 py-1 text-xs uppercase tracking-wide text-white shadow">
               {c.title}
             </span>
             </div>

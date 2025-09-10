@@ -46,7 +46,7 @@ const BookingForm = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="relative space-y-6 industrial-card backdrop-blur-sm border border-white/20 p-6 rounded-lg shadow-md border-shadow text-white font-sans"
+      className="relative space-y-6 industrial-card backdrop-blur-sm border border-white/30 p-6 rounded-lg shadow-md border-shadow text-white font-sans"
     >
       <div>
         <label className="block text-sm mb-1">Name</label>
@@ -56,7 +56,7 @@ const BookingForm = () => {
           value={formData.name}
           onChange={handleChange}
           required
-          className="w-full px-4 py-2 bg-black/20 border border-white/20 rounded-sm"
+          className="w-full px-4 py-2 bg-black/20 border border-white/30 rounded-sm"
         />
       </div>
       <div>
@@ -67,7 +67,7 @@ const BookingForm = () => {
           value={formData.email}
           onChange={handleChange}
           required
-          className="w-full px-4 py-2 bg-black/20 border border-white/20 rounded-sm"
+          className="w-full px-4 py-2 bg-black/20 border border-white/30 rounded-sm"
         />
       </div>
       <div>
@@ -77,7 +77,7 @@ const BookingForm = () => {
           name="phone"
           value={formData.phone}
           onChange={handleChange}
-          className="w-full px-4 py-2 bg-black/20 border border-white/20 rounded-sm"
+          className="w-full px-4 py-2 bg-black/20 border border-white/30 rounded-sm"
         />
       </div>
       <div>
@@ -87,7 +87,7 @@ const BookingForm = () => {
           value={formData.service}
           onChange={handleChange}
           required
-          className="w-full px-4 py-2 bg-black/20 border border-white/20 rounded-sm"
+          className="w-full px-4 py-2 bg-black/20 border border-white/30 rounded-sm"
         >
           <option value="">Select a service</option>
           <option value="custom-work">Custom Work</option>
@@ -102,7 +102,7 @@ const BookingForm = () => {
           name="datetime"
           value={formData.datetime}
           onChange={handleChange}
-          className="w-full px-4 py-2 bg-black/20 border border-white/20 rounded-sm"
+          className="w-full px-4 py-2 bg-black/20 border border-white/30 rounded-sm"
         />
       </div>
       <div>
@@ -113,7 +113,7 @@ const BookingForm = () => {
           placeholder="Please tell us about your project..."
           onChange={handleChange}
           rows={4}
-          className="w-full px-4 py-2 bg-black/20 border border-white/20 rounded-sm"
+          className="w-full px-4 py-2 bg-black/20 border border-white/30 rounded-sm"
         />
       </div>
 

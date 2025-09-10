@@ -8,7 +8,7 @@ const productPrice =
 const imageUrl = productImage?.asset?.url || '/placeholder.png';
 ---
 
-<div class={`relative z-0 text-white backdrop-blur-md bg-black/80 rounded-[10px] border border-white/20 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.5)] overflow-hidden transform transition-all duration-500 group font-sans ${layout === 'list' ? 'md:flex md:items-stretch' : 'block'}`}>
+<div class={`relative z-0 text-white backdrop-blur-md bg-black/80 rounded-[10px] border border-white/30 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.5)] overflow-hidden transform transition-all duration-500 group font-sans ${layout === 'list' ? 'md:flex md:items-stretch' : 'block'}`}>
   <a
     href={`/shop/${encodeURIComponent(typeof product.slug === 'string' ? product.slug : product.slug.current || '')}`}
     class={`${layout === 'list' ? 'md:flex md:flex-row md:items-stretch w-full' : 'block'}`}
@@ -30,7 +30,7 @@ const imageUrl = productImage?.asset?.url || '/placeholder.png';
       )}
     </div>
   </a>
-  <div class={`${layout === 'list' ? 'md:px-4 md:py-3 md:border-t-0 md:border-l md:border-white/10 md:flex md:items-center md:justify-between' : 'px-4 pb-4'} text-left`}>
+  <div class={`${layout === 'list' ? 'md:px-4 md:py-3 md:border-t-0 md:border-l md:border-white/20 md:flex md:items-center md:justify-between' : 'px-4 pb-4'} text-left`}>
     <div class="flex justify-between items-center mt-2">
       <p class={`${layout === 'list' ? 'text-2xl md:text-xl' : 'text-3xl'} font-mono text-accent`}>{productPrice}</p>
       {product._id && (

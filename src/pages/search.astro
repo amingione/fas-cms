@@ -59,9 +59,9 @@ if (endPage < totalPages) {
       type="text"
       name="q"
       placeholder="Search..."
-      class="bg-transparent border-b focus:border-white text-white placeholder:text-white/50 font-ethno focus:outline-none w-full sm:w-96 py-1"
+      class="bg-transparent border-b focus:border-white text-white placeholder:text-white/80 font-ethno focus:outline-none w-full sm:w-96 py-1"
     />
-    <button type="submit" class="px-4 py-1 bg-primary text-black font-ethno rounded">Search</button>
+    <button type="submit" class="px-4 py-1 bg-primary text-accent font-ethno rounded">Search</button>
   </form>
   <p id="query-label" class="mt-2 text-sm text-white/70"></p>
 </div>
@@ -164,8 +164,8 @@ if (endPage < totalPages) {
     const badge = (it._type || '').toUpperCase();
     const price = it._type === 'product' ? formatPrice(it.price) : '';
     const content = `
-      <div class="border border-white/10 rounded bg-black/30 p-3 hover:bg-black/40 transition h-full">
-        <div class="text-[10px] uppercase text-white/60 mb-2">${escapeHtml(badge)}</div>
+      <div class="border border-white/20 rounded bg-black/30 p-3 hover:bg-black/40 transition h-full">
+        <div class="text-[10px] uppercase text-white/70 mb-2">${escapeHtml(badge)}</div>
         ${img ? `<div class="w-full aspect-square bg-black/10 rounded mb-3 overflow-hidden grid place-items-center"><img src="${escapeHtml(img)}" alt="" class="max-w-full max-h-full object-contain" /></div>` : ''}
         <div class="font-semibold mb-1 hover:underline line-clamp-2">${escapeHtml(title)}</div>
         ${price ? `<div class="text-accent text-sm font-bold mb-1">${escapeHtml(price)}</div>` : ''}
