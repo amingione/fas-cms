@@ -2,9 +2,8 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
 import SectionRenderer from '@/components/SectionRenderer.astro';
-import Button from '@components/Button.astro';
+import ProductSpecSheet from '@components/specs/ProductSpecSheet.astro';
 
-// Load optional Git-managed page doc (for inline editing / future sections)
 const pageDoc: any = await getGitPageDoc('BilletSnoutSpecs');
 ---
 
@@ -18,120 +17,24 @@ const pageDoc: any = await getGitPageDoc('BilletSnoutSpecs');
       <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
     )}
 
-    <!-- HERO -->
-    <section class="parallax-section section-divider section-divider-carbon">
-      <div class="background-layer">
-        <img
-          src="/images/snouts/FAS-Billet-Snout.png"
-          alt="FAS Motorsports Billet Supercharger Snout"
-          class="absolute inset-0 w-full h-full object-cover object-center"
-          loading="eager"
-        />
-      </div>
-      <div class="foreground-layer">
-        <h1 class="text-4xl md:text-6xl font-ethno text-accent drop-shadow mb-3" {...sbFieldPath('title')}>
-          {pageDoc?.title ?? 'Billet Supercharger Snout — Spec Sheet'}
-        </h1>
-        <p class="text-white/80 max-w-2xl mx-auto font-captain text-base md:text-xl tracking-wide">
-          CNC‑machined billet snout designed for flow, strength, and precise alignment under high load.
-        </p>
-      </div>
-    </section>
-
-    <!-- VALUE PILLARS -->
-    <section class="packages">
-      <h2 class="text-3xl md:text-4xl font-ethno text-accent mb-6">Why FAS Billet Snout?</h2>
-      <div class="package-grid">
-        <div class="package-card">
-          <h3 class="text-xl font-borg text-white mb-3">Strength &amp; Stability</h3>
-          <p class="text-white/70 text-sm leading-relaxed">
-            Billet aluminum construction resists flex and distortion under belt load and high RPM, helping to maintain shaft alignment and bearing life.
-          </p>
-        </div>
-        <div class="package-card">
-          <h3 class="text-xl font-borg text-white mb-3">Flow‑Optimized Inlet</h3>
-          <p class="text-white/70 text-sm leading-relaxed">
-            Smoother geometry and blended transitions improve inlet efficiency and reduce turbulence for more repeatable airflow.
-          </p>
-        </div>
-        <div class="package-card">
-          <h3 class="text-xl font-borg text-white mb-3">Precision Machined</h3>
-          <p class="text-white/70 text-sm leading-relaxed">
-            Tight concentricity and face parallelism targets for stable belt tracking and minimal runout at elevated shaft speeds.
-          </p>
-        </div>
-        <div class="package-card">
-          <h3 class="text-xl font-borg text-white mb-3">Service Focused</h3>
-          <p class="text-white/70 text-sm leading-relaxed">
-            Designed to install cleanly with OE hardware and sensors; supports common throttle body sizes.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- TECHNICAL SPECIFICATIONS -->
-    <section class="features features-bg">
-      <h2 class="text-3xl md:text-4xl font-ethno text-accent mb-10 text-center">Technical Specifications</h2>
-      <div class="feature-grid">
-        <div class="feature-item">
-          <h3 class="text-lg font-borg text-white mb-2">Material</h3>
-          <p class="text-white/70 text-sm">Billet aluminum, CNC‑machined</p>
-        </div>
-        <div class="feature-item">
-          <h3 class="text-lg font-borg text-white mb-2">Machining</h3>
-          <p class="text-white/70 text-sm">Multi‑axis CNC; bore and face done in single setup for concentricity</p>
-        </div>
-        <div class="feature-item">
-          <h3 class="text-lg font-borg text-white mb-2">Inlet Support</h3>
-          <p class="text-white/70 text-sm">High‑flow inlet geometry; supports large throttle bodies</p>
-        </div>
-        <div class="feature-item">
-          <h3 class="text-lg font-borg text-white mb-2">Runout Targets</h3>
-          <p class="text-white/70 text-sm">Tight runout and parallelism targets for belt tracking stability</p>
-        </div>
-        <div class="feature-item">
-          <h3 class="text-lg font-borg text-white mb-2">Finish</h3>
-          <p class="text-white/70 text-sm">Anodized finish for durability and corrosion resistance</p>
-        </div>
-        <div class="feature-item">
-          <h3 class="text-lg font-borg text-white mb-2">Compatibility</h3>
-          <p class="text-white/70 text-sm">Built to OE interface specs; verify for your platform prior to order</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- INSTALLATION & TESTING -->
-    <section class="py-10 md:py-14">
-      <div class="mx-auto w-full max-w-7xl px-0 md:px-6 grid md:grid-cols-2 gap-6 md:gap-10">
-        <div class="rounded-xl border border-white/10 bg-black/60 p-5 shadow-xl">
-          <h3 class="text-xl font-borg text-white mb-3">Testing &amp; Validation</h3>
-          <ul class="list-disc pl-5 text-white/70 text-sm space-y-2">
-            <li>Checked for dimensional stability across heat cycles.</li>
-            <li>Concentricity and runout verified during QC.</li>
-            <li>Validated for belt tracking and bearing load consistency.</li>
-          </ul>
-        </div>
-        <div class="rounded-xl border border-white/10 bg-black/60 p-5 shadow-xl">
-          <h3 class="text-xl font-borg text-white mb-3">Installation Notes</h3>
-          <ul class="list-disc pl-5 text-white/70 text-sm space-y-2">
-            <li>Transfer OE sensors and seals as applicable.</li>
-            <li>Confirm belt alignment and tension after initial heat cycle.</li>
-            <li>Use recommended torque specs; inspect mating surfaces and bearings.</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- CTA -->
-    <section class="bg-black/70 border-t border-white/10 py-12 text-center">
-      <h2 class="text-2xl md:text-3xl font-ethno text-accent mb-6">Have Questions or Want to Order?</h2>
-      <p class="text-white/70 mb-6 max-w-xl mx-auto font-captain text-lg">
-        Talk with our team about sizing, compatibility, and installation options.
-      </p>
-      <div class="flex gap-4 justify-center">
-        <Button href="/schedule" text="Schedule Install" variant="default" size="lg" />
-        <Button href="/contact" text="Contact" variant="ghost" size="md" />
-      </div>
-    </section>
+    <ProductSpecSheet
+      title={pageDoc?.title ?? 'Billet Supercharger Snout — Spec Sheet'}
+      description="CNC‑machined billet snout designed for flow, strength, and precise alignment under high load."
+      imageSrc="/images/snouts/FAS-Billet-Snout.png"
+      imageAlt="FAS Motorsports Billet Supercharger Snout"
+      specs={[
+        { label: 'Material', value: 'Billet aluminum, CNC‑machined' },
+        { label: 'Machining', value: 'Multi‑axis CNC; bore and face in a single setup for concentricity' },
+        { label: 'Inlet Support', value: 'High‑flow inlet geometry; supports large throttle bodies' },
+        { label: 'Runout Targets', value: 'Tight concentricity and face parallelism for tracking stability' },
+        { label: 'Finish', value: 'Anodized for durability and corrosion resistance' },
+        { label: 'Compatibility', value: 'Built to OE interface specs; verify for your platform prior to order' }
+      ]}
+      about={[
+        'The billet snout resists flex and distortion under belt load at high RPM, helping maintain shaft alignment, belt tracking, and bearing life.',
+        'A flow‑optimized inlet with blended transitions reduces turbulence for more repeatable airflow and performance.',
+        'Designed to install cleanly with OE hardware and sensors while supporting popular throttle body sizes for street and track builds.'
+      ]}
+    />
   </div>
 </BaseLayout>

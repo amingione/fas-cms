@@ -93,7 +93,7 @@ const defaultOptions: ISourceOptions = {
           gradient: { start: { value: '#ffffff' }, stop: { value: '#000000' } },
           radius: 1000
         },
-        shadow: { color: { value: '#000000' }, length: 2000 }
+        shadow: { color: { value: '#171717' }, length: 2000 }
       }
     }
   },

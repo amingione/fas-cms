@@ -6,6 +6,70 @@
 
 /* Removed unsupported @custom-variant dark (&:is(.dark *)); */
 
+/* ---------------------------------------------
+   Global responsive foundation (reset + layout)
+   --------------------------------------------- */
+/* Predictable box model */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Media elements scale within containers */
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+iframe {
+  max-width: 100%;
+  width: 100%;
+}
+
+/* Avoid horizontal scroll by default */
+html {
+  overflow-x: clip;
+  background-color: var(--color-background);
+}
+body {
+  overflow-x: clip;
+  background-color: var(--color-background);
+}
+
+/* Fluid container defaults */
+:root {
+  --container-max: 1280px;
+  --container-gutter: clamp(16px, 4vw, 32px);
+}
+
+/* Centered content wrapper for pages/sections */
+.site-container {
+  width: min(calc(100% - (var(--container-gutter) * 2)), var(--container-max));
+  margin-inline: auto;
+}
+
+/* Full-bleed utility: allow a section to span edge-to-edge */
+.fullbleed {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+}
+
+/* Tables are scrollable on small screens */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Custom Font Faces */
 @font-face {
   font-family: 'American Captain';
@@ -155,7 +219,7 @@
   --color-secondary: #eef2fb;
   --color-accent: #fde4b2;
   --color-graylight: #d1d0d0;
-  --color-background: #171717;
+  --color-background: #000000;
   --color-charcoal: #3a3a3ad0;
 
   /* Luxury color palette */
@@ -167,7 +231,7 @@
 
   /* System colors with brand integration */
   --font-size: 14px;
-  --background: #ffffff;
+  --background: #000000;
   --foreground: oklch(0.145 0 0);
   --card: #00000043;
   --card-foreground: oklch(0.145 0 0);
@@ -205,13 +269,13 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   /* === Dark UI parallax/sections variables === */
-  --bg-dark: #0b0b0c;
+  --bg-dark: #000000;
   --shadow-glow: rgba(234, 29, 38, 0.24);
   --shadow-depth: rgba(0, 0, 0, 0.6);
 }
 
 .dark {
-  --background: #171717;
+  --background: #000000;
   --foreground: oklch(0.985 0 0);
   --card: #0a0a0a;
   --card-foreground: oklch(0.985 0 0);
@@ -246,9 +310,17 @@
   --sidebar-border: oklch(0.269 0 0);
   --sidebar-ring: oklch(0.439 0 0);
   /* === Dark UI parallax/sections variables (dark) === */
-  --bg-dark: #0b0b0c;
+  --bg-dark: #000000;
   --shadow-glow: rgba(234, 29, 38, 0.24);
   --shadow-depth: rgba(0, 0, 0, 0.6);
+}
+
+/* Fluid typography scale used by base type rules */
+:root {
+  --text-base: clamp(0.875rem, 0.82rem + 0.4vw, 1rem);
+  --text-lg: clamp(1rem, 0.94rem + 0.6vw, 1.25rem);
+  --text-xl: clamp(1.25rem, 1.14rem + 0.9vw, 1.75rem);
+  --text-2xl: clamp(1.5rem, 1.32rem + 1.4vw, 2.25rem);
 }
 
 :root {
@@ -1611,6 +1683,136 @@ html {
 .slim-ui .rounded-xl,
 .slim-ui .rounded-lg {
   border-radius: calc(var(--radius) - 2px);
+}
+
+/* 3D Transform utilities for HeroCard mobile-friendly banner effects */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.rotateX-5:hover {
+  transform: rotateX(5deg);
+}
+
+.rotateY-5:hover {
+  transform: rotateY(5deg);
+}
+
+.rotateY-12:hover {
+  transform: rotateY(12deg);
+}
+
+.rotateY-8 {
+  transform: rotateY(8deg);
+}
+
+.rotateY-12 {
+  transform: rotateY(12deg);
+}
+
+.rotateY-15:hover {
+  transform: rotateY(15deg);
+}
+
+.rotateY-25 {
+  transform: rotateY(25deg);
+}
+
+.rotateY-35 {
+  transform: rotateY(35deg);
+}
+
+.rotateX-2 {
+  transform: rotateX(2deg);
+}
+
+.rotateX-3 {
+  transform: rotateX(3deg);
+}
+
+.rotateX-5:hover {
+  transform: rotateX(5deg);
+}
+
+.rotateX-8 {
+  transform: rotateX(8deg);
+}
+
+.rotateX-12 {
+  transform: rotateX(12deg);
+}
+
+.rotateZ-2 {
+  transform: rotateZ(2deg);
+}
+
+.rotateZ-3 {
+  transform: rotateZ(3deg);
+}
+
+.rotateX-45 {
+  transform: rotateX(45deg);
+}
+
+.translateZ-10:hover {
+  transform: translateZ(10px);
+}
+
+.translateZ-20:hover {
+  transform: translateZ(20px);
+}
+
+.rotate-0\.5 {
+  transform: rotate(0.5deg);
+}
+
+/* Enhanced mobile 3D effects optimization */
+@media (max-width: 768px) {
+  /* Keep perspective for dramatic mobile 3D effects */
+  .perspective-1000 {
+    perspective: 800px;
+  }
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  /* Optimize hover effects for mobile */
+  .rotateX-5:hover,
+  .rotateY-5:hover,
+  .rotateY-12:hover,
+  .translateZ-10:hover,
+  .translateZ-20:hover {
+    transform: scale(1.02);
+  }
+
+  /* Ensure dramatic angles work well on mobile */
+  .rotateY-25,
+  .rotateY-35,
+  .rotateX-8,
+  .rotateX-12 {
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  /* Slightly reduce dramatic angles for tablets */
+  .rotateY-25 {
+    transform: rotateY(20deg);
+  }
+
+  .rotateY-35 {
+    transform: rotateY(30deg);
+  }
 }
 
 /* Slimmer, more legible public forms */

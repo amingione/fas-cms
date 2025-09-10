@@ -22,7 +22,7 @@ export default function ProductCardLiteReact({
   return layout === 'list' ? (
     <a
       href={href}
-      className="group block rounded-sm border border-[171717/40] bg-black transition-shadow duration-300 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary md:flex md:items-stretch"
+      className="group block rounded-sm border border-[121212/40] bg-black transition-shadow duration-300 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary md:flex md:items-stretch"
     >
       <div className="relative bg-black/30 backdrop-blur-sm md:w-56 md:min-w-56 md:max-w-56 aspect-square md:aspect-auto flex items-center justify-center">
         <img
@@ -33,7 +33,7 @@ export default function ProductCardLiteReact({
       </div>
       <div className="flex-1 px-4 py-4 text-left">
         <div className="text-white font-ethno text-[1rem] leading-snug line-clamp-2">{title}</div>
-        <div className="mt-3 text-accent font-captain text-[1.15rem]">
+        <div className="mt-3 text-accent font-mono text-[1.15rem]">
           {typeof product?.price === 'number'
             ? `$${Number(product.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
             : '—'}
@@ -53,9 +53,12 @@ export default function ProductCardLiteReact({
         />
       </div>
       <div className="absolute w-full bottom-4 flex items-center gap-1">
-        <Label title={title} amount={typeof product?.price === 'number' ? product.price : 0} position="bottom" />
+        <Label
+          title={title}
+          amount={typeof product?.price === 'number' ? product.price : 0}
+          position="bottom"
+        />
       </div>
     </a>
   );
 }
-

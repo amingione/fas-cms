@@ -262,7 +262,7 @@ export function Products() {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.4, duration: 0.8 }}
           >
-            <span className={`block text-white font-captain ${isMobile ? 'text-base' : ''}`}>
+            <span className={`block text-white font-mono ${isMobile ? 'text-base' : ''}`}>
               ENGINEERED FOR
             </span>
             <span
@@ -270,7 +270,7 @@ export function Products() {
             >
               MAXIMUM
             </span>
-            <span className={`block text-primary font-captain ${isMobile ? 'text-base' : ''}`}>
+            <span className={`block text-primary font-mono ${isMobile ? 'text-base' : ''}`}>
               PERFORMANCE
             </span>
           </motion.h2>

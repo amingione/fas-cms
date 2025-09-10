@@ -1,3 +1,5 @@
+const colors = require('tailwindcss/colors');
+
 module.exports = {
   content: [
     './src/**/*.{astro,html,js,jsx,ts,tsx,vue,svelte,css}',
@@ -46,6 +48,14 @@ module.exports = {
     },
 
     extend: {
+      colors: {
+        // Site background utility color
+        background: '#000000',
+        // Normalize common dark shades to your base background (if you want pure black globally)
+        gray: { ...colors.gray, 900: '#000000' },
+        neutral: { ...colors.neutral, 900: '#000000' },
+        zinc: { ...colors.zinc, 900: '#000000' }
+      },
       // Keep your existing font stacks
       fontFamily: {
         captain: ['American Captain', 'sans-serif'],

@@ -3,202 +3,40 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 const pageDoc: any = await getGitPageDoc('PredatorPulleySpecsSheet');
-import Button from '@/components/Button.astro';
+import ProductSpecSheet from '@components/specs/ProductSpecSheet.astro';
 ---
 
 <BaseLayout>
   <div {...sbObjectId('content/pages/specs/PredatorPulley.json')}>
-  <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Predator Pulley — Spec Sheet'}</div>
-  {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
-    <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
-  )}
-  <!-- HERO -->
-  <section class="parallax-section section-divider section-divider-carbon">
-    <div class="background-layer">
-      <!-- Use percent-encoded path for '{' and spaces -->
-      <img
-        src="/images/billetParts/fas-pred-pully.png"
-        alt="FAS Motorsports Predator Pulley"
-        class="absolute inset-0 w-full h-full object-cover object-center"
-        loading="eager"
-      />
+    <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>
+      {pageDoc?.title ?? 'Predator Pulley — Spec Sheet'}
     </div>
-    <div class="foreground-layer">
-      <h1 class="text-4xl md:text-6xl font-ethno text-accent drop-shadow mb-3" {...sbFieldPath('title')}>
-        {pageDoc?.title ?? 'Predator Pulley — Spec Sheet'}
-      </h1>
-      <p class="text-white/80 max-w-2xl mx-auto font-captain text-base md:text-xl tracking-wide">
-        Engineered &amp; manufactured by FAS Motorsports for high-grip belt traction, precise drive ratios, and stable boost control at extreme RPM.
-      </p>
-    </div>
-  </section>
+    {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
+      <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
+    )}
 
-  <!-- VALUE PILLARS -->
-  <section class="packages">
-    <h2 class="text-3xl md:text-4xl font-ethno text-accent mb-6">Why Predator?</h2>
-    <div class="package-grid">
-      <div class="package-card">
-        <h3 class="text-xl font-borg text-white mb-3">High‑Strength Billet</h3>
-        <p class="text-white/70 text-sm leading-relaxed">
-          Machined from 7075‑T6 aluminum billet for superior tensile strength compared to 6061. The higher modulus minimizes deflection under belt tension, maintaining pulley concentricity and belt tracking at high load.
-        </p>
-      </div>
-      <div class="package-card">
-        <h3 class="text-xl font-borg text-white mb-3">Grip‑Optimized Crown</h3>
-        <p class="text-white/70 text-sm leading-relaxed">
-          Micro‑profiled crown and surface finish are tuned to increase belt wrap friction while reducing localized heat. Available in 8‑rib and 10‑rib profiles for OE and upgraded belt systems.
-        </p>
-      </div>
-      <div class="package-card">
-        <h3 class="text-xl font-borg text-white mb-3">Thermal &amp; Corrosion Control</h3>
-        <p class="text-white/70 text-sm leading-relaxed">
-          Hard anodized (Type III) for wear resistance and dimensional stability. The oxide layer mitigates galvanic corrosion in engine bays and maintains consistent belt interface finish over time.
-        </p>
-      </div>
-      <div class="package-card">
-        <h3 class="text-xl font-borg text-white mb-3">Precision Balanced</h3>
-        <p class="text-white/70 text-sm leading-relaxed">
-          Individually spin‑balanced to &lt; 0.5 g·mm residual imbalance. Radial runout held to ≤ 0.0015&quot;. Results: reduced belt flutter, lower bearing load, and quieter operation at 20k+ shaft RPM.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- TECHNICAL SPECIFICATIONS -->
-  <section class="features features-bg">
-    <h2 class="text-3xl md:text-4xl font-ethno text-accent mb-10 text-center">Technical Specifications</h2>
-    <div class="feature-grid">
-      <div class="feature-item">
-        <h3 class="text-lg font-borg text-white mb-2">Material</h3>
-        <p class="text-white/70 text-sm">7075‑T6 aluminum billet, heat‑treated</p>
-      </div>
-      <div class="feature-item">
-        <h3 class="text-lg font-borg text-white mb-2">Manufacturing</h3>
-        <p class="text-white/70 text-sm">5‑axis CNC; bore and OD in single setup for concentricity</p>
-      </div>
-      <div class="feature-item">
-        <h3 class="text-lg font-borg text-white mb-2">Tolerances</h3>
-        <p class="text-white/70 text-sm">Runout ≤ 0.0015&quot;; bore tolerance H7; face parallelism ≤ 0.001&quot;</p>
-      </div>
-      <div class="feature-item">
-        <h3 class="text-lg font-borg text-white mb-2">Finish</h3>
-        <p class="text-white/70 text-sm">Type III hard anodize, graphite‑black; Ra 0.8–1.2 µm belt surface</p>
-      </div>
-      <div class="feature-item">
-        <h3 class="text-lg font-borg text-white mb-2">Rib Options</h3>
-        <p class="text-white/70 text-sm">8‑rib (K) and 10‑rib (J/K hybrid); SAE J1459 groove geometry</p>
-      </div>
-      <div class="feature-item">
-        <h3 class="text-lg font-borg text-white mb-2">Diameters</h3>
-        <p class="text-white/70 text-sm">2.65&quot;, 2.85&quot;, 3.00&quot;, 3.25&quot;, 3.50&quot; (others by request)</p>
-      </div>
-      <div class="feature-item">
-        <h3 class="text-lg font-borg text-white mb-2">Hub/Bore</h3>
-        <p class="text-white/70 text-sm">Interference‑fit hub with keyed or hex‑hub options; bore concentric to OD within 0.0008&quot;</p>
-      </div>
-      <div class="feature-item">
-        <h3 class="text-lg font-borg text-white mb-2">Balancing</h3>
-        <p class="text-white/70 text-sm">ISO 21940‑11 G2.5 equivalent at 20,000 rpm</p>
-      </div>
-      <div class="feature-item">
-        <h3 class="text-lg font-borg text-white mb-2">Compatibility</h3>
-        <p class="text-white/70 text-sm">Gen III HEMI supercharged platforms (TRX, Trackhawk, Redeye, Demon, Durango SRT); contact us for other fitments</p>
-      </div>
-      <div class="feature-item">
-        <h3 class="text-lg font-borg text-white mb-2">Operating Temp</h3>
-        <p class="text-white/70 text-sm">−40°F to 300°F ambient; no measurable distortion at 300°F soak</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- FITMENT & OPTIONS -->
-  <section class="bg-black/70 border-y border-white/10 py-10">
-    <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
-      <h2 class="text-2xl md:text-3xl font-ethno text-accent mb-6 text-center">Fitment &amp; Options</h2>
-      <div class="overflow-x-auto px-0">
-        <table class="w-full text-left text-white/80 text-sm border-separate border-spacing-y-2">
-          <thead class="text-white">
-            <tr>
-              <th class="px-3 py-2 bg-white/5 rounded-l">Diameter</th>
-              <th class="px-3 py-2 bg-white/5">Ribs</th>
-              <th class="px-3 py-2 bg-white/5">Boost Change*</th>
-              <th class="px-3 py-2 bg-white/5">Recommended Belt</th>
-              <th class="px-3 py-2 bg-white/5 rounded-r">Notes</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="bg-white/5">
-              <td class="px-3 py-2">3.50&quot;</td>
-              <td class="px-3 py-2">8</td>
-              <td class="px-3 py-2">Baseline / OE‑like</td>
-              <td class="px-3 py-2">K080*** (8‑rib)</td>
-              <td class="px-3 py-2">Street friendly, minimal heat</td>
-            </tr>
-            <tr class="bg-white/5">
-              <td class="px-3 py-2">3.25&quot;</td>
-              <td class="px-3 py-2">8 / 10</td>
-              <td class="px-3 py-2">+1–2 psi**</td>
-              <td class="px-3 py-2">Upgraded HD belt recommended</td>
-              <td class="px-3 py-2">Good daily/track balance</td>
-            </tr>
-            <tr class="bg-white/5">
-              <td class="px-3 py-2">3.00&quot;</td>
-              <td class="px-3 py-2">10</td>
-              <td class="px-3 py-2">+3–4 psi**</td>
-              <td class="px-3 py-2">10‑rib conversion or HD 8‑rib</td>
-              <td class="px-3 py-2">Monitor IATs; ensure fueling</td>
-            </tr>
-            <tr class="bg-white/5">
-              <td class="px-3 py-2">2.85&quot; / 2.65&quot;</td>
-              <td class="px-3 py-2">10</td>
-              <td class="px-3 py-2">+5–7 psi**</td>
-              <td class="px-3 py-2">10‑rib + upgraded idlers</td>
-              <td class="px-3 py-2">Track use; verify octane &amp; tune</td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="text-white/60 text-xs mt-3">
-          * Boost change is approximate; varies by blower efficiency, ambient conditions, exhaust, and lower pulley size.<br/>
-          ** Tune, plugs, injectors, and intercooling may be required depending on vehicle configuration.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- VALIDATION & INSTALLATION -->
-  <section class="py-10 md:py-14">
-    <div class="mx-auto w-full max-w-7xl px-0 md:px-6 grid md:grid-cols-2 gap-6 md:gap-10">
-      <div class="rounded-xl border border-white/10 bg-black/60 p-5 shadow-xl">
-        <h3 class="text-xl font-borg text-white mb-3">Testing &amp; Validation</h3>
-        <ul class="list-disc pl-5 text-white/70 text-sm space-y-2">
-          <li>Spin‑test to 22,000 rpm; no abnormal vibration or finish degradation.</li>
-          <li>Thermal soak 300°F for 2 hours; dimensional drift &lt; 0.0008&quot;.</li>
-          <li>Track‑verified on TRX, Trackhawk, and Redeye builds up to 1,100+ whp.</li>
-          <li>Long‑run belt tracking test: 5 hr cyclic load; no belt walk or rib fray observed.</li>
-        </ul>
-      </div>
-      <div class="rounded-xl border border-white/10 bg-black/60 p-5 shadow-xl">
-        <h3 class="text-xl font-borg text-white mb-3">Installation Notes</h3>
-        <ul class="list-disc pl-5 text-white/70 text-sm space-y-2">
-          <li>Verify hub fit and key engagement; use recommended press tools.</li>
-          <li>Set belt tension to manufacturer spec; re‑check after heat cycles.</li>
-          <li>Inspect idlers and alignment; upgrade to heavy‑duty 10‑rib where applicable.</li>
-          <li>Retune ECU for smaller diameters to manage spark, fueling, and IAT limits.</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA -->
-  <section class="bg-black/70 border-t border-white/10 py-12 text-center">
-    <h2 class="text-2xl md:text-3xl font-ethno text-accent mb-6">Ready to Order?</h2>
-    <p class="text-white/70 mb-6 max-w-xl mx-auto font-captain text-lg">
-      Choose your diameter and rib count to dial in boost and drivability for your setup.
-    </p>
-    <div class="flex gap-4 justify-center">
-      <Button href="/shop/predator-pulley" text="Shop Predator Pulley" variant="default" size="lg" />
-      <Button href="/contact" text="Ask a Tech" variant="ghost" size="md" />
-    </div>
-  </section>
+    <ProductSpecSheet
+      title={pageDoc?.title ?? 'Predator Pulley — Spec Sheet'}
+      description="Engineered & manufactured by FAS Motorsports for high‑grip belt traction, precise drive ratios, and stable boost control at extreme RPM."
+      imageSrc="/images/billetParts/fas-pred-pully.png"
+      imageAlt="FAS Motorsports Predator Pulley"
+      specs={[
+        { label: 'Material', value: '7075‑T6 aluminum billet, heat‑treated' },
+        { label: 'Manufacturing', value: '5‑axis CNC; bore and OD in single setup for concentricity' },
+        { label: 'Tolerances', value: 'Runout ≤ 0.0015"; bore tolerance H7; face parallelism ≤ 0.001"' },
+        { label: 'Finish', value: 'Type III hard anodize, graphite‑black; Ra 0.8–1.2 µm belt surface' },
+        { label: 'Rib Options', value: '8‑rib (K) and 10‑rib (J/K hybrid); SAE J1459 groove geometry' },
+        { label: 'Diameters', value: '2.65", 2.85", 3.00", 3.25", 3.50" (others by request)' },
+        { label: 'Hub/Bore', value: 'Interference‑fit hub with keyed or hex‑hub options; bore concentric to OD within 0.0008"' },
+        { label: 'Balancing', value: 'ISO 21940‑11 G2.5 equivalent at 20,000 rpm' },
+        { label: 'Compatibility', value: 'Gen III HEMI supercharged platforms (TRX, Trackhawk, Redeye, Demon, Durango SRT); contact us for other fitments' },
+        { label: 'Operating Temp', value: '−40°F to 300°F ambient; no measurable distortion at 300°F soak' }
+      ]}
+      about={[
+        'Predator is purpose‑built for traction and longevity. 7075‑T6 billet resists flex under belt load to maintain concentricity and stable tracking at elevated shaft speeds.',
+        'A grip‑optimized crown and tuned surface finish increase wrap friction while limiting localized heat. Each pulley is hard anodized to control wear and galvanic corrosion in harsh engine bays.',
+        'Every unit is precision balanced and verified for tight runout to reduce belt flutter and bearing load at 20k+ rpm. Multiple rib counts and diameters let you tailor boost and drivability for your setup.'
+      ]}
+    />
   </div>
 </BaseLayout>

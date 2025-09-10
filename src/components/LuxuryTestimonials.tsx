@@ -182,7 +182,7 @@ export function LuxuryTestimonials() {
           </Badge>
 
           <h2
-            className={`font-black leading-tight font-captain ${isMobile ? 'text-lg' : 'text-3xl lg:text-5xl'}`}
+            className={`font-black leading-tight font-mono ${isMobile ? 'text-lg' : 'text-3xl lg:text-5xl'}`}
           >
             <span className="block text-white">WHAT OUR CLIENTS</span>
             <span className="block luxury-gold-text font-cyber">SAY ABOUT US</span>

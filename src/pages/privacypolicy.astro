@@ -12,7 +12,7 @@ const pageDoc: any = await getGitPageDoc('privacypolicy');
   {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
     <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
   )}
-  <section class="py-20 px-4 max-w-5xl mx-auto text-white font-captain tracking-[1.2px]">
+  <section class="py-20 px-4 max-w-5xl mx-auto text-white font-mono tracking-[1.2px]">
     <h1 class="text-4xl font-cyber text-accent mb-10 text-center" {...sbFieldPath('title')}>
       {pageDoc?.title ?? 'Privacy Policy'}
     </h1>

@@ -22,13 +22,13 @@ import { Toaster } from 'sonner';
     
 
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>F.A.S. Motorsports</title>
     <!-- Google reCAPTCHA v2 for Netlify Forms -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   </head>
 
-  <body class="slim-ui min-h-screen bg-[#171717] bg-fit bg-center text-white overflow-x-hidden w-screen max-w-[100vw]"
+  <body class="slim-ui min-h-screen bg-black bg-fit bg-center text-white overflow-x-clip w-full"
     style="">
     
     <div class="absolute inset-0 z-0"></div>
@@ -39,7 +39,7 @@ import { Toaster } from 'sonner';
     <CartProvider client:load>
       <div class="relative z-10">
         <Header />
-        <main class="fullbleed mt-14 md:mt-24 bg-cover bg-center px-0 w-screen max-w-[100vw] overflow-x-hidden">
+        <main class="fullbleed bg-cover bg-black bg-center px-0 w-full pt-[var(--header-offset,theme(spacing.16))]">
           <slot />
         </main>
         <div class="m-0 p-0">

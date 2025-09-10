@@ -65,7 +65,7 @@ export function About() {
                   FAST
                 </span>
                 <span className="block font-borg text-3xl md:text-4xl lg:text-5xl">AGGRESSIVE</span>
-                <span className="block text-green-500 font-captain text-2xl md:text-3xl lg:text-4xl">
+                <span className="block text-green-500 font-mono text-2xl md:text-3xl lg:text-4xl">
                   SUPERIOR
                 </span>
               </motion.h2>
@@ -150,27 +150,12 @@ export function About() {
               initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 2.2, duration: 0.6 }}
-            >
-              <Button
-                size="lg"
-                className="group bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-lg shadow-green-500/25 px-6 md:px-8 py-3 md:py-4 text-sm md:text-base font-bold metallic-btn font-ethno w-full md:w-auto"
-                href="/about"
-                text="OUR STORY"
-                onClick={() => {}}
-              >
-                OUR STORY
-                <motion.div
-                  className="ml-2"
-                  animate={{ x: [0, 5, 0] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                ></motion.div>
-              </Button>
-            </motion.div>
+            ></motion.div>
           </motion.div>
 
           {/* Image Gallery - Mobile Optimized */}
           <motion.div
-            className="relative mt-8 lg:mt-0"
+            className="carousel relative mt-8 lg:mt-0"
             initial={{ opacity: 0, x: 100, scale: 0.9 }}
             animate={isInView ? { opacity: 1, x: 0, scale: 1 } : {}}
             transition={{ delay: 0.6, duration: 1, ease: 'easeOut' }}
@@ -222,7 +207,7 @@ export function About() {
                   style={{ perspective: '1000px' }}
                 >
                   <img
-                    src="/images/FAS-Billet-Snout-Front.png"
+                    src="/images/snouts/FAS-Billet-Snout-Front.png"
                     alt="Precision Billet Work"
                     className="w-full h-48 lg:h-64 object-cover group-hover:scale-110 transition-transform duration-500"
                     loading="lazy"
@@ -253,24 +238,6 @@ export function About() {
               </div>
 
               <div className="space-y-4 lg:space-y-6 pt-8 lg:pt-12">
-                <motion.div
-                  className="relative rounded-2xl overflow-hidden shadow-2xl group industrial-glow"
-                  whileHover={{ scale: 1.05, rotateY: 5 }}
-                  transition={{ duration: 0.5 }}
-                  style={{ perspective: '1000px' }}
-                >
-                  <img
-                    src="/images/FAS-Team-Testing-Day.png"
-                    alt="Racing Application"
-                    className="w-full h-32 lg:h-40 object-cover group-hover:scale-110 transition-transform duration-500"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="absolute bottom-4 left-4 text-white font-bold text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-ethno">
-                    RACING HERITAGE
-                  </div>
-                </motion.div>
-
                 <motion.div
                   className="relative rounded-2xl overflow-hidden shadow-2xl group industrial-glow"
                   whileHover={{ scale: 1.05, rotateY: -5 }}

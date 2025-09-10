@@ -315,9 +315,9 @@ export default function Shop({
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.4, duration: 0.8 }}
           >
-            <span className="block text-white font-captain">PRECISION</span>
+            <span className="block text-white font-mono">PRECISION</span>
             <span className="block chrome-text text-5xl lg:text-8xl font-cyber">ENGINEERED</span>
-            <span className="block text-primary font-captain">PERFORMANCE</span>
+            <span className="block text-primary font-mono">PERFORMANCE</span>
           </motion.h1>
 
           <motion.p
@@ -635,7 +635,7 @@ export default function Shop({
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 2, duration: 0.8 }}
         >
-          <h3 className="text-3xl lg:text-5xl font-black text-white mb-4 font-captain">
+          <h3 className="text-3xl lg:text-5xl font-black text-white mb-4 font-mono">
             CAN'T FIND WHAT YOU'RE <span className="font-cyber">LOOKING FOR?</span>
           </h3>
           <p className="text-lg text-graylight mb-8 max-w-2xl mx-auto font-kwajong">

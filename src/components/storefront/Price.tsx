@@ -78,7 +78,7 @@ const Price: React.FC<PriceProps> = ({
           : (originalAmount as number)
       ) > Number(typeof amount === 'string' ? parseFloat(amount as any) : (amount as number)));
 
-  // Theme classes: font-captain for numerals, accent for current price, muted strike-through for compare
+  // Theme classes: font-mono for numerals, accent for current price, muted strike-through for compare
   if (isSale && hasCompare) {
     return (
       <p suppressHydrationWarning className={clsx('font-sans font-semibold', className)} {...p}>

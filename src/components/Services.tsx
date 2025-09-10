@@ -18,7 +18,6 @@ export function Services() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-
   type Service = {
     icon: React.ElementType;
     title: string;
@@ -212,7 +211,7 @@ export function Services() {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.4, duration: 0.8 }}
           >
-            <span className={`block text-white font-captain ${isMobile ? 'text-sm' : ''}`}>
+            <span className={`block text-white font-mono ${isMobile ? 'text-sm' : ''}`}>
               COMPLETE
             </span>
             <span
@@ -220,7 +219,7 @@ export function Services() {
             >
               ENGINEERING
             </span>
-            <span className={`block text-blue-500 font-captain ${isMobile ? 'text-sm' : ''}`}>
+            <span className={`block text-blue-500 font-mono ${isMobile ? 'text-sm' : ''}`}>
               SOLUTIONS
             </span>
           </motion.h2>

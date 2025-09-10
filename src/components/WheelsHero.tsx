@@ -54,10 +54,10 @@ export function WheelsHero({
             className="mb-4"
           >
             <Badge
-              className="bg-primary/20 text-primary border-primary/30 px-4 py-2 font-ethno text-xs md:text-sm"
+              className="bg-primary/20 text-white border-primary/30 px-4 py-2 font-ethno text-xs md:text-sm"
               {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.badge`) : {})}
             >
-              <Award className="w-3 h-3 md:w-4 md:h-4 mr-2" />
+              <Award className="w-3 h-3 md:w-4 md:h-4 mr-2 text-white/60" />
               {badge ?? 'AUTHORIZED DEALER'}
             </Badge>
           </motion.div>

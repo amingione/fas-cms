@@ -113,7 +113,7 @@ try {
       <div class="relative z-10">
         <h1 class="text-3xl font-ethno mb-3" {...sbFieldPath('title')}>{(product as any).title}</h1>
         <h2 class="text-4xl text-accent
-         font-captain mb-4" {...sbFieldPath('price')}>
+         font-mono mb-4" {...sbFieldPath('price')}>
           {typeof (product as any).price === 'number' ? `$${(product as any).price.toFixed(2)}` : 'Price not available'}
         </h2>
 

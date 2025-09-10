@@ -184,7 +184,7 @@ export function CustomFabrication() {
           </motion.div>
 
           <motion.h2
-            className={`font-black leading-tight font-captain mobile-section-title ${isMobile ? 'text-lg' : 'text-3xl lg:text-6xl'}`}
+            className={`font-black leading-tight font-mono mobile-section-title ${isMobile ? 'text-lg' : 'text-3xl lg:text-6xl'}`}
             initial={{ opacity: 0, y: 30 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.4, duration: 0.8 }}
@@ -466,7 +466,7 @@ export function CustomFabrication() {
         >
           <div className={`${isMobile ? 'space-y-2' : 'space-y-4'}`}>
             <h3
-              className={`font-black text-white font-captain ${isMobile ? 'text-base leading-tight' : 'text-2xl lg:text-4xl'}`}
+              className={`font-black text-white font-mono ${isMobile ? 'text-base leading-tight' : 'text-2xl lg:text-4xl'}`}
             >
               NEED SOMETHING <span className="text-primary font-cyber">TOTALLY CUSTOM?</span>
             </h3>

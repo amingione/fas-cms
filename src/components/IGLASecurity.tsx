@@ -172,7 +172,7 @@ export function IGLASecurity() {
               ADVANCED
             </span>
             <span
-              className={`block text-white font-bold font-captain ${isMobile ? 'text-base my-1' : 'text-5xl lg:text-8xl my-2'}`}
+              className={`block text-white font-bold font-mono ${isMobile ? 'text-base my-1' : 'text-5xl lg:text-8xl my-2'}`}
             >
               VEHICLE
             </span>
@@ -347,7 +347,7 @@ export function IGLASecurity() {
           <div className={`grid ${isMobile ? 'grid-cols-1 gap-6' : 'lg:grid-cols-3 gap-16'}`}>
             <div className={`${isMobile ? 'space-y-4' : 'lg:col-span-2 space-y-8'}`}>
               <motion.h3
-                className={`font-light text-white leading-tight font-captain ${isMobile ? 'text-lg' : 'text-3xl lg:text-4xl'}`}
+                className={`font-light text-white leading-tight font-mono ${isMobile ? 'text-lg' : 'text-3xl lg:text-4xl'}`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ delay: 2.4, duration: 0.8 }}
@@ -428,7 +428,7 @@ export function IGLASecurity() {
         >
           <div className={`${isMobile ? 'space-y-3' : 'space-y-6'}`}>
             <h3
-              className={`font-light text-white leading-tight font-captain ${isMobile ? 'text-lg' : 'text-3xl lg:text-5xl'}`}
+              className={`font-light text-white leading-tight font-mono ${isMobile ? 'text-lg' : 'text-3xl lg:text-5xl'}`}
             >
               SCHEDULE YOUR <span className="font-bold chrome-text font-cyber">INSTALLATION</span>
             </h3>

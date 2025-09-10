@@ -13,8 +13,8 @@ const pageDoc: any = await getGitPageDoc('contact');
       {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
         <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
       )}
-      <div class="relative mt-11">
-      <section class="min-h-screen racing-stripe text-white font-captain">
+      <div class="relative mt-11 pt-20">
+      <section class="min-h-screen racing-stripe text-white font-mono">
         <!-- Google Map Embed -->
         <div class="w-full h-[400px] grayscale contrast-125 saturate-0">
           <iframe

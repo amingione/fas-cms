@@ -2,163 +2,182 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
 const pageDoc: any = await getGitPageDoc('services');
-import Button from '@/components/Button.astro';
 ---
 
 <BaseLayout>
-  <div {...sbObjectId('content/pages/services.json')}>
-  <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Services'}</div>
-  <!-- HERO: full-bleed parallax with carbon divider -->
-  <section class="parallax-section section-divider section-divider-carbon">
-    <div class="background-layer">
-      <img src="/images/backgrounds/bg-about.png" alt="FAS Motorsports Services" class="absolute inset-0 w-full h-full object-cover object-center" />
-    </div>
-    <div class="foreground-layer">
-      <h1 class="text-4xl md:text-6xl font-ethno text-accent drop-shadow mb-3 tracking-[0.08em]" {...sbFieldPath('title')}>
-        {pageDoc?.title ?? 'Services'}
-      </h1>
-      <p class="text-white/80 max-w-3xl mx-auto font-captain text-base md:text-xl tracking-[0.12em]">
-        In‑house performance, fabrication, and security installs — engineered for flow, reliability, and OEM‑level fit &amp; finish.
-      </p>
-      <div class="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
-        <Button href="/schedule" text="Schedule Dropoff" size="lg" variant="default" />
-        <Button href="/contact" text="Ask a Tech" size="md" variant="ghost" />
+  <div {...sbObjectId('content/pages/services.json')} class="min-h-screen bg-[#0F0F0F]">
+    
+    <!-- Hero Banner -->
+    <section class="relative min-h-[640px] flex items-center overflow-hidden">
+      <!-- Background Gradient Effects -->
+      <div class="absolute inset-0">
+        <div class="absolute w-[488px] h-[349px] -left-52 top-[432px] bg-[#EF9364] rounded-full blur-[75px] opacity-60 transform rotate-[177deg]"></div>
+        <div class="absolute w-[352px] h-[597px] right-[274px] -top-[116px] bg-primary rounded-full blur-[75px] opacity-60"></div>
       </div>
-    </div>
-  </section>
-
-  <!-- HIGHLIGHTS STRIP -->
-  <section class="luxury-carbon-effect relative w-full bg-black/70 backdrop-blur-md border-y border-white/10">
-    <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-0">
-        <div class="flex items-center gap-3 py-4 px-4 border-r border-white/10">
-          <div class="w-2 h-2 rounded-full bg-accent"></div>
-          <div class="text-white/80 text-xs md:text-sm font-captain tracking-[0.14em]">Dyno‑Proven</div>
-        </div>
-        <div class="flex items-center gap-3 py-4 px-4 border-r border-white/10">
-          <div class="w-2 h-2 rounded-full bg-accent"></div>
-          <div class="text-white/80 text-xs md:text-sm font-captain tracking-[0.14em]">OEM‑Fit &amp; Finish</div>
-        </div>
-        <div class="flex items-center gap-3 py-4 px-4 border-r border-white/10">
-          <div class="w-2 h-2 rounded-full bg-accent"></div>
-          <div class="text-white/80 text-xs md:text-sm font-captain tracking-[0.14em]">In‑House Fabrication</div>
-        </div>
-        <div class="flex items-center gap-3 py-4 px-4">
-          <div class="w-2 h-2 rounded-full bg-accent"></div>
-          <div class="text-white/80 text-xs md:text-sm font-captain tracking-[0.14em]">Warranty‑Friendly</div>
+      
+      <div class="relative z-10 max-w-7xl mx-auto px-16 py-44">
+        <div class="max-w-[523px]">
+          <div class="text-[#FFA800] font-cyber text-2xl font-normal mb-4 tracking-wider">
+            SERVICES
+          </div>
+          <h1 class="text-white font-ethno text-6xl font-normal leading-[80px] mb-8" {...sbFieldPath('title')}>
+            Professional Automotive Solutions
+          </h1>
+          <p class="text-white/60 font-mono font-bold text-base leading-6 tracking-[0.32px] mb-8 max-w-[523px]">
+            Expert performance tuning, custom fabrication, and precision installations. From supercharger upgrades to security systems, we deliver professional automotive solutions with OEM-level quality and warranty-friendly installations.
+          </p>
+          <a href="/schedule" class="inline-flex items-center justify-center px-6 py-3 bg-[#FFA800] text-black font-cyber text-sm font-normal uppercase tracking-wider rounded-full hover:bg-[#FFA800]/90 transition-colors">
+            Schedule Service
+          </a>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- SERVICE CATEGORIES (animated cards) -->
-  <section class="py-12 md:py-16">
-    <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
-      <h2 class="text-center text-3xl md:text-4xl font-ethno text-accent mb-8 md:mb-12 tracking-wide">What We Do</h2>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-        <!-- Porting -->
-        <a href="/porting" class="group relative rounded-xl border border-white/10 bg-[#0b0b0c] overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50">
-          <img src="/images/backgrounds/bg-fas-moto.webp" alt="Porting Services" class="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition" />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-          <div class="relative p-5 z-10">
-            <div class="text-primary font-ethno text-xl drop-shadow">Precision</div>
-            <div class="text-white font-borg text-2xl leading-none drop-shadow mb-2">Porting Services</div>
-            <p class="text-white/75 text-sm font-captain max-w-[46ch]">
-              Cylinder heads, superchargers, and snouts — airflow optimized and validated on the bench and road.
-            </p>
-          </div>
-        </a>
-
-        <!-- Custom Tuning -->
-        <a href="/tuning" class="group relative rounded-xl border border-white/10 bg-[#0b0b0c] overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50">
-          <img src="/images/backgrounds/bg-fas-moto.webp" alt="Custom Tuning" class="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition" />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-          <div class="relative p-5 z-10">
-            <div class="text-primary font-ethno text-xl drop-shadow">Calibration</div>
-            <div class="text-white font-borg text-2xl leading-none drop-shadow mb-2">Custom Tuning</div>
-            <p class="text-white/75 text-sm font-captain max-w-[46ch]">
-              Street, E85, flex‑fuel, and dyno strategies that keep drivability intact.
-            </p>
-          </div>
-        </a>
-
-        <!-- Builds & Installs -->
-        <a href="/schedule" class="group relative rounded-xl border border-white/10 bg-[#0b0b0c] overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50">
-          <img src="/images/packages/TRX-Truck-Package-FAS.png" alt="Builds & Installations" class="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition" />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-          <div class="relative p-5 z-10">
-            <div class="text-primary font-ethno text-xl drop-shadow">Install</div>
-            <div class="text-white font-borg text-2xl leading-none drop-shadow mb-2">Builds &amp; Installations</div>
-            <p class="text-white/75 text-sm font-captain max-w-[46ch]">
-              Power Packages and full systems installed by the same team who engineered them.
-            </p>
-          </div>
-        </a>
+    <!-- Process Section -->
+    <section class="py-24 px-16">
+      <div class="max-w-7xl mx-auto">
+        <h2 class="text-white font-cyber text-3xl font-normal leading-[56px] mb-8">
+          Process
+        </h2>
+        <p class="text-white/60 font-mono text-base leading-6 tracking-[0.32px] max-w-4xl">
+          Our comprehensive approach ensures every project meets the highest standards. From initial consultation through final validation, we maintain strict quality control and transparent communication. Each installation is performed by certified technicians using proven methodologies and OEM-approved procedures. We document every step and provide detailed reporting for warranty compliance and future reference.
+        </p>
       </div>
+    </section>
 
-      <!-- Secondary row -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mt-4 md:mt-6">
-        <!-- IGLA -->
-        <a href="/igla" class="group relative rounded-xl border border-white/10 bg-[#0b0b0c] overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50">
-          <img src="/images/igla/igla-header-page.png" alt="IGLA Install" class="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition" />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-          <div class="relative p-5 z-10">
-            <div class="text-primary font-ethno text-xl drop-shadow">Security</div>
-            <div class="text-white font-borg text-2xl leading-none drop-shadow mb-2">IGLA Install</div>
-            <p class="text-white/75 text-sm font-captain max-w-[60ch]">
-              Anti‑theft immobilizer installs with factory‑like integration and clean wiring practices.
-            </p>
+    <!-- Services Grid -->
+    <section class="py-6 px-16">
+      <div class="max-w-7xl mx-auto">
+        <h2 class="text-white font-cyber text-3xl font-normal leading-[56px] mb-8">
+          Our Services
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <!-- Precision Porting -->
+          <div class="border border-[#A1AEBF] rounded p-6 bg-transparent">
+            <div class="w-full h-36 bg-[#8474C4] rounded mb-6"></div>
+            <h3 class="text-white font-mono text-2xl font-normal leading-8 mb-5 text-center">
+              Precision Porting
+            </h3>
+            <div class="flex items-center justify-center gap-1 text-[#728095] font-ethno text-base leading-5 tracking-[0.32px]">
+              <a href="/services/porting" class="hover:text-white transition-colors">Read more</a>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10.474 8.4735C10.5347 8.4101 10.5823 8.33533 10.614 8.2535C10.6807 8.09119 10.6807 7.90914 10.614 7.74683C10.5823 7.665 10.5347 7.59023 10.474 7.52683L8.47399 5.52683C8.34845 5.4013 8.17819 5.33077 8.00065 5.33077C7.82312 5.33077 7.65286 5.4013 7.52732 5.52683C7.40178 5.65237 7.33126 5.82263 7.33126 6.00017C7.33126 6.1777 7.40178 6.34796 7.52732 6.4735L8.39399 7.3335H6.00065C5.82384 7.3335 5.65427 7.40374 5.52925 7.52876C5.40422 7.65379 5.33399 7.82335 5.33399 8.00017C5.33399 8.17698 5.40422 8.34655 5.52925 8.47157C5.65427 8.59659 5.82384 8.66683 6.00065 8.66683H8.39399L7.52732 9.52683C7.46483 9.58881 7.41524 9.66254 7.38139 9.74378C7.34755 9.82502 7.33012 9.91216 7.33012 10.0002C7.33012 10.0882 7.34755 10.1753 7.38139 10.2565C7.41524 10.3378 7.46483 10.4115 7.52732 10.4735C7.5893 10.536 7.66303 10.5856 7.74427 10.6194C7.82551 10.6533 7.91265 10.6707 8.00065 10.6707C8.08866 10.6707 8.1758 10.6533 8.25704 10.6194C8.33828 10.5856 8.41201 10.536 8.47399 10.4735L10.474 8.4735ZM14.6673 8.00017C14.6673 6.68162 14.2763 5.39269 13.5438 4.29636C12.8112 3.20004 11.7701 2.34555 10.5519 1.84097C9.3337 1.33638 7.99326 1.20436 6.70005 1.4616C5.40685 1.71883 4.21896 2.35377 3.28661 3.28612C2.35426 4.21847 1.71932 5.40636 1.46209 6.69956C1.20485 7.99277 1.33687 9.33321 1.84146 10.5514C2.34604 11.7696 3.20052 12.8108 4.29685 13.5433C5.39318 14.2758 6.68211 14.6668 8.00065 14.6668C9.76876 14.6668 11.4645 13.9645 12.7147 12.7142C13.9649 11.464 14.6673 9.76828 14.6673 8.00017ZM2.66732 8.00017C2.66732 6.94533 2.98012 5.91419 3.56615 5.03712C4.15218 4.16006 4.98514 3.47648 5.95968 3.07281C6.93421 2.66914 8.00657 2.56352 9.04114 2.76931C10.0757 2.9751 11.026 3.48305 11.7719 4.22893C12.5178 4.97481 13.0257 5.92512 13.2315 6.95968C13.4373 7.99425 13.3317 9.0666 12.928 10.0411C12.5243 11.0157 11.8408 11.8486 10.9637 12.4347C10.0866 13.0207 9.05549 13.3335 8.00065 13.3335C6.58617 13.3335 5.22961 12.7716 4.22942 11.7714C3.22922 10.7712 2.66732 9.41465 2.66732 8.00017Z" fill="#728095"/>
+              </svg>
+            </div>
           </div>
-        </a>
 
-        <!-- Custom Fabrication -->
-        <a href="/customFab" class="group relative rounded-xl border border-white/10 bg-[#0b0b0c] overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50">
-          <img src="/images/fabrication/FAS-Fabrication-1.png" alt="Custom Fabrication & Welding" class="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 transition" />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-          <div class="relative p-5 z-10">
-            <div class="text-primary font-ethno text-xl drop-shadow">Fabrication</div>
-            <div class="text-white font-borg text-2xl leading-none drop-shadow mb-2">Custom Fab &amp; Welding</div>
-            <p class="text-white/75 text-sm font-captain max-w-[60ch]">
-              Pipes, cats, and exhaust — gasoline and diesel. Designed and built in‑house to your spec.
-            </p>
+          <!-- Custom Tuning -->
+          <div class="border border-[#A1AEBF] rounded p-6 bg-transparent">
+            <div class="w-full h-36 bg-[#8474C4] rounded mb-6"></div>
+            <h3 class="text-white font-mono text-2xl font-normal leading-8 mb-5 text-center">
+              Custom Tuning
+            </h3>
+            <div class="flex items-center justify-center gap-1 text-[#728095] font-body text-base leading-5 tracking-[0.32px]">
+              <a href="/schedule" class="hover:text-white transition-colors">Read more</a>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10.474 8.4735C10.5347 8.4101 10.5823 8.33533 10.614 8.2535C10.6807 8.09119 10.6807 7.90914 10.614 7.74683C10.5823 7.665 10.5347 7.59023 10.474 7.52683L8.47399 5.52683C8.34845 5.4013 8.17819 5.33077 8.00065 5.33077C7.82312 5.33077 7.65286 5.4013 7.52732 5.52683C7.40178 5.65237 7.33126 5.82263 7.33126 6.00017C7.33126 6.1777 7.40178 6.34796 7.52732 6.4735L8.39399 7.3335H6.00065C5.82384 7.3335 5.65427 7.40374 5.52925 7.52876C5.40422 7.65379 5.33399 7.82335 5.33399 8.00017C5.33399 8.17698 5.40422 8.34655 5.52925 8.47157C5.65427 8.59659 5.82384 8.66683 6.00065 8.66683H8.39399L7.52732 9.52683C7.46483 9.58881 7.41524 9.66254 7.38139 9.74378C7.34755 9.82502 7.33012 9.91216 7.33012 10.0002C7.33012 10.0882 7.34755 10.1753 7.38139 10.2565C7.41524 10.3378 7.46483 10.4115 7.52732 10.4735C7.5893 10.536 7.66303 10.5856 7.74427 10.6194C7.82551 10.6533 7.91265 10.6707 8.00065 10.6707C8.08866 10.6707 8.1758 10.6533 8.25704 10.6194C8.33828 10.5856 8.41201 10.536 8.47399 10.4735L10.474 8.4735ZM14.6673 8.00017C14.6673 6.68162 14.2763 5.39269 13.5438 4.29636C12.8112 3.20004 11.7701 2.34555 10.5519 1.84097C9.3337 1.33638 7.99326 1.20436 6.70005 1.4616C5.40685 1.71883 4.21896 2.35377 3.28661 3.28612C2.35426 4.21847 1.71932 5.40636 1.46209 6.69956C1.20485 7.99277 1.33687 9.33321 1.84146 10.5514C2.34604 11.7696 3.20052 12.8108 4.29685 13.5433C5.39318 14.2758 6.68211 14.6668 8.00065 14.6668C9.76876 14.6668 11.4645 13.9645 12.7147 12.7142C13.9649 11.464 14.6673 9.76828 14.6673 8.00017ZM2.66732 8.00017C2.66732 6.94533 2.98012 5.91419 3.56615 5.03712C4.15218 4.16006 4.98514 3.47648 5.95968 3.07281C6.93421 2.66914 8.00657 2.56352 9.04114 2.76931C10.0757 2.9751 11.026 3.48305 11.7719 4.22893C12.5178 4.97481 13.0257 5.92512 13.2315 6.95968C13.4373 7.99425 13.3317 9.0666 12.928 10.0411C12.5243 11.0157 11.8408 11.8486 10.9637 12.4347C10.0866 13.0207 9.05549 13.3335 8.00065 13.3335C6.58617 13.3335 5.22961 12.7716 4.22942 11.7714C3.22922 10.7712 2.66732 9.41465 2.66732 8.00017Z" fill="#728095"/>
+              </svg>
+            </div>
           </div>
-        </a>
-      </div>
-    </div>
-  </section>
 
-  <!-- PROCESS (thin stepper) -->
-  <section class="bg-black/70 border-y border-white/10 py-10 md:py-14">
-    <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
-      <h2 class="text-2xl md:text-3xl font-ethno text-accent mb-6">How It Works</h2>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
-        <div class="rounded-xl border border-white/10 bg-black/60 p-4 text-white/80">
-          <div class="text-primary font-borg mb-1">1. Consult</div>
-          <div class="text-sm">We scope your goals, platform, and budget.</div>
-        </div>
-        <div class="rounded-xl border border-white/10 bg-black/60 p-4 text-white/80">
-          <div class="text-primary font-borg mb-1">2. Plan</div>
-          <div class="text-sm">Parts list, timeline, and clear quote.</div>
-        </div>
-        <div class="rounded-xl border border-white/10 bg-black/60 p-4 text-white/80">
-          <div class="text-primary font-borg mb-1">3. Execute</div>
-          <div class="text-sm">Install, fab, and calibration in‑house.</div>
-        </div>
-        <div class="rounded-xl border border-white/10 bg-black/60 p-4 text-white/80">
-          <div class="text-primary font-borg mb-1">4. Validate</div>
-          <div class="text-sm">Fitment &amp; road test — ready for delivery.</div>
+          <!-- Performance Builds -->
+          <div class="border border-[#A1AEBF] rounded p-6 bg-transparent">
+            <div class="w-full h-36 bg-[#8474C4] rounded mb-6"></div>
+            <h3 class="text-white font-body text-2xl font-normal leading-8 mb-5 text-center">
+              Performance Builds
+            </h3>
+            <div class="flex items-center justify-center gap-1 text-[#728095] font-body text-base leading-5 tracking-[0.32px]">
+              <a href="/schedule" class="hover:text-white transition-colors">Read more</a>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10.474 8.4735C10.5347 8.4101 10.5823 8.33533 10.614 8.2535C10.6807 8.09119 10.6807 7.90914 10.614 7.74683C10.5823 7.665 10.5347 7.59023 10.474 7.52683L8.47399 5.52683C8.34845 5.4013 8.17819 5.33077 8.00065 5.33077C7.82312 5.33077 7.65286 5.4013 7.52732 5.52683C7.40178 5.65237 7.33126 5.82263 7.33126 6.00017C7.33126 6.1777 7.40178 6.34796 7.52732 6.4735L8.39399 7.3335H6.00065C5.82384 7.3335 5.65427 7.40374 5.52925 7.52876C5.40422 7.65379 5.33399 7.82335 5.33399 8.00017C5.33399 8.17698 5.40422 8.34655 5.52925 8.47157C5.65427 8.59659 5.82384 8.66683 6.00065 8.66683H8.39399L7.52732 9.52683C7.46483 9.58881 7.41524 9.66254 7.38139 9.74378C7.34755 9.82502 7.33012 9.91216 7.33012 10.0002C7.33012 10.0882 7.34755 10.1753 7.38139 10.2565C7.41524 10.3378 7.46483 10.4115 7.52732 10.4735C7.5893 10.536 7.66303 10.5856 7.74427 10.6194C7.82551 10.6533 7.91265 10.6707 8.00065 10.6707C8.08866 10.6707 8.1758 10.6533 8.25704 10.6194C8.33828 10.5856 8.41201 10.536 8.47399 10.4735L10.474 8.4735ZM14.6673 8.00017C14.6673 6.68162 14.2763 5.39269 13.5438 4.29636C12.8112 3.20004 11.7701 2.34555 10.5519 1.84097C9.3337 1.33638 7.99326 1.20436 6.70005 1.4616C5.40685 1.71883 4.21896 2.35377 3.28661 3.28612C2.35426 4.21847 1.71932 5.40636 1.46209 6.69956C1.20485 7.99277 1.33687 9.33321 1.84146 10.5514C2.34604 11.7696 3.20052 12.8108 4.29685 13.5433C5.39318 14.2758 6.68211 14.6668 8.00065 14.6668C9.76876 14.6668 11.4645 13.9645 12.7147 12.7142C13.9649 11.464 14.6673 9.76828 14.6673 8.00017ZM2.66732 8.00017C2.66732 6.94533 2.98012 5.91419 3.56615 5.03712C4.15218 4.16006 4.98514 3.47648 5.95968 3.07281C6.93421 2.66914 8.00657 2.56352 9.04114 2.76931C10.0757 2.9751 11.026 3.48305 11.7719 4.22893C12.5178 4.97481 13.0257 5.92512 13.2315 6.95968C13.4373 7.99425 13.3317 9.0666 12.928 10.0411C12.5243 11.0157 11.8408 11.8486 10.9637 12.4347C10.0866 13.0207 9.05549 13.3335 8.00065 13.3335C6.58617 13.3335 5.22961 12.7716 4.22942 11.7714C3.22922 10.7712 2.66732 9.41465 2.66732 8.00017Z" fill="#728095"/>
+              </svg>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- CTA -->
-  <section class="bg-transparent py-12 md:py-16 text-center">
-    <div class="flex flex-col gap-5 items-center">
-      <Button href="/schedule" text="Schedule Dropoff" size="lg" variant="default" />
-      <Button href="/contact" text="Talk to a Specialist" size="md" variant="ghost" />
-    </div>
-  </section>
+    <!-- Additional Services -->
+    <section class="py-16 px-16">
+      <div class="max-w-7xl mx-auto">
+        <h2 class="text-white font-body text-3xl font-normal leading-[56px] mb-8">
+          Additional Services
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <!-- IGLA Security -->
+          <div class="border border-[#A1AEBF] rounded p-5 bg-transparent">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-3">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M19.5 19.5C19.5 17.0146 21.5146 15 24 15C26.4853 15 28.5 17.0146 28.5 19.5V21C28.5 23.4853 26.4853 25.5 24 25.5C21.5146 25.5 19.5 23.4853 19.5 21V19.5ZM18.8158 30.8158C19.3383 30.2935 20.0469 30 20.7856 30H27.2142C27.9531 30 28.6617 30.2935 29.184 30.8158C29.7064 31.3383 30 32.0469 30 32.7856C30 33.6141 30.6715 34.2856 31.5 34.2856C32.3284 34.2856 33 33.6141 33 32.7856C33 31.2513 32.3904 29.7796 31.3053 28.6945C30.2203 27.6096 28.7487 27 27.2142 27H20.7856C19.2513 27 17.7796 27.6096 16.6945 28.6945C15.6096 29.7796 15 31.2513 15 32.7856C15 33.6141 15.6716 34.2856 16.5 34.2856C17.3284 34.2856 18 33.6141 18 32.7856C18 32.0469 18.2935 31.3383 18.8158 30.8158Z" fill="white"/>
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M3 24C3 12.402 12.402 3 24 3C35.598 3 45 12.402 45 24C45 35.598 35.598 45 24 45C12.402 45 3 35.598 3 24ZM22.5 6.0616V7.5C22.5 8.32842 23.1716 9 24 9C24.8284 9 25.5 8.32842 25.5 7.5V6.0616C34.2447 6.78303 41.217 13.7553 41.9384 22.5H40.5C39.6716 22.5 39 23.1716 39 24C39 24.8284 39.6716 25.5 40.5 25.5H41.9384C41.217 34.2447 34.2447 41.217 25.5 41.9384V40.5C25.5 39.6716 24.8284 39 24 39C23.1716 39 22.5 39.6716 22.5 40.5V41.9384C13.7553 41.217 6.78303 34.2447 6.0616 25.5H7.5C8.32842 25.5 9 24.8284 9 24C9 23.1716 8.32842 22.5 7.5 22.5H6.0616C6.78303 13.7553 13.7553 6.78303 22.5 6.0616Z" fill="url(#paint0_linear_security)"/>
+              <defs>
+                <linearGradient id="paint0_linear_security" x1="33.122" y1="12.4655" x2="13.4704" y2="37.794" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#9DE8EE"/>
+                  <stop offset="0.490049" stop-color="#FA7C0B"/>
+                  <stop offset="1" stop-color="#9F8CED"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <h3 class="text-white font-body text-3xl font-normal leading-9 mb-3">
+              IGLA Security
+            </h3>
+            <p class="text-white/60 font-body text-sm leading-5 tracking-[0.28px]">
+              Advanced anti-theft immobilizer systems with factory-like integration and clean installations.
+            </p>
+          </div>
+
+          <!-- Custom Fabrication -->
+          <div class="border border-[#A1AEBF] rounded p-5 bg-transparent">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-3">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M32.2718 40.9086C32.84 41.5113 32.84 42.4887 32.2718 43.0914C31.7035 43.6941 30.782 43.6941 30.2138 43.0914L25.9711 38.5914C25.4029 37.9887 25.4029 37.0113 25.9711 36.4086L30.2138 31.9086C30.782 31.3058 31.7035 31.3058 32.2717 31.9086C32.84 32.5113 32.84 33.4887 32.2718 34.0914L29.0581 37.5L32.2718 40.9086ZM36.2138 34.0914C35.6455 33.4887 35.6455 32.5115 36.2138 31.9086C36.782 31.3059 37.7035 31.3059 38.2718 31.9086L42.5144 36.4086C43.0826 37.0115 43.0826 37.9887 42.5144 38.5914L38.2718 43.0914C37.7035 43.6943 36.782 43.6943 36.2138 43.0914C35.6455 42.4887 35.6455 41.5113 36.2138 40.9086L39.4274 37.5L36.2138 34.0914Z" fill="white"/>
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M10.5 9C10.5 6.51471 12.5147 4.5 15 4.5H33C35.4853 4.5 37.5 6.51472 37.5 9V27C37.5 27.8284 36.8284 28.5 36 28.5H29.7426C29.3448 28.5 28.9634 28.6581 28.6819 28.9394L22.0896 35.5317C21.6332 35.9883 21.5199 36.6856 21.8086 37.2631L23.8416 41.3292C24.0741 41.7942 24.0494 42.3463 23.7761 42.7886C23.5026 43.2308 23.0199 43.5 22.5 43.5H15C12.5147 43.5 10.5 41.4854 10.5 39V9ZM19.5 7.5C18.6715 7.5 18 8.17158 18 9C18 9.82842 18.6715 10.5 19.5 10.5H28.5C29.3284 10.5 30 9.82842 30 9C30 8.17158 29.3284 7.5 28.5 7.5H19.5Z" fill="url(#paint0_linear_fabrication)"/>
+              <defs>
+                <linearGradient id="paint0_linear_fabrication" x1="29.8642" y1="13.2894" x2="11.1471" y2="29.9906" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#9DE8EE"/>
+                  <stop offset="0.490049" stop-color="#FA7C0B"/>
+                  <stop offset="1" stop-color="#9F8CED"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <h3 class="text-white font-body text-3xl font-normal leading-9 mb-3">
+              Custom Fabrication
+            </h3>
+            <p class="text-white/60 font-body text-sm leading-5 tracking-[0.28px]">
+              In-house welding and fabrication for exhaust systems, pipes, and custom automotive components.
+            </p>
+          </div>
+
+          <!-- Diagnostics -->
+          <div class="border border-[#A1AEBF] rounded p-5 bg-transparent">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-3">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M10.5 6C8.51088 6 6.60322 6.79018 5.1967 8.1967C3.79018 9.60322 3 11.5109 3 13.5V34.5C3 36.4891 3.79018 38.3968 5.1967 39.8033C6.60322 41.2098 8.51088 42 10.5 42H24C24.3978 42 24.7794 41.842 25.0607 41.5607C25.342 41.2794 25.5 40.8978 25.5 40.5C25.5 40.1022 25.342 39.7206 25.0607 39.4393C24.7794 39.158 24.3978 39 24 39H10.5C9.30653 39 8.16193 38.5259 7.31802 37.682C6.47411 36.8381 6 35.6935 6 34.5V18H42V25.5C42 25.8978 42.158 26.2794 42.4393 26.5607C42.7206 26.842 43.1022 27 43.5 27C43.8978 27 44.2794 26.842 44.5607 26.5607C44.842 26.2794 45 25.8978 45 25.5V13.5C45 11.5109 44.2098 9.60322 42.8033 8.1967C41.3968 6.79018 39.4891 6 37.5 6H10.5Z" fill="url(#paint0_linear_diagnostics)"/>
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M36.408 30.8445C33.0135 29.874 29.874 33.0135 30.8445 36.408L32.2035 41.163C33.1455 44.4615 37.2855 45.534 39.711 43.1085L39.9105 42.9105L41.742 44.742C42.0233 45.0235 42.4048 45.1817 42.8027 45.1818C43.2006 45.1819 43.5823 45.024 43.8638 44.7428C44.1452 44.4615 44.3034 44.0799 44.3036 43.682C44.3037 43.2841 44.1458 42.9025 43.8645 42.621L42.0315 40.788L43.1085 39.7125C45.534 37.2855 44.4615 33.1455 41.1615 32.2035L36.4065 30.8445H36.408Z" fill="white"/>
+              <defs>
+                <linearGradient id="paint0_linear_diagnostics" x1="33.122" y1="14.1133" x2="17.0853" y2="38.2275" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#9DE8EE"/>
+                  <stop offset="0.490049" stop-color="#FA7C0B"/>
+                  <stop offset="1" stop-color="#9F8CED"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <h3 class="text-white font-body text-3xl font-normal leading-9 mb-3">
+              Diagnostics
+            </h3>
+            <p class="text-white/60 font-body text-sm leading-5 tracking-[0.28px]">
+              Comprehensive vehicle diagnostics and troubleshooting for performance and reliability issues.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Button -->
+    <section class="py-16 px-16 text-center">
+      <a href="/schedule" class="inline-flex items-center justify-center px-6 py-3 border border-[#FFA800] text-[#FFA800] font-body text-sm font-normal uppercase tracking-wider rounded-full hover:bg-[#FFA800] hover:text-black transition-colors">
+        Schedule Service
+      </a>
+    </section>
+
   </div>
 </BaseLayout>

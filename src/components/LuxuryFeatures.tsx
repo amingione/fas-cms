@@ -211,7 +211,7 @@ export function LuxuryFeatures() {
           </Badge>
 
           <h2
-            className={`font-black leading-tight font-captain ${isMobile ? 'text-lg' : 'text-4xl lg:text-6xl'}`}
+            className={`font-black leading-tight font-mono ${isMobile ? 'text-lg' : 'text-4xl lg:text-6xl'}`}
           >
             <span className="block text-white">THE F.A.S.</span>
             <span className="block luxury-gold-text font-cyber">DIFFERENCE</span>

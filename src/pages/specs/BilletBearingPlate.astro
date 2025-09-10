@@ -3,99 +3,36 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 const pageDoc: any = await getGitPageDoc('BilletBearingPlateSpecs');
-import Button from '@/components/Button.astro';
+import ProductSpecSheet from '@components/specs/ProductSpecSheet.astro';
 ---
 
 <BaseLayout>
   <div {...sbObjectId('content/pages/BilletBearingPlateSpecs.json')}>
-  <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Billet Bearing Plate — Spec Sheet'}</div>
-  {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
-    <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
-  )}
-  <!-- Hero Section -->
-  <section class="parallax-section section-divider section-divider-carbon">
-    <div class="background-layer">
-      <img src="/images/billetParts/billet-bearing-plate.png" alt="Billet Bearing Plate" class="absolute inset-0 w-full h-full object-cover object-center" />
+    <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>
+      {pageDoc?.title ?? 'Billet Bearing Plate — Spec Sheet'}
     </div>
-    <div class="foreground-layer">
-      <h1 class="text-4xl md:text-6xl font-ethno text-accent drop-shadow mb-4" {...sbFieldPath('title')}>
-        {pageDoc?.title ?? 'Billet Bearing Plate'}
-      </h1>
-      <p class="text-white/80 max-w-2xl mx-auto font-captain text-lg md:text-xl tracking-wide">
-        Engineered, fabricated, and rigorously tested by FAS Motorsports to deliver superior strength, precision, and reliability under extreme conditions.
-      </p>
-    </div>
-  </section>
+    {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
+      <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
+    )}
 
-  <!-- Why Our Billet Bearing Plate -->
-  <section class="packages">
-    <h2 class="text-3xl md:text-4xl font-ethno text-accent mb-6">Why FAS Billet?</h2>
-    <div class="package-grid">
-      <div class="package-card">
-        <h3 class="text-xl font-borg text-white mb-3">Strength &amp; Durability</h3>
-        <p class="text-white/70 text-sm leading-relaxed">
-          CNC‑machined from aerospace‑grade 6061‑T6 aluminum billet for unmatched rigidity and fatigue resistance. Unlike cast or stamped alternatives, our billet plate resists flexing under high load, extending bearing and crankshaft life.
-        </p>
-      </div>
-      <div class="package-card">
-        <h3 class="text-xl font-borg text-white mb-3">Thermal Stability</h3>
-        <p class="text-white/70 text-sm leading-relaxed">
-          Designed with optimized webbing and precision oil galleries to minimize heat soak and maintain consistent lubrication under track and street abuse. Tested up to 300°F without distortion.
-        </p>
-      </div>
-      <div class="package-card">
-        <h3 class="text-xl font-borg text-white mb-3">Precision Fitment</h3>
-        <p class="text-white/70 text-sm leading-relaxed">
-          5‑axis CNC tolerances within ±0.0005”. Every unit is blueprinted to OE block specs for seamless installation. No additional machining required.
-        </p>
-      </div>
-      <div class="package-card">
-        <h3 class="text-xl font-borg text-white mb-3">Proven Performance</h3>
-        <p class="text-white/70 text-sm leading-relaxed">
-          Bench tested to 1500+ whp and validated across drag, roll‑racing, and endurance platforms. Customers have logged over 20,000 miles on billet plates without failure.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Technical Specifications -->
-  <section class="features features-bg">
-    <h2 class="text-3xl md:text-4xl font-ethno text-accent mb-10 text-center">Technical Specifications</h2>
-    <div class="feature-grid">
-      <div class="feature-item">
-        <h3 class="text-lg font-borg text-white mb-2">Material</h3>
-        <p class="text-white/70 text-sm">6061‑T6 billet aluminum, heat treated</p>
-      </div>
-      <div class="feature-item">
-        <h3 class="text-lg font-borg text-white mb-2">Machining</h3>
-        <p class="text-white/70 text-sm">5‑axis CNC, tolerance ±0.0005”</p>
-      </div>
-      <div class="feature-item">
-        <h3 class="text-lg font-borg text-white mb-2">Weight</h3>
-        <p class="text-white/70 text-sm">7.8 lbs (average per plate)</p>
-      </div>
-      <div class="feature-item">
-        <h3 class="text-lg font-borg text-white mb-2">Compatibility</h3>
-        <p class="text-white/70 text-sm">Chrysler/Dodge/Jeep Gen III HEMI platforms</p>
-      </div>
-      <div class="feature-item">
-        <h3 class="text-lg font-borg text-white mb-2">Testing</h3>
-        <p class="text-white/70 text-sm">Thermal soak to 300°F, load tested to 1500whp+</p>
-      </div>
-      <div class="feature-item">
-        <h3 class="text-lg font-borg text-white mb-2">Finish</h3>
-        <p class="text-white/70 text-sm">Clear anodized for corrosion resistance</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Call to Action -->
-  <section class="bg-black/70 border-t border-white/10 py-12 text-center">
-    <h2 class="text-2xl md:text-3xl font-ethno text-accent mb-6">Ready to Upgrade?</h2>
-    <p class="text-white/70 mb-6 max-w-xl mx-auto font-captain text-lg">
-      Take your engine’s foundation to the next level with the FAS Motorsports Billet Bearing Plate.
-    </p>
-    <Button href="/shop/billet-bearing-plate" text="Shop Now" variant="default" size="lg" />
-  </section>
+    <ProductSpecSheet
+      title={pageDoc?.title ?? 'Billet Bearing Plate — Spec Sheet'}
+      description="Engineered, fabricated, and validated by FAS Motorsports to deliver superior strength, precision, and reliability under extreme conditions."
+      imageSrc="/images/billetParts/billet-bearing-plate.png"
+      imageAlt="FAS Motorsports Billet Bearing Plate"
+      specs={[
+        { label: 'Material', value: '6061‑T6 billet aluminum, heat treated' },
+        { label: 'Machining', value: '5‑axis CNC, tolerance ±0.0005"' },
+        { label: 'Weight', value: '7.8 lbs (average per plate)' },
+        { label: 'Compatibility', value: 'Chrysler/Dodge/Jeep Gen III HEMI platforms' },
+        { label: 'Testing', value: 'Thermal soak to 300°F, load tested to 1500+ whp' },
+        { label: 'Finish', value: 'Clear anodized for corrosion resistance' }
+      ]}
+      about={[
+        'CNC‑machined from aerospace‑grade billet for rigidity and fatigue resistance, the plate resists flexing under high load to help extend bearing and crank life.',
+        'Optimized webbing and oil‑gallery design improve thermal stability and lubrication consistency during track and street abuse.',
+        'Each unit is blueprinted to OE specs for precise fitment with no additional machining, delivering a dependable foundation for high power builds.'
+      ]}
+    />
   </div>
 </BaseLayout>

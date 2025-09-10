@@ -116,7 +116,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
       <div className="px-4 pb-4 text-left">
         <div className="flex justify-between items-center mt-2">
-          <p className="text-xl font-captain text-primary engine-pulse">{productPrice}</p>
+          <p className="text-xl font-mono text-primary engine-pulse">{productPrice}</p>
 
           {product._id && (
             <motion.button

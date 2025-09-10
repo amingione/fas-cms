@@ -32,7 +32,7 @@ const imageUrl = productImage?.asset?.url || '/placeholder.png';
   </a>
   <div class={`${layout === 'list' ? 'md:px-4 md:py-3 md:border-t-0 md:border-l md:border-white/10 md:flex md:items-center md:justify-between' : 'px-4 pb-4'} text-left`}>
     <div class="flex justify-between items-center mt-2">
-      <p class={`${layout === 'list' ? 'text-2xl md:text-xl' : 'text-3xl'} font-captain text-accent`}>{productPrice}</p>
+      <p class={`${layout === 'list' ? 'text-2xl md:text-xl' : 'text-3xl'} font-mono text-accent`}>{productPrice}</p>
       {product._id && (
         <button
           class="add-to-cart p-2 text-primary hover:text-white hover:bg-primary transition rounded-full"

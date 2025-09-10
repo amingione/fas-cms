@@ -7,7 +7,7 @@ import { SearchBar } from '@components/SearchBar.tsx';
 
 ---
 
-<header class="bg-black/80 shadow-xl shadow-outline text-white w-full">
+<header class="bg-black shadow-xl shadow-outline text-white w-full">
   <CartEntry client:load />
 
   <!-- Top Red Bar (always visible) -->
@@ -24,7 +24,7 @@ import { SearchBar } from '@components/SearchBar.tsx';
 
 <!-- ✅ Mobile Header -->
 <div id="mheader" class="md:hidden fixed top-[40px] left-0 right-0 z-[49] transition-all duration-300 ease-out">
-  <div class="w-full bg-black/80 backdrop-blur-md shadow-xl flex items-center justify-between px-4 h-10 transition-all duration-300 ease-out overflow-visible">
+  <div class="w-full bg-black backdrop-blur-md shadow-xl flex items-center justify-between px-4 h-10 transition-all duration-300 ease-out overflow-visible">
     <!-- SVG Toggle (hamburger→X) -->
     <button id="mnavToggle"
             aria-label="Open menu"
@@ -177,8 +177,21 @@ import { SearchBar } from '@components/SearchBar.tsx';
     syncMobileHeaderTop();
     syncDesktopStickyTop();
     syncDesktopHeaderTop();
-    window.addEventListener('resize', () => { syncMobileHeaderTop(); syncDesktopStickyTop(); syncDesktopHeaderTop(); }, { passive: true });
-    window.addEventListener('orientationchange', () => { syncMobileHeaderTop(); syncDesktopStickyTop(); syncDesktopHeaderTop(); });
+
+    function setContentOffset() {
+      const barH = topBar ? Math.round(topBar.getBoundingClientRect().height) : 0;
+      const isDesktop = window.matchMedia('(min-width: 768px)').matches;
+      let headerH = 0;
+      if (isDesktop && dheader) headerH = Math.round(dheader.getBoundingClientRect().height);
+      if (!isDesktop && mheader) headerH = Math.round(mheader.getBoundingClientRect().height);
+      const total = Math.max(0, barH + headerH);
+      document.documentElement.style.setProperty('--header-offset', total + 'px');
+    }
+    setContentOffset();
+
+    const onResize = () => { syncMobileHeaderTop(); syncDesktopStickyTop(); syncDesktopHeaderTop(); setContentOffset(); };
+    window.addEventListener('resize', onResize, { passive: true });
+    window.addEventListener('orientationchange', onResize);
 
     // SearchBar React component handles suggestions client-side
 
@@ -223,7 +236,7 @@ import { SearchBar } from '@components/SearchBar.tsx';
       else mheader.classList.remove("m-shrink");
     }
     applyMobileShrink(window.scrollY);
-    window.addEventListener("scroll", () => { applyMobileShrink(window.scrollY); syncMobileHeaderTop(); }, { passive: true });
+    window.addEventListener("scroll", () => { applyMobileShrink(window.scrollY); syncMobileHeaderTop(); setContentOffset(); }, { passive: true });
 
       // Shrink desktop header on scroll (top red bar stays static)
     const dShrinkThreshold = 120;
@@ -242,6 +255,7 @@ import { SearchBar } from '@components/SearchBar.tsx';
       syncMobileHeaderTop();
       syncDesktopHeaderTop();
       syncDesktopStickyTop();
+      setContentOffset();
     }, { passive: true });
 
     // --- Account dashboard open/close helpers ---
@@ -359,6 +373,7 @@ import { SearchBar } from '@components/SearchBar.tsx';
     const sticky = document.querySelector(".my-sticky-header");
     const threshold = 150;
     window.addEventListener("scroll", () => {
+      if (!sticky) return;
       if (window.scrollY > threshold) {
         sticky.classList.add("show");
       } else {

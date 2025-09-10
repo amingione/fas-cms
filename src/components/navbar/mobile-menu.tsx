@@ -1,8 +1,6 @@
 'use client';
 
 import { Dialog, Transition } from '@headlessui/react';
-import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
 import { Fragment, useEffect, useState } from 'react';
 
 import { Bars3Icon, XMarkIcon, UserCircleIcon } from '@heroicons/react/24/outline';
@@ -11,8 +9,6 @@ import type { Auth0Client } from '@auth0/auth0-spa-js';
 import { SearchBar } from '@components/SearchBar.tsx';
 
 export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone' | 'inline' }) {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [auth0, setAuth0] = useState<Auth0Client | null>(null);
@@ -55,10 +51,6 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
     return () => window.removeEventListener('resize', handleResize);
   }, [isOpen]);
 
-  useEffect(() => {
-    setIsOpen(false);
-  }, [pathname, searchParams]);
-
   const MenuContent = ({ onNavigate }: { onNavigate?: () => void }) => (
     <>
       <div className="flex">
@@ -78,63 +70,58 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
         <ul className="flex w-full flex-col">
           {/* Top Level: Home */}
           <li className="py-2 text-xl text-black transition-colors hover:text-neutral-500 dark:text-white">
-            <Link href="/" prefetch={true} onClick={onNavigate}>
+            <a href="/" onClick={onNavigate}>
               Home
-            </Link>
+            </a>
           </li>
           {/* Top Level: Shop with subcategories */}
           <li className="py-2">
             <div className="text-xl text-black dark:text-white">Shop</div>
             <ul className="mt-2 ml-4 space-y-2 text-lg">
               <li>
-                <Link
+                <a
                   href="/shop"
-                  prefetch={true}
                   onClick={onNavigate}
                   className="text-black hover:text-neutral-500 dark:text-white"
                 >
                   All Products
-                </Link>
+                </a>
               </li>
               <li>
-                <Link
-                  href="/PredatorPulleySpecsSheet"
-                  prefetch={true}
+                <a
+                  href="/specs/PredatorPulley"
                   onClick={onNavigate}
                   className="text-black hover:text-neutral-500 dark:text-white"
                 >
                   FAS Predator Pulley
-                </Link>
+                </a>
               </li>
               <li>
-                <Link
-                  href="/HellcatPulleyHubSpecSheet"
-                  prefetch={true}
+                <a
+                  href="/specs/PulleyHub"
                   onClick={onNavigate}
                   className="text-black hover:text-neutral-500 dark:text-white"
                 >
                   FAS Hub &amp; Pulley
-                </Link>
+                </a>
               </li>
               <li>
-                <Link
-                  href="/BilletBearingPlateSpecs"
-                  prefetch={true}
+                <a
+                  href="/specs/BilletBearingPlate"
                   onClick={onNavigate}
                   className="text-black hover:text-neutral-500 dark:text-white"
                 >
                   FAS Billet Bearing Plate
-                </Link>
+                </a>
               </li>
               <li>
-                <Link
-                  href="/specs/billet-snouts"
-                  prefetch={true}
+                <a
+                  href="/specs/BilletSnout"
                   onClick={onNavigate}
                   className="text-black hover:text-neutral-500 dark:text-white"
                 >
                   FAS Billet Snouts
-                </Link>
+                </a>
               </li>
             </ul>
           </li>
@@ -148,89 +135,81 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             </div>
             <ul className="mt-2 ml-4 space-y-2 text-lg">
               <li>
-                <Link
+                <a
                   href="/packages/truckPackages"
-                  prefetch={true}
                   onClick={onNavigate}
                   className="text-black hover:text-neutral-500 dark:text-white"
                 >
                   Truck Packages
-                </Link>
+                </a>
               </li>
               <li>
-                <Link
+                <a
                   href="/packages/power-packages"
-                  prefetch={true}
                   onClick={onNavigate}
                   className="text-black hover:text-neutral-500 dark:text-white"
                 >
                   Power Packages
-                </Link>
+                </a>
               </li>
             </ul>
           </li>
           {/* Services */}
           <li className="py-2">
             <div className="flex items-center justify-between">
-              <Link
+              <a
                 href="/services/AllServices"
-                prefetch={true}
                 onClick={onNavigate}
                 className="text-xl text-black hover:text-neutral-500 dark:text-white"
               >
                 All Services
-              </Link>
+              </a>
             </div>
             <ul className="mt-2 ml-4 space-y-2 text-lg">
               <li>
-                <Link
+                <a
                   href="/services/igla"
-                  prefetch={true}
                   onClick={onNavigate}
                   className="text-black hover:text-neutral-500 dark:text-white"
                 >
                   IGLA Security
-                </Link>
+                </a>
               </li>
               <li>
-                <Link
+                <a
                   href="/services/porting"
-                  prefetch={true}
                   onClick={onNavigate}
                   className="text-black hover:text-neutral-500 dark:text-white"
                 >
                   Porting
-                </Link>
+                </a>
               </li>
               <li>
-                <Link
+                <a
                   href="/services/customFab"
-                  prefetch={true}
                   onClick={onNavigate}
                   className="text-black hover:text-neutral-500 dark:text-white"
                 >
                   Custom Fabrication
-                </Link>
+                </a>
               </li>
               <li>
-                <Link
+                <a
                   href="/services/coreExchange"
-                  prefetch={true}
                   onClick={onNavigate}
                   className="text-black hover:text-neutral-500 dark:text-white"
                 >
                   Core Exchange
-                </Link>
+                </a>
               </li>
               <li>
-                <Link
+                <a
                   href="/schedule"
-                  prefetch={true}
                   onClick={onNavigate}
                   className="text-black hover:text-neutral-500 dark:text-white"
                 >
                   Schedule Service
-                </Link>
+                </a>
               </li>
             </ul>
           </li>
@@ -239,43 +218,41 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
           </li>
           {/* Build Your Package */}
           <li className="py-2">
-            <Link
+            <a
               href="/customBuild"
-              prefetch={true}
               onClick={onNavigate}
               className="text-xl text-primary hover:text-primary/90"
             >
               Build Your Package →
-            </Link>
+            </a>
           </li>
           {/* Basic pages */}
           <li className="py-2 text-xl text-black transition-colors hover:text-neutral-500 dark:text-white">
-            <Link href="/about" prefetch={true} onClick={onNavigate}>
+            <a href="/about" onClick={onNavigate}>
               About
-            </Link>
+            </a>
           </li>
           <li className="py-2 text-xl text-black transition-colors hover:text-neutral-500 dark:text-white">
-            <Link href="/faq" prefetch={true} onClick={onNavigate}>
+            <a href="/faq" onClick={onNavigate}>
               FAQ
-            </Link>
+            </a>
           </li>
           <li className="py-2 text-xl text-black transition-colors hover:text-neutral-500 dark:text-white">
-            <Link href="/contact" prefetch={true} onClick={onNavigate}>
+            <a href="/contact" onClick={onNavigate}>
               Contact
-            </Link>
+            </a>
           </li>
           {/* Account / Auth */}
           <li className="py-2">
             {authed === null ? (
-              <Link
+              <a
                 href="/account"
-                prefetch={true}
                 onClick={onNavigate}
                 className="flex items-center gap-2 text-xl text-black hover:text-neutral-500 dark:text-white"
               >
                 <UserCircleIcon className="h-6 w-6" />
                 <span>Account</span>
-              </Link>
+              </a>
             ) : authed ? (
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2 text-lg text-black dark:text-white">
@@ -283,14 +260,13 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
                   <span>{displayName || 'My Account'}</span>
                 </div>
                 <div className="ml-8 flex items-center gap-4">
-                  <Link
+                  <a
                     href="/dashboard"
-                    prefetch={true}
                     onClick={onNavigate}
                     className="text-black hover:text-neutral-500 dark:text-white"
                   >
                     Dashboard
-                  </Link>
+                  </a>
                   <button
                     onClick={() => {
                       auth0?.logout?.({ logoutParams: { returnTo: window.location.origin } });
@@ -344,7 +320,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             leaveFrom="opacity-100 backdrop-blur-[.5px]"
             leaveTo="opacity-0 backdrop-blur-none"
           >
-            <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+            <div className="fixed inset-0 bg-white/30" aria-hidden="true" />
           </Transition.Child>
           <Transition.Child
             as={Fragment}
@@ -355,7 +331,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             leaveFrom="translate-x-0"
             leaveTo="translate-x-[-100%]"
           >
-            <Dialog.Panel className="fixed bottom-0 left-0 right-0 top-0 flex h-full w-full flex-col bg-white pb-6 dark:bg-black">
+            <Dialog.Panel className="fixed bottom-0 left-0 right-0 top-0 flex h-full w-full flex-col bg-white pb-6 bg-white/30">
               <div className="p-4">
                 <button
                   className="mb-4 flex h-11 w-11 items-center justify-center rounded-md border border-neutral-200 text-black transition-colors dark:border-neutral-700 dark:text-white"

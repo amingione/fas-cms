@@ -20,6 +20,7 @@ export default defineConfig({
   output: 'server',
   adapter: netlify(),
   integrations: [react(), tailwind()],
+  devToolbar: { enabled: false },
   build: {
     rollupOptions: {
       external: ['resend']

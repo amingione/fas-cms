@@ -2,7 +2,7 @@ import Stripe from 'stripe';
 import { createClient } from '@sanity/client';
 
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-06-20'
+  apiVersion: '2025-08-27.basil'
 });
 
 const sanity = createClient({
@@ -63,7 +63,10 @@ export async function POST({ request }: { request: Request }) {
       // Retrieve payment intent details (brand/last4/receipt)
       let paymentIntent: Stripe.PaymentIntent | null = null;
       try {
-        const piId = typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id;
+        const piId =
+          typeof session.payment_intent === 'string'
+            ? session.payment_intent
+            : session.payment_intent?.id;
         if (piId) {
           paymentIntent = await stripe.paymentIntents.retrieve(piId, { expand: ['latest_charge'] });
         }
@@ -126,16 +129,31 @@ export async function POST({ request }: { request: Request }) {
       const newOrder = await sanity.create({
         _type: 'order',
         stripeSessionId: session.id,
-        paymentIntentId: typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id,
+        paymentIntentId:
+          typeof session.payment_intent === 'string'
+            ? session.payment_intent
+            : session.payment_intent?.id,
         paymentStatus: paymentIntent?.status || session.payment_status || 'unknown',
-        chargeId: typeof (paymentIntent as any)?.latest_charge === 'string' ? (paymentIntent as any).latest_charge : (paymentIntent as any)?.latest_charge?.id,
-        cardBrand: (paymentIntent as any)?.charges?.data?.[0]?.payment_method_details?.card?.brand || '',
-        cardLast4: (paymentIntent as any)?.charges?.data?.[0]?.payment_method_details?.card?.last4 || '',
+        chargeId:
+          typeof (paymentIntent as any)?.latest_charge === 'string'
+            ? (paymentIntent as any).latest_charge
+            : (paymentIntent as any)?.latest_charge?.id,
+        cardBrand:
+          (paymentIntent as any)?.charges?.data?.[0]?.payment_method_details?.card?.brand || '',
+        cardLast4:
+          (paymentIntent as any)?.charges?.data?.[0]?.payment_method_details?.card?.last4 || '',
         receiptUrl: (paymentIntent as any)?.charges?.data?.[0]?.receipt_url || '',
         currency: session.currency || 'usd',
-        amountSubtotal: typeof session.amount_subtotal === 'number' ? session.amount_subtotal / 100 : undefined,
-        amountTax: typeof session.total_details?.amount_tax === 'number' ? session.total_details.amount_tax / 100 : undefined,
-        amountShipping: typeof session.shipping_cost?.amount_total === 'number' ? session.shipping_cost.amount_total / 100 : undefined,
+        amountSubtotal:
+          typeof session.amount_subtotal === 'number' ? session.amount_subtotal / 100 : undefined,
+        amountTax:
+          typeof session.total_details?.amount_tax === 'number'
+            ? session.total_details.amount_tax / 100
+            : undefined,
+        amountShipping:
+          typeof session.shipping_cost?.amount_total === 'number'
+            ? session.shipping_cost.amount_total / 100
+            : undefined,
         customerEmail: session.customer_details?.email || '',
         customer: customerRef,
         userId,

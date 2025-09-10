@@ -12,7 +12,11 @@ export const SITE_PAGES: SitePage[] = [
   { title: 'Contact', path: '/contact', keywords: ['email', 'support'] },
   { title: 'FAQ', path: '/faq', keywords: ['questions', 'help'] },
   { title: 'Warranty', path: '/warranty', keywords: ['coverage', 'policy'] },
-  { title: 'Returns & Refunds', path: '/returnRefundPolicy', keywords: ['returns', 'refunds', 'policy'] },
+  {
+    title: 'Returns & Refunds',
+    path: '/returnRefundPolicy',
+    keywords: ['returns', 'refunds', 'policy']
+  },
   { title: 'Privacy Policy', path: '/privacypolicy', keywords: ['privacy', 'policy'] },
   { title: 'Terms and Conditions', path: '/termsandconditions', keywords: ['terms', 'conditions'] },
   { title: 'Power Packages', path: '/power-packages', keywords: ['packages', 'performance'] },
@@ -20,7 +24,7 @@ export const SITE_PAGES: SitePage[] = [
   { title: 'Porting', path: '/porting', keywords: ['porting', 'snout', 'supercharger'] },
   { title: 'IGLA', path: '/igla', keywords: ['security', 'anti-theft', 'igla'] },
   { title: 'Schedule Install', path: '/schedule', keywords: ['schedule', 'install', 'booking'] },
-  { title: 'Core Exchange', path: '/coreExchange', keywords: ['core', 'exchange'] },
-  { title: 'Truck Packages', path: '/truckPackages', keywords: ['truck', 'packages'] },
-  { title: 'Search', path: '/search', keywords: ['search'] },
+  { title: 'Core Exchange', path: '/services/coreExchange', keywords: ['core', 'exchange'] },
+  { title: 'Truck Packages', path: '/packages/truckPackages', keywords: ['truck', 'packages'] },
+  { title: 'Search', path: '/search', keywords: ['search'] }
 ];
