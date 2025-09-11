@@ -14,7 +14,7 @@ const pageDoc: any = await getGitPageDoc('customFab');
   )}
 
   <!-- HERO -->
-  <section class="parallax-section section-divider section-divider-carbon"> 
+  <section class="parallax-section custom-hero section-divider section-divider-carbon">
     <div class="background-layer">
       <img
         src="/images/fabrication/FAS-Fabrication-1.png"
@@ -23,7 +23,7 @@ const pageDoc: any = await getGitPageDoc('customFab');
         loading="eager"
       />
     </div>
-    <div class="foreground-layer">
+    <div class="foreground-layer !pt-32 md:!pt-40">
       <h1 class="text-4xl md:text-6xl font-ethno text-accent drop-shadow mb-3" {...sbFieldPath('title')}>
         {pageDoc?.title ?? 'Custom Fabrication & Welding'}
       </h1>
@@ -189,3 +189,15 @@ const pageDoc: any = await getGitPageDoc('customFab');
     <Hero client:load />
   </section>
 </BaseLayout>
+
+<style>
+  .custom-hero {
+    height: 60vh;
+  }
+
+  @media (min-width: 768px) {
+    .custom-hero {
+      height: 80vh;
+    }
+  }
+</style>
