@@ -56,6 +56,26 @@ export default defineConfig({
       // Conditionally include svgr if available
       ...(svgrPlugin ? [svgrPlugin] : [])
     ],
+    build: {
+      // Raise warning limit; we'll split big libs into separate chunks below
+      chunkSizeWarningLimit: 2000,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            // Split admin dashboard code from storefront
+            if (id.includes('/src/admin-react/')) return 'admin';
+
+            // Group heavy vendor libs
+            if (id.includes('node_modules')) {
+              if (id.includes('fullcalendar')) return 'fullcalendar';
+              if (id.includes('framer-motion')) return 'motion';
+              if (id.includes('@radix-ui')) return 'radix';
+              return 'vendor';
+            }
+          }
+        }
+      }
+    },
     envPrefix: ['PUBLIC_', 'SANITY_', 'PUBLIC_SANITY_'],
     resolve: {
       alias: {

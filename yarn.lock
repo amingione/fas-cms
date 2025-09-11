@@ -16645,8 +16645,8 @@ __metadata:
     jsonwebtoken: ^9.0.2
     lint-staged: ^15.5.1
     lucide-react: ^0.540.0
-    mdast-util-gfm: ^3
-    mdast-util-gfm-table: ^2
+    mdast-util-gfm: ^3.1.0
+    mdast-util-gfm-table: ^2.0.0
     netlify-plugin-cache: ^1.0.3
     netlify-plugin-checklinks: ^4.1.1
     netlify-plugin-inline-critical-css: ^2.0.0
@@ -22631,7 +22631,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mdast-util-gfm-table@npm:^2, mdast-util-gfm-table@npm:^2.0.0":
+"mdast-util-gfm-table@npm:^2.0.0":
   version: 2.0.0
   resolution: "mdast-util-gfm-table@npm:2.0.0"
   dependencies:
@@ -22656,7 +22656,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mdast-util-gfm@npm:^3, mdast-util-gfm@npm:^3.0.0":
+"mdast-util-gfm@npm:^3.0.0, mdast-util-gfm@npm:^3.1.0":
   version: 3.1.0
   resolution: "mdast-util-gfm@npm:3.1.0"
   dependencies:

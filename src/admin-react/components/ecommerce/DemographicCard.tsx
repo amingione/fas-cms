@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { MoreDotIcon } from "../../icons";
-import CountryMap from "./CountryMap";
+const CountryMap = lazy(() => import("./CountryMap"));
 
 export default function DemographicCard() {
   const [isOpen, setIsOpen] = useState(false);
@@ -54,7 +54,9 @@ export default function DemographicCard() {
           id="mapOne"
           className="mapOne map-btn -mx-4 -my-6 h-[212px] w-[252px] 2xsm:w-[307px] xsm:w-[358px] sm:-mx-6 md:w-[668px] lg:w-[634px] xl:w-[393px] 2xl:w-[554px]"
         >
-          <CountryMap />
+          <Suspense fallback={<div className="h-full w-full animate-pulse bg-black/10 dark:bg-white/5 rounded-lg" />}> 
+            <CountryMap />
+          </Suspense>
         </div>
       </div>
 

@@ -1,33 +1,37 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router';
-import SignIn from 'src/admin-react/pages/AuthPages/SignIn';
-import SignUp from 'src/admin-react/pages/AuthPages/SignUp';
-import NotFound from 'src/admin-react/pages/OtherPage/NotFound';
-import UserProfiles from 'src/admin-react/pages/UserProfiles';
-import Videos from 'src/admin-react/pages/UiElements/Videos';
-import Images from 'src/admin-react/pages/UiElements/Images';
-import Alerts from 'src/admin-react/pages/UiElements/Alerts';
-import Badges from './pages/UiElements/Badges';
-import Avatars from 'src/admin-react/pages/UiElements/Badges';
-import Buttons from 'src/admin-react/pages/UiElements/Buttons';
-import LineChart from 'src/admin-react/pages/Charts/LineChart.tsx';
-import BarChart from 'src/admin-react/pages/Charts/BarChart.tsx';
-import Calendar from 'src/admin-react/pages/Calendar.tsx';
-import BasicTables from 'src/admin-react/pages/Tables/BasicTables.tsx';
-import FormElements from 'src/admin-react/pages/Forms/FormElements.tsx';
-import Blank from 'src/admin-react/pages/Blank.tsx';
-import AppLayout from 'src/admin-react/layout/AppLayout.tsx';
+import { Suspense, lazy } from 'react';
+import { ThemeProvider } from 'src/admin-react/context/ThemeContext';
+const SignIn = lazy(() => import('src/admin-react/pages/AuthPages/SignIn'));
+const SignUp = lazy(() => import('src/admin-react/pages/AuthPages/SignUp'));
+const NotFound = lazy(() => import('src/admin-react/pages/OtherPage/NotFound'));
+const UserProfiles = lazy(() => import('src/admin-react/pages/UserProfiles'));
+const Videos = lazy(() => import('src/admin-react/pages/UiElements/Videos'));
+const Images = lazy(() => import('src/admin-react/pages/UiElements/Images'));
+const Alerts = lazy(() => import('src/admin-react/pages/UiElements/Alerts'));
+const Badges = lazy(() => import('./pages/UiElements/Badges'));
+const Avatars = lazy(() => import('src/admin-react/pages/UiElements/Badges'));
+const Buttons = lazy(() => import('src/admin-react/pages/UiElements/Buttons'));
+const LineChart = lazy(() => import('src/admin-react/pages/Charts/LineChart.tsx'));
+const BarChart = lazy(() => import('src/admin-react/pages/Charts/BarChart.tsx'));
+const Calendar = lazy(() => import('src/admin-react/pages/Calendar.tsx'));
+const BasicTables = lazy(() => import('src/admin-react/pages/Tables/BasicTables.tsx'));
+const FormElements = lazy(() => import('src/admin-react/pages/Forms/FormElements.tsx'));
+const Blank = lazy(() => import('src/admin-react/pages/Blank.tsx'));
+const AppLayout = lazy(() => import('src/admin-react/layout/AppLayout.tsx'));
 import { ScrollToTop } from 'src/admin-react/components/common/ScrollToTop.tsx';
 import Home from 'src/admin-react/pages/Dashboard/Home.tsx';
 
 export default function App() {
   return (
     <>
-      <Router>
-        <ScrollToTop />
-        <Routes>
-          {/* Dashboard Layout */}
-          <Route element={<AppLayout />}>
-            <Route index path="/" element={<Home />} />
+      <ThemeProvider>
+        <Router>
+          <ScrollToTop />
+          <Suspense fallback={<div className="p-6 text-white/70">Loading…</div>}>
+            <Routes>
+              {/* Dashboard Layout */}
+              <Route element={<AppLayout />}>
+                <Route index path="/" element={<Home />} />
 
             {/* Others Page */}
             <Route path="/profile" element={<UserProfiles />} />
@@ -59,8 +63,10 @@ export default function App() {
 
           {/* Fallback Route */}
           <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Router>
+            </Routes>
+          </Suspense>
+        </Router>
+      </ThemeProvider>
     </>
   );
 }
