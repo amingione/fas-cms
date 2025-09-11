@@ -8,6 +8,8 @@ export function Services() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
   const [isMobile, setIsMobile] = useState(false);
+  const servicesTrackRef = useRef<HTMLDivElement | null>(null);
+  const servicesInnerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -17,6 +19,30 @@ export function Services() {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Auto-scroll the mobile services carousel in an infinite loop
+  useEffect(() => {
+    if (!isMobile) return;
+    const track = servicesTrackRef.current;
+    const inner = servicesInnerRef.current;
+    if (!track || !inner) return;
+    let raf = 0;
+    const speed = 0.7; // px per frame
+    const tick = () => {
+      try {
+        track.scrollLeft += speed;
+        // Since items are duplicated in a single row, loop at half width
+        const w = inner.scrollWidth / 2;
+        if (w > 0 && track.scrollLeft >= w) {
+          track.scrollLeft -= w;
+        }
+      } finally {
+        raf = requestAnimationFrame(tick);
+      }
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [isMobile]);
 
   type Service = {
     icon: React.ElementType;
@@ -243,23 +269,29 @@ export function Services() {
           </motion.div>
         </motion.div>
 
-        {/* Mobile Carousel or Desktop Grid */}
+        {/* Mobile Carousel (auto-scroll) or Desktop Grid */}
         {isMobile ? (
           <motion.div
-            className="mobile-carousel"
+            className="-mx-4 px-4"
             variants={containerVariants}
             initial="hidden"
             animate={isInView ? 'visible' : 'hidden'}
-            /** Prevent transforms on the scroll container to avoid iOS scroll issues */
             transformTemplate={() => 'none'}
             style={{ transform: 'none', WebkitOverflowScrolling: 'touch' as any }}
             role="region"
             aria-label="Services carousel"
           >
-            <div className="mobile-carousel-container">
-              {services.map((service, index) => (
-                <ServiceCard key={index} service={service} index={index} />
-              ))}
+            <div
+              ref={servicesTrackRef}
+              className="overflow-x-auto overflow-y-hidden py-2 scrollbar-thin"
+            >
+              <div ref={servicesInnerRef} className="flex flex-nowrap gap-4">
+                {[...services, ...services].map((service, index) => (
+                  <div key={`svc-${index}`} className="flex-none w-[75%] min-w-[260px] max-w-xs">
+                    <ServiceCard service={service} index={index % services.length} />
+                  </div>
+                ))}
+              </div>
             </div>
           </motion.div>
         ) : (

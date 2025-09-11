@@ -6,7 +6,6 @@ import { Hero } from '@components/Hero.tsx';
 import { Services } from '@components/Services.tsx';
 import { Products } from '@components/Products.tsx';
 import { About } from '@components/About.tsx';
-import { IGLASecurity } from '@components/IGLASecurity.tsx';
 import { TruckPackagesHero } from '@components/TruckPackagesHero.tsx';
 import { LuxuryFeatures } from '@components/LuxuryFeatures.tsx';
 import { CustomFabrication } from '@components/CustomFabrication.tsx';
@@ -95,26 +94,51 @@ try {
 
 <BaseLayout>
   <div {...sbObjectId('content/pages/index.json')}>
+  {/* Static hero banner placed first, no longer Stackbit-managed */}
+  <HeroBanner
+    headline="Power Up Your Ride"
+    subtext="Premium performance upgrades tailored to your build."
+    ctaText="Explore Now"
+    ctaLink="/shop"
+  />
   <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Home'}</div>
 
   <main class="relative flex flex-col">
-    {/* Dynamic sections first so the Editor can add/reorder blocks */}
+    {/* Dynamic sections follow so the Editor can add/reorder blocks */}
     {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
       <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
     )}
 
     {/* Keep existing curated sections below; we can convert later */}
-
-    <section id="IGLASecurity" class="mt-16">
-      <IGLASecurity client:only="react" />
-    </section>
-
-    <section id="CustomFabrication" >
-      <CustomFabrication client:only="react" />
+    <section id="TruckPackagesHero" >
+      <TruckPackagesHero client:only="react" />
     </section>
 
     <section id="Highlights">
       <Highlights items={featuredProducts} />
     </section>
 
+    <section id="Products" class="mt-20">
+      <Products client:only="react" />
+    </section>
+
+    <section id="CustomFabrication" >
+      <CustomFabrication client:only="react" />
+    </section>
+
+    <section id="services" class="mt-20">
+      <Services client:only="react" />
+    </section>
+
+    <section id="LuxuryFeatures" class="mt-20">
+      <LuxuryFeatures client:only="react" />
+    </section>
+
+    <section id="About" class="mt-20">
+      <About client:only="react" />
+    </section>
+
+
+  </main>
+  </div>
 </BaseLayout>

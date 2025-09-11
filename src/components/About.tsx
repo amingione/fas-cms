@@ -114,36 +114,6 @@ export function About() {
               ))}
             </motion.div>
 
-            {/* Stats Grid - Mobile Friendly */}
-            <motion.div
-              className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 pt-4 md:pt-6"
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: 1.6, duration: 0.6 }}
-            >
-              {stats.map((stat, index) => {
-                const Icon = stat.icon;
-                return (
-                  <motion.div
-                    key={stat.label}
-                    className="bg-gradient-to-br from-primary/20 to-red-600/20 rounded-lg p-3 md:p-4 text-center border border-primary/20 industrial-glow"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                    transition={{ delay: 1.8 + index * 0.1, duration: 0.4 }}
-                    whileHover={{ scale: 1.05 }}
-                  >
-                    <Icon className="w-4 h-4 md:w-5 md:h-5 text-primary mx-auto mb-1 md:mb-2" />
-                    <div className="text-lg md:text-xl font-black text-white font-borg">
-                      {stat.value}
-                    </div>
-                    <div className="text-xs md:text-sm text-white/60 font-bold font-ethno">
-                      {stat.label}
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </motion.div>
-
             {/* CTA Button */}
             <motion.div
               className="pt-4 md:pt-6"
@@ -152,116 +122,8 @@ export function About() {
               transition={{ delay: 2.2, duration: 0.6 }}
             ></motion.div>
           </motion.div>
-
-          {/* Image Gallery - Mobile Optimized */}
-          <motion.div
-            className="carousel relative mt-8 lg:mt-0"
-            initial={{ opacity: 0, x: 100, scale: 0.9 }}
-            animate={isInView ? { opacity: 1, x: 0, scale: 1 } : {}}
-            transition={{ delay: 0.6, duration: 1, ease: 'easeOut' }}
-          >
-            {/* Mobile Layout - Single Column */}
-            <div className="block md:hidden space-y-4">
-              <motion.div
-                className="relative rounded-2xl overflow-hidden shadow-2xl industrial-glow"
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.3 }}
-              >
-                <img
-                  src="/images/billetParts/FAS-Pulley-Hub-Kit.png"
-                  alt="Precision Billet Work"
-                  className="w-full h-48 object-cover"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                <div className="absolute bottom-3 left-3 text-white font-bold text-sm font-ethno">
-                  PRECISION MACHINING
-                </div>
-              </motion.div>
-
-              <motion.div
-                className="relative rounded-2xl overflow-hidden shadow-2xl industrial-glow"
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.3 }}
-              >
-                <img
-                  src="/images/billetParts/billet-bearing-plate.png"
-                  alt="F.A.S. Components"
-                  className="w-full h-48 object-cover"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                <div className="absolute bottom-3 left-3 text-white font-bold text-sm font-ethno">
-                  F.A.S. COMPONENTS
-                </div>
-              </motion.div>
-            </div>
-
-            {/* Desktop Layout - Grid */}
-            <div className="hidden md:grid grid-cols-2 gap-4 lg:gap-6">
-              <div className="space-y-4 lg:space-y-6">
-                <motion.div
-                  className="relative rounded-2xl overflow-hidden shadow-2xl group industrial-glow"
-                  whileHover={{ scale: 1.05, rotateY: 5 }}
-                  transition={{ duration: 0.5 }}
-                  style={{ perspective: '1000px' }}
-                >
-                  <img
-                    src="/images/snouts/FAS-Billet-Snout-Front.png"
-                    alt="Precision Billet Work"
-                    className="w-full h-48 lg:h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="absolute bottom-4 left-4 text-white font-bold text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-ethno">
-                    PRECISION MACHINING
-                  </div>
-                </motion.div>
-
-                <motion.div
-                  className="relative rounded-2xl overflow-hidden shadow-2xl group industrial-glow"
-                  whileHover={{ scale: 1.05, rotateY: -5 }}
-                  transition={{ duration: 0.5 }}
-                  style={{ perspective: '1000px' }}
-                >
-                  <img
-                    src="/images/billetParts/FAS-Pulley-Hub-Kit.png"
-                    alt="Billet Aluminum Components"
-                    className="w-full h-32 lg:h-40 object-cover group-hover:scale-110 transition-transform duration-500"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="absolute bottom-4 left-4 text-white font-bold text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-ethno">
-                    F.A.S. COMPONENTS
-                  </div>
-                </motion.div>
-              </div>
-
-              <div className="space-y-4 lg:space-y-6 pt-8 lg:pt-12">
-                <motion.div
-                  className="relative rounded-2xl overflow-hidden shadow-2xl group industrial-glow"
-                  whileHover={{ scale: 1.05, rotateY: -5 }}
-                  transition={{ duration: 0.5 }}
-                  style={{ perspective: '1000px' }}
-                >
-                  <img
-                    src="/images/billetParts/predator-pulley-fas.png"
-                    alt="Quality Control"
-                    className="w-full h-48 lg:h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="absolute bottom-4 left-4 text-white font-bold text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-ethno">
-                    SUPERIOR QUALITY
-                  </div>
-                </motion.div>
-              </div>
-            </div>
-
-            {/* Subtle glow effects - Desktop only */}
-            <div className="hidden lg:block absolute -top-4 -right-4 w-24 h-24 bg-gradient-to-br from-green-500/20 to-blue-500/20 rounded-full blur-3xl"></div>
-            <div className="hidden lg:block absolute -bottom-4 -left-4 w-20 h-20 bg-gradient-to-br from-primary/20 to-purple-500/20 rounded-full blur-2xl"></div>
-          </motion.div>
+          {/* End content column */}
+          {/* Removed gallery column */}
         </div>
       </div>
     </section>

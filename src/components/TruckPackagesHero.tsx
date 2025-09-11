@@ -29,13 +29,13 @@ export function TruckPackagesHero({
   ctaSecondaryHref
 }: TruckPackagesHeroProps) {
   return (
-    <section className="relative overflow-hidden bg-black text-white">
+    <section className="relative overflow-hidden bg-black/10 glass-layer-rounded back-layer rounded-md shadow-lg text-white mb-5">
       {/* subtle texture / vignette */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.06),transparent_60%)] opacity-20" />
 
       {/* DIVIDER that appears behind content + truck */}
       <div className="pointer-events-none absolute left-0 right-0 top-1/2 z-0">
-        <div className="h-[2px] w-full bg-white/40" />
+        <div className="h-[1px] w-full bg-white/10" />
         <div className="h-px w-[80%] mx-auto bg-gradient-to-r from-transparent via-white/25 to-transparent" />
       </div>
 
@@ -46,7 +46,7 @@ export function TruckPackagesHero({
             <img
               src="images/faslogochroma.png"
               alt="F.A.S. Motorsports"
-              className="w-10 h-10 object-contain drop-shadow"
+              className="w-10 h-10 object-contain accent-image drop-shadow"
             />
             <Badge
               variant="outline"

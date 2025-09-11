@@ -1,0 +1,169 @@
+---
+import DashboardShell from '@components/admin/DashboardShell.tsx'
+import Card from '@components/admin/Card.tsx'
+
+type Appointment = {
+  startTime: string;
+  status?: string;
+  eventType?: { title?: string };
+  cancelUrl?: string;
+  rescheduleUrl?: string;
+  customer?: { name?: string; email?: string };
+  customerEmail?: string;
+  email?: string;
+};
+
+// Resolve a stable absolute base for SSR fetches
+const requestOrigin = new URL(Astro.request.url).origin;
+const siteOrigin = Astro.site ? new URL(Astro.site).origin : requestOrigin;
+const base = import.meta.env.PUBLIC_BASE_URL || siteOrigin;
+
+// Load orders/products counts for overview cards (graceful if missing)
+const reqCookie = Astro.request.headers.get('cookie') || '';
+let orders: any[] = [];
+let products: any[] = [];
+try {
+  const r = await fetch(`${base}/.netlify/functions/orders-list`, {
+    headers: reqCookie ? { cookie: reqCookie } : {}
+  } as any);
+  if (r.ok) orders = await r.json();
+} catch {}
+try {
+  const r = await fetch(`${base}/.netlify/functions/products-list`, {
+    headers: reqCookie ? { cookie: reqCookie } : {}
+  } as any);
+  if (r.ok) products = await r.json();
+} catch {}
+
+// Appointments: call API route; if it fails, show empty
+let appointments: Appointment[] = [];
+try {
+  const res = await fetch(`${base}/api/appointments`);
+  if (res.ok) appointments = await res.json();
+} catch {}
+
+const now = new Date();
+const upcomingAppointments = (appointments || [])
+  .filter((a: Appointment) => {
+    const t = new Date(a.startTime);
+    return Number.isFinite(t.valueOf()) && t > now;
+  })
+  .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+  .slice(0, 8);
+
+const countOrders = Array.isArray(orders) ? orders.length : 0;
+const countProducts = Array.isArray(products) ? products.length : 0;
+---
+<DashboardShell client:only="react">
+  <script>
+    (async () => {
+      const guard = async () => {
+        const fx = window.fasAuth;
+        if (!fx) return; // script not ready yet
+        if (!(await fx.isAuthenticated())) {
+          return fx.loginTo('/admin');
+        }
+        // Allow either "employee" or "owner" to access /admin
+        const ok = await (fx as any).hasRole?.(['employee','owner']);
+        if (location.origin.startsWith('http://localhost:4321')) {
+          try {
+            const claims = await (window.fasAuth as any)?.getIdTokenClaims();
+            console.debug('[admin] roles claim:',
+              claims?.['https://login.fasmotorsport.com/fas/roles'] ||
+              claims?.['https://fasmotorsports.com/roles'] ||
+              claims?.['https://schemas.quickstarts.auth0.com/roles'] || []
+            );
+          } catch {}
+        }
+        if (ok === false) {
+          const isLocal = location.origin.startsWith('http://localhost:4321');
+          if (!isLocal) {
+            document.body.innerHTML = '<main class="p-8 text-center text-red-400">Forbidden: employee or owner role required. Please contact an administrator.</main>';
+          } else {
+            try {
+              const claims = await (window.fasAuth as any)?.getIdTokenClaims();
+              const roles =
+                claims?.['https://login.fasmotorsport.com/fas/roles'] ||
+                claims?.['https://fasmotorsports.com/roles'] ||
+                claims?.['https://schemas.quickstarts.auth0.com/roles'] || [];
+              const pretty = document.createElement('div');
+              pretty.className = 'mx-auto my-12 max-w-xl rounded-md border border-red-300 bg-red-50 p-6 text-red-900';
+              pretty.innerHTML = `
+                <h2 class="text-lg font-semibold mb-2">Forbidden</h2>
+                <p class="mb-4">Your token does not include the required role (<code>employee</code> or <code>owner</code>).</p>
+                <div class="mb-2"><strong>Roles claim:</strong> <code>${'${JSON.stringify(roles)}'}</code></div>
+                <div class="mb-4 text-sm text-red-800">Claim namespaces checked:<br>
+                  <code>https://login.fasmotorsport.com/fas/roles</code><br>
+                  <code>https://fasmotorsports.com/roles</code><br>
+                  <code>https://schemas.quickstarts.auth0.com/roles</code>
+                </div>
+                <div class="flex gap-3">
+                  <button id="admin-logout" class="rounded bg-red-600 px-3 py-1.5 text-white">Logout & Re-login</button>
+                  <a href="/account" class="rounded border px-3 py-1.5">Go to Account</a>
+                </div>
+              `;
+              document.body.innerHTML = '';
+              document.body.appendChild(pretty);
+              document.getElementById('admin-logout')?.addEventListener('click', async () => {
+                await window.fasAuth?.logout(location.origin + '/account');
+              });
+            } catch {
+              document.body.innerHTML = '<main class="p-8 text-center text-red-400">Forbidden: employee or owner role required. (Unable to read token claims.)</main>';
+            }
+          }
+        }
+      };
+      // Retry a couple times in case fasAuth attaches slightly later
+      for (let i = 0; i < 3; i++) {
+        await guard();
+        if (window.fasAuth) break;
+        await new Promise(r => setTimeout(r, 150));
+      }
+    })();
+  </script>
+  <h1 class="text-2xl md:text-3xl font-bold mb-6">Overview</h1>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <Card title="Orders" value={countOrders} hint="Last 50 shown"/>
+    <Card title="Revenue (approx)" value={`$${(Array.isArray(orders) ? orders.reduce((s: number, o: any) => s + (Number(o?.total) || 0), 0) : 0).toFixed(2)}`}/>
+    <Card title="Products" value={countProducts} />
+    <Card title="Appointments (next 14d)" value={upcomingAppointments.length} />
+  </div>
+  <section class="w-full mt-8">
+    <h2 class="text-xl font-bold mb-4">Upcoming Appointments</h2>
+    {upcomingAppointments.length > 0 ? (
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {upcomingAppointments.map((a: Appointment) => (
+          <div class="rounded-lg border border-white/20 bg-white/5 p-4">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <div class="font-semibold">{a.eventType?.title || 'Appointment'}</div>
+                <div class="text-sm text-white/70">
+                  {new Date(a.startTime).toLocaleString()}
+                </div>
+              </div>
+              <span class="text-xs px-2 py-0.5 rounded-full border border-white/30 text-white/80">
+                {(a.status || 'scheduled').toUpperCase()}
+              </span>
+            </div>
+            <div class="mt-3 text-sm text-white/80">
+              <div class="truncate">
+                <span class="text-white/70">Customer: </span>
+                {a.customer?.name || a.customer?.email || a.customerEmail || a.email || '—'}
+              </div>
+            </div>
+            <div class="mt-3 flex gap-2">
+              {a.rescheduleUrl && (
+                <a class="px-3 py-1.5 rounded border border-white/15 hover:bg-white/80 text-xs" href={a.rescheduleUrl} target="_blank">Reschedule</a>
+              )}
+              {a.cancelUrl && (
+                <a class="px-3 py-1.5 rounded border border-white/15 hover:bg-white/80 text-xs" href={a.cancelUrl} target="_blank">Cancel</a>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div class="text-white/70">No upcoming appointments found.</div>
+    )}
+  </section>
+</DashboardShell>

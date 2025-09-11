@@ -37,6 +37,9 @@ export default function DashboardShell({ children }: { children: React.ReactNode
             <a className="block rounded px-3 py-2 hover:bg-white/5 transition" href="/admin/quotes">
               Quotes
             </a>
+            <a className="block rounded px-3 py-2 hover:bg-white/5 transition" href="/admin/wheel-quotes">
+              Wheel Quotes
+            </a>
             <a
               className="block rounded px-3 py-2 hover:bg-white/5 transition"
               href="/admin/invoices"

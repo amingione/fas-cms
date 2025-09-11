@@ -1,0 +1,24 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import JtxHero from '@/components/jtx/JtxHero.astro';
+import JtxBreadcrumbs from '@/components/jtx/JtxBreadcrumbs.astro';
+import JtxSidebar from '@/components/jtx/JtxSidebar.astro';
+import JtxWheelSpecForm from '@/components/jtx/JtxWheelSpecForm';
+---
+<BaseLayout>
+  <JtxHero title="Retro Series — Quote Your Set" subtitle="Classic aesthetics with modern forged construction." />
+  <div class="mx-auto max-w-7xl px-6 py-6">
+    <JtxBreadcrumbs current="retro" />
+    <div class="grid md:grid-cols-[260px_1fr] gap-8">
+      <JtxSidebar current="retro" />
+      <main class="space-y-8">
+        <section class="prose prose-invert max-w-none">
+          <h2>Retro Series</h2>
+          <p>Series-specific information, specs, and imagery can go here.</p>
+        </section>
+        <JtxWheelSpecForm client:only="react" defaultSeries="Retro Series" pageContext="jtx-retro" />
+      </main>
+    </div>
+  </div>
+</BaseLayout>
+

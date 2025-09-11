@@ -14,7 +14,6 @@ export function Hero() {
   return (
     <section id="home" className="relative flex items-center justify-center">
       {/* Background Effects */}
-      <div className="absolute luxury-particles inset-0"></div>
       <div className="absolute inset-0"></div>
 
       {/* Racing stripes */}

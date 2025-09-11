@@ -105,11 +105,66 @@ import { SearchBar } from '@components/SearchBar.tsx';
           
         </div>
       </div>
-      <div class="flex justify-center gap-2 text-sm font-ethno">
+      <nav class="flex justify-center gap-6 text-sm font-ethno relative">
         <a href="/" class="hover:text-accent">Home</a>
-        <span class="text-white">|</span>
-        <a href="/shop/categories" class="hover:text-accent">Shop</a>
-      </div>
+        <span class="text-white/70">|</span>
+
+        <!-- Shop dropdown -->
+        <div class="group relative">
+          <button class="hover:text-accent">Shop</button>
+          <div class="absolute left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block z-[750]">
+            <div class="rounded-lg border border-white/20 bg-black/90 backdrop-blur px-3 py-2 shadow-lg min-w-[240px]">
+              <ul class="text-left space-y-1">
+                <li><a href="/shop" class="block hover:text-accent">All Products</a></li>
+                <li><a href="/specs/PredatorPulley" class="block hover:text-accent">FAS Predator Pulley</a></li>
+                <li><a href="/specs/PulleyHub" class="block hover:text-accent">FAS Hub &amp; Pulley</a></li>
+                <li><a href="/specs/BilletBearingPlate" class="block hover:text-accent">FAS Billet Bearing Plate</a></li>
+                <li><a href="/specs/BilletSnout" class="block hover:text-accent">FAS Billet Snouts</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <span class="text-white/70">|</span>
+
+        <!-- Wheels dropdown -->
+        <div class="group relative">
+          <button class="hover:text-accent">Wheels</button>
+          <div class="absolute left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block z-[750]">
+            <div class="rounded-lg border border-white/20 bg-black/90 backdrop-blur px-3 py-2 shadow-lg min-w-[220px]">
+              <ul class="text-left space-y-1">
+                <li class="px-2 text-white/60 text-xs">Belak</li>
+                <li><a href="/belak/wheels" class="block hover:text-accent">Belak Overview</a></li>
+                <li><a href="/belak/series2" class="block hover:text-accent">Series 2</a></li>
+                <li><a href="/belak/series3" class="block hover:text-accent">Series 3</a></li>
+                <li><a href="/belak/skinnies" class="block hover:text-accent">Skinnies</a></li>
+                <li class="px-2 pt-2 text-white/60 text-xs">JTX Forged</li>
+                <li><a href="/jtx/wheels" class="block hover:text-accent">JTX Overview</a></li>
+                <li><a href="/jtx/arc" class="block hover:text-accent">ARC Monoforged</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <span class="text-white/70">|</span>
+
+        <!-- Services dropdown -->
+        <div class="group relative">
+          <button class="hover:text-accent">Services</button>
+          <div class="absolute left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block z-[750]">
+            <div class="rounded-lg border border-white/20 bg-black/90 backdrop-blur px-3 py-2 shadow-lg min-w-[240px]">
+              <ul class="text-left space-y-1">
+                <li><a href="/services/AllServices" class="block hover:text-accent">All Services</a></li>
+                <li><a href="/services/igla" class="block hover:text-accent">IGLA Security</a></li>
+                <li><a href="/services/porting" class="block hover:text-accent">Porting</a></li>
+                <li><a href="/services/customFab" class="block hover:text-accent">Custom Fabrication</a></li>
+                <li><a href="/services/coreExchange" class="block hover:text-accent">Core Exchange</a></li>
+                <li><a href="/schedule" class="block hover:text-accent">Schedule Service</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </nav>
     </div>
   </div>
   

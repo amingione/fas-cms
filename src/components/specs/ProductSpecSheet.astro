@@ -11,22 +11,29 @@ export interface Props {
   imageAlt: string;
   specs: SpecItem[];
   about: string[];
+  ctaHref?: string;
+  ctaLabel?: string;
 }
 
-const { title, description, imageSrc, imageAlt, specs, about } = Astro.props as Props;
+const { title, description, imageSrc, imageAlt, specs, about, ctaHref, ctaLabel } = Astro.props as Props;
 ---
 
 <!-- Top banner with image/title grid (not a CTA) -->
 <section class="w-full bg-gradient-to-b from-black/80 to-black/60 border-b border-white/20">
   <div class="mx-auto w-full max-w-7xl px-4 md:px-6 py-10 md:py-14">
     <div class="grid md:grid-cols-2 gap-8 items-center">
-      <div class="order-2 md:order-1">
+      <div class="order-2 md:order-1 min-w-0">
         <h1 class="text-4xl md:text-5xl font-ethno text-accent mb-4">{title}</h1>
-        <p class="text-white/80 font-mono text-base md:text-xl leading-relaxed">{description}</p>
+        <p class="text-white/80 font-mono text-base md:text-xl leading-relaxed break-words">{description}</p>
       </div>
-      <div class="order-1 md:order-2">
-        <div class="aspect-[4/3] md:aspect-[16/10] w-full overflow-hidden rounded-xl border border-white/20 bg-black/40 shadow-2xl">
-          <img src={imageSrc} alt={imageAlt} class="h-full w-full object-cover object-center" loading="eager" />
+      <div class="order-1 md:order-2 min-w-0">
+        <div class="glass-square perspective-container aspect-[4/3] md:aspect-[16/10] w-full">
+          <div class="relative w-full h-full">
+            <div class="glass-layer back-layer"></div>
+            <div class="aspect-3/4 bg-gradient-to-b border-s-gray-800 from-black/10 to-black/20 shadow-white/20 object-contain front-layer-rounded glass-layer">
+              <img src={imageSrc} alt={imageAlt} class="relative z-10 h-full w-full object-contain md:object-cover object-center select-none pointer-events-none" loading="eager" />
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -36,27 +43,40 @@ const { title, description, imageSrc, imageAlt, specs, about } = Astro.props as 
 <!-- Content: Specs + About -->
 <section class="w-full bg-black/60">
   <div class="mx-auto w-full max-w-7xl px-4 md:px-6 py-10 md:py-14 grid md:grid-cols-2 gap-10">
-    <!-- Technical Specifications -->
-    <div>
+    <!-- Technical Specifications (Spreadsheet-style grid) -->
+    <div class="min-w-0">
       <h2 class="text-2xl md:text-3xl font-ethno text-accent mb-6">Technical Specifications</h2>
-      <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-        {specs.map((s) => (
-          <div class="rounded-lg border border-white/20 bg-black/50 p-4 shadow">
-            <dt class="text-sm font-borg text-white/90 mb-1">{s.label}</dt>
-            <dd class="text-white/70 text-sm leading-relaxed">{s.value}</dd>
-          </div>
-        ))}
-      </dl>
+      <div class="overflow-x-auto rounded-none border border-white/20 bg-black/40">
+        <table class="min-w-full table-auto text-left text-sm">
+          <tbody>
+            {specs.map((s) => (
+              <tr class="border-b border-white/10">
+                <td class="px-3 py-2 align-top whitespace-nowrap font-cyber text-white/90 w-40 sm:w-56">{s.label}</td>
+                <td class="px-3 py-2 align-top text-white/75">{s.value}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <!-- About the Product -->
-    <div>
+    <div class="min-w-0">
       <h2 class="text-2xl md:text-3xl font-ethno text-accent mb-6">About the Product</h2>
       <div class="space-y-4">
         {about.map((p) => (
-          <p class="text-white/80 text-base leading-relaxed font-mono">{p}</p>
+          <p class="text-white/80 text-base leading-relaxed font-mono break-words">{p}</p>
         ))}
       </div>
     </div>
   </div>
+  {ctaHref && (
+    <div class="mx-auto w-full max-w-7xl px-4 md:px-6 pb-12 -mt-6">
+      <div class="flex justify-center">
+        <a href={ctaHref} class="btn-glass btn-outline px-6 py-3 rounded-full font-ethno">
+          {ctaLabel || 'View Product'}
+        </a>
+      </div>
+    </div>
+  )}
 </section>

@@ -100,7 +100,7 @@ try {
   <div class="container mx-auto px-4 py-10 text-white" style="padding-top: 80px;">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
       <!-- LEFT: Sticky Image on desktop -->
-      <div class="md:sticky md:top-28 flex justify-center items-start z-0" {...sbFieldPath('images')}>
+      <div class="md:sticky md:top-28 flex justify-center items-start z-0 min-w-0" {...sbFieldPath('images')}>
         <SlugCarousel
           images={(product as any).images?.map((img: any) => ({
             url: img?.asset?.url || '/placeholder.png',
@@ -110,7 +110,7 @@ try {
       </div>
 
       <!-- RIGHT: Title, price, short intro, add-to-cart, then accordion -->
-      <div class="relative z-10">
+      <div class="relative z-10 min-w-0 break-words text-sm">
         <h1 class="text-3xl font-ethno mb-3" {...sbFieldPath('title')}>{(product as any).title}</h1>
         <h2 class="text-4xl text-accent
          font-mono mb-4" {...sbFieldPath('price')}>
@@ -124,7 +124,7 @@ try {
               const groupKey = (group?.key || group?.name || group?.title || 'option').toString();
               const values = Array.isArray(group?.values) ? group.values : (Array.isArray(group?.items) ? group.items : []);
               return (
-                <div class="bg-black/20 rounded-lg p-3 border border-white/20">
+                <div class="bg-black/20 rounded-none p-3 border border-white/20">
                   <div class="font-semibold mb-2">{group?.title || group?.name || 'Option'}</div>
                   {/* Prefer select if many values, else radios */}
                   {values.length > 4 ? (
@@ -171,7 +171,7 @@ try {
 
             {/* Add-ons (checkbox) */}
             {Array.isArray(addOns) && addOns.length > 0 && (
-              <div class="bg-black/20 rounded-lg p-3 border border-white/20">
+              <div class="bg-black/20 rounded-none p-3 border border-white/20">
                 <div class="font-semibold mb-2">Optional Upgrades</div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {addOns.map((a: any) => (
@@ -195,7 +195,7 @@ try {
 
             {/* Custom fields (e.g., paint code with fixed surcharge) */}
             {Array.isArray(customs) && customs.length > 0 && customs.map((c: any) => (
-              <div class="bg-black/20 rounded-lg p-3 border border-white/20">
+              <div class="bg-black/20 rounded-none p-3 border border-white/20">
                 <div class="font-semibold mb-2">{c.label || c.title || 'Custom Option'}</div>
                 <input
                   type={c.type === 'number' ? 'number' : 'text'}
@@ -216,7 +216,7 @@ try {
             ))}
 
             {/* Live price */}
-            <div class="flex items-center justify-between bg-black/20 rounded-lg p-3 border border-white/20">
+            <div class="flex items-center justify-between bg-black/20 rounded-none p-3 border border-white/20">
               <span class="text-sm opacity-80">Configured Price</span>
               <span id="price-total" class="text-lg font-bold">$ {(typeof (product as any).price === 'number' ? (product as any).price.toFixed(2) : '0.00')}</span>
             </div>
@@ -224,7 +224,7 @@ try {
         )}
 
         <!-- Short intro (truncated) -->
-        <div {...sbFieldPath('shortDescription')}>
+        <div class="break-words" {...sbFieldPath('shortDescription')}>
           <PortableTextRenderer value={product.shortDescription} />
         </div>
 
@@ -253,14 +253,14 @@ try {
         </div>
 
         <!-- Accordion -->
-        <div class="mt-8 divide-y divide-white/80 border border-white/20 rounded-lg overflow-hidden">
+        <div class="mt-8 divide-y divide-white/80 border border-white/20 rounded-none overflow-hidden">
           <!-- Details / Full Description -->
           <details class="group" id="acc-details">
-            <summary class="cursor-pointer select-none bg-black/30 px-4 py-3 font-ethno text-lg flex items-center justify-between">
+            <summary class="cursor-pointer select-none bg-black/30 px-4 py-3 font-ethno text-base md:text-lg flex items-center justify-between">
               <span>Product Details</span>
               <span class="transition-transform group-open:rotate-180">▾</span>
             </summary>
-            <div class="px-4 py-4 text-white/90 font-arial leading-relaxed whitespace-pre-line">
+            <div class="px-4 py-4 text-white/90 font-arial leading-relaxed whitespace-pre-line break-words">
               <div {...sbFieldPath('description')}>
                 <PortableTextRenderer value={product.description} />
               </div>

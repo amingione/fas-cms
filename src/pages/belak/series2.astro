@@ -1,0 +1,28 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import BelakHero from "@/components/belak/BelakHero.astro";
+import BelakBreadcrumbs from "@/components/belak/BelakBreadcrumbs.astro";
+import BelakSidebar from "@/components/belak/BelakSidebar.astro";
+import WheelSpecForm from "@/components/belak/WheelSpecForm";
+---
+<BaseLayout>
+  <BelakHero
+    title="Belak Series 2 — Quote Your Set"
+    subtitle="3-piece forged construction with ARP hardware. Available diameters 13/15/17/18; widths up to 15”."
+  />
+
+  <div class="mx-auto max-w-7xl px-6 py-6">
+    <BelakBreadcrumbs current="series2" />
+    <div class="grid md:grid-cols-[260px_1fr] gap-8">
+      <BelakSidebar current="series2" />
+      <main class="space-y-12">
+        <section class="prose prose-invert max-w-none">
+          <h2>Series 2 Overview</h2>
+          <p>Made in the USA, lightweight 3-piece design, offered in multiple backspacing choices. Track-use only.</p>
+        </section>
+
+        <WheelSpecForm client:only="react" defaultSeries="Series 2" pageContext="series2" />
+      </main>
+    </div>
+  </div>
+</BaseLayout>

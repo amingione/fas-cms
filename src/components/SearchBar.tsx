@@ -275,7 +275,7 @@ export function SearchBar({
                 <a
                   key={String(it?._id || it?.slug?.current || idx)}
                   href={href}
-                  className={cn('block px-3 py-2 hover:bg-white/80', isActive && 'bg-white/80')}
+                  className={cn('block px-3 py-2 hover:bg-black/70', isActive && 'bg-black/70')}
                   onMouseEnter={() => setActive(idx)}
                 >
                   <div
@@ -312,7 +312,7 @@ export function SearchBar({
             <div className="border-t border-white/20" />
             <a
               href={`${action || '/search'}?q=${encodeURIComponent(currentValue.trim())}`}
-              className="block px-3 py-2 text-center text-xs text-white/70 hover:bg-white/80"
+              className="block px-3 py-2 text-center text-xs text-white/70 hover:bg-black/70"
               style={{ fontFamily: 'Arial, sans-serif', fontSize: 12 }}
             >
               See all results for “{currentValue.trim()}”
@@ -345,7 +345,7 @@ export function SearchBar({
                   <a
                     key={String(it?._id || it?.slug?.current || idx)}
                     href={href}
-                    className={cn('block px-3 py-2 hover:bg-white/80', isActive && 'bg-white/80')}
+                    className={cn('block px-3 py-2 hover:bg-black/70', isActive && 'bg-black/70')}
                     onMouseEnter={() => setActive(idx)}
                   >
                     <div
@@ -382,7 +382,7 @@ export function SearchBar({
               <div className="border-t border-white/20" />
               <a
                 href={`${action || '/search'}?q=${encodeURIComponent(currentValue.trim())}`}
-                className="block px-3 py-2 text-center text-xs text-white/70 hover:bg-white/80"
+                className="block px-3 py-2 text-center text-xs text-white/70 hover:bg-black/70"
                 style={{ fontFamily: 'Arial, sans-serif', fontSize: 12 }}
               >
                 See all results for “{currentValue.trim()}”

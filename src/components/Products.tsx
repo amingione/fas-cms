@@ -22,39 +22,57 @@ export function Products() {
   const products = [
     {
       id: 1,
-      name: 'Billet Bearing Plate',
+      name: '2.4L Billet Bearing Plate',
       description:
-        'Designed for maximum durability and airflow efficiency, eliminates weak points found in factory cast plates, improves reliability under extreme boost.',
+        'Delivers 2+PSI average gains (50-100whp) & eliminates weak points found in factory cast plates.',
       image: '/images/billetParts/billet-bearing-plate.png',
-      features: ['2+PSI Average Gain', '50-100whp', 'CNC-Machined Billet'],
-      price: '$900',
-      popular: true,
-      specHref: '/BilletBearingPlateSpecs',
-      icon: Settings
+      popular: false,
+      specHref: '/specs/BilletBearingPlate'
     },
     {
       id: 2,
-      name: 'Hellcat Pulley And Hub Kit',
+      name: 'Hellcat Pulley & Hub Kit',
       description:
-        'Built for easy swaps and maximum reliability, this kit gives you the flexibility to dial in your setup without compromise.',
+        'Built for easy swaps and maximum reliability. Grip coated billet aluminum offered in multiple sizes!',
       image: '/images/billetParts/FAS-Pulley-Hub-Kit.png',
-      features: ['Grip-Coated Billet', 'Internal ½” Hex Drive', 'Industry-Leading Hub Design'],
-      price: '$220',
-      popular: true,
-      specHref: '/HellcatPulleyHubSpecSheet',
-      icon: Zap
+      popular: false,
+      specHref: '/specs/PulleyHub'
     },
     {
       id: 3,
-      name: 'Predator Pulley',
+      name: 'Predator Pulley Lower Pulley',
       description:
-        'FAS “PREDATOR” Slip On Lower Pulley. Patent-pending innovation – precision-engineered for flawless performance.',
+        'FAS “PREDATOR” Slip On Lower Pulley delivers 1.5-5psi gain depending on your pulley choice!',
       image: '/images/billetParts/fas-pred-pully.png',
-      features: ['1.5-2psi Gain', 'Slip On Design', 'No Tune Required'],
-      price: 'From $899',
-      popular: true,
-      specHref: '/PredatorPulleySpecsSheet',
-      icon: Wrench
+      popular: false,
+      specHref: '/specs/PredatorPulley'
+    },
+    {
+      id: 4,
+      name: 'Billet Supercharger Lid',
+      description:
+        'CNC‑machined billet lid engineered to enhance airflow and boost efficiency. Fits all 2.4L & 3.0L IHI Hellcat Superchargers.',
+      image: '/images/billetParts/HC-Billet-SC-Lid.png',
+      popular: false,
+      specHref: '/specs/BilletLid'
+    },
+    {
+      id: 5,
+      name: 'Billet Snout',
+      description:
+        'Lightweight, 108mm inlet for maximum airflow, outperforming any ported OEM snout.',
+      image: '/images/snouts/FAS-Billet-Snout-Front.png',
+      popular: false,
+      specHref: '/specs/BilletSnout'
+    },
+    {
+      id: 6,
+      name: '108mm Billet Throttle Body',
+      description:
+        'High-flow, CNC-machined billet throttle body tuned for smooth driveability and repeatable airflow on high-boost builds.',
+      image: '/images/billetParts/108mm-throttle-body.png',
+      popular: false,
+      specHref: '/specs/BilletThrottleBody108'
     }
   ];
 
@@ -83,7 +101,8 @@ export function Products() {
   };
 
   const ProductCard = ({ product, index }: { product: any; index: number }) => {
-    const Icon = product.icon;
+    const Icon = (product?.icon as React.ElementType) || undefined;
+    const hasPrice = Boolean(product?.price);
     return (
       <motion.div
         variants={itemVariants}
@@ -91,7 +110,7 @@ export function Products() {
           !isMobile
             ? {
                 y: -10,
-                scale: 1.02,
+                scale: 1.01,
                 boxShadow: '0 20px 40px rgba(234, 29, 38, 0.2)'
               }
             : {}
@@ -100,7 +119,7 @@ export function Products() {
         className={`h-full ${isMobile ? 'mobile-carousel-item' : ''}`}
       >
         <Card
-          className={`group relative overflow-hidden bg-transparent border-gray-200/50 hover:border-primary/50 transition-all duration-500 backdrop-blur-sm industrial-card h-full flex flex-col ${isMobile ? 'mobile-compact-card' : ''}`}
+          className={`group relative overflow-hidden bg-black border-gray-200/50 hover:border-primary/50 transition-all duration-500 industrial-card h-full flex flex-col ${isMobile ? 'mobile-compact-card' : ''}`}
         >
           {product.popular && (
             <motion.div
@@ -118,61 +137,53 @@ export function Products() {
             </motion.div>
           )}
 
-          <div className="relative overflow-hidden">
+          <div className="relative overflow-hidden bg-black/30 flex items-center justify-center">
             <motion.img
               src={product.image}
               alt={product.name}
-              className={`w-full object-cover transition-all duration-500 group-hover:scale-110 ${isMobile ? 'h-32' : 'h-64'}`}
+              className={`w-full transition-all duration-500 object-contain ${isMobile ? 'h-28' : 'h-48'} ${!isMobile ? 'group-hover:opacity-95' : ''}`}
               loading="lazy"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
             {/* Floating icon */}
-            <motion.div
-              className={`absolute ${isMobile ? 'top-2 left-2 w-8 h-8' : 'top-4 left-4 w-12 h-12'} bg-primary/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-primary/30 industrial-card`}
-              whileHover={!isMobile ? { scale: 1.1, rotate: 5 } : {}}
-              transition={{ duration: 0.3 }}
-            >
-              <Icon className={`${isMobile ? 'w-4 h-4' : 'w-6 h-6'} text-primary`} />
-            </motion.div>
+            {Icon && (
+              <motion.div
+                className={`absolute ${isMobile ? 'top-2 left-2 w-8 h-8' : 'top-4 left-4 w-12 h-12'} bg-primary/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-primary/30 industrial-card`}
+                whileHover={!isMobile ? { scale: 1.1, rotate: 5 } : {}}
+                transition={{ duration: 0.3 }}
+              >
+                <Icon className={`${isMobile ? 'w-4 h-4' : 'w-6 h-6'} text-primary`} />
+              </motion.div>
+            )}
           </div>
 
-          <CardHeader className={`${isMobile ? 'p-3 space-y-2' : 'space-y-3'}`}>
+          <CardHeader className={`${isMobile ? 'p-3 space-y-2' : 'p-4 space-y-2'}`}>
             <CardTitle
               className={`group-hover:text-primary transition-colors duration-300 font-bold font-ethno ${isMobile ? 'text-sm' : 'text-xl'}`}
             >
               {product.name}
             </CardTitle>
             <CardDescription
-              className={`text-white/60 leading-relaxed font-kwajong ${isMobile ? 'text-xs' : ''}`}
+              className={`text-white/60 leading-relaxed font-mono font-bold ${isMobile ? 'text-xs' : 'text-sm'}`}
             >
               {product.description}
             </CardDescription>
           </CardHeader>
 
           <CardContent
-            className={`flex-grow flex flex-col ${isMobile ? 'p-3 space-y-3' : 'space-y-6'}`}
+            className={`flex-grow flex flex-col ${isMobile ? 'p-3 space-y-3' : 'p-4 space-y-4'}`}
           >
-            <div className={`flex flex-wrap gap-1 flex-grow ${isMobile ? 'gap-1' : 'gap-2'}`}>
-              {product.features.map((feature: string, featureIndex: number) => (
-                <Badge
-                  key={featureIndex}
-                  variant="secondary"
-                  className={`bg-transparent text-accent border border-gray-600/50 hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-all duration-300 font-ethno ${isMobile ? 'text-xs px-2 py-1' : 'text-xs'}`}
-                >
-                  {feature}
-                </Badge>
-              ))}
-            </div>
-
             <div
-              className={`flex items-center justify-between mt-auto ${isMobile ? 'flex-col gap-2' : ''}`}
+              className={`flex items-center ${hasPrice ? 'justify-between' : 'justify-end'} mt-auto ${isMobile ? 'flex-col gap-2' : ''}`}
             >
-              <span
-                className={`font-bold text-white font-cyber ${isMobile ? 'text-xs' : 'text-xl'}`}
-              >
-                {product.price}
-              </span>
+              {hasPrice && (
+                <span
+                  className={`font-bold text-white font-cyber ${isMobile ? 'text-xs' : 'text-xl'}`}
+                >
+                  {product.price}
+                </span>
+              )}
               {product.specHref ? (
                 <Button
                   asChild
@@ -218,12 +229,12 @@ export function Products() {
   return (
     <section
       id="products"
-      className={`bg-gradient-to-b from-background via-gray-900/50 to-background relative overflow-hidden ${isMobile ? 'py-8' : 'py-24'}`}
+      className={`bg-gradient-to-b from-black/10 via-black/50 to-black/30 relative overflow-hidden ${isMobile ? 'py-8' : 'py-24'}`}
     >
       {/* Background effects */}
-      <div className="absolute inset-0 asphalt-texture"></div>
+      <div className="absolute inset-0"></div>
       <div
-        className="absolute inset-0 opacity-40"
+        className="absolute inset-0 opacity-50"
         style={{
           backgroundImage: `url(/images/backgrounds/bg-asphalt-overlay.png)`,
           backgroundSize: isMobile ? '300px 225px' : '800px 600px',
@@ -231,7 +242,7 @@ export function Products() {
           backgroundPosition: '0 0'
         }}
       ></div>
-      <div className="absolute inset-0 bg-black/20"></div>
+      <div className="absolute inset-0"></div>
 
       <div
         className={`mx-auto relative z-10 ${isMobile ? '' : 'container px-4 lg:px-6'}`}
@@ -276,7 +287,7 @@ export function Products() {
           </motion.h2>
 
           <motion.p
-            className={`text-white/60 max-w-3xl mx-auto leading-relaxed font-kwajong ${isMobile ? 'text-xs px-4' : 'text-lg'}`}
+            className={`text-white/70 max-w-3xl mx-auto leading-relaxed font-mono font-bold ${isMobile ? 'text-xs px-4' : 'text-lg'}`}
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.6, duration: 0.6 }}
@@ -338,7 +349,7 @@ export function Products() {
             className={`border-2 border-primary/30 text-primary hover:bg-primary hover:text-white font-bold backdrop-blur-sm group industrial-glow font-ethno ${isMobile ? 'px-6 py-3 text-sm' : 'px-8 py-4 text-lg'}`}
             asChild
           >
-            <a href="/shop">
+            <a href="/shop/categories/fas-billet-parts">
               VIEW ALL PRODUCTS
               <motion.div
                 className="ml-2"

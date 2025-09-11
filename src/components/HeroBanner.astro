@@ -11,13 +11,12 @@ const { imageSrc, headline, subtext, ctaText, ctaLink, altText = 'Performance Sh
 <section class="hero-banner">
   {/* Background Effects */}
   <div class="absolute inset-0"></div>
-  <div class="absolute inset-0"></div>
   <div class="parallax-bg">
-    <img src="/images/packages/challenger FAS.png" alt={altText} class="bg-image" />
+    <img src="/images/backgrounds/bg-home.png" alt={altText} class="bg-image" />
   </div>
   <div class="content">
-    <h1 class="headline font-ethno text-primary">{headline}</h1>
-    <p class="subtext font-bold font-kwajong text-accent">{subtext}</p>
+    <h1 class="headline font-ethno text-white text-glow">{headline}</h1>
+    <p class="subtext font-bold font-ethno text-outline">{subtext}</p>
     <a href={ctaLink} class="btn btn-glass font-ethno">{ctaText}</a>
   </div>
   <div class="particles">
@@ -54,14 +53,14 @@ const { imageSrc, headline, subtext, ctaText, ctaLink, altText = 'Performance Sh
     display: block;
     object-fit: contain;
     object-position: center;
+    /* Make hero background image slightly darker and less intense */
+    filter: brightness(0.75) saturate(0.95);
     transition-property: transform;
     transition-duration: 100ms;
     transition-timing-function: ease-out;
   }
 
-  .hero-banner:hover .bg-image {
-    transform: scale(1.10);
-  }
+
 
   .content {
     position: relative;
@@ -82,7 +81,7 @@ const { imageSrc, headline, subtext, ctaText, ctaLink, altText = 'Performance Sh
     line-height: 1.1;
     letter-spacing: -0.025em;
     margin-bottom: 1rem;
-    color: var(--color-primary, #ffffff);
+    color: var(--color-black, #1a1a1afd);
   }
 
   @media (min-width: 768px) {
@@ -99,7 +98,7 @@ const { imageSrc, headline, subtext, ctaText, ctaLink, altText = 'Performance Sh
   }
 
   .subtext {
-    /* Tailwind: text-xl, font-kwajong, text-secondary, mb-6, max-w-2xl */
+    /* Tailwind: text-xl, font-cyber, text-secondary, mb-6, max-w-2xl */
     font-size: 1.25rem;
     line-height: 1.75rem;
     color: var(--color-secondary);

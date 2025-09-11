@@ -123,14 +123,40 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             </li>
           </ul>
         </li>
+        {/* Wheels section */}
+        <li className="py-2">
+          <div className="text-xl text-accent dark:text-white">Wheels</div>
+          <ul className="mt-2 ml-4 space-y-2 text-lg">
+            <li></li>
+            <li className="pt-2 text-sm font-bold text-primary tracking-wide">BELAK</li>
+            <li>
+              <a
+                href="/belak/wheels"
+                onClick={onNavigate}
+                className="text-accent hover:text-neutral-500 dark:text-white"
+              >
+                Belak Overview
+              </a>
+            </li>
+            <li></li>
+            <li className="pt-2 text-sm font-bold text-primary tracking-wide">JTX FORGED</li>
+            <li>
+              <a
+                href="/jtx/wheels"
+                onClick={onNavigate}
+                className="text-accent hover:text-neutral-500 dark:text-white"
+              >
+                JTX Overview
+              </a>
+            </li>
+          </ul>
+        </li>
         <li className="my-3">
           <hr className="border-neutral-200 dark:border-neutral-700" />
         </li>
         {/* Packages */}
         <li className="py-2">
-          <div className="text-xs uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
-            Packages
-          </div>
+          <div className="text-sm uppercase font-bold tracking-wider text-primary">Packages</div>
           <ul className="mt-2 ml-4 space-y-2 text-lg">
             <li>
               <a
@@ -278,9 +304,15 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             </div>
           ) : (
             <button
-              onClick={() => {
-                auth0?.loginWithRedirect?.();
-                onNavigate && onNavigate();
+              onClick={async () => {
+                try {
+                  await auth0?.loginWithRedirect?.({
+                    appState: { returnTo: '/dashboard' },
+                    authorizationParams: { redirect_uri: window.location.origin + '/account' }
+                  });
+                } finally {
+                  onNavigate && onNavigate();
+                }
               }}
               className="flex items-center gap-2 text-xl text-primary hover:text-primary/90"
             >

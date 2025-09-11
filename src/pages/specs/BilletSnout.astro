@@ -17,25 +17,50 @@ const pageDoc: any = await getGitPageDoc('BilletSnoutSpecs');
       <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
     )}
   <section class="mt-5 pt-5">
+    <!-- Variant A: 2.4L Hellcat Billet Supercharger Snout -->
     <ProductSpecSheet
-      title={pageDoc?.title ?? 'Billet Supercharger Snout — Spec Sheet'}
-      description="CNC‑machined billet snout designed for flow, strength, and precise alignment under high load."
+      title="2.4L Hellcat Billet Supercharger Snout"
+      description="CNC‑machined billet supercharger snout engineered for high‑flow inlet geometry and precise alignment under belt load."
       imageSrc="/images/snouts/FAS-Billet-Snout.png"
       imageAlt="FAS Motorsports Billet Supercharger Snout"
       specs={[
         { label: 'Material', value: 'Billet aluminum, CNC‑machined' },
-        { label: 'Machining', value: 'Multi‑axis CNC; bore and face in a single setup for concentricity' },
-        { label: 'Inlet Support', value: 'High‑flow inlet geometry; supports large throttle bodies' },
-        { label: 'Runout Targets', value: 'Tight concentricity and face parallelism for tracking stability' },
-        { label: 'Finish', value: 'Anodized for durability and corrosion resistance' },
-        { label: 'Compatibility', value: 'Built to OE interface specs; verify for your platform prior to order' }
+        { label: 'Machining', value: 'Multi‑axis CNC for alignment and concentricity' },
+        { label: 'Inlet', value: 'High‑flow geometry; supports large throttle bodies' },
+        { label: 'Precision', value: 'Rigid body to stabilize tracking under belt load' },
+        { label: 'Finish', value: 'Anodized for durability' },
+        { label: 'Compatibility', value: '2.4L Hellcat supercharger applications' }
       ]}
       about={[
-        'The billet snout resists flex and distortion under belt load at high RPM, helping maintain shaft alignment, belt tracking, and bearing life.',
-        'A flow‑optimized inlet with blended transitions reduces turbulence for more repeatable airflow and performance.',
-        'Designed to install cleanly with OE hardware and sensors while supporting popular throttle body sizes for street and track builds.'
+        'Resists flex under belt load to help maintain shaft alignment and belt tracking.',
+        'Flow‑optimized inlet reduces turbulence for consistent boost response.'
       ]}
+      ctaHref="/shop/2-4l-hellcat-billet-supercharger-snout"
+      ctaLabel="View 2.4L Billet Snout"
     />
-  </div>
+
+    <!-- Variant B: 2.4L Hellcat Billet Turbo Snout -->
+    <ProductSpecSheet
+      title="2.4L Hellcat Billet Turbo Snout"
+      description="Billet turbo snout designed to support high‑flow turbo inlet routing while maintaining OE‑level interfaces and sealing."
+      imageSrc="/images/snouts/FAS-Billet-Snout-Front.png"
+      imageAlt="FAS Motorsports Billet Turbo Snout"
+      specs={[
+        { label: 'Material', value: 'Billet aluminum, CNC‑machined' },
+        { label: 'Geometry', value: 'Optimized inlet transitions for turbo airflow' },
+        { label: 'Interfaces', value: 'OE‑style mounting and sensor provisions' },
+        { label: 'Finish', value: 'Anodized for corrosion resistance' },
+        { label: 'Compatibility', value: '2.4L Hellcat turbo inlet applications' }
+      ]}
+      about={[
+        'Supports clean turbo inlet routing with robust billet construction for stability and sealing.',
+        'Designed to install with OE hardware while accommodating high‑flow setups.'
+      ]}
+      ctaHref="/shop/2-4l-hellcat-billet-turbo-snout"
+      ctaLabel="View Billet Turbo Snout"
+    />
   </section>
+  </div>
+  
+</BaseLayout>
 </BaseLayout>

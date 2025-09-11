@@ -1,4 +1,4 @@
-import { getAuth0Client } from '@lib/auth';
+import { getAuth0Client } from '@/lib/auth';
 
 // Handles the small account panel in the header/sidebar
 window.addEventListener('DOMContentLoaded', async () => {
@@ -20,6 +20,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     loginLink?.addEventListener('click', async (e) => {
       e.preventDefault();
       await auth0.loginWithRedirect({
+        appState: { returnTo: '/dashboard' },
         authorizationParams: { redirect_uri: window.location.origin + '/account' }
       });
     });
@@ -32,4 +33,3 @@ window.addEventListener('DOMContentLoaded', async () => {
     console.warn('[account-dashboard-panel] auth init failed', err);
   }
 });
-

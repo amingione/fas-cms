@@ -4,6 +4,16 @@ import netlify from '@astrojs/netlify';
 import react from '@astrojs/react';
 import tailwind from '@astrojs/tailwind';
 import { fileURLToPath, URL } from 'node:url';
+// Lazy-load svgr so dev doesn't fail if it's not installed
+let svgrPlugin = null;
+try {
+  // Top-level await is supported in ESM under Node 18+
+  const mod = await import('vite-plugin-svgr');
+  // mod.default is the plugin factory
+  svgrPlugin = mod?.default ? mod.default() : mod();
+} catch (err) {
+  console.warn('[astro.config] vite-plugin-svgr not found. SVG React imports (?react) will be disabled until it is installed.');
+}
 
 // Bridge env vars for SSR/serverless
 if (!import.meta.env.PUBLIC_SANITY_PROJECT_ID) {
@@ -27,6 +37,10 @@ export default defineConfig({
     }
   },
   vite: {
+    plugins: [
+      // Conditionally include svgr if available
+      ...(svgrPlugin ? [svgrPlugin] : [])
+    ],
     envPrefix: ['PUBLIC_', 'SANITY_', 'PUBLIC_SANITY_'],
     resolve: {
       alias: {
