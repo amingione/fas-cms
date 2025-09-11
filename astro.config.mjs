@@ -15,6 +15,15 @@ try {
   console.warn('[astro.config] vite-plugin-svgr not found. SVG React imports (?react) will be disabled until it is installed.');
 }
 
+// Try to include remark-gfm; skip gracefully if missing to avoid dev crashing
+let remarkGfm = null;
+try {
+  const mod = await import('remark-gfm');
+  remarkGfm = mod?.default ?? mod;
+} catch (err) {
+  console.warn('[astro.config] remark-gfm not found. GitHub-flavored Markdown (tables, task lists) will be disabled until installed.');
+}
+
 // Bridge env vars for SSR/serverless
 if (!import.meta.env.PUBLIC_SANITY_PROJECT_ID) {
   import.meta.env.PUBLIC_SANITY_PROJECT_ID = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
@@ -30,6 +39,12 @@ export default defineConfig({
   output: 'server',
   adapter: netlify(),
   integrations: [react(), tailwind()],
+  markdown: {
+    remarkPlugins: [
+      // Only include gfm if the dependency is present
+      ...(remarkGfm ? [remarkGfm] : [])
+    ]
+  },
   devToolbar: { enabled: false },
   build: {
     rollupOptions: {

@@ -16645,6 +16645,8 @@ __metadata:
     jsonwebtoken: ^9.0.2
     lint-staged: ^15.5.1
     lucide-react: ^0.540.0
+    mdast-util-gfm: ^3
+    mdast-util-gfm-table: ^2
     netlify-plugin-cache: ^1.0.3
     netlify-plugin-checklinks: ^4.1.1
     netlify-plugin-inline-critical-css: ^2.0.0
@@ -16670,6 +16672,7 @@ __metadata:
     react-router-dom: ^7.8.2
     react-tsparticles: ^2.12.2
     recharts: ^3.1.2
+    remark-gfm: ^4
     resend: ^4.5.0
     rimraf: ^5.0.0
     sanity: ^3.60.0
@@ -22628,7 +22631,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mdast-util-gfm-table@npm:^2.0.0":
+"mdast-util-gfm-table@npm:^2, mdast-util-gfm-table@npm:^2.0.0":
   version: 2.0.0
   resolution: "mdast-util-gfm-table@npm:2.0.0"
   dependencies:
@@ -22653,7 +22656,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mdast-util-gfm@npm:^3.0.0":
+"mdast-util-gfm@npm:^3, mdast-util-gfm@npm:^3.0.0":
   version: 3.1.0
   resolution: "mdast-util-gfm@npm:3.1.0"
   dependencies:
@@ -29008,7 +29011,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"remark-gfm@npm:^4.0.1":
+"remark-gfm@npm:^4, remark-gfm@npm:^4.0.1":
   version: 4.0.1
   resolution: "remark-gfm@npm:4.0.1"
   dependencies:
