@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 // We import your existing dashboard App without modifying it.
 // Adjust the relative path below to wherever you placed the repo's App.tsx inside src/admin-react.
 import App from './App';
@@ -10,8 +11,10 @@ import App from './App';
  */
 export default function AdminApp() {
   return (
-    <BrowserRouter basename="/admin">
-      <App />
-    </BrowserRouter>
+    <HelmetProvider>
+      <BrowserRouter basename="/admin">
+        <App />
+      </BrowserRouter>
+    </HelmetProvider>
   );
 }

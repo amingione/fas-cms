@@ -1,5 +1,5 @@
 import GridShape from "../../components/common/GridShape";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import PageMeta from "../../components/common/PageMeta";
 
 export default function NotFound() {

@@ -77,6 +77,15 @@ export default defineConfig({
       }
     },
     envPrefix: ['PUBLIC_', 'SANITY_', 'PUBLIC_SANITY_'],
+    optimizeDeps: {
+      include: [
+        'react',
+        'react-dom',
+        'react-router-dom',
+        '@fullcalendar/core',
+        'apexcharts'
+      ],
+    },
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
