@@ -25,7 +25,7 @@ export default function ProductTable({
   const [search, setSearch] = useState('');
   const [cats, setCats] = useState<{ _id: string; title: string }[]>([]);
   const [catFilter, setCatFilter] = useState<string>('');
-  const [selected, setSelectedIds] = useState<Set<string>>(new Set());
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [assignCatId, setAssignCatId] = useState<string>('');
   const [pubFilter, setPubFilter] = useState<'all' | 'published' | 'draft'>('all');
 
@@ -108,7 +108,7 @@ export default function ProductTable({
   }
 
   async function bulkFeature(val: boolean) {
-    const ids = Array.from(selected);
+    const ids = Array.from(selectedIds);
     for (const id of ids) {
       try {
         await fetch('/.netlify/functions/products-upsert', {
@@ -123,9 +123,9 @@ export default function ProductTable({
   }
 
   async function bulkDelete() {
-    if (!selected.size) return;
-    if (!confirm(`Delete ${selected.size} product(s)?`)) return;
-    const ids = Array.from(selected);
+    if (!selectedIds.size) return;
+    if (!confirm(`Delete ${selectedIds.size} product(s)?`)) return;
+    const ids = Array.from(selectedIds);
     for (const id of ids) {
       try {
         await fetch('/.netlify/functions/products-delete', {
@@ -185,10 +185,10 @@ export default function ProductTable({
             <option value="draft">Draft</option>
           </select>
         </div>
-        {selected.size > 0 && (
+        {selectedIds.size > 0 && (
           <div className="flex items-center gap-2">
             <button className="btn-glass btn-sm btn-primary" onClick={() => bulkFeature(true)}>
-              Mark Featured ({selected.size})
+              Mark Featured ({selectedIds.size})
             </button>
             <button className="btn-glass btn-sm btn-outline" onClick={() => bulkFeature(false)}>
               Clear Featured
@@ -213,7 +213,7 @@ export default function ProductTable({
               disabled={!assignCatId}
               onClick={async () => {
                 if (!assignCatId) return;
-                const ids = Array.from(selected);
+                const ids = Array.from(selectedIds);
                 for (const id of ids) {
                   try {
                     await fetch('/.netlify/functions/products-upsert', {
@@ -250,7 +250,7 @@ export default function ProductTable({
               <th className="w-8">
                 <input
                   type="checkbox"
-                  checked={selected.size > 0 && selected.size === filtered.length}
+                  checked={selectedIds.size > 0 && selectedIds.size === filtered.length}
                   onChange={(e) => toggleAll(e.currentTarget.checked)}
                 />
               </th>
@@ -271,7 +271,7 @@ export default function ProductTable({
                 <td>
                   <input
                     type="checkbox"
-                    checked={selected.has(r._id)}
+                    checked={selectedIds.has(r._id)}
                     onChange={(e) => toggleOne(r._id, e.currentTarget.checked)}
                   />
                 </td>
