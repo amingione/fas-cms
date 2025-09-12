@@ -1,7 +1,5 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-const dashboardScript = '/src/scripts/dashboard-page.ts';
-const accountAuthScript = '/src/scripts/account-auth.ts';
 
 // Simple auth guard: if no session or token cookie, redirect to /account
 const cookie = Astro.request.headers.get('cookie') || '';
@@ -28,21 +26,11 @@ if (!isLoggedIn) {
       [data-mobile-dash] { display: none !important; }
     }
 
-    /* --- Clickability guard: ensure dashboard UI is above any global overlays and accepts clicks --- */
+    /* Dashboard should sit below header drawers/overlays to avoid conflicts */
     [data-mobile-dash],
     [data-desktop-dash] {
       position: relative;
-      z-index: 50; /* higher than typical site headers/overlays */
-    }
-    /* Make sure interactive elements always receive pointer events even if an ancestor disables them */
-    [data-dash-content],
-    .js-view,
-    #mobile-account-select,
-    .logout-link,
-    a,
-    button,
-    select {
-      pointer-events: auto !important;
+      z-index: 0;
     }
   </style>
   <!-- MOBILE DASHBOARD (auto on <640px) -->
@@ -65,14 +53,7 @@ if (!isLoggedIn) {
       </select>
     </div>
 
-    <!-- Auth actions -->
-    <div class="mt-4">
-      {isLoggedIn ? (
-        <a href="/api/auth/logout" class="logout-link inline-flex items-center gap-2 px-3 py-2 rounded bg-white/80 border border-white/15 text-red-400">Logout</a>
-      ) : (
-        <a href="/account" class="inline-flex items-center gap-2 px-3 py-2 rounded bg-white/80 border border-white/15 text-primary">Login</a>
-      )}
-    </div>
+    <!-- Auth actions removed for mobile to avoid duplication; desktop sidebar retains logout/login -->
 
     <!-- Intro copy -->
     <section class="mb-6 space-y-1">
@@ -84,38 +65,51 @@ if (!isLoggedIn) {
 
     <!-- Content area -->
     <section id="dash-content-mobile" data-dash-content class="mt-6 text-sm"></section>
+
+    <!-- Bottom-only auth action (mobile): single Logout button -->
+    <div class="mt-10 pt-6 border-t border-white/10">
+      {isLoggedIn && (
+        <a href="/api/auth/logout" class="logout-link inline-flex items-center gap-2 px-3 py-2 rounded bg-white/80 border border-white/15 text-red-400">Logout</a>
+      )}
+    </div>
   </main>
 
   <!-- DESKTOP DASHBOARD (auto on >=640px) -->
-  <main data-desktop-dash class="hidden sm:flex min-h-screen pt-10 overflow-hidden text-white font-mono">
+  <main data-desktop-dash class="hidden sm:grid grid-cols-[260px_1fr] gap-6 min-h-screen pt-10 text-white font-mono">
     <!-- Sidebar -->
-    <aside class="bg-black/70 border-white/20 p-0 border-r mt-12 pt-10 mb-3 mx-3 w-64 space-y-6">
-     <p class="uppercase">Welcome, <span id="customer-name" class="text-primary"></span></p>
-      <nav class="mt-6 pt-5 space-y-3 text-base font-ethno">
-        <a href="#" data-view="profile" class="js-view block hover:text-red-500">My Profile</a>
-        <a href="#" data-view="orders" class="js-view block hover:text-red-500">Orders <span id="orders-count" class="ml-2 px-2 py-0.5 text-xs bg-red-600/80 rounded">0</span></a>
-        <a href="#" data-view="quotes" class="js-view block hover:text-red-500">Quotes <span id="quotes-count" class="ml-2 px-2 py-0.5 text-xs bg-red-600/80 rounded">0</span></a>
-        <a href="#" data-view="invoices" class="js-view block hover:text-red-500">Invoices <span id="invoices-count" class="ml-2 px-2 py-0.5 text-xs bg-red-600/80 rounded">0</span></a>
-        <a href="#" data-view="appointments" class="js-view block hover:text-red-500">Appointments <span id="appts-count" class="ml-2 px-2 py-0.5 text-xs bg-red-600/80 rounded">0</span></a>
+    <aside class="sticky top-24 h-[calc(100vh-6rem)] w-[260px] mx-6 mt-6 rounded-lg border border-white/10 bg-black/60 backdrop-blur-sm p-4">
+      <header class="mb-4">
+        <div class="text-[11px] uppercase tracking-wide text-white/60">Welcome</div>
+        <div class="text-sm font-semibold"><span id="customer-name" class="text-primary"></span></div>
+      </header>
+      <nav class="flex flex-col gap-1 text-sm font-ethno">
+        <a href="#" data-view="profile" class="js-view px-3 py-2 rounded hover:bg-white/10">My Profile</a>
+        <a href="#" data-view="orders" class="js-view px-3 py-2 rounded hover:bg-white/10">Orders <span id="orders-count" class="ml-2 px-2 py-0.5 text-[10px] bg-red-600/80 rounded">0</span></a>
+        <a href="#" data-view="quotes" class="js-view px-3 py-2 rounded hover:bg-white/10">Quotes <span id="quotes-count" class="ml-2 px-2 py-0.5 text-[10px] bg-red-600/80 rounded">0</span></a>
+        <a href="#" data-view="invoices" class="js-view px-3 py-2 rounded hover:bg-white/10">Invoices <span id="invoices-count" class="ml-2 px-2 py-0.5 text-[10px] bg-red-600/80 rounded">0</span></a>
+        <a href="#" data-view="appointments" class="js-view px-3 py-2 rounded hover:bg-white/10">Appointments <span id="appts-count" class="ml-2 px-2 py-0.5 text-[10px] bg-red-600/80 rounded">0</span></a>
+        <div class="mt-4 pt-3 border-t border-white/10"></div>
         {isLoggedIn ? (
-          <a href="/api/auth/logout" class="logout-link block pt-10 text-red-600 hover:underline mt-4">Logout</a>
+          <a href="/api/auth/logout" class="logout-link px-3 py-2 rounded text-red-500 hover:bg-white/10">Logout</a>
         ) : (
-          <a href="/account" class="block pt-10 text-primary hover:underline mt-4">Login</a>
+          <a href="/account" class="px-3 py-2 rounded text-primary hover:bg-white/10">Login</a>
         )}
       </nav>
     </aside>
 
     <!-- Main panel -->
-    <section class="relative flex-auto content-start mt-10 p-20">
-      <h1 class="text-3xl mr-20 pr-10 font-borg text-primary text-left mb-2">F.a.S.</h1>
-      <h1 class="text-2xl font-ethno text-white pr-10 mr-20 text-left mb-6">Motorsports</h1>
-      <h2 class="text-base pr-12 mr-10 font-cyber-italic text-left mb-6">ACCOUNT DASHBOARD</h2>
+    <section class="relative min-h-screen content-start mt-6 mr-6 p-6 rounded-lg border border-white/10 bg-black/40 backdrop-blur-sm">
+      <h1 class="text-3xl font-borg text-primary text-left mb-2">F.a.S.</h1>
+      <h1 class="text-2xl font-ethno text-white text-left mb-6">Motorsports</h1>
+      <h2 class="text-base font-cyber-italic text-left mb-6">ACCOUNT DASHBOARD</h2>
       <div id="dash-content-desktop" data-dash-content class="text-left text-base"></div>
     </section>
   </main>
 
-  <script type="module" src={accountAuthScript}></script>
-  <script type="module" src={dashboardScript}></script>
+  <script type="module">
+    import '/src/scripts/account-auth.ts';
+    import '/src/scripts/dashboard-page.ts';
+  </script>
   <!-- inlined script moved to src/scripts/dashboard-page.ts -->
 
     <!-- All dashboard logic is now handled in src/scripts/dashboard-page.ts -->

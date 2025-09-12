@@ -55,10 +55,15 @@ export const handler: Handler = async (event) => {
       _id: o?._id || '',
       orderNumber: o?.orderNumber || o?._id || '',
       status: o?.status || 'unknown',
-      total: typeof o?.total === 'number' ? o.total : Number(o?.total) || 0,
+      total:
+        typeof o?.total === 'number'
+          ? o.total
+          : typeof (o as any)?.totalAmount === 'number'
+          ? (o as any).totalAmount
+          : Number(o?.total) || Number((o as any)?.totalAmount) || 0,
       customerName: o?.customerName || '',
       customerEmail: o?.customerEmail || '',
-      orderDate: o?.orderDate || '',
+      orderDate: o?.orderDate || (o as any)?.createdAt || '',
       items: Array.isArray(o?.items)
         ? o.items.map((it: any) => ({
             title: it?.title || '',

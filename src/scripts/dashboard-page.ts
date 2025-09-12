@@ -41,30 +41,31 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
   ]);
 }
 
+// Highlight active nav item and sync mobile select
+function setActiveNav(view?: string | null) {
+  const v = (view || 'dashboard').toLowerCase();
+  try {
+    document.querySelectorAll<HTMLAnchorElement>('.js-view').forEach((a) => {
+      const av = (a.getAttribute('data-view') || '').toLowerCase();
+      const isActive = av === v || (v === 'details' && av === 'profile');
+      a.classList.toggle('bg-white/15', isActive);
+      a.classList.toggle('text-primary', isActive);
+    });
+  } catch {}
+  try {
+    const sel = document.getElementById('mobile-account-select') as HTMLSelectElement | null;
+    if (sel) {
+      const target = v === 'details' ? 'details' : (['orders','quotes','invoices','appointments','profile','dashboard'].includes(v) ? v : 'dashboard');
+      sel.value = target;
+    }
+  } catch {}
+}
+
 (async () => {
   try {
     console.log('🚀 dashboard script loaded');
 
-    // Desktop-first: show login CTA immediately; overwrite if authenticated
-    try {
-      if (window.matchMedia('(min-width: 640px)').matches) {
-        const c = getVisibleDashContent();
-        if (c) {
-          c.innerHTML = `
-            <div class="space-y-3">
-              <p class="opacity-90">You're not signed in.</p>
-              <a id="dash-login" href="/api/auth/login" class="inline-block px-4 py-2 bg-primary text-accent font-ethno rounded">Log in</a>
-              <a id="dash-signup" href="/api/auth/login" class="inline-block px-4 py-2 border border-white/20 font-ethno rounded">Sign up</a>
-            </div>`;
-          const go = (e?: Event) => {
-            e?.preventDefault?.();
-            window.location.href = '/api/auth/login';
-          };
-          document.getElementById('dash-login')?.addEventListener('click', go);
-          document.getElementById('dash-signup')?.addEventListener('click', go);
-        }
-      }
-    } catch {}
+    // Removed pre-rendered login CTA to avoid flicker/duplication
 
     const auth0 = await getAuth0Client();
     (window as any)._auth0 = auth0; // expose for devtools
@@ -185,18 +186,8 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
       c.innerHTML = `<p class="opacity-80">${msg}</p>`;
       setTimeout(() => {
         if (!c || (c as any).dataset.state !== marker) return;
-        c.innerHTML = `
-          <div class="space-y-3">
-            <p class="opacity-90">You're not signed in or the request timed out.</p>
-            <a id="dash-login" href="/api/auth/login" class="inline-block px-4 py-2 bg-primary text-accent font-ethno rounded">Log in</a>
-            <a id="dash-signup" href="/api/auth/login" class="inline-block px-4 py-2 border border-white/20 font-ethno rounded">Sign up</a>
-          </div>`;
-        const go = (e?: Event) => {
-          e?.preventDefault?.();
-          window.location.href = '/api/auth/login';
-        };
-        document.getElementById('dash-login')?.addEventListener('click', go);
-        document.getElementById('dash-signup')?.addEventListener('click', go);
+        // Authed path: show a neutral loading message instead of login CTA
+        c.innerHTML = `<p class="opacity-80">Still loading your data...</p>`;
       }, 6000);
     };
     const renderEmpty = (label: string) => {
@@ -404,6 +395,7 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
 
     function load(view?: string | null) {
       currentView = view || 'dashboard';
+      setActiveNav(currentView);
       switch (view) {
         case 'orders':
           return renderOrders();
@@ -452,18 +444,8 @@ function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
         const c = getVisibleDashContent();
         const txt = (c?.textContent || '').trim().toLowerCase();
         if (txt === 'loading...' || txt === 'loading') {
-          c.innerHTML = `
-            <div class="space-y-3">
-              <p class="opacity-90">You're not signed in or the request timed out.</p>
-              <a id="dash-login" href="/api/auth/login" class="inline-block px-4 py-2 bg-primary text-accent font-ethno rounded">Log in</a>
-              <a id="dash-signup" href="/api/auth/login" class="inline-block px-4 py-2 border border-white/20 font-ethno rounded">Sign up</a>
-            </div>`;
-          const go = (e?: Event) => {
-            e?.preventDefault?.();
-            window.location.href = '/api/auth/login';
-          };
-          document.getElementById('dash-login')?.addEventListener('click', go);
-          document.getElementById('dash-signup')?.addEventListener('click', go);
+          // Keep a neutral loading state; do not show login CTA when authed
+          c.innerHTML = `<p class="opacity-80">Still loading your data...</p>`;
         }
       } catch {}
     }, 8000);

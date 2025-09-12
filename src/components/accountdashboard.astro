@@ -1,6 +1,5 @@
 ---
-// Use Vite root absolute path so dev/build can resolve and bundle
-const panelScript = '/src/scripts/account-dashboard-panel.ts';
+
 ---
 
 <div class="fixed justify-center top-0 right-0 z-[9998] pointer-events-auto w-72">
@@ -48,4 +47,41 @@ const panelScript = '/src/scripts/account-dashboard-panel.ts';
     </div>
   </aside>
 </div>
-<script type="module" src={panelScript}></script>
+<script>
+  // Minimal, import-free behavior powered by global fasAuth
+  window.addEventListener('DOMContentLoaded', async () => {
+    const loginLink = document.getElementById('loginLink');
+    const logoutLink = document.getElementById('logoutLink');
+
+    const showLogin = () => {
+      loginLink?.classList.remove('hidden');
+      logoutLink?.classList.add('hidden');
+    };
+    const showLogout = () => {
+      logoutLink?.classList.remove('hidden');
+      loginLink?.classList.add('hidden');
+    };
+
+    try {
+      const fas = window.fasAuth;
+      if (!fas) {
+        showLogin();
+      } else {
+        const authed = await fas.isAuthenticated();
+        authed ? showLogout() : showLogin();
+
+        loginLink?.addEventListener('click', async (e) => {
+          e.preventDefault();
+          try { await fas.loginTo('/dashboard'); } catch { window.location.href = '/account'; }
+        });
+        logoutLink?.addEventListener('click', async (e) => {
+          e.preventDefault();
+          try { await fas.logout(window.location.origin); } catch { window.location.href = '/account?logout=1'; }
+        });
+      }
+    } catch (err) {
+      console.warn('[accountdashboard] init failed', err);
+      showLogin();
+    }
+  });
+  </script>

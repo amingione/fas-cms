@@ -68,12 +68,22 @@ export const GET: APIRoute = async ({ request, url }) => {
       });
     }
 
-    const query = `*[_type == "order" && (customer->email == $email || customerEmail == $email)] | order(_createdAt desc){
-      _id,
-      title,
-      status,
-      _createdAt
-    }`;
+    const query = `*[_type == "order" && (customer->email == $email || customerEmail == $email)]
+      | order(coalesce(orderDate, createdAt, _createdAt) desc){
+        _id,
+        // identifiers
+        orderNumber,
+        stripeSessionId,
+        // status + dates
+        status,
+        _createdAt,
+        createdAt,
+        orderDate,
+        // totals (support both "total" and "totalAmount")
+        "total": coalesce(total, totalAmount),
+        // optional tracking
+        trackingNumber
+      }`;
 
     const orders = await sanityClient.fetch(query, { email });
 

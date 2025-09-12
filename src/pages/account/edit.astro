@@ -1,6 +1,5 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-const accountEditScript = '/src/scripts/account-edit-page.ts';
 ---
 
 <BaseLayout hideBrandTag>
@@ -66,6 +65,6 @@ const accountEditScript = '/src/scripts/account-edit-page.ts';
     </div>
 
     <!-- Optional: JS enhancement keeps working if you prefer dynamic editing -->
-    <script type="module" src={accountEditScript}></script>
+    <script type="module">import '/src/scripts/account-edit-page.ts';</script>
   </main>
 </BaseLayout>
