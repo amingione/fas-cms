@@ -71,15 +71,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
             >
               Quotes
             </a>
-            <a
-              className={`block rounded px-3 py-2 transition ${
-                isActive('/admin/wheel-quotes') ? 'bg-white/10 text-white' : 'hover:bg-white/5'
-              }`}
-              href="/admin/wheel-quotes"
-              aria-current={isActive('/admin/wheel-quotes') ? 'page' : undefined}
-            >
-              Wheel Quotes
-            </a>
+            {/* Wheel Quotes (React app) removed */}
             <a
               className={`block rounded px-3 py-2 transition ${
                 isActive('/admin/invoices') ? 'bg-white/10 text-white' : 'hover:bg-white/5'

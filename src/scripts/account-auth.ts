@@ -45,11 +45,27 @@ setTimeout(() => {
 (async () => {
   console.log('🚀 account page script loaded');
 
-  const withTimeout = <T>(p: Promise<T>, ms = 8000): Promise<T> =>
-    Promise.race([p, new Promise<T>((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
+const withTimeout = <T>(p: Promise<T>, ms = 12000): Promise<T> =>
+  Promise.race([p, new Promise<T>((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
+
+function explainError(err: any): string {
+  try {
+    const msg = String(err?.message || err);
+    if (msg.includes('configuration missing') || msg.includes('Auth0 configuration missing')) {
+      return 'Auth0 is not configured (missing domain or client ID).';
+    }
+    if (msg === 'timeout') {
+      return 'Auth timed out contacting login service.';
+    }
+    return msg;
+  } catch {
+    return 'Unknown error';
+  }
+}
 
   try {
-    const auth0 = await withTimeout(getAuth0Client(), 8000);
+    console.log('[account-auth] initializing Auth0 client…');
+    const auth0 = await withTimeout(getAuth0Client(), 12000);
     window._auth0 = auth0;
     // Expose small helper API for other pages (e.g., /admin)
     window.fasAuth = {
@@ -107,7 +123,7 @@ setTimeout(() => {
     // Handle redirect callback
     if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
       try {
-        const { appState } = await withTimeout(auth0.handleRedirectCallback(), 8000);
+        const { appState } = await withTimeout(auth0.handleRedirectCallback(), 12000);
         window.history.replaceState({}, document.title, window.location.pathname);
         if (appState?.returnTo) {
           // send user back to intended destination (e.g., /admin)
@@ -122,7 +138,7 @@ setTimeout(() => {
 
     let authed = false;
     try {
-      authed = await withTimeout(auth0.isAuthenticated(), 8000);
+      authed = await withTimeout(auth0.isAuthenticated(), 12000);
     } catch (e) {
       console.warn('isAuthenticated failed', e);
     }
@@ -159,7 +175,7 @@ setTimeout(() => {
 
     // Warm up/refresh token silently so subsequent API calls have a fresh access token
     try {
-      await withTimeout(auth0.getTokenSilently(), 8000);
+      await withTimeout(auth0.getTokenSilently(), 12000);
     } catch (e) {
       console.warn('silent token refresh failed', e);
     }
@@ -172,8 +188,8 @@ setTimeout(() => {
       [key: string]: any;
     };
 
-    const user: Auth0User = (await withTimeout(auth0.getUser(), 8000)) ?? ({} as Auth0User);
-    const claims = await withTimeout(auth0.getIdTokenClaims(), 8000).catch(() => null);
+    const user: Auth0User = (await withTimeout(auth0.getUser(), 12000)) ?? ({} as Auth0User);
+    const claims = await withTimeout(auth0.getIdTokenClaims(), 12000).catch(() => null);
     const token = claims?.__raw;
     if (token && claims?.exp) {
       try {
@@ -193,10 +209,23 @@ setTimeout(() => {
           `);
   } catch (err: any) {
     console.error('❌ account script error', err);
+    const reason = explainError(err);
+    const tips = `
+      <details class="text-xs opacity-80 mt-2"><summary class="cursor-pointer">Troubleshooting</summary>
+        <ul class="list-disc pl-5 mt-1 space-y-1">
+          <li>Check .env has PUBLIC_AUTH0_DOMAIN and PUBLIC_AUTH0_CLIENT_ID.</li>
+          <li>Auth0 Allowed Web Origins include this origin (${location.origin}).</li>
+          <li>Disable blockers for login.fasmotorsports.com.</li>
+        </ul>
+      </details>`;
     show(`
             <h1 class="text-2xl mb-4 font-borg text-primary">Account</h1>
-            <p class="mb-4">We couldn’t load your account. ${err?.message === 'timeout' ? 'Request timed out.' : 'Please try again.'}</p>
+            <p class="mb-2">We couldn’t load your account.</p>
+            <p class="mb-4 text-white/80">${reason}</p>
             ${buttonGroup}
+            ${tips}
+            <div class="mt-4"><button id="retryAuth" class="px-3 py-1.5 rounded border border-white/20">Retry</button></div>
           `);
+    document.getElementById('retryAuth')?.addEventListener('click', () => location.reload());
   }
 })();

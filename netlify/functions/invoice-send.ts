@@ -5,7 +5,7 @@ import { stripe } from './_stripe';
 export const handler: Handler = async (event) => {
   try {
     if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
-    requireUser(event);
+    await requireUser(event);
     const { invoiceId } = JSON.parse(event.body || '{}');
     if (!invoiceId) return { statusCode: 400, body: 'Missing invoiceId' };
     const sent = await stripe.invoices.sendInvoice(invoiceId);

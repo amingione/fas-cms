@@ -4,7 +4,7 @@ import { requireUser } from './_auth';
 
 export const handler: Handler = async (event) => {
   try {
-    requireUser(event);
+    await requireUser(event);
     const email = (event.queryStringParameters?.email || '').trim().toLowerCase();
     if (!email) return { statusCode: 400, body: 'Missing email' };
     const q = `*[_type=="customer" && lower(email)==$email][0]{
@@ -18,4 +18,3 @@ export const handler: Handler = async (event) => {
 };
 
 export default { handler };
-

@@ -5,7 +5,7 @@ import { requireUser } from './_auth';
 export const handler: Handler = async (event) => {
   try {
     if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
-    requireUser(event);
+    await requireUser(event);
     const body = JSON.parse(event.body || '{}');
     const id = (body._id || body.id || '').trim();
     if (!id) return { statusCode: 400, body: 'Missing id' };
@@ -17,4 +17,3 @@ export const handler: Handler = async (event) => {
 };
 
 export default { handler };
-

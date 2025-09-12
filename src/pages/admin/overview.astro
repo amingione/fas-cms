@@ -26,13 +26,19 @@ try {
   const r = await fetch(`${base}/.netlify/functions/orders-list`, {
     headers: reqCookie ? { cookie: reqCookie } : {}
   } as any);
-  if (r.ok) orders = await r.json();
+  if (r.ok) {
+    const j = await r.json();
+    orders = Array.isArray(j) ? j : (Array.isArray(j?.data) ? j.data : []);
+  }
 } catch {}
 try {
   const r = await fetch(`${base}/.netlify/functions/products-list`, {
     headers: reqCookie ? { cookie: reqCookie } : {}
   } as any);
-  if (r.ok) products = await r.json();
+  if (r.ok) {
+    const j = await r.json();
+    products = Array.isArray(j) ? j : (Array.isArray(j?.data) ? j.data : []);
+  }
 } catch {}
 
 // Appointments: call API route; if it fails, show empty

@@ -6,7 +6,7 @@ import { sanity } from './_sanity';
 export const handler: Handler = async (event) => {
   try {
     if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
-    requireUser(event);
+    await requireUser(event);
     const { orderId, shipment } = JSON.parse(event.body || '{}');
     if (!orderId || !shipment) return { statusCode: 400, body: 'Missing fields' };
 

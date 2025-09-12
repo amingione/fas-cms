@@ -2,7 +2,7 @@ import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { ArrowRight, Zap, Award, Star, Phone, ShoppingCart } from 'lucide-react';
+import { Zap, Award, Star } from 'lucide-react';
 import { sbFieldPath } from '@lib/stackbit';
 
 type WheelsHeroProps = {
@@ -116,7 +116,7 @@ export function WheelsHero({
               <div className="relative w-full max-w-lg mx-auto lg:max-w-none aspect-square rounded-2xl overflow-hidden industrial-glow">
                 <div className="absolute inset-0 bg-gradient-to-br from-gray-800/20 to-black/60"></div>
                 <img
-                  src="images/wheels/belak custom red.png"
+                  src="/images/wheels/belak/belak custom red.png"
                   alt="BelaK Wheels - Street Performance"
                   className="w-full h-full object-contain object-center p-6 md:p-8"
                   loading="lazy"
@@ -326,32 +326,6 @@ export function WheelsHero({
                 <span className="text-primary font-semibold"> JTX Forged</span> - engineered for
                 performance.
               </p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
-              <Button
-                className="bg-primary hover:bg-primary/90 text-white font-ethno px-8 py-4 text-base metallic-btn industrial-glow group"
-                size="lg"
-                asChild
-              >
-                <a href="/shop">
-                  <ShoppingCart className="w-5 h-5 mr-2 group-hover:animate-bounce" />
-                  SHOP WHEELS
-                  <ArrowRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
-                </a>
-              </Button>
-              <Button
-                variant="outline"
-                className="border-primary/50 text-primary hover:bg-primary/10 font-ethno px-8 py-4 text-base group"
-                size="lg"
-                asChild
-              >
-                <a href="/contact">
-                  <Phone className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
-                  GET QUOTE
-                  <Star className="w-5 h-5 ml-2 group-hover:rotate-180 transition-transform duration-500" />
-                </a>
-              </Button>
             </div>
 
             {/* Brand Highlights */}

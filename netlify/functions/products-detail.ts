@@ -5,7 +5,7 @@ import { requireUser } from './_auth';
 export const handler: Handler = async (event) => {
   try {
     if (event.httpMethod !== 'GET') return { statusCode: 405, body: 'Method Not Allowed' };
-    requireUser(event);
+    await requireUser(event);
     const id = (event.queryStringParameters?.id || '').trim();
     if (!id) return { statusCode: 400, body: 'Missing id' };
     const q = `*[_type=="product" && _id==$id][0]{

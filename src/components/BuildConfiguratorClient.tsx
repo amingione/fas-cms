@@ -364,7 +364,7 @@ export default function BuildConfiguratorClient({ products }: Props) {
                   src={
                     typeof p.images?.[0] === 'string'
                       ? p.images[0]
-                      : p.images?.[0]?.asset?.url || '/placeholder.png'
+                      : p.images?.[0]?.asset?.url || '/logo/faslogochroma.png'
                   }
                   alt={p.title}
                   className="w-full h-48 object-cover rounded-lg mb-4"

@@ -5,7 +5,7 @@ import { requireUser } from './_auth';
 export const handler: Handler = async (event) => {
   try {
     if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
-    requireUser(event);
+    await requireUser(event);
     const { _id, status } = JSON.parse(event.body || '{}');
     if (!_id || !status) return { statusCode: 400, body: 'Missing fields' };
     const doc = await sanity.patch(_id).set({ status }).commit();

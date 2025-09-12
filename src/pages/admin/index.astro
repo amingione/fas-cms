@@ -1,16 +1,4 @@
 ---
-import React from 'react';
-import AdminApp from '../../admin-react/AdminApp';
----
-
-<html lang="en" class="dark">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Admin · Dashboard</title>
-  </head>
-  <body class="min-h-screen bg-gray-900 text-gray-100">
-    <AdminApp client:only="react" />
-  </body>
-  </html>
+// Redirect /admin to the original Astro overview
+return Astro.redirect('/admin/overview');
 ---

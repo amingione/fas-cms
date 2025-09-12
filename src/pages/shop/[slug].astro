@@ -103,7 +103,7 @@ try {
       <div class="md:sticky md:top-28 flex justify-center items-start z-0 min-w-0" {...sbFieldPath('images')}>
         <SlugCarousel
           images={(product as any).images?.map((img: any) => ({
-            url: img?.asset?.url || '/placeholder.png',
+            url: img?.asset?.url || '/logo/faslogochroma.png',
             alt: img?.alt || (product as any).title
           })) || []}
         />
@@ -399,7 +399,7 @@ try {
         .map((p: any) => {
           const s = (p.slug && (p.slug.current || p.slug)) as string;
           if (!s) return null;
-          const img = p?.images?.[0]?.asset?.url || '/placeholder.png';
+          const img = p?.images?.[0]?.asset?.url || '/logo/faslogochroma.png';
           const alt = p?.images?.[0]?.alt || p?.title || 'Product image';
           const price =
             typeof p?.price === 'number' ? `$${p.price.toFixed(2)}` : '';
@@ -439,7 +439,7 @@ try {
         .map((p: any) => {
           const s = (p.slug && (p.slug.current || p.slug)) as string;
           if (!s) return null;
-          const img = p?.images?.[0]?.asset?.url || '/placeholder.png';
+          const img = p?.images?.[0]?.asset?.url || '/logo/faslogochroma.png';
           const alt = p?.images?.[0]?.alt || p?.title || 'Product image';
           const price =
             typeof p?.price === 'number' ? `$${p.price.toFixed(2)}` : '';

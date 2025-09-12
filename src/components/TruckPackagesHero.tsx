@@ -29,7 +29,7 @@ export function TruckPackagesHero({
   ctaSecondaryHref
 }: TruckPackagesHeroProps) {
   return (
-    <section className="relative overflow-hidden bg-black/10 glass-layer-rounded back-layer rounded-md shadow-lg text-white mb-5">
+    <section className="relative overflow-hidden bg-black/10 glass-layer-rounded back-layer rounded-md px-5 shadow-lg text-white mb-5">
       {/* subtle texture / vignette */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.06),transparent_60%)] opacity-20" />
 
@@ -39,7 +39,7 @@ export function TruckPackagesHero({
         <div className="h-px w-[80%] mx-auto bg-gradient-to-r from-transparent via-white/25 to-transparent" />
       </div>
 
-      <div className="relative z-10 container px-6 lg:px-10 py-14 lg:py-24 mx-auto grid lg:grid-cols-2 items-center gap-10 lg:gap-16">
+      <div className="relative z-10 container px-13 lg:px-20 py-14 lg:py-24 mx-auto grid lg:grid-cols-2 items-center gap-10 lg:gap-16">
         {/* LEFT: Title + Subtitle + CTAs */}
         <div className="order-2 lg:order-1 space-y-6">
           <div className="flex items-center gap-3">
@@ -50,7 +50,7 @@ export function TruckPackagesHero({
             />
             <Badge
               variant="outline"
-              className="bg-primary/15 border-primary/40 text-primary font-ethno tracking-widest"
+              className="bg-primary/15 border-primary/40 text-white/80 font-ethno tracking-widest"
               {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.badge`) : {})}
             >
               {badge ?? 'CUSTOM PERFORMANCE PACKAGES'}
@@ -78,12 +78,12 @@ export function TruckPackagesHero({
             </span>
           </h1>
 
-          <p className="text-primary font-kwajong text-base sm:text-lg lg:text-xl max-w-xl">
+          <p className="text-primary font-borg text-base sm:text-lg lg:text-xl max-w-xl">
             <span {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.kicker`) : {})}>
               {kicker ?? (
                 <>
                   FROM MILD TO WILD —{' '}
-                  <span className="font-bold text-white">
+                  <span className="font-ethno text-white">
                     OUR CUSTOM PACKAGES ARE BUILT TO DOMINATE
                   </span>
                 </>
@@ -92,9 +92,9 @@ export function TruckPackagesHero({
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
-            <Button size="lg" className="font-ethno" asChild>
+            <Button size="md" className="font-ethno" asChild>
               <a
-                href={ctaPrimaryHref ?? '/packages/truckPackages'}
+                href={ctaPrimaryHref ?? '/shop?categorySlug=power-packages&page=1'}
                 {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.cta.text`) : {})}
               >
                 <Zap className="w-5 h-5 mr-2" />
@@ -104,7 +104,7 @@ export function TruckPackagesHero({
             </Button>
             <Button size="lg" variant="outline" className="font-ethno" asChild>
               <a
-                href={ctaSecondaryHref ?? '/contact'}
+                href={ctaSecondaryHref ?? '/customBuild'}
                 {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.ctaSecondary.text`) : {})}
               >
                 <Settings className="w-5 h-5 mr-2" />

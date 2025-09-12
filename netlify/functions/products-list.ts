@@ -22,7 +22,7 @@ export const handler: Handler = async (event) => {
     let user: any = null;
     if (!isLocal) {
       const { requireUser } = await import('./_auth');
-      user = requireUser(event); // throws on failure
+      user = await requireUser(event); // throws on failure
       const roles: string[] = Array.isArray(user?.roles)
         ? user.roles.map((r: string) => (r || '').toLowerCase())
         : [];

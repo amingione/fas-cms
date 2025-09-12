@@ -13,7 +13,7 @@ const json = (statusCode: number, body: any) => ({
 export const handler: Handler = async (event) => {
   try {
     if (event.httpMethod !== 'POST') return json(405, { error: 'Method Not Allowed' });
-    requireUser(event);
+    await requireUser(event);
     const body = JSON.parse(event.body || '{}');
     const quoteId: string | undefined = body.quoteId;
     if (!quoteId) return json(400, { error: 'Missing quoteId' });

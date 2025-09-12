@@ -20,7 +20,7 @@ export const handler: Handler = async (event) => {
     // Auth: allow localhost during dev; prod/staging must be authenticated and authorized
     let user: any = null;
     if (!isLocal) {
-      user = requireUser(event); // should throw if invalid/expired
+      user = await requireUser(event); // should throw if invalid/expired
       const roles: string[] = Array.isArray(user?.roles)
         ? user.roles.map((r: string) => (r || '').toLowerCase())
         : [];

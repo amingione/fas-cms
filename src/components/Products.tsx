@@ -70,7 +70,7 @@ export function Products() {
       name: '108mm Billet Throttle Body',
       description:
         'High-flow, CNC-machined billet throttle body tuned for smooth driveability and repeatable airflow on high-boost builds.',
-      image: '/images/billetParts/108mm-throttle-body.png',
+      image: '/images/billetParts/108mm-TB-fas.webp',
       popular: false,
       specHref: '/specs/BilletThrottleBody108'
     }
@@ -349,7 +349,7 @@ export function Products() {
             className={`border-2 border-primary/30 text-primary hover:bg-primary hover:text-white font-bold backdrop-blur-sm group industrial-glow font-ethno ${isMobile ? 'px-6 py-3 text-sm' : 'px-8 py-4 text-lg'}`}
             asChild
           >
-            <a href="/shop/categories/fas-billet-parts">
+            <a href="/shop?categorySlug=f-a-s-billet-parts&page=1">
               VIEW ALL PRODUCTS
               <motion.div
                 className="ml-2"

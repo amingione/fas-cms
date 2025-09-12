@@ -62,9 +62,6 @@ export default defineConfig({
       rollupOptions: {
         output: {
           manualChunks(id) {
-            // Split admin dashboard code from storefront
-            if (id.includes('/src/admin-react/')) return 'admin';
-
             // Group heavy vendor libs
             if (id.includes('node_modules')) {
               if (id.includes('fullcalendar')) return 'fullcalendar';
@@ -87,6 +84,7 @@ export default defineConfig({
       ],
     },
     resolve: {
+      dedupe: ['react', 'react-dom'],
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
         '@components': fileURLToPath(new URL('./src/components', import.meta.url)),

@@ -5,8 +5,7 @@ module.exports = {
     './src/**/*.{astro,html,js,jsx,ts,tsx,vue,svelte,css}',
     './components/**/*.{astro,html,js,jsx,ts,tsx}',
     './layouts/**/*.{astro,html,js,jsx,ts,tsx}',
-    './pages/**/*.{astro,html,js,jsx,ts,tsx}',
-    './src/admin-react/**/*.{js,jsx,ts,tsx}'
+    './pages/**/*.{astro,html,js,jsx,ts,tsx}'
   ],
   safelist: [
     'font-captain',

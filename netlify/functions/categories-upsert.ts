@@ -5,7 +5,7 @@ import { requireUser } from './_auth';
 export const handler: Handler = async (event) => {
   try {
     if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
-    requireUser(event);
+    await requireUser(event);
     const body = JSON.parse(event.body || '{}');
     const { _id, title, slug, metaTitle, metaDescription, canonicalUrl, noindex } = body;
     if (!title) return { statusCode: 400, body: 'Missing title' };

@@ -5,7 +5,7 @@ import { stripe } from './_stripe';
 export const handler: Handler = async (event) => {
   try {
     // AuthZ: require owner or employee session
-    requireUser(event);
+    await requireUser(event);
 
     const limit = Number(event.queryStringParameters?.limit || 50);
     const starting_after = event.queryStringParameters?.starting_after || undefined;
@@ -31,4 +31,3 @@ export const handler: Handler = async (event) => {
 };
 
 export default { handler };
-

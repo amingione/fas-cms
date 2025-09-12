@@ -4,7 +4,7 @@ import { requireUser } from './_auth';
 
 export const handler: Handler = async (event) => {
   try {
-    requireUser(event);
+    await requireUser(event);
     const q = `*[_type=="category"]|order(title asc){
       _id,
       title,

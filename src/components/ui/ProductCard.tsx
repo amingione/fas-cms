@@ -26,7 +26,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const productPrice =
     typeof product.price === 'number' ? `$${parseFloat(product.price.toString()).toFixed(2)}` : '—';
 
-  const imageUrl = product.image?.asset?.url || '/placeholder.png';
+  const imageUrl = product.image?.asset?.url || '/logo/faslogochroma.png';
   const productSlug = typeof product.slug === 'string' ? product.slug : product.slug?.current || '';
 
   const handleAddToCart = async (e: React.MouseEvent) => {

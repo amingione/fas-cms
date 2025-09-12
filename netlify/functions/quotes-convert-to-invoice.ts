@@ -6,7 +6,7 @@ import { requireUser } from './_auth';
 export const handler: Handler = async (event) => {
   try {
     if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
-    requireUser(event);
+    await requireUser(event);
     const { quoteId } = JSON.parse(event.body || '{}');
     if (!quoteId) return { statusCode: 400, body: 'Missing quoteId' };
 

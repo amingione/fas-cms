@@ -4,7 +4,7 @@ import { stripe } from './_stripe';
 
 export const handler: Handler = async (event) => {
   try {
-    requireUser(event);
+    await requireUser(event);
     const res = await stripe.invoices.list({ limit: 50 });
     const data = res.data.map((inv) => ({
       id: inv.id,

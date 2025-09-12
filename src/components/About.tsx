@@ -1,6 +1,6 @@
 import { Badge } from './ui/badge';
 import Button from '@/components/button';
-import { CheckCircle, ArrowRight, Shield, Trophy, Zap, Users } from 'lucide-react';
+import { CheckCircle, Shield, Trophy, Zap, Users } from 'lucide-react';
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 

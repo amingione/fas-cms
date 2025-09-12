@@ -5,7 +5,7 @@ const productPrice =
     ? `$${parseFloat(product.price).toFixed(2)}`
     : "—";
 
-const imageUrl = productImage?.asset?.url || '/placeholder.png';
+const imageUrl = productImage?.asset?.url || '/logo/faslogochroma.png';
 ---
 
 <div class={`relative z-0 text-white backdrop-blur-md bg-black/80 rounded-[10px] border border-white/30 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.5)] overflow-hidden transform transition-all duration-500 group font-sans ${layout === 'list' ? 'md:flex md:items-stretch' : 'block'}`}>

@@ -242,18 +242,14 @@ export function CustomFabrication() {
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Button
+              asChild
               size={isMobile ? 'md' : 'lg'}
               className="bg-primary hover:red/30 luxury-btn text-white font-bold rounded-full shadow-red/20 hover:shadow-red/40 transition-all"
             >
-              View Portfolio
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-            <Button
-              size={isMobile ? 'md' : 'lg'}
-              variant="outline"
-              className="border-primary text-black luxury-btn hover:bg-red/40 rounded-full"
-            >
-              Get Custom Quote
+              <a href="/services/customFab">
+                View Portfolio
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </a>
             </Button>
           </div>
         </motion.div>

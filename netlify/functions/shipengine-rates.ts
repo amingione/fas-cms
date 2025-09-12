@@ -5,7 +5,7 @@ import { se } from './_shipengine';
 export const handler: Handler = async (event) => {
   try {
     if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
-    requireUser(event);
+    await requireUser(event);
     const body = JSON.parse(event.body || '{}'); // { from, to, packages[] }
     // Minimal example; shape these to your account defaults
     const payload = {

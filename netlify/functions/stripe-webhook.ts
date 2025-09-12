@@ -44,8 +44,12 @@ export const handler: Handler = async (event) => {
       // Retrieve payment intent details
       let paymentIntent: Stripe.PaymentIntent | null = null;
       try {
-        const piId = typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id;
-        if (piId) paymentIntent = await stripe.paymentIntents.retrieve(piId, { expand: ['latest_charge'] });
+        const piId =
+          typeof session.payment_intent === 'string'
+            ? session.payment_intent
+            : session.payment_intent?.id;
+        if (piId)
+          paymentIntent = await stripe.paymentIntents.retrieve(piId, { expand: ['latest_charge'] });
       } catch (e) {
         console.warn('[stripe-webhook] unable to retrieve PaymentIntent for', session.id);
       }
@@ -110,14 +114,18 @@ export const handler: Handler = async (event) => {
           _type: 'order',
           stripeSessionId: session.id,
           paymentIntentId:
-            typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id,
+            typeof session.payment_intent === 'string'
+              ? session.payment_intent
+              : session.payment_intent?.id,
           paymentStatus: paymentIntent?.status || session.payment_status || 'unknown',
           chargeId:
             typeof (paymentIntent as any)?.latest_charge === 'string'
               ? (paymentIntent as any).latest_charge
               : (paymentIntent as any)?.latest_charge?.id,
-          cardBrand: (paymentIntent as any)?.charges?.data?.[0]?.payment_method_details?.card?.brand || '',
-          cardLast4: (paymentIntent as any)?.charges?.data?.[0]?.payment_method_details?.card?.last4 || '',
+          cardBrand:
+            (paymentIntent as any)?.charges?.data?.[0]?.payment_method_details?.card?.brand || '',
+          cardLast4:
+            (paymentIntent as any)?.charges?.data?.[0]?.payment_method_details?.card?.last4 || '',
           receiptUrl: (paymentIntent as any)?.charges?.data?.[0]?.receipt_url || '',
           currency: session.currency || 'usd',
           amountSubtotal:
@@ -183,7 +191,9 @@ export const handler: Handler = async (event) => {
             amount_total: (li.amount_total || 0) / 100
           })),
           paymentIntentId:
-            typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id,
+            typeof session.payment_intent === 'string'
+              ? session.payment_intent
+              : session.payment_intent?.id,
           receiptUrl: (paymentIntent as any)?.charges?.data?.[0]?.receipt_url || ''
         });
       }
@@ -202,7 +212,7 @@ export const handler: Handler = async (event) => {
           const html = `
             <div style="font-family:Arial,sans-serif;max-width:640px;margin:0 auto;color:#111">
               <div style="text-align:center;margin-bottom:16px">
-                <img src="https://www.fasmotorsports.com/logo/chromelogofas.png" alt="FAS Motorsports" style="height:48px" />
+                <img src="https://www.fasmotorsports.com/logo/faslogochroma.png" alt="FAS Motorsports" style="height:48px" />
               </div>
               <h2 style="margin:8px 0">Thanks for your order!</h2>
               <p style="margin:4px 0 16px 0">Order: <strong>${session.id}</strong></p>
@@ -228,7 +238,10 @@ export const handler: Handler = async (event) => {
       const inv = evt.data.object as Stripe.Invoice;
       const stripeInvoiceId = inv.id;
       try {
-        const quote = await sanity.fetch(`*[_type=="quote" && stripeInvoiceId==$id][0]{_id,status}`, { id: stripeInvoiceId });
+        const quote = await sanity.fetch(
+          `*[_type=="quote" && stripeInvoiceId==$id][0]{_id,status}`,
+          { id: stripeInvoiceId }
+        );
         if (quote?._id) {
           await sanity
             .patch(quote._id)
@@ -241,18 +254,27 @@ export const handler: Handler = async (event) => {
             .commit();
         }
       } catch (e) {
-        console.warn('[stripe-webhook] update quote on invoice.finalized failed', (e as any)?.message || e);
+        console.warn(
+          '[stripe-webhook] update quote on invoice.finalized failed',
+          (e as any)?.message || e
+        );
       }
     } else if (evt.type === 'invoice.paid') {
       const inv = evt.data.object as Stripe.Invoice;
       const stripeInvoiceId = inv.id;
       try {
-        const quote = await sanity.fetch(`*[_type=="quote" && stripeInvoiceId==$id][0]{_id,status}`, { id: stripeInvoiceId });
+        const quote = await sanity.fetch(
+          `*[_type=="quote" && stripeInvoiceId==$id][0]{_id,status}`,
+          { id: stripeInvoiceId }
+        );
         if (quote?._id && quote.status !== 'paid') {
           await sanity.patch(quote._id).set({ status: 'paid' }).commit();
         }
       } catch (e) {
-        console.warn('[stripe-webhook] update quote on invoice.paid failed', (e as any)?.message || e);
+        console.warn(
+          '[stripe-webhook] update quote on invoice.paid failed',
+          (e as any)?.message || e
+        );
       }
     }
 

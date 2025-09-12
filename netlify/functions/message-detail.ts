@@ -4,7 +4,7 @@ import { sanity } from './_sanity';
 
 export const handler: Handler = async (event) => {
   try {
-    requireUser(event);
+    await requireUser(event);
     const id = new URLSearchParams(event.rawQuery || '').get('id');
     if (!id) return { statusCode: 400, body: 'Missing id' };
     const q = `*[_type=="message" && _id==$id][0]{ _id, subject, body, fromEmail, status, createdAt }`;

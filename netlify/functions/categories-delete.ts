@@ -5,7 +5,7 @@ import { requireUser } from './_auth';
 export const handler: Handler = async (event) => {
   try {
     if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
-    requireUser(event);
+    await requireUser(event);
     const { _id } = JSON.parse(event.body || '{}');
     if (!_id) return { statusCode: 400, body: 'Missing _id' };
     await sanity.delete(_id);

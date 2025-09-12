@@ -16,7 +16,8 @@ export default function ProductCardLiteReact({
 }) {
   const slug = typeof product?.slug === 'string' ? product.slug : product?.slug?.current || '';
   const href = slug ? `/shop/${encodeURIComponent(slug)}` : '#';
-  const img = productImage?.asset?.url || product?.images?.[0]?.asset?.url || '/placeholder.png';
+  const img =
+    productImage?.asset?.url || product?.images?.[0]?.asset?.url || '/logo/faslogochroma.png';
   const title = product?.title || 'Untitled Product';
 
   return layout === 'list' ? (

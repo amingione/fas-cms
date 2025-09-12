@@ -5,7 +5,7 @@ import { stripe } from './_stripe';
 export const handler: Handler = async (event) => {
   try {
     // Auth
-    requireUser(event);
+    await requireUser(event);
 
     const id = event.queryStringParameters?.id;
     if (!id) return { statusCode: 400, body: 'Missing id' };
@@ -58,4 +58,3 @@ export const handler: Handler = async (event) => {
 };
 
 export default { handler };
-

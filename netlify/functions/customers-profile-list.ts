@@ -4,7 +4,7 @@ import { requireUser } from './_auth';
 
 export const handler: Handler = async (event) => {
   try {
-    requireUser(event);
+    await requireUser(event);
     const q = `*[_type=="customer"]|order(name asc){ _id, name, email, phone, notes }`;
     const rows = await sanity.fetch(q);
     return { statusCode: 200, body: JSON.stringify(Array.isArray(rows) ? rows : []) };
@@ -14,4 +14,3 @@ export const handler: Handler = async (event) => {
 };
 
 export default { handler };
-

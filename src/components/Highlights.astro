@@ -14,7 +14,7 @@ const { items = [] } = Astro.props as { items?: any[] };
           >
             <div class="hl-img">
               <img
-                src={p?.imageUrl || '/placeholder.png'}
+                src={p?.imageUrl || '/logo/faslogochroma.png'}
                 alt={(p?.title || p?.name || 'Product').toString()}
                 loading="lazy"
                 class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
@@ -68,4 +68,3 @@ const { items = [] } = Astro.props as { items?: any[] };
     .hl-item { flex-basis: 30%; }
   }
 </style>
-

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Zap, Shield, Wrench } from 'lucide-react';
+import { Zap, Shield, Wrench } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export function Hero() {

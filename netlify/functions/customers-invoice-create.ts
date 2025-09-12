@@ -11,7 +11,7 @@ const json = (statusCode: number, body: any) => ({
 export const handler: Handler = async (event) => {
   try {
     if (event.httpMethod !== 'POST') return json(405, { error: 'Method Not Allowed' });
-    requireUser(event);
+    await requireUser(event);
     const body = JSON.parse(event.body || '{}');
     const customerId: string | undefined = body.customerId;
     const livemode: boolean | undefined = body.livemode;
@@ -26,4 +26,3 @@ export const handler: Handler = async (event) => {
 };
 
 export default { handler };
-

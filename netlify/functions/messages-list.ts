@@ -4,7 +4,7 @@ import { sanity } from './_sanity';
 
 export const handler: Handler = async (event) => {
   try {
-    requireUser(event);
+    await requireUser(event);
     const q = `*[_type=="message"]|order(createdAt desc)[0...200]{ _id, subject, fromEmail, status, createdAt }`;
     return { statusCode: 200, body: JSON.stringify(await sanity.fetch(q)) };
   } catch (e: any) {

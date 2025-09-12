@@ -6,7 +6,7 @@ import { sanity } from './_sanity';
 export const handler: Handler = async (event) => {
   try {
     if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
-    requireUser(event);
+    await requireUser(event);
     const { _id, to, subject, html } = JSON.parse(event.body || '{}');
     if (!_id || !to || !subject || !html) return { statusCode: 400, body: 'Missing fields' };
     await sendEmail({ to, subject, html });

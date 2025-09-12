@@ -85,7 +85,7 @@ export const handler: Handler = async (event) => {
   const sessionFlags = `HttpOnly; Path=/; Max-Age=604800; SameSite=Lax${isLocal ? '' : '; Secure'}`;
   const headers = {
     'Set-Cookie': [`session=${session}; ${sessionFlags}`].join(', '),
-    Location: '/admin, /account'
+    Location: '/admin'
   };
 
   return { statusCode: 302, headers };
