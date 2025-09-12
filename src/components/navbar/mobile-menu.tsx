@@ -54,7 +54,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
   const MenuContent = ({ onNavigate }: { onNavigate?: () => void }) => (
     <>
       <div className="flex">
-        <img src="/images/faslogochroma.png" alt="FAS Logo" className="h-8" />
+        <img src="/logo/faslogochroma.png" alt="FAS Logo" className="h-8" />
       </div>
       <div className="w-64">
         <SearchBar

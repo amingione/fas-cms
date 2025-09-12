@@ -3,6 +3,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
 import { Button } from '@/components/ui/button';
 import StoreHero from '@/components/storefront/StoreHero.astro';
+import TruckGallery from '@/components/storefront/TruckGallery.astro';
 
 const pageDoc: any = await getGitPageDoc('truckPackages');
 // Use plain HTML buttons/links in this SSR page to avoid React SSR for UI primitives
@@ -29,167 +30,136 @@ const pageDoc: any = await getGitPageDoc('truckPackages');
     ctaSecondaryVariant="outline"
     
   />
-
+  </section>
 
   <!-- Packages Section -->
   <section class="packages section-divider section-divider-carbon">
-    <h2 class="font-borg text-primary text-6xl">
-      Stock
-    </h2>
-    <h2 class="font-ethno text-secondary text-4xl">
-      Builds
-    </h2>
-    
     <div class="package-grid">
-      <div class="package-card">
-        <div class="package-media">
-          <img src="/images/packages/Shelby-truck.png" alt="Shelby Truck Package by FAS" class="package-image">
+
+      <!-- Column 1: TRX + Overview -->
+      <div class="package-group">
+        <div class="package-card">
+          <div class="package-media">
+            <img src="/images/packages/FAS-TRX.webp" alt="TRX Truck Package by FAS" class="package-image">
+          </div>
+          <h3 class="font-ethno text-primary"><span class="font-borg text-white">RaM</span> TRX <span class="font-ethno text-base tracking-tight text-white">Builds</span></h3>
+          <div class="font-ethno text-base tracking-tight text-accent">
+            <div class="my-2 font-mono text-base tracking-wide text-white/70">From 800HP to 1600+HP — Your TRX, Redefined.</div>
+            <div class="font-ethno text-lg tracking-tight text-blue-500">• Starting at $1,599 •</div>
+          </div>
+          <ul class="font-mono font-bold pt-4 text-base tracking-tight leading-snug">
+            <li>FAS Motorsports has built more TRX’s than anyone, delivering proven power packages designed to dominate both street and strip.</li>
+          </ul>
+          <Button className="my-3 ghost">
+            <a href="/shop/fas-factory-freak-package-trx" class="font-cyber tracking-widest transition-all duration-300">Shop Package ➟</a>
+          </Button>
         </div>
-        <h3 class="font-ethno text-primary">
-          Turn Key 1000 HP Package
-        </h3>
-        <p class="font-ethno text-base tracking-tight text-accent">
-          <div class="my-2 font-mono text-lg tracking-wide text-white/70">Starting at $15,999</div>
-          <p class="font-ethno text-base tracking-tight text-accent">
-            for both street and track use
-          </p>
-        </p>
-        <ul class="font-mono font-bold pt-4 text-base tracking-tight leading-snug">
-          <li>• 64/66 Billet Wheel Twin Turbo Kit</li>
-          <li>• Dual Pump Fore Fuel System w/ billet rails</li>
-          <li>• 1000cc Injectors</li>
-          <li>• Custom Catch Can</li>
-          <li> <span class="font-ethno text-lg tracking-tight text-primary mt-3">And More!</span> </li>
-        </ul>
-        <Button className="my-3 ghost">
-          <a href="/shop/fas-1000-package-installed-and-tuned" class="font-cyber tracking-widest transition-all duration-300">
-            Shop Package ➟ 
-          </a>
-        </Button>
+        <div class="package-card">
+          <h4 class="font-ethno text-primary text-2xl">TRX Packages</h4>
+          <p class="mt-2 text-sm font-mono tracking-[0.12em] text-white/80">TRX builds that don’t just add horsepower — they dominate.</p>
+          <ul class="mt-3 space-y-1 text-white/90 text-sm font-mono">
+            <li>• FAS 800 TRX</li>
+            <li>• FAS 850 TRX</li>
+            <li>• FAS 900 TRX</li>
+            <li>• FAS 1X TRX — 1200–1500 HP</li>
+            <li>• FAS TRX 2X — 1600+ HP</li>
+          </ul>
+          <div class="mt-3 flex gap-3">
+            <a href="/shop?filter=trx" class="px-3 py-1.5 rounded-full border border-white/20 text-xs text-white/90 hover:bg-white/10">Shop</a>
+            <a href="/schedule" class="px-3 py-1.5 rounded-full border border-white/20 text-xs text-white/90 hover:bg-white/10">Schedule</a>
+          </div>
+        </div>
       </div>
 
-      <!-- Package Card 2 -->
-      <div class="package-card">
-        <!-- Editable: Replace src with your package photo -->
-        <div class="package-media">
-          <img src="/images/packages/ram-trx-factory-freak.png" alt="TRX Truck Package by FAS" class="package-image">
+      <!-- Column 2: F‑150 + Overview -->
+      <div class="package-group">
+        <div class="package-card">
+          <div class="package-media">
+            <img src="/images/packages/FAS-f150-10002.webp" alt="Ford F‑150 Packages" class="package-image">
+          </div>
+          <h3 class="font-ethno text-primary"><span class="font-borg text-white">Ford</span> F‑150 <span class="font-ethno text-base tracking-tight text-white">(2018+)</span></h3>
+          <div class="font-ethno text-base tracking-tight text-accent">
+            <div class="my-2 font-mono text-base tracking-wide text-white/70">From 500+ to 1000 HP — Turn‑Key, Installed & Tuned.</div>
+            <div class="font-ethno text-lg tracking-tight text-blue-500">• Starting at $7,499 •</div>
+          </div>
+          <ul class="font-mono pt-4 text-base tracking-tight leading-snug">
+            <li>Daily‑drivable twin‑turbo packages with proper fueling, cooling, and calibration. Installed & tuned in‑house.</li>
+          </ul>
+          <Button className="my-3 ghost">
+            <a href="/shop?filter=f150" class="font-cyber tracking-widest transition-all duration-300">Shop F‑150 Packages ➟</a>
+          </Button>
         </div>
-        <h3 class="font-ethno text-primary">
-          <span class="font-borg text-white">F.a.S TRX</span> “Factory Freak” <span class="font-ethno text-base tracking-tight text-white">Package</span>
-        </h3>
-        <p class="font-ethno text-base tracking-tight text-accent">
-          <div class="my-2 font-mono text-lg tracking-wide text-white/70">Starting at $1,599 </div>
-          <p class="font-ethno text-lg tracking-tight text-blue-500">
-            • NO TUNE REQUIRED •
-          </p>
-        </p>
-        <ul class="font-mono font-bold pt-4 text-base tracking-tight leading-snug">
-          <!-- Editable: Add/remove list items -->
-          <li>• Gains of 60-70+whp</li>
-          <li>• “Predator” Lower Pulley Kit</li>
-          <li>• Cornerstone Cold Air Intake</li>
-          <li>• For ALL Hellcat Platforms</li>
-        </ul>
-        <Button className="my-3 ghost">
-          <a href="/shop/fas-factory-freak-package-trx" class="font-cyber tracking-widest transition-all duration-300">
-            Shop Package ➟
-          </a>
-        </Button>
-      </div>
-
-
-      <!-- Package Card 3 -->
-     <div class="package-card">
-        <!-- Editable: Replace src with your package photo -->
-        <div class="package-media">
-          <img src="/images/packages/Shelby-truck.png" alt="Shelby Truck Package by FAS" class="package-image">
+        <div class="package-card">
+          <h4 class="font-ethno text-primary text-2xl">F‑150 Packages</h4>
+          <p class="mt-2 text-sm font-mono tracking-[0.12em] text-white/80">From 500+ to 1000 HP — clean installs, strong mid‑range, and OEM‑like manners for daily use.</p>
+          <ul class="mt-3 space-y-1 text-white/90 text-sm font-mono">
+            <li>• FAS 500+ Package (2018+) — $7,499</li>
+            <li>• FAS 800 Package (2018+) — $14,999</li>
+            <li>• FAS 1000 Package (2018+) — $19,999</li>
+          </ul>
+          <div class="mt-3 flex gap-3">
+            <a href="/shop?filter=f150" class="px-3 py-1.5 rounded-full border border-white/20 text-xs text-white/90 hover:bg-white/10">Shop</a>
+            <a href="/schedule" class="px-3 py-1.5 rounded-full border border-white/20 text-xs text-white/90 hover:bg-white/10">Schedule</a>
+          </div>
         </div>
-        <h3 class="font-ethno text-primary">
-          Turn Key 1000 HP Package
-        </h3>
-        <p class="font-ethno text-base tracking-tight text-accent">
-          <div class="my-2 font-mono text-lg tracking-wide text-white/70">Starting at $19,999</div>
-          <p class="font-ethno text-base tracking-tight text-accent">
-            for both street and track use
-          </p>
-        </p>
-        <ul class="font-mono pt-4 text-base tracking-tight leading-snug">
-          <!-- Editable: Add/remove list items -->
-          <li>• 64/66 Billet Wheel Twin Turbo Kit</li>
-          <li>• Dual Pump Fore Fuel System w/ billet rails</li>
-          <li>• 1000cc Injectors</li>
-          <li>• Custom Catch Can</li>
-          <li>• And More!</li>
-        </ul>
-        <Button className="my-3 ghost">
-          <a href="/packages/1000-hp-package" class="font-cyber tracking-widest transition-all duration-300">
-            Shop Package ➟
-          </a>
-        </Button>
       </div>
-
-      <!-- Package Card 4: F.A.S. 850 Package -->
-      <div class="package-card">
-        <div class="package-media">
-          <img src="/images/packages/850-ram.webp" alt="FAS 850 Truck Package" class="package-image">
-        </div>
-        <h3 class="font-ethno text-primary">
-          <span class="font-borg text-white">F.A.S</span> 850 <span class="font-ethno text-base tracking-tight text-white">Package</span>
-        </h3>
-        <p class="font-ethno text-base tracking-tight text-accent">
-          <div class="my-2 font-mono text-lg tracking-wide text-white/70">Installed &amp; Tuned</div>
-          <p class="font-ethno text-base tracking-tight text-accent">
-            for both street and track use
-          </p>
-        </p>
-        <ul class="font-mono font-bold pt-4 text-base tracking-tight leading-snug">
-          <li>• Proven power gains on pump or E‑blend</li>
-          <li>• OEM‑like drivability and reliability</li>
-          <li>• Complete hardware and calibration package</li>
-          <li>• Dyno and street validated</li>
-          <li> <span class="font-ethno text-lg tracking-tight text-primary mt-3">And More!</span> </li>
-        </ul>
-        <Button className="my-3 ghost">
-          <a href="/shop/fas-850-package" class="font-cyber tracking-widest transition-all duration-300">
-            Shop Package ➟
-          </a>
-        </Button>
-      </div>
-
-      <!-- Package Card 5: F.A.S. 800 Package -->
-      <div class="package-card">
-        <div class="package-media">
-          <img src="/images/packages/dodge-ram.png" alt="FAS 800 Truck Package" class="package-image">
-        </div>
-        <h3 class="font-ethno text-primary">
-          <span class="font-borg text-white">F.A.S</span> 800 <span class="font-ethno text-base tracking-tight text-white">Package</span>
-        </h3>
-        <p class="font-ethno text-base tracking-tight text-accent">
-          <div class="my-2 font-mono text-lg tracking-wide text-white/70">Installed &amp; Tuned</div>
-          <p class="font-ethno text-base tracking-tight text-accent">
-            optimized for daily street performance
-          </p>
-        </p>
-        <ul class="font-mono font-bold pt-4 text-base tracking-tight leading-snug">
-          <li>• Balanced power with excellent manners</li>
-          <li>• Bolt‑on focused with clean install</li>
-          <li>• Calibration for reliability and response</li>
-          <li>• Upgrade paths available</li>
-          <li> <span class="font-ethno text-lg tracking-tight text-primary mt-3">And More!</span> </li>
-        </ul>
-        <Button className="my-3 ghost">
-          <a href="/shop/fas-800-package" class="font-cyber tracking-widest transition-all duration-300">
-            Shop Package ➟
-          </a>
-        </Button>
-      </div>
-
     </div>
   </section>
-  </div>
 
-</BaseLayout>
+  <!-- How to Get Started (Accordion CTA) -->
+  <section class="py-10 px-4 max-w-5xl mx-auto">
+    <h3 class="text-3xl font-ethno text-accent text-center mb-6">How to Get Started</h3>
+    <ul class="space-y-4">
+      <li class="border-b border-white/15 pb-4">
+        <details class="group">
+          <summary class="cursor-pointer text-lg font-cyber text-white flex justify-between items-center">Purchase Parts<span class="text-accent group-open:rotate-180 transition-transform">▼</span></summary>
+          <p class="mt-2 text-sm font-mono tracking-[0.12em] text-white/80">Prefer to DIY? You can purchase the components for your chosen package and handle installation yourself. Please note: we cannot warranty incorrect or inadequate installation performed outside our facility.</p>
+          <div class="mt-3 flex gap-3"><a href="/shop" class="px-3 py-1.5 rounded-full border border-white/20 text-xs text-white/90 hover:bg-white/10">Shop Parts</a></div>
+        </details>
+      </li>
+      <li class="border-b border-white/15 pb-4">
+        <details class="group">
+          <summary class="cursor-pointer text-lg font-cyber text-white flex justify-between items-center">Schedule for Install<span class="text-accent group-open:rotate-180 transition-transform">▼</span></summary>
+          <p class="mt-2 text-sm font-mono tracking-[0.12em] text-white/80">Our in‑house team can install, calibrate, and validate your package. We can help coordinate vehicle transport to our shop, or you can drop off in person.</p>
+          <div class="mt-3 flex gap-3"><a href="/schedule" class="px-3 py-1.5 rounded-full border border-white/20 text-xs text-white/90 hover:bg-white/10">Book Install</a></div>
+        </details>
+      </li>
+      <li class="border-b border-white/15 pb-4">
+        <details class="group">
+          <summary class="cursor-pointer text-lg font-cyber text-white flex justify-between items-center">Custom Builds<span class="text-accent group-open:rotate-180 transition-transform">▼</span></summary>
+          <p class="mt-2 text-sm font-mono tracking-[0.12em] text-white/80">Don’t see an exact match? Use our custom build tool to choose your platform, target power, and parts. Submit for a quote and our installer will fine‑tune the plan to hit your goals.</p>
+          <div class="mt-3 flex gap-3"><a href="/customBuild" class="px-3 py-1.5 rounded-full border border-white/20 text-xs text-white/90 hover:bg-white/10">Start Custom Build</a></div>
+        </details>
+      </li>
+    </ul>
+  </section>
 
+  <!-- Truck Build Gallery (bottom) -->
+  <section class="pt-8">
+    <h3 class="text-center text-3xl md:text-4xl font-ethno text-accent mb-2">Truck Build Gallery</h3>
+    <p class="text-center text-white/70 font-mono tracking-[0.12em] mb-2 px-4">Swipe, drag, or click images to view.</p>
+    <TruckGallery images={[
+      { src: '/images/packages/FAS-f150-1000.webp', alt: 'F150 Build' },
+      { src: '/images/packages/FAS-f150-10002.webp', alt: 'FAS F150 Build' },
+      { src: '/images/packages/FAS-f150.webp', alt: 'F‑150 800–1000+ Build' },
+      { src: '/images/packages/F250-FAS.png', alt: 'Ford F‑250 Custom' },
+      { src: '/images/packages/FAS-F250-custom.webp', alt: 'Custom 250 Build' },
+      { src: '/images/packages/FAS-ram-trx-build.webp', alt: 'RAM TRX Build' },
+      { src: '/images/packages/FAS-raptor-build1.webp', alt: 'FAS Raptor Build' },
+      { src: '/images/packages/FAS-raptor-TRX.webp', alt: 'Raptor Build by FAS' },
+      { src: '/images/packages/FAS-TRX-build1.webp', alt: 'TRX Build by FAS' },
+      { src: '/images/packages/FAS-TRX.webp', alt: 'TRX Build by FAS' },
+      { src: '/images/packages/FAS-TRX2.webp', alt: 'TRX Build by FAS' },
+      { src: '/images/packages/ram-trx-factory-freak.png', alt: 'RAM TRX Build' },
+      { src: '/images/packages/850-ram.webp', alt: '850 HP RAM Build' },
+      { src: '/images/packages/fas0f150-10002800.webp', alt: 'F‑150 800–1000+ Build' },
+      { src: '/images/packages/F250-FAS.png', alt: 'Ford F‑250 / F‑150' },
+      { src: '/images/packages/Shelby-truck.png', alt: 'Raptor / Shelby Build' },
+      { src: '/images/packages/ram-trx-factory-freak.png', alt: 'Dodge RAM Build' },
+    ]} />
+  </section>
+
+  
   <style>
     /* Dark UI Palette - Editable: Change colors via CSS variables */
 
@@ -391,6 +361,13 @@ const pageDoc: any = await getGitPageDoc('truckPackages');
       margin: 0 auto;
     }
 
+    /* Keep card + overview stacked within the same column */
+    .package-group {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
     .package-card {
       background: color-mix(in srgb, var(--bg-dark) 95%, #000);
       border-radius: 10px;
@@ -411,6 +388,7 @@ const pageDoc: any = await getGitPageDoc('truckPackages');
       min-height: 200px;
       overflow: hidden;
       border-radius: 5px;
+      margin-bottom: 12px;
     }
 
     .package-image {
@@ -421,6 +399,9 @@ const pageDoc: any = await getGitPageDoc('truckPackages');
       object-fit: contain;
       display: block;
     }
+    /* Normalize inner spacing to keep padding consistent across rows */
+    .package-card p { margin: 0; }
+    .package-card h3 { margin: 0; }
 
     /* Features Section */
     .features {

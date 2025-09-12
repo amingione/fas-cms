@@ -1,21 +1,16 @@
 ---
 import React from 'react';
-// IMPORTANT:
-// Do NOT import your APIs here. This page only mounts the React dashboard.
-// It keeps your existing API routes and code untouched.
 import AdminApp from '../../admin-react/AdminApp';
-// Optional: if your dashboard has its own index.css, you can import it here.
-// import '../../admin-react/index.css';
 ---
 
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Admin · Dashboard</title>
   </head>
   <body class="min-h-screen bg-gray-900 text-gray-100">
-    <!-- Mount the React dashboard as an island -->
     <AdminApp client:only="react" />
   </body>
-</html>
+  </html>
+---

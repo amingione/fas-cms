@@ -81,12 +81,43 @@ import DashboardShell from '../../components/admin/DashboardShell.tsx'
     function enterEdit(row, cat) {
       row.innerHTML = ''
       const form = document.createElement('div')
-      form.className = 'flex items-center gap-2 w-full'
+      form.className = 'grid gap-2 w-full'
 
       const input = document.createElement('input')
       input.className = 'bg-transparent border border-white/30 rounded px-2 py-1 w-full'
       input.value = cat.title
       input.autofocus = true
+
+      const slug = document.createElement('input')
+      slug.className = 'bg-transparent border border-white/30 rounded px-2 py-1 w-full'
+      slug.placeholder = 'slug (optional)'
+      slug.value = cat.slug || ''
+
+      const metaTitle = document.createElement('input')
+      metaTitle.className = 'bg-transparent border border-white/30 rounded px-2 py-1 w-full'
+      metaTitle.placeholder = 'Meta Title'
+      metaTitle.value = cat.metaTitle || ''
+
+      const metaDescription = document.createElement('textarea')
+      metaDescription.className = 'bg-transparent border border-white/30 rounded px-2 py-1 w-full'
+      metaDescription.placeholder = 'Meta Description'
+      metaDescription.rows = 2
+      metaDescription.value = cat.metaDescription || ''
+
+      const canonicalUrl = document.createElement('input')
+      canonicalUrl.className = 'bg-transparent border border-white/30 rounded px-2 py-1 w-full'
+      canonicalUrl.placeholder = 'Canonical URL'
+      canonicalUrl.value = cat.canonicalUrl || ''
+
+      const noindex = document.createElement('label')
+      noindex.className = 'inline-flex items-center gap-2 text-sm'
+      const noidx = document.createElement('input')
+      noidx.type = 'checkbox'
+      noidx.checked = !!cat.noindex
+      noidx.className = 'accent-white/80'
+      const noidxSpan = document.createElement('span')
+      noidxSpan.textContent = 'Noindex'
+      noindex.append(noidx, noidxSpan)
 
       const save = document.createElement('button')
       save.className = 'px-3 py-1 rounded bg-white text-accent hover:bg-white/90 transition'
@@ -97,7 +128,15 @@ import DashboardShell from '../../components/admin/DashboardShell.tsx'
         await fetchJSON('/.netlify/functions/categories-upsert', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ _id: cat._id, title }),
+          body: JSON.stringify({
+            _id: cat._id,
+            title,
+            slug: slug.value || undefined,
+            metaTitle: metaTitle.value || undefined,
+            metaDescription: metaDescription.value || undefined,
+            canonicalUrl: canonicalUrl.value || undefined,
+            noindex: !!noidx.checked
+          }),
         })
         await load()
       })
@@ -107,7 +146,22 @@ import DashboardShell from '../../components/admin/DashboardShell.tsx'
       cancel.textContent = 'Cancel'
       cancel.addEventListener('click', load)
 
-      form.append(input, save, cancel)
+      // SERP preview
+      const preview = document.createElement('div')
+      preview.className = 'rounded border border-white/15 bg-black/50 p-2 text-xs text-white/80'
+      const updatePreview = () => {
+        const base = location.origin || ''
+        preview.innerHTML = `
+          <div class="text-white/60 mb-1">Search Preview</div>
+          <div class="text-blue-400">${metaTitle.value || title}</div>
+          <div class="text-green-500">${base}/shop/categories/${(slug.value || title).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)+/g,'')}</div>
+          <div class="text-white/80 mt-1">${metaDescription.value || ''}</div>
+        `
+      }
+      ;[input, slug, metaTitle, metaDescription].forEach(el => el.addEventListener('input', updatePreview))
+      updatePreview()
+
+      form.append(input, slug, metaTitle, metaDescription, canonicalUrl, noindex, preview, save, cancel)
       row.appendChild(form)
       input.focus()
       input.select()

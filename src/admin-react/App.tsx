@@ -14,6 +14,10 @@ function lazyPage<T extends { default?: any }>(loader: () => Promise<T>) {
   });
 }
 import { ThemeProvider } from 'src/admin-react/context/ThemeContext';
+import ProductsPage from 'src/admin-react/pages/Products';
+import OrdersPage from 'src/admin-react/pages/Orders';
+import CustomersPage from 'src/admin-react/pages/Customers';
+import QuotesPage from 'src/admin-react/pages/Quotes';
 const SignIn = lazyPage(() => import('src/admin-react/pages/AuthPages/SignIn'));
 const SignUp = lazyPage(() => import('src/admin-react/pages/AuthPages/SignUp'));
 const NotFound = lazyPage(() => import('src/admin-react/pages/OtherPage/NotFound'));
@@ -44,6 +48,12 @@ export default function App() {
             {/* Dashboard Layout */}
             <Route element={<AppLayout />}>
               <Route index path="/" element={<Home />} />
+
+            {/* Admin Data Pages */}
+            <Route path="/products" element={<ProductsPage />} />
+            <Route path="/orders" element={<OrdersPage />} />
+            <Route path="/customers" element={<CustomersPage />} />
+            <Route path="/quotes" element={<QuotesPage />} />
 
             {/* Others Page */}
             <Route path="/profile" element={<UserProfiles />} />

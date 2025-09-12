@@ -1,4 +1,5 @@
 import { defineConfig } from 'sanity';
+import customer from './sanity/schemas/customer';
 
 // Minimal Sanity v3 Studio config so Stackbit detects v3 schema loader.
 // This does NOT define local schema types; it enables v3 detection to avoid
@@ -22,9 +23,6 @@ export default defineConfig({
   dataset,
   // Keep empty to avoid requiring local schema files; Stackbit can still
   // fetch content via APIs and start without v2 legacy fetch.
-  schema: {
-    types: []
-  },
+  schema: { types: [customer] },
   plugins: []
 });
-

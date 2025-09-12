@@ -44,7 +44,7 @@ export function TruckPackagesHero({
         <div className="order-2 lg:order-1 space-y-6">
           <div className="flex items-center gap-3">
             <img
-              src="images/faslogochroma.png"
+              src="logo/faslogochroma.png"
               alt="F.A.S. Motorsports"
               className="w-10 h-10 object-contain accent-image drop-shadow"
             />

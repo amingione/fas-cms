@@ -37,10 +37,15 @@ export const handler: Handler = async (event) => {
   // coerce to number later; keep raw for now
   price,
   featured,
-  // deref category names (schema uses 'category')
-  "categoryNames": category[]->title,
-  // pick a usable image URL (first gallery image, else socialImage)
-  "imageUrl": coalesce(images[0].asset->url, socialImage.asset->url, "")
+  draft,
+  // deref category names (support either field name)
+  "categoryNames": select(
+    defined(categories) => categories[]->title,
+    defined(category) => category[]->title,
+    []
+  ),
+  // pick a usable image URL (try images[], then image, then socialImage)
+  "imageUrl": coalesce(images[0].asset->url, image.asset->url, socialImage.asset->url, "")
 }`;
 
     const rows: any[] = await sanity.fetch(q);

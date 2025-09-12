@@ -9,6 +9,7 @@ type Row = {
   featured?: boolean;
   imageUrl?: string;
   categoryNames?: string[];
+  draft?: boolean;
 };
 
 export default function ProductTable({
@@ -21,6 +22,12 @@ export default function ProductTable({
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<any>(null);
   const [data, setData] = useState<Row[]>(Array.isArray(rows) ? rows : []);
+  const [search, setSearch] = useState('');
+  const [cats, setCats] = useState<{ _id: string; title: string }[]>([]);
+  const [catFilter, setCatFilter] = useState<string>('');
+  const [selected, setSelectedIds] = useState<Set<string>>(new Set());
+  const [assignCatId, setAssignCatId] = useState<string>('');
+  const [pubFilter, setPubFilter] = useState<'all' | 'published' | 'draft'>('all');
 
   useEffect(() => {
     const openNew = () => {
@@ -73,18 +80,165 @@ export default function ProductTable({
   }, []);
 
   const sorted = useMemo(() => data.slice().sort((a, b) => a.title.localeCompare(b.title)), [data]);
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase();
+    return sorted.filter((r) => {
+      const hit =
+        !q ||
+        r.title.toLowerCase().includes(q) ||
+        (r.sku || '').toLowerCase().includes(q) ||
+        (r.categoryNames || []).some((c) => (c || '').toLowerCase().includes(q));
+      const catOk = !catFilter || (r.categoryNames || []).includes(catFilter);
+      const pubOk =
+        pubFilter === 'all' ? true : pubFilter === 'draft' ? !!r.draft : !r.draft;
+      return hit && catOk && pubOk;
+    });
+  }, [sorted, search, catFilter]);
+
+  function toggleAll(checked: boolean) {
+    if (checked) setSelectedIds(new Set(filtered.map((r) => r._id)));
+    else setSelectedIds(new Set());
+  }
+  function toggleOne(id: string, checked: boolean) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      checked ? next.add(id) : next.delete(id);
+      return next;
+    });
+  }
+
+  async function bulkFeature(val: boolean) {
+    const ids = Array.from(selected);
+    for (const id of ids) {
+      try {
+        await fetch('/.netlify/functions/products-upsert', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ _id: id, featured: val })
+        });
+      } catch {}
+    }
+    await Promise.resolve(refresh() as any);
+    setSelectedIds(new Set());
+  }
+
+  async function bulkDelete() {
+    if (!selected.size) return;
+    if (!confirm(`Delete ${selected.size} product(s)?`)) return;
+    const ids = Array.from(selected);
+    for (const id of ids) {
+      try {
+        await fetch('/.netlify/functions/products-delete', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ _id: id })
+        });
+      } catch {}
+    }
+    await Promise.resolve(refresh() as any);
+    setSelectedIds(new Set());
+  }
+
+  // Load categories for filter
+  useEffect(() => {
+    (async () => {
+      try {
+        const r = await fetch('/.netlify/functions/categories-list');
+        if (!r.ok) return;
+        const list = await r.json();
+        const mapped = Array.isArray(list) ? list.map((c: any) => ({ _id: c._id, title: c.title })) : [];
+        setCats(mapped);
+      } catch {}
+    })();
+  }, []);
 
   return (
     <>
-      <div className="mb-3 flex items-center justify-between">
+      <div className="mb-3 flex items-center justify-between gap-3 flex-wrap">
         <div className="text-base font-medium">Products</div>
+        <div className="flex items-center gap-2">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search title, SKU, category"
+            className="bg-transparent border border-white/30 rounded px-3 py-1.5 text-sm"
+          />
+          <select
+            value={catFilter}
+            onChange={(e) => setCatFilter(e.target.value)}
+            className="bg-transparent border border-white/30 rounded px-2 py-1.5 text-sm"
+          >
+            <option value="">All Categories</option>
+            {cats.map((c) => (
+              <option key={c._id} value={c.title}>
+                {c.title}
+              </option>
+            ))}
+          </select>
+          <select
+            value={pubFilter}
+            onChange={(e) => setPubFilter(e.target.value as any)}
+            className="bg-transparent border border-white/30 rounded px-2 py-1.5 text-sm"
+          >
+            <option value="all">All</option>
+            <option value="published">Published</option>
+            <option value="draft">Draft</option>
+          </select>
+        </div>
+        {selected.size > 0 && (
+          <div className="flex items-center gap-2">
+            <button className="btn-glass btn-sm btn-primary" onClick={() => bulkFeature(true)}>
+              Mark Featured ({selected.size})
+            </button>
+            <button className="btn-glass btn-sm btn-outline" onClick={() => bulkFeature(false)}>
+              Clear Featured
+            </button>
+            <button className="btn-glass btn-sm btn-dark" onClick={bulkDelete}>
+              Delete Selected
+            </button>
+            <select
+              value={assignCatId}
+              onChange={(e) => setAssignCatId(e.target.value)}
+              className="bg-transparent border border-white/30 rounded px-2 py-1.5 text-sm"
+            >
+              <option value="">Assign Category…</option>
+              {cats.map((c) => (
+                <option key={c._id} value={c._id}>
+                  {c.title}
+                </option>
+              ))}
+            </select>
+            <button
+              className="btn-glass btn-sm btn-secondary"
+              disabled={!assignCatId}
+              onClick={async () => {
+                if (!assignCatId) return;
+                const ids = Array.from(selected);
+                for (const id of ids) {
+                  try {
+                    await fetch('/.netlify/functions/products-upsert', {
+                      method: 'POST',
+                      headers: { 'content-type': 'application/json' },
+                      body: JSON.stringify({ _id: id, categoryIds: [assignCatId] })
+                    });
+                  } catch {}
+                }
+                await Promise.resolve(refresh() as any);
+                setSelectedIds(new Set());
+                setAssignCatId('');
+              }}
+            >
+              Assign
+            </button>
+          </div>
+        )}
         <button
           type="button"
           onClick={() => {
             setSelected({ title: '', price: 0, sku: '', featured: false, categoryIds: [] });
             setOpen(true);
           }}
-          className="px-3 py-1.5 rounded bg-white text-accent hover:bg-white/90 transition border border-white/0"
+          className="btn-glass btn-primary"
         >
           New Product
         </button>
@@ -93,6 +247,13 @@ export default function ProductTable({
         <table className="min-w-full text-sm">
           <thead className="bg-white/5">
             <tr className="[&>th]:text-left [&>th]:px-3 [&>th]:py-2">
+              <th className="w-8">
+                <input
+                  type="checkbox"
+                  checked={selected.size > 0 && selected.size === filtered.length}
+                  onChange={(e) => toggleAll(e.currentTarget.checked)}
+                />
+              </th>
               <th>Product</th>
               <th>SKU</th>
               <th>Price</th>
@@ -102,11 +263,18 @@ export default function ProductTable({
             </tr>
           </thead>
           <tbody>
-            {sorted.map((r) => (
+            {filtered.map((r) => (
               <tr
                 key={r._id}
                 className="border-t border-white/20 [&>td]:px-3 [&>td]:py-2 hover:bg-white/5 transition"
               >
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={selected.has(r._id)}
+                    onChange={(e) => toggleOne(r._id, e.currentTarget.checked)}
+                  />
+                </td>
                 <td className="flex items-center gap-2">
                   {r.imageUrl ? (
                     <img
@@ -118,10 +286,43 @@ export default function ProductTable({
                   <span className="font-medium">{r.title}</span>
                 </td>
                 <td>{r.sku || '—'}</td>
-                <td>${r.price?.toFixed(2)}</td>
-                <td>{r.featured ? 'Yes' : 'No'}</td>
-                <td className="text-white/80">{r.categoryNames?.join(', ') || '—'}</td>
-                <td className="text-right">
+                <td>
+                  <input
+                    type="number"
+                    step="0.01"
+                    defaultValue={r.price?.toFixed(2)}
+                    className="w-24 bg-transparent border border-white/20 rounded px-2 py-1"
+                    onBlur={async (e) => {
+                      const val = Number(e.currentTarget.value);
+                      if (!Number.isFinite(val)) return;
+                      await fetch('/.netlify/functions/products-upsert', {
+                        method: 'POST',
+                        headers: { 'content-type': 'application/json' },
+                        body: JSON.stringify({ _id: r._id, price: val })
+                      });
+                    }}
+                  />
+                </td>
+                <td>
+                  <input
+                    type="checkbox"
+                    defaultChecked={!!r.featured}
+                    onChange={async (e) => {
+                      await fetch('/.netlify/functions/products-upsert', {
+                        method: 'POST',
+                        headers: { 'content-type': 'application/json' },
+                        body: JSON.stringify({ _id: r._id, featured: e.currentTarget.checked })
+                      });
+                    }}
+                  />
+                </td>
+                <td className="text-white/80">
+                  {r.categoryNames?.join(', ') || '—'}
+                  {r.draft ? (
+                    <span className="ml-2 inline-block text-[10px] px-1.5 py-0.5 rounded-full border border-white/30">Draft</span>
+                  ) : null}
+                </td>
+                <td className="text-right space-x-2">
                   <button
                     onClick={() => {
                       setSelected({
@@ -135,9 +336,29 @@ export default function ProductTable({
                       });
                       setOpen(true);
                     }}
-                    className="px-3 py-1 rounded border border-white/30 hover:bg-white/80 transition"
+                    className="btn-glass btn-sm btn-primary"
                   >
                     Edit
+                  </button>
+                  <button
+                    onClick={async () => {
+                      if (!confirm('Duplicate this product?')) return;
+                      try {
+                        const res = await fetch('/.netlify/functions/products-duplicate', {
+                          method: 'POST',
+                          headers: { 'content-type': 'application/json' },
+                          body: JSON.stringify({ _id: r._id })
+                        });
+                        if (!res.ok) throw new Error(await res.text());
+                        await Promise.resolve(refresh() as any);
+                      } catch (e) {
+                        console.error('Duplicate failed', e);
+                        alert('Duplicate failed');
+                      }
+                    }}
+                    className="btn-glass btn-sm btn-outline"
+                  >
+                    Duplicate
                   </button>
                 </td>
               </tr>
