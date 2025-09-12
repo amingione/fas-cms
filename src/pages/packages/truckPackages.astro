@@ -2,6 +2,7 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
 import { Button } from '@/components/ui/button';
+import StoreHero from '@/components/storefront/StoreHero.astro';
 
 const pageDoc: any = await getGitPageDoc('truckPackages');
 // Use plain HTML buttons/links in this SSR page to avoid React SSR for UI primitives
@@ -11,43 +12,32 @@ const pageDoc: any = await getGitPageDoc('truckPackages');
 
   <div {...sbObjectId('content/pages/packages/truckPackages.json')}>
   <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Truck Packages'}</div>
-  <!-- Hero Section with Parallax (responsive) -->
-  <section class="luxury-particles relative felx industrial-card hero-section parallax-section mt-10 md:mt-12 px-4 md:px-10 pt-8 md:pt-10 mb-5">
-    <div class="background-layer" aria-hidden="true"></div>
-    <div class="midground-layer" aria-hidden="true">
-      <!-- Editable: Replace src with your truck image path -->
-      <img src="/images/packages/850-ram.webp" alt="" class="midground-image object-contain">
-    </div>
-    <div class="foreground-layer">
-      <div class="hero-inner">
-        <h1 class="font-borg text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-primary mb-3 md:mb-4" {...sbFieldPath('title')}>
-          {pageDoc?.title ?? 'Premium Truck Packages'}
-        </h1>
-        <p class="font-mono font-extrabold tracking-widest text-accent text-base sm:text-lg md:text-xl mb-5 md:mb-6 max-w-2xl mx-auto md:mx-0">
-          From minor bolt ons to packages that exceed 2000HP!
-        </p>
-        
-        <img src="/images/wheels/jtx-forged-truck-wheels.png" alt="JTX Forged Wheels" class="accent-image">
-        <Button className="outline font-ethno text-base transition-all duration-300">
-          <a href="/customBuild">
-            Get Started
-          </a>
-        </Button>
-        <div class="mobile-hero-media">
-          <img src="/images/wheels/jtx-forged-truck-wheels.png" alt="JTX Forged Wheels" class="wheel-mobile" />
-          <img src="/images/packages/F250-FAS.png" alt="FAS Built Trucks" class="truck-mobile" />
-        </div>
-      </div>
-    </div>
-  </section>
+
+  <section class="relative mt-5 pt-10">
+  <StoreHero
+    title='fas'
+    title2='Motorsports'
+    title3='Truck Packages'
+    subtitle="From minor bolt ons to packages that exceed 2000HP!"
+    imgSrc='/images/packages/850-ram.webp'
+    imgAlt="FAS Built Trucks"
+    ctaPrimaryHref="/customBuild"
+    ctaPrimaryLabel="Build Your Truck ➤"
+    ctaPrimaryVariant="ghost"
+    ctaSecondaryHref="/shop/categories/truck-packages"
+    ctaSecondaryLabel="Shop Truck Packages ➤"
+    ctaSecondaryVariant="outline"
+    
+  />
+
 
   <!-- Packages Section -->
   <section class="packages section-divider section-divider-carbon">
     <h2 class="font-borg text-primary text-6xl">
-      F.a.S
+      Stock
     </h2>
-    <h2 class="font-ethno text-secondary text-5xl">
-      Truck Packages
+    <h2 class="font-ethno text-secondary text-4xl">
+      Builds
     </h2>
     
     <div class="package-grid">
@@ -133,6 +123,62 @@ const pageDoc: any = await getGitPageDoc('truckPackages');
         </ul>
         <Button className="my-3 ghost">
           <a href="/packages/1000-hp-package" class="font-cyber tracking-widest transition-all duration-300">
+            Shop Package ➟
+          </a>
+        </Button>
+      </div>
+
+      <!-- Package Card 4: F.A.S. 850 Package -->
+      <div class="package-card">
+        <div class="package-media">
+          <img src="/images/packages/850-ram.webp" alt="FAS 850 Truck Package" class="package-image">
+        </div>
+        <h3 class="font-ethno text-primary">
+          <span class="font-borg text-white">F.A.S</span> 850 <span class="font-ethno text-base tracking-tight text-white">Package</span>
+        </h3>
+        <p class="font-ethno text-base tracking-tight text-accent">
+          <div class="my-2 font-mono text-lg tracking-wide text-white/70">Installed &amp; Tuned</div>
+          <p class="font-ethno text-base tracking-tight text-accent">
+            for both street and track use
+          </p>
+        </p>
+        <ul class="font-mono font-bold pt-4 text-base tracking-tight leading-snug">
+          <li>• Proven power gains on pump or E‑blend</li>
+          <li>• OEM‑like drivability and reliability</li>
+          <li>• Complete hardware and calibration package</li>
+          <li>• Dyno and street validated</li>
+          <li> <span class="font-ethno text-lg tracking-tight text-primary mt-3">And More!</span> </li>
+        </ul>
+        <Button className="my-3 ghost">
+          <a href="/shop/fas-850-package" class="font-cyber tracking-widest transition-all duration-300">
+            Shop Package ➟
+          </a>
+        </Button>
+      </div>
+
+      <!-- Package Card 5: F.A.S. 800 Package -->
+      <div class="package-card">
+        <div class="package-media">
+          <img src="/images/packages/dodge-ram.png" alt="FAS 800 Truck Package" class="package-image">
+        </div>
+        <h3 class="font-ethno text-primary">
+          <span class="font-borg text-white">F.A.S</span> 800 <span class="font-ethno text-base tracking-tight text-white">Package</span>
+        </h3>
+        <p class="font-ethno text-base tracking-tight text-accent">
+          <div class="my-2 font-mono text-lg tracking-wide text-white/70">Installed &amp; Tuned</div>
+          <p class="font-ethno text-base tracking-tight text-accent">
+            optimized for daily street performance
+          </p>
+        </p>
+        <ul class="font-mono font-bold pt-4 text-base tracking-tight leading-snug">
+          <li>• Balanced power with excellent manners</li>
+          <li>• Bolt‑on focused with clean install</li>
+          <li>• Calibration for reliability and response</li>
+          <li>• Upgrade paths available</li>
+          <li> <span class="font-ethno text-lg tracking-tight text-primary mt-3">And More!</span> </li>
+        </ul>
+        <Button className="my-3 ghost">
+          <a href="/shop/fas-800-package" class="font-cyber tracking-widest transition-all duration-300">
             Shop Package ➟
           </a>
         </Button>
