@@ -19,5 +19,6 @@
     "cn\\(([^)]*)\\)",
     "clsx\\(([^)]*)\\)",
     "classnames\\(([^)]*)\\)"
-  ]
+  ],
+  "vscode-openai.conversation-configuration.assistant-rules": false
 }

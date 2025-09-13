@@ -14,8 +14,9 @@ const dataset =
   (import.meta.env.PUBLIC_SANITY_DATASET as string | undefined) ||
   (import.meta.env.SANITY_DATASET as string | undefined) ||
   'production';
-const apiVersion = '2023-01-01';
+const apiVersion = '2024-04-10';
 const token = import.meta.env.SANITY_API_TOKEN;
+const isProd = import.meta.env.MODE === 'production';
 
 // Gracefully handle missing env vars in preview/editor environments
 const hasSanityConfig = Boolean(projectId && dataset);
@@ -26,7 +27,14 @@ if (!hasSanityConfig) {
 }
 
 export const sanity: SanityClientLite | null = hasSanityConfig
-  ? (createClient({ projectId, dataset, apiVersion, useCdn: false, token }) as unknown as SanityClientLite)
+  ? (createClient({
+      projectId,
+      dataset,
+      apiVersion,
+      useCdn: isProd,
+      token: isProd ? undefined : token,
+      perspective: isProd ? 'published' : 'previewDrafts',
+    }) as unknown as SanityClientLite)
   : null;
 // Back-compat aliases for callers expecting different names
 export const sanityClient = sanity as any;
@@ -162,7 +170,7 @@ export async function fetchProductsFromSanity({
       params.minHp = minHp;
     }
 
-    const query = `*[_type == "product"${conditions.length ? ` && ${conditions.join(' && ')}` : ''}]{
+    const query = `*[_type == "product" && !(_id in path('drafts.**'))${conditions.length ? ` && ${conditions.join(' && ')}` : ''}]{
       _id,
       title,
       slug,
@@ -255,7 +263,7 @@ export async function fetchVehicles(): Promise<Vehicle[]> {
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   try {
     if (!hasSanityConfig) return null;
-    const query = `*[_type == "product" && slug.current == $slug][0]{
+    const query = `*[_type == "product" && !(_id in path('drafts.**')) && slug.current == $slug][0]{
       _id,
       title,
       slug,
@@ -326,7 +334,7 @@ export async function getRelatedProducts(
   const ids = Array.isArray(categoryIds) ? categoryIds : [];
   const flt = Array.isArray(filters) ? filters : [];
   const query = `
-    *[_type == "product" && slug.current != $slug]{
+    *[_type == "product" && !(_id in path('drafts.**')) && slug.current != $slug]{
       _id,
       title,
       slug,
@@ -355,7 +363,7 @@ export async function getUpsellProducts(
   const ids = Array.isArray(categoryIds) ? categoryIds : [];
   const hasPrice = typeof basePrice === 'number' && !Number.isNaN(basePrice);
   const query = `
-    *[_type == "product" && slug.current != $slug
+    *[_type == "product" && !(_id in path('drafts.**')) && slug.current != $slug
       && count(coalesce(category[]._ref, categories[]._ref, [])[ @ in $catIds ]) > 0
       ${hasPrice ? '&& defined(price) && price >= $price' : ''}]{
       _id,
