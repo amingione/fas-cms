@@ -448,14 +448,18 @@ try {
             {(product as any).filters?.length > 0 && (
               <div>
                 <span class="font-semibold text-white">Filters:</span>{' '}
-                {(product as any).filters.map((f: any, idx: number) => (
-                  <>
-                    <a href={`/shop?filters=${encodeURIComponent(String(f).toLowerCase())}`} class="hover:underline capitalize">
-                      {String(f)}
-                    </a>
-                    {idx < (product as any).filters.length - 1 ? ', ' : ''}
-                  </>
-                ))}
+                {(() => {
+                  const slugs = Array.isArray((product as any).filters) ? (product as any).filters : [];
+                  const titles = Array.isArray((product as any).filterTitles) ? (product as any).filterTitles : slugs;
+                  return slugs.map((f: any, idx: number) => (
+                    <>
+                      <a href={`/shop?filters=${encodeURIComponent(String(f).toLowerCase())}`} class="hover:underline capitalize">
+                        {String(titles[idx] ?? f)}
+                      </a>
+                      {idx < slugs.length - 1 ? ', ' : ''}
+                    </>
+                  ));
+                })()}
               </div>
             )}
           </div>
