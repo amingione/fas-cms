@@ -306,10 +306,14 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             <button
               onClick={async () => {
                 try {
-                  await auth0?.loginWithRedirect?.({
-                    appState: { returnTo: '/dashboard' },
-                    authorizationParams: { redirect_uri: window.location.origin + '/account' }
-                  });
+                  if (auth0?.loginWithRedirect) {
+                    await auth0.loginWithRedirect({
+                      appState: { returnTo: '/dashboard' },
+                      authorizationParams: { redirect_uri: window.location.origin + '/account' }
+                    });
+                  } else {
+                    window.location.href = '/api/auth/login?returnTo=%2Fdashboard';
+                  }
                 } finally {
                   onNavigate && onNavigate();
                 }

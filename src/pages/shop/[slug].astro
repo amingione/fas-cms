@@ -21,6 +21,7 @@ export type ProductWithKit = Product & {
   attributes?: AttrItem[];
   filters?: string[];
   categories?: { slug?: { current?: string } | string; title?: string }[];
+  media?: any[];
 };
 
 const { slug } = Astro.params;
@@ -251,6 +252,80 @@ try {
         <div class="mt-6">
           <TrustStrip compact />
         </div>
+
+        <!-- Optional media strip (images/videos/files from Sanity "media" field) -->
+        {Array.isArray((product as any)?.media) && (product as any).media.length > 0 && (
+          <section class="mt-6">
+            <h3 class="font-semibold mb-2">Media</h3>
+            <div class="flex gap-3 overflow-x-auto pb-2">
+              {(product as any).media.map((m: any) => {
+                try {
+                  const title = String(m?.title || '').trim();
+                  const alt = String(m?.alt || title || (product as any)?.title || 'Media');
+                  const assetUrl = (m?.asset && (m.asset.url || (m.asset as any)?.asset?.url)) || '';
+                  const directUrl = String(m?.url || '') || '';
+                  const url = assetUrl || directUrl;
+                  const playbackId = String(m?.muxPlaybackId || (m?.asset && (m.asset as any)?.playbackId) || '').trim();
+                  let yt = String(m?.youTubeId || m?.youtubeId || '').trim();
+
+                  // Heuristics
+                  const isImage = /\.(?:jpe?g|png|gif|webp|avif|svg)(?:\?.*)?$/i.test(url);
+                  const isVideoFile = /\.(?:mp4|webm|ogg)(?:\?.*)?$/i.test(url);
+
+                  // If a YouTube link is provided via url, extract the ID
+                  if (!yt && /(?:youtu\.be\/.+|youtube\.com\/.+)/i.test(url)) {
+                    try {
+                      const u = new URL(url, typeof window !== 'undefined' ? window.location.origin : 'https://example.com');
+                      if (/youtu\.be/i.test(u.hostname)) {
+                        yt = u.pathname.replace(/^\//, '').split('/')[0];
+                      } else if (/youtube\.com/i.test(u.hostname)) {
+                        if (u.pathname.includes('/embed/')) yt = u.pathname.split('/embed/')[1]?.split(/[?&#]/)[0] || '';
+                        else yt = u.searchParams.get('v') || '';
+                      }
+                    } catch {}
+                  }
+
+                  if (playbackId) {
+                    const muxMp4 = `https://stream.mux.com/${playbackId}/medium.mp4`;
+                    return (
+                      <video controls preload="metadata" class="w-64 h-36 rounded border border-white/20 bg-black/30" src={muxMp4}></video>
+                    );
+                  }
+                  if (yt) {
+                    const src = `https://www.youtube.com/embed/${yt}`;
+                    return (
+                      <iframe
+                        src={src}
+                        title={alt}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen
+                        class="w-64 h-36 rounded border border-white/20 bg-black/30"
+                      />
+                    );
+                  }
+                  if (isVideoFile) {
+                    return (
+                      <video controls preload="metadata" class="w-64 h-36 rounded border border-white/20 bg-black/30" src={url}></video>
+                    );
+                  }
+                  if (isImage) {
+                    return (
+                      <img src={url} alt={alt} class="w-64 h-36 object-cover rounded border border-white/20 bg-black/30" loading="lazy" />
+                    );
+                  }
+                  if (url) {
+                    return (
+                      <a href={url} target="_blank" rel="noopener" class="w-64 h-36 grid place-items-center rounded border border-white/20 bg-black/20 text-sm underline">
+                        View media
+                      </a>
+                    );
+                  }
+                } catch {}
+                return null;
+              })}
+            </div>
+          </section>
+        )}
 
         <!-- Accordion -->
         <div class="mt-8 divide-y divide-white/80 border border-white/20 rounded-none overflow-hidden">
@@ -507,7 +582,7 @@ try {
     } catch {}
   })();
 
-  // Hide sticky bar when cart drawer is open
+  // Hide sticky bar when cart or menu drawer is open
   (function(){
     try {
       const bar = document.getElementById('mobile-add-to-cart');
@@ -516,6 +591,8 @@ try {
       const show = () => bar.classList.remove('hidden');
       window.addEventListener('cart:open', hide);
       window.addEventListener('cart:close', show);
+      window.addEventListener('menu:open', hide);
+      window.addEventListener('menu:close', show);
     } catch {}
   })();
 </script>

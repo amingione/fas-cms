@@ -202,6 +202,18 @@ function explainError(err: any): string {
       } catch {}
     }
 
+    // If a return target was set via server-initiated login, honor it once authenticated
+    try {
+      const m = /(?:^|;\s*)fas_return_to=([^;]+)/.exec(document.cookie || '');
+      const pendingReturn = m && m[1] ? decodeURIComponent(m[1]) : '';
+      if (pendingReturn) {
+        // Clear the cookie and redirect
+        document.cookie = 'fas_return_to=; Path=/; Max-Age=0; SameSite=Lax' + (window.location.protocol === 'https:' ? '; Secure' : '');
+        window.location.assign(pendingReturn);
+        return;
+      }
+    } catch {}
+
     const name = user?.given_name || user?.name || user?.email || 'there';
     show(`
             <p class="mb-6">Hello, <span class="text-red-500">${name}</span></p>

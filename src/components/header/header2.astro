@@ -138,6 +138,7 @@ import HeaderAuth from '@/components/HeaderAuth.tsx';
       mnavToggle.setAttribute("aria-expanded", "true");
       document.body.style.overflow = "hidden";
       mnavOpen = true;
+      try { window.dispatchEvent(new Event('menu:open')); } catch {}
     }
 
     function closeMnav() {
@@ -151,6 +152,7 @@ import HeaderAuth from '@/components/HeaderAuth.tsx';
       mnavToggle.setAttribute("aria-expanded", "false");
       document.body.style.overflow = "";
       mnavOpen = false;
+      try { window.dispatchEvent(new Event('menu:close')); } catch {}
     }
 
     mnavToggle?.addEventListener("click", () => (mnavOpen ? closeMnav() : openMnav()));

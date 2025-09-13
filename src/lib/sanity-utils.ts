@@ -66,6 +66,19 @@ export interface Product {
     };
     alt?: string;
   }[];
+  // Optional mixed media (images, files, videos)
+  media?: Array<{
+    _key?: string;
+    _type?: string;
+    title?: string;
+    alt?: string;
+    caption?: string;
+    url?: string;
+    youtubeId?: string;
+    youTubeId?: string;
+    muxPlaybackId?: string;
+    asset?: { _id?: string; url?: string; playbackId?: string };
+  }>;
   categories: {
     _id: string;
     title: string;
@@ -286,6 +299,58 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       canonicalUrl,
       noindex,
       socialImage{ asset->{ _id, url }, alt },
+      // Optional mixed media block for images/videos/files
+      "media": coalesce(
+        media[]{
+          _key,
+          _type,
+          title,
+          alt,
+          caption,
+          url,
+          youtubeId,
+          youTubeId,
+          asset->{ _id, url, playbackId },
+          "muxPlaybackId": asset->playbackId
+        },
+        mediaAssets[]{
+          _key,
+          _type,
+          title,
+          alt,
+          caption,
+          url,
+          youtubeId,
+          youTubeId,
+          asset->{ _id, url, playbackId },
+          "muxPlaybackId": asset->playbackId
+        },
+        videos[]{
+          _key,
+          _type,
+          title,
+          alt,
+          caption,
+          url,
+          youtubeId,
+          youTubeId,
+          asset->{ _id, url, playbackId },
+          "muxPlaybackId": asset->playbackId
+        },
+        assets[]{
+          _key,
+          _type,
+          title,
+          alt,
+          caption,
+          url,
+          youtubeId,
+          youTubeId,
+          asset->{ _id, url, playbackId },
+          "muxPlaybackId": asset->playbackId
+        },
+        []
+      ),
 
       // --- Variants/Options (support multiple shapes)
       options[]->{ title, name, key, values, items },
