@@ -4,8 +4,9 @@ import type { APIRoute } from 'astro';
 export const GET: APIRoute = async ({ request }) => {
   // Derive origin from the incoming request to match www/non-www environments
   const origin = new URL(request.url).origin;
-  const baseUrl = process.env.PUBLIC_SITE_URL || origin || 'http://localhost:4321';
-  const redirectUri = encodeURIComponent(`${baseUrl}/account`); // finish login on /account
+  // Prefer the actual request origin to avoid www/apex mismatches
+  const baseUrl = origin || process.env.PUBLIC_SITE_URL || 'http://localhost:4321';
+  const redirectUri = `${baseUrl}/account`; // finish login on /account (do not pre-encode)
 
   const auth0Domain = 'login.fasmotorsports.com';
   const clientId = process.env.PUBLIC_AUTH0_CLIENT_ID || 'zMZZoiIamhK5ItezIjPMJ0b3TLj7LDCY';

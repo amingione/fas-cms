@@ -94,7 +94,10 @@ export interface Product {
     slug: { current: string };
   }[];
   averageHorsepower?: number;
+  // Back-compat: we project filter tag slugs here (strings)
   filters?: string[];
+  // Optional human-friendly titles (parallel to filters slugs)
+  filterTitles?: string[];
   specifications?: { key: string; value: string }[];
   attributes?: { key: string; value: string }[];
   productType?: string;
@@ -209,7 +212,9 @@ export async function fetchProductsFromSanity({
       tune->{ title, slug },
       compatibleVehicles[]->{ make, model, slug },
       // include free-form filter tags from schema
-      filters[],
+      // Project filters to slugs for back-compat; also provide titles
+      "filters": coalesce(filters[]->slug.current, filters),
+      "filterTitles": coalesce(filters[]->title, filters),
       // support either field name: "categories" or "category"
       "categories": select(
         defined(categories) => categories[]->{ _id, title, slug },
@@ -290,7 +295,9 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       includedInKit[]{ item, quantity, notes },
       productType,
       images[]{ asset->{ _id, url }, alt },
-      filters[],
+      // Project filters to slugs for back-compat; also provide titles
+      "filters": coalesce(filters[]->slug.current, filters),
+      "filterTitles": coalesce(filters[]->title, filters),
       brand,
       gtin,
       mpn,
@@ -405,12 +412,14 @@ export async function getRelatedProducts(
       slug,
       price,
       images[]{asset->{url}, alt},
+      // Expose filter slugs for consumers and for overlap logic below
+      "filters": coalesce(filters[]->slug.current, filters),
       "categories": select(
         defined(categories) => categories[]->{ _id, title, slug },
         defined(category) => category[]->{ _id, title, slug }
       ),
       // relevance: category overlap (supports either field name) + filter overlap
-      "rel": count(coalesce(category[]._ref, categories[]._ref, [])[ @ in $catIds ]) + count(coalesce(filters, [])[ @ in $filters ])
+      "rel": count(coalesce(category[]._ref, categories[]._ref, [])[ @ in $catIds ]) + count(coalesce(filters[]->slug.current, filters, [])[ @ in $filters ])
     } | order(rel desc, onSale desc, coalesce(salePrice, price, 9e9) asc, _createdAt desc)[0...$limit]
   `;
   const params = { slug, catIds: ids, filters: flt, limit } as Record<string, any>;
