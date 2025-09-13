@@ -98,10 +98,3 @@
   for = "/account/*"
   [headers.values]
     Cache-Control = "no-store, no-cache, must-revalidate"
-
-# Force canonical host (redirect www → apex) to keep login/callback origins consistent
-[[redirects]]
-  from = "https://www.fasmotorsports.com/*"
-  to = "https://fasmotorsports.com/:splat"
-  status = 301
-  force = true
