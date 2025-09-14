@@ -92,7 +92,12 @@ try {
 ---
 
 
-<BaseLayout>
+<BaseLayout
+  title="Performance Parts, Wheels & Packages"
+  description="F.A.S. Motorsports — premium performance upgrades, billet parts, custom fabrication, and wheel packages for Hellcat, Trackhawk, TRX and more."
+  canonical={`${new URL(Astro.request.url).origin}/`}
+  ogImage="/logo/faslogochroma.png"
+>
   <div {...sbObjectId('content/pages/index.json')}>
   {/* Static hero banner placed first, no longer Stackbit-managed */}
   <HeroBanner

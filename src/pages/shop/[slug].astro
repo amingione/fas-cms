@@ -90,13 +90,27 @@ try {
       instructions: cp.instructions || ''
     });
   }
+  // SEO helpers
+  var seoTitle: string = String((product as any)?.title || 'Product');
+  var seoDesc: string | undefined = undefined;
+  try {
+    const raw = String((((product as any)?.shortDescription ?? (product as any)?.description) ?? '') || '');
+    seoDesc = raw ? raw.slice(0, 160) : undefined;
+  } catch {}
+  var seoCanon: string | undefined = undefined;
+  var seoOg: string | undefined = undefined;
+  try {
+    const site = new URL(Astro.request.url).origin;
+    seoCanon = `${site}/shop/${slug}`;
+    seoOg = (product as any)?.images?.[0]?.asset?.url || (product as any)?.images?.[0]?.url || undefined;
+  } catch {}
 } catch (err) {
   console.error('❌ Failed to fetch product or similar products:', err);
   return Astro.redirect('/shop'); // Redirect to shop if product not found
 }
 ---
 
-<BaseLayout hideBrandTag>
+<BaseLayout hideBrandTag title={seoTitle} description={seoDesc} canonical={seoCanon} ogImage={seoOg}>
   <div {...sbObjectId((product as any)._id)}>
   <div class="container mx-auto px-4 py-10 text-white" style="padding-top: 80px;">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-10">

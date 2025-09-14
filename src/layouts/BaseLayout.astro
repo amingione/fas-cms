@@ -5,6 +5,23 @@ import Footer from '@/components/footer.astro';
 import { CartProvider } from '@/components/cart/cart-context';
 import { CookieBanner } from '@/components/cookie-banner.tsx';
 import { Toaster } from 'sonner';
+
+// SEO props (optional per-page)
+const {
+  title,
+  description,
+  canonical,
+  noindex = false,
+  ogImage
+} = Astro.props as {
+  title?: string;
+  description?: string;
+  canonical?: string;
+  noindex?: boolean;
+  ogImage?: string;
+};
+const SITE_NAME = 'F.A.S. Motorsports';
+const pageTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
 ---
 
 <html lang="en" class="dark">
@@ -20,7 +37,22 @@ import { Toaster } from 'sonner';
 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>F.A.S. Motorsports</title>
+    <title>{pageTitle}</title>
+    {description && <meta name="description" content={description} />}
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
+    {canonical && <link rel="canonical" href={canonical} />}
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title ? `${title}` : SITE_NAME} />
+    {description && <meta property="og:description" content={description} />}
+    {canonical && <meta property="og:url" content={canonical} />}
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title ? `${title}` : SITE_NAME} />
+    {description && <meta name="twitter:description" content={description} />}
+    {ogImage && <meta name="twitter:image" content={ogImage} />}    
+    
+    <slot name="head" />
     <!-- Google reCAPTCHA v2 for Netlify Forms -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   </head>
@@ -59,8 +91,7 @@ import { Toaster } from 'sonner';
       </div>
     </CartProvider>
 
-    <!-- Global Auth bootstrap so header/admin can trigger login; Vite will bundle in prod -->
-    <script type="module">import '../scripts/auth-bootstrap.ts';</script>
+    <!-- Auth bootstrap removed: serverless login/callback handles auth without client TS imports -->
 
 
     <script>

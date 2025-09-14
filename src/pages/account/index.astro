@@ -1,11 +1,45 @@
 ---
 // src/pages/account/index.astro
 import BaseLayout from "../../layouts/BaseLayout.astro";
+
+// If Auth0 sent us back with code/state, finish on the serverless callback (server-side)
+const reqUrl = new URL(Astro.request.url);
+const hasCode = reqUrl.searchParams.has('code') && reqUrl.searchParams.has('state');
+if (hasCode) {
+  const qs = reqUrl.searchParams.toString();
+  const cb = `/.netlify/functions/auth-callback?${qs}`;
+  return Astro.redirect(cb);
+}
+
+// Basic login state: look for session or token cookie
+const cookie = Astro.request.headers.get('cookie') || '';
+const readCookie = (name: string) => {
+  const m = new RegExp(`(?:^|;\\s*)${name}=([^;]+)`).exec(cookie);
+  return m?.[1] || null;
+};
+const isLoggedIn = Boolean(readCookie('session') || readCookie('token'));
 ---
 
 <BaseLayout hideBrandTag={true}>
   <main class="relative text-white p-8">
-    <div id="account-view"></div>
-    <script type="module">import '../../scripts/account-auth.ts';</script>
+    {isLoggedIn ? (
+      <section class="max-w-xl">
+        <h1 class="text-2xl font-ethno text-primary mb-2">Account</h1>
+        <p class="mb-4">You are signed in.</p>
+        <div class="flex gap-3">
+          <a href="/dashboard" class="px-4 py-2 rounded bg-primary text-accent font-ethno">Go to Dashboard</a>
+          <a href="/api/auth/logout" class="px-4 py-2 rounded border border-white/30 font-ethno">Logout</a>
+        </div>
+      </section>
+    ) : (
+      <section class="max-w-xl">
+        <h1 class="text-2xl font-ethno text-primary mb-2">Account</h1>
+        <p class="mb-4">Log in or create an account to access your dashboard.</p>
+        <div class="flex gap-3">
+          <a href="/.netlify/functions/auth-login?returnTo=%2Fdashboard" class="px-4 py-2 rounded bg-primary text-accent font-ethno">Sign in</a>
+          <a href="/.netlify/functions/auth-login?returnTo=%2Fdashboard" class="px-4 py-2 rounded border border-white/30 font-ethno">Sign up</a>
+        </div>
+      </section>
+    )}
   </main>
 </BaseLayout>
