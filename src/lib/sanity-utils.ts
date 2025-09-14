@@ -33,7 +33,7 @@ export const sanity: SanityClientLite | null = hasSanityConfig
       apiVersion,
       useCdn: isProd,
       token: isProd ? undefined : token,
-      perspective: isProd ? 'published' : 'previewDrafts',
+      perspective: isProd ? 'published' : 'drafts',
     }) as unknown as SanityClientLite)
   : null;
 // Back-compat aliases for callers expecting different names

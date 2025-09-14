@@ -2,10 +2,10 @@
 // src/pages/account/index.astro
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
-// If Auth0 sent us back with code/state, finish on the serverless callback (server-side)
+// If Auth0 sent us back with an authorization code, finish on the serverless callback (server-side)
 const reqUrl = new URL(Astro.request.url);
-const hasCode = reqUrl.searchParams.has('code') && reqUrl.searchParams.has('state');
-if (hasCode) {
+const hasAuthCode = reqUrl.searchParams.has('code');
+if (hasAuthCode) {
   const qs = reqUrl.searchParams.toString();
   const cb = `/.netlify/functions/auth-callback?${qs}`;
   return Astro.redirect(cb);

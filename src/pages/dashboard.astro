@@ -1,6 +1,12 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 
+// Strip any stray OAuth code parameters from the URL (belt-and-suspenders)
+const reqUrl = new URL(Astro.request.url);
+if (reqUrl.searchParams.has('code') || reqUrl.searchParams.has('state')) {
+  return Astro.redirect('/dashboard');
+}
+
 // Simple auth guard: if no session or token cookie, redirect to /account
 const cookie = Astro.request.headers.get('cookie') || '';
 const readCookie = (name: string) => {

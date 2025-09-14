@@ -15,7 +15,7 @@ export const sanityClient = createClient({
   apiVersion: '2024-04-10',
   useCdn: isProd,
   token: isProd ? undefined : token,
-  perspective: isProd ? 'published' : 'previewDrafts',
+  perspective: isProd ? 'published' : 'drafts',
 })
 
 export const fetchFromSanity = async (query: string, params = {}) => {
@@ -31,4 +31,3 @@ export async function fetchProducts() {
   const query = `*[ _type == "product" && !(_id in path('drafts.**')) && defined(slug.current) ] | order(coalesce(price, 9e9) asc)[0...9]{ _id, title, slug, price, images[]{ asset->{ url } } }`
   return await fetchFromSanity(query)
 }
-

@@ -13,58 +13,120 @@ import Button from "@/components/Button.astro";
     <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
   )}
   <section class="text-white text-center pt-32 pb-20 px-6 sm:px-8">
-    <h1 class="font-borg text-5xl mb-6 text-accent" {...sbFieldPath('title')}>
-      {pageDoc?.title ?? 'CORE Exchange Program'}
+    <h1 class="font-ethno text-5xl mb-6 text-primary" {...sbFieldPath('title')}>
+      {pageDoc?.title ?? 'Core Exchange Program'}
     </h1>
-    <p class="font-cyber-italic text-white/70 text-lg max-w-2xl mx-auto mb-10">
-      Don't want to wait for your snout to be ported? Our CORE Exchange Program lets you skip the downtime — receive a ready-to-install ported snout at your doorstep!
+    <p class="font-mono font-bold text-white/70 text-lg max-w-2xl mx-auto mb-10">
+      Our Core Exchange Program lets you skip the downtime — receive a ready-to-install ported snout at your doorstep!
     </p>
-
-    <Button href="/shop/2-4l-2-7l-hellcat-snout-porting-service" text="Get Started" variant="multi-swipe-v2" />
-  </section>
+    <div class="w-full section-divider section-divider-carbon"></div>
 
   <section class="max-w-5xl mx-auto px-6 sm:px-8 py-20 text-white">
-    <h2 class="font-borg text-4xl text-accent mb-6">How It Works</h2>
-    <ul class="list-disc list-inside text-white/70 font-mono rem-1.5 text-xl space-y-4">
-      <li>We ship you a fully ported 108mm Hellcat or Demon snout, ready to install.</li>
-      <li>You swap the sensors from your stock snout onto the ported unit.</li>
-      <li>You ship your stock snout back to us within 14 days.</li>
-      <li>Once received, your core fee refund will be processed.</li>
-    </ul>
+    <h2 class="font-cyber text-4xl text-accent mb-6">How It Works</h2>
 
-    <div class="border-t border-gray-700 my-10"></div>
+    <!-- Accordion: separate flows for Porting vs. Custom Coating -->
+    <div class="space-y-4">
+      <details class="border-b border-white/20 bg-black/40">
+        <summary class="px-4 py-3 cursor-pointer select-none font-captain tracking-widest text-lg flex items-center justify-between">
+          <span>Snout Porting Core Exchange</span>
+          <span class="text-white/70">▾</span>
+        </summary>
+        <div class="px-4 pb-5 text-white/80 font-mono text-xs leading-relaxed">
+          <ol class="list-decimal list-inside space-y-2 text-left">
+            <li>Place your order for a ported 2.4L/2.7L supercharger snout (core exchange).</li>
+            <li>We ship you a fully ported snout, ready to install.</li>
+            <li>Swap over your sensors/hardware from the stock snout and install the ported unit.</li>
+            <li>Ship your stock snout back to us within 14 days using your preferred carrier.</li>
+            <li>After inspection, we process your core refund based on the product returned.</li>
+          </ol>
+          <p class="mt-3 text-white/60 font-serif font-extraboldtext-sm">Note: Performance gains below apply to porting. See “Pricing & Refunds” for exact core charges and refunds.</p>
+        </div>
+      </details>
+
+      <details class="border-b border-white/20 bg-black/40">
+        <summary class="px-4 py-3 cursor-pointer select-none font-captain tracking-widest text-lg flex items-center justify-between">
+          <span>Custom Coating Core Exchange</span>
+          <span class="text-white/70">▾</span>
+        </summary>
+        <div class="px-4 pb-5 text-white/80 font-mono text-xs leading-relaxed">
+          <ol class="list-decimal list-inside space-y-2 text-left">
+            <li>Select a custom coated snout or lid (finish options vary by product).</li>
+            <li>We ship you a coated replacement (no porting performed on coated cores unless explicitly stated).</li>
+            <li>Install the coated part and return your stock core within 14 days.</li>
+            <li>After inspection, we process your core refund according to the coated product’s refund schedule.</li>
+          </ol>
+          <ul class="list-disc list-inside space-y-1 mt-3 text-white/60 text-sm text-left">
+            <li>Custom coatings are cosmetic; they do not include internal porting.</li>
+            <li>Normal finish variations may occur; allow additional lead time for coating.</li>
+            <li>Returned cores must be complete and rebuildable to qualify for a refund.</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+
+    <div class="section-divider section-divider-platinum border-gray-700 my-10"></div>
 
     <div class="bg-black rounded-lg shadow-lg p-8">
-      <h2 class="font-borg text-4xl text-accent mb-6">Refund Details</h2>
-      <p class="text-white/70 font-cyber-italic mb-4">
-        Refunds are based on the supercharger snout you return:
+      <h2 class="font-borg text-4xl text-accent mb-6">Pricing & Refunds</h2>
+      <p class="text-white/70 font-cyber-italic mb-6">
+        Below are the current core exchange fees and corresponding refunds by product. Refunds are issued after we receive and inspect your returned core within 14 days.
       </p>
-      <ul class="list-disc list-inside text-white/70 font-cyber-italic space-y-2 mb-10">
-        <li><strong>$450 refund</strong> — for a stock 2.4L Hellcat snout</li>
-        <li><strong>$550 refund</strong> — for a stock 2.7L Demon snout</li>
-      </ul>
 
-      <p class="text-red-600 font-cyber-italic mb-4">
-        Important: Your stock snout must be received within 14 days to be eligible for a refund. No communication or tracking within 14 days = No refund.
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <div class="rounded-lg border border-white/15 bg-black/40 p-4">
+          <h3 class="font-ethno text-lg text-white mb-1">2.4L Supercharger Snout – Core Exchange</h3>
+          <p class="text-white/80 font-mono">Core Charge: <span class="text-primary font-bold">$600</span></p>
+          <p class="text-white/80 font-mono">Refund on Returned Core: <span class="text-primary font-bold">$350</span></p>
+          <p class="text-white/60 text-sm mt-1">Net after refund: $250</p>
+        </div>
+        <div class="rounded-lg border border-white/15 bg-black/40 p-4">
+          <h3 class="font-ethno text-lg text-white mb-1">2.7L Supercharger Snout – Core Exchange</h3>
+          <p class="text-white/80 font-mono">Core Charge: <span class="text-primary font-bold">$800</span></p>
+          <p class="text-white/80 font-mono">Refund on Returned Core: <span class="text-primary font-bold">$550</span></p>
+          <p class="text-white/60 text-sm mt-1">Net after refund: $250</p>
+        </div>
+        <div class="rounded-lg border border-white/15 bg-black/40 p-4">
+          <h3 class="font-ethno text-lg text-white mb-1">2.4L Supercharger – Full Core</h3>
+          <p class="text-white/80 font-mono">Core Charge: <span class="text-primary font-bold">$2,500</span></p>
+          <p class="text-white/80 font-mono">Refund on Returned Core: <span class="text-primary font-bold">$1,600</span></p>
+          <p class="text-white/60 text-sm mt-1">Net after refund: $900</p>
+        </div>
+        <div class="rounded-lg border border-white/15 bg-black/40 p-4">
+          <h3 class="font-ethno text-lg text-white mb-1">2.7L Supercharger – Full Core</h3>
+          <p class="text-white/80 font-mono">Core Charge: <span class="text-primary font-bold">$4,500</span></p>
+          <p class="text-white/80 font-mono">Refund on Returned Core: <span class="text-primary font-bold">$3,600</span></p>
+          <p class="text-white/60 text-sm mt-1">Net after refund: $900</p>
+        </div>
+        <div class="rounded-lg border border-white/15 bg-black/40 p-4">
+          <h3 class="font-ethno text-lg text-white mb-1">2.4L Supercharger Lid – Core Exchange</h3>
+          <p class="text-white/80 font-mono">Core Charge: <span class="text-primary font-bold">$350</span></p>
+          <p class="text-white/80 font-mono">Refund on Returned Core: <span class="text-primary font-bold">$250</span></p>
+          <p class="text-white/60 text-sm mt-1">Net after refund: $100</p>
+        </div>
+      </div>
+
+      <p class="text-blue-600 font-serif font-extrabold">
+        Important: Your stock core must be received within 14 days to be eligible for a refund. No communication or tracking within 14 days = no refund.
       </p>
     </div>
 
     <div class="border-t border-gray-700 my-10"></div>
 
-    <h2 class="font-borg text-4xl text-accent mb-6">Performance Gains</h2>
-    <p class="text-white/70 font-cyber-italic mb-8">
-      Customers have reported:
-      <ul class="list-disc list-inside text-white/70 font-cyber-italic space-y-2 mt-2">
+    <h2 class="font-ethno text-4xl text-accent mb-6">Performance Gains (Porting)</h2>
+    <div class="text-white font-extrabold font-serif mb-8">
+      <div>Customers have reported:</div>
+      <ul class="list-disc list-inside text-white/70 font-mono space-y-2 mt-2 text-left">
         <li>+40–60 rwhp gains on 2.4L Hellcat/Trackhawk/Durango Hellcat/TRX superchargers</li>
-        <li>+80–125 rwhp gains on 2.7L Demon/Redeye superchargers — paired with a 108mm throttle body</li>
+        <li>+80–125 rwhp gains on 2.7L Demon/Redeye superchargers — typically paired with a 108mm throttle body</li>
       </ul>
-    </p>
+      <span class="block mt-2 font-mono font-extrabold text-blue-600">Note: These gains apply to ported units, not to custom coated (non‑ported) exchanges.</span>
+    </div>
 
     <div class="border-t border-gray-700 my-10"></div>
 
     <h2 class="font-borg text-4xl text-primary mb-6">Shipping Information</h2>
-    <p class="text-white/70 font-cyber-italic mb-6">
-      Please ship your stock supercharger snout (labeled CORE Exchange Program) to:
+    <p class="text-white/70 font-mono font-extrabold mb-6">
+      Please ship your core exchange (labeled CORE Exchange Program) with a copy of your invoice/receipt to:
     </p>
 
     <p class="font-mono rem-1.5 text-lg mb-10">

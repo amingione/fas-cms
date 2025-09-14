@@ -13,8 +13,9 @@ const resolveDomain = () => {
 
 const deriveBaseUrl = (event: any) => {
   try {
-    const proto = event.headers['x-forwarded-proto'] || 'https';
+    let proto = event.headers['x-forwarded-proto'] || '';
     const host = event.headers['x-forwarded-host'] || event.headers['host'];
+    if (!proto) proto = host && /localhost|127\.0\.0\.1/.test(host) ? 'http' : 'https';
     if (host) return `${proto}://${host}`;
   } catch {}
   const base = getEnv('PUBLIC_SITE_URL');
