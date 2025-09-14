@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 export interface ShopSidebarFiltersProps {
   categories: Category[];
   availableFilters: string[];
+  filterTitleMap?: Record<string, string>;
   currentCategory?: string;
   selectedFilters?: string[];
   priceMin?: number;
@@ -17,6 +18,7 @@ export interface ShopSidebarFiltersProps {
 export default function ShopSidebarFilters({
   categories,
   availableFilters,
+  filterTitleMap,
   currentCategory = '',
   selectedFilters = [],
   priceMin = 0,
@@ -99,6 +101,7 @@ export default function ShopSidebarFilters({
         availableFilters={availableFilters}
         selectedFilters={filters}
         onFiltersChange={setFilters}
+        filterTitleMap={filterTitleMap}
         availableVehicles={availableVehicles}
         selectedVehicles={vehicles}
         onVehiclesChange={setVehicles}

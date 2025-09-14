@@ -306,14 +306,8 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             <button
               onClick={async () => {
                 try {
-                  if (auth0?.loginWithRedirect) {
-                    await auth0.loginWithRedirect({
-                      appState: { returnTo: '/dashboard' },
-                      authorizationParams: { redirect_uri: window.location.origin + '/account' }
-                    });
-                  } else {
-                    window.location.href = '/api/auth/login?returnTo=%2Fdashboard';
-                  }
+                  // Prefer serverless flow to avoid relying on /account script on callback
+                  window.location.href = '/.netlify/functions/auth-login?returnTo=%2Fdashboard';
                 } finally {
                   onNavigate && onNavigate();
                 }

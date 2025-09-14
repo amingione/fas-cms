@@ -10,8 +10,8 @@ export default function HeaderAuth() {
         const auth0 = await getAuth0Client();
         const authed = await auth0.isAuthenticated();
         if (!authed) {
-          // Use server route to initiate Auth0 login to avoid client bundling issues.
-          badge.innerHTML = `<a href="/api/auth/login" class="hover:!text-accent hover:underline">Sign in</a>`;
+          // Use serverless login to avoid client bundling issues; callback sets cookie + redirects
+          badge.innerHTML = `<a href="/.netlify/functions/auth-login" class="hover:!text-accent hover:underline">Sign in</a>`;
           return;
         }
         const user = await auth0.getUser();

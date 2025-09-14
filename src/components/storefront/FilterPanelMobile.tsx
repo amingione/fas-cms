@@ -5,6 +5,7 @@ export interface FilterPanelMobileProps {
   filters: string[];
   selectedCategory?: string;
   selectedFilters?: string[];
+  filterTitleMap?: Record<string, string>;
 }
 
 function normSlug(s?: string | { current?: string }): string {
@@ -21,7 +22,8 @@ export default function FilterPanelMobile({
   categories,
   filters,
   selectedCategory = '',
-  selectedFilters = []
+  selectedFilters = [],
+  filterTitleMap
 }: FilterPanelMobileProps) {
   const selected = normSlug(selectedCategory);
   const [pendingCategory, setPendingCategory] = useState<string>(selected);
@@ -124,7 +126,7 @@ export default function FilterPanelMobile({
                 defaultChecked={selectedFilters.includes(f)}
                 onChange={() => toggleFilter(f)}
               />
-              <span className="capitalize">{f}</span>
+              <span className="capitalize">{(filterTitleMap && filterTitleMap[f.toLowerCase()]) || f}</span>
             </label>
           ))}
         </div>

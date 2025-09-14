@@ -19,7 +19,7 @@ const resolveRedirectUri = () => {
   return undefined;
 };
 
-export const handler: Handler = async () => {
+export const handler: Handler = async (event) => {
   const domain = resolveDomain();
   const clientId = resolveClientId();
   const redirectUri = resolveRedirectUri();
@@ -42,10 +42,15 @@ export const handler: Handler = async () => {
   authUrl.searchParams.set('redirect_uri', redirectUri);
   authUrl.searchParams.set('scope', 'openid profile email');
 
-  return {
-    statusCode: 302,
-    headers: { Location: authUrl.toString() }
-  };
+  // Optional returnTo (preserve target across login) via cookie
+  const returnTo = event.queryStringParameters?.returnTo || '';
+  const headers: Record<string, string> = { Location: authUrl.toString() };
+  if (returnTo) {
+    const isSecure = (getEnv('PUBLIC_SITE_URL') || '').startsWith('https://');
+    headers['Set-Cookie'] = `fas_return_to=${encodeURIComponent(returnTo)}; Path=/; Max-Age=600; SameSite=Lax${isSecure ? '; Secure' : ''}`;
+  }
+
+  return { statusCode: 302, headers };
 };
 
 export default { handler };

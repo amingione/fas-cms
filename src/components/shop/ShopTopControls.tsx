@@ -19,6 +19,7 @@ type ViewMode = 'grid' | 'list';
 export interface ShopTopControlsProps {
   categories: Category[];
   availableFilters: string[];
+  filterTitleMap?: Record<string, string>;
   currentCategory?: string; // slug or ''
   selectedFilters?: string[];
   priceMin?: number;
@@ -30,6 +31,7 @@ export interface ShopTopControlsProps {
 export default function ShopTopControls({
   categories,
   availableFilters,
+  filterTitleMap,
   currentCategory = '',
   selectedFilters = [],
   priceMin = 0,
@@ -219,6 +221,7 @@ export default function ShopTopControls({
                   availableFilters={availableFilters}
                   selectedFilters={filters}
                   onFiltersChange={setFilters}
+                  filterTitleMap={filterTitleMap}
                   availableVehicles={availableVehicles}
                   selectedVehicles={vehicles}
                   onVehiclesChange={setVehicles}

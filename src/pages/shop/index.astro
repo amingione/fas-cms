@@ -43,11 +43,18 @@ try {
 const currentCategoryTitle = (currentCategory && categories.find((c:any) => c?.slug?.current === currentCategory)?.title) || 'All';
 
 // Build the available filters (category-aware)
-const uniqueFilters: string[] = Array.from(
-  new Set(
-    allProducts.flatMap((p) => Array.isArray((p as any).filters) ? (p as any).filters.map((f: any) => String(f).toLowerCase()) : [])
-  )
-).sort();
+// Build a slug -> title map and unique slug list
+const filterTitleMap: Record<string, string> = {};
+for (const p of allProducts as any[]) {
+  const slugs: any[] = Array.isArray(p?.filters) ? p.filters : [];
+  const titles: any[] = Array.isArray(p?.filterTitles) ? p.filterTitles : slugs;
+  for (let i = 0; i < slugs.length; i++) {
+    const s = String(slugs[i] || '').toLowerCase();
+    const t = String(titles[i] ?? slugs[i] ?? '').trim();
+    if (s) filterTitleMap[s] = filterTitleMap[s] || t;
+  }
+}
+const uniqueFilters: string[] = Array.from(new Set(Object.keys(filterTitleMap))).sort();
 
 // Apply selected filters (match-any). If none selected, keep all.
 const filteredProducts: Product[] = selectedFilters.length
@@ -109,6 +116,7 @@ if (endPage < totalPages) {
           client:load
           categories={categories}
           availableFilters={uniqueFilters}
+          filterTitleMap={filterTitleMap}
           currentCategory={currentCategory}
           selectedFilters={selectedFilters}
         />
@@ -118,6 +126,7 @@ if (endPage < totalPages) {
           client:load
           categories={categories}
           filters={uniqueFilters}
+          filterTitleMap={filterTitleMap}
           selectedCategory={currentCategory}
           selectedFilters={selectedFilters}
         />
@@ -130,6 +139,7 @@ if (endPage < totalPages) {
           client:load
           categories={categories}
           availableFilters={uniqueFilters}
+          filterTitleMap={filterTitleMap}
           currentCategory={currentCategory}
           selectedFilters={selectedFilters}
         />

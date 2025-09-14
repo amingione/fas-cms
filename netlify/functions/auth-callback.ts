@@ -83,10 +83,20 @@ export const handler: Handler = async (event) => {
     (redirectUri || '').startsWith('https://fasmotorsports.com') ||
     (redirectUri || '').startsWith('http://127.0.0.1');
   const sessionFlags = `HttpOnly; Path=/; Max-Age=604800; SameSite=Lax${isLocal ? '' : '; Secure'}`;
+  // Determine post-login redirect target
+  let nextLocation = '/dashboard';
+  try {
+    const cookieHeader = event.headers.cookie || event.headers.Cookie || '';
+    const m = /(?:^|;\s*)fas_return_to=([^;]+)/.exec(cookieHeader);
+    const rt = m && m[1] ? decodeURIComponent(m[1]) : '';
+    // Safety: only allow same-site relative paths
+    if (rt && rt.startsWith('/') && !rt.startsWith('//')) nextLocation = rt;
+  } catch {}
+
   const headers = {
-    'Set-Cookie': [`session=${session}; ${sessionFlags}`].join(', '),
-    Location: '/admin'
-  };
+    'Set-Cookie': [`session=${session}; ${sessionFlags}`, 'fas_return_to=; Path=/; Max-Age=0; SameSite=Lax'].join(', '),
+    Location: nextLocation
+  } as Record<string, string>;
 
   return { statusCode: 302, headers };
 };

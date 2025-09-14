@@ -14,6 +14,7 @@ type Props = {
   availableFilters: string[]; // lowercased filter slugs/labels
   selectedFilters: string[]; // lowercased
   onFiltersChange: (next: string[]) => void;
+  filterTitleMap?: Record<string, string>; // map slug -> human title
 
   // New optional groups
   availableVehicles?: string[]; // lowercased vehicle names
@@ -55,6 +56,7 @@ export default function FilterPanel({
   availableFilters,
   selectedFilters,
   onFiltersChange,
+  filterTitleMap,
   availableVehicles,
   selectedVehicles,
   onVehiclesChange,
@@ -291,6 +293,7 @@ export default function FilterPanel({
             const slug = norm(f);
             const id = `flt-${slug || 'x'}`;
             const checked = selectedFilters.map(norm).includes(slug);
+            const label = (filterTitleMap && filterTitleMap[slug]) || f;
             return (
               <div key={id} className="flex items-center gap-2">
                 <input
@@ -302,7 +305,7 @@ export default function FilterPanel({
                   className="h-4 w-4 cursor-pointer filter-checkbox accent-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
                 />
                 <label htmlFor={id} className="cursor-pointer capitalize">
-                  {f}
+                  {label}
                 </label>
               </div>
             );
