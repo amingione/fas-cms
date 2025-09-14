@@ -11,24 +11,27 @@ const resolveDomain = () => {
 
 const resolveClientId = () => getEnv('AUTH0_CLIENT_ID') || getEnv('PUBLIC_AUTH0_CLIENT_ID');
 
-const resolveRedirectUri = () => {
-  const explicit = getEnv('AUTH_REDIRECT_URI');
-  if (explicit) return explicit;
+const deriveBaseUrl = (event: any) => {
+  try {
+    const proto = event.headers['x-forwarded-proto'] || 'https';
+    const host = event.headers['x-forwarded-host'] || event.headers['host'];
+    if (host) return `${proto}://${host}`;
+  } catch {}
   const base = getEnv('PUBLIC_SITE_URL');
-  if (base) return `${base.replace(/\/$/, '')}/.netlify/functions/auth-callback`;
-  return undefined;
+  return (base && base.replace(/\/$/, '')) || 'https://fasmotorsports.com';
 };
 
 export const handler: Handler = async (event) => {
   const domain = resolveDomain();
   const clientId = resolveClientId();
-  const redirectUri = resolveRedirectUri();
+  const baseUrl = deriveBaseUrl(event);
+  const redirectUri = `${baseUrl}/.netlify/functions/auth-callback`;
 
   if (!domain || !clientId || !redirectUri) {
     const missing = [
       !domain && 'AUTH0_DOMAIN/PUBLIC_AUTH0_DOMAIN/AUTH0_ISSUER_BASE_URL',
       !clientId && 'AUTH0_CLIENT_ID/PUBLIC_AUTH0_CLIENT_ID',
-      !redirectUri && 'AUTH_REDIRECT_URI or PUBLIC_SITE_URL'
+      !redirectUri && 'Base URL (headers) or PUBLIC_SITE_URL'
     ]
       .filter(Boolean)
       .join(', ');
@@ -46,7 +49,7 @@ export const handler: Handler = async (event) => {
   const returnTo = event.queryStringParameters?.returnTo || '';
   const headers: Record<string, string> = { Location: authUrl.toString() };
   if (returnTo) {
-    const isSecure = (getEnv('PUBLIC_SITE_URL') || '').startsWith('https://');
+    const isSecure = baseUrl.startsWith('https://');
     headers['Set-Cookie'] = `fas_return_to=${encodeURIComponent(returnTo)}; Path=/; Max-Age=600; SameSite=Lax${isSecure ? '; Secure' : ''}`;
   }
 

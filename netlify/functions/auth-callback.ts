@@ -11,6 +11,16 @@ const resolveDomain = () => {
   return direct || fromIssuer;
 };
 
+const deriveBaseUrl = (event: any) => {
+  try {
+    const proto = event.headers['x-forwarded-proto'] || 'https';
+    const host = event.headers['x-forwarded-host'] || event.headers['host'];
+    if (host) return `${proto}://${host}`;
+  } catch {}
+  const base = getEnv('PUBLIC_SITE_URL');
+  return (base && base.replace(/\/$/, '')) || 'https://fasmotorsports.com';
+};
+
 export const handler: Handler = async (event) => {
   const params = new URLSearchParams(event.rawQuery || '');
   const code = params.get('code');
@@ -20,7 +30,8 @@ export const handler: Handler = async (event) => {
   const domain = resolveDomain();
   const clientId = getEnv('AUTH0_CLIENT_ID') || getEnv('PUBLIC_AUTH0_CLIENT_ID');
   const clientSecret = getEnv('AUTH0_CLIENT_SECRET');
-  const redirectUri = getEnv('AUTH_REDIRECT_URI');
+  const baseUrl = deriveBaseUrl(event);
+  const redirectUri = `${baseUrl}/.netlify/functions/auth-callback`;
   const sessionSecret = getEnv('SESSION_SECRET');
 
   if (!domain || !clientId || !clientSecret || !redirectUri || !sessionSecret) {
@@ -28,7 +39,7 @@ export const handler: Handler = async (event) => {
       !domain && 'AUTH0_DOMAIN/PUBLIC_AUTH0_DOMAIN/AUTH0_ISSUER_BASE_URL',
       !clientId && 'AUTH0_CLIENT_ID/PUBLIC_AUTH0_CLIENT_ID',
       !clientSecret && 'AUTH0_CLIENT_SECRET',
-      !redirectUri && 'AUTH_REDIRECT_URI',
+      !redirectUri && 'Base URL (headers) or PUBLIC_SITE_URL',
       !sessionSecret && 'SESSION_SECRET'
     ]
       .filter(Boolean)
@@ -79,9 +90,7 @@ export const handler: Handler = async (event) => {
     expiresIn: '7d'
   });
 
-  const isLocal =
-    (redirectUri || '').startsWith('https://fasmotorsports.com') ||
-    (redirectUri || '').startsWith('http://127.0.0.1');
+  const isLocal = (redirectUri || '').startsWith('http://localhost') || (redirectUri || '').startsWith('http://127.0.0.1');
   const sessionFlags = `HttpOnly; Path=/; Max-Age=604800; SameSite=Lax${isLocal ? '' : '; Secure'}`;
   // Determine post-login redirect target
   let nextLocation = '/dashboard';

@@ -236,7 +236,7 @@ export function Products() {
       <div
         className="absolute inset-0 opacity-50"
         style={{
-          backgroundImage: `url(/images/backgrounds/bg-asphalt-overlay.png)`,
+          backgroundImage: `url(/images/backgrounds/bg-asphalt-overlay.webp)`,
           backgroundSize: isMobile ? '300px 225px' : '800px 600px',
           backgroundRepeat: 'repeat',
           backgroundPosition: '0 0'

@@ -14,9 +14,9 @@ const categoryQuery = /* groq */ `
 `;
 const category = await client.fetch(categoryQuery, { slug: params.category });
 
-// Fetch products that reference this category
+// Fetch published products that reference this category
 const productsQuery = /* groq */ `
-*[_type == "product" && references($catId)] | order(_createdAt desc){
+*[_type == "product" && !(_id in path('drafts.**')) && defined(slug.current) && references($catId)] | order(_createdAt desc){
   _id,
   title,
   "slug": slug.current,
