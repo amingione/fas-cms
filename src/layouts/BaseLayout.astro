@@ -60,7 +60,7 @@ import { Toaster } from 'sonner';
     </CartProvider>
 
     <!-- Global Auth bootstrap so header/admin can trigger login; Vite will bundle in prod -->
-    <script type="module" src="../scripts/auth-bootstrap.ts"></script>
+    <script type="module">import '../scripts/auth-bootstrap.ts';</script>
 
 
     <script>
