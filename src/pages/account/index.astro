@@ -6,6 +6,6 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 <BaseLayout hideBrandTag={true}>
   <main class="relative text-white p-8">
     <div id="account-view"></div>
-    <script type="module">import '../../scripts/account-auth.ts';</script>
+    <script type="module" src={Astro.resolve('../../scripts/account-auth.ts')}></script>
   </main>
 </BaseLayout>
