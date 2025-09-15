@@ -51,9 +51,6 @@
   package = "netlify-plugin-minify-html"
 
 [[plugins]]
-  package = "netlify-plugin-checklinks"
-
-[[plugins]]
   package = "netlify-plugin-submit-sitemap"
 
 # Generate sitemap during build (repo-managed)
@@ -68,6 +65,10 @@
   # Run Lighthouse only on Deploy Previews
   [[plugins]]
     package = "@netlify/plugin-lighthouse"
+
+  # Run link checking only on Deploy Previews to avoid flakiness/crashes
+  [[plugins]]
+    package = "netlify-plugin-checklinks"
 
 ## Removed netlify-plugin-csp (not on npm) in favor of static CSP header below
 
