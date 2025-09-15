@@ -1,0 +1,37 @@
+---
+import DashboardShell from '../../components/admin/DashboardShell.tsx'
+const isDev = import.meta.env.DEV;
+const requestOrigin = new URL(Astro.request.url).origin;
+const siteOrigin = Astro.site ? new URL(Astro.site).origin : requestOrigin;
+const envBase = import.meta.env.PUBLIC_BASE_URL;
+const base = isDev ? requestOrigin : (envBase || siteOrigin);
+let rows: any[] = [];
+try {
+  const res = await fetch(`${base}/.netlify/functions/invoices-list`);
+  if (res.ok) rows = await res.json();
+} catch {}
+---
+<DashboardShell client:only="react">
+  <h1 class="text-2xl md:text-3xl font-bold mb-6">Invoices</h1>
+  <div class="overflow-x-auto border border-white/20 rounded-lg">
+    <table class="min-w-full text-sm">
+      <thead class="bg-white/5">
+        <tr><th class="text-left px-3 py-2">Invoice</th><th class="text-left px-3 py-2">Status</th><th class="text-left px-3 py-2">Total</th><th class="text-left px-3 py-2">Customer</th><th></th></tr>
+      </thead>
+      <tbody>
+        {rows.map((r:any)=>(
+          <tr class="border-t border-white/20 hover:bg-white/5 transition">
+            <td class="px-3 py-2">{r.number || r.id}</td>
+            <td class="px-3 py-2">{r.status}</td>
+            <td class="px-3 py-2">${r.total.toFixed(2)}</td>
+            <td class="px-3 py-2">{r.customerEmail || '—'}</td>
+            <td class="px-3 py-2 text-right">
+              <a class="px-3 py-1 rounded border border-white/30 hover:bg-white/80 mr-2" href={r.hostedInvoiceUrl} target="_blank">Open</a>
+              <button class="px-3 py-1 rounded border border-white/30 hover:bg-white/80" onclick={`fetch('/.netlify/functions/invoice-send',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({invoiceId:"${r.id}"})}).then(r=>r.json()).then(()=>alert('Sent'))`}>Send</button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</DashboardShell>

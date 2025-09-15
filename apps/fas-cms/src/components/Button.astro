@@ -1,0 +1,47 @@
+---
+type Variant = 'default' | 'secondary' | 'dark' | 'outline' | 'ghost' | 'link';
+type Size = 'xs' | 'sm' | 'md' | 'lg' | 'icon';
+
+const {
+  href = undefined,
+  text = '',
+  className = '',
+  variant: variantProp = 'default',
+  size: sizeProp = 'md',
+  attrs = {}
+} = Astro.props;
+
+const variant = variantProp as Variant;
+const size = sizeProp as Size;
+
+const base = 'btn-glass inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*="size-"])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none';
+
+const variantMap = {
+  default: 'btn-primary',
+  secondary: 'btn-secondary',
+  dark: 'btn-dark',
+  outline: 'btn-dark bg-transparent btn-glass',
+  ghost: 'bg-transparent border border-transparent hover:bg-[rgba(255,255,255,0.05)] btn-glass',
+  link: 'bg-transparent border-none shadow-none underline underline-offset-4 hover:opacity-90'
+};
+
+const sizeMap = {
+  xs: 'btn-xs',
+  sm: 'btn-sm',
+  md: 'btn-md',
+  lg: 'btn-lg',
+  icon: 'rounded-full size-9 p-0'
+};
+
+const classes = [base, variantMap[variant] || variantMap.default, sizeMap[size] || sizeMap.md, className].join(' ').trim();
+---
+
+{href ? (
+  <a href={href} class={classes} {...attrs}>
+    {Astro.slots.has('default') ? <slot /> : text}
+  </a>
+) : (
+  <button class={classes} type="button" {...attrs}>
+    {Astro.slots.has('default') ? <slot /> : text}
+  </button>
+)}

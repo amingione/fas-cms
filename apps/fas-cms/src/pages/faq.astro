@@ -1,0 +1,136 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/Button.astro';
+import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
+import SectionRenderer from '@/components/SectionRenderer.astro';
+
+const pageDoc: any = await getGitPageDoc('faq');
+---
+
+<BaseLayout>
+    <div {...sbObjectId('content/pages/faq.json')}>
+    <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Frequently Asked Questions'}</div>
+    {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
+      <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
+    )}
+    <section class="py-16 px-4 md:px-8">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 text-white">
+            <!-- Accordion -->
+            <div>
+                <h1 class="text-4xl font-cyber text-accent mb-6" {...sbFieldPath('title')}>
+                    {pageDoc?.title ?? 'Frequently Asked Questions'}
+                </h1>
+                <ul class="space-y-4">
+                    <li class="border-b border-gray-700 pb-4">
+                        <details class="group">
+                            <summary class="cursor-pointer text-xl font-cyber text-white flex justify-between items-center">
+                                Will modifications void my factory warranty?
+                                <span class="text-accent group-open:rotate-180 transition-transform">▼</span>
+                            </summary>
+                            <p class="mt-2 text-base font-mono tracking-[1.2px] text-white/70">
+                                Yes, performance modifications can void all or part of your vehicle’s OEM warranty. We recommend checking with your dealership or warranty provider before proceeding with any upgrades.
+                            </p>
+                        </details>
+                    </li>
+
+                    <li class="border-b border-gray-700 pb-4">
+                        <details class="group">
+                            <summary class="cursor-pointer text-xl font-cyber text-white flex justify-between items-center">
+                                Do you offer custom tuning for boosted platforms?
+                                <span class="text-accent group-open:rotate-180 transition-transform">▼</span>
+                            </summary>
+                            <p class="mt-2 text-base font-mono tracking-[1.2px] text-white/70">
+                                Yes, we specialize in tuning for supercharged and turbocharged applications across a range of domestic performance vehicles.
+                            </p>
+                        </details>
+                    </li>
+
+                    <li class="border-b border-gray-700 pb-4">
+                        <details class="group">
+                            <summary class="cursor-pointer text-xl font-cyber text-white flex justify-between items-center">
+                                What kind of horsepower gains can I expect?
+                                <span class="text-accent group-open:rotate-180 transition-transform">▼</span>
+                            </summary>
+                            <p class="mt-2 text-base font-mono tracking-[1.2px] text-white/70">
+                                Gains depend on your platform, current mods, and goals. Typical builds range from 600 WHP to 1500+ WHP. Our team will guide you through the best options based on your target.
+                            </p>
+                        </details>
+                    </li>
+
+                    <li class="border-b border-gray-700 pb-4">
+                        <details class="group">
+                            <summary class="cursor-pointer text-xl font-cyber text-white flex justify-between items-center">
+                                Do you offer installation or is it DIY only?
+                                <span class="text-accent group-open:rotate-180 transition-transform">▼</span>
+                            </summary>
+                            <p class="mt-2 text-base font-mono tracking-[1.2px] text-white/70">
+                                We provide professional installation services in-house. You are also welcome to purchase parts for local install if preferred.
+                            </p>
+                        </details>
+                    </li>
+
+                    <li class="border-b border-gray-700 pb-4">
+                        <details class="group">
+                            <summary class="cursor-pointer text-xl font-cyber text-white flex justify-between items-center">
+                                Do you offer warranties on performance parts?
+                                <span class="text-accent group-open:rotate-180 transition-transform">▼</span>
+                            </summary>
+                            <p class="mt-2 text-base font-mono tracking-[1.2px] text-white/70">
+                                No, we do not provide warranties on aftermarket parts or services. All parts are sold as-is, and performance upgrades may reduce component life depending on use.
+                            </p>
+                        </details>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Contact Form Box -->
+            <div class="bg-[#1a1a1a] p-8 rounded-lg shadow-lg">
+                <h2 class="text-3xl font-cyber text-accent mb-4">Still have questions?</h2>
+                <p class="text-base font-mono tracking-[1.2px] text-white/70 mb-6">Reach out to our team directly and we’ll get back to you ASAP.</p>
+                <form class="space-y-4">
+                    <input type="text" placeholder="Your Name" class="w-full p-3 rounded bg-black text-white border border-gray-700 placeholder-gray-400" />
+                    <input type="email" placeholder="Your Email" class="w-full p-3 rounded bg-black text-white border border-gray-700 placeholder-gray-400" />
+                    <textarea rows="4" placeholder="Your Message" class="w-full p-3 rounded bg-black text-white border border-gray-700 placeholder-gray-400"></textarea>
+                    <Button text="Send Message" variant="default-v2" href="#" rounded={false} />
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+    </div>
+</BaseLayout>
+
+<!-- FAQ Page JSON-LD -->
+<script type="application/ld+json">
+{JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Will modifications void my factory warranty?',
+      acceptedAnswer: { '@type': 'Answer', text: 'Performance modifications can void all or part of your vehicle’s OEM warranty. Check with your dealership or warranty provider before any upgrades.' }
+    },
+    {
+      '@type': 'Question',
+      name: 'Do you offer custom tuning for boosted platforms?',
+      acceptedAnswer: { '@type': 'Answer', text: 'Yes, we specialize in tuning for supercharged and turbocharged applications across a range of domestic performance vehicles.' }
+    },
+    {
+      '@type': 'Question',
+      name: 'What kind of horsepower gains can I expect?',
+      acceptedAnswer: { '@type': 'Answer', text: 'Gains depend on platform and mods. Typical builds range from 600 WHP to 1500+ WHP. We’ll recommend options based on your goals.' }
+    },
+    {
+      '@type': 'Question',
+      name: 'Do you offer installation or is it DIY only?',
+      acceptedAnswer: { '@type': 'Answer', text: 'We provide professional installation in‑house. You can also purchase parts for local install if preferred.' }
+    },
+    {
+      '@type': 'Question',
+      name: 'Do you offer warranties on performance parts?',
+      acceptedAnswer: { '@type': 'Answer', text: 'Aftermarket parts are sold as‑is and may reduce component life depending on use.' }
+    }
+  ]
+})}
+</script>

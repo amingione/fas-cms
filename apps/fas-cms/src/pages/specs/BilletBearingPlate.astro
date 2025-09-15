@@ -1,0 +1,40 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
+import SectionRenderer from '@/components/SectionRenderer.astro';
+const pageDoc: any = await getGitPageDoc('BilletBearingPlateSpecs');
+import ProductSpecSheet from '@components/specs/ProductSpecSheet.astro';
+---
+
+<BaseLayout>
+  <div {...sbObjectId('content/pages/BilletBearingPlateSpecs.json')}>
+    <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>
+      {pageDoc?.title ?? 'Billet Bearing Plate — Spec Sheet'}
+    </div>
+    {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
+      <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
+    )}
+    <section class="mt-5 pt-5"></section>
+    <ProductSpecSheet
+      title={pageDoc?.title ?? 'Billet Bearing Plate — Spec Sheet'}
+      description="Engineered, fabricated, and validated by FAS Motorsports to deliver superior strength, precision, and reliability under extreme conditions."
+      imageSrc="/images/billetParts/billet-bearing-plate.png"
+      imageAlt="FAS Motorsports Billet Bearing Plate"
+      specs={[
+        { label: 'Material', value: 'Billet aluminum, heat‑treated' },
+        { label: 'Manufacturing', value: '5‑axis CNC, precision fit' },
+        { label: 'Mass Class', value: 'Lightweight billet construction' },
+        { label: 'Compatibility', value: 'Gen III HEMI platforms (various applications)' },
+        { label: 'Validation', value: 'Thermal and load validated for high‑power use' },
+        { label: 'Finish', value: 'Anodized for durability' }
+      ]}
+      about={[
+        'CNC‑machined from aerospace‑grade billet for rigidity and fatigue resistance, the plate resists flexing under high load to help extend bearing and crank life.',
+        'Optimized webbing and oil‑gallery design improve thermal stability and lubrication consistency during track and street abuse.',
+        'Each unit is blueprinted to OE specs for precise fitment with no additional machining, delivering a dependable foundation for high power builds.'
+      ]}
+      ctaHref="/shop/2-4l-hellcat-billet-bearing-plate"
+      ctaLabel="Shop Billet Bearing Plate"
+    />
+  </div>
+</BaseLayout>

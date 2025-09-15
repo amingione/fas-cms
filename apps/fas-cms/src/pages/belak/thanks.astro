@@ -1,0 +1,22 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import BelakHero from "@/components/belak/BelakHero.astro";
+---
+<BaseLayout>
+  <BelakHero
+    title="Thank you for your request!"
+    subtitle="We’ve received your Belak wheel specs. Our sales team will review and reach out with a tailored quote."
+  />
+
+  <main class="mx-auto max-w-3xl px-6 py-16 text-center space-y-6">
+    <p class="text-lg text-neutral-300">
+      Your submission has been sent to <span class="font-semibold text-white">sales@fasmotorsports.com</span>.
+    </p>
+    <p class="text-neutral-400">
+      A representative will contact you soon. If you need immediate assistance, please call our shop directly.
+    </p>
+    <a href="/belak/wheels" class="inline-block rounded-xl bg-red-600 px-5 py-3 text-white hover:bg-red-500">
+      Back to Belak Wheels
+    </a>
+  </main>
+</BaseLayout>

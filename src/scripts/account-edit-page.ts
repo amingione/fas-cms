@@ -1,16 +1,10 @@
-import { getAuth0Client } from '@lib/auth';
+// Uses fas-auth session
 
 const root = document.getElementById('account-edit');
 
 (async () => {
-  const auth0 = await getAuth0Client();
-  // Finish Auth0 redirect if necessary
-  if (window.location.search.includes('code=')) {
-    await auth0.handleRedirectCallback();
-    window.history.replaceState({}, document.title, window.location.pathname);
-  }
-
-  const authed = await auth0.isAuthenticated();
+  const fas = (window as any).fasAuth;
+  const authed = fas ? await fas.isAuthenticated() : false;
   if (!authed) {
     if (root) {
       root.innerHTML = `
@@ -22,28 +16,14 @@ const root = document.getElementById('account-edit');
         </div>
       `;
     }
-    document.getElementById('login')?.addEventListener('click', () =>
-      auth0.loginWithRedirect({
-        authorizationParams: {
-          screen_hint: 'login',
-          redirect_uri: window.location.origin + '/account'
-        }
-      })
-    );
-    document.getElementById('signup')?.addEventListener('click', () =>
-      auth0.loginWithRedirect({
-        authorizationParams: {
-          screen_hint: 'signup',
-          redirect_uri: window.location.origin + '/account'
-        }
-      })
-    );
+    document.getElementById('login')?.addEventListener('click', () => (window.location.href = '/account'));
+    document.getElementById('signup')?.addEventListener('click', () => (window.location.href = '/account'));
     return;
   }
 
-  const user = await auth0.getUser();
-  const name = user?.given_name || user?.name || '';
-  const email = user?.email || '';
+  const session = fas ? await fas.getSession() : null;
+  const name = (session?.user?.name as string) || '';
+  const email = (session?.user?.email as string) || '';
 
   if (root) {
     // Minimal editable UI for now; wire to your Sanity APIs later

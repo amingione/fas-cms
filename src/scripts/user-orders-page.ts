@@ -1,4 +1,4 @@
-import { getAuth0Client } from '@lib/auth';
+// Uses fas-auth session
 
 const root = document.getElementById('orders-root');
 if (root) root.textContent = 'Loading...';
@@ -30,35 +30,22 @@ const renderList = (orders: any[]) => {
 
 (async () => {
   try {
-    const auth0 = await getAuth0Client();
-    // If we just came back from Auth0, finalize the login and clean the URL
-    if (window.location.search.includes('code=')) {
-      try {
-        await auth0.handleRedirectCallback();
-        window.history.replaceState({}, document.title, window.location.pathname);
-      } catch (e) {
-        console.error('Auth0 redirect handling failed', e);
-      }
-    }
-    const isAuthed = await auth0.isAuthenticated();
+    const fas = (window as any).fasAuth;
+    const isAuthed = fas ? await fas.isAuthenticated() : false;
     if (!isAuthed) {
       renderError('Please log in to view your orders.');
       return;
     }
 
-    const user = await auth0.getUser();
-    const email = (user as any)?.email || '';
+    const session = fas ? await fas.getSession() : null;
+    const email = (session?.user?.email as string) || '';
     if (!email) return renderError('No email found for user.');
 
     // Try secured call first using ID token as Bearer
     let orders: any[] = [];
     let usedFallback = false;
     try {
-      const claims = await auth0.getIdTokenClaims();
-      const token = (claims as any)?.__raw as string | undefined;
-      const res = await fetch('/api/get-user-order', {
-        headers: token ? { authorization: `Bearer ${token}` } : {},
-      });
+      const res = await fetch('/api/get-user-order');
       if (res.ok) {
         const data = await res.json();
         orders = Array.isArray(data) ? data : (Array.isArray((data as any)?.items) ? (data as any).items : []);
@@ -85,4 +72,3 @@ const renderList = (orders: any[]) => {
     renderError('Unable to load your orders.');
   }
 })();
-

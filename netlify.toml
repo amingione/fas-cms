@@ -3,15 +3,7 @@
   to = "/site.webmanifest"
   status = 200
 
-[[redirects]]
-  from = "/api/auth/login"
-  to = "/.netlify/functions/auth-login"
-  status = 302
-
-[[redirects]]
-  from = "/api/auth/logout"
-  to = "/.netlify/functions/auth-logout"
-  status = 302
+## Note: Custom auth uses Astro API under /api/auth/*; no redirects needed.
 
 [build]
   command = "yarn install && yarn build"
@@ -100,7 +92,7 @@
     # Relaxed CSP to support Netlify Visual Editor while remaining restrictive
     # - Adds Netlify/Visual Editor domains to script/connect sources
     # - Keeps existing restrictions for other resources
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://cdn.auth0.com https://js.stripe.com https://app.netlify.com https://ve.netlify.app https://*.netlify.app https://editor.stackbit.com; connect-src 'self' https://*.sanity.io https://api.stripe.com https://*.shipengine.com https://cdn.auth0.com https://login.fasmotorsports.com https://app.netlify.com https://ve.netlify.app https://*.netlify.app wss://*.netlify.app wss://ve.netlify.app; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline'; font-src 'self' data: https:; media-src https: blob:; frame-src https://www.google.com/recaptcha/ https://js.stripe.com https://*.auth0.com https://login.fasmotorsports.com https://app.netlify.com https://*.netlify.app https://www.youtube.com https://youtube.com; frame-ancestors 'self' https://app.netlify.com https://*.netlify.app"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://js.stripe.com https://app.netlify.com https://ve.netlify.app https://*.netlify.app https://editor.stackbit.com; connect-src 'self' https://*.sanity.io https://api.stripe.com https://*.shipengine.com https://app.netlify.com https://ve.netlify.app https://*.netlify.app wss://*.netlify.app wss://ve.netlify.app; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline'; font-src 'self' data: https:; media-src https: blob:; frame-src https://www.google.com/recaptcha/ https://js.stripe.com https://app.netlify.com https://*.netlify.app https://www.youtube.com https://youtube.com; frame-ancestors 'self' https://app.netlify.com https://*.netlify.app"
 # Avoid caching the account page so auth callback always runs with fresh HTML
 [[headers]]
   for = "/account"

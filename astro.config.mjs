@@ -74,7 +74,8 @@ export default defineConfig({
         }
       }
     },
-    envPrefix: ['PUBLIC_', 'SANITY_', 'PUBLIC_SANITY_'],
+    // Expose VITE_* so server code can read VITE_SANITY_* via import.meta.env
+    envPrefix: ['PUBLIC_', 'SANITY_', 'PUBLIC_SANITY_', 'VITE_'],
     optimizeDeps: {
       include: [
         'react',

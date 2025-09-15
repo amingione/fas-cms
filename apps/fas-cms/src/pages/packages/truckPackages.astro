@@ -1,0 +1,511 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
+import { Button } from '@/components/ui/button';
+import StoreHero from '@/components/storefront/StoreHero.astro';
+import TruckGallery from '@/components/storefront/TruckGallery.astro';
+
+const pageDoc: any = await getGitPageDoc('truckPackages');
+// Use plain HTML buttons/links in this SSR page to avoid React SSR for UI primitives
+---
+
+<BaseLayout title="Truck Packages">
+
+  <div {...sbObjectId('content/pages/packages/truckPackages.json')}>
+  <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Truck Packages'}</div>
+
+  <section class="relative mt-5 pt-10">
+  <StoreHero
+    title='fas'
+    title2='Motorsports'
+    title3='Truck Packages'
+    subtitle="From minor bolt ons to packages that exceed 2000HP!"
+    imgSrc='/images/packages/850-ram.webp'
+    imgAlt="FAS Built Trucks"
+    ctaPrimaryHref="/customBuild"
+    ctaPrimaryLabel="Build Your Truck ➤"
+    ctaPrimaryVariant="ghost"
+    ctaSecondaryHref="/shop/categories/truck-packages"
+    ctaSecondaryLabel="Shop Truck Packages ➤"
+    ctaSecondaryVariant="outline"
+    
+  />
+  </section>
+
+  <!-- Packages Section -->
+  <section class="packages section-divider section-divider-carbon">
+    <div class="package-grid">
+
+      <!-- Column 1: TRX + Overview -->
+      <div class="package-group">
+        <div class="package-card">
+          <div class="package-media">
+            <img src="/images/packages/FAS-TRX.webp" alt="TRX Truck Package by FAS" class="package-image">
+          </div>
+          <h3 class="font-ethno text-primary"><span class="font-borg text-white">RaM</span> TRX <span class="font-ethno text-base tracking-tight text-white">Builds</span></h3>
+          <div class="font-ethno text-base tracking-tight text-accent">
+            <div class="my-2 font-mono text-base tracking-wide text-white/70">From 800HP to 1600+HP — Your TRX, Redefined.</div>
+            <div class="font-ethno text-lg tracking-tight text-blue-500">• Starting at $1,599 •</div>
+          </div>
+          <ul class="font-mono font-bold pt-4 text-base tracking-tight leading-snug">
+            <li>FAS Motorsports has built more TRX’s than anyone, delivering proven power packages designed to dominate both street and strip.</li>
+          </ul>
+          <Button className="my-3 ghost">
+            <a href="/shop/fas-factory-freak-package-trx" class="font-cyber tracking-widest transition-all duration-300">Shop Package ➟</a>
+          </Button>
+        </div>
+        <div class="package-card">
+          <h4 class="font-ethno text-primary text-2xl">TRX Packages</h4>
+          <p class="mt-2 text-sm font-mono tracking-[0.12em] text-white/80">TRX builds that don’t just add horsepower — they dominate.</p>
+          <ul class="mt-3 space-y-1 text-white/90 text-sm font-mono">
+            <li>• FAS 800 TRX</li>
+            <li>• FAS 850 TRX</li>
+            <li>• FAS 900 TRX</li>
+            <li>• FAS 1X TRX — 1200–1500 HP</li>
+            <li>• FAS TRX 2X — 1600+ HP</li>
+          </ul>
+          <div class="mt-3 flex gap-3">
+            <a href="/shop?filter=trx" class="px-3 py-1.5 rounded-full border border-white/20 text-xs text-white/90 hover:bg-white/10">Shop</a>
+            <a href="/schedule" class="px-3 py-1.5 rounded-full border border-white/20 text-xs text-white/90 hover:bg-white/10">Schedule</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Column 2: F‑150 + Overview -->
+      <div class="package-group">
+        <div class="package-card">
+          <div class="package-media">
+            <img src="/images/packages/FAS-f150-10002.webp" alt="Ford F‑150 Packages" class="package-image">
+          </div>
+          <h3 class="font-ethno text-primary"><span class="font-borg text-white">Ford</span> F‑150 <span class="font-ethno text-base tracking-tight text-white">(2018+)</span></h3>
+          <div class="font-ethno text-base tracking-tight text-accent">
+            <div class="my-2 font-mono text-base tracking-wide text-white/70">From 500+ to 1000 HP — Turn‑Key, Installed & Tuned.</div>
+            <div class="font-ethno text-lg tracking-tight text-blue-500">• Starting at $7,499 •</div>
+          </div>
+          <ul class="font-mono pt-4 text-base tracking-tight leading-snug">
+            <li>Daily‑drivable twin‑turbo packages with proper fueling, cooling, and calibration. Installed & tuned in‑house.</li>
+          </ul>
+          <Button className="my-3 ghost">
+            <a href="/shop?filter=f150" class="font-cyber tracking-widest transition-all duration-300">Shop F‑150 Packages ➟</a>
+          </Button>
+        </div>
+        <div class="package-card">
+          <h4 class="font-ethno text-primary text-2xl">F‑150 Packages</h4>
+          <p class="mt-2 text-sm font-mono tracking-[0.12em] text-white/80">From 500+ to 1000 HP — clean installs, strong mid‑range, and OEM‑like manners for daily use.</p>
+          <ul class="mt-3 space-y-1 text-white/90 text-sm font-mono">
+            <li>• FAS 500+ Package (2018+) — $7,499</li>
+            <li>• FAS 800 Package (2018+) — $14,999</li>
+            <li>• FAS 1000 Package (2018+) — $19,999</li>
+          </ul>
+          <div class="mt-3 flex gap-3">
+            <a href="/shop?filter=f150" class="px-3 py-1.5 rounded-full border border-white/20 text-xs text-white/90 hover:bg-white/10">Shop</a>
+            <a href="/schedule" class="px-3 py-1.5 rounded-full border border-white/20 text-xs text-white/90 hover:bg-white/10">Schedule</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How to Get Started (Accordion CTA) -->
+  <section class="py-10 px-4 max-w-5xl mx-auto">
+    <h3 class="text-3xl font-ethno text-accent text-center mb-6">How to Get Started</h3>
+    <ul class="space-y-4">
+      <li class="border-b border-white/15 pb-4">
+        <details class="group">
+          <summary class="cursor-pointer text-lg font-cyber text-white flex justify-between items-center">Purchase Parts<span class="text-accent group-open:rotate-180 transition-transform">▼</span></summary>
+          <p class="mt-2 text-sm font-mono tracking-[0.12em] text-white/80">Prefer to DIY? You can purchase the components for your chosen package and handle installation yourself. Please note: we cannot warranty incorrect or inadequate installation performed outside our facility.</p>
+          <div class="mt-3 flex gap-3"><a href="/shop?categorySlug=tools-and-accessories&category=tools-and-accessories&priceMin=0&priceMax=100000&page=1" class="px-3 py-1.5 rounded-full border border-white/20 text-xs text-white/90 hover:bg-white/10">Shop Parts</a></div>
+        </details>
+      </li>
+      <li class="border-b border-white/15 pb-4">
+        <details class="group">
+          <summary class="cursor-pointer text-lg font-cyber text-white flex justify-between items-center">Schedule for Install<span class="text-accent group-open:rotate-180 transition-transform">▼</span></summary>
+          <p class="mt-2 text-sm font-mono tracking-[0.12em] text-white/80">Our in‑house team can install, calibrate, and validate your package. We can help coordinate vehicle transport to our shop, or you can drop off in person.</p>
+          <div class="mt-3 flex gap-3"><a href="/schedule" class="px-3 py-1.5 rounded-full border border-white/20 text-xs text-white/90 hover:bg-white/10">Book Install</a></div>
+        </details>
+      </li>
+      <li class="border-b border-white/15 pb-4">
+        <details class="group">
+          <summary class="cursor-pointer text-lg font-cyber text-white flex justify-between items-center">Custom Builds<span class="text-accent group-open:rotate-180 transition-transform">▼</span></summary>
+          <p class="mt-2 text-sm font-mono tracking-[0.12em] text-white/80">Don’t see an exact match? Use our custom build tool to choose your platform, target power, and parts. Submit for a quote and our installer will fine‑tune the plan to hit your goals.</p>
+          <div class="mt-3 flex gap-3"><a href="/customBuild" class="px-3 py-1.5 rounded-full border border-white/20 text-xs text-white/90 hover:bg-white/10">Start Custom Build</a></div>
+        </details>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Truck Build Gallery (bottom) -->
+  <section class="pt-8">
+    <h3 class="text-center text-3xl md:text-4xl font-ethno text-accent mb-2">Truck Build Gallery</h3>
+    <p class="text-center text-white/70 font-mono tracking-[0.12em] mb-2 px-4">Swipe, drag, or click images to view.</p>
+    <TruckGallery images={[
+      { src: '/images/packages/FAS-f150-1000.webp', alt: 'F150 Build' },
+      { src: '/images/packages/FAS-f150-10002.webp', alt: 'FAS F150 Build' },
+      { src: '/images/packages/FAS-f150.webp', alt: 'F‑150 800–1000+ Build' },
+      { src: '/images/packages/F250-FAS.png', alt: 'Ford F‑250 Custom' },
+      { src: '/images/packages/FAS-F250-custom.webp', alt: 'Custom 250 Build' },
+      { src: '/images/packages/FAS-ram-trx-build.webp', alt: 'RAM TRX Build' },
+      { src: '/images/packages/FAS-raptor-build1.webp', alt: 'FAS Raptor Build' },
+      { src: '/images/packages/FAS-raptor-TRX.webp', alt: 'Raptor Build by FAS' },
+      { src: '/images/packages/FAS-TRX-build1.webp', alt: 'TRX Build by FAS' },
+      { src: '/images/packages/FAS-TRX.webp', alt: 'TRX Build by FAS' },
+      { src: '/images/packages/FAS-TRX2.webp', alt: 'TRX Build by FAS' },
+      { src: '/images/packages/ram-trx-factory-freak.png', alt: 'RAM TRX Build' },
+      { src: '/images/packages/850-ram.webp', alt: '850 HP RAM Build' },
+      { src: '/images/packages/fas0f150-10002800.webp', alt: 'F‑150 800–1000+ Build' },
+      { src: '/images/packages/F250-FAS.png', alt: 'Ford F‑250 / F‑150' },
+      { src: '/images/packages/Shelby-truck.png', alt: 'Raptor / Shelby Build' },
+      { src: '/images/packages/ram-trx-factory-freak.png', alt: 'Dodge RAM Build' },
+    ]} />
+  </section>
+
+  
+  <style>
+    /* Dark UI Palette - Editable: Change colors via CSS variables */
+
+    /* 3D depth & glow helpers */
+    .parallax-section {
+      perspective: 1000px;
+      height: min(85vh, 900px);
+    }
+
+    .parallax-section .background-layer,
+    .parallax-section .midground-layer,
+    .parallax-section .foreground-layer {
+      transform-style: preserve-3d;
+      will-change: transform;
+      transition: transform 0.2s ease-out;
+    }
+
+    /* Dark gradient overlay + glow border on bg layer */
+    .parallax-section .background-layer {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      border-radius: 16px; /* soft corners for the 3D panel */
+      overflow: hidden;    /* clip inner overlays to corners */
+      box-shadow:
+        0 0 40px var(--shadow-glow),      /* outer subtle glow */
+        inset 0 0 60px rgba(0,0,0,0.4),   /* inner vignette */
+        0 12px 40px var(--shadow-depth);  /* depth shadow */
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .parallax-section .background-layer::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.35) 35%, rgba(0,0,0,0.65) 100%);
+      pointer-events: none;
+    }
+    /* Optional: subtle edge light on mid layer for pop */
+    .midground-layer {
+      position: absolute;
+      top: 18%;
+      left: 50%;
+      width: clamp(320px, 70vw, 900px);
+      z-index: 2;
+      transform: translateX(-50%);
+    }
+    @media (min-width: 1024px) {
+      .midground-layer {
+        top: 6%;
+        right: 4%;
+        left: auto;
+        width: min(48vw, 820px);
+        transform: none;
+      }
+    }
+
+    /* Parallax Sections */
+    .parallax-section {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .background-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      /* Subtle layered gradients instead of busy image for better scaling */
+      background:
+        radial-gradient(60% 40% at 20% 15%, rgba(255,255,255,0.06), transparent 60%),
+        radial-gradient(50% 35% at 80% 0%, rgba(234,29,38,0.10), transparent 70%),
+        linear-gradient(180deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.45) 45%, rgba(0,0,0,0.70) 100%);
+      z-index: 1;
+      transform: translateY(0);
+    }
+
+    .midground-image {
+      width: 100%;
+      height: auto;
+      max-width: none;
+      filter: drop-shadow(0 6px 18px var(--shadow-depth));
+    }
+
+    /* Foreground spacing — scope to sections */
+    .parallax-section .foreground-layer {
+      position: relative;
+      z-index: 3;
+      text-align: center;
+      padding-top: clamp(72px, 14vh, 220px);
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+    @media (min-width: 1024px) {
+      .parallax-section .foreground-layer {
+        text-align: left;
+        padding-top: clamp(56px, 10vh, 160px);
+        padding-left: clamp(24px, 4vw, 64px);
+        padding-right: clamp(24px, 4vw, 64px);
+        max-width: 1280px;
+        margin-inline: auto;
+      }
+    }
+
+    .hero-inner { max-width: 720px; margin: 0 auto; }
+    @media (min-width: 1024px) {
+      .hero-inner { max-width: 700px; margin-left: 0; }
+    }
+
+    .accent-image {
+      width: clamp(120px, 22vw, 180px);
+      margin: 16px auto 20px;
+      display: block;
+    }
+    @media (min-width: 1024px) {
+      .accent-image { margin: 8px 0 20px; }
+    }
+
+    /* Mobile: show a second inline truck image and hide the absolute one */
+    .truck-mobile { display: none; width: 100%; height: auto; filter: drop-shadow(0 6px 18px var(--shadow-depth)); margin-top: 12px; }
+    .mobile-hero-media { display: none; }
+    @media (max-width: 767px) {
+      .midground-layer { display: none; }
+      .accent-image { display: none; }
+      .mobile-hero-media {
+        position: relative;
+        display: block;
+        min-height: 200px;
+        margin-top: 8px;
+      }
+      .wheel-mobile {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 40vw; /* wheel off to the left */
+        transform: translateX(-6%);
+        z-index: 2;
+        filter: drop-shadow(0 6px 12px var(--shadow-depth));
+      }
+      .truck-mobile {
+        display: block;
+        width: 86vw; /* truck takes majority */
+        height: auto;
+        margin-left: auto; /* push to the right of wheel */
+        filter: drop-shadow(0 10px 22px var(--shadow-depth));
+        z-index: 1;
+      }
+    }
+
+    /* Section dividers with luxury glow */
+    .section-divider { position: relative; }
+    .section-divider::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 0; /* divider at top edge of each section */
+      width: min(92%, 1200px);
+      height: 2px;
+      border-radius: 999px;
+      opacity: 0.9;
+      pointer-events: none;
+    }
+    /* Gold/Red glow */
+    .section-divider-gold::before {
+      background: linear-gradient(90deg, transparent 0%, rgba(212, 78, 55, 0.705) 15%, rgba(212, 63, 55, 0.665) 50%, rgba(212, 78, 55, 0.716) 85%, transparent 100%);
+      box-shadow:
+        0 0 25px rgba(212, 78, 55, 0.261),
+        0 0 50px rgba(212, 63, 55, 0.2),
+        0 0 75px rgba(212, 71, 55, 0.15);
+    }
+    /* Platinum glow */
+    .section-divider-platinum::before {
+      background: linear-gradient(90deg, transparent 0%, rgba(229, 228, 226, 0.9) 15%, rgba(229, 228, 226, 1) 50%, rgba(229, 228, 226, 0.9) 85%, transparent 100%);
+      box-shadow:
+        0 0 25px rgba(229, 228, 226, 0.35),
+        0 0 50px rgba(229, 228, 226, 0.2),
+        0 0 75px rgba(229, 228, 226, 0.15);
+    }
+    /* Carbon subtle ice glow for hero */
+    .section-divider-carbon::before {
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.35) 15%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.35) 85%, transparent 100%);
+      box-shadow:
+        0 0 25px rgba(255,255,255,0.18),
+        0 0 50px rgba(255,255,255,0.12),
+        0 0 75px rgba(255,255,255,0.08);
+    }
+
+    /* Packages Section */
+    .packages {
+      padding: 60px 20px;
+      text-align: center;
+    }
+
+    .package-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Keep card + overview stacked within the same column */
+    .package-group {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .package-card {
+      background: color-mix(in srgb, var(--bg-dark) 95%, #000);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 8px 24px var(--shadow-glow), 0 4px 12px var(--shadow-depth);
+      transition: transform 0.3s ease;
+    }
+
+    .package-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 32px var(--shadow-glow), 0 6px 16px var(--shadow-depth);
+    }
+
+    .package-media {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16/9;
+      min-height: 200px;
+      overflow: hidden;
+      border-radius: 5px;
+      margin-bottom: 12px;
+    }
+
+    .package-image {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    /* Normalize inner spacing to keep padding consistent across rows */
+    .package-card p { margin: 0; }
+    .package-card h3 { margin: 0; }
+
+    /* Features Section */
+    .features {
+      padding: 40px 16px 96px; /* more bottom padding to avoid FAB/footer overlap */
+    }
+
+    @media (min-width: 768px) {
+      .features { padding: 60px 20px 80px; }
+    }
+
+    .features-bg {
+      background: url('/images/backgrounds/bg-asphalt-overlay.webp') no-repeat center/cover; /* Editable: Change image */
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .feature-item {
+      text-align: center;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      box-shadow: 0 4px 12px var(--shadow-depth);
+    }
+
+    .feature-image {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+      margin-bottom: 10px;
+    }
+  </style>
+
+  <script>
+    // Desktop-only tilt effect (no parallax on tablet/mobile). Cleaner on iPad.
+    document.addEventListener('DOMContentLoaded', function () {
+      var mqDesktop = window.matchMedia('(min-width: 1024px)');
+      var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+      var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+      function enabled() { return mqDesktop.matches && finePointer.matches && !reduceMotion.matches; }
+
+      /** @param {HTMLElement} section */
+      function bindTilt(section: HTMLElement) {
+        var bg = section.querySelector('.background-layer');
+        var mid = section.querySelector('.midground-layer');
+        /** @param {MouseEvent} e */
+        var onMove = function (e: MouseEvent) {
+          var r = section.getBoundingClientRect();
+          var px = (e.clientX - r.left) / Math.max(r.width, 1) - 0.5; // -0.5..0.5
+          var py = (e.clientY - r.top) / Math.max(r.height, 1) - 0.5;
+          var midTx = Math.round(-px * 16);
+          var midTy = Math.round(-py * 10);
+          var bgTx = Math.round(px * 8);
+          var bgTy = Math.round(py * 6);
+          if (mid) (mid as HTMLElement).style.transform = 'translate3d(' + midTx + 'px,' + midTy + 'px,0) rotateX(' + (py*2) + 'deg) rotateY(' + (px*2) + 'deg)';
+          if (bg) (bg as HTMLElement).style.transform = 'translate3d(' + bgTx + 'px,' + bgTy + 'px,0)';
+        };
+        var onLeave = function () {
+          if (mid) (mid as HTMLElement).style.transform = '';
+          if (bg) (bg as HTMLElement).style.transform = '';
+        };
+        (section as HTMLElement & { __tiltHandlers?: any }).__tiltHandlers = { onMove: onMove, onLeave: onLeave };
+        section.addEventListener('mousemove', onMove);
+        section.addEventListener('mouseleave', onLeave);
+      }
+
+      /** @param {HTMLElement} section */
+      function unbindTilt(section: HTMLElement) {
+        const s = section as HTMLElement & { [key: string]: any };
+        if (!s.__tiltHandlers) return;
+        section.removeEventListener('mousemove', s.__tiltHandlers.onMove);
+        section.removeEventListener('mouseleave', s.__tiltHandlers.onLeave);
+        var mid = section.querySelector('.midground-layer');
+        var bg = section.querySelector('.background-layer');
+        if (mid) (mid as HTMLElement).style.transform = '';
+        if (bg) (bg as HTMLElement).style.transform = '';
+        delete s.__tiltHandlers;
+      }
+
+      var sections = Array.prototype.slice.call(document.querySelectorAll('.parallax-section'));
+
+      function refresh() {
+        sections.forEach(function (s) {
+          if (enabled()) {
+            if (!s.__tiltHandlers) bindTilt(s);
+          } else {
+            unbindTilt(s);
+          }
+        });
+      }
+
+      mqDesktop.addEventListener('change', refresh);
+      finePointer.addEventListener('change', refresh);
+      reduceMotion.addEventListener('change', refresh);
+      window.addEventListener('orientationchange', refresh);
+      window.addEventListener('resize', refresh, { passive: true });
+      refresh();
+    });
+  </script>
+
+</BaseLayout>

@@ -1,24 +1,10 @@
 import { sanityFetch } from '@/lib/sanityFetch';
-import { jwtVerify, createRemoteJWKSet } from 'jose';
-
-const AUTH0_DOMAIN = import.meta.env.AUTH0_DOMAIN;
-const AUTH0_CLIENT_ID = import.meta.env.AUTH0_CLIENT_ID;
-const JWKS = createRemoteJWKSet(new URL(`https://${AUTH0_DOMAIN}/.well-known/jwks.json`));
+import { readSession } from '../../server/auth/session';
 
 export async function GET({ request }: { request: Request }): Promise<Response> {
-  const authHeader = request.headers.get('authorization');
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return new Response(JSON.stringify({ error: 'Missing or invalid authorization header' }), {
-      status: 401
-    });
-  }
-  const token = authHeader.split(' ')[1];
-  const { payload } = await jwtVerify(token, JWKS, {
-    issuer: `https://${AUTH0_DOMAIN}/`,
-    audience: AUTH0_CLIENT_ID
-  });
-  if (typeof payload.email !== 'string') {
-    return new Response(JSON.stringify({ error: 'Invalid token payload' }), { status: 401 });
+  const { session } = await readSession(request);
+  if (!session?.user?.email) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
   }
 
   console.log('🧪 VEHICLE API DEBUG →', {

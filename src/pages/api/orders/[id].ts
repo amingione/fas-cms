@@ -1,7 +1,7 @@
 // /src/pages/api/orders/[id].ts (Astro API route)
 import type { APIRoute } from 'astro';
 import { createClient } from '@sanity/client';
-import { jwtVerify, createRemoteJWKSet } from 'jose';
+import { readSession } from '../../../server/auth/session';
 
 const cors = {
   'access-control-allow-origin': '*',
@@ -25,32 +25,10 @@ const client = createClient({
   useCdn: false
 });
 
-function getBearer(req: Request): string | null {
-  const auth = req.headers.get('authorization') || '';
-  return auth.toLowerCase().startsWith('bearer ') ? auth.slice(7).trim() : null;
-}
-
-async function verifyAuth(req: Request) {
-  const AUTH0_DOMAIN =
-    (import.meta.env.PUBLIC_AUTH0_DOMAIN as string | undefined) ||
-    (import.meta.env.AUTH0_DOMAIN as string | undefined);
-  const AUTH0_CLIENT_ID =
-    (import.meta.env.PUBLIC_AUTH0_CLIENT_ID as string | undefined) ||
-    (import.meta.env.AUTH0_CLIENT_ID as string | undefined);
-
-  const token = getBearer(req);
-  if (!token || !AUTH0_DOMAIN || !AUTH0_CLIENT_ID) return null;
-  try {
-    const JWKS = createRemoteJWKSet(new URL(`https://${AUTH0_DOMAIN}/.well-known/jwks.json`));
-    const { payload } = await jwtVerify(token, JWKS, {
-      issuer: `https://${AUTH0_DOMAIN}/`,
-      audience: AUTH0_CLIENT_ID
-    });
-    return payload;
-  } catch (err) {
-    console.error('JWT verification failed:', err);
-    return null;
-  }
+async function requireSessionEmail(req: Request): Promise<string | null> {
+  const { session } = await readSession(req);
+  const email = (session?.user?.email as string | undefined) || '';
+  return email ? email.toLowerCase() : null;
 }
 
 export const OPTIONS: APIRoute = async () => new Response(null, { status: 204, headers: cors });
@@ -60,12 +38,10 @@ export const GET: APIRoute = async ({ request, params }) => {
     const id = params.id as string | undefined;
     if (!id) return new Response(JSON.stringify({ message: 'Missing order ID' }), { status: 400, headers: { ...cors, 'content-type': 'application/json' } });
 
-    const user = await verifyAuth(request);
-    if (!user || typeof (user as any).email !== 'string') {
+    const email = await requireSessionEmail(request);
+    if (!email) {
       return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: { ...cors, 'content-type': 'application/json' } });
     }
-
-    const email = (user as any).email as string;
     const order = await client.fetch(
       `*[_type == "order" && _id == $id && customer->email == $email][0]`,
       { id, email }
@@ -93,11 +69,10 @@ export const PATCH: APIRoute = async ({ request, params }) => {
     const id = params.id as string | undefined;
     if (!id) return new Response(JSON.stringify({ message: 'Missing order ID' }), { status: 400, headers: { ...cors, 'content-type': 'application/json' } });
 
-    const user = await verifyAuth(request);
-    if (!user || typeof (user as any).email !== 'string') {
+    const email = await requireSessionEmail(request);
+    if (!email) {
       return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: { ...cors, 'content-type': 'application/json' } });
     }
-    const email = (user as any).email as string;
 
     const existing = await client.fetch(
       `*[_type == "order" && _id == $id && customer->email == $email][0]`,

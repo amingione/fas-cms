@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Stripe from 'stripe';
 import { z } from 'zod';
-import { jwtVerify, createRemoteJWKSet } from 'jose';
+import { readSession } from '../../server/auth/session';
 import type { z as ZodNamespace } from 'zod';
 
 type CartItem = ZodNamespace.infer<typeof CartItemSchema>;
@@ -35,9 +35,6 @@ const stripeClient = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2024-06-20'
 });
 
-const AUTH0_DOMAIN = import.meta.env.AUTH0_DOMAIN;
-const AUTH0_CLIENT_ID = import.meta.env.AUTH0_CLIENT_ID;
-const JWKS = createRemoteJWKSet(new URL(`https://${AUTH0_DOMAIN}/.well-known/jwks.json`));
 
 const CartItemSchema = z.object({
   id: z.string(),
@@ -52,22 +49,10 @@ export const POST = async ({ request }: { request: Request }) => {
   try {
     const body = (await request.json()) as SaveOrderBody;
 
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return new Response(JSON.stringify({ error: 'Missing or invalid authorization header' }), {
-        status: 401
-      });
-    }
-
-    const token = authHeader.split(' ')[1];
-    const { payload } = await jwtVerify(token, JWKS, {
-      issuer: `https://${AUTH0_DOMAIN}/`,
-      audience: AUTH0_CLIENT_ID
-    });
-
-    const customerEmail = payload?.email;
+    const { session } = await readSession(request);
+    const customerEmail = session?.user?.email;
     if (typeof customerEmail !== 'string') {
-      return new Response(JSON.stringify({ error: 'Email not found in token' }), { status: 400 });
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
     }
 
     const { sessionId, cart } = body;

@@ -1,0 +1,60 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { AuthProvider } from '../../components/AuthProvider.jsx';
+import RequireLogin from '../../components/RequireLogin.jsx';
+---
+<AuthProvider client:load>
+  <RequireLogin client:load>
+    <BaseLayout hideBrandTag>
+      <section class="orders-section mx-auto mt-20 pt-20 text-white p-6">
+        <h1 class="text-3xl font-borg mb-4">Your Orders</h1>
+        <div id="orders-root" class="space-y-4">
+          <p>Loading...</p>
+        </div>
+        <!-- Order Support Form (Netlify Forms) -->
+        <div class="mt-10">
+          <h2 class="text-2xl font-ethno mb-3">Order Support</h2>
+          <form
+            id="order-support-form"
+            name="order-support"
+            method="POST"
+            data-netlify="true"
+            netlify-honeypot="bot-field"
+            action="/orders/support/success"
+            class="space-y-4 rounded-lg border border-white/20 bg-black/50 p-6 shadow-md"
+          >
+            <input type="hidden" name="form-name" value="order-support" />
+            <p class="hidden"><label>Don’t fill this out if you’re human: <input name="bot-field" /></label></p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm mb-1" for="orderId">Order ID</label>
+                <input id="orderId" name="orderId" type="text" class="w-full rounded bg-white/5 border border-white/15 p-2" />
+              </div>
+              <div>
+                <label class="block text-sm mb-1" for="email_order">Email</label>
+                <input id="email_order" name="email" type="email" required class="w-full rounded bg-white/5 border border-white/15 p-2" />
+              </div>
+              <div class="md:col-span-2">
+                <label class="block text-sm mb-1" for="subject">Subject</label>
+                <select id="subject" name="subject" class="w-full rounded bg-white/5 border border-white/15 p-2">
+                  <option value="question">Question about my order</option>
+                  <option value="update">Update shipping/address</option>
+                  <option value="cancel">Cancel order</option>
+                  <option value="return">Return or exchange</option>
+                </select>
+              </div>
+              <div class="md:col-span-2">
+                <label class="block text-sm mb-1" for="message">Message</label>
+                <textarea id="message" name="message" rows="4" class="w-full rounded bg-white/5 border border-white/15 p-2"></textarea>
+              </div>
+            </div>
+            <div class="mt-2" data-netlify-recaptcha="true"></div>
+            <button type="submit" class="rounded bg-primary px-4 py-2 text-accent hover:bg-primary/90">Send</button>
+          </form>
+        </div>
+      </section>
+
+      <script type="module">import '../../scripts/user-orders-page.ts';</script>
+    </BaseLayout>
+  </RequireLogin>
+</AuthProvider>

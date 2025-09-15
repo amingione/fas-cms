@@ -1,0 +1,45 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
+import SectionRenderer from '@/components/SectionRenderer.astro';
+import ProductSpecSheet from '@components/specs/ProductSpecSheet.astro';
+
+// Backed by content/pages/BilletLidSpecsSheet.json for Visual Editor support
+const pageDoc: any = await getGitPageDoc('BilletLidSpecsSheet');
+---
+
+<BaseLayout>
+  <div {...sbObjectId('content/pages/BilletLidSpecsSheet.json')}>
+    <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>
+      {pageDoc?.title ?? 'Billet Supercharger Lid — Spec Sheet'}
+    </div>
+
+    {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
+      <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
+    )}
+
+    <section class="mt-5 pt-5">
+      <ProductSpecSheet
+        title={pageDoc?.title ?? 'Billet Supercharger Lid — Spec Sheet'}
+        description="CNC‑machined billet lid engineered for strength, improved airflow, and thermal stability under sustained boost."
+        imageSrc="/images/billetParts/HC-Billet-SC-Lid.png"
+        imageAlt="FAS Motorsports Billet Supercharger Lid"
+        specs={[
+          { label: 'Material', value: '6061‑T6 billet aluminum, heat treated' },
+          { label: 'Machining', value: '5‑axis CNC, one‑setup critical faces for alignment' },
+          { label: 'Inlet Geometry', value: 'High‑flow, blended transitions to reduce turbulence' },
+          { label: 'Sealing', value: 'OE‑spec sealing surfaces; gasket compatibility maintained' },
+          { label: 'Finish', value: 'Anodized for corrosion resistance and heat management' },
+          { label: 'Compatibility', value: 'Gen III HEMI supercharged platforms; verify fitment per application' }
+        ]}
+        about={[
+          'The billet lid increases rigidity to help maintain rotor pack alignment during high belt loads, reducing distortion and improving long‑term reliability.',
+          'Flow‑optimized internal geometry supports consistent inlet conditions for more repeatable boost and response.',
+          'Direct‑fit design targets OE interfaces for a clean install while supporting high‑performance builds.'
+        ]}
+        ctaHref="/shop?filters=billet%20lid"
+        ctaLabel="View Billet Supercharger Lid"
+      />
+    </section>
+  </div>
+</BaseLayout>

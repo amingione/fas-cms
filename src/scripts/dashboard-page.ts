@@ -1,4 +1,4 @@
-import { getAuth0Client } from '@lib/auth';
+// Uses window.fasAuth provided by /public/fas-auth.js
 
 // Track the current view so we can re-render on breakpoint changes
 let currentView: string = 'dashboard';
@@ -67,16 +67,15 @@ function setActiveNav(view?: string | null) {
 
     // Removed pre-rendered login CTA to avoid flicker/duplication
 
-    const auth0 = await getAuth0Client();
-    (window as any)._auth0 = auth0; // expose for devtools
+    const fas = (window as any).fasAuth;
     (window as any)._getVisibleDashContent = getVisibleDashContent;
     (window as any)._setName = setName;
-    console.log('✅ auth0 client initialized and exposed to window');
+    console.log('✅ fas-auth ready');
 
     // Require login (with timeout & desktop-friendly fallback)
     let authed = false;
     try {
-      authed = await withTimeout(auth0.isAuthenticated(), 4000);
+      authed = await withTimeout(fas?.isAuthenticated?.(), 4000);
     } catch {
       authed = false;
     }
@@ -86,21 +85,14 @@ function setActiveNav(view?: string | null) {
       c.innerHTML = `
         <div class="space-y-3">
           <p class="opacity-90">You're not signed in.</p>
-          <a id="dash-login" href="/.netlify/functions/auth-login?returnTo=%2Fdashboard" class="inline-block px-4 py-2 bg-primary text-accent font-ethno rounded">Log in</a>
-          <a id="dash-signup" href="/.netlify/functions/auth-login?returnTo=%2Fdashboard" class="inline-block px-4 py-2 border border-white/20 font-ethno rounded">Sign up</a>
+          <a id="dash-login" href="/account" class="inline-block px-4 py-2 bg-primary text-accent font-ethno rounded">Log in</a>
         </div>`;
-      const go = (e?: Event) => {
-        e?.preventDefault?.();
-        window.location.href = '/.netlify/functions/auth-login?returnTo=%2Fdashboard';
-      };
-      document.getElementById('dash-login')?.addEventListener('click', go);
-      document.getElementById('dash-signup')?.addEventListener('click', go);
       return;
     }
 
     // Authenticated path
-    const user = await auth0.getUser();
-    const email = (user as any)?.email || '';
+    const session = await (fas?.getSession?.() || Promise.resolve(null));
+    const email = (session?.user?.email as string) || '';
     if (email) {
       try {
         localStorage.setItem('customerEmail', email);
@@ -269,13 +261,9 @@ function setActiveNav(view?: string | null) {
     async function renderOrders() {
       setLoading();
       try {
-        const claims: any = await auth0.getIdTokenClaims().catch(() => null);
-        const token = claims?.__raw as string | undefined;
         const items: any[] = await fetchJSON(
           `/api/get-user-order?email=${encodeURIComponent(email)}`,
-          {
-            headers: token ? { authorization: `Bearer ${token}` } : {}
-          },
+          {},
           5000
         ).catch(() => []);
         if (!Array.isArray(items) || !items.length) return renderEmpty('orders');
@@ -303,13 +291,9 @@ function setActiveNav(view?: string | null) {
     async function renderQuotes() {
       setLoading();
       try {
-        const claims: any = await auth0.getIdTokenClaims().catch(() => null);
-        const token = claims?.__raw as string | undefined;
         const items: any[] = await fetchJSON(
           `/api/get-user-quotes?email=${encodeURIComponent(email)}`,
-          {
-            headers: token ? { authorization: `Bearer ${token}` } : {}
-          },
+          {},
           5000
         ).catch(() => []);
         if (!Array.isArray(items) || !items.length) return renderEmpty('quotes');
@@ -336,13 +320,9 @@ function setActiveNav(view?: string | null) {
     async function renderInvoices() {
       setLoading();
       try {
-        const claims: any = await auth0.getIdTokenClaims().catch(() => null);
-        const token = claims?.__raw as string | undefined;
         const items: any[] = await fetchJSON(
           `/api/get-user-invoices?email=${encodeURIComponent(email)}`,
-          {
-            headers: token ? { authorization: `Bearer ${token}` } : {}
-          },
+          {},
           5000
         ).catch(() => []);
         if (!Array.isArray(items) || !items.length) return renderEmpty('invoices');
@@ -470,15 +450,8 @@ function setActiveNav(view?: string | null) {
         c.innerHTML = `
           <div class="space-y-3">
             <p class="opacity-90">You're not signed in.</p>
-            <a id="dash-login" href="/.netlify/functions/auth-login?returnTo=%2Fdashboard" class="inline-block px-4 py-2 bg-primary text-accent font-ethno rounded">Log in</a>
-            <a id="dash-signup" href="/.netlify/functions/auth-login?returnTo=%2Fdashboard" class="inline-block px-4 py-2 border border-white/20 font-ethno rounded">Sign up</a>
+            <a id="dash-login" href="/account" class="inline-block px-4 py-2 bg-primary text-accent font-ethno rounded">Log in</a>
           </div>`;
-        const go = (e?: Event) => {
-          e?.preventDefault?.();
-          window.location.href = '/.netlify/functions/auth-login?returnTo=%2Fdashboard';
-        };
-        document.getElementById('dash-login')?.addEventListener('click', go);
-        document.getElementById('dash-signup')?.addEventListener('click', go);
       }
     } catch {}
   }
@@ -494,7 +467,7 @@ function logout() {
       return fx.logout(location.origin + '/account');
     }
   } catch {}
-  window.location.href = '/.netlify/functions/auth-logout';
+  window.location.href = '/api/auth/logout';
 }
 document.querySelectorAll('.logout-link').forEach((el) => {
   el.addEventListener('click', (e) => {

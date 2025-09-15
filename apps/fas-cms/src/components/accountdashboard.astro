@@ -1,0 +1,84 @@
+---
+
+---
+<div class="w-full h-full">
+  <aside
+    id="accountDashboard"
+    class="w-full h-full font-ethno text-white text-xs pt-0 px-4 space-y-4"
+  >
+    <nav class="flex flex-col space-y-2 font-ethno text-base font-semibold">
+      <button
+        id="loginLink"
+        type="button"
+        class="mt-4 text-red-500 hover:text-white transition-colors hidden focus:outline-none focus:ring-1 focus:ring-red-400 rounded px-3 py-1 text-sm"
+      >
+        Login
+      </button>
+      <button
+        id="logoutLink"
+        type="button"
+        class="mt-4 text-red-500 hover:text-white transition-colors hidden focus:outline-none focus:ring-1 focus:ring-red-400 rounded px-3 py-1 text-sm"
+      >
+        Logout
+      </button>
+      <a href="/dashboard" class="hover:text-primary font-semibold font-kwajong transition-colors text-sm">My Account</a>
+    </nav>
+    <div class="mt-6 border-t border-gray-800 pt-3">
+      <h3 class="text-[10px] uppercase tracking-wider font-semibold text-white/70 mb-1">Vendor Access</h3>
+      <nav class="flex flex-col space-y-1 text-xs font-kwajong">
+        <a href="https://fasmotorsports.io/sign-in" class="text-blue-400 hover:text-white transition leading-tight">Vendor Login</a>
+        <a href="https://fasmotorsports.io/vendor/apply" class="text-blue-400 hover:text-white transition leading-tight">New Dealer Application</a>
+      </nav>
+    </div>
+    <div class="mt-6 border-t border-gray-800 pt-3 text-[0.95rem] font-mono">
+      <p class="mb-1 text-white/70 text-xs uppercase tracking-wide">Need help?</p>
+      <div class="flex items-center space-x-2 mb-1 leading-tight">
+        <span class="text-[11px] font-mono text-white/70 break-all">support@fasmotorsports.com</span>
+      </div>
+      <div class="flex items-center space-x-2 leading-tight">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-white/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h1.5a2 2 0 011.8 1.2l1.2 2.8a2 2 0 01-.45 2.2l-1.1 1.1a16 16 0 006.6 6.6l1.1-1.1a2 2 0 012.2-.45l2.8 1.2a2 2 0 011.2 1.8V19a2 2 0 01-2 2h-1C9.4 21 3 14.6 3 7V6a2 2 0 012-2z"/>
+        </svg>
+        <span class="text-[11px] font-mono text-white/70">(812) 200-9012</span>
+      </div>
+    </div>
+  </aside>
+</div>
+<script>
+  // Minimal, import-free behavior powered by global fasAuth
+  window.addEventListener('DOMContentLoaded', async () => {
+    const loginLink = document.getElementById('loginLink');
+    const logoutLink = document.getElementById('logoutLink');
+
+    const showLogin = () => {
+      loginLink?.classList.remove('hidden');
+      logoutLink?.classList.add('hidden');
+    };
+    const showLogout = () => {
+      logoutLink?.classList.remove('hidden');
+      loginLink?.classList.add('hidden');
+    };
+
+    try {
+      const fas = window.fasAuth;
+      if (!fas) {
+        showLogin();
+      } else {
+        const authed = await fas.isAuthenticated();
+        authed ? showLogout() : showLogin();
+
+        loginLink?.addEventListener('click', async (e) => {
+          e.preventDefault();
+          try { await fas.loginTo('/dashboard'); } catch { window.location.href = '/account'; }
+        });
+        logoutLink?.addEventListener('click', async (e) => {
+          e.preventDefault();
+          try { await fas.logout(window.location.origin); } catch { window.location.href = '/account?logout=1'; }
+        });
+      }
+    } catch (err) {
+      console.warn('[accountdashboard] init failed', err);
+      showLogin();
+    }
+  });
+  </script>

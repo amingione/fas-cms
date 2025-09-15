@@ -1,0 +1,98 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+const title = 'Vendor Login';
+---
+
+<BaseLayout title={title}>
+  <div
+    class="min-h-screen flex items-center justify-center"
+    style="background-image: url('/images/pages BR.png')"
+  >
+    <div class="bg-black p-6 rounded-lg shadow-lg border border-white max-w-md w-full text-center">
+      <div class="mb-6">
+        <img
+          src="/images/RedFASChromeLogo.png"
+          alt="FAS Motorsports Logo"
+          width="100"
+          height="100"
+          class="mx-auto"
+        />
+      </div>
+      <h1 class="text-4xl font-bold font-orbitron text-red-600 mb-6 uppercase">
+        Vendor Login
+      </h1>
+      <form id="vendorLoginForm" class="space-y-4">
+        <div>
+          <label class="block text-white font-bold mb-2" for="vendorEmail">
+            Email
+          </label>
+          <input
+            id="vendorEmail"
+            name="email"
+            type="email"
+            placeholder="Email"
+            class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-red-600"
+            required
+          />
+        </div>
+        <div>
+          <label class="block text-white font-bold mb-2" for="vendorPassword">
+            Password
+          </label>
+          <input
+            id="vendorPassword"
+            name="password"
+            type="password"
+            placeholder="Password"
+            class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-red-600"
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          class="w-full bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 transition duration-200 font-bold uppercase tracking-wide"
+        >
+          Login
+        </button>
+        <p id="vendorLoginError" class="text-red-500 text-center mt-4 hidden"></p>
+      </form>
+      <div class="text-center mt-6 text-white text-sm">
+        <p>
+          Not a vendor?{' '}
+          <a href="/vendor/apply" class="text-yellow-300 hover:underline">
+            Apply here.
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('vendorLoginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('vendorEmail').value;
+      const password = document.getElementById('vendorPassword').value;
+      const errorEl = document.getElementById('vendorLoginError');
+      errorEl.classList.add('hidden');
+      try {
+        const res = await fetch('/api/vendor/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          // Store the vendor token for subsequent requests
+          localStorage.setItem('vendorToken', data.token);
+          window.location.href = '/vendor/dashboard';
+        } else {
+          errorEl.textContent = data.message || 'Login failed';
+          errorEl.classList.remove('hidden');
+        }
+      } catch (err) {
+        errorEl.textContent = 'Failed to connect to server';
+        errorEl.classList.remove('hidden');
+      }
+    });
+  </script>
+</BaseLayout>

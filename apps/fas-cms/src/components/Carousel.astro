@@ -1,0 +1,130 @@
+---
+/* Carousel.astro - Reusable Smooth Scroll Carousel Component for Astro */
+---
+
+<div class="carousel-container">
+  <div class="carousel-wrapper">
+    <slot /> <!-- Place your slide elements here, each with class="slide" -->
+  </div>
+</div>
+
+<style>
+  .carousel-container {
+    position: relative;
+    width: 100%; /* Full width, adjustable via parent */
+    height: 400px; /* Adjustable height */
+    margin: 0 auto;
+    background-color: #1a1a1a; /* Dark background */
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); /* Sleek shadow */
+    cursor: grab; /* Indicates draggable */
+  }
+
+  .carousel-wrapper {
+    display: flex;
+    width: fit-content; /* Allows all slides to fit */
+    height: 100%;
+    transition: transform 0.1s ease-out; /* Smooth movement */
+    user-select: none; /* Prevent text selection while dragging */
+  }
+
+  :global(.slide) {
+    flex: 0 0 80%; /* Adjustable slide width (80% of container) */
+    height: 100%;
+    background-color: #333; /* Dark slide background */
+    color: #fff; /* Light text */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.7); /* Depth shadow */
+    margin: 0 10px; /* Spacing between slides */
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const container = document.querySelector('.carousel-container');
+    const wrapper = document.querySelector('.carousel-wrapper');
+    if (!(container instanceof HTMLElement) || !(wrapper instanceof HTMLElement)) return;
+
+    let isDragging = false;
+    let startPos = 0;
+    let currentTranslate = 0;
+    let prevTranslate = 0;
+    let animationId: number | null = null; // number | null
+
+    const startDragging = (e: MouseEvent | TouchEvent) => {
+      isDragging = true;
+      container.style.cursor = 'grabbing';
+      startPos = getPositionX(e);
+      animationId = null;
+      prevTranslate = currentTranslate;
+    };
+
+    const drag = (e: MouseEvent | TouchEvent) => {
+      if (!isDragging) return;
+      const currentPosition = getPositionX(e);
+      const diff = currentPosition - startPos;
+      currentTranslate = prevTranslate + diff;
+      setTransform(currentTranslate);
+    };
+
+    const stopDragging = () => {
+      isDragging = false;
+      container.style.cursor = 'grab';
+    };
+
+    const getPositionX = (e: MouseEvent | TouchEvent) => {
+      if (e && 'touches' in e) {
+        return (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+      }
+      return e && e.clientX != null ? e.clientX : 0;
+    };
+
+    const setTransform = (translateX: number) => {
+      wrapper.style.transform = `translateX(${translateX}px)`;
+    };
+
+    // Mouse/Touch Event Handlers
+    container.addEventListener('mousedown', startDragging);
+    container.addEventListener('touchstart', startDragging, { passive: true });
+    container.addEventListener('mouseup', stopDragging);
+    container.addEventListener('touchend', stopDragging);
+    container.addEventListener('mouseleave', stopDragging);
+    container.addEventListener('touchcancel', stopDragging);
+    container.addEventListener('mousemove', drag);
+    container.addEventListener('touchmove', drag, { passive: true });
+
+    // Optional: Add momentum (smooth stop)
+    container.addEventListener('mouseup', () => {
+      if (isDragging) return;
+      let momentum = 0;
+      const startTime = Date.now();
+      const animate = () => {
+        const elapsed = Date.now() - startTime;
+        if (elapsed < 500) { // Momentum duration
+          currentTranslate += momentum * (1 - elapsed / 500);
+          setTransform(currentTranslate);
+          animationId = requestAnimationFrame(animate);
+        } else if (animationId !== null) {
+          cancelAnimationFrame(animationId);
+        }
+      };
+      animationId = requestAnimationFrame(animate);
+    });
+
+    // Prevent overscroll & support wheel-based scrolling
+    wrapper.addEventListener(
+      'wheel',
+      (e) => {
+        e.preventDefault();
+        const dy = typeof e.deltaY === 'number' ? e.deltaY : 0;
+        currentTranslate += dy * -1; // Scroll with mouse wheel
+        setTransform(currentTranslate);
+      },
+      { passive: false }
+    );
+  });
+</script>

@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { getAuth0Client } from '@/lib/auth';
 
 export default function HeaderAuth() {
   useEffect(() => {
@@ -7,22 +6,19 @@ export default function HeaderAuth() {
       const badge = document.getElementById('account-top-badge');
       if (!badge) return;
       try {
-        const auth0 = await getAuth0Client();
-        const authed = await auth0.isAuthenticated();
+        const fas = (window as any).fasAuth;
+        const authed = fas ? await fas.isAuthenticated() : false;
         if (!authed) {
-          // Use serverless login to avoid client bundling issues; callback sets cookie + redirects
-          badge.innerHTML = `<a href="/.netlify/functions/auth-login" class="hover:!text-accent hover:underline">Sign in</a>`;
+          badge.innerHTML = `<a href="/account" class="hover:!text-accent hover:underline">Sign in</a>`;
           return;
         }
-        const user = await auth0.getUser();
-        const name =
-          (user as any)?.given_name || (user as any)?.name || (user as any)?.email || 'there';
+        const session = fas ? await fas.getSession() : null;
+        const name = session?.user?.name || session?.user?.email || 'there';
         badge.innerHTML = `
           <span class="hidden sm:inline mr-3">Hello, ${name}</span>
           <a href="/dashboard" class="hover:!text-accent hover:underline">My Account</a>
         `;
       } catch (e) {
-        // Fallback link
         badge.innerHTML = `<a href="/account" class="hover:!text-accent hover:underline">Sign in</a>`;
       }
     };

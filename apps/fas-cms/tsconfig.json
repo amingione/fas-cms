@@ -1,0 +1,53 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "types": [
+      "astro/client",
+      "vite/client",
+      "node"
+    ],
+    "module": "es2020",
+    "target": "es2015",
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ],
+      "@components/*": [
+        "src/components/*"
+      ],
+      "@layouts/*": [
+        "src/layouts/*"
+      ],
+      "@pages/*": [
+        "src/pages/*"
+      ],
+      "@lib/*": [
+        "src/lib/*"
+      ]
+    },
+    "esModuleInterop": true,
+    "strict": true,
+    "allowJs": true,
+    "checkJs": false,
+    "resolveJsonModule": true,
+    "moduleResolution": "bundler",
+    "skipLibCheck": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
+  },
+  "include": [
+    "src/**/*",
+    "*.astro",
+    "**/*.ts",
+    "**/*.tsx",
+    "netlify/functions/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/dev/LegacySanityQuery.js",
+    "stackbit.config.ts"
+  ]
+}

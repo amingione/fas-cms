@@ -1,0 +1,39 @@
+---
+// src/pages/account/index.astro
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+// Let the client-side Auth0 SDK handle code/state on /account via account-auth.ts
+// Do NOT intercept here; mixing server and SPA redirects can cause loops.
+
+// Basic login state: look for session or token cookie
+const cookie = Astro.request.headers.get('cookie') || '';
+const readCookie = (name: string) => {
+  const m = new RegExp(`(?:^|;\\s*)${name}=([^;]+)`).exec(cookie);
+  return m?.[1] || null;
+};
+const isLoggedIn = Boolean(readCookie('session') || readCookie('token'));
+---
+
+<BaseLayout hideBrandTag={true}>
+  <main class="relative text-white p-8">
+    {isLoggedIn ? (
+      <section class="max-w-xl">
+        <h1 class="text-2xl font-ethno text-primary mb-2">Account</h1>
+        <p class="mb-4">You are signed in.</p>
+        <div class="flex gap-3">
+          <a href="/dashboard" class="px-4 py-2 rounded bg-primary text-accent font-ethno">Go to Dashboard</a>
+          <a href="/.netlify/functions/auth-logout" class="px-4 py-2 rounded border border-white/30 font-ethno">Logout</a>
+        </div>
+      </section>
+    ) : (
+      <section class="max-w-xl">
+        <h1 class="text-2xl font-ethno text-primary mb-2">Account</h1>
+        <p class="mb-4">Log in or create an account to access your dashboard.</p>
+        <div class="flex gap-3">
+          <a href="/.netlify/functions/auth-login?returnTo=%2Fdashboard" class="px-4 py-2 rounded bg-primary text-accent font-ethno">Sign in</a>
+          <a href="/.netlify/functions/auth-login?returnTo=%2Fdashboard" class="px-4 py-2 rounded border border-white/30 font-ethno">Sign up</a>
+        </div>
+      </section>
+    )}
+  </main>
+</BaseLayout>

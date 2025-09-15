@@ -1,0 +1,80 @@
+---
+export interface SpecItem {
+  label: string;
+  value: string;
+}
+
+export interface Props {
+  title: string;
+  description: string;
+  imageSrc: string;
+  imageAlt: string;
+  specs: SpecItem[];
+  about: string[];
+  ctaHref?: string;
+  ctaLabel?: string;
+}
+
+const { title, description, imageSrc, imageAlt, specs, about, ctaHref, ctaLabel } = Astro.props as Props;
+---
+
+<!-- Top banner with image/title grid (not a CTA) -->
+<section class="w-full border-b border-white/10">
+  <div class="mx-auto w-full max-w-7xl px-4 md:px-6 py-10 md:py-14">
+    <div class="grid md:grid-cols-2 gap-8 items-center">
+      <div class="order-2 md:order-1 min-w-0">
+        <h1 class="text-4xl md:text-5xl font-ethno text-accent mb-4">{title}</h1>
+        <p class="text-white/80 font-mono text-base md:text-xl leading-relaxed break-words">{description}</p>
+      </div>
+      <div class="order-1 md:order-2 min-w-0">
+          <div class="relative w-full h-full">
+            <div class="aspect-2/4 shadow-white/20 object-contain">
+              <img src={imageSrc} alt={imageAlt} class="relative z-10 h-full w-full object-contain md:object-cover object-center select-none pointer-events-none" loading="eager" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Content: Specs + About -->
+<section class="w-full bg-black/60">
+  <div class="mx-auto w-full max-w-7xl px-4 md:px-6 py-10 md:py-14 grid md:grid-cols-2 gap-10">
+    <!-- Technical Specifications (Spreadsheet-style grid) -->
+    <div class="min-w-0">
+      <h2 class="text-2xl md:text-3xl font-ethno text-accent mb-6">Technical Specifications</h2>
+      <div class="overflow-x-auto rounded-none border border-white/20 bg-black">
+        <table class="min-w-full table-auto border border-shadow-white/10 text-left text-sm">
+          <tbody>
+            {specs.map((s) => (
+              <tr class="border-b border-white/10">
+                <td class="px-3 py-2 align-top text-base whitespace-nowrap font-sans font-bold text-white/90 w-40 sm:w-56">{s.label}</td>
+                <td class="px-3 py-2 align-top text-white/75">{s.value}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- About the Product -->
+    <div class="min-w-0">
+      <h2 class="text-2xl md:text-3xl font-ethno text-accent mb-6">About the Product</h2>
+      <div class="space-y-4">
+        {about.map((p) => (
+          <p class="text-white/80 text-base leading-relaxed font-mono break-words">{p}</p>
+        ))}
+      </div>
+    </div>
+  </div>
+  {ctaHref && (
+    <div class="mx-auto w-full max-w-7xl px-4 md:px-6 pb-12 -mt-6">
+      <div class="flex justify-center">
+        <a href={ctaHref} class="btn-glass btn-outline px-6 py-3 rounded-full font-ethno">
+          {ctaLabel || 'View Product'}
+        </a>
+      </div>
+    </div>
+  )}
+</section>

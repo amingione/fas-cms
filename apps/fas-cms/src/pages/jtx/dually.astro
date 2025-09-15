@@ -1,0 +1,24 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import JtxHero from '@/components/jtx/JtxHero.astro';
+import JtxBreadcrumbs from '@/components/jtx/JtxBreadcrumbs.astro';
+import JtxSidebar from '@/components/jtx/JtxSidebar.astro';
+import JtxWheelSpecForm from '@/components/jtx/JtxWheelSpecForm';
+---
+<BaseLayout>
+  <JtxHero title="Dually Series — Quote Your Set" subtitle="Built for heavy-duty applications with tailored fitment options." />
+  <div class="mx-auto max-w-7xl px-6 py-6">
+    <JtxBreadcrumbs current="overview" />
+    <div class="grid md:grid-cols-[260px_1fr] gap-8">
+      <JtxSidebar current="dually" />
+      <main class="space-y-8">
+        <section class="prose prose-invert max-w-none">
+          <h2>Dually Series</h2>
+          <p>Series-specific information, specs, and imagery can go here.</p>
+        </section>
+        <JtxWheelSpecForm client:only="react" defaultSeries="Dually Series" pageContext="jtx-dually" />
+      </main>
+    </div>
+  </div>
+</BaseLayout>
+

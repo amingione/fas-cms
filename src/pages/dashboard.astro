@@ -1,21 +1,13 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 
-// Strip any stray OAuth code parameters from the URL (belt-and-suspenders)
-const reqUrl = new URL(Astro.request.url);
-if (reqUrl.searchParams.has('code') || reqUrl.searchParams.has('state')) {
-  return Astro.redirect('/dashboard');
-}
-
-// Simple auth guard: if no session or token cookie, redirect to /account
+// Simple auth guard: if no fas-auth session cookie, redirect to /account
 const cookie = Astro.request.headers.get('cookie') || '';
 const readCookie = (name: string) => {
   const m = new RegExp(`(?:^|;\\s*)${name}=([^;]+)`).exec(cookie);
   return m?.[1] || null;
 };
-const hasSession = Boolean(readCookie('session'));
-const hasToken = Boolean(readCookie('token'));
-const isLoggedIn = hasSession || hasToken;
+const isLoggedIn = Boolean(readCookie('fas_session'));
 if (!isLoggedIn) {
   return Astro.redirect('/account');
 }
@@ -75,7 +67,7 @@ if (!isLoggedIn) {
     <!-- Bottom-only auth action (mobile): single Logout button -->
     <div class="mt-10 pt-6 border-t border-white/10">
       {isLoggedIn && (
-        <a href="/.netlify/functions/auth-logout" class="logout-link inline-flex items-center gap-2 px-3 py-2 rounded bg-white/80 border border-white/15 text-red-400">Logout</a>
+        <a href="/api/auth/logout" class="logout-link inline-flex items-center gap-2 px-3 py-2 rounded bg-white/80 border border-white/15 text-red-400">Logout</a>
       )}
     </div>
   </main>
@@ -96,7 +88,7 @@ if (!isLoggedIn) {
         <a href="#" data-view="appointments" class="js-view px-3 py-2 rounded hover:bg-white/10">Appointments <span id="appts-count" class="ml-2 px-2 py-0.5 text-[10px] bg-red-600/80 rounded">0</span></a>
         <div class="mt-4 pt-3 border-t border-white/10"></div>
         {isLoggedIn ? (
-          <a href="/.netlify/functions/auth-logout" class="logout-link px-3 py-2 rounded text-red-500 hover:bg-white/10">Logout</a>
+          <a href="/api/auth/logout" class="logout-link px-3 py-2 rounded text-red-500 hover:bg-white/10">Logout</a>
         ) : (
           <a href="/account" class="px-3 py-2 rounded text-primary hover:bg-white/10">Login</a>
         )}
@@ -112,7 +104,6 @@ if (!isLoggedIn) {
     </section>
   </main>
 
-  <script type="module">import '../scripts/account-auth.ts';</script>
   <script type="module">import '../scripts/dashboard-page.ts';</script>
   <!-- inlined script moved to src/scripts/dashboard-page.ts -->
 

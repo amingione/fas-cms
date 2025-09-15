@@ -4,14 +4,11 @@ import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useEffect, useState } from 'react';
 
 import { Bars3Icon, XMarkIcon, UserCircleIcon } from '@heroicons/react/24/outline';
-import { getAuth0Client } from '@/lib/auth';
-import type { Auth0Client } from '@auth0/auth0-spa-js';
 import { SearchBar } from '@components/SearchBar.tsx';
 
 export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone' | 'inline' }) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
-  const [auth0, setAuth0] = useState<Auth0Client | null>(null);
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [displayName, setDisplayName] = useState<string>('');
 
@@ -19,15 +16,14 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
     let mounted = true;
     (async () => {
       try {
-        const client = await getAuth0Client();
-        if (!mounted) return;
-        setAuth0(client);
-        const ok = await client.isAuthenticated();
+        const fas = (window as any).fasAuth;
+        const ok = fas ? await fas.isAuthenticated() : false;
         if (!mounted) return;
         setAuthed(ok);
         if (ok) {
-          const u: any = await client.getUser();
-          const name = u?.given_name || u?.name || u?.email || '';
+          const sess = fas ? await fas.getSession() : null;
+          const u = sess?.user || {};
+          const name = (u?.name as string) || (u?.email as string) || '';
           setDisplayName(name);
         }
       } catch {
@@ -293,8 +289,13 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
                 </a>
                 <button
                   onClick={() => {
-                    auth0?.logout?.({ logoutParams: { returnTo: window.location.origin } });
-                    onNavigate && onNavigate();
+                    try {
+                      const fas = (window as any).fasAuth;
+                      if (fas?.logout) fas.logout(window.location.origin);
+                      else window.location.href = '/api/auth/logout?returnTo=' + encodeURIComponent(window.location.origin);
+                    } finally {
+                      onNavigate && onNavigate();
+                    }
                   }}
                   className="text-accent hover:text-neutral-500 dark:text-white"
                 >
@@ -306,8 +307,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             <button
               onClick={async () => {
                 try {
-                  // Prefer serverless flow to avoid relying on /account script on callback
-                  window.location.href = '/.netlify/functions/auth-login?returnTo=%2Fdashboard';
+                  window.location.href = '/account';
                 } finally {
                   onNavigate && onNavigate();
                 }

@@ -1,7 +1,7 @@
 // src/pages/api/get-customer-profile.ts
 import type { APIRoute } from 'astro';
 import { sanityClient } from '@/lib/sanityClient';
-import { jwtVerify, createRemoteJWKSet } from 'jose';
+import { readSession } from '../../server/auth/session';
 
 function getBearer(req: Request): string | null {
   const auth = req.headers.get('authorization') || '';
@@ -31,33 +31,9 @@ export const OPTIONS: APIRoute = async () =>
 
 export const GET: APIRoute = async ({ request }) => {
   try {
-    const AUTH0_DOMAIN = import.meta.env.AUTH0_DOMAIN as string | undefined;
-    const AUTH0_CLIENT_ID = import.meta.env.AUTH0_CLIENT_ID as string | undefined;
-
-    if (!AUTH0_DOMAIN || !AUTH0_CLIENT_ID) {
-      return new Response(JSON.stringify({ message: 'Server misconfigured: missing AUTH0 env' }), {
-        status: 500,
-        headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' }
-      });
-    }
-
-    // Accept either Authorization: Bearer <token> or a cookie named `token`
-    const token = getBearer(request) || getCookie(request, 'token');
-    if (!token) {
-      return new Response(JSON.stringify({ message: 'Missing token' }), {
-        status: 401,
-        headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' }
-      });
-    }
-
-    const JWKS = createRemoteJWKSet(new URL(`https://${AUTH0_DOMAIN}/.well-known/jwks.json`));
-    const { payload } = await jwtVerify(token, JWKS, {
-      issuer: `https://${AUTH0_DOMAIN}/`,
-      audience: AUTH0_CLIENT_ID
-    });
-
-    const sub = (payload.sub as string) || '';
-    const email = (payload.email as string) || '';
+    const { session } = await readSession(request);
+    const sub = (session?.user?.id as string) || '';
+    const email = (session?.user?.email as string) || '';
 
     if (!sub && !email) {
       return new Response(JSON.stringify({ message: 'Token missing sub/email' }), {
@@ -90,7 +66,7 @@ export const GET: APIRoute = async ({ request }) => {
     });
   } catch (err) {
     console.error('get-customer-profile error:', err);
-    return new Response(JSON.stringify({ message: 'Invalid or expired token' }), {
+    return new Response(JSON.stringify({ message: 'Unauthorized' }), {
       status: 401,
       headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' }
     });

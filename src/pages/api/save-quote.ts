@@ -1,5 +1,5 @@
-import { jwtVerify, createRemoteJWKSet, type JWTPayload } from 'jose';
 import { createClient } from '@sanity/client';
+import { readSession } from '../../server/auth/session';
 
 const json = (obj: unknown, status = 200) =>
   new Response(JSON.stringify(obj), {
@@ -15,40 +15,11 @@ const client = createClient({
   useCdn: false
 });
 
-const AUTH0_DOMAIN = import.meta.env.AUTH0_DOMAIN;
-const AUTH0_CLIENT_ID = import.meta.env.AUTH0_CLIENT_ID;
-
-if (!AUTH0_DOMAIN || !AUTH0_CLIENT_ID) {
-  throw new Error('Auth0 environment variables are not configured');
-}
-
-const JWKS = createRemoteJWKSet(new URL(`https://${AUTH0_DOMAIN}/.well-known/jwks.json`));
-
-type TokenPayload = JWTPayload & { email?: string };
-
 export async function POST({ request }: { request: Request }) {
-  // Auth0 JWT verification
-  const authHeader = request.headers.get('authorization');
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return json({ error: 'Missing or invalid authorization header' }, 401);
-  }
-
-  const token = authHeader.split(' ')[1];
-  let payload: TokenPayload;
-  try {
-    const verified = await jwtVerify(token, JWKS, {
-      issuer: `https://${AUTH0_DOMAIN}/`,
-      audience: AUTH0_CLIENT_ID
-    });
-    payload = verified.payload as TokenPayload;
-  } catch {
-    return json({ error: 'Invalid or expired token' }, 401);
-  }
-
-  const customerEmail = payload?.email;
-  if (typeof customerEmail !== 'string') {
-    return json({ error: 'Email not found in token' }, 400);
-  }
+  // Session-based auth
+  const { session } = await readSession(request);
+  if (!session?.user?.email) return json({ error: 'Unauthorized' }, 401);
+  const customerEmail = session.user.email as string;
 
   // Look up customer in Sanity
   const customer = await client.fetch<{ _id: string } | null>(

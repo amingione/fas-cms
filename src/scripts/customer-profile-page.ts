@@ -1,26 +1,17 @@
-import { getAuth0Client } from '@lib/auth';
+// Uses fas-auth session
 
 const $ = (id: string) => document.getElementById(id) as HTMLInputElement | null;
 
 // Ensure auth0 client is available globally right away
-(async () => {
-  try {
-    const auth0 = await getAuth0Client();
-    (window as any)._auth0 = auth0;
-    console.log('✅ Auth0 client initialized and exposed to window');
-  } catch (e) {
-    console.error('Failed to init auth0', e);
-  }
-})();
+(() => {})();
 
 async function resolveEmail() {
   try {
-    const auth0 = await getAuth0Client();
-    (window as any)._auth0 = auth0;   // refresh in case IIFE failed
-    const authed = await auth0.isAuthenticated();
+    const fas = (window as any).fasAuth;
+    const authed = fas ? await fas.isAuthenticated() : false;
     if (authed) {
-      const user = await auth0.getUser();
-      if ((user as any)?.email) return (user as any).email as string;
+      const session = await fas.getSession();
+      if (session?.user?.email) return session.user.email as string;
     }
   } catch {}
   try { return localStorage.getItem('customerEmail') || ''; } catch { return ''; }
@@ -133,12 +124,7 @@ window.addEventListener('DOMContentLoaded', () => {
   saveBtn?.addEventListener('click', async () => {
     setSaving(true);
     try {
-      const auth0 = await getAuth0Client();
-      (window as any)._auth0 = auth0;   // refresh again here
-      const user = await auth0.getUser();
-      const sub = (user as any)?.sub || '';
-      const body = { sub, ...snapshot() };
-
+      const body = { ...snapshot() } as any;
       const res = await fetch('/api/customer/update', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },

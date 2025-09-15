@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import type { AppProps } from 'next/app';
-import { AuthProvider } from '@/context/Auth0Provider';
 import { motion } from 'framer-motion';
 import { Home, ShoppingBag, Wrench, Phone } from 'lucide-react';
 
@@ -142,11 +141,9 @@ function AppShell({ children }: { children: React.ReactNode }) {
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <AuthProvider>
-      <AppShell>
-        <Component {...pageProps} />
-      </AppShell>
-    </AuthProvider>
+    <AppShell>
+      <Component {...pageProps} />
+    </AppShell>
   );
 }
 

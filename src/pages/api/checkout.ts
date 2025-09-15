@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-import { jwtVerify, createRemoteJWKSet } from 'jose';
+import { readSession } from '../../server/auth/session';
 
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2024-06-20'
@@ -78,26 +78,12 @@ export async function POST({ request }: { request: Request }) {
   let userId: string | undefined;
   let userEmail: string | undefined;
   try {
-    const authHeader = request.headers.get('authorization') || '';
-    const token = authHeader.toLowerCase().startsWith('bearer ')
-      ? authHeader.slice(7).trim()
-      : '';
-    const AUTH0_DOMAIN = (import.meta.env.PUBLIC_AUTH0_DOMAIN as string | undefined) ||
-      (import.meta.env.AUTH0_DOMAIN as string | undefined);
-    const AUTH0_CLIENT_ID = (import.meta.env.PUBLIC_AUTH0_CLIENT_ID as string | undefined) ||
-      (import.meta.env.AUTH0_CLIENT_ID as string | undefined);
-    if (token && AUTH0_DOMAIN && AUTH0_CLIENT_ID) {
-      const JWKS = createRemoteJWKSet(new URL(`https://${AUTH0_DOMAIN}/.well-known/jwks.json`));
-      const { payload } = await jwtVerify(token, JWKS, {
-        issuer: `https://${AUTH0_DOMAIN}/`,
-        audience: AUTH0_CLIENT_ID
-      });
-      if (typeof payload.sub === 'string') userId = payload.sub;
-      if (typeof payload.email === 'string') userEmail = payload.email;
+    const { session } = await readSession(request);
+    if (session?.user) {
+      userId = String(session.user.id || '');
+      userEmail = String(session.user.email || '');
     }
-  } catch {
-    // non-fatal
-  }
+  } catch {}
 
   try {
     const sessionMetadata: Record<string, string> = {

@@ -1,0 +1,115 @@
+---
+// No imports needed; icons are lightweight SVGs inline below.
+// If you prefer lucide, you can paste their raw SVGs here.
+
+
+
+
+const socialLinks = [
+  { name: 'Instagram', href: 'https://instagram.com/fas_moto', handle: '@fas_moto' },
+  { name: 'Facebook', href: 'https://facebook.com/fasmotorsports', handle: 'F.A.S. Motorsports' }
+];
+---
+<footer class="mt-20 bg-gradient-to-b from-red-950/5 to-black/60 backdrop-blur-md text-white text-sm font-mono tracking-wider px-4 py-10 relative overflow-hidden">
+   <div class="absolute top-0 h-px left-0 right-0 bg-gradient-to-r from-primary via-white/70 to-primary"></div>
+  <!-- background effects -->
+  <div class="inset-0 opacity-30"></div>
+  <div class="inset-0 opacity-20"></div>
+  <section class="relative max-w-7xl px-5 py-5mx-auto">
+    <p class="text-center tracking-tight font-sans font-bold text-sm text-white/60">MODIFYING YOUR VEHICLE COULD LEAD TO THE LOSS OF YOUR FACTORY WARRANTY! 
+      <p class="text-center font-bold font-sans tracking-tight text-sm text-white/60"><span class="font-borg text-primaryB">FaS </span><span class="font-ethno text-white">Motorsports </span> is not responsible for any issues you may encounter with your dealership warranty claims or warrantied issues/repairs.</p>
+
+  <div class="w-full justify-center text-center mx-auto px-4 lg:px-6 py-16 relative z-10">
+    <div class="w-full justify-center gap-8">
+      <!-- Brand Section -->
+      <div class="w-full justify-center space-y-6">
+        <div class="flex w-full items-center justify-center text-center space-x-4 group cursor-pointer transition-transform duration-300 hover:scale-[1.02]">
+          <div class="w-16 h-16 flex items-center justify-center">
+            <img
+              src="/logo/faslogochroma.png"
+              alt="F.A.S. Motorsports"
+              class="w-14 h-14 object-contain justify-center drop-shadow-lg"
+              width="56" height="56"
+            />
+          </div>
+          <div>
+            <span class="w-full text-2xl justify-start text-left font-black bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent block font-borg">
+              F.a.S. MOTORSPORTS
+            </span>
+            <span class="w-full text-sm text-primary font-bold tracking-widest font-ethno">
+              FAST • AGGRESSIVE • SUPERIOR
+            </span>
+          </div>
+        </div>
+
+        <p class="w-full pb-3 text-white/60 text-center justify-center mx-auto tracking-tight font-mono">
+          Precision-engineered supercharger components and custom modifications for the ultimate
+          in automotive performance.
+        </p>
+
+
+       <!-- Quick Contact (hidden on mobile) -->
+        <div class="relative hidden md:flex gap-6 items-center justify-center text-center">
+          <a href="/contact#location" class="flex items-center space-x-3 text-white/60 hover:text-white transition-colors cursor-pointer">
+            <!-- MapPin -->
+            <svg class="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 21s-6-5.33-6-10a6 6 0 1 1 12 0c0 4.67-6 10-6 10z"/><circle cx="12" cy="11" r="2"/>
+            </svg>
+            <span class="text-sm font-medium font-kwajong">Punta Gorda, FL - F.A.S. Motorsports</span>
+          </a>
+          <a href="#contact" class="flex items-center space-x-3 text-white/60 hover:text-white transition-colors cursor-pointer">
+            <!-- Phone -->
+            <svg class="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.1 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.3 1.77.57 2.61a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.47-1.1a2 2 0 0 1 2.11-.45c.84.27 1.71.45 2.61.57A2 2 0 0 1 22 16.92z"/>
+            </svg>
+            <span class="text-sm flex items-center font-kwajong">+1 (812) 200-9012</span>
+          </a>
+          <a href="mailto:support@fasmotorsports.com" class="flex items-center space-x-3 text-white/60 hover:text-white transition-colors cursor-pointer">
+            <!-- Mail -->
+            <svg class="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16v16H4z"/><path d="m22 6-10 7L2 6"/>
+            </svg>
+            <span class="text-sm font-medium font-kwajong">support@fasmotorsports.com</span>
+          </a>
+        </div>
+
+        <!-- Social Links -->
+        <div class="flex relative justify-center items-center space-x-10 gap-5 pb-4 text-center">
+          {socialLinks.map((social) => (
+            <a href={social.href} class="text-white/70 hover:text-primary transition-colors font-medium text-sm group">
+              <div class="space-y-1">
+                <div class="font-bold font-ethno">{social.name}</div>
+                <div class="text-xs text-white/70 font-kwajong">{social.handle}</div>
+              </div>
+            </a>
+          ))}
+        </div>
+
+
+
+      <div class="relative flex justify-center items-center">
+        <p class="text-white/70 text-sm font-medium font-kwajong">
+          © 2025 F.A.S. Motorsports. All rights reserved.
+        </p>
+      </div>
+
+        <!-- Racing stripe at bottom (centered, thinner) -->
+        <div class="mx-auto my-3 w-1/2 h-px bg-gradient-to-r from-primary via-white/70 to-primary rounded-full"></div>
+
+      <div class="relative bottom-0 pt-5 mb[-10] flex flex-wrap items-center justify-center gap-3 text-center text-sm">
+        <a href="/privacypolicy" class="text-white/70 hover:text-white transition-colors font-medium font-kwajong">Privacy Policy</a>
+        <span class="text-primary">|</span>
+        <a href="/termsandconditions" class="text-white/70 hover:text-white transition-colors font-medium font-kwajong">Terms &amp; Conditions</a>
+        <span class="text-primary">|</span>
+        <a href="/warranty" class="text-white/70 hover:text-white transition-colors font-medium font-kwajong">Warranty</a>
+        <span class="text-primary">|</span>
+        <a href="/returnRefundPolicy" class="text-white/70 hover:text-white transition-colors font-medium font-kwajong">Refund &amp; Return/Refund Policy</a>
+      </div>
+    </div>
+  </div>
+   <!-- Right: Launchewell SO -->
+        <p class="text-xs pt-6 font-montserrat text-white/90 flex items-center justify-center gap-1">
+          <img src="/logo/launchwell brands logo white.png" alt="LaunchWell Brands logo" class="h-5" />
+          Website by <a href="https://launchwellbrands.com" class="font-montserrat hover:text-accent">LaunchWell Brands</a>
+        </p>
+</footer>

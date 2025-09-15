@@ -1,0 +1,155 @@
+---
+import HeroBanner from '@/components/HeroBanner.astro';
+import { Services } from '@/components/Services.tsx';
+import { Products } from '@/components/Products.tsx';
+import LuxuryTestimonials from '@/components/LuxuryTestimonials.tsx';
+import { IGLASecurity } from '@/components/IGLASecurity.tsx';
+import { TruckPackagesHero } from '@/components/TruckPackagesHero.tsx';
+import { LuxuryFeatures } from '@/components/LuxuryFeatures.tsx';
+import { WheelsHero } from '@/components/WheelsHero.tsx';
+import { sbFieldPath } from '@/lib/stackbit';
+
+type CTA = { text?: string; href?: string; variant?: string };
+type Section = {
+  blockType?: string;
+  headline?: string;
+  subtext?: string;
+  imageSrc?: string;
+  cta?: CTA;
+  ctaSecondary?: CTA;
+  title?: string;
+  body?: string;
+  badge?: string;
+  titleTop?: string;
+  titleMid?: string;
+  titleBottom?: string;
+  kicker?: string;
+  ref?: string;
+};
+
+const { sections = [], baseFieldPath = 'sections' } = Astro.props as {
+  sections: Section[];
+  baseFieldPath?: string;
+};
+---
+
+{Array.isArray(sections) && sections.map((s: Section, i: number) => {
+  const type = String(s?.blockType || '').toLowerCase();
+  const fp = (field: string) => sbFieldPath(`${baseFieldPath}[${i}].${field}`);
+  const wrapper = sbFieldPath(`${baseFieldPath}[${i}]`);
+
+  if (type === 'hero' || type === 'herobanner') {
+    return (
+      <section {...wrapper}>
+        <HeroBanner
+          imageSrc={s?.imageSrc || '/images/packages/850-ram.webp'}
+          headline={s?.headline || 'Headline'}
+          subtext={s?.subtext || ''}
+          ctaText={s?.cta?.text || 'Learn More'}
+          ctaLink={s?.cta?.href || '#'}
+        />
+        {/* inline handles for props */}
+        <div class="sr-only" {...fp('blockType')}>{s?.blockType || 'Hero'}</div>
+        <div class="sr-only" {...fp('imageSrc')}>{s?.imageSrc || ''}</div>
+        <div class="sr-only" {...fp('headline')}>{s?.headline || ''}</div>
+        <div class="sr-only" {...fp('subtext')}>{s?.subtext || ''}</div>
+        <div class="sr-only" {...fp('cta.text')}>{s?.cta?.text || ''}</div>
+        <div class="sr-only" {...fp('cta.href')}>{s?.cta?.href || ''}</div>
+      </section>
+    );
+  }
+
+  if (type === 'rich' || type === 'richtext') {
+    return (
+      <section class="max-w-4xl mx-auto px-6 py-10" {...wrapper}>
+        <h2 class="text-3xl font-ethno text-primary mb-3" {...fp('title')}>{s?.title || 'Title'}</h2>
+        <div class="prose prose-invert" {...fp('body')}>
+          {(s?.body || '').toString()}
+        </div>
+      </section>
+    );
+  }
+
+  if (type === 'services') {
+    return (
+      <section id="services" {...wrapper}>
+        <Services client:only="react" />
+        <div class="sr-only" {...fp('blockType')}>{s?.blockType || 'Services'}</div>
+      </section>
+    );
+  }
+
+  if (type === 'products') {
+    return (
+      <section id="highlights" {...wrapper}>
+        <Products client:only="react" />
+        <div class="sr-only" {...fp('blockType')}>{s?.blockType || 'Products'}</div>
+      </section>
+    );
+  }
+
+  if (type === 'testimonials') {
+    return (
+      <section id="LuxuryTestimonials" {...wrapper}>
+        <LuxuryTestimonials client:only="react" />
+        <div class="sr-only" {...fp('blockType')}>{s?.blockType || 'Testimonials'}</div>
+      </section>
+    );
+  }
+
+  if (type === 'igla') {
+    return (
+      <section id="IGLASecurity" {...wrapper}>
+        <IGLASecurity client:only="react" />
+        <div class="sr-only" {...fp('blockType')}>{s?.blockType || 'IGLA'}</div>
+      </section>
+    );
+  }
+
+  if (type === 'truckpackageshero') {
+    return (
+      <section id="TruckPackagesHero" {...wrapper}>
+        <TruckPackagesHero
+          client:only="react"
+          fieldPathBase={`${baseFieldPath}[${i}]`}
+          badge={s?.badge}
+          titleTop={s?.titleTop}
+          titleMid={s?.titleMid}
+          titleBottom={s?.titleBottom}
+          kicker={s?.kicker || s?.subtext}
+          ctaPrimaryText={s?.cta?.text}
+          ctaPrimaryHref={s?.cta?.href}
+          ctaSecondaryText={s?.ctaSecondary?.text}
+          ctaSecondaryHref={s?.ctaSecondary?.href}
+        />
+      </section>
+    );
+  }
+
+  if (type === 'luxuryfeatures') {
+    return (
+      <section id="LuxuryFeatures" {...wrapper}>
+        <LuxuryFeatures client:only="react" />
+        <div class="sr-only" {...fp('blockType')}>{s?.blockType || 'LuxuryFeatures'}</div>
+      </section>
+    );
+  }
+
+  if (type === 'wheelshero') {
+    return (
+      <section id="WheelsHero" {...wrapper}>
+        <WheelsHero
+          client:only="react"
+          fieldPathBase={`${baseFieldPath}[${i}]`}
+          badge={s?.badge}
+          titleTop={s?.titleTop}
+          titleBottom={s?.titleBottom}
+          intro={s?.subtext}
+        />
+      </section>
+    );
+  }
+
+  // Fallback: show nothing for unsupported block types
+  return null;
+})}

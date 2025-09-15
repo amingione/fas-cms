@@ -1,0 +1,35 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import BelakHero from "@/components/belak/BelakHero.astro";
+import BelakBreadcrumbs from "@/components/belak/BelakBreadcrumbs.astro";
+import BelakSidebar from "@/components/belak/BelakSidebar.astro";
+import WheelSpecForm from "@/components/belak/WheelSpecForm";
+import WheelsHero from '@/components/WheelsHero';
+---
+
+<BaseLayout>
+
+ <BelakHero
+  title="Belak Wheels — Custom Spec Quote"
+  subtitle="Series 2 & Series 3 forged 3-piece racing wheels. No prices shown — request a tailored quote."
+/>
+
+<div class="mx-auto max-w-7xl px-6 py-6">
+  <BelakBreadcrumbs current="overview" />
+  <div class="grid md:grid-cols-[260px_1fr] gap-8">
+    <BelakSidebar current="overview" />
+    <main class="space-y-12">
+      <section class="prose prose-invert max-w-none">
+        <h2>Why Belak at FAS</h2>
+        <p>Ultra-light 3-piece forged construction with ARP hardware. Built for serious drag applications. We’ll help you nail backspacing, brake clearance, and tire pairing.</p>
+      </section>
+
+      <WheelSpecForm client:only="react" pageContext="wheels" />
+    </main>
+  </div>
+</div>
+ 
+<section class="mb-5">
+  <WheelsHero client:load />
+</section>
+</BaseLayout>

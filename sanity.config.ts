@@ -1,4 +1,5 @@
 import { defineConfig } from 'sanity';
+import { setPasswordAction } from './sanity/components/SetPasswordAction';
 import customer from './sanity/schemas/customer';
 
 // Minimal Sanity v3 Studio config so Stackbit detects v3 schema loader.
@@ -24,5 +25,15 @@ export default defineConfig({
   // Keep empty to avoid requiring local schema files; Stackbit can still
   // fetch content via APIs and start without v2 legacy fetch.
   schema: { types: [customer] },
-  plugins: []
+  plugins: [],
+  document: {
+    // Add a "Set Password" action to vendor and customer docs in Studio
+    actions: (prev, ctx) => {
+      const t = ctx.schemaType;
+      if (t === 'vendor' || t === 'customer') {
+        return [...prev, setPasswordAction];
+      }
+      return prev;
+    }
+  }
 });

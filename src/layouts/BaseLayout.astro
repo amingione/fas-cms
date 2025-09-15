@@ -90,7 +90,9 @@ const pageTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
       <Toaster client:idle />
     </div>
 
-    <!-- Auth bootstrap removed: serverless login/callback handles auth without client TS imports -->
+    <!-- fas-auth client shim (provides window.fasAuth) -->
+    <script src="/fas-auth.js" defer></script>
+    <!-- Auth bootstrap removed: serverless login/session handles auth without Auth0 SDK -->
 
 
     <script>

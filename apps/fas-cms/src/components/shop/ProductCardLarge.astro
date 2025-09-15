@@ -1,0 +1,30 @@
+---
+import Label from '@/components/storefront/label.tsx';
+
+interface Props {
+  href: string;
+  title: string;
+  image: string;
+}
+
+const { href, title, image } = Astro.props as Props;
+---
+<a
+  href={href}
+  class="group block relative overflow-hidden rounded-sm border border-white/30 bg-black transition-shadow duration-300 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary"
+>
+  <!-- Image area: square, centered product, no cropping -->
+  <div class="relative aspect-square object-contain contain flex pb-10 justify-center bg-black/30 backdrop-blur-sm">
+    {image && (
+      <img
+        src={image}
+        alt={title}
+        class="max-h-[78%] max-w-[88%] object-contain transition-transform duration-300 ease-out group-hover:scale-[1.03]"
+      />
+    )}
+  </div>
+  <!-- Bottom label with title only (no price) to mirror ProductCardLite style -->
+  <div class="absolute w-full bottom-4 flex items-center gap-1">
+    <Label title={title} amount={0} position="bottom" showPrice={false} />
+  </div>
+</a>

@@ -1,0 +1,64 @@
+---
+import ProductCardLite from '@components/storefront/ProductCardLite.astro';
+import type { Product } from '@/lib/sanity-utils';
+
+const { products = [], className = '' } = Astro.props as {
+  products: Product[];
+  className?: string;
+};
+
+// Guard
+const items = Array.isArray(products) ? products.filter(Boolean) : [];
+---
+{items.length > 0 && (
+  <section class={`relative w-full overflow-hidden ${className}`} aria-label="Products carousel">
+    <div class="mask-left" />
+    <div class="mask-right" />
+
+    <div class="track" role="list">
+      {items.map((p) => (
+        <div class="slide" role="listitem">
+          <ProductCardLite product={p} productImage={p.images?.[0]} />
+        </div>
+      ))}
+      {items.map((p) => (
+        <div class="slide" role="listitem" aria-hidden="true">
+          <ProductCardLite product={p} productImage={p.images?.[0]} />
+        </div>
+      ))}
+    </div>
+
+    <style>
+      .track {
+        display: flex;
+        gap: 1rem;
+        width: max-content;
+        animation: scroll-x 40s linear infinite;
+      }
+      .slide {
+        flex: 0 0 calc((100vw - 2rem) / 1.1);
+        max-width: 420px;
+      }
+      @media (min-width: 768px) {
+        .slide { flex-basis: calc((100vw - 3rem) / 2.2); }
+      }
+      @media (min-width: 1024px) {
+        /* Show ~3 at a time on desktop */
+        .slide { flex-basis: calc((100vw - 4rem) / 3.2); }
+      }
+      @keyframes scroll-x {
+        from { transform: translateX(0); }
+        to { transform: translateX(-50%); }
+      }
+      .mask-left, .mask-right {
+        position: absolute;
+        top: 0; bottom: 0; width: 60px; pointer-events: none; z-index: 1;
+      }
+      .mask-left { left: 0; background: linear-gradient(to right, rgba(23,23,23,1), rgba(23,23,23,0)); }
+      .mask-right { right: 0; background: linear-gradient(to left, rgba(23,23,23,1), rgba(23,23,23,0)); }
+      :global(.dark) .mask-left { background: linear-gradient(to right, rgba(0,0,0,1), rgba(0,0,0,0)); }
+      :global(.dark) .mask-right { background: linear-gradient(to left, rgba(0,0,0,1), rgba(0,0,0,0)); }
+    </style>
+  </section>
+)}
+

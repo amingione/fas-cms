@@ -1,0 +1,136 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+const profileScript = '../../scripts/customer-profile-page.ts';
+---
+
+<BaseLayout hideBrandTag>
+  <section class="overflow-hidden profile-section text-white font-cyber p-8">
+    <h1 class="text-center text-4xl text-red-600 font-bold mb-8">PROFILE</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div>
+        <h2 class="text-red-500 text-xl mb-2">ADDRESSES</h2>
+        <div class="mb-4">
+          <label class="block mb-1">SHIPPING</label>
+          <input id="shippingAddress" type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value="" />
+        </div>
+        <div class="mb-4">
+          <label class="block mb-1">BILLING</label>
+          <input id="billingStreet" type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value="" />
+        </div>
+
+        <h2 class="text-red-500 text-xl mb-2">CONTACT INFO</h2>
+        <div class="mb-4">
+          <label class="block mb-1">PHONE</label>
+          <input id="phone" type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value="" />
+        </div>
+        <div class="mb-4">
+          <label class="block mb-1">EMAIL</label>
+          <input id="email" type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value="" />
+        </div>
+      </div>
+
+      <div>
+        <h2 class="text-red-500 text-xl mb-2">NAME</h2>
+        <div class="mb-4">
+          <label class="block mb-1">FIRST</label>
+          <input id="firstName" type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value="" />
+        </div>
+        <div class="mb-4">
+          <label class="block mb-1">LAST</label>
+          <input id="lastName" type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value="" />
+        </div>
+
+        <h2 class="text-red-500 text-xl mb-2">PREFERENCES</h2>
+        <div class="mb-2">
+          <label>
+            <input id="emailOptIn" type="checkbox" class="mr-2" />
+            OPT IN TO F.A.S. EMAIL UPDATES FOR ORDERS
+          </label>
+        </div>
+        <div class="mb-2">
+          <label>
+            <input id="textOptIn" type="checkbox" class="mr-2" />
+            OPT IN TO F.A.S. TEXT UPDATES FOR ORDERS
+          </label>
+        </div>
+        <div class="mb-2">
+          <label>
+            <input id="marketingOptIn" type="checkbox" class="mr-2" />
+            I WOULD LIKE TO RECEIVE MARKETING EMAILS
+          </label>
+        </div>
+        <div class="mt-6 flex gap-3 items-center">
+          <button id="saveProfile" type="button" class="px-4 py-2 bg-primary text-accent font-ethno disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.98] transition-transform">
+            Save
+          </button>
+          <button id="revertProfile" type="button" class="px-4 py-2 border border-white/30 font-ethno active:scale-[0.98] transition-transform">
+            Revert
+          </button>
+          <button id="backToDashboard" type="button" class="px-4 py-2 border border-white/30 font-ethno active:scale-[0.98] transition-transform" onclick="window.location.href='/dashboard'">
+            Back to Dashboard
+          </button>
+          <span id="saveStatus" class="ml-2 text-sm opacity-80"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Netlify Profile Update Form (no JS/server required) -->
+  <section class="p-8">
+    <form
+      id="profile-form"
+      name="profile"
+      method="POST"
+      data-netlify="true"
+      netlify-honeypot="bot-field"
+      action="/customerdashboard/profile/success"
+      class="space-y-4 rounded-lg border border-white/20 bg-black/50 p-6 shadow-md"
+    >
+      <input type="hidden" name="form-name" value="profile" />
+      <p class="hidden"><label>Don’t fill this out if you’re human: <input name="bot-field" /></label></p>
+
+      <h2 class="text-xl font-ethno mb-1">Update Profile (Request)</h2>
+      <p class="text-sm text-white/70">Submit a request to update your profile. Our team will review and apply changes.</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm mb-1" for="firstName_form">First</label>
+          <input id="firstName_form" name="firstName" type="text" class="w-full rounded bg-white/5 border border-white/15 p-2" />
+        </div>
+        <div>
+          <label class="block text-sm mb-1" for="lastName_form">Last</label>
+          <input id="lastName_form" name="lastName" type="text" class="w-full rounded bg-white/5 border border-white/15 p-2" />
+        </div>
+        <div>
+          <label class="block text-sm mb-1" for="email_form">Email</label>
+          <input id="email_form" name="email" type="email" required class="w-full rounded bg-white/5 border border-white/15 p-2" />
+        </div>
+        <div>
+          <label class="block text-sm mb-1" for="phone_form">Phone</label>
+          <input id="phone_form" name="phone" type="tel" class="w-full rounded bg-white/5 border border-white/15 p-2" />
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm mb-1" for="shipping_form">Shipping Address</label>
+          <input id="shipping_form" name="shippingAddress" type="text" class="w-full rounded bg-white/5 border border-white/15 p-2" />
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm mb-1" for="billing_form">Billing Address</label>
+          <input id="billing_form" name="billingAddress" type="text" class="w-full rounded bg-white/5 border border-white/15 p-2" />
+        </div>
+      </div>
+
+      <fieldset class="mt-2">
+        <legend class="text-sm mb-2">Preferences</legend>
+        <label class="flex items-center gap-2 mb-1"><input type="checkbox" name="emailOptIn" value="yes" /> Email updates</label>
+        <label class="flex items-center gap-2 mb-1"><input type="checkbox" name="textOptIn" value="yes" /> Text updates</label>
+        <label class="flex items-center gap-2"><input type="checkbox" name="marketingOptIn" value="yes" /> Marketing emails</label>
+      </fieldset>
+
+      <div class="mt-4" data-netlify-recaptcha="true"></div>
+      <button type="submit" class="rounded bg-primary px-4 py-2 text-accent hover:bg-primary/90">Submit Request</button>
+    </form>
+  </section>
+
+  <script type="module">import '../../scripts/customer-profile-page.ts';</script>
+</BaseLayout>

@@ -1,0 +1,147 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
+import SectionRenderer from '@/components/SectionRenderer.astro';
+const pageDoc: any = await getGitPageDoc('schedule');
+import BookingForm from '../components/BookingForm';
+import AppointmentCard from '../components/appointmentCard.astro';
+
+const response = await fetch('https://api.cal.com/v1/bookings', {
+  headers: { Authorization: `Bearer ${import.meta.env.PUBLIC_CALCOM_API_KEY}` }
+});
+const data = await response.json();
+const slots = data?.bookings || [];
+---
+
+<BaseLayout>
+  <div {...sbObjectId('content/pages/schedule.json')} class="bg-[#121212]">
+    <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Schedule'}</div>
+    {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
+      <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
+    )}
+
+    <!-- HERO -->
+      <section class="relative overflow-hidden">
+        <div class="absolute w-[480px] h-[340px] -left-40 top-40 bg-primary blur-[80px] opacity-50 rounded-full"></div>
+        <div class="absolute w-[360px] h-[560px] right-10 -top-24 bg-white/70 blur-[90px] opacity-50 rounded-full"></div>
+        <div class="relative container max-w-7xl py-16 md:py-24">
+        <p class="text-[#FFA800] font-mono font-bold text-xl tracking-wide mb-2">Appointment Booking</p>
+        <h1 class="text-white font-ethno text-4xl md:text-6xl leading-tight mb-4" {...sbFieldPath('title')}>
+          {pageDoc?.title ?? 'Schedule Your Install'}
+        </h1>
+        <p class="text-white/70 font-mono font-bold tracking-[0.14em] max-w-3xl">
+          Pick a time that fits your schedule. We’ll confirm, prep parts, and have your vehicle ready on time.
+        </p>
+        <div class="mt-6 flex gap-3">
+          <a href="#book" class="inline-flex items-center px-5 py-2.5 rounded-full bg-[#FFA800] text-accent font-ethno hover:bg-[#ffb833] transition">Book now</a>
+          <a href="#faq" class="inline-flex items-center px-5 py-2.5 rounded-full border border-[#FFA800] text-[#FFA800] font-ethno hover:bg-[#FFA800] hover:text-accent transition">FAQ</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROMISE STRIP -->
+      <section class="bg-black/70 border-y border-white/20">
+        <div class="container max-w-7xl py-4 grid grid-cols-2 md:grid-cols-4 gap-2">
+        <div class="flex items-center gap-3"><span class="w-2 h-2 rounded-full bg-[#FFA800]"></span><span class="text-white/80 text-sm font-mono tracking-[0.14em]">Warranty‑friendly</span></div>
+        <div class="flex items-center gap-3"><span class="w-2 h-2 rounded-full bg-[#FFA800]"></span><span class="text-white/80 text-sm font-mono tracking-[0.14em]">OEM‑level fit</span></div>
+        <div class="flex items-center gap-3"><span class="w-2 h-2 rounded-full bg-[#FFA800]"></span><span class="text-white/80 text-sm font-mono tracking-[0.14em]">Up‑front pricing</span></div>
+        <div class="flex items-center gap-3"><span class="w-2 h-2 rounded-full bg-[#FFA800]"></span><span class="text-white/80 text-sm font-mono tracking-[0.14em]">On‑time dropoff</span></div>
+      </div>
+    </section>
+
+    <!-- CAL.COM EMBED WRAPPER -->
+      <section id="book" class="py-12">
+        <div class="container max-w-7xl grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Calendar card -->
+        <div class="lg:col-span-2">
+          <div class="rounded-xl border border-white/20 bg-[#0b0b0c]/90 shadow-xl shadow-black/40 overflow-hidden">
+            <div class="flex items-center justify-between px-4 md:px-6 py-3 border-b border-white/20 bg-black/60">
+              <div class="flex items-center gap-3">
+                <span class="inline-block w-2 h-2 rounded-full bg-[#FFA800]"></span>
+                <span class="text-white/90 font-ethno tracking-wide">Book with F.A.S.</span>
+              </div>
+              <a href="https://cal.com/fasmotorsports" target="_blank" class="text-xs text-white/80 hover:text-white">Open in new tab</a>
+            </div>
+            <div class="p-0">
+              <iframe
+                src="https://cal.com/fasmotorsports"
+                width="100%"
+                height="840"
+                frameborder="0"
+                scrolling="yes"
+                class="block w-full min-h-[720px] md:min-h-[820px]"
+                title="FAS Motorsports Appointments"
+              ></iframe>
+            </div>
+          </div>
+        </div>
+
+        <!-- Side panel: steps + help -->
+        <aside class="space-y-6">
+          <div class="rounded-xl border border-white/20 bg-black/60 p-5">
+            <h3 class="text-white font-ethno text-xl mb-3">How it works</h3>
+            <ol class="space-y-3 text-white/80 text-sm">
+              <li><span class="text-[#FFA800] mr-2">1.</span>Choose a date and time.</li>
+              <li><span class="text-[#FFA800] mr-2">2.</span>Tell us your platform and goals.</li>
+              <li><span class="text-[#FFA800] mr-2">3.</span>We confirm, prep parts, and send details.</li>
+              <li><span class="text-[#FFA800] mr-2">4.</span>Drop off on time — we handle the rest.</li>
+            </ol>
+          </div>
+          <div class="rounded-xl border border-white/20 bg-black/60 p-5">
+            <h3 class="text-white font-borg text-xl mb-2">Need a custom slot?</h3>
+            <p class="text-white/70 text-sm mb-4">Can’t find a time that works? Send a request and we’ll accommodate.</p>
+            <BookingForm />
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- RECENT BOOKINGS (optional, if token present) -->
+      {slots.length > 0 && (
+        <section class="pb-6 -mt-2">
+          <div class="container max-w-7xl">
+          <h2 class="text-white font-ethno text-2xl mb-4">Recent bookings</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {slots.map((slot: any) => (
+              <AppointmentCard
+                title={slot.title || 'Service Appointment'}
+                date={slot.startTime}
+                status={slot.status || 'confirmed'}
+                customer={slot.attendees?.[0]?.name || 'Unknown'}
+                rescheduleUrl={slot.rescheduleUrl}
+                cancelUrl={slot.cancelUrl}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    <!-- FAQ -->
+      <section id="faq" class="py-12">
+        <div class="container max-w-5xl">
+        <h2 class="text-white font-borg text-3xl mb-6">FAQs</h2>
+        <div class="divide-y divide-white/80 border border-white/20 rounded-xl overflow-hidden">
+          <details class="group open:bg-black/50">
+            <summary class="cursor-pointer list-none px-5 py-4 text-white/90 font-ethno">
+              What should I bring to my appointment?
+            </summary>
+            <div class="px-5 pb-5 text-white/70 text-sm">Title, insurance (if required), and any aftermarket parts you want installed. We’ll confirm specifics in the booking email.</div>
+          </details>
+          <details class="group open:bg-black/50">
+            <summary class="cursor-pointer list-none px-5 py-4 text-white/90 font-ethno">
+              Can I reschedule or cancel?
+            </summary>
+            <div class="px-5 pb-5 text-white/70 text-sm">Yes — your confirmation email includes reschedule and cancel links powered by Cal.com.</div>
+          </details>
+          <details class="group open:bg-black/50">
+            <summary class="cursor-pointer list-none px-5 py-4 text-white/90 font-ethno">
+              Do you offer while‑you‑wait installs?
+            </summary>
+            <div class="px-5 pb-5 text-white/70 text-sm">For smaller services we may; larger installs require a drop‑off. We’ll advise during confirmation.</div>
+          </details>
+        </div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

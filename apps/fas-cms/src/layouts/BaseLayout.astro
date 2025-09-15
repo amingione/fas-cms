@@ -1,0 +1,137 @@
+---
+import '../styles/global.css';
+import Header from '../components/header/header2.astro';
+import Footer from '@/components/footer.astro';
+import { CookieBanner } from '@/components/cookie-banner.tsx';
+import { Toaster } from 'sonner';
+
+
+// SEO props (optional per-page)
+const {
+  title,
+  description,
+  canonical,
+  noindex = false,
+  ogImage
+} = Astro.props as {
+  title?: string;
+  description?: string;
+  canonical?: string;
+  noindex?: boolean;
+  ogImage?: string;
+};
+const SITE_NAME = 'F.A.S. Motorsports';
+const pageTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
+---
+
+<html lang="en" class="dark">
+  <head>
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="FAS Moto" />
+    <link rel="manifest" href="/site.webmanifest" crossorigin="use-credentials" />
+    <link rel="icon" type="image/png" href="/logo/faslogochroma.png" />
+    
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{pageTitle}</title>
+    {description && <meta name="description" content={description} />}
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
+    {canonical && <link rel="canonical" href={canonical} />}
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title ? `${title}` : SITE_NAME} />
+    {description && <meta property="og:description" content={description} />}
+    {canonical && <meta property="og:url" content={canonical} />}
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title ? `${title}` : SITE_NAME} />
+    {description && <meta name="twitter:description" content={description} />}
+    {ogImage && <meta name="twitter:image" content={ogImage} />}    
+    
+    <slot name="head" />
+  </head>
+
+  <body class="bg-background pt-3 text-white font-mono min-h-screen flex flex-col">
+    <!-- Global SVG filters for Liquid Glass effect -->
+    <svg width="0" height="0" class="absolute pointer-events-none select-none" aria-hidden="true" focusable="false">
+      <defs>
+        <!-- Container-sized liquid glass filter -->
+        <filter id="container-glass">
+          <feTurbulence type="fractalNoise" baseFrequency="0.01" numOctaves="3" seed="2" result="noise"/>
+          <feGaussianBlur in="noise" stdDeviation="2" result="blur"/>
+          <feDisplacementMap in="SourceGraphic" in2="blur" scale="20" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+        <!-- Button-sized stronger liquid glass filter -->
+        <filter id="btn-glass">
+          <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" seed="3" result="noise"/>
+          <feGaussianBlur in="noise" stdDeviation="1.5" result="blur"/>
+          <feDisplacementMap in="SourceGraphic" in2="blur" scale="14" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+      </defs>
+    </svg>
+
+    <!-- Global brand blobs background (fixed, behind all content) -->
+    <div class="brand-blobs brand-blobs-fixed"></div>
+
+    <!-- Header sits outside page stacking contexts to stay on top -->
+    <Header />
+
+    <!-- Page content -->
+    <div class="relative">
+      <main class="mt-10 pt-5 flex-grow container max-w-full mx-auto">
+        <slot />
+      </main>
+      <Footer />
+      <CookieBanner client:idle />
+      <Toaster client:idle />
+    </div>
+
+    <!-- Auth bootstrap removed: serverless login/callback handles auth without client TS imports -->
+
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const elements = document.querySelectorAll('.fade-in-up');
+        const observer = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('opacity-100', 'translate-y-0');
+            }
+          });
+        }, { threshold: 0.15 });
+
+        elements.forEach(el => {
+          el.classList.add('opacity-0', 'translate-y-6', 'transition-all', 'duration-700');
+          observer.observe(el);
+        });
+
+      });
+    </script>
+
+<style>
+  /* Ensure images and banners don't overflow */
+  img, video, iframe {
+    max-width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
+  /* Smooth transitions for interactive elements */
+  button, a {
+    transition: all 0.3s ease;
+  }
+  button:hover, a:hover {
+    color: var(--color-primary);
+  }
+
+  /* Responsive container padding */
+  .container {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+</style>
+  </body>
+</html>
