@@ -4,6 +4,7 @@ import netlify from '@astrojs/netlify';
 import react from '@astrojs/react';
 import tailwind from '@astrojs/tailwind';
 import { fileURLToPath, URL } from 'node:url';
+const FN_PORT = process.env.NETLIFY_DEV_PORT || process.env.NETLIFY_FUNCTIONS_PORT || process.env.FUNCTIONS_PORT || '5050';
 // Lazy-load svgr so dev doesn't fail if it's not installed
 let svgrPlugin = null;
 try {
@@ -117,12 +118,12 @@ export default defineConfig({
       ],
       proxy: {
         '/.netlify/functions': {
-          target: 'http://127.0.0.1:5050',
+          target: `http://127.0.0.1:${FN_PORT}`,
           changeOrigin: true,
           secure: false
         },
         '/.netlify/functions/': {
-          target: 'http://127.0.0.1:5050',
+          target: `http://127.0.0.1:${FN_PORT}`,
           changeOrigin: true,
           secure: false
         }

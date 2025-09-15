@@ -3,6 +3,16 @@
   to = "/site.webmanifest"
   status = 200
 
+[[redirects]]
+  from = "/api/auth/login"
+  to = "/.netlify/functions/auth-login"
+  status = 302
+
+[[redirects]]
+  from = "/api/auth/logout"
+  to = "/.netlify/functions/auth-logout"
+  status = 302
+
 [build]
   command = "yarn install && yarn build"
   publish = "dist"

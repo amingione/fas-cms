@@ -86,12 +86,12 @@ function setActiveNav(view?: string | null) {
       c.innerHTML = `
         <div class="space-y-3">
           <p class="opacity-90">You're not signed in.</p>
-          <a id="dash-login" href="/api/auth/login" class="inline-block px-4 py-2 bg-primary text-accent font-ethno rounded">Log in</a>
-          <a id="dash-signup" href="/api/auth/login" class="inline-block px-4 py-2 border border-white/20 font-ethno rounded">Sign up</a>
+          <a id="dash-login" href="/.netlify/functions/auth-login?returnTo=%2Fdashboard" class="inline-block px-4 py-2 bg-primary text-accent font-ethno rounded">Log in</a>
+          <a id="dash-signup" href="/.netlify/functions/auth-login?returnTo=%2Fdashboard" class="inline-block px-4 py-2 border border-white/20 font-ethno rounded">Sign up</a>
         </div>`;
       const go = (e?: Event) => {
         e?.preventDefault?.();
-        window.location.href = '/api/auth/login';
+        window.location.href = '/.netlify/functions/auth-login?returnTo=%2Fdashboard';
       };
       document.getElementById('dash-login')?.addEventListener('click', go);
       document.getElementById('dash-signup')?.addEventListener('click', go);
@@ -470,12 +470,12 @@ function setActiveNav(view?: string | null) {
         c.innerHTML = `
           <div class="space-y-3">
             <p class="opacity-90">You're not signed in.</p>
-            <a id="dash-login" href="/api/auth/login" class="inline-block px-4 py-2 bg-primary text-accent font-ethno rounded">Log in</a>
-            <a id="dash-signup" href="/api/auth/login" class="inline-block px-4 py-2 border border-white/20 font-ethno rounded">Sign up</a>
+            <a id="dash-login" href="/.netlify/functions/auth-login?returnTo=%2Fdashboard" class="inline-block px-4 py-2 bg-primary text-accent font-ethno rounded">Log in</a>
+            <a id="dash-signup" href="/.netlify/functions/auth-login?returnTo=%2Fdashboard" class="inline-block px-4 py-2 border border-white/20 font-ethno rounded">Sign up</a>
           </div>`;
         const go = (e?: Event) => {
           e?.preventDefault?.();
-          window.location.href = '/api/auth/login';
+          window.location.href = '/.netlify/functions/auth-login?returnTo=%2Fdashboard';
         };
         document.getElementById('dash-login')?.addEventListener('click', go);
         document.getElementById('dash-signup')?.addEventListener('click', go);
@@ -494,7 +494,7 @@ function logout() {
       return fx.logout(location.origin + '/account');
     }
   } catch {}
-  window.location.href = '/api/auth/logout';
+  window.location.href = '/.netlify/functions/auth-logout';
 }
 document.querySelectorAll('.logout-link').forEach((el) => {
   el.addEventListener('click', (e) => {

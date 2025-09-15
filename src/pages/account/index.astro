@@ -2,14 +2,8 @@
 // src/pages/account/index.astro
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
-// If Auth0 sent us back with an authorization code, finish on the serverless callback (server-side)
-const reqUrl = new URL(Astro.request.url);
-const hasAuthCode = reqUrl.searchParams.has('code');
-if (hasAuthCode) {
-  const qs = reqUrl.searchParams.toString();
-  const cb = `/.netlify/functions/auth-callback?${qs}`;
-  return Astro.redirect(cb);
-}
+// Let the client-side Auth0 SDK handle code/state on /account via account-auth.ts
+// Do NOT intercept here; mixing server and SPA redirects can cause loops.
 
 // Basic login state: look for session or token cookie
 const cookie = Astro.request.headers.get('cookie') || '';
@@ -28,7 +22,7 @@ const isLoggedIn = Boolean(readCookie('session') || readCookie('token'));
         <p class="mb-4">You are signed in.</p>
         <div class="flex gap-3">
           <a href="/dashboard" class="px-4 py-2 rounded bg-primary text-accent font-ethno">Go to Dashboard</a>
-          <a href="/api/auth/logout" class="px-4 py-2 rounded border border-white/30 font-ethno">Logout</a>
+          <a href="/.netlify/functions/auth-logout" class="px-4 py-2 rounded border border-white/30 font-ethno">Logout</a>
         </div>
       </section>
     ) : (
