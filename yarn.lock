@@ -16659,11 +16659,11 @@ __metadata:
     postcss-nesting: ^13.0.2
     preact: ^10.26.5
     prettier: ^3.5.3
-    react: 19
+    react: 18.3.1
     react-apexcharts: ^1.7.0
     react-dnd: ^16.0.1
     react-dnd-html5-backend: ^16.0.1
-    react-dom: 19
+    react-dom: 18.3.1
     react-dropzone: ^14.3.8
     react-helmet-async: ^2.0.5
     react-is: ^19.1.0
@@ -28181,14 +28181,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:19":
-  version: 19.1.1
-  resolution: "react-dom@npm:19.1.1"
+"react-dom@npm:18.3.1":
+  version: 18.3.1
+  resolution: "react-dom@npm:18.3.1"
   dependencies:
-    scheduler: ^0.26.0
+    loose-envify: ^1.1.0
+    scheduler: ^0.23.2
   peerDependencies:
-    react: ^19.1.1
-  checksum: 71d63df955e99bb58470c6ae12ebb82fa80e2a73147c387b73a31c17bcff803ce8aded52ae0c4391c9b413be0aa449249d8be7d063136826d1f0caba9720a907
+    react: ^18.3.1
+  checksum: 298954ecd8f78288dcaece05e88b570014d8f6dce5db6f66e6ee91448debeb59dcd31561dddb354eee47e6c1bb234669459060deb238ed0213497146e555a0b9
   languageName: node
   linkType: hard
 
@@ -28483,10 +28484,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:19":
-  version: 19.1.1
-  resolution: "react@npm:19.1.1"
-  checksum: f2f18fea5deac87b1167365bd5160bcba64d383c26a37afa905b714ca424f423ef97d8daf53f041ab9ac25a06357fafcf0b5d3b6b84c9d1eace0e621bfeae629
+"react@npm:18.3.1":
+  version: 18.3.1
+  resolution: "react@npm:18.3.1"
+  dependencies:
+    loose-envify: ^1.1.0
+  checksum: a27bcfa8ff7c15a1e50244ad0d0c1cb2ad4375eeffefd266a64889beea6f6b64c4966c9b37d14ee32d6c9fcd5aa6ba183b6988167ab4d127d13e7cb5b386a376
   languageName: node
   linkType: hard
 
@@ -30120,10 +30123,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"scheduler@npm:^0.26.0":
-  version: 0.26.0
-  resolution: "scheduler@npm:0.26.0"
-  checksum: c63a9f1c0e5089b537231cff6c11f75455b5c8625ae09535c1d7cd0a1b0c77ceecdd9f1074e5e063da5d8dc11e73e8033dcac3361791088be08a6e60c0283ed9
+"scheduler@npm:^0.23.2":
+  version: 0.23.2
+  resolution: "scheduler@npm:0.23.2"
+  dependencies:
+    loose-envify: ^1.1.0
+  checksum: 3e82d1f419e240ef6219d794ff29c7ee415fbdc19e038f680a10c067108e06284f1847450a210b29bbaf97b9d8a97ced5f624c31c681248ac84c80d56ad5a2c4
   languageName: node
   linkType: hard
 

@@ -3,10 +3,9 @@ import AccountDashboard from '@/components/accountdashboard.astro';
 import MobileMenu from '@/components/navbar/mobile-menu';
 import CartEntry from '@/components/cart/CartEntry.tsx';
 import CartButton from '@/components/cart/cart-button.tsx';
-import HeaderAuth from '@/components/HeaderAuth.tsx';
 ---
 
-<header class="text-white w-full fixed top-0 z-[50] header-fade-in">
+<header class="text-white w-full fixed top-0 z-[99999] header-fade-in">
   <CartEntry client:idle />
 
   <!-- Top Bar (Desktop/Tablet) -->
@@ -16,46 +15,21 @@ import HeaderAuth from '@/components/HeaderAuth.tsx';
 
       </div>
       <div class="flex items-center gap-2">
-        <span id="account-top-badge" class="text-sm text-white/80"></span>
+        <CartButton client:idle />
       </div>
     </div>
   </div>
-  <HeaderAuth client:idle />
 
-  <!-- Mobile Header -->
-  <div id="mheader" class="md:hidden shadow-md flex items-center justify-between px-4 h-14">
-    <button
-      id="mnavToggle"
-      aria-label="Toggle menu"
-      aria-expanded="false"
-      aria-controls="mnavDrawer"
-      class="p-2 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-accent"
-    >
-      <svg id="mnavIcon" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path id="mline1" stroke-linecap="round" stroke-linejoin="round" d="M4 7h16" />
-        <path id="mline2" stroke-linecap="round" stroke-linejoin="round" d="M4 12h16" />
-        <path id="mline3" stroke-linecap="round" stroke-linejoin="round" d="M4 17h16" />
-      </svg>
-    </button>
-    <a href="/" class="block">
-      <img src="/logo/faslogochroma.png" alt="FAS Chrome Logo" class="h-8 w-auto object-contain transition-all duration-300" width="64" height="64" />
-    </a>
-    <div class="flex items-center gap-3">
-      <CartButton client:idle />
-    </div>
+<!-- Drawer + Scrim -->
+<div id="mnavScrim" aria-hidden="true" class="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[59] hidden opacity-0 transition-opacity duration-300 pointer-events-none"></div>
+<aside id="mnavDrawer" class="md:hidden fixed top-0 left-0 h-full w-[84%] max-w-[360px] bg-[#0b0b0c]/95 border-r border-white/20 z-[60] -translate-x-full transition-transform duration-300 ease-out overflow-y-auto will-change-transform">
+  <div class="pt-10 pb-8 px-4">
+    <MobileMenu mode="inline" client:load />
   </div>
-
-  <!-- Mobile Drawer + Scrim -->
-  <div id="mnavScrim" aria-hidden="true" class="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[59] hidden opacity-0 transition-opacity duration-300 pointer-events-none"></div>
-  <aside
-    id="mnavDrawer"
-    class="md:hidden fixed top-0 left-0 h-full w-4/5 max-w-[360px] bg-black/95 border-r border-gray-700 z-[60] overflow-y-auto -translate-x-full transition-transform duration-300 ease-out"
-  >
-    <div class="pt-12 pb-8 px-4">
-      <MobileMenu mode="inline" client:idle />
-      <button id="closeMobileDrawer" class="text-accent hover:text-white text-xl font-bold absolute top-4 right-4">×</button>
-    </div>
-  </aside>
+  <div class="flex justify-end">
+      <button id="closeDesktopDrawerRight" class="text-red-500 hover:text-white text-lg font-bold -mt-4 -mr-2 px-2 py-1 rounded-full transition-all">×</button>
+  </div>
+</aside>
 
   <!-- Desktop Header -->
   <div id="dheader" class="hidden rounded-full liquid-skin liquid-skin-mobile-off md:block">
@@ -73,7 +47,7 @@ import HeaderAuth from '@/components/HeaderAuth.tsx';
       </div>
       <div class="flex justify-center">
         <a href="/">
-          <img src="/logo/faslogochroma.png" alt="FAS Chrome Logo" class="h-12 w-auto object-contain transition-all duration-300" width="96" height="96" />
+          <img src="/logo/faslogo150.png" alt="FAS Logo" class="h-12 w-auto object-contain transition-all duration-300" width="96" height="96" />
         </a>
       </div>
       <div class="flex justify-end items-center gap-4">
@@ -82,37 +56,57 @@ import HeaderAuth from '@/components/HeaderAuth.tsx';
           <span class="text-gray-500">|</span>
           <a href="/shop/categories" class="hover:text-accent transition-colors duration-300">Shop ➤</a>
         </nav>
-        <CartButton client:idle />
+        <button id="accountDashboardToggleTop" aria-label="Open account panel" class="inline-flex items-center justify-center p-1.5 rounded hover:text-primary focus:outline-none focus:ring-2 focus:ring-accent">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="16" rx="2" ry="2"/>
+            <line x1="16" y1="4" x2="16" y2="20"/>
+            <rect x="5" y="6" width="9" height="12" rx="1"/>
+          </svg>
+        </button>
       </div>
     </div>
 
   </div>
 
-  <!-- Desktop Drawer + Scrim -->
-  <div id="desktopScrim" aria-hidden="true" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[850] opacity-0 transition-opacity duration-300 pointer-events-none"></div>
-  <aside
-    id="desktopDrawerLeft"
-    aria-hidden="true"
-    class="hidden md:block invisible fixed top-0 left-0 h-full w-[330px] border-r bg-black/90 border-gray-700 z-[900] overflow-y-auto -translate-x-full transition-transform duration-300 ease-out"
-  >
-    <div class="pt-16 pb-8 px-6">
-      <button id="closeDesktopDrawerLeft" class="text-accent hover:text-white text-xl font-bold absolute top-4 right-4">×</button>
-      <MobileMenu mode="inline" client:idle />
-    </div>
-  </aside>
-
-  <!-- Account Dashboard Drawer (right side) -->
-  <aside
-    id="accountDashboardPanel"
-    class="hidden fixed top-0 right-0 h-full w-[360px] bg-black/85 backdrop-blur-md border-l border-white/10 z-[900] overflow-y-auto translate-x-full transition-transform duration-300 ease-out"
-  >
-    <div class="pt-12 pb-8 px-6">
-      <h2 class="text-xl font-bold text-white">Account</h2>
-      <button id="closeAccountDashboard" class="absolute top-4 right-4 text-accent hover:text-white text-xl font-bold">×</button>
-      <AccountDashboard />
-    </div>
-  </aside>
 </header>
+
+<!-- Root-level overlays (mirrors Header.astro structure to avoid header stacking) -->
+<!-- Mobile Drawer + Scrim -->
+<div id="mnavScrim" aria-hidden="true" class="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[99999] hidden opacity-0 transition-opacity duration-300 pointer-events-none"></div>
+<aside
+  id="mnavDrawer"
+  class="md:hidden fixed top-0 left-0 h-full w-4/5 max-w-[360px] bg-black/95 border-r border-gray-700 z-[100000] overflow-y-auto -translate-x-full transition-transform duration-300 ease-out"
+>
+  <div class="pt-12 pb-8 px-4">
+    <MobileMenu mode="inline" client:idle />
+    <button id="closeMobileDrawer" class="text-accent hover:text-white text-xl font-bold absolute top-4 right-4">×</button>
+  </div>
+</aside>
+
+<!-- Desktop Drawer + Scrim -->
+<div id="desktopScrim" aria-hidden="true" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[99999] opacity-0 transition-opacity duration-300 pointer-events-none"></div>
+<aside
+  id="desktopDrawerLeft"
+  aria-hidden="true"
+  class="hidden md:block invisible fixed top-0 left-0 h-full w-[330px] border-r bg-black/90 border-gray-700 z-[100000] overflow-y-auto -translate-x-full transition-transform duration-300 ease-out"
+>
+  <div class="pt-16 pb-8 px-6">
+    <button id="closeDesktopDrawerLeft" class="text-accent hover:text-white text-xl font-bold absolute top-4 right-4">×</button>
+    <MobileMenu mode="inline" client:idle />
+  </div>
+</aside>
+
+<!-- Account Dashboard Drawer (right side) -->
+<aside
+  id="accountDashboardPanel"
+  class="hidden fixed top-0 right-0 h-full w-[360px] bg-black/85 backdrop-blur-md border-l border-white/10 z-[100000] overflow-y-auto translate-x-full transition-transform duration-300 ease-out"
+>
+  <div class="pt-12 pb-8 px-6">
+    <h2 class="text-xl font-bold text-white">Account</h2>
+    <button id="closeAccountDashboard" class="absolute top-4 right-4 text-accent hover:text-white text-xl font-bold">×</button>
+    <AccountDashboard />
+  </div>
+</aside>
 
 <script is:inline>
   document.addEventListener("DOMContentLoaded", function () {
@@ -222,29 +216,13 @@ import HeaderAuth from '@/components/HeaderAuth.tsx';
       isDashboardOpen = false;
     }
 
-    accountDashboardToggle?.addEventListener("click", async () => {
-      try {
-        if (window.fasAuth) {
-          const authed = await window.fasAuth.isAuthenticated();
-          if (!authed) return window.fasAuth.loginTo('/dashboard');
-          // already signed in → go to dashboard
-          return (window.location.href = '/dashboard');
-        }
-      } catch {}
-      // fallback: go to account page (will handle login)
-      window.location.href = '/account';
+    accountDashboardToggle?.addEventListener("click", () => {
+      if (isDashboardOpen) return closeDashboard();
+      openDashboard();
     });
-    accountDashboardToggleTop?.addEventListener("click", async () => {
-      try {
-        if (window.fasAuth) {
-          const authed = await window.fasAuth.isAuthenticated();
-          if (!authed) return window.fasAuth.loginTo('/dashboard');
-          // already signed in → go to dashboard
-          return (window.location.href = '/dashboard');
-        }
-      } catch {}
-      // fallback: go to account page (will handle login)
-      window.location.href = '/account';
+    accountDashboardToggleTop?.addEventListener("click", () => {
+      if (isDashboardOpen) return closeDashboard();
+      openDashboard();
     });
     closeAccountDashboard?.addEventListener("click", closeDashboard);
     desktopScrim?.addEventListener("click", closeDashboard);

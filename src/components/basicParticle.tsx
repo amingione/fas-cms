@@ -275,6 +275,8 @@ const BasicParticles = ({
   const loadedRef = useRef(false);
 
   useEffect(() => {
+    // In dev, skip loading particles to avoid Vite "Outdated Optimize Dep" churn
+    if (import.meta.env.DEV) return;
     if (loadedRef.current) return;
     // Respect reduced motion and small screens (skip particles)
     const prefersReduced =

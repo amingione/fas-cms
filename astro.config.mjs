@@ -82,9 +82,17 @@ export default defineConfig({
         '@fullcalendar/core',
         'apexcharts'
       ],
+      exclude: [
+        // Avoid prebundling particles to reduce dev 504 "Outdated Optimize Dep" churn
+        'react-tsparticles',
+        'tsparticles-slim',
+        '@tsparticles/react',
+        '@tsparticles/engine',
+        'tsparticles'
+      ]
     },
     resolve: {
-      dedupe: ['react', 'react-dom'],
+      dedupe: ['react', 'react-dom', 'react/jsx-runtime'],
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
         '@components': fileURLToPath(new URL('./src/components', import.meta.url)),

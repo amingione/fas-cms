@@ -49,14 +49,22 @@ export const handler: Handler = async (event) => {
   // Optional returnTo (preserve target across login) via cookie
   const returnTo = event.queryStringParameters?.returnTo || '';
   const headers: Record<string, string> = { Location: authUrl.toString() };
+  const host = (event.headers['x-forwarded-host'] || event.headers['host'] || '') as string;
+  const needsParentDomain = /(?:^|\.)fasmotorsports\.com$/i.test(host);
+  const domainAttr = needsParentDomain ? '; Domain=.fasmotorsports.com' : '';
   if (returnTo) {
     const isSecure = baseUrl.startsWith('https://');
-    // If on fasmotorsports.com (any subdomain), scope cookie to parent so apex/www both see it
-    const host = (event.headers['x-forwarded-host'] || event.headers['host'] || '') as string;
-    const needsParentDomain = /(?:^|\.)fasmotorsports\.com$/i.test(host);
-    const domainAttr = needsParentDomain ? '; Domain=.fasmotorsports.com' : '';
     headers['Set-Cookie'] = `fas_return_to=${encodeURIComponent(returnTo)}; Path=/; Max-Age=600; SameSite=Lax${isSecure ? '; Secure' : ''}${domainAttr}`;
   }
+  const debug = [
+    `host=${host}`,
+    `baseUrl=${baseUrl}`,
+    `issuer=${issuer}`,
+    `redirectUri=${redirectUri}`,
+    `returnTo=${returnTo || ''}`,
+    `cookieDomain=${needsParentDomain ? '.fasmotorsports.com' : 'host'}`
+  ].join('|');
+  headers['x-fas-auth-debug'] = debug;
 
   return { statusCode: 302, headers };
 };

@@ -108,12 +108,23 @@ export const handler: Handler = async (event) => {
   const needsParentDomain = /(?:^|\.)fasmotorsports\.com$/i.test(host);
   const domainAttr = needsParentDomain ? '; Domain=.fasmotorsports.com' : '';
 
+  const debug = [
+    `host=${host}`,
+    `baseUrl=${baseUrl}`,
+    `issuer=${issuer}`,
+    `redirectUri=${redirectUri}`,
+    `next=${nextLocation}`,
+    `cookieDomain=${needsParentDomain ? '.fasmotorsports.com' : 'host'}`,
+    `secure=${String(!isLocal)}`
+  ].join('|');
+
   const headers = {
     'Set-Cookie': [
       `session=${session}; ${sessionFlags}${domainAttr}`,
       `fas_return_to=; Path=/; Max-Age=0; SameSite=Lax${domainAttr}`
     ].join(', '),
-    Location: nextLocation
+    Location: nextLocation,
+    'x-fas-auth-debug': debug
   } as Record<string, string>;
 
   return { statusCode: 302, headers };
