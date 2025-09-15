@@ -23,6 +23,23 @@ const deriveBaseUrl = (event: any) => {
 };
 
 export const handler: Handler = async (event) => {
+  // If we already have a session cookie, don't bounce to Auth0 again —
+  // send the user to their intended destination.
+  try {
+    const cookie = (event.headers.cookie || event.headers.Cookie || '') as string;
+    const hasSession = /(?:^|;\s*)session=([^;]+)/.test(cookie);
+    if (hasSession) {
+      const returnTo = event.queryStringParameters?.returnTo || '/dashboard';
+      return {
+        statusCode: 302,
+        headers: {
+          Location: returnTo,
+          'Cache-Control': 'no-store'
+        }
+      };
+    }
+  } catch {}
+
   const domain = resolveDomain();
   const clientId = resolveClientId();
   const baseUrl = deriveBaseUrl(event);
@@ -48,7 +65,7 @@ export const handler: Handler = async (event) => {
 
   // Optional returnTo (preserve target across login) via cookie
   const returnTo = event.queryStringParameters?.returnTo || '';
-  const headers: Record<string, string> = { Location: authUrl.toString() };
+  const headers: Record<string, string> = { Location: authUrl.toString(), 'Cache-Control': 'no-store' };
   const host = (event.headers['x-forwarded-host'] || event.headers['host'] || '') as string;
   const needsParentDomain = /(?:^|\.)fasmotorsports\.com$/i.test(host);
   const domainAttr = needsParentDomain ? '; Domain=.fasmotorsports.com' : '';
