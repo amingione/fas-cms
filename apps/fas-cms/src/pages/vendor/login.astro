@@ -95,6 +95,7 @@ const title = 'Vendor Login';
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
+          credentials: 'include'
         });
         const data = await res.json();
         if (res.ok) {
@@ -102,7 +103,9 @@ const title = 'Vendor Login';
           if (data.token) {
             localStorage.setItem('vendorToken', data.token);
           }
-          window.location.href = '/vendor/dashboard';
+          const params = new URLSearchParams(window.location.search);
+          const returnTo = params.get('returnTo') || '/vendor/dashboard';
+          window.location.href = returnTo;
         } else {
           errorEl.textContent = data.message || 'Login failed';
           errorEl.classList.remove('hidden');

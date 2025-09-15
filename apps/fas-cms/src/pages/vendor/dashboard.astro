@@ -55,7 +55,8 @@ const title = 'Vendor Dashboard';
         const res = await fetch('/api/vendor/dashboard', {
           headers: {
             'Authorization': `Bearer ${token}`
-          }
+          },
+          credentials: 'include'
         });
         
         const data = await res.json();

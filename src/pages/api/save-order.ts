@@ -49,8 +49,8 @@ export const POST = async ({ request }: { request: Request }) => {
   try {
     const body = (await request.json()) as SaveOrderBody;
 
-    const { session: authSession } = await readSession(request);
-    const customerEmail = authSession?.user?.email;
+    const sessionResult = await readSession(request);
+    const customerEmail = sessionResult.session?.user?.email;
     if (typeof customerEmail !== 'string') {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
     }

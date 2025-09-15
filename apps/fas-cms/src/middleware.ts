@@ -5,17 +5,28 @@ const PROTECTED_CUSTOMER = [/^\/dashboard(?:\/.*)?$/];
 const PROTECTED_VENDOR = [/^\/vendor(?:\/.*)?$/];
 const PROTECTED_ADMIN = [/^\/admin(?:\/.*)?$/];
 
+const PUBLIC_VENDOR_PATHS = new Set(['/vendor/login', '/vendor/apply']);
+
 const isMatch = (path: string, patterns: RegExp[]) => patterns.some((re) => re.test(path));
 
 export const onRequest: MiddlewareHandler = async (context, next) => {
-  const pathname = new URL(context.url).pathname;
+  const rawPath = new URL(context.url).pathname;
+  const pathname = rawPath.length > 1 && rawPath.endsWith('/') ? rawPath.slice(0, -1) : rawPath;
+  // Allowlisted vendor paths stay public (eg. login/apply pages)
+  if (PUBLIC_VENDOR_PATHS.has(pathname)) {
+    return next();
+  }
+
   // Only apply to protected routes
   if (!isMatch(pathname, [...PROTECTED_CUSTOMER, ...PROTECTED_VENDOR, ...PROTECTED_ADMIN])) {
     return next();
   }
   const { session } = await readSession(context.request);
   if (!session?.user) {
-    const loginUrl = new URL('/api/auth/login', context.url);
+    const loginPath = isMatch(pathname, PROTECTED_VENDOR)
+      ? '/vendor/login'
+      : '/account';
+    const loginUrl = new URL(loginPath, context.url);
     loginUrl.searchParams.set('returnTo', pathname);
     return context.redirect(loginUrl.toString());
   }
