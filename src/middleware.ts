@@ -11,8 +11,8 @@ export const onRequest: MiddlewareHandler = async ({ request, redirect, locals }
   {
     const hasCode = url.searchParams.has('code');
     const hasState = url.searchParams.has('state');
-    // Only normalize callbacks on pages we explicitly SSR-handle; allow /account to be handled by SPA
-    const onAuthEntry = url.pathname === '/' || url.pathname === '/dashboard';
+    // Only normalize callbacks on the homepage; avoid touching /account or /dashboard to prevent loops
+    const onAuthEntry = url.pathname === '/';
     const isFn = url.pathname.startsWith('/.netlify/functions');
     if (hasCode && hasState && onAuthEntry && !isFn) {
       const qs = url.searchParams.toString();
