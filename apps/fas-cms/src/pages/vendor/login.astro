@@ -68,22 +68,40 @@ const title = 'Vendor Login';
   </div>
 
   <script>
-    document.getElementById('vendorLoginForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('vendorEmail').value;
-      const password = document.getElementById('vendorPassword').value;
-      const errorEl = document.getElementById('vendorLoginError');
+    /** @type {HTMLFormElement | null} */
+    const loginForm = document.querySelector('#vendorLoginForm');
+
+    loginForm?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      /** @type {HTMLInputElement | null} */
+      const emailInput = document.querySelector('#vendorEmail');
+      /** @type {HTMLInputElement | null} */
+      const passwordInput = document.querySelector('#vendorPassword');
+      /** @type {HTMLParagraphElement | null} */
+      const errorEl = document.querySelector('#vendorLoginError');
+
+      if (!emailInput || !passwordInput || !errorEl) {
+        console.error('Required login form elements missing');
+        return;
+      }
+
+      const email = (emailInput as HTMLInputElement).value;
+      const password = (passwordInput as HTMLInputElement).value;
       errorEl.classList.add('hidden');
+
       try {
         const res = await fetch('/api/vendor/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
+          body: JSON.stringify({ email, password }),
         });
         const data = await res.json();
         if (res.ok) {
           // Store the vendor token for subsequent requests
-          localStorage.setItem('vendorToken', data.token);
+          if (data.token) {
+            localStorage.setItem('vendorToken', data.token);
+          }
           window.location.href = '/vendor/dashboard';
         } else {
           errorEl.textContent = data.message || 'Login failed';

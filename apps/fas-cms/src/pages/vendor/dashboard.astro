@@ -34,23 +34,34 @@ const title = 'Vendor Dashboard';
     </div>
   </div>
 
-  <script>
+  <script is:inline>
     async function loadVendorDashboard() {
-      const ordersList = document.getElementById('ordersList');
-      const quotesList = document.getElementById('quotesList');
+      const ordersList = document.querySelector('#ordersList');
+      const quotesList = document.querySelector('#quotesList');
+      
+      if (!ordersList || !quotesList) {
+        console.error('Required elements not found');
+        return;
+      }
+      
       const token = localStorage.getItem('vendorToken');
       if (!token) {
         ordersList.innerHTML = '<li class="p-4 bg-gray-800 rounded-lg">No vendor token found – please log in.</li>';
         quotesList.innerHTML = '';
         return;
       }
+      
       try {
         const res = await fetch('/api/vendor/dashboard', {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         });
+        
         const data = await res.json();
-        const orders = data.orders || [];
-        const quotes = data.quotes || [];
+        const orders = data.orders ?? [];
+        const quotes = data.quotes ?? [];
+        
         if (orders.length > 0) {
           ordersList.innerHTML = orders
             .map((order) => {
@@ -61,6 +72,7 @@ const title = 'Vendor Dashboard';
         } else {
           ordersList.innerHTML = '<li class="p-4 bg-gray-800 rounded-lg">No orders yet.</li>';
         }
+        
         if (quotes.length > 0) {
           quotesList.innerHTML = quotes
             .map((quote) => {
@@ -69,13 +81,15 @@ const title = 'Vendor Dashboard';
             })
             .join('');
         } else {
-          quotesList.innerHTML = '<li class="p-4 bg-gray-800 rounded-lg">No quotes submitted.</li>';
+          quotesList.innerHTML = '<li class="p-4 bg-gray-800 rounded-lg">No quotes yet.</li>';
         }
-      } catch (err) {
+      } catch (error) {
+        console.error('Error loading dashboard:', error);
         ordersList.innerHTML = '<li class="p-4 bg-gray-800 rounded-lg">Failed to load dashboard.</li>';
         quotesList.innerHTML = '';
       }
     }
+    
     document.addEventListener('DOMContentLoaded', loadVendorDashboard);
   </script>
 </BaseLayout>
