@@ -49,8 +49,8 @@ export const POST = async ({ request }: { request: Request }) => {
   try {
     const body = (await request.json()) as SaveOrderBody;
 
-    const { session } = await readSession(request);
-    const customerEmail = session?.user?.email;
+    const { session: authSession } = await readSession(request);
+    const customerEmail = authSession?.user?.email;
     if (typeof customerEmail !== 'string') {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
     }
@@ -77,7 +77,7 @@ export const POST = async ({ request }: { request: Request }) => {
 
     const validatedCart: CartItem[] = cartValidation.data as CartItem[];
 
-    const session = await stripeClient.checkout.sessions.retrieve(sessionId, {
+    const stripeSession = await stripeClient.checkout.sessions.retrieve(sessionId, {
       expand: ['customer_details']
     });
 
@@ -124,7 +124,7 @@ export const POST = async ({ request }: { request: Request }) => {
         quantity: item.quantity,
         categories: (item.categories ?? []) as string[]
       })),
-      totalAmount: session.amount_total ? session.amount_total / 100 : 0,
+      totalAmount: stripeSession.amount_total ? stripeSession.amount_total / 100 : 0,
       status: 'paid',
       createdAt: new Date().toISOString()
     };
