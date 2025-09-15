@@ -3,13 +3,11 @@ import AccountDashboard from '@/components/accountdashboard.astro';
 import MobileMenu from '@/components/navbar/mobile-menu';
 import CartEntry from '@/components/cart/CartEntry.tsx';
 import CartButton from '@/components/cart/cart-button.tsx';
-import { SearchBar } from '@/components/SearchBar.tsx';
-import MotionHeader from '@/components/header/MotionHeader.tsx';
 import HeaderAuth from '@/components/HeaderAuth.tsx';
 ---
 
-<MotionHeader client:load className="text-white w-full fixed top-0 z-[50]">
-  <CartEntry client:load />
+<header class="text-white w-full fixed top-0 z-[50] header-fade-in">
+  <CartEntry client:idle />
 
   <!-- Top Bar (Desktop/Tablet) -->
   <div id="topBar" class="hidden md:block pt-2 transform transition-transform duration-300 will-change-transform">
@@ -22,7 +20,7 @@ import HeaderAuth from '@/components/HeaderAuth.tsx';
       </div>
     </div>
   </div>
-  <HeaderAuth client:load />
+  <HeaderAuth client:idle />
 
   <!-- Mobile Header -->
   <div id="mheader" class="md:hidden shadow-md flex items-center justify-between px-4 h-14">
@@ -40,10 +38,10 @@ import HeaderAuth from '@/components/HeaderAuth.tsx';
       </svg>
     </button>
     <a href="/" class="block">
-      <img src="/logo/faslogochroma.png" alt="FAS Chrome Logo" class="h-8 w-auto object-contain transition-all duration-300" />
+      <img src="/logo/faslogochroma.png" alt="FAS Chrome Logo" class="h-8 w-auto object-contain transition-all duration-300" width="64" height="64" />
     </a>
     <div class="flex items-center gap-3">
-      <CartButton client:load />
+      <CartButton client:idle />
     </div>
   </div>
 
@@ -54,7 +52,7 @@ import HeaderAuth from '@/components/HeaderAuth.tsx';
     class="md:hidden fixed top-0 left-0 h-full w-4/5 max-w-[360px] bg-black/95 border-r border-gray-700 z-[60] overflow-y-auto -translate-x-full transition-transform duration-300 ease-out"
   >
     <div class="pt-12 pb-8 px-4">
-      <MobileMenu mode="inline" client:load />
+      <MobileMenu mode="inline" client:idle />
       <button id="closeMobileDrawer" class="text-accent hover:text-white text-xl font-bold absolute top-4 right-4">×</button>
     </div>
   </aside>
@@ -75,7 +73,7 @@ import HeaderAuth from '@/components/HeaderAuth.tsx';
       </div>
       <div class="flex justify-center">
         <a href="/">
-          <img src="/logo/faslogochroma.png" alt="FAS Chrome Logo" class="h-12 w-auto object-contain transition-all duration-300" />
+          <img src="/logo/faslogochroma.png" alt="FAS Chrome Logo" class="h-12 w-auto object-contain transition-all duration-300" width="96" height="96" />
         </a>
       </div>
       <div class="flex justify-end items-center gap-4">
@@ -84,7 +82,7 @@ import HeaderAuth from '@/components/HeaderAuth.tsx';
           <span class="text-gray-500">|</span>
           <a href="/shop/categories" class="hover:text-accent transition-colors duration-300">Shop ➤</a>
         </nav>
-        <CartButton client:load />
+        <CartButton client:idle />
       </div>
     </div>
 
@@ -99,7 +97,7 @@ import HeaderAuth from '@/components/HeaderAuth.tsx';
   >
     <div class="pt-16 pb-8 px-6">
       <button id="closeDesktopDrawerLeft" class="text-accent hover:text-white text-xl font-bold absolute top-4 right-4">×</button>
-      <MobileMenu mode="inline" client:load />
+      <MobileMenu mode="inline" client:idle />
     </div>
   </aside>
 
@@ -114,7 +112,7 @@ import HeaderAuth from '@/components/HeaderAuth.tsx';
       <AccountDashboard />
     </div>
   </aside>
-</MotionHeader>
+</header>
 
 <script is:inline>
   document.addEventListener("DOMContentLoaded", function () {
@@ -297,6 +295,14 @@ import HeaderAuth from '@/components/HeaderAuth.tsx';
   }
   .d-shrink img {
     @apply h-8;
+  }
+  .header-fade-in {
+    opacity: 0;
+    transform: translateY(-12px);
+    animation: header-enter 600ms ease-out forwards;
+  }
+  @keyframes header-enter {
+    to { opacity: 1; transform: translateY(0); }
   }
   img {
     @apply max-w-full object-contain;

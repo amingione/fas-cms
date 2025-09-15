@@ -51,7 +51,11 @@ export const handler: Handler = async (event) => {
   const headers: Record<string, string> = { Location: authUrl.toString() };
   if (returnTo) {
     const isSecure = baseUrl.startsWith('https://');
-    headers['Set-Cookie'] = `fas_return_to=${encodeURIComponent(returnTo)}; Path=/; Max-Age=600; SameSite=Lax${isSecure ? '; Secure' : ''}`;
+    // If on fasmotorsports.com (any subdomain), scope cookie to parent so apex/www both see it
+    const host = (event.headers['x-forwarded-host'] || event.headers['host'] || '') as string;
+    const needsParentDomain = /(?:^|\.)fasmotorsports\.com$/i.test(host);
+    const domainAttr = needsParentDomain ? '; Domain=.fasmotorsports.com' : '';
+    headers['Set-Cookie'] = `fas_return_to=${encodeURIComponent(returnTo)}; Path=/; Max-Age=600; SameSite=Lax${isSecure ? '; Secure' : ''}${domainAttr}`;
   }
 
   return { statusCode: 302, headers };

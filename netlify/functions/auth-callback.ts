@@ -103,8 +103,16 @@ export const handler: Handler = async (event) => {
     if (rt && rt.startsWith('/') && !rt.startsWith('//')) nextLocation = rt;
   } catch {}
 
+  // Use parent domain cookie scope so apex and www both receive the cookie, if applicable
+  const host = (event.headers['x-forwarded-host'] || event.headers['host'] || '') as string;
+  const needsParentDomain = /(?:^|\.)fasmotorsports\.com$/i.test(host);
+  const domainAttr = needsParentDomain ? '; Domain=.fasmotorsports.com' : '';
+
   const headers = {
-    'Set-Cookie': [`session=${session}; ${sessionFlags}`, 'fas_return_to=; Path=/; Max-Age=0; SameSite=Lax'].join(', '),
+    'Set-Cookie': [
+      `session=${session}; ${sessionFlags}${domainAttr}`,
+      `fas_return_to=; Path=/; Max-Age=0; SameSite=Lax${domainAttr}`
+    ].join(', '),
     Location: nextLocation
   } as Record<string, string>;
 

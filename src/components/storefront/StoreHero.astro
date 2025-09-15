@@ -44,7 +44,9 @@ const {
       src={imgSrc}
       alt={imgAlt || title || 'Store Hero Background'}
       class="absolute inset-0 w-full h-full object-contain object-left justify-left opacity-30"
-      loading="lazy"
+      loading="eager"
+      decoding="async"
+      fetchpriority="high"
     />
   )}
   <div class="relative z-10 max-w-7xl mx-auto px-4 md:px-6 py-16 text-center">

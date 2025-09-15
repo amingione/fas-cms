@@ -1,6 +1,7 @@
-import { useCallback, useMemo } from 'react';
-import Particles from 'react-tsparticles';
-import { loadSlim } from 'tsparticles-slim';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+// Lazy-load heavy particle libs at runtime to reduce TBT
+// We avoid static imports so the bundle for pages without particles stays lean.
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import type { Container, Engine, ISourceOptions } from 'tsparticles-engine';
 import type { CSSProperties } from 'react';
 
@@ -255,10 +256,6 @@ const BasicParticles = ({
   fullScreen,
   zIndex
 }: Props) => {
-  const particlesInit = useCallback(async (engine: Engine) => {
-    await loadSlim(engine);
-  }, []);
-
   const mergedOptions = useMemo(() => {
     const base = { ...(defaultOptions as any) };
     // Apply fullScreen toggle/zIndex if provided
@@ -273,20 +270,64 @@ const BasicParticles = ({
     return { ...base, ...(options || {}) } as ISourceOptions;
   }, [options, fullScreen, zIndex]);
 
-  const particlesLoaded = async (container?: Container): Promise<void> => {
-    // noop; hook for debugging
-  };
+  // Defer heavy imports until after idle + only on larger screens
+  const [ParticlesComp, setParticlesComp] = useState<null | ((props: any) => JSX.Element)>(null);
+  const loadedRef = useRef(false);
 
-  return (
-    <Particles
-      id={id}
-      className={className}
-      style={style}
-      init={particlesInit}
-      loaded={particlesLoaded}
-      options={mergedOptions}
-    />
-  );
+  useEffect(() => {
+    if (loadedRef.current) return;
+    // Respect reduced motion and small screens (skip particles)
+    const prefersReduced =
+      typeof window !== 'undefined' && window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isSmallScreen = typeof window !== 'undefined' && window.matchMedia &&
+      window.matchMedia('(max-width: 768px)').matches;
+    if (prefersReduced || isSmallScreen) return;
+
+    const run = () => {
+      if (loadedRef.current) return;
+      loadedRef.current = true;
+      // Dynamically import to avoid blocking main thread during initial load
+      Promise.all([
+        import('react-tsparticles'),
+        import('tsparticles-slim')
+      ]).then(async ([modParticles, modSlim]) => {
+        const Particles = (modParticles as any)?.default || (modParticles as any);
+        const loadSlim = (modSlim as any)?.loadSlim || (modSlim as any)?.default || (modSlim as any);
+        const particlesInit = async (engine: Engine) => {
+          await loadSlim(engine);
+        };
+        const particlesLoaded = async (_container?: Container) => {};
+        // Bind a tiny wrapper so we can pass init/loaded without re-creating Particles element
+        const Wrapper = (p: any) => (
+          <Particles
+            id={id}
+            className={className}
+            style={style}
+            init={particlesInit}
+            loaded={particlesLoaded}
+            options={mergedOptions}
+            {...p}
+          />
+        );
+        setParticlesComp(() => Wrapper as any);
+      }).catch(() => {
+        // Fail silent; particles are purely decorative
+      });
+    };
+
+    // Use requestIdleCallback where supported to defer
+    const ric = (window as any).requestIdleCallback as undefined | ((cb: () => void) => number);
+    if (typeof ric === 'function') {
+      ric(run);
+    } else {
+      // Fallback to a short timeout
+      setTimeout(run, 800);
+    }
+  }, [id, className, style, mergedOptions]);
+
+  if (!ParticlesComp) return null;
+  return <ParticlesComp />;
 };
 
 export default BasicParticles;

@@ -16,6 +16,8 @@
   # Used by /api/checkout to build absolute success/cancel URLs
   # In production on Netlify, forwarded host headers are present, so this is a safe default.
   PUBLIC_BASE_URL = "https://fasmotorsports.com"
+  # Canonical site URL used as a fallback by auth flows
+  PUBLIC_SITE_URL = "https://www.fasmotorsports.com"
 
 [functions]
   directory = "netlify/functions"
