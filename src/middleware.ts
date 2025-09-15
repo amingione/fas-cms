@@ -6,6 +6,19 @@ const SESSION_SECRET = import.meta.env.SESSION_SECRET;
 export const onRequest: MiddlewareHandler = async ({ request, redirect, locals }, next) => {
   const url = new URL(request.url);
 
+  // Normalize OAuth callbacks only on expected entry pages and only when both code & state are present.
+  // This avoids redirecting normal pages that happen to get a stray param.
+  {
+    const hasCode = url.searchParams.has('code');
+    const hasState = url.searchParams.has('state');
+    const onAuthEntry = url.pathname === '/' || url.pathname === '/account' || url.pathname === '/dashboard';
+    const isFn = url.pathname.startsWith('/.netlify/functions');
+    if (hasCode && hasState && onAuthEntry && !isFn) {
+      const qs = url.searchParams.toString();
+      return redirect(`/.netlify/functions/auth-callback${qs ? `?${qs}` : ''}`);
+    }
+  }
+
   // Only guard /admin
   if (!url.pathname.startsWith('/admin')) return next();
 

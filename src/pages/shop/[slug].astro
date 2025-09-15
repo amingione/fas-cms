@@ -148,36 +148,47 @@ try {
                       name={groupKey}
                       data-group={groupKey}
                     >
-                      {values.map((v: any) => (
-                        <option
-                          value={(v?.value || v?.name || v?.title || v?.label || '').toString()}
-                          data-price={(typeof v?.priceDelta === 'number' ? v.priceDelta : (typeof v?.delta === 'number' ? v.delta : 0)).toString()}
-                        >
-                          {(v?.label || v?.title || v?.name || v?.value || 'Choice')}
-                          {typeof v?.priceDelta === 'number' && v.priceDelta !== 0 ? ` (+$${Number(v.priceDelta).toFixed(2)})` : ''}
-                          {typeof v?.delta === 'number' && v.delta !== 0 ? ` (+$${Number(v.delta).toFixed(2)})` : ''}
-                        </option>
-                      ))}
+                      {values.map((v: any) => {
+                        const val = typeof v === 'string' ? v : (v?.value || v?.name || v?.title || v?.label || '').toString();
+                        const label = typeof v === 'string' ? v : (v?.label || v?.title || v?.name || v?.value || 'Choice');
+                        const price = typeof v === 'object'
+                          ? (typeof v?.priceDelta === 'number'
+                              ? v.priceDelta
+                              : (typeof v?.delta === 'number' ? v.delta : (typeof v?.price === 'number' ? v.price : 0)))
+                          : 0;
+                        return (
+                          <option value={val} data-price={price.toString()}>
+                            {label}
+                            {price ? ` (+$${Number(price).toFixed(2)})` : ''}
+                          </option>
+                        );
+                      })}
                     </select>
                   ) : (
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {values.map((v: any, i: number) => (
-                        <label class="flex items-center gap-2 bg-black/30 border border-white/20 rounded px-2 py-2 cursor-pointer">
-                          <input
-                            type="radio"
-                            name={groupKey}
-                            value={(v?.value || v?.name || v?.title || v?.label || '').toString()}
-                            data-group={groupKey}
-                            data-price={typeof v?.priceDelta === 'number' ? v.priceDelta : (typeof v?.delta === 'number' ? v.delta : 0)}
-                            checked={i === 0}
-                          />
-                          <span class="text-sm">{v?.label || v?.title || v?.name || v?.value || 'Choice'}</span>
-                          <span class="ml-auto text-xs opacity-70">
-                            {typeof v?.priceDelta === 'number' && v.priceDelta !== 0 ? `+$${Number(v.priceDelta).toFixed(2)}` : ''}
-                            {typeof v?.delta === 'number' && v.delta !== 0 ? `+$${Number(v.delta).toFixed(2)}` : ''}
-                          </span>
-                        </label>
-                      ))}
+                      {values.map((v: any, i: number) => {
+                        const val = typeof v === 'string' ? v : (v?.value || v?.name || v?.title || v?.label || '').toString();
+                        const label = typeof v === 'string' ? v : (v?.label || v?.title || v?.name || v?.value || 'Choice');
+                        const price = typeof v === 'object'
+                          ? (typeof v?.priceDelta === 'number'
+                              ? v.priceDelta
+                              : (typeof v?.delta === 'number' ? v.delta : (typeof v?.price === 'number' ? v.price : 0)))
+                          : 0;
+                        return (
+                          <label class="flex items-center gap-2 bg-black/30 border border-white/20 rounded px-2 py-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              name={groupKey}
+                              value={val}
+                              data-group={groupKey}
+                              data-price={price}
+                              checked={i === 0}
+                            />
+                            <span class="text-sm">{label}</span>
+                            <span class="ml-auto text-xs opacity-70">{price ? `+$${Number(price).toFixed(2)}` : ''}</span>
+                          </label>
+                        );
+                      })}
                     </div>
                   )}
                 </div>

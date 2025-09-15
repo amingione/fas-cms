@@ -8,7 +8,7 @@ import { SearchBar } from '@/components/SearchBar.tsx';
 ---
 
 <header class="bg-black shadow-xl shadow-outline text-white w-full">
-  <CartEntry client:load />
+  <CartEntry client:only="react" />
 
   <!-- Top Red Bar (always visible) -->
 <div id="topRedBar" class="hidden md:block fixed top-0 w-full h-6 bg-primary text-white z-[50]">
@@ -54,7 +54,7 @@ import { SearchBar } from '@/components/SearchBar.tsx';
     <!-- Right side: Mobile Search + Cart -->
     <div class="flex items-center gap-3" id="mobileHeaderRight">
       <!-- Cart trigger (uses global CartProvider) -->
-      <CartButton client:load />
+      <CartButton client:only="react" />
     </div>
   </div>
 </div>
@@ -97,7 +97,7 @@ import { SearchBar } from '@/components/SearchBar.tsx';
           </svg>
         </button>
         <!-- Cart Modal Trigger (desktop) -->
-        <CartButton client:load />
+        <CartButton client:only="react" />
       </div>
     </div>
     <div class="w-[90%] h-px bg-white/70 mx-auto my-4 divider transition-all duration-300 ease-out"></div>

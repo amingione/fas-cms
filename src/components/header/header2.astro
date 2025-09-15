@@ -5,8 +5,34 @@ import CartEntry from '@/components/cart/CartEntry.tsx';
 import CartButton from '@/components/cart/cart-button.tsx';
 ---
 
-<header class="text-white w-full fixed top-0 z-[99999] header-fade-in">
-  <CartEntry client:idle />
+<header class="text-white w-full fixed top-0 z-[99999]">
+  <CartEntry client:only="react" />
+
+  <!-- Mobile Header -->
+  <div id="mheader" class="md:hidden w-full bg-black/80 backdrop-blur-md shadow-xl flex items-center justify-between px-4 h-12">
+    <!-- Mobile menu toggle -->
+    <button id="mnavToggle"
+            aria-label="Open menu"
+            aria-expanded="false"
+            aria-controls="mnavDrawer"
+            class="p-2 rounded-lg hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/10">
+      <svg id="mnavIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2">
+        <path id="mline1" stroke-linecap="round" stroke-linejoin="round" d="M4 7h16"/>
+        <path id="mline2" stroke-linecap="round" stroke-linejoin="round" d="M4 12h16"/>
+        <path id="mline3" stroke-linecap="round" stroke-linejoin="round" d="M4 17h16"/>
+      </svg>
+    </button>
+
+    <!-- Center Logo -->
+    <a href="/" class="block">
+      <img src="/logo/faslogochroma.png" alt="FAS Chrome Logo" class="h-8" />
+    </a>
+
+    <!-- Right: Cart button -->
+    <div class="flex items-center gap-3">
+      <CartButton client:only="react" />
+    </div>
+  </div>
 
   <!-- Top Bar (Desktop/Tablet) -->
   <div id="topBar" class="hidden md:block pt-2 transform transition-transform duration-300 will-change-transform">
@@ -15,21 +41,12 @@ import CartButton from '@/components/cart/cart-button.tsx';
 
       </div>
       <div class="flex items-center gap-2">
-        <CartButton client:idle />
+        <CartButton client:only="react" />
       </div>
     </div>
   </div>
 
-<!-- Drawer + Scrim -->
-<div id="mnavScrim" aria-hidden="true" class="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[59] hidden opacity-0 transition-opacity duration-300 pointer-events-none"></div>
-<aside id="mnavDrawer" class="md:hidden fixed top-0 left-0 h-full w-[84%] max-w-[360px] bg-[#0b0b0c]/95 border-r border-white/20 z-[60] -translate-x-full transition-transform duration-300 ease-out overflow-y-auto will-change-transform">
-  <div class="pt-10 pb-8 px-4">
-    <MobileMenu mode="inline" client:load />
-  </div>
-  <div class="flex justify-end">
-      <button id="closeDesktopDrawerRight" class="text-red-500 hover:text-white text-lg font-bold -mt-4 -mr-2 px-2 py-1 rounded-full transition-all">×</button>
-  </div>
-</aside>
+  
 
   <!-- Desktop Header -->
   <div id="dheader" class="hidden rounded-full liquid-skin liquid-skin-mobile-off md:block">

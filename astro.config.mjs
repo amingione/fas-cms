@@ -92,7 +92,14 @@ export default defineConfig({
       ]
     },
     resolve: {
-      dedupe: ['react', 'react-dom', 'react/jsx-runtime'],
+      // Prevent multiple React copies across islands/SSR
+      dedupe: [
+        'react',
+        'react-dom',
+        'react-dom/client',
+        'react/jsx-runtime',
+        'react/jsx-dev-runtime'
+      ],
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
         '@components': fileURLToPath(new URL('./src/components', import.meta.url)),
