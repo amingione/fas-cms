@@ -52,9 +52,19 @@ export async function getVendorByEmail(email: string) {
   return await sanity.fetch(query, { e: String(email || '').trim().toLowerCase() });
 }
 
+export async function getVendorBySub(sub: string) {
+  const query = '*[_type == "vendor" && userSub == $sub][0]';
+  return await sanity.fetch(query, { sub });
+}
+
 export async function getCustomerByEmail(email: string) {
   const query = '*[_type == "customer" && lower(email) == $e][0]';
   return await sanity.fetch(query, { e: String(email || '').trim().toLowerCase() });
+}
+
+export async function getVendorOrdersByVendorId(vendorId: string) {
+  const query = '*[_type == "vendor" && _id == $vid][0].orders[] { orderId, status, amount, orderDate }';
+  return await sanity.fetch(query, { vid: vendorId });
 }
 
 export async function getAllOrders() {
