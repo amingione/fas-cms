@@ -2,25 +2,26 @@ function renderForm(): void {
   const container = document.getElementById('applicationContainer');
   if (!container) return;
   container.innerHTML = `
-    <div>
-      <h1 class="relative text-2xl mt-10 text-white font-bold">
-        <span class="text-red-600">F.a.S.</span> Motorsports
+    <div class="max-w-xl mx-auto">
+      <h1 class="relative text-2xl mt-10">
+        <span class="font-borg text-primary">F.a.S.</span>
+        <span class="font-ethno text-white ml-1">Motorsports</span>
       </h1>
-      <h2 class="text-2xl font-bold mt-2 text-red-600">Vendor Application</h2>
-      <form id="vendorApplicationForm" class="space-y-4 bg-black/30 p-6 border border-white mt-6 max-w-xl mx-auto rounded-lg">
-        <input type="text" name="businessName" placeholder="Company Name" class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white" required />
-        <input type="text" name="contactName" placeholder="Main Contact Person" class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white" required />
-        <input type="email" name="email" placeholder="Email" class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white" required />
-        <input type="tel" name="phone" placeholder="Phone Number" class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white" required />
-        <input type="text" name="businessType" placeholder="Business Type" class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white" />
-        <input type="text" name="resaleCertificateId" placeholder="Resale Certificate ID" class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white" required />
-        <input type="text" name="taxId" placeholder="Tax ID (EIN)" class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white" required />
-        <input type="text" name="businessAddress" placeholder="Business Address" class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white" required />
-        <textarea name="message" placeholder="Additional Information" class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white" rows="4"></textarea>
-        <button type="submit" class="w-full bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 transition duration-200 font-bold disabled:opacity-50">
+      <h2 class="text-2xl font-bold mt-2 text-primary tracking-wide uppercase">Vendor Application</h2>
+      <form id="vendorApplicationForm" class="space-y-4 bg-black/30 p-6 border border-white/15 mt-6">
+        <input type="text" name="businessName" placeholder="Company Name" class="w-full px-3 py-2 bg-gray-900 border border-white/20 text-white focus:outline-none focus:ring-1 focus:ring-primary" required />
+        <input type="text" name="contactName" placeholder="Main Contact Person" class="w-full px-3 py-2 bg-gray-900 border border-white/20 text-white focus:outline-none focus:ring-1 focus:ring-primary" required />
+        <input type="email" name="email" placeholder="Email" class="w-full px-3 py-2 bg-gray-900 border border-white/20 text-white focus:outline-none focus:ring-1 focus:ring-primary" required />
+        <input type="tel" name="phone" placeholder="Phone Number" class="w-full px-3 py-2 bg-gray-900 border border-white/20 text-white focus:outline-none focus:ring-1 focus:ring-primary" required />
+        <input type="text" name="businessType" placeholder="Business Type" class="w-full px-3 py-2 bg-gray-900 border border-white/20 text-white focus:outline-none focus:ring-1 focus:ring-primary" />
+        <input type="text" name="resaleCertificateId" placeholder="Resale Certificate ID" class="w-full px-3 py-2 bg-gray-900 border border-white/20 text-white focus:outline-none focus:ring-1 focus:ring-primary" required />
+        <input type="text" name="taxId" placeholder="Tax ID (EIN)" class="w-full px-3 py-2 bg-gray-900 border border-white/20 text-white focus:outline-none focus:ring-1 focus:ring-primary" required />
+        <input type="text" name="businessAddress" placeholder="Business Address" class="w-full px-3 py-2 bg-gray-900 border border-white/20 text-white focus:outline-none focus:ring-1 focus:ring-primary" required />
+        <textarea name="message" placeholder="Additional Information" class="w-full px-3 py-2 bg-gray-900 border border-white/20 text-white focus:outline-none focus:ring-1 focus:ring-primary" rows="4"></textarea>
+        <button type="submit" class="btn-glass btn-primary btn-md w-full font-ethno uppercase tracking-wide disabled:opacity-50">
           Submit Application
         </button>
-        <p id="applicationStatus" class="text-center mt-4"></p>
+        <p id="applicationStatus" class="text-center mt-4 text-sm text-gray-200"></p>
       </form>
     </div>
   `;

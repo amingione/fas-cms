@@ -25,8 +25,8 @@ import DashboardShell from '../../components/admin/DashboardShell.tsx'
     const inputEl = $('#new-cat-title')
     const addBtn  = $('#add-cat')
 
-    async function fetchJSON(url, opts) {
-      const res = await fetch(url, opts)
+    async function fetchJSON(url, opts = {}) {
+      const res = await fetch(url, { credentials: 'include', ...opts })
       if (!res.ok) throw new Error(await res.text())
       return res.json()
     }

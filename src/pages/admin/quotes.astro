@@ -22,7 +22,9 @@ import DashboardShell from '../../components/admin/DashboardShell.tsx'
 
       async function load(){
         try {
-          const r = await fetch('/.netlify/functions/quotes-list');
+          const r = await fetch('/.netlify/functions/quotes-list', {
+            credentials: 'include'
+          });
           const data = await r.json();
           setRows(Array.isArray(data) ? data : [])
         } catch { setRows([]) }
@@ -83,7 +85,7 @@ import DashboardShell from '../../components/admin/DashboardShell.tsx'
                       React.createElement('button',{className:'px-3 py-1 rounded border border-white/30 hover:bg-white/80 mr-2', onClick:()=>{ setInitial(r); setOpen(true) }}, 'Edit'),
                       r.stripeHostedInvoiceUrl
                         ? React.createElement('a',{className:'px-3 py-1 rounded border border-white/30 hover:bg-white/80', href:r.stripeHostedInvoiceUrl, target:'_blank'}, 'Open Invoice')
-                        : React.createElement('button',{className:'px-3 py-1 rounded border border-white/30 hover:bg-white/80', onClick: async ()=>{ try { const rr = await fetch('/.netlify/functions/quotes-send',{ method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ quoteId: r._id })}); if(!rr.ok) throw new Error(await rr.text()); alert('Sent'); load(); } catch(e){ alert('Send failed'); } }}, 'Send')
+                        : React.createElement('button',{className:'px-3 py-1 rounded border border-white/30 hover:bg-white/80', onClick: async ()=>{ try { const rr = await fetch('/.netlify/functions/quotes-send',{ method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ quoteId: r._id }), credentials: 'include' }); if(!rr.ok) throw new Error(await rr.text()); alert('Sent'); load(); } catch(e){ alert('Send failed'); } }}, 'Send')
                     )
                   )
                 ))

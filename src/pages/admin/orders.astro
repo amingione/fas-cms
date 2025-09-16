@@ -19,7 +19,9 @@ const initial: any[] = [];
       const [id, setId] = useState(null)
 
       async function refresh(){
-        const j = await fetch('/.netlify/functions/orders-list').then(r=>r.json())
+        const j = await fetch('/.netlify/functions/orders-list', {
+          credentials: 'include'
+        }).then(r=>r.json())
         const list = Array.isArray(j) ? j : (Array.isArray(j?.data) ? j.data : [])
         setRows(list)
       }

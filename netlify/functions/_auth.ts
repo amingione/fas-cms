@@ -14,6 +14,8 @@ export async function requireUser(event: { headers: { cookie?: string } }) {
     const roles: string[] = Array.isArray(user?.roles)
       ? user.roles.map((r: string) => (r || '').toLowerCase())
       : [];
+    const primaryRole = typeof user?.role === 'string' ? user.role.toLowerCase() : '';
+    if (primaryRole && !roles.includes(primaryRole)) roles.push(primaryRole);
     const ok = roles.includes('owner') || roles.includes('employee') || roles.includes('admin') || roles.includes('staff');
     if (!ok) throw Object.assign(new Error('Forbidden'), { statusCode: 403 });
     return user;

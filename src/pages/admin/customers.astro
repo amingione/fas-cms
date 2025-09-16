@@ -64,7 +64,9 @@ import DashboardShell from '../../components/admin/DashboardShell.tsx'
 
     async function load(){
       try {
-        const res = await fetch('/.netlify/functions/customers-list');
+        const res = await fetch('/.netlify/functions/customers-list', {
+          credentials: 'include'
+        });
         if (!res.ok) throw new Error(await res.text());
         const out = await res.json();
         cache = Array.isArray(out?.data) ? out.data : [];
@@ -91,7 +93,9 @@ import DashboardShell from '../../components/admin/DashboardShell.tsx'
 
     async function openDetail(id){
       try {
-        const res = await fetch(`/.netlify/functions/customers-detail?id=${encodeURIComponent(id)}`);
+        const res = await fetch(`/.netlify/functions/customers-detail?id=${encodeURIComponent(id)}`, {
+          credentials: 'include'
+        });
         if (!res.ok) throw new Error(await res.text());
         const out = await res.json();
         renderDetail(out);
@@ -140,7 +144,8 @@ import DashboardShell from '../../components/admin/DashboardShell.tsx'
             const res = await fetch('/.netlify/functions/customers-invoice-create', {
               method: 'POST',
               headers: { 'content-type': 'application/json' },
-              body: JSON.stringify({ customerId: id, livemode: live })
+              body: JSON.stringify({ customerId: id, livemode: live }),
+              credentials: 'include'
             });
             const out = await res.json();
             if (!res.ok) throw new Error(out?.error || 'Failed');

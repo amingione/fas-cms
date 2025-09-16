@@ -16,18 +16,29 @@ export const POST: APIRoute = async ({ request }) => {
       businessType,
       website,
       message,
-      businessName,
+      businessName
     } = body;
+
     const primaryContact = contactPerson || contactName;
-    // Check if vendor exists
+
+    if (!email || !primaryContact || !phone || !businessAddress || !resaleCertificateId || !taxId) {
+      return new Response(JSON.stringify({ message: 'Missing required fields.' }), {
+        status: 400,
+        headers: { 'content-type': 'application/json' }
+      });
+    }
+
     const existingVendor = await sanity.fetch(
       '*[_type == "vendor" && email == $email][0]',
       { email }
     );
     if (existingVendor) {
-      return new Response(JSON.stringify({ message: 'A vendor with this email already exists.' }), { status: 409, headers: { 'content-type': 'application/json' } });
+      return new Response(JSON.stringify({ message: 'A vendor with this email already exists.' }), {
+        status: 409,
+        headers: { 'content-type': 'application/json' }
+      });
     }
-    // Hash a temporary default password
+
     const passwordHash = await bcrypt.hash('temp123', 10);
     const doc = await sanity.create({
       _type: 'vendor',
@@ -47,11 +58,18 @@ export const POST: APIRoute = async ({ request }) => {
       businessType,
       yearsInBusiness: 0,
       approved: false,
-      active: true,
+      active: true
     });
-    return new Response(JSON.stringify({ message: 'Application received', vendor: doc }), { status: 200, headers: { 'content-type': 'application/json' } });
+
+    return new Response(JSON.stringify({ message: 'Application received', vendor: doc }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' }
+    });
   } catch (err) {
-    console.error(err);
-    return new Response(JSON.stringify({ message: 'Internal server error' }), { status: 500, headers: { 'content-type': 'application/json' } });
+    console.error('Vendor application failed:', err);
+    return new Response(JSON.stringify({ message: 'Internal server error' }), {
+      status: 500,
+      headers: { 'content-type': 'application/json' }
+    });
   }
 };

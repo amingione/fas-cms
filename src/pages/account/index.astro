@@ -42,6 +42,10 @@ const isLoggedIn = Boolean(readCookie('fas_session'));
             <label class="block text-sm mb-1">Password</label>
             <input type="password" name="password" required class="w-full bg-white/5 border border-white/15 rounded px-3 py-2" />
           </div>
+          <p class="text-right text-sm">
+            <a href="/account/forgot-password" class="text-yellow-300 hover:underline">Forgot password?</a>
+          </p>
+          <p id="account-login-error" class="text-sm text-red-400 hidden"></p>
           <button type="submit" class="px-4 py-2 rounded bg-primary text-accent font-ethno">Sign in</button>
         </form>
         <form id="fas-signup" class="space-y-3 max-w-sm hidden">
@@ -81,12 +85,26 @@ const isLoggedIn = Boolean(readCookie('fas_session'));
             e.preventDefault();
             const form = e.target as HTMLFormElement;
             const data = Object.fromEntries(new FormData(form));
-            const res = await fetch('/api/auth/login', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(data) });
-            if (res.ok) {
-              const rt = new URL(window.location.href).searchParams.get('returnTo') || '/dashboard';
-              window.location.href = rt;
-            } else {
-              alert('Login failed');
+            const statusEl = document.getElementById('account-login-error');
+            if (statusEl) statusEl.classList.add('hidden');
+            try {
+              const res = await fetch('/api/auth/login', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(data) });
+              if (res.ok) {
+                const rt = new URL(window.location.href).searchParams.get('returnTo') || '/dashboard';
+                window.location.href = rt;
+              } else {
+                const err = await res.json().catch(() => ({}));
+                if (statusEl) {
+                  statusEl.textContent = err.message || 'Incorrect email or password. Please try again or reset your password.';
+                  statusEl.classList.remove('hidden');
+                }
+              }
+            } catch (err) {
+              console.error('Login failed', err);
+              if (statusEl) {
+                statusEl.textContent = 'Unable to reach the server. Please try again.';
+                statusEl.classList.remove('hidden');
+              }
             }
           });
           document.getElementById('fas-signup')?.addEventListener('submit', async (e) => {

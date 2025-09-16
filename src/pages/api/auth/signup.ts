@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import bcrypt from 'bcryptjs';
-import { sanity } from '../../../server/sanity-client';
+import { sanity, hasWriteToken } from '../../../server/sanity-client';
 import { setSessionCookie } from '../../../server/auth/session';
 import jwt from 'jsonwebtoken';
 
@@ -34,6 +34,14 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
+    if (!hasWriteToken) {
+      console.error('Signup attempted but SANITY_WRITE_TOKEN/SANITY_API_TOKEN is not configured');
+      return new Response(JSON.stringify({ message: 'Signup temporarily unavailable. Please contact support.' }), {
+        status: 500,
+        headers: { 'content-type': 'application/json' }
+      });
+    }
+
     const doc = await sanity.create({
       _type: 'customer',
       email,

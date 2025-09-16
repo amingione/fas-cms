@@ -16,7 +16,9 @@ type Appointment = {
 // Resolve a stable absolute base for SSR fetches
 const requestOrigin = new URL(Astro.request.url).origin;
 const siteOrigin = Astro.site ? new URL(Astro.site).origin : requestOrigin;
-const base = import.meta.env.PUBLIC_BASE_URL || siteOrigin;
+const configuredBase = import.meta.env.PUBLIC_BASE_URL as string | undefined;
+const isLocal = requestOrigin.includes('localhost') || requestOrigin.includes('127.0.0.1');
+const base = isLocal ? requestOrigin : (configuredBase || siteOrigin);
 
 // Load orders/products counts for overview cards (graceful if missing)
 const reqCookie = Astro.request.headers.get('cookie') || '';
@@ -31,6 +33,55 @@ try {
     orders = Array.isArray(j) ? j : (Array.isArray(j?.data) ? j.data : []);
   }
 } catch {}
+
+if (!orders.length || !products.length) {
+  try {
+    const { sanity } = await import('../../server/sanity-client');
+    if (!orders.length) {
+      const sanityOrders = await sanity.fetch(`*[_type=="order"]|order(orderDate desc)[0...200]{
+        _id,
+        orderNumber,
+        status,
+        total,
+        totalAmount,
+        customerName,
+        customerEmail,
+        orderDate,
+        items[]{ title, qty, price }
+      }`);
+      orders = Array.isArray(sanityOrders)
+        ? sanityOrders.map((o: any) => ({
+            _id: o?._id || '',
+            orderNumber: o?.orderNumber || o?._id || '',
+            status: o?.status || 'unknown',
+            total:
+              typeof o?.total === 'number'
+                ? o.total
+                : typeof o?.totalAmount === 'number'
+                ? o.totalAmount
+                : Number(o?.total) || Number(o?.totalAmount) || 0,
+            customerName: o?.customerName || '',
+            customerEmail: o?.customerEmail || '',
+            orderDate: o?.orderDate || o?._createdAt || '',
+            items: Array.isArray(o?.items)
+              ? o.items.map((it: any) => ({
+                  title: it?.title || '',
+                  qty: typeof it?.qty === 'number' ? it.qty : Number(it?.qty) || 0,
+                  price: typeof it?.price === 'number' ? it.price : Number(it?.price) || 0
+                }))
+              : []
+          }))
+        : [];
+    }
+    if (!products.length) {
+      const sanityProducts = await sanity.fetch(`count(*[_type=="product"])`);
+      const totalProducts = typeof sanityProducts === 'number' ? sanityProducts : 0;
+      products = Array.from({ length: totalProducts });
+    }
+  } catch (err) {
+    console.error('Admin overview fallback query failed:', err);
+  }
+}
 try {
   const r = await fetch(`${base}/.netlify/functions/products-list`, {
     headers: reqCookie ? { cookie: reqCookie } : {}
@@ -59,6 +110,23 @@ const upcomingAppointments = (appointments || [])
 
 const countOrders = Array.isArray(orders) ? orders.length : 0;
 const countProducts = Array.isArray(products) ? products.length : 0;
+const totalRevenue = Array.isArray(orders)
+  ? orders.reduce((sum: number, o: any) => {
+      let total = typeof o?.total === 'number' ? o.total : Number(o?.total) || 0;
+      if (!total && typeof o?.totalAmount !== 'undefined') {
+        const amount = Number(o.totalAmount);
+        if (Number.isFinite(amount)) total = amount;
+      }
+      if ((!total || !Number.isFinite(total)) && Array.isArray(o?.items)) {
+        total = o.items.reduce((t: number, it: any) => {
+          const price = Number(it?.price) || 0;
+          const qty = Number(it?.qty) || 0;
+          return t + price * qty;
+        }, 0);
+      }
+      return sum + (Number.isFinite(total) ? total : 0);
+    }, 0)
+  : 0;
 ---
 <DashboardShell client:only="react">
   <script>
@@ -130,7 +198,7 @@ const countProducts = Array.isArray(products) ? products.length : 0;
   <h1 class="text-2xl md:text-3xl font-bold mb-6">Overview</h1>
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
     <Card title="Orders" value={countOrders} hint="Last 50 shown"/>
-    <Card title="Revenue (approx)" value={`$${(Array.isArray(orders) ? orders.reduce((s: number, o: any) => s + (Number(o?.total) || 0), 0) : 0).toFixed(2)}`}/>
+    <Card title="Revenue (approx)" value={`$${totalRevenue.toFixed(2)}`}/>
     <Card title="Products" value={countProducts} />
     <Card title="Appointments (next 14d)" value={upcomingAppointments.length} />
   </div>

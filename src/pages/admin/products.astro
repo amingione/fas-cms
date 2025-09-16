@@ -7,11 +7,14 @@ const requestOrigin = new URL(Astro.request.url).origin;
 const siteOrigin = Astro.site ? new URL(Astro.site).origin : requestOrigin;
 const envBase = import.meta.env.PUBLIC_BASE_URL;
 const base = isDev ? requestOrigin : (envBase || siteOrigin);
+const reqCookie = Astro.request.headers.get('cookie') || '';
 
 let initial: any[] = [];
 let _debug: any = { base, ok: false, status: 0, reason: '' };
 try {
-  const res = await fetch(`${base}/.netlify/functions/products-list`);
+  const res = await fetch(`${base}/.netlify/functions/products-list`, {
+    headers: reqCookie ? { cookie: reqCookie } : {}
+  });
   _debug.status = res.status;
   if (res.ok) {
     const j = await res.json();
@@ -34,7 +37,9 @@ try {
     rows={initial}
     refresh={async () => {
       try {
-        const res = await fetch('/.netlify/functions/products-list');
+        const res = await fetch('/.netlify/functions/products-list', {
+          credentials: 'include'
+        });
         if (res.ok) {
           const j = await res.json();
           return Array.isArray(j) ? j : (j?.data ?? []);

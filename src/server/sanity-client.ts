@@ -46,6 +46,7 @@ if (!projectId) {
 }
 
 export const sanity = createClient({ projectId, dataset, apiVersion, token, useCdn: !token });
+export const hasWriteToken = Boolean(token);
 
 export async function getVendorByEmail(email: string) {
   const query = '*[_type == "vendor" && lower(email) == $e][0]';
@@ -62,6 +63,20 @@ export async function setVendorPasswordReset(vendorId: string, tokenHash: string
 export async function updateVendorPassword(vendorId: string, passwordHash: string) {
   await sanity
     .patch(vendorId)
+    .set({ passwordHash, passwordResetToken: null, passwordResetExpires: null })
+    .commit();
+}
+
+export async function setCustomerPasswordReset(customerId: string, tokenHash: string, expiresAt: string) {
+  await sanity
+    .patch(customerId)
+    .set({ passwordResetToken: tokenHash, passwordResetExpires: expiresAt })
+    .commit();
+}
+
+export async function updateCustomerPassword(customerId: string, passwordHash: string) {
+  await sanity
+    .patch(customerId)
     .set({ passwordHash, passwordResetToken: null, passwordResetExpires: null })
     .commit();
 }

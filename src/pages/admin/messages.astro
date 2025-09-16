@@ -43,7 +43,7 @@ import DashboardShell from '../../components/admin/DashboardShell.tsx'
     let selected = null
 
     async function fetchJSON(url, opts){
-      const res = await fetch(url, opts)
+      const res = await fetch(url, { credentials: 'include', ...(opts || {}) })
       if (!res.ok) throw new Error(await res.text())
       return res.json()
     }
@@ -95,7 +95,12 @@ import DashboardShell from '../../components/admin/DashboardShell.tsx'
       if (!selected) return
       try {
         const payload = { _id: selected._id, to: selected.fromEmail, subject: 'Re: ' + (selected.subject || 'Message'), html: replyEl.value }
-        const res = await fetch('/.netlify/functions/message-reply', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify(payload) })
+        const res = await fetch('/.netlify/functions/message-reply', {
+          method:'POST',
+          headers:{'content-type':'application/json'},
+          body: JSON.stringify(payload),
+          credentials: 'include'
+        })
         if (!res.ok) throw new Error(await res.text())
         alert('Reply sent')
         closeDetail()

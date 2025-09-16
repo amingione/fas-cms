@@ -42,6 +42,18 @@ export default defineType({
       type: 'string',
       hidden: true
     }),
+    defineField({
+      name: 'passwordResetToken',
+      title: 'Password Reset Token',
+      type: 'string',
+      hidden: true
+    }),
+    defineField({
+      name: 'passwordResetExpires',
+      title: 'Password Reset Expires',
+      type: 'datetime',
+      hidden: true
+    }),
     defineField({ name: 'phone', title: 'Phone Number', type: 'string' }),
     defineField({ name: 'address', title: 'Shipping Address', type: 'text' }),
     defineField({ name: 'billingAddress', title: 'Billing Address', type: 'customerBillingAddress' }),

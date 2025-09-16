@@ -1,37 +1,44 @@
+import '../styles/global.css';
+
 function renderForm(): void {
   const container = document.getElementById('applicationContainer');
   if (!container) return;
   container.innerHTML = `
-    <div>
-      <h1 class="relative text-2xl mt-10 text-white font-bold">
-        <span class="text-red-600">F.a.S.</span> Motorsports
+    <div class="max-w-xl mx-auto">
+      <h1 class="relative text-2xl mt-10">
+        <span class="font-borg text-primary">F.a.S.</span>
+        <span class="font-ethno text-white ml-1">Motorsports</span>
       </h1>
-      <h2 class="text-2xl font-bold mt-2 text-red-600">Vendor Application</h2>
-      <form id="vendorApplicationForm" class="space-y-4 bg-black/30 p-6 border border-white mt-6 max-w-xl mx-auto rounded-lg">
-        <input type="text" name="businessName" placeholder="Company Name" class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white" required />
-        <input type="text" name="contactName" placeholder="Main Contact Person" class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white" required />
-        <input type="email" name="email" placeholder="Email" class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white" required />
-        <input type="tel" name="phone" placeholder="Phone Number" class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white" required />
-        <input type="text" name="businessType" placeholder="Business Type" class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white" />
-        <input type="text" name="resaleCertificateId" placeholder="Resale Certificate ID" class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white" required />
-        <input type="text" name="taxId" placeholder="Tax ID (EIN)" class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white" required />
-        <input type="text" name="businessAddress" placeholder="Business Address" class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white" required />
-        <textarea name="message" placeholder="Additional Information" class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white" rows="4"></textarea>
-        <button type="submit" class="w-full bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 transition duration-200 font-bold disabled:opacity-50">
+      <h2 class="text-2xl font-bold mt-2 text-primary tracking-wide uppercase">Vendor Application</h2>
+      <form id="vendorApplicationForm" class="space-y-4 bg-black/30 p-6 border border-white/15 mt-6">
+        <input type="text" name="businessName" placeholder="Company Name" class="w-full px-3 py-2 bg-gray-900 border border-white/20 text-white focus:outline-none focus:ring-1 focus:ring-primary" required />
+        <input type="text" name="contactName" placeholder="Main Contact Person" class="w-full px-3 py-2 bg-gray-900 border border-white/20 text-white focus:outline-none focus:ring-1 focus:ring-primary" required />
+        <input type="email" name="email" placeholder="Email" class="w-full px-3 py-2 bg-gray-900 border border-white/20 text-white focus:outline-none focus:ring-1 focus:ring-primary" required />
+        <input type="tel" name="phone" placeholder="Phone Number" class="w-full px-3 py-2 bg-gray-900 border border-white/20 text-white focus:outline-none focus:ring-1 focus:ring-primary" required />
+        <input type="text" name="businessType" placeholder="Business Type" class="w-full px-3 py-2 bg-gray-900 border border-white/20 text-white focus:outline-none focus:ring-1 focus:ring-primary" />
+        <input type="text" name="resaleCertificateId" placeholder="Resale Certificate ID" class="w-full px-3 py-2 bg-gray-900 border border-white/20 text-white focus:outline-none focus:ring-1 focus:ring-primary" required />
+        <input type="text" name="taxId" placeholder="Tax ID (EIN)" class="w-full px-3 py-2 bg-gray-900 border border-white/20 text-white focus:outline-none focus:ring-1 focus:ring-primary" required />
+        <input type="text" name="businessAddress" placeholder="Business Address" class="w-full px-3 py-2 bg-gray-900 border border-white/20 text-white focus:outline-none focus:ring-1 focus:ring-primary" required />
+        <textarea name="message" placeholder="Additional Information" class="w-full px-3 py-2 bg-gray-900 border border-white/20 text-white focus:outline-none focus:ring-1 focus:ring-primary" rows="4"></textarea>
+        <button type="submit" class="btn-glass btn-primary btn-md w-full font-ethno uppercase tracking-wide disabled:opacity-50">
           Submit Application
         </button>
-        <p id="applicationStatus" class="text-center mt-4"></p>
+        <p id="applicationStatus" class="text-center mt-4 text-sm text-gray-200"></p>
       </form>
     </div>
   `;
-  const form = document.getElementById('vendorApplicationForm') as HTMLFormElement | null;
+  const form = document.getElementById(
+    'vendorApplicationForm',
+  ) as HTMLFormElement | null;
   if (form) form.addEventListener('submit', handleSubmit);
 }
 
 async function handleSubmit(e: SubmitEvent): Promise<void> {
   e.preventDefault();
   const form = e.target as HTMLFormElement;
-  const statusEl = document.getElementById('applicationStatus') as HTMLElement | null;
+  const statusEl = document.getElementById(
+    'applicationStatus',
+  ) as HTMLElement | null;
   if (statusEl) statusEl.textContent = '';
 
   const formData = new FormData(form);
@@ -39,7 +46,9 @@ async function handleSubmit(e: SubmitEvent): Promise<void> {
   const contactName = String(formData.get('contactName') || '').trim();
   const email = String(formData.get('email') || '').trim();
   const phone = String(formData.get('phone') || '').trim();
-  const resaleCertificateId = String(formData.get('resaleCertificateId') || '').trim();
+  const resaleCertificateId = String(
+    formData.get('resaleCertificateId') || '',
+  ).trim();
   const taxId = String(formData.get('taxId') || '').trim();
   const businessAddress = String(formData.get('businessAddress') || '').trim();
   const message = String(formData.get('message') || '').trim();
@@ -47,16 +56,27 @@ async function handleSubmit(e: SubmitEvent): Promise<void> {
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const phoneRegex = /^[0-9\-\+]{9,15}$/;
-  if (!businessName || !contactName || !email || !phone || !resaleCertificateId || !taxId || !businessAddress) {
-    if (statusEl) statusEl.textContent = '❌ Please fill out all required fields.';
+  if (
+    !businessName ||
+    !contactName ||
+    !email ||
+    !phone ||
+    !resaleCertificateId ||
+    !taxId ||
+    !businessAddress
+  ) {
+    if (statusEl)
+      statusEl.textContent = '❌ Please fill out all required fields.';
     return;
   }
   if (!emailRegex.test(email)) {
-    if (statusEl) statusEl.textContent = '❌ Please enter a valid email address.';
+    if (statusEl)
+      statusEl.textContent = '❌ Please enter a valid email address.';
     return;
   }
   if (!phoneRegex.test(phone)) {
-    if (statusEl) statusEl.textContent = '❌ Please enter a valid phone number.';
+    if (statusEl)
+      statusEl.textContent = '❌ Please enter a valid phone number.';
     return;
   }
 
@@ -73,19 +93,23 @@ async function handleSubmit(e: SubmitEvent): Promise<void> {
         taxId,
         businessAddress,
         message,
-        businessType
-      })
+        businessType,
+      }),
     });
     if (res.ok) {
       renderSuccess();
     } else if (res.status === 409) {
-      if (statusEl) statusEl.textContent = '❌ A vendor with this email already applied.';
+      if (statusEl)
+        statusEl.textContent = '❌ A vendor with this email already applied.';
     } else {
       const text = await res.text();
-      if (statusEl) statusEl.textContent = `❌ Something went wrong: ${res.statusText || text}`;
+      if (statusEl)
+        statusEl.textContent = `❌ Something went wrong: ${res.statusText || text}`;
     }
   } catch {
-    if (statusEl) statusEl.textContent = '❌ Network error — please check your connection and try again.';
+    if (statusEl)
+      statusEl.textContent =
+        '❌ Network error — please check your connection and try again.';
   }
 }
 
