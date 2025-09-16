@@ -4,14 +4,13 @@ import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useEffect, useState } from 'react';
 
 import { Bars3Icon, XMarkIcon, UserCircleIcon } from '@heroicons/react/24/outline';
-import { getAuth0Client } from '@/lib/auth';
-import type { Auth0Client } from '@auth0/auth0-spa-js';
+import { getAuth0Client, type AuthClient } from '@/lib/auth';
 import { SearchBar } from '@components/SearchBar.tsx';
 
 export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone' | 'inline' }) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
-  const [auth0, setAuth0] = useState<Auth0Client | null>(null);
+  const [authClient, setAuthClient] = useState<AuthClient | null>(null);
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [displayName, setDisplayName] = useState<string>('');
 
@@ -21,7 +20,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
       try {
         const client = await getAuth0Client();
         if (!mounted) return;
-        setAuth0(client);
+        setAuthClient(client);
         const ok = await client.isAuthenticated();
         if (!mounted) return;
         setAuthed(ok);
@@ -293,7 +292,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
                 </a>
                 <button
                   onClick={() => {
-                    auth0?.logout?.({ logoutParams: { returnTo: window.location.origin } });
+                    authClient?.logout?.({ logoutParams: { returnTo: window.location.origin } });
                     onNavigate && onNavigate();
                   }}
                   className="text-accent hover:text-neutral-500 dark:text-white"
@@ -305,12 +304,8 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
           ) : (
             <button
               onClick={async () => {
-                try {
-                  // Prefer serverless flow to avoid relying on /account script on callback
-                  window.location.href = '/.netlify/functions/auth-login?returnTo=%2Fdashboard';
-                } finally {
-                  onNavigate && onNavigate();
-                }
+                window.location.href = '/account?returnTo=%2Fdashboard';
+                onNavigate && onNavigate();
               }}
               className="flex items-center gap-2 text-xl text-primary hover:text-primary/90"
             >

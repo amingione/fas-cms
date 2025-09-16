@@ -25,6 +25,20 @@ export default defineType({
       readOnly: true
     }),
     defineField({
+      name: 'roles',
+      title: 'Roles',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: {
+        list: [
+          { title: 'Vendor', value: 'vendor' },
+          { title: 'Admin', value: 'admin' }
+        ],
+        layout: 'tags'
+      },
+      initialValue: ['vendor']
+    }),
+    defineField({
       name: 'phone',
       title: 'Phone Number',
       type: 'string'

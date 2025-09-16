@@ -1,10 +1,7 @@
 import type { APIRoute } from 'astro';
 import bcrypt from 'bcryptjs';
 import { sanity, hasWriteToken } from '../../../server/sanity-client';
-import { setSessionCookie } from '../../../server/auth/session';
-import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET || '';
+import { setSession } from '../../../server/auth/session';
 
 // POST /api/auth/signup
 // Body: { email: string, password: string, name?: string }
@@ -48,12 +45,11 @@ export const POST: APIRoute = async ({ request }) => {
       name: name || '',
       passwordHash,
       status: 'Active',
-      userRole: 'customer'
+      roles: ['customer']
     } as any);
 
-    const token = jwt.sign({ sub: doc._id, role: 'customer', email }, JWT_SECRET, { expiresIn: '7d' });
     const headers = new Headers({ 'content-type': 'application/json' });
-    setSessionCookie(headers, token);
+    setSession(headers, { id: doc._id, email, roles: ['customer'] });
     return new Response(JSON.stringify({ ok: true }), { status: 201, headers });
   } catch (err) {
     console.error(err);

@@ -12,15 +12,15 @@ export const GET: APIRoute = async ({ request, params }) => {
   if (!order) {
     return new Response('Not Found', { status: 404 });
   }
-  const role = session.user.role;
+  const roles = session.user.roles || [];
   const userId = session.user.id;
   // Restrict access based on role
-  if (role === 'customer') {
+  if (roles.includes('customer')) {
     if (order.customer?._ref !== userId) {
       return new Response('Forbidden', { status: 403 });
     }
   }
-  if (role === 'vendor') {
+  if (roles.includes('vendor') && !roles.includes('admin')) {
     if (order.vendor?._ref !== userId) {
       return new Response('Forbidden', { status: 403 });
     }

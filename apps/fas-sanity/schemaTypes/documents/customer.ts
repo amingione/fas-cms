@@ -43,6 +43,21 @@ export default defineType({
       hidden: true
     }),
     defineField({
+      name: 'roles',
+      title: 'Roles',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: {
+        list: [
+          { title: 'Customer', value: 'customer' },
+          { title: 'Vendor', value: 'vendor' },
+          { title: 'Admin', value: 'admin' }
+        ],
+        layout: 'tags'
+      },
+      initialValue: ['customer']
+    }),
+    defineField({
       name: 'passwordResetToken',
       title: 'Password Reset Token',
       type: 'string',

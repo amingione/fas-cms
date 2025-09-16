@@ -36,13 +36,14 @@ export const onRequest: MiddlewareHandler = async (context, next) => {
     loginUrl.searchParams.set('returnTo', pathname);
     return context.redirect(loginUrl.toString());
   }
-  const role = session.user.role;
+  const roles = session.user.roles || [];
+  const hasRole = (role: string) => roles.includes(role.toLowerCase());
   if (isMatch(pathname, PROTECTED_ADMIN)) {
-    if (role !== 'admin') {
+    if (!hasRole('admin')) {
       return new Response('Forbidden (admin only)', { status: 403 });
     }
   } else if (isMatch(pathname, PROTECTED_VENDOR)) {
-    if (role !== 'vendor' && role !== 'admin') {
+    if (!hasRole('vendor') && !hasRole('admin')) {
       return new Response('Forbidden (vendor only)', { status: 403 });
     }
   } else if (isMatch(pathname, PROTECTED_CUSTOMER)) {

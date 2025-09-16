@@ -1,59 +1,50 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import * as Auth0 from '@auth0/auth0-spa-js';
-
-type Auth0User = {
-  sub?: string;
-  email?: string;
-  name?: string;
-  [key: string]: unknown;
-};
 
 interface AuthContextType {
-  auth0Client: Auth0.Auth0Client | null;
   isAuthenticated: boolean;
-  user: Auth0User | undefined;
+  user: { id?: string; email?: string } | undefined;
   loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [auth0Client, setAuth0Client] = useState<Auth0.Auth0Client | null>(null);
-  const [user, setUser] = useState<Auth0User | undefined>(undefined);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<{ id?: string; email?: string } | undefined>(undefined);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const initAuth0 = async () => {
-      const auth0 = await Auth0.createAuth0Client({
-        domain: process.env.NEXT_PUBLIC_AUTH0_DOMAIN!,
-        clientId: process.env.NEXT_PUBLIC_AUTH0_CLIENT_ID!,
-        authorizationParams: { redirect_uri: window.location.origin }
-      });
-
-      setAuth0Client(auth0);
-
-      if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
-        await auth0.handleRedirectCallback();
-        window.history.replaceState({}, document.title, window.location.pathname);
+    let mounted = true;
+    const init = async () => {
+      try {
+        if (typeof window === 'undefined') return;
+        const fas = (window as any).fasAuth;
+        if (!fas || typeof fas.getSession !== 'function') {
+          setIsAuthenticated(false);
+          setUser(undefined);
+          return;
+        }
+        const session = await fas.getSession();
+        if (!mounted) return;
+        if (session?.user) {
+          setIsAuthenticated(true);
+          setUser({ id: session.user.id, email: session.user.email });
+        } else {
+          setIsAuthenticated(false);
+          setUser(undefined);
+        }
+      } finally {
+        if (mounted) setLoading(false);
       }
-
-      const isAuthenticated = await auth0.isAuthenticated();
-      setIsAuthenticated(isAuthenticated);
-
-      if (isAuthenticated) {
-        const user = await auth0.getUser<Auth0User>();
-        setUser(user);
-      }
-
-      setLoading(false);
     };
-
-    initAuth0();
+    init();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   return (
-    <AuthContext.Provider value={{ auth0Client, isAuthenticated, user, loading }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, loading }}>
       {children}
     </AuthContext.Provider>
   );

@@ -14,7 +14,8 @@ export const OPTIONS: APIRoute = async () =>
 
 export const PATCH: APIRoute = async ({ request, params }) => {
   const { session } = await readSession(request);
-  if (!session?.user || session.user.role !== 'admin') {
+  const roles = session?.user?.roles || [];
+  if (!session?.user || !roles.includes('admin')) {
     return new Response('Forbidden', { status: 403 });
   }
   const id = String(params.id || '');
@@ -28,4 +29,3 @@ export const PATCH: APIRoute = async ({ request, params }) => {
     return new Response('Update failed', { status: 500 });
   }
 };
-

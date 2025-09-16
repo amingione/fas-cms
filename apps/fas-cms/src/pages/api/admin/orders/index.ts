@@ -4,7 +4,8 @@ import { getAllOrders } from '../../../../server/sanity-client';
 
 export const GET: APIRoute = async ({ request }) => {
   const { session } = await readSession(request);
-  if (!session?.user || session.user.role !== 'admin') {
+  const roles = session?.user?.roles || [];
+  if (!session?.user || !roles.includes('admin')) {
     return new Response('Forbidden', { status: 403 });
   }
   const orders = await getAllOrders();

@@ -4,7 +4,8 @@ import { sanity } from '../../../../server/sanity-client';
 
 export const PATCH: APIRoute = async ({ request, params }) => {
   const { session } = await readSession(request);
-  if (!session?.user || session.user.role !== 'admin') {
+  const roles = session?.user?.roles || [];
+  if (!session?.user || !roles.includes('admin')) {
     return new Response('Forbidden', { status: 403 });
   }
   const id = params.id as string;

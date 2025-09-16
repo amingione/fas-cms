@@ -1,7 +1,10 @@
 import type { MiddlewareHandler } from 'astro';
 import jwt from 'jsonwebtoken';
 
-const SESSION_SECRET = import.meta.env.SESSION_SECRET;
+const SESSION_SECRET =
+  import.meta.env.SESSION_SECRET ||
+  (typeof process !== 'undefined' ? (process as any).env?.SESSION_SECRET : undefined) ||
+  (typeof process !== 'undefined' ? (process as any).env?.JWT_SECRET : undefined);
 const COOKIE_NAME = process.env.SESSION_COOKIE_NAME || 'fas_session';
 const PUBLIC_VENDOR_PATHS = new Set([
   '/vendor/login',
@@ -63,25 +66,32 @@ export const onRequest: MiddlewareHandler = async ({ request, redirect, locals }
 
   const roles: string[] = Array.isArray(payload?.roles)
     ? payload.roles.map((r: string) => String(r || '').toLowerCase())
+    : payload?.role
+    ? [String(payload.role).toLowerCase()]
     : [];
-  const primaryRole = String(payload?.role || roles[0] || '').toLowerCase();
+
+  const hasRole = (role: string) => roles.includes(role.toLowerCase());
+
+  const primaryRole = roles[0] || '';
 
   if (isAdminRoute) {
-    const allowed = roles.concat(primaryRole ? [primaryRole] : []).some((r) =>
-      r === 'owner' || r === 'employee' || r === 'admin'
-    );
+    const allowed = hasRole('admin') || hasRole('owner') || hasRole('employee');
     if (!allowed) {
       return redirect('/account');
     }
   }
 
   if (isVendorRoute) {
-    if (primaryRole !== 'vendor' && primaryRole !== 'admin') {
+    if (!hasRole('vendor') && !hasRole('admin')) {
       const location = redirectTo(url, '/vendor/login', pathname);
       return redirect(location);
     }
   }
 
-  (locals as any).user = payload;
+  (locals as any).user = {
+    id: payload?.sub,
+    email: payload?.email,
+    roles
+  };
   return next();
 };

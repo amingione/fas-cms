@@ -1,35 +1,34 @@
-import { getAuth0Client } from '@/lib/auth';
+import { getFasAuthClient } from './fas-auth-client';
 
-// Handles the small account panel in the header/sidebar
 window.addEventListener('DOMContentLoaded', async () => {
   const loginLink = document.getElementById('loginLink');
   const logoutLink = document.getElementById('logoutLink');
 
-  try {
-    const auth0 = await getAuth0Client();
-    const isAuthenticated = await auth0.isAuthenticated();
-
-    if (isAuthenticated) {
-      logoutLink?.classList.remove('hidden');
-      loginLink?.classList.add('hidden');
-    } else {
-      loginLink?.classList.remove('hidden');
-      logoutLink?.classList.add('hidden');
-    }
-
-    loginLink?.addEventListener('click', async (e) => {
-      e.preventDefault();
-      await auth0.loginWithRedirect({
-        appState: { returnTo: '/dashboard' },
-        authorizationParams: { redirect_uri: window.location.origin + '/account' }
-      });
+  const fas = await getFasAuthClient();
+  if (!fas) {
+    loginLink?.classList.remove('hidden');
+    logoutLink?.classList.add('hidden');
+    loginLink?.addEventListener('click', () => {
+      window.location.href = '/account';
     });
-
-    logoutLink?.addEventListener('click', async (e) => {
-      e.preventDefault();
-      await auth0.logout({ logoutParams: { returnTo: window.location.origin } });
-    });
-  } catch (err) {
-    console.warn('[account-dashboard-panel] auth init failed', err);
+    return;
   }
+
+  const isAuthed = await fas.isAuthenticated?.();
+  if (isAuthed) {
+    logoutLink?.classList.remove('hidden');
+    loginLink?.classList.add('hidden');
+  } else {
+    loginLink?.classList.remove('hidden');
+    logoutLink?.classList.add('hidden');
+  }
+
+  loginLink?.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.location.href = '/account';
+  });
+  logoutLink?.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.location.href = '/api/auth/logout';
+  });
 });
