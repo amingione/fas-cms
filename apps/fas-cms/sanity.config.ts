@@ -1,5 +1,5 @@
 import { defineConfig } from 'sanity';
-import customer from './sanity/schemas/customer';
+import { schemaTypes } from '../fas-sanity/schemaTypes';
 
 // Minimal Sanity v3 Studio config so Stackbit detects v3 schema loader.
 // This does NOT define local schema types; it enables v3 detection to avoid
@@ -21,8 +21,6 @@ export default defineConfig({
   title: 'FAS Studio',
   projectId,
   dataset,
-  // Keep empty to avoid requiring local schema files; Stackbit can still
-  // fetch content via APIs and start without v2 legacy fetch.
-  schema: { types: [customer] },
+  schema: { types: schemaTypes },
   plugins: []
 });

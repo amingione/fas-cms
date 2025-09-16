@@ -4,6 +4,7 @@ type StructureResolver = import('sanity/structure').StructureResolver
 
 import DocumentIframePreview from '../components/studio/DocumentIframePreview'
 import CustomerDashboard from '../components/studio/CustomerDashboard'
+import React from 'react'
 import BulkLabelGenerator from '../components/studio/BulkLabelGenerator'
 import BulkPackingSlipGenerator from '../components/studio/BulkPackingSlipGenerator'
 import FinancialDashboard from '../components/studio/FinancialDashboard'
@@ -192,30 +193,58 @@ export const deskStructure: StructureResolver = (S, context) =>
 
       S.listItem()
         .title('📦 Bulk Label Generator')
-        .child(S.component().title('Bulk Label Generator').component(BulkLabelGenerator)),
+        .child(
+          S.component()
+            .title('Bulk Label Generator')
+            .component(() => <BulkLabelGenerator />)
+        ),
 
       S.listItem()
         .title('📄 Packing Slip Generator')
-        .child(S.component().title('Bulk Packing Slips').component(BulkPackingSlipGenerator)),
+        .child(
+          S.component()
+            .title('Bulk Packing Slips')
+            .component(() => <BulkPackingSlipGenerator />)
+        ),
 
       S.listItem()
         .title('📊 Financial Dashboard')
-        .child(S.component().title('Finance').component(FinancialDashboard)),
+        .child(
+          S.component()
+            .title('Finance')
+            .component(() => <FinancialDashboard />)
+        ),
 
       S.listItem()
         .title('📥 Financial Reports')
-        .child(S.component().title('Reports').component(FinancialReports)),
+        .child(
+          S.component()
+            .title('Reports')
+            .component(() => <FinancialReports />)
+        ),
 
       S.listItem()
         .title('🧾 Fulfillment Console')
-        .child(S.component().title('Console').component(BulkFulfillmentConsole)),
+        .child(
+          S.component()
+            .title('Console')
+            .component(() => <BulkFulfillmentConsole />)
+        ),
 
       S.listItem()
         .title('👤 Customer Dashboard')
-        .child(S.component().title('Customers').component(CustomerDashboard))
+        .child(
+          S.component()
+            .title('Customers')
+            .component(() => <CustomerDashboard />)
+        )
 
       ,
       S.listItem()
         .title('🔒 Env Self‑Check')
-        .child(S.component().title('Environment Status').component(EnvSelfCheck))
+        .child(
+          S.component()
+            .title('Environment Status')
+            .component(() => <EnvSelfCheck />)
+        )
     ])

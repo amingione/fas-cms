@@ -360,10 +360,10 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       ),
 
       // --- Variants/Options (support multiple shapes)
-      options[]->{ title, name, key, values, items },
-      optionGroups[]->{ title, name, key, values, items },
-      variationOptions[]{ title, name, key, values, items },
-      variations[]->{ title, name, key, values, items },
+      options[]{ title, name, key, values, items, colors, sizes },
+      optionGroups[]{ title, name, key, values, items, colors, sizes },
+      variationOptions[]{ title, name, key, values, items, colors, sizes },
+      variations[]{ title, name, key, values, items, colors, sizes },
 
       // --- Upgrades & Custom Paint ---
       addOns[]{

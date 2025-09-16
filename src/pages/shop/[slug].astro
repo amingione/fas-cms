@@ -61,16 +61,28 @@ try {
   addOns  = ((product as any).addOns  || (product as any).upgrades     || (product as any).extras     || []) as any[];
   customs = ((product as any).customizations || (product as any).customOptions || []) as any[];
   // Normalize arrays and shapes to prevent null access during render
-  options = Array.isArray(options) ? options.filter(Boolean).map((g: any) => {
-    if (!g || typeof g !== 'object') return null;
-    const values = Array.isArray(g.values) ? g.values : (Array.isArray(g.items) ? g.items : []);
-    return {
-      key: g.key || g.name || g.title || 'option',
-      title: g.title || g.name || 'Option',
-      values,
-      ...g,
-    };
-  }).filter(Boolean) : [];
+  options = Array.isArray(options)
+    ? options
+        .filter((g) => g && typeof g === 'object')
+        .map((g: any) => {
+          const values = Array.isArray(g.values)
+            ? g.values
+            : Array.isArray(g.items)
+              ? g.items
+              : Array.isArray(g.colors)
+                ? g.colors
+                : Array.isArray(g.sizes)
+                  ? g.sizes
+                  : [];
+
+          return {
+            ...g,
+            key: g.key || g.name || g.title || 'option',
+            title: g.title || g.name || 'Option',
+            values,
+          };
+        })
+    : [];
 
   addOns = Array.isArray(addOns) ? addOns.filter(Boolean) : [];
   customs = Array.isArray(customs) ? customs.filter(Boolean) : [];
@@ -137,14 +149,22 @@ try {
             {/* Variant Options (radio/select) */}
             {Array.isArray(options) && options.length > 0 && options.filter(Boolean).map((group: any) => {
               const groupKey = (group?.key || group?.name || group?.title || 'option').toString();
-              const values = Array.isArray(group?.values) ? group.values : (Array.isArray(group?.items) ? group.items : []);
+              const values = Array.isArray(group?.values)
+                ? group.values
+                : Array.isArray(group?.items)
+                  ? group.items
+                  : Array.isArray(group?.colors)
+                    ? group.colors
+                    : Array.isArray(group?.sizes)
+                      ? group.sizes
+                      : [];
               return (
                 <div class="bg-black/20 rounded-none p-3 border border-white/20">
                   <div class="font-semibold mb-2">{group?.title || group?.name || 'Option'}</div>
                   {/* Prefer select if many values, else radios */}
                   {values.length > 4 ? (
                     <select
-                      class="w-full border border-white/20 rounded px-2 py-2"
+                      class="w-full border bg-transparent border-white/20 rounded px-2 py-2"
                       name={groupKey}
                       data-group={groupKey}
                     >

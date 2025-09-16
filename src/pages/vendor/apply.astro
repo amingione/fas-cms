@@ -1,7 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 const title = 'Vendor Application';
-const vendorApplyScript = new URL('../../scripts/vendor-apply.ts', import.meta.url);
 ---
 
 <BaseLayout title={title}>
@@ -12,5 +11,5 @@ const vendorApplyScript = new URL('../../scripts/vendor-apply.ts', import.meta.u
     <div id="applicationContainer" class="w-full"></div>
   </div>
 
-  <script type="module" src={vendorApplyScript.href}></script>
+  <script type="module">import '../../scripts/vendor-apply.ts';</script>
 </BaseLayout>
