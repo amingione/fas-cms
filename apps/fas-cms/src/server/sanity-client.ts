@@ -52,6 +52,20 @@ export async function getVendorByEmail(email: string) {
   return await sanity.fetch(query, { email });
 }
 
+export async function setVendorPasswordReset(vendorId: string, tokenHash: string, expiresAt: string) {
+  await sanity
+    .patch(vendorId)
+    .set({ passwordResetToken: tokenHash, passwordResetExpires: expiresAt })
+    .commit();
+}
+
+export async function updateVendorPassword(vendorId: string, passwordHash: string) {
+  await sanity
+    .patch(vendorId)
+    .set({ passwordHash, passwordResetToken: null, passwordResetExpires: null })
+    .commit();
+}
+
 export async function getVendorOrdersByVendorId(vendorId: string) {
   const query = '*[_type == "vendor" && _id == $vid][0].orders[] { orderId, status, amount, orderDate }';
   return await sanity.fetch(query, { vid: vendorId });

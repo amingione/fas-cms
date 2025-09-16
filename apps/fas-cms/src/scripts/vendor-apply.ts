@@ -107,3 +107,4 @@ if (document.readyState === 'loading') {
   renderForm();
 }
 
+export {};

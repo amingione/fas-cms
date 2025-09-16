@@ -128,6 +128,18 @@ const vendor = defineType({
       hidden: true
     }),
     defineField({
+      name: 'passwordResetToken',
+      type: 'string',
+      title: 'Password Reset Token',
+      hidden: true
+    }),
+    defineField({
+      name: 'passwordResetExpires',
+      type: 'datetime',
+      title: 'Password Reset Expiration',
+      hidden: true
+    }),
+    defineField({
       name: 'status',
       type: 'string',
       title: 'Status',

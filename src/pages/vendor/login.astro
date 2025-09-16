@@ -48,6 +48,9 @@ const title = 'Vendor Login';
             required
           />
         </div>
+        <p class="text-right text-sm">
+          <a href="/vendor/forgot-password" class="text-yellow-300 hover:underline">Forgot password?</a>
+        </p>
         <button
           type="submit"
           class="w-full bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 transition duration-200 font-bold uppercase tracking-wide"
@@ -107,7 +110,11 @@ const title = 'Vendor Login';
           const returnTo = params.get('returnTo') || '/vendor/dashboard';
           window.location.href = returnTo;
         } else {
-          errorEl.textContent = data.message || 'Login failed';
+          if (res.status === 401) {
+            errorEl.textContent = 'Incorrect email or password. Please try again or reset your password.';
+          } else {
+            errorEl.textContent = data.message || 'Login failed';
+          }
           errorEl.classList.remove('hidden');
         }
       } catch (err) {

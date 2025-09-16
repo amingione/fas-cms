@@ -5,7 +5,13 @@ const PROTECTED_CUSTOMER = [/^\/dashboard(?:\/.*)?$/];
 const PROTECTED_VENDOR = [/^\/vendor(?:\/.*)?$/];
 const PROTECTED_ADMIN = [/^\/admin(?:\/.*)?$/];
 
-const PUBLIC_VENDOR_PATHS = new Set(['/vendor/login', '/vendor/apply']);
+const PUBLIC_VENDOR_PATHS = new Set([
+  '/vendor/login',
+  '/vendor/apply',
+  '/vendor/apply.client.ts',
+  '/vendor/forgot-password',
+  '/vendor/reset'
+]);
 
 const isMatch = (path: string, patterns: RegExp[]) => patterns.some((re) => re.test(path));
 

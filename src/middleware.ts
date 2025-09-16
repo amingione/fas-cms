@@ -3,7 +3,13 @@ import jwt from 'jsonwebtoken';
 
 const SESSION_SECRET = import.meta.env.SESSION_SECRET;
 const COOKIE_NAME = process.env.SESSION_COOKIE_NAME || 'fas_session';
-const PUBLIC_VENDOR_PATHS = new Set(['/vendor/login', '/vendor/apply']);
+const PUBLIC_VENDOR_PATHS = new Set([
+  '/vendor/login',
+  '/vendor/apply',
+  '/vendor/apply.client.ts',
+  '/vendor/forgot-password',
+  '/vendor/reset'
+]);
 
 const normalizePath = (path: string) => {
   if (path.length > 1 && path.endsWith('/')) return path.slice(0, -1);

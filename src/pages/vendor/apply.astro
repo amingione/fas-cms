@@ -11,5 +11,5 @@ const title = 'Vendor Application';
     <div id="applicationContainer" class="w-full"></div>
   </div>
 
-  <script type="module">import './apply.client.ts';</script>
+  <script type="module" src={Astro.resolve('../../scripts/vendor-apply.ts')}></script>
 </BaseLayout>
