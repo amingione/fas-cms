@@ -160,6 +160,7 @@
     "resend": "^4.5.0",
     "sanity": "^3.60.0",
     "sanity-plugin-media": "^4.0.0",
+    "sharp": "^0.31.3-blitz.5",
     "solid-js": "^1.9.6",
     "sonner": "2.0.3",
     "stripe": "^18.4.0",
