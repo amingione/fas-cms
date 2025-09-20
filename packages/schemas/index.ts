@@ -1,1 +1,1 @@
-export { schemaTypes } from '../../apps/fas-sanity/schemaTypes'
+export { schemaTypes } from '../../sanity/schemaTypes';

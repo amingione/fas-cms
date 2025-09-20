@@ -1,6 +1,0 @@
-{
-  "root": true,
-  "project": { "name": "fas-sanity" },
-  "api": { "projectId": "r4og35qd", "dataset": "production" },
-  "plugins": []
-}

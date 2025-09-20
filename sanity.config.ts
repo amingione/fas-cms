@@ -1,6 +1,6 @@
 import { defineConfig } from 'sanity';
 import { setPasswordAction } from './sanity/components/SetPasswordAction';
-import { schemaTypes } from './apps/fas-sanity/schemaTypes';
+import { schemaTypes } from './sanity/schemaTypes';
 
 // Minimal Sanity v3 Studio config so Stackbit detects v3 schema loader.
 // This does NOT define local schema types; it enables v3 detection to avoid
