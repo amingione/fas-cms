@@ -87,6 +87,7 @@
     "@fullcalendar/timegrid": "^6.1.19",
     "@headlessui/react": "^2.2.7",
     "@heroicons/react": "^2.2.0",
+    "@motionone/dom": "^10.18.0",
     "@netlify/blobs": "^9.0.0",
     "@portabletext/react": "^3.2.1",
     "@radix-ui/react-alert-dialog": "^1.1.15",

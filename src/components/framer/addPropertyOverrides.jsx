@@ -33,15 +33,16 @@ import { stdin_default as stdin_default5 } from './chunks/chunk-AAKOUMSY.js';
 import {
   stdin_default as stdin_default2,
   stdin_default2 as stdin_default3,
-  stdin_default3 as stdin_default4,
+  stdin_default3 as stdin_default4
 } from './chunks/chunk-DJT75QUV.js';
-import { stdin_default } from './chunks/chunk-4NPMLM6U.js';
+import { stdin_default } from '../framer2/chunks/chunk-4NPMLM6U.js';
 import { className, css, fonts } from './chunks/chunk-XU5APAQZ.js';
-import { routes } from './chunks/chunk-YOD5Q24P.js';
+import { routes } from '../framer2/chunks/chunk-YOD5Q24P.js';
 
 // virtual:cta-section
 import { Fragment as Fragment2 } from 'react';
 import { ContextProviders } from 'unframer';
+const FramerContextProviders = ContextProviders ?? (({ children }) => <>{children}</>);
 
 // /:https://framerusercontent.com/modules/5WvDX1GZFDvBXvm0ujJR/YDJFMIGXC9XlgL5CeURv/kDloua7zU.js
 import { jsx as _jsx2, jsxs as _jsxs } from 'react/jsx-runtime';
@@ -59,7 +60,7 @@ import {
   useLocaleInfo,
   useVariantState,
   withCSS,
-  withFX,
+  withFX
 } from 'unframer';
 import { LayoutGroup, motion, MotionConfigContext } from 'unframer';
 import * as React from 'react';
@@ -75,20 +76,18 @@ var serializationHash = 'framer-XPJ2H';
 var variantClassNames = {
   ec8cBy25t: 'framer-v-1xtnd9z',
   JPu3JhM8D: 'framer-v-1dz9b0w',
-  VNkgiDYTT: 'framer-v-11vtk6b',
+  VNkgiDYTT: 'framer-v-11vtk6b'
 };
 function addPropertyOverrides(overrides, ...variants) {
   const nextOverrides = {};
-  variants?.forEach(
-    (variant) => variant && Object.assign(nextOverrides, overrides[variant]),
-  );
+  variants?.forEach((variant) => variant && Object.assign(nextOverrides, overrides[variant]));
   return nextOverrides;
 }
 var transition1 = {
   bounce: 0.2,
   delay: 0,
   duration: 0.4,
-  type: 'spring',
+  type: 'spring'
 };
 var animation = {
   opacity: 0,
@@ -99,35 +98,35 @@ var animation = {
   skewX: 0,
   skewY: 0,
   x: 0,
-  y: 60,
+  y: 60
 };
 var transition2 = {
   damping: 60,
   delay: 0.3,
   mass: 1,
   stiffness: 320,
-  type: 'spring',
+  type: 'spring'
 };
 var transition3 = {
   damping: 60,
   delay: 0.4,
   mass: 1,
   stiffness: 320,
-  type: 'spring',
+  type: 'spring'
 };
 var transition4 = {
   damping: 60,
   delay: 0.5,
   mass: 1,
   stiffness: 320,
-  type: 'spring',
+  type: 'spring'
 };
 var transition5 = {
   damping: 60,
   delay: 0.6,
   mass: 1,
   stiffness: 320,
-  type: 'spring',
+  type: 'spring'
 };
 var Transition = ({ value, children }) => {
   const config = React.useContext(MotionConfigContext);
@@ -135,32 +134,28 @@ var Transition = ({ value, children }) => {
   const contextValue = React.useMemo(
     () => ({
       ...config,
-      transition,
+      transition
     }),
-    [JSON.stringify(transition)],
+    [JSON.stringify(transition)]
   );
   return (
-    <MotionConfigContext.Provider value={contextValue}>
-      {children}
-    </MotionConfigContext.Provider>
+    <MotionConfigContext.Provider value={contextValue}>{children}</MotionConfigContext.Provider>
   );
 };
 var Variants = motion.create(React.Fragment);
 var humanReadableVariantMap = {
   Desktop: 'ec8cBy25t',
   Phone: 'JPu3JhM8D',
-  Tablet: 'VNkgiDYTT',
+  Tablet: 'VNkgiDYTT'
 };
 var getProps = ({ height, id, width, ...props }) => {
   return {
     ...props,
-    variant:
-      humanReadableVariantMap[props.variant] ?? props.variant ?? 'ec8cBy25t',
+    variant: humanReadableVariantMap[props.variant] ?? props.variant ?? 'ec8cBy25t'
   };
 };
 var createLayoutDependency = (props, variants) => {
-  if (props.layoutDependency)
-    return variants.join('-') + props.layoutDependency;
+  if (props.layoutDependency) return variants.join('-') + props.layoutDependency;
   return variants.join('-');
 };
 var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
@@ -169,13 +164,7 @@ var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
   const defaultLayoutId = React.useId();
   const { activeLocale, setLocale } = useLocaleInfo();
   const componentViewport = useComponentViewport();
-  const {
-    style,
-    className: className2,
-    layoutId,
-    variant,
-    ...restProps
-  } = getProps(props);
+  const { style, className: className2, layoutId, variant, ...restProps } = getProps(props);
   const {
     baseVariant,
     classNames,
@@ -185,13 +174,13 @@ var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
     isLoading,
     setGestureState,
     setVariant,
-    variants,
+    variants
   } = useVariantState({
     cycleOrder,
     defaultVariant: 'ec8cBy25t',
     ref: refBinding,
     variant,
-    variantClassNames,
+    variantClassNames
   });
   const layoutDependency = createLayoutDependency(props, variants);
   const sharedStyleClassNames = [className];
@@ -208,31 +197,30 @@ var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
               'framer-1xtnd9z',
               'cta-section',
               className2,
-              classNames,
+              classNames
             )}
             data-framer-name={'Desktop'}
             layoutDependency={layoutDependency}
             layoutId={'ec8cBy25t'}
             ref={refBinding}
             style={{
-              backgroundColor:
-                'var(--token-eb09dbbf-ef85-4b7f-81a5-44e9b062efb7, rgb(0, 0, 0))',
+              backgroundColor: 'var(--token-eb09dbbf-ef85-4b7f-81a5-44e9b062efb7, rgb(0, 0, 0))',
               width: '100%',
               margin: 0,
               position: 'relative',
-              ...style,
+              ...style
             }}
             {...addPropertyOverrides(
               {
                 JPu3JhM8D: {
-                  'data-framer-name': 'Phone',
+                  'data-framer-name': 'Phone'
                 },
                 VNkgiDYTT: {
-                  'data-framer-name': 'Tablet',
-                },
+                  'data-framer-name': 'Tablet'
+                }
               },
               baseVariant,
-              gestureVariant,
+              gestureVariant
             )}
           >
             <video
@@ -249,7 +237,7 @@ var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
                 objectFit: 'cover',
                 pointerEvents: 'none',
                 zIndex: 0,
-                filter: 'grayscale(100%) contrast(1.1) brightness(0.7)',
+                filter: 'grayscale(100%) contrast(1.1) brightness(0.7)'
               }}
             />
             <div
@@ -265,7 +253,7 @@ var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
                 pointerEvents: 'none',
                 zIndex: 1,
                 filter: 'grayscale(10%) contrast(1)',
-                backgroundRepeat: 'no-repeat',
+                backgroundRepeat: 'no-repeat'
               }}
             />
             <motion.div
@@ -296,9 +284,7 @@ var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
                 >
                   <span className={'cta-section__tag-line w-full'} />
                   <span className={'font-borg uppercase tracking-tight w-full'}>
-                    <span className="font-borg text-4xl text-primaryB">
-                      F.a.S.{' '}
-                    </span>
+                    <span className="font-borg text-4xl text-primaryB">F.a.S. </span>
                     <span className="font-ethno">Motorsports</span>
                   </span>
                   <span className={'cta-section__tag-line'} />
@@ -323,11 +309,7 @@ var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
                     }
                   >
                     Power Up Your Ride! Let’s{' '}
-                    <span
-                      className={
-                        'font-ethno italic normal-case tracking-normal'
-                      }
-                    >
+                    <span className={'font-ethno italic normal-case tracking-normal'}>
                       Build Together
                     </span>
                   </motion.h2>
@@ -360,9 +342,7 @@ var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
                 y={
                   (componentViewport?.y || 0) +
                   100 +
-                  (((componentViewport?.height || 200) - 200 - 528.4) / 2 +
-                    0 +
-                    0) +
+                  (((componentViewport?.height || 200) - 200 - 528.4) / 2 + 0 + 0) +
                   0 +
                   262.4
                 }
@@ -372,31 +352,26 @@ var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
                       y:
                         (componentViewport?.y || 0) +
                         80 +
-                        (((componentViewport?.height || 572) - 160 - 514) / 2 +
-                          0 +
-                          0) +
+                        (((componentViewport?.height || 572) - 160 - 514) / 2 + 0 + 0) +
                         0 +
-                        248,
+                        248
                     },
                     VNkgiDYTT: {
                       y:
                         (componentViewport?.y || 0) +
                         100 +
-                        (((componentViewport?.height || 578) - 200 - 528.4) /
-                          2 +
-                          0 +
-                          0) +
+                        (((componentViewport?.height || 578) - 200 - 528.4) / 2 + 0 + 0) +
                         0 +
-                        262.4,
-                    },
+                        262.4
+                    }
                   },
                   baseVariant,
-                  gestureVariant,
+                  gestureVariant
                 )}
               >
                 <SmartComponentScopedContainerWithFX
                   __framer__animate={{
-                    transition: transition4,
+                    transition: transition4
                   }}
                   __framer__animateOnce={true}
                   __framer__enter={animation}
@@ -425,18 +400,18 @@ var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
                     ...addPropertyOverrides(
                       {
                         JPu3JhM8D: {
-                          variant: 'chiubjAu6',
-                        },
+                          variant: 'chiubjAu6'
+                        }
                       },
                       baseVariant,
-                      gestureVariant,
-                    ),
+                      gestureVariant
+                    )
                   })}
                 </SmartComponentScopedContainerWithFX>
               </ComponentViewportProvider>
               <MotionDivWithFX
                 __framer__animate={{
-                  transition: transition5,
+                  transition: transition5
                 }}
                 __framer__animateOnce={true}
                 __framer__enter={animation}
@@ -455,9 +430,7 @@ var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
                   y={
                     (componentViewport?.y || 0) +
                     100 +
-                    (((componentViewport?.height || 200) - 200 - 528.4) / 2 +
-                      0 +
-                      0) +
+                    (((componentViewport?.height || 200) - 200 - 528.4) / 2 + 0 + 0) +
                     0 +
                     336.4 +
                     0
@@ -468,29 +441,23 @@ var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
                         y:
                           (componentViewport?.y || 0) +
                           80 +
-                          (((componentViewport?.height || 572) - 160 - 514) /
-                            2 +
-                            0 +
-                            0) +
+                          (((componentViewport?.height || 572) - 160 - 514) / 2 + 0 + 0) +
                           0 +
                           322 +
-                          0,
+                          0
                       },
                       VNkgiDYTT: {
                         y:
                           (componentViewport?.y || 0) +
                           100 +
-                          (((componentViewport?.height || 578) - 200 - 528.4) /
-                            2 +
-                            0 +
-                            0) +
+                          (((componentViewport?.height || 578) - 200 - 528.4) / 2 + 0 + 0) +
                           0 +
                           336.4 +
-                          0,
-                      },
+                          0
+                      }
                     },
                     baseVariant,
-                    gestureVariant,
+                    gestureVariant
                   )}
                 >
                   <SmartComponentScopedContainer
@@ -507,7 +474,7 @@ var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
                       layoutId: 'hiRG70yf5',
                       RhBoiefR8: stdin_default,
                       width: '100%',
-                      YdTA2k7Lp: 'https://x.com/home',
+                      YdTA2k7Lp: 'https://x.com/home'
                     })}
                   </SmartComponentScopedContainer>
                 </ComponentViewportProvider>
@@ -518,7 +485,7 @@ var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
                   layoutId={'BimQpy49a'}
                   style={{
                     backgroundColor:
-                      'var(--token-5970a3c6-0f13-482e-8fb6-b8cb7d627b04, rgba(255, 255, 255, 0.07))',
+                      'var(--token-5970a3c6-0f13-482e-8fb6-b8cb7d627b04, rgba(255, 255, 255, 0.07))'
                   }}
                 />
                 <ComponentViewportProvider
@@ -526,9 +493,7 @@ var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
                   y={
                     (componentViewport?.y || 0) +
                     100 +
-                    (((componentViewport?.height || 200) - 200 - 528.4) / 2 +
-                      0 +
-                      0) +
+                    (((componentViewport?.height || 200) - 200 - 528.4) / 2 + 0 + 0) +
                     0 +
                     336.4 +
                     0
@@ -539,29 +504,23 @@ var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
                         y:
                           (componentViewport?.y || 0) +
                           80 +
-                          (((componentViewport?.height || 572) - 160 - 514) /
-                            2 +
-                            0 +
-                            0) +
+                          (((componentViewport?.height || 572) - 160 - 514) / 2 + 0 + 0) +
                           0 +
                           322 +
-                          0,
+                          0
                       },
                       VNkgiDYTT: {
                         y:
                           (componentViewport?.y || 0) +
                           100 +
-                          (((componentViewport?.height || 578) - 200 - 528.4) /
-                            2 +
-                            0 +
-                            0) +
+                          (((componentViewport?.height || 578) - 200 - 528.4) / 2 + 0 + 0) +
                           0 +
                           336.4 +
-                          0,
-                      },
+                          0
+                      }
                     },
                     baseVariant,
-                    gestureVariant,
+                    gestureVariant
                   )}
                 >
                   <SmartComponentScopedContainer
@@ -578,7 +537,7 @@ var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
                       layoutId: 'U42syeobH',
                       RhBoiefR8: stdin_default2,
                       width: '100%',
-                      YdTA2k7Lp: 'https://www.instagram.com/',
+                      YdTA2k7Lp: 'https://www.instagram.com/'
                     })}
                   </SmartComponentScopedContainer>
                 </ComponentViewportProvider>
@@ -589,7 +548,7 @@ var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
                   layoutId={'Jgyr1VdRq'}
                   style={{
                     backgroundColor:
-                      'var(--token-5970a3c6-0f13-482e-8fb6-b8cb7d627b04, rgba(255, 255, 255, 0.07))',
+                      'var(--token-5970a3c6-0f13-482e-8fb6-b8cb7d627b04, rgba(255, 255, 255, 0.07))'
                   }}
                 />
                 <ComponentViewportProvider
@@ -597,9 +556,7 @@ var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
                   y={
                     (componentViewport?.y || 0) +
                     100 +
-                    (((componentViewport?.height || 200) - 200 - 528.4) / 2 +
-                      0 +
-                      0) +
+                    (((componentViewport?.height || 200) - 200 - 528.4) / 2 + 0 + 0) +
                     0 +
                     336.4 +
                     0
@@ -610,29 +567,23 @@ var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
                         y:
                           (componentViewport?.y || 0) +
                           80 +
-                          (((componentViewport?.height || 572) - 160 - 514) /
-                            2 +
-                            0 +
-                            0) +
+                          (((componentViewport?.height || 572) - 160 - 514) / 2 + 0 + 0) +
                           0 +
                           322 +
-                          0,
+                          0
                       },
                       VNkgiDYTT: {
                         y:
                           (componentViewport?.y || 0) +
                           100 +
-                          (((componentViewport?.height || 578) - 200 - 528.4) /
-                            2 +
-                            0 +
-                            0) +
+                          (((componentViewport?.height || 578) - 200 - 528.4) / 2 + 0 + 0) +
                           0 +
                           336.4 +
-                          0,
-                      },
+                          0
+                      }
                     },
                     baseVariant,
-                    gestureVariant,
+                    gestureVariant
                   )}
                 >
                   <SmartComponentScopedContainer
@@ -649,14 +600,14 @@ var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
                       layoutId: 'losRqOOKa',
                       RhBoiefR8: stdin_default3,
                       width: '100%',
-                      YdTA2k7Lp: 'https://www.facebook.com/',
+                      YdTA2k7Lp: 'https://www.facebook.com/'
                     })}
                   </SmartComponentScopedContainer>
                 </ComponentViewportProvider>
               </MotionDivWithFX>
               <RichTextWithFX
                 __framer__animate={{
-                  transition: transition5,
+                  transition: transition5
                 }}
                 __framer__animateOnce={true}
                 __framer__enter={animation}
@@ -678,7 +629,7 @@ var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
                     className={'framer-styles-preset-1kvyxmc'}
                     data-styles-preset={'n7RLEGRKm'}
                     style={{
-                      '--framer-text-alignment': 'center',
+                      '--framer-text-alignment': 'center'
                     }}
                   >
                     {'fasmotorsports.com'}
@@ -700,7 +651,7 @@ var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
                 objectFit: 'cover',
                 pointerEvents: 'none',
                 zIndex: 0,
-                filter: 'grayscale(100%) contrast(1.1) brightness(0.1)',
+                filter: 'grayscale(100%) contrast(1.1) brightness(0.1)'
               }}
             />
             <motion.div
@@ -710,7 +661,7 @@ var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
               layoutId={'Wf4PPDqW3'}
               style={{
                 background:
-                  'radial-gradient(50% 50% at 50% 50%, var(--background), rgba(255, 255, 255, 0.07)) 0%, var(--token-eb09dbbf-ef85-4b7f-81a5-44e9b062efb7, rgb(0, 0, 0)) 100%)',
+                  'radial-gradient(50% 50% at 50% 50%, var(--background), rgba(255, 255, 255, 0.07)) 0%, var(--token-eb09dbbf-ef85-4b7f-81a5-44e9b062efb7, rgb(0, 0, 0)) 100%)'
               }}
             />
             <video
@@ -727,7 +678,7 @@ var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
                 objectFit: 'cover',
                 pointerEvents: 'none',
                 zIndex: 0,
-                filter: 'grayscale(100%) contrast(1.1) brightness(0.2)',
+                filter: 'grayscale(100%) contrast(1.1) brightness(0.2)'
               }}
             />
             <motion.div
@@ -743,7 +694,7 @@ var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
                 borderTopLeftRadius: 10,
                 borderTopRightRadius: 10,
                 opacity: 0.1,
-                rotate: -13,
+                rotate: -13
               }}
             />
             <ComponentViewportProvider>
@@ -759,7 +710,7 @@ var Component = /* @__PURE__ */ React.forwardRef(function (props, ref) {
                 style={{
                   mask: 'radial-gradient(40% 46% at 50.9% 89.5%, rgb(0, 0, 0) 0%, rgba(0, 0, 0, 0.8) 36.8823902027027%, rgba(0, 0, 0, 0) 100%) add',
                   WebkitMask:
-                    'radial-gradient(40% 46% at 50.9% 89.5%, rgb(0, 0, 0) 0%, rgba(0, 0, 0, 0.8) 36.8823902027027%, rgba(0, 0, 0, 0) 100%) add',
+                    'radial-gradient(40% 46% at 50.9% 89.5%, rgb(0, 0, 0) 0%, rgba(0, 0, 0, 0.8) 36.8823902027027%, rgba(0, 0, 0, 0) 100%) add'
                 }}
               ></SmartComponentScopedContainer>
             </ComponentViewportProvider>
@@ -789,22 +740,22 @@ var css2 = [
   '.framer-XPJ2H.framer-v-11vtk6b.framer-1xtnd9z { width: 810px; }',
   '.framer-XPJ2H.framer-v-1dz9b0w.framer-1xtnd9z { padding: 80px 18px 80px 18px; width: 390px; }',
   '.framer-XPJ2H.framer-v-1dz9b0w .framer-1jnyfdf { height: 378px; left: calc(50.00000000000002% - 600px / 2); width: 600px; }',
-  ...css,
+  ...css
 ];
 var FramerkDloua7zU = withCSS(Component, css2, 'framer-XPJ2H');
 var stdin_default7 = FramerkDloua7zU;
 FramerkDloua7zU.displayName = 'CTA section';
 FramerkDloua7zU.defaultProps = {
   height: 578,
-  width: 1280,
+  width: 1280
 };
 addPropertyControls2(FramerkDloua7zU, {
   variant: {
     options: ['ec8cBy25t', 'VNkgiDYTT', 'JPu3JhM8D'],
     optionTitles: ['Desktop', 'Tablet', 'Phone'],
     title: 'Variant',
-    type: ControlType2.Enum,
-  },
+    type: ControlType2.Enum
+  }
 });
 addFonts(
   FramerkDloua7zU,
@@ -816,10 +767,9 @@ addFonts(
           family: 'Inter',
           source: 'framer',
           style: 'normal',
-          unicodeRange:
-            'U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F',
+          unicodeRange: 'U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F',
           url: 'https://framerusercontent.com/assets/5vvr9Vy74if2I6bQbJvbw7SY1pQ.woff2',
-          weight: '400',
+          weight: '400'
         },
         {
           family: 'Inter',
@@ -827,7 +777,7 @@ addFonts(
           style: 'normal',
           unicodeRange: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
           url: 'https://framerusercontent.com/assets/EOr0mi4hNtlgWNn9if640EZzXCo.woff2',
-          weight: '400',
+          weight: '400'
         },
         {
           family: 'Inter',
@@ -835,7 +785,7 @@ addFonts(
           style: 'normal',
           unicodeRange: 'U+1F00-1FFF',
           url: 'https://framerusercontent.com/assets/Y9k9QrlZAqio88Klkmbd8VoMQc.woff2',
-          weight: '400',
+          weight: '400'
         },
         {
           family: 'Inter',
@@ -843,7 +793,7 @@ addFonts(
           style: 'normal',
           unicodeRange: 'U+0370-03FF',
           url: 'https://framerusercontent.com/assets/OYrD2tBIBPvoJXiIHnLoOXnY9M.woff2',
-          weight: '400',
+          weight: '400'
         },
         {
           family: 'Inter',
@@ -852,7 +802,7 @@ addFonts(
           unicodeRange:
             'U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF',
           url: 'https://framerusercontent.com/assets/JeYwfuaPfZHQhEG8U5gtPDZ7WQ.woff2',
-          weight: '400',
+          weight: '400'
         },
         {
           family: 'Inter',
@@ -861,7 +811,7 @@ addFonts(
           unicodeRange:
             'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD',
           url: 'https://framerusercontent.com/assets/vQyevYAyHtARFwPqUzQGpnDs.woff2',
-          weight: '400',
+          weight: '400'
         },
         {
           family: 'Inter',
@@ -870,16 +820,15 @@ addFonts(
           unicodeRange:
             'U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+1EA0-1EF9, U+20AB',
           url: 'https://framerusercontent.com/assets/b6Y37FthZeALduNqHicBT6FutY.woff2',
-          weight: '400',
+          weight: '400'
         },
         {
           family: 'Inter',
           source: 'framer',
           style: 'italic',
-          unicodeRange:
-            'U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F',
+          unicodeRange: 'U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F',
           url: 'https://framerusercontent.com/assets/CfMzU8w2e7tHgF4T4rATMPuWosA.woff2',
-          weight: '400',
+          weight: '400'
         },
         {
           family: 'Inter',
@@ -887,7 +836,7 @@ addFonts(
           style: 'italic',
           unicodeRange: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
           url: 'https://framerusercontent.com/assets/867QObYax8ANsfX4TGEVU9YiCM.woff2',
-          weight: '400',
+          weight: '400'
         },
         {
           family: 'Inter',
@@ -895,7 +844,7 @@ addFonts(
           style: 'italic',
           unicodeRange: 'U+1F00-1FFF',
           url: 'https://framerusercontent.com/assets/Oyn2ZbENFdnW7mt2Lzjk1h9Zb9k.woff2',
-          weight: '400',
+          weight: '400'
         },
         {
           family: 'Inter',
@@ -903,7 +852,7 @@ addFonts(
           style: 'italic',
           unicodeRange: 'U+0370-03FF',
           url: 'https://framerusercontent.com/assets/cdAe8hgZ1cMyLu9g005pAW3xMo.woff2',
-          weight: '400',
+          weight: '400'
         },
         {
           family: 'Inter',
@@ -912,7 +861,7 @@ addFonts(
           unicodeRange:
             'U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF',
           url: 'https://framerusercontent.com/assets/DOfvtmE1UplCq161m6Hj8CSQYg.woff2',
-          weight: '400',
+          weight: '400'
         },
         {
           family: 'Inter',
@@ -921,7 +870,7 @@ addFonts(
           unicodeRange:
             'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD',
           url: 'https://framerusercontent.com/assets/vFzuJY0c65av44uhEKB6vyjFMg.woff2',
-          weight: '400',
+          weight: '400'
         },
         {
           family: 'Inter',
@@ -930,16 +879,15 @@ addFonts(
           unicodeRange:
             'U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+1EA0-1EF9, U+20AB',
           url: 'https://framerusercontent.com/assets/tKtBcDnBMevsEEJKdNGhhkLzYo.woff2',
-          weight: '400',
+          weight: '400'
         },
         {
           family: 'Inter',
           source: 'framer',
           style: 'normal',
-          unicodeRange:
-            'U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F',
+          unicodeRange: 'U+0460-052F, U+1C80-1C88, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F',
           url: 'https://framerusercontent.com/assets/5A3Ce6C9YYmCjpQx9M4inSaKU.woff2',
-          weight: '500',
+          weight: '500'
         },
         {
           family: 'Inter',
@@ -947,7 +895,7 @@ addFonts(
           style: 'normal',
           unicodeRange: 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116',
           url: 'https://framerusercontent.com/assets/Qx95Xyt0Ka3SGhinnbXIGpEIyP4.woff2',
-          weight: '500',
+          weight: '500'
         },
         {
           family: 'Inter',
@@ -955,7 +903,7 @@ addFonts(
           style: 'normal',
           unicodeRange: 'U+1F00-1FFF',
           url: 'https://framerusercontent.com/assets/6mJuEAguuIuMog10gGvH5d3cl8.woff2',
-          weight: '500',
+          weight: '500'
         },
         {
           family: 'Inter',
@@ -963,7 +911,7 @@ addFonts(
           style: 'normal',
           unicodeRange: 'U+0370-03FF',
           url: 'https://framerusercontent.com/assets/xYYWaj7wCU5zSQH0eXvSaS19wo.woff2',
-          weight: '500',
+          weight: '500'
         },
         {
           family: 'Inter',
@@ -972,7 +920,7 @@ addFonts(
           unicodeRange:
             'U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF',
           url: 'https://framerusercontent.com/assets/otTaNuNpVK4RbdlT7zDDdKvQBA.woff2',
-          weight: '500',
+          weight: '500'
         },
         {
           family: 'Inter',
@@ -981,7 +929,7 @@ addFonts(
           unicodeRange:
             'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD',
           url: 'https://framerusercontent.com/assets/d3tHnaQIAeqiE5hGcRw4mmgWYU.woff2',
-          weight: '500',
+          weight: '500'
         },
         {
           family: 'Inter',
@@ -990,24 +938,24 @@ addFonts(
           unicodeRange:
             'U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+1EA0-1EF9, U+20AB',
           url: 'https://framerusercontent.com/assets/DolVirEGb34pEXEp8t8FQBSK4.woff2',
-          weight: '500',
+          weight: '500'
         },
         {
           family: 'Instrument Serif',
           source: 'google',
           style: 'italic',
           url: 'https://fonts.gstatic.com/s/instrumentserif/v4/jizHRFtNs2ka5fXjeivQ4LroWlx-6zATjnTNgNq55w.woff2',
-          weight: '400',
-        },
-      ],
+          weight: '400'
+        }
+      ]
     },
     ...MainButtonFonts,
     ...ElementsSocialMediaFonts,
-    ...getFontsFromSharedStyle(fonts),
+    ...getFontsFromSharedStyle(fonts)
   ],
   {
-    supportsExplicitInterCodegen: true,
-  },
+    supportsExplicitInterCodegen: true
+  }
 );
 
 // virtual:cta-section
@@ -1017,23 +965,21 @@ var locales = [];
 var defaultResponsiveVariants = {
   base: 'JPu3JhM8D',
   md: 'VNkgiDYTT',
-  xl: 'ec8cBy25t',
+  xl: 'ec8cBy25t'
 };
 /** @type {function(Props): any} */
 function ComponentWithRoot({ locale, ...rest }) {
   return (
-    <ContextProviders
+    <FramerContextProviders
       routes={routes}
-      framerSiteId={
-        '21a79c897ec6fdecc33a23f68d80f3e3f699d3e22efca4618d9f9fe12404d644'
-      }
+      framerSiteId={'21a79c897ec6fdecc33a23f68d80f3e3f699d3e22efca4618d9f9fe12404d644'}
       locale={locale}
       locales={locales}
     >
       {jsx(stdin_default7, {
-        ...rest,
+        ...rest
       })}
-    </ContextProviders>
+    </FramerContextProviders>
   );
 }
 /**
@@ -1055,11 +1001,9 @@ function ComponentWithRoot({ locale, ...rest }) {
  */
 ComponentWithRoot.Responsive = ({ locale = '', ...rest }) => {
   return (
-    <ContextProviders
+    <FramerContextProviders
       routes={routes}
-      framerSiteId={
-        '21a79c897ec6fdecc33a23f68d80f3e3f699d3e22efca4618d9f9fe12404d644'
-      }
+      framerSiteId={'21a79c897ec6fdecc33a23f68d80f3e3f699d3e22efca4618d9f9fe12404d644'}
       locale={locale}
       locales={locales}
     >
@@ -1068,7 +1012,7 @@ ComponentWithRoot.Responsive = ({ locale = '', ...rest }) => {
         variants={defaultResponsiveVariants}
         {...rest}
       />
-    </ContextProviders>
+    </FramerContextProviders>
   );
 };
 Object.assign(ComponentWithRoot, stdin_default7);

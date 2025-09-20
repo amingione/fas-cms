@@ -1,4 +1,6 @@
 ---
+import '@/components/framer2/styles.css';
+
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
 import * as sanity from '../lib/sanity-utils';
@@ -14,7 +16,8 @@ import { WheelsHero } from '@/components/WheelsHero.tsx';
 import HeroBanner from '@/components/HeroBanner.astro';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import Highlights from '@/components/Highlights.astro';
-import CTASection from '@/components/framer/cta-section.jsx';
+
+import CTASection from '@/components/framer2/cta-section.jsx';
 
 const url = new URL(Astro.request.url);
 const pageDoc: any = await getGitPageDoc('index');
@@ -100,7 +103,12 @@ try {
   ogImage="/logo/faslogochroma.png"
 >
   <div {...sbObjectId('content/pages/index.json')}>
-  {/* Static hero banner placed first, no longer Stackbit-managed */}
+  {/* CTA placed at very top */}
+  <section id="CTASection" class="mb-12">
+    <CTASection client:only="react" />
+  </section>
+
+  {/* Static hero banner follows */}
   <HeroBanner
     headline="Power Up Your Ride"
     subtext="Premium performance upgrades tailored to your build."
@@ -124,9 +132,6 @@ try {
       <Highlights items={featuredProducts} />
     </section>
 
-    <section id="cta" class="mt-20">
-      <CTASection client:only="react" />
-    </section>
 
     <section id="Products" class="mt-20">
       <Products client:only="react" />

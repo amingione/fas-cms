@@ -1,31 +1,17 @@
 {
   "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
-    "types": [
-      "astro/client",
-      "vite/client",
-      "node"
-    ],
+    "types": ["astro/client", "vite/client", "node"],
     "module": "es2020",
     "target": "es2015",
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "src/*"
-      ],
-      "@components/*": [
-        "src/components/*"
-      ],
-      "@layouts/*": [
-        "src/layouts/*"
-      ],
-      "@pages/*": [
-        "src/pages/*"
-      ],
-      "@lib/*": [
-        "src/lib/*"
-      ]
+      "@/*": ["src/*"],
+      "@components/*": ["src/components/*"],
+      "@layouts/*": ["src/layouts/*"],
+      "@pages/*": ["src/pages/*"],
+      "@lib/*": ["src/lib/*"]
     },
     "esModuleInterop": true,
     "strict": true,
@@ -42,12 +28,10 @@
     "*.astro",
     "**/*.ts",
     "**/*.tsx",
-    "netlify/functions/**/*.ts"
+    "netlify/functions/**/*.ts",
+    "src/components/framer2/chunks/chunk-4NPMLM6U.js",
+    "src/components/framer2/chunks/chunk-TQTC2MK6.js",
+    "src/components/framer2/chunks/chunk-YOD5Q24P.js"
   ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "src/dev/LegacySanityQuery.js",
-    "stackbit.config.ts"
-  ]
+  "exclude": ["node_modules", "dist", "src/dev/LegacySanityQuery.js", "stackbit.config.ts"]
 }
