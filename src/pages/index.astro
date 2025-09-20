@@ -14,6 +14,7 @@ import { WheelsHero } from '@/components/WheelsHero.tsx';
 import HeroBanner from '@/components/HeroBanner.astro';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import Highlights from '@/components/Highlights.astro';
+import CTASection from '@/components/framer/cta-section.jsx';
 
 const url = new URL(Astro.request.url);
 const pageDoc: any = await getGitPageDoc('index');
@@ -121,6 +122,10 @@ try {
 
     <section id="Highlights">
       <Highlights items={featuredProducts} />
+    </section>
+
+    <section id="cta" class="mt-20">
+      <CTASection client:only="react" />
     </section>
 
     <section id="Products" class="mt-20">

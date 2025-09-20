@@ -3,8 +3,12 @@ import { defineConfig } from 'astro/config';
 import netlify from '@astrojs/netlify';
 import react from '@astrojs/react';
 import tailwind from '@astrojs/tailwind';
-import { fileURLToPath, URL } from 'node:url';
-const FN_PORT = process.env.NETLIFY_DEV_PORT || process.env.NETLIFY_FUNCTIONS_PORT || process.env.FUNCTIONS_PORT || '5050';
+import { fileURLToPath } from 'url';
+const FN_PORT =
+  process.env.NETLIFY_DEV_PORT ||
+  process.env.NETLIFY_FUNCTIONS_PORT ||
+  process.env.FUNCTIONS_PORT ||
+  '5050';
 // Lazy-load svgr so dev doesn't fail if it's not installed
 let svgrPlugin = null;
 try {
@@ -13,7 +17,9 @@ try {
   // mod.default is the plugin factory
   svgrPlugin = mod?.default ? mod.default() : mod();
 } catch (err) {
-  console.warn('[astro.config] vite-plugin-svgr not found. SVG React imports (?react) will be disabled until it is installed.');
+  console.warn(
+    '[astro.config] vite-plugin-svgr not found. SVG React imports (?react) will be disabled until it is installed.'
+  );
 }
 
 // Try to include remark-gfm; skip gracefully if missing to avoid dev crashing
@@ -22,18 +28,9 @@ try {
   const mod = await import('remark-gfm');
   remarkGfm = mod?.default ?? mod;
 } catch (err) {
-  console.warn('[astro.config] remark-gfm not found. GitHub-flavored Markdown (tables, task lists) will be disabled until installed.');
-}
-
-// Bridge env vars for SSR/serverless
-if (!import.meta.env.PUBLIC_SANITY_PROJECT_ID) {
-  import.meta.env.PUBLIC_SANITY_PROJECT_ID = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
-}
-if (!import.meta.env.PUBLIC_SANITY_API_TOKEN) {
-  import.meta.env.PUBLIC_SANITY_API_TOKEN = import.meta.env.PUBLIC_SANITY_API_TOKEN;
-}
-if (!import.meta.env.PUBLIC_SANITY_DATASET) {
-  import.meta.env.PUBLIC_SANITY_DATASET = import.meta.env.PUBLIC_SANITY_DATASET || 'production';
+  console.warn(
+    '[astro.config] remark-gfm not found. GitHub-flavored Markdown (tables, task lists) will be disabled until installed.'
+  );
 }
 
 export default defineConfig({
@@ -77,13 +74,7 @@ export default defineConfig({
     // Expose VITE_* so server code can read VITE_SANITY_* via import.meta.env
     envPrefix: ['PUBLIC_', 'SANITY_', 'PUBLIC_SANITY_', 'VITE_'],
     optimizeDeps: {
-      include: [
-        'react',
-        'react-dom',
-        'react-router-dom',
-        '@fullcalendar/core',
-        'apexcharts'
-      ],
+      include: ['react', 'react-dom', 'react-router-dom', '@fullcalendar/core', 'apexcharts'],
       exclude: [
         // Avoid prebundling particles to reduce dev 504 "Outdated Optimize Dep" churn
         'react-tsparticles',

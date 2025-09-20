@@ -25,7 +25,7 @@ export const handler: Handler = async (event) => {
         ? user.roles.map((r: string) => (r || '').toLowerCase())
         : [];
       // Align with _auth.ts which allows 'owner' or 'staff'
-      const allowed = roles.includes('owner') || roles.includes('staff') || roles.includes('admin');
+      const allowed = roles.includes('owner') || roles.includes('staff');
       if (!allowed) return json(403, { error: 'Forbidden' });
     }
 

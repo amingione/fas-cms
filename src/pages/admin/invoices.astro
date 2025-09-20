@@ -5,12 +5,9 @@ const requestOrigin = new URL(Astro.request.url).origin;
 const siteOrigin = Astro.site ? new URL(Astro.site).origin : requestOrigin;
 const envBase = import.meta.env.PUBLIC_BASE_URL;
 const base = isDev ? requestOrigin : (envBase || siteOrigin);
-const reqCookie = Astro.request.headers.get('cookie') || '';
 let rows: any[] = [];
 try {
-  const res = await fetch(`${base}/.netlify/functions/invoices-list`, {
-    headers: reqCookie ? { cookie: reqCookie } : {}
-  });
+  const res = await fetch(`${base}/.netlify/functions/invoices-list`);
   if (res.ok) rows = await res.json();
 } catch {}
 ---
@@ -30,7 +27,7 @@ try {
             <td class="px-3 py-2">{r.customerEmail || '—'}</td>
             <td class="px-3 py-2 text-right">
               <a class="px-3 py-1 rounded border border-white/30 hover:bg-white/80 mr-2" href={r.hostedInvoiceUrl} target="_blank">Open</a>
-              <button class="px-3 py-1 rounded border border-white/30 hover:bg-white/80" onclick={`fetch('/.netlify/functions/invoice-send',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({invoiceId:"${r.id}"}),credentials:'include'}).then(r=>r.json()).then(()=>alert('Sent'))`}>Send</button>
+              <button class="px-3 py-1 rounded border border-white/30 hover:bg-white/80" onclick={`fetch('/.netlify/functions/invoice-send',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({invoiceId:"${r.id}"})}).then(r=>r.json()).then(()=>alert('Sent'))`}>Send</button>
             </td>
           </tr>
         ))}

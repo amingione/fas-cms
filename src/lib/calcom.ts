@@ -1,7 +1,4 @@
-const CALCOM_API_KEY =
-  (typeof process !== 'undefined' ? process.env.CALCOM_API_KEY : undefined) ||
-  (import.meta.env.CALCOM_API_KEY as string | undefined) ||
-  (import.meta.env.PUBLIC_CALCOM_API_KEY as string | undefined);
+const CALCOM_API_KEY = import.meta.env.CALCOM_API_KEY;
 
 if (!CALCOM_API_KEY) {
   throw new Error('CALCOM_API_KEY is missing from environment variables');
