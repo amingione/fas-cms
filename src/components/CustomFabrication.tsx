@@ -27,26 +27,26 @@ export function CustomFabrication() {
       icon: Flame,
       title: 'Turbo & Supercharger Kits',
       description: 'High-performance forced induction systems for maximum power.',
-      features: ['Custom Piping', 'ECU Tuning']
+      features: ['Custom Piping', 'Heat Management', 'ECU Tuning', 'Dyno Testing']
     },
     {
       icon: Wrench,
       title: 'Exhaust Systems',
       description: 'Crafted for optimal flow and aggressive sound.',
-      features: ['Stainless Steel', 'Custom Routing', 'Headers']
+      features: ['Stainless Steel', 'Custom Routing', 'Sound Tuning', 'Headers']
     },
     {
       icon: Gauge,
       title: 'Complete Builds',
       description: 'Bespoke vehicle transformations from the ground up.',
-      features: ['Engine Swaps', 'Suspension']
+      features: ['Engine Swaps', 'Suspension', 'Roll Cages', 'Interior Work']
     }
   ];
 
   const capabilities = [
-    { icon: Flame, label: 'TIG Welding', description: 'Precision' },
-    { icon: Settings, label: 'CNC Machining', description: 'Billet components' },
-    { icon: Gauge, label: 'Tuning', description: 'Performance' },
+    { icon: Flame, label: 'TIG Welding', description: 'Precision aluminum & steel' },
+    { icon: Settings, label: 'CNC Machining', description: 'Custom billet components' },
+    { icon: Gauge, label: 'Dyno Tuning', description: 'Performance optimization' },
     { icon: Award, label: 'R&D Testing', description: 'Proven reliability' }
   ];
 
@@ -80,7 +80,7 @@ export function CustomFabrication() {
   return (
     <section
       id="customfabrication"
-      className="py-20 md:py-32 bg-gradient-to-br from-transparent to-red/20 relative overflow-hidden"
+      className="py-20 md:py-32 bg-gradient-to-br from-background to-gray-900 relative overflow-hidden"
     >
       <div className="absolute inset-0 grain-overlay opacity-10" />
       <div className="container mx-auto px-4 md:px-6 relative z-10">
@@ -109,20 +109,20 @@ export function CustomFabrication() {
           whileInView={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1 }}
         >
-          <div className="grid grid-cols-2 gap-4 items-center bg-black liquid-glass backdrop-blur-sm border border-gray-800 p-4 rounded-lg shadow-lg">
+          <div className="grid grid-cols-2 gap-4 items-center">
             <img
               src="/images/fabrication/custom-fab-2.png"
               alt="Custom Fabricated Performance Parts"
-              className="w-full h-40 sm:h-56 md:h-96 object-contain rounded-lg shadow-[0_0_5px_rgba(59,130,246,0.3)]"
+              className="w-full h-40 sm:h-56 md:h-96 object-contain rounded-lg shadow-[0_0_30px_rgba(59,130,246,0.3)]"
             />
             <img
               src="/images/fabrication/FAS-Fabrication-1.png"
               alt="Custom Fabricated Exhaust System"
-              className="w-full h-40 sm:h-56 md:h-96 object-contain rounded-lg shadow-[0_0_5px_rgba(59,130,246,0.3)]"
+              className="w-full h-40 sm:h-56 md:h-96 object-contain rounded-lg shadow-[0_0_30px_rgba(59,130,246,0.3)]"
             />
           </div>
           <motion.div
-            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/50 to-transparent"
+            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ duration: 1 }}
@@ -140,34 +140,31 @@ export function CustomFabrication() {
                 className="snap-start flex-none w-[20rem] sm:w-[24rem] md:w-[26rem] h-[24rem] sm:h-[26rem] md:h-[28rem] rounded-md transform-gpu will-change-transform"
                 whileHover={{
                   scale: 1.0,
-                  boxShadow: '0 0 5px rgba(59,130,246,0.2)',
-                  border: 'rounded-lg',
-                  padding: [-1, -1, -1, -1]
+                  boxShadow: '0 0 10px rgba(59,130,246,0.3)',
+                  border: 'rounded-sm',
+                  padding: [-2, -2, -2, -2]
                 }}
                 variants={variants}
               >
-                <Card className="bg-black liquid-glass backdrop-blur-sm border-gray-800 h-full rounded-xl">
+                <Card className="bg-gray-900/50 backdrop-blur-sm border-gray-800 h-full rounded-xl">
                   <CardHeader className="flex flex-row items-center space-x-4 p-6">
                     <motion.div
-                      className="w-12 h-12 rounded-lg bg-gray-800/50 flex items-center justify-center"
-                      whileHover={{
-                        scale: 1.1,
-                        backgroundColor: 'shadow-[0_0_5px_rgba(59,130,246,0.3)]'
-                      }}
+                      className="w-12 h-12 rounded-full bg-gray-800/50 flex items-center justify-center"
+                      whileHover={{ scale: 1.1, backgroundColor: 'rgba(59,130,246,0.2)' }}
                     >
-                      <service.icon className="w-5 h-5 text-blue-400" />
+                      <service.icon className="w-6 h-6 text-blue-400" />
                     </motion.div>
-                    <CardTitle className="text-xl md:text-2xl font-medium font-ethno text-white">
+                    <CardTitle className="text-xl md:text-2xl font-medium text-text">
                       {service.title}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-1 space-y-2">
-                    <p className="text-gray-400 pb-3">{service.description}</p>
+                    <p className="text-gray-400 pb-3 justify-center">{service.description}</p>
                     <div className="flex flex-wrap gap-2 pb-2">
                       {service.features.map((feature, fIndex) => (
                         <Badge
                           key={fIndex}
-                          className="bg-white/10 text-black border-gray-700 px-2 font-ethno tracking-wide text-glow-gold text-base"
+                          className="bg-white/10 text-gray-300 border-gray-700 px-2 font-captain tracking-wide text-glow-gold rounded-md text-base"
                         >
                           {feature}
                         </Badge>
@@ -190,7 +187,7 @@ export function CustomFabrication() {
               }}
               className="pointer-events-auto inline-flex items-center justify-center w-9 h-9 rounded-full border border-white/10 text-white shadow"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-2 h-2" />
             </button>
             <button
               type="button"
@@ -199,7 +196,7 @@ export function CustomFabrication() {
                 const el = ref.current as unknown as HTMLElement | null;
                 if (el) el.scrollBy({ left: Math.round(el.clientWidth * 0.8), behavior: 'smooth' });
               }}
-              className="pointer-events-auto inline-flex items-center justify-center w-9 h-9 rounded-full bg-black/30 border border-white/10 text-white hover:bg-black/80 shadow"
+              className="pointer-events-auto inline-flex items-center justify-center w-9 h-9 rounded-full bg-black/60 border border-white/10 text-white hover:bg-black/80 shadow"
             >
               <ArrowRight className="w-5 h-5" />
             </button>
@@ -234,7 +231,7 @@ export function CustomFabrication() {
           viewport={{ once: true }}
           variants={variants}
         >
-          <h3 className="text-3xl md:text-4xl font-display font-borg text-outline text-accent">
+          <h3 className="text-3xl md:text-4xl font-display font-bold text-text">
             Dream It. Build It.
           </h3>
           <p className="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto">
@@ -242,14 +239,18 @@ export function CustomFabrication() {
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Button
-              asChild
               size={isMobile ? 'md' : 'lg'}
-              className="bg-primary hover:red/30 luxury-btn text-white font-bold rounded-full shadow-red/20 hover:shadow-red/40 transition-all"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-full shadow-[0_0_15px_rgba(59,130,246,0.4)] hover:shadow-[0_0_25px_rgba(59,130,246,0.6)] transition-all"
             >
-              <a href="/services/customFab">
-                View Portfolio
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </a>
+              View Portfolio
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+            <Button
+              size={isMobile ? 'md' : 'lg'}
+              variant="outline"
+              className="border-blue-600 text-blue-400 hover:bg-blue-600/10 rounded-full"
+            >
+              Get Custom Quote
             </Button>
           </div>
         </motion.div>

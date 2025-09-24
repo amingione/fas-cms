@@ -1,23 +1,17 @@
 ---
-import '@/components/framer2/styles.css';
-
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
 import * as sanity from '../lib/sanity-utils';
-import { Hero } from '@components/Hero.tsx';
 import { Services } from '@components/Services.tsx';
-import { Products } from '@components/Products.tsx';
-import { About } from '@components/About.tsx';
 import { TruckPackagesHero } from '@components/TruckPackagesHero.tsx';
 import { LuxuryFeatures } from '@components/LuxuryFeatures.tsx';
 import { CustomFabrication } from '@components/CustomFabrication.tsx';
-import { LuxuryTestimonials } from '@components/LuxuryTestimonials.tsx';
-import { WheelsHero } from '@/components/WheelsHero.tsx';
 import HeroBanner from '@/components/HeroBanner.astro';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import Highlights from '@/components/Highlights.astro';
+import HeadingBanner from '@components/banner/HeadingBanner.tsx';
+import ProductFeatureBanner from '@components/banner/ProductFeatureBanner.tsx';
 
-import CTASection from '@/components/framer2/cta-section.jsx';
 
 const url = new URL(Astro.request.url);
 const pageDoc: any = await getGitPageDoc('index');
@@ -102,58 +96,98 @@ try {
   canonical={`${new URL(Astro.request.url).origin}/`}
   ogImage="/logo/faslogochroma.png"
 >
-  <div {...sbObjectId('content/pages/index.json')}>
-  {/* CTA placed at very top */}
-  <section id="CTASection" class="mb-12">
-    <CTASection client:only="react" />
-  </section>
 
-  {/* Static hero banner follows */}
-  <HeroBanner
-    headline="Power Up Your Ride"
-    subtext="Premium performance upgrades tailored to your build."
-    ctaText="Explore Now"
-    ctaLink="/shop"
-  />
-  <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Home'}</div>
+    <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>
+      {pageDoc?.title ?? 'Home'}
+    </div>
 
-  <main class="relative flex flex-col">
-    {/* Dynamic sections follow so the Editor can add/reorder blocks */}
-    {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
-      <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
-    )}
+    <main class="relative flex flex-col bg-black">
 
-    {/* Keep existing curated sections below; we can convert later */}
-    <section id="TruckPackagesHero" >
-      <TruckPackagesHero client:only="react" />
-    </section>
-
-    <section id="Highlights">
-      <Highlights items={featuredProducts} />
-    </section>
+    <div {...sbObjectId('content/pages/index.json')}>
 
 
-    <section id="Products" class="mt-20">
-      <Products client:only="react" />
-    </section>
 
-    <section id="CustomFabrication" >
-      <CustomFabrication client:only="react" />
-    </section>
+      <HeroBanner
+      headline="Power Up Your Ride"
+      subtext="Premium performance upgrades tailored to your build."
+      ctaText="Explore Now"
+      ctaLink="/shop"
+    />
+    <div class="mb-1 section-divider opacity-50 section-divider-platinum w-full" />
 
-    <section id="services" class="mt-20">
-      <Services client:only="react" />
-    </section>
+        <HeadingBanner
+          client:only="react"
+          eyebrow="F.A.S. PREDATOR PULLEY"
+          headline="NO TUNE REQUIRED."
+          subline="PATENT PENDING INNOVATION – PRECISION-ENGINEERED FOR FLAWLESS PERFORMANCE."
+          cta={{ label: 'SHOP NOW', href: '/shop' }}
+          backgroundUrl="/images/backgrounds/bg-asphalt.png"
+          images={[
+            {
+              src: '/images/billetParts/predator-pulley-fas.png',
+              alt: 'Predator pulley front view'
+            },
+            {
+              src: '/images/billetParts/fas-pred-pully.png',
+              alt: 'Predator pulley angled view'
+            }
+          ]}
+          showDivider
+        />
+      </section>
 
-    <section id="LuxuryFeatures" class="mt-20">
-      <LuxuryFeatures client:only="react" />
-    </section>
+      <div class=" section-divider section-divider-carbon w-full" />
 
-    <section id="About" class="mt-20">
-      <About client:only="react" />
-    </section>
+      <section id="TruckPackagesHero">
+        <TruckPackagesHero client:only="react" />
+      </section>
 
+      <section id="Highlights">
+        <Highlights items={featuredProducts} />
+      </section>
 
-  </main>
+      <section class="mt-20">
+        <ProductFeatureBanner
+          client:only="react"
+          backgroundUrl="/images/backgrounds/featureProd.png"
+          features={[
+            {
+              side: 'left',
+              image: {
+                src: '/images/billetParts/predator-pulley-fas.png',
+                alt: 'Predator pulley product photo'
+              },
+              lines: ['NO TUNE', 'PREDATOR', 'PULLEY'],
+              pricePrefix: 'ONLY FROM',
+              price: '$899.99',
+              cta: { label: 'SHOP NOW', href: '/shop/predator-pulley' },
+            },
+            {
+              side: 'right',
+              image: {
+                src: '/images/snouts/FAS-Billet-Snout.png',
+                alt: 'Hellcat snout porting product photo'
+              },
+              lines: ['HELLCAT', 'SNOUT', 'PORTING'],
+              pricePrefix: 'ONLY FROM',
+              price: '$699.00',
+              cta: { label: 'SHOP NOW', href: '/shop/hellcat-snout-porting' },
+            },
+          ]}
+        />
+      </section>
+
+      <section id="CustomFabrication">
+        <CustomFabrication client:only="react" />
+      </section>
+
+      <section id="services" class="mt-20">
+        <Services client:only="react" />
+      </section>
+
+      <section id="LuxuryFeatures" class="mt-20">
+        <LuxuryFeatures client:only="react" />
+      </section>
+    </main>
   </div>
 </BaseLayout>

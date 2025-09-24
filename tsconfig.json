@@ -23,15 +23,6 @@
     "jsx": "react-jsx",
     "jsxImportSource": "react"
   },
-  "include": [
-    "src/**/*",
-    "*.astro",
-    "**/*.ts",
-    "**/*.tsx",
-    "netlify/functions/**/*.ts",
-    "src/components/framer2/chunks/chunk-4NPMLM6U.js",
-    "src/components/framer2/chunks/chunk-TQTC2MK6.js",
-    "src/components/framer2/chunks/chunk-YOD5Q24P.js"
-  ],
+  "include": ["src/**/*", "*.astro", "**/*.ts", "**/*.tsx", "netlify/functions/**/*.ts"],
   "exclude": ["node_modules", "dist", "src/dev/LegacySanityQuery.js", "stackbit.config.ts"]
 }

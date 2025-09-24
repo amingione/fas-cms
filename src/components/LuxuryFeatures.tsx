@@ -7,8 +7,6 @@ export function LuxuryFeatures() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
   const [isMobile, setIsMobile] = useState(false);
-  const statsTrackRef = useRef<HTMLDivElement | null>(null);
-  const statsInnerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -19,44 +17,22 @@ export function LuxuryFeatures() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Auto-scroll the mobile stats carousel; duplicate items for a seamless loop
-  useEffect(() => {
-    if (!isMobile) return;
-    const track = statsTrackRef.current;
-    const inner = statsInnerRef.current;
-    if (!track || !inner) return;
-    let raf = 0;
-    const speed = 0.7; // px per frame
-    const tick = () => {
-      try {
-        track.scrollLeft += speed;
-        // Loop at the halfway point since we render items twice in one row
-        const w = inner.scrollWidth / 2;
-        if (w > 0 && track.scrollLeft >= w) {
-          track.scrollLeft -= w; // reset seamlessly to the first copy
-        }
-      } finally {
-        raf = requestAnimationFrame(tick);
-      }
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [isMobile]);
-
   const luxuryFeatures = [
     {
       icon: Crown,
       title: 'Bespoke Engineering',
       description:
         'Every component is custom-designed and manufactured to your exact specifications using aerospace-grade materials.',
-      gradient: 'from-luxury-gold/20 to-yellow-600/20',
-      glow: 'luxury-gold-glow'
+      highlights: ['CNC Machined', 'Hand-Finished', 'One-Off Design'],
+      gradient: 'from-luxury-primary/20 to-red-600/20',
+      glow: 'luxury-platinum-glow'
     },
     {
       icon: Shield,
       title: 'Lifetime Craftsmanship Warranty',
       description:
         'We stand behind our work with an unmatched lifetime warranty on all custom fabricated components.',
+      highlights: ['Lifetime Coverage', '24/7 Support', 'Quality Guarantee'],
       gradient: 'from-luxury-platinum/20 to-gray-400/20',
       glow: 'luxury-platinum-glow'
     },
@@ -65,25 +41,35 @@ export function LuxuryFeatures() {
       title: 'Precision Performance',
       description:
         'Dyno-tuned to perfection with real-world testing to ensure every build exceeds expectations.',
+      highlights: ['Dyno Verified', 'Track Tested', 'Performance Proven'],
       gradient: 'from-primary/20 to-red-600/20',
       glow: 'industrial-glow'
+    },
+    {
+      icon: Clock,
+      title: 'White-Glove Service',
+      description:
+        'From consultation to completion, experience concierge-level service throughout your build journey.',
+      highlights: ['Personal Consultant', 'Progress Updates', 'VIP Treatment'],
+      gradient: 'from-red/20 to-primary',
+      glow: 'luxury-platinum-glow'
     }
   ];
 
   const premiumStats = [
     {
-      number: '20+',
-      label: 'Years Experience',
+      number: '50+',
+      label: 'Years Combined Experience',
       icon: Award
     },
     {
       number: '500+',
-      label: 'Custom Builds',
+      label: 'Custom Builds Completed',
       icon: Wrench
     },
     {
-      number: '1000+',
-      label: 'Horsepower Packages',
+      number: '1500+',
+      label: 'Horsepower Achieved',
       icon: Zap
     }
   ];
@@ -95,17 +81,17 @@ export function LuxuryFeatures() {
         initial={{ opacity: 0, scale: 0.8 }}
         animate={isInView ? { opacity: 1, scale: 1 } : {}}
         transition={{ delay: 0.8 + index * 0.1, duration: 0.6 }}
-        className={`text-center group ${!isMobile ? 'luxury-hover-scale' : ''} ${isMobile ? 'p-4' : 'p-6'} luxury-glass rounded-2xl border border-luxury-gold/20`}
+        className={`text-center group luxury-hover-scale ${isMobile ? 'p-4' : 'p-6'} luxury-glass rounded-2xl border border-luxury-gold/20`}
       >
         <Icon
-          className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} text-luxury-gold mx-auto mb-2 group-hover:scale-110 transition-transform duration-300`}
+          className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} text-primaryB mx-auto mb-2 group-hover:scale-110 transition-transform duration-300`}
         />
         <div
-          className={`luxury-gold-text font-black font-cyber mb-1 ${isMobile ? 'text-lg' : 'text-3xl'}`}
+          className={`text-primaryB font-black font-cyber mb-1 ${isMobile ? 'text-lg' : 'text-3xl'}`}
         >
           {stat.number}
         </div>
-        <div className={`text-graylight font-kwajong ${isMobile ? 'text-xs' : 'text-sm'}`}>
+        <div className={`text-graylight font-mono ${isMobile ? 'text-xs' : 'text-sm'}`}>
           {stat.label}
         </div>
       </motion.div>
@@ -162,7 +148,7 @@ export function LuxuryFeatures() {
         >
           <Badge
             variant="outline"
-            className={`bg-luxury-gold/10 border-luxury-gold/30 text-luxury-gold font-bold tracking-widest font-ethno luxury-gold-glow ${isMobile ? 'px-4 py-1 text-xs' : 'px-6 py-2 text-sm'}`}
+            className={`bg-luxury-gold/10 border-luxury-gold/30 text-primaryB font-bold tracking-widest font-ethno luxury-gold-glow ${isMobile ? 'px-4 py-1 text-xs' : 'px-6 py-2 text-sm'}`}
           >
             PREMIUM EXCELLENCE
           </Badge>
@@ -170,12 +156,12 @@ export function LuxuryFeatures() {
           <h2
             className={`font-black leading-tight font-mono ${isMobile ? 'text-lg' : 'text-4xl lg:text-6xl'}`}
           >
-            <span className="block text-white font-borg">THE F.a.S.</span>
-            <span className="block luxury-gold-text font-ethno">DIFFERENCE</span>
+            <span className="block text-primary font-borg">THE F.a.S.</span>
+            <span className="text-white font-ethno">DIFFERENCE</span>
           </h2>
 
           <p
-            className={`text-graylight max-w-3xl mx-auto font-mono ${isMobile ? 'text-xs leading-relaxed' : 'text-lg'}`}
+            className={`text-graylight max-w-3xl mx-auto font-mono font-bold ${isMobile ? 'text-xs leading-relaxed' : 'text-lg'}`}
           >
             Experience the pinnacle of automotive craftsmanship with our exclusive luxury services
             and uncompromising attention to detail.
@@ -191,26 +177,18 @@ export function LuxuryFeatures() {
             transition={{ delay: 0.6, duration: 0.8 }}
           >
             <div className="-mx-4 px-4">
-              <div
-                ref={statsTrackRef}
-                className="overflow-x-auto overflow-y-hidden scrollbar-thin py-1"
-              >
-                <div ref={statsInnerRef} className="flex flex-nowrap gap-5">
-                  {[...premiumStats, ...premiumStats].map((stat, index) => (
-                    <div
-                      key={`stat-${index}`}
-                      className="flex-none w-[76%] min-w-[260px] max-w-xs px-1"
-                    >
-                      <StatCard stat={stat} index={index % premiumStats.length} />
-                    </div>
-                  ))}
-                </div>
+              <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-thin">
+                {premiumStats.map((stat, index) => (
+                  <div key={index} className="snap-start flex-none w-[70%] max-w-xs">
+                    <StatCard stat={stat} index={index} />
+                  </div>
+                ))}
               </div>
             </div>
           </motion.div>
         ) : (
           <motion.div
-            className="grid gap-4 grid-cols-3 max-w-6xl mx-auto justify-items-center"
+            className="grid gap-6 grid-cols-1 md:grid-cols-3 max-w-4xl mx-auto place-items-center"
             initial={{ opacity: 0, y: 50 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.6, duration: 0.8 }}
@@ -229,10 +207,10 @@ export function LuxuryFeatures() {
           transition={{ delay: 1.2, duration: 0.8 }}
         >
           <div
-            className={`bg-black drop-shadow-lg rounded-2xl border border-primary luxury-gold-glow max-w-2xl mx-auto ${isMobile ? 'p-6' : 'p-8'}`}
+            className={`luxury-glass rounded-2xl border border-luxury-gold/20 luxury-gold-glow max-w-2xl mx-auto ${isMobile ? 'p-6' : 'p-8'}`}
           >
             <h3
-              className={`luxury-platinum-text text-red/50 font-bold font-cyber mb-3 ${isMobile ? 'text-base' : 'text-2xl'}`}
+              className={`luxury-platinum-text font-bold font-cyber mb-3 ${isMobile ? 'text-base' : 'text-2xl'}`}
             >
               READY FOR THE ULTIMATE BUILD?
             </h3>

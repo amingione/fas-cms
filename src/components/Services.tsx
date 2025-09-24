@@ -306,59 +306,6 @@ export function Services() {
             ))}
           </motion.div>
         )}
-
-        {/* Performance metrics - simplified for mobile */}
-        <motion.div
-          className={`text-center ${isMobile ? 'mt-8 px-4' : 'mt-20'}`}
-          initial={{ opacity: 0, y: 50 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 1.2, duration: 0.8 }}
-        >
-          <div
-            className={`grid gap-8 max-w-4xl mx-auto ${isMobile ? 'grid-cols-2 gap-4' : 'grid-cols-2 md:grid-cols-4'}`}
-          >
-            {[
-              { value: '25+', label: 'YEARS EXPERIENCE', icon: Clock },
-              { value: '500+', label: 'CUSTOM BUILDS', icon: Cog },
-              { value: '99%', label: 'SATISFACTION', icon: Award },
-              { value: '24/7', label: 'SUPPORT', icon: Settings }
-            ].map((stat, index) => (
-              <motion.div
-                key={index}
-                className="text-center group cursor-pointer"
-                whileHover={!isMobile ? { scale: 1.1, y: -5 } : {}}
-                transition={{ duration: 0.3 }}
-                initial={{ opacity: 0, y: 30 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-              >
-                <div
-                  className={`bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:shadow-lg group-hover:shadow-blue-500/25 transition-all duration-300 industrial-card ${isMobile ? 'w-10 h-10' : 'w-16 h-16'}`}
-                >
-                  <stat.icon className={`${isMobile ? 'w-5 h-5' : 'w-8 h-8'} text-blue-400`} />
-                </div>
-                <div
-                  className={`font-black text-white chrome-text font-cyber ${isMobile ? 'text-lg' : 'text-3xl'}`}
-                >
-                  {stat.value}
-                </div>
-                <div
-                  className={`text-white/60 font-bold tracking-widest font-ethno ${isMobile ? 'text-xs' : 'text-sm'}`}
-                >
-                  {stat.label}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          <motion.div
-            className={`font-borg text-accent tracking-widest ${isMobile ? 'mt-6 text-xs' : 'mt-12 text-sm'}`}
-            initial={{ opacity: 0 }}
-            animate={isInView ? { opacity: 1 } : {}}
-            transition={{ delay: 2, duration: 0.6 }}
-          >
-            — YOUR PERFORMANCE PARTNER FROM CONCEPT TO CHECKERED FLAG —
-          </motion.div>
-        </motion.div>
       </div>
     </section>
   );

@@ -74,57 +74,16 @@ export default defineConfig({
     // Expose VITE_* so server code can read VITE_SANITY_* via import.meta.env
     envPrefix: ['PUBLIC_', 'SANITY_', 'PUBLIC_SANITY_', 'VITE_'],
     optimizeDeps: {
-      include: ['react', 'react-router-dom', '@fullcalendar/core', 'apexcharts'],
+      include: ['react', 'react-dom', 'react-router-dom', '@fullcalendar/core', 'apexcharts'],
       exclude: [
         // Avoid prebundling particles to reduce dev 504 "Outdated Optimize Dep" churn
         'react-tsparticles',
         'tsparticles-slim',
         '@tsparticles/react',
         '@tsparticles/engine',
-        'tsparticles',
-        'unframer'
+        'tsparticles'
       ]
     },
-    plugins: [
-      {
-        name: 'react-dom-prefetch-polyfill',
-        enforce: 'pre',
-        transform(code, id) {
-          if (id.includes('/unframer/esm/react.js')) {
-            let transformed = code.replace(
-              "import { preconnect, prefetchDNS } from 'react-dom';",
-              "import * as ReactDOMAll from 'react-dom';\nconst preconnect = ReactDOMAll.preconnect ?? (() => {});\nconst prefetchDNS = ReactDOMAll.prefetchDNS ?? (() => {});"
-            );
-            transformed = transformed.replace(
-              /var CustomCursorHost =\s*\/* @__PURE__ \*\/* \(\(\) =>[\s\S]*?\)\(\);/,
-              'var CustomCursorHost = (props) => props.children;'
-            );
-            return transformed;
-          }
-          if (id.includes('/unframer/dist/react.js')) {
-            let transformed = code
-              .replaceAll(
-                "(0, react_dom_1.prefetchDNS)('https://fonts.gstatic.com');",
-                "if (typeof react_dom_1.prefetchDNS === 'function') { (0, react_dom_1.prefetchDNS)('https://fonts.gstatic.com'); }"
-              )
-              .replaceAll(
-                "(0, react_dom_1.preconnect)('https://fonts.gstatic.com');",
-                "if (typeof react_dom_1.preconnect === 'function') { (0, react_dom_1.preconnect)('https://fonts.gstatic.com'); }"
-              )
-              .replaceAll(
-                "(0, react_dom_1.preconnect)('https://framerusercontent.com');",
-                "if (typeof react_dom_1.preconnect === 'function') { (0, react_dom_1.preconnect)('https://framerusercontent.com'); }"
-              );
-            transformed = transformed.replace(
-              /var CustomCursorHost =\s*\/* @__PURE__ \*\/* \(\(\) =>[\s\S]*?\)\(\);/,
-              'var CustomCursorHost = (props) => props.children;'
-            );
-            return transformed;
-          }
-          return null;
-        }
-      }
-    ],
     resolve: {
       // Prevent multiple React copies across islands/SSR
       dedupe: [
@@ -140,11 +99,9 @@ export default defineConfig({
         '@layouts': fileURLToPath(new URL('./src/layouts', import.meta.url)),
         '@pages': fileURLToPath(new URL('./src/pages', import.meta.url)),
         '@lib': fileURLToPath(new URL('./src/lib', import.meta.url)),
-        lib: fileURLToPath(new URL('./src/lib', import.meta.url))
+        lib: fileURLToPath(new URL('./src/lib', import.meta.url)),
+        unframer$: fileURLToPath(new URL('./src/lib/unframer-shim.ts', import.meta.url))
       }
-    },
-    ssr: {
-      noExternal: ['unframer']
     },
     server: {
       // Allow Netlify Visual Editor/DevServer hosts to connect
