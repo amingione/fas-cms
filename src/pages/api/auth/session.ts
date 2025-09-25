@@ -3,9 +3,9 @@ import { readSession } from '../../../server/auth/session';
 
 export const GET: APIRoute = async ({ request }) => {
   const { session, status } = await readSession(request);
-  return new Response(JSON.stringify(session ?? {}), {
-    status,
+  const body = session ? session : { user: null };
+  return new Response(JSON.stringify(body), {
+    status: session ? status : 200,
     headers: { 'content-type': 'application/json' }
   });
 };
-

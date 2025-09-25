@@ -1,13 +1,23 @@
 'use client';
 
-function BrandDivider() {
+import clsx from 'clsx';
+
+type BrandDividerProps = {
+  className?: string;
+};
+
+function BrandDivider({ className }: BrandDividerProps) {
   return (
-    <section id="BrandDivider" className="z-100 lg:pt-10 lg:mt-10 sm:pt-12 sm:mt-12 mb-[-20px]">
-      <div className="relative px-2 py-2 items-center object-center inset-0 flex border border-rounded rounded-full border-shadow-sm bg-gradient-to-r from-white/10 via-white/5 to-black mx-auto w-fit backdrop-blur-sm">
-        <span className="text-center text-primaryB font-borg sm:text-2xl lg:text-xl">F.a.S.</span>
-        <span className="font-ethno text-center text-white sm:text-2xl lg:text-xl">
-          Motorsports
-        </span>
+    <section
+      id="BrandDivider"
+      className={clsx(
+        'relative flex justify-center py-4 mb-6 sm:py-6 sm:mb-8 lg:py-8 lg:mb-10',
+        className
+      )}
+    >
+      <div className="inline-flex items-center gap-3 rounded-full border border-white/20 bg-gradient-to-r from-white/10 via-white/5 to-transparent px-4 py-2 backdrop-blur-sm">
+        <span className="font-borg text-primaryB text-base sm:text-xl">F.a.S.</span>
+        <span className="font-ethno text-white text-base sm:text-xl">Motorsports</span>
       </div>
     </section>
   );

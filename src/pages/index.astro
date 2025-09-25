@@ -2,16 +2,16 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
 import * as sanity from '../lib/sanity-utils';
-import { Services } from '@components/Services.tsx';
-import { TruckPackagesHero } from '@components/TruckPackagesHero.tsx';
 import { LuxuryFeatures } from '@components/LuxuryFeatures.tsx';
-import { CustomFabrication } from '@components/CustomFabrication.tsx';
-import HomeHero from '@/components/hero/homeHero';
-import HeadingBanner1 from '@components/banner/HeadingBanner1.tsx';
+import AnimatedHomeHero from '@components/animated/AnimatedHomeHero';
+import AnimatedHeadingBanner1 from '@components/animated/AnimatedHeadingBanner1';
 import Highlights from '@/components/Highlights.astro';
-import HeadingBanner from '@components/banner/HeadingBanner.tsx';
-import ProductFeatureBanner from '@components/banner/ProductFeatureBanner.tsx';
-
+import AnimatedHeadingBanner from '@components/animated/AnimatedHeadingBanner';
+import AnimatedProductFeatureBanner from '@components/animated/AnimatedProductFeatureBanner';
+import AnimatedLeftLabel from '@components/animated/AnimatedLeftLabel';
+import AnimatedTaskCard from '@components/animated/AnimatedTaskCard';
+import AnimatedThreeDGallery from '@components/animated/AnimatedThreeDGallery';
+import AnimatedTruckPackagesHero from '@components/animated/AnimatedTruckPackagesHero';
 
 
 const url = new URL(Astro.request.url);
@@ -106,48 +106,37 @@ try {
 
     <div {...sbObjectId('content/pages/index.json')}>
 
-      
-      <section id="homeHero" class="pt-[-12px]">
-        <HomeHero client:only="react" />
+
+      <section id="homeHero">
+        <AnimatedHomeHero client:only="react" />
       </section>
 
-      <asection id="HeadingBanner1" class="mt-10">
-        <HeadingBanner1 client:only="react" />
-      </asection>
-
-        <HeadingBanner
-          client:only="react"
-          eyebrow="F.A.S. PREDATOR PULLEY"
-          headline="NO TUNE REQUIRED."
-          subline="PATENT PENDING INNOVATION – PRECISION-ENGINEERED FOR FLAWLESS PERFORMANCE."
-          cta={{ label: 'SHOP NOW', href: '/shop' }}
-          backgroundUrl="/images/backgrounds/bg-asphalt.png"
-          images={[
-            {
-              src: '/images/billetParts/predator-pulley-fas.png',
-              alt: 'Predator pulley front view'
-            },
-            {
-              src: '/images/billetParts/fas-pred-pully.png',
-              alt: 'Predator pulley angled view'
-            }
-          ]}
-          showDivider
-        />
+      <section id="HeadingBanner1">
+        <AnimatedHeadingBanner1 client:only="react" />
       </section>
 
-      <div class=" section-divider section-divider-carbon w-full" />
+      <section id="HeadingBanner">
+        <AnimatedHeadingBanner client:only="react" />
+      </section>
+
+      <div class="mb-4" id="LeftLabel">
+        <AnimatedLeftLabel client:only="react" />
+      </div>
 
       <section id="TruckPackagesHero">
-        <TruckPackagesHero client:only="react" />
+        <AnimatedTruckPackagesHero client:only="react" />
       </section>
 
       <section id="Highlights">
         <Highlights items={featuredProducts} />
       </section>
 
-      <section class="mt-20">
-        <ProductFeatureBanner
+      <section class="mt-20" id="TaskCard">
+        <AnimatedTaskCard client:only="react" />
+      </section>
+
+      <section class="mt-20 mb-10">
+        <AnimatedProductFeatureBanner
           client:only="react"
           backgroundUrl="/images/backgrounds/bg-path-overlay.webp"
           features={[
@@ -160,7 +149,7 @@ try {
               lines: ['NO TUNE', 'PREDATOR', 'PULLEY'],
               pricePrefix: 'ONLY FROM',
               price: '$899.99',
-              cta: { label: 'SHOP NOW', href: '/shop/predator-pulley' },
+              cta: { label: 'SHOP NOW', href: '/shop/predator-pulley' }
             },
             {
               side: 'right',
@@ -171,19 +160,34 @@ try {
               lines: ['HELLCAT', 'SNOUT', 'PORTING'],
               pricePrefix: 'ONLY FROM',
               price: '$699.00',
-              cta: { label: 'SHOP NOW', href: '/shop/hellcat-snout-porting' },
+              cta: { label: 'SHOP NOW', href: '/shop/hellcat-snout-porting' }
             },
           ]}
         />
       </section>
 
-      <section id="CustomFabrication">
-        <CustomFabrication client:only="react" />
+      <div class="w-full section-divider section-divider-carbon"></div>
+
+      
+      <section id="ThreeDGallery" class="mt-20">
+        <AnimatedThreeDGallery
+          client:only="react"
+          images={[
+            '/images/packages/FAS-trackhawk-engine-bay.webp',
+            '/images/packages/Shelby-truck.png',
+            '/images/backgrounds/powerPackages/FAS-4.webp',
+            '/images/packages/FAS-f150-1000.webp',
+            '/images/packages/Shelby-truck.png',
+            '/images/packages/Hellcat/FAS-1.webp',
+            '/images/packages/FAS-trackhawk-bay.webp',
+          ]}
+          rotateSpeed={40}
+          pauseOnHover={true}
+        />
       </section>
 
-      <section id="services" class="mt-20">
-        <Services client:only="react" />
-      </section>
+      <div class="w-full section-divider section-divider-carbon"></div>
+
 
       <section id="LuxuryFeatures" class="mt-20">
         <LuxuryFeatures client:only="react" />

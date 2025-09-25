@@ -18,7 +18,7 @@ const features = [
   }
 ];
 
-export default function HeroBanner1() {
+export default function HeadingBanner1() {
   return (
     <div className="bg-blend-overlay">
       <div className="pt-[-20px] mt-[-12px] mx-auto">

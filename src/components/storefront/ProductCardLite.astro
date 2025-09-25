@@ -4,6 +4,8 @@
  */
 
 import Label from '@/components/storefront/label.tsx';
+import ProductQuickViewButton from '@/components/storefront/ProductQuickViewButton.tsx';
+import { portableTextToPlainText } from '@/lib/portableText';
 
 interface ImgAsset { url?: string }
 interface Img { asset?: ImgAsset; alt?: string }
@@ -26,42 +28,74 @@ const slug = typeof product?.slug === 'string' ? product.slug : (product?.slug?.
 const href = slug ? `/shop/${encodeURIComponent(slug)}` : '#'
 const img = productImage?.asset?.url || product?.images?.[0]?.asset?.url || '/logo/faslogochroma.png'
 const title = product?.title || 'Untitled Product'
-const short = (product as any)?.shortDescription || (product as any)?.excerpt || (product as any)?.description || ''
+const short =
+  portableTextToPlainText((product as any)?.shortDescription) ||
+  portableTextToPlainText((product as any)?.description) ||
+  (product as any)?.excerpt ||
+  '';
 const shortText = typeof short === 'string' ? short : ''
-const price = typeof product?.price === 'number'
-  ? product.price
-  : undefined
+const price = typeof product?.price === 'number' ? product.price : undefined
 ---
 {layout === 'list' ? (
-  <a href={href}
-     class="group block rounded-sm border border-[121212/40] bg-black transition-shadow duration-300 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary md:flex md:items-stretch">
-    <!-- Image left -->
-    <div class="relative bg-black/30 backdrop-blur-sm md:w-56 md:min-w-56 md:max-w-56 aspect-square md:aspect-auto flex items-center justify-center">
-      <img src={img} alt={title}
-           class="max-h-[80%] max-w-[88%] object-contain transition-transform duration-300 ease-out group-hover:scale-[1.03]" />
-    </div>
-    <!-- Content right -->
-    <div class="flex-1 px-4 py-4 text-left">
-      <div class="text-white font-ethno text-[1rem] leading-snug line-clamp-2">{title}</div>
-      {shortText && (
-        <div class="mt-2 text-white/70 text-sm leading-relaxed line-clamp-2">{shortText}</div>
-      )}
-      <div class="mt-3 text-accent font-mono text-[1.15rem]">
-        {typeof product?.price === 'number' ? `$${product.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '—'}
+  <article class="group relative">
+    <a href={href}
+       class="group block rounded-sm border border-[121212/40] bg-black transition-shadow duration-300 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary md:flex md:items-stretch">
+      <div class="relative bg-black/30 backdrop-blur-sm md:w-56 md:min-w-56 md:max-w-56 aspect-square md:aspect-auto flex items-center justify-center">
+        <img src={img} alt={title}
+             class="max-h-[80%] max-w-[88%] object-contain transition-transform duration-300 ease-out group-hover:scale-[1.03]" />
       </div>
+      <div class="flex-1 px-4 py-4 text-left">
+        <div class="text-white font-ethno text-[1rem] leading-snug line-clamp-2">{title}</div>
+        {shortText && (
+          <div class="mt-2 text-white/70 text-sm leading-relaxed line-clamp-2">{shortText}</div>
+        )}
+        <div class="mt-3 text-accent font-mono text-[1.15rem]">
+          {price !== undefined
+            ? `$${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+            : '—'}
+        </div>
+      </div>
+    </a>
+    <div class="pointer-events-none absolute right-4 top-4 z-10 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">
+      <ProductQuickViewButton
+        client:idle
+        className="pointer-events-auto"
+        product={{
+          title,
+          href,
+          price,
+          imageSrc: img,
+          imageAlt: title,
+          description: shortText
+        }}
+      />
     </div>
-  </a>
+  </article>
 ) : (
-  <a href={href}
-     class="group block relative overflow-hidden rounded-sm border border-white/30 bg-black transition-shadow duration-300 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary">
-    <!-- Image area: square, centered product, no cropping -->
-    <div class="relative aspect-square object-contain contain flex pb-10 justify-center bg-black/30 backdrop-blur-sm">
-      <img src={img} alt={title}
-           class="max-h-[78%] max-w-[88%] object-contain transition-transform duration-300 ease-out group-hover:scale-[1.03]" />
+  <article class="group relative">
+    <a href={href}
+       class="block relative overflow-hidden rounded-sm border border-white/30 bg-black transition-shadow duration-300 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary">
+      <div class="relative aspect-square object-contain contain flex pb-10 justify-center bg-black/30 backdrop-blur-sm">
+        <img src={img} alt={title}
+             class="max-h-[78%] max-w-[88%] object-contain transition-transform duration-300 ease-out group-hover:scale-[1.03]" />
+      </div>
+      <div class="absolute bottom-4 flex w-full items-center gap-1">
+        <Label title={title} amount={price ?? 0} position="bottom" />
+      </div>
+    </a>
+    <div class="pointer-events-none absolute right-3 top-3 z-10 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">
+      <ProductQuickViewButton
+        client:idle
+        className="pointer-events-auto"
+        product={{
+          title,
+          href,
+          price,
+          imageSrc: img,
+          imageAlt: title,
+          description: shortText
+        }}
+      />
     </div>
-    <div class="absolute w-full bottom-4 flex items-center gap-1">
-      <!-- Bottom label (title + price) -->
-      <Label title={title} amount={typeof product?.price === 'number' ? product.price : 0} position="bottom" />
-    </div>
-  </a>
+  </article>
 )}

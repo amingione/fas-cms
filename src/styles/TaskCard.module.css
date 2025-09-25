@@ -1,0 +1,63 @@
+.card {
+  width: 100%;
+  border-radius: 16px;
+  background: #0b0b0b;
+  border: 1px solid rgba(216, 231, 242, 0.07);
+  box-shadow: inset 0px 2px 1px rgba(207, 231, 255, 0.2);
+  padding: 16px;
+}
+
+.tasksWrapper {
+  position: relative;
+  overflow: hidden;
+  height: 220px;
+}
+
+.tasksScroller {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.taskItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(216, 231, 242, 0.07);
+  border-radius: 12px;
+  background: #0b0b0b;
+  padding: 8px 12px;
+  box-shadow: inset 0px 1px 1px rgba(207, 231, 255, 0.2);
+}
+
+.blurred {
+  filter: blur(2px);
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  fill: rgb(213, 219, 230);
+}
+
+.taskText {
+  font-size: 14px;
+  line-height: 20px;
+  color: rgb(213, 219, 230);
+}
+
+.footer {
+  margin-top: 16px;
+}
+
+.title {
+  font-weight: 600;
+  font-size: 16px;
+  color: white;
+}
+
+.subtitle {
+  font-size: 14px;
+  opacity: 0.6;
+  color: white;
+}

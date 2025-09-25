@@ -1,0 +1,143 @@
+'use client';
+
+import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { EyeIcon, ShieldCheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
+
+export type QuickViewProduct = {
+  title: string;
+  href: string;
+  price?: number;
+  imageSrc: string;
+  imageAlt?: string;
+  description?: string;
+};
+
+export default function ProductQuickViewButton({
+  product,
+  className = ''
+}: {
+  product: QuickViewProduct;
+  className?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const portalNode = useMemo(() => {
+    if (typeof document === 'undefined') return null;
+    return document.createElement('div');
+  }, []);
+
+  useEffect(() => {
+    if (!portalNode) return;
+    document.body.appendChild(portalNode);
+    return () => {
+      document.body.removeChild(portalNode);
+    };
+  }, [portalNode]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', handleKey);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [open]);
+
+  const priceLabel =
+    typeof product.price === 'number'
+      ? `$${product.price.toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        })}`
+      : undefined;
+
+  const descriptionRaw =
+    typeof product.description === 'string' ? product.description.trim() : undefined;
+  const description = descriptionRaw
+    ? descriptionRaw.length > 320
+      ? `${descriptionRaw.slice(0, 320)}…`
+      : descriptionRaw
+    : undefined;
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className={`inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/70 px-3 py-1 text-xs uppercase tracking-[0.18em] text-white/80 transition hover:border-white hover:text-white ${className}`.trim()}
+      >
+        <EyeIcon className="h-4 w-4" aria-hidden="true" />
+        Quick View
+      </button>
+
+      {portalNode && open
+        ? createPortal(
+            <div className="fixed inset-0 z-[120] flex items-center justify-center px-4 py-6">
+              <div
+                className="absolute inset-0 bg-black/70"
+                aria-hidden="true"
+                onClick={() => setOpen(false)}
+              />
+
+              <div className="relative z-10 w-full max-w-3xl overflow-hidden rounded-2xl border border-white/15 bg-neutral-950 text-white shadow-2xl">
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="absolute right-4 top-4 text-white/60 transition hover:text-white"
+                >
+                  <span className="sr-only">Close quick view</span>
+                  <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+                </button>
+
+                <div className="grid gap-6 p-6 sm:grid-cols-2 sm:gap-8 sm:p-8">
+                  <div className="overflow-hidden rounded-xl border border-white/10 bg-black/40 p-3">
+                    <img
+                      src={product.imageSrc}
+                      alt={product.imageAlt || product.title}
+                      className="h-full w-full object-contain"
+                      loading="lazy"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-4 text-left">
+                    <div>
+                      <h2 className="text-2xl font-bold sm:text-3xl">{product.title}</h2>
+                      {priceLabel && (
+                        <p className="mt-2 text-xl font-semibold text-white/90">{priceLabel}</p>
+                      )}
+                    </div>
+
+                    {description && (
+                      <p className="text-sm leading-relaxed text-white/70">{description}</p>
+                    )}
+
+                    <div className="mt-auto flex flex-wrap items-center gap-3">
+                      <a
+                        href={product.href}
+                        className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2 text-sm font-semibold uppercase tracking-[0.2em] text-black transition hover:bg-primary/80"
+                      >
+                        View Product
+                      </a>
+                      <span className="inline-flex items-center gap-1 text-xs uppercase tracking-[0.3em] text-white/40">
+                        <ShieldCheckIcon className="h-4 w-4" aria-hidden="true" />
+                        FAS Quality
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>,
+            portalNode
+          )
+        : null}
+    </>
+  );
+}

@@ -52,12 +52,15 @@ module.exports = {
         // Brand palette used by utilities like text-primary, bg-accent, etc.
         primary: '#ea1d26',
         secondary: '#eef2fb',
+        red: '#7d0107',
         accent: '#fde4b2',
+        primaryB: '#7d0107',
         'accent-foreground': '#030213',
         // Site background utility color
         background: '#000000',
         // Normalize common dark shades to your base background (if you want pure black globally)
-        gray: { ...colors.gray, 900: '#000000' },
+        gray: { ...colors.gray, 900: '#111111' },
+        offwhite: '#FDE4B2',
         neutral: { ...colors.neutral, 900: '#000000' },
         zinc: { ...colors.zinc, 900: '#000000' }
       },
@@ -99,13 +102,16 @@ module.exports = {
         lg: '1rem', // 16px
         xl: '1.25rem',
         '2xl': '1.5rem',
-        full: '9999px'
+        full: '9999px',
+        card: '16px'
       },
 
       // Shadows for product and hover (kept from your config)
       boxShadow: {
         'product-inset': 'inset 0 0 10px rgba(0, 0, 0, 0.5)',
-        'product-hover': '0 8px 20px rgba(0, 0, 0, 0.7)'
+        'product-hover': '0 8px 20px rgba(0, 0, 0, 0.7)',
+        card: '0 24px 20px 8px rgba(0,0,0,0.4), inset 0 2px 0 rgba(184,180,180,0.08)',
+        glow: '0 0 6px rgba(255,255,255,0.6)'
       }
     }
   }

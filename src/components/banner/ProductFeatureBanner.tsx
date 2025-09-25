@@ -30,11 +30,20 @@ const StarRow = ({ count = 5 }: { count?: number }) => (
   </div>
 );
 
-const FeatureBlock = ({ f }: { f: Feature }) => {
+const FeatureBlock = ({ f, isSecond }: { f: Feature; isSecond?: boolean }) => {
+  const isRight = f.side === 'right';
+
   return (
-    <div className="relative grid grid-cols-1 md:grid-cols-2 items-center gap-8 md:gap-12">
+    <div
+      className={
+        `relative grid grid-cols-1 md:grid-cols-2 items-center gap-8 md:gap-12 ` +
+        (isSecond
+          ? 'mt-12 border-t border-white/10 pt-12 md:mt-0 md:border-l md:border-t-0 md:pl-12 md:pt-0'
+          : 'md:pr-12')
+      }
+    >
       {/* Product image */}
-      <div className="relative">
+      <div className={`relative ${isRight ? 'md:order-2' : 'md:order-1'}`}>
         <img
           src={f.image.src}
           alt={f.image.alt}
@@ -57,8 +66,10 @@ const FeatureBlock = ({ f }: { f: Feature }) => {
       </div>
 
       {/* Copy */}
-      <div className="text-center md:text-left">
-        <div className="mb-4 md:mb-6 flex justify-center md:justify-start">
+      <div className={`text-center ${isRight ? 'md:text-right md:order-1' : 'md:text-left md:order-2'}`}>
+        <div
+          className={`mb-4 md:mb-6 flex justify-center ${isRight ? 'md:justify-end' : 'md:justify-start'}`}
+        >
           <StarRow count={f.stars ?? 5} />
         </div>
 
@@ -77,7 +88,11 @@ const FeatureBlock = ({ f }: { f: Feature }) => {
           </p>
         )}
 
-        <div className="mt-8 w-1/2 justify-center md:justify-start md:w-auto align-middle">
+        <div
+          className={`mt-8 flex w-full justify-center md:w-auto ${
+            isRight ? 'md:justify-end' : 'md:justify-start'
+          }`}
+        >
           <Button asChild size="sm" className="font-ethno tracking-wider">
             <a href={f.cta.href} onClick={f.cta.onClick}>
               {f.cta.label}
@@ -128,8 +143,9 @@ const ProductFeatureBanner: React.FC<ProductFeatureBannerProps> = ({
 
       <div className="container mx-auto max-w-7xl px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 items-stretch gap-12 md:gap-16">
-          <FeatureBlock f={features[0]} />
-          <FeatureBlock f={features[1]} />
+          {features.map((feature, idx) => (
+            <FeatureBlock key={feature.image.src ?? idx} f={feature} isSecond={idx === 1} />
+          ))}
         </div>
       </div>
     </section>

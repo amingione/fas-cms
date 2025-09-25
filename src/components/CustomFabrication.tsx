@@ -80,7 +80,7 @@ export function CustomFabrication() {
   return (
     <section
       id="customfabrication"
-      className="py-20 md:py-32 bg-gradient-to-br from-background to-gray-900 relative overflow-hidden"
+      className="py-20 md:py-32 border border-rounded rounded-lg border-white/10 shadow-sm  bg-gradient-to-br from-background to-gray-900 relative overflow-hidden"
     >
       <div className="absolute inset-0 grain-overlay opacity-10" />
       <div className="container mx-auto px-4 md:px-6 relative z-10">

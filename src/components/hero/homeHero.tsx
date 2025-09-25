@@ -1,10 +1,13 @@
 'use client';
 
+import SocialMedia from '@/components/divider/socialMedia';
+import BrandDivider from '../divider/brandDivider';
+
 export default function HomeHero() {
   return (
     <section
       id="homeHero"
-      className="relative flex items-center justify-center py-[-10px] pt-[-10px] pb-[-12px] mb-[-12px]"
+      className="relative flex items-center justify-center py-[-10px] pt-[-10px] mb-[-8px]"
     >
       {/* Overlay to darken the video for better text visibility */}
       <div className="z-0 absolute inset-0" />
@@ -34,25 +37,19 @@ export default function HomeHero() {
         />
         <div className="absolute inset-0 flex flex-col items-center text-center justify-center">
           {/* Content */}
-          <section className="border border-rounded rounded-full border-shadow-lg border-black/30 shadow-inner drop-shadow-sm shadow-gray-600 bg-gradient-to-r from-white/5 via-white/1 to-transparent mx-auto w-fit px-2 py-2 mb-4">
-            <span className="text-center text-primaryB font-borg sm:text-2xl text-base">
-              F.a.S.
-            </span>
-            <span className="font-ethno text-center text-white text-base sm:text-2xl mb-10">
-              {' '}
-              Motorsports
-            </span>
-          </section>
+          <BrandDivider className="justify-center" />
+          <div className="max-w-3xl px-6 text-center flex flex-col items-center"></div>
 
           <p className="text-2xl text-gradient text-primary platinum mt-10 font-borg text-glow pb-2 sm:text-3xl">
             Power Up Your Ride
           </p>
-          <h2 className="text-4xl font-bold font-ethno text-outline sm:text-6xl">
-            Unleash Performance
+          <h2 className="text-4xl font-bold font-ethno italic sm:text-6xl">
+            Unleash <span className="text-gray-400">Performance</span>
           </h2>
-          <p className="mt-2 text-base font-medium font-ethno text-outline text-gray-400 sm:text-xl/8">
+          <p className="mt-2 text-base font-medium font-ethno italic text-white/70 sm:text-xl/8">
             Premium performance upgrades tailored to your build.
           </p>
+          <SocialMedia className="relative pointer-events-auto py-4 pb-6 mb-4" />
         </div>
       </div>
     </section>
