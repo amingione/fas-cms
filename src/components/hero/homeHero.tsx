@@ -7,7 +7,7 @@ export default function HomeHero() {
   return (
     <section
       id="homeHero"
-      className="relative flex items-center justify-center py-[-10px] pt-[-10px] mb-[-8px]"
+      className="relative flex items-center justify-center py-[-10px] pt-10 mb-[-8px]"
     >
       {/* Overlay to darken the video for better text visibility */}
       <div className="z-0 absolute inset-0" />
@@ -49,7 +49,7 @@ export default function HomeHero() {
           <p className="mt-2 text-base font-medium font-ethno italic text-white/70 sm:text-xl/8">
             Premium performance upgrades tailored to your build.
           </p>
-          <SocialMedia className="relative pointer-events-auto py-4 pb-6 mb-4" />
+          <SocialMedia className="relative pointer-events-auto mt-4 py-4 pb-10 mb-7" />
         </div>
       </div>
     </section>

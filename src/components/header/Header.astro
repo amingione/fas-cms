@@ -63,7 +63,7 @@ import { SearchBar } from '@/components/SearchBar.tsx';
 <div id="mnavScrim" aria-hidden="true" class="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[59] hidden opacity-0 transition-opacity duration-300 pointer-events-none"></div>
 <aside id="mnavDrawer" class="md:hidden fixed top-0 left-0 h-full w-[84%] max-w-[360px] bg-[#0b0b0c]/95 border-r border-white/20 z-[60] -translate-x-full transition-transform duration-300 ease-out overflow-y-auto will-change-transform">
   <div class="pt-10 pb-8 px-4">
-    <MobileMenu mode="inline" client:load />
+    <MobileMenu mode="inline" client:only="react" />
   </div>
   <div class="flex justify-end">
       <button id="closeDesktopDrawerRight" class="text-red-500 hover:text-white text-lg font-bold -mt-4 -mr-2 px-2 py-1 rounded-full transition-all">×</button>
@@ -129,7 +129,7 @@ import { SearchBar } from '@/components/SearchBar.tsx';
     <div class="flex justify-end">
       <button id="closeDesktopDrawerLeft" class="text-red-500 hover:text-white text-lg font-bold -mt-4 -mr-2 px-2 py-1 rounded-full transition-all">×</button>
     </div>
-    <MobileMenu mode="inline" client:load />
+    <MobileMenu mode="inline" client:only="react" />
   </div>
  </aside>
 

@@ -83,8 +83,8 @@ const pageTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
         <slot />
       </main>
       <Footer />
-      <CookieBanner client:idle />
-      <Toaster client:idle />
+      <CookieBanner client:only="react" />
+      <Toaster client:only="react" />
     </div>
 
     <!-- fas-auth client shim (provides window.fasAuth) -->

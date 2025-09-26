@@ -95,7 +95,7 @@ import CartButton from '@/components/cart/cart-button.tsx';
   class="md:hidden fixed top-0 left-0 h-full w-4/5 max-w-[360px] bg-black/95 border-r border-gray-700 z-[100000] overflow-y-auto -translate-x-full transition-transform duration-300 ease-out"
 >
   <div class="pt-12 pb-8 px-4">
-    <MobileMenu mode="inline" client:idle />
+    <MobileMenu mode="inline" client:only="react" />
     <button id="closeMobileDrawer" class="text-accent hover:text-white text-xl font-bold absolute top-4 right-4">×</button>
   </div>
 </aside>
@@ -109,7 +109,7 @@ import CartButton from '@/components/cart/cart-button.tsx';
 >
   <div class="pt-16 pb-8 px-6">
     <button id="closeDesktopDrawerLeft" class="text-accent hover:text-white text-xl font-bold absolute top-4 right-4">×</button>
-    <MobileMenu mode="inline" client:idle />
+    <MobileMenu mode="inline" client:only="react" />
   </div>
 </aside>
 
