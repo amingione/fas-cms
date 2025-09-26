@@ -14,9 +14,9 @@ type Props = {
 
 export default function ThreeDGallery({
   images,
-  imageWidth = 240,
-  imageHeight = 150,
-  rotateSpeed = 20,
+  imageWidth = 200,
+  imageHeight = 170,
+  rotateSpeed = 80,
   pauseOnHover = true,
   translateZ = 360,
   borderRadius = 5,
