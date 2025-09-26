@@ -41,9 +41,10 @@
 }
 
 .taskText {
-  font-size: 14px;
+  font-size: 12px;
+  font-family: 'Ethnocentric', sans-serif;
   line-height: 20px;
-  color: rgb(213, 219, 230);
+  color: rgb(142, 146, 153);
 }
 
 .footer {
@@ -52,12 +53,14 @@
 
 .title {
   font-weight: 600;
+  font-family: 'Ethnocentric', sans-serif;
   font-size: 16px;
-  color: white;
+  color: rgb(154, 0, 0);
 }
 
 .subtitle {
-  font-size: 14px;
+  font-size: 12px;
+  font: 'mono';
   opacity: 0.6;
   color: white;
 }
