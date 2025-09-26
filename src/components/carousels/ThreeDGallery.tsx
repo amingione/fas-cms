@@ -67,7 +67,7 @@ export default function ThreeDGallery({
           return (
             <figure
               key={index}
-              className="absolute top-1/2 left-1/2 overflow-hidden"
+              className="absolute top-1/2 left-1/2"
               style={{
                 width: imageWidth,
                 height: imageHeight,
