@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { motion } from 'framer-motion';
 import BrandDivider from '../divider/brandDivider';
 import SocialMedia from '../divider/socialMedia';
@@ -42,9 +41,7 @@ const steps = [
 
 const projects = [
   'https://framerusercontent.com/images/iZXow8fbJI7uHxw4lnehA9k9dY.png',
-  'https://framerusercontent.com/images/VMpH1u4xBoFeNT64AG87jI6bk.png',
-  'https://framerusercontent.com/images/exbiE7kjSkcSIZvtu3r2essg7iM.png',
-  'https://framerusercontent.com/images/f9hwHvk6coMj13jKvDnyPBsgEQ.jpeg'
+  'https://framerusercontent.com/images/VMpH1u4xBoFeNT64AG87jI6bk.png'
 ];
 
 const capabilities = [
@@ -80,18 +77,18 @@ export default function WeldingPage() {
             Demand <span className="text-white/30">More</span>
           </h1>
           <p className="mt-6 text-lg opacity-80 font-mono font-bold">
-            From pipes to full exhausts, we craft performance masterpieces with zero compromises.
+            From pipes to full exhausts, we craft performance parts with zero compromises.
           </p>
           <div className="mt-8 flex justify-start gap-4">
             <a
-              href="#projects"
+              href="/contact"
               className="px-6 py-3 rounded-lg bg-white/10 hover:bg-white/20 transition"
             >
-              View Projects
+              Get Started
             </a>
             <a
-              href="#contact"
-              className="px-6 py-3 rounded-lg bg-red-600 hover:bg-red-700 transition"
+              href="/contact"
+              className="hidden px-6 py-3 rounded-lg bg-red-600 hover:bg-red-700 transition"
             >
               Get Started
             </a>
@@ -100,7 +97,7 @@ export default function WeldingPage() {
       </section>
 
       {/* About Section */}
-      <section className="py-10 mt-5 px-6 max-w-6xl mx-auto border border-rounded rounded-lg bg-gray border-white/10 shadow-white/10">
+      <section className="py-10 mt-5 px-6 max-w-6xl mx-auto border-t shadow-inner border-rounded rounded-lg border-white/10 shadow-white/10">
         <div className="text-center mb-12">
           <h2 className="font-ethno text-4xl md:text-5xl font-bold">
             DREAM IT, <span className="text-white/70">BUILD IT.</span>
@@ -129,19 +126,22 @@ export default function WeldingPage() {
       </section>
 
       {/* Capabilities */}
-      <section className="py-16 bg-[#0c0c0c] border-t border border-rounded rounded-lg border-white/10 mt-16">
+      <section className="py-16 bg-[#080808] border-t border-rounded rounded-md border-white/10 mt-16">
         <div className="text-center mb-12">
-          <h2 className="font-ethno text-3xl md:text-5xl font-bold">
-            OUR <span className="text-white/70">CAPABILITIES</span>
+          <h2 className="font-ethno text-3xl md:text-5xl">
+            OUR <span className="text-white/60">CAPABILITIES</span>
           </h2>
-          <p className="mt-4 text-gray-400 max-w-2xl mx-auto">
+          <p className="mt-4 text-white/30 max-w-2xl mx-auto font-mono">
             Precision craftsmanship meets cutting-edge technology. Our welding facility is equipped
             to handle projects of all sizes and complexities.
           </p>
         </div>
         <div className="max-w-6xl mx-auto px-6 flex flex-wrap gap-4 justify-center">
           {capabilities.map((c) => (
-            <span key={c} className="px-4 py-2 bg-[#111] rounded-lg text-sm border border-white/10">
+            <span
+              key={c}
+              className="px-4 py-2 bg-[#111] rounded-lg text-sm border shadow-inner shadow-white/30 font-mono border-white/10"
+            >
               {c}
             </span>
           ))}
@@ -150,22 +150,13 @@ export default function WeldingPage() {
 
       {/* Projects */}
       <section
-        className="py-24 mt-5 bg-[#0c0c0c] border-t border border-rounded rounded-lg border-white/10"
+        className="py-24 bg-transparent border-t border-rounded rounded-lg border-white/10 shadow-inner shadow-white/10"
         id="projects"
       >
         <div className="max-w-6xl mx-auto px-6">
-          <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-[#111] shadow-card border border-white/10 mb-6">
+          <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-transparent border-t shadow-white/20 border-white/10 mb-6">
             <span className="text-white font-bold font-borg italic">Custom </span>
             <span className="font-semibold font-ethno text-primary italic">Welding</span>
-          </div>
-          <div className="flex items-center">
-            <div aria-hidden="true" className="w-full border-t border-white/15" />
-            <div className="relative flex py-3 mb-2">
-              <span className="bg-gray-900 px-3 text-base font-semibold font-borg text-white">
-                Projects
-              </span>
-            </div>
-            <div aria-hidden="true" className="w-full border-t border-white/15" />
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
@@ -175,7 +166,11 @@ export default function WeldingPage() {
                 whileHover={{ scale: 1.03 }}
                 className="rounded-xl overflow-hidden shadow-card border border-white/10 relative"
               >
-                <img src={p} alt="Project" className="w-full h-full object-cover" />
+                <img
+                  src={p}
+                  alt="Project"
+                  className="border shadow-card border-white/10 bg-gray w-full h-full object-cover"
+                />
               </motion.div>
             ))}
           </div>
@@ -183,38 +178,43 @@ export default function WeldingPage() {
       </section>
 
       {/* Packages */}
-      <section className="py-24 px-6 max-w-6xl mx-auto flex flex-col lg:flex-row gap-12 items-center">
+      <section className="border-t border-shadow shadow-inner border-rounded shadow-white/10 rounded-lg py-24 px-6 max-w-6xl mx-auto flex flex-col lg:flex-row gap-12 items-center">
         <div className="flex-1">
           <h2 className="font-ethno text-4xl md:text-5xl font-bold">
             LET’S GROW <span className="text-white/70">TOGETHER</span>
           </h2>
 
+          <div className="section-divider w-full border-t border-white/10 my-8"></div>
+
           <div className="mt-8">
-            <h3 className="uppercase text-sm font-bold text-gray-300">
+            <h3 className="uppercase text-sm font-ethno italic text-gray-300">
               Power Packages{' '}
-              <span className="ml-2 bg-yellow-300/20 text-yellow-200 px-2 py-1 rounded text-xs">
+              <span className="ml-2 bg-transparent border border-rounded rounded-md shadow-inner shadow-gray-700 text-accent px-2 py-1 text-xs font-mono">
                 Starting from $1,399
               </span>
             </h3>
-            <p className="text-gray-400 mt-2">
+            <p className="text-gray-400 mt-2 font-mono">
               Platform-tuned upgrade bundles engineered for clean installs, real gains, and
               factory-like drivability.
             </p>
           </div>
 
+          <div className="section-divider w-full border-t border-white/10 my-8"></div>
+
           <div className="mt-8">
-            <h3 className="uppercase text-sm font-bold text-gray-300">
+            <h3 className="uppercase text-sm font-ethno italic text-gray-300">
               Truck Packages{' '}
-              <span className="ml-2 bg-yellow-300/20 text-yellow-200 px-2 py-1 rounded text-xs">
+              <span className="ml-2 bg-transparent border border-rounded rounded-md shadow-inner shadow-gray-700 text-accent px-2 py-1 text-xs font-mono">
                 Starting from $6,699
               </span>
             </h3>
-            <p className="text-gray-400 mt-2">
-              From minor bolt-ons to packages that exceed 2000HP!
+            <p className="text-gray-400 mt-2 font-mono">
+              Platform-tuned upgrade bundles engineered for clean installs, real gains, and
+              factory-like drivability.
             </p>
           </div>
 
-          <a className="inline-block mt-10 px-8 py-3 bg-[#0c0c0c] rounded-lg border border-white/10 shadow-card hover:bg-red-600 transition">
+          <a className="btn-glass inline-block mt-10 px-8 py-3 bg-[#0c0c0c] rounded-lg border border-white/10 shadow-card hover:bg-red-600 transition">
             SEE ALL →
           </a>
         </div>
@@ -225,13 +225,15 @@ export default function WeldingPage() {
           viewport={{ once: true }}
           className="flex-1"
         >
-          <div className="rounded-xl overflow-hidden shadow-card border border-white/10 bg-black">
-            <img
-              src="https://framerusercontent.com/images/f9hwHvk6coMj13jKvDnyPBsgEQ.jpeg"
-              alt="Car"
-              className="w-full object-contain"
-            />
-          </div>
+          <section className="relative aspect-[4/3] mb-6 inline-flex items-center gap-2 px-4 py-2 border-t border-shadow shadow-inner shadow-white/10 inset-0 rounded-lg bg-gradient-to-br from-[#080808] to-[#000000]">
+            <div className="relative inline-flex aspect-[4/3] rounded-xl overflow-hidden inset-2 shadow-black/50 drop-shadow shadow-inner bg-[#00000019]">
+              <img
+                src="/images/packages/Hellcat/FAS-9.webp"
+                alt="1000 Package Charger"
+                className="w-full object-cover"
+              />
+            </div>
+          </section>
         </motion.div>
       </section>
     </div>

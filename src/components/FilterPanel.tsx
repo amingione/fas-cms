@@ -293,7 +293,9 @@ export default function FilterPanel({
             const slug = norm(f);
             const id = `flt-${slug || 'x'}`;
             const checked = selectedFilters.map(norm).includes(slug);
-            const label = (filterTitleMap && filterTitleMap[slug]) || f;
+            const label =
+              (filterTitleMap && filterTitleMap[slug]) ||
+              slug.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
             return (
               <div key={id} className="flex items-center gap-2">
                 <input

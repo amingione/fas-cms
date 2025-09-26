@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import Header from '../components/header/header2.astro';
 import Footer from '@/components/footer.astro';
+import Footer2 from '@/components/footer/footer2';
 import CookieBanner from '@/components/notices/cookieBanner';
 import { Toaster } from 'sonner';
 
@@ -83,6 +84,7 @@ const pageTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
         <slot />
       </main>
       <Footer />
+      <Footer2 client:only="react" />
       <CookieBanner client:only="react" />
       <Toaster client:only="react" />
     </div>

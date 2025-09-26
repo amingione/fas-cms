@@ -36,7 +36,7 @@ const steps = [
 export default function ProcessSection() {
   return (
     // Process
-    <section className="py-20 px-6 border border-white/10 border-shadow drop-shadow-sm backdrop-blur-sm rounded-lg shadow-white/5">
+    <section className="py-20 px-6 border-t border-white/10 border-shadow drop-shadow-sm backdrop-blur-sm rounded-lg shadow-white/5">
       <div className="text-center mb-16">
         <h2 className="font-ethno text-4xl md:text-5xl font-bold">
           PROCESS <span className="text-white/60">IS EVERYTHING</span>

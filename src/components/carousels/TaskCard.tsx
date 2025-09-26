@@ -10,10 +10,11 @@ type Task = {
 };
 
 const tasks: Task[] = [
-  { id: 1, label: 'Cost Management', icon: '#2922751717', blurred: true },
-  { id: 2, label: 'Payment reminder', icon: '#78418125', blurred: true },
-  { id: 3, label: 'Employee Tracking', icon: '#2109778876', blurred: true },
-  { id: 4, label: 'Social media post', icon: '#1688045918', blurred: false }
+  { id: 1, label: 'Supercharger Rebuild', icon: '#2922751717', blurred: true },
+  { id: 2, label: 'Snout Porting', icon: '#78418125', blurred: true },
+  { id: 3, label: 'Igla', icon: '#2109778876', blurred: true },
+  { id: 4, label: 'Snout Rebuild', icon: '#1688045918', blurred: false },
+  { id: 5, label: 'Fabrication', icon: '#1688045918', blurred: false }
 ];
 
 export default function TaskCard() {
@@ -93,9 +94,10 @@ export default function TaskCard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
       >
-        <p className={styles.title}>Automate repetitive tasks</p>
+        <p className={styles.title}>Full Service Shop</p>
         <p className={styles.subtitle}>
-          We help you streamline internal operations by automating manual workflows
+          From concept to completion, we provide comprehensive engineering services to bring your
+          high-performance supercharger vision to life with racing precision.
         </p>
       </motion.div>
     </motion.div>

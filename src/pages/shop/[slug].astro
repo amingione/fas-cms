@@ -11,6 +11,17 @@ export type VehicleCompat = { make?: string; model?: string; trim?: string };
 export type SpecItem = { label?: string; name?: string; value?: string; detail?: string };
 export type AttrItem = { key?: string; value?: string };
 
+type FilterEntry =
+  | string
+  | {
+      _id?: string;
+      title?: string;
+      label?: string;
+      name?: string;
+      value?: string;
+      slug?: { current?: string } | string;
+    };
+
 export type ProductWithKit = Product & {
   includedInKit?: KitItem[];
   requiresPaintCode?: boolean;
@@ -19,9 +30,60 @@ export type ProductWithKit = Product & {
   averageHorsepower?: number | null;
   specifications?: SpecItem[];
   attributes?: AttrItem[];
-  filters?: string[];
+  filters?: FilterEntry[];
   categories?: { slug?: { current?: string } | string; title?: string }[];
   media?: any[];
+};
+
+const slugify = (str: string): string =>
+  String(str ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+const normalizeFilterSlug = (value: FilterEntry): string => {
+  if (!value) return '';
+  if (typeof value === 'string') return slugify(value);
+  const candidates = [
+    value.slug,
+    typeof value.slug === 'object' && value.slug ? (value.slug as any).current : undefined,
+    value.value,
+    value.label,
+    value.title,
+    value.name,
+    value._id
+  ];
+  for (const candidate of candidates) {
+    if (typeof candidate === 'string' && candidate.trim()) return slugify(candidate);
+  }
+  try {
+    const json = JSON.stringify(value);
+    if (json && json !== '{}') return slugify(json);
+  } catch {}
+  return '';
+};
+
+const normalizeFilterLabel = (value: FilterEntry, fallbackSlug: string): string => {
+  if (!value) return fallbackSlug;
+  if (typeof value === 'string') return value.trim();
+  const candidates = [
+    value.title,
+    value.label,
+    value.name,
+    value.value,
+    value.slug,
+    typeof value.slug === 'object' && value.slug ? (value.slug as any).current : undefined
+  ];
+  for (const candidate of candidates) {
+    if (typeof candidate === 'string' && candidate.trim() && candidate !== '[object Object]') {
+      return candidate.trim();
+    }
+  }
+  return fallbackSlug
+    .split(/[-_]/g)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
 };
 
 const { slug } = Astro.params;
@@ -46,7 +108,9 @@ try {
   const catIds = ((product as any).category || (product as any).categories || [])
     .map((c: any) => c?._id || c?._ref)
     .filter(Boolean);
-  const tagFilters = Array.isArray((product as any).filters) ? (product as any).filters : [];
+  const tagFilters = Array.isArray((product as any).filters)
+    ? (product as any).filters.map((entry: FilterEntry) => normalizeFilterSlug(entry)).filter(Boolean)
+    : [];
   const basePrice = typeof (product as any).price === 'number' ? (product as any).price : undefined;
 
   // Auto-related and upsell
@@ -416,8 +480,8 @@ try {
           </details>
 
           {product.importantNotes && (
-            <div class="mt-6 p-4 border border-red-500 bg-slate-400 text-red-700 rounded" {...sbFieldPath('importantNotes')}>
-              <h3 class="font-bold text-lg mb-2">Important Notes</h3>
+            <div class="mt-6 p-4 border border-red-500 bg-slate-400 text-primary rounded" {...sbFieldPath('importantNotes')}>
+              <h3 class="font-bold text-lg mb-2 text-primary">Important Notes</h3>
               <PortableTextRenderer value={product.importantNotes} />
             </div>
           )}
@@ -474,15 +538,31 @@ try {
               <div>
                 <span class="font-semibold text-white">Filters:</span>{' '}
                 {(() => {
-                  const slugs = Array.isArray((product as any).filters) ? (product as any).filters : [];
-                  const titles = Array.isArray((product as any).filterTitles) ? (product as any).filterTitles : slugs;
-                  return slugs.map((f: any, idx: number) => (
-                    <>
-                      <a href={`/shop?filters=${encodeURIComponent(String(f).toLowerCase())}`} class="hover:underline capitalize">
-                        {String(titles[idx] ?? f)}
-                      </a>
-                      {idx < slugs.length - 1 ? ', ' : ''}
-                    </>
+                  const filterEntries: FilterEntry[] = Array.isArray((product as any).filters)
+                    ? (product as any).filters
+                    : [];
+                  const titleEntries: FilterEntry[] = Array.isArray((product as any).filterTitles)
+                    ? (product as any).filterTitles
+                    : filterEntries;
+                  const pairs = filterEntries
+                    .map((entry, idx) => {
+                      const slug = normalizeFilterSlug(entry);
+                      if (!slug) return null;
+                      const label = normalizeFilterLabel(titleEntries[idx] ?? entry, slug);
+                      if (!label) return null;
+                      return { slug, label };
+                    })
+                    .filter(Boolean);
+
+                  return pairs.map((item, idx) => (
+                    item ? (
+                      <>
+                        <a href={`/shop?filters=${encodeURIComponent(item.slug)}`} class="hover:underline capitalize">
+                          {item.label}
+                        </a>
+                        {idx < pairs.length - 1 ? ', ' : ''}
+                      </>
+                    ) : null
                   ));
                 })()}
               </div>
@@ -496,7 +576,7 @@ try {
     <!-- Related Products -->
 {Array.isArray(relatedProducts) && relatedProducts.length > 0 && (
   <div class="mt-16">
-    <h2 class="text-2xl font-borg mb-6">Related Products</h2>
+    <h2 class="text-2xl text-accent font-ethno mb-6">Related Products</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {(relatedProducts || [])
         .filter((p: any) => p && p.slug && (p.slug.current || typeof p.slug === 'string'))
@@ -536,7 +616,7 @@ try {
 <!-- Recommended Upgrades / Upsell -->
 {Array.isArray(upsellProducts) && upsellProducts.length > 0 && (
   <div class="mt-12">
-    <h2 class="text-2xl font-borg mb-6">Recommended Upgrades</h2>
+    <h2 class="text-2xl text-accent font-ethno mb-6">Recommended Upgrades</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {(upsellProducts || [])
         .filter((p: any) => p && p.slug && (p.slug.current || typeof p.slug === 'string'))

@@ -188,7 +188,11 @@ export async function fetchProductsFromSanity({
       tune->{ title, slug },
       compatibleVehicles[]->{ make, model, slug },
       // include free-form filter tags from schema
-      filters[],
+      filters[]->{
+        _id,
+        title,
+        slug
+      },
       // support either field name: "categories" or "category"
       "categories": select(
         defined(categories) => categories[]->{ _id, title, slug },
@@ -269,7 +273,11 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       includedInKit[]{ item, quantity, notes },
       productType,
       images[]{ asset->{ _id, url }, alt },
-      filters[],
+      filters[]->{
+        _id,
+        title,
+        slug
+      },
       brand,
       gtin,
       mpn,

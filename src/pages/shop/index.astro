@@ -21,10 +21,10 @@ const sortParam = (url.searchParams.get('sort') || 'featured').toLowerCase();
 
 // Selected filter tags can come from ?filter=a&filter=b or ?filters=a,b
 const rawFilters = [
-  ...url.searchParams.getAll("filter"),
-  ...(url.searchParams.get("filters")?.split(",") || [])
+  ...url.searchParams.getAll('filter'),
+  ...(url.searchParams.get('filters')?.split(',') || [])
 ]
-  .map((s) => s.trim().toLowerCase())
+  .map((s) => normalizeFilterSlug(s))
   .filter(Boolean);
 const selectedFilters: string[] = Array.from(new Set(rawFilters));
 
@@ -44,21 +44,99 @@ const currentCategoryTitle = (currentCategory && categories.find((c:any) => c?.s
 
 // Build the available filters (category-aware)
 // Build a slug -> title map and unique slug list
+const slugify = (str: string): string =>
+  str
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+const normalizeFilterSlug = (value: unknown): string => {
+  if (!value) return '';
+  if (typeof value === 'string') return slugify(value);
+  if (typeof value === 'object') {
+    const obj = value as Record<string, unknown>;
+    const candidates = [
+      obj.slug,
+      (obj.slug as any)?.current,
+      obj.value,
+      obj.label,
+      obj.title,
+      obj.name,
+      obj._id
+    ];
+    for (const candidate of candidates) {
+      if (typeof candidate === 'string' && candidate.trim()) return slugify(candidate);
+    }
+    try {
+      const json = JSON.stringify(value);
+      if (json && json !== '{}') return slugify(json);
+    } catch {}
+  }
+  const str = String(value ?? '').trim();
+  if (!str || str === '[object Object]') return '';
+  return slugify(str);
+};
+
+const normalizeFilterLabel = (value: unknown): string => {
+  if (!value) return '';
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'object') {
+    const obj = value as Record<string, unknown>;
+    const labelCandidate =
+      (typeof obj.title === 'string' ? obj.title : undefined) ??
+      (typeof obj.label === 'string' ? obj.label : undefined) ??
+      (typeof obj.name === 'string' ? obj.name : undefined) ??
+      (typeof obj.value === 'string' ? obj.value : undefined) ??
+      (typeof obj.slug === 'string' ? obj.slug : undefined) ??
+      (typeof obj.slug === 'object' && obj.slug && typeof (obj.slug as any).current === 'string'
+        ? (obj.slug as any).current
+        : undefined);
+    if (labelCandidate) return labelCandidate.trim();
+  }
+  const str = String(value ?? '').trim();
+  if (!str || str === '[object Object]') return '';
+  return str;
+};
+
+const fallbackFilterLabel = (slug: string): string =>
+  slug
+    .split(/[-_]/g)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+
 const filterTitleMap: Record<string, string> = {};
 for (const p of allProducts as any[]) {
-  const slugs: any[] = Array.isArray(p?.filters) ? p.filters : [];
-  const titles: any[] = Array.isArray(p?.filterTitles) ? p.filterTitles : slugs;
-  for (let i = 0; i < slugs.length; i++) {
-    const s = String(slugs[i] || '').toLowerCase();
-    const t = String(titles[i] ?? slugs[i] ?? '').trim();
-    if (s) filterTitleMap[s] = filterTitleMap[s] || t;
-  }
+  const rawSlugs: any[] = Array.isArray(p?.filters)
+    ? p.filters
+    : Array.isArray(p?.filterTitles)
+    ? p.filterTitles
+    : [];
+  const rawTitles: any[] = Array.isArray(p?.filterTitles) ? p.filterTitles : rawSlugs;
+  rawSlugs.forEach((entry, idx) => {
+    const slug = normalizeFilterSlug(entry);
+    if (!slug) return;
+    const titleSource = rawTitles[idx] ?? entry;
+    const label = normalizeFilterLabel(titleSource) || fallbackFilterLabel(slug);
+    if (!filterTitleMap[slug]) {
+      filterTitleMap[slug] = label;
+    }
+  });
 }
-const uniqueFilters: string[] = Array.from(new Set(Object.keys(filterTitleMap))).sort();
+const uniqueFilters: string[] = Array.from(new Set(Object.keys(filterTitleMap)))
+  .filter(Boolean)
+  .sort();
 
 // Apply selected filters (match-any). If none selected, keep all.
 const filteredProducts: Product[] = selectedFilters.length
-  ? allProducts.filter((p) => Array.isArray((p as any).filters) && (p as any).filters.some((f: any) => selectedFilters.includes(String(f).toLowerCase())))
+  ? allProducts.filter((p) => {
+      const values: any[] = Array.isArray((p as any).filters)
+        ? (p as any).filters
+        : Array.isArray((p as any).filterTitles)
+        ? (p as any).filterTitles
+        : [];
+      return values.some((f: any) => selectedFilters.includes(normalizeFilterSlug(f)));
+    })
   : allProducts;
 
 // Apply sorting before pagination

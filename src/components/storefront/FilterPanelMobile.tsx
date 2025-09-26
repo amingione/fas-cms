@@ -39,16 +39,36 @@ export default function FilterPanelMobile({
     });
   }
 
+  function normalizeSlug(slug: string) {
+    return slug.trim().toLowerCase();
+  }
+
   function toggleFilter(tag: string) {
+    const normalized = normalizeSlug(tag);
     const url = new URL(window.location.href);
-    const list = new Set((url.searchParams.get('filters') || '').split(',').filter(Boolean));
-    if (list.has(tag)) list.delete(tag);
-    else list.add(tag);
+    const list = new Set(
+      (url.searchParams.get('filters') || '')
+        .split(',')
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean)
+    );
+    if (list.has(normalized)) list.delete(normalized);
+    else list.add(normalized);
     if (list.size) url.searchParams.set('filters', Array.from(list).join(','));
     else url.searchParams.delete('filters');
     url.searchParams.set('page', '1');
     window.location.href = url.toString();
   }
+
+  const formatLabel = useCallback(
+    (slug: string) =>
+      (filterTitleMap && filterTitleMap[slug.toLowerCase()]) ||
+      slug
+        .split(/[-_]/g)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' '),
+    [filterTitleMap]
+  );
 
   return (
     <div className="md:hidden space-y-3">
@@ -126,7 +146,7 @@ export default function FilterPanelMobile({
                 defaultChecked={selectedFilters.includes(f)}
                 onChange={() => toggleFilter(f)}
               />
-              <span className="capitalize">{(filterTitleMap && filterTitleMap[f.toLowerCase()]) || f}</span>
+              <span className="capitalize">{formatLabel(f)}</span>
             </label>
           ))}
         </div>
