@@ -98,7 +98,8 @@ export default defineStackbitConfig({
           filePath: 'content/blocks/rich/{slug}.json',
           fields: [
             { name: 'title', type: 'string' },
-            { name: 'body', type: 'markdown' }
+            { name: 'body', type: 'markdown' },
+            { name: 'image', type: 'image', source: 'cloudinary' }
           ]
         },
 
@@ -193,6 +194,7 @@ export default defineStackbitConfig({
           name: 'PowerPackagesPage',
           label: 'Power Packages Page',
           type: 'page',
+          urlPath: '/packages/powerPackages',
           filePath: 'content/pages/powerPackages.json',
           fields: [
             { name: 'slug', type: 'string', required: true, description: 'Slug for the page' },
