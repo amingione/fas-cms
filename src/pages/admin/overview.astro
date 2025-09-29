@@ -64,7 +64,7 @@ const countProducts = Array.isArray(products) ? products.length : 0;
   <script>
     (async () => {
       const guard = async () => {
-        const fx = window.fasAuth;
+        const fx = (window as any).fasAuth;
         if (!fx) return; // script not ready yet
         if (!(await fx.isAuthenticated())) {
           return fx.loginTo('/admin');
@@ -73,7 +73,7 @@ const countProducts = Array.isArray(products) ? products.length : 0;
         const ok = await (fx as any).hasRole?.(['employee','owner']);
         if (location.origin.startsWith('http://localhost:4321')) {
           try {
-            const session = await fx.getSession();
+            const session = await fx?.getSession?.();
             console.debug('[admin] roles:', session?.user?.roles || []);
           } catch {}
         }
@@ -99,7 +99,7 @@ const countProducts = Array.isArray(products) ? products.length : 0;
               document.body.innerHTML = '';
               document.body.appendChild(pretty);
               document.getElementById('admin-logout')?.addEventListener('click', async () => {
-                await window.fasAuth?.logout(location.origin + '/account');
+                await fx?.logout?.(location.origin + '/account');
               });
             } catch {
               document.body.innerHTML = '<main class="p-8 text-center text-red-400">Forbidden: employee or owner role required. (Unable to read session roles.)</main>';
@@ -110,7 +110,7 @@ const countProducts = Array.isArray(products) ? products.length : 0;
       // Retry a couple times in case fasAuth attaches slightly later
       for (let i = 0; i < 3; i++) {
         await guard();
-        if (window.fasAuth) break;
+        if ((window as any).fasAuth) break;
         await new Promise(r => setTimeout(r, 150));
       }
     })();
