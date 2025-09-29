@@ -1,9 +1,48 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import SocialMedia from '@/components/divider/socialMedia';
 import BrandDivider from '../divider/brandDivider';
 
 export default function HomeHero() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+
+    const enableAutoplay = () => {
+      video.muted = true;
+      video.playsInline = true;
+      video.setAttribute('muted', '');
+      video.setAttribute('playsinline', '');
+
+      const playPromise = video.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(() => {
+          // If autoplay is blocked, retry after a user interaction.
+        });
+      }
+    };
+
+    const handleUserInteraction = () => {
+      enableAutoplay();
+      window.removeEventListener('touchstart', handleUserInteraction);
+      window.removeEventListener('click', handleUserInteraction);
+    };
+
+    enableAutoplay();
+    window.addEventListener('touchstart', handleUserInteraction, { once: true });
+    window.addEventListener('click', handleUserInteraction, { once: true });
+
+    return () => {
+      window.removeEventListener('touchstart', handleUserInteraction);
+      window.removeEventListener('click', handleUserInteraction);
+    };
+  }, []);
+
   return (
     <section
       id="homeHero"
@@ -14,6 +53,7 @@ export default function HomeHero() {
       <div className="relative mb-[-10px]">
         {/* Video Background */}
         <video
+          ref={videoRef}
           aria-hidden="true"
           src="https://framerusercontent.com/assets/1g8IkhtJmlWcC4zEYWKUmeGWzI.mp4"
           loop
