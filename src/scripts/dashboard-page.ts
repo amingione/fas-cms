@@ -99,7 +99,11 @@ function setActiveNav(view?: string | null) {
       } catch {}
     }
 
-    const defaultName = (user as any)?.given_name || (user as any)?.name || email || 'Guest';
+    const defaultName =
+      (session as any)?.user?.given_name ||
+      (session as any)?.user?.name ||
+      email ||
+      'Guest';
     try {
       localStorage.setItem('customerName', defaultName);
     } catch {}

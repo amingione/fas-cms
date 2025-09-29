@@ -20,7 +20,7 @@ const features = [
 
 export default function HeadingBanner1() {
   return (
-    <div className="bg-blend-overlay mt-5">
+    <div className="bg-blend-overlay mt-5 mb-12 sm:mb-16 lg:mb-24">
       <div className="mt-[-4px] mx-auto">
         <div className="relative isolate overflow-hidden bg-white/5 border border-rounded rounded-lg border-black/20 drop-shadow-lg shadow-white/10 shadow-inner backdrop-blur-sm px-2 py-10 after:pointer-events-none after:absolute after:inset-0 after:inset-ring after:inset-ring-white/10 sm:rounded-3xl sm:px-10 sm:py-24 after:sm:rounded-3xl lg:py-24 xl:px-24">
           <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-2 lg:items-center lg:gap-y-0">

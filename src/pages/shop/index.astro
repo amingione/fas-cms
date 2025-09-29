@@ -19,6 +19,69 @@ const start = (currentPage - 1) * PAGE_SIZE;
 const end = start + PAGE_SIZE;
 const sortParam = (url.searchParams.get('sort') || 'featured').toLowerCase();
 
+function slugify(str: string): string {
+  return str
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function normalizeFilterSlug(value: unknown): string {
+  if (!value) return '';
+  if (typeof value === 'string') return slugify(value);
+  if (typeof value === 'object') {
+    const obj = value as Record<string, unknown>;
+    const candidates = [
+      obj.slug,
+      (obj.slug as any)?.current,
+      obj.value,
+      obj.label,
+      obj.title,
+      obj.name,
+      obj._id
+    ];
+    for (const candidate of candidates) {
+      if (typeof candidate === 'string' && candidate.trim()) return slugify(candidate);
+    }
+    try {
+      const json = JSON.stringify(value);
+      if (json && json !== '{}') return slugify(json);
+    } catch {}
+  }
+  const str = String(value ?? '').trim();
+  if (!str || str === '[object Object]') return '';
+  return slugify(str);
+}
+
+function normalizeFilterLabel(value: unknown): string {
+  if (!value) return '';
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'object') {
+    const obj = value as Record<string, unknown>;
+    const labelCandidate =
+      (typeof obj.title === 'string' ? obj.title : undefined) ??
+      (typeof obj.label === 'string' ? obj.label : undefined) ??
+      (typeof obj.name === 'string' ? obj.name : undefined) ??
+      (typeof obj.value === 'string' ? obj.value : undefined) ??
+      (typeof obj.slug === 'string' ? obj.slug : undefined) ??
+      (typeof obj.slug === 'object' && obj.slug && typeof (obj.slug as any).current === 'string'
+        ? (obj.slug as any).current
+        : undefined);
+    if (labelCandidate) return labelCandidate.trim();
+  }
+  const str = String(value ?? '').trim();
+  if (!str || str === '[object Object]') return '';
+  return str;
+}
+
+function fallbackFilterLabel(slug: string): string {
+  return slug
+    .split(/[-_]/g)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
 // Selected filter tags can come from ?filter=a&filter=b or ?filters=a,b
 const rawFilters = [
   ...url.searchParams.getAll('filter'),
@@ -44,67 +107,6 @@ const currentCategoryTitle = (currentCategory && categories.find((c:any) => c?.s
 
 // Build the available filters (category-aware)
 // Build a slug -> title map and unique slug list
-const slugify = (str: string): string =>
-  str
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-
-const normalizeFilterSlug = (value: unknown): string => {
-  if (!value) return '';
-  if (typeof value === 'string') return slugify(value);
-  if (typeof value === 'object') {
-    const obj = value as Record<string, unknown>;
-    const candidates = [
-      obj.slug,
-      (obj.slug as any)?.current,
-      obj.value,
-      obj.label,
-      obj.title,
-      obj.name,
-      obj._id
-    ];
-    for (const candidate of candidates) {
-      if (typeof candidate === 'string' && candidate.trim()) return slugify(candidate);
-    }
-    try {
-      const json = JSON.stringify(value);
-      if (json && json !== '{}') return slugify(json);
-    } catch {}
-  }
-  const str = String(value ?? '').trim();
-  if (!str || str === '[object Object]') return '';
-  return slugify(str);
-};
-
-const normalizeFilterLabel = (value: unknown): string => {
-  if (!value) return '';
-  if (typeof value === 'string') return value.trim();
-  if (typeof value === 'object') {
-    const obj = value as Record<string, unknown>;
-    const labelCandidate =
-      (typeof obj.title === 'string' ? obj.title : undefined) ??
-      (typeof obj.label === 'string' ? obj.label : undefined) ??
-      (typeof obj.name === 'string' ? obj.name : undefined) ??
-      (typeof obj.value === 'string' ? obj.value : undefined) ??
-      (typeof obj.slug === 'string' ? obj.slug : undefined) ??
-      (typeof obj.slug === 'object' && obj.slug && typeof (obj.slug as any).current === 'string'
-        ? (obj.slug as any).current
-        : undefined);
-    if (labelCandidate) return labelCandidate.trim();
-  }
-  const str = String(value ?? '').trim();
-  if (!str || str === '[object Object]') return '';
-  return str;
-};
-
-const fallbackFilterLabel = (slug: string): string =>
-  slug
-    .split(/[-_]/g)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
-
 const filterTitleMap: Record<string, string> = {};
 for (const p of allProducts as any[]) {
   const rawSlugs: any[] = Array.isArray(p?.filters)

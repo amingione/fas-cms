@@ -46,7 +46,7 @@ export default function HomeHero() {
   return (
     <section
       id="homeHero"
-      className="relative flex items-center justify-center py-[-10px] pt-10 mb-[-8px]"
+      className="relative flex items-center justify-center pt-10 pb-6 mb-12 sm:mb-16 lg:mb-[-8px]"
     >
       {/* Overlay to darken the video for better text visibility */}
       <div className="z-0 absolute inset-0 pointer-events-none" />
