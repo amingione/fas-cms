@@ -10,7 +10,7 @@ export default function HomeHero() {
       className="relative flex items-center justify-center py-[-10px] pt-10 mb-[-8px]"
     >
       {/* Overlay to darken the video for better text visibility */}
-      <div className="z-0 absolute inset-0" />
+      <div className="z-0 absolute inset-0 pointer-events-none" />
       <div className="relative mb-[-10px]">
         {/* Video Background */}
         <video
@@ -35,7 +35,7 @@ export default function HomeHero() {
             opacity: 1
           }}
         />
-        <div className="absolute inset-0 flex flex-col items-center text-center justify-center">
+        <div className="absolute inset-0 flex flex-col items-center text-center justify-center pointer-events-none">
           {/* Content */}
           <BrandDivider className="justify-center" />
           <div className="max-w-3xl px-6 text-center flex flex-col items-center"></div>
