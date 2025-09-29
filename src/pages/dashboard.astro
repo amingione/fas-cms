@@ -83,11 +83,12 @@ if (!isLoggedIn) {
         <div class="text-sm font-semibold"><span id="customer-name" class="text-primary"></span></div>
       </header>
       <nav class="flex flex-col gap-1 text-sm font-ethno">
-        <a href="/customerdashboard/customerProfile" data-view="profile" class="js-view px-3 py-2 rounded hover:bg-white/10">My Profile</a>
-        <a href="/customerdashboard/userOrders" data-view="orders" class="js-view px-3 py-2 rounded hover:bg-white/10">Orders <span id="orders-count" class="ml-2 px-2 py-0.5 text-[10px] bg-red-600/80 rounded">0</span></a>
-        <a href="/customerdashboard/userQuotes" data-view="quotes" class="js-view px-3 py-2 rounded hover:bg-white/10">Quotes <span id="quotes-count" class="ml-2 px-2 py-0.5 text-[10px] bg-red-600/80 rounded">0</span></a>
-        <a href="/customerdashboard/userInvoices" data-view="invoices" class="js-view px-3 py-2 rounded hover:bg-white/10">Invoices <span id="invoices-count" class="ml-2 px-2 py-0.5 text-[10px] bg-red-600/80 rounded">0</span></a>
-        <a href="/customerdashboard/userAppointments" data-view="appointments" class="js-view px-3 py-2 rounded hover:bg-white/10">Appointments <span id="appts-count" class="ml-2 px-2 py-0.5 text-[10px] bg-red-600/80 rounded">0</span></a>
+        <a href="#profile" data-view="profile" class="js-view px-3 py-2 rounded hover:bg-white/10">My Profile</a>
+        <a href="#orders" data-view="orders" class="js-view px-3 py-2 rounded hover:bg-white/10">Orders <span id="orders-count" class="ml-2 px-2 py-0.5 text-[10px] bg-red-600/80 rounded">0</span></a>
+        <a href="#quotes" data-view="quotes" class="js-view px-3 py-2 rounded hover:bg-white/10">Quotes <span id="quotes-count" class="ml-2 px-2 py-0.5 text-[10px] bg-red-600/80 rounded">0</span></a>
+        <a href="#invoices" data-view="invoices" class="js-view px-3 py-2 rounded hover:bg-white/10">Invoices <span id="invoices-count" class="ml-2 px-2 py-0.5 text-[10px] bg-red-600/80 rounded">0</span></a>
+        <a href="#appointments" data-view="appointments" class="js-view px-3 py-2 rounded hover:bg-white/10">Appointments <span id="appts-count" class="ml-2 px-2 py-0.5 text-[10px] bg-red-600/80 rounded">0</span></a>
+        <a href="#details" data-view="details" class="js-view px-3 py-2 rounded hover:bg-white/10">Account Details</a>
         <div class="mt-4 pt-3 border-t border-white/10"></div>
         {isLoggedIn ? (
           <a href="/api/auth/logout" class="logout-link px-3 py-2 rounded text-red-500 hover:bg-white/10">Logout</a>

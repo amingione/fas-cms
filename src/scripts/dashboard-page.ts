@@ -143,37 +143,77 @@ function setActiveNav(view?: string | null) {
       if (d) d.textContent = String(n);
       if (m) m.textContent = String(n);
     }
-    async function fetchCount(url: string) {
-      try {
-        const res = await fetch(url);
-        if (!res.ok) return 0;
+    async function fetchCount(url: string, fallbackUrl?: string) {
+      async function run(endpoint: string) {
+        const res = await fetch(endpoint, { credentials: 'include' });
+        if (!res.ok) throw new Error('bad status');
         const data = await res.json();
         if (Array.isArray(data)) return data.length;
         if (data && Array.isArray((data as any).items)) return (data as any).items.length;
         return 0;
-      } catch {
+      }
+
+      try {
+        return await run(url);
+      } catch (err) {
+        if (fallbackUrl) {
+          try {
+            return await run(fallbackUrl);
+          } catch {}
+        }
         return 0;
       }
     }
 
     if (email) {
-      fetchCount(`/api/get-user-order?email=${encodeURIComponent(email)}`).then((n) =>
+      fetchCount(
+        `/api/get-user-order?email=${encodeURIComponent(email)}`,
+        '/api/get-user-order'
+      ).then((n) =>
         setCount('orders-count', 'orders-count-mobile', n)
       );
-      fetchCount(`/api/get-user-quotes?email=${encodeURIComponent(email)}`).then((n) =>
+      fetchCount(
+        `/api/get-user-quotes?email=${encodeURIComponent(email)}`,
+        '/api/get-user-quotes'
+      ).then((n) =>
         setCount('quotes-count', 'quotes-count-mobile', n)
       );
-      fetchCount(`/api/get-user-invoices?email=${encodeURIComponent(email)}`).then((n) =>
+      fetchCount(
+        `/api/get-user-invoices?email=${encodeURIComponent(email)}`,
+        '/api/get-user-invoices'
+      ).then((n) =>
         setCount('invoices-count', 'invoices-count-mobile', n)
       );
-      fetchCount(`/api/get-user-appointments?email=${encodeURIComponent(email)}`).then((n) =>
+      fetchCount(
+        `/api/get-user-appointments?email=${encodeURIComponent(email)}`,
+        '/api/get-user-appointments'
+      ).then((n) =>
         setCount('appts-count', 'appts-count-mobile', n)
       );
     }
 
     const content = () => getVisibleDashContent();
     const sel = document.getElementById('mobile-account-select') as HTMLSelectElement | null;
-    if (sel) sel.addEventListener('change', () => load(sel.value));
+    const viewRoutes: Record<string, string> = {
+      profile: '/customerdashboard/customerProfile',
+      details: '/customerdashboard/customerProfile',
+      orders: '/customerdashboard/userOrders',
+      quotes: '/customerdashboard/userQuotes',
+      invoices: '/customerdashboard/userInvoices',
+      appointments: '/customerdashboard/userAppointments'
+    };
+    if (sel)
+      sel.addEventListener('change', () => {
+        const view = sel.value;
+        if (window.matchMedia('(max-width: 639px)').matches) {
+          const route = viewRoutes[view];
+          if (route) {
+            window.location.href = route;
+            return;
+          }
+        }
+        load(view);
+      });
     const setLoading = (msg = 'Loading...') => {
       const c = content();
       if (!c) return;
