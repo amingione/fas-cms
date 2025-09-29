@@ -94,7 +94,7 @@ export function TruckPackagesHero({
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <Button size="md" className="font-ethno" asChild>
               <a
-                href={ctaPrimaryHref ?? '/shop?categorySlug=power-packages&page=1'}
+                href={ctaPrimaryHref ?? '/shop?categorySlug=powerPackages&page=1'}
                 {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.cta.text`) : {})}
               >
                 <Zap className="w-5 h-5 mr-2" />

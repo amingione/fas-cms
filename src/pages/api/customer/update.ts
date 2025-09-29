@@ -54,7 +54,7 @@ export const POST: APIRoute = async ({ request }) => {
     const body = await request.json();
 
     const {
-      sub, // Auth0 user id (e.g., auth0|abc123)
+      sub,
       email,
       phone,
       address,

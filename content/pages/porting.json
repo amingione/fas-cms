@@ -1,1 +1,120 @@
-{ "type": "Page", "slug": "porting", "title": "Porting", "sections": [] }
+{
+  "type": "Page",
+  "slug": "porting",
+  "title": "Porting Services",
+  "sections": [],
+  "hero": {
+    "heading": "Porting Services",
+    "description": "Superchargers, snouts, throttle bodies, intake manifolds, and cylinder heads — blueprint-level porting for real, repeatable gains.",
+    "tags": [
+      "Flow-bench guided",
+      "CNC + hand finish",
+      "Matched interfaces",
+      "OEM-level fit"
+    ],
+    "image": {
+      "src": "/images/snouts/fas-ported-snout.png",
+      "alt": "Ported snout detail",
+      "caption": "Ported snout: smoother transition, corrected CSA, matched to throttle body and case."
+    },
+    "primaryCta": {
+      "label": "Ask a Porting Specialist",
+      "href": "/contact",
+      "variant": "default",
+      "size": "md"
+    },
+    "secondaryCta": {
+      "label": "Schedule Dropoff",
+      "href": "/schedule",
+      "variant": "ghost",
+      "size": "md"
+    }
+  },
+  "stats": [
+    { "value": "±0.5%", "label": "CSA variance target" },
+    { "value": "≤0.001\"", "label": "Flatness at flanges" },
+    { "value": "20–40+ whp", "label": "Typical SC gains*" },
+    { "value": "Bench-guided", "label": "Validation process" }
+  ],
+  "statsNote": "* With proper tuning and supporting mods. Results vary by platform.",
+  "featurePills": [
+    "Flow-bench guided",
+    "CNC + hand finish",
+    "Matched components",
+    "OEM-level fit & finish"
+  ],
+  "portingItems": [
+    {
+      "title": "Supercharger",
+      "desc": "Improves airflow and boost efficiency. Gains of 20–40+ WHP are common when paired with tuning."
+    },
+    {
+      "title": "Bearing Plate",
+      "desc": "Reduce turbulence and drag on the rotor path, enhancing blower response."
+    },
+    {
+      "title": "Snout",
+      "desc": "Increases intake velocity and efficiency, crucial for maximizing your supercharger’s output."
+    },
+    {
+      "title": "Whipple",
+      "desc": "Precision Whipple porting can dramatically increase airflow and power, especially in high-boost setups."
+    },
+    {
+      "title": "Throttle Body",
+      "desc": "Port-matched throttle bodies reduce intake restriction and improve throttle response and power delivery."
+    },
+    {
+      "title": "Cylinder Head",
+      "desc": "Full porting improves combustion efficiency, flow, and performance — essential for high-RPM and boosted builds."
+    },
+    {
+      "title": "Intake Manifold",
+      "desc": "A ported intake manifold optimizes air distribution to each cylinder, supporting high-HP goals with better balance."
+    }
+  ],
+  "methodology": {
+    "title": "Methodology",
+    "items": [
+      "Baseline measurement and inspection; document casting lines and restrictions.",
+      "CNC rough-in to targeted CSA; hand-blend for surface finish and transition quality.",
+      "Port-matching across interfaces (snout ⇄ TB ⇄ case ⇄ manifold).",
+      "Final inspection: CSA verification, concentricity, fastener land integrity."
+    ],
+    "deliverablesTitle": "Deliverables",
+    "deliverables": [
+      "Before/after photos & notes.",
+      "Recommended TB size / injector / belt guidance where applicable.",
+      "Gasket surfaces protected; threads chased; components cleaned and bagged.",
+      "Optional polish or ceramic coat on request."
+    ]
+  },
+  "summaryCards": [
+    {
+      "title": "Typical Gains",
+      "body": "Supercharger/snout pairs commonly see +20–40 WHP with proper tuning and supporting mods. Cylinder head & intake work supports higher RPM power retention."
+    },
+    {
+      "title": "Turnaround",
+      "body": "Most jobs 5–10 business days after parts are received. Expedited options available."
+    },
+    {
+      "title": "Compatibility",
+      "body": "Hellcat/Redeye/Demon, Trackhawk/Durango, HEMI 5.7/6.1/6.4, Whipple & other positive displacement blowers. Ask about other platforms."
+    }
+  ],
+  "ctaButtons": [
+    {
+      "label": "Start a Porting Project",
+      "href": "/contact",
+      "variant": "default",
+      "size": "lg"
+    },
+    {
+      "label": "Book Install or Dropoff",
+      "href": "/schedule",
+      "variant": "ghost",
+      "size": "md"
+    }
+  ]
+}

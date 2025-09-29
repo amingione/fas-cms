@@ -78,7 +78,6 @@
     "@astrojs/netlify": "6.5.9",
     "@astrojs/react": "^4.3.0",
     "@astrojs/tailwind": "^6.0.2",
-    "@auth0/auth0-spa-js": "^2.4.1",
     "@fullcalendar/core": "^6.1.19",
     "@fullcalendar/daygrid": "^6.1.19",
     "@fullcalendar/interaction": "^6.1.19",

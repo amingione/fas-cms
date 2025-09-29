@@ -73,12 +73,8 @@ const countProducts = Array.isArray(products) ? products.length : 0;
         const ok = await (fx as any).hasRole?.(['employee','owner']);
         if (location.origin.startsWith('http://localhost:4321')) {
           try {
-            const claims = await (window.fasAuth as any)?.getIdTokenClaims();
-            console.debug('[admin] roles claim:',
-              claims?.['https://login.fasmotorsport.com/fas/roles'] ||
-              claims?.['https://fasmotorsports.com/roles'] ||
-              claims?.['https://schemas.quickstarts.auth0.com/roles'] || []
-            );
+            const session = await fx.getSession();
+            console.debug('[admin] roles:', session?.user?.roles || []);
           } catch {}
         }
         if (ok === false) {
@@ -87,22 +83,14 @@ const countProducts = Array.isArray(products) ? products.length : 0;
             document.body.innerHTML = '<main class="p-8 text-center text-red-400">Forbidden: employee or owner role required. Please contact an administrator.</main>';
           } else {
             try {
-              const claims = await (window.fasAuth as any)?.getIdTokenClaims();
-              const roles =
-                claims?.['https://login.fasmotorsport.com/fas/roles'] ||
-                claims?.['https://fasmotorsports.com/roles'] ||
-                claims?.['https://schemas.quickstarts.auth0.com/roles'] || [];
+              const session = await fx.getSession();
+              const roles = session?.user?.roles || [];
               const pretty = document.createElement('div');
               pretty.className = 'mx-auto my-12 max-w-xl rounded-md border border-red-300 bg-red-50 p-6 text-red-900';
               pretty.innerHTML = `
                 <h2 class="text-lg font-semibold mb-2">Forbidden</h2>
                 <p class="mb-4">Your token does not include the required role (<code>employee</code> or <code>owner</code>).</p>
-                <div class="mb-2"><strong>Roles claim:</strong> <code>${'${JSON.stringify(roles)}'}</code></div>
-                <div class="mb-4 text-sm text-red-800">Claim namespaces checked:<br>
-                  <code>https://login.fasmotorsport.com/fas/roles</code><br>
-                  <code>https://fasmotorsports.com/roles</code><br>
-                  <code>https://schemas.quickstarts.auth0.com/roles</code>
-                </div>
+                <div class="mb-2"><strong>Roles:</strong> <code>${'${JSON.stringify(roles)}'}</code></div>
                 <div class="flex gap-3">
                   <button id="admin-logout" class="rounded bg-red-600 px-3 py-1.5 text-white">Logout & Re-login</button>
                   <a href="/account" class="rounded border px-3 py-1.5">Go to Account</a>
@@ -114,7 +102,7 @@ const countProducts = Array.isArray(products) ? products.length : 0;
                 await window.fasAuth?.logout(location.origin + '/account');
               });
             } catch {
-              document.body.innerHTML = '<main class="p-8 text-center text-red-400">Forbidden: employee or owner role required. (Unable to read token claims.)</main>';
+              document.body.innerHTML = '<main class="p-8 text-center text-red-400">Forbidden: employee or owner role required. (Unable to read session roles.)</main>';
             }
           }
         }

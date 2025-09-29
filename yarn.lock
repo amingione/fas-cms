@@ -360,17 +360,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@auth0/auth0-spa-js@npm:^2.4.1":
-  version: 2.4.1
-  resolution: "@auth0/auth0-spa-js@npm:2.4.1"
-  dependencies:
-    browser-tabs-lock: ^1.2.15
-    dpop: ^2.1.1
-    es-cookie: ~1.3.2
-  checksum: a825b51e674e3c6462201bdf96ef9454dc4e24bf0ddae169e798e50c98ae8c20987b67f12da5794b2d72dd311247ddb61494844fc302975891f29c83e0460204
-  languageName: node
-  linkType: hard
-
 "@aws-lite/client@npm:^0.21.1, @aws-lite/client@npm:~0.21.1":
   version: 0.21.10
   resolution: "@aws-lite/client@npm:0.21.10"
@@ -12309,15 +12298,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"browser-tabs-lock@npm:^1.2.15":
-  version: 1.3.0
-  resolution: "browser-tabs-lock@npm:1.3.0"
-  dependencies:
-    lodash: ">=4.17.21"
-  checksum: 4fcfb6d5fc4bc5e4f53c298d555d8421ca4f815e32c2650b73008868eb70d7ee41aca8f92ad84d9beb77a8ffe0cb99f1efc8d9b3135cc434d48f7bd569f2bb72
-  languageName: node
-  linkType: hard
-
 "browserify-aes@npm:^1.0.4, browserify-aes@npm:^1.2.0":
   version: 1.2.0
   resolution: "browserify-aes@npm:1.2.0"
@@ -16366,13 +16346,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dpop@npm:^2.1.1":
-  version: 2.1.1
-  resolution: "dpop@npm:2.1.1"
-  checksum: 919527254feac8ac46ee1c8b3776f8c2f4ada1876072f3df567eccefaef84ef40ac8d8e50383145322652200877628914045ce7b624a1af64b48f3e88ca5493f
-  languageName: node
-  linkType: hard
-
 "dset@npm:^3.1.4":
   version: 3.1.4
   resolution: "dset@npm:3.1.4"
@@ -16827,13 +16800,6 @@ __metadata:
   version: 1.0.0
   resolution: "es-array-method-boxes-properly@npm:1.0.0"
   checksum: 2537fcd1cecf187083890bc6f5236d3a26bf39237433587e5bf63392e88faae929dbba78ff0120681a3f6f81c23fe3816122982c160d63b38c95c830b633b826
-  languageName: node
-  linkType: hard
-
-"es-cookie@npm:~1.3.2":
-  version: 1.3.2
-  resolution: "es-cookie@npm:1.3.2"
-  checksum: 8509355a7d00bd2e3fcab4a76a90e0da35b40c1e76f114f8ffe805ab3fdfff51e8fc0e7cdccd9bf1536066150b6b9861e37d78ae14f80680513901902ac4f0df
   languageName: node
   linkType: hard
 
@@ -17882,7 +17848,6 @@ __metadata:
     "@astrojs/netlify": 6.5.9
     "@astrojs/react": ^4.3.0
     "@astrojs/tailwind": ^6.0.2
-    "@auth0/auth0-spa-js": ^2.4.1
     "@babel/core": ^7.28.3
     "@eslint/js": ^9.26.0
     "@fullcalendar/core": ^6.1.19
@@ -23974,7 +23939,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:4.17.21, lodash@npm:>=4.17.21, lodash@npm:^4.11.1, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.17.4, lodash@npm:^4.3.0, lodash@npm:^4.7.0":
+"lodash@npm:4.17.21, lodash@npm:^4.11.1, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.17.4, lodash@npm:^4.3.0, lodash@npm:^4.7.0":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7

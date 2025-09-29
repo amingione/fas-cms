@@ -15,7 +15,7 @@ export const OPTIONS: APIRoute = async () => new Response(null, { status: 204, h
 
 export const GET: APIRoute = async ({ request, url }) => {
   try {
-    // Allow simple `?email=` usage for counts, otherwise derive from Auth0 token
+    // Allow simple `?email=` usage for counts, otherwise derive from session cookie
     let email = (url.searchParams.get('email') || '').trim().toLowerCase();
 
     if (!email) {

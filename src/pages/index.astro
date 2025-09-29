@@ -8,10 +8,10 @@ import AnimatedHeadingBanner1 from '@components/animated/AnimatedHeadingBanner1'
 import Highlights from '@/components/Highlights.astro';
 import AnimatedHeadingBanner from '@components/animated/AnimatedHeadingBanner';
 import AnimatedProductFeatureBanner from '@components/animated/AnimatedProductFeatureBanner';
-import AnimatedLeftLabel from '@components/animated/AnimatedLeftLabel';
 import AnimatedTaskCard from '@components/animated/AnimatedTaskCard';
 import AnimatedThreeDGallery from '@components/animated/AnimatedThreeDGallery';
 import AnimatedTruckPackagesHero from '@components/animated/AnimatedTruckPackagesHero';
+import SectionRenderer from '@/components/SectionRenderer.astro';
 
 
 const url = new URL(Astro.request.url);
@@ -105,6 +105,7 @@ try {
     <main class="relative flex flex-col">
 
     <div {...sbObjectId('content/pages/index.json')}>
+        <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
 
 
       <section id="homeHero">
@@ -118,10 +119,6 @@ try {
       <section id="HeadingBanner">
         <AnimatedHeadingBanner client:only="react" />
       </section>
-
-      <div class="mb-4" id="LeftLabel">
-        <AnimatedLeftLabel client:only="react" />
-      </div>
 
       <section id="TruckPackagesHero">
         <AnimatedTruckPackagesHero client:only="react" />

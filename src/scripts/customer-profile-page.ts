@@ -1,9 +1,17 @@
 // Uses fas-auth session
 
-const $ = (id: string) => document.getElementById(id) as HTMLInputElement | null;
+type FasAuth = {
+  isAuthenticated: () => Promise<boolean>;
+  getSession: () => Promise<{ user?: { email?: string } } | null>;
+};
 
-// Ensure auth0 client is available globally right away
-(() => {})();
+declare global {
+  interface Window {
+    fasAuth?: FasAuth;
+  }
+}
+
+const $ = (id: string) => document.getElementById(id) as HTMLInputElement | null;
 
 async function resolveEmail() {
   try {

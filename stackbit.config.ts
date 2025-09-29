@@ -4,6 +4,23 @@ import fs from 'fs';
 import path from 'path';
 import { GitContentSource } from '@stackbit/cms-git';
 import { SanityContentSource } from '@stackbit/cms-sanity';
+import util from 'util';
+
+// Some Stackbit dependencies (pnpm self-installer) still invoke the deprecated util._extend API.
+// Override it early so the Visual Editor doesn't emit noisy Node warnings on startup.
+if ((util as any)?._extend && (util as any)._extend !== Object.assign) {
+  (util as any)._extend = Object.assign;
+}
+
+const prevEmitWarning = process.emitWarning;
+process.emitWarning = function patchedEmitWarning(warning: any, ...args: any[]) {
+  const code = typeof warning === 'object' && warning ? warning.code : undefined;
+  const message = typeof warning === 'string' ? warning : warning?.message;
+  if (code === 'DEP0060' || message?.includes('util._extend')) {
+    return;
+  }
+  return prevEmitWarning.call(process, warning, ...args);
+};
 
 // Normalize Sanity env vars to strings to satisfy TS types
 const SANITY_PROJECT_ID: string =
@@ -113,15 +130,17 @@ export default defineStackbitConfig({
                     name: 'blockType',
                     type: 'enum',
                     options: [
-                      'Hero',
+                      'homeHero',
                       'RichText',
-                      'Services',
+                      'HeadingBanner1',
+                      'HeadingBanner',
                       'Products',
-                      'Testimonials',
-                      'IGLA',
                       'TruckPackagesHero',
-                      'LuxuryFeatures',
-                      'WheelsHero'
+                      'Highlights',
+                      'TaskCard',
+                      'ProductFeatureBanner',
+                      'ThreeDGallery',
+                      'LuxuryFeatures'
                     ],
                     required: true
                   },
@@ -166,6 +185,92 @@ export default defineStackbitConfig({
         }
       ]
     }),
+    new GitContentSource({
+      rootPath: __dirname,
+      contentDirs: ['content/pages'],
+      models: [
+        {
+          name: 'PowerPackagesPage',
+          label: 'Power Packages Page',
+          type: 'page',
+          filePath: 'content/pages/powerPackages.json',
+          fields: [
+            { name: 'slug', type: 'string', required: true, description: 'Slug for the page' },
+            { name: 'title', type: 'string', required: true },
+            {
+              name: 'hero',
+              type: 'object',
+              fields: [
+                { name: 'heading', type: 'string' },
+                { name: 'description', type: 'text' },
+                {
+                  name: 'badges',
+                  type: 'list',
+                  items: { type: 'string' }
+                },
+                {
+                  name: 'ctas',
+                  type: 'list',
+                  items: {
+                    type: 'object',
+                    fields: [
+                      { name: 'label', type: 'string', required: true },
+                      { name: 'href', type: 'string' },
+                      { name: 'variant', type: 'string' }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              name: 'highlightPills',
+              type: 'list',
+              items: { type: 'string' }
+            },
+            { name: 'platformHeading', type: 'string' },
+            {
+              name: 'platforms',
+              type: 'list',
+              items: {
+                type: 'object',
+                fields: [
+                  { name: 'href', type: 'string' },
+                  { name: 'image', type: 'image' },
+                  { name: 'alt', type: 'string' },
+                  { name: 'labelTop', type: 'string' },
+                  { name: 'labelBottom', type: 'string' }
+                ]
+              }
+            },
+            {
+              name: 'tiers',
+              type: 'list',
+              items: {
+                type: 'object',
+                fields: [
+                  { name: 'image', type: 'image' },
+                  { name: 'alt', type: 'string' },
+                  { name: 'labelTop', type: 'string' },
+                  { name: 'labelBottom', type: 'string' }
+                ]
+              }
+            },
+            {
+              name: 'ctaButtons',
+              type: 'list',
+              items: {
+                type: 'object',
+                fields: [
+                  { name: 'label', type: 'string', required: true },
+                  { name: 'href', type: 'string' },
+                  { name: 'variant', type: 'string' }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }),
     // Conditionally include Sanity only when explicitly enabled and configured
     ...(ENABLE_SANITY && SANITY_PROJECT_ID && SANITY_DATASET
       ? [
@@ -182,6 +287,30 @@ export default defineStackbitConfig({
       : [])
   ],
   siteMap: ({ documents, models }) => {
+    const slugRouteOverrides: Record<string, string> = {
+      index: '/',
+      services: '/services/Services',
+      'services/igla': '/services/igla',
+      welding: '/services/welding',
+      customFab: '/services/customFab',
+      porting: '/services/porting',
+      coreExchange: '/services/coreExchange',
+      truckPackages: '/packages/truckPackages',
+      powerPackages: '/packages/powerPackages',
+      BilletBearingPlateSpecs: '/specs/BilletBearingPlate',
+      PredatorPulleySpecsSheet: '/specs/PredatorPulley',
+      HellcatPulleyHubSpecSheet: '/specs/PulleyHub',
+      BilletSnoutSpecs: '/specs/BilletSnout',
+      BilletThrottleBody108Specs: '/specs/BilletThrottleBody108',
+      BilletLidSpecsSheet: '/specs/BilletLid',
+      shop: '/shop',
+      schedule: '/schedule',
+      contact: '/contact',
+      about: '/about',
+      faq: '/faq',
+      privacypolicy: '/privacypolicy'
+    };
+
     const pageModelNames = new Set(models.filter((m) => m.type === 'page').map((m) => m.name));
 
     const entries: SiteMapEntry[] = documents
@@ -193,6 +322,9 @@ export default defineStackbitConfig({
           typeof rawSlug === 'string' ? rawSlug : (rawSlug?.current ?? undefined);
         let computedUrl: string =
           doc.urlPath ?? (slug ? (slug === 'index' ? '/' : `/${slug}`) : '/');
+        if (slug && slugRouteOverrides[slug]) {
+          computedUrl = slugRouteOverrides[slug];
+        }
         // Route Sanity product docs under /shop/{slug}
         if ((d as any).srcType === 'sanity' && (d as any).modelName === 'product' && slug) {
           computedUrl = `/shop/${slug}`;
@@ -260,20 +392,32 @@ export default defineStackbitConfig({
     // Ensure key routes always appear in the Editor (static + dynamic pattern)
     const manualUrls = [
       '/',
-      '/truckPackages',
-      '/power-packages',
-      '/porting',
-      '/customFab',
-      '/services',
-      '/schedule',
-      '/coreExchange',
-      // Spec sheet pages
-      '/BilletBearingPlateSpecs',
-      '/PredatorPulleySpecsSheet',
-      '/HellcatPulleyHubSpecSheet',
-      // Shop
+      '/services/AllServices',
+      '/services/porting',
+      '/services/customFab',
+      '/services/coreExchange',
+      '/services/welding',
+      '/services/igla',
+      '/packages/truckPackages',
+      '/packages/powerPackages',
+      '/specs/BilletBearingPlate',
+      '/specs/PredatorPulley',
+      '/specs/PulleyHub',
+      '/specs/BilletSnout',
+      '/specs/BilletThrottleBody108',
+      '/specs/BilletLid',
       '/shop',
-      '/shop/{slug}'
+      '/shop/{slug}',
+      '/faq',
+      '/faq2',
+      '/schedule',
+      '/contact',
+      '/about',
+      '/privacypolicy',
+      '/termsandconditions',
+      '/returnRefundPolicy',
+      '/warranty',
+      '/dashboard'
     ];
     for (const url of manualUrls) {
       if (!entries.some((e) => e.urlPath === url)) {
@@ -290,6 +434,12 @@ export default defineStackbitConfig({
         });
       }
     }
+
+    entries.sort((a, b) => {
+      if (a.isHomePage && !b.isHomePage) return -1;
+      if (b.isHomePage && !a.isHomePage) return 1;
+      return a.urlPath.localeCompare(b.urlPath);
+    });
 
     return entries;
   }

@@ -5,15 +5,87 @@ import SectionRenderer from '@/components/SectionRenderer.astro';
 const pageDoc: any = await getGitPageDoc('porting');
 import Button from '@/components/Button.astro';
 
-const portingItems = [
-  { title: "Supercharger", desc: "Improves airflow and boost efficiency. Gains of 20–40+ WHP are common when paired with tuning." },
-  { title: "Bearing Plate", desc: "Reduce turbulence and drag on the rotor path, enhancing blower response." },
-  { title: "Snout", desc: "Increases intake velocity and efficiency, crucial for maximizing your supercharger’s output." },
-  { title: "Whipple", desc: "Precision Whipple porting can dramatically increase airflow and power, especially in high-boost setups." },
-  { title: "Throttle Body", desc: "Port-matched throttle bodies reduce intake restriction and improve throttle response and power delivery." },
-  { title: "Cylinder Head", desc: "Full porting improves combustion efficiency, flow, and performance — essential for high-RPM and boosted builds." },
-  { title: "Intake Manifold", desc: "A ported intake manifold optimizes air distribution to each cylinder, supporting high-HP goals with better balance." },
+const hero = pageDoc?.hero ?? {};
+const heroImage = hero?.image ?? {};
+const heroTags: string[] = Array.isArray(hero?.tags) ? hero.tags : [];
+const heroTagsHasContent = heroTags.length > 0;
+const heroTagFallback = ['Flow-bench guided', 'CNC + hand finish', 'Matched interfaces', 'OEM-level fit'];
+const featurePills: string[] = Array.isArray(pageDoc?.featurePills) ? pageDoc.featurePills : [];
+const featurePillsHasContent = featurePills.length > 0;
+const featurePillsFallback = ['Flow-bench guided', 'CNC + hand finish', 'Matched components', 'OEM-level fit & finish'];
+const featurePillsToRender = featurePillsHasContent ? featurePills : featurePillsFallback;
+const stats: Array<{ value?: string; label?: string }> = Array.isArray(pageDoc?.stats)
+  ? pageDoc.stats
+  : [];
+const statsHasContent = stats.length > 0;
+const statsFallback = [
+  { value: '±0.5%', label: 'CSA variance target' },
+  { value: '≤0.001"', label: 'Flatness at flanges' },
+  { value: '20–40+ whp', label: 'Typical SC gains*' },
+  { value: 'Bench-guided', label: 'Validation process' }
 ];
+const statsToRender = statsHasContent ? stats : statsFallback;
+const statsNote: string = pageDoc?.statsNote ?? '* With proper tuning and supporting mods. Results vary by platform.';
+const portingItems: Array<{ title?: string; desc?: string }> = Array.isArray(pageDoc?.portingItems)
+  ? pageDoc.portingItems
+  : [];
+const portingItemsHasContent = portingItems.length > 0;
+const portingItemsFallback = [
+  {
+    title: 'Supercharger',
+    desc: 'Improves airflow and boost efficiency. Gains of 20–40+ WHP are common when paired with tuning.'
+  },
+  {
+    title: 'Bearing Plate',
+    desc: 'Reduce turbulence and drag on the rotor path, enhancing blower response.'
+  }
+];
+const portingItemsToRender = portingItemsHasContent ? portingItems : portingItemsFallback;
+const methodology = pageDoc?.methodology ?? {};
+const methodologyItems: string[] = Array.isArray(methodology?.items) ? methodology.items : [];
+const deliverables: string[] = Array.isArray(methodology?.deliverables) ? methodology.deliverables : [];
+const methodologyTitle: string = methodology?.title ?? 'Methodology';
+const deliverablesTitle: string = methodology?.deliverablesTitle ?? 'Deliverables';
+const methodologyItemsToRender = methodologyItems.length
+  ? methodologyItems
+  : [
+      'Baseline measurement and inspection; document casting lines and restrictions.',
+      'CNC rough-in to targeted CSA; hand-blend for surface finish and transition quality.',
+      'Port-matching across interfaces (snout ⇄ TB ⇄ case ⇄ manifold).',
+      'Final inspection: CSA verification, concentricity, fastener land integrity.'
+    ];
+const deliverablesToRender = deliverables.length
+  ? deliverables
+  : [
+      'Before/after photos & notes.',
+      'Recommended TB size / injector / belt guidance where applicable.',
+      'Gasket surfaces protected; threads chased; components cleaned and bagged.',
+      'Optional polish or ceramic coat on request.'
+    ];
+const summaryCards: Array<{ title?: string; body?: string }> = Array.isArray(pageDoc?.summaryCards)
+  ? pageDoc.summaryCards
+  : [];
+const summaryCardsHasContent = summaryCards.length > 0;
+const summaryCardsFallback = [
+  {
+    title: 'Typical Gains',
+    body:
+      'Supercharger/snout pairs commonly see +20–40 WHP with proper tuning and supporting mods. Cylinder head & intake work supports higher RPM power retention.'
+  },
+  { title: 'Turnaround', body: 'Most jobs 5–10 business days after parts are received. Expedited options available.' }
+];
+const summaryCardsToRender = summaryCardsHasContent ? summaryCards : summaryCardsFallback;
+const ctaButtons: Array<{ label?: string; href?: string; variant?: string; size?: string }> = Array.isArray(
+  pageDoc?.ctaButtons
+)
+  ? pageDoc.ctaButtons
+  : [];
+const ctaButtonsHasContent = ctaButtons.length > 0;
+const ctaButtonFallback = [
+  { label: 'Ask a Porting Specialist', href: '/contact', variant: 'default', size: 'md' },
+  { label: 'Schedule Dropoff', href: '/schedule', variant: 'ghost', size: 'md' }
+];
+const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonFallback;
 ---
 
 <BaseLayout>
@@ -26,27 +98,58 @@ const portingItems = [
   <section class="section-divider section-divider-carbon bg-black/70 border-b border-white/20">
     <div class="mx-auto w-full max-w-7xl px-0 md:px-6 py-8 md:py-10 grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr] gap-6 items-center">
       <div>
-        <h1 class="text-3xl md:text-5xl font-ethno text-accent mb-3" {...sbFieldPath('title')}>
-          {pageDoc?.title ?? 'Porting Services'}
+        <h1
+          class="text-3xl md:text-5xl font-ethno text-accent mb-3"
+          {...sbFieldPath('hero.heading')}
+        >
+          {hero?.heading ?? pageDoc?.title ?? 'Porting Services'}
         </h1>
-        <p class="text-white/80 max-w-[68ch] font-mono text-base md:text-lg">
-          Superchargers, snouts, throttle bodies, intake manifolds, and cylinder heads — blueprint‑level porting for real, repeatable gains.
+        <p
+          class="text-white/80 max-w-[68ch] font-mono text-base md:text-lg"
+          {...sbFieldPath('hero.description')}
+        >
+          {hero?.description ?? 'Superchargers, snouts, throttle bodies, intake manifolds, and cylinder heads — blueprint-level porting for real, repeatable gains.'}
         </p>
-        <div class="mt-5 flex flex-wrap gap-3 luxury-hover-scale">
-          <span class="btn-glass btn-dark btn-xs">Flow‑bench guided</span>
-          <span class="btn-glass btn-dark btn-xs">CNC + hand finish</span>
-          <span class="btn-glass btn-dark btn-xs">Matched interfaces</span>
-          <span class="btn-glass btn-dark btn-xs">OEM‑level fit</span>
+        <div class="mt-5 flex flex-wrap gap-3 luxury-hover-scale" {...sbFieldPath('hero.tags')}>
+          {heroTagsHasContent
+            ? heroTags.map((tag, idx) => (
+                <span class="btn-glass btn-dark btn-xs" {...sbFieldPath(`hero.tags[${idx}]`)}>
+                  {tag || 'Tag'}
+                </span>
+              ))
+            : heroTagFallback.map((tag) => (
+                <span class="btn-glass btn-dark btn-xs">{tag}</span>
+              ))}
         </div>
         <div class="mt-6 flex flex-col sm:flex-row gap-4">
-          <Button href="/contact" text="Ask a Porting Specialist" size="md" variant="default" />
-          <Button href="/schedule" text="Schedule Dropoff" size="md" variant="ghost" />
+          {ctaButtonsToRender.map((cta, idx) => {
+            const fieldAttrs = ctaButtonsHasContent ? sbFieldPath(`ctaButtons[${idx}]`) : {};
+            return (
+              <Button
+                href={cta?.href || '#'}
+                text={cta?.label || 'Call to Action'}
+                size={(cta?.size as any) || 'md'}
+                variant={(cta?.variant as any) || 'default'}
+                {...fieldAttrs}
+              />
+            );
+          })}
         </div>
       </div>
       <div class="order-first md:order-last">
         <figure class="rounded-xl border border-white/20 bg-black/50 overflow-hidden shadow-xl">
-          <img src="/images/snouts/fas-ported-snout.png" alt="Ported snout detail" class="w-full h-[220px] md:h-[260px] object-cover" />
-          <figcaption class="p-3 text-white/70 text-xs">Ported snout: smoother transition, corrected CSA, matched to throttle body and case.</figcaption>
+          <img
+            src={heroImage?.src || '/images/snouts/fas-ported-snout.png'}
+            alt={heroImage?.alt || 'Ported snout detail'}
+            class="w-full h-[220px] md:h-[260px] object-cover"
+            {...sbFieldPath('hero.image.src')}
+          />
+          <span class="sr-only" aria-hidden="true" {...sbFieldPath('hero.image.alt')}>
+            {heroImage?.alt || 'Ported snout detail'}
+          </span>
+          <figcaption class="p-3 text-white/70 text-xs" {...sbFieldPath('hero.image.caption')}>
+            {heroImage?.caption || 'Ported snout: smoother transition, corrected CSA, matched to throttle body and case.'}
+          </figcaption>
         </figure>
       </div>
     </div>
@@ -55,45 +158,41 @@ const portingItems = [
   <!-- OVERVIEW STRIP -->
   <section class="industrial-glow luxury-hover-scale luxury-carbon-effect relative w-full bg-black/60 backdrop-blur-md border-b border-white/20">
     <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-0">
-        <div class="flex items-center gap-3 py-4 px-4 border-r border-white/20">
-          <div class="w-2 h-2 rounded-full bg-accent"></div>
-          <div class="text-white text-xs md:text-sm font-mono tracking-[0.14em]">Flow‑Bench Guided</div>
-        </div>
-        <div class="flex items-center gap-3 py-4 px-4 border-r border-white/20">
-          <div class="w-2 h-2 rounded-full bg-accent"></div>
-          <div class="text-white text-xs md:text-sm font-mono tracking-[0.14em]">CNC &amp; Hand‑Finish</div>
-        </div>
-        <div class="flex items-center gap-3 py-4 px-4 border-r border-white/20">
-          <div class="w-2 h-2 rounded-full bg-accent"></div>
-          <div class="text-white text-xs md:text-sm font-mono tracking-[0.14em]">Matched Components</div>
-        </div>
-        <div class="flex items-center gap-3 py-4 px-4">
-          <div class="w-2 h-2 rounded-full bg-accent"></div>
-          <div class="text-white text-xs md:text-sm font-mono tracking-[0.14em]">OEM‑Level Fit &amp; Finish</div>
-        </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-0" {...sbFieldPath('featurePills')}>
+        {featurePillsToRender.map((pill, idx) => {
+          const fieldAttrs = featurePillsHasContent ? sbFieldPath(`featurePills[${idx}]`) : {};
+          const isLast = idx === featurePillsToRender.length - 1;
+          return (
+            <div
+              class={`flex items-center gap-3 py-4 px-4 ${isLast ? '' : 'border-r border-white/20'}`}
+              {...fieldAttrs}
+            >
+              <div class="w-2 h-2 rounded-full bg-accent"></div>
+              <div class="text-white text-xs md:text-sm font-mono tracking-[0.14em]">{pill}</div>
+            </div>
+          );
+        })}
       </div>
     </div>
     <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 py-4">
-        <div class="rounded-lg border border-white/20 bg-black/50 p-3 text-center">
-          <div class="text-2xl font-borg text-white">±0.5%</div>
-          <div class="text-xs text-white">CSA variance target</div>
-        </div>
-        <div class="rounded-lg border border-white/20 bg-black/50 p-3 text-center">
-          <div class="text-2xl font-borg text-white">≤0.001"</div>
-          <div class="text-xs text-white">Flatness at flanges</div>
-        </div>
-        <div class="rounded-lg border border-white/20 bg-black/50 p-3 text-center">
-          <div class="text-2xl font-borg text-white">20–40+ whp</div>
-          <div class="text-xs text-white">Typical SC gains*</div>
-        </div>
-        <div class="rounded-lg border border-white/20 bg-black/50 p-3 text-center">
-          <div class="text-2xl font-borg text-white">Bench‑guided</div>
-          <div class="text-xs text-white">Validation process</div>
-        </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 py-4" {...sbFieldPath('stats')}>
+        {statsToRender.map((stat, idx) => {
+          const fieldAttrs = statsHasContent ? sbFieldPath(`stats[${idx}]`) : {};
+          return (
+            <div class="rounded-lg border border-white/20 bg-black/50 p-3 text-center" {...fieldAttrs}>
+              <div class="text-2xl font-borg text-white" {...(statsHasContent ? sbFieldPath(`stats[${idx}].value`) : {})}>
+                {stat?.value || ''}
+              </div>
+              <div class="text-xs text-white" {...(statsHasContent ? sbFieldPath(`stats[${idx}].label`) : {})}>
+                {stat?.label || ''}
+              </div>
+            </div>
+          );
+        })}
       </div>
-      <p class="text-white/80 text-[11px] pb-4">* With proper tuning and supporting mods. Results vary by platform.</p>
+      <p class="text-white/80 text-[11px] pb-4" {...sbFieldPath('statsNote')}>
+        {statsNote}
+      </p>
     </div>
   </section>
 
@@ -102,18 +201,24 @@ const portingItems = [
     <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
       <h2 class="text-center text-3xl md:text-4xl font-ethno text-accent mb-8 md:mb-12 tracking-wide">What We Port</h2>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-        {portingItems.map((item) => (
-          <div class="group relative rounded-xl border border-white/20 bg-[#0b0b0c] overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
-            <div class="relative p-5 z-10">
-              <div class="text-primary font-ethno text-xl drop-shadow">{item.title}</div>
-              <p class="text-white/75 text-sm font-mono mt-2 max-w-[60ch]">
-                {item.desc}
-              </p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6" {...sbFieldPath('portingItems')}>
+        {portingItemsToRender.map((item, idx) => {
+          const basePath = `portingItems[${idx}]`;
+          const fieldAttrs = portingItemsHasContent ? sbFieldPath(basePath) : {};
+          return (
+            <div class="group relative rounded-xl border border-white/20 bg-[#0b0b0c] overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50" {...fieldAttrs}>
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
+              <div class="relative p-5 z-10">
+                <div class="text-primary font-ethno text-xl drop-shadow" {...(portingItemsHasContent ? sbFieldPath(`${basePath}.title`) : {})}>
+                  {item?.title || 'Component'}
+                </div>
+                <p class="text-white/75 text-sm font-mono mt-2 max-w-[60ch]" {...(portingItemsHasContent ? sbFieldPath(`${basePath}.desc`) : {})}>
+                  {item?.desc || ''}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   </section>
@@ -122,21 +227,27 @@ const portingItems = [
   <section class="bg-black/70 border-y border-white/20 py-10 md:py-14">
     <div class="mx-auto w-full max-w-7xl px-0 md:px-6 grid md:grid-cols-2 gap-6 md:gap-10">
       <div class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl">
-        <h3 class="text-xl font-borg text-white mb-2">Methodology</h3>
-        <ul class="list-disc pl-5 text-white/70 text-sm space-y-2">
-          <li>Baseline measurement and inspection; document casting lines and restrictions.</li>
-          <li>CNC rough‑in to targeted CSA; hand‑blend for surface finish and transition quality.</li>
-          <li>Port‑matching across interfaces (snout ⇄ TB ⇄ case ⇄ manifold).</li>
-          <li>Final inspection: CSA verification, concentricity, fastener land integrity.</li>
+        <h3 class="text-xl font-borg text-white mb-2" {...(methodology?.title ? sbFieldPath('methodology.title') : {})}>
+          {methodologyTitle}
+        </h3>
+        <ul class="list-disc pl-5 text-white/70 text-sm space-y-2" {...sbFieldPath('methodology.items')}>
+          {methodologyItemsToRender.map((item, idx) => (
+            <li {...(methodologyItems.length ? sbFieldPath(`methodology.items[${idx}]`) : {})}>
+              {item}
+            </li>
+          ))}
         </ul>
       </div>
       <div class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl">
-        <h3 class="text-xl font-borg text-white mb-2">Deliverables</h3>
-        <ul class="list-disc pl-5 text-white/70 text-sm space-y-2">
-          <li>Before/after photos &amp; notes.</li>
-          <li>Recommended TB size / injector / belt guidance where applicable.</li>
-          <li>Gasket surfaces protected; threads chased; components cleaned and bagged.</li>
-          <li>Optional polish or ceramic coat on request.</li>
+        <h3 class="text-xl font-borg text-white mb-2" {...(methodology?.deliverablesTitle ? sbFieldPath('methodology.deliverablesTitle') : {})}>
+          {deliverablesTitle}
+        </h3>
+        <ul class="list-disc pl-5 text-white/70 text-sm space-y-2" {...sbFieldPath('methodology.deliverables')}>
+          {deliverablesToRender.map((item, idx) => (
+            <li {...(deliverables.length ? sbFieldPath(`methodology.deliverables[${idx}]`) : {})}>
+              {item}
+            </li>
+          ))}
         </ul>
       </div>
     </div>
@@ -144,27 +255,39 @@ const portingItems = [
 
   <!-- TURNAROUND / NOTES -->
   <section class="py-10 md:py-14">
-    <div class="mx-auto w-full max-w-7xl px-0 md:px-6 grid md:grid-cols-3 gap-6">
-      <div class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl">
-        <h3 class="text-lg font-borg text-white mb-2">Typical Gains</h3>
-        <p class="text-white/70 text-sm leading-relaxed">Supercharger/snout pairs commonly see +20–40 WHP with proper tuning and supporting mods. Cylinder head &amp; intake work supports higher RPM power retention.</p>
-      </div>
-      <div class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl">
-        <h3 class="text-lg font-borg text-white mb-2">Turnaround</h3>
-        <p class="text-white/70 text-sm leading-relaxed">Most jobs 5–10 business days after parts are received. Expedited options available.</p>
-      </div>
-      <div class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl">
-        <h3 class="text-lg font-borg text-white mb-2">Compatibility</h3>
-        <p class="text-white/70 text-sm leading-relaxed">Hellcat/Redeye/Demon, Trackhawk/Durango, HEMI 5.7/6.1/6.4, Whipple &amp; other positive displacement blowers. Ask about other platforms.</p>
-      </div>
+    <div class="mx-auto w-full max-w-7xl px-0 md:px-6 grid md:grid-cols-3 gap-6" {...sbFieldPath('summaryCards')}>
+      {summaryCardsToRender.map((card, idx) => {
+        const basePath = `summaryCards[${idx}]`;
+        const fieldAttrs = summaryCardsHasContent ? sbFieldPath(basePath) : {};
+        return (
+          <div class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl" {...fieldAttrs}>
+            <h3 class="text-lg font-borg text-white mb-2" {...(summaryCardsHasContent ? sbFieldPath(`${basePath}.title`) : {})}>
+              {card?.title || 'Summary'}
+            </h3>
+            <p class="text-white/70 text-sm leading-relaxed" {...(summaryCardsHasContent ? sbFieldPath(`${basePath}.body`) : {})}>
+              {card?.body || ''}
+            </p>
+          </div>
+        );
+      })}
     </div>
   </section>
 
   <!-- CTA -->
   <section class="bg-transparent py-12 md:py-16 text-center">
-    <div class="flex flex-col gap-5 items-center">
-      <Button href="/contact" text="Start a Porting Project" size="lg" variant="default" />
-      <Button href="/schedule" text="Book Install or Dropoff" size="md" variant="ghost" />
+    <div class="flex flex-col gap-5 items-center" {...sbFieldPath('ctaButtons')}>
+      {ctaButtonsToRender.map((cta, idx) => {
+        const fieldAttrs = ctaButtonsHasContent ? sbFieldPath(`ctaButtons[${idx}]`) : {};
+        return (
+          <Button
+            href={cta?.href || '#'}
+            text={cta?.label || 'Call to Action'}
+            size={(cta?.size as any) || 'md'}
+            variant={(cta?.variant as any) || 'default'}
+            {...fieldAttrs}
+          />
+        );
+      })}
     </div>
   </section>
   </div>

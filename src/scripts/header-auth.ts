@@ -1,22 +1,33 @@
-import { getAuth0Client } from '@/lib/auth';
+declare global {
+  interface Window {
+    fasAuth?: {
+      isAuthenticated: () => Promise<boolean>;
+      getSession: () => Promise<{ user?: { id: string; email?: string; roles?: string[] } } | null>;
+    };
+  }
+}
 
-async function initHeaderAuth() {
+(async () => {
   const badge = document.getElementById('account-top-badge');
   if (!badge) return;
+
+  const fas = window.fasAuth;
+  if (!fas) {
+    badge.innerHTML = `<a href="/account" class="hover:!text-accent hover:underline">Log in / Sign up</a>`;
+    return;
+  }
+
   try {
-    const auth0 = await getAuth0Client();
-    const authed = await auth0.isAuthenticated();
+    const authed = await fas.isAuthenticated();
     if (!authed) {
       badge.innerHTML = `<a href="/account" class="hover:!text-accent hover:underline">Log in / Sign up</a>`;
       return;
     }
-    const user = await auth0.getUser();
-    const name =
-      (user as any)?.given_name || (user as any)?.name || (user as any)?.email || 'there';
+    const session = await fas.getSession();
+    const name = session?.user?.email || session?.user?.id || 'there';
     badge.innerHTML = `<span class="text-white/80">Welcome, ${name}</span>`;
   } catch (err) {
-    console.warn('[header-auth] failed to initialize Auth0', err);
+    console.warn('[header-auth] failed to resolve session', err);
+    badge.innerHTML = `<a href="/account" class="hover:!text-accent hover:underline">Log in / Sign up</a>`;
   }
-}
-
-initHeaderAuth();
+})();

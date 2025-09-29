@@ -11,7 +11,7 @@ export default async function cfetch(endpoint: string, options: RequestInit = {}
   const res = await fetch(`${base}${endpoint}`, {
     ...options,
     headers,
-    credentials: 'include' // Support session-based Auth0 auth via cookies
+    credentials: 'include' // ensure session cookies are forwarded
   });
 
   return res;

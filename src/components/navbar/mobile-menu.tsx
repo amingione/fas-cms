@@ -165,7 +165,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             </li>
             <li>
               <a
-                href="/packages/power-packages"
+                href="/packages/powerPackages"
                 onClick={onNavigate}
                 className="text-accent hover:text-neutral-500 dark:text-white"
               >
@@ -178,7 +178,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
         <li className="py-2">
           <div className="flex items-center justify-between">
             <a
-              href="/services/AllServices"
+              href="/services/Services"
               onClick={onNavigate}
               className="text-xl text-accent hover:text-neutral-500 dark:text-white"
             >
@@ -220,6 +220,15 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
                 className="text-accent hover:text-neutral-500 dark:text-white"
               >
                 Core Exchange
+              </a>
+            </li>
+            <li>
+              <a
+                href="/services/welding"
+                onClick={onNavigate}
+                className="text-accent hover:text-neutral-500 dark:text-white"
+              >
+                Welding
               </a>
             </li>
             <li>
@@ -292,7 +301,9 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
                     try {
                       const fas = (window as any).fasAuth;
                       if (fas?.logout) fas.logout(window.location.origin);
-                      else window.location.href = '/api/auth/logout?returnTo=' + encodeURIComponent(window.location.origin);
+                      else
+                        window.location.href =
+                          '/api/auth/logout?returnTo=' + encodeURIComponent(window.location.origin);
                     } finally {
                       onNavigate && onNavigate();
                     }

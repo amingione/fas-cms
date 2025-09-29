@@ -15,7 +15,7 @@ export const OPTIONS: APIRoute = async () => new Response(null, { status: 204, h
 
 export const GET: APIRoute = async ({ request, url }) => {
   try {
-    // Prefer email from query string for simple counts, else derive from Auth0 token
+    // Prefer email from query string for simple counts; otherwise pull from the active session
     let email = (url.searchParams.get('email') || '').trim().toLowerCase();
 
     if (!email) {

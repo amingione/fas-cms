@@ -11,7 +11,6 @@ export default defineConfig([
       'node_modules/**/*',
       'public/**/*',
       'src/components/BookingConfirm.jsx',
-      'src/context/Auth0Provider.tsx',
       'src/pages/api/save-order.ts',
       'src/pages/api/save-quote.ts'
     ]

@@ -48,12 +48,11 @@ export default function HomeHero() {
       id="homeHero"
       className="relative flex items-center justify-center pt-10 pb-6 mb-12 sm:mb-16 lg:mb-[-8px]"
     >
-      {/* Overlay to darken the video for better text visibility */}
-      <div className="z-0 absolute inset-0 pointer-events-none" />
-      <div className="relative mb-[-10px]">
+      <div className="relative w-full overflow-hidden rounded-none min-h-[420px] sm:min-h-[520px] lg:min-h-[620px]">
         {/* Video Background */}
         <video
           ref={videoRef}
+          className="absolute inset-0 h-full w-full object-cover"
           aria-hidden="true"
           src="https://framerusercontent.com/assets/1g8IkhtJmlWcC4zEYWKUmeGWzI.mp4"
           loop
@@ -63,19 +62,17 @@ export default function HomeHero() {
           autoPlay
           style={{
             cursor: 'auto',
-            width: '100%',
-            height: '100%',
-            borderRadius: '0px',
-            display: 'block',
-            objectFit: 'cover',
             backgroundColor: 'rgba(204, 8, 8, 0)',
             objectPosition: '50% 50%',
-            zIndex: 0,
             filter: 'brightness(0.6) contrast(1.2) saturate(1.2) grayscale(100%)',
             opacity: 1
           }}
         />
-        <div className="absolute inset-0 flex flex-col items-center text-center justify-center pointer-events-none">
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-black/55 backdrop-blur-[1px] pointer-events-none"
+        />
+        <div className="relative z-10 flex h-full flex-col items-center justify-center text-center px-4 py-16 sm:px-6 sm:py-20 pointer-events-none">
           {/* Content */}
           <BrandDivider className="justify-center" />
           <div className="max-w-3xl px-6 text-center flex flex-col items-center"></div>
@@ -89,7 +86,7 @@ export default function HomeHero() {
           <p className="mt-2 text-base font-medium font-ethno italic text-white/70 sm:text-xl/8">
             Premium performance upgrades tailored to your build.
           </p>
-          <SocialMedia className="relative pointer-events-auto mt-4 py-4 pb-10 mb-7" />
+          <SocialMedia className="relative pointer-events-auto mt-6 sm:mt-8 py-4 pb-6 sm:pb-10" />
         </div>
       </div>
     </section>
