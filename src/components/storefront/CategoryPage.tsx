@@ -160,12 +160,12 @@ const categoryImageOverrides: Record<string, string> = {
 };
 
 const categoryGradientPalette = [
-  'from-indigo-500/40 via-purple-500/20 to-slate-950',
-  'from-emerald-500/30 via-cyan-500/20 to-slate-950',
-  'from-rose-500/35 via-orange-500/20 to-slate-950',
-  'from-blue-500/30 via-sky-500/25 to-slate-950',
-  'from-amber-500/30 via-pink-500/15 to-slate-950',
-  'from-lime-500/35 via-emerald-500/20 to-slate-950'
+  'from-white/20 via-white/50 to-gray-900',
+  'from-white/20 via-white/50 to-gray-900',
+  'from-white/20 via-white/50 to-gray-900',
+  'from-white/20 via-white/50 to-gray-900',
+  'from-white/20 via-white/50 to-gray-900',
+  'from-white/20 via-white/50 to-gray-900'
 ];
 
 type FeaturedProduct = {
@@ -311,7 +311,7 @@ export default function CategoryPage({
                   {navigation.categories.map((category) => (
                     <Tab
                       key={category.name}
-                      className="flex-1 border-b-2 border-transparent px-1 py-4 text-base font-medium whitespace-nowrap text-white data-selected:border-indigo-600 data-selected:text-indigo-600"
+                      className="flex-1 border-b-2 border-transparent px-1 py-4 text-base font-medium whitespace-nowrap text-white data-selected:border-primary data-selected:text-primary"
                     >
                       {category.name}
                     </Tab>
@@ -409,7 +409,7 @@ export default function CategoryPage({
                   {navigation.categories.map((category) => (
                     <Popover key={category.name} className="flex">
                       <div className="relative flex">
-                        <PopoverButton className="group relative flex items-center justify-center text-sm font-medium text-gray-700 transition-colors duration-200 ease-out hover:text-gray-800 data-open:text-indigo-600">
+                        <PopoverButton className="group relative flex items-center justify-center text-sm font-medium text-gray-700 transition-colors duration-200 ease-out hover:text-gray-800 data-open:text-primary">
                           {category.name}
                           <span
                             aria-hidden="true"
@@ -622,13 +622,13 @@ export default function CategoryPage({
                     key={category.id || category.slug}
                     href={`/shop/categories/${category.slug}`}
                     aria-label={`Browse ${category.title}`}
-                    className="group relative overflow-hidden rounded-xl border border-white/10 bg-black/40 p-6 transition duration-300 hover:border-indigo-400/40 hover:shadow-indigo-500/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400"
+                    className="group relative overflow-hidden rounded-xl border border-white/10 bg-black/40 p-6 transition duration-300 hover:border-primary hover:shadow-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red/5"
                   >
                     {category.imageUrl ? (
                       <img
                         alt={category.title}
                         src={category.imageUrl}
-                        style={{ filter: 'grayscale(60%) brightness(80%)' }}
+                        style={{ filter: 'grayscale(80%) brightness(80%)' }}
                         className="absolute inset-0 size-full object-cover opacity-35 transition duration-500 group-hover:opacity-45"
                       />
                     ) : null}
@@ -641,7 +641,7 @@ export default function CategoryPage({
                         <span className="absolute inset-0" aria-hidden="true" />
                         {category.title}
                       </h3>
-                      <p className="mt-3 text-xs font-semibold uppercase tracking-[0.32em] text-indigo-200/80">
+                      <p className="mt-3 text-xs font-semibold uppercase tracking-[0.32em] text-primary">
                         {category.productCount > 0
                           ? `${category.productCount} ${category.productCount === 1 ? 'Product' : 'Products'}`
                           : 'View builds'}
@@ -660,7 +660,7 @@ export default function CategoryPage({
             <div className="mt-6 sm:hidden">
               <a
                 href="/shop/categories"
-                className="block text-sm font-semibold text-indigo-400 hover:text-indigo-300"
+                className="block text-sm font-semibold text-white hover:text-primary"
               >
                 Browse all categories
                 <span aria-hidden="true"> &rarr;</span>
@@ -747,7 +747,7 @@ export default function CategoryPage({
             <div className="mt-6 sm:hidden">
               <a
                 href="/products?sort=featured&start=0&end=12"
-                className="block text-sm font-semibold text-indigo-600 hover:text-indigo-500"
+                className="block text-sm font-semibold text-white hover:text-primary"
               >
                 Browse all featured
                 <span aria-hidden="true"> &rarr;</span>
