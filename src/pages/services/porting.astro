@@ -9,10 +9,10 @@ const hero = pageDoc?.hero ?? {};
 const heroImage = hero?.image ?? {};
 const heroTags: string[] = Array.isArray(hero?.tags) ? hero.tags : [];
 const heroTagsHasContent = heroTags.length > 0;
-const heroTagFallback = ['Flow-bench guided', 'CNC + hand finish', 'Matched interfaces', 'OEM-level fit'];
+const heroTagFallback = ['Flow-bench guided', 'Hand finish', 'Matched interfaces', 'OEM-level fit'];
 const featurePills: string[] = Array.isArray(pageDoc?.featurePills) ? pageDoc.featurePills : [];
 const featurePillsHasContent = featurePills.length > 0;
-const featurePillsFallback = ['Flow-bench guided', 'CNC + hand finish', 'Matched components', 'OEM-level fit & finish'];
+const featurePillsFallback = ['Flow-bench guided', 'Hand finish', 'Matched components', 'OEM-level fit & finish'];
 const featurePillsToRender = featurePillsHasContent ? featurePills : featurePillsFallback;
 const stats: Array<{ value?: string; label?: string }> = Array.isArray(pageDoc?.stats)
   ? pageDoc.stats

@@ -2,8 +2,27 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import CategoryPage from "@/components/storefront/CategoryPage.tsx";
 import { fetchProductsFromSanity } from "@/lib/sanity-utils";
+import { sanityClient as client } from "@/lib/sanityClient";
 
 const products = await fetchProductsFromSanity({});
+
+const categoriesRaw = await client.fetch(`*[_type == "category" && defined(slug.current)] | order(orderRank asc){
+  _id,
+  title,
+  "slug": slug.current,
+  "imageUrl": coalesce(image.asset->url, mainImage.asset->url, images[0].asset->url),
+  description
+}`);
+
+const categories = (Array.isArray(categoriesRaw) ? categoriesRaw : [])
+  .map((category) => ({
+    id: category?._id ?? category?.slug ?? category?.title ?? '',
+    title: category?.title ?? 'Category',
+    slug: typeof category?.slug === 'string' ? category.slug : '',
+    imageUrl: category?.imageUrl ?? null,
+    description: category?.description ?? null
+  }))
+  .filter((category) => Boolean(category.slug));
 ---
 
 <BaseLayout>
@@ -11,6 +30,7 @@ const products = await fetchProductsFromSanity({});
 <section class="px-5 py-5">
     <CategoryPage
       products={products}
+      categories={categories}
       title="Performance Categories"
       description="Jump into the platform that matches your build. Each category highlights curated hardware stacks, tuning paths, and proven package tiers engineered in-house by F.A.S."
       client:load

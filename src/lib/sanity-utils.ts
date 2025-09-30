@@ -111,6 +111,8 @@ export interface Category {
   _id: string;
   title: string;
   slug: { current: string };
+  imageUrl?: string;
+  description?: string;
 }
 
 export interface Tune {
@@ -214,7 +216,9 @@ export async function fetchCategories(): Promise<Category[]> {
     const query = `*[_type == "category" && defined(slug.current)] {
       _id,
       title,
-      slug
+      slug,
+      "imageUrl": coalesce(image.asset->url, mainImage.asset->url, images[0].asset->url),
+      description
     }`;
     return await sanity!.fetch<Category[]>(query, {});
   } catch (err) {

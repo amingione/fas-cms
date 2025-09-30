@@ -6,11 +6,7 @@ import StoreHero from '@/components/storefront/StoreHero.astro';
 
 // Choose which categories (by slug) to show on this page.
 // Fill this list with the exact slugs you want featured. Leave empty to show all.
-const chosenSlugs: string[] = [
-  'custom-coating',
-  'porting',
-  'supercharger-rebuild'
-];
+const chosenSlugs: string[] = [];
 
 // Optional: Manually override category images here by slug.
 // Example: 'porting': '/images/packages/porting-custom.png'
@@ -35,12 +31,6 @@ const categoriesQueryAll = /* groq */ `
   ${categoryFields}
 }`;
 
-// Only categories matching chosen slugs
-const categoriesQueryBySlugs = /* groq */ `
-*[_type == "category" && defined(slug.current) && slug.current in $slugs] | order(orderRank asc){
-  ${categoryFields}
-}`;
-
 interface Category {
   _id: string;
   title: string;
@@ -51,11 +41,10 @@ interface Category {
 
 // Fetch all categories for the grid
 const categoriesAll: Category[] = await client.fetch(categoriesQueryAll);
-// Fetch chosen categories for the grid/product cards
-const categories: Category[] = await client.fetch(
-  chosenSlugs.length ? categoriesQueryBySlugs : categoriesQueryAll,
-  chosenSlugs.length ? { slugs: chosenSlugs } : {}
-);
+// Optional: use chosenSlugs to build a curated subset elsewhere if needed
+const featuredCategories: Category[] = chosenSlugs.length
+  ? categoriesAll.filter((category) => chosenSlugs.includes(category.slug))
+  : categoriesAll;
 
 // Fetch featured products for the carousel (boolean true, then string "true" fallback)
 let featuredRaw: any[] = [];
@@ -119,15 +108,13 @@ const tileClass = (i: number) => {
      <StoreHero 
        ctaPrimaryLabel="Shop All Products ➤"
        ctaPrimaryHref="/shop"
-       ctaSecondaryLabel="Shop Power Packages ➤"
-       ctaSecondaryHref="/packages/powerPackages"
      />
     </section>
 
   <!-- CATEGORY MOSAIC GRID -->
   <section class="px-5 relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 grid-flow-dense gap-4 md:gap-6 auto-rows-[220px] mt-4 pt-4">
     {
-      categories.map((c, i) => (
+      categoriesAll.map((c, i) => (
         <a href={`/shop/categories/${c.slug}`} class={tileClass(i)} aria-label={c.title}>
           <img
             src={categoryImageOverrides[c.slug] ?? (c.imageUrl ?? "/logo/faslogochroma.png")}

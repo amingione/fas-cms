@@ -1,44 +1,39 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 type Pkg = { label: string; desc: string };
 type Section = { title: string; intro: string; pkgs: Pkg[]; disclaimer: string };
 
 const sections: Section[] = [
   {
-    title: 'F150 Platform',
+    title: 'Ford F-150 (2018+)',
     intro:
-      'Here at FAS Motorsports, we have built and modified countless F150 Vehicles which has allowed us to assemble the best packages possible!',
+      'Turn-key twin-turbo systems for Gen 3–Gen 5 Coyote trucks. Every package is installed, calibrated, and verified in-house with datalogs and dyno proof.',
     pkgs: [
       {
-        label: 'FAS800',
-        desc: 'FAS Upper Pulley Kit, Spark Plugs, 180 Thermostat, Custom 1320Tunez engine and trans tune'
+        label: 'FAS 500+ Package — Street 600 WHP',
+        desc: 'FAS-spec twin 54 mm turbo system with air-to-air intercooler, stainless hot/cold side plumbing, billet blow-off valves, upgraded low-side fuel pump, colder plugs, and HP Tuners calibration for 91/93 octane. Expect 550–620 whp with stock drivability and towing capability.'
       },
       {
-        label: 'FAS850',
-        desc: 'FAS Upper Pulley Kit, Predator Lower Pulley, Upgraded Injectors, Custom 1320Tunez engine and trans tune and much more!'
+        label: 'FAS 800 Package — Flex Fuel 800 WHP',
+        desc: 'Upgraded 62 mm turbochargers, Fore Innovations dual-pump return fuel system, ID1050x injectors, boundary oil pump/gears, FAS heat exchanger, and flex-fuel tune with boost-by-gear control. Ideal for street/strip trucks targeting consistent 750–820 whp on E60–E85.'
       },
       {
-        label: 'FAS900',
-        desc: 'Race Ported Supercharger snout, 108mm throttle body, High flow intake, Race Midpipes, FAS Upper Pulley Kit, Predator Lower Pulley, Upgraded Injectors, Custom 1320Tunez engine and trans tune and much more! (E85 Fuel Package)'
+        label: 'FAS 1000 Package — Race 1000+ WHP',
+        desc: '64 mm turbos with billet compressor wheels, Fore triple-pump fuel system, ID1300x injectors, FAS billet intake manifold, long-tube headers with 3.5 in downpipes, dual catch can system, and dedicated E85 calibration. Supports 900–1050 whp with proven 10R80 clutch and valve body upgrades.'
       },
       {
-        label: 'FAS1000',
-        desc: 'Race Ported Supercharger, 108mm throttle body, High flow intake, Longtube headers with Race Midpipes, FAS Upper Pulley Kit, Predator Lower Pulley, Upgraded Injectors, E85, Custom 1320Tunez engine and trans tune and much more! (E85 Fuel Package)'
+        label: 'FAS 1X Package — 1200-1500 WHP',
+        desc: 'Custom built short-block with forged pistons/rods, ARP head studs, 68 mm turbo upgrade, ice tank intercooler option, Fore quadruple pump fuel setup, and full motorsports wiring with standalone boost control. Tailored for customers wanting a competitive roll-race or no-prep build.'
       },
       {
-        label: 'FAS 1X Package',
-        desc: '1200-1500HP!!! Call and discuss many potential options for this package!'
-      },
-      {
-        label: 'FAS 2X Package',
-        desc: '1600+HP!!! Call and discuss many potential options for this package!'
+        label: 'FAS 2X Package — 1600+ WHP',
+        desc: 'Full race program featuring billet block solutions, 76 mm turbo options, dry sump, parachute-ready rear, carbon driveshaft, and complete chassis/traction setup. Built collaboratively to match class rules or personal ET targets.'
       }
     ],
     disclaimer:
-      'MODIFYING YOUR VEHICLE COULD LEAD TO THE LOSS OF YOUR FACTORY WARRANTY! FAS is not responsible for any issues you may encounter with your dealership warranty claims or warrantied issues/repairs.'
+      'Pricing listed covers turn-key installs with dyno validation. Built transmissions, upgraded driveline components, and additional safety equipment may be required at higher power levels. Modifying your vehicle can affect factory warranty coverage.'
   }
 ];
 

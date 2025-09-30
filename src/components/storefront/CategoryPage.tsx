@@ -1,27 +1,5 @@
-'use client';
-
-import { useMemo } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import type { Product } from '@/lib/sanity-utils';
-import CategoryChips, { type CategoryChipsProps } from '@/components/storefront/CategoryChips.tsx';
-
-interface CategoryPageProps {
-  products: Product[];
-  title?: string;
-  description?: string;
-  categoryChips?: CategoryChipsProps;
-  emptyStateMessage?: string;
-}
-
-interface CategoryCard {
-  title: string;
-  slug: string;
-  count: number;
-  image?: string;
-}
-
-('use client');
-
-import { Fragment, useState } from 'react';
 import {
   Dialog,
   DialogBackdrop,
@@ -38,6 +16,31 @@ import {
 } from '@headlessui/react';
 import { ArrowDownLeftIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
+('use client');
+
+interface CategoryPreview {
+  id: string;
+  title: string;
+  slug: string;
+  imageUrl?: string | null;
+  description?: string | null;
+  productCount?: number;
+}
+
+type CategoryTile = CategoryPreview & {
+  gradientClass: string;
+  imageUrl: string | null;
+  productCount: number;
+};
+
+interface CategoryPageProps {
+  products: Product[];
+  categories?: CategoryPreview[];
+  title?: string;
+  description?: string;
+  emptyStateMessage?: string;
+}
+
 const navigation = {
   categories: [
     {
@@ -45,16 +48,16 @@ const navigation = {
       name: 'Packages',
       featured: [
         {
-          name: 'Superchargers',
-          href: '/shop?priceMin=0&priceMax=100000&page=1&filters=supercharger&filter=supercharger',
+          name: 'Power Packages',
+          href: '/shop?categorySlug=power-packages&category=power-packages&priceMin=0&priceMax=100000&page=1',
           imageSrc: '/images/superchargers/Supercharger-custom-coated.png',
           imageAlt: 'Custom coated supercharger by F.A.S. Motorsports.'
         },
         {
-          name: 'Best Sellers',
-          href: '#',
-          imageSrc: '/images/billetParts/FAS-Pulley-Hub-Kit.png',
-          imageAlt: 'F.A.S. Motorsports Billet Pulley Hub Kit.'
+          name: 'Truck Packages',
+          href: '/shop/categories/truck-packages',
+          imageSrc: '/images/packages/850-ram.webp',
+          imageAlt: 'F.A.S. Motorsports 850 Truck Package.'
         }
       ],
       sections: [
@@ -62,134 +65,219 @@ const navigation = {
           id: 'billet-parts',
           name: 'Billet Parts',
           items: [
-            { name: 'Predator Pulley', href: '#' },
-            { name: 'Billet Lid', href: '#' },
-            { name: 'Billet Bearing Plate', href: '#' },
-            { name: 'Billet Snout', href: '#' }
+            { name: 'Predator Pulley', href: 'shop/fas-predator-lower-pulley' },
+            { name: 'Billet Lid', href: '/shop/billet-hellcat-supercharger-lid' },
+            { name: '2.4L Billet Bearing Plate', href: '/shop/2-4l-hellcat-billet-bearing-plate' },
+            { name: 'Billet Snout', href: '/shop/2-4l-hellcat-billet-supercharger-snout' }
           ]
         },
         {
-          id: 'Rebuild-Services',
+          id: 'rebuild-services',
           name: 'Rebuild Services',
           items: [
-            { name: 'Watches', href: '#' },
-            { name: 'Wallets', href: '#' },
-            { name: 'Bags', href: '#' },
-            { name: 'Sunglasses', href: '#' },
-            { name: 'Hats', href: '#' },
-            { name: 'Belts', href: '#' }
+            { name: 'Snout', href: '#' },
+            { name: 'Supercharger', href: '#' }
           ]
         },
         {
-          id: 'brands',
-          name: 'Brands',
+          id: 'superchargers',
+          name: 'Superchargers',
           items: [
-            { name: 'Full Nelson', href: '#' },
-            { name: 'My Way', href: '#' },
-            { name: 'Re-Arranged', href: '#' },
-            { name: 'Counterfeit', href: '#' },
-            { name: 'Significant Other', href: '#' }
+            {
+              name: '2.7L',
+              href: '/shop?filters=27l&filter=27l&priceMin=0&priceMax=100000&page=1'
+            },
+            {
+              name: '2.4L',
+              href: '/search?q=2.4'
+            },
+            {
+              name: 'Rebuild',
+              href: '/shop?priceMin=0&priceMax=100000&page=1&categorySlug=supercharger-rebuild&category=supercharger-rebuild'
+            },
+            {
+              name: 'Porting',
+              href: '/shop?priceMin=0&priceMax=100000&page=1&categorySlug=porting&category=porting&filters=supercharger%2Csupercharger-service%2Crace-ported-supercharger&filter=supercharger&filter=supercharger-service&filter=race-ported-supercharger'
+            },
+            {
+              name: 'Components',
+              href: '/shop?priceMin=0&priceMax=100000&page=1&filters=supercharger-components&filter=supercharger-components'
+            }
           ]
         }
       ]
     },
     {
-      id: 'men',
-      name: 'Men',
+      id: 'porting',
+      name: 'Porting',
       featured: [
         {
-          name: 'New Arrivals',
-          href: '#',
-          imageSrc:
-            'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-04-detail-product-shot-01.jpg',
-          imageAlt: 'Drawstring top with elastic loop closure and textured interior padding.'
+          name: 'Snout Porting',
+          href: '/search?q=snout%20porting',
+          imageSrc: '/images/snouts/fas-ported-snout.png',
+          imageAlt: 'F.A.S. Motorsports ported supercharger snout.'
         },
         {
-          name: 'Artwork Tees',
-          href: '#',
-          imageSrc:
-            'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-02-image-card-06.jpg',
-          imageAlt:
-            'Three shirts in gray, white, and blue arranged on table with same line drawing of hands and shapes overlapping on front of shirt.'
+          name: 'Supercharger Porting',
+          href: '/shop?categorySlug=porting&category=porting&priceMin=0&priceMax=100000&page=1',
+          imageSrc: '/images/superchargers/Dominator-race-package.png',
+          imageAlt: 'F.A.S. Motorsports Supercharger Porting.'
         }
       ],
       sections: [
         {
-          id: 'clothing',
-          name: 'Clothing',
+          id: 'intake-manifolds',
+          name: 'Intake Manifolds',
           items: [
-            { name: 'Tops', href: '#' },
-            { name: 'Pants', href: '#' },
-            { name: 'Sweaters', href: '#' },
-            { name: 'T-Shirts', href: '#' },
-            { name: 'Jackets', href: '#' },
-            { name: 'Activewear', href: '#' },
-            { name: 'Browse All', href: '#' }
-          ]
-        },
-        {
-          id: 'accessories',
-          name: 'Accessories',
-          items: [
-            { name: 'Watches', href: '#' },
-            { name: 'Wallets', href: '#' },
-            { name: 'Bags', href: '#' },
-            { name: 'Sunglasses', href: '#' },
-            { name: 'Hats', href: '#' },
-            { name: 'Belts', href: '#' }
-          ]
-        },
-        {
-          id: 'brands',
-          name: 'Brands',
-          items: [
-            { name: 'Re-Arranged', href: '#' },
-            { name: 'Counterfeit', href: '#' },
-            { name: 'Full Nelson', href: '#' },
-            { name: 'My Way', href: '#' }
+            {
+              name: 'Mustang GT',
+              href: '/shop?categorySlug=porting&category=porting&priceMin=0&priceMax=100000&page=1&filters=intake-manifold&filter=intake-manifold'
+            },
+            {
+              name: 'Race Ported Supercharger',
+              href: '/shop?categorySlug=porting&category=porting&priceMin=0&priceMax=100000&page=1&filters=race-ported-supercharger&filter=race-ported-supercharger'
+            },
+            {
+              name: 'Superchargers',
+              href: '/shop?categorySlug=porting&category=porting&priceMin=0&priceMax=100000&page=1&filters=supercharger&filter=supercharger'
+            },
+            {
+              name: 'Services',
+              href: '/shop?categorySlug=porting&category=porting&priceMin=0&priceMax=100000&page=1&filters=services&filter=services'
+            }
           ]
         }
       ]
     }
   ],
-  pages: [
-    { name: 'Company', href: '#' },
-    { name: 'Stores', href: '#' }
-  ]
+  pages: [{ name: 'All Products', href: '/shop' }]
 };
-const favorites = [
+
+const categoryImageOverrides: Record<string, string> = {
+  'custom-coating': '/images/superchargers/2-7-dominator-package.png',
+  porting: '/images/snouts/fas-ported-snout.png',
+  'supercharger-rebuild': '/images/superchargers/Suupercharger-New.png'
+};
+
+const categoryGradientPalette = [
+  'from-indigo-500/40 via-purple-500/20 to-slate-950',
+  'from-emerald-500/30 via-cyan-500/20 to-slate-950',
+  'from-rose-500/35 via-orange-500/20 to-slate-950',
+  'from-blue-500/30 via-sky-500/25 to-slate-950',
+  'from-amber-500/30 via-pink-500/15 to-slate-950',
+  'from-lime-500/35 via-emerald-500/20 to-slate-950'
+];
+
+type FeaturedProduct = {
+  id: string;
+  name: string;
+  price: string;
+  href: string;
+  imageSrc: string;
+  imageAlt: string;
+};
+
+const fallbackFeaturedProducts: FeaturedProduct[] = [
   {
-    id: 1,
-    name: 'Black Basic Tee',
-    price: '$32',
-    href: '#',
-    imageSrc:
-      'https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-favorite-01.jpg',
-    imageAlt: "Model wearing women's black cotton crewneck tee."
+    id: 'predator-pulley',
+    name: 'Predator Pulley',
+    price: '$899.99',
+    href: '/shop/fas-predator-lower-pulley',
+    imageSrc: '/images/pulleys/FASpredator-lower-pulley.webp',
+    imageAlt: 'F.A.S. Motorsports Predator Lower Pulley.'
   },
   {
-    id: 2,
-    name: 'Off-White Basic Tee',
-    price: '$32',
-    href: '#',
-    imageSrc:
-      'https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-favorite-02.jpg',
-    imageAlt: "Model wearing women's off-white cotton crewneck tee."
+    id: 'billet-supercharger-lid',
+    name: 'Billet Supercharger Lid',
+    price: '$1899.99',
+    href: '/shop/billet-hellcat-supercharger-lid',
+    imageSrc: '/images/billetParts/fas-new-billet-lid-tilt.png',
+    imageAlt: 'F.A.S. Motorsports Billet Supercharger Lid.'
   },
   {
-    id: 3,
-    name: 'Mountains Artwork Tee',
-    price: '$36',
-    href: '#',
-    imageSrc:
-      'https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-favorite-03.jpg',
-    imageAlt:
-      "Model wearing women's burgundy red crewneck artwork tee with small white triangle overlapping larger black triangle."
+    id: 'billet-snout',
+    name: '2.4L Billet Snout',
+    price: '$1899',
+    href: '/shop/2-4l-hellcat-billet-supercharger-snout',
+    imageSrc: '/images/snouts/FAS-Billet-Snout-Front.png',
+    imageAlt: 'F.A.S. Motorsports 2.4L Billet Snout.'
   }
 ];
 
-export default function CategoryPage() {
+export default function CategoryPage({
+  products,
+  categories = [],
+  title,
+  description
+}: CategoryPageProps) {
   const [open, setOpen] = useState(false);
+
+  const productCategoryCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    products.forEach((product) => {
+      const productCategories = Array.isArray((product as any)?.categories)
+        ? (product as any).categories
+        : [];
+      productCategories.forEach((cat: any) => {
+        const slug = typeof cat === 'string' ? cat : cat?.slug?.current;
+        if (typeof slug === 'string' && slug) {
+          counts.set(slug, (counts.get(slug) ?? 0) + 1);
+        }
+      });
+    });
+    return counts;
+  }, [products]);
+
+  const categoryTiles = useMemo<CategoryTile[]>(() => {
+    if (!Array.isArray(categories) || categories.length === 0) return [];
+
+    const normalized = categories
+      .filter((category): category is CategoryPreview => Boolean(category?.slug))
+      .map((category, index) => {
+        const slug = category.slug;
+        const gradientClass = categoryGradientPalette[index % categoryGradientPalette.length];
+        const imageUrl = category.imageUrl ?? categoryImageOverrides[slug] ?? null;
+        const productCount = category.productCount ?? productCategoryCounts.get(slug) ?? 0;
+
+        return {
+          ...category,
+          slug,
+          gradientClass,
+          imageUrl,
+          productCount
+        };
+      });
+
+    return normalized.slice(0, 6);
+  }, [categories, productCategoryCounts]);
+
+  const featuredProducts = useMemo<FeaturedProduct[]>(() => {
+    if (!Array.isArray(products) || products.length === 0) {
+      return fallbackFeaturedProducts;
+    }
+
+    return products.slice(0, 3).map((product, index) => {
+      const fallback = fallbackFeaturedProducts[index % fallbackFeaturedProducts.length];
+      const price =
+        typeof product.price === 'number' && Number.isFinite(product.price)
+          ? product.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+          : fallback.price;
+
+      return {
+        id: product._id ?? fallback.id,
+        name: product.title ?? fallback.name,
+        price,
+        href: product.slug?.current ? `/shop/${product.slug.current}` : fallback.href,
+        imageSrc: product.images?.[0]?.asset?.url ?? fallback.imageSrc,
+        imageAlt: product.images?.[0]?.alt ?? product.title ?? fallback.imageAlt
+      };
+    });
+  }, [products]);
+
+  const heroTitle = title ?? 'Performance Categories';
+  const heroDescription =
+    description ??
+    "Explore our range of high-performance parts designed to elevate your vehicle's capabilities.";
 
   return (
     <div className="bg-transparent font-ethno">
@@ -223,7 +311,7 @@ export default function CategoryPage() {
                   {navigation.categories.map((category) => (
                     <Tab
                       key={category.name}
-                      className="flex-1 border-b-2 border-transparent px-1 py-4 text-base font-medium whitespace-nowrap text-gray-900 data-selected:border-indigo-600 data-selected:text-indigo-600"
+                      className="flex-1 border-b-2 border-transparent px-1 py-4 text-base font-medium whitespace-nowrap text-white data-selected:border-indigo-600 data-selected:text-indigo-600"
                     >
                       {category.name}
                     </Tab>
@@ -239,9 +327,9 @@ export default function CategoryPage() {
                           <img
                             alt={item.imageAlt}
                             src={item.imageSrc}
-                            className="aspect-square w-full rounded-lg bg-gray-100 object-cover group-hover:opacity-75"
+                            className="aspect-square w-full rounded-lg bg-transparent object-cover group-hover:opacity-75"
                           />
-                          <a href={item.href} className="mt-6 block font-medium text-gray-900">
+                          <a href={item.href} className="mt-6 block font-medium text-white">
                             <span aria-hidden="true" className="absolute inset-0 z-10" />
                             {item.name}
                           </a>
@@ -255,7 +343,7 @@ export default function CategoryPage() {
                       <div key={section.name}>
                         <p
                           id={`${category.id}-${section.id}-heading-mobile`}
-                          className="font-medium text-gray-900"
+                          className="font-medium text-white"
                         >
                           {section.name}
                         </p>
@@ -282,47 +370,19 @@ export default function CategoryPage() {
             <div className="space-y-6 border-t border-gray-200 px-4 py-6">
               {navigation.pages.map((page) => (
                 <div key={page.name} className="flow-root">
-                  <a href={page.href} className="-m-2 block p-2 font-medium text-gray-900">
+                  <a href={page.href} className="-m-2 block p-2 font-medium text-white">
                     {page.name}
                   </a>
                 </div>
               ))}
             </div>
-
-            <div className="space-y-6 border-t border-gray-200 px-4 py-6">
-              <div className="flow-root">
-                <a href="#" className="-m-2 block p-2 font-medium text-gray-900">
-                  Sign in
-                </a>
-              </div>
-              <div className="flow-root">
-                <a href="#" className="-m-2 block p-2 font-medium text-gray-900">
-                  Create account
-                </a>
-              </div>
-            </div>
-
-            <div className="border-t border-gray-200 px-4 py-6">
-              <a href="#" className="-m-2 flex items-center p-2">
-                <img
-                  alt=""
-                  src="https://tailwindcss.com/plus-assets/img/flags/flag-canada.svg"
-                  className="block h-auto w-5 shrink-0"
-                />
-                <span className="ml-3 block text-base font-medium text-gray-900">CAD</span>
-                <span className="sr-only">, change currency</span>
-              </a>
-            </div>
           </DialogPanel>
         </div>
       </Dialog>
 
-      <header className="relative overflow-hidden">
+      <header className="relative overflow-hidden pt-5 mt-5">
         {/* Top navigation */}
-        <nav
-          aria-label="Top"
-          className="relative z-20 bg-white/90 backdrop-blur-xl backdrop-filter"
-        >
+        <nav aria-label="Top" className="relative z-20 bg-transparent">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex h-16 items-center">
               <button
@@ -353,20 +413,20 @@ export default function CategoryPage() {
                           {category.name}
                           <span
                             aria-hidden="true"
-                            className="absolute inset-x-0 -bottom-px z-30 h-0.5 transition duration-200 ease-out group-data-open:bg-indigo-600"
+                            className="absolute inset-x-0 -bottom-px z-30 h-0.5 transition duration-200 ease-out group-data-open:bg-primaryB"
                           />
                         </PopoverButton>
                       </div>
                       <PopoverPanel
                         transition
-                        className="group/popover-panel absolute inset-x-0 top-full z-20 w-full bg-white text-sm text-gray-500 transition data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in"
+                        className="group/popover-panel absolute inset-x-0 top-full z-20 w-full bg-black/70 backdrop-blur-sm text-sm text-gray-500 transition data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in border border-white-20 drop-shadow shadow-white/30"
                       >
                         {/* Presentational element used to render the bottom shadow, if we put the shadow on the actual panel it pokes out the top, so we use this shorter element to hide the top of the shadow */}
                         <div
                           aria-hidden="true"
-                          className="absolute inset-0 top-1/2 bg-white shadow-sm"
+                          className="absolute inset-0 top-1/2 bg-black/80 backdrop-blur-sm shadow-sm"
                         />
-                        <div className="relative bg-white">
+                        <div className="relative bg-black/70 backdrop-blur-sm">
                           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                             <div className="grid grid-cols-2 gap-x-8 gap-y-10 py-16">
                               <div className="col-start-2 grid grid-cols-2 gap-x-8">
@@ -378,11 +438,11 @@ export default function CategoryPage() {
                                     <img
                                       alt={item.imageAlt}
                                       src={item.imageSrc}
-                                      className="aspect-square w-full rounded-lg bg-gray-100 object-cover group-hover:opacity-75"
+                                      className="fit w-full rounded-lg bg-black/40 object-cover group-hover:opacity-75"
                                     />
                                     <a
                                       href={item.href}
-                                      className="mt-6 block font-medium text-gray-900"
+                                      className="mt-6 block font-medium text-white"
                                     >
                                       <span aria-hidden="true" className="absolute inset-0 z-10" />
                                       {item.name}
@@ -398,7 +458,7 @@ export default function CategoryPage() {
                                   <div key={section.name}>
                                     <p
                                       id={`${section.name}-heading`}
-                                      className="font-medium text-gray-900"
+                                      className="font-medium text-white"
                                     >
                                       {section.name}
                                     </p>
@@ -409,7 +469,7 @@ export default function CategoryPage() {
                                     >
                                       {section.items.map((item) => (
                                         <li key={item.name} className="flex">
-                                          <a href={item.href} className="hover:text-gray-800">
+                                          <a href={item.href} className=" hover:text-primary">
                                             {item.name}
                                           </a>
                                         </li>
@@ -426,7 +486,7 @@ export default function CategoryPage() {
                           aria-hidden="true"
                           className="absolute inset-0 top-0 z-10 mx-auto h-px max-w-7xl px-8"
                         >
-                          <div className="h-px w-full bg-transparent transition-colors duration-200 ease-out group-data-open/popover-panel:bg-gray-200" />
+                          <div className="h-px w-full bg-transparent transition-colors duration-200 ease-out group-data-open/popover-panel:bg-black/10" />
                         </div>
                       </PopoverPanel>
                     </Popover>
@@ -442,53 +502,18 @@ export default function CategoryPage() {
                   ))}
                 </div>
               </PopoverGroup>
-
-              <div className="ml-auto flex items-center">
-                <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-                  <a href="#" className="text-sm font-medium text-gray-700 hover:text-gray-800">
-                    Sign in
-                  </a>
-                  <span aria-hidden="true" className="h-6 w-px bg-gray-200" />
-                  <a href="#" className="text-sm font-medium text-gray-700 hover:text-gray-800">
-                    Create account
-                  </a>
-                </div>
-
-                <div className="hidden lg:ml-8 lg:flex">
-                  <a href="#" className="flex items-center text-gray-700 hover:text-gray-800">
-                    <img
-                      alt=""
-                      src="https://tailwindcss.com/plus-assets/img/flags/flag-canada.svg"
-                      className="block h-auto w-5 shrink-0"
-                    />
-                    <span className="ml-3 block text-sm font-medium">CAD</span>
-                    <span className="sr-only">, change currency</span>
-                  </a>
-                </div>
-
-                {/* Search */}
-                <div className="flex lg:ml-6">
-                  <a href="#" className="p-2 text-gray-400 hover:text-gray-500">
-                    <span className="sr-only">Search</span>
-                    <MagnifyingGlassIcon aria-hidden="true" className="size-6" />
-                  </a>
-                </div>
-              </div>
             </div>
           </div>
         </nav>
 
         {/* Hero section */}
-        <div className="pt-16 pb-80 sm:pt-24 sm:pb-40 lg:pt-40 lg:pb-48">
+        <div className="relative pt-30 mt-10 pb-80 sm:pt-24 sm:pb-40 lg:pt-40 lg:pb-48">
           <div className="relative mx-auto max-w-7xl px-4 sm:static sm:px-6 lg:px-8">
             <div className="sm:max-w-lg">
-              <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-                Summer styles are finally here
+              <h1 className="z-20 text-5xl font-bold tracking-tight text-white sm:text-6xl">
+                {heroTitle}
               </h1>
-              <p className="mt-4 text-xl text-gray-500">
-                This year, our new summer collection will shelter you from the harsh elements of a
-                world that doesn't care if you live or die.
-              </p>
+              <p className="mt-4 text-xl text-gray-500">{heroDescription}</p>
             </div>
             <div>
               <div className="mt-10">
@@ -502,8 +527,8 @@ export default function CategoryPage() {
                       <div className="grid shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
                         <div className="h-64 w-44 overflow-hidden rounded-lg sm:opacity-0 lg:opacity-100">
                           <img
-                            alt=""
-                            src="https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-hero-image-tile-01.jpg"
+                            alt="F.A.S. Motorsports 108mm Billet Throttle Body"
+                            src="/images/billetParts/108mm-TB-fas.webp"
                             className="size-full object-cover"
                           />
                         </div>
@@ -559,10 +584,10 @@ export default function CategoryPage() {
                 </div>
 
                 <a
-                  href="#"
-                  className="inline-block rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-center font-medium text-white hover:bg-indigo-700"
+                  href="/shop"
+                  className="luxury-btn inline-block rounded-md border border-transparent bg-primary px-8 py-3 text-center font-medium text-white hover:gray-900"
                 >
-                  Shop Collection
+                  Your Build Starts Here ➤
                 </a>
               </div>
             </div>
@@ -572,100 +597,70 @@ export default function CategoryPage() {
 
       <main>
         {/* Category section */}
-        <section aria-labelledby="category-heading" className="bg-gray-50">
+        <section
+          aria-labelledby="category-heading"
+          className="bg-transparent relative isolate overflow-hidden border border-rounded rounded-lg border-black/20 drop-shadow-lg shadow-white/10 shadow-inner backdrop-blur-sm px-2 py-10 after:pointer-events-none after:absolute after:inset-0 after:inset-ring after:inset-ring-white/10 sm:rounded-3xl sm:px-10 sm:py-24 after:sm:rounded-3xl lg:py-24 xl:px-24"
+        >
           <div className="mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
             <div className="sm:flex sm:items-baseline sm:justify-between">
-              <h2 id="category-heading" className="text-2xl font-bold tracking-tight text-gray-900">
+              <h2 id="category-heading" className="text-2xl font-bold tracking-tight text-white">
                 Shop by Category
               </h2>
               <a
-                href="#"
-                className="hidden text-sm font-semibold text-indigo-600 hover:text-indigo-500 sm:block"
+                href="/shop/categories"
+                className="hidden text-sm font-semibold text-white hover:text-primary sm:block"
               >
                 Browse all categories
                 <span aria-hidden="true"> &rarr;</span>
               </a>
             </div>
 
-            <div className="mt-6 grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:grid-rows-2 sm:gap-x-6 lg:gap-8">
-              <div className="group relative aspect-2/1 overflow-hidden rounded-lg sm:row-span-2 sm:aspect-square">
-                <img
-                  alt="Two models wearing women's black cotton crewneck tee and off-white cotton crewneck tee."
-                  src="https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-featured-category.jpg"
-                  className="absolute size-full object-cover group-hover:opacity-75"
-                />
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-0 bg-linear-to-b from-transparent to-black opacity-50"
-                />
-                <div className="absolute inset-0 flex items-end p-6">
-                  <div>
-                    <h3 className="font-semibold text-white">
-                      <a href="#">
-                        <span className="absolute inset-0" />
-                        New Arrivals
-                      </a>
-                    </h3>
-                    <p aria-hidden="true" className="mt-1 text-sm text-white">
-                      Shop now
-                    </p>
-                  </div>
-                </div>
+            {categoryTiles.length > 0 ? (
+              <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {categoryTiles.map((category) => (
+                  <a
+                    key={category.id || category.slug}
+                    href={`/shop/categories/${category.slug}`}
+                    aria-label={`Browse ${category.title}`}
+                    className="group relative overflow-hidden rounded-xl border border-white/10 bg-black/40 p-6 transition duration-300 hover:border-indigo-400/40 hover:shadow-indigo-500/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400"
+                  >
+                    {category.imageUrl ? (
+                      <img
+                        alt={category.title}
+                        src={category.imageUrl}
+                        style={{ filter: 'grayscale(60%) brightness(80%)' }}
+                        className="absolute inset-0 size-full object-cover opacity-35 transition duration-500 group-hover:opacity-45"
+                      />
+                    ) : null}
+                    <div
+                      aria-hidden="true"
+                      className={`absolute inset-0 bg-gradient-to-br ${category.gradientClass} opacity-85`}
+                    />
+                    <div className="relative flex h-full flex-col justify-end">
+                      <h3 className="text-lg font-semibold text-white">
+                        <span className="absolute inset-0" aria-hidden="true" />
+                        {category.title}
+                      </h3>
+                      <p className="mt-3 text-xs font-semibold uppercase tracking-[0.32em] text-indigo-200/80">
+                        {category.productCount > 0
+                          ? `${category.productCount} ${category.productCount === 1 ? 'Product' : 'Products'}`
+                          : 'View builds'}
+                      </p>
+                    </div>
+                  </a>
+                ))}
               </div>
-              <div className="group relative aspect-2/1 overflow-hidden rounded-lg sm:aspect-auto">
-                <img
-                  alt="Wooden shelf with gray and olive drab green baseball caps, next to wooden clothes hanger with sweaters."
-                  src="https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-category-01.jpg"
-                  className="absolute size-full object-cover group-hover:opacity-75"
-                />
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-0 bg-linear-to-b from-transparent to-black opacity-50"
-                />
-                <div className="absolute inset-0 flex items-end p-6">
-                  <div>
-                    <h3 className="font-semibold text-white">
-                      <a href="#">
-                        <span className="absolute inset-0" />
-                        Accessories
-                      </a>
-                    </h3>
-                    <p aria-hidden="true" className="mt-1 text-sm text-white">
-                      Shop now
-                    </p>
-                  </div>
-                </div>
+            ) : (
+              <div className="mt-10 rounded-xl border border-white/15 bg-black/40 p-10 text-center text-sm text-white/60">
+                No categories loaded yet. Confirm your Sanity credentials and publish categories to
+                populate this section.
               </div>
-              <div className="group relative aspect-2/1 overflow-hidden rounded-lg sm:aspect-auto">
-                <img
-                  alt="Walnut desk organizer set with white modular trays, next to porcelain mug on wooden desk."
-                  src="https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-category-02.jpg"
-                  className="absolute size-full object-cover group-hover:opacity-75"
-                />
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-0 bg-linear-to-b from-transparent to-black opacity-50"
-                />
-                <div className="absolute inset-0 flex items-end p-6">
-                  <div>
-                    <h3 className="font-semibold text-white">
-                      <a href="#">
-                        <span className="absolute inset-0" />
-                        Workspace
-                      </a>
-                    </h3>
-                    <p aria-hidden="true" className="mt-1 text-sm text-white">
-                      Shop now
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            )}
 
             <div className="mt-6 sm:hidden">
               <a
-                href="#"
-                className="block text-sm font-semibold text-indigo-600 hover:text-indigo-500"
+                href="/shop/categories"
+                className="block text-sm font-semibold text-indigo-400 hover:text-indigo-300"
               >
                 Browse all categories
                 <span aria-hidden="true"> &rarr;</span>
@@ -679,8 +674,9 @@ export default function CategoryPage() {
           <div className="relative bg-gray-800 px-6 py-32 sm:px-12 sm:py-40 lg:px-16">
             <div className="absolute inset-0 overflow-hidden">
               <img
-                alt=""
-                src="https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-feature-section-full-width.jpg"
+                alt="hellcat charger FAS Motorsports"
+                src="/images/backgrounds/charger-category.png"
+                style={{ filter: 'grayscale(60%) brightness(80%)' }}
                 className="size-full object-cover"
               />
             </div>
@@ -690,18 +686,21 @@ export default function CategoryPage() {
                 id="cause-heading"
                 className="text-3xl font-bold tracking-tight text-white sm:text-4xl"
               >
-                Long-term thinking
+                <span className="text-white/60">Precision. </span> Power.
+                <span className="text-white/60"> Performance</span>
               </h2>
-              <p className="mt-3 text-xl text-white">
-                We're committed to responsible, sustainable, and ethical manufacturing. Our
-                small-scale approach allows us to focus on quality and reduce our impact. We're
-                doing our best to delay the inevitable heat-death of the universe.
+              <p className="mt-3 text-xl font-mono text-white">
+                <span className="font-borg italic text-white">F.A.S.</span>
+                <span className="font-ethno italic text-primaryB"> Motorsports</span> delivers
+                high-performance billet parts, superchargers, and custom packages engineered for
+                power, precision, and reliability. Explore our innovative solutions to elevate your
+                build and dominate the road or track.
               </p>
               <a
-                href="#"
-                className="mt-8 block w-full rounded-md border border-transparent bg-white px-8 py-3 text-base font-medium text-gray-900 hover:bg-gray-100 sm:w-auto"
+                href="/shop"
+                className="mt-8 block w-full rounded-md border border-transparent bg-transparent px-8 py-3 text-base font-medium text-primary hover:bg-primaryB sm:w-auto"
               >
-                Read our story
+                Your Build Starts Here ➤➤➤
               </a>
             </div>
           </div>
@@ -713,130 +712,46 @@ export default function CategoryPage() {
             <div className="sm:flex sm:items-baseline sm:justify-between">
               <h2
                 id="favorites-heading"
-                className="text-2xl font-bold tracking-tight text-gray-900"
+                className="text-2xl font-bold tracking-tight text-white/80"
               >
-                Our Favorites
+                Featured
               </h2>
               <a
-                href="#"
-                className="hidden text-sm font-semibold text-indigo-600 hover:text-indigo-500 sm:block"
+                href="/products?sort=featured&start=0&end=12"
+                className="hidden text-sm font-semibold text-white hover:text-primary sm:block"
               >
-                Browse all favorites
+                Browse all featured
                 <span aria-hidden="true"> &rarr;</span>
               </a>
             </div>
 
-            <div className="mt-6 grid grid-cols-1 gap-y-10 sm:grid-cols-3 sm:gap-x-6 sm:gap-y-0 lg:gap-x-8">
-              {favorites.map((favorite) => (
-                <div key={favorite.id} className="group relative">
+            <div className="mt-6 grid grid-cols-1 gap-y-6 sm:grid-cols-3 sm:gap-x-6">
+              {featuredProducts.map((featured: FeaturedProduct) => (
+                <div key={featured.id} className="group relative">
                   <img
-                    alt={favorite.imageAlt}
-                    src={favorite.imageSrc}
+                    alt={featured.imageAlt}
+                    src={featured.imageSrc}
                     className="h-96 w-full rounded-lg object-cover group-hover:opacity-75 sm:aspect-2/3 sm:h-auto"
                   />
-                  <h3 className="mt-4 text-base font-semibold text-gray-900">
-                    <a href={favorite.href}>
+                  <h3 className="mt-4 text-base font-semibold text-white">
+                    <a href={featured.href}>
                       <span className="absolute inset-0" />
-                      {favorite.name}
+                      {featured.name}
                     </a>
                   </h3>
-                  <p className="mt-1 text-sm text-gray-500">{favorite.price}</p>
+                  <p className="mt-1 text-sm text-gray-500">{featured.price}</p>
                 </div>
               ))}
             </div>
 
             <div className="mt-6 sm:hidden">
               <a
-                href="#"
+                href="/products?sort=featured&start=0&end=12"
                 className="block text-sm font-semibold text-indigo-600 hover:text-indigo-500"
               >
-                Browse all favorites
+                Browse all featured
                 <span aria-hidden="true"> &rarr;</span>
               </a>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA section */}
-        <section aria-labelledby="sale-heading">
-          <div className="overflow-hidden pt-32 sm:pt-14">
-            <div className="bg-gray-800">
-              <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div className="relative pt-48 pb-16 sm:pb-24">
-                  <div>
-                    <h2
-                      id="sale-heading"
-                      className="text-4xl font-bold tracking-tight text-white md:text-5xl"
-                    >
-                      Final Stock.
-                      <br />
-                      Up to 50% off.
-                    </h2>
-                    <div className="mt-6 text-base">
-                      <a href="#" className="font-semibold text-white">
-                        Shop the sale
-                        <span aria-hidden="true"> &rarr;</span>
-                      </a>
-                    </div>
-                  </div>
-
-                  <div className="absolute -top-32 left-1/2 -translate-x-1/2 transform sm:top-6 sm:translate-x-0">
-                    <div className="ml-24 flex min-w-max space-x-6 sm:ml-3 lg:space-x-8">
-                      <div className="flex space-x-6 sm:flex-col sm:space-y-6 sm:space-x-0 lg:space-y-8">
-                        <div className="shrink-0">
-                          <img
-                            alt=""
-                            src="https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-category-01.jpg"
-                            className="size-64 rounded-lg object-cover md:size-72"
-                          />
-                        </div>
-
-                        <div className="mt-6 shrink-0 sm:mt-0">
-                          <img
-                            alt=""
-                            src="https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-category-02.jpg"
-                            className="size-64 rounded-lg object-cover md:size-72"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex space-x-6 sm:-mt-20 sm:flex-col sm:space-y-6 sm:space-x-0 lg:space-y-8">
-                        <div className="shrink-0">
-                          <img
-                            alt=""
-                            src="https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-favorite-01.jpg"
-                            className="size-64 rounded-lg object-cover md:size-72"
-                          />
-                        </div>
-
-                        <div className="mt-6 shrink-0 sm:mt-0">
-                          <img
-                            alt=""
-                            src="https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-favorite-02.jpg"
-                            className="size-64 rounded-lg object-cover md:size-72"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex space-x-6 sm:flex-col sm:space-y-6 sm:space-x-0 lg:space-y-8">
-                        <div className="shrink-0">
-                          <img
-                            alt=""
-                            src="https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-category-01.jpg"
-                            className="size-64 rounded-lg object-cover md:size-72"
-                          />
-                        </div>
-
-                        <div className="mt-6 shrink-0 sm:mt-0">
-                          <img
-                            alt=""
-                            src="https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-category-02.jpg"
-                            className="size-64 rounded-lg object-cover md:size-72"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </section>

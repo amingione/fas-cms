@@ -1,8 +1,9 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
-import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
-const pageDoc: any = await getGitPageDoc('powerPackages');
+import powerPackagesData from '../../../content/pages/powerPackages.json' assert { type: 'json' };
+const pageDoc: any = powerPackagesData;
 import Button from '@/components/Button.astro';
+import PowerPackagesComponent from '@/components/packageComps/powerPackage';
 
 const hero = pageDoc?.hero ?? {};
 const heroHeading: string = hero?.heading ?? pageDoc?.title ?? 'Power Packages';
@@ -12,6 +13,10 @@ const heroBadges: string[] = Array.isArray(hero?.badges) ? hero.badges : [];
 const heroBadgesHasContent = heroBadges.length > 0;
 const heroBadgesFallback = ['Financing Available'];
 const heroBadgesToRender = heroBadgesHasContent ? heroBadges : heroBadgesFallback;
+const heroBadgeEntries = heroBadgesToRender.map((badge, idx) => ({ badge, idx }));
+const primaryBadgeEntry = heroBadgeEntries[0];
+const secondaryBadgeEntries = heroBadgeEntries.slice(1);
+
 const heroCtas: Array<{ label?: string; href?: string; variant?: string }> = Array.isArray(hero?.ctas)
   ? hero.ctas
   : [];
@@ -26,6 +31,7 @@ const highlightPills: string[] = Array.isArray(pageDoc?.highlightPills) ? pageDo
 const highlightPillsHasContent = highlightPills.length > 0;
 const highlightPillsFallback = ['Dyno-Proven Options', 'OEM-Style Fit & Finish', 'Fast Turnaround', 'Warranty-Friendly Base Kits'];
 const highlightPillsToRender = highlightPillsHasContent ? highlightPills : highlightPillsFallback;
+const highlightPillEntries = highlightPillsToRender.map((pill, idx) => ({ pill, idx }));
 
 const platformHeading: string = pageDoc?.platformHeading ?? 'Choose Your Platform';
 const platforms: Array<{ href?: string; image?: string; alt?: string; labelTop?: string; labelBottom?: string }> = Array.isArray(
@@ -44,6 +50,7 @@ const platformsFallback = [
   }
 ];
 const platformsToRender = platformsHasContent ? platforms : platformsFallback;
+const featuredPlatform = platformsToRender[0] ?? {};
 
 const tiers: Array<{ image?: string; alt?: string; labelTop?: string; labelBottom?: string }> = Array.isArray(
   pageDoc?.tiers
@@ -60,6 +67,7 @@ const tiersFallback = [
   }
 ];
 const tiersToRender = tiersHasContent ? tiers : tiersFallback;
+const featuredTier = tiersToRender[0] ?? {};
 
 const ctaButtons: Array<{ label?: string; href?: string; variant?: string }> = Array.isArray(pageDoc?.ctaButtons)
   ? pageDoc.ctaButtons
@@ -73,184 +81,72 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallbac
 ---
 
 <BaseLayout>
-  <div {...sbObjectId('content/pages/powerPackages.json')}>
-  <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Power Packages'}
-  </div>
-  <!-- HERO: full-bleed, dark glass, tight under header -->
-  <section
-    class="relative w-full h-[72vh] md:h-[78vh] overflow-hidden"
-    style="--hero:url('/shop')"
-    aria-label="Power Packages Hero"
-    {...sbFieldPath('hero')}
-  >
-    <img src="/images/packages/power-packages-banner.png" alt="FAS Motorsports hellcat power packages" class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none" />
-    <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80"></div>
+  <div class="text-white">
+    <section
+      class="relative w-full h-[72vh] md:h-[78vh] overflow-hidden"
+      style="--hero:url('/shop')"
+      aria-label="Power Packages Hero"
+    >
+      <img src="/images/packages/power-packages-banner.png" alt="FAS Motorsports hellcat power packages" class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none" />
+      <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80"></div>
+      <div class="absolute top-0 left-0 right-0 h-px"></div>
 
-    <!-- top divider line matching theme -->
-    <div class="absolute top-0 left-0 right-0 h-px bg-white/70"></div>
+      <div class="relative z-10 h-full flex flex-col items-center justify-center text-center px-0 md:px-6">
+        {primaryBadgeEntry ? (
+          <p class="text-base font-semibold leading-7 text-primaryB">
+            {primaryBadgeEntry.badge}
+          </p>
+        ) : null}
+        <h1 class="mt-2 text-5xl md:text-7xl font-ethno tracking-[0.08em] text-white drop-shadow-[0_6px_28px_rgba(0,0,0,0.8)]">
+          {heroHeading}
+        </h1>
+        <p class="mt-3 text-base md:text-lg font-mono tracking-[0.12em] text-white/80 max-w-2xl">
+          {heroDescription}
+        </p>
 
-    <div class="relative z-10 h-full flex flex-col items-center justify-center text-center px-0 md:px-6">
-      <h1
-        class="text-5xl md:text-7xl font-ethno tracking-[0.08em] text-white drop-shadow-[0_6px_28px_rgba(0,0,0,0.8)]"
-        {...sbFieldPath('hero.heading')}
-      >
-        {heroHeading}
-      </h1>
-      <p
-        class="mt-3 text-base md:text-lg font-mono tracking-[0.12em] text-white/80 max-w-2xl"
-        {...sbFieldPath('hero.description')}
-      >
-        {heroDescription}
-      </p>
-      <div class="absolute bottom-0 left-0 right-0 h-px bg-white/70"></div>
+        {secondaryBadgeEntries.length > 0 ? (
+          <div class="mt-6 flex flex-wrap gap-3 justify-center">
+            {secondaryBadgeEntries.map(({ badge, idx }) => (
+              <span
+                class="px-4 py-1.5 rounded-full border border-white/30 bg-black/50 text-white/90 text-xs font-ethno uppercase tracking-[0.18em]"
+              >
+                {badge}
+              </span>
+            ))}
+          </div>
+        ) : null}
 
-
-      <!-- badges -->
-      <div class="mt-6 flex flex-wrap gap-3 justify-center" {...sbFieldPath('hero.badges')}>
-        {heroBadgesToRender.map((badge, idx) => {
-          const fieldAttrs = heroBadgesHasContent ? sbFieldPath(`hero.badges[${idx}]`) : {};
-          return (
-            <span
-              class="px-4 py-1.5 rounded-full border border-white/30 bg-black/50 text-white/90 text-xs font-ethno uppercase tracking-[0.18em]"
-              {...fieldAttrs}
-            >
-              {badge}
-            </span>
-          );
-        })}
-      </div>
-
-      <!-- primary CTAs -->
-      <div class="mt-8 flex flex-col sm:flex-row gap-4" {...sbFieldPath('hero.ctas')}>
-        {heroCtasToRender.map((cta, idx) => {
-          const fieldAttrs = heroCtasHasContent ? sbFieldPath(`hero.ctas[${idx}]`) : {};
-          return (
+        <div class="mt-8 flex flex-col sm:flex-row gap-4">
+          {heroCtasToRender.map((cta, idx) => (
             <Button
+              key={`hero-cta-${idx}`}
               text={cta?.label || 'Call to Action'}
               variant={(cta?.variant as any) || 'multi-swipe-v2'}
               href={cta?.href || '#'}
-              attrs={fieldAttrs}
             />
-          );
-        })}
+          ))}
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- HIGHLIGHTS STRIP -->
-  <section class="relative w-full bg-black/70 backdrop-blur-md border-y border-white/20 luxury-carbon-effect">
-    <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-0" {...sbFieldPath('highlightPills')}>
-        {highlightPillsToRender.map((pill, idx) => {
-          const fieldAttrs = highlightPillsHasContent ? sbFieldPath(`highlightPills[${idx}]`) : {};
-          const isLast = idx === highlightPillsToRender.length - 1;
-          return (
-            <div
-              class={`flex items-center gap-3 py-4 px-4 ${isLast ? '' : 'border-r border-white/20'}`}
-              {...fieldAttrs}
-            >
-              <div class="w-2 h-2 rounded-full bg-accent"></div>
-              <div class="text-white/80 text-xs md:text-sm font-mono tracking-[0.14em]">{pill}</div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  </section>
-
-  <!-- PLATFORM GRID -->
-  <section class="py-12 md:py-16">
-    <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
-      <h2
-        class="text-center text-3xl md:text-4xl font-ethno text-accent mb-8 md:mb-12 tracking-wide"
-        {...sbFieldPath('platformHeading')}
-      >
-        {platformHeading}
-      </h2>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 luxury-platinum-shine" {...sbFieldPath('platforms')}>
-        {platformsToRender.map((platform, idx) => {
-          const basePath = `platforms[${idx}]`;
-          const fieldAttrs = platformsHasContent ? sbFieldPath(basePath) : {};
-          return (
-            <a
-              href={platform?.href || '#'}
-              class="group relative aspect-[4/3] overflow-hidden rounded-xl border border-white/20 bg-[#0b0b0c]"
-              {...fieldAttrs}
-            >
-              <img
-                src={platform?.image || '/images/packages/dodge-ram.png'}
-                alt={platform?.alt || 'Power package platform'}
-                class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition"
-                {...(platformsHasContent ? sbFieldPath(`${basePath}.image`) : {})}
-              />
-              <span class="sr-only" aria-hidden="true" {...(platformsHasContent ? sbFieldPath(`${basePath}.alt`) : {})}>
-                {platform?.alt || 'Power package platform'}
-              </span>
-              <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-              <div class="absolute bottom-0 left-0 right-0 p-4">
-                <div class="text-primary font-ethno text-xl drop-shadow" {...(platformsHasContent ? sbFieldPath(`${basePath}.labelTop`) : {})}>
-                  {platform?.labelTop || ''}
-                </div>
-                <div class="text-white font-borg text-3xl leading-none drop-shadow" {...(platformsHasContent ? sbFieldPath(`${basePath}.labelBottom`) : {})}>
-                  {platform?.labelBottom || ''}
-                </div>
+    <section class="z-30 relative w-full border-y glass- bg-white/10">
+      <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-0">
+          {highlightPillsToRender.map((pill, idx) => {
+            const isLast = idx === highlightPillsToRender.length - 1;
+            return (
+              <div
+                class={`flex items-center gap-3 py-4 px-4 ${isLast ? '' : 'border-r border-white/20'}`}
+              >
+                <div class="w-2 h-2 rounded-full"></div>
+                <div class="text-white/80 text-xs md:text-sm font-mono tracking-[0.14em]">{pill}</div>
               </div>
-            </a>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
+    </section>
+    <PowerPackagesComponent client:load />
 
-      <!-- F.A.S. Tiers -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6 mt-6 md:mt-10 racing-stripe" {...sbFieldPath('tiers')}>
-        {tiersToRender.map((tier, idx) => {
-          const basePath = `tiers[${idx}]`;
-          const fieldAttrs = tiersHasContent ? sbFieldPath(basePath) : {};
-          return (
-            <div
-              class="group relative aspect-[4/3] overflow-hidden rounded-xl border border-white/20 bg-[#0b0b0c]"
-              {...fieldAttrs}
-            >
-              <img
-                src={tier?.image || '/images/packages/fas-1x-2.png'}
-                alt={tier?.alt || 'F.A.S. Tier'}
-                class="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:opacity-100 transition"
-                {...(tiersHasContent ? sbFieldPath(`${basePath}.image`) : {})}
-              />
-              <span class="sr-only" aria-hidden="true" {...(tiersHasContent ? sbFieldPath(`${basePath}.alt`) : {})}>
-                {tier?.alt || 'F.A.S. Tier'}
-              </span>
-              <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-              <div class="absolute bottom-0 left-0 right-0 p-5">
-                <div class="text-white font-borg text-5xl drop-shadow" {...(tiersHasContent ? sbFieldPath(`${basePath}.labelTop`) : {})}>
-                  {tier?.labelTop || ''}
-                </div>
-                <div class="text-primary font-ethno text-6xl drop-shadow" {...(tiersHasContent ? sbFieldPath(`${basePath}.labelBottom`) : {})}>
-                  {tier?.labelBottom || ''}
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  </section>
-
-  <!-- CALL TO ACTION -->
-  <section class="bg-transparent py-12 md:py-16 text-center">
-    <div class="flex flex-col gap-5 items-center" {...sbFieldPath('ctaButtons')}>
-      {ctaButtonsToRender.map((cta, idx) => {
-        const fieldAttrs = ctaButtonsHasContent ? sbFieldPath(`ctaButtons[${idx}]`) : {};
-        return (
-          <Button
-            text={cta?.label || 'Call to Action'}
-            variant={(cta?.variant as any) || 'multi-swipe-v2'}
-            href={cta?.href || '#'}
-            attrs={fieldAttrs}
-          />
-        );
-      })}
-    </div>
-  </section>
   </div>
 </BaseLayout>

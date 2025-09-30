@@ -46,7 +46,9 @@ export default function ProductCardLiteReact({
         <div className="flex-1 px-4 py-4 text-left">
           <div className="line-clamp-2 text-[1rem] font-ethno leading-snug text-white">{title}</div>
           {shortText ? (
-            <div className="mt-2 line-clamp-2 text-sm leading-relaxed text-white/70">{shortText}</div>
+            <div className="mt-2 line-clamp-2 text-sm leading-relaxed text-white/70">
+              {shortText}
+            </div>
           ) : null}
           <div className="mt-3 text-[1.15rem] font-mono text-accent">
             {price !== undefined
@@ -64,9 +66,9 @@ export default function ProductCardLiteReact({
             price,
             imageSrc: img,
             imageAlt: title,
-          description: shortText
-        }}
-      />
+            description: shortText
+          }}
+        />
       </div>
     </article>
   ) : (

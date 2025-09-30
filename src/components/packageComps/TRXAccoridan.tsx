@@ -1,43 +1,43 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 type Pkg = { label: string; desc: string };
 type Section = { title: string; intro: string; pkgs: Pkg[]; disclaimer: string };
 
 const sections: Section[] = [
   {
-    title: 'TRX Platform',
-    intro: '',
+    title: 'RAM TRX (Supercharged HEMI)',
+    intro:
+      'Turn-key packages for the 6.2L TRX that balance brutal acceleration with reliable drivability. Every stage is installed, calibrated, and track-tested in-house by FAS.',
     pkgs: [
       {
-        label: 'FAS800',
-        desc: 'FAS Upper Pulley Kit, Spark Plugs, 180 Thermostat, Custom 1320Tunez engine and trans tune'
+        label: 'FAS 800 Package — 800+ HP',
+        desc: 'FAS upper pulley kit, billet idler, upgraded spark plugs, 180° thermostat, fresh supercharger oil service, and custom engine/transmission calibration. Designed for 91/93 octane daily use with repeatable 10-second quarter-mile capability.'
       },
       {
-        label: 'FAS850',
-        desc: 'FAS Upper Pulley Kit, Predator Lower Pulley, Upgraded Injectors, Custom 1320Tunez engine and trans tune and much more!'
+        label: 'FAS 850 Package — 850+ HP',
+        desc: 'Adds Predator lower pulley, HD belt system, heat exchanger upgrade, ID1050x injectors, flex-fuel sensor, and revised boost/shift mapping. Optimised for E40–E60 or race-gas blends while retaining street manners and towing capability.'
       },
       {
-        label: 'FAS900',
-        desc: 'Race Ported Supercharger snout, 108mm throttle body, High flow intake, Race Midpipes, FAS Upper Pulley Kit, Predator Lower Pulley, Upgraded Injectors, Custom 1320Tunez engine and trans tune and much more! (E85 Fuel Package)'
+        label: 'FAS 900 Package — 900+ HP',
+        desc: 'Port-matched supercharger snout, 108 mm throttle body, high-flow intake, CNC billet mid-pipes, dual catch can setup, and flex calibration for full E85. Includes transmission line pressure and torque management updates for consistent track passes.'
       },
       {
-        label: 'FAS1000',
-        desc: 'Race Ported Supercharger, 108mm throttle body, High flow intake, Longtube headers with Race Midpipes, FAS Upper Pulley Kit, Predator Lower Pulley, Upgraded Injectors, E85, Custom 1320Tunez engine and trans tune and much more! (E85 Fuel Package)'
+        label: 'FAS 1000 Package — 1000+ HP',
+        desc: 'Full race-ported supercharger, long-tube headers with race mid-pipes, Fore dual pump return fuel system, ID1300x injectors, ice-tank capable intercooler system, and dedicated E85/VP tune. Built for 9-second capable TRX builds.'
       },
       {
-        label: 'FAS 1X Package',
-        desc: '1200-1500HP!!! Call and discuss many potential options for this package!'
+        label: 'FAS 1X Package — 1200-1500 HP',
+        desc: 'Custom short-block, camshaft and valvetrain upgrade, 3.0 upper/9.1 lower pulley combo, Fore triple pump fuel system, meth or nitrous optional. Includes drivetrain and safety recommendations tailored to the intended motorsport use.'
       },
       {
-        label: 'FAS 2X Package',
-        desc: '1600+HP!!! Call and discuss many potential options for this package!'
+        label: 'FAS 2X Package — 1600+ HP',
+        desc: 'Complete race programme: billet block, 3.2 upper/9.8 lower or alternative forced-induction route, dry sump, extreme fuel system, parachute-ready rear, and chassis setup. Consultation-driven build to hit record-setting ET and trap goals.'
       }
     ],
     disclaimer:
-      'MODIFYING YOUR VEHICLE COULD LEAD TO THE LOSS OF YOUR FACTORY WARRANTY! FAS is not responsible for any issues you may encounter with your dealership warranty claims or warrantied issues/repairs.'
+      'All packages include dyno verification and datalogs. Built transmissions, differential upgrades, and safety equipment may be required at higher power levels. Modifying your vehicle can impact factory warranty coverage.'
   }
 ];
 

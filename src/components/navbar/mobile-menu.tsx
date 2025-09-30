@@ -152,7 +152,13 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
         </li>
         {/* Packages */}
         <li className="py-2">
-          <div className="text-sm uppercase font-bold tracking-wider text-primary">Packages</div>
+          <a
+            href="/packages"
+            onClick={onNavigate}
+            className="text-accent hover:text-neutral-500 dark:text-white"
+          >
+            Packages
+          </a>
           <ul className="mt-2 ml-4 space-y-2 text-lg">
             <li>
               <a

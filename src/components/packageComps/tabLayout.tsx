@@ -2,7 +2,7 @@ import { ChevronDownIcon } from '@heroicons/react/16/solid';
 import { useMemo, useState } from 'react';
 import PackagesAccordionHellcat from '@/components/packageComps/PackagesAccordionHellcat';
 import F150Accordian from '@/components/packageComps/F150Accordian';
-import TRXAccordian from '@/components/packageComps/TRxAccoridan';
+import TRXAccordian from '@/components/packageComps/TRXAccoridan';
 import SuperchargerAccordion from './SuperchargerAccordian';
 
 const tabs = [

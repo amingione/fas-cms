@@ -4,7 +4,6 @@ import Button from '@/components/Button.astro';
 import { Image } from 'astro:assets';
 import IglaBox from '@/assets/igla/IGLA-Category-Image.webp';
 import SchedIgla from '@/assets/igla/sched-igla-install.webp';
-import IGLASecurity from '@/components/IGLASecurity.tsx';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
 const pageDoc: any = await getGitPageDoc('igla');
@@ -22,9 +21,6 @@ const pageDoc: any = await getGitPageDoc('igla');
   {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
     <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
   )}
-  <section id="IGLASecurity" class="mt-16">
-      <IGLASecurity client:only="react" />
-  </section>
 
   <section class="luxury-particles relative text-white pt-20 pb-32 px-6 ">
     <div class="absolute inset-0"></div>

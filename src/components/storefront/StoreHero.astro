@@ -32,14 +32,12 @@ const {
   ctaPrimaryLabel = '',
   imgSrc = '',
   imgAlt = '',
-  ctaSecondaryHref = '',
-  ctaSecondaryLabel = '',
   ctaPrimaryVariant = '',
   ctaSecondaryVariant = '',
 } = Astro.props as Props;
 ---
 <section class="relative pt-4 mt-4 overflow-hidden bg-gradient-to-b from-black to-black/20 text-white">
-  {imgSrc && (
+  {imgSrc ? (
     <img
       src={imgSrc}
       alt={imgAlt || title || 'Store Hero Background'}
@@ -48,7 +46,7 @@ const {
       decoding="async"
       fetchpriority="high"
     />
-  )}
+  ) : null}
   <div class="relative z-10 max-w-7xl mx-auto px-4 md:px-6 py-16 text-center">
     <h1 class="font-borg text-primaryB text-4xl md:text-5xl mb-3">{title}<span class="text-white text-4xl md:text-5xl font-ethno"> {title2}</span></h1>
     <h1 class="font-cyber tracking-widest text-accent">{title3}</h1>
@@ -57,9 +55,6 @@ const {
       <Button variant={ctaPrimaryVariant} size="md w-1/2" asChild>
         <a href={ctaPrimaryHref}>{ctaPrimaryLabel}</a>
       </Button>
-      <Button variant={ctaSecondaryVariant} size="md w-1/2" asChild>
-        <a href={ctaSecondaryHref}>{ctaSecondaryLabel}</a>
-      </Button>
-      </div>
+    </div>
   </div>
 </section>
