@@ -66,6 +66,12 @@ export const handler: Handler = async (event) => {
     if (slug && typeof slug === 'string') base.slug = { _type: 'slug', current: toSlug(slug) } as any;
     else if (!_id && title) base.slug = { _type: 'slug', current: toSlug(title) } as any;
 
+    // Optional extended fields (only set when provided)
+    if (typeof description !== 'undefined') base.description = description;
+    if (typeof shortDescription !== 'undefined') base.shortDescription = shortDescription;
+    if (Array.isArray(specifications)) base.specifications = specifications;
+    if (Array.isArray(addOns)) base.addOns = addOns;
+
     let result: any;
     if (_id) {
       // For updates, use patch to avoid overwriting unknown fields
@@ -83,8 +89,3 @@ export const handler: Handler = async (event) => {
     return { statusCode: e.statusCode || 500, body: e.message || 'Error' };
   }
 };
-    // Optional extended fields (only set when provided)
-    if (typeof description !== 'undefined') base.description = description;
-    if (typeof shortDescription !== 'undefined') base.shortDescription = shortDescription;
-    if (Array.isArray(specifications)) base.specifications = specifications;
-    if (Array.isArray(addOns)) base.addOns = addOns;

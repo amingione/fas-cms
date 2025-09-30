@@ -105,7 +105,8 @@ var stackbit_config_default = (0, import_types.defineStackbitConfig)({
           filePath: "content/blocks/rich/{slug}.json",
           fields: [
             { name: "title", type: "string" },
-            { name: "body", type: "markdown" }
+            { name: "body", type: "markdown" },
+            { name: "image", type: "image", source: "cloudinary" }
           ]
         },
         // ========= Pages =========
@@ -191,92 +192,6 @@ var stackbit_config_default = (0, import_types.defineStackbitConfig)({
         }
       ]
     }),
-    new import_cms_git.GitContentSource({
-      rootPath: "/Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh",
-      contentDirs: ["content/pages"],
-      models: [
-        {
-          name: "PowerPackagesPage",
-          label: "Power Packages Page",
-          type: "page",
-          filePath: "content/pages/powerPackages.json",
-          fields: [
-            { name: "slug", type: "string", required: true, description: "Slug for the page" },
-            { name: "title", type: "string", required: true },
-            {
-              name: "hero",
-              type: "object",
-              fields: [
-                { name: "heading", type: "string" },
-                { name: "description", type: "text" },
-                {
-                  name: "badges",
-                  type: "list",
-                  items: { type: "string" }
-                },
-                {
-                  name: "ctas",
-                  type: "list",
-                  items: {
-                    type: "object",
-                    fields: [
-                      { name: "label", type: "string", required: true },
-                      { name: "href", type: "string" },
-                      { name: "variant", type: "string" }
-                    ]
-                  }
-                }
-              ]
-            },
-            {
-              name: "highlightPills",
-              type: "list",
-              items: { type: "string" }
-            },
-            { name: "platformHeading", type: "string" },
-            {
-              name: "platforms",
-              type: "list",
-              items: {
-                type: "object",
-                fields: [
-                  { name: "href", type: "string" },
-                  { name: "image", type: "image" },
-                  { name: "alt", type: "string" },
-                  { name: "labelTop", type: "string" },
-                  { name: "labelBottom", type: "string" }
-                ]
-              }
-            },
-            {
-              name: "tiers",
-              type: "list",
-              items: {
-                type: "object",
-                fields: [
-                  { name: "image", type: "image" },
-                  { name: "alt", type: "string" },
-                  { name: "labelTop", type: "string" },
-                  { name: "labelBottom", type: "string" }
-                ]
-              }
-            },
-            {
-              name: "ctaButtons",
-              type: "list",
-              items: {
-                type: "object",
-                fields: [
-                  { name: "label", type: "string", required: true },
-                  { name: "href", type: "string" },
-                  { name: "variant", type: "string" }
-                ]
-              }
-            }
-          ]
-        }
-      ]
-    }),
     // Conditionally include Sanity only when explicitly enabled and configured
     ...ENABLE_SANITY && SANITY_PROJECT_ID && SANITY_DATASET ? [
       new import_cms_sanity.SanityContentSource({
@@ -343,26 +258,21 @@ var stackbit_config_default = (0, import_types.defineStackbitConfig)({
           const full = import_path.default.join(dir, ent.name);
           const rel = import_path.default.relative(root, full);
           if (ent.isDirectory()) {
-            if (rel.startsWith("api"))
-              continue;
+            if (rel.startsWith("api")) continue;
             walk(full);
           } else if (ent.isFile() && (ent.name.endsWith(".astro") || ent.name.endsWith(".md") || ent.name.endsWith(".mdx"))) {
-            if (rel.includes("["))
-              continue;
+            if (rel.includes("[")) continue;
             const noExt = rel.replace(/\\.(astro|md|mdx)$/, "");
             let url = "/" + noExt.replace(/\\\\/g, "/");
             url = url.replace(/\\/g, "/");
             url = url.replace(/index$/i, "");
-            if (url.endsWith("/"))
-              url = url.slice(0, -1);
-            if (url === "")
-              url = "/";
+            if (url.endsWith("/")) url = url.slice(0, -1);
+            if (url === "") url = "/";
             urls.push(url);
           }
         }
       };
-      if (import_fs.default.existsSync(root))
-        walk(root);
+      if (import_fs.default.existsSync(root)) walk(root);
       const astroEntries = Array.from(new Set(urls)).map((url) => ({
         stableId: `astro:${url}`,
         urlPath: url,
@@ -376,8 +286,7 @@ var stackbit_config_default = (0, import_types.defineStackbitConfig)({
       }));
       const seen = new Set(entries.map((e) => e.urlPath));
       for (const ae of astroEntries) {
-        if (!seen.has(ae.urlPath))
-          entries.push(ae);
+        if (!seen.has(ae.urlPath)) entries.push(ae);
       }
     } catch (e) {
       console.warn("siteMap: failed to scan Astro pages:", e);
@@ -427,13 +336,11 @@ var stackbit_config_default = (0, import_types.defineStackbitConfig)({
       }
     }
     entries.sort((a, b) => {
-      if (a.isHomePage && !b.isHomePage)
-        return -1;
-      if (b.isHomePage && !a.isHomePage)
-        return 1;
+      if (a.isHomePage && !b.isHomePage) return -1;
+      if (b.isHomePage && !a.isHomePage) return 1;
       return a.urlPath.localeCompare(b.urlPath);
     });
     return entries;
   }
 });
-//# sourceMappingURL=stackbit.config.CP6B2IGB.cjs.map
+//# sourceMappingURL=stackbit.config.2CQ4YF3V.cjs.map
