@@ -6,6 +6,28 @@ import { Fragment, useEffect, useState } from 'react';
 import { Bars3Icon, XMarkIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 import { SearchBar } from '@components/SearchBar.tsx';
 
+async function waitForFasAuth(timeoutMs = 8000): Promise<any | null> {
+  if (typeof window === 'undefined') return null;
+  if ((window as any).fasAuth) return (window as any).fasAuth;
+
+  return await new Promise<any | null>((resolve) => {
+    const started = Date.now();
+    const poll = () => {
+      const fas = (window as any).fasAuth;
+      if (fas) {
+        resolve(fas);
+        return;
+      }
+      if (Date.now() - started >= timeoutMs) {
+        resolve(null);
+        return;
+      }
+      setTimeout(poll, 50);
+    };
+    poll();
+  });
+}
+
 export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone' | 'inline' }) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -16,14 +38,15 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
     let mounted = true;
     (async () => {
       try {
-        const fas = (window as any).fasAuth;
+        const fas = await waitForFasAuth();
         const ok = fas ? await fas.isAuthenticated() : false;
         if (!mounted) return;
         setAuthed(ok);
         if (ok) {
-          const sess = fas ? await fas.getSession() : null;
+          const sess = fas && typeof fas.getSession === 'function' ? await fas.getSession() : null;
           const u = sess?.user || {};
-          const name = (u?.name as string) || (u?.email as string) || '';
+          const name =
+            ((u?.given_name as string) || (u?.name as string) || (u?.email as string) || '').trim();
           setDisplayName(name);
         }
       } catch {
