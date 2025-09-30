@@ -1,82 +1,78 @@
 {
-    "type": "PowerPackagesPage",
-    "slug": "powerPackages",
-    "title": "Power Packages",
-    "hero": {
-        "heading": "Power Packages",
-        "description": "Platform-tuned upgrade bundles engineered for clean installs, real gains, and factory-like drivability.",
-        "badges": [
-            "No Tune Required (Base)",
-            "Financing Available",
-            "Bolt-On Focus"
-        ],
-        "ctas": [
-            {
-                "label": "Shop All Packages",
-                "href": "/shop/powerPackages",
-                "variant": "multi-swipe-v2"
-            },
-            {
-                "label": "Customize Your Build",
-                "href": "/customBuild",
-                "variant": "multi-swipe-v2"
-            }
-        ]
-    },
-    "highlightPills": [
-        "Dyno-Proven Options",
-        "OEM-Style Fit & Finish",
-        "Fast Turnaround",
-        "Warranty-Friendly Base Kits"
-    ],
-    "platformHeading": "Power Packages",
-    "platforms": [
-        {
-            "href": "/shop?platform=trx",
-            "image": "/images/packages/dodge-ram.png",
-            "alt": "RAM TRX Packages",
-            "labelTop": "ram",
-            "labelBottom": "TRX"
-        },
-        {
-            "href": "/shop?platform=trackhawk",
-            "image": "/images/packages/THpackage.png",
-            "alt": "Trackhawk & Durango Packages",
-            "labelTop": "trackhawk",
-            "labelBottom": "durango"
-        },
-        {
-            "href": "/shop?platform=lx",
-            "image": "/images/packages/1.png",
-            "alt": "Challenger & Charger Packages",
-            "labelTop": "challenger",
-            "labelBottom": "charger"
-        }
-    ],
-    "tiers": [
-        {
-            "image": "/images/packages/fas-1x-2.png",
-            "alt": "F.A.S. 1X",
-            "labelTop": "F.A.S.",
-            "labelBottom": "1X"
-        },
-        {
-            "image": "/images/packages/fas 2x.png",
-            "alt": "F.A.S. 2X",
-            "labelTop": "F.A.S.",
-            "labelBottom": "2X"
-        }
-    ],
-    "ctaButtons": [
-        {
-            "label": "Shop All Packages",
-            "href": "/shop/power-packages",
-            "variant": "multi-swipe-v2"
-        },
-        {
-            "label": "Book an Install",
-            "href": "/schedule",
-            "variant": "multi-swipe-v2"
-        }
+  "type": "PowerPackagesPage",
+  "slug": "powerPackages",
+  "title": "Power Packages",
+  "hero": {
+    "heading": "Power Packages",
+    "description": "Platform-tuned upgrade bundles engineered for clean installs, real gains, and factory-like drivability.",
+    "badges": ["Financing Available"],
+    "ctas": [
+      {
+        "label": "Shop All Packages",
+        "href": "/shop?categorySlug=power-packages&category=power-packages&priceMin=0&priceMax=100000&page=1",
+        "variant": "multi-swipe-v2"
+      },
+      {
+        "label": "Get Started",
+        "href": "/contact",
+        "variant": "multi-swipe-v2"
+      }
     ]
+  },
+  "highlightPills": [
+    "Dyno-Proven Options",
+    "OEM-Style Fit & Finish",
+    "Fast Turnaround",
+    "Warranty-Friendly Base Kits"
+  ],
+  "platformHeading": "Power Packages",
+  "platforms": [
+    {
+      "href": "/shop?platform=trx",
+      "image": "/images/packages/dodge-ram.png",
+      "alt": "RAM TRX Packages",
+      "labelTop": "ram",
+      "labelBottom": "TRX"
+    },
+    {
+      "href": "/shop?platform=trackhawk",
+      "image": "/images/packages/THpackage.png",
+      "alt": "Trackhawk & Durango Packages",
+      "labelTop": "trackhawk",
+      "labelBottom": "durango"
+    },
+    {
+      "href": "/shop?platform=lx",
+      "image": "/images/packages/1.png",
+      "alt": "Challenger & Charger Packages",
+      "labelTop": "challenger",
+      "labelBottom": "charger"
+    }
+  ],
+  "tiers": [
+    {
+      "image": "/images/packages/fas-1x-2.png",
+      "alt": "F.A.S. 1X",
+      "labelTop": "F.A.S.",
+      "labelBottom": "1X"
+    },
+    {
+      "image": "/images/packages/fas 2x.png",
+      "alt": "F.A.S. 2X",
+      "labelTop": "F.A.S.",
+      "labelBottom": "2X"
+    }
+  ],
+  "ctaButtons": [
+    {
+      "label": "Shop All Packages",
+      "href": "/shop/power-packages",
+      "variant": "multi-swipe-v2"
+    },
+    {
+      "label": "Book an Install",
+      "href": "/schedule",
+      "variant": "multi-swipe-v2"
+    }
+  ]
 }

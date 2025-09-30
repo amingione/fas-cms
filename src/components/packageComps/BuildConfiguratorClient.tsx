@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import type { Product } from '@lib/sanity-utils';
-import { Button } from './ui/button';
+import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 
 interface Props {
