@@ -194,25 +194,9 @@ function setActiveNav(view?: string | null) {
 
     const content = () => getVisibleDashContent();
     const sel = document.getElementById('mobile-account-select') as HTMLSelectElement | null;
-    const viewRoutes: Record<string, string> = {
-      profile: '/customerdashboard/customerProfile',
-      details: '/customerdashboard/customerProfile',
-      orders: '/customerdashboard/userOrders',
-      quotes: '/customerdashboard/userQuotes',
-      invoices: '/customerdashboard/userInvoices',
-      appointments: '/customerdashboard/userAppointments'
-    };
     if (sel)
       sel.addEventListener('change', () => {
-        const view = sel.value;
-        if (window.matchMedia('(max-width: 639px)').matches) {
-          const route = viewRoutes[view];
-          if (route) {
-            window.location.href = route;
-            return;
-          }
-        }
-        load(view);
+        load(sel.value);
       });
     const setLoading = (msg = 'Loading...') => {
       const c = content();
@@ -417,10 +401,29 @@ function setActiveNav(view?: string | null) {
       }
     }
 
+    const resolveView = (view?: string | null) => {
+      const v = (view || '').toLowerCase();
+      if (!v || v === 'dashboard') return 'dashboard';
+      if (['orders', 'quotes', 'invoices', 'appointments', 'profile', 'details'].includes(v)) {
+        return v === 'details' ? 'details' : v;
+      }
+      return 'dashboard';
+    };
+
+    const syncHashToView = (view: string) => {
+      const targetHash = view === 'dashboard' ? '' : `#${view}`;
+      const desired = `${window.location.pathname}${window.location.search}${targetHash}`;
+      const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+      if (current !== desired) {
+        history.replaceState(null, '', desired);
+      }
+    };
+
     function load(view?: string | null) {
-      currentView = view || 'dashboard';
+      currentView = resolveView(view);
+      syncHashToView(currentView);
       setActiveNav(currentView);
-      switch (view) {
+      switch (currentView) {
         case 'orders':
           return renderOrders();
         case 'quotes':
@@ -462,7 +465,13 @@ function setActiveNav(view?: string | null) {
       }
     });
 
-    load('dashboard');
+    const currentHashView = resolveView(window.location.hash.replace('#', '') || null);
+    load(currentHashView);
+
+    window.addEventListener('hashchange', () => {
+      const nextView = resolveView(window.location.hash.replace('#', '') || null);
+      load(nextView);
+    });
     setTimeout(() => {
       try {
         const c = getVisibleDashContent();

@@ -14,18 +14,10 @@ const featurePills: string[] = Array.isArray(pageDoc?.featurePills) ? pageDoc.fe
 const featurePillsHasContent = featurePills.length > 0;
 const featurePillsFallback = ['Flow-bench guided', 'Hand finish', 'Matched components', 'OEM-level fit & finish'];
 const featurePillsToRender = featurePillsHasContent ? featurePills : featurePillsFallback;
-const stats: Array<{ value?: string; label?: string }> = Array.isArray(pageDoc?.stats)
-  ? pageDoc.stats
-  : [];
-const statsHasContent = stats.length > 0;
-const statsFallback = [
-  { value: '±0.5%', label: 'CSA variance target' },
-  { value: '≤0.001"', label: 'Flatness at flanges' },
-  { value: '20–40+ whp', label: 'Typical SC gains*' },
-  { value: 'Bench-guided', label: 'Validation process' }
-];
-const statsToRender = statsHasContent ? stats : statsFallback;
-const statsNote: string = pageDoc?.statsNote ?? '* With proper tuning and supporting mods. Results vary by platform.';
+
+
+
+
 const portingItems: Array<{ title?: string; desc?: string }> = Array.isArray(pageDoc?.portingItems)
   ? pageDoc.portingItems
   : [];
@@ -50,7 +42,7 @@ const methodologyItemsToRender = methodologyItems.length
   ? methodologyItems
   : [
       'Baseline measurement and inspection; document casting lines and restrictions.',
-      'CNC rough-in to targeted CSA; hand-blend for surface finish and transition quality.',
+      'Hand-blend for surface finish and transition quality.',
       'Port-matching across interfaces (snout ⇄ TB ⇄ case ⇄ manifold).',
       'Final inspection: CSA verification, concentricity, fastener land integrity.'
     ];
@@ -156,7 +148,7 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonFallback
   </section>
 
   <!-- OVERVIEW STRIP -->
-  <section class="industrial-glow luxury-hover-scale luxury-carbon-effect relative w-full bg-black/60 backdrop-blur-md border-b border-white/20">
+  <section class="luxury-hover-scale relative w-full bg-black/60 backdrop-blur-md border-b border-white/20">
     <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-0" {...sbFieldPath('featurePills')}>
         {featurePillsToRender.map((pill, idx) => {
@@ -174,25 +166,7 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonFallback
         })}
       </div>
     </div>
-    <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 py-4" {...sbFieldPath('stats')}>
-        {statsToRender.map((stat, idx) => {
-          const fieldAttrs = statsHasContent ? sbFieldPath(`stats[${idx}]`) : {};
-          return (
-            <div class="rounded-lg border border-white/20 bg-black/50 p-3 text-center" {...fieldAttrs}>
-              <div class="text-2xl font-borg text-white" {...(statsHasContent ? sbFieldPath(`stats[${idx}].value`) : {})}>
-                {stat?.value || ''}
-              </div>
-              <div class="text-xs text-white" {...(statsHasContent ? sbFieldPath(`stats[${idx}].label`) : {})}>
-                {stat?.label || ''}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      <p class="text-white/80 text-[11px] pb-4" {...sbFieldPath('statsNote')}>
-        {statsNote}
-      </p>
+
     </div>
   </section>
 

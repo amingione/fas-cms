@@ -6,12 +6,7 @@
   "hero": {
     "heading": "Porting Services",
     "description": "Superchargers, snouts, throttle bodies, intake manifolds, and cylinder heads — blueprint-level porting for real, repeatable gains.",
-    "tags": [
-      "Flow-bench guided",
-      "CNC + hand finish",
-      "Matched interfaces",
-      "OEM-level fit"
-    ],
+    "tags": ["Flow-bench guided", "Hand finish", "Matched interfaces", "OEM-level fit"],
     "image": {
       "src": "/images/snouts/fas-ported-snout.png",
       "alt": "Ported snout detail",
@@ -30,19 +25,6 @@
       "size": "md"
     }
   },
-  "stats": [
-    { "value": "±0.5%", "label": "CSA variance target" },
-    { "value": "≤0.001\"", "label": "Flatness at flanges" },
-    { "value": "20–40+ whp", "label": "Typical SC gains*" },
-    { "value": "Bench-guided", "label": "Validation process" }
-  ],
-  "statsNote": "* With proper tuning and supporting mods. Results vary by platform.",
-  "featurePills": [
-    "Flow-bench guided",
-    "CNC + hand finish",
-    "Matched components",
-    "OEM-level fit & finish"
-  ],
   "portingItems": [
     {
       "title": "Supercharger",
