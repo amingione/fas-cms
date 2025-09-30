@@ -3,23 +3,61 @@
 // Track the current view so we can re-render on breakpoint changes
 let currentView: string = 'dashboard';
 
-function selectDashContainer() {
-  const desktop = document.querySelector(
-    '[data-desktop-dash] [data-dash-content]'
-  ) as HTMLElement | null;
-  const mobile = document.querySelector(
-    '[data-mobile-dash] [data-dash-content]'
-  ) as HTMLElement | null;
-  if (window.matchMedia('(min-width: 640px)').matches) {
-    return desktop || mobile;
+async function waitForFasAuth(timeoutMs = 8000) {
+  if (typeof window === 'undefined') return null;
+  if ((window as any).fasAuth) return (window as any).fasAuth;
+
+  return await new Promise<any>((resolve, reject) => {
+    const started = Date.now();
+    const poll = () => {
+      const fas = (window as any).fasAuth;
+      if (fas) {
+        resolve(fas);
+        return;
+      }
+      if (Date.now() - started >= timeoutMs) {
+        reject(new Error('fasAuth not available'));
+        return;
+      }
+      setTimeout(poll, 50);
+    };
+    poll();
+  }).catch((err) => {
+    console.warn('[dashboard] waitForFasAuth failed:', err?.message || err);
+    return null;
+  });
+}
+
+function getDashContainers(): HTMLElement[] {
+  return Array.from(document.querySelectorAll<HTMLElement>('[data-dash-content]'));
+}
+
+function withDashContainers(fn: (el: HTMLElement) => void) {
+  const targets = getDashContainers();
+  if (!targets.length) throw new Error('Dashboard content container not found');
+  targets.forEach((el) => fn(el));
+}
+
+function writeDashContent(html: string) {
+  try {
+    withDashContainers((el) => {
+      if (el.dataset) delete (el.dataset as any).state;
+      el.innerHTML = html;
+    });
+  } catch {
+    /* noop */
   }
-  return mobile || desktop;
 }
 
 function getVisibleDashContent() {
-  const el = selectDashContainer();
-  if (!el) throw new Error('Dashboard content container not found');
-  return el;
+  const desktop = document.querySelector('[data-desktop-dash] [data-dash-content]') as HTMLElement | null;
+  const mobile = document.querySelector('[data-mobile-dash] [data-dash-content]') as HTMLElement | null;
+  if (window.matchMedia('(min-width: 640px)').matches && desktop) return desktop;
+  return mobile ?? desktop ?? (() => {
+    const all = getDashContainers();
+    if (!all.length) throw new Error('Dashboard content container not found');
+    return all[0];
+  })();
 }
 
 function getNameEls() {
@@ -67,7 +105,15 @@ function setActiveNav(view?: string | null) {
 
     // Removed pre-rendered login CTA to avoid flicker/duplication
 
-    const fas = (window as any).fasAuth;
+    const fas = await waitForFasAuth();
+    if (!fas) {
+      writeDashContent(`
+        <div class="space-y-3">
+          <p class="opacity-90">Account services are offline right now.</p>
+          <a id="dash-login" href="/account" class="inline-block px-4 py-2 bg-primary text-accent font-ethno rounded">Try again</a>
+        </div>`);
+      return;
+    }
     (window as any)._getVisibleDashContent = getVisibleDashContent;
     (window as any)._setName = setName;
     console.log('✅ fas-auth ready');
@@ -81,12 +127,11 @@ function setActiveNav(view?: string | null) {
     }
 
     if (!authed) {
-      const c = getVisibleDashContent();
-      c.innerHTML = `
+      writeDashContent(`
         <div class="space-y-3">
           <p class="opacity-90">You're not signed in.</p>
           <a id="dash-login" href="/account" class="inline-block px-4 py-2 bg-primary text-accent font-ethno rounded">Log in</a>
-        </div>`;
+        </div>`);
       return;
     }
 
@@ -192,26 +237,31 @@ function setActiveNav(view?: string | null) {
       );
     }
 
-    const content = () => getVisibleDashContent();
     const sel = document.getElementById('mobile-account-select') as HTMLSelectElement | null;
     if (sel)
       sel.addEventListener('change', () => {
         load(sel.value);
       });
     const setLoading = (msg = 'Loading...') => {
-      const c = content();
-      if (!c) return;
       const marker = `__loading_${Date.now()}__`;
-      (c as any).dataset.state = marker;
-      c.innerHTML = `<p class="opacity-80">${msg}</p>`;
+      try {
+        withDashContainers((el) => {
+          el.dataset.state = marker;
+          el.innerHTML = `<p class="opacity-80">${msg}</p>`;
+        });
+      } catch {}
       setTimeout(() => {
-        if (!c || (c as any).dataset.state !== marker) return;
-        // Authed path: show a neutral loading message instead of login CTA
-        c.innerHTML = `<p class="opacity-80">Still loading your data...</p>`;
+        try {
+          withDashContainers((el) => {
+            if (el.dataset.state === marker) {
+              el.innerHTML = `<p class="opacity-80">Still loading your data...</p>`;
+            }
+          });
+        } catch {}
       }, 6000);
     };
     const renderEmpty = (label: string) => {
-      content().innerHTML = `<p class="opacity-80">No ${label} found.</p>`;
+      writeDashContent(`<p class="opacity-80">No ${label} found.</p>`);
     };
 
     async function fetchJSON(url: string, options: RequestInit = {}, ms = 5000) {
@@ -243,12 +293,12 @@ function setActiveNav(view?: string | null) {
         ).catch(() => ({}));
         const name =
           [(c as any).firstName, (c as any).lastName].filter(Boolean).join(' ') || defaultName;
-        content().innerHTML = `
+        writeDashContent(`
           <h3 class="font-ethno text-base mb-3">Dashboard</h3>
           <div class="font-sans space-y-2 opacity-90 text-base">
             <p>Hello, <strong>${name}</strong>.</p>
             <p class="text-base">From your account dashboard you can view your <a href="#" data-view="orders" class="underline js-view">recent orders</a>, manage your <a href="/dashboard" class="underline">account details</a>, and more.</p>
-          </div>`;
+          </div>`);
       } catch {
         renderEmpty('dashboard');
       }
@@ -270,7 +320,7 @@ function setActiveNav(view?: string | null) {
         const addr = [c.address1, c.address2, c.city, c.state, c.postalCode]
           .filter(Boolean)
           .join(', ');
-        content().innerHTML = `
+        writeDashContent(`
           <h3 class="font-ethno text-lg mb-3">My Profile</h3>
           <div class="grid sm:grid-cols-2 gap-3 text-sm">
             <div><div class="opacity-70">First Name</div><div class="font-semibold">${c.firstName || ''}</div></div>
@@ -280,7 +330,7 @@ function setActiveNav(view?: string | null) {
             <div class="sm:col-span-2"><div class="opacity-70">Address</div><div class="font-semibold">${addr}</div></div>
           </div>
           <p class="mt-5 text-xs opacity-70">Need changes? <a class="underline" href="/customerdashboard/customerProfile">Edit profile</a>.</p>
-        `;
+        `);
       } catch {
         renderEmpty('profile');
       }
@@ -295,7 +345,7 @@ function setActiveNav(view?: string | null) {
           5000
         ).catch(() => []);
         if (!Array.isArray(items) || !items.length) return renderEmpty('orders');
-        content().innerHTML = `
+        writeDashContent(`
           <h3 class="font-ethno text-lg mb-4">Orders</h3>
           <div class="space-y-3">
             ${items
@@ -310,7 +360,7 @@ function setActiveNav(view?: string | null) {
             `
               )
               .join('')}
-          </div>`;
+          </div>`);
       } catch {
         renderEmpty('orders');
       }
@@ -325,7 +375,7 @@ function setActiveNav(view?: string | null) {
           5000
         ).catch(() => []);
         if (!Array.isArray(items) || !items.length) return renderEmpty('quotes');
-        content().innerHTML = `
+        writeDashContent(`
           <h3 class="font-ethno text-lg mb-4">Quotes</h3>
           <div class="space-y-3">
             ${items
@@ -339,7 +389,7 @@ function setActiveNav(view?: string | null) {
             `
               )
               .join('')}
-          </div>`;
+          </div>`);
       } catch {
         renderEmpty('quotes');
       }
@@ -354,7 +404,7 @@ function setActiveNav(view?: string | null) {
           5000
         ).catch(() => []);
         if (!Array.isArray(items) || !items.length) return renderEmpty('invoices');
-        content().innerHTML = `
+        writeDashContent(`
           <h3 class="font-ethno text-lg mb-4">Invoices</h3>
           <div class="space-y-3">
             ${items
@@ -368,7 +418,7 @@ function setActiveNav(view?: string | null) {
             `
               )
               .join('')}
-          </div>`;
+          </div>`);
       } catch {
         renderEmpty('invoices');
       }
@@ -383,7 +433,7 @@ function setActiveNav(view?: string | null) {
           5000
         ).catch(() => []);
         if (!Array.isArray(items) || !items.length) return renderEmpty('appointments');
-        content().innerHTML = `
+        writeDashContent(`
           <h3 class="font-ethno text-lg mb-4">Appointments</h3>
           <div class="space-y-3">${items
             .map(
@@ -395,7 +445,7 @@ function setActiveNav(view?: string | null) {
             </div>
           `
             )
-            .join('')}</div>`;
+            .join('')}</div>`);
       } catch {
         renderEmpty('appointments');
       }
@@ -474,12 +524,12 @@ function setActiveNav(view?: string | null) {
     });
     setTimeout(() => {
       try {
-        const c = getVisibleDashContent();
-        const txt = (c?.textContent || '').trim().toLowerCase();
-        if (txt === 'loading...' || txt === 'loading') {
-          // Keep a neutral loading state; do not show login CTA when authed
-          c.innerHTML = `<p class="opacity-80">Still loading your data...</p>`;
-        }
+        withDashContainers((el) => {
+          const txt = (el.textContent || '').trim().toLowerCase();
+          if (txt === 'loading...' || txt === 'loading') {
+            el.innerHTML = `<p class="opacity-80">Still loading your data...</p>`;
+          }
+        });
       } catch {}
     }, 8000);
 
