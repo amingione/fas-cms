@@ -1,8 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 
-const dashboardScript = '/scripts/dashboard-page.ts';
-
 // Simple auth guard: if no fas-auth session cookie, redirect to /account
 const cookie = Astro.request.headers.get('cookie') || '';
 const readCookie = (name: string) => {
@@ -107,9 +105,9 @@ if (!isLoggedIn) {
     </section>
   </main>
 
-  <script type="module" src={dashboardScript}></script>
-  <!-- inlined script moved to src/scripts/dashboard-page.ts -->
+  <script type="module">
+    import '../scripts/dashboard-page.ts';
+  </script>
+  <!-- All dashboard logic is handled in src/scripts/dashboard-page.ts -->
 
-    <!-- All dashboard logic is now handled in src/scripts/dashboard-page.ts -->
-  
 </BaseLayout>

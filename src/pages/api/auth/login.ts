@@ -1,10 +1,7 @@
 import type { APIRoute } from 'astro';
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 // Defer importing Sanity utilities until we know env is configured
-import { setSessionCookie } from '../../../server/auth/session';
-
-const JWT_SECRET = process.env.JWT_SECRET || '';
+import { setSession } from '../../../server/auth/session';
 
 // POST /api/auth/login
 // Body: { email: string, password: string }
@@ -22,13 +19,15 @@ export const POST: APIRoute = async ({ request }) => {
 
     const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
     const adminPassword = process.env.ADMIN_PASSWORD;
-    let token: string | null = null;
+    let sessionUser: { id: string; email: string; roles: string[] } | null = null;
+    let expiresIn: string | undefined = undefined;
 
     if (adminEmail && adminPassword && email === adminEmail && password === adminPassword) {
-      token = jwt.sign({ sub: 'admin', role: 'admin', email }, JWT_SECRET, { expiresIn: '1h' });
+      sessionUser = { id: 'admin', email, roles: ['admin'] };
+      expiresIn = '1h';
     }
 
-    if (!token) {
+    if (!sessionUser) {
       const hasSanity = Boolean(
         (import.meta.env.PUBLIC_SANITY_PROJECT_ID as string | undefined) ||
           (import.meta.env.SANITY_PROJECT_ID as string | undefined) ||
@@ -40,16 +39,19 @@ export const POST: APIRoute = async ({ request }) => {
         if (vendor && (vendor as any).status === 'Approved') {
           const passwordHash = (vendor as any).passwordHash;
           if (passwordHash && (await bcrypt.compare(password, passwordHash))) {
-            token = jwt.sign({ sub: vendor._id, role: 'vendor', email: vendor.email }, JWT_SECRET, {
-              expiresIn: '1h'
-            });
+            sessionUser = {
+              id: String(vendor._id || vendor.id || vendor.email || email),
+              email: String(vendor.email || email),
+              roles: ['vendor']
+            };
+            expiresIn = '1h';
           }
         }
       }
     }
 
     // Customer login via Sanity
-    if (!token) {
+    if (!sessionUser) {
       const hasSanity = Boolean(
         (import.meta.env.PUBLIC_SANITY_PROJECT_ID as string | undefined) ||
           (import.meta.env.SANITY_PROJECT_ID as string | undefined) ||
@@ -61,15 +63,18 @@ export const POST: APIRoute = async ({ request }) => {
         if (customer) {
           const passwordHash = (customer as any).passwordHash;
           if (passwordHash && (await bcrypt.compare(password, passwordHash))) {
-            token = jwt.sign({ sub: customer._id, role: 'customer', email: customer.email }, JWT_SECRET, {
-              expiresIn: '7d'
-            });
+            sessionUser = {
+              id: String(customer._id || customer.id || customer.email || email),
+              email: String(customer.email || email),
+              roles: ['customer']
+            };
+            expiresIn = '7d';
           }
         }
       }
     }
 
-    if (!token) {
+    if (!sessionUser) {
       return new Response(JSON.stringify({ message: 'Invalid credentials' }), {
         status: 401,
         headers: { 'content-type': 'application/json' }
@@ -77,7 +82,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const headers = new Headers({ 'content-type': 'application/json' });
-    setSessionCookie(headers, token);
+    setSession(headers, sessionUser, expiresIn ? { expiresIn } : {});
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
   } catch (err) {
     console.error(err);
