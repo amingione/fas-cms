@@ -534,8 +534,8 @@ export default function CategoryPage({
                         </div>
                         <div className="h-64 w-44 overflow-hidden rounded-lg">
                           <img
-                            alt=""
-                            src="https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-hero-image-tile-02.jpg"
+                            alt="PORTED 2.7L SUPERCHARGER AND SNOUT"
+                            src="/images/products/2.7L Ported supercharger and snout.png"
                             className="size-full object-cover"
                           />
                         </div>
@@ -544,21 +544,21 @@ export default function CategoryPage({
                         <div className="h-64 w-44 overflow-hidden rounded-lg">
                           <img
                             alt=""
-                            src="https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-hero-image-tile-03.jpg"
+                            src="/images/products/4.5L-whipple-yellow.png"
                             className="size-full object-cover"
                           />
                         </div>
                         <div className="h-64 w-44 overflow-hidden rounded-lg">
                           <img
                             alt=""
-                            src="https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-hero-image-tile-04.jpg"
+                            src="/images/products/FASred-coated-supercharger .webp"
                             className="size-full object-cover"
                           />
                         </div>
                         <div className="h-64 w-44 overflow-hidden rounded-lg">
                           <img
                             alt=""
-                            src="https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-hero-image-tile-05.jpg"
+                            src="/images/products/high temp blower case coating.webp"
                             className="size-full object-cover"
                           />
                         </div>
@@ -567,14 +567,14 @@ export default function CategoryPage({
                         <div className="h-64 w-44 overflow-hidden rounded-lg">
                           <img
                             alt=""
-                            src="https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-hero-image-tile-06.jpg"
+                            src="/images/products/11.webp"
                             className="size-full object-cover"
                           />
                         </div>
                         <div className="h-64 w-44 overflow-hidden rounded-lg">
                           <img
                             alt=""
-                            src="https://tailwindcss.com/plus-assets/img/ecommerce-images/home-page-03-hero-image-tile-07.jpg"
+                            src="/images/products/FASsatinBlack-sc-snout.webp"
                             className="size-full object-cover"
                           />
                         </div>
