@@ -1,11 +1,27 @@
 import type { APIRoute } from 'astro';
 import { Resend } from 'resend';
-import { sanityClient } from '@/lib/sanityClient';
+import { createClient } from '@sanity/client';
 import { jtxWheelQuoteSchema } from '@/lib/validators/jtxWheelSpec';
 
-const resend = new Resend(import.meta.env.RESEND_API_KEY);
+const resendApiKey = import.meta.env.RESEND_API_KEY;
+const resend = resendApiKey ? new Resend(resendApiKey) : null;
 const TO = 'sales@fasmotorsports.com';
 const FROM = import.meta.env.RESEND_FROM ?? 'no-reply@fasmotorsports.com';
+
+const sanityProjectId = import.meta.env.SANITY_PROJECT_ID || import.meta.env.PUBLIC_SANITY_PROJECT_ID;
+const sanityDataset = import.meta.env.SANITY_DATASET || import.meta.env.PUBLIC_SANITY_DATASET;
+const sanityToken = import.meta.env.SANITY_API_TOKEN;
+
+const sanity =
+  sanityProjectId && sanityDataset && sanityToken
+    ? createClient({
+        projectId: sanityProjectId,
+        dataset: sanityDataset,
+        apiVersion: '2023-06-07',
+        useCdn: false,
+        token: sanityToken
+      })
+    : null;
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -34,11 +50,22 @@ export const POST: APIRoute = async ({ request }) => {
       notes: data.notes ?? null,
       status: 'new'
     };
-    await sanityClient.create(doc);
+    let createdId: string | null = null;
+    if (sanity) {
+      try {
+        const created = await sanity.create(doc);
+        createdId = created?._id ?? null;
+      } catch (err) {
+        console.error('[JTX Quote] Failed to persist to Sanity', err);
+      }
+    } else {
+      console.warn('[JTX Quote] Sanity credentials missing. Skipping persistence.');
+    }
 
     const subject = `[JTX Quote] ${data.series} ${data.diameter}x${data.width} ${data.boltPattern} — ${data.fullname}`;
     const html = `
       <h2>JTX Quote Request</h2>
+      <p><b>Sanity Doc ID:</b> ${createdId ?? 'n/a'}</p>
       <p><b>Series:</b> ${data.series}</p>
       <p><b>Spec:</b> ${data.diameter}x${data.width} • ${data.boltPattern} • Offset: ${data.offset}</p>
       <p><b>Finish:</b> ${data.finish} ${data.color ? '• <b>Color:</b> '+data.color : ''}</p>
@@ -47,10 +74,18 @@ export const POST: APIRoute = async ({ request }) => {
       <p><b>Customer:</b> ${data.fullname} • ${data.email} ${data.phone ? '• '+data.phone : ''}</p>
       <p><b>Notes:</b><br/>${(data.notes ?? '').replace(/\n/g,'<br/>')}</p>
     `;
-    await resend.emails.send({ from: FROM, to: [TO], replyTo: data.email, subject, html });
-    return new Response(JSON.stringify({ ok: true }), { status: 200 });
+    if (resend) {
+      try {
+        await resend.emails.send({ from: FROM, to: [TO], replyTo: data.email, subject, html });
+      } catch (err) {
+        console.error('[JTX Quote] Failed to send Resend email', err);
+      }
+    } else {
+      console.warn('[JTX Quote] Resend API key missing. Skipping email notification.');
+    }
+
+    return new Response(JSON.stringify({ ok: true, id: createdId }), { status: 200 });
   } catch (err: any) {
     return new Response(JSON.stringify({ error: err.message ?? 'Invalid payload' }), { status: 400 });
   }
 };
-

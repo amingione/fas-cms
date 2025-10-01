@@ -1,79 +1,44 @@
 import type { APIRoute } from 'astro';
 import { Resend } from 'resend';
 import { createClient } from '@sanity/client';
-import { z } from 'zod';
+import { wheelQuoteSchema } from '@/lib/validators/belakWheelSpec';
 
-const resend = new Resend(import.meta.env.RESEND_API_KEY);
+const resendApiKey = import.meta.env.RESEND_API_KEY;
+const resend = resendApiKey ? new Resend(resendApiKey) : null;
 const TO = 'sales@fasmotorsports.com';
 const FROM = import.meta.env.RESEND_FROM ?? 'no-reply@fasmotorsports.com';
 
-const sanity = createClient({
-  projectId: import.meta.env.SANITY_PROJECT_ID,
-  dataset: import.meta.env.SANITY_DATASET,
-  apiVersion: '2025-09-10',
-  token: import.meta.env.SANITY_API_TOKEN,
-  useCdn: false
-});
+const sanityProjectId = import.meta.env.SANITY_PROJECT_ID || import.meta.env.PUBLIC_SANITY_PROJECT_ID;
+const sanityDataset = import.meta.env.SANITY_DATASET || import.meta.env.PUBLIC_SANITY_DATASET;
+const sanityToken = import.meta.env.SANITY_API_TOKEN;
 
-export const wheelQuoteSchema = z.object({
-  series: z.enum(['Series 2', 'Series 3']),
-  fullname: z.string(),
-  email: z.string(),
-  diameter: z.number(),
-  width: z.number(),
-  boltPattern: z.enum([
-    '4x100',
-    '4x108',
-    '4x114.3',
-    '5x100',
-    '5x112',
-    '5x114.3',
-    '5x120',
-    '5x4.50',
-    '5x4.75',
-    '6x4.5'
-  ]),
-  backspacing: z.number(),
-  finish: z.string(),
-  beadlock: z.boolean(),
-  hardware: z.string(),
-  centerCap: z.string(),
-  style: z.string().optional(),
-  qtyFront: z.number(),
-  qtyRear: z.number(),
-  tireSizeFront: z.string().optional(),
-  tireSizeRear: z.string().optional(),
-  brakeClearanceNotes: z.string().optional(),
-  notes: z.string().optional(),
-  attachmentAssetIds: z.array(z.string()).optional(),
-  pageContext: z.string().optional(),
-  phone: z.string().optional(),
-  vehicleYear: z.string().optional(),
-  vehicleMake: z.string().optional(),
-  vehicleModel: z.string().optional(),
-  agreeTrackUseOnly: z.boolean().optional()
-});
+const sanity =
+  sanityProjectId && sanityDataset && sanityToken
+    ? createClient({
+        projectId: sanityProjectId,
+        dataset: sanityDataset,
+        apiVersion: '2025-09-10',
+        token: sanityToken,
+        useCdn: false
+      })
+    : null;
 
 export const POST: APIRoute = async ({ request }) => {
   try {
     const json = await request.json();
     const data = wheelQuoteSchema.parse(json);
 
-    // 1) Save to Sanity
     const doc = {
       _type: 'wheelQuote',
       source: 'belak',
       pageContext: data.pageContext ?? null,
       createdAt: new Date().toISOString(),
-      // customer
       fullname: data.fullname,
       email: data.email,
       phone: data.phone ?? null,
-      // vehicle
       vehicleYear: data.vehicleYear ?? null,
       vehicleMake: data.vehicleMake ?? null,
       vehicleModel: data.vehicleModel ?? null,
-      // wheel
       series: data.series,
       diameter: data.diameter,
       width: data.width,
@@ -90,7 +55,7 @@ export const POST: APIRoute = async ({ request }) => {
       tireSizeRear: data.tireSizeRear ?? null,
       brakeClearanceNotes: data.brakeClearanceNotes ?? null,
       notes: data.notes ?? null,
-      agreeTrackUseOnly: data.agreeTrackUseOnly,
+      agreeTrackUseOnly: data.agreeTrackUseOnly ?? false,
       attachments: (data.attachmentAssetIds ?? []).map((id: string) => ({
         _type: 'reference',
         _ref: id
@@ -98,13 +63,22 @@ export const POST: APIRoute = async ({ request }) => {
       status: 'new'
     };
 
-    const created = await sanity.create(doc);
+    let createdId: string | null = null;
+    if (sanity) {
+      try {
+        const created = await sanity.create(doc);
+        createdId = created?._id ?? null;
+      } catch (err) {
+        console.error('[Belak Quote] Failed to persist to Sanity', err);
+      }
+    } else {
+      console.warn('[Belak Quote] Sanity credentials missing. Skipping persistence.');
+    }
 
-    // 2) Email to sales
     const subject = `[Belak Quote] ${data.series} ${data.diameter}x${data.width}\" ${data.boltPattern} — ${data.fullname}`;
     const html = `
       <h2>Belak Quote Request</h2>
-      <p><b>Sanity Doc ID:</b> ${created._id}</p>
+      <p><b>Sanity Doc ID:</b> ${createdId ?? 'n/a'}</p>
       <p><b>Page:</b> ${data.pageContext ?? '-'}</p>
       <p><b>Series:</b> ${data.series}</p>
       <p><b>Spec:</b> ${data.diameter}" x ${data.width}" • ${data.boltPattern} • Backspacing: ${data.backspacing}</p>
@@ -119,15 +93,23 @@ export const POST: APIRoute = async ({ request }) => {
       <p><i>Track use only acknowledged by customer.</i></p>
     `;
 
-    await resend.emails.send({
-      from: FROM,
-      to: [TO],
-      replyTo: data.email,
-      subject,
-      html
-    });
+    if (resend) {
+      try {
+        await resend.emails.send({
+          from: FROM,
+          to: [TO],
+          replyTo: data.email,
+          subject,
+          html
+        });
+      } catch (err) {
+        console.error('[Belak Quote] Failed to send Resend email', err);
+      }
+    } else {
+      console.warn('[Belak Quote] Resend API key missing. Skipping email notification.');
+    }
 
-    return new Response(JSON.stringify({ ok: true, id: created._id }), { status: 200 });
+    return new Response(JSON.stringify({ ok: true, id: createdId }), { status: 200 });
   } catch (err: any) {
     return new Response(JSON.stringify({ error: err.message ?? 'Invalid payload' }), {
       status: 400

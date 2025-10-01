@@ -129,24 +129,6 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallbac
         </div>
       </div>
     </section>
-
-    <section class="z-30 relative w-full border-y glass- bg-white/10">
-      <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-0">
-          {highlightPillsToRender.map((pill, idx) => {
-            const isLast = idx === highlightPillsToRender.length - 1;
-            return (
-              <div
-                class={`flex items-center gap-3 py-4 px-4 ${isLast ? '' : 'border-r border-white/20'}`}
-              >
-                <div class="w-2 h-2 rounded-full"></div>
-                <div class="text-white/80 text-xs md:text-sm font-mono tracking-[0.14em]">{pill}</div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </section>
     <PowerPackagesComponent client:load />
           <section id="ThreeDGallery" class="mt-10">
         <AnimatedThreeDGallery

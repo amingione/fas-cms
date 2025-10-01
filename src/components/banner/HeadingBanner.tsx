@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { CheckIcon } from '@heroicons/react/24/outline';
 
-type TabKey = 'overview' | 'fabrication' | 'inventory' | 'clients' | 'support';
+type TabKey = 'overview' | 'inventory' | 'clients';
 
 type Metric = {
   label: string;
@@ -44,49 +44,21 @@ const TABS: TabConfig[] = [
         'Live telemetry from fabrication bays, dyno cells, and customer service dashboards.'
     },
     metrics: [
-      { label: 'Active custom builds', base: 24, variance: 3, clamp: [18, 32] },
-      { label: 'Avg turnaround', base: 17, variance: 2, suffix: 'days', clamp: [12, 21] },
+      { label: 'Active custom builds', base: 5, variance: 3, clamp: [5, 9] },
+      { label: 'Avg turnaround', base: 10, variance: 2, suffix: 'days', clamp: [3, 11] },
       {
         label: 'QC pass rate',
-        base: 99.3,
+        base: 99.9,
         variance: 0.4,
         decimals: 1,
         suffix: '%',
-        clamp: [98.3, 99.9]
+        clamp: [99.9, 99.9]
       }
     ],
     footer: {
       eyebrow: 'Precision insights',
       title: 'Every build tracked, every milestone verified',
       body: 'Our operations dashboard keeps the FAS Motorsports crew aligned—monitoring billet machining queues, dyno calibration data, and customer delivery timelines in one command center view.'
-    }
-  },
-  {
-    key: 'fabrication',
-    label: 'Fabrication',
-    summary: {
-      statusColor: 'bg-red-500',
-      division: 'Fabrication Bay',
-      focus: 'CNC & TIG Ops',
-      description:
-        'Machine utilization, consumables, and QA checkpoints across billet pulleys, brackets, and intercooler hardware.'
-    },
-    metrics: [
-      { label: 'Billet jobs in queue', base: 8, variance: 4, clamp: [2, 16] },
-      { label: 'CNC uptime', base: 96, variance: 3, suffix: '%', clamp: [90, 99] },
-      {
-        label: 'Weld tolerance',
-        base: 0.002,
-        variance: 0.0004,
-        decimals: 4,
-        formatter: (value) => `${value.toFixed(4)}"`,
-        clamp: [0.0016, 0.0026]
-      }
-    ],
-    footer: {
-      eyebrow: 'To-the-thou fabrication',
-      title: 'From raw billet to hand-finished perfection',
-      body: 'Supervisors track every machining cycle, purge cycle, and weld bead to guarantee Predator assemblies leave the bay to exact spec.'
     }
   },
   {
@@ -100,8 +72,7 @@ const TABS: TabConfig[] = [
         'Pulse on ready-to-ship Predator pulleys, intercoolers, and install hardware kits.'
     },
     metrics: [
-      { label: 'Pulleys ready to ship', base: 42, variance: 6, clamp: [32, 56] },
-      { label: 'Intercooler cores staged', base: 18, variance: 4, clamp: [10, 26] },
+      { label: 'Pulleys ready to ship', base: 0, variance: 0, clamp: [0, 0] },
       { label: 'Next restock ETA', base: 5, variance: 2, suffix: 'days', clamp: [2, 9] }
     ],
     footer: {
@@ -121,7 +92,7 @@ const TABS: TabConfig[] = [
         'Account managers tracking milestone approvals, tuning sessions, and delivery logistics.'
     },
     metrics: [
-      { label: 'Active VIP builds', base: 12, variance: 3, clamp: [6, 18] },
+      { label: 'Active VIP builds', base: 3, variance: 1, clamp: [2, 4] },
       {
         label: 'Client satisfaction',
         base: 4.9,
@@ -132,45 +103,16 @@ const TABS: TabConfig[] = [
       },
       {
         label: 'Response SLA',
-        base: 2,
-        variance: 0.7,
-        decimals: 1,
+        base: 9,
+        variance: 4,
         suffix: 'hours',
-        clamp: [1, 3.5]
+        clamp: [7, 24]
       }
     ],
     footer: {
       eyebrow: 'Guided experience',
       title: 'White-glove updates for every client',
       body: 'Milestone alerts, media galleries, and tuning notes keep customers and dealers looped in from concept to delivery.'
-    }
-  },
-  {
-    key: 'support',
-    label: 'Support',
-    summary: {
-      statusColor: 'bg-green-400',
-      division: 'Support Desk',
-      focus: '24/7 Coverage',
-      description:
-        'Concierge tech support spanning installs, tuning revisions, and warranty coordination.'
-    },
-    metrics: [
-      { label: 'Open tickets', base: 3, variance: 2, clamp: [0, 8] },
-      {
-        label: 'Avg resolution',
-        base: 4,
-        variance: 0.8,
-        decimals: 1,
-        suffix: 'hours',
-        clamp: [2.5, 5.5]
-      },
-      { label: 'Knowledge base updates', base: 68, variance: 8, clamp: [52, 92] }
-    ],
-    footer: {
-      eyebrow: 'Always-on assistance',
-      title: 'Expert help whenever you wrench',
-      body: 'Certified techs respond with annotated diagrams, calibration files, and video walk-throughs to keep builds on schedule.'
     }
   }
 ];
