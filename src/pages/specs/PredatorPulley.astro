@@ -1,14 +1,14 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
-import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
+import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import SectionRenderer from '@/components/SectionRenderer.astro';
-const pageDoc: any = await getGitPageDoc('PredatorPulleySpecsSheet');
+const pageDoc: any = await loadPageDoc('PredatorPulleySpecsSheet');
 import ProductSpecSheet from '@components/specs/ProductSpecSheet.astro';
 ---
 
 <BaseLayout>
-  <div {...sbObjectId('content/pages/specs/PredatorPulley.json')}>
-    <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>
+  <div {...inlineObjectId('content/pages/specs/PredatorPulley.json')}>
+    <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>
       {pageDoc?.title ?? 'Predator Pulley — Spec Sheet'}
     </div>
     {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (

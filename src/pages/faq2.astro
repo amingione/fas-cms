@@ -1,15 +1,15 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
 import FAQ2 from '@/components/faq2.tsx';
-import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
+import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 
-const pageDoc: any = await getGitPageDoc('faq');
+const pageDoc: any = await loadPageDoc('faq');
 ---
 
 <BaseLayout>
-      <div {...sbObjectId('content/pages/faq.json')}>
-    <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Frequently Asked Questions'}</div>
+      <div {...inlineObjectId('content/pages/faq.json')}>
+    <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>{pageDoc?.title ?? 'Frequently Asked Questions'}</div>
     {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
       <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
     )}

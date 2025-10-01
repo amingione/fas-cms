@@ -1,8 +1,8 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
-import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
+import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import SectionRenderer from '@/components/SectionRenderer.astro';
-const pageDoc: any = await getGitPageDoc('porting');
+const pageDoc: any = await loadPageDoc('porting');
 import Button from '@/components/Button.astro';
 
 const hero = pageDoc?.hero ?? {};
@@ -81,8 +81,8 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonFallback
 ---
 
 <BaseLayout>
-  <div {...sbObjectId('content/pages/porting.json')}>
-  <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Porting'}</div>
+  <div {...inlineObjectId('content/pages/porting.json')}>
+  <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>{pageDoc?.title ?? 'Porting'}</div>
   {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
     <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
   )}
@@ -92,20 +92,20 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonFallback
       <div>
         <h1
           class="text-3xl md:text-5xl font-ethno text-accent mb-3"
-          {...sbFieldPath('hero.heading')}
+          {...inlineFieldAttrs('hero.heading')}
         >
           {hero?.heading ?? pageDoc?.title ?? 'Porting Services'}
         </h1>
         <p
           class="text-white/80 max-w-[68ch] font-mono text-base md:text-lg"
-          {...sbFieldPath('hero.description')}
+          {...inlineFieldAttrs('hero.description')}
         >
           {hero?.description ?? 'Superchargers, snouts, throttle bodies, intake manifolds, and cylinder heads — blueprint-level porting for real, repeatable gains.'}
         </p>
-        <div class="mt-5 flex flex-wrap gap-3 luxury-hover-scale" {...sbFieldPath('hero.tags')}>
+        <div class="mt-5 flex flex-wrap gap-3 luxury-hover-scale" {...inlineFieldAttrs('hero.tags')}>
           {heroTagsHasContent
             ? heroTags.map((tag, idx) => (
-                <span class="btn-glass btn-dark btn-xs" {...sbFieldPath(`hero.tags[${idx}]`)}>
+                <span class="btn-glass btn-dark btn-xs" {...inlineFieldAttrs(`hero.tags[${idx}]`)}>
                   {tag || 'Tag'}
                 </span>
               ))
@@ -115,7 +115,7 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonFallback
         </div>
         <div class="mt-6 flex flex-col sm:flex-row gap-4">
           {ctaButtonsToRender.map((cta, idx) => {
-            const fieldAttrs = ctaButtonsHasContent ? sbFieldPath(`ctaButtons[${idx}]`) : {};
+            const fieldAttrs = ctaButtonsHasContent ? inlineFieldAttrs(`ctaButtons[${idx}]`) : {};
             return (
               <Button
                 href={cta?.href || '#'}
@@ -134,12 +134,12 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonFallback
             src={heroImage?.src || '/images/snouts/fas-ported-snout.png'}
             alt={heroImage?.alt || 'Ported snout detail'}
             class="w-full h-[220px] md:h-[260px] object-cover"
-            {...sbFieldPath('hero.image.src')}
+            {...inlineFieldAttrs('hero.image.src')}
           />
-          <span class="sr-only" aria-hidden="true" {...sbFieldPath('hero.image.alt')}>
+          <span class="sr-only" aria-hidden="true" {...inlineFieldAttrs('hero.image.alt')}>
             {heroImage?.alt || 'Ported snout detail'}
           </span>
-          <figcaption class="p-3 text-white/70 text-xs" {...sbFieldPath('hero.image.caption')}>
+          <figcaption class="p-3 text-white/70 text-xs" {...inlineFieldAttrs('hero.image.caption')}>
             {heroImage?.caption || 'Ported snout: smoother transition, corrected CSA, matched to throttle body and case.'}
           </figcaption>
         </figure>
@@ -150,9 +150,9 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonFallback
   <!-- OVERVIEW STRIP -->
   <section class="luxury-hover-scale relative w-full bg-black/60 backdrop-blur-md border-b border-white/20">
     <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-0" {...sbFieldPath('featurePills')}>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-0" {...inlineFieldAttrs('featurePills')}>
         {featurePillsToRender.map((pill, idx) => {
-          const fieldAttrs = featurePillsHasContent ? sbFieldPath(`featurePills[${idx}]`) : {};
+          const fieldAttrs = featurePillsHasContent ? inlineFieldAttrs(`featurePills[${idx}]`) : {};
           const isLast = idx === featurePillsToRender.length - 1;
           return (
             <div
@@ -175,18 +175,18 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonFallback
     <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
       <h2 class="text-center text-3xl md:text-4xl font-ethno text-accent mb-8 md:mb-12 tracking-wide">What We Port</h2>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6" {...sbFieldPath('portingItems')}>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6" {...inlineFieldAttrs('portingItems')}>
         {portingItemsToRender.map((item, idx) => {
           const basePath = `portingItems[${idx}]`;
-          const fieldAttrs = portingItemsHasContent ? sbFieldPath(basePath) : {};
+          const fieldAttrs = portingItemsHasContent ? inlineFieldAttrs(basePath) : {};
           return (
             <div class="group relative rounded-xl border border-white/20 bg-[#0b0b0c] overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50" {...fieldAttrs}>
               <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
               <div class="relative p-5 z-10">
-                <div class="text-primary font-ethno text-xl drop-shadow" {...(portingItemsHasContent ? sbFieldPath(`${basePath}.title`) : {})}>
+                <div class="text-primary font-ethno text-xl drop-shadow" {...(portingItemsHasContent ? inlineFieldAttrs(`${basePath}.title`) : {})}>
                   {item?.title || 'Component'}
                 </div>
-                <p class="text-white/75 text-sm font-mono mt-2 max-w-[60ch]" {...(portingItemsHasContent ? sbFieldPath(`${basePath}.desc`) : {})}>
+                <p class="text-white/75 text-sm font-mono mt-2 max-w-[60ch]" {...(portingItemsHasContent ? inlineFieldAttrs(`${basePath}.desc`) : {})}>
                   {item?.desc || ''}
                 </p>
               </div>
@@ -201,24 +201,24 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonFallback
   <section class="bg-black/70 border-y border-white/20 py-10 md:py-14">
     <div class="mx-auto w-full max-w-7xl px-0 md:px-6 grid md:grid-cols-2 gap-6 md:gap-10">
       <div class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl">
-        <h3 class="text-xl font-borg text-white mb-2" {...(methodology?.title ? sbFieldPath('methodology.title') : {})}>
+        <h3 class="text-xl font-borg text-white mb-2" {...(methodology?.title ? inlineFieldAttrs('methodology.title') : {})}>
           {methodologyTitle}
         </h3>
-        <ul class="list-disc pl-5 text-white/70 text-sm space-y-2" {...sbFieldPath('methodology.items')}>
+        <ul class="list-disc pl-5 text-white/70 text-sm space-y-2" {...inlineFieldAttrs('methodology.items')}>
           {methodologyItemsToRender.map((item, idx) => (
-            <li {...(methodologyItems.length ? sbFieldPath(`methodology.items[${idx}]`) : {})}>
+            <li {...(methodologyItems.length ? inlineFieldAttrs(`methodology.items[${idx}]`) : {})}>
               {item}
             </li>
           ))}
         </ul>
       </div>
       <div class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl">
-        <h3 class="text-xl font-borg text-white mb-2" {...(methodology?.deliverablesTitle ? sbFieldPath('methodology.deliverablesTitle') : {})}>
+        <h3 class="text-xl font-borg text-white mb-2" {...(methodology?.deliverablesTitle ? inlineFieldAttrs('methodology.deliverablesTitle') : {})}>
           {deliverablesTitle}
         </h3>
-        <ul class="list-disc pl-5 text-white/70 text-sm space-y-2" {...sbFieldPath('methodology.deliverables')}>
+        <ul class="list-disc pl-5 text-white/70 text-sm space-y-2" {...inlineFieldAttrs('methodology.deliverables')}>
           {deliverablesToRender.map((item, idx) => (
-            <li {...(deliverables.length ? sbFieldPath(`methodology.deliverables[${idx}]`) : {})}>
+            <li {...(deliverables.length ? inlineFieldAttrs(`methodology.deliverables[${idx}]`) : {})}>
               {item}
             </li>
           ))}
@@ -229,16 +229,16 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonFallback
 
   <!-- TURNAROUND / NOTES -->
   <section class="py-10 md:py-14">
-    <div class="mx-auto w-full max-w-7xl px-0 md:px-6 grid md:grid-cols-3 gap-6" {...sbFieldPath('summaryCards')}>
+    <div class="mx-auto w-full max-w-7xl px-0 md:px-6 grid md:grid-cols-3 gap-6" {...inlineFieldAttrs('summaryCards')}>
       {summaryCardsToRender.map((card, idx) => {
         const basePath = `summaryCards[${idx}]`;
-        const fieldAttrs = summaryCardsHasContent ? sbFieldPath(basePath) : {};
+        const fieldAttrs = summaryCardsHasContent ? inlineFieldAttrs(basePath) : {};
         return (
           <div class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl" {...fieldAttrs}>
-            <h3 class="text-lg font-borg text-white mb-2" {...(summaryCardsHasContent ? sbFieldPath(`${basePath}.title`) : {})}>
+            <h3 class="text-lg font-borg text-white mb-2" {...(summaryCardsHasContent ? inlineFieldAttrs(`${basePath}.title`) : {})}>
               {card?.title || 'Summary'}
             </h3>
-            <p class="text-white/70 text-sm leading-relaxed" {...(summaryCardsHasContent ? sbFieldPath(`${basePath}.body`) : {})}>
+            <p class="text-white/70 text-sm leading-relaxed" {...(summaryCardsHasContent ? inlineFieldAttrs(`${basePath}.body`) : {})}>
               {card?.body || ''}
             </p>
           </div>
@@ -249,9 +249,9 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonFallback
 
   <!-- CTA -->
   <section class="bg-transparent py-12 md:py-16 text-center">
-    <div class="flex flex-col gap-5 items-center" {...sbFieldPath('ctaButtons')}>
+    <div class="flex flex-col gap-5 items-center" {...inlineFieldAttrs('ctaButtons')}>
       {ctaButtonsToRender.map((cta, idx) => {
-        const fieldAttrs = ctaButtonsHasContent ? sbFieldPath(`ctaButtons[${idx}]`) : {};
+        const fieldAttrs = ctaButtonsHasContent ? inlineFieldAttrs(`ctaButtons[${idx}]`) : {};
         return (
           <Button
             href={cta?.href || '#'}

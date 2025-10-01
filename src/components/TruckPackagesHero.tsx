@@ -1,7 +1,7 @@
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { ArrowRight, Settings, Zap } from 'lucide-react';
-import { sbFieldPath } from '@lib/stackbit';
+import { inlineFieldAttrs } from '@lib/content';
 
 type TruckPackagesHeroProps = {
   fieldPathBase?: string;
@@ -51,7 +51,7 @@ export function TruckPackagesHero({
             <Badge
               variant="outline"
               className="bg-primary/15 border-primary/40 text-white/80 font-ethno tracking-widest"
-              {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.badge`) : {})}
+              {...(fieldPathBase ? inlineFieldAttrs(`${fieldPathBase}.badge`) : {})}
             >
               {badge ?? 'CUSTOM PERFORMANCE PACKAGES'}
             </Badge>
@@ -60,26 +60,26 @@ export function TruckPackagesHero({
           <h1 className="font-ethno leading-[0.95]">
             <span
               className="block text-white/60 text-4xl sm:text-5xl lg:text-6xl"
-              {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.titleTop`) : {})}
+              {...(fieldPathBase ? inlineFieldAttrs(`${fieldPathBase}.titleTop`) : {})}
             >
               {titleTop ?? 'TRUCK'}
             </span>
             <span
               className="block text-white/80 text-4xl sm:text-5xl lg:text-6xl"
-              {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.titleMid`) : {})}
+              {...(fieldPathBase ? inlineFieldAttrs(`${fieldPathBase}.titleMid`) : {})}
             >
               {titleMid ?? 'PACKAGES'}
             </span>
             <span
               className="block text-accent text-2xl sm:text-3xl lg:text-5xl mt-2 font-borg"
-              {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.titleBottom`) : {})}
+              {...(fieldPathBase ? inlineFieldAttrs(`${fieldPathBase}.titleBottom`) : {})}
             >
               {titleBottom ?? 'RAM TRX'}
             </span>
           </h1>
 
           <p className="text-primary font-borg text-base sm:text-lg lg:text-xl max-w-xl">
-            <span {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.kicker`) : {})}>
+            <span {...(fieldPathBase ? inlineFieldAttrs(`${fieldPathBase}.kicker`) : {})}>
               {kicker ?? (
                 <>
                   FROM MILD TO WILD —{' '}
@@ -95,7 +95,7 @@ export function TruckPackagesHero({
             <Button size="md" className="font-ethno" asChild>
               <a
                 href={ctaPrimaryHref ?? '/shop?categorySlug=powerPackages&page=1'}
-                {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.cta.text`) : {})}
+                {...(fieldPathBase ? inlineFieldAttrs(`${fieldPathBase}.cta.text`) : {})}
               >
                 <Zap className="w-5 h-5 mr-2" />
                 {ctaPrimaryText ?? 'SHOP PACKAGES'}
@@ -105,7 +105,7 @@ export function TruckPackagesHero({
             <Button size="lg" variant="outline" className="font-ethno" asChild>
               <a
                 href={ctaSecondaryHref ?? '/customBuild'}
-                {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.ctaSecondary.text`) : {})}
+                {...(fieldPathBase ? inlineFieldAttrs(`${fieldPathBase}.ctaSecondary.text`) : {})}
               >
                 <Settings className="w-5 h-5 mr-2" />
                 {ctaSecondaryText ?? 'CUSTOM QUOTE'}

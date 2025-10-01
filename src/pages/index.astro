@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
+import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import * as sanity from '../lib/sanity-utils';
 import { LuxuryFeatures } from '@components/LuxuryFeatures.tsx';
 import AnimatedHomeHero from '@components/animated/AnimatedHomeHero';
@@ -15,7 +15,7 @@ import SectionRenderer from '@/components/SectionRenderer.astro';
 
 
 const url = new URL(Astro.request.url);
-const pageDoc: any = await getGitPageDoc('index');
+const pageDoc: any = await loadPageDoc('index');
 const v2Param = url.searchParams.get('v2');
 // Default to the new V2 homepage; allow opt-out via ?v2=0
 const showV2 = v2Param === '0' ? false : true;
@@ -98,13 +98,13 @@ try {
   ogImage="/logo/faslogochroma.png"
 >
 
-    <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>
+    <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>
       {pageDoc?.title ?? 'Home'}
     </div>
 
     <main class="relative flex flex-col">
 
-    <div {...sbObjectId('content/pages/index.json')}>
+    <div {...inlineObjectId('content/pages/index.json')}>
         <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
 
 

@@ -1,15 +1,15 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
-import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
+import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import ProductSpecSheet from '@components/specs/ProductSpecSheet.astro';
 
-const pageDoc: any = await getGitPageDoc('BilletSnoutSpecs');
+const pageDoc: any = await loadPageDoc('BilletSnoutSpecs');
 ---
 
 <BaseLayout>
-  <div {...sbObjectId('content/pages/BilletSnoutSpecs.json')}>
-    <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>
+  <div {...inlineObjectId('content/pages/BilletSnoutSpecs.json')}>
+    <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>
       {pageDoc?.title ?? 'Billet Supercharger Snout — Spec Sheet'}
     </div>
 

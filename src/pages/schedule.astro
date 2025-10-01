@@ -1,8 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
+import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import SectionRenderer from '@/components/SectionRenderer.astro';
-const pageDoc: any = await getGitPageDoc('schedule');
+const pageDoc: any = await loadPageDoc('schedule');
 import BookingForm from '../components/BookingForm';
 import AppointmentCard from '../components/appointmentCard.astro';
 
@@ -14,8 +14,8 @@ const slots = data?.bookings || [];
 ---
 
 <BaseLayout>
-  <div {...sbObjectId('content/pages/schedule.json')} class="bg-[#121212]">
-    <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Schedule'}</div>
+  <div {...inlineObjectId('content/pages/schedule.json')} class="bg-[#121212]">
+    <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>{pageDoc?.title ?? 'Schedule'}</div>
     {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
       <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
     )}
@@ -26,7 +26,7 @@ const slots = data?.bookings || [];
         <div class="absolute w-[360px] h-[560px] right-10 -top-24 px-5 bg-white/70 blur-[90px] opacity-50 rounded-full"></div>
         <div class="relative container px-5 max-w-7xl py-16 md:py-24">
         <p class="text-[#FFA800] font-mono font-bold text-xl tracking-wide mb-2">Appointment Booking</p>
-        <h1 class="text-white font-ethno text-4xl md:text-6xl leading-tight mb-4" {...sbFieldPath('title')}>
+        <h1 class="text-white font-ethno text-4xl md:text-6xl leading-tight mb-4" {...inlineFieldAttrs('title')}>
           {pageDoc?.title ?? 'Schedule Your Install'}
         </h1>
         <p class="text-white/70 font-mono font-bold tracking-[0.14em] max-w-3xl">

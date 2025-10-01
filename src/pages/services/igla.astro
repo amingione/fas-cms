@@ -5,8 +5,8 @@ import { Image } from 'astro:assets';
 import IglaBox from '@/assets/igla/IGLA-Category-Image.webp';
 import SchedIgla from '@/assets/igla/sched-igla-install.webp';
 import SectionRenderer from '@/components/SectionRenderer.astro';
-import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
-const pageDoc: any = await getGitPageDoc('igla');
+import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
+const pageDoc: any = await loadPageDoc('igla');
 ---
 
 <BaseLayout
@@ -16,8 +16,8 @@ const pageDoc: any = await getGitPageDoc('igla');
   ogImage="/logo/faslogochroma.png"
 >
 
-  <div {...sbObjectId('content/pages/services/igla.json')}>
-  <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'IGLA Security - F.A.S. Motorsports'}</div>
+  <div {...inlineObjectId('content/pages/services/igla.json')}>
+  <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>{pageDoc?.title ?? 'IGLA Security - F.A.S. Motorsports'}</div>
   {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
     <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
   )}

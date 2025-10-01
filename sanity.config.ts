@@ -2,10 +2,8 @@ import { defineConfig } from 'sanity';
 import { setPasswordAction } from './sanity/components/SetPasswordAction';
 import { schemaTypes } from './sanity/schemaTypes';
 
-// Minimal Sanity v3 Studio config so Stackbit detects v3 schema loader.
-// This does NOT define local schema types; it enables v3 detection to avoid
-// the legacy v2 "part:@sanity/base/schema" path. If you want full Sanity models
-// in the Visual Editor, add your schema types here or mount your Studio.
+// Minimal Sanity v3 Studio config used by local tooling.
+// Extend this if you want a richer Studio experience.
 
 const projectId = process.env.SANITY_PROJECT_ID
   || process.env.PUBLIC_SANITY_PROJECT_ID

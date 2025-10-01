@@ -1,15 +1,15 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
+import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 
-const pageDoc: any = await getGitPageDoc('contact');
+const pageDoc: any = await loadPageDoc('contact');
 --- 
 
 <BaseLayout : hideBrandTag="true">
   <div>
-    <div {...sbObjectId('content/pages/contact.json')}>
-      <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Contact'}</div>
+    <div {...inlineObjectId('content/pages/contact.json')}>
+      <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>{pageDoc?.title ?? 'Contact'}</div>
       {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
         <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
       )}

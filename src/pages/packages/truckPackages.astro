@@ -1,18 +1,20 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
-import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
+import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import { Button } from '@/components/ui/button';
+import TruckPackagesComponent from '@/components/packageComps/truckPackage';
 import StoreHero from '@/components/storefront/StoreHero.astro';
 import TruckGallery from '@/components/storefront/TruckGallery.astro';
+import { Truck } from 'lucide-react';
 
-const pageDoc: any = await getGitPageDoc('truckPackages');
+const pageDoc: any = await loadPageDoc('truckPackages');
 // Use plain HTML buttons/links in this SSR page to avoid React SSR for UI primitives
 ---
 
 <BaseLayout title="Truck Packages">
 
-  <div {...sbObjectId('content/pages/packages/truckPackages.json')}>
-  <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Truck Packages'}</div>
+  <div {...inlineObjectId('content/pages/packages/truckPackages.json')}>
+  <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>{pageDoc?.title ?? 'Truck Packages'}</div>
 
   <section class="relative mt-5 pt-10">
   <StoreHero
@@ -21,8 +23,8 @@ const pageDoc: any = await getGitPageDoc('truckPackages');
     title3='Truck Packages'
     subtitle="From minor bolt ons to packages that exceed 2000HP!"
     imgSrc='/images/packages/850-ram.webp'
-    imgAlt="FAS Built Trucks"
-    ctaPrimaryHref="/customBuild"
+    imgAlt=""
+    ctaPrimaryHref="/contact"
     ctaPrimaryLabel="Build Your Truck ➤"
     ctaPrimaryVariant="ghost"
     ctaSecondaryHref="/shop/categories/truck-packages"
@@ -32,15 +34,17 @@ const pageDoc: any = await getGitPageDoc('truckPackages');
   />
   </section>
 
+  <TruckPackagesComponent client:load/>
+
   <!-- Packages Section -->
   <section class="packages section-divider section-divider-carbon">
     <div class="package-grid">
 
       <!-- Column 1: TRX + Overview -->
       <div class="package-group">
-        <div class="package-card">
+        <div class="px-4 border border-roundeded border-black rounded-md drop-shadow shadow-md shadow-white/20">
           <div class="package-media">
-            <img src="/images/packages/FAS-TRX.webp" alt="TRX Truck Package by FAS" class="package-image">
+            <img src="/images/packages/850-ram.webp" alt="TRX Truck Package by FAS" class="package-image">
           </div>
           <h3 class="font-ethno text-primary"><span class="font-borg text-white">RaM</span> TRX <span class="font-ethno text-base tracking-tight text-white">Builds</span></h3>
           <div class="font-ethno text-base tracking-tight text-accent">
@@ -54,26 +58,11 @@ const pageDoc: any = await getGitPageDoc('truckPackages');
             <a href="/shop/fas-factory-freak-package-trx" class="font-cyber tracking-widest transition-all duration-300">Shop Package ➟</a>
           </Button>
         </div>
-        <div class="package-card">
-          <h4 class="font-ethno text-primary text-2xl">TRX Packages</h4>
-          <p class="mt-2 text-sm font-mono tracking-[0.12em] text-white/80">TRX builds that don’t just add horsepower — they dominate.</p>
-          <ul class="mt-3 space-y-1 text-white/90 text-sm font-mono">
-            <li>• FAS 800 TRX</li>
-            <li>• FAS 850 TRX</li>
-            <li>• FAS 900 TRX</li>
-            <li>• FAS 1X TRX — 1200–1500 HP</li>
-            <li>• FAS TRX 2X — 1600+ HP</li>
-          </ul>
-          <div class="mt-3 flex gap-3">
-            <a href="/shop?filter=trx" class="px-3 py-1.5 rounded-full border border-white/20 text-xs text-white/90 hover:bg-white/10">Shop</a>
-            <a href="/schedule" class="px-3 py-1.5 rounded-full border border-white/20 text-xs text-white/90 hover:bg-white/10">Schedule</a>
-          </div>
-        </div>
       </div>
 
       <!-- Column 2: F‑150 + Overview -->
       <div class="package-group">
-        <div class="package-card">
+        <div class="px-4 border border-roundeded border-black rounded-md shadow-inner shadow-white/20">
           <div class="package-media">
             <img src="/images/packages/FAS-f150-10002.webp" alt="Ford F‑150 Packages" class="package-image">
           </div>
@@ -86,58 +75,17 @@ const pageDoc: any = await getGitPageDoc('truckPackages');
             <li>Daily‑drivable twin‑turbo packages with proper fueling, cooling, and calibration. Installed & tuned in‑house.</li>
           </ul>
           <Button className="my-3 ghost">
-            <a href="/shop?filter=f150" class="font-cyber tracking-widest transition-all duration-300">Shop F‑150 Packages ➟</a>
+            <a href="/shop?categorySlug=truck-packages&category=truck-packages&filters=f150&filter=f150&priceMin=0&priceMax=100000&page=1" class="font-cyber tracking-widest transition-all duration-300">Shop F‑150 Packages ➟</a>
           </Button>
-        </div>
-        <div class="package-card">
-          <h4 class="font-ethno text-primary text-2xl">F‑150 Packages</h4>
-          <p class="mt-2 text-sm font-mono tracking-[0.12em] text-white/80">From 500+ to 1000 HP — clean installs, strong mid‑range, and OEM‑like manners for daily use.</p>
-          <ul class="mt-3 space-y-1 text-white/90 text-sm font-mono">
-            <li>• FAS 500+ Package (2018+) — $7,499</li>
-            <li>• FAS 800 Package (2018+) — $14,999</li>
-            <li>• FAS 1000 Package (2018+) — $19,999</li>
-          </ul>
-          <div class="mt-3 flex gap-3">
-            <a href="/shop?filter=f150" class="px-3 py-1.5 rounded-full border border-white/20 text-xs text-white/90 hover:bg-white/10">Shop</a>
-            <a href="/schedule" class="px-3 py-1.5 rounded-full border border-white/20 text-xs text-white/90 hover:bg-white/10">Schedule</a>
-          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- How to Get Started (Accordion CTA) -->
-  <section class="py-10 px-4 max-w-5xl mx-auto">
-    <h3 class="text-3xl font-ethno text-accent text-center mb-6">How to Get Started</h3>
-    <ul class="space-y-4">
-      <li class="border-b border-white/15 pb-4">
-        <details class="group">
-          <summary class="cursor-pointer text-lg font-cyber text-white flex justify-between items-center">Purchase Parts<span class="text-accent group-open:rotate-180 transition-transform">▼</span></summary>
-          <p class="mt-2 text-sm font-mono tracking-[0.12em] text-white/80">Prefer to DIY? You can purchase the components for your chosen package and handle installation yourself. Please note: we cannot warranty incorrect or inadequate installation performed outside our facility.</p>
-          <div class="mt-3 flex gap-3"><a href="/shop?categorySlug=tools-and-accessories&category=tools-and-accessories&priceMin=0&priceMax=100000&page=1" class="px-3 py-1.5 rounded-full border border-white/20 text-xs text-white/90 hover:bg-white/10">Shop Parts</a></div>
-        </details>
-      </li>
-      <li class="border-b border-white/15 pb-4">
-        <details class="group">
-          <summary class="cursor-pointer text-lg font-cyber text-white flex justify-between items-center">Schedule for Install<span class="text-accent group-open:rotate-180 transition-transform">▼</span></summary>
-          <p class="mt-2 text-sm font-mono tracking-[0.12em] text-white/80">Our in‑house team can install, calibrate, and validate your package. We can help coordinate vehicle transport to our shop, or you can drop off in person.</p>
-          <div class="mt-3 flex gap-3"><a href="/schedule" class="px-3 py-1.5 rounded-full border border-white/20 text-xs text-white/90 hover:bg-white/10">Book Install</a></div>
-        </details>
-      </li>
-      <li class="border-b border-white/15 pb-4">
-        <details class="group">
-          <summary class="cursor-pointer text-lg font-cyber text-white flex justify-between items-center">Custom Builds<span class="text-accent group-open:rotate-180 transition-transform">▼</span></summary>
-          <p class="mt-2 text-sm font-mono tracking-[0.12em] text-white/80">Don’t see an exact match? Use our custom build tool to choose your platform, target power, and parts. Submit for a quote and our installer will fine‑tune the plan to hit your goals.</p>
-          <div class="mt-3 flex gap-3"><a href="/customBuild" class="px-3 py-1.5 rounded-full border border-white/20 text-xs text-white/90 hover:bg-white/10">Start Custom Build</a></div>
-        </details>
-      </li>
-    </ul>
-  </section>
-
+ 
   <!-- Truck Build Gallery (bottom) -->
-  <section class="pt-8">
-    <h3 class="text-center text-3xl md:text-4xl font-ethno text-accent mb-2">Truck Build Gallery</h3>
-    <p class="text-center text-white/70 font-mono tracking-[0.12em] mb-2 px-4">Swipe, drag, or click images to view.</p>
+  <section class="pt-8 shadow-inner shadow-white/20 border-black">
+    <h3 class="text-center text-3xl md:text-4xl font-ethno text-black mb-2 text-glow">Truck Build Gallery</h3>
     <TruckGallery images={[
       { src: '/images/packages/FAS-f150-1000.webp', alt: 'F150 Build' },
       { src: '/images/packages/FAS-f150-10002.webp', alt: 'FAS F150 Build' },

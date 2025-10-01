@@ -1,19 +1,19 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
+import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import SectionRenderer from '@/components/SectionRenderer.astro';
-const pageDoc: any = await getGitPageDoc('coreExchange');
+const pageDoc: any = await loadPageDoc('coreExchange');
 import Button from "@/components/Button.astro";
 ---
 
 <BaseLayout title="Core Exchange Program">
-  <div {...sbObjectId('content/pages/coreExchange.json')}>
-  <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Core Exchange'}</div>
+  <div {...inlineObjectId('content/pages/coreExchange.json')}>
+  <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>{pageDoc?.title ?? 'Core Exchange'}</div>
   {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
     <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
   )}
   <section class="text-white text-center pt-32 pb-20 px-6 sm:px-8">
-    <h1 class="font-ethno text-5xl mb-6 text-primary" {...sbFieldPath('title')}>
+    <h1 class="font-ethno text-5xl mb-6 text-primary" {...inlineFieldAttrs('title')}>
       {pageDoc?.title ?? 'Core Exchange Program'}
     </h1>
     <p class="font-mono font-bold text-white/70 text-lg max-w-2xl mx-auto mb-10">

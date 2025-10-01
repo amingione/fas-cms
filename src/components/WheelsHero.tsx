@@ -3,7 +3,7 @@ import { useRef } from 'react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Zap, Award, Star } from 'lucide-react';
-import { sbFieldPath } from '@lib/stackbit';
+import { inlineFieldAttrs } from '@lib/content';
 
 type WheelsHeroProps = {
   fieldPathBase?: string;
@@ -55,7 +55,7 @@ export function WheelsHero({
           >
             <Badge
               className="bg-primary/20 text-white border-primary/30 px-4 py-2 font-ethno text-xs md:text-sm"
-              {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.badge`) : {})}
+              {...(fieldPathBase ? inlineFieldAttrs(`${fieldPathBase}.badge`) : {})}
             >
               <Award className="w-3 h-3 md:w-4 md:h-4 mr-2 text-white/70" />
               {badge ?? 'AUTHORIZED DEALER'}
@@ -68,7 +68,7 @@ export function WheelsHero({
             transition={{ delay: 0.4, duration: 0.8 }}
             className="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-4 font-cyber tracking-wider leading-tight"
           >
-            <span {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.titleTop`) : {})}>
+            <span {...(fieldPathBase ? inlineFieldAttrs(`${fieldPathBase}.titleTop`) : {})}>
               {titleTop ?? 'COMPLETE'}
             </span>
           </motion.h1>
@@ -78,7 +78,7 @@ export function WheelsHero({
             transition={{ delay: 0.6, duration: 0.8 }}
             className="text-4xl md:text-6xl lg:text-7xl font-black text-primary mb-6 font-ethno-italic engine-pulse tracking-wider leading-tight"
           >
-            <span {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.titleBottom`) : {})}>
+            <span {...(fieldPathBase ? inlineFieldAttrs(`${fieldPathBase}.titleBottom`) : {})}>
               {titleBottom ?? 'YOUR BUILD'}
             </span>
           </motion.div>
@@ -89,7 +89,7 @@ export function WheelsHero({
             transition={{ delay: 0.8, duration: 0.8 }}
             className="text-base md:text-lg text-white/60 max-w-3xl mx-auto font-kwajong leading-relaxed"
           >
-            <span {...(fieldPathBase ? sbFieldPath(`${fieldPathBase}.subtext`) : {})}>
+            <span {...(fieldPathBase ? inlineFieldAttrs(`${fieldPathBase}.subtext`) : {})}>
               {intro ?? (
                 <>
                   F.A.S. Motorsports is your authorized dealer for{' '}

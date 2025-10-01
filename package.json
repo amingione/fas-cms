@@ -7,11 +7,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "lint": "eslint \"src/**/*.{js,ts,jsx,tsx}\"",
-    "prepare": "husky install",
-    "stackbit:dev": "dotenv -e .env -- stackbit dev",
-    "stackbit:dev:verbose": "dotenv -e .env -- stackbit dev --verbose",
-    "stackbit:dev:cloud": "dotenv -e .env -- stackbit dev --cloudinary-cloud-name $CLOUDINARY_CLOUD_NAME --cloudinary-api-key $CLOUDINARY_API_KEY",
-    "stackbit:dev:sanity": "dotenv -e .env -- cross-env ENABLE_SANITY=true stackbit dev"
+    "prepare": "husky install"
   },
   "lint-staged": {
     "*": [
@@ -29,10 +25,6 @@
     "@eslint/js": "^9.26.0",
     "@sanity/core": "2.36.2",
     "@sanity/validation": "latest",
-    "@stackbit/cli": "^0.3.133",
-    "@stackbit/cms-git": "^1.0.35",
-    "@stackbit/cms-sanity": "^0.2.90",
-    "@stackbit/types": "^2.1.14",
     "@types/add": "^2",
     "@types/bcryptjs": "^3.0.0",
     "@types/jsonwebtoken": "^9",

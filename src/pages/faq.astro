@@ -1,15 +1,15 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Button from '../components/Button.astro';
-import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
+import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 
-const pageDoc: any = await getGitPageDoc('faq');
+const pageDoc: any = await loadPageDoc('faq');
 ---
 
 <BaseLayout>
-    <div {...sbObjectId('content/pages/faq.json')}>
-    <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Frequently Asked Questions'}</div>
+    <div {...inlineObjectId('content/pages/faq.json')}>
+    <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>{pageDoc?.title ?? 'Frequently Asked Questions'}</div>
     {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
       <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
     )}
@@ -17,7 +17,7 @@ const pageDoc: any = await getGitPageDoc('faq');
         <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 text-white">
             <!-- Accordion -->
             <div>
-                <h1 class="text-4xl font-cyber text-accent mb-6" {...sbFieldPath('title')}>
+                <h1 class="text-4xl font-cyber text-accent mb-6" {...inlineFieldAttrs('title')}>
                     {pageDoc?.title ?? 'Frequently Asked Questions'}
                 </h1>
                 <ul class="space-y-4">

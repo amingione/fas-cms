@@ -1,16 +1,16 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
-import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
+import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import ProductSpecSheet from '@components/specs/ProductSpecSheet.astro';
 
-// Backed by content/pages/BilletLidSpecsSheet.json for Visual Editor support
-const pageDoc: any = await getGitPageDoc('BilletLidSpecsSheet');
+// Backed by content/pages/BilletLidSpecsSheet.json
+const pageDoc: any = await loadPageDoc('BilletLidSpecsSheet');
 ---
 
 <BaseLayout>
-  <div {...sbObjectId('content/pages/BilletLidSpecsSheet.json')}>
-    <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>
+  <div {...inlineObjectId('content/pages/BilletLidSpecsSheet.json')}>
+    <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>
       {pageDoc?.title ?? 'Billet Supercharger Lid — Spec Sheet'}
     </div>
 

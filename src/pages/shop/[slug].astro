@@ -4,7 +4,7 @@ import { getProductBySlug, getRelatedProducts, getUpsellProducts, type Product }
 import PortableTextRenderer from "../../components/PortableTextRenderer.jsx";
 import SlugCarousel from '@/components/SlugCarousel.astro';
 import TrustStrip from '@/components/TrustStrip.astro';
-import { sbFieldPath, sbObjectId } from '@lib/stackbit';
+import { inlineFieldAttrs, inlineObjectId } from '@lib/content';
 
 export type KitItem = { item: string; quantity?: number };
 export type VehicleCompat = { make?: string; model?: string; trim?: string };
@@ -175,11 +175,11 @@ try {
 ---
 
 <BaseLayout hideBrandTag title={seoTitle} description={seoDesc} canonical={seoCanon} ogImage={seoOg}>
-  <div {...sbObjectId((product as any)._id)}>
+  <div {...inlineObjectId((product as any)._id)}>
   <div class="container mx-auto px-4 py-10 text-white" style="padding-top: 80px;">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
       <!-- LEFT: Sticky Image on desktop -->
-      <div class="md:sticky md:top-28 flex justify-center items-start z-0 min-w-0" {...sbFieldPath('images')}>
+      <div class="md:sticky md:top-28 flex justify-center items-start z-0 min-w-0" {...inlineFieldAttrs('images')}>
         <SlugCarousel
           images={(product as any).images?.map((img: any) => ({
             url: img?.asset?.url || '/logo/faslogochroma.png',
@@ -190,9 +190,9 @@ try {
 
       <!-- RIGHT: Title, price, short intro, add-to-cart, then accordion -->
       <div class="relative z-10 min-w-0 break-words text-sm">
-        <h1 class="text-3xl font-ethno mb-3" {...sbFieldPath('title')}>{(product as any).title}</h1>
+        <h1 class="text-3xl font-ethno mb-3" {...inlineFieldAttrs('title')}>{(product as any).title}</h1>
         <h2 class="text-4xl text-accent
-         font-mono mb-4" {...sbFieldPath('price')}>
+         font-mono mb-4" {...inlineFieldAttrs('price')}>
           {typeof (product as any).price === 'number' ? `$${(product as any).price.toFixed(2)}` : 'Price not available'}
         </h2>
 
@@ -314,7 +314,7 @@ try {
         )}
 
         <!-- Short intro (truncated) -->
-        <div class="break-words" {...sbFieldPath('shortDescription')}>
+        <div class="break-words" {...inlineFieldAttrs('shortDescription')}>
           <PortableTextRenderer value={product.shortDescription} />
         </div>
 
@@ -425,7 +425,7 @@ try {
               <span class="transition-transform group-open:rotate-180">▾</span>
             </summary>
             <div class="px-4 py-4 text-white/90 font-arial leading-relaxed whitespace-pre-line break-words">
-              <div {...sbFieldPath('description')}>
+              <div {...inlineFieldAttrs('description')}>
                 <PortableTextRenderer value={product.description} />
               </div>
               {/* Specifications Table */}
@@ -480,7 +480,7 @@ try {
           </details>
 
           {product.importantNotes && (
-            <div class="mt-6 p-4 border border-red-500 bg-slate-400 text-primary rounded" {...sbFieldPath('importantNotes')}>
+            <div class="mt-6 p-4 border border-red-500 bg-slate-400 text-primary rounded" {...inlineFieldAttrs('importantNotes')}>
               <h3 class="font-bold text-lg mb-2 text-primary">Important Notes</h3>
               <PortableTextRenderer value={product.importantNotes} />
             </div>

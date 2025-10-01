@@ -7,7 +7,7 @@ import { IGLASecurity } from '@/components/IGLASecurity.tsx';
 import { TruckPackagesHero } from '@/components/TruckPackagesHero.tsx';
 import { LuxuryFeatures } from '@/components/LuxuryFeatures.tsx';
 import { WheelsHero } from '@/components/WheelsHero.tsx';
-import { sbFieldPath } from '@/lib/stackbit';
+import { inlineFieldAttrs } from '@/lib/content';
 
 type CTA = { text?: string; href?: string; variant?: string };
 type Section = {
@@ -35,8 +35,8 @@ const { sections = [], baseFieldPath = 'sections' } = Astro.props as {
 
 {Array.isArray(sections) && sections.map((s: Section, i: number) => {
   const type = String(s?.blockType || '').toLowerCase();
-  const fp = (field: string) => sbFieldPath(`${baseFieldPath}[${i}].${field}`);
-  const wrapper = sbFieldPath(`${baseFieldPath}[${i}]`);
+  const fp = (field: string) => inlineFieldAttrs(`${baseFieldPath}[${i}].${field}`);
+  const wrapper = inlineFieldAttrs(`${baseFieldPath}[${i}]`);
 
   if (type === 'hero' || type === 'herobanner') {
     return (

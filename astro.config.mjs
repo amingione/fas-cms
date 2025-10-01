@@ -104,7 +104,7 @@ export default defineConfig({
       }
     },
     server: {
-      // Allow Netlify Visual Editor/DevServer hosts to connect
+      // Allow Netlify DevServer hosts to connect
       allowedHosts: [
         'devserver-main--fasmoto.netlify.app',
         /^(?:devserver|deploy-preview|branch|main)--.*\.netlify\.app$/

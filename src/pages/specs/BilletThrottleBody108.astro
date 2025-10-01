@@ -1,16 +1,16 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
-import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
+import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import ProductSpecSheet from '@components/specs/ProductSpecSheet.astro';
 
-// Backed by content/pages/BilletThrottleBody108Specs.json for Visual Editor support
-const pageDoc: any = await getGitPageDoc('BilletThrottleBody108Specs');
+// Backed by content/pages/BilletThrottleBody108Specs.json
+const pageDoc: any = await loadPageDoc('BilletThrottleBody108Specs');
 ---
 
 <BaseLayout>
-  <div {...sbObjectId('content/pages/BilletThrottleBody108Specs.json')}>
-    <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>
+  <div {...inlineObjectId('content/pages/BilletThrottleBody108Specs.json')}>
+    <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>
       {pageDoc?.title ?? '108mm Billet Throttle Body — Spec Sheet'}
     </div>
 
@@ -42,4 +42,3 @@ const pageDoc: any = await getGitPageDoc('BilletThrottleBody108Specs');
     </section>
   </div>
 </BaseLayout>
-

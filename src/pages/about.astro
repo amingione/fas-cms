@@ -3,17 +3,17 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 
 import AboutSection from '@/components/About';
 import AboutHero from '@/components/hero/AboutHero.astro';
-import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
+import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 
 
 
-const pageDoc: any = await getGitPageDoc('about');
+const pageDoc: any = await loadPageDoc('about');
 ---
 
 <BaseLayout>
-  <div {...sbObjectId('content/pages/about.json')}>
+  <div {...inlineObjectId('content/pages/about.json')}>
     <!-- Inline-editable Page Title (mapped to content/pages/about.json:title) -->
-    <div class="sr-only" {...sbFieldPath('title')}>
+    <div class="sr-only" {...inlineFieldAttrs('title')}>
       {pageDoc?.title ?? 'About FAS'}
     </div>
 

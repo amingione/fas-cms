@@ -271,9 +271,9 @@ table {
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   /* === Dark UI parallax/sections variables === */
-  --bg-dark: #4d4d4d1d;
-  --shadow-glow: rgba(234, 29, 38, 0.24);
-  --shadow-depth: rgba(60, 0, 0, 0.518);
+  --bg-dark: #1616161d;
+  --shadow-glow: rgba(62, 62, 62, 0.24);
+  --shadow-depth: rgba(71, 71, 71, 0.518);
 }
 
 .dark {
@@ -319,7 +319,7 @@ table {
   --sidebar-ring: oklch(70.9% 0.00008 271.152 / 0.159);
   /* === Dark UI parallax/sections variables === */
   --bg-dark: #000000;
-  --shadow-glow: rgba(138, 0, 0, 0.375);
+  --shadow-glow: rgba(71, 71, 71, 0.375);
   --shadow-depth: rgba(111, 111, 111, 0.448);
 }
 
@@ -2503,7 +2503,8 @@ html {
   left: 0;
   width: 100%;
   height: 100%;
-  background: url('/images/backgrounds/bg-hex-overlay.webp') no-repeat center/cover; /* Editable: Change background image */
+  background: url('/images/backgrounds/bg-spiral-overlay.webp') no-repeat center/cover; /* Editable: Change background image */
+  opacity: 0.3;
   z-index: 0;
   transform: translateY(0);
 }

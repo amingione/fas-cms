@@ -1,14 +1,14 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
-import { getGitPageDoc, sbFieldPath, sbObjectId } from '@lib/stackbit';
+import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import { Hero } from '@components/Hero.tsx';
-const pageDoc: any = await getGitPageDoc('customFab');
+const pageDoc: any = await loadPageDoc('customFab');
 ---
 
 <BaseLayout>
-  <div {...sbObjectId('content/pages/customFab.json')}>
-  <div aria-hidden="true" class="hidden" {...sbFieldPath('title')}>{pageDoc?.title ?? 'Custom Fabrication'}</div>
+  <div {...inlineObjectId('content/pages/customFab.json')}>
+  <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>{pageDoc?.title ?? 'Custom Fabrication'}</div>
   {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
     <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
   )}
@@ -24,7 +24,7 @@ const pageDoc: any = await getGitPageDoc('customFab');
       />
     </div>
     <div class="foreground-layer !pt-32 md:!pt-40">
-      <h1 class="text-4xl md:text-6xl font-ethno text-accent drop-shadow mb-3" {...sbFieldPath('title')}>
+      <h1 class="text-4xl md:text-6xl font-ethno text-accent drop-shadow mb-3" {...inlineFieldAttrs('title')}>
         {pageDoc?.title ?? 'Custom Fabrication & Welding'}
       </h1>
       <p class="text-white/80 max-w-3xl mx-auto font-mono text-base md:text-xl tracking-wide">
