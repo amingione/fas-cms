@@ -9,7 +9,6 @@ import Highlights from '@/components/Highlights.astro';
 import AnimatedHeadingBanner from '@components/animated/AnimatedHeadingBanner';
 import AnimatedProductFeatureBanner from '@components/animated/AnimatedProductFeatureBanner';
 import AnimatedTaskCard from '@components/animated/AnimatedTaskCard';
-import AnimatedThreeDGallery from '@components/animated/AnimatedThreeDGallery';
 import AnimatedTruckPackagesHero from '@components/animated/AnimatedTruckPackagesHero';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 
@@ -160,25 +159,6 @@ try {
               cta: { label: 'SHOP NOW', href: '/shop/hellcat-snout-porting' }
             },
           ]}
-        />
-      </section>
-
-
-      
-      <section id="ThreeDGallery" class="mt-10">
-        <AnimatedThreeDGallery
-          client:only="react"
-          images={[
-            '/images/packages/FAS-trackhawk-engine-bay.webp',
-            '/images/packages/Shelby-truck.png',
-            '/images/backgrounds/powerPackages/FAS-4.webp',
-            '/images/packages/FAS-f150-1000.webp',
-            '/images/packages/Shelby-truck.png',
-            '/images/packages/Hellcat/FAS-1.webp',
-            '/images/packages/FAS-trackhawk-bay.webp',
-          ]}
-          rotateSpeed={80}
-          pauseOnHover={true}
         />
       </section>
 

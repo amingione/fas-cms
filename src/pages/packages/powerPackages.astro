@@ -4,6 +4,7 @@ import powerPackagesData from '../../../content/pages/powerPackages.json' assert
 const pageDoc: any = powerPackagesData;
 import Button from '@/components/Button.astro';
 import PowerPackagesComponent from '@/components/packageComps/powerPackage';
+import AnimatedThreeDGallery from '@components/animated/AnimatedThreeDGallery';
 
 const hero = pageDoc?.hero ?? {};
 const heroHeading: string = hero?.heading ?? pageDoc?.title ?? 'Power Packages';
@@ -147,6 +148,22 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallbac
       </div>
     </section>
     <PowerPackagesComponent client:load />
+          <section id="ThreeDGallery" class="mt-10">
+        <AnimatedThreeDGallery
+          client:only="react"
+          images={[
+            '/images/packages/FAS-trackhawk-engine-bay.webp',
+            '/images/packages/Shelby-truck.png',
+            '/images/backgrounds/powerPackages/FAS-4.webp',
+            '/images/packages/FAS-f150-1000.webp',
+            '/images/packages/Shelby-truck.png',
+            '/images/packages/Hellcat/FAS-1.webp',
+            '/images/packages/FAS-trackhawk-bay.webp',
+          ]}
+          rotateSpeed={80}
+          pauseOnHover={true}
+        />
+      </section>
 
   </div>
 </BaseLayout>

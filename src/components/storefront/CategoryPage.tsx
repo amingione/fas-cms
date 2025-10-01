@@ -510,10 +510,10 @@ export default function CategoryPage({
         <div className="relative pt-30 mt-10 pb-80 sm:pt-24 sm:pb-40 lg:pt-40 lg:pb-48">
           <div className="relative mx-auto max-w-7xl px-4 sm:static sm:px-6 lg:px-8">
             <div className="sm:max-w-lg">
-              <h1 className="z-20 text-5xl font-bold tracking-tight text-white sm:text-6xl">
+              <h1 className="z-20 text-4xl font-bold tracking-tight text-white sm:text-5xl">
                 {heroTitle}
               </h1>
-              <p className="mt-4 text-xl text-gray-500">{heroDescription}</p>
+              <p className="mt-4 text-xl text-gray-500 font-mono">{heroDescription}</p>
             </div>
             <div>
               <div className="mt-10">
@@ -525,10 +525,10 @@ export default function CategoryPage({
                   <div className="absolute transform sm:top-0 sm:left-1/2 sm:translate-x-8 lg:top-1/2 lg:left-1/2 lg:translate-x-8 lg:-translate-y-1/2">
                     <div className="flex items-center space-x-6 lg:space-x-8">
                       <div className="grid shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
-                        <div className="h-64 w-44 overflow-hidden rounded-lg sm:opacity-0 lg:opacity-100">
+                        <div className="h-64 w-44 overflow-hidden sm:opacity-0 lg:opacity-100">
                           <img
                             alt="F.A.S. Motorsports 108mm Billet Throttle Body"
-                            src="/images/billetParts/108mm-TB-fas.webp"
+                            src="/images/backgrounds/Fas-chrome-logo.png"
                             className="size-full object-cover"
                           />
                         </div>
@@ -585,9 +585,9 @@ export default function CategoryPage({
 
                 <a
                   href="/shop"
-                  className="luxury-btn inline-block rounded-md border border-transparent bg-primary px-8 py-3 text-center font-medium text-white hover:gray-900"
+                  className="luxury-btn btn-glass inline-block rounded-md border border-transparent bg-primary px-8 py-3 text-center font-medium text-white hover:gray-900"
                 >
-                  Your Build Starts Here ➤
+                  Shop All Products ➤
                 </a>
               </div>
             </div>
@@ -700,7 +700,7 @@ export default function CategoryPage({
                 href="/shop"
                 className="mt-8 block w-full rounded-md border border-transparent bg-transparent px-8 py-3 text-base font-medium text-primary hover:bg-primaryB sm:w-auto"
               >
-                Your Build Starts Here ➤➤➤
+                Shop All Products ➤➤➤
               </a>
             </div>
           </div>

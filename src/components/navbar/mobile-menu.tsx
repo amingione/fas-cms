@@ -34,29 +34,56 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [displayName, setDisplayName] = useState<string>('');
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const fas = await waitForFasAuth();
-        const ok = fas ? await fas.isAuthenticated() : false;
-        if (!mounted) return;
-        setAuthed(ok);
-        if (ok) {
-          const sess = fas && typeof fas.getSession === 'function' ? await fas.getSession() : null;
-          const u = sess?.user || {};
-          const name =
-            ((u?.given_name as string) || (u?.name as string) || (u?.email as string) || '').trim();
-          setDisplayName(name);
+  async function resolveAuth(cancelled: () => boolean) {
+    try {
+      const fas = await waitForFasAuth();
+      const ok = fas ? await fas.isAuthenticated() : false;
+     if (cancelled()) return;
+     setAuthed(ok);
+     if (ok) {
+       let session: any = null;
+       try {
+         session = fas && typeof fas.getSession === 'function' ? await fas.getSession() : null;
+       } catch {}
+        if (cancelled()) return;
+        const user = session?.user || {};
+        let name = ((user?.given_name as string) || (user?.name as string) || (user?.email as string) || '').trim();
+        if (!name) {
+          try {
+            name = (localStorage.getItem('customerName') || localStorage.getItem('customerEmail') || '').trim();
+          } catch {}
         }
-      } catch {
-        if (mounted) setAuthed(false);
+        if (cancelled()) return;
+        setDisplayName(name);
+      } else {
+        setDisplayName('');
       }
-    })();
+    } catch {
+      if (!cancelled()) {
+        setAuthed(false);
+        setDisplayName('');
+      }
+    }
+  }
+
+  useEffect(() => {
+    let cancelled = false;
+    resolveAuth(() => cancelled);
     return () => {
-      mounted = false;
+      cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    let cancelled = false;
+    resolveAuth(() => cancelled);
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
   const openMobileMenu = () => setIsOpen(true);
   const closeMobileMenu = () => setIsOpen(false);
 

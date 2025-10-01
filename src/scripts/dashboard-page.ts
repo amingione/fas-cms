@@ -32,22 +32,8 @@ function getDashContainers(): HTMLElement[] {
   return Array.from(document.querySelectorAll<HTMLElement>('[data-dash-content]'));
 }
 
-function withDashContainers(fn: (el: HTMLElement) => void) {
-  const targets = getDashContainers();
-  if (!targets.length) throw new Error('Dashboard content container not found');
-  targets.forEach((el) => fn(el));
-}
-
-function writeDashContent(html: string) {
-  try {
-    withDashContainers((el) => {
-      if (el.dataset) delete (el.dataset as any).state;
-      el.innerHTML = html;
-    });
-  } catch {
-    /* noop */
-  }
-}
+let lastRenderedHTML = '';
+let lastStateMarker: string | null = null;
 
 function getVisibleDashContent() {
   const desktop = document.querySelector('[data-desktop-dash] [data-dash-content]') as HTMLElement | null;
@@ -58,6 +44,29 @@ function getVisibleDashContent() {
     if (!all.length) throw new Error('Dashboard content container not found');
     return all[0];
   })();
+}
+
+function syncInactiveContainers(active: HTMLElement | null) {
+  const containers = getDashContainers();
+  containers.forEach((el) => {
+    if (el === active) return;
+    if (lastStateMarker) {
+      el.dataset.state = lastStateMarker;
+    } else if (el.dataset) {
+      delete (el.dataset as any).state;
+    }
+    el.innerHTML = lastRenderedHTML;
+  });
+}
+
+function writeDashContent(html: string) {
+  lastRenderedHTML = html;
+  lastStateMarker = null;
+  const active = getVisibleDashContent();
+  if (!active) return;
+  if (active.dataset) delete (active.dataset as any).state;
+  active.innerHTML = html;
+  syncInactiveContainers(active);
 }
 
 function getNameEls() {
@@ -244,20 +253,26 @@ function setActiveNav(view?: string | null) {
       });
     const setLoading = (msg = 'Loading...') => {
       const marker = `__loading_${Date.now()}__`;
-      try {
-        withDashContainers((el) => {
-          el.dataset.state = marker;
-          el.innerHTML = `<p class="opacity-80">${msg}</p>`;
-        });
-      } catch {}
+      lastStateMarker = marker;
+      lastRenderedHTML = `<p class="opacity-80">${msg}</p>`;
+      const active = getVisibleDashContent();
+      if (active) {
+        active.dataset.state = marker;
+        active.innerHTML = lastRenderedHTML;
+      }
+      syncInactiveContainers(active);
       setTimeout(() => {
-        try {
-          withDashContainers((el) => {
-            if (el.dataset.state === marker) {
-              el.innerHTML = `<p class="opacity-80">Still loading your data...</p>`;
-            }
-          });
-        } catch {}
+        const activeLater = getVisibleDashContent();
+        getDashContainers().forEach((el) => {
+          if (el.dataset.state === marker) {
+            const fallbackHtml = `<p class="opacity-80">Still loading your data...</p>`;
+            el.innerHTML = fallbackHtml;
+            lastRenderedHTML = fallbackHtml;
+            if (el.dataset) delete (el.dataset as any).state;
+          }
+        });
+        lastStateMarker = null;
+        syncInactiveContainers(activeLater);
       }, 6000);
     };
     const renderEmpty = (label: string) => {
@@ -523,14 +538,18 @@ function setActiveNav(view?: string | null) {
       load(nextView);
     });
     setTimeout(() => {
-      try {
-        withDashContainers((el) => {
-          const txt = (el.textContent || '').trim().toLowerCase();
-          if (txt === 'loading...' || txt === 'loading') {
-            el.innerHTML = `<p class="opacity-80">Still loading your data...</p>`;
-          }
-        });
-      } catch {}
+      const active = getVisibleDashContent();
+      getDashContainers().forEach((el) => {
+        const txt = (el.textContent || '').trim().toLowerCase();
+        if (txt === 'loading...' || txt === 'loading') {
+          const fallbackHtml = `<p class="opacity-80">Still loading your data...</p>`;
+          el.innerHTML = fallbackHtml;
+          lastRenderedHTML = fallbackHtml;
+          if (el.dataset) delete (el.dataset as any).state;
+        }
+      });
+      lastStateMarker = null;
+      syncInactiveContainers(active);
     }, 8000);
 
     try {
