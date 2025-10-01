@@ -113,38 +113,7 @@ const pageTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
       });
     </script>
 
-    <script>
-      // Gracefully fall back to local /images assets when Cloudinary fetch hits a password wall (401).
-      window.addEventListener(
-        'error',
-        (event) => {
-          const target = event?.target;
-          if (!(target instanceof HTMLImageElement)) return;
-          if (target.dataset?.fallbackApplied === 'true') return;
 
-          const candidateSrc = target.currentSrc || target.src;
-          if (!candidateSrc || !candidateSrc.startsWith('http')) return;
-
-          let pathname: string | null = null;
-          try {
-            pathname = new URL(candidateSrc).pathname;
-          } catch (err) {
-            return;
-          }
-          if (!pathname) return;
-
-          const match = pathname.match(/\/image\/fetch\/[^/]+\/https:\/\/www\.fasmotorsports\.com(\/cld-assets\/images\/.*)$/);
-          if (!match || !match[1]) return;
-
-          const localPath = match[1].replace(/^\/cld-assets/, '');
-          if (!localPath.startsWith('/images/')) return;
-
-          target.dataset.fallbackApplied = 'true';
-          target.src = localPath;
-        },
-        true
-      );
-    </script>
 
 <style>
   /* Ensure images and banners don't overflow */
