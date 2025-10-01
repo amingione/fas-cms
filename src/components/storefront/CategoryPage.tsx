@@ -507,7 +507,7 @@ export default function CategoryPage({
         </nav>
 
         {/* Hero section */}
-        <div className="relative pt-30 mt-10 pb-80 sm:pt-24 sm:pb-40 lg:pt-40 lg:pb-48">
+        <div className="relative pt-30 mt-10 pb-80 mb-12 sm:pt-24 sm:pb-40 lg:pt-40 lg:pb-48">
           <div className="relative mx-auto max-w-7xl px-4 sm:static sm:px-6 lg:px-8">
             <div className="sm:max-w-lg">
               <h1 className="z-20 text-4xl font-bold tracking-tight text-white sm:text-5xl">
@@ -525,17 +525,40 @@ export default function CategoryPage({
                   <div className="absolute transform sm:top-0 sm:left-1/2 sm:translate-x-8 lg:top-1/2 lg:left-1/2 lg:translate-x-8 lg:-translate-y-1/2">
                     <div className="flex items-center space-x-6 lg:space-x-8">
                       <div className="grid shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
-                        <div className="h-64 w-44 overflow-hidden sm:opacity-0 lg:opacity-100">
+                        <div className="rounded-lg drop-shadow-md shadow-md shadow-white/20 h-64 w-44 overflow-hidden sm:opacity-0 lg:opacity-100">
                           <img
-                            alt="F.A.S. Motorsports 108mm Billet Throttle Body"
-                            src="/images/backgrounds/Fas-chrome-logo.png"
+                            alt="F.A.S. Motorsports Drop in Filters"
+                            src="/images/products/filters.webp"
+                            className="size-full object-cover"
+                          />
+                        </div>
+                        <div className="shadow-white/20 drop-shadow shadow-md h-64 w-44 overflow-hidden rounded-lg">
+                          <img
+                            alt="FAS Motorsports Blue TRX Supercharger"
+                            src="/images/products/blue-trx.webp"
+                            className="size-full object-cover"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
+                        <div className="shadow-white/20 drop-shadow shadow-md h-64 w-44 overflow-hidden rounded-lg">
+                          <img
+                            alt="FAS Motorsports Supercharger Installed"
+                            src="/images/products/supercharger-installed.webp"
                             className="size-full object-cover"
                           />
                         </div>
                         <div className="h-64 w-44 overflow-hidden rounded-lg">
                           <img
-                            alt="PORTED 2.7L SUPERCHARGER AND SNOUT"
-                            src="/images/products/2.7L Ported supercharger and snout.png"
+                            alt="FAS Motorsports red coated supercharger"
+                            src="/images/products/billetParts.webp"
+                            className="size-full object-cover"
+                          />
+                        </div>
+                        <div className="h-64 w-44 overflow-hidden rounded-lg">
+                          <img
+                            alt="FAS Motorsports black coated supercharger"
+                            src="/images/products/supercharger-white.webp"
                             className="size-full object-cover"
                           />
                         </div>
@@ -543,38 +566,15 @@ export default function CategoryPage({
                       <div className="grid shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
                         <div className="h-64 w-44 overflow-hidden rounded-lg">
                           <img
-                            alt=""
-                            src="/images/products/4.5L-whipple-yellow.png"
+                            alt="FAS Motorsports red coated supercharger"
+                            src="/images/products/supercharger-red.webp"
                             className="size-full object-cover"
                           />
                         </div>
                         <div className="h-64 w-44 overflow-hidden rounded-lg">
                           <img
-                            alt=""
-                            src="/images/products/FASred-coated-supercharger .webp"
-                            className="size-full object-cover"
-                          />
-                        </div>
-                        <div className="h-64 w-44 overflow-hidden rounded-lg">
-                          <img
-                            alt=""
-                            src="/images/products/high temp blower case coating.webp"
-                            className="size-full object-cover"
-                          />
-                        </div>
-                      </div>
-                      <div className="grid shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
-                        <div className="h-64 w-44 overflow-hidden rounded-lg">
-                          <img
-                            alt=""
-                            src="/images/products/11.webp"
-                            className="size-full object-cover"
-                          />
-                        </div>
-                        <div className="h-64 w-44 overflow-hidden rounded-lg">
-                          <img
-                            alt=""
-                            src="/images/products/FASsatinBlack-sc-snout.webp"
+                            alt="FAS Motorsports white coated supercharger"
+                            src="/images/products/customWeldedParts.webp"
                             className="size-full object-cover"
                           />
                         </div>
@@ -599,7 +599,7 @@ export default function CategoryPage({
         {/* Category section */}
         <section
           aria-labelledby="category-heading"
-          className="bg-transparent relative isolate overflow-hidden border border-rounded rounded-lg border-black/20 drop-shadow-lg shadow-white/10 shadow-inner backdrop-blur-sm px-2 py-10 after:pointer-events-none after:absolute after:inset-0 after:inset-ring after:inset-ring-white/10 sm:rounded-3xl sm:px-10 sm:py-24 after:sm:rounded-3xl lg:py-24 xl:px-24"
+          className="pt-5 mt-5 bg-transparent relative isolate overflow-hidden border border-rounded rounded-lg border-black/20 drop-shadow-lg shadow-white/10 shadow-inner backdrop-blur-sm px-2 py-10 after:pointer-events-none after:absolute after:inset-0 after:inset-ring after:inset-ring-white/10 sm:rounded-3xl sm:px-10 sm:py-24 after:sm:rounded-3xl lg:py-24 xl:px-24"
         >
           <div className="mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
             <div className="sm:flex sm:items-baseline sm:justify-between">

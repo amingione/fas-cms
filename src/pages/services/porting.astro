@@ -146,122 +146,62 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonFallback
       </div>
     </div>
   </section>
-
-  <!-- OVERVIEW STRIP -->
-  <section class="luxury-hover-scale relative w-full bg-black/60 backdrop-blur-md border-b border-white/20">
-    <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-0" {...inlineFieldAttrs('featurePills')}>
-        {featurePillsToRender.map((pill, idx) => {
-          const fieldAttrs = featurePillsHasContent ? inlineFieldAttrs(`featurePills[${idx}]`) : {};
-          const isLast = idx === featurePillsToRender.length - 1;
-          return (
-            <div
-              class={`flex items-center gap-3 py-4 px-4 ${isLast ? '' : 'border-r border-white/20'}`}
-              {...fieldAttrs}
-            >
-              <div class="w-2 h-2 rounded-full bg-accent"></div>
-              <div class="text-white text-xs md:text-sm font-mono tracking-[0.14em]">{pill}</div>
-            </div>
-          );
-        })}
+   
+  <section class="bg-black/80 py-16 sm:py-24">
+    <div class="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
+      <div class="max-w-4xl">
+        <p class="text-base font-semibold text-primary">Service Overview</p>
+        <h2 class="mt-2 text-4xl font-semibold tracking-tight text-pretty text-white sm:text-5xl">Supercharger Snout Porting</h2>
+        <p class="mt-6 text-xl text-white/80">
+          Our porting process is tailored to maximize performance while preserving OEM fit and finish. Each snout is evaluated for casting flaws, digitally ported to spec, and hand-finished for smooth, consistent flow. Expect noticeable gains in throttle response, boost delivery, and overall efficiency.
+        </p>
       </div>
-    </div>
 
-    </div>
-  </section>
+      <section class="mt-20 grid grid-cols-1 lg:grid-cols-2 lg:gap-x-8 lg:gap-y-16">
+        <div class="lg:pr-8">
+          <h3 class="text-2xl font-semibold tracking-tight text-white">Our Process</h3>
+          <p class="mt-6 text-base text-gray-300">
+            We hand-blend and polish the interior path, then reverify alignment and fitment to throttle body and blower case.
+          </p>
+          <p class="mt-6 text-base text-gray-300">
+            Every ported snout is cleaned, chased, and sealed. Optional coatings available. Final QA ensures fastener threads and gasket interfaces are perfect before shipping or installation.
+          </p>
+        </div>
 
-  <!-- WHAT WE PORT (driven by data array) -->
-  <section class="py-12 md:py-16">
-    <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
-      <h2 class="text-center text-3xl md:text-4xl font-ethno text-accent mb-8 md:mb-12 tracking-wide">What We Port</h2>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6" {...inlineFieldAttrs('portingItems')}>
-        {portingItemsToRender.map((item, idx) => {
-          const basePath = `portingItems[${idx}]`;
-          const fieldAttrs = portingItemsHasContent ? inlineFieldAttrs(basePath) : {};
-          return (
-            <div class="group relative rounded-xl border border-white/20 bg-[#0b0b0c] overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50" {...fieldAttrs}>
-              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
-              <div class="relative p-5 z-10">
-                <div class="text-primary font-ethno text-xl drop-shadow" {...(portingItemsHasContent ? inlineFieldAttrs(`${basePath}.title`) : {})}>
-                  {item?.title || 'Component'}
-                </div>
-                <p class="text-white/75 text-sm font-mono mt-2 max-w-[60ch]" {...(portingItemsHasContent ? inlineFieldAttrs(`${basePath}.desc`) : {})}>
-                  {item?.desc || ''}
-                </p>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  </section>
-
-  <!-- METHOD & DELIVERABLES -->
-  <section class="bg-black/70 border-y border-white/20 py-10 md:py-14">
-    <div class="mx-auto w-full max-w-7xl px-0 md:px-6 grid md:grid-cols-2 gap-6 md:gap-10">
-      <div class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl">
-        <h3 class="text-xl font-borg text-white mb-2" {...(methodology?.title ? inlineFieldAttrs('methodology.title') : {})}>
-          {methodologyTitle}
-        </h3>
-        <ul class="list-disc pl-5 text-white/70 text-sm space-y-2" {...inlineFieldAttrs('methodology.items')}>
-          {methodologyItemsToRender.map((item, idx) => (
-            <li {...(methodologyItems.length ? inlineFieldAttrs(`methodology.items[${idx}]`) : {})}>
-              {item}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl">
-        <h3 class="text-xl font-borg text-white mb-2" {...(methodology?.deliverablesTitle ? inlineFieldAttrs('methodology.deliverablesTitle') : {})}>
-          {deliverablesTitle}
-        </h3>
-        <ul class="list-disc pl-5 text-white/70 text-sm space-y-2" {...inlineFieldAttrs('methodology.deliverables')}>
-          {deliverablesToRender.map((item, idx) => (
-            <li {...(deliverables.length ? inlineFieldAttrs(`methodology.deliverables[${idx}]`) : {})}>
-              {item}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <!-- TURNAROUND / NOTES -->
-  <section class="py-10 md:py-14">
-    <div class="mx-auto w-full max-w-7xl px-0 md:px-6 grid md:grid-cols-3 gap-6" {...inlineFieldAttrs('summaryCards')}>
-      {summaryCardsToRender.map((card, idx) => {
-        const basePath = `summaryCards[${idx}]`;
-        const fieldAttrs = summaryCardsHasContent ? inlineFieldAttrs(basePath) : {};
-        return (
-          <div class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl" {...fieldAttrs}>
-            <h3 class="text-lg font-borg text-white mb-2" {...(summaryCardsHasContent ? inlineFieldAttrs(`${basePath}.title`) : {})}>
-              {card?.title || 'Summary'}
-            </h3>
-            <p class="text-white/70 text-sm leading-relaxed" {...(summaryCardsHasContent ? inlineFieldAttrs(`${basePath}.body`) : {})}>
-              {card?.body || ''}
-            </p>
+        <div class="pt-16 lg:row-span-2 lg:-mr-16 xl:mr-auto">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 xl:gap-8">
+            <figure class="aspect-square overflow-hidden rounded-xl outline-1 -outline-offset-1 outline-white/10">
+              <img src="/images/snouts/FAS-Ported Snout.png" alt="Ported Snout" class="object-cover w-full h-full" />
+            </figure>
+            <figure class="aspect-square overflow-hidden rounded-xl outline-1 -outline-offset-1 outline-white/10">
+              <img src="/images/snouts/2.7L Ported supercharger and snout.png" alt="Snout Flow Correction" class="object-cover w-full h-full" />
+            </figure>
           </div>
-        );
-      })}
-    </div>
-  </section>
+        </div>
 
-  <!-- CTA -->
-  <section class="bg-transparent py-12 md:py-16 text-center">
-    <div class="flex flex-col gap-5 items-center" {...inlineFieldAttrs('ctaButtons')}>
-      {ctaButtonsToRender.map((cta, idx) => {
-        const fieldAttrs = ctaButtonsHasContent ? inlineFieldAttrs(`ctaButtons[${idx}]`) : {};
-        return (
-          <Button
-            href={cta?.href || '#'}
-            text={cta?.label || 'Call to Action'}
-            size={(cta?.size as any) || 'md'}
-            variant={(cta?.variant as any) || 'default'}
-            {...fieldAttrs}
-          />
-        );
-      })}
+        <div class="max-lg:mt-16 lg:col-span-1">
+          <p class="text-base font-semibold text-gray-400">At‑a‑glance</p>
+          <hr class="mt-6 border-t border-gray-700" />
+          <dl class="mt-6 grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
+            <div class="flex flex-col gap-y-2 border-b border-dotted border-gray-700 pb-4">
+              <dt class="text-sm text-gray-400">Typical Gains</dt>
+              <dd class="order-first text-5xl font-semibold tracking-tight text-white">+20–40 WHP</dd>
+            </div>
+            <div class="flex flex-col gap-y-2 border-b border-dotted border-gray-700 pb-4">
+              <dt class="text-sm text-gray-400">Lead Time</dt>
+              <dd class="order-first text-5xl font-semibold tracking-tight text-white">5–10 Days</dd>
+            </div>
+            <div class="flex flex-col gap-y-2">
+              <dt class="text-sm text-gray-400">Coating Options</dt>
+              <dd class="order-first text-5xl font-semibold tracking-tight text-white">Yes</dd>
+            </div>
+            <div class="flex flex-col gap-y-2">
+              <dt class="text-sm text-gray-400">Core Required?</dt>
+              <dd class="order-first text-5xl font-semibold tracking-tight text-white">Yes</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
     </div>
   </section>
   </div>

@@ -4,6 +4,9 @@ import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 const pageDoc: any = await loadPageDoc('coreExchange');
 import Button from "@/components/Button.astro";
+import BrandDivider from '@/components/divider/brandDivider';
+import SocialMedia from '@/components/divider/socialMedia';
+import { CheckCircleIcon, InformationCircleIcon } from '@heroicons/react/20/solid';
 ---
 
 <BaseLayout title="Core Exchange Program">
@@ -12,26 +15,105 @@ import Button from "@/components/Button.astro";
   {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
     <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
   )}
-  <section class="text-white text-center pt-32 pb-20 px-6 sm:px-8">
-    <h1 class="font-ethno text-5xl mb-6 text-primary" {...inlineFieldAttrs('title')}>
-      {pageDoc?.title ?? 'Core Exchange Program'}
-    </h1>
-    <p class="font-mono font-bold text-white/70 text-lg max-w-2xl mx-auto mb-10">
-      Our Core Exchange Program lets you skip the downtime — receive a ready-to-install ported snout at your doorstep!
-    </p>
-    <div class="w-full section-divider section-divider-carbon"></div>
+    <!-- HERO -->
+  <section
+      class="relative flex items-center justify-center pt-10 pb-6 mb-12 sm:mb-16 lg:mb-[-8px]"
+    >
+      <div class="relative w-full overflow-hidden rounded-none min-h-[420px] sm:min-h-[520px] lg:min-h-[620px]">
+        {/* Video Background */}
+        <video
+          class="absolute inset-0 h-full w-full object-cover"
+          aria-hidden="true"
+          src="/images/fabrication/coreExchangebanner.mp4"
+          loop
+          preload="auto"
+          muted
+          playsinline
+          autoplay
+          style={{
+            cursor: 'auto',
+            backgroundColor: 'rgba(204, 8, 8, 0)',
+            objectPosition: '50% 50%',
+            filter: 'brightness(0.6) contrast(1.2) saturate(1.2) grayscale(100%)',
+            opacity: 1
+          }}
+        />
+        <div
+          aria-hidden="true"
+          class="absolute inset-0 bg-black/55 backdrop-blur-[1px] pointer-events-none"
+        />
+        <div class="luxury-particles relative z-10 flex h-full flex-col items-center justify-center text-center px-4 pt-16 sm:px-6 sm:pt-20 pointer-events-none">
+          {/* Content */}
+          <BrandDivider client:load className="justify-center" />
+          <div class="max-w-3xl px-6 text-center flex flex-col items-center"></div>
 
-  <section class="max-w-5xl mx-auto px-6 sm:px-8 py-20 text-white">
-    <h2 class="font-cyber text-4xl text-accent mb-6">How It Works</h2>
+          <p class="text-2xl text-gradient text-primary platinum mt-10 font-borg text-glow pb-2 sm:text-3xl">
+            Ready to Install
+          </p>
+          <h2 class="text-4xl font-bold font-ethno italic sm:text-6xl">
+            Core <span class="text-gray-400">Exchange</span>
+          </h2>
+          <p class="mt-2 text-base font-medium font-ethno italic text-white/70 sm:text-xl/8">
+            skip the downtime with our core exchange program.
+          </p>
+          <SocialMedia client:load className="relative pointer-events-auto mt-6 sm:mt-8 py-4 pb-6 sm:pb-10" />
+        </div>
+      </div>
+    </section>
 
-    <!-- Accordion: separate flows for Porting vs. Custom Coating -->
+    <!-- MAIN CONTENT -->
+    <section>
+    <div class="px-6 py-32 lg:px-8">
+      <div class="mx-auto max-w-3xl text-base/7 text-gray-300">
+        <p class="text-base/7 font-semibold text-primaryB">Products in our Program</p>
+        <h2 class="font-ethno text-4xl text-white/70 mb-6">What We Offer</h2>
+        <p class="mt-6 text-xl/8">
+          Our Core Exchange Program is built for customers who want the performance upgrade without the downtime. Whether you're looking to port a snout or get a custom-coated lid, we make it fast, easy, and reliable.
+        </p>
+        <div class="mt-10 max-w-2xl text-gray-400">
+          <p>
+            We keep high-demand cores in stock — ported, coated, and ready to ship. Every unit goes through QC inspection and is matched for OEM fitment. Our turnaround process ensures that you get top-tier performance without having to wait weeks on custom work.
+          </p>
+          <ul role="list" class="mt-8 max-w-xl space-y-8 text-gray-400">
+            <li class="flex gap-x-3">
+              <CheckCircleIcon aria-hidden="true" className="mt-1 size-5 flex-none text-primary" />
+              <span>
+                <strong class="font-semibold text-white">Snout Porting – </strong> Choose between 2.4L or 2.7L supercharger snouts. All ported units are cleaned, CNC profiled, and hand-finished for flow.
+              </span>
+            </li>
+            <li class="flex gap-x-3">
+              <CheckCircleIcon aria-hidden="true" className="mt-1 size-5 flex-none text-primary" />
+              <span>
+                <strong class="font-semibold text-white">Custom Coated Cores – </strong> Our ceramic-coated snouts, lids, and full chargers are available in multiple finishes. Non-ported, cosmetic-only.
+              </span>
+            </li>
+            <li class="flex gap-x-3">
+              <CheckCircleIcon aria-hidden="true" className="mt-1 size-5 flex-none text-primary" />
+              <span>
+                <strong class="font-semibold text-white">Full Charger Swaps – </strong> For 2.4L or 2.7L full assemblies. Ideal for customers doing engine builds or shipping complete units.
+              </span>
+            </li>
+          </ul>
+          <p class="mt-8">
+            All returns must be received within 14 days to be eligible for a refund. We inspect each returned core for damage and rebuildability before issuing the refund.
+          </p>
+          <p class="mt-6 font-mono text-sm text-white/60">
+            Note: Porting performance gains vary by platform and supporting mods. Refund values depend on the returned core’s condition.
+          </p>
+        </div>
+      </div>
+    </div>
+    </section>
+
+        <!-- Accordion: separate flows for Porting vs. Custom Coating -->
+  <section class="text-white text-center mx-10 pt-5 px-12 sm:px-10 border-t rounded-lg border-rounded border-white/10 shadow-inner shadow-white/10">
     <div class="space-y-4">
       <details class="border-b border-white/20 bg-black/40">
-        <summary class="px-4 py-3 cursor-pointer select-none font-captain tracking-widest text-lg flex items-center justify-between">
+        <summary class="px-4 py-3 cursor-pointer select-none font-cyber tracking-widest text-base flex items-center justify-between">
           <span>Snout Porting Core Exchange</span>
           <span class="text-white/70">▾</span>
         </summary>
-        <div class="px-4 pb-5 text-white/80 font-mono text-xs leading-relaxed">
+        <div class="px-4 pb-5 text-white/80 font-mono text-sm leading-relaxed">
           <ol class="list-decimal list-inside space-y-2 text-left">
             <li>Place your order for a ported 2.4L/2.7L supercharger snout (core exchange).</li>
             <li>We ship you a fully ported snout, ready to install.</li>
@@ -39,23 +121,24 @@ import Button from "@/components/Button.astro";
             <li>Ship your stock snout back to us within 14 days using your preferred carrier.</li>
             <li>After inspection, we process your core refund based on the product returned.</li>
           </ol>
-          <p class="mt-3 text-white/60 font-serif font-extraboldtext-sm">Note: Performance gains below apply to porting. See “Pricing & Refunds” for exact core charges and refunds.</p>
+          <p class="mt-3 pt-5 text-accent font-serif font-bold text-base">*** Note: Performance gains below apply to porting. See “Pricing & Refunds” for exact core charges and refunds.</p>
         </div>
       </details>
+      
 
       <details class="border-b border-white/20 bg-black/40">
-        <summary class="px-4 py-3 cursor-pointer select-none font-captain tracking-widest text-lg flex items-center justify-between">
+        <summary class="px-4 py-3 cursor-pointer select-none font-cyber tracking-widest text-base flex items-center justify-between">
           <span>Custom Coating Core Exchange</span>
           <span class="text-white/70">▾</span>
         </summary>
-        <div class="px-4 pb-5 text-white/80 font-mono text-xs leading-relaxed">
+        <div class="px-4 pb-5 text-white/80 font-mono text-base leading-relaxed">
           <ol class="list-decimal list-inside space-y-2 text-left">
             <li>Select a custom coated snout or lid (finish options vary by product).</li>
             <li>We ship you a coated replacement (no porting performed on coated cores unless explicitly stated).</li>
             <li>Install the coated part and return your stock core within 14 days.</li>
             <li>After inspection, we process your core refund according to the coated product’s refund schedule.</li>
           </ol>
-          <ul class="list-disc list-inside space-y-1 mt-3 text-white/60 text-sm text-left">
+          <ul class="list-disc list-inside space-y-1 mt-3 text-accent text-base text-left mx-10 px-10">
             <li>Custom coatings are cosmetic; they do not include internal porting.</li>
             <li>Normal finish variations may occur; allow additional lead time for coating.</li>
             <li>Returned cores must be complete and rebuildable to qualify for a refund.</li>
@@ -63,68 +146,51 @@ import Button from "@/components/Button.astro";
         </div>
       </details>
     </div>
+  </section>
 
-    <div class="section-divider section-divider-platinum border-gray-700 my-10"></div>
-
-    <div class="bg-black rounded-lg shadow-lg p-8">
-      <h2 class="font-borg text-4xl text-accent mb-6">Pricing & Refunds</h2>
-      <p class="text-white/70 font-cyber-italic mb-6">
+  <section class="mx-5 px-5 sm:px-10 border-t rounded-md border-rounded border-white/10 shadow-inner shadow-white/20 mt-16">
+    <div class="bg-black rounded-lg shadow-lg pt-10 px-6 sm:px-8 mt-16 lg:mt-20 mb-32">
+      <h2 class="font-ethno text-4xl text-black text-glow mb-6">Pricing & Refunds</h2>
+      <p class="text-white/70 font-cyber-italic mb-6 mx-3 px-3">
         Below are the current core exchange fees and corresponding refunds by product. Refunds are issued after we receive and inspect your returned core within 14 days.
       </p>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        <div class="rounded-lg border border-white/15 bg-black/40 p-4">
+        <div class="rounded-lg border-t drop-shadow shadow-white/10 shadow-md border-white/15 bg-white/5 p-4">
           <h3 class="font-ethno text-lg text-white mb-1">2.4L Supercharger Snout – Core Exchange</h3>
           <p class="text-white/80 font-mono">Core Charge: <span class="text-primary font-bold">$600</span></p>
           <p class="text-white/80 font-mono">Refund on Returned Core: <span class="text-primary font-bold">$350</span></p>
-          <p class="text-white/60 text-sm mt-1">Net after refund: $250</p>
         </div>
-        <div class="rounded-lg border border-white/15 bg-black/40 p-4">
+        <div class="rounded-lg border-t drop-shadow shadow-white/10 shadow-md border-white/15 bg-white/5 p-4">
           <h3 class="font-ethno text-lg text-white mb-1">2.7L Supercharger Snout – Core Exchange</h3>
           <p class="text-white/80 font-mono">Core Charge: <span class="text-primary font-bold">$800</span></p>
           <p class="text-white/80 font-mono">Refund on Returned Core: <span class="text-primary font-bold">$550</span></p>
-          <p class="text-white/60 text-sm mt-1">Net after refund: $250</p>
         </div>
-        <div class="rounded-lg border border-white/15 bg-black/40 p-4">
+        <div class="rounded-lg border-t drop-shadow shadow-white/10 shadow-md border-white/15 bg-white/5 p-4">
           <h3 class="font-ethno text-lg text-white mb-1">2.4L Supercharger – Full Core</h3>
           <p class="text-white/80 font-mono">Core Charge: <span class="text-primary font-bold">$2,500</span></p>
           <p class="text-white/80 font-mono">Refund on Returned Core: <span class="text-primary font-bold">$1,600</span></p>
-          <p class="text-white/60 text-sm mt-1">Net after refund: $900</p>
         </div>
-        <div class="rounded-lg border border-white/15 bg-black/40 p-4">
+        <div class="rounded-lg border-t drop-shadow shadow-white/10 shadow-md border-white/15 bg-white/5 p-4">
           <h3 class="font-ethno text-lg text-white mb-1">2.7L Supercharger – Full Core</h3>
           <p class="text-white/80 font-mono">Core Charge: <span class="text-primary font-bold">$4,500</span></p>
           <p class="text-white/80 font-mono">Refund on Returned Core: <span class="text-primary font-bold">$3,600</span></p>
-          <p class="text-white/60 text-sm mt-1">Net after refund: $900</p>
         </div>
-        <div class="rounded-lg border border-white/15 bg-black/40 p-4">
+        <div class="rounded-lg border-t drop-shadow shadow-white/10 shadow-md border-white/15 bg-white/5 p-4">
           <h3 class="font-ethno text-lg text-white mb-1">2.4L Supercharger Lid – Core Exchange</h3>
           <p class="text-white/80 font-mono">Core Charge: <span class="text-primary font-bold">$350</span></p>
           <p class="text-white/80 font-mono">Refund on Returned Core: <span class="text-primary font-bold">$250</span></p>
-          <p class="text-white/60 text-sm mt-1">Net after refund: $100</p>
         </div>
       </div>
-
-      <p class="text-blue-600 font-serif font-extrabold">
-        Important: Your stock core must be received within 14 days to be eligible for a refund. No communication or tracking within 14 days = no refund.
-      </p>
     </div>
+  </section>
+</section>
 
-    <div class="border-t border-gray-700 my-10"></div>
+  
 
-    <h2 class="font-ethno text-4xl text-accent mb-6">Performance Gains (Porting)</h2>
-    <div class="text-white font-extrabold font-serif mb-8">
-      <div>Customers have reported:</div>
-      <ul class="list-disc list-inside text-white/70 font-mono space-y-2 mt-2 text-left">
-        <li>+40–60 rwhp gains on 2.4L Hellcat/Trackhawk/Durango Hellcat/TRX superchargers</li>
-        <li>+80–125 rwhp gains on 2.7L Demon/Redeye superchargers — typically paired with a 108mm throttle body</li>
-      </ul>
-      <span class="block mt-2 font-mono font-extrabold text-blue-600">Note: These gains apply to ported units, not to custom coated (non‑ported) exchanges.</span>
-    </div>
-
-    <div class="border-t border-gray-700 my-10"></div>
-
-    <h2 class="font-borg text-4xl text-primary mb-6">Shipping Information</h2>
+<section class="bg-gray-900 text-center px-5 mx-5">
+  <div class="border-t border-gray-700 my-10"></div>
+    <h2 class="font-ethno text-4xl text-black text-glow mb-6">Shipping Information</h2>
     <p class="text-white/70 font-mono font-extrabold mb-6">
       Please ship your core exchange (labeled CORE Exchange Program) with a copy of your invoice/receipt to:
     </p>
@@ -139,3 +205,5 @@ import Button from "@/components/Button.astro";
   </section>
   </div>
 </BaseLayout>
+
+

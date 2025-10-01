@@ -6,6 +6,8 @@ import IglaBox from '@/assets/igla/IGLA-Category-Image.webp';
 import SchedIgla from '@/assets/igla/sched-igla-install.webp';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
+import BrandDivider from '@/components/divider/brandDivider';
+import SocialMedia from '@/components/divider/socialMedia';
 const pageDoc: any = await loadPageDoc('igla');
 ---
 
@@ -21,6 +23,52 @@ const pageDoc: any = await loadPageDoc('igla');
   {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
     <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
   )}
+
+   <!-- HERO -->
+  <section
+      class="relative flex items-center justify-center pt-10 pb-6 mb-12 sm:mb-16 lg:mb-[-8px]"
+    >
+      <div class="relative w-full overflow-hidden rounded-none min-h-[420px] sm:min-h-[520px] lg:min-h-[620px]">
+        {/* Video Background */}
+        <video
+          class="absolute inset-0 h-full w-full object-cover"
+          aria-hidden="true"
+          src="/images/fabrication/IGLAsecurity.mp4"
+          loop
+          preload="auto"
+          muted
+          playsinline
+          autoplay
+          style={{
+            cursor: 'auto',
+            backgroundColor: 'rgba(204, 8, 8, 0)',
+            objectPosition: '50% 50%',
+            filter: 'brightness(0.6) contrast(1.2) saturate(1.2) grayscale(100%)',
+            opacity: 1
+          }}
+        />
+        <div
+          aria-hidden="true"
+          class="absolute inset-0 bg-black/55 backdrop-blur-[1px] pointer-events-none"
+        />
+        <div class="luxury-particles relative z-10 flex h-full flex-col items-center justify-center text-center px-4 pt-16 sm:px-6 sm:pt-20 pointer-events-none">
+          {/* Content */}
+          <BrandDivider client:load className="justify-center" />
+          <div class="max-w-3xl px-6 text-center flex flex-col items-center"></div>
+
+          <p class="text-2xl text-gradient text-primary platinum mt-10 font-borg text-glow pb-2 sm:text-3xl">
+            Invisible. Indestructible.
+          </p>
+          <h2 class="text-4xl font-bold font-ethno italic sm:text-6xl">
+            IGLA <span class="text-gray-400">System</span>
+          </h2>
+          <p class="mt-2 text-base font-medium font-ethno italic text-white/70 sm:text-xl/8">
+            Full System Lockout Without a Trace.
+          </p>
+          <SocialMedia client:load className="relative pointer-events-auto mt-6 sm:mt-8 py-4 pb-6 sm:pb-10" />
+        </div>
+      </div>
+    </section>
 
   <section class="luxury-particles relative text-white pt-20 pb-32 px-6 ">
     <div class="absolute inset-0"></div>
@@ -123,11 +171,11 @@ const pageDoc: any = await loadPageDoc('igla');
   <section class="grid md:grid-cols-2 gap-10 px-6 py-20 max-w-6xl mx-auto">
     <!-- Left: Description -->
     <div>
-      <h1 class="text-xl font-cyber text-[#1d92ea]">IGLA Anti-Theft System</h1>
+      <h1 class="text-xl font-cyber text-[#1d92ea]">IGLA Integration</h1>
       <div class="h-[2px] w-20 bg-[#1d92ea] my-4"></div>
-      <h2 class="text-white font-mono tracking-[1.2px] text-lg mb-6">Unique digital anti-theft system</h2>
+      <h2 class="text-white font-mono tracking-[1.2px] text-lg mb-6">The IGLA system integrates directly with your vehicle’s digital architecture</h2>
       <p class="text-white leading-relaxed font-mono">
-        The IGLA Anti-Theft System offers a robust suite of features designed to protect your vehicle from theft while enhancing user convenience. At the core of its functionality is the innovative technology that prevents unauthorized engine start, operation, and reprogramming of keys. This means that even if a thief attempts to gain access to the vehicle’s key system, the IGLA will automatically block these attempts, providing a significant deterrent against theft.
+        Using CAN and LIN bus protocols — to silently block unauthorized access. It doesn’t rely on visible hardware or LEDs, making it undetectable to thieves. Whether it’s key cloning, relay attacks, or ECU swapping, IGLA shuts down the engine or transmission preemptively, all controlled via a customizable PIN, mobile app, or factory buttons.      </p>
       </p>
     </div>
 
@@ -161,7 +209,7 @@ const pageDoc: any = await loadPageDoc('igla');
         Our certified team will assess your vehicle’s specific needs to determine the best IGLA solution for your setup — completely seamless, with no disruption to your factory wiring.
       </p>
       <Button href="/schedule" text="Schedule Your Install" variant="default" />
-      <h2 class="mt-12 text-white font-kwajong text-base max-w-4xl mx-auto md:mx-0">
+      <h2 class="mt-12 text-white font-mono font-bold text-base max-w-4xl mx-auto md:mx-0">
         Pricing varies depending on the vehicle and system version. We believe in full transparency, so our team is always available to provide a detailed breakdown and answer questions before you commit.
       </h2>
     </div>

@@ -2,7 +2,9 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import SectionRenderer from '@/components/SectionRenderer.astro';
-import { Hero } from '@components/Hero.tsx';
+import { Hero } from '@/components/Hero.tsx';
+import BrandDivider from '@/components/divider/brandDivider';
+import SocialMedia from '@/components/divider/socialMedia';
 const pageDoc: any = await loadPageDoc('customFab');
 ---
 
@@ -14,190 +16,130 @@ const pageDoc: any = await loadPageDoc('customFab');
   )}
 
   <!-- HERO -->
-  <section class="parallax-section custom-hero section-divider section-divider-carbon">
-    <div class="background-layer">
-      <img
-        src="/images/fabrication/FAS-Fabrication-1.png"
-        alt="FAS Motorsports Custom Fabrication"
-        class="absolute inset-0 w-full h-full object-cover object-center"
-        loading="eager"
-      />
-    </div>
-    <div class="foreground-layer !pt-32 md:!pt-40">
-      <h1 class="text-4xl md:text-6xl font-ethno text-accent drop-shadow mb-3" {...inlineFieldAttrs('title')}>
-        {pageDoc?.title ?? 'Custom Fabrication & Welding'}
-      </h1>
-      <p class="text-white/80 max-w-3xl mx-auto font-mono text-base md:text-xl tracking-wide">
-        FAS Motorsports offers in-house custom fabrication services for performance and diesel platforms. From pipes and cats to full exhaust systems, our welding department designs and builds everything to spec — no compromises.
-      </p>
-    </div>
-  </section>
+  <section
+      class="relative flex items-center justify-center pt-10 pb-6 mb-12 sm:mb-16 lg:mb-[-8px]"
+    >
+      <div class="relative w-full overflow-hidden rounded-none min-h-[420px] sm:min-h-[520px] lg:min-h-[620px]">
+        {/* Video Background */}
+        <video
+          class="absolute inset-0 h-full w-full object-cover"
+          aria-hidden="true"
+          src="/images/fabrication/weldingMP4.mp4"
+          loop
+          preload="auto"
+          muted
+          playsinline
+          autoplay
+          style={{
+            cursor: 'auto',
+            backgroundColor: 'rgba(204, 8, 8, 0)',
+            objectPosition: '50% 50%',
+            filter: 'brightness(0.6) contrast(1.2) saturate(1.2) grayscale(100%)',
+            opacity: 1
+          }}
+        />
+        <div
+          aria-hidden="true"
+          class="absolute inset-0 bg-black/55 backdrop-blur-[1px] pointer-events-none"
+        />
+        <div class="luxury-particles relative z-10 flex h-full flex-col items-center justify-center text-center px-4 py-16 sm:px-6 sm:py-20 pointer-events-none">
+          {/* Content */}
+          <BrandDivider client:load className="justify-center" />
+          <div class="max-w-3xl px-6 text-center flex flex-col items-center"></div>
 
-  <!-- CAPABILITIES SUMMARY (professional overview) -->
-  <section class="bg-black/70 border-y border-white/20 py-10 md:py-14">
-    <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
-      <h2 class="text-3xl md:text-4xl font-ethno text-accent mb-4">Capabilities &amp; Scope</h2>
-      <p class="text-white/75 font-mono text-base md:text-lg mb-8 max-w-4xl">
-        FAS Motorsports operates a full in‑house fabrication and welding department that designs, prototypes, and produces custom exhaust, catalyst, and piping systems for both gasoline and diesel applications. We handle one‑off projects, production runs, and motorsport‑grade assemblies with controlled QA.
-      </p>
-
-      <!-- matrix -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-        <div class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl">
-          <h3 class="text-lg font-borg text-white mb-2">Core Services</h3>
-          <ul class="list-disc pl-5 text-white/70 text-sm space-y-1.5">
-            <li>Bespoke exhaust systems (cat‑back, axle‑back, turbo‑back)</li>
-            <li>High‑flow catalyst integration &amp; placement</li>
-            <li>Charge pipes, downpipes, hot/cold side routing</li>
-            <li>Diesel truck systems (3.0L–6.7L), heavy‑duty hardware</li>
-            <li>Hanger/bracket design, flex‑joint positioning</li>
-            <li>Prototype to small‑batch production</li>
-          </ul>
-        </div>
-        <div class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl">
-          <h3 class="text-lg font-borg text-white mb-2">Materials &amp; Processes</h3>
-          <ul class="list-disc pl-5 text-white/70 text-sm space-y-1.5">
-            <li>304 &amp; 316L stainless, aluminized steel, titanium (by request)</li>
-            <li>Mandrel bends, pie‑cut sections, CNC‑cut flanges</li>
-            <li>TIG (primary) &amp; MIG (structural) welding methods</li>
-            <li>Back‑purged stainless welds; argon purge procedures</li>
-            <li>V‑band, slip‑fit, and OEM‑style couplers</li>
-            <li>Brushed, satin, or ceramic‑coat finishes</li>
-          </ul>
-        </div>
-        <div class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl">
-          <h3 class="text-lg font-borg text-white mb-2">Quality &amp; Standards</h3>
-          <ul class="list-disc pl-5 text-white/70 text-sm space-y-1.5">
-            <li>Fitment checked on‑vehicle or jig fixtures</li>
-            <li>Leak‑check at joints; dye penetrant as required</li>
-            <li>Weld bead inspection; heat‑affected zone control</li>
-            <li>Dimensional checks vs. CAD or recorded jigs</li>
-            <li>Documentation: materials, process notes, torque specs</li>
-            <li>Emissions: customer‑informed compliance where applicable*</li>
-          </ul>
+          <p class="text-2xl text-gradient text-primary platinum mt-10 font-borg text-glow pb-2 sm:text-3xl">
+            In-house custom fabrication
+          </p>
+          <h2 class="text-4xl font-bold font-ethno italic sm:text-6xl">
+            Custom <span class="text-gray-400">Fabrication</span>
+          </h2>
+          <p class="mt-2 text-base font-medium font-ethno italic text-white/70 sm:text-xl/8">
+            Precision Welded. Performance Proven.
+          </p>
+          <SocialMedia client:load className="relative pointer-events-auto mt-6 sm:mt-8 py-4 pb-6 sm:pb-10" />
         </div>
       </div>
-
-      <p class="text-white/55 text-xs mt-4">* Emissions compliance varies by jurisdiction and vehicle use. We build to the customer’s stated purpose and local regulations.</p>
-    </div>
-  </section>
-
-  <!-- GAS & DIESEL USE‑CASES (more informative than generic blocks) -->
-  <section class="py-10 md:py-14">
-    <div class="mx-auto w-full max-w-7xl px-0 md:px-6 grid md:grid-cols-2 gap-6 md:gap-8">
-      <div class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl">
-        <h3 class="text-xl font-ethno text-primary mb-2">Gasoline Performance</h3>
-        <p class="text-white/70 text-sm leading-relaxed mb-4">
-          For forced‑induction and high‑RPM builds, we prioritize flow and thermal stability. Typical deliverables include cat‑back systems with optimized muffler cores, heat‑managed downpipes, and charge‑pipe routing that minimizes volume while maintaining laminar flow to the throttle body.
+    </section>
+  <!-- ABOUT FABRICATION (rewritten from provided layout) -->
+  <section class="overflow-hidden bg-black/80 py-16 sm:py-24">
+    <div class="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
+      <div class="max-w-4xl">
+        <p class="text-base font-semibold text-primary">About Fabrication</p>
+        <h1 class="mt-2 text-4xl font-semibold tracking-tight text-pretty text-white sm:text-5xl">
+          In‑house welding & custom exhaust systems
+        </h1>
+        <p class="mt-6 text-xl text-white/80">
+          FAS Motorsports operates a full in‑house fabrication and welding department that designs, prototypes, and
+          produces custom exhaust, catalyst, and piping systems for gasoline and diesel platforms. We handle one‑off
+          projects, production runs, and motorsport‑grade assemblies with controlled QA.
         </p>
-        <ul class="list-disc pl-5 text-white/70 text-sm space-y-1.5">
-          <li>Thin‑wall 304SS with back‑purged TIG for lightweight durability</li>
-          <li>Flex joints placed to protect turbo/manifold from drivetrain movement</li>
-          <li>O2 sensor bung placement for accurate readings &amp; serviceability</li>
-        </ul>
       </div>
-      <div class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl">
-        <h3 class="text-xl font-ethno text-primary mb-2">Diesel Applications</h3>
-        <p class="text-white/70 text-sm leading-relaxed mb-4">
-          Diesel exhaust systems require robustness against continuous high EGT and vibration. We design for clearance, hanger reinforcement, and expansion, with provisions for larger‑frame turbos and work‑duty cycles.
-        </p>
-        <ul class="list-disc pl-5 text-white/70 text-sm space-y-1.5">
-          <li>Thicker‑gauge stainless or aluminized steel for longevity</li>
-          <li>Reinforced hangers and bracing for heavy systems</li>
-          <li>Optional resonators/mufflers to control drone under load</li>
-        </ul>
-      </div>
+          <section class="mt-20 grid grid-cols-1 lg:grid-cols-2 lg:gap-x-8 lg:gap-y-16">
+        <div class="lg:pr-8">
+          <h2 class="text-2xl font-semibold tracking-tight text-pretty text-white">Our approach</h2>
+          <p class="mt-6 text-base text-gray-300">
+            For forced‑induction and high‑RPM builds, we prioritize flow and thermal stability. Typical deliverables
+            include cat‑back systems with optimized muffler cores, heat‑managed downpipes, and charge‑pipe routing that
+            minimizes volume while maintaining laminar flow to the throttle body.
+          </p>
+          <p class="mt-8 text-base text-gray-300">
+            Diesel systems are engineered for continuous high EGT and vibration with reinforced hangers, expansion
+            allowances, and optional resonators to control drone under load. All stainless assemblies are back‑purged TIG
+            welded for interior smoothness and corrosion resistance, then leak‑checked and documented with torque specs.
+          </p>
+        </div>
+
+        <div class="pt-16 lg:-mr-16 xl:mr-auto w-full">
+          <div class="columns-2 gap-4 [column-fill:_balance]">
+            <figure class="mb-4 break-inside-avoid overflow-hidden rounded-2xl">
+              <img alt="Mock-up & fitment checks" src="/images/fabrication/FAS-Fabrication-2.png" class="w-full h-auto object-cover" />
+            </figure>
+            <figure class="mb-4 break-inside-avoid overflow-hidden rounded-2xl">
+              <img alt="In-house installation" src="/images/fabrication/FAS-Fabrication-Installation.png" class="w-full h-auto object-cover" />
+            </figure>
+            <figure class="mb-4 break-inside-avoid overflow-hidden rounded-2xl">
+              <img alt="Back-purged TIG welding" src="/images/fabrication/FAS-Welding.png" class="w-full h-auto object-cover" />
+            </figure>
+            <figure class="mb-4 break-inside-avoid overflow-hidden rounded-2xl">
+              <img alt="Precision fitment and finish" src="/images/fabrication/FAS-Fabrication-1.png" class="w-full h-auto object-cover" />
+            </figure>
+          </div>
+        </div>
+
+        <div class="max-lg:mt-16 lg:col-span-1">
+          <p class="text-base font-semibold text-gray-400">At‑a‑glance</p>
+          <hr class="mt-6 border-t border-gray-700" />
+          <dl class="mt-6 grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
+            <div class="flex flex-col gap-y-2 border-b border-dotted border-gray-700 pb-4">
+              <dt class="text-sm text-gray-400">Typical Lead Time</dt>
+              <dd class="order-first text-5xl font-semibold tracking-tight text-white">
+                <span>5–10</span> days
+              </dd>
+            </div>
+            <div class="flex flex-col gap-y-2 border-b border-dotted border-gray-700 pb-4">
+              <dt class="text-sm text-gray-400">Weld Method</dt>
+              <dd class="order-first text-5xl font-semibold tracking-tight text-white">
+                <span>100%</span> TIG
+              </dd>
+            </div>
+            <div class="flex flex-col gap-y-2 max-sm:border-b max-sm:border-dotted max-sm:border-gray-700 max-sm:pb-4">
+              <dt class="text-sm text-gray-400">Material Options</dt>
+              <dd class="order-first text-5xl font-semibold tracking-tight text-white">
+                304 / 316L
+              </dd>
+            </div>
+            <div class="flex flex-col gap-y-2">
+              <dt class="text-sm text-gray-400">Joint Types</dt>
+              <dd class="order-first text-5xl font-semibold tracking-tight text-white">
+                V‑band / Slip
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </section>
     </div>
   </section>
-
-  <!-- PROCESS: HOW WE WORK (stepper) -->
-  <section class="bg-black/70 border-y border-white/20 py-10 md:py-14">
-    <div class="mx-auto w-full max-w-7xl px-0 md:px-6">
-      <h2 class="text-2xl md:text-3xl font-ethno text-accent mb-6">Process &amp; Deliverables</h2>
-      <ol class="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 text-white/80 text-sm">
-        <li class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl">
-          <div class="text-primary font-borg text-lg mb-1">1. Consult</div>
-          <p class="text-white/70">Define goals, constraints, budget, and intended use (street, track, work duty).</p>
-        </li>
-        <li class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl">
-          <div class="text-primary font-borg text-lg mb-1">2. Design</div>
-          <p class="text-white/70">On‑car measurement and CAD mock‑ups; choose materials, bends, joint types, and finish.</p>
-        </li>
-        <li class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl">
-          <div class="text-primary font-borg text-lg mb-1">3. Fabricate</div>
-          <p class="text-white/70">Mandrel bending, precision TIG welds with back purge; fixtures for repeatability.</p>
-        </li>
-        <li class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl">
-          <div class="text-primary font-borg text-lg mb-1">4. Validate</div>
-          <p class="text-white/70">Fitment check, leak‑test, and final finish. Install in‑house with torque specs documented.</p>
-        </li>
-      </ol>
-    </div>
-  </section>
-
-  <!-- IMAGE GALLERY WITH CAPTIONS -->
-  <section class="bg-black/70 py-10 md:py-14">
-    <div class="mx-auto w-full max-w-7xl grid md:grid-cols-2 gap-6 px-0 md:px-6">
-      <figure class="rounded-xl border border-white/20 bg-black/50 overflow-hidden shadow-xl">
-        <img src="/images/fabrication/FAS-Fabrication-2.png" alt="Precision fitment on vehicle" class="w-full h-[320px] object-cover" />
-        <figcaption class="p-3 text-white/70 text-sm">Mock‑up &amp; fitment checks prior to final weld‑out.</figcaption>
-      </figure>
-      <figure class="rounded-xl border border-white/20 bg-black/50 overflow-hidden shadow-xl">
-        <img src="/images/fabrication/FAS-Fabrication-Installation.png" alt="Installation stage" class="w-full h-[320px] object-cover" />
-        <figcaption class="p-3 text-white/70 text-sm">In‑house installation with documented torque and hanger positions.</figcaption>
-      </figure>
-      <figure class="rounded-xl border border-white/20 bg-black/50 overflow-hidden shadow-xl md:col-span-2">
-        <img src="/images/fabrication/FAS-Welding.png" alt="Back‑purged TIG welding" class="w-full h-[380px] object-cover" />
-        <figcaption class="p-3 text-white/70 text-sm">Back‑purged TIG welds for corrosion resistance and interior smoothness.</figcaption>
-      </figure>
-    </div>
-  </section>
-
-  <!-- TECHNICAL NOTES & OPTIONS -->
-  <section class="py-10 md:py-14">
-    <div class="mx-auto w-full max-w-7xl px-0 md:px-6 grid md:grid-cols-3 gap-6">
-      <div class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl">
-        <h3 class="text-lg font-borg text-white mb-2">Options &amp; Upgrades</h3>
-        <ul class="list-disc pl-5 text-white/70 text-sm space-y-1.5">
-          <li>High‑flow catalysts, resonators, muffler core selection</li>
-          <li>Heat shielding, lava wrap, ceramic coatings</li>
-          <li>O2 bung relocation, wideband provisions, EGT ports</li>
-          <li>V‑band conversions, quick‑release clamps</li>
-        </ul>
-      </div>
-      <div class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl">
-        <h3 class="text-lg font-borg text-white mb-2">Tolerances &amp; Fitment</h3>
-        <ul class="list-disc pl-5 text-white/70 text-sm space-y-1.5">
-          <li>Jig or on‑car builds held within ±2 mm typical</li>
-          <li>Flange flatness ≤ 0.15 mm; concentric alignment verified</li>
-          <li>Hanger locations recorded for repeatable service</li>
-        </ul>
-      </div>
-      <div class="rounded-xl border border-white/20 bg-black/60 p-5 shadow-xl">
-        <h3 class="text-lg font-borg text-white mb-2">Lead Times &amp; Pricing</h3>
-        <ul class="list-disc pl-5 text-white/70 text-sm space-y-1.5">
-          <li>Consult → quote: 1–3 business days</li>
-          <li>Typical fabrication window: 5–10 business days</li>
-          <li>Expedite options available; production runs quoted separately</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-
-  <section>
+  <section class="w-75% mx-auto">
     <Hero client:load />
   </section>
 </BaseLayout>
-
-<style>
-  .custom-hero {
-    height: 60vh;
-  }
-
-  @media (min-width: 768px) {
-    .custom-hero {
-      height: 80vh;
-    }
-  }
-</style>

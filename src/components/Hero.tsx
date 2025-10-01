@@ -12,7 +12,10 @@ export function Hero() {
     return () => window.removeEventListener('resize', update);
   }, []);
   return (
-    <section id="home" className="relative flex items-center justify-center">
+    <section
+      id="home"
+      className="border-t shadow-inner shadow-white/20 rounded-md py-5 px-5 relative flex items-center justify-center"
+    >
       {/* Background Effects */}
       <div className="absolute inset-0"></div>
 
@@ -61,13 +64,13 @@ export function Hero() {
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 1 }}
-              className="space-y-2"
+              className="space-y-2 pt-5"
             >
               <h1 className="font-black justify-items-start leading-tight tracking-tight font-ethno">
-                <span className="block font-borg justify-start text-white text-3xl sm:text-4xl lg:text-6xl xl:text-7xl">
+                <span className="block font-borg italic justify-start text-white text-3xl sm:text-4xl lg:text-6xl xl:text-7xl">
                   F.a.S.
                 </span>
-                <span className="justify-start block chrome-text font-ethno text-base sm:text-base lg:text-3xl xl:text-4xl">
+                <span className="justify-start block italic text-primary font-ethno text-base sm:text-base lg:text-3xl xl:text-4xl">
                   MOTORSPORTS
                 </span>
               </h1>

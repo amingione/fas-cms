@@ -72,7 +72,7 @@ export default function HomeHero() {
           aria-hidden="true"
           className="absolute inset-0 bg-black/55 backdrop-blur-[1px] pointer-events-none"
         />
-        <div className="relative z-10 flex h-full flex-col items-center justify-center text-center px-4 py-16 sm:px-6 sm:py-20 pointer-events-none">
+        <div className="luxury-particles relative z-10 flex h-full flex-col items-center justify-center text-center px-4 py-16 sm:px-6 sm:py-20 pointer-events-none">
           {/* Content */}
           <BrandDivider className="justify-center" />
           <div className="max-w-3xl px-6 text-center flex flex-col items-center"></div>
