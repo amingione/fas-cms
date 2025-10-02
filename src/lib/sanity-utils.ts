@@ -292,10 +292,11 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       socialImage{ asset->{ _id, url }, alt },
 
       // --- Variants/Options (support multiple shapes)
-      options[]->{ title, name, key, values, items },
-      optionGroups[]->{ title, name, key, values, items },
-      variationOptions[]{ title, name, key, values, items },
-      variations[]->{ title, name, key, values, items },
+      // Keep inline option objects intact (avoid projecting away custom fields like 'sizes')
+      options[],
+      optionGroups[],
+      variationOptions[],
+      variations[],
 
       // --- Upgrades & Custom Paint ---
       addOns[]{

@@ -95,6 +95,7 @@ let upsellProducts: Product[] = [];
 let options: any[] = [];
 let addOns: any[] = [];
 let customs: any[] = [];
+let variationOptions: any[] = [];
 try {
   if (typeof slug !== 'string') {
     throw new Error('Product slug is missing or invalid.');
@@ -121,20 +122,54 @@ try {
   const descriptionText: string = (((product as any)?.shortDescription ?? (product as any)?.description) ?? '').toString();
 
   // ---- Options/Upgrades normalization (support multiple schema shapes) ----
-  options = ((product as any).options || (product as any).optionGroups || (product as any).variationOptions || (product as any).variations || []) as any[];
+  variationOptions = Array.isArray((product as any).variationOptions) ? (product as any).variationOptions : [];
+  const optionsSources = [
+    (product as any).options,
+    (product as any).optionGroups,
+    (product as any).variations
+  ];
+  options = (optionsSources.find((src) => Array.isArray(src) && src.length) || variationOptions || []) as any[];
   addOns  = ((product as any).addOns  || (product as any).upgrades     || (product as any).extras     || []) as any[];
   customs = ((product as any).customizations || (product as any).customOptions || []) as any[];
   // Normalize arrays and shapes to prevent null access during render
-  options = Array.isArray(options) ? options.filter(Boolean).map((g: any) => {
-    if (!g || typeof g !== 'object') return null;
-    const values = Array.isArray(g.values) ? g.values : (Array.isArray(g.items) ? g.items : []);
-    return {
-      key: g.key || g.name || g.title || 'option',
-      title: g.title || g.name || 'Option',
-      values,
-      ...g,
-    };
-  }).filter(Boolean) : [];
+  options = Array.isArray(options)
+    ? options
+        .filter(Boolean)
+        .map((g: any) => {
+          if (!g || typeof g !== 'object') return null;
+
+          // Sanity option schemas vary (values/items/sizes/etc.); pick the first populated shape
+          const possibleArrays = [
+            g.values,
+            g.items,
+            g.options,
+            g.choices,
+            g.sizes,
+            g.variants,
+            g.entries,
+            g.variations,
+            g.valueOptions
+          ];
+
+          const values = (possibleArrays.find((arr) => Array.isArray(arr) && arr.length) ?? []) as any[];
+
+          return {
+            ...g,
+            key: g.key || g.name || g.title || 'option',
+            title: g.title || g.name || 'Option',
+            values
+          };
+        })
+        .filter((group: any) => Array.isArray(group?.values) && group.values.length > 0)
+    : [];
+
+  if (options.length === 0 && Array.isArray(variationOptions) && variationOptions.length > 0) {
+    options.push({
+      key: 'variation',
+      title: 'Options',
+      values: variationOptions
+    });
+  }
 
   addOns = Array.isArray(addOns) ? addOns.filter(Boolean) : [];
   customs = Array.isArray(customs) ? customs.filter(Boolean) : [];
@@ -208,7 +243,7 @@ try {
                   {/* Prefer select if many values, else radios */}
                   {values.length > 4 ? (
                     <select
-                      class="w-full border border-white/20 rounded px-2 py-2"
+                      class="w-full border border-white/20 bg-black rounded px-2 py-2"
                       name={groupKey}
                       data-group={groupKey}
                     >

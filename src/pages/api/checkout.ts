@@ -93,7 +93,8 @@ export async function POST({ request }: { request: Request }) {
     };
 
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
+      // Offer standard cards plus Affirm financing at checkout
+      payment_method_types: ['card', 'affirm'],
       mode: 'payment',
       line_items: lineItems,
       metadata: { ...sessionMetadata, ...(metaCart ? { cart: metaCart } : {}) },
