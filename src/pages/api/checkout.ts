@@ -1,5 +1,11 @@
 import Stripe from 'stripe';
 import { readSession } from '../../server/auth/session';
+import {
+  computeShippingQuote,
+  type CartItemInput as ShippingCartItem,
+  type Destination as ShippingDestination,
+  type ShippingRate as CalculatedRate
+} from '@/server/shipping/quote';
 
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2024-06-20'
@@ -40,7 +46,7 @@ export async function POST({ request }: { request: Request }) {
     });
   }
 
-  const { cart } = body;
+  const { cart, shipping: shippingInput, shippingRate: requestedRate } = body;
 
   if (!Array.isArray(cart) || cart.length === 0) {
     return new Response(JSON.stringify({ error: 'Cart is empty or invalid' }), {
@@ -85,28 +91,169 @@ export async function POST({ request }: { request: Request }) {
     }
   } catch {}
 
+  // Prepare shipping-related data (optional)
+  type NormalizedShipping = ShippingDestination & {
+    email?: string;
+  };
+  const hasShippingInput = shippingInput && typeof shippingInput === 'object';
+  const normalizedDestination: NormalizedShipping | undefined = hasShippingInput
+    ? {
+        name: String(shippingInput.name || ''),
+        phone: shippingInput.phone ? String(shippingInput.phone) : undefined,
+        email: shippingInput.email ? String(shippingInput.email) : undefined,
+        addressLine1: String(shippingInput.addressLine1 || ''),
+        addressLine2: shippingInput.addressLine2 ? String(shippingInput.addressLine2) : undefined,
+        city: String(shippingInput.city || ''),
+        state: String(shippingInput.state || ''),
+        postalCode: String(shippingInput.postalCode || ''),
+        country: String(shippingInput.country || 'US')
+      }
+    : undefined;
+
+  const cartForQuote: ShippingCartItem[] = (cart as CartItem[]).map((item) => ({
+    id: String(item.id || ''),
+    quantity: Number(item.quantity || 1)
+  }));
+
+  let shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] | undefined;
+  let selectedRate: CalculatedRate | undefined;
+  let shippingMetadata: Record<string, string> = {};
+
+  if (normalizedDestination) {
+    try {
+      const quote = await computeShippingQuote(cartForQuote, normalizedDestination);
+      if (quote.freight) {
+        return new Response(
+          JSON.stringify({
+            error: 'This order requires a freight quote. Please contact support to complete your purchase.'
+          }),
+          {
+            status: 409,
+            headers: { 'Content-Type': 'application/json' }
+          }
+        );
+      }
+
+      if (quote.success && quote.rates.length) {
+        const requestedMatch: CalculatedRate | undefined = quote.rates.find((rate) => {
+          if (!requestedRate) return false;
+          const serviceCode = String(requestedRate.serviceCode || '') || undefined;
+          const carrier = String(requestedRate.carrier || '') || undefined;
+          const amount = Number(requestedRate.amount);
+          const codeMatches = serviceCode
+            ? (rate.serviceCode || '').toLowerCase() === serviceCode.toLowerCase()
+            : false;
+          const carrierMatches = carrier
+            ? (rate.carrier || '').toLowerCase() === carrier.toLowerCase()
+            : false;
+          const amountMatches = Number.isFinite(amount)
+            ? Math.round(rate.amount * 100) === Math.round(amount * 100)
+            : false;
+          return (codeMatches && carrierMatches) || (codeMatches && amountMatches) || amountMatches;
+        });
+
+        selectedRate = requestedMatch || quote.bestRate || quote.rates[0];
+
+        const deliverableRates = quote.rates.slice(0, 3);
+        const sortedRates = deliverableRates.sort((a, b) => a.amount - b.amount);
+
+        // Ensure selected rate is first in the list so it appears as default in Stripe UI
+        if (selectedRate) {
+          sortedRates.sort((a, b) => {
+            if (a === selectedRate) return -1;
+            if (b === selectedRate) return 1;
+            return a.amount - b.amount;
+          });
+        }
+
+        shippingOptions = sortedRates.map((rate) => {
+          const amount = Math.max(0, Math.round(rate.amount * 100));
+          const displayCarrier = rate.carrier ? `${rate.carrier}` : '';
+          const displayService = rate.serviceName || rate.serviceCode || 'Shipping';
+          const displayName = displayCarrier
+            ? `${displayService} (${displayCarrier})`
+            : displayService;
+
+          const deliveryEstimate = rate.deliveryDays
+            ? {
+                minimum: { unit: 'business_day' as const, value: Math.max(1, rate.deliveryDays) },
+                maximum: { unit: 'business_day' as const, value: Math.max(1, rate.deliveryDays) }
+              }
+            : undefined;
+
+          return {
+            shipping_rate_data: {
+              type: 'fixed_amount',
+              fixed_amount: {
+                amount,
+                currency: (rate.currency || 'USD').toLowerCase() as Stripe.Checkout.SessionCreateParams.ShippingOption.ShippingRateData.FixedAmount.Currency
+              },
+              display_name: displayName,
+              delivery_estimate: deliveryEstimate,
+              metadata: {
+                carrier: rate.carrier || '',
+                service_code: rate.serviceCode || ''
+              }
+            }
+          } satisfies Stripe.Checkout.SessionCreateParams.ShippingOption;
+        });
+
+        if (selectedRate) {
+          shippingMetadata = {
+            shipping_carrier: selectedRate.carrier || '',
+            shipping_service: selectedRate.serviceCode || selectedRate.serviceName || '',
+            shipping_amount: selectedRate.amount.toFixed(2)
+          };
+        }
+      }
+    } catch (err) {
+      console.error('❌ Shipping quote failed, falling back to flat rates:', err);
+      shippingOptions = undefined;
+    }
+  }
+
   try {
     const sessionMetadata: Record<string, string> = {
       ...(userId ? { userId } : {}),
       ...(userEmail ? { userEmail } : {}),
-      site: baseUrl
+      site: baseUrl,
+      ...shippingMetadata
     };
 
-    const session = await stripe.checkout.sessions.create({
+    const paymentIntentMetadata = { ...sessionMetadata };
+
+    const shippingAddressCollection: Stripe.Checkout.SessionCreateParams.ShippingAddressCollection = {
+      allowed_countries: ['US', 'CA']
+    };
+
+    const customerEmail = userEmail || normalizedDestination?.email || undefined;
+
+    const sessionParams: Stripe.Checkout.SessionCreateParams = {
       // Offer standard cards plus Affirm financing at checkout
       payment_method_types: ['card', 'affirm'],
       mode: 'payment',
       line_items: lineItems,
       metadata: { ...sessionMetadata, ...(metaCart ? { cart: metaCart } : {}) },
-      payment_intent_data: { metadata: sessionMetadata },
+      payment_intent_data: {
+        metadata: paymentIntentMetadata
+      },
       tax_id_collection: { enabled: true },
       // Enable Stripe Tax for automatic sales tax calculation
       automatic_tax: { enabled: true },
-      shipping_address_collection: {
-        allowed_countries: ['US', 'CA'] // Add other countries if needed
-      },
+      shipping_address_collection: shippingAddressCollection,
       phone_number_collection: { enabled: true },
-      shipping_options: [
+      success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/checkout/cancel`
+    };
+
+    if (customerEmail) {
+      sessionParams.customer_email = customerEmail;
+    }
+
+    if (shippingOptions && shippingOptions.length) {
+      sessionParams.shipping_options = shippingOptions;
+    } else {
+      sessionParams.shipping_options = [
         {
           shipping_rate_data: {
             type: 'fixed_amount',
@@ -129,10 +276,29 @@ export async function POST({ request }: { request: Request }) {
             }
           }
         }
-      ],
-      success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/checkout/cancel`
-    });
+      ];
+    }
+
+    if (normalizedDestination) {
+      sessionParams.customer_creation = 'if_required';
+      sessionParams.payment_intent_data = {
+        ...sessionParams.payment_intent_data,
+        shipping: {
+          name: normalizedDestination.name || undefined,
+          phone: normalizedDestination.phone || undefined,
+          address: {
+            line1: normalizedDestination.addressLine1,
+            line2: normalizedDestination.addressLine2 || undefined,
+            city: normalizedDestination.city,
+            state: normalizedDestination.state,
+            postal_code: normalizedDestination.postalCode,
+            country: (normalizedDestination.country || 'US').toUpperCase()
+          }
+        }
+      } as Stripe.Checkout.SessionCreateParams.PaymentIntentData;
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionParams);
 
     return new Response(JSON.stringify({ url: session.url }), {
       status: 200,
