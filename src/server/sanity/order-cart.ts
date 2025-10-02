@@ -1,0 +1,64 @@
+import { randomUUID } from 'node:crypto';
+
+export type OrderCartItem = {
+  _type: 'orderCartItem';
+  _key: string;
+  id?: string;
+  sku?: string;
+  name?: string;
+  price: number;
+  quantity: number;
+  categories?: string[];
+};
+
+const toNumber = (value: unknown): number | undefined => {
+  if (value === null || value === undefined) return undefined;
+  const num = Number(value);
+  return Number.isFinite(num) ? num : undefined;
+};
+
+const toStringOrUndefined = (value: unknown): string | undefined => {
+  if (typeof value === 'string' && value.trim()) return value.trim();
+  if (value && typeof value === 'number') return String(value);
+  return undefined;
+};
+
+export function createOrderCartItem(data: {
+  id?: unknown;
+  sku?: unknown;
+  name?: unknown;
+  description?: unknown;
+  price?: unknown;
+  quantity?: unknown;
+  categories?: unknown;
+}): OrderCartItem {
+  const categories = Array.isArray(data.categories)
+    ? data.categories
+        .map((value) => toStringOrUndefined(value))
+        .filter((value): value is string => Boolean(value))
+    : undefined;
+
+  const quantity = toNumber(data.quantity);
+  const price = toNumber(data.price);
+
+  return {
+    _type: 'orderCartItem',
+    _key: randomUUID(),
+    id: toStringOrUndefined(data.id),
+    sku: toStringOrUndefined(data.sku),
+    name: toStringOrUndefined(data.name) || toStringOrUndefined(data.description),
+    price: price ?? 0,
+    quantity: quantity ?? 1,
+    ...(categories && categories.length ? { categories } : {})
+  };
+}
+
+export function ensureOrderCartItems(items: Array<Record<string, unknown>> | undefined | null) {
+  if (!Array.isArray(items)) return [] as OrderCartItem[];
+  return items.map((item) => {
+    if (item && typeof item === 'object') {
+      return createOrderCartItem(item);
+    }
+    return createOrderCartItem({ name: item as any });
+  });
+}

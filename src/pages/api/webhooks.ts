@@ -1,5 +1,6 @@
 import Stripe from 'stripe';
 import { createClient } from '@sanity/client';
+import { createOrderCartItem, type OrderCartItem } from '@/server/sanity/order-cart';
 
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-08-27.basil'
@@ -102,28 +103,42 @@ export async function POST({ request }: { request: Request }) {
       }
 
       // Prefer cart metadata if present
-      let cartLines: any[] = [];
+      let cartLines: OrderCartItem[] = [];
       const metaCart = (session.metadata && (session.metadata as any).cart) || '';
       if (metaCart) {
         try {
           const parsed = JSON.parse(metaCart);
           if (Array.isArray(parsed)) {
-            cartLines = parsed.map((l: any) => ({
-              _type: 'cartLine',
-              description: l?.n,
-              quantity: l?.q,
-              amount_total: Number(l?.p || 0)
-            }));
+            cartLines = parsed.map((l: any) =>
+              createOrderCartItem({
+                id: l?.id,
+                sku: l?.sku,
+                name: l?.n || l?.name,
+                price: typeof l?.p === 'number' ? l.p : Number(l?.p || 0),
+                quantity: typeof l?.q === 'number' ? l.q : Number(l?.q || 0),
+                categories: l?.categories
+              })
+            );
           }
         } catch {}
       }
       if (!cartLines.length) {
-        cartLines = (items?.data || []).map((li) => ({
-          _type: 'cartLine',
-          description: li.description,
-          quantity: li.quantity,
-          amount_total: (li.amount_total || 0) / 100
-        }));
+        cartLines = (items?.data || []).map((li) =>
+          createOrderCartItem({
+            id: typeof li.price?.product === 'string' ? li.price.product : undefined,
+            sku: typeof li.price?.id === 'string' ? li.price.id : undefined,
+            name:
+              li.description ||
+              (typeof li.price?.nickname === 'string' ? li.price.nickname : undefined),
+            price:
+              typeof li.amount_subtotal === 'number'
+                ? li.amount_subtotal / 100
+                : typeof li.price?.unit_amount === 'number'
+                ? li.price.unit_amount / 100
+                : undefined,
+            quantity: li.quantity
+          })
+        );
       }
 
       const newOrder = await sanity.create({
@@ -184,10 +199,12 @@ export async function POST({ request }: { request: Request }) {
       const to = session.customer_details?.email;
       if (RESEND_API_KEY && to) {
         const rows = cartLines
-          .map(
-            (l: any) =>
-              `<tr><td style="padding:8px;border-bottom:1px solid #eee">${l.description || ''}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:center">${l.quantity || 1}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right">$${Number(l.amount_total || 0).toFixed(2)}</td></tr>`
-          )
+          .map((line) => {
+            const quantity = line.quantity ?? 1;
+            const unit = line.price ?? 0;
+            const total = unit * quantity;
+            return `<tr><td style="padding:8px;border-bottom:1px solid #eee">${line.name || ''}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:center">${quantity}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right">$${total.toFixed(2)}</td></tr>`;
+          })
           .join('');
         const html = `
           <div style="font-family:Arial,sans-serif;max-width:640px;margin:0 auto;color:#111">

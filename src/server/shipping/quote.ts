@@ -3,6 +3,13 @@ import { sanity } from '@/lib/sanity-utils';
 const SHIPENGINE_API_KEY = process.env.SHIPENGINE_API_KEY || '';
 const SHIPENGINE_BASE = 'https://api.shipengine.com/v1';
 
+const looksLikeCarrierId = (value?: string | null) => {
+  if (!value) return false;
+  const v = String(value).trim();
+  if (!v) return false;
+  return /^se-/.test(v) || /^car_/.test(v) || /^[0-9a-f-]{16,}$/i.test(v);
+};
+
 export type CartItemInput = {
   id: string;
   quantity?: number;
@@ -23,7 +30,8 @@ export type ShippingRate = {
   carrierId?: string;
   carrier?: string;
   serviceCode?: string;
-  serviceName?: string;
+  service?: string;
+  serviceName?: string; // legacy support
   amount: number;
   currency: string;
   deliveryDays?: number | null;
@@ -290,7 +298,7 @@ export async function computeShippingQuote(
     }
   };
 
-  if (carrierId) {
+  if (looksLikeCarrierId(carrierId)) {
     payload.rate_options = { carrier_ids: [carrierId] };
   }
 
@@ -315,7 +323,20 @@ export async function computeShippingQuote(
           carrierId: rate?.carrier_id || rate?.carrierId || undefined,
           carrier: rate?.carrier_friendly_name || rate?.carrier || undefined,
           serviceCode: rate?.service_code || rate?.serviceCode || undefined,
-          serviceName: rate?.service_code || rate?.serviceCode || rate?.service_type || undefined,
+          service:
+            rate?.service ||
+            rate?.service_name ||
+            rate?.serviceCode ||
+            rate?.service_code ||
+            rate?.service_type ||
+            undefined,
+          serviceName:
+            rate?.service ||
+            rate?.service_name ||
+            rate?.serviceCode ||
+            rate?.service_code ||
+            rate?.service_type ||
+            undefined,
           amount,
           currency: (rate?.shipping_amount?.currency || rate?.currency || 'USD').toUpperCase(),
           deliveryDays: rate?.delivery_days ?? rate?.deliveryDays ?? null,

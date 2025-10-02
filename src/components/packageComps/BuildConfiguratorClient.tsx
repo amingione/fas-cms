@@ -175,11 +175,18 @@ export default function BuildConfiguratorClient({ products }: Props) {
     if (!payload.items.length) return alert('Add at least one product.');
     setSubmitting(true);
     try {
-      await fetch('/api/build-quote', {
+      const res = await fetch('/api/build-quote', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      alert('Quote submitted!');
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error((data as any)?.message || 'Request failed');
+      }
+      const message = (data as any)?.message || 'Quote submitted!';
+      const ref = (data as any)?.quoteRequestId;
+      alert(ref ? `${message}\nReference: ${ref}` : message);
     } catch (err) {
       alert('Error submitting quote.');
     } finally {

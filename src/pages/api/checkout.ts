@@ -59,6 +59,7 @@ export async function POST({ request }: { request: Request }) {
   const lineItems = (cart as CartItem[]).map((item) => ({
     price_data: {
       currency: 'usd',
+      tax_behavior: 'exclusive',
       product_data: {
         name: item.name,
         // Help fulfillment map back to Sanity/Inventory
@@ -169,7 +170,7 @@ export async function POST({ request }: { request: Request }) {
         shippingOptions = sortedRates.map((rate) => {
           const amount = Math.max(0, Math.round(rate.amount * 100));
           const displayCarrier = rate.carrier ? `${rate.carrier}` : '';
-          const displayService = rate.serviceName || rate.serviceCode || 'Shipping';
+        const displayService = rate.service || rate.serviceName || rate.serviceCode || 'Shipping';
           const displayName = displayCarrier
             ? `${displayService} (${displayCarrier})`
             : displayService;
@@ -189,6 +190,8 @@ export async function POST({ request }: { request: Request }) {
                 currency: (rate.currency || 'USD').toLowerCase() as Stripe.Checkout.SessionCreateParams.ShippingOption.ShippingRateData.FixedAmount.Currency
               },
               display_name: displayName,
+              tax_behavior: 'exclusive',
+              tax_code: 'txcd_92010001',
               delivery_estimate: deliveryEstimate,
               metadata: {
                 carrier: rate.carrier || '',
@@ -201,7 +204,7 @@ export async function POST({ request }: { request: Request }) {
         if (selectedRate) {
           shippingMetadata = {
             shipping_carrier: selectedRate.carrier || '',
-            shipping_service: selectedRate.serviceCode || selectedRate.serviceName || '',
+            shipping_service: selectedRate.serviceCode || selectedRate.service || selectedRate.serviceName || '',
             shipping_amount: selectedRate.amount.toFixed(2)
           };
         }
@@ -259,6 +262,8 @@ export async function POST({ request }: { request: Request }) {
             type: 'fixed_amount',
             fixed_amount: { amount: 1500, currency: 'usd' },
             display_name: 'Standard (5–7 business days)',
+            tax_behavior: 'exclusive',
+            tax_code: 'txcd_92010001',
             delivery_estimate: {
               minimum: { unit: 'business_day', value: 5 },
               maximum: { unit: 'business_day', value: 7 }
@@ -270,6 +275,8 @@ export async function POST({ request }: { request: Request }) {
             type: 'fixed_amount',
             fixed_amount: { amount: 3500, currency: 'usd' },
             display_name: 'Expedited (2–3 business days)',
+            tax_behavior: 'exclusive',
+            tax_code: 'txcd_92010001',
             delivery_estimate: {
               minimum: { unit: 'business_day', value: 2 },
               maximum: { unit: 'business_day', value: 3 }

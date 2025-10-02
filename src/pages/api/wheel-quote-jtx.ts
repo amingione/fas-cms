@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { Resend } from 'resend';
 import { createClient } from '@sanity/client';
 import { jtxWheelQuoteSchema } from '@/lib/validators/jtxWheelSpec';
+import { createQuoteRequest } from '@/server/sanity/quote-requests';
 
 const resendApiKey = import.meta.env.RESEND_API_KEY;
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
@@ -62,10 +63,41 @@ export const POST: APIRoute = async ({ request }) => {
       console.warn('[JTX Quote] Sanity credentials missing. Skipping persistence.');
     }
 
+    let quoteRequestId: string | null = null;
+    try {
+      const specLabel = `${data.series} ${data.diameter}x${data.width} ${data.boltPattern} (Offset ${data.offset})`;
+      const vehicle = [data.vehicleYear, data.vehicleMake, data.vehicleModel]
+        .map((val) => (val || '').trim())
+        .filter(Boolean)
+        .join(' ');
+      const created = await createQuoteRequest({
+        source: 'jtx-wheel-quote',
+        linkedQuoteId: createdId ?? undefined,
+        customerName: data.fullname,
+        customerEmail: data.email,
+        customerPhone: data.phone,
+        vehicle: vehicle || undefined,
+        summary: specLabel,
+        notes: data.notes,
+        items: [
+          {
+            name: specLabel,
+            quantity: Number(data.qty) || undefined,
+            notes: `Finish: ${data.finish}${data.color ? ` • Color: ${data.color}` : ''}`
+          }
+        ],
+        meta: { ...data }
+      });
+      quoteRequestId = created?._id ?? null;
+    } catch (err) {
+      console.error('[JTX Quote] Failed to log quote request', err);
+    }
+
     const subject = `[JTX Quote] ${data.series} ${data.diameter}x${data.width} ${data.boltPattern} — ${data.fullname}`;
     const html = `
       <h2>JTX Quote Request</h2>
-      <p><b>Sanity Doc ID:</b> ${createdId ?? 'n/a'}</p>
+      <p><b>Wheel Quote Doc ID:</b> ${createdId ?? 'n/a'}</p>
+      <p><b>Quote Request ID:</b> ${quoteRequestId ?? 'n/a'}</p>
       <p><b>Series:</b> ${data.series}</p>
       <p><b>Spec:</b> ${data.diameter}x${data.width} • ${data.boltPattern} • Offset: ${data.offset}</p>
       <p><b>Finish:</b> ${data.finish} ${data.color ? '• <b>Color:</b> '+data.color : ''}</p>
@@ -84,7 +116,7 @@ export const POST: APIRoute = async ({ request }) => {
       console.warn('[JTX Quote] Resend API key missing. Skipping email notification.');
     }
 
-    return new Response(JSON.stringify({ ok: true, id: createdId }), { status: 200 });
+    return new Response(JSON.stringify({ ok: true, id: createdId, quoteRequestId }), { status: 200 });
   } catch (err: any) {
     return new Response(JSON.stringify({ error: err.message ?? 'Invalid payload' }), { status: 400 });
   }

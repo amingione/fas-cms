@@ -3,19 +3,14 @@ import Stripe from 'stripe';
 import { z } from 'zod';
 import { readSession } from '../../server/auth/session';
 import type { z as ZodNamespace } from 'zod';
+import { createOrderCartItem, type OrderCartItem } from '@/server/sanity/order-cart';
 
 type CartItem = ZodNamespace.infer<typeof CartItemSchema>;
 
 interface OrderPayload {
   _type: 'order';
   stripeSessionId: string;
-  cart: Array<{
-    id: string;
-    name: string;
-    price: number;
-    quantity: number;
-    categories: string[];
-  }>;
+  cart: OrderCartItem[];
   totalAmount: number;
   status: 'paid' | 'unpaid' | 'failed' | 'refunded';
   createdAt: string;
@@ -38,6 +33,7 @@ const stripeClient = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
 
 const CartItemSchema = z.object({
   id: z.string(),
+  sku: z.string().optional(),
   name: z.string(),
   price: z.number(),
   quantity: z.number(),
@@ -117,13 +113,16 @@ export const POST = async ({ request }: { request: Request }) => {
     const orderPayload: OrderPayload = {
       _type: 'order',
       stripeSessionId: sessionId,
-      cart: validatedCart.map((item) => ({
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-        categories: (item.categories ?? []) as string[]
-      })),
+      cart: validatedCart.map((item) =>
+        createOrderCartItem({
+          id: item.id,
+          sku: item.sku,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          categories: item.categories
+        })
+      ),
       totalAmount: stripeSession.amount_total ? stripeSession.amount_total / 100 : 0,
       status: 'paid',
       createdAt: new Date().toISOString()

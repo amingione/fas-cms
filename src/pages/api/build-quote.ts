@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { Resend } from 'resend';
+import { createQuoteRequest } from '@/server/sanity/quote-requests';
 
 const json = (data: any, init?: ResponseInit) =>
   new Response(JSON.stringify(data), {
@@ -43,9 +44,42 @@ export const POST: APIRoute = async ({ request }) => {
           .join('')
       : '';
 
+    const summary = [vehicle ? `Vehicle: ${safe(vehicle)}` : '', `${items.length} item(s)`]
+      .filter(Boolean)
+      .join(' — ');
+
+    let quoteRequestId: string | null = null;
+    try {
+      const created = await createQuoteRequest({
+        source: 'build-configurator',
+        customerName: name,
+        customerEmail: email,
+        customerPhone: phone,
+        vehicle,
+        summary,
+        subtotal,
+        notes,
+        items: items.map((item: any) => {
+          const qty = Number(item?.qty) || 0;
+          const price = Number(item?.price) || 0;
+          return {
+            name: item?.name,
+            quantity: qty,
+            price,
+            total: qty * price
+          };
+        }),
+        meta: { vehicle, rawItems: items }
+      });
+      quoteRequestId = created?._id ?? null;
+    } catch (err) {
+      console.error('[build-quote] Failed to persist quote request', err);
+    }
+
     const html = `
       <div>
         <h2>New Build Quote Request</h2>
+        <p><strong>Sanity Quote Request ID:</strong> ${quoteRequestId ?? 'n/a'}</p>
         <p><strong>Name:</strong> ${safe(name)}</p>
         <p><strong>Email:</strong> ${safe(email)}</p>
         <p><strong>Phone:</strong> ${safe(phone)}</p>
@@ -73,7 +107,14 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (!import.meta.env.RESEND_API_KEY) {
       console.warn('RESEND_API_KEY is not set; skipping email send.');
-      return json({ ok: true, message: 'Quote received (email not sent: missing RESEND_API_KEY).' }, { status: 200 });
+      return json(
+        {
+          ok: true,
+          message: 'Quote received (email not sent: missing RESEND_API_KEY).',
+          quoteRequestId
+        },
+        { status: 200 }
+      );
     }
 
     try {
@@ -83,10 +124,13 @@ export const POST: APIRoute = async ({ request }) => {
         subject: `Build Quote Request — ${safe(vehicle)}`,
         html
       });
-      return json({ ok: true, message: 'Quote sent' }, { status: 200 });
+      return json({ ok: true, message: 'Quote sent', quoteRequestId }, { status: 200 });
     } catch (sendErr) {
       console.error('Resend send failed:', sendErr);
-      return json({ ok: false, message: 'Quote received but email failed to send.' }, { status: 200 });
+      return json(
+        { ok: false, message: 'Quote received but email failed to send.', quoteRequestId },
+        { status: 200 }
+      );
     }
   } catch (err) {
     console.error('build-quote failed:', err);
@@ -103,4 +147,3 @@ export const OPTIONS: APIRoute = async () =>
       'access-control-allow-headers': 'content-type'
     }
   });
-
