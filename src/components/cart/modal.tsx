@@ -91,7 +91,7 @@ function validateShippingForm(form: ShippingFormState): string | null {
 
 function normalizeShippingInput(form: ShippingFormState): CheckoutShippingInput {
   return {
-    name: form.name.trim(),
+    name: (form.name ?? '').trim(),
     email: form.email.trim(),
     phone: form.phone?.trim() || undefined,
     addressLine1: form.addressLine1.trim(),
@@ -105,7 +105,10 @@ function normalizeShippingInput(form: ShippingFormState): CheckoutShippingInput 
 
 function ratesMatch(a?: CheckoutShippingRate | null, b?: CheckoutShippingRate | null) {
   if (!a || !b) return false;
-  const normalize = (value?: string | null) => String(value || '').trim().toLowerCase();
+  const normalize = (value?: string | null) =>
+    String(value || '')
+      .trim()
+      .toLowerCase();
   const amountA = Math.round(Number(a.amount || 0) * 100);
   const amountB = Math.round(Number(b.amount || 0) * 100);
   if (amountA !== amountB) return false;
@@ -412,7 +415,8 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
       setMissingItems(Array.isArray(data?.missing) ? data.missing : []);
 
       const previous = selectedRate;
-      const nextSelected = received.find((rate) => ratesMatch(rate, previous)) || received[0] || null;
+      const nextSelected =
+        received.find((rate) => ratesMatch(rate, previous)) || received[0] || null;
       setSelectedRate(nextSelected);
       setQuoteError(null);
       return received;
@@ -490,10 +494,12 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
         <div className="space-y-3 text-sm">
           <div className="grid grid-cols-1 gap-3">
             <label className="flex flex-col">
-              <span className="mb-1 text-xs uppercase tracking-wide text-neutral-400">Full name</span>
+              <span className="mb-1 text-xs uppercase tracking-wide text-neutral-400">
+                Full name
+              </span>
               <input
                 name="name"
-                value={form.name}
+                value={form.name ?? ''}
                 onChange={handleInputChange}
                 className="rounded-md border border-white/10 bg-white/10 px-3 py-2 text-white focus:border-primary focus:outline-none"
                 required
@@ -511,7 +517,9 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
               />
             </label>
             <label className="flex flex-col">
-              <span className="mb-1 text-xs uppercase tracking-wide text-neutral-400">Phone (optional)</span>
+              <span className="mb-1 text-xs uppercase tracking-wide text-neutral-400">
+                Phone (optional)
+              </span>
               <input
                 name="phone"
                 value={form.phone}
@@ -523,7 +531,9 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
 
           <div className="grid grid-cols-1 gap-3">
             <label className="flex flex-col">
-              <span className="mb-1 text-xs uppercase tracking-wide text-neutral-400">Address line 1</span>
+              <span className="mb-1 text-xs uppercase tracking-wide text-neutral-400">
+                Address line 1
+              </span>
               <input
                 name="addressLine1"
                 value={form.addressLine1}
@@ -533,7 +543,9 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
               />
             </label>
             <label className="flex flex-col">
-              <span className="mb-1 text-xs uppercase tracking-wide text-neutral-400">Address line 2</span>
+              <span className="mb-1 text-xs uppercase tracking-wide text-neutral-400">
+                Address line 2
+              </span>
               <input
                 name="addressLine2"
                 value={form.addressLine2}
@@ -556,7 +568,9 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
               />
             </label>
             <label className="flex flex-col">
-              <span className="mb-1 text-xs uppercase tracking-wide text-neutral-400">State / Province</span>
+              <span className="mb-1 text-xs uppercase tracking-wide text-neutral-400">
+                State / Province
+              </span>
               <input
                 name="state"
                 value={form.state}
@@ -566,7 +580,9 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
               />
             </label>
             <label className="flex flex-col">
-              <span className="mb-1 text-xs uppercase tracking-wide text-neutral-400">Postal code</span>
+              <span className="mb-1 text-xs uppercase tracking-wide text-neutral-400">
+                Postal code
+              </span>
               <input
                 name="postalCode"
                 value={form.postalCode}
@@ -612,7 +628,9 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
           )}
           {submitError && <p className="text-xs text-red-400">{submitError}</p>}
           {missingItems.length > 0 && (
-            <p className="text-xs text-amber-300">Missing product data for: {missingItems.join(', ')}</p>
+            <p className="text-xs text-amber-300">
+              Missing product data for: {missingItems.join(', ')}
+            </p>
           )}
           {freightRequired && (
             <div className="rounded-md border border-amber-500/50 bg-amber-500/10 p-3 text-xs text-amber-200">
@@ -628,7 +646,9 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
                 {displayRates.map((rate, idx) => {
                   const id = `shipping-${idx}`;
                   const isSelected = ratesMatch(rate, selectedRate);
-                  const labelParts = [rate.service || rate.serviceName || rate.serviceCode || 'Shipping'];
+                  const labelParts = [
+                    rate.service || rate.serviceName || rate.serviceCode || 'Shipping'
+                  ];
                   if (rate.carrier) labelParts.push(rate.carrier);
                   return (
                     <label
@@ -646,7 +666,9 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
                         <div>
                           <p className="text-white">{labelParts.join(' • ')}</p>
                           {rate.deliveryDays ? (
-                            <p className="text-xs text-neutral-400">{rate.deliveryDays}-day estimate</p>
+                            <p className="text-xs text-neutral-400">
+                              {rate.deliveryDays}-day estimate
+                            </p>
                           ) : null}
                         </div>
                       </div>
