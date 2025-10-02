@@ -37,7 +37,9 @@ function saveCart(cart: Cart) {
   // Notify listeners (e.g., floating cart) that cart has changed
   try {
     window.dispatchEvent(new CustomEvent('cart:changed', { detail: { cart } }));
-  } catch {}
+  } catch (error) {
+    void error;
+  }
 }
 
 function normalizeId(input: any): string | undefined {

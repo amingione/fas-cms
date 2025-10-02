@@ -84,7 +84,9 @@ export default function ShopTopControls({
         const min = Number.isFinite(pm) ? Math.max(0, Math.min(100000, Math.floor(pm))) : 0;
         const max = Number.isFinite(px) ? Math.max(0, Math.min(100000, Math.floor(px))) : 100000;
         setPrice({ min, max });
-      } catch {}
+      } catch (error) {
+        void error;
+      }
     };
     syncFromURL();
     window.addEventListener('popstate', syncFromURL);

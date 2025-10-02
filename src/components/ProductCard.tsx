@@ -65,7 +65,6 @@ export function ProductCard({ product, productImage, className }: ProductCardPro
       {/* Product image (uniform square, flows naturally) */}
       <div className="px-3 package-card md:px-4 lg:px-5 pt-12 md:pt-8">
         <div className="relative mx-auto w-full aspect-square">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <a
             href={getSlug(product) ? `/shop/${getSlug(product)}` : '#'}
             className="inline-flex items-center justify-between gap-1"

@@ -52,7 +52,7 @@ export async function POST({ request }: { request: Request }) {
   // Handle event types
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
-    let userIdFromMetadata: string | undefined = (session.metadata as any)?.userId || undefined;
+    const userIdFromMetadata: string | undefined = (session.metadata as any)?.userId || undefined;
 
     console.log('✅ Payment confirmed for session:', session.id);
     console.log('Customer Email:', session.customer_details?.email);
@@ -98,7 +98,9 @@ export async function POST({ request }: { request: Request }) {
           try {
             const cust: any = await sanity.fetch(`*[_id==$id][0]{authId}`, { id: customerId });
             if (cust?.authId) userId = String(cust.authId);
-          } catch {}
+          } catch (error) {
+            void error;
+          }
         }
       }
 
@@ -120,7 +122,9 @@ export async function POST({ request }: { request: Request }) {
               })
             );
           }
-        } catch {}
+        } catch (error) {
+          void error;
+        }
       }
       if (!cartLines.length) {
         cartLines = (items?.data || []).map((li) =>

@@ -395,7 +395,9 @@ async function initDashboard() {
     if (!userEmail) {
       try {
         userEmail = localStorage.getItem('customerEmail') || '';
-      } catch {}
+      } catch (error) {
+        void error;
+      }
     }
     userEmail = userEmail.trim().toLowerCase();
 
@@ -425,14 +427,18 @@ void initDashboard();
 function logout() {
   try {
     localStorage.clear();
-  } catch {}
+  } catch (error) {
+    void error;
+  }
   try {
     const fas = (window as any).fasAuth;
     if (fas && typeof fas.logout === 'function') {
       fas.logout(window.location.origin + '/account');
       return;
     }
-  } catch {}
+  } catch (error) {
+    void error;
+  }
   window.location.href = '/api/auth/logout';
 }
 

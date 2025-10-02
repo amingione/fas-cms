@@ -116,15 +116,15 @@ export default function FilterPanel({
     const hi = Math.max(a, b);
     setMinP(lo);
     setMaxP(hi);
-    onPriceChange && onPriceChange(lo, hi);
+    if (onPriceChange) onPriceChange(lo, hi);
   };
 
   const clearAll = () => {
     onCategoryChange('all');
     onFiltersChange([]);
-    onVehiclesChange && onVehiclesChange([]);
+    if (onVehiclesChange) onVehiclesChange([]);
     commitPrice(0, 10000);
-    onClear && onClear();
+    if (onClear) onClear();
   };
 
   return (

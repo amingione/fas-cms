@@ -87,7 +87,9 @@ export async function POST({ request }: { request: Request }) {
     const compact = cart.map((i: any) => ({ n: i?.name, q: i?.quantity, p: i?.price }));
     metaCart = JSON.stringify(compact);
     if (metaCart.length > 450) metaCart = metaCart.slice(0, 450);
-  } catch {}
+  } catch (error) {
+    void error;
+  }
 
   // Derive optional user identity for reliable joins in webhook
   let userId: string | undefined;
@@ -98,7 +100,9 @@ export async function POST({ request }: { request: Request }) {
       userId = String(session.user.id || '');
       userEmail = String(session.user.email || '');
     }
-  } catch {}
+  } catch (error) {
+    void error;
+  }
 
   // Prepare shipping-related data (optional)
   type NormalizedShipping = ShippingDestination & {

@@ -1,17 +1,14 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createContext, useEffect, useState, useContext } from 'react';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [fas, setFas] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const initAuth = async () => {
       const fx = window.fasAuth;
-      setFas(fx);
       const isAuthenticated = fx ? await fx.isAuthenticated() : false;
       if (isAuthenticated) {
         const session = await fx.getSession();

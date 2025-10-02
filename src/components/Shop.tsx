@@ -228,7 +228,7 @@ export default function Shop({
 
   // Filter and sort products
   const filteredProducts = useMemo(() => {
-    let filtered = sourceProducts.filter((product) => {
+    const filtered = sourceProducts.filter((product) => {
       const matchesSearch = product.title.toLowerCase().includes(searchTerm.toLowerCase());
       // --- CATEGORY/FILTER LOGIC ---
       const catTokens: string[] = [

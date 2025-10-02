@@ -78,7 +78,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     let quoteRequestId: string | null = null;
     try {
-      const summary = `${data.series} ${data.diameter}\" x ${data.width}\" • ${data.boltPattern} • Backspacing ${data.backspacing}`;
+      const summary = `${data.series} ${data.diameter} in x ${data.width} in • ${data.boltPattern} • Backspacing ${data.backspacing}`;
       const items = [
         {
           name: 'Front wheel set',
@@ -114,14 +114,14 @@ export const POST: APIRoute = async ({ request }) => {
       console.error('[Belak Quote] Failed to log quote request', err);
     }
 
-    const subject = `[Belak Quote] ${data.series} ${data.diameter}x${data.width}\" ${data.boltPattern} — ${data.fullname}`;
+    const subject = `[Belak Quote] ${data.series} ${data.diameter}x${data.width} in ${data.boltPattern} — ${data.fullname}`;
     const html = `
       <h2>Belak Quote Request</h2>
       <p><b>Wheel Quote Doc ID:</b> ${createdId ?? 'n/a'}</p>
       <p><b>Quote Request ID:</b> ${quoteRequestId ?? 'n/a'}</p>
       <p><b>Page:</b> ${data.pageContext ?? '-'}</p>
       <p><b>Series:</b> ${data.series}</p>
-      <p><b>Spec:</b> ${data.diameter}" x ${data.width}" • ${data.boltPattern} • Backspacing: ${data.backspacing}</p>
+      <p><b>Spec:</b> ${data.diameter}&quot; x ${data.width}&quot; • ${data.boltPattern} • Backspacing: ${data.backspacing}</p>
       <p><b>Finish:</b> ${data.finish} • <b>Beadlock:</b> ${data.beadlock} • <b>Hardware:</b> ${data.hardware} • <b>Cap:</b> ${data.centerCap} • <b>Style:</b> ${data.style ?? '-'}</p>
       <p><b>Quantities:</b> Front ${data.qtyFront} • Rear ${data.qtyRear}</p>
       <p><b>Tires:</b> F ${data.tireSizeFront ?? '-'} • R ${data.tireSizeRear ?? '-'}</p>

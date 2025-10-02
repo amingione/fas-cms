@@ -47,7 +47,7 @@ async function handleSubmit(e: SubmitEvent): Promise<void> {
   const businessType = String(formData.get('businessType') || '').trim();
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const phoneRegex = /^[0-9\-\+]{9,15}$/;
+  const phoneRegex = /^[0-9-+]{9,15}$/;
   if (!businessName || !contactName || !email || !phone || !resaleCertificateId || !taxId || !businessAddress) {
     if (statusEl) statusEl.textContent = '❌ Please fill out all required fields.';
     return;

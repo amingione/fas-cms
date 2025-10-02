@@ -26,7 +26,9 @@ const generateKey = (): string => {
     if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
       return crypto.randomUUID();
     }
-  } catch {}
+  } catch (error) {
+    void error;
+  }
   const stamp = Date.now().toString(36);
   const rand = Math.random().toString(36).slice(2, 10);
   return `oc_${stamp}_${rand}`;

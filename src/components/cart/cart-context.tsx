@@ -53,7 +53,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     function onChanged(ev: any) {
       try {
         setCart(ev.detail.cart);
-      } catch {}
+      } catch (error) {
+        void error;
+      }
     }
     window.addEventListener('cart:changed', onChanged as EventListener);
     return () => window.removeEventListener('cart:changed', onChanged as EventListener);

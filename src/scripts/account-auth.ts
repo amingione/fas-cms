@@ -97,7 +97,9 @@ function bindLoginButtons(fas: NonNullable<typeof window.fasAuth>, returnTo: str
     if (session?.user?.email) {
       localStorage.setItem('customerEmail', session.user.email);
     }
-  } catch {}
+  } catch (error) {
+    void error;
+  }
 
   // Honor pending return cookie set by protected routes
   try {

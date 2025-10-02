@@ -196,7 +196,9 @@ export function SearchBar({
     return () => {
       try {
         document.body.removeChild(node);
-      } catch {}
+      } catch (error) {
+        void error;
+      }
     };
   }, [portal]);
 
@@ -214,7 +216,11 @@ export function SearchBar({
           value={currentValue}
           onChange={(e) => {
             const v = e.target.value;
-            onChange ? onChange(v) : setInnerValue(v);
+            if (onChange) {
+              onChange(v);
+            } else {
+              setInnerValue(v);
+            }
           }}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
@@ -283,7 +289,6 @@ export function SearchBar({
                     style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, lineHeight: 1.2 }}
                   >
                     {img ? (
-                      // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={img}
                         alt=""
@@ -353,7 +358,6 @@ export function SearchBar({
                       style={{ fontFamily: 'Arial, sans-serif', fontSize: 12, lineHeight: 1.2 }}
                     >
                       {img ? (
-                        // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={img}
                           alt=""

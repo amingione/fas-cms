@@ -9,7 +9,6 @@ export async function POST({ request }: { request: Request }) {
   let body;
   try {
     body = await request.json();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (_err) {
     return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
       status: 400,

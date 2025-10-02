@@ -21,8 +21,15 @@ async function resolveEmail() {
       const session = await fas.getSession();
       if (session?.user?.email) return session.user.email as string;
     }
-  } catch {}
-  try { return localStorage.getItem('customerEmail') || ''; } catch { return ''; }
+  } catch (error) {
+    void error;
+  }
+  try {
+    return localStorage.getItem('customerEmail') || '';
+  } catch (error) {
+    void error;
+    return '';
+  }
 }
 
 async function loadCustomer() {
@@ -106,7 +113,9 @@ window.addEventListener('DOMContentLoaded', () => {
       const draft = JSON.parse(draftRaw);
       applySnapshot(draft);
     }
-  } catch {}
+  } catch (error) {
+    void error;
+  }
 
   // After Sanity load completes, take a baseline snapshot
   setTimeout(() => { lastSnapshot = snapshot(); }, 500);
@@ -118,7 +127,11 @@ window.addEventListener('DOMContentLoaded', () => {
     if (!el) return;
     const evt = el instanceof HTMLInputElement && el.type === 'checkbox' ? 'change' : 'input';
     el.addEventListener(evt, () => {
-      try { localStorage.setItem(DRAFT_KEY, JSON.stringify(snapshot())); } catch {}
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(snapshot()));
+      } catch (error) {
+        void error;
+      }
     });
   });
 
@@ -141,7 +154,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
       if (!res.ok) throw new Error(await res.text());
       lastSnapshot = snapshot();
-      try { localStorage.removeItem(DRAFT_KEY); } catch {}
+      try {
+        localStorage.removeItem(DRAFT_KEY);
+      } catch (error) {
+        void error;
+      }
       setSaving(false, 'Saved');
       if (backBtn) backBtn.classList.remove('hidden');
       setTimeout(() => setSaving(false, ''), 1200);

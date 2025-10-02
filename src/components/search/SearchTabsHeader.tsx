@@ -8,7 +8,9 @@ export default function SearchTabsHeader() {
     try {
       const url = new URL(window.location.href);
       setValue(url.searchParams.get('type') || 'all');
-    } catch {}
+    } catch (error) {
+      void error;
+    }
   }, []);
 
   const onChange = (val: string) => {
@@ -34,4 +36,3 @@ export default function SearchTabsHeader() {
     />
   );
 }
-

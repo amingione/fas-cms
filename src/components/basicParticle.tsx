@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 // Lazy-load heavy particle libs at runtime to reduce TBT
 // We avoid static imports so the bundle for pages without particles stays lean.
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import type { Container, Engine, ISourceOptions } from 'tsparticles-engine';
 import type { CSSProperties } from 'react';
 

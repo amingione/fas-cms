@@ -62,7 +62,7 @@ type PackageSpec = {
 
 const parseDims = (value?: string | null): { length: number; width: number; height: number } | null => {
   if (!value) return null;
-  const cleaned = String(value).replace(/[^0-9xX\.]/g, '').toLowerCase();
+  const cleaned = String(value).replace(/[^0-9xX.]/g, '').toLowerCase();
   const parts = cleaned.split(/x/).map((part) => Number(part));
   if (parts.length >= 3 && parts.every((n) => Number.isFinite(n) && n > 0)) {
     const [length, width, height] = parts;
@@ -163,7 +163,7 @@ const SHIP_FROM = {
   city_locality: penv.ORIGIN_CITY || ime.ORIGIN_CITY || 'Las Vegas',
   state_province: penv.ORIGIN_STATE || ime.ORIGIN_STATE || 'NV',
   postal_code: penv.ORIGIN_POSTAL || ime.ORIGIN_POSTAL || '89101',
-  country_code: ((penv.ORIGIN_COUNTRY || ime.ORIGIN_COUNTRY || 'US') || 'US').toUpperCase()
+  country_code: (penv.ORIGIN_COUNTRY || ime.ORIGIN_COUNTRY || 'US').toUpperCase()
 };
 
 const shipEngineFetch = async (path: string, body: any) => {

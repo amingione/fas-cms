@@ -8,6 +8,7 @@ import Price from '@/components/storefront/Price';
 import {
   Fragment,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type ChangeEvent,
@@ -123,6 +124,34 @@ function ratesMatch(a?: CheckoutShippingRate | null, b?: CheckoutShippingRate | 
   const serviceB = normalize(b.service || b.serviceCode || b.serviceName);
   if (serviceA && serviceB && serviceA !== serviceB) return false;
   return true;
+}
+
+function rateIdentifier(rate: CheckoutShippingRate): string {
+  const amount = Number(rate.amount);
+  const normalized = [
+    rate.carrierId,
+    rate.carrier,
+    rate.serviceCode,
+    rate.service,
+    rate.serviceName,
+    rate.currency,
+    Number.isFinite(amount) ? amount.toFixed(2) : '',
+    rate.deliveryDays ?? '',
+    rate.estimatedDeliveryDate ?? ''
+  ]
+    .map((value) => String(value ?? '').trim().toLowerCase());
+  const joined = normalized.join('|');
+  return joined || JSON.stringify(rate).toLowerCase();
+}
+
+function dedupeShippingRates(rates: CheckoutShippingRate[]): CheckoutShippingRate[] {
+  const seen = new Set<string>();
+  return rates.filter((rate) => {
+    const identifier = rateIdentifier(rate);
+    if (seen.has(identifier)) return false;
+    seen.add(identifier);
+    return true;
+  });
 }
 
 export default function CartModal() {
@@ -481,7 +510,7 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
     }
   };
 
-  const displayRates = rates;
+  const displayRates = useMemo(() => dedupeShippingRates(rates), [rates]);
   const destinationSummary = normalizeShippingInput(form);
 
   return (
@@ -650,13 +679,14 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
                 {displayRates.map((rate, idx) => {
                   const id = `shipping-${idx}`;
                   const isSelected = ratesMatch(rate, selectedRate);
+                  const key = rateIdentifier(rate) || `rate-${idx}`;
                   const labelParts = [
                     rate.service || rate.serviceName || rate.serviceCode || 'Shipping'
                   ];
                   if (rate.carrier) labelParts.push(rate.carrier);
                   return (
                     <label
-                      key={`${rate.carrier || 'carrier'}-${rate.serviceCode || idx}`}
+                      key={key}
                       className="flex cursor-pointer items-center justify-between rounded-md border border-white/10 bg-black/30 px-3 py-2 text-sm hover:border-primary"
                     >
                       <div className="flex items-center gap-3">

@@ -34,7 +34,11 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   try {
     const authed = await fas.isAuthenticated();
-    authed ? showLoggedIn() : showLoggedOut();
+    if (authed) {
+      showLoggedIn();
+    } else {
+      showLoggedOut();
+    }
   } catch (err) {
     console.warn('[account-dashboard-panel] session check failed', err);
     showLoggedOut();

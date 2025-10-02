@@ -28,7 +28,9 @@ export function saveCart(cart: CartItem[]): void {
       localStorage.setItem(CART_KEY, JSON.stringify({ items: cart }));
     }
     emitCartUpdated(cart);
-  } catch {}
+  } catch (error) {
+    void error;
+  }
 }
 
 export function emitCartUpdated(cart: CartItem[]): void {
@@ -37,7 +39,9 @@ export function emitCartUpdated(cart: CartItem[]): void {
     if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
       window.dispatchEvent(new CustomEvent(CART_EVENT, { detail }));
     }
-  } catch {}
+  } catch (error) {
+    void error;
+  }
 }
 
 export function addItem(item: CartItem): CartItem[] {

@@ -3,10 +3,9 @@
 import { useEffect, useState } from 'react';
 
 function getCookie(name: string) {
-  const match = document.cookie.match(
-    new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)')
-  );
-  return match ? decodeURIComponent(match[1]) : undefined;
+  const entries = typeof document.cookie === 'string' ? document.cookie.split('; ') : [];
+  const match = entries.find((chunk) => chunk.startsWith(`${name}=`));
+  return match ? decodeURIComponent(match.slice(name.length + 1)) : undefined;
 }
 
 function setConsentCookie() {
@@ -19,7 +18,9 @@ function setConsentCookie() {
     if (/\.fasmotorsports\.com$/i.test(host) || host === 'fasmotorsports.com' || host === 'www.fasmotorsports.com') {
       domainAttr = '; Domain=.fasmotorsports.com';
     }
-  } catch {}
+  } catch (error) {
+    void error;
+  }
   document.cookie = `cookie-consent=1; max-age=${oneYear}; path=/; SameSite=Lax${secure}${domainAttr}`;
 }
 

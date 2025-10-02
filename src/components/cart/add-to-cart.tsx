@@ -22,7 +22,9 @@ function readSelectedFromURL(): Record<string, string> {
     url.searchParams.forEach((v, k) => {
       if (k.startsWith('opt_')) out[k.replace('opt_', '')] = v;
     });
-  } catch {}
+  } catch (error) {
+    void error;
+  }
   return out;
 }
 

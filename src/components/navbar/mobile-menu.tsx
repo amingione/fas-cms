@@ -44,7 +44,9 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
         let session: any = null;
         try {
           session = fas && typeof fas.getSession === 'function' ? await fas.getSession() : null;
-        } catch {}
+        } catch (error) {
+          void error;
+        }
         if (cancelled()) return;
         const user = session?.user || {};
         let name = (
@@ -60,7 +62,9 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
               localStorage.getItem('customerEmail') ||
               ''
             ).trim();
-          } catch {}
+          } catch (error) {
+            void error;
+          }
         }
         if (cancelled()) return;
         setDisplayName(name);
@@ -81,7 +85,6 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -91,7 +94,6 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
   const openMobileMenu = () => setIsOpen(true);
   const closeMobileMenu = () => setIsOpen(false);
@@ -369,7 +371,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
                         window.location.href =
                           '/api/auth/logout?returnTo=' + encodeURIComponent(window.location.origin);
                     } finally {
-                      onNavigate && onNavigate();
+                      if (onNavigate) onNavigate();
                     }
                   }}
                   className="text-white hover:text-neutral-500 dark:text-white"
@@ -384,7 +386,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
                 try {
                   window.location.href = '/account';
                 } finally {
-                  onNavigate && onNavigate();
+                  if (onNavigate) onNavigate();
                 }
               }}
               className="flex items-center gap-2 text-xl text-primary hover:text-primary/90"

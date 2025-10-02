@@ -1,3 +1,5 @@
+'use client';
+
 import { Fragment, useMemo, useState } from 'react';
 import type { Product } from '@/lib/sanity-utils';
 import {
@@ -16,7 +18,6 @@ import {
 } from '@headlessui/react';
 import { ArrowDownLeftIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
-('use client');
 
 interface CategoryPreview {
   id: string;
