@@ -1,599 +1,444 @@
-// Uses window.fasAuth provided by /public/fas-auth.js
+const VIEW_KEYS = ['dashboard', 'orders', 'quotes', 'invoices', 'appointments', 'profile', 'details'] as const;
+type ViewKey = (typeof VIEW_KEYS)[number];
 
-// Track the current view so we can re-render on breakpoint changes
-let currentView: string = 'dashboard';
+const viewSet = new Set<ViewKey>(VIEW_KEYS);
+let currentView: ViewKey = 'dashboard';
+let userEmail = '';
+let defaultName = 'Guest';
+let loadToken = 0;
 
-async function waitForFasAuth(timeoutMs = 8000) {
+const AUTH_TIMEOUT = 8000;
+
+function getContainers(): HTMLElement[] {
+  return Array.from(document.querySelectorAll<HTMLElement>('[data-dash-content]'));
+}
+
+function setContent(html: string) {
+  getContainers().forEach((el) => {
+    el.innerHTML = html;
+  });
+}
+
+function setName(name: string) {
+  const safe = name || defaultName;
+  document.querySelectorAll<HTMLElement>('#customer-name, #customer-name-mobile').forEach((el) => {
+    el.textContent = safe;
+  });
+}
+
+function highlightNav(view: ViewKey) {
+  document.querySelectorAll<HTMLAnchorElement>('.js-view').forEach((link) => {
+    const target = link.dataset.view?.toLowerCase();
+    const isActive = target === view || (view === 'details' && target === 'profile');
+    link.classList.toggle('bg-white/15', isActive);
+    link.classList.toggle('text-primary', isActive);
+  });
+  const select = document.getElementById('mobile-account-select') as HTMLSelectElement | null;
+  if (select) {
+    const normalized = view === 'profile' ? 'details' : view;
+    if (viewSet.has(normalized as ViewKey)) {
+      select.value = normalized;
+    }
+  }
+}
+
+function updateHash(view: ViewKey) {
+  const targetHash = view === 'dashboard' ? '' : `#${view}`;
+  const desired = `${window.location.pathname}${window.location.search}${targetHash}`;
+  const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  if (desired !== current) {
+    history.replaceState(null, '', desired);
+  }
+}
+
+function viewFromHash(): ViewKey {
+  const value = window.location.hash.replace('#', '').toLowerCase();
+  if (viewSet.has(value as ViewKey)) {
+    return value as ViewKey;
+  }
+  if (value === 'account' || value === 'details') {
+    return 'details';
+  }
+  return 'dashboard';
+}
+
+function ensureView(value?: string | null): ViewKey {
+  if (!value) return 'dashboard';
+  const lowered = value.toLowerCase();
+  if (viewSet.has(lowered as ViewKey)) {
+    return lowered as ViewKey;
+  }
+  if (lowered === 'account') return 'details';
+  return 'dashboard';
+}
+
+function setLoading(message = 'Loading…') {
+  setContent(`<p class="opacity-80">${message}</p>`);
+}
+
+function escapeHtml(value: unknown): string {
+  if (value === null || value === undefined) return '';
+  return String(value).replace(/[&<>'"]/g, (char) => {
+    switch (char) {
+      case '&':
+        return '&amp;';
+      case '<':
+        return '&lt;';
+      case '>':
+        return '&gt;';
+      case '"':
+        return '&quot;';
+      case "'":
+        return '&#39;';
+      default:
+        return char;
+    }
+  });
+}
+
+function formatMoney(value: unknown): string {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value.toFixed(2);
+  }
+  const num = Number(value);
+  if (!Number.isNaN(num) && Number.isFinite(num)) {
+    return num.toFixed(2);
+  }
+  return '';
+}
+
+async function waitForFasAuth(timeoutMs = AUTH_TIMEOUT): Promise<any | null> {
   if (typeof window === 'undefined') return null;
   if ((window as any).fasAuth) return (window as any).fasAuth;
 
-  return await new Promise<any>((resolve, reject) => {
-    const started = Date.now();
+  return await new Promise<any | null>((resolve) => {
+    const start = Date.now();
     const poll = () => {
       const fas = (window as any).fasAuth;
       if (fas) {
         resolve(fas);
         return;
       }
-      if (Date.now() - started >= timeoutMs) {
-        reject(new Error('fasAuth not available'));
+      if (Date.now() - start >= timeoutMs) {
+        resolve(null);
         return;
       }
       setTimeout(poll, 50);
     };
     poll();
-  }).catch((err) => {
-    console.warn('[dashboard] waitForFasAuth failed:', err?.message || err);
-    return null;
   });
 }
 
-function getDashContainers(): HTMLElement[] {
-  return Array.from(document.querySelectorAll<HTMLElement>('[data-dash-content]'));
+async function requestJSON<T>(input: string, init: RequestInit = {}): Promise<T> {
+  const res = await fetch(input, { credentials: 'include', ...init });
+  if (!res.ok) {
+    throw new Error(`Request failed with status ${res.status}`);
+  }
+  return (await res.json()) as T;
 }
 
-let lastRenderedHTML = '';
-let lastStateMarker: string | null = null;
-
-function getVisibleDashContent() {
-  const desktop = document.querySelector('[data-desktop-dash] [data-dash-content]') as HTMLElement | null;
-  const mobile = document.querySelector('[data-mobile-dash] [data-dash-content]') as HTMLElement | null;
-  if (window.matchMedia('(min-width: 640px)').matches && desktop) return desktop;
-  return mobile ?? desktop ?? (() => {
-    const all = getDashContainers();
-    if (!all.length) throw new Error('Dashboard content container not found');
-    return all[0];
-  })();
+async function fetchOrders(): Promise<any[]> {
+  if (!userEmail) return [];
+  return await requestJSON<any[]>(`/api/get-user-order?email=${encodeURIComponent(userEmail)}`);
 }
 
-function syncInactiveContainers(active: HTMLElement | null) {
-  const containers = getDashContainers();
-  containers.forEach((el) => {
-    if (el === active) return;
-    if (lastStateMarker) {
-      el.dataset.state = lastStateMarker;
-    } else if (el.dataset) {
-      delete (el.dataset as any).state;
+async function fetchQuotes(): Promise<any[]> {
+  if (!userEmail) return [];
+  return await requestJSON<any[]>(`/api/get-user-quotes?email=${encodeURIComponent(userEmail)}`);
+}
+
+async function fetchInvoices(): Promise<any[]> {
+  if (!userEmail) return [];
+  return await requestJSON<any[]>(`/api/get-user-invoices?email=${encodeURIComponent(userEmail)}`);
+}
+
+async function fetchAppointments(): Promise<any[]> {
+  if (!userEmail) return [];
+  return await requestJSON<any[]>(`/api/get-user-appointments?email=${encodeURIComponent(userEmail)}`);
+}
+
+async function fetchProfile(): Promise<any> {
+  if (!userEmail) return null;
+  return await requestJSON<any>(
+    '/api/customer/get',
+    {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ email: userEmail })
     }
-    el.innerHTML = lastRenderedHTML;
-  });
+  );
 }
 
-function writeDashContent(html: string) {
-  lastRenderedHTML = html;
-  lastStateMarker = null;
-  const active = getVisibleDashContent();
-  if (!active) return;
-  if (active.dataset) delete (active.dataset as any).state;
-  active.innerHTML = html;
-  syncInactiveContainers(active);
+function renderOrdersHtml(items: any[]): string {
+  if (!items.length) {
+    return '<p class="opacity-80">No orders found.</p>';
+  }
+
+  const list = items
+    .map((order) => {
+      const id = escapeHtml(order.orderNumber ?? order._id ?? '');
+      const status = escapeHtml(order.status ?? '');
+      const date = order.orderDate || order.createdAt || order._createdAt;
+      const formattedDate = date ? new Date(date).toLocaleDateString() : '';
+      const tracking = escapeHtml(order.trackingNumber ?? '');
+      const total = formatMoney(order.total ?? order.totalAmount);
+      return `
+        <div class="border border-white/20 rounded p-4 bg-black/40">
+          <div class="flex justify-between"><div class="font-semibold">${id}</div><div class="opacity-70">${status}</div></div>
+          <div class="text-xs opacity-70 mt-1">${escapeHtml(formattedDate)}</div>
+          ${tracking ? `<div class="mt-1 text-xs opacity-70">Tracking: ${tracking}</div>` : ''}
+          <div class="mt-2">${total ? `Total: $${total}` : ''}</div>
+        </div>
+      `;
+    })
+    .join('');
+
+  return `<h3 class="font-ethno text-lg mb-4">Orders</h3><div class="space-y-3">${list}</div>`;
 }
 
-function getNameEls() {
-  return [
-    document.getElementById('customer-name'),
-    document.getElementById('customer-name-mobile')
-  ].filter(Boolean) as HTMLElement[];
+function renderQuotesHtml(items: any[]): string {
+  if (!items.length) {
+    return '<p class="opacity-80">No quotes found.</p>';
+  }
+  const list = items
+    .map((quote) => {
+      const id = escapeHtml(quote._id ?? '');
+      const status = escapeHtml(quote.status ?? '');
+      const date = quote._createdAt ? new Date(quote._createdAt).toLocaleDateString() : '';
+      const total = formatMoney(quote.total);
+      return `
+        <div class="border border-white/20 rounded p-4 bg-black/40">
+          <div class="flex justify-between"><div class="font-semibold">${id}</div><div class="opacity-70">${status}</div></div>
+          <div class="text-xs opacity-70 mt-1">${escapeHtml(date)}</div>
+          <div class="mt-2">${total ? `Total: $${total}` : ''}</div>
+        </div>
+      `;
+    })
+    .join('');
+  return `<h3 class="font-ethno text-lg mb-4">Quotes</h3><div class="space-y-3">${list}</div>`;
 }
 
-function setName(name: string) {
-  const els = getNameEls();
-  els.forEach((el) => (el.textContent = name || 'Guest'));
+function renderInvoicesHtml(items: any[]): string {
+  if (!items.length) {
+    return '<p class="opacity-80">No invoices found.</p>';
+  }
+  const list = items
+    .map((invoice) => {
+      const id = escapeHtml(invoice._id ?? '');
+      const status = escapeHtml(invoice.status ?? '');
+      const date = invoice._createdAt ? new Date(invoice._createdAt).toLocaleDateString() : '';
+      const total = formatMoney(invoice.total ?? invoice.totalAmount);
+      return `
+        <div class="border border-white/20 rounded p-4 bg-black/40">
+          <div class="flex justify-between"><div class="font-semibold">${id}</div><div class="opacity-70">${status}</div></div>
+          <div class="text-xs opacity-70 mt-1">${escapeHtml(date)}</div>
+          <div class="mt-2">${total ? `Total: $${total}` : ''}</div>
+        </div>
+      `;
+    })
+    .join('');
+  return `<h3 class="font-ethno text-lg mb-4">Invoices</h3><div class="space-y-3">${list}</div>`;
 }
 
-function withTimeout<T>(p: Promise<T>, ms = 4000): Promise<T> {
-  return Promise.race([
-    p,
-    new Promise<T>((_, rej) => setTimeout(() => rej(new Error('timeout')), ms)) as Promise<T>
-  ]);
+function renderAppointmentsHtml(items: any[]): string {
+  if (!items.length) {
+    return '<p class="opacity-80">No appointments found.</p>';
+  }
+  const list = items
+    .map((appt) => {
+      const id = escapeHtml(appt._id ?? '');
+      const status = escapeHtml(appt.status ?? '');
+      const scheduledAt = appt.scheduledAt ? new Date(appt.scheduledAt).toLocaleString() : '';
+      const location = escapeHtml(appt.location ?? '');
+      return `
+        <div class="border border-white/20 rounded p-4 bg-black/40">
+          <div class="flex justify-between"><div class="font-semibold">${id}</div><div class="opacity-70">${status}</div></div>
+          <div class="text-xs opacity-70 mt-1">${escapeHtml(scheduledAt)}</div>
+          ${location ? `<div class="mt-1 text-xs opacity-70">${location}</div>` : ''}
+        </div>
+      `;
+    })
+    .join('');
+  return `<h3 class="font-ethno text-lg mb-4">Appointments</h3><div class="space-y-3">${list}</div>`;
 }
 
-// Highlight active nav item and sync mobile select
-function setActiveNav(view?: string | null) {
-  const v = (view || 'dashboard').toLowerCase();
+function renderProfileHtml(profile: any): string {
+  if (!profile) {
+    return '<p class="opacity-80">Unable to load profile.</p>';
+  }
+  const addressParts = [profile.address1, profile.address2, profile.city, profile.state, profile.postalCode]
+    .filter(Boolean)
+    .map(escapeHtml)
+    .join(', ');
+  return `
+    <h3 class="font-ethno text-lg mb-3">My Profile</h3>
+    <div class="grid sm:grid-cols-2 gap-3 text-sm">
+      <div><div class="opacity-70">First Name</div><div class="font-semibold">${escapeHtml(profile.firstName)}</div></div>
+      <div><div class="opacity-70">Last Name</div><div class="font-semibold">${escapeHtml(profile.lastName)}</div></div>
+      <div><div class="opacity-70">Email</div><div class="font-semibold">${escapeHtml(profile.email ?? userEmail)}</div></div>
+      <div><div class="opacity-70">Phone</div><div class="font-semibold">${escapeHtml(profile.phone)}</div></div>
+      <div class="sm:col-span-2"><div class="opacity-70">Address</div><div class="font-semibold">${addressParts}</div></div>
+    </div>
+    <p class="mt-5 text-xs opacity-70">Need changes? <a class="underline js-view" data-view="details" href="#details">Edit profile</a>.</p>
+  `;
+}
+
+async function renderDashboardHtml(): Promise<string> {
   try {
-    document.querySelectorAll<HTMLAnchorElement>('.js-view').forEach((a) => {
-      const av = (a.getAttribute('data-view') || '').toLowerCase();
-      const isActive = av === v || (v === 'details' && av === 'profile');
-      a.classList.toggle('bg-white/15', isActive);
-      a.classList.toggle('text-primary', isActive);
+    const profile = await fetchProfile().catch(() => null);
+    const preferred = profile?.firstName && profile?.lastName ? `${profile.firstName} ${profile.lastName}`.trim() : defaultName;
+    if (preferred) setName(preferred);
+    return `
+      <h3 class="font-ethno text-base mb-3">Dashboard</h3>
+      <div class="font-sans space-y-2 opacity-90 text-base">
+        <p>Hello, <strong>${escapeHtml(preferred)}</strong>.</p>
+        <p>From your account dashboard you can view your <a href="#orders" data-view="orders" class="underline js-view">recent orders</a>, manage your <a href="#details" data-view="details" class="underline js-view">account details</a>, and more.</p>
+      </div>
+    `;
+  } catch (err) {
+    console.error('[dashboard] dashboard view failed', err);
+    return '<p class="opacity-80">Unable to load dashboard data right now.</p>';
+  }
+}
+
+const viewRenderers: Record<ViewKey, () => Promise<string>> = {
+  dashboard: renderDashboardHtml,
+  orders: async () => renderOrdersHtml(await fetchOrders().catch(() => [])),
+  quotes: async () => renderQuotesHtml(await fetchQuotes().catch(() => [])),
+  invoices: async () => renderInvoicesHtml(await fetchInvoices().catch(() => [])),
+  appointments: async () => renderAppointmentsHtml(await fetchAppointments().catch(() => [])),
+  profile: async () => renderProfileHtml(await fetchProfile().catch(() => null)),
+  details: async () => renderProfileHtml(await fetchProfile().catch(() => null))
+};
+
+async function loadView(target: ViewKey) {
+  const token = ++loadToken;
+  currentView = target;
+  updateHash(target);
+  highlightNav(target);
+  setLoading();
+  try {
+    const html = await viewRenderers[target]();
+    if (token === loadToken) {
+      setContent(html);
+    }
+  } catch (err) {
+    console.error('[dashboard] failed to load view', target, err);
+    if (token === loadToken) {
+      setContent('<p class="opacity-80">Something went wrong loading this view.</p>');
+    }
+  }
+}
+
+async function refreshCounts() {
+  const updates: Array<[string, () => Promise<number>]> = [
+    ['orders', async () => (await fetchOrders().catch(() => [])).length],
+    ['quotes', async () => (await fetchQuotes().catch(() => [])).length],
+    ['invoices', async () => (await fetchInvoices().catch(() => [])).length],
+    ['appts', async () => (await fetchAppointments().catch(() => [])).length]
+  ];
+  await Promise.all(
+    updates.map(async ([id, getter]) => {
+      try {
+        const count = await getter();
+        const desktop = document.getElementById(`${id}-count`);
+        const mobile = document.getElementById(`${id}-count-mobile`);
+        if (desktop) desktop.textContent = String(count);
+        if (mobile) mobile.textContent = String(count);
+      } catch (err) {
+        console.error('[dashboard] count fetch failed for', id, err);
+      }
+    })
+  );
+}
+
+function bindNavigation() {
+  document.querySelectorAll<HTMLAnchorElement>('.js-view').forEach((link) => {
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+      loadView(ensureView(link.dataset.view));
     });
-  } catch {}
-  try {
-    const sel = document.getElementById('mobile-account-select') as HTMLSelectElement | null;
-    if (sel) {
-      const target = v === 'details' ? 'details' : (['orders','quotes','invoices','appointments','profile','dashboard'].includes(v) ? v : 'dashboard');
-      sel.value = target;
+  });
+
+  const select = document.getElementById('mobile-account-select') as HTMLSelectElement | null;
+  if (select) {
+    select.addEventListener('change', () => {
+      loadView(ensureView(select.value));
+    });
+  }
+
+  document.addEventListener('click', (event) => {
+    const target = event.target instanceof Element ? event.target.closest<HTMLElement>('.js-view[data-view]') : null;
+    if (target) {
+      event.preventDefault();
+      loadView(ensureView(target.getAttribute('data-view')));
     }
-  } catch {}
+  });
 }
 
-(async () => {
+async function initDashboard() {
   try {
-    console.log('🚀 dashboard script loaded');
-
-    // Removed pre-rendered login CTA to avoid flicker/duplication
-
     const fas = await waitForFasAuth();
     if (!fas) {
-      writeDashContent(`
-        <div class="space-y-3">
-          <p class="opacity-90">Account services are offline right now.</p>
-          <a id="dash-login" href="/account" class="inline-block px-4 py-2 bg-primary text-accent font-ethno rounded">Try again</a>
-        </div>`);
+      setContent('<p class="opacity-80">Account services are offline right now. Please try again soon.</p>');
       return;
     }
-    (window as any)._getVisibleDashContent = getVisibleDashContent;
-    (window as any)._setName = setName;
-    console.log('✅ fas-auth ready');
 
-    // Require login (with timeout & desktop-friendly fallback)
-    let authed = false;
-    try {
-      authed = await withTimeout(fas?.isAuthenticated?.(), 4000);
-    } catch {
-      authed = false;
-    }
-
+    const authed = await fas.isAuthenticated?.();
     if (!authed) {
-      writeDashContent(`
-        <div class="space-y-3">
-          <p class="opacity-90">You're not signed in.</p>
-          <a id="dash-login" href="/account" class="inline-block px-4 py-2 bg-primary text-accent font-ethno rounded">Log in</a>
-        </div>`);
+      setContent('<p class="opacity-80">You\'re not signed in. <a class="underline" href="/account">Log in</a>.</p>');
       return;
     }
 
-    // Authenticated path
-    const session = await (fas?.getSession?.() || Promise.resolve(null));
-    const email = (session?.user?.email as string) || '';
-    if (email) {
+    const session = await fas.getSession?.();
+    userEmail = (session?.user?.email as string) || '';
+    if (!userEmail) {
       try {
-        localStorage.setItem('customerEmail', email);
+        userEmail = localStorage.getItem('customerEmail') || '';
       } catch {}
     }
+    userEmail = userEmail.trim().toLowerCase();
 
-    const defaultName =
-      (session as any)?.user?.given_name ||
-      (session as any)?.user?.name ||
-      email ||
-      'Guest';
-    try {
-      localStorage.setItem('customerName', defaultName);
-    } catch {}
+    defaultName =
+      (session?.user?.given_name as string) ||
+      (session?.user?.name as string) ||
+      userEmail ||
+      defaultName;
     setName(defaultName);
-    let retry = 0;
-    const retryId = setInterval(() => {
-      setName(defaultName);
-      if (++retry > 10) clearInterval(retryId);
-    }, 100);
 
-    // Load enriched profile
-    try {
-      const res = await fetch('/api/customer/get', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        const fullName = [data?.firstName, data?.lastName].filter(Boolean).join(' ').trim();
-        const preferred = fullName || data?.name || defaultName;
-        setName(preferred);
-        try {
-          localStorage.setItem('customerName', preferred);
-        } catch {}
-        let r2 = 0;
-        const r2id = setInterval(() => {
-          setName(preferred);
-          if (++r2 > 10) clearInterval(r2id);
-        }, 100);
-      }
-    } catch {}
-
-    function setCount(idDesktop: string, idMobile: string, n: number) {
-      const d = document.getElementById(idDesktop);
-      const m = document.getElementById(idMobile);
-      if (d) d.textContent = String(n);
-      if (m) m.textContent = String(n);
-    }
-    async function fetchCount(url: string, fallbackUrl?: string) {
-      async function run(endpoint: string) {
-        const res = await fetch(endpoint, { credentials: 'include' });
-        if (!res.ok) throw new Error('bad status');
-        const data = await res.json();
-        if (Array.isArray(data)) return data.length;
-        if (data && Array.isArray((data as any).items)) return (data as any).items.length;
-        return 0;
-      }
-
-      try {
-        return await run(url);
-      } catch (err) {
-        if (fallbackUrl) {
-          try {
-            return await run(fallbackUrl);
-          } catch {}
-        }
-        return 0;
-      }
-    }
-
-    if (email) {
-      fetchCount(
-        `/api/get-user-order?email=${encodeURIComponent(email)}`,
-        '/api/get-user-order'
-      ).then((n) =>
-        setCount('orders-count', 'orders-count-mobile', n)
-      );
-      fetchCount(
-        `/api/get-user-quotes?email=${encodeURIComponent(email)}`,
-        '/api/get-user-quotes'
-      ).then((n) =>
-        setCount('quotes-count', 'quotes-count-mobile', n)
-      );
-      fetchCount(
-        `/api/get-user-invoices?email=${encodeURIComponent(email)}`,
-        '/api/get-user-invoices'
-      ).then((n) =>
-        setCount('invoices-count', 'invoices-count-mobile', n)
-      );
-      fetchCount(
-        `/api/get-user-appointments?email=${encodeURIComponent(email)}`,
-        '/api/get-user-appointments'
-      ).then((n) =>
-        setCount('appts-count', 'appts-count-mobile', n)
-      );
-    }
-
-    const sel = document.getElementById('mobile-account-select') as HTMLSelectElement | null;
-    if (sel)
-      sel.addEventListener('change', () => {
-        load(sel.value);
-      });
-    const setLoading = (msg = 'Loading...') => {
-      const marker = `__loading_${Date.now()}__`;
-      lastStateMarker = marker;
-      lastRenderedHTML = `<p class="opacity-80">${msg}</p>`;
-      const active = getVisibleDashContent();
-      if (active) {
-        active.dataset.state = marker;
-        active.innerHTML = lastRenderedHTML;
-      }
-      syncInactiveContainers(active);
-      setTimeout(() => {
-        const activeLater = getVisibleDashContent();
-        getDashContainers().forEach((el) => {
-          if (el.dataset.state === marker) {
-            const fallbackHtml = `<p class="opacity-80">Still loading your data...</p>`;
-            el.innerHTML = fallbackHtml;
-            lastRenderedHTML = fallbackHtml;
-            if (el.dataset) delete (el.dataset as any).state;
-          }
-        });
-        lastStateMarker = null;
-        syncInactiveContainers(activeLater);
-      }, 6000);
-    };
-    const renderEmpty = (label: string) => {
-      writeDashContent(`<p class="opacity-80">No ${label} found.</p>`);
-    };
-
-    async function fetchJSON(url: string, options: RequestInit = {}, ms = 5000) {
-      return await Promise.race([
-        fetch(url, options),
-        new Promise<Response>((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))
-      ]).then(async (res) => {
-        if (res && 'ok' in res && !res.ok) throw new Error('bad status');
-        if (!res || !(res instanceof Response)) return {} as any;
-        try {
-          return await res.json();
-        } catch {
-          return {};
-        }
-      });
-    }
-
-    async function renderDashboard() {
-      setLoading();
-      try {
-        const c = await fetchJSON(
-          '/api/customer/get',
-          {
-            method: 'POST',
-            headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ email })
-          },
-          5000
-        ).catch(() => ({}));
-        const name =
-          [(c as any).firstName, (c as any).lastName].filter(Boolean).join(' ') || defaultName;
-        writeDashContent(`
-          <h3 class="font-ethno text-base mb-3">Dashboard</h3>
-          <div class="font-sans space-y-2 opacity-90 text-base">
-            <p>Hello, <strong>${name}</strong>.</p>
-            <p class="text-base">From your account dashboard you can view your <a href="#" data-view="orders" class="underline js-view">recent orders</a>, manage your <a href="/dashboard" class="underline">account details</a>, and more.</p>
-          </div>`);
-      } catch {
-        renderEmpty('dashboard');
-      }
-    }
-
-    async function renderProfile() {
-      setLoading();
-      try {
-        const c: any = await fetchJSON(
-          '/api/customer/get',
-          {
-            method: 'POST',
-            headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ email })
-          },
-          5000
-        ).catch(() => null);
-        if (!c) return renderEmpty('profile');
-        const addr = [c.address1, c.address2, c.city, c.state, c.postalCode]
-          .filter(Boolean)
-          .join(', ');
-        writeDashContent(`
-          <h3 class="font-ethno text-lg mb-3">My Profile</h3>
-          <div class="grid sm:grid-cols-2 gap-3 text-sm">
-            <div><div class="opacity-70">First Name</div><div class="font-semibold">${c.firstName || ''}</div></div>
-            <div><div class="opacity-70">Last Name</div><div class="font-semibold">${c.lastName || ''}</div></div>
-            <div><div class="opacity-70">Email</div><div class="font-semibold">${c.email || email}</div></div>
-            <div><div class="opacity-70">Phone</div><div class="font-semibold">${c.phone || ''}</div></div>
-            <div class="sm:col-span-2"><div class="opacity-70">Address</div><div class="font-semibold">${addr}</div></div>
-          </div>
-          <p class="mt-5 text-xs opacity-70">Need changes? <a class="underline" href="/customerdashboard/customerProfile">Edit profile</a>.</p>
-        `);
-      } catch {
-        renderEmpty('profile');
-      }
-    }
-
-    async function renderOrders() {
-      setLoading();
-      try {
-        const items: any[] = await fetchJSON(
-          `/api/get-user-order?email=${encodeURIComponent(email)}`,
-          {},
-          5000
-        ).catch(() => []);
-        if (!Array.isArray(items) || !items.length) return renderEmpty('orders');
-        writeDashContent(`
-          <h3 class="font-ethno text-lg mb-4">Orders</h3>
-          <div class="space-y-3">
-            ${items
-              .map(
-                (o: any) => `
-              <div class=\"border border-white/20 rounded p-4 bg-black/40\">
-                <div class=\"flex justify-between\"><div class=\"font-semibold\">${o.orderNumber ?? o._id}</div><div class=\"opacity-70\">${o.status ?? ''}</div></div>
-                <div class=\"text-xs opacity-70 mt-1\">${o.orderDate ? new Date(o.orderDate).toLocaleDateString() : ''}</div>
-                ${o.trackingNumber ? `<div class=\\\"mt-1 text-xs opacity-70\\\">Tracking: ${o.trackingNumber}</div>` : ''}
-                <div class=\"mt-2\">Total: $${o.total ?? ''}</div>
-              </div>
-            `
-              )
-              .join('')}
-          </div>`);
-      } catch {
-        renderEmpty('orders');
-      }
-    }
-
-    async function renderQuotes() {
-      setLoading();
-      try {
-        const items: any[] = await fetchJSON(
-          `/api/get-user-quotes?email=${encodeURIComponent(email)}`,
-          {},
-          5000
-        ).catch(() => []);
-        if (!Array.isArray(items) || !items.length) return renderEmpty('quotes');
-        writeDashContent(`
-          <h3 class="font-ethno text-lg mb-4">Quotes</h3>
-          <div class="space-y-3">
-            ${items
-              .map(
-                (q: any) => `
-              <div class=\"border border-white/20 rounded p-4 bg-black/40\">
-                <div class=\"flex justify-between\"><div class=\"font-semibold\">${q._id}</div><div class=\"opacity-70\">${q.status ?? ''}</div></div>
-                <div class=\"text-xs opacity-70 mt-1\">${q._createdAt ? new Date(q._createdAt).toLocaleDateString() : ''}</div>
-                <div class=\"mt-2\">Total: $${q.total ?? ''}</div>
-              </div>
-            `
-              )
-              .join('')}
-          </div>`);
-      } catch {
-        renderEmpty('quotes');
-      }
-    }
-
-    async function renderInvoices() {
-      setLoading();
-      try {
-        const items: any[] = await fetchJSON(
-          `/api/get-user-invoices?email=${encodeURIComponent(email)}`,
-          {},
-          5000
-        ).catch(() => []);
-        if (!Array.isArray(items) || !items.length) return renderEmpty('invoices');
-        writeDashContent(`
-          <h3 class="font-ethno text-lg mb-4">Invoices</h3>
-          <div class="space-y-3">
-            ${items
-              .map(
-                (inv: any) => `
-              <div class=\"border border-white/20 rounded p-4 bg-black/40\">
-                <div class=\"flex justify-between\"><div class=\"font-semibold\">${inv._id}</div><div class=\"opacity-70\">${inv.status ?? ''}</div></div>
-                <div class=\"text-xs opacity-70 mt-1\">${inv._createdAt ? new Date(inv._createdAt).toLocaleDateString() : ''}</div>
-                <div class=\"mt-2\">Total: $${inv.total ?? ''}</div>
-              </div>
-            `
-              )
-              .join('')}
-          </div>`);
-      } catch {
-        renderEmpty('invoices');
-      }
-    }
-
-    async function renderAppointments() {
-      setLoading();
-      try {
-        const items: any[] = await fetchJSON(
-          `/api/get-user-appointments?email=${encodeURIComponent(email)}`,
-          {},
-          5000
-        ).catch(() => []);
-        if (!Array.isArray(items) || !items.length) return renderEmpty('appointments');
-        writeDashContent(`
-          <h3 class="font-ethno text-lg mb-4">Appointments</h3>
-          <div class="space-y-3">${items
-            .map(
-              (a: any) => `
-            <div class=\"border border-white/20 rounded p-4 bg-black/40\">
-              <div class=\"flex justify-between\"><div class=\"font-semibold\">${a._id}</div><div class=\"opacity-70\">${a.status ?? ''}</div></div>
-              <div class=\"text-xs opacity-70 mt-1\">${a.scheduledAt ? new Date(a.scheduledAt).toLocaleString() : ''}</div>
-              ${a.location ? `<div class=\\\"mt-1 text-xs opacity-70\\\">${a.location}</div>` : ''}
-            </div>
-          `
-            )
-            .join('')}</div>`);
-      } catch {
-        renderEmpty('appointments');
-      }
-    }
-
-    const resolveView = (view?: string | null) => {
-      const v = (view || '').toLowerCase();
-      if (!v || v === 'dashboard') return 'dashboard';
-      if (['orders', 'quotes', 'invoices', 'appointments', 'profile', 'details'].includes(v)) {
-        return v === 'details' ? 'details' : v;
-      }
-      return 'dashboard';
-    };
-
-    const syncHashToView = (view: string) => {
-      const targetHash = view === 'dashboard' ? '' : `#${view}`;
-      const desired = `${window.location.pathname}${window.location.search}${targetHash}`;
-      const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-      if (current !== desired) {
-        history.replaceState(null, '', desired);
-      }
-    };
-
-    function load(view?: string | null) {
-      currentView = resolveView(view);
-      syncHashToView(currentView);
-      setActiveNav(currentView);
-      switch (currentView) {
-        case 'orders':
-          return renderOrders();
-        case 'quotes':
-          return renderQuotes();
-        case 'invoices':
-          return renderInvoices();
-        case 'appointments':
-          return renderAppointments();
-        case 'profile':
-        case 'details':
-          return renderProfile();
-        case 'dashboard':
-        default:
-          return renderDashboard();
-      }
-    }
-
-    document.querySelectorAll('.js-view').forEach((a) => {
-      a.addEventListener('click', (e) => {
-        e.preventDefault();
-        const view = (a as HTMLElement).getAttribute('data-view');
-        load(view);
-      });
-    });
-
-    document.addEventListener('click', (e) => {
-      const target = e.target instanceof Element ? e.target.closest('.js-view') : null;
-      if (target) {
-        e.preventDefault();
-        const v = (target as HTMLElement).getAttribute('data-view');
-        load(v);
-      }
-    });
-
-    document.addEventListener('change', (e) => {
-      const sel = e.target instanceof HTMLSelectElement ? e.target : null;
-      if (sel && sel.id === 'mobile-account-select') {
-        load(sel.value);
-      }
-    });
-
-    const currentHashView = resolveView(window.location.hash.replace('#', '') || null);
-    load(currentHashView);
+    bindNavigation();
 
     window.addEventListener('hashchange', () => {
-      const nextView = resolveView(window.location.hash.replace('#', '') || null);
-      load(nextView);
+      loadView(viewFromHash());
     });
-    setTimeout(() => {
-      const active = getVisibleDashContent();
-      getDashContainers().forEach((el) => {
-        const txt = (el.textContent || '').trim().toLowerCase();
-        if (txt === 'loading...' || txt === 'loading') {
-          const fallbackHtml = `<p class="opacity-80">Still loading your data...</p>`;
-          el.innerHTML = fallbackHtml;
-          lastRenderedHTML = fallbackHtml;
-          if (el.dataset) delete (el.dataset as any).state;
-        }
-      });
-      lastStateMarker = null;
-      syncInactiveContainers(active);
-    }, 8000);
 
-    try {
-      const mq = window.matchMedia('(min-width: 640px)');
-      const reRender = () => {
-        load(currentView);
-      };
-      if (mq.addEventListener) mq.addEventListener('change', reRender);
-      else if ((mq as any).addListener) (mq as any).addListener(reRender);
-    } catch {}
+    refreshCounts();
+    await loadView(viewFromHash());
   } catch (err) {
-    console.error('Dashboard auth init failed', err);
-    try {
-      const c =
-        typeof getVisibleDashContent === 'function'
-          ? getVisibleDashContent()
-          : ((document.getElementById('dash-content-desktop') ||
-              document.getElementById('dash-content-mobile')) as HTMLElement | null);
-      if (c) {
-        c.innerHTML = `
-          <div class="space-y-3">
-            <p class="opacity-90">You're not signed in.</p>
-            <a id="dash-login" href="/account" class="inline-block px-4 py-2 bg-primary text-accent font-ethno rounded">Log in</a>
-          </div>`;
-      }
-    } catch {}
+    console.error('[dashboard] init failed', err);
+    setContent('<p class="opacity-80">Unable to load dashboard right now.</p>');
   }
-})();
+}
+
+void initDashboard();
 
 function logout() {
   try {
     localStorage.clear();
   } catch {}
   try {
-    const fx: any = (window as any).fasAuth;
-    if (fx && typeof fx.logout === 'function') {
-      return fx.logout(location.origin + '/account');
+    const fas = (window as any).fasAuth;
+    if (fas && typeof fas.logout === 'function') {
+      fas.logout(window.location.origin + '/account');
+      return;
     }
   } catch {}
   window.location.href = '/api/auth/logout';
 }
+
 document.querySelectorAll('.logout-link').forEach((el) => {
-  el.addEventListener('click', (e) => {
-    e.preventDefault();
+  el.addEventListener('click', (event) => {
+    event.preventDefault();
     logout();
   });
 });

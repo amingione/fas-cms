@@ -1,7 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 
-import AboutSection from '@/components/About';
 import AboutHero from '@/components/hero/AboutHero.astro';
 import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 
@@ -17,11 +16,6 @@ const pageDoc: any = await loadPageDoc('about');
       {pageDoc?.title ?? 'About FAS'}
     </div>
 
-
-    <!-- About Section -->
-    <section id="about" class="bg-black/90 border-y border-white/20">
-      <AboutSection client:only="react" />
-    </section>
     
     <!-- Professional Hero Banner -->
     <AboutHero

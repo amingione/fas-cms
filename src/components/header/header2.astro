@@ -3,13 +3,14 @@ import AccountDashboard from '@/components/accountdashboard.astro';
 import MobileMenu from '@/components/navbar/mobile-menu';
 import CartEntry from '@/components/cart/CartEntry.tsx';
 import CartButton from '@/components/cart/cart-button.tsx';
+import { SearchBar } from '@/components/SearchBar.tsx';
 ---
 
 <header class="text-white w-full fixed top-0 z-[99999]">
   <CartEntry client:only="react" />
 
   <!-- Mobile Header -->
-  <div id="mheader" class="md:hidden w-full bg-black/80 backdrop-blur-md shadow-xl flex items-center justify-between px-4 h-12">
+  <div id="mheader" class="md:hidden relative w-full bg-black/80 backdrop-blur-md shadow-xl flex items-center justify-between px-4 h-12">
     <!-- Mobile menu toggle -->
     <button id="mnavToggle"
             aria-label="Open menu"
@@ -30,12 +31,26 @@ import CartButton from '@/components/cart/cart-button.tsx';
 
     <!-- Right: Cart button -->
     <div class="flex items-center gap-3">
+      <button
+        id="mobileSearchToggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="mobileSearchPanel"
+        aria-label="Open search"
+        class="p-2 rounded-lg hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/20"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-3.5-3.5" />
+          <circle cx="11" cy="11" r="6" />
+        </svg>
+      </button>
       <CartButton client:only="react" />
     </div>
+
   </div>
 
   <!-- Top Bar (Desktop/Tablet) -->
-  <div id="topBar" class="hidden md:block pt-2 transform transition-transform duration-300 will-change-transform">
+  <div id="topBar" class="hidden md:block pt-5 transform transition-transform duration-300 will-change-transform">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-8">
       <div class="flex items-center gap-4">
 
@@ -55,7 +70,7 @@ import CartButton from '@/components/cart/cart-button.tsx';
         <button
           id="desktopCategoryToggle"
           aria-label="Toggle Categories"
-          class="p-2 rounded-lg hover:text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+          class="p-2 rounded-lg hover:text-primary"
         >
           <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
@@ -68,12 +83,25 @@ import CartButton from '@/components/cart/cart-button.tsx';
         </a>
       </div>
       <div class="flex justify-end items-center gap-4">
+        <button
+          id="desktopSearchToggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="searchOverlay"
+          aria-label="Open search"
+          class="hidden sm:inline-flex items-center justify-center p-2 rounded-lg hover:text-primary"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m20.25 20.25-3.5-3.5" />
+            <circle cx="10.5" cy="10.5" r="6.5" />
+          </svg>
+        </button>
         <nav class="hidden md:flex items-center gap-3 text-sm font-ethno">
           <a href="/" class="hover:text-accent transition-colors duration-300">Home</a>
           <span class="text-gray-500">|</span>
           <a href="/shop/storefront" class="hover:text-accent transition-colors duration-300">Shop ➤</a>
         </nav>
-        <button id="accountDashboardToggleTop" aria-label="Open account panel" class="sm:hidden lg:hidden inline-flex items-center justify-center p-1.5 rounded hover:text-primary focus:outline-none focus:ring-2 focus:ring-accent">
+        <button id="accountDashboardToggleTop" aria-label="Open account panel" class="sm:hidden lg:hidden inline-flex items-center justify-center p-1.5 rounded hover:text-primary">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="4" width="18" height="16" rx="2" ry="2"/>
             <line x1="16" y1="4" x2="16" y2="20"/>
@@ -124,6 +152,41 @@ import CartButton from '@/components/cart/cart-button.tsx';
     <AccountDashboard />
   </div>
 </aside>
+
+<!-- Global Search Overlay -->
+<div
+  id="searchOverlayScrim"
+  aria-hidden="true"
+  class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-[110000] transition-opacity duration-200 pointer-events-none"
+  style="opacity: 0;"
+></div>
+<div
+  id="searchOverlay"
+  class="hidden fixed top-16 left-0 right-0 z-[110001] transition-all duration-200 pointer-events-none"
+  style="transform: translateY(-1rem); opacity: 0;"
+>
+  <div class="mx-auto w-full max-w-xl px-4">
+    <div class="rounded-2xl border border-white/15 bg-black/95 shadow-2xl p-4 flex items-start gap-3">
+      <div class="flex-1">
+        <SearchBar
+          client:only="react"
+          size="compact"
+          enableSuggestions={true}
+          variant="storefront"
+          portal={false}
+        />
+      </div>
+      <button
+        id="closeSearchOverlay"
+        type="button"
+        class="mt-1 text-white/70 hover:text-white focus:outline-none"
+        aria-label="Close search"
+      >
+        ×
+      </button>
+    </div>
+  </div>
+</div>
 
 <script is:inline>
   document.addEventListener("DOMContentLoaded", function () {
@@ -243,7 +306,86 @@ import CartButton from '@/components/cart/cart-button.tsx';
     });
     closeAccountDashboard?.addEventListener("click", closeDashboard);
     desktopScrim?.addEventListener("click", closeDashboard);
-    document.addEventListener("keydown", (e) => e.key === "Escape" && (closeMnav(), closeDesktopLeft(), closeDashboard()));
+
+    // Global search overlay
+    const mobileSearchToggle = document.getElementById('mobileSearchToggle');
+    const desktopSearchToggle = document.getElementById('desktopSearchToggle');
+    const searchOverlay = document.getElementById('searchOverlay');
+    const searchOverlayScrim = document.getElementById('searchOverlayScrim');
+    const closeSearchOverlay = document.getElementById('closeSearchOverlay');
+    let isSearchOpen = false;
+
+    function focusSearchInput() {
+      if (!searchOverlay) return;
+      const input = searchOverlay.querySelector('input');
+      if (input && typeof input.focus === 'function') {
+        setTimeout(() => {
+          try {
+            input.focus();
+          } catch {}
+        }, 20);
+      }
+    }
+
+    function openSearch() {
+      if (!searchOverlay || !searchOverlayScrim) return;
+      searchOverlay.classList.remove('hidden', 'pointer-events-none');
+      searchOverlayScrim.classList.remove('hidden', 'pointer-events-none');
+      requestAnimationFrame(() => {
+        if (searchOverlay) {
+          searchOverlay.style.transform = 'translateY(0)';
+          searchOverlay.style.opacity = '1';
+        }
+        if (searchOverlayScrim) {
+          searchOverlayScrim.style.opacity = '1';
+        }
+      });
+      mobileSearchToggle?.setAttribute('aria-expanded', 'true');
+      desktopSearchToggle?.setAttribute('aria-expanded', 'true');
+      isSearchOpen = true;
+      focusSearchInput();
+    }
+
+    function closeSearch() {
+      if (!searchOverlay || !searchOverlayScrim) return;
+      searchOverlay.style.transform = 'translateY(-1rem)';
+      searchOverlay.style.opacity = '0';
+      searchOverlay.classList.add('pointer-events-none');
+      searchOverlayScrim.style.opacity = '0';
+      searchOverlayScrim.classList.add('pointer-events-none');
+      mobileSearchToggle?.setAttribute('aria-expanded', 'false');
+      desktopSearchToggle?.setAttribute('aria-expanded', 'false');
+      setTimeout(() => {
+        searchOverlay.classList.add('hidden');
+        searchOverlayScrim.classList.add('hidden');
+      }, 200);
+      isSearchOpen = false;
+    }
+
+    function toggleSearch() {
+      if (isSearchOpen) {
+        closeSearch();
+        return;
+      }
+      closeMnav();
+      closeDesktopLeft();
+      closeDashboard();
+      openSearch();
+    }
+
+    mobileSearchToggle?.addEventListener('click', toggleSearch);
+    desktopSearchToggle?.addEventListener('click', toggleSearch);
+    searchOverlayScrim?.addEventListener('click', closeSearch);
+    closeSearchOverlay?.addEventListener('click', closeSearch);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeMnav();
+        closeDesktopLeft();
+        closeDashboard();
+        closeSearch();
+      }
+    });
 
     // Sticky Header Scroll Effect
     const mheader = document.getElementById("mheader");

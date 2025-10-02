@@ -34,7 +34,7 @@ export default function Button({
   };
 
   const baseClasses =
-    'relative inline-flex fas-label items-center justify-center overflow-hidden font-cyber-italic text-white transition-all duration-300 rounded-fx-md border-2 border-white group tracking-wide shadow-fx-xs focus:outline-none focus:ring-2 focus:ring-primary/40';
+    'relative inline-flex fas-label items-center justify-center overflow-hidden font-cyber-italic text-white transition-all duration-300 rounded-fx-md border-2 border-white group tracking-wide shadow-fx-xs';
 
   const classes = [baseClasses, sizeMap[size], className].join(' ').trim();
   const content = children ?? text ?? '';

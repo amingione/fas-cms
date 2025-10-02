@@ -141,76 +141,76 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
               </a>
             </li>
             <li className="py-2">
-          <div className="text-xl text-white dark:text-white">Billet Parts</div>
-          <ul className="mt-2 ml-4 space-y-2 text-lg">
-            <li>
-              <a
-                href="/specs/PredatorPulley"
-                onClick={onNavigate}
-                className="text-white hover:text-neutral-500 dark:text-white"
-              >
-                FAS Predator Pulley
-              </a>
+              <div className="text-xl text-white dark:text-white">Billet Parts</div>
+              <ul className="mt-2 ml-4 space-y-2 text-lg">
+                <li>
+                  <a
+                    href="/specs/PredatorPulley"
+                    onClick={onNavigate}
+                    className="text-white hover:text-neutral-500 dark:text-white"
+                  >
+                    FAS Predator Pulley
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="/specs/PulleyHub"
+                    onClick={onNavigate}
+                    className="text-white hover:text-neutral-500 dark:text-white"
+                  >
+                    FAS Hub &amp; Pulley
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="/specs/BilletBearingPlate"
+                    onClick={onNavigate}
+                    className="text-white hover:text-neutral-500 dark:text-white"
+                  >
+                    FAS Billet Bearing Plate
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="/specs/BilletSnout"
+                    onClick={onNavigate}
+                    className="text-white hover:text-neutral-500 dark:text-white"
+                  >
+                    FAS Billet Snouts
+                  </a>
+                </li>
+              </ul>
             </li>
-            <li>
-              <a
-                href="/specs/PulleyHub"
-                onClick={onNavigate}
-                className="text-white hover:text-neutral-500 dark:text-white"
-              >
-                FAS Hub &amp; Pulley
-              </a>
-            </li>
-            <li>
-              <a
-                href="/specs/BilletBearingPlate"
-                onClick={onNavigate}
-                className="text-white hover:text-neutral-500 dark:text-white"
-              >
-                FAS Billet Bearing Plate
-              </a>
-            </li>
-            <li>
-              <a
-                href="/specs/BilletSnout"
-                onClick={onNavigate}
-                className="text-white hover:text-neutral-500 dark:text-white"
-              >
-                FAS Billet Snouts
-              </a>
+            {/* Wheels section */}
+            <li className="py-2">
+              <div className="text-xl text-white dark:text-white">Wheels</div>
+              <ul className="mt-2 ml-4 space-y-2 text-lg">
+                <li></li>
+                <li className="pt-2 text-sm font-bold text-primary tracking-wide">BELAK</li>
+                <li>
+                  <a
+                    href="/belak/wheels"
+                    onClick={onNavigate}
+                    className="text-white hover:text-neutral-500 dark:text-white"
+                  >
+                    Belak Overview
+                  </a>
+                </li>
+                <li></li>
+                <li className="pt-2 text-sm font-bold text-primary tracking-wide">JTX FORGED</li>
+                <li>
+                  <a
+                    href="/jtx/wheels"
+                    onClick={onNavigate}
+                    className="text-white hover:text-neutral-500 dark:text-white"
+                  >
+                    JTX Overview
+                  </a>
+                </li>
+              </ul>
             </li>
           </ul>
         </li>
-        {/* Wheels section */}
-        <li className="py-2">
-          <div className="text-xl text-white dark:text-white">Wheels</div>
-          <ul className="mt-2 ml-4 space-y-2 text-lg">
-            <li></li>
-            <li className="pt-2 text-sm font-bold text-primary tracking-wide">BELAK</li>
-            <li>
-              <a
-                href="/belak/wheels"
-                onClick={onNavigate}
-                className="text-white hover:text-neutral-500 dark:text-white"
-              >
-                Belak Overview
-              </a>
-            </li>
-            <li></li>
-            <li className="pt-2 text-sm font-bold text-primary tracking-wide">JTX FORGED</li>
-            <li>
-              <a
-                href="/jtx/wheels"
-                onClick={onNavigate}
-                className="text-white hover:text-neutral-500 dark:text-white"
-              >
-                JTX Overview
-              </a>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </li>
         <li className="my-3">
           <hr className="border-neutral-200 dark:border-neutral-700" />
         </li>
@@ -315,16 +315,6 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
         <li className="my-3">
           <hr className="border-neutral-200 dark:border-neutral-700" />
         </li>
-        {/* Build Your Package */}
-        <li className="py-2">
-          <a
-            href="/customBuild"
-            onClick={onNavigate}
-            className="text-xl text-primary hover:text-primary/90"
-          >
-            Build Your Package →
-          </a>
-        </li>
         {/* Basic pages */}
         <li className="py-2 text-xl text-white transition-colors hover:text-neutral-500 dark:text-white">
           <a href="/about" onClick={onNavigate}>
@@ -352,12 +342,16 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
               <UserCircleIcon className="h-6 w-6" />
               <span>Account</span>
             </a>
-          ) : authed ? (
+          ) : authed === true ? (
             <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2 text-lg text-white dark:text-white">
+              <a
+                href="/account"
+                onClick={onNavigate}
+                className="flex items-center gap-2 text-lg text-white dark:text-white hover:text-neutral-500"
+              >
                 <UserCircleIcon className="h-6 w-6" />
                 <span>{displayName || 'My Account'}</span>
-              </div>
+              </a>
               <div className="ml-8 flex items-center gap-4">
                 <a
                   href="/dashboard"
