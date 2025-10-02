@@ -38,19 +38,28 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
     try {
       const fas = await waitForFasAuth();
       const ok = fas ? await fas.isAuthenticated() : false;
-     if (cancelled()) return;
-     setAuthed(ok);
-     if (ok) {
-       let session: any = null;
-       try {
-         session = fas && typeof fas.getSession === 'function' ? await fas.getSession() : null;
-       } catch {}
+      if (cancelled()) return;
+      setAuthed(ok);
+      if (ok) {
+        let session: any = null;
+        try {
+          session = fas && typeof fas.getSession === 'function' ? await fas.getSession() : null;
+        } catch {}
         if (cancelled()) return;
         const user = session?.user || {};
-        let name = ((user?.given_name as string) || (user?.name as string) || (user?.email as string) || '').trim();
+        let name = (
+          (user?.given_name as string) ||
+          (user?.name as string) ||
+          (user?.email as string) ||
+          ''
+        ).trim();
         if (!name) {
           try {
-            name = (localStorage.getItem('customerName') || localStorage.getItem('customerEmail') || '').trim();
+            name = (
+              localStorage.getItem('customerName') ||
+              localStorage.getItem('customerEmail') ||
+              ''
+            ).trim();
           } catch {}
         }
         if (cancelled()) return;
@@ -113,29 +122,32 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
       </div>
       <ul className="flex w-full flex-col">
         {/* Top Level: Home */}
-        <li className="py-2 text-xl text-accent transition-colors hover:text-neutral-500 dark:text-white">
+        <li className="py-2 text-xl text-white transition-colors hover:text-neutral-500 dark:text-white">
           <a href="/" onClick={onNavigate}>
             Home
           </a>
         </li>
         {/* Top Level: Shop with subcategories */}
         <li className="py-2">
-          <div className="text-xl text-accent dark:text-white">Shop</div>
+          <div className="text-xl text-white dark:text-white">Shop</div>
           <ul className="mt-2 ml-4 space-y-2 text-lg">
             <li>
               <a
                 href="/shop"
                 onClick={onNavigate}
-                className="text-accent hover:text-neutral-500 dark:text-white"
+                className="text-white hover:text-neutral-500 dark:text-white"
               >
                 All Products
               </a>
             </li>
+            <li className="py-2">
+          <div className="text-xl text-white dark:text-white">Billet Parts</div>
+          <ul className="mt-2 ml-4 space-y-2 text-lg">
             <li>
               <a
                 href="/specs/PredatorPulley"
                 onClick={onNavigate}
-                className="text-accent hover:text-neutral-500 dark:text-white"
+                className="text-white hover:text-neutral-500 dark:text-white"
               >
                 FAS Predator Pulley
               </a>
@@ -144,7 +156,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
               <a
                 href="/specs/PulleyHub"
                 onClick={onNavigate}
-                className="text-accent hover:text-neutral-500 dark:text-white"
+                className="text-white hover:text-neutral-500 dark:text-white"
               >
                 FAS Hub &amp; Pulley
               </a>
@@ -153,7 +165,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
               <a
                 href="/specs/BilletBearingPlate"
                 onClick={onNavigate}
-                className="text-accent hover:text-neutral-500 dark:text-white"
+                className="text-white hover:text-neutral-500 dark:text-white"
               >
                 FAS Billet Bearing Plate
               </a>
@@ -162,7 +174,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
               <a
                 href="/specs/BilletSnout"
                 onClick={onNavigate}
-                className="text-accent hover:text-neutral-500 dark:text-white"
+                className="text-white hover:text-neutral-500 dark:text-white"
               >
                 FAS Billet Snouts
               </a>
@@ -171,7 +183,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
         </li>
         {/* Wheels section */}
         <li className="py-2">
-          <div className="text-xl text-accent dark:text-white">Wheels</div>
+          <div className="text-xl text-white dark:text-white">Wheels</div>
           <ul className="mt-2 ml-4 space-y-2 text-lg">
             <li></li>
             <li className="pt-2 text-sm font-bold text-primary tracking-wide">BELAK</li>
@@ -179,7 +191,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
               <a
                 href="/belak/wheels"
                 onClick={onNavigate}
-                className="text-accent hover:text-neutral-500 dark:text-white"
+                className="text-white hover:text-neutral-500 dark:text-white"
               >
                 Belak Overview
               </a>
@@ -190,13 +202,15 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
               <a
                 href="/jtx/wheels"
                 onClick={onNavigate}
-                className="text-accent hover:text-neutral-500 dark:text-white"
+                className="text-white hover:text-neutral-500 dark:text-white"
               >
                 JTX Overview
               </a>
             </li>
           </ul>
         </li>
+      </ul>
+    </li>
         <li className="my-3">
           <hr className="border-neutral-200 dark:border-neutral-700" />
         </li>
@@ -205,7 +219,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
           <a
             href="/packages"
             onClick={onNavigate}
-            className="text-accent hover:text-neutral-500 dark:text-white"
+            className="text-white hover:text-neutral-500 dark:text-white"
           >
             Packages
           </a>
@@ -214,7 +228,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
               <a
                 href="/packages/truckPackages"
                 onClick={onNavigate}
-                className="text-accent hover:text-neutral-500 dark:text-white"
+                className="text-white hover:text-neutral-500 dark:text-white"
               >
                 Truck Packages
               </a>
@@ -223,7 +237,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
               <a
                 href="/packages/powerPackages"
                 onClick={onNavigate}
-                className="text-accent hover:text-neutral-500 dark:text-white"
+                className="text-white hover:text-neutral-500 dark:text-white"
               >
                 Power Packages
               </a>
@@ -236,7 +250,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             <a
               href="/services/Services"
               onClick={onNavigate}
-              className="text-xl text-accent hover:text-neutral-500 dark:text-white"
+              className="text-xl text-white hover:text-neutral-500 dark:text-white"
             >
               All Services
             </a>
@@ -246,7 +260,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
               <a
                 href="/services/igla"
                 onClick={onNavigate}
-                className="text-accent hover:text-neutral-500 dark:text-white"
+                className="text-white hover:text-neutral-500 dark:text-white"
               >
                 IGLA Security
               </a>
@@ -255,7 +269,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
               <a
                 href="/services/porting"
                 onClick={onNavigate}
-                className="text-accent hover:text-neutral-500 dark:text-white"
+                className="text-white hover:text-neutral-500 dark:text-white"
               >
                 Porting
               </a>
@@ -264,7 +278,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
               <a
                 href="/services/customFab"
                 onClick={onNavigate}
-                className="text-accent hover:text-neutral-500 dark:text-white"
+                className="text-white hover:text-neutral-500 dark:text-white"
               >
                 Custom Fabrication
               </a>
@@ -273,7 +287,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
               <a
                 href="/services/coreExchange"
                 onClick={onNavigate}
-                className="text-accent hover:text-neutral-500 dark:text-white"
+                className="text-white hover:text-neutral-500 dark:text-white"
               >
                 Core Exchange
               </a>
@@ -282,7 +296,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
               <a
                 href="/services/welding"
                 onClick={onNavigate}
-                className="text-accent hover:text-neutral-500 dark:text-white"
+                className="text-white hover:text-neutral-500 dark:text-white"
               >
                 Welding
               </a>
@@ -291,7 +305,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
               <a
                 href="/schedule"
                 onClick={onNavigate}
-                className="text-accent hover:text-neutral-500 dark:text-white"
+                className="text-white hover:text-neutral-500 dark:text-white"
               >
                 Schedule Service
               </a>
@@ -312,17 +326,17 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
           </a>
         </li>
         {/* Basic pages */}
-        <li className="py-2 text-xl text-accent transition-colors hover:text-neutral-500 dark:text-white">
+        <li className="py-2 text-xl text-white transition-colors hover:text-neutral-500 dark:text-white">
           <a href="/about" onClick={onNavigate}>
             About
           </a>
         </li>
-        <li className="py-2 text-xl text-accent transition-colors hover:text-neutral-500 dark:text-white">
+        <li className="py-2 text-xl text-white transition-colors hover:text-neutral-500 dark:text-white">
           <a href="/faq2" onClick={onNavigate}>
             FAQ
           </a>
         </li>
-        <li className="py-2 text-xl text-accent transition-colors hover:text-neutral-500 dark:text-white">
+        <li className="py-2 text-xl text-white transition-colors hover:text-neutral-500 dark:text-white">
           <a href="/contact" onClick={onNavigate}>
             Contact
           </a>
@@ -333,14 +347,14 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             <a
               href="/account"
               onClick={onNavigate}
-              className="flex items-center gap-2 text-xl text-accent hover:text-neutral-500 dark:text-white"
+              className="flex items-center gap-2 text-xl text-white hover:text-neutral-500 dark:text-white"
             >
               <UserCircleIcon className="h-6 w-6" />
               <span>Account</span>
             </a>
           ) : authed ? (
             <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2 text-lg text-accent dark:text-white">
+              <div className="flex items-center gap-2 text-lg text-white dark:text-white">
                 <UserCircleIcon className="h-6 w-6" />
                 <span>{displayName || 'My Account'}</span>
               </div>
@@ -348,7 +362,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
                 <a
                   href="/dashboard"
                   onClick={onNavigate}
-                  className="text-accent hover:text-neutral-500 dark:text-white"
+                  className="text-white hover:text-neutral-500 dark:text-white"
                 >
                   Dashboard
                 </a>
@@ -364,7 +378,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
                       onNavigate && onNavigate();
                     }
                   }}
-                  className="text-accent hover:text-neutral-500 dark:text-white"
+                  className="text-white hover:text-neutral-500 dark:text-white"
                 >
                   Log out
                 </button>
@@ -399,7 +413,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
       <button
         onClick={openMobileMenu}
         aria-label="Open mobile menu"
-        className="flex h-11 w-11 items-center justify-center rounded-md border border-neutral-200 text-accent transition-colors md:hidden dark:border-neutral-700 dark:text-white"
+        className="flex h-11 w-11 items-center justify-center rounded-md border border-neutral-200 text-white transition-colors md:hidden dark:border-neutral-700 dark:text-white"
       >
         <Bars3Icon className="h-4" />
       </button>
@@ -428,7 +442,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             <Dialog.Panel className="fixed bottom-0 left-0 right-0 top-0 flex h-full w-full flex-col bg-white pb-6 bg-white/80">
               <div className="p-4">
                 <button
-                  className="mb-4 flex h-11 w-11 items-center justify-center rounded-md border border-neutral-200 text-accent transition-colors dark:border-neutral-700 dark:text-white"
+                  className="mb-4 flex h-11 w-11 items-center justify-center rounded-md border border-neutral-200 text-white transition-colors dark:border-neutral-700 dark:text-white"
                   onClick={closeMobileMenu}
                   aria-label="Close mobile menu"
                 >
