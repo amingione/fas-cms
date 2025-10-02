@@ -1,7 +1,12 @@
 import { sanity } from '@/lib/sanity-utils';
 
-const SHIPENGINE_API_KEY = process.env.SHIPENGINE_API_KEY || '';
-const SHIPENGINE_BASE = 'https://api.shipengine.com/v1';
+const ime = (typeof import.meta !== 'undefined' ? ((import.meta as any).env as Record<string, string | undefined>) : {}) ?? {};
+const penv = (typeof process !== 'undefined' ? (process.env as Record<string, string | undefined>) : {}) ?? {};
+
+const SHIPENGINE_API_KEY = penv.SHIPENGINE_API_KEY || ime.SHIPENGINE_API_KEY || '';
+const SHIPENGINE_BASE = ime.SHIPENGINE_BASE || penv.SHIPENGINE_BASE || 'https://api.shipengine.com/v1';
+
+let cachedCarrierIds: string[] | null = null;
 
 const looksLikeCarrierId = (value?: string | null) => {
   if (!value) return false;
@@ -72,7 +77,7 @@ const toNumber = (value: unknown, fallback = 0): number => {
 };
 
 const getAllowedOrigins = () => {
-  const allow = process.env.CORS_ALLOW || '';
+  const allow = penv.CORS_ALLOW || ime.CORS_ALLOW || '';
   return allow
     .split(',')
     .map((s) => s.trim())
@@ -144,21 +149,21 @@ const fetchProductsByIds = async (ids: string[]): Promise<SanityProduct[]> => {
 };
 
 const DEFAULT_DIMS = {
-  length: toNumber(process.env.DEFAULT_BOX_LENGTH, 12),
-  width: toNumber(process.env.DEFAULT_BOX_WIDTH, 9),
-  height: toNumber(process.env.DEFAULT_BOX_HEIGHT, 3)
+  length: toNumber(penv.DEFAULT_BOX_LENGTH ?? ime.DEFAULT_BOX_LENGTH, 12),
+  width: toNumber(penv.DEFAULT_BOX_WIDTH ?? ime.DEFAULT_BOX_WIDTH, 9),
+  height: toNumber(penv.DEFAULT_BOX_HEIGHT ?? ime.DEFAULT_BOX_HEIGHT, 3)
 };
-const DEFAULT_WEIGHT = toNumber(process.env.DEFAULT_BOX_WEIGHT_LB, 2);
+const DEFAULT_WEIGHT = toNumber(penv.DEFAULT_BOX_WEIGHT_LB ?? ime.DEFAULT_BOX_WEIGHT_LB, 2);
 
 const SHIP_FROM = {
-  name: process.env.ORIGIN_NAME || 'FAS Motorsports',
-  phone: process.env.ORIGIN_PHONE || '000-000-0000',
-  address_line1: process.env.ORIGIN_ADDRESS1 || '123 Business Rd',
-  address_line2: process.env.ORIGIN_ADDRESS2 || undefined,
-  city_locality: process.env.ORIGIN_CITY || 'Las Vegas',
-  state_province: process.env.ORIGIN_STATE || 'NV',
-  postal_code: process.env.ORIGIN_POSTAL || '89101',
-  country_code: ((process.env.ORIGIN_COUNTRY || 'US') || 'US').toUpperCase()
+  name: penv.ORIGIN_NAME || ime.ORIGIN_NAME || 'FAS Motorsports',
+  phone: penv.ORIGIN_PHONE || ime.ORIGIN_PHONE || '000-000-0000',
+  address_line1: penv.ORIGIN_ADDRESS1 || ime.ORIGIN_ADDRESS1 || '123 Business Rd',
+  address_line2: penv.ORIGIN_ADDRESS2 || ime.ORIGIN_ADDRESS2 || undefined,
+  city_locality: penv.ORIGIN_CITY || ime.ORIGIN_CITY || 'Las Vegas',
+  state_province: penv.ORIGIN_STATE || ime.ORIGIN_STATE || 'NV',
+  postal_code: penv.ORIGIN_POSTAL || ime.ORIGIN_POSTAL || '89101',
+  country_code: ((penv.ORIGIN_COUNTRY || ime.ORIGIN_COUNTRY || 'US') || 'US').toUpperCase()
 };
 
 const shipEngineFetch = async (path: string, body: any) => {
@@ -176,6 +181,45 @@ const shipEngineFetch = async (path: string, body: any) => {
     throw new Error(`ShipEngine error ${res.status}: ${text}`);
   }
   return res.json();
+};
+
+const listCarrierIds = async (): Promise<string[]> => {
+  if (!SHIPENGINE_API_KEY) return [];
+  try {
+    const res = await fetch(`${SHIPENGINE_BASE}/carriers`, {
+      method: 'GET',
+      headers: { 'API-Key': SHIPENGINE_API_KEY }
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`ShipEngine carriers error ${res.status}: ${text}`);
+    }
+    const data = await res.json();
+    const carriers = Array.isArray(data) ? data : Array.isArray(data?.carriers) ? data.carriers : [];
+    if (Array.isArray(carriers)) {
+      return carriers
+        .map((carrier: any) => String(carrier?.carrier_id || carrier?.carrierId || '').trim())
+        .filter((id) => looksLikeCarrierId(id));
+    }
+    return [];
+  } catch (err) {
+    console.error('[shipping] Failed to list ShipEngine carriers', err);
+    return [];
+  }
+};
+
+const resolveCarrierIds = async (): Promise<string[]> => {
+  const explicit = [penv.SHIPENGINE_CARRIER_ID, ime.SHIPENGINE_CARRIER_ID, penv.DEFAULT_SHIPENGINE_CARRIER_ID, ime.DEFAULT_SHIPENGINE_CARRIER_ID]
+    .filter((value): value is string => Boolean(value))
+    .map((value) => value.trim())
+    .filter((value) => looksLikeCarrierId(value));
+  if (explicit.length) return explicit;
+
+  if (cachedCarrierIds) return cachedCarrierIds;
+
+  const fetched = await listCarrierIds();
+  cachedCarrierIds = fetched;
+  return fetched;
 };
 
 export async function computeShippingQuote(
@@ -288,7 +332,7 @@ export async function computeShippingQuote(
     country_code: (destination.country || 'US').toUpperCase()
   };
 
-  const carrierId = process.env.SHIPENGINE_CARRIER_ID || process.env.DEFAULT_SHIPENGINE_CARRIER_ID;
+  const carrierIds = await resolveCarrierIds();
   const payload: Record<string, any> = {
     shipment: {
       validate_address: 'no_validation',
@@ -298,8 +342,8 @@ export async function computeShippingQuote(
     }
   };
 
-  if (looksLikeCarrierId(carrierId)) {
-    payload.rate_options = { carrier_ids: [carrierId] };
+  if (carrierIds.length) {
+    payload.rate_options = { carrier_ids: carrierIds.slice(0, 10) };
   }
 
   if (!SHIP_FROM.postal_code || !SHIP_FROM.city_locality) {

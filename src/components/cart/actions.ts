@@ -157,8 +157,10 @@ export async function redirectToCheckout(options?: CheckoutOptions) {
         ...(options?.shippingRate ? { shippingRate: options.shippingRate } : {})
       })
     });
-    if (!res.ok) throw new Error('Checkout failed');
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error((data as any)?.error || 'Checkout failed');
+    }
     if (data?.url) {
       window.location.href = data.url as string;
       return;
@@ -166,6 +168,7 @@ export async function redirectToCheckout(options?: CheckoutOptions) {
     throw new Error('No checkout URL returned');
   } catch (e) {
     console.error(e);
+    if (e instanceof Error && e.message) return e.message;
     return 'Error starting checkout';
   }
 }

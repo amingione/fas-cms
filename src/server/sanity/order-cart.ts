@@ -1,5 +1,3 @@
-import { randomUUID } from 'node:crypto';
-
 export type OrderCartItem = {
   _type: 'orderCartItem';
   _key: string;
@@ -23,6 +21,17 @@ const toStringOrUndefined = (value: unknown): string | undefined => {
   return undefined;
 };
 
+const generateKey = (): string => {
+  try {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+  } catch {}
+  const stamp = Date.now().toString(36);
+  const rand = Math.random().toString(36).slice(2, 10);
+  return `oc_${stamp}_${rand}`;
+};
+
 export function createOrderCartItem(data: {
   id?: unknown;
   sku?: unknown;
@@ -43,7 +52,7 @@ export function createOrderCartItem(data: {
 
   return {
     _type: 'orderCartItem',
-    _key: randomUUID(),
+    _key: generateKey(),
     id: toStringOrUndefined(data.id),
     sku: toStringOrUndefined(data.sku),
     name: toStringOrUndefined(data.name) || toStringOrUndefined(data.description),

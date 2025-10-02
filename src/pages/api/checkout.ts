@@ -56,22 +56,30 @@ export async function POST({ request }: { request: Request }) {
   }
 
   type CartItem = { id?: string; sku?: string; name: string; price: number; quantity: number };
-  const lineItems = (cart as CartItem[]).map((item) => ({
-    price_data: {
-      currency: 'usd',
-      tax_behavior: 'exclusive',
-      product_data: {
-        name: item.name,
-        // Help fulfillment map back to Sanity/Inventory
-        metadata: {
-          ...(item.sku ? { sku: String(item.sku) } : {}),
-          ...(item.id ? { sanity_product_id: String(item.id) } : {})
-        }
+  const lineItems = (cart as CartItem[]).map((item) => {
+    const unitAmount = Number.isFinite(item.price) ? Math.max(0, Math.round(Number(item.price) * 100)) : 0;
+    if (unitAmount <= 0) {
+      console.warn('[checkout] Cart item missing price, defaulting to $0.00', item);
+    }
+    const quantity = Math.max(1, Number.isFinite(item.quantity) ? Number(item.quantity) : 1);
+
+    return {
+      price_data: {
+        currency: 'usd',
+        tax_behavior: 'exclusive',
+        product_data: {
+          name: item.name || 'Item',
+          // Help fulfillment map back to Sanity/Inventory
+          metadata: {
+            ...(item.sku ? { sku: String(item.sku) } : {}),
+            ...(item.id ? { sanity_product_id: String(item.id) } : {})
+          }
+        },
+        unit_amount: unitAmount
       },
-      unit_amount: Math.round(item.price * 100)
-    },
-    quantity: item.quantity
-  }));
+      quantity
+    } satisfies Stripe.Checkout.SessionCreateParams.LineItem;
+  });
 
   // Persist compact cart metadata (Stripe metadata fields are strings and size-limited)
   let metaCart = '';
@@ -286,23 +294,10 @@ export async function POST({ request }: { request: Request }) {
       ];
     }
 
+    // With automatic tax enabled, Stripe expects to collect the shipping address at checkout.
+    // Avoid passing payment_intent_data.shipping so we don't trigger the "cannot enable automatic tax" error.
     if (normalizedDestination) {
       sessionParams.customer_creation = 'if_required';
-      sessionParams.payment_intent_data = {
-        ...sessionParams.payment_intent_data,
-        shipping: {
-          name: normalizedDestination.name || undefined,
-          phone: normalizedDestination.phone || undefined,
-          address: {
-            line1: normalizedDestination.addressLine1,
-            line2: normalizedDestination.addressLine2 || undefined,
-            city: normalizedDestination.city,
-            state: normalizedDestination.state,
-            postal_code: normalizedDestination.postalCode,
-            country: (normalizedDestination.country || 'US').toUpperCase()
-          }
-        }
-      } as Stripe.Checkout.SessionCreateParams.PaymentIntentData;
     }
 
     const session = await stripe.checkout.sessions.create(sessionParams);

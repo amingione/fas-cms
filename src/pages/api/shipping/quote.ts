@@ -29,11 +29,17 @@ export const POST: APIRoute = async ({ request }) => {
     const destination = body?.destination as Destination | undefined;
 
     if (!destination) {
+      console.warn('[api/shipping/quote] missing destination payload');
       return json({ error: 'Missing destination' }, 400, headers);
     }
 
     const result = await computeShippingQuote(cart, destination);
     if (!result.success) {
+      console.warn('[api/shipping/quote] failed', {
+        message: result.message,
+        missing: result.missing,
+        destination
+      });
       return json(result, 400, headers);
     }
     return json(result, 200, headers);
