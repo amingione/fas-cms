@@ -28,12 +28,27 @@ export const POST: APIRoute = async ({ request }) => {
     const cart = Array.isArray(body?.cart) ? (body.cart as CartItemInput[]) : [];
     const destination = body?.destination as Destination | undefined;
 
+    const normalizeCartId = (rawId?: string | null): string => {
+      if (!rawId) return '';
+      const trimmed = String(rawId).trim();
+      if (!trimmed) return '';
+      const [id] = trimmed.split('::');
+      return id || trimmed;
+    };
+
+    const normalizedCart = cart
+      .map((item) => ({
+        ...item,
+        id: normalizeCartId(item.id)
+      }))
+      .filter((item) => item.id);
+
     if (!destination) {
       console.warn('[api/shipping/quote] missing destination payload');
       return json({ error: 'Missing destination' }, 400, headers);
     }
 
-    const result = await computeShippingQuote(cart, destination);
+    const result = await computeShippingQuote(normalizedCart, destination);
     if (!result.success) {
       console.warn('[api/shipping/quote] failed', {
         message: result.message,

@@ -198,6 +198,11 @@ const listCarrierIds = async (): Promise<string[]> => {
     const carriers = Array.isArray(data) ? data : Array.isArray(data?.carriers) ? data.carriers : [];
     if (Array.isArray(carriers)) {
       return carriers
+        .filter((carrier: any) => {
+          const code = String(carrier?.carrier_code || carrier?.carrierCode || '').toLowerCase();
+          const name = String(carrier?.friendly_name || carrier?.friendlyName || '').toLowerCase();
+          return !code.includes('usps') && !name.includes('usps');
+        })
         .map((carrier: any) => String(carrier?.carrier_id || carrier?.carrierId || '').trim())
         .filter((id) => looksLikeCarrierId(id));
     }
@@ -212,7 +217,8 @@ const resolveCarrierIds = async (): Promise<string[]> => {
   const explicit = [penv.SHIPENGINE_CARRIER_ID, ime.SHIPENGINE_CARRIER_ID, penv.DEFAULT_SHIPENGINE_CARRIER_ID, ime.DEFAULT_SHIPENGINE_CARRIER_ID]
     .filter((value): value is string => Boolean(value))
     .map((value) => value.trim())
-    .filter((value) => looksLikeCarrierId(value));
+    .filter((value) => looksLikeCarrierId(value))
+    .filter((value) => !value.toLowerCase().includes('usps'));
   if (explicit.length) return explicit;
 
   if (cachedCarrierIds) return cachedCarrierIds;
@@ -220,6 +226,17 @@ const resolveCarrierIds = async (): Promise<string[]> => {
   const fetched = await listCarrierIds();
   cachedCarrierIds = fetched;
   return fetched;
+};
+
+const isUspsRate = (rate: ShippingRate): boolean => {
+  const fields = [
+    rate.carrierId,
+    rate.carrier,
+    rate.serviceCode,
+    rate.service,
+    rate.serviceName
+  ];
+  return fields.some((value) => String(value || '').toLowerCase().includes('usps'));
 };
 
 export async function computeShippingQuote(
@@ -388,7 +405,18 @@ export async function computeShippingQuote(
             rate?.estimated_delivery_date || rate?.estimatedDeliveryDate || null
         } as ShippingRate;
       })
-      .filter((rate: ShippingRate) => Number.isFinite(rate.amount) && rate.amount >= 0);
+      .filter((rate: ShippingRate) => {
+        const serviceCode = String(rate.serviceCode || '').toLowerCase();
+        const serviceLabel = `${rate.service || ''} ${rate.serviceName || ''}`.toLowerCase();
+        const isMediaMail =
+          serviceCode.includes('media_mail') || serviceLabel.includes('media mail');
+
+        if (isMediaMail) return false;
+
+        if (isUspsRate(rate)) return false;
+
+        return Number.isFinite(rate.amount) && rate.amount >= 0;
+      });
 
     normalized.sort((a, b) => a.amount - b.amount);
 

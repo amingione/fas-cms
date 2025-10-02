@@ -8,7 +8,7 @@ import {
 } from '@/server/shipping/quote';
 
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-06-20'
+  apiVersion: '2025-08-27.basil'
 });
 
 const configuredBaseUrl = import.meta.env.PUBLIC_BASE_URL || '';
@@ -24,6 +24,42 @@ function validateBaseUrl(baseUrl: string): Response | null {
     );
   }
   return null;
+}
+
+const CARRIER_LABELS: Record<string, string> = {
+  usps: 'USPS',
+  ups: 'UPS',
+  fedex: 'FedEx',
+  dhl: 'DHL',
+  ontrac: 'OnTrac'
+};
+
+function humanizeToken(token: string): string {
+  const lower = token.toLowerCase();
+  if (CARRIER_LABELS[lower]) return CARRIER_LABELS[lower];
+  if (/^\d+(?:st|nd|rd|th)?$/i.test(token)) return token.toUpperCase();
+  if (lower === 'us') return 'US';
+  if (lower === 'usa') return 'USA';
+  return token.charAt(0).toUpperCase() + token.slice(1);
+}
+
+function humanizeCode(value?: string | null): string {
+  if (!value) return '';
+  const cleaned = String(value).replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim();
+  if (!cleaned) return '';
+  return cleaned.split(' ').filter(Boolean).map(humanizeToken).join(' ');
+}
+
+function formatShippingDisplay(rate: CalculatedRate): string {
+  const rawService = rate.service || rate.serviceName || rate.serviceCode || 'Shipping';
+  const service = humanizeCode(rawService) || 'Shipping';
+  const carrier = humanizeCode(rate.carrier || '');
+  const serviceLower = service.toLowerCase();
+  const carrierLower = carrier.toLowerCase();
+  if (!carrier) return service;
+  if (carrierLower && serviceLower.startsWith(carrierLower)) return service;
+  if (serviceLower.includes(`(${carrierLower})`)) return service;
+  return `${service} (${carrier})`;
 }
 
 export async function POST({ request }: { request: Request }) {
@@ -55,9 +91,21 @@ export async function POST({ request }: { request: Request }) {
     });
   }
 
+  const normalizeCartId = (rawId?: string | null): string => {
+    if (!rawId) return '';
+    const trimmed = String(rawId).trim();
+    if (!trimmed) return '';
+    const [id] = trimmed.split('::');
+    return id || trimmed;
+  };
+
   type CartItem = { id?: string; sku?: string; name: string; price: number; quantity: number };
   const lineItems = (cart as CartItem[]).map((item) => {
-    const unitAmount = Number.isFinite(item.price) ? Math.max(0, Math.round(Number(item.price) * 100)) : 0;
+    const rawId = typeof item.id === 'string' ? item.id : undefined;
+    const sanityProductId = normalizeCartId(rawId);
+    const unitAmount = Number.isFinite(item.price)
+      ? Math.max(0, Math.round(Number(item.price) * 100))
+      : 0;
     if (unitAmount <= 0) {
       console.warn('[checkout] Cart item missing price, defaulting to $0.00', item);
     }
@@ -72,7 +120,7 @@ export async function POST({ request }: { request: Request }) {
           // Help fulfillment map back to Sanity/Inventory
           metadata: {
             ...(item.sku ? { sku: String(item.sku) } : {}),
-            ...(item.id ? { sanity_product_id: String(item.id) } : {})
+            ...(sanityProductId ? { sanity_product_id: sanityProductId } : {})
           }
         },
         unit_amount: unitAmount
@@ -124,7 +172,7 @@ export async function POST({ request }: { request: Request }) {
     : undefined;
 
   const cartForQuote: ShippingCartItem[] = (cart as CartItem[]).map((item) => ({
-    id: String(item.id || ''),
+    id: normalizeCartId(item.id),
     quantity: Number(item.quantity || 1)
   }));
 
@@ -138,7 +186,8 @@ export async function POST({ request }: { request: Request }) {
       if (quote.freight) {
         return new Response(
           JSON.stringify({
-            error: 'This order requires a freight quote. Please contact support to complete your purchase.'
+            error:
+              'This order requires a freight quote. Please contact support to complete your purchase.'
           }),
           {
             status: 409,
@@ -181,11 +230,7 @@ export async function POST({ request }: { request: Request }) {
 
         shippingOptions = sortedRates.map((rate) => {
           const amount = Math.max(0, Math.round(rate.amount * 100));
-          const displayCarrier = rate.carrier ? `${rate.carrier}` : '';
-        const displayService = rate.service || rate.serviceName || rate.serviceCode || 'Shipping';
-          const displayName = displayCarrier
-            ? `${displayService} (${displayCarrier})`
-            : displayService;
+          const displayName = formatShippingDisplay(rate);
 
           const deliveryEstimate = rate.deliveryDays
             ? {
@@ -199,7 +244,7 @@ export async function POST({ request }: { request: Request }) {
               type: 'fixed_amount',
               fixed_amount: {
                 amount,
-                currency: (rate.currency || 'USD').toLowerCase() as Stripe.Checkout.SessionCreateParams.ShippingOption.ShippingRateData.FixedAmount.Currency
+                currency: (rate.currency || 'USD').toLowerCase()
               },
               display_name: displayName,
               tax_behavior: 'exclusive',
@@ -216,7 +261,8 @@ export async function POST({ request }: { request: Request }) {
         if (selectedRate) {
           shippingMetadata = {
             shipping_carrier: selectedRate.carrier || '',
-            shipping_service: selectedRate.serviceCode || selectedRate.service || selectedRate.serviceName || '',
+            shipping_service:
+              selectedRate.serviceCode || selectedRate.service || selectedRate.serviceName || '',
             shipping_amount: selectedRate.amount.toFixed(2)
           };
         }
@@ -237,9 +283,10 @@ export async function POST({ request }: { request: Request }) {
 
     const paymentIntentMetadata = { ...sessionMetadata };
 
-    const shippingAddressCollection: Stripe.Checkout.SessionCreateParams.ShippingAddressCollection = {
-      allowed_countries: ['US', 'CA']
-    };
+    const shippingAddressCollection: Stripe.Checkout.SessionCreateParams.ShippingAddressCollection =
+      {
+        allowed_countries: ['US', 'CA']
+      };
 
     const customerEmail = userEmail || normalizedDestination?.email || undefined;
 
@@ -261,6 +308,11 @@ export async function POST({ request }: { request: Request }) {
       cancel_url: `${baseUrl}/checkout/cancel`
     };
 
+    // Guard rail: Stripe rejects automatic tax when payment_intent_data.shipping is present.
+    if (sessionParams.payment_intent_data && 'shipping' in sessionParams.payment_intent_data) {
+      delete (sessionParams.payment_intent_data as { shipping?: unknown }).shipping;
+    }
+
     if (customerEmail) {
       sessionParams.customer_email = customerEmail;
     }
@@ -273,7 +325,7 @@ export async function POST({ request }: { request: Request }) {
           shipping_rate_data: {
             type: 'fixed_amount',
             fixed_amount: { amount: 1500, currency: 'usd' },
-            display_name: 'Standard (5–7 business days)',
+            display_name: 'Standard Shipping (5–7 business days)',
             tax_behavior: 'exclusive',
             tax_code: 'txcd_92010001',
             delivery_estimate: {
@@ -286,7 +338,7 @@ export async function POST({ request }: { request: Request }) {
           shipping_rate_data: {
             type: 'fixed_amount',
             fixed_amount: { amount: 3500, currency: 'usd' },
-            display_name: 'Expedited (2–3 business days)',
+            display_name: 'Expedited Shipping (2–3 business days)',
             tax_behavior: 'exclusive',
             tax_code: 'txcd_92010001',
             delivery_estimate: {

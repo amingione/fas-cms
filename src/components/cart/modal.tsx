@@ -154,6 +154,46 @@ function dedupeShippingRates(rates: CheckoutShippingRate[]): CheckoutShippingRat
   });
 }
 
+const CARRIER_LABELS: Record<string, string> = {
+  usps: 'USPS',
+  ups: 'UPS',
+  fedex: 'FedEx',
+  dhl: 'DHL',
+  ontrac: 'OnTrac'
+};
+
+function humanizeToken(token: string, index: number): string {
+  const lower = token.toLowerCase();
+  if (CARRIER_LABELS[lower] && index === 0) return CARRIER_LABELS[lower];
+  if (CARRIER_LABELS[lower]) return CARRIER_LABELS[lower];
+  if (/^\d+(?:st|nd|rd|th)?$/i.test(token)) return token.toUpperCase();
+  if (lower === 'us') return 'US';
+  if (lower === 'usa') return 'USA';
+  return token.charAt(0).toUpperCase() + token.slice(1);
+}
+
+function humanizeCode(value?: string | null): string {
+  if (!value) return '';
+  const cleaned = String(value).replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim();
+  if (!cleaned) return '';
+  return cleaned
+    .split(' ')
+    .filter(Boolean)
+    .map(humanizeToken)
+    .join(' ');
+}
+
+function buildShippingLabel(rate: CheckoutShippingRate): string {
+  const rawService = rate.service || rate.serviceName || rate.serviceCode || 'Shipping';
+  const service = humanizeCode(rawService) || 'Shipping';
+  const carrier = humanizeCode(rate.carrier || '');
+  if (!carrier) return service;
+  const serviceLower = service.toLowerCase();
+  const carrierLower = carrier.toLowerCase();
+  if (serviceLower.startsWith(carrierLower)) return service;
+  return `${service} · ${carrier}`;
+}
+
 export default function CartModal() {
   const { cart, totalQuantity, subtotal } = useCart();
   const [isOpen, setIsOpen] = useState(false);
@@ -680,16 +720,13 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
                   const id = `shipping-${idx}`;
                   const isSelected = ratesMatch(rate, selectedRate);
                   const key = rateIdentifier(rate) || `rate-${idx}`;
-                  const labelParts = [
-                    rate.service || rate.serviceName || rate.serviceCode || 'Shipping'
-                  ];
-                  if (rate.carrier) labelParts.push(rate.carrier);
+                  const labelText = buildShippingLabel(rate);
                   return (
                     <label
                       key={key}
-                      className="flex cursor-pointer items-center justify-between rounded-md border border-white/10 bg-black/30 px-3 py-2 text-sm hover:border-primary"
+                      className="flex flex-wrap gap-3 rounded-md border border-white/10 bg-black/30 px-3 py-2 text-sm hover:border-primary sm:flex-nowrap sm:items-center sm:justify-between"
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex flex-1 items-start gap-3 min-w-0">
                         <input
                           type="radio"
                           id={id}
@@ -697,8 +734,8 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
                           checked={isSelected}
                           onChange={() => setSelectedRate(rate)}
                         />
-                        <div>
-                          <p className="text-white">{labelParts.join(' • ')}</p>
+                        <div className="min-w-0">
+                          <p className="text-white break-words leading-snug">{labelText}</p>
                           {rate.deliveryDays ? (
                             <p className="text-xs text-neutral-400">
                               {rate.deliveryDays}-day estimate
@@ -706,7 +743,7 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
                           ) : null}
                         </div>
                       </div>
-                      <span className="text-white">${rate.amount.toFixed(2)}</span>
+                      <span className="text-white shrink-0">${rate.amount.toFixed(2)}</span>
                     </label>
                   );
                 })}
@@ -726,7 +763,7 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
             <p>
               Shipping
               <span className="ml-1 text-xs text-neutral-500">
-                ({selectedRate.service || selectedRate.serviceName || selectedRate.serviceCode})
+                ({buildShippingLabel(selectedRate)})
               </span>
             </p>
             <span className="text-white">${selectedRate.amount.toFixed(2)}</span>
