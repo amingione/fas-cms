@@ -26,7 +26,11 @@ import { EditItemQuantityButton } from './edit-item-quantity-button';
 
 const SHIPPING_STORAGE_KEY = 'fas_checkout_shipping_v1';
 
-type ShippingFormState = CheckoutShippingInput & {
+type ShippingFormState = Omit<CheckoutShippingInput, 'name' | 'phone' | 'addressLine2' | 'country'> & {
+  name: string;
+  phone: string;
+  addressLine2: string;
+  country: string;
   email: string;
 };
 
@@ -499,7 +503,7 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
               </span>
               <input
                 name="name"
-                value={form.name ?? ''}
+                value={form.name}
                 onChange={handleInputChange}
                 className="rounded-md border border-white/10 bg-white/10 px-3 py-2 text-white focus:border-primary focus:outline-none"
                 required
