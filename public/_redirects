@@ -1,0 +1,20 @@
+# Domain alias: preserve path/query when users hit the legacy .us host
+https://fasmotorsports.us/*        https://www.fasmotorsports.com/:splat  301!
+https://www.fasmotorsports.us/*    https://www.fasmotorsports.com/:splat  301!
+
+# Legacy WordPress / WooCommerce product URLs → new Astro product detail routes
+/product/:slug                     /shop/:slug  301!
+/product/:slug/                    /shop/:slug  301!
+/products/:slug                    /shop/:slug  301!
+/products/:slug/                   /shop/:slug  301!
+/product-category/:category/:slug          /shop/:slug  301!
+/product-category/:category/:slug/         /shop/:slug  301!
+/product-category/:category/:subcategory/:slug   /shop/:slug  301!
+/product-category/:category/:subcategory/:slug/  /shop/:slug  301!
+/shop/product/:slug                /shop/:slug  301!
+/shop/product/:slug/               /shop/:slug  301!
+
+# Catch-all for the old WooCommerce cart/account endpoints
+/my-account/*                      /account  301!
+/checkout/*                        /cart  301!
+/cart/*                            /cart  301!
