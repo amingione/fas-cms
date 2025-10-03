@@ -476,6 +476,11 @@ const productStructuredData = {
           data-product-base-price={(product as any).price}
           data-product-image={(product as any).images?.[0]?.asset?.url || (product as any).images?.[0]?.url || ''}
           data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
+          data-product-shipping-class={(product as any).shippingClass || ''}
+          data-product-install-only={String(
+            ((product as any).shippingClass || '').toString().toLowerCase().replace(/[^a-z]/g, '') ===
+              'installonly'
+          )}
         >
           <!-- bag icon -->
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
@@ -819,6 +824,11 @@ const productStructuredData = {
     data-product-base-price={(product as any).price}
     data-product-image={(product as any).images?.[0]?.asset?.url || (product as any).images?.[0]?.url || ''}
     data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
+    data-product-shipping-class={(product as any).shippingClass || ''}
+    data-product-install-only={String(
+      ((product as any).shippingClass || '').toString().toLowerCase().replace(/[^a-z]/g, '') ===
+        'installonly'
+    )}
   >
     Add to Cart
   </button>
@@ -924,6 +934,12 @@ const productStructuredData = {
       const basePrice = parseFloat(ds.productBasePrice || ds.productPrice || "0") || 0;
       const total = (typeof calc?.total === 'number') ? calc.total : (basePrice + extra);
 
+      const shippingClassRaw = (ds.productShippingClass || '').toString();
+      const normalizedShippingClass = shippingClassRaw.toLowerCase().replace(/[^a-z]/g, '');
+      const installOnlyFlag =
+        String(ds.productInstallOnly || '').toLowerCase() === 'true' ||
+        normalizedShippingClass === 'installonly';
+
       // Stable config signature for line dedup (same options -> same line)
       const signature = JSON.stringify(selections.slice().sort((a,b)=>{
         const ga=(a.group||'')+':' + (a.value||'');
@@ -945,6 +961,8 @@ const productStructuredData = {
         options: optionsMap,          // selected upgrades/options as map
         signature,                    // keep signature for debug
         quantity: 1,
+        installOnly: installOnlyFlag,
+        shippingClass: shippingClassRaw
       };
       const cart = getCart();
       const items = cart.items || [];
@@ -955,6 +973,8 @@ const productStructuredData = {
         existing.basePrice = product.basePrice;
         existing.extra = product.extra;
         existing.options = product.options;
+        existing.installOnly = installOnlyFlag;
+        existing.shippingClass = shippingClassRaw;
       } else {
         items.push(product);
       }

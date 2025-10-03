@@ -427,12 +427,35 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
   const [formError, setFormError] = useState<string | null>(null);
   const [freightRequired, setFreightRequired] = useState(false);
   const [missingItems, setMissingItems] = useState<string[]>([]);
-  const [installOnly, setInstallOnly] = useState(false);
+  const [quoteInstallOnly, setQuoteInstallOnly] = useState(false);
   const [installOnlyMessage, setInstallOnlyMessage] = useState<string | null>(null);
   const [rates, setRates] = useState<CheckoutShippingRate[]>([]);
   const [selectedRate, setSelectedRate] = useState<CheckoutShippingRate | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const cartInstallOnly = useMemo(
+    () =>
+      cart.items.length > 0 &&
+      cart.items.every((item) => {
+        if (item.installOnly === true) return true;
+        const cls = (item.shippingClass || '').toString().toLowerCase().replace(/[^a-z]/g, '');
+        return cls === 'installonly';
+      }),
+    [cart]
+  );
+  const installOnly = cartInstallOnly || quoteInstallOnly;
+
+  useEffect(() => {
+    if (installOnly) {
+      setInstallOnlyMessage((prev) =>
+        prev ||
+        'These items are install-only and do not require shipping. We will coordinate scheduling after checkout.'
+      );
+    } else {
+      setInstallOnlyMessage(null);
+    }
+  }, [installOnly]);
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = event.target;
@@ -444,13 +467,20 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
     setFormError(null);
     setFreightRequired(false);
     setMissingItems([]);
-    setInstallOnly(false);
+    setQuoteInstallOnly(false);
     setInstallOnlyMessage(null);
   };
 
   const cartPayload = cart.items.map((item) => ({ id: item.id, quantity: item.quantity ?? 1 }));
 
   const requestRates = async () => {
+    if (installOnly) {
+      setQuoteError(null);
+      setFormError(null);
+      setQuoteLoading(false);
+      return [];
+    }
+
     const validationError = validateShippingForm(form);
     if (validationError) {
       setFormError(validationError);
@@ -474,7 +504,7 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
         setQuoteError(message);
         setRates([]);
         setSelectedRate(null);
-        setInstallOnly(false);
+        setQuoteInstallOnly(false);
         setInstallOnlyMessage(null);
         return null;
       }
@@ -486,13 +516,13 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
         setQuoteError(
           'This order requires a freight quote. Please contact support to complete your purchase.'
         );
-        setInstallOnly(false);
+        setQuoteInstallOnly(false);
         setInstallOnlyMessage(null);
         return [];
       }
 
       if (data?.installOnly) {
-        setInstallOnly(true);
+        setQuoteInstallOnly(true);
         setInstallOnlyMessage(
           typeof data?.message === 'string'
             ? data.message
@@ -505,7 +535,7 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
         return [];
       }
 
-      setInstallOnly(false);
+      setQuoteInstallOnly(false);
       setInstallOnlyMessage(null);
 
       const received: CheckoutShippingRate[] = Array.isArray(data?.rates) ? data.rates : [];
@@ -531,6 +561,7 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
 
   const handleGetRates = async (event?: FormEvent) => {
     if (event) event.preventDefault();
+    if (installOnly) return;
     await requestRates();
   };
 
@@ -561,7 +592,7 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
     try {
       const payload = {
         shipping: normalizeShippingInput(form),
-        shippingRate: rateToUse || undefined
+        ...(installOnly ? {} : { shippingRate: rateToUse || undefined })
       };
       const result = await redirectToCheckout(payload);
       if (typeof result === 'string') {
@@ -709,13 +740,15 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
                 We use your address to pull live shipping rates and taxes from Stripe.
               </p>
             </div>
-            <button
-              type="submit"
-              className="rounded-full border border-white/30 px-3 py-1 text-xs uppercase tracking-wide text-white hover:border-primary"
-              disabled={quoteLoading}
-            >
-              {quoteLoading ? 'Fetching...' : 'Update rates'}
-            </button>
+            {!installOnly && (
+              <button
+                type="submit"
+                className="rounded-full border border-white/30 px-3 py-1 text-xs uppercase tracking-wide text-white hover:border-primary"
+                disabled={quoteLoading}
+              >
+                {quoteLoading ? 'Fetching...' : 'Update rates'}
+              </button>
+            )}
           </div>
 
           {formError && <p className="text-xs text-red-400">{formError}</p>}
@@ -790,25 +823,36 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
           <p>Items</p>
           <Price className="text-right text-white" amount={subtotal} />
         </div>
-        {selectedRate ? (
-          <div className="mb-3 flex items-center justify-between">
-            <p>
-              Shipping
-              <span className="ml-1 text-xs text-neutral-500">
-                ({buildShippingLabel(selectedRate)})
-              </span>
+        {!installOnly ? (
+          <>
+            {selectedRate ? (
+              <div className="mb-3 flex items-center justify-between">
+                <p>
+                  Shipping
+                  <span className="ml-1 text-xs text-neutral-500">
+                    ({buildShippingLabel(selectedRate)})
+                  </span>
+                </p>
+                <span className="text-white">${selectedRate.amount.toFixed(2)}</span>
+              </div>
+            ) : null}
+            <p className="text-xs text-neutral-500">
+              Stripe finalizes shipping and taxes using the address above when you complete checkout.
             </p>
-            <span className="text-white">${selectedRate.amount.toFixed(2)}</span>
+            {destinationSummary.city && destinationSummary.state && (
+              <p className="mt-2 text-xs text-neutral-500">
+                Destination: {destinationSummary.city}, {destinationSummary.state}{' '}
+                {destinationSummary.postalCode}
+              </p>
+            )}
+          </>
+        ) : (
+          <div className="text-xs text-neutral-500">
+            <p>Install-only service — shipping will not be charged.</p>
+            <p className="mt-1">
+              We still use your address to confirm local taxes before scheduling.
+            </p>
           </div>
-        ) : null}
-        <p className="text-xs text-neutral-500">
-          Stripe finalizes shipping and taxes using the address above when you complete checkout.
-        </p>
-        {destinationSummary.city && destinationSummary.state && (
-          <p className="mt-2 text-xs text-neutral-500">
-            Destination: {destinationSummary.city}, {destinationSummary.state}{' '}
-            {destinationSummary.postalCode}
-          </p>
         )}
 
         <button

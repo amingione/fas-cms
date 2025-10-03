@@ -309,7 +309,6 @@ export async function POST({ request }: { request: Request }) {
       // Enable Stripe Tax for automatic sales tax calculation
       automatic_tax: { enabled: true },
       shipping_address_collection: shippingAddressCollection,
-      customer_update: { address: 'auto', shipping: 'auto' },
       billing_address_collection: 'auto',
       phone_number_collection: { enabled: true },
       success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
@@ -319,6 +318,23 @@ export async function POST({ request }: { request: Request }) {
     // Guard rail: Stripe rejects automatic tax when payment_intent_data.shipping is present.
     if (sessionParams.payment_intent_data && 'shipping' in sessionParams.payment_intent_data) {
       delete (sessionParams.payment_intent_data as { shipping?: unknown }).shipping;
+    }
+
+    sessionParams.customer_creation = 'always';
+    if (normalizedDestination) {
+      sessionParams.customer_details = {
+        email: normalizedDestination.email || undefined,
+        name: normalizedDestination.name || undefined,
+        phone: normalizedDestination.phone || undefined,
+        address: {
+          line1: normalizedDestination.addressLine1,
+          line2: normalizedDestination.addressLine2 || undefined,
+          city: normalizedDestination.city,
+          state: normalizedDestination.state,
+          postal_code: normalizedDestination.postalCode,
+          country: (normalizedDestination.country || 'US').toUpperCase()
+        }
+      };
     }
 
     if (customerEmail) {

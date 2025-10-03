@@ -5,6 +5,8 @@ export type CartItem = {
   quantity: number;
   categories?: string[];
   image?: string;
+  installOnly?: boolean;
+  shippingClass?: string;
 };
 
 export const CART_KEY = 'fas_cart_v1';
@@ -48,7 +50,12 @@ export function addItem(item: CartItem): CartItem[] {
   const cart = getCart();
   const idx = cart.findIndex((c) => c.id === item.id);
   if (idx >= 0) {
-    cart[idx].quantity = (cart[idx].quantity || 0) + (item.quantity || 1);
+    const existing = cart[idx];
+    cart[idx] = {
+      ...existing,
+      ...item,
+      quantity: (existing.quantity || 0) + (item.quantity || 1)
+    };
   } else {
     cart.push({ ...item, quantity: item.quantity || 1 });
   }

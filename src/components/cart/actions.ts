@@ -10,6 +10,8 @@ export type CartItem = {
   quantity: number;
   image?: string;
   options?: Record<string, string>; // e.g., { color: 'Red', size: 'L' }
+  installOnly?: boolean;
+  shippingClass?: string;
 };
 
 export type Cart = { items: CartItem[] };
@@ -64,6 +66,10 @@ export async function addItem(
   const idx = cart.items.findIndex((it) => it.id === id);
   if (idx >= 0) {
     cart.items[idx].quantity = Math.max(1, (cart.items[idx].quantity || 0) + qty);
+    if (typeof payload === 'object') {
+      if (typeof payload.installOnly === 'boolean') cart.items[idx].installOnly = payload.installOnly;
+      if (typeof payload.shippingClass === 'string') cart.items[idx].shippingClass = payload.shippingClass;
+    }
   } else {
     cart.items.push({
       id,
@@ -71,7 +77,9 @@ export async function addItem(
       price: typeof payload === 'object' ? payload.price : undefined,
       image: typeof payload === 'object' ? payload.image : undefined,
       options: typeof payload === 'object' ? payload.options : undefined,
-      quantity: Math.max(1, qty)
+      quantity: Math.max(1, qty),
+      installOnly: typeof payload === 'object' ? payload.installOnly : undefined,
+      shippingClass: typeof payload === 'object' ? payload.shippingClass : undefined
     });
   }
   saveCart(cart);
