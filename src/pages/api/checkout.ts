@@ -320,22 +320,7 @@ export async function POST({ request }: { request: Request }) {
       delete (sessionParams.payment_intent_data as { shipping?: unknown }).shipping;
     }
 
-    sessionParams.customer_creation = 'always';
-    if (normalizedDestination) {
-      sessionParams.customer_details = {
-        email: normalizedDestination.email || undefined,
-        name: normalizedDestination.name || undefined,
-        phone: normalizedDestination.phone || undefined,
-        address: {
-          line1: normalizedDestination.addressLine1,
-          line2: normalizedDestination.addressLine2 || undefined,
-          city: normalizedDestination.city,
-          state: normalizedDestination.state,
-          postal_code: normalizedDestination.postalCode,
-          country: (normalizedDestination.country || 'US').toUpperCase()
-        }
-      };
-    }
+    sessionParams.customer_creation = 'if_required';
 
     if (customerEmail) {
       sessionParams.customer_email = customerEmail;
