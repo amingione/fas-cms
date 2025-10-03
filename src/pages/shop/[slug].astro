@@ -137,6 +137,7 @@ let options: any[] = [];
 let addOns: any[] = [];
 let customs: any[] = [];
 let variationOptions: any[] = [];
+let plainDescription: string = '';
 try {
   if (typeof slug !== 'string') {
     throw new Error('Product slug is missing or invalid.');
@@ -158,9 +159,6 @@ try {
   // Auto-related and upsell
   relatedProducts = await getRelatedProducts(slug, catIds, tagFilters, 6);
   upsellProducts = await getUpsellProducts(slug, catIds, basePrice, 6);
-
-  // Prepare a plain description string for client-side script (avoid TS in inline JS)
-  const descriptionText: string = (((product as any)?.shortDescription ?? (product as any)?.description) ?? '').toString();
 
   // ---- Options/Upgrades normalization (support multiple schema shapes) ----
   variationOptions = Array.isArray((product as any).variationOptions) ? (product as any).variationOptions : [];
@@ -232,7 +230,7 @@ try {
   }
   // SEO helpers
   var seoTitle: string = String((product as any)?.title || 'Product');
-  const plainDescription = collapseSpaces(
+  plainDescription = collapseSpaces(
     toPlainText((product as any)?.shortDescription ?? (product as any)?.description ?? '')
   );
   var seoDesc: string | undefined = plainDescription ? plainDescription.slice(0, 160) : undefined;
@@ -246,8 +244,8 @@ try {
 
 const productImages: string[] = Array.isArray((product as any)?.images)
   ? (product as any).images
-      .map((img: any) => ensureAbsoluteUrl(img?.asset?.url || img?.url))
-      .filter((img): img is string => typeof img === 'string' && Boolean(img))
+      .map((image: any) => ensureAbsoluteUrl(image?.asset?.url || image?.url))
+      .filter((image: unknown): image is string => typeof image === 'string' && Boolean(image))
   : [];
 
 if (!seoOg && productImages.length > 0) {
