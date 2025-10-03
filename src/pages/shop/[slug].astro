@@ -88,6 +88,47 @@ const normalizeFilterLabel = (value: FilterEntry, fallbackSlug: string): string 
 
 const { slug } = Astro.params;
 
+const toPlainText = (input: any): string => {
+  if (!input) return '';
+  if (typeof input === 'string') return input;
+  if (Array.isArray(input)) {
+    return input
+      .map((block) => {
+        if (typeof block === 'string') return block;
+        if (block && typeof block === 'object') {
+          if (Array.isArray((block as any).children)) {
+            return (block as any).children
+              .map((child: any) => (typeof child?.text === 'string' ? child.text : ''))
+              .join('');
+          }
+          if (typeof (block as any).text === 'string') return (block as any).text;
+        }
+        return '';
+      })
+      .join(' ');
+  }
+  if (typeof input === 'object') {
+    const values = ['text', 'content', 'description']
+      .map((key) => (input as any)?.[key])
+      .filter(Boolean);
+    if (values.length) return toPlainText(values);
+  }
+  return '';
+};
+
+const collapseSpaces = (value: string): string => value.replace(/\s+/g, ' ').trim();
+
+const requestUrl = new URL(Astro.request.url);
+const ensureAbsoluteUrl = (value?: string | null): string | undefined => {
+  if (!value) return undefined;
+  if (/^https?:/i.test(value)) return value;
+  try {
+    return new URL(value, requestUrl.origin).toString();
+  } catch {
+    return undefined;
+  }
+};
+
 // Fetch product data based on the slug
 let product: ProductWithKit | null = null;
 let relatedProducts: Product[] = [];
@@ -191,25 +232,102 @@ try {
   }
   // SEO helpers
   var seoTitle: string = String((product as any)?.title || 'Product');
-  var seoDesc: string | undefined = undefined;
-  try {
-    const raw = String((((product as any)?.shortDescription ?? (product as any)?.description) ?? '') || '');
-    seoDesc = raw ? raw.slice(0, 160) : undefined;
-  } catch {}
-  var seoCanon: string | undefined = undefined;
-  var seoOg: string | undefined = undefined;
-  try {
-    const site = new URL(Astro.request.url).origin;
-    seoCanon = `${site}/shop/${slug}`;
-    seoOg = (product as any)?.images?.[0]?.asset?.url || (product as any)?.images?.[0]?.url || undefined;
-  } catch {}
+  const plainDescription = collapseSpaces(
+    toPlainText((product as any)?.shortDescription ?? (product as any)?.description ?? '')
+  );
+  var seoDesc: string | undefined = plainDescription ? plainDescription.slice(0, 160) : undefined;
+  var seoCanon: string | undefined = `${requestUrl.origin}/shop/${slug}`;
+  var seoOg: string | undefined = (product as any)?.images?.[0]?.asset?.url || (product as any)?.images?.[0]?.url || undefined;
+  seoOg = ensureAbsoluteUrl(seoOg);
 } catch (err) {
   console.error('❌ Failed to fetch product or similar products:', err);
   return Astro.redirect('/shop'); // Redirect to shop if product not found
 }
+
+const productImages: string[] = Array.isArray((product as any)?.images)
+  ? (product as any).images
+      .map((img: any) => ensureAbsoluteUrl(img?.asset?.url || img?.url))
+      .filter((img): img is string => typeof img === 'string' && Boolean(img))
+  : [];
+
+if (!seoOg && productImages.length > 0) {
+  seoOg = productImages[0];
+}
+
+const metaKeywordTokens: string[] = [];
+if (Array.isArray((product as any)?.categories)) {
+  (product as any).categories.forEach((category: any) => {
+    if (category?.title) metaKeywordTokens.push(String(category.title));
+    if (category?.slug?.current) metaKeywordTokens.push(String(category.slug.current).replace(/[-_]/g, ' '));
+  });
+}
+const filterEntriesForKeywords: FilterEntry[] = Array.isArray((product as any)?.filters)
+  ? (product as any).filters
+  : [];
+filterEntriesForKeywords.forEach((entry, idx) => {
+  const slugValue = normalizeFilterSlug(entry);
+  const labelValue = normalizeFilterLabel(entry, slugValue);
+  if (labelValue) metaKeywordTokens.push(labelValue);
+});
+
+const metaKeywords = Array.from(
+  new Set(
+    metaKeywordTokens
+      .map((token) => collapseSpaces(String(token)))
+      .filter((token) => token.length > 0)
+  )
+).join(', ');
+
+const priceValue = typeof (product as any)?.price === 'number' ? (product as any).price : undefined;
+
+const breadcrumbStructuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: requestUrl.origin },
+    { '@type': 'ListItem', position: 2, name: 'Shop', item: `${requestUrl.origin}/shop` },
+    { '@type': 'ListItem', position: 3, name: seoTitle, item: seoCanon }
+  ]
+};
+
+const productStructuredData = {
+  '@context': 'https://schema.org/',
+  '@type': 'Product',
+  name: (product as any)?.title,
+  image: productImages,
+  description: plainDescription || undefined,
+  sku: (product as any)?.sku || undefined,
+  brand: { '@type': 'Brand', name: 'F.A.S. Motorsports' },
+  category: metaKeywords || undefined,
+  url: seoCanon,
+  offers: {
+    '@type': 'Offer',
+    priceCurrency: 'USD',
+    price: priceValue,
+    availability: 'https://schema.org/InStock',
+    url: seoCanon
+  }
+};
 ---
 
 <BaseLayout hideBrandTag title={seoTitle} description={seoDesc} canonical={seoCanon} ogImage={seoOg}>
+  <Fragment slot="head">
+    <meta property="og:type" content="product" />
+    {typeof priceValue === 'number' && (
+      <>
+        <meta property="product:price:amount" content={priceValue.toFixed(2)} />
+        <meta property="product:price:currency" content="USD" />
+      </>
+    )}
+    <meta property="product:availability" content="https://schema.org/InStock" />
+    {metaKeywords && <meta name="keywords" content={metaKeywords} />}
+    <script type="application/ld+json">
+      {JSON.stringify(breadcrumbStructuredData)}
+    </script>
+    <script type="application/ld+json">
+      {JSON.stringify(productStructuredData)}
+    </script>
+  </Fragment>
   <div {...inlineObjectId((product as any)._id)}>
   <div class="container mx-auto px-4 py-10 text-white" style="padding-top: 80px;">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -739,25 +857,6 @@ try {
       window.addEventListener('menu:close', show);
     } catch {}
   })();
-</script>
-
-<!-- Product JSON-LD -->
-<script type="application/ld+json">
-  {JSON.stringify({
-    '@context': 'https://schema.org/',
-    '@type': 'Product',
-    name: (product as any).title,
-    image: ((product as any).images || []).map((img:any)=> img?.asset?.url).filter(Boolean),
-    description: (product as any).shortDescription || (product as any).description || '',
-    brand: { '@type': 'Brand', name: 'FAS Motorsports' },
-    offers: {
-      '@type': 'Offer',
-      priceCurrency: 'USD',
-      price: typeof (product as any).price === 'number' ? (product as any).price : undefined,
-      availability: 'https://schema.org/InStock',
-      url: Astro.request.url
-    }
-  })}
 </script>
   <style>
     /* Ensure transparent overlays don’t block clicks on this product page */

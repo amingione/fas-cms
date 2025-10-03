@@ -4,37 +4,85 @@ import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 const pageDoc: any = await loadPageDoc('PredatorPulleySpecsSheet');
 import ProductSpecSheet from '@components/specs/ProductSpecSheet.astro';
----
 
-<BaseLayout>
+const pageTitle: string = pageDoc?.title ?? 'Predator Pulley — Spec Sheet';
+const pageDescription =
+  'Key specifications for the F.A.S. Motorsports Predator slip-on lower pulley, including materials, rib options, and installation details.';
+
+const specSheet = {
+  title: 'Predator Slip-On Lower Pulley — No Tune Required',
+  description:
+    'Slip-on lower pulley designed for quick install and repeatable traction. Delivers additional boost without requiring a calibration change on compatible setups.',
+  imageSrc: '/images/billetParts/fas-pred-pully.png',
+  imageAlt: 'FAS Motorsports Predator Pulley',
+  specs: [
+    { label: 'Material', value: 'Aluminum billet, heat-treated' },
+    { label: 'Manufacturing', value: 'Multi-axis CNC for concentricity and finish' },
+    { label: 'Finish', value: 'Hard anodized, traction-tuned belt surface' },
+    { label: 'Rib Options', value: '8-rib and 10-rib configurations' },
+    { label: 'Diameter Options', value: 'Multiple sizes (application-dependent)' },
+    { label: 'Install', value: 'Slip-on lower; no supercharger removal' }
+  ],
+  about: [
+    'Purpose-built for belt traction and longevity. Optimized surface and geometry help retain grip and reduce slip on compatible street setups.',
+    'Direct, slip-on installation avoids disturbing the supercharger assembly, supporting quick upgrades.'
+  ],
+  ctaHref: '/shop/fas-predator-lower-pulley',
+  ctaLabel: 'View Predator Pulley'
+};
+
+const requestUrl = new URL(Astro.request.url);
+const canonical = `${requestUrl.origin}${requestUrl.pathname}`;
+const ensureAbsolute = (path?: string | null) => {
+  if (!path) return undefined;
+  if (/^https?:/i.test(path)) return path;
+  try {
+    return new URL(path, requestUrl.origin).toString();
+  } catch {
+    return undefined;
+  }
+};
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: specSheet.title,
+  description: specSheet.description,
+  url: canonical,
+  image: ensureAbsolute(specSheet.imageSrc),
+  brand: { '@type': 'Brand', name: 'F.A.S. Motorsports' },
+  category: 'Supercharger Components',
+  additionalProperty: specSheet.specs.map((spec) => ({
+    '@type': 'PropertyValue',
+    name: spec.label,
+    value: spec.value
+  }))
+};
+---
+<BaseLayout title={pageTitle} description={pageDescription} canonical={canonical} ogImage={ensureAbsolute(specSheet.imageSrc)}>
+  <Fragment slot="head">
+    <meta property="og:type" content="product" />
+    <script type="application/ld+json">
+      {JSON.stringify(structuredData)}
+    </script>
+  </Fragment>
   <div {...inlineObjectId('content/pages/specs/PredatorPulley.json')}>
     <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>
-      {pageDoc?.title ?? 'Predator Pulley — Spec Sheet'}
+      {pageTitle}
     </div>
     {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
       <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
     )}
-  <section class="mt-5 pt-5"></section>
-    <!-- Variant A: Slip-On Lower Pulley (No Tune Required) -->
+    <section class="mt-5 pt-5"></section>
     <ProductSpecSheet
-      title="Predator Slip-On Lower Pulley — No Tune Required"
-      description="Slip-on lower pulley designed for quick install and repeatable traction. Delivers additional boost without requiring a calibration change on compatible setups."
-      imageSrc="/images/billetParts/fas-pred-pully.png"
-      imageAlt="FAS Motorsports Predator Pulley"
-      specs={[
-        { label: 'Material', value: 'Aluminum billet, heat‑treated' },
-        { label: 'Manufacturing', value: 'Multi‑axis CNC for concentricity and finish' },
-        { label: 'Finish', value: 'Hard anodized, traction‑tuned belt surface' },
-        { label: 'Rib Options', value: '8‑rib and 10‑rib configurations' },
-        { label: 'Diameter Options', value: 'Multiple sizes (application‑dependent)' },
-        { label: 'Install', value: 'Slip‑on lower; no supercharger removal' }
-      ]}
-      about={[
-        'Purpose‑built for belt traction and longevity. Optimized surface and geometry help retain grip and reduce slip on compatible street setups.',
-        'Direct, slip‑on installation avoids disturbing the supercharger assembly, supporting quick upgrades.'
-      ]}
-      ctaHref="/shop/fas-predator-lower-pulley"
-      ctaLabel="View Predator Pulley"
+      title={specSheet.title}
+      description={specSheet.description}
+      imageSrc={specSheet.imageSrc}
+      imageAlt={specSheet.imageAlt}
+      specs={specSheet.specs}
+      about={specSheet.about}
+      ctaHref={specSheet.ctaHref}
+      ctaLabel={specSheet.ctaLabel}
     />
   </div>
 </BaseLayout>

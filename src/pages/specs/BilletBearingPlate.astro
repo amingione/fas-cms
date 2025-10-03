@@ -4,37 +4,86 @@ import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 const pageDoc: any = await loadPageDoc('BilletBearingPlateSpecs');
 import ProductSpecSheet from '@components/specs/ProductSpecSheet.astro';
----
 
-<BaseLayout>
+const pageTitle: string = pageDoc?.title ?? 'Billet Bearing Plate — Spec Sheet';
+const pageDescription =
+  'Review the billet bearing plate specifications engineered by F.A.S. Motorsports for high-power Gen III HEMI durability and precision.';
+
+const specSheet = {
+  title: pageTitle,
+  description:
+    'Engineered, fabricated, and validated by FAS Motorsports to deliver superior strength, precision, and reliability under extreme conditions.',
+  imageSrc: '/images/billetParts/billet-bearing-plate.png',
+  imageAlt: 'FAS Motorsports Billet Bearing Plate',
+  specs: [
+    { label: 'Material', value: 'Billet aluminum, heat-treated' },
+    { label: 'Manufacturing', value: '5-axis CNC, precision fit' },
+    { label: 'Mass Class', value: 'Lightweight billet construction' },
+    { label: 'Compatibility', value: 'Gen III HEMI platforms (various applications)' },
+    { label: 'Validation', value: 'Thermal and load validated for high-power use' },
+    { label: 'Finish', value: 'Anodized for durability' }
+  ],
+  about: [
+    'CNC-machined from aerospace-grade billet for rigidity and fatigue resistance, the plate resists flexing under high load to help extend bearing and crank life.',
+    'Optimized webbing and oil-gallery design improve thermal stability and lubrication consistency during track and street abuse.',
+    'Each unit is blueprinted to OE specs for precise fitment with no additional machining, delivering a dependable foundation for high power builds.'
+  ],
+  ctaHref: '/shop/2-4l-hellcat-billet-bearing-plate',
+  ctaLabel: 'Shop Billet Bearing Plate'
+};
+
+const requestUrl = new URL(Astro.request.url);
+const canonical = `${requestUrl.origin}${requestUrl.pathname}`;
+const ensureAbsolute = (path?: string | null) => {
+  if (!path) return undefined;
+  if (/^https?:/i.test(path)) return path;
+  try {
+    return new URL(path, requestUrl.origin).toString();
+  } catch {
+    return undefined;
+  }
+};
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: specSheet.title,
+  description: specSheet.description,
+  url: canonical,
+  image: ensureAbsolute(specSheet.imageSrc),
+  brand: { '@type': 'Brand', name: 'F.A.S. Motorsports' },
+  category: 'Engine Components',
+  additionalProperty: specSheet.specs.map((spec) => ({
+    '@type': 'PropertyValue',
+    name: spec.label,
+    value: spec.value
+  }))
+};
+---
+<BaseLayout title={pageTitle} description={pageDescription} canonical={canonical} ogImage={ensureAbsolute(specSheet.imageSrc)}>
+  <Fragment slot="head">
+    <meta property="og:type" content="product" />
+    <script type="application/ld+json">
+      {JSON.stringify(structuredData)}
+    </script>
+  </Fragment>
   <div {...inlineObjectId('content/pages/BilletBearingPlateSpecs.json')}>
     <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>
-      {pageDoc?.title ?? 'Billet Bearing Plate — Spec Sheet'}
+      {pageTitle}
     </div>
     {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
       <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
     )}
     <section class="mt-5 pt-5"></section>
     <ProductSpecSheet
-      title={pageDoc?.title ?? 'Billet Bearing Plate — Spec Sheet'}
-      description="Engineered, fabricated, and validated by FAS Motorsports to deliver superior strength, precision, and reliability under extreme conditions."
-      imageSrc="/images/billetParts/billet-bearing-plate.png"
-      imageAlt="FAS Motorsports Billet Bearing Plate"
-      specs={[
-        { label: 'Material', value: 'Billet aluminum, heat‑treated' },
-        { label: 'Manufacturing', value: '5‑axis CNC, precision fit' },
-        { label: 'Mass Class', value: 'Lightweight billet construction' },
-        { label: 'Compatibility', value: 'Gen III HEMI platforms (various applications)' },
-        { label: 'Validation', value: 'Thermal and load validated for high‑power use' },
-        { label: 'Finish', value: 'Anodized for durability' }
-      ]}
-      about={[
-        'CNC‑machined from aerospace‑grade billet for rigidity and fatigue resistance, the plate resists flexing under high load to help extend bearing and crank life.',
-        'Optimized webbing and oil‑gallery design improve thermal stability and lubrication consistency during track and street abuse.',
-        'Each unit is blueprinted to OE specs for precise fitment with no additional machining, delivering a dependable foundation for high power builds.'
-      ]}
-      ctaHref="/shop/2-4l-hellcat-billet-bearing-plate"
-      ctaLabel="Shop Billet Bearing Plate"
+      title={specSheet.title}
+      description={specSheet.description}
+      imageSrc={specSheet.imageSrc}
+      imageAlt={specSheet.imageAlt}
+      specs={specSheet.specs}
+      about={specSheet.about}
+      ctaHref={specSheet.ctaHref}
+      ctaLabel={specSheet.ctaLabel}
     />
   </div>
 </BaseLayout>

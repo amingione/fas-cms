@@ -4,39 +4,92 @@ import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 const pageDoc: any = await loadPageDoc('HellcatPulleyHubSpecSheet');
 import ProductSpecSheet from '@components/specs/ProductSpecSheet.astro';
----
 
-<BaseLayout>
+const pageTitle: string = pageDoc?.title ?? 'Pulley & Hub Kit — Spec Sheet';
+const pageDescription =
+  'Reference the billet pulley and hub system specifications for Hellcat, Redeye, Demon, TRX, and Trackhawk platforms including materials, sizes, and benefits.';
+
+const specSheet = {
+  title: pageTitle,
+  description:
+    'Engineered for Hellcat/Redeye/Demon/TRX platforms, this billet pulley & hub system delivers superior boost stability, strength, and fast ratio changes compared to press-fit OE assemblies.',
+  imageSrc: '/images/billetParts/FAS-Pulley-Hub-Kit.png',
+  imageAlt: 'FAS Motorsports Pulley & Hub Kit',
+  specs: [
+    { label: 'Hub Material', value: 'Chromoly steel, CNC-machined, plated' },
+    { label: 'Pulley Material', value: 'Billet aluminum, hard anodized' },
+    { label: 'Diameter Options', value: 'Multiple sizes available (application-dependent)' },
+    { label: 'Rib Options', value: '8-rib and 10-rib configurations' },
+    { label: 'Runout Control', value: 'Precision concentricity and tracking' },
+    { label: 'Balancing', value: 'High-RPM balanced for stable operation' },
+    { label: 'Compatibility', value: 'Hellcat/Redeye/Demon/TRX/Trackhawk/Durango SRT' },
+    { label: 'Weight Class', value: 'Optimized for strength-to-mass performance' }
+  ],
+  about: [
+    'The modular hub allows pulley swaps without pressing off the factory snout—change ratios in minutes while protecting bearings and shafts.',
+    'An interference-fit keyed interface locks alignment and eliminates pulley walk for repeatable boost and extended belt life.',
+    'Hard-anodized pulleys and a nickel-plated hub resist heat and corrosion in demanding engine bays, supporting reliable performance from street to track.'
+  ],
+  ctaHref: '/shop/hellcat-pulley-hub-kit',
+  ctaLabel: 'View Pulley & Hub Kit'
+};
+
+const requestUrl = new URL(Astro.request.url);
+const canonical = `${requestUrl.origin}${requestUrl.pathname}`;
+const ensureAbsolute = (path?: string | null) => {
+  if (!path) return undefined;
+  if (/^https?:/i.test(path)) return path;
+  try {
+    return new URL(path, requestUrl.origin).toString();
+  } catch {
+    return undefined;
+  }
+};
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: specSheet.title,
+  description: specSheet.description,
+  url: canonical,
+  image: ensureAbsolute(specSheet.imageSrc),
+  brand: { '@type': 'Brand', name: 'F.A.S. Motorsports' },
+  category: 'Supercharger Components',
+  audience: {
+    '@type': 'PeopleAudience',
+    audienceType: 'Hellcat/Redeye/Demon/TRX owners'
+  },
+  additionalProperty: specSheet.specs.map((spec) => ({
+    '@type': 'PropertyValue',
+    name: spec.label,
+    value: spec.value
+  }))
+};
+---
+<BaseLayout title={pageTitle} description={pageDescription} canonical={canonical} ogImage={ensureAbsolute(specSheet.imageSrc)}>
+  <Fragment slot="head">
+    <meta property="og:type" content="product" />
+    <script type="application/ld+json">
+      {JSON.stringify(structuredData)}
+    </script>
+  </Fragment>
   <div {...inlineObjectId('content/pages/HellcatPulleyHubSpecSheet.json')}>
     <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>
-      {pageDoc?.title ?? 'Pulley & Hub Kit — Spec Sheet'}
+      {pageTitle}
     </div>
     {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
       <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
     )}
-  <section class="mt-6 pt-6"></section>
+    <section class="mt-6 pt-6"></section>
     <ProductSpecSheet
-      title={pageDoc?.title ?? 'Pulley & Hub Kit — Spec Sheet'}
-      description="Engineered for Hellcat/Redeye/Demon/TRX platforms, this billet pulley & hub system delivers superior boost stability, strength, and fast ratio changes compared to press‑fit OE assemblies."
-      imageSrc="/images/billetParts/FAS-Pulley-Hub-Kit.png"
-      imageAlt="FAS Motorsports Pulley & Hub Kit"
-      specs={[
-        { label: 'Hub Material', value: 'Chromoly steel, CNC‑machined, plated' },
-        { label: 'Pulley Material', value: 'Billet aluminum, hard anodized' },
-        { label: 'Diameter Options', value: 'Multiple sizes available (application‑dependent)' },
-        { label: 'Rib Options', value: '8‑rib and 10‑rib configurations' },
-        { label: 'Runout Control', value: 'Precision concentricity and tracking' },
-        { label: 'Balancing', value: 'High‑RPM balanced for stable operation' },
-        { label: 'Compatibility', value: 'Hellcat/Redeye/Demon/TRX/Trackhawk/Durango SRT' },
-        { label: 'Weight Class', value: 'Optimized for strength‑to‑mass performance' }
-      ]}
-      about={[
-        'The modular hub allows pulley swaps without pressing off the factory snout—change ratios in minutes while protecting bearings and shafts.',
-        'An interference‑fit keyed interface locks alignment and eliminates pulley walk for repeatable boost and extended belt life.',
-        'Hard‑anodized pulleys and a nickel‑plated hub resist heat and corrosion in demanding engine bays, supporting reliable performance from street to track.'
-      ]}
-      ctaHref="/shop/hellcat-pulley-hub-kit"
-      ctaLabel="View Pulley & Hub Kit"
+      title={specSheet.title}
+      description={specSheet.description}
+      imageSrc={specSheet.imageSrc}
+      imageAlt={specSheet.imageAlt}
+      specs={specSheet.specs}
+      about={specSheet.about}
+      ctaHref={specSheet.ctaHref}
+      ctaLabel={specSheet.ctaLabel}
     />
   </div>
 
