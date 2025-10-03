@@ -117,6 +117,7 @@ export async function POST({ request }: { request: Request }) {
         tax_behavior: 'exclusive',
         product_data: {
           name: item.name || 'Item',
+          tax_code: 'txcd_99999999',
           // Help fulfillment map back to Sanity/Inventory
           metadata: {
             ...(item.sku ? { sku: String(item.sku) } : {}),
@@ -179,11 +180,14 @@ export async function POST({ request }: { request: Request }) {
   let shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] | undefined;
   let selectedRate: CalculatedRate | undefined;
   let shippingMetadata: Record<string, string> = {};
+  let installOnlyQuote = false;
 
   if (normalizedDestination) {
     try {
       const quote = await computeShippingQuote(cartForQuote, normalizedDestination);
-      if (quote.freight) {
+      if (quote.installOnly) {
+        installOnlyQuote = true;
+      } else if (quote.freight) {
         return new Response(
           JSON.stringify({
             error:
@@ -196,7 +200,7 @@ export async function POST({ request }: { request: Request }) {
         );
       }
 
-      if (quote.success && quote.rates.length) {
+      if (!installOnlyQuote && quote.success && quote.rates.length) {
         const requestedMatch: CalculatedRate | undefined = quote.rates.find((rate) => {
           if (!requestedRate) return false;
           const serviceCode = String(requestedRate.serviceCode || '') || undefined;
@@ -266,6 +270,8 @@ export async function POST({ request }: { request: Request }) {
             shipping_amount: selectedRate.amount.toFixed(2)
           };
         }
+      } else if (installOnlyQuote) {
+        shippingOptions = [];
       }
     } catch (err) {
       console.error('❌ Shipping quote failed, falling back to flat rates:', err);
@@ -303,6 +309,8 @@ export async function POST({ request }: { request: Request }) {
       // Enable Stripe Tax for automatic sales tax calculation
       automatic_tax: { enabled: true },
       shipping_address_collection: shippingAddressCollection,
+      customer_update: { address: 'auto', shipping: 'auto' },
+      billing_address_collection: 'auto',
       phone_number_collection: { enabled: true },
       success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/checkout/cancel`
@@ -317,7 +325,9 @@ export async function POST({ request }: { request: Request }) {
       sessionParams.customer_email = customerEmail;
     }
 
-    if (shippingOptions && shippingOptions.length) {
+    if (installOnlyQuote) {
+      sessionParams.shipping_options = undefined;
+    } else if (shippingOptions && shippingOptions.length) {
       sessionParams.shipping_options = shippingOptions;
     } else {
       sessionParams.shipping_options = [

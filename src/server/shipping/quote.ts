@@ -51,6 +51,7 @@ export type ShippingQuoteResult = {
   packages: PackageSpec[];
   missing: string[];
   message?: string;
+  installOnly?: boolean;
 };
 
 type PackageSpec = {
@@ -276,6 +277,8 @@ export async function computeShippingQuote(
   let totalWeight = 0;
   let maxDimension = 0;
   let freight = false;
+  let installOnly = false;
+  let shippableQuantity = 0;
 
   const findProductData = (cartId: string) => {
     for (const product of products) {
@@ -299,14 +302,21 @@ export async function computeShippingQuote(
     const title = variant?.title || product?.title;
     const dims = parseDims(data?.boxDimensions) || DEFAULT_DIMS;
     const weight = Math.max(0.1, toNumber(data?.shippingWeight, DEFAULT_WEIGHT));
-    const shipsAlone = Boolean(data?.shipsAlone || product?.shipsAlone);
-    const shippingClass = (data?.shippingClass || product?.shippingClass || '').toLowerCase();
-
     if (!product) {
       missing.push(String(item.id));
     }
 
-    if (shippingClass === 'freight') freight = true;
+    const shipsAlone = Boolean(data?.shipsAlone || product?.shipsAlone);
+    const shippingClassRaw = (data?.shippingClass || product?.shippingClass || '').toLowerCase();
+    const normalizedClass = shippingClassRaw.replace(/[\s_-]+/g, '');
+
+    if (normalizedClass === 'freight') freight = true;
+    if (normalizedClass === 'installonly') {
+      installOnly = true;
+      continue;
+    }
+
+    shippableQuantity += quantity;
 
     maxDimension = Math.max(maxDimension, dims.length, dims.width, dims.height);
     totalWeight += weight * quantity;
@@ -326,6 +336,18 @@ export async function computeShippingQuote(
   }
 
   if (totalWeight >= 150 || maxDimension >= 60) freight = true;
+
+  if (!packages.length && installOnly && shippableQuantity === 0) {
+    return {
+      success: true,
+      freight: false,
+      installOnly: true,
+      rates: [],
+      packages: [],
+      missing,
+      message: 'Selected products are install-only and do not require shipping.'
+    };
+  }
 
   if (freight) {
     return {

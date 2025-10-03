@@ -113,16 +113,22 @@ export const handler: Handler = async (event) => {
     let totalWeight = 0;
     let maxDim = 0;
     let freight = false;
+    let installOnly = false;
     const missing: string[] = [];
 
     for (const item of cart) {
       const qty = num(item.quantity, 1);
       const p = bySku.get(String(item.sku));
+      const shippingClassRaw = String(p?.shippingClass || '').toLowerCase();
+      const normalizedClass = shippingClassRaw.replace(/[\s_-]+/g, '');
       const dims = parseDims(p?.boxDimensions) || defaultDims;
       const weight = num(p?.shippingWeight, defaultWeight);
 
-      // Freight classification
-      if ((p?.shippingClass || '').toLowerCase() === 'freight') freight = true;
+      if (normalizedClass === 'freight') freight = true;
+      if (normalizedClass === 'installonly') {
+        installOnly = true;
+        continue;
+      }
 
       // per-item max dimension
       maxDim = Math.max(maxDim, dims.length, dims.width, dims.height);
@@ -157,8 +163,32 @@ export const handler: Handler = async (event) => {
     // Freight thresholds (heuristic)
     if (totalWeight >= 150 || maxDim >= 60) freight = true;
 
+    if (!packages.length && installOnly) {
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          success: true,
+          installOnly: true,
+          message: 'Selected products are install-only and do not require shipping.',
+          packages,
+          missing
+        })
+      };
+    }
+
     if (freight) {
-      return { statusCode: 200, headers, body: JSON.stringify({ success: true, freight: true, message: 'Freight required due to weight/dimensions or product class.', packages }) };
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          success: true,
+          freight: true,
+          installOnly,
+          message: 'Freight required due to weight/dimensions or product class.',
+          packages
+        })
+      };
     }
 
     const payload = {
@@ -168,7 +198,12 @@ export const handler: Handler = async (event) => {
 
     const data: any = await se('/rates/estimate', { method: 'POST', body: JSON.stringify(payload) });
     const rates = Array.isArray(data) ? data : data?.rate_response?.rates || [];
-    if (!Array.isArray(rates) || !rates.length) return { statusCode: 200, headers, body: JSON.stringify({ success: true, rates: [], packages }) };
+    if (!Array.isArray(rates) || !rates.length)
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ success: true, rates: [], packages, installOnly, missing })
+      };
 
     // Normalize and pick cheapest
     const norm = rates.map((r: any) => ({
@@ -184,7 +219,11 @@ export const handler: Handler = async (event) => {
     norm.sort((a: any, b: any) => a.amount - b.amount);
     const bestRate = norm[0];
 
-    return { statusCode: 200, headers, body: JSON.stringify({ success: true, freight: false, bestRate, rates: norm, packages, missing }) };
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({ success: true, freight: false, bestRate, rates: norm, packages, missing, installOnly })
+    };
   } catch (e: any) {
     const headers = { 'content-type': 'application/json', ...corsHeaders('*') };
     return { statusCode: 500, headers, body: JSON.stringify({ error: e?.message || 'Error' }) };

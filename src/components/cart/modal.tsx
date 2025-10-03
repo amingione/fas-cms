@@ -427,6 +427,8 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
   const [formError, setFormError] = useState<string | null>(null);
   const [freightRequired, setFreightRequired] = useState(false);
   const [missingItems, setMissingItems] = useState<string[]>([]);
+  const [installOnly, setInstallOnly] = useState(false);
+  const [installOnlyMessage, setInstallOnlyMessage] = useState<string | null>(null);
   const [rates, setRates] = useState<CheckoutShippingRate[]>([]);
   const [selectedRate, setSelectedRate] = useState<CheckoutShippingRate | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -442,6 +444,8 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
     setFormError(null);
     setFreightRequired(false);
     setMissingItems([]);
+    setInstallOnly(false);
+    setInstallOnlyMessage(null);
   };
 
   const cartPayload = cart.items.map((item) => ({ id: item.id, quantity: item.quantity ?? 1 }));
@@ -470,6 +474,8 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
         setQuoteError(message);
         setRates([]);
         setSelectedRate(null);
+        setInstallOnly(false);
+        setInstallOnlyMessage(null);
         return null;
       }
 
@@ -480,8 +486,27 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
         setQuoteError(
           'This order requires a freight quote. Please contact support to complete your purchase.'
         );
+        setInstallOnly(false);
+        setInstallOnlyMessage(null);
         return [];
       }
+
+      if (data?.installOnly) {
+        setInstallOnly(true);
+        setInstallOnlyMessage(
+          typeof data?.message === 'string'
+            ? data.message
+            : 'These items are install-only and do not require shipping. We will coordinate scheduling after checkout.'
+        );
+        setRates([]);
+        setSelectedRate(null);
+        setMissingItems(Array.isArray(data?.missing) ? data.missing : []);
+        setQuoteError(null);
+        return [];
+      }
+
+      setInstallOnly(false);
+      setInstallOnlyMessage(null);
 
       const received: CheckoutShippingRate[] = Array.isArray(data?.rates) ? data.rates : [];
       setRates(received);
@@ -520,7 +545,7 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
     setFormError(null);
 
     let rateToUse = selectedRate;
-    if (!rateToUse && !freightRequired && !quoteError) {
+    if (!rateToUse && !freightRequired && !quoteError && !installOnly) {
       const fetched = await requestRates();
       if (fetched && fetched.length) {
         rateToUse = fetched[0];
@@ -709,6 +734,13 @@ function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepPro
             <div className="rounded-md border border-amber-500/50 bg-amber-500/10 p-3 text-xs text-amber-200">
               This order exceeds parcel limits. Contact sales@fasmotorsports.com to arrange freight
               shipping.
+            </div>
+          )}
+
+          {installOnly && (
+            <div className="rounded-md border border-white/20 bg-white/10 p-3 text-xs text-white">
+              {installOnlyMessage ||
+                'These items are install-only and do not require shipping. We will coordinate scheduling after checkout.'}
             </div>
           )}
 
