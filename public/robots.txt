@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
-Sitemap: https://fasmotorsports.com/sitemap.xml
+Sitemap: https://www.fasmotorsports.com/sitemap_index.xml
+Sitemap: https://www.fasmotorsports.com/sitemap.xml
 
