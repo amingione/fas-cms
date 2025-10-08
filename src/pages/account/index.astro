@@ -9,9 +9,19 @@ const readCookie = (name: string) => {
   return m?.[1] || null;
 };
 const isLoggedIn = Boolean(readCookie('fas_session'));
+
+const requestUrl = new URL(Astro.request.url);
+requestUrl.search = '';
+requestUrl.hash = '';
+const canonical = requestUrl.toString();
+
+const pageTitle = isLoggedIn ? 'Account Dashboard' : 'Account Access';
+const pageDescription = isLoggedIn
+  ? 'Access your F.A.S. Motorsports dashboard for orders, quotes, invoices, and appointment details.'
+  : 'Sign in or create a F.A.S. Motorsports account to track orders, quotes, and service appointments.';
 ---
 
-<BaseLayout hideBrandTag={true}>
+<BaseLayout hideBrandTag={true} title={pageTitle} description={pageDescription} canonical={canonical}>
   <main class="relative text-white p-8 mt-10">
     {isLoggedIn ? (
       <section class="max-w-xl">

@@ -5,9 +5,41 @@ import BelakBreadcrumbs from "@/components/belak/BelakBreadcrumbs.astro";
 import BelakSidebar from "@/components/belak/BelakSidebar.astro";
 import WheelSpecForm from "@/components/belak/WheelSpecForm";
 import WheelsHero from '@/components/WheelsHero';
+
+const requestUrl = new URL(Astro.request.url);
+requestUrl.search = '';
+requestUrl.hash = '';
+const canonical = requestUrl.toString();
+
+const pageTitle = 'Belak Wheels Quote';
+const pageDescription = 'Request custom Belak Series 2 and Series 3 forged racing wheel specs through F.A.S. Motorsports with tailored fitment and hardware guidance.';
+
+const breadcrumbStructuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Home',
+      item: `${requestUrl.origin}/`
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Belak Wheels',
+      item: canonical
+    }
+  ]
+};
 ---
 
-<BaseLayout>
+<BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
+  <Fragment slot="head">
+    <script type="application/ld+json">
+      {JSON.stringify(breadcrumbStructuredData)}
+    </script>
+  </Fragment>
 
  <BelakHero
   title="Belak Wheels — Custom Spec Quote"

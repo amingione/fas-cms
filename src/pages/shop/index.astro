@@ -105,6 +105,62 @@ try {
 
 const currentCategoryTitle = (currentCategory && categories.find((c:any) => c?.slug?.current === currentCategory)?.title) || 'All';
 
+const canonical = (() => {
+  try {
+    const canonicalUrl = new URL(Astro.request.url);
+    const params = new URLSearchParams();
+    const keepKeys = ['categorySlug', 'category', 'page'];
+    for (const key of keepKeys) {
+      const value = url.searchParams.get(key);
+      if (value) params.set(key, value);
+    }
+    const searchString = params.toString();
+    canonicalUrl.search = searchString ? `?${searchString}` : '';
+    canonicalUrl.hash = '';
+    return canonicalUrl.toString();
+  } catch {
+    return undefined;
+  }
+})();
+
+const metaTitle = currentCategory && currentCategoryTitle && currentCategoryTitle !== 'All'
+  ? `${currentCategoryTitle} Performance Parts`
+  : 'Performance Parts & Accessories';
+
+const pageDescription = currentCategory && currentCategoryTitle && currentCategoryTitle !== 'All'
+  ? `Shop ${currentCategoryTitle} parts, packages, and accessories engineered by F.A.S. Motorsports with in-house validation.`
+  : 'Browse performance parts, billet hardware, and curated packages from F.A.S. Motorsports with real inventory and in-house support.';
+
+const breadcrumbItems = [
+  {
+    '@type': 'ListItem',
+    position: 1,
+    name: 'Home',
+    item: `${url.origin}/`
+  },
+  {
+    '@type': 'ListItem',
+    position: 2,
+    name: 'Shop',
+    item: `${url.origin}/shop`
+  }
+];
+
+if (currentCategory && currentCategoryTitle && currentCategoryTitle !== 'All') {
+  breadcrumbItems.push({
+    '@type': 'ListItem',
+    position: 3,
+    name: currentCategoryTitle,
+    item: canonical || `${url.origin}/shop`
+  });
+}
+
+const breadcrumbStructuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: breadcrumbItems
+};
+
 // Build the available filters (category-aware)
 // Build a slug -> title map and unique slug list
 const filterTitleMap: Record<string, string> = {};
@@ -187,7 +243,12 @@ if (endPage < totalPages) {
 }
 ---
 
-<BaseLayout>
+<BaseLayout title={metaTitle} description={pageDescription} canonical={canonical}>
+  <Fragment slot="head">
+    <script type="application/ld+json">
+      {JSON.stringify(breadcrumbStructuredData)}
+    </script>
+  </Fragment>
   <section class="max-w-full px-2 md:px-2 mt-11 pt-10">
     <div class="mb-6 mt-2 space-y-3">
       <Breadcrumbs items={[{ href: '/', label: 'Home' }, { href: '/shop', label: 'Shop' }, ...(currentCategory ? [{ label: currentCategoryTitle }] : [])]} />

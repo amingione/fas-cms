@@ -23,9 +23,41 @@ const categories = (Array.isArray(categoriesRaw) ? categoriesRaw : [])
     description: category?.description ?? null
   }))
   .filter((category) => Boolean(category.slug));
+
+const requestUrl = new URL(Astro.request.url);
+requestUrl.search = '';
+requestUrl.hash = '';
+const canonical = requestUrl.toString();
+
+const pageTitle = 'Performance Categories';
+const pageDescription = 'Explore performance categories curated by F.A.S. Motorsports, from billet parts to wheel programs and power packages.';
+
+const breadcrumbStructuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Home',
+      item: `${requestUrl.origin}/`
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Shop Categories',
+      item: canonical
+    }
+  ]
+};
 ---
 
-<BaseLayout>
+<BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
+  <Fragment slot="head">
+    <script type="application/ld+json">
+      {JSON.stringify(breadcrumbStructuredData)}
+    </script>
+  </Fragment>
 
 <section class="px-5 py-5">
     <CategoryPage

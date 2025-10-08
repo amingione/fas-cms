@@ -21,12 +21,37 @@ const {
   noindex?: boolean;
   ogImage?: string;
 };
+
 const SITE_NAME = 'F.A.S. Motorsports';
+const DEFAULT_OG_IMAGE = 'https://fasmotorsports.com/images/social/social-share.webp';
+
+let canonicalUrl = canonical;
+try {
+  if (!canonicalUrl) {
+    const url = new URL(Astro.request.url);
+    url.search = '';
+    url.hash = '';
+    canonicalUrl = url.toString();
+  }
+} catch {
+  canonicalUrl = canonical ?? undefined;
+}
+
+const resolvedOgImage = ogImage ?? DEFAULT_OG_IMAGE;
 const pageTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
 ---
 
 <html lang="en" class="dark">
   <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NQ94Z6HWGV"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-NQ94Z6HWGV');
+    </script>
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.ico" />
@@ -41,17 +66,17 @@ const pageTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
     <title>{pageTitle}</title>
     {description && <meta name="description" content={description} />}
     {noindex && <meta name="robots" content="noindex,nofollow" />}
-    {canonical && <link rel="canonical" href={canonical} />}
+    {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
     <meta property="og:site_name" content={SITE_NAME} />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title ? `${title}` : SITE_NAME} />
     {description && <meta property="og:description" content={description} />}
-    {canonical && <meta property="og:url" content={canonical} />}
-    {ogImage && <meta property="og:image" content={ogImage} />}
+    {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
+    {resolvedOgImage && <meta property="og:image" content={resolvedOgImage} />}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title ? `${title}` : SITE_NAME} />
     {description && <meta name="twitter:description" content={description} />}
-    {ogImage && <meta name="twitter:image" content={ogImage} />}    
+    {resolvedOgImage && <meta name="twitter:image" content={resolvedOgImage} />}
     
     <slot name="head" />
   </head>

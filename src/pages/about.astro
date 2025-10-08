@@ -7,9 +7,43 @@ import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 
 
 const pageDoc: any = await loadPageDoc('about');
----
+const requestUrl = new URL(Astro.request.url);
+requestUrl.search = '';
+requestUrl.hash = '';
+const canonical = requestUrl.toString();
 
-<BaseLayout>
+const pageTitle = 'About F.A.S. Motorsports';
+const pageDescription = 'Discover the F.A.S. Motorsports legacy in Fort Myers, FL—family-built racers delivering billet parts, custom fabrication, and high-performance installs.';
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'AutoRepair',
+  name: 'F.A.S. Motorsports',
+  url: canonical,
+  logo: 'https://fasmotorsports.com/logo/faslogo150.png',
+  image: 'https://fasmotorsports.com/images/FAS-Team-Testing-Day.png',
+  description: pageDescription,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: '6161 Riverside Dr',
+    addressLocality: 'Fort Myers',
+    addressRegion: 'FL',
+    postalCode: '33982',
+    addressCountry: 'US'
+  },
+  areaServed: ['Fort Myers', 'Punta Gorda', 'Southwest Florida'],
+  sameAs: [
+    'https://www.facebook.com/fasmotorsports',
+    'https://www.instagram.com/fasmotorsports'
+  ]
+};
+---
+<BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
+  <Fragment slot="head">
+    <script type="application/ld+json">
+      {JSON.stringify(structuredData)}
+    </script>
+  </Fragment>
   <div {...inlineObjectId('content/pages/about.json')}>
     <!-- Inline-editable Page Title (mapped to content/pages/about.json:title) -->
     <div class="sr-only" {...inlineFieldAttrs('title')}>

@@ -8,6 +8,13 @@ import TruckGallery from '@/components/storefront/TruckGallery.astro';
 import { Truck } from 'lucide-react';
 
 const pageDoc: any = await loadPageDoc('truckPackages');
+const requestUrl = new URL(Astro.request.url);
+requestUrl.search = '';
+requestUrl.hash = '';
+const canonical = requestUrl.toString();
+
+const pageTitle = 'Truck Packages';
+const pageDescription = 'Browse F.A.S. Motorsports truck packages for RAM TRX, Ford F-150, and 250 series builds with install, tuning, and warranty-friendly support.';
 const hero = pageDoc?.hero ?? {};
 // Use plain HTML buttons/links in this SSR page to avoid React SSR for UI primitives
 const heroCtas: Array<{ label?: string; href?: string; variant?: string }> = Array.isArray(hero?.ctas)
@@ -46,8 +53,7 @@ const ctaButtonsFallback = [
 ];
 const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallback;
 ---
-
-<BaseLayout title="Truck Packages">
+<BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
 
     <section
       class="relative w-full h-[72vh] md:h-[78vh] overflow-hidden"

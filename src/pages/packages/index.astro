@@ -1,9 +1,17 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import TabLayout from '@/components/packageComps/tabLayout.tsx';
+
+const requestUrl = new URL(Astro.request.url);
+requestUrl.search = '';
+requestUrl.hash = '';
+const canonical = requestUrl.toString();
+
+const pageTitle = 'Performance Packages | F.A.S. Motorsports';
+const pageDescription = 'Explore turnkey performance packages engineered by F.A.S. Motorsports for TRX, Hellcat, Trackhawk, and LS/LT platforms with proven dyno results.';
 ---
 
-<BaseLayout>
+<BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
   <div class="container mx-auto px-5 py-10 text-white">
     <h1 class="text-3xl md:text-4xl px-5 font-borg mb-6 text-primary">
       F.a.S. <span class="font-ethno text-white">Packages</span>

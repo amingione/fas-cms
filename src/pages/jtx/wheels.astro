@@ -10,8 +10,38 @@ import { JTX_SERIES } from '@/content/jtx/options';
 const url = new URL(Astro.request.url);
 const qsSeries = url.searchParams.get('series');
 const defaultSeries = (qsSeries && (JTX_SERIES as readonly string[]).includes(qsSeries)) ? qsSeries as (typeof JTX_SERIES)[number] : undefined;
+url.search = '';
+url.hash = '';
+const canonical = url.toString();
+
+const pageTitle = 'JTX Forged Wheels Quote';
+const pageDescription = 'Start a custom JTX Forged wheel specification with F.A.S. Motorsports. Choose ARC monoforged series, finishes, and offsets for your truck build.';
+
+const breadcrumbStructuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Home',
+      item: `${url.origin}/`
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'JTX Wheels',
+      item: canonical
+    }
+  ]
+};
 ---
-<BaseLayout>
+<BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
+  <Fragment slot="head">
+    <script type="application/ld+json">
+      {JSON.stringify(breadcrumbStructuredData)}
+    </script>
+  </Fragment>
   <JtxHero title="JTX Forged — Custom Spec Quote" subtitle="ARC Monoforged truck wheels with premium finishes and popular 5/6/8 lug patterns." />
   <div class="mx-auto max-w-7xl px-6 py-6">
     <JtxBreadcrumbs current="overview" />

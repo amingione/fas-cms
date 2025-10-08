@@ -2,9 +2,16 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 const pageDoc: any = await loadPageDoc('services');
+const requestUrl = new URL(Astro.request.url);
+requestUrl.search = '';
+requestUrl.hash = '';
+const canonical = requestUrl.toString();
+
+const pageTitle = 'Performance Services | F.A.S. Motorsports';
+const pageDescription = 'Professional installs, tuning, fabrication, diagnostics, and motorsport support from F.A.S. Motorsports in Fort Myers, Florida.';
 ---
 
-<BaseLayout>
+<BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
   <div {...inlineObjectId('content/pages/services.json')} class="min-h-screen bg-[#0F0F0F]">
     
     <!-- Hero Banner -->

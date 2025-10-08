@@ -12,12 +12,20 @@ const readCookie = (name: string) => {
   return m?.[1] || null;
 };
 const isLoggedIn = Boolean(readCookie('fas_session'));
+
+const requestUrl = new URL(Astro.request.url);
+requestUrl.search = '';
+requestUrl.hash = '';
+const canonical = requestUrl.toString();
+
+const pageTitle = 'Account Dashboard';
+const pageDescription = 'Review orders, quotes, invoices, and appointments inside your F.A.S. Motorsports account dashboard.';
 if (!isLoggedIn) {
   return Astro.redirect('/account');
 }
 ---
 
-<BaseLayout>
+<BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
  
   <style>
     @media (max-width: 639px) {

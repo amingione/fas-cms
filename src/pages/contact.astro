@@ -4,9 +4,45 @@ import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 
 const pageDoc: any = await loadPageDoc('contact');
+const requestUrl = new URL(Astro.request.url);
+requestUrl.search = '';
+requestUrl.hash = '';
+const canonical = requestUrl.toString();
+
+const pageTitle = 'Contact F.A.S. Motorsports';
+const pageDescription = 'Reach the F.A.S. Motorsports team for power packages, billet parts, installs, and service scheduling at our Fort Myers, Florida facility.';
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'AutoRepair',
+  name: 'F.A.S. Motorsports',
+  url: canonical,
+  telephone: '(812) 200-9012',
+  email: 'support@fasmotorsports.com',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: '6161 Riverside Dr',
+    addressLocality: 'Fort Myers',
+    addressRegion: 'FL',
+    postalCode: '33982',
+    addressCountry: 'US'
+  },
+  openingHours: [
+    'Mo-Fr 09:00-17:00'
+  ],
+  sameAs: [
+    'https://www.facebook.com/fasmotorsports',
+    'https://www.instagram.com/fasmotorsports'
+  ]
+};
 --- 
 
-<BaseLayout : hideBrandTag="true">
+<BaseLayout hideBrandTag={true} title={pageTitle} description={pageDescription} canonical={canonical}>
+  <Fragment slot="head">
+    <script type="application/ld+json">
+      {JSON.stringify(structuredData)}
+    </script>
+  </Fragment>
   <div>
     <div {...inlineObjectId('content/pages/contact.json')}>
       <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>{pageDoc?.title ?? 'Contact'}</div>
@@ -95,22 +131,3 @@ const pageDoc: any = await loadPageDoc('contact');
     </div>
   </div>
 </BaseLayout>
-
-<!-- LocalBusiness JSON-LD -->
-<script type="application/ld+json">
-{JSON.stringify({
-  '@context': 'https://schema.org',
-  '@type': 'AutoRepair',
-  name: 'F.A.S. Motorsports',
-  url: 'https://fasmotorsports.com',
-  telephone: '(812) 200-9012',
-  address: {
-    '@type': 'PostalAddress',
-    streetAddress: '6161 Riverside Dr',
-    addressLocality: 'Fort Myers',
-    addressRegion: 'FL',
-    postalCode: '33982',
-    addressCountry: 'US'
-  }
-})}
-</script>

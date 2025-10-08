@@ -9,13 +9,19 @@ import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import BrandDivider from '@/components/divider/brandDivider';
 import SocialMedia from '@/components/divider/socialMedia';
 const pageDoc: any = await loadPageDoc('igla');
+
+const requestUrl = new URL(Astro.request.url);
+requestUrl.search = '';
+requestUrl.hash = '';
+const canonical = requestUrl.toString();
+const ogImageAbsolute = new URL('/logo/faslogochroma.png', requestUrl.origin).toString();
 ---
 
 <BaseLayout
   title="IGLA Security - F.A.S. Motorsports"
   description="IGLA Installation & Service in Southwest Florida. Advanced vehicle security with expert installation at F.A.S. Motorsports — one of Southwest Florida’s certified IGLA providers."
-  canonical={`${new URL(Astro.request.url).origin}/`}
-  ogImage="/logo/faslogochroma.png"
+  canonical={canonical}
+  ogImage={ogImageAbsolute}
 >
 
   <div {...inlineObjectId('content/pages/services/igla.json')}>

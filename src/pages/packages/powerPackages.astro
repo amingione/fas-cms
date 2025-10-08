@@ -6,6 +6,14 @@ import Button from '@/components/Button.astro';
 import PowerPackagesComponent from '@/components/packageComps/powerPackage';
 import AnimatedThreeDGallery from '@components/animated/AnimatedThreeDGallery';
 
+const requestUrl = new URL(Astro.request.url);
+requestUrl.search = '';
+requestUrl.hash = '';
+const canonical = requestUrl.toString();
+
+const pageTitle = 'Power Packages';
+const pageDescription = 'Stage-based power packages from F.A.S. Motorsports with calibrated fueling, cooling, and install support for Hellcat, Trackhawk, TRX, and LS/LT platforms.';
+
 const hero = pageDoc?.hero ?? {};
 const heroHeading: string = hero?.heading ?? pageDoc?.title ?? 'Power Packages';
 const heroDescription: string = hero?.description ??
@@ -81,7 +89,7 @@ const ctaButtonsFallback = [
 const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallback;
 ---
 
-<BaseLayout>
+<BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
   <div class="text-white">
     <section
       class="relative w-full h-[72vh] md:h-[78vh] overflow-hidden"

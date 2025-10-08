@@ -5,6 +5,14 @@ import SectionRenderer from '@/components/SectionRenderer.astro';
 const pageDoc: any = await loadPageDoc('porting');
 import Button from '@/components/Button.astro';
 
+const requestUrl = new URL(Astro.request.url);
+requestUrl.search = '';
+requestUrl.hash = '';
+const canonical = requestUrl.toString();
+
+const pageTitle = 'Porting Services';
+const pageDescription = 'Precision CNC and hand-finished porting for superchargers, snouts, throttle bodies, and cylinder heads by F.A.S. Motorsports.';
+
 const hero = pageDoc?.hero ?? {};
 const heroImage = hero?.image ?? {};
 const heroTags: string[] = Array.isArray(hero?.tags) ? hero.tags : [];
@@ -80,7 +88,7 @@ const ctaButtonFallback = [
 const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonFallback;
 ---
 
-<BaseLayout>
+<BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
   <div {...inlineObjectId('content/pages/porting.json')}>
   <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>{pageDoc?.title ?? 'Porting'}</div>
   {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (

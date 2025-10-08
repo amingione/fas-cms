@@ -6,9 +6,16 @@ import { Hero } from '@/components/Hero.tsx';
 import BrandDivider from '@/components/divider/brandDivider';
 import SocialMedia from '@/components/divider/socialMedia';
 const pageDoc: any = await loadPageDoc('customFab');
+const requestUrl = new URL(Astro.request.url);
+requestUrl.search = '';
+requestUrl.hash = '';
+const canonical = requestUrl.toString();
+
+const pageTitle = 'Custom Fabrication Services';
+const pageDescription = 'In-house TIG welding, exhaust fabrication, and motorsport-grade metalwork engineered by F.A.S. Motorsports.';
 ---
 
-<BaseLayout>
+<BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
   <div {...inlineObjectId('content/pages/customFab.json')}>
   <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>{pageDoc?.title ?? 'Custom Fabrication'}</div>
   {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (

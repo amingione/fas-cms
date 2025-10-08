@@ -2,9 +2,17 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import WeldingPage from "@/components/welding/WeldingPage.tsx";
 import ProcessSection from "@/components/banner/ProcessSection.tsx";
+
+const requestUrl = new URL(Astro.request.url);
+requestUrl.search = '';
+requestUrl.hash = '';
+const canonical = requestUrl.toString();
+
+const pageTitle = 'Precision Welding Services';
+const pageDescription = 'Certified TIG welding, custom exhaust fabrication, and motorsport-ready metalwork from F.A.S. Motorsports.';
 ---
 
-<BaseLayout>
+<BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
   <WeldingPage client:only="react"/>
   <ProcessSection client:only="react"/>
 </BaseLayout>
