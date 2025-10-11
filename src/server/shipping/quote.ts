@@ -15,6 +15,25 @@ const looksLikeCarrierId = (value?: string | null) => {
   return /^se-/.test(v) || /^car_/.test(v) || /^[0-9a-f-]{16,}$/i.test(v);
 };
 
+const FALLBACK_CARRIER_IDS: string[] = [
+  'se-3809552', // USPS (Stamps.com)
+  'se-3809716', // DHL Express
+  'se-3809553', // UPS
+  'se-3809712', // SEKO LTL
+  'se-3809554', // FedEx
+  'se-3809713' // GlobalPost
+];
+
+const parseCarrierIds = (value?: string | null): string[] => {
+  if (!value) return [];
+  return value
+    .split(/[\s,]+/)
+    .map((part) => part.trim())
+    .filter((part) => looksLikeCarrierId(part));
+};
+
+const dedupe = (values: string[]): string[] => Array.from(new Set(values.filter(Boolean)));
+
 export type CartItemInput = {
   id: string;
   quantity?: number;
@@ -215,18 +234,27 @@ const listCarrierIds = async (): Promise<string[]> => {
 };
 
 const resolveCarrierIds = async (): Promise<string[]> => {
-  const explicit = [penv.SHIPENGINE_CARRIER_ID, ime.SHIPENGINE_CARRIER_ID, penv.DEFAULT_SHIPENGINE_CARRIER_ID, ime.DEFAULT_SHIPENGINE_CARRIER_ID]
-    .filter((value): value is string => Boolean(value))
+  const envCarrierIds = [
+    ...parseCarrierIds(penv.SHIPENGINE_CARRIER_IDS),
+    ...parseCarrierIds(ime.SHIPENGINE_CARRIER_IDS)
+  ];
+
+  const singleCarrierIds = [penv.SHIPENGINE_CARRIER_ID, ime.SHIPENGINE_CARRIER_ID, penv.DEFAULT_SHIPENGINE_CARRIER_ID, ime.DEFAULT_SHIPENGINE_CARRIER_ID]
+    .filter((value): value is string => Boolean(value && typeof value === 'string'))
     .map((value) => value.trim())
-    .filter((value) => looksLikeCarrierId(value))
-    .filter((value) => !value.toLowerCase().includes('usps'));
+    .filter((value) => looksLikeCarrierId(value));
+
+  const explicit = dedupe([...envCarrierIds, ...singleCarrierIds]).filter(
+    (value) => !value.toLowerCase().includes('usps')
+  );
   if (explicit.length) return explicit;
 
   if (cachedCarrierIds) return cachedCarrierIds;
 
   const fetched = await listCarrierIds();
-  cachedCarrierIds = fetched;
-  return fetched;
+  const merged = dedupe([...fetched, ...FALLBACK_CARRIER_IDS]);
+  cachedCarrierIds = merged;
+  return merged;
 };
 
 const isUspsRate = (rate: ShippingRate): boolean => {

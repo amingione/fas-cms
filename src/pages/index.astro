@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import * as sanity from '../lib/sanity-utils';
 import { LuxuryFeatures } from '@components/LuxuryFeatures.tsx';
-import AnimatedHomeHero from '@components/animated/AnimatedHomeHero';
+import HomeHero from '@components/hero/HomeHero.astro';
 import AnimatedHeadingBanner1 from '@components/animated/AnimatedHeadingBanner1';
 import Highlights from '@/components/Highlights.astro';
 import AnimatedHeadingBanner from '@components/animated/AnimatedHeadingBanner';
@@ -108,19 +108,19 @@ try {
 
 
       <section id="homeHero">
-        <AnimatedHomeHero client:only="react" />
+        <HomeHero />
       </section>
 
       <section id="HeadingBanner1">
-        <AnimatedHeadingBanner1 client:only="react" />
+        <AnimatedHeadingBanner1 client:visible />
       </section>
 
       <section id="HeadingBanner">
-        <AnimatedHeadingBanner client:only="react" />
+        <AnimatedHeadingBanner client:visible />
       </section>
 
       <section id="TruckPackagesHero">
-        <AnimatedTruckPackagesHero client:only="react" />
+        <AnimatedTruckPackagesHero client:visible />
       </section>
 
       <section id="Highlights">
@@ -128,12 +128,12 @@ try {
       </section>
 
       <section class="mt-20" id="TaskCard">
-        <AnimatedTaskCard client:only="react" />
+        <AnimatedTaskCard client:visible />
       </section>
 
       <section class="mt-20 mb-10">
         <AnimatedProductFeatureBanner
-          client:only="react"
+          client:visible
           backgroundUrl="/images/backgrounds/bg-path-overlay.webp"
           features={[
             {
@@ -165,7 +165,7 @@ try {
 
 
       <section id="LuxuryFeatures" class="mt-20">
-        <LuxuryFeatures client:only="react" />
+        <LuxuryFeatures client:visible />
       </section>
     </main>
   </div>

@@ -36,6 +36,17 @@ function validateBaseUrl(baseUrl: string): Response | null {
   return null;
 }
 
+function hostKey(url: string | null | undefined): string | null {
+  if (!url) return null;
+  try {
+    const { hostname } = new URL(url);
+    return hostname.replace(/^www\./i, '').toLowerCase();
+  } catch {
+    const match = url.replace(/^https?:\/\//i, '').split('/')[0];
+    return match ? match.replace(/^www\./i, '').toLowerCase() : null;
+  }
+}
+
 const CARRIER_LABELS: Record<string, string> = {
   usps: 'USPS',
   ups: 'UPS',
@@ -43,6 +54,15 @@ const CARRIER_LABELS: Record<string, string> = {
   dhl: 'DHL',
   ontrac: 'OnTrac'
 };
+
+const KNOWN_CARRIER_IDS: Array<{ pattern: RegExp; id: string }> = [
+  { pattern: /dhl/, id: 'se-3809716' },
+  { pattern: /\bups\b/, id: 'se-3809553' },
+  { pattern: /seko/, id: 'se-3809712' },
+  { pattern: /fedex/, id: 'se-3809554' },
+  { pattern: /(global\s*post)/, id: 'se-3809713' },
+  { pattern: /(stamps|usps|postal)/, id: 'se-3809552' }
+];
 
 function humanizeToken(token: string): string {
   const lower = token.toLowerCase();
@@ -72,16 +92,46 @@ function formatShippingDisplay(rate: CalculatedRate): string {
   return `${service} (${carrier})`;
 }
 
+function inferCarrierId(carrier?: string, explicit?: string | null): string | undefined {
+  const trimmed = (explicit || '').trim();
+  if (trimmed) return trimmed;
+  const normalized = (carrier || '').toLowerCase();
+  if (!normalized) return undefined;
+  for (const entry of KNOWN_CARRIER_IDS) {
+    if (entry.pattern.test(normalized)) return entry.id;
+  }
+  return undefined;
+}
+
 export async function POST({ request }: { request: Request }) {
   // Resolve base URL: prefer explicit env var, else Origin header during dev/preview
   const origin = request.headers.get('origin') || '';
   const xfProto = request.headers.get('x-forwarded-proto') || '';
   const xfHost = request.headers.get('x-forwarded-host') || '';
   const forwarded = xfProto && xfHost ? `${xfProto}://${xfHost}` : '';
-  const rawBaseUrl = configuredBaseUrl || forwarded || origin;
-  const baseUrl = normalizeBaseUrl(rawBaseUrl);
-  const validationError = validateBaseUrl(baseUrl);
+  const normalizedConfigured = normalizeBaseUrl(configuredBaseUrl);
+  const normalizedRequest = normalizeBaseUrl(forwarded || origin);
+
+  let baseUrl = normalizedRequest || normalizedConfigured;
+  const configKey = hostKey(normalizedConfigured);
+  const requestKey = hostKey(normalizedRequest);
+  if (normalizedConfigured && configKey && requestKey && configKey === requestKey) {
+    baseUrl = normalizedConfigured;
+  } else if (!baseUrl && normalizedConfigured) {
+    baseUrl = normalizedConfigured;
+  }
+
+  const validationTarget = baseUrl || normalizedConfigured || normalizedRequest;
+  if (!validationTarget) {
+    return new Response(
+      JSON.stringify({ error: 'Unable to determine site base URL for checkout redirects.' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+  const validationError = validateBaseUrl(validationTarget);
   if (validationError) return validationError;
+
+  baseUrl = normalizeBaseUrl(validationTarget);
 
   let body;
   try {
@@ -246,6 +296,20 @@ export async function POST({ request }: { request: Request }) {
         shippingOptions = sortedRates.map((rate) => {
           const amount = Math.max(0, Math.round(rate.amount * 100));
           const displayName = formatShippingDisplay(rate);
+          const currencyCode = (rate.currency || 'USD').toUpperCase();
+          const inferredCarrierId = inferCarrierId(rate.carrier, rate.carrierId);
+          const serviceCode = rate.serviceCode || '';
+          const serviceName = rate.service || rate.serviceName || rate.serviceCode || '';
+
+          const optionMetadata: Record<string, string> = {
+            amount: (amount / 100).toFixed(2),
+            currency: currencyCode,
+            source: 'shipengine'
+          };
+          if (rate.carrier) optionMetadata.carrier = rate.carrier;
+          if (inferredCarrierId) optionMetadata.carrier_id = inferredCarrierId;
+          if (serviceCode) optionMetadata.service_code = serviceCode;
+          if (serviceName) optionMetadata.service = serviceName;
 
           const deliveryEstimate = rate.deliveryDays
             ? {
@@ -265,17 +329,14 @@ export async function POST({ request }: { request: Request }) {
               tax_behavior: 'exclusive',
               tax_code: 'txcd_92010001',
               delivery_estimate: deliveryEstimate,
-              metadata: {
-                carrier: rate.carrier || '',
-                service_code: rate.serviceCode || ''
-              }
+              metadata: optionMetadata
             }
           } satisfies Stripe.Checkout.SessionCreateParams.ShippingOption;
         });
 
         if (selectedRate) {
           const carrier = selectedRate.carrier || '';
-          const carrierId = selectedRate.carrierId || '';
+          const carrierId = inferCarrierId(selectedRate.carrier, selectedRate.carrierId) || '';
           const serviceCode = selectedRate.serviceCode || '';
           const serviceName =
             selectedRate.service || selectedRate.serviceName || selectedRate.serviceCode || '';
@@ -318,21 +379,129 @@ export async function POST({ request }: { request: Request }) {
   }
 
   try {
-    const sessionMetadata: Record<string, string> = {
+    const shippingAddressCollection: Stripe.Checkout.SessionCreateParams.ShippingAddressCollection =
+      {
+        allowed_countries: ['US', 'CA']
+      };
+
+    const customerEmail = userEmail || normalizedDestination?.email || undefined;
+
+    const applyOptionMetadata = (meta?: Record<string, string>) => {
+      if (!meta) return;
+      const carrierLabel = meta.carrier || shippingMetadata.shipping_carrier || 'Manual Fulfillment';
+      const serviceLabel =
+        meta.service ||
+        meta.service_code ||
+        shippingMetadata.shipping_service ||
+        'Standard Shipping';
+
+      if (!shippingMetadata.shipping_carrier && carrierLabel) {
+        shippingMetadata.shipping_carrier = carrierLabel;
+      }
+      if (!shippingMetadata.shipping_carrier_id && meta.carrier_id) {
+        shippingMetadata.shipping_carrier_id = meta.carrier_id;
+      }
+      if (!shippingMetadata.shipping_service_code && meta.service_code) {
+        shippingMetadata.shipping_service_code = meta.service_code;
+      }
+      if (!shippingMetadata.shipping_service) {
+        shippingMetadata.shipping_service = serviceLabel;
+        shippingMetadata.shipping_service_name = serviceLabel;
+      }
+      const amountValue = meta.amount ? Number(meta.amount) : undefined;
+      if (!shippingMetadata.shipping_amount && meta.amount) {
+        shippingMetadata.shipping_amount = Number.isFinite(amountValue)
+          ? amountValue!.toFixed(2)
+          : meta.amount;
+      }
+      if (!shippingMetadata.shipping_currency && meta.currency) {
+        shippingMetadata.shipping_currency = meta.currency.toUpperCase();
+      }
+    };
+
+    let finalShippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] | undefined;
+    if (installOnlyQuote) {
+      finalShippingOptions = undefined;
+    } else if (shippingOptions && shippingOptions.length) {
+      finalShippingOptions = shippingOptions;
+      const optionMeta =
+        shippingOptions[0]?.shipping_rate_data?.metadata as Record<string, string> | undefined;
+      applyOptionMetadata(optionMeta);
+    } else {
+      finalShippingOptions = [
+        {
+          shipping_rate_data: {
+            type: 'fixed_amount',
+            fixed_amount: { amount: 1500, currency: 'usd' },
+            display_name: 'Standard Shipping (5–7 business days)',
+            tax_behavior: 'exclusive',
+            tax_code: 'txcd_92010001',
+            delivery_estimate: {
+              minimum: { unit: 'business_day', value: 5 },
+              maximum: { unit: 'business_day', value: 7 }
+            },
+            metadata: {
+              carrier: 'Manual Fulfillment',
+              carrier_id: 'manual-flat-standard',
+              service_code: 'standard_fallback',
+              service: 'Standard Shipping (Fallback)',
+              amount: '15.00',
+              currency: 'USD',
+              source: 'fallback'
+            }
+          }
+        },
+        {
+          shipping_rate_data: {
+            type: 'fixed_amount',
+            fixed_amount: { amount: 3500, currency: 'usd' },
+            display_name: 'Expedited Shipping (2–3 business days)',
+            tax_behavior: 'exclusive',
+            tax_code: 'txcd_92010001',
+            delivery_estimate: {
+              minimum: { unit: 'business_day', value: 2 },
+              maximum: { unit: 'business_day', value: 3 }
+            },
+            metadata: {
+              carrier: 'Manual Fulfillment',
+              carrier_id: 'manual-flat-expedited',
+              service_code: 'expedited_fallback',
+              service: 'Expedited Shipping (Fallback)',
+              amount: '35.00',
+              currency: 'USD',
+              source: 'fallback'
+            }
+          }
+        }
+      ];
+      applyOptionMetadata(
+        finalShippingOptions[0].shipping_rate_data.metadata as Record<string, string>
+      );
+      if (!shippingMetadata.shipping_currency) {
+        shippingMetadata.shipping_currency = 'USD';
+      }
+      if (!shippingMetadata.shipping_amount) {
+        shippingMetadata.shipping_amount = '15.00';
+      }
+    }
+
+    if (!shippingMetadata.shipping_currency) {
+      shippingMetadata.shipping_currency =
+        normalizedDestination?.country === 'CA' ? 'CAD' : 'USD';
+    }
+
+    const baseMetadata: Record<string, string> = {
       ...(userId ? { userId } : {}),
       ...(userEmail ? { userEmail } : {}),
-      site: baseUrl,
+      site: baseUrl
+    };
+
+    const sessionMetadata: Record<string, string> = {
+      ...baseMetadata,
       ...shippingMetadata
     };
 
     const paymentIntentMetadata = { ...sessionMetadata };
-
-  const shippingAddressCollection: Stripe.Checkout.SessionCreateParams.ShippingAddressCollection =
-    {
-      allowed_countries: ['US', 'CA']
-    };
-
-  const customerEmail = userEmail || normalizedDestination?.email || undefined;
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       // Offer standard cards plus Affirm financing at checkout
@@ -363,39 +532,8 @@ export async function POST({ request }: { request: Request }) {
       sessionParams.customer_email = customerEmail;
     }
 
-    if (installOnlyQuote) {
-      sessionParams.shipping_options = undefined;
-    } else if (shippingOptions && shippingOptions.length) {
-      sessionParams.shipping_options = shippingOptions;
-    } else {
-      sessionParams.shipping_options = [
-        {
-          shipping_rate_data: {
-            type: 'fixed_amount',
-            fixed_amount: { amount: 1500, currency: 'usd' },
-            display_name: 'Standard Shipping (5–7 business days)',
-            tax_behavior: 'exclusive',
-            tax_code: 'txcd_92010001',
-            delivery_estimate: {
-              minimum: { unit: 'business_day', value: 5 },
-              maximum: { unit: 'business_day', value: 7 }
-            }
-          }
-        },
-        {
-          shipping_rate_data: {
-            type: 'fixed_amount',
-            fixed_amount: { amount: 3500, currency: 'usd' },
-            display_name: 'Expedited Shipping (2–3 business days)',
-            tax_behavior: 'exclusive',
-            tax_code: 'txcd_92010001',
-            delivery_estimate: {
-              minimum: { unit: 'business_day', value: 2 },
-              maximum: { unit: 'business_day', value: 3 }
-            }
-          }
-        }
-      ];
+    if (typeof finalShippingOptions !== 'undefined') {
+      sessionParams.shipping_options = finalShippingOptions;
     }
 
     // With automatic tax enabled, Stripe expects to collect the shipping address at checkout.

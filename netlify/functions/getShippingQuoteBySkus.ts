@@ -46,6 +46,45 @@ const corsHeaders = (origin?: string | null): Record<string, string> => {
   return h;
 };
 
+const looksLikeCarrierId = (value?: string | null) => {
+  if (!value) return false;
+  const v = String(value).trim();
+  if (!v) return false;
+  return /^se-/.test(v) || /^car_/.test(v) || /^[0-9a-f-]{16,}$/i.test(v);
+};
+
+const FALLBACK_CARRIER_IDS: string[] = [
+  'se-3809552', // USPS (Stamps.com)
+  'se-3809716', // DHL Express
+  'se-3809553', // UPS
+  'se-3809712', // SEKO LTL
+  'se-3809554', // FedEx
+  'se-3809713' // GlobalPost
+];
+
+const parseCarrierIds = (value?: string | null): string[] => {
+  if (!value) return [];
+  return value
+    .split(/[\s,]+/)
+    .map((part) => part.trim())
+    .filter((part) => looksLikeCarrierId(part));
+};
+
+const resolveCarrierIds = (): string[] => {
+  const envIds = [
+    ...parseCarrierIds(process.env.SHIPENGINE_CARRIER_IDS),
+    ...parseCarrierIds(process.env.DEFAULT_SHIPENGINE_CARRIER_IDS)
+  ];
+  const singleIds = [process.env.SHIPENGINE_CARRIER_ID, process.env.DEFAULT_SHIPENGINE_CARRIER_ID]
+    .filter((value): value is string => Boolean(value && typeof value === 'string'))
+    .map((value) => value.trim())
+    .filter((value) => looksLikeCarrierId(value));
+  const combined = Array.from(new Set([...envIds, ...singleIds])).filter(
+    (value) => !value.toLowerCase().includes('usps')
+  );
+  return combined.length ? combined : FALLBACK_CARRIER_IDS;
+};
+
 export const handler: Handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 204, headers: { 'access-control-allow-methods': 'POST, OPTIONS', ...corsHeaders(event.headers.origin) }, body: '' };
@@ -191,8 +230,9 @@ export const handler: Handler = async (event) => {
       };
     }
 
+    const carrierIds = resolveCarrierIds();
     const payload = {
-      rate_options: { carrier_ids: process.env.SHIPENGINE_CARRIER_ID ? [process.env.SHIPENGINE_CARRIER_ID] : undefined },
+      rate_options: { carrier_ids: carrierIds.slice(0, 10) },
       shipment: { validate_address: 'no_validation', ship_from: shipFrom, ship_to: shipTo, packages }
     };
 
