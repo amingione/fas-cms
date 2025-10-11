@@ -274,11 +274,38 @@ export async function POST({ request }: { request: Request }) {
         });
 
         if (selectedRate) {
+          const carrier = selectedRate.carrier || '';
+          const carrierId = selectedRate.carrierId || '';
+          const serviceCode = selectedRate.serviceCode || '';
+          const serviceName =
+            selectedRate.service || selectedRate.serviceName || selectedRate.serviceCode || '';
+          const amount = Number.isFinite(selectedRate.amount) ? selectedRate.amount : 0;
+          const currency =
+            (typeof selectedRate.currency === 'string' && selectedRate.currency.trim()) ||
+            (normalizedDestination?.country === 'CA' ? 'CAD' : 'USD');
+          const deliveryDays =
+            typeof selectedRate.deliveryDays === 'number' && Number.isFinite(selectedRate.deliveryDays)
+              ? String(selectedRate.deliveryDays)
+              : undefined;
+          const estimatedDeliveryDate =
+            typeof selectedRate.estimatedDeliveryDate === 'string' &&
+            selectedRate.estimatedDeliveryDate
+              ? selectedRate.estimatedDeliveryDate
+              : undefined;
+
+          const currencyCode = (currency || 'USD').toUpperCase();
+
           shippingMetadata = {
-            shipping_carrier: selectedRate.carrier || '',
-            shipping_service:
-              selectedRate.serviceCode || selectedRate.service || selectedRate.serviceName || '',
-            shipping_amount: selectedRate.amount.toFixed(2)
+            shipping_carrier: carrier,
+            ...(carrierId ? { shipping_carrier_id: carrierId } : {}),
+            ...(serviceCode ? { shipping_service_code: serviceCode } : {}),
+            ...(serviceName ? { shipping_service: serviceName, shipping_service_name: serviceName } : {}),
+            shipping_amount: amount.toFixed(2),
+            shipping_currency: currencyCode,
+            ...(deliveryDays ? { shipping_delivery_days: deliveryDays } : {}),
+            ...(estimatedDeliveryDate
+              ? { shipping_estimated_delivery_date: estimatedDeliveryDate }
+              : {})
           };
         }
       } else if (installOnlyQuote) {

@@ -104,6 +104,92 @@ const buildAddressHtml = (details?: Stripe.Checkout.Session.CustomerDetails | nu
   </div>`;
 };
 
+type ShippingSelection = {
+  carrier?: string;
+  carrierId?: string;
+  serviceCode?: string;
+  serviceName?: string;
+  amount?: number;
+  currency?: string;
+  deliveryDays?: number | null;
+  estimatedDeliveryDate?: string | null;
+  metadata: Record<string, string>;
+};
+
+const parseShippingSelection = (session: Stripe.Checkout.Session): ShippingSelection | null => {
+  const meta = (session.metadata || {}) as Record<string, string | null | undefined>;
+  const metadata: Record<string, string> = {};
+
+  const read = (key: string): string | undefined => {
+    const raw = meta[key];
+    if (typeof raw === 'string') {
+      const trimmed = raw.trim();
+      if (trimmed) {
+        metadata[key] = trimmed;
+        return trimmed;
+      }
+    }
+    return undefined;
+  };
+
+  const carrier = read('shipping_carrier');
+  const carrierId = read('shipping_carrier_id');
+  const serviceCode = read('shipping_service_code');
+  const serviceNameFromMetadata = read('shipping_service_name');
+  const serviceLabel = read('shipping_service');
+  const serviceName = serviceNameFromMetadata || serviceLabel;
+  const amountStr = read('shipping_amount');
+  const currencyRaw =
+    read('shipping_currency') ||
+    (typeof session.currency === 'string' ? session.currency : undefined);
+  const deliveryDaysStr = read('shipping_delivery_days');
+  const estimatedDeliveryDate = read('shipping_estimated_delivery_date');
+
+  const amount = amountStr && Number.isFinite(Number(amountStr)) ? Number(amountStr) : undefined;
+  const deliveryDays =
+    deliveryDaysStr && Number.isFinite(Number(deliveryDaysStr))
+      ? Number(deliveryDaysStr)
+      : null;
+  const currency = currencyRaw ? currencyRaw.toUpperCase() : undefined;
+
+  if (currency) metadata.shipping_currency = currency;
+  if (amountStr) metadata.shipping_amount = amountStr;
+
+  const hasMetadata = Object.keys(metadata).length > 0;
+  if (
+    !hasMetadata &&
+    !carrier &&
+    !carrierId &&
+    !serviceCode &&
+    !serviceName &&
+    typeof amount === 'undefined'
+  ) {
+    return null;
+  }
+
+  return {
+    carrier,
+    carrierId,
+    serviceCode,
+    serviceName,
+    amount,
+    currency,
+    deliveryDays,
+    estimatedDeliveryDate: estimatedDeliveryDate || null,
+    metadata
+  };
+};
+
+const toShippingCarrierOption = (carrier?: string): string | undefined => {
+  if (!carrier) return undefined;
+  const value = carrier.trim().toLowerCase();
+  if (!value) return undefined;
+  if (value.includes('ups')) return 'UPS';
+  if (value.includes('fedex')) return 'FedEx';
+  if (value.includes('usps') || value.includes('postal')) return 'USPS';
+  return 'Other';
+};
+
 export async function POST({ request }: { request: Request }) {
   const secret = import.meta.env.STRIPE_WEBHOOK_SECRET;
 
@@ -225,7 +311,12 @@ export async function POST({ request }: { request: Request }) {
         );
       }
 
-      const newOrder = await sanity.create({
+      const shippingSelection = parseShippingSelection(session);
+      const shippingCarrierOption = shippingSelection
+        ? toShippingCarrierOption(shippingSelection.carrier)
+        : undefined;
+
+      const orderPayload: Record<string, any> = {
         _type: 'order',
         stripeSessionId: session.id,
         paymentIntentId:
@@ -272,9 +363,81 @@ export async function POST({ request }: { request: Request }) {
           country: session.customer_details?.address?.country || 'US'
         },
         webhookNotified: true
-      });
+      };
+
+      if (shippingCarrierOption) {
+        orderPayload.shippingCarrier = shippingCarrierOption;
+      }
+      if (shippingSelection?.metadata && Object.keys(shippingSelection.metadata).length) {
+        orderPayload.shippingMetadata = shippingSelection.metadata;
+      }
+      if (shippingSelection?.serviceCode) {
+        orderPayload.shippingServiceCode = shippingSelection.serviceCode;
+      }
+      if (shippingSelection?.serviceName) {
+        orderPayload.shippingServiceName = shippingSelection.serviceName;
+      }
+      if (typeof shippingSelection?.amount === 'number') {
+        orderPayload.selectedShippingAmount = shippingSelection.amount;
+      }
+      if (shippingSelection?.currency) {
+        orderPayload.selectedShippingCurrency = shippingSelection.currency;
+      }
+      if (
+        shippingSelection?.deliveryDays !== undefined &&
+        shippingSelection?.deliveryDays !== null
+      ) {
+        orderPayload.shippingDeliveryDays = shippingSelection.deliveryDays;
+      }
+      if (shippingSelection?.estimatedDeliveryDate) {
+        orderPayload.shippingEstimatedDeliveryDate = shippingSelection.estimatedDeliveryDate;
+      }
+
+      const newOrder = await sanity.create(orderPayload);
 
       console.log('📝 Order saved to Sanity:', newOrder._id);
+
+      if (newOrder?._id && (shippingCarrierOption || shippingSelection)) {
+        const patchData: Record<string, any> = {};
+        if (shippingCarrierOption) patchData.shippingCarrier = shippingCarrierOption;
+        if (shippingSelection?.metadata && Object.keys(shippingSelection.metadata).length) {
+          patchData.shippingMetadata = shippingSelection.metadata;
+        }
+        if (shippingSelection?.serviceCode) {
+          patchData.shippingServiceCode = shippingSelection.serviceCode;
+        }
+        if (shippingSelection?.serviceName) {
+          patchData.shippingServiceName = shippingSelection.serviceName;
+        }
+        if (typeof shippingSelection?.amount === 'number') {
+          patchData.selectedShippingAmount = shippingSelection.amount;
+        }
+        if (shippingSelection?.currency) {
+          patchData.selectedShippingCurrency = shippingSelection.currency;
+        }
+        if (
+          shippingSelection?.deliveryDays !== undefined &&
+          shippingSelection?.deliveryDays !== null
+        ) {
+          patchData.shippingDeliveryDays = shippingSelection.deliveryDays;
+        }
+        if (shippingSelection?.estimatedDeliveryDate) {
+          patchData.shippingEstimatedDeliveryDate = shippingSelection.estimatedDeliveryDate;
+        }
+
+        if (Object.keys(patchData).length) {
+          await sanity
+            .patch(newOrder._id)
+            .set(patchData)
+            .commit({ autoGenerateArrayKeys: true })
+            .catch((err) =>
+              console.warn(
+                '[astro webhook] unable to persist shipping selection',
+                (err as any)?.message || err
+              )
+            );
+        }
+      }
 
       // Send confirmation email via Resend if configured
       const RESEND_API_KEY = import.meta.env.RESEND_API_KEY as string | undefined;
