@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import * as sanity from '../lib/sanity-utils';
 import { LuxuryFeatures } from '@components/LuxuryFeatures.tsx';
-import HomeHero from '@components/hero/HomeHero.astro';
+import AnimatedHomeHero from '@components/animated/AnimatedHomeHero';
 import AnimatedHeadingBanner1 from '@components/animated/AnimatedHeadingBanner1';
 import Highlights from '@/components/Highlights.astro';
 import AnimatedHeadingBanner from '@components/animated/AnimatedHeadingBanner';
@@ -108,7 +108,7 @@ try {
 
 
       <section id="homeHero">
-        <HomeHero />
+        <AnimatedHomeHero client:only="react" />
       </section>
 
       <section id="HeadingBanner1">
