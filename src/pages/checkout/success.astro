@@ -8,16 +8,106 @@ const sessionId = url.searchParams.get('session_id');
 let session: any = null;
 let items: any[] = [];
 let error: string | null = null;
+let googleReviewOptIn: {
+  orderId: string;
+  email: string;
+  deliveryCountry: string;
+  estimatedDeliveryDate: string;
+  products?: { gtin: string }[];
+} | null = null;
+
+const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', { apiVersion: '2025-08-27.basil' });
+
+function resolveEstimatedDate(input: any): string | null {
+  if (!input || typeof input !== 'object') return null;
+  const target = input.maximum || input.minimum || null;
+  if (!target) return null;
+  if (typeof target.date === 'string' && target.date) return target.date;
+  const value =
+    typeof target.value === 'number'
+      ? target.value
+      : typeof target.business_days === 'number'
+      ? target.business_days
+      : typeof target.calendar_days === 'number'
+      ? target.calendar_days
+      : null;
+  if (typeof value !== 'number' || !Number.isFinite(value)) return null;
+  const base = new Date();
+  base.setUTCDate(base.getUTCDate() + value);
+  return base.toISOString().slice(0, 10);
+}
+
+function extractProducts(lineItems: any[]): { gtin: string }[] | undefined {
+  if (!Array.isArray(lineItems)) return undefined;
+  const list = lineItems
+    .map((item) => {
+      const product = item?.price?.product;
+      if (!product || typeof product !== 'object') return null;
+      const metadata = product.metadata || {};
+      const gtin =
+        metadata.gtin ||
+        metadata.GTIN ||
+        metadata.gtin13 ||
+        metadata.gtin14 ||
+        metadata.upc ||
+        metadata.ean ||
+        metadata.barcode ||
+        '';
+      if (typeof gtin === 'number') return { gtin: String(gtin) };
+      if (typeof gtin === 'string' && gtin.trim()) return { gtin: gtin.trim() };
+      return null;
+    })
+    .filter(Boolean);
+  return list.length > 0 ? (list as { gtin: string }[]) : undefined;
+}
 
 try {
   if (!sessionId) throw new Error('Missing session_id');
-  const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', { apiVersion: '2025-08-27.basil' });
-  session = await stripe.checkout.sessions.retrieve(sessionId);
-  const lineItems = await stripe.checkout.sessions.listLineItems(sessionId, { limit: 100 });
+  session = await stripe.checkout.sessions.retrieve(sessionId, {
+    expand: ['shipping_cost.shipping_rate']
+  });
+  const lineItems = await stripe.checkout.sessions.listLineItems(sessionId, {
+    limit: 100,
+    expand: ['data.price.product']
+  });
   items = lineItems.data || [];
+
+  const orderId =
+    (session?.client_reference_id && String(session.client_reference_id).trim()) ||
+    (session?.metadata?.orderId && String(session.metadata.orderId).trim()) ||
+    (session?.payment_intent && String(session.payment_intent).trim()) ||
+    (session?.id && String(session.id).trim()) ||
+    '';
+  const email = String(session?.customer_details?.email || session?.customer_email || '').trim();
+  const deliveryCountry = String(
+    session?.shipping_details?.address?.country ||
+      session?.customer_details?.address?.country ||
+      ''
+  ).trim();
+  const estimatedDeliveryDate =
+    resolveEstimatedDate((session as any)?.shipping_cost?.shipping_rate?.delivery_estimate) ||
+    null;
+  const products = extractProducts(items);
+
+  if (orderId && email && deliveryCountry && estimatedDeliveryDate) {
+    googleReviewOptIn = {
+      orderId,
+      email,
+      deliveryCountry,
+      estimatedDeliveryDate,
+      ...(products ? { products } : {})
+    };
+  }
 } catch (e: any) {
   error = e?.message || 'Unable to load receipt';
 }
+
+const googleReviewOptInJson = googleReviewOptIn
+  ? JSON.stringify(googleReviewOptIn).replace(/</g, '\\u003c')
+  : null;
+const googleReviewOptInScript = googleReviewOptInJson
+  ? `(function(){var payload=${googleReviewOptInJson};function fire(){try{window.triggerGoogleReviewOptIn&&window.triggerGoogleReviewOptIn(payload);}catch(err){console.warn('Google Reviews opt-in trigger failed:',err);}}if(document.readyState==='complete'){fire();}else{window.addEventListener('load',fire,{once:true});}setTimeout(fire,1000);})();`
+  : null;
 ---
 <BaseLayout title="Order Success - F.A.S Performance" description="Thank you for your order! Your order has been received and is being processed.">
 <main class="mt-14  min-h-[70vh] text-white px-6 py-20 max-w-4xl mx-auto">
@@ -84,6 +174,10 @@ try {
   <TrustStrip />
   </div>
 </BaseLayout>
+
+{googleReviewOptInScript && (
+  <script is:inline set:html={googleReviewOptInScript}></script>
+)}
 
 <style>
   .font-ethno { font-family: 'Ethnocentric', sans-serif; }

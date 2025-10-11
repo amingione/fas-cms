@@ -25,6 +25,13 @@ const {
 const SITE_NAME = 'F.A.S. Motorsports';
 const DEFAULT_OG_IMAGE = 'https://fasmotorsports.com/images/social/social-share.webp';
 
+declare global {
+  interface Window {
+    dataLayer: any[];
+    gtag?: (...args: any[]) => void;
+  }
+}
+
 let canonicalUrl = canonical;
 try {
   if (!canonicalUrl) {
@@ -41,16 +48,20 @@ const resolvedOgImage = ogImage ?? DEFAULT_OG_IMAGE;
 const pageTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
 ---
 
+<!DOCTYPE html>
 <html lang="en" class="dark">
   <head>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-NQ94Z6HWGV"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-NQ94Z6HWGV');
+      (function () {
+        window.dataLayer = window.dataLayer || [];
+        /** @param {...any} args */
+        function gtag(...args: any[]) { window.dataLayer.push(args); }
+        window.gtag = window.gtag || gtag;
+        gtag('js', new Date());
+        gtag('config', 'G-NQ94Z6HWGV');
+      })();
     </script>
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -63,6 +74,7 @@ const pageTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#09090b" />
     <title>{pageTitle}</title>
     {description && <meta name="description" content={description} />}
     {noindex && <meta name="robots" content="noindex,nofollow" />}
@@ -77,6 +89,84 @@ const pageTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
     <meta name="twitter:title" content={title ? `${title}` : SITE_NAME} />
     {description && <meta name="twitter:description" content={description} />}
     {resolvedOgImage && <meta name="twitter:image" content={resolvedOgImage} />}
+    <script is:inline>
+      (function () {
+        if (typeof window === 'undefined') return;
+
+        var MERCHANT_ID = 5664091767;
+        var pendingOrder = null;
+        var renderedFor = null;
+
+        function normalizeProducts(products) {
+          if (!Array.isArray(products)) return undefined;
+          var mapped = products
+            .map(function (product) {
+              if (!product) return null;
+              if (typeof product === 'string') {
+                return product.trim() ? { gtin: product.trim() } : null;
+              }
+              var gtin = product.gtin || product.GTIN || product.id || '';
+              gtin = typeof gtin === 'number' ? String(gtin) : String(gtin || '').trim();
+              return gtin ? { gtin: gtin } : null;
+            })
+            .filter(Boolean);
+          return mapped.length ? mapped : undefined;
+        }
+
+        function buildPayload(order) {
+          if (!order) return null;
+          var orderId = String(order.orderId || order.order_id || '').trim();
+          var email = String(order.email || order.customerEmail || '').trim();
+          var country = String(order.deliveryCountry || order.delivery_country || '').trim();
+          var delivery = String(order.estimatedDeliveryDate || order.estimated_delivery_date || '').trim();
+          if (!orderId || !email || !country || !delivery) return null;
+          var payload = {
+            merchant_id: MERCHANT_ID,
+            order_id: orderId,
+            email: email,
+            delivery_country: country,
+            estimated_delivery_date: delivery
+          };
+          var products = normalizeProducts(order.products);
+          if (products) payload.products = products;
+          return payload;
+        }
+
+        function tryRender() {
+          if (!pendingOrder) return;
+          var gapi = window.gapi;
+          if (!gapi || !gapi.surveyoptin || typeof gapi.surveyoptin.render !== 'function') return;
+          var payload = buildPayload(pendingOrder);
+          if (!payload) return;
+          if (renderedFor && renderedFor === payload.order_id) return;
+          try {
+            gapi.surveyoptin.render(payload);
+            renderedFor = payload.order_id;
+          } catch (err) {
+            console.warn('Google Reviews opt-in render failed:', err);
+          }
+        }
+
+        window.renderOptIn = function () {
+          tryRender();
+        };
+
+        window.triggerGoogleReviewOptIn = function (orderDetails) {
+          if (!orderDetails) {
+            pendingOrder = null;
+            renderedFor = null;
+            return;
+          }
+          pendingOrder = orderDetails;
+          tryRender();
+        };
+
+        window.addEventListener('google-review:optin', function (event) {
+          window.triggerGoogleReviewOptIn(event && event.detail);
+        });
+      })();
+    </script>
+    <script async defer src="https://apis.google.com/js/platform.js?onload=renderOptIn"></script>
     
     <slot name="head" />
   </head>

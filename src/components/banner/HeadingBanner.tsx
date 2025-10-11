@@ -72,7 +72,7 @@ const TABS: TabConfig[] = [
         'Pulse on ready-to-ship Predator pulleys, intercoolers, and install hardware kits.'
     },
     metrics: [
-      { label: 'Pulleys ready to ship', base: 0, variance: 0, clamp: [0, 0] },
+      { label: 'Pulleys ready to ship', base: 30, variance: 0, clamp: [30, 30] },
       { label: 'Next restock ETA', base: 5, variance: 2, suffix: 'days', clamp: [2, 9] }
     ],
     footer: {
