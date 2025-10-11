@@ -13,6 +13,16 @@ const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
 
 const configuredBaseUrl = import.meta.env.PUBLIC_BASE_URL || '';
 
+function normalizeBaseUrl(baseUrl: string): string {
+  if (!baseUrl) return baseUrl;
+  try {
+    const url = new URL(baseUrl);
+    return url.origin;
+  } catch {
+    return baseUrl.replace(/\/+$/, '');
+  }
+}
+
 function validateBaseUrl(baseUrl: string): Response | null {
   if (!baseUrl || !baseUrl.startsWith('http')) {
     console.error('❌ Invalid PUBLIC_BASE_URL:', baseUrl);
@@ -68,7 +78,8 @@ export async function POST({ request }: { request: Request }) {
   const xfProto = request.headers.get('x-forwarded-proto') || '';
   const xfHost = request.headers.get('x-forwarded-host') || '';
   const forwarded = xfProto && xfHost ? `${xfProto}://${xfHost}` : '';
-  const baseUrl = configuredBaseUrl || forwarded || origin;
+  const rawBaseUrl = configuredBaseUrl || forwarded || origin;
+  const baseUrl = normalizeBaseUrl(rawBaseUrl);
   const validationError = validateBaseUrl(baseUrl);
   if (validationError) return validationError;
 

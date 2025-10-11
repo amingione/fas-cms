@@ -1,7 +1,7 @@
 import type { Handler } from '@netlify/functions';
 import Stripe from 'stripe';
 import { stripe } from './_stripe';
-import { sanity, getSanityClient } from './_sanity';
+import { sanity } from './_sanity';
 import { sendEmail } from './_resend';
 import { createOrderCartItem, type OrderCartItem } from '../../src/server/sanity/order-cart';
 
@@ -10,6 +10,86 @@ const json = (statusCode: number, body: any) => ({
   headers: { 'content-type': 'application/json; charset=utf-8' },
   body: JSON.stringify(body)
 });
+
+const centsToDollars = (value?: number | null): number =>
+  typeof value === 'number' && Number.isFinite(value) ? value / 100 : 0;
+
+const dollars = (value?: number | null): number =>
+  typeof value === 'number' && Number.isFinite(value) ? value : 0;
+
+const formatCurrency = (value: number): string => `$${value.toFixed(2)}`;
+
+const escapeHtml = (input: unknown): string =>
+  String(input ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+const formatOrderDate = (iso?: string | null, createdAtSeconds?: number | null): string => {
+  let date: Date;
+  if (iso) {
+    date = new Date(iso);
+  } else if (typeof createdAtSeconds === 'number' && Number.isFinite(createdAtSeconds)) {
+    date = new Date(createdAtSeconds * 1000);
+  } else {
+    date = new Date();
+  }
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  }).format(date);
+};
+
+const generateFallbackOrderNumber = (
+  session: Stripe.Checkout.Session,
+  fallbackId: string
+): string => {
+  const created =
+    typeof session.created === 'number' && Number.isFinite(session.created)
+      ? new Date(session.created * 1000)
+      : new Date();
+  const yyyy = created.getUTCFullYear();
+  const mm = String(created.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(created.getUTCDate()).padStart(2, '0');
+  const idSource =
+    (typeof session.id === 'string' && session.id) ||
+    (typeof session.payment_intent === 'string' && session.payment_intent) ||
+    fallbackId;
+  const idPart = idSource.slice(-6).toUpperCase();
+  return `FAS-${yyyy}${mm}${dd}-${idPart}`;
+};
+
+const buildAddressHtml = (details?: Stripe.Checkout.Session.CustomerDetails | null): string => {
+  if (!details) return '';
+  const { address } = details;
+  const lines: string[] = [];
+  if (details.name) lines.push(escapeHtml(details.name));
+  if (address?.line1) lines.push(escapeHtml(address.line1));
+  if (address?.line2) lines.push(escapeHtml(address.line2));
+
+  const cityStateComponents = [
+    address?.city ? escapeHtml(address.city) : '',
+    address?.state ? escapeHtml(address.state) : ''
+  ].filter(Boolean);
+  const cityState = cityStateComponents.join(', ');
+  const postalLine = [cityState, address?.postal_code ? escapeHtml(address.postal_code) : '']
+    .filter(Boolean)
+    .join(' ');
+  if (postalLine) lines.push(postalLine);
+  if (address?.country) lines.push(escapeHtml(address.country));
+  if (details.email) lines.push(escapeHtml(details.email));
+  if (details.phone) lines.push(`Phone: ${escapeHtml(details.phone)}`);
+  if (!lines.length) return '';
+  return `<div style="margin-top:24px;">
+    <h3 style="font-size:16px;font-weight:600;margin:0 0 8px 0;">Shipping To</h3>
+    <div style="padding:12px;border:1px solid #e5e7eb;border-radius:8px;background:#f9fafb;">
+      ${lines.map((line) => `<div style="margin:2px 0;">${line}</div>`).join('')}
+    </div>
+  </div>`;
+};
 
 export const handler: Handler = async (event) => {
   try {
@@ -218,35 +298,202 @@ export const handler: Handler = async (event) => {
         const RESEND_API_KEY = process.env.RESEND_API_KEY;
         const to = email;
         if (RESEND_API_KEY && to) {
+          let sanityOrder:
+            | {
+                orderNumber?: string;
+                customerName?: string;
+                createdAt?: string;
+                amountSubtotal?: number;
+                amountTax?: number;
+                amountShipping?: number;
+                totalAmount?: number;
+              }
+            | null = null;
+          if (orderId) {
+            try {
+              sanityOrder = await sanity.fetch(
+                `*[_id==$id][0]{orderNumber,customerName,createdAt,amountSubtotal,amountTax,amountShipping,totalAmount}`,
+                { id: orderId }
+              );
+            } catch (fetchErr) {
+              console.warn(
+                '[stripe-webhook] unable to fetch order metadata',
+                (fetchErr as any)?.message || fetchErr
+              );
+            }
+          }
+
+          const sanityOrderNumber =
+            typeof sanityOrder?.orderNumber === 'string' ? sanityOrder.orderNumber.trim() : '';
+          const createdOrderNumber =
+            typeof (newOrder as any)?.orderNumber === 'string'
+              ? (newOrder as any).orderNumber.trim()
+              : '';
+          const existingOrderNumber = sanityOrderNumber || createdOrderNumber;
+          let generatedOrderNumber: string | undefined;
+          let orderNumber =
+            existingOrderNumber || generateFallbackOrderNumber(session, orderId || session.id || '');
+          if (!existingOrderNumber) {
+            generatedOrderNumber = orderNumber;
+          }
+
+          const orderDate = formatOrderDate(
+            sanityOrder?.createdAt,
+            session.created ?? (paymentIntent?.created as number | undefined)
+          );
+          const customerName =
+            session.customer_details?.name ||
+            sanityOrder?.customerName ||
+            session.shipping_details?.name ||
+            'there';
+
           const rows = cartLines
             .map((line) => {
               const quantity = line.quantity ?? 1;
               const unit = line.price ?? 0;
               const total = unit * quantity;
-              return `<tr><td style="padding:8px;border-bottom:1px solid #eee">${line.name || ''}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:center">${quantity}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right">$${total.toFixed(2)}</td></tr>`;
+              return `<tr>
+                <td style="padding:12px;border-bottom:1px solid #e5e7eb;">${escapeHtml(
+                  line.name || 'Item'
+                )}</td>
+                <td style="padding:12px;border-bottom:1px solid #e5e7eb;text-align:center;">${quantity}</td>
+                <td style="padding:12px;border-bottom:1px solid #e5e7eb;text-align:right;">${formatCurrency(
+                  total
+                )}</td>
+              </tr>`;
             })
             .join('');
-          const html = `
-            <div style="font-family:Arial,sans-serif;max-width:640px;margin:0 auto;color:#111">
-              <div style="text-align:center;margin-bottom:16px">
-                <img src="https://www.fasmotorsports.com/logo/faslogochroma.png" alt="FAS Motorsports" style="height:48px" />
+
+          const subtotal =
+            typeof session.amount_subtotal === 'number'
+              ? centsToDollars(session.amount_subtotal)
+              : dollars(sanityOrder?.amountSubtotal ?? (session as any)?.amount_subtotal);
+          const shippingTotal =
+            typeof session.shipping_cost?.amount_total === 'number'
+              ? centsToDollars(session.shipping_cost.amount_total)
+              : dollars(sanityOrder?.amountShipping ?? (session as any)?.amount_shipping);
+          const taxTotal =
+            typeof session.total_details?.amount_tax === 'number'
+              ? centsToDollars(session.total_details.amount_tax)
+              : dollars(sanityOrder?.amountTax ?? (session as any)?.amount_tax);
+          const discountTotal =
+            typeof session.total_details?.amount_discount === 'number'
+              ? centsToDollars(session.total_details.amount_discount)
+              : 0;
+          const orderTotal =
+            typeof session.amount_total === 'number'
+              ? centsToDollars(session.amount_total)
+              : dollars(sanityOrder?.totalAmount ?? (session as any)?.amount_total);
+
+          const summaryRows = [
+            { label: 'Subtotal', value: subtotal, emphasize: false, hideIfZero: false },
+            { label: 'Shipping', value: shippingTotal, emphasize: false, hideIfZero: true },
+            { label: 'Tax', value: taxTotal, emphasize: false, hideIfZero: true },
+            {
+              label: 'Discounts',
+              value: discountTotal > 0 ? -discountTotal : 0,
+              emphasize: false,
+              hideIfZero: discountTotal <= 0
+            },
+            { label: 'Order Total', value: orderTotal, emphasize: true, hideIfZero: false }
+          ]
+            .filter((row) => !(row.hideIfZero && Math.abs(row.value) < 0.005))
+            .map(
+              (row) => `<tr>
+                <td style="padding:6px 0;color:#4b5563;">${row.label}</td>
+                <td style="padding:6px 0;text-align:right;font-weight:${
+                  row.emphasize ? 600 : 500
+                };color:#111827;">
+                  ${row.value < 0 ? '-' : ''}${formatCurrency(Math.abs(row.value))}
+                </td>
+              </tr>`
+            )
+            .join('');
+
+          const paymentMethod = (() => {
+            const charge = (paymentIntent as any)?.charges?.data?.[0];
+            const brand = charge?.payment_method_details?.card?.brand;
+            const last4 = charge?.payment_method_details?.card?.last4;
+            if (!brand && !last4) return '';
+            return `<div style="margin-top:24px;">
+              <h3 style="font-size:16px;font-weight:600;margin:0 0 8px 0;">Payment Method</h3>
+              <div style="padding:12px;border:1px solid #e5e7eb;border-radius:8px;background:#f9fafb;">
+                <div style="margin:0;color:#111827;">${escapeHtml(
+                  String(brand || 'Card')
+                ).toUpperCase()} ending in ${escapeHtml(last4 || '••••')}</div>
               </div>
-              <h2 style="margin:8px 0">Thanks for your order!</h2>
-              <p style="margin:4px 0 16px 0">Order: <strong>${session.id}</strong></p>
-              <table style="width:100%;border-collapse:collapse;margin-bottom:12px">
-                <thead>
-                  <tr>
-                    <th style="text-align:left;padding:8px;border-bottom:1px solid #ccc">Item</th>
-                    <th style="text-align:center;padding:8px;border-bottom:1px solid #ccc">Qty</th>
-                    <th style="text-align:right;padding:8px;border-bottom:1px solid #ccc">Total</th>
-                  </tr>
-                </thead>
-                <tbody>${rows}</tbody>
-              </table>
-              <p style="text-align:right;margin:0 0 4px 0">Order Total: <strong>$${Number((session.amount_total || 0) / 100).toFixed(2)}</strong></p>
-              <p style="font-size:12px;color:#555">We will email tracking information when your order ships.</p>
             </div>`;
-          await sendEmail({ to, subject: 'Order Confirmation', html });
+          })();
+
+          const shippingBlock = buildAddressHtml(
+            session.shipping_details || session.customer_details || null
+          );
+
+          const html = `
+            <div style="font-family:'Helvetica Neue',Arial,sans-serif;background-color:#f4f5f7;padding:24px;">
+              <div style="max-width:640px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 12px 35px rgba(15,23,42,0.12);">
+                <div style="background:#111827;padding:24px;text-align:center;">
+                  <img src="https://www.fasmotorsports.com/logo/chromelogofas.png" alt="FAS Motorsports" style="display:inline-block;max-width:160px;width:100%;height:auto;" />
+                </div>
+                <div style="padding:24px;">
+                  <p style="font-size:24px;font-weight:600;margin:0 0 8px 0;color:#111827;">Thank you for your order!</p>
+                  <p style="margin:0 0 24px 0;color:#4b5563;">Hi ${escapeHtml(
+                    customerName
+                  )}, we’re processing your order and will email tracking details once it ships.</p>
+                  <div style="border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:24px;background:#f9fafb;">
+                    <div style="font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.08em;">Order Number</div>
+                    <div style="font-size:18px;font-weight:600;margin:4px 0 12px 0;color:#111827;">${escapeHtml(
+                      orderNumber
+                    )}</div>
+                    <div style="font-size:14px;color:#6b7280;">Placed on ${escapeHtml(orderDate)}</div>
+                  </div>
+                  <h3 style="font-size:16px;font-weight:600;margin:0 0 12px 0;color:#111827;">Order Summary</h3>
+                  <table style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
+                    <thead>
+                      <tr style="background-color:#f3f4f6;">
+                        <th style="text-align:left;padding:12px;font-size:13px;color:#6b7280;font-weight:600;">Item</th>
+                        <th style="text-align:center;padding:12px;font-size:13px;color:#6b7280;font-weight:600;">Qty</th>
+                        <th style="text-align:right;padding:12px;font-size:13px;color:#6b7280;font-weight:600;">Price</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${
+                        rows ||
+                        `<tr><td colspan="3" style="padding:16px;text-align:center;color:#6b7280;">No items found</td></tr>`
+                      }
+                    </tbody>
+                  </table>
+                  <table style="width:100%;margin-top:16px;border-collapse:collapse;">
+                    ${summaryRows}
+                  </table>
+                  ${shippingBlock}
+                  ${paymentMethod}
+                  <div style="margin-top:24px;padding-top:16px;border-top:1px solid #e5e7eb;color:#6b7280;font-size:13px;line-height:1.6;">
+                    <p style="margin:0 0 8px 0;">If you have any questions, reply to this email or contact us at <a href="mailto:support@fasmotorsports.com" style="color:#ef4444;text-decoration:none;">support@fasmotorsports.com</a>.</p>
+                    <p style="margin:0;">Thank you for choosing FAS Motorsports.</p>
+                  </div>
+                </div>
+              </div>
+            </div>`;
+
+          await sendEmail({
+            to,
+            subject: `Your FAS Motorsports Order Confirmation – ${orderNumber}`,
+            html
+          });
+
+          if (orderId) {
+            const patch = sanity.patch(orderId).set({ confirmationEmailSent: true });
+            if (generatedOrderNumber) {
+              patch.set({ orderNumber: generatedOrderNumber });
+            }
+            await patch.commit({ autoGenerateArrayKeys: true }).catch((err) => {
+              console.warn(
+                '[stripe-webhook] unable to update confirmation flags',
+                (err as any)?.message || err
+              );
+            });
+          }
         }
       } catch (e) {
         console.warn('[stripe-webhook] email send failed:', (e as any)?.message || e);
