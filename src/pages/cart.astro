@@ -1,0 +1,50 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import CartAutoOpen from '@/components/cart/CartAutoOpen.tsx';
+---
+
+<BaseLayout
+  title="Your Cart"
+  description="Review the items in your cart and proceed to checkout."
+>
+  <section class="min-h-[60vh] flex flex-col items-center justify-center gap-6 text-center px-6">
+    <div class="space-y-3 max-w-2xl">
+      <h1 class="text-3xl md:text-4xl font-ethno tracking-wide">Review Your Cart</h1>
+      <p class="text-white/70 leading-relaxed">
+        We&apos;re opening your cart so you can confirm your items before checkout. If the cart
+        doesn&apos;t appear automatically, use the button below to open it manually.
+      </p>
+    </div>
+
+    <button
+      class="px-5 py-3 rounded-full bg-accent text-black font-semibold shadow-lg hover:bg-accent/80 transition"
+      data-open-cart
+      type="button"
+    >
+      Open Cart
+    </button>
+
+    <p class="text-sm text-white/50">
+      Need to keep shopping? <a class="text-accent underline hover:text-accent/80" href="/shop/storefront">Browse the storefront</a>.
+    </p>
+  </section>
+
+  <CartAutoOpen client:only="react" />
+
+  <script is:inline>
+    (function () {
+      if (typeof window === 'undefined') return;
+      function openCart() {
+        try {
+          window.dispatchEvent(new Event('open-cart'));
+        } catch (error) {
+          void error;
+        }
+      }
+      const manualButton = document.querySelector('[data-open-cart]');
+      if (manualButton) {
+        manualButton.addEventListener('click', openCart);
+      }
+    })();
+  </script>
+</BaseLayout>

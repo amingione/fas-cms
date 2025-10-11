@@ -327,12 +327,12 @@ export async function POST({ request }: { request: Request }) {
 
     const paymentIntentMetadata = { ...sessionMetadata };
 
-    const shippingAddressCollection: Stripe.Checkout.SessionCreateParams.ShippingAddressCollection =
-      {
-        allowed_countries: ['US', 'CA']
-      };
+  const shippingAddressCollection: Stripe.Checkout.SessionCreateParams.ShippingAddressCollection =
+    {
+      allowed_countries: ['US', 'CA']
+    };
 
-    const customerEmail = userEmail || normalizedDestination?.email || undefined;
+  const customerEmail = userEmail || normalizedDestination?.email || undefined;
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       // Offer standard cards plus Affirm financing at checkout
@@ -359,7 +359,6 @@ export async function POST({ request }: { request: Request }) {
     }
 
     sessionParams.customer_creation = 'if_required';
-
     if (customerEmail) {
       sessionParams.customer_email = customerEmail;
     }
@@ -401,10 +400,6 @@ export async function POST({ request }: { request: Request }) {
 
     // With automatic tax enabled, Stripe expects to collect the shipping address at checkout.
     // Avoid passing payment_intent_data.shipping so we don't trigger the "cannot enable automatic tax" error.
-    if (normalizedDestination) {
-      sessionParams.customer_creation = 'if_required';
-    }
-
     const session = await stripe.checkout.sessions.create(sessionParams);
 
     return new Response(JSON.stringify({ url: session.url }), {
