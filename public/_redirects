@@ -29,6 +29,3 @@ https://www.fasmotorsports.us/*    https://www.fasmotorsports.com/:splat  301!
 /my-account/*                      /account  301!
 /checkout/*                        /cart  301!
 /cart/*                            /cart  301!
-
-# Fallback all other routes to the Astro SSR function
-/*                                  /.netlify/functions/ssr  200
