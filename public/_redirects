@@ -29,3 +29,8 @@ https://www.fasmotorsports.us/*    https://www.fasmotorsports.com/:splat  301!
 /my-account/*                      /account  301!
 /checkout/*                        /cart  301!
 /cart/*                            /cart  301!
+
+# Fallback to Netlify SSR function (limit to hosted domains so local dev stays local)
+https://www.fasmotorsports.com/*    /.netlify/functions/ssr  200
+https://fasmotorsports.com/*        /.netlify/functions/ssr  200
+https://:subdomain--fasmoto.netlify.app/*  /.netlify/functions/ssr  200

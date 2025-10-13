@@ -334,7 +334,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
           </a>
         </li>
         {/* Account / Auth */}
-        <li className="hidden py-2">
+        <li className="py-2">
           {authed === null ? (
             <a
               href="/account"
@@ -347,7 +347,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
           ) : authed === true ? (
             <div className="flex flex-col gap-2">
               <a
-                href="/account"
+                href="/dashboard"
                 onClick={onNavigate}
                 className="flex items-center gap-2 text-lg text-white dark:text-white hover:text-neutral-500"
               >

@@ -16,8 +16,7 @@ import {
   TabPanel,
   TabPanels
 } from '@headlessui/react';
-import { ArrowDownLeftIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
-
+import { ArrowDownLeftIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 interface CategoryPreview {
   id: string;
