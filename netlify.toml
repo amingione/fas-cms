@@ -3,6 +3,11 @@
   to = "/site.webmanifest"
   status = 200
 
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
 ## Note: Custom auth uses Astro API under /api/auth/*; no redirects needed.
 
 [build]
