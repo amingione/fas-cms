@@ -334,7 +334,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
           </a>
         </li>
         {/* Account / Auth */}
-        <li className="py-2">
+        <li className="hidden py-2">
           {authed === null ? (
             <a
               href="/account"

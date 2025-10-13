@@ -497,7 +497,7 @@ export async function POST({ request }: { request: Request }) {
             : '';
         const existingOrderNumber = sanityOrderNumber || createdOrderNumber;
         let generatedOrderNumber: string | undefined;
-        let orderNumber =
+        const orderNumber =
           existingOrderNumber || generateFallbackOrderNumber(session, orderId || session.id || '');
         if (!existingOrderNumber) {
           generatedOrderNumber = orderNumber;
