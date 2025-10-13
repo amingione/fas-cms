@@ -194,8 +194,8 @@ const pageTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
     <Header />
 
     <!-- Page content -->
-    <div class="relative">
-      <main class="mt-10 pt-5 flex-grow container max-w-full mx-auto">
+    <div class="relative flex flex-col flex-1">
+      <main class="mt-10 pt-5 flex-1 container max-w-full mx-auto">
         <slot />
       </main>
       <Footer />
