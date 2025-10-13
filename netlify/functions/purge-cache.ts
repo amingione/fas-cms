@@ -11,7 +11,7 @@ export const handler: Handler = async () => {
     };
   }
 
-  const res = await fetch(`https://api.netlify.com/api/v1/sites/${siteId}/purge`, {
+  const res = await fetch(`https://api.netlify.com/api/v1/sites/${siteId}/purge_cache`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}` }
   });
@@ -23,4 +23,3 @@ export const handler: Handler = async () => {
     body: JSON.stringify({ ok, response: text })
   };
 };
-
