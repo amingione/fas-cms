@@ -5,7 +5,7 @@
 
 [[redirects]]
   from = "/*"
-  to = "/index.html"
+  to = "/.netlify/functions/ssr"
   status = 200
 
 ## Note: Custom auth uses Astro API under /api/auth/*; no redirects needed.
