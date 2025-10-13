@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 // Lazy-load heavy particle libs at runtime to reduce TBT
 // We avoid static imports so the bundle for pages without particles stays lean.
 import type { Container, Engine, ISourceOptions } from 'tsparticles-engine';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, ComponentType } from 'react';
 
 type Props = {
   id?: string;
@@ -270,7 +270,7 @@ const BasicParticles = ({
   }, [options, fullScreen, zIndex]);
 
   // Defer heavy imports until after idle + only on larger screens
-  const [ParticlesComp, setParticlesComp] = useState<null | ((props: any) => JSX.Element)>(null);
+  const [ParticlesComp, setParticlesComp] = useState<null | ComponentType<any>>(null);
   const loadedRef = useRef(false);
 
   useEffect(() => {
@@ -311,7 +311,7 @@ const BasicParticles = ({
             {...p}
           />
         );
-        setParticlesComp(() => Wrapper as any);
+        setParticlesComp(() => Wrapper as ComponentType<any>);
       }).catch(() => {
         // Fail silent; particles are purely decorative
       });

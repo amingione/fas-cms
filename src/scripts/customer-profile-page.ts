@@ -1,25 +1,17 @@
+import { ensureFasAuthLoaded } from './fas-auth-shared';
+
 // Uses fas-auth session
-
-type FasAuth = {
-  isAuthenticated: () => Promise<boolean>;
-  getSession: () => Promise<{ user?: { email?: string } } | null>;
-};
-
-declare global {
-  interface Window {
-    fasAuth?: FasAuth;
-  }
-}
-
 const $ = (id: string) => document.getElementById(id) as HTMLInputElement | null;
 
 async function resolveEmail() {
   try {
-    const fas = (window as any).fasAuth;
-    const authed = fas ? await fas.isAuthenticated() : false;
-    if (authed) {
-      const session = await fas.getSession();
-      if (session?.user?.email) return session.user.email as string;
+    const fas = await ensureFasAuthLoaded();
+    if (fas) {
+      const authed = await fas.isAuthenticated();
+      if (authed) {
+        const session = await fas.getSession();
+        if (session?.user?.email) return session.user.email as string;
+      }
     }
   } catch (error) {
     void error;

@@ -1,17 +1,10 @@
-declare global {
-  interface Window {
-    fasAuth?: {
-      isAuthenticated: () => Promise<boolean>;
-      getSession: () => Promise<{ user?: { id: string; email?: string; roles?: string[] } } | null>;
-    };
-  }
-}
+import { ensureFasAuthLoaded } from './fas-auth-shared';
 
 (async () => {
   const badge = document.getElementById('account-top-badge');
   if (!badge) return;
 
-  const fas = window.fasAuth;
+  const fas = await ensureFasAuthLoaded();
   if (!fas) {
     badge.innerHTML = `<a href="/account" class="hover:!text-accent hover:underline">Log in / Sign up</a>`;
     return;

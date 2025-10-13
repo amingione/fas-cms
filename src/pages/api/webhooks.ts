@@ -1,5 +1,6 @@
 import Stripe from 'stripe';
 import { createClient } from '@sanity/client';
+import type { SanityDocumentStub } from '@sanity/client';
 import { createOrderCartItem, type OrderCartItem } from '@/server/sanity/order-cart';
 
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
@@ -116,6 +117,12 @@ type ShippingSelection = {
   metadata: Record<string, string>;
 };
 
+type OrderDocument = {
+  _type: 'order';
+  cart: OrderCartItem[];
+  [key: string]: unknown;
+};
+
 const parseShippingSelection = (session: Stripe.Checkout.Session): ShippingSelection | null => {
   const meta = (session.metadata || {}) as Record<string, string | null | undefined>;
   const metadata: Record<string, string> = {};
@@ -147,9 +154,7 @@ const parseShippingSelection = (session: Stripe.Checkout.Session): ShippingSelec
 
   const amount = amountStr && Number.isFinite(Number(amountStr)) ? Number(amountStr) : undefined;
   const deliveryDays =
-    deliveryDaysStr && Number.isFinite(Number(deliveryDaysStr))
-      ? Number(deliveryDaysStr)
-      : null;
+    deliveryDaysStr && Number.isFinite(Number(deliveryDaysStr)) ? Number(deliveryDaysStr) : null;
   const currency = currencyRaw ? currencyRaw.toUpperCase() : undefined;
 
   if (currency) metadata.shipping_currency = currency;
@@ -316,7 +321,20 @@ export async function POST({ request }: { request: Request }) {
         ? toShippingCarrierOption(shippingSelection.carrier)
         : undefined;
 
-      const orderPayload: Record<string, any> = {
+      const collectedShippingDetails = session.collected_information?.shipping_details || null;
+      const shippingDetailsForEmail: Stripe.Checkout.Session.CustomerDetails | null =
+        collectedShippingDetails
+          ? {
+              address: collectedShippingDetails.address,
+              email: session.customer_details?.email ?? null,
+              name: collectedShippingDetails.name,
+              phone: session.customer_details?.phone ?? null,
+              tax_exempt: session.customer_details?.tax_exempt ?? null,
+              tax_ids: session.customer_details?.tax_ids ?? null
+            }
+          : null;
+
+      const orderPayload: SanityDocumentStub<OrderDocument> = {
         _type: 'order',
         stripeSessionId: session.id,
         paymentIntentId:
@@ -492,7 +510,7 @@ export async function POST({ request }: { request: Request }) {
         const customerName =
           session.customer_details?.name ||
           sanityOrder?.customerName ||
-          session.shipping_details?.name ||
+          shippingDetailsForEmail?.name ||
           'there';
 
         const rows = cartLines
@@ -572,7 +590,7 @@ export async function POST({ request }: { request: Request }) {
         })();
 
         const shippingBlock = buildAddressHtml(
-          session.shipping_details || session.customer_details || null
+          shippingDetailsForEmail || session.customer_details || null
         );
 
         const html = `

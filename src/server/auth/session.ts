@@ -17,6 +17,7 @@ export interface SessionUser {
 }
 
 export interface SessionPayload extends SessionUser {
+  sub?: string;
   iat?: number;
   exp?: number;
 }

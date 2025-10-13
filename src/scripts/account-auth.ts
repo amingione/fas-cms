@@ -1,17 +1,6 @@
 // src/scripts/account-auth.ts
 // Lightweight account gate that relies solely on the fas-auth shim (session-backed auth).
-
-declare global {
-  interface Window {
-    fasAuth?: {
-      isAuthenticated: () => Promise<boolean>;
-      getSession: () => Promise<{ user?: { id: string; email?: string; roles?: string[] } } | null>;
-      loginTo: (returnTo: string) => Promise<void>;
-      login: (returnTo?: string) => Promise<void>;
-      logout: (returnTo?: string) => Promise<void>;
-    };
-  }
-}
+import { ensureFasAuthLoaded, getFallbackFasAuth, type FasAuth } from './fas-auth-shared';
 
 const root = document.getElementById('account-view');
 
@@ -26,14 +15,7 @@ function show(html: string) {
   root.innerHTML = html;
 }
 
-async function ensureFasAuth(): Promise<NonNullable<typeof window.fasAuth> | null> {
-  if (window.fasAuth) return window.fasAuth;
-  // Wait a tick in case fas-auth.js has not run yet
-  await new Promise((resolve) => setTimeout(resolve, 100));
-  return window.fasAuth || null;
-}
-
-function bindLoginButtons(fas: NonNullable<typeof window.fasAuth>, returnTo: string) {
+function bindLoginButtons(fas: FasAuth, returnTo: string) {
   const handler = () => fas.loginTo(returnTo);
   document.getElementById('login')?.addEventListener('click', handler);
   document.getElementById('signup')?.addEventListener('click', handler);
@@ -43,20 +25,14 @@ function bindLoginButtons(fas: NonNullable<typeof window.fasAuth>, returnTo: str
   if (!root) return;
   console.log('🚀 account page script (fas-auth) loaded');
 
-  const fas = await ensureFasAuth();
+  const fas = await ensureFasAuthLoaded();
   if (!fas) {
     show(`
       <h1 class="text-2xl mb-4 font-borg text-primary">Account</h1>
       <p class="mb-4">Authentication helper failed to load. Please refresh the page.</p>
       ${buttonGroup}
     `);
-    bindLoginButtons({
-      loginTo: async () => window.location.assign('/account'),
-      login: async () => window.location.assign('/account'),
-      logout: async () => {},
-      isAuthenticated: async () => false,
-      getSession: async () => null
-    } as any, '/account');
+    bindLoginButtons(getFallbackFasAuth(), '/account');
     return;
   }
 

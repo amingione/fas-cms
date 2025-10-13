@@ -27,7 +27,7 @@ interface SanityCustomerQueryResult {
 }
 
 const stripeClient = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-06-20'
+  apiVersion: '2025-08-27.basil'
 });
 
 

@@ -2,6 +2,7 @@ import type { Handler } from '@netlify/functions';
 import Stripe from 'stripe';
 import { stripe } from './_stripe';
 import { sanity } from './_sanity';
+import type { SanityDocumentStub } from '@sanity/client';
 import { sendEmail } from './_resend';
 import { createOrderCartItem, type OrderCartItem } from '../../src/server/sanity/order-cart';
 
@@ -101,6 +102,12 @@ type ShippingSelection = {
   deliveryDays?: number | null;
   estimatedDeliveryDate?: string | null;
   metadata: Record<string, string>;
+};
+
+type OrderDocument = {
+  _type: 'order';
+  cart: OrderCartItem[];
+  [key: string]: unknown;
 };
 
 const parseShippingSelection = (session: Stripe.Checkout.Session): ShippingSelection | null => {
@@ -293,10 +300,24 @@ export const handler: Handler = async (event) => {
         ? toShippingCarrierOption(shippingSelection.carrier)
         : undefined;
 
+      const collectedShippingDetails = session.collected_information?.shipping_details || null;
+      const shippingDetailsForEmail: Stripe.Checkout.Session.CustomerDetails | null =
+        collectedShippingDetails
+          ? {
+              address: collectedShippingDetails.address,
+              email: session.customer_details?.email ?? null,
+              name: collectedShippingDetails.name,
+              phone: session.customer_details?.phone ?? null,
+              tax_exempt: session.customer_details?.tax_exempt ?? null,
+              tax_ids: session.customer_details?.tax_ids ?? null
+            }
+          : null;
+
       // Create order if not exists
       let orderId = existingOrder?._id as string | undefined;
+      let createdOrderDoc: Record<string, unknown> | null = null;
       if (!orderId) {
-        const orderPayload: Record<string, any> = {
+        const orderPayload: SanityDocumentStub<OrderDocument> = {
           _type: 'order',
           stripeSessionId: session.id,
           paymentIntentId:
@@ -375,6 +396,7 @@ export const handler: Handler = async (event) => {
 
         const orderDoc = await sanity.create(orderPayload);
         orderId = orderDoc._id as string;
+        createdOrderDoc = orderDoc;
       }
 
       // Create invoice doc for the order (idempotent by session)
@@ -489,8 +511,8 @@ export const handler: Handler = async (event) => {
           const sanityOrderNumber =
             typeof sanityOrder?.orderNumber === 'string' ? sanityOrder.orderNumber.trim() : '';
           const createdOrderNumber =
-            typeof (newOrder as any)?.orderNumber === 'string'
-              ? (newOrder as any).orderNumber.trim()
+            typeof (createdOrderDoc as any)?.orderNumber === 'string'
+              ? String((createdOrderDoc as any).orderNumber).trim()
               : '';
           const existingOrderNumber = sanityOrderNumber || createdOrderNumber;
           let generatedOrderNumber: string | undefined;
@@ -501,13 +523,13 @@ export const handler: Handler = async (event) => {
           }
 
           const orderDate = formatOrderDate(
-            sanityOrder?.createdAt,
+            sanityOrder?.createdAt || (createdOrderDoc as any)?.createdAt,
             session.created ?? (paymentIntent?.created as number | undefined)
           );
           const customerName =
             session.customer_details?.name ||
             sanityOrder?.customerName ||
-            session.shipping_details?.name ||
+            shippingDetailsForEmail?.name ||
             'there';
 
           const rows = cartLines
@@ -589,7 +611,7 @@ export const handler: Handler = async (event) => {
           })();
 
           const shippingBlock = buildAddressHtml(
-            session.shipping_details || session.customer_details || null
+            shippingDetailsForEmail || session.customer_details || null
           );
 
           const html = `

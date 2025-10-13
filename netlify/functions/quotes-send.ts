@@ -52,12 +52,20 @@ export const handler: Handler = async (event) => {
           description: it.title || it.sku || 'Item'
         });
       }
-      const finalized = await stripe.invoices.finalizeInvoice(inv.id);
+      const draftInvoiceId = inv.id;
+      if (!draftInvoiceId) {
+        throw new Error('Stripe invoice creation did not return an id.');
+      }
+      const finalized = await stripe.invoices.finalizeInvoice(draftInvoiceId);
       invoiceId = finalized.id;
       hostedInvoiceUrl = finalized.hosted_invoice_url || undefined;
       invoiceNumber = finalized.number || undefined;
       invoiceTotal = typeof finalized.total === 'number' ? finalized.total / 100 : undefined;
-      try { await stripe.invoices.sendInvoice(finalized.id); } catch {}
+      try {
+        if (finalized.id) {
+          await stripe.invoices.sendInvoice(finalized.id);
+        }
+      } catch {}
       await sanity
         .patch(quote._id)
         .set({
@@ -73,13 +81,22 @@ export const handler: Handler = async (event) => {
       hostedInvoiceUrl = (inv as any)?.hosted_invoice_url || hostedInvoiceUrl;
       invoiceNumber = (inv as any)?.number || undefined;
       invoiceTotal = typeof (inv as any)?.total === 'number' ? (inv as any).total / 100 : undefined;
-      if ((inv as any)?.status === 'draft') {
-        const finalized = await stripe.invoices.finalizeInvoice(inv.id);
+      const retrievedInvoiceId = inv.id || invoiceId;
+      if ((inv as any)?.status === 'draft' && retrievedInvoiceId) {
+        const finalized = await stripe.invoices.finalizeInvoice(retrievedInvoiceId);
         hostedInvoiceUrl = finalized.hosted_invoice_url || hostedInvoiceUrl;
         invoiceNumber = finalized.number || invoiceNumber;
         invoiceTotal = typeof finalized.total === 'number' ? finalized.total / 100 : invoiceTotal;
+        try {
+          if (finalized.id) {
+            await stripe.invoices.sendInvoice(finalized.id);
+          }
+        } catch {}
+      } else {
+        try {
+          await stripe.invoices.sendInvoice(invoiceId);
+        } catch {}
       }
-      try { await stripe.invoices.sendInvoice(invoiceId); } catch {}
       await sanity
         .patch(quote._id)
         .set({

@@ -474,9 +474,10 @@ export async function POST({ request }: { request: Request }) {
           }
         }
       ];
-      applyOptionMetadata(
-        finalShippingOptions[0].shipping_rate_data.metadata as Record<string, string>
-      );
+      const firstOption = finalShippingOptions[0];
+      if (firstOption?.shipping_rate_data?.metadata) {
+        applyOptionMetadata(firstOption.shipping_rate_data.metadata as Record<string, string>);
+      }
       if (!shippingMetadata.shipping_currency) {
         shippingMetadata.shipping_currency = 'USD';
       }

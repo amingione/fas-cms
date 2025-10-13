@@ -20,10 +20,11 @@ export const handler: Handler = async (event) => {
       livemode: !!c.livemode
     }));
 
+    const lastCustomer = res.data.length > 0 ? res.data[res.data.length - 1] : undefined;
     return {
       statusCode: 200,
       headers: { 'content-type': 'application/json; charset=utf-8', 'access-control-allow-origin': '*' },
-      body: JSON.stringify({ data, has_more: res.has_more, lastId: res.data.at(-1)?.id || null })
+      body: JSON.stringify({ data, has_more: res.has_more, lastId: lastCustomer?.id || null })
     };
   } catch (e: any) {
     return { statusCode: e.statusCode || 500, body: e.message || 'Error' };

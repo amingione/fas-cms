@@ -15,15 +15,6 @@ const looksLikeCarrierId = (value?: string | null) => {
   return /^se-/.test(v) || /^car_/.test(v) || /^[0-9a-f-]{16,}$/i.test(v);
 };
 
-const FALLBACK_CARRIER_IDS: string[] = [
-  'se-3809552', // USPS (Stamps.com)
-  'se-3809716', // DHL Express
-  'se-3809553', // UPS
-  'se-3809712', // SEKO LTL
-  'se-3809554', // FedEx
-  'se-3809713' // GlobalPost
-];
-
 const parseCarrierIds = (value?: string | null): string[] => {
   if (!value) return [];
   return value
@@ -252,9 +243,11 @@ const resolveCarrierIds = async (): Promise<string[]> => {
   if (cachedCarrierIds) return cachedCarrierIds;
 
   const fetched = await listCarrierIds();
-  const merged = dedupe([...fetched, ...FALLBACK_CARRIER_IDS]);
-  cachedCarrierIds = merged;
-  return merged;
+  cachedCarrierIds = dedupe(fetched);
+  if (!cachedCarrierIds.length) {
+    return [];
+  }
+  return cachedCarrierIds;
 };
 
 const isUspsRate = (rate: ShippingRate): boolean => {
@@ -425,7 +418,29 @@ export async function computeShippingQuote(
   }
 
   try {
-    const data = await shipEngineFetch('/rates', payload);
+    let data: any;
+    try {
+      data = await shipEngineFetch('/rates', payload);
+    } catch (err: any) {
+      const message = typeof err?.message === 'string' ? err.message : String(err);
+      const carrierIdsInPayload = payload.rate_options?.carrier_ids;
+      const carrierIdError =
+        Array.isArray(carrierIdsInPayload) &&
+        carrierIdsInPayload.length > 0 &&
+        /carrier[_-]?id/i.test(message) &&
+        /not\s+found/i.test(message);
+      if (carrierIdError) {
+        cachedCarrierIds = [];
+        console.warn(
+          '[shipping] ShipEngine rejected provided carrier_ids. Retrying without explicit carrier selection.'
+        );
+        const fallbackPayload = { ...payload };
+        delete fallbackPayload.rate_options;
+        data = await shipEngineFetch('/rates', fallbackPayload);
+      } else {
+        throw err;
+      }
+    }
     const rawRates = Array.isArray(data) ? data : data?.rate_response?.rates || [];
     const normalized: ShippingRate[] = rawRates
       .map((rate: any) => {

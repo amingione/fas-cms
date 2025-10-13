@@ -1,9 +1,10 @@
-// Uses fas-auth session
+import { ensureFasAuthLoaded, getFallbackFasAuth } from './fas-auth-shared';
 
+// Uses fas-auth session
 const root = document.getElementById('account-edit');
 
 (async () => {
-  const fas = (window as any).fasAuth;
+  const fas = await ensureFasAuthLoaded();
   const authed = fas ? await fas.isAuthenticated() : false;
   if (!authed) {
     if (root) {
@@ -16,14 +17,22 @@ const root = document.getElementById('account-edit');
         </div>
       `;
     }
-    document.getElementById('login')?.addEventListener('click', () => (window.location.href = '/account'));
-    document.getElementById('signup')?.addEventListener('click', () => (window.location.href = '/account'));
+    const fallback = getFallbackFasAuth();
+    document.getElementById('login')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      fallback.loginTo('/account');
+    });
+    document.getElementById('signup')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      fallback.loginTo('/account');
+    });
     return;
   }
 
   const session = fas ? await fas.getSession() : null;
-  const name = (session?.user?.name as string) || '';
-  const email = (session?.user?.email as string) || '';
+  const sessionUser = (session?.user ?? null) as { name?: string; email?: string } | null;
+  const name = sessionUser?.name || '';
+  const email = sessionUser?.email || '';
 
   if (root) {
     // Minimal editable UI for now; wire to your Sanity APIs later

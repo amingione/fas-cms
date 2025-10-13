@@ -1,20 +1,9 @@
-type FasAuth = {
-  isAuthenticated: () => Promise<boolean>;
-  loginTo: (returnTo: string) => Promise<void>;
-  logout: (returnTo?: string) => Promise<void>;
-};
-
-declare global {
-  interface Window {
-    fasAuth?: FasAuth;
-  }
-}
+import { ensureFasAuthLoaded, getFallbackFasAuth, type FasAuth } from './fas-auth-shared';
 
 // Small header account panel toggle using fas-auth
 window.addEventListener('DOMContentLoaded', async () => {
   const loginLink = document.getElementById('loginLink');
   const logoutLink = document.getElementById('logoutLink');
-  const fas = window.fasAuth;
 
   const showLoggedOut = () => {
     loginLink?.classList.remove('hidden');
@@ -26,9 +15,16 @@ window.addEventListener('DOMContentLoaded', async () => {
     logoutLink?.classList.remove('hidden');
   };
 
+  const fas = await ensureFasAuthLoaded();
+  const auth: FasAuth = fas ?? getFallbackFasAuth();
+
   if (!fas) {
     showLoggedOut();
-    loginLink?.addEventListener('click', () => (window.location.href = '/account'));
+    loginLink?.addEventListener('click', (e) => {
+      e.preventDefault();
+      auth.loginTo('/account');
+    });
+    logoutLink?.classList.add('hidden');
     return;
   }
 

@@ -5,6 +5,7 @@ import {
   getStaticUrlEntries,
   toAbsoluteUrl
 } from '@/lib/sitemap';
+import type { SitemapIndexEntry } from '@/lib/sitemap';
 
 export async function GET() {
   const [staticUrls, shopUrls] = await Promise.all([
@@ -12,14 +13,18 @@ export async function GET() {
     getShopUrlEntries()
   ]);
 
-  const sitemaps = [
+  const sitemapCandidates: Array<SitemapIndexEntry | undefined> = [
     staticUrls.length > 0
       ? { loc: toAbsoluteUrl('/sitemap-static.xml'), lastmod: getMostRecentLastmod(staticUrls) }
       : undefined,
     shopUrls.length > 0
       ? { loc: toAbsoluteUrl('/sitemap-shop.xml'), lastmod: getMostRecentLastmod(shopUrls) }
       : undefined
-  ].filter((entry): entry is { loc: string; lastmod?: string } => Boolean(entry));
+  ];
+
+  const sitemaps = sitemapCandidates.filter(
+    (entry): entry is SitemapIndexEntry => Boolean(entry)
+  );
 
   const xml = generateSitemapIndexXml(sitemaps);
 

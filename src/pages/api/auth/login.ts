@@ -20,11 +20,11 @@ export const POST: APIRoute = async ({ request }) => {
     const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
     const adminPassword = process.env.ADMIN_PASSWORD;
     let sessionUser: { id: string; email: string; roles: string[] } | null = null;
-    let expiresIn: string | undefined = undefined;
+    let expiresInSeconds: number | undefined = undefined;
 
     if (adminEmail && adminPassword && email === adminEmail && password === adminPassword) {
       sessionUser = { id: 'admin', email, roles: ['admin'] };
-      expiresIn = '1h';
+      expiresInSeconds = 60 * 60;
     }
 
     if (!sessionUser) {
@@ -44,7 +44,7 @@ export const POST: APIRoute = async ({ request }) => {
               email: String(vendor.email || email),
               roles: ['vendor']
             };
-            expiresIn = '1h';
+            expiresInSeconds = 60 * 60;
           }
         }
       }
@@ -68,7 +68,7 @@ export const POST: APIRoute = async ({ request }) => {
               email: String(customer.email || email),
               roles: ['customer']
             };
-            expiresIn = '7d';
+            expiresInSeconds = 60 * 60 * 24 * 7;
           }
         }
       }
@@ -82,7 +82,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const headers = new Headers({ 'content-type': 'application/json' });
-    setSession(headers, sessionUser, expiresIn ? { expiresIn } : {});
+    setSession(headers, sessionUser, expiresInSeconds ? { expiresIn: expiresInSeconds } : {});
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
   } catch (err) {
     console.error(err);

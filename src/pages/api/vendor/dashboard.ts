@@ -11,8 +11,8 @@ export const GET: APIRoute = async ({ request }) => {
     });
   }
 
-  const { id, role } = session.user;
-  if (role !== 'vendor') {
+  const { id, roles } = session.user;
+  if (!roles?.includes('vendor')) {
     return new Response(JSON.stringify({ message: 'Unauthorized' }), {
       status: 403,
       headers: { 'content-type': 'application/json' }

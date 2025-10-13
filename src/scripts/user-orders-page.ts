@@ -1,5 +1,6 @@
-// Uses fas-auth session
+import { ensureFasAuthLoaded } from './fas-auth-shared';
 
+// Uses fas-auth session
 const root = document.getElementById('orders-root');
 if (root) root.textContent = 'Loading...';
 
@@ -30,7 +31,7 @@ const renderList = (orders: any[]) => {
 
 (async () => {
   try {
-    const fas = (window as any).fasAuth;
+    const fas = await ensureFasAuthLoaded();
     const isAuthed = fas ? await fas.isAuthenticated() : false;
     if (!isAuthed) {
       renderError('Please log in to view your orders.');
