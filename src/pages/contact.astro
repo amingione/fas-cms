@@ -73,9 +73,19 @@ const structuredData = {
             name="contact"
             method="POST"
             action="/api/contact"
+            data-netlify="true"
+            netlify-honeypot="bot-field"
+            data-netlify-path="/contact"
             class="space-y-6 bg-charcoal backdrop-blur-sm p-8 rounded-sm border border-gray-700 shadow-lg relative"
           >
             <h2 class="text-3xl font-cyber text-accent mb-4">Send a Message</h2>
+            <input type="hidden" name="form-name" value="contact" />
+            <p class="hidden">
+              <label>
+                Don’t fill this out if you’re human:
+                <input name="bot-field" />
+              </label>
+            </p>
 
             <div>
               <label for="name" class="block text-sm text-white/60 mb-1">Name</label>
@@ -154,6 +164,38 @@ const structuredData = {
       }
     }
 
+    async function submitNetlifyCapture(form: HTMLFormElement) {
+      if (typeof window === 'undefined') return;
+      try {
+        const formData = new FormData(form);
+        const formName =
+          (typeof formData.get('form-name') === 'string' && formData.get('form-name')) ||
+          form.getAttribute('name') ||
+          'contact';
+        const encoded = new URLSearchParams();
+        encoded.append('form-name', String(formName));
+        if (!formData.has('bot-field')) {
+          encoded.append('bot-field', '');
+        }
+        formData.forEach((value, key) => {
+          if (key === 'form-name') return;
+          if (typeof value === 'string') {
+            encoded.append(key, value);
+          } else if (value instanceof File) {
+            encoded.append(key, value.name || '');
+          }
+        });
+        const endpoint = `${window.location.pathname}?no-cache=1`;
+        await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: encoded.toString()
+        });
+      } catch (error) {
+        console.warn('Netlify capture failed', error);
+      }
+    }
+
     contactForm?.addEventListener('submit', async (event) => {
       event.preventDefault();
       if (!contactForm) return;
@@ -167,6 +209,7 @@ const structuredData = {
         });
         const payload = await response.json().catch(() => ({}));
         if (response.ok && payload?.ok !== false) {
+          await submitNetlifyCapture(contactForm);
           setStatus(payload?.message || 'Thanks! We will be in touch shortly.', 'success');
           contactForm.reset();
         } else {

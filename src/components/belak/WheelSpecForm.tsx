@@ -147,6 +147,42 @@ export default function WheelSpecForm({
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
+  function encodeNetlifyPayload(formName: string, data: Record<string, unknown>) {
+    const encoded = new URLSearchParams();
+    encoded.append('form-name', formName);
+    Object.entries(data).forEach(([key, value]) => {
+      if (value === undefined || value === null) return;
+      if (Array.isArray(value)) {
+        encoded.append(key, value.map((item) => String(item)).join(', '));
+        return;
+      }
+      if (typeof value === 'boolean') {
+        encoded.append(key, value ? 'true' : 'false');
+        return;
+      }
+      encoded.append(key, String(value));
+    });
+    if (!encoded.has('bot-field')) {
+      encoded.append('bot-field', '');
+    }
+    return encoded.toString();
+  }
+
+  async function submitToNetlify(formName: string, data: Record<string, unknown>) {
+    if (typeof window === 'undefined') return;
+    try {
+      const body = encodeNetlifyPayload(formName, data);
+      const endpoint = `${window.location.pathname}?no-cache=1`;
+      await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body
+      });
+    } catch (err) {
+      console.warn('[Belak Quote] Netlify capture failed', err);
+    }
+  }
+
   async function handleUpload(files: FileList) {
     setUploadError(null);
     if (!files || files.length === 0) return;
@@ -195,6 +231,7 @@ export default function WheelSpecForm({
         body: JSON.stringify(parsed)
       });
       if (!res.ok) throw new Error(`Request failed ${res.status}`);
+      await submitToNetlify('belak-wheel-quote', parsed);
       setOk(
         'Thanks! Your specs were sent to sales@fasmotorsports.com. We’ll reply with a tailored quote.'
       );
@@ -210,10 +247,22 @@ export default function WheelSpecForm({
   return (
     <form
       onSubmit={submit}
+      name="belak-wheel-quote"
+      method="POST"
+      data-netlify="true"
+      netlify-honeypot="bot-field"
       className="font-sans sm:font-mono rounded-xl border border-white/5 sm:border-white/10 bg-transparent sm:bg-neutral-950/50 p-3 sm:p-6 shadow-none sm:shadow-xl backdrop-blur"
       id="quote"
       style={{ scrollMarginTop: 'var(--header-offset, 96px)' }}
     >
+      <input type="hidden" name="form-name" value="belak-wheel-quote" />
+      <input type="hidden" name="pageContext" value={pageContext ?? ''} />
+      <p className="hidden" aria-hidden="true">
+        <label>
+          Leave blank if you are human:
+          <input name="bot-field" tabIndex={-1} autoComplete="off" />
+        </label>
+      </p>
       <div className="grid gap-3 sm:gap-6 md:grid-cols-2">
         {/* Unified Wheel Size (sets diameter/width together) */}
         <div className="space-y-2 md:col-span-2">
