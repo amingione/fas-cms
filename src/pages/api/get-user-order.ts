@@ -32,21 +32,103 @@ export const GET: APIRoute = async ({ request, url }) => {
       });
     }
 
-    const query = `*[_type == "order" && (customer->email == $email || customerEmail == $email)]
-      | order(coalesce(orderDate, createdAt, _createdAt) desc){
+    const query = `*[_type == "order" && (
+        customerEmail == $email ||
+        customer->email == $email ||
+        customerRef->email == $email ||
+        shippingAddress.email == $email
+      )]
+      | order(dateTime(coalesce(orderDate, createdAt, _createdAt)) desc){
         _id,
-        // identifiers
         orderNumber,
         stripeSessionId,
-        // status + dates
+        paymentIntentId,
         status,
+        paymentStatus,
         _createdAt,
         createdAt,
         orderDate,
-        // totals (support both "total" and "totalAmount")
-        "total": coalesce(total, totalAmount),
-        // optional tracking
-        trackingNumber
+        fulfilledAt,
+        webhookNotified,
+        "total": coalesce(totalAmount, total, amountSubtotal + amountTax + amountShipping),
+        totalAmount,
+        amountSubtotal,
+        amountTax,
+        amountShipping,
+        currency,
+        cardBrand,
+        cardLast4,
+        receiptUrl,
+        shippingCarrier,
+        shippingLabelUrl,
+        packingSlipUrl,
+        trackingNumber,
+        shipStationOrderId,
+        shipStationLabelId,
+        selectedService{
+          carrierId,
+          carrier,
+          service,
+          serviceCode,
+          amount,
+          currency,
+          deliveryDays
+        },
+        shippingAddress,
+        shippingLog[]{
+          _key,
+          status,
+          message,
+          labelUrl,
+          trackingUrl,
+          trackingNumber,
+          weight,
+          createdAt
+        },
+        weight{value, unit},
+        dimensions{length, width, height},
+        "cart": cart[]{
+          _key,
+          name,
+          sku,
+          quantity,
+          price,
+          productSlug,
+          id,
+          stripeProductId,
+          stripePriceId,
+          optionSummary,
+          optionDetails,
+          upgrades,
+          metadata
+        },
+        "items": cart,
+        customerRef->{
+          _id,
+          firstName,
+          lastName,
+          email,
+          phone
+        },
+        customer->{
+          _id,
+          firstName,
+          lastName,
+          email,
+          phone
+        },
+        invoiceRef->{
+          _id,
+          invoiceNumber,
+          status,
+          total,
+          amount,
+          paymentLinkUrl,
+          invoicePdfUrl,
+          receiptUrl,
+          dateIssued,
+          dueDate
+        }
       }`;
 
     const orders = await sanityClient.fetch(query, { email });

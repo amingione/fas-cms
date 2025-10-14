@@ -7,7 +7,6 @@ import type { Product, Category } from '@lib/sanity-utils';
 import ProductGrid from '@/components/storefront/ProductGrid.astro';
 import FilterPanelMobile from '@/components/storefront/FilterPanelMobile.tsx';
 import Pagination from '@/components/storefront/Pagination.astro';
-import Breadcrumbs from '@/components/storefront/Breadcrumbs.astro';
 
 export const prerender = false;
 
@@ -251,7 +250,6 @@ if (endPage < totalPages) {
   </Fragment>
   <section class="max-w-full px-2 md:px-2 mt-11 pt-10">
     <div class="mb-6 mt-2 space-y-3">
-      <Breadcrumbs items={[{ href: '/', label: 'Home' }, { href: '/shop', label: 'Shop' }, ...(currentCategory ? [{ label: currentCategoryTitle }] : [])]} />
       <div class="hidden md:block">
         <ShopTopControls
           client:load

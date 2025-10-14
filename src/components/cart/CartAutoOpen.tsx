@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { prefersDesktopCart } from '@/lib/device';
 
 /**
  * Automatically opens the floating cart modal shortly after mount.
@@ -11,7 +12,8 @@ export default function CartAutoOpen() {
   useEffect(() => {
     const open = () => {
       try {
-        window.dispatchEvent(new Event('open-cart'));
+        const eventName = prefersDesktopCart() ? 'open-desktop-cart' : 'open-cart';
+        window.dispatchEvent(new Event(eventName));
       } catch (error) {
         void error;
       }

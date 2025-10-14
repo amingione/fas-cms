@@ -4,6 +4,7 @@ import Header from '../components/header/header2.astro';
 import Footer from '@/components/footer.astro';
 import Footer2 from '@/components/footer/footer2';
 import CookieBanner from '@/components/notices/cookieBanner';
+import Breadcrumbs from '@/components/storefront/Breadcrumbs.astro';
 import { Toaster } from 'sonner';
 
 
@@ -13,13 +14,17 @@ const {
   description,
   canonical,
   noindex = false,
-  ogImage
+  ogImage,
+  hideBreadcrumbs = false,
+  breadcrumbs
 } = Astro.props as {
   title?: string;
   description?: string;
   canonical?: string;
   noindex?: boolean;
   ogImage?: string;
+  hideBreadcrumbs?: boolean;
+  breadcrumbs?: Array<{ href?: string; label: string }>;
 };
 
 const SITE_NAME = 'F.A.S. Motorsports';
@@ -46,6 +51,83 @@ try {
 
 const resolvedOgImage = ogImage ?? DEFAULT_OG_IMAGE;
 const pageTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
+
+const sanitizeSegment = (segment: string) => {
+  const decoded = decodeURIComponent(segment);
+  const spaced = decoded
+    .replace(/[-_]+/g, ' ')
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .toLowerCase()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+  return spaced.trim() || decoded;
+};
+
+const LABEL_OVERRIDES: Record<string, string> = {
+  faq2: 'FAQ',
+  privacypolicy: 'Privacy Policy',
+  returnrefundpolicy: 'Return & Refund Policy',
+  custombuild: 'Custom Build',
+  customerdashboard: 'Customer Dashboard',
+  shop: 'Shop',
+  specs: 'Spec Sheets',
+  jtx: 'JTX Forged',
+  belak: 'Belak Wheels'
+};
+
+const pathSegments = Astro.url?.pathname
+  ?.replace(/\/+$/, '')
+  .split('/')
+  .filter(Boolean) ?? [];
+
+const isHomeRoute = pathSegments.length === 0;
+const shouldRenderBreadcrumbs = !hideBreadcrumbs && !isHomeRoute;
+
+const buildAutoBreadcrumbs = () => {
+  if (!shouldRenderBreadcrumbs) return [];
+
+  const segments = pathSegments.map((segment, index) => {
+    const href = '/' + pathSegments.slice(0, index + 1).join('/');
+    const key = segment.toLowerCase();
+    const label =
+      LABEL_OVERRIDES[key] ?? sanitizeSegment(segment);
+    return { href, label };
+  });
+
+  if (segments.length && title) {
+    segments[segments.length - 1].label = title;
+  }
+
+  return [{ href: '/', label: 'Home' }, ...segments];
+};
+
+const ensureHomeCrumb = (items: Array<{ href?: string; label: string }>) => {
+  if (items.length === 0) return items;
+  const first = items[0];
+  const labelIsHome =
+    typeof first.label === 'string' &&
+    first.label.toLowerCase() === 'home';
+  if ((first.href === '/' || first.href === '') || labelIsHome) {
+    return items;
+  }
+  return [{ href: '/', label: 'Home' }, ...items];
+};
+
+const finalizeBreadcrumbs = (items?: Array<{ href?: string; label: string }>) => {
+  if (!items || items.length === 0) return [];
+  return items.map((item, index) =>
+    index === items.length - 1
+      ? { label: item.label }
+      : { href: item.href, label: item.label }
+  );
+};
+
+const breadcrumbItems = shouldRenderBreadcrumbs
+  ? finalizeBreadcrumbs(
+      ensureHomeCrumb(
+        breadcrumbs?.length ? breadcrumbs : buildAutoBreadcrumbs()
+      )
+    )
+  : [];
 ---
 
 <!DOCTYPE html>
@@ -195,7 +277,10 @@ const pageTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
 
     <!-- Page content -->
     <div class="relative flex flex-col flex-1">
-      <main class="mt-10 pt-5 flex-1 container max-w-full mx-auto">
+      <main class="mt-20 sm:mt-24 lg:mt-36 pt-6 flex-1 container max-w-full mx-auto">
+        {breadcrumbItems.length > 0 && (
+          <Breadcrumbs items={breadcrumbItems} />
+        )}
         <slot />
       </main>
       <Footer />

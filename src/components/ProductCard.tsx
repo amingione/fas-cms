@@ -1,6 +1,7 @@
 import type { Product as SanityProduct } from '@lib/sanity-utils';
 import { cn } from '@components/ui/utils';
 import { addItem } from '@lib/cart';
+import { prefersDesktopCart } from '@/lib/device';
 import React from 'react';
 import '../styles/global.css';
 
@@ -40,7 +41,18 @@ function addToCart(product: SanityProduct) {
       ? product.categories.map((c: any) => c?._ref || c?._id || '').filter(Boolean)
       : [];
     const image = product?.images?.[0]?.asset?.url || '/logo/faslogochroma.png';
-    addItem({ id, name, price, quantity: 1, categories, image });
+    const slug = getSlug(product);
+    const productUrl = slug ? `/shop/${slug}` : undefined;
+    addItem({ id, name, price, quantity: 1, categories, image, productUrl });
+
+    if (typeof window !== 'undefined') {
+      try {
+        const eventName = prefersDesktopCart() ? 'open-desktop-cart' : 'open-cart';
+        window.dispatchEvent(new Event(eventName));
+      } catch (err) {
+        window.dispatchEvent(new Event('open-cart'));
+      }
+    }
   } catch (e) {
     console.error('addToCart failed', e);
   }
@@ -51,6 +63,8 @@ export function ProductCard({ product, productImage, className }: ProductCardPro
   const priceLabel = toPriceString(product.price);
   const name = product.title || 'Product';
   const subtitle = 'F.a.S.';
+  const slug = getSlug(product);
+  const productUrl = slug ? `/shop/${slug}` : '#';
 
   return (
     <div
@@ -66,7 +80,7 @@ export function ProductCard({ product, productImage, className }: ProductCardPro
       <div className="px-3 package-card md:px-4 lg:px-5 pt-12 md:pt-8">
         <div className="relative mx-auto w-full aspect-square">
           <a
-            href={getSlug(product) ? `/shop/${getSlug(product)}` : '#'}
+            href={productUrl}
             className="inline-flex items-center justify-between gap-1"
           >
             <img

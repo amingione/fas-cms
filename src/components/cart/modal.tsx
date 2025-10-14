@@ -1,208 +1,38 @@
 'use client';
 
-import clsx from 'clsx';
 import { Dialog, Transition } from '@headlessui/react';
 import { ShoppingCartIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import LoadingDots from '@components/loading-dots.tsx';
 import Price from '@/components/storefront/Price';
-import {
-  Fragment,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ChangeEvent,
-  type Dispatch,
-  type FormEvent,
-  type SetStateAction
-} from 'react';
-import {
-  redirectToCheckout,
-  type CheckoutShippingInput,
-  type CheckoutShippingRate
-} from './actions';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { useCart, type Cart } from './cart-context';
-import { DeleteItemButton } from './delete-item-button';
-import { EditItemQuantityButton } from './edit-item-quantity-button';
+import { prefersDesktopCart } from '@/lib/device';
+import {
+  ShippingEstimator,
+  loadStoredShipping,
+  type ShippingFormState
+} from './ShippingEstimator';
 
-const SHIPPING_STORAGE_KEY = 'fas_checkout_shipping_v1';
 
-type ShippingFormState = Omit<CheckoutShippingInput, 'name' | 'phone' | 'addressLine2' | 'country'> & {
-  name: string;
-  phone: string;
-  addressLine2: string;
-  country: string;
-  email: string;
-};
-
-const EMPTY_SHIPPING: ShippingFormState = {
-  name: '',
-  email: '',
-  phone: '',
-  addressLine1: '',
-  addressLine2: '',
-  city: '',
-  state: '',
-  postalCode: '',
-  country: 'US'
-};
-
-const isBrowser = typeof window !== 'undefined';
-
-function loadStoredShipping(): ShippingFormState {
-  if (!isBrowser) return { ...EMPTY_SHIPPING };
-  try {
-    const raw = window.localStorage.getItem(SHIPPING_STORAGE_KEY);
-    if (!raw) return { ...EMPTY_SHIPPING };
-    const parsed = JSON.parse(raw);
-    return { ...EMPTY_SHIPPING, ...(parsed || {}) };
-  } catch {
-    return { ...EMPTY_SHIPPING };
-  }
-}
-
-function persistShipping(data: ShippingFormState) {
-  if (!isBrowser) return;
-  try {
-    window.localStorage.setItem(SHIPPING_STORAGE_KEY, JSON.stringify(data));
-  } catch {
-    /* ignore localStorage parse errors */
-  }
-}
-
-function validateShippingForm(form: ShippingFormState): string | null {
-  const required: Array<[keyof ShippingFormState, string]> = [
-    ['name', 'Full name'],
-    ['email', 'Email address'],
-    ['addressLine1', 'Address line 1'],
-    ['city', 'City'],
-    ['state', 'State/Province'],
-    ['postalCode', 'Postal code']
-  ];
-
-  for (const [field, label] of required) {
-    if (!String(form[field] || '').trim()) {
-      return `${label} is required.`;
-    }
-  }
-
-  const email = String(form.email || '').trim();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return 'Enter a valid email address.';
-  }
-
-  return null;
-}
-
-function normalizeShippingInput(form: ShippingFormState): CheckoutShippingInput {
-  return {
-    name: (form.name ?? '').trim(),
-    email: form.email.trim(),
-    phone: form.phone?.trim() || undefined,
-    addressLine1: form.addressLine1.trim(),
-    addressLine2: form.addressLine2?.trim() || undefined,
-    city: form.city.trim(),
-    state: form.state.trim(),
-    postalCode: form.postalCode.trim(),
-    country: (form.country || 'US').toUpperCase()
-  };
-}
-
-function ratesMatch(a?: CheckoutShippingRate | null, b?: CheckoutShippingRate | null) {
-  if (!a || !b) return false;
-  const normalize = (value?: string | null) =>
-    String(value || '')
-      .trim()
-      .toLowerCase();
-  const amountA = Math.round(Number(a.amount || 0) * 100);
-  const amountB = Math.round(Number(b.amount || 0) * 100);
-  if (amountA !== amountB) return false;
-  const carrierA = normalize(a.carrier);
-  const carrierB = normalize(b.carrier);
-  if (carrierA && carrierB && carrierA !== carrierB) return false;
-  const serviceA = normalize(a.service || a.serviceCode || a.serviceName);
-  const serviceB = normalize(b.service || b.serviceCode || b.serviceName);
-  if (serviceA && serviceB && serviceA !== serviceB) return false;
-  return true;
-}
-
-function rateIdentifier(rate: CheckoutShippingRate): string {
-  const amount = Number(rate.amount);
-  const normalized = [
-    rate.carrierId,
-    rate.carrier,
-    rate.serviceCode,
-    rate.service,
-    rate.serviceName,
-    rate.currency,
-    Number.isFinite(amount) ? amount.toFixed(2) : '',
-    rate.deliveryDays ?? '',
-    rate.estimatedDeliveryDate ?? ''
-  ]
-    .map((value) => String(value ?? '').trim().toLowerCase());
-  const joined = normalized.join('|');
-  return joined || JSON.stringify(rate).toLowerCase();
-}
-
-function dedupeShippingRates(rates: CheckoutShippingRate[]): CheckoutShippingRate[] {
-  const seen = new Set<string>();
-  return rates.filter((rate) => {
-    const identifier = rateIdentifier(rate);
-    if (seen.has(identifier)) return false;
-    seen.add(identifier);
-    return true;
-  });
-}
-
-const CARRIER_LABELS: Record<string, string> = {
-  usps: 'USPS',
-  ups: 'UPS',
-  fedex: 'FedEx',
-  dhl: 'DHL',
-  ontrac: 'OnTrac'
-};
-
-function humanizeToken(token: string, index: number): string {
-  const lower = token.toLowerCase();
-  if (CARRIER_LABELS[lower] && index === 0) return CARRIER_LABELS[lower];
-  if (CARRIER_LABELS[lower]) return CARRIER_LABELS[lower];
-  if (/^\d+(?:st|nd|rd|th)?$/i.test(token)) return token.toUpperCase();
-  if (lower === 'us') return 'US';
-  if (lower === 'usa') return 'USA';
-  return token.charAt(0).toUpperCase() + token.slice(1);
-}
-
-function humanizeCode(value?: string | null): string {
-  if (!value) return '';
-  const cleaned = String(value).replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim();
-  if (!cleaned) return '';
-  return cleaned
-    .split(' ')
-    .filter(Boolean)
-    .map(humanizeToken)
-    .join(' ');
-}
-
-function buildShippingLabel(rate: CheckoutShippingRate): string {
-  const rawService = rate.service || rate.serviceName || rate.serviceCode || 'Shipping';
-  const service = humanizeCode(rawService) || 'Shipping';
-  const carrier = humanizeCode(rate.carrier || '');
-  if (!carrier) return service;
-  const serviceLower = service.toLowerCase();
-  const carrierLower = carrier.toLowerCase();
-  if (serviceLower.startsWith(carrierLower)) return service;
-  return `${service} · ${carrier}`;
-}
 
 export default function CartModal() {
-  const { cart, totalQuantity, subtotal } = useCart();
+  const { cart, totalQuantity, subtotal, setItemQuantity, removeCartItem } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const [checkoutStep, setCheckoutStep] = useState<'review' | 'shipping'>('review');
   const [shippingForm, setShippingForm] = useState<ShippingFormState>(() => loadStoredShipping());
   const quantityRef = useRef(totalQuantity);
+  const prefersDesktopRef = useRef(false);
+
+  useEffect(() => {
+    prefersDesktopRef.current = prefersDesktopCart();
+  }, []);
   const closeCart = () => setIsOpen(false);
 
   useEffect(() => {
+    if (prefersDesktopRef.current) {
+      quantityRef.current = totalQuantity;
+      return;
+    }
     if (totalQuantity && totalQuantity !== quantityRef.current && totalQuantity > 0) {
       if (!isOpen) setIsOpen(true);
       quantityRef.current = totalQuantity;
@@ -210,11 +40,38 @@ export default function CartModal() {
   }, [isOpen, totalQuantity]);
 
   useEffect(() => {
-    function handleOpen() {
+    function handleOpen(event: Event) {
+      const customEvent = event as CustomEvent<{ forceMobile?: boolean }>;
+      const forceMobile = Boolean(customEvent.detail?.forceMobile);
+      if (!forceMobile && prefersDesktopRef.current) {
+        try {
+          window.dispatchEvent(new Event('open-desktop-cart'));
+        } catch (error) {
+          void error;
+        }
+        return;
+      }
       setIsOpen(true);
     }
-    window.addEventListener('open-cart' as any, handleOpen);
-    return () => window.removeEventListener('open-cart' as any, handleOpen);
+    window.addEventListener('open-cart' as any, handleOpen as EventListener);
+    return () => window.removeEventListener('open-cart' as any, handleOpen as EventListener);
+  }, []);
+
+  useEffect(() => {
+    function handleOpenShipping() {
+      if (prefersDesktopRef.current) {
+        try {
+          window.dispatchEvent(new Event('open-desktop-cart'));
+        } catch (error) {
+          void error;
+        }
+        return;
+      }
+      setCheckoutStep('shipping');
+      setIsOpen(true);
+    }
+    window.addEventListener('open-cart-shipping' as any, handleOpenShipping);
+    return () => window.removeEventListener('open-cart-shipping' as any, handleOpenShipping);
   }, []);
 
   // Notify other components when the cart drawer opens or closes
@@ -225,10 +82,6 @@ export default function CartModal() {
       /* ignore cart open/close event propagation errors */
     }
   }, [isOpen]);
-
-  useEffect(() => {
-    persistShipping(shippingForm);
-  }, [shippingForm]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -253,44 +106,74 @@ export default function CartModal() {
           </Transition.Child>
           <Transition.Child
             as={Fragment}
-            enter="transition-all ease-in-out duration-300"
+            enter="transition ease-in-out duration-500 sm:duration-700"
             enterFrom="translate-x-full"
             enterTo="translate-x-0"
-            leave="transition-all ease-in-out duration-200"
+            leave="transition ease-in-out duration-500 sm:duration-700"
             leaveFrom="translate-x-0"
             leaveTo="translate-x-full"
           >
-            <Dialog.Panel className="fixed bottom-0 right-0 top-0 flex h-full w-full flex-col overflow-y-auto border-l p-6 backdrop-blur-xl md:w-[390px] border-neutral-700 bg-black/80 text-white">
-              <div className="flex items-center justify-between">
-                <p className="text-lg font-semibold">
-                  {checkoutStep === 'shipping' ? 'Shipping & Contact' : 'My Cart'}
-                </p>
-                <button aria-label="Close cart" onClick={closeCart}>
-                  <CloseCart />
-                </button>
-              </div>
+            <div className="fixed inset-0 overflow-hidden">
+              <div className="absolute inset-0 overflow-hidden">
+                <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-4 sm:pl-10">
+                  <Dialog.Panel className="pointer-events-auto w-screen max-w-md transform bg-black/90 text-white shadow-2xl transition duration-500 ease-in-out data-closed:translate-x-full sm:duration-700">
+                    <div className="flex h-full flex-col">
+                      <div className="flex items-start justify-between px-4 py-6 sm:px-6">
+                        <Dialog.Title className="text-lg font-semibold">
+                          {checkoutStep === 'shipping' ? 'Shipping & Contact' : 'Shopping Cart'}
+                        </Dialog.Title>
+                        <button
+                          type="button"
+                          onClick={closeCart}
+                          className="relative -m-2 rounded-md p-2 text-white/60 transition hover:text-white"
+                        >
+                          <span className="sr-only">Close panel</span>
+                          <XMarkIcon aria-hidden="true" className="size-6" />
+                        </button>
+                      </div>
 
-              {!cart || !cart.items || cart.items.length === 0 ? (
-                <div className="mt-20 flex w-full flex-col items-center justify-center overflow-hidden">
-                  <ShoppingCartIcon className="h-16 bg-transparent" />
-                  <p className="mt-6 text-center text-2xl font-bold">Your cart is empty.</p>
+                      <div className="flex-1 overflow-y-auto px-4 pb-6 sm:px-6">
+                        {!cart || !cart.items || cart.items.length === 0 ? (
+                          <div className="mt-16 flex flex-col items-center text-center">
+                            <ShoppingCartIcon className="h-16 w-16 text-white/40" />
+                            <p className="mt-6 text-2xl font-semibold">Your cart is empty.</p>
+                            <p className="mt-2 text-sm text-white/60">
+                              Add products from the storefront to see them here.
+                            </p>
+                            <a
+                              href="/shop"
+                              className="mt-8 inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold uppercase tracking-wide text-black transition hover:opacity-90"
+                            >
+                              Browse Products
+                            </a>
+                          </div>
+                        ) : checkoutStep === 'review' ? (
+                          <CartItemsList cart={cart} onRemove={removeCartItem} onQuantityChange={setItemQuantity} />
+                        ) : (
+                          <ShippingEstimator
+                            cart={cart}
+                            subtotal={subtotal}
+                            form={shippingForm}
+                            setForm={setShippingForm}
+                            showBackButton
+                            onBack={() => setCheckoutStep('review')}
+                            variant="modal"
+                          />
+                        )}
+                      </div>
+
+                      {checkoutStep === 'review' && cart && cart.items && cart.items.length > 0 ? (
+                        <CartSummary
+                          subtotal={subtotal}
+                          onProceed={() => setCheckoutStep('shipping')}
+                          onClose={closeCart}
+                        />
+                      ) : null}
+                    </div>
+                  </Dialog.Panel>
                 </div>
-              ) : checkoutStep === 'review' ? (
-                <CartReview
-                  cart={cart}
-                  subtotal={subtotal}
-                  onProceed={() => setCheckoutStep('shipping')}
-                />
-              ) : (
-                <ShippingStep
-                  cart={cart}
-                  subtotal={subtotal}
-                  form={shippingForm}
-                  setForm={setShippingForm}
-                  onBack={() => setCheckoutStep('review')}
-                />
-              )}
-            </Dialog.Panel>
+              </div>
+            </div>
           </Transition.Child>
         </Dialog>
       </Transition>
@@ -298,571 +181,223 @@ export default function CartModal() {
   );
 }
 
-function CloseCart({ className }: { className?: string }) {
-  return (
-    <div className="relative hover:text-primary flex h-10 w-10 items-center justify-center rounded-lg transition-colors text-white">
-      <XMarkIcon className={clsx('h-5 transition-all ease-in-out hover:scale-110', className)} />
-    </div>
-  );
+const QUANTITY_CHOICES = Array.from({ length: 10 }, (_, i) => i + 1);
+
+function normalizeOptionLabel(rawKey: string) {
+  return rawKey
+    .split(/[^a-zA-Z0-9]+/)
+    .filter(Boolean)
+    .map((segment) =>
+      segment.length > 1 ? segment[0].toUpperCase() + segment.slice(1).toLowerCase() : segment.toUpperCase()
+    )
+    .join(' ');
 }
 
-type CartReviewProps = {
+function normalizeOptionValue(rawValue: unknown) {
+  if (rawValue === null || rawValue === undefined) return null;
+  if (typeof rawValue === 'boolean') return rawValue ? 'Selected' : 'None';
+  const stringy = String(rawValue).trim();
+  if (!stringy) return null;
+  const lower = stringy.toLowerCase();
+  if (lower === 'true' || lower === 'on') return 'Selected';
+  if (lower === 'false' || lower === 'off') return 'None';
+  return stringy;
+}
+
+function listOptions(options?: Record<string, unknown> | null) {
+  if (!options) return null;
+  const entries = Object.entries(options)
+    .map(([key, value]) => {
+      const normalized = normalizeOptionValue(value);
+      if (!normalized) return null;
+      return `${normalizeOptionLabel(key)}: ${normalized}`;
+    })
+    .filter(Boolean) as string[];
+  if (!entries.length) return null;
+  return entries.join(' • ');
+}
+
+type CartItemsListProps = {
   cart: Cart;
-  subtotal: number;
-  onProceed: () => void;
+  onQuantityChange: (id: string, quantity: number) => Promise<void>;
+  onRemove: (id: string) => Promise<void>;
 };
 
-function CartReview({ cart, subtotal, onProceed }: CartReviewProps) {
+function CartItemsList({ cart, onQuantityChange, onRemove }: CartItemsListProps) {
+  const [pendingQuantity, setPendingQuantity] = useState<string | null>(null);
+  const [pendingRemove, setPendingRemove] = useState<string | null>(null);
+
+  const items = [...(cart.items || [])].sort((a, b) =>
+    String(a.name || '').localeCompare(String(b.name || ''))
+  );
+
+  const handleQuantityChange = async (itemId: string | undefined, value: string) => {
+    if (!itemId) return;
+    const quantity = Number(value);
+    if (!Number.isFinite(quantity) || quantity < 1) return;
+    try {
+      setPendingQuantity(itemId);
+      await onQuantityChange(itemId, quantity);
+    } finally {
+      setPendingQuantity((prev) => (prev === itemId ? null : prev));
+    }
+  };
+
+  const handleRemove = async (itemId: string | undefined) => {
+    if (!itemId) return;
+    try {
+      setPendingRemove(itemId);
+      await onRemove(itemId);
+    } finally {
+      setPendingRemove((prev) => (prev === itemId ? null : prev));
+    }
+  };
+
   return (
-    <div className="flex h-full flex-col justify-between overflow-hidden p-1">
-      <ul className="grow overflow-auto py-4">
-        {cart.items
-          .slice()
-          .sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')))
-          .map((item, i) => (
-            <li
-              key={item.id || i}
-              className="flex w-full flex-col border-b border-neutral-300 dark:border-neutral-700"
-            >
-              <div className="relative flex w-full flex-row justify-between px-1 py-4">
-                <div className="hover:bg-white/70 absolute z-40 rounded-full bg-black/40 border border-white/20 -ml-1 -mt-5">
-                  <DeleteItemButton id={item.id} />
-                </div>
-                <div className="relative flex-row">
-                  <div className="ml-3 relative object-contain w-12 h-12 flex aspect-square overflow-hidden border-neutral-700 dark:bg-neutral-900 dark:hover:bg-neutral-800">
-                    {item.image ? (
+    <div className="mt-6">
+      <div className="flow-root">
+        <ul role="list" className="-my-6 divide-y divide-white/10">
+          {items.map((item) => {
+            const lineTotal = (item.price || 0) * (item.quantity || 0);
+            const optionsSummary = listOptions(item.options as Record<string, unknown>);
+            const isInstallOnly =
+              item.installOnly || (item.shippingClass || '').toString().toLowerCase() === 'installonly';
+            const productHref = (() => {
+              const raw = item.productUrl;
+              if (!raw) return undefined;
+              if (typeof raw !== 'string') return undefined;
+              if (raw.startsWith('http')) return raw;
+              if (raw.startsWith('/')) return raw;
+              return `/shop/${raw}`;
+            })();
+            const quantities = QUANTITY_CHOICES.includes(item.quantity || 1)
+              ? QUANTITY_CHOICES
+              : [...QUANTITY_CHOICES, item.quantity || QUANTITY_CHOICES[0]];
+
+            return (
+              <li key={item.id || item.name} className="flex py-6">
+                <div className="size-24 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-black/40">
+                  {productHref ? (
+                    <a href={productHref} className="block size-full">
                       <img
-                        src={item.image}
-                        alt={item.name || 'Product image'}
-                        className="h-full w-full object-cover"
+                        src={item.image || '/logo/faslogo150.png'}
+                        alt={item.name || 'Cart item'}
+                        className="size-full object-cover"
+                        loading="lazy"
                       />
-                    ) : (
-                      <div className="h-full w-full bg-neutral-800" />
+                    </a>
+                  ) : (
+                    <img
+                      src={item.image || '/logo/faslogo150.png'}
+                      alt={item.name || 'Cart item'}
+                      className="size-full object-cover"
+                      loading="lazy"
+                    />
+                  )}
+                </div>
+
+                <div className="ml-4 flex flex-1 flex-col">
+                  <div>
+                    <div className="flex justify-between text-base font-semibold text-white">
+                      {productHref ? (
+                        <a href={productHref} className="hover:text-primary">
+                          {item.name || 'Product'}
+                        </a>
+                      ) : (
+                        <p>{item.name || 'Product'}</p>
+                      )}
+                      <Price amount={lineTotal} className="ml-4 text-right text-base font-semibold text-white" />
+                    </div>
+                    {optionsSummary && <p className="mt-1 text-sm text-white/60">{optionsSummary}</p>}
+                    {isInstallOnly && (
+                      <p className="mt-2 text-xs uppercase tracking-wide text-amber-200">Install-only service</p>
                     )}
                   </div>
-                  <div className="z-30 ml-2 flex flex-row space-x-4">
-                    <div className="flex flex-1 flex-col text-base">
-                      <span className="leading-tight">{item.name || 'Product'}</span>
-                      {item.options && Object.keys(item.options).length > 0 && (
-                        <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                          {Object.entries(item.options)
-                            .map(([k, v]) => `${k}: ${v}`)
-                            .join(' • ')}
-                        </p>
-                      )}
+
+                  <div className="mt-4 flex flex-1 items-end justify-between text-sm text-white/60">
+                    <div className="flex items-center gap-2">
+                      <label htmlFor={`quantity-${item.id}`} className="sr-only">
+                        Quantity
+                      </label>
+                      <select
+                        id={`quantity-${item.id}`}
+                        value={item.quantity || 1}
+                        onChange={(event) => void handleQuantityChange(item.id, event.target.value)}
+                        disabled={pendingRemove === item.id || pendingQuantity === item.id}
+                        className="rounded-md border border-white/20 bg-black/60 px-3 py-1 text-xs text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                      >
+                        {quantities.map((qty) => (
+                          <option key={qty} value={qty}>
+                            Qty {qty}
+                          </option>
+                        ))}
+                      </select>
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => void handleRemove(item.id)}
+                      disabled={pendingRemove === item.id}
+                      className="font-semibold text-primary transition hover:text-primary/80 disabled:opacity-60"
+                    >
+                      Remove
+                    </button>
                   </div>
                 </div>
-                <div className="flex h-16 flex-col justify-between">
-                  <Price
-                    className="flex justify-end space-y-2 text-right text-sm"
-                    amount={(item.price || 0) * (item.quantity || 0)}
-                  />
-                  <div className="ml-auto flex h-9 flex-row items-center gap-1 rounded-full border border-neutral-200 dark:border-neutral-700 px-1">
-                    <EditItemQuantityButton item={item} type="minus" />
-                    <p className="w-5 h-4 flex items-center justify-center">
-                      <span className="text-sm leading-none">{item.quantity}</span>
-                    </p>
-                    <EditItemQuantityButton item={item} type="plus" />
-                  </div>
-                </div>
-              </div>
-            </li>
-          ))}
-      </ul>
-      <div className="py-4 text-sm text-neutral-500 dark:text-neutral-400">
-        <div className="mb-3 flex items-center justify-between border-b border-neutral-200 pb-1 dark:border-neutral-700">
-          <p>Subtotal</p>
-          <Price className="text-right text-basetext-white" amount={subtotal} />
-        </div>
-        <div className="mb-3 flex items-center justify-between border-b border-neutral-200 pb-1 pt-1 dark:border-neutral-700">
-          <p>Shipping</p>
-          <p className="text-right">Calculated after entering address</p>
-        </div>
+              </li>
+            );
+          })}
+        </ul>
       </div>
-      <CheckoutButton onProceed={onProceed} />
     </div>
   );
 }
 
-type CheckoutButtonProps = {
-  onProceed: () => void;
+type CartSummaryProps = {
+  subtotal: number;
+  onProceed: () => void | Promise<void>;
+  onClose: () => void;
 };
 
-function CheckoutButton({ onProceed }: CheckoutButtonProps) {
+function CartSummary({ subtotal, onProceed, onClose }: CartSummaryProps) {
   const [loading, setLoading] = useState(false);
 
-  async function onClick() {
+  const handleProceed = async () => {
     try {
       setLoading(true);
-      await onProceed();
+      await Promise.resolve(onProceed());
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
-    <button
-      className="w-full btn-glass rounded-full bg-primary p-3 text-center text-sm font-medium text-white opacity-90 hover:opacity-100 disabled:opacity-60"
-      type="button"
-      disabled={loading}
-      onClick={onClick}
-    >
-      {loading ? <LoadingDots className="bg-white" /> : 'Enter Shipping to Continue'}
-    </button>
-  );
-}
-
-type ShippingStepProps = {
-  cart: Cart;
-  subtotal: number;
-  form: ShippingFormState;
-  setForm: Dispatch<SetStateAction<ShippingFormState>>;
-  onBack: () => void;
-};
-
-function ShippingStep({ cart, subtotal, form, setForm, onBack }: ShippingStepProps) {
-  const [quoteLoading, setQuoteLoading] = useState(false);
-  const [quoteError, setQuoteError] = useState<string | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [freightRequired, setFreightRequired] = useState(false);
-  const [missingItems, setMissingItems] = useState<string[]>([]);
-  const [quoteInstallOnly, setQuoteInstallOnly] = useState(false);
-  const [installOnlyMessage, setInstallOnlyMessage] = useState<string | null>(null);
-  const [rates, setRates] = useState<CheckoutShippingRate[]>([]);
-  const [selectedRate, setSelectedRate] = useState<CheckoutShippingRate | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-
-  const cartInstallOnly = useMemo(
-    () =>
-      cart.items.length > 0 &&
-      cart.items.every((item) => {
-        if (item.installOnly === true) return true;
-        const cls = (item.shippingClass || '').toString().toLowerCase().replace(/[^a-z]/g, '');
-        return cls === 'installonly';
-      }),
-    [cart]
-  );
-  const installOnly = cartInstallOnly || quoteInstallOnly;
-
-  useEffect(() => {
-    if (installOnly) {
-      setInstallOnlyMessage((prev) =>
-        prev ||
-        'These items are install-only and do not require shipping. We will coordinate scheduling after checkout.'
-      );
-    } else {
-      setInstallOnlyMessage(null);
-    }
-  }, [installOnly]);
-
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = event.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const resetQuoteState = () => {
-    setQuoteError(null);
-    setFormError(null);
-    setFreightRequired(false);
-    setMissingItems([]);
-    setQuoteInstallOnly(false);
-    setInstallOnlyMessage(null);
-  };
-
-  const cartPayload = cart.items.map((item) => ({ id: item.id, quantity: item.quantity ?? 1 }));
-
-  const requestRates = async () => {
-    if (installOnly) {
-      setQuoteError(null);
-      setFormError(null);
-      setQuoteLoading(false);
-      return [];
-    }
-
-    const validationError = validateShippingForm(form);
-    if (validationError) {
-      setFormError(validationError);
-      return null;
-    }
-
-    resetQuoteState();
-    setQuoteLoading(true);
-
-    try {
-      const destination = normalizeShippingInput(form);
-      const response = await fetch('/api/shipping/quote', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cart: cartPayload, destination })
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        const message = data?.error || data?.message || 'Failed to fetch shipping rates.';
-        setQuoteError(message);
-        setRates([]);
-        setSelectedRate(null);
-        setQuoteInstallOnly(false);
-        setInstallOnlyMessage(null);
-        return null;
-      }
-
-      if (data?.freight) {
-        setFreightRequired(true);
-        setRates([]);
-        setSelectedRate(null);
-        setQuoteError(
-          'This order requires a freight quote. Please contact support to complete your purchase.'
-        );
-        setQuoteInstallOnly(false);
-        setInstallOnlyMessage(null);
-        return [];
-      }
-
-      if (data?.installOnly) {
-        setQuoteInstallOnly(true);
-        setInstallOnlyMessage(
-          typeof data?.message === 'string'
-            ? data.message
-            : 'These items are install-only and do not require shipping. We will coordinate scheduling after checkout.'
-        );
-        setRates([]);
-        setSelectedRate(null);
-        setMissingItems(Array.isArray(data?.missing) ? data.missing : []);
-        setQuoteError(null);
-        return [];
-      }
-
-      setQuoteInstallOnly(false);
-      setInstallOnlyMessage(null);
-
-      const received: CheckoutShippingRate[] = Array.isArray(data?.rates) ? data.rates : [];
-      setRates(received);
-      setMissingItems(Array.isArray(data?.missing) ? data.missing : []);
-
-      const previous = selectedRate;
-      const nextSelected =
-        received.find((rate) => ratesMatch(rate, previous)) || received[0] || null;
-      setSelectedRate(nextSelected);
-      setQuoteError(null);
-      return received;
-    } catch (err: any) {
-      const message = err instanceof Error ? err.message : 'Failed to fetch shipping rates.';
-      setQuoteError(message);
-      setRates([]);
-      setSelectedRate(null);
-      return null;
-    } finally {
-      setQuoteLoading(false);
-    }
-  };
-
-  const handleGetRates = async (event?: FormEvent) => {
-    if (event) event.preventDefault();
-    if (installOnly) return;
-    await requestRates();
-  };
-
-  const handleContinue = async () => {
-    setSubmitError(null);
-    const validationError = validateShippingForm(form);
-    if (validationError) {
-      setFormError(validationError);
-      return;
-    }
-
-    setFormError(null);
-
-    let rateToUse = selectedRate;
-    if (!rateToUse && !freightRequired && !quoteError && !installOnly) {
-      const fetched = await requestRates();
-      if (fetched && fetched.length) {
-        rateToUse = fetched[0];
-      }
-    }
-
-    if (freightRequired) {
-      setFormError('Freight shipment required. Contact support to arrange delivery.');
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      const payload = {
-        shipping: normalizeShippingInput(form),
-        ...(installOnly ? {} : { shippingRate: rateToUse || undefined })
-      };
-      const result = await redirectToCheckout(payload);
-      if (typeof result === 'string') {
-        setSubmitError(result);
-      }
-    } catch (err: any) {
-      const message = err instanceof Error ? err.message : 'Failed to start checkout.';
-      setSubmitError(message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const displayRates = useMemo(() => dedupeShippingRates(rates), [rates]);
-  const destinationSummary = normalizeShippingInput(form);
-
-  return (
-    <div className="flex h-full flex-col overflow-hidden">
-      <button
-        type="button"
-        className="mb-3 flex w-fit items-center text-sm text-neutral-300 hover:text-white"
-        onClick={onBack}
-      >
-        Back to cart
-      </button>
-
-      <form className="flex-1 overflow-y-auto pr-1" onSubmit={handleGetRates}>
-        <div className="space-y-3 text-sm">
-          <div className="grid grid-cols-1 gap-3">
-            <label className="flex flex-col">
-              <span className="mb-1 text-xs uppercase tracking-wide text-neutral-400">
-                Full name
-              </span>
-              <input
-                name="name"
-                value={form.name}
-                onChange={handleInputChange}
-                className="rounded-md border border-white/10 bg-white/10 px-3 py-2 text-white focus:border-primary focus:outline-none"
-                required
-              />
-            </label>
-            <label className="flex flex-col">
-              <span className="mb-1 text-xs uppercase tracking-wide text-neutral-400">Email</span>
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleInputChange}
-                className="rounded-md border border-white/10 bg-white/10 px-3 py-2 text-white focus:border-primary focus:outline-none"
-                required
-              />
-            </label>
-            <label className="flex flex-col">
-              <span className="mb-1 text-xs uppercase tracking-wide text-neutral-400">
-                Phone (optional)
-              </span>
-              <input
-                name="phone"
-                value={form.phone}
-                onChange={handleInputChange}
-                className="rounded-md border border-white/10 bg-white/10 px-3 py-2 text-white focus:border-primary focus:outline-none"
-              />
-            </label>
-          </div>
-
-          <div className="grid grid-cols-1 gap-3">
-            <label className="flex flex-col">
-              <span className="mb-1 text-xs uppercase tracking-wide text-neutral-400">
-                Address line 1
-              </span>
-              <input
-                name="addressLine1"
-                value={form.addressLine1}
-                onChange={handleInputChange}
-                className="rounded-md border border-white/10 bg-white/10 px-3 py-2 text-white focus:border-primary focus:outline-none"
-                required
-              />
-            </label>
-            <label className="flex flex-col">
-              <span className="mb-1 text-xs uppercase tracking-wide text-neutral-400">
-                Address line 2
-              </span>
-              <input
-                name="addressLine2"
-                value={form.addressLine2}
-                onChange={handleInputChange}
-                className="rounded-md border border-white/10 bg-white/10 px-3 py-2 text-white focus:border-primary focus:outline-none"
-                placeholder="Apartment, suite, etc."
-              />
-            </label>
-          </div>
-
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <label className="flex flex-col">
-              <span className="mb-1 text-xs uppercase tracking-wide text-neutral-400">City</span>
-              <input
-                name="city"
-                value={form.city}
-                onChange={handleInputChange}
-                className="rounded-md border border-white/10 bg-white/10 px-3 py-2 text-white focus:border-primary focus:outline-none"
-                required
-              />
-            </label>
-            <label className="flex flex-col">
-              <span className="mb-1 text-xs uppercase tracking-wide text-neutral-400">
-                State / Province
-              </span>
-              <input
-                name="state"
-                value={form.state}
-                onChange={handleInputChange}
-                className="rounded-md border border-white/10 bg-white/10 px-3 py-2 text-white focus:border-primary focus:outline-none"
-                required
-              />
-            </label>
-            <label className="flex flex-col">
-              <span className="mb-1 text-xs uppercase tracking-wide text-neutral-400">
-                Postal code
-              </span>
-              <input
-                name="postalCode"
-                value={form.postalCode}
-                onChange={handleInputChange}
-                className="rounded-md border border-white/10 bg-white/10 px-3 py-2 text-white focus:border-primary focus:outline-none"
-                required
-              />
-            </label>
-            <label className="flex flex-col">
-              <span className="mb-1 text-xs uppercase tracking-wide text-neutral-400">Country</span>
-              <select
-                name="country"
-                value={form.country}
-                onChange={handleInputChange}
-                className="rounded-md border border-white/10 bg-white/10 px-3 py-2 text-white focus:border-primary focus:outline-none"
-              >
-                <option value="US">United States</option>
-                <option value="CA">Canada</option>
-              </select>
-            </label>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-neutral-400">
-                We use your address to pull live shipping rates and taxes from Stripe.
-              </p>
-            </div>
-            {!installOnly && (
-              <button
-                type="submit"
-                className="rounded-full border border-white/30 px-3 py-1 text-xs uppercase tracking-wide text-white hover:border-primary"
-                disabled={quoteLoading}
-              >
-                {quoteLoading ? 'Fetching...' : 'Update rates'}
-              </button>
-            )}
-          </div>
-
-          {formError && <p className="text-xs text-red-400">{formError}</p>}
-          {quoteError && (
-            <p className="text-xs text-amber-300">
-              {quoteError} {rates.length === 0 ? 'Defaults will be shown on Stripe checkout.' : ''}
-            </p>
-          )}
-          {submitError && <p className="text-xs text-red-400">{submitError}</p>}
-          {missingItems.length > 0 && (
-            <p className="text-xs text-amber-300">
-              Missing product data for: {missingItems.join(', ')}
-            </p>
-          )}
-          {freightRequired && (
-            <div className="rounded-md border border-amber-500/50 bg-amber-500/10 p-3 text-xs text-amber-200">
-              This order exceeds parcel limits. Contact sales@fasmotorsports.com to arrange freight
-              shipping.
-            </div>
-          )}
-
-          {installOnly && (
-            <div className="rounded-md border border-white/20 bg-white/10 p-3 text-xs text-white">
-              {installOnlyMessage ||
-                'These items are install-only and do not require shipping. We will coordinate scheduling after checkout.'}
-            </div>
-          )}
-
-          {displayRates.length > 0 && !freightRequired && (
-            <div className="space-y-2 rounded-lg border border-white/10 bg-white/5 p-3">
-              <p className="text-sm font-semibold text-white">Available shipping methods</p>
-              <fieldset className="space-y-2">
-                {displayRates.map((rate, idx) => {
-                  const id = `shipping-${idx}`;
-                  const isSelected = ratesMatch(rate, selectedRate);
-                  const key = rateIdentifier(rate) || `rate-${idx}`;
-                  const labelText = buildShippingLabel(rate);
-                  return (
-                    <label
-                      key={key}
-                      className="flex flex-wrap gap-3 rounded-md border border-white/10 bg-black/30 px-3 py-2 text-sm hover:border-primary sm:flex-nowrap sm:items-center sm:justify-between"
-                    >
-                      <div className="flex flex-1 items-start gap-3 min-w-0">
-                        <input
-                          type="radio"
-                          id={id}
-                          name="selectedShipping"
-                          checked={isSelected}
-                          onChange={() => setSelectedRate(rate)}
-                        />
-                        <div className="min-w-0">
-                          <p className="text-white break-words leading-snug">{labelText}</p>
-                          {rate.deliveryDays ? (
-                            <p className="text-xs text-neutral-400">
-                              {rate.deliveryDays}-day estimate
-                            </p>
-                          ) : null}
-                        </div>
-                      </div>
-                      <span className="text-white shrink-0">${rate.amount.toFixed(2)}</span>
-                    </label>
-                  );
-                })}
-              </fieldset>
-            </div>
-          )}
-        </div>
-      </form>
-
-      <div className="mt-4 border-t border-white/10 pt-4 text-sm text-neutral-400">
-        <div className="mb-3 flex items-center justify-between">
-          <p>Items</p>
-          <Price className="text-right text-white" amount={subtotal} />
-        </div>
-        {!installOnly ? (
-          <>
-            {selectedRate ? (
-              <div className="mb-3 flex items-center justify-between">
-                <p>
-                  Shipping
-                  <span className="ml-1 text-xs text-neutral-500">
-                    ({buildShippingLabel(selectedRate)})
-                  </span>
-                </p>
-                <span className="text-white">${selectedRate.amount.toFixed(2)}</span>
-              </div>
-            ) : null}
-            <p className="text-xs text-neutral-500">
-              Stripe finalizes shipping and taxes using the address above when you complete checkout.
-            </p>
-            {destinationSummary.city && destinationSummary.state && (
-              <p className="mt-2 text-xs text-neutral-500">
-                Destination: {destinationSummary.city}, {destinationSummary.state}{' '}
-                {destinationSummary.postalCode}
-              </p>
-            )}
-          </>
-        ) : (
-          <div className="text-xs text-neutral-500">
-            <p>Install-only service — shipping will not be charged.</p>
-            <p className="mt-1">
-              We still use your address to confirm local taxes before scheduling.
-            </p>
-          </div>
-        )}
-
+    <div className="border-t border-white/10 px-4 py-6 text-sm text-white/70 sm:px-6">
+      <div className="flex justify-between text-base font-semibold text-white">
+        <p>Subtotal</p>
+        <Price amount={subtotal} />
+      </div>
+      <p className="mt-1 text-xs text-white/50">Shipping and taxes are calculated during checkout.</p>
+      <div className="mt-6">
         <button
           type="button"
-          onClick={handleContinue}
-          disabled={submitting || freightRequired}
-          className="mt-4 w-full rounded-full bg-primary px-4 py-3 text-center text-sm font-medium text-white opacity-90 hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-50"
+          onClick={handleProceed}
+          disabled={loading}
+          className="flex w-full items-center justify-center rounded-full bg-primary px-6 py-3 text-base font-semibold uppercase tracking-wide text-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {submitting ? <LoadingDots className="bg-white" /> : 'Continue to secure payment'}
+          {loading ? <LoadingDots className="bg-black" /> : 'Enter Shipping to Continue'}
         </button>
+      </div>
+      <div className="mt-6 flex justify-center text-center text-xs text-white/60">
+        <p>
+          or{' '}
+          <button
+            type="button"
+            onClick={onClose}
+            className="font-semibold text-primary transition hover:text-primary/80"
+          >
+            Continue shopping<span aria-hidden="true"> &rarr;</span>
+          </button>
+        </p>
       </div>
     </div>
   );

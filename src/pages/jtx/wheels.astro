@@ -1,7 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import JtxHero from '@/components/jtx/JtxHero.astro';
-import JtxBreadcrumbs from '@/components/jtx/JtxBreadcrumbs.astro';
 import JtxSidebar from '@/components/jtx/JtxSidebar.astro';
 import JtxWheelSpecForm from '@/components/jtx/JtxWheelSpecForm';
 import { JTX_SERIES } from '@/content/jtx/options';
@@ -44,7 +43,6 @@ const breadcrumbStructuredData = {
   </Fragment>
   <JtxHero title="JTX Forged — Custom Spec Quote" subtitle="ARC Monoforged truck wheels with premium finishes and popular 5/6/8 lug patterns." />
   <div class="mx-auto max-w-7xl px-6 py-6">
-    <JtxBreadcrumbs current="overview" />
     <div class="grid md:grid-cols-[260px_1fr] gap-8">
       <JtxSidebar current="overview" />
       <main class="space-y-8">

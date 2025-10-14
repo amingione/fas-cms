@@ -1,14 +1,12 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import JtxHero from '@/components/jtx/JtxHero.astro';
-import JtxBreadcrumbs from '@/components/jtx/JtxBreadcrumbs.astro';
 import JtxSidebar from '@/components/jtx/JtxSidebar.astro';
 import JtxWheelSpecForm from '@/components/jtx/JtxWheelSpecForm';
 ---
 <BaseLayout>
   <JtxHero title="ARC Monoforged — Quote Your Set" subtitle="Lightweight monoblock construction with popular sizes and offsets." />
   <div class="mx-auto max-w-7xl px-6 py-6">
-    <JtxBreadcrumbs current="arc" />
     <div class="grid md:grid-cols-[260px_1fr] gap-8">
       <JtxSidebar current="arc" />
       <main class="space-y-8">

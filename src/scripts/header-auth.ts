@@ -89,3 +89,5 @@ ready(async () => {
     setAnonymous(badgeLink, desktopLink);
   }
 });
+
+export {};

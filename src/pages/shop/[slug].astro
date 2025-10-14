@@ -210,7 +210,42 @@ try {
     });
   }
 
-  addOns = Array.isArray(addOns) ? addOns.filter(Boolean) : [];
+  addOns = Array.isArray(addOns)
+    ? addOns
+        .filter(Boolean)
+        .map((a: any) => {
+          const label =
+            (a?.label ||
+              a?.title ||
+              a?.name ||
+              a?.value ||
+              a?.id ||
+              'Upgrade').toString();
+          const value =
+            (a?.value ||
+              a?.label ||
+              a?.title ||
+              a?.name ||
+              a?.id ||
+              label).toString();
+          const priceDelta =
+            typeof a?.priceDelta === 'number'
+              ? a.priceDelta
+              : typeof a?.price === 'number'
+                ? a.price
+                : typeof a?.delta === 'number'
+                  ? a.delta
+                  : 0;
+          return {
+            ...a,
+            label,
+            value,
+            priceDelta,
+            group: (a?.group || 'upgrade').toString(),
+            key: (a?.key || a?.slug || a?.id || label || 'upgrade').toString(),
+          };
+        })
+    : [];
   customs = Array.isArray(customs) ? customs.filter(Boolean) : [];
   // Map Sanity customPaint object -> a custom text input with optional surcharge
   const cp = (product as any).customPaint;
@@ -368,7 +403,7 @@ const productStructuredData = {
                               : (typeof v?.delta === 'number' ? v.delta : (typeof v?.price === 'number' ? v.price : 0)))
                           : 0;
                         return (
-                          <option value={val} data-price={price.toString()}>
+                          <option value={val} data-price={price.toString()} data-label={label}>
                             {label}
                             {price ? ` (+$${Number(price).toFixed(2)})` : ''}
                           </option>
@@ -393,6 +428,7 @@ const productStructuredData = {
                               value={val}
                               data-group={groupKey}
                               data-price={price}
+                              data-label={label}
                               checked={i === 0}
                             />
                             <span class="text-sm">{label}</span>
@@ -414,15 +450,18 @@ const productStructuredData = {
                   {addOns.map((a: any) => (
                     <label class="flex items-center gap-2 bg-black/30 border border-white/20 rounded px-2 py-2 cursor-pointer">
                       <input type="checkbox"
-                        name={(a.key || a.slug || a.id || a.name || a.title || 'addon').toString()}
-                        value={(a.value || a.name || a.title || '').toString()}
-                        data-group={(a.group || 'addOn').toString()}
-                        data-price={(typeof a.priceDelta === 'number' ? a.priceDelta : (typeof a.price === 'number' ? a.price : (typeof a.delta === 'number' ? a.delta : 0))).toString()}
+                        name={(a.key || 'upgrade').toString()}
+                        value={(a.value || a.label || '').toString()}
+                        data-group={(a.group || 'upgrade').toString()}
+                        data-price={(typeof a.priceDelta === 'number' ? a.priceDelta : 0).toString()}
+                        data-label={a.label}
                         checked={!!a.defaultSelected}
                       />
-                      <span class="text-sm">{a.label || a.title || a.name || 'Upgrade'}</span>
+                      <span class="text-sm">{a.label}</span>
                       <span class="ml-auto text-xs opacity-70">
-                        {typeof a.priceDelta === 'number' ? `+$${Number(a.priceDelta).toFixed(2)}` : (typeof a.price === 'number' ? `+$${Number(a.price).toFixed(2)}` : (typeof a.delta === 'number' ? `+$${Number(a.delta).toFixed(2)}` : ''))}
+                        {typeof a.priceDelta === 'number' && a.priceDelta !== 0
+                          ? `+$${Number(a.priceDelta).toFixed(2)}`
+                          : ''}
                       </span>
                     </label>
                   ))}
@@ -472,15 +511,16 @@ const productStructuredData = {
           class="add-to-cart inline-flex items-center gap-2 border border-white/30 px-4 py-2 rounded-full hover:bg-primary hover:text-accent transition relative z-10 pointer-events-auto"
           data-product-id={(product as any)._id}
           data-product-name={(product as any).title}
-          data-product-price={(product as any).price}
-          data-product-base-price={(product as any).price}
-          data-product-image={(product as any).images?.[0]?.asset?.url || (product as any).images?.[0]?.url || ''}
-          data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
-          data-product-shipping-class={(product as any).shippingClass || ''}
-          data-product-install-only={String(
-            ((product as any).shippingClass || '').toString().toLowerCase().replace(/[^a-z]/g, '') ===
-              'installonly'
-          )}
+        data-product-price={(product as any).price}
+        data-product-base-price={(product as any).price}
+        data-product-image={(product as any).images?.[0]?.asset?.url || (product as any).images?.[0]?.url || ''}
+        data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
+        data-product-shipping-class={(product as any).shippingClass || ''}
+        data-product-install-only={String(
+          ((product as any).shippingClass || '').toString().toLowerCase().replace(/[^a-z]/g, '') ===
+            'installonly'
+        )}
+        data-product-href={`/shop/${slug}`}
         >
           <!-- bag icon -->
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
@@ -829,6 +869,7 @@ const productStructuredData = {
       ((product as any).shippingClass || '').toString().toLowerCase().replace(/[^a-z]/g, '') ===
         'installonly'
     )}
+    data-product-href={`/shop/${slug}`}
   >
     Add to Cart
   </button>
@@ -917,6 +958,21 @@ const productStructuredData = {
       try { window.dispatchEvent(new CustomEvent('cart:changed', { detail: { cart } })); } catch {}
     }
 
+    function prefersDesktopOverlay() {
+      try {
+        const hover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
+        const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+        if (hover && !coarse) return true;
+        if (hover && coarse === undefined) return true;
+        const maxTouch = navigator.maxTouchPoints || 0;
+        if (coarse) return false;
+        return maxTouch === 0;
+      } catch (error) {
+        void error;
+        return false;
+      }
+    }
+
     // Add-to-cart delegation (compute latest config first)
     document.addEventListener("click", (evt) => {
       const target = evt.target;
@@ -947,8 +1003,21 @@ const productStructuredData = {
         return ga.localeCompare(gb);
       }));
 
-      const optionsMap = {};
-      try { selections.forEach((s) => { optionsMap[String(s.group||'option')] = String(s.value||''); }); } catch {}
+      const optionsMap = Object.create(null);
+      try {
+        selections.forEach((s) => {
+          const group = String(s.group || 'option');
+          const label = s?.label ?? s?.value;
+          const display = String(label ?? '').trim() || 'Selected';
+          if (optionsMap[group]) {
+            if (!optionsMap[group].includes(display)) {
+              optionsMap[group] = `${optionsMap[group]}, ${display}`;
+            }
+          } else {
+            optionsMap[group] = display;
+          }
+        });
+      } catch {}
       const composedId = `${ds.productId || ''}::${signature}`;
 
       const product = {
@@ -959,10 +1028,12 @@ const productStructuredData = {
         extra: total - basePrice,     // summed deltas
         image: ds.productImage || '',
         options: optionsMap,          // selected upgrades/options as map
+        selections,                  // raw selection details for downstream use
         signature,                    // keep signature for debug
         quantity: 1,
         installOnly: installOnlyFlag,
-        shippingClass: shippingClassRaw
+        shippingClass: shippingClassRaw,
+        productUrl: ds.productHref || undefined
       };
       const cart = getCart();
       const items = cart.items || [];
@@ -981,6 +1052,9 @@ const productStructuredData = {
       cart.items = items;
       setCart(cart);
       emitCartChanged(cart);
+
+      const eventName = prefersDesktopOverlay() ? 'open-desktop-cart' : 'open-cart';
+      try { window.dispatchEvent(new Event(eventName)); } catch (error) { void error; }
     }, true);
 
     // ---- Price calculator ----
@@ -993,48 +1067,94 @@ const productStructuredData = {
 
     function readConfiguredOptions() {
       const result = { selections: [], extra: 0 };
+      const form = document.getElementById('product-options');
+      if (!form) return result;
 
-      // Prefer scoped lookup; fall back to global if needed
-      let fields = document.querySelectorAll('#product-options [data-group]');
-      if (!fields || fields.length === 0) {
-        fields = document.querySelectorAll('[data-group]');
-      }
-      if (!fields || fields.length === 0) return result;
+      const handled = new Set();
+      const elements = form.querySelectorAll('[data-group]');
 
-      fields.forEach((el) => {
-        const tag = (el.tagName || '').toLowerCase();
-        const group = el.getAttribute('data-group') || 'option';
-        const baseDelta = normalizeDelta(el.dataset?.price ?? el.getAttribute('data-price'));
+      const addSelection = (group, value, label, delta) => {
+        const normalizedGroup = group || 'option';
+        const normalizedValue = value != null ? String(value) : '';
+        const normalizedLabel = label != null ? String(label) : normalizedValue;
+        const numericDelta = Number.isFinite(delta) ? delta : 0;
+        result.selections.push({
+          group: normalizedGroup,
+          value: normalizedValue,
+          label: normalizedLabel,
+          priceDelta: numericDelta
+        });
+        result.extra += numericDelta;
+      };
+
+      const escapeForSelector = (value) => {
+        try {
+          return CSS?.escape ? CSS.escape(value) : value.replace(/([\[\]"'\\])/g, '\\$1');
+        } catch {
+          return value.replace(/([\[\]"'\\])/g, '\\$1');
+        }
+      };
+
+      elements.forEach((node) => {
+        if (handled.has(node)) return;
+        const tag = (node.tagName || '').toLowerCase();
+        const group = node.getAttribute('data-group') || node.getAttribute('name') || 'option';
 
         if (tag === 'select') {
-          const sel = el;
+          const sel = node;
           const opt = sel.options[sel.selectedIndex];
-          const delta = normalizeDelta(opt?.dataset?.price ?? opt?.getAttribute?.('data-price'));
-          result.selections.push({ group, value: opt?.value || '', priceDelta: delta });
-          result.extra += delta;
+          if (opt) {
+            const value = opt.value || '';
+            const label = opt.dataset?.label || opt.text || value;
+            const delta = normalizeDelta(opt.dataset?.price ?? opt.getAttribute('data-price'));
+            addSelection(group, value, label, delta);
+          }
+          handled.add(node);
           return;
         }
 
         if (tag === 'input') {
-          const type = el.getAttribute('type')?.toLowerCase() || 'text';
-          if (type === 'radio' && el.checked) {
-            result.selections.push({ group, value: el.value, priceDelta: baseDelta });
-            result.extra += baseDelta;
+          const input = node;
+          const type = (input.type || 'text').toLowerCase();
+          const baseDelta = normalizeDelta(input.dataset?.price ?? input.getAttribute('data-price'));
+
+          if (type === 'radio') {
+            const name = input.name || group;
+            const selector = `input[type="radio"][name="${escapeForSelector(name)}"]`;
+            const radios = form.querySelectorAll(selector);
+            radios.forEach((radioEl) => {
+              const radio = radioEl;
+              handled.add(radio);
+              if (radio.checked) {
+                const value = radio.value || '';
+                const label = radio.dataset?.label || value;
+                const delta = normalizeDelta(radio.dataset?.price ?? radio.getAttribute('data-price'));
+                addSelection(group, value, label, delta);
+              }
+            });
             return;
           }
-          if (type === 'checkbox' && el.checked) {
-            result.selections.push({ group, value: el.value || 'on', priceDelta: baseDelta });
-            result.extra += baseDelta;
+
+          if (type === 'checkbox') {
+            handled.add(input);
+            if (input.checked) {
+              const value = input.value || 'on';
+              const label = input.dataset?.label || value;
+              addSelection(group, value, label, baseDelta);
+            }
             return;
           }
-          const val = (el.value || '').toString().trim();
+
+          const val = (input.value || '').toString().trim();
           if (val.length > 0) {
-            result.selections.push({ group, value: val, priceDelta: baseDelta });
-            result.extra += baseDelta;
+            const label = input.dataset?.label || val;
+            addSelection(group, val, label, baseDelta);
           }
+          handled.add(input);
           return;
         }
       });
+
       return result;
     }
 

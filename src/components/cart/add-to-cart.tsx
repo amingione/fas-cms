@@ -3,6 +3,7 @@
 import { PlusIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import { addItem } from '@components/cart/actions';
+import { prefersDesktopCart } from '@/lib/device';
 import * as React from 'react';
 
 /**
@@ -102,6 +103,17 @@ export function AddToCart({ product }: { product: any }) {
 
   const variantId = pickVariantId(product, selected);
   const availableForSale = isAvailable(product, variantId);
+  const productSlug = (() => {
+    if (typeof product?.slug === 'string') return product.slug;
+    if (product?.slug && typeof product.slug.current === 'string') return product.slug.current;
+    if (typeof product?.href === 'string') return product.href;
+    return undefined;
+  })();
+  const productUrl = productSlug
+    ? productSlug.startsWith('/')
+      ? productSlug
+      : `/shop/${productSlug}`
+    : undefined;
 
   const disabledReason =
     !variantId && Array.isArray(product?.variants) && product.variants.length > 1
@@ -124,8 +136,17 @@ export function AddToCart({ product }: { product: any }) {
             : undefined,
       image: product?.images?.[0]?.asset?.url || product?.images?.[0]?.url,
       options: selected,
-      quantity: 1
+      quantity: 1,
+      productUrl
     });
+
+    try {
+      const eventName = prefersDesktopCart() ? 'open-desktop-cart' : 'open-cart';
+      window.dispatchEvent(new Event(eventName));
+    } catch (error) {
+      void error;
+      window.dispatchEvent(new Event('open-cart'));
+    }
   }
 
   return (

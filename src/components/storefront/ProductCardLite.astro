@@ -61,6 +61,7 @@ const price = typeof product?.price === 'number' ? product.price : undefined
         client:idle
         className="pointer-events-auto"
         product={{
+          id: typeof product?._id === 'string' ? product._id : undefined,
           title,
           href,
           price,
@@ -88,6 +89,7 @@ const price = typeof product?.price === 'number' ? product.price : undefined
         client:idle
         className="pointer-events-auto"
         product={{
+          id: typeof product?._id === 'string' ? product._id : undefined,
           title,
           href,
           price,

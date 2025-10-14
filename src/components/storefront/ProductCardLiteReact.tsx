@@ -61,6 +61,7 @@ export default function ProductCardLiteReact({
         <ProductQuickViewButton
           className="pointer-events-auto"
           product={{
+            id: typeof product?._id === 'string' ? product._id : undefined,
             title,
             href,
             price,
@@ -92,6 +93,7 @@ export default function ProductCardLiteReact({
         <ProductQuickViewButton
           className="pointer-events-auto"
           product={{
+            id: typeof product?._id === 'string' ? product._id : undefined,
             title,
             href,
             price,

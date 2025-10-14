@@ -2,9 +2,12 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { EyeIcon, ShieldCheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { EyeIcon, ShoppingCartIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { addItem } from '@components/cart/actions';
+import { prefersDesktopCart } from '@/lib/device';
 
 export type QuickViewProduct = {
+  id?: string;
   title: string;
   href: string;
   price?: number;
@@ -67,6 +70,33 @@ export default function ProductQuickViewButton({
       : descriptionRaw
     : undefined;
 
+  const [adding, setAdding] = useState(false);
+  const canAddToCart = Boolean(product.id);
+
+  async function handleAddToCart() {
+    if (!product.id || adding) return;
+    try {
+      setAdding(true);
+      await addItem(null as any, {
+        id: product.id,
+        name: product.title,
+        price: product.price,
+        image: product.imageSrc,
+        quantity: 1,
+        productUrl: product.href
+      });
+
+      const eventName = prefersDesktopCart() ? 'open-desktop-cart' : 'open-cart';
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event(eventName));
+      }
+    } catch (error) {
+      console.error('Failed to add item from quick view:', error);
+    } finally {
+      setAdding(false);
+    }
+  }
+
   return (
     <>
       <button
@@ -119,17 +149,24 @@ export default function ProductQuickViewButton({
                       <p className="text-sm leading-relaxed text-white/70">{description}</p>
                     )}
 
-                    <div className="mt-auto flex flex-wrap items-center gap-3">
+                    <div className="mt-auto flex flex-wrap items-center gap-3 sm:flex-nowrap">
                       <a
                         href={product.href}
-                        className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2 text-sm font-semibold uppercase tracking-[0.2em] text-black transition hover:bg-primary/80"
+                        className="inline-flex min-w-[140px] items-center justify-center rounded-full border border-primary bg-primary px-5 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-black drop-shadow-[0_0_20px_rgba(255,0,0,0.3)] transition hover:bg-primary/90 hover:drop-shadow-[0_0_26px_rgba(255,0,0,0.4)]"
                       >
-                        View Product
+                        <span className="whitespace-nowrap leading-none">View Product</span>
                       </a>
-                      <span className="inline-flex items-center gap-1 text-xs uppercase tracking-[0.3em] text-white/40">
-                        <ShieldCheckIcon className="h-4 w-4" aria-hidden="true" />
-                        FAS Quality
-                      </span>
+                      <button
+                        type="button"
+                        onClick={handleAddToCart}
+                        disabled={!canAddToCart || adding}
+                        className="inline-flex min-w-[150px] items-center gap-2 rounded-full border border-white/25 bg-gradient-to-br from-black/70 to-black/40 px-5 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-white shadow-[0_0_18px_rgba(255,0,0,0.12)] transition enabled:hover:border-primary enabled:hover:from-black/80 enabled:hover:to-black/60 enabled:hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <ShoppingCartIcon className="h-4 w-4" aria-hidden="true" />
+                        <span className="whitespace-nowrap leading-none">
+                          {adding ? 'Adding…' : 'Add to Cart'}
+                        </span>
+                      </button>
                     </div>
                   </div>
                 </div>

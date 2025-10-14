@@ -12,6 +12,7 @@ export type CartItem = {
   options?: Record<string, string>; // e.g., { color: 'Red', size: 'L' }
   installOnly?: boolean;
   shippingClass?: string;
+  productUrl?: string;
 };
 
 export type Cart = { items: CartItem[] };
@@ -69,6 +70,7 @@ export async function addItem(
     if (typeof payload === 'object') {
       if (typeof payload.installOnly === 'boolean') cart.items[idx].installOnly = payload.installOnly;
       if (typeof payload.shippingClass === 'string') cart.items[idx].shippingClass = payload.shippingClass;
+      if (typeof payload.productUrl === 'string') cart.items[idx].productUrl = payload.productUrl;
     }
   } else {
     cart.items.push({
@@ -79,7 +81,8 @@ export async function addItem(
       options: typeof payload === 'object' ? payload.options : undefined,
       quantity: Math.max(1, qty),
       installOnly: typeof payload === 'object' ? payload.installOnly : undefined,
-      shippingClass: typeof payload === 'object' ? payload.shippingClass : undefined
+      shippingClass: typeof payload === 'object' ? payload.shippingClass : undefined,
+      productUrl: typeof payload === 'object' ? payload.productUrl : undefined
     });
   }
   saveCart(cart);

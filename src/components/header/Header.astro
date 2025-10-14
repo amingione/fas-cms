@@ -32,7 +32,7 @@ import { SearchBar } from '@/components/SearchBar.tsx';
 
 <!-- ✅ Mobile Header -->
 <div id="mheader" class="md:hidden fixed top-[40px] left-0 right-0 z-[49] transition-all duration-300 ease-out">
-  <div class="w-full bg-black/40 backdrop-blur-md shadow-xl flex items-center justify-between px-4 h-10 transition-all duration-300 ease-out overflow-visible">
+  <div class="w-full bg-black/40 backdrop-blur-md shadow-xl flex items-center justify-between px-4 h-12 transition-all duration-300 ease-out overflow-visible">
     <!-- SVG Toggle (hamburger→X) -->
     <button id="mnavToggle"
             aria-label="Open menu"
@@ -54,7 +54,7 @@ import { SearchBar } from '@/components/SearchBar.tsx';
     <!-- Right side: Mobile Search + Cart -->
     <div class="flex items-center gap-3" id="mobileHeaderRight">
       <!-- Cart trigger (uses global CartProvider) -->
-      <CartButton client:only="react" />
+      <CartButton client:only="react" forceMobileModal />
     </div>
   </div>
 </div>

@@ -32,14 +32,24 @@ export const GET: APIRoute = async ({ request, url }) => {
     }
 
     // Query Sanity for appointments tied to the customer's email
-    const query = `*[_type == "appointment" && customer->email == $email] | order(_createdAt desc) {
-      _id,
-      _createdAt,
-      status,
-      scheduledAt,
-      location,
-      notes
-    }`;
+    const query = `*[_type == "booking" && customer->email == $email]
+      | order(dateTime(coalesce(scheduledAt, createdAt, _createdAt)) desc) {
+        _id,
+        bookingId,
+        _createdAt,
+        createdAt,
+        status,
+        service,
+        scheduledAt,
+        notes,
+        customer->{
+          _id,
+          firstName,
+          lastName,
+          email,
+          phone
+        }
+      }`;
 
     const appts = await sanityClient.fetch(query, { email });
 

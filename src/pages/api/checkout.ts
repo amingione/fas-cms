@@ -64,6 +64,102 @@ const KNOWN_CARRIER_IDS: Array<{ pattern: RegExp; id: string }> = [
   { pattern: /(stamps|usps|postal)/, id: 'se-3809552' }
 ];
 
+const STATE_MAP: Record<string, string> = {
+  'alabama': 'AL',
+  'alaska': 'AK',
+  'arizona': 'AZ',
+  'arkansas': 'AR',
+  'california': 'CA',
+  'colorado': 'CO',
+  'connecticut': 'CT',
+  'delaware': 'DE',
+  'district of columbia': 'DC',
+  'washington dc': 'DC',
+  'washington d c': 'DC',
+  'florida': 'FL',
+  'georgia': 'GA',
+  'hawaii': 'HI',
+  'idaho': 'ID',
+  'illinois': 'IL',
+  'indiana': 'IN',
+  'iowa': 'IA',
+  'kansas': 'KS',
+  'kentucky': 'KY',
+  'louisiana': 'LA',
+  'maine': 'ME',
+  'maryland': 'MD',
+  'massachusetts': 'MA',
+  'michigan': 'MI',
+  'minnesota': 'MN',
+  'mississippi': 'MS',
+  'missouri': 'MO',
+  'montana': 'MT',
+  'nebraska': 'NE',
+  'nevada': 'NV',
+  'new hampshire': 'NH',
+  'new jersey': 'NJ',
+  'new mexico': 'NM',
+  'new york': 'NY',
+  'north carolina': 'NC',
+  'north dakota': 'ND',
+  'ohio': 'OH',
+  'oklahoma': 'OK',
+  'oregon': 'OR',
+  'pennsylvania': 'PA',
+  'rhode island': 'RI',
+  'south carolina': 'SC',
+  'south dakota': 'SD',
+  'tennessee': 'TN',
+  'texas': 'TX',
+  'utah': 'UT',
+  'vermont': 'VT',
+  'virginia': 'VA',
+  'washington': 'WA',
+  'west virginia': 'WV',
+  'wisconsin': 'WI',
+  'wyoming': 'WY',
+  'american samoa': 'AS',
+  'guam': 'GU',
+  'northern mariana islands': 'MP',
+  'puerto rico': 'PR',
+  'virgin islands': 'VI',
+  'us virgin islands': 'VI',
+  'u s virgin islands': 'VI',
+  'american virgin islands': 'VI',
+  'alberta': 'AB',
+  'british columbia': 'BC',
+  'manitoba': 'MB',
+  'new brunswick': 'NB',
+  'newfoundland and labrador': 'NL',
+  'newfoundland labrador': 'NL',
+  'newfoundland': 'NL',
+  'nova scotia': 'NS',
+  'northwest territories': 'NT',
+  'northwest territory': 'NT',
+  'nunavut': 'NU',
+  'ontario': 'ON',
+  'prince edward island': 'PE',
+  'pei': 'PE',
+  'quebec': 'QC',
+  'saskatchewan': 'SK',
+  'yukon': 'YT',
+  'yukon territory': 'YT'
+};
+
+const isAlphaTwo = (value: string) => /^[A-Za-z]{2}$/.test(value);
+
+const normalizeStateCode = (rawValue: string): string => {
+  const trimmed = (rawValue || '').trim();
+  if (!trimmed) return '';
+  if (isAlphaTwo(trimmed)) return trimmed.toUpperCase();
+  const lower = trimmed.toLowerCase();
+  const normalizedKey = lower.replace(/[^a-z0-9]+/g, ' ').trim();
+  if (STATE_MAP[normalizedKey]) return STATE_MAP[normalizedKey];
+  if (STATE_MAP[lower]) return STATE_MAP[lower];
+  const fallback = normalizedKey || lower;
+  return fallback.length >= 2 ? fallback.slice(0, 2).toUpperCase() : trimmed.slice(0, 2).toUpperCase();
+};
+
 function humanizeToken(token: string): string {
   const lower = token.toLowerCase();
   if (CARRIER_LABELS[lower]) return CARRIER_LABELS[lower];
@@ -160,7 +256,63 @@ export async function POST({ request }: { request: Request }) {
     return id || trimmed;
   };
 
-  type CartItem = { id?: string; sku?: string; name: string; price: number; quantity: number };
+  type CartItem = {
+    id?: string;
+    sku?: string;
+    name: string;
+    price: number;
+    quantity: number;
+    options?: Record<string, string>;
+    basePrice?: number;
+    extra?: number;
+    upgrades?: unknown;
+    addOns?: unknown;
+  };
+
+  const clamp = (value: string, max = 500) =>
+    value.length > max ? value.slice(0, max) : value;
+
+  const formatSelectedOptions = (input?: Record<string, unknown>) => {
+    if (!input || typeof input !== 'object') return null;
+    const entries: Array<[string, string]> = Object.entries(input)
+      .filter(([key, value]) => Boolean(key) && value != null && value !== '')
+      .map(([key, value]) => [String(key), String(value)]);
+    if (!entries.length) return null;
+    const summary = entries.map(([key, value]) => `${key}: ${value}`).join(' • ');
+    const json = JSON.stringify(Object.fromEntries(entries));
+    return { entries, summary, json };
+  };
+
+  const collectUpgrades = (raw: unknown): string[] => {
+    const values: string[] = [];
+    const push = (val?: string | null) => {
+      if (!val) return;
+      const trimmed = val.trim();
+      if (trimmed) values.push(trimmed);
+    };
+    if (Array.isArray(raw)) {
+      raw.forEach((entry) => {
+        if (typeof entry === 'string') push(entry);
+        else if (entry && typeof entry === 'object') {
+          const obj = entry as Record<string, unknown>;
+          push(
+            (obj.label as string | undefined) ||
+              (obj.name as string | undefined) ||
+              (obj.title as string | undefined) ||
+              (obj.value as string | undefined)
+          );
+        }
+      });
+    } else if (raw && typeof raw === 'object') {
+      Object.values(raw).forEach((entry) => {
+        if (typeof entry === 'string') push(entry);
+      });
+    } else if (typeof raw === 'string') {
+      push(raw);
+    }
+    return Array.from(new Set(values));
+  };
+
   const lineItems = (cart as CartItem[]).map((item) => {
     const rawId = typeof item.id === 'string' ? item.id : undefined;
     const sanityProductId = normalizeCartId(rawId);
@@ -171,6 +323,61 @@ export async function POST({ request }: { request: Request }) {
       console.warn('[checkout] Cart item missing price, defaulting to $0.00', item);
     }
     const quantity = Math.max(1, Number.isFinite(item.quantity) ? Number(item.quantity) : 1);
+    const optionDetails = formatSelectedOptions(item.options);
+    const upgradeValues = collectUpgrades(item.upgrades ?? item.addOns);
+    const metadata: Record<string, string> = {
+      ...(item.sku ? { sku: String(item.sku) } : {}),
+      ...(sanityProductId ? { sanity_product_id: sanityProductId } : {})
+    };
+    if (optionDetails?.summary) {
+      metadata.selected_options = clamp(optionDetails.summary);
+      metadata.option_summary = clamp(optionDetails.summary);
+    }
+    if (optionDetails?.json) {
+      metadata.selected_options_json = clamp(optionDetails.json);
+      metadata.option_details_json = clamp(optionDetails.json);
+    }
+    if (optionDetails?.entries?.length) {
+      optionDetails.entries.forEach(([label, value], idx) => {
+        const index = idx + 1;
+        metadata[`option${index}_name`] = clamp(label, 100);
+        metadata[`option${index}_value`] = clamp(value, 200);
+        const normalizedKey = label
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '_')
+          .replace(/^_|_$/g, '');
+        if (normalizedKey) {
+          const keyName = `option_${normalizedKey}`;
+          if (!(keyName in metadata)) metadata[keyName] = clamp(value, 200);
+          if (!metadata.option_vehicle && (normalizedKey.includes('vehicle') || normalizedKey.includes('platform'))) {
+            metadata.option_vehicle = clamp(value, 200);
+          }
+          if (normalizedKey.includes('upgrade') && !upgradeValues.includes(value)) {
+            upgradeValues.push(value);
+          }
+        }
+      });
+    }
+    if (upgradeValues.length) {
+      const upgradeSummary = upgradeValues.join(', ');
+      metadata.upgrades = clamp(upgradeSummary);
+      const upgradePipe = upgradeValues.join('|');
+      metadata.upgrade_list = clamp(upgradePipe);
+      metadata.upgrade_titles = clamp(upgradePipe);
+      upgradeValues.forEach((value, idx) => {
+        metadata[`upgrade_${idx + 1}`] = clamp(value, 200);
+      });
+    }
+    if (typeof item.basePrice === 'number' && Number.isFinite(item.basePrice)) {
+      metadata.base_price = Number(item.basePrice).toFixed(2);
+    }
+    if (typeof item.extra === 'number' && Number.isFinite(item.extra)) {
+      metadata.option_upcharge = Number(item.extra).toFixed(2);
+    }
+    const descriptionParts: string[] = [];
+    if (optionDetails?.summary) descriptionParts.push(optionDetails.summary);
+    if (upgradeValues.length) descriptionParts.push(`Upgrades: ${upgradeValues.join(', ')}`);
+    const description = descriptionParts.length ? clamp(descriptionParts.join(' • '), 250) : undefined;
 
     return {
       price_data: {
@@ -179,11 +386,9 @@ export async function POST({ request }: { request: Request }) {
         product_data: {
           name: item.name || 'Item',
           tax_code: 'txcd_99999999',
-          // Help fulfillment map back to Sanity/Inventory
-          metadata: {
-            ...(item.sku ? { sku: String(item.sku) } : {}),
-            ...(sanityProductId ? { sanity_product_id: sanityProductId } : {})
-          }
+          ...(description ? { description } : {}),
+          // Help fulfillment map back to Sanity/Inventory and capture configured options
+          metadata
         },
         unit_amount: unitAmount
       },
@@ -194,7 +399,17 @@ export async function POST({ request }: { request: Request }) {
   // Persist compact cart metadata (Stripe metadata fields are strings and size-limited)
   let metaCart = '';
   try {
-    const compact = cart.map((i: any) => ({ n: i?.name, q: i?.quantity, p: i?.price }));
+    const compact = (cart as CartItem[]).map((i) => {
+      const opts = formatSelectedOptions(i?.options || undefined)?.summary;
+      const upgrades = collectUpgrades(i?.upgrades ?? i?.addOns);
+      return {
+        n: i?.name,
+        q: i?.quantity,
+        p: i?.price,
+        ...(opts ? { o: opts.slice(0, 120) } : {}),
+        ...(upgrades.length ? { u: upgrades.join(', ').slice(0, 120) } : {})
+      };
+    });
     metaCart = JSON.stringify(compact);
     if (metaCart.length > 450) metaCart = metaCart.slice(0, 450);
   } catch (error) {
@@ -227,9 +442,9 @@ export async function POST({ request }: { request: Request }) {
         addressLine1: String(shippingInput.addressLine1 || ''),
         addressLine2: shippingInput.addressLine2 ? String(shippingInput.addressLine2) : undefined,
         city: String(shippingInput.city || ''),
-        state: String(shippingInput.state || ''),
+        state: normalizeStateCode(String(shippingInput.state || '')),
         postalCode: String(shippingInput.postalCode || ''),
-        country: String(shippingInput.country || 'US')
+        country: String(shippingInput.country || 'US').toUpperCase()
       }
     : undefined;
 
@@ -248,6 +463,16 @@ export async function POST({ request }: { request: Request }) {
       const quote = await computeShippingQuote(cartForQuote, normalizedDestination);
       if (quote.installOnly) {
         installOnlyQuote = true;
+        const installOnlyCurrency =
+          normalizedDestination?.country === 'CA' ? 'CAD' : 'USD';
+        shippingMetadata = {
+          shipping_carrier: 'Install Only',
+          shipping_service: 'Install-Only Service',
+          shipping_service_name: 'Install-Only Service',
+          shipping_amount: '0.00',
+          shipping_currency: installOnlyCurrency,
+          shipping_install_only: 'true'
+        };
       } else if (quote.freight) {
         return new Response(
           JSON.stringify({
@@ -379,10 +604,12 @@ export async function POST({ request }: { request: Request }) {
   }
 
   try {
-    const shippingAddressCollection: Stripe.Checkout.SessionCreateParams.ShippingAddressCollection =
-      {
-        allowed_countries: ['US', 'CA']
-      };
+    const shippingAddressCollection: Stripe.Checkout.SessionCreateParams.ShippingAddressCollection | undefined =
+      installOnlyQuote
+        ? undefined
+        : {
+            allowed_countries: ['US', 'CA']
+          };
 
     const customerEmail = userEmail || normalizedDestination?.email || undefined;
 
@@ -516,12 +743,15 @@ export async function POST({ request }: { request: Request }) {
       tax_id_collection: { enabled: true },
       // Enable Stripe Tax for automatic sales tax calculation
       automatic_tax: { enabled: true },
-      shipping_address_collection: shippingAddressCollection,
       billing_address_collection: 'auto',
       phone_number_collection: { enabled: true },
       success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/checkout/cancel`
+      cancel_url: `${baseUrl}/cart`
     };
+
+    if (shippingAddressCollection) {
+      sessionParams.shipping_address_collection = shippingAddressCollection;
+    }
 
     // Guard rail: Stripe rejects automatic tax when payment_intent_data.shipping is present.
     if (sessionParams.payment_intent_data && 'shipping' in sessionParams.payment_intent_data) {

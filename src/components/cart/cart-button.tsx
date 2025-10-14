@@ -4,7 +4,11 @@ import { useEffect, useState } from 'react';
 import OpenCart from './open-cart';
 import { CART_EVENT, getCart } from '@/lib/cart';
 
-export default function CartButton() {
+type CartButtonProps = {
+  forceMobileModal?: boolean;
+};
+
+export default function CartButton({ forceMobileModal = false }: CartButtonProps) {
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
@@ -28,9 +32,16 @@ export default function CartButton() {
   }, []);
 
   const handleClick = () => {
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new Event('open-cart'));
+    if (typeof window === 'undefined') return;
+    if (forceMobileModal) {
+      window.dispatchEvent(
+        new CustomEvent('open-cart', {
+          detail: { forceMobile: true }
+        })
+      );
+      return;
     }
+    window.dispatchEvent(new Event('open-cart'));
   };
 
   return (

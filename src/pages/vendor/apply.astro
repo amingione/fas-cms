@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import VendorApplyScriptLoader from '../../components/VendorApplyScriptLoader';
 const title = 'Vendor Application';
 ---
 
@@ -11,5 +12,5 @@ const title = 'Vendor Application';
     <div id="applicationContainer" class="w-full"></div>
   </div>
 
-  <script type="module">import '/src/scripts/vendor-apply.ts';</script>
+  <VendorApplyScriptLoader client:load />
 </BaseLayout>

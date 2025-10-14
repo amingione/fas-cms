@@ -1,17 +1,10 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import DashboardScriptLoader from '../components/DashboardScriptLoader';
+import { readSession } from '../server/auth/session';
 
-const dashboardScriptUrl = (Astro as unknown as { resolve(path: string): string }).resolve(
-  '../scripts/dashboard-page.ts'
-);
-
-// Simple auth guard: if no fas-auth session cookie, redirect to /account
-const cookie = Astro.request.headers.get('cookie') || '';
-const readCookie = (name: string) => {
-  const m = new RegExp(`(?:^|;\\s*)${name}=([^;]+)`).exec(cookie);
-  return m?.[1] || null;
-};
-const isLoggedIn = Boolean(readCookie('fas_session'));
+const { session } = await readSession(Astro.request);
+const isLoggedIn = Boolean(session);
 
 const requestUrl = new URL(Astro.request.url);
 requestUrl.search = '';
@@ -89,8 +82,10 @@ if (!isLoggedIn) {
     <!-- Sidebar -->
     <aside class="sticky top-24 h-[calc(100vh-6rem)] w-[260px] mx-6 mt-6 rounded-lg border border-white/10 bg-black/60 backdrop-blur-sm p-4">
       <header class="mb-4">
-        <div class="text-[11px] uppercase tracking-wide text-white/60">Welcome</div>
-        <div class="text-sm font-semibold"><span id="customer-name" class="text-primary"></span></div>
+      <div class="text-[11px] uppercase tracking-wide text-white/60">Welcome</div>
+      <div class="text-sm font-semibold">
+        <span id="customer-name" class="text-primary"></span>
+      </div>
       </header>
       <nav class="flex flex-col gap-1 text-sm font-ethno">
         <a href="#profile" data-view="profile" class="js-view px-3 py-2 rounded hover:bg-white/10">My Profile</a>
@@ -117,7 +112,7 @@ if (!isLoggedIn) {
     </section>
   </main>
 
-  <script type="module" src={dashboardScriptUrl}></script>
+  <DashboardScriptLoader client:load />
   <!-- All dashboard logic is handled in src/scripts/dashboard-page.ts -->
 
 </BaseLayout>

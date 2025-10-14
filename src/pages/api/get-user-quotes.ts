@@ -31,14 +31,57 @@ export const GET: APIRoute = async ({ request, url }) => {
       });
     }
 
-    const query = `*[_type == "quote" && customer->email == $email] | order(_createdAt desc) {
-      _id,
-      _createdAt,
-      status,
-      items[]{ _key, title, quantity, price },
-      total,
-      notes
-    }`;
+    const query = `*[_type == "quote" && (
+        customer->email == $email ||
+        customerRef->email == $email ||
+        billTo.email == $email
+      )]
+      | order(dateTime(coalesce(createdAt, _createdAt)) desc) {
+        _id,
+        _createdAt,
+        createdAt,
+        quoteNumber,
+        title,
+        status,
+        subtotal,
+        discountType,
+        discountValue,
+        taxRate,
+        taxAmount,
+        total,
+        notes,
+        quotePdfUrl,
+        lastEmailedAt,
+        billTo,
+        shipTo,
+        customer->{
+          _id,
+          firstName,
+          lastName,
+          email,
+          phone
+        },
+        timeline[]{
+          _key,
+          action,
+          timestamp
+        },
+        "lineItems": lineItems[]{
+          _key,
+          customName,
+          description,
+          quantity,
+          unitPrice,
+          lineTotal,
+          product->{
+            _id,
+            title,
+            slug{current},
+            sku
+          }
+        },
+        "items": lineItems
+      }`;
 
     const quotes = await sanityClient.fetch(query, { email });
 

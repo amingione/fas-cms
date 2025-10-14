@@ -1,4 +1,12 @@
-const VIEW_KEYS = ['dashboard', 'orders', 'quotes', 'invoices', 'appointments', 'profile', 'details'] as const;
+const VIEW_KEYS = [
+  'dashboard',
+  'orders',
+  'quotes',
+  'invoices',
+  'appointments',
+  'profile',
+  'details'
+] as const;
 type ViewKey = (typeof VIEW_KEYS)[number];
 
 const viewSet = new Set<ViewKey>(VIEW_KEYS);
@@ -8,6 +16,7 @@ let defaultName = 'Guest';
 let loadToken = 0;
 
 const AUTH_TIMEOUT = 8000;
+
 
 function getContainers(): HTMLElement[] {
   return Array.from(document.querySelectorAll<HTMLElement>('[data-dash-content]'));
@@ -107,6 +116,69 @@ function formatMoney(value: unknown): string {
   return '';
 }
 
+function formatDateTime(value: unknown, withTime = true): string {
+  if (!value) return '';
+  try {
+    const date = new Date(String(value));
+    if (Number.isNaN(date.getTime())) return '';
+    if (!withTime) return date.toLocaleDateString();
+    return `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  } catch {
+    return '';
+  }
+}
+
+function normalizeValueList(input: unknown): string[] {
+  if (!input) return [];
+  if (Array.isArray(input)) {
+    return input
+      .map((entry) => escapeHtml(String(entry)))
+      .filter(Boolean);
+  }
+  if (typeof input === 'string') {
+    return input
+      .split(/[,•]/)
+      .map((part) => escapeHtml(part.trim()))
+      .filter(Boolean);
+  }
+  return [];
+}
+
+function normalizeAddressParts(address: any): string[] {
+  if (!address) return [];
+  if (typeof address === 'string') {
+    return address
+      .split(/\n|,/)
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .map(escapeHtml);
+  }
+
+  if (typeof address === 'object') {
+    const parts = [
+      address.name || address.label,
+      address.street || address.street1 || address.addressLine1 || address.address1,
+      address.addressLine2 || address.address2,
+      [address.city, address.state || address.stateProvince || address.region, address.postalCode || address.zip]
+        .flat()
+        .filter(Boolean)
+        .join(', '),
+      address.country
+    ]
+      .flat()
+      .filter(Boolean)
+      .map((part: any) => escapeHtml(String(part)));
+    return parts.filter((part) => part !== '');
+  }
+
+  return [];
+}
+
+function formatAddress(address: any): string {
+  const parts = normalizeAddressParts(address);
+  return parts.join(', ');
+}
+
 async function waitForFasAuth(timeoutMs = AUTH_TIMEOUT): Promise<any | null> {
   if (typeof window === 'undefined') return null;
   if ((window as any).fasAuth) return (window as any).fasAuth;
@@ -154,19 +226,18 @@ async function fetchInvoices(): Promise<any[]> {
 
 async function fetchAppointments(): Promise<any[]> {
   if (!userEmail) return [];
-  return await requestJSON<any[]>(`/api/get-user-appointments?email=${encodeURIComponent(userEmail)}`);
+  return await requestJSON<any[]>(
+    `/api/get-user-appointments?email=${encodeURIComponent(userEmail)}`
+  );
 }
 
 async function fetchProfile(): Promise<any> {
   if (!userEmail) return null;
-  return await requestJSON<any>(
-    '/api/customer/get',
-    {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ email: userEmail })
-    }
-  );
+  return await requestJSON<any>('/api/customer/get', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ email: userEmail })
+  });
 }
 
 function renderOrdersHtml(items: any[]): string {
@@ -182,12 +253,76 @@ function renderOrdersHtml(items: any[]): string {
       const formattedDate = date ? new Date(date).toLocaleDateString() : '';
       const tracking = escapeHtml(order.trackingNumber ?? '');
       const total = formatMoney(order.total ?? order.totalAmount);
+      const carrier = escapeHtml(order.shippingCarrier ?? order.selectedService?.carrier ?? '');
+      const service =
+        escapeHtml(order.selectedService?.service ?? order.selectedService?.serviceCode ?? '');
+      const itemsMarkup = Array.isArray(order.items)
+        ? order.items
+            .map((item: any) => {
+              const name = escapeHtml(item?.name ?? 'Item');
+              const quantity = Number.isFinite(Number(item?.quantity))
+                ? Number(item.quantity)
+                : undefined;
+              const price = formatMoney(item?.price);
+              const optionSummary = escapeHtml(item?.optionSummary ?? '');
+              const optionDetails = Array.isArray(item?.optionDetails)
+                ? item.optionDetails.map((detail: any) => escapeHtml(String(detail))).join(' • ')
+                : '';
+              const upgrades = normalizeValueList(item?.upgrades).join(', ');
+              const lines: string[] = [];
+              if (optionSummary) lines.push(`Options: ${optionSummary}`);
+              if (optionDetails) lines.push(optionDetails);
+              if (upgrades) lines.push(`Upgrades: ${upgrades}`);
+              const meta = lines.length ? `<div class="text-xs opacity-70">${lines.join(' • ')}</div>` : '';
+              return `<div class="border border-white/10 rounded px-3 py-2 bg-black/30">
+                <div class="flex justify-between text-sm">
+                  <span class="font-medium">${name}</span>
+                  ${quantity ? `<span class="opacity-70">Qty ${quantity}</span>` : ''}
+                </div>
+                ${price ? `<div class="text-xs opacity-70 mt-1">Unit: $${price}</div>` : ''}
+                ${meta}
+              </div>`;
+            })
+            .join('')
+        : '';
+
+      const shippingLogMarkup =
+        Array.isArray(order.shippingLog) && order.shippingLog.length
+          ? `<div class="mt-3 space-y-2">
+              ${order.shippingLog
+                .map((entry: any) => {
+                  const statusLabel = escapeHtml(entry?.status ?? '');
+                  const message = escapeHtml(entry?.message ?? '');
+                  const ts = formatDateTime(entry?.createdAt);
+                  const trackingEntry = escapeHtml(entry?.trackingNumber ?? '');
+                  const parts = [
+                    statusLabel ? `<strong>${statusLabel}</strong>` : '',
+                    message || trackingEntry ? `<span>${[message, trackingEntry ? `Tracking: ${trackingEntry}` : ''].filter(Boolean).join(' — ')}</span>` : '',
+                    ts ? `<span class="opacity-60">${ts}</span>` : ''
+                  ].filter(Boolean);
+                  return `<div class="text-xs flex flex-col gap-0.5 bg-black/20 border border-white/10 rounded px-3 py-2">${parts.join(' ')}</div>`;
+                })
+                .join('')}
+            </div>`
+          : '';
+
+      const shippingMetaParts: string[] = [];
+      if (carrier) shippingMetaParts.push(`Carrier: ${carrier}`);
+      if (service) shippingMetaParts.push(`Service: ${service}`);
+      if (tracking) shippingMetaParts.push(`Tracking: ${tracking}`);
+      const shippingMeta =
+        shippingMetaParts.length > 0
+          ? `<div class="text-xs opacity-70 mt-1">${shippingMetaParts.join(' • ')}</div>`
+          : '';
+
       return `
         <div class="border border-white/20 rounded p-4 bg-black/40">
           <div class="flex justify-between"><div class="font-semibold">${id}</div><div class="opacity-70">${status}</div></div>
           <div class="text-xs opacity-70 mt-1">${escapeHtml(formattedDate)}</div>
-          ${tracking ? `<div class="mt-1 text-xs opacity-70">Tracking: ${tracking}</div>` : ''}
-          <div class="mt-2">${total ? `Total: $${total}` : ''}</div>
+          ${shippingMeta}
+          ${itemsMarkup ? `<div class="mt-3 space-y-2">${itemsMarkup}</div>` : ''}
+          ${shippingLogMarkup}
+          <div class="mt-3">${total ? `Total: $${total}` : ''}</div>
         </div>
       `;
     })
@@ -202,15 +337,52 @@ function renderQuotesHtml(items: any[]): string {
   }
   const list = items
     .map((quote) => {
-      const id = escapeHtml(quote._id ?? '');
+      const id = escapeHtml(quote.quoteNumber ?? quote._id ?? '');
       const status = escapeHtml(quote.status ?? '');
-      const date = quote._createdAt ? new Date(quote._createdAt).toLocaleDateString() : '';
+      const created = formatDateTime(quote.createdAt || quote._createdAt, false);
       const total = formatMoney(quote.total);
+      const billToName = escapeHtml(quote?.billTo?.name ?? '');
+      const shipToName = escapeHtml(quote?.shipTo?.name ?? '');
+      const notes = escapeHtml(quote?.notes ?? '');
+      const pdfUrl = quote?.quotePdfUrl ? `<a class="text-xs text-primary" href="${escapeHtml(quote.quotePdfUrl)}" target="_blank" rel="noopener">Download PDF</a>` : '';
+      const itemsMarkup = Array.isArray(quote.items)
+        ? quote.items
+            .map((item: any) => {
+              const label = escapeHtml(
+                item?.customName ?? item?.description ?? item?.product?.title ?? 'Item'
+              );
+              const quantity = Number.isFinite(Number(item?.quantity))
+                ? Number(item.quantity)
+                : undefined;
+              const unit = formatMoney(item?.unitPrice);
+              const line = formatMoney(item?.lineTotal);
+              const description = escapeHtml(item?.description ?? '');
+              const metaParts: string[] = [];
+              if (description) metaParts.push(description);
+              if (unit) metaParts.push(`Unit $${unit}`);
+              if (line) metaParts.push(`Line $${line}`);
+              return `<div class="border border-white/10 rounded px-3 py-2 bg-black/30">
+                <div class="flex justify-between text-sm">
+                  <span class="font-medium">${label}</span>
+                  ${quantity ? `<span class="opacity-70">Qty ${quantity}</span>` : ''}
+                </div>
+                ${metaParts.length ? `<div class="text-xs opacity-70 mt-1">${metaParts.join(' • ')}</div>` : ''}
+              </div>`;
+            })
+            .join('')
+        : '';
       return `
         <div class="border border-white/20 rounded p-4 bg-black/40">
           <div class="flex justify-between"><div class="font-semibold">${id}</div><div class="opacity-70">${status}</div></div>
-          <div class="text-xs opacity-70 mt-1">${escapeHtml(date)}</div>
-          <div class="mt-2">${total ? `Total: $${total}` : ''}</div>
+          <div class="text-xs opacity-70 mt-1">${escapeHtml(created)}</div>
+          ${billToName ? `<div class="text-xs opacity-70 mt-1">Bill To: ${billToName}</div>` : ''}
+          ${shipToName ? `<div class="text-xs opacity-70">Ship To: ${shipToName}</div>` : ''}
+          ${notes ? `<div class="mt-2 text-xs opacity-70">Notes: ${notes}</div>` : ''}
+          ${itemsMarkup ? `<div class="mt-3 space-y-2">${itemsMarkup}</div>` : ''}
+          <div class="mt-3 flex items-center justify-between">
+            <span>${total ? `Total: $${total}` : ''}</span>
+            ${pdfUrl || ''}
+          </div>
         </div>
       `;
     })
@@ -224,15 +396,61 @@ function renderInvoicesHtml(items: any[]): string {
   }
   const list = items
     .map((invoice) => {
-      const id = escapeHtml(invoice._id ?? '');
+      const id = escapeHtml(invoice.invoiceNumber ?? invoice._id ?? '');
       const status = escapeHtml(invoice.status ?? '');
-      const date = invoice._createdAt ? new Date(invoice._createdAt).toLocaleDateString() : '';
-      const total = formatMoney(invoice.total ?? invoice.totalAmount);
+      const created = formatDateTime(invoice._createdAt, false);
+      const due = formatDateTime(invoice.dueDate, false);
+      const total = formatMoney(invoice.total ?? invoice.totalAmount ?? invoice.amount);
+      const orderNumber = escapeHtml(invoice?.orderRef?.orderNumber ?? '');
+      const trackingNumber = escapeHtml(invoice?.orderRef?.trackingNumber ?? '');
+      const carrier = escapeHtml(invoice?.orderRef?.shippingCarrier ?? '');
+      const paymentLink = invoice?.paymentLinkUrl
+        ? `<a class="text-xs text-primary" href="${escapeHtml(invoice.paymentLinkUrl)}" target="_blank" rel="noopener">Pay Invoice</a>`
+        : '';
+      const pdfLink = invoice?.invoicePdfUrl
+        ? `<a class="text-xs text-primary" href="${escapeHtml(invoice.invoicePdfUrl)}" target="_blank" rel="noopener">Download PDF</a>`
+        : '';
+      const itemsMarkup = Array.isArray(invoice.lineItems)
+        ? invoice.lineItems
+            .map((item: any) => {
+              const description = escapeHtml(
+                item?.description ?? item?.product?.title ?? 'Invoice item'
+              );
+              const quantity = Number.isFinite(Number(item?.quantity))
+                ? Number(item.quantity)
+                : undefined;
+              const unit = formatMoney(item?.unitPrice);
+              const line = formatMoney(item?.lineTotal);
+              const sku = escapeHtml(item?.sku ?? '');
+              const metaParts: string[] = [];
+              if (sku) metaParts.push(`SKU ${sku}`);
+              if (unit) metaParts.push(`Unit $${unit}`);
+              if (line) metaParts.push(`Line $${line}`);
+              return `<div class="border border-white/10 rounded px-3 py-2 bg-black/30">
+                <div class="flex justify-between text-sm">
+                  <span class="font-medium">${description}</span>
+                  ${quantity ? `<span class="opacity-70">Qty ${quantity}</span>` : ''}
+                </div>
+                ${metaParts.length ? `<div class="text-xs opacity-70 mt-1">${metaParts.join(' • ')}</div>` : ''}
+              </div>`;
+            })
+            .join('')
+        : '';
+      const shippingBlurbs: string[] = [];
+      if (carrier) shippingBlurbs.push(`Carrier: ${carrier}`);
+      if (trackingNumber) shippingBlurbs.push(`Tracking: ${trackingNumber}`);
       return `
         <div class="border border-white/20 rounded p-4 bg-black/40">
           <div class="flex justify-between"><div class="font-semibold">${id}</div><div class="opacity-70">${status}</div></div>
-          <div class="text-xs opacity-70 mt-1">${escapeHtml(date)}</div>
-          <div class="mt-2">${total ? `Total: $${total}` : ''}</div>
+          <div class="text-xs opacity-70 mt-1">${escapeHtml(created)}</div>
+          ${due ? `<div class="text-xs opacity-70">Due: ${escapeHtml(due)}</div>` : ''}
+          ${orderNumber ? `<div class="text-xs opacity-70 mt-1">Order: ${orderNumber}</div>` : ''}
+          ${shippingBlurbs.length ? `<div class="text-xs opacity-70">${shippingBlurbs.join(' • ')}</div>` : ''}
+          ${itemsMarkup ? `<div class="mt-3 space-y-2">${itemsMarkup}</div>` : ''}
+          <div class="mt-3 flex items-center justify-between gap-3 flex-wrap">
+            <span>${total ? `Total: $${total}` : ''}</span>
+            <span class="flex gap-3">${paymentLink || ''}${pdfLink || ''}</span>
+          </div>
         </div>
       `;
     })
@@ -246,15 +464,19 @@ function renderAppointmentsHtml(items: any[]): string {
   }
   const list = items
     .map((appt) => {
-      const id = escapeHtml(appt._id ?? '');
+      const id = escapeHtml(appt.bookingId ?? appt._id ?? '');
       const status = escapeHtml(appt.status ?? '');
-      const scheduledAt = appt.scheduledAt ? new Date(appt.scheduledAt).toLocaleString() : '';
-      const location = escapeHtml(appt.location ?? '');
+      const scheduledAt = formatDateTime(appt.scheduledAt);
+      const created = formatDateTime(appt.createdAt ?? appt._createdAt, false);
+      const service = escapeHtml(appt.service ?? '');
+      const notes = escapeHtml(appt.notes ?? '');
       return `
         <div class="border border-white/20 rounded p-4 bg-black/40">
           <div class="flex justify-between"><div class="font-semibold">${id}</div><div class="opacity-70">${status}</div></div>
           <div class="text-xs opacity-70 mt-1">${escapeHtml(scheduledAt)}</div>
-          ${location ? `<div class="mt-1 text-xs opacity-70">${location}</div>` : ''}
+          ${service ? `<div class="text-xs opacity-70">Service: ${service}</div>` : ''}
+          ${created ? `<div class="text-xs opacity-70">Booked: ${escapeHtml(created)}</div>` : ''}
+          ${notes ? `<div class="mt-1 text-xs opacity-70">Notes: ${notes}</div>` : ''}
         </div>
       `;
     })
@@ -266,10 +488,11 @@ function renderProfileHtml(profile: any): string {
   if (!profile) {
     return '<p class="opacity-80">Unable to load profile.</p>';
   }
-  const addressParts = [profile.address1, profile.address2, profile.city, profile.state, profile.postalCode]
-    .filter(Boolean)
-    .map(escapeHtml)
-    .join(', ');
+  const billingAddress = formatAddress(profile.billingAddress);
+  const shippingCandidate = Array.isArray(profile.addresses) && profile.addresses.length > 0
+    ? profile.addresses[0]
+    : profile.shippingAddress || profile.address;
+  const shippingAddress = formatAddress(shippingCandidate);
   return `
     <h3 class="font-ethno text-lg mb-3">My Profile</h3>
     <div class="grid sm:grid-cols-2 gap-3 text-sm">
@@ -277,7 +500,8 @@ function renderProfileHtml(profile: any): string {
       <div><div class="opacity-70">Last Name</div><div class="font-semibold">${escapeHtml(profile.lastName)}</div></div>
       <div><div class="opacity-70">Email</div><div class="font-semibold">${escapeHtml(profile.email ?? userEmail)}</div></div>
       <div><div class="opacity-70">Phone</div><div class="font-semibold">${escapeHtml(profile.phone)}</div></div>
-      <div class="sm:col-span-2"><div class="opacity-70">Address</div><div class="font-semibold">${addressParts}</div></div>
+      <div class="sm:col-span-2"><div class="opacity-70">Billing Address</div><div class="font-semibold">${billingAddress || '<span class=\'opacity-60\'>No billing address on file</span>'}</div></div>
+      <div class="sm:col-span-2"><div class="opacity-70">Shipping Address</div><div class="font-semibold">${shippingAddress || '<span class=\'opacity-60\'>No shipping address on file</span>'}</div></div>
     </div>
     <p class="mt-5 text-xs opacity-70">Need changes? <a class="underline js-view" data-view="details" href="#details">Edit profile</a>.</p>
   `;
@@ -286,7 +510,10 @@ function renderProfileHtml(profile: any): string {
 async function renderDashboardHtml(): Promise<string> {
   try {
     const profile = await fetchProfile().catch(() => null);
-    const preferred = profile?.firstName && profile?.lastName ? `${profile.firstName} ${profile.lastName}`.trim() : defaultName;
+    const preferred =
+      profile?.firstName && profile?.lastName
+        ? `${profile.firstName} ${profile.lastName}`.trim()
+        : defaultName;
     if (preferred) setName(preferred);
     return `
       <h3 class="font-ethno text-base mb-3">Dashboard</h3>
@@ -368,7 +595,10 @@ function bindNavigation() {
   }
 
   document.addEventListener('click', (event) => {
-    const target = event.target instanceof Element ? event.target.closest<HTMLElement>('.js-view[data-view]') : null;
+    const target =
+      event.target instanceof Element
+        ? event.target.closest<HTMLElement>('.js-view[data-view]')
+        : null;
     if (target) {
       event.preventDefault();
       loadView(ensureView(target.getAttribute('data-view')));
@@ -380,13 +610,17 @@ async function initDashboard() {
   try {
     const fas = await waitForFasAuth();
     if (!fas) {
-      setContent('<p class="opacity-80">Account services are offline right now. Please try again soon.</p>');
+      setContent(
+        '<p class="opacity-80">Account services are offline right now. Please try again soon.</p>'
+      );
       return;
     }
 
     const authed = await fas.isAuthenticated?.();
     if (!authed) {
-      setContent('<p class="opacity-80">You\'re not signed in. <a class="underline" href="/account">Log in</a>.</p>');
+      setContent(
+        '<p class="opacity-80">You\'re not signed in. <a class="underline" href="/account">Log in</a>.</p>'
+      );
       return;
     }
 
@@ -448,3 +682,5 @@ document.querySelectorAll('.logout-link').forEach((el) => {
     logout();
   });
 });
+
+export {};

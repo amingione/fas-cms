@@ -31,18 +31,85 @@ export const GET: APIRoute = async ({ request, url }) => {
       });
     }
 
-    const query = `*[_type == "invoice" && customer->email == $email] | order(_createdAt desc) {
-      _id,
-      _createdAt,
-      status,
-      invoiceNumber,
-      number,
-      amount,
-      total,
-      dateIssued,
-      date,
-      dueDate
-    }`;
+    const query = `*[_type == "invoice" && (
+        customer->email == $email ||
+        customerRef->email == $email ||
+        customerEmail == $email
+      )]
+      | order(dateTime(coalesce(date, dateIssued, _createdAt)) desc) {
+        _id,
+        _createdAt,
+        invoiceNumber,
+        number,
+        status,
+        paymentIntentId,
+        stripeSessionId,
+        "total": coalesce(total, amount),
+        amount,
+        subtotal,
+        taxRate,
+        taxAmount,
+        discountType,
+        discountValue,
+        date,
+        dateIssued,
+        dueDate,
+        paymentLinkUrl,
+        invoicePdfUrl,
+        quotePdfUrl,
+        receiptUrl,
+        lastEmailedAt,
+        customer->{
+          _id,
+          firstName,
+          lastName,
+          email,
+          phone
+        },
+        customerRef->{
+          _id,
+          firstName,
+          lastName,
+          email,
+          phone
+        },
+        orderRef->{
+          _id,
+          orderNumber,
+          status,
+          trackingNumber,
+          shippingCarrier,
+          shippingLabelUrl,
+          shippingAddress,
+          selectedService,
+          shippingLog[]{
+            _key,
+            status,
+            message,
+            trackingNumber,
+            trackingUrl,
+            labelUrl,
+            weight,
+            createdAt
+          }
+        },
+        "lineItems": lineItems[]{
+          _key,
+          kind,
+          description,
+          sku,
+          quantity,
+          unitPrice,
+          lineTotal,
+          product->{
+            _id,
+            title,
+            slug{current},
+            sku
+          }
+        },
+        "items": lineItems
+      }`;
 
     const invoices = await sanityClient.fetch(query, { email });
 
