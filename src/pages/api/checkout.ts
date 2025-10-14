@@ -267,6 +267,8 @@ export async function POST({ request }: { request: Request }) {
     extra?: number;
     upgrades?: unknown;
     addOns?: unknown;
+    image?: string;
+    productUrl?: string;
   };
 
   const clamp = (value: string, max = 500) =>
