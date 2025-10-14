@@ -256,6 +256,13 @@ export async function POST({ request }: { request: Request }) {
     return id || trimmed;
   };
 
+  type CartSelection = {
+    group?: string;
+    value?: string;
+    label?: string;
+    priceDelta?: number;
+  };
+
   type CartItem = {
     id?: string;
     sku?: string;
@@ -267,27 +274,82 @@ export async function POST({ request }: { request: Request }) {
     installOnly?: boolean;
     shippingClass?: string;
     options?: Record<string, string>;
+    selections?: CartSelection[] | Record<string, unknown>;
     basePrice?: number;
     extra?: number;
     upgrades?: unknown;
     addOns?: unknown;
+    signature?: string;
   };
 
   const clamp = (value: string, max = 500) =>
     value.length > max ? value.slice(0, max) : value;
 
-  const formatSelectedOptions = (input?: Record<string, unknown>) => {
-    if (!input || typeof input !== 'object') return null;
-    const entries: Array<[string, string]> = Object.entries(input)
-      .filter(([key, value]) => Boolean(key) && value != null && value !== '')
-      .map(([key, value]) => [String(key), String(value)]);
+  const formatSelectedOptions = (
+    input?: Record<string, unknown> | null,
+    selectionsRaw?: unknown
+  ) => {
+    type EntryMap = Map<string, Set<string>>;
+    const entriesMap: EntryMap = new Map();
+    const addValue = (key: unknown, value: unknown) => {
+      const rawKey = key != null ? String(key) : '';
+      const rawValue = value != null ? String(value) : '';
+      const keyTrimmed = rawKey.trim();
+      const valueTrimmed = rawValue.trim();
+      if (!keyTrimmed || !valueTrimmed) return;
+      const normalizedKey = keyTrimmed.replace(/\s+/g, ' ');
+      const bucket = entriesMap.get(normalizedKey) ?? new Set<string>();
+      bucket.add(valueTrimmed);
+      entriesMap.set(normalizedKey, bucket);
+    };
+
+    if (input && typeof input === 'object') {
+      Object.entries(input).forEach(([key, value]) => {
+        if (value == null || value === '') return;
+        if (Array.isArray(value)) {
+          value.forEach((entry) => addValue(key, entry));
+        } else if (typeof value === 'object') {
+          Object.values(value as Record<string, unknown>).forEach((entry) => addValue(key, entry));
+        } else {
+          addValue(key, value);
+        }
+      });
+    }
+
+    const selectionsArray = Array.isArray(selectionsRaw)
+      ? selectionsRaw
+      : selectionsRaw && typeof selectionsRaw === 'object'
+        ? (Array.isArray((selectionsRaw as any)?.selections)
+            ? (selectionsRaw as any).selections
+            : Object.entries(selectionsRaw as Record<string, unknown>).flatMap(([key, value]) =>
+                Array.isArray(value) ? value.map((entry) => ({ group: key, label: entry })) : []
+              ))
+        : [];
+
+    selectionsArray.forEach((entry: any) => {
+      if (!entry || typeof entry !== 'object') return;
+      const group =
+        entry.group ??
+        entry.name ??
+        (typeof entry.key === 'string' ? entry.key : undefined) ??
+        'Option';
+      const label = entry.label ?? entry.value ?? '';
+      addValue(group, label);
+    });
+
+    if (!entriesMap.size) return null;
+
+    const entries: Array<[string, string]> = Array.from(entriesMap.entries()).map(
+      ([key, valueSet]) => [key, Array.from(valueSet).join(', ')]
+    );
+    entries.sort((a, b) => a[0].localeCompare(b[0]));
     if (!entries.length) return null;
     const summary = entries.map(([key, value]) => `${key}: ${value}`).join(' • ');
     const json = JSON.stringify(Object.fromEntries(entries));
     return { entries, summary, json };
   };
 
-  const collectUpgrades = (raw: unknown): string[] => {
+  const collectUpgrades = (raw: unknown, selectionSource?: unknown): string[] => {
     const values: string[] = [];
     const push = (val?: string | null) => {
       if (!val) return;
@@ -314,6 +376,30 @@ export async function POST({ request }: { request: Request }) {
     } else if (typeof raw === 'string') {
       push(raw);
     }
+
+    const fromSelections = Array.isArray(selectionSource)
+      ? selectionSource
+      : Array.isArray((selectionSource as any)?.selections)
+        ? (selectionSource as any).selections
+        : [];
+
+    const upgradeRegex = /(upgrade|add[\s_-]*on|addon|extra|package|kit)/i;
+    fromSelections.forEach((entry: any) => {
+      if (!entry || typeof entry !== 'object') return;
+      const group = String(entry.group || entry.name || '');
+      const label = entry.label || entry.value;
+      if (typeof label !== 'string' || !label.trim()) return;
+      const delta =
+        typeof entry.priceDelta === 'number'
+          ? entry.priceDelta
+          : typeof entry.delta === 'number'
+            ? entry.delta
+            : undefined;
+      if (upgradeRegex.test(group) || (typeof delta === 'number' && delta > 0)) {
+        push(label);
+      }
+    });
+
     return Array.from(new Set(values));
   };
 
@@ -327,8 +413,11 @@ export async function POST({ request }: { request: Request }) {
       console.warn('[checkout] Cart item missing price, defaulting to $0.00', item);
     }
     const quantity = Math.max(1, Number.isFinite(item.quantity) ? Number(item.quantity) : 1);
-    const optionDetails = formatSelectedOptions(item.options);
-    const upgradeValues = collectUpgrades(item.upgrades ?? item.addOns);
+    const optionDetails = formatSelectedOptions(
+      item.options as Record<string, unknown> | null,
+      item.selections
+    );
+    const upgradeValues = collectUpgrades(item.upgrades ?? item.addOns, item.selections);
     const metadata: Record<string, string> = {
       ...(item.sku ? { sku: String(item.sku) } : {}),
       ...(sanityProductId ? { sanity_product_id: sanityProductId } : {})
@@ -420,8 +509,12 @@ export async function POST({ request }: { request: Request }) {
   let metaCart = '';
   try {
     const compact = (cart as CartItem[]).map((i) => {
-      const opts = formatSelectedOptions(i?.options || undefined)?.summary;
-      const upgrades = collectUpgrades(i?.upgrades ?? i?.addOns);
+      const optionDetails = formatSelectedOptions(
+        (i?.options as Record<string, unknown>) || undefined,
+        i?.selections
+      );
+      const opts = optionDetails?.summary;
+      const upgrades = collectUpgrades(i?.upgrades ?? i?.addOns, i?.selections);
       const normalizedId = normalizeCartId(typeof i?.id === 'string' ? i.id : undefined);
       const imageUrl = typeof i?.image === 'string' ? i.image : undefined;
       const productUrl = typeof i?.productUrl === 'string' ? i.productUrl : undefined;
@@ -436,7 +529,7 @@ export async function POST({ request }: { request: Request }) {
         n: i?.name,
         q: i?.quantity,
         p: i?.price,
-        ...(opts ? { o: opts.slice(0, 120) } : {}),
+        ...(opts ? { o: opts.slice(0, 160) } : {}),
         ...(upgrades.length ? { u: upgrades.join(', ').slice(0, 120) } : {})
       };
     });
