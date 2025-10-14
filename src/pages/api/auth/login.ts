@@ -21,10 +21,16 @@ export const POST: APIRoute = async ({ request }) => {
     const adminPassword = process.env.ADMIN_PASSWORD;
     let sessionUser: { id: string; email: string; roles: string[] } | null = null;
     let expiresInSeconds: number | undefined = undefined;
+    let accountFound = false;
+    let passwordMatch = false;
 
-    if (adminEmail && adminPassword && email === adminEmail && password === adminPassword) {
-      sessionUser = { id: 'admin', email, roles: ['admin'] };
-      expiresInSeconds = 60 * 60;
+    if (adminEmail && adminPassword && email === adminEmail) {
+      accountFound = true;
+      if (password === adminPassword) {
+        sessionUser = { id: 'admin', email, roles: ['admin'] };
+        expiresInSeconds = 60 * 60;
+        passwordMatch = true;
+      }
     }
 
     if (!sessionUser) {
@@ -37,6 +43,7 @@ export const POST: APIRoute = async ({ request }) => {
         const { getVendorByEmail } = await import('../../../server/sanity-client');
         const vendor = await getVendorByEmail(email);
         if (vendor && (vendor as any).status === 'Approved') {
+          accountFound = true;
           const passwordHash = (vendor as any).passwordHash;
           if (passwordHash && (await bcrypt.compare(password, passwordHash))) {
             sessionUser = {
@@ -45,6 +52,7 @@ export const POST: APIRoute = async ({ request }) => {
               roles: ['vendor']
             };
             expiresInSeconds = 60 * 60;
+            passwordMatch = true;
           }
         }
       }
@@ -61,6 +69,7 @@ export const POST: APIRoute = async ({ request }) => {
         const { getCustomerByEmail } = await import('../../../server/sanity-client');
         const customer = await getCustomerByEmail(email);
         if (customer) {
+          accountFound = true;
           const passwordHash = (customer as any).passwordHash;
           if (passwordHash && (await bcrypt.compare(password, passwordHash))) {
             sessionUser = {
@@ -69,13 +78,17 @@ export const POST: APIRoute = async ({ request }) => {
               roles: ['customer']
             };
             expiresInSeconds = 60 * 60 * 24 * 7;
+            passwordMatch = true;
           }
         }
       }
     }
 
     if (!sessionUser) {
-      return new Response(JSON.stringify({ message: 'Invalid credentials' }), {
+      const message = accountFound
+        ? 'Incorrect password. Double-check your password or use “Forgot password” to reset it.'
+        : 'We couldn’t find an account with that email. Create one or verify you entered it correctly.';
+      return new Response(JSON.stringify({ message }), {
         status: 401,
         headers: { 'content-type': 'application/json' }
       });

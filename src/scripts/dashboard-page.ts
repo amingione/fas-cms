@@ -16,7 +16,85 @@ let defaultName = 'Guest';
 let loadToken = 0;
 
 const AUTH_TIMEOUT = 8000;
+const FALLBACK_ITEM_IMAGE = '/logo/faslogo150.png';
 
+function pickImageUrl(value: unknown): string | null {
+  if (!value) return null;
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return trimmed ? trimmed : null;
+  }
+  if (typeof value === 'object') {
+    const obj = value as Record<string, unknown>;
+    const directKeys: Array<keyof typeof obj> = ['url', 'imageUrl', 'src', 'href'];
+    for (const key of directKeys) {
+      const nested = obj[key];
+      const resolved = pickImageUrl(nested);
+      if (resolved) return resolved;
+    }
+    if (obj.asset) {
+      const asset = obj.asset as Record<string, unknown>;
+      const assetUrl = pickImageUrl(asset.url);
+      if (assetUrl) return assetUrl;
+    }
+  }
+  return null;
+}
+
+function resolveOrderItemImage(item: any): string {
+  if (!item) return FALLBACK_ITEM_IMAGE;
+  const product = item.product ?? {};
+  const productImages = Array.isArray(product.images) ? product.images : [];
+  const additionalImages: unknown[] = [];
+  for (const img of productImages) {
+    additionalImages.push(img);
+    if (img && typeof img === 'object') {
+      const asset = (img as Record<string, unknown>).asset;
+      if (asset) additionalImages.push(asset);
+    }
+  }
+
+  const metadata = item.metadata ?? {};
+  const metadataCandidates: unknown[] = [
+    metadata.imageUrl,
+    metadata.imageURL,
+    metadata.image_url,
+    metadata.productImage,
+    metadata.product_image,
+    metadata.productImageUrl,
+    metadata.product_image_url,
+    metadata.product_imageUrl,
+    metadata.thumbnail,
+    metadata.thumbnailUrl,
+    metadata.thumbnail_url,
+    metadata.image,
+    metadata.image0
+  ];
+
+  const candidates: unknown[] = [
+    item.resolvedImageUrl,
+    item.productResolvedImageUrl,
+    item.imageUrl,
+    item.image,
+    ...metadataCandidates,
+    metadata,
+    product.resolvedImageUrl,
+    product.imageUrl,
+    product.image,
+    product.mainImage,
+    product.thumbnail,
+    product.thumb,
+    ...additionalImages
+  ];
+
+  for (const candidate of candidates) {
+    const url = pickImageUrl(candidate);
+    if (url) return url;
+  }
+
+  console.debug('[dashboard] Missing product image for order item', item);
+  return FALLBACK_ITEM_IMAGE;
+}
 
 function getContainers(): HTMLElement[] {
   return Array.from(document.querySelectorAll<HTMLElement>('[data-dash-content]'));
@@ -131,9 +209,7 @@ function formatDateTime(value: unknown, withTime = true): string {
 function normalizeValueList(input: unknown): string[] {
   if (!input) return [];
   if (Array.isArray(input)) {
-    return input
-      .map((entry) => escapeHtml(String(entry)))
-      .filter(Boolean);
+    return input.map((entry) => escapeHtml(String(entry))).filter(Boolean);
   }
   if (typeof input === 'string') {
     return input
@@ -159,7 +235,11 @@ function normalizeAddressParts(address: any): string[] {
       address.name || address.label,
       address.street || address.street1 || address.addressLine1 || address.address1,
       address.addressLine2 || address.address2,
-      [address.city, address.state || address.stateProvince || address.region, address.postalCode || address.zip]
+      [
+        address.city,
+        address.state || address.stateProvince || address.region,
+        address.postalCode || address.zip
+      ]
         .flat()
         .filter(Boolean)
         .join(', '),
@@ -245,90 +325,183 @@ function renderOrdersHtml(items: any[]): string {
     return '<p class="opacity-80">No orders found.</p>';
   }
 
-  const list = items
+  const cards = items
     .map((order) => {
-      const id = escapeHtml(order.orderNumber ?? order._id ?? '');
-      const status = escapeHtml(order.status ?? '');
-      const date = order.orderDate || order.createdAt || order._createdAt;
-      const formattedDate = date ? new Date(date).toLocaleDateString() : '';
-      const tracking = escapeHtml(order.trackingNumber ?? '');
-      const total = formatMoney(order.total ?? order.totalAmount);
-      const carrier = escapeHtml(order.shippingCarrier ?? order.selectedService?.carrier ?? '');
-      const service =
-        escapeHtml(order.selectedService?.service ?? order.selectedService?.serviceCode ?? '');
-      const itemsMarkup = Array.isArray(order.items)
-        ? order.items
-            .map((item: any) => {
-              const name = escapeHtml(item?.name ?? 'Item');
-              const quantity = Number.isFinite(Number(item?.quantity))
-                ? Number(item.quantity)
-                : undefined;
-              const price = formatMoney(item?.price);
-              const optionSummary = escapeHtml(item?.optionSummary ?? '');
-              const optionDetails = Array.isArray(item?.optionDetails)
-                ? item.optionDetails.map((detail: any) => escapeHtml(String(detail))).join(' • ')
-                : '';
-              const upgrades = normalizeValueList(item?.upgrades).join(', ');
-              const lines: string[] = [];
-              if (optionSummary) lines.push(`Options: ${optionSummary}`);
-              if (optionDetails) lines.push(optionDetails);
-              if (upgrades) lines.push(`Upgrades: ${upgrades}`);
-              const meta = lines.length ? `<div class="text-xs opacity-70">${lines.join(' • ')}</div>` : '';
-              return `<div class="border border-white/10 rounded px-3 py-2 bg-black/30">
-                <div class="flex justify-between text-sm">
-                  <span class="font-medium">${name}</span>
-                  ${quantity ? `<span class="opacity-70">Qty ${quantity}</span>` : ''}
-                </div>
-                ${price ? `<div class="text-xs opacity-70 mt-1">Unit: $${price}</div>` : ''}
-                ${meta}
-              </div>`;
-            })
-            .join('')
-        : '';
+      const rawOrderId = typeof order?._id === 'string' ? order._id : '';
+      const detailUrlRaw =
+        order.orderUrl ||
+        order.href ||
+        (rawOrderId ? `/dashboard/order/${encodeURIComponent(rawOrderId)}` : '');
+      const invoiceUrlRaw =
+        order.invoiceUrl ||
+        order.invoiceHref ||
+        (order.invoiceRef && order.invoiceRef.invoicePdfUrl) ||
+        '';
 
-      const shippingLogMarkup =
-        Array.isArray(order.shippingLog) && order.shippingLog.length
-          ? `<div class="mt-3 space-y-2">
-              ${order.shippingLog
-                .map((entry: any) => {
-                  const statusLabel = escapeHtml(entry?.status ?? '');
-                  const message = escapeHtml(entry?.message ?? '');
-                  const ts = formatDateTime(entry?.createdAt);
-                  const trackingEntry = escapeHtml(entry?.trackingNumber ?? '');
-                  const parts = [
-                    statusLabel ? `<strong>${statusLabel}</strong>` : '',
-                    message || trackingEntry ? `<span>${[message, trackingEntry ? `Tracking: ${trackingEntry}` : ''].filter(Boolean).join(' — ')}</span>` : '',
-                    ts ? `<span class="opacity-60">${ts}</span>` : ''
-                  ].filter(Boolean);
-                  return `<div class="text-xs flex flex-col gap-0.5 bg-black/20 border border-white/10 rounded px-3 py-2">${parts.join(' ')}</div>`;
+      const orderNumber = escapeHtml(order.orderNumber ?? rawOrderId ?? 'Order');
+      const status = escapeHtml(order.status ?? '');
+      const createdDate = formatDateTime(
+        order.orderDate || order.createdAt || order._createdAt,
+        false
+      );
+      const deliveredDate = formatDateTime(
+        order.deliveredAt || order.completedAt || order.updatedAt,
+        false
+      );
+      const total = formatMoney(order.total ?? order.totalAmount);
+      const tracking = escapeHtml(order.trackingNumber ?? '');
+      const carrier = escapeHtml(order.shippingCarrier ?? order.selectedService?.carrier ?? '');
+      const service = escapeHtml(
+        order.selectedService?.service ?? order.selectedService?.serviceCode ?? ''
+      );
+      const viewUrl = detailUrlRaw ? escapeHtml(detailUrlRaw) : '';
+      const invoiceUrl = invoiceUrlRaw ? escapeHtml(invoiceUrlRaw) : '';
+
+      const summaryColumns = [
+        {
+          label: 'Date placed',
+          value: createdDate ? escapeHtml(createdDate) : '—',
+          datetime: order.orderDate || order.createdAt || order._createdAt
+        },
+        {
+          label: 'Order number',
+          value: orderNumber
+        },
+        {
+          label: 'Total amount',
+          value: total ? `$${total}` : '—'
+        }
+      ];
+
+      if (status) {
+        summaryColumns.push({
+          label: 'Status',
+          value: status
+        });
+      }
+
+      if (tracking) {
+        summaryColumns.push({
+          label: 'Tracking',
+          value: tracking
+        });
+      }
+
+      const summaryGrid = `
+        <div class="rounded-2xl border border-white/10 bg-white/5 px-4 py-6 sm:px-6 lg:px-8">
+          <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
+            <dl class="grid flex-1 grid-cols-1 gap-4 text-sm text-white sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              ${summaryColumns
+                .map((col) => {
+                  const datetime = col.datetime
+                    ? ` datetime="${escapeHtml(String(col.datetime))}"`
+                    : '';
+                  const value = col.datetime
+                    ? `<time${datetime}>${col.value}</time>`
+                    : escapeHtml(col.value);
+                  return `<div class="max-sm:flex max-sm:items-center max-sm:justify-between max-sm:gap-4">
+                    <dt class="font-semibold text-white/80">${escapeHtml(col.label)}</dt>
+                    <dd class="mt-1 text-white/60 sm:mt-2">${value}</dd>
+                  </div>`;
                 })
                 .join('')}
-            </div>`
-          : '';
+            </dl>
+            <div class="flex flex-col gap-3 sm:flex-row sm:flex-none">
+              ${
+                viewUrl
+                  ? `<a href="${viewUrl}" class="inline-flex items-center justify-center rounded-md border border-white/20 bg-black/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white hover:border-primary hover:text-primary">View Order</a>`
+                  : ''
+              }
+              ${
+                invoiceUrl
+                  ? `<a href="${invoiceUrl}" class="inline-flex items-center justify-center rounded-md border border-white/20 bg-black/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white hover:border-primary hover:text-primary" target="_blank" rel="noopener">View Invoice</a>`
+                  : ''
+              }
+            </div>
+          </div>
+        </div>
+      `;
 
-      const shippingMetaParts: string[] = [];
-      if (carrier) shippingMetaParts.push(`Carrier: ${carrier}`);
-      if (service) shippingMetaParts.push(`Service: ${service}`);
-      if (tracking) shippingMetaParts.push(`Tracking: ${tracking}`);
-      const shippingMeta =
-        shippingMetaParts.length > 0
-          ? `<div class="text-xs opacity-70 mt-1">${shippingMetaParts.join(' • ')}</div>`
-          : '';
+      const productRows = Array.isArray(order.items)
+        ? order.items
+            .map((item: any) => {
+              const name = escapeHtml(item?.name ?? item?.product?.title ?? 'Item');
+              const image = escapeHtml(resolveOrderItemImage(item)) || FALLBACK_ITEM_IMAGE;
+              const price = formatMoney(item?.price ?? item?.unitPrice ?? item?.lineTotal);
+              const statusLine = escapeHtml(
+                item?.status ||
+                  item?.deliveryStatus ||
+                  (deliveredDate ? `Delivered ${deliveredDate}` : '')
+              );
+              const productUrl = escapeHtml(item?.productUrl ?? item?.href ?? '');
+              return `
+                <tr>
+                  <td class="py-5 pr-6">
+                    <div class="flex items-center gap-4">
+                      <img src="${image}" alt="${name}" class="size-16 rounded-md object-cover" loading="lazy" />
+                      <div>
+                        <div class="font-semibold text-white">${name}</div>
+                        ${price ? `<div class="mt-1 text-xs text-white/60 sm:hidden">$${price}</div>` : ''}
+                      </div>
+                    </div>
+                  </td>
+                  <td class="hidden py-5 pr-6 text-sm text-white/70 sm:table-cell">${price ? `$${price}` : '—'}</td>
+                  <td class="hidden py-5 pr-6 text-sm text-white/60 sm:table-cell">${statusLine || '—'}</td>
+                  <td class="py-5 text-right text-xs font-semibold uppercase tracking-wide text-primary">
+                    ${productUrl ? `<a href="${productUrl}" class="hover:text-primary/80">View<span class="hidden lg:inline"> Product</span></a>` : ''}
+                  </td>
+                </tr>
+              `;
+            })
+            .join('')
+        : `<tr><td class="py-5 text-sm text-white/70">No products found for this order.</td></tr>`;
+
+      const shippingMeta: string[] = [];
+      if (carrier) shippingMeta.push(`Carrier ${carrier}`);
+      if (service) shippingMeta.push(`Service ${service}`);
+      const shippingFooter = shippingMeta.length
+        ? `<p class="text-xs text-white/60">${shippingMeta.join(' • ')}</p>`
+        : '';
 
       return `
-        <div class="border border-white/20 rounded p-4 bg-black/40">
-          <div class="flex justify-between"><div class="font-semibold">${id}</div><div class="opacity-70">${status}</div></div>
-          <div class="text-xs opacity-70 mt-1">${escapeHtml(formattedDate)}</div>
-          ${shippingMeta}
-          ${itemsMarkup ? `<div class="mt-3 space-y-2">${itemsMarkup}</div>` : ''}
-          ${shippingLogMarkup}
-          <div class="mt-3">${total ? `Total: $${total}` : ''}</div>
-        </div>
+        <article class="space-y-4">
+          ${summaryGrid}
+          <div class="overflow-hidden px-5 py-5 rounded-2xl border border-white/10 bg-white/5 shadow-[0_25px_70px_-40px_rgba(0,0,0,0.75)]">
+            <table class="min-w-full text-left text-sm text-white/70">
+              <caption class="sr-only">Order ${orderNumber} items</caption>
+              <thead class="hidden border-b border-white/10 text-xs uppercase tracking-wide text-white/50 sm:table-header-group">
+                <tr>
+                  <th scope="col" class="py-3 pr-6 font-medium">Product</th>
+                  <th scope="col" class="py-3 pr-6 font-medium">Price</th>
+                  <th scope="col" class="py-3 pr-6 font-medium">Status</th>
+                  <th scope="col" class="py-3 pl-6 text-right font-medium">Info</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-white/10">
+                ${productRows}
+              </tbody>
+            </table>
+            <div class="flex flex-col gap-2 border-t border-white/10 px-4 py-4 text-sm text-white/70 sm:px-6">
+              ${deliveredDate ? `<p class="text-xs text-white/50">Last updated ${escapeHtml(deliveredDate)}</p>` : ''}
+              ${shippingFooter}
+            </div>
+          </div>
+        </article>
       `;
     })
     .join('');
 
-  return `<h3 class="font-ethno text-lg mb-4">Orders</h3><div class="space-y-3">${list}</div>`;
+  return `
+    <section class="space-y-12">
+      <header class="space-y-2">
+        <h3 class="font-ethno text-xl text-white tracking-wide">Order History</h3>
+        <p class="text-sm text-white/60">
+          Check the status of recent orders, manage installs, and download invoices.
+        </p>
+      </header>
+      <div class="space-y-16">${cards}</div>
+    </section>
+  `;
 }
 
 function renderQuotesHtml(items: any[]): string {
@@ -344,7 +517,9 @@ function renderQuotesHtml(items: any[]): string {
       const billToName = escapeHtml(quote?.billTo?.name ?? '');
       const shipToName = escapeHtml(quote?.shipTo?.name ?? '');
       const notes = escapeHtml(quote?.notes ?? '');
-      const pdfUrl = quote?.quotePdfUrl ? `<a class="text-xs text-primary" href="${escapeHtml(quote.quotePdfUrl)}" target="_blank" rel="noopener">Download PDF</a>` : '';
+      const pdfUrl = quote?.quotePdfUrl
+        ? `<a class="text-xs text-primary" href="${escapeHtml(quote.quotePdfUrl)}" target="_blank" rel="noopener">Download PDF</a>`
+        : '';
       const itemsMarkup = Array.isArray(quote.items)
         ? quote.items
             .map((item: any) => {
@@ -489,9 +664,10 @@ function renderProfileHtml(profile: any): string {
     return '<p class="opacity-80">Unable to load profile.</p>';
   }
   const billingAddress = formatAddress(profile.billingAddress);
-  const shippingCandidate = Array.isArray(profile.addresses) && profile.addresses.length > 0
-    ? profile.addresses[0]
-    : profile.shippingAddress || profile.address;
+  const shippingCandidate =
+    Array.isArray(profile.addresses) && profile.addresses.length > 0
+      ? profile.addresses[0]
+      : profile.shippingAddress || profile.address;
   const shippingAddress = formatAddress(shippingCandidate);
   return `
     <h3 class="font-ethno text-lg mb-3">My Profile</h3>
@@ -500,8 +676,8 @@ function renderProfileHtml(profile: any): string {
       <div><div class="opacity-70">Last Name</div><div class="font-semibold">${escapeHtml(profile.lastName)}</div></div>
       <div><div class="opacity-70">Email</div><div class="font-semibold">${escapeHtml(profile.email ?? userEmail)}</div></div>
       <div><div class="opacity-70">Phone</div><div class="font-semibold">${escapeHtml(profile.phone)}</div></div>
-      <div class="sm:col-span-2"><div class="opacity-70">Billing Address</div><div class="font-semibold">${billingAddress || '<span class=\'opacity-60\'>No billing address on file</span>'}</div></div>
-      <div class="sm:col-span-2"><div class="opacity-70">Shipping Address</div><div class="font-semibold">${shippingAddress || '<span class=\'opacity-60\'>No shipping address on file</span>'}</div></div>
+      <div class="sm:col-span-2"><div class="opacity-70">Billing Address</div><div class="font-semibold">${billingAddress || "<span class='opacity-60'>No billing address on file</span>"}</div></div>
+      <div class="sm:col-span-2"><div class="opacity-70">Shipping Address</div><div class="font-semibold">${shippingAddress || "<span class='opacity-60'>No shipping address on file</span>"}</div></div>
     </div>
     <p class="mt-5 text-xs opacity-70">Need changes? <a class="underline js-view" data-view="details" href="#details">Edit profile</a>.</p>
   `;

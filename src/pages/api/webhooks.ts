@@ -284,12 +284,16 @@ export async function POST({ request }: { request: Request }) {
           if (Array.isArray(parsed)) {
             cartLines = parsed.map((l: any) =>
               createOrderCartItem({
-                id: l?.id,
+                id: l?.i ?? l?.id,
                 sku: l?.sku,
                 name: l?.n || l?.name,
                 price: typeof l?.p === 'number' ? l.p : Number(l?.p || 0),
                 quantity: typeof l?.q === 'number' ? l.q : Number(l?.q || 0),
-                categories: l?.categories
+                categories: Array.isArray(l?.categories) ? l.categories : undefined,
+                image: l?.img || l?.image,
+                productUrl: l?.url || l?.productUrl,
+                productSlug: l?.slug || l?.productSlug,
+                metadata: l?.metadata && typeof l.metadata === 'object' ? l.metadata : undefined
               })
             );
           }

@@ -37,7 +37,11 @@ const CartItemSchema = z.object({
   name: z.string(),
   price: z.number(),
   quantity: z.number(),
-  categories: z.array(z.string()).optional()
+  categories: z.array(z.string()).optional(),
+  image: z.string().optional(),
+  productUrl: z.string().optional(),
+  productSlug: z.string().optional(),
+  metadata: z.record(z.any()).optional()
 });
 const CartSchema = z.array(CartItemSchema);
 
@@ -120,7 +124,11 @@ export const POST = async ({ request }: { request: Request }) => {
           name: item.name,
           price: item.price,
           quantity: item.quantity,
-          categories: item.categories
+          categories: item.categories,
+          image: item.image,
+          productUrl: item.productUrl,
+          productSlug: item.productSlug,
+          metadata: item.metadata
         })
       ),
       totalAmount: stripeSession.amount_total ? stripeSession.amount_total / 100 : 0,

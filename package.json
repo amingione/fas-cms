@@ -66,8 +66,8 @@
     "vite-plugin-svgr": "^4.5.0"
   },
   "dependencies": {
-    "@astrojs/netlify": "6.5.9",
-    "@astrojs/react": "^4.3.0",
+    "@astrojs/netlify": "6.5.12",
+    "@astrojs/react": "4.4.0",
     "@astrojs/tailwind": "^6.0.2",
     "@fullcalendar/core": "^6.1.19",
     "@fullcalendar/daygrid": "^6.1.19",
@@ -113,7 +113,7 @@
     "@splinetool/runtime": "^1.9.86",
     "@types/react-router-dom": "^5.3.3",
     "apexcharts": "^5.3.5",
-    "astro": "5.13.5",
+    "astro": "5.14.4",
     "bcryptjs": "^2.4.3",
     "clsx": "^2.1.1",
     "cmdk": "1.1.1",

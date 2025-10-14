@@ -1,178 +1,36 @@
 'use client';
 
-import { useState } from 'react';
+const FEATURE_TAGS = [
+  'Billet-machined',
+  'In-house tuning',
+  'Track proven',
+  'Install support'
+] as const;
 
-type TabKey = 'overview' | 'inventory' | 'clients';
-
-type Metric = {
-  label: string;
-  base: number;
-  variance?: number;
-  decimals?: number;
-  suffix?: string;
-  formatter?: (value: number) => string;
-  clamp?: [number, number];
-};
-
-type TabConfig = {
-  key: TabKey;
-  label: string;
-  summary: {
-    statusColor: string;
-    division: string;
-    focus: string;
-    description: string;
-  };
-  metrics: Metric[];
-  footer: {
-    eyebrow: string;
-    title: string;
-    body: string;
-  };
-};
-
-const TABS: TabConfig[] = [
+const SELLING_POINTS = [
   {
-    key: 'overview',
-    label: 'Overview',
-    summary: {
-      statusColor: 'bg-primaryB',
-      division: 'Supercharger Division',
-      focus: 'Predator Platform',
-      description:
-        'Live telemetry from fabrication bays, dyno cells, and customer service dashboards.'
-    },
-    metrics: [
-      { label: 'Active custom builds', base: 5, variance: 3, clamp: [5, 9] },
-      { label: 'Avg turnaround', base: 10, variance: 2, suffix: 'days', clamp: [3, 11] },
-      {
-        label: 'QC pass rate',
-        base: 99.9,
-        variance: 0.4,
-        decimals: 1,
-        suffix: '%',
-        clamp: [99.9, 99.9]
-      }
-    ],
-    footer: {
-      eyebrow: 'Precision insights',
-      title: 'Every build tracked, every milestone verified',
-      body: 'Our operations dashboard keeps the FAS Motorsports crew aligned—monitoring billet machining queues, dyno calibration data, and customer delivery timelines in one command center view.'
-    }
+    title: 'Engineered for repeatable gains',
+    body: 'Every Predator pulley leaves the shop with matched hardware, belt path guidance, and install notes so your crew can bolt on performance without guesswork.'
   },
   {
-    key: 'inventory',
-    label: 'Inventory',
-    summary: {
-      statusColor: 'bg-amber-400',
-      division: 'Inventory Control',
-      focus: 'Performance Components',
-      description:
-        'Pulse on ready-to-ship Predator pulleys, intercoolers, and install hardware kits.'
-    },
-    metrics: [
-      { label: 'Pulleys ready to ship', base: 30, variance: 0, clamp: [30, 30] },
-      { label: 'Next restock ETA', base: 5, variance: 2, suffix: 'days', clamp: [2, 9] }
-    ],
-    footer: {
-      eyebrow: 'Balanced stock',
-      title: 'Inventory synced to the production floor',
-      body: 'Alerts fire before we hit reorder points, keeping Predator kits, clamps, and belts aligned with live build demand.'
-    }
+    title: 'Ready when your build is',
+    body: 'We stage small production runs weekly, keeping core parts on deck while larger custom orders move through the CNC and anodize queue.'
   },
   {
-    key: 'clients',
-    label: 'Clients',
-    summary: {
-      statusColor: 'bg-blue-400',
-      division: 'Client Success',
-      focus: 'VIP & Dealer Network',
-      description:
-        'Account managers tracking milestone approvals, tuning sessions, and delivery logistics.'
-    },
-    metrics: [
-      { label: 'Active VIP builds', base: 3, variance: 1, clamp: [2, 4] },
-      {
-        label: 'Client satisfaction',
-        base: 4.9,
-        variance: 0.15,
-        decimals: 1,
-        suffix: 'rating',
-        clamp: [4.5, 5]
-      },
-      {
-        label: 'Response SLA',
-        base: 9,
-        variance: 4,
-        suffix: 'hours',
-        clamp: [7, 24]
-      }
-    ],
-    footer: {
-      eyebrow: 'Guided experience',
-      title: 'White-glove updates for every client',
-      body: 'Milestone alerts, media galleries, and tuning notes keep customers and dealers looped in from concept to delivery.'
-    }
+    title: 'Support from the same techs who build',
+    body: 'Need torque specs or a sanity check on fuel before a dyno session? Our installers and tuners share the same bench, which means fast answers for your team.'
+  },
+  {
+    title: 'Confidence after the install',
+    body: 'Break-in checklists, warranty registration, and post-install tune revisions are prepped before your kit ships so you are never waiting on paperwork.'
   }
-];
-
-// Deterministic pseudo-random number (0-1) based on seed.
-function dailyRandom(seed: string) {
-  let hash = 0;
-  for (let i = 0; i < seed.length; i += 1) {
-    hash = Math.imul(31, hash) + seed.charCodeAt(i);
-    hash |= 0;
-  }
-  const normalized = (hash >>> 0) / 0xffffffff;
-  return normalized;
-}
-
-function computeMetricValue(tabKey: TabKey, metric: Metric, dateSeed: string) {
-  const variance = metric.variance ?? 0;
-  if (variance === 0) return metric.base;
-  const random = dailyRandom(`${dateSeed}:${tabKey}:${metric.label}`);
-  const offset = (random * 2 - 1) * variance;
-  let value = metric.base + offset;
-  if (metric.clamp) {
-    const [min, max] = metric.clamp;
-    value = Math.min(max, Math.max(min, value));
-  }
-  return value;
-}
-
-function getLocalDateSeed() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
+] as const;
 
 export default function HeadingBanner() {
-  const [activeTab, setActiveTab] = useState<TabKey>('overview');
-  const currentTab = TABS.find((tab) => tab.key === activeTab)!;
-  const dateSeed = getLocalDateSeed();
-  const displayMetrics = currentTab.metrics.map((metric) => {
-    const value = computeMetricValue(currentTab.key, metric, dateSeed);
-    const decimals = metric.decimals ?? 0;
-    const primary = metric.formatter
-      ? metric.formatter(value)
-      : decimals > 0
-        ? value.toFixed(decimals)
-        : Math.round(value).toString();
-    return {
-      label: metric.label,
-      primary,
-      suffix: metric.formatter ? undefined : metric.suffix
-    };
-  });
-
   return (
     <section className="bg-transparent text-white">
       <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
-        {/* GRID: left status card + right dashboard card */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* LEFT: Security / avatars */}
           <div className="rounded-2xl border border-white/10 bg-transparent p-6 lg:col-span-1">
             <div
               className="relative mb-6 flex h-56 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-transparent p-6"
@@ -182,99 +40,107 @@ export default function HeadingBanner() {
                 backgroundSize: '20px 20px'
               }}
             >
-              {/* Avatars + check */}
               <div className="absolute left-1/4 -translate-x-1/2">
                 <img
                   src="/images/billetParts/fas-pred-pully.png"
-                  alt="Predator Pulley"
-                  className="h-30 w-30 rounded-full object-contain"
+                  alt="Predator pulley"
+                  className="h-32 w-32 rounded-full object-contain"
+                  loading="lazy"
                 />
               </div>
               <div className="absolute right-1/4 translate-x-1/2">
                 <img
                   src="/images/billetParts/predator-pulley-fas.png"
-                  alt="Predator Pulley"
-                  className="h-25 w-25 rounded-full object-contain"
+                  alt="Predator pulley detail"
+                  className="h-28 w-28 rounded-full object-contain"
+                  loading="lazy"
                 />
               </div>
             </div>
 
-            <h3 className="text-base/7 font-semibold italic text-white font-borg">
-              F.a.S.{' '}
-              <span className="text-red-600 font-ethno text-primary italic">Predator Pulley</span>
+            <h3 className="text-base font-semibold uppercase tracking-[0.2em] text-white/70">
+              FAS Performance Lab
             </h3>
-            <p className="mt-2 max-w-lg text-4xl font-semibold tracking-tight text-pretty font-mono text-white/30 sm:text-3xl">
-              PATENT PENDING INNOVATION – PRECISION-ENGINEERED FOR FLAWLESS PERFORMANCE.
+            <p className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+              Predator pulley packages you can push on day one.
             </p>
+            <p className="mt-4 text-sm leading-6 text-white/60">
+              Built for late-night installs and weekend track passes, this is the flagship hardware
+              our crew runs on personal builds—now ready for yours.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-2">
+              {FEATURE_TAGS.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white/70"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
           </div>
 
-          {/* RIGHT: Dashboard overview card */}
           <div className="rounded-2xl border border-white/10 bg-transparent p-0 lg:col-span-2">
-            {/* Tabs */}
-            <div className="border-b border-white/10 px-6 pt-4">
-              <nav className="-mb-px flex flex-wrap gap-6 text-sm">
-                {TABS.map((tab) => {
-                  const isActive = tab.key === activeTab;
-                  return (
-                    <button
-                      key={tab.key}
-                      type="button"
-                      onClick={() => setActiveTab(tab.key)}
-                      className={`border-b-2 pb-3 font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black ${
-                        isActive
-                          ? 'border-primary text-white'
-                          : 'border-transparent text-white/70 hover:text-white/90'
-                      }`}
-                    >
-                      {tab.label}
-                    </button>
-                  );
-                })}
-              </nav>
+            <div className="border-b border-white/10 px-6 py-6">
+              <p className="text-xs font-semibold uppercase tracking-wide text-primary">Featured</p>
+              <h2 className="mt-2 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+                Predator pulley system, simplified
+              </h2>
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-white/60">
+                No dashboards, no stock counters—just a proven package that arrives with the parts,
+                documentation, and support you need to keep customer cars moving.
+              </p>
             </div>
 
-            {/* Header line with project */}
-            <div className="px-6 pb-6 pt-4">
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-white/90">
-                <span
-                  className={`inline-flex h-2.5 w-2.5 rounded-full ${currentTab.summary.statusColor}`}
-                ></span>
-                <span className="text-lg font-semibold">{currentTab.summary.division}</span>
-                <span className="text-white/40">/</span>
-                <span className="text-lg font-semibold text-white/80">
-                  {currentTab.summary.focus}
-                </span>
-              </div>
-              <p className="mt-2 text-sm text-white/50">{currentTab.summary.description}</p>
-            </div>
-
-            {/* Metrics */}
-            <div className="grid grid-cols-1 gap-6 border-t border-white/10 p-6 sm:grid-cols-3">
-              {displayMetrics.map((metric) => (
-                <div
-                  key={metric.label}
-                  className="rounded-xl border border-white/10 bg-black/20 p-5"
+            <div className="grid grid-cols-1 gap-6 border-b border-white/10 px-6 py-6 sm:grid-cols-2">
+              {SELLING_POINTS.map((card) => (
+                <article
+                  key={card.title}
+                  className="rounded-xl border border-white/10 bg-black/20 p-5 shadow-[0_10px_40px_rgba(0,0,0,0.25)]"
                 >
-                  <p className="text-sm text-white/60">{metric.label}</p>
-                  {metric.suffix ? (
-                    <div className="mt-2 flex items-baseline gap-2">
-                      <p className="text-5xl font-bold tracking-tight">{metric.primary}</p>
-                      <span className="text-sm text-white/60">{metric.suffix}</span>
-                    </div>
-                  ) : (
-                    <p className="mt-2 text-5xl font-bold tracking-tight">{metric.primary}</p>
-                  )}
-                </div>
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-white/70">
+                    {card.title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-6 text-white/60">{card.body}</p>
+                </article>
               ))}
             </div>
 
-            {/* Footer copy */}
-            <div className="border-t border-white/10 p-6">
-              <h5 className="text-sm font-semibold text-white/70">{currentTab.footer.eyebrow}</h5>
-              <p className="mt-2 text-xl font-semibold">{currentTab.footer.title}</p>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-white/60">
-                {currentTab.footer.body}
-              </p>
+            <div className="flex flex-col gap-4 px-6 py-6 lg:flex-row lg:items-center lg:justify-between">
+              <div className="text-sm text-white/60">
+                Have a build in queue?{' '}
+                <span className="text-white">
+                  Call{' '}
+                  <a
+                    href="tel:4076364341"
+                    className="font-semibold text-primary transition hover:text-primary/80"
+                  >
+                    407-636-4341
+                  </a>{' '}
+                  or send your worksheet to{' '}
+                  <a
+                    href="mailto:sales@fasmotorsports.com"
+                    className="font-semibold text-primary transition hover:text-primary/80"
+                  >
+                    sales@fasmotorsports.com
+                  </a>
+                  .
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-4">
+                <a
+                  href="/shop/storefront"
+                  className="inline-flex items-center justify-center rounded-full border border-primary/70 px-5 py-2 text-sm font-semibold uppercase tracking-wide text-primary transition hover:border-primary hover:text-white"
+                >
+                  Shop predator kits
+                </a>
+                <a
+                  href="/contact"
+                  className="inline-flex items-center justify-center rounded-full border border-white/20 px-5 py-2 text-sm font-semibold uppercase tracking-wide text-white transition hover:border-primary hover:text-primary"
+                >
+                  Book an install consult
+                </a>
+              </div>
             </div>
           </div>
         </div>

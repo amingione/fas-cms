@@ -72,13 +72,9 @@ const structuredData = {
             id="contact-form"
             name="contact"
             method="POST"
-            data-netlify="true"
-            netlify-honeypot="bot-field"
-            action="/contact/success"
+            action="/api/contact"
             class="space-y-6 bg-charcoal backdrop-blur-sm p-8 rounded-sm border border-gray-700 shadow-lg relative"
           >
-            <input type="hidden" name="form-name" value="contact" />
-            <p class="hidden"><label>Don’t fill this out if you’re human: <input name="bot-field" /></label></p>
             <h2 class="text-3xl font-cyber text-accent mb-4">Send a Message</h2>
 
             <div>
@@ -111,6 +107,7 @@ const structuredData = {
               Send
             </button>
           </form>
+          <div id="contact-status" class="mt-4 hidden rounded border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/70"></div>
 
           <!-- Contact Info -->
           <div class="flex flex-col justify-start backdrop-blur-sm p-2 rounded-lg border bg-black/10 border-gray-700 shadow-lg">
@@ -136,4 +133,53 @@ const structuredData = {
       </section>
     </div>
   </div>
+  <script>
+    /** @type {HTMLFormElement | null} */
+    const contactForm = document.getElementById('contact-form') as HTMLFormElement | null;
+    /** @type {HTMLDivElement | null} */
+    const contactStatus = document.getElementById('contact-status');
+
+    /**
+     * @param {string} message
+     * @param {'info' | 'error' | 'success'} [type='info']
+     */
+    function setStatus(message: string, type: 'info' | 'error' | 'success' = 'info') {
+      if (!contactStatus) return;
+      contactStatus.textContent = message;
+      contactStatus.classList.remove('hidden', 'border-red-400', 'text-red-200', 'border-green-400', 'text-green-200');
+      if (type === 'error') {
+        contactStatus.classList.add('border-red-400', 'text-red-200');
+      } else if (type === 'success') {
+        contactStatus.classList.add('border-green-400', 'text-green-200');
+      }
+    }
+
+    contactForm?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!contactForm) return;
+      setStatus('Sending…');
+
+      try {
+        const formData = new FormData(contactForm as HTMLFormElement);
+        const response = await fetch(contactForm.action || '/api/contact', {
+          method: 'POST',
+          body: formData
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (response.ok && payload?.ok !== false) {
+          setStatus(payload?.message || 'Thanks! We will be in touch shortly.', 'success');
+          contactForm.reset();
+        } else {
+          setStatus(
+            payload?.message ||
+              'We were unable to send your message. Please verify your details and try again.',
+            'error'
+          );
+        }
+      } catch (error) {
+        console.error('Contact submission failed:', error);
+        setStatus('Something went wrong while sending your message. Please try again later.', 'error');
+      }
+    });
+  </script>
 </BaseLayout>

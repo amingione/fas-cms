@@ -51,6 +51,9 @@ const pageDescription = isLoggedIn
           <div>
             <label class="block text-sm mb-1">Password</label>
             <input type="password" name="password" required class="w-full bg-white/5 border border-white/15 rounded px-3 py-2" />
+            <div class="mt-2 text-xs">
+              <a href="/account/forgot-password" class="text-primary hover:text-primary/80">Forgot password?</a>
+            </div>
           </div>
           <button type="submit" class="px-4 py-2 rounded bg-primary text-accent font-ethno">Sign in</button>
         </form>
@@ -69,12 +72,14 @@ const pageDescription = isLoggedIn
           </div>
           <button type="submit" class="px-4 py-2 rounded bg-primary text-accent font-ethno">Create account</button>
         </form>
+        <div id="auth-message" class="mt-4 hidden rounded-md border px-4 py-3 text-sm"></div>
         <script>
           const $ = (s: string) => document.querySelector(s);
           const loginForm = $('#fas-login');
           const signupForm = $('#fas-signup');
           const modeLogin = $('#mode-login');
           const modeSignup = $('#mode-signup');
+          const messageBox = document.getElementById('auth-message');
           function show(which: string) {
             if (!loginForm || !signupForm) return;
             if (which === 'signup') {
@@ -84,6 +89,23 @@ const pageDescription = isLoggedIn
               signupForm.classList.add('hidden');
               loginForm.classList.remove('hidden');
             }
+            clearMessage();
+          }
+          function setMessage(text: string, type: 'error' | 'success' = 'error') {
+            if (!messageBox) return;
+            messageBox.textContent = text;
+            messageBox.classList.remove('hidden');
+            messageBox.classList.remove('border-green-400', 'text-green-200', 'border-red-400', 'text-red-200', 'bg-green-500/10', 'bg-red-500/10');
+            if (type === 'success') {
+              messageBox.classList.add('border-green-400', 'text-green-200', 'bg-green-500/10');
+            } else {
+              messageBox.classList.add('border-red-400', 'text-red-200', 'bg-red-500/10');
+            }
+          }
+          function clearMessage() {
+            if (!messageBox) return;
+            messageBox.classList.add('hidden');
+            messageBox.textContent = '';
           }
           modeLogin?.addEventListener('click', (e) => { e.preventDefault(); show('login'); });
           modeSignup?.addEventListener('click', (e) => { e.preventDefault(); show('signup'); });
@@ -91,27 +113,39 @@ const pageDescription = isLoggedIn
             e.preventDefault();
             const form = e.target as HTMLFormElement;
             const data = Object.fromEntries(new FormData(form));
+            clearMessage();
             const res = await fetch('/api/auth/login', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(data) });
             if (res.ok) {
               const rt = new URL(window.location.href).searchParams.get('returnTo') || '/dashboard';
               window.location.href = rt;
             } else {
-              alert('Login failed');
+              let message = 'Login failed. Please try again.';
+              try {
+                const detail = await res.json();
+                if (detail?.message) message = detail.message;
+              } catch {}
+              setMessage(message, 'error');
             }
           });
           document.getElementById('fas-signup')?.addEventListener('submit', async (e) => {
             e.preventDefault();
             const form = e.target as HTMLFormElement;
             const data = Object.fromEntries(new FormData(form));
+            clearMessage();
             const res = await fetch('/api/auth/signup', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(data) });
             if (res.ok) {
               const rt = new URL(window.location.href).searchParams.get('returnTo') || '/dashboard';
               window.location.href = rt;
             } else if (res.status === 409) {
-              alert('An account with this email already exists. Please sign in.');
+              setMessage('An account with this email already exists. Please sign in instead.', 'error');
               show('login');
             } else {
-              alert('Sign up failed');
+              let message = 'Sign up failed. Please try again later.';
+              try {
+                const detail = await res.json();
+                if (detail?.message) message = detail.message;
+              } catch {}
+              setMessage(message, 'error');
             }
           });
         </script>

@@ -262,6 +262,10 @@ export async function POST({ request }: { request: Request }) {
     name: string;
     price: number;
     quantity: number;
+    image?: string;
+    productUrl?: string;
+    installOnly?: boolean;
+    shippingClass?: string;
     options?: Record<string, string>;
     basePrice?: number;
     extra?: number;
@@ -396,13 +400,39 @@ export async function POST({ request }: { request: Request }) {
     } satisfies Stripe.Checkout.SessionCreateParams.LineItem;
   });
 
+  const extractSlugFromUrl = (url?: string | null): string | undefined => {
+    if (!url) return undefined;
+    try {
+      const trimmed = url.trim();
+      if (!trimmed) return undefined;
+      const noOrigin = trimmed.replace(/^https?:\/\/[^/]+/i, '');
+      const withoutQuery = noOrigin.split(/[?#]/)[0];
+      const segments = withoutQuery.replace(/^\/+/, '').split('/').filter(Boolean);
+      if (!segments.length) return undefined;
+      const slug = segments[segments.length - 1];
+      return slug || undefined;
+    } catch {
+      return undefined;
+    }
+  };
+
   // Persist compact cart metadata (Stripe metadata fields are strings and size-limited)
   let metaCart = '';
   try {
     const compact = (cart as CartItem[]).map((i) => {
       const opts = formatSelectedOptions(i?.options || undefined)?.summary;
       const upgrades = collectUpgrades(i?.upgrades ?? i?.addOns);
+      const normalizedId = normalizeCartId(typeof i?.id === 'string' ? i.id : undefined);
+      const imageUrl = typeof i?.image === 'string' ? i.image : undefined;
+      const productUrl = typeof i?.productUrl === 'string' ? i.productUrl : undefined;
+      const slug = extractSlugFromUrl(productUrl);
+      const sku = typeof i?.sku === 'string' ? i.sku : undefined;
       return {
+        ...(normalizedId ? { i: normalizedId } : {}),
+        ...(sku ? { sku } : {}),
+        ...(imageUrl ? { img: imageUrl } : {}),
+        ...(productUrl ? { url: productUrl } : {}),
+        ...(slug ? { slug } : {}),
         n: i?.name,
         q: i?.quantity,
         p: i?.price,

@@ -579,6 +579,37 @@ export function ShippingEstimator({
 
   const containerClasses = clsx('flex h-full flex-col overflow-hidden', className);
 
+  if (installOnly) {
+    return (
+      <div className={clsx('flex h-full flex-col overflow-hidden', className)}>
+        {showBackButton && (
+          <button
+            type="button"
+            className="mb-3 flex w-fit items-center text-sm text-neutral-300 hover:text-white"
+            onClick={onBack}
+          >
+            Back to cart
+          </button>
+        )}
+        <div className="rounded-md border border-white/20 bg-white/10 p-4 text-sm text-white">
+          {installOnlyMessage ||
+            'These items are install-only and do not require shipping. We will coordinate scheduling after checkout.'}
+        </div>
+        <div className="mt-4 rounded-md border border-white/10 bg-white/5 p-4 text-xs text-white/70">
+          Once you submit your order we will reach out to schedule installation.
+        </div>
+        <button
+          type="button"
+          onClick={handleContinue}
+          disabled={submitting}
+          className="mt-6 w-full rounded-full bg-primary px-6 py-3 text-sm font-semibold uppercase tracking-wide text-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {submitting ? 'Processing…' : 'Continue to Checkout'}
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className={containerClasses}>
       {showBackButton && (

@@ -7,6 +7,7 @@ export type CartItem = {
   image?: string;
   installOnly?: boolean;
   shippingClass?: string;
+  productUrl?: string;
 };
 
 export const CART_KEY = 'fas_cart_v1';

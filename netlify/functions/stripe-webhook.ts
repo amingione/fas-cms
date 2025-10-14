@@ -44,6 +44,21 @@ const formatOrderDate = (iso?: string | null, createdAtSeconds?: number | null):
   }).format(date);
 };
 
+const extractSlugFromUrl = (url?: string | null): string | undefined => {
+  if (!url) return undefined;
+  try {
+    const trimmed = url.trim();
+    if (!trimmed) return undefined;
+    const withoutOrigin = trimmed.replace(/^https?:\/\/[^/]+/i, '');
+    const withoutQuery = withoutOrigin.split(/[?#]/)[0];
+    const segments = withoutQuery.replace(/^\/+/g, '').split('/').filter(Boolean);
+    if (!segments.length) return undefined;
+    return segments[segments.length - 1] || undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 const generateFallbackOrderNumber = (
   session: Stripe.Checkout.Session,
   fallbackId: string
@@ -263,36 +278,143 @@ export const handler: Handler = async (event) => {
         try {
           const parsed = JSON.parse(metaCart);
           if (Array.isArray(parsed)) {
-            cartLines = parsed.map((l: any) =>
-              createOrderCartItem({
-                id: l?.id,
+            cartLines = parsed.map((l: any) => {
+              const rawId = typeof l?.i === 'string' && l.i.trim() ? l.i : l?.id;
+              const productUrl = typeof l?.url === 'string' ? l.url : undefined;
+              const productSlug =
+                typeof l?.slug === 'string' ? l.slug : extractSlugFromUrl(productUrl);
+              const metadata: Record<string, unknown> = {};
+              if (l?.o) metadata.option_summary = l.o;
+              if (l?.u) metadata.upgrades = l.u;
+              if (l?.meta && typeof l.meta === 'object') {
+                Object.assign(metadata, l.meta as Record<string, unknown>);
+              }
+              return createOrderCartItem({
+                id: rawId,
                 sku: l?.sku,
                 name: l?.n || l?.name,
                 price: typeof l?.p === 'number' ? l.p : Number(l?.p || 0),
                 quantity: typeof l?.q === 'number' ? l.q : Number(l?.q || 0),
-                categories: l?.categories
-              })
-            );
+                categories: l?.categories,
+                image: typeof l?.img === 'string' ? l.img : undefined,
+                productUrl,
+                productSlug,
+                metadata: Object.keys(metadata).length ? metadata : undefined
+              });
+            });
           }
         } catch {}
       }
       if (!cartLines.length) {
-        cartLines = (items?.data || []).map((li) =>
-          createOrderCartItem({
-            id: typeof li.price?.product === 'string' ? li.price.product : undefined,
-            sku: typeof li.price?.id === 'string' ? li.price.id : undefined,
-            name:
-              li.description ||
-              (typeof li.price?.nickname === 'string' ? li.price.nickname : undefined),
-            price:
-              typeof li.amount_subtotal === 'number'
-                ? li.amount_subtotal / 100
-                : typeof li.price?.unit_amount === 'number'
-                ? li.price.unit_amount / 100
-                : undefined,
-            quantity: li.quantity
-          })
-        );
+        const fallbackLines: OrderCartItem[] = [];
+        for (const li of items?.data || []) {
+          const priceMetadata = (li.price?.metadata || {}) as Record<string, unknown>;
+          let productMetadata: Record<string, unknown> = {};
+          const priceProduct = li.price?.product;
+          if (priceProduct && typeof priceProduct === 'object' && (priceProduct as any).metadata) {
+            productMetadata = ((priceProduct as any).metadata || {}) as Record<string, unknown>;
+          } else if (typeof priceProduct === 'string') {
+            try {
+              const stripeProduct = await stripe.products.retrieve(priceProduct);
+              productMetadata = (stripeProduct?.metadata || {}) as Record<string, unknown>;
+            } catch (error) {
+              console.error('[stripe-webhook] failed to load Stripe product metadata', error);
+            }
+          }
+
+          const combinedMetadata: Record<string, unknown> = {
+            ...productMetadata,
+            ...priceMetadata
+          };
+
+          if (li.description && !combinedMetadata.product_name) {
+            combinedMetadata.product_name = li.description;
+          }
+
+          const sanityProductId = (() => {
+            const candidates = [
+              combinedMetadata.sanity_product_id,
+              combinedMetadata.product_id,
+              combinedMetadata.sanityProductId,
+              combinedMetadata.sanityProductID
+            ];
+            for (const candidate of candidates) {
+              if (typeof candidate === 'string' && candidate.trim()) return candidate.trim();
+            }
+            return undefined;
+          })();
+
+          const productUrl = (() => {
+            const candidates = [
+              combinedMetadata.product_url,
+              combinedMetadata.url,
+              combinedMetadata.productUrl
+            ];
+            for (const candidate of candidates) {
+              if (typeof candidate === 'string' && candidate.trim()) return candidate.trim();
+            }
+            return undefined;
+          })();
+
+          const productSlug = (() => {
+            const candidates = [
+              combinedMetadata.product_slug,
+              combinedMetadata.slug,
+              combinedMetadata.productSlug
+            ];
+            for (const candidate of candidates) {
+              if (typeof candidate === 'string' && candidate.trim()) return candidate.trim();
+            }
+            return extractSlugFromUrl(productUrl);
+          })();
+
+          const imageUrl = (() => {
+            const candidates = [
+              combinedMetadata.imageUrl,
+              combinedMetadata.image_url,
+              combinedMetadata.image_url_original,
+              combinedMetadata.product_image,
+              combinedMetadata.productImage,
+              combinedMetadata.thumbnail,
+              combinedMetadata.thumbnailUrl,
+              combinedMetadata.img,
+              combinedMetadata.image
+            ];
+            for (const candidate of candidates) {
+              if (typeof candidate === 'string' && candidate.trim()) return candidate.trim();
+            }
+            return undefined;
+          })();
+
+          const priceValue =
+            typeof li.amount_subtotal === 'number'
+              ? li.amount_subtotal / 100
+              : typeof li.price?.unit_amount === 'number'
+              ? li.price.unit_amount / 100
+              : undefined;
+
+          fallbackLines.push(
+            createOrderCartItem({
+              id: sanityProductId,
+              sku:
+                (typeof combinedMetadata.sku === 'string' && combinedMetadata.sku) ||
+                (typeof li.price?.id === 'string' ? li.price.id : undefined),
+              name:
+                li.description ||
+                (typeof combinedMetadata.product_name === 'string'
+                  ? combinedMetadata.product_name
+                  : undefined) ||
+                (typeof li.price?.nickname === 'string' ? li.price.nickname : undefined),
+              price: priceValue,
+              quantity: li.quantity,
+              image: imageUrl,
+              productUrl,
+              productSlug,
+              metadata: Object.keys(combinedMetadata).length ? combinedMetadata : undefined
+            })
+          );
+        }
+        cartLines = fallbackLines;
       }
 
       const shippingSelection = parseShippingSelection(session);

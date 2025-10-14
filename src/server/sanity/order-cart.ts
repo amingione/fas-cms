@@ -7,6 +7,10 @@ export type OrderCartItem = {
   price: number;
   quantity: number;
   categories?: string[];
+  image?: string;
+  productUrl?: string;
+  productSlug?: string;
+  metadata?: Record<string, unknown>;
 };
 
 const toNumber = (value: unknown): number | undefined => {
@@ -42,6 +46,10 @@ export function createOrderCartItem(data: {
   price?: unknown;
   quantity?: unknown;
   categories?: unknown;
+  image?: unknown;
+  productUrl?: unknown;
+  productSlug?: unknown;
+  metadata?: unknown;
 }): OrderCartItem {
   const categories = Array.isArray(data.categories)
     ? data.categories
@@ -51,6 +59,13 @@ export function createOrderCartItem(data: {
 
   const quantity = toNumber(data.quantity);
   const price = toNumber(data.price);
+  const image = toStringOrUndefined(data.image);
+  const productUrl = toStringOrUndefined(data.productUrl);
+  const productSlug = toStringOrUndefined(data.productSlug);
+  const metadata =
+    data.metadata && typeof data.metadata === 'object'
+      ? (data.metadata as Record<string, unknown>)
+      : undefined;
 
   return {
     _type: 'orderCartItem',
@@ -60,7 +75,11 @@ export function createOrderCartItem(data: {
     name: toStringOrUndefined(data.name) || toStringOrUndefined(data.description),
     price: price ?? 0,
     quantity: quantity ?? 1,
-    ...(categories && categories.length ? { categories } : {})
+    ...(categories && categories.length ? { categories } : {}),
+    ...(image ? { image } : {}),
+    ...(productUrl ? { productUrl } : {}),
+    ...(productSlug ? { productSlug } : {}),
+    ...(metadata ? { metadata } : {})
   };
 }
 
