@@ -422,9 +422,20 @@ export async function POST({ request }: { request: Request }) {
       ...(item.sku ? { sku: String(item.sku) } : {}),
       ...(sanityProductId ? { sanity_product_id: sanityProductId } : {})
     };
+    if (item?.name) metadata.product_name = clamp(String(item.name), 200);
+    if (item?.productUrl) metadata.product_url = clamp(String(item.productUrl), 300);
+    if (item?.image) metadata.product_image = clamp(String(item.image), 400);
+    metadata.unit_price = Number(item.price ?? unitAmount / 100).toFixed(2);
+    metadata.quantity = String(quantity);
+    if (item?.signature) metadata.configuration_signature = clamp(String(item.signature), 120);
+
     if (optionDetails?.summary) {
       metadata.selected_options = clamp(optionDetails.summary);
       metadata.option_summary = clamp(optionDetails.summary);
+    }
+    if (optionDetails?.entries?.length) {
+      const detailed = optionDetails.entries.map(([label, value]) => `${label}: ${value}`).join(' | ');
+      metadata.options_readable = clamp(detailed);
     }
     if (optionDetails?.json) {
       metadata.selected_options_json = clamp(optionDetails.json);
@@ -460,12 +471,15 @@ export async function POST({ request }: { request: Request }) {
       upgradeValues.forEach((value, idx) => {
         metadata[`upgrade_${idx + 1}`] = clamp(value, 200);
       });
+      metadata.upgrades_readable = clamp(upgradeSummary);
     }
     if (typeof item.basePrice === 'number' && Number.isFinite(item.basePrice)) {
       metadata.base_price = Number(item.basePrice).toFixed(2);
+      metadata.base_price_display = `$${Number(item.basePrice).toFixed(2)}`;
     }
     if (typeof item.extra === 'number' && Number.isFinite(item.extra)) {
       metadata.option_upcharge = Number(item.extra).toFixed(2);
+      metadata.option_upcharge_display = `$${Number(item.extra).toFixed(2)}`;
     }
     const descriptionParts: string[] = [];
     if (optionDetails?.summary) descriptionParts.push(optionDetails.summary);
@@ -507,8 +521,10 @@ export async function POST({ request }: { request: Request }) {
 
   // Persist compact cart metadata (Stripe metadata fields are strings and size-limited)
   let metaCart = '';
+  let cartSummary = '';
   try {
-    const compact = (cart as CartItem[]).map((i) => {
+    const summaryParts: string[] = [];
+    let compact = (cart as CartItem[]).map((i) => {
       const optionDetails = formatSelectedOptions(
         (i?.options as Record<string, unknown>) || undefined,
         i?.selections
@@ -520,7 +536,47 @@ export async function POST({ request }: { request: Request }) {
       const productUrl = typeof i?.productUrl === 'string' ? i.productUrl : undefined;
       const slug = extractSlugFromUrl(productUrl);
       const sku = typeof i?.sku === 'string' ? i.sku : undefined;
-      return {
+      const meta: Record<string, string> = {};
+      if (optionDetails?.summary) meta['Options'] = optionDetails.summary;
+      if (optionDetails?.entries?.length) {
+        meta['Options Detail'] = optionDetails.entries
+          .map(([label, value]) => `${label}: ${value}`)
+          .join(' | ');
+      }
+      if (upgrades.length) meta['Upgrades'] = upgrades.join(', ');
+      if (typeof i?.basePrice === 'number' && Number.isFinite(i.basePrice)) {
+        meta['Base Price'] = `$${Number(i.basePrice).toFixed(2)}`;
+      }
+      if (typeof i?.extra === 'number' && Number.isFinite(i.extra)) {
+        meta['Option Upcharge'] = `$${Number(i.extra).toFixed(2)}`;
+      }
+      if (typeof i?.price === 'number' && Number.isFinite(i.price)) {
+        meta['Unit Price'] = `$${Number(i.price).toFixed(2)}`;
+      }
+      if (typeof i?.quantity === 'number' && Number.isFinite(i.quantity)) {
+        meta['Quantity'] = String(i.quantity);
+      }
+      if (i?.signature) meta['Configuration Signature'] = String(i.signature);
+      if (productUrl) meta['Product URL'] = productUrl;
+      if (imageUrl) meta['Image URL'] = imageUrl;
+      if (slug) meta['Product Slug'] = slug;
+      Object.keys(meta).forEach((key) => {
+        const value = meta[key];
+        if (typeof value === 'string' && value.length > 200) {
+          meta[key] = value.slice(0, 200);
+        }
+      });
+
+      const summaryBits: string[] = [];
+      if (i?.name) summaryBits.push(String(i.name));
+      if (opts) summaryBits.push(`Options: ${opts}`);
+      if (upgrades.length) summaryBits.push(`Upgrades: ${upgrades.join(', ')}`);
+      if (typeof i?.quantity === 'number' && Number.isFinite(i.quantity)) {
+        summaryBits.push(`Qty: ${i.quantity}`);
+      }
+      if (summaryBits.length) summaryParts.push(summaryBits.join(' — '));
+
+      const entry: Record<string, unknown> = {
         ...(normalizedId ? { i: normalizedId } : {}),
         ...(sku ? { sku } : {}),
         ...(imageUrl ? { img: imageUrl } : {}),
@@ -530,11 +586,28 @@ export async function POST({ request }: { request: Request }) {
         q: i?.quantity,
         p: i?.price,
         ...(opts ? { o: opts.slice(0, 160) } : {}),
-        ...(upgrades.length ? { u: upgrades.join(', ').slice(0, 120) } : {})
+        ...(upgrades.length ? { u: upgrades.join(', ').slice(0, 160) } : {})
       };
+      if (Object.keys(meta).length) entry.meta = meta;
+      return entry;
     });
-    metaCart = JSON.stringify(compact);
-    if (metaCart.length > 450) metaCart = metaCart.slice(0, 450);
+    let serialized = JSON.stringify(compact);
+    if (serialized.length > 460) {
+      compact = compact.map((entry) => {
+        if (entry && typeof entry === 'object' && 'meta' in entry) {
+          const { meta: _meta, ...rest } = entry as Record<string, unknown>;
+          return rest;
+        }
+        return entry;
+      });
+      serialized = JSON.stringify(compact);
+    }
+    if (serialized.length > 460) serialized = serialized.slice(0, 460);
+    metaCart = serialized;
+    if (summaryParts.length) {
+      const joined = summaryParts.join(' | ');
+      cartSummary = joined.length > 480 ? joined.slice(0, 480) : joined;
+    }
   } catch (error) {
     void error;
   }
@@ -847,19 +920,28 @@ export async function POST({ request }: { request: Request }) {
       site: baseUrl
     };
 
-    const sessionMetadata: Record<string, string> = {
+    const sessionMetadataCore: Record<string, string> = {
       ...baseMetadata,
       ...shippingMetadata
     };
 
-    const paymentIntentMetadata = { ...sessionMetadata };
+    if (cartSummary) {
+      sessionMetadataCore.cart_summary = cartSummary;
+    }
+
+    const metadataForSession: Record<string, string> = {
+      ...sessionMetadataCore,
+      ...(metaCart ? { cart: metaCart } : {})
+    };
+
+    const paymentIntentMetadata = { ...metadataForSession };
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       // Offer standard cards plus Affirm financing at checkout
       payment_method_types: ['card', 'affirm'],
       mode: 'payment',
       line_items: lineItems,
-      metadata: { ...sessionMetadata, ...(metaCart ? { cart: metaCart } : {}) },
+      metadata: metadataForSession,
       payment_intent_data: {
         metadata: paymentIntentMetadata
       },

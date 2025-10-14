@@ -15,6 +15,7 @@ interface ShippingLogEntry {
 
 interface OrderItem {
   _key?: string;
+  id?: string;
   name?: string;
   price?: number;
   quantity?: number;
@@ -356,67 +357,89 @@ async function enrichOrderWithProductImages(orderDoc: any): Promise<void> {
   });
 }
 
-function urlForImage(source: unknown): string | null {
-  if (!source) return null;
-  if (typeof source === 'string') {
-    const trimmed = source.trim();
-    return trimmed ? trimmed : null;
+const DIRECT_IMAGE_KEYS = [
+  'url',
+  'imageUrl',
+  'imageURL',
+  'image_url',
+  'src',
+  'href',
+  'assetUrl',
+  'assetURL',
+  'downloadUrl',
+  'downloadURL',
+  'thumbUrl',
+  'thumbnail',
+  'thumbnailUrl',
+  'thumb',
+  'photo',
+  'value',
+  'current'
+] as const;
+
+function buildFromSanityRef(ref?: unknown): string | null {
+  if (typeof ref !== 'string' || !ref.trim()) return null;
+  try {
+    const built = imageBuilder.image(ref).width(800).url();
+    return built || null;
+  } catch {
+    return null;
+  }
+}
+
+function pickImageUrl(candidate: unknown, seen = new Set<unknown>()): string | null {
+  if (!candidate) return null;
+  if (typeof candidate === 'string') {
+    const trimmed = candidate.trim();
+    if (!trimmed) return null;
+    if (trimmed.startsWith('//')) return `https:${trimmed}`;
+    if (/^image-/.test(trimmed)) {
+      const built = buildFromSanityRef(trimmed);
+      if (built) return built;
+    }
+    if (/^https?:/i.test(trimmed)) return trimmed;
+    return trimmed;
+  }
+  if (seen.has(candidate)) return null;
+  seen.add(candidate);
+
+  if (Array.isArray(candidate)) {
+    for (const entry of candidate) {
+      const url = pickImageUrl(entry, seen);
+      if (url) return url;
+    }
+    return null;
   }
 
-  if (typeof source === 'object') {
-    const obj = source as Record<string, unknown>;
-    const directUrl = typeof obj.url === 'string' ? obj.url : typeof obj.imageUrl === 'string' ? obj.imageUrl : null;
-    if (directUrl) {
-      const trimmed = directUrl.trim();
-      if (trimmed) return trimmed;
-    }
+  if (typeof candidate === 'object') {
+    const obj = candidate as Record<string, unknown>;
 
-    const asset = obj.asset as Record<string, unknown> | undefined;
-    if (asset) {
-      if (typeof asset.url === 'string' && asset.url.trim()) {
-        return asset.url.trim();
-      }
-      if (typeof asset._ref === 'string') {
-        try {
-          const builtFromRef = imageBuilder.image(asset._ref).width(800).url();
-          if (builtFromRef) return builtFromRef;
-        } catch {
-          // ignore builder errors and fall through to fallback image
-        }
-      }
-      if (typeof asset._id === 'string') {
-        try {
-          const builtFromId = imageBuilder.image(asset._id).width(800).url();
-          if (builtFromId) return builtFromId;
-        } catch {
-          // ignore builder errors and fall through to fallback image
-        }
+    for (const key of DIRECT_IMAGE_KEYS) {
+      if (key in obj) {
+        const value = obj[key];
+        const url = pickImageUrl(value, seen);
+        if (url) return url;
       }
     }
 
-    if (typeof obj._ref === 'string') {
-      try {
-        const builtFromRef = imageBuilder.image(obj._ref).width(800).url();
-        if (builtFromRef) return builtFromRef;
-      } catch {
-        // ignore builder errors and fall through to fallback image
-      }
+    if (obj.asset) {
+      const fromAsset = pickImageUrl(obj.asset, seen);
+      if (fromAsset) return fromAsset;
     }
 
-    if (typeof obj._id === 'string') {
-      try {
-        const builtFromId = imageBuilder.image(obj._id).width(800).url();
-        if (builtFromId) return builtFromId;
-      } catch {
-        // ignore builder errors and fall through to fallback image
-      }
-    }
+    const refUrl = buildFromSanityRef(obj._ref);
+    if (refUrl) return refUrl;
 
-    try {
-      const builtFromObject = imageBuilder.image(source as any).width(800).url();
-      if (builtFromObject) return builtFromObject;
-    } catch {
-      // ignore builder errors and fall through to fallback image
+    const idUrl = buildFromSanityRef(obj._id);
+    if (idUrl) return idUrl;
+
+    const nestedKeys = ['image', 'default', 'original', 'medium', 'large'];
+    for (const key of nestedKeys) {
+      if (key in obj) {
+        const value = obj[key];
+        const url = pickImageUrl(value, seen);
+        if (url) return url;
+      }
     }
   }
 
@@ -448,18 +471,38 @@ function resolveImageUrlFromItem(item: OrderItem): string {
     item?.image,
     item?.imageUrl,
     ...metadataCandidates,
+    metadata?.resolvedImageUrl,
     item?.metadata,
     product['image'],
+    product['resolvedImageUrl'],
     product['imageUrl'],
-    productImages[0],
+    productImages,
     product['mainImage'],
     product['thumbnail'],
     product['thumb']
   ];
 
   for (const candidate of candidates) {
-    const url = urlForImage(candidate);
+    const url = pickImageUrl(candidate);
     if (url) return url;
+  }
+
+  try {
+    const metadataKeys = Object.keys(metadata || {});
+    const productKeys = Object.keys(product || {});
+    console.warn('[order-image] falling back to placeholder', {
+      name: item?.name,
+      id: item?.id,
+      resolvedImageUrl: item?.resolvedImageUrl,
+      image: item?.image,
+      imageUrl: item?.imageUrl,
+      productResolvedImageUrl: item?.productResolvedImageUrl,
+      metadataKeys,
+      productKeys,
+      productImagesLength: productImages.length
+    });
+  } catch {
+    // best-effort logging only
   }
 
   return FALLBACK_IMAGE;
@@ -658,9 +701,14 @@ const invoiceUrl = order?.invoiceRef?.invoicePdfUrl || order?.invoiceRef?.paymen
 
 const pageTitle = order ? `Order ${order.orderNumber || order._id}` : 'Order Details';
 const canonical = `${new URL(Astro.request.url).origin}/dashboard/order/${orderId}`;
+const breadcrumbItems = [
+  { href: '/dashboard', label: 'Dashboard' },
+  { href: '/dashboard#orders', label: 'Orders' },
+  { label: pageTitle }
+];
 ---
 
-<BaseLayout title={pageTitle} canonical={canonical} hideBrandTag={true}>
+<BaseLayout title={pageTitle} canonical={canonical} hideBrandTag={true} breadcrumbs={breadcrumbItems}>
   <main class="bg-black text-white">
     <div class="mx-auto max-w-6xl px-6 py-14 sm:py-18 lg:px-10">
       {error ? (
@@ -717,7 +765,13 @@ const canonical = `${new URL(Astro.request.url).origin}/dashboard/order/${orderI
                   return (
                     <article class="grid grid-cols-1 gap-8 rounded-2xl border border-white/10 bg-white/5 p-6 sm:grid-cols-12 sm:gap-6 lg:gap-8">
                       <div class="sm:col-span-4 lg:col-span-5">
-                        <img src={image} alt={item?.name || 'Order item'} class="aspect-square w-full rounded-lg bg-black/30 object-cover" loading="lazy" />
+                        <img
+                          src={image && image !== FALLBACK_IMAGE ? image : resolveImageUrlFromItem(item)}
+                          alt={item?.name || 'Order item'}
+                          title={image && image !== FALLBACK_IMAGE ? image : resolveImageUrlFromItem(item)}
+                          class="aspect-square w-full rounded-lg bg-black/30 object-cover"
+                          loading="lazy"
+                        />
                       </div>
                       <div class="flex flex-col gap-6 sm:col-span-8 lg:col-span-7">
                         <header class="space-y-2">

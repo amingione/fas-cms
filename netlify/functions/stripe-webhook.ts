@@ -322,13 +322,39 @@ export const handler: Handler = async (event) => {
             }
           }
 
+          const lineItemMetadata = (li.metadata || {}) as Record<string, unknown>;
           const combinedMetadata: Record<string, unknown> = {
+            ...lineItemMetadata,
             ...productMetadata,
             ...priceMetadata
           };
 
           if (li.description && !combinedMetadata.product_name) {
             combinedMetadata.product_name = li.description;
+          }
+          if (li.quantity != null && combinedMetadata.quantity == null) {
+            combinedMetadata.quantity = String(li.quantity);
+          }
+          if (!combinedMetadata.unit_price) {
+            if (typeof li.price?.unit_amount === 'number') {
+              combinedMetadata.unit_price = (li.price.unit_amount / 100).toFixed(2);
+            } else if (typeof priceValue === 'number') {
+              combinedMetadata.unit_price = priceValue.toFixed(2);
+            }
+          }
+          if (
+            combinedMetadata.option_summary &&
+            typeof combinedMetadata.option_summary === 'string' &&
+            !combinedMetadata.options_readable
+          ) {
+            combinedMetadata.options_readable = combinedMetadata.option_summary;
+          }
+          if (
+            combinedMetadata.upgrades &&
+            typeof combinedMetadata.upgrades === 'string' &&
+            !combinedMetadata.upgrades_readable
+          ) {
+            combinedMetadata.upgrades_readable = combinedMetadata.upgrades;
           }
 
           const sanityProductId = (() => {

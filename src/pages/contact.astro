@@ -143,37 +143,39 @@ const structuredData = {
       </section>
     </div>
   </div>
-  <script>
-    /** @type {HTMLFormElement | null} */
-    const contactForm = document.getElementById('contact-form') as HTMLFormElement | null;
-    /** @type {HTMLDivElement | null} */
+  <script is:inline>
+    const contactForm = document.getElementById('contact-form');
     const contactStatus = document.getElementById('contact-status');
 
-    /**
-     * @param {string} message
-     * @param {'info' | 'error' | 'success'} [type='info']
-     */
-    function setStatus(message: string, type: 'info' | 'error' | 'success' = 'info') {
+    const statusClasses = {
+      base: ['hidden', 'border-red-400', 'text-red-200', 'border-green-400', 'text-green-200'],
+      error: ['border-red-400', 'text-red-200'],
+      success: ['border-green-400', 'text-green-200']
+    };
+
+    function setStatus(message, type = 'info') {
       if (!contactStatus) return;
       contactStatus.textContent = message;
-      contactStatus.classList.remove('hidden', 'border-red-400', 'text-red-200', 'border-green-400', 'text-green-200');
+      contactStatus.classList.remove(...statusClasses.base);
       if (type === 'error') {
-        contactStatus.classList.add('border-red-400', 'text-red-200');
+        contactStatus.classList.add(...statusClasses.error);
       } else if (type === 'success') {
-        contactStatus.classList.add('border-green-400', 'text-green-200');
+        contactStatus.classList.add(...statusClasses.success);
       }
     }
 
-    async function submitNetlifyCapture(form: HTMLFormElement) {
-      if (typeof window === 'undefined') return;
+    async function submitNetlifyCapture(form) {
+      if (typeof window === 'undefined' || !form) return;
       try {
         const formData = new FormData(form);
-        const formName =
-          (typeof formData.get('form-name') === 'string' && formData.get('form-name')) ||
-          form.getAttribute('name') ||
-          'contact';
+        const formName = (() => {
+          const candidate = formData.get('form-name');
+          if (typeof candidate === 'string' && candidate.trim()) return candidate.trim();
+          const attr = (form.getAttribute('name') || '').trim();
+          return attr || 'contact';
+        })();
         const encoded = new URLSearchParams();
-        encoded.append('form-name', String(formName));
+        encoded.append('form-name', formName);
         if (!formData.has('bot-field')) {
           encoded.append('bot-field', '');
         }
@@ -209,33 +211,42 @@ const structuredData = {
       }
     }
 
-    contactForm?.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      if (!contactForm) return;
-      setStatus('Sending…');
+    if (contactForm) {
+      contactForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
 
-      try {
-        const formData = new FormData(contactForm as HTMLFormElement);
-        const response = await fetch(contactForm.action || '/api/contact', {
-          method: 'POST',
-          body: formData
-        });
-        const payload = await response.json().catch(() => ({}));
-        if (response.ok && payload?.ok !== false) {
-          await submitNetlifyCapture(contactForm);
-          setStatus(payload?.message || 'Thanks! We will be in touch shortly.', 'success');
-          contactForm.reset();
-        } else {
+        setStatus('Sending…');
+
+        try {
+          const formData = new FormData(contactForm);
+          const response = await fetch(contactForm.getAttribute('action') || '/api/contact', {
+            method: 'POST',
+            body: formData
+          });
+          const payload = await response.json().catch(() => ({}));
+
+          if (response.ok && payload && payload.ok !== false) {
+            await submitNetlifyCapture(contactForm);
+            setStatus(
+              (payload && payload.message) || 'Thanks! We will be in touch shortly.',
+              'success'
+            );
+            contactForm.reset();
+          } else {
+            setStatus(
+              (payload && payload.message) ||
+                'We were unable to send your message. Please verify your details and try again.',
+              'error'
+            );
+          }
+        } catch (error) {
+          console.error('Contact submission failed:', error);
           setStatus(
-            payload?.message ||
-              'We were unable to send your message. Please verify your details and try again.',
+            'Something went wrong while sending your message. Please try again later.',
             'error'
           );
         }
-      } catch (error) {
-        console.error('Contact submission failed:', error);
-        setStatus('Something went wrong while sending your message. Please try again later.', 'error');
-      }
-    });
+      });
+    }
   </script>
 </BaseLayout>
