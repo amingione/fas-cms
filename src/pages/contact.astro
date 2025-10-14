@@ -185,12 +185,25 @@ const structuredData = {
             encoded.append(key, value.name || '');
           }
         });
-        const endpoint = `${window.location.pathname}?no-cache=1`;
-        await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: encoded.toString()
-        });
+        const preferred = form.getAttribute('data-netlify-path') || window.location.pathname || '/';
+        const targets = Array.from(new Set([preferred, '/'].filter(Boolean)));
+        let delivered = false;
+        for (const endpoint of targets) {
+          if (delivered) break;
+          try {
+            const response = await fetch(endpoint, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+              body: encoded.toString()
+            });
+            delivered = response.ok;
+            if (!response.ok) {
+              console.warn('Netlify capture responded with non-OK status', endpoint, response.status);
+            }
+          } catch (fetchError) {
+            console.warn('Netlify capture request failed', endpoint, fetchError);
+          }
+        }
       } catch (error) {
         console.warn('Netlify capture failed', error);
       }

@@ -69,6 +69,7 @@ export default function WheelSpecForm({
   constrainToSkinnies = false,
   pageContext
 }: Props) {
+  const [netlifyPath, setNetlifyPath] = useState('/');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ok, setOk] = useState<string | null>(null);
@@ -143,6 +144,12 @@ export default function WheelSpecForm({
     }));
   }, [diameter, constrainToSkinnies]);
 
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setNetlifyPath(window.location.pathname || '/');
+    }
+  }, []);
+
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
@@ -172,12 +179,24 @@ export default function WheelSpecForm({
     if (typeof window === 'undefined') return;
     try {
       const body = encodeNetlifyPayload(formName, data);
-      const endpoint = `${window.location.pathname}?no-cache=1`;
-      await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body
-      });
+      const locations = [window.location.pathname || '/', '/'];
+      let ok = false;
+      for (const endpoint of locations) {
+        if (ok) break;
+        try {
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+            body
+          });
+          ok = response.ok;
+          if (!ok) {
+            console.warn('[Belak Quote] Netlify capture non-OK status', endpoint, response.status);
+          }
+        } catch (err) {
+          console.warn('[Belak Quote] Netlify capture request failed', endpoint, err);
+        }
+      }
     } catch (err) {
       console.warn('[Belak Quote] Netlify capture failed', err);
     }
@@ -251,6 +270,7 @@ export default function WheelSpecForm({
       method="POST"
       data-netlify="true"
       netlify-honeypot="bot-field"
+      data-netlify-path={netlifyPath}
       className="font-sans sm:font-mono rounded-xl border border-white/5 sm:border-white/10 bg-transparent sm:bg-neutral-950/50 p-3 sm:p-6 shadow-none sm:shadow-xl backdrop-blur"
       id="quote"
       style={{ scrollMarginTop: 'var(--header-offset, 96px)' }}
