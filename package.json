@@ -8,7 +8,8 @@
     "preview": "astro preview",
     "lint": "eslint \"src/**/*.{js,ts,jsx,tsx}\"",
     "prepare": "husky install",
-    "merchant:upload": "tsx scripts/merchant/upload-google-merchant-feed.ts"
+    "merchant:upload": "tsx scripts/merchant/upload-google-merchant-feed.ts",
+    "stripe:sync": "tsx scripts/stripe/sync-products.ts"
   },
   "lint-staged": {
     "*": [

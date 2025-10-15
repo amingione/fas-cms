@@ -57,3 +57,15 @@ This project now includes a helper script that exports current products from San
 4. Generate and upload the feed: `yarn merchant:upload`.
 
 The feed file is written to `tmp/<filename>` locally before being pushed to Google. If SFTP credentials are missing, the script still writes the local file so you can inspect or upload it manually.
+
+## Stripe Product Sync
+
+Need your Sanity products to appear in Stripe? Run the sync script to create/update Stripe Products & Prices and push the IDs back into Sanity.
+
+```bash
+yarn stripe:sync        # Sync all products
+yarn stripe:sync --slug=hellcat-snout  # Sync a single product by slug
+yarn stripe:sync --dry-run            # Preview without making changes
+```
+
+The script requires `STRIPE_SECRET_KEY`, `SANITY_PROJECT_ID`, `SANITY_DATASET`, and a Sanity write token (`SANITY_WRITE_TOKEN`). Successful sync writes `stripeProductId`, `stripePriceId`, and `stripeLastSyncedAt` into each product document.
