@@ -4808,6 +4808,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@portabletext/toolkit@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "@portabletext/toolkit@npm:3.0.1"
+  dependencies:
+    "@portabletext/types": ^2.0.15
+  checksum: 589a13f6e8f74ac1ed2b66ade024317151f306703e2737a2aa6f804a9d54e90c1264b707fa1a1c31184bda39e3fb6b58dfc25e462f4b41e4b2e55b6e63168f11
+  languageName: node
+  linkType: hard
+
 "@portabletext/types@npm:^2.0.13, @portabletext/types@npm:^2.0.15":
   version: 2.0.15
   resolution: "@portabletext/types@npm:2.0.15"
@@ -14714,6 +14723,7 @@ __metadata:
     "@motionone/dom": ^10.18.0
     "@netlify/blobs": ^9.0.0
     "@portabletext/react": ^3.2.1
+    "@portabletext/toolkit": ^3.0.1
     "@radix-ui/react-alert-dialog": ^1.1.15
     "@radix-ui/react-aspect-ratio": ^1.1.7
     "@radix-ui/react-avatar": ^1.1.10

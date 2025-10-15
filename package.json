@@ -82,6 +82,7 @@
     "@motionone/dom": "^10.18.0",
     "@netlify/blobs": "^9.0.0",
     "@portabletext/react": "^3.2.1",
+    "@portabletext/toolkit": "^3.0.1",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-aspect-ratio": "^1.1.7",
     "@radix-ui/react-avatar": "^1.1.10",

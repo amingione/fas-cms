@@ -2,6 +2,7 @@ import 'dotenv/config';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import SFTPClient from 'ssh2-sftp-client';
+import { toPlainText } from '@portabletext/toolkit';
 import { getSanityClient } from '../../netlify/functions/_sanity';
 
 type MerchantRow = {
@@ -14,6 +15,9 @@ type MerchantRow = {
   price: string;
   brand: string;
   condition: 'new' | 'used' | 'refurbished';
+  quantity?: string;
+  shipping?: string;
+  shipping_label?: string;
   gtin?: string;
   mpn?: string;
   google_product_category?: string;
@@ -32,6 +36,12 @@ const DEFAULT_CURRENCY = process.env.GMC_FEED_CURRENCY || 'USD';
 const REMOTE_FILENAME = process.env.GMC_SFTP_FEED_FILENAME || 'fas-products-feed.txt';
 const LOCAL_FEED_PATH =
   process.env.GMC_FEED_LOCAL_PATH || path.join(process.cwd(), 'tmp', REMOTE_FILENAME);
+const DEFAULT_QUANTITY = Number(process.env.GMC_FEED_DEFAULT_QUANTITY ?? '0');
+const RAW_SHIPPING_PRICE = process.env.GMC_FEED_SHIPPING_PRICE;
+const SHIPPING_PRICE =
+  RAW_SHIPPING_PRICE !== undefined && RAW_SHIPPING_PRICE !== ''
+    ? Number(RAW_SHIPPING_PRICE)
+    : undefined;
 
 const REQUIRED_COLUMNS: (keyof MerchantRow)[] = [
   'id',
@@ -56,6 +66,26 @@ function sanitizeText(value: unknown): string {
     .trim();
 }
 
+function extractPlainText(value: unknown): string {
+  if (!value) return '';
+  if (typeof value === 'string') return sanitizeText(value);
+  if (Array.isArray(value)) {
+    try {
+      return sanitizeText(toPlainText(value as any));
+    } catch (err) {
+      console.warn('Failed to extract plain text from array value:', err);
+    }
+  }
+  if (typeof value === 'object') {
+    try {
+      return sanitizeText(toPlainText(value as any));
+    } catch (err) {
+      console.warn('Failed to extract plain text from object value:', err);
+    }
+  }
+  return sanitizeText(value);
+}
+
 function ensureUrl(slug: string | null | undefined, base: string): string {
   const trimmedSlug = (slug || '').replace(/^\/+/, '');
   const href = trimmedSlug ? `/shop/${trimmedSlug}` : '/';
@@ -70,6 +100,13 @@ function computeAvailability(manualCount: unknown): MerchantRow['availability'] 
   return 'in stock';
 }
 
+function computeQuantity(manualCount: unknown): number {
+  if (typeof manualCount === 'number' && manualCount >= 0) {
+    return Math.floor(manualCount);
+  }
+  return DEFAULT_QUANTITY;
+}
+
 function formatPrice(price: unknown, currency: string): string {
   const num = typeof price === 'number' ? price : Number(price);
   const safe = Number.isFinite(num) ? num : 0;
@@ -77,21 +114,22 @@ function formatPrice(price: unknown, currency: string): string {
 }
 
 async function fetchProducts() {
-  const query = `*[_type=="product" && defined(slug.current) && !(_id in path("drafts.**")) && coalesce(draft,false) == false]{
-    _id,
-    "id": coalesce(sku, _id),
-    title,
-    shortDescription,
-    description,
-    price,
-    brand,
-    "slug": slug.current,
-    manualInventoryCount,
-    gtin,
-    mpn,
-    "google_product_category": googleProductCategory,
-    "image": coalesce(images[0].asset->url, image.asset->url, socialImage.asset->url)
-  }`;
+const query = `*[_type=="product" && defined(slug.current) && !(_id in path("drafts.**")) && coalesce(draft,false) == false]{
+  _id,
+  "id": coalesce(sku, _id),
+  title,
+  shortDescription,
+  description,
+  price,
+  brand,
+  "slug": slug.current,
+  manualInventoryCount,
+  gtin,
+  mpn,
+  "google_product_category": googleProductCategory,
+  "image": coalesce(images[0].asset->url, image.asset->url, socialImage.asset->url),
+  "filterSlugs": filters[]->slug.current
+}`;
 
   return sanity.fetch<any[]>(query);
 }
@@ -101,7 +139,7 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
     .map((product) => {
       const id = sanitizeText(product?.id || product?._id);
       const title = sanitizeText(product?.title);
-      const description = sanitizeText(product?.shortDescription || product?.description);
+      const description = extractPlainText(product?.shortDescription || product?.description);
       const image = sanitizeText(product?.image);
       const slug = sanitizeText(product?.slug);
       const brand = sanitizeText(product?.brand) || 'F.A.S. Motorsports';
@@ -109,6 +147,14 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
       if (!id || !title || !slug || !description || !image) {
         return null;
       }
+
+      const filterSlugs: string[] = Array.isArray(product?.filterSlugs)
+        ? product.filterSlugs
+            .map((slug: unknown) => (typeof slug === 'string' ? slug.toLowerCase() : ''))
+            .filter(Boolean)
+        : [];
+      const isInstallOnly = filterSlugs.includes('install-only') || filterSlugs.includes('install_only');
+      const allowsShipping = filterSlugs.includes('performance-parts') || filterSlugs.includes('performance_parts') || !isInstallOnly;
 
       const row: MerchantRow = {
         id,
@@ -119,8 +165,15 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
         availability: computeAvailability(product?.manualInventoryCount),
         price: formatPrice(product?.price, currency),
         brand,
-        condition: 'new'
+        condition: 'new',
+        quantity: String(computeQuantity(product?.manualInventoryCount)),
+        shipping_label: isInstallOnly ? 'install_only' : 'performance_parts'
       };
+
+      if (!isInstallOnly && allowsShipping && typeof SHIPPING_PRICE === 'number' && Number.isFinite(SHIPPING_PRICE)) {
+        const shippingPrice = SHIPPING_PRICE;
+        row.shipping = `US:::${shippingPrice.toFixed(2)} ${currency}`;
+      }
 
       if (product?.gtin) row.gtin = sanitizeText(product.gtin);
       if (product?.mpn) row.mpn = sanitizeText(product.mpn);
