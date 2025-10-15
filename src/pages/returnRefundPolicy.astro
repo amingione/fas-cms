@@ -11,13 +11,20 @@ const canonicalUrl = `${new URL(Astro.request.url).origin}/returnRefundPolicy`;
     <script is:inline>
       if (typeof window !== 'undefined') {
         window.addEventListener('load', () => {
+          const fire = () => {
+            if (typeof window.gtag === 'function') {
+              window.gtag('config', 'G-NQ94Z6HWGV', {
+                page_path: '/returnRefundPolicy'
+              });
+              window.gtag('config', 'AW-17641771829', {
+                page_path: '/returnRefundPolicy'
+              });
+            }
+          };
           if (typeof window.gtag === 'function') {
-            window.gtag('config', 'G-NQ94Z6HWGV', {
-              page_path: '/returnRefundPolicy'
-            });
-            window.gtag('config', 'AW-17641771829', {
-              page_path: '/returnRefundPolicy'
-            });
+            fire();
+          } else {
+            document.addEventListener('gtag:loaded', fire, { once: true });
           }
         });
       }
