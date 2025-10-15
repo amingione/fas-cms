@@ -41,11 +41,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const resend = new Resend(import.meta.env.RESEND_API_KEY);
-    const to = ((): string => {
-      if (topic === 'support') return 'support@fasmotorsports.com';
-      if (topic === 'sales') return 'sales@fasmotorsports.com';
-      return 'sales@fasmotorsports.com';
-    })();
+    const toAddress = 'sales@fasmotorsports.com';
 
     const safe = (v: any) => String(v ?? '').toString();
     const html = `
@@ -67,7 +63,8 @@ export const POST: APIRoute = async ({ request }) => {
     try {
       await resend.emails.send({
         from: 'FAS Motorsports <no-reply@fasmotorsports.io>',
-        to: [to, email],
+        to: [toAddress],
+        replyTo: email ? [email] : undefined,
         subject: name ? `Contact from ${name}` : 'New website contact',
         html
       });
@@ -91,4 +88,3 @@ export const OPTIONS: APIRoute = async () =>
       'access-control-allow-headers': 'content-type'
     }
   });
-

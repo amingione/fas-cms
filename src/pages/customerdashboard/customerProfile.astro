@@ -82,14 +82,10 @@ const profileScript = '../../scripts/customer-profile-page.ts';
       id="profile-form"
       name="profile"
       method="POST"
-      data-netlify="true"
-      netlify-honeypot="bot-field"
       action="/customerdashboard/profile/success"
-      data-netlify-declaration="/netlify-forms.html"
+      data-success="/customerdashboard/profile/success"
       class="space-y-4 rounded-lg border border-white/20 bg-black/50 p-6 shadow-md"
     >
-      <input type="hidden" name="form-name" value="profile" />
-      <p class="hidden"><label>Don’t fill this out if you’re human: <input name="bot-field" /></label></p>
 
       <h2 class="text-xl font-ethno mb-1">Update Profile (Request)</h2>
       <p class="text-sm text-white/70">Submit a request to update your profile. Our team will review and apply changes.</p>
@@ -128,10 +124,53 @@ const profileScript = '../../scripts/customer-profile-page.ts';
         <label class="flex items-center gap-2"><input type="checkbox" name="marketingOptIn" value="yes" /> Marketing emails</label>
       </fieldset>
 
-      <div class="mt-4" data-netlify-recaptcha="true"></div>
       <button type="submit" class="rounded bg-primary px-4 py-2 text-accent hover:bg-primary/90">Submit Request</button>
+      <p id="profile-form-status" class="hidden text-sm mt-3"></p>
     </form>
   </section>
 
   <script type="module">import '../../scripts/customer-profile-page.ts';</script>
+  <script is:inline>
+    const profileForm = document.getElementById('profile-form');
+    const profileStatus = document.getElementById('profile-form-status');
+    const setProfileStatus = (message, type = 'info') => {
+      if (!profileStatus) return;
+      profileStatus.textContent = message;
+      profileStatus.classList.remove('hidden', 'text-red-300', 'text-green-300', 'text-white/80');
+      const cls = type === 'error' ? 'text-red-300' : type === 'success' ? 'text-green-300' : 'text-white/80';
+      profileStatus.classList.add(cls);
+    };
+    profileForm?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!profileForm) return;
+      setProfileStatus('Sending...', 'info');
+      const submitBtn = profileForm.querySelector('button[type="submit"]');
+      if (submitBtn) submitBtn.setAttribute('disabled', 'true');
+      try {
+        const formData = new FormData(profileForm);
+        const fields: Record<string, string> = {};
+        formData.forEach((value, key) => {
+          if (typeof value === 'string') fields[key] = value;
+        });
+        profileForm.querySelectorAll('input[type="checkbox"]').forEach((input) => {
+          if (!(input instanceof HTMLInputElement) || !input.name) return;
+          fields[input.name] = input.checked ? 'yes' : 'no';
+        });
+        const response = await fetch('/api/form-submission', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ formName: 'Customer Profile Update', fields })
+        });
+        if (!response.ok) throw new Error('Request failed');
+        const data = await response.json().catch(() => ({}));
+        if (data?.ok === false) throw new Error(data?.message || 'Error');
+        const redirect = profileForm.getAttribute('data-success') || '/customerdashboard/profile/success';
+        window.location.href = redirect;
+      } catch (err) {
+        console.error(err);
+        setProfileStatus('We could not submit your request. Please try again later.', 'error');
+        if (submitBtn) submitBtn.removeAttribute('disabled');
+      }
+    });
+  </script>
 </BaseLayout>

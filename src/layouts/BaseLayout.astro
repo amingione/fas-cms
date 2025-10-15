@@ -146,6 +146,11 @@ const breadcrumbItems = shouldRenderBreadcrumbs
           gtag('js', new Date());
           gtag('config', 'G-NQ94Z6HWGV', { send_page_view: true });
           gtag('config', 'AW-17641771829');
+          try {
+            document.dispatchEvent(new Event('gtag:loaded'));
+          } catch {
+            /* noop */
+          }
         };
         document.head.appendChild(gtagScript);
       }

@@ -5,20 +5,14 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 <BaseLayout hideBrandTag>
   <main class="min-h-screen text-white p-8">
     <div id="account-edit" class="max-w-3xl mx-auto">
-      <!-- Netlify Form: Account Edit (no server code, no JS required) -->
       <form
         name="account"
         id="account-edit-form"
         method="POST"
-        data-netlify="true"
-        netlify-honeypot="bot-field"
         action="/account/edit/success"
-        data-netlify-declaration="/netlify-forms.html"
+        data-success="/account/edit/success"
         class="space-y-6 rounded-lg border border-white/20 bg-black/50 p-6 shadow-md"
       >
-        <input type="hidden" name="form-name" value="account" />
-        <p class="hidden"><label>Don’t fill this out if you’re human: <input name="bot-field" /></label></p>
-
         <h1 class="text-2xl font-ethno mb-2">Edit Account</h1>
         <p class="text-sm text-white/70">Submit changes and our team will update your profile.</p>
 
@@ -56,16 +50,57 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
           <label class="flex items-center gap-2"><input type="checkbox" name="marketingOptIn" value="yes" /> Marketing emails</label>
         </fieldset>
 
-        <!-- Netlify reCAPTCHA v2 -->
-        <div class="mt-4" data-netlify-recaptcha="true"></div>
-
         <div class="pt-2">
           <button type="submit" class="rounded bg-primary px-4 py-2 text-accent hover:bg-primary/90">Submit Changes</button>
         </div>
+        <p id="account-edit-status" class="hidden text-sm mt-3"></p>
       </form>
     </div>
 
     <!-- Optional: JS enhancement keeps working if you prefer dynamic editing -->
     <script type="module">import '../../scripts/account-edit-page.ts';</script>
   </main>
+  <script is:inline>
+    const form = document.getElementById('account-edit-form');
+    const statusEl = document.getElementById('account-edit-status');
+    const setStatus = (message, type = 'info') => {
+      if (!statusEl) return;
+      statusEl.textContent = message;
+      statusEl.classList.remove('hidden', 'text-red-300', 'text-green-300', 'text-white/80');
+      const cls = type === 'error' ? 'text-red-300' : type === 'success' ? 'text-green-300' : 'text-white/80';
+      statusEl.classList.add(cls);
+    };
+    form?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!form) return;
+      setStatus('Sending...', 'info');
+      const submitBtn = form.querySelector('button[type="submit"]');
+      if (submitBtn) submitBtn.setAttribute('disabled', 'true');
+      try {
+        const data = new FormData(form);
+        const fields = {} as Record<string, string>;
+        data.forEach((value, key) => {
+          if (typeof value === 'string') fields[key] = value;
+        });
+        form.querySelectorAll('input[type="checkbox"]').forEach((input) => {
+          if (!(input instanceof HTMLInputElement) || !input.name) return;
+          fields[input.name] = input.checked ? 'yes' : 'no';
+        });
+        const response = await fetch('/api/form-submission', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ formName: 'Account Edit Request', fields })
+        });
+        if (!response.ok) throw new Error('Request failed');
+        const dataResp = await response.json().catch(() => ({}));
+        if (dataResp?.ok === false) throw new Error(dataResp?.message || 'Error');
+        const redirect = form.getAttribute('data-success') || '/account/edit/success';
+        window.location.href = redirect;
+      } catch (err) {
+        console.error(err);
+        setStatus('We could not submit your request. Please try again later.', 'error');
+        if (submitBtn) submitBtn.removeAttribute('disabled');
+      }
+    });
+  </script>
 </BaseLayout>

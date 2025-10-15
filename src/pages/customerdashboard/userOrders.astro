@@ -18,14 +18,10 @@ import RequireLogin from '../../components/RequireLogin.jsx';
             id="order-support-form"
             name="order-support"
             method="POST"
-            data-netlify="true"
-            netlify-honeypot="bot-field"
             action="/orders/support/success"
-            data-netlify-declaration="/netlify-forms.html"
+            data-success="/orders/support/success"
             class="space-y-4 rounded-lg border border-white/20 bg-black/50 p-6 shadow-md"
           >
-            <input type="hidden" name="form-name" value="order-support" />
-            <p class="hidden"><label>Don’t fill this out if you’re human: <input name="bot-field" /></label></p>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm mb-1" for="orderId">Order ID</label>
@@ -49,13 +45,52 @@ import RequireLogin from '../../components/RequireLogin.jsx';
                 <textarea id="message" name="message" rows="4" class="w-full rounded bg-white/5 border border-white/15 p-2"></textarea>
               </div>
             </div>
-            <div class="mt-2" data-netlify-recaptcha="true"></div>
             <button type="submit" class="rounded bg-primary px-4 py-2 text-accent hover:bg-primary/90">Send</button>
+            <p id="order-support-status" class="hidden text-sm mt-3"></p>
           </form>
         </div>
       </section>
 
       <script type="module">import '../../scripts/user-orders-page.ts';</script>
+      <script is:inline>
+        const orderForm = document.getElementById('order-support-form');
+        const orderStatus = document.getElementById('order-support-status');
+        const setOrderStatus = (message, type = 'info') => {
+          if (!orderStatus) return;
+          orderStatus.textContent = message;
+          orderStatus.classList.remove('hidden', 'text-red-300', 'text-green-300', 'text-white/80');
+          const cls = type === 'error' ? 'text-red-300' : type === 'success' ? 'text-green-300' : 'text-white/80';
+          orderStatus.classList.add(cls);
+        };
+        orderForm?.addEventListener('submit', async (event) => {
+          event.preventDefault();
+          if (!orderForm) return;
+          setOrderStatus('Sending...', 'info');
+          const submitBtn = orderForm.querySelector('button[type="submit"]');
+          if (submitBtn) submitBtn.setAttribute('disabled', 'true');
+          try {
+            const formData = new FormData(orderForm);
+            const fields: Record<string, string> = {};
+            formData.forEach((value, key) => {
+              if (typeof value === 'string') fields[key] = value;
+            });
+            const response = await fetch('/api/form-submission', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ formName: 'Order Support Request', fields })
+            });
+            if (!response.ok) throw new Error('Request failed');
+            const data = await response.json().catch(() => ({}));
+            if (data?.ok === false) throw new Error(data?.message || 'Error');
+            const redirect = orderForm.getAttribute('data-success') || '/orders/support/success';
+            window.location.href = redirect;
+          } catch (err) {
+            console.error(err);
+            setOrderStatus('We could not submit your request. Please try again later.', 'error');
+            if (submitBtn) submitBtn.removeAttribute('disabled');
+          }
+        });
+      </script>
     </BaseLayout>
   </RequireLogin>
 </AuthProvider>

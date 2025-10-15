@@ -69,11 +69,6 @@ export default function WheelSpecForm({
   constrainToSkinnies = false,
   pageContext
 }: Props) {
-  const netlifyHoneypotAttr = React.useMemo(
-    () => ({ 'netlify-honeypot': 'bot-field' } as Record<string, string>),
-    []
-  );
-  const [netlifyPath, setNetlifyPath] = useState('/');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ok, setOk] = useState<string | null>(null);
@@ -148,67 +143,8 @@ export default function WheelSpecForm({
     }));
   }, [diameter, constrainToSkinnies]);
 
-  React.useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setNetlifyPath(window.location.pathname || '/');
-    }
-  }, []);
-
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
-  }
-
-  function encodeNetlifyPayload(formName: string, data: Record<string, unknown>) {
-    const encoded = new URLSearchParams();
-    encoded.append('form-name', formName);
-    Object.entries(data).forEach(([key, value]) => {
-      if (value === undefined || value === null) return;
-      if (Array.isArray(value)) {
-        encoded.append(key, value.map((item) => String(item)).join(', '));
-        return;
-      }
-      if (typeof value === 'boolean') {
-        encoded.append(key, value ? 'true' : 'false');
-        return;
-      }
-      encoded.append(key, String(value));
-    });
-    if (!encoded.has('bot-field')) {
-      encoded.append('bot-field', '');
-    }
-    return encoded.toString();
-  }
-
-  async function submitToNetlify(formName: string, data: Record<string, unknown>) {
-    if (typeof window === 'undefined') return;
-    try {
-      const body = encodeNetlifyPayload(formName, data);
-      const declarationPath = '/netlify-forms.html';
-      const locations = Array.from(
-        new Set(
-          [netlifyPath, window.location.pathname || '/', declarationPath, '/'].filter(Boolean)
-        )
-      );
-      let ok = false;
-      for (const endpoint of locations) {
-        if (ok) break;
-        try {
-          const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
-            body
-          });
-          ok = response.ok;
-          if (!ok) {
-            console.warn('[Belak Quote] Netlify capture non-OK status', endpoint, response.status);
-          }
-        } catch (err) {
-          console.warn('[Belak Quote] Netlify capture request failed', endpoint, err);
-        }
-      }
-    } catch (err) {
-      console.warn('[Belak Quote] Netlify capture failed', err);
-    }
   }
 
   async function handleUpload(files: FileList) {
@@ -259,7 +195,6 @@ export default function WheelSpecForm({
         body: JSON.stringify(parsed)
       });
       if (!res.ok) throw new Error(`Request failed ${res.status}`);
-      await submitToNetlify('belak-wheel-quote', parsed);
       setOk(
         'Thanks! Your specs were sent to sales@fasmotorsports.com. We’ll reply with a tailored quote.'
       );
@@ -274,25 +209,13 @@ export default function WheelSpecForm({
 
   return (
     <form
-      {...netlifyHoneypotAttr}
       onSubmit={submit}
       name="belak-wheel-quote"
       method="POST"
-      data-netlify="true"
-      data-netlify-path={netlifyPath}
-      data-netlify-declaration="/netlify-forms.html"
       className="font-sans sm:font-mono rounded-xl border border-white/5 sm:border-white/10 bg-transparent sm:bg-neutral-950/50 p-3 sm:p-6 shadow-none sm:shadow-xl backdrop-blur"
       id="quote"
       style={{ scrollMarginTop: 'var(--header-offset, 96px)' }}
     >
-      <input type="hidden" name="form-name" value="belak-wheel-quote" />
-      <input type="hidden" name="pageContext" value={pageContext ?? ''} />
-      <p className="hidden" aria-hidden="true">
-        <label>
-          Leave blank if you are human:
-          <input name="bot-field" tabIndex={-1} autoComplete="off" />
-        </label>
-      </p>
       <div className="grid gap-3 sm:gap-6 md:grid-cols-2">
         {/* Unified Wheel Size (sets diameter/width together) */}
         <div className="space-y-2 md:col-span-2">
