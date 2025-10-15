@@ -69,6 +69,10 @@ export default function WheelSpecForm({
   constrainToSkinnies = false,
   pageContext
 }: Props) {
+  const netlifyHoneypotAttr = React.useMemo(
+    () => ({ 'netlify-honeypot': 'bot-field' } as Record<string, string>),
+    []
+  );
   const [netlifyPath, setNetlifyPath] = useState('/');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -179,7 +183,12 @@ export default function WheelSpecForm({
     if (typeof window === 'undefined') return;
     try {
       const body = encodeNetlifyPayload(formName, data);
-      const locations = [window.location.pathname || '/', '/'];
+      const declarationPath = '/netlify-forms.html';
+      const locations = Array.from(
+        new Set(
+          [netlifyPath, window.location.pathname || '/', declarationPath, '/'].filter(Boolean)
+        )
+      );
       let ok = false;
       for (const endpoint of locations) {
         if (ok) break;
@@ -265,12 +274,13 @@ export default function WheelSpecForm({
 
   return (
     <form
+      {...netlifyHoneypotAttr}
       onSubmit={submit}
       name="belak-wheel-quote"
       method="POST"
       data-netlify="true"
-      netlify-honeypot="bot-field"
       data-netlify-path={netlifyPath}
+      data-netlify-declaration="/netlify-forms.html"
       className="font-sans sm:font-mono rounded-xl border border-white/5 sm:border-white/10 bg-transparent sm:bg-neutral-950/50 p-3 sm:p-6 shadow-none sm:shadow-xl backdrop-blur"
       id="quote"
       style={{ scrollMarginTop: 'var(--header-offset, 96px)' }}

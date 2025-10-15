@@ -76,6 +76,7 @@ const structuredData = {
             data-netlify="true"
             netlify-honeypot="bot-field"
             data-netlify-path="/contact"
+            data-netlify-declaration="/netlify-forms.html"
             class="space-y-6 bg-charcoal backdrop-blur-sm p-8 rounded-sm border border-gray-700 shadow-lg relative"
           >
             <h2 class="text-3xl font-cyber text-accent mb-4">Send a Message</h2>
@@ -187,8 +188,12 @@ const structuredData = {
             encoded.append(key, value.name || '');
           }
         });
-        const preferred = form.getAttribute('data-netlify-path') || window.location.pathname || '/';
-        const targets = Array.from(new Set([preferred, '/'].filter(Boolean)));
+        const preferred = form.getAttribute('data-netlify-path');
+        const declaration = form.getAttribute('data-netlify-declaration') || '/netlify-forms.html';
+        const currentPath = window.location.pathname || '/';
+        const targets = Array.from(
+          new Set([preferred, declaration, currentPath, '/'].filter(Boolean))
+        );
         let delivered = false;
         for (const endpoint of targets) {
           if (delivered) break;
