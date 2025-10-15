@@ -831,14 +831,12 @@ const breadcrumbItems = [
                   <h3 class="text-sm font-semibold text-white">Shipping Updates</h3>
                   <p class="text-white/60">{shippingAddress?.email || order?.customerEmail || '—'}</p>
                   <p class="text-white/60">{shippingAddress?.phone || order?.customer?.phone || order?.customerRef?.phone || '—'}</p>
-                  {shippingAddress?.email && (
-                    <a
-                      href={`mailto:${shippingAddress.email}`}
-                      class="inline-flex items-center text-xs font-semibold uppercase tracking-wide text-primary hover:text-primary/80"
-                    >
-                      Contact support
-                    </a>
-                  )}
+                  <a
+                    href="mailto:sales@fasmotorsports.com"
+                    class="inline-flex items-center text-xs font-semibold uppercase tracking-wide text-primary hover:text-primary/80"
+                  >
+                    Contact support
+                  </a>
                 </div>
               </section>
 
