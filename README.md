@@ -46,3 +46,13 @@ All commands are run from the root of the project, from a terminal:
 ## 👀 Want to learn more?
 
 Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+
+## Google Merchant Center Feed
+
+This project now includes a helper script that exports current products from Sanity, writes a tab-separated file, and (optionally) uploads it to Google Merchant Center via SFTP.
+
+1. Add the following environment variables (see `.env.example` for placeholders): `GMC_SFTP_HOST`, `GMC_SFTP_PORT`, `GMC_SFTP_USERNAME`, `GMC_SFTP_PASSWORD`, `GMC_SFTP_FEED_FILENAME`, `GMC_FEED_BASE_URL`, and `GMC_FEED_CURRENCY`.
+2. Install new dependencies if you haven’t already: `yarn install`.
+3. Generate and upload the feed: `yarn merchant:upload`.
+
+The feed file is written to `tmp/<filename>` locally before being pushed to Google. If SFTP credentials are missing, the script still writes the local file so you can inspect or upload it manually.
