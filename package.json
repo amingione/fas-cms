@@ -3,7 +3,7 @@
   "packageManager": "yarn@3.6.4",
   "version": "1.0.0",
   "scripts": {
-    "dev": "astro dev",
+    "dev": "cross-env NETLIFY_DEV=1 astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "lint": "eslint \"src/**/*.{js,ts,jsx,tsx}\"",

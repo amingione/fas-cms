@@ -77,9 +77,9 @@ const structuredData = {
             netlify-honeypot="bot-field"
             data-netlify-path="/contact"
             data-netlify-declaration="/netlify-forms.html"
-            class="space-y-6 bg-charcoal backdrop-blur-sm p-8 rounded-sm border border-gray-700 shadow-lg relative"
+            class="space-y-6 bg-charcoal shadow-white/40 backdrop-blur-md p-8 rounded-sm border box-border border-gray-700 shadow-inner bg-black/50 relative"
           >
-            <h2 class="text-3xl font-cyber text-accent mb-4">Send a Message</h2>
+            <h2 class="text-2xl font-ethno text-accent mb-4">Contact Us</h2>
             <input type="hidden" name="form-name" value="contact" />
             <p class="hidden">
               <label>
@@ -114,15 +114,19 @@ const structuredData = {
               <textarea id="message" name="message" rows="4" required class="w-full px-4 py-2 bg-black border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-primary text-white"></textarea>
             </div>
 
-            <button type="submit" class="bg-primary hover:bg-accent text-accent font-bold py-2 px-6 rounded transition duration-200">
+            <button
+              id="contact-submit"
+              type="submit"
+              class="btn-glass btn-primary btn-md text-white font-bold px-6"
+            >
               Send
             </button>
           </form>
           <div id="contact-status" class="mt-4 hidden rounded border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/70"></div>
 
           <!-- Contact Info -->
-          <div class="flex flex-col justify-start backdrop-blur-sm p-2 rounded-lg border bg-black/10 border-gray-700 shadow-lg">
-            <h2 class="text-3xl font-cyber text-accent mb-6">Contact Info</h2>
+          <div class="flex flex-col justify-start backdrop-blur-sm p-2 rounded-sm border box-border bg-black/50 border-gray-700 shadow-inner shadow-white/40">
+            <h2 class="text-3xl font-ethno text-accent mb-6">Contact Info</h2>
             <p class="mb-4 text-white/60"><strong class="text-primary">Phone:</strong> (812) 200-9012</p>
             <p class="mb-4 text-white/60">
               <strong class="text-primary">Email:</strong>
