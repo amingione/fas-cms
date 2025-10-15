@@ -55,8 +55,8 @@
   [plugins.inputs]
     extract = true
 
-[[plugins]]
-  package = "netlify-plugin-minify-html"
+#[[plugins]]
+#  package = "netlify-plugin-minify-html"
 
 [[plugins]]
   package = "netlify-plugin-submit-sitemap"
