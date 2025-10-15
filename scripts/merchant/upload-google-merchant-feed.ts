@@ -19,6 +19,7 @@ type MerchantRow = {
   shipping?: string;
   shipping_label?: string;
   shipping_weight?: string;
+  ads_redirect?: string;
   gtin?: string;
   mpn?: string;
   google_product_category?: string;
@@ -175,11 +176,17 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
         filterSlugs.includes('performance_parts');
       const allowsShipping = !isInstallOnly && (isPerformanceParts || normalizedClass.length === 0);
 
+      const productLink = ensureUrl(slug, baseUrl);
+      const quickUrlBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+      const quickCheckoutUrl = slug
+        ? new URL(`/checkout/quick/${slug}`, quickUrlBase).toString()
+        : productLink;
+
       const row: MerchantRow = {
         id,
         title,
         description,
-        link: ensureUrl(slug, baseUrl),
+        link: productLink,
         image_link: image,
         availability: computeAvailability(product?.manualInventoryCount),
         price: formatPrice(product?.price, currency),
@@ -189,6 +196,10 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
         shipping_label: isInstallOnly ? 'install_only' : 'performance_parts',
         shipping_weight: `${computeWeight(product?.shippingWeight).toFixed(2)} lb`
       };
+
+      if (quickCheckoutUrl) {
+        row.ads_redirect = quickCheckoutUrl;
+      }
 
       if (!isInstallOnly && allowsShipping && typeof SHIPPING_PRICE === 'number' && Number.isFinite(SHIPPING_PRICE)) {
         const shippingPrice = SHIPPING_PRICE;

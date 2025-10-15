@@ -1,8 +1,28 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+const canonicalUrl = `${new URL(Astro.request.url).origin}/returnRefundPolicy`;
 ---
 
-<BaseLayout>
+<BaseLayout
+  title="Refund & Return Policy"
+  canonical={canonicalUrl}
+>
+  <Fragment slot="head">
+    <script is:inline>
+      if (typeof window !== 'undefined') {
+        window.addEventListener('load', () => {
+          if (typeof window.gtag === 'function') {
+            window.gtag('config', 'G-NQ94Z6HWGV', {
+              page_path: '/returnRefundPolicy'
+            });
+            window.gtag('config', 'AW-17641771829', {
+              page_path: '/returnRefundPolicy'
+            });
+          }
+        });
+      }
+    </script>
+  </Fragment>
   <section class="py-20 px-4 max-w-5xl mx-auto text-white tracking-[1.2px]">
     <h1 class="text-4xl font-cyber text-primary mb-10 text-center">Refund & Return Policy</h1>
 

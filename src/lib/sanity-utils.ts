@@ -42,6 +42,7 @@ export interface Product {
   title: string;
   slug: { current: string };
   price: number;
+  sku?: string;
   description?: string;
   shortDescription?: any;
   metaTitle?: string;
@@ -51,6 +52,8 @@ export interface Product {
   brand?: string;
   gtin?: string;
   mpn?: string;
+  shippingClass?: string;
+  shippingWeight?: number;
   images: {
     asset: {
       _id: string;
@@ -268,6 +271,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       title,
       slug,
       price,
+      sku,
       // rich text fields may be arrays
       shortDescription,
       description,
@@ -282,6 +286,8 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
         title,
         slug
       },
+      shippingClass,
+      shippingWeight,
       brand,
       gtin,
       mpn,
