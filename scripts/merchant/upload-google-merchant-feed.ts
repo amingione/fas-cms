@@ -18,6 +18,7 @@ type MerchantRow = {
   quantity?: string;
   shipping?: string;
   shipping_label?: string;
+  shipping_weight?: string;
   gtin?: string;
   mpn?: string;
   google_product_category?: string;
@@ -42,6 +43,7 @@ const SHIPPING_PRICE =
   RAW_SHIPPING_PRICE !== undefined && RAW_SHIPPING_PRICE !== ''
     ? Number(RAW_SHIPPING_PRICE)
     : undefined;
+const DEFAULT_WEIGHT_LB = Number(process.env.GMC_FEED_DEFAULT_WEIGHT_LB ?? '1');
 
 const REQUIRED_COLUMNS: (keyof MerchantRow)[] = [
   'id',
@@ -107,6 +109,12 @@ function computeQuantity(manualCount: unknown): number {
   return DEFAULT_QUANTITY;
 }
 
+function computeWeight(weight: unknown): number {
+  const num = typeof weight === 'number' ? weight : Number(weight);
+  if (Number.isFinite(num) && num > 0) return num;
+  return DEFAULT_WEIGHT_LB > 0 ? DEFAULT_WEIGHT_LB : 1;
+}
+
 function formatPrice(price: unknown, currency: string): string {
   const num = typeof price === 'number' ? price : Number(price);
   const safe = Number.isFinite(num) ? num : 0;
@@ -128,7 +136,9 @@ const query = `*[_type=="product" && defined(slug.current) && !(_id in path("dra
   mpn,
   "google_product_category": googleProductCategory,
   "image": coalesce(images[0].asset->url, image.asset->url, socialImage.asset->url),
-  "filterSlugs": filters[]->slug.current
+  "filterSlugs": filters[]->slug.current,
+  shippingClass,
+  shippingWeight
 }`;
 
   return sanity.fetch<any[]>(query);
@@ -153,8 +163,17 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
             .map((slug: unknown) => (typeof slug === 'string' ? slug.toLowerCase() : ''))
             .filter(Boolean)
         : [];
-      const isInstallOnly = filterSlugs.includes('install-only') || filterSlugs.includes('install_only');
-      const allowsShipping = filterSlugs.includes('performance-parts') || filterSlugs.includes('performance_parts') || !isInstallOnly;
+      const shippingClassRaw = sanitizeText(product?.shippingClass).toLowerCase();
+      const normalizedClass = shippingClassRaw.replace(/[\s_-]+/g, '');
+      const isInstallOnly =
+        normalizedClass === 'installonly' ||
+        filterSlugs.includes('install-only') ||
+        filterSlugs.includes('install_only');
+      const isPerformanceParts =
+        normalizedClass === 'performanceparts' ||
+        filterSlugs.includes('performance-parts') ||
+        filterSlugs.includes('performance_parts');
+      const allowsShipping = !isInstallOnly && (isPerformanceParts || normalizedClass.length === 0);
 
       const row: MerchantRow = {
         id,
@@ -167,7 +186,8 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
         brand,
         condition: 'new',
         quantity: String(computeQuantity(product?.manualInventoryCount)),
-        shipping_label: isInstallOnly ? 'install_only' : 'performance_parts'
+        shipping_label: isInstallOnly ? 'install_only' : 'performance_parts',
+        shipping_weight: `${computeWeight(product?.shippingWeight).toFixed(2)} lb`
       };
 
       if (!isInstallOnly && allowsShipping && typeof SHIPPING_PRICE === 'number' && Number.isFinite(SHIPPING_PRICE)) {
