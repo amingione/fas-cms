@@ -118,6 +118,17 @@ const toPlainText = (input: any): string => {
 
 const collapseSpaces = (value: string): string => value.replace(/\s+/g, ' ').trim();
 
+const ensureDisclaimerMessaging = (value: string, message: string): string => {
+  const base = collapseSpaces(value || '');
+  if (!message) return base;
+  const normalized = base.toLowerCase();
+  if (normalized.includes('vehicle not included') || normalized.includes('vehicle is not included')) {
+    return base;
+  }
+  const merged = `${base ? `${base} ` : ''}${message}`;
+  return collapseSpaces(merged);
+};
+
 const requestUrl = new URL(Astro.request.url);
 const ensureAbsoluteUrl = (value?: string | null): string | undefined => {
   if (!value) return undefined;
@@ -268,7 +279,7 @@ try {
   plainDescription = collapseSpaces(
     toPlainText((product as any)?.shortDescription ?? (product as any)?.description ?? '')
   );
-  var seoDesc: string | undefined = plainDescription ? plainDescription.slice(0, 160) : undefined;
+  var seoDesc: string | undefined;
   var seoCanon: string | undefined = `${requestUrl.origin}/shop/${slug}`;
   var seoOg: string | undefined = (product as any)?.images?.[0]?.asset?.url || (product as any)?.images?.[0]?.url || undefined;
   seoOg = ensureAbsoluteUrl(seoOg);
@@ -297,11 +308,45 @@ if (Array.isArray((product as any)?.categories)) {
 const filterEntriesForKeywords: FilterEntry[] = Array.isArray((product as any)?.filters)
   ? (product as any).filters
   : [];
+const filterSlugsForFlags: string[] = [];
 filterEntriesForKeywords.forEach((entry, idx) => {
   const slugValue = normalizeFilterSlug(entry);
+  if (slugValue) filterSlugsForFlags.push(slugValue);
   const labelValue = normalizeFilterLabel(entry, slugValue);
   if (labelValue) metaKeywordTokens.push(labelValue);
 });
+
+const canonicalFilterSlugs = new Set<string>();
+filterSlugsForFlags.forEach((slug) => {
+  if (!slug) return;
+  canonicalFilterSlugs.add(slug);
+  canonicalFilterSlugs.add(slug.replace(/_/g, '-'));
+  canonicalFilterSlugs.add(slug.replace(/[-_]/g, ''));
+});
+
+const shippingClassRaw = ((product as any)?.shippingClass || '').toString();
+const normalizedShippingClass = shippingClassRaw.toLowerCase().replace(/[^a-z0-9]/g, '');
+const isInstallOnly =
+  normalizedShippingClass === 'installonly' ||
+  canonicalFilterSlugs.has('installonly') ||
+  canonicalFilterSlugs.has('install-only');
+const isPerformanceParts =
+  normalizedShippingClass === 'performanceparts' ||
+  canonicalFilterSlugs.has('performanceparts') ||
+  canonicalFilterSlugs.has('performance-parts');
+
+const serviceDisclaimer = isInstallOnly
+  ? 'Professional installation service only. Vehicle not included.'
+  : 'Performance package or components only. Vehicle not included.';
+const titleQualifier = isInstallOnly
+  ? 'Installation Service — Vehicle Not Included'
+  : 'Performance Package — Vehicle Not Included';
+
+plainDescription = ensureDisclaimerMessaging(plainDescription, serviceDisclaimer);
+if (!seoTitle.toLowerCase().includes('vehicle not included')) {
+  seoTitle = `${seoTitle} — ${titleQualifier}`;
+}
+seoDesc = plainDescription ? plainDescription.slice(0, 160) : undefined;
 
 const metaKeywords = Array.from(
   new Set(
@@ -323,24 +368,53 @@ const breadcrumbStructuredData = {
   ]
 };
 
-const productStructuredData = {
+const vehicleAvailabilityProperty = {
+  '@type': 'PropertyValue',
+  name: 'Vehicle availability',
+  value: 'Vehicle not included with purchase'
+};
+
+const offerDetails: Record<string, any> = {
+  '@type': 'Offer',
+  priceCurrency: 'USD',
+  availability: 'https://schema.org/InStock',
+  url: seoCanon
+};
+if (typeof priceValue === 'number') {
+  offerDetails.price = priceValue;
+}
+if (isInstallOnly) {
+  offerDetails.itemOffered = {
+    '@type': 'Service',
+    name: `${(product as any)?.title} Installation`,
+    description: serviceDisclaimer
+  };
+}
+
+const brandOrProvider = isInstallOnly
+  ? { '@type': 'Organization', name: 'F.A.S. Motorsports' }
+  : { '@type': 'Brand', name: 'F.A.S. Motorsports' };
+
+const productStructuredData: Record<string, any> = {
   '@context': 'https://schema.org/',
-  '@type': 'Product',
+  '@type': isInstallOnly ? 'Service' : 'Product',
   name: (product as any)?.title,
   image: productImages,
   description: plainDescription || undefined,
   sku: (product as any)?.sku || undefined,
-  brand: { '@type': 'Brand', name: 'F.A.S. Motorsports' },
-  category: metaKeywords || undefined,
   url: seoCanon,
-  offers: {
-    '@type': 'Offer',
-    priceCurrency: 'USD',
-    price: priceValue,
-    availability: 'https://schema.org/InStock',
-    url: seoCanon
-  }
+  offers: offerDetails,
+  additionalProperty: [vehicleAvailabilityProperty]
 };
+
+if (isInstallOnly) {
+  productStructuredData.serviceType = 'Automotive performance installation';
+  productStructuredData.provider = brandOrProvider;
+  productStructuredData.areaServed = 'US';
+} else {
+  productStructuredData.brand = brandOrProvider;
+  productStructuredData.category = metaKeywords || undefined;
+}
 ---
 
 <BaseLayout hideBrandTag title={seoTitle} description={seoDesc} canonical={seoCanon} ogImage={seoOg}>
@@ -377,6 +451,10 @@ const productStructuredData = {
          font-mono mb-4" {...inlineFieldAttrs('price')}>
           {typeof (product as any).price === 'number' ? `$${(product as any).price.toFixed(2)}` : 'Price not available'}
         </h2>
+
+        <div class="mb-4 rounded border border-yellow-500/40 bg-yellow-500/10 px-4 py-3 text-xs leading-relaxed text-yellow-100 shadow-sm">
+          {serviceDisclaimer}
+        </div>
 
         {(((options?.length || 0) + (addOns?.length || 0) + (customs?.length || 0)) > 0) && (
           <form id="product-options" class="mb-6 space-y-4">
@@ -516,10 +594,8 @@ const productStructuredData = {
         data-product-image={(product as any).images?.[0]?.asset?.url || (product as any).images?.[0]?.url || ''}
         data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
         data-product-shipping-class={(product as any).shippingClass || ''}
-        data-product-install-only={String(
-          ((product as any).shippingClass || '').toString().toLowerCase().replace(/[^a-z]/g, '') ===
-            'installonly'
-        )}
+        data-product-install-only={String(isInstallOnly)}
+        data-product-performance-parts={String(isPerformanceParts)}
         data-product-href={`/shop/${slug}`}
         >
           <!-- bag icon -->

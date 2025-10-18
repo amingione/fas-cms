@@ -57,6 +57,9 @@ const DEFAULT_WEIGHT_LB = Number(process.env.GMC_FEED_DEFAULT_WEIGHT_LB ?? '1');
 const CONTENT_API_SCOPE = 'https://www.googleapis.com/auth/content';
 const parsedBatchSize = Number(process.env.GMC_CONTENT_API_BATCH_SIZE ?? '250');
 const CONTENT_API_BATCH_SIZE = Number.isFinite(parsedBatchSize) && parsedBatchSize > 0 ? Math.floor(parsedBatchSize) : 250;
+const DEFAULT_GOOGLE_PRODUCT_CATEGORY =
+  process.env.GMC_FEED_DEFAULT_GOOGLE_CATEGORY ||
+  'Vehicles & Parts > Vehicle Parts & Accessories > Performance Parts';
 
 const REQUIRED_COLUMNS: (keyof MerchantRow)[] = [
   'id',
@@ -306,6 +309,35 @@ const query = `*[_type=="product" && defined(slug.current) && !(_id in path("dra
   return sanity.fetch<any[]>(query);
 }
 
+function appendServiceMessaging(
+  text: string,
+  message: string
+): string {
+  const normalized = text.toLowerCase();
+  if (!normalized.includes('vehicle not included') && !normalized.includes('vehicle is not included')) {
+    return `${text} ${message}`.trim();
+  }
+  return text;
+}
+
+function ensureTitleQualifier(
+  title: string,
+  qualifier: string
+): string {
+  const normalized = title.toLowerCase();
+  if (
+    normalized.includes(qualifier.toLowerCase()) ||
+    normalized.includes('vehicle not included') ||
+    normalized.includes('vehicle is not included')
+  ) {
+    return title;
+  }
+  if (!normalized.includes(qualifier.toLowerCase())) {
+    return `${title} — ${qualifier}`.trim();
+  }
+  return title;
+}
+
 function buildRows(products: any[], baseUrl: string, currency: string): MerchantRow[] {
   return (products || [])
     .map((product) => {
@@ -337,6 +369,16 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
         filterSlugs.includes('performance_parts');
       const allowsShipping = !isInstallOnly && (isPerformanceParts || normalizedClass.length === 0);
 
+      const disclaimerMessage = isInstallOnly
+        ? 'Professional installation service only. Vehicle not included.'
+        : 'Performance package only. Vehicle not included.';
+      const titleQualifier = isInstallOnly
+        ? 'Installation Service — Vehicle Not Included'
+        : 'Performance Package — Vehicle Not Included';
+
+      const feedTitle = ensureTitleQualifier(title, titleQualifier);
+      const feedDescription = appendServiceMessaging(description, disclaimerMessage);
+
       const productLink = ensureUrl(slug, baseUrl);
       const quickUrlBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
       const quickCheckoutUrl = slug
@@ -345,8 +387,8 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
 
       const row: MerchantRow = {
         id,
-        title,
-        description,
+        title: feedTitle,
+        description: feedDescription,
         link: productLink,
         image_link: image,
         availability: computeAvailability(product?.manualInventoryCount),
@@ -369,9 +411,8 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
 
       if (product?.gtin) row.gtin = sanitizeText(product.gtin);
       if (product?.mpn) row.mpn = sanitizeText(product.mpn);
-      if (product?.google_product_category) {
-        row.google_product_category = sanitizeText(product.google_product_category);
-      }
+      const googleCategory = sanitizeText(product?.google_product_category);
+      row.google_product_category = googleCategory || DEFAULT_GOOGLE_PRODUCT_CATEGORY;
 
       return row;
     })
