@@ -766,9 +766,8 @@ const breadcrumbItems = [
                     <article class="grid grid-cols-1 gap-8 rounded-2xl border border-white/10 bg-white/5 p-6 sm:grid-cols-12 sm:gap-6 lg:gap-8">
                       <div class="sm:col-span-4 lg:col-span-5">
                         <img
-                          src={image && image !== FALLBACK_IMAGE ? image : resolveImageUrlFromItem(item)}
+                          src={image || FALLBACK_IMAGE}
                           alt={item?.name || 'Order item'}
-                          title={image && image !== FALLBACK_IMAGE ? image : resolveImageUrlFromItem(item)}
                           class="aspect-square w-full rounded-lg bg-black/30 object-cover"
                           loading="lazy"
                         />

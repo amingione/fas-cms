@@ -10249,6 +10249,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bignumber.js@npm:^9.0.0":
+  version: 9.3.1
+  resolution: "bignumber.js@npm:9.3.1"
+  checksum: 6ab100271a23a75bb8b99a4b1a34a1a94967ac0b9a52a198147607bd91064e72c6f356380d7a09cd687bf50d81ad2ed1a0a8edfaa90369c9003ed8bb2440d7f0
+  languageName: node
+  linkType: hard
+
 "binary-extensions@npm:^2.0.0":
   version: 2.3.0
   resolution: "binary-extensions@npm:2.3.0"
@@ -13602,7 +13609,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ecdsa-sig-formatter@npm:1.0.11":
+"ecdsa-sig-formatter@npm:1.0.11, ecdsa-sig-formatter@npm:^1.0.11":
   version: 1.0.11
   resolution: "ecdsa-sig-formatter@npm:1.0.11"
   dependencies:
@@ -14640,7 +14647,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"extend@npm:^3.0.0, extend@npm:~3.0.2":
+"extend@npm:^3.0.0, extend@npm:^3.0.2, extend@npm:~3.0.2":
   version: 3.0.2
   resolution: "extend@npm:3.0.2"
   checksum: a50a8309ca65ea5d426382ff09f33586527882cf532931cb08ca786ea3146c0553310bda688710ff61d7668eba9f96b923fe1420cdf56a2c3eaf30fcab87b515
@@ -14788,6 +14795,7 @@ __metadata:
     flatpickr: ^4.6.13
     framer-motion: ^11
     globals: ^16.0.0
+    googleapis: ^164.0.0
     husky: ^9.1.7
     input-otp: ^1.4.2
     jose: ^6.0.12
@@ -15707,6 +15715,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"gaxios@npm:^7.0.0, gaxios@npm:^7.0.0-rc.4":
+  version: 7.1.2
+  resolution: "gaxios@npm:7.1.2"
+  dependencies:
+    extend: ^3.0.2
+    https-proxy-agent: ^7.0.1
+    node-fetch: ^3.3.2
+  checksum: 2d842a7ef3163fe79c279f9d9e0dcd54d9cc399221fda9247b56754f1d309f6d1b185dc6642639e0ac7ddf7d27f5f935d402ee2926369fec5379006735016151
+  languageName: node
+  linkType: hard
+
+"gcp-metadata@npm:^8.0.0":
+  version: 8.1.1
+  resolution: "gcp-metadata@npm:8.1.1"
+  dependencies:
+    gaxios: ^7.0.0
+    google-logging-utils: ^1.0.0
+    json-bigint: ^1.0.0
+  checksum: 296ddf6bee6b720954bbcf7cb46f573e1d46e5f465c5ed4898b74c0406340a4ccf044e9e802094ae6166174a197c21de1ec73ea015e3212421d577f6b3fb2677
+  languageName: node
+  linkType: hard
+
 "generator-function@npm:^2.0.0":
   version: 2.0.1
   resolution: "generator-function@npm:2.0.1"
@@ -16188,6 +16218,51 @@ __metadata:
   languageName: node
   linkType: hard
 
+"google-auth-library@npm:^10.1.0, google-auth-library@npm:^10.2.0":
+  version: 10.4.1
+  resolution: "google-auth-library@npm:10.4.1"
+  dependencies:
+    base64-js: ^1.3.0
+    ecdsa-sig-formatter: ^1.0.11
+    gaxios: ^7.0.0
+    gcp-metadata: ^8.0.0
+    google-logging-utils: ^1.0.0
+    gtoken: ^8.0.0
+    jws: ^4.0.0
+  checksum: 006498bcbbe98de682d23ad687b9987d8a41768d6fc73ce0458e3d6b8ae2e5d2eb6147c9a45831cfaa2e39310e3e0e138a3863edba407795bec93ea7a2950a8a
+  languageName: node
+  linkType: hard
+
+"google-logging-utils@npm:^1.0.0":
+  version: 1.1.1
+  resolution: "google-logging-utils@npm:1.1.1"
+  checksum: a1739b445963e82f5894d98fe0b0c3ef393670c6ae8b47810dee69d1d10697cad61b05cd94faf4d963c8207edc0694dc2b3b168c9cca984764801ca47b68333f
+  languageName: node
+  linkType: hard
+
+"googleapis-common@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "googleapis-common@npm:8.0.0"
+  dependencies:
+    extend: ^3.0.2
+    gaxios: ^7.0.0-rc.4
+    google-auth-library: ^10.1.0
+    qs: ^6.7.0
+    url-template: ^2.0.8
+  checksum: 1bb2fc24bcd084c6014f76918fb7a318b3d833eb224d7c14b53da69366a24c74295a9e45e3d81ad70196ddd8838d76c414689622f208d8b6603f5f1f96f99e96
+  languageName: node
+  linkType: hard
+
+"googleapis@npm:^164.0.0":
+  version: 164.0.0
+  resolution: "googleapis@npm:164.0.0"
+  dependencies:
+    google-auth-library: ^10.2.0
+    googleapis-common: ^8.0.0
+  checksum: dfe326de592bb8d15478fa05528ee85ed137bd5403b32f27f6263248f1312b8df4a6d09c9fbb2ea81032e558ad772751faf00664d3a5e03291ecca3218747275
+  languageName: node
+  linkType: hard
+
 "gopd@npm:^1.0.1, gopd@npm:^1.2.0":
   version: 1.2.0
   resolution: "gopd@npm:1.2.0"
@@ -16303,6 +16378,16 @@ __metadata:
     lodash: ^4.11.1
     minimist: ^1.2.0
   checksum: bb98d4df6f7146fc7a3348c351e6a557573ed0f4604861b88cf33f1fdeeda30735258b880f444278443235314f5aa0ccd712b6d482189957d635b12ae06dc844
+  languageName: node
+  linkType: hard
+
+"gtoken@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "gtoken@npm:8.0.0"
+  dependencies:
+    gaxios: ^7.0.0
+    jws: ^4.0.0
+  checksum: 6825476d404fc6d1577799e222f44824787da96865a5929ec44d18ef5fbe22f3053433c79dfef3c9d944c8a87e78b85b48c31cae7fe7e3cc02f1aed35d160b10
   languageName: node
   linkType: hard
 
@@ -18532,6 +18617,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"json-bigint@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "json-bigint@npm:1.0.0"
+  dependencies:
+    bignumber.js: ^9.0.0
+  checksum: c67bb93ccb3c291e60eb4b62931403e378906aab113ec1c2a8dd0f9a7f065ad6fd9713d627b732abefae2e244ac9ce1721c7a3142b2979532f12b258634ce6f6
+  languageName: node
+  linkType: hard
+
 "json-buffer@npm:3.0.1":
   version: 3.0.1
   resolution: "json-buffer@npm:3.0.1"
@@ -18734,6 +18828,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jwa@npm:^2.0.0":
+  version: 2.0.1
+  resolution: "jwa@npm:2.0.1"
+  dependencies:
+    buffer-equal-constant-time: ^1.0.1
+    ecdsa-sig-formatter: 1.0.11
+    safe-buffer: ^5.0.1
+  checksum: 6a9828c054c407f6718057089bd3d46dfcb1394e1553e3867abd4579dbec7728b4b0759e7253422ab7d824d95615a86427b35c43f94b83fc3a76470ca4bd2037
+  languageName: node
+  linkType: hard
+
 "jws@npm:^3.2.2":
   version: 3.2.2
   resolution: "jws@npm:3.2.2"
@@ -18741,6 +18846,16 @@ __metadata:
     jwa: ^1.4.1
     safe-buffer: ^5.0.1
   checksum: f0213fe5b79344c56cd443428d8f65c16bf842dc8cb8f5aed693e1e91d79c20741663ad6eff07a6d2c433d1831acc9814e8d7bada6a0471fbb91d09ceb2bf5c2
+  languageName: node
+  linkType: hard
+
+"jws@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "jws@npm:4.0.0"
+  dependencies:
+    jwa: ^2.0.0
+    safe-buffer: ^5.0.1
+  checksum: d68d07aa6d1b8cb35c363a9bd2b48f15064d342a5d9dc18a250dbbce8dc06bd7e4792516c50baa16b8d14f61167c19e851fd7f66b59ecc68b7f6a013759765f7
   languageName: node
   linkType: hard
 
@@ -24108,7 +24223,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"qs@npm:^6.11.0, qs@npm:^6.11.2, qs@npm:^6.5.2":
+"qs@npm:^6.11.0, qs@npm:^6.11.2, qs@npm:^6.5.2, qs@npm:^6.7.0":
   version: 6.14.0
   resolution: "qs@npm:6.14.0"
   dependencies:
@@ -29547,6 +29662,13 @@ __metadata:
     querystringify: ^2.1.1
     requires-port: ^1.0.0
   checksum: fbdba6b1d83336aca2216bbdc38ba658d9cfb8fc7f665eb8b17852de638ff7d1a162c198a8e4ed66001ddbf6c9888d41e4798912c62b4fd777a31657989f7bdf
+  languageName: node
+  linkType: hard
+
+"url-template@npm:^2.0.8":
+  version: 2.0.8
+  resolution: "url-template@npm:2.0.8"
+  checksum: 4183fccd74e3591e4154134d4443dccecba9c455c15c7df774f1f1e3fa340fd9bffb903b5beec347196d15ce49c34edf6dec0634a95d170ad6e78c0467d6e13e
   languageName: node
   linkType: hard
 

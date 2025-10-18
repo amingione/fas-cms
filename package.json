@@ -127,6 +127,7 @@
     "express": "^4.19.2",
     "flatpickr": "^4.6.13",
     "framer-motion": "^11",
+    "googleapis": "^164.0.0",
     "input-otp": "^1.4.2",
     "jose": "^6.0.12",
     "jsonwebtoken": "^9.0.2",

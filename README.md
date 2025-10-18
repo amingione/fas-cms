@@ -49,14 +49,16 @@ Feel free to check [our documentation](https://docs.astro.build) or jump into ou
 
 ## Google Merchant Center Feed
 
-This project now includes a helper script that exports current products from Sanity, writes a tab-separated file, and (optionally) uploads it to Google Merchant Center via SFTP.
+This project now includes a helper script that exports current products from Sanity, writes a tab-separated file, and uploads them to Google Merchant Center. It prefers the Google Content API when configured, and falls back to SFTP if API credentials are absent.
 
-1. Add the following environment variables (see `.env.example` for placeholders): `GMC_SFTP_HOST`, `GMC_SFTP_PORT`, `GMC_SFTP_USERNAME`, `GMC_SFTP_PASSWORD`, `GMC_SFTP_FEED_FILENAME`, `GMC_FEED_BASE_URL`, and `GMC_FEED_CURRENCY`.
-2. Install new dependencies if you haven’t already: `yarn install`.
-3. (Optional) Set defaults such as `GMC_FEED_DEFAULT_WEIGHT_LB` (fallback when a product lacks a shipping weight) and `GMC_FEED_DEFAULT_QUANTITY`.
-4. Generate and upload the feed: `yarn merchant:upload`.
+1. Configure credentials (see `.env.example` for full list):
+   - **Content API (recommended):** set `GMC_CONTENT_API_MERCHANT_ID` and supply a service account credential via `GMC_SERVICE_ACCOUNT_KEY` (JSON string), `GMC_SERVICE_ACCOUNT_KEY_BASE64`, or `GMC_SERVICE_ACCOUNT_KEY_FILE`. Store the JSON in your secret manager and inject it at runtime; avoid committing the file.
+   - **SFTP fallback:** keep `GMC_SFTP_HOST`, `GMC_SFTP_PORT`, `GMC_SFTP_USERNAME`, `GMC_SFTP_PASSWORD`, and `GMC_SFTP_FEED_FILENAME` if you still need file-based uploads.
+   - Optional defaults: `GMC_FEED_BASE_URL`, `GMC_FEED_CURRENCY`, `GMC_FEED_LANGUAGE`, `GMC_FEED_TARGET_COUNTRY`, `GMC_FEED_DEFAULT_WEIGHT_LB`, `GMC_FEED_DEFAULT_QUANTITY`, and `GMC_FEED_SHIPPING_PRICE`.
+2. Install dependencies if you haven’t already: `yarn install`.
+3. Generate and upload the feed: `yarn merchant:upload`.
 
-The feed file is written to `tmp/<filename>` locally before being pushed to Google. If SFTP credentials are missing, the script still writes the local file so you can inspect or upload it manually.
+The feed file is always written to `tmp/<filename>` locally so you can inspect or manually upload it if needed. When Content API credentials are present the script pushes products directly; otherwise it attempts the SFTP upload.
 
 ## Stripe Product Sync
 
