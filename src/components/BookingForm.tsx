@@ -117,7 +117,7 @@ const BookingForm = () => {
         />
       </div>
 
-      <Button type="submit" className="w-full" onClick={() => {}} href="#" text="Submit Booking">
+      <Button type="submit" className="w-full" onClick={() => {}} text="Submit Booking">
         Submit Booking
       </Button>
       {status && <p className="text-sm text-center mt-2">{status}</p>}
