@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { readSession } from '../../server/auth/session';
 import type { z as ZodNamespace } from 'zod';
 import { createOrderCartItem, type OrderCartItem } from '@/server/sanity/order-cart';
+import { jsonResponse } from '@/server/http/responses';
 
 type CartItem = ZodNamespace.infer<typeof CartItemSchema>;
 
@@ -52,26 +53,20 @@ export const POST = async ({ request }: { request: Request }) => {
     const sessionResult = await readSession(request);
     const customerEmail = sessionResult.session?.user?.email;
     if (typeof customerEmail !== 'string') {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+      return jsonResponse({ error: 'Unauthorized' }, { status: 401 }, { noIndex: true });
     }
 
     const { sessionId, cart } = body;
 
     if (!sessionId || !cart) {
-      return new Response(JSON.stringify({ error: 'Missing sessionId or cart' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return jsonResponse({ error: 'Missing sessionId or cart' }, { status: 400 });
     }
 
     const cartValidation = CartSchema.safeParse(cart);
     if (!cartValidation.success) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid cart format', details: cartValidation.error.format() }),
-        {
-          status: 422,
-          headers: { 'Content-Type': 'application/json' }
-        }
+      return jsonResponse(
+        { error: 'Invalid cart format', details: cartValidation.error.format() },
+        { status: 422 }
       );
     }
 
@@ -96,10 +91,7 @@ export const POST = async ({ request }: { request: Request }) => {
       (import.meta.env.VITE_SANITY_API_TOKEN as string | undefined);
 
     if (!projectId || !tokenSanity) {
-      return new Response(JSON.stringify({ error: 'Missing Sanity project ID or API token' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return jsonResponse({ error: 'Missing Sanity project ID or API token' }, { status: 500 });
     }
 
     const query = '*[_type == "customer" && email == $email][0]';
@@ -154,16 +146,10 @@ export const POST = async ({ request }: { request: Request }) => {
       throw new Error(`Sanity response error: ${errorDetails}`);
     }
 
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return jsonResponse({ success: true });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     console.error('❌ Error saving order:', err);
-    return new Response(JSON.stringify({ error: message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return jsonResponse({ error: message }, { status: 500 });
   }
 };
