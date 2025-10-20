@@ -55,6 +55,7 @@ This project now includes a helper script that exports current products from San
    - **Content API (recommended):** set `GMC_CONTENT_API_MERCHANT_ID` and supply a service account credential via `GMC_SERVICE_ACCOUNT_KEY` (JSON string), `GMC_SERVICE_ACCOUNT_KEY_BASE64`, or `GMC_SERVICE_ACCOUNT_KEY_FILE`. Store the JSON in your secret manager and inject it at runtime; avoid committing the file.
    - **SFTP fallback:** keep `GMC_SFTP_HOST`, `GMC_SFTP_PORT`, `GMC_SFTP_USERNAME`, `GMC_SFTP_PASSWORD`, and `GMC_SFTP_FEED_FILENAME` if you still need file-based uploads.
    - Optional defaults: `GMC_FEED_BASE_URL`, `GMC_FEED_CURRENCY`, `GMC_FEED_LANGUAGE`, `GMC_FEED_TARGET_COUNTRY`, `GMC_FEED_DEFAULT_WEIGHT_LB`, `GMC_FEED_DEFAULT_QUANTITY`, and `GMC_FEED_SHIPPING_PRICE`.
+   - Opt-in behaviour: set `GMC_FEED_ENABLE_ADS_REDIRECT=true` only if you explicitly want Merchant Center to use the `/checkout/quick/<slug>` landing pages for ads. It defaults to `false` so product ads lead to the full product detail page on all devices.
 2. Install dependencies if you haven’t already: `yarn install`.
 3. Generate and upload the feed: `yarn merchant:upload`.
 

@@ -61,6 +61,17 @@ const DEFAULT_GOOGLE_PRODUCT_CATEGORY =
   process.env.GMC_FEED_DEFAULT_GOOGLE_CATEGORY ||
   'Vehicles & Parts > Vehicle Parts & Accessories > Performance Parts';
 
+function parseBooleanEnv(value: string | undefined, defaultValue = false): boolean {
+  if (typeof value !== 'string') return defaultValue;
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) return defaultValue;
+  if (['1', 'true', 'yes', 'on'].includes(normalized)) return true;
+  if (['0', 'false', 'no', 'off'].includes(normalized)) return false;
+  return defaultValue;
+}
+
+const ENABLE_ADS_REDIRECT = parseBooleanEnv(process.env.GMC_FEED_ENABLE_ADS_REDIRECT, false);
+
 const REQUIRED_COLUMNS: (keyof MerchantRow)[] = [
   'id',
   'title',
@@ -400,7 +411,7 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
         shipping_weight: `${computeWeight(product?.shippingWeight).toFixed(2)} lb`
       };
 
-      if (quickCheckoutUrl) {
+      if (ENABLE_ADS_REDIRECT && quickCheckoutUrl) {
         row.ads_redirect = quickCheckoutUrl;
       }
 
