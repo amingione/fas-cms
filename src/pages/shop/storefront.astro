@@ -54,9 +54,7 @@ const breadcrumbStructuredData = {
 
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
   <Fragment slot="head">
-    <script type="application/ld+json">
-      {JSON.stringify(breadcrumbStructuredData)}
-    </script>
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
   </Fragment>
 
 <section class="px-5 py-5">

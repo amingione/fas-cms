@@ -5,9 +5,63 @@ import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 
 const pageDoc: any = await loadPageDoc('faq');
+
+const faqStructuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Will modifications void my factory warranty?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text:
+          'Performance modifications can void all or part of your vehicle’s OEM warranty. Check with your dealership or warranty provider before any upgrades.'
+      }
+    },
+    {
+      '@type': 'Question',
+      name: 'Do you offer custom tuning for boosted platforms?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text:
+          'Yes, we specialize in tuning for supercharged and turbocharged applications across a range of domestic performance vehicles.'
+      }
+    },
+    {
+      '@type': 'Question',
+      name: 'What kind of horsepower gains can I expect?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text:
+          'Gains depend on platform and mods. Typical builds range from 600 WHP to 1500+ WHP. We’ll recommend options based on your goals.'
+      }
+    },
+    {
+      '@type': 'Question',
+      name: 'Do you offer installation or is it DIY only?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text:
+          'We provide professional installation in‑house. You can also purchase parts for local install if preferred.'
+      }
+    },
+    {
+      '@type': 'Question',
+      name: 'Do you offer warranties on performance parts?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Aftermarket parts are sold as‑is and may reduce component life depending on use.'
+      }
+    }
+  ]
+};
 ---
 
 <BaseLayout>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(faqStructuredData)} />
+  </Fragment>
     <div {...inlineObjectId('content/pages/faq.json')}>
     <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>{pageDoc?.title ?? 'Frequently Asked Questions'}</div>
     {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
@@ -99,38 +153,3 @@ const pageDoc: any = await loadPageDoc('faq');
     </section>
     </div>
 </BaseLayout>
-
-<!-- FAQ Page JSON-LD -->
-<script type="application/ld+json">
-{JSON.stringify({
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: [
-    {
-      '@type': 'Question',
-      name: 'Will modifications void my factory warranty?',
-      acceptedAnswer: { '@type': 'Answer', text: 'Performance modifications can void all or part of your vehicle’s OEM warranty. Check with your dealership or warranty provider before any upgrades.' }
-    },
-    {
-      '@type': 'Question',
-      name: 'Do you offer custom tuning for boosted platforms?',
-      acceptedAnswer: { '@type': 'Answer', text: 'Yes, we specialize in tuning for supercharged and turbocharged applications across a range of domestic performance vehicles.' }
-    },
-    {
-      '@type': 'Question',
-      name: 'What kind of horsepower gains can I expect?',
-      acceptedAnswer: { '@type': 'Answer', text: 'Gains depend on platform and mods. Typical builds range from 600 WHP to 1500+ WHP. We’ll recommend options based on your goals.' }
-    },
-    {
-      '@type': 'Question',
-      name: 'Do you offer installation or is it DIY only?',
-      acceptedAnswer: { '@type': 'Answer', text: 'We provide professional installation in‑house. You can also purchase parts for local install if preferred.' }
-    },
-    {
-      '@type': 'Question',
-      name: 'Do you offer warranties on performance parts?',
-      acceptedAnswer: { '@type': 'Answer', text: 'Aftermarket parts are sold as‑is and may reduce component life depending on use.' }
-    }
-  ]
-})}
-</script>

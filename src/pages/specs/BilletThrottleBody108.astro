@@ -64,9 +64,7 @@ const structuredData = {
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical} ogImage={ensureAbsolute(specSheet.imageSrc)}>
   <Fragment slot="head">
     <meta property="og:type" content="product" />
-    <script type="application/ld+json">
-      {JSON.stringify(structuredData)}
-    </script>
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
   </Fragment>
   <div {...inlineObjectId('content/pages/BilletThrottleBody108Specs.json')}>
     <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>

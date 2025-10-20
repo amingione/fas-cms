@@ -98,9 +98,7 @@ const structuredData = {
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical} ogImage={primaryImage}>
   <Fragment slot="head">
     <meta property="og:type" content="product.group" />
-    <script type="application/ld+json">
-      {JSON.stringify(structuredData)}
-    </script>
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
   </Fragment>
   <div {...inlineObjectId('content/pages/BilletSnoutSpecs.json')}>
     <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>

@@ -244,9 +244,7 @@ if (endPage < totalPages) {
 
 <BaseLayout title={metaTitle} description={pageDescription} canonical={canonical}>
   <Fragment slot="head">
-    <script type="application/ld+json">
-      {JSON.stringify(breadcrumbStructuredData)}
-    </script>
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
   </Fragment>
   <section class="max-w-full px-2 md:px-2 mt-11 pt-10">
     <div class="mb-6 mt-2 space-y-3">
