@@ -1,43 +1,33 @@
 import { sanityFetch } from '@/lib/sanityFetch';
-import { readSession } from '../../server/auth/session';
 
-export async function GET({ request }: { request: Request }): Promise<Response> {
+const json = (body: Record<string, unknown>, init?: ResponseInit) =>
+  new Response(JSON.stringify(body), {
+    headers: { 'content-type': 'application/json' },
+    ...init
+  });
+
+export async function GET(): Promise<Response> {
+  const query = `*[_type == "tune"]{ title }`;
+
+  if (
+    !import.meta.env.PUBLIC_SANITY_PROJECT_ID ||
+    !import.meta.env.PUBLIC_SANITY_DATASET
+  ) {
+    return json({ tunes: [] }, { status: 200 });
+  }
+
   try {
-    const { session } = await readSession(request);
-    if (!session?.user?.email) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
-    }
-    console.log('🧪 TUNE API DEBUG → Authenticated user:', session.user.email);
-    console.log('🧪 TUNE API DEBUG →', {
-      tokenPrefix: import.meta.env.SANITY_API_TOKEN?.slice(0, 8),
-      projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID,
-      dataset: import.meta.env.PUBLIC_SANITY_DATASET
-    });
-    const query = `*[_type == "tune"]{ title }`;
-    if (
-      !import.meta.env.SANITY_API_TOKEN ||
-      !import.meta.env.PUBLIC_SANITY_PROJECT_ID ||
-      !import.meta.env.PUBLIC_SANITY_DATASET
-    ) {
-      return new Response(JSON.stringify({ error: 'Missing Sanity credentials' }), {
-        status: 500
-      });
-    }
-    const result = await sanityFetch({ query });
-    return new Response(JSON.stringify(result), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    const result = await sanityFetch<{ title?: string }[]>({ query });
+    return json({ tunes: Array.isArray(result) ? result : [] }, { status: 200 });
   } catch (err: unknown) {
     console.error('❌ Tune fetch failed:', err);
-    return new Response(
-      JSON.stringify({
+    return json(
+      {
+        tunes: [],
         error: 'Tune fetch error',
         details: err instanceof Error ? err.message : 'Unknown error'
-      }),
-      {
-        status: 500
-      }
+      },
+      { status: 200 }
     );
   }
 }
