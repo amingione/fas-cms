@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import { createClient } from '@sanity/client';
+import { jsonResponse } from '@/server/http/responses';
 
 // Optional simple auth for server-to-server calls from your dashboard
 // Set FAS_DASH_API_KEY in Netlify. If present, requests must include header: Authorization: Bearer <key>
@@ -20,10 +21,7 @@ const BodySchema = z.object({
 });
 
 function unauthorized(msg = 'Unauthorized') {
-  return new Response(JSON.stringify({ error: msg }), {
-    status: 401,
-    headers: { 'Content-Type': 'application/json' }
-  });
+  return jsonResponse({ error: msg }, { status: 401 }, { noIndex: true });
 }
 
 export const OPTIONS: APIRoute = async () => new Response(null, { status: 204 });
@@ -42,16 +40,10 @@ export const PATCH: APIRoute = async ({ request }) => {
     // Update Sanity document
     const result = await sanity.patch(id).set({ status }).commit({ autoGenerateArrayKeys: true });
 
-    return new Response(JSON.stringify({ ok: true, id: result._id, status: result.status }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return jsonResponse({ ok: true, id: result._id, status: result.status });
   } catch (err: any) {
     const message = err?.message || 'Invalid request';
-    return new Response(JSON.stringify({ error: message }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return jsonResponse({ error: message }, { status: 400 });
   }
 };
 

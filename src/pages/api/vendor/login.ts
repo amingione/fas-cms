@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import bcrypt from 'bcryptjs';
 import { getVendorByEmail } from '../../../server/sanity-client';
 import { setSession } from '../../../server/auth/session';
+import { jsonResponse } from '@/server/http/responses';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -10,27 +11,18 @@ export const POST: APIRoute = async ({ request }) => {
     const passwordInput = String(password || '');
 
     if (!normalizedEmail || !passwordInput) {
-      return new Response(JSON.stringify({ message: 'Missing email or password' }), {
-        status: 400,
-        headers: { 'content-type': 'application/json' }
-      });
+      return jsonResponse({ message: 'Missing email or password' }, { status: 400 });
     }
 
     const vendor = await getVendorByEmail(normalizedEmail);
     if (!vendor || (vendor as any).status !== 'Approved') {
-      return new Response(JSON.stringify({ message: 'Invalid credentials' }), {
-        status: 401,
-        headers: { 'content-type': 'application/json' }
-      });
+      return jsonResponse({ message: 'Invalid credentials' }, { status: 401 }, { noIndex: true });
     }
 
     const passwordHash = (vendor as any).passwordHash;
     const isMatch = passwordHash ? await bcrypt.compare(passwordInput, passwordHash) : false;
     if (!isMatch) {
-      return new Response(JSON.stringify({ message: 'Invalid credentials' }), {
-        status: 401,
-        headers: { 'content-type': 'application/json' }
-      });
+      return jsonResponse({ message: 'Invalid credentials' }, { status: 401 }, { noIndex: true });
     }
 
     const headers = new Headers({ 'content-type': 'application/json' });
@@ -46,12 +38,9 @@ export const POST: APIRoute = async ({ request }) => {
       { expiresIn: '1h' }
     );
 
-    return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
+    return jsonResponse({ ok: true }, { status: 200, headers });
   } catch (err) {
     console.error(err);
-    return new Response(JSON.stringify({ message: 'Internal server error' }), {
-      status: 500,
-      headers: { 'content-type': 'application/json' }
-    });
+    return jsonResponse({ message: 'Internal server error' }, { status: 500 });
   }
 };

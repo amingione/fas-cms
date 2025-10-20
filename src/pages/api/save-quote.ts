@@ -1,11 +1,6 @@
 import { createClient } from '@sanity/client';
 import { readSession } from '../../server/auth/session';
-
-const json = (obj: unknown, status = 200) =>
-  new Response(JSON.stringify(obj), {
-    status,
-    headers: { 'content-type': 'application/json' }
-  });
+import { jsonResponse } from '@/server/http/responses';
 
 const client = createClient({
   projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID,
@@ -18,7 +13,9 @@ const client = createClient({
 export async function POST({ request }: { request: Request }) {
   // Session-based auth
   const { session } = await readSession(request);
-  if (!session?.user?.email) return json({ error: 'Unauthorized' }, 401);
+  if (!session?.user?.email) {
+    return jsonResponse({ error: 'Unauthorized' }, { status: 401 }, { noIndex: true });
+  }
   const customerEmail = session.user.email as string;
 
   // Look up customer in Sanity
@@ -30,7 +27,7 @@ export async function POST({ request }: { request: Request }) {
   );
 
   if (!customer?._id) {
-    return new Response(JSON.stringify({ error: 'Customer not found' }), { status: 404 });
+    return jsonResponse({ error: 'Customer not found' }, { status: 404 });
   }
 
   let data: {
@@ -43,7 +40,7 @@ export async function POST({ request }: { request: Request }) {
   try {
     data = await request.json();
   } catch {
-    return json({ error: 'Invalid JSON body' }, 400);
+    return jsonResponse({ error: 'Invalid JSON body' }, { status: 400 });
   }
 
   const { vehicleModel, modifications, horsepower, price } = data;
@@ -54,7 +51,7 @@ export async function POST({ request }: { request: Request }) {
     typeof horsepower !== 'number' ||
     typeof price !== 'number'
   ) {
-    return json({ error: 'Missing or invalid fields' }, 400);
+    return jsonResponse({ error: 'Missing or invalid fields' }, { status: 400 });
   }
 
   try {
@@ -68,18 +65,15 @@ export async function POST({ request }: { request: Request }) {
       customer: { _type: 'reference', _ref: customer._id }
     });
 
-    return json(
-      {
-        success: true,
-        id: newDoc._id,
-        createdAt: newDoc._createdAt,
-        vehicleModel: data.vehicleModel
-      },
-      200
-    );
+    return jsonResponse({
+      success: true,
+      id: newDoc._id,
+      createdAt: newDoc._createdAt,
+      vehicleModel: data.vehicleModel
+    });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     console.error('Sanity write failed:', message);
-    return json({ error: 'Failed to write to Sanity' }, 500);
+    return jsonResponse({ error: 'Failed to write to Sanity' }, { status: 500 });
   }
 }

@@ -2,6 +2,7 @@
 import type { APIRoute } from 'astro';
 import { createClient } from '@sanity/client';
 import { readSession } from '../../../server/auth/session';
+import { jsonResponse } from '@/server/http/responses';
 
 const cors = {
   'access-control-allow-origin': '*',
@@ -36,42 +37,52 @@ export const OPTIONS: APIRoute = async () => new Response(null, { status: 204, h
 export const GET: APIRoute = async ({ request, params }) => {
   try {
     const id = params.id as string | undefined;
-    if (!id) return new Response(JSON.stringify({ message: 'Missing order ID' }), { status: 400, headers: { ...cors, 'content-type': 'application/json' } });
+    if (!id) {
+      return jsonResponse({ message: 'Missing order ID' }, { status: 400, headers: { ...cors } });
+    }
 
     const email = await requireSessionEmail(request);
     if (!email) {
-      return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: { ...cors, 'content-type': 'application/json' } });
+      return jsonResponse(
+        { message: 'Unauthorized' },
+        { status: 401, headers: { ...cors } },
+        { noIndex: true }
+      );
     }
     const order = await client.fetch(
       `*[_type == "order" && _id == $id && customer->email == $email][0]`,
       { id, email }
     );
-    if (!order)
-      return new Response(JSON.stringify({ message: 'Order not found or access denied' }), {
-        status: 404,
-        headers: { ...cors, 'content-type': 'application/json' }
-      });
-    return new Response(JSON.stringify(order), {
-      status: 200,
-      headers: { ...cors, 'content-type': 'application/json' }
-    });
+    if (!order) {
+      return jsonResponse(
+        { message: 'Order not found or access denied' },
+        { status: 404, headers: { ...cors } }
+      );
+    }
+    return jsonResponse(order, { status: 200, headers: { ...cors } });
   } catch (err) {
     console.error('Error fetching order:', err);
-    return new Response(JSON.stringify({ message: 'Failed to fetch order' }), {
-      status: 500,
-      headers: { ...cors, 'content-type': 'application/json' }
-    });
+    return jsonResponse(
+      { message: 'Failed to fetch order' },
+      { status: 500, headers: { ...cors } }
+    );
   }
 };
 
 export const PATCH: APIRoute = async ({ request, params }) => {
   try {
     const id = params.id as string | undefined;
-    if (!id) return new Response(JSON.stringify({ message: 'Missing order ID' }), { status: 400, headers: { ...cors, 'content-type': 'application/json' } });
+    if (!id) {
+      return jsonResponse({ message: 'Missing order ID' }, { status: 400, headers: { ...cors } });
+    }
 
     const email = await requireSessionEmail(request);
     if (!email) {
-      return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: { ...cors, 'content-type': 'application/json' } });
+      return jsonResponse(
+        { message: 'Unauthorized' },
+        { status: 401, headers: { ...cors } },
+        { noIndex: true }
+      );
     }
 
     const existing = await client.fetch(
@@ -79,22 +90,19 @@ export const PATCH: APIRoute = async ({ request, params }) => {
       { id, email }
     );
     if (!existing)
-      return new Response(JSON.stringify({ message: 'Access denied' }), {
-        status: 403,
-        headers: { ...cors, 'content-type': 'application/json' }
-      });
+      return jsonResponse(
+        { message: 'Access denied' },
+        { status: 403, headers: { ...cors } }
+      );
 
     const data = await request.json();
     const result = await client.patch(id).set(data).commit();
-    return new Response(JSON.stringify(result), {
-      status: 200,
-      headers: { ...cors, 'content-type': 'application/json' }
-    });
+    return jsonResponse(result, { status: 200, headers: { ...cors } });
   } catch (err) {
     console.error('Error updating order:', err);
-    return new Response(JSON.stringify({ message: 'Failed to update order' }), {
-      status: 500,
-      headers: { ...cors, 'content-type': 'application/json' }
-    });
+    return jsonResponse(
+      { message: 'Failed to update order' },
+      { status: 500, headers: { ...cors } }
+    );
   }
 };

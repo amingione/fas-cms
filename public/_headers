@@ -20,3 +20,7 @@
 /fonts/*.otf
   Content-Type: font/otf
   Access-Control-Allow-Origin: *
+
+/api/*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store, max-age=0, must-revalidate
