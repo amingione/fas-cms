@@ -110,3 +110,17 @@ export const GET: APIRoute = async ({ params, request }) => {
   console.error('[quick-checkout] Checkout API error:', response.status, rawBody);
   return Response.redirect(productUrl, 303);
 };
+
+export const HEAD: APIRoute = async ({ params, request }) => {
+  const slugParam = params.slug ? normalizeSlug(params.slug) : '';
+  if (!slugParam) {
+    return new Response(null, { status: 400 });
+  }
+
+  const requestUrl = new URL(request.url);
+  const origin = requestUrl.origin;
+  const productUrl = new URL(`/shop/${slugParam}`, origin);
+  const headers = new Headers({ Location: productUrl.toString() });
+
+  return new Response(null, { status: 302, headers });
+};
