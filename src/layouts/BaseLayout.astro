@@ -13,7 +13,7 @@ const {
   title,
   description,
   canonical,
-  noindex = false,
+  noindex: rawNoindex = false,
   ogImage,
   hideBreadcrumbs = false,
   breadcrumbs
@@ -21,11 +21,27 @@ const {
   title?: string;
   description?: string;
   canonical?: string;
-  noindex?: boolean;
+  noindex?: boolean | string | number;
   ogImage?: string;
   hideBreadcrumbs?: boolean;
   breadcrumbs?: Array<{ href?: string; label: string }>;
 };
+
+const normalizeNoindex = (value: unknown): boolean => {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'number') return value !== 0;
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (!normalized) return false;
+    if (['true', '1', 'yes', 'on'].includes(normalized)) return true;
+    if (['false', '0', 'no', 'off'].includes(normalized)) return false;
+    return false;
+  }
+  return false;
+};
+
+const noindex = normalizeNoindex(rawNoindex);
+const robotsContent = noindex ? 'noindex,follow' : 'index,follow';
 
 const SITE_NAME = 'F.A.S. Motorsports';
 const DEFAULT_OG_IMAGE = 'https://fasmotorsports.com/images/social/social-share.webp';
@@ -169,7 +185,7 @@ const breadcrumbItems = shouldRenderBreadcrumbs
     <meta name="theme-color" content="#09090b" />
     <title>{pageTitle}</title>
     {description && <meta name="description" content={description} />}
-    {noindex && <meta name="robots" content="noindex,nofollow" />}
+    <meta name="robots" content={robotsContent} />
     {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
     <meta property="og:site_name" content={SITE_NAME} />
     <meta property="og:type" content="website" />
