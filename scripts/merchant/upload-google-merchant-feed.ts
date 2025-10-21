@@ -142,10 +142,61 @@ function computeWeight(weight: unknown): number {
   return DEFAULT_WEIGHT_LB > 0 ? DEFAULT_WEIGHT_LB : 1;
 }
 
-function formatPrice(price: unknown, currency: string): string {
-  const num = typeof price === 'number' ? price : Number(price);
-  const safe = Number.isFinite(num) ? num : 0;
-  return `${safe.toFixed(2)} ${currency}`;
+function normalizePriceValue(input: unknown): number | null {
+  if (typeof input === 'number' && Number.isFinite(input)) return input;
+  if (typeof input === 'string') {
+    const trimmed = input.trim();
+    if (!trimmed) return null;
+
+    let sanitized = trimmed.replace(/[^0-9.,-]/g, '');
+    if (!sanitized) return null;
+
+    const hasDot = sanitized.includes('.');
+    const hasComma = sanitized.includes(',');
+
+    if (hasDot && hasComma) {
+      sanitized = sanitized.replace(/,/g, '');
+    } else if (!hasDot && hasComma) {
+      sanitized = sanitized.replace(/,/g, '.');
+    } else {
+      sanitized = sanitized.replace(/,/g, '');
+    }
+
+    const parsed = Number.parseFloat(sanitized);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  if (input && typeof input === 'object') {
+    const candidates = [
+      (input as any).amount,
+      (input as any).value,
+      (input as any).price,
+      (input as any).base,
+      (input as any).min,
+      (input as any).max
+    ];
+
+    for (const candidate of candidates) {
+      const normalized = normalizePriceValue(candidate);
+      if (normalized !== null) return normalized;
+    }
+
+    if (Array.isArray((input as any).tiers)) {
+      for (const tier of (input as any).tiers) {
+        const normalized = normalizePriceValue(tier);
+        if (normalized !== null) return normalized;
+      }
+    }
+  }
+
+  return null;
+}
+
+function formatPrice(price: unknown, currency: string): string | null {
+  const normalized = normalizePriceValue(price);
+  if (normalized === null) return null;
+  const safeCurrency = (currency || DEFAULT_CURRENCY || 'USD').toUpperCase();
+  return `${normalized.toFixed(2)} ${safeCurrency}`;
 }
 
 function parsePriceString(input: string | undefined, fallbackCurrency: string): content_v2_1.Schema$Price | null {
@@ -395,6 +446,12 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
       const quickCheckoutUrl = slug
         ? new URL(`/checkout/quick/${slug}`, quickUrlBase).toString()
         : productLink;
+      const formattedPrice = formatPrice(product?.price, currency);
+
+      if (!formattedPrice) {
+        console.warn(`Skipping product "${title}" (${id}) because it is missing a valid price.`);
+        return null;
+      }
 
       const row: MerchantRow = {
         id,
@@ -403,7 +460,7 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
         link: productLink,
         image_link: image,
         availability: computeAvailability(product?.manualInventoryCount),
-        price: formatPrice(product?.price, currency),
+        price: formattedPrice,
         brand,
         condition: 'new',
         quantity: String(computeQuantity(product?.manualInventoryCount)),
