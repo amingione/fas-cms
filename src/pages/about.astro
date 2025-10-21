@@ -37,10 +37,14 @@ const structuredData = {
     'https://www.instagram.com/fasmotorsports'
   ]
 };
+const sanitizedStructuredData = JSON.stringify(structuredData)
+  .replace(/</g, '\\u003c')
+  .replace(/>/g, '\\u003e')
+  .replace(/&/g, '\\u0026');
 ---
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
   <Fragment slot="head">
-    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+    <script type="application/ld+json" set:html={sanitizedStructuredData} />
   </Fragment>
   <div {...inlineObjectId('content/pages/about.json')}>
     <!-- Inline-editable Page Title (mapped to content/pages/about.json:title) -->
