@@ -65,7 +65,7 @@ const navigation = {
           id: 'billet-parts',
           name: 'Billet Parts',
           items: [
-            { name: 'Predator Pulley', href: 'shop/fas-predator-lower-pulley' },
+            { name: 'Predator Pulley', href: '/shop/fas-predator-lower-pulley' },
             { name: 'Billet Lid', href: '/shop/billet-hellcat-supercharger-lid' },
             { name: '2.4L Billet Bearing Plate', href: '/shop/2-4l-hellcat-billet-bearing-plate' },
             { name: 'Billet Snout', href: '/shop/2-4l-hellcat-billet-supercharger-snout' }
@@ -75,8 +75,11 @@ const navigation = {
           id: 'rebuild-services',
           name: 'Rebuild Services',
           items: [
-            { name: 'Snout', href: '#' },
-            { name: 'Supercharger', href: '#' }
+            { name: 'Snout', href: '/shop/2-4l-2-7l-snout-rebuild' },
+            {
+              name: 'Supercharger',
+              href: '/shop?priceMin=0&priceMax=100000&page=1&categorySlug=supercharger-rebuild&category=supercharger-rebuild'
+            }
           ]
         },
         {
@@ -397,7 +400,7 @@ export default function CategoryPage({
 
               {/* Logo */}
               <div className="ml-4 flex lg:ml-0">
-                <a href="#">
+                <a href="/">
                   <span className="sr-only">F.A.S. Motorsports</span>
                   <img alt="" src="/logo/faslogochroma.png" className="h-8 w-auto" />
                 </a>

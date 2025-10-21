@@ -2,6 +2,7 @@
 import type { APIRoute } from 'astro';
 import { sanityClient } from '@/lib/sanityClient';
 import { readSession } from '../../server/auth/session';
+import { jsonResponse } from '@/server/http/responses';
 
 function getBearer(req: Request): string | null {
   const auth = req.headers.get('authorization') || '';
@@ -36,10 +37,10 @@ export const GET: APIRoute = async ({ request }) => {
     const email = (session?.user?.email as string) || '';
 
     if (!sub && !email) {
-      return new Response(JSON.stringify({ message: 'Token missing sub/email' }), {
-        status: 400,
-        headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' }
-      });
+      return jsonResponse(
+        { message: 'Token missing sub/email' },
+        { status: 400, headers: { 'access-control-allow-origin': '*' } }
+      );
     }
 
     // Prefer lookup by authId (sub), then fallback to email
@@ -54,21 +55,22 @@ export const GET: APIRoute = async ({ request }) => {
     }
 
     if (!customer) {
-      return new Response(JSON.stringify({ message: 'Customer not found' }), {
-        status: 404,
-        headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' }
-      });
+      return jsonResponse(
+        { message: 'Customer not found' },
+        { status: 404, headers: { 'access-control-allow-origin': '*' } }
+      );
     }
 
-    return new Response(JSON.stringify(customer), {
+    return jsonResponse(customer, {
       status: 200,
-      headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' }
+      headers: { 'access-control-allow-origin': '*' }
     });
   } catch (err) {
     console.error('get-customer-profile error:', err);
-    return new Response(JSON.stringify({ message: 'Unauthorized' }), {
-      status: 401,
-      headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' }
-    });
+    return jsonResponse(
+      { message: 'Unauthorized' },
+      { status: 401, headers: { 'access-control-allow-origin': '*' } },
+      { noIndex: true }
+    );
   }
 };

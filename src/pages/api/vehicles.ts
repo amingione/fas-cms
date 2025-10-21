@@ -1,41 +1,27 @@
 import { sanityFetch } from '@/lib/sanityFetch';
-import { readSession } from '../../server/auth/session';
 
-export async function GET({ request }: { request: Request }): Promise<Response> {
-  const { session } = await readSession(request);
-  if (!session?.user?.email) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
-  }
-
-  console.log('🧪 VEHICLE API DEBUG →', {
-    tokenPrefix: import.meta.env.SANITY_API_TOKEN?.slice(0, 8),
-    projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID,
-    dataset: import.meta.env.PUBLIC_SANITY_DATASET
+const json = (body: Record<string, unknown>, init?: ResponseInit) =>
+  new Response(JSON.stringify(body), {
+    headers: { 'content-type': 'application/json' },
+    ...init
   });
 
+export async function GET(): Promise<Response> {
   const query = `*[_type == "vehicleModel"]{ model }`;
 
   if (
-    !import.meta.env.SANITY_API_TOKEN ||
     !import.meta.env.PUBLIC_SANITY_PROJECT_ID ||
     !import.meta.env.PUBLIC_SANITY_DATASET
   ) {
-    return new Response(JSON.stringify({ error: 'Missing Sanity credentials' }), {
-      status: 500
-    });
+    return json({ vehicles: [] }, { status: 200 });
   }
 
   try {
-    const result = await sanityFetch({ query });
-    return new Response(JSON.stringify(result), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    const result = await sanityFetch<{ model?: string }[]>({ query });
+    return json({ vehicles: Array.isArray(result) ? result : [] }, { status: 200 });
   } catch (err) {
     console.error('❌ Vehicle fetch failed:', err);
     const message = err instanceof Error ? err.message : 'Unknown error';
-    return new Response(JSON.stringify({ error: 'Vehicle fetch error', details: message }), {
-      status: 500
-    });
+    return json({ vehicles: [], error: 'Vehicle fetch error', details: message }, { status: 200 });
   }
 }

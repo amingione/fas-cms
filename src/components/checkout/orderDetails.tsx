@@ -144,7 +144,7 @@ export default function Example() {
               </dl>
 
               <div className="mt-16 border-t border-gray-200 py-6 text-right">
-                <a href="#" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                <a href="/shop" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
                   Continue Shopping
                   <span aria-hidden="true"> &rarr;</span>
                 </a>

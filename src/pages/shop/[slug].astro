@@ -130,6 +130,14 @@ const ensureDisclaimerMessaging = (value: string, message: string): string => {
 };
 
 const requestUrl = new URL(Astro.request.url);
+const slugValue =
+  typeof slug === 'string'
+    ? slug
+    : Array.isArray(slug)
+      ? slug.filter((segment) => typeof segment === 'string').pop() ?? ''
+      : '';
+const defaultCanonical = `${requestUrl.origin}/shop/${slugValue}`;
+
 const ensureAbsoluteUrl = (value?: string | null): string | undefined => {
   if (!value) return undefined;
   if (/^https?:/i.test(value)) return value;
@@ -149,6 +157,10 @@ let addOns: any[] = [];
 let customs: any[] = [];
 let variationOptions: any[] = [];
 let plainDescription: string = '';
+let seoTitle: string = 'Product';
+let seoDesc: string | undefined;
+let seoCanon: string | undefined = defaultCanonical;
+let seoOg: string | undefined;
 try {
   if (typeof slug !== 'string') {
     throw new Error('Product slug is missing or invalid.');
@@ -275,98 +287,33 @@ try {
     });
   }
   // SEO helpers
-  var seoTitle: string = String((product as any)?.title || 'Product');
+  seoTitle = String((product as any)?.title || 'Product');
   plainDescription = collapseSpaces(
     toPlainText((product as any)?.shortDescription ?? (product as any)?.description ?? '')
   );
-  var seoDesc: string | undefined;
-  var seoCanon: string | undefined = `${requestUrl.origin}/shop/${slug}`;
-  var seoOg: string | undefined = (product as any)?.images?.[0]?.asset?.url || (product as any)?.images?.[0]?.url || undefined;
-  seoOg = ensureAbsoluteUrl(seoOg);
+  seoCanon = defaultCanonical;
+  seoOg = ensureAbsoluteUrl(
+    (product as any)?.images?.[0]?.asset?.url || (product as any)?.images?.[0]?.url || undefined
+  );
 } catch (err) {
   console.error('❌ Failed to fetch product or similar products:', err);
-  return Astro.redirect('/shop'); // Redirect to shop if product not found
+  product = null;
 }
 
-const productImages: string[] = Array.isArray((product as any)?.images)
-  ? (product as any).images
-      .map((image: any) => ensureAbsoluteUrl(image?.asset?.url || image?.url))
-      .filter((image: unknown): image is string => typeof image === 'string' && Boolean(image))
-  : [];
-
-if (!seoOg && productImages.length > 0) {
-  seoOg = productImages[0];
+const productNotFound = !product;
+if (productNotFound) {
+  Astro.response.status = 404;
 }
 
-const metaKeywordTokens: string[] = [];
-if (Array.isArray((product as any)?.categories)) {
-  (product as any).categories.forEach((category: any) => {
-    if (category?.title) metaKeywordTokens.push(String(category.title));
-    if (category?.slug?.current) metaKeywordTokens.push(String(category.slug.current).replace(/[-_]/g, ' '));
-  });
-}
-const filterEntriesForKeywords: FilterEntry[] = Array.isArray((product as any)?.filters)
-  ? (product as any).filters
-  : [];
-const filterSlugsForFlags: string[] = [];
-filterEntriesForKeywords.forEach((entry, idx) => {
-  const slugValue = normalizeFilterSlug(entry);
-  if (slugValue) filterSlugsForFlags.push(slugValue);
-  const labelValue = normalizeFilterLabel(entry, slugValue);
-  if (labelValue) metaKeywordTokens.push(labelValue);
-});
-
-const canonicalFilterSlugs = new Set<string>();
-filterSlugsForFlags.forEach((slug) => {
-  if (!slug) return;
-  canonicalFilterSlugs.add(slug);
-  canonicalFilterSlugs.add(slug.replace(/_/g, '-'));
-  canonicalFilterSlugs.add(slug.replace(/[-_]/g, ''));
-});
-
-const shippingClassRaw = ((product as any)?.shippingClass || '').toString();
-const normalizedShippingClass = shippingClassRaw.toLowerCase().replace(/[^a-z0-9]/g, '');
-const isInstallOnly =
-  normalizedShippingClass === 'installonly' ||
-  canonicalFilterSlugs.has('installonly') ||
-  canonicalFilterSlugs.has('install-only');
-const isPerformanceParts =
-  normalizedShippingClass === 'performanceparts' ||
-  canonicalFilterSlugs.has('performanceparts') ||
-  canonicalFilterSlugs.has('performance-parts');
-
-const serviceDisclaimer = isInstallOnly
-  ? 'Professional installation service only. Vehicle not included.'
-  : 'Performance package or components only. Vehicle not included.';
-const titleQualifier = isInstallOnly
-  ? 'Installation Service — Vehicle Not Included'
-  : 'Performance Package — Vehicle Not Included';
-
-plainDescription = ensureDisclaimerMessaging(plainDescription, serviceDisclaimer);
-if (!seoTitle.toLowerCase().includes('vehicle not included')) {
-  seoTitle = `${seoTitle} — ${titleQualifier}`;
-}
-seoDesc = plainDescription ? plainDescription.slice(0, 160) : undefined;
-
-const metaKeywords = Array.from(
-  new Set(
-    metaKeywordTokens
-      .map((token) => collapseSpaces(String(token)))
-      .filter((token) => token.length > 0)
-  )
-).join(', ');
-
-const priceValue = typeof (product as any)?.price === 'number' ? (product as any).price : undefined;
-
-const breadcrumbStructuredData = {
-  '@context': 'https://schema.org',
-  '@type': 'BreadcrumbList',
-  itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'Home', item: requestUrl.origin },
-    { '@type': 'ListItem', position: 2, name: 'Shop', item: `${requestUrl.origin}/shop` },
-    { '@type': 'ListItem', position: 3, name: seoTitle, item: seoCanon }
-  ]
-};
+let productImages: string[] = [];
+let metaKeywords = '';
+let serviceDisclaimer = 'Performance package or components only. Vehicle not included.';
+let titleQualifier = 'Performance Package — Vehicle Not Included';
+let priceValue: number | undefined;
+let breadcrumbStructuredData: Record<string, any> | null = null;
+let productStructuredData: Record<string, any> | null = null;
+let isInstallOnly = false;
+let isPerformanceParts = false;
 
 const vehicleAvailabilityProperty = {
   '@type': 'PropertyValue',
@@ -374,50 +321,156 @@ const vehicleAvailabilityProperty = {
   value: 'Vehicle not included with purchase'
 };
 
-const offerDetails: Record<string, any> = {
-  '@type': 'Offer',
-  priceCurrency: 'USD',
-  availability: 'https://schema.org/InStock',
-  url: seoCanon
-};
-if (typeof priceValue === 'number') {
-  offerDetails.price = priceValue;
-}
-if (isInstallOnly) {
-  offerDetails.itemOffered = {
-    '@type': 'Service',
-    name: `${(product as any)?.title} Installation`,
-    description: serviceDisclaimer
+if (!productNotFound) {
+  productImages = Array.isArray((product as any)?.images)
+    ? (product as any).images
+        .map((image: any) => ensureAbsoluteUrl(image?.asset?.url || image?.url))
+        .filter((image: unknown): image is string => typeof image === 'string' && Boolean(image))
+    : [];
+
+  if (!seoOg && productImages.length > 0) {
+    seoOg = productImages[0];
+  }
+
+  const metaKeywordTokens: string[] = [];
+  if (Array.isArray((product as any)?.categories)) {
+    (product as any).categories.forEach((category: any) => {
+      if (category?.title) metaKeywordTokens.push(String(category.title));
+      if (category?.slug?.current) metaKeywordTokens.push(String(category.slug.current).replace(/[-_]/g, ' '));
+    });
+  }
+
+  const filterEntriesForKeywords: FilterEntry[] = Array.isArray((product as any)?.filters)
+    ? (product as any).filters
+    : [];
+  const filterSlugsForFlags: string[] = [];
+  filterEntriesForKeywords.forEach((entry) => {
+    const entrySlug = normalizeFilterSlug(entry);
+    if (entrySlug) filterSlugsForFlags.push(entrySlug);
+    const labelValue = normalizeFilterLabel(entry, entrySlug);
+    if (labelValue) metaKeywordTokens.push(labelValue);
+  });
+
+  const canonicalFilterSlugs = new Set<string>();
+  filterSlugsForFlags.forEach((value) => {
+    if (!value) return;
+    canonicalFilterSlugs.add(value);
+    canonicalFilterSlugs.add(value.replace(/_/g, '-'));
+    canonicalFilterSlugs.add(value.replace(/[-_]/g, ''));
+  });
+
+  const shippingClassRaw = ((product as any)?.shippingClass || '').toString();
+  const normalizedShippingClass = shippingClassRaw.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const computedInstallOnly =
+    normalizedShippingClass === 'installonly' ||
+    canonicalFilterSlugs.has('installonly') ||
+    canonicalFilterSlugs.has('install-only');
+  const computedPerformanceParts =
+    normalizedShippingClass === 'performanceparts' ||
+    canonicalFilterSlugs.has('performanceparts') ||
+    canonicalFilterSlugs.has('performance-parts');
+
+  isInstallOnly = computedInstallOnly;
+  isPerformanceParts = computedPerformanceParts;
+
+  serviceDisclaimer = isInstallOnly
+    ? 'Professional installation service only. Vehicle not included.'
+    : 'Performance package or components only. Vehicle not included.';
+  titleQualifier = isInstallOnly
+    ? 'Installation Service — Vehicle Not Included'
+    : 'Performance Package — Vehicle Not Included';
+
+  plainDescription = ensureDisclaimerMessaging(plainDescription, serviceDisclaimer);
+  if (!seoTitle.toLowerCase().includes('vehicle not included')) {
+    seoTitle = `${seoTitle} — ${titleQualifier}`;
+  }
+  seoDesc = plainDescription ? plainDescription.slice(0, 160) : undefined;
+
+  metaKeywords = Array.from(
+    new Set(
+      metaKeywordTokens
+        .map((token) => collapseSpaces(String(token)))
+        .filter((token) => token.length > 0)
+    )
+  ).join(', ');
+
+  priceValue = typeof (product as any)?.price === 'number' ? (product as any).price : undefined;
+
+  breadcrumbStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: requestUrl.origin },
+      { '@type': 'ListItem', position: 2, name: 'Shop', item: `${requestUrl.origin}/shop` },
+      { '@type': 'ListItem', position: 3, name: seoTitle, item: seoCanon }
+    ]
   };
-}
 
-const brandOrProvider = isInstallOnly
-  ? { '@type': 'Organization', name: 'F.A.S. Motorsports' }
-  : { '@type': 'Brand', name: 'F.A.S. Motorsports' };
+  const offerDetails: Record<string, any> = {
+    '@type': 'Offer',
+    priceCurrency: 'USD',
+    availability: 'https://schema.org/InStock',
+    url: seoCanon
+  };
+  if (typeof priceValue === 'number') {
+    offerDetails.price = priceValue;
+  }
+  if (isInstallOnly) {
+    offerDetails.itemOffered = {
+      '@type': 'Service',
+      name: `${(product as any)?.title} Installation`,
+      description: serviceDisclaimer
+    };
+  }
 
-const productStructuredData: Record<string, any> = {
-  '@context': 'https://schema.org/',
-  '@type': isInstallOnly ? 'Service' : 'Product',
-  name: (product as any)?.title,
-  image: productImages,
-  description: plainDescription || undefined,
-  sku: (product as any)?.sku || undefined,
-  url: seoCanon,
-  offers: offerDetails,
-  additionalProperty: [vehicleAvailabilityProperty]
-};
+  const brandOrProvider = isInstallOnly
+    ? { '@type': 'Organization', name: 'F.A.S. Motorsports' }
+    : { '@type': 'Brand', name: 'F.A.S. Motorsports' };
 
-if (isInstallOnly) {
-  productStructuredData.serviceType = 'Automotive performance installation';
-  productStructuredData.provider = brandOrProvider;
-  productStructuredData.areaServed = 'US';
+  productStructuredData = {
+    '@context': 'https://schema.org/',
+    '@type': isInstallOnly ? 'Service' : 'Product',
+    name: (product as any)?.title,
+    image: productImages,
+    description: plainDescription || undefined,
+    sku: (product as any)?.sku || undefined,
+    url: seoCanon,
+    offers: offerDetails,
+    additionalProperty: [vehicleAvailabilityProperty]
+  };
+
+  if (isInstallOnly) {
+    productStructuredData.serviceType = 'Automotive performance installation';
+    productStructuredData.provider = brandOrProvider;
+    productStructuredData.areaServed = 'US';
+  } else {
+    productStructuredData.brand = brandOrProvider;
+    productStructuredData.category = metaKeywords || undefined;
+  }
 } else {
-  productStructuredData.brand = brandOrProvider;
-  productStructuredData.category = metaKeywords || undefined;
+  seoTitle = 'Product Not Found';
+  seoDesc = 'The product you are looking for may have been removed or is no longer available.';
+  seoCanon = defaultCanonical;
+  productImages = [];
+  metaKeywords = '';
+  serviceDisclaimer = '';
+  titleQualifier = '';
+  priceValue = undefined;
+  breadcrumbStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: requestUrl.origin },
+      { '@type': 'ListItem', position: 2, name: 'Shop', item: `${requestUrl.origin}/shop` },
+      { '@type': 'ListItem', position: 3, name: 'Product Not Found', item: seoCanon }
+    ]
+  };
+  productStructuredData = null;
 }
 ---
 
-<BaseLayout hideBrandTag title={seoTitle} description={seoDesc} canonical={seoCanon} ogImage={seoOg}>
+{!productNotFound ? (
+  <BaseLayout hideBrandTag title={seoTitle} description={seoDesc} canonical={seoCanon} ogImage={seoOg}>
   <Fragment slot="head">
     <meta property="og:type" content="product" />
     {typeof priceValue === 'number' && (
@@ -428,8 +481,12 @@ if (isInstallOnly) {
     )}
     <meta property="product:availability" content="https://schema.org/InStock" />
     {metaKeywords && <meta name="keywords" content={metaKeywords} />}
-    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
-    <script type="application/ld+json" set:html={JSON.stringify(productStructuredData)} />
+    {breadcrumbStructuredData && (
+      <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
+    )}
+    {productStructuredData && (
+      <script type="application/ld+json" set:html={JSON.stringify(productStructuredData)} />
+    )}
   </Fragment>
   <div {...inlineObjectId((product as any)._id)}>
   <div class="container mx-auto px-4 py-10 text-white" style="padding-top: 80px;">
@@ -924,7 +981,7 @@ if (isInstallOnly) {
   </div>
 
   
-</BaseLayout>
+  </BaseLayout>
 <!-- Sticky mobile add-to-cart bar -->
 <div id="mobile-add-to-cart" class="md:hidden fixed bottom-0 left-0 right-0 z-[60] bg-black/90 border-t border-white/20 backdrop-blur px-3 py-2 flex items-center justify-between">
   <div class="text-white/90 text-sm">
@@ -979,6 +1036,27 @@ if (isInstallOnly) {
     } catch {}
   })();
 </script>
+) : (
+  <BaseLayout title={seoTitle} description={seoDesc} canonical={seoCanon} noindex>
+    {breadcrumbStructuredData && (
+      <Fragment slot="head">
+        <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
+      </Fragment>
+    )}
+    <section class="mx-auto flex min-h-[60vh] max-w-3xl flex-col items-center justify-center px-4 py-24 text-center text-white">
+      <h1 class="text-4xl font-ethno md:text-5xl">Product not found</h1>
+      <p class="mt-4 text-sm text-white/80 md:text-base">
+        The product you are looking for may have been removed, renamed, or is temporarily unavailable.
+      </p>
+      <a
+        class="mt-8 inline-flex items-center rounded-full border border-white/30 px-5 py-2 text-sm uppercase tracking-wide transition hover:bg-primary hover:text-accent"
+        href="/shop"
+      >
+        Browse all products
+      </a>
+    </section>
+  </BaseLayout>
+)}
   <style>
     /* Ensure transparent overlays don’t block clicks on this product page */
     [class~="absolute"][class~="inset-0"][class*="bg-black/10"][class~="z-0"] { pointer-events: none; }

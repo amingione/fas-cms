@@ -39,9 +39,7 @@ const structuredData = {
 
 <BaseLayout hideBrandTag={true} title={pageTitle} description={pageDescription} canonical={canonical}>
   <Fragment slot="head">
-    <script type="application/ld+json">
-      {JSON.stringify(structuredData)}
-    </script>
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
   </Fragment>
   <div>
     <div {...inlineObjectId('content/pages/contact.json')}>

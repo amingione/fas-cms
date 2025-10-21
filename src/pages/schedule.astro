@@ -37,9 +37,7 @@ const structuredData = {
 ---
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
   <Fragment slot="head">
-    <script type="application/ld+json">
-      {JSON.stringify(structuredData)}
-    </script>
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
   </Fragment>
   <div {...inlineObjectId('content/pages/schedule.json')} class="bg-[#121212]">
     <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>{pageDoc?.title ?? 'Schedule'}</div>

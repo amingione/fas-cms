@@ -4,6 +4,16 @@
   status = 200
 
 [[redirects]]
+  from = "/products/*"
+  to = "/shop/:splat"
+  status = 301
+
+[[redirects]]
+  from = "/product-category/*"
+  to = "/shop/categories/:splat"
+  status = 301
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
