@@ -20,5 +20,6 @@
     "clsx\\(([^)]*)\\)",
     "classnames\\(([^)]*)\\)"
   ],
-  "vscode-openai.conversation-configuration.assistant-rules": false
+  "vscode-openai.conversation-configuration.assistant-rules": false,
+  "chatgpt.openOnStartup": true
 }
