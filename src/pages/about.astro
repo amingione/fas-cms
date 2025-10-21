@@ -3,6 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 
 import AboutHero from '@/components/hero/AboutHero.astro';
 import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
+import { serializeJsonLd } from '@lib/utils';
 
 
 
@@ -37,10 +38,7 @@ const structuredData = {
     'https://www.instagram.com/fasmotorsports'
   ]
 };
-const sanitizedStructuredData = JSON.stringify(structuredData)
-  .replace(/</g, '\\u003c')
-  .replace(/>/g, '\\u003e')
-  .replace(/&/g, '\\u0026');
+const sanitizedStructuredData = serializeJsonLd(structuredData);
 ---
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
   <Fragment slot="head">

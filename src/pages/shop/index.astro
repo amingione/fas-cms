@@ -4,6 +4,7 @@ import ShopTopControls from '@components/shop/ShopTopControls';
 import ShopSidebarFilters from '@/components/storefront/ShopSidebarFilters';
 import { fetchProductsFromSanity, fetchCategories } from '@lib/sanity-utils';
 import type { Product, Category } from '@lib/sanity-utils';
+import { serializeJsonLd } from '@lib/utils';
 import ProductGrid from '@/components/storefront/ProductGrid.astro';
 import FilterPanelMobile from '@/components/storefront/FilterPanelMobile.tsx';
 import Pagination from '@/components/storefront/Pagination.astro';
@@ -244,7 +245,10 @@ if (endPage < totalPages) {
 
 <BaseLayout title={metaTitle} description={pageDescription} canonical={canonical}>
   <Fragment slot="head">
-    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
+    <script
+      type="application/ld+json"
+      set:html={serializeJsonLd(breadcrumbStructuredData)}
+    />
   </Fragment>
   <section class="max-w-full px-2 md:px-2 mt-11 pt-10">
     <div class="mb-6 mt-2 space-y-3">
