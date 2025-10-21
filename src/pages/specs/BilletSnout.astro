@@ -3,6 +3,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import ProductSpecSheet from '@components/specs/ProductSpecSheet.astro';
+import { serializeJsonLd } from '@lib/utils';
 
 const pageDoc: any = await loadPageDoc('BilletSnoutSpecs');
 
@@ -98,7 +99,10 @@ const structuredData = {
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical} ogImage={primaryImage}>
   <Fragment slot="head">
     <meta property="og:type" content="product.group" />
-    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+    <script
+      type="application/ld+json"
+      set:html={serializeJsonLd(structuredData)}
+    />
   </Fragment>
   <div {...inlineObjectId('content/pages/BilletSnoutSpecs.json')}>
     <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>

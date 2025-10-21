@@ -4,6 +4,7 @@ import JtxHero from '@/components/jtx/JtxHero.astro';
 import JtxSidebar from '@/components/jtx/JtxSidebar.astro';
 import JtxWheelSpecForm from '@/components/jtx/JtxWheelSpecForm';
 import { JTX_SERIES } from '@/content/jtx/options';
+import { serializeJsonLd } from '@lib/utils';
 
 // Read ?series=... and validate against known series
 const url = new URL(Astro.request.url);
@@ -37,7 +38,10 @@ const breadcrumbStructuredData = {
 ---
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
   <Fragment slot="head">
-    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
+    <script
+      type="application/ld+json"
+      set:html={serializeJsonLd(breadcrumbStructuredData)}
+    />
   </Fragment>
   <JtxHero title="JTX Forged — Custom Spec Quote" subtitle="ARC Monoforged truck wheels with premium finishes and popular 5/6/8 lug patterns." />
   <div class="mx-auto max-w-7xl px-6 py-6">

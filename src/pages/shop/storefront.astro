@@ -3,6 +3,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import CategoryPage from "@/components/storefront/CategoryPage.tsx";
 import { fetchProductsFromSanity } from "@/lib/sanity-utils";
 import { sanityClient as client } from "@/lib/sanityClient";
+import { serializeJsonLd } from '@lib/utils';
 
 const products = await fetchProductsFromSanity({});
 
@@ -54,7 +55,10 @@ const breadcrumbStructuredData = {
 
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
   <Fragment slot="head">
-    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
+    <script
+      type="application/ld+json"
+      set:html={serializeJsonLd(breadcrumbStructuredData)}
+    />
   </Fragment>
 
 <section class="px-5 py-5">

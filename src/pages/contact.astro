@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import SectionRenderer from '@/components/SectionRenderer.astro';
+import { serializeJsonLd } from '@lib/utils';
 
 const pageDoc: any = await loadPageDoc('contact');
 const requestUrl = new URL(Astro.request.url);
@@ -39,7 +40,10 @@ const structuredData = {
 
 <BaseLayout hideBrandTag={true} title={pageTitle} description={pageDescription} canonical={canonical}>
   <Fragment slot="head">
-    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+    <script
+      type="application/ld+json"
+      set:html={serializeJsonLd(structuredData)}
+    />
   </Fragment>
   <div>
     <div {...inlineObjectId('content/pages/contact.json')}>

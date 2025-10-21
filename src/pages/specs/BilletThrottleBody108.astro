@@ -3,6 +3,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import ProductSpecSheet from '@components/specs/ProductSpecSheet.astro';
+import { serializeJsonLd } from '@lib/utils';
 
 // Backed by content/pages/BilletThrottleBody108Specs.json
 const pageDoc: any = await loadPageDoc('BilletThrottleBody108Specs');
@@ -64,7 +65,10 @@ const structuredData = {
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical} ogImage={ensureAbsolute(specSheet.imageSrc)}>
   <Fragment slot="head">
     <meta property="og:type" content="product" />
-    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+    <script
+      type="application/ld+json"
+      set:html={serializeJsonLd(structuredData)}
+    />
   </Fragment>
   <div {...inlineObjectId('content/pages/BilletThrottleBody108Specs.json')}>
     <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>

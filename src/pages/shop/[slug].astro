@@ -5,6 +5,7 @@ import PortableTextRenderer from "../../components/PortableTextRenderer.jsx";
 import SlugCarousel from '@/components/SlugCarousel.astro';
 import TrustStrip from '@/components/TrustStrip.astro';
 import { inlineFieldAttrs, inlineObjectId } from '@lib/content';
+import { serializeJsonLd } from '@lib/utils';
 
 export type KitItem = { item: string; quantity?: number };
 export type VehicleCompat = { make?: string; model?: string; trim?: string };
@@ -482,10 +483,16 @@ if (!productNotFound) {
     <meta property="product:availability" content="https://schema.org/InStock" />
     {metaKeywords && <meta name="keywords" content={metaKeywords} />}
     {breadcrumbStructuredData && (
-      <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
+      <script
+        type="application/ld+json"
+        set:html={serializeJsonLd(breadcrumbStructuredData)}
+      />
     )}
     {productStructuredData && (
-      <script type="application/ld+json" set:html={JSON.stringify(productStructuredData)} />
+      <script
+        type="application/ld+json"
+        set:html={serializeJsonLd(productStructuredData)}
+      />
     )}
   </Fragment>
   <div {...inlineObjectId((product as any)._id)}>
@@ -1040,7 +1047,10 @@ if (!productNotFound) {
   <BaseLayout title={seoTitle} description={seoDesc} canonical={seoCanon} noindex>
     {breadcrumbStructuredData && (
       <Fragment slot="head">
-        <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
+        <script
+          type="application/ld+json"
+          set:html={serializeJsonLd(breadcrumbStructuredData)}
+        />
       </Fragment>
     )}
     <section class="mx-auto flex min-h-[60vh] max-w-3xl flex-col items-center justify-center px-4 py-24 text-center text-white">
