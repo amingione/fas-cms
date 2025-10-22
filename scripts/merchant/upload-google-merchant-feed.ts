@@ -24,6 +24,12 @@ type MerchantRow = {
   gtin?: string;
   mpn?: string;
   google_product_category?: string;
+  product_type?: string;
+  custom_label_0?: string;
+  custom_label_1?: string;
+  custom_label_2?: string;
+  custom_label_3?: string;
+  additional_image_link?: string;
 };
 
 type ServiceAccountKey = {
@@ -119,6 +125,11 @@ function ensureUrl(slug: string | null | undefined, base: string): string {
   const trimmedSlug = (slug || '').replace(/^\/+/, '');
   const href = trimmedSlug ? `/shop/${trimmedSlug}` : '/';
   return new URL(href, base.endsWith('/') ? base : `${base}/`).toString();
+}
+
+function clampLength(value: string, maxLength: number): string {
+  if (!value) return value;
+  return value.length > maxLength ? value.slice(0, maxLength) : value;
 }
 
 function computeAvailability(manualCount: unknown): MerchantRow['availability'] {
@@ -335,6 +346,21 @@ function buildContentApiProduct(row: MerchantRow): content_v2_1.Schema$Product {
   if (shipping.length) product.shipping = shipping;
   if (quantity) product.sellOnGoogleQuantity = quantity;
   if (!row.gtin && !row.mpn) product.identifierExists = false;
+  if (row.product_type) product.productTypes = [row.product_type];
+  if (row.custom_label_0) product.customLabel0 = row.custom_label_0;
+  if (row.custom_label_1) product.customLabel1 = row.custom_label_1;
+  if (row.custom_label_2) product.customLabel2 = row.custom_label_2;
+  if (row.custom_label_3) product.customLabel3 = row.custom_label_3;
+  if (row.additional_image_link) {
+    const additionalImages = row.additional_image_link
+      .split(',')
+      .map((value) => sanitizeText(value))
+      .map((value) => value.trim())
+      .filter(Boolean);
+    if (additionalImages.length) {
+      product.additionalImageLinks = additionalImages;
+    }
+  }
 
   return product;
 }
@@ -364,6 +390,12 @@ const query = `*[_type=="product" && defined(slug.current) && !(_id in path("dra
   "google_product_category": googleProductCategory,
   "image": coalesce(images[0].asset->url, image.asset->url, socialImage.asset->url),
   "filterSlugs": filters[]->slug.current,
+  productType,
+  "categoryTitles": select(
+    defined(categories) => categories[]->title,
+    defined(category) => category[]->title
+  ),
+  "additionalImages": images[]{asset->{url}},
   shippingClass,
   shippingWeight
 }`;
@@ -409,6 +441,22 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
       const image = sanitizeText(product?.image);
       const slug = sanitizeText(product?.slug);
       const brand = sanitizeText(product?.brand) || 'F.A.S. Motorsports';
+      const productTypeValue = sanitizeText(product?.productType);
+      const categoryTitles: string[] = Array.isArray(product?.categoryTitles)
+        ? product.categoryTitles.map((category: unknown) => sanitizeText(category)).filter(Boolean)
+        : [];
+      const productTypeSegments = Array.from(new Set([productTypeValue, ...categoryTitles].filter(Boolean)));
+      const additionalImages: string[] = Array.isArray(product?.additionalImages)
+        ? product.additionalImages
+            .map((img: any) => {
+              if (img && typeof img === 'object') {
+                return sanitizeText((img.asset && 'url' in img.asset ? (img.asset as any).url : (img as any).url) || '');
+              }
+              return sanitizeText(img);
+            })
+            .filter(Boolean)
+            .filter((url) => url !== image)
+        : [];
 
       if (!id || !title || !slug || !description || !image) {
         return null;
@@ -468,6 +516,16 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
         shipping_weight: `${computeWeight(product?.shippingWeight).toFixed(2)} lb`
       };
 
+      if (productTypeSegments.length) {
+        row.product_type = clampLength(productTypeSegments.join(' > '), 750);
+      }
+
+      if (categoryTitles[0]) {
+        row.custom_label_1 = clampLength(categoryTitles[0], 100);
+      } else if (productTypeValue) {
+        row.custom_label_1 = clampLength(productTypeValue, 100);
+      }
+
       if (ENABLE_ADS_REDIRECT && quickCheckoutUrl) {
         row.ads_redirect = quickCheckoutUrl;
       }
@@ -481,6 +539,16 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
       if (product?.mpn) row.mpn = sanitizeText(product.mpn);
       const googleCategory = sanitizeText(product?.google_product_category);
       row.google_product_category = googleCategory || DEFAULT_GOOGLE_PRODUCT_CATEGORY;
+      row.custom_label_0 = clampLength(isInstallOnly ? 'install_service' : 'performance_product', 100);
+      row.custom_label_2 = clampLength(allowsShipping ? 'ships_available' : 'install_only', 100);
+      row.custom_label_3 = clampLength(ENABLE_ADS_REDIRECT ? 'ads_redirect_enabled' : 'ads_redirect_disabled', 100);
+
+      if (additionalImages.length) {
+        const uniqueAdditionalImages = Array.from(new Set(additionalImages));
+        if (uniqueAdditionalImages.length) {
+          row.additional_image_link = uniqueAdditionalImages.slice(0, 10).join(',');
+        }
+      }
 
       return row;
     })
