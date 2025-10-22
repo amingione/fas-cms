@@ -478,7 +478,7 @@ export async function computeShippingQuote(
 
         if (isMediaMail) return false;
 
-        if (isUspsRate(rate)) return false;
+        if (!ALLOW_USPS && isUspsRate(rate)) return false;
 
         return Number.isFinite(rate.amount) && rate.amount >= 0;
       });
