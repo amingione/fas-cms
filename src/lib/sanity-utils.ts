@@ -130,18 +130,21 @@ export interface Vehicle {
   slug: { current: string };
 }
 
-type QueryParams = Record<string, string | number | boolean>;
+type QueryParamValue = string | number | boolean | string[] | number[];
+type QueryParams = Record<string, QueryParamValue>;
 
 // Fetch all products
 export async function fetchProductsFromSanity({
   categorySlug,
   tuneSlug,
   vehicleSlug,
+  vehicleSlugs,
   minHp
 }: {
   categorySlug?: string;
   tuneSlug?: string;
   vehicleSlug?: string;
+  vehicleSlugs?: string[];
   minHp?: number;
 }): Promise<Product[]> {
   try {
@@ -158,9 +161,26 @@ export async function fetchProductsFromSanity({
       conditions.push(`tune->slug.current == $tuneSlug`);
       params.tuneSlug = tuneSlug;
     }
-    if (vehicleSlug) {
-      conditions.push(`$vehicleSlug in compatibleVehicles[]->slug.current`);
-      params.vehicleSlug = vehicleSlug;
+    const normalizedVehicleSlugs =
+      Array.isArray(vehicleSlugs) && vehicleSlugs.length
+        ? Array.from(
+            new Set(
+              vehicleSlugs
+                .map((slug) => (typeof slug === 'string' ? slug.trim().toLowerCase() : ''))
+                .filter(Boolean)
+            )
+          )
+        : null;
+
+    if (normalizedVehicleSlugs && normalizedVehicleSlugs.length) {
+      conditions.push(`count((compatibleVehicles[]->slug.current)[@ in $vehicleSlugs]) > 0`);
+      params.vehicleSlugs = normalizedVehicleSlugs;
+    } else if (vehicleSlug) {
+      const normalizedSlug = typeof vehicleSlug === 'string' ? vehicleSlug.trim().toLowerCase() : '';
+      if (normalizedSlug) {
+        conditions.push(`$vehicleSlug in compatibleVehicles[]->slug.current`);
+        params.vehicleSlug = normalizedSlug;
+      }
     }
     if (typeof minHp === 'number' && !isNaN(minHp)) {
       conditions.push(`averageHorsepower >= $minHp`);

@@ -143,12 +143,8 @@ const ensureDisclaimerMessaging = (value: string, message: string): string => {
 };
 
 const requestUrl = new URL(Astro.request.url);
-const slugValue =
-  typeof slug === 'string'
-    ? slug
-    : Array.isArray(slug)
-      ? slug.filter((segment) => typeof segment === 'string').pop() ?? ''
-      : '';
+const slugSegments = Array.isArray(slug) ? slug : typeof slug === 'string' ? [slug] : [];
+const slugValue = slugSegments.filter((segment): segment is string => typeof segment === 'string').pop() ?? '';
 const defaultCanonical = `${requestUrl.origin}/shop/${slugValue}`;
 
 const ensureAbsoluteUrl = (value?: string | null): string | undefined => {
@@ -314,7 +310,7 @@ try {
 }
 
 const productNotFound = !product;
-if (productNotFound) {
+if (!product) {
   Astro.response.status = 404;
 }
 
@@ -335,7 +331,7 @@ const vehicleAvailabilityProperty = {
   value: 'Vehicle not included with purchase'
 };
 
-if (!productNotFound) {
+if (product) {
   productImages = Array.isArray((product as any)?.images)
     ? (product as any).images
         .map((image: any) => ensureAbsoluteUrl(image?.asset?.url || image?.url))
@@ -371,7 +367,7 @@ if (!productNotFound) {
     if (labelValue) metaKeywordTokens.push(labelValue);
   });
 
-  const canonicalFilterSlugs = new Set<string>();
+  const canonicalFilterSlugs: Set<string> = new Set<string>();
   filterSlugsForFlags.forEach((value) => {
     if (!value) return;
     canonicalFilterSlugs.add(value);
@@ -392,18 +388,18 @@ if (!productNotFound) {
 
   isInstallOnly = computedInstallOnly;
   isPerformanceParts = computedPerformanceParts;
-  const normalizedCategoryTokens = categoryTitlesForTokens
+  const normalizedCategoryTokens: string[] = categoryTitlesForTokens
     .map((value) => collapseSpaces(value).toLowerCase())
-    .filter(Boolean);
-  const productTypeSegments = productTypeRaw
+    .filter((value): value is string => Boolean(value));
+  const productTypeSegments: string[] = productTypeRaw
     ? productTypeRaw
         .split('>')
-        .map((segment) => collapseSpaces(segment).toLowerCase())
-        .filter(Boolean)
+        .map((segment: string) => collapseSpaces(segment).toLowerCase())
+        .filter((segment): segment is string => Boolean(segment))
     : [];
-  const normalizedFilterTokens = Array.from(canonicalFilterSlugs)
-    .map((token) => collapseSpaces(token.replace(/[-_]/g, ' ')).toLowerCase())
-    .filter(Boolean);
+  const normalizedFilterTokens: string[] = Array.from(canonicalFilterSlugs)
+    .map((token: string) => collapseSpaces(token.replace(/[-_]/g, ' ')).toLowerCase())
+    .filter((token): token is string => Boolean(token));
 
   requiresVehicleDisclaimer =
     isInstallOnly ||
@@ -683,7 +679,7 @@ if (!productNotFound) {
 
         <!-- Short intro (truncated) -->
         <div class="break-words" {...inlineFieldAttrs('shortDescription')}>
-          <PortableTextRenderer value={product.shortDescription} />
+          <PortableTextRenderer value={product?.shortDescription ?? []} />
         </div>
 
         <!-- Add to Cart Button -->
@@ -798,15 +794,15 @@ if (!productNotFound) {
             </summary>
             <div class="px-4 py-4 text-white/90 font-arial leading-relaxed whitespace-pre-line break-words">
               <div {...inlineFieldAttrs('description')}>
-                <PortableTextRenderer value={product.description} />
+                <PortableTextRenderer value={product?.description ?? []} />
               </div>
               {/* Specifications Table */}
-              {product.specifications && product.specifications.length > 0 && (
+              {Array.isArray(product?.specifications) && product?.specifications.length > 0 && (
                 <div class="mt-6">
                   <h3 class="font-bold text-lg mb-2">Specifications</h3>
                   <table class="table-auto border border-gray-300 w-full text-left text-sm">
                     <tbody>
-                      {product.specifications.map((spec: { label?: string; key?: string; value?: string }) => (
+                      {(product?.specifications ?? []).map((spec: { label?: string; key?: string; value?: string }) => (
                         <tr>
                           <td class="border px-2 py-1">{spec.label || spec.key}</td>
                           <td class="border px-2 py-1">{spec.value}</td>
@@ -817,12 +813,12 @@ if (!productNotFound) {
                 </div>
               )}
               {/* Attributes Table */}
-              {product.attributes && product.attributes.length > 0 && (
+              {Array.isArray(product?.attributes) && product?.attributes.length > 0 && (
                 <div class="mt-6">
                   <h3 class="font-bold text-lg mb-2">Attributes</h3>
                   <table class="table-auto border border-gray-300 w-full text-left text-sm">
                     <tbody>
-                      {product.attributes.map((attr: { name?: string; value?: string }) => (
+                      {(product?.attributes ?? []).map((attr: { name?: string; value?: string }) => (
                         <tr>
                           <td class="border px-2 py-1">{attr.name}</td>
                           <td class="border px-2 py-1">{attr.value}</td>
@@ -833,12 +829,12 @@ if (!productNotFound) {
                 </div>
               )}
               {/* Kit Includes Table */}
-              {Array.isArray(product?.includedInKit) && product.includedInKit.length > 0 && (
+              {Array.isArray(product?.includedInKit) && product?.includedInKit.length > 0 && (
                 <div class="mt-6">
                   <h3 class="font-bold text-lg mb-2">Included in Kit</h3>
                   <table class="table-auto border border-gray-300 w-full text-left text-sm">
                     <tbody>
-                      {product.includedInKit.map((kit: KitItem, idx: number) => (
+                      {(product?.includedInKit ?? []).map((kit: KitItem, idx: number) => (
                         <tr>
                           <td class="border px-2 py-1">{kit.item ?? 'Item'}</td>
                           <td class="border px-2 py-1">{kit.quantity ?? 1}</td>
@@ -851,10 +847,10 @@ if (!productNotFound) {
             </div>
           </details>
 
-          {product.importantNotes && (
+          {product?.importantNotes && (
             <div class="mt-6 p-4 border border-red-500 bg-slate-400 text-primary rounded" {...inlineFieldAttrs('importantNotes')}>
               <h3 class="font-bold text-lg mb-2 text-primary">Important Notes</h3>
-              <PortableTextRenderer value={product.importantNotes} />
+              <PortableTextRenderer value={product?.importantNotes ?? []} />
             </div>
           )}
 

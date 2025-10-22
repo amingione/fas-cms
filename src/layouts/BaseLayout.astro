@@ -150,25 +150,20 @@ const breadcrumbItems = shouldRenderBreadcrumbs
 <html lang="en" class="dark">
   <head>
     <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17641771829"></script>
     <script is:inline>
-      if (typeof window !== 'undefined') {
-        const gtagScript = document.createElement('script');
-        gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-NQ94Z6HWGV';
-        gtagScript.async = true;
-        gtagScript.onload = () => {
-          window.dataLayer = window.dataLayer || [];
-          function gtag() { window.dataLayer.push(arguments); }
-          window.gtag = gtag;
-          gtag('js', new Date());
-          gtag('config', 'G-NQ94Z6HWGV', { send_page_view: true });
-          gtag('config', 'AW-17641771829');
-          try {
-            document.dispatchEvent(new Event('gtag:loaded'));
-          } catch {
-            /* noop */
-          }
-        };
-        document.head.appendChild(gtagScript);
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){window.dataLayer.push(arguments);}
+      window.gtag = gtag;
+      gtag('js', new Date());
+      gtag('config', 'G-NQ94Z6HWGV', { send_page_view: true });
+      gtag('config', 'AW-17641771829');
+      try {
+        if (typeof document !== 'undefined') {
+          document.dispatchEvent(new Event('gtag:loaded'));
+        }
+      } catch {
+        /* noop */
       }
     </script>
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />

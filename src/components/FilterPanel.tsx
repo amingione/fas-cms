@@ -260,6 +260,11 @@ export default function FilterPanel({
             {vehicles.map((v) => {
               const id = `veh-${v.replace(/\s+/g, '-')}`;
               const checked = selVehicles.includes(v);
+              const label = v
+                .replace(/[-_]/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim()
+                .replace(/\b\w/g, (c) => c.toUpperCase());
               return (
                 <div className="flex items-center gap-2" key={id}>
                   <input
@@ -270,8 +275,8 @@ export default function FilterPanel({
                     onChange={handleVehicleChange}
                     className="h-4 w-4 cursor-pointer accent-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
                   />
-                  <label htmlFor={id} className="cursor-pointer capitalize">
-                    {v}
+                  <label htmlFor={id} className="cursor-pointer">
+                    {label}
                   </label>
                 </div>
               );

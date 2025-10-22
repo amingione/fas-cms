@@ -138,8 +138,31 @@ const shippingLines = [
 ]
   .filter((line) => typeof line === 'string' && line.trim().length > 0)
   .map((line) => line as string);
+
+const conversionValue = Number(((totalAmount ?? 0) / 100).toFixed(2));
+const conversionTransactionId =
+  (typeof trackingNumber === 'string' && trackingNumber.trim()) ||
+  (typeof session?.id === 'string' && session.id) ||
+  (typeof sessionId === 'string' && sessionId) ||
+  '';
+const conversionEventData =
+  !error && conversionTransactionId
+    ? {
+        send_to: 'AW-17641771829/U5Z2CP6S_q4bELWmoNxB',
+        value: conversionValue,
+        currency,
+        transaction_id: conversionTransactionId
+      }
+    : null;
+const conversionEventScript = conversionEventData
+  ? `(function(){var data=${JSON.stringify(conversionEventData).replace(/</g, '\\\\u003c')};function fire(){if(typeof window.gtag==='function'){window.gtag('event','conversion',data);}}if(typeof window.gtag==='function'){fire();}else{document.addEventListener('gtag:loaded',fire,{once:true});}})();`
+  : null;
 ---
 <BaseLayout title="Order Success - F.A.S Performance" description="Thank you for your order! Your order has been received and is being processed.">
+  <Fragment slot="head">
+    {conversionEventScript && <script is:inline set:html={conversionEventScript}></script>}
+    {googleReviewOptInScript && <script is:inline set:html={googleReviewOptInScript}></script>}
+  </Fragment>
   <main class="relative min-h-[85vh] bg-black text-white">
     <div class="lg:absolute lg:inset-y-0 lg:right-1/2 lg:w-1/2 lg:pr-8 xl:pr-16">
       <div class="relative h-64 overflow-hidden shadow-2xl lg:h-full">
@@ -291,10 +314,6 @@ const shippingLines = [
     <TrustStrip />
   </div>
 </BaseLayout>
-
-{googleReviewOptInScript && (
-  <script is:inline set:html={googleReviewOptInScript}></script>
-)}
 
 <style>
   .font-ethno { font-family: 'Ethnocentric', sans-serif; }

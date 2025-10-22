@@ -725,15 +725,15 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
         filterSlugs.includes('performance_parts');
       const allowsShipping = !isInstallOnly && (isPerformanceParts || normalizedClass.length === 0);
 
-      const normalizedCategoryTokens = categoryTitles
+      const normalizedCategoryTokens: string[] = categoryTitles
         .map((value) => sanitizeText(value).toLowerCase())
-        .filter(Boolean);
-      const normalizedProductTypeTokens = productTypeSegments
+        .filter((value): value is string => Boolean(value));
+      const normalizedProductTypeTokens: string[] = productTypeSegments
         .map((value) => sanitizeText(value).toLowerCase())
-        .filter(Boolean);
-      const normalizedFilterTokens = filterSlugs
+        .filter((value): value is string => Boolean(value));
+      const normalizedFilterTokens: string[] = filterSlugs
         .map((slug) => sanitizeText(slug.replace(/[-_]/g, ' ')).toLowerCase())
-        .filter(Boolean);
+        .filter((value): value is string => Boolean(value));
 
       const requiresVehicleDisclaimer =
         isInstallOnly ||

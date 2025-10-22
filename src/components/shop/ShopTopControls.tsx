@@ -136,8 +136,13 @@ export default function ShopTopControls({
     }
 
     // vehicles
-    if (vehicles.length) params.set('vehicles', vehicles.join(','));
-    else params.delete('vehicles');
+    if (vehicles.length) {
+      params.set('vehicles', vehicles.join(','));
+      params.set('vehicleSlug', vehicles[0]);
+    } else {
+      params.delete('vehicles');
+      params.delete('vehicleSlug');
+    }
 
     // price
     params.set('priceMin', String(price.min));
@@ -181,6 +186,7 @@ export default function ShopTopControls({
     for (const [k] of params.entries()) if (k === 'filter') toDelete.push(k);
     toDelete.forEach((k) => params.delete(k));
     params.delete('vehicles');
+    params.delete('vehicleSlug');
     params.delete('priceMin');
     params.delete('priceMax');
     params.set('page', '1');

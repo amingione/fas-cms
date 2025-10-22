@@ -2,8 +2,8 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import ShopTopControls from '@components/shop/ShopTopControls';
 import ShopSidebarFilters from '@/components/storefront/ShopSidebarFilters';
-import { fetchProductsFromSanity, fetchCategories } from '@lib/sanity-utils';
-import type { Product, Category } from '@lib/sanity-utils';
+import { fetchProductsFromSanity, fetchCategories, fetchVehicles } from '@lib/sanity-utils';
+import type { Product, Category, Vehicle } from '@lib/sanity-utils';
 import ProductGrid from '@/components/storefront/ProductGrid.astro';
 import FilterPanelMobile from '@/components/storefront/FilterPanelMobile.tsx';
 import Pagination from '@/components/storefront/Pagination.astro';
@@ -90,17 +90,50 @@ const rawFilters = [
   .filter(Boolean);
 const selectedFilters: string[] = Array.from(new Set(rawFilters));
 
+const vehicleParamValues = [
+  ...(url.searchParams.get('vehicles')?.split(',') || []),
+  url.searchParams.get('vehicleSlug') || ''
+];
+const vehicleFilterSlugs: string[] = Array.from(
+  new Set(
+    vehicleParamValues
+      .map((value) => (value ? slugify(String(value)) : ''))
+      .filter(Boolean)
+  )
+);
+
 let allProducts: Product[] = [];
 let categories: Category[] = [];
+let vehicles: Vehicle[] = [];
 
 try {
-  allProducts = await fetchProductsFromSanity({
-    categorySlug: currentCategory || undefined,
-  });
-  categories = await fetchCategories();
+  const [productsResult, categoriesResult, vehiclesResult] = await Promise.all([
+    fetchProductsFromSanity({
+      categorySlug: currentCategory || undefined,
+      vehicleSlugs: vehicleFilterSlugs.length ? vehicleFilterSlugs : undefined
+    }),
+    fetchCategories(),
+    fetchVehicles()
+  ]);
+  allProducts = productsResult;
+  categories = categoriesResult;
+  vehicles = vehiclesResult;
 } catch (err) {
   console.error("🔥 Sanity Fetch Failed:", err);
 }
+
+const availableVehicleSlugs: string[] = Array.from(
+  new Set(
+    (vehicles || [])
+      .map((vehicle) => {
+        const slug = vehicle?.slug?.current;
+        if (typeof slug === 'string' && slug.trim()) return slugify(slug);
+        if (typeof vehicle?.title === 'string' && vehicle.title.trim()) return slugify(vehicle.title);
+        return '';
+      })
+      .filter(Boolean)
+  )
+).sort();
 
 const currentCategoryTitle = (currentCategory && categories.find((c:any) => c?.slug?.current === currentCategory)?.title) || 'All';
 
@@ -256,6 +289,8 @@ if (endPage < totalPages) {
           filterTitleMap={filterTitleMap}
           currentCategory={currentCategory}
           selectedFilters={selectedFilters}
+          selectedVehicles={vehicleFilterSlugs}
+          availableVehicles={availableVehicleSlugs}
         />
       </div>
       <div class="md:hidden">
@@ -279,6 +314,8 @@ if (endPage < totalPages) {
           filterTitleMap={filterTitleMap}
           currentCategory={currentCategory}
           selectedFilters={selectedFilters}
+          selectedVehicles={vehicleFilterSlugs}
+          availableVehicles={availableVehicleSlugs}
         />
       </aside>
 
