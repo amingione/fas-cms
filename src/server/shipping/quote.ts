@@ -6,6 +6,19 @@ const penv = (typeof process !== 'undefined' ? (process.env as Record<string, st
 const SHIPENGINE_API_KEY = penv.SHIPENGINE_API_KEY || ime.SHIPENGINE_API_KEY || '';
 const SHIPENGINE_BASE = ime.SHIPENGINE_BASE || penv.SHIPENGINE_BASE || 'https://api.shipengine.com/v1';
 
+const parseBoolean = (value?: unknown): boolean => {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (!normalized) return false;
+    if (['1', 'true', 'yes', 'y', 'on', 'enabled', 'enable'].includes(normalized)) return true;
+    if (['0', 'false', 'no', 'n', 'off', 'disabled', 'disable'].includes(normalized)) return false;
+  }
+  return Boolean(value);
+};
+
+const ALLOW_USPS = parseBoolean(penv.ALLOW_USPS ?? ime.ALLOW_USPS ?? false);
+
 let cachedCarrierIds: string[] | null = null;
 
 const looksLikeCarrierId = (value?: string | null) => {
