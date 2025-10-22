@@ -30,12 +30,20 @@ type MerchantRow = {
   custom_label_2?: string;
   custom_label_3?: string;
   additional_image_link?: string;
+  product_details?: ProductDetailEntry[];
+  product_highlights?: string[];
 };
 
 type ServiceAccountKey = {
   client_email?: string;
   private_key?: string;
   [key: string]: unknown;
+};
+
+type ProductDetailEntry = {
+  sectionName: string;
+  attributeName: string;
+  attributeValue: string;
 };
 
 const sanity = getSanityClient({ useCdn: false });
@@ -130,6 +138,202 @@ function ensureUrl(slug: string | null | undefined, base: string): string {
 function clampLength(value: string, maxLength: number): string {
   if (!value) return value;
   return value.length > maxLength ? value.slice(0, maxLength) : value;
+}
+
+function splitIntoSentences(text: string): string[] {
+  if (!text) return [];
+  return text
+    .split(/(?<=[.!?])\s+/u)
+    .map((sentence) => sentence.replace(/^[\s•\-\u2013\u2014]+/, '').trim())
+    .filter((sentence) => sentence.length > 0);
+}
+
+function formatListSummary(items: string[], maxItems = 3): string {
+  if (!items.length) return '';
+  const unique = Array.from(new Set(items.map((item) => sanitizeText(item)).filter(Boolean)));
+  if (!unique.length) return '';
+  const displayed = unique.slice(0, maxItems);
+  const remainder = unique.length - displayed.length;
+  const summary = displayed.join(', ');
+  if (remainder > 0) {
+    return `${summary}, and ${remainder} more`.trim();
+  }
+  return summary;
+}
+
+type ProductHighlightsInput = {
+  shortDescription?: string;
+  description?: string;
+  attributes?: any[];
+  specifications?: any[];
+  includedInKit?: any[];
+  isInstallOnly: boolean;
+  allowsShipping: boolean;
+};
+
+type ProductDetailsInput = {
+  specifications?: any[];
+  attributes?: any[];
+  includedInKit?: any[];
+  categoryTitles: string[];
+  productTypeSegments: string[];
+  filterTags: string[];
+  isInstallOnly: boolean;
+};
+
+const MAX_PRODUCT_HIGHLIGHTS = 6;
+const MAX_PRODUCT_DETAILS = 10;
+
+function buildProductHighlights(input: ProductHighlightsInput): string[] {
+  const highlights: string[] = [];
+  const seen = new Set<string>();
+
+  function pushHighlight(raw: string) {
+    const cleaned = clampLength(sanitizeText(raw), 150);
+    if (!cleaned) return;
+    const fingerprint = cleaned.toLowerCase();
+    if (seen.has(fingerprint)) return;
+    seen.add(fingerprint);
+    highlights.push(cleaned);
+  }
+
+  const baseText =
+    sanitizeText(input.shortDescription) || sanitizeText(input.description);
+  splitIntoSentences(baseText)
+    .map((sentence) => clampLength(sentence, 150))
+    .some((sentence) => {
+      pushHighlight(sentence);
+      return highlights.length >= MAX_PRODUCT_HIGHLIGHTS;
+    });
+
+  if (highlights.length < MAX_PRODUCT_HIGHLIGHTS && Array.isArray(input.attributes)) {
+    input.attributes.forEach((attr) => {
+      if (highlights.length >= MAX_PRODUCT_HIGHLIGHTS) return;
+      const name = sanitizeText(attr?.name || attr?.label);
+      const value = sanitizeText(attr?.value);
+      if (!name || !value) return;
+      pushHighlight(`${name}: ${value}`);
+    });
+  }
+
+  if (highlights.length < MAX_PRODUCT_HIGHLIGHTS && Array.isArray(input.specifications)) {
+    input.specifications.forEach((spec) => {
+      if (highlights.length >= MAX_PRODUCT_HIGHLIGHTS) return;
+      const name = sanitizeText(spec?.label || spec?.key);
+      const value = sanitizeText(spec?.value);
+      if (!name || !value) return;
+      pushHighlight(`${name}: ${value}`);
+    });
+  }
+
+  if (highlights.length < MAX_PRODUCT_HIGHLIGHTS && Array.isArray(input.includedInKit)) {
+    const items = input.includedInKit
+      .map((entry) => {
+        const quantity = entry?.quantity ? sanitizeText(entry.quantity) : '';
+        const itemName = sanitizeText(entry?.item);
+        if (!itemName) return '';
+        return quantity ? `${quantity} × ${itemName}` : itemName;
+      })
+      .filter(Boolean);
+    const summary = formatListSummary(items, 4);
+    if (summary) {
+      pushHighlight(`Includes: ${summary}`);
+    }
+  }
+
+  if (highlights.length < MAX_PRODUCT_HIGHLIGHTS) {
+    if (input.isInstallOnly) {
+      pushHighlight('Professional installation and dyno calibration included.');
+    } else if (!input.allowsShipping) {
+      pushHighlight('Installation service required; shipping not available.');
+    }
+  }
+
+  return highlights.slice(0, MAX_PRODUCT_HIGHLIGHTS);
+}
+
+function buildProductDetails(input: ProductDetailsInput): ProductDetailEntry[] {
+  const details: ProductDetailEntry[] = [];
+  const seen = new Set<string>();
+
+  function pushDetail(section: string, name: string, value: string) {
+    const sectionName = clampLength(sanitizeText(section), 70);
+    const attributeName = clampLength(sanitizeText(name), 100);
+    const attributeValue = clampLength(sanitizeText(value), 750);
+    if (!sectionName || !attributeName || !attributeValue) return;
+    const fingerprint = `${sectionName}|${attributeName}|${attributeValue}`.toLowerCase();
+    if (seen.has(fingerprint)) return;
+    seen.add(fingerprint);
+    details.push({ sectionName, attributeName, attributeValue });
+  }
+
+  if (Array.isArray(input.specifications)) {
+    input.specifications.forEach((spec) => {
+      if (details.length >= MAX_PRODUCT_DETAILS) return;
+      const name = sanitizeText(spec?.label || spec?.key);
+      const value = sanitizeText(spec?.value);
+      if (!name || !value) return;
+      pushDetail('Specifications', name, value);
+    });
+  }
+
+  if (details.length < MAX_PRODUCT_DETAILS && Array.isArray(input.attributes)) {
+    input.attributes.forEach((attr) => {
+      if (details.length >= MAX_PRODUCT_DETAILS) return;
+      const name = sanitizeText(attr?.name || attr?.label);
+      const value = sanitizeText(attr?.value);
+      if (!name || !value) return;
+      pushDetail('Performance Profile', name, value);
+    });
+  }
+
+  if (details.length < MAX_PRODUCT_DETAILS && Array.isArray(input.includedInKit)) {
+    const items = input.includedInKit
+      .map((entry) => {
+        const quantity = entry?.quantity ? sanitizeText(entry.quantity) : '';
+        const itemName = sanitizeText(entry?.item);
+        const notes = sanitizeText(entry?.notes);
+        if (!itemName) return '';
+        const parts = [quantity ? `${quantity}×` : '', itemName, notes ? `(${notes})` : '']
+          .filter(Boolean)
+          .join(' ');
+        return parts;
+      })
+      .filter(Boolean);
+    if (items.length) {
+      pushDetail('Included Components', 'Package includes', clampLength(items.join('; '), 750));
+    }
+  }
+
+  if (details.length < MAX_PRODUCT_DETAILS && input.categoryTitles.length) {
+    pushDetail('Fitment & Category', 'Categories', input.categoryTitles.join(', '));
+  }
+
+  if (details.length < MAX_PRODUCT_DETAILS && input.productTypeSegments.length) {
+    pushDetail('Product Type', 'Hierarchy', input.productTypeSegments.join(' > '));
+  }
+
+  if (details.length < MAX_PRODUCT_DETAILS && input.filterTags.length) {
+    const formattedTags = input.filterTags
+      .map((tag) => sanitizeText(tag))
+      .filter(Boolean)
+      .map((tag) =>
+        tag.replace(/[-_]/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())
+      );
+    if (formattedTags.length) {
+      pushDetail('Fitment & Category', 'Tags', formattedTags.join(', '));
+    }
+  }
+
+  if (details.length < MAX_PRODUCT_DETAILS && input.isInstallOnly) {
+    pushDetail(
+      'Service Details',
+      'Installation',
+      'Professional installation service performed at F.A.S. Motorsports.'
+    );
+  }
+
+  return details.slice(0, MAX_PRODUCT_DETAILS);
 }
 
 function computeAvailability(manualCount: unknown): MerchantRow['availability'] {
@@ -362,6 +566,28 @@ function buildContentApiProduct(row: MerchantRow): content_v2_1.Schema$Product {
     }
   }
 
+  if (row.product_highlights?.length) {
+    const highlights = row.product_highlights
+      .map((entry) => clampLength(sanitizeText(entry), 150))
+      .filter(Boolean);
+    if (highlights.length) {
+      product.productHighlights = highlights.slice(0, MAX_PRODUCT_HIGHLIGHTS);
+    }
+  }
+
+  if (row.product_details?.length) {
+    const details = row.product_details
+      .map((entry) => ({
+        sectionName: clampLength(sanitizeText(entry.sectionName), 70),
+        attributeName: clampLength(sanitizeText(entry.attributeName), 100),
+        attributeValue: clampLength(sanitizeText(entry.attributeValue), 750)
+      }))
+      .filter((entry) => entry.sectionName && entry.attributeName && entry.attributeValue);
+    if (details.length) {
+      product.productDetails = details.slice(0, MAX_PRODUCT_DETAILS);
+    }
+  }
+
   return product;
 }
 
@@ -390,6 +616,9 @@ const query = `*[_type=="product" && defined(slug.current) && !(_id in path("dra
   "google_product_category": googleProductCategory,
   "image": coalesce(images[0].asset->url, image.asset->url, socialImage.asset->url),
   "filterSlugs": filters[]->slug.current,
+  attributes[]{name, value, label},
+  specifications[]{label, key, value},
+  includedInKit[]{ item, quantity, notes },
   productType,
   "categoryTitles": select(
     defined(categories) => categories[]->title,
@@ -437,7 +666,9 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
     .map((product) => {
       const id = sanitizeText(product?.id || product?._id);
       const title = sanitizeText(product?.title);
-      const description = extractPlainText(product?.shortDescription || product?.description);
+      const shortDescriptionText = extractPlainText(product?.shortDescription);
+      const longDescriptionText = extractPlainText(product?.description);
+      const baseDescription = shortDescriptionText || longDescriptionText;
       const image = sanitizeText(product?.image);
       const slug = sanitizeText(product?.slug);
       const brand = sanitizeText(product?.brand) || 'F.A.S. Motorsports';
@@ -457,8 +688,11 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
             .filter(Boolean)
             .filter((url) => url !== image)
         : [];
+      const specificationItems = Array.isArray(product?.specifications) ? product.specifications : [];
+      const attributeItems = Array.isArray(product?.attributes) ? product.attributes : [];
+      const includedItems = Array.isArray(product?.includedInKit) ? product.includedInKit : [];
 
-      if (!id || !title || !slug || !description || !image) {
+      if (!id || !title || !slug || !baseDescription || !image) {
         return null;
       }
 
@@ -487,7 +721,7 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
         : 'Performance Package — Vehicle Not Included';
 
       const feedTitle = ensureTitleQualifier(title, titleQualifier);
-      const feedDescription = appendServiceMessaging(description, disclaimerMessage);
+      const feedDescription = appendServiceMessaging(baseDescription, disclaimerMessage);
 
       const productLink = ensureUrl(slug, baseUrl);
       const quickUrlBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
@@ -530,6 +764,32 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
         row.ads_redirect = quickCheckoutUrl;
       }
 
+      const highlights = buildProductHighlights({
+        shortDescription: shortDescriptionText,
+        description: longDescriptionText,
+        attributes: attributeItems,
+        specifications: specificationItems,
+        includedInKit: includedItems,
+        isInstallOnly,
+        allowsShipping
+      });
+      if (highlights.length) {
+        row.product_highlights = highlights;
+      }
+
+      const details = buildProductDetails({
+        specifications: specificationItems,
+        attributes: attributeItems,
+        includedInKit: includedItems,
+        categoryTitles,
+        productTypeSegments,
+        filterTags: filterSlugs,
+        isInstallOnly
+      });
+      if (details.length) {
+        row.product_details = details;
+      }
+
       if (!isInstallOnly && allowsShipping && typeof SHIPPING_PRICE === 'number' && Number.isFinite(SHIPPING_PRICE)) {
         const shippingPrice = SHIPPING_PRICE;
         row.shipping = `US:::${shippingPrice.toFixed(2)} ${currency}`;
@@ -555,6 +815,50 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
     .filter(Boolean) as MerchantRow[];
 }
 
+type MerchantRowValue = string | number | ProductDetailEntry[] | string[] | undefined;
+
+function isProductDetailArray(value: unknown): value is ProductDetailEntry[] {
+  return Array.isArray(value)
+    && value.every(
+      (entry) =>
+        entry &&
+        typeof entry === 'object' &&
+        'sectionName' in entry &&
+        'attributeName' in entry &&
+        'attributeValue' in entry
+    );
+}
+
+function formatRowValue(value: MerchantRowValue): string {
+  if (value === undefined || value === null) return '';
+  if (Array.isArray(value)) {
+    if (!value.length) return '';
+    if (isProductDetailArray(value)) {
+      return value
+        .map((entry) => {
+          const section = sanitizeText(entry.sectionName);
+          const name = sanitizeText(entry.attributeName);
+          const attributeValue = sanitizeText(entry.attributeValue);
+          const parts = [];
+          if (section) parts.push(`section_name:${section}`);
+          if (name) parts.push(`attribute_name:${name}`);
+          if (attributeValue) parts.push(`attribute_value:${attributeValue}`);
+          return parts.join('; ');
+        })
+        .filter(Boolean)
+        .join(' | ');
+    }
+    return value.map((item) => sanitizeText(String(item))).filter(Boolean).join(' | ');
+  }
+  if (typeof value === 'number') {
+    return sanitizeText(value.toString());
+  }
+  if (typeof value === 'string') {
+    return sanitizeText(value);
+  }
+  return sanitizeText(String(value));
+}
+
 function toTsv(rows: MerchantRow[]): string {
   const optionalColumns = new Set<string>();
   for (const row of rows) {
@@ -566,8 +870,8 @@ function toTsv(rows: MerchantRow[]): string {
   const lines = rows.map((row) =>
     header
       .map((column) => {
-        const value = (row as Record<string, string | undefined>)[column] ?? '';
-        return sanitizeText(value);
+        const value = (row as Record<string, MerchantRowValue>)[column];
+        return formatRowValue(value);
       })
       .join('\t')
   );
