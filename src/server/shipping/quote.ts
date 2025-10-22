@@ -335,6 +335,7 @@ const listCarrierIds = async (): Promise<string[]> => {
     if (Array.isArray(carriers)) {
       return carriers
         .filter((carrier: any) => {
+          if (ALLOW_USPS) return true;
           const code = String(carrier?.carrier_code || carrier?.carrierCode || '').toLowerCase();
           const name = String(carrier?.friendly_name || carrier?.friendlyName || '').toLowerCase();
           return !code.includes('usps') && !name.includes('usps');
@@ -360,9 +361,10 @@ const resolveCarrierIds = async (): Promise<string[]> => {
     .map((value) => value.trim())
     .filter((value) => looksLikeCarrierId(value));
 
-  const explicit = dedupe([...envCarrierIds, ...singleCarrierIds]).filter(
-    (value) => !value.toLowerCase().includes('usps')
-  );
+  const explicit = dedupe([...envCarrierIds, ...singleCarrierIds]).filter((value) => {
+    if (ALLOW_USPS) return true;
+    return !value.toLowerCase().includes('usps');
+  });
   if (explicit.length) return explicit;
 
   if (cachedCarrierIds) return cachedCarrierIds;
