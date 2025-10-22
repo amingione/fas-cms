@@ -124,6 +124,7 @@ https://www.fasmotorsports.us/*    https://www.fasmotorsports.com/:splat  301!
 
 # Catch-all for the old WooCommerce cart/account endpoints
 /my-account/*                      /account  301!
+/checkout/success                  /checkout/success  200
+/checkout/cancel                   /checkout/cancel  200
 /checkout/*                        /cart  301!
 /cart/*                            /cart  301!
-
