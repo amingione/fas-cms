@@ -41,7 +41,7 @@ export interface Product {
   _id: string;
   title: string;
   slug: { current: string };
-  price: number;
+  price?: number | null;
   sku?: string;
   description?: string;
   shortDescription?: any;
@@ -132,6 +132,31 @@ export interface Vehicle {
 
 type QueryParamValue = string | number | boolean | string[] | number[];
 type QueryParams = Record<string, QueryParamValue>;
+
+export const coercePriceToNumber = (value: unknown): number | null => {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : null;
+  }
+  if (typeof value === 'string') {
+    const normalized = value.replace(/[^0-9.,-]+/g, '').replace(/,/g, '');
+    if (!normalized) return null;
+    const parsed = Number.parseFloat(normalized);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+};
+
+const normalizeProductPrice = <T extends { price?: unknown }>(product: T): T => {
+  if (!product) return product;
+  const normalizedPrice = coercePriceToNumber((product as any).price);
+  const clone: Record<string, unknown> = { ...(product as any) };
+  if (normalizedPrice === null) {
+    delete clone.price;
+  } else {
+    clone.price = normalizedPrice;
+  }
+  return clone as T;
+};
 
 // Fetch all products
 export async function fetchProductsFromSanity({
@@ -225,7 +250,8 @@ export async function fetchProductsFromSanity({
       )
     }`;
 
-    return await sanity!.fetch<Product[]>(query, params);
+    const results = await sanity!.fetch<Product[]>(query, params);
+    return Array.isArray(results) ? results.map((item) => normalizeProductPrice(item)) : [];
   } catch (err) {
     console.error('Failed to fetch products:', err);
     return [];
@@ -347,7 +373,8 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
         defined(category) => category[]->{ _id, title, slug }
       )
     }`;
-    return await sanity!.fetch<Product | null>(query, { slug });
+    const productResult = await sanity!.fetch<Product | null>(query, { slug });
+    return productResult ? normalizeProductPrice(productResult) : null;
   } catch (err) {
     console.error(`Failed to fetch product with slug "${slug}":`, err);
     return null;
@@ -380,7 +407,8 @@ export async function getRelatedProducts(
     } | order(rel desc, onSale desc, coalesce(salePrice, price, 9e9) asc, _createdAt desc)[0...$limit]
   `;
   const params = { slug, catIds: ids, filters: flt, limit } as Record<string, any>;
-  return sanity!.fetch<Product[]>(query, params);
+  const results = await sanity!.fetch<Product[]>(query, params);
+  return Array.isArray(results) ? results.map((item) => normalizeProductPrice(item)) : [];
 }
 
 // Auto-upsell: same category, higher (or equal) price than current item
@@ -410,7 +438,8 @@ export async function getUpsellProducts(
   `;
   const params: Record<string, any> = { slug, catIds: ids, limit };
   if (hasPrice) params.price = basePrice;
-  return sanity!.fetch<Product[]>(query, params);
+  const results = await sanity!.fetch<Product[]>(query, params);
+  return Array.isArray(results) ? results.map((item) => normalizeProductPrice(item)) : [];
 }
 
 // Backwards-compatible alias to old name

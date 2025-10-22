@@ -1,6 +1,12 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getProductBySlug, getRelatedProducts, getUpsellProducts, type Product } from '../../lib/sanity-utils';
+import {
+  coercePriceToNumber,
+  getProductBySlug,
+  getRelatedProducts,
+  getUpsellProducts,
+  type Product
+} from '../../lib/sanity-utils';
 import PortableTextRenderer from "../../components/PortableTextRenderer.jsx";
 import SlugCarousel from '@/components/SlugCarousel.astro';
 import TrustStrip from '@/components/TrustStrip.astro';
@@ -170,6 +176,7 @@ let seoTitle: string = 'Product';
 let seoDesc: string | undefined;
 let seoCanon: string | undefined = defaultCanonical;
 let seoOg: string | undefined;
+let productPriceNumber: number | undefined;
 try {
   if (typeof slug !== 'string') {
     throw new Error('Product slug is missing or invalid.');
@@ -179,6 +186,9 @@ try {
     throw new Error(`Product with slug "${slug}" not found.`);
   }
 
+  const coercedBasePrice = coercePriceToNumber((product as any)?.price);
+  productPriceNumber = typeof coercedBasePrice === 'number' ? coercedBasePrice : undefined;
+
   // Build inputs for auto-related / upsell
   const catIds = ((product as any).category || (product as any).categories || [])
     .map((c: any) => c?._id || c?._ref)
@@ -186,7 +196,7 @@ try {
   const tagFilters = Array.isArray((product as any).filters)
     ? (product as any).filters.map((entry: FilterEntry) => normalizeFilterSlug(entry)).filter(Boolean)
     : [];
-  const basePrice = typeof (product as any).price === 'number' ? (product as any).price : undefined;
+  const basePrice = typeof productPriceNumber === 'number' ? productPriceNumber : undefined;
 
   // Auto-related and upsell
   relatedProducts = await getRelatedProducts(slug, catIds, tagFilters, 6);
@@ -433,7 +443,7 @@ if (product) {
     )
   ).join(', ');
 
-  priceValue = typeof (product as any)?.price === 'number' ? (product as any).price : undefined;
+  priceValue = typeof productPriceNumber === 'number' ? productPriceNumber : undefined;
 
   breadcrumbStructuredData = {
     '@context': 'https://schema.org',
@@ -548,7 +558,7 @@ if (product) {
         <h1 class="text-3xl font-ethno mb-3" {...inlineFieldAttrs('title')}>{(product as any).title}</h1>
         <h2 class="text-4xl text-accent
          font-mono mb-4" {...inlineFieldAttrs('price')}>
-          {typeof (product as any).price === 'number' ? `$${(product as any).price.toFixed(2)}` : 'Price not available'}
+          {typeof priceValue === 'number' ? `$${priceValue.toFixed(2)}` : 'Price not available'}
         </h2>
 
         {serviceDisclaimer && (
@@ -690,8 +700,8 @@ if (product) {
           class="add-to-cart inline-flex items-center gap-2 border border-white/30 px-4 py-2 rounded-full hover:bg-primary hover:text-accent transition relative z-10 pointer-events-auto"
           data-product-id={(product as any)._id}
           data-product-name={(product as any).title}
-        data-product-price={(product as any).price}
-        data-product-base-price={(product as any).price}
+          data-product-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
+          data-product-base-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
         data-product-image={(product as any).images?.[0]?.asset?.url || (product as any).images?.[0]?.url || ''}
         data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
         data-product-shipping-class={(product as any).shippingClass || ''}
@@ -1037,8 +1047,8 @@ if (product) {
     class="add-to-cart inline-flex items-center gap-2 bg-primary text-accent font-ethno px-4 py-2 rounded"
     data-product-id={(product as any)._id}
     data-product-name={(product as any).title}
-    data-product-price={(product as any).price}
-    data-product-base-price={(product as any).price}
+    data-product-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
+    data-product-base-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
     data-product-image={(product as any).images?.[0]?.asset?.url || (product as any).images?.[0]?.url || ''}
     data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
     data-product-shipping-class={(product as any).shippingClass || ''}
