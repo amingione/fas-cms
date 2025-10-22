@@ -86,6 +86,19 @@ const normalizeFilterLabel = (value: FilterEntry, fallbackSlug: string): string 
     .join(' ');
 };
 
+const VEHICLE_DISCLAIMER_KEYWORDS = [
+  'install service',
+  'installation service',
+  'install-only',
+  'install only',
+  'performance package',
+  'performance packages',
+  'power package',
+  'power packages',
+  'truck package',
+  'truck packages'
+];
+
 const { slug } = Astro.params;
 
 const toPlainText = (input: any): string => {
@@ -307,13 +320,14 @@ if (productNotFound) {
 
 let productImages: string[] = [];
 let metaKeywords = '';
-let serviceDisclaimer = 'Performance package or components only. Vehicle not included.';
-let titleQualifier = 'Performance Package — Vehicle Not Included';
+let serviceDisclaimer = '';
+let titleQualifier = '';
 let priceValue: number | undefined;
 let breadcrumbStructuredData: Record<string, any> | null = null;
 let productStructuredData: Record<string, any> | null = null;
 let isInstallOnly = false;
 let isPerformanceParts = false;
+let requiresVehicleDisclaimer = false;
 
 const vehicleAvailabilityProperty = {
   '@type': 'PropertyValue',
@@ -333,10 +347,16 @@ if (!productNotFound) {
   }
 
   const metaKeywordTokens: string[] = [];
+  const productTypeRaw = collapseSpaces(String((product as any)?.productType || ''));
+  const categoryTitlesForTokens: string[] = [];
   if (Array.isArray((product as any)?.categories)) {
     (product as any).categories.forEach((category: any) => {
       if (category?.title) metaKeywordTokens.push(String(category.title));
+      if (category?.title) categoryTitlesForTokens.push(String(category.title));
       if (category?.slug?.current) metaKeywordTokens.push(String(category.slug.current).replace(/[-_]/g, ' '));
+      if (category?.slug?.current) {
+        categoryTitlesForTokens.push(String(category.slug.current).replace(/[-_]/g, ' '));
+      }
     });
   }
 
@@ -372,17 +392,40 @@ if (!productNotFound) {
 
   isInstallOnly = computedInstallOnly;
   isPerformanceParts = computedPerformanceParts;
+  const normalizedCategoryTokens = categoryTitlesForTokens
+    .map((value) => collapseSpaces(value).toLowerCase())
+    .filter(Boolean);
+  const productTypeSegments = productTypeRaw
+    ? productTypeRaw
+        .split('>')
+        .map((segment) => collapseSpaces(segment).toLowerCase())
+        .filter(Boolean)
+    : [];
+  const normalizedFilterTokens = Array.from(canonicalFilterSlugs)
+    .map((token) => collapseSpaces(token.replace(/[-_]/g, ' ')).toLowerCase())
+    .filter(Boolean);
 
-  serviceDisclaimer = isInstallOnly
-    ? 'Professional installation service only. Vehicle not included.'
-    : 'Performance package or components only. Vehicle not included.';
-  titleQualifier = isInstallOnly
-    ? 'Installation Service — Vehicle Not Included'
-    : 'Performance Package — Vehicle Not Included';
+  requiresVehicleDisclaimer =
+    isInstallOnly ||
+    [...normalizedCategoryTokens, ...productTypeSegments, ...normalizedFilterTokens].some((token) =>
+      VEHICLE_DISCLAIMER_KEYWORDS.some((keyword) => token.includes(keyword))
+    );
 
-  plainDescription = ensureDisclaimerMessaging(plainDescription, serviceDisclaimer);
-  if (!seoTitle.toLowerCase().includes('vehicle not included')) {
-    seoTitle = `${seoTitle} — ${titleQualifier}`;
+  if (requiresVehicleDisclaimer) {
+    serviceDisclaimer = isInstallOnly
+      ? 'Professional installation service only. Vehicle not included.'
+      : 'Performance package or components only. Vehicle not included.';
+    titleQualifier = isInstallOnly
+      ? 'Installation Service — Vehicle Not Included'
+      : 'Performance Package — Vehicle Not Included';
+
+    plainDescription = ensureDisclaimerMessaging(plainDescription, serviceDisclaimer);
+    if (!seoTitle.toLowerCase().includes('vehicle not included')) {
+      seoTitle = `${seoTitle} — ${titleQualifier}`;
+    }
+  } else {
+    serviceDisclaimer = '';
+    titleQualifier = '';
   }
   seoDesc = plainDescription ? plainDescription.slice(0, 160) : undefined;
 
@@ -435,9 +478,11 @@ if (!productNotFound) {
     description: plainDescription || undefined,
     sku: (product as any)?.sku || undefined,
     url: seoCanon,
-    offers: offerDetails,
-    additionalProperty: [vehicleAvailabilityProperty]
+    offers: offerDetails
   };
+  if (requiresVehicleDisclaimer) {
+    productStructuredData.additionalProperty = [vehicleAvailabilityProperty];
+  }
 
   if (isInstallOnly) {
     productStructuredData.serviceType = 'Automotive performance installation';
@@ -509,9 +554,11 @@ if (!productNotFound) {
           {typeof (product as any).price === 'number' ? `$${(product as any).price.toFixed(2)}` : 'Price not available'}
         </h2>
 
-        <div class="mb-4 rounded border border-yellow-500/40 bg-yellow-500/10 px-4 py-3 text-xs leading-relaxed text-yellow-100 shadow-sm">
-          {serviceDisclaimer}
-        </div>
+        {serviceDisclaimer && (
+          <div class="mb-4 rounded border border-yellow-500/40 bg-yellow-500/10 px-4 py-3 text-xs leading-relaxed text-yellow-100 shadow-sm">
+            {serviceDisclaimer}
+          </div>
+        )}
 
         {(((options?.length || 0) + (addOns?.length || 0) + (customs?.length || 0)) > 0) && (
           <form id="product-options" class="mb-6 space-y-4">

@@ -183,6 +183,18 @@ type ProductDetailsInput = {
 
 const MAX_PRODUCT_HIGHLIGHTS = 6;
 const MAX_PRODUCT_DETAILS = 10;
+const VEHICLE_DISCLAIMER_KEYWORDS = [
+  'install service',
+  'installation service',
+  'install-only',
+  'install only',
+  'performance package',
+  'performance packages',
+  'power package',
+  'power packages',
+  'truck package',
+  'truck packages'
+];
 
 function buildProductHighlights(input: ProductHighlightsInput): string[] {
   const highlights: string[] = [];
@@ -713,15 +725,36 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
         filterSlugs.includes('performance_parts');
       const allowsShipping = !isInstallOnly && (isPerformanceParts || normalizedClass.length === 0);
 
-      const disclaimerMessage = isInstallOnly
-        ? 'Professional installation service only. Vehicle not included.'
-        : 'Performance package only. Vehicle not included.';
-      const titleQualifier = isInstallOnly
-        ? 'Installation Service — Vehicle Not Included'
-        : 'Performance Package — Vehicle Not Included';
+      const normalizedCategoryTokens = categoryTitles
+        .map((value) => sanitizeText(value).toLowerCase())
+        .filter(Boolean);
+      const normalizedProductTypeTokens = productTypeSegments
+        .map((value) => sanitizeText(value).toLowerCase())
+        .filter(Boolean);
+      const normalizedFilterTokens = filterSlugs
+        .map((slug) => sanitizeText(slug.replace(/[-_]/g, ' ')).toLowerCase())
+        .filter(Boolean);
 
-      const feedTitle = ensureTitleQualifier(title, titleQualifier);
-      const feedDescription = appendServiceMessaging(baseDescription, disclaimerMessage);
+      const requiresVehicleDisclaimer =
+        isInstallOnly ||
+        [...normalizedCategoryTokens, ...normalizedProductTypeTokens, ...normalizedFilterTokens].some((token) =>
+          VEHICLE_DISCLAIMER_KEYWORDS.some((keyword) => token.includes(keyword))
+        );
+
+      let feedTitle = title;
+      let feedDescription = baseDescription;
+
+      if (requiresVehicleDisclaimer) {
+        const disclaimerMessage = isInstallOnly
+          ? 'Professional installation service only. Vehicle not included.'
+          : 'Performance package only. Vehicle not included.';
+        const titleQualifier = isInstallOnly
+          ? 'Installation Service — Vehicle Not Included'
+          : 'Performance Package — Vehicle Not Included';
+
+        feedTitle = ensureTitleQualifier(title, titleQualifier);
+        feedDescription = appendServiceMessaging(baseDescription, disclaimerMessage);
+      }
 
       const productLink = ensureUrl(slug, baseUrl);
       const quickUrlBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
