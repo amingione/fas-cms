@@ -449,10 +449,11 @@ if (product) {
     '@type': 'Offer',
     priceCurrency: 'USD',
     availability: 'https://schema.org/InStock',
-    url: seoCanon
+    url: seoCanon,
+    itemCondition: 'https://schema.org/NewCondition'
   };
   if (typeof priceValue === 'number') {
-    offerDetails.price = priceValue;
+    offerDetails.price = priceValue.toFixed(2);
   }
   if (isInstallOnly) {
     offerDetails.itemOffered = {
@@ -467,7 +468,7 @@ if (product) {
     : { '@type': 'Brand', name: 'F.A.S. Motorsports' };
 
   productStructuredData = {
-    '@context': 'https://schema.org/',
+    '@context': 'https://schema.org',
     '@type': isInstallOnly ? 'Service' : 'Product',
     name: (product as any)?.title,
     image: productImages,
