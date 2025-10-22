@@ -166,15 +166,127 @@ const DEFAULT_DIMS = {
 };
 const DEFAULT_WEIGHT = toNumber(penv.DEFAULT_BOX_WEIGHT_LB ?? ime.DEFAULT_BOX_WEIGHT_LB, 2);
 
+const sanitizeAlpha = (value?: string | null): string =>
+  String(value ?? '')
+    .replace(/[^A-Za-z]/g, '')
+    .toUpperCase();
+
+const COUNTRY_NAME_MAP: Record<string, string> = {
+  UNITEDSTATES: 'US',
+  UNITEDSTATE: 'US',
+  UNITEDSTATESOFAMERICA: 'US',
+  USA: 'US',
+  CANADA: 'CA',
+  MEXICO: 'MX'
+};
+
+const STATE_NAME_MAP: Record<string, string> = {
+  ALABAMA: 'AL',
+  ALASKA: 'AK',
+  ARIZONA: 'AZ',
+  ARKANSAS: 'AR',
+  CALIFORNIA: 'CA',
+  COLORADO: 'CO',
+  CONNECTICUT: 'CT',
+  DELAWARE: 'DE',
+  DISTRICTOFCOLUMBIA: 'DC',
+  WASHINGTONDC: 'DC',
+  FLORIDA: 'FL',
+  GEORGIA: 'GA',
+  HAWAII: 'HI',
+  IDAHO: 'ID',
+  ILLINOIS: 'IL',
+  INDIANA: 'IN',
+  IOWA: 'IA',
+  KANSAS: 'KS',
+  KENTUCKY: 'KY',
+  LOUISIANA: 'LA',
+  MAINE: 'ME',
+  MARYLAND: 'MD',
+  MASSACHUSETTS: 'MA',
+  MICHIGAN: 'MI',
+  MINNESOTA: 'MN',
+  MISSISSIPPI: 'MS',
+  MISSOURI: 'MO',
+  MONTANA: 'MT',
+  NEBRASKA: 'NE',
+  NEVADA: 'NV',
+  NEWHAMPSHIRE: 'NH',
+  NEWJERSEY: 'NJ',
+  NEWMEXICO: 'NM',
+  NEWYORK: 'NY',
+  NORTHCAROLINA: 'NC',
+  NORTHDAKOTA: 'ND',
+  OHIO: 'OH',
+  OKLAHOMA: 'OK',
+  OREGON: 'OR',
+  PENNSYLVANIA: 'PA',
+  RHODEISLAND: 'RI',
+  SOUTHCAROLINA: 'SC',
+  SOUTHDAKOTA: 'SD',
+  TENNESSEE: 'TN',
+  TEXAS: 'TX',
+  UTAH: 'UT',
+  VERMONT: 'VT',
+  VIRGINIA: 'VA',
+  WASHINGTON: 'WA',
+  WESTVIRGINIA: 'WV',
+  WISCONSIN: 'WI',
+  WYOMING: 'WY',
+  AMERICANSAMOA: 'AS',
+  GUAM: 'GU',
+  NORTHERNMARIANAISLANDS: 'MP',
+  PUERTORICO: 'PR',
+  VIRGINISLANDS: 'VI',
+  USVIRGINISLANDS: 'VI',
+  ALBERTA: 'AB',
+  BRITISHCOLUMBIA: 'BC',
+  MANITOBA: 'MB',
+  NEWBRUNSWICK: 'NB',
+  NEWFOUNDLANDANDLABRADOR: 'NL',
+  NEWFOUNDLAND: 'NL',
+  NOVASCOTIA: 'NS',
+  NORTHWESTTERRITORIES: 'NT',
+  NUNAVUT: 'NU',
+  ONTARIO: 'ON',
+  PRINCEEDWARDISLAND: 'PE',
+  QUEBEC: 'QC',
+  SASKATCHEWAN: 'SK',
+  YUKON: 'YT'
+};
+
+const normalizeCountryCode = (value?: string | null, fallback = 'US'): string => {
+  const primary = sanitizeAlpha(value);
+  if (!primary) {
+    const fallbackValue = sanitizeAlpha(fallback);
+    return fallbackValue.length >= 2 ? fallbackValue.slice(0, 2) : 'US';
+  }
+  if (primary.length === 2) return primary;
+  const mapped = COUNTRY_NAME_MAP[primary];
+  if (mapped) return mapped;
+  if (primary.length > 2) return primary.slice(0, 2);
+  const fallbackValue = sanitizeAlpha(fallback);
+  return fallbackValue.length >= 2 ? fallbackValue.slice(0, 2) : 'US';
+};
+
+const normalizeStateCode = (value?: string | null): string => {
+  const cleaned = sanitizeAlpha(value);
+  if (!cleaned) return '';
+  if (cleaned.length === 2) return cleaned;
+  const mapped = STATE_NAME_MAP[cleaned];
+  if (mapped) return mapped;
+  return cleaned.length > 2 ? cleaned.slice(0, 2) : '';
+};
+
 const SHIP_FROM = {
   name: penv.ORIGIN_NAME || ime.ORIGIN_NAME || 'FAS Motorsports',
   phone: penv.ORIGIN_PHONE || ime.ORIGIN_PHONE || '000-000-0000',
   address_line1: penv.ORIGIN_ADDRESS1 || ime.ORIGIN_ADDRESS1 || '123 Business Rd',
   address_line2: penv.ORIGIN_ADDRESS2 || ime.ORIGIN_ADDRESS2 || undefined,
   city_locality: penv.ORIGIN_CITY || ime.ORIGIN_CITY || 'Las Vegas',
-  state_province: penv.ORIGIN_STATE || ime.ORIGIN_STATE || 'NV',
+  state_province: normalizeStateCode(penv.ORIGIN_STATE || ime.ORIGIN_STATE || 'NV') || 'NV',
   postal_code: penv.ORIGIN_POSTAL || ime.ORIGIN_POSTAL || '89101',
-  country_code: (penv.ORIGIN_COUNTRY || ime.ORIGIN_COUNTRY || 'US').toUpperCase()
+  country_code: normalizeCountryCode(penv.ORIGIN_COUNTRY || ime.ORIGIN_COUNTRY || 'US')
 };
 
 const shipEngineFetch = async (path: string, body: any) => {
@@ -290,6 +402,20 @@ export async function computeShippingQuote(
     }
   }
 
+  const normalizedCountry = normalizeCountryCode(destination.country);
+  const normalizedState = normalizeStateCode(destination.state);
+
+  if (!normalizedState) {
+    return {
+      success: false,
+      freight: false,
+      rates: [],
+      packages: [],
+      missing: [],
+      message: 'Invalid state or province.'
+    };
+  }
+
   const ids = cart.map((item) => String(item.id));
   const products = await fetchProductsByIds(ids);
 
@@ -387,9 +513,9 @@ export async function computeShippingQuote(
     address_line1: destination.addressLine1,
     address_line2: destination.addressLine2 || undefined,
     city_locality: destination.city,
-    state_province: destination.state,
+    state_province: normalizedState,
     postal_code: destination.postalCode,
-    country_code: (destination.country || 'US').toUpperCase()
+    country_code: normalizedCountry
   };
 
   const carrierIds = await resolveCarrierIds();
