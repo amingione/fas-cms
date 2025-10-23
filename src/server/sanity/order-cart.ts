@@ -42,6 +42,10 @@ export function createOrderCartItem(data: {
   price?: unknown;
   quantity?: unknown;
   categories?: unknown;
+  image?: unknown;
+  productUrl?: unknown;
+  productSlug?: unknown;
+  metadata?: unknown;
 }): OrderCartItem {
   const categories = Array.isArray(data.categories)
     ? data.categories

@@ -223,6 +223,17 @@ type CartItemsListProps = {
   onRemove: (id: string) => Promise<void>;
 };
 
+const isInstallOnlyItem = (item: any): boolean => {
+  if (!item) return false;
+  if (item.installOnly === true) return true;
+  if (item.installOnly === false) return false;
+  const normalized = (item.shippingClass || '')
+    .toString()
+    .toLowerCase()
+    .replace(/[^a-z]/g, '');
+  return normalized === 'installonly';
+};
+
 function CartItemsList({ cart, onQuantityChange, onRemove }: CartItemsListProps) {
   const [pendingQuantity, setPendingQuantity] = useState<string | null>(null);
   const [pendingRemove, setPendingRemove] = useState<string | null>(null);
@@ -260,8 +271,7 @@ function CartItemsList({ cart, onQuantityChange, onRemove }: CartItemsListProps)
           {items.map((item) => {
             const lineTotal = (item.price || 0) * (item.quantity || 0);
             const optionsSummary = listOptions(item.options as Record<string, unknown>);
-            const isInstallOnly =
-              item.installOnly || (item.shippingClass || '').toString().toLowerCase() === 'installonly';
+            const isInstallOnly = isInstallOnlyItem(item);
             const productHref = (() => {
               const raw = item.productUrl;
               if (!raw) return undefined;

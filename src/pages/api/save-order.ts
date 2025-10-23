@@ -30,7 +30,6 @@ const stripeClient = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-08-27.basil'
 });
 
-
 const CartItemSchema = z.object({
   id: z.string(),
   sku: z.string().optional(),
@@ -114,23 +113,26 @@ export const POST = async ({ request }: { request: Request }) => {
     const customerData: SanityCustomerQueryResult = await customerRes.json();
     const customerId = customerData.result?._id;
 
+    const orderCartItems: OrderCartItem[] = validatedCart.map((item) =>
+      createOrderCartItem({
+        id: item.id,
+        sku: item.sku,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        categories: item.categories,
+        // new fields preserved so they reach Sanity
+        image: item.image,
+        productUrl: item.productUrl,
+        productSlug: item.productSlug,
+        metadata: item.metadata
+      })
+    );
+
     const orderPayload: OrderPayload = {
       _type: 'order',
       stripeSessionId: sessionId,
-      cart: validatedCart.map((item) =>
-        createOrderCartItem({
-          id: item.id,
-          sku: item.sku,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          categories: item.categories,
-          image: item.image,
-          productUrl: item.productUrl,
-          productSlug: item.productSlug,
-          metadata: item.metadata
-        })
-      ),
+      cart: orderCartItems,
       totalAmount: stripeSession.amount_total ? stripeSession.amount_total / 100 : 0,
       status: 'paid',
       createdAt: new Date().toISOString()

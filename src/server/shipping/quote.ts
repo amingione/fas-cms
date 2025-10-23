@@ -87,6 +87,37 @@ const toNumber = (value: unknown, fallback = 0): number => {
   return Number.isFinite(num) && num > 0 ? num : fallback;
 };
 
+const toSlug = (value: unknown): string => {
+  const str =
+    typeof value === 'string'
+      ? value
+      : typeof value === 'object' && value && 'current' in (value as Record<string, unknown>)
+      ? String((value as Record<string, unknown>).current ?? '')
+      : '';
+  return String(str || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)+/g, '');
+};
+
+const INSTALL_ONLY_TOKENS = ['vehicle-install', 'install-only', 'install-package', 'installation'];
+
+const isVehicleInstallPackage = (product: SanityProduct | undefined): boolean => {
+  if (!product) return false;
+  const productType = toSlug(product.productType);
+  const categorySlugs = Array.isArray(product.categorySlugs)
+    ? product.categorySlugs.map(toSlug)
+    : [];
+  const filterSlugs = Array.isArray(product.filterSlugs)
+    ? product.filterSlugs.map(toSlug)
+    : [];
+  const allSlugs = [productType, ...categorySlugs, ...filterSlugs].filter(Boolean);
+  return allSlugs.some((slug) =>
+    INSTALL_ONLY_TOKENS.some((token) => slug.includes(token))
+  );
+};
+
 const getAllowedOrigins = () => {
   const allow = penv.CORS_ALLOW || ime.CORS_ALLOW || '';
   return allow
@@ -113,6 +144,9 @@ type SanityProduct = {
   boxDimensions?: string;
   shipsAlone?: boolean;
   shippingClass?: string;
+  productType?: string | null;
+  categorySlugs?: Array<string | null | undefined>;
+  filterSlugs?: Array<string | null | undefined>;
   variants?: Array<{
     _id?: string;
     _key?: string;
@@ -139,6 +173,13 @@ const fetchProductsByIds = async (ids: string[]): Promise<SanityProduct[]> => {
     boxDimensions,
     shipsAlone,
     shippingClass,
+    productType,
+    "categorySlugs": select(
+      defined(categories) => categories[]->slug.current,
+      defined(category) => category[]->slug.current,
+      []
+    ),
+    "filterSlugs": filters[]->slug.current,
     variants[]{
       _id,
       _key,
@@ -332,7 +373,9 @@ export async function computeShippingQuote(
     const normalizedClass = shippingClassRaw.replace(/[\s_-]+/g, '');
 
     if (normalizedClass === 'freight') freight = true;
-    if (normalizedClass === 'installonly') {
+    const installOnlyEligible =
+      normalizedClass === 'installonly' && isVehicleInstallPackage(product);
+    if (installOnlyEligible) {
       installOnly = true;
       continue;
     }

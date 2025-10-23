@@ -138,6 +138,7 @@ let addOns: any[] = [];
 let customs: any[] = [];
 let variationOptions: any[] = [];
 let plainDescription: string = '';
+let productInstallOnly = false;
 try {
   if (typeof slug !== 'string') {
     throw new Error('Product slug is missing or invalid.');
@@ -155,6 +156,33 @@ try {
     ? (product as any).filters.map((entry: FilterEntry) => normalizeFilterSlug(entry)).filter(Boolean)
     : [];
   const basePrice = typeof (product as any).price === 'number' ? (product as any).price : undefined;
+
+  const shippingClassRaw = ((product as any).shippingClass || '').toString();
+  const normalizedShippingClass = shippingClassRaw.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const installOnlyTokens = ['vehicle-install', 'install-only', 'install-package', 'installation'];
+  const extractCategorySlug = (entry: any): string => {
+    if (!entry) return '';
+    const rawSlug =
+      (typeof entry?.slug === 'string' && entry.slug) ||
+      (entry?.slug && typeof entry.slug === 'object' ? entry.slug.current : undefined) ||
+      entry?.title ||
+      entry?._id ||
+      '';
+    return slugify(String(rawSlug));
+  };
+  const categorySlugs = Array.isArray((product as any).categories)
+    ? (product as any).categories.map(extractCategorySlug).filter(Boolean)
+    : [];
+  const legacyCategorySlugs = Array.isArray((product as any).category)
+    ? (product as any).category.map(extractCategorySlug).filter(Boolean)
+    : [];
+  const productTypeSlug = slugify((product as any).productType || '');
+  const installCandidates = Array.from(
+    new Set([productTypeSlug, ...categorySlugs, ...legacyCategorySlugs, ...tagFilters].filter(Boolean))
+  );
+  productInstallOnly =
+    normalizedShippingClass === 'installonly' &&
+    installCandidates.some((slug) => installOnlyTokens.some((token) => slug.includes(token)));
 
   // Auto-related and upsell
   relatedProducts = await getRelatedProducts(slug, catIds, tagFilters, 6);
@@ -516,10 +544,7 @@ const productStructuredData = {
         data-product-image={(product as any).images?.[0]?.asset?.url || (product as any).images?.[0]?.url || ''}
         data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
         data-product-shipping-class={(product as any).shippingClass || ''}
-        data-product-install-only={String(
-          ((product as any).shippingClass || '').toString().toLowerCase().replace(/[^a-z]/g, '') ===
-            'installonly'
-        )}
+        data-product-install-only={String(productInstallOnly)}
         data-product-href={`/shop/${slug}`}
         >
           <!-- bag icon -->
@@ -865,10 +890,7 @@ const productStructuredData = {
     data-product-image={(product as any).images?.[0]?.asset?.url || (product as any).images?.[0]?.url || ''}
     data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
     data-product-shipping-class={(product as any).shippingClass || ''}
-    data-product-install-only={String(
-      ((product as any).shippingClass || '').toString().toLowerCase().replace(/[^a-z]/g, '') ===
-        'installonly'
-    )}
+    data-product-install-only={String(productInstallOnly)}
     data-product-href={`/shop/${slug}`}
   >
     Add to Cart
@@ -992,9 +1014,10 @@ const productStructuredData = {
 
       const shippingClassRaw = (ds.productShippingClass || '').toString();
       const normalizedShippingClass = shippingClassRaw.toLowerCase().replace(/[^a-z]/g, '');
+      const installOnlyAttr = String(ds.productInstallOnly || '').toLowerCase();
       const installOnlyFlag =
-        String(ds.productInstallOnly || '').toLowerCase() === 'true' ||
-        normalizedShippingClass === 'installonly';
+        installOnlyAttr === 'true' ||
+        (installOnlyAttr === '' && normalizedShippingClass === 'installonly');
 
       // Stable config signature for line dedup (same options -> same line)
       const signature = JSON.stringify(selections.slice().sort((a,b)=>{

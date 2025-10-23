@@ -77,6 +77,7 @@ export interface Product {
   specifications?: { key: string; value: string }[];
   attributes?: { key: string; value: string }[];
   productType?: string;
+  shippingClass?: string;
   requiresPaintCode?: boolean;
   importantNotes?: any;
   socialImage?: { asset: { _id: string; url: string }; alt?: string };
@@ -276,6 +277,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       attributes,
       includedInKit[]{ item, quantity, notes },
       productType,
+      shippingClass,
       images[]{ asset->{ _id, url }, alt },
       filters[]->{
         _id,

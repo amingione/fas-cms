@@ -85,6 +85,35 @@ const resolveCarrierIds = (): string[] => {
   return combined.length ? combined : FALLBACK_CARRIER_IDS;
 };
 
+const toSlug = (value: unknown): string => {
+  const str =
+    typeof value === 'string'
+      ? value
+      : typeof value === 'object' && value && 'current' in (value as Record<string, unknown>)
+      ? String((value as Record<string, unknown>).current ?? '')
+      : '';
+  return String(str || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)+/g, '');
+};
+
+const INSTALL_ONLY_TOKENS = ['vehicle-install', 'install-only', 'install-package', 'installation'];
+
+const isVehicleInstallProduct = (product: any): boolean => {
+  if (!product) return false;
+  const productType = toSlug(product.productType);
+  const categorySlugs = Array.isArray(product.categorySlugs)
+    ? product.categorySlugs.map(toSlug)
+    : [];
+  const filterSlugs = Array.isArray(product.filterSlugs)
+    ? product.filterSlugs.map(toSlug)
+    : [];
+  const combined = [productType, ...categorySlugs, ...filterSlugs].filter(Boolean);
+  return combined.some((slug) => INSTALL_ONLY_TOKENS.some((token) => slug.includes(token)));
+};
+
 export const handler: Handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 204, headers: { 'access-control-allow-methods': 'POST, OPTIONS', ...corsHeaders(event.headers.origin) }, body: '' };
@@ -135,7 +164,20 @@ export const handler: Handler = async (event) => {
     // Fetch shipping info for SKUs from Sanity
     const skus = cart.map((c) => String(c.sku)).filter(Boolean);
     const q = `*[_type=="product" && defined(sku) && sku in $skus]{
-      _id, title, sku, shippingWeight, boxDimensions, shipsAlone, shippingClass
+      _id,
+      title,
+      sku,
+      shippingWeight,
+      boxDimensions,
+      shipsAlone,
+      shippingClass,
+      productType,
+      "categorySlugs": select(
+        defined(categories) => categories[]->slug.current,
+        defined(category) => category[]->slug.current,
+        []
+      ),
+      "filterSlugs": filters[]->slug.current
     }`;
     const products: any[] = await sanity.fetch(q, { skus }).catch(() => []);
     const bySku = new Map<string, any>();
@@ -164,7 +206,8 @@ export const handler: Handler = async (event) => {
       const weight = num(p?.shippingWeight, defaultWeight);
 
       if (normalizedClass === 'freight') freight = true;
-      if (normalizedClass === 'installonly') {
+      const installOnlyEligible = normalizedClass === 'installonly' && isVehicleInstallProduct(p);
+      if (installOnlyEligible) {
         installOnly = true;
         continue;
       }

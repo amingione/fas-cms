@@ -1,5 +1,6 @@
 ---
 import Stripe from 'stripe';
+import { sanity } from '@/server/sanity-client';
 import TrustStrip from '@/components/TrustStrip.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { formatPrice } from '@/components/storefront/Price';
@@ -16,6 +17,11 @@ let googleReviewOptIn: {
   estimatedDeliveryDate: string;
   products?: { gtin: string }[];
 } | null = null;
+let orderReference: string | null = null;
+let resolvedOrderId = '';
+let fallbackOrderReference: string | null = null;
+let sanitizedSessionId = '';
+let metadataTrackingNumber = '';
 
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', { apiVersion: '2025-08-27.basil' });
 
@@ -62,6 +68,22 @@ function extractProducts(lineItems: any[]): { gtin: string }[] | undefined {
   return list.length > 0 ? (list as { gtin: string }[]) : undefined;
 }
 
+function generateFallbackOrderNumber(session: Stripe.Checkout.Session, fallbackId: string): string {
+  const created =
+    typeof session.created === 'number' && Number.isFinite(session.created)
+      ? new Date(session.created * 1000)
+      : new Date();
+  const yyyy = created.getUTCFullYear();
+  const mm = String(created.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(created.getUTCDate()).padStart(2, '0');
+  const idSource =
+    (typeof session.id === 'string' && session.id) ||
+    (typeof session.payment_intent === 'string' && session.payment_intent) ||
+    fallbackId;
+  const idPart = idSource.slice(-6).toUpperCase();
+  return `FAS-${yyyy}${mm}${dd}-${idPart}`;
+}
+
 try {
   if (!sessionId) throw new Error('Missing session_id');
   session = await stripe.checkout.sessions.retrieve(sessionId, {
@@ -73,12 +95,87 @@ try {
   });
   items = lineItems.data || [];
 
-  const orderId =
-    (session?.client_reference_id && String(session.client_reference_id).trim()) ||
-    (session?.metadata?.orderId && String(session.metadata.orderId).trim()) ||
-    (session?.payment_intent && String(session.payment_intent).trim()) ||
-    (session?.id && String(session.id).trim()) ||
-    '';
+  sanitizedSessionId = typeof session?.id === 'string' ? session.id.trim() : '';
+  const metadataOrderId =
+    typeof session?.metadata?.orderId === 'string' ? session.metadata.orderId.trim() : '';
+  const clientReferenceId =
+    typeof session?.client_reference_id === 'string' ? session.client_reference_id.trim() : '';
+  const paymentIntentRaw = session?.payment_intent as string | { id?: string } | null | undefined;
+  let paymentIntentId = '';
+  if (typeof paymentIntentRaw === 'string') {
+    paymentIntentId = paymentIntentRaw.trim();
+  } else if (paymentIntentRaw && typeof (paymentIntentRaw as any).id === 'string') {
+    paymentIntentId = String((paymentIntentRaw as any).id).trim();
+  }
+  const orderIdCandidates = [metadataOrderId, clientReferenceId, paymentIntentId, sanitizedSessionId].filter(
+    (value, index, array) => value && array.indexOf(value) === index
+  );
+  resolvedOrderId = orderIdCandidates[0] || '';
+  metadataTrackingNumber =
+    typeof session?.metadata?.trackingNumber === 'string'
+      ? session.metadata.trackingNumber.trim()
+      : '';
+  const metadataOrderNumber =
+    typeof session?.metadata?.orderNumber === 'string'
+      ? session.metadata.orderNumber.trim()
+      : '';
+  if (metadataOrderNumber) {
+    orderReference = metadataOrderNumber;
+  }
+
+  if (!orderReference) {
+    const sanityLookupIds = [metadataOrderId, resolvedOrderId].filter(
+      (value, index, array) => value && array.indexOf(value) === index
+    );
+    for (const candidateId of sanityLookupIds) {
+      try {
+        const sanityOrder = await sanity.fetch(
+          `*[_type=="order" && _id==$id][0]{orderNumber}`,
+          { id: candidateId }
+        );
+        const candidateOrderNumber =
+          typeof sanityOrder?.orderNumber === 'string' ? sanityOrder.orderNumber.trim() : '';
+        if (candidateOrderNumber) {
+          orderReference = candidateOrderNumber;
+          break;
+        }
+      } catch (fetchErr) {
+        console.warn(
+          '[checkout success] unable to fetch order number by id',
+          (fetchErr as any)?.message || fetchErr
+        );
+      }
+    }
+  }
+
+  if (!orderReference && sanitizedSessionId) {
+    try {
+      const sanityOrder = await sanity.fetch(
+        `*[_type=="order" && stripeSessionId==$sid][0]{orderNumber}`,
+        { sid: sanitizedSessionId }
+      );
+      const candidateOrderNumber =
+        typeof sanityOrder?.orderNumber === 'string' ? sanityOrder.orderNumber.trim() : '';
+      if (candidateOrderNumber) {
+        orderReference = candidateOrderNumber;
+      }
+    } catch (fetchErr) {
+      console.warn(
+        '[checkout success] unable to fetch order number by session',
+        (fetchErr as any)?.message || fetchErr
+      );
+    }
+  }
+
+  if (session && !fallbackOrderReference) {
+    fallbackOrderReference = generateFallbackOrderNumber(
+      session as Stripe.Checkout.Session,
+      resolvedOrderId || sanitizedSessionId || paymentIntentId
+    );
+  }
+  if (!orderReference && fallbackOrderReference) {
+    orderReference = fallbackOrderReference;
+  }
   const email = String(session?.customer_details?.email || session?.customer_email || '').trim();
   const deliveryCountry = String(
     session?.shipping_details?.address?.country ||
@@ -90,9 +187,9 @@ try {
     null;
   const products = extractProducts(items);
 
-  if (orderId && email && deliveryCountry && estimatedDeliveryDate) {
+  if (resolvedOrderId && email && deliveryCountry && estimatedDeliveryDate) {
     googleReviewOptIn = {
-      orderId,
+      orderId: resolvedOrderId,
       email,
       deliveryCountry,
       estimatedDeliveryDate,
@@ -118,10 +215,22 @@ const discountAmount = session?.total_details?.amount_discount ?? 0;
 const subtotalAmount = session?.amount_subtotal ?? 0;
 const totalAmount = session?.amount_total ?? 0;
 const shippingDetails = session?.shipping_details || session?.customer_details || null;
+if (!fallbackOrderReference && session) {
+  fallbackOrderReference = generateFallbackOrderNumber(
+    session as Stripe.Checkout.Session,
+    resolvedOrderId || sanitizedSessionId || ''
+  );
+}
 const trackingNumber =
-  (session?.client_reference_id && String(session.client_reference_id)) ||
-  (session?.metadata?.trackingNumber && String(session.metadata.trackingNumber)) ||
-  session?.id;
+  [
+    orderReference,
+    metadataTrackingNumber,
+    fallbackOrderReference,
+    sanitizedSessionId,
+    typeof session?.id === 'string' ? session.id : ''
+  ]
+    .map((value) => (typeof value === 'string' ? value.trim() : ''))
+    .find((value) => value.length > 0) || '';
 const paymentSummary = session?.payment_method_types?.join(', ') || 'Card';
 const fallbackProductImage = '/logo/faslogo150.png';
 const heroImage = '/images/backgrounds/checkoutSuccess.webp';

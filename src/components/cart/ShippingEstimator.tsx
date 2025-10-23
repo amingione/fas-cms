@@ -355,6 +355,7 @@ export function ShippingEstimator({
 
   const identifyInstallOnly = (item: Cart['items'][number]) => {
     if (item.installOnly === true) return true;
+    if (item.installOnly === false) return false;
     const cls = (item.shippingClass || '').toString().toLowerCase().replace(/[^a-z]/g, '');
     return cls === 'installonly';
   };

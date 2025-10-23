@@ -29,6 +29,15 @@ const {
 
 const SITE_NAME = 'F.A.S. Motorsports';
 const DEFAULT_OG_IMAGE = 'https://fasmotorsports.com/images/social/social-share.webp';
+const RAW_GA_MEASUREMENT_ID =
+  import.meta.env.PUBLIC_GA_MEASUREMENT_ID || import.meta.env.PUBLIC_GA_ID || 'G-NQ94Z6HWGV';
+const RAW_GOOGLE_ADS_ID = import.meta.env.PUBLIC_GOOGLE_ADS_ID || '';
+const gaMeasurementId = String(RAW_GA_MEASUREMENT_ID || '').trim();
+const googleAdsId = String(RAW_GOOGLE_ADS_ID || '').trim();
+const effectiveGaId = gaMeasurementId || 'G-NQ94Z6HWGV';
+const gaScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(effectiveGaId)}`;
+const escapeScript = (value: string) => value.replace(/<\/(script)/gi, '<\\/$1');
+const inlineGaSetup = escapeScript(`(function(){var GA_ID=${JSON.stringify(effectiveGaId)};var GOOGLE_ADS_ID=${JSON.stringify(googleAdsId)};window.dataLayer=window.dataLayer||[];function gtag(){window.dataLayer.push(arguments);}window.gtag=window.gtag||gtag;gtag('js',new Date());if(GA_ID){gtag('config',GA_ID);}if(GOOGLE_ADS_ID){gtag('config',GOOGLE_ADS_ID);}})();`);
 
 declare global {
   interface Window {
@@ -134,17 +143,8 @@ const breadcrumbItems = shouldRenderBreadcrumbs
 <html lang="en" class="dark">
   <head>
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-NQ94Z6HWGV"></script>
-    <script>
-      (function () {
-        window.dataLayer = window.dataLayer || [];
-        /** @param {...any} args */
-        function gtag(...args: any[]) { window.dataLayer.push(args); }
-        window.gtag = window.gtag || gtag;
-        gtag('js', new Date());
-        gtag('config', 'G-NQ94Z6HWGV');
-      })();
-    </script>
+    <script async src={gaScriptSrc}></script>
+    <script is:inline>{inlineGaSetup}</script>
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.ico" />

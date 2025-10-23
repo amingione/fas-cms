@@ -11,6 +11,17 @@ const FALLBACK_IMAGE = '/logo/faslogo150.png';
 
 type CartOptionMap = Record<string, string | number | boolean | null | undefined>;
 
+const isInstallOnlyItem = (item: any): boolean => {
+  if (!item) return false;
+  if (item.installOnly === true) return true;
+  if (item.installOnly === false) return false;
+  const normalized = (item.shippingClass || '')
+    .toString()
+    .toLowerCase()
+    .replace(/[^a-z]/g, '');
+  return normalized === 'installonly';
+};
+
 function normalizeOptionLabel(rawKey: string) {
   return rawKey
     .split(/[^a-zA-Z0-9]+/)
@@ -152,8 +163,7 @@ function CartSummaryPopover({
               {items.map((item) => {
                 const lineTotal = (item.price || 0) * (item.quantity || 0);
                 const optionsSummary = listOptions(item.options);
-                const isInstallOnly =
-                  item.installOnly || (item.shippingClass || '').toLowerCase() === 'installonly';
+                const installOnly = isInstallOnlyItem(item);
                 return (
                   <li key={item.id} className="flex gap-3 py-3">
                     <img
@@ -172,7 +182,7 @@ function CartSummaryPopover({
                       <div className="mt-2 flex items-center justify-between text-white/70">
                         <span>Qty {item.quantity || 1}</span>
                       </div>
-                      {isInstallOnly && (
+                      {installOnly && (
                         <span className="mt-2 inline-flex w-fit rounded-full bg-amber-500/20 px-2 py-1 text-[10px] uppercase tracking-wide text-amber-200">
                           Install-only
                         </span>
