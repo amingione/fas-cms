@@ -13,10 +13,12 @@
   to = "/shop/categories/:splat"
   status = 301
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+# Astro already generates the correct serverless function routing for SSR builds.
+# A blanket SPA-style catch-all would rewrite asset requests (e.g. CSS, JS, Astro
+# component modules) to the HTML shell which then surfaces in the browser as
+# "Failed to load module script" MIME-type errors. Removing the fallback keeps
+# the platform-provided routing intact while still allowing the upstream
+# redirect table above to function as intended.
 
 ## Note: Custom auth uses Astro API under /api/auth/*; no redirects needed.
 
