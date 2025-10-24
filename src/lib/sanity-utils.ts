@@ -20,6 +20,19 @@ const toBooleanFlag = (value: unknown): boolean => {
 
 const parseRuntimeUrl = (): URL | null => {
   try {
+    const overrideUrl =
+      (globalThis as { __SANITY_VISUAL_EDITING_URL__?: unknown }).__SANITY_VISUAL_EDITING_URL__;
+    if (typeof overrideUrl === 'string' && overrideUrl.trim()) {
+      return new URL(overrideUrl);
+    }
+    if (overrideUrl && typeof (overrideUrl as { href?: string }).href === 'string') {
+      return new URL((overrideUrl as { href: string }).href);
+    }
+  } catch {
+    // ignore override parsing errors
+  }
+
+  try {
     if (typeof window !== 'undefined' && typeof window.location?.href === 'string') {
       return new URL(window.location.href);
     }
@@ -84,13 +97,32 @@ const studioUrl = typeof studioUrlRaw === 'string' && studioUrlRaw.trim() ? stud
 const visualEditingEnvFlag = toBooleanFlag(
   import.meta.env.PUBLIC_SANITY_ENABLE_VISUAL_EDITING as string | undefined
 );
+const globalVisualEditingOverride = (() => {
+  try {
+    const value =
+      (globalThis as { __SANITY_VISUAL_EDITING_OVERRIDE__?: unknown })
+        .__SANITY_VISUAL_EDITING_OVERRIDE__;
+    if (typeof value === 'boolean') {
+      return value;
+    }
+    if (typeof value === 'string') {
+      return toBooleanFlag(value);
+    }
+  } catch {
+    // ignore global override errors
+  }
+  return null;
+})();
+
 const runtimeVisualEditingFlag = getUrlBooleanFlag(parseRuntimeUrl(), [
   'sanity-preview',
   'presentation',
   'preview',
   'visual-editing',
 ]);
-const visualEditingRequested = visualEditingEnvFlag || runtimeVisualEditingFlag;
+const visualEditingRequested =
+  globalVisualEditingOverride ??
+  (visualEditingEnvFlag || runtimeVisualEditingFlag);
 
 if (visualEditingRequested && !studioUrl) {
   console.warn(

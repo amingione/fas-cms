@@ -100,6 +100,18 @@ const previewDraftsEnabled =
     (import.meta.env.PUBLIC_SANITY_PREVIEW_DRAFTS as string | undefined) ?? 'true'
   );
 
+if (import.meta.env.SSR) {
+  (globalThis as { __SANITY_VISUAL_EDITING_OVERRIDE__?: boolean }).__SANITY_VISUAL_EDITING_OVERRIDE__ =
+    visualEditingEnabled;
+  (globalThis as { __SANITY_VISUAL_EDITING_URL__?: string | undefined }).__SANITY_VISUAL_EDITING_URL__ =
+    currentUrl?.toString();
+}
+
+const syncVisualEditingStateScript = `
+  window.__SANITY_VISUAL_EDITING_OVERRIDE__ = ${JSON.stringify(visualEditingEnabled)};
+  window.__SANITY_VISUAL_EDITING_URL__ = ${JSON.stringify(currentUrl?.toString() ?? null)};
+`;
+
 const resolvedStudioUrl =
   (import.meta.env.PUBLIC_SANITY_STUDIO_URL as string | undefined) ||
   (import.meta.env.PUBLIC_STUDIO_URL as string | undefined) ||
@@ -240,6 +252,7 @@ const breadcrumbItems = shouldRenderBreadcrumbs
         /* noop */
       }
     </script>
+    <script is:inline set:html={syncVisualEditingStateScript}></script>
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.ico" />
