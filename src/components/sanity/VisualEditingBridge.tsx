@@ -1,9 +1,16 @@
 import {useEffect} from 'react'
-import {
-  enableVisualEditing,
-  type DisableVisualEditing,
-  type HistoryAdapter,
-} from '@sanity/overlays'
+
+type HistoryUpdate =
+  | {type: 'push'; url: string}
+  | {type: 'replace'; url: string}
+  | {type: 'pop'}
+
+type HistoryAdapter = {
+  subscribe: (navigate: (update: HistoryUpdate) => void) => () => void
+  update: (update: HistoryUpdate) => void
+}
+
+type DisableVisualEditing = () => void
 
 type VisualEditingBridgeProps = {
   enabled: boolean
@@ -47,6 +54,24 @@ const createHistoryAdapter = (): HistoryAdapter => ({
   },
 })
 
+type OverlaysModule = {
+  enableVisualEditing: (options: {
+    history: HistoryAdapter
+    zIndex?: number
+  }) => DisableVisualEditing
+}
+
+const loadOverlays = async (): Promise<OverlaysModule | null> => {
+  try {
+    const specifier = '@sanity/overlays'
+    const mod = (await import(/* @vite-ignore */ specifier)) as OverlaysModule
+    return mod
+  } catch (err) {
+    console.warn('[sanity] Failed to load @sanity/overlays:', err)
+    return null
+  }
+}
+
 export default function VisualEditingBridge({
   enabled,
   projectId,
@@ -71,14 +96,21 @@ export default function VisualEditingBridge({
     let liveCleanup: (() => void) | undefined
     let disposed = false
 
-    try {
-      disableOverlays = enableVisualEditing({
-        history: createHistoryAdapter(),
-        zIndex,
-      })
-    } catch (err) {
-      console.error('[sanity] Failed to enable visual editing overlays:', err)
-    }
+    ;(async () => {
+      const overlays = await loadOverlays()
+      if (!overlays || disposed) {
+        return
+      }
+
+      try {
+        disableOverlays = overlays.enableVisualEditing({
+          history: createHistoryAdapter(),
+          zIndex,
+        })
+      } catch (err) {
+        console.error('[sanity] Failed to enable visual editing overlays:', err)
+      }
+    })()
 
     if (enableLive) {
       ;(async () => {
