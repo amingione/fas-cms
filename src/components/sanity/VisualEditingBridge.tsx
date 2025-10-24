@@ -63,6 +63,7 @@ type OverlaysModule = {
 
 const loadOverlays = async (): Promise<OverlaysModule | null> => {
   try {
+    // Keep the bare specifier literal so Vite rewrites it into a browser-resolvable chunk.
     const mod = (await import('@sanity/overlays')) as OverlaysModule
     return mod
   } catch (err) {
