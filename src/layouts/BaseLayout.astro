@@ -226,6 +226,13 @@ const breadcrumbItems = shouldRenderBreadcrumbs
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17641771829"></script>
     <script is:inline>
+      if (typeof window !== 'undefined') {
+        window.inlineGaSetup ??= function inlineGaSetup() {
+          return undefined;
+        };
+      }
+    </script>
+    <script is:inline>
       window.dataLayer = window.dataLayer || [];
       function gtag(){window.dataLayer.push(arguments);}
       window.gtag = gtag;
