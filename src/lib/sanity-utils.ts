@@ -6,6 +6,18 @@ interface SanityClientLite {
   fetch: SanityFetch;
 }
 
+const toBooleanFlag = (value: unknown): boolean => {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'number') return value !== 0;
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (!normalized) return false;
+    if (['true', '1', 'yes', 'on', 'enabled'].includes(normalized)) return true;
+    if (['false', '0', 'no', 'off', 'disabled'].includes(normalized)) return false;
+  }
+  return false;
+};
+
 // Initialize Sanity client (support both PUBLIC_* and server-side SANITY_* envs)
 const projectId =
   (import.meta.env.PUBLIC_SANITY_PROJECT_ID as string | undefined) ||
@@ -15,7 +27,48 @@ const dataset =
   (import.meta.env.SANITY_DATASET as string | undefined) ||
   'production';
 const apiVersion = '2023-01-01';
-const token = import.meta.env.SANITY_API_TOKEN;
+
+const studioUrlRaw =
+  (import.meta.env.PUBLIC_SANITY_STUDIO_URL as string | undefined) ||
+  (import.meta.env.PUBLIC_STUDIO_URL as string | undefined) ||
+  (import.meta.env.SANITY_STUDIO_URL as string | undefined) ||
+  (import.meta.env.SANITY_STUDIO_NETLIFY_BASE as string | undefined) ||
+  undefined;
+const studioUrl = typeof studioUrlRaw === 'string' && studioUrlRaw.trim() ? studioUrlRaw : undefined;
+
+const visualEditingFlag = toBooleanFlag(
+  import.meta.env.PUBLIC_SANITY_ENABLE_VISUAL_EDITING as string | undefined
+);
+if (visualEditingFlag && !studioUrl) {
+  console.warn(
+    '[sanity-utils] Visual editing enabled but no PUBLIC_SANITY_STUDIO_URL (or SANITY_STUDIO_URL) configured.'
+  );
+}
+
+const previewDraftsRequested =
+  visualEditingFlag ||
+  toBooleanFlag((import.meta.env.PUBLIC_SANITY_PREVIEW_DRAFTS as string | undefined) ?? 'false');
+
+const liveSubscriptionsFlag = toBooleanFlag(
+  import.meta.env.PUBLIC_SANITY_ENABLE_LIVE_SUBSCRIPTIONS as string | undefined
+);
+
+const apiToken =
+  (import.meta.env.SANITY_API_TOKEN as string | undefined) ||
+  (import.meta.env.SANITY_WRITE_TOKEN as string | undefined) ||
+  (import.meta.env.PUBLIC_SANITY_API_TOKEN as string | undefined) ||
+  undefined;
+
+let previewDraftsEnabled = Boolean(previewDraftsRequested);
+if (previewDraftsEnabled && !apiToken) {
+  console.warn(
+    '[sanity-utils] Preview drafts requested but no SANITY_API_TOKEN (or PUBLIC_SANITY_API_TOKEN) was found; falling back to published content.'
+  );
+  previewDraftsEnabled = false;
+}
+
+const perspective = previewDraftsEnabled ? 'previewDrafts' : 'published';
+const stegaEnabled = visualEditingFlag && Boolean(studioUrl);
 
 // Gracefully handle missing env vars in preview/editor environments
 const hasSanityConfig = Boolean(projectId && dataset);
@@ -25,16 +78,44 @@ if (!hasSanityConfig) {
   );
 }
 
+const clientOptions: Parameters<typeof createClient>[0] = {
+  projectId,
+  dataset,
+  apiVersion,
+  useCdn: false,
+  perspective,
+};
+
+if (previewDraftsEnabled && apiToken) {
+  clientOptions.token = apiToken;
+}
+
+if (stegaEnabled && studioUrl) {
+  clientOptions.stega = { enabled: true, studioUrl } as const;
+}
+
 export const sanity: SanityClientLite | null = hasSanityConfig
-  ? (createClient({ projectId, dataset, apiVersion, useCdn: false, token }) as unknown as SanityClientLite)
+  ? (createClient(clientOptions) as unknown as SanityClientLite)
   : null;
+
 // Back-compat aliases for callers expecting different names
 export const sanityClient = sanity as any;
 export const client = sanity as any;
 export const getClient = () => sanity as any;
-export const config = { projectId, dataset, apiVersion } as const;
+
+export const config = {
+  projectId,
+  dataset,
+  apiVersion,
+  perspective,
+  studioUrl: stegaEnabled ? studioUrl : undefined,
+} as const;
 export const clientConfig = config;
 export const defaultClientConfig = config;
+
+export const visualEditingEnabled = stegaEnabled;
+export const previewDraftsActive = previewDraftsEnabled;
+export const liveSubscriptionsEnabled = stegaEnabled && liveSubscriptionsFlag;
 
 // Define interfaces
 export interface Product {
