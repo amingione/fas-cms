@@ -637,7 +637,7 @@ export async function POST({ request }: { request: Request }) {
                 ${shippingBlock}
                 ${paymentMethod}
                 <div style="margin-top:24px;padding-top:16px;border-top:1px solid #e5e7eb;color:#6b7280;font-size:13px;line-height:1.6;">
-                  <p style="margin:0 0 8px 0;">If you have any questions, reply to this email or contact us at <a href="mailto:support@fasmotorsports.com" style="color:#ef4444;text-decoration:none;">support@fasmotorsports.com</a>.</p>
+                  <p style="margin:0 0 8px 0;">If you have any questions, reply to this email or contact us at <a href="mailto:sales@fasmotorsports.com" style="color:#ef4444;text-decoration:none;">sales@fasmotorsports.com</a>.</p>
                   <p style="margin:0;">Thank you for choosing FAS Motorsports.</p>
                 </div>
               </div>
@@ -697,7 +697,7 @@ export async function POST({ request }: { request: Request }) {
           },
           body: JSON.stringify({
             from: RESEND_FROM,
-            to: ['support@fasmotorsports.com', 'info@fasmotorsports.com'],
+            to: ['sales@fasmotorsports.com', 'info@fasmotorsports.com'],
             subject: `New Order: ${orderNumber}`,
             html: internalHtml
           })

@@ -10,7 +10,7 @@ export const handler: Handler = async (event) => {
     const formName: string = payload?.form_name || payload?.formName || 'unknown-form';
     const data: Record<string, any> = payload?.data || payload || {};
 
-    const to = process.env.NOTIFY_EMAIL || 'support@fasmotorsports.com';
+    const to = process.env.NOTIFY_EMAIL || 'sales@fasmotorsports.com';
     const from = process.env.NOTIFY_FROM || 'no-reply@fasmotorsports.com';
 
     const subject = `New ${formName} submission`;
