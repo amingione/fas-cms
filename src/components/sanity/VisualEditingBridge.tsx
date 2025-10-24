@@ -63,8 +63,7 @@ type OverlaysModule = {
 
 const loadOverlays = async (): Promise<OverlaysModule | null> => {
   try {
-    const specifier = '@sanity/overlays'
-    const mod = (await import(/* @vite-ignore */ specifier)) as OverlaysModule
+    const mod = (await import('@sanity/overlays')) as OverlaysModule
     return mod
   } catch (err) {
     console.warn('[sanity] Failed to load @sanity/overlays:', err)
