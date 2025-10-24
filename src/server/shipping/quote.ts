@@ -614,8 +614,10 @@ export async function computeShippingQuote(
         const serviceLabel = `${rate.service || ''} ${rate.serviceName || ''}`.toLowerCase();
         const isMediaMail =
           serviceCode.includes('media_mail') || serviceLabel.includes('media mail');
+        const isGlobalPost =
+          serviceCode.includes('globalpost') || serviceLabel.includes('global post');
 
-        if (isMediaMail) return false;
+        if (isMediaMail || isGlobalPost) return false;
 
         if (!ALLOW_USPS && isUspsRate(rate)) return false;
 
