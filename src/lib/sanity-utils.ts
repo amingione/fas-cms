@@ -18,6 +18,51 @@ const toBooleanFlag = (value: unknown): boolean => {
   return false;
 };
 
+const parseRuntimeUrl = (): URL | null => {
+  try {
+    if (typeof window !== 'undefined' && typeof window.location?.href === 'string') {
+      return new URL(window.location.href);
+    }
+  } catch {
+    // ignore runtime URL parsing errors
+  }
+
+  if (typeof globalThis !== 'undefined') {
+    const maybeLocation = (globalThis as { location?: unknown }).location;
+
+    if (maybeLocation && typeof (maybeLocation as { href?: string }).href === 'string') {
+      try {
+        return new URL((maybeLocation as { href: string }).href);
+      } catch {
+        // ignore runtime URL parsing errors
+      }
+    }
+
+    if (typeof maybeLocation === 'string') {
+      try {
+        return new URL(maybeLocation);
+      } catch {
+        // ignore runtime URL parsing errors
+      }
+    }
+  }
+
+  return null;
+};
+
+const getUrlBooleanFlag = (url: URL | null, keys: string[]): boolean => {
+  if (!url) return false;
+
+  for (const key of keys) {
+    const value = url.searchParams.get(key);
+    if (value !== null) {
+      return toBooleanFlag(value);
+    }
+  }
+
+  return false;
+};
+
 // Initialize Sanity client (support both PUBLIC_* and server-side SANITY_* envs)
 const projectId =
   (import.meta.env.PUBLIC_SANITY_PROJECT_ID as string | undefined) ||
@@ -36,17 +81,25 @@ const studioUrlRaw =
   undefined;
 const studioUrl = typeof studioUrlRaw === 'string' && studioUrlRaw.trim() ? studioUrlRaw : undefined;
 
-const visualEditingFlag = toBooleanFlag(
+const visualEditingEnvFlag = toBooleanFlag(
   import.meta.env.PUBLIC_SANITY_ENABLE_VISUAL_EDITING as string | undefined
 );
-if (visualEditingFlag && !studioUrl) {
+const runtimeVisualEditingFlag = getUrlBooleanFlag(parseRuntimeUrl(), [
+  'sanity-preview',
+  'presentation',
+  'preview',
+  'visual-editing',
+]);
+const visualEditingRequested = visualEditingEnvFlag || runtimeVisualEditingFlag;
+
+if (visualEditingRequested && !studioUrl) {
   console.warn(
     '[sanity-utils] Visual editing enabled but no PUBLIC_SANITY_STUDIO_URL (or SANITY_STUDIO_URL) configured.'
   );
 }
 
 const previewDraftsRequested =
-  visualEditingFlag ||
+  visualEditingRequested ||
   toBooleanFlag((import.meta.env.PUBLIC_SANITY_PREVIEW_DRAFTS as string | undefined) ?? 'false');
 
 const liveSubscriptionsFlag = toBooleanFlag(
@@ -68,7 +121,7 @@ if (previewDraftsEnabled && !apiToken) {
 }
 
 const perspective = previewDraftsEnabled ? 'previewDrafts' : 'published';
-const stegaEnabled = visualEditingFlag && Boolean(studioUrl);
+const stegaEnabled = visualEditingRequested && Boolean(studioUrl);
 
 // Gracefully handle missing env vars in preview/editor environments
 const hasSanityConfig = Boolean(projectId && dataset);
