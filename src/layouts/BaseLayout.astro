@@ -6,6 +6,7 @@ import Footer2 from '@/components/footer/footer2';
 import CookieBanner from '@/components/notices/cookieBanner';
 import Breadcrumbs from '@/components/storefront/Breadcrumbs.astro';
 import { Toaster } from 'sonner';
+import VisualEditingBridge from '@/components/sanity/VisualEditingBridge';
 
 
 // SEO props (optional per-page)
@@ -45,6 +46,79 @@ const robotsContent = noindex ? 'noindex,follow' : 'index,follow';
 
 const SITE_NAME = 'F.A.S. Motorsports';
 const DEFAULT_OG_IMAGE = 'https://fasmotorsports.com/images/social/social-share.webp';
+
+const parseBooleanFlag = (value: unknown): boolean => {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'number') return value !== 0;
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (!normalized) return false;
+    if (['true', '1', 'yes', 'on', 'enabled'].includes(normalized)) return true;
+    if (['false', '0', 'no', 'off', 'disabled'].includes(normalized)) return false;
+  }
+  return false;
+};
+
+const getUrlBooleanFlag = (url: URL | null, keys: string[]): boolean => {
+  if (!url) return false;
+  for (const key of keys) {
+    const value = url.searchParams.get(key);
+    if (value !== null) {
+      return parseBooleanFlag(value);
+    }
+  }
+  return false;
+};
+
+let currentUrl: URL | null = null;
+try {
+  currentUrl = new URL(Astro.request.url);
+} catch {
+  currentUrl = null;
+}
+
+const envVisualEditing = parseBooleanFlag(
+  import.meta.env.PUBLIC_SANITY_ENABLE_VISUAL_EDITING as string | undefined
+);
+const queryVisualEditing = getUrlBooleanFlag(currentUrl, [
+  'sanity-preview',
+  'presentation',
+  'preview',
+  'visual-editing',
+]);
+const visualEditingEnabled = envVisualEditing || queryVisualEditing;
+
+const liveSubscriptionsEnabled =
+  visualEditingEnabled &&
+  parseBooleanFlag(
+    import.meta.env.PUBLIC_SANITY_ENABLE_LIVE_SUBSCRIPTIONS as string | undefined
+  );
+
+const previewDraftsEnabled =
+  visualEditingEnabled &&
+  parseBooleanFlag(
+    (import.meta.env.PUBLIC_SANITY_PREVIEW_DRAFTS as string | undefined) ?? 'true'
+  );
+
+const resolvedStudioUrl =
+  (import.meta.env.PUBLIC_SANITY_STUDIO_URL as string | undefined) ||
+  (import.meta.env.PUBLIC_STUDIO_URL as string | undefined) ||
+  (import.meta.env.SANITY_STUDIO_URL as string | undefined) ||
+  (import.meta.env.SANITY_STUDIO_NETLIFY_BASE as string | undefined) ||
+  undefined;
+
+const resolvedProjectId =
+  (import.meta.env.PUBLIC_SANITY_PROJECT_ID as string | undefined) ||
+  (import.meta.env.SANITY_PROJECT_ID as string | undefined) ||
+  (import.meta.env.SANITY_STUDIO_PROJECT_ID as string | undefined) ||
+  (import.meta.env.VITE_SANITY_PROJECT_ID as string | undefined) ||
+  undefined;
+
+const resolvedDataset =
+  (import.meta.env.PUBLIC_SANITY_DATASET as string | undefined) ||
+  (import.meta.env.SANITY_DATASET as string | undefined) ||
+  (import.meta.env.SANITY_STUDIO_DATASET as string | undefined) ||
+  'production';
 
 declare global {
   interface Window {
@@ -333,29 +407,43 @@ const breadcrumbItems = shouldRenderBreadcrumbs
 
       });
     </script>
+    {visualEditingEnabled && resolvedProjectId && resolvedDataset && (
+      <VisualEditingBridge
+        client:only="react"
+        enabled={visualEditingEnabled}
+        projectId={resolvedProjectId}
+        dataset={resolvedDataset}
+        studioUrl={resolvedStudioUrl}
+        enableLive={liveSubscriptionsEnabled}
+        includeDrafts={previewDraftsEnabled}
+      />
+    )}
 
+    <style>
+      /* Ensure images and banners don't overflow */
+      img,
+      video,
+      iframe {
+        max-width: 100%;
+        height: auto;
+        object-fit: cover;
+      }
 
+      /* Smooth transitions for interactive elements */
+      button,
+      a {
+        transition: all 0.3s ease;
+      }
 
-<style>
-  /* Ensure images and banners don't overflow */
-  img, video, iframe {
-    max-width: 100%;
-    height: auto;
-    object-fit: cover;
-  }
+      button:hover,
+      a:hover {
+        color: var(--color-primary);
+      }
 
-  /* Smooth transitions for interactive elements */
-  button, a {
-    transition: all 0.3s ease;
-  }
-  button:hover, a:hover {
-    color: var(--color-primary);
-  }
-
-  /* Responsive container padding */
-  .container {
-    @apply px-4 sm:px-6 lg:px-8;
-  }
-</style>
+      /* Responsive container padding */
+      .container {
+        @apply px-4 sm:px-6 lg:px-8;
+      }
+    </style>
   </body>
 </html>
