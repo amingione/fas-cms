@@ -2,7 +2,6 @@ import type { Product as SanityProduct } from '@lib/sanity-utils';
 import { cn } from '@components/ui/utils';
 import { addItem } from '@lib/cart';
 import { prefersDesktopCart } from '@/lib/device';
-import '../styles/global.css';
 
 export interface ProductCardProps {
   product: SanityProduct;

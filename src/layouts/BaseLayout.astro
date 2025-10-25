@@ -37,7 +37,7 @@ const googleAdsId = String(RAW_GOOGLE_ADS_ID || '').trim();
 const effectiveGaId = gaMeasurementId || 'G-NQ94Z6HWGV';
 const gaScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(effectiveGaId)}`;
 const escapeScript = (value: string) => value.replace(/<\/(script)/gi, '<\\/$1');
-const inlineGaSetup = escapeScript(`(function(){var GA_ID=${JSON.stringify(effectiveGaId)};var GOOGLE_ADS_ID=${JSON.stringify(googleAdsId)};window.dataLayer=window.dataLayer||[];function gtag(){window.dataLayer.push(arguments);}window.gtag=window.gtag||gtag;gtag('js',new Date());if(GA_ID){gtag('config',GA_ID);}if(GOOGLE_ADS_ID){gtag('config',GOOGLE_ADS_ID);}try{if(typeof document!=='undefined'){document.dispatchEvent(new Event('gtag:loaded'));}}catch(e){}})();`);
+const inlineGaSetup = escapeScript(`(function(){var globalScope=(typeof globalThis!=='undefined'&&globalThis)||(typeof window!=='undefined'&&window)||(typeof global!=='undefined'&&global);if(!globalScope)return;var GA_ID=${JSON.stringify(effectiveGaId)};var GOOGLE_ADS_ID=${JSON.stringify(googleAdsId)};function bootstrap(){try{if(globalScope.__inlineGaInitialized)return;globalScope.__inlineGaInitialized=true;globalScope.dataLayer=globalScope.dataLayer||[];function gtag(){globalScope.dataLayer.push(arguments);}globalScope.gtag=globalScope.gtag||gtag;gtag('js',new Date());if(GA_ID){gtag('config',GA_ID);}if(GOOGLE_ADS_ID){gtag('config',GOOGLE_ADS_ID);}try{if(typeof document!=='undefined'){document.dispatchEvent(new Event('gtag:loaded'));}}catch(e){}}catch(err){console.warn('inlineGaSetup bootstrap failed',err);}}globalScope.inlineGaSetup=globalScope.inlineGaSetup||bootstrap;try{globalScope.inlineGaSetup();}catch(err){console.warn('inlineGaSetup invocation failed',err);}})();`);
 
 declare global {
   interface Window {
@@ -143,8 +143,8 @@ const breadcrumbItems = shouldRenderBreadcrumbs
 <html lang="en" class="dark">
   <head>
     <!-- Google tag (gtag.js) -->
-    <script async src={gaScriptSrc}></script>
     <script is:inline>{inlineGaSetup}</script>
+    <script async src={gaScriptSrc}></script>
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.ico" />
