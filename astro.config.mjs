@@ -9,6 +9,44 @@ const FN_PORT =
   process.env.NETLIFY_FUNCTIONS_PORT ||
   process.env.FUNCTIONS_PORT ||
   '5050';
+
+// Netlify's adapter injects @netlify/vite-plugin automatically in a few
+// different environments (e.g. when NETLIFY_DEV is set). When multiple copies
+// are registered Vite emits a warning, so we proactively strip duplicates.
+const NETLIFY_VITE_PLUGIN_NAMES = new Set([
+  '@netlify/vite-plugin',
+  'netlify-vite-plugin'
+]);
+
+const dedupeNetlifyVitePlugin = () => {
+  const removeDuplicates = (plugins = []) => {
+    const seen = new Set();
+    return plugins.filter((plugin) => {
+      const name = plugin?.name;
+      if (!name || !NETLIFY_VITE_PLUGIN_NAMES.has(name)) {
+        return true;
+      }
+      if (seen.has(name)) {
+        return false;
+      }
+      seen.add(name);
+      return true;
+    });
+  };
+
+  return {
+    name: 'dedupe-netlify-vite-plugin',
+    enforce: 'pre',
+    config(viteConfig) {
+      if (!viteConfig?.plugins?.length) return;
+      viteConfig.plugins = removeDuplicates(viteConfig.plugins);
+    },
+    configResolved(resolvedConfig) {
+      if (!resolvedConfig?.plugins?.length) return;
+      resolvedConfig.plugins = removeDuplicates(resolvedConfig.plugins);
+    }
+  };
+};
 // Lazy-load svgr so dev doesn't fail if it's not installed
 let svgrPlugin = null;
 try {
@@ -51,6 +89,7 @@ export default defineConfig({
   },
   vite: {
     plugins: [
+      dedupeNetlifyVitePlugin(),
       // Conditionally include svgr if available
       ...(svgrPlugin ? [svgrPlugin] : [])
     ],
