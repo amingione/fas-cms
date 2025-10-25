@@ -224,15 +224,43 @@ const breadcrumbItems = shouldRenderBreadcrumbs
 <html lang="en" class="dark">
   <head>
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17641771829"></script>
-    <script is:inline>
-      if (typeof window !== 'undefined') {
-        window.inlineGaSetup ??= function inlineGaSetup() {
-          return undefined;
-        };
-      }
+    <script is:inline type="text/javascript">
+      (function ensureRuntimeGlobals(global) {
+        if (!global || typeof global !== 'object') {
+          return;
+        }
+
+        if (typeof global.__DEFINES__ === 'undefined' || global.__DEFINES__ === null) {
+          try {
+            Object.defineProperty(global, '__DEFINES__', {
+              value: {},
+              writable: true,
+              configurable: true,
+              enumerable: false
+            });
+          } catch {
+            global.__DEFINES__ = {};
+          }
+        }
+
+        if (typeof global.inlineGaSetup !== 'function') {
+          const fallback = function inlineGaSetup() {
+            return undefined;
+          };
+          try {
+            Object.defineProperty(global, 'inlineGaSetup', {
+              value: fallback,
+              writable: true,
+              configurable: true
+            });
+          } catch {
+            global.inlineGaSetup = fallback;
+          }
+        }
+      })(typeof window !== 'undefined' ? window : typeof globalThis !== 'undefined' ? globalThis : undefined);
     </script>
-    <script is:inline>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17641771829"></script>
+    <script is:inline type="text/javascript">
       window.dataLayer = window.dataLayer || [];
       function gtag(){window.dataLayer.push(arguments);}
       window.gtag = gtag;
@@ -273,7 +301,7 @@ const breadcrumbItems = shouldRenderBreadcrumbs
     <meta name="twitter:title" content={title ? `${title}` : SITE_NAME} />
     {description && <meta name="twitter:description" content={description} />}
     {resolvedOgImage && <meta name="twitter:image" content={resolvedOgImage} />}
-    <script is:inline>
+    <script is:inline type="text/javascript">
       (function () {
         if (typeof window === 'undefined') return;
 
