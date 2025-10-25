@@ -65,6 +65,8 @@ import DesktopCart from '@/components/cart/DesktopCart';
         <button
           id="desktopCategoryToggle"
           aria-label="Toggle Categories"
+          aria-expanded="false"
+          aria-controls="desktopDrawerLeft"
           class="p-2 rounded-lg hover:text-primary"
         >
           <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -236,16 +238,33 @@ import DesktopCart from '@/components/cart/DesktopCart';
     let isDesktopLeftOpen = false;
 
     function openDesktopLeft() {
+      if (!desktopDrawerLeft || !desktopScrim) return;
       desktopDrawerLeft.classList.remove("hidden", "-translate-x-full", "invisible");
       desktopDrawerLeft.setAttribute('aria-hidden', 'false');
       desktopScrim.classList.remove("hidden", "pointer-events-none", "opacity-0");
+      desktopCategoryToggle?.setAttribute('aria-expanded', 'true');
       document.body.style.overflow = "hidden";
       isDesktopLeftOpen = true;
     }
 
     function closeDesktopLeft() {
+      if (!desktopDrawerLeft || !desktopScrim) return;
+      if (desktopDrawerLeft && document.activeElement && desktopDrawerLeft.contains(document.activeElement)) {
+        try {
+          document.activeElement.blur();
+        } catch {}
+      }
+
+      desktopCategoryToggle?.setAttribute('aria-expanded', 'false');
       desktopDrawerLeft.classList.add("-translate-x-full");
       desktopScrim.classList.add("opacity-0", "pointer-events-none");
+      requestAnimationFrame(() => {
+        if (desktopCategoryToggle) {
+          try {
+            desktopCategoryToggle.focus();
+          } catch {}
+        }
+      });
       setTimeout(() => {
         desktopScrim.classList.add("hidden");
         desktopDrawerLeft.classList.add("invisible");

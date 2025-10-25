@@ -225,39 +225,63 @@ const breadcrumbItems = shouldRenderBreadcrumbs
   <head>
     <!-- Google tag (gtag.js) -->
     <script is:inline type="text/javascript">
-      (function ensureRuntimeGlobals(global) {
-        if (!global || typeof global !== 'object') {
+      (function ensureRuntimeGlobals() {
+        var target =
+          typeof window !== 'undefined'
+            ? window
+            : typeof globalThis !== 'undefined'
+            ? globalThis
+            : undefined;
+
+        if (!target || typeof target !== 'object') {
           return;
         }
 
-        if (typeof global.__DEFINES__ === 'undefined' || global.__DEFINES__ === null) {
+        if (typeof target.__DEFINES__ === 'undefined' || target.__DEFINES__ === null) {
           try {
-            Object.defineProperty(global, '__DEFINES__', {
+            Object.defineProperty(target, '__DEFINES__', {
               value: {},
               writable: true,
               configurable: true,
               enumerable: false
             });
           } catch {
-            global.__DEFINES__ = {};
+            target.__DEFINES__ = {};
           }
         }
 
-        if (typeof global.inlineGaSetup !== 'function') {
-          const fallback = function inlineGaSetup() {
+        if (typeof target.inlineGaSetup !== 'function') {
+          var fallback = function inlineGaSetup() {
             return undefined;
           };
+
           try {
-            Object.defineProperty(global, 'inlineGaSetup', {
+            Object.defineProperty(target, 'inlineGaSetup', {
               value: fallback,
               writable: true,
               configurable: true
             });
           } catch {
-            global.inlineGaSetup = fallback;
+            target.inlineGaSetup = fallback;
+          }
+
+          if (typeof window !== 'undefined' && window !== target && typeof window.inlineGaSetup !== 'function') {
+            try {
+              window.inlineGaSetup = fallback;
+            } catch {
+              window.inlineGaSetup = fallback;
+            }
+          }
+
+          if (typeof globalThis !== 'undefined' && globalThis !== target && typeof globalThis.inlineGaSetup !== 'function') {
+            try {
+              globalThis.inlineGaSetup = fallback;
+            } catch {
+              globalThis.inlineGaSetup = fallback;
+            }
           }
         }
-      })(typeof window !== 'undefined' ? window : typeof globalThis !== 'undefined' ? globalThis : undefined);
+      })();
     </script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17641771829"></script>
     <script is:inline type="text/javascript">
