@@ -31,8 +31,8 @@
   GO_VERSION = "1.20"
   PHP_VERSION = "8.3"
   NETLIFY_USE_YARN = "true"
-  NETLIFY_EXPERIMENTAL_YARN_BERRY = "true"
-  YARN_VERSION = "3.6.4"
+  NETLIFY_EXPERIMENTAL_YARN_BERRY = "false"
+  YARN_VERSION = "1.22.19"
   # Used by /api/checkout to build absolute success/cancel URLs
   # In production on Netlify, forwarded host headers are present, so this is a safe default.
   PUBLIC_BASE_URL = "https://fasmotorsports.com"
