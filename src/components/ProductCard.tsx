@@ -10,7 +10,7 @@ export interface ProductCardProps {
   className?: string;
 }
 
-function toPriceString(v: number | undefined) {
+function toPriceString(v: number | null | undefined) {
   if (typeof v !== 'number' || !isFinite(v)) return '—';
   try {
     return `$${parseFloat(String(v)).toFixed(2)}`;
