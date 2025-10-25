@@ -37,7 +37,7 @@ const googleAdsId = String(RAW_GOOGLE_ADS_ID || '').trim();
 const effectiveGaId = gaMeasurementId || 'G-NQ94Z6HWGV';
 const gaScriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(effectiveGaId)}`;
 const escapeScript = (value: string) => value.replace(/<\/(script)/gi, '<\\/$1');
-const inlineGaSetup = escapeScript(`(function(){var GA_ID=${JSON.stringify(effectiveGaId)};var GOOGLE_ADS_ID=${JSON.stringify(googleAdsId)};window.dataLayer=window.dataLayer||[];function gtag(){window.dataLayer.push(arguments);}window.gtag=window.gtag||gtag;gtag('js',new Date());if(GA_ID){gtag('config',GA_ID);}if(GOOGLE_ADS_ID){gtag('config',GOOGLE_ADS_ID);}})();`);
+const inlineGaSetup = escapeScript(`(function(){var GA_ID=${JSON.stringify(effectiveGaId)};var GOOGLE_ADS_ID=${JSON.stringify(googleAdsId)};window.dataLayer=window.dataLayer||[];function gtag(){window.dataLayer.push(arguments);}window.gtag=window.gtag||gtag;gtag('js',new Date());if(GA_ID){gtag('config',GA_ID);}if(GOOGLE_ADS_ID){gtag('config',GOOGLE_ADS_ID);}try{if(typeof document!=='undefined'){document.dispatchEvent(new Event('gtag:loaded'));}}catch(e){}})();`);
 
 declare global {
   interface Window {
