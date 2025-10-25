@@ -2781,3 +2781,78 @@ input[type='checkbox'] {
   background-size: 200px;
   opacity: 0.05;
 }
+
+/* Task card carousel styles (previously TaskCard.module.css) */
+.task-card {
+  width: 100%;
+  border-radius: 16px;
+  background: #000000;
+  border-top: 1px solid rgba(216, 231, 242, 0.07);
+  box-shadow: inset 0px 2px 1px rgba(255, 255, 255, 0.18);
+  padding: 16px;
+}
+
+.task-card__tasks-wrapper {
+  position: relative;
+  overflow: hidden;
+  height: 220px;
+}
+
+.task-card__tasks-scroller {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.task-card__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 0.5px solid rgba(36, 36, 36, 0.147);
+  border-radius: 12px;
+  background: #050505;
+  padding: 8px 12px;
+  box-shadow: inset 0px 2px 2px rgba(255, 255, 255, 0.296);
+}
+
+.task-card__item--blurred {
+  filter: blur(2px);
+}
+
+.task-card__icon {
+  width: 20px;
+  height: 20px;
+  fill: rgb(213, 219, 230);
+}
+
+.task-card__text {
+  font-size: 12px;
+  font-family: 'Ethnocentric', sans-serif;
+  line-height: 20px;
+  color: rgb(142, 146, 153);
+}
+
+.task-card__footer {
+  margin-top: 16px;
+}
+
+.task-card__title {
+  font-weight: 600;
+  font-family: 'Ethnocentric', sans-serif;
+  font-size: 16px;
+  color: rgb(154, 0, 0);
+}
+
+.task-card__subtitle {
+  font-size: 12px;
+  font-family: 'mono';
+  opacity: 0.6;
+  color: #ffffff;
+}
+
+.hero-banner {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  height: 600px;
+}

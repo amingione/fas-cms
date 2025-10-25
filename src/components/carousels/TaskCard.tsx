@@ -1,4 +1,3 @@
-import styles from '@/styles/TaskCard.module.css';
 import { useEffect, useMemo, useState } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 
@@ -54,21 +53,29 @@ export default function TaskCard() {
 
   return (
     <motion.div
-      className={styles.card}
+      className="task-card"
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
       onHoverStart={() => setHovered(true)}
       onHoverEnd={() => setHovered(false)}
     >
-      <div className={styles.tasksWrapper}>
-        <motion.div className={styles.tasksScroller} animate={controls} initial={false}>
+      <div className="task-card__tasks-wrapper">
+        <motion.div
+          className="task-card__tasks-scroller"
+          animate={controls}
+          initial={false}
+        >
           {scrollerTasks.map((task, index) => {
             const baseIndex = index % tasks.length;
             return (
               <motion.div
                 key={`${task.id}-${index}`}
-                className={`${styles.taskItem} ${task.blurred ? styles.blurred : ''}`}
+                className={
+                  task.blurred
+                    ? 'task-card__item task-card__item--blurred'
+                    : 'task-card__item'
+                }
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: baseIndex * 0.15 }}
@@ -78,10 +85,10 @@ export default function TaskCard() {
                   boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.2)'
                 }}
               >
-                <svg viewBox="0 0 24 24" className={styles.icon}>
+                <svg viewBox="0 0 24 24" className="task-card__icon">
                   <use href={task.icon}></use>
                 </svg>
-                <p className={styles.taskText}>{task.label}</p>
+                <p className="task-card__text">{task.label}</p>
               </motion.div>
             );
           })}
@@ -89,13 +96,13 @@ export default function TaskCard() {
       </div>
 
       <motion.div
-        className={styles.footer}
+        className="task-card__footer"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
       >
-        <p className={styles.title}>Full Service Shop</p>
-        <p className={styles.subtitle}>
+        <p className="task-card__title">Full Service Shop</p>
+        <p className="task-card__subtitle">
           From concept to completion, we provide comprehensive engineering services to bring your
           high-performance supercharger vision to life with racing precision.
         </p>

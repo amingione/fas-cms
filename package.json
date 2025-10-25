@@ -1,6 +1,6 @@
 {
   "name": "fas-cms",
-  "packageManager": "yarn@3.6.4",
+  "packageManager": "yarn@4.5.3",
   "version": "1.0.0",
   "scripts": {
     "dev": "astro dev",
