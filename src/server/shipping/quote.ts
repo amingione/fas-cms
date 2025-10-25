@@ -28,13 +28,72 @@ const looksLikeCarrierId = (value?: string | null) => {
   return /^se-/.test(v) || /^car_/.test(v) || /^[0-9a-f-]{16,}$/i.test(v);
 };
 
-const parseCarrierIds = (value?: string | null): string[] => {
-  if (!value) return [];
-  return value
+const parseCarrierIds = (value?: unknown): string[] => {
+  if (value == null) return [];
+
+  if (Array.isArray(value)) {
+    return value.flatMap((entry) => parseCarrierIds(entry));
+  }
+
+  if (typeof value === 'object') {
+    const obj = value as Record<string, unknown>;
+    const nestedSources: unknown[] = [];
+
+    if ('carrier_ids' in obj) nestedSources.push(obj.carrier_ids);
+    if ('carrierIds' in obj) nestedSources.push(obj.carrierIds);
+    if ('carrier_id' in obj) nestedSources.push(obj.carrier_id);
+    if ('carrierId' in obj) nestedSources.push(obj.carrierId);
+    if ('id' in obj) nestedSources.push(obj.id);
+    if ('value' in obj) nestedSources.push(obj.value);
+
+    if (nestedSources.length) {
+      return nestedSources.flatMap((entry) => parseCarrierIds(entry));
+    }
+
+    return [];
+  }
+
+  const str = String(value ?? '').trim();
+  if (!str) return [];
+
+  if (/^[\[{]/.test(str)) {
+    try {
+      return parseCarrierIds(JSON.parse(str));
+    } catch (err) {
+      // fall through to manual parsing
+    }
+  }
+
+  const sanitized = str
+    .replace(/^["'\[\](){}<>\s]+/, '')
+    .replace(/["'\[\](){}<>\s]+$/, '');
+
+  const parts = sanitized
     .split(/[\s,]+/)
     .map((part) => part.trim())
-    .filter((part) => looksLikeCarrierId(part));
+    .filter(Boolean)
+    .map((part) => {
+      const eqIndex = part.lastIndexOf('=');
+      const colonIndex = part.lastIndexOf(':');
+
+      let candidate = part;
+      if (eqIndex >= 0) candidate = candidate.slice(eqIndex + 1);
+
+      if (colonIndex >= 0 && colonIndex > eqIndex) {
+        const maybeProtocol = candidate.slice(0, colonIndex);
+        if (!/^https?$/i.test(maybeProtocol)) {
+          candidate = candidate.slice(colonIndex + 1);
+        }
+      }
+
+      return candidate.replace(/^["']+|["']+$/g, '').trim();
+    });
+
+  return parts.filter((part) => looksLikeCarrierId(part));
 };
+
+const toCarrierIdList = (...inputs: unknown[]): string[] =>
+  Array.from(new Set(inputs.flatMap((input) => parseCarrierIds(input)).filter(Boolean)));
 
 const dedupe = (values: string[]): string[] => Array.from(new Set(values.filter(Boolean)));
 
@@ -350,15 +409,14 @@ const listCarrierIds = async (): Promise<string[]> => {
 };
 
 const resolveCarrierIds = async (): Promise<string[]> => {
-  const envCarrierIds = [
-    ...parseCarrierIds(penv.SHIPENGINE_CARRIER_IDS),
-    ...parseCarrierIds(ime.SHIPENGINE_CARRIER_IDS)
-  ];
+  const envCarrierIds = toCarrierIdList(penv.SHIPENGINE_CARRIER_IDS, ime.SHIPENGINE_CARRIER_IDS);
 
-  const singleCarrierIds = [penv.SHIPENGINE_CARRIER_ID, ime.SHIPENGINE_CARRIER_ID, penv.DEFAULT_SHIPENGINE_CARRIER_ID, ime.DEFAULT_SHIPENGINE_CARRIER_ID]
-    .filter((value): value is string => Boolean(value && typeof value === 'string'))
-    .map((value) => value.trim())
-    .filter((value) => looksLikeCarrierId(value));
+  const singleCarrierIds = toCarrierIdList(
+    penv.SHIPENGINE_CARRIER_ID,
+    ime.SHIPENGINE_CARRIER_ID,
+    penv.DEFAULT_SHIPENGINE_CARRIER_ID,
+    ime.DEFAULT_SHIPENGINE_CARRIER_ID
+  );
 
   const explicit = dedupe([...envCarrierIds, ...singleCarrierIds]).filter(
     (value) => !value.toLowerCase().includes('usps')
@@ -368,7 +426,7 @@ const resolveCarrierIds = async (): Promise<string[]> => {
   if (cachedCarrierIds) return cachedCarrierIds;
 
   const fetched = await listCarrierIds();
-  cachedCarrierIds = dedupe(fetched);
+  cachedCarrierIds = toCarrierIdList(fetched).filter((value) => !value.toLowerCase().includes('usps'));
   if (!cachedCarrierIds.length) {
     return [];
   }
@@ -531,7 +589,7 @@ export async function computeShippingQuote(
     country_code: normalizedCountry
   };
 
-  const carrierIds = await resolveCarrierIds();
+  const carrierIds = toCarrierIdList(await resolveCarrierIds());
   const payload: Record<string, any> = {
     shipment: {
       validate_address: 'no_validation',
