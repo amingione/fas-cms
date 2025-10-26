@@ -164,7 +164,7 @@ export const handler: Handler = async (event) => {
       const weight = num(p?.shippingWeight, defaultWeight);
 
       if (normalizedClass === 'freight') freight = true;
-      if (normalizedClass === 'installonly') {
+      if (normalizedClass.includes('installonly')) {
         installOnly = true;
         continue;
       }

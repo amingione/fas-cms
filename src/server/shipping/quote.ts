@@ -56,7 +56,7 @@ const parseCarrierIds = (value?: unknown): string[] => {
   const str = String(value ?? '').trim();
   if (!str) return [];
 
-  if (/^[\[{]/.test(str)) {
+  if (str.startsWith('[') || str.startsWith('{')) {
     try {
       return parseCarrierIds(JSON.parse(str));
     } catch (err) {
@@ -64,9 +64,9 @@ const parseCarrierIds = (value?: unknown): string[] => {
     }
   }
 
-  const sanitized = str
-    .replace(/^["'\[\](){}<>\s]+/, '')
-    .replace(/["'\[\](){}<>\s]+$/, '');
+  const trimEdgeStartPattern = /^[\s"'()\u005b\u005d{}<>]+/;
+  const trimEdgeEndPattern = /[\s"'()\u005b\u005d{}<>]+$/;
+  const sanitized = str.replace(trimEdgeStartPattern, '').replace(trimEdgeEndPattern, '');
 
   const parts = sanitized
     .split(/[\s,]+/)
@@ -529,7 +529,7 @@ export async function computeShippingQuote(
     const normalizedClass = shippingClassRaw.replace(/[\s_-]+/g, '');
 
     if (normalizedClass === 'freight') freight = true;
-    if (normalizedClass === 'installonly') {
+    if (normalizedClass.includes('installonly')) {
       installOnly = true;
       continue;
     }

@@ -388,7 +388,7 @@ if (product) {
   const shippingClassRaw = ((product as any)?.shippingClass || '').toString();
   const normalizedShippingClass = shippingClassRaw.toLowerCase().replace(/[^a-z0-9]/g, '');
   const computedInstallOnly =
-    normalizedShippingClass === 'installonly' ||
+    normalizedShippingClass.includes('installonly') ||
     canonicalFilterSlugs.has('installonly') ||
     canonicalFilterSlugs.has('install-only');
   const computedPerformanceParts =
@@ -1202,7 +1202,7 @@ if (product) {
       const normalizedShippingClass = shippingClassRaw.toLowerCase().replace(/[^a-z]/g, '');
       const installOnlyFlag =
         String(ds.productInstallOnly || '').toLowerCase() === 'true' ||
-        normalizedShippingClass === 'installonly';
+        normalizedShippingClass.includes('installonly');
 
       // Stable config signature for line dedup (same options -> same line)
       const signature = JSON.stringify(selections.slice().sort((a,b)=>{

@@ -64,7 +64,7 @@ export const GET: APIRoute = async ({ params, request }) => {
   const normalizedClass = shippingClassRaw.toLowerCase().replace(/[^a-z0-9]+/g, '');
   const filterSlugs = collectFilterSlugs((product as any).filters);
   const hasInstallOnlyFilter = filterSlugs.includes('install-only') || filterSlugs.includes('installonly');
-  const installOnly = normalizedClass === 'installonly' || hasInstallOnlyFilter;
+  const installOnly = normalizedClass.includes('installonly') || hasInstallOnlyFilter;
 
   const cartPayload = {
     cart: [
