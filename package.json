@@ -21,7 +21,7 @@
   },
   "resolutions": {
     "esbuild": "0.25.5",
-    "@netlify/edge-functions": "2.18.2"
+    "@netlify/edge-functions": "npm:2.18.2"
   },
   "devDependencies": {
     "@babel/core": "^7.28.3",
