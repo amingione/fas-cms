@@ -716,7 +716,7 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
       const shippingClassRaw = sanitizeText(product?.shippingClass).toLowerCase();
       const normalizedClass = shippingClassRaw.replace(/[\s_-]+/g, '');
       const isInstallOnly =
-        normalizedClass === 'installonly' ||
+        normalizedClass.includes('installonly') ||
         filterSlugs.includes('install-only') ||
         filterSlugs.includes('install_only');
       const isPerformanceParts =

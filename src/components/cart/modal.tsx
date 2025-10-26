@@ -260,8 +260,11 @@ function CartItemsList({ cart, onQuantityChange, onRemove }: CartItemsListProps)
           {items.map((item) => {
             const lineTotal = (item.price || 0) * (item.quantity || 0);
             const optionsSummary = listOptions(item.options as Record<string, unknown>);
-            const isInstallOnly =
-              item.installOnly || (item.shippingClass || '').toString().toLowerCase() === 'installonly';
+            const normalizedClass = (item.shippingClass || '')
+              .toString()
+              .toLowerCase()
+              .replace(/[^a-z]/g, '');
+            const isInstallOnly = item.installOnly || normalizedClass.includes('installonly');
             const productHref = (() => {
               const raw = item.productUrl;
               if (!raw) return undefined;

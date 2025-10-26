@@ -152,8 +152,11 @@ function CartSummaryPopover({
               {items.map((item) => {
                 const lineTotal = (item.price || 0) * (item.quantity || 0);
                 const optionsSummary = listOptions(item.options);
-                const isInstallOnly =
-                  item.installOnly || (item.shippingClass || '').toLowerCase() === 'installonly';
+                const normalizedClass = (item.shippingClass || '')
+                  .toString()
+                  .toLowerCase()
+                  .replace(/[^a-z]/g, '');
+                const isInstallOnly = item.installOnly || normalizedClass.includes('installonly');
                 return (
                   <li key={item.id} className="flex gap-3 py-3">
                     <img

@@ -63,9 +63,13 @@ function CartContents() {
 
   const installOnlyItems = useMemo(
     () =>
-      items.filter(
-        (item) => item.installOnly || (item.shippingClass || '').toLowerCase() === 'installonly'
-      ),
+      items.filter((item) => {
+        const normalizedClass = (item.shippingClass || '')
+          .toString()
+          .toLowerCase()
+          .replace(/[^a-z]/g, '');
+        return item.installOnly || normalizedClass.includes('installonly');
+      }),
     [items]
   );
 
@@ -137,8 +141,11 @@ function CartContents() {
               <ul className="divide-y divide-white/10">
                 {items.map((item) => {
                   const optionsSummary = listOptions(item.options);
-                  const isInstallOnly =
-                    item.installOnly || (item.shippingClass || '').toLowerCase() === 'installonly';
+                  const normalizedClass = (item.shippingClass || '')
+                    .toString()
+                    .toLowerCase()
+                    .replace(/[^a-z]/g, '');
+                  const isInstallOnly = item.installOnly || normalizedClass.includes('installonly');
                   const productHref = (() => {
                     const raw = item.productUrl;
                     if (!raw) return undefined;
