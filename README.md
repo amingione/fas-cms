@@ -72,3 +72,11 @@ yarn stripe:sync --dry-run            # Preview without making changes
 ```
 
 The script requires `STRIPE_SECRET_KEY`, `SANITY_PROJECT_ID`, `SANITY_DATASET`, and a Sanity write token (`SANITY_WRITE_TOKEN`). Successful sync writes `stripeProductId`, `stripePriceId`, and `stripeLastSyncedAt` into each product document.
+
+## Netlify MCP Server
+
+This repository ships with [Netlify's Model Context Protocol server](https://docs.netlify.com/welcome/build-with-ai/netlify-mcp-server/) so AI clients can interact with your Netlify projects.
+
+- Install dependencies with `yarn install` (set `PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1` if your environment blocks Chromium downloads).
+- Launch the server locally with `yarn mcp:netlify`.
+- MCP-compatible tools can discover the server using the included `mcp.config.json`, which points to the `@netlify/mcp` package via `npx -y @netlify/mcp`.
