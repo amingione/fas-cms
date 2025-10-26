@@ -20,8 +20,8 @@
     "node": "18.x"
   },
   "resolutions": {
-    "esbuild": "0.25.5",
-    "@netlify/edge-functions": "npm:2.18.2"
+    "@netlify/edge-functions": "npm:2.18.2",
+    "esbuild": "0.25.5"
   },
   "devDependencies": {
     "@babel/core": "^7.28.3",
