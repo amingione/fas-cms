@@ -97,6 +97,11 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
   }, [isOpen]);
   const openMobileMenu = () => setIsOpen(true);
   const closeMobileMenu = () => setIsOpen(false);
+  const isInlineMode = mode === 'inline';
+  const baseLinkClass = `transition-colors hover:text-primary ${
+    isInlineMode ? 'text-white' : 'text-gray-900'
+  }`;
+  const titleClass = `text-xl font-semibold ${isInlineMode ? 'text-white' : 'text-gray-900'}`;
 
   useEffect(() => {
     const handleResize = () => {
@@ -109,7 +114,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
   }, [isOpen]);
 
   const MenuContent = ({ onNavigate }: { onNavigate?: () => void }) => (
-    <>
+    <div className={`flex flex-col gap-6 ${isInlineMode ? 'text-white' : 'text-gray-900'}`}>
       <div className="flex">
         <img src="/logo/faslogochroma.png" alt="FAS Logo" className="h-8" />
       </div>
@@ -124,42 +129,30 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
       </div>
       <ul className="flex w-full flex-col">
         {/* Top Level: Home */}
-        <li className="py-2 text-xl text-white transition-colors hover:text-neutral-500 dark:text-white">
-          <a href="/" onClick={onNavigate}>
+        <li className="py-2">
+          <a href="/" onClick={onNavigate} className={`text-xl ${baseLinkClass}`}>
             Home
           </a>
         </li>
         {/* Top Level: Shop with subcategories */}
         <li className="py-2">
-          <div className="text-xl text-white dark:text-white">Shop</div>
+          <div className={titleClass}>Shop</div>
           <ul className="mt-2 ml-4 space-y-2 text-lg">
             <li>
-              <a
-                href="/shop"
-                onClick={onNavigate}
-                className="text-white hover:text-neutral-500 dark:text-white"
-              >
+              <a href="/shop" onClick={onNavigate} className={baseLinkClass}>
                 All Products
               </a>
             </li>
             <li className="py-2">
-              <div className="text-xl text-white dark:text-white">Billet Parts</div>
+              <div className={titleClass}>Billet Parts</div>
               <ul className="mt-2 ml-4 space-y-2 text-lg">
                 <li>
-                  <a
-                    href="/specs/PredatorPulley"
-                    onClick={onNavigate}
-                    className="text-white hover:text-neutral-500 dark:text-white"
-                  >
+                  <a href="/specs/PredatorPulley" onClick={onNavigate} className={baseLinkClass}>
                     FAS Predator Pulley
                   </a>
                 </li>
                 <li>
-                  <a
-                    href="/specs/PulleyHub"
-                    onClick={onNavigate}
-                    className="text-white hover:text-neutral-500 dark:text-white"
-                  >
+                  <a href="/specs/PulleyHub" onClick={onNavigate} className={baseLinkClass}>
                     FAS Hub &amp; Pulley
                   </a>
                 </li>
@@ -167,17 +160,13 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
                   <a
                     href="/specs/BilletBearingPlate"
                     onClick={onNavigate}
-                    className="text-white hover:text-neutral-500 dark:text-white"
+                    className={baseLinkClass}
                   >
                     FAS Billet Bearing Plate
                   </a>
                 </li>
                 <li>
-                  <a
-                    href="/specs/BilletSnout"
-                    onClick={onNavigate}
-                    className="text-white hover:text-neutral-500 dark:text-white"
-                  >
+                  <a href="/specs/BilletSnout" onClick={onNavigate} className={baseLinkClass}>
                     FAS Billet Snouts
                   </a>
                 </li>
@@ -185,27 +174,19 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             </li>
             {/* Wheels section */}
             <li className="py-2">
-              <div className="text-xl text-white dark:text-white">Wheels</div>
+              <div className={titleClass}>Wheels</div>
               <ul className="mt-2 ml-4 space-y-2 text-lg">
                 <li></li>
                 <li className="pt-2 text-sm font-bold text-primary tracking-wide">BELAK</li>
                 <li>
-                  <a
-                    href="/belak/wheels"
-                    onClick={onNavigate}
-                    className="text-white hover:text-neutral-500 dark:text-white"
-                  >
+                  <a href="/belak/wheels" onClick={onNavigate} className={baseLinkClass}>
                     Belak Overview
                   </a>
                 </li>
                 <li></li>
                 <li className="pt-2 text-sm font-bold text-primary tracking-wide">JTX FORGED</li>
                 <li>
-                  <a
-                    href="/jtx/wheels"
-                    onClick={onNavigate}
-                    className="text-white hover:text-neutral-500 dark:text-white"
-                  >
+                  <a href="/jtx/wheels" onClick={onNavigate} className={baseLinkClass}>
                     JTX Overview
                   </a>
                 </li>
@@ -218,29 +199,17 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
         </li>
         {/* Packages */}
         <li className="py-2">
-          <a
-            href="/packages"
-            onClick={onNavigate}
-            className="text-white hover:text-neutral-500 dark:text-white"
-          >
+          <a href="/packages" onClick={onNavigate} className={baseLinkClass}>
             Packages
           </a>
           <ul className="mt-2 ml-4 space-y-2 text-lg">
             <li>
-              <a
-                href="/packages/truckPackages"
-                onClick={onNavigate}
-                className="text-white hover:text-neutral-500 dark:text-white"
-              >
+              <a href="/packages/truckPackages" onClick={onNavigate} className={baseLinkClass}>
                 Truck Packages
               </a>
             </li>
             <li>
-              <a
-                href="/packages/powerPackages"
-                onClick={onNavigate}
-                className="text-white hover:text-neutral-500 dark:text-white"
-              >
+              <a href="/packages/powerPackages" onClick={onNavigate} className={baseLinkClass}>
                 Power Packages
               </a>
             </li>
@@ -252,63 +221,39 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             <a
               href="/services/Services"
               onClick={onNavigate}
-              className="text-xl text-white hover:text-neutral-500 dark:text-white"
+              className={`text-xl ${baseLinkClass}`}
             >
               All Services
             </a>
           </div>
           <ul className="mt-2 ml-4 space-y-2 text-lg">
             <li>
-              <a
-                href="/services/igla"
-                onClick={onNavigate}
-                className="text-white hover:text-neutral-500 dark:text-white"
-              >
+              <a href="/services/igla" onClick={onNavigate} className={baseLinkClass}>
                 IGLA Security
               </a>
             </li>
             <li>
-              <a
-                href="/services/porting"
-                onClick={onNavigate}
-                className="text-white hover:text-neutral-500 dark:text-white"
-              >
+              <a href="/services/porting" onClick={onNavigate} className={baseLinkClass}>
                 Porting
               </a>
             </li>
             <li>
-              <a
-                href="/services/customFab"
-                onClick={onNavigate}
-                className="text-white hover:text-neutral-500 dark:text-white"
-              >
+              <a href="/services/customFab" onClick={onNavigate} className={baseLinkClass}>
                 Custom Fabrication
               </a>
             </li>
             <li>
-              <a
-                href="/services/coreExchange"
-                onClick={onNavigate}
-                className="text-white hover:text-neutral-500 dark:text-white"
-              >
+              <a href="/services/coreExchange" onClick={onNavigate} className={baseLinkClass}>
                 Core Exchange
               </a>
             </li>
             <li>
-              <a
-                href="/services/welding"
-                onClick={onNavigate}
-                className="text-white hover:text-neutral-500 dark:text-white"
-              >
+              <a href="/services/welding" onClick={onNavigate} className={baseLinkClass}>
                 Welding
               </a>
             </li>
             <li>
-              <a
-                href="/schedule"
-                onClick={onNavigate}
-                className="text-white hover:text-neutral-500 dark:text-white"
-              >
+              <a href="/schedule" onClick={onNavigate} className={baseLinkClass}>
                 Schedule Service
               </a>
             </li>
@@ -318,18 +263,18 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
           <hr className="border-neutral-200 dark:border-neutral-700" />
         </li>
         {/* Basic pages */}
-        <li className="py-2 text-xl text-white transition-colors hover:text-neutral-500 dark:text-white">
-          <a href="/about" onClick={onNavigate}>
+        <li className="py-2">
+          <a href="/about" onClick={onNavigate} className={`text-xl ${baseLinkClass}`}>
             About
           </a>
         </li>
-        <li className="py-2 text-xl text-white transition-colors hover:text-neutral-500 dark:text-white">
-          <a href="/faq2" onClick={onNavigate}>
+        <li className="py-2">
+          <a href="/faq2" onClick={onNavigate} className={`text-xl ${baseLinkClass}`}>
             FAQ
           </a>
         </li>
-        <li className="py-2 text-xl text-white transition-colors hover:text-neutral-500 dark:text-white">
-          <a href="/contact" onClick={onNavigate}>
+        <li className="py-2">
+          <a href="/contact" onClick={onNavigate} className={`text-xl ${baseLinkClass}`}>
             Contact
           </a>
         </li>
@@ -339,7 +284,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             <a
               href="/account"
               onClick={onNavigate}
-              className="flex items-center gap-2 text-xl text-white hover:text-neutral-500 dark:text-white"
+              className={`flex items-center gap-2 text-xl ${baseLinkClass}`}
             >
               <UserCircleIcon className="h-6 w-6" />
               <span>Account</span>
@@ -349,17 +294,13 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
               <a
                 href="/dashboard"
                 onClick={onNavigate}
-                className="flex items-center gap-2 text-lg text-white dark:text-white hover:text-neutral-500"
+                className={`flex items-center gap-2 text-lg ${baseLinkClass}`}
               >
                 <UserCircleIcon className="h-6 w-6" />
                 <span>{displayName || 'My Account'}</span>
               </a>
-              <div className="ml-8 flex items-center gap-4">
-                <a
-                  href="/dashboard"
-                  onClick={onNavigate}
-                  className="text-white hover:text-neutral-500 dark:text-white"
-                >
+              <div className="ml-8 flex items-center gap-4 text-base">
+                <a href="/dashboard" onClick={onNavigate} className={baseLinkClass}>
                   Dashboard
                 </a>
                 <button
@@ -374,7 +315,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
                       if (onNavigate) onNavigate();
                     }
                   }}
-                  className="text-white hover:text-neutral-500 dark:text-white"
+                  className={baseLinkClass}
                 >
                   Log out
                 </button>
@@ -389,7 +330,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
                   if (onNavigate) onNavigate();
                 }
               }}
-              className="flex items-center gap-2 text-xl text-primary hover:text-primary/90"
+              className="flex items-center gap-2 text-xl font-semibold text-primaryB transition-colors hover:text-primary"
             >
               <UserCircleIcon className="h-6 w-6" />
               <span>Sign in</span>
@@ -397,7 +338,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
           )}
         </li>
       </ul>
-    </>
+    </div>
   );
 
   if (mode === 'inline') {
@@ -409,7 +350,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
       <button
         onClick={openMobileMenu}
         aria-label="Open mobile menu"
-        className="flex h-11 w-11 items-center justify-center rounded-md border border-neutral-200 text-white transition-colors md:hidden dark:border-neutral-700 dark:text-white"
+        className="flex h-11 w-11 items-center justify-center rounded-md border border-neutral-300 text-gray-900 transition-colors hover:border-primary hover:text-primary md:hidden"
       >
         <Bars3Icon className="h-4" />
       </button>
@@ -435,10 +376,10 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             leaveFrom="translate-x-0"
             leaveTo="translate-x-[-100%]"
           >
-            <Dialog.Panel className="fixed bottom-0 left-0 right-0 top-0 flex h-full w-full flex-col bg-white pb-6 bg-white/80">
+            <Dialog.Panel className="fixed bottom-0 left-0 right-0 top-0 flex h-full w-full flex-col bg-white/95 pb-6 text-gray-900">
               <div className="p-4">
                 <button
-                  className="mb-4 flex h-11 w-11 items-center justify-center rounded-md border border-neutral-200 text-white transition-colors dark:border-neutral-700 dark:text-white"
+                  className="mb-4 flex h-11 w-11 items-center justify-center rounded-md border border-neutral-300 text-gray-900 transition-colors hover:border-primary hover:text-primary"
                   onClick={closeMobileMenu}
                   aria-label="Close mobile menu"
                 >

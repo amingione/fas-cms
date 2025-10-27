@@ -215,7 +215,7 @@ table {
 
 :root {
   /* Custom brand colors */
-  --color-primary: #7d0107;
+  --color-primary: #ea1d26;
   --color-secondary: #eef2fb;
   --color-accent: #fde4b2;
   --color-graylight: #d1d0d0;
@@ -237,8 +237,8 @@ table {
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(26.985% 0.07155 23.146);
-  --primary: #7d0107;
-  --primaryB: #ea1d26;
+  --primary: #ea1d26;
+  --primaryB: #7d0107;
   --primary-foreground: #ffffff;
   --secondary: #eef2fb;
   --secondary-foreground: #100d45;
@@ -284,8 +284,8 @@ table {
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(73.481% 0.00008 271.152);
   --popover-foreground: oklch(26.985% 0.07155 23.146);
-  --primary: #7d0107;
-  --primaryB: #ea1d26;
+  --primary: #ea1d26;
+  --primaryB: #7d0107;
   --primary-foreground: #ffffff;
   --secondary: #eef2fb;
   --secondary-foreground: #100d45;

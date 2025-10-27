@@ -44,7 +44,9 @@
   font-size: 12px;
   font-family: 'Ethnocentric', sans-serif;
   line-height: 20px;
-  color: rgb(142, 146, 153);
+  color: #f3f6ff;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 .footer {
@@ -52,15 +54,17 @@
 }
 
 .title {
-  font-weight: 600;
+  font-weight: 700;
   font-family: 'Ethnocentric', sans-serif;
-  font-size: 16px;
-  color: rgb(154, 0, 0);
+  font-size: 18px;
+  color: #ff6b6b;
+  letter-spacing: 0.02em;
 }
 
 .subtitle {
-  font-size: 12px;
-  font: 'mono';
-  opacity: 0.6;
-  color: white;
+  font-size: 13px;
+  font-family: 'mono';
+  opacity: 0.85;
+  color: #e2e8f0;
+  line-height: 1.5;
 }

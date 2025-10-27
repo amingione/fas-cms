@@ -65,8 +65,13 @@ import { SearchBar } from '@/components/SearchBar.tsx';
   <div class="pt-10 pb-8 px-4">
     <MobileMenu mode="inline" client:only="react" />
   </div>
-  <div class="flex justify-end">
-      <button id="closeDesktopDrawerRight" class="text-red-500 hover:text-white text-lg font-bold -mt-4 -mr-2 px-2 py-1 rounded-full transition-all">×</button>
+  <div class="flex justify-end pr-4 pb-4">
+    <button
+      id="closeDesktopDrawerRight"
+      class="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white text-xl font-bold shadow-lg shadow-primary/30 transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+    >
+      ×
+    </button>
   </div>
 </aside>
 
@@ -126,8 +131,13 @@ import { SearchBar } from '@/components/SearchBar.tsx';
 <div id="desktopScrim" aria-hidden="true" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[850] opacity-0 transition-opacity duration-300 pointer-events-none md:block"></div>
 <aside id="desktopDrawerLeft" class="hidden md:block fixed top-0 left-0 h-full w-[360px] bg-[#0b0b0c]/95 border-r border-white/20 z-[900] -translate-x-full transition-transform duration-300 ease-out overflow-y-auto pointer-events-auto">
   <div class="pt-16 pb-8 px-6 font-mono text-white">
-    <div class="flex justify-end">
-      <button id="closeDesktopDrawerLeft" class="text-red-500 hover:text-white text-lg font-bold -mt-4 -mr-2 px-2 py-1 rounded-full transition-all">×</button>
+    <div class="flex justify-end pb-2 pr-2">
+      <button
+        id="closeDesktopDrawerLeft"
+        class="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white text-xl font-bold shadow-lg shadow-primary/30 transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+      >
+        ×
+      </button>
     </div>
     <MobileMenu mode="inline" client:only="react" />
   </div>
@@ -140,7 +150,12 @@ import { SearchBar } from '@/components/SearchBar.tsx';
   >
     <div class="pt-12 pb-8 px-6">
       <h2 class="text-xl font-bold text-white">Account</h2>
-      <button id="closeAccountDashboard" class="absolute top-4 right-4 text-accent hover:text-white text-xl font-bold">×</button>
+      <button
+        id="closeAccountDashboard"
+        class="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white text-xl font-bold shadow-lg shadow-primary/30 transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+      >
+        ×
+      </button>
       <AccountDashboard />
     </div>
   </aside>
