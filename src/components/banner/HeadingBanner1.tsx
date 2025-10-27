@@ -25,7 +25,7 @@ export default function HeadingBanner1() {
         <div className="relative isolate overflow-hidden bg-white/5 border border-rounded rounded-lg border-black/20 drop-shadow-lg shadow-white/10 shadow-inner backdrop-blur-sm px-2 py-10 after:pointer-events-none after:absolute after:inset-0 after:inset-ring after:inset-ring-white/10 sm:rounded-3xl sm:px-10 sm:py-24 after:sm:rounded-3xl lg:py-24 xl:px-24">
           <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-2 lg:items-center lg:gap-y-0">
             <div className="lg:row-start-2 lg:max-w-md">
-              <h2 className="text-3xl font-semibold font-ethno tracking-tight text-balance text-white/40 sm:text-4xl">
+              <h2 className="text-3xl font-semibold font-ethno tracking-tight text-balance text-white/70 sm:text-4xl">
                 Custom Fabrication. Precision Engineering.
               </h2>
               <p className="mt-6 text-lg/8 text-white/70 font-mono">

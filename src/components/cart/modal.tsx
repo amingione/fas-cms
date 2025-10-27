@@ -135,7 +135,7 @@ export default function CartModal() {
                       <div className="flex-1 overflow-y-auto px-4 pb-6 sm:px-6">
                         {!cart || !cart.items || cart.items.length === 0 ? (
                           <div className="mt-16 flex flex-col items-center text-center">
-                            <ShoppingCartIcon className="h-16 w-16 text-white/40" />
+                            <ShoppingCartIcon className="h-16 w-16 text-white/70" />
                             <p className="mt-6 text-2xl font-semibold">Your cart is empty.</p>
                             <p className="mt-2 text-sm text-white/60">
                               Add products from the storefront to see them here.
