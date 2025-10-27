@@ -4,7 +4,7 @@
 const { images = [] } = Astro.props as { images?: Array<{ src: string; alt?: string }> };
 const defaults = [
   { src: '/images/packages/ram-trx-factory-freak.webp', alt: 'RAM TRX Build' },
-  { src: '/images/packages/850-ram.webp', alt: '850 HP RAM Build' },
+  { src: '/images/packages/850-ram-1400.webp', alt: '850 HP RAM Build' },
   { src: '/images/packages/fas0f150-10002800.webp', alt: 'F‑150 800–1000+ Build' },
   { src: '/images/packages/F250-FAS.webp', alt: 'Ford F‑250 / F‑150' },
   { src: '/images/packages/Shelby-truck.webp', alt: 'Raptor / Shelby Build' },
@@ -18,22 +18,22 @@ const imgs = (images.length >= 6 ? images.slice(0, 6) : [...defaults, ...images]
     <div class="responsive-container-block Container">
       <div class="responsive-container-block imgContainer">
         <div class="project project1 border border-rounded rounded-lg drop-shadow shadow-md shadow-white/20 border-white/5" data-idx="0">
-          <img class="smallImage bg-black" src={imgs[0]?.src} alt={imgs[0]?.alt || 'Truck build'} loading="lazy" />
+          <img class="smallImage bg-black" src={imgs[0]?.src} alt={imgs[0]?.alt || 'Truck build'} loading="lazy" decoding="async" width="640" height="360" />
         </div>
         <div class="project project2 border border-rounded rounded-lg drop-shadow shadow-md shadow-white/20 border-white/5" data-idx="1">
-          <img class="smallImage" src={imgs[1]?.src} alt={imgs[1]?.alt || 'Truck build'} loading="lazy" />
+          <img class="smallImage" src={imgs[1]?.src} alt={imgs[1]?.alt || 'Truck build'} loading="lazy" decoding="async" width="640" height="360" />
         </div>
         <div class="project project3 border border-rounded rounded-lg drop-shadow shadow-md shadow-white/20 border-white/5" data-idx="2">
-          <img class="smallImage" src={imgs[2]?.src} alt={imgs[2]?.alt || 'Truck build'} loading="lazy" />
+          <img class="smallImage" src={imgs[2]?.src} alt={imgs[2]?.alt || 'Truck build'} loading="lazy" decoding="async" width="640" height="360" />
         </div>
         <div class="project project4 border border-rounded rounded-lg drop-shadow shadow-md shadow-white/20 border-white/5" data-idx="3">
-          <img class="smallImage" src={imgs[3]?.src} alt={imgs[3]?.alt || 'Truck build'} loading="lazy" />
+          <img class="smallImage" src={imgs[3]?.src} alt={imgs[3]?.alt || 'Truck build'} loading="lazy" decoding="async" width="640" height="360" />
         </div>
         <div class="project project5 border border-rounded rounded-lg drop-shadow shadow-md shadow-white/20 border-white/5" data-idx="4">
-          <img class="smallImage" src={imgs[4]?.src} alt={imgs[4]?.alt || 'Truck build'} loading="lazy" />
+          <img class="smallImage" src={imgs[4]?.src} alt={imgs[4]?.alt || 'Truck build'} loading="lazy" decoding="async" width="640" height="360" />
         </div>
         <div class="project project6 border border-rounded rounded-lg drop-shadow shadow-md shadow-white/20 border-white/5" data-idx="5">
-          <img class="smallImage" src={imgs[5]?.src} alt={imgs[5]?.alt || 'Truck build'} loading="lazy" />
+          <img class="smallImage" src={imgs[5]?.src} alt={imgs[5]?.alt || 'Truck build'} loading="lazy" decoding="async" width="640" height="360" />
         </div>
       </div>
     </div>

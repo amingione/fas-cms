@@ -224,7 +224,7 @@ const breadcrumbItems = shouldRenderBreadcrumbs
 <html lang="en" class="dark">
   <head>
     <!-- Google tag (gtag.js) -->
-    <script is:inline type="text/javascript">
+    <script is:inline type="module">
       (function ensureRuntimeGlobals() {
         var target =
           typeof window !== 'undefined'
@@ -283,21 +283,62 @@ const breadcrumbItems = shouldRenderBreadcrumbs
         }
       })();
     </script>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17641771829"></script>
-    <script is:inline type="text/javascript">
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){window.dataLayer.push(arguments);}
-      window.gtag = gtag;
-      gtag('js', new Date());
-      gtag('config', 'G-NQ94Z6HWGV', { send_page_view: true });
-      gtag('config', 'AW-17641771829');
-      try {
-        if (typeof document !== 'undefined') {
-          document.dispatchEvent(new Event('gtag:loaded'));
+    <script is:inline type="module">
+      const GTAG_URL = 'https://www.googletagmanager.com/gtag/js?id=AW-17641771829';
+      const initAnalytics = () => {
+        if (typeof window === 'undefined') return;
+        if (window.__fasGtagInitialized) return;
+        window.__fasGtagInitialized = true;
+        window.dataLayer = window.dataLayer || [];
+        function gtag() {
+          window.dataLayer.push(arguments);
         }
-      } catch {
-        /* noop */
-      }
+        window.gtag = gtag;
+        gtag('js', new Date());
+        gtag('config', 'G-NQ94Z6HWGV', { send_page_view: true });
+        gtag('config', 'AW-17641771829');
+      };
+
+      const loadAnalyticsScript = () => {
+        if (typeof document === 'undefined') return;
+        if (document.querySelector('script[data-gtag-loader]')) return;
+        const tag = document.createElement('script');
+        tag.src = GTAG_URL;
+        tag.async = true;
+        tag.dataset.gtagLoader = 'true';
+        tag.addEventListener('load', () => {
+          try {
+            document.dispatchEvent(new Event('gtag:loaded'));
+          } catch {
+            /* noop */
+          }
+        });
+        document.head.appendChild(tag);
+      };
+
+      const bootAnalytics = () => {
+        initAnalytics();
+        loadAnalyticsScript();
+      };
+
+      const scheduleAnalytics = () => {
+        if (typeof window === 'undefined' || typeof document === 'undefined') return;
+        const start = () => {
+          if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(bootAnalytics, { timeout: 2000 });
+          } else {
+            window.setTimeout(bootAnalytics, 300);
+          }
+        };
+
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+          start();
+        } else {
+          document.addEventListener('DOMContentLoaded', start, { once: true });
+        }
+      };
+
+      scheduleAnalytics();
     </script>
     <link rel="icon" type="image/webp" href="/favicon-96x96.webp" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -306,7 +347,18 @@ const breadcrumbItems = shouldRenderBreadcrumbs
     <meta name="apple-mobile-web-app-title" content="FAS Moto" />
     <link rel="manifest" href="/site.webmanifest" crossorigin="use-credentials" />
     <link rel="icon" type="image/webp" href="/logo/faslogochroma.webp" />
-    
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
+    <link rel="preconnect" href="https://www.google-analytics.com" crossorigin />
+    <link rel="preconnect" href="https://stats.g.doubleclick.net" crossorigin />
+    <link rel="preconnect" href="https://www.google.com" crossorigin />
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+    <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+    <link rel="dns-prefetch" href="https://stats.g.doubleclick.net" />
+    <link rel="dns-prefetch" href="https://analytics.google.com" />
+    <link rel="dns-prefetch" href="https://www.google.com" />
+    <link rel="preload" href="/fonts/AmericanCaptain.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/Ethnocentric-Regular.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/Borgsquad.woff2" as="font" type="font/woff2" crossorigin />
 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -325,7 +377,7 @@ const breadcrumbItems = shouldRenderBreadcrumbs
     <meta name="twitter:title" content={title ? `${title}` : SITE_NAME} />
     {description && <meta name="twitter:description" content={description} />}
     {resolvedOgImage && <meta name="twitter:image" content={resolvedOgImage} />}
-    <script is:inline type="text/javascript">
+    <script is:inline type="module">
       (function () {
         if (typeof window === 'undefined') return;
 
@@ -448,23 +500,34 @@ const breadcrumbItems = shouldRenderBreadcrumbs
     <!-- Auth bootstrap removed: serverless login/session handles auth without Auth0 SDK -->
 
 
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
+    <script is:inline type="module">
+      const initFadeInUp = () => {
+        if (typeof window === 'undefined' || typeof document === 'undefined') return;
+        if (!('IntersectionObserver' in window)) return;
         const elements = document.querySelectorAll('.fade-in-up');
-        const observer = new IntersectionObserver(entries => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('opacity-100', 'translate-y-0');
-            }
-          });
-        }, { threshold: 0.15 });
+        if (!elements.length) return;
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('opacity-100', 'translate-y-0');
+              }
+            });
+          },
+          { threshold: 0.15 }
+        );
 
-        elements.forEach(el => {
+        elements.forEach((el) => {
           el.classList.add('opacity-0', 'translate-y-6', 'transition-all', 'duration-700');
           observer.observe(el);
         });
+      };
 
-      });
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initFadeInUp, { once: true });
+      } else {
+        initFadeInUp();
+      }
     </script>
     {visualEditingEnabled && resolvedProjectId && resolvedDataset && (
       <VisualEditingBridge

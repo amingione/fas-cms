@@ -9,13 +9,34 @@ export interface Props {
   description: string;
   imageSrc: string;
   imageAlt: string;
+  imageWidth?: number;
+  imageHeight?: number;
+  imageSrcSet?: string;
+  imageSizes?: string;
+  imageLoading?: 'lazy' | 'eager';
+  imageDecoding?: 'auto' | 'sync' | 'async';
   specs: SpecItem[];
   about: string[];
   ctaHref?: string;
   ctaLabel?: string;
 }
 
-const { title, description, imageSrc, imageAlt, specs, about, ctaHref, ctaLabel } = Astro.props as Props;
+const {
+  title,
+  description,
+  imageSrc,
+  imageAlt,
+  imageWidth,
+  imageHeight,
+  imageSrcSet,
+  imageSizes,
+  imageLoading = 'lazy',
+  imageDecoding = 'async',
+  specs,
+  about,
+  ctaHref,
+  ctaLabel
+} = Astro.props as Props;
 ---
 
 <!-- Top banner with image/title grid (not a CTA) -->
@@ -29,7 +50,17 @@ const { title, description, imageSrc, imageAlt, specs, about, ctaHref, ctaLabel 
       <div class="order-1 md:order-2 min-w-0">
           <div class="relative w-full h-full">
             <div class="aspect-2/4 shadow-white/20 object-contain">
-              <img src={imageSrc} alt={imageAlt} class="relative z-10 h-full w-full object-contain md:object-cover object-center select-none pointer-events-none" loading="eager" />
+              <img
+                src={imageSrc}
+                alt={imageAlt}
+                width={imageWidth}
+                height={imageHeight}
+                srcset={imageSrcSet}
+                sizes={imageSizes}
+                loading={imageLoading}
+                decoding={imageDecoding}
+                class="relative z-10 h-full w-full object-contain md:object-cover object-center select-none pointer-events-none"
+              />
             </div>
           </div>
         </div>

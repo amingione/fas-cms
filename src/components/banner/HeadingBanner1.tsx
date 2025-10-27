@@ -18,6 +18,14 @@ const features = [
   }
 ];
 
+const heroImageSrcSet = [
+  '/images/backgrounds/welding-fas-800.webp 800w',
+  '/images/backgrounds/welding-fas-1200.webp 1200w',
+  '/images/backgrounds/welding-fas.webp 1600w'
+].join(', ');
+
+const heroImageSizes = '(min-width: 1280px) 640px, (min-width: 768px) 80vw, 100vw';
+
 export default function HeadingBanner1() {
   return (
     <div className="bg-blend-overlay mt-5 mb-12 sm:mb-16 lg:mb-24">
@@ -39,6 +47,11 @@ export default function HeadingBanner1() {
               src="/images/backgrounds/welding-fas.webp"
               width={2432}
               height={1442}
+              loading="eager"
+              decoding="async"
+              fetchPriority="high"
+              sizes={heroImageSizes}
+              srcSet={heroImageSrcSet}
               className="relative -z-20 max-w-xl fit min-w-full rounded-xl shadow-xl ring-1 ring-white/10 lg:row-span-4 lg:w-5xl lg:max-w-90%"
             />
             <div className="max-w-xl lg:row-start-3 lg:mt-10 lg:max-w-md lg:border-t lg:border-white/10 lg:pt-10">

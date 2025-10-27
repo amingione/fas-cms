@@ -6,11 +6,29 @@ import ProductSpecSheet from '@components/specs/ProductSpecSheet.astro';
 
 const pageDoc: any = await loadPageDoc('BilletSnoutSpecs');
 
+type SpecVariant = {
+  id: string;
+  title: string;
+  description: string;
+  imageSrc: string;
+  imageAlt: string;
+  imageWidth?: number;
+  imageHeight?: number;
+  imageSrcSet?: string;
+  imageSizes?: string;
+  imageLoading?: 'lazy' | 'eager';
+  imageDecoding?: 'auto' | 'sync' | 'async';
+  specs: Array<{ label: string; value: string }>;
+  about: string[];
+  ctaHref?: string;
+  ctaLabel?: string;
+};
+
 const pageTitle: string = pageDoc?.title ?? 'Billet Supercharger Snout — Spec Sheet';
 const pageDescription =
   'Explore billet supercharger snout options for 2.4L Hellcat platforms with airflow-focused inlet geometry, rigid construction, and OE-style sealing.';
 
-const variants = [
+const variants: SpecVariant[] = [
   {
     id: 'hellcat-billet-snout',
     title: '2.4L Hellcat Billet Supercharger Snout',
@@ -18,6 +36,15 @@ const variants = [
       'CNC-machined billet supercharger snout engineered for high-flow inlet geometry and precise alignment under belt load.',
     imageSrc: '/images/snouts/FAS-Billet-Snout.webp',
     imageAlt: 'FAS Motorsports Billet Supercharger Snout',
+    imageWidth: 1000,
+    imageHeight: 1000,
+    imageSrcSet:
+      '/images/snouts/FAS-Billet-Snout-480.webp 480w, ' +
+      '/images/snouts/FAS-Billet-Snout-700.webp 700w, ' +
+      '/images/snouts/FAS-Billet-Snout.webp 1000w',
+    imageSizes: '(min-width: 1024px) 420px, 90vw',
+    imageLoading: 'lazy',
+    imageDecoding: 'async',
     specs: [
       { label: 'Material', value: 'Billet aluminum, CNC-machined' },
       { label: 'Machining', value: 'Multi-axis CNC for alignment and concentricity' },
@@ -115,6 +142,12 @@ const structuredData = {
           description={variant.description}
           imageSrc={variant.imageSrc}
           imageAlt={variant.imageAlt}
+          imageWidth={variant.imageWidth}
+          imageHeight={variant.imageHeight}
+          imageSrcSet={variant.imageSrcSet}
+          imageSizes={variant.imageSizes}
+          imageLoading={variant.imageLoading}
+          imageDecoding={variant.imageDecoding}
           specs={variant.specs}
           about={variant.about}
           ctaHref={variant.ctaHref}

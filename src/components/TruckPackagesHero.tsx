@@ -28,6 +28,14 @@ export function TruckPackagesHero({
   ctaSecondaryText,
   ctaSecondaryHref
 }: TruckPackagesHeroProps) {
+  const truckImageSrcSet = [
+    '/images/packages/850-ram-900.webp 900w',
+    '/images/packages/850-ram-1400.webp 1400w',
+    '/images/packages/850-ram-2000.webp 2000w',
+    '/images/packages/850-ram.webp 2412w'
+  ].join(', ');
+  const truckImageSizes = '(min-width: 1024px) 42vw, 94vw';
+
   return (
     <section className="relative overflow-hidden bg-black/10 glass-layer-rounded back-layer rounded-md px-5 shadow-lg text-white mb-5">
       {/* subtle texture / vignette */}
@@ -119,6 +127,12 @@ export function TruckPackagesHero({
           <img
             src="/images/packages/850-ram.webp"
             alt="Custom RAM TRX Packages"
+            width={2412}
+            height={1290}
+            srcSet={truckImageSrcSet}
+            sizes={truckImageSizes}
+            loading="lazy"
+            decoding="async"
             className="w-full h-auto rounded-lg shadow-2xl"
           />
         </div>

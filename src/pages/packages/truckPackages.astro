@@ -115,7 +115,17 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallbac
       <div class="package-group">
         <div class="px-4 border border-roundeded border-black rounded-md drop-shadow shadow-md shadow-white/20">
           <div class="package-media">
-            <img src="/images/packages/850-ram.webp" alt="TRX Truck Package by FAS" class="package-image">
+            <img
+              src="/images/packages/850-ram.webp"
+              srcset="/images/packages/850-ram-900.webp 900w, /images/packages/850-ram-1400.webp 1400w, /images/packages/850-ram-2000.webp 2000w, /images/packages/850-ram.webp 2412w"
+              sizes="(min-width: 1024px) 360px, 94vw"
+              width="2412"
+              height="1290"
+              loading="lazy"
+              decoding="async"
+              alt="TRX Truck Package by FAS"
+              class="package-image"
+            />
           </div>
           <h3 class="font-ethno text-primary"><span class="font-borg text-white">RaM</span> TRX <span class="font-ethno text-base tracking-tight text-white">Builds</span></h3>
           <div class="font-ethno text-base tracking-tight text-accent">
@@ -170,7 +180,7 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallbac
       { src: '/images/packages/FAS-TRX.webp', alt: 'TRX Build by FAS' },
       { src: '/images/packages/FAS-TRX2.webp', alt: 'TRX Build by FAS' },
       { src: '/images/packages/ram-trx-factory-freak.webp', alt: 'RAM TRX Build' },
-      { src: '/images/packages/850-ram.webp', alt: '850 HP RAM Build' },
+      { src: '/images/packages/850-ram-1400.webp', alt: '850 HP RAM Build' },
       { src: '/images/packages/fas0f150-10002800.webp', alt: 'F‑150 800–1000+ Build' },
       { src: '/images/packages/F250-FAS.webp', alt: 'Ford F‑250 / F‑150' },
       { src: '/images/packages/Shelby-truck.webp', alt: 'Raptor / Shelby Build' },

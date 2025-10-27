@@ -1,11 +1,21 @@
 import React from 'react';
+import type { ImgHTMLAttributes } from 'react';
 import { Button } from '@components/ui/button';
 
 type CTA = { label: string; href: string; onClick?: () => void };
 
+type FeatureImage = {
+  src: string;
+  alt: string;
+  className?: string;
+} & Pick<
+  ImgHTMLAttributes<HTMLImageElement>,
+  'loading' | 'decoding' | 'sizes' | 'srcSet' | 'width' | 'height' | 'fetchPriority'
+>;
+
 type Feature = {
   side: 'left' | 'right'; // where the product image sits
-  image: { src: string; alt: string; className?: string };
+  image: FeatureImage;
   sticker?: { src: string; alt: string; className?: string }; // optional badge/logo
   stars?: number; // 0–5 (defaults 5)
   lines: [string, string?, string?]; // up to 3 headline lines
@@ -32,6 +42,16 @@ const StarRow = ({ count = 5 }: { count?: number }) => (
 
 const FeatureBlock = ({ f, isSecond }: { f: Feature; isSecond?: boolean }) => {
   const isRight = f.side === 'right';
+  const {
+    className: imageClassName,
+    width,
+    height,
+    loading = 'lazy',
+    decoding = 'async',
+    sizes,
+    srcSet,
+    fetchPriority
+  } = f.image;
 
   return (
     <div
@@ -47,11 +67,17 @@ const FeatureBlock = ({ f, isSecond }: { f: Feature; isSecond?: boolean }) => {
         <img
           src={f.image.src}
           alt={f.image.alt}
+          width={width}
+          height={height}
+          loading={loading}
+          decoding={decoding}
+          sizes={sizes}
+          srcSet={srcSet}
+          fetchPriority={fetchPriority}
           className={
             'mx-auto max-h-72 md:max-h-[15rem] object-contain drop-shadow-2xl shadow-white/10' +
-            (f.image.className ?? '')
+            (imageClassName ? ` ${imageClassName}` : '')
           }
-          loading="eager"
         />
         {f.sticker && (
           <img

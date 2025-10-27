@@ -140,7 +140,12 @@ try {
               side: 'left',
               image: {
                 src: '/images/billetParts/predator-pulley-fas.webp',
-                alt: 'Predator pulley product photo'
+                alt: 'Predator pulley product photo',
+                width: 1719,
+                height: 1719,
+                loading: 'lazy',
+                decoding: 'async',
+                sizes: '(min-width: 1024px) 320px, 80vw'
               },
               lines: ['NO TUNE', 'PREDATOR', 'PULLEY'],
               pricePrefix: 'FROM',
@@ -151,7 +156,16 @@ try {
               side: 'right',
               image: {
                 src: '/images/snouts/FAS-Billet-Snout.webp',
-                alt: 'Hellcat snout porting product photo'
+                alt: 'Hellcat snout porting product photo',
+                width: 1000,
+                height: 1000,
+                loading: 'lazy',
+                decoding: 'async',
+                sizes: '(min-width: 1024px) 320px, 80vw',
+                srcSet:
+                  '/images/snouts/FAS-Billet-Snout-480.webp 480w, ' +
+                  '/images/snouts/FAS-Billet-Snout-700.webp 700w, ' +
+                  '/images/snouts/FAS-Billet-Snout.webp 1000w'
               },
               lines: ['HELLCAT', 'SNOUT', 'PORTING'],
               pricePrefix: 'FROM',
