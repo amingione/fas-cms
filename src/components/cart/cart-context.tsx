@@ -46,19 +46,40 @@ function computeTotals(cart: Cart) {
 }
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [cart, setCart] = useState<Cart>(() => getLocalCart());
+  const [cart, setCart] = useState<Cart>({ items: [] });
 
   // Stay in sync with any add/remove/update via actions.ts
   useEffect(() => {
+    let cancelled = false;
+
+    const hydrateCart = () => {
+      try {
+        const next = getLocalCart();
+        if (!cancelled) setCart(next);
+      } catch (error) {
+        void error;
+      }
+    };
+
+    hydrateCart();
+
     function onChanged(ev: any) {
       try {
-        setCart(ev.detail.cart);
+        const next = ev?.detail?.cart;
+        if (next && Array.isArray(next.items)) {
+          setCart(next);
+        } else {
+          hydrateCart();
+        }
       } catch (error) {
         void error;
       }
     }
     window.addEventListener('cart:changed', onChanged as EventListener);
-    return () => window.removeEventListener('cart:changed', onChanged as EventListener);
+    return () => {
+      cancelled = true;
+      window.removeEventListener('cart:changed', onChanged as EventListener);
+    };
   }, []);
 
   async function addCartItem(item: Partial<CartItem> & { id: string; quantity?: number }) {
