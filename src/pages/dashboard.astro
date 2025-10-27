@@ -52,6 +52,7 @@ if (!isLoggedIn) {
         <option value="quotes">Quotes</option>
         <option value="invoices">Invoices</option>
         <option value="appointments">Appointments</option>
+        <option value="assistant">AI Assistant</option>
         <option value="details">Account details</option>
       </select>
     </div>
@@ -93,6 +94,7 @@ if (!isLoggedIn) {
         <a href="#quotes" data-view="quotes" class="js-view px-3 py-2 rounded hover:bg-white/10">Quotes <span id="quotes-count" class="ml-2 px-2 py-0.5 text-[10px] bg-red-600/80 rounded">0</span></a>
         <a href="#invoices" data-view="invoices" class="js-view px-3 py-2 rounded hover:bg-white/10">Invoices <span id="invoices-count" class="ml-2 px-2 py-0.5 text-[10px] bg-red-600/80 rounded">0</span></a>
         <a href="#appointments" data-view="appointments" class="js-view px-3 py-2 rounded hover:bg-white/10">Appointments <span id="appts-count" class="ml-2 px-2 py-0.5 text-[10px] bg-red-600/80 rounded">0</span></a>
+        <a href="#assistant" data-view="assistant" class="js-view px-3 py-2 rounded hover:bg-white/10">AI Assistant</a>
         <a href="#details" data-view="details" class="js-view px-3 py-2 rounded hover:bg-white/10">Account Details</a>
         <div class="mt-4 pt-3 border-t border-white/10"></div>
         {isLoggedIn ? (
