@@ -50,7 +50,7 @@ export default function Example() {
               <p className="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
                 Thanks for ordering
               </p>
-              <p className="mt-2 text-base text-gray-500">
+              <p className="mt-2 text-base text-gray-700">
                 We appreciate your order, we’re currently processing it. So hang tight and we’ll
                 send you confirmation very soon!
               </p>
@@ -62,7 +62,7 @@ export default function Example() {
 
               <ul
                 role="list"
-                className="mt-6 divide-y divide-gray-200 border-t border-gray-200 text-sm font-medium text-gray-500"
+                className="mt-6 divide-y divide-gray-200 border-t border-gray-200 text-sm font-medium text-gray-700"
               >
                 {products.map((product) => (
                   <li key={product.id} className="flex space-x-6 py-6">
@@ -83,7 +83,7 @@ export default function Example() {
                 ))}
               </ul>
 
-              <dl className="space-y-6 border-t border-gray-200 pt-6 text-sm font-medium text-gray-500">
+              <dl className="space-y-6 border-t border-gray-200 pt-6 text-sm font-medium text-gray-700">
                 <div className="flex justify-between">
                   <dt>Subtotal</dt>
                   <dd className="text-gray-900">$72.00</dd>

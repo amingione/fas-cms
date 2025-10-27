@@ -357,7 +357,7 @@ export default function CategoryPage({
                         >
                           {section.items.map((item) => (
                             <li key={item.name} className="flow-root">
-                              <a href={item.href} className="-m-2 block p-2 text-gray-500">
+                              <a href={item.href} className="-m-2 block p-2 text-gray-200">
                                 {item.name}
                               </a>
                             </li>
@@ -422,7 +422,7 @@ export default function CategoryPage({
                       </div>
                       <PopoverPanel
                         transition
-                        className="group/popover-panel absolute inset-x-0 top-full z-20 w-full bg-black/70 backdrop-blur-sm text-sm text-gray-500 transition data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in border border-white-20 drop-shadow shadow-white/30"
+                        className="group/popover-panel absolute inset-x-0 top-full z-20 w-full bg-black/70 backdrop-blur-sm text-sm text-gray-200 transition data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in border border-white-20 drop-shadow shadow-white/30"
                       >
                         {/* Presentational element used to render the bottom shadow, if we put the shadow on the actual panel it pokes out the top, so we use this shorter element to hide the top of the shadow */}
                         <div
@@ -516,7 +516,7 @@ export default function CategoryPage({
               <h1 className="z-20 text-4xl font-bold tracking-tight text-white sm:text-5xl">
                 {heroTitle}
               </h1>
-              <p className="mt-4 text-xl text-gray-500 font-mono">{heroDescription}</p>
+              <p className="mt-4 text-xl text-gray-200 font-mono">{heroDescription}</p>
             </div>
             <div>
               <div className="mt-10">
@@ -742,7 +742,7 @@ export default function CategoryPage({
                       {featured.name}
                     </a>
                   </h3>
-                  <p className="mt-1 text-sm text-gray-500">{featured.price}</p>
+                  <p className="mt-1 text-sm text-gray-300">{featured.price}</p>
                 </div>
               ))}
             </div>
