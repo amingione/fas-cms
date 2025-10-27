@@ -50,7 +50,7 @@ module.exports = {
     extend: {
       colors: {
         // Brand palette used by utilities like text-primary, bg-accent, etc.
-        primary: '#ea1d26',
+        primary: '#d11219',
         secondary: '#eef2fb',
         red: '#7d0107',
         accent: '#fde4b2',
