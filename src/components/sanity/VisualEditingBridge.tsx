@@ -92,6 +92,18 @@ export default function VisualEditingBridge({
       return
     }
 
+    const rawPublicToken = import.meta.env.PUBLIC_SANITY_API_TOKEN as string | undefined
+    const trimmedToken = typeof rawPublicToken === 'string' ? rawPublicToken.trim() : ''
+    const token = trimmedToken.length > 0 ? trimmedToken : undefined
+    const draftsEnabled = includeDrafts && Boolean(token)
+    const liveEnabled = enableLive && Boolean(token)
+
+    if ((includeDrafts || enableLive) && !token) {
+      console.warn(
+        '[sanity] Visual editing drafts/live requested but PUBLIC_SANITY_API_TOKEN is not configured; skipping secure features.',
+      )
+    }
+
     let disableOverlays: DisableVisualEditing | undefined
     let liveCleanup: (() => void) | undefined
     let disposed = false
@@ -112,7 +124,7 @@ export default function VisualEditingBridge({
       }
     })()
 
-    if (enableLive) {
+    if (liveEnabled) {
       ;(async () => {
         try {
           const {createClient} = await import('@sanity/client')
@@ -123,11 +135,12 @@ export default function VisualEditingBridge({
             dataset,
             apiVersion: '2023-01-01',
             useCdn: false,
-            perspective: includeDrafts ? 'previewDrafts' : 'published',
+            perspective: draftsEnabled ? 'previewDrafts' : 'published',
+            ...(token ? {token} : {}),
           })
 
           const events = client.live.events({
-            includeDrafts,
+            includeDrafts: draftsEnabled,
             tag: 'sanity-visual-editing',
           })
 
