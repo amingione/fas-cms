@@ -110,7 +110,7 @@ function AppShell({ children }: { children: React.ReactNode }) {
                     onClick={() => scrollToSection(item.id)}
                     className={`flex flex-col items-center justify-center min-w-0 flex-1 mobile-touch-target transition-colors duration-200 ${isActive ? 'text-primary' : 'text-white/60'}`}
                     whileTap={{ scale: 0.95 }}
-                    animate={{ scale: isActive ? 1.1 : 1, color: isActive ? '#ea1d26' : '#d1d0d0' }}
+                    animate={{ scale: isActive ? 1.1 : 1, color: isActive ? '#d11219' : '#d1d0d0' }}
                     transition={{ duration: 0.2 }}
                   >
                     <Icon

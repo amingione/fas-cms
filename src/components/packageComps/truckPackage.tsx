@@ -30,7 +30,7 @@ export default function TruckPackagesComponent() {
         <div className="mx-auto max-w-2xl lg:mx-0">
           <h1 className="mt-2 text-4xl font-semibold tracking-tight text-pretty font-ethno italic text-primary sm:text-5xl">
             Truck Packages That Deliver.{' '}
-            <span className="text-white/40">Strength. Speed. Support.</span>
+            <span className="text-white/70">Strength. Speed. Support.</span>
           </h1>
           <p className="mt-6 text-xl text-gray-300">
             <span className="font-borg italic text-white">F.A.S. </span>

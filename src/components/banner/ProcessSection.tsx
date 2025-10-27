@@ -9,25 +9,25 @@ import {
 const steps = [
   {
     id: 1,
-    icon: <CalendarDateRangeIcon className="w-6 h-6 text-white/40" />,
+    icon: <CalendarDateRangeIcon className="w-6 h-6 text-white/70" />,
     title: 'Consult',
     desc: 'Define goals, constraints, budget, and intended use (street, track, work duty).'
   },
   {
     id: 2,
-    icon: <PencilIcon className="w-6 h-6 text-white/40" />,
+    icon: <PencilIcon className="w-6 h-6 text-white/70" />,
     title: 'Design',
     desc: 'On‑car measurement and CAD mock‑ups; choose materials, bends, joint types, and finish.'
   },
   {
     id: 3,
-    icon: <WrenchScrewdriverIcon className="w-6 h-6 text-white/40" />,
+    icon: <WrenchScrewdriverIcon className="w-6 h-6 text-white/70" />,
     title: 'Fabricate',
     desc: 'Mandrel bending, precision TIG welds with back purge; fixtures for repeatability.'
   },
   {
     id: 4,
-    icon: <CheckIcon className="w-6 h-6 text-white/40" />,
+    icon: <CheckIcon className="w-6 h-6 text-white/70" />,
     title: 'Install & Tune',
     desc: 'Fitment check, leak‑test, and final finish.'
   }
