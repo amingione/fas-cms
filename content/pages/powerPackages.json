@@ -29,21 +29,21 @@
   "platforms": [
     {
       "href": "/shop?platform=trx",
-      "image": "/images/packages/dodge-ram.png",
+      "image": "/images/packages/dodge-ram.webp",
       "alt": "RAM TRX Packages",
       "labelTop": "ram",
       "labelBottom": "TRX"
     },
     {
       "href": "/shop?platform=trackhawk",
-      "image": "/images/packages/THpackage.png",
+      "image": "/images/packages/THpackage.webp",
       "alt": "Trackhawk & Durango Packages",
       "labelTop": "trackhawk",
       "labelBottom": "durango"
     },
     {
       "href": "/shop?platform=lx",
-      "image": "/images/packages/1.png",
+      "image": "/images/packages/1.webp",
       "alt": "Challenger & Charger Packages",
       "labelTop": "challenger",
       "labelBottom": "charger"
@@ -51,13 +51,13 @@
   ],
   "tiers": [
     {
-      "image": "/images/packages/fas-1x-2.png",
+      "image": "/images/packages/fas-1x-2.webp",
       "alt": "F.A.S. 1X",
       "labelTop": "F.A.S.",
       "labelBottom": "1X"
     },
     {
-      "image": "/images/packages/fas 2x.png",
+      "image": "/images/packages/fas 2x.webp",
       "alt": "F.A.S. 2X",
       "labelTop": "F.A.S.",
       "labelBottom": "2X"

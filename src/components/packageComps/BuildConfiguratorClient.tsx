@@ -371,7 +371,7 @@ export default function BuildConfiguratorClient({ products }: Props) {
                   src={
                     typeof p.images?.[0] === 'string'
                       ? p.images[0]
-                      : p.images?.[0]?.asset?.url || '/logo/faslogochroma.png'
+                      : p.images?.[0]?.asset?.url || '/logo/faslogochroma.webp'
                   }
                   alt={p.title}
                   className="w-full h-48 object-cover rounded-lg mb-4"
@@ -437,7 +437,7 @@ const VEHICLES = [
   {
     id: 'trackhawk',
     label: 'Jeep Trackhawk',
-    image: '/images/packages/jeep trackhawk 900 package.png',
+    image: '/images/packages/jeep trackhawk 900 package.webp',
     tokens: ['trackhawk', 'jeep']
   },
   {
@@ -449,13 +449,13 @@ const VEHICLES = [
   {
     id: 'redeye',
     label: 'Redeye / Demon',
-    image: '/images/packages/challenger FAS.png',
+    image: '/images/packages/challenger FAS.webp',
     tokens: ['redeye', 'demon', 'challenger', 'charger']
   },
   {
     id: 'raptor-r',
     label: 'Raptor R',
-    image: '/images/packages/D-FAS-TRX-Package.png',
+    image: '/images/packages/D-FAS-TRX-Package.webp',
     tokens: ['raptor', 'raptor-r']
   },
   {

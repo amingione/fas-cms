@@ -8,7 +8,7 @@
     "description": "Superchargers, snouts, throttle bodies, intake manifolds, and cylinder heads — blueprint-level porting for real, repeatable gains.",
     "tags": ["Flow-bench guided", "Hand finish", "Matched interfaces", "OEM-level fit"],
     "image": {
-      "src": "/images/snouts/fas-ported-snout.png",
+      "src": "/images/snouts/fas-ported-snout.webp",
       "alt": "Ported snout detail",
       "caption": "Ported snout: smoother transition, corrected CSA, matched to throttle body and case."
     },

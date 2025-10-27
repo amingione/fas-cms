@@ -14,7 +14,7 @@ type AboutFASHeroProps = {
 const AboutFASHero: React.FC<AboutFASHeroProps> = ({
   titleTop = 'Since 2002',
   description = 'We are a full production machine and performance shop that specializes in Hellcats, LS, and LT4 based cars.',
-  imageSrc = '/images/FAS-Testing-Day.png',
+  imageSrc = '/images/FAS-Team-Testing-Day.webp',
   backgroundTextureSrc,
   className = ''
 }) => {

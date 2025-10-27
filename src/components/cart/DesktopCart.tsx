@@ -7,7 +7,7 @@ import { CartProvider, useCart } from '@components/cart/cart-context';
 import { prefersDesktopCart } from '@/lib/device';
 import { useEffect, useRef, useState } from 'react';
 
-const FALLBACK_IMAGE = '/logo/faslogo150.png';
+const FALLBACK_IMAGE = '/logo/faslogo150.webp';
 
 type CartOptionMap = Record<string, string | number | boolean | null | undefined>;
 

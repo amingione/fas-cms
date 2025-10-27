@@ -59,7 +59,7 @@ export const GET: APIRoute = async ({ params, request }) => {
   const quantity = normalizeQuantity(qtyParam);
   const unitPrice = typeof product.price === 'number' ? product.price : Number(product.price) || 0;
   const imageUrl =
-    (Array.isArray(product.images) && product.images[0]?.asset?.url) || '/logo/faslogochroma.png';
+    (Array.isArray(product.images) && product.images[0]?.asset?.url) || '/logo/faslogochroma.webp';
   const shippingClassRaw = (product.shippingClass || '').toString();
   const normalizedClass = shippingClassRaw.toLowerCase().replace(/[^a-z0-9]+/g, '');
   const filterSlugs = collectFilterSlugs((product as any).filters);

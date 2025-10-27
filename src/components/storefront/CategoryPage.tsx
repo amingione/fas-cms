@@ -50,7 +50,7 @@ const navigation = {
         {
           name: 'Power Packages',
           href: '/shop?categorySlug=power-packages&category=power-packages&priceMin=0&priceMax=100000&page=1',
-          imageSrc: '/images/superchargers/Supercharger-custom-coated.png',
+          imageSrc: '/images/superchargers/Supercharger-custom-coated.webp',
           imageAlt: 'Custom coated supercharger by F.A.S. Motorsports.'
         },
         {
@@ -117,13 +117,13 @@ const navigation = {
         {
           name: 'Snout Porting',
           href: '/search?q=snout%20porting',
-          imageSrc: '/images/snouts/fas-ported-snout.png',
+          imageSrc: '/images/snouts/fas-ported-snout.webp',
           imageAlt: 'F.A.S. Motorsports ported supercharger snout.'
         },
         {
           name: 'Supercharger Porting',
           href: '/shop?categorySlug=porting&category=porting&priceMin=0&priceMax=100000&page=1',
-          imageSrc: '/images/superchargers/Dominator-race-package.png',
+          imageSrc: '/images/superchargers/Dominator-race-package.webp',
           imageAlt: 'F.A.S. Motorsports Supercharger Porting.'
         }
       ],
@@ -157,9 +157,9 @@ const navigation = {
 };
 
 const categoryImageOverrides: Record<string, string> = {
-  'custom-coating': '/images/superchargers/2-7-dominator-package.png',
-  porting: '/images/snouts/fas-ported-snout.png',
-  'supercharger-rebuild': '/images/superchargers/Suupercharger-New.png'
+  'custom-coating': '/images/superchargers/2-7-dominator-package.webp',
+  porting: '/images/snouts/fas-ported-snout.webp',
+  'supercharger-rebuild': '/images/superchargers/Suupercharger-New.webp'
 };
 
 const categoryGradientPalette = [
@@ -194,7 +194,7 @@ const fallbackFeaturedProducts: FeaturedProduct[] = [
     name: 'Billet Supercharger Lid',
     price: '$1899.99',
     href: '/shop/billet-hellcat-supercharger-lid',
-    imageSrc: '/images/billetParts/fas-new-billet-lid-tilt.png',
+    imageSrc: '/images/billetParts/fas-new-billet-lid-tilt.webp',
     imageAlt: 'F.A.S. Motorsports Billet Supercharger Lid.'
   },
   {
@@ -202,7 +202,7 @@ const fallbackFeaturedProducts: FeaturedProduct[] = [
     name: '2.4L Billet Snout',
     price: '$1899',
     href: '/shop/2-4l-hellcat-billet-supercharger-snout',
-    imageSrc: '/images/snouts/FAS-Billet-Snout-Front.png',
+    imageSrc: '/images/snouts/FAS-Billet-Snout-Front.webp',
     imageAlt: 'F.A.S. Motorsports 2.4L Billet Snout.'
   }
 ];
@@ -402,7 +402,7 @@ export default function CategoryPage({
               <div className="ml-4 flex lg:ml-0">
                 <a href="/">
                   <span className="sr-only">F.A.S. Motorsports</span>
-                  <img alt="" src="/logo/faslogochroma.png" className="h-8 w-auto" />
+                  <img alt="" src="/logo/faslogochroma.webp" className="h-8 w-auto" />
                 </a>
               </div>
 
@@ -678,7 +678,7 @@ export default function CategoryPage({
             <div className="absolute inset-0 overflow-hidden">
               <img
                 alt="hellcat charger FAS Motorsports"
-                src="/images/backgrounds/charger-category.png"
+                src="/images/backgrounds/charger-category.webp"
                 style={{ filter: 'grayscale(60%) brightness(80%)' }}
                 className="size-full object-cover"
               />

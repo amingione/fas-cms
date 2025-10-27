@@ -42,7 +42,7 @@ export default function HeadingBanner() {
             >
               <div className="absolute left-1/4 -translate-x-1/2">
                 <img
-                  src="/images/billetParts/fas-pred-pully.png"
+                  src="/images/billetParts/fas-pred-pully.webp"
                   alt="Predator pulley"
                   className="h-32 w-32 rounded-full object-contain"
                   loading="lazy"
@@ -50,7 +50,7 @@ export default function HeadingBanner() {
               </div>
               <div className="absolute right-1/4 translate-x-1/2">
                 <img
-                  src="/images/billetParts/predator-pulley-fas.png"
+                  src="/images/billetParts/predator-pulley-fas.webp"
                   alt="Predator pulley detail"
                   className="h-28 w-28 rounded-full object-contain"
                   loading="lazy"

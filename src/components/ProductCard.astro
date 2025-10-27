@@ -7,7 +7,7 @@ const productPrice =
     ? `$${parseFloat(product.price).toFixed(2)}`
     : "—";
 
-const fallbackImage = '/logo/faslogochroma.png';
+const fallbackImage = '/logo/faslogochroma.webp';
 const imageUrl = resolveSanityImageUrl([productImage, product?.images]) ?? fallbackImage;
 ---
 

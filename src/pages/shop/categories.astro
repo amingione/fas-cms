@@ -9,11 +9,11 @@ import StoreHero from '@/components/storefront/StoreHero.astro';
 const chosenSlugs: string[] = [];
 
 // Optional: Manually override category images here by slug.
-// Example: 'porting': '/images/packages/porting-custom.png'
+// Example: 'porting': '/images/packages/porting-custom.webp'
 const categoryImageOverrides: Record<string, string> = {
-  'custom-coating': '/images/superchargers/2-7-dominator-package.png',
-  'porting': '/images/snouts/fas-ported-snout.png',
-  'supercharger-rebuild': '/images/superchargers/Suupercharger-New.png'
+  'custom-coating': '/images/superchargers/2-7-dominator-package.webp',
+  'porting': '/images/snouts/fas-ported-snout.webp',
+  'supercharger-rebuild': '/images/superchargers/Suupercharger-New.webp'
 };
 
 // Base fields to select from categories
@@ -117,7 +117,7 @@ const tileClass = (i: number) => {
       categoriesAll.map((c, i) => (
         <a href={`/shop/categories/${c.slug}`} class={tileClass(i)} aria-label={c.title}>
           <img
-            src={categoryImageOverrides[c.slug] ?? (c.imageUrl ?? "/logo/faslogochroma.png")}
+            src={categoryImageOverrides[c.slug] ?? (c.imageUrl ?? "/logo/faslogochroma.webp")}
             alt={c.title}
             class="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
             loading="lazy"

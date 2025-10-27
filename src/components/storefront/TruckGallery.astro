@@ -3,12 +3,12 @@
 // Props: images?: Array<{ src: string; alt?: string }>
 const { images = [] } = Astro.props as { images?: Array<{ src: string; alt?: string }> };
 const defaults = [
-  { src: '/images/packages/ram-trx-factory-freak.png', alt: 'RAM TRX Build' },
+  { src: '/images/packages/ram-trx-factory-freak.webp', alt: 'RAM TRX Build' },
   { src: '/images/packages/850-ram.webp', alt: '850 HP RAM Build' },
   { src: '/images/packages/fas0f150-10002800.webp', alt: 'F‑150 800–1000+ Build' },
-  { src: '/images/packages/F250-FAS.png', alt: 'Ford F‑250 / F‑150' },
-  { src: '/images/packages/Shelby-truck.png', alt: 'Raptor / Shelby Build' },
-  { src: '/images/packages/dodge-ram.png', alt: 'Dodge RAM Build' },
+  { src: '/images/packages/F250-FAS.webp', alt: 'Ford F‑250 / F‑150' },
+  { src: '/images/packages/Shelby-truck.webp', alt: 'Raptor / Shelby Build' },
+  { src: '/images/packages/dodge-ram.webp', alt: 'Dodge RAM Build' },
 ];
 const imgs = (images.length >= 6 ? images.slice(0, 6) : [...defaults, ...images].slice(0, 6));
 ---

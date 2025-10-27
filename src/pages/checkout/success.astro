@@ -123,7 +123,7 @@ const trackingNumber =
   (session?.metadata?.trackingNumber && String(session.metadata.trackingNumber)) ||
   session?.id;
 const paymentSummary = session?.payment_method_types?.join(', ') || 'Card';
-const fallbackProductImage = '/logo/faslogo150.png';
+const fallbackProductImage = '/logo/faslogo150.webp';
 const heroImage = '/images/backgrounds/checkoutSuccess.webp';
 const emailAddress =
   String(session?.customer_details?.email || session?.customer_email || '').trim() || null;

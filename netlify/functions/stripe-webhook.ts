@@ -766,7 +766,7 @@ export const handler: Handler = async (event) => {
             <div style="font-family:'Helvetica Neue',Arial,sans-serif;background-color:#f4f5f7;padding:24px;">
               <div style="max-width:640px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 12px 35px rgba(15,23,42,0.12);">
                 <div style="background:#111827;padding:24px;text-align:center;">
-                  <img src="https://www.fasmotorsports.com/logo/chromelogofas.png" alt="FAS Motorsports" style="display:inline-block;max-width:160px;width:100%;height:auto;" />
+                  <img src="https://www.fasmotorsports.com/logo/chromelogofas.webp" alt="FAS Motorsports" style="display:inline-block;max-width:160px;width:100%;height:auto;" />
                 </div>
                 <div style="padding:24px;">
                   <p style="font-size:24px;font-weight:600;margin:0 0 8px 0;color:#111827;">Thank you for your order!</p>

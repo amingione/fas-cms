@@ -13,7 +13,7 @@ import {
 
 type CartOptionMap = Record<string, string | number | boolean | null | undefined>;
 
-const FALLBACK_IMAGE = '/logo/faslogo150.png';
+const FALLBACK_IMAGE = '/logo/faslogo150.webp';
 const QUANTITY_CHOICES = Array.from({ length: 10 }, (_, i) => i + 1);
 
 function normalizeOptionLabel(rawKey: string) {

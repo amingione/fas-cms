@@ -283,7 +283,7 @@ function CartItemsList({ cart, onQuantityChange, onRemove }: CartItemsListProps)
                   {productHref ? (
                     <a href={productHref} className="block size-full">
                       <img
-                        src={item.image || '/logo/faslogo150.png'}
+                        src={item.image || '/logo/faslogo150.webp'}
                         alt={item.name || 'Cart item'}
                         className="size-full object-cover"
                         loading="lazy"
@@ -291,7 +291,7 @@ function CartItemsList({ cart, onQuantityChange, onRemove }: CartItemsListProps)
                     </a>
                   ) : (
                     <img
-                      src={item.image || '/logo/faslogo150.png'}
+                      src={item.image || '/logo/faslogo150.webp'}
                       alt={item.name || 'Cart item'}
                       className="size-full object-cover"
                       loading="lazy"

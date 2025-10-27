@@ -16,7 +16,7 @@ let defaultName = 'Guest';
 let loadToken = 0;
 
 const AUTH_TIMEOUT = 8000;
-const FALLBACK_ITEM_IMAGE = '/logo/faslogo150.png';
+const FALLBACK_ITEM_IMAGE = '/logo/faslogo150.webp';
 
 function pickImageUrl(value: unknown): string | null {
   if (!value) return null;

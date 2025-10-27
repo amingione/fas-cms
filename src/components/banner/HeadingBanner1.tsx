@@ -36,7 +36,7 @@ export default function HeadingBanner1() {
             </div>
             <img
               alt="welding fas motorsports custom fabrication"
-              src="/images/backgrounds/welding-fas.png"
+              src="/images/backgrounds/welding-fas.webp"
               width={2432}
               height={1442}
               className="relative -z-20 max-w-xl fit min-w-full rounded-xl shadow-xl ring-1 ring-white/10 lg:row-span-4 lg:w-5xl lg:max-w-90%"

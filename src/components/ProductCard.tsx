@@ -20,11 +20,11 @@ function toPriceString(v: number | null | undefined) {
 }
 
 function getImageUrl(product: SanityProduct, productImage?: ProductCardProps['productImage']) {
-  const fallback = '/logo/faslogochroma.png';
+  const fallback = '/logo/faslogochroma.webp';
   const candidates: unknown[] = [
     productImage,
     product && typeof product === 'object' ? (product as any).image : undefined,
-    product?.images,
+    product?.images
   ];
   const resolved = resolveSanityImageUrl(candidates);
   return resolved ?? fallback;
@@ -43,7 +43,7 @@ function addToCart(product: SanityProduct) {
     const categories = Array.isArray(product.categories)
       ? product.categories.map((c: any) => c?._ref || c?._id || '').filter(Boolean)
       : [];
-    const image = resolveSanityImageUrl([product?.images]) || '/logo/faslogochroma.png';
+    const image = resolveSanityImageUrl([product?.images]) || '/logo/faslogochroma.webp';
     const slug = getSlug(product);
     const productUrl = slug ? `/shop/${slug}` : undefined;
     addItem({ id, name, price, quantity: 1, categories, image, productUrl });

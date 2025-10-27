@@ -25,7 +25,7 @@ export function Products() {
       name: '2.4L Billet Bearing Plate',
       description:
         'Delivers 2+PSI average gains (50-100whp) & eliminates weak points found in factory cast plates.',
-      image: '/images/billetParts/billet-bearing-plate.png',
+      image: '/images/billetParts/billet-bearing-plate.webp',
       popular: false,
       specHref: '/specs/BilletBearingPlate'
     },
@@ -34,7 +34,7 @@ export function Products() {
       name: 'Hellcat Pulley & Hub Kit',
       description:
         'Built for easy swaps and maximum reliability. Grip coated billet aluminum offered in multiple sizes!',
-      image: '/images/billetParts/FAS-Pulley-Hub-Kit.png',
+      image: '/images/billetParts/FAS-Pulley-Hub-Kit.webp',
       popular: false,
       specHref: '/specs/PulleyHub'
     },
@@ -43,7 +43,7 @@ export function Products() {
       name: 'Predator Pulley Lower Pulley',
       description:
         'FAS “PREDATOR” Slip On Lower Pulley delivers 1.5-5psi gain depending on your pulley choice!',
-      image: '/images/billetParts/fas-pred-pully.png',
+      image: '/images/billetParts/fas-pred-pully.webp',
       popular: false,
       specHref: '/specs/PredatorPulley'
     },
@@ -52,7 +52,7 @@ export function Products() {
       name: 'Billet Supercharger Lid',
       description:
         'CNC‑machined billet lid engineered to enhance airflow and boost efficiency. Fits all 2.4L & 3.0L IHI Hellcat Superchargers.',
-      image: '/images/billetParts/HC-Billet-SC-Lid.png',
+      image: '/images/billetParts/HC-Billet-SC-Lid.webp',
       popular: false,
       specHref: '/specs/BilletLid'
     },
@@ -61,7 +61,7 @@ export function Products() {
       name: 'Billet Snout',
       description:
         'Lightweight, 108mm inlet for maximum airflow, outperforming any ported OEM snout.',
-      image: '/images/snouts/FAS-Billet-Snout-Front.png',
+      image: '/images/snouts/FAS-Billet-Snout-Front.webp',
       popular: false,
       specHref: '/specs/BilletSnout'
     },

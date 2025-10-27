@@ -111,12 +111,12 @@ export function CustomFabrication() {
         >
           <div className="grid grid-cols-2 gap-4 items-center">
             <img
-              src="/images/fabrication/custom-fab-2.png"
+              src="/images/fabrication/custom-fab-2.webp"
               alt="Custom Fabricated Performance Parts"
               className="w-full h-40 sm:h-56 md:h-96 object-contain rounded-lg shadow-[0_0_30px_rgba(59,130,246,0.3)]"
             />
             <img
-              src="/images/fabrication/FAS-Fabrication-1.png"
+              src="/images/fabrication/FAS-Fabrication-1.webp"
               alt="Custom Fabricated Exhaust System"
               className="w-full h-40 sm:h-56 md:h-96 object-contain rounded-lg shadow-[0_0_30px_rgba(59,130,246,0.3)]"
             />
