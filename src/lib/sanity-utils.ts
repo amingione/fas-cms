@@ -1,5 +1,6 @@
 // src/lib/sanity-utils.ts
 import { createClient } from '@sanity/client';
+import imageUrlBuilder from '@sanity/image-url';
 
 type SanityFetch = <T>(query: string, params?: Record<string, any>) => Promise<T>;
 interface SanityClientLite {
@@ -27,6 +28,8 @@ const dataset =
   (import.meta.env.SANITY_DATASET as string | undefined) ||
   'production';
 const apiVersion = '2023-01-01';
+
+const imageBuilder = projectId && dataset ? imageUrlBuilder({ projectId, dataset }) : null;
 
 const studioUrlRaw =
   (import.meta.env.PUBLIC_SANITY_STUDIO_URL as string | undefined) ||
@@ -214,6 +217,145 @@ export interface Vehicle {
 type QueryParamValue = string | number | boolean | string[] | number[];
 type QueryParams = Record<string, QueryParamValue>;
 
+const normalizeUrlString = (value: string | undefined | null): string | undefined => {
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  if (trimmed.startsWith('//')) return `https:${trimmed}`;
+  if (/^https:\/\//i.test(trimmed)) return trimmed;
+  if (/^http:\/\//i.test(trimmed)) {
+    return `https://${trimmed.slice('http://'.length)}`;
+  }
+  if (/^image-/i.test(trimmed) && imageBuilder) {
+    try {
+      return imageBuilder.image(trimmed).auto('format').fit('max').url();
+    } catch {
+      return undefined;
+    }
+  }
+  return trimmed;
+};
+
+const DIRECT_IMAGE_KEYS = [
+  'url',
+  'imageUrl',
+  'imageURL',
+  'image_url',
+  'src',
+  'href',
+  'assetUrl',
+  'assetURL',
+  'downloadUrl',
+  'downloadURL',
+  'thumbUrl',
+  'thumbnail',
+  'thumbnailUrl',
+  'thumb',
+  'photo',
+  'value',
+  'current',
+  'path',
+] as const;
+
+export const resolveSanityImageUrl = (candidate: unknown, seen = new Set<unknown>()): string | undefined => {
+  if (candidate == null) return undefined;
+  if (typeof candidate === 'string') {
+    return normalizeUrlString(candidate);
+  }
+
+  if (seen.has(candidate)) return undefined;
+
+  if (Array.isArray(candidate)) {
+    seen.add(candidate);
+    for (const entry of candidate) {
+      const resolved = resolveSanityImageUrl(entry, seen);
+      if (resolved) return resolved;
+    }
+    return undefined;
+  }
+
+  if (typeof candidate !== 'object') return undefined;
+
+  seen.add(candidate);
+
+  const obj = candidate as Record<string, unknown>;
+
+  for (const key of DIRECT_IMAGE_KEYS) {
+    if (key in obj) {
+      const resolved = resolveSanityImageUrl(obj[key], seen);
+      if (resolved) return resolved;
+    }
+  }
+
+  if ('asset' in obj) {
+    const resolved = resolveSanityImageUrl(obj.asset, seen);
+    if (resolved) return resolved;
+  }
+
+  if (typeof obj._ref === 'string') {
+    const built = normalizeUrlString(obj._ref);
+    if (built && /^https?:/i.test(built)) {
+      return built;
+    }
+  }
+
+  if (typeof obj._id === 'string') {
+    const built = normalizeUrlString(obj._id);
+    if (built && /^https?:/i.test(built)) {
+      return built;
+    }
+  }
+
+  return undefined;
+};
+
+export const normalizeSanityImageUrl = (candidate: unknown): string | undefined =>
+  resolveSanityImageUrl(candidate);
+
+const normalizeImageEntry = (value: unknown): unknown => {
+  if (value == null) return value;
+  if (typeof value === 'string') {
+    return normalizeUrlString(value) ?? value;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((entry) => normalizeImageEntry(entry));
+  }
+
+  if (typeof value === 'object') {
+    const clone: Record<string, unknown> = { ...(value as Record<string, unknown>) };
+    for (const key of DIRECT_IMAGE_KEYS) {
+      if (typeof clone[key] === 'string') {
+        const normalized = normalizeUrlString(clone[key] as string);
+        if (normalized && normalized !== clone[key]) {
+          clone[key] = normalized;
+        }
+      }
+    }
+
+    if (clone.asset && typeof clone.asset === 'object') {
+      const assetClone: Record<string, unknown> = { ...(clone.asset as Record<string, unknown>) };
+      const assetUrl = resolveSanityImageUrl(assetClone);
+      if (assetUrl) {
+        assetClone.url = assetUrl;
+        if (!clone.url || typeof clone.url !== 'string') {
+          clone.url = assetUrl;
+        }
+      }
+      clone.asset = assetClone;
+    } else {
+      const resolved = resolveSanityImageUrl(clone);
+      if (resolved) {
+        clone.url = resolved;
+      }
+    }
+
+    return clone;
+  }
+
+  return value;
+};
+
 export const coercePriceToNumber = (value: unknown): number | null => {
   if (typeof value === 'number') {
     return Number.isFinite(value) ? value : null;
@@ -227,7 +369,7 @@ export const coercePriceToNumber = (value: unknown): number | null => {
   return null;
 };
 
-const normalizeProductPrice = <T extends { price?: unknown }>(product: T): T => {
+const normalizeProductPrice = <T extends { price?: unknown; images?: unknown; socialImage?: unknown }>(product: T): T => {
   if (!product) return product;
   const normalizedPrice = coercePriceToNumber((product as any).price);
   const clone: Record<string, unknown> = { ...(product as any) };
@@ -235,6 +377,45 @@ const normalizeProductPrice = <T extends { price?: unknown }>(product: T): T => 
     delete clone.price;
   } else {
     clone.price = normalizedPrice;
+  }
+
+  if ('images' in clone) {
+    const value = clone.images;
+    clone.images = Array.isArray(value)
+      ? value.map((entry: unknown) => normalizeImageEntry(entry))
+      : normalizeImageEntry(value);
+  }
+
+  if ('socialImage' in clone && clone.socialImage !== undefined) {
+    clone.socialImage = normalizeImageEntry(clone.socialImage);
+  }
+
+  if ('includedInKit' in clone && Array.isArray(clone.includedInKit)) {
+    clone.includedInKit = (clone.includedInKit as unknown[]).map((item) => {
+      if (!item || typeof item !== 'object') return item;
+      const entry = { ...(item as Record<string, unknown>) };
+      if ('image' in entry) {
+        entry.image = normalizeImageEntry(entry.image);
+      }
+      if ('imageUrl' in entry) {
+        const normalizedUrl = normalizeSanityImageUrl(entry.imageUrl);
+        if (normalizedUrl) {
+          entry.imageUrl = normalizedUrl;
+        }
+      }
+      return entry;
+    });
+  }
+
+  return clone as T;
+};
+
+const normalizeCategoryEntry = <T extends { imageUrl?: unknown }>(category: T): T => {
+  if (!category) return category;
+  const clone: Record<string, unknown> = { ...(category as any) };
+  const normalized = normalizeSanityImageUrl(clone.imageUrl);
+  if (normalized) {
+    clone.imageUrl = normalized;
   }
   return clone as T;
 };
@@ -350,7 +531,8 @@ export async function fetchCategories(): Promise<Category[]> {
       "imageUrl": coalesce(image.asset->url, mainImage.asset->url, images[0].asset->url),
       description
     }`;
-    return await sanity!.fetch<Category[]>(query, {});
+    const results = await sanity!.fetch<Category[]>(query, {});
+    return Array.isArray(results) ? results.map((item) => normalizeCategoryEntry(item)) : [];
   } catch (err) {
     console.error('Failed to fetch categories:', err);
     return [];

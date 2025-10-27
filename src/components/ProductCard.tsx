@@ -1,4 +1,4 @@
-import type { Product as SanityProduct } from '@lib/sanity-utils';
+import { resolveSanityImageUrl, type Product as SanityProduct } from '@lib/sanity-utils';
 import { cn } from '@components/ui/utils';
 import { addItem } from '@lib/cart';
 import { prefersDesktopCart } from '@/lib/device';
@@ -20,10 +20,14 @@ function toPriceString(v: number | null | undefined) {
 }
 
 function getImageUrl(product: SanityProduct, productImage?: ProductCardProps['productImage']) {
-  if (typeof productImage === 'string' && productImage) return productImage;
-  if (productImage && typeof productImage === 'object' && productImage.asset?.url)
-    return productImage.asset.url;
-  return product.images?.[0]?.asset?.url || '/logo/faslogochroma.png';
+  const fallback = '/logo/faslogochroma.png';
+  const candidates: unknown[] = [
+    productImage,
+    product && typeof product === 'object' ? (product as any).image : undefined,
+    product?.images,
+  ];
+  const resolved = resolveSanityImageUrl(candidates);
+  return resolved ?? fallback;
 }
 
 function getSlug(product: SanityProduct) {
@@ -39,7 +43,7 @@ function addToCart(product: SanityProduct) {
     const categories = Array.isArray(product.categories)
       ? product.categories.map((c: any) => c?._ref || c?._id || '').filter(Boolean)
       : [];
-    const image = product?.images?.[0]?.asset?.url || '/logo/faslogochroma.png';
+    const image = resolveSanityImageUrl([product?.images]) || '/logo/faslogochroma.png';
     const slug = getSlug(product);
     const productUrl = slug ? `/shop/${slug}` : undefined;
     addItem({ id, name, price, quantity: 1, categories, image, productUrl });

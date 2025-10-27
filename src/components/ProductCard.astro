@@ -1,11 +1,14 @@
 ---
+import { resolveSanityImageUrl } from '@/lib/sanity-utils';
+
 const { productImage, product, layout = 'grid' } = Astro.props as any;
 const productPrice =
   typeof product.price === "number"
     ? `$${parseFloat(product.price).toFixed(2)}`
     : "—";
 
-const imageUrl = productImage?.asset?.url || '/logo/faslogochroma.png';
+const fallbackImage = '/logo/faslogochroma.png';
+const imageUrl = resolveSanityImageUrl([productImage, product?.images]) ?? fallbackImage;
 ---
 
 <div class={`relative z-0 text-white backdrop-blur-md bg-black/80 rounded-[10px] border border-white/30 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.5)] overflow-hidden transform transition-all duration-500 group font-sans ${layout === 'list' ? 'md:flex md:items-stretch' : 'block'}`}>

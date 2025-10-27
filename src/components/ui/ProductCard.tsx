@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingCart } from 'lucide-react';
 import { getCart, saveCart } from '@lib/cart';
+import { resolveSanityImageUrl } from '@/lib/sanity-utils';
 
 interface Product {
   _id: string;
@@ -26,7 +27,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const productPrice =
     typeof product.price === 'number' ? `$${parseFloat(product.price.toString()).toFixed(2)}` : '—';
 
-  const imageUrl = product.image?.asset?.url || '/logo/faslogochroma.png';
+  const imageUrl = resolveSanityImageUrl([product?.image, product?.image?.asset]) || '/logo/faslogochroma.png';
   const productSlug = typeof product.slug === 'string' ? product.slug : product.slug?.current || '';
 
   const handleAddToCart = async (e: React.MouseEvent) => {
