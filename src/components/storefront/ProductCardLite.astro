@@ -6,6 +6,7 @@
 import Label from '@/components/storefront/label.tsx';
 import ProductQuickViewButton from '@/components/storefront/ProductQuickViewButton.tsx';
 import { portableTextToPlainText } from '@/lib/portableText';
+import { resolveSanityImageUrl } from '@/lib/sanity-utils';
 
 interface ImgAsset { url?: string }
 interface Img { asset?: ImgAsset; alt?: string }
@@ -26,7 +27,8 @@ const { product, productImage, layout = 'grid' } = Astro.props as {
 
 const slug = typeof product?.slug === 'string' ? product.slug : (product?.slug?.current || '')
 const href = slug ? `/shop/${encodeURIComponent(slug)}` : '#'
-const img = productImage?.asset?.url || product?.images?.[0]?.asset?.url || '/logo/faslogochroma.png'
+const fallbackImage = '/logo/faslogochroma.png'
+const img = resolveSanityImageUrl([productImage, product?.images]) ?? fallbackImage
 const title = product?.title || 'Untitled Product'
 const short =
   portableTextToPlainText((product as any)?.shortDescription) ||

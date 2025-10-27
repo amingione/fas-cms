@@ -2,7 +2,7 @@ import React from 'react';
 import Label from '@/components/storefront/label.tsx';
 import ProductQuickViewButton from '@/components/storefront/ProductQuickViewButton';
 import { portableTextToPlainText } from '@/lib/portableText';
-import type { Product } from '@/lib/sanity-utils';
+import { resolveSanityImageUrl, type Product } from '@/lib/sanity-utils';
 
 type ImgAsset = { url?: string };
 type Img = { asset?: ImgAsset; alt?: string };
@@ -18,8 +18,8 @@ export default function ProductCardLiteReact({
 }) {
   const slug = typeof product?.slug === 'string' ? product.slug : product?.slug?.current || '';
   const href = slug ? `/shop/${encodeURIComponent(slug)}` : '#';
-  const img =
-    productImage?.asset?.url || product?.images?.[0]?.asset?.url || '/logo/faslogochroma.png';
+  const fallbackImage = '/logo/faslogochroma.png';
+  const img = resolveSanityImageUrl([productImage, product?.images]) ?? fallbackImage;
   const title = product?.title || 'Untitled Product';
   const short =
     portableTextToPlainText(product?.shortDescription) ||
