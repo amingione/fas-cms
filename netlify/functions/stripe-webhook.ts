@@ -6,6 +6,8 @@ import type { SanityDocumentStub } from '@sanity/client';
 import { sendEmail } from './_resend';
 import { createOrderCartItem, type OrderCartItem } from '../../src/server/sanity/order-cart';
 
+type LineItemWithMetadata = Stripe.LineItem & { metadata?: Stripe.Metadata | null };
+
 const json = (statusCode: number, body: any) => ({
   statusCode,
   headers: { 'content-type': 'application/json; charset=utf-8' },
@@ -307,7 +309,15 @@ export const handler: Handler = async (event) => {
       }
       if (!cartLines.length) {
         const fallbackLines: OrderCartItem[] = [];
-        for (const li of items?.data || []) {
+        for (const rawItem of items?.data || []) {
+          const li = rawItem as LineItemWithMetadata;
+          const priceValue =
+            typeof li.amount_subtotal === 'number'
+              ? li.amount_subtotal / 100
+              : typeof li.price?.unit_amount === 'number'
+              ? li.price.unit_amount / 100
+              : undefined;
+
           const priceMetadata = (li.price?.metadata || {}) as Record<string, unknown>;
           let productMetadata: Record<string, unknown> = {};
           const priceProduct = li.price?.product;
@@ -411,13 +421,6 @@ export const handler: Handler = async (event) => {
             }
             return undefined;
           })();
-
-          const priceValue =
-            typeof li.amount_subtotal === 'number'
-              ? li.amount_subtotal / 100
-              : typeof li.price?.unit_amount === 'number'
-              ? li.price.unit_amount / 100
-              : undefined;
 
           fallbackLines.push(
             createOrderCartItem({

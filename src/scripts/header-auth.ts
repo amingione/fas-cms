@@ -1,5 +1,11 @@
 import { ensureFasAuthLoaded } from './fas-auth-shared';
 
+type FasUser = {
+  given_name?: string | null;
+  name?: string | null;
+  email?: string | null;
+};
+
 function ready(fn: () => void) {
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', fn, { once: true });
@@ -66,7 +72,7 @@ ready(async () => {
       return;
     }
     const session = await fas.getSession();
-    const user = session?.user ?? {};
+    const user = (session?.user ?? {}) as FasUser;
     let name =
       (typeof user.given_name === 'string' && user.given_name.trim()) ||
       (typeof user.name === 'string' && user.name.trim()) ||

@@ -1,7 +1,7 @@
 import React from 'react';
 
 /**
- * @typedef {"sm" | "md" | "lg"} ButtonSize
+ * @typedef {"sm" | "md" | "lg" | "default"} ButtonSize
  */
 
 /**
@@ -36,7 +36,8 @@ export default function Button({
   const baseClasses =
     'relative inline-flex fas-label items-center justify-center overflow-hidden font-cyber-italic text-white transition-all duration-300 rounded-fx-md border-2 border-white group tracking-wide shadow-fx-xs';
 
-  const classes = [baseClasses, sizeMap[size], className].join(' ').trim();
+  const normalizedSize = size === 'default' ? 'md' : size;
+  const classes = [baseClasses, sizeMap[normalizedSize] || sizeMap.md, className].join(' ').trim();
   const content = children ?? text ?? '';
 
   const innerContent = (

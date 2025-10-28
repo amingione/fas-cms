@@ -144,7 +144,7 @@ export default function VisualEditingBridge({
             tag: 'sanity-visual-editing',
           })
 
-          let refreshTimer: ReturnType<typeof setTimeout> | undefined
+          let refreshTimer: number | undefined
 
           const subscription = events.subscribe((event) => {
             window.dispatchEvent(
@@ -157,8 +157,8 @@ export default function VisualEditingBridge({
               return
             }
 
-            if (refreshTimer) {
-              clearTimeout(refreshTimer)
+            if (refreshTimer !== undefined) {
+              window.clearTimeout(refreshTimer)
             }
 
             refreshTimer = window.setTimeout(() => {
@@ -174,8 +174,8 @@ export default function VisualEditingBridge({
           }
 
           liveCleanup = () => {
-            if (refreshTimer) {
-              clearTimeout(refreshTimer)
+            if (refreshTimer !== undefined) {
+              window.clearTimeout(refreshTimer)
             }
             subscription.unsubscribe()
           }

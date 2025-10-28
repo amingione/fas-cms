@@ -698,7 +698,7 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
               return sanitizeText(img);
             })
             .filter(Boolean)
-            .filter((url) => url !== image)
+            .filter((url: string) => url !== image)
         : [];
       const specificationItems = Array.isArray(product?.specifications) ? product.specifications : [];
       const attributeItems = Array.isArray(product?.attributes) ? product.attributes : [];
