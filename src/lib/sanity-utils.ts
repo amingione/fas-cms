@@ -265,16 +265,30 @@ const getSanityCacheStore = (): SanityCacheStore => {
 
 const stableStringify = (value: unknown): string => {
   if (value === null) return 'null';
-  const type = typeof value;
-  if (type === 'undefined') return 'undefined';
-  if (type === 'number' || type === 'boolean') return JSON.stringify(value);
-  if (type === 'string') return JSON.stringify(value);
-  if (type === 'bigint') return `"${value.toString()}"`;
-  if (type === 'symbol' || type === 'function') return `"${String(value)}"`;
+
+  switch (typeof value) {
+    case 'undefined':
+      return 'undefined';
+    case 'number':
+    case 'boolean':
+      return JSON.stringify(value);
+    case 'string':
+      return JSON.stringify(value);
+    case 'bigint':
+      return `"${(value as bigint).toString()}"`;
+    case 'symbol':
+    case 'function':
+      return `"${String(value)}"`;
+    default:
+      break;
+  }
+
   if (Array.isArray(value)) {
     return `[${value.map((entry) => stableStringify(entry)).join(',')}]`;
   }
-  const entries = Object.entries(value as Record<string, unknown>)
+
+  const objectValue = value as Record<string, unknown>;
+  const entries = Object.entries(objectValue)
     .filter(([, v]) => v !== undefined)
     .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
     .map(([k, v]) => `${JSON.stringify(k)}:${stableStringify(v)}`);
