@@ -253,7 +253,7 @@ export function LuxuryTestimonials() {
             — READY TO JOIN OUR FAMILY OF SATISFIED CLIENTS? —
           </p>
           <motion.a
-            href="/customBuild"
+            href="/contact"
             className={`inline-block luxury-btn text-white font-bold transition-all duration-300 rounded-xl font-ethno ${isMobile ? 'px-6 py-3 text-sm' : 'px-8 py-4 text-lg'}`}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}

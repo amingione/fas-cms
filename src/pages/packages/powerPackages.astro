@@ -83,7 +83,11 @@ const ctaButtons: Array<{ label?: string; href?: string; variant?: string }> = A
   : [];
 const ctaButtonsHasContent = ctaButtons.length > 0;
 const ctaButtonsFallback = [
-  { label: 'Shop All Packages', href: '/shop/packages/powerPackages', variant: 'multi-swipe-v2' },
+  {
+    label: 'Shop All Packages',
+    href: '/shop?categorySlug=power-packages&category=power-packages&page=1',
+    variant: 'multi-swipe-v2'
+  },
   { label: 'Book an Install', href: '/schedule', variant: 'multi-swipe-v2' }
 ];
 const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallback;

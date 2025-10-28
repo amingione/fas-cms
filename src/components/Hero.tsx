@@ -148,7 +148,7 @@ export function Hero() {
                     asChild
                   >
                     <a
-                      href="/customBuild"
+                      href="/contact"
                       onClick={() => {
                         /* handle start build click */
                       }}

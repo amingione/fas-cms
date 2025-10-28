@@ -102,7 +102,10 @@ export function TruckPackagesHero({
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <Button size="md" className="font-ethno" asChild>
               <a
-                href={ctaPrimaryHref ?? '/shop?categorySlug=powerPackages&page=1'}
+                href={
+                  ctaPrimaryHref ??
+                  '/shop?categorySlug=power-packages&category=power-packages&page=1'
+                }
                 {...(fieldPathBase ? inlineFieldAttrs(`${fieldPathBase}.cta.text`) : {})}
               >
                 <Zap className="w-5 h-5 mr-2" />
@@ -112,7 +115,7 @@ export function TruckPackagesHero({
             </Button>
             <Button size="lg" variant="outline" className="font-ethno" asChild>
               <a
-                href={ctaSecondaryHref ?? '/customBuild'}
+                href={ctaSecondaryHref ?? '/contact'}
                 {...(fieldPathBase ? inlineFieldAttrs(`${fieldPathBase}.ctaSecondary.text`) : {})}
               >
                 <Settings className="w-5 h-5 mr-2" />
