@@ -231,13 +231,6 @@ const fetchProductsByIds = async (ids: string[]): Promise<SanityProduct[]> => {
   }
 };
 
-const DEFAULT_DIMS = {
-  length: toNumber(penv.DEFAULT_BOX_LENGTH ?? ime.DEFAULT_BOX_LENGTH, 12),
-  width: toNumber(penv.DEFAULT_BOX_WIDTH ?? ime.DEFAULT_BOX_WIDTH, 9),
-  height: toNumber(penv.DEFAULT_BOX_HEIGHT ?? ime.DEFAULT_BOX_HEIGHT, 3)
-};
-const DEFAULT_WEIGHT = toNumber(penv.DEFAULT_BOX_WEIGHT_LB ?? ime.DEFAULT_BOX_WEIGHT_LB, 2);
-
 const sanitizeAlpha = (value?: string | null): string =>
   String(value ?? '')
     .replace(/[^A-Za-z]/g, '')
@@ -518,21 +511,39 @@ export async function computeShippingQuote(
     const data = variant || product;
     const sku = (variant?.sku || product?.sku || item.id) as string;
     const title = variant?.title || product?.title;
-    const dims = parseDims(data?.boxDimensions) || DEFAULT_DIMS;
-    const weight = Math.max(0.1, toNumber(data?.shippingWeight, DEFAULT_WEIGHT));
+
     if (!product) {
-      missing.push(String(item.id));
+      missing.push(`${item.id}: product not found`);
+      continue;
     }
 
-    const shipsAlone = Boolean(data?.shipsAlone || product?.shipsAlone);
     const shippingClassRaw = (data?.shippingClass || product?.shippingClass || '').toLowerCase();
     const normalizedClass = shippingClassRaw.replace(/[\s_-]+/g, '');
 
-    if (normalizedClass === 'freight') freight = true;
+    if (normalizedClass === 'freight') {
+      freight = true;
+      continue;
+    }
+
     if (normalizedClass.includes('installonly')) {
       installOnly = true;
       continue;
     }
+
+    const dims = parseDims(data?.boxDimensions) || null;
+    if (!dims) {
+      missing.push(`${sku}: missing box dimensions`);
+      continue;
+    }
+
+    const rawWeight = toNumber(data?.shippingWeight, 0);
+    if (rawWeight <= 0) {
+      missing.push(`${sku}: missing shipping weight`);
+      continue;
+    }
+
+    const weight = Math.max(0.1, rawWeight);
+    const shipsAlone = Boolean(data?.shipsAlone || product?.shipsAlone);
 
     shippableQuantity += quantity;
 
@@ -551,6 +562,19 @@ export async function computeShippingQuote(
     } else {
       for (let i = 0; i < quantity; i++) packages.push(buildPkg());
     }
+  }
+
+  if (missing.length) {
+    return {
+      success: false,
+      freight: false,
+      rates: [],
+      packages,
+      missing,
+      message: `Missing shipping data for ${missing.length} item${missing.length === 1 ? '' : 's'}: ${missing.join(
+        ', '
+      )}`
+    };
   }
 
   if (totalWeight >= 150 || maxDimension >= 60) freight = true;
