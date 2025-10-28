@@ -19,6 +19,81 @@ import clsx from 'clsx';
 import type { Cart } from './cart-context';
 import { buildShippingLabel } from './shipping-label';
 
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+const DELIVERY_DATE_FORMATTER =
+  typeof Intl !== 'undefined'
+    ? new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+    : null;
+
+function startOfDay(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function parseEstimatedDeliveryDate(value?: string | null): Date | null {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function normalizeDeliveryDays(value: unknown): number | null {
+  if (value == null) return null;
+  const numeric = typeof value === 'string' ? Number.parseFloat(value) : Number(value);
+  if (!Number.isFinite(numeric) || numeric < 0) return null;
+  return Math.round(numeric);
+}
+
+function deriveDeliveryMeta(rate: CheckoutShippingRate) {
+  const estimatedDate = parseEstimatedDeliveryDate(rate.estimatedDeliveryDate);
+  let days: number | null = null;
+
+  if (estimatedDate) {
+    const today = startOfDay(new Date());
+    const estimateStart = startOfDay(estimatedDate);
+    const diff = Math.ceil((estimateStart.getTime() - today.getTime()) / MS_PER_DAY);
+    if (Number.isFinite(diff)) {
+      days = Math.max(diff, 0);
+    }
+  }
+
+  if (days === null) {
+    days = normalizeDeliveryDays(rate.deliveryDays);
+  }
+
+  return { estimatedDate, days } as const;
+}
+
+function formatDeliveryDate(date: Date): string {
+  if (DELIVERY_DATE_FORMATTER) {
+    try {
+      return DELIVERY_DATE_FORMATTER.format(date);
+    } catch (err) {
+      console.warn('[shipping] Failed to format delivery date', err);
+    }
+  }
+  return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+function buildDeliveryEstimate(rate: CheckoutShippingRate): string | null {
+  const { estimatedDate, days } = deriveDeliveryMeta(rate);
+  const parts: string[] = [];
+
+  if (estimatedDate) {
+    parts.push(`Est. delivery ${formatDeliveryDate(estimatedDate)}`);
+  }
+
+  if (typeof days === 'number') {
+    if (days <= 0) {
+      parts.push('Delivers today');
+    } else if (days === 1) {
+      parts.push('1-day estimate');
+    } else {
+      parts.push(`${days}-day estimate`);
+    }
+  }
+
+  return parts.length > 0 ? parts.join(' • ') : null;
+}
+
 type RegionOption = { value: string; label: string };
 
 const REGION_OPTIONS: Record<string, RegionOption[]> = {
@@ -811,6 +886,7 @@ export function ShippingEstimator({
                   const isSelected = ratesMatch(rate, selectedRate);
                   const key = rateIdentifier(rate) || `rate-${idx}`;
                   const labelText = buildShippingLabel(rate);
+                  const deliveryEstimate = buildDeliveryEstimate(rate);
                   return (
                     <label
                       key={key}
@@ -833,10 +909,8 @@ export function ShippingEstimator({
                         />
                         <div className="min-w-0">
                           <p className="text-white break-words leading-snug">{labelText}</p>
-                          {rate.deliveryDays ? (
-                            <p className="text-xs text-white/60">
-                              {rate.deliveryDays}-day estimate
-                            </p>
+                          {deliveryEstimate ? (
+                            <p className="text-xs text-white/60">{deliveryEstimate}</p>
                           ) : null}
                         </div>
                       </div>
