@@ -389,6 +389,9 @@ export const visualEditingEnabled = stegaEnabled;
 export const previewDraftsActive = previewDraftsEnabled;
 export const liveSubscriptionsEnabled = stegaEnabled && liveSubscriptionsFlag;
 
+export const visualEditingHostAllowlisted = visualEditingOriginAllowed;
+export const visualEditingRequestedFlag = visualEditingRequested;
+
 // Define interfaces
 export interface Product {
   _id: string;
