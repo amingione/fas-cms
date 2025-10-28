@@ -148,12 +148,21 @@ const visualEditingAllowedHosts = new Set<string>([
 const isBrowserRuntime = typeof window !== 'undefined' && typeof window.location !== 'undefined';
 const runtimeHostname = isBrowserRuntime ? window.location.hostname.toLowerCase() : undefined;
 
-const visualEditingOriginAllowed =
-  !isBrowserRuntime || visualEditingAllowedHosts.size === 0
-    ? true
-    : runtimeHostname
-    ? visualEditingAllowedHosts.has(runtimeHostname)
-    : false;
+const isHostnameAllowlisted = (hostname: string | null | undefined): boolean => {
+  const normalized = typeof hostname === 'string' ? hostname.trim().toLowerCase() : undefined;
+
+  if (!normalized) {
+    return visualEditingAllowedHosts.size === 0;
+  }
+
+  if (visualEditingAllowedHosts.size === 0) {
+    return true;
+  }
+
+  return visualEditingAllowedHosts.has(normalized);
+};
+
+const visualEditingOriginAllowed = isHostnameAllowlisted(runtimeHostname);
 
 const visualEditingRequested = toBooleanFlag(
   import.meta.env.PUBLIC_SANITY_ENABLE_VISUAL_EDITING as string | undefined
@@ -389,6 +398,8 @@ export const visualEditingEnabled = stegaEnabled;
 export const previewDraftsActive = previewDraftsEnabled;
 export const liveSubscriptionsEnabled = stegaEnabled && liveSubscriptionsFlag;
 
+export const isVisualEditingHostnameAllowlisted = (hostname: string | null | undefined): boolean =>
+  isHostnameAllowlisted(hostname);
 export const visualEditingHostAllowlisted = visualEditingOriginAllowed;
 export const visualEditingRequestedFlag = visualEditingRequested;
 
