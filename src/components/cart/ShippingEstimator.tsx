@@ -708,7 +708,7 @@ export function ShippingEstimator({
                   name="state"
                   value={form.state}
                   onChange={handleInputChange}
-                  className="rounded-md border border-white/10 bg-white/10 px-3 py-2 text-white focus:border-primary focus:outline-none"
+                  className="rounded-md border border-neutral-200 bg-white px-3 py-2 text-neutral-900 transition-colors focus:border-primary focus:outline-none dark:border-white/20 dark:bg-neutral-900/80 dark:text-white"
                   required
                 >
                   <option value="">Select...</option>
@@ -747,7 +747,7 @@ export function ShippingEstimator({
                 name="country"
                 value={form.country}
                 onChange={handleInputChange}
-                className="rounded-md border border-white/10 bg-white/10 px-3 py-2 text-white focus:border-primary focus:outline-none"
+                className="rounded-md border border-neutral-200 bg-white px-3 py-2 text-neutral-900 transition-colors focus:border-primary focus:outline-none dark:border-white/20 dark:bg-neutral-900/80 dark:text-white"
               >
                 <option value="US">United States</option>
                 <option value="CA">Canada</option>
