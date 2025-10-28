@@ -62,7 +62,10 @@ function resolveOrderItemImage(item: any): string {
   if (!item) return FALLBACK_ITEM_IMAGE;
   const product = item.product ?? {};
   const price = item.price ?? {};
-  const priceProduct = typeof price.product === 'object' ? price.product : {};
+  const priceProduct =
+    price && typeof price.product === 'object' && price.product !== null
+      ? price.product
+      : {};
 
   const productImages = Array.isArray(product.images) ? product.images : [];
   const priceProductImages = Array.isArray(priceProduct.images)
