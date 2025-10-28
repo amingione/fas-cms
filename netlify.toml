@@ -3,15 +3,730 @@
   to = "/site.webmanifest"
   status = 200
 
+# Legacy domain + WooCommerce URL redirects consolidated from public/_redirects
 [[redirects]]
-  from = "/products/*"
-  to = "/shop/:splat"
+  from = "https://fasmotorsports.us/*"
+  to = "https://www.fasmotorsports.com/:splat"
   status = 301
+  force = true
 
 [[redirects]]
-  from = "/product-category/*"
-  to = "/shop/categories/:splat"
+  from = "https://www.fasmotorsports.us/*"
+  to = "https://www.fasmotorsports.com/:splat"
   status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/2-4l-2-7l-snout-porting"
+  to = "/shop/2-4l-hellcat-billet-supercharger-snout"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/2-4l-2-7l-snout-porting/"
+  to = "/shop/2-4l-hellcat-billet-supercharger-snout"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/180-hellcat-thermostat"
+  to = "/shop/180-hellcat-thermostat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/180-hellcat-thermostat/"
+  to = "/shop/180-hellcat-thermostat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/2018-23-mustang-gt-ported-intake-manifold"
+  to = "/shop/mustang-gt-ported-intake-manifold"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/2018-23-mustang-gt-ported-intake-manifold/"
+  to = "/shop/mustang-gt-ported-intake-manifold"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/2018-23-mustang-gt-ported-intake-manifolds"
+  to = "/shop/mustang-gt-ported-intake-manifold"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/2018-23-mustang-gt-ported-intake-manifolds/"
+  to = "/shop/mustang-gt-ported-intake-manifold"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/boss-intake-manifold-porting"
+  to = "/shop/boss-intake-manifold-porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/boss-intake-manifold-porting/"
+  to = "/shop/boss-intake-manifold-porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/dodge-demon-charger-ported-intake-manifold"
+  to = "/shop/hemi-intake-manifold-porting-6-4l-6-1l-5-7l"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/dodge-demon-charger-ported-intake-manifold/"
+  to = "/shop/hemi-intake-manifold-porting-6-4l-6-1l-5-7l"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/dodge-demon-charger-ported-intake-manifolds"
+  to = "/shop/hemi-intake-manifold-porting-6-4l-6-1l-5-7l"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/dodge-demon-charger-ported-intake-manifolds/"
+  to = "/shop/hemi-intake-manifold-porting-6-4l-6-1l-5-7l"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/hellcat-supercharger-hub-kit"
+  to = "/shop/pulley-and-hub-kit"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/hellcat-supercharger-hub-kit/"
+  to = "/shop/pulley-and-hub-kit"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/hellcat-supercharger-hub-kit-with-billet-bolt"
+  to = "/shop/pulley-and-hub-kit"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/hellcat-supercharger-hub-kit-with-billet-bolt/"
+  to = "/shop/pulley-and-hub-kit"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/hellcat-supercharger-hub-kit-upgraded-pulley-ring"
+  to = "/shop/pulley-and-hub-kit"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/hellcat-supercharger-hub-kit-upgraded-pulley-ring/"
+  to = "/shop/pulley-and-hub-kit"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/hellcat-supercharger-race-ported-throttle-body"
+  to = "/shop/hellcat-throttle-body-porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/hellcat-supercharger-race-ported-throttle-body/"
+  to = "/shop/hellcat-throttle-body-porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/hellcat-supercharger-street-ported-throttle-body"
+  to = "/shop/hellcat-throttle-body-porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/hellcat-supercharger-street-ported-throttle-body/"
+  to = "/shop/hellcat-throttle-body-porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/hellcat-supercharger-upper-pulley-ring-only"
+  to = "/shop/upper-pulley-ring-only"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/hellcat-supercharger-upper-pulley-ring-only/"
+  to = "/shop/upper-pulley-ring-only"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/hellcat-upper-pulley-ring-only"
+  to = "/shop/upper-pulley-ring-only"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/hellcat-upper-pulley-ring-only/"
+  to = "/shop/upper-pulley-ring-only"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/hellcat-upper-supercharger-ported-intake-manifold-service"
+  to = "/services/porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/hellcat-upper-supercharger-ported-intake-manifold-service/"
+  to = "/services/porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/hellcat-upper-supercharger-ported-intake-manifold-services"
+  to = "/services/porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/hellcat-upper-supercharger-ported-intake-manifold-services/"
+  to = "/services/porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/hellcat-upper-supercharger-ported-intake-manifolds"
+  to = "/services/porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/hellcat-upper-supercharger-ported-intake-manifolds/"
+  to = "/services/porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/hellcat-supercharger-ported-intake-manifold-service"
+  to = "/services/porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/hellcat-supercharger-ported-intake-manifold-service/"
+  to = "/services/porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/hellcat-supercharger-ported-intake-manifold-services"
+  to = "/services/porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/hellcat-supercharger-ported-intake-manifold-services/"
+  to = "/services/porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/hellcat-supercharger-ported-intake-manifolds"
+  to = "/services/porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/hellcat-supercharger-ported-intake-manifolds/"
+  to = "/services/porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/lt4-ported-intake-manifold"
+  to = "/shop/lsa-ls9-lt4-supercharger-porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/lt4-ported-intake-manifold/"
+  to = "/shop/lsa-ls9-lt4-supercharger-porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/lt4-ported-intake-manifolds"
+  to = "/shop/lsa-ls9-lt4-supercharger-porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/lt4-ported-intake-manifolds/"
+  to = "/shop/lsa-ls9-lt4-supercharger-porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/lt4-supercharger-ported-intake-manifold-service"
+  to = "/shop/lsa-ls9-lt4-supercharger-porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/lt4-supercharger-ported-intake-manifold-service/"
+  to = "/shop/lsa-ls9-lt4-supercharger-porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/lt4-supercharger-ported-intake-manifold-services"
+  to = "/shop/lsa-ls9-lt4-supercharger-porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/lt4-supercharger-ported-intake-manifold-services/"
+  to = "/shop/lsa-ls9-lt4-supercharger-porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/lt4-supercharger-ported-intake-manifolds"
+  to = "/shop/lsa-ls9-lt4-supercharger-porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/lt4-supercharger-ported-intake-manifolds/"
+  to = "/shop/lsa-ls9-lt4-supercharger-porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/lt4-supercharger-snout-porting"
+  to = "/shop/lt4-supercharger-snout-porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/lt4-supercharger-snout-porting/"
+  to = "/shop/lt4-supercharger-snout-porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/lt4-supercharger-snout-porting-6-4l-6-2l"
+  to = "/shop/lt4-supercharger-snout-porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/lt4-supercharger-snout-porting-6-4l-6-2l/"
+  to = "/shop/lt4-supercharger-snout-porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/lt4-supercharger-snout-porting-service-package"
+  to = "/shop/lt4-supercharger-snout-porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/lt4-supercharger-snout-porting-service-package/"
+  to = "/shop/lt4-supercharger-snout-porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/mustang-gt-ported-intake-manifold"
+  to = "/shop/mustang-gt-ported-intake-manifold"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/mustang-gt-ported-intake-manifold/"
+  to = "/shop/mustang-gt-ported-intake-manifold"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/mustang-gt-ported-intake-manifolds"
+  to = "/shop/mustang-gt-ported-intake-manifold"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/mustang-gt-ported-intake-manifolds/"
+  to = "/shop/mustang-gt-ported-intake-manifold"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/mustang-gt-intake-manifold-porting"
+  to = "/shop/mustang-gt-intake-manifold-porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/mustang-gt-intake-manifold-porting/"
+  to = "/shop/mustang-gt-intake-manifold-porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/predator-5-2-supercharged-intake-manifold-porting"
+  to = "/services/porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/predator-5-2-supercharged-intake-manifold-porting/"
+  to = "/services/porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/srt-hellcat-billet-supercharger-hub-kit"
+  to = "/shop/pulley-and-hub-kit"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/srt-hellcat-billet-supercharger-hub-kit/"
+  to = "/shop/pulley-and-hub-kit"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/srt-hellcat-supercharger-ported-intake-manifold-service"
+  to = "/services/porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/srt-hellcat-supercharger-ported-intake-manifold-service/"
+  to = "/services/porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/srt-hellcat-supercharger-ported-intake-manifold-services"
+  to = "/services/porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/srt-hellcat-supercharger-ported-intake-manifold-services/"
+  to = "/services/porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/srt-hellcat-supercharger-upper-pulley-ring-only"
+  to = "/shop/upper-pulley-ring-only"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/srt-hellcat-supercharger-upper-pulley-ring-only/"
+  to = "/shop/upper-pulley-ring-only"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/srt-hellcat-supercharger-upgraded-pulley-ring"
+  to = "/shop/upper-pulley-ring-only"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/srt-hellcat-supercharger-upgraded-pulley-ring/"
+  to = "/shop/upper-pulley-ring-only"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/srt-hellcat-supercharger-upgraded-pulley-ring-with-bolt"
+  to = "/shop/pulley-and-hub-kit"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/srt-hellcat-supercharger-upgraded-pulley-ring-with-bolt/"
+  to = "/shop/pulley-and-hub-kit"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/srt-hellcat-upper-supercharger-ported-intake-manifold-service"
+  to = "/services/porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/srt-hellcat-upper-supercharger-ported-intake-manifold-service/"
+  to = "/services/porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/srt-hellcat-upper-supercharger-ported-intake-manifold-services"
+  to = "/services/porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/srt-hellcat-upper-supercharger-ported-intake-manifold-services/"
+  to = "/services/porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/srt-hellcat-upper-supercharger-ported-intake-manifolds"
+  to = "/services/porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/srt-hellcat-upper-supercharger-ported-intake-manifolds/"
+  to = "/services/porting"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/whipple-3-0-ported-intake-manifold-service"
+  to = "/shop/3-0l-whipple-porting-service-hellcat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/whipple-3-0-ported-intake-manifold-service/"
+  to = "/shop/3-0l-whipple-porting-service-hellcat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/whipple-3-0-ported-intake-manifold-services"
+  to = "/shop/3-0l-whipple-porting-service-hellcat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/whipple-3-0-ported-intake-manifold-services/"
+  to = "/shop/3-0l-whipple-porting-service-hellcat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/whipple-3-0-ported-intake-manifolds"
+  to = "/shop/3-0l-whipple-porting-service-hellcat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/whipple-3-0-ported-intake-manifolds/"
+  to = "/shop/3-0l-whipple-porting-service-hellcat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/whipple-3-0-supercharger-ported-intake-manifold-service"
+  to = "/shop/3-0l-whipple-porting-service-hellcat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/whipple-3-0-supercharger-ported-intake-manifold-service/"
+  to = "/shop/3-0l-whipple-porting-service-hellcat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/whipple-3-0-supercharger-ported-intake-manifold-services"
+  to = "/shop/3-0l-whipple-porting-service-hellcat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/whipple-3-0-supercharger-ported-intake-manifold-services/"
+  to = "/shop/3-0l-whipple-porting-service-hellcat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/whipple-3-0-supercharger-ported-intake-manifolds"
+  to = "/shop/3-0l-whipple-porting-service-hellcat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/whipple-3-0-supercharger-ported-intake-manifolds/"
+  to = "/shop/3-0l-whipple-porting-service-hellcat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/whipple-ported-supercharger-intake-manifold-service"
+  to = "/shop/3-0l-whipple-porting-service-hellcat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/whipple-ported-supercharger-intake-manifold-service/"
+  to = "/shop/3-0l-whipple-porting-service-hellcat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/whipple-ported-supercharger-intake-manifold-services"
+  to = "/shop/3-0l-whipple-porting-service-hellcat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/whipple-ported-supercharger-intake-manifold-services/"
+  to = "/shop/3-0l-whipple-porting-service-hellcat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/:slug"
+  to = "/shop/:slug"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product/:slug/"
+  to = "/shop/:slug"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/products/:slug"
+  to = "/shop/:slug"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/products/:slug/"
+  to = "/shop/:slug"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product-category/:category"
+  to = "/shop?categorySlug=:category"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product-category/:category/"
+  to = "/shop?categorySlug=:category"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product-category/:category/:slug"
+  to = "/shop/:slug"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product-category/:category/:slug/"
+  to = "/shop/:slug"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product-category/:category/:subcategory/:slug"
+  to = "/shop/:slug"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/product-category/:category/:subcategory/:slug/"
+  to = "/shop/:slug"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/shop/product/:slug"
+  to = "/shop/:slug"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/shop/product/:slug/"
+  to = "/shop/:slug"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/warranty/"
+  to = "/warranty"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/shop/filters/platform/:platform/product_cat/:category/*"
+  to = "/shop?platform=:platform&categorySlug=:category"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/shop/filters/platform/:platform/*"
+  to = "/shop?platform=:platform"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/shop/filters/*"
+  to = "/shop"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/my-account/*"
+  to = "/account"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/checkout/success"
+  to = "/checkout/success"
+  status = 200
+
+[[redirects]]
+  from = "/checkout/cancel"
+  to = "/checkout/cancel"
+  status = 200
+
+[[redirects]]
+  from = "/checkout/*"
+  to = "/cart"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/cart/*"
+  to = "/cart"
+  status = 301
+  force = true
 
 # Astro already generates the correct serverless function routing for SSR builds.
 # A blanket SPA-style catch-all would rewrite asset requests (e.g. CSS, JS, Astro

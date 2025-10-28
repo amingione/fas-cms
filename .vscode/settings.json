@@ -21,5 +21,8 @@
     "classnames\\(([^)]*)\\)"
   ],
   "vscode-openai.conversation-configuration.assistant-rules": false,
-  "chatgpt.openOnStartup": true
+  "chatgpt.openOnStartup": true,
+  "[astro]": {
+    "editor.defaultFormatter": "astro-build.astro-vscode"
+  }
 }
