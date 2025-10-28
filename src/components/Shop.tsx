@@ -651,16 +651,20 @@ export default function Shop({
             <Button
               size="lg"
               className="bg-primary hover:bg-primary/90 px-8 py-4 text-lg font-bold shadow-lg shadow-primary/25 metallic-btn font-ethno text-[12px]"
+              asChild
             >
-              <Wrench className="w-5 h-5 mr-3" />
-              CUSTOM QUOTE
+              <a href="/contact">
+                <Wrench className="w-5 h-5 mr-3" />
+                CUSTOM QUOTE
+              </a>
             </Button>
             <Button
               size="lg"
               variant="outline"
               className="border-2 border-graylight/50 text-white/60 hover:bg-secondary/10 hover:text-white hover:border-secondary/70 px-8 py-4 text-lg font-medium backdrop-blur-sm industrial-glow font-ethno text-[11px]"
+              asChild
             >
-              CONTACT ENGINEERING
+              <a href="mailto:sales@fasmotorsports.com">CONTACT ENGINEERING</a>
             </Button>
           </div>
         </motion.div>
