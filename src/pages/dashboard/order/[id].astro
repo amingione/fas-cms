@@ -398,7 +398,10 @@ function pickImageUrl(candidate: unknown, seen = new Set<unknown>()): string | n
       if (built) return built;
     }
     if (/^https?:/i.test(trimmed)) return trimmed;
-    return trimmed;
+    if (/^(?:\/|\.\/|\.\.\/)/.test(trimmed)) return trimmed;
+    if (/^data:image\//i.test(trimmed)) return trimmed;
+    if (/^blob:/i.test(trimmed)) return trimmed;
+    return null;
   }
   if (seen.has(candidate)) return null;
   seen.add(candidate);
