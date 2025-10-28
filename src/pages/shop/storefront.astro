@@ -1,7 +1,7 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import CategoryPage from "@/components/storefront/CategoryPage.tsx";
-import { fetchProductsFromSanity } from "@/lib/sanity-utils";
+import { fetchProductsFromSanity, normalizeSanityImageUrl } from "@/lib/sanity-utils";
 import { sanityClient as client } from "@/lib/sanityClient";
 
 const products = await fetchProductsFromSanity({});
@@ -19,7 +19,7 @@ const categories = (Array.isArray(categoriesRaw) ? categoriesRaw : [])
     id: category?._id ?? category?.slug ?? category?.title ?? '',
     title: category?.title ?? 'Category',
     slug: typeof category?.slug === 'string' ? category.slug : '',
-    imageUrl: category?.imageUrl ?? null,
+    imageUrl: normalizeSanityImageUrl(category?.imageUrl) ?? null,
     description: category?.description ?? null
   }))
   .filter((category) => Boolean(category.slug));

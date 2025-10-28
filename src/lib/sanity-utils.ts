@@ -31,6 +31,86 @@ const apiVersion = '2023-01-01';
 
 const imageBuilder = projectId && dataset ? imageUrlBuilder({ projectId, dataset }) : null;
 
+const SANITY_CDN_HOSTS = new Set(['cdn.sanity.io', 'cdn.sanityusercontent.com']);
+
+export interface SanityImageTransformOptions {
+  width?: number;
+  height?: number;
+  quality?: number;
+  format?: 'webp' | 'jpg' | 'jpeg' | 'png' | 'auto';
+  fit?: 'clip' | 'crop' | 'fill' | 'max' | 'min' | 'scale';
+  dpr?: number;
+  blur?: number;
+  sharpen?: number;
+}
+
+const DEFAULT_SANITY_IMAGE_PARAMS: Required<Pick<SanityImageTransformOptions, 'quality' | 'fit'>> & {
+  auto: 'format';
+} = Object.freeze({
+  auto: 'format',
+  fit: 'max',
+  quality: 82
+});
+
+export const optimizeSanityImageUrl = (
+  rawUrl: string | null | undefined,
+  overrides: SanityImageTransformOptions = {}
+): string | undefined => {
+  if (!rawUrl || typeof rawUrl !== 'string') return undefined;
+  const trimmed = rawUrl.trim();
+  if (!trimmed) return undefined;
+
+  try {
+    const url = new URL(trimmed);
+    if (!SANITY_CDN_HOSTS.has(url.hostname) || !url.pathname.includes('/images/')) {
+      return url.toString();
+    }
+
+    const params = url.searchParams;
+
+    if (overrides.format && overrides.format !== 'auto') {
+      params.set('fm', overrides.format);
+      params.delete('auto');
+    } else if (!params.has('auto')) {
+      params.set('auto', DEFAULT_SANITY_IMAGE_PARAMS.auto);
+    }
+
+    if (overrides.fit) {
+      params.set('fit', overrides.fit);
+    } else if (!params.has('fit')) {
+      params.set('fit', DEFAULT_SANITY_IMAGE_PARAMS.fit);
+    }
+
+    if (overrides.width) {
+      params.set('w', String(Math.max(1, Math.round(overrides.width))));
+    }
+    if (overrides.height) {
+      params.set('h', String(Math.max(1, Math.round(overrides.height))));
+    }
+
+    if (overrides.quality) {
+      params.set('q', String(Math.min(100, Math.max(1, Math.round(overrides.quality)))));
+    } else if (!params.has('q')) {
+      params.set('q', String(DEFAULT_SANITY_IMAGE_PARAMS.quality));
+    }
+
+    if (overrides.dpr) {
+      params.set('dpr', String(Math.max(1, Math.round(overrides.dpr))));
+    }
+    if (overrides.blur) {
+      params.set('blur', String(Math.max(0, Math.round(overrides.blur))));
+    }
+    if (overrides.sharpen) {
+      params.set('sharpen', String(Math.max(0, Math.round(overrides.sharpen))));
+    }
+
+    url.search = params.toString();
+    return url.toString();
+  } catch {
+    return trimmed;
+  }
+};
+
 const studioUrlRaw =
   (import.meta.env.PUBLIC_SANITY_STUDIO_URL as string | undefined) ||
   (import.meta.env.PUBLIC_STUDIO_URL as string | undefined) ||
@@ -221,14 +301,21 @@ const normalizeUrlString = (value: string | undefined | null): string | undefine
   if (typeof value !== 'string') return undefined;
   const trimmed = value.trim();
   if (!trimmed) return undefined;
-  if (trimmed.startsWith('//')) return `https:${trimmed}`;
-  if (/^https:\/\//i.test(trimmed)) return trimmed;
+  if (trimmed.startsWith('//')) {
+    const httpsUrl = `https:${trimmed}`;
+    return optimizeSanityImageUrl(httpsUrl) ?? httpsUrl;
+  }
+  if (/^https:\/\//i.test(trimmed)) {
+    return optimizeSanityImageUrl(trimmed) ?? trimmed;
+  }
   if (/^http:\/\//i.test(trimmed)) {
-    return `https://${trimmed.slice('http://'.length)}`;
+    const httpsUrl = `https://${trimmed.slice('http://'.length)}`;
+    return optimizeSanityImageUrl(httpsUrl) ?? httpsUrl;
   }
   if (/^image-/i.test(trimmed) && imageBuilder) {
     try {
-      return imageBuilder.image(trimmed).auto('format').fit('max').url();
+      const built = imageBuilder.image(trimmed).auto('format').fit('max').quality(DEFAULT_SANITY_IMAGE_PARAMS.quality).url();
+      return optimizeSanityImageUrl(built) ?? built;
     } catch {
       return undefined;
     }

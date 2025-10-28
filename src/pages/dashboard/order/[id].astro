@@ -2,6 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import imageUrlBuilder from '@sanity/image-url';
 import { sanityClient } from '@/lib/sanityClient';
+import { optimizeSanityImageUrl } from '@/lib/sanity-utils';
 import { readSession } from '@/server/auth/session';
 import { formatPrice } from '@/components/storefront/Price';
 
@@ -85,7 +86,7 @@ function normalizeValueList(input: unknown): string[] {
 }
 
 const FALLBACK_IMAGE = '/logo/faslogo150.webp';
-const imageBuilder = imageUrlBuilder(sanityClient);
+const imageBuilder = sanityClient ? imageUrlBuilder(sanityClient) : null;
 
 const asNonEmptyString = (value: unknown): string | undefined => {
   if (typeof value === 'string') {
@@ -338,15 +339,16 @@ async function enrichOrderWithProductImages(orderDoc: any): Promise<void> {
   };
 
   products.forEach((product) => {
-    const imageUrl = asNonEmptyString(product?.imageUrl);
-    if (!imageUrl) return;
-    if (product?._id) maps.byId.set(product._id, imageUrl);
+    const rawUrl = asNonEmptyString(product?.imageUrl);
+    const optimizedUrl = rawUrl ? optimizeSanityImageUrl(rawUrl) ?? rawUrl : null;
+    if (!optimizedUrl) return;
+    if (product?._id) maps.byId.set(product._id, optimizedUrl);
     const slug = normalizeSlug(product?.slug);
-    if (slug) maps.bySlug.set(slug, imageUrl);
+    if (slug) maps.bySlug.set(slug, optimizedUrl);
     const sku = asNonEmptyString(product?.sku);
-    if (sku) maps.bySku.set(sku.toLowerCase(), imageUrl);
+    if (sku) maps.bySku.set(sku.toLowerCase(), optimizedUrl);
     const title = asNonEmptyString(product?.title);
-    if (title) maps.byTitle.set(title.toLowerCase(), imageUrl);
+    if (title) maps.byTitle.set(title.toLowerCase(), optimizedUrl);
   });
 
   orderDoc.cart = items.map((item: OrderItem) => {
@@ -379,9 +381,19 @@ const DIRECT_IMAGE_KEYS = [
 
 function buildFromSanityRef(ref?: unknown): string | null {
   if (typeof ref !== 'string' || !ref.trim()) return null;
+  if (!imageBuilder) return null;
   try {
-    const built = imageBuilder.image(ref).width(800).url();
-    return built || null;
+    const built = imageBuilder
+      .image(ref)
+      .fit('max')
+      .auto('format')
+      .quality(82)
+      .width(800)
+      .url();
+    if (built) {
+      return optimizeSanityImageUrl(built) ?? built;
+    }
+    return null;
   } catch {
     return null;
   }
@@ -392,12 +404,21 @@ function pickImageUrl(candidate: unknown, seen = new Set<unknown>()): string | n
   if (typeof candidate === 'string') {
     const trimmed = candidate.trim();
     if (!trimmed) return null;
-    if (trimmed.startsWith('//')) return `https:${trimmed}`;
+    if (trimmed.startsWith('//')) {
+      const httpsUrl = `https:${trimmed}`;
+      return optimizeSanityImageUrl(httpsUrl) ?? httpsUrl;
+    }
+    if (/^http:\/\//i.test(trimmed)) {
+      const httpsUrl = `https://${trimmed.slice('http://'.length)}`;
+      return optimizeSanityImageUrl(httpsUrl) ?? httpsUrl;
+    }
+    if (/^https?:\/\//i.test(trimmed)) {
+      return optimizeSanityImageUrl(trimmed) ?? trimmed;
+    }
     if (/^image-/.test(trimmed)) {
       const built = buildFromSanityRef(trimmed);
       if (built) return built;
     }
-    if (/^https?:/i.test(trimmed)) return trimmed;
     if (/^(?:\/|\.\/|\.\.\/)/.test(trimmed)) return trimmed;
     if (/^data:image\//i.test(trimmed)) return trimmed;
     if (/^blob:/i.test(trimmed)) return trimmed;

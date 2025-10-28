@@ -87,6 +87,18 @@ try {
 } catch (err) {
   console.error('Featured products fetch failed', err);
 }
+
+const featuredProductsNormalized = Array.isArray(featuredProducts)
+  ? featuredProducts.map((product) => {
+      if (!product || typeof product !== 'object') return product;
+      const rawImageUrl = (product as any).imageUrl;
+      const normalizedImageUrl =
+        typeof rawImageUrl === 'string'
+          ? sanity.normalizeSanityImageUrl(rawImageUrl) ?? rawImageUrl
+          : rawImageUrl;
+      return { ...product, imageUrl: normalizedImageUrl };
+    })
+  : [];
 ---
 
 
@@ -124,7 +136,7 @@ try {
       </section>
 
       <section id="Highlights">
-        <Highlights items={featuredProducts} />
+        <Highlights items={featuredProductsNormalized} />
       </section>
 
       <section class="mt-20" id="TaskCard">
