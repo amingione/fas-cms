@@ -61,17 +61,31 @@ function pickImageUrl(value: unknown): string | null {
 function resolveOrderItemImage(item: any): string {
   if (!item) return FALLBACK_ITEM_IMAGE;
   const product = item.product ?? {};
+  const price = item.price ?? {};
+  const priceProduct = typeof price.product === 'object' ? price.product : {};
+
   const productImages = Array.isArray(product.images) ? product.images : [];
+  const priceProductImages = Array.isArray(priceProduct.images)
+    ? priceProduct.images
+    : [];
   const additionalImages: unknown[] = [];
-  for (const img of productImages) {
-    additionalImages.push(img);
-    if (img && typeof img === 'object') {
-      const asset = (img as Record<string, unknown>).asset;
-      if (asset) additionalImages.push(asset);
+  const collectImages = (images: unknown[]) => {
+    for (const img of images) {
+      additionalImages.push(img);
+      if (img && typeof img === 'object') {
+        const asset = (img as Record<string, unknown>).asset;
+        if (asset) additionalImages.push(asset);
+      }
     }
-  }
+  };
+
+  collectImages(productImages);
+  collectImages(priceProductImages);
 
   const metadata = item.metadata ?? {};
+  const priceMetadata = price.metadata ?? {};
+  const productMetadata = product.metadata ?? {};
+  const priceProductMetadata = priceProduct.metadata ?? {};
   const metadataCandidates: unknown[] = [
     metadata.imageUrl,
     metadata.imageURL,
@@ -85,7 +99,16 @@ function resolveOrderItemImage(item: any): string {
     metadata.thumbnailUrl,
     metadata.thumbnail_url,
     metadata.image,
-    metadata.image0
+    metadata.image0,
+    priceMetadata,
+    priceMetadata.image,
+    priceMetadata.imageUrl,
+    productMetadata,
+    productMetadata.image,
+    productMetadata.imageUrl,
+    priceProductMetadata,
+    priceProductMetadata.image,
+    priceProductMetadata.imageUrl
   ];
 
   const candidates: unknown[] = [
@@ -101,6 +124,15 @@ function resolveOrderItemImage(item: any): string {
     product.mainImage,
     product.thumbnail,
     product.thumb,
+    price.resolvedImageUrl,
+    price.imageUrl,
+    price.image,
+    priceProduct.resolvedImageUrl,
+    priceProduct.imageUrl,
+    priceProduct.image,
+    priceProduct.mainImage,
+    priceProduct.thumbnail,
+    priceProduct.thumb,
     ...additionalImages
   ];
 
