@@ -667,8 +667,10 @@ export async function POST({ request }: { request: Request }) {
           shipping_service_name: 'Install-Only Service',
           shipping_amount: '0.00',
           shipping_currency: installOnlyCurrency,
-          shipping_install_only: 'true'
+          shipping_install_only: 'true',
+          shipping_source: 'install_only'
         };
+        shippingOptions = [];
       } else if (quote.freight) {
         return new Response(
           JSON.stringify({
@@ -680,9 +682,29 @@ export async function POST({ request }: { request: Request }) {
             headers: { 'Content-Type': 'application/json' }
           }
         );
-      }
-
-      if (!installOnlyQuote && quote.success && quote.rates.length) {
+      } else if (!quote.success) {
+        return new Response(
+          JSON.stringify({
+            error: quote.message || 'Missing shipping data required for live rate calculation.',
+            missing: quote.missing || []
+          }),
+          {
+            status: 409,
+            headers: { 'Content-Type': 'application/json' }
+          }
+        );
+      } else if (!quote.rates.length) {
+        return new Response(
+          JSON.stringify({
+            error:
+              'No live shipping rates were returned for the provided destination. Please verify the address or contact support.'
+          }),
+          {
+            status: 409,
+            headers: { 'Content-Type': 'application/json' }
+          }
+        );
+      } else {
         const requestedMatch: CalculatedRate | undefined = quote.rates.find((rate) => {
           if (!requestedRate) return false;
           const serviceCode = String(requestedRate.serviceCode || '') || undefined;
@@ -787,15 +809,20 @@ export async function POST({ request }: { request: Request }) {
             ...(deliveryDays ? { shipping_delivery_days: deliveryDays } : {}),
             ...(estimatedDeliveryDate
               ? { shipping_estimated_delivery_date: estimatedDeliveryDate }
-              : {})
+              : {}),
+            shipping_source: 'shipengine',
+            shipping_live_rate: 'true'
           };
         }
-      } else if (installOnlyQuote) {
-        shippingOptions = [];
       }
     } catch (err) {
-      console.error('❌ Shipping quote failed, falling back to flat rates:', err);
-      shippingOptions = undefined;
+      console.error('❌ Shipping quote failed:', err);
+      const message =
+        err instanceof Error ? err.message : 'Failed to fetch live shipping rates from ShipEngine.';
+      return new Response(JSON.stringify({ error: message }), {
+        status: 502,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
   }
 
@@ -851,62 +878,33 @@ export async function POST({ request }: { request: Request }) {
         shippingOptions[0]?.shipping_rate_data?.metadata as Record<string, string> | undefined;
       applyOptionMetadata(optionMeta);
     } else {
-      finalShippingOptions = [
+      return new Response(
+        JSON.stringify({
+          error: 'Live shipping rates are required to complete checkout. Please refresh the rates and try again.'
+        }),
         {
-          shipping_rate_data: {
-            type: 'fixed_amount',
-            fixed_amount: { amount: 1500, currency: 'usd' },
-            display_name: 'Standard Shipping (5–7 business days)',
-            tax_behavior: 'exclusive',
-            tax_code: 'txcd_92010001',
-            delivery_estimate: {
-              minimum: { unit: 'business_day', value: 5 },
-              maximum: { unit: 'business_day', value: 7 }
-            },
-            metadata: {
-              carrier: 'Manual Fulfillment',
-              carrier_id: 'manual-flat-standard',
-              service_code: 'standard_fallback',
-              service: 'Standard Shipping (Fallback)',
-              amount: '15.00',
-              currency: 'USD',
-              source: 'fallback'
-            }
-          }
-        },
-        {
-          shipping_rate_data: {
-            type: 'fixed_amount',
-            fixed_amount: { amount: 3500, currency: 'usd' },
-            display_name: 'Expedited Shipping (2–3 business days)',
-            tax_behavior: 'exclusive',
-            tax_code: 'txcd_92010001',
-            delivery_estimate: {
-              minimum: { unit: 'business_day', value: 2 },
-              maximum: { unit: 'business_day', value: 3 }
-            },
-            metadata: {
-              carrier: 'Manual Fulfillment',
-              carrier_id: 'manual-flat-expedited',
-              service_code: 'expedited_fallback',
-              service: 'Expedited Shipping (Fallback)',
-              amount: '35.00',
-              currency: 'USD',
-              source: 'fallback'
-            }
-          }
+          status: 409,
+          headers: { 'Content-Type': 'application/json' }
         }
-      ];
-      const firstOption = finalShippingOptions[0];
-      if (firstOption?.shipping_rate_data?.metadata) {
-        applyOptionMetadata(firstOption.shipping_rate_data.metadata as Record<string, string>);
-      }
-      if (!shippingMetadata.shipping_currency) {
-        shippingMetadata.shipping_currency = 'USD';
-      }
-      if (!shippingMetadata.shipping_amount) {
-        shippingMetadata.shipping_amount = '15.00';
-      }
+      );
+    }
+
+    if (!installOnlyQuote && !selectedRate) {
+      return new Response(
+        JSON.stringify({
+          error: 'A live shipping rate must be selected before continuing to checkout.'
+        }),
+        {
+          status: 409,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    if (!shippingMetadata.shipping_currency && selectedRate) {
+      const fallbackCurrency =
+        (typeof selectedRate.currency === 'string' && selectedRate.currency.trim()) || 'USD';
+      shippingMetadata.shipping_currency = fallbackCurrency.toUpperCase();
     }
 
     if (!shippingMetadata.shipping_currency) {
