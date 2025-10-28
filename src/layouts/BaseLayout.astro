@@ -7,7 +7,7 @@ import CookieBanner from '@/components/notices/cookieBanner';
 import Breadcrumbs from '@/components/storefront/Breadcrumbs.astro';
 import { Toaster } from 'sonner';
 import VisualEditingBridge from '@/components/sanity/VisualEditingBridge';
-import { visualEditingHostAllowlisted } from '@/lib/sanity-utils';
+import { isVisualEditingHostnameAllowlisted } from '@/lib/sanity-utils';
 
 
 // SEO props (optional per-page)
@@ -77,6 +77,16 @@ try {
 } catch {
   currentUrl = null;
 }
+
+const requestHostnameRaw =
+  currentUrl?.hostname ||
+  Astro.request.headers.get('x-forwarded-host') ||
+  Astro.request.headers.get('host') ||
+  null;
+const requestHostname = requestHostnameRaw
+  ? requestHostnameRaw.split(':')[0]?.trim().toLowerCase() ?? null
+  : null;
+const visualEditingHostAllowlisted = isVisualEditingHostnameAllowlisted(requestHostname);
 
 const envVisualEditingRequested = parseBooleanFlag(
   import.meta.env.PUBLIC_SANITY_ENABLE_VISUAL_EDITING as string | undefined
