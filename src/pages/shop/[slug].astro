@@ -701,7 +701,7 @@ if (product) {
         <button
           id="add-to-cart-btn"
           type="button"
-          class="add-to-cart inline-flex items-center gap-2 border border-white/30 px-4 py-2 rounded-full hover:bg-primary hover:text-accent transition relative z-10 pointer-events-auto"
+          class="add-to-cart inline-flex items-center gap-2 border border-white/30 px-4 py-2 rounded-full hover:bg-primary hover:text-white transition relative z-10 pointer-events-auto"
           data-product-id={(product as any)._id}
           data-product-name={(product as any).title}
           data-product-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
@@ -1048,7 +1048,7 @@ if (product) {
   </div>
   <button
     type="button"
-    class="add-to-cart inline-flex items-center gap-2 bg-primary text-accent font-ethno px-4 py-2 rounded"
+    class="add-to-cart inline-flex items-center gap-2 bg-primary text-white font-ethno px-4 py-2 rounded hover:text-white"
     data-product-id={(product as any)._id}
     data-product-name={(product as any).title}
     data-product-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
@@ -1107,7 +1107,7 @@ if (product) {
         The product you are looking for may have been removed, renamed, or is temporarily unavailable.
       </p>
       <a
-        class="mt-8 inline-flex items-center rounded-full border border-white/30 px-5 py-2 text-sm uppercase tracking-wide transition hover:bg-primary hover:text-accent"
+        class="mt-8 inline-flex items-center rounded-full border border-white/30 px-5 py-2 text-sm uppercase tracking-wide transition hover:bg-primary hover:text-white"
         href="/shop"
       >
         Browse all products
