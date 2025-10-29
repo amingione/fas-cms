@@ -1,0 +1,997 @@
+---
+/* eslint-disable */
+// @ts-nocheck
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Flores Law Office | Personal Injury Lawyer in Madison, Indiana</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Injured in Madison, IN? Flores Law Office handles car and truck accidents, wrongful death, slip and falls, dog bites, and more. Free consultation. No fee unless we win."
+    />
+    <meta property="og:title" content="Flores Law Office | Personal Injury Lawyer in Madison, IN" />
+    <meta
+      property="og:description"
+      content="Free consultation. No fee unless we win. Personal injury lawyers serving Madison and Jefferson County."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.floreslawoffice.net/personal-injury" />
+    <meta property="og:image" content="https://placehold.co/1200x630" />
+
+    <style>
+      :root {
+        /* Matched to a conservative, professional palette; say the word and I’ll pull exact theme colors */
+        --primary: #1f3a8a; /* deep indigo */
+        --primary-dark: #172c6b;
+        --accent: #0db37a; /* supportive accent */
+        --text: #1b1f24;
+        --muted: #6b7280;
+        --bg: #ffffff;
+        --bg-soft: #f5f7fb;
+        --danger: #dc2626;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family:
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          Helvetica,
+          Arial;
+        color: var(--text);
+        background: var(--bg);
+        line-height: 1.5;
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      img {
+        max-width: 100%;
+        display: block;
+      }
+      .container {
+        width: min(1200px, 92%);
+        margin: 0 auto;
+      }
+      .btn {
+        display: inline-block;
+        padding: 12px 18px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.2s;
+        border: 2px solid transparent;
+        text-align: center;
+        cursor: pointer;
+      }
+      .btn-primary {
+        background: var(--primary);
+        color: #fff;
+      }
+      .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+      }
+      .btn-outline {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: transparent;
+      }
+      .btn-outline:hover {
+        background: #eef3ff;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        background: #eef3ff;
+        color: var(--primary);
+      }
+      header.sticky {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: saturate(1.2) blur(8px);
+        border-bottom: 1px solid #eef1f6;
+      }
+      header .bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 10px 0;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .brand-logo {
+        height: 100px;
+        width: auto;
+        display: block;
+        max-width: 160px;
+        object-fit: contain;
+      }
+      .hero {
+        background: linear-gradient(180deg, #f7faff 0%, #ffffff 100%);
+        padding: 32px 0 0;
+      }
+      .hero-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 36px;
+        align-items: center;
+      }
+      @media (max-width: 900px) {
+        .hero-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      h1 {
+        font-size: clamp(28px, 4vw, 44px);
+        line-height: 1.1;
+        margin: 10px 0 12px;
+        letter-spacing: -0.02em;
+      }
+      h2 {
+        font-size: clamp(22px, 3vw, 32px);
+        margin: 0 0 10px;
+        letter-spacing: -0.015em;
+      }
+      p.lead {
+        font-size: 18px;
+        color: var(--muted);
+        margin-bottom: 18px;
+      }
+      .hero-card {
+        background: #fff;
+        border: 1px solid #e9eef7;
+        border-radius: 16px;
+        padding: 22px;
+        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+      }
+      .trust-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin-top: 18px;
+        align-items: center;
+      }
+      @media (max-width: 720px) {
+        .trust-row {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      .trust-badge {
+        border: 1px dashed #dce4f2;
+        padding: 12px;
+        border-radius: 12px;
+        text-align: center;
+        font-size: 12px;
+        color: var(--muted);
+        background: #fafcff;
+      }
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+      }
+      @media (max-width: 900px) {
+        .grid-3 {
+          grid-template-columns: 1fr;
+        }
+      }
+      .card {
+        border: 1px solid #e9eef7;
+        border-radius: 14px;
+        padding: 18px;
+        background: #fff;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .kpi {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+      .kpi .num {
+        font-size: 28px;
+        font-weight: 800;
+        color: var(--text);
+      }
+      .kpi .label {
+        color: var(--muted);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .section {
+        padding: 36px 0;
+      }
+      .section.alt {
+        background: var(--bg-soft);
+        border-top: 1px solid #eef1f6;
+        border-bottom: 1px solid #eef1f6;
+      }
+      .results {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+      @media (max-width: 900px) {
+        .results {
+          grid-template-columns: 1fr;
+        }
+      }
+      .result {
+        padding: 16px;
+        border: 1px solid #e9eef7;
+        border-radius: 12px;
+        background: #fff;
+      }
+      .result .amount {
+        font-weight: 800;
+        color: var(--accent);
+        font-size: 20px;
+      }
+      .testimonial {
+        display: grid;
+        grid-template-columns: 60px 1fr;
+        gap: 14px;
+        align-items: start;
+      }
+      .avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: #dbe7ff;
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+        color: var(--primary);
+      }
+      form .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      @media (max-width: 720px) {
+        form .row {
+          grid-template-columns: 1fr;
+        }
+      }
+      label {
+        font-weight: 600;
+        font-size: 14px;
+        display: block;
+        margin-bottom: 6px;
+      }
+      input,
+      select,
+      textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #d7dfec;
+        border-radius: 10px;
+        font-size: 15px;
+        outline: none;
+        background: #fff;
+      }
+      input:focus,
+      select:focus,
+      textarea:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px #1f3a8a22;
+      }
+      .help {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .error {
+        color: var(--danger);
+        font-size: 12px;
+        margin-top: 6px;
+      }
+      .footer {
+        padding: 28px 0;
+        border-top: 1px solid #eef1f6;
+        color: var(--muted);
+      }
+      .cta-bar {
+        position: fixed;
+        bottom: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(960px, 92%);
+        background: var(--primary);
+        color: #fff;
+        border-radius: 16px;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        box-shadow: 0 12px 30px rgba(31, 58, 138, 0.35);
+      }
+      .cta-bar .btn {
+        border-radius: 10px;
+      }
+      .hide-mobile {
+        display: block;
+      }
+      @media (max-width: 720px) {
+        .cta-bar {
+          bottom: 12px;
+          border-radius: 14px;
+        }
+        .hide-mobile {
+          display: none;
+        }
+      }
+      .list {
+        margin: 0;
+        padding-left: 18px;
+      }
+      .chip {
+        display: inline-block;
+        padding: 6px 10px;
+        background: #eef2ff;
+        color: #1f3a8a;
+        border-radius: 999px;
+        font-size: 12px;
+        margin: 4px 6px 0 0;
+      }
+      .map {
+        width: 100%;
+        height: 260px;
+        border-radius: 12px;
+        border: 1px solid #e9eef7;
+        overflow: hidden;
+      }
+      .flex {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+      .justify-between {
+        justify-content: space-between;
+      }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        border: 0;
+      }
+      .badges {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .badges img {
+        height: 42px;
+        width: auto;
+      }
+    </style>
+
+    <!-- LegalService + FAQ Schema for Madison, IN -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "LegalService",
+        "name": "Flores Law Office",
+        "url": "https://www.floreslawoffice.net/personal-injury",
+        "image": "https://placehold.co/800x450",
+        "telephone": "(812) 265-9020",
+        "email": "info@floreslawoffice.net",
+        "areaServed": "Madison, Indiana and Jefferson County",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "112 E 3rd St #200",
+          "addressLocality": "Madison",
+          "addressRegion": "IN",
+          "postalCode": "47250",
+          "addressCountry": "US"
+        },
+        "openingHours": "Mo,Tu,We,Th,Fr 08:30-17:30",
+        "priceRange": "$$",
+        "description": "Personal injury law firm in Madison, IN handling car and truck accidents, wrongful death, slip and falls, dog bites, and more. Free consultation. No fee unless we win."
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How much does it cost to hire Flores Law Office?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "We work on a contingency fee basis for personal injury cases—no fee unless we win. Your initial consultation is free."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Should I talk to the insurance company?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Not before speaking with an attorney. Insurers may use your statements against you. We handle communications for you."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Do you serve Madison and Jefferson County?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Our office is located at 112 E 3rd St #200, Madison, IN 47250."
+            }
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <!-- Sticky Header -->
+    <header class="sticky" role="banner" aria-label="Top navigation">
+      <div class="container bar">
+        <div class="brand">
+          <img
+            class="brand-logo"
+            src="https://floreslawoffice.net/wp-content/uploads/2025/03/flo-web-header-logo.svg"
+            alt="Flores Law Office"
+            width="160"
+            height="40"
+          />
+          <div>
+            <strong>Flores Law Office</strong><br />
+            <span class="muted" style="font-size: 12px;"
+              >Personal Injury Attorneys in Madison, IN</span
+            >
+          </div>
+        </div>
+        <nav class="flex" aria-label="Header actions">
+          <a class="btn btn-outline" href="#contact">Free Consultation</a>
+          <a class="btn btn-primary" href="tel:+18122659020" aria-label="Call Flores Law Office"
+            >(812) 265-9020</a
+          >
+        </nav>
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero" role="region" aria-label="Hero">
+      <div class="container section">
+        <div class="hero-grid">
+          <div>
+            <span class="badge" aria-label="Free consultation badge">
+              <span aria-hidden="true">✔</span> Free Consultation · No Fee Unless We Win · Se Habla
+              Espanol
+            </span>
+            <h1>Madison, IN Personal Injury Lawyer</h1>
+            <p class="lead">
+              Car and truck accidents, wrongful death, slip and fall, dog bites, and more. Get a
+              dedicated legal team on your side today.
+            </p>
+            <div class="flex">
+              <a class="btn btn-primary" href="#contact">Get Your Free Case Review</a>
+              <a class="btn btn-outline" href="tel:+18122659020">Call Now: (812) 265-9020</a>
+            </div>
+            <div class="trust-row" aria-label="Trust badges">
+              <div class="trust-badge">Madison & Jefferson County</div>
+              <div class="trust-badge">Free Consultation</div>
+              <div class="trust-badge">No Fee Unless We Win</div>
+              <div class="trust-badge">Se Habla Espanol</div>
+            </div>
+          </div>
+          <div>
+            <div class="hero-card" aria-label="Quick contact form">
+              <h2>Free Case Evaluation</h2>
+              <p class="muted" style="margin-top: -6px;">
+                We’ll contact you within one business day.
+              </p>
+              <form id="contactForm" novalidate>
+                <div class="row">
+                  <div>
+                    <label for="name">Full Name</label>
+                    <input
+                      id="name"
+                      name="name"
+                      type="text"
+                      placeholder="Jane Doe"
+                      aria-required="true"
+                    />
+                    <div class="error" id="err-name"></div>
+                  </div>
+                  <div>
+                    <label for="phone">Phone</label>
+                    <input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      placeholder="(812) 265-9020"
+                      aria-required="true"
+                    />
+                    <div class="error" id="err-phone"></div>
+                  </div>
+                </div>
+                <div class="row" style="margin-top: 10px;">
+                  <div>
+                    <label for="email">Email</label>
+                    <input id="email" name="email" type="email" placeholder="you@example.com" />
+                    <div class="error" id="err-email"></div>
+                  </div>
+                  <div>
+                    <label for="caseType">Case Type</label>
+                    <select id="caseType" name="caseType" aria-label="Case Type">
+                      <option>Car Accident</option>
+                      <option>Truck Accident</option>
+                      <option>Motorcycle Accident</option>
+                      <option>Slip & Fall</option>
+                      <option>Dog Bite / Animal Attack</option>
+                      <option>Wrongful Death</option>
+                      <option>Catastrophic Injury</option>
+                      <option>Other Injury</option>
+                    </select>
+                  </div>
+                </div>
+                <div style="margin-top: 10px;">
+                  <label for="message">What happened?</label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    rows="4"
+                    placeholder="Briefly describe your situation..."></textarea>
+                </div>
+                <div class="flex" style="margin-top: 12px;">
+                  <button type="submit" class="btn btn-primary">Request Free Consultation</button>
+                  <span class="help"
+                    >By submitting, you agree to be contacted. This is not legal advice.</span
+                  >
+                </div>
+                <div
+                  class="error"
+                  id="formError"
+                  role="alert"
+                  style="display:none; margin-top:8px;"
+                >
+                </div>
+                <div
+                  id="formSuccess"
+                  style="display:none; margin-top:8px; color: var(--accent); font-weight: 700;"
+                >
+                  Thank you! We will reach out shortly.
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="badges" style="margin-top: 16px;">
+          <a
+            href="http://www.bbb.org/louisville/business-reviews/attorneys-personal-injury-and-property-damage/flores-law-office-in-madison-in-159137329/#bbbonlineclick"
+            target="_blank"
+            rel="noopener"
+          >
+            <img
+              src="https://seal-louisville.bbb.org/seals/black-seal-120-61-flores-law-office-159137329.png"
+              alt="BBB Accredited Business - Flores Law Office"
+            />
+          </a>
+          <a
+            href="http://www.avvo.com/attorneys/47250-in-jeffrey-flores-1723245.html?utm_campaign=avvo_rating&utm_content=1217583&utm_medium=avvo_badge&utm_source=avvo"
+            target="_blank"
+            rel="noopener"
+          >
+            <img
+              src="https://floreslawoffice.net/wp-content/uploads/2025/03/avvo-8.1-rating.webp"
+              alt="Avvo profile - Jeffrey Flores"
+            />
+          </a>
+          <img
+            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAWYAAACNCAMAAACzDCDRAAACClBMVEX///8AAAABNHP8sTH39/fl5eXsGy7t7e3Nzc3o6OjExMT3giKtra39//7a2tqnp6d+fn55iKaptMi1vs+Akq0AKW+Dka8AGmgAImvc4uYALG78tDtpgaOZmZnTZwDY3uUud7xDXYmlrbAZk9IvLy90dHRCQkIUmtcgjM23t7e01+xVVVX///p4QgvAwMBkZGQTn9qc1PUUFBS5zeQab7kof8I5OTmJiYkyU4T6u1JLS0t6enp8yvH8riH82qkmg8YfHx8wseX3iTFQvOv6qTLB5fYxMTFzxu8QqOHc8PjM4e0AAGX1egAANnGMyOaWtNiIu9/1GigAJ3jrAAA3t+ZRqNhZm9DL6Piv3PLxai2k2POEyeiAy/YaRHsAEmiXpbwwMm5lLWKPKVOhJ0x4K107Smx8aGCcelWpg05xYGMvQ3AqMW3aHTrmGjSxJ0NWLmlTWGa6i03gpjTJmETHIT341r7uOzD46tv1nFD2yqn4pmL0rXZyr9TxeDD9wY/0xJ7xUzLdcXv4w8jtnJ767s3rJ0Vdb4fplZuwg5f0WGLnaXbJABmomoXRxbPguHiLAET2xcJ6UnyKaoSnaISAHlj4wFylABFhADdvZ4vTsLvKkSKWAC/nuGj65OR7c2Gahp46AFX+15zQjw+1SmS0YHJ4UjjeUS7ITTd4pdOFKlbUrpDRkmTQdCdiJwBs614XAAAbhklEQVR4nO2djX/TRprHx4mMHBM5IcE4hPicnJPYjnW2IYTQvJAXN7FlmjSmedsEEiiFsjTQLZANLzloae92W25fbl9ut93r3XZvb6/39j/eMzPSzOjNL8QOHB//WiJpJI1GXz165pmRRkaooYbeTEkN1UzujGW5xdtQDdTSIsvOoAGyN+Dz+RuqhXy+gNcJNIbs93nhKjRUAwFMPwZtoxzwBVzdSUMvoRa/L2DhLLUEfA3ItZbPb+aMbfmVFeYNVsDEGSj7G7ZcD/n8gn+WWnzeV1mYN1gJXwvH3HAZ9VIgwdwG+IyGMddLrcycwWc0PHO9lPJ7OeZXW5Q3WT7mNSRvA3PdFGhtYD4EBVp9Dcz1V4DVgRVgTg/qOpcQUpNGar/ME73zxqYDBymeb54dsv0g+bxqBdqqwBz2GBrniTJL9AjwW1li+CDFS/PMPa9PHNSepBpLlN+WqirMAXbKZ3higoMQ4A+wxEAV5bdKEih7Wg+QUW2VrNqEqsKM+Dlz/8CBivCd0qoXvydAgwfJqaZimNsq3aM6zPwe9rM0kQRrRrawpAO55kGPY+6vWvXGzB0Eu10CIohW+4YVuy8HeU2UD+bla6l6Y+bV3ZiRFBZBpI3UcZZ0kIpr1IzZc4Csaqp6Y0b9NnxJRxDzRsK56k7ArDMWzK9LYF93zNy+9ABCMoOwpZpvdG/reHIaUqeTA4mWsgfzWSi7+PlAa3t6bL5/MD3eaotqvInR9Ni5/sHkQJu1Y0xKjaaxNZwZTIdN+7HnzWTJ35481z820GrsLcmyNMbOTtI3LXfPVomZn7l+If1mELZUMc/Wc6Ztk+WON+Cxyn42gXGzyad53Yzk0WnzAYV6IpA2rZoW7FIsexvfZNTxhHUJR3VUlZh5GXTLajcfLklTudHzPX1WFyC4ckexW2KauSprfepN2vL0TBu7268Su06yfb9pZtEsKRAwXaZ5srPtFiMqh65azLx8dHnacjyaysyWgwx7HFTSc7OguZ3tO+ayhSg9UHfGIZdYZ5w+S0hbNugvv6+bqsXM7yLiW72Ox+OumUV47dYNqcbcjoOEoNnHg0aTQ3e8cjrmhOM6itmZFMvcZa2H3sGHg5lzTeFFmz2FzedhYOFXZ3C0tU1g7l5X8yMJ94xYozraso454LyOYOZNJ097W+sorzDGymHGNbwz5lr7Zh5kkSrBuK/SRmFJUZmZTduQ6cfgoF0PxDIZd8gQmW+kZCIQCPhpjXfGgmqwDdb5wrSAGDPjql+zlKVwIr7B9IDYEgUfGBhLJtlVP2f0IdXamjmgQbFICVbp4cxYwKPXzryRzuoZ5uNTbgdi5+JzuEzIFLCzRN88xSy0a1itGUhSzMydsDuD3Wq0JmG7nmkjZGTBR0vmQ9crbhYDGkm4g2SW7Bdds54jozTKsmF7uvV5sA2IdbLmDusEFNyC0M2N7R6JBimeU4JsOi/mS8W2Ni/ZbUI3ikPAbGJo3MzTvHCjIgGJnbul4Hx7tx48Fo61m3JgToYbrDnK87WK9d+oaZ0XzJNdcsHNm282O2avJb9DwMw9Qpi7uVF+6HnhJtSjaB4zBJh4yV0aUGy9z3yiBlRm39P2fQdKZM4K1+ZlZRk3ZW7HzPsY6BkdBmZmWGlu2X6h+BI3DqMUnlJy7t7kBkmXWb2lXzp+U43ad7ZuLMqp0cIUNpWWY2bXgYTOh4KZuwReR0tCcoqXUycoRFAVY2ZnolO0xOtCnvY6tOQlYDdjNZgtkc5hYObFkI2ogxiNERm0MwKG23ULYktg5hR9dKQM9xphS572Uju0jrjM/SoVYuYXmbA6FMzstkvMi0czmJ9j97sRFbwEZucGHlG/JU/7s0aO2SFa7HfK01BZzNRyDgUzw5g0lcdvSzZOklvifL9NZxwxW7tKRJGjHdyap+2Fof10DphfhdMQ3hjQZTk5Q5JtB9k9V5Pceh2I2s15OjwFM7dUzWK+2fVBuQNmVgXSvq5DwWx5EMqcg7Vy4d1CLKlc09/QuKeUzHmO23dnBXR4GM5asa7Pgh0wT5t3OhzMVsepO4c2SzKP/1mxSncwc5WkTI/HL6p9d950sXska6RY4uAMM/dQbebzqdN7GlTWW1p3DtZOUW4MvC/Nas7SgFNJXXoxDZHAhl9Us2cYmBYLaA6cw+C1uLex3QZt1PjtJ8A7NajXs0ab5fUymC3Gxu5MS73FtxfctukYUlj3tBax05hOcKV4KCab8xRu3ZZBEgzwkgjZS2myJ++gMENKzbv1afCbQz9Vhn26UmIvhdn8WIHZo7nrXvR9gptJGo8+pdSAhYMhbnAmENx+2yx5pnUgAezTMWbet+k5Z3RfjeoXSAgvp1v1OlkK0NzIAj8xWUKSlBKqIj0vzj1NTqalrdybOi+F2dyhznYzP400RQAmQz+XTKeTRvzqgJkDND9xZsn9tjynkwPpMRpgkNBWfNZ3JjkwYHQRy8jy9kf/GJSFgTRjtslwQaJTGyOnUvNuffMJs7KRHEzJsvseohwwsxaEpfeO13oEv+0BmbiTS+BNCuXwnFY8Fde1LEK1x64179Y3g/CYogcxpLM8TfXan2tT2THzu9pSw7RZdnJuXVLM0rzjSnrtrc9Smchat5XCvWV9HapOmMXDCGG+GNJZK2HH5/kep7CXu3hLO1poF+l5OtqlLRtBsr2gtl1d1pmaq9Y2Qn0wi15YeNjsLXnggJMRjdq7JNi6aesafnJGO95n63DjL7Y4HI9de8lmj6B0ynz8dvEOHDd3XVv2r4tvBtNkMt304zzdqbdebk2LJU+GnY4YSBtZ2JrDKZY7j7a9YcGkz5mvmul4/e1mFv520fWdG00ZJWZpAZTSr1T/qC2UkNv4cQfb6xJpHESy15eCKNgfqLR/owK1BGiWjpc24MdBt+PhJFqWlM/0+oeAmZTX63XKl6zDHytqcVsr6tAxv/4yY66NGphtamA+FDUwH4oamA9FDcyHogbmQ1ED86GIYa4hjwZmm9oMlR+EVLEamA9FDcyHogbmQ1ED86GogflQ5IhZZasVqpfPH2d1gN1dVPscxZOugxwwK9r6+vqcXetMG0SnsTa5FomWLNIgx84TNVQHZCgfq73wpfOPt9dYJTCvX54AnTZrE5Jweg6UpVqeAeWxMplMDCtKFKeawjpbgByPhYI1U6gHMoxc6ay1QhhzOFDj3y8wHiI5OY31y5cnLp+2icA3gZ6ZYaAx6YyV9NRUfCQCGR4PNtVM3QRzX81v626Kuca5lsI89xKYM26YsTXXBfPJGkp+NZjtPoNjFryGxZhtmIFz/TBf2QrVShe3XyPMNmNeLmfNdcV8vrtmeXa9GsyYps1rXAbVyZpFYAvwj9R13c4Y3xjMyjo1WxtlFmkwa14+AOaFq9fev379+vsfXCVoGcZg942bH966devDH94OOuz3ZmMG82a2bHIaeUfMUSOkc8QMWD+6vlM0dOfux0Z68NKPPjnVPNmMNdl879btS28w5pwBlZuyHjWLxixizlSDeaHp6t1i8QhXsbhzjay5lL7XbNLk/RsW0G8MZsQxY86XadPEVgHa47kMpxw12ie9NsxgytdNkCnpBx81Ba/cn2y2avJW0MTzzcI8YZgvndOrP3sj0DnQYMY8ZW+edC/s2CAT0B8nbYwJ53u3g4LzfvMwG6Avc945a9vEuQYUMNus+eodJ8igHzhSBp260c05v0mYifTQgndliA4DTDnPEbMOjbgOmCJ2cBoLH7lAPvKpG2XQbY6UY4aQr0YKmTBL+OMPlAmZSv6UTl9OteGvFCqKsre7uwcTiW/YItOvRiD8/QgyBqkCa9aw1tbJRNu8fFqza21tbXMd/szNZTfm1gytFIjoZGjE7pt33DD/GPS2C+Z7TXbMx3tqp04RM31LexC/potfpCaj3/rxCvpiegqhvYdHZ0GPFEkfbgRTP301fZoOuZj2S+TjgiUxZ+eQilRVkeCPqihrOU2BGYSXqBQF/0Mqnqh4W4Tn4TKrGu6dVlUN4e0LIzancdfRLzO5mfMnl2yYaywTZjLoZxSPSsafrRgMp/E4TkgbG017Emj3nYePQQ+PPkGjdPBH2HMGtXrOJJPJNEp7kvjbVgHy8nZpzJIKgfIGzG5MTGwqyoSiTuBl6k2y64ruOzZUNJPXkLIBHiSLFjOxPLDdiMZiUOSh+L4D5o/dKP/t20RumCd/eKiYEXkdPwWY/QGy5CW2jAEF/OrRh4+fPH369MnDo7st9KWZaTDqVn30dBob+LQ+jK8k5tOqhnlC+gZMNHAzazA9rWzodJERy22o+YyGZsA3R1fUaCwTH0JoEXzzEmAeIZgtTsPVZZRwzNRtXHLFLEeo9DMi8wpNJUmRjuPHtzsV9shFpp1ylicwJswSwTUItDBmQkxio2yezT5++uzRo2fAeRZcxAAZVSsJmMN4+EZ5zBsa2sjObeTWETqd28htQtJm7nR2E6fiRzmqkp0BG1Zz+ZwCmOdimQK4i6Ho/lB8RQXMK/G4Bpi/t2O+VtplHHEPNybTQTfMkY4rF3E3WwdZOnlxK7QFq/twBx6cWeT8Vlcw2BXqOmYMtezCay72lLJmTATYAeYU+TLEqIyH21BOyuOHT54+2t3dffbk8VHVT786NIAHS54ZGxscJZgTxmiUEpjVOUXJZhUtm1PR6ayWy2pIy26uEcyncTWnqRizqmbzGygf0yZii7j2XYkWlCjwXYwv7k+tKk6Yux+Uo+xu1vddMUPN0AcrgttkoQ+Cvy0ZSd100+EtI0jpvniSbLDdRZasbseGGU8wZjoaNJAwRhwpsw+fPNvd29t99vTx7B74lVaJeA46JjWtj4bTB4iVamwr4J03kDqRXVMA81x2EyZrgBk7Dewq1gEzCeZyCsrEpGwMzB4VohmkLEb3AfOSEp8qGJiF5snCQvFI8T1oARbhr4mtOZibBFmNeXLySgnfHAkZmDthrusEnYY6kYSPHAwuhOD/4/Q0Q7RH8Hw5zH7dmkGpac+5gKM178FFGAuTsdytnkHZ65Wxs+Ejq0o5DWzMuc1NcMfKJqAGc87mlDmCeRM/etXAaeD2SX5ZUzIxLRc7DUXcj+b3V1aicWlxakndmIoTzL0jImbsMz57/svPip89f/65qU9jViTafGFP3XvL7Jm/+KL5ZneJKnALYBKMpB0DJ3QMDtkloc4uvEJRWo5RL6HgsnT3QFZXymFOepIk0iCcATkbgv8IfPNT6psfKnSwYoJgZlVgOxt8Wsqa0ZrRCNEwZlzxrSOCeWadBnTLOL5AucwmxrwRW4FAXW+YxDc2ppaQugoNFCvmhabrxZ0OpDx/UEDK5+8V7xC7PlI8kkKfFYvFv7uDF4vF++RJ/luTzacmqV1Pnpr8e6RO3gqWwExXKMQjhDrAjeh+oQfTlnHtF6F1YAu2+wiGbxkAZYk05AHsCUik4cVhxxkcemCa/pQ6yyMNhQyZJQNrxSrwTAVOA6m55XVFkqSN7MZidg0cczYrYczo9ExuExqE6wgwq2toI7MJTkOTIJBbycT28S5D8SjBDO7ChhkHzZjw8w/ghH/yXFKkz9/7CRz7pxGkfPkVVFA/eeFTnwciivoPfT/7OcTde/d+pu6q975Q9jrQF5P3u0pg7usmVGXYphvbKfYiXR0Uc1Cs7SAh2CNjj1IK8zweMtiK42bfOETRYx4aPXj6IaBOoD0jbn4KbQVcVYYpZs+5+fkkwewzBoiWwqzNzEBTQ1KBb255DcIMIKzOLU+gzZll3F+0qGBrhkA5lkOZqKZqK7FoLF4AzCpUgjGMGe2PjKxizGfFKnCn+AtZlX95QpLQP2oFsK9fKUpB/hUA/zXMIPQbKEmnqvx2cvLtE5FhqN07keKNIAkM8cKkHtI5Y8Zu4DylGsIXdhvPyNRFNwUXIvQNGgWdBO+ydRKbdOhkCcwe/eMRmBb5IJDwBU1wu3uPoRV4dHaX3iD9dIgybQX2g7MJkyDbWw4z5qXNLOPXjQAI/otbePhk6dsHCoINUA4nqXgOtxdhQykaL6hkA7WA8AyxZhHzneI1iGd9EM8qd188+KCAtpH84sU1JP1TJ/rsd8Po9wr6ehvtQf136pNv7vehzgjybiP11nmkfFcKs4JOBLG3xTZMQ4jzYN24klPO40N3bx3jVh/sI0bfFXHDjNjPFyDy2wRyKmWM3Qyk8NdA9D4NVTESKT/9dw8k8nsG+q8alMKM89mcmcGOA+Y0iO+UdUl/zcsgLSlZsoCXN9fwRBmKx/fpamVpCM8o2JpFp3Gn+HtoPcjKtip/+S05azjsVz3ol3+gjQWA8QL7B6j0LuDlTkn5521YvikpbzWfKoW5owtjBojUSluMyENVzmN7burqIwfA1yHkQzL22J2umMuJvu+mKBW8Y1YK82ncwsPuYZmKLOm9y/ypFOuZ03s/42JvPu6fG+kdGTFj3ikeQx0QZR1HkZPK12C7d/vAL2+jz38nKR0dHV+fQN9SzJNg5qOdYOzomw50YfJfkMLagc5OA0cUC9hD0HgDUw/p5np8C3dXUwd9nvoWHFQHO14acxUqFWkAZgJ1mXKe4YhNPcxCL7O5m5mCHgHQI2bffPfINvppJ/q6A3Uq0nv/ir4tHvmjhCLo+W9Ooq/eK365jZ4XIV648NbPO9F335wEzOqfwIn8NoIdyf1SkQY20ytgzAtBCePCZr2gnw062Ycrz62IHlRjK8bcT1SDuS2ARlFLchT5B8NoHIXlQBseqO9D/nQrSgQG3MZPjJezZq6s0NeMu5nZM6pMPrtClI9mVnStrk5FV4nivWRyEvGA7v2dYfRvnejPEXRcVuCofuzzZDjv1DHcPws13ufFP2IjVE4gXB1gP02bEWDhJQM6OUQbQF3ERiUcRh8j1R65szF1vOYKCfNATXR9FZjTMmBOQ0Q3ClvJybawLEHMNoBS/naUGnP+AIGq7P17ZZixMU8Ie0ozEMrp8wrSjBlJ425KM6Y0SUW8FXjtD8PfPnj3218MRf7cV4gcK5wYLhT8X54vRL76TU+h0PnrDt+XxR/c6NAKF250FFLbgZ7h7yY/7Bn29RS+mzT66JwxS3rb5QopDnYhYLWK3EfDiePUF5Owown34xv5VIw5jAbSyBuWCWZ50DfQDl4NY/afkd0xP3vnb0phBp8gWPMEkox3byF4g//1hTVJVQswHZqbw3NDRBqiczjWKAyDJMStuenOgyN3HhR3Hrwo7uwUd17c2YEJWfz0L//xl08//Qv8e7v5m0++ARfxp+Zvmu/dAzcNf/C0eaFUKxDRpniI1ms4vOsC3D1doZ7OyEnSixFUcJOlKdiF5dDaLoNZQoPgNMIEM0qjFNh122h7AiV8AyjhTducBlSSu7PvHC2NeYY8gtJd8QRaY95YgxAuH8vHMuCIY7ENNav74yF1hdR9vUPqKnjk3rNTaKj3LJaph861U79cPyju2C+JmXhjiNUwLFXfDFtvd1cohI8OTcNt0vCGqraj8zwGXg1mKsn4tht9BCXxFo71mxoQ8j1+5+jRkpgXCdWZPCGdz+cA8zJ5fTyXz0tSPpPVYjN4KRZVctF9MN2VaAytxJeINQ+NxLERD6u9I98PD7/7rixidu3V/3RWl1vH/uSP9MeuLpixAXfrTY6IXtP1bQXxPYT/C/VQv9LNt96qHnPlUp9gyGUwZ/KiAHMmi3dFajazvBxbVtdiM3i7WFTL4Y58BE1sdWWqQHZemlohU623l11i3q1ftifUtR/UvVufHiIUDIaO8fktfHkj4DWwjwh1d5DALhiinaXoWKg7eNH8vZjaYVaQ+vQdSrlKzNRXb6gqRBczCipEZzRN24hGJWrNmfgiOA0S12mF3ql4fHVfQ1O9vfHV1WGhCgRddTPnH/+AaNYN843u0piFloIqzEuRTvAR0Kw3Dy0hW5gHm9QOM4dctTWTEHlTUXKZWE5FBT1Qzin7URIoryB1lfjokQKYNmmYqNoqcc7DyPTI9X03zq6PAYlusRw4Ztc2GF8hDE5SLKvM29UIM1R8IuRqMGcAcww7DaSquVg+H9tU16J5PJoHvEQuvohfF4jvo1XdaZCjabRZoirfn11F5hcIHrg+dP3bo662fJ+/SMcwq8Ywr1qoVpj3noiQy2HG0mMLgjkzQ1/YiGU0LRZd12LY/+K3B/bjGzApTGXQytQQ3kSS8AsawyNnNZhEIqtnv7dgbnJ+tauURU/eW3B4Hea3p2qm5gvKQTHjZhCOLkyQK8Gcoc1pas2GNBXqv/hmNI+0xcWVIbQPVeASKkxFATNuXJ8dKpAwDox4hM7wVmAZzsU7lVDmmN9y3vplNHnhoNaMvcWjWQvjSjFT5ZCGe/MnNjdzc0jTlCGYXURaPAqI15fW1H2k7S+pdEDgfgHml5beHVLRu1jDpDq3vHjrGD0Xdz66fc/+Qih+99b5jdDXBTP18HtPjtohl8EcEynHckKeUj6vV9BaNEqCOYT2HY6tsmDOHGlQXbtjf/H2etNC96UPHTjfvPS6YwZDfmj1FlVjzuQXuaAhsqKPZoVIYwWb8OIKH9L6rq7vp1b1GcdxgQtN798xv0Z+9ypZcen2J+aH2qc+bAqaxky8hph3n7gwLouZiNuzWVGuOJfRyYyb2lTYM/eedRl+uXDt7h19TMSRB//JIQYXPrzfjJ+zwsmfun/TPvrk9cFMQhTsLFwhV4Q5Jhq1ibNIOmrmrKPuNeSGmYw/+fjaBx98fHXBwvFS040f3rx580e38XAq236vD2aILJ7OlmJcBvNSrJSiZlkpj5go954tO2BtwYISd050B7udRlG9FphJlA0N6t2nJe34YJij1VF2t+aX1SvHTLrfdp0Di+owk17OsoRNvtlEuSprfi0wV9g8Id2su2VdReWYdbkTZgMg7LZ8SNZcy1ZgeWsmD7PVvWcQulXKuHLMJllo2yAbHsOEuW7WrKiufUdVS1XLW7O6++xhBd744JhL+wsK2WzL9bTmGotidnmot/foyWxVVlwR5ql4OU1ZTNio92isLIp8HWarq2aiX4fpPl5rXSSYEwGfRT/7r//+n796af1vifc09KenFQk/j6J/XUSeYtTwYzkduJRyR+2lEBoO+usDyPgVhjJf7nJUiV5bh7X/X77cVVcFWp1eIxc2MJ8Rp1mpnNkfpAO+tvlZMq6TALNss+aGai1fImBgbvFJZTZu6GXlTxg/vCLJvhp+sLghk1r9xm/USHKg4TXqpBZWA2Ln7G94jfoowVwzMedKf6C5oaoEUbPwu1Zgzg23UQe1tPm5MRNzTjXsuebytqUCpp9hw5wTjXCjtvITyqZaD0cb4K4bNWGt5E2FW/1WypizN+BPtDZUG7W1Jvw+8Ms2u5WkFq+tM7Chlxb+1pSjc5AkWW5pqDaSZQdTZqAbqpkO7N4bauj11P8Bv1EgYtU/mNIAAAAASUVORK5CYII="
+            alt="We accept major credit cards"
+          />
+        </div>
+
+        <div class="grid-3" style="margin-top: 18px;">
+          <div class="card kpi">
+            <div class="num">Madison</div>
+            <div>
+              <div class="label">Local</div>
+              <div class="muted">Serving Jefferson County</div>
+            </div>
+          </div>
+          <div class="card kpi">
+            <div class="num">24/7</div>
+            <div>
+              <div class="label">Availability</div>
+              <div class="muted">Same-day case reviews</div>
+            </div>
+          </div>
+          <div class="card kpi">
+            <div class="num">No Fee</div>
+            <div>
+              <div class="label">Unless We Win</div>
+              <div class="muted">Contingency fee cases</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Practice Areas -->
+    <section class="section" id="practice-areas" aria-label="Practice areas">
+      <div class="container">
+        <h2>Personal Injury Cases We Handle</h2>
+        <p class="muted">
+          If you were hurt due to someone else’s negligence in Madison or Jefferson County, we can
+          help.
+        </p>
+
+        <!-- Vehicles and Roadway -->
+        <div class="grid-3" style="margin-top: 8px;">
+          <div class="card">
+            <strong>Car Accidents</strong>
+            <p class="muted">Rear-end, T-bone, uninsured/underinsured, rideshare, DUI.</p>
+            <span class="chip">Property Damage</span><span class="chip">Medical Bills</span>
+          </div>
+          <div class="card">
+            <strong>Truck Accidents</strong>
+            <p class="muted">Commercial vehicles, logbook violations, multi-party liability.</p>
+            <span class="chip">Policy Limits</span><span class="chip">Black Box Data</span>
+          </div>
+          <div class="card">
+            <strong>Motorcycle Crashes & Accidents</strong>
+            <p class="muted">Visibility issues, left-turn collisions, severe injuries.</p>
+            <span class="chip">Road Conditions</span>
+          </div>
+        </div>
+
+        <div class="grid-3" style="margin-top: 12px;">
+          <div class="card">
+            <strong>Bus Accident</strong>
+            <p class="muted">Public and private carriers, municipal claim procedures.</p>
+            <span class="chip">Notice Deadlines</span>
+          </div>
+          <div class="card">
+            <strong>Pedestrian Accidents</strong>
+            <p class="muted">Crosswalk impacts, hit-and-run, visibility and speed disputes.</p>
+            <span class="chip">Scene Photos</span>
+          </div>
+          <div class="card">
+            <strong>Catastrophic Injury</strong>
+            <p class="muted">TBI, spinal injuries, amputation, long-term care planning.</p>
+            <span class="chip">Life Care Plans</span>
+          </div>
+        </div>
+
+        <!-- Premises & Liability -->
+        <h2 style="margin-top: 24px;">Premises Liability & Slip and Fall</h2>
+        <div class="grid-3" style="margin-top: 8px;">
+          <div class="card">
+            <strong>Slip and Fall Cases</strong>
+            <p class="muted">Stores, sidewalks, stairs, ice/snow, spilled substances.</p>
+            <span class="chip">Incident Reports</span><span class="chip">Video Evidence</span>
+          </div>
+          <div class="card">
+            <strong>Construction Site Slip and Fall</strong>
+            <p class="muted">Unsafe conditions, subcontractor negligence, OSHA issues.</p>
+            <span class="chip">Safety Logs</span>
+          </div>
+          <div class="card">
+            <strong>On the Job Slip and Fall Accident</strong>
+            <p class="muted">Third-party liability alongside workers’ comp claims.</p>
+            <span class="chip">Third-Party Claims</span>
+          </div>
+        </div>
+
+        <div class="grid-3" style="margin-top: 12px;">
+          <div class="card">
+            <strong>Elderly Slip and Fall Accident</strong>
+            <p class="muted">Nursing homes, assisted living, supervision and maintenance.</p>
+            <span class="chip">Care Standards</span>
+          </div>
+          <div class="card">
+            <strong>Negligent Security</strong>
+            <p class="muted">Assaults at apartments, parking lots, and businesses.</p>
+            <span class="chip">Crime Stats</span>
+          </div>
+          <div class="card">
+            <strong>Premises Liability Law & FAQs</strong>
+            <p class="muted">Duties owed to visitors, comparative fault, notice issues.</p>
+            <span class="chip">Comparative Fault</span>
+          </div>
+        </div>
+
+        <!-- Animal / Dog -->
+        <h2 style="margin-top: 24px;">Animal Attacks & Dog Bite Injuries</h2>
+        <div class="grid-3" style="margin-top: 8px;">
+          <div class="card">
+            <strong>Dog Attack</strong>
+            <p class="muted">Owner liability, leash laws, prior knowledge, insurance claims.</p>
+            <span class="chip">Rabies Report</span>
+          </div>
+          <div class="card">
+            <strong>Dog Bite Injuries</strong>
+            <p class="muted">Scarring, infection, reconstructive care and counseling.</p>
+            <span class="chip">Medical Records</span>
+          </div>
+          <div class="card">
+            <strong>Scarring and Disfigurement</strong>
+            <p class="muted">Facial scarring, keloids, future treatment and damages.</p>
+            <span class="chip">Future Care</span>
+          </div>
+        </div>
+
+        <!-- Wrongful Death -->
+        <h2 style="margin-top: 24px;">Fatal & Wrongful Death</h2>
+        <div class="grid-3" style="margin-top: 8px;">
+          <div class="card">
+            <strong>Wrongful Death</strong>
+            <p class="muted">
+              Claims for survivors, damages for loss of companionship and support.
+            </p>
+            <span class="chip">Estate Claims</span>
+          </div>
+          <div class="card">
+            <strong>Child Wrongful Death</strong>
+            <p class="muted">Special considerations and damages in child fatality claims.</p>
+            <span class="chip">Unique Damages</span>
+          </div>
+          <div class="card">
+            <strong>Fatal Accidents</strong>
+            <p class="muted">Motor vehicle, premises, and other negligence leading to death.</p>
+            <span class="chip">Investigation</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Areas Served -->
+    <section class="section alt" aria-label="Areas served">
+      <div class="container">
+        <h2>Serving Madison and Surrounding Counties</h2>
+        <p class="muted">
+          Bartholomew, Brown, Clark, Decatur, Dearborn, Floyd, Harrison, Jackson, Jefferson,
+          Jennings, Johnson, Marion, Monroe, Ohio, Orange, Ripley, Scott, Shelby, Switzerland, and
+          Washington Counties.
+        </p>
+      </div>
+    </section>
+
+    <!-- Results (add when ready) -->
+    <section class="section" aria-label="Case results">
+      <div class="container">
+        <h2>Representative Results</h2>
+        <p class="muted">Past results do not guarantee future outcomes.</p>
+        <div class="results" style="margin-top: 8px;">
+          <div class="result">
+            <div class="amount">$—</div>
+            <div class="muted">Add your notable result here</div>
+          </div>
+          <div class="result">
+            <div class="amount">$—</div>
+            <div class="muted">Add your notable result here</div>
+          </div>
+          <div class="result">
+            <div class="amount">$—</div>
+            <div class="muted">Add your notable result here</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Attorney Bio -->
+    <section class="section" aria-label="Attorney">
+      <div class="container grid-3">
+        <div class="card" style="grid-column: span 2;">
+          <h2>Meet Attorney Jeffrey Flores</h2>
+          <p>
+            Flores Law Office is committed to helping injury victims in Madison and Jefferson County
+            rebuild their lives. We keep caseloads manageable so every client gets personal
+            attention and relentless advocacy.
+          </p>
+          <ul class="list">
+            <li>Member, Indiana State Bar Association</li>
+            <li>Trial-focused personal injury practice</li>
+            <li>Se Habla Espanol</li>
+          </ul>
+          <div style="margin-top: 10px;">
+            <span class="chip">Virtual Consults</span>
+            <span class="chip">Hospital & Home Visits</span>
+          </div>
+        </div>
+        <div class="card">
+          <img
+            src="https://floreslawoffice.net/wp-content/uploads/2025/03/Jeff_Color_Portrait.webp"
+            alt="Jeffrey Flores portrait"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQs -->
+    <section class="section" aria-label="FAQs">
+      <div class="container">
+        <h2>Frequently Asked Questions</h2>
+        <div id="faq">
+          <details class="card" style="margin-bottom: 10px;">
+            <summary><strong>How much does it cost to hire Flores Law Office?</strong></summary>
+            <p class="muted">
+              We only get paid if we win. Our fee is a percentage of the recovery.
+            </p>
+          </details>
+          <details class="card" style="margin-bottom: 10px;">
+            <summary><strong>Should I talk to the insurance company?</strong></summary>
+            <p class="muted">
+              Not before speaking with an attorney. We handle communications for you.
+            </p>
+          </details>
+          <details class="card" style="margin-bottom: 10px;">
+            <summary><strong>Do you serve Madison and Jefferson County?</strong></summary>
+            <p class="muted">Yes. Our office is located at 112 E 3rd St #200, Madison, IN 47250.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact + Map -->
+    <section id="contact" class="section alt" aria-label="Contact section">
+      <div class="container grid-3">
+        <div class="card" style="grid-column: span 2;">
+          <h2>Contact Flores Law Office</h2>
+          <p class="muted">Free consultation. We’ll respond within one business day.</p>
+          <form id="contactForm2" novalidate>
+            <div class="row">
+              <div>
+                <label for="name2">Full Name</label>
+                <input
+                  id="name2"
+                  name="name"
+                  type="text"
+                  placeholder="Jane Doe"
+                  aria-required="true"
+                />
+                <div class="error" id="err2-name"></div>
+              </div>
+              <div>
+                <label for="phone2">Phone</label>
+                <input
+                  id="phone2"
+                  name="phone"
+                  type="tel"
+                  placeholder="(812) 265-9020"
+                  aria-required="true"
+                />
+                <div class="error" id="err2-phone"></div>
+              </div>
+            </div>
+            <div class="row" style="margin-top: 10px;">
+              <div>
+                <label for="email2">Email</label>
+                <input id="email2" name="email" type="email" placeholder="you@example.com" />
+                <div class="error" id="err2-email"></div>
+              </div>
+              <div>
+                <label for="caseType2">Case Type</label>
+                <select id="caseType2" name="caseType">
+                  <option>Car Accident</option>
+                  <option>Truck Accident</option>
+                  <option>Motorcycle Accident</option>
+                  <option>Slip & Fall</option>
+                  <option>Dog Bite / Animal Attack</option>
+                  <option>Wrongful Death</option>
+                  <option>Catastrophic Injury</option>
+                  <option>Other Injury</option>
+                </select>
+              </div>
+            </div>
+            <div style="margin-top: 10px;">
+              <label for="message2">What happened?</label>
+              <textarea
+                id="message2"
+                name="message"
+                rows="4"
+                placeholder="Briefly describe your situation..."></textarea>
+            </div>
+            <div class="flex" style="margin-top: 12px;">
+              <button type="submit" class="btn btn-primary">Request Free Consultation</button>
+              <a class="btn btn-outline" href="tel:+18122659020">Call: (812) 265-9020</a>
+            </div>
+            <div class="error" id="form2Error" role="alert" style="display:none; margin-top:8px;">
+            </div>
+            <div
+              id="form2Success"
+              style="display:none; margin-top:8px; color: var(--accent); font-weight: 700;"
+            >
+              Thank you! We will reach out shortly.
+            </div>
+          </form>
+        </div>
+        <div class="card">
+          <div class="map" role="img" aria-label="Map of 112 E 3rd St #200, Madison, IN 47250">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d12448.592325563133!2d-85.379744!3d38.737364!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0xcf94e57c171f45ea!2sFlores+Law+Office!5e0!3m2!1sen!2sus!4v1519950655679"
+              width="100%"
+              height="260"
+              style="border:0;"
+              allowfullscreen=""
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </div>
+          <div style="margin-top: 10px;">
+            <strong>Location</strong>
+            <p class="muted" style="margin: 6px 0;">112 E 3rd St #200, Madison, IN 47250</p>
+            <strong>Email</strong>
+            <p class="muted" style="margin: 6px 0;">
+              <a href="mailto:info@floreslawoffice.net">info@floreslawoffice.net</a>
+            </p>
+            <strong>Phone</strong>
+            <p class="muted" style="margin: 6px 0;">
+              <a href="tel:+18122659020">(812) 265-9020</a>
+            </p>
+            <strong>Website</strong>
+            <p class="muted" style="margin: 6px 0;">
+              <a href="https://www.floreslawoffice.net" target="_blank" rel="noopener"
+                >www.floreslawoffice.net</a
+              >
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+      <div class="container flex justify-between">
+        <div>
+          <strong>Flores Law Office</strong>
+          <div class="muted">Personal Injury · Madison, IN</div>
+          <div class="muted" style="font-size: 12px; margin-top: 6px;">
+            DISCLAIMER: This website was developed to provide general information. Information
+            contained in this site is not, and is not intended to be, legal advice. A response to
+            this website or to an e-mail generated by this website does not, in and of itself,
+            create an attorney-client relationship.
+          </div>
+        </div>
+        <div>
+          <a class="btn btn-outline hide-mobile" href="tel:+18122659020">Call (812) 265-9020</a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Floating CTA -->
+    <div class="cta-bar" role="region" aria-label="Quick contact">
+      <div>
+        <strong>Free Consultation</strong>
+        <div class="muted" style="font-size: 12px;">No fee unless we win</div>
+      </div>
+      <div class="flex">
+        <a class="btn" style="background:#fff;color:var(--primary);" href="#contact">Start Online</a
+        >
+        <a class="btn btn-primary" href="tel:+18122659020">Call Now</a>
+      </div>
+    </div>
+
+    <!-- Basic JS validation (replace TODO with your form endpoint if desired) -->
+  </body>
+</html>
