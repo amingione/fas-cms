@@ -39,16 +39,21 @@ const SITE_BASE_URL = resolveSiteBaseUrl();
 
 const normalizeAuditUrl = (href: string): string | null => {
   if (!href) return null;
-  if (/^https?:\/\//i.test(href)) return href;
-  if (/^\/\//.test(href)) return `https:${href}`;
-  if (href.startsWith('/')) {
-    try {
-      return new URL(href, SITE_BASE_URL).toString();
-    } catch {
-      return null;
-    }
+
+  const trimmed = href.trim();
+  if (!trimmed) return null;
+
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  if (/^\/\//.test(trimmed)) return `https:${trimmed}`;
+
+  // Bail out on non-http schemes such as mailto:, tel:, data:, javascript:, etc.
+  if (/^[a-z][a-z0-9+.-]*:/i.test(trimmed)) return null;
+
+  try {
+    return new URL(trimmed, SITE_BASE_URL).toString();
+  } catch {
+    return null;
   }
-  return null;
 };
 
 export async function auditLinks(options: AuditLinksOptions = {}) {
