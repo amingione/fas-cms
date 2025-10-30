@@ -162,7 +162,9 @@ const isHostnameAllowlisted = (hostname: string | null | undefined): boolean => 
   return visualEditingAllowedHosts.has(normalized);
 };
 
-const visualEditingOriginAllowed = isHostnameAllowlisted(runtimeHostname);
+const visualEditingOriginAllowed = isBrowserRuntime
+  ? isHostnameAllowlisted(runtimeHostname)
+  : true; // Allow server-side rendering to honor request-level hostname checks
 
 const visualEditingRequested = toBooleanFlag(
   import.meta.env.PUBLIC_SANITY_ENABLE_VISUAL_EDITING as string | undefined
