@@ -57,8 +57,116 @@ const liteProducts: LiteProduct[] = products.map((p) => ({
   price: p.price,
   images: p.image ? [{ asset: { url: p.image } }] : []
 }));
+
+const requestUrl = new URL(Astro.request.url);
+requestUrl.search = '';
+requestUrl.hash = '';
+const canonicalUrl = requestUrl.toString();
+
+const ensureAbsoluteUrl = (value?: string | null) => {
+  if (!value) return undefined;
+  if (/^https?:/i.test(value)) return value;
+  try {
+    return new URL(value, `${requestUrl.origin}/`).toString();
+  } catch {
+    return undefined;
+  }
+};
+
+const resolveProductSlug = (product: LiteProduct): string => {
+  const rawSlug = product?.slug as any;
+  if (typeof rawSlug === 'string') return rawSlug;
+  if (rawSlug && typeof rawSlug === 'object' && typeof rawSlug.current === 'string') {
+    return rawSlug.current;
+  }
+  return '';
+};
+
+const resolvedFilterTitle = filter?.title ?? 'Filter';
+const resolvedFilterDescription =
+  typeof filter?.description === 'string' && filter.description.trim()
+    ? filter.description.trim()
+    : filter
+      ? `Products tagged with ${resolvedFilterTitle} curated by F.A.S. Motorsports.`
+      : 'Browse performance products curated by F.A.S. Motorsports.';
+
+const pageTitle = filter ? `${resolvedFilterTitle} Products` : 'Filter';
+const pageDescription = resolvedFilterDescription;
+
+const breadcrumbStructuredData = filter
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${requestUrl.origin}/` },
+        { '@type': 'ListItem', position: 2, name: 'Shop', item: `${requestUrl.origin}/shop` },
+        { '@type': 'ListItem', position: 3, name: resolvedFilterTitle, item: canonicalUrl }
+      ]
+    }
+  : null;
+
+const productItemListElements = filter
+  ? liteProducts
+      .map((product, index) => {
+        const slugValue = resolveProductSlug(product);
+        if (!slugValue) return null;
+        const productUrl = `${requestUrl.origin}/shop/${slugValue}`;
+        const images = Array.isArray(product.images)
+          ? product.images
+              .map((image: LiteImage) => ensureAbsoluteUrl(image?.asset?.url))
+              .filter((value): value is string => Boolean(value))
+          : [];
+        const priceNumber = Number(product.price);
+        const offers = !Number.isNaN(priceNumber) && priceNumber > 0
+          ? {
+              '@type': 'Offer',
+              priceCurrency: 'USD',
+              price: priceNumber.toFixed(2),
+              availability: 'https://schema.org/InStock',
+              url: productUrl,
+              itemCondition: 'https://schema.org/NewCondition'
+            }
+          : undefined;
+        return {
+          '@type': 'ListItem',
+          position: index + 1,
+          url: productUrl,
+          item: {
+            '@type': 'Product',
+            name: product.title ?? resolvedFilterTitle,
+            image: images.length ? images : undefined,
+            offers
+          }
+        };
+      })
+      .filter((entry): entry is Record<string, any> => Boolean(entry))
+  : [];
+
+const filterCollectionStructuredData = filter && productItemListElements.length
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: pageTitle,
+      url: canonicalUrl,
+      description: pageDescription,
+      mainEntity: {
+        '@type': 'ItemList',
+        name: `${resolvedFilterTitle} products`,
+        numberOfItems: productItemListElements.length,
+        itemListElement: productItemListElements
+      }
+    }
+  : null;
 ---
-<BaseLayout>
+<BaseLayout title={pageTitle} description={pageDescription} canonical={canonicalUrl}>
+  {breadcrumbStructuredData && (
+    <Fragment slot="head">
+      <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
+      {filterCollectionStructuredData && (
+        <script type="application/ld+json" set:html={JSON.stringify(filterCollectionStructuredData)} />
+      )}
+    </Fragment>
+  )}
   <div class="max-w-7xl mx-auto px-4 md:px-6 py-12">
 {!filter && (
   <section class="py-16 text-center">

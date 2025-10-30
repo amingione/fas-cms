@@ -88,6 +88,119 @@ const featuredProducts = (Array.isArray(featuredRaw) ? featuredRaw : []).map((p:
 }));
 
 
+const requestUrl = new URL(Astro.request.url);
+requestUrl.search = '';
+requestUrl.hash = '';
+const canonicalUrl = requestUrl.toString();
+const pageTitle = 'Shop Categories';
+const pageDescription = 'Browse performance categories curated by F.A.S. Motorsports to jumpstart your build path.';
+
+const ensureAbsoluteUrl = (value?: string | null) => {
+  if (!value) return undefined;
+  if (/^https?:/i.test(value)) return value;
+  try {
+    return new URL(value, `${requestUrl.origin}/`).toString();
+  } catch {
+    return undefined;
+  }
+};
+
+const breadcrumbStructuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: `${requestUrl.origin}/` },
+    { '@type': 'ListItem', position: 2, name: 'Shop Categories', item: canonicalUrl }
+  ]
+};
+
+const categoryItemListElements = Array.isArray(categoriesAll)
+  ? categoriesAll
+      .map((category, index) => {
+        if (!category?.slug) return null;
+        const categoryUrl = `${requestUrl.origin}/shop/categories/${category.slug}`;
+        const imageOverride = categoryImageOverrides[category.slug];
+        const imageUrl = ensureAbsoluteUrl(imageOverride ?? category.imageUrl ?? undefined);
+        return {
+          '@type': 'ListItem',
+          position: index + 1,
+          url: categoryUrl,
+          item: {
+            '@type': 'CollectionPage',
+            name: category.title ?? 'Category',
+            url: categoryUrl,
+            description: category.description ?? undefined,
+            image: imageUrl ? [imageUrl] : undefined
+          }
+        };
+      })
+      .filter((entry): entry is Record<string, any> => Boolean(entry))
+  : [];
+
+const categoryCollectionStructuredData = categoryItemListElements.length
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: pageTitle,
+      url: canonicalUrl,
+      description: pageDescription,
+      mainEntity: {
+        '@type': 'ItemList',
+        name: 'Performance categories',
+        numberOfItems: categoryItemListElements.length,
+        itemListElement: categoryItemListElements
+      }
+    }
+  : null;
+
+const featuredItemListElements = Array.isArray(featuredProducts)
+  ? featuredProducts
+      .map((product, index) => {
+        if (!product?.slug) return null;
+        const slugValue = typeof product.slug === 'string' ? product.slug : product.slug?.current;
+        if (!slugValue) return null;
+        const productUrl = `${requestUrl.origin}/shop/${slugValue}`;
+        const images = Array.isArray(product.images)
+          ? product.images
+              .map((image: any) => ensureAbsoluteUrl(image?.asset?.url || image?.url))
+              .filter((value): value is string => Boolean(value))
+          : [];
+        const priceNumber = Number(product.price);
+        const offers = !Number.isNaN(priceNumber) && priceNumber > 0
+          ? {
+              '@type': 'Offer',
+              priceCurrency: 'USD',
+              price: priceNumber.toFixed(2),
+              availability: 'https://schema.org/InStock',
+              url: productUrl,
+              itemCondition: 'https://schema.org/NewCondition'
+            }
+          : undefined;
+        return {
+          '@type': 'ListItem',
+          position: index + 1,
+          url: productUrl,
+          item: {
+            '@type': 'Product',
+            name: product.title,
+            image: images.length ? images : undefined,
+            offers
+          }
+        };
+      })
+      .filter((entry): entry is Record<string, any> => Boolean(entry))
+  : [];
+
+const featuredProductsStructuredData = featuredItemListElements.length
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      name: 'Featured products',
+      itemListElement: featuredItemListElements
+    }
+  : null;
+
+
 const tileClass = (i: number) => {
   const base = "relative block h-full rounded-xl overflow-hidden border border-white/20 bg-black group";
   const small = "lg:col-span-2 lg:row-span-1";
@@ -103,9 +216,18 @@ const tileClass = (i: number) => {
   return `${base} ${isLarge ? large : small}`;
 };
 ---
-<BaseLayout>
+<BaseLayout title={pageTitle} description={pageDescription} canonical={canonicalUrl}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
+    {categoryCollectionStructuredData && (
+      <script type="application/ld+json" set:html={JSON.stringify(categoryCollectionStructuredData)} />
+    )}
+    {featuredProductsStructuredData && (
+      <script type="application/ld+json" set:html={JSON.stringify(featuredProductsStructuredData)} />
+    )}
+  </Fragment>
   <section class="mt-2 pt-4">
-     <StoreHero 
+     <StoreHero
        ctaPrimaryLabel="Shop All Products ➤"
        ctaPrimaryHref="/shop"
      />

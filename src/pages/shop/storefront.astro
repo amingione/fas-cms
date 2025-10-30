@@ -50,11 +50,124 @@ const breadcrumbStructuredData = {
     }
   ]
 };
+
+const ensureAbsoluteUrl = (value?: string | null) => {
+  if (!value) return undefined;
+  if (/^https?:/i.test(value)) return value;
+  try {
+    return new URL(value, `${requestUrl.origin}/`).toString();
+  } catch {
+    return undefined;
+  }
+};
+
+const categoryItemListElements = Array.isArray(categories)
+  ? categories
+      .map((category, index) => {
+        if (!category?.slug) return null;
+        const categoryUrl = `${requestUrl.origin}/shop/categories/${category.slug}`;
+        return {
+          '@type': 'ListItem',
+          position: index + 1,
+          url: categoryUrl,
+          item: {
+            '@type': 'CollectionPage',
+            name: category.title ?? 'Category',
+            url: categoryUrl,
+            description: category.description ?? undefined,
+            image: category.imageUrl ? [ensureAbsoluteUrl(category.imageUrl)] : undefined
+          }
+        };
+      })
+      .filter((entry): entry is Record<string, any> => Boolean(entry))
+  : [];
+
+const categoryCollectionStructuredData = categoryItemListElements.length
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: pageTitle,
+      url: canonical,
+      description: pageDescription,
+      mainEntity: {
+        '@type': 'ItemList',
+        name: 'Performance categories',
+        numberOfItems: categoryItemListElements.length,
+        itemListElement: categoryItemListElements
+      }
+    }
+  : null;
+
+const resolveProductSlug = (product: any): string => {
+  const rawSlug = product?.slug as any;
+  if (typeof rawSlug === 'string') return rawSlug;
+  if (rawSlug && typeof rawSlug === 'object' && typeof rawSlug.current === 'string') {
+    return rawSlug.current;
+  }
+  return '';
+};
+
+const resolveProductImages = (product: any): string[] => {
+  if (!product || typeof product !== 'object') return [];
+  if (!Array.isArray(product.images)) return [];
+  return product.images
+    .map((image: any) => ensureAbsoluteUrl(image?.asset?.url || image?.url))
+    .filter((value): value is string => Boolean(value));
+};
+
+const productItemListElements = Array.isArray(products)
+  ? products
+      .slice(0, 20)
+      .map((product: any, index: number) => {
+        const slugValue = resolveProductSlug(product);
+        if (!slugValue) return null;
+        const productUrl = `${requestUrl.origin}/shop/${slugValue}`;
+        const images = resolveProductImages(product);
+        const priceNumber = Number(product?.price);
+        const offers = !Number.isNaN(priceNumber) && priceNumber > 0
+          ? {
+              '@type': 'Offer',
+              priceCurrency: 'USD',
+              price: priceNumber.toFixed(2),
+              availability: 'https://schema.org/InStock',
+              url: productUrl,
+              itemCondition: 'https://schema.org/NewCondition'
+            }
+          : undefined;
+        return {
+          '@type': 'ListItem',
+          position: index + 1,
+          url: productUrl,
+          item: {
+            '@type': 'Product',
+            name: product?.title ?? undefined,
+            image: images.length ? images : undefined,
+            offers
+          }
+        };
+      })
+      .filter((entry): entry is Record<string, any> => Boolean(entry))
+  : [];
+
+const productCollectionStructuredData = productItemListElements.length
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      name: 'Featured catalog products',
+      itemListElement: productItemListElements
+    }
+  : null;
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
+    {categoryCollectionStructuredData && (
+      <script type="application/ld+json" set:html={JSON.stringify(categoryCollectionStructuredData)} />
+    )}
+    {productCollectionStructuredData && (
+      <script type="application/ld+json" set:html={JSON.stringify(productCollectionStructuredData)} />
+    )}
   </Fragment>
 
 <section class="px-5 py-5">

@@ -67,13 +67,6 @@ try {
         `*[_type == "product" && !(_id in path("drafts.**")) && coalesce(featured, false) == true && defined(slug.current)][0..7]${baseProjection}`
       );
     } catch {}
-    console.log('[Featured] boolean=true count:', Array.isArray(booleanTry) ? booleanTry.length : 0);
-    console.log(
-      '[Sanity] config snapshot:',
-      configSnapshot.projectId,
-      configSnapshot.dataset
-    );
-
     if (Array.isArray(booleanTry) && booleanTry.length) {
       return booleanTry;
     }
@@ -84,12 +77,6 @@ try {
         `*[_type == "product" && !(_id in path("drafts.**")) && featured == "true" && defined(slug.current)][0..7]${baseProjection}`
       );
     } catch {}
-    console.log('[Featured] string "true" count:', Array.isArray(stringTry) ? stringTry.length : 0);
-    console.log(
-      '[Sanity] config snapshot:',
-      configSnapshot.projectId,
-      configSnapshot.dataset
-    );
 
     return Array.isArray(stringTry) ? stringTry : [];
   };
@@ -120,15 +107,125 @@ const featuredProductsNormalized = Array.isArray(featuredProducts)
       return { ...product, imageUrl: normalizedImageUrl };
     })
   : [];
+
+const homepageTitle = 'Performance Parts, Wheels & Packages';
+const homepageDescription =
+  'F.A.S. Motorsports — premium performance upgrades, billet parts, custom fabrication, and wheel packages for Hellcat, Trackhawk, TRX and more.';
+
+const ensureAbsoluteUrl = (value?: string | null) => {
+  if (!value) return undefined;
+  if (/^https?:/i.test(value)) return value;
+  try {
+    return new URL(value, `${url.origin}/`).toString();
+  } catch {
+    return undefined;
+  }
+};
+
+const canonicalHomeUrl = `${url.origin}/`;
+const featuredItemListElements = Array.isArray(featuredProductsNormalized)
+  ? featuredProductsNormalized
+      .map((product, index) => {
+        if (!product || typeof product !== 'object') return null;
+        const slugValue =
+          typeof (product as any).slug === 'string'
+            ? (product as any).slug
+            : typeof (product as any).slug?.current === 'string'
+              ? (product as any).slug.current
+              : '';
+        if (!slugValue) return null;
+        const productUrl = `${url.origin}/shop/${slugValue}`;
+        const imageUrl = ensureAbsoluteUrl((product as any).imageUrl ?? undefined);
+        const priceNumber = Number((product as any).price);
+        const offers = !Number.isNaN(priceNumber) && priceNumber > 0
+          ? {
+              '@type': 'Offer',
+              priceCurrency: 'USD',
+              price: priceNumber.toFixed(2),
+              availability: 'https://schema.org/InStock',
+              url: productUrl,
+              itemCondition: 'https://schema.org/NewCondition'
+            }
+          : undefined;
+        return {
+          '@type': 'ListItem',
+          position: index + 1,
+          url: productUrl,
+          item: {
+            '@type': 'Product',
+            name: (product as any).title ?? (product as any).name ?? undefined,
+            image: imageUrl ? [imageUrl] : undefined,
+            offers
+          }
+        };
+      })
+      .filter((item): item is Record<string, any> => Boolean(item))
+  : [];
+
+const featuredProductsStructuredData = featuredItemListElements.length
+  ? {
+      '@type': 'ItemList',
+      '@id': `${canonicalHomeUrl}#featured-products`,
+      name: 'Featured products',
+      itemListElement: featuredItemListElements
+    }
+  : null;
+
+const homeStructuredDataGraph: Record<string, any>[] = [
+  {
+    '@type': 'Organization',
+    '@id': `${canonicalHomeUrl}#organization`,
+    name: 'F.A.S. Motorsports',
+    url: canonicalHomeUrl,
+    logo: ensureAbsoluteUrl('/logo/faslogochroma.webp'),
+    sameAs: [
+      'https://www.facebook.com/fasmotorsports/',
+      'https://www.instagram.com/fasmotorsports/'
+    ]
+  },
+  {
+    '@type': 'WebSite',
+    '@id': `${canonicalHomeUrl}#website`,
+    name: 'F.A.S. Motorsports',
+    url: canonicalHomeUrl,
+    publisher: { '@id': `${canonicalHomeUrl}#organization` },
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: `${canonicalHomeUrl}search?query={search_term_string}`,
+      'query-input': 'required name=search_term_string'
+    }
+  },
+  {
+    '@type': 'WebPage',
+    '@id': `${canonicalHomeUrl}#webpage`,
+    url: canonicalHomeUrl,
+    name: homepageTitle,
+    description: homepageDescription,
+    isPartOf: { '@id': `${canonicalHomeUrl}#website` },
+    about: { '@id': `${canonicalHomeUrl}#organization` }
+  }
+];
+
+if (featuredProductsStructuredData) {
+  homeStructuredDataGraph.push(featuredProductsStructuredData);
+}
+
+const homeStructuredData = {
+  '@context': 'https://schema.org',
+  '@graph': homeStructuredDataGraph
+};
 ---
 
 
 <BaseLayout
-  title="Performance Parts, Wheels & Packages"
-  description="F.A.S. Motorsports — premium performance upgrades, billet parts, custom fabrication, and wheel packages for Hellcat, Trackhawk, TRX and more."
+  title={homepageTitle}
+  description={homepageDescription}
   canonical={`${new URL(Astro.request.url).origin}/`}
   ogImage="https://fasmotorsports.com/images/social/social-share.webp"
 >
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(homeStructuredData)} />
+  </Fragment>
 
     <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>
       {pageDoc?.title ?? 'Home'}
