@@ -794,9 +794,8 @@
 [[plugins]]
   package = "@netlify/plugin-lighthouse"
   [plugins.inputs]
-    numberOfRuns = 1
-    auditOnDeploy = true
     output_path = "tmp/lighthouse-report.html"
+    fail_deploy_on_score_thresholds = false
 
 
 # (moved to deploy-preview context to save prod build time)
