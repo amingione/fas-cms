@@ -225,7 +225,7 @@ const productSchemas = featuredProductsNormalized
       '@id': `#fas-product-${index + 1}`,
       name,
       image: image ? [image] : undefined,
-      description: `${name} available through F.A.S. Motorsports with in-house support and validation.`,
+      description: (product as any).description || `${name} available through F.A.S. Motorsports with in-house support and validation.`,
       brand: { '@type': 'Organization', name: 'F.A.S. Motorsports' },
       url: productUrl,
       offers
