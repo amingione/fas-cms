@@ -19,7 +19,8 @@ const {
   noindex: rawNoindex = false,
   ogImage,
   hideBreadcrumbs = false,
-  breadcrumbs
+  breadcrumbs,
+  keywords
 } = Astro.props as {
   title?: string;
   description?: string;
@@ -28,6 +29,7 @@ const {
   ogImage?: string;
   hideBreadcrumbs?: boolean;
   breadcrumbs?: Array<{ href?: string; label: string }>;
+  keywords?: string | string[];
 };
 
 const normalizeNoindex = (value: unknown): boolean => {
@@ -47,6 +49,20 @@ const noindex = normalizeNoindex(rawNoindex);
 const robotsContent = noindex ? 'noindex,follow' : 'index,follow';
 
 const SITE_NAME = 'F.A.S. Motorsports';
+const SITE_AUTHOR = 'F.A.S. Motorsports';
+const DEFAULT_DESCRIPTION =
+  'F.A.S. Motorsports delivers premium performance parts, custom fabrication, installs, and wheel packages in Fort Myers, Florida.';
+const DEFAULT_KEYWORDS = [
+  'F.A.S. Motorsports',
+  'performance parts',
+  'supercharger upgrades',
+  'billet parts',
+  'custom fabrication',
+  'Fort Myers auto shop',
+  'Hellcat performance',
+  'Trackhawk upgrades',
+  'TRX packages'
+];
 const DEFAULT_OG_IMAGE = 'https://fasmotorsports.com/images/social/social-share.webp';
 
 const parseBooleanFlag = (value: unknown): boolean => {
@@ -162,6 +178,27 @@ try {
 
 const resolvedOgImage = ogImage ?? DEFAULT_OG_IMAGE;
 const pageTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
+const resolvedDescription =
+  typeof description === 'string' && description.trim().length > 0
+    ? description.trim()
+    : DEFAULT_DESCRIPTION;
+
+const normalizeKeywords = (value: string | string[] | undefined) => {
+  if (!value) return [];
+  if (Array.isArray(value)) {
+    return value
+      .map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
+      .filter(Boolean);
+  }
+  return value
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+};
+
+const keywordList = normalizeKeywords(keywords);
+const resolvedKeywords = keywordList.length ? keywordList : DEFAULT_KEYWORDS;
+const keywordsContent = resolvedKeywords.join(', ');
 
 const sanitizeSegment = (segment: string) => {
   const decoded = decodeURIComponent(segment);
@@ -239,6 +276,44 @@ const breadcrumbItems = shouldRenderBreadcrumbs
       )
     )
   : [];
+
+const toAbsoluteUrl = (value?: string) => {
+  if (!value) return undefined;
+  try {
+    if (/^https?:\/\//i.test(value)) {
+      return new URL(value).toString();
+    }
+    if (canonicalUrl) {
+      return new URL(value, canonicalUrl).toString();
+    }
+    if (currentUrl) {
+      return new URL(value, currentUrl).toString();
+    }
+  } catch {
+    return undefined;
+  }
+  return undefined;
+};
+
+const breadcrumbStructuredData =
+  breadcrumbItems.length > 0
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: breadcrumbItems.map((item, index) => {
+          const entry: Record<string, any> = {
+            '@type': 'ListItem',
+            position: index + 1,
+            name: item.label
+          };
+          const absolute = toAbsoluteUrl(item.href);
+          if (absolute) {
+            entry.item = absolute;
+          }
+          return entry;
+        })
+      }
+    : null;
 ---
 
 <!DOCTYPE html>
@@ -385,19 +460,31 @@ const breadcrumbItems = shouldRenderBreadcrumbs
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#09090b" />
     <title>{pageTitle}</title>
-    {description && <meta name="description" content={description} />}
+    <meta name="description" content={resolvedDescription} />
+    <meta name="author" content={SITE_AUTHOR} />
+    <meta name="keywords" content={keywordsContent} />
     <meta name="robots" content={robotsContent} />
     {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
     <meta property="og:site_name" content={SITE_NAME} />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title ? `${title}` : SITE_NAME} />
-    {description && <meta property="og:description" content={description} />}
+    {resolvedDescription && (
+      <meta property="og:description" content={resolvedDescription} />
+    )}
     {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
     {resolvedOgImage && <meta property="og:image" content={resolvedOgImage} />}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title ? `${title}` : SITE_NAME} />
-    {description && <meta name="twitter:description" content={description} />}
+    {resolvedDescription && (
+      <meta name="twitter:description" content={resolvedDescription} />
+    )}
     {resolvedOgImage && <meta name="twitter:image" content={resolvedOgImage} />}
+    {breadcrumbStructuredData && (
+      <script
+        type="application/ld+json"
+        set:html={JSON.stringify(breadcrumbStructuredData)}
+      />
+    )}
     <script is:inline type="module">
       (function () {
         if (typeof window === 'undefined') return;
