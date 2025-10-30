@@ -45,9 +45,13 @@
     <style>
       @font-face {
         font-family: 'Echelon';
-        src: url('/fonts/echelon.regular.copy.ttf') format('truetype');
+        src:
+          local('Echelon'),
+          url('/fonts/echelon.regular.copy.ttf') format('truetype'),
+          url('https://www.fasmotorsports.com/fonts/echelon.regular.copy.ttf') format('truetype');
         font-weight: normal;
         font-style: normal;
+        font-display: swap;
       }
       :root {
         --primary: #009899;
