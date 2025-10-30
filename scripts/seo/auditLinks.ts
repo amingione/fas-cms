@@ -19,6 +19,38 @@ export interface BrokenLink {
 
 const DEFAULT_HTML_GLOBS = ['dist/**/*.html', 'public/**/*.html'];
 
+const FALLBACK_SITE_URL = 'https://www.fasmotorsports.com';
+
+const resolveSiteBaseUrl = () => {
+  const candidate =
+    process.env.PUBLIC_SITE_URL ||
+    process.env.PUBLIC_BASE_URL ||
+    process.env.SITE_URL ||
+    FALLBACK_SITE_URL;
+  try {
+    const url = new URL(candidate);
+    return url.origin;
+  } catch {
+    return FALLBACK_SITE_URL;
+  }
+};
+
+const SITE_BASE_URL = resolveSiteBaseUrl();
+
+const normalizeAuditUrl = (href: string): string | null => {
+  if (!href) return null;
+  if (/^https?:\/\//i.test(href)) return href;
+  if (/^\/\//.test(href)) return `https:${href}`;
+  if (href.startsWith('/')) {
+    try {
+      return new URL(href, SITE_BASE_URL).toString();
+    } catch {
+      return null;
+    }
+  }
+  return null;
+};
+
 export async function auditLinks(options: AuditLinksOptions = {}) {
   const root = process.cwd();
   const htmlGlobs = options.htmlGlobs ?? DEFAULT_HTML_GLOBS;
@@ -47,19 +79,21 @@ export async function auditLinks(options: AuditLinksOptions = {}) {
       await Promise.all(
         links.map((url) =>
           limit(async () => {
+            const target = normalizeAuditUrl(url);
+            if (!target) return;
             try {
-              const response = await fetch(url, { method: 'HEAD', redirect: 'follow' });
+              const response = await fetch(target, { method: 'HEAD', redirect: 'follow' });
               if (!response.ok) {
                 broken.push({
                   file: path.relative(root, file),
-                  url,
+                  url: target,
                   status: response.status
                 });
               }
             } catch {
               broken.push({
                 file: path.relative(root, file),
-                url,
+                url: target,
                 status: 'ERR'
               });
             }
