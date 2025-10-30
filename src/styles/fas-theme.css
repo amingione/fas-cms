@@ -171,6 +171,7 @@
     url('https://www.fasmotorsports.com/fonts/Borgsquad.woff') format('woff');
   font-weight: normal;
   font-display: swap;
+  font-style: normal;
 }
 
 @layer utilities {
