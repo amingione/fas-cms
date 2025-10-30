@@ -577,8 +577,11 @@ const breadcrumbItems = shouldRenderBreadcrumbs
         transition: all 0.3s ease;
       }
 
-      button:hover,
-      a:hover {
+      button:hover {
+        color: var(--color-primary);
+      }
+
+      a:hover:not([class*="hover:text-"]):not(.text-primary) {
         color: var(--color-primary);
       }
 

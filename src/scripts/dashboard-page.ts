@@ -4,7 +4,6 @@ const VIEW_KEYS = [
   'quotes',
   'invoices',
   'appointments',
-  'assistant',
   'profile',
   'details'
 ] as const;
@@ -15,22 +14,6 @@ let currentView: ViewKey = 'dashboard';
 let userEmail = '';
 let defaultName = 'Guest';
 let loadToken = 0;
-
-type AssistantMessage = { role: 'user' | 'assistant'; content: string };
-const ASSISTANT_HISTORY_KEY = 'fas_dashboard_assistant_history';
-const ASSISTANT_MAX_MESSAGES = 12;
-const ASSISTANT_SYSTEM_PROMPT =
-  'You are the F.A.S. Motorsports digital concierge. Provide concise, friendly answers about orders, services, and performance upgrades. If you are unsure, suggest contacting the FAS support team.';
-
-const assistantState: {
-  messages: AssistantMessage[];
-  streaming: boolean;
-  abortController: AbortController | null;
-} = {
-  messages: [],
-  streaming: false,
-  abortController: null
-};
 
 const AUTH_TIMEOUT = 8000;
 const FALLBACK_ITEM_IMAGE = '/logo/faslogo150.webp';
@@ -306,77 +289,6 @@ function normalizeAddressParts(address: any): string[] {
 function formatAddress(address: any): string {
   const parts = normalizeAddressParts(address);
   return parts.join(', ');
-}
-
-function loadAssistantHistory(): AssistantMessage[] {
-  try {
-    const raw = localStorage.getItem(ASSISTANT_HISTORY_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed)) {
-      return parsed
-        .filter((entry) => entry?.role === 'user' || entry?.role === 'assistant')
-        .map((entry) => ({
-          role: entry.role,
-          content: typeof entry.content === 'string' ? entry.content : ''
-        }))
-        .filter((entry) => entry.content.trim().length > 0);
-    }
-  } catch (error) {
-    console.warn('[assistant] unable to load history', error);
-  }
-  return [];
-}
-
-function saveAssistantHistory() {
-  try {
-    localStorage.setItem(ASSISTANT_HISTORY_KEY, JSON.stringify(assistantState.messages));
-  } catch (error) {
-    console.warn('[assistant] unable to save history', error);
-  }
-}
-
-function trimAssistantHistory() {
-  const limit = ASSISTANT_MAX_MESSAGES;
-  if (assistantState.messages.length <= limit) return;
-  assistantState.messages.splice(0, assistantState.messages.length - limit);
-}
-
-function renderAssistantMessages(container: HTMLElement | null) {
-  if (!container) return;
-  if (!assistantState.messages.length) {
-    container.innerHTML =
-      '<p class="text-sm text-white/70">Start a conversation to get personalized help.</p>';
-    return;
-  }
-  const html = assistantState.messages
-    .map((msg) => {
-      const isUser = msg.role === 'user';
-      const bubble =
-        isUser
-          ? 'bg-primary/20 border border-primary/40 text-white'
-          : 'bg-white/5 border border-white/10 text-white/90';
-      const label = isUser ? 'You' : 'FAS Copilot';
-      return `<div class="space-y-1">
-        <div class="text-xs uppercase tracking-wide text-white/50">${label}</div>
-        <div class="rounded-2xl px-4 py-3 text-sm whitespace-pre-wrap ${bubble}">
-          ${escapeHtml(msg.content)}
-        </div>
-      </div>`;
-    })
-    .join('');
-  container.innerHTML = html;
-  container.scrollTop = container.scrollHeight;
-}
-
-function setAssistantStatus(message: string, tone: 'default' | 'error' | 'muted', el?: HTMLElement | null) {
-  if (!el) return;
-  el.textContent = message;
-  el.classList.remove('text-white/60', 'text-red-400', 'text-green-300');
-  if (!message) return;
-  if (tone === 'error') el.classList.add('text-red-400');
-  else if (tone === 'muted') el.classList.add('text-white/60');
-  else el.classList.add('text-green-300');
 }
 
 async function waitForFasAuth(timeoutMs = AUTH_TIMEOUT): Promise<any | null> {
@@ -830,18 +742,12 @@ const viewRenderers: Record<ViewKey, () => Promise<string>> = {
   quotes: async () => renderQuotesHtml(await fetchQuotes().catch(() => [])),
   invoices: async () => renderInvoicesHtml(await fetchInvoices().catch(() => [])),
   appointments: async () => renderAppointmentsHtml(await fetchAppointments().catch(() => [])),
-  assistant: async () => renderAssistantHtml(),
   profile: async () => renderProfileHtml(await fetchProfile().catch(() => null)),
   details: async () => renderProfileHtml(await fetchProfile().catch(() => null))
 };
 
 async function loadView(target: ViewKey) {
   const token = ++loadToken;
-  if (currentView === 'assistant' && target !== 'assistant' && assistantState.streaming) {
-    assistantState.abortController?.abort();
-    assistantState.abortController = null;
-    assistantState.streaming = false;
-  }
   currentView = target;
   updateHash(target);
   highlightNav(target);
@@ -850,13 +756,6 @@ async function loadView(target: ViewKey) {
     const html = await viewRenderers[target]();
     if (token === loadToken) {
       setContent(html);
-      if (viewEffects[target]) {
-        try {
-          viewEffects[target]?.();
-        } catch (error) {
-          console.error('[dashboard] view effect failed', target, error);
-        }
-      }
     }
   } catch (err) {
     console.error('[dashboard] failed to load view', target, err);
@@ -865,208 +764,6 @@ async function loadView(target: ViewKey) {
     }
   }
 }
-
-function renderAssistantHtml(): string {
-  return `
-    <section class="space-y-6">
-      <header class="space-y-2">
-        <p class="text-xs uppercase tracking-[0.3em] text-primary/80">AI Copilot</p>
-        <h3 class="font-ethno text-2xl text-white">Need quick help?</h3>
-        <p class="text-sm text-white/70">
-          Ask the F.A.S. assistant about parts, services, or the status of your builds. Responses are AI generated—verify details before acting.
-        </p>
-      </header>
-
-      <div class="rounded-2xl border border-white/10 bg-black/50 p-4 sm:p-6 space-y-4">
-        <div id="assistant-history" class="h-64 sm:h-80 overflow-y-auto space-y-4 pr-1"></div>
-
-        <div class="flex flex-wrap gap-2" id="assistant-prompts">
-          <button type="button" class="btn-glass btn-xs bg-white/10 border-transparent text-white hover:bg-primary/30" data-llm-prompt="Give me an update on my latest FAS order.">Latest order update</button>
-          <button type="button" class="btn-glass btn-xs bg-white/10 border-transparent text-white hover:bg-primary/30" data-llm-prompt="Suggest performance upgrades for a Hellcat aiming for 900 wheel horsepower.">Suggest upgrades</button>
-          <button type="button" class="btn-glass btn-xs bg-white/10 border-transparent text-white hover:bg-primary/30" data-llm-prompt="Walk me through the installation steps for a pulley swap.">Installation tips</button>
-        </div>
-
-        <form id="assistant-form" class="space-y-3">
-          <label for="assistant-input" class="text-xs font-semibold uppercase tracking-wide text-white/60">Message</label>
-          <textarea id="assistant-input" class="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white focus:border-primary focus:outline-none resize-none" rows="3" placeholder="Ask a question about your orders, installs, or services..." required></textarea>
-          <div class="flex items-center gap-3">
-            <button type="submit" class="btn-glass btn-sm bg-primary text-black font-semibold tracking-wide">Send</button>
-            <button type="button" id="assistant-stop" class="btn-glass btn-sm bg-white/20 text-white hidden">Stop</button>
-            <span id="assistant-status" class="text-xs text-white/60"></span>
-          </div>
-        </form>
-      </div>
-    </section>
-  `;
-}
-
-async function streamAssistantResponse(
-  messages: Array<{ role: string; content: string }>,
-  onToken: (chunk: string) => void
-) {
-  const controller = new AbortController();
-  assistantState.abortController = controller;
-
-  const response = await fetch('/api/route-llm', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ messages, stream: true }),
-    signal: controller.signal
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText || 'Assistant request failed.');
-  }
-
-  if (!response.body || !response.headers.get('content-type')?.includes('text/event-stream')) {
-    const data = await response.json().catch(() => null);
-    const direct = data?.choices?.[0]?.message?.content;
-    if (direct) onToken(String(direct));
-    return;
-  }
-
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder('utf-8');
-  let buffer = '';
-  while (true) {
-    const { value, done } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    let boundaryIndex;
-    while ((boundaryIndex = buffer.indexOf('\n\n')) !== -1) {
-      const raw = buffer.slice(0, boundaryIndex).trim();
-      buffer = buffer.slice(boundaryIndex + 2);
-      if (!raw.startsWith('data:')) continue;
-      const payload = raw.replace(/^data:\s*/, '');
-      if (!payload || payload === '[DONE]') {
-        return;
-      }
-      try {
-        const parsed = JSON.parse(payload);
-        const delta = parsed?.choices?.[0]?.delta?.content;
-        if (delta) onToken(String(delta));
-      } catch (error) {
-        console.warn('[assistant] Unable to parse stream chunk', error, payload);
-      }
-    }
-  }
-}
-
-function initAssistantView() {
-  const historyEl = document.getElementById('assistant-history');
-  if (!historyEl) return;
-  const form = document.getElementById('assistant-form') as HTMLFormElement | null;
-  const input = document.getElementById('assistant-input') as HTMLTextAreaElement | null;
-  const statusEl = document.getElementById('assistant-status');
-  const stopBtn = document.getElementById('assistant-stop') as HTMLButtonElement | null;
-  const submitBtn = form?.querySelector<HTMLButtonElement>('button[type="submit"]') ?? null;
-
-  assistantState.messages = loadAssistantHistory();
-  renderAssistantMessages(historyEl);
-
-  const updateUi = () => {
-    const streaming = assistantState.streaming;
-    if (input) input.disabled = streaming;
-    if (submitBtn) submitBtn.disabled = streaming;
-    if (stopBtn) {
-      stopBtn.classList.toggle('hidden', !streaming);
-      stopBtn.disabled = !streaming;
-    }
-  };
-
-  function addMessage(role: AssistantMessage['role'], content: string) {
-    assistantState.messages.push({ role, content });
-    trimAssistantHistory();
-    saveAssistantHistory();
-    renderAssistantMessages(historyEl);
-  }
-
-  async function handlePrompt(prompt: string) {
-    if (!prompt) return;
-    addMessage('user', prompt);
-    const assistantMessage: AssistantMessage = { role: 'assistant', content: '' };
-    assistantState.messages.push(assistantMessage);
-    renderAssistantMessages(historyEl);
-    trimAssistantHistory();
-    saveAssistantHistory();
-    assistantState.streaming = true;
-    setAssistantStatus('Thinking...', 'muted', statusEl);
-    updateUi();
-
-    try {
-      const messages = [
-        { role: 'system', content: ASSISTANT_SYSTEM_PROMPT },
-        ...assistantState.messages
-          .filter((msg) => msg !== assistantMessage)
-          .map((msg) => ({ role: msg.role, content: msg.content }))
-      ];
-
-      await streamAssistantResponse(messages, (chunk) => {
-        assistantMessage.content += chunk;
-        renderAssistantMessages(historyEl);
-      });
-
-      setAssistantStatus('Reply complete.', 'default', statusEl);
-    } catch (error: any) {
-      console.error('[assistant] prompt failed', error);
-      if (assistantMessage.content.trim().length === 0) {
-        assistantMessage.content =
-          error?.name === 'AbortError'
-            ? 'Request cancelled.'
-            : 'Sorry, something went wrong. Please try again.';
-        renderAssistantMessages(historyEl);
-      }
-      const tone = error?.name === 'AbortError' ? 'muted' : 'error';
-      setAssistantStatus(
-        error?.message ?? 'Unable to reach the assistant right now.',
-        tone as 'default' | 'error' | 'muted',
-        statusEl
-      );
-    } finally {
-      assistantState.streaming = false;
-      if (assistantState.abortController) {
-        assistantState.abortController = null;
-      }
-      saveAssistantHistory();
-      updateUi();
-    }
-  }
-
-  form?.addEventListener('submit', (event) => {
-    event.preventDefault();
-    if (assistantState.streaming) return;
-    const prompt = input?.value.trim() ?? '';
-    if (!prompt) return;
-    if (input) input.value = '';
-    void handlePrompt(prompt);
-  });
-
-  stopBtn?.addEventListener('click', () => {
-    if (assistantState.abortController) {
-      assistantState.abortController.abort();
-      assistantState.streaming = false;
-      setAssistantStatus('Stopping…', 'muted', statusEl);
-      updateUi();
-    }
-  });
-
-  document.querySelectorAll<HTMLButtonElement>('[data-llm-prompt]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const prompt = btn.getAttribute('data-llm-prompt') || '';
-      if (!prompt || assistantState.streaming) return;
-      if (input) input.value = prompt;
-      input?.focus();
-    });
-  });
-
-  setAssistantStatus('', 'muted', statusEl);
-  updateUi();
-}
-
-const viewEffects: Partial<Record<ViewKey, () => void>> = {
-  assistant: initAssistantView
-};
 
 async function refreshCounts() {
   const updates: Array<[string, () => Promise<number>]> = [

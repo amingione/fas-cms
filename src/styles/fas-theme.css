@@ -203,10 +203,10 @@
       border-color 0.3s ease;
   }
 
-  a:not(.text-primary):hover {
+  a:hover:not(.text-primary):not([class*='hover:text-']) {
     color: var(--color-primary);
   }
-  a.text-primary:hover {
+  a.text-primary:hover:not([class*='hover:text-']) {
     color: var(--color-secondary);
   }
 }
