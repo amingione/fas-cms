@@ -1923,14 +1923,17 @@
       class="section alt"
       id="injury-overview"
       aria-label="Indiana personal injury overview"
-      style="padding:48px 0;"
+      style="
+        padding:48px 0;
+        background: linear-gradient(90deg, rgba(0, 0, 0, 0.04) 0%, rgba(0, 0, 0, 0.01) 100%);
+      "
     >
       <div class="container">
         <div class="panel-heading">
           <h2>Serious Injury & Wrongful Death Advocacy Across Indiana</h2>
         </div>
         <div class="panel-grid">
-          <div class="panel-copy">
+          <div class="panel-copy" style="color:#1a1a1a;">
             <p>
               When a devastating crash, fall, or defective product upends life, Flores Law Office
               mobilizes quickly. We document the scene, preserve black box data, and line up medical
@@ -1944,7 +1947,7 @@
               <li>No-impact recovery and trauma claims when you witness a loved one hurt or killed.</li>
               <li>Coordination with trauma teams and specialists in Jefferson, Clark, Marion, and surrounding counties.</li>
             </ul>
-            <p class="muted">
+            <p class="muted" style="color:rgba(17, 24, 39, 0.65);">
               You speak directly with an attorney who provides timelines, answers, and steady updates.
               We handle medical liens, benefits, and negotiations to pursue the full value of lost wages,
               future care, and non-economic harm—positioning you with a Jefferson County personal injury lawyer near me
@@ -2490,31 +2493,92 @@
   </div>
 
   <!-- Footer -->
-  <footer class="footer" role="contentinfo">
-    <div class="container flex justify-between">
-      <div>
-        <strong>Flores Law Office</strong>
-        <div class="muted">Personal Injury · Madison, IN</div>
-        <address style="font-style: normal; margin: 6px 0;">
-          <span>112 E 3rd St #200, Madison, IN 47250</span><br />
-          <a href="tel:+18122659020">(812) 265-9020</a><br />
-          <a href="mailto:info@floreslawoffice.net">info@floreslawoffice.net</a>
-        </address>
-        <div class="muted" style="font-size: 12px;">
-          Map: <a href="https://maps.app.goo.gl/3rJFfgpVA4hXSyFa7" target="_blank" rel="noopener"
-            >Google Business Profile</a
+  <footer class="footer" role="contentinfo" style="background:#000;color:#f5f5f5;padding:48px 0;">
+    <div class="container" style="display:flex;flex-direction:column;gap:24px;">
+      <p style="font-size: 13px;text-align:center;margin:0;color:#f5f5f5;">
+        Disclaimer: Flores Law Office is a Debt Relief Agency, helping people file for bankruptcy relief under the
+        Bankruptcy Code. Information on this site is not legal advice and contacting us does not create an
+        attorney-client relationship.
+      </p>
+      <div style="height:1px;background:#333;"></div>
+      <div class="grid-3" style="gap:24px;color:#f5f5f5;">
+        <div>
+          <img
+            src="https://floreslawoffice.net/wp-content/uploads/2025/03/2-3-e1743057653262.webp"
+            alt="Flores Law Office logo"
+            style="max-width:180px;margin-bottom:12px;"
+            loading="lazy"
+          />
+          <address style="font-style: normal; line-height: 1.6; margin-bottom: 12px;color:#f5f5f5;">
+            112 E 3rd St #200<br />
+            Madison, IN 47250
+          </address>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <a
+              href="tel:+18122659020"
+              class="btn btn-outline"
+              style="border-color:#f5f5f5;color:#f5f5f5;"
+              >Phone: (812) 265-9020</a
+            >
+            <a
+              href="mailto:info@floreslawoffice.net"
+              class="btn btn-outline"
+              style="border-color:#f5f5f5;color:#f5f5f5;"
+              >info@floreslawoffice.net</a
+            >
+          </div>
+          <p style="margin-top:12px;font-size:13px;color:#f5f5f5;">
+            Flores Law Office | Attorney and Counselor at Law
+          </p>
+        </div>
+        <div>
+          <h3 style="margin-bottom:12px;color:#f5f5f5;">Links</h3>
+          <ul class="list" style="color:#f5f5f5;">
+            <li><a href="https://floreslawoffice.net/about-flores-law-office/" style="color:#cccccc;">About The Firm</a></li>
+            <li><a href="https://floreslawoffice.net/attorney/jeffrey-a-flores/" style="color:#cccccc;">About Our Attorney</a></li>
+            <li><a href="https://floreslawoffice.net/home-03/" style="color:#cccccc;">FLO Backstory</a></li>
+            <li><a href="https://floreslawoffice.net/contact/" style="color:#cccccc;">Contact</a></li>
+            <li><a href="https://floreslawoffice.net/contact-us/" style="color:#cccccc;">Request Consultation</a></li>
+            <li><a href="https://floreslawoffice.net/practise-areas/" style="color:#cccccc;">Practice Areas</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 style="margin-bottom:12px;color:#f5f5f5;">Looking For A Newsletter?</h3>
+          <form
+            action="https://floreslawoffice.net/newsletter-signup"
+            method="post"
+            style="display:flex;flex-direction:column;gap:12px;"
           >
-        </div>
-        <div class="text-black" style="font-size: 12px; margin-top: 6px;">
-          DISCLAIMER: This website was developed to provide general information. Information
-          contained in this site is not, and is not intended to be, legal advice. A response to this
-          website or to an e-mail generated by this website does not, in and of itself, create an
-          attorney-client relationship.
+            <label class="sr-only" for="newsletter-email">Email address</label>
+            <input
+              id="newsletter-email"
+              type="email"
+              name="email"
+              placeholder="Enter your email..."
+              required
+              style="background:#1a1a1a;color:#f5f5f5;border:1px solid #333;"
+            />
+            <button type="submit" class="btn btn-primary" style="align-self:flex-start;">Submit Now</button>
+          </form>
+          <p style="font-size: 12px; margin-top: 10px; color:#cccccc;">
+            Looking for a newsletter? Join to receive updates about Flores Law Office.
+          </p>
         </div>
       </div>
-      <div>
-        <a class="btn btn-outline hide-mobile" href="tel:+18122659020">Call (812) 265-9020</a>
+      <div style="height:1px;background:#333;"></div>
+      <div style="font-size: 12px; line-height: 1.5; color:#cccccc;">
+        <p>
+          Data contained at this site or at any site linked from this site has not been reviewed for accuracy or legal
+          sufficiency. Links or references to other information or organizations do not constitute an endorsement.
+        </p>
+        <p>
+          The information provided herein is solely for the reader’s own use and cannot be sold. Flores Law Office
+          explicitly disclaims any representations and warranties, including the implied warranties of merchantability
+          and fitness for a particular purpose, and assumes no liability for errors, omissions, or actions taken in
+          reliance on this information.
+        </p>
       </div>
+      <div style="font-size: 12px; color:#00c2c2; text-align:center;">All Rights Reserved © 2025 Flores Law Office</div>
     </div>
   </footer>
 
