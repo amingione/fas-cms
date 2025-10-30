@@ -142,9 +142,11 @@ function hiddenInput(name: string, value: string) {
   {Array.isArray(product?.attributes) && product.attributes.length > 0 && (
     <div class="mt-6">
       <div class="mb-2 text-sm uppercase tracking-wide fas-label text-muted-foreground">Attributes</div>
-      <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+      <ul class="grid grid-auto-fit-220 gap-2 text-sm">
         {product.attributes.map((a: any) => (
-          <li class="rounded-md border border-white/20 px-3 py-2 text-white/80"><span class="text-white/70">{a.key}:</span> {a.value}</li>
+          <li class="rounded-md border border-white/20 px-3 py-2 text-white/80 content-block break-words">
+            <span class="text-white/70">{a.key}:</span> {a.value}
+          </li>
         ))}
       </ul>
     </div>

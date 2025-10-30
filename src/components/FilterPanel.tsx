@@ -188,7 +188,7 @@ export default function FilterPanel({
           </span>
         </summary>
         <div className="px-3 pb-3 space-y-3">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-safe-wrap items-center gap-3">
             <div className="flex items-center gap-2">
               <span className="text-xs text-white-400">Min</span>
               <input
@@ -217,7 +217,7 @@ export default function FilterPanel({
             </div>
           </div>
           {/* Simple dual slider using two range inputs */}
-          <div className="px-1">
+          <div className="px-1 w-full">
             <input
               type="range"
               min={0}

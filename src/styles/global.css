@@ -469,6 +469,18 @@ table {
   .text-accent {
     color: var(--color-accent);
   }
+  .grid-auto-fit-220 {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+  .grid-auto-fit-200 {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+  .content-block {
+    min-width: 0;
+  }
+  .flex-safe-wrap {
+    flex-wrap: wrap;
+  }
   /* Tailwind provides text-white/60; no custom selector with '/' to avoid PostCSS parse errors. */
 
   .bg-primary {

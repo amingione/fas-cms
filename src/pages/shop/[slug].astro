@@ -668,7 +668,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                       })}
                     </select>
                   ) : (
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div class="grid grid-auto-fit-220 gap-2">
                       {values.map((v: any, i: number) => {
                         const val = typeof v === 'string' ? v : (v?.value || v?.name || v?.title || v?.label || '').toString();
                         const label = typeof v === 'string' ? v : (v?.label || v?.title || v?.name || v?.value || 'Choice');
@@ -678,7 +678,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                               : (typeof v?.delta === 'number' ? v.delta : (typeof v?.price === 'number' ? v.price : 0)))
                           : 0;
                         return (
-                          <label class="relative flex items-center gap-3 rounded-md border border-white/30 bg-black/40 px-3 py-2 text-white transition hover:border-white/50 hover:bg-black/55 focus-within:border-white/70 focus-within:ring-1 focus-within:ring-white/40 cursor-pointer">
+                          <label class="relative flex items-center gap-3 rounded-md border border-white/30 bg-black/40 px-3 py-2 text-white transition hover:border-white/50 hover:bg-black/55 focus-within:border-white/70 focus-within:ring-1 focus-within:ring-white/40 cursor-pointer content-block">
                             <input
                               type="radio"
                               name={groupKey}
@@ -689,7 +689,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                               checked={i === 0}
                               class="h-4 w-4 flex-shrink-0 accent-primary focus:ring-0"
                             />
-                            <span class="flex-1 text-sm font-medium leading-snug text-white">{label}</span>
+                            <span class="flex-1 text-sm font-medium leading-snug text-white break-words">{label}</span>
                             <span class="ml-3 text-xs font-semibold text-white/70">
                               {price ? `+$${Number(price).toFixed(2)}` : ''}
                             </span>
@@ -706,9 +706,9 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
             {Array.isArray(addOns) && addOns.length > 0 && (
               <div class="bg-black/20 rounded-none p-3 border border-white/20">
                 <div class="font-semibold mb-2">Optional Upgrades</div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div class="grid grid-auto-fit-220 gap-2">
                   {addOns.map((a: any) => (
-                    <label class="relative flex items-center gap-3 rounded-md border border-white/30 bg-black/40 px-3 py-2 text-white transition hover:border-white/50 hover:bg-black/55 focus-within:border-white/70 focus-within:ring-1 focus-within:ring-white/40 cursor-pointer">
+                    <label class="relative flex items-center gap-3 rounded-md border border-white/30 bg-black/40 px-3 py-2 text-white transition hover:border-white/50 hover:bg-black/55 focus-within:border-white/70 focus-within:ring-1 focus-within:ring-white/40 cursor-pointer content-block">
                       <input type="checkbox"
                         name={(a.key || 'upgrade').toString()}
                         value={(a.value || a.label || '').toString()}
@@ -718,7 +718,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                         checked={!!a.defaultSelected}
                         class="h-4 w-4 flex-shrink-0 accent-primary focus:ring-0"
                       />
-                      <span class="flex-1 text-sm font-medium leading-snug text-white">{a.label}</span>
+                      <span class="flex-1 text-sm font-medium leading-snug text-white break-words">{a.label}</span>
                       <span class="ml-3 text-xs font-semibold text-white/70">
                         {typeof a.priceDelta === 'number' && a.priceDelta !== 0
                           ? `+$${Number(a.priceDelta).toFixed(2)}`

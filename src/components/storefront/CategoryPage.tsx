@@ -49,7 +49,7 @@ const navigation = {
       featured: [
         {
           name: 'Power Packages',
-          href: '/shop?categorySlug=power-packages&category=power-packages&priceMin=0&priceMax=100000&page=1',
+          href: '/shop/categories/power-packages',
           imageSrc: '/images/superchargers/Supercharger-custom-coated.webp',
           imageAlt: 'Custom coated supercharger by F.A.S. Motorsports.'
         },
@@ -66,7 +66,7 @@ const navigation = {
           name: 'Billet Parts',
           items: [
             { name: 'Predator Pulley', href: '/shop/fas-predator-lower-pulley' },
-            { name: 'Billet Lid', href: '/shop/billet-hellcat-supercharger-lid' },
+            { name: 'Billet Lid', href: '/shop/fas-motorsports-billet-hellcat-supercharger-lid' },
             { name: '2.4L Billet Bearing Plate', href: '/shop/2-4l-hellcat-billet-bearing-plate' },
             { name: 'Billet Snout', href: '/shop/2-4l-hellcat-billet-supercharger-snout' }
           ]
@@ -78,7 +78,7 @@ const navigation = {
             { name: 'Snout', href: '/shop/2-4l-2-7l-snout-rebuild' },
             {
               name: 'Supercharger',
-              href: '/shop?priceMin=0&priceMax=100000&page=1&categorySlug=supercharger-rebuild&category=supercharger-rebuild'
+              href: '/shop/categories/supercharger-rebuild'
             }
           ]
         },
@@ -92,11 +92,11 @@ const navigation = {
             },
             {
               name: '2.4L',
-              href: '/search?q=2.4'
+              href: '/shop?filters=2.4l&filter=2.4l&priceMin=0&priceMax=100000&page=1'
             },
             {
               name: 'Rebuild',
-              href: '/shop?priceMin=0&priceMax=100000&page=1&categorySlug=supercharger-rebuild&category=supercharger-rebuild'
+              href: '/shop/categories/supercharger-rebuild'
             },
             {
               name: 'Porting',
@@ -104,7 +104,7 @@ const navigation = {
             },
             {
               name: 'Components',
-              href: '/shop?priceMin=0&priceMax=100000&page=1&filters=supercharger-components&filter=supercharger-components'
+              href: '/shop/categories/supercharger-components'
             }
           ]
         }
@@ -116,7 +116,7 @@ const navigation = {
       featured: [
         {
           name: 'Snout Porting',
-          href: '/search?q=snout%20porting',
+          href: '/shop/2-4l-2-7l-snout-porting',
           imageSrc: '/images/snouts/fas-ported-snout.webp',
           imageAlt: 'F.A.S. Motorsports ported supercharger snout.'
         },
@@ -193,7 +193,7 @@ const fallbackFeaturedProducts: FeaturedProduct[] = [
     id: 'billet-supercharger-lid',
     name: 'Billet Supercharger Lid',
     price: '$1899.99',
-    href: '/shop/billet-hellcat-supercharger-lid',
+    href: '/shop/fas-motorsports-billet-hellcat-supercharger-lid',
     imageSrc: '/images/billetParts/fas-new-billet-lid-tilt.webp',
     imageAlt: 'F.A.S. Motorsports Billet Supercharger Lid.'
   },
