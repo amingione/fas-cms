@@ -183,7 +183,7 @@ const resolvedDescription =
     : DEFAULT_DESCRIPTION;
 
 const normalizeKeywords = (value: string | string[] | undefined) => {
-  if (!value) return [] as string[];
+  if (!value) return [];
   if (Array.isArray(value)) {
     return value
       .map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
