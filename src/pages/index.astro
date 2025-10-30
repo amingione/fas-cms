@@ -180,7 +180,7 @@ const webSiteSchema = {
   url: canonicalHome,
   potentialAction: {
     '@type': 'SearchAction',
-    target: `${canonicalHome}search?query={search_term_string}`,
+    target: `${canonicalHome}search?q={search_term_string}`,
     'query-input': 'required name=search_term_string'
   }
 };
