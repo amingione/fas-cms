@@ -14,6 +14,8 @@ import SectionRenderer from '@/components/SectionRenderer.astro';
 
 
 const url = new URL(Astro.request.url);
+const siteOrigin = url.origin;
+const canonicalHome = `${siteOrigin}/`;
 const pageDoc: any = await loadPageDoc('index');
 const v2Param = url.searchParams.get('v2');
 // Default to the new V2 homepage; allow opt-out via ?v2=0
@@ -120,15 +122,149 @@ const featuredProductsNormalized = Array.isArray(featuredProducts)
       return { ...product, imageUrl: normalizedImageUrl };
     })
   : [];
+
+const organizationSchema = {
+  '@type': 'Organization',
+  '@id': '#fas-organization',
+  name: 'F.A.S. Motorsports',
+  legalName: 'F.A.S. Motorsports',
+  url: canonicalHome,
+  logo: `${siteOrigin}/logo/faslogochroma.webp`,
+  sameAs: [
+    'https://www.facebook.com/fasmotorsports',
+    'https://www.instagram.com/fasmotorsports'
+  ]
+};
+
+const localBusinessSchema = {
+  '@type': 'AutoRepair',
+  '@id': '#fas-location',
+  name: 'F.A.S. Motorsports',
+  url: canonicalHome,
+  telephone: '(239) 200-9012',
+  email: 'sales@fasmotorsports.com',
+  image: 'https://fasmotorsports.com/images/social/social-share.webp',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: '6161 Riverside Dr',
+    addressLocality: 'Fort Myers',
+    addressRegion: 'FL',
+    postalCode: '33982',
+    addressCountry: 'US'
+  },
+  openingHoursSpecification: [
+    {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: [
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday'
+      ],
+      opens: '09:00',
+      closes: '17:00'
+    }
+  ],
+  sameAs: [
+    'https://www.facebook.com/fasmotorsports',
+    'https://www.instagram.com/fasmotorsports'
+  ],
+  parentOrganization: { '@id': '#fas-organization' }
+};
+
+const webSiteSchema = {
+  '@type': 'WebSite',
+  '@id': '#fas-website',
+  name: 'F.A.S. Motorsports',
+  url: canonicalHome,
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: `${canonicalHome}search?q={search_term_string}`,
+    'query-input': 'required name=search_term_string'
+  }
+};
+
+const webPageSchema = {
+  '@type': 'WebPage',
+  '@id': '#fas-homepage',
+  name: 'F.A.S. Motorsports Performance Parts & Packages',
+  url: canonicalHome,
+  isPartOf: { '@id': '#fas-website' },
+  about: { '@id': '#fas-organization' }
+};
+
+const productSchemas = featuredProductsNormalized
+  .map((product, index) => {
+    if (!product || typeof product !== 'object') return null;
+    const name =
+      (product as any).name || (product as any).title || 'F.A.S. Motorsports Product';
+    const slug = typeof (product as any).slug === 'string' ? (product as any).slug : undefined;
+    const priceRaw = (product as any).price;
+    const priceValue =
+      typeof priceRaw === 'number'
+        ? priceRaw.toFixed(2)
+        : typeof priceRaw === 'string'
+        ? priceRaw.replace(/[^0-9.]/g, '')
+        : undefined;
+    const productUrl = slug ? `${canonicalHome}shop/${slug}` : canonicalHome;
+    const image = typeof (product as any).imageUrl === 'string' ? (product as any).imageUrl : undefined;
+
+    const offers = priceValue
+      ? {
+          '@type': 'Offer',
+          priceCurrency: 'USD',
+          price: priceValue,
+          availability: 'https://schema.org/InStock',
+          url: productUrl
+        }
+      : undefined;
+
+    return {
+      '@type': 'Product',
+      '@id': `#fas-product-${index + 1}`,
+      name,
+      image: image ? [image] : undefined,
+      description: (product as any).description || `${name} available through F.A.S. Motorsports with in-house support and validation.`,
+      brand: { '@type': 'Organization', name: 'F.A.S. Motorsports' },
+      url: productUrl,
+      offers
+    };
+  })
+  .filter(Boolean);
+
+const structuredDataGraph = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    organizationSchema,
+    localBusinessSchema,
+    webSiteSchema,
+    webPageSchema,
+    ...productSchemas
+  ]
+};
 ---
 
 
 <BaseLayout
   title="Performance Parts, Wheels & Packages"
   description="F.A.S. Motorsports — premium performance upgrades, billet parts, custom fabrication, and wheel packages for Hellcat, Trackhawk, TRX and more."
-  canonical={`${new URL(Astro.request.url).origin}/`}
+  canonical={canonicalHome}
   ogImage="https://fasmotorsports.com/images/social/social-share.webp"
+  keywords={[
+    'F.A.S. Motorsports',
+    'Fort Myers performance shop',
+    'Hellcat performance parts',
+    'Trackhawk upgrades',
+    'TRX packages',
+    'custom fabrication',
+    'billet supercharger parts',
+    'performance wheel packages'
+  ]}
 >
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(structuredDataGraph)} />
+  </Fragment>
 
     <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>
       {pageDoc?.title ?? 'Home'}
