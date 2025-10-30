@@ -114,6 +114,26 @@ interface RawRelatedLink {
 
 const isHttpUrl = (value: string) => /^https?:\/\//i.test(value);
 
+const ROUTE_PREFIX_MATCHERS: Array<{ pattern: RegExp; prefix: string }> = [
+  { pattern: /(product|vehicle|inventory)/, prefix: '/shop' },
+  { pattern: /(category|collection)/, prefix: '/shop/categories' },
+  { pattern: /(article|blog|post|news)/, prefix: '/blog' },
+  { pattern: /(service|repair)/, prefix: '/services' }
+];
+
+const resolveRoutePrefix = (...identifiers: Array<string | null | undefined>) => {
+  for (const identifier of identifiers) {
+    const normalized = (identifier ?? '').toLowerCase();
+    if (!normalized) continue;
+    for (const { pattern, prefix } of ROUTE_PREFIX_MATCHERS) {
+      if (pattern.test(normalized)) {
+        return prefix;
+      }
+    }
+  }
+  return '';
+};
+
 const normalizeRelatedLink = (
   link: RawRelatedLink
 ): { label: string; href?: string } | null => {
@@ -137,20 +157,8 @@ const normalizeRelatedLink = (
     return { label, href: rawHref };
   }
 
-  const identifier = (link.source ?? link.docType ?? '').toLowerCase();
-
-  const pickPrefix = () => {
-    if (identifier.includes('product')) return '/shop';
-    if (identifier.includes('category')) return '/shop/categories';
-    if (identifier.includes('article') || identifier.includes('blog') || identifier.includes('post')) {
-      return '/blog';
-    }
-    if (identifier.includes('service')) return '/services';
-    return '';
-  };
-
-  const prefix = pickPrefix();
   const sanitized = rawHref.replace(/^\/+/, '');
+  const prefix = resolveRoutePrefix(link.docType, link.source);
   const sanitizedPrefix = prefix.replace(/^\/+|\/+$/g, '');
   const lowerSanitized = sanitized.toLowerCase();
 
