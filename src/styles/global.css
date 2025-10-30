@@ -76,8 +76,8 @@ table {
   src:
     local('American Captain'),
     url('/fonts/AmericanCaptain.woff2') format('woff2'),
-    url('https://www.fasmotorsports.com/fonts/AmericanCaptain.woff2') format('woff2'),
     url('/fonts/AmericanCaptain.woff') format('woff'),
+    url('https://www.fasmotorsports.com/fonts/AmericanCaptain.woff2') format('woff2'),
     url('https://www.fasmotorsports.com/fonts/AmericanCaptain.woff') format('woff');
   font-weight: normal;
   font-style: normal;
@@ -89,8 +89,8 @@ table {
   src:
     local('Ethnocentric'),
     url('/fonts/Ethnocentric-Regular.woff2') format('woff2'),
-    url('https://www.fasmotorsports.com/fonts/Ethnocentric-Regular.woff2') format('woff2'),
     url('/fonts/Ethnocentric-Regular.woff') format('woff'),
+    url('https://www.fasmotorsports.com/fonts/Ethnocentric-Regular.woff2') format('woff2'),
     url('https://www.fasmotorsports.com/fonts/Ethnocentric-Regular.woff') format('woff');
   font-weight: normal;
   font-style: normal;
@@ -102,8 +102,8 @@ table {
   src:
     local('Ethnocentric Italic'),
     url('/fonts/Ethnocentric-Italic.woff2') format('woff2'),
-    url('https://www.fasmotorsports.com/fonts/Ethnocentric-Italic.woff2') format('woff2'),
     url('/fonts/Ethnocentric-Italic.woff') format('woff'),
+    url('https://www.fasmotorsports.com/fonts/Ethnocentric-Italic.woff2') format('woff2'),
     url('https://www.fasmotorsports.com/fonts/Ethnocentric-Italic.woff') format('woff');
   font-weight: normal;
   font-style: italic;
@@ -115,8 +115,8 @@ table {
   src:
     local('Kwajong'),
     url('/fonts/Kwajong.woff2') format('woff2'),
-    url('https://www.fasmotorsports.com/fonts/Kwajong.woff2') format('woff2'),
     url('/fonts/Kwajong.woff') format('woff'),
+    url('https://www.fasmotorsports.com/fonts/Kwajong.woff2') format('woff2'),
     url('https://www.fasmotorsports.com/fonts/Kwajong.woff') format('woff');
   font-weight: normal;
   font-style: normal;
@@ -128,8 +128,8 @@ table {
   src:
     local('Kwajong Italic'),
     url('/fonts/Kwajong-Italic.woff2') format('woff2'),
-    url('https://www.fasmotorsports.com/fonts/Kwajong-Italic.woff2') format('woff2'),
     url('/fonts/Kwajong-Italic.woff') format('woff'),
+    url('https://www.fasmotorsports.com/fonts/Kwajong-Italic.woff2') format('woff2'),
     url('https://www.fasmotorsports.com/fonts/Kwajong-Italic.woff') format('woff');
   font-weight: normal;
   font-style: italic;
@@ -141,8 +141,8 @@ table {
   src:
     local('Cyber Princess'),
     url('/fonts/CyberPrincess-Regular.woff2') format('woff2'),
-    url('https://www.fasmotorsports.com/fonts/CyberPrincess-Regular.woff2') format('woff2'),
     url('/fonts/CyberPrincess-Regular.woff') format('woff'),
+    url('https://www.fasmotorsports.com/fonts/CyberPrincess-Regular.woff2') format('woff2'),
     url('https://www.fasmotorsports.com/fonts/CyberPrincess-Regular.woff') format('woff');
   font-style: normal;
   font-weight: normal;
@@ -154,8 +154,8 @@ table {
   src:
     local('Cyber Princess Italic'),
     url('/fonts/CyberPrincess-Italic.woff2') format('woff2'),
-    url('https://www.fasmotorsports.com/fonts/CyberPrincess-Italic.woff2') format('woff2'),
     url('/fonts/CyberPrincess-Italic.woff') format('woff'),
+    url('https://www.fasmotorsports.com/fonts/CyberPrincess-Italic.woff2') format('woff2'),
     url('https://www.fasmotorsports.com/fonts/CyberPrincess-Italic.woff') format('woff');
   font-style: italic;
   font-weight: normal;
@@ -167,8 +167,8 @@ table {
   src:
     local('Cyber Princess 3D'),
     url('/fonts/CyberPrincess3D-Regular.woff2') format('woff2'),
-    url('https://www.fasmotorsports.com/fonts/CyberPrincess3D-Regular.woff2') format('woff2'),
     url('/fonts/CyberPrincess3D-Regular.woff') format('woff'),
+    url('https://www.fasmotorsports.com/fonts/CyberPrincess3D-Regular.woff2') format('woff2'),
     url('https://www.fasmotorsports.com/fonts/CyberPrincess3D-Regular.woff') format('woff');
   font-weight: normal;
   font-style: normal;
@@ -180,8 +180,8 @@ table {
   src:
     local('Cyber Princess 3D Italic'),
     url('/fonts/CyberPrincess3D-Italic.woff2') format('woff2'),
-    url('https://www.fasmotorsports.com/fonts/CyberPrincess3D-Italic.woff2') format('woff2'),
     url('/fonts/CyberPrincess3D-Italic.woff') format('woff'),
+    url('https://www.fasmotorsports.com/fonts/CyberPrincess3D-Italic.woff2') format('woff2'),
     url('https://www.fasmotorsports.com/fonts/CyberPrincess3D-Italic.woff') format('woff');
   font-weight: normal;
   font-style: italic;
@@ -193,8 +193,8 @@ table {
   src:
     local('Cyber Princess 3D Filled'),
     url('/fonts/CyberPrincess3DFilled-Regular.woff2') format('woff2'),
-    url('https://www.fasmotorsports.com/fonts/CyberPrincess3DFilled-Regular.woff2') format('woff2'),
     url('/fonts/CyberPrincess3DFilled-Regular.woff') format('woff'),
+    url('https://www.fasmotorsports.com/fonts/CyberPrincess3DFilled-Regular.woff2') format('woff2'),
     url('https://www.fasmotorsports.com/fonts/CyberPrincess3DFilled-Regular.woff') format('woff');
   font-weight: normal;
   font-style: normal;
@@ -206,8 +206,8 @@ table {
   src:
     local('Cyber Princess 3D Filled Italic'),
     url('/fonts/CyberPrincess3DFilled-Italic.woff2') format('woff2'),
-    url('https://www.fasmotorsports.com/fonts/CyberPrincess3DFilled-Italic.woff2') format('woff2'),
     url('/fonts/CyberPrincess3DFilled-Italic.woff') format('woff'),
+    url('https://www.fasmotorsports.com/fonts/CyberPrincess3DFilled-Italic.woff2') format('woff2'),
     url('https://www.fasmotorsports.com/fonts/CyberPrincess3DFilled-Italic.woff') format('woff');
   font-weight: normal;
   font-style: italic;
@@ -219,8 +219,8 @@ table {
   src:
     local('Borgsquad Italic'),
     url('/fonts/BorgsquadItalic.woff2') format('woff2'),
-    url('https://www.fasmotorsports.com/fonts/BorgsquadItalic.woff2') format('woff2'),
     url('/fonts/BorgsquadItalic.woff') format('woff'),
+    url('https://www.fasmotorsports.com/fonts/BorgsquadItalic.woff2') format('woff2'),
     url('https://www.fasmotorsports.com/fonts/BorgsquadItalic.woff') format('woff');
   font-weight: normal;
   font-style: italic;
@@ -232,8 +232,8 @@ table {
   src:
     local('Borgsquad'),
     url('/fonts/Borgsquad.woff2') format('woff2'),
-    url('https://www.fasmotorsports.com/fonts/Borgsquad.woff2') format('woff2'),
     url('/fonts/Borgsquad.woff') format('woff'),
+    url('https://www.fasmotorsports.com/fonts/Borgsquad.woff2') format('woff2'),
     url('https://www.fasmotorsports.com/fonts/Borgsquad.woff') format('woff');
   font-weight: normal;
   font-style: normal;
