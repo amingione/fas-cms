@@ -1,0 +1,29 @@
+---
+interface InternalLink {
+  href?: string;
+  label: string;
+}
+
+const { links = [] } = Astro.props as { links?: InternalLink[] };
+const filtered = Array.isArray(links)
+  ? links.filter((link) => typeof link?.label === 'string' && link.label.trim().length > 0)
+  : [];
+---
+{filtered.length > 0 && (
+  <section class="mt-8 border-t border-white/10 pt-6">
+    <h2 class="text-lg font-semibold text-white">Related Pages</h2>
+    <ul class="mt-3 grid gap-2 text-sm text-white/80 sm:grid-cols-2 lg:grid-cols-3">
+      {filtered.map((link) => (
+        <li>
+          {link.href ? (
+            <a href={link.href} class="transition hover:text-white">
+              {link.label}
+            </a>
+          ) : (
+            <span>{link.label}</span>
+          )}
+        </li>
+      ))}
+    </ul>
+  </section>
+)}

@@ -1,0 +1,123 @@
+---
+const topProductLinks = [
+  {
+    href: '/shop/predator-pulley',
+    label: 'Predator Pulley Upgrades'
+  },
+  {
+    href: '/shop/hellcat-snout-porting',
+    label: 'Hellcat Snout Porting'
+  },
+  {
+    href: '/shop/2-4l-hellcat-billet-supercharger-snout',
+    label: '2.4L Hellcat Billet Supercharger Snout'
+  },
+  {
+    href: '/shop/2-4l-hellcat-billet-bearing-plate',
+    label: '2.4L Hellcat Billet Bearing Plate'
+  },
+  {
+    href: '/shop/2-4l-hellcat-billet-turbo-snout',
+    label: '2.4L Hellcat Billet Turbo Snout'
+  }
+];
+
+const topServiceLinks = [
+  {
+    href: '/services/Services',
+    label: 'Performance Services Overview'
+  },
+  {
+    href: '/services/porting',
+    label: 'Precision Porting Services'
+  },
+  {
+    href: '/services/customFab',
+    label: 'Custom Fabrication'
+  },
+  {
+    href: '/services/welding',
+    label: 'Certified Welding'
+  },
+  {
+    href: '/services/igla',
+    label: 'IGLA Security Installs'
+  }
+];
+---
+
+<section class="bg-[#09090b] border-t border-white/10">
+  <div class="container mx-auto py-12 md:py-16">
+    <div class="grid gap-12 md:grid-cols-2 md:gap-16">
+      <div>
+        <h2 class="text-lg font-semibold uppercase tracking-[0.3em] text-[#ffa800] mb-4">
+          Top Products
+        </h2>
+        <p class="text-sm text-white/70 mb-6 max-w-xl">
+          Explore our most requested billet components and performance upgrades, each engineered in-house and backed by track data.
+        </p>
+        <nav aria-label="Top products">
+          <ul class="space-y-3">
+            {topProductLinks.map((link) => (
+              <li>
+                <a
+                  class="inline-flex items-center gap-2 text-base font-medium text-white hover:text-[#ffa800] transition"
+                  href={link.href}
+                >
+                  <span>{link.label}</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    class="h-4 w-4"
+                    aria-hidden="true"
+                  >
+                    <path d="M5 12h14" />
+                    <path d="M13 6l6 6-6 6" />
+                  </svg>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+
+      <div>
+        <h2 class="text-lg font-semibold uppercase tracking-[0.3em] text-[#ffa800] mb-4">
+          Top Services
+        </h2>
+        <p class="text-sm text-white/70 mb-6 max-w-xl">
+          Pair your hardware upgrades with professional installation, calibration, and security options from the F.A.S. Motorsports team.
+        </p>
+        <nav aria-label="Top services">
+          <ul class="space-y-3">
+            {topServiceLinks.map((link) => (
+              <li>
+                <a
+                  class="inline-flex items-center gap-2 text-base font-medium text-white hover:text-[#ffa800] transition"
+                  href={link.href}
+                >
+                  <span>{link.label}</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    class="h-4 w-4"
+                    aria-hidden="true"
+                  >
+                    <path d="M5 12h14" />
+                    <path d="M13 6l6 6-6 6" />
+                  </svg>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</section>

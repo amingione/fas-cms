@@ -12,6 +12,34 @@ export const prerender = false;
 
 const PAGE_SIZE = 12;
 const url = new URL(Astro.request.url);
+
+const ensureAbsoluteUrl = (value?: string | null) => {
+  if (!value) return undefined;
+  if (/^https?:/i.test(value)) return value;
+  try {
+    return new URL(value, `${url.origin}/`).toString();
+  } catch {
+    return undefined;
+  }
+};
+
+const resolveProductSlug = (product: any): string => {
+  const slugValue = product?.slug;
+  if (typeof slugValue === 'string') return slugValue;
+  if (slugValue && typeof slugValue === 'object') {
+    const current = (slugValue as any).current;
+    if (typeof current === 'string') return current;
+  }
+  return '';
+};
+
+const resolveProductImages = (product: any): string[] => {
+  if (!product || typeof product !== 'object') return [];
+  if (!Array.isArray(product.images)) return [];
+  return product.images
+    .map((image: any) => ensureAbsoluteUrl(image?.asset?.url || image?.url))
+    .filter((value): value is string => Boolean(value));
+};
 const currentPage = parseInt(url.searchParams.get("page") || "1");
 const currentCategory = url.searchParams.get("categorySlug") || url.searchParams.get("category") || "";
 const start = (currentPage - 1) * PAGE_SIZE;
@@ -258,6 +286,61 @@ const totalCount = sortedProducts.length;
 const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 const products = sortedProducts.slice(start, end);
 
+const productListElements = Array.isArray(products)
+  ? products
+      .map((product, index) => {
+        const slugValue = resolveProductSlug(product);
+        if (!slugValue) return null;
+        const productUrl = `${url.origin}/shop/${slugValue}`;
+        const images = resolveProductImages(product);
+        const priceNumber = Number((product as any)?.price);
+        const offers = !Number.isNaN(priceNumber) && priceNumber > 0
+          ? {
+              '@type': 'Offer',
+              priceCurrency: 'USD',
+              price: priceNumber.toFixed(2),
+              availability: 'https://schema.org/InStock',
+              url: productUrl,
+              itemCondition: 'https://schema.org/NewCondition'
+            }
+          : undefined;
+
+        return {
+          '@type': 'ListItem',
+          position: start + index + 1,
+          url: productUrl,
+          item: {
+            '@type': 'Product',
+            name: (product as any)?.title ?? undefined,
+            image: images.length ? images : undefined,
+            offers
+          }
+        };
+      })
+      .filter((entry): entry is Record<string, any> => Boolean(entry))
+  : [];
+
+const productCollectionStructuredData = productListElements.length
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: metaTitle,
+      url: canonical || `${url.origin}/shop`,
+      description: pageDescription,
+      isPartOf: {
+        '@type': 'WebSite',
+        url: `${url.origin}/`,
+        name: 'F.A.S. Motorsports'
+      },
+      mainEntity: {
+        '@type': 'ItemList',
+        name: `${currentCategoryTitle || 'All'} products`,
+        numberOfItems: productListElements.length,
+        itemListElement: productListElements
+      }
+    }
+  : null;
+
 const paginationLinks = [];
 const maxVisiblePages = 5;
 const pageGroup = Math.floor((currentPage - 1) / maxVisiblePages);
@@ -278,6 +361,9 @@ if (endPage < totalPages) {
 <BaseLayout title={metaTitle} description={pageDescription} canonical={canonical}>
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
+    {productCollectionStructuredData && (
+      <script type="application/ld+json" set:html={JSON.stringify(productCollectionStructuredData)} />
+    )}
   </Fragment>
   <section class="max-w-full px-2 md:px-2 mt-11 pt-10">
     <div class="mb-6 mt-2 space-y-3">

@@ -4,6 +4,7 @@ import netlify from '@astrojs/netlify';
 import react from '@astrojs/react';
 import tailwind from '@astrojs/tailwind';
 import { fileURLToPath } from 'url';
+import viteCompression from 'vite-plugin-compression';
 const FN_PORT =
   process.env.NETLIFY_DEV_PORT ||
   process.env.NETLIFY_FUNCTIONS_PORT ||
@@ -91,9 +92,13 @@ export default defineConfig({
     plugins: [
       dedupeNetlifyVitePlugin(),
       // Conditionally include svgr if available
-      ...(svgrPlugin ? [svgrPlugin] : [])
+      ...(svgrPlugin ? [svgrPlugin] : []),
+      viteCompression({ algorithm: 'gzip', ext: '.gz', threshold: 1024 }),
+      viteCompression({ algorithm: 'brotliCompress', ext: '.br', threshold: 1024 })
     ],
     build: {
+      minify: 'esbuild',
+      cssMinify: 'lightningcss',
       // Raise warning limit; we'll split big libs into separate chunks below
       chunkSizeWarningLimit: 2000,
       rollupOptions: {

@@ -1,0 +1,112 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SeoMetricsChart from '@/components/admin/SeoMetricsChart';
+import { fetchSeoMetrics } from '@/lib/seoMetrics';
+import { fetchAnalyticsSummary } from '@/lib/analytics/googleAnalytics';
+
+const [rankingMetrics, analytics] = await Promise.all([
+  fetchSeoMetrics(60),
+  fetchAnalyticsSummary(30)
+]);
+
+const metricsByKeyword = rankingMetrics.reduce<Record<string, { count: number; best: number }>>(
+  (acc, point) => {
+    if (!point.keyword) return acc;
+    const key = point.keyword;
+    const best = typeof point.position === 'number' ? point.position : Number.POSITIVE_INFINITY;
+    if (!acc[key]) {
+      acc[key] = { count: 0, best };
+    }
+    acc[key].count += 1;
+    if (best < acc[key].best) {
+      acc[key].best = best;
+    }
+    return acc;
+  },
+  {}
+);
+
+const topKeywords = Object.entries(metricsByKeyword)
+  .map(([keyword, data]) => ({ keyword, ...data }))
+  .sort((a, b) => a.best - b.best)
+  .slice(0, 10);
+
+const breadcrumbs = [
+  { href: '/admin', label: 'Admin' },
+  { label: 'SEO Dashboard' }
+];
+---
+
+<BaseLayout title="SEO Dashboard" breadcrumbs={breadcrumbs}>
+  <section class="space-y-10">
+    <header class="space-y-2">
+      <h1 class="text-3xl font-bold text-white">Search Performance Overview</h1>
+      <p class="text-sm text-white/70">
+        Automated weekly reporting aggregates Sanity SEO metrics with Google Analytics sessions to highlight search visibility
+        opportunities.
+      </p>
+    </header>
+
+    <section class="grid gap-6 lg:grid-cols-4">
+      <div class="rounded-lg border border-white/10 bg-black/40 p-4">
+        <p class="text-sm text-white/60">Sessions (30 days)</p>
+        <p class="mt-2 text-2xl font-semibold text-white">{analytics.sessions.toLocaleString()}</p>
+      </div>
+      <div class="rounded-lg border border-white/10 bg-black/40 p-4">
+        <p class="text-sm text-white/60">Page Views</p>
+        <p class="mt-2 text-2xl font-semibold text-white">{analytics.pageviews.toLocaleString()}</p>
+      </div>
+      <div class="rounded-lg border border-white/10 bg-black/40 p-4">
+        <p class="text-sm text-white/60">Avg Session Duration</p>
+        <p class="mt-2 text-2xl font-semibold text-white">
+          {(analytics.averageSessionDuration / 60).toFixed(1)} min
+        </p>
+      </div>
+      <div class="rounded-lg border border-white/10 bg-black/40 p-4">
+        <p class="text-sm text-white/60">Engagement Rate</p>
+        <p class="mt-2 text-2xl font-semibold text-white">{analytics.engagementRate.toFixed(1)}%</p>
+      </div>
+    </section>
+
+    {!analytics.available && (
+      <p class="rounded-md border border-amber-500/60 bg-amber-500/10 p-4 text-sm text-amber-200">
+        {analytics.message ?? 'Connect a Google Analytics 4 property to populate trend data.'}
+      </p>
+    )}
+
+    <SeoMetricsChart client:load data={rankingMetrics} />
+
+    <section class="rounded-lg border border-white/10 bg-black/40 p-6">
+      <h2 class="text-xl font-semibold text-white">Top Ranking Keywords</h2>
+      <p class="text-sm text-white/60">Based on the last {rankingMetrics.length} Sanity data points.</p>
+      <div class="mt-4 overflow-x-auto">
+        <table class="min-w-full divide-y divide-white/10 text-left text-sm text-white/80">
+          <thead class="bg-white/5 text-xs uppercase tracking-wide text-white/60">
+            <tr>
+              <th class="px-4 py-3">Keyword</th>
+              <th class="px-4 py-3">Best Position</th>
+              <th class="px-4 py-3">Updates</th>
+            </tr>
+          </thead>
+          <tbody>
+            {topKeywords.length === 0 ? (
+              <tr>
+                <td class="px-4 py-4" colSpan={3}>
+                  No keyword data available yet.
+                </td>
+              </tr>
+            ) : (
+              topKeywords.map((row) => (
+                <tr class="border-b border-white/5" key={row.keyword}>
+                  <td class="px-4 py-3 font-medium text-white">{row.keyword}</td>
+                  <td class="px-4 py-3">{row.best === Infinity ? '—' : `#${row.best}`}</td>
+                  <td class="px-4 py-3">{row.count}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </section>
+</BaseLayout>

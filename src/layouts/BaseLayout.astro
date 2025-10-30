@@ -3,11 +3,14 @@ import '../styles/global.css';
 import Header from '../components/header/header2.astro';
 import Footer from '@/components/footer.astro';
 import Footer2 from '@/components/footer/footer2';
+import SitewideProductServiceLinks from '@/components/SitewideProductServiceLinks.astro';
 import CookieBanner from '@/components/notices/cookieBanner';
 import Breadcrumbs from '@/components/storefront/Breadcrumbs.astro';
+import InternalLinks from '@/components/navigation/InternalLinks.astro';
 import { Toaster } from 'sonner';
 import VisualEditingBridge from '@/components/sanity/VisualEditingBridge';
 import { isVisualEditingHostnameAllowlisted } from '@/lib/sanity-utils';
+import { buildJsonLd, buildMetaEntries, fetchSeoForPath } from '@/lib/seoData';
 
 
 // SEO props (optional per-page)
@@ -18,7 +21,8 @@ const {
   noindex: rawNoindex = false,
   ogImage,
   hideBreadcrumbs = false,
-  breadcrumbs
+  breadcrumbs,
+  keywords
 } = Astro.props as {
   title?: string;
   description?: string;
@@ -27,7 +31,10 @@ const {
   ogImage?: string;
   hideBreadcrumbs?: boolean;
   breadcrumbs?: Array<{ href?: string; label: string }>;
+  keywords?: string | string[];
 };
+
+const seoPayload = await fetchSeoForPath(Astro.url?.pathname ?? '/');
 
 const normalizeNoindex = (value: unknown): boolean => {
   if (typeof value === 'boolean') return value;
@@ -42,11 +49,35 @@ const normalizeNoindex = (value: unknown): boolean => {
   return false;
 };
 
-const noindex = normalizeNoindex(rawNoindex);
-const robotsContent = noindex ? 'noindex,follow' : 'index,follow';
+const cmsNoindex = Boolean(seoPayload.page?.noindex);
+const noindex = normalizeNoindex(rawNoindex) || cmsNoindex;
 
-const SITE_NAME = 'F.A.S. Motorsports';
-const DEFAULT_OG_IMAGE = 'https://fasmotorsports.com/images/social/social-share.webp';
+const FALLBACK_KEYWORDS = [
+  'F.A.S. Motorsports',
+  'performance parts',
+  'supercharger upgrades',
+  'billet parts',
+  'custom fabrication',
+  'Fort Myers auto shop',
+  'Hellcat performance',
+  'Trackhawk upgrades',
+  'TRX packages'
+];
+
+const SITE_NAME = seoPayload.global.siteName ?? 'F.A.S. Motorsports';
+const SITE_AUTHOR = seoPayload.global.siteName ?? 'F.A.S. Motorsports';
+const DEFAULT_DESCRIPTION =
+  seoPayload.global.defaultDescription ??
+  'F.A.S. Motorsports delivers premium performance parts, custom fabrication, installs, and wheel packages in Fort Myers, Florida.';
+const DEFAULT_KEYWORDS =
+  seoPayload.global.defaultKeywords && seoPayload.global.defaultKeywords.length
+    ? seoPayload.global.defaultKeywords
+    : FALLBACK_KEYWORDS;
+const DEFAULT_OG_IMAGE =
+  (typeof seoPayload.global.defaultOgImage === 'string'
+    ? seoPayload.global.defaultOgImage
+    : seoPayload.global.defaultOgImage?.asset?.url) ??
+  'https://fasmotorsports.com/images/social/social-share.webp';
 
 const parseBooleanFlag = (value: unknown): boolean => {
   if (typeof value === 'boolean') return value;
@@ -77,6 +108,23 @@ try {
 } catch {
   currentUrl = null;
 }
+
+const canonicalFromSanity = seoPayload.page?.canonicalUrl;
+
+const resolveCanonical = (value?: string | null) => {
+  if (!value) return undefined;
+  try {
+    if (/^https?:\/\//i.test(value)) {
+      return new URL(value).toString();
+    }
+    if (currentUrl) {
+      return new URL(value, currentUrl).toString();
+    }
+  } catch {
+    return undefined;
+  }
+  return undefined;
+};
 
 const requestHostnameRaw =
   currentUrl?.hostname ||
@@ -147,7 +195,7 @@ declare global {
   }
 }
 
-let canonicalUrl = canonical;
+let canonicalUrl = resolveCanonical(canonical) ?? resolveCanonical(canonicalFromSanity);
 try {
   if (!canonicalUrl) {
     const url = new URL(Astro.request.url);
@@ -156,12 +204,58 @@ try {
     canonicalUrl = url.toString();
   }
 } catch {
-  canonicalUrl = canonical ?? undefined;
+  canonicalUrl = resolveCanonical(canonical) ?? resolveCanonical(canonicalFromSanity) ?? canonical ?? undefined;
 }
 
-const resolvedOgImage = ogImage ?? DEFAULT_OG_IMAGE;
-const pageTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
+const cmsTitle = seoPayload.page?.title;
+const cmsDescription = seoPayload.page?.description;
+const cmsKeywords = Array.isArray(seoPayload.page?.keywords)
+  ? (seoPayload.page?.keywords as string[])
+  : [];
+const cmsOgImage =
+  typeof seoPayload.page?.ogImage === 'string'
+    ? (seoPayload.page?.ogImage as string)
+    : seoPayload.page?.ogImage?.asset?.url;
+const cmsBreadcrumbs = Array.isArray(seoPayload.page?.breadcrumbs)
+  ? (seoPayload.page?.breadcrumbs as Array<{ href?: string; label: string }>)
+  : [];
+const cmsRelatedLinks = Array.isArray(seoPayload.page?.relatedLinks)
+  ? (seoPayload.page?.relatedLinks as Array<{ href?: string; label: string }>)
+  : [];
 
+const resolvedDescription =
+  typeof description === 'string' && description.trim().length > 0
+    ? description.trim()
+    : typeof cmsDescription === 'string' && cmsDescription.trim().length > 0
+    ? cmsDescription.trim()
+    : DEFAULT_DESCRIPTION;
+
+const normalizeKeywords = (value: string | string[] | undefined) => {
+  if (!value) return [];
+  if (Array.isArray(value)) {
+    return value
+      .map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
+      .filter(Boolean);
+  }
+  return value
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+};
+
+const keywordList = normalizeKeywords(keywords);
+const resolvedKeywords = keywordList.length
+  ? keywordList
+  : cmsKeywords.length
+  ? cmsKeywords
+  : DEFAULT_KEYWORDS;
+const resolvedOgImage = ogImage ?? cmsOgImage ?? DEFAULT_OG_IMAGE;
+const basePageTitle = title ?? cmsTitle ?? undefined;
+const pageTitle = basePageTitle
+  ? SITE_NAME && !basePageTitle.includes(SITE_NAME)
+    ? `${basePageTitle} | ${SITE_NAME}`
+    : basePageTitle
+  : SITE_NAME;
 const sanitizeSegment = (segment: string) => {
   const decoded = decodeURIComponent(segment);
   const spaced = decoded
@@ -231,13 +325,75 @@ const finalizeBreadcrumbs = (items?: Array<{ href?: string; label: string }>) =>
   );
 };
 
+const breadcrumbSource = breadcrumbs?.length
+  ? breadcrumbs
+  : cmsBreadcrumbs.length
+  ? cmsBreadcrumbs
+  : buildAutoBreadcrumbs();
+
 const breadcrumbItems = shouldRenderBreadcrumbs
-  ? finalizeBreadcrumbs(
-      ensureHomeCrumb(
-        breadcrumbs?.length ? breadcrumbs : buildAutoBreadcrumbs()
-      )
-    )
+  ? finalizeBreadcrumbs(ensureHomeCrumb(breadcrumbSource))
   : [];
+
+const toAbsoluteUrl = (value?: string) => {
+  if (!value) return undefined;
+  try {
+    if (/^https?:\/\//i.test(value)) {
+      return new URL(value).toString();
+    }
+    if (canonicalUrl) {
+      return new URL(value, canonicalUrl).toString();
+    }
+    if (currentUrl) {
+      return new URL(value, currentUrl).toString();
+    }
+  } catch {
+    return undefined;
+  }
+  return undefined;
+};
+
+const breadcrumbStructuredData =
+  breadcrumbItems.length > 0
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: breadcrumbItems.map((item, index) => {
+          const entry: Record<string, any> = {
+            '@type': 'ListItem',
+            position: index + 1,
+            name: item.label
+          };
+          const absolute = toAbsoluteUrl(item.href);
+          if (absolute) {
+            entry.item = absolute;
+          }
+          return entry;
+        })
+      }
+    : null;
+
+const computedPayload = {
+  global: seoPayload.global,
+  page: {
+    ...seoPayload.page,
+    title: basePageTitle ?? seoPayload.page?.title,
+    description: resolvedDescription,
+    keywords: resolvedKeywords,
+    noindex,
+    ogImage: resolvedOgImage,
+    breadcrumbs: cmsBreadcrumbs,
+    relatedLinks: cmsRelatedLinks
+  }
+};
+
+const metaEntries = buildMetaEntries(computedPayload, canonicalUrl ?? undefined);
+const computedTitle = metaEntries.title || pageTitle;
+const metaTags = [
+  { property: 'og:site_name', content: SITE_NAME },
+  ...metaEntries.meta
+];
+const jsonLdEntries = buildJsonLd(computedPayload, breadcrumbStructuredData);
 ---
 
 <!DOCTYPE html>
@@ -383,20 +539,35 @@ const breadcrumbItems = shouldRenderBreadcrumbs
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#09090b" />
-    <title>{pageTitle}</title>
-    {description && <meta name="description" content={description} />}
-    <meta name="robots" content={robotsContent} />
+    <title>{computedTitle}</title>
+    <meta name="author" content={SITE_AUTHOR} />
+    {metaTags
+      .filter((meta) => typeof meta.content === 'string' && meta.content.length > 0)
+      .map((meta, index) => {
+        const attrs = meta.name
+          ? { name: meta.name }
+          : meta.property
+          ? { property: meta.property }
+          : {};
+        if (!('name' in attrs) && !('property' in attrs)) {
+          return null;
+        }
+        return (
+          <meta
+            {...attrs}
+            content={meta.content}
+            data-seo-meta-key={meta.name ?? meta.property ?? `meta-${index}`}
+          />
+        );
+      })}
     {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
-    <meta property="og:site_name" content={SITE_NAME} />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content={title ? `${title}` : SITE_NAME} />
-    {description && <meta property="og:description" content={description} />}
-    {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
-    {resolvedOgImage && <meta property="og:image" content={resolvedOgImage} />}
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={title ? `${title}` : SITE_NAME} />
-    {description && <meta name="twitter:description" content={description} />}
-    {resolvedOgImage && <meta name="twitter:image" content={resolvedOgImage} />}
+    {jsonLdEntries.map((entry, index) => (
+      <script
+        type="application/ld+json"
+        set:html={JSON.stringify(entry)}
+        data-seo-ld-index={index}
+      />
+    ))}
     <script is:inline type="module">
       (function () {
         if (typeof window === 'undefined') return;
@@ -508,7 +679,9 @@ const breadcrumbItems = shouldRenderBreadcrumbs
           <Breadcrumbs items={breadcrumbItems} />
         )}
         <slot />
+        {cmsRelatedLinks.length > 0 && <InternalLinks links={cmsRelatedLinks} />}
       </main>
+      <SitewideProductServiceLinks />
       <Footer />
       <Footer2 client:visible />
       <CookieBanner client:idle />
