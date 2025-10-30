@@ -31,8 +31,22 @@ function startOfDay(date: Date) {
 
 function parseEstimatedDeliveryDate(value?: string | null): Date | null {
   if (!value) return null;
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? null : date;
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return null;
+
+  if (typeof value === 'string' && value.includes('T')) {
+    const utcYear = parsed.getUTCFullYear();
+    const utcMonth = parsed.getUTCMonth();
+    const utcDate = parsed.getUTCDate();
+
+    const normalized = new Date(utcYear, utcMonth, utcDate);
+    if (!Number.isNaN(normalized.getTime())) {
+      return normalized;
+    }
+  }
+
+  return parsed;
 }
 
 function normalizeDeliveryDays(value: unknown): number | null {
