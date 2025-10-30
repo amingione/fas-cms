@@ -11,6 +11,7 @@ import AnimatedProductFeatureBanner from '@components/animated/AnimatedProductFe
 import AnimatedTaskCard from '@components/animated/AnimatedTaskCard';
 import AnimatedTruckPackagesHero from '@components/animated/AnimatedTruckPackagesHero';
 import SectionRenderer from '@/components/SectionRenderer.astro';
+import EmailCaptureModal from '@components/EmailCaptureModal';
 
 
 const url = new URL(Astro.request.url);
@@ -337,6 +338,8 @@ const structuredDataGraph = {
       <section id="LuxuryFeatures" class="mt-20">
         <LuxuryFeatures client:visible />
       </section>
+
+      <EmailCaptureModal client:only="react" />
     </main>
   </div>
 </BaseLayout>

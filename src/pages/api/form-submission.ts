@@ -1,3 +1,4 @@
+import { createClient } from '@sanity/client';
 import type { APIRoute } from 'astro';
 import { Resend } from 'resend';
 
@@ -60,6 +61,114 @@ function normaliseFields(raw: any): Record<string, string> {
   return fields;
 }
 
+type MarketingOptInMeta = {
+  source?: string;
+  tags?: string[];
+};
+
+let cachedSanityClient: ReturnType<typeof createClient> | null | undefined;
+
+function getSanityClient() {
+  if (cachedSanityClient !== undefined) {
+    return cachedSanityClient;
+  }
+
+  const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
+  const dataset = import.meta.env.PUBLIC_SANITY_DATASET;
+  const apiVersion = import.meta.env.SANITY_API_VERSION;
+  const token = import.meta.env.SANITY_API_TOKEN;
+
+  if (projectId && dataset && apiVersion && token) {
+    cachedSanityClient = createClient({
+      projectId,
+      dataset,
+      apiVersion,
+      token,
+      useCdn: false
+    });
+  } else {
+    console.warn(
+      'Marketing opt-in tracking skipped: missing Sanity configuration (check PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET, SANITY_API_VERSION, SANITY_API_TOKEN).'
+    );
+    cachedSanityClient = null;
+  }
+
+  return cachedSanityClient;
+}
+
+function parseMarketingOptIn(raw: unknown): MarketingOptInMeta | null {
+  if (!raw || typeof raw !== 'object') return null;
+
+  const source =
+    'source' in raw && typeof (raw as Record<string, unknown>).source === 'string'
+      ? (raw as Record<string, string>).source.trim()
+      : undefined;
+
+  const tags =
+    'tags' in raw && Array.isArray((raw as Record<string, unknown>).tags)
+      ? (raw as { tags: unknown[] }).tags
+          .map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
+          .filter(Boolean)
+      : undefined;
+
+  if (!source && !(tags && tags.length)) {
+    return null;
+  }
+
+  return {
+    ...(source ? { source } : {}),
+    ...(tags && tags.length ? { tags } : {})
+  };
+}
+
+async function recordMarketingOptIn(
+  formName: string,
+  fields: Record<string, string>,
+  meta: MarketingOptInMeta
+) {
+  const email = fields.email?.trim();
+  if (!email) {
+    return;
+  }
+
+  const client = getSanityClient();
+  if (!client) {
+    return;
+  }
+
+  const name = fields.name?.trim() || undefined;
+  const source = meta.source || fields.source?.trim() || undefined;
+  const pageUrl = fields.pageUrl?.trim() || undefined;
+
+  const excluded = new Set(['email', 'name', 'source', 'pageUrl']);
+  const submittedFields = Object.entries(fields)
+    .filter(([key, value]) => !excluded.has(key) && typeof value === 'string' && value.trim())
+    .map(([key, value]) => {
+      const trimmed = value.trim();
+      return {
+        _type: 'field',
+        key,
+        value: trimmed
+      };
+    });
+
+  try {
+    await client.create({
+      _type: 'marketingOptIn',
+      formName,
+      email,
+      name,
+      source,
+      pageUrl,
+      tags: meta.tags && meta.tags.length ? meta.tags : undefined,
+      submittedAt: new Date().toISOString(),
+      fields: submittedFields
+    });
+  } catch (error) {
+    console.error('Failed to persist marketing opt-in to Sanity:', error);
+  }
+}
+
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await parseBody(request);
@@ -67,6 +176,7 @@ export const POST: APIRoute = async ({ request }) => {
     const rawFields = body.fields && typeof body.fields === 'object' ? body.fields : body;
     const fields = normaliseFields(rawFields);
     const replyEmail = typeof fields.email === 'string' ? fields.email.trim() : '';
+    const marketingOptIn = parseMarketingOptIn(body.marketingOptIn);
 
     if (!Object.keys(fields).length) {
       return json({ message: 'No form fields provided.' }, { status: 400 });
@@ -93,17 +203,20 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (!import.meta.env.RESEND_API_KEY) {
       console.warn('RESEND_API_KEY is not set; skipping email send.');
-      return json({ ok: true, message: 'Submission received (email not sent: missing RESEND_API_KEY).' }, { status: 200 });
+    } else {
+      const resend = new Resend(import.meta.env.RESEND_API_KEY);
+      await resend.emails.send({
+        from: 'FAS Motorsports <no-reply@fasmotorsports.io>',
+        to: ['sales@fasmotorsports.com'],
+        replyTo: replyEmail ? [replyEmail] : undefined,
+        subject: `${formName} Submission`,
+        html
+      });
     }
 
-    const resend = new Resend(import.meta.env.RESEND_API_KEY);
-    await resend.emails.send({
-      from: 'FAS Motorsports <no-reply@fasmotorsports.io>',
-      to: ['sales@fasmotorsports.com'],
-      replyTo: replyEmail ? [replyEmail] : undefined,
-      subject: `${formName} Submission`,
-      html
-    });
+    if (marketingOptIn) {
+      await recordMarketingOptIn(formName, fields, marketingOptIn);
+    }
 
     return json({ ok: true, message: 'Submission received.' }, { status: 200 });
   } catch (error) {
