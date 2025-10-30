@@ -3,6 +3,7 @@ import '../styles/global.css';
 import Header from '../components/header/header2.astro';
 import Footer from '@/components/footer.astro';
 import Footer2 from '@/components/footer/footer2';
+import SitewideProductServiceLinks from '@/components/SitewideProductServiceLinks.astro';
 import CookieBanner from '@/components/notices/cookieBanner';
 import Breadcrumbs from '@/components/storefront/Breadcrumbs.astro';
 import { Toaster } from 'sonner';
@@ -596,6 +597,7 @@ const breadcrumbStructuredData =
         )}
         <slot />
       </main>
+      <SitewideProductServiceLinks />
       <Footer />
       <Footer2 client:visible />
       <CookieBanner client:idle />

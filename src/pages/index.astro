@@ -69,13 +69,6 @@ try {
         `*[_type == "product" && !(_id in path("drafts.**")) && coalesce(featured, false) == true && defined(slug.current)][0..7]${baseProjection}`
       );
     } catch {}
-    console.log('[Featured] boolean=true count:', Array.isArray(booleanTry) ? booleanTry.length : 0);
-    console.log(
-      '[Sanity] config snapshot:',
-      configSnapshot.projectId,
-      configSnapshot.dataset
-    );
-
     if (Array.isArray(booleanTry) && booleanTry.length) {
       return booleanTry;
     }
@@ -86,12 +79,6 @@ try {
         `*[_type == "product" && !(_id in path("drafts.**")) && featured == "true" && defined(slug.current)][0..7]${baseProjection}`
       );
     } catch {}
-    console.log('[Featured] string "true" count:', Array.isArray(stringTry) ? stringTry.length : 0);
-    console.log(
-      '[Sanity] config snapshot:',
-      configSnapshot.projectId,
-      configSnapshot.dataset
-    );
 
     return Array.isArray(stringTry) ? stringTry : [];
   };

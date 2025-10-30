@@ -163,6 +163,63 @@ const ensureAbsoluteUrl = (value?: string | null): string | undefined => {
   }
 };
 
+const resolveProductSlug = (item: Product | null | undefined): string => {
+  const rawSlug = (item as any)?.slug;
+  if (typeof rawSlug === 'string') return rawSlug;
+  if (rawSlug && typeof rawSlug === 'object' && typeof rawSlug.current === 'string') {
+    return rawSlug.current;
+  }
+  return '';
+};
+
+const buildProductListStructuredData = (items: Product[], listName: string): Record<string, any> | null => {
+  if (!Array.isArray(items) || items.length === 0) return null;
+  const itemListElement = items
+    .map((item, index) => {
+      if (!item) return null;
+      const slugValue = resolveProductSlug(item);
+      if (!slugValue) return null;
+      const productUrl = `${requestUrl.origin}/shop/${slugValue}`;
+      const images = Array.isArray((item as any)?.images)
+        ? (item as any).images
+            .map((image: any) => ensureAbsoluteUrl(image?.asset?.url || image?.url))
+            .filter((value): value is string => Boolean(value))
+        : [];
+      const priceNumber = coercePriceToNumber((item as any)?.price);
+      const offers = typeof priceNumber === 'number'
+        ? {
+            '@type': 'Offer',
+            priceCurrency: 'USD',
+            price: priceNumber.toFixed(2),
+            availability: 'https://schema.org/InStock',
+            url: productUrl,
+            itemCondition: 'https://schema.org/NewCondition'
+          }
+        : undefined;
+      return {
+        '@type': 'ListItem',
+        position: index + 1,
+        url: productUrl,
+        item: {
+          '@type': 'Product',
+          name: (item as any)?.title ?? undefined,
+          image: images.length ? images : undefined,
+          offers
+        }
+      };
+    })
+    .filter((entry): entry is Record<string, any> => Boolean(entry));
+
+  if (!itemListElement.length) return null;
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: listName,
+    itemListElement
+  };
+};
+
 // Fetch product data based on the slug
 let product: ProductWithKit | null = null;
 let relatedProducts: Product[] = [];
@@ -331,6 +388,8 @@ let titleQualifier = '';
 let priceValue: number | undefined;
 let breadcrumbStructuredData: Record<string, any> | null = null;
 let productStructuredData: Record<string, any> | null = null;
+let relatedProductsStructuredData: Record<string, any> | null = null;
+let upsellProductsStructuredData: Record<string, any> | null = null;
 let isInstallOnly = false;
 let isPerformanceParts = false;
 let requiresVehicleDisclaimer = false;
@@ -519,6 +578,9 @@ if (product) {
   };
   productStructuredData = null;
 }
+
+relatedProductsStructuredData = buildProductListStructuredData(relatedProducts, 'Related products');
+upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'Recommended upgrades');
 ---
 
 {!productNotFound ? (
@@ -538,6 +600,12 @@ if (product) {
     )}
     {productStructuredData && (
       <script type="application/ld+json" set:html={JSON.stringify(productStructuredData)} />
+    )}
+    {relatedProductsStructuredData && (
+      <script type="application/ld+json" set:html={JSON.stringify(relatedProductsStructuredData)} />
+    )}
+    {upsellProductsStructuredData && (
+      <script type="application/ld+json" set:html={JSON.stringify(upsellProductsStructuredData)} />
     )}
   </Fragment>
   <div {...inlineObjectId((product as any)._id)}>
