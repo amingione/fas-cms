@@ -77,8 +77,6 @@ try {
   currentUrl = null;
 }
 
-const canonicalFromSanity = seoPayload.page?.canonicalUrl;
-
 const resolveCanonical = (value?: string | null) => {
   if (!value) return undefined;
   try {
@@ -171,6 +169,8 @@ const seoPayload = await fetchSeoForPath(Astro.url?.pathname ?? '/', {
   preview: previewDraftsEnabled,
   token: previewToken,
 });
+
+const canonicalFromSanity = seoPayload.page?.canonicalUrl;
 
 const cmsNoindex = Boolean(seoPayload.page?.noindex);
 const noindex = normalizeNoindex(rawNoindex) || cmsNoindex;
