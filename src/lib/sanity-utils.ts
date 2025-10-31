@@ -194,6 +194,7 @@ const liveSubscriptionsRequested = toBooleanFlag(
 const liveSubscriptionsFlag = visualEditingOriginAllowed && liveSubscriptionsRequested;
 
 const apiToken =
+  (import.meta.env.SANITY_API_READ_TOKEN as string | undefined) ||
   (import.meta.env.SANITY_API_TOKEN as string | undefined) ||
   (import.meta.env.SANITY_WRITE_TOKEN as string | undefined) ||
   (import.meta.env.PUBLIC_SANITY_API_TOKEN as string | undefined) ||
@@ -202,7 +203,7 @@ const apiToken =
 let previewDraftsEnabled = Boolean(previewDraftsRequested);
 if (previewDraftsEnabled && !apiToken) {
   console.warn(
-    '[sanity-utils] Preview drafts requested but no SANITY_API_TOKEN (or PUBLIC_SANITY_API_TOKEN) was found; falling back to published content.'
+    '[sanity-utils] Preview drafts requested but no SANITY_API_READ_TOKEN (or SANITY_API_TOKEN/PUBLIC_SANITY_API_TOKEN) was found; falling back to published content.'
   );
   previewDraftsEnabled = false;
 }

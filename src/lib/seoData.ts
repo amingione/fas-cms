@@ -87,10 +87,10 @@ const normalizeKeywordsArray = (value: unknown): string[] | undefined => {
 };
 
 const dedupeByHref = (
-  items: Array<{ label?: string | null; href?: string | null }>
-): Array<{ label: string; href?: string }> => {
+  items: Array<{label?: string | null; href?: string | null}>,
+): Array<{label: string; href?: string}> => {
   const seen = new Set<string>();
-  const results: Array<{ label: string; href?: string }> = [];
+  const results: Array<{label: string; href?: string}> = [];
   for (const item of items) {
     const label = (item.label ?? '').trim();
     const href = (item.href ?? undefined) || undefined;
@@ -103,17 +103,32 @@ const dedupeByHref = (
   return results;
 };
 
-export async function fetchSeoForPath(pathname: string): Promise<SeoPayload> {
+type FetchSeoOptions = {
+  preview?: boolean;
+  token?: string;
+};
+
+export async function fetchSeoForPath(
+  pathname: string,
+  options: FetchSeoOptions = {},
+): Promise<SeoPayload> {
   const normalized = pathname.replace(/\/+$/, '') || '/';
-  if (!seoCache.has(normalized)) {
-    seoCache.set(
-      normalized,
-      (async () => {
-        const data = await sanityFetch<{
-          globalSettings?: GlobalSeoSettings | null;
-          page?: SanitySeo | null;
-        }>({
-          query: `{
+
+  const fetcher = async () => {
+    const queryOptions = {
+      perspective: options.preview ? ('previewDrafts' as const) : ('published' as const),
+      token: options.token,
+      useCdn: !options.preview,
+      stega: options.preview,
+      tag: 'seo.fetchSeoForPath',
+    };
+
+    const data = await sanityFetch<{
+      globalSettings?: GlobalSeoSettings | null;
+      page?: SanitySeo | null;
+    }>(
+      {
+        query: `{
   "globalSettings": *[_type == "globalSeoSettings"][0]{
     siteName,
     defaultDescription,
@@ -148,40 +163,48 @@ export async function fetchSeoForPath(pathname: string): Promise<SeoPayload> {
     )
   }
 }`,
-          params: {
-            slug: normalized === '/' ? 'home' : normalized.replace(/^\//, '')
-          }
-        }).catch((error) => {
-          console.error('[seo] Failed to fetch SEO data', error);
-          return { globalSettings: undefined, page: undefined };
-        });
+        params: {
+          slug: normalized === '/' ? 'home' : normalized.replace(/^\//, ''),
+        },
+      },
+      queryOptions,
+    ).catch((error) => {
+      console.error('[seo] Failed to fetch SEO data', error);
+      return { globalSettings: undefined, page: undefined };
+    });
 
-        const globalSettings = data?.globalSettings ?? FALLBACK_GLOBAL;
-        const pageSeo = data?.page ?? {};
+    const globalSettings = data?.globalSettings ?? FALLBACK_GLOBAL;
+    const pageSeo = data?.page ?? {};
 
-        const normalizedBreadcrumbs = dedupeByHref(ensureArray(pageSeo.breadcrumbs));
-        const normalizedLinks = dedupeByHref(ensureArray(pageSeo.relatedLinks));
+    const normalizedBreadcrumbs = dedupeByHref(ensureArray(pageSeo.breadcrumbs));
+    const normalizedLinks = dedupeByHref(ensureArray(pageSeo.relatedLinks));
 
-        const globalKeywords = normalizeKeywordsArray(globalSettings?.defaultKeywords);
-        const pageKeywords = normalizeKeywordsArray(pageSeo.keywords);
+    const globalKeywords = normalizeKeywordsArray(globalSettings?.defaultKeywords);
+    const pageKeywords = normalizeKeywordsArray(pageSeo.keywords);
 
-        return {
-          global: {
-            ...FALLBACK_GLOBAL,
-            ...globalSettings,
-            defaultOgImage: normalizeOgImage(globalSettings?.defaultOgImage) ?? FALLBACK_GLOBAL.defaultOgImage,
-            defaultKeywords: globalKeywords ?? FALLBACK_GLOBAL.defaultKeywords
-          },
-          page: {
-            ...pageSeo,
-            ogImage: normalizeOgImage(pageSeo.ogImage),
-            breadcrumbs: normalizedBreadcrumbs,
-            relatedLinks: normalizedLinks,
-            keywords: pageKeywords ?? pageSeo.keywords
-          }
-        } satisfies SeoPayload;
-      })()
-    );
+    return {
+      global: {
+        ...FALLBACK_GLOBAL,
+        ...globalSettings,
+        defaultOgImage: normalizeOgImage(globalSettings?.defaultOgImage) ?? FALLBACK_GLOBAL.defaultOgImage,
+        defaultKeywords: globalKeywords ?? FALLBACK_GLOBAL.defaultKeywords,
+      },
+      page: {
+        ...pageSeo,
+        ogImage: normalizeOgImage(pageSeo.ogImage),
+        breadcrumbs: normalizedBreadcrumbs,
+        relatedLinks: normalizedLinks,
+        keywords: pageKeywords ?? pageSeo.keywords,
+      },
+    } satisfies SeoPayload;
+  };
+
+  if (options.preview) {
+    return fetcher();
+  }
+
+  if (!seoCache.has(normalized)) {
+    seoCache.set(normalized, fetcher());
   }
   return seoCache.get(normalized)!;
 }

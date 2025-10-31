@@ -14,6 +14,7 @@ export function getSanityServerClient(overrides: Partial<Parameters<typeof creat
 
   const token =
     (import.meta.env.SANITY_WRITE_TOKEN as string | undefined) ||
+    (import.meta.env.SANITY_API_READ_TOKEN as string | undefined) ||
     (import.meta.env.SANITY_API_TOKEN as string | undefined) ||
     (import.meta.env.VITE_SANITY_API_TOKEN as string | undefined);
 

@@ -3,6 +3,7 @@ import { defineConfig } from 'astro/config';
 import netlify from '@astrojs/netlify';
 import react from '@astrojs/react';
 import tailwind from '@astrojs/tailwind';
+import sanity from '@sanity/astro';
 import { fileURLToPath } from 'url';
 import viteCompression from 'vite-plugin-compression';
 const FN_PORT =
@@ -10,6 +11,30 @@ const FN_PORT =
   process.env.NETLIFY_FUNCTIONS_PORT ||
   process.env.FUNCTIONS_PORT ||
   '5050';
+
+const sanityProjectId =
+  process.env.SANITY_PROJECT_ID ||
+  process.env.PUBLIC_SANITY_PROJECT_ID ||
+  process.env.SANITY_STUDIO_PROJECT_ID ||
+  'r4og35qd';
+
+const sanityDataset =
+  process.env.SANITY_DATASET ||
+  process.env.PUBLIC_SANITY_DATASET ||
+  process.env.SANITY_STUDIO_DATASET ||
+  'production';
+
+const sanityApiVersion =
+  process.env.SANITY_API_VERSION ||
+  process.env.PUBLIC_SANITY_API_VERSION ||
+  '2023-06-07';
+
+const sanityStudioUrl =
+  process.env.PUBLIC_SANITY_STUDIO_URL ||
+  process.env.PUBLIC_STUDIO_URL ||
+  process.env.SANITY_STUDIO_URL ||
+  process.env.SANITY_STUDIO_NETLIFY_BASE ||
+  undefined;
 
 // Netlify's adapter injects @netlify/vite-plugin automatically in a few
 // different environments (e.g. when NETLIFY_DEV is set). When multiple copies
@@ -75,7 +100,21 @@ try {
 export default defineConfig({
   output: 'server',
   adapter: netlify(),
-  integrations: [react(), tailwind()],
+  integrations: [
+    sanity({
+      projectId: sanityProjectId,
+      dataset: sanityDataset,
+      apiVersion: sanityApiVersion,
+      useCdn: false,
+      stega: sanityStudioUrl
+        ? {
+            studioUrl: sanityStudioUrl,
+          }
+        : undefined,
+    }),
+    react(),
+    tailwind(),
+  ],
   markdown: {
     remarkPlugins: [
       // Only include gfm if the dependency is present
