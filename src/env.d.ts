@@ -1,6 +1,6 @@
 /// <reference types="astro/client" />
 
-interface ImportMetaEnv {}
+type ImportMetaEnv = Record<string, string | undefined>;
 
 interface ImportMeta {
   readonly env: ImportMetaEnv;
