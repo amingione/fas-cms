@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { google } from 'googleapis';
+import { google, type youtube_v3 } from 'googleapis';
 import { sanityFetch } from '../../src/lib/sanityFetch';
 
 interface ProductVideoDoc {
@@ -33,15 +33,19 @@ async function fetchVideoMetadata(videoIds: string[]) {
   const apiKey = process.env.YOUTUBE_API_KEY;
   if (!apiKey || !videoIds.length) return {} as Record<string, any>;
 
-  const youtube = google.youtube('v3');
-  const response = await youtube.videos.list({
-    key: apiKey,
-    id: videoIds.join(','),
-    part: ['snippet', 'contentDetails']
+  const youtube = google.youtube({
+    version: 'v3',
+    auth: apiKey
   });
+  const params: youtube_v3.Params$Resource$Videos$List = {
+    id: videoIds,
+    part: ['snippet', 'contentDetails']
+  };
+
+  const { data } = await youtube.videos.list(params);
 
   const map: Record<string, any> = {};
-  for (const item of response.data.items ?? []) {
+  for (const item of data.items ?? []) {
     if (!item.id) continue;
     map[item.id] = {
       title: item.snippet?.title,

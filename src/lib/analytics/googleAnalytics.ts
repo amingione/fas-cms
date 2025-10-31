@@ -1,4 +1,4 @@
-import { google } from 'googleapis';
+import { google, type analyticsdata_v1beta } from 'googleapis';
 
 export interface AnalyticsSummary {
   sessions: number;
@@ -41,25 +41,37 @@ export async function fetchAnalyticsSummary(days = 30): Promise<AnalyticsSummary
   startDate.setDate(endDate.getDate() - days);
 
   try {
-    const auth = new google.auth.JWT(clientEmail, undefined, privateKey, SCOPES);
-    const analyticsData = google.analyticsdata({ version: 'v1beta', auth });
-    const response = await analyticsData.properties.runReport({
-      property: `properties/${propertyId}`,
-      dateRanges: [
-        {
-          startDate: startDate.toISOString().slice(0, 10),
-          endDate: endDate.toISOString().slice(0, 10)
-        }
-      ],
-      metrics: [
-        { name: 'sessions' },
-        { name: 'screenPageViews' },
-        { name: 'averageSessionDuration' },
-        { name: 'engagementRate' }
-      ]
+    const auth = new google.auth.JWT({
+      email: clientEmail,
+      key: privateKey,
+      scopes: SCOPES
+    });
+    const analyticsData = google.analyticsdata({
+      version: 'v1beta',
+      auth
     });
 
-    const row = response.data.rows?.[0];
+    const params: analyticsdata_v1beta.Params$Resource$Properties$Runreport = {
+      property: `properties/${propertyId}`,
+      requestBody: {
+        dateRanges: [
+          {
+            startDate: startDate.toISOString().slice(0, 10),
+            endDate: endDate.toISOString().slice(0, 10)
+          }
+        ],
+        metrics: [
+          { name: 'sessions' },
+          { name: 'screenPageViews' },
+          { name: 'averageSessionDuration' },
+          { name: 'engagementRate' }
+        ]
+      }
+    };
+
+    const { data } = await analyticsData.properties.runReport(params);
+
+    const row = data.rows?.[0];
     const values = row?.metricValues ?? [];
 
     const summary: AnalyticsSummary = {

@@ -211,11 +211,18 @@ export async function fetchSeoForPath(
 
 export const buildMetaEntries = (payload: SeoPayload, canonicalUrl?: string) => {
   const { global, page } = payload;
-  const description = page.description || global.defaultDescription;
-  const ogImage = (page.ogImage as string | undefined) || (global.defaultOgImage as string | undefined);
+  const description =
+    page.description ||
+    global.defaultDescription ||
+    FALLBACK_GLOBAL.defaultDescription ||
+    '';
+  const ogImage =
+    (page.ogImage as string | undefined) ||
+    (global.defaultOgImage as string | undefined) ||
+    undefined;
   const keywords = (page.keywords && page.keywords.length > 0
     ? page.keywords
-    : global.defaultKeywords) ?? [];
+    : global.defaultKeywords) ?? FALLBACK_GLOBAL.defaultKeywords ?? [];
 
   const title = page.title && global.siteName && !page.title.includes(global.siteName)
     ? `${page.title} | ${global.siteName}`
@@ -265,4 +272,3 @@ export const buildJsonLd = (payload: SeoPayload, breadcrumbStructuredData?: any)
 
   return scripts;
 };
-
