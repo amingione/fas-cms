@@ -54,20 +54,21 @@ const createHistoryAdapter = (): HistoryAdapter => ({
   },
 })
 
-type OverlaysModule = {
+type VisualEditingModule = {
   enableVisualEditing: (options: {
     history: HistoryAdapter
     zIndex?: number
+    refresh?: (update: {type: 'push' | 'replace' | 'pop'}) => false | Promise<void>
   }) => DisableVisualEditing
 }
 
-const loadOverlays = async (): Promise<OverlaysModule | null> => {
+const loadVisualEditing = async (): Promise<VisualEditingModule | null> => {
   try {
-    const specifier = '@sanity/overlays'
-    const mod = (await import(/* @vite-ignore */ specifier)) as OverlaysModule
+    const specifier = '@sanity/visual-editing'
+    const mod = (await import(/* @vite-ignore */ specifier)) as VisualEditingModule
     return mod
   } catch (err) {
-    console.warn('[sanity] Failed to load @sanity/overlays:', err)
+    console.warn('[sanity] Failed to load @sanity/visual-editing:', err)
     return null
   }
 }
@@ -109,15 +110,19 @@ export default function VisualEditingBridge({
     let disposed = false
 
     ;(async () => {
-      const overlays = await loadOverlays()
-      if (!overlays || disposed) {
+      const visualEditing = await loadVisualEditing()
+      if (!visualEditing || disposed) {
         return
       }
 
       try {
-        disableOverlays = overlays.enableVisualEditing({
+        disableOverlays = visualEditing.enableVisualEditing({
           history: createHistoryAdapter(),
           zIndex,
+          refresh: () => {
+            window.location.reload()
+            return Promise.resolve()
+          },
         })
       } catch (err) {
         console.error('[sanity] Failed to enable visual editing overlays:', err)

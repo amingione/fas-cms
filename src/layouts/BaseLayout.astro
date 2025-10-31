@@ -34,8 +34,6 @@ const {
   keywords?: string | string[];
 };
 
-const seoPayload = await fetchSeoForPath(Astro.url?.pathname ?? '/');
-
 const normalizeNoindex = (value: unknown): boolean => {
   if (typeof value === 'boolean') return value;
   if (typeof value === 'number') return value !== 0;
@@ -48,36 +46,6 @@ const normalizeNoindex = (value: unknown): boolean => {
   }
   return false;
 };
-
-const cmsNoindex = Boolean(seoPayload.page?.noindex);
-const noindex = normalizeNoindex(rawNoindex) || cmsNoindex;
-
-const FALLBACK_KEYWORDS = [
-  'F.A.S. Motorsports',
-  'performance parts',
-  'supercharger upgrades',
-  'billet parts',
-  'custom fabrication',
-  'Fort Myers auto shop',
-  'Hellcat performance',
-  'Trackhawk upgrades',
-  'TRX packages'
-];
-
-const SITE_NAME = seoPayload.global.siteName ?? 'F.A.S. Motorsports';
-const SITE_AUTHOR = seoPayload.global.siteName ?? 'F.A.S. Motorsports';
-const DEFAULT_DESCRIPTION =
-  seoPayload.global.defaultDescription ??
-  'F.A.S. Motorsports delivers premium performance parts, custom fabrication, installs, and wheel packages in Fort Myers, Florida.';
-const DEFAULT_KEYWORDS =
-  seoPayload.global.defaultKeywords && seoPayload.global.defaultKeywords.length
-    ? seoPayload.global.defaultKeywords
-    : FALLBACK_KEYWORDS;
-const DEFAULT_OG_IMAGE =
-  (typeof seoPayload.global.defaultOgImage === 'string'
-    ? seoPayload.global.defaultOgImage
-    : seoPayload.global.defaultOgImage?.asset?.url) ??
-  'https://fasmotorsports.com/images/social/social-share.webp';
 
 const parseBooleanFlag = (value: unknown): boolean => {
   if (typeof value === 'boolean') return value;
@@ -145,10 +113,15 @@ const queryVisualEditingRequested = getUrlBooleanFlag(currentUrl, [
   'preview',
   'visual-editing',
 ]);
+const cookieVisualEditingRequested = parseBooleanFlag(
+  Astro.cookies.get('sanity-preview')?.value ?? ''
+);
 const overlaysRequested = parseBooleanFlag(
   import.meta.env.PUBLIC_SANITY_ENABLE_VISUAL_OVERLAYS as string | undefined
 );
-const visualEditingRequested = envVisualEditingRequested || queryVisualEditingRequested;
+const previewSessionRequested =
+  envVisualEditingRequested || queryVisualEditingRequested || cookieVisualEditingRequested;
+const visualEditingRequested = previewSessionRequested;
 
 const resolvedStudioUrl =
   (import.meta.env.PUBLIC_SANITY_STUDIO_URL as string | undefined) ||
@@ -182,11 +155,52 @@ const liveSubscriptionsEnabled =
     import.meta.env.PUBLIC_SANITY_ENABLE_LIVE_SUBSCRIPTIONS as string | undefined
   );
 
-const previewDraftsEnabled =
-  visualEditingEnabled &&
-  parseBooleanFlag(
-    (import.meta.env.PUBLIC_SANITY_PREVIEW_DRAFTS as string | undefined) ?? 'true'
-  );
+const previewDraftsRequested = parseBooleanFlag(
+  (import.meta.env.PUBLIC_SANITY_PREVIEW_DRAFTS as string | undefined) ?? 'true'
+);
+const previewDraftsEnabled = previewSessionRequested && previewDraftsRequested;
+const overlayPreviewDraftsEnabled = visualEditingEnabled && previewDraftsRequested;
+
+const previewToken =
+  (import.meta.env.SANITY_API_READ_TOKEN as string | undefined) ||
+  (import.meta.env.SANITY_API_TOKEN as string | undefined) ||
+  (import.meta.env.SANITY_WRITE_TOKEN as string | undefined) ||
+  undefined;
+
+const seoPayload = await fetchSeoForPath(Astro.url?.pathname ?? '/', {
+  preview: previewDraftsEnabled,
+  token: previewToken,
+});
+
+const cmsNoindex = Boolean(seoPayload.page?.noindex);
+const noindex = normalizeNoindex(rawNoindex) || cmsNoindex;
+
+const FALLBACK_KEYWORDS = [
+  'F.A.S. Motorsports',
+  'performance parts',
+  'supercharger upgrades',
+  'billet parts',
+  'custom fabrication',
+  'Fort Myers auto shop',
+  'Hellcat performance',
+  'Trackhawk upgrades',
+  'TRX packages'
+];
+
+const SITE_NAME = seoPayload.global.siteName ?? 'F.A.S. Motorsports';
+const SITE_AUTHOR = seoPayload.global.siteName ?? 'F.A.S. Motorsports';
+const DEFAULT_DESCRIPTION =
+  seoPayload.global.defaultDescription ??
+  'F.A.S. Motorsports delivers premium performance parts, custom fabrication, installs, and wheel packages in Fort Myers, Florida.';
+const DEFAULT_KEYWORDS =
+  seoPayload.global.defaultKeywords && seoPayload.global.defaultKeywords.length
+    ? seoPayload.global.defaultKeywords
+    : FALLBACK_KEYWORDS;
+const DEFAULT_OG_IMAGE =
+  (typeof seoPayload.global.defaultOgImage === 'string'
+    ? seoPayload.global.defaultOgImage
+    : seoPayload.global.defaultOgImage?.asset?.url) ??
+  'https://fasmotorsports.com/images/social/social-share.webp';
 
 declare global {
   interface Window {
@@ -730,7 +744,7 @@ const jsonLdEntries = buildJsonLd(computedPayload, breadcrumbStructuredData);
         dataset={resolvedDataset}
         studioUrl={resolvedStudioUrl}
         enableLive={liveSubscriptionsEnabled}
-        includeDrafts={previewDraftsEnabled}
+        includeDrafts={overlayPreviewDraftsEnabled}
       />
     )}
 
