@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promises as fs } from 'node:fs';
 import fg from 'fast-glob';
-import cheerio from 'cheerio';
+import { load } from 'cheerio';
 import fetch from 'node-fetch';
 import pLimit from 'p-limit';
 
@@ -38,7 +38,7 @@ export async function auditLinks(options: AuditLinksOptions = {}) {
   for (const file of files) {
     try {
       const html = await fs.readFile(file, 'utf8');
-      const $ = cheerio.load(html);
+      const $ = load(html);
       const links = $('a')
         .map((_, el) => el.attribs?.href ?? '')
         .get()

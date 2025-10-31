@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { promises as fs } from 'node:fs';
 import fg from 'fast-glob';
 import sharp from 'sharp';
-import cheerio from 'cheerio';
+import { load } from 'cheerio';
 
 export interface OptimizeOptions {
   sourceGlobs?: string[];
@@ -74,7 +74,7 @@ export async function optimizeImages(options: OptimizeOptions = {}) {
   for (const file of htmlFiles) {
     try {
       const html = await fs.readFile(file, 'utf8');
-      const $ = cheerio.load(html);
+      const $ = load(html);
       let mutated = false;
 
       $('img').each((_, el) => {

@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promises as fs } from 'node:fs';
 import fg from 'fast-glob';
-import cheerio from 'cheerio';
+import { load } from 'cheerio';
 
 export interface MetaCheckOptions {
   htmlGlobs?: string[];
@@ -33,7 +33,7 @@ export async function checkMeta(options: MetaCheckOptions = {}) {
   for (const file of files) {
     try {
       const html = await fs.readFile(file, 'utf8');
-      const $ = cheerio.load(html);
+      const $ = load(html);
       const missing: string[] = [];
 
       for (const requirement of REQUIRED_META) {
