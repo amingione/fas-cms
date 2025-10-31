@@ -154,6 +154,12 @@ export default function EmailCaptureModal() {
     const trimmedName = name.trim();
     const trimmedEmail = email.trim();
 
+    if (!trimmedName) {
+      setSubmissionState('error');
+      setErrorMessage('Please enter your name.');
+      return;
+    }
+
     if (!emailPattern.test(trimmedEmail)) {
       setSubmissionState('error');
       setErrorMessage('Please enter a valid email address.');
@@ -251,13 +257,14 @@ export default function EmailCaptureModal() {
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div className="space-y-1">
                 <label htmlFor="email-popup-name" className="text-sm font-medium text-gray-800">
-                  Name <span className="text-gray-400">(optional)</span>
+                  Name
                 </label>
                 <input
                   id="email-popup-name"
                   type="text"
                   value={name}
                   autoComplete="name"
+                  required
                   onChange={(event) => setName(event.target.value)}
                   className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                   placeholder="Your name"

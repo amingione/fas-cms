@@ -10,7 +10,7 @@ type FeatureImage = {
   className?: string;
 } & Pick<
   ImgHTMLAttributes<HTMLImageElement>,
-  'loading' | 'decoding' | 'sizes' | 'srcSet' | 'width' | 'height' | 'fetchPriority'
+  'loading' | 'decoding' | 'sizes' | 'srcSet' | 'width' | 'height'
 >;
 
 type Feature = {
@@ -49,8 +49,7 @@ const FeatureBlock = ({ f, isSecond }: { f: Feature; isSecond?: boolean }) => {
     loading = 'lazy',
     decoding = 'async',
     sizes,
-    srcSet,
-    fetchPriority
+    srcSet
   } = f.image;
 
   return (
@@ -73,7 +72,6 @@ const FeatureBlock = ({ f, isSecond }: { f: Feature; isSecond?: boolean }) => {
           decoding={decoding}
           sizes={sizes}
           srcSet={srcSet}
-          fetchPriority={fetchPriority}
           className={
             'mx-auto max-h-72 md:max-h-[15rem] object-contain drop-shadow-2xl shadow-white/10' +
             (imageClassName ? ` ${imageClassName}` : '')
