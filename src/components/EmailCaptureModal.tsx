@@ -1,4 +1,5 @@
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import type { FormEvent } from 'react';
 
 const STORAGE_KEY = 'fas-email-popup-dismissed-at';
 const SUPPRESSION_MS = 1000 * 60 * 60 * 24 * 7; // 7 days
@@ -72,8 +73,8 @@ export default function EmailCaptureModal() {
   useEffect(() => {
     if (!isEligible || typeof window === 'undefined') return;
 
-    let showTimeout: ReturnType<typeof window.setTimeout> | undefined;
-    let fallbackTimeout: ReturnType<typeof window.setTimeout> | undefined;
+    let showTimeout: number | undefined;
+    let fallbackTimeout: number | undefined;
     let hasOpened = false;
 
     const openPopup = () => {
@@ -198,7 +199,7 @@ export default function EmailCaptureModal() {
 
       setSubmissionState('success');
       setSuppression();
-      setTimeout(() => setVisible(false), 3_000);
+      window.setTimeout(() => setVisible(false), 3_000);
     } catch (error) {
       console.error('Newsletter signup failed', error);
       setSubmissionState('error');
@@ -257,7 +258,8 @@ export default function EmailCaptureModal() {
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div className="space-y-1">
                 <label htmlFor="email-popup-name" className="text-sm font-medium text-gray-800">
-                  Name
+                  Name <span aria-hidden="true" className="text-red-500">*</span>
+                  <span className="sr-only">required</span>
                 </label>
                 <input
                   id="email-popup-name"
@@ -273,7 +275,8 @@ export default function EmailCaptureModal() {
 
               <div className="space-y-1">
                 <label htmlFor="email-popup-email" className="text-sm font-medium text-gray-800">
-                  Email
+                  Email <span aria-hidden="true" className="text-red-500">*</span>
+                  <span className="sr-only">required</span>
                 </label>
                 <input
                   id="email-popup-email"
