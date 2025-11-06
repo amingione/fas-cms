@@ -128,47 +128,14 @@ export async function createCartAndSetCookie() {
 
 // Redirect to checkout using your existing Netlify/Vercel function at /api/checkout
 // Expects the endpoint to return { url: string } to redirect (e.g., Stripe session URL)
-export type CheckoutShippingInput = {
-  name?: string;
-  email?: string;
-  phone?: string;
-  addressLine1: string;
-  addressLine2?: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  country?: string;
-};
-
-export type CheckoutShippingRate = {
-  carrierId?: string;
-  carrier?: string;
-  serviceCode?: string;
-  service?: string;
-  serviceName?: string;
-  amount: number;
-  currency: string;
-  deliveryDays?: number | null;
-  estimatedDeliveryDate?: string | null;
-};
-
-export type CheckoutOptions = {
-  shipping?: CheckoutShippingInput;
-  shippingRate?: CheckoutShippingRate;
-};
-
-export async function redirectToCheckout(options?: CheckoutOptions) {
+export async function redirectToCheckout() {
   try {
     const cart = getCart();
     const res = await fetch('/api/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       // API expects an array of cart items; send cart.items instead of entire cart object
-      body: JSON.stringify({
-        cart: cart.items,
-        ...(options?.shipping ? { shipping: options.shipping } : {}),
-        ...(options?.shippingRate ? { shippingRate: options.shippingRate } : {})
-      })
+      body: JSON.stringify({ cart: cart.items })
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {

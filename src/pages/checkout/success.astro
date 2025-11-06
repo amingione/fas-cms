@@ -2,7 +2,7 @@
 import Stripe from 'stripe';
 import TrustStrip from '@/components/TrustStrip.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { formatPrice } from '@/components/storefront/Price';
+import { formatPrice } from '@/components/storefront/Price.tsx';
 
 const url = new URL(Astro.request.url);
 const sessionId = url.searchParams.get('session_id');

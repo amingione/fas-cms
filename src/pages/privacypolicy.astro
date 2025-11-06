@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
+import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content.ts';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 
 const pageDoc: any = await loadPageDoc('privacypolicy');

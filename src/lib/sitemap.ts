@@ -4,14 +4,7 @@ import { sanity } from './sanity-utils';
 
 const FALLBACK_SITE_URL = 'https://www.fasmotorsports.com';
 
-type ChangeFreq =
-  | 'always'
-  | 'hourly'
-  | 'daily'
-  | 'weekly'
-  | 'monthly'
-  | 'yearly'
-  | 'never';
+type ChangeFreq = 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never';
 
 export interface SitemapUrlEntry {
   loc: string;
@@ -43,52 +36,242 @@ const STATIC_PAGES: StaticPageConfig[] = [
   { pathname: '/contact', source: '../pages/contact.astro', changefreq: 'monthly', priority: 0.7 },
   { pathname: '/faq', source: '../pages/faq.astro', changefreq: 'monthly', priority: 0.6 },
   { pathname: '/faq2', source: '../pages/faq2.astro', changefreq: 'monthly', priority: 0.4 },
-  { pathname: '/schedule', source: '../pages/schedule.astro', changefreq: 'monthly', priority: 0.6 },
-  { pathname: '/customBuild', source: '../pages/customBuild.astro', changefreq: 'monthly', priority: 0.6 },
+  {
+    pathname: '/schedule',
+    source: '../pages/schedule.astro',
+    changefreq: 'monthly',
+    priority: 0.6
+  },
+  {
+    pathname: '/customBuild',
+    source: '../pages/customBuild.astro',
+    changefreq: 'monthly',
+    priority: 0.6
+  },
   { pathname: '/search', source: '../pages/search.astro', changefreq: 'weekly', priority: 0.6 },
-  { pathname: '/packages', source: '../pages/packages/index.astro', changefreq: 'monthly', priority: 0.6 },
-  { pathname: '/packages/powerPackages', source: '../pages/packages/powerPackages.astro', changefreq: 'monthly', priority: 0.6 },
-  { pathname: '/packages/truckPackages', source: '../pages/packages/truckPackages.astro', changefreq: 'monthly', priority: 0.6 },
-  { pathname: '/services/Services', source: '../pages/services/Services.astro', changefreq: 'monthly', priority: 0.7 },
-  { pathname: '/services/coreExchange', source: '../pages/services/coreExchange.astro', changefreq: 'monthly', priority: 0.6 },
-  { pathname: '/services/customFab', source: '../pages/services/customFab.astro', changefreq: 'monthly', priority: 0.6 },
-  { pathname: '/services/igla', source: '../pages/services/igla.astro', changefreq: 'monthly', priority: 0.6 },
-  { pathname: '/services/porting', source: '../pages/services/porting.astro', changefreq: 'monthly', priority: 0.6 },
-  { pathname: '/services/welding', source: '../pages/services/welding.astro', changefreq: 'monthly', priority: 0.6 },
-  { pathname: '/belak/wheels', source: '../pages/belak/wheels.astro', changefreq: 'monthly', priority: 0.6 },
-  { pathname: '/belak/series2', source: '../pages/belak/series2.astro', changefreq: 'monthly', priority: 0.6 },
-  { pathname: '/belak/series3', source: '../pages/belak/series3.astro', changefreq: 'monthly', priority: 0.6 },
-  { pathname: '/belak/skinnies', source: '../pages/belak/skinnies.astro', changefreq: 'monthly', priority: 0.5 },
-  { pathname: '/belak/thanks', source: '../pages/belak/thanks.astro', changefreq: 'monthly', priority: 0.3 },
-  { pathname: '/jtx/wheels', source: '../pages/jtx/wheels.astro', changefreq: 'monthly', priority: 0.6 },
-  { pathname: '/jtx/retro', source: '../pages/jtx/retro.astro', changefreq: 'monthly', priority: 0.6 },
-  { pathname: '/jtx/monoforged', source: '../pages/jtx/monoforged.astro', changefreq: 'monthly', priority: 0.6 },
-  { pathname: '/jtx/concave', source: '../pages/jtx/concave.astro', changefreq: 'monthly', priority: 0.6 },
+  {
+    pathname: '/packages',
+    source: '../pages/packages/index.astro',
+    changefreq: 'monthly',
+    priority: 0.6
+  },
+  {
+    pathname: '/packages/powerPackages',
+    source: '../pages/packages/powerPackages.astro',
+    changefreq: 'monthly',
+    priority: 0.6
+  },
+  {
+    pathname: '/packages/truckPackages',
+    source: '../pages/packages/truckPackages.astro',
+    changefreq: 'monthly',
+    priority: 0.6
+  },
+  {
+    pathname: '/services/overview',
+    source: '../pages/services/overview.astro',
+    changefreq: 'monthly',
+    priority: 0.7
+  },
+  {
+    pathname: '/services/coreExchange',
+    source: '../pages/services/coreExchange.astro',
+    changefreq: 'monthly',
+    priority: 0.6
+  },
+  {
+    pathname: '/services/customFab',
+    source: '../pages/services/customFab.astro',
+    changefreq: 'monthly',
+    priority: 0.6
+  },
+  {
+    pathname: '/services/igla',
+    source: '../pages/services/igla.astro',
+    changefreq: 'monthly',
+    priority: 0.6
+  },
+  {
+    pathname: '/services/porting',
+    source: '../pages/services/porting.astro',
+    changefreq: 'monthly',
+    priority: 0.6
+  },
+  {
+    pathname: '/services/welding',
+    source: '../pages/services/welding.astro',
+    changefreq: 'monthly',
+    priority: 0.6
+  },
+  {
+    pathname: '/belak/wheels',
+    source: '../pages/belak/wheels.astro',
+    changefreq: 'monthly',
+    priority: 0.6
+  },
+  {
+    pathname: '/belak/series2',
+    source: '../pages/belak/series2.astro',
+    changefreq: 'monthly',
+    priority: 0.6
+  },
+  {
+    pathname: '/belak/series3',
+    source: '../pages/belak/series3.astro',
+    changefreq: 'monthly',
+    priority: 0.6
+  },
+  {
+    pathname: '/belak/skinnies',
+    source: '../pages/belak/skinnies.astro',
+    changefreq: 'monthly',
+    priority: 0.5
+  },
+  {
+    pathname: '/belak/thanks',
+    source: '../pages/belak/thanks.astro',
+    changefreq: 'monthly',
+    priority: 0.3
+  },
+  {
+    pathname: '/jtx/wheels',
+    source: '../pages/jtx/wheels.astro',
+    changefreq: 'monthly',
+    priority: 0.6
+  },
+  {
+    pathname: '/jtx/retro',
+    source: '../pages/jtx/retro.astro',
+    changefreq: 'monthly',
+    priority: 0.6
+  },
+  {
+    pathname: '/jtx/monoforged',
+    source: '../pages/jtx/monoforged.astro',
+    changefreq: 'monthly',
+    priority: 0.6
+  },
+  {
+    pathname: '/jtx/concave',
+    source: '../pages/jtx/concave.astro',
+    changefreq: 'monthly',
+    priority: 0.6
+  },
   { pathname: '/jtx/arc', source: '../pages/jtx/arc.astro', changefreq: 'monthly', priority: 0.6 },
-  { pathname: '/jtx/two-piece', source: '../pages/jtx/two-piece.astro', changefreq: 'monthly', priority: 0.6 },
-  { pathname: '/jtx/thanks', source: '../pages/jtx/thanks.astro', changefreq: 'monthly', priority: 0.3 },
-  { pathname: '/jtx/beadlock', source: '../pages/jtx/beadlock.astro', changefreq: 'monthly', priority: 0.5 },
-  { pathname: '/jtx/rock-ring', source: '../pages/jtx/rock-ring.astro', changefreq: 'monthly', priority: 0.5 },
-  { pathname: '/jtx/phantom', source: '../pages/jtx/phantom.astro', changefreq: 'monthly', priority: 0.5 },
+  {
+    pathname: '/jtx/two-piece',
+    source: '../pages/jtx/two-piece.astro',
+    changefreq: 'monthly',
+    priority: 0.6
+  },
+  {
+    pathname: '/jtx/thanks',
+    source: '../pages/jtx/thanks.astro',
+    changefreq: 'monthly',
+    priority: 0.3
+  },
+  {
+    pathname: '/jtx/beadlock',
+    source: '../pages/jtx/beadlock.astro',
+    changefreq: 'monthly',
+    priority: 0.5
+  },
+  {
+    pathname: '/jtx/rock-ring',
+    source: '../pages/jtx/rock-ring.astro',
+    changefreq: 'monthly',
+    priority: 0.5
+  },
+  {
+    pathname: '/jtx/phantom',
+    source: '../pages/jtx/phantom.astro',
+    changefreq: 'monthly',
+    priority: 0.5
+  },
   { pathname: '/jtx/utv', source: '../pages/jtx/utv.astro', changefreq: 'monthly', priority: 0.5 },
-  { pathname: '/jtx/dually', source: '../pages/jtx/dually.astro', changefreq: 'monthly', priority: 0.5 },
-  { pathname: '/specs/billet-snouts', source: '../pages/specs/billet-snouts.astro', changefreq: 'yearly', priority: 0.5 },
-  { pathname: '/specs/BilletSnout', source: '../pages/specs/BilletSnout.astro', changefreq: 'yearly', priority: 0.5 },
-  { pathname: '/specs/PulleyHub', source: '../pages/specs/PulleyHub.astro', changefreq: 'yearly', priority: 0.5 },
-  { pathname: '/specs/BilletLid', source: '../pages/specs/BilletLid.astro', changefreq: 'yearly', priority: 0.5 },
-  { pathname: '/specs/PredatorPulley', source: '../pages/specs/PredatorPulley.astro', changefreq: 'yearly', priority: 0.5 },
-  { pathname: '/specs/BilletThrottleBody108', source: '../pages/specs/BilletThrottleBody108.astro', changefreq: 'yearly', priority: 0.5 },
-  { pathname: '/specs/BilletBearingPlate', source: '../pages/specs/BilletBearingPlate.astro', changefreq: 'yearly', priority: 0.5 },
-  { pathname: '/privacypolicy', source: '../pages/privacypolicy.astro', changefreq: 'yearly', priority: 0.3 },
-  { pathname: '/termsandconditions', source: '../pages/termsandconditions.astro', changefreq: 'yearly', priority: 0.3 },
-  { pathname: '/returnRefundPolicy', source: '../pages/returnRefundPolicy.astro', changefreq: 'yearly', priority: 0.3 },
+  {
+    pathname: '/jtx/dually',
+    source: '../pages/jtx/dually.astro',
+    changefreq: 'monthly',
+    priority: 0.5
+  },
+  {
+    pathname: '/specs/billet-snouts',
+    source: '../pages/specs/billet-snouts.astro',
+    changefreq: 'yearly',
+    priority: 0.5
+  },
+  {
+    pathname: '/specs/BilletSnout',
+    source: '../pages/specs/BilletSnout.astro',
+    changefreq: 'yearly',
+    priority: 0.5
+  },
+  {
+    pathname: '/specs/PulleyHub',
+    source: '../pages/specs/PulleyHub.astro',
+    changefreq: 'yearly',
+    priority: 0.5
+  },
+  {
+    pathname: '/specs/BilletLid',
+    source: '../pages/specs/BilletLid.astro',
+    changefreq: 'yearly',
+    priority: 0.5
+  },
+  {
+    pathname: '/specs/PredatorPulley',
+    source: '../pages/specs/PredatorPulley.astro',
+    changefreq: 'yearly',
+    priority: 0.5
+  },
+  {
+    pathname: '/specs/BilletThrottleBody108',
+    source: '../pages/specs/BilletThrottleBody108.astro',
+    changefreq: 'yearly',
+    priority: 0.5
+  },
+  {
+    pathname: '/specs/BilletBearingPlate',
+    source: '../pages/specs/BilletBearingPlate.astro',
+    changefreq: 'yearly',
+    priority: 0.5
+  },
+  {
+    pathname: '/privacypolicy',
+    source: '../pages/privacypolicy.astro',
+    changefreq: 'yearly',
+    priority: 0.3
+  },
+  {
+    pathname: '/termsandconditions',
+    source: '../pages/termsandconditions.astro',
+    changefreq: 'yearly',
+    priority: 0.3
+  },
+  {
+    pathname: '/returnRefundPolicy',
+    source: '../pages/returnRefundPolicy.astro',
+    changefreq: 'yearly',
+    priority: 0.3
+  },
   { pathname: '/warranty', source: '../pages/warranty.astro', changefreq: 'yearly', priority: 0.4 }
 ];
 
 const SHOP_STATIC_PAGES: StaticPageConfig[] = [
   { pathname: '/shop', source: '../pages/shop/index.astro', changefreq: 'daily', priority: 0.9 },
-  { pathname: '/shop/storefront', source: '../pages/shop/storefront.astro', changefreq: 'daily', priority: 0.8 },
-  { pathname: '/shop/categories', source: '../pages/shop/categories.astro', changefreq: 'weekly', priority: 0.7 }
+  {
+    pathname: '/shop/storefront',
+    source: '../pages/shop/storefront.astro',
+    changefreq: 'daily',
+    priority: 0.8
+  },
+  {
+    pathname: '/shop/categories',
+    source: '../pages/shop/categories.astro',
+    changefreq: 'weekly',
+    priority: 0.7
+  }
 ];
 
 function normalisePath(pathname: string): string {
@@ -183,7 +366,10 @@ export async function getProductEntries(): Promise<SitemapUrlEntry[]> {
   const docs = await fetchSanitySlugs(query);
   return docs.map(({ slug, updatedAt }) => {
     const lastmodDate = updatedAt ? new Date(updatedAt) : undefined;
-    const lastmod = lastmodDate && Number.isFinite(lastmodDate.getTime()) ? stripMilliseconds(lastmodDate) : undefined;
+    const lastmod =
+      lastmodDate && Number.isFinite(lastmodDate.getTime())
+        ? stripMilliseconds(lastmodDate)
+        : undefined;
     return {
       loc: toAbsoluteUrl(`/shop/${slug}`),
       lastmod,
@@ -201,7 +387,10 @@ export async function getCategoryEntries(): Promise<SitemapUrlEntry[]> {
   const docs = await fetchSanitySlugs(query);
   return docs.map(({ slug, updatedAt }) => {
     const lastmodDate = updatedAt ? new Date(updatedAt) : undefined;
-    const lastmod = lastmodDate && Number.isFinite(lastmodDate.getTime()) ? stripMilliseconds(lastmodDate) : undefined;
+    const lastmod =
+      lastmodDate && Number.isFinite(lastmodDate.getTime())
+        ? stripMilliseconds(lastmodDate)
+        : undefined;
     return {
       loc: toAbsoluteUrl(`/shop/categories/${slug}`),
       lastmod,
@@ -262,4 +451,3 @@ export async function getFullSitemapEntries(): Promise<SitemapUrlEntry[]> {
   ]);
   return [...staticEntries, ...shopEntries];
 }
-

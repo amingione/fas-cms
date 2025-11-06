@@ -4,12 +4,6 @@ import { useMemo, useState } from 'react';
 import { CartProvider, useCart } from '@/components/cart/cart-context';
 import { QuestionMarkCircleIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import Price, { formatPrice } from '@/components/storefront/Price';
-import { prefersDesktopCart } from '@/lib/device';
-import {
-  ShippingEstimator,
-  loadStoredShipping,
-  type ShippingFormState
-} from '@/components/cart/ShippingEstimator';
 
 type CartOptionMap = Record<string, string | number | boolean | null | undefined>;
 
@@ -53,10 +47,11 @@ function listOptions(options?: CartOptionMap) {
 }
 
 function CartContents() {
-  const { cart, subtotal, setItemQuantity, removeCartItem, clearCart } = useCart();
+  const { cart, subtotal, setItemQuantity, removeCartItem, clearCart, redirectToCheckout } =
+    useCart();
   const [clearing, setClearing] = useState(false);
-  const [showShipping, setShowShipping] = useState(false);
-  const [shippingForm, setShippingForm] = useState<ShippingFormState>(() => loadStoredShipping());
+  const [checkingOut, setCheckingOut] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   const items = cart?.items ?? [];
   const hasItems = items.length > 0;
@@ -92,8 +87,17 @@ function CartContents() {
     }
   };
 
-  const handleCheckout = () => {
-    setShowShipping(true);
+  const handleCheckout = async () => {
+    try {
+      setCheckingOut(true);
+      setCheckoutError(null);
+      const result = await redirectToCheckout();
+      if (typeof result === 'string' && result) {
+        setCheckoutError(result);
+      }
+    } finally {
+      setCheckingOut(false);
+    }
   };
 
   const formattedSubtotal = formatPrice(subtotal || 0);
@@ -119,8 +123,8 @@ function CartContents() {
           <div className="mt-16 flex flex-col items-center rounded-3xl border border-white/10 p-12 text-center">
             <p className="text-lg font-semibold">Your cart is empty.</p>
             <p className="mt-2 max-w-md text-sm text-white/70">
-              Add products from the storefront to see them here. When you’re ready, we’ll collect
-              shipping details and redirect you to secure checkout.
+              Add products from the storefront to see them here. When you’re ready, we’ll send you
+              straight to Stripe for secure checkout.
             </p>
             <a
               href="/shop"
@@ -250,71 +254,59 @@ function CartContents() {
             </section>
 
             <aside className="space-y-6 self-start rounded-3xl border border-white/10 bg-white/5 p-6 lg:w-[360px] lg:justify-self-end">
-              {showShipping ? (
-                <ShippingEstimator
-                  cart={cart}
-                  subtotal={subtotal}
-                  form={shippingForm}
-                  setForm={setShippingForm}
-                  showBackButton
-                  onBack={() => setShowShipping(false)}
-                  variant="embedded"
-                />
-              ) : (
-                <>
-                  <h2 className="text-lg font-semibold text-white">Order Summary</h2>
-                  <dl className="space-y-3 text-sm text-white/80">
-                    <div className="flex items-center justify-between">
-                      <dt>Subtotal</dt>
-                      <dd className="font-semibold text-white">{formattedSubtotal}</dd>
-                    </div>
-                    <div className="flex items-start justify-between gap-4">
-                      <dt className="flex items-center gap-2 text-white">
-                        Shipping
-                        <span className="group relative inline-flex">
-                          <button
-                            type="button"
-                            aria-label="Shipping is calculated after you enter your address"
-                            className="shrink-0 text-white/50 transition hover:text-white"
-                          >
-                            <QuestionMarkCircleIcon aria-hidden="true" className="size-4" />
-                          </button>
-                          <span className="pointer-events-none absolute top-full left-1/2 z-10 mt-1 hidden w-max -translate-x-1/2 rounded-md border border-white/20 bg-black/90 px-3 py-2 text-xs text-white shadow-lg transition group-hover:block group-focus-within:block">
-                            Shipping is calculated after you provide your address.
-                          </span>
-                        </span>
-                      </dt>
-                      <dd className="text-white/60">Calculated after address</dd>
-                    </div>
-                    <div className="flex items-start justify-between gap-4">
-                      <dt className="flex items-center gap-2 text-white">
-                        Taxes
-                        <span className="group relative inline-flex">
-                          <button
-                            type="button"
-                            aria-label="Taxes are calculated at checkout"
-                            className="shrink-0 text-white/50 transition hover:text-white"
-                          >
-                            <QuestionMarkCircleIcon aria-hidden="true" className="size-4" />
-                          </button>
-                          <span className="pointer-events-none absolute top-full left-1/2 z-10 mt-1 hidden w-max -translate-x-1/2 rounded-md border border-white/20 bg-black/90 px-3 py-2 text-xs text-white shadow-lg transition group-hover:block group-focus-within:block">
-                            Taxes are finalized during checkout based on your delivery details.
-                          </span>
-                        </span>
-                      </dt>
-                      <dd className="text-white/60">Calculated at checkout</dd>
-                    </div>
-                  </dl>
+              <h2 className="text-lg font-semibold text-white">Order Summary</h2>
+              <dl className="space-y-3 text-sm text-white/80">
+                <div className="flex items-center justify-between">
+                  <dt>Subtotal</dt>
+                  <dd className="font-semibold text-white">{formattedSubtotal}</dd>
+                </div>
+                <div className="flex items-start justify-between gap-4">
+                  <dt className="flex items-center gap-2 text-white">
+                    Shipping
+                    <span className="group relative inline-flex">
+                      <button
+                        type="button"
+                        aria-label="Calculated at checkout"
+                        className="shrink-0 text-white/50 transition hover:text-white"
+                      >
+                        <QuestionMarkCircleIcon aria-hidden="true" className="size-4" />
+                      </button>
+                      <span className="pointer-events-none absolute top-full left-1/2 z-10 mt-1 hidden w-max -translate-x-1/2 rounded-md border border-white/20 bg-black/90 px-3 py-2 text-xs text-white shadow-lg transition group-hover:block group-focus-within:block">
+                        Shipping costs are calculated according to your delivery address.
+                      </span>
+                    </span>
+                  </dt>
+                  <dd className="text-white/60">Calculated at checkout</dd>
+                </div>
+                <div className="flex items-start justify-between gap-4">
+                  <dt className="flex items-center gap-2 text-white">
+                    Taxes
+                    <span className="group relative inline-flex">
+                      <button
+                        type="button"
+                        aria-label="Taxes are calculated at checkout"
+                        className="shrink-0 text-white/50 transition hover:text-white"
+                      >
+                        <QuestionMarkCircleIcon aria-hidden="true" className="size-4" />
+                      </button>
+                      <span className="pointer-events-none absolute top-full left-1/2 z-10 mt-1 hidden w-max -translate-x-1/2 rounded-md border border-white/20 bg-black/90 px-3 py-2 text-xs text-white shadow-lg transition group-hover:block group-focus-within:block">
+                        Taxes are finalized during checkout based on your delivery details.
+                      </span>
+                    </span>
+                  </dt>
+                  <dd className="text-white/60">Calculated at checkout</dd>
+                </div>
+              </dl>
 
-                  <button
-                    type="button"
-                    onClick={handleCheckout}
-                    className="w-full rounded-full bg-primary px-6 py-3 text-sm font-semibold uppercase tracking-wide text-black transition hover:opacity-90"
-                  >
-                    Enter Shipping & Checkout
-                  </button>
-                </>
-              )}
+              <button
+                type="button"
+                onClick={() => void handleCheckout()}
+                disabled={checkingOut}
+                className="w-full rounded-full bg-primary px-6 py-3 text-sm font-semibold uppercase tracking-wide text-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {checkingOut ? 'Connecting…' : 'Continue to Checkout'}
+              </button>
+              {checkoutError && <p className="mt-2 text-xs text-red-300">{checkoutError}</p>}
             </aside>
           </div>
         )}

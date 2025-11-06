@@ -3,8 +3,8 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import powerPackagesData from '../../../content/pages/powerPackages.json' assert { type: 'json' };
 const pageDoc: any = powerPackagesData;
 import Button from '@/components/Button.astro';
-import PowerPackagesComponent from '@/components/packageComps/powerPackage';
-import AnimatedThreeDGallery from '@components/animated/AnimatedThreeDGallery';
+import PowerPackagesComponent from '@/components/packageComps/powerPackage.tsx';
+import AnimatedThreeDGallery from '@components/animated/AnimatedThreeDGallery.tsx';
 
 const requestUrl = new URL(Astro.request.url);
 requestUrl.search = '';

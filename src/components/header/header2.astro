@@ -1,15 +1,15 @@
 ---
 import AccountDashboard from '@/components/accountdashboard.astro';
-import MobileMenu from '@/components/navbar/mobile-menu';
+import MobileMenu from '@/components/navbar/mobile-menu.tsx';
 import CartEntry from '@/components/cart/CartEntry.tsx';
 import CartButton from '@/components/cart/cart-button.tsx';
 import { SearchBar } from '@/components/SearchBar.tsx';
-import HeaderAuthLoader from '@/components/HeaderAuthLoader';
-import DesktopCart from '@/components/cart/DesktopCart';
+import HeaderAuthLoader from '@/components/HeaderAuthLoader.tsx';
+import DesktopCart from '@/components/cart/DesktopCart.tsx';
 ---
 
 <header class="text-white w-full fixed top-0 z-[99999]">
-  <HeaderAuthLoader client:load />
+  <HeaderAuthLoader client:only="react" />
   <CartEntry client:only="react" />
 
   <!-- Mobile Header -->

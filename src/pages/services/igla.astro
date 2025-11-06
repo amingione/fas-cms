@@ -5,9 +5,9 @@ import { Image } from 'astro:assets';
 import IglaBox from '@/assets/igla/IGLA-Category-Image.webp';
 import SchedIgla from '@/assets/igla/sched-igla-install.webp';
 import SectionRenderer from '@/components/SectionRenderer.astro';
-import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
-import BrandDivider from '@/components/divider/brandDivider';
-import SocialMedia from '@/components/divider/socialMedia';
+import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content.ts';
+import BrandDivider from '@/components/divider/brandDivider.tsx';
+import SocialMedia from '@/components/divider/socialMedia.tsx';
 const pageDoc: any = await loadPageDoc('igla');
 
 const requestUrl = new URL(Astro.request.url);

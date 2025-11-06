@@ -38,9 +38,14 @@ export const GET: APIRoute = async () => {
       hasKey: Boolean(import.meta.env.RESEND_API_KEY),
       from: import.meta.env.RESEND_FROM || undefined
     },
-    // ShipEngine
-    shipengine: {
-      hasKey: Boolean(import.meta.env.SHIPENGINE_API_KEY)
+    // Shipping
+    shipping: {
+      provider: 'parcelcraft',
+      allowedCountries:
+        (import.meta.env.STRIPE_SHIPPING_ALLOWED_COUNTRIES as string | undefined) ||
+        (import.meta.env.PUBLIC_STRIPE_SHIPPING_ALLOWED_COUNTRIES as string | undefined) ||
+        undefined,
+      fulfillment: 'post-checkout-label'
     }
   };
 

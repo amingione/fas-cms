@@ -1,8 +1,8 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import CategoryPage from "@/components/storefront/CategoryPage.tsx";
-import { fetchProductsFromSanity, normalizeSanityImageUrl } from "@/lib/sanity-utils";
-import { sanityClient as client } from "@/lib/sanityClient";
+import { fetchProductsFromSanity, normalizeSanityImageUrl } from "@/lib/sanity-utils.ts";
+import { sanityClient as client } from "@/lib/sanityClient.ts";
 
 const products = await fetchProductsFromSanity({});
 

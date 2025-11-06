@@ -1,8 +1,8 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import SeoMetricsChart from '@/components/admin/SeoMetricsChart';
-import { fetchSeoMetrics } from '@/lib/seoMetrics';
-import { fetchAnalyticsSummary } from '@/lib/analytics/googleAnalytics';
+import SeoMetricsChart from '@/components/admin/SeoMetricsChart.tsx';
+import { fetchSeoMetrics } from '@/lib/seoMetrics.ts';
+import { fetchAnalyticsSummary } from '@/lib/analytics/googleAnalytics.ts';
 
 const [rankingMetrics, analytics] = await Promise.all([
   fetchSeoMetrics(60),

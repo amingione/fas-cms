@@ -2,8 +2,8 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import BelakHero from "@/components/belak/BelakHero.astro";
 import BelakSidebar from "@/components/belak/BelakSidebar.astro";
-import WheelSpecForm from "@/components/belak/WheelSpecForm";
-import WheelsHero from '@/components/WheelsHero';
+import WheelSpecForm from "@/components/belak/WheelSpecForm.tsx";
+import WheelsHero from '@/components/WheelsHero.tsx';
 
 const requestUrl = new URL(Astro.request.url);
 requestUrl.search = '';

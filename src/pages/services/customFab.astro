@@ -1,10 +1,10 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
-import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
+import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content.ts';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import { Hero } from '@/components/Hero.tsx';
-import BrandDivider from '@/components/divider/brandDivider';
-import SocialMedia from '@/components/divider/socialMedia';
+import BrandDivider from '@/components/divider/brandDivider.tsx';
+import SocialMedia from '@/components/divider/socialMedia.tsx';
 const pageDoc: any = await loadPageDoc('customFab');
 const requestUrl = new URL(Astro.request.url);
 requestUrl.search = '';

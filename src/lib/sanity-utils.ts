@@ -119,79 +119,9 @@ const studioUrlRaw =
   undefined;
 const studioUrl = typeof studioUrlRaw === 'string' && studioUrlRaw.trim() ? studioUrlRaw : undefined;
 
-const parseHostList = (input: string | undefined): string[] =>
-  typeof input === 'string'
-    ? input
-        .split(/[,\s]+/)
-        .map((part) => part.trim().toLowerCase())
-        .filter(Boolean)
-    : [];
-
-const defaultVisualEditingHosts = new Set<string>(['localhost', '127.0.0.1']);
-let studioHost: string | undefined;
-if (studioUrl) {
-  try {
-    studioHost = new URL(studioUrl).hostname.toLowerCase();
-    if (studioHost) {
-      defaultVisualEditingHosts.add(studioHost);
-    }
-  } catch {
-    // ignore invalid URL
-  }
-}
-
-const visualEditingAllowedHosts = new Set<string>([
-  ...defaultVisualEditingHosts,
-  ...parseHostList(import.meta.env.PUBLIC_SANITY_VISUAL_EDITING_ALLOWED_HOSTS as string | undefined),
-]);
-
-const isBrowserRuntime = typeof window !== 'undefined' && typeof window.location !== 'undefined';
-const runtimeHostname = isBrowserRuntime ? window.location.hostname.toLowerCase() : undefined;
-
-const isHostnameAllowlisted = (hostname: string | null | undefined): boolean => {
-  const normalized = typeof hostname === 'string' ? hostname.trim().toLowerCase() : undefined;
-
-  if (!normalized) {
-    return visualEditingAllowedHosts.size === 0;
-  }
-
-  if (visualEditingAllowedHosts.size === 0) {
-    return true;
-  }
-
-  return visualEditingAllowedHosts.has(normalized);
-};
-
-const visualEditingOriginAllowed = isHostnameAllowlisted(runtimeHostname);
-
-const visualEditingRequested = toBooleanFlag(
-  import.meta.env.PUBLIC_SANITY_ENABLE_VISUAL_EDITING as string | undefined
+const previewDraftsRequested = toBooleanFlag(
+  (import.meta.env.PUBLIC_SANITY_PREVIEW_DRAFTS as string | undefined) ?? 'false'
 );
-
-const visualEditingFlag = visualEditingRequested && visualEditingOriginAllowed;
-
-if (visualEditingRequested && !studioUrl) {
-  console.warn(
-    '[sanity-utils] Visual editing enabled but no PUBLIC_SANITY_STUDIO_URL (or SANITY_STUDIO_URL) configured.'
-  );
-}
-
-if (visualEditingRequested && !visualEditingOriginAllowed) {
-  const allowed = Array.from(visualEditingAllowedHosts.values()).join(', ') || '<none>';
-  console.warn(
-    `[sanity-utils] Visual editing disabled for host "${runtimeHostname ?? '<unknown>'}". Allowlisted hosts: ${allowed}.`
-  );
-}
-
-const previewDraftsRequested =
-  (visualEditingFlag && visualEditingOriginAllowed) ||
-  (visualEditingOriginAllowed &&
-    toBooleanFlag((import.meta.env.PUBLIC_SANITY_PREVIEW_DRAFTS as string | undefined) ?? 'false'));
-
-const liveSubscriptionsRequested = toBooleanFlag(
-  import.meta.env.PUBLIC_SANITY_ENABLE_LIVE_SUBSCRIPTIONS as string | undefined
-);
-const liveSubscriptionsFlag = visualEditingOriginAllowed && liveSubscriptionsRequested;
 
 const apiToken =
   (import.meta.env.SANITY_API_READ_TOKEN as string | undefined) ||
@@ -231,11 +161,7 @@ const manualCacheEnableFlag =
   manualCacheEnableFlagRaw === undefined ? true : toBooleanFlag(manualCacheEnableFlagRaw);
 
 export const sanityCacheEnabled =
-  !manualCacheDisableFlag &&
-  manualCacheEnableFlag &&
-  !import.meta.env.DEV &&
-  !previewDraftsEnabled &&
-  !visualEditingFlag;
+  !manualCacheDisableFlag && manualCacheEnableFlag && !import.meta.env.DEV && !previewDraftsEnabled;
 
 const DEFAULT_SANITY_CACHE_TTL_SECONDS = parsePositiveInt(
   (import.meta.env.SANITY_CACHE_TTL_SECONDS as string | undefined) ||
@@ -364,7 +290,6 @@ export const cachedSanityFetch = async <T>(
 };
 
 const perspective = previewDraftsEnabled ? 'previewDrafts' : 'published';
-const stegaEnabled = visualEditingFlag && Boolean(studioUrl);
 
 // Gracefully handle missing env vars in preview/editor environments
 const hasSanityConfig = Boolean(projectId && dataset);
@@ -386,10 +311,6 @@ if (previewDraftsEnabled && apiToken) {
   clientOptions.token = apiToken;
 }
 
-if (stegaEnabled && studioUrl) {
-  clientOptions.stega = { enabled: true, studioUrl } as const;
-}
-
 export const sanity: SanityClientLite | null = hasSanityConfig
   ? (createClient(clientOptions) as unknown as SanityClientLite)
   : null;
@@ -404,19 +325,11 @@ export const config = {
   dataset,
   apiVersion,
   perspective,
-  studioUrl: stegaEnabled ? studioUrl : undefined,
+  studioUrl,
 } as const;
 export const clientConfig = config;
 export const defaultClientConfig = config;
-
-export const visualEditingEnabled = stegaEnabled;
 export const previewDraftsActive = previewDraftsEnabled;
-export const liveSubscriptionsEnabled = stegaEnabled && liveSubscriptionsFlag;
-
-export const isVisualEditingHostnameAllowlisted = (hostname: string | null | undefined): boolean =>
-  isHostnameAllowlisted(hostname);
-export const visualEditingHostAllowlisted = visualEditingOriginAllowed;
-export const visualEditingRequestedFlag = visualEditingRequested;
 
 // Define interfaces
 export interface Product {

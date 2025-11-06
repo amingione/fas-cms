@@ -172,7 +172,7 @@ export function Hero() {
                     asChild
                   >
                     <a
-                      href="/services/Services"
+                      href="/services/overview"
                       onClick={() => {
                         /* handle explore services click */
                       }}

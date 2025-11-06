@@ -1,15 +1,15 @@
 ---
 const topProductLinks = [
   {
-    href: '/shop/predator-pulley',
+    href: '/specs/PredatorPulley',
     label: 'Predator Pulley Upgrades'
   },
   {
-    href: '/shop/hellcat-snout-porting',
+    href: '/shop/2-4l-2-7l-snout-porting',
     label: 'Hellcat Snout Porting'
   },
   {
-    href: '/shop/2-4l-hellcat-billet-supercharger-snout',
+    href: '/specs/billet-snouts.astro/services/overview',
     label: '2.4L Hellcat Billet Supercharger Snout'
   },
   {
@@ -24,11 +24,11 @@ const topProductLinks = [
 
 const topServiceLinks = [
   {
-    href: '/services/Services',
+    href: '/services/overview',
     label: 'Performance Services Overview'
   },
   {
-    href: '/services/porting',
+    href: '/services/overview',
     label: 'Precision Porting Services'
   },
   {
@@ -54,32 +54,35 @@ const topServiceLinks = [
           Top Products
         </h2>
         <p class="text-sm text-white/70 mb-6 max-w-xl">
-          Explore our most requested billet components and performance upgrades, each engineered in-house and backed by track data.
+          Explore our most requested billet components and performance upgrades, each engineered
+          in-house and backed by track data.
         </p>
         <nav aria-label="Top products">
           <ul class="space-y-3">
-            {topProductLinks.map((link) => (
-              <li>
-                <a
-                  class="inline-flex items-center gap-2 text-base font-medium text-white hover:text-[#ffa800] transition"
-                  href={link.href}
-                >
-                  <span>{link.label}</span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    class="h-4 w-4"
-                    aria-hidden="true"
+            {
+              topProductLinks.map((link) => (
+                <li>
+                  <a
+                    class="inline-flex items-center gap-2 text-base font-medium text-white hover:text-[#ffa800] transition"
+                    href={link.href}
                   >
-                    <path d="M5 12h14" />
-                    <path d="M13 6l6 6-6 6" />
-                  </svg>
-                </a>
-              </li>
-            ))}
+                    <span>{link.label}</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      class="h-4 w-4"
+                      aria-hidden="true"
+                    >
+                      <path d="M5 12h14" />
+                      <path d="M13 6l6 6-6 6" />
+                    </svg>
+                  </a>
+                </li>
+              ))
+            }
           </ul>
         </nav>
       </div>
@@ -89,32 +92,35 @@ const topServiceLinks = [
           Top Services
         </h2>
         <p class="text-sm text-white/70 mb-6 max-w-xl">
-          Pair your hardware upgrades with professional installation, calibration, and security options from the F.A.S. Motorsports team.
+          Pair your hardware upgrades with professional installation, calibration, and security
+          options from the F.A.S. Motorsports team.
         </p>
         <nav aria-label="Top services">
           <ul class="space-y-3">
-            {topServiceLinks.map((link) => (
-              <li>
-                <a
-                  class="inline-flex items-center gap-2 text-base font-medium text-white hover:text-[#ffa800] transition"
-                  href={link.href}
-                >
-                  <span>{link.label}</span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    class="h-4 w-4"
-                    aria-hidden="true"
+            {
+              topServiceLinks.map((link) => (
+                <li>
+                  <a
+                    class="inline-flex items-center gap-2 text-base font-medium text-white hover:text-[#ffa800] transition"
+                    href={link.href}
                   >
-                    <path d="M5 12h14" />
-                    <path d="M13 6l6 6-6 6" />
-                  </svg>
-                </a>
-              </li>
-            ))}
+                    <span>{link.label}</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      class="h-4 w-4"
+                      aria-hidden="true"
+                    >
+                      <path d="M5 12h14" />
+                      <path d="M13 6l6 6-6 6" />
+                    </svg>
+                  </a>
+                </li>
+              ))
+            }
           </ul>
         </nav>
       </div>

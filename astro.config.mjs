@@ -6,6 +6,7 @@ import tailwind from '@astrojs/tailwind';
 import sanity from '@sanity/astro';
 import { fileURLToPath } from 'url';
 import viteCompression from 'vite-plugin-compression';
+
 const FN_PORT =
   process.env.NETLIFY_DEV_PORT ||
   process.env.NETLIFY_FUNCTIONS_PORT ||
@@ -73,12 +74,13 @@ const dedupeNetlifyVitePlugin = () => {
     }
   };
 };
+
+const isDev = process.env.NODE_ENV !== 'production';
+
 // Lazy-load svgr so dev doesn't fail if it's not installed
 let svgrPlugin = null;
 try {
-  // Top-level await is supported in ESM under Node 18+
   const mod = await import('vite-plugin-svgr');
-  // mod.default is the plugin factory
   svgrPlugin = mod?.default ? mod.default() : mod();
 } catch (err) {
   console.warn(
@@ -108,12 +110,12 @@ export default defineConfig({
       useCdn: false,
       stega: sanityStudioUrl
         ? {
-            studioUrl: sanityStudioUrl,
+            studioUrl: sanityStudioUrl
           }
-        : undefined,
+        : undefined
     }),
     react(),
-    tailwind(),
+    tailwind()
   ],
   markdown: {
     remarkPlugins: [
@@ -165,7 +167,12 @@ export default defineConfig({
         '@tsparticles/react',
         '@tsparticles/engine',
         'tsparticles'
-      ]
+      ],
+      esbuildOptions: {
+        define: {
+          'process.env.NODE_ENV': JSON.stringify(isDev ? 'development' : 'production')
+        }
+      }
     },
     resolve: {
       // Prevent multiple React copies across islands/SSR

@@ -19,8 +19,16 @@ export const SITE_PAGES: SitePage[] = [
   },
   { title: 'Privacy Policy', path: '/privacypolicy', keywords: ['privacy', 'policy'] },
   { title: 'Terms and Conditions', path: '/termsandconditions', keywords: ['terms', 'conditions'] },
-  { title: 'Power Packages', path: '/packages/powerPackages', keywords: ['packages', 'performance'] },
-  { title: 'Services', path: '/services/Services', keywords: ['service', 'install', 'fabrication'] },
+  {
+    title: 'Power Packages',
+    path: '/packages/powerPackages',
+    keywords: ['packages', 'performance']
+  },
+  {
+    title: 'Services',
+    path: '/services/overview',
+    keywords: ['service', 'install', 'fabrication']
+  },
   { title: 'Porting', path: '/services/porting', keywords: ['porting', 'snout', 'supercharger'] },
   { title: 'IGLA', path: '/services/igla', keywords: ['security', 'anti-theft', 'igla'] },
   { title: 'Schedule Install', path: '/schedule', keywords: ['schedule', 'install', 'booking'] },

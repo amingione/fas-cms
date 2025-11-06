@@ -1,0 +1,336 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Button from '@/components/Button.astro';
+import BrandDivider from '@/components/divider/brandDivider.tsx';
+
+const serviceCards = [
+  {
+    title: 'Porting & Airflow Development',
+    description:
+      'Flow-bench validated porting for superchargers, snouts, throttle bodies, and cylinder heads built in-house.',
+    details: [
+      'Typical gains of 20-40+ whp when paired with calibration and supporting mods.',
+      'Matched transitions across snout, case, throttle body, and manifold for efficient airflow.',
+      '5-10 business day turnaround with expedited paths for track deadlines.'
+    ],
+    ctaHref: '/services/porting',
+    ctaLabel: 'Explore Porting'
+  },
+  {
+    title: 'Custom Fabrication & Exhaust',
+    description:
+      'In-house TIG welding for cat-back systems, downpipes, intercooler routing, and one-off projects.',
+    details: [
+      '304 and 316L stainless options with back-purged welds for smooth interiors.',
+      'CAD mockups, fixture tooling, and test-fit on-vehicle before final finish.',
+      'Typical fabrication lead time of 5-10 days depending on scope.'
+    ],
+    ctaHref: '/services/customFab',
+    ctaLabel: 'Custom Fabrication'
+  },
+  {
+    title: 'Certified TIG Welding',
+    description:
+      'Precision welding for aluminum, stainless, and titanium assemblies that need motorsport-level reliability.',
+    details: [
+      'Mandrel-bent tubing, V-band joints, and leak-checked assemblies.',
+      'Process documentation with torque specs and maintenance notes.',
+      'Ideal for roll-over protection, charge pipes, mid pipes, and repair work.'
+    ],
+    ctaHref: '/services/welding',
+    ctaLabel: 'TIG Welding Services'
+  },
+  {
+    title: 'Core Exchange Program',
+    description:
+      'Ready-to-ship ported snouts, coated lids, and full charger assemblies so you can upgrade without downtime.',
+    details: [
+      'Cleaned, inspected, and documented before shipment for plug-and-play installs.',
+      'Straightforward core return process with refund guidance before you ship back.',
+      'Options for ported, coated, or complete assemblies depending on platform.'
+    ],
+    ctaHref: '/services/coreExchange',
+    ctaLabel: 'Core Exchange Details'
+  },
+  {
+    title: 'IGLA Security Integrations',
+    description:
+      'Certified installs for the IGLA anti-theft system with factory-safe wiring and invisible controls.',
+    details: [
+      'Prevents unauthorized starts with custom PIN sequences or smartphone pairing.',
+      'No permanent changes to factory harnesses or warranty-critical modules.',
+      'Perfect companion to high-horsepower street builds and daily drivers alike.'
+    ],
+    ctaHref: '/services/igla',
+    ctaLabel: 'IGLA Install Info'
+  },
+  {
+    title: 'Performance Packages & Calibration',
+    description:
+      'Stack your hardware upgrades with dyno-proven calibration support for Hellcat, Trackhawk, TRX, and GM platforms.',
+    details: [
+      'Bundled hardware recommendations with the correct injectors, belts, and pulley ratios.',
+      'In-house street and dyno calibration available; limited remote support case-by-case.',
+      'Post-install datalog review and maintenance checklists for reliable power.'
+    ],
+    ctaHref: '/schedule',
+    ctaLabel: 'Book a Consultation'
+  }
+];
+
+const processSteps = [
+  {
+    title: 'Discover & Scope',
+    description:
+      'We review your platform, power goals, use case, and supporting mods to recommend the right path forward.'
+  },
+  {
+    title: 'Build & Document',
+    description:
+      'Fabrication, porting, and installs are handled in-house. Every project gets photo updates, measurement logs, and QC checklists.'
+  },
+  {
+    title: 'Calibrate & Support',
+    description:
+      'Dyno or street calibration, shakedown drives, and follow-up support keep your vehicle delivering consistent results.'
+  }
+];
+
+const supportHighlights = [
+  {
+    title: 'Out-of-State Customers',
+    description:
+      'Ship components in for porting or fabrication. We catalog each part, document the work, and ship everything back with reinstall notes and torque specs.'
+  },
+  {
+    title: 'Track-Side Timeline Friendly',
+    description:
+      'Need a weekend turnaround before an event? We offer expedited booking, flexible drop-off hours, and post-install checks to keep you on schedule.'
+  },
+  {
+    title: 'Ongoing Maintenance',
+    description:
+      'Seasonal inspections, re-coating services, and refresh packages are available for returning customers so the combo stays healthy.'
+  }
+];
+
+const heroStats = [
+  { label: 'In-House Programs', value: '6' },
+  { label: 'Average Turnaround', value: '5-10 days' },
+  { label: 'Platforms', value: 'Dodge | Ford | Audi ' }
+];
+---
+
+<BaseLayout>
+  <main class="bg-[#050505] text-gray-200">
+    <section
+      class="relative overflow-hidden border-b border-white/10 bg-gradient-to-br from-black via-[#0b0c10] to-[#050505]"
+    >
+      <div
+        class="pointer-events-none absolute -top-32 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-red-700/30 blur-3xl"
+      >
+      </div>
+      <div
+        class="pointer-events-none absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black to-transparent"
+      >
+      </div>
+      <div class="relative mx-auto max-w-6xl px-6 py-16 sm:px-10 sm:py-20 lg:px-12">
+        <BrandDivider client:load className="justify-start" />
+
+        <div class="mt-10 max-w-3xl space-y-6">
+          <p class="text-xs font-semibold uppercase tracking-[0.4em] text-red-400">Services</p>
+          <h1 class="font-ethno text-4xl text-white sm:text-5xl lg:text-6xl">
+            Service programs engineered for power, reliability, and security.
+          </h1>
+          <p class="text-base text-white/70 sm:text-lg">
+            Every build starts and finishes inside the F.A.S. Motorsports facility. From airflow
+            development to electronics and calibration, you get a partner that understands the
+            platform, documents the work, and delivers results that survive track abuse and daily
+            driving.
+          </p>
+        </div>
+
+        <div class="mt-10 flex flex-wrap gap-4">
+          <Button
+            href="/schedule"
+            text="Schedule a consultation"
+            variant="default"
+            size="lg"
+            className="font-semibold uppercase tracking-[0.12em]"
+          />
+          <Button
+            href="/contact"
+            text="Talk with the team"
+            variant="ghost"
+            size="lg"
+            className="font-semibold uppercase tracking-[0.12em] text-white/80 hover:text-white"
+          />
+        </div>
+
+        <div class="mt-12 grid gap-6 border-t border-white/10 pt-8 sm:grid-cols-3">
+          {
+            heroStats.map((stat) => (
+              <div class="flex flex-col gap-1 rounded-lg border border-white/5 bg-black/40 px-4 py-5">
+                <span class="text-3xl font-semibold text-white sm:text-4xl">{stat.value}</span>
+                <span class="text-xs font-semibold uppercase tracking-[0.4em] text-white/50">
+                  {stat.label}
+                </span>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="border-b border-white/10 py-16 sm:py-20">
+      <div class="mx-auto max-w-6xl px-6 sm:px-10 lg:px-12">
+        <header class="mb-12 max-w-3xl">
+          <p class="text-xs font-semibold uppercase tracking-[0.4em] text-red-400">Programs</p>
+          <h2 class="font-ethno text-3xl text-white sm:text-4xl">
+            Choose the service path that aligns with your platform.
+          </h2>
+          <p class="mt-4 text-sm text-white/60 sm:text-base">
+            The overview below highlights our core offerings from porting and fabrication to
+            calibration and security. Follow the links to dive into deliverables, galleries, and
+            pricing structures for your build.
+          </p>
+        </header>
+
+        <div class="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
+          {
+            serviceCards.map((service) => (
+              <article class="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0c0d11]/80 p-6 shadow-[0_25px_50px_-25px_rgba(0,0,0,0.6)] transition-all duration-300 hover:border-red-500/60 hover:shadow-red-900/30">
+                <div class="pointer-events-none absolute -top-16 right-0 h-40 w-40 rounded-full bg-red-600/10 blur-2xl transition-all duration-300 group-hover:bg-red-500/30" />
+                <div class="relative flex-1 space-y-4">
+                  <h3 class="font-ethno text-2xl text-red-400">{service.title}</h3>
+                  <p class="text-sm text-white/70">{service.description}</p>
+                  <ul class="space-y-3 text-xs text-white/60 sm:text-sm">
+                    {service.details.map((detail) => (
+                      <li class="flex gap-3">
+                        <span class="mt-1 inline-block h-1.5 w-1.5 flex-none rounded-full bg-red-500" />
+                        <span>{detail}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div class="relative mt-8">
+                  <Button
+                    href={service.ctaHref}
+                    text={service.ctaLabel}
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-center uppercase tracking-[0.18em]"
+                  />
+                </div>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="border-b border-white/10 bg-[#090a0f]/70 py-16 sm:py-20">
+      <div class="mx-auto max-w-6xl px-6 sm:px-10 lg:px-12">
+        <div class="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+          <header class="space-y-4">
+            <p class="text-xs font-semibold uppercase tracking-[0.4em] text-red-400">Process</p>
+            <h2 class="font-ethno text-3xl text-white sm:text-4xl">
+              Built in-house with documentation at every milestone.
+            </h2>
+            <p class="text-sm text-white/70 sm:text-base">
+              A consistent process keeps turnaround tight and results repeatable. Whether you are
+              shipping components or dropping off a complete vehicle, expect proactive
+              communication, inspection reports, and clear next steps.
+            </p>
+          </header>
+
+          <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
+            {
+              processSteps.map((step, index) => (
+                <div class="rounded-xl border border-white/10 bg-black/50 px-6 py-5 shadow-[0_15px_30px_-20px_rgba(0,0,0,0.6)] transition duration-300 hover:border-red-500/60">
+                  <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-red-500/80 text-sm font-semibold text-black">
+                    {index + 1}
+                  </span>
+                  <h3 class="mt-4 font-ethno text-xl text-white">{step.title}</h3>
+                  <p class="mt-2 text-sm text-white/70">{step.description}</p>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="border-b border-white/10 py-16 sm:py-20">
+      <div class="mx-auto max-w-6xl px-6 sm:px-10 lg:px-12">
+        <div class="grid gap-10 lg:grid-cols-[1fr_1fr]">
+          <div
+            class="rounded-2xl border border-white/10 bg-gradient-to-br from-black/80 to-[#11131a] p-8 shadow-[0_35px_60px_-35px_rgba(0,0,0,0.7)]"
+          >
+            <p class="text-xs font-semibold uppercase tracking-[0.4em] text-red-400">Support</p>
+            <h2 class="mt-4 font-ethno text-3xl text-white sm:text-4xl">
+              Support for every scenario.
+            </h2>
+            <p class="mt-6 text-sm text-white/70 sm:text-base">
+              Local drop-offs, shipped components, or full in-house builds all receive the same
+              attention to detail. Expect photo updates, measurement logs, and maintenance notes so
+              you know exactly where your project stands—no guesswork required.
+            </p>
+            <p class="mt-4 text-sm text-white/70 sm:text-base">
+              Not sure where to start? We can outline hardware recommendations, expected gains,
+              supporting mods, and the maintenance schedule to keep your setup reliable long after
+              delivery day.
+            </p>
+          </div>
+
+          <div class="space-y-6">
+            {
+              supportHighlights.map((item) => (
+                <div class="rounded-xl border border-white/10 bg-[#0c0d11]/70 p-6 shadow-[0_25px_40px_-30px_rgba(0,0,0,0.6)] transition hover:border-red-500/50">
+                  <h3 class="font-ethno text-xl text-red-400">{item.title}</h3>
+                  <p class="mt-2 text-sm text-white/70">{item.description}</p>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-16 sm:py-20">
+      <div class="mx-auto max-w-6xl px-6 sm:px-10 lg:px-12">
+        <div
+          class="flex flex-col gap-6 rounded-2xl border border-white/10 bg-gradient-to-r from-[#0b0c10] via-black to-[#0b0c10] p-8 sm:p-10 lg:flex-row lg:items-center lg:justify-between"
+        >
+          <div class="max-w-xl space-y-4">
+            <p class="text-xs font-semibold uppercase tracking-[0.4em] text-red-400">Next Steps</p>
+            <h2 class="font-ethno text-3xl text-white sm:text-4xl">
+              Ready to plan your build or ship components in?
+            </h2>
+            <p class="text-sm text-white/70 sm:text-base">
+              Share your goals, supporting mods, and timeline. We will respond with next steps,
+              available booking windows, and a clear scope so you can move forward with confidence.
+            </p>
+          </div>
+
+          <div class="flex flex-wrap gap-4">
+            <Button
+              href="/schedule"
+              text="Schedule a visit"
+              variant="default"
+              size="md"
+              className="min-w-[12rem] justify-center uppercase tracking-[0.18em]"
+            />
+            <Button
+              href="/contact"
+              text="Send a build sheet"
+              variant="ghost"
+              size="md"
+              className="min-w-[12rem] justify-center uppercase tracking-[0.18em] text-white/80 hover:text-white"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

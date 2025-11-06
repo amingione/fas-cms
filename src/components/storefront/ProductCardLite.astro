@@ -5,8 +5,8 @@
 
 import Label from '@/components/storefront/label.tsx';
 import ProductQuickViewButton from '@/components/storefront/ProductQuickViewButton.tsx';
-import { portableTextToPlainText } from '@/lib/portableText';
-import { resolveSanityImageUrl } from '@/lib/sanity-utils';
+import { portableTextToPlainText } from '@/lib/portableText.ts';
+import { resolveSanityImageUrl } from '@/lib/sanity-utils.ts';
 
 interface ImgAsset { url?: string }
 interface Img { asset?: ImgAsset; alt?: string }

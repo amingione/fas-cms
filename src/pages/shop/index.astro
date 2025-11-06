@@ -1,9 +1,9 @@
 --- 
 import BaseLayout from '@layouts/BaseLayout.astro';
-import ShopTopControls from '@components/shop/ShopTopControls';
-import ShopSidebarFilters from '@/components/storefront/ShopSidebarFilters';
-import { fetchProductsFromSanity, fetchCategories, fetchVehicles } from '@lib/sanity-utils';
-import type { Product, Category, Vehicle } from '@lib/sanity-utils';
+import ShopTopControls from '@components/shop/ShopTopControls.tsx';
+import ShopSidebarFilters from '@/components/storefront/ShopSidebarFilters.tsx';
+import { fetchProductsFromSanity, fetchCategories, fetchVehicles } from '@lib/sanity-utils.ts';
+import type { Product, Category, Vehicle } from '@lib/sanity-utils.ts';
 import ProductGrid from '@/components/storefront/ProductGrid.astro';
 import FilterPanelMobile from '@/components/storefront/FilterPanelMobile.tsx';
 import Pagination from '@/components/storefront/Pagination.astro';

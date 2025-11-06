@@ -1,10 +1,14 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import ShoppingCartDisplay from '@/components/storefront/ShoppingCart';
+import ShoppingCartDisplay from '@/components/storefront/ShoppingCart.tsx';
+
+export const prerender = false;
+
+const canonicalUrl = Astro.url?.href;
 ---
 
-<BaseLayout title="Shopping Cart" description="Review the items in your shopping cart." canonical={new URL(Astro.request.url).toString()}>
+<BaseLayout title="Shopping Cart" description="Review the items in your shopping cart." canonical={canonicalUrl}>
   <div class="pt-20">
-    <ShoppingCartDisplay client:load />
+    <ShoppingCartDisplay client:only="react" />
   </div>
 </BaseLayout>

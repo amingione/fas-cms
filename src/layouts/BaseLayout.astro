@@ -8,8 +8,6 @@ import CookieBanner from '@/components/notices/cookieBanner';
 import Breadcrumbs from '@/components/storefront/Breadcrumbs.astro';
 import InternalLinks from '@/components/navigation/InternalLinks.astro';
 import { Toaster } from 'sonner';
-import VisualEditingBridge from '@/components/sanity/VisualEditingBridge';
-import { isVisualEditingHostnameAllowlisted } from '@/lib/sanity-utils';
 import { buildJsonLd, buildMetaEntries, fetchSeoForPath } from '@/lib/seoData';
 
 
@@ -92,72 +90,18 @@ const resolveCanonical = (value?: string | null) => {
   return undefined;
 };
 
-const requestHostnameRaw =
-  currentUrl?.hostname ||
-  Astro.request.headers.get('x-forwarded-host') ||
-  Astro.request.headers.get('host') ||
-  null;
-const requestHostname = requestHostnameRaw
-  ? requestHostnameRaw.split(':')[0]?.trim().toLowerCase() ?? null
-  : null;
-const visualEditingHostAllowlisted = isVisualEditingHostnameAllowlisted(requestHostname);
-
-const envVisualEditingRequested = parseBooleanFlag(
-  import.meta.env.PUBLIC_SANITY_ENABLE_VISUAL_EDITING as string | undefined
-);
-const queryVisualEditingRequested = getUrlBooleanFlag(currentUrl, [
-  'sanity-preview',
-  'presentation',
-  'preview',
-  'visual-editing',
-]);
-const cookieVisualEditingRequested = parseBooleanFlag(
-  Astro.cookies.get('sanity-preview')?.value ?? ''
-);
-const overlaysRequested = parseBooleanFlag(
-  import.meta.env.PUBLIC_SANITY_ENABLE_VISUAL_OVERLAYS as string | undefined
-);
-const previewSessionRequested =
-  envVisualEditingRequested || queryVisualEditingRequested || cookieVisualEditingRequested;
-const visualEditingRequested = previewSessionRequested;
-
-const resolvedStudioUrl =
-  (import.meta.env.PUBLIC_SANITY_STUDIO_URL as string | undefined) ||
-  (import.meta.env.PUBLIC_STUDIO_URL as string | undefined) ||
-  (import.meta.env.SANITY_STUDIO_URL as string | undefined) ||
-  (import.meta.env.SANITY_STUDIO_NETLIFY_BASE as string | undefined) ||
-  undefined;
-
-const resolvedProjectId =
-  (import.meta.env.PUBLIC_SANITY_PROJECT_ID as string | undefined) ||
-  (import.meta.env.SANITY_PROJECT_ID as string | undefined) ||
-  (import.meta.env.SANITY_STUDIO_PROJECT_ID as string | undefined) ||
-  (import.meta.env.VITE_SANITY_PROJECT_ID as string | undefined) ||
-  undefined;
-
-const resolvedDataset =
-  (import.meta.env.PUBLIC_SANITY_DATASET as string | undefined) ||
-  (import.meta.env.SANITY_DATASET as string | undefined) ||
-  (import.meta.env.SANITY_STUDIO_DATASET as string | undefined) ||
-  'production';
-
-const visualEditingEnabled =
-  visualEditingRequested &&
-  overlaysRequested &&
-  visualEditingHostAllowlisted &&
-  Boolean(resolvedStudioUrl);
-
-const liveSubscriptionsEnabled =
-  visualEditingEnabled &&
-  parseBooleanFlag(
-    import.meta.env.PUBLIC_SANITY_ENABLE_LIVE_SUBSCRIPTIONS as string | undefined
-  );
-
-const previewDraftsRequested = parseBooleanFlag(
+const previewEnvEnabled = parseBooleanFlag(
   (import.meta.env.PUBLIC_SANITY_PREVIEW_DRAFTS as string | undefined) ?? 'true'
 );
-const previewDraftsEnabled = previewSessionRequested && previewDraftsRequested;
-const overlayPreviewDraftsEnabled = visualEditingEnabled && previewDraftsRequested;
+const previewCookieRequested = parseBooleanFlag(
+  Astro.cookies.get('sanity-preview')?.value ?? ''
+);
+const previewQueryRequested = getUrlBooleanFlag(currentUrl, [
+  'sanity-preview',
+  'preview',
+]);
+const previewDraftsEnabled =
+  previewEnvEnabled || previewCookieRequested || previewQueryRequested;
 
 const previewToken =
   (import.meta.env.SANITY_API_READ_TOKEN as string | undefined) ||
@@ -736,18 +680,6 @@ const jsonLdEntries = buildJsonLd(computedPayload, breadcrumbStructuredData);
         initFadeInUp();
       }
     </script>
-    {visualEditingEnabled && resolvedProjectId && resolvedDataset && (
-      <VisualEditingBridge
-        client:only="react"
-        enabled={visualEditingEnabled}
-        projectId={resolvedProjectId}
-        dataset={resolvedDataset}
-        studioUrl={resolvedStudioUrl}
-        enableLive={liveSubscriptionsEnabled}
-        includeDrafts={overlayPreviewDraftsEnabled}
-      />
-    )}
-
     <style>
       /* Ensure images and banners don't overflow */
       img,

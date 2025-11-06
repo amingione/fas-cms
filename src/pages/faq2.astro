@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
 import FAQ2 from '@/components/faq2.tsx';
-import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
+import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content.ts';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 
 const pageDoc: any = await loadPageDoc('faq');

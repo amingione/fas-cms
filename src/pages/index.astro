@@ -1,17 +1,17 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
+import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content.ts';
 import * as sanity from '../lib/sanity-utils';
 import { LuxuryFeatures } from '@components/LuxuryFeatures.tsx';
-import AnimatedHomeHero from '@components/animated/AnimatedHomeHero';
-import AnimatedHeadingBanner1 from '@components/animated/AnimatedHeadingBanner1';
+import AnimatedHomeHero from '@components/animated/AnimatedHomeHero.tsx';
+import AnimatedHeadingBanner1 from '@components/animated/AnimatedHeadingBanner1.tsx';
 import Highlights from '@/components/Highlights.astro';
-import AnimatedHeadingBanner from '@components/animated/AnimatedHeadingBanner';
-import AnimatedProductFeatureBanner from '@components/animated/AnimatedProductFeatureBanner';
-import AnimatedTaskCard from '@components/animated/AnimatedTaskCard';
-import AnimatedTruckPackagesHero from '@components/animated/AnimatedTruckPackagesHero';
+import AnimatedHeadingBanner from '@components/animated/AnimatedHeadingBanner.tsx';
+import AnimatedProductFeatureBanner from '@components/animated/AnimatedProductFeatureBanner.tsx';
+import AnimatedTaskCard from '@components/animated/AnimatedTaskCard.tsx';
+import AnimatedTruckPackagesHero from '@components/animated/AnimatedTruckPackagesHero.tsx';
 import SectionRenderer from '@/components/SectionRenderer.astro';
-import EmailCaptureModal from '@components/EmailCaptureModal';
+import EmailCaptureModal from '@components/EmailCaptureModal.tsx';
 
 
 const url = new URL(Astro.request.url);

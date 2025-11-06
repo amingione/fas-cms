@@ -1,6 +1,6 @@
 ---
-import { fetchProductsFromSanity } from '@lib/sanity-utils';
-import BuildConfiguratorClient from '@/components/packageComps/BuildConfiguratorClient';
+import { fetchProductsFromSanity } from '@lib/sanity-utils.ts';
+import BuildConfiguratorClient from '@/components/packageComps/BuildConfiguratorClient.tsx';
 
 // Fetch products from Sanity; client will derive facets (attributes/specifications)
 const products = await fetchProductsFromSanity({});

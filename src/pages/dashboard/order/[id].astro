@@ -1,10 +1,10 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import imageUrlBuilder from '@sanity/image-url';
-import { sanityClient } from '@/lib/sanityClient';
-import { optimizeSanityImageUrl } from '@/lib/sanity-utils';
-import { readSession } from '@/server/auth/session';
-import { formatPrice } from '@/components/storefront/Price';
+import { sanityClient } from '@/lib/sanityClient.ts';
+import { optimizeSanityImageUrl } from '@/lib/sanity-utils.ts';
+import { readSession } from '@/server/auth/session.ts';
+import { formatPrice } from '@/components/storefront/Price.tsx';
 
 interface ShippingLogEntry {
   status?: string;

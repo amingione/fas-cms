@@ -7,19 +7,10 @@ import Price from '@/components/storefront/Price';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import { useCart, type Cart } from './cart-context';
 import { prefersDesktopCart } from '@/lib/device';
-import {
-  ShippingEstimator,
-  loadStoredShipping,
-  type ShippingFormState
-} from './ShippingEstimator';
-
-
-
 export default function CartModal() {
-  const { cart, totalQuantity, subtotal, setItemQuantity, removeCartItem } = useCart();
+  const { cart, totalQuantity, subtotal, setItemQuantity, removeCartItem, redirectToCheckout } =
+    useCart();
   const [isOpen, setIsOpen] = useState(false);
-  const [checkoutStep, setCheckoutStep] = useState<'review' | 'shipping'>('review');
-  const [shippingForm, setShippingForm] = useState<ShippingFormState>(() => loadStoredShipping());
   const quantityRef = useRef(totalQuantity);
   const prefersDesktopRef = useRef(false);
 
@@ -57,23 +48,6 @@ export default function CartModal() {
     return () => window.removeEventListener('open-cart' as any, handleOpen as EventListener);
   }, []);
 
-  useEffect(() => {
-    function handleOpenShipping() {
-      if (prefersDesktopRef.current) {
-        try {
-          window.dispatchEvent(new Event('open-desktop-cart'));
-        } catch (error) {
-          void error;
-        }
-        return;
-      }
-      setCheckoutStep('shipping');
-      setIsOpen(true);
-    }
-    window.addEventListener('open-cart-shipping' as any, handleOpenShipping);
-    return () => window.removeEventListener('open-cart-shipping' as any, handleOpenShipping);
-  }, []);
-
   // Notify other components when the cart drawer opens or closes
   useEffect(() => {
     try {
@@ -82,13 +56,6 @@ export default function CartModal() {
       /* ignore cart open/close event propagation errors */
     }
   }, [isOpen]);
-
-  useEffect(() => {
-    if (!isOpen) {
-      setCheckoutStep('review');
-    }
-  }, [isOpen]);
-
   return (
     <>
       <Transition show={isOpen}>
@@ -102,7 +69,7 @@ export default function CartModal() {
             leaveFrom="opacity-100 backdrop-blur-[.5px]"
             leaveTo="opacity-0 backdrop-blur-none"
           >
-            <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+            <div className="fixed inset-0 bg-black/30" inert />
           </Transition.Child>
           <Transition.Child
             as={Fragment}
@@ -119,9 +86,7 @@ export default function CartModal() {
                   <Dialog.Panel className="pointer-events-auto w-screen max-w-md transform bg-black/90 text-white shadow-2xl transition duration-500 ease-in-out data-closed:translate-x-full sm:duration-700">
                     <div className="flex h-full flex-col">
                       <div className="flex items-start justify-between px-4 py-6 sm:px-6">
-                        <Dialog.Title className="text-lg font-semibold">
-                          {checkoutStep === 'shipping' ? 'Shipping & Contact' : 'Shopping Cart'}
-                        </Dialog.Title>
+                        <Dialog.Title className="text-lg font-semibold">Shopping Cart</Dialog.Title>
                         <button
                           type="button"
                           onClick={closeCart}
@@ -147,25 +112,19 @@ export default function CartModal() {
                               Browse Products
                             </a>
                           </div>
-                        ) : checkoutStep === 'review' ? (
-                          <CartItemsList cart={cart} onRemove={removeCartItem} onQuantityChange={setItemQuantity} />
                         ) : (
-                          <ShippingEstimator
+                          <CartItemsList
                             cart={cart}
-                            subtotal={subtotal}
-                            form={shippingForm}
-                            setForm={setShippingForm}
-                            showBackButton
-                            onBack={() => setCheckoutStep('review')}
-                            variant="modal"
+                            onRemove={removeCartItem}
+                            onQuantityChange={setItemQuantity}
                           />
                         )}
                       </div>
 
-                      {checkoutStep === 'review' && cart && cart.items && cart.items.length > 0 ? (
+                      {cart && cart.items && cart.items.length > 0 ? (
                         <CartSummary
                           subtotal={subtotal}
-                          onProceed={() => setCheckoutStep('shipping')}
+                          onCheckout={() => redirectToCheckout()}
                           onClose={closeCart}
                         />
                       ) : null}
@@ -357,17 +316,22 @@ function CartItemsList({ cart, onQuantityChange, onRemove }: CartItemsListProps)
 
 type CartSummaryProps = {
   subtotal: number;
-  onProceed: () => void | Promise<void>;
+  onCheckout: () => Promise<void | string>;
   onClose: () => void;
 };
 
-function CartSummary({ subtotal, onProceed, onClose }: CartSummaryProps) {
+function CartSummary({ subtotal, onCheckout, onClose }: CartSummaryProps) {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleProceed = async () => {
+  const handleCheckout = async () => {
     try {
       setLoading(true);
-      await Promise.resolve(onProceed());
+      setError(null);
+      const result = await onCheckout();
+      if (typeof result === 'string' && result) {
+        setError(result);
+      }
     } finally {
       setLoading(false);
     }
@@ -379,17 +343,20 @@ function CartSummary({ subtotal, onProceed, onClose }: CartSummaryProps) {
         <p>Subtotal</p>
         <Price amount={subtotal} />
       </div>
-      <p className="mt-1 text-xs text-white/50">Shipping and taxes are calculated during checkout.</p>
+      <p className="mt-1 text-xs text-white/50">
+        Taxes finalize at Stripe Checkout; shipping is arranged with Parcelcraft right after payment.
+      </p>
       <div className="mt-6">
         <button
           type="button"
-          onClick={handleProceed}
+          onClick={handleCheckout}
           disabled={loading}
           className="flex w-full items-center justify-center rounded-full bg-primary px-6 py-3 text-base font-semibold uppercase tracking-wide text-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {loading ? <LoadingDots className="bg-black" /> : 'Enter Shipping to Continue'}
+          {loading ? <LoadingDots className="bg-black" /> : 'Checkout with Stripe'}
         </button>
       </div>
+      {error && <p className="mt-3 text-center text-xs text-red-300">{error}</p>}
       <div className="mt-6 flex justify-center text-center text-xs text-white/60">
         <p>
           or{' '}

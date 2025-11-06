@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { formatMoney } from '@/utils/money';
+import { formatMoney } from '@/utils/money.ts';
 ---
 
 <BaseLayout title="Checkout" canonical={`${new URL(Astro.request.url).origin}/checkout`}>

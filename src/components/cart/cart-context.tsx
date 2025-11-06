@@ -4,7 +4,6 @@ import React, { createContext, useContext, useEffect, useMemo, useState } from '
 import {
   type Cart as LocalCart,
   type CartItem,
-  type CheckoutOptions,
   getCart as getLocalCart,
   addItem as addItemAction,
   removeItem as removeItemAction,
@@ -34,7 +33,7 @@ type CartContextType = {
   setItemQuantity: (id: string, quantity: number) => Promise<void>;
   removeCartItem: (id: string) => Promise<void>;
   clearCart: () => Promise<void>;
-  redirectToCheckout: (options?: CheckoutOptions) => Promise<void | string>;
+  redirectToCheckout: () => Promise<void | string>;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -106,8 +105,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     await clearCartAction();
   }
 
-  async function redirectToCheckout(options?: CheckoutOptions) {
-    return await checkoutAction(options);
+  async function redirectToCheckout() {
+    return await checkoutAction();
   }
 
   const { totalQuantity, subtotal } = useMemo(() => computeTotals(cart), [cart]);

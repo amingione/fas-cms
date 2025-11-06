@@ -219,7 +219,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
         <li className="py-2">
           <div className="flex items-center justify-between">
             <a
-              href="/services/Services"
+              href="/services/overview"
               onClick={onNavigate}
               className={`text-xl ${baseLinkClass}`}
             >
@@ -365,7 +365,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             leaveFrom="opacity-100 backdrop-blur-[.5px]"
             leaveTo="opacity-0 backdrop-blur-none"
           >
-            <div className="fixed inset-0 bg-white/80" aria-hidden="true" />
+            <div className="fixed inset-0 bg-white/80" inert />
           </Transition.Child>
           <Transition.Child
             as={Fragment}

@@ -1,6 +1,6 @@
 ---
 import ProductCardLite from '@components/storefront/ProductCardLite.astro';
-import type { Product } from '@/lib/sanity-utils';
+import type { Product } from '@/lib/sanity-utils.ts';
 
 const { products = [], className = '' } = Astro.props as {
   products: Product[];

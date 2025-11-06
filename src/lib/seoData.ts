@@ -22,6 +22,16 @@ export interface SanitySeo {
   }>;
 }
 
+type SanitySeoQueryResult = Omit<SanitySeo, 'jsonLd' | 'breadcrumbs' | 'relatedLinks'> & {
+  jsonLd?: Record<string, unknown>[] | null;
+  breadcrumbs?: Array<{ label?: string | null; href?: string | null }> | null;
+  relatedSeoLinks?: Array<{ label?: string | null; href?: string | null }> | null;
+  relatedPageLinks?: Array<{ label?: string | null; href?: string | null }> | null;
+  relatedProductLinks?: Array<{ label?: string | null; href?: string | null }> | null;
+  relatedArticleLinks?: Array<{ label?: string | null; href?: string | null }> | null;
+  relatedServiceLinks?: Array<{ label?: string | null; href?: string | null }> | null;
+};
+
 export interface GlobalSeoSettings {
   siteName?: string;
   defaultDescription?: string;
@@ -116,7 +126,7 @@ export async function fetchSeoForPath(
 
   const fetcher = async () => {
     const queryOptions = {
-      perspective: options.preview ? ('previewDrafts' as const) : ('published' as const),
+      perspective: options.preview ? ('drafts' as const) : ('published' as const),
       token: options.token,
       useCdn: !options.preview,
       stega: options.preview,
@@ -125,7 +135,7 @@ export async function fetchSeoForPath(
 
     const data = await sanityFetch<{
       globalSettings?: GlobalSeoSettings | null;
-      page?: SanitySeo | null;
+      page?: SanitySeoQueryResult | null;
     }>(
       {
         query: `{
@@ -152,15 +162,13 @@ export async function fetchSeoForPath(
     "keywords": coalesce(seo.keywords, keywords),
     "noindex": coalesce(seo.noindex, false),
     "ogImage": coalesce(seo.ogImage, seo.openGraphImage),
-    "jsonLd": seo.jsonLd[]?,
+    "jsonLd": coalesce(seo.jsonLd[], []),
     "breadcrumbs": coalesce(seo.breadcrumbs[], []),
-    "relatedLinks": array::compact(
-      coalesce(seo.relatedLinks[]->{"label": title, "href": slug.current}, []) +
-      coalesce(relatedPages[]->{"label": title, "href": slug.current}, []) +
-      coalesce(relatedProducts[]->{"label": title, "href": slug.current}, []) +
-      coalesce(relatedArticles[]->{"label": title, "href": slug.current}, []) +
-      coalesce(relatedServices[]->{"label": title, "href": slug.current}, [])
-    )
+    "relatedSeoLinks": coalesce(seo.relatedLinks[]->{"label": title, "href": slug.current}, []),
+    "relatedPageLinks": coalesce(relatedPages[]->{"label": title, "href": slug.current}, []),
+    "relatedProductLinks": coalesce(relatedProducts[]->{"label": title, "href": slug.current}, []),
+    "relatedArticleLinks": coalesce(relatedArticles[]->{"label": title, "href": slug.current}, []),
+    "relatedServiceLinks": coalesce(relatedServices[]->{"label": title, "href": slug.current}, [])
   }
 }`,
         params: {
@@ -175,12 +183,29 @@ export async function fetchSeoForPath(
 
     const globalSettings = data?.globalSettings ?? FALLBACK_GLOBAL;
     const pageSeo = data?.page ?? {};
+    const {
+      relatedSeoLinks,
+      relatedPageLinks,
+      relatedProductLinks,
+      relatedArticleLinks,
+      relatedServiceLinks,
+      breadcrumbs,
+      jsonLd,
+      ...pageSeoRest
+    } = pageSeo;
 
-    const normalizedBreadcrumbs = dedupeByHref(ensureArray(pageSeo.breadcrumbs));
-    const normalizedLinks = dedupeByHref(ensureArray(pageSeo.relatedLinks));
+    const normalizedBreadcrumbs = dedupeByHref(ensureArray(breadcrumbs));
+    const rawRelatedLinks = [
+      ...ensureArray(relatedSeoLinks),
+      ...ensureArray(relatedPageLinks),
+      ...ensureArray(relatedProductLinks),
+      ...ensureArray(relatedArticleLinks),
+      ...ensureArray(relatedServiceLinks),
+    ];
+    const normalizedLinks = dedupeByHref(rawRelatedLinks);
 
     const globalKeywords = normalizeKeywordsArray(globalSettings?.defaultKeywords);
-    const pageKeywords = normalizeKeywordsArray(pageSeo.keywords);
+    const pageKeywords = normalizeKeywordsArray(pageSeoRest.keywords);
 
     return {
       global: {
@@ -190,11 +215,12 @@ export async function fetchSeoForPath(
         defaultKeywords: globalKeywords ?? FALLBACK_GLOBAL.defaultKeywords,
       },
       page: {
-        ...pageSeo,
-        ogImage: normalizeOgImage(pageSeo.ogImage),
+        ...pageSeoRest,
+        jsonLd: ensureArray(jsonLd),
+        ogImage: normalizeOgImage(pageSeoRest.ogImage),
         breadcrumbs: normalizedBreadcrumbs,
         relatedLinks: normalizedLinks,
-        keywords: pageKeywords ?? pageSeo.keywords,
+        keywords: pageKeywords ?? pageSeoRest.keywords,
       },
     } satisfies SeoPayload;
   };

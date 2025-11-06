@@ -1,6 +1,6 @@
 --- 
-import { fetchTunes, fetchVehicles } from '@lib/sanity-utils';
-import type { Tune, Vehicle } from '@lib/sanity-utils';
+import { fetchTunes, fetchVehicles } from '@lib/sanity-utils.ts';
+import type { Tune, Vehicle } from '@lib/sanity-utils.ts';
 
 const currentCategory = Astro.props.currentCategory as string | undefined;
 const url = new URL(Astro.request.url);
