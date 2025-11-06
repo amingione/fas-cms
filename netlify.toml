@@ -5,16 +5,14 @@
 
 # Legacy domain + WooCommerce URL redirects consolidated from public/_redirects
 [[redirects]]
-  from = "https://fasmotorsports.us/*"
-  to = "https://www.fasmotorsports.com/:splat"
+  from = "/*"
+  to = "https://fasmotorsports.com/:splat"
   status = 301
   force = true
-
-[[redirects]]
-  from = "https://www.fasmotorsports.us/*"
-  to = "https://www.fasmotorsports.com/:splat"
-  status = 301
-  force = true
+  conditions = { Host = [
+    "fasmotorsports.us",
+    "www.fasmotorsports.us"
+  ] }
 
 [[redirects]]
   from = "/product/2-4l-2-7l-snout-porting"
