@@ -11,7 +11,8 @@
       "@components/*": ["src/components/*"],
       "@layouts/*": ["src/layouts/*"],
       "@pages/*": ["src/pages/*"],
-      "@lib/*": ["src/lib/*"]
+      "@lib/*": ["src/lib/*"],
+      "moment": ["src/lib/moment-shim.ts"]
     },
     "esModuleInterop": true,
     "strict": true,

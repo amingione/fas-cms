@@ -190,7 +190,8 @@ export default defineConfig({
         '@pages': fileURLToPath(new URL('./src/pages', import.meta.url)),
         '@lib': fileURLToPath(new URL('./src/lib', import.meta.url)),
         lib: fileURLToPath(new URL('./src/lib', import.meta.url)),
-        unframer$: fileURLToPath(new URL('./src/lib/unframer-shim.ts', import.meta.url))
+        unframer$: fileURLToPath(new URL('./src/lib/unframer-shim.ts', import.meta.url)),
+        moment$: fileURLToPath(new URL('./src/lib/moment-shim.ts', import.meta.url))
       }
     },
     server: {
