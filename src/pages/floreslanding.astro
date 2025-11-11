@@ -78,8 +78,8 @@
         --primary-dark: #006f6f;
         --accent: #009899;
         --text: #000000;
-        --muted: rgba(121, 121, 121, 0.7);
-        --muted-solid: #797979;
+        --muted: #222222;
+        --muted-solid: #222222;
         --bg: #ffffff;
         --bg-soft: #f7f9fa;
         --danger: #dc2626;
@@ -776,8 +776,7 @@
         min-height: 260px;
         background:
           linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)),
-          url('public/images/flores/Madison Indiana Broadway Fountain copy.jpg') center/cover
-            no-repeat;
+          url('/images/flores/Madison Indiana Broadway Fountain copy.jpg') center/cover no-repeat;
         box-shadow: 0 40px 80px rgba(0, 0, 0, 0.22);
         color: #ffffff;
         display: flex;
@@ -1135,7 +1134,7 @@
       #contact-pagelaw {
         background:
           linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)),
-          url('public/images/flores/1.png') center/cover no-repeat;
+          url('/images/flores/1.png') center/cover no-repeat;
         color: #ffffff;
         padding: 80px 0;
         margin-top: 40px;
@@ -1273,7 +1272,7 @@
         inset: 0;
         background:
           linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
-          url('public/images/flores/Meet Attorneys jeff and melanie flores copy.png') center/cover
+          url('/images/flores/Meet Attorneys jeff and melanie flores copy.png') center/cover
             no-repeat;
       }
       @media (max-width: 720px) {
@@ -1474,6 +1473,61 @@
           width: 100%;
         }
       }
+      /* Sticky Mobile Contact Button */
+      .sticky-cta {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 95;
+        background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%);
+        padding: 12px 16px;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
+        display: none;
+        animation: slideUp 0.3s ease-out;
+      }
+      @keyframes slideUp {
+        from {
+          transform: translateY(100%);
+        }
+        to {
+          transform: translateY(0);
+        }
+      }
+      @media (max-width: 768px) {
+        .sticky-cta {
+          display: block;
+        }
+      }
+      .sticky-cta .container {
+        width: 100%;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .sticky-cta .btn {
+        flex: 1;
+        margin: 0;
+        padding: 14px 20px;
+        font-size: 15px;
+        font-weight: 700;
+        background: #ffffff;
+        color: var(--primary);
+        border: 2px solid #ffffff;
+      }
+      .sticky-cta .btn:hover {
+        background: rgba(255, 255, 255, 0.9);
+        transform: none;
+      }
+      .sticky-cta .btn-secondary {
+        background: transparent;
+        color: #ffffff;
+        border-color: #ffffff;
+      }
+      .sticky-cta .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.15);
+      }
     </style>
 
     <!-- Structured data: LegalService, LocalBusiness, Attorney, FAQ -->
@@ -1591,10 +1645,26 @@
         "mainEntity": [
           {
             "@type": "Question",
+            "name": "How long do I have to file a personal injury claim in Indiana?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Most Indiana personal injury claims must be filed within two years of the crash or injury. However, certain claims—including those against government entities—have shorter deadlines. We immediately analyze every limitation period so evidence and notices are preserved."
+            }
+          },
+          {
+            "@type": "Question",
             "name": "How much does it cost to hire Flores Law Office?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "We work on a contingency fee basis for personal injury cases—no fee unless we win. Your initial consultation is free."
+              "text": "We work on a contingency fee basis for personal injury cases—no fee unless we win. Your initial consultation is free. You pay nothing unless we recover compensation for you."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What damages can I recover in a personal injury case?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Indiana law allows recovery for medical expenses, lost wages, future medical care, pain and suffering, loss of enjoyment of life, and in wrongful death cases, loss of companionship and funeral expenses. We pursue full compensation for all economic and non-economic damages."
             }
           },
           {
@@ -1602,7 +1672,15 @@
             "name": "Should I talk to the insurance company?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Not before speaking with an attorney. Insurers may use your statements against you. We handle communications for you."
+              "text": "Not before speaking with an attorney. Insurers may use your statements against you to reduce or deny your claim. We handle all communications with insurance companies to protect your rights."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How long does a personal injury case take?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Case timelines vary based on injury severity, liability disputes, and settlement negotiations. Simple cases may resolve in months, while complex litigation can take 1-2 years. We work efficiently while ensuring you receive maximum compensation."
             }
           },
           {
@@ -1610,7 +1688,15 @@
             "name": "Do you serve Madison and Jefferson County?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Yes. Our office is located at 112 E 3rd St #200, Madison, IN 47250."
+              "text": "Yes. Our office is located at 112 E 3rd St #200, Madison, IN 47250. We serve Madison, Jefferson County, and personal injury victims throughout Indiana including car accidents, wrongful death, and catastrophic injury cases."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What if I was partially at fault for the accident?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Indiana follows a modified comparative fault rule. You can recover damages if you were less than 51% at fault, though your compensation will be reduced by your percentage of fault. We work to minimize any fault attributed to you."
             }
           }
         ]
@@ -1782,15 +1868,31 @@
               <span aria-hidden="true">✔</span> Free Consultation · No Fee Unless We Win · Se Habla
               Espanol
             </span>
-            <h1>Madison, IN Personal Injury Lawyer</h1>
-            <p class="lead">
-              Flores Law Office is the Madison, Indiana personal injury firm families trust after
-              catastrophic injury or wrongful death anywhere in the state.
+            <h1>Serious Personal Injury & Wrongful Death Representation in Indiana</h1>
+            <p class="lead" style="font-size: 22px; margin: 16px 0;">
+              No Fee Unless We Win — Call Now for a Free Consultation
             </p>
             <p class="muted">
-              We pursue severe trauma and no-impact recovery claims when negligence injures or kills
-              a loved one, guiding your family toward accountability.
+              Flores Law Office fights for victims of catastrophic injury and wrongful death across
+              Madison, Jefferson County, and Indiana. When negligence changes your life, we pursue
+              maximum compensation and accountability.
             </p>
+            <div style="margin-top: 28px; display: flex; gap: 14px; flex-wrap: wrap;">
+              <a
+                href="tel:+18122659020"
+                class="btn btn-primary"
+                style="font-size: 18px; padding: 16px 28px;"
+              >
+                Call (812) 265-9020 Now
+              </a>
+              <a
+                href="#contact"
+                class="btn btn-outline"
+                style="font-size: 16px; padding: 16px 24px; border-color: #fff; color: #fff;"
+              >
+                Free Case Review
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -1820,6 +1922,9 @@
                 <img
                   src="https://seal-louisville.bbb.org/seals/black-seal-120-61-flores-law-office-159137329.png"
                   alt="BBB Accredited Madison Indiana Personal Injury Lawyer"
+                  loading="lazy"
+                  width="120"
+                  height="61"
                 />
               </a>
               <a
@@ -1831,6 +1936,9 @@
                 <img
                   src="https://floreslawoffice.net/wp-content/uploads/2025/03/avvo-8.1-rating.webp"
                   alt="Avvo profile for Madison Indiana injury attorney Jeffrey Flores"
+                  loading="lazy"
+                  width="120"
+                  height="120"
                 />
               </a>
               <img
@@ -1845,62 +1953,56 @@
               Complete the form below and an attorney will reach out shortly.
             </p>
             <form id="contactForm" novalidate>
-              <div class="row">
-                <div>
-                  <label for="name">Full Name</label>
-                  <input
-                    id="name"
-                    name="name"
-                    type="text"
-                    placeholder="Jane Doe"
-                    aria-required="true"
-                  />
-                  <div class="error" id="err-name"></div>
-                </div>
-                <div>
-                  <label for="phone">Phone</label>
-                  <input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    placeholder="(812) 265-9020"
-                    aria-required="true"
-                  />
-                  <div class="error" id="err-phone"></div>
-                </div>
-              </div>
-              <div class="row">
-                <div>
-                  <label for="email">Email</label>
-                  <input id="email" name="email" type="email" placeholder="you@example.com" />
-                  <div class="error" id="err-email"></div>
-                </div>
-                <div>
-                  <label for="caseType">Case Type</label>
-                  <select id="caseType" name="caseType" aria-label="Case Type">
-                    <option>Car Accident</option>
-                    <option>Truck Accident</option>
-                    <option>Motorcycle Accident</option>
-                    <option>Slip &amp; Fall</option>
-                    <option>Dog Bite / Animal Attack</option>
-                    <option>Wrongful Death</option>
-                    <option>Catastrophic Injury</option>
-                    <option>Other Injury</option>
-                  </select>
-                </div>
+              <div class="field">
+                <label for="name">Full Name <span style="color:#ff6b6b;">*</span></label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  placeholder="Jane Doe"
+                  aria-required="true"
+                  required
+                />
+                <div class="error" id="err-name"></div>
               </div>
               <div class="field">
-                <label for="message">What happened?</label>
+                <label for="phone">Phone Number <span style="color:#ff6b6b;">*</span></label>
+                <input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  placeholder="(812) 265-9020"
+                  aria-required="true"
+                  required
+                />
+                <div class="error" id="err-phone"></div>
+              </div>
+              <div class="field">
+                <label for="email"
+                  >Email <span style="color:#aaa;font-size:13px;">(optional)</span></label
+                >
+                <input id="email" name="email" type="email" placeholder="you@example.com" />
+                <div class="error" id="err-email"></div>
+              </div>
+              <div class="field">
+                <label for="message"
+                  >Brief Description of Your Case <span style="color:#ff6b6b;">*</span></label
+                >
                 <textarea
                   id="message"
                   name="message"
                   rows="4"
-                  placeholder="Briefly describe your situation..."></textarea>
+                  placeholder="Tell us what happened and how we can help..."
+                  required></textarea>
               </div>
               <div class="actions">
-                <button type="submit" class="btn btn-primary">Request Free Consultation</button>
-                <span style="color: #ffffff; padding-left: 5px; padding-right: 5px;" class="help"
-                  >By submitting, you agree to be contacted. This is not legal advice.</span
+                <button type="submit" class="btn btn-primary" style="width:100%;"
+                  >Get Your Free Consultation</button
+                >
+                <span
+                  style="color: #ffffff; padding-left: 5px; padding-right: 5px; font-size:12px; text-align:center; display:block; margin-top:8px;"
+                  class="help"
+                  >By submitting, you agree to be contacted. No fees unless we win your case.</span
                 >
               </div>
               <div class="error" id="formError" role="alert" style="display:none; margin-top:8px;">
@@ -1956,7 +2058,7 @@
                 surrounding counties.
               </li>
             </ul>
-            <p class="muted" style="color:rgba(17, 24, 39, 0.65);">
+            <p class="muted" style="color:rgba(34, 34, 34, 1);">
               You speak directly with an attorney who provides timelines, answers, and steady
               updates. We handle medical liens, benefits, and negotiations to pursue the full value
               of lost wages, future care, and non-economic harm—positioning you with a Jefferson
@@ -2403,6 +2505,9 @@
           <img
             src="https://floreslawoffice.net/wp-content/uploads/2025/03/Jeff_Color_Portrait.webp"
             alt="Jeffrey Flores portrait"
+            loading="lazy"
+            width="400"
+            height="600"
           />
         </div>
       </div>
@@ -2414,47 +2519,135 @@
         <div class="panel-heading">
           <h2>Frequently Asked Questions</h2>
         </div>
-        <div id="faq">
+        <div id="faq" itemscope itemtype="https://schema.org/FAQPage">
           <details
             class="card"
             style="margin-bottom: 10px; box-shadow:none;border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
+            itemscope
+            itemprop="mainEntity"
+            itemtype="https://schema.org/Question"
           >
-            <summary
+            <summary itemprop="name"
               ><strong>How long do I have to file a personal injury claim in Indiana?</strong
               ></summary
             >
-            <p class="muted">
-              Most Indiana personal injury claims must be filed within two years of the crash or
-              injury, but certain claims—including those against government entities—have shorter
-              deadlines. We immediately analyze every limitation period so evidence and notices are
-              preserved.
-            </p>
+            <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+              <p class="muted" itemprop="text">
+                Most Indiana personal injury claims must be filed within two years of the crash or
+                injury. However, certain claims—including those against government entities—have
+                shorter deadlines. We immediately analyze every limitation period so evidence and
+                notices are preserved.
+              </p>
+            </div>
           </details>
           <details
             class="card"
             style="margin-bottom: 10px; box-shadow:none;border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
+            itemscope
+            itemprop="mainEntity"
+            itemtype="https://schema.org/Question"
           >
-            <summary
-              ><strong>What should I do after a serious car crash in Indiana?</strong></summary
+            <summary itemprop="name"
+              ><strong>How much does it cost to hire Flores Law Office?</strong></summary
             >
-            <p class="muted">
-              Get emergency care, document the scene, avoid recorded statements, and call us before
-              speaking with insurers. Our team coordinates medical follow-up, secures vehicle data,
-              and protects you from tactics designed to minimize your recovery.
-            </p>
+            <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+              <p class="muted" itemprop="text">
+                We work on a contingency fee basis for personal injury cases—no fee unless we win.
+                Your initial consultation is free. You pay nothing unless we recover compensation
+                for you.
+              </p>
+            </div>
           </details>
           <details
             class="card"
             style="margin-bottom: 10px; box-shadow:none;border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
+            itemscope
+            itemprop="mainEntity"
+            itemtype="https://schema.org/Question"
           >
-            <summary
-              ><strong>Can I recover damages if I only suffered emotional trauma?</strong></summary
+            <summary itemprop="name"
+              ><strong>What damages can I recover in a personal injury case?</strong></summary
             >
-            <p class="muted">
-              Yes. Indiana recognizes no-impact recovery in extraordinary circumstances—for example,
-              witnessing a loved one suffer severe injury or death. We document the episode, confirm
-              medical support, and pursue compensation for the emotional harm you endured.
-            </p>
+            <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+              <p class="muted" itemprop="text">
+                Indiana law allows recovery for medical expenses, lost wages, future medical care,
+                pain and suffering, loss of enjoyment of life, and in wrongful death cases, loss of
+                companionship and funeral expenses. We pursue full compensation for all economic and
+                non-economic damages.
+              </p>
+            </div>
+          </details>
+          <details
+            class="card"
+            style="margin-bottom: 10px; box-shadow:none;border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
+            itemscope
+            itemprop="mainEntity"
+            itemtype="https://schema.org/Question"
+          >
+            <summary itemprop="name"
+              ><strong>Should I talk to the insurance company?</strong></summary
+            >
+            <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+              <p class="muted" itemprop="text">
+                Not before speaking with an attorney. Insurers may use your statements against you
+                to reduce or deny your claim. We handle all communications with insurance companies
+                to protect your rights.
+              </p>
+            </div>
+          </details>
+          <details
+            class="card"
+            style="margin-bottom: 10px; box-shadow:none;border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
+            itemscope
+            itemprop="mainEntity"
+            itemtype="https://schema.org/Question"
+          >
+            <summary itemprop="name"
+              ><strong>How long does a personal injury case take?</strong></summary
+            >
+            <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+              <p class="muted" itemprop="text">
+                Case timelines vary based on injury severity, liability disputes, and settlement
+                negotiations. Simple cases may resolve in months, while complex litigation can take
+                1-2 years. We work efficiently while ensuring you receive maximum compensation.
+              </p>
+            </div>
+          </details>
+          <details
+            class="card"
+            style="margin-bottom: 10px; box-shadow:none;border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
+            itemscope
+            itemprop="mainEntity"
+            itemtype="https://schema.org/Question"
+          >
+            <summary itemprop="name"
+              ><strong>Do you serve Madison and Jefferson County?</strong></summary
+            >
+            <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+              <p class="muted" itemprop="text">
+                Yes. Our office is located at 112 E 3rd St #200, Madison, IN 47250. We serve
+                Madison, Jefferson County, and personal injury victims throughout Indiana including
+                car accidents, wrongful death, and catastrophic injury cases.
+              </p>
+            </div>
+          </details>
+          <details
+            class="card"
+            style="margin-bottom: 10px; box-shadow:none;border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
+            itemscope
+            itemprop="mainEntity"
+            itemtype="https://schema.org/Question"
+          >
+            <summary itemprop="name"
+              ><strong>What if I was partially at fault for the accident?</strong></summary
+            >
+            <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+              <p class="muted" itemprop="text">
+                Indiana follows a modified comparative fault rule. You can recover damages if you
+                were less than 51% at fault, though your compensation will be reduced by your
+                percentage of fault. We work to minimize any fault attributed to you.
+              </p>
+            </div>
           </details>
         </div>
       </div>
@@ -2520,60 +2713,48 @@
             State Park and expect a response within one business day.
           </p>
           <form id="contactForm2" novalidate>
-            <div class="row">
-              <div>
-                <label for="name2">Full Name</label>
-                <input
-                  id="name2"
-                  name="name"
-                  type="text"
-                  placeholder="Jane Doe"
-                  aria-required="true"
-                />
-                <div class="error" id="err2-name"></div>
-              </div>
-              <div>
-                <label for="phone2">Phone</label>
-                <input
-                  id="phone2"
-                  name="phone"
-                  type="tel"
-                  placeholder="(812) 265-9020"
-                  aria-required="true"
-                />
-                <div class="error" id="err2-phone"></div>
-              </div>
+            <div style="margin-bottom: 14px;">
+              <label for="name2">Full Name <span style="color:#009899;">*</span></label>
+              <input
+                id="name2"
+                name="name"
+                type="text"
+                placeholder="Jane Doe"
+                aria-required="true"
+                required
+              />
+              <div class="error" id="err2-name"></div>
             </div>
-            <div class="row" style="margin-top: 10px;">
-              <div>
-                <label for="email2">Email</label>
-                <input id="email2" name="email" type="email" placeholder="you@example.com" />
-                <div class="error" id="err2-email"></div>
-              </div>
-              <div>
-                <label for="caseType2">Case Type</label>
-                <select id="caseType2" name="caseType">
-                  <option>Car Accident</option>
-                  <option>Truck Accident</option>
-                  <option>Motorcycle Accident</option>
-                  <option>Slip & Fall</option>
-                  <option>Dog Bite / Animal Attack</option>
-                  <option>Wrongful Death</option>
-                  <option>Catastrophic Injury</option>
-                  <option>Other Injury</option>
-                </select>
-              </div>
+            <div style="margin-bottom: 14px;">
+              <label for="phone2">Phone Number <span style="color:#009899;">*</span></label>
+              <input
+                id="phone2"
+                name="phone"
+                type="tel"
+                placeholder="(812) 265-9020"
+                aria-required="true"
+                required
+              />
+              <div class="error" id="err2-phone"></div>
             </div>
-            <div style="margin-top: 10px;">
-              <label for="message2">What happened?</label>
+            <div style="margin-bottom: 14px;">
+              <label for="email2"
+                >Email <span style="color:#666;font-size:13px;">(optional)</span></label
+              >
+              <input id="email2" name="email" type="email" placeholder="you@example.com" />
+              <div class="error" id="err2-email"></div>
+            </div>
+            <div style="margin-bottom: 14px;">
+              <label for="message2">Brief Description <span style="color:#009899;">*</span></label>
               <textarea
                 id="message2"
                 name="message"
                 rows="4"
-                placeholder="Briefly describe your situation..."></textarea>
+                placeholder="Tell us what happened..."
+                required></textarea>
             </div>
             <div class="flex" style="margin-top: 12px;">
-              <button type="submit" class="btn btn-primary">Request Free Consultation</button>
+              <button type="submit" class="btn btn-primary">Get Free Consultation</button>
               <a class="btn btn-outline" href="tel:+18122659020">Call: (812) 265-9020</a>
             </div>
             <div class="error" id="form2Error" role="alert" style="display:none; margin-top:8px;">
@@ -2639,6 +2820,8 @@
             alt="Flores Law Office logo"
             style="max-width:180px;margin-bottom:12px;"
             loading="lazy"
+            width="180"
+            height="60"
           />
           <address style="font-style: normal; line-height: 1.6; margin-bottom: 12px;color:#f5f5f5;">
             112 E 3rd St #200<br />
@@ -2665,27 +2848,31 @@
           <ul class="list" style="color:#f5f5f5;">
             <li>
               <a href="https://floreslawoffice.net/about-flores-law-office/" style="color:#cccccc;"
-                >About The Firm</a>
+                >About The Firm</a
+              >
             </li>
             <li>
               <a
                 href="https://floreslawoffice.net/attorney/jeffrey-a-flores/"
-                style="color:#cccccc;">About Our Attorney</a>
+                style="color:#cccccc;">About Our Attorney</a
+              >
             </li>
             <li>
-              <a href="https://floreslawoffice.net/home-03/" style="color:#cccccc;"
-                >FLO Backstory</a>
+              <a href="https://floreslawoffice.net/home-03/" style="color:#cccccc;">FLO Backstory</a
+              >
             </li>
             <li>
               <a href="https://floreslawoffice.net/contact/" style="color:#cccccc;">Contact</a>
             </li>
             <li>
               <a href="https://floreslawoffice.net/contact-us/" style="color:#cccccc;"
-                >Request Consultation</a>
+                >Request Consultation</a
+              >
             </li>
             <li>
               <a href="https://floreslawoffice.net/practise-areas/" style="color:#cccccc;"
-                >Practice Areas</a>
+                >Practice Areas</a
+              >
             </li>
           </ul>
         </div>
@@ -2898,4 +3085,14 @@
       });
     })();
   </script>
+
+  <!-- Sticky Mobile Contact Button -->
+  <div class="sticky-cta" role="region" aria-label="Quick contact options">
+    <div class="container">
+      <a href="tel:+18122659020" class="btn" aria-label="Call Flores Law Office"> Call Now </a>
+      <a href="#contact" class="btn btn-secondary" aria-label="Request free case review">
+        Free Review
+      </a>
+    </div>
+  </div>
 </html>
