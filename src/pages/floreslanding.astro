@@ -920,7 +920,7 @@
       .faq-media {
         background: #f9f9f9;
         color: #1a1a1a;
-        padding: clamp(20px, 7vw, 96px) 0;
+        padding: clamp(10px, 3vw, 60px) 0;
       }
       .faq-media .container {
         display: grid;
@@ -945,7 +945,7 @@
       .faq-media__content h2 {
         color: #1a1a1a;
         font-size: clamp(28px, 3vw, 42px);
-        margin-bottom: 12px;
+        margin-bottom: 5px;
       }
       .faq-media__eyebrow {
         text-transform: uppercase;
@@ -956,7 +956,7 @@
       }
       .faq-media__lede {
         color: rgba(20, 20, 20, 0.76);
-        margin-bottom: 32px;
+        margin-bottom: 10px;
         max-width: 560px;
       }
       .faq-media__accordion {
@@ -1057,7 +1057,7 @@
       }
       .trust-badge {
         border: 1px dashed #dce4f2;
-        padding: 12px;
+        padding: 10px;
         border-radius: 5px;
         text-align: center;
         font-size: 12px;
@@ -1066,66 +1066,43 @@
       }
       .case-review-banner {
         background: #fff;
-        padding: clamp(48px, 6vw, 80px) 0;
+        padding: clamp(60px, 8vw, 120px) 0;
       }
       .case-review-grid {
         display: grid;
-        grid-template-columns: minmax(0, 1fr);
-        gap: clamp(24px, 4vw, 48px);
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 48px;
         align-items: start;
       }
-      @media (min-width: 960px) {
-        .case-review-grid {
-          grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-        }
-      }
-      .case-review-copy h2 {
-        color: var(--text);
-        margin-bottom: 12px;
-      }
-      .case-review-copy p {
-        color: var(--muted-solid);
-        font-size: 17px;
-        max-width: 640px;
-      }
-      .case-review-card {
+
+      .case-review-testimonials blockquote {
+        margin-top: 24px;
         background: #fff;
-        padding: clamp(24px, 3vw, 32px);
-        border-radius: 0;
-        border: none;
-        box-shadow: none;
+        padding: 20px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        font-style: italic;
+        text-align: center;
+        color: rgba(34, 34, 34, 0.9);
       }
-      .case-review-card h3 {
-        font-family: var(--font-secondary);
-        margin: 0 0 8px;
-        color: var(--text);
-        font-size: 22px;
+
+      .case-review-form {
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+        border-radius: 5px;
+        padding: 48px 32px;
+
+        color: #fff;
       }
-      .case-review-card p {
-        margin: 0 0 18px;
-        color: var(--muted-solid);
-        font-size: 15px;
-      }
-      .case-review-card form .row + .row {
-        margin-top: 12px;
-      }
-      .case-review-card .field {
-        margin-top: 12px;
-      }
-      .case-review-card textarea {
-        min-height: 130px;
-      }
-      .case-review-card .actions {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-        flex-wrap: wrap;
-        margin-top: 16px;
-      }
+
       .grid-3 {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 18px;
+      }
+      @media (max-width: 960px) {
+        .case-review-grid {
+          grid-template-columns: 1fr;
+        }
       }
       @media (max-width: 900px) {
         .grid-3 {
@@ -1237,9 +1214,9 @@
         transition: all 0.2s ease;
       }
       #faq summary {
-        padding: 15px 20px;
+        padding: 5px 10px;
         cursor: pointer;
-        font-size: 14px;
+        font-size: 16px;
         font-weight: 600;
         color: var(--text);
         display: flex;
@@ -1523,6 +1500,10 @@
         border-radius: 999px;
         font-size: 12px;
         margin: 4px 6px 0 0;
+      }
+      .brand-mark {
+        font-family: 'Roboto Slab', serif;
+        font-weight: 600;
       }
       .map {
         width: 100%;
@@ -1879,8 +1860,8 @@
                 <div class="content-left">
                   <div class="infoLeft-topbar content-item header-ct-left">
                     <span class="text"
-                      >Flores Law Office. <span class="tf-secondary-color"
-                        >Skillful Advocates. Trusted Counselors.</span
+                      ><span class="brand-mark">Flores Law Office</span>. <span
+                        class="tf-secondary-color">Skillful Advocates. Trusted Counselors.</span
                       ></span
                     >
                   </div>
@@ -2083,9 +2064,9 @@
               No Fee Unless We Win — Call Now for a Free Consultation
             </p>
             <p class="muted">
-              Flores Law Office fights for victims of catastrophic injury and wrongful death across
-              Madison, Jefferson County, and Indiana. When negligence changes your life, we pursue
-              maximum compensation and accountability.
+              <span class="brand-mark">Flores Law Office</span> fights for victims of catastrophic injury
+              and wrongful death across Madison, Jefferson County, and Indiana. When negligence changes
+              your life, we pursue maximum compensation and accountability.
             </p>
             <a
               class="avvo-badge"
@@ -2124,215 +2105,166 @@
       </div>
     </section>
 
-    <section class="case-review-banner" aria-label="Request a free case review">
-      <div class="container section">
-        <div class="case-review-grid">
-          <div class="case-review-copy">
-            <h2>Request a Free Case Review</h2>
-            <p>
-              Share your story with Flores Law Office and our Madison personal injury attorneys will
-              respond within one business day.
-            </p>
-            <p class="muted">
-              Call <a href="tel:18122659020">(812) 265-9020</a> or complete the form. We represent catastrophic
-              injury and wrongful death clients across Jefferson, Clark, Floyd, Jennings, Ripley, Scott,
-              Switzerland, and surrounding Indiana counties.
-            </p>
-            <blockquote
-              style="margin-top: 28px; text-align: center; color: rgba(34,34,34,0.9); font-style: italic; max-width: 720px; margin-left: auto; margin-right: auto; box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
+    <section
+      style="padding: 40px 60px;"
+      class="case-review-banner"
+      aria-label="Request a free case review"
+    >
+      <div class="case-review-grid">
+        <div class="case-review-copy">
+          <h2>Request a Free Case Review</h2>
+          <p>
+            Share your story with <span class="brand-mark">Flores Law Office</span> and our Madison personal
+            injury attorneys will respond within one business day.
+          </p>
+          <p class="muted">
+            Call <a href="tel:18122659020"><strong>(812) 265-9020</strong></a>
+            or complete the form. We represent catastrophic injury and wrongful death clients across
+            <strong
+              >Jefferson, Clark, Floyd, Jennings, Ripley, Scott, Switzerland, and surrounding
+              Indiana counties.</strong
             >
-              “Flores Law Office treated us like family and fought for every dollar of our
-              recovery.”
+          </p>
+
+          <div class="case-review-testimonials">
+            <blockquote>
+              “<span class="brand-mark">Flores Law Office</span> treated us like family and fought for
+              every dollar of our recovery.”
               <br />
-              <strong style="display:block; margin-top:6px; color:#009899;"
-                >— Former Client, Jefferson County</strong
-              >
+              <strong>— Former Client, Jefferson County</strong>
             </blockquote>
-            <blockquote
-              style="margin-top: 28px; text-align: center; color: rgba(34,34,34,0.9); font-style: italic; max-width: 720px; margin-left: auto; margin-right: auto; box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
-            >
+            <blockquote>
               "Jeff and his team were always available, walked us through every step, and obtained a
               settlement that covered our medical bills and future care."
               <br />
-              <strong style="display:block; margin-top:6px; color:#009899;"
-                >— Former Client, Scott County</strong
-              >
+              <strong>— Former Client, Scott County</strong>
             </blockquote>
-            <blockquote
-              style="margin-top: 28px; text-align: center; color: rgba(34,34,34,0.9); font-style: italic; max-width: 720px; margin-left: auto; margin-right: auto; box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
-            >
+            <blockquote>
               "Jeff and his team were compassionate, responsive, and fought tirelessly to obtain a
               fair recovery for our family. They walked us through every step and always returned
               our calls."
               <br />
-              <strong style="display:block; margin-top:6px; color:#009899;"
-                >— Former Client, Clark County</strong
-              >
+              <strong>— Former Client, Clark County</strong>
             </blockquote>
           </div>
-          <div
-            class="border bg-background py-5 px-5"
-            aria-label="Free case review form"
-            style="
-              background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-              border-radius: 5px;
-              padding: 48px 32px;
-              box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
-            "
-          >
-            <h3 style="color: #009899; font-size: 24px; font-weight: 900; letter-spacing: -0.01em;">
-              Tell Us What Happened
-            </h3>
-            <p style="color: #ffffff;">
-              Complete the form below and an attorney will reach out shortly.
-            </p>
-            <divider
-              style="display:block; width:75%; margin:16px auto; height:1px; background:#00b3b3; border-radius:0px;"
-            ></divider>
-            <form id="contactForm" novalidate>
-              <div class="field">
-                <label style="color:#cccccc;" for="name"
-                  >Full Name <span style="color:#ee4343;">*</span></label
-                >
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  placeholder="Jane Doe"
-                  aria-required="true"
-                  required
-                />
-                <div class="error" id="err-name"></div>
-              </div>
-              <div class="field">
-                <label style="color:#cccccc;" for="phone"
-                  >Phone Number <span style="color:#ff6b6b;">*</span></label
-                >
-                <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  placeholder="(812) 265-9020"
-                  aria-required="true"
-                  required
-                />
-                <div class="error" id="err-phone"></div>
-              </div>
-              <div class="field">
-                <label style="color:#cccccc;" for="email"
-                  >Email <span style="color:#070707;font-size:13px;">(optional)</span></label
-                >
-                <input id="email" name="email" type="email" placeholder="you@example.com" />
-                <div class="error" id="err-email"></div>
-              </div>
-              <div class="field">
-                <label style="color:#cccccc;" for="message"
-                  >Brief Description of Your Case <span style="color:#ff6b6b;">*</span></label
-                >
-                <textarea
-                  id="message"
-                  name="message"
-                  rows="4"
-                  placeholder="Tell us what happened and how we can help..."
-                  required></textarea>
-              </div>
-              <div class="actions">
-                <button type="submit" class="btn btn-primary" style="width:100%;"
-                  >Get Your Free Consultation</button
-                >
-                <span
-                  style="color: #ffffff; padding-left: 5px; padding-right: 5px; font-size:12px; text-align:center; display:block; margin-top:8px;"
-                  class="help"
-                  >By submitting, you agree to be contacted. No fees unless we win your case.</span
-                >
-              </div>
-              <div class="error" id="formError" role="alert" style="display:none; margin-top:8px;">
-              </div>
-              <div
-                id="formSuccess"
-                style="display:none; margin-top:8px; color: var(--accent); font-weight: 700;"
+        </div>
+
+        <div class="case-review-form">
+          <h3 style="color: #009899; font-size: 24px; font-weight: 900;">Tell Us What Happened</h3>
+          <p>Complete the form below and an attorney will reach out shortly.</p>
+          <divider
+            style="display:block; width:75%; margin:16px auto; height:1px; background:#00b3b3;"
+          ></divider>
+          <form id="contactForm" novalidate>
+            <div class="field">
+              <label style="color: #fff;">Full Name <span style="color:#ee4343;">*</span></label>
+              <input type="text" name="name" placeholder="First Last" required />
+            </div>
+            <div class="field">
+              <label style="color: #fff;">Phone Number <span style="color:#ff6b6b;">*</span></label>
+              <input type="tel" name="phone" placeholder="(812) 265-9020" required />
+            </div>
+            <div class="field">
+              <label style="color: #fff;"
+                >Email <span style="color:#070707;font-size:13px;">(optional)</span></label
               >
-                Thank you! We will reach out shortly.
-              </div>
-            </form>
-          </div>
+              <input type="email" name="email" placeholder="you@example.com" />
+            </div>
+            <div class="field">
+              <label style="color: #fff;"
+                >Brief Description of Your Case <span style="color:#ff6b6b;">*</span></label
+              >
+              <textarea name="message" rows="4" placeholder="Tell us what happened..." required
+              ></textarea>
+            </div>
+            <div class="actions">
+              <button type="submit" class="btn btn-primary" style="width:100%;"
+                >Get Your Free Consultation</button
+              >
+              <span style="display:block; margin-top:8px; font-size:12px;"
+                >By submitting, you agree to be contacted. No fees unless we win your case.</span
+              >
+            </div>
+          </form>
         </div>
       </div>
     </section>
+  </body>
 
-    <div class="page-shell" style="padding:72px 0 96px;">
-      <section
-        class="section alt"
-        id="injury-overview"
-        aria-label="Indiana personal injury overview"
-        style="
+  <div class="page-shell" style="padding:72px 0 96px;">
+    <section
+      class="section alt"
+      id="injury-overview"
+      aria-label="Indiana personal injury overview"
+      style="
         padding:48px 0;
         background: linear-gradient(90deg, rgba(192, 192, 192, 0.04) 0%, rgba(0, 0, 0, 0.01) 100%);
       "
-      >
-        <div class="container">
-          <div class="panel-heading">
-            <h2>Serious Injury & Wrongful Death Advocacy Across Indiana</h2>
-          </div>
-          <div class="panel-grid">
-            <div class="panel-copy" style="color:#000000;">
-              <p>
-                When a devastating crash, fall, or defective product upends life, Flores Law Office
-                mobilizes quickly. We document the scene, preserve black box data, and line up
-                medical experts so your family can focus on recovery while we build the civil case
-                anywhere in Indiana—whether the harm stems from <a href="#car-accidents"
-                  >car accidents in Madison</a
+    >
+      <div class="container">
+        <div class="panel-heading">
+          <h2>Serious Injury & Wrongful Death Advocacy Across Indiana</h2>
+        </div>
+        <div class="panel-grid">
+          <div class="panel-copy" style="color:#000000;">
+            <p>
+              When a devastating crash, fall, or defective product upends life, <span
+                class="brand-mark"
+                >Flores Law Office mobilizes quickly. We document the scene, preserve black box
+                data, and line up medical experts so your family can focus on recovery while we
+                build the civil case anywhere in Indiana—whether the harm stems from <a
+                  href="#car-accidents">car accidents in Madison</a
                 >,
                 <a href="#truck-accidents">interstate truck collisions</a>, or a sudden
                 <a href="#wrongful-death">wrongful death tragedy</a>.
-              </p>
-              <ul class="list">
-                <li>
-                  Wrongful death and catastrophic injury litigation prepared for trial from day one.
-                </li>
-                <li>
-                  No-impact recovery and trauma claims when you witness a loved one hurt or killed.
-                </li>
-                <li>
-                  Coordination with trauma teams and specialists in Jefferson, Clark, Marion, and
-                  surrounding counties.
-                </li>
-              </ul>
-              <p class="muted" style="color:rgba(34, 34, 34, 1);">
-                You speak directly with an attorney who provides timelines, answers, and steady
-                updates. We handle medical liens, benefits, and negotiations to pursue the full
-                value of lost wages, future care, and non-economic harm—positioning you with a
-                Jefferson County personal injury lawyer near me who is ready to negotiate or try the
-                case.
-              </p>
-            </div>
-            <aside
-              class="panel-review"
-              style="align-self: start; justify-self: start; max-width: 480px;"
-              aria-label="Recent client review"
-              itemscope
-              itemtype="https://schema.org/Review"
-            >
-              <meta itemprop="datePublished" content="2024-09-15" />
-              <div itemprop="reviewRating" itemscope itemtype="https://schema.org/Rating">
-                <meta itemprop="ratingValue" content="5" />
-                <meta itemprop="bestRating" content="5" />
-              </div>
-              <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/LegalService">
-                <meta itemprop="name" content="Flores Law Office" />
-              </div>
-              <div class="quote" itemprop="reviewBody">
-                "After our family's catastrophic collision, Flores Law Office met us at the
-                hospital, coordinated specialists, and navigated the insurance maze. We always knew
-                the next step and ultimately secured a settlement that changed our future."
-              </div>
-              <footer itemprop="author" itemscope itemtype="https://schema.org/Person">
-                <span>Serious Injury Client, Bartholomew County</span>
-              </footer>
-            </aside>
+              </span>
+            </p>
+            <ul class="list">
+              <li>
+                Wrongful death and catastrophic injury litigation prepared for trial from day one.
+              </li>
+              <li>
+                No-impact recovery and trauma claims when you witness a loved one hurt or killed.
+              </li>
+              <li>
+                Coordination with trauma teams and specialists in Jefferson, Clark, Marion, and
+                surrounding counties.
+              </li>
+            </ul>
+            <p class="muted" style="color:rgba(34, 34, 34, 1);">
+              You speak directly with an attorney who provides timelines, answers, and steady
+              updates. We handle medical liens, benefits, and negotiations to pursue the full value
+              of lost wages, future care, and non-economic harm—positioning you with a Jefferson
+              County personal injury lawyer near me who is ready to negotiate or try the case.
+            </p>
           </div>
+          <aside
+            class="panel-review"
+            style="align-self: start; justify-self: start; max-width: 480px;"
+            aria-label="Recent client review"
+            itemscope
+            itemtype="https://schema.org/Review"
+          >
+            <meta itemprop="datePublished" content="2024-09-15" />
+            <div itemprop="reviewRating" itemscope itemtype="https://schema.org/Rating">
+              <meta itemprop="ratingValue" content="5" />
+              <meta itemprop="bestRating" content="5" />
+            </div>
+            <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/LegalService">
+              <meta itemprop="name" content="Flores Law Office" />
+            </div>
+            <div class="quote" itemprop="reviewBody">
+              "After our family's catastrophic collision, <span class="brand-mark"
+                >Flores Law Office</span
+              > met us at the hospital, coordinated specialists, and navigated the insurance maze. We
+              always knew the next step and ultimately secured a settlement that changed our future."
+            </div>
+            <footer itemprop="author" itemscope itemtype="https://schema.org/Person">
+              <span>Serious Injury Client, Bartholomew County</span>
+            </footer>
+          </aside>
         </div>
-      </section>
+      </div>
 
       <!-- Practice Areas -->
       <section
@@ -2612,8 +2544,8 @@
                 Based in Madison, Indiana, we appear in courtrooms throughout southern and central
                 Indiana. From rural collisions along State Road 7 to interstate trucking disasters
                 on I-65, we travel to the scene, coordinate investigators, and file in the venue
-                that maximizes leverage for clients seeking a Madison Indiana wrongful death
-                attorney near the Ohio River or a Southern Indiana catastrophic injury trial lawyer.
+                that makes sense for clients seeking a Madison Indiana wrongful death attorney near
+                the Ohio River or a Southern Indiana catastrophic injury trial lawyer.
               </p>
               <p class="muted">
                 Regular appearances include Jefferson Circuit Court, Clark County courts, and
@@ -2665,8 +2597,8 @@
         </div>
       </section>
 
-      <section class="section" id="case-results" aria-label="Case results" style="padding:56px 0;">
-        <div class="container" style="display:flex;flex-direction:column;gap:28px;">
+      <section class="section" id="case-results" aria-label="Case results" style="padding:35px 0;">
+        <div class="container" style="display:flex;flex-direction:column;gap:20px;">
           <div class="panel-heading">
             <h2>Case Results: Madison Personal Injury Settlements & Verdicts</h2>
           </div>
@@ -2734,11 +2666,13 @@
         class="section alt"
         id="why-flores"
         aria-label="Why clients choose Flores Law Office"
-        style="padding:52px 0; background: linear-gradient(90deg, rgba(0, 0, 0, 0.04) 0%, rgba(0, 0, 0, 0.01) 100%) "
+        style="padding:35px 0; background: linear-gradient(90deg, rgba(0, 0, 0, 0.04) 0%, rgba(0, 0, 0, 0.01) 100%) "
       >
         <div class="container" style="display:flex;flex-direction:column;gap:24px;">
           <div class="panel-heading">
-            <h2>Why Indiana Families Choose Flores Law Office</h2>
+            <h2>
+              Why Indiana Families Choose <span class="brand-mark">Flores Law Office</span>
+            </h2>
           </div>
           <p class="muted">
             For more than a decade, attorney Jeffrey Flores has guided Hoosiers through the
@@ -2814,7 +2748,7 @@
       </section>
 
       <!-- Attorney Bio -->
-      <section class="section" id="about" aria-label="Attorney" style="padding:56px 0; ">
+      <section class="section" id="about" aria-label="Attorney" style="padding:10px 0; ">
         <div class="container" style="gap:24px;">
           <div class="card bio-card" style="background:#fff;padding:24px;">
             <div class="bio-layout">
@@ -2830,10 +2764,10 @@
               <div class="bio-copy">
                 <h2>Meet Jeffrey Flores — Madison Indiana Personal Injury Attorney</h2>
                 <p>
-                  Jeffrey Flores founded Flores Law Office to provide elite-level advocacy with the
-                  accessibility of a local practice. His litigation career focuses exclusively on
-                  serious injury, wrongful death, and complex insurance disputes affecting Hoosier
-                  families.
+                  Jeffrey Flores founded <span class="brand-mark">Flores Law Office</span> to provide
+                  elite-level advocacy with the accessibility of a local practice. His litigation career
+                  focuses on serious injury, wrongful death, and complex insurance disputes affecting
+                  Hoosier families.
                 </p>
                 <p class="muted">
                   Jeff is a bilingual trial lawyer who regularly collaborates with investigators,
@@ -2843,10 +2777,9 @@
                 </p>
                 <ul style="font-weight: 800;" class="list">
                   <li>
-                    Member, Indiana State Bar Association &amp; Indiana Trial Lawyers Association
+                    Member, Indiana State Bar Association &amp; Indiana Trial Lawyers Association to
+                    plaintiff cases.
                   </li>
-                  <li>Former defense counsel insight applied to plaintiff cases</li>
-                  <li>Se Habla Español — serving English and Spanish speaking clients statewide</li>
                 </ul>
                 <div style="margin-top: 10px;">
                   <span class="chip">Virtual Consults</span>
@@ -2873,7 +2806,7 @@
             <h2>Personal Injury Frequently Asked Questions</h2>
             <p class="faq-media__lede">
               Quick answers to the most common questions Madison families ask before retaining
-              Flores Law Office.
+              <span class="brand-mark">Flores Law Office</span>.
             </p>
             <div id="faq-accordion" class="faq-media__accordion">
               <details class="faq-media__item">
@@ -2995,7 +2928,9 @@
           <div class="offices-inner">
             <div class="section-rt">
               <div class="section-rt-cell">
-                <h2>Visit Flores Law Office or Schedule a Statewide Consultation</h2>
+                <h2>
+                  Visit <span class="brand-mark">Flores Law Office</span> or Schedule a Consultation
+                </h2>
                 <p class="muted">
                   We welcome in-person meetings at our Madison headquarters and regularly serve
                   clients across Indiana. Virtual consultations are available when travel is not
@@ -3043,7 +2978,7 @@
       >
         <div class="container grid-3" style="gap:24px;">
           <div class="card" style="grid-column: span 2; background:#fff;padding:24px;">
-            <h2>Contact Flores Law Office</h2>
+            <h2>Contact <span class="brand-mark">Flores Law Office</span></h2>
             <p class="muted">
               Free consultation. Speak with a Madison IN personal injury attorney near Clifty Falls
               State Park and expect a response within one business day.
@@ -3139,15 +3074,15 @@
           </div>
         </div>
       </section>
-    </div>
+    </section>
 
     <!-- Footer -->
     <footer class="footer" role="contentinfo" style="background:#000;color:#f5f5f5;padding:48px 0;">
       <div class="container" style="display:flex;flex-direction:column;gap:24px;">
         <p style="font-size: 13px;text-align:center;margin:0;color:#f5f5f5;">
-          Disclaimer: Flores Law Office is a Debt Relief Agency, helping people file for bankruptcy
-          relief under the Bankruptcy Code. Information on this site is not legal advice and
-          contacting us does not create an attorney-client relationship.
+          Disclaimer: <span class="brand-mark">Flores Law Office</span> is a Debt Relief Agency, helping
+          people file for bankruptcy relief under the Bankruptcy Code. Information on this site is not
+          legal advice and contacting us does not create an attorney-client relationship.
         </p>
         <div style="height:1px;background:#333;"></div>
         <div class="grid-3" style="gap:24px;color:#f5f5f5;">
@@ -3179,7 +3114,7 @@
               >
             </div>
             <p style="margin-top:12px;font-size:13px;color:#f5f5f5;">
-              Flores Law Office | Attorney and Counselor at Law
+              <span class="brand-mark">Flores Law Office</span> | Attorney and Counselor at Law
             </p>
           </div>
           <div>
@@ -3238,7 +3173,9 @@
               >
             </form>
             <p style="font-size: 12px; margin-top: 10px; color:#cccccc;">
-              Looking for a newsletter? Join to receive updates about Flores Law Office.
+              Looking for a newsletter? Join to receive updates about <span class="brand-mark"
+                >Flores Law Office</span
+              >.
             </p>
           </div>
         </div>
@@ -3251,13 +3188,14 @@
           </p>
           <p>
             The information provided herein is solely for the reader’s own use and cannot be sold.
-            Flores Law Office explicitly disclaims any representations and warranties, including the
-            implied warranties of merchantability and fitness for a particular purpose, and assumes
-            no liability for errors, omissions, or actions taken in reliance on this information.
+            <span class="brand-mark">Flores Law Office</span> explicitly disclaims any representations
+            and warranties, including the implied warranties of merchantability and fitness for a particular
+            purpose, and assumes no liability for errors, omissions, or actions taken in reliance on
+            this information.
           </p>
         </div>
         <div style="font-size: 12px; color:#00c2c2; text-align:center;">
-          All Rights Reserved © 2025 Flores Law Office
+          All Rights Reserved © 2025 <span class="brand-mark">Flores Law Office</span>
         </div>
       </div>
     </footer>
@@ -3438,5 +3376,5 @@
         </a>
       </div>
     </div>
-  </body>
+  </div>
 </html>
