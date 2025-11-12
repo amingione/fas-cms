@@ -145,7 +145,7 @@
       .btn {
         display: inline-block;
         padding: 10px 24px;
-        border-radius: 6px;
+        border-radius: 5px;
         font-weight: 600;
         font-family: var(--font-accent);
         letter-spacing: 0.02em;
@@ -318,7 +318,7 @@
         min-width: 220px;
         padding: 16px;
         background: rgba(12, 22, 48, 0.96);
-        border-radius: 16px;
+        border-radius: 5px;
         box-shadow: 0 20px 40px rgba(8, 15, 35, 0.45);
         border: 1px solid rgba(148, 163, 184, 0.18);
       }
@@ -640,7 +640,7 @@
       }
       .panel .container {
         background: #ffffff;
-        border-radius: 16px;
+        border-radius: 5px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         padding: 40px clamp(24px, 5vw, 48px);
         position: relative;
@@ -700,7 +700,7 @@
       .panel-review {
         background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
         color: #ffffff;
-        border-radius: 16px;
+        border-radius: 5px;
         padding: clamp(28px, 4vw, 36px);
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         display: flex;
@@ -778,12 +778,12 @@
       }
       .service-area-map {
         position: relative;
-        border-radius: 28px;
+        border-radius: 5px;
         overflow: hidden;
         min-height: 260px;
         background:
-          linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)),
-          url('/images/flores/Madison Indiana Broadway Fountain copy.jpg') center/cover no-repeat;
+          linear-gradient(rgba(0, 0, 0, 0.739), rgba(0, 0, 0, 0.634)),
+          url('/images/flores/madisonIndianaCourtHouse.png') center/cover no-repeat;
         box-shadow: 0 40px 80px rgba(0, 0, 0, 0.22);
         color: #ffffff;
         display: flex;
@@ -806,7 +806,7 @@
       }
       .result {
         padding: clamp(18px, 3vw, 26px);
-        border-radius: 22px;
+        border-radius: 5px;
         background: linear-gradient(135deg, rgba(0, 0, 0, 0.88), rgba(0, 0, 0, 0.72));
         color: #ffffff;
         border: 1px solid rgba(255, 255, 255, 0.08);
@@ -840,7 +840,7 @@
       }
       .reason-card {
         background: rgba(255, 255, 255, 0.9);
-        border-radius: 20px;
+        border-radius: 5px;
         border: 1px solid rgba(0, 0, 0, 0.08);
         padding: 20px;
         box-shadow: 0 24px 45px rgba(15, 23, 42, 0.12);
@@ -903,12 +903,12 @@
       .panel-dark select,
       .panel-dark textarea {
         background: rgba(15, 23, 42, 0.7);
-        color: #f8fafc;
+        color: #f9f9f9;
         border: 1px solid rgba(148, 163, 184, 0.45);
       }
       .panel-dark input::placeholder,
       .panel-dark textarea::placeholder {
-        color: rgba(226, 232, 240, 0.6);
+        color: rgb(236, 236, 236);
       }
       .panel-dark .btn-outline {
         border-color: rgba(255, 255, 255, 0.55);
@@ -917,8 +917,101 @@
       .panel-dark .btn-outline:hover {
         background: rgba(255, 255, 255, 0.16);
       }
+      .faq-media {
+        background: #f9f9f9;
+        color: #1a1a1a;
+        padding: clamp(20px, 7vw, 96px) 0;
+      }
+      .faq-media .container {
+        display: grid;
+        grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+        gap: clamp(12px, 5vw, 72px);
+        align-items: stretch;
+      }
+      .faq-media__visual {
+        background: transparent;
+        border-radius: 0;
+        padding: 0;
+        box-shadow: none;
+        display: flex;
+        align-items: stretch;
+      }
+      .faq-media__visual img {
+        border-radius: 0;
+        width: 100%;
+        object-fit: cover;
+        min-height: 380px;
+      }
+      .faq-media__content h2 {
+        color: #1a1a1a;
+        font-size: clamp(28px, 3vw, 42px);
+        margin-bottom: 12px;
+      }
+      .faq-media__eyebrow {
+        text-transform: uppercase;
+        letter-spacing: 0.35em;
+        font-size: 13px;
+        color: #303030;
+        margin-bottom: 12px;
+      }
+      .faq-media__lede {
+        color: rgba(20, 20, 20, 0.76);
+        margin-bottom: 32px;
+        max-width: 560px;
+      }
+      .faq-media__accordion {
+        border-top: none;
+      }
+      .faq-media__item {
+        border-bottom: 1px solid rgba(51, 51, 51, 0.5);
+        padding: 10px 0;
+        background: #f9f9f9;
+      }
+      .faq-media__item summary {
+        list-style: none;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 17px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        color: #111111;
+      }
+      .faq-media__item summary::-webkit-details-marker {
+        display: none;
+      }
+      .faq-media__item summary::marker {
+        content: '';
+      }
+      .faq-media__item summary::after {
+        content: '';
+        width: 14px;
+        height: 14px;
+        border-right: 2px solid currentColor;
+        border-bottom: 2px solid currentColor;
+        transform: rotate(45deg);
+        transition: transform 0.2s ease;
+      }
+      .faq-media__item[open] summary::after {
+        transform: rotate(-135deg);
+      }
+      .faq-media__answer {
+        margin-top: 14px;
+        color: rgba(17, 17, 17, 0.78);
+        font-size: 15px;
+        line-height: 1.7;
+      }
+      @media (max-width: 900px) {
+        .faq-media .container {
+          grid-template-columns: 1fr;
+        }
+        .faq-media__visual img {
+          min-height: 260px;
+        }
+      }
       .panel-highlight .container {
-        background: #ffffff;
+        background: #f9f9f9;
         box-shadow: 0 35px 75px rgba(0, 0, 0, 0.2);
       }
       .panel-highlight .container::before {
@@ -928,7 +1021,7 @@
         color: var(--primary);
       }
       .panel-highlight .result {
-        background: rgba(255, 255, 255, 0.96);
+        background: rgba(226, 226, 226, 0.96);
         border: 1px solid rgba(0, 0, 0, 0.12);
         box-shadow: 0 28px 50px rgba(0, 0, 0, 0.18);
       }
@@ -946,7 +1039,7 @@
       .hero-card {
         background: #fff;
         border: 1px solid #e9eef7;
-        border-radius: 16px;
+        border-radius: 5px;
         padding: 22px;
         box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
       }
@@ -965,7 +1058,7 @@
       .trust-badge {
         border: 1px dashed #dce4f2;
         padding: 12px;
-        border-radius: 12px;
+        border-radius: 5px;
         text-align: center;
         font-size: 12px;
         color: var(--muted);
@@ -1040,10 +1133,47 @@
         }
       }
       .card {
-        border: 1px solid rgba(0, 0, 0, 0.12);
-        border-radius: 20px;
+        border: none;
+        border-radius: 5px;
         padding: 22px;
         background: #fff;
+      }
+      .bio-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.8fr);
+        gap: 24px;
+        align-items: start;
+        grid-template-areas: 'copy portrait';
+      }
+      .bio-copy {
+        grid-area: copy;
+      }
+      .bio-portrait {
+        grid-area: portrait;
+      }
+      .bio-portrait img {
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+        border-radius: 12px;
+      }
+      .bio-card::after {
+        content: '';
+        display: block;
+        clear: both;
+      }
+      @media (max-width: 900px) {
+        .bio-layout {
+          display: block;
+        }
+        .bio-portrait {
+          float: left;
+          margin: 4px 18px 12px 0;
+          width: 150px;
+        }
+        .bio-portrait img {
+          border-radius: 8px;
+        }
       }
       .muted {
         color: var(--muted);
@@ -1053,7 +1183,7 @@
         gap: 12px;
         align-items: center;
         background: linear-gradient(135deg, rgba(0, 0, 0, 0.28) 0%, rgba(0, 0, 0, 0.12) 100%);
-        border-radius: 18px;
+        border-radius: 5px;
         border: 1px solid rgba(0, 0, 0, 0.2);
         padding: 20px;
       }
@@ -1101,20 +1231,10 @@
       }
       /* FAQ Styling */
       #faq details {
-        background: #ffffff;
-        border: 1px solid rgba(0, 152, 153, 0.12);
-        border-radius: 12px;
+        background: #f9f9f9;
         margin-bottom: 14px;
         padding: 0;
         transition: all 0.2s ease;
-      }
-      #faq details:hover {
-        border-color: rgba(0, 152, 153, 0.25);
-        box-shadow: 0 4px 12px rgba(0, 152, 153, 0.08);
-      }
-      #faq details[open] {
-        border-color: var(--primary);
-        box-shadow: 0 6px 20px rgba(0, 152, 153, 0.12);
       }
       #faq summary {
         padding: 20px 24px;
@@ -1131,25 +1251,16 @@
       #faq summary::-webkit-details-marker {
         display: none;
       }
-      #faq summary::after {
-        content: '+';
-        font-size: 24px;
-        font-weight: 400;
-        color: var(--primary);
-        flex-shrink: 0;
-        margin-left: 16px;
-        transition: transform 0.2s ease;
-      }
       #faq details[open] summary::after {
         content: '−';
         transform: rotate(0deg);
       }
       #faq summary:hover {
-        color: var(--primary);
+        color: var(--muted);
       }
       #faq details[open] summary {
         color: var(--primary);
-        border-bottom: 1px solid rgba(0, 152, 153, 0.15);
+        border-bottom: 1px solid rgba(87, 87, 87, 0.15);
       }
       #faq summary strong {
         font-weight: 600;
@@ -1159,7 +1270,7 @@
         margin: 0;
         font-size: 16px;
         line-height: 1.7;
-        color: #444444;
+        color: #282828;
       }
       form .row {
         display: grid;
@@ -1183,8 +1294,8 @@
       textarea {
         width: 100%;
         padding: 10px 14px;
-        border: 1.5px solid #d0d7e3;
-        border-radius: 6px;
+        border: 1.5px solid #000000;
+        border-radius: 5px;
         font-size: 15px;
         outline: none;
         background: #fff;
@@ -1194,8 +1305,8 @@
       input:focus,
       select:focus,
       textarea:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(0, 152, 153, 0.1);
+        border-color: var(--muted);
+        box-shadow: 0 0 0 3px rgba(116, 116, 116, 0.1);
       }
       input::placeholder,
       textarea::placeholder {
@@ -1250,7 +1361,7 @@
       #contact-pagelaw .contact-form-panel {
         flex: 1 1 320px;
         background: rgba(255, 255, 255, 0.92);
-        border-radius: 18px;
+        border-radius: 5px;
         padding: clamp(24px, 4vw, 32px);
         box-shadow: 0 24px 50px rgba(0, 0, 0, 0.3);
       }
@@ -1268,7 +1379,7 @@
       #contact-pagelaw .contact-form-panel textarea {
         width: 100%;
         padding: 12px 14px;
-        border-radius: 10px;
+        border-radius: 5px;
         border: 1px solid rgba(0, 0, 0, 0.25);
         font-size: 15px;
         font-family: var(--font-primary);
@@ -1346,7 +1457,7 @@
       }
       .offices-wrap .section-lt-cell {
         position: relative;
-        border-radius: 24px;
+        border-radius: 5px;
         overflow: hidden;
         min-height: 320px;
         box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
@@ -1378,7 +1489,7 @@
         width: min(960px, 92%);
         background: var(--primary);
         color: #fff;
-        border-radius: 16px;
+        border-radius: 5px;
         display: flex;
         gap: 12px;
         align-items: center;
@@ -1387,15 +1498,14 @@
         box-shadow: 0 12px 30px rgba(31, 58, 138, 0.35);
       }
       .cta-bar .btn {
-        border-radius: 10px;
+        border-radius: 5px;
       }
       .hide-mobile {
         display: block;
       }
       @media (max-width: 720px) {
         .cta-bar {
-          bottom: 12px;
-          border-radius: 14px;
+          display: none;
         }
         .hide-mobile {
           display: none;
@@ -1417,7 +1527,7 @@
       .map {
         width: 100%;
         height: 260px;
-        border-radius: 12px;
+        border-radius: 5px;
         border: 1px solid rgba(0, 0, 0, 0.14);
         overflow: hidden;
       }
@@ -1521,7 +1631,7 @@
         .cta-bar {
           width: min(520px, 94%);
           padding: 14px;
-          border-radius: 14px;
+          border-radius: 5px;
           flex-direction: column;
           align-items: stretch;
           gap: 12px;
@@ -1546,7 +1656,7 @@
           flex: 1;
           padding: 10px 12px;
           font-size: 15px;
-          border-radius: 12px;
+          border-radius: 5px;
         }
         .flex.justify-between {
           flex-direction: column;
@@ -1564,7 +1674,7 @@
         left: 0;
         right: 0;
         z-index: 95;
-        background: #ffffff;
+        background: #000000;
         padding: 10px 16px;
         box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.12);
         display: none;
@@ -1579,7 +1689,7 @@
           transform: translateY(0);
         }
       }
-      @media (max-width: 768px) {
+      @media (max-width: 640px) {
         .sticky-cta {
           display: block;
         }
@@ -1597,132 +1707,69 @@
         padding: 11px 18px;
         font-size: 14px;
         font-weight: 600;
-        border-radius: 6px;
+        border-radius: 5px;
       }
       .sticky-cta .btn-primary {
-        background: var(--primary);
-        color: #ffffff;
-        border-color: var(--primary);
+        background: #f9f9f9;
+        color: var(--muted);
+        border-color: var(--muted);
       }
       .sticky-cta .btn-primary:hover {
-        background: var(--primary-dark);
+        background: #b3b3b3;
         transform: none;
       }
       .sticky-cta .btn-secondary {
         background: transparent;
-        color: var(--primary);
-        border-color: var(--primary);
+        color: #fff;
+        border-color: #fff;
       }
       .sticky-cta .btn-secondary:hover {
-        background: rgba(0, 152, 153, 0.08);
+        background: #009899;
         transform: none;
       }
     </style>
 
-    <!-- Structured data: LegalService, LocalBusiness, Attorney, FAQ -->
+    <!-- Structured data: LegalService + LocalBusiness -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@graph": [
-          {
-            "@type": ["LegalService", "LocalBusiness"],
-            "@id": "https://www.floreslawoffice.net/#legalservice",
-            "name": "Flores Law Office",
-            "url": "https://www.floreslawoffice.net/personal-injury",
-            "image": "https://www.floreslawoffice.net/images/indiana-personal-injury-lawyer.jpg",
-            "description": "Flores Law Office represents personal injury and wrongful death clients from Madison, Jefferson County, and across Indiana in complex car, truck, catastrophic injury, and no-impact trauma cases.",
-            "telephone": "+1-812-265-9020",
-            "email": "mailto:info@floreslawoffice.net",
-            "priceRange": "$$",
-            "address": {
-              "@type": "PostalAddress",
-              "streetAddress": "112 E 3rd St #200",
-              "addressLocality": "Madison",
-              "addressRegion": "IN",
-              "postalCode": "47250",
-              "addressCountry": "US"
-            },
-            "geo": {
-              "@type": "GeoCoordinates",
-              "latitude": 38.7364,
-              "longitude": -85.38
-            },
-            "sameAs": [
-              "https://www.avvo.com/attorneys/47250-in-jeffrey-flores-1723245.html",
-              "https://www.bbb.org/louisville/business-reviews/attorneys-personal-injury-and-property-damage/flores-law-office-in-madison-in-159137329"
-            ],
-            "areaServed": [
-              {
-                "@type": "Place",
-                "name": "Madison, Indiana"
-              },
-              {
-                "@type": "AdministrativeArea",
-                "name": "Jefferson County, Indiana"
-              },
-              {
-                "@type": "State",
-                "name": "Indiana"
-              }
-            ],
-            "hasMap": "https://maps.app.goo.gl/3rJFfgpVA4hXSyFa7",
-            "openingHoursSpecification": [
-              {
-                "@type": "OpeningHoursSpecification",
-                "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-                "opens": "08:30",
-                "closes": "17:30"
-              }
-            ],
-            "contactPoint": [
-              {
-                "@type": "ContactPoint",
-                "contactType": "Personal Injury Intake",
-                "telephone": "+1-812-265-9020",
-                "email": "mailto:info@floreslawoffice.net",
-                "areaServed": "Indiana",
-                "availableLanguage": ["English", "Spanish"]
-              }
-            ],
-            "aggregateRating": {
-              "@type": "AggregateRating",
-              "ratingValue": "5.0",
-              "reviewCount": "25"
-            },
-            "founder": {
-              "@id": "https://www.floreslawoffice.net/#jeffrey-flores"
-            }
-          },
-          {
-            "@type": ["Person", "Attorney"],
-            "@id": "https://www.floreslawoffice.net/#jeffrey-flores",
-            "name": "Jeffrey Flores",
-            "jobTitle": "Attorney",
-            "worksFor": {
-              "@id": "https://www.floreslawoffice.net/#legalservice"
-            },
-            "url": "https://www.floreslawoffice.net/personal-injury/indiana-serious-injury/",
-            "image": "https://floreslawoffice.net/wp-content/uploads/2025/03/Jeff_Color_Portrait.webp",
-            "email": "mailto:info@floreslawoffice.net",
-            "telephone": "+1-812-265-9020",
-            "sameAs": [
-              "https://www.avvo.com/attorneys/47250-in-jeffrey-flores-1723245.html",
-              "https://www.bbb.org/louisville/business-reviews/attorneys-personal-injury-and-property-damage/flores-law-office-in-madison-in-159137329"
-            ],
-            "hasCredential": [
-              {
-                "@type": "EducationalOccupationalCredential",
-                "credentialCategory": "Professional License",
-                "name": "Indiana State Bar License"
-              },
-              {
-                "@type": "EducationalOccupationalCredential",
-                "credentialCategory": "Professional Association",
-                "name": "Indiana Trial Lawyers Association"
-              }
-            ],
-            "knowsLanguage": ["English", "Spanish"]
-          }
+        "@type": ["LegalService", "LocalBusiness"],
+        "name": "Flores Law Office",
+        "url": "https://www.floreslawoffice.net",
+        "telephone": "+18122659020",
+        "email": "info@floreslawoffice.net",
+        "image": "https://www.floreslawoffice.net/images/Jeff_Color_Portrait.webp",
+        "founder": {
+          "@type": "Person",
+          "name": "Attorney Jeffrey Flores",
+          "jobTitle": "Personal Injury Lawyer",
+          "memberOf": "Indiana State Bar Association"
+        },
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "112 E 3rd St #200",
+          "addressLocality": "Madison",
+          "addressRegion": "IN",
+          "postalCode": "47250",
+          "addressCountry": "US"
+        },
+        "areaServed": [
+          "Bartholomew County",
+          "Clark County",
+          "Dearborn County",
+          "Floyd County",
+          "Jackson County",
+          "Jennings County",
+          "Jefferson County",
+          "Ohio County",
+          "Ripley County",
+          "Scott County",
+          "Switzerland County"
+        ],
+        "sameAs": [
+          "https://www.avvo.com/attorneys/47250-in-jeffrey-flores-1723245.html",
+          "https://www.bbb.org/louisville/business-reviews/attorneys-personal-injury-and-property-damage/flores-law-office-in-madison-in-159137329",
+          "https://maps.app.goo.gl/3rJFfgpVA4hXSyFa7"
         ]
       }
     </script>
@@ -1734,109 +1781,86 @@
         "mainEntity": [
           {
             "@type": "Question",
-            "name": "How long do I have to file a personal injury claim in Indiana?",
+            "name": "What is a personal injury case?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Most Indiana personal injury claims must be filed within two years of the crash or injury. However, certain claims—including those against government entities—have shorter deadlines. We immediately analyze every limitation period so evidence and notices are preserved."
+              "text": "A personal injury case is a legal dispute that arises when one person suffers harm from an accident or injury, and someone else might be legally responsible for that harm. The responsible person's insurance company will typically pay money to the injured person for medical bills, pain and suffering, and other ongoing medical expenses."
             }
           },
           {
             "@type": "Question",
-            "name": "How much does it cost to hire Flores Law Office?",
+            "name": "What should I do after a car accident?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "We work on a contingency fee basis for personal injury cases—no fee unless we win. Your initial consultation is free. You pay nothing unless we recover compensation for you."
+              "text": "After a car accident, you should first seek medical attention for any injuries. Then, you should report the accident to the police, gather evidence at the scene (photos, witness information), and report the accident to your insurance company. It is also advisable to consult with a personal injury lawyer before speaking to the other party's insurance company."
             }
           },
           {
             "@type": "Question",
-            "name": "What damages can I recover in a personal injury case?",
+            "name": "How much is my personal injury case worth?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Indiana law allows recovery for medical expenses, lost wages, future medical care, pain and suffering, loss of enjoyment of life, and in wrongful death cases, loss of companionship and funeral expenses. We pursue full compensation for all economic and non-economic damages."
+              "text": "The value of a personal injury case depends on many factors, including the severity of your injuries, the amount of your medical bills and lost wages, and the impact the injuries have on your daily life. An experienced personal injury attorney can evaluate your case and give you a better estimate of its value."
             }
           },
           {
             "@type": "Question",
-            "name": "Should I talk to the insurance company?",
+            "name": "Should I accept the insurance company's first offer?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Not before speaking with an attorney. Insurers may use your statements against you to reduce or deny your claim. We handle all communications with insurance companies to protect your rights."
+              "text": "It is generally not a good idea to accept the insurance company's first offer. The initial offer is often much lower than the actual value of your claim. You should always consult with a personal injury lawyer before accepting any settlement offer."
             }
           },
           {
             "@type": "Question",
-            "name": "How long does a personal injury case take?",
+            "name": "How long do I have to file a personal injury lawsuit?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Case timelines vary based on injury severity, liability disputes, and settlement negotiations. Simple cases may resolve in months, while complex litigation can take 1-2 years. We work efficiently while ensuring you receive maximum compensation."
+              "text": "The time limit for filing a personal injury lawsuit is called the statute of limitations. This time limit varies by state and the type of injury. It is important to speak with a lawyer as soon as possible to ensure you do not miss the deadline for filing your case."
             }
           },
           {
             "@type": "Question",
-            "name": "Do you serve Madison and Jefferson County?",
+            "name": "What if I'm partially at fault for the accident?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Yes. Our office is located at 112 E 3rd St #200, Madison, IN 47250. We serve Madison, Jefferson County, and personal injury victims throughout Indiana including car accidents, wrongful death, and catastrophic injury cases."
+              "text": "Even if you are partially at fault for the accident, you may still be able to recover damages. Many states follow a “comparative negligence” rule, which allows you to recover damages reduced by your percentage of fault."
             }
           },
           {
             "@type": "Question",
-            "name": "What if I was partially at fault for the accident?",
+            "name": "Do I need a lawyer for my personal injury case?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Indiana follows a modified comparative fault rule. You can recover damages if you were less than 51% at fault, though your compensation will be reduced by your percentage of fault. We work to minimize any fault attributed to you."
+              "text": "While you are not required to have a lawyer, it is highly recommended. A personal injury lawyer can help you navigate the complex legal process, negotiate with the insurance company, and ensure you receive the full compensation you deserve."
             }
           },
           {
             "@type": "Question",
-            "name": "What should I do immediately after a car accident in Madison, Indiana?",
+            "name": "How much does a personal injury lawyer cost?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "First, seek medical attention even if injuries seem minor. Call 911 to file a police report. Document the scene with photos and gather witness information. Do not admit fault or give recorded statements to insurance companies. Contact Flores Law Office at (812) 265-9020 within 24-48 hours to protect your rights and preserve crucial evidence."
+              "text": "Most personal injury lawyers work on a contingency fee basis. This means they only get paid if you win your case. The fee is typically a percentage of the settlement or award you receive."
             }
           },
           {
             "@type": "Question",
-            "name": "How much is my personal injury case worth in Indiana?",
+            "name": "What kind of damages can I recover in a personal injury case?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Case value depends on medical expenses, lost wages, future care needs, pain and suffering, and liability strength. Serious injury cases in Indiana typically range from $50,000 to multi-million dollar settlements. During your free consultation, we'll evaluate your specific circumstances, review medical records, and provide a realistic case valuation."
+              "text": "In a personal injury case, you may be able to recover damages for medical expenses, lost wages, pain and suffering, emotional distress, and property damage. In some cases, you may also be able to recover punitive damages."
             }
           },
           {
             "@type": "Question",
-            "name": "Do I need a lawyer for a car accident in Jefferson County?",
+            "name": "What is the process of a personal injury lawsuit?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "While not legally required, hiring an experienced personal injury lawyer significantly increases your settlement. Studies show represented victims receive 3-4 times more compensation than unrepresented claimants. Insurance companies use aggressive tactics to minimize payouts. Our Madison attorneys handle negotiations, gather evidence, and protect your interests at no upfront cost."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Can I sue if I was injured on someone's property in Madison?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Yes. Indiana premises liability law holds property owners responsible for dangerous conditions that cause injuries. This includes slip and falls, inadequate security, dog bites, and construction hazards. You must prove the owner knew or should have known about the hazard. We investigate Madison premises cases including retail stores, restaurants, apartments, and private residences."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "What is the average settlement for a truck accident in Indiana?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Commercial truck accident settlements in Indiana average $500,000 to $2 million+, significantly higher than passenger vehicle crashes due to severe injuries and commercial insurance policies. Factors include injury severity, lost income, trucking company liability, and whether federal regulations were violated. We handle I-65 and US-421 corridor truck crashes with comprehensive investigation and expert reconstruction."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Will I have to go to court for my personal injury case?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Most personal injury cases settle before trial. Approximately 95% resolve through negotiation, mediation, or arbitration. However, we prepare every case for litigation to maximize settlement leverage. If trial becomes necessary in Jefferson Circuit Court or federal court, we have extensive trial experience. Your involvement depends on case complexity, but we handle all legal proceedings."
+              "text": "The personal injury lawsuit process typically involves filing a complaint, a discovery phase where both sides exchange information, settlement negotiations, and if a settlement cannot be reached, a trial. An attorney can guide you through each step of this process."
             }
           }
-        ]
+        ],
+        "disclaimer": "The information provided on this page is for general informational purposes only and does not constitute legal advice. You should not act or refrain from acting based on this information without seeking professional legal counsel."
       }
     </script>
   </head>
@@ -2061,8 +2085,10 @@
         <div class="hero-grid">
           <div>
             <span class="badge" aria-label="Free consultation badge">
-              <span aria-hidden="true">✔</span> Free Consultation · No Fee Unless We Win · Se Habla
-              Espanol
+              <span aria-hidden="true">✔</span>
+              <strong>Free Consultation · No Fee Unless We Win</strong> · <span
+                style="font-weight: 800;">Se Habla Espanol</span
+              >
             </span>
             <h1>
               Madison Indiana Personal Injury Lawyer | Serious Injury & Wrongful Death Attorney
@@ -2149,19 +2175,19 @@
             aria-label="Free case review form"
             style="
               background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-              border-radius: 16px;
+              border-radius: 5px;
               padding: 48px 32px;
               box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
             "
           >
-            <h3 style="color: #71e3ce; font-size: 24px; font-weight: 900; letter-spacing: -0.01em;">
+            <h3 style="color: #009899; font-size: 24px; font-weight: 900; letter-spacing: -0.01em;">
               Tell Us What Happened
             </h3>
             <p style="color: #ffffff;">
               Complete the form below and an attorney will reach out shortly.
             </p>
             <divider
-              style="display:block; width:75%; margin:16px auto; height:1px; background:#00b3b3; border-radius:2px;"
+              style="display:block; width:75%; margin:16px auto; height:1px; background:#00b3b3; border-radius:0px;"
             ></divider>
             <form id="contactForm" novalidate>
               <div class="field">
@@ -2194,7 +2220,7 @@
               </div>
               <div class="field">
                 <label style="color:#cccccc;" for="email"
-                  >Email <span style="color:#aaa;font-size:13px;">(optional)</span></label
+                  >Email <span style="color:#070707;font-size:13px;">(optional)</span></label
                 >
                 <input id="email" name="email" type="email" placeholder="you@example.com" />
                 <div class="error" id="err-email"></div>
@@ -2233,1303 +2259,1183 @@
         </div>
       </div>
     </section>
-  </body>
 
-  <div class="page-shell" style="padding:72px 0 96px;">
-    <section
-      class="section alt"
-      id="injury-overview"
-      aria-label="Indiana personal injury overview"
-      style="
+    <div class="page-shell" style="padding:72px 0 96px;">
+      <section
+        class="section alt"
+        id="injury-overview"
+        aria-label="Indiana personal injury overview"
+        style="
         padding:48px 0;
-        background: linear-gradient(90deg, rgba(0, 0, 0, 0.04) 0%, rgba(0, 0, 0, 0.01) 100%);
+        background: linear-gradient(90deg, rgba(192, 192, 192, 0.04) 0%, rgba(0, 0, 0, 0.01) 100%);
       "
-    >
-      <div class="container">
-        <div class="panel-heading">
-          <h2>Serious Injury & Wrongful Death Advocacy Across Indiana</h2>
-        </div>
-        <div class="panel-grid">
-          <div class="panel-copy" style="color:#1a1a1a;">
-            <p>
-              When a devastating crash, fall, or defective product upends life, Flores Law Office
-              mobilizes quickly. We document the scene, preserve black box data, and line up medical
-              experts so your family can focus on recovery while we build the civil case anywhere in
-              Indiana—whether the harm stems from <a href="#car-accidents"
-                >car accidents in Madison</a
-              >,
-              <a href="#truck-accidents">interstate truck collisions</a>, or a sudden
-              <a href="#wrongful-death">wrongful death tragedy</a>.
-            </p>
-            <ul class="list">
-              <li>
-                Wrongful death and catastrophic injury litigation prepared for trial from day one.
-              </li>
-              <li>
-                No-impact recovery and trauma claims when you witness a loved one hurt or killed.
-              </li>
-              <li>
-                Coordination with trauma teams and specialists in Jefferson, Clark, Marion, and
-                surrounding counties.
-              </li>
-            </ul>
-            <p class="muted" style="color:rgba(34, 34, 34, 1);">
-              You speak directly with an attorney who provides timelines, answers, and steady
-              updates. We handle medical liens, benefits, and negotiations to pursue the full value
-              of lost wages, future care, and non-economic harm—positioning you with a Jefferson
-              County personal injury lawyer near me who is ready to negotiate or try the case.
-            </p>
+      >
+        <div class="container">
+          <div class="panel-heading">
+            <h2>Serious Injury & Wrongful Death Advocacy Across Indiana</h2>
           </div>
-          <aside
-            class="panel-review"
-            style="align-self: start; justify-self: start; max-width: 480px;"
-            aria-label="Recent client review"
-            itemscope
-            itemtype="https://schema.org/Review"
-          >
-            <meta itemprop="datePublished" content="2024-09-15" />
-            <div itemprop="reviewRating" itemscope itemtype="https://schema.org/Rating">
-              <meta itemprop="ratingValue" content="5" />
-              <meta itemprop="bestRating" content="5" />
+          <div class="panel-grid">
+            <div class="panel-copy" style="color:#000000;">
+              <p>
+                When a devastating crash, fall, or defective product upends life, Flores Law Office
+                mobilizes quickly. We document the scene, preserve black box data, and line up
+                medical experts so your family can focus on recovery while we build the civil case
+                anywhere in Indiana—whether the harm stems from <a href="#car-accidents"
+                  >car accidents in Madison</a
+                >,
+                <a href="#truck-accidents">interstate truck collisions</a>, or a sudden
+                <a href="#wrongful-death">wrongful death tragedy</a>.
+              </p>
+              <ul class="list">
+                <li>
+                  Wrongful death and catastrophic injury litigation prepared for trial from day one.
+                </li>
+                <li>
+                  No-impact recovery and trauma claims when you witness a loved one hurt or killed.
+                </li>
+                <li>
+                  Coordination with trauma teams and specialists in Jefferson, Clark, Marion, and
+                  surrounding counties.
+                </li>
+              </ul>
+              <p class="muted" style="color:rgba(34, 34, 34, 1);">
+                You speak directly with an attorney who provides timelines, answers, and steady
+                updates. We handle medical liens, benefits, and negotiations to pursue the full
+                value of lost wages, future care, and non-economic harm—positioning you with a
+                Jefferson County personal injury lawyer near me who is ready to negotiate or try the
+                case.
+              </p>
             </div>
-            <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/LegalService">
-              <meta itemprop="name" content="Flores Law Office" />
-            </div>
-            <div class="quote" itemprop="reviewBody">
-              "After our family's catastrophic collision, Flores Law Office met us at the hospital,
-              coordinated specialists, and navigated the insurance maze. We always knew the next
-              step and ultimately secured a settlement that changed our future."
-            </div>
-            <footer itemprop="author" itemscope itemtype="https://schema.org/Person">
-              <span itemprop="name">— M. Reynolds</span>
-              <span>Serious Injury Client, Jefferson County</span>
-            </footer>
-          </aside>
+            <aside
+              class="panel-review"
+              style="align-self: start; justify-self: start; max-width: 480px;"
+              aria-label="Recent client review"
+              itemscope
+              itemtype="https://schema.org/Review"
+            >
+              <meta itemprop="datePublished" content="2024-09-15" />
+              <div itemprop="reviewRating" itemscope itemtype="https://schema.org/Rating">
+                <meta itemprop="ratingValue" content="5" />
+                <meta itemprop="bestRating" content="5" />
+              </div>
+              <div itemprop="itemReviewed" itemscope itemtype="https://schema.org/LegalService">
+                <meta itemprop="name" content="Flores Law Office" />
+              </div>
+              <div class="quote" itemprop="reviewBody">
+                "After our family's catastrophic collision, Flores Law Office met us at the
+                hospital, coordinated specialists, and navigated the insurance maze. We always knew
+                the next step and ultimately secured a settlement that changed our future."
+              </div>
+              <footer itemprop="author" itemscope itemtype="https://schema.org/Person">
+                <span>Serious Injury Client, Bartholomew County</span>
+              </footer>
+            </aside>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Practice Areas -->
-    <section
-      class="section"
-      id="practice-areas"
-      aria-label="Practice areas"
-      style="padding:56px 0;"
-    >
-      <div class="container" style="display:flex;flex-direction:column;gap:28px;">
-        <div class="panel-heading">
-          <h2>Personal Injury Cases We Handle in Madison & Jefferson County</h2>
-        </div>
-        <p class="muted">
-          Every serious injury file is built for litigation, whether the negligence happened in
-          Jefferson County or on an interstate miles away. Explore the focus areas below to see how
-          we position cases for maximum recovery.
-        </p>
-
-        <h3
-          style="margin-top: 20px; font-size: 20px; font-weight: 500; font-family: 'Roboto Slab', serif;"
-        >
-          Vehicle &amp; Roadway Collisions
-        </h3>
-        <p class="muted">
-          High-impact wrecks demand rapid response—scene documentation, expert analysis, and
-          preservation of ECM data. We routinely coordinate crash reconstruction and insurance
-          negotiations for:
-        </p>
-        <div class="grid-3" style="margin-top: 8px;">
-          <div
-            class="card"
-            style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
-          >
-            <h3
-              style="font-size: 18px; font-weight: 800; margin-bottom: 5px; "
-              id="car-accidents; "
-            >
-              Car Accidents
-            </h3>
-            <p class="muted">
-              Rear-end, T-bone, distracted, DUI, and uninsured/underinsured motorist claims
-              throughout southern Indiana.
-            </p>
-            <span class="chip">Crash Reconstruction</span><span class="chip">UM/UIM Claims</span>
+      <!-- Practice Areas -->
+      <section
+        class="section"
+        id="practice-areas"
+        aria-label="Practice areas"
+        style="padding:56px 0;"
+      >
+        <div class="container" style="display:flex;flex-direction:column;gap:28px;">
+          <div class="panel-heading">
+            <h2>Personal Injury Cases We Handle in Madison & Jefferson County</h2>
           </div>
-          <div
-            class="card"
-            style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
-          >
-            <h3
-              style="font-size: 18px; font-weight: 800; margin-bottom: 5px; "
-              id="truck-accidents"
-            >
-              Truck &amp; Commercial Vehicle Crashes
-            </h3>
-            <p class="muted">
-              Semi-truck, delivery fleet, and agricultural vehicle cases involving logbook
-              violations and multiple insurers.
-            </p>
-            <span class="chip">Black Box Data</span><span class="chip">Federal Safety Rules</span>
-          </div>
-          <div
-            class="card"
-            style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
-          >
-            <h3
-              style="font-size: 18px; font-weight: 800; margin-bottom: 5px; "
-              id="motorcycle-accidents"
-            >
-              Motorcycle &amp; Bicycle Injuries
-            </h3>
-            <p class="muted">
-              Visibility disputes, left-turn collisions, roadway defects, and helmet law issues
-              resulting in severe trauma.
-            </p>
-            <span class="chip">Roadway Design</span><span class="chip">Protective Gear</span>
-          </div>
-        </div>
-
-        <h3 style="margin-top: 12px; font-size: 22px; font-weight: 800;">
-          Catastrophic Harm &amp; Wrongful Death
-        </h3>
-        <divider
-          style="display:block; width:25%; margin:1px 0; height:1px; background:#00b3b3; border-radius:2px;"
-        ></divider>
-        <p class="muted">
-          Families facing life-changing injuries need coordinated legal, medical, and financial
-          planning. We partner with specialists to pursue damages that reflect a lifetime of care.
-        </p>
-        <div class="grid-3" style="margin-top: 8px;">
-          <div
-            class="card"
-            style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
-          >
-            <h3
-              style="font-size: 18px; font-weight: 800; margin-bottom: 5px; "
-              id="catastrophic-injury"
-            >
-              Catastrophic Injury
-            </h3>
-            <p class="muted">
-              Traumatic brain injury, spinal cord trauma, loss of limb, and serious burns requiring
-              life care plans.
-            </p>
-            <span class="chip">Life Care Plans</span><span class="chip">Future Medicals</span>
-          </div>
-          <div
-            class="card"
-            style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
-          >
-            <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 5px; " id="wrongful-death">
-              Wrongful Death
-            </h3>
-            <p class="muted">
-              Pursuing accountability for fatal crashes, unsafe products, and negligent property
-              conditions in civil court.
-            </p>
-            <span class="chip">Estate Coordination</span><span class="chip">Economic Loss</span>
-          </div>
-          <div
-            class="card"
-            style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
-          >
-            <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 5px; " id="family-trauma">
-              Child &amp; Family Trauma
-            </h3>
-            <p class="muted">
-              Unique damages for child wrongful death, no-impact recovery, and survivors coping with
-              long-term consequences.
-            </p>
-            <span class="chip">Guardian Support</span><span class="chip">Therapeutic Resources</span
-            >
-          </div>
-        </div>
-        <h3 style="margin-top: 12px; font-size: 22px; font-weight: 800;">
-          Premises Liability &amp; Unsafe Property
-        </h3>
-        <divider
-          style="display:block; width:25%; margin:1px 0; height:1px; background:#00b3b3; border-radius:2px;"
-        ></divider>
-        <p class="muted">
-          Property owners and contractors must prevent hazards, warn invitees, and address dangerous
-          conditions. We investigate the scene, secure surveillance footage, and identify every
-          responsible party.
-        </p>
-        <div class="grid-3" style="margin-top: 8px;">
-          <div
-            class="card"
-            style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
-          >
-            <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 5px; " id="slip-and-fall">
-              Slip, Trip &amp; Fall
-            </h3>
-            <p class="muted">
-              Grocery stores, parking lots, apartment complexes, and snow-and-ice claims involving
-              notice and maintenance failures.
-            </p>
-            <span class="chip">Incident Reports</span><span class="chip">Maintenance Logs</span>
-          </div>
-          <div
-            class="card"
-            style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
-          >
-            <h3
-              style="font-size: 18px; font-weight: 800; margin-bottom: 5px; "
-              id="construction-injury"
-            >
-              Construction &amp; Jobsite Injuries
-            </h3>
-            <p class="muted">
-              Third-party liability alongside workers’ compensation when subcontractors and site
-              owners ignore safety rules.
-            </p>
-            <span class="chip">OSHA Compliance</span><span class="chip">Third-Party Claims</span>
-          </div>
-          <div
-            class="card"
-            style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
-          >
-            <h3
-              style="font-size: 18px; font-weight: 800; margin-bottom: 5px; "
-              id="negligent-security"
-            >
-              Negligent Security &amp; Assault
-            </h3>
-            <p class="muted">
-              Apartment, hotel, or commercial attacks caused by inadequate lighting, staffing, or
-              prior crime awareness.
-            </p>
-            <span class="chip">Crime Statistics</span><span class="chip">Security Protocols</span>
-          </div>
-        </div>
-
-        <h3 style="margin-top: 12px; font-size: 22px; font-weight: 800;">
-          Animal Attacks &amp; Dangerous Products
-        </h3>
-        <divider
-          style="display:block; width:25%; margin:1px 0; height:1px; background:#00b3b3; border-radius:2px;"
-        ></divider>
-        <p class="muted">
-          We pursue insurance coverage, document scarring, and collaborate with medical specialists
-          to communicate the long-term impact of disfigurement and trauma.
-        </p>
-        <div class="grid-3" style="margin-top: 4px;">
-          <div
-            class="card"
-            style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
-          >
-            <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 5px; " id="dog-bite">
-              Dog Bite &amp; Animal Attacks
-            </h3>
-            <p class="muted">
-              Severe mauling, repeated-offender dogs, leash law violations, and landlord negligence
-              cases.
-            </p>
-            <span class="chip">Dangerous Dog Designation</span><span class="chip"
-              >Rabies Reports</span
-            >
-          </div>
-          <div
-            class="card"
-            style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
-          >
-            <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 5px; " id="scarring">
-              Scarring &amp; Disfigurement
-            </h3>
-            <p class="muted">
-              Facial injuries, plastic surgery needs, and future counseling for visible trauma and
-              PTSD.
-            </p>
-            <span class="chip">Future Treatment</span><span class="chip">Psychological Care</span>
-          </div>
-          <div
-            class="card"
-            style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
-          >
-            <h3
-              style="font-size: 18px; font-weight: 800; margin-bottom: 5px; "
-              id="product-liability"
-            >
-              Defective &amp; Unsafe Products
-            </h3>
-            <p class="muted">
-              Household, automotive, and industrial product failures leading to burns, amputations,
-              and catastrophic harm.
-            </p>
-            <span class="chip">Product Liability</span><span class="chip">Expert Analysis</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Areas Served -->
-    <section
-      class="section alt"
-      aria-label="Areas served"
-      style="padding:48px 0; background: linear-gradient(90deg, rgba(0, 0, 0, 0.04) 0%, rgba(0, 0, 0, 0.01) 100%);
-"
-    >
-      <div class="container" style="display:flex;flex-direction:column;gap:24px;">
-        <div class="panel-heading">
-          <h2>Serving Madison, Indiana | Jefferson County & Indiana Personal Injury Victims</h2>
-        </div>
-        <div class="service-area-grid">
-          <div class="service-area-copy">
-            <p>
-              Based in Madison, Indiana, we appear in courtrooms throughout southern and central
-              Indiana. From rural collisions along State Road 7 to interstate trucking disasters on
-              I-65, we travel to the scene, coordinate investigators, and file in the venue that
-              maximizes leverage for clients seeking a Madison Indiana wrongful death attorney near
-              the Ohio River or a Southern Indiana catastrophic injury trial lawyer.
-            </p>
-            <p class="muted">
-              Regular appearances include Jefferson Circuit Court, Clark County courts, and federal
-              court in the Southern District of Indiana. We also assist Hoosiers hospitalized in
-              Indianapolis, Louisville, and Cincinnati medical centers, acting as a Southeast
-              Indiana truck accident lawyer serving the US-421 corridor and a Madison and
-              Jeffersonville bridge commuter injury resource. If your county is not listed, call—we
-              partner with trusted co-counsel across the state of Indiana so you always have a
-              Jefferson County Indiana personal injury lawyer near me.
-            </p>
-            <divider
-              style="display:block; width:25%; margin:16px 0; height:1px; background:#00b3b3; border-radius:2px;"
-            ></divider>
-            <h4 style="margin-top: 12px; font-weight: 800; font-size: 20px;">
-              Major Counties Served:
-            </h4>
-            <ul class="service-area-list">
-              <li>Bartholomew County</li>
-              <li>Clark County</li>
-              <li>Dearborn County</li>
-              <li>Floyd County</li>
-              <li>Jackson County</li>
-              <li>Jennings County</li>
-              <li>Jefferson County</li>
-              <li>Ohio County</li>
-              <li>Ripley County</li>
-              <li>Scott County</li>
-              <li>Switzerland County</li>
-            </ul>
-            <h4
-              style="margin-top: 20px; font-family: 'Roboto Slab', serif; font-weight: 800; align-items: center; font-size: 18px ;"
-            >
-              <span style="color: #00b3b3">•</span> Statewide referrals in Indiana available
-            </h4>
-          </div>
-          <div class="service-area-map">
-            <strong>Statewide Response</strong>
-            <span>24/7 case evaluations from Madison, Indiana headquarters</span>
-            <p style="margin-top: 14px; font-size: 14px;">
-              Need immediate help? Call <a href="tel:+18122659020" style="color: #ffffff;"
-                >(812) 265-9020</a
-              >
-              or request a virtual consultation anywhere in Indiana.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="case-results" aria-label="Case results" style="padding:56px 0;">
-      <div class="container" style="display:flex;flex-direction:column;gap:28px;">
-        <div class="panel-heading">
-          <h2>Case Results: Madison Personal Injury Settlements & Verdicts</h2>
-        </div>
-        <p class="muted">
-          Past results do not guarantee future outcomes, yet they highlight how focused preparation
-          and strategic negotiation deliver meaningful compensation for Indiana families. We pursue
-          every liable party, identify excess coverage, and position your claim for settlement or
-          trial.
-        </p>
-        <div class="results">
-          <div
-            class="result"
-            style="background:#f7f7f7c2;color:var(--text);border:1px solid rgba(0,0,0,0.08);box-shadow:none;border-radius:16px;padding:20px;"
-          >
-            <div class="label">Wrongful Death – Indiana</div>
-            <div class="amount">$2.8M</div>
-            <p style="color:#000;">
-              Recovery for a family after a fatal commercial vehicle collision involving disputed
-              liability, multiple insurers, and UM/UIM issues—driven by our
-              <a href="#wrongful-death">Indiana wrongful death lawyer</a> strategy.
-            </p>
-          </div>
-          <div
-            class="result"
-            style="background:#f7f7f7c2;color:var(--text);border:1px solid rgba(0,0,0,0.08);box-shadow:none;border-radius:16px;padding:20px;"
-          >
-            <div class="label">Catastrophic Injury – Madison</div>
-            <div class="amount">$1.6M</div>
-            <p style="color:#000;">
-              Settlement for a construction worker with a spinal cord injury that required intensive
-              life-care planning and structured payments, coordinated by our
-              <a href="#catastrophic-injury">catastrophic injury litigation team</a>.
-            </p>
-          </div>
-          <div
-            class="result"
-            style="background:#f7f7f7c2;color:var(--text);border:1px solid rgba(0,0,0,0.08);box-shadow:none;border-radius:16px;padding:20px;"
-          >
-            <div class="label">Serious Crash – Jefferson County</div>
-            <div class="amount">$950K</div>
-            <p style="color:#000;">
-              Compensation for a multi-vehicle collision with multiple defendants, leveraging crash
-              reconstruction and digital forensics from our
-              <a href="#car-accidents">Jefferson County car accident lawyers</a>.
-            </p>
-          </div>
-          <div
-            class="result"
-            style="background:#f7f7f7c2;color:var(--text);border:1px solid rgba(0,0,0,0.08);box-shadow:none;border-radius:16px;padding:20px;"
-          >
-            <div class="label">Premises Liability – Southern Indiana</div>
-            <div class="amount">$600K</div>
-            <p style="color:#000;">
-              Settlement for a client who suffered complex fractures after a negligent property
-              owner failed to address repeated fall hazards despite prior incident reports—another
-              success for our
-              <a href="#slip-and-fall">slip and fall practice</a>.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section
-      class="section alt"
-      id="why-flores"
-      aria-label="Why clients choose Flores Law Office"
-      style="padding:52px 0; background: linear-gradient(90deg, rgba(0, 0, 0, 0.04) 0%, rgba(0, 0, 0, 0.01) 100%) "
-    >
-      <div class="container" style="display:flex;flex-direction:column;gap:24px;">
-        <div class="panel-heading">
-          <h2>Why Indiana Families Choose Flores Law Office</h2>
-        </div>
-        <p class="muted">
-          For more than a decade, attorney Jeffrey Flores has guided Hoosiers through the aftermath
-          of life-altering crashes, amputations, traumatic brain injuries, and wrongful deaths. Our
-          approach blends litigation readiness with attentive client service.
-        </p>
-        <ul class="reason-grid">
-          <li
-            class="reason-card"
-            style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;"
-          >
-            <strong>Trial-Tested Strategy</strong>
-            <p>
-              Every claim is prepared for court. We preserve ECM data, retain reconstructionists,
-              and develop demonstratives that withstand scrutiny from mediators, juries, and
-              appellate courts.
-            </p>
-          </li>
-          <li
-            class="reason-card"
-            style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;"
-          >
-            <strong>Hands-On Counsel</strong>
-            <p>
-              You work directly with an attorney for strategy sessions, regular updates, and
-              next-step planning.
-            </p>
-          </li>
-          <li
-            class="reason-card"
-            style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;"
-          >
-            <strong>Local &amp; Statewide Insight</strong>
-            <p>
-              Regular appearances in Jefferson, Clark, Floyd, Marion, and federal courts mean we
-              know the procedural nuances, mediators, and insurance playbooks that move cases
-              forward.
-            </p>
-          </li>
-          <li
-            class="reason-card"
-            style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;"
-          >
-            <strong>Data-Driven Negotiations</strong>
-            <p>
-              We consult verdict reports, structured settlement data, and medical economics to
-              quantify lost wages, future care, and non-economic harm before we ever enter
-              negotiations.
-            </p>
-          </li>
-          <li
-            class="reason-card"
-            style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;"
-          >
-            <strong>No Recovery, No Fee</strong>
-            <p>
-              Our contingency fee structure aligns our interests with yours. You pay nothing
-              upfront; fees are collected only when we secure compensation.
-            </p>
-          </li>
-          <li
-            class="reason-card"
-            style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;"
-          >
-            <strong>Client-First Systems</strong>
-            <p>
-              Secure online portals, same-day call backs, and proactive medical bill audits give you
-              visibility while we manage the legal workload.
-            </p>
-          </li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- Attorney Bio -->
-    <section class="section" id="about" aria-label="Attorney" style="padding:56px 0; ">
-      <div class="container grid-3" style="gap:24px;">
-        <div
-          class="card"
-          style="grid-column: span 2; box-shadow:none;border:1px solid rgba(0,0,0,0.08);background:#fff;padding:24px;"
-        >
-          <h2>Meet Jeffrey Flores — Madison Indiana Personal Injury Attorney</h2>
-          <p>
-            Jeffrey Flores founded Flores Law Office to provide elite-level advocacy with the
-            accessibility of a local practice. His litigation career focuses exclusively on serious
-            injury, wrongful death, and complex insurance disputes affecting Hoosier families.
-          </p>
           <p class="muted">
-            Jeff is a bilingual trial lawyer who regularly collaborates with investigators, medical
-            specialists, and economists to present compelling damages stories. He is admitted to
-            practice in Indiana state courts and the U.S. District Court for the Southern District
-            of Indiana.
+            Every serious injury file is built for litigation, whether the negligence happened in
+            Jefferson County or on an interstate miles away. Explore the focus areas below to see
+            how we position cases for maximum recovery.
           </p>
-          <ul class="list">
-            <li>Member, Indiana State Bar Association &amp; Indiana Trial Lawyers Association</li>
-            <li>Former defense counsel insight applied to plaintiff cases</li>
-            <li>Se Habla Español — serving English and Spanish speaking clients statewide</li>
-          </ul>
-          <div style="margin-top: 10px;">
-            <span class="chip">Virtual Consults</span>
-            <span class="chip">Hospital & Home Visits</span>
-          </div>
-        </div>
-        <div
-          class="card"
-          style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:24px;"
-        >
-          <img
-            src="https://floreslawoffice.net/wp-content/uploads/2025/03/Jeff_Color_Portrait.webp"
-            alt="Jeffrey Flores portrait"
-            loading="lazy"
-            width="400"
-            height="600"
-          />
-        </div>
-      </div>
-    </section>
 
-    <!-- FAQs -->
-    <section
-      class="section alt"
-      id="faq-section"
-      aria-label="FAQs"
-      style="padding:48px 0;  background: linear-gradient(90deg, rgba(0, 0, 0, 0.04) 0%, rgba(0, 0, 0, 0.01) 100%)"
-    >
-      <div class="container" style="display:flex;flex-direction:column;gap:24px;">
-        <div class="panel-heading">
-          <h2>Personal Injury FAQs — Madison, Indiana</h2>
-        </div>
-        <div id="faq" itemscope itemtype="https://schema.org/FAQPage">
-          <details
-            class="card"
-            style="margin-bottom: 10px; box-shadow:none;border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
-            itemscope
-            itemprop="mainEntity"
-            itemtype="https://schema.org/Question"
+          <h3
+            style="margin-top: 20px; font-size: 20px; font-weight: 500; font-family: 'Roboto Slab', serif;"
           >
-            <summary itemprop="name"
-              ><strong>How long do I have to file a personal injury claim in Indiana?</strong
-              ></summary
+            Vehicle &amp; Roadway Collisions
+          </h3>
+          <p class="muted">
+            High-impact wrecks demand rapid response—scene documentation, expert analysis, and
+            preservation of ECM data. We routinely coordinate crash reconstruction and insurance
+            negotiations for:
+          </p>
+          <div class="grid-3" style="margin-top: 8px;">
+            <div
+              class="card"
+              style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
             >
-            <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-              <p class="muted" itemprop="text">
-                Most Indiana personal injury claims must be filed within two years of the crash or
-                injury. However, certain claims—including those against government entities—have
-                shorter deadlines. We immediately analyze every limitation period so evidence and
-                notices are preserved.
-              </p>
-            </div>
-          </details>
-          <details
-            class="card"
-            style="margin-bottom: 10px; box-shadow:none;border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
-            itemscope
-            itemprop="mainEntity"
-            itemtype="https://schema.org/Question"
-          >
-            <summary itemprop="name"
-              ><strong>How much does it cost to hire Flores Law Office?</strong></summary
-            >
-            <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-              <p class="muted" itemprop="text">
-                We work on a contingency fee basis for personal injury cases—no fee unless we win.
-                Your initial consultation is free. You pay nothing unless we recover compensation
-                for you.
-              </p>
-            </div>
-          </details>
-          <details
-            class="card"
-            style="margin-bottom: 10px; box-shadow:none;border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
-            itemscope
-            itemprop="mainEntity"
-            itemtype="https://schema.org/Question"
-          >
-            <summary itemprop="name"
-              ><strong>What damages can I recover in a personal injury case?</strong></summary
-            >
-            <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-              <p class="muted" itemprop="text">
-                Indiana law allows recovery for medical expenses, lost wages, future medical care,
-                pain and suffering, loss of enjoyment of life, and in wrongful death cases, loss of
-                companionship and funeral expenses. We pursue full compensation for all economic and
-                non-economic damages.
-              </p>
-            </div>
-          </details>
-          <details
-            class="card"
-            style="margin-bottom: 10px; box-shadow:none;border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
-            itemscope
-            itemprop="mainEntity"
-            itemtype="https://schema.org/Question"
-          >
-            <summary itemprop="name"
-              ><strong>Should I talk to the insurance company?</strong></summary
-            >
-            <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-              <p class="muted" itemprop="text">
-                Not before speaking with an attorney. Insurers may use your statements against you
-                to reduce or deny your claim. We handle all communications with insurance companies
-                to protect your rights.
-              </p>
-            </div>
-          </details>
-          <details
-            class="card"
-            style="margin-bottom: 10px; box-shadow:none;border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
-            itemscope
-            itemprop="mainEntity"
-            itemtype="https://schema.org/Question"
-          >
-            <summary itemprop="name"
-              ><strong>How long does a personal injury case take?</strong></summary
-            >
-            <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-              <p class="muted" itemprop="text">
-                Case timelines vary based on injury severity, liability disputes, and settlement
-                negotiations. Simple cases may resolve in months, while complex litigation can take
-                1-2 years. We work efficiently while ensuring you receive maximum compensation.
-              </p>
-            </div>
-          </details>
-          <details
-            class="card"
-            style="margin-bottom: 10px; box-shadow:none;border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
-            itemscope
-            itemprop="mainEntity"
-            itemtype="https://schema.org/Question"
-          >
-            <summary itemprop="name"
-              ><strong>Do you serve Madison and Jefferson County?</strong></summary
-            >
-            <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-              <p class="muted" itemprop="text">
-                Yes. Our office is located at 112 E 3rd St #200, Madison, IN 47250. We serve
-                Madison, Jefferson County, and personal injury victims throughout Indiana including
-                car accidents, wrongful death, and catastrophic injury cases.
-              </p>
-            </div>
-          </details>
-          <details
-            class="card"
-            style="margin-bottom: 10px; box-shadow:none;border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
-            itemscope
-            itemprop="mainEntity"
-            itemtype="https://schema.org/Question"
-          >
-            <summary itemprop="name"
-              ><strong>What if I was partially at fault for the accident?</strong></summary
-            >
-            <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-              <p class="muted" itemprop="text">
-                Indiana follows a modified comparative fault rule. You can recover damages if you
-                were less than 51% at fault, though your compensation will be reduced by your
-                percentage of fault. We work to minimize any fault attributed to you.
-              </p>
-            </div>
-          </details>
-          <details
-            class="card"
-            style="margin-bottom: 10px; box-shadow:none;border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
-            itemscope
-            itemprop="mainEntity"
-            itemtype="https://schema.org/Question"
-          >
-            <summary itemprop="name"
-              ><strong
-                >What should I do immediately after a car accident in Madison, Indiana?</strong
-              ></summary
-            >
-            <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-              <p class="muted" itemprop="text">
-                First, seek medical attention even if injuries seem minor. Call 911 to file a police
-                report. Document the scene with photos and gather witness information. Do not admit
-                fault or give recorded statements to insurance companies. Contact Flores Law Office
-                at (812) 265-9020 within 24-48 hours to protect your rights and preserve crucial
-                evidence.
-              </p>
-            </div>
-          </details>
-          <details
-            class="card"
-            style="margin-bottom: 10px; box-shadow:none;border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
-            itemscope
-            itemprop="mainEntity"
-            itemtype="https://schema.org/Question"
-          >
-            <summary itemprop="name"
-              ><strong>How much is my personal injury case worth in Indiana?</strong></summary
-            >
-            <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-              <p class="muted" itemprop="text">
-                Case value depends on medical expenses, lost wages, future care needs, pain and
-                suffering, and liability strength. Serious injury cases in Indiana typically range
-                from $50,000 to multi-million dollar settlements. During your free consultation,
-                we'll evaluate your specific circumstances, review medical records, and provide a
-                realistic case valuation.
-              </p>
-            </div>
-          </details>
-          <details
-            class="card"
-            style="margin-bottom: 10px; box-shadow:none;border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
-            itemscope
-            itemprop="mainEntity"
-            itemtype="https://schema.org/Question"
-          >
-            <summary itemprop="name"
-              ><strong>Do I need a lawyer for a car accident in Jefferson County?</strong></summary
-            >
-            <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-              <p class="muted" itemprop="text">
-                While not legally required, hiring an experienced personal injury lawyer
-                significantly increases your settlement. Studies show represented victims receive
-                3-4 times more compensation than unrepresented claimants. Insurance companies use
-                aggressive tactics to minimize payouts. Our Madison attorneys handle negotiations,
-                gather evidence, and protect your interests at no upfront cost.
-              </p>
-            </div>
-          </details>
-          <details
-            class="card"
-            style="margin-bottom: 10px; box-shadow:none;border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
-            itemscope
-            itemprop="mainEntity"
-            itemtype="https://schema.org/Question"
-          >
-            <summary itemprop="name"
-              ><strong>Can I sue if I was injured on someone's property in Madison?</strong
-              ></summary
-            >
-            <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-              <p class="muted" itemprop="text">
-                Yes. Indiana premises liability law holds property owners responsible for dangerous
-                conditions that cause injuries. This includes slip and falls, inadequate security,
-                dog bites, and construction hazards. You must prove the owner knew or should have
-                known about the hazard. We investigate Madison premises cases including retail
-                stores, restaurants, apartments, and private residences.
-              </p>
-            </div>
-          </details>
-          <details
-            class="card"
-            style="margin-bottom: 10px; box-shadow:none;border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
-            itemscope
-            itemprop="mainEntity"
-            itemtype="https://schema.org/Question"
-          >
-            <summary itemprop="name"
-              ><strong>What is the average settlement for a truck accident in Indiana?</strong
-              ></summary
-            >
-            <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-              <p class="muted" itemprop="text">
-                Commercial truck accident settlements in Indiana average $500,000 to $2 million+,
-                significantly higher than passenger vehicle crashes due to severe injuries and
-                commercial insurance policies. Factors include injury severity, lost income,
-                trucking company liability, and whether federal regulations were violated. We handle
-                I-65 and US-421 corridor truck crashes with comprehensive investigation and expert
-                reconstruction.
-              </p>
-            </div>
-          </details>
-          <details
-            class="card"
-            style="margin-bottom: 10px; box-shadow:none;border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
-            itemscope
-            itemprop="mainEntity"
-            itemtype="https://schema.org/Question"
-          >
-            <summary itemprop="name"
-              ><strong>Will I have to go to court for my personal injury case?</strong></summary
-            >
-            <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-              <p class="muted" itemprop="text">
-                Most personal injury cases settle before trial. Approximately 95% resolve through
-                negotiation, mediation, or arbitration. However, we prepare every case for
-                litigation to maximize settlement leverage. If trial becomes necessary in Jefferson
-                Circuit Court or federal court, we have extensive trial experience. Your involvement
-                depends on case complexity, but we handle all legal proceedings.
-              </p>
-            </div>
-          </details>
-        </div>
-      </div>
-    </section>
-
-    <aside
-      class="offices-wrap"
-      id="section-attorneys"
-      itemscope
-      itemtype="https://schema.org/LegalService"
-    >
-      <meta itemprop="name" content="Flores Law Office" />
-      <div class="offices">
-        <div class="offices-inner">
-          <div class="section-rt">
-            <div class="section-rt-cell">
-              <h2>Visit Flores Law Office or Schedule a Statewide Consultation</h2>
+              <h3
+                style="font-size: 18px; font-weight: 800; margin-bottom: 5px; "
+                id="car-accidents; "
+              >
+                Car Accidents
+              </h3>
               <p class="muted">
-                We welcome in-person meetings at our Madison headquarters and regularly serve
-                clients across Indiana. Virtual consultations are available when travel is not
-                possible.
+                Rear-end, T-bone, distracted, DUI, and uninsured/underinsured motorist claims
+                throughout southern Indiana.
               </p>
-              <p itemprop="address" itemscope itemtype="https://schema.org/PostalAddress">
-                <span itemprop="streetAddress">112 E 3rd St #200</span>,
-                <span itemprop="addressLocality">Madison</span>,
-                <span itemprop="addressRegion">IN</span>
-                <span itemprop="postalCode">47250</span><br />
-                <a href="https://maps.app.goo.gl/3rJFfgpVA4hXSyFa7" target="_blank" rel="noreferrer"
-                  >View Map</a
-                >
-              </p>
-              <p>
-                Statewide representation in Bartholomew, Clark, Dearborn, Floyd, Jackson, Jennings,
-                Jefferson, Ohio, Ripley, Scott, and Switzerland Counties.
-              </p>
-              <p>
-                <strong itemprop="telephone">(812) 265-9020</strong><br />
-                <a itemprop="email" href="mailto:info@floreslawoffice.net"
-                  >info@floreslawoffice.net</a
-                >
-              </p>
-            </div>
-          </div>
-          <div class="section-lt">
-            <div class="section-lt-cell">
-              <div class="section-lt-pic" role="presentation"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </aside>
-
-    <!-- Contact + Map -->
-    <section id="contact" class="section alt" aria-label="Contact section" style="padding:52px 0;">
-      <div class="container grid-3" style="gap:24px;">
-        <div
-          class="card"
-          style="grid-column: span 2; box-shadow:none;border:1px solid rgba(0,0,0,0.08);background:#fff;padding:24px;"
-        >
-          <h2>Contact Flores Law Office</h2>
-          <p class="muted">
-            Free consultation. Speak with a Madison IN personal injury attorney near Clifty Falls
-            State Park and expect a response within one business day.
-          </p>
-          <form id="contactForm2" novalidate>
-            <div style="margin-bottom: 14px;">
-              <label for="name2">Full Name <span style="color:#009899;">*</span></label>
-              <input
-                id="name2"
-                name="name"
-                type="text"
-                placeholder="Jane Doe"
-                aria-required="true"
-                required
-              />
-              <div class="error" id="err2-name"></div>
-            </div>
-            <div style="margin-bottom: 14px;">
-              <label for="phone2">Phone Number <span style="color:#009899;">*</span></label>
-              <input
-                id="phone2"
-                name="phone"
-                type="tel"
-                placeholder="(812) 265-9020"
-                aria-required="true"
-                required
-              />
-              <div class="error" id="err2-phone"></div>
-            </div>
-            <div style="margin-bottom: 14px;">
-              <label for="email2"
-                >Email <span style="color:#dcdcdc;font-size:13px;">(optional)</span></label
-              >
-              <input id="email2" name="email" type="email" placeholder="you@example.com" />
-              <div class="error" id="err2-email"></div>
-            </div>
-            <div style="margin-bottom: 14px;">
-              <label for="message2">Brief Description <span style="color:#009899;">*</span></label>
-              <textarea
-                id="message2"
-                name="message"
-                rows="4"
-                placeholder="Tell us what happened..."
-                required></textarea>
-            </div>
-            <div class="flex" style="margin-top: 12px;">
-              <button type="submit" class="btn btn-primary">Get Free Consultation</button>
-              <a class="btn btn-outline" href="tel:+18122659020">Call: (812) 265-9020</a>
-            </div>
-            <div class="error" id="form2Error" role="alert" style="display:none; margin-top:8px;">
+              <span class="chip">Crash Reconstruction</span><span class="chip">UM/UIM Claims</span>
             </div>
             <div
-              id="form2Success"
-              style="display:none; margin-top:8px; color: var(--accent); font-weight: 700;"
+              class="card"
+              style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
             >
-              Thank you! We will reach out shortly.
+              <h3
+                style="font-size: 18px; font-weight: 800; margin-bottom: 5px; "
+                id="truck-accidents"
+              >
+                Truck &amp; Commercial Vehicle Crashes
+              </h3>
+              <p class="muted">
+                Semi-truck, delivery fleet, and agricultural vehicle cases involving logbook
+                violations and multiple insurers.
+              </p>
+              <span class="chip">Black Box Data</span><span class="chip">Federal Safety Rules</span>
             </div>
-          </form>
-        </div>
-        <div
-          class="card"
-          style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:24px;"
-        >
-          <div class="map" role="img" aria-label="Map of 112 E 3rd St #200, Madison, IN 47250">
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d12448.592325563133!2d-85.379744!3d38.737364!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0xcf94e57c171f45ea!2sFlores+Law+Office!5e0!3m2!1sen!2sus!4v1519950655679"
-              width="100%"
-              height="260"
-              style="border:0;"
-              allowfullscreen=""
-              loading="lazy"
-              referrerpolicy="no-referrer-when-downgrade"></iframe>
-          </div>
-          <div style="margin-top: 10px;">
-            <strong>Location</strong>
-            <p class="muted" style="margin: 6px 0;">112 E 3rd St #200, Madison, IN 47250</p>
-            <strong>Email</strong>
-            <p class="muted" style="margin: 6px 0;">
-              <a href="mailto:info@floreslawoffice.net">info@floreslawoffice.net</a>
-            </p>
-            <strong>Phone</strong>
-            <p class="muted" style="margin: 6px 0;">
-              <a href="tel:+18122659020">(812) 265-9020</a>
-            </p>
-            <strong>Website</strong>
-            <p class="muted" style="margin: 6px 0;">
-              <a href="https://www.floreslawoffice.net" target="_blank" rel="noopener"
-                >www.floreslawoffice.net</a
+            <div
+              class="card"
+              style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
+            >
+              <h3
+                style="font-size: 18px; font-weight: 800; margin-bottom: 5px; "
+                id="motorcycle-accidents"
               >
-            </p>
+                Motorcycle &amp; Bicycle Injuries
+              </h3>
+              <p class="muted">
+                Visibility disputes, left-turn collisions, roadway defects, and helmet law issues
+                resulting in severe trauma.
+              </p>
+              <span class="chip">Roadway Design</span><span class="chip">Protective Gear</span>
+            </div>
           </div>
-        </div>
-      </div>
-    </section>
-  </div>
 
-  <!-- Footer -->
-  <footer class="footer" role="contentinfo" style="background:#000;color:#f5f5f5;padding:48px 0;">
-    <div class="container" style="display:flex;flex-direction:column;gap:24px;">
-      <p style="font-size: 13px;text-align:center;margin:0;color:#f5f5f5;">
-        Disclaimer: Flores Law Office is a Debt Relief Agency, helping people file for bankruptcy
-        relief under the Bankruptcy Code. Information on this site is not legal advice and
-        contacting us does not create an attorney-client relationship.
-      </p>
-      <div style="height:1px;background:#333;"></div>
-      <div class="grid-3" style="gap:24px;color:#f5f5f5;">
-        <div>
-          <img
-            src="https://floreslawoffice.net/wp-content/uploads/2025/03/2-3-e1743057653262.webp"
-            alt="Flores Law Office logo"
-            style="max-width:180px;margin-bottom:12px;"
-            loading="lazy"
-            width="180"
-            height="60"
-          />
-          <address style="font-style: normal; line-height: 1.6; margin-bottom: 12px;color:#f5f5f5;">
-            112 E 3rd St #200<br />
-            Madison, IN 47250
-          </address>
-          <div style="display:flex;flex-direction:column;gap:10px;">
-            <a
-              href="tel:+18122659020"
-              class="btn btn-outline"
-              style="border-color:#f5f5f5;color:#f5f5f5;">Phone: (812) 265-9020</a
-            >
-            <a
-              href="mailto:info@floreslawoffice.net"
-              class="btn btn-outline"
-              style="border-color:#f5f5f5;color:#f5f5f5;">info@floreslawoffice.net</a
-            >
-          </div>
-          <p style="margin-top:12px;font-size:13px;color:#f5f5f5;">
-            Flores Law Office | Attorney and Counselor at Law
+          <h3 style="margin-top: 12px; font-size: 22px; font-weight: 800;">
+            Catastrophic Harm &amp; Wrongful Death
+          </h3>
+          <divider
+            style="display:block; width:25%; margin:1px 0; height:1px; background:#00b3b3; border-radius:0px;"
+          ></divider>
+          <p class="muted">
+            Families facing life-changing injuries need coordinated legal, medical, and financial
+            planning. We partner with specialists to pursue damages that reflect a lifetime of care.
           </p>
+          <div class="grid-3" style="margin-top: 8px;">
+            <div
+              class="card"
+              style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
+            >
+              <h3
+                style="font-size: 18px; font-weight: 800; margin-bottom: 5px; "
+                id="catastrophic-injury"
+              >
+                Catastrophic Injury
+              </h3>
+              <p class="muted">
+                Traumatic brain injury, spinal cord trauma, loss of limb, and serious burns
+                requiring life care plans.
+              </p>
+              <span class="chip">Life Care Plans</span><span class="chip">Future Medicals</span>
+            </div>
+            <div
+              class="card"
+              style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
+            >
+              <h3
+                style="font-size: 18px; font-weight: 800; margin-bottom: 5px; "
+                id="wrongful-death"
+              >
+                Wrongful Death
+              </h3>
+              <p class="muted">
+                Pursuing accountability for fatal crashes, unsafe products, and negligent property
+                conditions in civil court.
+              </p>
+              <span class="chip">Estate Coordination</span><span class="chip">Economic Loss</span>
+            </div>
+            <div
+              class="card"
+              style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
+            >
+              <h3
+                style="font-size: 18px; font-weight: 800; margin-bottom: 5px; "
+                id="family-trauma"
+              >
+                Child &amp; Family Trauma
+              </h3>
+              <p class="muted">
+                Unique damages for child wrongful death, no-impact recovery, and survivors coping
+                with long-term consequences.
+              </p>
+              <span class="chip">Guardian Support</span><span class="chip"
+                >Therapeutic Resources</span
+              >
+            </div>
+          </div>
+          <h3 style="margin-top: 12px; font-size: 22px; font-weight: 800;">
+            Premises Liability &amp; Unsafe Property
+          </h3>
+          <divider
+            style="display:block; width:25%; margin:1px 0; height:1px; background:#00b3b3; border-radius:0px;"
+          ></divider>
+          <p class="muted">
+            Property owners and contractors must prevent hazards, warn invitees, and address
+            dangerous conditions. We investigate the scene, secure surveillance footage, and
+            identify every responsible party.
+          </p>
+          <div class="grid-3" style="margin-top: 8px;">
+            <div
+              class="card"
+              style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
+            >
+              <h3
+                style="font-size: 18px; font-weight: 800; margin-bottom: 5px; "
+                id="slip-and-fall"
+              >
+                Slip, Trip &amp; Fall
+              </h3>
+              <p class="muted">
+                Grocery stores, parking lots, apartment complexes, and snow-and-ice claims involving
+                notice and maintenance failures.
+              </p>
+              <span class="chip">Incident Reports</span><span class="chip">Maintenance Logs</span>
+            </div>
+            <div
+              class="card"
+              style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
+            >
+              <h3
+                style="font-size: 18px; font-weight: 800; margin-bottom: 5px; "
+                id="construction-injury"
+              >
+                Construction &amp; Jobsite Injuries
+              </h3>
+              <p class="muted">
+                Third-party liability alongside workers’ compensation when subcontractors and site
+                owners ignore safety rules.
+              </p>
+              <span class="chip">OSHA Compliance</span><span class="chip">Third-Party Claims</span>
+            </div>
+            <div
+              class="card"
+              style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
+            >
+              <h3
+                style="font-size: 18px; font-weight: 800; margin-bottom: 5px; "
+                id="negligent-security"
+              >
+                Negligent Security &amp; Assault
+              </h3>
+              <p class="muted">
+                Apartment, hotel, or commercial attacks caused by inadequate lighting, staffing, or
+                prior crime awareness.
+              </p>
+              <span class="chip">Crime Statistics</span><span class="chip">Security Protocols</span>
+            </div>
+          </div>
+
+          <h3 style="margin-top: 12px; font-size: 22px; font-weight: 800;">
+            Animal Attacks &amp; Dangerous Products
+          </h3>
+          <divider
+            style="display:block; width:25%; margin:1px 0; height:1px; background:#00b3b3; border-radius:0px;"
+          ></divider>
+          <p class="muted">
+            We pursue insurance coverage, document scarring, and collaborate with medical
+            specialists to communicate the long-term impact of disfigurement and trauma.
+          </p>
+          <div class="grid-3" style="margin-top: 4px;">
+            <div
+              class="card"
+              style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
+            >
+              <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 5px; " id="dog-bite">
+                Dog Bite &amp; Animal Attacks
+              </h3>
+              <p class="muted">
+                Severe mauling, repeated-offender dogs, leash law violations, and landlord
+                negligence cases.
+              </p>
+              <span class="chip">Dangerous Dog Designation</span><span class="chip"
+                >Rabies Reports</span
+              >
+            </div>
+            <div
+              class="card"
+              style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
+            >
+              <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 5px; " id="scarring">
+                Scarring &amp; Disfigurement
+              </h3>
+              <p class="muted">
+                Facial injuries, plastic surgery needs, and future counseling for visible trauma and
+                PTSD.
+              </p>
+              <span class="chip">Future Treatment</span><span class="chip">Psychological Care</span>
+            </div>
+            <div
+              class="card"
+              style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:20px;"
+            >
+              <h3
+                style="font-size: 18px; font-weight: 800; margin-bottom: 5px; "
+                id="product-liability"
+              >
+                Defective &amp; Unsafe Products
+              </h3>
+              <p class="muted">
+                Household, automotive, and industrial product failures leading to burns,
+                amputations, and catastrophic harm.
+              </p>
+              <span class="chip">Product Liability</span><span class="chip">Expert Analysis</span>
+            </div>
+          </div>
         </div>
-        <div>
-          <h3 style="margin-bottom:12px;color:#f5f5f5;">Links</h3>
-          <ul class="list" style="color:#f5f5f5;">
-            <li>
-              <a href="https://floreslawoffice.net/about-flores-law-office/" style="color:#cccccc;"
-                >About The Firm</a
+      </section>
+
+      <!-- Areas Served -->
+      <section
+        class="section alt"
+        aria-label="Areas served"
+        style="padding:48px 0; background: linear-gradient(90deg, rgba(0, 0, 0, 0.04) 0%, rgba(0, 0, 0, 0.01) 100%);
+"
+      >
+        <div class="container" style="display:flex;flex-direction:column;gap:24px;">
+          <div class="panel-heading">
+            <h2>Serving Madison, Indiana | Jefferson County & Indiana Personal Injury Victims</h2>
+          </div>
+          <div class="service-area-grid">
+            <div class="service-area-copy">
+              <p>
+                Based in Madison, Indiana, we appear in courtrooms throughout southern and central
+                Indiana. From rural collisions along State Road 7 to interstate trucking disasters
+                on I-65, we travel to the scene, coordinate investigators, and file in the venue
+                that maximizes leverage for clients seeking a Madison Indiana wrongful death
+                attorney near the Ohio River or a Southern Indiana catastrophic injury trial lawyer.
+              </p>
+              <p class="muted">
+                Regular appearances include Jefferson Circuit Court, Clark County courts, and
+                federal court in the Southern District of Indiana. We also assist Hoosiers
+                hospitalized in Indianapolis, Louisville, and Cincinnati medical centers, acting as
+                a Southeast Indiana truck accident lawyer serving the US-421 corridor and a Madison
+                and Jeffersonville bridge commuter injury resource. If your county is not listed,
+                call—we partner with trusted co-counsel across the state of Indiana so you always
+                have a Jefferson County Indiana personal injury lawyer near me.
+              </p>
+              <divider
+                style="display:block; width:25%; margin:16px 0; height:1px; background:#00b3b3; border-radius:0px;"
+              ></divider>
+              <h4 style="margin-top: 12px; font-weight: 800; font-size: 20px;">
+                Major Counties Served:
+              </h4>
+              <ul class="service-area-list">
+                <li>Bartholomew County</li>
+                <li>Clark County</li>
+                <li>Dearborn County</li>
+                <li>Floyd County</li>
+                <li>Jackson County</li>
+                <li>Jennings County</li>
+                <li>Jefferson County</li>
+                <li>Ohio County</li>
+                <li>Ripley County</li>
+                <li>Scott County</li>
+                <li>Switzerland County</li>
+              </ul>
+              <h4
+                style="margin-top: 20px; font-family: 'Roboto Slab', serif; font-weight: 800; align-items: center; font-size: 18px ;"
               >
-            </li>
-            <li>
-              <a
-                href="https://floreslawoffice.net/attorney/jeffrey-a-flores/"
-                style="color:#cccccc;">About Our Attorney</a
+                <span style="color: #00b3b3">•</span> Statewide referrals in Indiana available
+              </h4>
+            </div>
+            <div class="service-area-map">
+              <strong>Statewide Response</strong>
+              <span style="font-weight: 800; font-size: 16px;"
+                >24/7 case evaluations from Madison, Indiana headquarters</span
               >
+              <p style="margin-top: 14px; font-size: 18px;">
+                Need immediate help? Call <a href="tel:+18122659020" style="color: #ffffff;"
+                  >(812) 265-9020</a
+                >
+                or request a virtual consultation anywhere in Indiana.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="case-results" aria-label="Case results" style="padding:56px 0;">
+        <div class="container" style="display:flex;flex-direction:column;gap:28px;">
+          <div class="panel-heading">
+            <h2>Case Results: Madison Personal Injury Settlements & Verdicts</h2>
+          </div>
+          <p class="muted">
+            Past results do not guarantee future outcomes, yet they highlight how focused
+            preparation and strategic negotiation deliver meaningful compensation for Indiana
+            families. We pursue every liable party, identify excess coverage, and position your
+            claim for settlement or trial.
+          </p>
+          <div class="results">
+            <div
+              class="result"
+              style="background:#F9F9F9;color:var(--text);border:1px solid rgba(0,0,0,0.08);box-shadow:none;border-radius:5px;padding:20px;"
+            >
+              <div class="label">Wrongful Death – Indiana</div>
+              <div class="amount">$2.8M</div>
+              <p style="color:#000;">
+                Recovery for a family after a fatal commercial vehicle collision involving disputed
+                liability, multiple insurers, and UM/UIM issues—driven by our
+                <a href="#wrongful-death">Indiana wrongful death lawyer</a> strategy.
+              </p>
+            </div>
+            <div
+              class="result"
+              style="background:#F9F9F9;color:var(--text);border:1px solid rgba(0,0,0,0.08);box-shadow:none;border-radius:5pxpx;padding:20px;"
+            >
+              <div class="label">Catastrophic Injury – Madison</div>
+              <div class="amount">$1.6M</div>
+              <p style="color:#000;">
+                Settlement for a construction worker with a spinal cord injury that required
+                intensive life-care planning and structured payments, coordinated by our
+                <a href="#catastrophic-injury">catastrophic injury litigation team</a>.
+              </p>
+            </div>
+            <div
+              class="result"
+              style="background:#F9F9F9;color:var(--text);border:1px solid rgba(0,0,0,0.08);box-shadow:none;border-radius:5pxpx;padding:20px;"
+            >
+              <div class="label">Serious Crash – Jefferson County</div>
+              <div class="amount">$950K</div>
+              <p style="color:#000;">
+                Compensation for a multi-vehicle collision with multiple defendants, leveraging
+                crash reconstruction and digital forensics from our
+                <a href="#car-accidents">Jefferson County car accident lawyers</a>.
+              </p>
+            </div>
+            <div
+              class="result"
+              style="background:#F9F9F9;color:var(--text);border:1px solid rgba(0,0,0,0.08);box-shadow:none;border-radius:5px;padding:20px;"
+            >
+              <div class="label">Premises Liability – Southern Indiana</div>
+              <div class="amount">$600K</div>
+              <p style="color:#000;">
+                Settlement for a client who suffered complex fractures after a negligent property
+                owner failed to address repeated fall hazards despite prior incident reports—another
+                success for our
+                <a href="#slip-and-fall">slip and fall practice</a>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="section alt"
+        id="why-flores"
+        aria-label="Why clients choose Flores Law Office"
+        style="padding:52px 0; background: linear-gradient(90deg, rgba(0, 0, 0, 0.04) 0%, rgba(0, 0, 0, 0.01) 100%) "
+      >
+        <div class="container" style="display:flex;flex-direction:column;gap:24px;">
+          <div class="panel-heading">
+            <h2>Why Indiana Families Choose Flores Law Office</h2>
+          </div>
+          <p class="muted">
+            For more than a decade, attorney Jeffrey Flores has guided Hoosiers through the
+            aftermath of life-altering crashes, amputations, traumatic brain injuries, and wrongful
+            deaths. Our approach blends litigation readiness with attentive client service.
+          </p>
+          <ul class="reason-grid">
+            <li
+              class="reason-card"
+              style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;"
+            >
+              <strong>Trial-Tested Strategy</strong>
+              <p>
+                Every claim is prepared for court. We preserve ECM data, retain reconstructionists,
+                and develop demonstratives that withstand scrutiny from mediators, juries, and
+                appellate courts.
+              </p>
             </li>
-            <li>
-              <a href="https://floreslawoffice.net/home-03/" style="color:#cccccc;">FLO Backstory</a
-              >
+            <li
+              class="reason-card"
+              style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;"
+            >
+              <strong>Hands-On Counsel</strong>
+              <p>
+                You work directly with an attorney for strategy sessions, regular updates, and
+                next-step planning.
+              </p>
             </li>
-            <li>
-              <a href="https://floreslawoffice.net/contact/" style="color:#cccccc;">Contact</a>
+            <li
+              class="reason-card"
+              style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;"
+            >
+              <strong>Local &amp; Statewide Insight</strong>
+              <p>
+                Regular appearances in Jefferson, Clark, Floyd, Marion, and federal courts mean we
+                know the procedural nuances, mediators, and insurance playbooks that move cases
+                forward.
+              </p>
             </li>
-            <li>
-              <a href="https://floreslawoffice.net/contact-us/" style="color:#cccccc;"
-                >Request Consultation</a
-              >
+            <li
+              class="reason-card"
+              style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;"
+            >
+              <strong>Data-Driven Negotiations</strong>
+              <p>
+                We consult verdict reports, structured settlement data, and medical economics to
+                quantify lost wages, future care, and non-economic harm before we ever enter
+                negotiations.
+              </p>
             </li>
-            <li>
-              <a href="https://floreslawoffice.net/practise-areas/" style="color:#cccccc;"
-                >Practice Areas</a
-              >
+            <li
+              class="reason-card"
+              style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;"
+            >
+              <strong>No Recovery, No Fee</strong>
+              <p>
+                Our contingency fee structure aligns our interests with yours. You pay nothing
+                upfront; fees are collected only when we secure compensation.
+              </p>
+            </li>
+            <li
+              class="reason-card"
+              style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;"
+            >
+              <strong>Client-First Systems</strong>
+              <p>
+                Secure online portals, same-day call backs, and proactive medical bill audits give
+                you visibility while we manage the legal workload.
+              </p>
             </li>
           </ul>
         </div>
-        <div>
-          <h3 style="margin-bottom:12px;color:#f5f5f5;">Looking For A Newsletter?</h3>
-          <form
-            action="https://floreslawoffice.net/newsletter-signup"
-            method="post"
-            style="display:flex;flex-direction:column;gap:12px;"
-          >
-            <label class="sr-only" for="newsletter-email">Email address</label>
-            <input
-              id="newsletter-email"
-              type="email"
-              name="email"
-              placeholder="Enter your email..."
-              required
-              style="background:#1a1a1a;color:#f5f5f5;border:1px solid #333;"
+      </section>
+
+      <!-- Attorney Bio -->
+      <section class="section" id="about" aria-label="Attorney" style="padding:56px 0; ">
+        <div class="container" style="gap:24px;">
+          <div class="card bio-card" style="background:#fff;padding:24px;">
+            <div class="bio-layout">
+              <div class="bio-portrait">
+                <img
+                  src="https://floreslawoffice.net/wp-content/uploads/2025/03/Jeff_Color_Portrait.webp"
+                  alt="Jeffrey Flores portrait"
+                  loading="lazy"
+                  width="400"
+                  height="600"
+                />
+              </div>
+              <div class="bio-copy">
+                <h2>Meet Jeffrey Flores — Madison Indiana Personal Injury Attorney</h2>
+                <p>
+                  Jeffrey Flores founded Flores Law Office to provide elite-level advocacy with the
+                  accessibility of a local practice. His litigation career focuses exclusively on
+                  serious injury, wrongful death, and complex insurance disputes affecting Hoosier
+                  families.
+                </p>
+                <p class="muted">
+                  Jeff is a bilingual trial lawyer who regularly collaborates with investigators,
+                  medical specialists, and economists to present compelling damages stories. He is
+                  admitted to practice in Indiana state courts and the U.S. District Court for the
+                  Southern District of Indiana.
+                </p>
+                <ul style="font-weight: 800;" class="list">
+                  <li>
+                    Member, Indiana State Bar Association &amp; Indiana Trial Lawyers Association
+                  </li>
+                  <li>Former defense counsel insight applied to plaintiff cases</li>
+                  <li>Se Habla Español — serving English and Spanish speaking clients statewide</li>
+                </ul>
+                <div style="margin-top: 10px;">
+                  <span class="chip">Virtual Consults</span>
+                  <span class="chip">Hospital & Home Visits</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQs -->
+      <section id="faq" class="faq-media" aria-label="Personal Injury Frequently Asked Questions">
+        <div class="container">
+          <div class="faq-media__visual">
+            <img
+              src="/images/flores/Madison Indiana Broadway Fountain copy.jpg"
+              alt="Madison Indiana"
+              loading="lazy"
             />
-            <button type="submit" class="btn btn-primary" style="align-self:flex-start;"
-              >Submit Now</button
+          </div>
+          <div class="faq-media__content">
+            <div class="faq-media__eyebrow">F A Q</div>
+            <h2>Personal Injury Frequently Asked Questions</h2>
+            <p class="faq-media__lede">
+              Quick answers to the most common questions Madison families ask before retaining
+              Flores Law Office.
+            </p>
+            <div id="faq-accordion" class="faq-media__accordion">
+              <details class="faq-media__item">
+                <summary>What is a personal injury case?</summary>
+                <p class="faq-media__answer">
+                  A personal injury case is a legal dispute that arises when one person suffers harm
+                  from an accident or injury, and someone else might be legally responsible for that
+                  harm. The responsible person's insurance company will typically pay money to the
+                  injured person for medical bills, pain and suffering, and other ongoing medical
+                  expenses.
+                </p>
+              </details>
+
+              <details class="faq-media__item">
+                <summary>What should I do after a car accident?</summary>
+                <p class="faq-media__answer">
+                  After a car accident, you should first seek medical attention for any injuries.
+                  Then, you should report the accident to the police, gather evidence at the scene
+                  (photos, witness information), and report the accident to your insurance company.
+                  It is also advisable to consult with a personal injury lawyer before speaking to
+                  the other party's insurance company.
+                </p>
+              </details>
+
+              <details class="faq-media__item">
+                <summary>How much is my personal injury case worth?</summary>
+                <p class="faq-media__answer">
+                  The value of a personal injury case depends on many factors, including the
+                  severity of your injuries, the amount of your medical bills and lost wages, and
+                  the impact the injuries have on your daily life. An experienced personal injury
+                  attorney can evaluate your case and give you a better estimate of its value.
+                </p>
+              </details>
+
+              <details class="faq-media__item">
+                <summary>Should I accept the insurance company's first offer?</summary>
+                <p class="faq-media__answer">
+                  It is generally not a good idea to accept the insurance company's first offer. The
+                  initial offer is often much lower than the actual value of your claim. You should
+                  always consult with a personal injury lawyer before accepting any settlement
+                  offer.
+                </p>
+              </details>
+
+              <details class="faq-media__item">
+                <summary>How long do I have to file a personal injury lawsuit?</summary>
+                <p class="faq-media__answer">
+                  The time limit for filing a personal injury lawsuit is called the statute of
+                  limitations. This time limit varies by state and the type of injury. It is
+                  important to speak with a lawyer as soon as possible to ensure you do not miss the
+                  deadline for filing your case.
+                </p>
+              </details>
+
+              <details class="faq-media__item">
+                <summary>What if I'm partially at fault for the accident?</summary>
+                <p class="faq-media__answer">
+                  Even if you are partially at fault for the accident, you may still be able to
+                  recover damages. Many states follow a “comparative negligence” rule, which allows
+                  you to recover damages reduced by your percentage of fault.
+                </p>
+              </details>
+
+              <details class="faq-media__item">
+                <summary>Do I need a lawyer for my personal injury case?</summary>
+                <p class="faq-media__answer">
+                  While you are not required to have a lawyer, it is highly recommended. A personal
+                  injury lawyer can help you navigate the complex legal process, negotiate with the
+                  insurance company, and ensure you receive the full compensation you deserve.
+                </p>
+              </details>
+
+              <details class="faq-media__item">
+                <summary>How much does a personal injury lawyer cost?</summary>
+                <p class="faq-media__answer">
+                  Most personal injury lawyers work on a contingency fee basis. This means they only
+                  get paid if you win your case. The fee is typically a percentage of the settlement
+                  or award you receive.
+                </p>
+              </details>
+
+              <details class="faq-media__item">
+                <summary>What kind of damages can I recover in a personal injury case?</summary>
+                <p class="faq-media__answer">
+                  In a personal injury case, you may be able to recover damages for medical
+                  expenses, lost wages, pain and suffering, emotional distress, and property damage.
+                  In some cases, you may also be able to recover punitive damages.
+                </p>
+              </details>
+
+              <details class="faq-media__item">
+                <summary>What is the process of a personal injury lawsuit?</summary>
+                <p class="faq-media__answer">
+                  The personal injury lawsuit process typically involves filing a complaint, a
+                  discovery phase where both sides exchange information, settlement negotiations,
+                  and if a settlement cannot be reached, a trial. An attorney can guide you through
+                  each step of this process.
+                </p>
+              </details>
+
+              <p class="muted" style="margin-top:24px;">
+                <strong>Disclaimer:</strong> The information provided on this page is for general informational
+                purposes only and does not constitute legal advice. You should not act or refrain from
+                acting based on this information without seeking professional legal counsel.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside
+        class="offices-wrap"
+        id="section-attorneys"
+        itemscope
+        itemtype="https://schema.org/LegalService"
+      >
+        <meta itemprop="name" content="Flores Law Office" />
+        <div class="offices">
+          <div class="offices-inner">
+            <div class="section-rt">
+              <div class="section-rt-cell">
+                <h2>Visit Flores Law Office or Schedule a Statewide Consultation</h2>
+                <p class="muted">
+                  We welcome in-person meetings at our Madison headquarters and regularly serve
+                  clients across Indiana. Virtual consultations are available when travel is not
+                  possible.
+                </p>
+                <p itemprop="address" itemscope itemtype="https://schema.org/PostalAddress">
+                  <span itemprop="streetAddress">112 E 3rd St #200</span>,
+                  <span itemprop="addressLocality">Madison</span>,
+                  <span itemprop="addressRegion">IN</span>
+                  <span itemprop="postalCode">47250</span><br />
+                  <a
+                    href="https://maps.app.goo.gl/3rJFfgpVA4hXSyFa7"
+                    target="_blank"
+                    rel="noreferrer">View Map</a
+                  >
+                </p>
+                <p>
+                  Statewide representation in Bartholomew, Clark, Dearborn, Floyd, Jackson,
+                  Jennings, Jefferson, Ohio, Ripley, Scott, and Switzerland Counties.
+                </p>
+                <p>
+                  <strong itemprop="telephone">(812) 265-9020</strong><br />
+                  <a itemprop="email" href="mailto:info@floreslawoffice.net"
+                    >info@floreslawoffice.net</a
+                  >
+                </p>
+              </div>
+            </div>
+            <div class="section-lt">
+              <div class="section-lt-cell">
+                <div class="section-lt-pic" role="presentation"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Contact + Map -->
+      <section
+        id="contact"
+        class="section alt"
+        aria-label="Contact section"
+        style="padding:52px 0;"
+      >
+        <div class="container grid-3" style="gap:24px;">
+          <div class="card" style="grid-column: span 2; background:#fff;padding:24px;">
+            <h2>Contact Flores Law Office</h2>
+            <p class="muted">
+              Free consultation. Speak with a Madison IN personal injury attorney near Clifty Falls
+              State Park and expect a response within one business day.
+            </p>
+            <form id="contactForm2" novalidate>
+              <div style="margin-bottom: 14px;">
+                <label for="name2">Full Name <span style="color:#009899;">*</span></label>
+                <input
+                  id="name2"
+                  name="name"
+                  type="text"
+                  placeholder="Jane Doe"
+                  aria-required="true"
+                  required
+                />
+                <div class="error" id="err2-name"></div>
+              </div>
+              <div style="margin-bottom: 14px;">
+                <label for="phone2">Phone Number <span style="color:#009899;">*</span></label>
+                <input
+                  id="phone2"
+                  name="phone"
+                  type="tel"
+                  placeholder="(812) 265-9020"
+                  aria-required="true"
+                  required
+                />
+                <div class="error" id="err2-phone"></div>
+              </div>
+              <div style="margin-bottom: 14px;">
+                <label for="email2"
+                  >Email <span style="color:#000000;font-size:13px;">(optional)</span></label
+                >
+                <input id="email2" name="email" type="email" placeholder="you@example.com" />
+                <div class="error" id="err2-email"></div>
+              </div>
+              <div style="margin-bottom: 14px;">
+                <label for="message2">Brief Description <span style="color:#009899;">*</span></label
+                >
+                <textarea
+                  id="message2"
+                  name="message"
+                  rows="4"
+                  placeholder="Tell us what happened..."
+                  required></textarea>
+              </div>
+              <div class="flex" style="margin-top: 12px;">
+                <button type="submit" class="btn btn-primary">Get Free Consultation</button>
+                <a class="btn btn-outline" href="tel:+18122659020">Call: (812) 265-9020</a>
+              </div>
+              <div class="error" id="form2Error" role="alert" style="display:none; margin-top:8px;">
+              </div>
+              <div
+                id="form2Success"
+                style="display:none; margin-top:8px; color: var(--accent); font-weight: 700;"
+              >
+                Thank you! We will reach out shortly.
+              </div>
+            </form>
+          </div>
+          <div
+            class="card"
+            style="box-shadow:2px 2px 5px rgba(0,0,0,0.1);border:1px solid rgba(0,0,0,0.08);background:#fff;padding:24px;"
+          >
+            <div class="map" role="img" aria-label="Map of 112 E 3rd St #200, Madison, IN 47250">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d12448.592325563133!2d-85.379744!3d38.737364!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0xcf94e57c171f45ea!2sFlores+Law+Office!5e0!3m2!1sen!2sus!4v1519950655679"
+                width="100%"
+                height="260"
+                style="border:0;"
+                allowfullscreen=""
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+            <div style="margin-top: 10px;">
+              <strong>Location</strong>
+              <p class="muted" style="margin: 6px 0;">112 E 3rd St #200, Madison, IN 47250</p>
+              <strong>Email</strong>
+              <p class="muted" style="margin: 6px 0;">
+                <a href="mailto:info@floreslawoffice.net">info@floreslawoffice.net</a>
+              </p>
+              <strong>Phone</strong>
+              <p class="muted" style="margin: 6px 0;">
+                <a href="tel:+18122659020">(812) 265-9020</a>
+              </p>
+              <strong>Website</strong>
+              <p class="muted" style="margin: 6px 0;">
+                <a href="https://www.floreslawoffice.net" target="_blank" rel="noopener"
+                  >www.floreslawoffice.net</a
+                >
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo" style="background:#000;color:#f5f5f5;padding:48px 0;">
+      <div class="container" style="display:flex;flex-direction:column;gap:24px;">
+        <p style="font-size: 13px;text-align:center;margin:0;color:#f5f5f5;">
+          Disclaimer: Flores Law Office is a Debt Relief Agency, helping people file for bankruptcy
+          relief under the Bankruptcy Code. Information on this site is not legal advice and
+          contacting us does not create an attorney-client relationship.
+        </p>
+        <div style="height:1px;background:#333;"></div>
+        <div class="grid-3" style="gap:24px;color:#f5f5f5;">
+          <div>
+            <img
+              src="https://floreslawoffice.net/wp-content/uploads/2025/03/2-3-e1743057653262.webp"
+              alt="Flores Law Office logo"
+              style="max-width:180px;margin-bottom:12px;"
+              loading="lazy"
+              width="180"
+              height="60"
+            />
+            <address
+              style="font-style: normal; line-height: 1.6; margin-bottom: 12px;color:#f5f5f5;"
             >
-          </form>
-          <p style="font-size: 12px; margin-top: 10px; color:#cccccc;">
-            Looking for a newsletter? Join to receive updates about Flores Law Office.
+              112 E 3rd St #200<br />
+              Madison, IN 47250
+            </address>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <a
+                href="tel:+18122659020"
+                class="btn btn-outline"
+                style="border-color:#f5f5f5;color:#f5f5f5;">Phone: (812) 265-9020</a
+              >
+              <a
+                href="mailto:info@floreslawoffice.net"
+                class="btn btn-outline"
+                style="border-color:#f5f5f5;color:#f5f5f5;">info@floreslawoffice.net</a
+              >
+            </div>
+            <p style="margin-top:12px;font-size:13px;color:#f5f5f5;">
+              Flores Law Office | Attorney and Counselor at Law
+            </p>
+          </div>
+          <div>
+            <h3 style="margin-bottom:12px;color:#f5f5f5;">Links</h3>
+            <ul class="list" style="color:#f5f5f5;">
+              <li>
+                <a
+                  href="https://floreslawoffice.net/about-flores-law-office/"
+                  style="color:#cccccc;">About The Firm</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://floreslawoffice.net/attorney/jeffrey-a-flores/"
+                  style="color:#cccccc;">About Our Attorney</a
+                >
+              </li>
+              <li>
+                <a href="https://floreslawoffice.net/home-03/" style="color:#cccccc;"
+                  >FLO Backstory</a
+                >
+              </li>
+              <li>
+                <a href="https://floreslawoffice.net/contact/" style="color:#cccccc;">Contact</a>
+              </li>
+              <li>
+                <a href="https://floreslawoffice.net/contact-us/" style="color:#cccccc;"
+                  >Request Consultation</a
+                >
+              </li>
+              <li>
+                <a href="https://floreslawoffice.net/practise-areas/" style="color:#cccccc;"
+                  >Practice Areas</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 style="margin-bottom:12px;color:#f5f5f5;">Looking For A Newsletter?</h3>
+            <form
+              action="https://floreslawoffice.net/newsletter-signup"
+              method="post"
+              style="display:flex;flex-direction:column;gap:12px;"
+            >
+              <label class="sr-only" for="newsletter-email">Email address</label>
+              <input
+                id="newsletter-email"
+                type="email"
+                name="email"
+                placeholder="Enter your email..."
+                required
+                style="background:#1a1a1a;color:#f5f5f5;border:1px solid #333;"
+              />
+              <button type="submit" class="btn btn-primary" style="align-self:flex-start;"
+                >Submit Now</button
+              >
+            </form>
+            <p style="font-size: 12px; margin-top: 10px; color:#cccccc;">
+              Looking for a newsletter? Join to receive updates about Flores Law Office.
+            </p>
+          </div>
+        </div>
+        <div style="height:1px;background:#333;"></div>
+        <div style="font-size: 12px; line-height: 1.5; color:#cccccc;">
+          <p>
+            Data contained at this site or at any site linked from this site has not been reviewed
+            for accuracy or legal sufficiency. Links or references to other information or
+            organizations do not constitute an endorsement.
+          </p>
+          <p>
+            The information provided herein is solely for the reader’s own use and cannot be sold.
+            Flores Law Office explicitly disclaims any representations and warranties, including the
+            implied warranties of merchantability and fitness for a particular purpose, and assumes
+            no liability for errors, omissions, or actions taken in reliance on this information.
           </p>
         </div>
+        <div style="font-size: 12px; color:#00c2c2; text-align:center;">
+          All Rights Reserved © 2025 Flores Law Office
+        </div>
       </div>
-      <div style="height:1px;background:#333;"></div>
-      <div style="font-size: 12px; line-height: 1.5; color:#cccccc;">
-        <p>
-          Data contained at this site or at any site linked from this site has not been reviewed for
-          accuracy or legal sufficiency. Links or references to other information or organizations
-          do not constitute an endorsement.
-        </p>
-        <p>
-          The information provided herein is solely for the reader’s own use and cannot be sold.
-          Flores Law Office explicitly disclaims any representations and warranties, including the
-          implied warranties of merchantability and fitness for a particular purpose, and assumes no
-          liability for errors, omissions, or actions taken in reliance on this information.
-        </p>
+    </footer>
+
+    <!-- Floating CTA -->
+    <div class="cta-bar z-20" role="region" aria-label="Quick contact">
+      <div>
+        <strong>Free Consultation</strong>
+        <div class="#ffffff" style="font-size: 12px;">No fee unless we win</div>
       </div>
-      <div style="font-size: 12px; color:#00c2c2; text-align:center;">
-        All Rights Reserved © 2025 Flores Law Office
+      <div class="flex">
+        <a
+          class="btn"
+          style="background:#F9F9F9;color:#009899;border:1px solid #009899;"
+          href="#contact">Start Online</a
+        >
+        <a class="btn btn-primary" href="tel:+18122659020">Call Now</a>
       </div>
     </div>
-  </footer>
 
-  <!-- Floating CTA -->
-  <div class="cta-bar z-20" role="region" aria-label="Quick contact">
-    <div>
-      <strong>Free Consultation</strong>
-      <div class="#ffffff" style="font-size: 12px;">No fee unless we win</div>
-    </div>
-    <div class="flex">
-      <a
-        class="btn"
-        style="background:#ffffff;color:#009899;border:1px solid #009899;"
-        href="#contact">Start Online</a
-      >
-      <a class="btn btn-primary" href="tel:+18122659020">Call Now</a>
-    </div>
-  </div>
+    <!-- Basic JS validation (replace TODO with your form endpoint if desired) -->
+    <script>
+      function validate(ids) {
+        let ok = true;
+        const name = document.getElementById(ids.name);
+        const phone = document.getElementById(ids.phone);
+        const email = document.getElementById(ids.email);
+        const errName = document.getElementById(ids.errName);
+        const errPhone = document.getElementById(ids.errPhone);
+        const errEmail = document.getElementById(ids.errEmail);
 
-  <!-- Basic JS validation (replace TODO with your form endpoint if desired) -->
-  <script>
-    function validate(ids) {
-      let ok = true;
-      const name = document.getElementById(ids.name);
-      const phone = document.getElementById(ids.phone);
-      const email = document.getElementById(ids.email);
-      const errName = document.getElementById(ids.errName);
-      const errPhone = document.getElementById(ids.errPhone);
-      const errEmail = document.getElementById(ids.errEmail);
+        errName.textContent = '';
+        errPhone.textContent = '';
+        errEmail.textContent = '';
 
-      errName.textContent = '';
-      errPhone.textContent = '';
-      errEmail.textContent = '';
-
-      if (!name.value.trim()) {
-        errName.textContent = 'Please enter your name.';
-        ok = false;
-      }
-      const phoneDigits = phone.value.replace(/\D/g, '');
-      if (phoneDigits.length < 10) {
-        errPhone.textContent = 'Please enter a valid phone number.';
-        ok = false;
-      }
-      if (email.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
-        errEmail.textContent = 'Please enter a valid email.';
-        ok = false;
-      }
-      return ok;
-    }
-
-    function wireForm(formId, ids, alertId, successId) {
-      const form = document.getElementById(formId);
-      const alertBox = document.getElementById(alertId);
-      const successBox = document.getElementById(successId);
-      if (!form) return;
-
-      form.addEventListener('submit', function (e) {
-        e.preventDefault();
-        alertBox.style.display = 'none';
-        successBox.style.display = 'none';
-
-        const ok = validate(ids);
-        if (!ok) return;
-
-        setTimeout(() => {
-          successBox.style.display = 'block';
-          form.reset();
-        }, 400);
-      });
-    }
-
-    wireForm(
-      'contactForm',
-      {
-        name: 'name',
-        phone: 'phone',
-        email: 'email',
-        errName: 'err-name',
-        errPhone: 'err-phone',
-        errEmail: 'err-email'
-      },
-      'formError',
-      'formSuccess'
-    );
-
-    wireForm(
-      'contactForm2',
-      {
-        name: 'name2',
-        phone: 'phone2',
-        email: 'email2',
-        errName: 'err2-name',
-        errPhone: 'err2-phone',
-        errEmail: 'err2-email'
-      },
-      'form2Error',
-      'form2Success'
-    );
-  </script>
-  <script>
-    (function () {
-      const mobileHeader = document.getElementById('header-mobile');
-      if (!mobileHeader) return;
-
-      const btnMenu = mobileHeader.querySelector('.btn-menu');
-      const canvasWrap = mobileHeader.querySelector('.canvas-nav-wrap');
-      const overlay = mobileHeader.querySelector('.overlay-canvas-nav');
-      const closeBtn = mobileHeader.querySelector('.canvas-menu-close');
-
-      const toggleNav = (open) => {
-        if (!canvasWrap) return;
-        canvasWrap.classList.toggle('is-open', open);
-        document.body.classList.toggle('nav-open', open);
-        if (btnMenu) {
-          btnMenu.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (!name.value.trim()) {
+          errName.textContent = 'Please enter your name.';
+          ok = false;
         }
-      };
+        const phoneDigits = phone.value.replace(/\D/g, '');
+        if (phoneDigits.length < 10) {
+          errPhone.textContent = 'Please enter a valid phone number.';
+          ok = false;
+        }
+        if (email.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+          errEmail.textContent = 'Please enter a valid email.';
+          ok = false;
+        }
+        return ok;
+      }
 
-      const handleToggle = () => {
-        const isOpen = canvasWrap ? canvasWrap.classList.contains('is-open') : false;
-        toggleNav(!isOpen);
-      };
+      function wireForm(formId, ids, alertId, successId) {
+        const form = document.getElementById(formId);
+        const alertBox = document.getElementById(alertId);
+        const successBox = document.getElementById(successId);
+        if (!form) return;
 
-      if (btnMenu) {
-        btnMenu.setAttribute('aria-expanded', 'false');
-        btnMenu.addEventListener('click', handleToggle);
-        btnMenu.addEventListener('keypress', (event) => {
-          if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault();
-            handleToggle();
-          }
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          alertBox.style.display = 'none';
+          successBox.style.display = 'none';
+
+          const ok = validate(ids);
+          if (!ok) return;
+
+          setTimeout(() => {
+            successBox.style.display = 'block';
+            form.reset();
+          }, 400);
         });
       }
 
-      if (overlay) {
-        overlay.addEventListener('click', () => toggleNav(false));
-      }
-      if (closeBtn) {
-        closeBtn.addEventListener('click', () => toggleNav(false));
-        closeBtn.addEventListener('keypress', (event) => {
-          if (event.key === 'Enter' || event.key === ' ') {
+      wireForm(
+        'contactForm',
+        {
+          name: 'name',
+          phone: 'phone',
+          email: 'email',
+          errName: 'err-name',
+          errPhone: 'err-phone',
+          errEmail: 'err-email'
+        },
+        'formError',
+        'formSuccess'
+      );
+
+      wireForm(
+        'contactForm2',
+        {
+          name: 'name2',
+          phone: 'phone2',
+          email: 'email2',
+          errName: 'err2-name',
+          errPhone: 'err2-phone',
+          errEmail: 'err2-email'
+        },
+        'form2Error',
+        'form2Success'
+      );
+    </script>
+    <script>
+      (function () {
+        const mobileHeader = document.getElementById('header-mobile');
+        if (!mobileHeader) return;
+
+        const btnMenu = mobileHeader.querySelector('.btn-menu');
+        const canvasWrap = mobileHeader.querySelector('.canvas-nav-wrap');
+        const overlay = mobileHeader.querySelector('.overlay-canvas-nav');
+        const closeBtn = mobileHeader.querySelector('.canvas-menu-close');
+
+        const toggleNav = (open) => {
+          if (!canvasWrap) return;
+          canvasWrap.classList.toggle('is-open', open);
+          document.body.classList.toggle('nav-open', open);
+          if (btnMenu) {
+            btnMenu.setAttribute('aria-expanded', open ? 'true' : 'false');
+          }
+        };
+
+        const handleToggle = () => {
+          const isOpen = canvasWrap ? canvasWrap.classList.contains('is-open') : false;
+          toggleNav(!isOpen);
+        };
+
+        if (btnMenu) {
+          btnMenu.setAttribute('aria-expanded', 'false');
+          btnMenu.addEventListener('click', handleToggle);
+          btnMenu.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              handleToggle();
+            }
+          });
+        }
+
+        if (overlay) {
+          overlay.addEventListener('click', () => toggleNav(false));
+        }
+        if (closeBtn) {
+          closeBtn.addEventListener('click', () => toggleNav(false));
+          closeBtn.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              toggleNav(false);
+            }
+          });
+        }
+
+        mobileHeader.querySelectorAll('.btn-submenu').forEach((btn) => {
+          btn.setAttribute('aria-expanded', 'false');
+          btn.addEventListener('click', (event) => {
             event.preventDefault();
+            const parent = btn.closest('li');
+            let isOpen = false;
+            if (parent) {
+              isOpen = parent.classList.toggle('menu-item-open');
+            }
+            btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+          });
+        });
+
+        mobileHeader.querySelectorAll('.mainnav_canvas a').forEach((link) => {
+          link.addEventListener('click', () => {
             toggleNav(false);
-          }
+          });
         });
-      }
+      })();
+    </script>
 
-      mobileHeader.querySelectorAll('.btn-submenu').forEach((btn) => {
-        btn.setAttribute('aria-expanded', 'false');
-        btn.addEventListener('click', (event) => {
-          event.preventDefault();
-          const parent = btn.closest('li');
-          let isOpen = false;
-          if (parent) {
-            isOpen = parent.classList.toggle('menu-item-open');
-          }
-          btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-        });
-      });
-
-      mobileHeader.querySelectorAll('.mainnav_canvas a').forEach((link) => {
-        link.addEventListener('click', () => {
-          toggleNav(false);
-        });
-      });
-    })();
-  </script>
-
-  <!-- Sticky Mobile Contact Button -->
-  <div class="sticky-cta" role="region" aria-label="Quick contact options">
-    <div class="container">
-      <a href="tel:+18122659020" class="btn" aria-label="Call Flores Law Office"> Call Now </a>
-      <a href="#contact" class="btn btn-secondary" aria-label="Request free case review">
-        Free Review
-      </a>
+    <!-- Sticky Mobile Contact Button -->
+    <div class="sticky-cta" role="region" aria-label="Quick contact options">
+      <div class="container">
+        <a href="tel:+18122659020" class="btn btn-primary" aria-label="Call Flores Law Office">
+          Call Now
+        </a>
+        <a href="#contact" class="btn btn-secondary" aria-label="Request free case review">
+          Free Review
+        </a>
+      </div>
     </div>
-  </div>
+  </body>
 </html>
