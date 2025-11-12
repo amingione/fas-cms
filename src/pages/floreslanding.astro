@@ -2034,10 +2034,10 @@
           right: 40px;
           bottom: 40px;
           opacity: 1;
-          z-index: 0;
+          z-index: -10;
           pointer-events: none;
-          filter: drop-shadow(4px 12px 24px rgb(0, 0, 0));
-          -webkit-filter: drop-shadow(5px 12px 24px #000000f7);
+          filter: drop-shadow(10px 12px 24px rgb(249, 248, 248));
+          -webkit-filter: drop-shadow(4px 12px 24px #ffffff);
           transition:
             right 0.25s ease,
             top 0.25s ease,
@@ -2051,34 +2051,20 @@
         }
 
         @media (max-width: 768px) {
-          /* Move the badge to the top-right on mobile and make it tappable */
-          .avvo-badge {
-            top: 12px;
-            right: 12px;
-            bottom: auto;
+          .hero {
+            position: relative;
+          }
+          .hero .avvo-badge {
+            position: static;
+            display: inline-block;
+            margin: 16px auto 0;
             pointer-events: auto;
-            z-index: 30;
           }
           .avvo-badge img {
-            width: 120px;
+            width: 150px;
           }
         }
       </style>
-
-      <a
-        class="avvo-badge"
-        href="https://www.avvo.com/attorneys/47250-in-jeffrey-flores-1723245.html?utm_campaign=avvo_rating&utm_content=1217583&utm_medium=avvo_badge&utm_source=avvo"
-        target="_blank"
-        rel="noopener"
-        title="Avvo-rated Madison IN Injury Attorney"
-      >
-        <img
-          src="/images/flores/avvo 8.1 rating.png"
-          alt="Avvo profile for Madison Indiana injury attorney Jeffrey Flores"
-          style="width: 220px; height: auto ;"
-          loading="lazy"
-        />
-      </a>
 
       <!-- Main Hero Content -->
       <div class="container section" style="position: relative; z-index: 2;">
@@ -2101,11 +2087,25 @@
               Madison, Jefferson County, and Indiana. When negligence changes your life, we pursue
               maximum compensation and accountability.
             </p>
-            <div style="margin-top: 28px; display: flex; gap: 12px; flex-wrap: wrap;">
+            <a
+              class="avvo-badge"
+              href="https://www.avvo.com/attorneys/47250-in-jeffrey-flores-1723245.html?utm_campaign=avvo_rating&utm_content=1217583&utm_medium=avvo_badge&utm_source=avvo"
+              target="_blank"
+              rel="noopener"
+              title="Avvo-rated Madison IN Injury Attorney"
+            >
+              <img
+                src="/images/flores/avvo 8.1 rating.png"
+                alt="Avvo profile for Madison Indiana injury attorney Jeffrey Flores"
+                style="width: 200px; height: auto ;"
+                loading="lazy"
+              />
+            </a>
+            <div style="margin-top: 5px; display: flex; gap: 5px; flex-wrap: wrap;">
               <a
                 href="tel:+18122659020"
                 class="btn btn-primary"
-                style="font-size: 16px; padding: 14px 28px;"
+                style="font-size: 16px; padding: 6px 10px; width: auto;"
                 aria-label="Call Flores Law Office for free consultation"
               >
                 Call (812) 265-9020 Now
@@ -2113,7 +2113,7 @@
               <a
                 href="#contact"
                 class="btn btn-outline"
-                style="font-size: 16px; padding: 14px 28px; border-color: #fff; color: #fff;"
+                style="font-size: 16px; padding: 6px 10px; width: auto; border-color: #fff; color: #fff;"
                 aria-label="Request your free case review"
               >
                 Get Your Free Case Review
