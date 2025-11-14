@@ -1,5 +1,7 @@
 import { createClient } from '@sanity/client';
 
+import { ACTIVE_PRODUCT_FILTER } from '@/lib/sanity-utils.ts';
+
 const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID || import.meta.env.SANITY_PROJECT_ID;
 const token = import.meta.env.SANITY_API_TOKEN;
 
@@ -29,12 +31,7 @@ export async function GET({ url }: { url: URL }) {
   const tune = url.searchParams.get('tune');
   const minHp = url.searchParams.get('minHp');
 
-  const filters = [
-    `_type == "product"`,
-    `!(_id in path('drafts.**'))`,
-    `defined(slug.current)`,
-    `lower(coalesce(status, "active")) == "active"`
-  ];
+  const filters = [`_type == "product"`, ACTIVE_PRODUCT_FILTER, `defined(slug.current)`];
 
   if (category) filters.push(`"${category}" in categories[]->slug.current`);
   if (vehicle) filters.push(`"${vehicle}" in compatibleVehicles[]->slug.current`);
