@@ -4,6 +4,7 @@ import { PlusIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import { addItem } from '@components/cart/actions';
 import { prefersDesktopCart } from '@/lib/device';
+import { emitAddToCartSuccess } from '@/lib/add-to-cart-toast';
 import * as React from 'react';
 
 /**
@@ -140,12 +141,19 @@ export function AddToCart({ product }: { product: any }) {
       productUrl
     });
 
+    emitAddToCartSuccess({ name: product?.title });
+
     try {
-      const eventName = prefersDesktopCart() ? 'open-desktop-cart' : 'open-cart';
-      window.dispatchEvent(new Event(eventName));
+      if (!prefersDesktopCart()) {
+        window.dispatchEvent(new Event('open-cart'));
+      }
     } catch (error) {
       void error;
-      window.dispatchEvent(new Event('open-cart'));
+      try {
+        window.dispatchEvent(new Event('open-cart'));
+      } catch {
+        // ignore
+      }
     }
   }
 

@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { EyeIcon, ShoppingCartIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { addItem } from '@components/cart/actions';
 import { prefersDesktopCart } from '@/lib/device';
+import { emitAddToCartSuccess } from '@/lib/add-to-cart-toast';
 
 export type QuickViewProduct = {
   id?: string;
@@ -86,9 +87,21 @@ export default function ProductQuickViewButton({
         productUrl: product.href
       });
 
-      const eventName = prefersDesktopCart() ? 'open-desktop-cart' : 'open-cart';
+      emitAddToCartSuccess({ name: product.title });
+
       if (typeof window !== 'undefined') {
-        window.dispatchEvent(new Event(eventName));
+        try {
+          if (!prefersDesktopCart()) {
+            window.dispatchEvent(new Event('open-cart'));
+          }
+        } catch (error) {
+          void error;
+          try {
+            window.dispatchEvent(new Event('open-cart'));
+          } catch {
+            // ignore
+          }
+        }
       }
     } catch (error) {
       console.error('Failed to add item from quick view:', error);

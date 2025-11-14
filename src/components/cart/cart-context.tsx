@@ -11,6 +11,7 @@ import {
   clearCart as clearCartAction,
   redirectToCheckout as checkoutAction
 } from '@components/cart/actions';
+import { emitAddToCartSuccess } from '@/lib/add-to-cart-toast';
 
 /**
  * Cart Context — FAS (Astro + Sanity + localStorage)
@@ -83,6 +84,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   async function addCartItem(item: Partial<CartItem> & { id: string; quantity?: number }) {
     await addItemAction(null as any, item);
+    emitAddToCartSuccess({ name: item?.name });
     // actions.ts will emit cart:changed; no need to manually setCart
   }
 
