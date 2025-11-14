@@ -3,9 +3,9 @@
   "packageManager": "yarn@4.5.3+sha512.3003a14012e2987072d244c720506549c1aab73ee728208f1b2580a9fd67b92d61ba6b08fe93f6dce68fd771e3af1e59a0afa28dd242dd0940d73b95fedd4e90",
   "version": "1.0.0",
   "scripts": {
-    "dev": "cross-env NETLIFY_DEV=1 astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
+    "dev": "cross-env NODE_ENV=development NETLIFY_DEV=1 astro dev",
+    "build": "cross-env NODE_ENV=production astro build",
+    "preview": "cross-env NODE_ENV=production astro preview",
     "lint": "eslint \"src/**/*.{js,ts,jsx,tsx}\"",
     "prepare": "husky install",
     "merchant:upload": "tsx scripts/merchant/upload-google-merchant-feed.ts",
@@ -72,6 +72,7 @@
     "vite-plugin-svgr": "^4.5.0"
   },
   "dependencies": {
+    "@astrojs/check": "^0.9.5",
     "@astrojs/image": "^0.18.0",
     "@astrojs/netlify": "6.5.12",
     "@astrojs/react": "4.4.0",
@@ -171,7 +172,7 @@
     "tsparticles": "^3.9.1",
     "tsparticles-engine": "^2.12.0",
     "tsparticles-slim": "^2.12.0",
-    "typescript": "5.6.3",
+    "typescript": "^5.9.3",
     "vaul": "1.1.2",
     "vite-plugin-compression": "^0.5.1",
     "zod": "^3.24.4"

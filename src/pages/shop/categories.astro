@@ -4,6 +4,7 @@ import { buildPrimaryKeywordAnchor, collapseLabelSpaces } from '@/lib/seoAnchors
 import { sanityClient as client } from "@/lib/sanityClient.ts";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import StoreHero from '@/components/storefront/StoreHero.astro';
+import { fetchFeaturedProducts } from '@/lib/sanity-utils';
 
 // Choose which categories (by slug) to show on this page.
 // Fill this list with the exact slugs you want featured. Leave empty to show all.
@@ -40,6 +41,40 @@ interface Category {
   description?: string;
 }
 
+type CategoryListItem = {
+  '@type': 'ListItem';
+  position: number;
+  url: string;
+  item: {
+    '@type': 'CollectionPage';
+    name: string;
+    url: string;
+    description?: string;
+    image?: string[];
+  };
+};
+
+type ProductOffer = {
+  '@type': 'Offer';
+  priceCurrency: string;
+  price: string;
+  availability: string;
+  url: string;
+  itemCondition: string;
+};
+
+type ProductListItem = {
+  '@type': 'ListItem';
+  position: number;
+  url: string;
+  item: {
+    '@type': 'Product';
+    name: string;
+    image?: string[];
+    offers?: ProductOffer;
+  };
+};
+
 // Fetch all categories for the grid
 const categoriesAll: Category[] = await client.fetch(categoriesQueryAll);
 // Optional: use chosenSlugs to build a curated subset elsewhere if needed
@@ -47,46 +82,7 @@ const featuredCategories: Category[] = chosenSlugs.length
   ? categoriesAll.filter((category) => chosenSlugs.includes(category.slug))
   : categoriesAll;
 
-// Fetch featured products for the carousel (boolean true, then string "true" fallback)
-let featuredRaw: any[] = [];
-try {
-  featuredRaw = await client.fetch(`*[_type == "product" && !(_id in path("drafts.**")) && coalesce(featured, false) == true && defined(slug.current)][0..11]{
-    _id,
-    name,
-    title,
-    "slug": slug.current,
-    price,
-    images[]{ asset->{ url } },
-    primaryKeyword,
-    fitmentYears,
-    fitment,
-    "seoPrimaryKeyword": coalesce(seo.primaryKeyword, seo.keyphrase, seo.keyword, seo.targetKeyword),
-    "seoFitmentYears": seo.fitmentYears,
-    "seoFitment": coalesce(seo.fitmentText, seo.fitment),
-    // common fallbacks used elsewhere
-    "imageUrl": coalesce(image.asset->url, mainImage.asset->url, images[0].asset->url, thumbnail.asset->url, thumb.asset->url)
-  }`);
-  if (!Array.isArray(featuredRaw) || featuredRaw.length === 0) {
-    featuredRaw = await client.fetch(`*[_type == "product" && !(_id in path("drafts.**")) && featured == "true" && defined(slug.current)][0..11]{
-      _id,
-      name,
-      title,
-      "slug": slug.current,
-      price,
-      images[]{ asset->{ url } },
-      primaryKeyword,
-      fitmentYears,
-      fitment,
-      "seoPrimaryKeyword": coalesce(seo.primaryKeyword, seo.keyphrase, seo.keyword, seo.targetKeyword),
-      "seoFitmentYears": seo.fitmentYears,
-      "seoFitment": coalesce(seo.fitmentText, seo.fitment),
-      "imageUrl": coalesce(image.asset->url, mainImage.asset->url, images[0].asset->url, thumbnail.asset->url, thumb.asset->url)
-    }`);
-  }
-} catch (e) {
-  console.error('Failed to fetch featured products for carousel', e);
-  featuredRaw = [];
-}
+const featuredRaw = await fetchFeaturedProducts({ limit: 12, ttlSeconds: 300 });
 
 // Normalize to the shape expected by ProductCardLiteReact (images[0].asset.url)
 const computeAnchorText = (product: any): string | undefined =>
@@ -157,14 +153,14 @@ const breadcrumbStructuredData = {
   ]
 };
 
-const categoryItemListElements = Array.isArray(categoriesAll)
+const categoryItemListElements: CategoryListItem[] = Array.isArray(categoriesAll)
   ? categoriesAll
       .map((category, index) => {
         if (!category?.slug) return null;
         const categoryUrl = `${requestUrl.origin}/shop/categories/${category.slug}`;
         const imageOverride = categoryImageOverrides[category.slug];
         const imageUrl = ensureAbsoluteUrl(imageOverride ?? category.imageUrl ?? undefined);
-        return {
+        const listItem: CategoryListItem = {
           '@type': 'ListItem',
           position: index + 1,
           url: categoryUrl,
@@ -176,8 +172,9 @@ const categoryItemListElements = Array.isArray(categoriesAll)
             image: imageUrl ? [imageUrl] : undefined
           }
         };
+        return listItem;
       })
-      .filter((entry): entry is Record<string, any> => Boolean(entry))
+      .filter((entry): entry is CategoryListItem => Boolean(entry))
   : [];
 
 const categoryCollectionStructuredData = categoryItemListElements.length
@@ -196,7 +193,7 @@ const categoryCollectionStructuredData = categoryItemListElements.length
     }
   : null;
 
-const featuredItemListElements = Array.isArray(featuredProducts)
+const featuredItemListElements: ProductListItem[] = Array.isArray(featuredProducts)
   ? featuredProducts
       .map((product, index) => {
         if (!product?.slug) return null;
@@ -209,7 +206,7 @@ const featuredItemListElements = Array.isArray(featuredProducts)
               .filter((value): value is string => Boolean(value))
           : [];
         const priceNumber = Number(product.price);
-        const offers = !Number.isNaN(priceNumber) && priceNumber > 0
+        const offers: ProductOffer | undefined = !Number.isNaN(priceNumber) && priceNumber > 0
           ? {
               '@type': 'Offer',
               priceCurrency: 'USD',
@@ -219,19 +216,20 @@ const featuredItemListElements = Array.isArray(featuredProducts)
               itemCondition: 'https://schema.org/NewCondition'
             }
           : undefined;
-        return {
+        const listItem: ProductListItem = {
           '@type': 'ListItem',
           position: index + 1,
           url: productUrl,
           item: {
             '@type': 'Product',
-            name: product.title,
+            name: product.title ?? 'Product',
             image: images.length ? images : undefined,
             offers
           }
         };
+        return listItem;
       })
-      .filter((entry): entry is Record<string, any> => Boolean(entry))
+      .filter((entry): entry is ProductListItem => Boolean(entry))
   : [];
 
 const featuredProductsStructuredData = featuredItemListElements.length

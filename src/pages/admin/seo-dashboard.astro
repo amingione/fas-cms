@@ -91,13 +91,13 @@ const breadcrumbs = [
           <tbody>
             {topKeywords.length === 0 ? (
               <tr>
-                <td class="px-4 py-4" colSpan={3}>
+                <td class="px-4 py-4" colspan="3">
                   No keyword data available yet.
                 </td>
               </tr>
             ) : (
               topKeywords.map((row) => (
-                <tr class="border-b border-white/5" key={row.keyword}>
+                <tr class="border-b border-white/5">
                   <td class="px-4 py-3 font-medium text-white">{row.keyword}</td>
                   <td class="px-4 py-3">{row.best === Infinity ? '—' : `#${row.best}`}</td>
                   <td class="px-4 py-3">{row.count}</td>

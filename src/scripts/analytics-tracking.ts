@@ -1,6 +1,6 @@
 declare global {
   interface Window {
-    gtag?: (...args: unknown[]) => void;
+    gtag?: (...args: any[]) => void;
     __fasAnalyticsHooked?: boolean;
   }
 }

@@ -5,7 +5,6 @@ import { sanity } from './_sanity';
 import type { SanityDocumentStub } from '@sanity/client';
 import { sendEmail } from './_resend';
 import { createOrderCartItem, type OrderCartItem } from '../../src/server/sanity/order-cart';
-import { syncShipStationOrder } from '../lib/shipstation-sync';
 
 type LineItemWithMetadata = Stripe.LineItem & { metadata?: Stripe.Metadata | null };
 
@@ -627,23 +626,6 @@ export const handler: Handler = async (event) => {
                 (err as any)?.message || err
               )
             );
-        }
-      }
-
-      if (orderId) {
-        try {
-          const shipStationResult = await syncShipStationOrder({ orderId, sanityClient: sanity });
-          if (!shipStationResult.ok && shipStationResult.reason) {
-            console.warn('[stripe-webhook] ShipStation sync skipped', {
-              orderId,
-              reason: shipStationResult.reason
-            });
-          }
-        } catch (syncError: any) {
-          console.error('[stripe-webhook] ShipStation sync failed', {
-            orderId,
-            error: syncError?.message || syncError
-          });
         }
       }
 

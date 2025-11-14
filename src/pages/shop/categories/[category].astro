@@ -1,10 +1,12 @@
 ---
-import ProductCard from "@/components/storefront/ProductCardLite.astro";
+import ProductCard from '@/components/storefront/ProductCardLite.astro';
 import { buildPrimaryKeywordAnchor, collapseLabelSpaces } from '@/lib/seoAnchors';
-import { sanityClient as client } from "@/lib/sanityClient.ts";
-import BaseLayout from "@/layouts/BaseLayout.astro";
+import { sanityClient as client } from '@/lib/sanityClient.ts';
+import BaseLayout from '@/layouts/BaseLayout.astro';
 
-interface Props { params: { category: string } }
+interface Props {
+  params: { category: string };
+}
 const { params } = Astro as unknown as Props;
 
 // Get the category document by slug
@@ -17,7 +19,7 @@ const category = await client.fetch(categoryQuery, { slug: params.category });
 
 // Fetch published products that reference this category
 const productsQuery = /* groq */ `
-*[_type == "product" && !(_id in path('drafts.**')) && defined(slug.current) && references($catId)] | order(_createdAt desc){
+*[_type == "product" && !(_id in path('drafts.**')) && lower(coalesce(status, "active")) == "active" && defined(slug.current) && references($catId)] | order(_createdAt desc){
   _id,
   title,
   "slug": slug.current,
@@ -162,20 +164,22 @@ const productItemListElements = category
               .filter((value): value is string => Boolean(value))
           : [];
         const anchorLabel =
-          typeof (product as any)?.seoAnchorText === 'string' && (product as any).seoAnchorText.trim().length > 0
+          typeof (product as any)?.seoAnchorText === 'string' &&
+          (product as any).seoAnchorText.trim().length > 0
             ? (product as any).seoAnchorText.trim()
-            : product.title ?? resolvedCategoryLabel;
+            : (product.title ?? resolvedCategoryLabel);
         const priceNumber = Number(product.price);
-        const offers = !Number.isNaN(priceNumber) && priceNumber > 0
-          ? {
-              '@type': 'Offer',
-              priceCurrency: 'USD',
-              price: priceNumber.toFixed(2),
-              availability: 'https://schema.org/InStock',
-              url: productUrl,
-              itemCondition: 'https://schema.org/NewCondition'
-            }
-          : undefined;
+        const offers =
+          !Number.isNaN(priceNumber) && priceNumber > 0
+            ? {
+                '@type': 'Offer',
+                priceCurrency: 'USD',
+                price: priceNumber.toFixed(2),
+                availability: 'https://schema.org/InStock',
+                url: productUrl,
+                itemCondition: 'https://schema.org/NewCondition'
+              }
+            : undefined;
         return {
           '@type': 'ListItem',
           position: index + 1,
@@ -188,57 +192,70 @@ const productItemListElements = category
           }
         };
       })
-      .filter((entry): entry is Record<string, any> => Boolean(entry))
+      .filter((entry): entry is Exclude<typeof entry, null> => entry !== null)
   : [];
 
-const categoryCollectionStructuredData = category && productItemListElements.length
-  ? {
-      '@context': 'https://schema.org',
-      '@type': 'CollectionPage',
-      name: pageTitle,
-      url: canonicalUrl,
-      description: pageDescription,
-      mainEntity: {
-        '@type': 'ItemList',
-        name: `${resolvedCategoryTitle} products`,
-        numberOfItems: productItemListElements.length,
-        itemListElement: productItemListElements
+const categoryCollectionStructuredData =
+  category && productItemListElements.length
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        name: pageTitle,
+        url: canonicalUrl,
+        description: pageDescription,
+        mainEntity: {
+          '@type': 'ItemList',
+          name: `${resolvedCategoryTitle} products`,
+          numberOfItems: productItemListElements.length,
+          itemListElement: productItemListElements
+        }
       }
-    }
-  : null;
+    : null;
 ---
+
 <BaseLayout
   title={pageTitle}
   description={pageDescription}
   canonical={canonicalUrl}
   breadcrumbContext={breadcrumbContext}
 >
-  {breadcrumbStructuredData && (
-    <Fragment slot="head">
-      <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
-      {categoryCollectionStructuredData && (
-        <script type="application/ld+json" set:html={JSON.stringify(categoryCollectionStructuredData)} />
-      )}
-    </Fragment>
-  )}
+  {
+    breadcrumbStructuredData && (
+      <Fragment slot="head">
+        <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
+        {categoryCollectionStructuredData && (
+          <script
+            type="application/ld+json"
+            set:html={JSON.stringify(categoryCollectionStructuredData)}
+          />
+        )}
+      </Fragment>
+    )
+  }
   <div class="max-w-7xl mx-auto px-4 md:px-6 py-12">
-{!category && (
-  <section class="py-16 text-center">
-    <h1 class="text-3xl font-semibold">Category not found</h1>
-  </section>
-)}
+    {
+      !category && (
+        <section class="py-16 text-center">
+          <h1 class="text-3xl font-semibold">Category not found</h1>
+        </section>
+      )
+    }
 
-{category && (
-  <>
-    <header class="mb-8">
-      <h1 class="text-3xl md:text-4xl font-semibold">{category.title}</h1>
-      {category.description && <p class="mt-2 text-sm opacity-80">{category.description}</p>}
-    </header>
+    {
+      category && (
+        <>
+          <header class="mb-8">
+            <h1 class="text-3xl md:text-4xl font-semibold">{category.title}</h1>
+            {category.description && <p class="mt-2 text-sm opacity-80">{category.description}</p>}
+          </header>
 
-    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-      {liteProducts.map((p) => (
-        <ProductCard key={p._id} product={p} productImage={p.images?.[0]} />
-      ))}
-    </section>
-  </>
-)}
+          <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            {liteProducts.map((p) => (
+              <ProductCard key={p._id} product={p} productImage={p.images?.[0]} />
+            ))}
+          </section>
+        </>
+      )
+    }
+  </div></BaseLayout
+>

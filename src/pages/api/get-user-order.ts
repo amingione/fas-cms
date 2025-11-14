@@ -363,8 +363,6 @@ export const GET: APIRoute = async ({ request, url }) => {
         shippingLabelUrl,
         packingSlipUrl,
         trackingNumber,
-        shipStationOrderId,
-        shipStationLabelId,
         selectedService{
           carrierId,
           carrier,

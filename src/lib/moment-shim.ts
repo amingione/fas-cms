@@ -26,5 +26,4 @@ void (async () => {
   }
 })();
 
-export * from 'moment/moment';
 export default moment;

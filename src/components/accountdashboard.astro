@@ -45,17 +45,6 @@
   </aside>
 </div>
 <script>
-  // Declare fasAuth on the Window interface for TypeScript
-  // @ts-ignore
-  declare global {
-    interface Window {
-      fasAuth?: {
-        isAuthenticated: () => Promise<boolean>;
-        loginTo: (url: string) => Promise<void>;
-        logout: (url: string) => Promise<void>;
-      };
-    }
-  }
   // Minimal, import-free behavior powered by global fasAuth
   window.addEventListener('DOMContentLoaded', async () => {
     const loginLink = document.getElementById('loginLink');

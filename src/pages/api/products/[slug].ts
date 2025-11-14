@@ -9,7 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: 'Invalid product ID' });
   }
 
-  const query = `*[_type == "product" && !(_id in path('drafts.**')) && slug.current == $id][0] {
+  const query = `*[_type == "product" && !(_id in path('drafts.**')) && lower(coalesce(status, "active")) == "active" && slug.current == $id][0] {
     _id,
     title,
     slug,

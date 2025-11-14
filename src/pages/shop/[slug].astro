@@ -10,9 +10,11 @@ import {
 } from '../../lib/sanity-utils';
 import PortableTextRenderer from "../../components/PortableTextRenderer.jsx";
 import SlugCarousel from '@/components/SlugCarousel.astro';
-import TrustStrip from '@/components/TrustStrip.astro';
 import { Image as AstroImage } from '@astrojs/image/components';
 import { inlineFieldAttrs, inlineObjectId } from '@lib/content.ts';
+import productPageScript from '../../scripts/product-page.ts?url';
+import ServiceDisclaimerNotice from '@/components/storefront/ServiceDisclaimerNotice.tsx';
+import InfoTabs from '@/components/shop/InfoTabs';
 
 export type KitItem = { item: string; quantity?: number };
 export type VehicleCompat = { make?: string; model?: string; trim?: string };
@@ -52,6 +54,11 @@ type ProcessedProductImage = {
   width?: number;
   height?: number;
   aspectRatio?: number;
+};
+
+type FAQEntry = {
+  question: string;
+  answer: ContentDescriptor;
 };
 
 const slugify = (str: string): string =>
@@ -153,6 +160,19 @@ const VEHICLE_DISCLAIMER_KEYWORDS = [
 ];
 
 const { slug } = Astro.params;
+const disableImageProxyFlag =
+  String(
+    (import.meta.env.PUBLIC_DISABLE_IMAGE_PROXY as string | undefined) ??
+      (import.meta.env.PUBLIC_DISABLE_IMAGE_OPTIMIZATION as string | undefined) ??
+      ''
+  )
+    .trim()
+    .toLowerCase() === 'true';
+const enableProxyInDevFlag =
+  String((import.meta.env.PUBLIC_ENABLE_IMAGE_PROXY_IN_DEV as string | undefined) ?? '')
+    .trim()
+    .toLowerCase() === 'true';
+const useOptimizedImages = !disableImageProxyFlag && (import.meta.env.PROD || enableProxyInDevFlag);
 
 const toPlainText = (input: any): string => {
   if (!input) return '';
@@ -197,8 +217,6 @@ const truncateForMeta = (value: string, maxLength: number): string => {
 
 const hasRichContent = (value: unknown): boolean => collapseSpaces(toPlainText(value)).length > 0;
 
-const productPageScript = Astro.resolve('../../scripts/product-page.ts');
-
 type ContentDescriptor =
   | { type: 'portable'; value: any[]; field?: string }
   | { type: 'text'; value: string; field?: string };
@@ -210,6 +228,9 @@ const describeContent = (value: unknown, field?: string): ContentDescriptor | nu
   }
   return { type: 'text', value: collapseSpaces(toPlainText(value)), field };
 };
+
+const isContentDescriptor = (value: ContentDescriptor | null): value is ContentDescriptor =>
+  value !== null;
 
 const inlineAttrsFor = (field?: string): Record<string, any> => (field ? inlineFieldAttrs(field) : {});
 
@@ -498,7 +519,7 @@ const buildProductListStructuredData = (items: Product[], listName: string): Rec
       const images = Array.isArray((item as any)?.images)
         ? (item as any).images
             .map((image: any) => ensureAbsoluteUrl(image?.asset?.url || image?.url))
-            .filter((value): value is string => Boolean(value))
+            .filter((value: string | undefined): value is string => Boolean(value))
         : [];
       const priceNumber = coercePriceToNumber((item as any)?.price);
       const offers = typeof priceNumber === 'number'
@@ -523,7 +544,7 @@ const buildProductListStructuredData = (items: Product[], listName: string): Rec
         }
       };
     })
-    .filter((entry): entry is Record<string, any> => Boolean(entry));
+    .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
 
   if (!itemListElement.length) return null;
 
@@ -549,6 +570,8 @@ let seoDesc: string | undefined;
 let seoCanon: string | undefined = defaultCanonical;
 let seoOg: string | undefined;
 let productPriceNumber: number | undefined;
+let baseProductTitle = 'Product';
+let normalizedImageSlug = slugify(slugValue || baseProductTitle);
 try {
   if (typeof slug !== 'string') {
     throw new Error('Product slug is missing or invalid.');
@@ -557,6 +580,8 @@ try {
   if (!product) {
     throw new Error(`Product with slug "${slug}" not found.`);
   }
+
+  baseProductTitle = String((product as any)?.title || 'Product');
 
   const coercedBasePrice = coercePriceToNumber((product as any)?.price);
   productPriceNumber = typeof coercedBasePrice === 'number' ? coercedBasePrice : undefined;
@@ -678,7 +703,6 @@ try {
     });
   }
   // SEO helpers
-  const baseProductTitle = String((product as any)?.title || 'Product');
   seoTitle = baseProductTitle;
   plainDescription = collapseSpaces(
     toPlainText((product as any)?.shortDescription ?? (product as any)?.description ?? '')
@@ -697,9 +721,18 @@ if (!product) {
   Astro.response.status = 404;
 }
 
+type AccordionSectionId = 'product-details' | 'key-features' | 'specs' | 'faq';
+
+type AccordionSection = {
+  id: AccordionSectionId;
+  title: string;
+  defaultOpen?: boolean;
+};
+
 let productImages: ProcessedProductImage[] = [];
 let metaKeywords = '';
 let serviceDisclaimer = '';
+let serviceDisclaimerTitle = '';
 let priceValue: number | undefined;
 let breadcrumbStructuredData: Record<string, any> | null = null;
 let productStructuredData: Record<string, any> | null = null;
@@ -709,15 +742,60 @@ let isInstallOnly = false;
 let isPerformanceParts = false;
 let requiresVehicleDisclaimer = false;
 let productHeading = baseProductTitle;
+let productSubheading: string | null = null;
 let headingInlineAttrs: Record<string, any> = inlineFieldAttrs('title');
+let descriptionDescriptor: ContentDescriptor | null = null;
 let whyChooseContent: ContentDescriptor | null = null;
 let featuresContent: ContentDescriptor | null = null;
+let importantNotesDescriptor: ContentDescriptor | null = null;
 let installFitmentHighlights: { label: string; value: string }[] = [];
 let compatibilityVehicles: VehicleCompat[] = [];
 let specMetaRows: { label: string; value: string }[] = [];
 let includedInKitItems: KitItem[] = [];
 let analyticsPrimaryCtaParams = '{}';
 let analyticsStickyCtaParams = '{}';
+let faqEntries: FAQEntry[] = [];
+
+const accordionSections: AccordionSection[] = [];
+
+if (!productNotFound) {
+  if (isContentDescriptor(descriptionDescriptor)) {
+    accordionSections.push({
+      id: 'product-details',
+      title: 'Product Details',
+      defaultOpen: false
+    });
+  }
+
+  if (featuresContent || includedInKitItems.length > 0) {
+    accordionSections.push({
+      id: 'key-features',
+      title: 'Key Features'
+    });
+  }
+
+  const hasSpecsSection =
+    installFitmentHighlights.length > 0 ||
+    compatibilityVehicles.length > 0 ||
+    Boolean(importantNotesDescriptor) ||
+    specMetaRows.length > 0 ||
+    (Array.isArray(product?.specifications) && product?.specifications.length > 0) ||
+    (Array.isArray(product?.attributes) && product?.attributes.length > 0);
+
+  if (hasSpecsSection) {
+    accordionSections.push({
+      id: 'specs',
+      title: 'Specs'
+    });
+  }
+
+  if (faqEntries.length > 0) {
+    accordionSections.push({
+      id: 'faq',
+      title: 'FAQ'
+    });
+  }
+}
 
 const vehicleAvailabilityProperty = {
   '@type': 'PropertyValue',
@@ -774,16 +852,16 @@ if (product) {
   isPerformanceParts = computedPerformanceParts;
   const normalizedCategoryTokens: string[] = categoryTitlesForTokens
     .map((value) => collapseSpaces(value).toLowerCase())
-    .filter((value): value is string => Boolean(value));
+    .filter((value: string): value is string => Boolean(value));
   const productTypeSegments: string[] = productTypeRaw
     ? productTypeRaw
         .split('>')
         .map((segment: string) => collapseSpaces(segment).toLowerCase())
-        .filter((segment): segment is string => Boolean(segment))
+        .filter((segment: string): segment is string => Boolean(segment))
     : [];
   const normalizedFilterTokens: string[] = Array.from(canonicalFilterSlugs)
     .map((token: string) => collapseSpaces(token.replace(/[-_]/g, ' ')).toLowerCase())
-    .filter((token): token is string => Boolean(token));
+    .filter((token: string): token is string => Boolean(token));
 
   requiresVehicleDisclaimer =
     isInstallOnly ||
@@ -795,9 +873,11 @@ if (product) {
     serviceDisclaimer = isInstallOnly
       ? 'Professional installation service only. Vehicle not included.'
       : 'Performance package or components only. Vehicle not included.';
+    serviceDisclaimerTitle = isInstallOnly ? 'Professional installation required' : 'Vehicle not included';
     plainDescription = ensureDisclaimerMessaging(plainDescription, serviceDisclaimer);
   } else {
     serviceDisclaimer = '';
+    serviceDisclaimerTitle = '';
   }
 
   const categoryTokensForFitment = Array.isArray((product as any)?.categories)
@@ -875,30 +955,83 @@ if (product) {
   }
 
   const headingParts = [primaryKeyword, fitmentPhrase].filter(Boolean);
-  productHeading = collapseSpaces(headingParts.join(' '));
-  headingInlineAttrs = {};
+  const derivedHeading = collapseSpaces(headingParts.join(' '));
+  productHeading = baseProductTitle;
+  productSubheading = derivedHeading || null;
+  headingInlineAttrs = inlineFieldAttrs('title');
   if (!productHeading) {
     productHeading = baseProductTitle;
-    headingInlineAttrs = inlineFieldAttrs('title');
   }
 
   const seoBenefitsDescriptor = describeContent((product as any)?.seo?.benefits, 'seo.benefits');
   const seoHighlightsDescriptor = describeContent((product as any)?.seo?.highlights, 'seo.highlights');
   const seoValuePropsDescriptor = describeContent((product as any)?.seo?.valueProps, 'seo.valueProps');
   const shortDescriptionDescriptor = describeContent(product?.shortDescription, 'shortDescription');
-  const descriptionDescriptor = describeContent(product?.description, 'description');
-  const importantNotesDescriptor = describeContent(product?.importantNotes, 'importantNotes');
+  descriptionDescriptor = describeContent(product?.description, 'description');
+  importantNotesDescriptor = describeContent(product?.importantNotes, 'importantNotes');
 
-  whyChooseContent =
-    seoBenefitsDescriptor ?? shortDescriptionDescriptor ?? descriptionDescriptor ?? seoValuePropsDescriptor ?? null;
+  whyChooseContent = descriptionDescriptor;
   featuresContent =
     seoHighlightsDescriptor ?? seoValuePropsDescriptor ?? descriptionDescriptor ?? shortDescriptionDescriptor ?? null;
 
+  const possibleFaqCollections = [
+    (product as any)?.faqEntries,
+    (product as any)?.faq,
+    (product as any)?.faqs,
+    (product as any)?.faqList,
+    (product as any)?.faqBlocks,
+    (product as any)?.faqSection
+  ];
+  const faqSource = possibleFaqCollections.find((value) => Array.isArray(value) && value.length > 0) as any[] | undefined;
+  if (faqSource) {
+    faqEntries = faqSource
+      .map((entry: any, index: number) => {
+        const question =
+          collapseSpaces(
+            [
+              entry?.question,
+              entry?.title,
+              entry?.prompt,
+              entry?.heading,
+              entry?.label,
+              entry?.q
+            ]
+              .map((value) => (typeof value === 'string' ? value : ''))
+              .find((value) => value.trim()) ?? ''
+          ) || '';
+        if (!question) return null;
+        const answerValue =
+          entry?.answer ??
+          entry?.response ??
+          entry?.a ??
+          entry?.content ??
+          entry?.body ??
+          entry?.copy ??
+          entry?.description ??
+          entry?.value ??
+          null;
+        const answerDescriptor = describeContent(
+          answerValue,
+          typeof entry?.answerField === 'string'
+            ? entry.answerField
+            : typeof entry?.field === 'string'
+              ? `${entry.field}.answer`
+              : undefined
+        );
+        if (!answerDescriptor) return null;
+        return {
+          question,
+          answer: answerDescriptor
+        } satisfies FAQEntry;
+      })
+      .filter((entry): entry is FAQEntry => Boolean(entry));
+  }
+
   const altFallback = collapseSpaces(
-    [productHeading, baseProductTitle, 'F.A.S. Motorsports'].filter(Boolean).join(' ')
+    [productHeading, productSubheading, 'F.A.S. Motorsports'].filter(Boolean).join(' ')
   );
   const normalizedImageSlugSource = slugValue || baseProductTitle;
-  const normalizedImageSlug = slugify(normalizedImageSlugSource);
+  normalizedImageSlug = slugify(normalizedImageSlugSource);
   const imageEntries = Array.isArray((product as any)?.images) ? (product as any).images : [];
   productImages = imageEntries
     .map((image: any, index: number) => {
@@ -932,7 +1065,9 @@ if (product) {
         aspectRatio
       } satisfies ProcessedProductImage;
     })
-    .filter((value): value is ProcessedProductImage => Boolean(value));
+    .filter(
+      (value: ProcessedProductImage | null): value is ProcessedProductImage => Boolean(value)
+    );
 
   if (!productImages.length) {
     const fallbackUrl = ensureAbsoluteUrl('/logo/faslogochroma.webp') ?? '/logo/faslogochroma.webp';
@@ -997,10 +1132,6 @@ if (product) {
     }
   };
 
-  pushSpecMeta('SKU', (product as any)?.sku);
-  pushSpecMeta('Brand', (product as any)?.brand);
-  pushSpecMeta('GTIN', (product as any)?.gtin);
-  pushSpecMeta('MPN', (product as any)?.mpn);
   pushSpecMeta(
     'Average Horsepower',
     typeof (product as any)?.averageHorsepower === 'number' ? (product as any)?.averageHorsepower : undefined,
@@ -1055,14 +1186,6 @@ if (product) {
     price: typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined
   };
 
-  const brandName = collapseSpaces((product as any)?.brand || 'F.A.S. Motorsports');
-  const productBrand = brandName
-    ? {
-        '@type': 'Brand',
-        name: brandName
-      }
-    : undefined;
-
   const productSchemaImages = productImages.map((img) => img.webpUrl).filter(Boolean);
 
   productStructuredData = {
@@ -1071,9 +1194,6 @@ if (product) {
     name: (product as any)?.title,
     image: productSchemaImages.length ? productSchemaImages : undefined,
     description: plainDescription || undefined,
-    sku: (product as any)?.sku || undefined,
-    mpn: (product as any)?.mpn || undefined,
-    brand: productBrand,
     url: seoCanon,
     offers: offerDetails
   };
@@ -1092,6 +1212,7 @@ if (product) {
   productImages = [];
   metaKeywords = '';
   serviceDisclaimer = '';
+  serviceDisclaimerTitle = '';
   priceValue = undefined;
   breadcrumbStructuredData = {
     '@context': 'https://schema.org',
@@ -1110,7 +1231,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
 ---
 
 {!productNotFound ? (
-  <BaseLayout hideBrandTag title={seoTitle} description={seoDesc} canonical={seoCanon} ogImage={seoOg}>
+  <BaseLayout title={seoTitle} description={seoDesc} canonical={seoCanon} ogImage={seoOg}>
   <Fragment slot="head">
     <meta property="og:type" content="product" />
     {typeof priceValue === 'number' && (
@@ -1135,26 +1256,41 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
     )}
   </Fragment>
   <div {...inlineObjectId((product as any)._id)}>
-  <div class="container mx-auto px-4 py-10 text-white" style="padding-top: 80px;">
+  <div class="container mx-auto px-10 py-10 text-white" style="padding-top: 80px;">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
       <!-- LEFT: Sticky Image on desktop -->
       <div class="md:sticky md:top-28 flex justify-center items-start z-0 min-w-0" {...inlineFieldAttrs('images')}>
-        <SlugCarousel images={productImages} />
+        <SlugCarousel images={productImages} useOptimizedImages={useOptimizedImages} />
       </div>
 
       <!-- RIGHT: Title, price, short intro, add-to-cart, then accordion -->
       <div class="relative z-10 min-w-0 break-words text-sm">
-        <h1 class="text-3xl font-ethno mb-3" {...headingInlineAttrs}>{productHeading}</h1>
+        <h1 class="text-3xl font-ethno mb-2" {...headingInlineAttrs}>{productHeading}</h1>
+        {productSubheading && (
+          <p class="text-xs uppercase tracking-[0.5em] text-white/60 mb-4">
+            {productSubheading}
+          </p>
+        )}
         <h2 class="text-4xl text-accent
          font-mono mb-4" {...inlineFieldAttrs('price')}>
           {typeof priceValue === 'number' ? `$${priceValue.toFixed(2)}` : 'Price not available'}
         </h2>
 
-        {serviceDisclaimer && (
-          <div class="mb-4 rounded border border-yellow-500/40 bg-yellow-500/10 px-4 py-3 text-xs leading-relaxed text-yellow-100 shadow-sm">
-            {serviceDisclaimer}
+        {(serviceDisclaimer || isContentDescriptor(importantNotesDescriptor)) && (
+          <div class="mb-4">
+            <ServiceDisclaimerNotice
+              client:load
+              message={serviceDisclaimer || 'Important information for this package.'}
+              title={serviceDisclaimerTitle || 'Important information'}
+              importantNotes={importantNotesDescriptor}
+            />
           </div>
         )}
+
+        <!-- Short intro (truncated) -->
+        <div class="break-words" {...inlineFieldAttrs('shortDescription')}>
+          <PortableTextRenderer value={product?.shortDescription ?? []} />
+        </div>
 
         {(((options?.length || 0) + (addOns?.length || 0) + (customs?.length || 0)) > 0) && (
           <form id="product-options" class="mb-6 space-y-4">
@@ -1163,8 +1299,8 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
               const groupKey = (group?.key || group?.name || group?.title || 'option').toString();
               const values = Array.isArray(group?.values) ? group.values : (Array.isArray(group?.items) ? group.items : []);
               return (
-                <div class="bg-black/20 rounded-none p-3 border border-white/20">
-                  <div class="font-semibold mb-2">{group?.title || group?.name || 'Option'}</div>
+                <div class="rounded-xl border border-white/15 bg-black/30 p-4">
+                  <div class="text-sm font-semibold text-white">{group?.title || group?.name || 'Option'}</div>
                   {/* Prefer select if many values, else radios */}
                   {values.length > 4 ? (
                     <select
@@ -1189,47 +1325,69 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                       })}
                     </select>
                   ) : (
-                    <div class="grid grid-auto-fit-220 gap-2">
-                      {values.map((v: any, i: number) => {
-                        const val = typeof v === 'string' ? v : (v?.value || v?.name || v?.title || v?.label || '').toString();
-                        const label = typeof v === 'string' ? v : (v?.label || v?.title || v?.name || v?.value || 'Choice');
-                        const price = typeof v === 'object'
-                          ? (typeof v?.priceDelta === 'number'
-                              ? v.priceDelta
-                              : (typeof v?.delta === 'number' ? v.delta : (typeof v?.price === 'number' ? v.price : 0)))
-                          : 0;
-                        return (
-                          <label class="relative flex items-center gap-3 rounded-md border border-white/30 bg-black/40 px-3 py-2 text-white transition hover:border-white/50 hover:bg-black/55 focus-within:border-white/70 focus-within:ring-1 focus-within:ring-white/40 cursor-pointer content-block">
-                            <input
-                              type="radio"
-                              name={groupKey}
-                              value={val}
-                              data-group={groupKey}
-                              data-price={price}
-                              data-label={label}
-                              checked={i === 0}
-                              class="h-4 w-4 flex-shrink-0 accent-primary focus:ring-0"
-                            />
-                            <span class="flex-1 text-sm font-medium leading-snug text-white break-words">{label}</span>
-                            <span class="ml-3 text-xs font-semibold text-white/70">
-                              {price ? `+$${Number(price).toFixed(2)}` : ''}
-                            </span>
-                          </label>
-                        );
-                      })}
-                    </div>
+                    <fieldset class="mt-4">
+                      <div class="space-y-4 sm:flex sm:flex-wrap sm:items-center sm:gap-6">
+                        {values.map((v: any, i: number) => {
+                          const val = typeof v === 'string' ? v : (v?.value || v?.name || v?.title || v?.label || '').toString();
+                          const label = typeof v === 'string' ? v : (v?.label || v?.title || v?.name || v?.value || 'Choice');
+                          const price = typeof v === 'object'
+                            ? (typeof v?.priceDelta === 'number'
+                                ? v.priceDelta
+                                : (typeof v?.delta === 'number' ? v.delta : (typeof v?.price === 'number' ? v.price : 0)))
+                            : 0;
+                          const inputId = `${groupKey}-${i}`;
+                          return (
+                            <div class="flex items-center">
+                              <input
+                                type="radio"
+                                name={groupKey}
+                                value={val}
+                                data-group={groupKey}
+                                data-price={price}
+                                data-label={label}
+                                checked={i === 0}
+                                id={inputId}
+                                class="relative h-4 w-4 appearance-none rounded-full border border-white/15 bg-white/5 before:absolute before:inset-1 before:rounded-full before:bg-white before:opacity-0 before:transition checked:border-amber-500 checked:bg-amber-500 checked:before:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500"
+                              />
+                              <label for={inputId} class="ml-3 flex flex-col text-sm font-medium text-white cursor-pointer">
+                                <span class="leading-snug">{label}</span>
+                                <span class="text-xs font-semibold text-white/60">
+                                  {price ? `+$${Number(price).toFixed(2)}` : ''}
+                                </span>
+                              </label>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </fieldset>
                   )}
                 </div>
               );
             })}
 
+            {isContentDescriptor(descriptionDescriptor) && (
+          <details class="group mt-4 rounded-xl border border-white/10 bg-black/30 text-white/90 shadow-inner" >
+            <summary class="flex cursor-pointer select-none items-center justify-between rounded-t-xl bg-black/40 px-4 py-3 font-ethno text-base md:text-lg">
+              <span>Product Details</span>
+              <span class="transition-transform group-open:rotate-180">▾</span>
+            </summary>
+            <div class="px-4 py-4 leading-relaxed break-words font-arial whitespace-pre-line" {...inlineFieldAttrs('description')}>
+              {descriptionDescriptor.type === 'portable' ? (
+                <PortableTextRenderer value={descriptionDescriptor.value as any[]} />
+              ) : (
+                <p class="mb-0">{descriptionDescriptor.value as string}</p>
+              )}
+            </div>
+          </details>
+        )}
+
             {/* Add-ons (checkbox) */}
             {Array.isArray(addOns) && addOns.length > 0 && (
-              <div class="bg-black/20 rounded-none p-3 border border-white/20">
-                <div class="font-semibold mb-2">Optional Upgrades</div>
+              <div class="p-3">
+                <div class="font-semibold mb-2">Upgrades</div>
                 <div class="grid grid-auto-fit-220 gap-2">
                   {addOns.map((a: any) => (
-                    <label class="relative flex items-center gap-3 rounded-md border border-white/30 bg-black/40 px-3 py-2 text-white transition hover:border-white/50 hover:bg-black/55 focus-within:border-white/70 focus-within:ring-1 focus-within:ring-white/40 cursor-pointer content-block">
+                    <label class="relative flex items-center gap-3 rounded-md border border-white/30 shadow shadow-md shadow-white/10 bg-black/40 px-3 py-2 text-white transition hover:border-white/50 hover:bg-black/55 focus-within:border-white/70 focus-within:ring-1 focus-within:ring-white/40 cursor-pointer content-block">
                       <input type="checkbox"
                         name={(a.key || 'upgrade').toString()}
                         value={(a.value || a.label || '').toString()}
@@ -1237,7 +1395,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                         data-price={(typeof a.priceDelta === 'number' ? a.priceDelta : 0).toString()}
                         data-label={a.label}
                         checked={!!a.defaultSelected}
-                        class="h-4 w-4 flex-shrink-0 accent-primary focus:ring-0"
+                        class="h-4 w-4 flex-shrink-0 accent-primary bg-black focus:ring-0"
                       />
                       <span class="flex-1 text-sm font-medium leading-snug text-white break-words">{a.label}</span>
                       <span class="ml-3 text-xs font-semibold text-white/70">
@@ -1273,51 +1431,42 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
               </div>
             ))}
 
-            {/* Live price */}
-            <div class="flex items-center justify-between bg-black/20 rounded-none p-3 border border-white/20">
-              <span class="text-sm opacity-80">Configured Price</span>
-              <span id="price-total" class="text-lg font-bold">$ {(typeof (product as any).price === 'number' ? (product as any).price.toFixed(2) : '0.00')}</span>
+            {/* Live price & Add to Cart */}
+            <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div class="flex flex-1 items-center justify-between rounded-lg border border-white/20 bg-black/20 px-3 py-3">
+                <span class="text-sm opacity-80">Configured Price</span>
+                <span id="price-total" class="text-lg font-bold">
+                  $ {(typeof (product as any).price === 'number' ? (product as any).price.toFixed(2) : '0.00')}
+                </span>
+              </div>
+
+              <button
+                id="add-to-cart-btn"
+                type="button"
+                class="add-to-cart hidden md:inline-flex items-center gap-2 border border-white/30 px-4 py-2 rounded-full hover:bg-primary hover:text-white transition relative z-10 pointer-events-auto sm:w-auto"
+                data-product-id={(product as any)._id}
+                data-product-name={(product as any).title}
+                data-product-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
+                data-product-base-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
+                data-product-image={productImages[0]?.webpUrl || productImages[0]?.originalUrl || ''}
+                data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
+                data-product-shipping-class={(product as any).shippingClass || ''}
+                data-product-install-only={String(isInstallOnly)}
+                data-product-performance-parts={String(isPerformanceParts)}
+                data-product-href={`/shop/${slug}`}
+                data-analytics-event="add_to_cart_click"
+                data-analytics-category="ecommerce"
+                data-analytics-label={`Add to Cart | ${baseProductTitle}`}
+                data-analytics-params={analyticsPrimaryCtaParams}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                  <path d="M8 7a4 4 0 118 0h3a1 1 0 011 1v12a2 2 0 01-2 2H6a2 2 0 01-2-2V8a1 1 0 011-1h3zm2 0a2 2 0 104 0H10z" />
+                </svg>
+                <span class="text-sm font-kwajong">Add to Cart</span>
+              </button>
             </div>
           </form>
         )}
-
-        <!-- Short intro (truncated) -->
-        <div class="break-words" {...inlineFieldAttrs('shortDescription')}>
-          <PortableTextRenderer value={product?.shortDescription ?? []} />
-        </div>
-
-        <!-- Add to Cart Button -->
-        <button
-          id="add-to-cart-btn"
-          type="button"
-          class="add-to-cart inline-flex items-center gap-2 border border-white/30 px-4 py-2 rounded-full hover:bg-primary hover:text-white transition relative z-10 pointer-events-auto"
-          data-product-id={(product as any)._id}
-          data-product-name={(product as any).title}
-          data-product-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
-          data-product-base-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
-          data-product-image={productImages[0]?.webpUrl || productImages[0]?.originalUrl || ''}
-          data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
-          data-product-shipping-class={(product as any).shippingClass || ''}
-          data-product-install-only={String(isInstallOnly)}
-          data-product-performance-parts={String(isPerformanceParts)}
-          data-product-href={`/shop/${slug}`}
-          data-analytics-event="add_to_cart_click"
-          data-analytics-category="ecommerce"
-          data-analytics-label={`Add to Cart | ${baseProductTitle}`}
-          data-analytics-params={analyticsPrimaryCtaParams}
-        >
-          <!-- bag icon -->
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
-            <path d="M8 7a4 4 0 118 0h3a1 1 0 011 1v12a2 2 0 01-2 2H6a2 2 0 01-2-2V8a1 1 0 011-1h3zm2 0a2 2 0 104 0H10z"/>
-          </svg>
-          <span class="text-sm font-kwajong">Add to Cart</span>
-        </button>
-
-        <!-- Trust strip -->
-        <div class="mt-6">
-          <TrustStrip compact />
-        </div>
-
         <!-- Optional media strip (images/videos/files from Sanity "media" field) -->
         {Array.isArray((product as any)?.media) && (product as any).media.length > 0 && (
           <section class="mt-6">
@@ -1390,7 +1539,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                       optimizedThumb,
                       mediaFileName.replace(/\.webp$/i, '-thumb.webp')
                     );
-                    return (
+                    return useOptimizedImages ? (
                       <AstroImage
                         src={mediaUrl}
                         alt={alt}
@@ -1403,6 +1552,17 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                         fit="cover"
                         class="w-64 h-36 object-cover rounded border border-white/20 bg-black/30"
                         sizes="256px"
+                        data-thumb={thumbUrl}
+                      />
+                    ) : (
+                      <img
+                        src={mediaUrl}
+                        alt={alt}
+                        width={640}
+                        height={360}
+                        loading="lazy"
+                        decoding="async"
+                        class="w-64 h-36 object-cover rounded border border-white/20 bg-black/30"
                         data-thumb={thumbUrl}
                       />
                     );
@@ -1421,141 +1581,14 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
           </section>
         )}
 
-        <div class="mt-8 space-y-10">
-          <section class="border border-white/20 bg-black/20 p-5">
-            <h2 class="text-2xl font-ethno text-accent mb-4">Why choose this kit?</h2>
-            {whyChooseContent ? (
-              <div class="space-y-4 text-white/90" {...inlineAttrsFor(whyChooseContent.field)}>
-                {whyChooseContent.type === 'portable' ? (
-                  <PortableTextRenderer value={whyChooseContent.value as any[]} />
-                ) : (
-                  <p class="leading-relaxed">{whyChooseContent.value as string}</p>
-                )}
-              </div>
-            ) : (
-              <p class="text-white/60">Full kit overview coming soon.</p>
-            )}
-          </section>
+  
 
-          <section class="border border-white/20 bg-black/20 p-5">
-            <h2 class="text-2xl font-ethno text-accent mb-4">Features</h2>
-            {featuresContent ? (
-              <div class="space-y-4 text-white/90" {...inlineAttrsFor(featuresContent.field)}>
-                {featuresContent.type === 'portable' ? (
-                  <PortableTextRenderer value={featuresContent.value as any[]} />
-                ) : (
-                  <p class="leading-relaxed">{featuresContent.value as string}</p>
-                )}
-              </div>
-            ) : null}
-
-            {!featuresContent && includedInKitItems.length === 0 && (
-              <p class="text-white/60">Feature details coming soon.</p>
-            )}
-
-            {includedInKitItems.length > 0 && (
-              <div class="mt-6">
-                <h3 class="text-lg font-semibold mb-3">What's Included</h3>
-                <ul class="list-disc list-inside space-y-1 text-white/80">
-                  {includedInKitItems.map((kit) => (
-                    <li>
-                      <span class="font-medium text-white">{kit.item ?? 'Item'}</span>
-                      {kit.quantity ? <span class="text-white/70"> — Qty {kit.quantity}</span> : null}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </section>
-
-          <section class="border border-white/20 bg-black/20 p-5">
-            <h2 class="text-2xl font-ethno text-accent mb-4">Install & Fitment</h2>
-            {installFitmentHighlights.length > 0 && (
-              <dl class="space-y-3">
-                {installFitmentHighlights.map((item) => (
-                  <div>
-                    <dt class="text-xs uppercase tracking-widest text-white/60">{item.label}</dt>
-                    <dd class="text-white/90 leading-relaxed">{item.value}</dd>
-                  </div>
-                ))}
-              </dl>
-            )}
-
-            {compatibilityVehicles.length > 0 && (
-              <div class="mt-5">
-                <h3 class="text-lg font-semibold mb-2">Compatible Vehicles</h3>
-                <ul class="list-disc list-inside text-white/90 space-y-1">
-                  {compatibilityVehicles.map((vehicle) => (
-                    <li>{[vehicle.make, vehicle.model, vehicle.trim].filter(Boolean).join(' ')}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {importantNotesDescriptor && (
-              <div
-                class="mt-6 rounded border border-yellow-500/40 bg-yellow-500/10 px-4 py-3 text-sm leading-relaxed text-yellow-100"
-                {...inlineAttrsFor(importantNotesDescriptor.field)}
-              >
-                {importantNotesDescriptor.type === 'portable' ? (
-                  <PortableTextRenderer value={importantNotesDescriptor.value as any[]} />
-                ) : (
-                  <p>{importantNotesDescriptor.value as string}</p>
-                )}
-              </div>
-            )}
-          </section>
-
-          <section class="border border-white/20 bg-black/20 p-5">
-            <h2 class="text-2xl font-ethno text-accent mb-4">Specs</h2>
-            {specMetaRows.length > 0 && (
-              <dl class="grid gap-3 sm:grid-cols-2">
-                {specMetaRows.map((row) => (
-                  <div class="rounded border border-white/10 bg-black/30 p-3">
-                    <dt class="text-xs uppercase tracking-widest text-white/60">{row.label}</dt>
-                    <dd class="text-white font-medium">{row.value}</dd>
-                  </div>
-                ))}
-              </dl>
-            )}
-
-            {Array.isArray(product?.specifications) && product?.specifications.length > 0 && (
-              <div class="mt-6" {...inlineFieldAttrs('specifications')}>
-                <h3 class="text-lg font-semibold mb-3">Technical Specifications</h3>
-                <table class="table-auto border border-white/10 w-full text-left text-sm">
-                  <tbody>
-                    {(product?.specifications ?? []).map((spec: { label?: string; key?: string; value?: string }) => (
-                      <tr>
-                        <td class="border border-white/10 px-2 py-1 text-white/70">{spec.label || spec.key}</td>
-                        <td class="border border-white/10 px-2 py-1 text-white">{spec.value}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {Array.isArray(product?.attributes) && product?.attributes.length > 0 && (
-              <div class="mt-6" {...inlineFieldAttrs('attributes')}>
-                <h3 class="text-lg font-semibold mb-3">Attributes</h3>
-                <table class="table-auto border border-white/10 w-full text-left text-sm">
-                  <tbody>
-                    {(product?.attributes ?? []).map((attr: { name?: string; value?: string }) => (
-                      <tr>
-                        <td class="border border-white/10 px-2 py-1 text-white/70">{attr.name}</td>
-                        <td class="border border-white/10 px-2 py-1 text-white">{attr.value}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </section>
+        <!-- Categories and Filters -->
 
           {(((product as any).categories?.length ?? 0) > 0) || (((product as any).filters?.length ?? 0) > 0) ? (
             <div class="text-left text-sm text-white/70">
               {(product as any).categories?.length > 0 && (
-                <div class="mb-1">
+                <div class="mb-1 mt-10">
                   <span class="font-semibold text-white">Categories:</span>{' '}
                   {(product as any).categories.map((c: any, idx: number) => (
                     <>
@@ -1606,9 +1639,19 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
       </div>
     </div>
 
+    <section class="mt-6 w-3/4 mx-auto px-15">
+      <InfoTabs
+        client:load
+        kitItems={includedInKitItems}
+        keyFeatures={(product as any)?.keyFeatures}
+        specifications={(product as any)?.specifications}
+        attributes={(product as any)?.attributes}
+      />
+    </section>
+
     <!-- Related Products -->
 {Array.isArray(relatedProducts) && relatedProducts.length > 0 && (
-  <div class="mt-16">
+  <div class="mt-16 mx-auto px-20 mb-10">
     <h2 class="text-2xl text-accent font-ethno mb-6">Related Products</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {(relatedProducts || [])
@@ -1648,7 +1691,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
 
 <!-- Recommended Upgrades / Upsell -->
 {Array.isArray(upsellProducts) && upsellProducts.length > 0 && (
-  <div class="mt-12">
+  <div class="hidden mt-12 mx-auto px-20">
     <h2 class="text-2xl text-accent font-ethno mb-6">Recommended Upgrades</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       {(upsellProducts || [])
@@ -1692,13 +1735,13 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
   </BaseLayout>
 <!-- Sticky mobile add-to-cart bar -->
 <div id="mobile-add-to-cart" class="md:hidden fixed bottom-0 left-0 right-0 z-[60] bg-black/90 border-t border-white/20 backdrop-blur px-3 py-2 flex items-center justify-between">
-  <div class="text-white/90 text-sm">
+  <div class="text-white/90 text-sm w-1/2">
     <span class="text-white/70">Total:</span>
     <span id="sticky-price" class="font-bold">$ {(typeof (product as any).price === 'number' ? (product as any).price.toFixed(2) : '0.00')}</span>
   </div>
   <button
     type="button"
-    class="add-to-cart inline-flex items-center gap-2 bg-primary text-white font-ethno px-4 py-2 rounded hover:text-white"
+    class="add-to-cart inline-flex items-center gap-2 bg-primary text-white font-ethno px-4 py-2 rounded hover:text-white btn-glass w-1/2"
     data-product-id={(product as any)._id}
     data-product-name={(product as any).title}
     data-product-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}

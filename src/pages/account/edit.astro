@@ -78,7 +78,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
       if (submitBtn) submitBtn.setAttribute('disabled', 'true');
       try {
         const data = new FormData(form);
-        const fields = {} as Record<string, string>;
+        const fields = {};
         data.forEach((value, key) => {
           if (typeof value === 'string') fields[key] = value;
         });

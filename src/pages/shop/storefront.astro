@@ -1,12 +1,13 @@
 ---
-import BaseLayout from "@/layouts/BaseLayout.astro";
-import CategoryPage from "@/components/storefront/CategoryPage.tsx";
-import { fetchProductsFromSanity, normalizeSanityImageUrl } from "@/lib/sanity-utils.ts";
-import { sanityClient as client } from "@/lib/sanityClient.ts";
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import CategoryPage from '@/components/storefront/CategoryPage.tsx';
+import { fetchProductsFromSanity, normalizeSanityImageUrl } from '@/lib/sanity-utils.ts';
+import { sanityClient as client } from '@/lib/sanityClient.ts';
 
 const products = await fetchProductsFromSanity({});
 
-const categoriesRaw = await client.fetch(`*[_type == "category" && defined(slug.current)] | order(orderRank asc){
+const categoriesRaw =
+  await client.fetch(`*[_type == "category" && defined(slug.current)] | order(orderRank asc){
   _id,
   title,
   "slug": slug.current,
@@ -30,7 +31,8 @@ requestUrl.hash = '';
 const canonical = requestUrl.toString();
 
 const pageTitle = 'Performance Categories';
-const pageDescription = 'Explore performance categories curated by F.A.S. Motorsports, from billet parts to wheel programs and power packages.';
+const pageDescription =
+  'Explore performance categories curated by F.A.S. Motorsports, from billet parts to wheel programs and power packages.';
 
 const breadcrumbStructuredData = {
   '@context': 'https://schema.org',
@@ -79,7 +81,7 @@ const categoryItemListElements = Array.isArray(categories)
           }
         };
       })
-      .filter((entry): entry is Record<string, any> => Boolean(entry))
+      .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
   : [];
 
 const categoryCollectionStructuredData = categoryItemListElements.length
@@ -112,7 +114,7 @@ const resolveProductImages = (product: any): string[] => {
   if (!Array.isArray(product.images)) return [];
   return product.images
     .map((image: any) => ensureAbsoluteUrl(image?.asset?.url || image?.url))
-    .filter((value): value is string => Boolean(value));
+    .filter((value: string | undefined): value is string => Boolean(value));
 };
 
 const productItemListElements = Array.isArray(products)
@@ -124,16 +126,17 @@ const productItemListElements = Array.isArray(products)
         const productUrl = `${requestUrl.origin}/shop/${slugValue}`;
         const images = resolveProductImages(product);
         const priceNumber = Number(product?.price);
-        const offers = !Number.isNaN(priceNumber) && priceNumber > 0
-          ? {
-              '@type': 'Offer',
-              priceCurrency: 'USD',
-              price: priceNumber.toFixed(2),
-              availability: 'https://schema.org/InStock',
-              url: productUrl,
-              itemCondition: 'https://schema.org/NewCondition'
-            }
-          : undefined;
+        const offers =
+          !Number.isNaN(priceNumber) && priceNumber > 0
+            ? {
+                '@type': 'Offer',
+                priceCurrency: 'USD',
+                price: priceNumber.toFixed(2),
+                availability: 'https://schema.org/InStock',
+                url: productUrl,
+                itemCondition: 'https://schema.org/NewCondition'
+              }
+            : undefined;
         return {
           '@type': 'ListItem',
           position: index + 1,
@@ -146,7 +149,7 @@ const productItemListElements = Array.isArray(products)
           }
         };
       })
-      .filter((entry): entry is Record<string, any> => Boolean(entry))
+      .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
   : [];
 
 const productCollectionStructuredData = productItemListElements.length
@@ -162,15 +165,25 @@ const productCollectionStructuredData = productItemListElements.length
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
-    {categoryCollectionStructuredData && (
-      <script type="application/ld+json" set:html={JSON.stringify(categoryCollectionStructuredData)} />
-    )}
-    {productCollectionStructuredData && (
-      <script type="application/ld+json" set:html={JSON.stringify(productCollectionStructuredData)} />
-    )}
+    {
+      categoryCollectionStructuredData && (
+        <script
+          type="application/ld+json"
+          set:html={JSON.stringify(categoryCollectionStructuredData)}
+        />
+      )
+    }
+    {
+      productCollectionStructuredData && (
+        <script
+          type="application/ld+json"
+          set:html={JSON.stringify(productCollectionStructuredData)}
+        />
+      )
+    }
   </Fragment>
 
-<section class="px-5 py-5">
+  <section class="px-5 py-5">
     <CategoryPage
       products={products}
       categories={categories}
@@ -178,6 +191,5 @@ const productCollectionStructuredData = productItemListElements.length
       description="Jump into the platform that matches your build. Each category highlights curated hardware stacks, tuning paths, and proven package tiers engineered in-house by F.A.S."
       client:idle
     />
-</section>
-
+  </section>
 </BaseLayout>

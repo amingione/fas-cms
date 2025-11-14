@@ -1,5 +1,6 @@
 ---
 import { Image } from '@astrojs/image/components';
+import carouselScriptUrl from '../scripts/slug-carousel.ts?url';
 
 interface Props {
   images: {
@@ -10,8 +11,9 @@ interface Props {
     height?: number;
     aspectRatio?: number;
   }[];
+  useOptimizedImages?: boolean;
 }
-const { images } = Astro.props;
+const { images, useOptimizedImages = true } = Astro.props;
 const normalizedImages = Array.isArray(images) ? images : [];
 const processedImages = normalizedImages.map((image) => {
   const aspect = image.aspectRatio && image.aspectRatio > 0
@@ -34,7 +36,7 @@ const processedImages = normalizedImages.map((image) => {
 });
 
 const shouldHydrate = processedImages.length > 1;
-const carouselScript = shouldHydrate ? Astro.resolve('../scripts/slug-carousel.ts') : null;
+const carouselScript = shouldHydrate ? carouselScriptUrl : null;
 ---
 
 <div class="relative w-full max-w-full" data-slug-carousel>
@@ -46,19 +48,31 @@ const carouselScript = shouldHydrate ? Astro.resolve('../scripts/slug-carousel.t
     <div class="flex w-full h-full min-w-0" data-track>
       {processedImages.map((img, i) => (
         <div class="flex-shrink-0 relative w-full h-full snap-start flex items-center justify-center" data-slide={i}>
-          <Image
-            src={img.webpUrl}
-            alt={img.alt || ''}
-            width={img.mainWidth}
-            height={img.mainHeight}
-            format="webp"
-            quality={70}
-            loading="lazy"
-            decoding="async"
-            fit="contain"
-            class="object-contain w-full h-full p-4"
-            sizes="(max-width: 768px) 100vw, 50vw"
-          />
+          {useOptimizedImages ? (
+            <Image
+              src={img.webpUrl}
+              alt={img.alt || ''}
+              width={img.mainWidth}
+              height={img.mainHeight}
+              format="webp"
+              quality={70}
+              loading="lazy"
+              decoding="async"
+              fit="contain"
+              class="object-contain w-full h-full p-4"
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
+          ) : (
+            <img
+              src={img.webpUrl}
+              alt={img.alt || ''}
+              width={img.mainWidth}
+              height={img.mainHeight}
+              loading="lazy"
+              decoding="async"
+              class="object-contain w-full h-full p-4"
+            />
+          )}
         </div>
       ))}
     </div>
@@ -90,19 +104,31 @@ const carouselScript = shouldHydrate ? Astro.resolve('../scripts/slug-carousel.t
         aria-label={`View product image ${i + 1}`}
         data-carousel-thumb
       >
-        <Image
-          src={img.thumbnailUrl}
-          alt={img.alt || ''}
-          width={img.thumbWidth}
-          height={img.thumbHeight}
-          format="webp"
-          quality={70}
-          loading="lazy"
-          decoding="async"
-          fit="contain"
-          class="h-full w-full object-contain"
-          sizes="64px"
-        />
+        {useOptimizedImages ? (
+          <Image
+            src={img.thumbnailUrl}
+            alt={img.alt || ''}
+            width={img.thumbWidth}
+            height={img.thumbHeight}
+            format="webp"
+            quality={70}
+            loading="lazy"
+            decoding="async"
+            fit="contain"
+            class="h-full w-full object-contain"
+            sizes="64px"
+          />
+        ) : (
+          <img
+            src={img.thumbnailUrl}
+            alt={img.alt || ''}
+            width={img.thumbWidth}
+            height={img.thumbHeight}
+            loading="lazy"
+            decoding="async"
+            class="h-full w-full object-contain"
+          />
+        )}
       </button>
     ))}
   </div>

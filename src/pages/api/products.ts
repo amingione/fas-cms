@@ -29,7 +29,12 @@ export async function GET({ url }: { url: URL }) {
   const tune = url.searchParams.get('tune');
   const minHp = url.searchParams.get('minHp');
 
-  const filters = [`_type == "product"`, `!(_id in path('drafts.**'))`, `defined(slug.current)`];
+  const filters = [
+    `_type == "product"`,
+    `!(_id in path('drafts.**'))`,
+    `defined(slug.current)`,
+    `lower(coalesce(status, "active")) == "active"`
+  ];
 
   if (category) filters.push(`"${category}" in categories[]->slug.current`);
   if (vehicle) filters.push(`"${vehicle}" in compatibleVehicles[]->slug.current`);

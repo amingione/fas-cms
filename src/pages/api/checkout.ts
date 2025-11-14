@@ -1,5 +1,6 @@
 import Stripe from 'stripe';
 import { readSession } from '../../server/auth/session';
+import { sanity } from '../../server/sanity-client';
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-08-27.basil'
 });
@@ -78,6 +79,309 @@ function resolveAllowedCountries(): AllowedCountryCodes {
   return ['US', 'CA'];
 }
 
+type CartSelection = {
+  group?: string;
+  value?: string;
+  label?: string;
+  priceDelta?: number;
+};
+
+type CheckoutCartItem = {
+  id?: string;
+  sku?: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image?: string;
+  productUrl?: string;
+  installOnly?: boolean;
+  shippingClass?: string;
+  options?: Record<string, string>;
+  selections?: CartSelection[] | Record<string, unknown>;
+  basePrice?: number;
+  extra?: number;
+  upgrades?: unknown;
+  addOns?: unknown;
+  signature?: string;
+};
+
+type ShippingDimensions = { length: number; width: number; height: number };
+type ShippingProduct = {
+  _id: string;
+  title?: string;
+  sku?: string;
+  shippingWeight?: number | null;
+  boxDimensions?: string | null;
+  shippingClass?: string | null;
+  shipsAlone?: boolean | null;
+};
+
+type ShippingQuoteResult = {
+  requiresShipping: boolean;
+  installOnlyCart: boolean;
+  amount: number;
+  label: string;
+  delivery: { min: number; max: number } | null;
+  freight: boolean;
+  oversize: boolean;
+  totalWeight: number;
+  chargeableWeight: number;
+  packageCount: number;
+  summary: string;
+};
+
+type PackageCandidate = {
+  weight: number;
+  dims: ShippingDimensions;
+  chargeCustomer: boolean;
+  hazardous: boolean;
+  longestSide: number;
+};
+
+const DEFAULT_DIMENSIONS: ShippingDimensions = {
+  length: Number(import.meta.env.DEFAULT_BOX_LENGTH_IN || import.meta.env.DEFAULT_BOX_LENGTH || 12),
+  width: Number(import.meta.env.DEFAULT_BOX_WIDTH_IN || import.meta.env.DEFAULT_BOX_WIDTH || 9),
+  height: Number(import.meta.env.DEFAULT_BOX_HEIGHT_IN || import.meta.env.DEFAULT_BOX_HEIGHT || 4)
+};
+const DEFAULT_WEIGHT_LB = Number(
+  import.meta.env.DEFAULT_BOX_WEIGHT_LB || import.meta.env.DEFAULT_PACKAGE_WEIGHT_LBS || 5
+);
+const DIM_DIVISOR = Number(import.meta.env.SHIPPING_DIM_DIVISOR || 139);
+const SINGLE_PIECE_LIMIT = Number(import.meta.env.SHIPPING_SINGLE_PIECE_LIMIT_LB || 70);
+const FREIGHT_DIM_THRESHOLD = Number(import.meta.env.SHIPPING_FREIGHT_LONGEST_IN || 60);
+const FREIGHT_WEIGHT_THRESHOLD = Number(import.meta.env.SHIPPING_FREIGHT_WEIGHT_LB || 150);
+const GROUND_BASE_CENTS = Number(import.meta.env.SHIPPING_GROUND_BASE_CENTS || 995);
+const GROUND_PER_LB_CENTS = Number(import.meta.env.SHIPPING_GROUND_PER_LB_CENTS || 85);
+const GROUND_BASE_WEIGHT = Number(import.meta.env.SHIPPING_GROUND_BASE_WEIGHT_LBS || 3);
+const OVERSIZE_SURCHARGE_CENTS = Number(import.meta.env.SHIPPING_OVERSIZE_SURCHARGE_CENTS || 2500);
+const HAZMAT_SURCHARGE_CENTS = Number(import.meta.env.SHIPPING_HAZMAT_SURCHARGE_CENTS || 3500);
+const FREIGHT_BASE_CENTS = Number(import.meta.env.SHIPPING_FREIGHT_BASE_CENTS || 25000);
+const FREIGHT_PER_LB_CENTS = Number(import.meta.env.SHIPPING_FREIGHT_PER_LB_CENTS || 150);
+
+const normalizeCartId = (rawId?: string | null): string => {
+  if (!rawId) return '';
+  const trimmed = String(rawId).trim();
+  if (!trimmed) return '';
+  const [id] = trimmed.split('::');
+  return id || trimmed;
+};
+
+const parseDimensions = (input?: string | null): ShippingDimensions | null => {
+  if (!input) return null;
+  const text = String(input).trim();
+  if (!text) return null;
+  const match = text.match(/([\d.]+)\s*[xX]\s*([\d.]+)\s*[xX]\s*([\d.]+)/);
+  if (!match) return null;
+  const [, l, w, h] = match;
+  const dims = {
+    length: Number(l),
+    width: Number(w),
+    height: Number(h)
+  };
+  if ([dims.length, dims.width, dims.height].some((value) => !Number.isFinite(value) || value <= 0)) {
+    return null;
+  }
+  return dims;
+};
+
+const normalizeShippingClass = (value?: string | null): string => {
+  if (!value) return '';
+  return String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
+};
+
+const toPositiveNumber = (value: unknown, fallback = 0): number => {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) && numeric > 0 ? numeric : fallback;
+};
+
+const clampQuantity = (value: unknown): number => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric) || numeric <= 0) return 1;
+  return Math.max(1, Math.min(99, Math.floor(numeric)));
+};
+
+const buildShippingSummary = (quote: ShippingQuoteResult | null): string | null => {
+  if (!quote) return null;
+  return [
+    `requires=${quote.requiresShipping}`,
+    `freight=${quote.freight}`,
+    `packages=${quote.packageCount}`,
+    `total=${quote.totalWeight.toFixed(2)}lb`,
+    `chargeable=${quote.chargeableWeight.toFixed(2)}lb`
+  ].join(';');
+};
+
+const makeDeliveryEstimate = (
+  min: number,
+  max: number
+): Stripe.Checkout.SessionCreateParams.ShippingOption.ShippingRateData.DeliveryEstimate => ({
+  minimum: { unit: 'business_day', value: Math.max(1, Math.round(min)) },
+  maximum: { unit: 'business_day', value: Math.max(1, Math.round(max)) }
+});
+
+async function fetchShippingProductsForCart(cart: CheckoutCartItem[]): Promise<Record<string, ShippingProduct>> {
+  const ids = Array.from(
+    new Set(
+      cart
+        .map((item) => normalizeCartId(typeof item?.id === 'string' ? item.id : undefined))
+        .filter(Boolean)
+    )
+  );
+  const skus = Array.from(
+    new Set(
+      cart
+        .map((item) => (item?.sku ? String(item.sku).trim() : ''))
+        .filter(Boolean)
+    )
+  );
+  if (!ids.length && !skus.length) return {};
+  try {
+    const query = `*[_type == "product" && lower(coalesce(status, "active")) == "active" && (
+      ${ids.length ? '_id in $ids' : 'false'}
+      ${ids.length && skus.length ? '||' : ''}
+      ${skus.length ? 'sku in $skus' : 'false'}
+    )]{ _id, title, sku, shippingWeight, boxDimensions, shippingClass, shipsAlone }`;
+    const products = await sanity.fetch<ShippingProduct[]>(query, { ids, skus });
+    const lookup: Record<string, ShippingProduct> = {};
+    if (Array.isArray(products)) {
+      products.forEach((product) => {
+        if (product?._id) lookup[product._id] = product;
+      });
+    }
+    return lookup;
+  } catch (error) {
+    console.warn('[checkout] Failed to fetch shipping products', error);
+    return {};
+  }
+}
+
+function buildShippingQuote(
+  cart: CheckoutCartItem[],
+  productLookup: Record<string, ShippingProduct>
+): ShippingQuoteResult | null {
+  const packages: PackageCandidate[] = [];
+  let installOnlyCount = 0;
+  let freight = false;
+  let oversize = false;
+  let hasHazmat = false;
+
+  cart.forEach((item) => {
+    const qty = clampQuantity(item?.quantity);
+    const normalizedId = normalizeCartId(typeof item?.id === 'string' ? item.id : undefined);
+    const product = normalizedId ? productLookup[normalizedId] : undefined;
+    const shippingClassRaw = item?.shippingClass || product?.shippingClass || '';
+    const normalizedClass = normalizeShippingClass(shippingClassRaw);
+    const installOnly = Boolean(
+      item?.installOnly || normalizedClass.includes('installonly')
+    );
+    if (installOnly) {
+      installOnlyCount += qty;
+      return;
+    }
+
+    const dims = parseDimensions(product?.boxDimensions) || DEFAULT_DIMENSIONS;
+    const physicalWeight = toPositiveNumber(product?.shippingWeight, DEFAULT_WEIGHT_LB);
+    const volumetricWeight =
+      (dims.length * dims.width * dims.height) / (DIM_DIVISOR || 1);
+    const billableWeight = Math.max(physicalWeight, volumetricWeight);
+    const shipsAlone = Boolean(product?.shipsAlone);
+    const freeShipping = normalizedClass === 'freeshipping';
+    const hazardous = normalizedClass === 'hazardous';
+    const longestSide = Math.max(dims.length, dims.width, dims.height);
+
+    if (normalizedClass === 'freight') freight = true;
+    if (longestSide >= FREIGHT_DIM_THRESHOLD) freight = true;
+    if (billableWeight >= SINGLE_PIECE_LIMIT) freight = true;
+    if (billableWeight * qty >= FREIGHT_WEIGHT_THRESHOLD) freight = true;
+    if (longestSide >= 40) oversize = true;
+    if (hazardous) hasHazmat = true;
+
+    const candidate: PackageCandidate = {
+      weight: billableWeight,
+      dims,
+      chargeCustomer: !freeShipping,
+      hazardous,
+      longestSide
+    };
+
+    const iterations = shipsAlone ? qty : qty;
+    for (let i = 0; i < iterations; i += 1) {
+      packages.push(candidate);
+    }
+  });
+
+  if (!packages.length) {
+    return {
+      requiresShipping: false,
+      installOnlyCart: installOnlyCount > 0,
+      amount: 0,
+      label: 'Install Service',
+      delivery: null,
+      freight: false,
+      oversize: false,
+      totalWeight: 0,
+      chargeableWeight: 0,
+      packageCount: 0,
+      summary: 'no_packages'
+    };
+  }
+
+  const totalWeight = packages.reduce((sum, pkg) => sum + pkg.weight, 0);
+  const chargeableWeight = packages
+    .filter((pkg) => pkg.chargeCustomer)
+    .reduce((sum, pkg) => sum + pkg.weight, 0);
+  const requiresShipping = totalWeight > 0;
+
+  let amount = 0;
+  let label = 'Standard Shipping';
+  let delivery: ShippingQuoteResult['delivery'] = { min: 3, max: 5 };
+
+  if (freight) {
+    label = chargeableWeight > 0 ? 'Freight Shipping' : 'Freight Shipping (Included)';
+    delivery = { min: 5, max: 10 };
+    amount =
+      chargeableWeight > 0
+        ? Math.max(
+            FREIGHT_BASE_CENTS,
+            Math.round(chargeableWeight * (FREIGHT_PER_LB_CENTS || 0))
+          )
+        : 0;
+  } else if (chargeableWeight <= 0) {
+    label = 'Free Shipping';
+    amount = 0;
+  } else {
+    const extraWeight = Math.max(chargeableWeight - GROUND_BASE_WEIGHT, 0);
+    amount =
+      GROUND_BASE_CENTS + Math.round(extraWeight * Math.max(GROUND_PER_LB_CENTS, 0));
+    if (oversize) amount += OVERSIZE_SURCHARGE_CENTS;
+    if (hasHazmat) amount += HAZMAT_SURCHARGE_CENTS;
+  }
+
+  const quote: ShippingQuoteResult = {
+    requiresShipping,
+    installOnlyCart: false,
+    amount: Math.max(0, Math.round(amount)),
+    label,
+    delivery,
+    freight,
+    oversize,
+    totalWeight,
+    chargeableWeight: Math.max(0, chargeableWeight),
+    packageCount: packages.length,
+    summary: 'packages_calculated'
+  };
+
+  const summary = buildShippingSummary(quote);
+  if (summary) quote.summary = summary;
+  return quote;
+}
+
+async function estimateShippingForCart(cart: CheckoutCartItem[]): Promise<ShippingQuoteResult | null> {
+  if (!Array.isArray(cart) || !cart.length) return null;
+  const productsById = await fetchShippingProductsForCart(cart);
+  return buildShippingQuote(cart, productsById);
+}
+
 export async function POST({ request }: { request: Request }) {
   // Resolve base URL: prefer explicit env var, else Origin header during dev/preview
   const origin = request.headers.get('origin') || '';
@@ -117,40 +421,6 @@ export async function POST({ request }: { request: Request }) {
   if (!Array.isArray(cart) || cart.length === 0) {
     return jsonResponse({ error: 'Cart is empty or invalid' }, 400);
   }
-
-  const normalizeCartId = (rawId?: string | null): string => {
-    if (!rawId) return '';
-    const trimmed = String(rawId).trim();
-    if (!trimmed) return '';
-    const [id] = trimmed.split('::');
-    return id || trimmed;
-  };
-
-  type CartSelection = {
-    group?: string;
-    value?: string;
-    label?: string;
-    priceDelta?: number;
-  };
-
-  type CartItem = {
-    id?: string;
-    sku?: string;
-    name: string;
-    price: number;
-    quantity: number;
-    image?: string;
-    productUrl?: string;
-    installOnly?: boolean;
-    shippingClass?: string;
-    options?: Record<string, string>;
-    selections?: CartSelection[] | Record<string, unknown>;
-    basePrice?: number;
-    extra?: number;
-    upgrades?: unknown;
-    addOns?: unknown;
-    signature?: string;
-  };
 
   const clamp = (value: string, max = 500) =>
     value.length > max ? value.slice(0, max) : value;
@@ -273,7 +543,7 @@ export async function POST({ request }: { request: Request }) {
     return Array.from(new Set(values));
   };
 
-  const lineItems = (cart as CartItem[]).map((item) => {
+  const lineItems = (cart as CheckoutCartItem[]).map((item) => {
     const rawId = typeof item.id === 'string' ? item.id : undefined;
     const sanityProductId = normalizeCartId(rawId);
     const unitAmount = Number.isFinite(item.price)
@@ -373,6 +643,13 @@ export async function POST({ request }: { request: Request }) {
     } satisfies Stripe.Checkout.SessionCreateParams.LineItem;
   });
 
+  let shippingQuote: ShippingQuoteResult | null = null;
+  try {
+    shippingQuote = await estimateShippingForCart(cart as CheckoutCartItem[]);
+  } catch (error) {
+    console.warn('[checkout] shipping estimation failed; falling back to flat rate', error);
+  }
+
   const extractSlugFromUrl = (url?: string | null): string | undefined => {
     if (!url) return undefined;
     try {
@@ -394,7 +671,7 @@ export async function POST({ request }: { request: Request }) {
   let cartSummary = '';
   try {
     const summaryParts: string[] = [];
-    let compact = (cart as CartItem[]).map((i) => {
+    let compact = (cart as CheckoutCartItem[]).map((i) => {
       const optionDetails = formatSelectedOptions(
         (i?.options as Record<string, unknown>) || undefined,
         i?.selections
@@ -517,6 +794,70 @@ export async function POST({ request }: { request: Request }) {
 
     const paymentIntentMetadata = { ...metadataForSession };
 
+    const defaultShippingOption: Stripe.Checkout.SessionCreateParams.ShippingOption = {
+      shipping_rate_data: {
+        type: 'fixed_amount',
+        fixed_amount: { amount: 995, currency: 'usd' },
+        display_name: 'Standard Shipping',
+        delivery_estimate: makeDeliveryEstimate(3, 5)
+      }
+    };
+
+    let shippingMode = 'fallback_flat_rate';
+    let shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] | null =
+      [defaultShippingOption];
+
+    if (shippingQuote) {
+      if (shippingQuote.requiresShipping) {
+        const deliveryEstimate = shippingQuote.delivery
+          ? makeDeliveryEstimate(shippingQuote.delivery.min, shippingQuote.delivery.max)
+          : undefined;
+        shippingOptions = [
+          {
+            shipping_rate_data: {
+              type: 'fixed_amount',
+              fixed_amount: { amount: shippingQuote.amount, currency: 'usd' },
+              display_name: shippingQuote.label || (shippingQuote.freight ? 'Freight Shipping' : 'Standard Shipping'),
+              ...(deliveryEstimate ? { delivery_estimate: deliveryEstimate } : {})
+            }
+          }
+        ];
+      } else {
+        shippingOptions = null;
+      }
+
+      shippingMode = shippingQuote.requiresShipping
+        ? shippingQuote.amount === 0
+          ? shippingQuote.freight
+            ? 'freight_included'
+            : 'free_shipping'
+          : shippingQuote.freight
+            ? 'freight'
+            : 'standard'
+        : shippingQuote.installOnlyCart
+          ? 'install_only'
+          : 'no_shipping';
+    }
+
+    const shippingSummaryValue =
+      shippingQuote?.summary ||
+      (shippingOptions ? 'flat_rate_995' : 'no_shipping_required');
+    if (shippingSummaryValue) {
+      const summaryClamped = clamp(shippingSummaryValue, 480);
+      metadataForSession.shipping_summary = summaryClamped;
+      paymentIntentMetadata.shipping_summary = summaryClamped;
+    }
+    metadataForSession.shipping_mode = shippingMode;
+    paymentIntentMetadata.shipping_mode = shippingMode;
+    if (shippingQuote) {
+      metadataForSession.shipping_total_weight_lbs = shippingQuote.totalWeight.toFixed(2);
+      metadataForSession.shipping_chargeable_lbs = shippingQuote.chargeableWeight.toFixed(2);
+      paymentIntentMetadata.shipping_total_weight_lbs =
+        metadataForSession.shipping_total_weight_lbs;
+      paymentIntentMetadata.shipping_chargeable_lbs =
+        metadataForSession.shipping_chargeable_lbs;
+    }
+
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       // Offer standard cards plus Affirm financing at checkout
       payment_method_types: ['card', 'affirm'],
@@ -533,22 +874,13 @@ export async function POST({ request }: { request: Request }) {
       billing_address_collection: 'auto',
       phone_number_collection: { enabled: true },
       shipping_address_collection: shippingAddressCollection,
-      shipping_options: [
-        {
-          shipping_rate_data: {
-            type: 'fixed_amount',
-            fixed_amount: { amount: 995, currency: 'usd' },
-            display_name: 'Standard Shipping',
-            delivery_estimate: {
-              minimum: { unit: 'business_day', value: 3 },
-              maximum: { unit: 'business_day', value: 5 }
-            }
-          }
-        }
-      ],
       success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/cart`
     };
+
+    if (shippingOptions) {
+      sessionParams.shipping_options = shippingOptions;
+    }
 
     // Guard rail: Stripe rejects automatic tax when payment_intent_data.shipping is present.
     if (sessionParams.payment_intent_data && 'shipping' in sessionParams.payment_intent_data) {

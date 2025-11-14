@@ -148,7 +148,7 @@ const profileScript = '../../scripts/customer-profile-page.ts';
       if (submitBtn) submitBtn.setAttribute('disabled', 'true');
       try {
         const formData = new FormData(profileForm);
-        const fields: Record<string, string> = {};
+        const fields = {};
         formData.forEach((value, key) => {
           if (typeof value === 'string') fields[key] = value;
         });

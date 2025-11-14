@@ -10,7 +10,6 @@ import InternalLinks from '@/components/navigation/InternalLinks.astro';
 import { Toaster } from 'sonner';
 import { buildJsonLd, buildMetaEntries, fetchSeoForPath } from '@/lib/seoData';
 
-
 // SEO props (optional per-page)
 const {
   title,
@@ -101,15 +100,9 @@ const resolveCanonical = (value?: string | null) => {
 const previewEnvEnabled = parseBooleanFlag(
   (import.meta.env.PUBLIC_SANITY_PREVIEW_DRAFTS as string | undefined) ?? 'true'
 );
-const previewCookieRequested = parseBooleanFlag(
-  Astro.cookies.get('sanity-preview')?.value ?? ''
-);
-const previewQueryRequested = getUrlBooleanFlag(currentUrl, [
-  'sanity-preview',
-  'preview',
-]);
-const previewDraftsEnabled =
-  previewEnvEnabled || previewCookieRequested || previewQueryRequested;
+const previewCookieRequested = parseBooleanFlag(Astro.cookies.get('sanity-preview')?.value ?? '');
+const previewQueryRequested = getUrlBooleanFlag(currentUrl, ['sanity-preview', 'preview']);
+const previewDraftsEnabled = previewEnvEnabled || previewCookieRequested || previewQueryRequested;
 
 const previewToken =
   (import.meta.env.SANITY_API_READ_TOKEN as string | undefined) ||
@@ -119,7 +112,7 @@ const previewToken =
 
 const seoPayload = await fetchSeoForPath(Astro.url?.pathname ?? '/', {
   preview: previewDraftsEnabled,
-  token: previewToken,
+  token: previewToken
 });
 
 const canonicalFromSanity = seoPayload.page?.canonicalUrl;
@@ -170,7 +163,8 @@ try {
     canonicalUrl = url.toString();
   }
 } catch {
-  canonicalUrl = resolveCanonical(canonical) ?? resolveCanonical(canonicalFromSanity) ?? canonical ?? undefined;
+  canonicalUrl =
+    resolveCanonical(canonical) ?? resolveCanonical(canonicalFromSanity) ?? canonical ?? undefined;
 }
 
 const cmsTitle = seoPayload.page?.title;
@@ -193,15 +187,13 @@ const resolvedDescription =
   typeof description === 'string' && description.trim().length > 0
     ? description.trim()
     : typeof cmsDescription === 'string' && cmsDescription.trim().length > 0
-    ? cmsDescription.trim()
-    : DEFAULT_DESCRIPTION;
+      ? cmsDescription.trim()
+      : DEFAULT_DESCRIPTION;
 
 const normalizeKeywords = (value: string | string[] | undefined) => {
   if (!value) return [];
   if (Array.isArray(value)) {
-    return value
-      .map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
-      .filter(Boolean);
+    return value.map((entry) => (typeof entry === 'string' ? entry.trim() : '')).filter(Boolean);
   }
   return value
     .split(',')
@@ -213,8 +205,8 @@ const keywordList = normalizeKeywords(keywords);
 const resolvedKeywords = keywordList.length
   ? keywordList
   : cmsKeywords.length
-  ? cmsKeywords
-  : DEFAULT_KEYWORDS;
+    ? cmsKeywords
+    : DEFAULT_KEYWORDS;
 const resolvedOgImage = ogImage ?? cmsOgImage ?? DEFAULT_OG_IMAGE;
 const basePageTitle = title ?? cmsTitle ?? undefined;
 const pageTitle = basePageTitle
@@ -247,13 +239,16 @@ const buildContextualBreadcrumbs = () => {
   if (!shouldRenderBreadcrumbs || !breadcrumbContext) return null;
   const dieselHref = sanitizeBreadcrumbHref(breadcrumbContext.dieselHref, DEFAULT_DIESEL_HREF);
   const dieselLabel = sanitizeBreadcrumbLabel(breadcrumbContext.dieselLabel, DEFAULT_DIESEL_LABEL);
-  const platformHref = sanitizeBreadcrumbHref(breadcrumbContext.platformHref, DEFAULT_PLATFORM_HREF);
+  const platformHref = sanitizeBreadcrumbHref(
+    breadcrumbContext.platformHref,
+    DEFAULT_PLATFORM_HREF
+  );
   const platformLabel = sanitizeBreadcrumbLabel(
     breadcrumbContext.platformLabel,
     DEFAULT_PLATFORM_LABEL
   );
   const fallbackLabel = sanitizeBreadcrumbLabel(
-    typeof basePageTitle === 'string' ? basePageTitle : cmsTitle ?? title ?? 'Current Page',
+    typeof basePageTitle === 'string' ? basePageTitle : (cmsTitle ?? title ?? 'Current Page'),
     'Current Page'
   );
   const currentLabel = sanitizeBreadcrumbLabel(breadcrumbContext.currentLabel, fallbackLabel);
@@ -287,10 +282,7 @@ const LABEL_OVERRIDES: Record<string, string> = {
   belak: 'Belak Wheels'
 };
 
-const pathSegments = Astro.url?.pathname
-  ?.replace(/\/+$/, '')
-  .split('/')
-  .filter(Boolean) ?? [];
+const pathSegments = Astro.url?.pathname?.replace(/\/+$/, '').split('/').filter(Boolean) ?? [];
 
 const isHomeRoute = pathSegments.length === 0;
 const shouldRenderBreadcrumbs = !hideBreadcrumbs && !isHomeRoute;
@@ -306,8 +298,7 @@ const buildAutoBreadcrumbs = () => {
   const segments = pathSegments.map((segment, index) => {
     const href = '/' + pathSegments.slice(0, index + 1).join('/');
     const key = segment.toLowerCase();
-    const label =
-      LABEL_OVERRIDES[key] ?? sanitizeSegment(segment);
+    const label = LABEL_OVERRIDES[key] ?? sanitizeSegment(segment);
     return { href, label };
   });
 
@@ -321,10 +312,8 @@ const buildAutoBreadcrumbs = () => {
 const ensureHomeCrumb = (items: Array<{ href?: string; label: string }>) => {
   if (items.length === 0) return items;
   const first = items[0];
-  const labelIsHome =
-    typeof first.label === 'string' &&
-    first.label.toLowerCase() === 'home';
-  if ((first.href === '/' || first.href === '') || labelIsHome) {
+  const labelIsHome = typeof first.label === 'string' && first.label.toLowerCase() === 'home';
+  if (first.href === '/' || first.href === '' || labelIsHome) {
     return items;
   }
   return [{ href: '/', label: 'Home' }, ...items];
@@ -333,17 +322,15 @@ const ensureHomeCrumb = (items: Array<{ href?: string; label: string }>) => {
 const finalizeBreadcrumbs = (items?: Array<{ href?: string; label: string }>) => {
   if (!items || items.length === 0) return [];
   return items.map((item, index) =>
-    index === items.length - 1
-      ? { label: item.label }
-      : { href: item.href, label: item.label }
+    index === items.length - 1 ? { label: item.label } : { href: item.href, label: item.label }
   );
 };
 
 const breadcrumbSource = breadcrumbs?.length
   ? breadcrumbs
   : cmsBreadcrumbs.length
-  ? cmsBreadcrumbs
-  : buildAutoBreadcrumbs();
+    ? cmsBreadcrumbs
+    : buildAutoBreadcrumbs();
 
 const breadcrumbItems = shouldRenderBreadcrumbs
   ? finalizeBreadcrumbs(ensureHomeCrumb(breadcrumbSource))
@@ -403,15 +390,11 @@ const computedPayload = {
 
 const metaEntries = buildMetaEntries(computedPayload, canonicalUrl ?? undefined);
 const computedTitle = metaEntries.title || pageTitle;
-const metaTags = [
-  { property: 'og:site_name', content: SITE_NAME },
-  ...metaEntries.meta
-];
+const metaTags = [{ property: 'og:site_name', content: SITE_NAME }, ...metaEntries.meta];
 const jsonLdEntries = buildJsonLd(computedPayload, breadcrumbStructuredData);
-const analyticsTrackingScript = Astro.resolve('../scripts/analytics-tracking.ts');
 ---
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" class="dark">
   <head>
     <!-- Google tag (gtag.js) -->
@@ -421,8 +404,8 @@ const analyticsTrackingScript = Astro.resolve('../scripts/analytics-tracking.ts'
           typeof window !== 'undefined'
             ? window
             : typeof globalThis !== 'undefined'
-            ? globalThis
-            : undefined;
+              ? globalThis
+              : undefined;
 
         if (!target || typeof target !== 'object') {
           return;
@@ -456,7 +439,11 @@ const analyticsTrackingScript = Astro.resolve('../scripts/analytics-tracking.ts'
             target.inlineGaSetup = fallback;
           }
 
-          if (typeof window !== 'undefined' && window !== target && typeof window.inlineGaSetup !== 'function') {
+          if (
+            typeof window !== 'undefined' &&
+            window !== target &&
+            typeof window.inlineGaSetup !== 'function'
+          ) {
             try {
               window.inlineGaSetup = fallback;
             } catch {
@@ -464,7 +451,11 @@ const analyticsTrackingScript = Astro.resolve('../scripts/analytics-tracking.ts'
             }
           }
 
-          if (typeof globalThis !== 'undefined' && globalThis !== target && typeof globalThis.inlineGaSetup !== 'function') {
+          if (
+            typeof globalThis !== 'undefined' &&
+            globalThis !== target &&
+            typeof globalThis.inlineGaSetup !== 'function'
+          ) {
             try {
               globalThis.inlineGaSetup = fallback;
             } catch {
@@ -547,8 +538,20 @@ const analyticsTrackingScript = Astro.resolve('../scripts/analytics-tracking.ts'
     <link rel="dns-prefetch" href="https://stats.g.doubleclick.net" />
     <link rel="dns-prefetch" href="https://analytics.google.com" />
     <link rel="dns-prefetch" href="https://www.google.com" />
-    <link rel="preload" href="/fonts/AmericanCaptain.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/Ethnocentric-Regular.woff2" as="font" type="font/woff2" crossorigin />
+    <link
+      rel="preload"
+      href="/fonts/AmericanCaptain.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/Ethnocentric-Regular.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <link rel="preload" href="/fonts/Borgsquad.woff2" as="font" type="font/woff2" crossorigin />
 
     <meta charset="UTF-8" />
@@ -556,33 +559,37 @@ const analyticsTrackingScript = Astro.resolve('../scripts/analytics-tracking.ts'
     <meta name="theme-color" content="#09090b" />
     <title>{computedTitle}</title>
     <meta name="author" content={SITE_AUTHOR} />
-    {metaTags
-      .filter((meta) => typeof meta.content === 'string' && meta.content.length > 0)
-      .map((meta, index) => {
-        const attrs = meta.name
-          ? { name: meta.name }
-          : meta.property
-          ? { property: meta.property }
-          : {};
-        if (!('name' in attrs) && !('property' in attrs)) {
-          return null;
-        }
-        return (
-          <meta
-            {...attrs}
-            content={meta.content}
-            data-seo-meta-key={meta.name ?? meta.property ?? `meta-${index}`}
-          />
-        );
-      })}
+    {
+      metaTags
+        .filter((meta) => typeof meta.content === 'string' && meta.content.length > 0)
+        .map((meta, index) => {
+          const attrs = meta.name
+            ? { name: meta.name }
+            : meta.property
+              ? { property: meta.property }
+              : {};
+          if (!('name' in attrs) && !('property' in attrs)) {
+            return null;
+          }
+          return (
+            <meta
+              {...attrs}
+              content={meta.content}
+              data-seo-meta-key={meta.name ?? meta.property ?? `meta-${index}`}
+            />
+          );
+        })
+    }
     {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
-    {jsonLdEntries.map((entry, index) => (
-      <script
-        type="application/ld+json"
-        set:html={JSON.stringify(entry)}
-        data-seo-ld-index={index}
-      />
-    ))}
+    {
+      jsonLdEntries.map((entry, index) => (
+        <script
+          type="application/ld+json"
+          set:html={JSON.stringify(entry)}
+          data-seo-ld-index={index}
+        />
+      ))
+    }
     <script is:inline type="module">
       (function () {
         if (typeof window === 'undefined') return;
@@ -612,7 +619,9 @@ const analyticsTrackingScript = Astro.resolve('../scripts/analytics-tracking.ts'
           var orderId = String(order.orderId || order.order_id || '').trim();
           var email = String(order.email || order.customerEmail || '').trim();
           var country = String(order.deliveryCountry || order.delivery_country || '').trim();
-          var delivery = String(order.estimatedDeliveryDate || order.estimated_delivery_date || '').trim();
+          var delivery = String(
+            order.estimatedDeliveryDate || order.estimated_delivery_date || ''
+          ).trim();
           if (!orderId || !email || !country || !delivery) return null;
           var payload = {
             merchant_id: MERCHANT_ID,
@@ -661,25 +670,51 @@ const analyticsTrackingScript = Astro.resolve('../scripts/analytics-tracking.ts'
       })();
     </script>
     <script async defer src="https://apis.google.com/js/platform.js?onload=renderOptIn"></script>
-    
+
     <slot name="head" />
   </head>
 
   <body class="bg-background pt-3 text-white font-mono min-h-screen flex flex-col">
     <!-- Global SVG filters for Liquid Glass effect -->
-    <svg width="0" height="0" class="absolute pointer-events-none select-none" aria-hidden="true" focusable="false">
+    <svg
+      width="0"
+      height="0"
+      class="absolute pointer-events-none select-none"
+      aria-hidden="true"
+      focusable="false"
+    >
       <defs>
         <!-- Container-sized liquid glass filter -->
         <filter id="container-glass">
-          <feTurbulence type="fractalNoise" baseFrequency="0.01" numOctaves="3" seed="2" result="noise"/>
-          <feGaussianBlur in="noise" stdDeviation="2" result="blur"/>
-          <feDisplacementMap in="SourceGraphic" in2="blur" scale="20" xChannelSelector="R" yChannelSelector="G"/>
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.01"
+            numOctaves="3"
+            seed="2"
+            result="noise"></feTurbulence>
+          <feGaussianBlur in="noise" stdDeviation="2" result="blur"></feGaussianBlur>
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="blur"
+            scale="20"
+            xChannelSelector="R"
+            yChannelSelector="G"></feDisplacementMap>
         </filter>
         <!-- Button-sized stronger liquid glass filter -->
         <filter id="btn-glass">
-          <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" seed="3" result="noise"/>
-          <feGaussianBlur in="noise" stdDeviation="1.5" result="blur"/>
-          <feDisplacementMap in="SourceGraphic" in2="blur" scale="14" xChannelSelector="R" yChannelSelector="G"/>
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.02"
+            numOctaves="3"
+            seed="3"
+            result="noise"></feTurbulence>
+          <feGaussianBlur in="noise" stdDeviation="1.5" result="blur"></feGaussianBlur>
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="blur"
+            scale="14"
+            xChannelSelector="R"
+            yChannelSelector="G"></feDisplacementMap>
         </filter>
       </defs>
     </svg>
@@ -689,10 +724,8 @@ const analyticsTrackingScript = Astro.resolve('../scripts/analytics-tracking.ts'
 
     <!-- Page content -->
     <div class="relative flex flex-col flex-1">
-      <main class="mt-20 sm:mt-24 lg:mt-36 pt-6 flex-1 container max-w-full mx-auto">
-        {breadcrumbItems.length > 0 && (
-          <Breadcrumbs items={breadcrumbItems} />
-        )}
+      <main class="px-5 mt-20 sm:mt-24 lg:mt-36 pt-6 flex-1 container max-w-full mx-auto">
+        {breadcrumbItems.length > 0 && <Breadcrumbs items={breadcrumbItems} />}
         <slot />
         {cmsRelatedLinks.length > 0 && <InternalLinks links={cmsRelatedLinks} />}
       </main>
@@ -707,7 +740,6 @@ const analyticsTrackingScript = Astro.resolve('../scripts/analytics-tracking.ts'
     <script src="/fas-auth.js" defer></script>
     <!-- Auth bootstrap removed: serverless login/session handles auth without Auth0 SDK -->
 
-
-    <script type="module" src={analyticsTrackingScript} defer></script>
+    <script type="module" src="/src/scripts/analytics-tracking.ts" defer></script>
   </body>
 </html>

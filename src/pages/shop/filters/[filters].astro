@@ -17,7 +17,7 @@ const filter = await client.fetch(filterQuery, { slug: params.filter });
 
 // Fetch products that reference this filter
 const productsQuery = /* groq */ `
-*[_type == "product" && !(_id in path('drafts.**')) && defined(slug.current) && references($filterId)] | order(_createdAt desc){
+*[_type == "product" && !(_id in path('drafts.**')) && lower(coalesce(status, "active")) == "active" && defined(slug.current) && references($filterId)] | order(_createdAt desc){
   _id,
   title,
   "slug": slug.current,
@@ -185,7 +185,7 @@ const productItemListElements = filter
           }
         };
       })
-      .filter((entry): entry is Record<string, any> => Boolean(entry))
+      .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
   : [];
 
 const filterCollectionStructuredData = filter && productItemListElements.length

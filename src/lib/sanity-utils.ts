@@ -32,6 +32,10 @@ const apiVersion = '2023-01-01';
 const imageBuilder = projectId && dataset ? imageUrlBuilder({ projectId, dataset }) : null;
 
 const SANITY_CDN_HOSTS = new Set(['cdn.sanity.io', 'cdn.sanityusercontent.com']);
+const ACTIVE_PRODUCT_FILTER =
+  '!(_id in path("drafts.**")) && lower(coalesce(status, "active")) == "active"';
+const ACTIVE_PRODUCT_WITH_SLUG_FILTER = `${ACTIVE_PRODUCT_FILTER} && defined(slug.current)`;
+const FEATURED_PRODUCT_FILTER = 'string(featured) == "true"';
 
 export interface SanityImageTransformOptions {
   width?: number;
@@ -674,7 +678,7 @@ export async function fetchProductsFromSanity({
 }): Promise<Product[]> {
   try {
     if (!hasSanityConfig) return [];
-    const conditions: string[] = [];
+    const conditions: string[] = [ACTIVE_PRODUCT_WITH_SLUG_FILTER];
     const params: QueryParams = {};
 
     if (categorySlug) {
@@ -787,6 +791,110 @@ export async function fetchProductsFromSanity({
   }
 }
 
+export interface FeaturedProductSummary {
+  _id: string;
+  title?: string;
+  name?: string;
+  slug?: string;
+  price?: number | null;
+  featured?: boolean;
+  primaryKeyword?: string;
+  fitmentYears?: string;
+  fitment?: string;
+  seoPrimaryKeyword?: string;
+  seoFitmentYears?: string;
+  seoFitment?: string;
+  images?: any;
+  imageUrl?: string;
+  categories?: any[];
+  filters?: any[];
+}
+
+export async function fetchFeaturedProducts(options: {
+  limit?: number;
+  ttlSeconds?: number;
+} = {}): Promise<FeaturedProductSummary[]> {
+  try {
+    if (!hasSanityConfig || !sanity) return [];
+    const limit = Math.max(1, Math.min(50, options.limit ?? 8));
+    const query = `
+      *[_type == "product" && ${ACTIVE_PRODUCT_WITH_SLUG_FILTER} && ${FEATURED_PRODUCT_FILTER}][0...$limit]{
+        _id,
+        name,
+        title,
+        "slug": slug.current,
+        price,
+        featured,
+        primaryKeyword,
+        fitmentYears,
+        fitment,
+        seo{
+          primaryKeyword,
+          keyphrase,
+          keyword,
+          targetKeyword,
+          fitmentYears,
+          fitmentText,
+          fitment
+        },
+        images[]{
+          asset->{ _id, url },
+          alt
+        },
+        "imageUrl": coalesce(
+          image.asset->url,
+          mainImage.asset->url,
+          images[0].asset->url,
+          thumbnail.asset->url,
+          thumb.asset->url
+        ),
+        "categories": select(
+          defined(categories) => categories[]->{ _id, title, slug },
+          defined(category) => category[]->{ _id, title, slug }
+        ),
+        filters[]->{
+          _id,
+          title,
+          slug
+        }
+      }
+    `;
+    const executeQuery = async () => {
+      const results = await sanity.fetch<FeaturedProductSummary[]>(query, { limit });
+      if (!Array.isArray(results)) return [];
+      return results.map((item) => {
+        const normalized = normalizeProductPrice(item);
+        const seoBlock = (normalized as any).seo ?? {};
+        const imageUrl =
+          normalizeSanityImageUrl((normalized as any).imageUrl) ??
+          (Array.isArray((normalized as any).images)
+            ? normalizeSanityImageUrl((normalized as any).images?.[0])
+            : undefined);
+        return {
+          ...normalized,
+          imageUrl,
+          seoPrimaryKeyword:
+            seoBlock.primaryKeyword ??
+            seoBlock.keyphrase ??
+            seoBlock.keyword ??
+            seoBlock.targetKeyword ??
+            normalized.primaryKeyword,
+          seoFitmentYears: seoBlock.fitmentYears ?? normalized.fitmentYears,
+          seoFitment: seoBlock.fitmentText ?? seoBlock.fitment ?? normalized.fitment
+        };
+      });
+    };
+    return cachedSanityFetch(
+      ['fetchFeaturedProducts', config.projectId, config.dataset, perspective, limit],
+      executeQuery,
+      { ttlSeconds: options.ttlSeconds }
+    );
+  } catch (err) {
+    console.error('Failed to fetch featured products:', err);
+    return [];
+  }
+}
+
 // Fetch all categories
 export async function fetchCategories(): Promise<Category[]> {
   try {
@@ -859,7 +967,7 @@ export async function fetchVehicles(): Promise<Vehicle[]> {
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   try {
     if (!hasSanityConfig) return null;
-    const query = `*[_type == "product" && slug.current == $slug][0]{
+    const query = `*[_type == "product" && slug.current == $slug && ${ACTIVE_PRODUCT_FILTER}][0]{
       _id,
       title,
       slug,
@@ -981,7 +1089,7 @@ export async function getRelatedProducts(
   const ids = Array.isArray(categoryIds) ? categoryIds : [];
   const flt = Array.isArray(filters) ? filters : [];
   const query = `
-    *[_type == "product" && slug.current != $slug]{
+    *[_type == "product" && slug.current != $slug && ${ACTIVE_PRODUCT_WITH_SLUG_FILTER}]{
       _id,
       title,
       slug,
@@ -1027,7 +1135,7 @@ export async function getUpsellProducts(
   const ids = Array.isArray(categoryIds) ? categoryIds : [];
   const hasPrice = typeof basePrice === 'number' && !Number.isNaN(basePrice);
   const query = `
-    *[_type == "product" && slug.current != $slug
+    *[_type == "product" && slug.current != $slug && ${ACTIVE_PRODUCT_WITH_SLUG_FILTER}
       && count(coalesce(category[]._ref, categories[]._ref, [])[ @ in $catIds ]) > 0
       ${hasPrice ? '&& defined(price) && price >= $price' : ''}]{
       _id,

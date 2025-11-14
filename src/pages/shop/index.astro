@@ -38,7 +38,28 @@ const resolveProductImages = (product: any): string[] => {
   if (!Array.isArray(product.images)) return [];
   return product.images
     .map((image: any) => ensureAbsoluteUrl(image?.asset?.url || image?.url))
-    .filter((value): value is string => Boolean(value));
+    .filter((value: string | undefined): value is string => Boolean(value));
+};
+
+type StructuredProductOffer = {
+  '@type': 'Offer';
+  priceCurrency: string;
+  price: string;
+  availability: string;
+  url: string;
+  itemCondition: string;
+};
+
+type StructuredProductListItem = {
+  '@type': 'ListItem';
+  position: number;
+  url: string;
+  item: {
+    '@type': 'Product';
+    name: string;
+    image?: string[];
+    offers?: StructuredProductOffer;
+  };
 };
 const currentPage = parseInt(url.searchParams.get("page") || "1");
 const currentCategory = url.searchParams.get("categorySlug") || url.searchParams.get("category") || "";
@@ -286,7 +307,7 @@ const totalCount = sortedProducts.length;
 const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 const products = sortedProducts.slice(start, end);
 
-const productListElements = Array.isArray(products)
+const productListElements: StructuredProductListItem[] = Array.isArray(products)
   ? products
       .map((product, index) => {
         const slugValue = resolveProductSlug(product);
@@ -294,30 +315,32 @@ const productListElements = Array.isArray(products)
         const productUrl = `${url.origin}/shop/${slugValue}`;
         const images = resolveProductImages(product);
         const priceNumber = Number((product as any)?.price);
-        const offers = !Number.isNaN(priceNumber) && priceNumber > 0
-          ? {
-              '@type': 'Offer',
-              priceCurrency: 'USD',
-              price: priceNumber.toFixed(2),
-              availability: 'https://schema.org/InStock',
-              url: productUrl,
-              itemCondition: 'https://schema.org/NewCondition'
-            }
-          : undefined;
+        const offers: StructuredProductOffer | undefined =
+          !Number.isNaN(priceNumber) && priceNumber > 0
+            ? {
+                '@type': 'Offer',
+                priceCurrency: 'USD',
+                price: priceNumber.toFixed(2),
+                availability: 'https://schema.org/InStock',
+                url: productUrl,
+                itemCondition: 'https://schema.org/NewCondition'
+              }
+            : undefined;
 
-        return {
+        const listItem: StructuredProductListItem = {
           '@type': 'ListItem',
           position: start + index + 1,
           url: productUrl,
           item: {
             '@type': 'Product',
-            name: (product as any)?.title ?? undefined,
+            name: (product as any)?.title ?? 'Product',
             image: images.length ? images : undefined,
             offers
           }
         };
+        return listItem;
       })
-      .filter((entry): entry is Record<string, any> => Boolean(entry))
+      .filter((entry): entry is StructuredProductListItem => Boolean(entry))
   : [];
 
 const productCollectionStructuredData = productListElements.length

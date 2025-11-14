@@ -22,79 +22,9 @@ const v2Param = url.searchParams.get('v2');
 // Default to the new V2 homepage; allow opt-out via ?v2=0
 const showV2 = v2Param === '0' ? false : true;
 
-const resolveSanityConfig = () => {
-  try {
-    return (
-      (sanity as any).config ||
-      (sanity as any).clientConfig ||
-      (sanity as any).defaultClientConfig ||
-      {}
-    );
-  } catch {
-    return {};
-  }
-};
-
 let featuredProducts: any[] = [];
 try {
-  const _client: any =
-    (sanity as any).sanityClient ??
-    (sanity as any).client ??
-    ((sanity as any).getClient ? (sanity as any).getClient() : null);
-
-  const fetchFeaturedProducts = async () => {
-    if (!_client || typeof _client.fetch !== 'function') {
-      return [];
-    }
-
-    const configSnapshot = resolveSanityConfig();
-
-    const baseProjection = `{
-      _id,
-      name,
-      title,
-      "slug": slug.current,
-      price,
-      "imageUrl": coalesce(
-        image.asset->url,
-        mainImage.asset->url,
-        images[0].asset->url,
-        thumbnail.asset->url,
-        thumb.asset->url
-      )
-    }`;
-
-    let booleanTry: any[] = [];
-    try {
-      booleanTry = await _client.fetch(
-        `*[_type == "product" && !(_id in path("drafts.**")) && coalesce(featured, false) == true && defined(slug.current)][0..7]${baseProjection}`
-      );
-    } catch {}
-    if (Array.isArray(booleanTry) && booleanTry.length) {
-      return booleanTry;
-    }
-
-    let stringTry: any[] = [];
-    try {
-      stringTry = await _client.fetch(
-        `*[_type == "product" && !(_id in path("drafts.**")) && featured == "true" && defined(slug.current)][0..7]${baseProjection}`
-      );
-    } catch {}
-
-    return Array.isArray(stringTry) ? stringTry : [];
-  };
-
-  const configSnapshot = resolveSanityConfig();
-  featuredProducts = await sanity.cachedSanityFetch(
-    [
-      'homepage-featured-products',
-      configSnapshot.projectId ?? null,
-      configSnapshot.dataset ?? null,
-      configSnapshot.perspective ?? null
-    ],
-    fetchFeaturedProducts,
-    { ttlSeconds: 180 }
-  );
+  featuredProducts = await sanity.fetchFeaturedProducts({ limit: 8, ttlSeconds: 180 });
 } catch (err) {
   console.error('Featured products fetch failed', err);
 }
@@ -102,11 +32,10 @@ try {
 const featuredProductsNormalized = Array.isArray(featuredProducts)
   ? featuredProducts.map((product) => {
       if (!product || typeof product !== 'object') return product;
-      const rawImageUrl = (product as any).imageUrl;
       const normalizedImageUrl =
-        typeof rawImageUrl === 'string'
-          ? sanity.normalizeSanityImageUrl(rawImageUrl) ?? rawImageUrl
-          : rawImageUrl;
+        typeof product.imageUrl === 'string'
+          ? sanity.normalizeSanityImageUrl(product.imageUrl) ?? product.imageUrl
+          : sanity.normalizeSanityImageUrl(product.images?.[0]);
       return { ...product, imageUrl: normalizedImageUrl };
     })
   : [];

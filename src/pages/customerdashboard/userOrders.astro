@@ -70,7 +70,7 @@ import RequireLogin from '../../components/RequireLogin.jsx';
           if (submitBtn) submitBtn.setAttribute('disabled', 'true');
           try {
             const formData = new FormData(orderForm);
-            const fields: Record<string, string> = {};
+            const fields = {};
             formData.forEach((value, key) => {
               if (typeof value === 'string') fields[key] = value;
             });

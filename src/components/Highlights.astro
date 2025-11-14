@@ -70,10 +70,11 @@ const normalizedItems = Array.isArray(items)
   .hl-viewport::-webkit-scrollbar { display: none; }
   .hl-track {
     display: flex;
-    gap: 12px;
+    gap: 16px;
   }
   .hl-item {
-    flex: 0 0 85%;
+    flex: 0 0 clamp(180px, 55vw, 240px);
+    max-width: clamp(180px, 55vw, 240px);
     scroll-snap-align: start;
     scroll-snap-stop: always;
     overflow: hidden;
@@ -82,12 +83,17 @@ const normalizedItems = Array.isArray(items)
     background: rgba(0, 0, 0, 0.82);
   }
   .hl-item:hover { border-color: rgba(234,29,38,0.5); }
-  .hl-img { aspect-ratio: 4 / 3; width: 100%; background: rgba(0,0,0,0.3); overflow: hidden; }
-
-  @media (min-width: 768px) {
-    .hl-item { flex-basis: 45%; }
+  .hl-img {
+    aspect-ratio: 1 / 1;
+    width: 100%;
+    background: rgba(0,0,0,0.3);
+    overflow: hidden;
   }
+
   @media (min-width: 1024px) {
-    .hl-item { flex-basis: 30%; }
+    .hl-item {
+      flex-basis: clamp(200px, 18vw, 240px);
+      max-width: clamp(200px, 18vw, 240px);
+    }
   }
 </style>

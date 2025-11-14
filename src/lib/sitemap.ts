@@ -359,7 +359,7 @@ async function fetchSanitySlugs(query: string): Promise<SanitySlugDoc[]> {
 }
 
 export async function getProductEntries(): Promise<SitemapUrlEntry[]> {
-  const query = `*[_type == "product" && !(_id in path('drafts.**')) && defined(slug.current) && coalesce(noindex, false) != true]{
+  const query = `*[_type == "product" && !(_id in path('drafts.**')) && lower(coalesce(status, "active")) == "active" && defined(slug.current) && coalesce(noindex, false) != true]{
     "slug": slug.current,
     "updatedAt": coalesce(_updatedAt, _createdAt)
   }`;

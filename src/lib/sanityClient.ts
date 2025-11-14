@@ -29,7 +29,7 @@ export const fetchFromSanity = async (query: string, params = {}) => {
 };
 
 export async function fetchProducts() {
-  const query = `*[_type == "product"] | order(price asc)[0...9] {
+  const query = `*[_type == "product" && !(_id in path('drafts.**')) && lower(coalesce(status, "active")) == "active" && defined(slug.current)] | order(price asc)[0...9] {
     _id,
     title,
     slug,
