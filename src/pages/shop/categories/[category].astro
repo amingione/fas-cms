@@ -1,5 +1,6 @@
 ---
 import ProductCard from "@/components/storefront/ProductCardLite.astro";
+import { buildPrimaryKeywordAnchor, collapseLabelSpaces } from '@/lib/seoAnchors';
 import { sanityClient as client } from "@/lib/sanityClient.ts";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 
@@ -22,7 +23,13 @@ const productsQuery = /* groq */ `
   "slug": slug.current,
   "image": coalesce(images[0].asset->url, mainImage.asset->url),
   price,
-  excerpt
+  excerpt,
+  primaryKeyword,
+  fitmentYears,
+  fitment,
+  "seoPrimaryKeyword": coalesce(seo.primaryKeyword, seo.keyphrase, seo.keyword, seo.targetKeyword),
+  "seoFitmentYears": seo.fitmentYears,
+  "seoFitment": coalesce(seo.fitmentText, seo.fitment)
 }
 `;
 interface ProductItem {
@@ -32,6 +39,12 @@ interface ProductItem {
   image?: string;
   price?: number;
   excerpt?: string;
+  primaryKeyword?: string;
+  fitmentYears?: unknown;
+  fitment?: string;
+  seoPrimaryKeyword?: string;
+  seoFitmentYears?: unknown;
+  seoFitment?: string;
 }
 
 const products: ProductItem[] = category
@@ -48,6 +61,22 @@ type LiteProduct = {
   slug?: LiteSlug | string;
   price?: number;
   images?: LiteImage[];
+  seoAnchorText?: string;
+};
+
+const toAnchorText = (product: ProductItem): string | undefined => {
+  return buildPrimaryKeywordAnchor(
+    {
+      primaryKeyword: product.primaryKeyword,
+      seoPrimaryKeyword: product.seoPrimaryKeyword,
+      fitmentYears: product.fitmentYears,
+      seoFitmentYears: product.seoFitmentYears,
+      fitment: product.fitment,
+      seoFitment: product.seoFitment,
+      fallbackLabel: product.title
+    },
+    product.title
+  );
 };
 
 const liteProducts: LiteProduct[] = products.map((p) => ({
@@ -55,7 +84,8 @@ const liteProducts: LiteProduct[] = products.map((p) => ({
   title: p.title,
   slug: { current: p.slug } as LiteSlug,
   price: p.price,
-  images: p.image ? [{ asset: { url: p.image } }] : []
+  images: p.image ? [{ asset: { url: p.image } }] : [],
+  seoAnchorText: toAnchorText(p)
 }));
 
 const requestUrl = new URL(Astro.request.url);
@@ -90,8 +120,22 @@ const resolvedCategoryDescription =
       ? `Shop ${resolvedCategoryTitle} performance products from F.A.S. Motorsports.`
       : 'Browse performance categories from F.A.S. Motorsports.';
 
-const pageTitle = category ? `${resolvedCategoryTitle} Products` : 'Category';
-const pageDescription = resolvedCategoryDescription;
+const dieselPartsUrl = `${requestUrl.origin}/shop?categorySlug=diesel-parts&page=1`;
+const powerstrokeUrl = `${requestUrl.origin}/shop/categories/6-7l-powerstroke`;
+const resolvedCategoryLabel = collapseLabelSpaces(resolvedCategoryTitle);
+
+const breadcrumbContext = category
+  ? {
+      dieselHref: '/shop?categorySlug=diesel-parts&page=1',
+      dieselLabel: 'Diesel Parts',
+      platformHref: '/shop/categories/6-7l-powerstroke',
+      platformLabel: '6.7L Powerstroke',
+      currentLabel: resolvedCategoryLabel
+    }
+  : undefined;
+
+const pageTitle = category ? `${resolvedCategoryLabel} Products` : 'Category';
+const pageDescription = collapseLabelSpaces(resolvedCategoryDescription);
 
 const breadcrumbStructuredData = category
   ? {
@@ -99,8 +143,9 @@ const breadcrumbStructuredData = category
       '@type': 'BreadcrumbList',
       itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Home', item: `${requestUrl.origin}/` },
-        { '@type': 'ListItem', position: 2, name: 'Shop', item: `${requestUrl.origin}/shop` },
-        { '@type': 'ListItem', position: 3, name: resolvedCategoryTitle, item: canonicalUrl }
+        { '@type': 'ListItem', position: 2, name: 'Diesel Parts', item: dieselPartsUrl },
+        { '@type': 'ListItem', position: 3, name: '6.7L Powerstroke', item: powerstrokeUrl },
+        { '@type': 'ListItem', position: 4, name: resolvedCategoryLabel, item: canonicalUrl }
       ]
     }
   : null;
@@ -116,6 +161,10 @@ const productItemListElements = category
               .map((image: LiteImage) => ensureAbsoluteUrl(image?.asset?.url))
               .filter((value): value is string => Boolean(value))
           : [];
+        const anchorLabel =
+          typeof (product as any)?.seoAnchorText === 'string' && (product as any).seoAnchorText.trim().length > 0
+            ? (product as any).seoAnchorText.trim()
+            : product.title ?? resolvedCategoryLabel;
         const priceNumber = Number(product.price);
         const offers = !Number.isNaN(priceNumber) && priceNumber > 0
           ? {
@@ -133,7 +182,7 @@ const productItemListElements = category
           url: productUrl,
           item: {
             '@type': 'Product',
-            name: product.title ?? resolvedCategoryTitle,
+            name: anchorLabel,
             image: images.length ? images : undefined,
             offers
           }
@@ -158,7 +207,12 @@ const categoryCollectionStructuredData = category && productItemListElements.len
     }
   : null;
 ---
-<BaseLayout title={pageTitle} description={pageDescription} canonical={canonicalUrl}>
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  canonical={canonicalUrl}
+  breadcrumbContext={breadcrumbContext}
+>
   {breadcrumbStructuredData && (
     <Fragment slot="head">
       <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />

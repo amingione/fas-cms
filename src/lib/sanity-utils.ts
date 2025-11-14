@@ -340,6 +340,25 @@ export interface Product {
   sku?: string;
   description?: string;
   shortDescription?: any;
+  fitmentYears?: string | string[];
+  fitment?: string;
+  fitmentRange?: string;
+  primaryKeyword?: string;
+  seo?: {
+    fitmentYears?: string | string[];
+    fitment?: string;
+    fitmentText?: string;
+    primaryKeyword?: string;
+    keyword?: string;
+    keyphrase?: string;
+    targetKeyword?: string;
+    benefits?: string;
+    highlights?: string;
+    valueProps?: string;
+    callToAction?: string;
+    cta?: string;
+    ctaText?: string;
+  };
   metaTitle?: string;
   metaDescription?: string;
   canonicalUrl?: string;
@@ -368,6 +387,7 @@ export interface Product {
   compatibleVehicles?: {
     make: string;
     model: string;
+    trim?: string;
     slug: { current: string };
   }[];
   averageHorsepower?: number;
@@ -714,7 +734,20 @@ export async function fetchProductsFromSanity({
       includedInKit[]{ item, quantity, notes },
       productType,
       requiresPaintCode,
-      images[]{ asset->{ _id, url }, alt },
+      images[]{
+        asset->{
+          _id,
+          url,
+          metadata{
+            dimensions{
+              width,
+              height,
+              aspectRatio
+            }
+          }
+        },
+        alt
+      },
       tune->{ title, slug },
       compatibleVehicles[]->{ make, model, slug },
       // include free-form filter tags from schema
@@ -836,16 +869,51 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       shortDescription,
       description,
       importantNotes,
+      fitmentYears,
+      fitment,
+      fitmentRange,
+      primaryKeyword,
+      seo{
+        fitmentYears,
+        fitment,
+        fitmentText,
+        primaryKeyword,
+        keyword,
+        keyphrase,
+        targetKeyword,
+        benefits,
+        highlights,
+        valueProps,
+        callToAction,
+        cta,
+        ctaText
+      },
       specifications,
       attributes,
       includedInKit[]{ item, quantity, notes },
       productType,
-      images[]{ asset->{ _id, url }, alt },
+      averageHorsepower,
+      images[]{
+        asset->{
+          _id,
+          url,
+          metadata{
+            dimensions{
+              width,
+              height,
+              aspectRatio
+            }
+          }
+        },
+        alt
+      },
       filters[]->{
         _id,
         title,
         slug
       },
+      tune->{ title, slug },
+      compatibleVehicles[]->{ make, model, trim, slug },
       shippingClass,
       shippingWeight,
       brand,

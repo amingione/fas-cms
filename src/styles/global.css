@@ -1331,65 +1331,6 @@ table {
   }
 }
 
-/* Mobile swipe animations */
-.mobile-swipe-up {
-  @media (max-width: 640px) {
-    animation: mobileSwipeUp 0.6s ease-out;
-  }
-}
-
-@keyframes mobileSwipeUp {
-  from {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-/* Mobile pull-to-refresh style animations */
-.mobile-pull-refresh {
-  @media (max-width: 640px) {
-    animation: mobilePullRefresh 1s ease-in-out infinite;
-  }
-}
-
-@keyframes mobilePullRefresh {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
-}
-
-/* Fade-in animation utilities */
-.fade-in-up {
-  transition:
-    opacity 0.7s ease-out,
-    transform 0.7s ease-out;
-}
-
-.fade-in-up.opacity-0 {
-  opacity: 0;
-  transform: translateY(24px);
-}
-
-.fade-in-up.opacity-100 {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Auto-apply fade-in to major sections */
-section:not(.no-fade) {
-  transition:
-    opacity 0.7s ease-out,
-    transform 0.7s ease-out;
-}
-
 /* Slide-in-left animation for brand tag */
 @keyframes slide-in-left {
   0% {

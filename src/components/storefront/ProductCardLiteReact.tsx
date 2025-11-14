@@ -21,6 +21,10 @@ export default function ProductCardLiteReact({
   const fallbackImage = '/logo/faslogochroma.webp';
   const img = resolveSanityImageUrl([productImage, product?.images]) ?? fallbackImage;
   const title = product?.title || 'Untitled Product';
+  const anchorText =
+    typeof product?.seoAnchorText === 'string' && product.seoAnchorText.trim().length > 0
+      ? product.seoAnchorText.trim()
+      : title;
   const short =
     portableTextToPlainText(product?.shortDescription) ||
     portableTextToPlainText(product?.description) ||
@@ -39,12 +43,12 @@ export default function ProductCardLiteReact({
         <div className="relative flex aspect-square items-center justify-center bg-black/30 backdrop-blur-sm md:aspect-auto md:w-56 md:min-w-56 md:max-w-56">
           <img
             src={img}
-            alt={title}
+            alt={anchorText}
             className="max-h-[80%] max-w-[88%] object-contain transition-transform duration-300 ease-out group-hover:scale-[1.03]"
           />
         </div>
         <div className="flex-1 px-4 py-4 text-left">
-          <div className="line-clamp-2 text-[1rem] font-ethno leading-snug text-white">{title}</div>
+          <div className="line-clamp-2 text-[1rem] font-ethno leading-snug text-white">{anchorText}</div>
           {shortText ? (
             <div className="mt-2 line-clamp-2 text-sm leading-relaxed text-white/70">
               {shortText}
@@ -66,7 +70,7 @@ export default function ProductCardLiteReact({
             href,
             price,
             imageSrc: img,
-            imageAlt: title,
+            imageAlt: anchorText,
             description: shortText
           }}
         />
@@ -81,12 +85,12 @@ export default function ProductCardLiteReact({
         <div className="contain relative flex aspect-square justify-center pb-10 object-contain bg-black/30 backdrop-blur-sm">
           <img
             src={img}
-            alt={title}
+            alt={anchorText}
             className="max-h-[78%] max-w-[88%] object-contain transition-transform duration-300 ease-out group-hover:scale-[1.03]"
           />
         </div>
         <div className="absolute bottom-4 flex w-full items-center gap-1">
-          <Label title={title} amount={price ?? 0} position="bottom" />
+          <Label title={anchorText} amount={price ?? 0} position="bottom" />
         </div>
       </a>
       <div className="pointer-events-none absolute right-3 top-3 z-10 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">

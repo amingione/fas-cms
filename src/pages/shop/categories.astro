@@ -1,5 +1,6 @@
 ---
 import { Carousel } from "@/components/storefront/carousel.tsx";
+import { buildPrimaryKeywordAnchor, collapseLabelSpaces } from '@/lib/seoAnchors';
 import { sanityClient as client } from "@/lib/sanityClient.ts";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import StoreHero from '@/components/storefront/StoreHero.astro';
@@ -56,6 +57,12 @@ try {
     "slug": slug.current,
     price,
     images[]{ asset->{ url } },
+    primaryKeyword,
+    fitmentYears,
+    fitment,
+    "seoPrimaryKeyword": coalesce(seo.primaryKeyword, seo.keyphrase, seo.keyword, seo.targetKeyword),
+    "seoFitmentYears": seo.fitmentYears,
+    "seoFitment": coalesce(seo.fitmentText, seo.fitment),
     // common fallbacks used elsewhere
     "imageUrl": coalesce(image.asset->url, mainImage.asset->url, images[0].asset->url, thumbnail.asset->url, thumb.asset->url)
   }`);
@@ -67,6 +74,12 @@ try {
       "slug": slug.current,
       price,
       images[]{ asset->{ url } },
+      primaryKeyword,
+      fitmentYears,
+      fitment,
+      "seoPrimaryKeyword": coalesce(seo.primaryKeyword, seo.keyphrase, seo.keyword, seo.targetKeyword),
+      "seoFitmentYears": seo.fitmentYears,
+      "seoFitment": coalesce(seo.fitmentText, seo.fitment),
       "imageUrl": coalesce(image.asset->url, mainImage.asset->url, images[0].asset->url, thumbnail.asset->url, thumb.asset->url)
     }`);
   }
@@ -76,16 +89,34 @@ try {
 }
 
 // Normalize to the shape expected by ProductCardLiteReact (images[0].asset.url)
-const featuredProducts = (Array.isArray(featuredRaw) ? featuredRaw : []).map((p: any) => ({
-  _id: p?._id,
-  title: p?.title || p?.name || 'Product',
-  slug: p?.slug,
-  price: p?.price,
-  images: Array.isArray(p?.images) && p.images.length
-    ? p.images
-    : (p?.imageUrl ? [{ asset: { url: p.imageUrl } }] : []),
-  categories: p?.categories ?? []
-}));
+const computeAnchorText = (product: any): string | undefined =>
+  buildPrimaryKeywordAnchor(
+    {
+      primaryKeyword: product?.primaryKeyword,
+      seoPrimaryKeyword: product?.seoPrimaryKeyword,
+      fitmentYears: product?.fitmentYears,
+      seoFitmentYears: product?.seoFitmentYears,
+      fitment: product?.fitment,
+      seoFitment: product?.seoFitment,
+      fallbackLabel: product?.title ?? product?.name
+    },
+    product?.title ?? product?.name
+  );
+
+const featuredProducts = (Array.isArray(featuredRaw) ? featuredRaw : []).map((p: any) => {
+  const anchorText = computeAnchorText(p);
+  return {
+    _id: p?._id,
+    title: collapseLabelSpaces(p?.title || p?.name || 'Product'),
+    slug: p?.slug,
+    price: p?.price,
+    images: Array.isArray(p?.images) && p.images.length
+      ? p.images
+      : (p?.imageUrl ? [{ asset: { url: p.imageUrl } }] : []),
+    categories: p?.categories ?? [],
+    seoAnchorText: anchorText
+  };
+});
 
 
 const requestUrl = new URL(Astro.request.url);
@@ -93,7 +124,17 @@ requestUrl.search = '';
 requestUrl.hash = '';
 const canonicalUrl = requestUrl.toString();
 const pageTitle = 'Shop Categories';
-const pageDescription = 'Browse performance categories curated by F.A.S. Motorsports to jumpstart your build path.';
+const pageDescription = collapseLabelSpaces('Browse performance categories curated by F.A.S. Motorsports to jumpstart your build path.');
+
+const dieselPartsUrl = `${requestUrl.origin}/shop?categorySlug=diesel-parts&page=1`;
+const powerstrokeUrl = `${requestUrl.origin}/shop/categories/6-7l-powerstroke`;
+const breadcrumbContext = {
+  dieselHref: '/shop?categorySlug=diesel-parts&page=1',
+  dieselLabel: 'Diesel Parts',
+  platformHref: '/shop/categories/6-7l-powerstroke',
+  platformLabel: '6.7L Powerstroke',
+  currentLabel: 'Shop Categories'
+};
 
 const ensureAbsoluteUrl = (value?: string | null) => {
   if (!value) return undefined;
@@ -110,7 +151,9 @@ const breadcrumbStructuredData = {
   '@type': 'BreadcrumbList',
   itemListElement: [
     { '@type': 'ListItem', position: 1, name: 'Home', item: `${requestUrl.origin}/` },
-    { '@type': 'ListItem', position: 2, name: 'Shop Categories', item: canonicalUrl }
+    { '@type': 'ListItem', position: 2, name: 'Diesel Parts', item: dieselPartsUrl },
+    { '@type': 'ListItem', position: 3, name: '6.7L Powerstroke', item: powerstrokeUrl },
+    { '@type': 'ListItem', position: 4, name: 'Shop Categories', item: canonicalUrl }
   ]
 };
 
@@ -216,7 +259,12 @@ const tileClass = (i: number) => {
   return `${base} ${isLarge ? large : small}`;
 };
 ---
-<BaseLayout title={pageTitle} description={pageDescription} canonical={canonicalUrl}>
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  canonical={canonicalUrl}
+  breadcrumbContext={breadcrumbContext}
+>
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
     {categoryCollectionStructuredData && (

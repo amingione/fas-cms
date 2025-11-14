@@ -73,6 +73,7 @@
   },
   "dependencies": {
     "@astrojs/netlify": "6.5.12",
+    "@astrojs/image": "^0.21.4",
     "@astrojs/react": "4.4.0",
     "@astrojs/tailwind": "^6.0.2",
     "@fullcalendar/core": "^6.1.19",

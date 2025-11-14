@@ -20,7 +20,8 @@ const {
   ogImage,
   hideBreadcrumbs = false,
   breadcrumbs,
-  keywords
+  keywords,
+  breadcrumbContext
 } = Astro.props as {
   title?: string;
   description?: string;
@@ -30,6 +31,13 @@ const {
   hideBreadcrumbs?: boolean;
   breadcrumbs?: Array<{ href?: string; label: string }>;
   keywords?: string | string[];
+  breadcrumbContext?: {
+    dieselHref?: string;
+    dieselLabel?: string;
+    platformHref?: string;
+    platformLabel?: string;
+    currentLabel?: string;
+  };
 };
 
 const normalizeNoindex = (value: unknown): boolean => {
@@ -214,6 +222,49 @@ const pageTitle = basePageTitle
     ? `${basePageTitle} | ${SITE_NAME}`
     : basePageTitle
   : SITE_NAME;
+
+const DEFAULT_DIESEL_HREF = '/shop?categorySlug=diesel-parts&page=1';
+const DEFAULT_DIESEL_LABEL = 'Diesel Parts';
+const DEFAULT_PLATFORM_HREF = '/shop/categories/6-7l-powerstroke';
+const DEFAULT_PLATFORM_LABEL = '6.7L Powerstroke';
+
+const sanitizeBreadcrumbLabel = (value: string | undefined, fallback: string) => {
+  if (typeof value === 'string') {
+    const trimmed = value.replace(/\s+/g, ' ').trim();
+    if (trimmed.length > 0) return trimmed;
+  }
+  return fallback;
+};
+
+const sanitizeBreadcrumbHref = (value: string | undefined, fallback: string) => {
+  if (typeof value === 'string' && value.trim().length > 0) {
+    return value.trim();
+  }
+  return fallback;
+};
+
+const buildContextualBreadcrumbs = () => {
+  if (!shouldRenderBreadcrumbs || !breadcrumbContext) return null;
+  const dieselHref = sanitizeBreadcrumbHref(breadcrumbContext.dieselHref, DEFAULT_DIESEL_HREF);
+  const dieselLabel = sanitizeBreadcrumbLabel(breadcrumbContext.dieselLabel, DEFAULT_DIESEL_LABEL);
+  const platformHref = sanitizeBreadcrumbHref(breadcrumbContext.platformHref, DEFAULT_PLATFORM_HREF);
+  const platformLabel = sanitizeBreadcrumbLabel(
+    breadcrumbContext.platformLabel,
+    DEFAULT_PLATFORM_LABEL
+  );
+  const fallbackLabel = sanitizeBreadcrumbLabel(
+    typeof basePageTitle === 'string' ? basePageTitle : cmsTitle ?? title ?? 'Current Page',
+    'Current Page'
+  );
+  const currentLabel = sanitizeBreadcrumbLabel(breadcrumbContext.currentLabel, fallbackLabel);
+
+  return [
+    { href: '/', label: 'Home' },
+    { href: dieselHref, label: dieselLabel },
+    { href: platformHref, label: platformLabel },
+    { label: currentLabel }
+  ];
+};
 const sanitizeSegment = (segment: string) => {
   const decoded = decodeURIComponent(segment);
   const spaced = decoded
@@ -246,6 +297,11 @@ const shouldRenderBreadcrumbs = !hideBreadcrumbs && !isHomeRoute;
 
 const buildAutoBreadcrumbs = () => {
   if (!shouldRenderBreadcrumbs) return [];
+
+  const contextual = buildContextualBreadcrumbs();
+  if (Array.isArray(contextual) && contextual.length > 0) {
+    return contextual;
+  }
 
   const segments = pathSegments.map((segment, index) => {
     const href = '/' + pathSegments.slice(0, index + 1).join('/');
@@ -651,63 +707,5 @@ const jsonLdEntries = buildJsonLd(computedPayload, breadcrumbStructuredData);
     <!-- Auth bootstrap removed: serverless login/session handles auth without Auth0 SDK -->
 
 
-    <script is:inline type="module">
-      const initFadeInUp = () => {
-        if (typeof window === 'undefined' || typeof document === 'undefined') return;
-        if (!('IntersectionObserver' in window)) return;
-        const elements = document.querySelectorAll('.fade-in-up');
-        if (!elements.length) return;
-        const observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                entry.target.classList.add('opacity-100', 'translate-y-0');
-              }
-            });
-          },
-          { threshold: 0.15 }
-        );
-
-        elements.forEach((el) => {
-          el.classList.add('opacity-0', 'translate-y-6', 'transition-all', 'duration-700');
-          observer.observe(el);
-        });
-      };
-
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initFadeInUp, { once: true });
-      } else {
-        initFadeInUp();
-      }
-    </script>
-    <style>
-      /* Ensure images and banners don't overflow */
-      img,
-      video,
-      iframe {
-        max-width: 100%;
-        height: auto;
-        object-fit: cover;
-      }
-
-      /* Smooth transitions for interactive elements */
-      button,
-      a {
-        transition: all 0.3s ease;
-      }
-
-      button:hover {
-        color: var(--color-primary);
-      }
-
-      a:hover:not([class*="hover:text-"]):not(.text-primary) {
-        color: var(--color-primary);
-      }
-
-      /* Responsive container padding */
-      .container {
-        @apply px-4 sm:px-6 lg:px-8;
-      }
-    </style>
   </body>
 </html>

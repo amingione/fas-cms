@@ -5,11 +5,13 @@ import {
   getProductBySlug,
   getRelatedProducts,
   getUpsellProducts,
+  optimizeSanityImageUrl,
   type Product
 } from '../../lib/sanity-utils';
 import PortableTextRenderer from "../../components/PortableTextRenderer.jsx";
 import SlugCarousel from '@/components/SlugCarousel.astro';
 import TrustStrip from '@/components/TrustStrip.astro';
+import { Image as AstroImage } from '@astrojs/image/components';
 import { inlineFieldAttrs, inlineObjectId } from '@lib/content.ts';
 
 export type KitItem = { item: string; quantity?: number };
@@ -41,12 +43,49 @@ export type ProductWithKit = Product & {
   media?: any[];
 };
 
+type ProcessedProductImage = {
+  originalUrl: string;
+  webpUrl: string;
+  thumbnailUrl: string;
+  alt: string;
+  fileName: string;
+  width?: number;
+  height?: number;
+  aspectRatio?: number;
+};
+
 const slugify = (str: string): string =>
   String(str ?? '')
     .trim()
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
+
+const toSeoFileName = (productSlug: string, variant: string): string => {
+  const normalizedProductSlug = slugify(productSlug || 'product');
+  const normalizedVariant = slugify(variant || 'image');
+  const base = [normalizedProductSlug, normalizedVariant].filter(Boolean).join('-') || 'product-image';
+  return `${base}.webp`;
+};
+
+const withDownloadFileName = (url: string, fileName: string): string => {
+  try {
+    const parsed = new URL(url);
+    if (fileName) {
+      parsed.searchParams.set('dl', fileName);
+    }
+    return parsed.toString();
+  } catch {
+    return url;
+  }
+};
+
+const buildProductImageAlt = (explicitAlt: string | undefined, fallback: string, index: number): string => {
+  const normalizedExplicit = collapseSpaces(explicitAlt ?? '');
+  const base = normalizedExplicit || fallback;
+  const detailLabel = index === 0 ? 'main product image' : `detail image ${index + 1}`;
+  return collapseSpaces(`${base} ${detailLabel} | F.A.S. Motorsports`);
+};
 
 const normalizeFilterSlug = (value: FilterEntry): string => {
   if (!value) return '';
@@ -136,6 +175,274 @@ const toPlainText = (input: any): string => {
 };
 
 const collapseSpaces = (value: string): string => value.replace(/\s+/g, ' ').trim();
+
+const META_DESCRIPTION_SUFFIX =
+  'Shop high-performance installs and upgrades with F.A.S. Motorsports in Fort Myers, Florida.';
+const META_DESCRIPTION_LIMIT = 155;
+
+const truncateForMeta = (value: string, maxLength: number): string => {
+  const normalized = collapseSpaces(value);
+  if (normalized.length <= maxLength) return normalized;
+  const truncated = normalized.slice(0, maxLength).replace(/[\s,;:.-]+$/g, '');
+  return `${truncated}…`;
+};
+
+const hasRichContent = (value: unknown): boolean => collapseSpaces(toPlainText(value)).length > 0;
+
+const productPageScript = Astro.resolve('../../scripts/product-page.ts');
+
+type ContentDescriptor =
+  | { type: 'portable'; value: any[]; field?: string }
+  | { type: 'text'; value: string; field?: string };
+
+const describeContent = (value: unknown, field?: string): ContentDescriptor | null => {
+  if (!hasRichContent(value)) return null;
+  if (Array.isArray(value)) {
+    return { type: 'portable', value, field };
+  }
+  return { type: 'text', value: collapseSpaces(toPlainText(value)), field };
+};
+
+const inlineAttrsFor = (field?: string): Record<string, any> => (field ? inlineFieldAttrs(field) : {});
+
+const collectSeoStrings = (...values: unknown[]): string[] => {
+  const results: string[] = [];
+  const queue: unknown[] = values.slice();
+  const visited = new Set<unknown>();
+  while (queue.length) {
+    const next = queue.shift();
+    if (next === undefined || next === null) continue;
+    if (visited.has(next)) continue;
+    if (typeof next === 'string' || typeof next === 'number' || typeof next === 'boolean') {
+      const normalized = collapseSpaces(String(next));
+      if (normalized) results.push(normalized);
+      continue;
+    }
+    if (Array.isArray(next)) {
+      for (const item of next) {
+        queue.push(item);
+      }
+      continue;
+    }
+    if (typeof next === 'object') {
+      visited.add(next);
+      const obj = next as Record<string, unknown>;
+      const preferredKeys = [
+        'fitmentYears',
+        'primaryKeyword',
+        'value',
+        'label',
+        'name',
+        'title',
+        'text',
+        'content',
+        'description',
+        'subtitle',
+        'body'
+      ];
+      let pushed = false;
+      for (const key of preferredKeys) {
+        if (key in obj) {
+          queue.push(obj[key]);
+          pushed = true;
+        }
+      }
+      if (!pushed) {
+        for (const value of Object.values(obj)) {
+          queue.push(value);
+        }
+      }
+    }
+  }
+  return results;
+};
+
+const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const toTitleCase = (value: string): string => {
+  return value
+    .split(/([\s-/]+)/g)
+    .map((segment) => {
+      if (/^[\s-/]+$/.test(segment)) return segment;
+      if (/^(TRX|F-150|F150|F\.A\.S\.|FAS|HEMI|HP|WHP|AWD|4WD|RWD|E85)$/i.test(segment)) {
+        return segment.toUpperCase();
+      }
+      return segment.charAt(0).toUpperCase() + segment.slice(1).toLowerCase();
+    })
+    .join('')
+    .replace(/F\.A\.S\./gi, 'F.A.S.');
+};
+
+const sanitizeFitmentPhrase = (value: string): string => {
+  const withoutPipes = value.split(/[|•]/g)[0];
+  const withoutParens = withoutPipes.replace(/\([^)]*\)/g, '');
+  const trimmed = collapseSpaces(withoutParens.replace(/[:;-]+$/, ''));
+  return trimmed.length > 60 ? collapseSpaces(trimmed.slice(0, 60)) : trimmed;
+};
+
+const extractFitmentPhraseFromText = (value: string): string | null => {
+  const source = value.trim();
+  if (!/\b(19|20)\d{2}\b/.test(source)) return null;
+
+  const contextMatch = source.match(/((?:19|20)\d{2}(?:\s*(?:\+|[-–—]|to)\s*(?:19|20)?\d{2})?)([^,.\n;]*)/i);
+  if (contextMatch) {
+    const candidate = sanitizeFitmentPhrase(`${contextMatch[1]}${contextMatch[2] ?? ''}`);
+    if (candidate) return candidate;
+  }
+
+  const plusMatch = source.match(/((?:19|20)\d{2})\s*\+/i);
+  if (plusMatch) return sanitizeFitmentPhrase(`${plusMatch[1]}+`);
+
+  const rangeMatch = source.match(/((?:19|20)\d{2})\s*(?:[-–—]|to)\s*((?:19|20)\d{2})/i);
+  if (rangeMatch) return sanitizeFitmentPhrase(`${rangeMatch[1]}-${rangeMatch[2]}`);
+
+  const singleMatch = source.match(/\b((?:19|20)\d{2})\b/);
+  if (singleMatch) return sanitizeFitmentPhrase(singleMatch[1]);
+
+  return null;
+};
+
+const deriveFitmentPhrase = (
+  product: ProductWithKit | null,
+  plainDescription: string,
+  additionalCandidates: string[]
+): string => {
+  if (!product) return '';
+  const directCandidates = collectSeoStrings(
+    (product as any)?.seo?.fitmentYears,
+    (product as any)?.seo?.fitment,
+    (product as any)?.fitmentYears,
+    (product as any)?.fitment,
+    (product as any)?.fitmentRange,
+    (product as any)?.seo?.fitmentText
+  );
+
+  const attributeCandidates = Array.isArray((product as any)?.attributes)
+    ? (product as any).attributes.map((attr: any) => `${attr?.name ?? ''} ${attr?.value ?? ''}`)
+    : [];
+  const specificationCandidates = Array.isArray((product as any)?.specifications)
+    ? (product as any).specifications.map((spec: any) => `${spec?.label ?? ''} ${spec?.value ?? ''}`)
+    : [];
+  const compatibilityCandidates = Array.isArray((product as any)?.compatibleVehicles)
+    ? (product as any).compatibleVehicles.map((vehicle: any) =>
+        [vehicle?.make, vehicle?.model, vehicle?.trim].filter(Boolean).join(' ')
+      )
+    : [];
+
+  const searchPool = [
+    ...directCandidates,
+    ...attributeCandidates,
+    ...specificationCandidates,
+    ...compatibilityCandidates,
+    plainDescription,
+    (product as any)?.shortDescription,
+    (product as any)?.title,
+    ...additionalCandidates
+  ];
+
+  const seen = new Set<string>();
+  for (const candidate of collectSeoStrings(searchPool)) {
+    const match = extractFitmentPhraseFromText(candidate);
+    if (!match) continue;
+    const normalized = match.toLowerCase();
+    if (seen.has(normalized)) continue;
+    seen.add(normalized);
+    return match;
+  }
+  return '';
+};
+
+const sanitizePrimaryKeyword = (value: string, productTitle: string): string => {
+  const normalized = collapseSpaces(value)
+    .replace(/F\.A\.S\.\s+Motorsports/gi, '')
+    .replace(/FAS\s+Motorsports/gi, '')
+    .replace(/vehicle not included/gi, '')
+    .replace(new RegExp(escapeRegExp(productTitle), 'i'), '')
+    .trim();
+  return normalized ? toTitleCase(normalized) : '';
+};
+
+const derivePrimaryKeyword = (
+  product: ProductWithKit | null,
+  productTitle: string,
+  categoryTitles: string[],
+  productTypeSegments: string[],
+  filterTokens: string[],
+  fitmentPhrase: string,
+  metaKeywordTokens: string[],
+  isInstallOnly: boolean,
+  isPerformanceParts: boolean
+): string => {
+  if (!product) return '';
+  const directCandidates = collectSeoStrings(
+    (product as any)?.seo?.primaryKeyword,
+    (product as any)?.seo?.keyword,
+    (product as any)?.primaryKeyword,
+    (product as any)?.seo?.keyphrase,
+    (product as any)?.seo?.targetKeyword
+  );
+
+  const fallbackCandidates = [
+    ...categoryTitles,
+    ...productTypeSegments,
+    ...filterTokens,
+    fitmentPhrase.replace(/^(?:19|20)\d{2}(?:\s*(?:\+|[-–—]|to)\s*(?:19|20)?\d{2})?\s*/i, ''),
+    metaKeywordTokens[0],
+    isInstallOnly ? 'Installation Service' : '',
+    isPerformanceParts ? 'Performance Parts' : ''
+  ];
+
+  const candidates = [...directCandidates, ...fallbackCandidates];
+  for (const candidate of candidates) {
+    const cleaned = sanitizePrimaryKeyword(candidate, productTitle);
+    if (!cleaned) continue;
+    if (/motorsports/i.test(cleaned)) continue;
+    if (cleaned.toLowerCase() === productTitle.toLowerCase()) continue;
+    return cleaned;
+  }
+  return isInstallOnly ? 'Installation Service' : isPerformanceParts ? 'Performance Parts' : '';
+};
+
+const deriveBenefitsSummary = (
+  product: ProductWithKit | null,
+  plainDescription: string
+): string => {
+  if (!product) return '';
+  const candidates = collectSeoStrings(
+    (product as any)?.seo?.benefits,
+    (product as any)?.seo?.highlights,
+    (product as any)?.seo?.valueProps,
+    (product as any)?.metaDescription,
+    (product as any)?.shortDescription,
+    plainDescription
+  );
+
+  for (const candidate of candidates) {
+    const sentence = candidate.split(/[.!?]/).find((part) => part.trim().length > 20);
+    const fallback = sentence || candidate;
+    const cleaned = collapseSpaces(fallback);
+    if (cleaned.length >= 20) {
+      return cleaned.length > 120 ? collapseSpaces(cleaned.slice(0, 120)) : cleaned;
+    }
+  }
+  return '';
+};
+
+const deriveCallToAction = (
+  product: ProductWithKit | null,
+  isInstallOnly: boolean,
+  isPerformanceParts: boolean
+): string => {
+  const explicitCta = collectSeoStrings(
+    (product as any)?.seo?.callToAction,
+    (product as any)?.seo?.cta,
+    (product as any)?.seo?.ctaText
+  ).find((value) => value.length > 0);
+  if (explicitCta) return explicitCta;
+  if (isInstallOnly) return 'Schedule your install today.';
+  if (isPerformanceParts) return 'Order your performance parts now.';
+  return 'Shop now.';
+};
 
 const ensureDisclaimerMessaging = (value: string, message: string): string => {
   const base = collapseSpaces(value || '');
@@ -363,7 +670,8 @@ try {
     });
   }
   // SEO helpers
-  seoTitle = String((product as any)?.title || 'Product');
+  const baseProductTitle = String((product as any)?.title || 'Product');
+  seoTitle = baseProductTitle;
   plainDescription = collapseSpaces(
     toPlainText((product as any)?.shortDescription ?? (product as any)?.description ?? '')
   );
@@ -381,10 +689,9 @@ if (!product) {
   Astro.response.status = 404;
 }
 
-let productImages: string[] = [];
+let productImages: ProcessedProductImage[] = [];
 let metaKeywords = '';
 let serviceDisclaimer = '';
-let titleQualifier = '';
 let priceValue: number | undefined;
 let breadcrumbStructuredData: Record<string, any> | null = null;
 let productStructuredData: Record<string, any> | null = null;
@@ -393,6 +700,14 @@ let upsellProductsStructuredData: Record<string, any> | null = null;
 let isInstallOnly = false;
 let isPerformanceParts = false;
 let requiresVehicleDisclaimer = false;
+let productHeading = baseProductTitle;
+let headingInlineAttrs: Record<string, any> = inlineFieldAttrs('title');
+let whyChooseContent: ContentDescriptor | null = null;
+let featuresContent: ContentDescriptor | null = null;
+let installFitmentHighlights: { label: string; value: string }[] = [];
+let compatibilityVehicles: VehicleCompat[] = [];
+let specMetaRows: { label: string; value: string }[] = [];
+let includedInKitItems: KitItem[] = [];
 
 const vehicleAvailabilityProperty = {
   '@type': 'PropertyValue',
@@ -401,16 +716,6 @@ const vehicleAvailabilityProperty = {
 };
 
 if (product) {
-  productImages = Array.isArray((product as any)?.images)
-    ? (product as any).images
-        .map((image: any) => ensureAbsoluteUrl(image?.asset?.url || image?.url))
-        .filter((image: unknown): image is string => typeof image === 'string' && Boolean(image))
-    : [];
-
-  if (!seoOg && productImages.length > 0) {
-    seoOg = productImages[0];
-  }
-
   const metaKeywordTokens: string[] = [];
   const productTypeRaw = collapseSpaces(String((product as any)?.productType || ''));
   const categoryTitlesForTokens: string[] = [];
@@ -480,19 +785,66 @@ if (product) {
     serviceDisclaimer = isInstallOnly
       ? 'Professional installation service only. Vehicle not included.'
       : 'Performance package or components only. Vehicle not included.';
-    titleQualifier = isInstallOnly
-      ? 'Installation Service — Vehicle Not Included'
-      : 'Performance Package — Vehicle Not Included';
-
     plainDescription = ensureDisclaimerMessaging(plainDescription, serviceDisclaimer);
-    if (!seoTitle.toLowerCase().includes('vehicle not included')) {
-      seoTitle = `${seoTitle} — ${titleQualifier}`;
-    }
   } else {
     serviceDisclaimer = '';
-    titleQualifier = '';
   }
-  seoDesc = plainDescription ? plainDescription.slice(0, 160) : undefined;
+
+  const categoryTokensForFitment = Array.isArray((product as any)?.categories)
+    ? (product as any).categories
+        .map((category: any) => [category?.title, category?.slug?.current].filter(Boolean).join(' '))
+    : [];
+  const fitmentPhrase = toTitleCase(
+    deriveFitmentPhrase(product, plainDescription, [
+      ...categoryTokensForFitment,
+      ...metaKeywordTokens,
+      ...filterSlugsForFlags
+    ])
+  );
+  const primaryKeyword = derivePrimaryKeyword(
+    product,
+    baseProductTitle,
+    categoryTitlesForTokens,
+    productTypeSegments,
+    normalizedFilterTokens,
+    fitmentPhrase,
+    metaKeywordTokens,
+    isInstallOnly,
+    isPerformanceParts
+  );
+  const benefitsSummary = deriveBenefitsSummary(product, plainDescription);
+  const callToAction = deriveCallToAction(product, isInstallOnly, isPerformanceParts);
+
+  const secondaryTitleParts = [fitmentPhrase, primaryKeyword].filter(Boolean);
+  const assembledTitle = secondaryTitleParts.length
+    ? [baseProductTitle, secondaryTitleParts.join(' '), 'FAS Motorsports']
+        .filter(Boolean)
+        .join(' | ')
+    : `${baseProductTitle} | FAS Motorsports`;
+  seoTitle = collapseSpaces(assembledTitle);
+
+  const descriptionSegments: string[] = [];
+  const fitmentAndKeyword = [fitmentPhrase, primaryKeyword].filter(Boolean).join(' ');
+  if (fitmentAndKeyword) {
+    descriptionSegments.push(fitmentAndKeyword);
+  } else if (fitmentPhrase) {
+    descriptionSegments.push(fitmentPhrase);
+  } else if (primaryKeyword) {
+    descriptionSegments.push(primaryKeyword);
+  }
+  if (benefitsSummary) descriptionSegments.push(benefitsSummary);
+  if (callToAction) descriptionSegments.push(callToAction);
+  descriptionSegments.push('F.A.S. Motorsports');
+  if (requiresVehicleDisclaimer) {
+    descriptionSegments.push('Vehicle not included.');
+  }
+  const computedMetaDescription = truncateForMeta(
+    descriptionSegments.filter(Boolean).join(' '),
+    META_DESCRIPTION_LIMIT
+  );
+  seoDesc = computedMetaDescription
+    ? computedMetaDescription
+    : truncateForMeta(`${baseProductTitle} ${META_DESCRIPTION_SUFFIX}`, META_DESCRIPTION_LIMIT);
 
   metaKeywords = Array.from(
     new Set(
@@ -501,6 +853,159 @@ if (product) {
         .filter((token) => token.length > 0)
     )
   ).join(', ');
+
+  if (
+    fitmentPhrase &&
+    !metaKeywords.toLowerCase().includes(fitmentPhrase.toLowerCase())
+  ) {
+    metaKeywords = collapseSpaces([metaKeywords, fitmentPhrase].filter(Boolean).join(', '));
+  }
+  if (primaryKeyword && !metaKeywords.toLowerCase().includes(primaryKeyword.toLowerCase())) {
+    metaKeywords = collapseSpaces([metaKeywords, primaryKeyword].filter(Boolean).join(', '));
+  }
+
+  const headingParts = [primaryKeyword, fitmentPhrase].filter(Boolean);
+  productHeading = collapseSpaces(headingParts.join(' '));
+  headingInlineAttrs = {};
+  if (!productHeading) {
+    productHeading = baseProductTitle;
+    headingInlineAttrs = inlineFieldAttrs('title');
+  }
+
+  const seoBenefitsDescriptor = describeContent((product as any)?.seo?.benefits, 'seo.benefits');
+  const seoHighlightsDescriptor = describeContent((product as any)?.seo?.highlights, 'seo.highlights');
+  const seoValuePropsDescriptor = describeContent((product as any)?.seo?.valueProps, 'seo.valueProps');
+  const shortDescriptionDescriptor = describeContent(product?.shortDescription, 'shortDescription');
+  const descriptionDescriptor = describeContent(product?.description, 'description');
+  const importantNotesDescriptor = describeContent(product?.importantNotes, 'importantNotes');
+
+  whyChooseContent =
+    seoBenefitsDescriptor ?? shortDescriptionDescriptor ?? descriptionDescriptor ?? seoValuePropsDescriptor ?? null;
+  featuresContent =
+    seoHighlightsDescriptor ?? seoValuePropsDescriptor ?? descriptionDescriptor ?? shortDescriptionDescriptor ?? null;
+
+  const altFallback = collapseSpaces(
+    [productHeading, baseProductTitle, 'F.A.S. Motorsports'].filter(Boolean).join(' ')
+  );
+  const normalizedImageSlugSource = slugValue || baseProductTitle;
+  const normalizedImageSlug = slugify(normalizedImageSlugSource);
+  const imageEntries = Array.isArray((product as any)?.images) ? (product as any).images : [];
+  productImages = imageEntries
+    .map((image: any, index: number) => {
+      const rawUrl = ensureAbsoluteUrl(image?.asset?.url || image?.url);
+      if (!rawUrl) return null;
+      const dimensions = (image?.asset as any)?.metadata?.dimensions ?? {};
+      const width = typeof dimensions?.width === 'number' ? Math.round(dimensions.width) : undefined;
+      const height = typeof dimensions?.height === 'number' ? Math.round(dimensions.height) : undefined;
+      const aspectRatio =
+        typeof dimensions?.aspectRatio === 'number'
+          ? Number(dimensions.aspectRatio)
+          : width && height
+            ? width / height
+            : undefined;
+      const variant = index === 0 ? 'main' : `gallery-${index}`;
+      const fileName = toSeoFileName(normalizedImageSlug, variant);
+      const optimized = optimizeSanityImageUrl(rawUrl, { width: 1600, quality: 72, format: 'webp' }) || rawUrl;
+      const optimizedThumb =
+        optimizeSanityImageUrl(rawUrl, { width: 480, quality: 72, format: 'webp' }) || optimized;
+      const webpUrl = withDownloadFileName(optimized, fileName);
+      const thumbFileName = fileName.replace(/\.webp$/i, '-thumb.webp');
+      const thumbnailUrl = withDownloadFileName(optimizedThumb, thumbFileName);
+      return {
+        originalUrl: rawUrl,
+        webpUrl,
+        thumbnailUrl,
+        alt: buildProductImageAlt(image?.alt, altFallback, index),
+        fileName,
+        width,
+        height,
+        aspectRatio
+      } satisfies ProcessedProductImage;
+    })
+    .filter((value): value is ProcessedProductImage => Boolean(value));
+
+  if (!productImages.length) {
+    const fallbackUrl = ensureAbsoluteUrl('/logo/faslogochroma.webp') ?? '/logo/faslogochroma.webp';
+    const fallbackFile = toSeoFileName(normalizedImageSlug, 'placeholder');
+    productImages = [
+      {
+        originalUrl: fallbackUrl,
+        webpUrl: fallbackUrl,
+        thumbnailUrl: fallbackUrl,
+        alt: collapseSpaces(`${altFallback || baseProductTitle} placeholder image | F.A.S. Motorsports`),
+        fileName: fallbackFile,
+        width: 1200,
+        height: 900,
+        aspectRatio: 4 / 3
+      }
+    ];
+  }
+
+  if (!seoOg && productImages.length > 0) {
+    seoOg = productImages[0].webpUrl;
+  }
+
+  const fitmentYearsText = collapseSpaces(
+    [
+      toPlainText((product as any)?.fitmentYears),
+      toPlainText((product as any)?.seo?.fitmentYears)
+    ]
+      .filter(Boolean)
+      .join(' ')
+  );
+  const fitmentRangeText = collapseSpaces(toPlainText((product as any)?.fitmentRange));
+  const fitmentText = collapseSpaces(
+    [
+      toPlainText((product as any)?.fitment),
+      toPlainText((product as any)?.seo?.fitment),
+      toPlainText((product as any)?.seo?.fitmentText)
+    ]
+      .filter(Boolean)
+      .join(' ')
+  );
+
+  installFitmentHighlights = [];
+  if (fitmentYearsText) installFitmentHighlights.push({ label: 'Fitment Years', value: fitmentYearsText });
+  if (fitmentText) installFitmentHighlights.push({ label: 'Fitment', value: fitmentText });
+  if (fitmentRangeText && !installFitmentHighlights.some((item) => item.label === 'Fitment Range')) {
+    installFitmentHighlights.push({ label: 'Fitment Range', value: fitmentRangeText });
+  }
+  if (isInstallOnly) {
+    installFitmentHighlights.push({ label: 'Service Type', value: 'Professional install service only' });
+  }
+
+  compatibilityVehicles = Array.isArray((product as any)?.compatibleVehicles)
+    ? (product as any).compatibleVehicles.filter(Boolean)
+    : [];
+
+  specMetaRows = [];
+  const pushSpecMeta = (label: string, value: unknown, formatter?: (value: unknown) => string) => {
+    if (value === undefined || value === null) return;
+    const text = formatter ? formatter(value) : collapseSpaces(toPlainText(value));
+    if (text) {
+      specMetaRows.push({ label, value: text });
+    }
+  };
+
+  pushSpecMeta('SKU', (product as any)?.sku);
+  pushSpecMeta('Brand', (product as any)?.brand);
+  pushSpecMeta('GTIN', (product as any)?.gtin);
+  pushSpecMeta('MPN', (product as any)?.mpn);
+  pushSpecMeta(
+    'Average Horsepower',
+    typeof (product as any)?.averageHorsepower === 'number' ? (product as any)?.averageHorsepower : undefined,
+    (value) => `${value}`
+  );
+  pushSpecMeta(
+    'Shipping Weight',
+    typeof (product as any)?.shippingWeight === 'number' ? (product as any)?.shippingWeight : undefined,
+    (value) => `${value} lbs`
+  );
+  pushSpecMeta('Tune', (product as any)?.tune?.title);
+
+  includedInKitItems = Array.isArray(product?.includedInKit)
+    ? (product?.includedInKit as KitItem[]).filter(Boolean)
+    : [];
 
   priceValue = typeof productPriceNumber === 'number' ? productPriceNumber : undefined;
 
@@ -519,53 +1024,47 @@ if (product) {
     priceCurrency: 'USD',
     availability: 'https://schema.org/InStock',
     url: seoCanon,
-    itemCondition: 'https://schema.org/NewCondition'
+    itemCondition: 'https://schema.org/NewCondition',
+    price: typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined
   };
-  if (typeof priceValue === 'number') {
-    offerDetails.price = priceValue.toFixed(2);
-  }
-  if (isInstallOnly) {
-    offerDetails.itemOffered = {
-      '@type': 'Service',
-      name: `${(product as any)?.title} Installation`,
-      description: serviceDisclaimer
-    };
-  }
 
-  const brandOrProvider = isInstallOnly
-    ? { '@type': 'Organization', name: 'F.A.S. Motorsports' }
-    : { '@type': 'Brand', name: 'F.A.S. Motorsports' };
+  const brandName = collapseSpaces((product as any)?.brand || 'F.A.S. Motorsports');
+  const productBrand = brandName
+    ? {
+        '@type': 'Brand',
+        name: brandName
+      }
+    : undefined;
+
+  const productSchemaImages = productImages.map((img) => img.webpUrl).filter(Boolean);
 
   productStructuredData = {
     '@context': 'https://schema.org',
-    '@type': isInstallOnly ? 'Service' : 'Product',
+    '@type': 'Product',
     name: (product as any)?.title,
-    image: productImages,
+    image: productSchemaImages.length ? productSchemaImages : undefined,
     description: plainDescription || undefined,
     sku: (product as any)?.sku || undefined,
+    mpn: (product as any)?.mpn || undefined,
+    brand: productBrand,
     url: seoCanon,
     offers: offerDetails
   };
   if (requiresVehicleDisclaimer) {
     productStructuredData.additionalProperty = [vehicleAvailabilityProperty];
   }
-
-  if (isInstallOnly) {
-    productStructuredData.serviceType = 'Automotive performance installation';
-    productStructuredData.provider = brandOrProvider;
-    productStructuredData.areaServed = 'US';
-  } else {
-    productStructuredData.brand = brandOrProvider;
-    productStructuredData.category = metaKeywords || undefined;
-  }
+  productStructuredData.category = metaKeywords || undefined;
 } else {
   seoTitle = 'Product Not Found';
-  seoDesc = 'The product you are looking for may have been removed or is no longer available.';
+  seoDesc = truncateForMeta(
+    'The product you are looking for may have been removed or is no longer available. '
+      + META_DESCRIPTION_SUFFIX,
+    META_DESCRIPTION_LIMIT
+  );
   seoCanon = defaultCanonical;
   productImages = [];
   metaKeywords = '';
   serviceDisclaimer = '';
-  titleQualifier = '';
   priceValue = undefined;
   breadcrumbStructuredData = {
     '@context': 'https://schema.org',
@@ -613,17 +1112,12 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
     <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
       <!-- LEFT: Sticky Image on desktop -->
       <div class="md:sticky md:top-28 flex justify-center items-start z-0 min-w-0" {...inlineFieldAttrs('images')}>
-        <SlugCarousel
-          images={(product as any).images?.map((img: any) => ({
-            url: img?.asset?.url || '/logo/faslogochroma.webp',
-            alt: img?.alt || (product as any).title
-          })) || []}
-        />
+        <SlugCarousel images={productImages} />
       </div>
 
       <!-- RIGHT: Title, price, short intro, add-to-cart, then accordion -->
       <div class="relative z-10 min-w-0 break-words text-sm">
-        <h1 class="text-3xl font-ethno mb-3" {...inlineFieldAttrs('title')}>{(product as any).title}</h1>
+        <h1 class="text-3xl font-ethno mb-3" {...headingInlineAttrs}>{productHeading}</h1>
         <h2 class="text-4xl text-accent
          font-mono mb-4" {...inlineFieldAttrs('price')}>
           {typeof priceValue === 'number' ? `$${priceValue.toFixed(2)}` : 'Price not available'}
@@ -774,7 +1268,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
           data-product-name={(product as any).title}
           data-product-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
           data-product-base-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
-        data-product-image={(product as any).images?.[0]?.asset?.url || (product as any).images?.[0]?.url || ''}
+        data-product-image={productImages[0]?.webpUrl || productImages[0]?.originalUrl || ''}
         data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
         data-product-shipping-class={(product as any).shippingClass || ''}
         data-product-install-only={String(isInstallOnly)}
@@ -798,7 +1292,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
           <section class="mt-6">
             <h3 class="font-semibold mb-2">Media</h3>
             <div class="flex gap-3 overflow-x-auto pb-2">
-              {(product as any).media.map((m: any) => {
+              {(product as any).media.map((m: any, mediaIndex: number) => {
                 try {
                   const title = String(m?.title || '').trim();
                   const alt = String(m?.alt || title || (product as any)?.title || 'Media');
@@ -849,8 +1343,37 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                     );
                   }
                   if (isImage) {
+                    const mediaFileName = toSeoFileName(normalizedImageSlug, `media-${mediaIndex + 1}`);
+                    const optimizedMedia = optimizeSanityImageUrl(url, {
+                      width: 1024,
+                      quality: 70,
+                      format: 'webp'
+                    }) || url;
+                    const optimizedThumb = optimizeSanityImageUrl(url, {
+                      width: 480,
+                      quality: 70,
+                      format: 'webp'
+                    }) || optimizedMedia;
+                    const mediaUrl = withDownloadFileName(optimizedMedia, mediaFileName);
+                    const thumbUrl = withDownloadFileName(
+                      optimizedThumb,
+                      mediaFileName.replace(/\.webp$/i, '-thumb.webp')
+                    );
                     return (
-                      <img src={url} alt={alt} class="w-64 h-36 object-cover rounded border border-white/20 bg-black/30" loading="lazy" />
+                      <AstroImage
+                        src={mediaUrl}
+                        alt={alt}
+                        width={640}
+                        height={360}
+                        format="webp"
+                        quality={70}
+                        loading="lazy"
+                        decoding="async"
+                        fit="cover"
+                        class="w-64 h-36 object-cover rounded border border-white/20 bg-black/30"
+                        sizes="256px"
+                        data-thumb={thumbUrl}
+                      />
                     );
                   }
                   if (url) {
@@ -867,159 +1390,187 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
           </section>
         )}
 
-        <!-- Accordion -->
-        <div class="mt-8 divide-y divide-white/80 border border-white/20 rounded-none overflow-hidden">
-          <!-- Details / Full Description -->
-          <details class="group" id="acc-details">
-            <summary class="cursor-pointer select-none bg-black/30 px-4 py-3 font-ethno text-base md:text-lg flex items-center justify-between">
-              <span>Product Details</span>
-              <span class="transition-transform group-open:rotate-180">▾</span>
-            </summary>
-            <div class="px-4 py-4 text-white/90 font-arial leading-relaxed whitespace-pre-line break-words">
-              <div {...inlineFieldAttrs('description')}>
-                <PortableTextRenderer value={product?.description ?? []} />
+        <div class="mt-8 space-y-10">
+          <section class="border border-white/20 bg-black/20 p-5">
+            <h2 class="text-2xl font-ethno text-accent mb-4">Why choose this kit?</h2>
+            {whyChooseContent ? (
+              <div class="space-y-4 text-white/90" {...inlineAttrsFor(whyChooseContent.field)}>
+                {whyChooseContent.type === 'portable' ? (
+                  <PortableTextRenderer value={whyChooseContent.value as any[]} />
+                ) : (
+                  <p class="leading-relaxed">{whyChooseContent.value as string}</p>
+                )}
               </div>
-              {/* Specifications Table */}
-              {Array.isArray(product?.specifications) && product?.specifications.length > 0 && (
-                <div class="mt-6">
-                  <h3 class="font-bold text-lg mb-2">Specifications</h3>
-                  <table class="table-auto border border-gray-300 w-full text-left text-sm">
-                    <tbody>
-                      {(product?.specifications ?? []).map((spec: { label?: string; key?: string; value?: string }) => (
-                        <tr>
-                          <td class="border px-2 py-1">{spec.label || spec.key}</td>
-                          <td class="border px-2 py-1">{spec.value}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-              {/* Attributes Table */}
-              {Array.isArray(product?.attributes) && product?.attributes.length > 0 && (
-                <div class="mt-6">
-                  <h3 class="font-bold text-lg mb-2">Attributes</h3>
-                  <table class="table-auto border border-gray-300 w-full text-left text-sm">
-                    <tbody>
-                      {(product?.attributes ?? []).map((attr: { name?: string; value?: string }) => (
-                        <tr>
-                          <td class="border px-2 py-1">{attr.name}</td>
-                          <td class="border px-2 py-1">{attr.value}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-              {/* Kit Includes Table */}
-              {Array.isArray(product?.includedInKit) && product?.includedInKit.length > 0 && (
-                <div class="mt-6">
-                  <h3 class="font-bold text-lg mb-2">Included in Kit</h3>
-                  <table class="table-auto border border-gray-300 w-full text-left text-sm">
-                    <tbody>
-                      {(product?.includedInKit ?? []).map((kit: KitItem, idx: number) => (
-                        <tr>
-                          <td class="border px-2 py-1">{kit.item ?? 'Item'}</td>
-                          <td class="border px-2 py-1">{kit.quantity ?? 1}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </details>
+            ) : (
+              <p class="text-white/60">Full kit overview coming soon.</p>
+            )}
+          </section>
 
-          {product?.importantNotes && (
-            <div class="mt-6 p-4 border border-red-500 bg-slate-400 text-primary rounded" {...inlineFieldAttrs('importantNotes')}>
-              <h3 class="font-bold text-lg mb-2 text-primary">Important Notes</h3>
-              <PortableTextRenderer value={product?.importantNotes ?? []} />
-            </div>
-          )}
+          <section class="border border-white/20 bg-black/20 p-5">
+            <h2 class="text-2xl font-ethno text-accent mb-4">Features</h2>
+            {featuresContent ? (
+              <div class="space-y-4 text-white/90" {...inlineAttrsFor(featuresContent.field)}>
+                {featuresContent.type === 'portable' ? (
+                  <PortableTextRenderer value={featuresContent.value as any[]} />
+                ) : (
+                  <p class="leading-relaxed">{featuresContent.value as string}</p>
+                )}
+              </div>
+            ) : null}
 
+            {!featuresContent && includedInKitItems.length === 0 && (
+              <p class="text-white/60">Feature details coming soon.</p>
+            )}
 
-          <!-- Specifications (removed, now handled in Product Details accordion) -->
+            {includedInKitItems.length > 0 && (
+              <div class="mt-6">
+                <h3 class="text-lg font-semibold mb-3">What's Included</h3>
+                <ul class="list-disc list-inside space-y-1 text-white/80">
+                  {includedInKitItems.map((kit) => (
+                    <li>
+                      <span class="font-medium text-white">{kit.item ?? 'Item'}</span>
+                      {kit.quantity ? <span class="text-white/70"> — Qty {kit.quantity}</span> : null}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </section>
 
-          <!-- Compatibility -->
-          {(Array.isArray((product as any).compatibleVehicles) && (product as any).compatibleVehicles.length > 0) || (product as any).tune || (product as any).averageHorsepower ? (
-            <details class="group">
-              <summary class="cursor-pointer select-none bg-black/30 px-4 py-3 font-ethno text-lg flex items-center justify-between">
-                <span>Compatibility</span>
-                <span class="transition-transform group-open:rotate-180">▾</span>
-              </summary>
-              <div class="px-4 py-4 space-y-4">
-                {Array.isArray((product as any).compatibleVehicles) && (product as any).compatibleVehicles.length > 0 && (
+          <section class="border border-white/20 bg-black/20 p-5">
+            <h2 class="text-2xl font-ethno text-accent mb-4">Install & Fitment</h2>
+            {installFitmentHighlights.length > 0 && (
+              <dl class="space-y-3">
+                {installFitmentHighlights.map((item) => (
                   <div>
-                    <div class="font-semibold mb-2">Compatible Vehicles</div>
-                    <ul class="list-disc list-inside text-white/90">
-                      {(product as any).compatibleVehicles.map((v: { make?: string; model?: string; trim?: string }) => (
-                        <li>{[v.make, v.model, v.trim].filter(Boolean).join(' ')}</li>
-                      ))}
-                    </ul>
+                    <dt class="text-xs uppercase tracking-widest text-white/60">{item.label}</dt>
+                    <dd class="text-white/90 leading-relaxed">{item.value}</dd>
                   </div>
-                )}
-                {(product as any).tune && (
-                  <div class="text-white/90"><span class="font-semibold">Tune:</span> {(product as any).tune.title}</div>
-                )}
-                {typeof (product as any).averageHorsepower === 'number' && (
-                  <div class="text-white/90"><span class="font-semibold">Average Horsepower:</span> {(product as any).averageHorsepower}</div>
-                )}
-              </div>
-            </details>
-          ) : null}
-
-          {/* Categories & Filters (inline minimal) */}
-        {/* Inline Categories & Filters at the bottom, centered */}
-        {(((product as any).categories?.length ?? 0) > 0) || (((product as any).filters?.length ?? 0) > 0) ? (
-          <div class="mt-8 text-left text-sm text-white/70">
-            {(product as any).categories?.length > 0 && (
-              <div class="mb-1">
-                <span class="font-semibold text-white">Categories:</span>{' '}
-                {(product as any).categories.map((c: any, idx: number) => (
-                  <>
-                    <a href={`/shop?categorySlug=${c.slug?.current || c.slug}`} class="hover:underline">
-                      {c.title}
-                    </a>
-                    {idx < (product as any).categories.length - 1 ? ', ' : ''}
-                  </>
                 ))}
-              </div>
+              </dl>
             )}
-            {(product as any).filters?.length > 0 && (
-              <div>
-                <span class="font-semibold text-white">Filters:</span>{' '}
-                {(() => {
-                  const filterEntries: FilterEntry[] = Array.isArray((product as any).filters)
-                    ? (product as any).filters
-                    : [];
-                  const titleEntries: FilterEntry[] = Array.isArray((product as any).filterTitles)
-                    ? (product as any).filterTitles
-                    : filterEntries;
-                  const pairs = filterEntries
-                    .map((entry, idx) => {
-                      const slug = normalizeFilterSlug(entry);
-                      if (!slug) return null;
-                      const label = normalizeFilterLabel(titleEntries[idx] ?? entry, slug);
-                      if (!label) return null;
-                      return { slug, label };
-                    })
-                    .filter(Boolean);
 
-                  return pairs.map((item, idx) => (
-                    item ? (
-                      <>
-                        <a href={`/shop?filters=${encodeURIComponent(item.slug)}`} class="hover:underline capitalize">
-                          {item.label}
-                        </a>
-                        {idx < pairs.length - 1 ? ', ' : ''}
-                      </>
-                    ) : null
-                  ));
-                })()}
+            {compatibilityVehicles.length > 0 && (
+              <div class="mt-5">
+                <h3 class="text-lg font-semibold mb-2">Compatible Vehicles</h3>
+                <ul class="list-disc list-inside text-white/90 space-y-1">
+                  {compatibilityVehicles.map((vehicle) => (
+                    <li>{[vehicle.make, vehicle.model, vehicle.trim].filter(Boolean).join(' ')}</li>
+                  ))}
+                </ul>
               </div>
             )}
-          </div>
-        ) : null}
+
+            {importantNotesDescriptor && (
+              <div
+                class="mt-6 rounded border border-yellow-500/40 bg-yellow-500/10 px-4 py-3 text-sm leading-relaxed text-yellow-100"
+                {...inlineAttrsFor(importantNotesDescriptor.field)}
+              >
+                {importantNotesDescriptor.type === 'portable' ? (
+                  <PortableTextRenderer value={importantNotesDescriptor.value as any[]} />
+                ) : (
+                  <p>{importantNotesDescriptor.value as string}</p>
+                )}
+              </div>
+            )}
+          </section>
+
+          <section class="border border-white/20 bg-black/20 p-5">
+            <h2 class="text-2xl font-ethno text-accent mb-4">Specs</h2>
+            {specMetaRows.length > 0 && (
+              <dl class="grid gap-3 sm:grid-cols-2">
+                {specMetaRows.map((row) => (
+                  <div class="rounded border border-white/10 bg-black/30 p-3">
+                    <dt class="text-xs uppercase tracking-widest text-white/60">{row.label}</dt>
+                    <dd class="text-white font-medium">{row.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+
+            {Array.isArray(product?.specifications) && product?.specifications.length > 0 && (
+              <div class="mt-6" {...inlineFieldAttrs('specifications')}>
+                <h3 class="text-lg font-semibold mb-3">Technical Specifications</h3>
+                <table class="table-auto border border-white/10 w-full text-left text-sm">
+                  <tbody>
+                    {(product?.specifications ?? []).map((spec: { label?: string; key?: string; value?: string }) => (
+                      <tr>
+                        <td class="border border-white/10 px-2 py-1 text-white/70">{spec.label || spec.key}</td>
+                        <td class="border border-white/10 px-2 py-1 text-white">{spec.value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {Array.isArray(product?.attributes) && product?.attributes.length > 0 && (
+              <div class="mt-6" {...inlineFieldAttrs('attributes')}>
+                <h3 class="text-lg font-semibold mb-3">Attributes</h3>
+                <table class="table-auto border border-white/10 w-full text-left text-sm">
+                  <tbody>
+                    {(product?.attributes ?? []).map((attr: { name?: string; value?: string }) => (
+                      <tr>
+                        <td class="border border-white/10 px-2 py-1 text-white/70">{attr.name}</td>
+                        <td class="border border-white/10 px-2 py-1 text-white">{attr.value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+
+          {(((product as any).categories?.length ?? 0) > 0) || (((product as any).filters?.length ?? 0) > 0) ? (
+            <div class="text-left text-sm text-white/70">
+              {(product as any).categories?.length > 0 && (
+                <div class="mb-1">
+                  <span class="font-semibold text-white">Categories:</span>{' '}
+                  {(product as any).categories.map((c: any, idx: number) => (
+                    <>
+                      <a href={`/shop?categorySlug=${c.slug?.current || c.slug}`} class="hover:underline">
+                        {c.title}
+                      </a>
+                      {idx < (product as any).categories.length - 1 ? ', ' : ''}
+                    </>
+                  ))}
+                </div>
+              )}
+              {(product as any).filters?.length > 0 && (
+                <div>
+                  <span class="font-semibold text-white">Filters:</span>{' '}
+                  {(() => {
+                    const filterEntries: FilterEntry[] = Array.isArray((product as any).filters)
+                      ? (product as any).filters
+                      : [];
+                    const titleEntries: FilterEntry[] = Array.isArray((product as any).filterTitles)
+                      ? (product as any).filterTitles
+                      : filterEntries;
+                    const pairs = filterEntries
+                      .map((entry, idx) => {
+                        const slug = normalizeFilterSlug(entry);
+                        if (!slug) return null;
+                        const label = normalizeFilterLabel(titleEntries[idx] ?? entry, slug);
+                        if (!label) return null;
+                        return { slug, label };
+                      })
+                      .filter(Boolean);
+
+                    return pairs.map((item, idx) => (
+                      item ? (
+                        <>
+                          <a href={`/shop?filters=${encodeURIComponent(item.slug)}`} class="hover:underline capitalize">
+                            {item.label}
+                          </a>
+                          {idx < pairs.length - 1 ? ', ' : ''}
+                        </>
+                      ) : null
+                    ));
+                  })()}
+                </div>
+              )}
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
@@ -1134,34 +1685,8 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
   </button>
 </div>
 
-<script>
-  // Keep sticky price in sync
-  (function(){
-    try {
-      const sticky = document.getElementById('sticky-price');
-      const main = document.getElementById('price-total');
-      if (!sticky || !main) return;
-      const sync = () => { sticky.textContent = main.textContent; };
-      const mo = new MutationObserver(sync);
-      mo.observe(main, { childList: true, characterData: true, subtree: true });
-      sync();
-    } catch {}
-  })();
+  <script type="module" src={productPageScript} defer></script>
 
-  // Hide sticky bar when cart or menu drawer is open
-  (function(){
-    try {
-      const bar = document.getElementById('mobile-add-to-cart');
-      if (!bar) return;
-      const hide = () => bar.classList.add('hidden');
-      const show = () => bar.classList.remove('hidden');
-      window.addEventListener('cart:open', hide);
-      window.addEventListener('cart:close', show);
-      window.addEventListener('menu:open', hide);
-      window.addEventListener('menu:close', show);
-    } catch {}
-  })();
-</script>
 ) : (
   <BaseLayout title={seoTitle} description={seoDesc} canonical={seoCanon} noindex>
     {breadcrumbStructuredData && (
@@ -1198,292 +1723,3 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
     /* Safety: any full-bleed overlay divs should not eat clicks */
     [class~="absolute"][class~="inset-0"] { pointer-events: none; }
   </style>
-  <script>
-  // @ts-nocheck
-  (function () {
-    if (window.__fasPriceInit) return; // prevent double-init on HMR/nav
-    window.__fasPriceInit = true;
-
-    let __rafPending = false;
-    function scheduleUpdate(fn) {
-      if (__rafPending) return;
-      __rafPending = true;
-      requestAnimationFrame(() => {
-        __rafPending = false;
-        try { fn(); } catch (_) {}
-      });
-    }
-
-    function safeParseJSON(str, fallback) {
-      try { return JSON.parse(String(str || "")); } catch { return fallback; }
-    }
-
-    const CART_KEY = 'fas_cart_v1';
-
-    function getCart() {
-      try {
-        const raw = localStorage.getItem(CART_KEY);
-        const parsed = raw ? JSON.parse(raw) : null;
-        if (parsed && Array.isArray(parsed.items)) return parsed;
-        return { items: [] };
-      } catch { return { items: [] }; }
-    }
-
-    function setCart(cart) {
-      try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch {}
-      try { window.cart = cart; } catch {}
-    }
-
-    function emitCartChanged(cart) {
-      try { window.dispatchEvent(new CustomEvent('cart:changed', { detail: { cart } })); } catch {}
-    }
-
-    function prefersDesktopOverlay() {
-      try {
-        const hover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
-        const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
-        if (hover && !coarse) return true;
-        if (hover && coarse === undefined) return true;
-        const maxTouch = navigator.maxTouchPoints || 0;
-        if (coarse) return false;
-        return maxTouch === 0;
-      } catch (error) {
-        void error;
-        return false;
-      }
-    }
-
-    // Add-to-cart delegation (compute latest config first)
-    document.addEventListener("click", (evt) => {
-      const target = evt.target;
-      const el = target?.closest(".add-to-cart");
-      if (!el) return;
-      evt.preventDefault();
-      evt.stopPropagation();
-
-      // Compute latest configured price & selections
-      const calc = updateConfiguredPriceUI();
-      const selections = (calc && calc.cfg && Array.isArray(calc.cfg.selections)) ? calc.cfg.selections : [];
-      const extra = (calc && calc.cfg && typeof calc.cfg.extra === 'number') ? calc.cfg.extra : 0;
-
-      const ds = el.dataset || {};
-      const basePrice = parseFloat(ds.productBasePrice || ds.productPrice || "0") || 0;
-      const total = (typeof calc?.total === 'number') ? calc.total : (basePrice + extra);
-
-      const shippingClassRaw = (ds.productShippingClass || '').toString();
-      const normalizedShippingClass = shippingClassRaw.toLowerCase().replace(/[^a-z]/g, '');
-      const installOnlyFlag =
-        String(ds.productInstallOnly || '').toLowerCase() === 'true' ||
-        normalizedShippingClass.includes('installonly');
-
-      // Stable config signature for line dedup (same options -> same line)
-      const signature = JSON.stringify(selections.slice().sort((a,b)=>{
-        const ga=(a.group||'')+':' + (a.value||'');
-        const gb=(b.group||'')+':' + (b.value||'');
-        return ga.localeCompare(gb);
-      }));
-
-      const optionsMap = Object.create(null);
-      try {
-        selections.forEach((s) => {
-          const group = String(s.group || 'option');
-          const label = s?.label ?? s?.value;
-          const display = String(label ?? '').trim() || 'Selected';
-          if (optionsMap[group]) {
-            if (!optionsMap[group].includes(display)) {
-              optionsMap[group] = `${optionsMap[group]}, ${display}`;
-            }
-          } else {
-            optionsMap[group] = display;
-          }
-        });
-      } catch {}
-      const composedId = `${ds.productId || ''}::${signature}`;
-
-      const product = {
-        id: composedId,
-        name: ds.productName || "Item",
-        price: total,                 // line item price reflects configured total
-        basePrice: basePrice,         // keep base for reference
-        extra: total - basePrice,     // summed deltas
-        image: ds.productImage || '',
-        options: optionsMap,          // selected upgrades/options as map
-        selections,                  // raw selection details for downstream use
-        signature,                    // keep signature for debug
-        quantity: 1,
-        installOnly: installOnlyFlag,
-        shippingClass: shippingClassRaw,
-        productUrl: ds.productHref || undefined
-      };
-      const cart = getCart();
-      const items = cart.items || [];
-      const existing = items.find((p) => p && p.id === product.id);
-      if (existing) {
-        existing.quantity = (existing.quantity || 1) + 1;
-        existing.price = product.price;
-        existing.basePrice = product.basePrice;
-        existing.extra = product.extra;
-        existing.options = product.options;
-        existing.installOnly = installOnlyFlag;
-        existing.shippingClass = shippingClassRaw;
-      } else {
-        items.push(product);
-      }
-      cart.items = items;
-      setCart(cart);
-      emitCartChanged(cart);
-
-      const eventName = prefersDesktopOverlay() ? 'open-desktop-cart' : 'open-cart';
-      try { window.dispatchEvent(new Event(eventName)); } catch (error) { void error; }
-    }, true);
-
-    // ---- Price calculator ----
-    function normalizeDelta(v) {
-      if (v == null) return 0;
-      const s = String(v).replace(/[^0-9.+-]/g, '');
-      const n = parseFloat(s);
-      return isNaN(n) ? 0 : n;
-    }
-
-    function readConfiguredOptions() {
-      const result = { selections: [], extra: 0 };
-      const form = document.getElementById('product-options');
-      if (!form) return result;
-
-      const handled = new Set();
-      const elements = form.querySelectorAll('[data-group]');
-
-      const addSelection = (group, value, label, delta) => {
-        const normalizedGroup = group || 'option';
-        const normalizedValue = value != null ? String(value) : '';
-        const normalizedLabel = label != null ? String(label) : normalizedValue;
-        const numericDelta = Number.isFinite(delta) ? delta : 0;
-        result.selections.push({
-          group: normalizedGroup,
-          value: normalizedValue,
-          label: normalizedLabel,
-          priceDelta: numericDelta
-        });
-        result.extra += numericDelta;
-      };
-
-      const escapeForSelector = (value) => {
-        try {
-          return CSS?.escape ? CSS.escape(value) : value.replace(/([\[\]"'\\])/g, '\\$1');
-        } catch {
-          return value.replace(/([\[\]"'\\])/g, '\\$1');
-        }
-      };
-
-      elements.forEach((node) => {
-        if (handled.has(node)) return;
-        const tag = (node.tagName || '').toLowerCase();
-        const group = node.getAttribute('data-group') || node.getAttribute('name') || 'option';
-
-        if (tag === 'select') {
-          const sel = node;
-          const opt = sel.options[sel.selectedIndex];
-          if (opt) {
-            const value = opt.value || '';
-            const label = opt.dataset?.label || opt.text || value;
-            const delta = normalizeDelta(opt.dataset?.price ?? opt.getAttribute('data-price'));
-            addSelection(group, value, label, delta);
-          }
-          handled.add(node);
-          return;
-        }
-
-        if (tag === 'input') {
-          const input = node;
-          const type = (input.type || 'text').toLowerCase();
-          const baseDelta = normalizeDelta(input.dataset?.price ?? input.getAttribute('data-price'));
-
-          if (type === 'radio') {
-            const name = input.name || group;
-            const selector = `input[type="radio"][name="${escapeForSelector(name)}"]`;
-            const radios = form.querySelectorAll(selector);
-            radios.forEach((radioEl) => {
-              const radio = radioEl;
-              handled.add(radio);
-              if (radio.checked) {
-                const value = radio.value || '';
-                const label = radio.dataset?.label || value;
-                const delta = normalizeDelta(radio.dataset?.price ?? radio.getAttribute('data-price'));
-                addSelection(group, value, label, delta);
-              }
-            });
-            return;
-          }
-
-          if (type === 'checkbox') {
-            handled.add(input);
-            if (input.checked) {
-              const value = input.value || 'on';
-              const label = input.dataset?.label || value;
-              addSelection(group, value, label, baseDelta);
-            }
-            return;
-          }
-
-          const val = (input.value || '').toString().trim();
-          if (val.length > 0) {
-            const label = input.dataset?.label || val;
-            addSelection(group, val, label, baseDelta);
-          }
-          handled.add(input);
-          return;
-        }
-      });
-
-      return result;
-    }
-
-    function updateConfiguredPriceUI() {
-      const __dbg = false;
-      const btn = document.getElementById('add-to-cart-btn');
-      const base = parseFloat(String(btn?.dataset?.productBasePrice || '0')) || 0;
-      const cfg = readConfiguredOptions();
-      const total = Math.max(0, base + (cfg.extra || 0));
-
-      // Update any configured-price displays (support multiple targets)
-      try {
-        const nodes = document.querySelectorAll('#price-total, [data-price-target="configured"], .js-configured-price');
-        nodes.forEach((n) => { n.textContent = `$ ${total.toFixed(2)}`; });
-      } catch {}
-
-      if (btn?.dataset) btn.dataset.productPrice = String(total);
-      if (__dbg) {
-        try { console.debug('[FAS] base=', base, 'extra=', cfg.extra, 'selections=', cfg.selections); } catch {}
-      }
-      return { total, cfg };
-    }
-
-    // Initialize strictly after full window load to avoid hydration races
-    window.addEventListener('load', () => {
-      scheduleUpdate(updateConfiguredPriceUI);
-      setTimeout(() => scheduleUpdate(updateConfiguredPriceUI), 0);
-      setTimeout(() => scheduleUpdate(updateConfiguredPriceUI), 200);
-    });
-
-    // Recalc on input/change
-    function maybeRecalc(e) {
-      const form = document.getElementById('product-options');
-      if (form && form.contains(e.target)) scheduleUpdate(updateConfiguredPriceUI);
-    }
-
-    function attachListenersOnce() {
-      if (!window.__fasPriceListeners) {
-        window.__fasPriceListeners = true;
-        ['input', 'change'].forEach((evt) => document.addEventListener(evt, maybeRecalc, true));
-      }
-    }
-
-    if (document.readyState === 'complete') attachListenersOnce();
-    else window.addEventListener('load', attachListenersOnce);
-
-    // ✅ Expose for debugging
-    window.readConfiguredOptions = readConfiguredOptions;
-    window.updateConfiguredPriceUI = updateConfiguredPriceUI;
-
-  })();
-</script>

@@ -1,3 +1,4 @@
+import { buildPrimaryKeywordAnchor, collapseLabelSpaces } from './seoAnchors';
 import { sanityFetch } from './sanityFetch';
 
 export interface SanitySeoImage {
@@ -27,7 +28,20 @@ type SanitySeoQueryResult = Omit<SanitySeo, 'jsonLd' | 'breadcrumbs' | 'relatedL
   breadcrumbs?: Array<{ label?: string | null; href?: string | null }> | null;
   relatedSeoLinks?: Array<{ label?: string | null; href?: string | null }> | null;
   relatedPageLinks?: Array<{ label?: string | null; href?: string | null }> | null;
-  relatedProductLinks?: Array<{ label?: string | null; href?: string | null }> | null;
+  relatedProductLinks?:
+    | Array<{
+        label?: string | null;
+        href?: string | null;
+        primaryKeyword?: string | null;
+        seoPrimaryKeyword?: string | null;
+        fitment?: string | null;
+        seoFitment?: string | null;
+        fitmentText?: string | null;
+        seoFitmentText?: string | null;
+        fitmentYears?: unknown;
+        seoFitmentYears?: unknown;
+      }>
+    | null;
   relatedArticleLinks?: Array<{ label?: string | null; href?: string | null }> | null;
   relatedServiceLinks?: Array<{ label?: string | null; href?: string | null }> | null;
 };
@@ -166,7 +180,18 @@ export async function fetchSeoForPath(
     "breadcrumbs": coalesce(seo.breadcrumbs[], []),
     "relatedSeoLinks": coalesce(seo.relatedLinks[]->{"label": title, "href": slug.current}, []),
     "relatedPageLinks": coalesce(relatedPages[]->{"label": title, "href": slug.current}, []),
-    "relatedProductLinks": coalesce(relatedProducts[]->{"label": title, "href": slug.current}, []),
+    "relatedProductLinks": coalesce(relatedProducts[]->{
+      "label": title,
+      "href": slug.current,
+      "primaryKeyword": primaryKeyword,
+      "seoPrimaryKeyword": coalesce(seo.primaryKeyword, seo.keyphrase, seo.keyword, seo.targetKeyword),
+      "fitment": fitment,
+      "seoFitment": coalesce(seo.fitment, seo.fitmentText),
+      "fitmentText": fitment,
+      "seoFitmentText": coalesce(seo.fitmentText, seo.fitment),
+      "fitmentYears": fitmentYears,
+      "seoFitmentYears": seo.fitmentYears
+    }, []),
     "relatedArticleLinks": coalesce(relatedArticles[]->{"label": title, "href": slug.current}, []),
     "relatedServiceLinks": coalesce(relatedServices[]->{"label": title, "href": slug.current}, [])
   }
@@ -194,15 +219,62 @@ export async function fetchSeoForPath(
       ...pageSeoRest
     } = pageSeo;
 
+    const normalizeSimpleLink = (
+      entry: { label?: string | null; href?: string | null } | null | undefined
+    ) => {
+      if (!entry) return null;
+      const label = collapseLabelSpaces(String(entry.label ?? '')).trim();
+      if (!label) return null;
+      const href = entry.href ?? undefined;
+      return { label, href };
+    };
+
+    const normalizeProductLink = (
+      entry:
+        | ({
+            label?: string | null;
+            href?: string | null;
+            primaryKeyword?: string | null;
+            seoPrimaryKeyword?: string | null;
+            fitment?: string | null;
+            seoFitment?: string | null;
+            fitmentText?: string | null;
+            seoFitmentText?: string | null;
+            fitmentYears?: unknown;
+            seoFitmentYears?: unknown;
+          }
+          | null)
+        | undefined
+    ) => {
+      if (!entry) return null;
+      const computedLabel = buildPrimaryKeywordAnchor(
+        {
+          primaryKeyword: entry.primaryKeyword ?? undefined,
+          seoPrimaryKeyword: entry.seoPrimaryKeyword ?? undefined,
+          fitment: entry.fitment ?? undefined,
+          seoFitment: entry.seoFitment ?? undefined,
+          fitmentText: entry.fitmentText ?? undefined,
+          seoFitmentText: entry.seoFitmentText ?? undefined,
+          fitmentYears: entry.fitmentYears,
+          seoFitmentYears: entry.seoFitmentYears,
+          fallbackLabel: entry.label ?? undefined
+        },
+        entry.label ?? undefined
+      );
+      const label = collapseLabelSpaces(computedLabel ?? String(entry.label ?? '')).trim();
+      if (!label) return null;
+      const href = entry.href ?? undefined;
+      return { label, href };
+    };
+
     const normalizedBreadcrumbs = dedupeByHref(ensureArray(breadcrumbs));
-    const rawRelatedLinks = [
-      ...ensureArray(relatedSeoLinks),
-      ...ensureArray(relatedPageLinks),
-      ...ensureArray(relatedProductLinks),
-      ...ensureArray(relatedArticleLinks),
-      ...ensureArray(relatedServiceLinks),
-    ];
-    const normalizedLinks = dedupeByHref(rawRelatedLinks);
+    const normalizedLinks = dedupeByHref([
+      ...ensureArray(relatedSeoLinks).map(normalizeSimpleLink).filter(Boolean),
+      ...ensureArray(relatedPageLinks).map(normalizeSimpleLink).filter(Boolean),
+      ...ensureArray(relatedProductLinks).map(normalizeProductLink).filter(Boolean),
+      ...ensureArray(relatedArticleLinks).map(normalizeSimpleLink).filter(Boolean),
+      ...ensureArray(relatedServiceLinks).map(normalizeSimpleLink).filter(Boolean)
+    ] as Array<{ label: string; href?: string }>);
 
     const globalKeywords = normalizeKeywordsArray(globalSettings?.defaultKeywords);
     const pageKeywords = normalizeKeywordsArray(pageSeoRest.keywords);
