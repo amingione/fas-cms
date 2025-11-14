@@ -32,9 +32,9 @@ const apiVersion = '2023-01-01';
 const imageBuilder = projectId && dataset ? imageUrlBuilder({ projectId, dataset }) : null;
 
 const SANITY_CDN_HOSTS = new Set(['cdn.sanity.io', 'cdn.sanityusercontent.com']);
-const ACTIVE_PRODUCT_FILTER =
+export const ACTIVE_PRODUCT_FILTER =
   '!(_id in path("drafts.**")) && lower(coalesce(status, "active")) == "active"';
-const ACTIVE_PRODUCT_WITH_SLUG_FILTER = `${ACTIVE_PRODUCT_FILTER} && defined(slug.current)`;
+export const ACTIVE_PRODUCT_WITH_SLUG_FILTER = `${ACTIVE_PRODUCT_FILTER} && defined(slug.current)`;
 const FEATURED_PRODUCT_FILTER = 'string(featured) == "true"';
 
 export interface SanityImageTransformOptions {
