@@ -119,7 +119,7 @@ export default defineConfig({
     tailwind(),
     image({
       serviceEntryPoint: '@astrojs/image/sharp',
-      domains: ['cdn.sanity.io']
+      domains: ['cdn.sanity.io', 'cdn.sanityusercontent.com']
     })
   ],
   markdown: {

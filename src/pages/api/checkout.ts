@@ -236,7 +236,7 @@ async function fetchShippingProductsForCart(cart: CheckoutCartItem[]): Promise<R
   );
   if (!ids.length && !skus.length) return {};
   try {
-    const query = `*[_type == "product" && lower(coalesce(status, "active")) == "active" && (
+    const query = `*[_type == "product" && !(_id in path('drafts.**')) && lower(coalesce(status, "active")) == "active" && (
       ${ids.length ? '_id in $ids' : 'false'}
       ${ids.length && skus.length ? '||' : ''}
       ${skus.length ? 'sku in $skus' : 'false'}

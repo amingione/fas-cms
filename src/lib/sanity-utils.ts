@@ -967,7 +967,13 @@ export async function fetchVehicles(): Promise<Vehicle[]> {
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   try {
     if (!hasSanityConfig) return null;
-    const query = `*[_type == "product" && slug.current == $slug && ${ACTIVE_PRODUCT_FILTER}][0]{
+    const normalizedSlug = typeof slug === 'string' ? slug.trim() : '';
+    if (!normalizedSlug) return null;
+    const slugLower = normalizedSlug.toLowerCase();
+    const query = `*[_type == "product" && ${ACTIVE_PRODUCT_FILTER} && defined(slug.current) && (
+      slug.current == $slugExact ||
+      lower(string::trim(slug.current)) == $slugLower
+    )][0]{
       _id,
       title,
       slug,
@@ -1064,12 +1070,13 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       )
     }`;
     if (!sanity) return null;
+    const params = { slugExact: normalizedSlug, slugLower };
     const executeQuery = async () => {
-      const productResult = await sanity!.fetch<Product | null>(query, { slug });
+      const productResult = await sanity!.fetch<Product | null>(query, params);
       return productResult ? normalizeProductPrice(productResult) : null;
     };
     return cachedSanityFetch(
-      ['getProductBySlug', config.projectId, config.dataset, perspective, slug],
+      ['getProductBySlug', config.projectId, config.dataset, perspective, normalizedSlug],
       executeQuery
     );
   } catch (err) {
