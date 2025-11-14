@@ -1,0 +1,208 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { fetchProductsFromSanity, type Product } from '@/lib/sanity-utils.ts';
+import { buildPrimaryKeywordAnchor, mergeAnchorFallbacks } from '@/lib/seoAnchors.ts';
+
+const pageTitle = 'Press & Media Resources | F.A.S. Motorsports';
+const pageDescription =
+  'Official press-ready links, anchor text, and descriptions for F.A.S. Motorsports performance products.';
+
+const requestUrl = new URL(Astro.request.url);
+requestUrl.search = '';
+requestUrl.hash = '';
+const canonical = requestUrl.toString();
+const siteOrigin = requestUrl.origin;
+
+const products: Product[] = await fetchProductsFromSanity({});
+const MAX_PRODUCTS = 24;
+
+const toTrimmedString = (value: unknown): string => {
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'number') return value.toString().trim();
+  return '';
+};
+
+const collapseSpaces = (value: string): string => value.replace(/\s+/g, ' ').trim();
+
+const toPlainText = (input: unknown): string => {
+  if (!input) return '';
+  if (typeof input === 'string') return input;
+  if (Array.isArray(input)) {
+    return input
+      .map((block) => {
+        if (!block) return '';
+        if (typeof block === 'string') return block;
+        if (typeof block === 'object') {
+          const maybeText = (block as { text?: string }).text;
+          if (typeof maybeText === 'string') return maybeText;
+          const children = (block as { children?: Array<{ text?: string }> }).children;
+          if (Array.isArray(children)) {
+            return children
+              .map((child) => (child && typeof child.text === 'string' ? child.text : ''))
+              .join('');
+          }
+        }
+        return '';
+      })
+      .join(' ');
+  }
+  if (typeof input === 'object') {
+    const candidates = ['text', 'content', 'description']
+      .map((key) => (input as Record<string, unknown>)[key])
+      .filter(Boolean);
+    if (candidates.length) {
+      return candidates.map((value) => toPlainText(value)).join(' ');
+    }
+  }
+  return '';
+};
+
+const truncate = (value: string, maxLength: number): string => {
+  const normalized = collapseSpaces(value);
+  if (normalized.length <= maxLength) return normalized;
+  const sliced = normalized.slice(0, maxLength).replace(/[\s,;:.!?-]+$/g, '');
+  return `${sliced}\u2026`;
+};
+
+const toProductUrl = (slug: string): string => {
+  try {
+    return new URL(`/shop/${slug}`, siteOrigin).toString();
+  } catch {
+    return `/shop/${slug}`;
+  }
+};
+
+const resolveAnchorText = (product: Product): string => {
+  const anchor = buildPrimaryKeywordAnchor(
+    {
+      primaryKeyword: product.primaryKeyword,
+      seoPrimaryKeyword: product?.seo?.primaryKeyword,
+      secondaryKeywords: [
+        product?.seo?.keyword,
+        product?.seo?.keyphrase,
+        product?.seo?.targetKeyword,
+        product?.seo?.primaryKeyword,
+      ],
+      fallbackLabel: product.title,
+      title: product.title,
+      fitment: product.fitment,
+      seoFitment: product?.seo?.fitment,
+      fitmentText: product.fitmentRange ?? product.fitment,
+      seoFitmentText: product?.seo?.fitmentText,
+      fitmentYears: product.fitmentYears,
+      seoFitmentYears: product?.seo?.fitmentYears,
+    },
+    product.title
+  );
+
+  return mergeAnchorFallbacks(anchor, product.title) ?? product.title;
+};
+
+const buildSummary = (product: Product): string => {
+  const candidates: unknown[] = [
+    product.metaDescription,
+    product?.seo?.highlights,
+    product?.seo?.benefits,
+    product.shortDescription,
+    product.description,
+  ];
+  for (const candidate of candidates) {
+    const text = collapseSpaces(toPlainText(candidate));
+    if (text) {
+      return truncate(text, 155);
+    }
+  }
+  const fallback = `${product.title} from F.A.S. Motorsports.`;
+  return truncate(fallback, 155);
+};
+
+const curatedProducts = products
+  .filter((item) => item?.slug?.current)
+  .slice(0, MAX_PRODUCTS)
+  .map((product) => {
+    const slug = product.slug?.current ?? '';
+    const url = toProductUrl(slug);
+    const anchorText = resolveAnchorText(product);
+    const summary = buildSummary(product);
+    const sku = toTrimmedString(product.sku) || undefined;
+
+    return {
+      id: product._id,
+      title: product.title,
+      anchorText,
+      url,
+      summary,
+      sku,
+    };
+  });
+---
+<BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
+  <section class="bg-black text-white py-16 lg:py-20">
+    <div class="mx-auto flex max-w-5xl flex-col gap-6 px-6 text-center lg:text-left">
+      <p class="text-sm uppercase tracking-[0.3em] text-primary">Press + Media</p>
+      <h1 class="text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
+        Official backlink resources for F.A.S. Motorsports features
+      </h1>
+      <p class="text-base text-white/80 lg:text-lg">
+        Use the anchor text and URLs below when referencing our performance kits in articles, roundups, or forum posts. Each
+        entry follows our SEO best practices so your readers land on the exact product experience.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-white py-16 lg:py-20">
+    <div class="mx-auto flex max-w-6xl flex-col gap-10 px-6">
+      <div class="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
+        <h2 class="text-xl font-semibold text-slate-900">How to use this hub</h2>
+        <ul class="mt-4 list-disc space-y-2 pl-5 text-sm text-slate-700 lg:text-base">
+          <li>Copy the recommended anchor text for a natural, keyword-rich link.</li>
+          <li>Use the full product URL in your articles, social posts, or YouTube descriptions.</li>
+          <li>Optional: include the provided summary as your caption or supporting sentence.</li>
+        </ul>
+      </div>
+
+      <div class="space-y-6">
+        <h2 class="text-2xl font-semibold text-slate-900">Featured product links</h2>
+        <p class="text-sm text-slate-600 lg:text-base">
+          Need a specific kit that is not listed here? Email <a class="text-primary underline" href="mailto:media@fasmotorsports.com">media@fasmotorsports.com</a>
+          and we will share the official link package.
+        </p>
+      </div>
+
+      <div class="grid gap-6 lg:grid-cols-2">
+        {curatedProducts.map((product) => (
+          <article class="flex h-full flex-col justify-between rounded-xl border border-slate-200 bg-white p-6 shadow-sm" key={product.id}>
+            <div class="space-y-4">
+              <div class="space-y-1">
+                <h3 class="text-lg font-semibold text-slate-900">{product.title}</h3>
+                {product.sku && <p class="text-xs uppercase tracking-widest text-slate-500">SKU: {product.sku}</p>}
+              </div>
+              <div>
+                <p class="text-xs font-medium uppercase tracking-[0.2em] text-primary">Recommended anchor text</p>
+                <p class="mt-1 break-words rounded-md bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-900">
+                  {product.anchorText}
+                </p>
+              </div>
+              <div>
+                <p class="text-xs font-medium uppercase tracking-[0.2em] text-primary">Product URL</p>
+                <a class="mt-1 block break-all text-sm text-slate-700 underline decoration-primary decoration-2 underline-offset-4" href={product.url}>
+                  {product.url}
+                </a>
+              </div>
+              <div>
+                <p class="text-xs font-medium uppercase tracking-[0.2em] text-primary">Press blurb</p>
+                <p class="mt-1 text-sm text-slate-700">{product.summary}</p>
+              </div>
+            </div>
+            <div class="mt-6 rounded-lg bg-slate-900/95 p-4 text-xs text-white">
+              <p class="font-semibold uppercase tracking-[0.25em] text-primary/80">Copy-ready HTML</p>
+              <code class="mt-2 block whitespace-pre-wrap break-words font-mono text-[11px] leading-relaxed text-white/90">
+                {`<a href="${product.url}" rel="noopener" target="_blank">${product.anchorText}</a>`}
+              </code>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

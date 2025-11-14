@@ -1,5 +1,6 @@
 // astro.config.mjs
 import { defineConfig } from 'astro/config';
+import image from '@astrojs/image';
 import netlify from '@astrojs/netlify';
 import react from '@astrojs/react';
 import tailwind from '@astrojs/tailwind';
@@ -115,7 +116,10 @@ export default defineConfig({
         : undefined
     }),
     react(),
-    tailwind()
+    tailwind(),
+    image({
+      serviceEntryPoint: '@astrojs/image/sharp'
+    })
   ],
   markdown: {
     remarkPlugins: [

@@ -29,7 +29,11 @@ const slug = typeof product?.slug === 'string' ? product.slug : (product?.slug?.
 const href = slug ? `/shop/${encodeURIComponent(slug)}` : '#'
 const fallbackImage = '/logo/faslogochroma.webp'
 const img = resolveSanityImageUrl([productImage, product?.images]) ?? fallbackImage
-const title = product?.title || 'Untitled Product'
+const baseTitle = product?.title || 'Untitled Product'
+const anchorText =
+  typeof (product as any)?.seoAnchorText === 'string' && (product as any).seoAnchorText.trim().length > 0
+    ? (product as any).seoAnchorText.trim()
+    : baseTitle
 const short =
   portableTextToPlainText((product as any)?.shortDescription) ||
   portableTextToPlainText((product as any)?.description) ||
@@ -37,17 +41,34 @@ const short =
   '';
 const shortText = typeof short === 'string' ? short : ''
 const price = typeof product?.price === 'number' ? product.price : undefined
+const analyticsParams = JSON.stringify(
+  Object.fromEntries(
+    Object.entries({
+      product_id: typeof product?._id === 'string' ? product._id : undefined,
+      product_name: baseTitle,
+      product_slug: slug || undefined,
+      price,
+      tile_layout: layout
+    }).filter(([, value]) => value !== undefined && value !== null && value !== '')
+  )
+)
 ---
 {layout === 'list' ? (
   <article class="group relative">
-    <a href={href}
-       class="group block rounded-sm border border-[121212/40] bg-black transition-shadow duration-300 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary md:flex md:items-stretch">
+    <a
+      href={href}
+      class="group block rounded-sm border border-[121212/40] bg-black transition-shadow duration-300 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary md:flex md:items-stretch"
+      data-analytics-event="product_tile_click"
+      data-analytics-category="ecommerce"
+      data-analytics-label={anchorText}
+      data-analytics-params={analyticsParams}
+    >
       <div class="relative bg-black/30 backdrop-blur-sm md:w-56 md:min-w-56 md:max-w-56 aspect-square md:aspect-auto flex items-center justify-center">
-        <img src={img} alt={title}
+        <img src={img} alt={anchorText}
              class="max-h-[80%] max-w-[88%] object-contain transition-transform duration-300 ease-out group-hover:scale-[1.03]" />
       </div>
       <div class="flex-1 px-4 py-4 text-left">
-        <div class="text-white font-ethno text-[1rem] leading-snug line-clamp-2">{title}</div>
+        <div class="text-white font-ethno text-[1rem] leading-snug line-clamp-2">{anchorText}</div>
         {shortText && (
           <div class="mt-2 text-white/70 text-sm leading-relaxed line-clamp-2">{shortText}</div>
         )}
@@ -64,11 +85,11 @@ const price = typeof product?.price === 'number' ? product.price : undefined
         className="pointer-events-auto"
         product={{
           id: typeof product?._id === 'string' ? product._id : undefined,
-          title,
+          title: baseTitle,
           href,
           price,
           imageSrc: img,
-          imageAlt: title,
+          imageAlt: anchorText,
           description: shortText
         }}
       />
@@ -76,14 +97,20 @@ const price = typeof product?.price === 'number' ? product.price : undefined
   </article>
 ) : (
   <article class="group relative">
-    <a href={href}
-       class="block relative overflow-hidden rounded-md border border-white/5 shadow-inner shadow-white/20 bg-black transition-shadow duration-300 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primaryB">
+    <a
+      href={href}
+      class="block relative overflow-hidden rounded-md border border-white/5 shadow-inner shadow-white/20 bg-black transition-shadow duration-300 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primaryB"
+      data-analytics-event="product_tile_click"
+      data-analytics-category="ecommerce"
+      data-analytics-label={anchorText}
+      data-analytics-params={analyticsParams}
+    >
       <div class="relative aspect-square object-contain contain flex pb-10 justify-center bg-black/30 backdrop-blur-sm">
-        <img src={img} alt={title}
+        <img src={img} alt={anchorText}
              class="max-h-[78%] max-w-[88%] object-contain transition-transform duration-300 ease-out group-hover:scale-[1.03]" />
       </div>
       <div class="absolute bottom-4 flex w-full items-center gap-1">
-        <Label title={title} amount={price ?? 0} position="bottom" />
+          <Label title={anchorText} amount={price ?? 0} position="bottom" />
       </div>
     </a>
     <div class="pointer-events-none absolute right-3 top-3 z-10 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">
@@ -92,11 +119,11 @@ const price = typeof product?.price === 'number' ? product.price : undefined
         className="pointer-events-auto"
         product={{
           id: typeof product?._id === 'string' ? product._id : undefined,
-          title,
+          title: baseTitle,
           href,
           price,
           imageSrc: img,
-          imageAlt: title,
+          imageAlt: anchorText,
           description: shortText
         }}
       />

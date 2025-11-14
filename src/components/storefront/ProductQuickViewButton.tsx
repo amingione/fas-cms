@@ -7,6 +7,11 @@ import { addItem } from '@components/cart/actions';
 import { prefersDesktopCart } from '@/lib/device';
 import { emitAddToCartSuccess } from '@/lib/add-to-cart-toast';
 
+const sanitizeAnalyticsPayload = (payload: Record<string, unknown>) =>
+  Object.fromEntries(
+    Object.entries(payload).filter(([, value]) => value !== undefined && value !== null && value !== '')
+  );
+
 export type QuickViewProduct = {
   id?: string;
   title: string;
@@ -71,6 +76,20 @@ export default function ProductQuickViewButton({
       : descriptionRaw
     : undefined;
 
+  const analyticsBase = useMemo(
+    () =>
+      sanitizeAnalyticsPayload({
+        product_id: typeof product.id === 'string' ? product.id : undefined,
+        product_name: product.title,
+        product_href: product.href,
+        price: typeof product.price === 'number' ? product.price : undefined
+      }),
+    [product.id, product.title, product.href, product.price]
+  );
+  const openAnalyticsParams = JSON.stringify({ ...analyticsBase, interaction: 'quick_view_open' });
+  const viewAnalyticsParams = JSON.stringify({ ...analyticsBase, interaction: 'quick_view_view_product' });
+  const addAnalyticsParams = JSON.stringify({ ...analyticsBase, interaction: 'quick_view_add_to_cart' });
+
   const [adding, setAdding] = useState(false);
   const canAddToCart = Boolean(product.id);
 
@@ -116,6 +135,10 @@ export default function ProductQuickViewButton({
         type="button"
         onClick={() => setOpen(true)}
         className={`inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/70 px-3 py-1 text-xs uppercase tracking-[0.18em] text-white/80 transition hover:border-white hover:text-white ${className}`.trim()}
+        data-analytics-event="quick_view_open"
+        data-analytics-category="engagement"
+        data-analytics-label={product.title}
+        data-analytics-params={openAnalyticsParams}
       >
         <EyeIcon className="h-4 w-4" aria-hidden="true" />
         Quick View
@@ -166,6 +189,10 @@ export default function ProductQuickViewButton({
                       <a
                         href={product.href}
                         className="inline-flex min-w-[140px] items-center justify-center rounded-full border border-primary bg-primary px-5 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-black drop-shadow-[0_0_20px_rgba(255,0,0,0.3)] transition hover:bg-primary/90 hover:drop-shadow-[0_0_26px_rgba(255,0,0,0.4)]"
+                        data-analytics-event="quick_view_view_product"
+                        data-analytics-category="ecommerce"
+                        data-analytics-label={product.title}
+                        data-analytics-params={viewAnalyticsParams}
                       >
                         <span className="whitespace-nowrap leading-none">View Product</span>
                       </a>
@@ -174,6 +201,10 @@ export default function ProductQuickViewButton({
                         onClick={handleAddToCart}
                         disabled={!canAddToCart || adding}
                         className="inline-flex min-w-[150px] items-center gap-2 rounded-full border border-white/25 bg-gradient-to-br from-black/70 to-black/40 px-5 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-white shadow-[0_0_18px_rgba(255,0,0,0.12)] transition enabled:hover:border-primary enabled:hover:from-black/80 enabled:hover:to-black/60 enabled:hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+                        data-analytics-event="quick_view_add_to_cart"
+                        data-analytics-category="ecommerce"
+                        data-analytics-label={product.title}
+                        data-analytics-params={addAnalyticsParams}
                       >
                         <ShoppingCartIcon className="h-4 w-4" aria-hidden="true" />
                         <span className="whitespace-nowrap leading-none">
