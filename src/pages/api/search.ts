@@ -9,7 +9,14 @@ export const GET: APIRoute = async ({ url }) => {
 
   try {
     const results = await sanityClient.fetch(
-      `*[_type in ["product", "service", "quote", "invoice", "appointment"] && (name match $q || title match $q || description match $q || slug.current match $q)][0..24]{
+      `*[
+        _type in ["product", "service", "quote", "invoice", "appointment"] &&
+        (name match $q || title match $q || description match $q || slug.current match $q) &&
+        (
+          _type != "product" ||
+          (!(_id in path('drafts.**')) && defined(slug.current) && lower(coalesce(status, "active")) == "active")
+        )
+      ][0..24]{
         _id,
         _type,
         name,

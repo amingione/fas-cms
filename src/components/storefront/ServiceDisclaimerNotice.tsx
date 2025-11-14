@@ -45,7 +45,7 @@ export default function ServiceDisclaimerNotice({
               <button
                 type="button"
                 onClick={() => setIsOpen(true)}
-                className="service-disclaimer-learn-more inline-flex items-center gap-0.5 rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-[2px] text-[10px] font-semibold text-amber-200 transition hover:bg-amber-400/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
+                className="inline-flex items-center gap-0.5 rounded-md border border-amber-400/30 bg-amber-400/10 px-1.5 py-[1px] text-[9px] font-semibold leading-none text-amber-200 transition hover:bg-amber-400/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60 sm:rounded-full sm:px-2 sm:py-[2px] sm:text-[10px]"
               >
                 Learn more
               </button>
@@ -101,18 +101,6 @@ export default function ServiceDisclaimerNotice({
           </div>
         </div>
       </Dialog>
-      <style jsx global>{`
-        @media (max-width: 640px) {
-          .service-disclaimer-learn-more {
-            padding: 2px 6px !important;
-            font-size: 9px !important;
-            line-height: 1 !important;
-            border-radius: 6px !important;
-            height: auto !important;
-            min-height: 0 !important;
-          }
-        }
-      `}</style>
     </>
   );
 }
