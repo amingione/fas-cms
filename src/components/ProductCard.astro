@@ -78,6 +78,11 @@ const imageUrl = resolveSanityImageUrl([productImage, product?.images]) ?? fallb
     }
 
     function showProductToast(message, success = true) {
+      try {
+        if (window.matchMedia('(max-width: 768px)').matches) {
+          return;
+        }
+      } catch {}
       let toast = document.getElementById('product-toast');
       if (!toast) {
         toast = document.createElement('div');
@@ -111,6 +116,16 @@ const imageUrl = resolveSanityImageUrl([productImage, product?.images]) ?? fallb
       }
       cart.items = items;
       saveCart(cart);
+
+      try {
+        window.dispatchEvent(
+          new CustomEvent('fas:add-to-cart-success', { detail: { name: item?.name } })
+        );
+      } catch {
+        try {
+          window.dispatchEvent(new Event('fas:add-to-cart-success'));
+        } catch {}
+      }
     }
 
     // Event delegation for all .add-to-cart buttons
