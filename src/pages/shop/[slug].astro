@@ -80,6 +80,14 @@ const withDownloadFileName = (url: string, fileName: string): string => {
   }
 };
 
+const sanitizeAnalyticsPayload = (payload: Record<string, unknown>) =>
+  Object.fromEntries(
+    Object.entries(payload).filter(([, value]) => value !== undefined && value !== null && value !== '')
+  );
+
+const buildAnalyticsParams = (payload: Record<string, unknown>) =>
+  JSON.stringify(sanitizeAnalyticsPayload(payload));
+
 const buildProductImageAlt = (explicitAlt: string | undefined, fallback: string, index: number): string => {
   const normalizedExplicit = collapseSpaces(explicitAlt ?? '');
   const base = normalizedExplicit || fallback;
@@ -708,6 +716,8 @@ let installFitmentHighlights: { label: string; value: string }[] = [];
 let compatibilityVehicles: VehicleCompat[] = [];
 let specMetaRows: { label: string; value: string }[] = [];
 let includedInKitItems: KitItem[] = [];
+let analyticsPrimaryCtaParams = '{}';
+let analyticsStickyCtaParams = '{}';
 
 const vehicleAvailabilityProperty = {
   '@type': 'PropertyValue',
@@ -1009,6 +1019,23 @@ if (product) {
 
   priceValue = typeof productPriceNumber === 'number' ? productPriceNumber : undefined;
 
+  const analyticsBase = {
+    product_id: typeof (product as any)?._id === 'string' ? (product as any)._id : undefined,
+    product_name: baseProductTitle,
+    product_slug: slug,
+    price: typeof priceValue === 'number' ? Number(priceValue.toFixed(2)) : undefined,
+    install_only: isInstallOnly,
+    performance_parts: isPerformanceParts
+  };
+  analyticsPrimaryCtaParams = buildAnalyticsParams({
+    ...analyticsBase,
+    cta_location: 'primary_form'
+  });
+  analyticsStickyCtaParams = buildAnalyticsParams({
+    ...analyticsBase,
+    cta_location: 'sticky_bar'
+  });
+
   breadcrumbStructuredData = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -1268,12 +1295,16 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
           data-product-name={(product as any).title}
           data-product-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
           data-product-base-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
-        data-product-image={productImages[0]?.webpUrl || productImages[0]?.originalUrl || ''}
-        data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
-        data-product-shipping-class={(product as any).shippingClass || ''}
-        data-product-install-only={String(isInstallOnly)}
-        data-product-performance-parts={String(isPerformanceParts)}
-        data-product-href={`/shop/${slug}`}
+          data-product-image={productImages[0]?.webpUrl || productImages[0]?.originalUrl || ''}
+          data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
+          data-product-shipping-class={(product as any).shippingClass || ''}
+          data-product-install-only={String(isInstallOnly)}
+          data-product-performance-parts={String(isPerformanceParts)}
+          data-product-href={`/shop/${slug}`}
+          data-analytics-event="add_to_cart_click"
+          data-analytics-category="ecommerce"
+          data-analytics-label={`Add to Cart | ${baseProductTitle}`}
+          data-analytics-params={analyticsPrimaryCtaParams}
         >
           <!-- bag icon -->
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
@@ -1680,6 +1711,10 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
         'installonly'
     )}
     data-product-href={`/shop/${slug}`}
+    data-analytics-event="add_to_cart_click"
+    data-analytics-category="ecommerce"
+    data-analytics-label={`Sticky Add to Cart | ${baseProductTitle}`}
+    data-analytics-params={analyticsStickyCtaParams}
   >
     Add to Cart
   </button>

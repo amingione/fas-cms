@@ -33,12 +33,27 @@ export default function ProductCardLiteReact({
     '';
   const shortText = typeof short === 'string' ? short : '';
   const price = typeof product?.price === 'number' ? product.price : undefined;
+  const analyticsParams = JSON.stringify(
+    Object.fromEntries(
+      Object.entries({
+        product_id: typeof product?._id === 'string' ? product._id : undefined,
+        product_name: title,
+        product_slug: slug || undefined,
+        price,
+        tile_layout: layout
+      }).filter(([, value]) => value !== undefined && value !== null && value !== '')
+    )
+  );
 
   return layout === 'list' ? (
     <article className="group relative">
       <a
         href={href}
         className="group block rounded-sm border border-[121212/40] bg-black transition-shadow duration-300 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary md:flex md:items-stretch"
+        data-analytics-event="product_tile_click"
+        data-analytics-category="ecommerce"
+        data-analytics-label={anchorText}
+        data-analytics-params={analyticsParams}
       >
         <div className="relative flex aspect-square items-center justify-center bg-black/30 backdrop-blur-sm md:aspect-auto md:w-56 md:min-w-56 md:max-w-56">
           <img
@@ -81,6 +96,10 @@ export default function ProductCardLiteReact({
       <a
         href={href}
         className="group block relative overflow-hidden rounded-sm border border-white/30 bg-black transition-shadow duration-300 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary"
+        data-analytics-event="product_tile_click"
+        data-analytics-category="ecommerce"
+        data-analytics-label={anchorText}
+        data-analytics-params={analyticsParams}
       >
         <div className="contain relative flex aspect-square justify-center pb-10 object-contain bg-black/30 backdrop-blur-sm">
           <img

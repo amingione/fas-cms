@@ -408,6 +408,7 @@ const metaTags = [
   ...metaEntries.meta
 ];
 const jsonLdEntries = buildJsonLd(computedPayload, breadcrumbStructuredData);
+const analyticsTrackingScript = Astro.resolve('../scripts/analytics-tracking.ts');
 ---
 
 <!DOCTYPE html>
@@ -707,5 +708,6 @@ const jsonLdEntries = buildJsonLd(computedPayload, breadcrumbStructuredData);
     <!-- Auth bootstrap removed: serverless login/session handles auth without Auth0 SDK -->
 
 
+    <script type="module" src={analyticsTrackingScript} defer></script>
   </body>
 </html>
