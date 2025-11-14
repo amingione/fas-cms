@@ -73,10 +73,45 @@ function getSanityClient() {
     return cachedSanityClient;
   }
 
-  const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
-  const dataset = import.meta.env.PUBLIC_SANITY_DATASET;
-  const apiVersion = import.meta.env.SANITY_API_VERSION;
-  const token = import.meta.env.SANITY_API_TOKEN;
+  const ime = (typeof import.meta !== 'undefined' ? (import.meta as any).env : {}) as Record<string, string | undefined>;
+  const penv = (typeof process !== 'undefined' ? (process as any).env : {}) as Record<string, string | undefined>;
+
+  const projectId =
+    ime.PUBLIC_SANITY_PROJECT_ID ||
+    ime.SANITY_PROJECT_ID ||
+    ime.SANITY_STUDIO_PROJECT_ID ||
+    ime.VITE_SANITY_PROJECT_ID ||
+    penv.PUBLIC_SANITY_PROJECT_ID ||
+    penv.SANITY_PROJECT_ID ||
+    penv.SANITY_STUDIO_PROJECT_ID ||
+    penv.VITE_SANITY_PROJECT_ID;
+
+  const dataset =
+    ime.PUBLIC_SANITY_DATASET ||
+    ime.SANITY_DATASET ||
+    ime.SANITY_STUDIO_DATASET ||
+    ime.VITE_SANITY_DATASET ||
+    penv.PUBLIC_SANITY_DATASET ||
+    penv.SANITY_DATASET ||
+    penv.SANITY_STUDIO_DATASET ||
+    penv.VITE_SANITY_DATASET ||
+    'production';
+
+  const apiVersion = ime.SANITY_API_VERSION || penv.SANITY_API_VERSION || '2024-10-01';
+
+  const token =
+    ime.SANITY_API_TOKEN ||
+    ime.SANITY_WRITE_TOKEN ||
+    ime.SANITY_API_READ_TOKEN ||
+    ime.SANITY_READ_TOKEN ||
+    ime.VITE_SANITY_API_TOKEN ||
+    ime.VITE_SANITY_WRITE_TOKEN ||
+    penv.SANITY_API_TOKEN ||
+    penv.SANITY_WRITE_TOKEN ||
+    penv.SANITY_API_READ_TOKEN ||
+    penv.SANITY_READ_TOKEN ||
+    penv.VITE_SANITY_API_TOKEN ||
+    penv.VITE_SANITY_WRITE_TOKEN;
 
   if (projectId && dataset && apiVersion && token) {
     cachedSanityClient = createClient({
@@ -88,7 +123,7 @@ function getSanityClient() {
     });
   } else {
     console.warn(
-      'Marketing opt-in tracking skipped: missing Sanity configuration (check PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET, SANITY_API_VERSION, SANITY_API_TOKEN).'
+      'Marketing opt-in tracking skipped: missing Sanity configuration. Ensure SANITY_* or PUBLIC_SANITY_* env vars (projectId/dataset/apiVersion/token) are set.'
     );
     cachedSanityClient = null;
   }
