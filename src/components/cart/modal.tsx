@@ -147,7 +147,9 @@ function normalizeOptionLabel(rawKey: string) {
     .split(/[^a-zA-Z0-9]+/)
     .filter(Boolean)
     .map((segment) =>
-      segment.length > 1 ? segment[0].toUpperCase() + segment.slice(1).toLowerCase() : segment.toUpperCase()
+      segment.length > 1
+        ? segment[0].toUpperCase() + segment.slice(1).toLowerCase()
+        : segment.toUpperCase()
     )
     .join(' ');
 }
@@ -268,11 +270,18 @@ function CartItemsList({ cart, onQuantityChange, onRemove }: CartItemsListProps)
                       ) : (
                         <p>{item.name || 'Product'}</p>
                       )}
-                      <Price amount={lineTotal} className="ml-4 text-right text-base font-semibold text-white" />
+                      <Price
+                        amount={lineTotal}
+                        className="ml-4 text-right text-base font-semibold text-white"
+                      />
                     </div>
-                    {optionsSummary && <p className="mt-1 text-sm text-white/60">{optionsSummary}</p>}
+                    {optionsSummary && (
+                      <p className="mt-1 text-sm text-white/60">{optionsSummary}</p>
+                    )}
                     {isInstallOnly && (
-                      <p className="mt-2 text-xs uppercase tracking-wide text-amber-200">Install-only service</p>
+                      <p className="mt-2 text-xs uppercase tracking-wide text-amber-200">
+                        Install-only service
+                      </p>
                     )}
                   </div>
 
@@ -343,9 +352,7 @@ function CartSummary({ subtotal, onCheckout, onClose }: CartSummaryProps) {
         <p>Subtotal</p>
         <Price amount={subtotal} />
       </div>
-      <p className="mt-1 text-xs text-white/50">
-        Taxes finalize at Stripe Checkout; shipping is arranged with Parcelcraft right after payment.
-      </p>
+
       <div className="mt-6">
         <button
           type="button"
