@@ -117,11 +117,14 @@ export default defineConfig({
     }),
     react(),
     tailwind(),
-    image({
-      serviceEntryPoint: '@astrojs/image/sharp',
-      domains: ['cdn.sanity.io', 'cdn.sanityusercontent.com']
-    })
+    image()
   ],
+  image: {
+    service: {
+      entrypoint: '@astrojs/image/services/netlify'
+    },
+    domains: ['cdn.sanity.io', 'cdn.sanityusercontent.com']
+  },
   markdown: {
     remarkPlugins: [
       // Only include gfm if the dependency is present

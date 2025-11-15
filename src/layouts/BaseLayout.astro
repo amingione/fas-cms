@@ -9,7 +9,7 @@ import Breadcrumbs from '@/components/storefront/Breadcrumbs.astro';
 import InternalLinks from '@/components/navigation/InternalLinks.astro';
 import { Toaster } from 'sonner';
 import { buildJsonLd, buildMetaEntries, fetchSeoForPath } from '@/lib/seoData';
-import analyticsTrackingScript from '../scripts/analytics-tracking.ts?url';
+import analyticsTrackingScript from '../scripts/analytics-tracking.ts?raw';
 
 // SEO props (optional per-page)
 const {
@@ -677,7 +677,7 @@ const jsonLdEntries = buildJsonLd(computedPayload, breadcrumbStructuredData);
   </head>
 
   <body class="bg-background pt-3 text-white font-mono min-h-screen flex flex-col">
-    <script type="module" src={analyticsTrackingScript}></script>
+    <script type="module" set:html={analyticsTrackingScript}></script>
     <svg
       width="0"
       height="0"

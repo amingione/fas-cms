@@ -7440,17 +7440,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sanity/preview-url-secret@npm:^1.6.21":
-  version: 1.6.21
-  resolution: "@sanity/preview-url-secret@npm:1.6.21"
-  dependencies:
-    "@sanity/uuid": "npm:3.0.2"
-  peerDependencies:
-    "@sanity/client": ^6.21.3
-  checksum: 10c0/66d260e8b7916c09b85b97af2cc096b570207d4808d66f4e3e7c4a110bb11b67003de479f0da931f0d6b7b2561a79b181ace2f59e29c5a18bf3850fc64b6fa4c
-  languageName: node
-  linkType: hard
-
 "@sanity/preview-url-secret@npm:^2.1.11, @sanity/preview-url-secret@npm:^2.1.14":
   version: 2.1.15
   resolution: "@sanity/preview-url-secret@npm:2.1.15"
@@ -15795,7 +15784,6 @@ __metadata:
     "@sanity/client": "npm:latest"
     "@sanity/icons": "npm:^3.7.0"
     "@sanity/image-url": "npm:^1.1.0"
-    "@sanity/preview-url-secret": "npm:^1.6.21"
     "@sanity/types": "npm:^3.85.1"
     "@sanity/ui": "npm:^2.15.13"
     "@splinetool/react-spline": "npm:^4.0.0"

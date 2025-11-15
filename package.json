@@ -117,7 +117,6 @@
     "@sanity/client": "latest",
     "@sanity/icons": "^3.7.0",
     "@sanity/image-url": "^1.1.0",
-    "@sanity/preview-url-secret": "^1.6.21",
     "@sanity/types": "^3.85.1",
     "@sanity/ui": "^2.15.13",
     "@splinetool/react-spline": "^4.0.0",
