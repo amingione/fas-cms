@@ -440,7 +440,7 @@ export default function InfoTabs({
           value={activeTab}
           onChange={(event) => setActiveTab(event.target.value as TabId)}
           aria-label="Select product info section"
-          className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white/5 py-2 pr-8 pl-3 text-base text-white outline-1 -outline-offset-1 outline-white/10 *:bg-gray-900 focus:outline-2 focus:-outline-offset-2 focus:outline-amber-500"
+          className="col-start-1 row-start-1 w-full appearance-none rounded-full bg-black border-white/20 border py-2 pr-8 pl-3 text-base text-white outline-1 -outline-offset-1 outline-white/10 *:bg-gray-900 focus:outline-2 focus:-outline-offset-2 focus:outline-amber-500 shadow-card-outer shadow-inner shadow-primary/30"
         >
           {tabs.map((tab) => (
             <option key={tab.id} value={tab.id}>
@@ -454,7 +454,7 @@ export default function InfoTabs({
         />
       </div>
       <div className="hidden sm:block">
-        <div className="border-b border-white/10">
+        <div className="shadow-amber-300/30 shadow-card-outer shadow-inner">
           <nav aria-label="Product info tabs" className="-mb-px flex flex-wrap gap-6">
             {tabs.map((tab) => (
               <button

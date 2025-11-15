@@ -1983,20 +1983,20 @@ html {
 
 /* Mobile-first button optimizations */
 @media (max-width: 640px) {
-  button:not(.btn-glass) {
+  button:not(.btn-glass):not(.btn-plain) {
     min-height: 48px;
     font-size: 16px;
     border-radius: 12px;
     padding: 12px 20px;
   }
 
-  button:not(.btn-glass).btn-sm {
+  button:not(.btn-glass):not(.btn-plain).btn-sm {
     min-height: 40px;
     font-size: 14px;
     padding: 8px 16px;
   }
 
-  button:not(.btn-glass).btn-lg {
+  button:not(.btn-glass):not(.btn-plain).btn-lg {
     min-height: 56px;
     font-size: 18px;
     padding: 16px 24px;
@@ -2005,15 +2005,21 @@ html {
 
 /* Ensure tiny icon buttons (cart steppers, delete) are not inflated on mobile */
 @media (max-width: 640px) {
-  .btn-plain {
+  .btn-plain.btn-icon {
     min-height: 0 !important;
     padding: 0 !important;
     border-radius: 9999px; /* keep circle */
     line-height: normal !important;
   }
-  .btn-plain svg {
+  .btn-plain.btn-icon svg {
     display: block;
     background: transparent;
+  }
+}
+
+@media (max-width: 767px) {
+  .mobile-hidden {
+    display: none !important;
   }
 }
 

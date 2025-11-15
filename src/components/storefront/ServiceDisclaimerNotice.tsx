@@ -45,7 +45,7 @@ export default function ServiceDisclaimerNotice({
               <button
                 type="button"
                 onClick={() => setIsOpen(true)}
-                className="btn-plain font-italic text-8px px-2 border border-amber-400/40 bg-amber-400/10 text-amber-200 transition hover:bg-amber-400/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
+                className="btn-plain font-italic font-mono text-[0.65rem] leading-tight sm:text-xs px-3 py-1 sm:px-4 sm:py-1.5 rounded-full border border-amber-400/40 bg-amber-400/10 text-amber-200 transition hover:bg-amber-400/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
               >
                 Learn more
               </button>

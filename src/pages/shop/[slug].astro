@@ -172,7 +172,6 @@ const enableProxyInDevFlag =
     .trim()
     .toLowerCase() === 'true';
 const useOptimizedImages = !disableImageProxyFlag && (import.meta.env.PROD || enableProxyInDevFlag);
-const showMobileStickyAddToCart = false; // set true to re-enable sticky mobile CTA
 
 const toPlainText = (input: any): string => {
   if (!input) return '';
@@ -1307,32 +1306,43 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                   <div class="text-sm font-semibold text-white py-4">{groupLabel}</div>
                   {/* Prefer select if many values, else radios */}
                   {values.length > 4 ? (
-                    <select
-                      class="w-full border border-white/20 bg-black rounded-full shadow-card-outer shadow-inner shadow-sm shadow-primary/30 px-2 py-2"
-                      name={groupKey}
-                      data-group={groupKey}
-                      required
-                      aria-required="true"
-                    >
-                      <option value="" disabled selected data-placeholder="true">
-                        {`Select ${groupLabel}`}
-                      </option>
-                      {values.map((v: any) => {
-                        const val = typeof v === 'string' ? v : (v?.value || v?.name || v?.title || v?.label || '').toString();
-                        const label = typeof v === 'string' ? v : (v?.label || v?.title || v?.name || v?.value || 'Choice');
-                        const price = typeof v === 'object'
-                          ? (typeof v?.priceDelta === 'number'
-                              ? v.priceDelta
-                              : (typeof v?.delta === 'number' ? v.delta : (typeof v?.price === 'number' ? v.price : 0)))
-                          : 0;
-                        return (
-                          <option value={val} data-price={price.toString()} data-label={label}>
-                            {label}
-                            {price ? ` (+$${Number(price).toFixed(2)})` : ''}
-                          </option>
-                        );
-                      })}
-                    </select>
+                    <div class="relative">
+                      <select
+                        class="w-full border border-white/20 bg-black rounded-full shadow-card-outer shadow-inner shadow-sm shadow-primary/30 pl-4 pr-12 py-2 appearance-none"
+                        name={groupKey}
+                        data-group={groupKey}
+                        required
+                        aria-required="true"
+                      >
+                        <option value="" disabled selected data-placeholder="true">
+                          {`Select ${groupLabel}`}
+                        </option>
+                        {values.map((v: any) => {
+                          const val = typeof v === 'string' ? v : (v?.value || v?.name || v?.title || v?.label || '').toString();
+                          const label = typeof v === 'string' ? v : (v?.label || v?.title || v?.name || v?.value || 'Choice');
+                          const price = typeof v === 'object'
+                            ? (typeof v?.priceDelta === 'number'
+                                ? v.priceDelta
+                                : (typeof v?.delta === 'number' ? v.delta : (typeof v?.price === 'number' ? v.price : 0)))
+                            : 0;
+                          return (
+                            <option value={val} data-price={price.toString()} data-label={label}>
+                              {label}
+                              {price ? ` (+$${Number(price).toFixed(2)})` : ''}
+                            </option>
+                          );
+                        })}
+                      </select>
+                      <span class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-white/70">
+                        <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                          <path
+                            fill-rule="evenodd"
+                            d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"
+                            clip-rule="evenodd"
+                          />
+                        </svg>
+                      </span>
+                    </div>
                   ) : (
                     <fieldset class="mt-4">
                       <div class="space-y-4 sm:flex sm:flex-wrap sm:items-center sm:gap-6">
@@ -1452,7 +1462,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
               <button
                 id="add-to-cart-btn"
                 type="button"
-                class="add-to-cart hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-full transition relative z-10 pointer-events-auto sm:w-auto btn-glass"
+                class="add-to-cart mobile-hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-full transition relative z-10 pointer-events-auto sm:w-auto btn-glass"
                 data-product-id={(product as any)._id}
                 data-product-name={(product as any).title}
                 data-product-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
@@ -1728,40 +1738,38 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
   </div>
 
   
-{showMobileStickyAddToCart && (
-  <div
-    id="mobile-add-to-cart"
-    class="md:hidden fixed bottom-0 left-0 right-0 z-[60] bg-black/90 border-t border-white/20 backdrop-blur px-3 py-2 flex items-center justify-between"
+<div
+  id="mobile-add-to-cart"
+  class="md:hidden fixed bottom-0 left-0 right-0 z-[60] bg-black/90 border-t border-white/20 backdrop-blur px-3 py-2 flex items-center justify-between"
+>
+  <div class="text-white/90 text-sm w-1/2">
+    <span class="text-white/70">Total:</span>
+    <span id="sticky-price" class="font-bold">
+      $ {(typeof (product as any).price === 'number' ? (product as any).price.toFixed(2) : '0.00')}
+    </span>
+  </div>
+  <button
+    type="button"
+    class="add-to-cart inline-flex items-center gap-2 bg-primary text-white font-ethno px-4 py-2 rounded hover:text-white btn-glass w-1/2"
+    data-product-id={(product as any)._id}
+    data-product-name={(product as any).title}
+    data-product-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
+    data-product-base-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
+    data-product-image={(product as any).images?.[0]?.asset?.url || (product as any).images?.[0]?.url || ''}
+    data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
+    data-product-shipping-class={(product as any).shippingClass || ''}
+    data-product-install-only={String(
+      ((product as any).shippingClass || '').toString().toLowerCase().replace(/[^a-z]/g, '') === 'installonly'
+    )}
+    data-product-href={`/shop/${slug}`}
+    data-analytics-event="add_to_cart_click"
+    data-analytics-category="ecommerce"
+    data-analytics-label={`Sticky Add to Cart | ${baseProductTitle}`}
+    data-analytics-params={analyticsStickyCtaParams}
   >
-    <div class="text-white/90 text-sm w-1/2">
-      <span class="text-white/70">Total:</span>
-      <span id="sticky-price" class="font-bold">
-        $ {(typeof (product as any).price === 'number' ? (product as any).price.toFixed(2) : '0.00')}
-      </span>
-    </div>
-    <button
-      type="button"
-      class="add-to-cart inline-flex items-center gap-2 bg-primary text-white font-ethno px-4 py-2 rounded hover:text-white btn-glass w-1/2"
-      data-product-id={(product as any)._id}
-      data-product-name={(product as any).title}
-      data-product-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
-      data-product-base-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
-      data-product-image={(product as any).images?.[0]?.asset?.url || (product as any).images?.[0]?.url || ''}
-      data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
-      data-product-shipping-class={(product as any).shippingClass || ''}
-      data-product-install-only={String(
-        ((product as any).shippingClass || '').toString().toLowerCase().replace(/[^a-z]/g, '') === 'installonly'
-      )}
-      data-product-href={`/shop/${slug}`}
-      data-analytics-event="add_to_cart_click"
-      data-analytics-category="ecommerce"
-      data-analytics-label={`Sticky Add to Cart | ${baseProductTitle}`}
-        data-analytics-params={analyticsStickyCtaParams}
-      >
-        Add to Cart
-      </button>
-    </div>
-  )}
+    Add to Cart
+  </button>
+</div>
 
   <!-- Load the hydrated product interactions as a bundled module (no raw ?url assets) -->
   <script type="module" src={productPageScriptUrl} defer></script>
