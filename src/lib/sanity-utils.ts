@@ -972,7 +972,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
     const slugLower = normalizedSlug.toLowerCase();
     const query = `*[_type == "product" && ${ACTIVE_PRODUCT_FILTER} && defined(slug.current) && (
       slug.current == $slugExact ||
-      lower(string::trim(slug.current)) == $slugLower
+      lower(slug.current) == $slugLower
     )][0]{
       _id,
       title,
