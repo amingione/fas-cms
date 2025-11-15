@@ -14,7 +14,6 @@ import { Image as AstroImage } from '@astrojs/image/components';
 import { inlineFieldAttrs, inlineObjectId } from '@lib/content.ts';
 import ServiceDisclaimerNotice from '@/components/storefront/ServiceDisclaimerNotice.tsx';
 import InfoTabs from '@/components/shop/InfoTabs';
-import productPageScript from '../../scripts/product-page.ts?raw';
 
 export type KitItem = { item: string; quantity?: number };
 export type VehicleCompat = { make?: string; model?: string; trim?: string };
@@ -1768,7 +1767,9 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
 </div>
 
   <!-- IMPORTANT: Do not reintroduce Astro.resolve/Astro2.resolve; use prebuilt URL import -->
-  <script type="module" set:html={productPageScript} defer></script>
+  <script type="module" defer>
+    import '../../scripts/product-page.ts';
+  </script>
 
 ) : (
   <BaseLayout title={seoTitle} description={seoDesc} canonical={seoCanon}>

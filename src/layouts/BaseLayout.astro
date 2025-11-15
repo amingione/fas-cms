@@ -9,7 +9,6 @@ import Breadcrumbs from '@/components/storefront/Breadcrumbs.astro';
 import InternalLinks from '@/components/navigation/InternalLinks.astro';
 import { Toaster } from 'sonner';
 import { buildJsonLd, buildMetaEntries, fetchSeoForPath } from '@/lib/seoData';
-import analyticsTrackingScript from '../scripts/analytics-tracking.ts?raw';
 
 // SEO props (optional per-page)
 const {
@@ -677,7 +676,9 @@ const jsonLdEntries = buildJsonLd(computedPayload, breadcrumbStructuredData);
   </head>
 
   <body class="bg-background pt-3 text-white font-mono min-h-screen flex flex-col">
-    <script type="module" set:html={analyticsTrackingScript}></script>
+    <script type="module">
+      import '../scripts/analytics-tracking.ts';
+    </script>
     <svg
       width="0"
       height="0"
@@ -741,7 +742,5 @@ const jsonLdEntries = buildJsonLd(computedPayload, breadcrumbStructuredData);
     <!-- fas-auth client shim (provides window.fasAuth) -->
     <script src="/fas-auth.js" defer></script>
     <!-- Auth bootstrap removed: serverless login/session handles auth without Auth0 SDK -->
-    <!-- IMPORTANT: Keep using the bundled asset URL instead of Astro.resolve/Astro2.resolve -->
-    <script type="module" src={analyticsTrackingScript} defer></script>
   </body>
 </html>
