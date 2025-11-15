@@ -360,7 +360,7 @@ function CartSummary({ subtotal, onCheckout, onClose }: CartSummaryProps) {
           disabled={loading}
           className="flex w-full items-center justify-center rounded-full bg-primary px-6 py-3 text-base font-semibold uppercase tracking-wide text-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {loading ? <LoadingDots className="bg-black" /> : 'Checkout with Stripe'}
+          {loading ? <LoadingDots className="bg-black" /> : 'Checkout'}
         </button>
       </div>
       {error && <p className="mt-3 text-center text-xs text-red-300">{error}</p>}
