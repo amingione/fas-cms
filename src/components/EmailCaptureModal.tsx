@@ -209,7 +209,7 @@ export default function EmailCaptureModal() {
 
   const headline = useMemo(() => {
     if (submissionState === 'success') {
-      return 'You\'re all set!';
+      return "You're all set!";
     }
     return 'Unlock exclusive offers & updates';
   }, [submissionState]);
@@ -232,20 +232,29 @@ export default function EmailCaptureModal() {
           className="absolute right-3 top-3 rounded-full bg-gray-100 p-1.5 text-gray-500 transition hover:bg-gray-200 hover:text-gray-700"
           aria-label="Close email sign up popup"
         >
-          <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={2}>
+          <svg
+            className="h-4 w-4"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 4l8 8M12 4l-8 8" />
           </svg>
         </button>
 
         <div className="grid gap-6 p-6 sm:p-8">
           <div className="space-y-3 text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">Join the crew</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
+              Join the crew
+            </p>
             <h2 id="email-popup-heading" className="text-2xl font-bold text-gray-900 sm:text-3xl">
               {headline}
             </h2>
             {submissionState !== 'success' ? (
               <p className="text-sm text-gray-600">
-                Subscribe to get VIP-only promos, build guides, and launch alerts before anyone else.
+                Subscribe to get VIP-only promos, build guides, and launch alerts before anyone
+                else.
               </p>
             ) : (
               <p className="text-sm text-gray-600">
@@ -257,8 +266,11 @@ export default function EmailCaptureModal() {
           {submissionState !== 'success' ? (
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div className="space-y-1">
-                <label htmlFor="email-popup-name" className="text-sm font-medium text-gray-800">
-                  Name <span aria-hidden="true" className="text-red-500">*</span>
+                <label htmlFor="email-popup-name" className="text-sm font-medium text-black">
+                  Name{' '}
+                  <span aria-hidden="true" className="text-red-500">
+                    *
+                  </span>
                   <span className="sr-only">required</span>
                 </label>
                 <input
@@ -268,14 +280,17 @@ export default function EmailCaptureModal() {
                   autoComplete="name"
                   required
                   onChange={(event) => setName(event.target.value)}
-                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className="w-full rounded-xl border border-gray-200 bg-white text-black px-4 py-3 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                   placeholder="Your name"
                 />
               </div>
 
               <div className="space-y-1">
-                <label htmlFor="email-popup-email" className="text-sm font-medium text-gray-800">
-                  Email <span aria-hidden="true" className="text-red-500">*</span>
+                <label htmlFor="email-popup-email" className="text-sm font-medium text-black">
+                  Email{' '}
+                  <span aria-hidden="true" className="text-red-500">
+                    *
+                  </span>
                   <span className="sr-only">required</span>
                 </label>
                 <input
@@ -285,14 +300,12 @@ export default function EmailCaptureModal() {
                   value={email}
                   autoComplete="email"
                   onChange={(event) => setEmail(event.target.value)}
-                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-black text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                   placeholder="you@example.com"
                 />
               </div>
 
-              {hasError ? (
-                <p className="text-sm text-red-600">{errorMessage}</p>
-              ) : null}
+              {hasError ? <p className="text-sm text-red-600">{errorMessage}</p> : null}
 
               <button
                 type="submit"
@@ -313,12 +326,19 @@ export default function EmailCaptureModal() {
           ) : (
             <div className="space-y-4 text-center">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <svg className="h-6 w-6" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                <svg
+                  className="h-6 w-6"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                >
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 10.75L8.25 15 16 6" />
                 </svg>
               </div>
               <p className="text-sm text-gray-600">
-                You\'ll hear from us soon. Feel free to keep exploring the build gallery while you wait.
+                You\'ll hear from us soon. Feel free to keep exploring the build gallery while you
+                wait.
               </p>
               <button
                 type="button"
