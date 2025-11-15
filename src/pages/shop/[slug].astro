@@ -172,6 +172,7 @@ const enableProxyInDevFlag =
     .trim()
     .toLowerCase() === 'true';
 const useOptimizedImages = !disableImageProxyFlag && (import.meta.env.PROD || enableProxyInDevFlag);
+const showMobileStickyAddToCart = false; // set true to re-enable sticky mobile CTA
 
 const toPlainText = (input: any): string => {
   if (!input) return '';
@@ -1727,43 +1728,47 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
   </div>
 
   
-  </BaseLayout>
-<!-- Sticky mobile add-to-cart bar -->
-<div id="mobile-add-to-cart" class="md:hidden fixed bottom-0 left-0 right-0 z-[60] bg-black/90 border-t border-white/20 backdrop-blur px-3 py-2 flex items-center justify-between">
-  <div class="text-white/90 text-sm w-1/2">
-    <span class="text-white/70">Total:</span>
-    <span id="sticky-price" class="font-bold">$ {(typeof (product as any).price === 'number' ? (product as any).price.toFixed(2) : '0.00')}</span>
-  </div>
-  <button
-    type="button"
-    class="add-to-cart inline-flex items-center gap-2 bg-primary text-white font-ethno px-4 py-2 rounded hover:text-white btn-glass w-1/2"
-    data-product-id={(product as any)._id}
-    data-product-name={(product as any).title}
-    data-product-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
-    data-product-base-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
-    data-product-image={(product as any).images?.[0]?.asset?.url || (product as any).images?.[0]?.url || ''}
-    data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
-    data-product-shipping-class={(product as any).shippingClass || ''}
-    data-product-install-only={String(
-      ((product as any).shippingClass || '').toString().toLowerCase().replace(/[^a-z]/g, '') ===
-        'installonly'
-    )}
-    data-product-href={`/shop/${slug}`}
-    data-analytics-event="add_to_cart_click"
-    data-analytics-category="ecommerce"
-    data-analytics-label={`Sticky Add to Cart | ${baseProductTitle}`}
-    data-analytics-params={analyticsStickyCtaParams}
+{showMobileStickyAddToCart && (
+  <div
+    id="mobile-add-to-cart"
+    class="md:hidden fixed bottom-0 left-0 right-0 z-[60] bg-black/90 border-t border-white/20 backdrop-blur px-3 py-2 flex items-center justify-between"
   >
-    Add to Cart
-  </button>
-</div>
-</div>
+    <div class="text-white/90 text-sm w-1/2">
+      <span class="text-white/70">Total:</span>
+      <span id="sticky-price" class="font-bold">
+        $ {(typeof (product as any).price === 'number' ? (product as any).price.toFixed(2) : '0.00')}
+      </span>
+    </div>
+    <button
+      type="button"
+      class="add-to-cart inline-flex items-center gap-2 bg-primary text-white font-ethno px-4 py-2 rounded hover:text-white btn-glass w-1/2"
+      data-product-id={(product as any)._id}
+      data-product-name={(product as any).title}
+      data-product-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
+      data-product-base-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
+      data-product-image={(product as any).images?.[0]?.asset?.url || (product as any).images?.[0]?.url || ''}
+      data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
+      data-product-shipping-class={(product as any).shippingClass || ''}
+      data-product-install-only={String(
+        ((product as any).shippingClass || '').toString().toLowerCase().replace(/[^a-z]/g, '') === 'installonly'
+      )}
+      data-product-href={`/shop/${slug}`}
+      data-analytics-event="add_to_cart_click"
+      data-analytics-category="ecommerce"
+      data-analytics-label={`Sticky Add to Cart | ${baseProductTitle}`}
+        data-analytics-params={analyticsStickyCtaParams}
+      >
+        Add to Cart
+      </button>
+    </div>
+  )}
 
   <!-- Load the hydrated product interactions as a bundled module (no raw ?url assets) -->
   <script type="module" src={productPageScriptUrl} defer></script>
 
+  </BaseLayout>
 ) : (
-  <BaseLayout title={seoTitle} description={seoDesc} canonical={seoCanon}>
+  <BaseLayout title={seoTitle} description={seoDesc} canonical={seoCanon} ogImage={seoOg}>
     <Fragment slot="head">
       {breadcrumbStructuredData && (
         <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
