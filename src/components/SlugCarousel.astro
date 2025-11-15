@@ -6,6 +6,7 @@ interface Props {
     webpUrl: string;
     thumbnailUrl: string;
     alt: string;
+    originalUrl?: string;
     width?: number;
     height?: number;
     aspectRatio?: number;
@@ -17,12 +18,14 @@ const { images, useOptimizedImages = true } = Astro.props;
 // on the already-optimized Sanity URLs instead of @astrojs/image here.
 const normalizedImages = Array.isArray(images) ? images : [];
 const processedImages = normalizedImages.map((image) => {
-  const aspect = image.aspectRatio && image.aspectRatio > 0
-    ? image.aspectRatio
-    : image.width && image.height
-      ? image.width / image.height
-      : 4 / 3;
-  const mainWidth = image.width && image.width > 0 ? Math.min(1600, Math.max(720, Math.round(image.width))) : 1280;
+  const aspect =
+    image.aspectRatio && image.aspectRatio > 0
+      ? image.aspectRatio
+      : image.width && image.height
+        ? image.width / image.height
+        : 4 / 3;
+  const mainWidth =
+    image.width && image.width > 0 ? Math.min(1600, Math.max(720, Math.round(image.width))) : 1280;
   const mainHeight = Math.max(400, Math.round(mainWidth / aspect));
   const thumbWidth = Math.min(400, Math.max(160, Math.round(mainWidth / 4)));
   const thumbHeight = Math.max(120, Math.round(thumbWidth / aspect));
@@ -47,63 +50,74 @@ const carouselScript = shouldHydrate ? carouselScriptUrl : null;
     data-carousel-viewport
   >
     <div class="flex w-full h-full min-w-0" data-track>
-      {processedImages.map((img, i) => (
-        <div class="flex-shrink-0 relative w-full h-full snap-start flex items-center justify-center" data-slide={i}>
-          <img
-            src={useOptimizedImages ? img.webpUrl || img.originalUrl : img.originalUrl || img.webpUrl}
-            alt={img.alt || ''}
-            width={img.mainWidth}
-            height={img.mainHeight}
-            loading="lazy"
-            decoding="async"
-            class="object-contain w-full h-full p-4"
-          />
-        </div>
-      ))}
+      {
+        processedImages.map((img, i) => (
+          <div
+            class="flex-shrink-0 relative w-full h-full snap-start flex items-center justify-center"
+            data-slide={i}
+          >
+            <img
+              src={
+                useOptimizedImages ? img.webpUrl || img.originalUrl : img.originalUrl || img.webpUrl
+              }
+              alt={img.alt || ''}
+              width={img.mainWidth}
+              height={img.mainHeight}
+              loading="lazy"
+              decoding="async"
+              class="object-contain w-full h-full p-4"
+            />
+          </div>
+        ))
+      }
     </div>
   </div>
 
   <!-- Arrows -->
-  <div class="absolute top-1/2 left-0 right-0 z-50 flex justify-between items-center pointer-events-none">
+  <div
+    class="absolute top-1/2 left-0 right-0 z-50 flex justify-between items-center pointer-events-none"
+  >
     <button
       type="button"
       aria-label="Previous image"
       class="bg-black/60 text-white rounded-full p-2 pointer-events-auto z-50 absolute left-2 -translate-y-1/2"
-      data-carousel-prev
-    >‹</button>
+      data-carousel-prev>‹</button
+    >
     <button
       type="button"
       aria-label="Next image"
       class="bg-black/60 text-white rounded-full p-2 pointer-events-auto z-50 absolute right-2 -translate-y-1/2"
-      data-carousel-next
-    >›</button>
+      data-carousel-next>›</button
+    >
   </div>
 
   <!-- Thumbnails -->
   <div class="mt-3 flex gap-2 overflow-x-auto" data-carousel-thumbnails>
-    {processedImages.map((img, i) => (
-      <button
-        type="button"
-        data-index={i}
-        class="h-16 w-16 md:h-20 md:w-20 bg-black/30 rounded cursor-pointer opacity-80 hover:opacity-100 border border-white/20 flex-shrink-0 overflow-hidden p-1 appearance-none"
-        aria-label={`View product image ${i + 1}`}
-        data-carousel-thumb
-      >
-        <img
-          src={
-            useOptimizedImages
-              ? img.thumbnailUrl || img.webpUrl || img.originalUrl
-              : img.originalUrl || img.webpUrl || img.thumbnailUrl
-          }
-          alt={img.alt || ''}
-          width={img.thumbWidth}
-          height={img.thumbHeight}
-          loading="lazy"
-          decoding="async"
-          class="h-full w-full object-contain"
-        />
-      </button>
-    ))}
+    {
+      processedImages.map((img, i) => (
+        <button
+          type="button"
+          data-index={i}
+          class="h-16 w-16 md:h-20 md:w-20 bg-black/30 rounded cursor-pointer opacity-80 hover:opacity-100 border border-white/20 flex-shrink-0 overflow-hidden p-1 appearance-none"
+          aria-label={`View product image ${i + 1}`}
+          data-carousel-thumb
+        >
+          <img
+            src={
+              useOptimizedImages
+                ? img.thumbnailUrl || img.webpUrl || img.originalUrl
+                : img.originalUrl || img.webpUrl || img.thumbnailUrl
+            }
+            alt={img.alt || ''}
+            width={img.thumbWidth}
+            height={img.thumbHeight}
+            loading="lazy"
+            decoding="async"
+            class="h-full w-full object-contain"
+          />
+        </button>
+      ))
+    }
   </div>
 </div>
 
@@ -138,6 +152,4 @@ const carouselScript = shouldHydrate ? carouselScriptUrl : null;
 </style>
 
 <!-- NOTE: Avoid Astro.resolve/Astro2.resolve for this script loader -->
-{shouldHydrate && carouselScript && (
-  <script type="module" src={carouselScript} defer></script>
-)}
+{shouldHydrate && carouselScript && <script type="module" src={carouselScript} defer />}
