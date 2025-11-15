@@ -291,10 +291,7 @@ export default function InfoTabs({
       specs: normalizedSpecs.length > 0,
       attributes: normalizedAttributes.length > 0
     };
-    return TAB_DEFINITIONS.map((tab) => ({
-      ...tab,
-      disabled: !contentMap[tab.id]
-    }));
+    return TAB_DEFINITIONS.filter((tab) => contentMap[tab.id]);
   }, [
     normalizedKitItems.length,
     normalizedFeatures.length,
@@ -302,17 +299,19 @@ export default function InfoTabs({
     normalizedAttributes.length
   ]);
 
-  const firstAvailableTab = useMemo(
-    () => tabs.find((tab) => !tab.disabled)?.id ?? tabs[0]?.id ?? 'kit',
-    [tabs]
-  );
+  const firstAvailableTab = useMemo(() => tabs[0]?.id ?? 'kit', [tabs]);
 
   const [activeTab, setActiveTab] = useState<TabId>(firstAvailableTab);
 
   useEffect(() => {
-    if (tabs.find((tab) => tab.id === activeTab && !tab.disabled)) return;
+    if (!tabs.length) return;
+    if (tabs.some((tab) => tab.id === activeTab)) return;
     setActiveTab(firstAvailableTab);
   }, [activeTab, tabs, firstAvailableTab]);
+
+  if (tabs.length === 0) {
+    return null;
+  }
 
   const renderFeaturesContent = () => {
     if (!normalizedFeatures.length) {
@@ -444,7 +443,7 @@ export default function InfoTabs({
           className="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white/5 py-2 pr-8 pl-3 text-base text-white outline-1 -outline-offset-1 outline-white/10 *:bg-gray-900 focus:outline-2 focus:-outline-offset-2 focus:outline-amber-500"
         >
           {tabs.map((tab) => (
-            <option key={tab.id} value={tab.id} disabled={tab.disabled}>
+            <option key={tab.id} value={tab.id}>
               {tab.name}
             </option>
           ))}
@@ -461,16 +460,14 @@ export default function InfoTabs({
               <button
                 key={tab.id}
                 type="button"
-                onClick={() => !tab.disabled && setActiveTab(tab.id)}
+                onClick={() => setActiveTab(tab.id)}
                 className={classNames(
                   tab.id === activeTab
                     ? 'border-amber-400 text-amber-300'
                     : 'border-transparent text-white/60 hover:border-white/30 hover:text-white',
-                  tab.disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer',
-                  'border-b-2 px-1 py-4 text-sm font-semibold transition'
+                  'cursor-pointer border-b-2 px-1 py-4 text-sm font-semibold transition'
                 )}
                 aria-current={tab.id === activeTab ? 'page' : undefined}
-                aria-disabled={tab.disabled}
               >
                 {tab.name}
               </button>
