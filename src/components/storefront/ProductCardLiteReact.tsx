@@ -3,6 +3,7 @@ import Label from '@/components/storefront/label.tsx';
 import ProductQuickViewButton from '@/components/storefront/ProductQuickViewButton';
 import { portableTextToPlainText } from '@/lib/portableText';
 import { resolveSanityImageUrl, type Product } from '@/lib/sanity-utils';
+import { getQuickViewOptionGroups } from '@/lib/quick-view-options';
 
 type ImgAsset = { url?: string };
 type Img = { asset?: ImgAsset; alt?: string };
@@ -32,6 +33,7 @@ export default function ProductCardLiteReact({
     (typeof product?.summary === 'string' ? product.summary : '') ||
     '';
   const shortText = typeof short === 'string' ? short : '';
+  const quickViewOptions = getQuickViewOptionGroups(product);
   const price = typeof product?.price === 'number' ? product.price : undefined;
   const analyticsParams = JSON.stringify(
     Object.fromEntries(
@@ -86,7 +88,9 @@ export default function ProductCardLiteReact({
             price,
             imageSrc: img,
             imageAlt: anchorText,
-            description: shortText
+            description: shortText,
+            shortDescriptionPortable: (product as any)?.shortDescription,
+            optionGroups: quickViewOptions
           }}
         />
       </div>
@@ -122,7 +126,9 @@ export default function ProductCardLiteReact({
             price,
             imageSrc: img,
             imageAlt: title,
-            description: shortText
+            description: shortText,
+            shortDescriptionPortable: (product as any)?.shortDescription,
+            optionGroups: quickViewOptions
           }}
         />
       </div>

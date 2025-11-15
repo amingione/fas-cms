@@ -40,17 +40,17 @@ export default function ServiceDisclaimerNotice({
             <SolidIcon aria-hidden="true" className="h-4 w-4 text-amber-400 sm:h-5 sm:w-5" />
           </div>
           <div className="flex-1 text-amber-100 flex items-start">
-            <p className="m-0 inline-flex flex-row flex-nowrap items-center gap-2 w-full">
+            <p className="m-0 inline-flex flex-row flex-wrap items-center gap-2 w-full">
               <span>{message}</span>
               <button
                 type="button"
                 onClick={() => setIsOpen(true)}
-                className="inline-flex items-center gap-0.5 rounded-md border border-amber-400/30 bg-amber-400/10 px-1.5 py-[1px] text-[9px] font-semibold leading-none text-amber-200 transition hover:bg-amber-400/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60 sm:rounded-full sm:px-2 sm:py-[2px] sm:text-[10px]"
+                className="btn-plain font-italic text-8px px-2 border border-amber-400/40 bg-amber-400/10 text-amber-200 transition hover:bg-amber-400/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
               >
                 Learn more
               </button>
               {hasImportantNotes && (
-                <span className="text-xs uppercase tracking-wide text-amber-300/80">
+                <span className="text-[0.6rem] uppercase tracking-wide text-amber-300/80 sm:text-xs">
                   Important information
                 </span>
               )}

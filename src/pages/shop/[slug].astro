@@ -1299,17 +1299,23 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
             {/* Variant Options (radio/select) */}
             {Array.isArray(options) && options.length > 0 && options.filter(Boolean).map((group: any) => {
               const groupKey = (group?.key || group?.name || group?.title || 'option').toString();
+              const groupLabel = (group?.title || group?.name || 'Option').toString();
               const values = Array.isArray(group?.values) ? group.values : (Array.isArray(group?.items) ? group.items : []);
               return (
-                <div class="rounded-xl border border-white/15 bg-black/30 p-4">
-                  <div class="text-sm font-semibold text-white">{group?.title || group?.name || 'Option'}</div>
+                <div class="py-4 px-4">
+                  <div class="text-sm font-semibold text-white py-4">{groupLabel}</div>
                   {/* Prefer select if many values, else radios */}
                   {values.length > 4 ? (
                     <select
-                      class="w-full border border-white/20 bg-black rounded px-2 py-2"
+                      class="w-full border border-white/20 bg-black rounded-full shadow-card-outer shadow-inner shadow-sm shadow-primary/30 px-2 py-2"
                       name={groupKey}
                       data-group={groupKey}
+                      required
+                      aria-required="true"
                     >
+                      <option value="" disabled selected data-placeholder="true">
+                        {`Select ${groupLabel}`}
+                      </option>
                       {values.map((v: any) => {
                         const val = typeof v === 'string' ? v : (v?.value || v?.name || v?.title || v?.label || '').toString();
                         const label = typeof v === 'string' ? v : (v?.label || v?.title || v?.name || v?.value || 'Choice');
@@ -1347,7 +1353,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                                 data-group={groupKey}
                                 data-price={price}
                                 data-label={label}
-                                checked={i === 0}
+                                required={i === 0}
                                 id={inputId}
                                 class="relative h-4 w-4 appearance-none rounded-full border border-white/15 bg-white/5 before:absolute before:inset-1 before:rounded-full before:bg-white before:opacity-0 before:transition checked:border-amber-500 checked:bg-amber-500 checked:before:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500"
                               />
@@ -1368,7 +1374,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
             })}
 
             {isContentDescriptor(descriptionDescriptor) && (
-          <details class="group mt-4 rounded-xl border border-white/10 bg-black/30 text-white/90 shadow-inner" >
+          <details class="group mt-4 rounded-xl border shadow-card-outer shadow-primary/30 border-white/10 text-white/90 shadow-inner shadow-sm" >
             <summary class="flex cursor-pointer select-none items-center justify-between rounded-t-xl bg-black/40 px-4 py-3 font-ethno text-base md:text-lg">
               <span>Product Details</span>
               <span class="transition-transform group-open:rotate-180">▾</span>
@@ -1435,8 +1441,8 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
 
             {/* Live price & Add to Cart */}
             <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div class="flex flex-1 items-center justify-between rounded-lg border border-white/20 bg-black/20 px-3 py-3">
-                <span class="text-sm opacity-80">Configured Price</span>
+              <div class="flex flex-1 items-center justify-items-end bg-black/20 px-3 py-3">
+                <span class="text-sm opacity-80 px-6">Configured Price</span>
                 <span id="price-total" class="text-lg font-bold">
                   $ {(typeof (product as any).price === 'number' ? (product as any).price.toFixed(2) : '0.00')}
                 </span>
@@ -1445,7 +1451,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
               <button
                 id="add-to-cart-btn"
                 type="button"
-                class="add-to-cart hidden md:inline-flex items-center gap-2 border border-white/30 px-4 py-2 rounded-full hover:bg-primary hover:text-white transition relative z-10 pointer-events-auto sm:w-auto"
+                class="add-to-cart hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-full transition relative z-10 pointer-events-auto sm:w-auto btn-glass"
                 data-product-id={(product as any)._id}
                 data-product-name={(product as any).title}
                 data-product-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
@@ -1464,7 +1470,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
                   <path d="M8 7a4 4 0 118 0h3a1 1 0 011 1v12a2 2 0 01-2 2H6a2 2 0 01-2-2V8a1 1 0 011-1h3zm2 0a2 2 0 104 0H10z" />
                 </svg>
-                <span class="text-sm font-kwajong">Add to Cart</span>
+                <span class="text-sm font-inter justify-items-start">Add to Cart</span>
               </button>
             </div>
           </form>

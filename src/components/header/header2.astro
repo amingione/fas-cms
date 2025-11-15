@@ -13,17 +13,30 @@ import DesktopCart from '@/components/cart/DesktopCart.tsx';
   <CartEntry client:only="react" />
 
   <!-- Mobile Header -->
-  <div id="mheader" class="md:hidden relative w-full bg-black/80 backdrop-blur-md shadow-xl flex items-center justify-between px-4 h-14">
+  <div
+    id="mheader"
+    class="md:hidden relative w-full bg-black/80 backdrop-blur-md shadow-xl flex items-center justify-between px-4 h-14"
+  >
     <!-- Mobile menu toggle -->
-    <button id="mnavToggle"
-            aria-label="Open menu"
-            aria-expanded="false"
-            aria-controls="mnavDrawer"
-            class="p-2 rounded-lg hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/10">
-      <svg id="mnavIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2">
-        <path id="mline1" stroke-linecap="round" stroke-linejoin="round" d="M4 7h16"/>
-        <path id="mline2" stroke-linecap="round" stroke-linejoin="round" d="M4 12h16"/>
-        <path id="mline3" stroke-linecap="round" stroke-linejoin="round" d="M4 17h16"/>
+    <button
+      id="mnavToggle"
+      aria-label="Open menu"
+      aria-expanded="false"
+      aria-controls="mnavDrawer"
+      class="p-2"
+    >
+      <svg
+        id="mnavIcon"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        class="w-10 h-10"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path id="mline1" stroke-linecap="round" stroke-linejoin="round" d="M4 7h16"></path>
+        <path id="mline2" stroke-linecap="round" stroke-linejoin="round" d="M4 12h16"></path>
+        <path id="mline3" stroke-linecap="round" stroke-linejoin="round" d="M4 17h16"></path>
       </svg>
     </button>
 
@@ -42,15 +55,15 @@ import DesktopCart from '@/components/cart/DesktopCart.tsx';
     <div>
       <CartButton client:only="react" forceMobileModal />
     </div>
-
   </div>
 
   <!-- Top Bar (Desktop/Tablet) -->
-  <div id="topBar" class="hidden md:block pt-5 transform transition-transform duration-300 will-change-transform">
+  <div
+    id="topBar"
+    class="hidden md:block pt-5 transform transition-transform duration-300 will-change-transform"
+  >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-8">
-      <div class="flex items-center gap-4">
-
-      </div>
+      <div class="flex items-center gap-4"></div>
       <div class="flex items-center gap-4">
         <div
           id="account-top-badge"
@@ -62,11 +75,14 @@ import DesktopCart from '@/components/cart/DesktopCart.tsx';
     </div>
   </div>
 
-  
-
   <!-- Desktop Header -->
-  <div id="dheader" class="hidden rounded-full border border-white/5 border-shadow shadow-inner drop-shadow-md backdrop-blur-sm bg-black/40 shadow-white/10 md:block px-10 mx-10 ">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 items-center h-16">
+  <div
+    id="dheader"
+    class="hidden rounded-full border border-white/5 border-shadow shadow-inner drop-shadow-md backdrop-blur-sm bg-black/40 shadow-white/10 md:block px-10 mx-10"
+  >
+    <div
+      class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 items-center h-16"
+    >
       <div class="flex items-center gap-4">
         <button
           id="desktopCategoryToggle"
@@ -75,8 +91,14 @@ import DesktopCart from '@/components/cart/DesktopCart.tsx';
           aria-controls="desktopDrawerLeft"
           class="p-2 rounded-lg hover:text-primary"
         >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
           </svg>
         </button>
       </div>
@@ -100,34 +122,57 @@ import DesktopCart from '@/components/cart/DesktopCart.tsx';
           aria-label="Open search"
           class="hidden sm:inline-flex items-center justify-center p-2 rounded-lg hover:text-primary"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m20.25 20.25-3.5-3.5" />
-            <circle cx="10.5" cy="10.5" r="6.5" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" d="m20.25 20.25-3.5-3.5"></path>
+            <circle cx="10.5" cy="10.5" r="6.5"></circle>
           </svg>
         </button>
         <nav class="hidden md:flex items-center gap-3 text-sm font-ethno">
           <a href="/" class="hover:text-accent transition-colors duration-300">Home</a>
           <span class="text-gray-300">|</span>
-          <a href="/shop/storefront" class="hover:text-accent transition-colors duration-300">Shop ➤</a>
+          <a href="/shop/storefront" class="hover:text-accent transition-colors duration-300"
+            >Shop ➤</a
+          >
         </nav>
-           <DesktopCart client:only="react" />
-        <button id="accountDashboardToggleTop" aria-label="Open account panel" class="sm:hidden lg:hidden inline-flex items-center justify-center p-1.5 rounded hover:text-primary">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="4" width="18" height="16" rx="2" ry="2"/>
-            <line x1="16" y1="4" x2="16" y2="20"/>
-            <rect x="5" y="6" width="9" height="12" rx="1"/>
+        <DesktopCart client:only="react" />
+        <button
+          id="accountDashboardToggleTop"
+          aria-label="Open account panel"
+          class="sm:hidden lg:hidden inline-flex items-center justify-center p-1.5 rounded hover:text-primary"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="3" y="4" width="18" height="16" rx="2" ry="2"></rect>
+            <line x1="16" y1="4" x2="16" y2="20"></line>
+            <rect x="5" y="6" width="9" height="12" rx="1"></rect>
           </svg>
         </button>
       </div>
     </div>
-
   </div>
-
 </header>
 
 <!-- Root-level overlays (mirrors Header.astro structure to avoid header stacking) -->
 <!-- Mobile Drawer + Scrim -->
-<div id="mnavScrim" aria-hidden="true" class="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[99998] hidden opacity-0 transition-opacity duration-300 pointer-events-none"></div>
+<div
+  id="mnavScrim"
+  aria-hidden="true"
+  class="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[99998] hidden opacity-0 transition-opacity duration-300 pointer-events-none"
+>
+</div>
 <aside
   id="mnavDrawer"
   class="md:hidden fixed top-0 left-0 h-full w-4/5 max-w-[360px] bg-black/95 border-r border-gray-700 z-[100000] overflow-y-auto -translate-x-full transition-transform duration-300 ease-out"
@@ -136,7 +181,7 @@ import DesktopCart from '@/components/cart/DesktopCart.tsx';
     <MobileMenu mode="inline" client:only="react" />
     <button
       id="closeMobileDrawer"
-      class="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white text-xl font-bold shadow-lg shadow-primary/30 transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+      class="absolute top-4 right-4 flex h-10 w-10 items-center justify-center bg-transparent text-white text-xl font-bold"
     >
       ×
     </button>
@@ -144,7 +189,12 @@ import DesktopCart from '@/components/cart/DesktopCart.tsx';
 </aside>
 
 <!-- Desktop Drawer + Scrim -->
-<div id="desktopScrim" aria-hidden="true" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[99999] opacity-0 transition-opacity duration-300 pointer-events-none"></div>
+<div
+  id="desktopScrim"
+  aria-hidden="true"
+  class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[99999] opacity-0 transition-opacity duration-300 pointer-events-none"
+>
+</div>
 <aside
   id="desktopDrawerLeft"
   aria-hidden="true"
@@ -153,7 +203,7 @@ import DesktopCart from '@/components/cart/DesktopCart.tsx';
   <div class="pt-16 pb-8 px-6">
     <button
       id="closeDesktopDrawerLeft"
-      class="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white text-xl font-bold shadow-lg shadow-primary/30 transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+      class="absolute top-4 right-4 flex h-10 w-10 items-center justify-center text-white text-xl font-bold transition"
     >
       ×
     </button>
@@ -184,14 +234,17 @@ import DesktopCart from '@/components/cart/DesktopCart.tsx';
   aria-hidden="true"
   class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-[110000] transition-opacity duration-200 pointer-events-none"
   style="opacity: 0;"
-></div>
+>
+</div>
 <div
   id="searchOverlay"
   class="hidden fixed top-16 left-0 right-0 z-[110001] transition-all duration-200 pointer-events-none"
   style="transform: translateY(-1rem); opacity: 0;"
 >
   <div class="mx-auto w-full max-w-xl px-4">
-    <div class="rounded-2xl border border-white/15 bg-black/95 shadow-2xl p-4 flex items-start gap-3">
+    <div
+      class="rounded-2xl border border-white/15 bg-black/95 shadow-2xl p-4 flex items-start gap-3"
+    >
       <div class="flex-1">
         <SearchBar
           client:only="react"
@@ -214,77 +267,85 @@ import DesktopCart from '@/components/cart/DesktopCart.tsx';
 </div>
 
 <script is:inline>
-  document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener('DOMContentLoaded', function () {
     // Mobile Nav Drawer
-    const mnavToggle = document.getElementById("mnavToggle");
-    const mnavDrawer = document.getElementById("mnavDrawer");
-    const mnavScrim = document.getElementById("mnavScrim");
-    const mline1 = document.getElementById("mline1");
-    const mline2 = document.getElementById("mline2");
-    const mline3 = document.getElementById("mline3");
-    const closeMobileDrawer = document.getElementById("closeMobileDrawer");
+    const mnavToggle = document.getElementById('mnavToggle');
+    const mnavDrawer = document.getElementById('mnavDrawer');
+    const mnavScrim = document.getElementById('mnavScrim');
+    const mline1 = document.getElementById('mline1');
+    const mline2 = document.getElementById('mline2');
+    const mline3 = document.getElementById('mline3');
+    const closeMobileDrawer = document.getElementById('closeMobileDrawer');
     let mnavOpen = false;
 
     function openMnav() {
-      mnavDrawer.classList.remove("-translate-x-full");
-      mnavScrim.classList.remove("hidden", "pointer-events-none", "opacity-0");
-      mnavScrim.setAttribute("aria-hidden", "false");
-      mline1.setAttribute("d", "M6 6l12 12");
-      mline2.setAttribute("d", "");
-      mline3.setAttribute("d", "M6 18l12 -12");
-      mnavToggle.setAttribute("aria-expanded", "true");
-      document.body.style.overflow = "hidden";
+      mnavDrawer.classList.remove('-translate-x-full');
+      mnavScrim.classList.remove('hidden', 'pointer-events-none', 'opacity-0');
+      mnavScrim.setAttribute('aria-hidden', 'false');
+      mline1.setAttribute('d', 'M6 6l12 12');
+      mline2.setAttribute('d', '');
+      mline3.setAttribute('d', 'M6 18l12 -12');
+      mnavToggle.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
       mnavOpen = true;
-      try { window.dispatchEvent(new Event('menu:open')); } catch {}
+      try {
+        window.dispatchEvent(new Event('menu:open'));
+      } catch {}
     }
 
     function closeMnav() {
-      mnavDrawer.classList.add("-translate-x-full");
-      mnavScrim.classList.add("opacity-0", "pointer-events-none");
-      mnavScrim.setAttribute("aria-hidden", "true");
-      setTimeout(() => mnavScrim.classList.add("hidden"), 300);
-      mline1.setAttribute("d", "M4 7h16");
-      mline2.setAttribute("d", "M4 12h16");
-      mline3.setAttribute("d", "M4 17h16");
-      mnavToggle.setAttribute("aria-expanded", "false");
-      document.body.style.overflow = "";
+      mnavDrawer.classList.add('-translate-x-full');
+      mnavScrim.classList.add('opacity-0', 'pointer-events-none');
+      mnavScrim.setAttribute('aria-hidden', 'true');
+      setTimeout(() => mnavScrim.classList.add('hidden'), 300);
+      mline1.setAttribute('d', 'M4 7h16');
+      mline2.setAttribute('d', 'M4 12h16');
+      mline3.setAttribute('d', 'M4 17h16');
+      mnavToggle.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
       mnavOpen = false;
-      try { window.dispatchEvent(new Event('menu:close')); } catch {}
+      try {
+        window.dispatchEvent(new Event('menu:close'));
+      } catch {}
     }
 
-    mnavToggle?.addEventListener("click", () => (mnavOpen ? closeMnav() : openMnav()));
-    mnavScrim?.addEventListener("click", closeMnav);
-    closeMobileDrawer?.addEventListener("click", closeMnav);
-    document.addEventListener("keydown", (e) => e.key === "Escape" && mnavOpen && closeMnav());
+    mnavToggle?.addEventListener('click', () => (mnavOpen ? closeMnav() : openMnav()));
+    mnavScrim?.addEventListener('click', closeMnav);
+    closeMobileDrawer?.addEventListener('click', closeMnav);
+    document.addEventListener('keydown', (e) => e.key === 'Escape' && mnavOpen && closeMnav());
 
     // Desktop Nav Drawer
-    const desktopCategoryToggle = document.getElementById("desktopCategoryToggle");
-    const desktopDrawerLeft = document.getElementById("desktopDrawerLeft");
-    const closeDesktopDrawerLeft = document.getElementById("closeDesktopDrawerLeft");
-    const desktopScrim = document.getElementById("desktopScrim");
+    const desktopCategoryToggle = document.getElementById('desktopCategoryToggle');
+    const desktopDrawerLeft = document.getElementById('desktopDrawerLeft');
+    const closeDesktopDrawerLeft = document.getElementById('closeDesktopDrawerLeft');
+    const desktopScrim = document.getElementById('desktopScrim');
     let isDesktopLeftOpen = false;
 
     function openDesktopLeft() {
       if (!desktopDrawerLeft || !desktopScrim) return;
-      desktopDrawerLeft.classList.remove("hidden", "-translate-x-full", "invisible");
+      desktopDrawerLeft.classList.remove('hidden', '-translate-x-full', 'invisible');
       desktopDrawerLeft.setAttribute('aria-hidden', 'false');
-      desktopScrim.classList.remove("hidden", "pointer-events-none", "opacity-0");
+      desktopScrim.classList.remove('hidden', 'pointer-events-none', 'opacity-0');
       desktopCategoryToggle?.setAttribute('aria-expanded', 'true');
-      document.body.style.overflow = "hidden";
+      document.body.style.overflow = 'hidden';
       isDesktopLeftOpen = true;
     }
 
     function closeDesktopLeft() {
       if (!desktopDrawerLeft || !desktopScrim) return;
-      if (desktopDrawerLeft && document.activeElement && desktopDrawerLeft.contains(document.activeElement)) {
+      if (
+        desktopDrawerLeft &&
+        document.activeElement &&
+        desktopDrawerLeft.contains(document.activeElement)
+      ) {
         try {
           document.activeElement.blur();
         } catch {}
       }
 
       desktopCategoryToggle?.setAttribute('aria-expanded', 'false');
-      desktopDrawerLeft.classList.add("-translate-x-full");
-      desktopScrim.classList.add("opacity-0", "pointer-events-none");
+      desktopDrawerLeft.classList.add('-translate-x-full');
+      desktopScrim.classList.add('opacity-0', 'pointer-events-none');
       requestAnimationFrame(() => {
         if (desktopCategoryToggle) {
           try {
@@ -293,23 +354,25 @@ import DesktopCart from '@/components/cart/DesktopCart.tsx';
         }
       });
       setTimeout(() => {
-        desktopScrim.classList.add("hidden");
-        desktopDrawerLeft.classList.add("invisible");
+        desktopScrim.classList.add('hidden');
+        desktopDrawerLeft.classList.add('invisible');
         desktopDrawerLeft.setAttribute('aria-hidden', 'true');
       }, 300);
-      document.body.style.overflow = "";
+      document.body.style.overflow = '';
       isDesktopLeftOpen = false;
     }
 
-    desktopCategoryToggle?.addEventListener("click", () => (isDesktopLeftOpen ? closeDesktopLeft() : openDesktopLeft()));
-    closeDesktopDrawerLeft?.addEventListener("click", closeDesktopLeft);
-    desktopScrim?.addEventListener("click", closeDesktopLeft);
+    desktopCategoryToggle?.addEventListener('click', () =>
+      isDesktopLeftOpen ? closeDesktopLeft() : openDesktopLeft()
+    );
+    closeDesktopDrawerLeft?.addEventListener('click', closeDesktopLeft);
+    desktopScrim?.addEventListener('click', closeDesktopLeft);
 
     // Account Dashboard
-    const accountDashboardToggle = document.getElementById("accountDashboardToggle");
-    const accountDashboardToggleTop = document.getElementById("accountDashboardToggleTop");
-    const accountDashboardPanel = document.getElementById("accountDashboardPanel");
-    const closeAccountDashboard = document.getElementById("closeAccountDashboard");
+    const accountDashboardToggle = document.getElementById('accountDashboardToggle');
+    const accountDashboardToggleTop = document.getElementById('accountDashboardToggleTop');
+    const accountDashboardPanel = document.getElementById('accountDashboardPanel');
+    const closeAccountDashboard = document.getElementById('closeAccountDashboard');
     let isDashboardOpen = false;
 
     function openDashboard() {
@@ -338,16 +401,16 @@ import DesktopCart from '@/components/cart/DesktopCart.tsx';
       isDashboardOpen = false;
     }
 
-    accountDashboardToggle?.addEventListener("click", () => {
+    accountDashboardToggle?.addEventListener('click', () => {
       if (isDashboardOpen) return closeDashboard();
       openDashboard();
     });
-    accountDashboardToggleTop?.addEventListener("click", () => {
+    accountDashboardToggleTop?.addEventListener('click', () => {
       if (isDashboardOpen) return closeDashboard();
       openDashboard();
     });
-    closeAccountDashboard?.addEventListener("click", closeDashboard);
-    desktopScrim?.addEventListener("click", closeDashboard);
+    closeAccountDashboard?.addEventListener('click', closeDashboard);
+    desktopScrim?.addEventListener('click', closeDashboard);
 
     // Global search overlay
     const mobileSearchToggle = document.getElementById('mobileSearchToggle');
@@ -430,8 +493,8 @@ import DesktopCart from '@/components/cart/DesktopCart.tsx';
     });
 
     // Sticky Header Scroll Effect
-    const mheader = document.getElementById("mheader");
-    const dheader = document.getElementById("dheader");
+    const mheader = document.getElementById('mheader');
+    const dheader = document.getElementById('dheader');
     const shrinkThreshold = 120;
     const topBar = document.getElementById('topBar');
     let lastY = window.scrollY;
@@ -443,7 +506,7 @@ import DesktopCart from '@/components/cart/DesktopCart.tsx';
       const scrollY = window.scrollY;
       // Shrink logos
       if (mheader) {
-        mheader.classList.toggle("m-shrink", scrollY > shrinkThreshold);
+        mheader.classList.toggle('m-shrink', scrollY > shrinkThreshold);
       }
       // Desktop header: keep full size on scroll
       if (dheader) dheader.classList.remove('d-shrink');
@@ -458,7 +521,7 @@ import DesktopCart from '@/components/cart/DesktopCart.tsx';
       lastY = scrollY;
     }
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener('scroll', handleScroll, { passive: true });
   });
 </script>
 
@@ -481,12 +544,16 @@ import DesktopCart from '@/components/cart/DesktopCart.tsx';
     animation: header-enter 600ms ease-out forwards;
   }
   @keyframes header-enter {
-    to { opacity: 1; transform: translateY(0); }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
   img {
     @apply max-w-full object-contain;
   }
-  button, a {
+  button,
+  a {
     @apply transition-colors duration-300;
   }
 </style>

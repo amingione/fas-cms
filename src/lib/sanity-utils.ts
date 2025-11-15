@@ -36,6 +36,76 @@ export const ACTIVE_PRODUCT_FILTER =
   '!(_id in path("drafts.**")) && lower(coalesce(status, "active")) == "active"';
 export const ACTIVE_PRODUCT_WITH_SLUG_FILTER = `${ACTIVE_PRODUCT_FILTER} && defined(slug.current)`;
 const FEATURED_PRODUCT_FILTER = 'string(featured) == "true"';
+const GROQ_OPTION_VALUES_FRAGMENT = `array::compact(
+        coalesce(values, []) +
+        coalesce(items, []) +
+        coalesce(options, []) +
+        coalesce(optionItems, []) +
+        coalesce(optionValues, []) +
+        coalesce(optionChoices, []) +
+        coalesce(choices, []) +
+        coalesce(entries, []) +
+        coalesce(entryOptions, []) +
+        coalesce(variants, []) +
+        coalesce(variantOptions, []) +
+        coalesce(variationOptions, []) +
+        coalesce(valueOptions, []) +
+        coalesce(valueChoices, []) +
+        coalesce(variations, []) +
+        coalesce(colors, []) +
+        coalesce(colorValues, []) +
+        coalesce(sizes, []) +
+        coalesce(sizeValues, []) +
+        coalesce(custom.values, []) +
+        coalesce(custom.options, []) +
+        coalesce(custom.items, []) +
+        coalesce(custom.choices, []) +
+        coalesce(custom.entries, []) +
+        coalesce(custom.variants, []) +
+        coalesce(custom.variantOptions, []) +
+        coalesce(custom.variationOptions, []) +
+        coalesce(custom.valueOptions, []) +
+        coalesce(custom.valueChoices, []) +
+        coalesce(custom.colors, []) +
+        coalesce(custom.sizes, []) +
+        coalesce(custom.colorValues, []) +
+        coalesce(custom.sizeValues, []) +
+        coalesce(color.values, []) +
+        coalesce(color.options, []) +
+        coalesce(color.items, []) +
+        coalesce(color.colors, []) +
+        coalesce(size.values, []) +
+        coalesce(size.options, []) +
+        coalesce(size.items, []) +
+        coalesce(size.sizes, []) +
+        coalesce(customOption.values, []) +
+        coalesce(customOption.options, []) +
+        coalesce(customOption.items, []) +
+        coalesce(customOption.choices, []) +
+        coalesce(customOption.colors, []) +
+        coalesce(customOption.sizes, []) +
+        coalesce(customOptions.values, []) +
+        coalesce(customOptions.options, []) +
+        coalesce(customOptions.items, []) +
+        coalesce(customOptions.choices, []) +
+        coalesce(customOptions.colors, []) +
+        coalesce(customOptions.sizes, []) +
+        []
+      )`;
+const GROQ_OPTION_OBJECT_PROJECTION = `[]{
+        ...,
+        _type,
+        "required": coalesce(
+          required,
+          custom.required,
+          color.required,
+          size.required,
+          customOption.required,
+          customOptions.required,
+          false
+        ),
+        "values": ${GROQ_OPTION_VALUES_FRAGMENT}
+      }`;
 
 export interface SanityImageTransformOptions {
   width?: number;
@@ -48,7 +118,9 @@ export interface SanityImageTransformOptions {
   sharpen?: number;
 }
 
-const DEFAULT_SANITY_IMAGE_PARAMS: Required<Pick<SanityImageTransformOptions, 'quality' | 'fit'>> & {
+const DEFAULT_SANITY_IMAGE_PARAMS: Required<
+  Pick<SanityImageTransformOptions, 'quality' | 'fit'>
+> & {
   auto: 'format';
 } = Object.freeze({
   auto: 'format',
@@ -121,7 +193,8 @@ const studioUrlRaw =
   (import.meta.env.SANITY_STUDIO_URL as string | undefined) ||
   (import.meta.env.SANITY_STUDIO_NETLIFY_BASE as string | undefined) ||
   undefined;
-const studioUrl = typeof studioUrlRaw === 'string' && studioUrlRaw.trim() ? studioUrlRaw : undefined;
+const studioUrl =
+  typeof studioUrlRaw === 'string' && studioUrlRaw.trim() ? studioUrlRaw : undefined;
 
 const previewDraftsRequested = toBooleanFlag(
   (import.meta.env.PUBLIC_SANITY_PREVIEW_DRAFTS as string | undefined) ?? 'false'
@@ -243,9 +316,7 @@ export const cachedSanityFetch = async <T>(
       ? Math.max(0, Math.floor(options.ttlSeconds))
       : DEFAULT_SANITY_CACHE_TTL_SECONDS;
 
-  const cacheKey = shouldUseCache
-    ? keyParts.map((part) => stableStringify(part)).join('|')
-    : null;
+  const cacheKey = shouldUseCache ? keyParts.map((part) => stableStringify(part)).join('|') : null;
 
   if (shouldUseCache && cacheStore && cacheKey) {
     const entry = cacheStore.get(cacheKey);
@@ -308,7 +379,7 @@ const clientOptions: Parameters<typeof createClient>[0] = {
   dataset,
   apiVersion,
   useCdn: false,
-  perspective,
+  perspective
 };
 
 if (previewDraftsEnabled && apiToken) {
@@ -329,7 +400,7 @@ export const config = {
   dataset,
   apiVersion,
   perspective,
-  studioUrl,
+  studioUrl
 } as const;
 export const clientConfig = config;
 export const defaultClientConfig = config;
@@ -469,7 +540,12 @@ const normalizeUrlString = (value: string | undefined | null): string | undefine
   }
   if (/^image-/i.test(trimmed) && imageBuilder) {
     try {
-      const built = imageBuilder.image(trimmed).auto('format').fit('max').quality(DEFAULT_SANITY_IMAGE_PARAMS.quality).url();
+      const built = imageBuilder
+        .image(trimmed)
+        .auto('format')
+        .fit('max')
+        .quality(DEFAULT_SANITY_IMAGE_PARAMS.quality)
+        .url();
       return optimizeSanityImageUrl(built) ?? built;
     } catch {
       return undefined;
@@ -496,10 +572,13 @@ const DIRECT_IMAGE_KEYS = [
   'photo',
   'value',
   'current',
-  'path',
+  'path'
 ] as const;
 
-export const resolveSanityImageUrl = (candidate: unknown, seen = new Set<unknown>()): string | undefined => {
+export const resolveSanityImageUrl = (
+  candidate: unknown,
+  seen = new Set<unknown>()
+): string | undefined => {
   if (candidate == null) return undefined;
   if (typeof candidate === 'string') {
     return normalizeUrlString(candidate);
@@ -611,7 +690,11 @@ export const coercePriceToNumber = (value: unknown): number | null => {
   return null;
 };
 
-const normalizeProductPrice = <T extends { price?: unknown; images?: unknown; socialImage?: unknown }>(product: T): T => {
+const normalizeProductPrice = <
+  T extends { price?: unknown; images?: unknown; socialImage?: unknown }
+>(
+  product: T
+): T => {
   if (!product) return product;
   const normalizedPrice = coercePriceToNumber((product as any).price);
   const clone: Record<string, unknown> = { ...(product as any) };
@@ -705,7 +788,8 @@ export async function fetchProductsFromSanity({
       conditions.push(`count((compatibleVehicles[]->slug.current)[@ in $vehicleSlugs]) > 0`);
       params.vehicleSlugs = normalizedVehicleSlugs;
     } else if (vehicleSlug) {
-      const normalizedSlug = typeof vehicleSlug === 'string' ? vehicleSlug.trim().toLowerCase() : '';
+      const normalizedSlug =
+        typeof vehicleSlug === 'string' ? vehicleSlug.trim().toLowerCase() : '';
       if (normalizedSlug) {
         conditions.push(`$vehicleSlug in compatibleVehicles[]->slug.current`);
         params.vehicleSlug = normalizedSlug;
@@ -760,6 +844,32 @@ export async function fetchProductsFromSanity({
         title,
         slug
       },
+      // surface selection data for quick view (normalize nested choice arrays)
+      options${GROQ_OPTION_OBJECT_PROJECTION},
+      optionGroups${GROQ_OPTION_OBJECT_PROJECTION},
+      variationOptions${GROQ_OPTION_OBJECT_PROJECTION},
+      variations[],
+      addOns[]{
+        label,
+        priceDelta,
+        description,
+        skuSuffix,
+        defaultSelected,
+        group,
+        key,
+        name,
+        title,
+        value,
+        price,
+        delta
+      },
+      customPaint{
+        enabled,
+        additionalPrice,
+        paintCodeRequired,
+        codeLabel,
+        instructions
+      },
       // support either field name: "categories" or "category"
       "categories": select(
         defined(categories) => categories[]->{ _id, title, slug },
@@ -810,10 +920,12 @@ export interface FeaturedProductSummary {
   filters?: any[];
 }
 
-export async function fetchFeaturedProducts(options: {
-  limit?: number;
-  ttlSeconds?: number;
-} = {}): Promise<FeaturedProductSummary[]> {
+export async function fetchFeaturedProducts(
+  options: {
+    limit?: number;
+    ttlSeconds?: number;
+  } = {}
+): Promise<FeaturedProductSummary[]> {
   try {
     if (!hasSanityConfig || !sanity) return [];
     const limit = Math.max(1, Math.min(50, options.limit ?? 8));
@@ -1039,11 +1151,10 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       noindex,
       socialImage{ asset->{ _id, url }, alt },
 
-      // --- Variants/Options (support multiple shapes)
-      // Keep inline option objects intact (avoid projecting away custom fields like 'sizes')
-      options[],
-      optionGroups[],
-      variationOptions[],
+      // --- Variants/Options (support multiple shapes w/ normalized value arrays)
+      options${GROQ_OPTION_OBJECT_PROJECTION},
+      optionGroups${GROQ_OPTION_OBJECT_PROJECTION},
+      variationOptions${GROQ_OPTION_OBJECT_PROJECTION},
       variations[],
 
       // --- Upgrades & Custom Paint ---
@@ -1090,7 +1201,7 @@ export async function getRelatedProducts(
   slug: string,
   categoryIds: string[] = [],
   filters: string[] = [],
-  limit = 6
+  limit = 4
 ) {
   if (!hasSanityConfig) return [];
   const ids = Array.isArray(categoryIds) ? categoryIds : [];
@@ -1117,16 +1228,7 @@ export async function getRelatedProducts(
     return Array.isArray(results) ? results.map((item) => normalizeProductPrice(item)) : [];
   };
   return cachedSanityFetch(
-    [
-      'getRelatedProducts',
-      config.projectId,
-      config.dataset,
-      perspective,
-      slug,
-      ids,
-      flt,
-      limit
-    ],
+    ['getRelatedProducts', config.projectId, config.dataset, perspective, slug, ids, flt, limit],
     executeQuery
   );
 }
@@ -1136,7 +1238,7 @@ export async function getUpsellProducts(
   slug: string,
   categoryIds: string[] = [],
   basePrice?: number,
-  limit = 6
+  limit = 4
 ) {
   if (!hasSanityConfig) return [];
   const ids = Array.isArray(categoryIds) ? categoryIds : [];
@@ -1182,7 +1284,7 @@ export async function getUpsellProducts(
 export async function getSimilarProducts(
   categories: { slug?: { current?: string } }[] = [],
   currentSlug: string,
-  limit = 6
+  limit = 4
 ): Promise<Product[]> {
   const catIds = (categories || []).map((c: any) => c?._id || c?._ref).filter(Boolean);
   return getRelatedProducts(currentSlug, catIds, [], limit);

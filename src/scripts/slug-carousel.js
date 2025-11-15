@@ -1,11 +1,11 @@
-const initCarousel = (root: HTMLElement) => {
-  const viewport = root.querySelector<HTMLElement>('[data-carousel-viewport]');
+const initCarousel = (root) => {
+  const viewport = root.querySelector('[data-carousel-viewport]');
   if (!viewport) return;
 
-  const prev = root.querySelector<HTMLButtonElement>('[data-carousel-prev]');
-  const next = root.querySelector<HTMLButtonElement>('[data-carousel-next]');
-  const thumbs = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-carousel-thumb]'));
-  const slides = Array.from(root.querySelectorAll<HTMLElement>('[data-slide]'));
+  const prev = root.querySelector('[data-carousel-prev]');
+  const next = root.querySelector('[data-carousel-next]');
+  const thumbs = Array.from(root.querySelectorAll('[data-carousel-thumb]'));
+  const slides = Array.from(root.querySelectorAll('[data-slide]'));
   if (slides.length <= 1) {
     prev?.setAttribute('hidden', '');
     next?.setAttribute('hidden', '');
@@ -13,9 +13,9 @@ const initCarousel = (root: HTMLElement) => {
     return;
   }
 
-  const clamp = (value: number) => Math.max(0, Math.min(value, slides.length - 1));
+  const clamp = (value) => Math.max(0, Math.min(value, slides.length - 1));
 
-  const scrollToIndex = (index: number) => {
+  const scrollToIndex = (index) => {
     const target = clamp(index);
     const width = viewport.clientWidth || 1;
     viewport.scrollTo({ left: target * width, behavior: 'smooth' });
@@ -71,7 +71,7 @@ const initCarousel = (root: HTMLElement) => {
 
 const ready = () => {
   if (typeof window === 'undefined' || typeof document === 'undefined') return;
-  const carousels = Array.from(document.querySelectorAll<HTMLElement>('[data-slug-carousel]'));
+  const carousels = Array.from(document.querySelectorAll('[data-slug-carousel]'));
   carousels.forEach((root) => initCarousel(root));
 };
 
@@ -80,5 +80,3 @@ if (document.readyState === 'loading') {
 } else {
   ready();
 }
-
-export {};

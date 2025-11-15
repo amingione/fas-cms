@@ -10,6 +10,8 @@ import InternalLinks from '@/components/navigation/InternalLinks.astro';
 import { Toaster } from 'sonner';
 import { buildJsonLd, buildMetaEntries, fetchSeoForPath } from '@/lib/seoData';
 import analyticsTrackingScriptUrl from '../scripts/analytics-tracking.js?url';
+import DesktopAddToCartToast from '@/components/cart/DesktopAddToCartToast.tsx';
+import MobileAddToCartToast from '@/components/cart/MobileAddToCartToast.tsx';
 
 // SEO props (optional per-page)
 const {
@@ -735,6 +737,8 @@ const jsonLdEntries = buildJsonLd(computedPayload, breadcrumbStructuredData);
       <Footer2 client:visible />
       <CookieBanner client:idle />
       <Toaster client:idle />
+      <MobileAddToCartToast client:only="react" />
+      <DesktopAddToCartToast client:only="react" />
     </div>
 
     <!-- fas-auth client shim (provides window.fasAuth) -->

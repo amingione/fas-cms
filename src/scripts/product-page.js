@@ -31,6 +31,18 @@ const emitCartChanged = (cart) => {
   }
 };
 
+const emitAddToCartSuccess = (detail) => {
+  try {
+    window.dispatchEvent(new CustomEvent('fas:add-to-cart-success', { detail: detail || {} }));
+  } catch {
+    try {
+      window.dispatchEvent(new Event('fas:add-to-cart-success'));
+    } catch {
+      /* noop */
+    }
+  }
+};
+
 const prefersDesktopOverlay = () => {
   try {
     const hover = window.matchMedia?.('(hover: hover)').matches ?? false;
@@ -58,7 +70,7 @@ const readConfiguredOptions = () => {
   const handled = new Set();
   const elements = Array.from(form.querySelectorAll('[data-group]'));
 
-  const addSelection = (group: string, value: string, label: string, delta: number) => {
+  const addSelection = (group, value, label, delta) => {
     const numericDelta = Number.isFinite(delta) ? delta : 0;
     result.selections.push({ group, value, label, priceDelta: numericDelta });
     result.extra += numericDelta;
@@ -73,10 +85,16 @@ const readConfiguredOptions = () => {
       const select = node;
       const option = select.options[select.selectedIndex];
       if (option) {
-        const value = option.value || '';
-        const label = option.dataset.label || option.text || value;
-        const delta = normalizeDelta(option.dataset.price ?? option.getAttribute('data-price'));
-        addSelection(group, value, label, delta);
+        const value = option.value ?? '';
+        const isPlaceholder =
+          option.dataset.placeholder === 'true' ||
+          option.disabled ||
+          value === '';
+        if (!isPlaceholder) {
+          const label = option.dataset.label || option.text || value;
+          const delta = normalizeDelta(option.dataset.price ?? option.getAttribute('data-price'));
+          addSelection(group, value, label, delta);
+        }
       }
       handled.add(node);
       return;
@@ -143,7 +161,7 @@ const updateConfiguredPriceUI = () => {
 
 const schedule = (() => {
   let raf = 0;
-  return (fn: () => void) => {
+  return (fn) => {
     if (raf) cancelAnimationFrame(raf);
     raf = requestAnimationFrame(() => {
       raf = 0;
@@ -193,6 +211,26 @@ const hydrateCartButtons = () => {
     if (!button) return;
     event.preventDefault();
     event.stopPropagation();
+
+    const form = document.getElementById('product-options');
+    if (form) {
+      let isValid = true;
+      try {
+        isValid = typeof form.checkValidity === 'function' ? form.checkValidity() : true;
+      } catch {
+        isValid = true;
+      }
+      if (!isValid) {
+        try {
+          if (typeof form.reportValidity === 'function') {
+            form.reportValidity();
+          }
+        } catch {
+          /* noop */
+        }
+        return;
+      }
+    }
 
     const { total, cfg } = updateConfiguredPriceUI();
     const selections = Array.isArray(cfg.selections) ? cfg.selections : [];
@@ -254,6 +292,11 @@ const hydrateCartButtons = () => {
 
     setCart(cart);
     emitCartChanged(cart);
+    try {
+      emitAddToCartSuccess({ name: product.name });
+    } catch (error) {
+      void error;
+    }
 
     const eventName = prefersDesktopOverlay() ? 'open-desktop-cart' : 'open-cart';
     try {

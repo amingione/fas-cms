@@ -41,6 +41,14 @@ body {
   background-color: var(--color-background);
 }
 
+@media (min-width: 640px) {
+  .disclaimer-pill {
+    font-size: 0.68rem;
+    padding: 0.25rem 1.25rem;
+    min-height: 1.9rem;
+  }
+}
+
 /* Fluid container defaults */
 :root {
   --container-max: 1280px;
@@ -2001,6 +2009,7 @@ html {
     min-height: 0 !important;
     padding: 0 !important;
     border-radius: 9999px; /* keep circle */
+    line-height: normal !important;
   }
   .btn-plain svg {
     display: block;

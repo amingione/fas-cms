@@ -1,11 +1,15 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { EyeIcon, ShoppingCartIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { PortableText } from '@portabletext/react';
+import clsx from 'clsx';
 import { addItem } from '@components/cart/actions';
 import { prefersDesktopCart } from '@/lib/device';
 import { emitAddToCartSuccess } from '@/lib/add-to-cart-toast';
+import type { QuickViewOptionGroup, QuickViewOptionValue } from '@/lib/quick-view-options';
+import { portableTextToPlainText } from '@/lib/portableText';
 
 const sanitizeAnalyticsPayload = (payload: Record<string, unknown>) =>
   Object.fromEntries(
@@ -20,6 +24,46 @@ export type QuickViewProduct = {
   imageSrc: string;
   imageAlt?: string;
   description?: string;
+  shortDescriptionPortable?: unknown;
+  optionGroups?: QuickViewOptionGroup[];
+};
+
+const portableComponents = {
+  marks: {
+    strong: ({ children }: { children: ReactNode }) => (
+      <strong className="font-semibold text-white">{children}</strong>
+    ),
+    em: ({ children }: { children: ReactNode }) => (
+      <em className="italic text-white/90">{children}</em>
+    )
+  },
+  list: {
+    bullet: ({ children }: { children: ReactNode }) => (
+      <ul className="ml-5 list-disc space-y-1 text-sm leading-relaxed text-white/75">{children}</ul>
+    ),
+    number: ({ children }: { children: ReactNode }) => (
+      <ol className="ml-5 list-decimal space-y-1 text-sm leading-relaxed text-white/75">{children}</ol>
+    )
+  },
+  block: {
+    normal: ({ children }: { children: ReactNode }) => (
+      <p className="text-sm leading-relaxed text-white/80">{children}</p>
+    )
+  }
+};
+
+const normalizePortableBlocks = (value: unknown): any[] | null => {
+  if (!value) return null;
+  if (Array.isArray(value)) {
+    const filtered = value.filter(
+      (block) => block && typeof block === 'object' && !Array.isArray(block)
+    );
+    return filtered.length ? filtered : null;
+  }
+  if (typeof value === 'object') {
+    return [value];
+  }
+  return null;
 };
 
 export default function ProductQuickViewButton({
@@ -68,13 +112,26 @@ export default function ProductQuickViewButton({
         })}`
       : undefined;
 
-  const descriptionRaw =
-    typeof product.description === 'string' ? product.description.trim() : undefined;
-  const description = descriptionRaw
-    ? descriptionRaw.length > 320
-      ? `${descriptionRaw.slice(0, 320)}…`
-      : descriptionRaw
-    : undefined;
+  const portableDescription = useMemo(() => {
+    return normalizePortableBlocks(product.shortDescriptionPortable);
+  }, [product.shortDescriptionPortable]);
+
+  const fallbackDescription = useMemo(() => {
+    if (portableDescription) return undefined;
+    const plain =
+      (typeof product.description === 'string' && product.description.trim()) ||
+      portableTextToPlainText(product.description) ||
+      portableTextToPlainText(product.shortDescriptionPortable);
+    const trimmed = typeof plain === 'string' ? plain.trim() : '';
+    if (!trimmed) return undefined;
+    return trimmed.length > 320 ? `${trimmed.slice(0, 320)}…` : trimmed;
+  }, [portableDescription, product.description, product.shortDescriptionPortable]);
+
+  const optionGroups = useMemo(() => {
+    return Array.isArray(product.optionGroups)
+      ? product.optionGroups.filter((group) => Array.isArray(group?.values) && group.values.length)
+      : [];
+  }, [product.optionGroups]);
 
   const analyticsBase = useMemo(
     () =>
@@ -92,18 +149,92 @@ export default function ProductQuickViewButton({
 
   const [adding, setAdding] = useState(false);
   const canAddToCart = Boolean(product.id);
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, QuickViewOptionValue>>({});
+
+  useEffect(() => {
+    if (!open) return;
+    setSelectedOptions(() => {
+      const initial: Record<string, QuickViewOptionValue> = {};
+      optionGroups.forEach((group) => {
+        const defaultValue = group.values.find((value) => value.defaultSelected);
+        if (defaultValue) {
+          initial[group.key] = defaultValue;
+        }
+      });
+      return initial;
+    });
+  }, [open, optionGroups]);
+
+  const selectionEntries = useMemo(
+    () =>
+      optionGroups
+        .map((group) => {
+          const selected = selectedOptions[group.key];
+          if (!selected) return null;
+          return {
+            groupKey: group.key,
+            groupTitle: group.title,
+            label: selected.label,
+            value: selected.value
+          };
+        })
+        .filter(
+          (entry): entry is { groupKey: string; groupTitle: string; label: string; value: string } =>
+            Boolean(entry)
+        ),
+    [optionGroups, selectedOptions]
+  );
+
+  const selectionSignature = useMemo(() => {
+    if (!optionGroups.length) return '';
+    return optionGroups
+      .map((group) => `${group.key}:${selectedOptions[group.key]?.value ?? ''}`)
+      .join('|');
+  }, [optionGroups, selectedOptions]);
+
+  const optionsPayload = useMemo(() => {
+    if (!selectionEntries.length) return undefined;
+    return selectionEntries.reduce<Record<string, string>>((acc, entry) => {
+      acc[entry.groupTitle] = entry.label;
+      return acc;
+    }, {});
+  }, [selectionEntries]);
+
+  const missingSelections = optionGroups.some((group) => !selectedOptions[group.key]);
+
+  const formatPriceDelta = (delta?: number | null) => {
+    if (typeof delta !== 'number' || !Number.isFinite(delta) || delta === 0) return null;
+    const absolute = Math.abs(delta);
+    const prefix = delta > 0 ? '+' : '-';
+    return `${prefix}$${absolute.toFixed(2)}`;
+  };
+
+  const handleOptionSelect = (groupKey: string, value: string) => {
+    const group = optionGroups.find((entry) => entry.key === groupKey);
+    if (!group) return;
+    const nextValue = group.values.find((entry) => entry.value === value);
+    if (!nextValue) return;
+    setSelectedOptions((prev) => ({
+      ...prev,
+      [groupKey]: nextValue
+    }));
+  };
 
   async function handleAddToCart() {
     if (!product.id || adding) return;
     try {
       setAdding(true);
+      const baseId = product.id || product.href || '';
+      const resolvedId =
+        baseId && selectionSignature ? `${baseId}::${selectionSignature}` : baseId || product.id;
       await addItem(null as any, {
-        id: product.id,
+        id: resolvedId || product.id,
         name: product.title,
         price: product.price,
         image: product.imageSrc,
         quantity: 1,
-        productUrl: product.href
+        productUrl: product.href,
+        options: optionsPayload
       });
 
       emitAddToCartSuccess({ name: product.title });
@@ -181,9 +312,98 @@ export default function ProductQuickViewButton({
                       )}
                     </div>
 
-                    {description && (
-                      <p className="text-sm leading-relaxed text-white/70">{description}</p>
-                    )}
+                    {portableDescription ? (
+                      <div className="space-y-2 text-sm leading-relaxed text-white/80">
+                        <PortableText value={portableDescription} components={portableComponents} />
+                      </div>
+                    ) : fallbackDescription ? (
+                      <p className="text-sm leading-relaxed text-white/70">{fallbackDescription}</p>
+                    ) : null}
+
+                    {optionGroups.length ? (
+                      <section className="rounded-2xl border border-white/10 bg-white/5 p-3">
+                        <p className="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-white/60">
+                          Options
+                        </p>
+                        <div className="mt-3 space-y-4">
+                          {optionGroups.map((group) => {
+                            const selected = selectedOptions[group.key];
+                            return (
+                              <div key={group.key}>
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-white">
+                                    {group.title}
+                                  </span>
+                                  {selected?.priceDelta ? (
+                                    <span className="text-[0.65rem] font-semibold text-white/70">
+                                      {formatPriceDelta(selected.priceDelta)}
+                                    </span>
+                                  ) : null}
+                                </div>
+                                {group.helperText ? (
+                                  <p className="mt-1 text-[0.65rem] text-white/60">{group.helperText}</p>
+                                ) : null}
+                                {group.type === 'select' ? (
+                                  <select
+                                    value={selected?.value ?? ''}
+                                    onChange={(event) =>
+                                      handleOptionSelect(group.key, event.target.value)
+                                    }
+                                    className="mt-2 w-full rounded-lg border border-white/15 bg-black/60 px-3 py-2 text-sm text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+                                    aria-label={`Select ${group.title}`}
+                                    aria-invalid={!selected}
+                                  >
+                                    <option value="" disabled>
+                                      {`Select ${group.title}`}
+                                    </option>
+                                    {group.values.map((option) => (
+                                      <option key={option.id} value={option.value}>
+                                        {option.label}
+                                        {option.priceDelta
+                                          ? ` (${formatPriceDelta(option.priceDelta) ?? ''})`
+                                          : ''}
+                                      </option>
+                                    ))}
+                                  </select>
+                                ) : (
+                                  <div className="mt-2 flex flex-wrap gap-2">
+                                    {group.values.map((option) => {
+                                      const isSelected = selected?.value === option.value;
+                                      return (
+                                        <button
+                                          type="button"
+                                          key={option.id}
+                                          onClick={() => handleOptionSelect(group.key, option.value)}
+                                          className={clsx(
+                                            'rounded-full border px-3 py-1 text-xs font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
+                                            isSelected
+                                              ? 'border-primary bg-primary/15 text-white'
+                                              : 'border-white/20 text-white/70 hover:border-white/40'
+                                          )}
+                                          aria-pressed={isSelected}
+                                        >
+                                          <span>{option.label}</span>
+                                          {option.priceDelta ? (
+                                            <span className="ml-1 text-[0.65rem] font-normal text-white/70">
+                                              {formatPriceDelta(option.priceDelta)}
+                                            </span>
+                                          ) : null}
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                        {missingSelections ? (
+                          <p className="mt-3 text-[0.65rem] font-semibold tracking-[0.15em] text-red-300">
+                            Select a value for each option before adding to cart.
+                          </p>
+                        ) : null}
+                      </section>
+                    ) : null}
 
                     <div className="mt-auto flex flex-wrap items-center gap-3 sm:flex-nowrap">
                       <a
@@ -199,7 +419,7 @@ export default function ProductQuickViewButton({
                       <button
                         type="button"
                         onClick={handleAddToCart}
-                        disabled={!canAddToCart || adding}
+                        disabled={!canAddToCart || adding || missingSelections}
                         className="inline-flex min-w-[150px] items-center gap-2 rounded-full border border-white/25 bg-gradient-to-br from-black/70 to-black/40 px-5 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-white shadow-[0_0_18px_rgba(255,0,0,0.12)] transition enabled:hover:border-primary enabled:hover:from-black/80 enabled:hover:to-black/60 enabled:hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
                         data-analytics-event="quick_view_add_to_cart"
                         data-analytics-category="ecommerce"

@@ -7,6 +7,7 @@ import Label from '@/components/storefront/label.tsx';
 import ProductQuickViewButton from '@/components/storefront/ProductQuickViewButton.tsx';
 import { portableTextToPlainText } from '@/lib/portableText.ts';
 import { resolveSanityImageUrl } from '@/lib/sanity-utils.ts';
+import { getQuickViewOptionGroups } from '@/lib/quick-view-options.ts';
 
 interface ImgAsset { url?: string }
 interface Img { asset?: ImgAsset; alt?: string }
@@ -40,6 +41,7 @@ const short =
   (product as any)?.excerpt ||
   '';
 const shortText = typeof short === 'string' ? short : ''
+const quickViewOptions = getQuickViewOptionGroups(product)
 const price = typeof product?.price === 'number' ? product.price : undefined
 const analyticsParams = JSON.stringify(
   Object.fromEntries(
@@ -83,17 +85,19 @@ const analyticsParams = JSON.stringify(
       <ProductQuickViewButton
         client:idle
         className="pointer-events-auto"
-        product={{
-          id: typeof product?._id === 'string' ? product._id : undefined,
-          title: baseTitle,
-          href,
-          price,
-          imageSrc: img,
-          imageAlt: anchorText,
-          description: shortText
-        }}
-      />
-    </div>
+          product={{
+            id: typeof product?._id === 'string' ? product._id : undefined,
+            title: baseTitle,
+            href,
+            price,
+            imageSrc: img,
+            imageAlt: anchorText,
+            description: shortText,
+            shortDescriptionPortable: (product as any)?.shortDescription,
+            optionGroups: quickViewOptions
+          }}
+        />
+      </div>
   </article>
 ) : (
   <article class="group relative">
@@ -117,16 +121,18 @@ const analyticsParams = JSON.stringify(
       <ProductQuickViewButton
         client:idle
         className="pointer-events-auto"
-        product={{
-          id: typeof product?._id === 'string' ? product._id : undefined,
-          title: baseTitle,
-          href,
-          price,
-          imageSrc: img,
-          imageAlt: anchorText,
-          description: shortText
-        }}
-      />
-    </div>
+          product={{
+            id: typeof product?._id === 'string' ? product._id : undefined,
+            title: baseTitle,
+            href,
+            price,
+            imageSrc: img,
+            imageAlt: anchorText,
+            description: shortText,
+            shortDescriptionPortable: (product as any)?.shortDescription,
+            optionGroups: quickViewOptions
+          }}
+        />
+      </div>
   </article>
 )}
