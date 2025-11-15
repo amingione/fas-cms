@@ -834,6 +834,16 @@
     Access-Control-Allow-Headers = "Origin, Content-Type, Accept"
 
 [[headers]]
+  for = "/logo/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/fas-auth.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
   for = "/*"
   [headers.values]
     Cache-Control = "public, max-age=300"

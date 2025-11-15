@@ -1,24 +1,12 @@
-declare global {
-  interface Window {
-    gtag?: (...args: any[]) => void;
-    __fasAnalyticsHooked?: boolean;
-  }
-}
-
-const globalScope: any = typeof globalThis !== 'undefined' ? globalThis : window;
+const globalScope = typeof globalThis !== 'undefined' ? globalThis : window;
 
 if (typeof window !== 'undefined' && typeof document !== 'undefined') {
   if (!globalScope.__fasAnalyticsHooked) {
     globalScope.__fasAnalyticsHooked = true;
 
-    type QueuedEvent = {
-      name: string;
-      params?: Record<string, unknown>;
-    };
+    const queuedEvents = [];
 
-    const queuedEvents: QueuedEvent[] = [];
-
-    const sendToAnalytics = (name: string, params: Record<string, unknown> = {}) => {
+    const sendToAnalytics = (name, params = {}) => {
       if (typeof window.gtag === 'function') {
         window.gtag('event', name, params);
         return;
@@ -48,7 +36,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
       }, 500);
     }
 
-    const sanitizeParams = (input: Record<string, unknown>) => {
+    const sanitizeParams = (input) => {
       return Object.fromEntries(
         Object.entries(input).filter(([, value]) =>
           value !== undefined && value !== null && value !== ''
@@ -56,9 +44,9 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
       );
     };
 
-    const triggeredOnce = new WeakMap<Element, Set<string>>();
+    const triggeredOnce = new WeakMap();
 
-    const markTriggered = (element: Element, eventName: string) => {
+    const markTriggered = (element, eventName) => {
       const existing = triggeredOnce.get(element);
       if (existing) {
         existing.add(eventName);
@@ -67,12 +55,12 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
       }
     };
 
-    const hasTriggered = (element: Element, eventName: string) => {
+    const hasTriggered = (element, eventName) => {
       const set = triggeredOnce.get(element);
       return set ? set.has(eventName) : false;
     };
 
-    const parseValue = (raw: string | undefined) => {
+    const parseValue = (raw) => {
       if (!raw) return undefined;
       const trimmed = raw.trim();
       if (!trimmed) return undefined;
@@ -81,8 +69,8 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
       return trimmed;
     };
 
-    const parseParams = (element: HTMLElement) => {
-      const params: Record<string, unknown> = {};
+    const parseParams = (element) => {
+      const params = {};
       const { dataset } = element;
 
       if (dataset.analyticsCategory) {
@@ -102,7 +90,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         try {
           const parsed = JSON.parse(dataset.analyticsParams);
           if (parsed && typeof parsed === 'object') {
-            Object.assign(params, parsed as Record<string, unknown>);
+            Object.assign(params, parsed);
           }
         } catch (error) {
           console.warn('[analytics] Failed to parse data-analytics-params payload', error);
@@ -117,7 +105,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
       (event) => {
         const target = event.target;
         if (!(target instanceof Element)) return;
-        const actionable = target.closest('[data-analytics-event]') as HTMLElement | null;
+        const actionable = target.closest('[data-analytics-event]');
         if (!actionable) return;
 
         const eventName = actionable.dataset.analyticsEvent?.trim();
@@ -140,7 +128,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
     );
 
     const SCROLL_THRESHOLDS = [25, 50, 75, 90, 100];
-    const reachedThresholds = new Set<number>();
+    const reachedThresholds = new Set();
     let ticking = false;
 
     const evaluateScrollDepth = () => {
@@ -178,5 +166,3 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
     evaluateScrollDepth();
   }
 }
-
-export {};

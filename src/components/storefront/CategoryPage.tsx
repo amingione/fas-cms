@@ -402,7 +402,13 @@ export default function CategoryPage({
               <div className="ml-4 flex lg:ml-0">
                 <a href="/">
                   <span className="sr-only">F.A.S. Motorsports</span>
-                  <img alt="" src="/logo/faslogochroma.webp" className="h-8 w-auto" />
+                  <img
+                    alt=""
+                    src="/logo/faslogochroma.webp"
+                    className="h-8 w-auto"
+                    width={1000}
+                    height={1000}
+                  />
                 </a>
               </div>
 

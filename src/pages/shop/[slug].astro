@@ -10,10 +10,10 @@ import {
 } from '../../lib/sanity-utils';
 import PortableTextRenderer from "../../components/PortableTextRenderer.jsx";
 import SlugCarousel from '@/components/SlugCarousel.astro';
-import { Image as AstroImage } from '@astrojs/image/components';
 import { inlineFieldAttrs, inlineObjectId } from '@lib/content.ts';
 import ServiceDisclaimerNotice from '@/components/storefront/ServiceDisclaimerNotice.tsx';
 import InfoTabs from '@/components/shop/InfoTabs';
+import productPageScriptUrl from '../../scripts/product-page.js?url';
 
 export type KitItem = { item: string; quantity?: number };
 export type VehicleCompat = { make?: string; model?: string; trim?: string };
@@ -1541,31 +1541,18 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                       optimizedThumb,
                       mediaFileName.replace(/\.webp$/i, '-thumb.webp')
                     );
-                    return useOptimizedImages ? (
-                      <AstroImage
-                        src={mediaUrl}
-                        alt={alt}
-                        width={640}
-                        height={360}
-                        format="webp"
-                        quality={70}
-                        loading="lazy"
-                        decoding="async"
-                        fit="cover"
-                        class="w-64 h-36 object-cover rounded border border-white/20 bg-black/30"
-                        sizes="256px"
-                        data-thumb={thumbUrl}
-                      />
-                    ) : (
+                    const displaySrc = useOptimizedImages ? mediaUrl : assetUrl || mediaUrl;
+                    const thumbSrc = useOptimizedImages ? thumbUrl : assetUrl || thumbUrl;
+                    return (
                       <img
-                        src={mediaUrl}
+                        src={displaySrc}
                         alt={alt}
                         width={640}
                         height={360}
                         loading="lazy"
                         decoding="async"
                         class="w-64 h-36 object-cover rounded border border-white/20 bg-black/30"
-                        data-thumb={thumbUrl}
+                        data-thumb={thumbSrc}
                       />
                     );
                   }
@@ -1766,10 +1753,8 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
 </div>
 </div>
 
-  <!-- IMPORTANT: Do not reintroduce Astro.resolve/Astro2.resolve; use prebuilt URL import -->
-  <script type="module" defer>
-    import '../../scripts/product-page.ts';
-  </script>
+  <!-- Load the hydrated product interactions as a bundled module (no raw ?url assets) -->
+  <script type="module" src={productPageScriptUrl} defer></script>
 
 ) : (
   <BaseLayout title={seoTitle} description={seoDesc} canonical={seoCanon}>

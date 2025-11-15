@@ -1,32 +1,12 @@
 const CART_KEY = 'fas_cart_v1';
 
-type CartItem = {
-  id: string;
-  name: string;
-  price: number;
-  basePrice: number;
-  extra: number;
-  image: string;
-  options: Record<string, string>;
-  selections: Array<{ group: string; value: string; label: string; priceDelta: number }>;
-  signature: string;
-  quantity: number;
-  installOnly: boolean;
-  shippingClass: string;
-  productUrl?: string;
-};
-
-type Cart = {
-  items: CartItem[];
-};
-
-const getCart = (): Cart => {
+const getCart = () => {
   try {
     const raw = window.localStorage.getItem(CART_KEY);
     if (!raw) return { items: [] };
     const parsed = JSON.parse(raw);
     if (parsed && Array.isArray(parsed.items)) {
-      return { items: parsed.items as CartItem[] };
+      return { items: parsed.items };
     }
   } catch {
     /* noop */
@@ -34,16 +14,16 @@ const getCart = (): Cart => {
   return { items: [] };
 };
 
-const setCart = (cart: Cart) => {
+const setCart = (cart) => {
   try {
     window.localStorage.setItem(CART_KEY, JSON.stringify(cart));
-    (window as any).cart = cart;
+    window.cart = cart;
   } catch {
     /* noop */
   }
 };
 
-const emitCartChanged = (cart: Cart) => {
+const emitCartChanged = (cart) => {
   try {
     window.dispatchEvent(new CustomEvent('cart:changed', { detail: { cart } }));
   } catch {
@@ -65,23 +45,18 @@ const prefersDesktopOverlay = () => {
   }
 };
 
-const normalizeDelta = (value: unknown) => {
+const normalizeDelta = (value) => {
   if (value == null) return 0;
   const numeric = parseFloat(String(value).replace(/[^0-9.+-]/g, ''));
   return Number.isFinite(numeric) ? numeric : 0;
 };
 
-type SelectionResult = {
-  selections: Array<{ group: string; value: string; label: string; priceDelta: number }>;
-  extra: number;
-};
-
-const readConfiguredOptions = (): SelectionResult => {
-  const result: SelectionResult = { selections: [], extra: 0 };
+const readConfiguredOptions = () => {
+  const result = { selections: [], extra: 0 };
   const form = document.getElementById('product-options');
   if (!form) return result;
-  const handled = new Set<Element>();
-  const elements = Array.from(form.querySelectorAll<HTMLElement>('[data-group]'));
+  const handled = new Set();
+  const elements = Array.from(form.querySelectorAll('[data-group]'));
 
   const addSelection = (group: string, value: string, label: string, delta: number) => {
     const numericDelta = Number.isFinite(delta) ? delta : 0;
@@ -95,7 +70,7 @@ const readConfiguredOptions = (): SelectionResult => {
     const tag = (node.tagName || '').toLowerCase();
 
     if (tag === 'select') {
-      const select = node as HTMLSelectElement;
+      const select = node;
       const option = select.options[select.selectedIndex];
       if (option) {
         const value = option.value || '';
@@ -108,14 +83,14 @@ const readConfiguredOptions = (): SelectionResult => {
     }
 
     if (tag === 'input') {
-      const input = node as HTMLInputElement;
+      const input = node;
       const type = (input.type || 'text').toLowerCase();
       const baseDelta = normalizeDelta(input.dataset.price ?? input.getAttribute('data-price'));
 
       if (type === 'radio') {
         const name = input.name || group;
         const selector = `input[type="radio"][name="${CSS?.escape?.(name) ?? name}"]`;
-        Array.from(form.querySelectorAll<HTMLInputElement>(selector)).forEach((radio) => {
+        Array.from(form.querySelectorAll(selector)).forEach((radio) => {
           handled.add(radio);
           if (radio.checked) {
             const value = radio.value || '';
@@ -157,7 +132,7 @@ const updateConfiguredPriceUI = () => {
   const cfg = readConfiguredOptions();
   const total = Math.max(0, basePrice + (cfg.extra || 0));
 
-  const targets = document.querySelectorAll<HTMLElement>('#price-total, [data-price-target="configured"], .js-configured-price');
+  const targets = document.querySelectorAll('#price-total, [data-price-target="configured"], .js-configured-price');
   targets.forEach((node) => {
     node.textContent = `$ ${total.toFixed(2)}`;
   });
@@ -208,13 +183,13 @@ const initStickyVisibility = () => {
 };
 
 const hydrateCartButtons = () => {
-  const win = window as any;
+  const win = window;
   if (win.__fasProductInit) return;
   win.__fasProductInit = true;
 
-  const handleClick = (event: MouseEvent) => {
-    const target = event.target as HTMLElement | null;
-    const button = target?.closest<HTMLButtonElement>('.add-to-cart');
+  const handleClick = (event) => {
+    const target = event.target;
+    const button = target?.closest('.add-to-cart');
     if (!button) return;
     event.preventDefault();
     event.stopPropagation();
@@ -234,7 +209,7 @@ const hydrateCartButtons = () => {
         .sort((a, b) => `${a.group}:${a.value}`.localeCompare(`${b.group}:${b.value}`))
     );
 
-    const options: Record<string, string> = {};
+    const options = {};
     selections.forEach((selection) => {
       const group = selection.group || 'option';
       const label = selection.label || selection.value || 'Selected';
@@ -247,7 +222,7 @@ const hydrateCartButtons = () => {
       }
     });
 
-    const product: CartItem = {
+    const product = {
       id: `${ds.productId || ''}::${signature}`,
       name: ds.productName || 'Item',
       price: total,
@@ -293,8 +268,8 @@ const hydrateCartButtons = () => {
   const attachRecalcListeners = () => {
     const form = document.getElementById('product-options');
     if (!form) return;
-    const recalc = (event: Event) => {
-      if (form.contains(event.target as Node)) {
+    const recalc = (event) => {
+      if (form.contains(event.target)) {
         schedule(updateConfiguredPriceUI);
       }
     };
@@ -313,8 +288,8 @@ const hydrateCartButtons = () => {
     setTimeout(() => schedule(updateConfiguredPriceUI), 200);
   });
 
-  (window as any).readConfiguredOptions = readConfiguredOptions;
-  (window as any).updateConfiguredPriceUI = updateConfiguredPriceUI;
+  window.readConfiguredOptions = readConfiguredOptions;
+  window.updateConfiguredPriceUI = updateConfiguredPriceUI;
 };
 
 const initProductPage = () => {
@@ -329,5 +304,3 @@ if (document.readyState === 'loading') {
 } else {
   initProductPage();
 }
-
-export {};

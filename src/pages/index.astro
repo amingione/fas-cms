@@ -13,21 +13,26 @@ import AnimatedTruckPackagesHero from '@components/animated/AnimatedTruckPackage
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import EmailCaptureModal from '@components/EmailCaptureModal.tsx';
 
+const pageDocPromise: Promise<any> = loadPageDoc('index');
+const featuredProductsPromise = sanity
+  .fetchFeaturedProducts({ limit: 8, ttlSeconds: 180 })
+  .catch((err) => {
+    console.error('Featured products fetch failed', err);
+    return [];
+  });
 
 const url = new URL(Astro.request.url);
 const siteOrigin = url.origin;
 const canonicalHome = `${siteOrigin}/`;
-const pageDoc: any = await loadPageDoc('index');
+const [pageDoc, featuredProductsRaw] = await Promise.all([
+  pageDocPromise,
+  featuredProductsPromise
+]);
 const v2Param = url.searchParams.get('v2');
 // Default to the new V2 homepage; allow opt-out via ?v2=0
 const showV2 = v2Param === '0' ? false : true;
 
-let featuredProducts: any[] = [];
-try {
-  featuredProducts = await sanity.fetchFeaturedProducts({ limit: 8, ttlSeconds: 180 });
-} catch (err) {
-  console.error('Featured products fetch failed', err);
-}
+const featuredProducts: any[] = Array.isArray(featuredProductsRaw) ? featuredProductsRaw : [];
 
 const featuredProductsNormalized = Array.isArray(featuredProducts)
   ? featuredProducts.map((product) => {
@@ -268,7 +273,7 @@ const structuredDataGraph = {
         <LuxuryFeatures client:visible />
       </section>
 
-      <EmailCaptureModal client:only="react" />
+      <EmailCaptureModal client:idle />
     </main>
   </div>
 </BaseLayout>

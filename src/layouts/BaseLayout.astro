@@ -9,6 +9,7 @@ import Breadcrumbs from '@/components/storefront/Breadcrumbs.astro';
 import InternalLinks from '@/components/navigation/InternalLinks.astro';
 import { Toaster } from 'sonner';
 import { buildJsonLd, buildMetaEntries, fetchSeoForPath } from '@/lib/seoData';
+import analyticsTrackingScriptUrl from '../scripts/analytics-tracking.js?url';
 
 // SEO props (optional per-page)
 const {
@@ -670,15 +671,12 @@ const jsonLdEntries = buildJsonLd(computedPayload, breadcrumbStructuredData);
       })();
     </script>
     <script async defer src="https://apis.google.com/js/platform.js?onload=renderOptIn"></script>
-    <script async defer src="https://apis.google.com/js/platform.js?onload=renderOptIn"></script>
 
     <slot name="head" />
   </head>
 
   <body class="bg-background pt-3 text-white font-mono min-h-screen flex flex-col">
-    <script type="module">
-      import '../scripts/analytics-tracking.ts';
-    </script>
+    <script type="module" src={analyticsTrackingScriptUrl}></script>
     <svg
       width="0"
       height="0"

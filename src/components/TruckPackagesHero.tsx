@@ -29,12 +29,14 @@ export function TruckPackagesHero({
   ctaSecondaryHref
 }: TruckPackagesHeroProps) {
   const truckImageSrcSet = [
+    '/images/packages/850-ram-600.webp 600w',
     '/images/packages/850-ram-900.webp 900w',
     '/images/packages/850-ram-1400.webp 1400w',
     '/images/packages/850-ram-2000.webp 2000w',
     '/images/packages/850-ram.webp 2412w'
   ].join(', ');
-  const truckImageSizes = '(min-width: 1024px) 42vw, 94vw';
+  const truckImageSizes =
+    '(min-width: 1536px) 32vw, (min-width: 1280px) 38vw, (min-width: 1024px) 42vw, (min-width: 768px) 70vw, 95vw';
 
   return (
     <section className="relative overflow-hidden bg-black/10 glass-layer-rounded back-layer rounded-md px-5 shadow-lg text-white mb-5">

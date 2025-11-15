@@ -1,14 +1,11 @@
 ---
 // src/pages/account/index.astro
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { readSession } from '../../server/auth/session';
 
-// Basic login state: look for fas-auth session cookie
-const cookie = Astro.request.headers.get('cookie') || '';
-const readCookie = (name: string) => {
-  const m = new RegExp(`(?:^|;\\s*)${name}=([^;]+)`).exec(cookie);
-  return m?.[1] || null;
-};
-const isLoggedIn = Boolean(readCookie('fas_session'));
+// Validate the current session so stale cookies don't render the dashboard state
+const { session } = await readSession(Astro.request);
+const isLoggedIn = Boolean(session);
 
 const requestUrl = new URL(Astro.request.url);
 requestUrl.search = '';

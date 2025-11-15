@@ -1,9 +1,13 @@
 ---
-import { coercePriceToNumber } from '@/lib/sanity-utils.ts';
+import { coercePriceToNumber, optimizeSanityImageUrl } from '@/lib/sanity-utils.ts';
 
 const { items = [] } = Astro.props as { items?: any[] };
 
 const PRICE_PLACEHOLDER_PATTERN = /^\[price\]$/i;
+const HIGHLIGHT_FALLBACK_IMAGE = '/logo/faslogochroma.webp';
+const HIGHLIGHT_IMAGE_WIDTHS = [200, 320, 360, 480, 640];
+const HIGHLIGHT_IMAGE_BASE_WIDTH = 360;
+const HIGHLIGHT_IMAGE_SIZES = '(min-width: 1024px) 220px, (min-width: 768px) 240px, 55vw';
 
 const formatPriceDisplay = (value: unknown): string | null => {
   const numeric = coercePriceToNumber(value);
@@ -26,35 +30,68 @@ const normalizedItems = Array.isArray(items)
       __priceDisplay: formatPriceDisplay((item as any)?.price)
     }))
   : [];
+
+const getHighlightImageSources = (rawUrl: unknown): { src: string; srcset?: string } => {
+  const normalized =
+    typeof rawUrl === 'string' && rawUrl.trim() ? rawUrl.trim() : HIGHLIGHT_FALLBACK_IMAGE;
+
+  const src =
+    optimizeSanityImageUrl(normalized, {
+      width: HIGHLIGHT_IMAGE_BASE_WIDTH,
+      height: HIGHLIGHT_IMAGE_BASE_WIDTH,
+      fit: 'max'
+    }) ?? normalized;
+
+  const srcsetEntries = HIGHLIGHT_IMAGE_WIDTHS.map((width) => {
+    const optimized = optimizeSanityImageUrl(normalized, {
+      width,
+      height: width,
+      fit: 'max'
+    });
+    return optimized ? `${optimized} ${width}w` : null;
+  }).filter(Boolean);
+
+  return {
+    src,
+    srcset: srcsetEntries.length > 0 ? srcsetEntries.join(', ') : undefined
+  };
+};
 ---
 {Array.isArray(normalizedItems) && normalizedItems.length > 0 && (
   <section class="container mx-auto px-4  pt-5 mt-5 lg:px-6 mb-5" aria-roledescription="carousel">
     <h2 class="text-2xl md:text-3xl font-bold font-ethno text-white mb-4">Featured Products</h2>
     <div class="hl-viewport" tabindex="0" aria-label="Featured products">
       <div class="hl-track">
-        {normalizedItems.map((p: any) => (
-          <a
-            href={p?.slug ? `/shop/${p.slug}` : '#'}
-            class="hl-item group"
-          >
-            <div class="hl-img">
-              <img
-                src={p?.imageUrl || '/logo/faslogochroma.webp'}
-                alt={(p?.title || p?.name || 'Product').toString()}
-                loading="lazy"
-                class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-            </div>
-            <div class="p-3">
-              <div class="text-white font-semibold truncate">
-                {(p?.title || p?.name || 'Untitled').toString()}
+        {normalizedItems.map((p: any) => {
+          const imageSources = getHighlightImageSources(p?.imageUrl);
+          return (
+            <a
+              href={p?.slug ? `/shop/${p.slug}` : '#'}
+              class="hl-item group"
+            >
+              <div class="hl-img">
+                <img
+                  src={imageSources.src}
+                  srcset={imageSources.srcset}
+                  sizes={HIGHLIGHT_IMAGE_SIZES}
+                  width={HIGHLIGHT_IMAGE_BASE_WIDTH}
+                  height={HIGHLIGHT_IMAGE_BASE_WIDTH}
+                  alt={(p?.title || p?.name || 'Product').toString()}
+                  loading="lazy"
+                  class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
               </div>
-              {p?.__priceDisplay && (
-                <div class="text-sm text-accent mt-1">{p.__priceDisplay}</div>
-              )}
-            </div>
-          </a>
-        ))}
+              <div class="p-3">
+                <div class="text-white font-semibold truncate">
+                  {(p?.title || p?.name || 'Untitled').toString()}
+                </div>
+                {p?.__priceDisplay && (
+                  <div class="text-sm text-accent mt-1">{p.__priceDisplay}</div>
+                )}
+              </div>
+            </a>
+          );
+        })}
       </div>
     </div>
   </section>

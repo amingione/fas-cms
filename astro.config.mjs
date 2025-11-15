@@ -153,13 +153,18 @@ export default defineConfig({
       rollupOptions: {
         output: {
           manualChunks(id) {
-            // Group heavy vendor libs
-            if (id.includes('node_modules')) {
-              if (id.includes('fullcalendar')) return 'fullcalendar';
-              if (id.includes('framer-motion')) return 'motion';
-              if (id.includes('@radix-ui')) return 'radix';
-              return 'vendor';
+            // Group only the heaviest shared libraries; let Vite split the rest per-page
+            if (!id.includes('node_modules')) {
+              return undefined;
             }
+            if (id.includes('fullcalendar')) return 'fullcalendar';
+            if (id.includes('framer-motion')) return 'motion';
+            if (id.includes('@radix-ui')) return 'radix';
+            if (id.includes('swiper')) return 'swiper';
+            if (id.includes('apexcharts')) return 'apexcharts';
+            if (id.includes('tsparticles')) return 'particles';
+            if (id.includes('react-dnd')) return 'dnd';
+            return undefined;
           }
         }
       }
