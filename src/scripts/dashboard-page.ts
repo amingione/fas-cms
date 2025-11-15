@@ -1,3 +1,6 @@
+import type { CartItem } from '@/lib/cart';
+import { saveCart } from '@/lib/cart';
+
 const VIEW_KEYS = [
   'dashboard',
   'orders',
@@ -17,6 +20,30 @@ let loadToken = 0;
 
 const AUTH_TIMEOUT = 8000;
 const FALLBACK_ITEM_IMAGE = '/logo/faslogo150.webp';
+
+type OrderPartitions = {
+  active: any[];
+  expired: any[];
+  all: any[];
+};
+
+const EMPTY_ORDER_PARTITIONS: OrderPartitions = { active: [], expired: [], all: [] };
+const EXPIRED_CART_STATUSES = new Set([
+  'expired',
+  'expired_cart',
+  'checkout_expired',
+  'cart_expired',
+  'abandoned',
+  'abandoned_cart'
+]);
+const CART_ONLY_STATUSES = new Set(['cart', 'cart_saved']);
+const EXPIRED_PAYMENT_STATUSES = new Set(['expired', 'timed_out']);
+const ORDER_CACHE_TTL = 60 * 1000;
+
+const orderStore = new Map<string, any>();
+let ordersCache: OrderPartitions | null = null;
+let ordersCacheTimestamp = 0;
+let ordersRequest: Promise<OrderPartitions> | null = null;
 
 function pickImageUrl(value: unknown): string | null {
   if (!value) return null;
@@ -126,6 +153,155 @@ function resolveOrderItemImage(item: any): string {
 
   console.debug('[dashboard] Missing product image for order item', item);
   return FALLBACK_ITEM_IMAGE;
+}
+
+function collectOrderKeys(order: any): string[] {
+  if (!order || typeof order !== 'object') return [];
+  const keys: string[] = [];
+  const seen = new Set<string>();
+  const add = (value: unknown) => {
+    if (typeof value !== 'string') return;
+    const trimmed = value.trim();
+    if (!trimmed || seen.has(trimmed)) return;
+    seen.add(trimmed);
+    keys.push(trimmed);
+  };
+  add(order?._id);
+  add(order?.orderId);
+  add(order?.orderNumber);
+  add(order?.stripeSessionId);
+  add(order?.stripeCheckoutSessionId);
+  add(order?.paymentIntentId);
+  add(order?.stripePaymentIntentId);
+  add(order?.paymentIntent?.id);
+  add((order as Record<string, any>)._clientKey);
+  if (!keys.length) {
+    const fallback = `order-${Math.random().toString(36).slice(2)}`;
+    (order as Record<string, any>)._clientKey = fallback;
+    add(fallback);
+  }
+  return keys;
+}
+
+function rememberOrders(list: any[]): void {
+  list.forEach((order) => {
+    if (!order || typeof order !== 'object') return;
+    const keys = collectOrderKeys(order);
+    keys.forEach((key) => orderStore.set(key, order));
+  });
+}
+
+function getPrimaryOrderKey(order: any): string {
+  const keys = collectOrderKeys(order);
+  return keys[0] ?? '';
+}
+
+function lookupStoredOrder(key: string | null): any | null {
+  if (!key) return null;
+  if (orderStore.has(key)) return orderStore.get(key);
+  for (const order of orderStore.values()) {
+    const keys = collectOrderKeys(order);
+    if (keys.includes(key)) {
+      return order;
+    }
+  }
+  return null;
+}
+
+function getOrderLineItems(order: any): any[] {
+  if (Array.isArray(order?.cart) && order.cart.length) return order.cart;
+  if (Array.isArray(order?.items) && order.items.length) return order.items;
+  return [];
+}
+
+function hasPaymentEvidence(order: any): boolean {
+  if (!order || typeof order !== 'object') return false;
+  return Boolean(
+    order.paymentIntentId ||
+      order.stripePaymentIntentId ||
+      order.receiptUrl ||
+      order.invoiceRef?._id ||
+      order.paymentStatus === 'paid' ||
+      order.paymentStatus === 'succeeded'
+  );
+}
+
+function isExpiredCart(order: any): boolean {
+  const status = typeof order?.status === 'string' ? order.status.toLowerCase().trim() : '';
+  const paymentStatus =
+    typeof order?.paymentStatus === 'string' ? order.paymentStatus.toLowerCase().trim() : '';
+  if (status && EXPIRED_CART_STATUSES.has(status)) return true;
+  if (paymentStatus && EXPIRED_PAYMENT_STATUSES.has(paymentStatus)) return true;
+  if (status && CART_ONLY_STATUSES.has(status) && !hasPaymentEvidence(order)) return true;
+  return false;
+}
+
+function partitionOrders(raw: any[]): OrderPartitions {
+  const safe = Array.isArray(raw)
+    ? raw.filter((order) => order && typeof order === 'object')
+    : [];
+  rememberOrders(safe);
+  const active: any[] = [];
+  const expired: any[] = [];
+  safe.forEach((order) => {
+    (isExpiredCart(order) ? expired : active).push(order);
+  });
+  return { active, expired, all: safe };
+}
+
+function mapOrderItemToCart(item: any, index: number): CartItem | null {
+  if (!item || typeof item !== 'object') return null;
+  const idCandidates = [item.id, item.sku, item._key, item.productId, item.product?.id];
+  let id = '';
+  for (const candidate of idCandidates) {
+    if (typeof candidate === 'string' && candidate.trim()) {
+      id = candidate.trim();
+      break;
+    }
+  }
+  if (!id) {
+    id = `order-item-${index + 1}`;
+  }
+  const quantity = Number(item.quantity);
+  const normalizedQuantity = Number.isFinite(quantity) && quantity > 0 ? quantity : 1;
+  let priceValue: number | null = null;
+  if (typeof item.price === 'number') {
+    priceValue = item.price;
+  } else if (item.price && typeof item.price === 'object') {
+    const priceRecord = item.price as Record<string, any>;
+    if (typeof priceRecord.unit_amount === 'number') {
+      priceValue = priceRecord.unit_amount / 100;
+    } else if (typeof priceRecord.amount === 'number') {
+      priceValue = priceRecord.amount;
+    }
+  }
+  if (priceValue === null) {
+    const fallbackNumber = Number(item.amount ?? item.total ?? item.unitPrice);
+    priceValue = Number.isFinite(fallbackNumber) ? fallbackNumber : 0;
+  }
+  const productUrlRaw =
+    item.productUrl ||
+    item.href ||
+    (typeof item.productSlug === 'string' && item.productSlug ? `/shop/${item.productSlug.replace(/^\//, '')}` : '');
+  return {
+    id,
+    name: String(item.name || item.title || 'Item'),
+    price: priceValue || 0,
+    quantity: normalizedQuantity,
+    image: resolveOrderItemImage(item),
+    productUrl: typeof productUrlRaw === 'string' && productUrlRaw ? productUrlRaw : undefined
+  };
+}
+
+function restoreOrderIntoCart(order: any): { success: boolean; items: CartItem[] } {
+  const mapped = getOrderLineItems(order)
+    .map((item, index) => mapOrderItemToCart(item, index))
+    .filter((entry): entry is CartItem => Boolean(entry));
+  if (!mapped.length) {
+    return { success: false, items: [] };
+  }
+  saveCart(mapped);
+  return { success: true, items: mapped };
 }
 
 function getContainers(): HTMLElement[] {
@@ -321,9 +497,31 @@ async function requestJSON<T>(input: string, init: RequestInit = {}): Promise<T>
   return (await res.json()) as T;
 }
 
-async function fetchOrders(): Promise<any[]> {
-  if (!userEmail) return [];
-  return await requestJSON<any[]>(`/api/get-user-order?email=${encodeURIComponent(userEmail)}`);
+async function fetchOrders(): Promise<OrderPartitions> {
+  if (!userEmail) return EMPTY_ORDER_PARTITIONS;
+  if (ordersCache && Date.now() - ordersCacheTimestamp < ORDER_CACHE_TTL) {
+    return ordersCache;
+  }
+  if (ordersRequest) return ordersRequest;
+  ordersRequest = (async () => {
+    try {
+      const raw = await requestJSON<any[]>(
+        `/api/get-user-order?email=${encodeURIComponent(userEmail)}`
+      );
+      const partitioned = partitionOrders(raw);
+      ordersCache = partitioned;
+      ordersCacheTimestamp = Date.now();
+      return partitioned;
+    } catch (err) {
+      console.error('[dashboard] failed to fetch orders', err);
+      ordersCache = null;
+      ordersCacheTimestamp = 0;
+      return EMPTY_ORDER_PARTITIONS;
+    } finally {
+      ordersRequest = null;
+    }
+  })();
+  return ordersRequest;
 }
 
 async function fetchQuotes(): Promise<any[]> {
@@ -352,10 +550,9 @@ async function fetchProfile(): Promise<any> {
   });
 }
 
-function renderOrdersHtml(items: any[]): string {
-  if (!items.length) {
-    return '<p class="opacity-80">No orders found.</p>';
-  }
+function renderOrdersHtml(partitions: OrderPartitions): string {
+  const items = Array.isArray(partitions?.active) ? partitions.active : [];
+  const expired = Array.isArray(partitions?.expired) ? partitions.expired : [];
 
   const cards = items
     .map((order) => {
@@ -523,6 +720,10 @@ function renderOrdersHtml(items: any[]): string {
     })
     .join('');
 
+  const ordersBody = items.length
+    ? `<div class="space-y-16">${cards}</div>`
+    : '<p class="opacity-80">No orders found.</p>';
+
   return `
     <section class="space-y-12">
       <header class="space-y-2">
@@ -531,9 +732,106 @@ function renderOrdersHtml(items: any[]): string {
           Check the status of recent orders, manage installs, and download invoices.
         </p>
       </header>
-      <div class="space-y-16">${cards}</div>
+      ${ordersBody}
+      ${renderExpiredCartsHtml(expired)}
     </section>
   `;
+}
+
+function renderExpiredCartsHtml(expired: any[]): string {
+  const safe = Array.isArray(expired) ? expired : [];
+  const cards = safe
+    .map((order) => {
+      const orderKey = getPrimaryOrderKey(order);
+      const items = getOrderLineItems(order);
+      const previewItem = items[0] || null;
+      const image = escapeHtml(resolveOrderItemImage(previewItem));
+      const name = escapeHtml(previewItem?.name ?? previewItem?.title ?? 'Cart items');
+      const createdDate = formatDateTime(order?.orderDate || order?.createdAt || order?._createdAt);
+      const total = formatMoney(order?.total ?? order?.totalAmount ?? order?.amountSubtotal);
+      const status = escapeHtml(order?.status ?? 'expired');
+      const itemCount = items.reduce((sum: number, item: any) => {
+        const qty = Number(item?.quantity);
+        if (Number.isFinite(qty) && qty > 0) return sum + qty;
+        return sum + 1;
+      }, 0);
+      const quantityLabel = `${itemCount} item${itemCount === 1 ? '' : 's'}`;
+      return `
+        <article class="rounded-2xl border border-amber-400/40 bg-black/40 px-4 py-4 sm:px-6" data-expired-card>
+          <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div class="flex items-start gap-4">
+              <img src="${image}" alt="${name}" class="size-16 rounded-md border border-white/10 object-cover" loading="lazy" />
+              <div>
+                <p class="text-[10px] uppercase tracking-[0.35em] text-amber-300">Expired cart</p>
+                <p class="text-lg font-semibold text-white">${escapeHtml(
+                  order?.orderNumber ?? order?._id ?? 'Recovered cart'
+                )}</p>
+                ${
+                  createdDate
+                    ? `<p class="text-xs text-white/60">Saved ${escapeHtml(createdDate)}</p>`
+                    : ''
+                }
+                <p class="text-xs text-white/60">${quantityLabel} · ${
+                  total ? `$${total}` : 'Total unavailable'
+                }</p>
+              </div>
+            </div>
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center" data-expired-actions>
+              <button
+                class="inline-flex items-center justify-center rounded-md bg-amber-400 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-black transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 hover:bg-amber-300"
+                data-restore-cart="${escapeHtml(orderKey)}"
+              >
+                Restore cart
+              </button>
+              <p class="hidden text-xs" data-feedback></p>
+            </div>
+          </div>
+          <p class="mt-3 text-xs text-white/60">Status: ${status}. Restoring replaces the contents of your current shopping cart.</p>
+        </article>
+      `;
+    })
+    .join('');
+
+  return `
+    <section class="space-y-4" data-expired-carts>
+      <div>
+        <h3 class="font-ethno text-base">Expired carts</h3>
+        <p class="text-sm text-white/70">Checkout sessions that timed out before payment. Restore a cart to try checkout again. Restoring will overwrite the items currently in your cart.</p>
+      </div>
+      ${
+        cards
+          ? `<div class="space-y-4">${cards}</div>`
+          : '<p class="text-sm text-white/60">You don\'t have any expired carts right now.</p>'
+      }
+    </section>
+  `;
+}
+
+function handleExpiredCartRestore(button: HTMLButtonElement) {
+  const key = button.getAttribute('data-restore-cart');
+  const card = button.closest<HTMLElement>('[data-expired-card]');
+  const feedback = card?.querySelector<HTMLElement>('[data-feedback]');
+  const showFeedback = (message: string, variant: 'success' | 'error') => {
+    if (!feedback) return;
+    feedback.innerHTML = message;
+    feedback.classList.remove('hidden', 'text-green-400', 'text-red-400');
+    feedback.classList.add(variant === 'success' ? 'text-green-400' : 'text-red-400');
+  };
+
+  const order = lookupStoredOrder(key);
+  if (!order) {
+    showFeedback('Unable to locate this cart snapshot.', 'error');
+    return;
+  }
+  const result = restoreOrderIntoCart(order);
+  if (!result.success) {
+    showFeedback('This cart no longer contains any items to restore.', 'error');
+    return;
+  }
+  button.disabled = true;
+  button.classList.add('opacity-60', 'cursor-not-allowed');
+  button.textContent = 'Cart restored';
+  showFeedback('Cart restored. <a class="underline" href="/cart">View cart</a>.', 'success');
 }
 
 function renderQuotesHtml(items: any[]): string {
@@ -738,7 +1036,7 @@ async function renderDashboardHtml(): Promise<string> {
 
 const viewRenderers: Record<ViewKey, () => Promise<string>> = {
   dashboard: renderDashboardHtml,
-  orders: async () => renderOrdersHtml(await fetchOrders().catch(() => [])),
+  orders: async () => renderOrdersHtml(await fetchOrders()),
   quotes: async () => renderQuotesHtml(await fetchQuotes().catch(() => [])),
   invoices: async () => renderInvoicesHtml(await fetchInvoices().catch(() => [])),
   appointments: async () => renderAppointmentsHtml(await fetchAppointments().catch(() => [])),
@@ -767,7 +1065,7 @@ async function loadView(target: ViewKey) {
 
 async function refreshCounts() {
   const updates: Array<[string, () => Promise<number>]> = [
-    ['orders', async () => (await fetchOrders().catch(() => [])).length],
+    ['orders', async () => (await fetchOrders()).active.length],
     ['quotes', async () => (await fetchQuotes().catch(() => [])).length],
     ['invoices', async () => (await fetchInvoices().catch(() => [])).length],
     ['appts', async () => (await fetchAppointments().catch(() => [])).length]
@@ -803,6 +1101,16 @@ function bindNavigation() {
   }
 
   document.addEventListener('click', (event) => {
+    const restoreButton =
+      event.target instanceof Element
+        ? event.target.closest<HTMLButtonElement>('[data-restore-cart]')
+        : null;
+    if (restoreButton) {
+      event.preventDefault();
+      handleExpiredCartRestore(restoreButton);
+      return;
+    }
+
     const target =
       event.target instanceof Element
         ? event.target.closest<HTMLElement>('.js-view[data-view]')
