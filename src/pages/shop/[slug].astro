@@ -12,9 +12,9 @@ import PortableTextRenderer from "../../components/PortableTextRenderer.jsx";
 import SlugCarousel from '@/components/SlugCarousel.astro';
 import { Image as AstroImage } from '@astrojs/image/components';
 import { inlineFieldAttrs, inlineObjectId } from '@lib/content.ts';
-import productPageScript from '../../scripts/product-page.ts?url';
 import ServiceDisclaimerNotice from '@/components/storefront/ServiceDisclaimerNotice.tsx';
 import InfoTabs from '@/components/shop/InfoTabs';
+import productPageScript from '../../scripts/product-page.ts?url';
 
 export type KitItem = { item: string; quantity?: number };
 export type VehicleCompat = { make?: string; model?: string; trim?: string };
@@ -95,8 +95,8 @@ const sanitizeAnalyticsPayload = (payload: Record<string, unknown>) =>
 const buildAnalyticsParams = (payload: Record<string, unknown>) =>
   JSON.stringify(sanitizeAnalyticsPayload(payload));
 
-const buildProductImageAlt = (explicitAlt: string | undefined, fallback: string, index: number): string => {
-  const normalizedExplicit = collapseSpaces(explicitAlt ?? '');
+const buildProductImageAlt = (explicitAlt: unknown, fallback: string, index: number): string => {
+  const normalizedExplicit = collapseSpaces(toPlainText(explicitAlt ?? ''));
   const base = normalizedExplicit || fallback;
   const detailLabel = index === 0 ? 'main product image' : `detail image ${index + 1}`;
   return collapseSpaces(`${base} ${detailLabel} | F.A.S. Motorsports`);
@@ -202,7 +202,10 @@ const toPlainText = (input: any): string => {
   return '';
 };
 
-const collapseSpaces = (value: string): string => value.replace(/\s+/g, ' ').trim();
+const collapseSpaces = (value: unknown): string => {
+  if (value == null) return '';
+  return String(value).replace(/\s+/g, ' ').trim();
+};
 
 const META_DESCRIPTION_SUFFIX =
   'Shop high-performance installs and upgrades with F.A.S. Motorsports in Fort Myers, Florida.';
@@ -1762,16 +1765,18 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
     Add to Cart
   </button>
 </div>
+</div>
 
+  <!-- IMPORTANT: Do not reintroduce Astro.resolve/Astro2.resolve; use prebuilt URL import -->
   <script type="module" src={productPageScript} defer></script>
 
 ) : (
-  <BaseLayout title={seoTitle} description={seoDesc} canonical={seoCanon} noindex>
-    {breadcrumbStructuredData && (
-      <Fragment slot="head">
+  <BaseLayout title={seoTitle} description={seoDesc} canonical={seoCanon}>
+    <Fragment slot="head">
+      {breadcrumbStructuredData && (
         <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
-      </Fragment>
-    )}
+      )}
+    </Fragment>
     <section class="mx-auto flex min-h-[60vh] max-w-3xl flex-col items-center justify-center px-4 py-24 text-center text-white">
       <h1 class="text-4xl font-ethno md:text-5xl">Product not found</h1>
       <p class="mt-4 text-sm text-white/80 md:text-base">
