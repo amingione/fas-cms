@@ -62,7 +62,7 @@ export default function CookieBanner() {
                 setConsentCookie();
                 setVisible(false);
               }}
-              className="ml-auto sm:ml-0 inline-flex items-center rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90"
+              className="btn-plain ml-auto sm:ml-0 inline-flex items-center rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary/90"
             >
               Accept
             </button>
