@@ -358,7 +358,7 @@ function CartSummary({ subtotal, onCheckout, onClose }: CartSummaryProps) {
           type="button"
           onClick={handleCheckout}
           disabled={loading}
-          className="flex w-full items-center justify-center rounded-full bg-primary px-6 py-3 text-base font-semibold uppercase tracking-wide text-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
+          className="btn-plain flex w-full items-center justify-center rounded-full bg-primary px-6 py-3 text-base font-semibold uppercase tracking-wide text-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
         >
           {loading ? <LoadingDots className="bg-black" /> : 'Checkout'}
         </button>

@@ -9,6 +9,7 @@ import Breadcrumbs from '@/components/storefront/Breadcrumbs.astro';
 import InternalLinks from '@/components/navigation/InternalLinks.astro';
 import { Toaster } from 'sonner';
 import { buildJsonLd, buildMetaEntries, fetchSeoForPath } from '@/lib/seoData';
+import { buildDefaultJsonLdGraph } from '@/lib/structuredDataDefaults';
 import analyticsTrackingScriptUrl from '../scripts/analytics-tracking.js?url';
 import DesktopAddToCartToast from '@/components/cart/DesktopAddToCartToast.tsx';
 import MobileAddToCartToast from '@/components/cart/MobileAddToCartToast.tsx';
@@ -169,6 +170,32 @@ try {
   canonicalUrl =
     resolveCanonical(canonical) ?? resolveCanonical(canonicalFromSanity) ?? canonical ?? undefined;
 }
+
+const siteUrl = (() => {
+  if (canonicalUrl) {
+    try {
+      const parsed = new URL(canonicalUrl);
+      parsed.pathname = '/';
+      parsed.search = '';
+      parsed.hash = '';
+      return parsed.toString();
+    } catch {
+      /* noop */
+    }
+  }
+  if (currentUrl) {
+    try {
+      const parsed = new URL(currentUrl.toString());
+      parsed.pathname = '/';
+      parsed.search = '';
+      parsed.hash = '';
+      return parsed.toString();
+    } catch {
+      /* noop */
+    }
+  }
+  return 'https://www.fasmotorsports.com/';
+})();
 
 const cmsTitle = seoPayload.page?.title;
 const cmsDescription = seoPayload.page?.description;
@@ -339,43 +366,15 @@ const breadcrumbItems = shouldRenderBreadcrumbs
   ? finalizeBreadcrumbs(ensureHomeCrumb(breadcrumbSource))
   : [];
 
-const toAbsoluteUrl = (value?: string) => {
-  if (!value) return undefined;
-  try {
-    if (/^https?:\/\//i.test(value)) {
-      return new URL(value).toString();
-    }
-    if (canonicalUrl) {
-      return new URL(value, canonicalUrl).toString();
-    }
-    if (currentUrl) {
-      return new URL(value, currentUrl).toString();
-    }
-  } catch {
-    return undefined;
-  }
-  return undefined;
-};
-
-const breadcrumbStructuredData =
-  breadcrumbItems.length > 0
-    ? {
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        itemListElement: breadcrumbItems.map((item, index) => {
-          const entry: Record<string, any> = {
-            '@type': 'ListItem',
-            position: index + 1,
-            name: item.label
-          };
-          const absolute = toAbsoluteUrl(item.href);
-          if (absolute) {
-            entry.item = absolute;
-          }
-          return entry;
-        })
-      }
-    : null;
+const defaultJsonLdEntries = buildDefaultJsonLdGraph({
+  siteName: SITE_NAME,
+  siteUrl,
+  canonicalUrl,
+  pageTitle: basePageTitle ?? SITE_NAME,
+  description: resolvedDescription,
+  breadcrumbs: breadcrumbItems,
+  imageUrl: resolvedOgImage
+});
 
 const computedPayload = {
   global: seoPayload.global,
@@ -394,7 +393,8 @@ const computedPayload = {
 const metaEntries = buildMetaEntries(computedPayload, canonicalUrl ?? undefined);
 const computedTitle = metaEntries.title || pageTitle;
 const metaTags = [{ property: 'og:site_name', content: SITE_NAME }, ...metaEntries.meta];
-const jsonLdEntries = buildJsonLd(computedPayload, breadcrumbStructuredData);
+const cmsJsonLdEntries = buildJsonLd(computedPayload);
+const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
 ---
 
 <!doctype html>

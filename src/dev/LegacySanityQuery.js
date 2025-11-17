@@ -13,7 +13,7 @@ app.get('/api/products', async (req, res) => {
     const query = `*[
       _type == "product" &&
       !(_id in path('drafts.**')) &&
-      lower(coalesce(status, "active")) == "active" &&
+      (status == "active" || !defined(status)) &&
       (!defined(category) || category == $category) &&
       (!defined(tune) || tune_required == $tune) &&
       (!defined(hp) || horsepower <= $hp)
@@ -40,7 +40,7 @@ app.get('/api/products', async (req, res) => {
       `count(*[
       _type == "product" &&
       !(_id in path('drafts.**')) &&
-      lower(coalesce(status, "active")) == "active" &&
+      (status == "active" || !defined(status)) &&
       (!defined(category) || category == $category) &&
       (!defined(tune) || tune_required == $tune) &&
       (!defined(hp) || horsepower <= $hp)

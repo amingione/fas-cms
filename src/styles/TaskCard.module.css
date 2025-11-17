@@ -57,13 +57,14 @@
   font-weight: 700;
   font-family: 'Ethnocentric', sans-serif;
   font-size: 18px;
-  color: #ff6b6b;
+  color: var(--color-primary);
   letter-spacing: 0.02em;
 }
 
 .subtitle {
   font-size: 13px;
-  font-family: 'mono';
+  font-family: 'ui-monospace', 'SFMono-Regular', 'SF Mono', 'Menlo', 'Monaco', 'Consolas',
+    'Liberation Mono', 'Courier New', monospace;
   opacity: 0.85;
   color: #e2e8f0;
   line-height: 1.5;

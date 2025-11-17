@@ -15,16 +15,7 @@ export type QuickViewOptionGroup = {
   values: QuickViewOptionValue[];
 };
 
-const VALUE_KEYS = [
-  'label',
-  'title',
-  'name',
-  'value',
-  'displayName',
-  'text',
-  'content',
-  'option'
-];
+const VALUE_KEYS = ['label', 'title', 'name', 'value', 'displayName', 'text', 'content', 'option'];
 
 const normalizeSingleValue = (entry: unknown): string | null => {
   if (entry == null) return null;
@@ -171,14 +162,16 @@ const normalizeOptionGroup = (group: any, index: number): QuickViewOptionGroup |
   for (const key of POSSIBLE_VALUE_ARRAYS) {
     if (Array.isArray(group[key])) {
       values = group[key]
-        .map((entry: unknown, idx: number) => normalizeOptionValue(entry, String(keyCandidate), idx))
+        .map((entry: unknown, idx: number) =>
+          normalizeOptionValue(entry, String(keyCandidate), idx)
+        )
         .filter((value): value is QuickViewOptionValue => Boolean(value));
       if (values.length) break;
     }
   }
 
   if (!values.length) {
-    const fallback = normalizeOptionValue(group.value ?? group, 0, String(keyCandidate));
+    const fallback = normalizeOptionValue(group.value ?? group, String(keyCandidate), 0);
     if (fallback) {
       values = [fallback];
     }
@@ -198,9 +191,7 @@ const normalizeOptionGroup = (group: any, index: number): QuickViewOptionGroup |
 export function getQuickViewOptionGroups(product: any): QuickViewOptionGroup[] {
   if (!product) return [];
 
-  const variationOptions = Array.isArray(product?.variationOptions)
-    ? product.variationOptions
-    : [];
+  const variationOptions = Array.isArray(product?.variationOptions) ? product.variationOptions : [];
   const optionSources = [product?.options, product?.optionGroups, product?.variations];
   const primarySource = optionSources.find((src) => Array.isArray(src) && src.length) || null;
 
@@ -237,8 +228,10 @@ export function getQuickViewOptionGroups(product: any): QuickViewOptionGroup[] {
 
   if (!groups.length && variationOptions.length) {
     const values = variationOptions
-      .map((entry, idx) => normalizeOptionValue(entry, 'options', idx))
-      .filter((value): value is QuickViewOptionValue => Boolean(value));
+      .map((entry: unknown, idx: number) => normalizeOptionValue(entry, 'options', idx))
+      .filter((value: QuickViewOptionValue | null): value is QuickViewOptionValue =>
+        Boolean(value)
+      );
     if (values.length) {
       return [
         {

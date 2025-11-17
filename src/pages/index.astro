@@ -45,77 +45,6 @@ const featuredProductsNormalized = Array.isArray(featuredProducts)
     })
   : [];
 
-const organizationSchema = {
-  '@type': 'Organization',
-  '@id': '#fas-organization',
-  name: 'F.A.S. Motorsports',
-  legalName: 'F.A.S. Motorsports',
-  url: canonicalHome,
-  logo: `${siteOrigin}/logo/faslogochroma.webp`,
-  sameAs: [
-    'https://www.facebook.com/fasmotorsports',
-    'https://www.instagram.com/fasmotorsports'
-  ]
-};
-
-const localBusinessSchema = {
-  '@type': 'AutoRepair',
-  '@id': '#fas-location',
-  name: 'F.A.S. Motorsports',
-  url: canonicalHome,
-  telephone: '(239) 200-9012',
-  email: 'sales@fasmotorsports.com',
-  image: 'https://fasmotorsports.com/images/social/social-share.webp',
-  address: {
-    '@type': 'PostalAddress',
-    streetAddress: '6161 Riverside Dr',
-    addressLocality: 'Fort Myers',
-    addressRegion: 'FL',
-    postalCode: '33982',
-    addressCountry: 'US'
-  },
-  openingHoursSpecification: [
-    {
-      '@type': 'OpeningHoursSpecification',
-      dayOfWeek: [
-        'Monday',
-        'Tuesday',
-        'Wednesday',
-        'Thursday',
-        'Friday'
-      ],
-      opens: '09:00',
-      closes: '17:00'
-    }
-  ],
-  sameAs: [
-    'https://www.facebook.com/fasmotorsports',
-    'https://www.instagram.com/fasmotorsports'
-  ],
-  parentOrganization: { '@id': '#fas-organization' }
-};
-
-const webSiteSchema = {
-  '@type': 'WebSite',
-  '@id': '#fas-website',
-  name: 'F.A.S. Motorsports',
-  url: canonicalHome,
-  potentialAction: {
-    '@type': 'SearchAction',
-    target: `${canonicalHome}search?q={search_term_string}`,
-    'query-input': 'required name=search_term_string'
-  }
-};
-
-const webPageSchema = {
-  '@type': 'WebPage',
-  '@id': '#fas-homepage',
-  name: 'F.A.S. Motorsports Performance Parts & Packages',
-  url: canonicalHome,
-  isPartOf: { '@id': '#fas-website' },
-  about: { '@id': '#fas-organization' }
-};
-
 const productSchemas = featuredProductsNormalized
   .map((product, index) => {
     if (!product || typeof product !== 'object') return null;
@@ -155,16 +84,31 @@ const productSchemas = featuredProductsNormalized
   })
   .filter(Boolean);
 
-const structuredDataGraph = {
-  '@context': 'https://schema.org',
-  '@graph': [
-    organizationSchema,
-    localBusinessSchema,
-    webSiteSchema,
-    webPageSchema,
-    ...productSchemas
-  ]
-};
+const structuredDataGraph =
+  productSchemas.length > 0
+    ? {
+        '@context': 'https://schema.org',
+        '@graph': [
+          {
+            '@type': 'ItemList',
+            '@id': '#fas-featured-products',
+            name: 'Featured Products',
+            numberOfItems: productSchemas.length,
+            itemListElement: productSchemas.map((product, index) => {
+              const schema = product as Record<string, unknown>;
+              const idValue =
+                typeof schema['@id'] === 'string' ? (schema['@id'] as string) : `#fas-product-${index + 1}`;
+              return {
+                '@type': 'ListItem',
+                position: index + 1,
+                item: { '@id': idValue }
+              };
+            })
+          },
+          ...productSchemas
+        ]
+      }
+    : null;
 ---
 
 
@@ -183,10 +127,12 @@ const structuredDataGraph = {
     'billet supercharger parts',
     'performance wheel packages'
   ]}
->
-  <Fragment slot="head">
-    <script type="application/ld+json" set:html={JSON.stringify(structuredDataGraph)} />
-  </Fragment>
+->
+  {structuredDataGraph && (
+    <Fragment slot="head">
+      <script type="application/ld+json" set:html={JSON.stringify(structuredDataGraph)} />
+    </Fragment>
+  )}
 
     <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>
       {pageDoc?.title ?? 'Home'}

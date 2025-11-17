@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { EyeIcon, ShoppingCartIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { PortableText } from '@portabletext/react';
+import { PortableText, type PortableTextComponents } from '@portabletext/react';
 import clsx from 'clsx';
 import { addItem } from '@components/cart/actions';
 import { prefersDesktopCart } from '@/lib/device';
@@ -13,7 +13,9 @@ import { portableTextToPlainText } from '@/lib/portableText';
 
 const sanitizeAnalyticsPayload = (payload: Record<string, unknown>) =>
   Object.fromEntries(
-    Object.entries(payload).filter(([, value]) => value !== undefined && value !== null && value !== '')
+    Object.entries(payload).filter(
+      ([, value]) => value !== undefined && value !== null && value !== ''
+    )
   );
 
 export type QuickViewProduct = {
@@ -28,27 +30,23 @@ export type QuickViewProduct = {
   optionGroups?: QuickViewOptionGroup[];
 };
 
-const portableComponents = {
+const portableComponents: Partial<PortableTextComponents> = {
   marks: {
-    strong: ({ children }: { children: ReactNode }) => (
-      <strong className="font-semibold text-white">{children}</strong>
-    ),
-    em: ({ children }: { children: ReactNode }) => (
-      <em className="italic text-white/90">{children}</em>
-    )
+    strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
+    em: ({ children }) => <em className="italic text-white/90">{children}</em>
   },
   list: {
-    bullet: ({ children }: { children: ReactNode }) => (
+    bullet: ({ children }) => (
       <ul className="ml-5 list-disc space-y-1 text-sm leading-relaxed text-white/75">{children}</ul>
     ),
-    number: ({ children }: { children: ReactNode }) => (
-      <ol className="ml-5 list-decimal space-y-1 text-sm leading-relaxed text-white/75">{children}</ol>
+    number: ({ children }) => (
+      <ol className="ml-5 list-decimal space-y-1 text-sm leading-relaxed text-white/75">
+        {children}
+      </ol>
     )
   },
   block: {
-    normal: ({ children }: { children: ReactNode }) => (
-      <p className="text-sm leading-relaxed text-white/80">{children}</p>
-    )
+    normal: ({ children }) => <p className="text-sm leading-relaxed text-white/80">{children}</p>
   }
 };
 
@@ -144,8 +142,14 @@ export default function ProductQuickViewButton({
     [product.id, product.title, product.href, product.price]
   );
   const openAnalyticsParams = JSON.stringify({ ...analyticsBase, interaction: 'quick_view_open' });
-  const viewAnalyticsParams = JSON.stringify({ ...analyticsBase, interaction: 'quick_view_view_product' });
-  const addAnalyticsParams = JSON.stringify({ ...analyticsBase, interaction: 'quick_view_add_to_cart' });
+  const viewAnalyticsParams = JSON.stringify({
+    ...analyticsBase,
+    interaction: 'quick_view_view_product'
+  });
+  const addAnalyticsParams = JSON.stringify({
+    ...analyticsBase,
+    interaction: 'quick_view_add_to_cart'
+  });
 
   const [adding, setAdding] = useState(false);
   const canAddToCart = Boolean(product.id);
@@ -179,7 +183,9 @@ export default function ProductQuickViewButton({
           };
         })
         .filter(
-          (entry): entry is { groupKey: string; groupTitle: string; label: string; value: string } =>
+          (
+            entry
+          ): entry is { groupKey: string; groupTitle: string; label: string; value: string } =>
             Boolean(entry)
         ),
     [optionGroups, selectedOptions]
@@ -295,11 +301,11 @@ export default function ProductQuickViewButton({
                 </button>
 
                 <div className="grid gap-6 p-6 sm:grid-cols-2 sm:gap-8 sm:p-8">
-                  <div className="overflow-hidden rounded-xl border border-white/10 bg-black/40 p-3">
+                  <div className="flex min-h-[220px] items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-black/40 p-3 sm:block sm:min-h-0">
                     <img
                       src={product.imageSrc}
                       alt={product.imageAlt || product.title}
-                      className="h-full w-full object-contain"
+                      className="h-40 w-auto object-contain sm:h-full sm:w-full"
                       loading="lazy"
                     />
                   </div>
@@ -341,7 +347,9 @@ export default function ProductQuickViewButton({
                                   ) : null}
                                 </div>
                                 {group.helperText ? (
-                                  <p className="mt-1 text-[0.65rem] text-white/60">{group.helperText}</p>
+                                  <p className="mt-1 text-[0.65rem] text-white/60">
+                                    {group.helperText}
+                                  </p>
                                 ) : null}
                                 {group.type === 'select' ? (
                                   <select
@@ -373,7 +381,9 @@ export default function ProductQuickViewButton({
                                         <button
                                           type="button"
                                           key={option.id}
-                                          onClick={() => handleOptionSelect(group.key, option.value)}
+                                          onClick={() =>
+                                            handleOptionSelect(group.key, option.value)
+                                          }
                                           className={clsx(
                                             'rounded-full border px-3 py-1 text-xs font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
                                             isSelected
@@ -420,7 +430,7 @@ export default function ProductQuickViewButton({
                         type="button"
                         onClick={handleAddToCart}
                         disabled={!canAddToCart || adding || missingSelections}
-                        className="inline-flex min-w-[150px] items-center gap-2 rounded-full border border-white/25 bg-gradient-to-br from-black/70 to-black/40 px-5 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-white shadow-[0_0_18px_rgba(255,0,0,0.12)] transition enabled:hover:border-primary enabled:hover:from-black/80 enabled:hover:to-black/60 enabled:hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+                        className="btn-plain inline-flex min-w-[150px] items-center justify-center gap-2 rounded-full border border-primary bg-primary px-5 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-black drop-shadow-[0_0_20px_rgba(255,0,0,0.3)] transition enabled:hover:bg-primary/90 enabled:hover:drop-shadow-[0_0_26px_rgba(255,0,0,0.4)] disabled:cursor-not-allowed disabled:opacity-50"
                         data-analytics-event="quick_view_add_to_cart"
                         data-analytics-category="ecommerce"
                         data-analytics-label={product.title}

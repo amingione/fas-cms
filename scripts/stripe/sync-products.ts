@@ -102,7 +102,7 @@ const fetchProducts = async () => {
     params.id = idFilter;
   }
   const where = filters.length ? ` && ${filters.join(' && ')}` : '';
-  const query = `*[_type=="product"${where}]{
+  const query = `*[_type=="product" && (status == "active" || !defined(status))${where}]{
     _id,
     title,
     price,

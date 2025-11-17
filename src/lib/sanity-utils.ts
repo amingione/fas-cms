@@ -33,7 +33,7 @@ const imageBuilder = projectId && dataset ? imageUrlBuilder({ projectId, dataset
 
 const SANITY_CDN_HOSTS = new Set(['cdn.sanity.io', 'cdn.sanityusercontent.com']);
 export const ACTIVE_PRODUCT_FILTER =
-  '!(_id in path("drafts.**")) && lower(coalesce(status, "active")) == "active"';
+  '!(_id in path("drafts.**")) && (status == "active" || !defined(status))';
 export const ACTIVE_PRODUCT_WITH_SLUG_FILTER = `${ACTIVE_PRODUCT_FILTER} && defined(slug.current)`;
 const FEATURED_PRODUCT_FILTER = 'string(featured) == "true"';
 const GROQ_OPTION_VALUES_FRAGMENT = `array::compact(
