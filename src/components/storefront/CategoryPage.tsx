@@ -65,7 +65,7 @@ const navigation = {
           id: 'billet-parts',
           name: 'Billet Parts',
           items: [
-            { name: 'Predator Pulley', href: '/shop/fas-predator-lower-pulley' },
+            { name: 'Predator Pulley', href: '/shop/fas-predator-lower-pulley-no-tune-required' },
             { name: 'Billet Lid', href: '/shop/fas-motorsports-billet-hellcat-supercharger-lid' },
             { name: '2.4L Billet Bearing Plate', href: '/shop/2-4l-hellcat-billet-bearing-plate' },
             { name: 'Billet Snout', href: '/shop/2-4l-hellcat-billet-supercharger-snout' }
@@ -185,7 +185,7 @@ const fallbackFeaturedProducts: FeaturedProduct[] = [
     id: 'predator-pulley',
     name: 'Predator Pulley',
     price: '$899.99',
-    href: '/shop/fas-predator-lower-pulley',
+    href: '/shop/fas-predator-lower-pulley-no-tune-required',
     imageSrc: '/images/pulleys/FASpredator-lower-pulley.webp',
     imageAlt: 'F.A.S. Motorsports Predator Lower Pulley.'
   },

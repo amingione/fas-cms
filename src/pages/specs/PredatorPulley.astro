@@ -27,7 +27,7 @@ const specSheet = {
     'Purpose-built for belt traction and longevity. Optimized surface and geometry help retain grip and reduce slip on compatible street setups.',
     'Direct, slip-on installation avoids disturbing the supercharger assembly, supporting quick upgrades.'
   ],
-  ctaHref: '/shop/fas-predator-lower-pulley',
+  ctaHref: '/shop/fas-predator-lower-pulley-no-tune-required',
   ctaLabel: 'View Predator Pulley'
 };
 
@@ -59,7 +59,13 @@ const structuredData = {
   }))
 };
 ---
-<BaseLayout title={pageTitle} description={pageDescription} canonical={canonical} ogImage={ensureAbsolute(specSheet.imageSrc)}>
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  canonical={canonical}
+  ogImage={ensureAbsolute(specSheet.imageSrc)}
+>
   <Fragment slot="head">
     <meta property="og:type" content="product" />
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
@@ -68,9 +74,11 @@ const structuredData = {
     <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>
       {pageTitle}
     </div>
-    {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
-      <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
-    )}
+    {
+      Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
+        <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
+      )
+    }
     <section class="mt-5 pt-5"></section>
     <ProductSpecSheet
       title={specSheet.title}

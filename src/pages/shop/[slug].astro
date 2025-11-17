@@ -1294,8 +1294,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
           <PortableTextRenderer value={product?.shortDescription ?? []} />
         </div>
 
-        {(((options?.length || 0) + (addOns?.length || 0) + (customs?.length || 0)) > 0) && (
-          <form id="product-options" class="mb-6 space-y-4">
+        <form id="product-options" class="mb-6 space-y-4">
             {/* Variant Options (radio/select) */}
             {Array.isArray(options) && options.length > 0 && options.filter(Boolean).map((group: any) => {
               const groupKey = (group?.key || group?.name || group?.title || 'option').toString();
@@ -1345,7 +1344,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                     </div>
                   ) : (
                     <fieldset class="mt-4">
-                      <div class="space-y-4 sm:flex sm:flex-wrap sm:items-center sm:gap-6">
+                      <div class="flex flex-wrap items-center gap-6">
                         {values.map((v: any, i: number) => {
                           const val = typeof v === 'string' ? v : (v?.value || v?.name || v?.title || v?.label || '').toString();
                           const label = typeof v === 'string' ? v : (v?.label || v?.title || v?.name || v?.value || 'Choice');
@@ -1366,7 +1365,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                                 data-label={label}
                                 required={i === 0}
                                 id={inputId}
-                                class="relative h-4 w-4 appearance-none rounded-full border border-white/15 bg-white/5 before:absolute before:inset-1 before:rounded-full before:bg-white before:opacity-0 before:transition checked:border-amber-500 checked:bg-amber-500 checked:before:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500"
+                                class="relative h-4 w-4 appearance-none rounded-full border border-white/15 bg-white/5 before:absolute before:inset-1 before:rounded-full before:bg-primary before:opacity-0 before:transition checked:border-primary checked:bg-primary checked:before:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                               />
                               <label for={inputId} class="ml-3 flex flex-col text-sm font-medium text-white cursor-pointer">
                                 <span class="leading-snug">{label}</span>
@@ -1448,7 +1447,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                   <div class="mt-1 text-xs opacity-70">Surcharge: +${Number(c.priceDelta ?? c.price ?? c.delta ?? 0).toFixed(2)}</div>
                 )}
               </div>
-            ))}
+            ))}  
 
             {/* Live price & Add to Cart */}
             <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -1484,8 +1483,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                 <span class="text-sm font-inter justify-items-start">Add to Cart</span>
               </button>
             </div>
-          </form>
-        )}
+        </form>
         <!-- Optional media strip (images/videos/files from Sanity "media" field) -->
         {Array.isArray((product as any)?.media) && (product as any).media.length > 0 && (
           <section class="mt-6">
