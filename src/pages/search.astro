@@ -156,9 +156,60 @@ if (endPage < totalPages) {
 
   function escapeHtml(s) { return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'", '&#39;'); }
 
+  function toPlainText(value, depth = 0) {
+    if (value == null || depth > 6) return '';
+    if (typeof value === 'string') return value;
+    if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+    if (Array.isArray(value)) {
+      return value
+        .map((entry) => toPlainText(entry, depth + 1))
+        .filter(Boolean)
+        .join(' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+    if (typeof value === 'object') {
+      if (typeof value.text === 'string') return value.text;
+      if (Array.isArray(value.children)) return toPlainText(value.children, depth + 1);
+      if ('value' in value) {
+        const result = toPlainText(value.value, depth + 1);
+        if (result) return result;
+      }
+      if ('content' in value) {
+        const result = toPlainText(value.content, depth + 1);
+        if (result) return result;
+      }
+      for (const key of Object.keys(value)) {
+        if (['_key', '_type', 'marks', 'style'].includes(key)) continue;
+        const result = toPlainText(value[key], depth + 1);
+        if (result) return result;
+      }
+    }
+    return '';
+  }
+
+  function extractDescription(it) {
+    const candidates = [
+      it?.description,
+      it?.shortDescription,
+      it?.summary,
+      it?.excerpt,
+      it?.body,
+      it?.content,
+      it?.seo?.description,
+      it?.metaDescription
+    ];
+    for (const candidate of candidates) {
+      const text = toPlainText(candidate);
+      if (text) return text;
+    }
+    return '';
+  }
+
   function card(it) {
     const title = it.title || it.name || it._type || 'Untitled';
-    const desc = (it.description || '').toString().slice(0, 120);
+    const fullDesc = extractDescription(it).replace(/\s+/g, ' ').trim();
+    const snippet = fullDesc ? fullDesc.slice(0, 120) : '';
     const href = resolveLink(it);
     const img = getThumb(it);
     const badge = (it._type || '').toUpperCase();
@@ -169,7 +220,7 @@ if (endPage < totalPages) {
         ${img ? `<div class="w-full aspect-square bg-black/10 rounded mb-3 overflow-hidden grid place-items-center"><img src="${escapeHtml(img)}" alt="" class="max-w-full max-h-full object-contain" /></div>` : ''}
         <div class="font-semibold mb-1 hover:underline line-clamp-2">${escapeHtml(title)}</div>
         ${price ? `<div class="text-accent text-sm font-bold mb-1">${escapeHtml(price)}</div>` : ''}
-        ${desc ? `<p class="text-sm text-white/70 line-clamp-3">${escapeHtml(desc)}${it.description && it.description.length > 120 ? '…' : ''}</p>` : ''}
+        ${snippet ? `<p class="text-sm text-white/70 line-clamp-3">${escapeHtml(snippet)}${fullDesc.length > 120 ? '…' : ''}</p>` : ''}
       </div>`;
     if (href) return `<li><a href="${href}" class="block focus:outline-none focus:ring-2 focus:ring-primary">${content}</a></li>`;
     return `<li>${content}</li>`;
