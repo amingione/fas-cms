@@ -15,7 +15,7 @@ const OUTPUT_DIR = path.join('tmp', 'video');
 async function fetchProductsWithVideos() {
   const data = await sanityFetch<{ products: ProductVideoDoc[] }>({
     query: `{
-  "products": *[_type == "product" && !(_id in path('drafts.**')) && (status == "active" || !defined(status)) && count(youtubeVideos[]) > 0]{
+  "products": *[_type == "product" && !(_id in path('drafts.**')) && (status == "active" || !defined(status)) && coalesce(productType, "") != "service" && count(youtubeVideos[]) > 0]{
     title,
     slug,
     youtubeVideos[]{ videoId, captionOverride }

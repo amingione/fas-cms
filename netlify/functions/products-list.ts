@@ -30,7 +30,7 @@ export const handler: Handler = async (event) => {
       if (!allowed) return json(403, { error: 'Forbidden' });
     }
 
-    const q = `*[_type=="product" && (status == "active" || !defined(status))]|order(title asc)[0...500]{
+    const q = `*[_type=="product" && (status == "active" || !defined(status)) && coalesce(productType, "") != "service"]|order(title asc)[0...500]{
   _id,
   title,
   sku,

@@ -246,7 +246,7 @@ async function enrichOrdersWithProductImages(orders: any[]): Promise<void> {
   }> =
     (await sanityClient
       .fetch(
-        `*[_type == "product" && !(_id in path('drafts.**')) && (status == "active" || !defined(status)) && (
+        `*[_type == "product" && !(_id in path('drafts.**')) && (status == "active" || !defined(status)) && coalesce(productType, "") != "service" && (
           (_id in $ids) ||
           (slug.current in $slugs) ||
           (sku in $skus) ||

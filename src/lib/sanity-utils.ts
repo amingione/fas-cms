@@ -32,9 +32,12 @@ const apiVersion = '2023-01-01';
 const imageBuilder = projectId && dataset ? imageUrlBuilder({ projectId, dataset }) : null;
 
 const SANITY_CDN_HOSTS = new Set(['cdn.sanity.io', 'cdn.sanityusercontent.com']);
-export const ACTIVE_PRODUCT_FILTER =
+const BASE_PUBLISHED_PRODUCT_FILTER =
   '!(_id in path("drafts.**")) && (status == "active" || !defined(status))';
+export const ACTIVE_PRODUCT_FILTER = `${BASE_PUBLISHED_PRODUCT_FILTER} && coalesce(productType, "") != "service"`;
 export const ACTIVE_PRODUCT_WITH_SLUG_FILTER = `${ACTIVE_PRODUCT_FILTER} && defined(slug.current)`;
+export const SERVICE_PRODUCT_FILTER = `${BASE_PUBLISHED_PRODUCT_FILTER} && productType == "service"`;
+export const SERVICE_PRODUCT_WITH_SLUG_FILTER = `${SERVICE_PRODUCT_FILTER} && defined(slug.current)`;
 const FEATURED_PRODUCT_FILTER = 'string(featured) == "true"';
 const GROQ_OPTION_VALUES_FRAGMENT = `array::compact(
         coalesce(values, []) +
@@ -364,7 +367,7 @@ export const cachedSanityFetch = async <T>(
   return fetcher();
 };
 
-const perspective = previewDraftsEnabled ? 'previewDrafts' : 'published';
+const perspective = previewDraftsEnabled ? 'drafts' : 'published';
 
 // Gracefully handle missing env vars in preview/editor environments
 const hasSanityConfig = Boolean(projectId && dataset);
@@ -745,6 +748,83 @@ const normalizeCategoryEntry = <T extends { imageUrl?: unknown }>(category: T): 
   return clone as T;
 };
 
+const PRODUCT_LISTING_PROJECTION = `{
+  _id,
+  title,
+  slug,
+  metaTitle,
+  metaDescription,
+  price,
+  averageHorsepower,
+  description,
+  shortDescription,
+  importantNotes,
+  brand,
+  gtin,
+  mpn,
+  canonicalUrl,
+  noindex,
+  socialImage{ asset->{ _id, url }, alt },
+  specifications,
+  attributes,
+  includedInKit[]{ item, quantity, notes },
+  productType,
+  requiresPaintCode,
+  images[]{
+    asset->{
+      _id,
+      url,
+      metadata{
+        dimensions{
+          width,
+          height,
+          aspectRatio
+        }
+      }
+    },
+    alt
+  },
+  tune->{ title, slug },
+  compatibleVehicles[]->{ make, model, slug },
+  // include free-form filter tags from schema
+  filters[]->{
+    _id,
+    title,
+    slug
+  },
+  // surface selection data for quick view (normalize nested choice arrays)
+  options${GROQ_OPTION_OBJECT_PROJECTION},
+  optionGroups${GROQ_OPTION_OBJECT_PROJECTION},
+  variationOptions${GROQ_OPTION_OBJECT_PROJECTION},
+  variations[],
+  addOns[]{
+    label,
+    priceDelta,
+    description,
+    skuSuffix,
+    defaultSelected,
+    group,
+    key,
+    name,
+    title,
+    value,
+    price,
+    delta
+  },
+  customPaint{
+    enabled,
+    additionalPrice,
+    paintCodeRequired,
+    codeLabel,
+    instructions
+  },
+  // support either field name: "categories" or "category"
+  "categories": select(
+    defined(categories) => categories[]->{ _id, title, slug },
+    defined(category) => category[]->{ _id, title, slug }
+  )
+}`;
+
 // Fetch all products
 export async function fetchProductsFromSanity({
   categorySlug,
@@ -800,82 +880,7 @@ export async function fetchProductsFromSanity({
       params.minHp = minHp;
     }
 
-    const query = `*[_type == "product"${conditions.length ? ` && ${conditions.join(' && ')}` : ''}]{
-      _id,
-      title,
-      slug,
-      metaTitle,
-      metaDescription,
-      price,
-      averageHorsepower,
-      description,
-      shortDescription,
-      importantNotes,
-      brand,
-      gtin,
-      mpn,
-      canonicalUrl,
-      noindex,
-      socialImage{ asset->{ _id, url }, alt },
-      specifications,
-      attributes,
-      includedInKit[]{ item, quantity, notes },
-      productType,
-      requiresPaintCode,
-      images[]{
-        asset->{
-          _id,
-          url,
-          metadata{
-            dimensions{
-              width,
-              height,
-              aspectRatio
-            }
-          }
-        },
-        alt
-      },
-      tune->{ title, slug },
-      compatibleVehicles[]->{ make, model, slug },
-      // include free-form filter tags from schema
-      filters[]->{
-        _id,
-        title,
-        slug
-      },
-      // surface selection data for quick view (normalize nested choice arrays)
-      options${GROQ_OPTION_OBJECT_PROJECTION},
-      optionGroups${GROQ_OPTION_OBJECT_PROJECTION},
-      variationOptions${GROQ_OPTION_OBJECT_PROJECTION},
-      variations[],
-      addOns[]{
-        label,
-        priceDelta,
-        description,
-        skuSuffix,
-        defaultSelected,
-        group,
-        key,
-        name,
-        title,
-        value,
-        price,
-        delta
-      },
-      customPaint{
-        enabled,
-        additionalPrice,
-        paintCodeRequired,
-        codeLabel,
-        instructions
-      },
-      // support either field name: "categories" or "category"
-      "categories": select(
-        defined(categories) => categories[]->{ _id, title, slug },
-        defined(category) => category[]->{ _id, title, slug }
-      )
-    }`;
+    const query = `*[_type == "product"${conditions.length ? ` && ${conditions.join(' && ')}` : ''}]${PRODUCT_LISTING_PROJECTION}`;
 
     if (!sanity) return [];
 
@@ -897,6 +902,24 @@ export async function fetchProductsFromSanity({
     );
   } catch (err) {
     console.error('Failed to fetch products:', err);
+    return [];
+  }
+}
+
+export async function fetchServiceCatalogProducts(): Promise<Product[]> {
+  try {
+    if (!hasSanityConfig || !sanity) return [];
+    const query = `*[_type == "product" && ${SERVICE_PRODUCT_WITH_SLUG_FILTER}]${PRODUCT_LISTING_PROJECTION}`;
+    const executeQuery = async () => {
+      const results = await sanity!.fetch<Product[]>(query, {});
+      return Array.isArray(results) ? results.map((item) => normalizeProductPrice(item)) : [];
+    };
+    return cachedSanityFetch(
+      ['fetchServiceCatalogProducts', config.projectId, config.dataset, perspective],
+      executeQuery
+    );
+  } catch (err) {
+    console.error('Failed to fetch service catalog products:', err);
     return [];
   }
 }

@@ -14,7 +14,7 @@ export const GET: APIRoute = async ({ url }) => {
         (name match $q || title match $q || description match $q || slug.current match $q) &&
         (
           _type != "product" ||
-          (!(_id in path('drafts.**')) && defined(slug.current) && (status == "active" || !defined(status)))
+          (!(_id in path('drafts.**')) && defined(slug.current) && (status == "active" || !defined(status)) && coalesce(productType, "") != "service")
         )
       ][0..24]{
         _id,

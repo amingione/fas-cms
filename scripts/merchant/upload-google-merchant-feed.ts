@@ -613,7 +613,7 @@ function chunkArray<T>(input: T[], size: number): T[][] {
 }
 
 async function fetchProducts() {
-const query = `*[_type=="product" && defined(slug.current) && !(_id in path("drafts.**")) && (status == "active" || !defined(status)) && coalesce(draft,false) == false]{
+const query = `*[_type=="product" && defined(slug.current) && !(_id in path("drafts.**")) && (status == "active" || !defined(status)) && coalesce(productType, "") != "service" && coalesce(draft,false) == false]{
   _id,
   "id": coalesce(sku, _id),
   title,

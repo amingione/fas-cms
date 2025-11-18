@@ -3,7 +3,7 @@ import {createClient} from '@sanity/client';
 type QueryParams = Record<string, string | number | boolean>;
 
 type SanityFetchOptions = {
-  perspective?: 'published' | 'previewDrafts'
+  perspective?: 'published' | 'drafts'
   token?: string
   useCdn?: boolean
   stega?: boolean
@@ -47,8 +47,8 @@ export async function sanityFetch<T>(
   options: SanityFetchOptions = {},
 ): Promise<T> {
   const token = options.token ?? defaultToken;
-  const perspective = options.perspective ?? (token ? 'previewDrafts' : 'published');
-  const useCdn = options.useCdn ?? perspective !== 'previewDrafts';
+  const perspective = options.perspective ?? (token ? 'drafts' : 'published');
+  const useCdn = options.useCdn ?? perspective !== 'drafts';
   const stegaEnabled = options.stega ?? false;
 
   const clientConfig: Record<string, unknown> = {useCdn, perspective};
@@ -62,7 +62,7 @@ export async function sanityFetch<T>(
   if (options.tag) {
     fetchOptions.tag = options.tag;
   }
-  if (perspective === 'previewDrafts') {
+  if (perspective === 'drafts') {
     fetchOptions.resultSourceMap = 'withKeyArraySelector';
   }
   if (stegaEnabled) {

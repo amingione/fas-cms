@@ -14,6 +14,7 @@ app.get('/api/products', async (req, res) => {
       _type == "product" &&
       !(_id in path('drafts.**')) &&
       (status == "active" || !defined(status)) &&
+      coalesce(productType, "") != "service" &&
       (!defined(category) || category == $category) &&
       (!defined(tune) || tune_required == $tune) &&
       (!defined(hp) || horsepower <= $hp)
@@ -41,6 +42,7 @@ app.get('/api/products', async (req, res) => {
       _type == "product" &&
       !(_id in path('drafts.**')) &&
       (status == "active" || !defined(status)) &&
+      coalesce(productType, "") != "service" &&
       (!defined(category) || category == $category) &&
       (!defined(tune) || tune_required == $tune) &&
       (!defined(hp) || horsepower <= $hp)

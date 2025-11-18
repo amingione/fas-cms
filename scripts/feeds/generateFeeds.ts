@@ -65,7 +65,7 @@ export async function generateFeeds() {
 
   const { products } = await sanityFetch<{ products: FeedProduct[] }>({
     query: `{
-  "products": *[_type == "product" && defined(slug.current) && !(_id in path('drafts.**')) && (status == "active" || !defined(status))]{
+  "products": *[_type == "product" && defined(slug.current) && !(_id in path('drafts.**')) && (status == "active" || !defined(status)) && coalesce(productType, "") != "service"]{
     _id,
     title,
     slug,

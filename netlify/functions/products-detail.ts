@@ -8,7 +8,7 @@ export const handler: Handler = async (event) => {
     await requireUser(event);
     const id = (event.queryStringParameters?.id || '').trim();
     if (!id) return { statusCode: 400, body: 'Missing id' };
-    const q = `*[_type=="product" && (status == "active" || !defined(status)) && _id==$id][0]{
+    const q = `*[_type=="product" && (status == "active" || !defined(status)) && coalesce(productType, "") != "service" && _id==$id][0]{
       _id,
       title,
       sku,

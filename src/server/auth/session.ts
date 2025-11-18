@@ -2,12 +2,23 @@ import { parse } from 'cookie';
 import jwt from 'jsonwebtoken';
 
 const COOKIE_NAME = process.env.SESSION_COOKIE_NAME || 'fas_session';
-const SESSION_SECRET = process.env.SESSION_SECRET || process.env.JWT_SECRET || '';
+const isProdEnv = process.env.NODE_ENV === 'production';
+const FALLBACK_DEV_SESSION_SECRET = 'dev-session-secret-change-me';
+const hasConfiguredSessionSecret = Boolean(process.env.SESSION_SECRET || process.env.JWT_SECRET);
+const SESSION_SECRET =
+  process.env.SESSION_SECRET ||
+  process.env.JWT_SECRET ||
+  (!isProdEnv ? FALLBACK_DEV_SESSION_SECRET : '');
 const SECURE = process.env.SESSION_SECURE === 'true';
 const SAME_SITE = (process.env.SESSION_SAMESITE || 'lax') as 'lax' | 'strict' | 'none';
 
-if (!SESSION_SECRET) {
-  console.warn('[auth] SESSION_SECRET is not configured. Set it to a random 32+ char string.');
+if (!hasConfiguredSessionSecret) {
+  const baseMessage = '[auth] SESSION_SECRET is not configured. Set it to a random 32+ char string.';
+  if (isProdEnv) {
+    console.warn(baseMessage);
+  } else {
+    console.warn(`${baseMessage} Falling back to a local-only development secret.`);
+  }
 }
 
 export interface SessionUser {

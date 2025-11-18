@@ -365,7 +365,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             leaveFrom="opacity-100 backdrop-blur-[.5px]"
             leaveTo="opacity-0 backdrop-blur-none"
           >
-            <div className="fixed inset-0 bg-white/80" inert />
+            <div className="fixed inset-0 bg-white/80" aria-hidden="true" />
           </Transition.Child>
           <Transition.Child
             as={Fragment}

@@ -140,7 +140,7 @@ export async function fetchSeoForPath(
 
   const fetcher = async () => {
     const queryOptions = {
-      perspective: options.preview ? ('previewDrafts' as const) : ('published' as const),
+      perspective: options.preview ? ('drafts' as const) : ('published' as const),
       token: options.token,
       useCdn: !options.preview,
       stega: options.preview,
