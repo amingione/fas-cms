@@ -1,5 +1,6 @@
 ---
 import { resolveSanityImageUrl } from '@/lib/sanity-utils.ts';
+import { resolveProductCartMeta } from '@/lib/product-flags.ts';
 
 const { productImage, product, layout = 'grid' } = Astro.props as any;
 const productPrice =
@@ -9,6 +10,7 @@ const productPrice =
 
 const fallbackImage = '/logo/faslogochroma.webp';
 const imageUrl = resolveSanityImageUrl([productImage, product?.images]) ?? fallbackImage;
+const cartMeta = resolveProductCartMeta(product);
 ---
 
 <div class={`relative z-0 text-white backdrop-blur-md bg-black/80 rounded-[10px] border border-white/30 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.5)] overflow-hidden transform transition-all duration-500 group font-sans ${layout === 'list' ? 'md:flex md:items-stretch' : 'block'}`}>
@@ -44,6 +46,8 @@ const imageUrl = resolveSanityImageUrl([productImage, product?.images]) ?? fallb
           data-product-price={product.price}
           data-product-image={imageUrl}
           data-product-categories={JSON.stringify((product.categories || []).filter(Boolean).map((c: { _ref?: string; _id?: string }) => c._ref || c._id || ''))}
+          data-product-shipping-class={cartMeta.shippingClass || ''}
+          data-product-install-only={cartMeta.installOnly ? 'true' : 'false'}
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.293 1.293a1 1 0 00-.293.707V17a1 1 0 001 1h12a1 1 0 001-1v-2a1 1 0 00-1-1H7z" />
@@ -111,8 +115,19 @@ const imageUrl = resolveSanityImageUrl([productImage, product?.images]) ?? fallb
         items[idx].price = item.price ?? items[idx].price;
         items[idx].image = item.image ?? items[idx].image;
         items[idx].options = item.options || items[idx].options;
+        if (item.shippingClass) items[idx].shippingClass = item.shippingClass;
+        if (item.installOnly) items[idx].installOnly = true;
       } else {
-        items.push({ id: item.id, name: item.name, price: item.price, image: item.image, quantity: item.quantity || 1, options: item.options || undefined });
+        items.push({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          image: item.image,
+          quantity: item.quantity || 1,
+          options: item.options || undefined,
+          ...(item.shippingClass ? { shippingClass: item.shippingClass } : {}),
+          ...(item.installOnly ? { installOnly: true } : {})
+        });
       }
       cart.items = items;
       saveCart(cart);
@@ -138,12 +153,23 @@ const imageUrl = resolveSanityImageUrl([productImage, product?.images]) ?? fallb
         const name = btn.getAttribute('data-product-name') || 'Item';
         const priceRaw = btn.getAttribute('data-product-price');
         const image = btn.getAttribute('data-product-image') || "";
+        const shippingClass = btn.getAttribute('data-product-shipping-class') || "";
+        const installOnlyAttr = btn.getAttribute('data-product-install-only') || "false";
+        const installOnly = installOnlyAttr === 'true';
         const price = Number.parseFloat(String(priceRaw ?? '0')) || 0;
         if (!baseId) { showProductToast('Unable to add item (missing id)', false); return; }
 
         // Simple line id (no configuration on cards)
         const id = baseId;
-        addToCart({ id, name, price, image: image || '${imageUrl}', quantity: 1 });
+        addToCart({
+          id,
+          name,
+          price,
+          image: image || '${imageUrl}',
+          quantity: 1,
+          ...(shippingClass ? { shippingClass } : {}),
+          ...(installOnly ? { installOnly: true } : {})
+        });
         showProductToast(`Added to cart: ${name}`);
       } catch (err) {
         console.error('add-to-cart failed', err);

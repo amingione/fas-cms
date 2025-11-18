@@ -236,11 +236,11 @@ async function fetchShippingProductsForCart(cart: CheckoutCartItem[]): Promise<R
   );
   if (!ids.length && !skus.length) return {};
   try {
-    const query = `*[_type == "product" && !(_id in path('drafts.**')) && (status == "active" || !defined(status)) && coalesce(productType, "") != "service" && (
-      ${ids.length ? '_id in $ids' : 'false'}
-      ${ids.length && skus.length ? '||' : ''}
-      ${skus.length ? 'sku in $skus' : 'false'}
-    )]{ _id, title, sku, shippingWeight, boxDimensions, shippingClass, shipsAlone }`;
+    const conditions: string[] = [];
+    if (ids.length) conditions.push('_id in $ids');
+    if (skus.length) conditions.push('sku in $skus');
+    const conditionBlock = conditions.length ? conditions.join(' || ') : 'false';
+    const query = `*[_type == "product" && !(_id in path('drafts.**')) && (status == "active" || !defined(status)) && coalesce(productType, "") != "service" && (${conditionBlock})]{ _id, title, sku, shippingWeight, boxDimensions, shippingClass, shipsAlone }`;
     const products = await sanity.fetch<ShippingProduct[]>(query, { ids, skus });
     const lookup: Record<string, ShippingProduct> = {};
     if (Array.isArray(products)) {

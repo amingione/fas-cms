@@ -90,7 +90,10 @@ export default function ProductCardLiteReact({
             imageAlt: anchorText,
             description: shortText,
             shortDescriptionPortable: (product as any)?.shortDescription,
-            optionGroups: quickViewOptions
+            optionGroups: quickViewOptions,
+            shippingClass: (product as any)?.shippingClass,
+            filters: (product as any)?.filters,
+            installOnly: (product as any)?.installOnly
           }}
         />
       </div>
@@ -128,7 +131,10 @@ export default function ProductCardLiteReact({
             imageAlt: title,
             description: shortText,
             shortDescriptionPortable: (product as any)?.shortDescription,
-            optionGroups: quickViewOptions
+            optionGroups: quickViewOptions,
+            shippingClass: (product as any)?.shippingClass,
+            filters: (product as any)?.filters,
+            installOnly: (product as any)?.installOnly
           }}
         />
       </div>

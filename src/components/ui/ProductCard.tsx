@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ShoppingCart } from 'lucide-react';
 import { getCart, saveCart } from '@lib/cart';
 import { resolveSanityImageUrl } from '@/lib/sanity-utils';
+import { resolveProductCartMeta } from '@/lib/product-flags';
 
 interface Product {
   _id: string;
@@ -15,6 +16,9 @@ interface Product {
     };
   };
   categories?: Array<{ _ref?: string; _id?: string }>;
+  shippingClass?: string | null;
+  filters?: unknown;
+  installOnly?: unknown;
 }
 
 interface ProductCardProps {
@@ -37,12 +41,19 @@ export function ProductCard({ product }: ProductCardProps) {
     try {
       // Get current cart
       const cart = getCart();
+      const { shippingClass, installOnly } = resolveProductCartMeta(product);
 
       // Check if item already exists
       const existingIndex = cart.findIndex((item: any) => item.id === product._id);
 
       if (existingIndex >= 0) {
         cart[existingIndex].quantity += 1;
+        if (shippingClass) {
+          cart[existingIndex].shippingClass = shippingClass;
+        }
+        if (installOnly) {
+          cart[existingIndex].installOnly = true;
+        }
       } else {
         cart.push({
           id: product._id,
@@ -52,7 +63,9 @@ export function ProductCard({ product }: ProductCardProps) {
           image: imageUrl,
           categories: (product.categories || [])
             .filter(Boolean)
-            .map((c: any) => c._ref || c._id || '')
+            .map((c: any) => c._ref || c._id || ''),
+          ...(shippingClass ? { shippingClass } : {}),
+          ...(installOnly ? { installOnly: true } : {})
         });
       }
 

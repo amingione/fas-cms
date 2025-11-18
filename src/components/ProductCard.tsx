@@ -3,6 +3,7 @@ import { cn } from '@components/ui/utils';
 import { addItem } from '@lib/cart';
 import { prefersDesktopCart } from '@/lib/device';
 import { emitAddToCartSuccess } from '@/lib/add-to-cart-toast';
+import { resolveProductCartMeta } from '@/lib/product-flags';
 import '../styles/global.css';
 
 export interface ProductCardProps {
@@ -47,7 +48,18 @@ function addToCart(product: SanityProduct) {
     const image = resolveSanityImageUrl([product?.images]) || '/logo/faslogochroma.webp';
     const slug = getSlug(product);
     const productUrl = slug ? `/shop/${slug}` : undefined;
-    addItem({ id, name, price, quantity: 1, categories, image, productUrl });
+    const { shippingClass, installOnly } = resolveProductCartMeta(product);
+    addItem({
+      id,
+      name,
+      price,
+      quantity: 1,
+      categories,
+      image,
+      productUrl,
+      ...(shippingClass ? { shippingClass } : {}),
+      ...(installOnly ? { installOnly: true } : {})
+    });
 
     emitAddToCartSuccess({ name });
 

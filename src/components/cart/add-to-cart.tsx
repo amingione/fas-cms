@@ -6,6 +6,7 @@ import { addItem } from '@components/cart/actions';
 import { prefersDesktopCart } from '@/lib/device';
 import { emitAddToCartSuccess } from '@/lib/add-to-cart-toast';
 import * as React from 'react';
+import { resolveProductCartMeta } from '@/lib/product-flags';
 
 /**
  * AddToCart — FAS + Sanity version
@@ -125,6 +126,7 @@ export function AddToCart({ product }: { product: any }) {
     e.preventDefault();
     const id = (variantId || product?._id || product?.id) as Maybe<string>;
     if (!id) return;
+    const { shippingClass, installOnly } = resolveProductCartMeta(product);
 
     await addItem(null as any, {
       id,
@@ -138,7 +140,9 @@ export function AddToCart({ product }: { product: any }) {
       image: product?.images?.[0]?.asset?.url || product?.images?.[0]?.url,
       options: selected,
       quantity: 1,
-      productUrl
+      productUrl,
+      ...(shippingClass ? { shippingClass } : {}),
+      ...(installOnly ? { installOnly: true } : {})
     });
 
     emitAddToCartSuccess({ name: product?.title });

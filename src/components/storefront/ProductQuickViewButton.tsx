@@ -10,6 +10,7 @@ import { prefersDesktopCart } from '@/lib/device';
 import { emitAddToCartSuccess } from '@/lib/add-to-cart-toast';
 import type { QuickViewOptionGroup, QuickViewOptionValue } from '@/lib/quick-view-options';
 import { portableTextToPlainText } from '@/lib/portableText';
+import { resolveProductCartMeta } from '@/lib/product-flags';
 
 const sanitizeAnalyticsPayload = (payload: Record<string, unknown>) =>
   Object.fromEntries(
@@ -28,6 +29,9 @@ export type QuickViewProduct = {
   description?: string;
   shortDescriptionPortable?: unknown;
   optionGroups?: QuickViewOptionGroup[];
+  shippingClass?: string | null;
+  filters?: unknown;
+  installOnly?: unknown;
 };
 
 const portableComponents: Partial<PortableTextComponents> = {
@@ -130,6 +134,8 @@ export default function ProductQuickViewButton({
       ? product.optionGroups.filter((group) => Array.isArray(group?.values) && group.values.length)
       : [];
   }, [product.optionGroups]);
+
+  const cartMeta = useMemo(() => resolveProductCartMeta(product), [product]);
 
   const analyticsBase = useMemo(
     () =>
@@ -240,7 +246,9 @@ export default function ProductQuickViewButton({
         image: product.imageSrc,
         quantity: 1,
         productUrl: product.href,
-        options: optionsPayload
+        options: optionsPayload,
+        ...(cartMeta.shippingClass ? { shippingClass: cartMeta.shippingClass } : {}),
+        ...(cartMeta.installOnly ? { installOnly: true } : {})
       });
 
       emitAddToCartSuccess({ name: product.title });
