@@ -565,6 +565,8 @@ let upsellProducts: Product[] = [];
 let options: any[] = [];
 let addOns: any[] = [];
 let customs: any[] = [];
+let premiumAddOns: any[] = [];
+let optionalAddOns: any[] = [];
 let variationOptions: any[] = [];
 let plainDescription: string = '';
 let seoTitle: string = 'Product';
@@ -687,6 +689,18 @@ try {
           };
         })
     : [];
+  const premiumAddOnCandidates = addOns.filter((addon: any) => {
+    const normalizedGroup = String(addon?.group || '').toLowerCase();
+    const normalizedKey = String(addon?.key || '').toLowerCase();
+    return (
+      normalizedGroup.includes('premium') ||
+      normalizedGroup.includes('elite') ||
+      normalizedKey.includes('premium')
+    );
+  });
+  const premiumAddOnKeys = new Set(premiumAddOnCandidates.map((addon: any) => addon.key));
+  premiumAddOns = premiumAddOnCandidates;
+  optionalAddOns = addOns.filter((addon: any) => !premiumAddOnKeys.has(addon.key));
   customs = Array.isArray(customs) ? customs.filter(Boolean) : [];
   // Map Sanity customPaint object -> a custom text input with optional surcharge
   const cp = (product as any).customPaint;
@@ -1258,15 +1272,15 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
     )}
   </Fragment>
   <div {...inlineObjectId((product as any)._id)}>
-  <div class="container mx-auto px-10 py-10 text-white" style="padding-top: 80px;">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+  <div class="container mx-auto px-4 sm:px-8 lg:px-10 pb-10 pt-16 text-white">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
       <!-- LEFT: Sticky Image on desktop -->
       <div class="md:sticky md:top-28 flex justify-center items-start z-0 min-w-0" {...inlineFieldAttrs('images')}>
         <SlugCarousel images={productImages} useOptimizedImages={useOptimizedImages} />
       </div>
 
       <!-- RIGHT: Title, price, short intro, add-to-cart, then accordion -->
-      <div class="relative z-10 min-w-0 break-words text-sm">
+      <div class="relative z-10 min-w-0 break-words text-base">
         <h1 class="text-3xl font-ethno mb-2" {...headingInlineAttrs}>{productHeading}</h1>
         {productSubheading && (
           <p class="text-xs uppercase tracking-[0.5em] text-white/60 mb-4">
@@ -1277,6 +1291,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
          font-mono mb-4" {...inlineFieldAttrs('price')}>
           {typeof priceValue === 'number' ? `$${priceValue.toFixed(2)}` : 'Price not available'}
         </h2>
+
 
         {(serviceDisclaimer || isContentDescriptor(importantNotesDescriptor)) && (
           <div class="mb-4">
@@ -1290,28 +1305,39 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
         )}
 
         <!-- Short intro (truncated) -->
-        <div class="break-words" {...inlineFieldAttrs('shortDescription')}>
+        <div class="break-words bg-black/30 p-4" {...inlineFieldAttrs('shortDescription')}>
           <PortableTextRenderer value={product?.shortDescription ?? []} />
         </div>
 
-        <form id="product-options" class="mb-6 space-y-4">
+        <form id="product-options" class="mb-6 space-y-6 rounded-2xl border border-white/10 bg-black/20 p-4 sm:p-6">
             {/* Variant Options (radio/select) */}
             {Array.isArray(options) && options.length > 0 && options.filter(Boolean).map((group: any) => {
               const groupKey = (group?.key || group?.name || group?.title || 'option').toString();
               const groupLabel = (group?.title || group?.name || 'Option').toString();
               const values = Array.isArray(group?.values) ? group.values : (Array.isArray(group?.items) ? group.items : []);
+              const helperId = `${groupKey}-helper`;
               return (
-                <div class="py-4 px-4">
-                  <div class="text-sm font-semibold text-white py-4">{groupLabel}</div>
+                <fieldset class="rounded-2xl border border-white/15 bg-black/10 p-4 sm:p-5" aria-labelledby={`${groupKey}-legend`}>
+                  <legend id={`${groupKey}-legend`} class="text-sm font-semibold uppercase tracking-wide text-white">
+                    {groupLabel}
+                  </legend>
+                  <p id={helperId} class="mt-1 text-xs text-white/60">
+                    Choose the configuration that matches your build.
+                  </p>
                   {/* Prefer select if many values, else radios */}
                   {values.length > 4 ? (
-                    <div class="relative">
+                    <div class="relative mt-4">
+                      <label for={`${groupKey}-select`} class="sr-only">
+                        {groupLabel}
+                      </label>
                       <select
-                        class="w-full border border-white/20 bg-black rounded-full shadow-card-outer shadow-inner shadow-sm shadow-primary/30 pl-4 pr-12 py-2 appearance-none"
+                        id={`${groupKey}-select`}
+                        class="w-full rounded-xl border border-white/20 bg-black/70 pl-4 pr-12 py-3 appearance-none text-sm text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
                         name={groupKey}
                         data-group={groupKey}
                         required
                         aria-required="true"
+                        aria-describedby={helperId}
                       >
                         <option value="" disabled selected data-placeholder="true">
                           {`Select ${groupLabel}`}
@@ -1343,48 +1369,53 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                       </span>
                     </div>
                   ) : (
-                    <fieldset class="mt-4">
-                      <div class="flex flex-wrap items-center gap-6">
-                        {values.map((v: any, i: number) => {
-                          const val = typeof v === 'string' ? v : (v?.value || v?.name || v?.title || v?.label || '').toString();
-                          const label = typeof v === 'string' ? v : (v?.label || v?.title || v?.name || v?.value || 'Choice');
-                          const price = typeof v === 'object'
-                            ? (typeof v?.priceDelta === 'number'
-                                ? v.priceDelta
-                                : (typeof v?.delta === 'number' ? v.delta : (typeof v?.price === 'number' ? v.price : 0)))
-                            : 0;
-                          const inputId = `${groupKey}-${i}`;
-                          return (
-                            <div class="flex items-center">
-                              <input
-                                type="radio"
-                                name={groupKey}
-                                value={val}
-                                data-group={groupKey}
-                                data-price={price}
-                                data-label={label}
-                                required={i === 0}
-                                id={inputId}
-                                class="relative h-4 w-4 appearance-none rounded-full border border-white/15 bg-white/5 before:absolute before:inset-1 before:rounded-full before:bg-primary before:opacity-0 before:transition checked:border-primary checked:bg-primary checked:before:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                              />
-                              <label for={inputId} class="ml-3 flex flex-col text-sm font-medium text-white cursor-pointer">
-                                <span class="leading-snug">{label}</span>
-                                <span class="text-xs font-semibold text-white/60">
-                                  {price ? `+$${Number(price).toFixed(2)}` : ''}
-                                </span>
-                              </label>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </fieldset>
+                    <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                      {values.map((v: any, i: number) => {
+                        const val = typeof v === 'string' ? v : (v?.value || v?.name || v?.title || v?.label || '').toString();
+                        const label = typeof v === 'string' ? v : (v?.label || v?.title || v?.name || v?.value || 'Choice');
+                        const price = typeof v === 'object'
+                          ? (typeof v?.priceDelta === 'number'
+                              ? v.priceDelta
+                              : (typeof v?.delta === 'number' ? v.delta : (typeof v?.price === 'number' ? v.price : 0)))
+                          : 0;
+                        const inputId = `${groupKey}-${i}`;
+                        return (
+                          <label
+                            class="relative flex min-h-[48px] cursor-pointer items-center gap-3 rounded-xl border border-white/15 bg-black/40 px-4 py-3 shadow-inner transition hover:border-white/40 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/40"
+                            for={inputId}
+                          >
+                            <input
+                              type="radio"
+                              name={groupKey}
+                              value={val}
+                              data-group={groupKey}
+                              data-price={price}
+                              data-label={label}
+                              required={i === 0}
+                              id={inputId}
+                              class="sr-only peer"
+                              aria-describedby={helperId}
+                            />
+                            <span class="flex h-5 w-5 items-center justify-center rounded-full border border-white/40 bg-black/60 text-xs text-white/80 transition peer-checked:border-primary peer-checked:bg-primary">
+                              <span class="sr-only">{`Select ${label}`}</span>
+                            </span>
+                            <span class="flex flex-col text-sm font-medium leading-snug text-white">
+                              {label}
+                              <span class="text-xs font-semibold text-white/60">
+                                {price ? `+$${Number(price).toFixed(2)}` : ''}
+                              </span>
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
                   )}
-                </div>
+                </fieldset>
               );
             })}
 
             {isContentDescriptor(descriptionDescriptor) && (
-          <details class="group mt-4 rounded-xl border shadow-card-outer shadow-primary/30 border-white/10 text-white/90 shadow-inner shadow-sm" >
+          <details class="group mt-4 rounded-xl border shadow-card-outer shadow-white/20 border-primaryB/30 text-white/90 shadow-inner shadow-md" >
             <summary class="flex cursor-pointer select-none items-center justify-between rounded-t-xl bg-black/40 px-4 py-3 font-ethno text-base md:text-lg">
               <span>Product Details</span>
               <span class="transition-transform group-open:rotate-180">▾</span>
@@ -1400,56 +1431,168 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
         )}
 
             {/* Add-ons (checkbox) */}
-            {Array.isArray(addOns) && addOns.length > 0 && (
-              <div class="p-3">
-                <div class="font-semibold mb-2">Upgrades</div>
-                <div class="grid grid-auto-fit-220 gap-2">
-                  {addOns.map((a: any) => (
-                    <label class="relative flex items-center gap-3 rounded-md border border-white/30 shadow shadow-md shadow-white/10 bg-black/40 px-3 py-2 text-white transition hover:border-white/50 hover:bg-black/55 focus-within:border-white/70 focus-within:ring-1 focus-within:ring-white/40 cursor-pointer content-block">
-                      <input type="checkbox"
-                        name={(a.key || 'upgrade').toString()}
-                        value={(a.value || a.label || '').toString()}
-                        data-group={(a.group || 'upgrade').toString()}
-                        data-price={(typeof a.priceDelta === 'number' ? a.priceDelta : 0).toString()}
-                        data-label={a.label}
-                        checked={!!a.defaultSelected}
-                        class="h-4 w-4 flex-shrink-0 accent-primary bg-black focus:ring-0"
-                      />
-                      <span class="flex-1 text-sm font-medium leading-snug text-white break-words">{a.label}</span>
-                      <span class="ml-3 text-xs font-semibold text-white/70">
-                        {typeof a.priceDelta === 'number' && a.priceDelta !== 0
-                          ? `+$${Number(a.priceDelta).toFixed(2)}`
-                          : ''}
-                      </span>
-                    </label>
-                  ))}
-                </div>
+            {(optionalAddOns.length > 0 || premiumAddOns.length > 0) && (
+              <div class="space-y-6">
+                {optionalAddOns.length > 0 && (
+                  <section class="p-4 sm:p-5">
+                    <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                      <h3 class="text-base font-semibold uppercase tracking-wide text-white">Optional Upgrades</h3>
+                    </div>
+                    <fieldset class="mt-4 space-y-5">
+                      <legend class="sr-only">Optional Upgrades</legend>
+                      {optionalAddOns.map((a: any, index: number) => {
+                        const inputId = `addon-${a.key}-${index}`;
+                        const descriptionId = `${inputId}-description`;
+                        const priceText =
+                          typeof a.priceDelta === 'number' && a.priceDelta !== 0
+                            ? `+$${Number(a.priceDelta).toFixed(2)}`
+                            : 'Included';
+                        return (
+                          <div class="flex items-start gap-3">
+                            <div class="flex h-6 shrink-0 items-center">
+                              <div class="grid size-5 grid-cols-1">
+                                <input
+                                  type="checkbox"
+                                  id={inputId}
+                                  name={(a.key || 'upgrade').toString()}
+                                  value={(a.value || a.label || '').toString()}
+                                  data-group={(a.group || 'upgrade').toString()}
+                                  data-price={(typeof a.priceDelta === 'number' ? a.priceDelta : 0).toString()}
+                                  data-label={a.label}
+                                  checked={!!a.defaultSelected}
+                                  aria-describedby={descriptionId}
+                                  class="peer col-start-1 row-start-1 size-4 appearance-none rounded-sm border border-white/15 bg-white/5 checked:border-primary checked:bg-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                                  style="appearance:none;-webkit-appearance:none"
+                                />
+                                <svg
+                                  fill="none"
+                                  viewBox="0 0 14 14"
+                                  class="pointer-events-none col-start-1 row-start-1 size-3.5 self-center justify-self-center stroke-white opacity-0 transition-opacity peer-checked:opacity-100"
+                                >
+                                  <path
+                                    d="M3 8L6 11L11 3.5"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  />
+                                </svg>
+                              </div>
+                            </div>
+                            <label for={inputId} class="text-sm leading-6 text-white">
+                              <span class="font-semibold text-white">{a.label}</span>
+                              <span id={descriptionId} class="ml-2 text-white/60">
+                                {priceText}
+                              </span>
+                            </label>
+                          </div>
+                        );
+                      })}
+                    </fieldset>
+                  </section>
+                )}
+                {premiumAddOns.length > 0 && (
+                  <section class="rounded-2xl border border-amber-400/30 bg-[#1b1205] p-4 sm:p-5">
+                    <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                      <h3 class="text-base font-semibold uppercase tracking-wide text-amber-200">Premium Add-ons</h3>
+                      <p class="text-xs text-amber-200/70">Premium selections are highlighted in gold.</p>
+                    </div>
+                    <fieldset class="mt-4 space-y-5">
+                      <legend class="sr-only">Premium Add-ons</legend>
+                      {premiumAddOns.map((a: any, index: number) => {
+                        const inputId = `premium-addon-${a.key}-${index}`;
+                        const descriptionId = `${inputId}-description`;
+                        const priceText =
+                          typeof a.priceDelta === 'number' && a.priceDelta !== 0
+                            ? `+$${Number(a.priceDelta).toFixed(2)}`
+                            : 'Included';
+                        return (
+                          <div class="flex items-start gap-3">
+                            <div class="flex h-6 shrink-0 items-center">
+                              <div class="grid size-5 grid-cols-1">
+                                <input
+                                  type="checkbox"
+                                  id={inputId}
+                                  name={(a.key || 'upgrade').toString()}
+                                  value={(a.value || a.label || '').toString()}
+                                  data-group={(a.group || 'upgrade').toString()}
+                                  data-price={(typeof a.priceDelta === 'number' ? a.priceDelta : 0).toString()}
+                                  data-label={a.label}
+                                  checked={!!a.defaultSelected}
+                                  aria-describedby={descriptionId}
+                                  class="peer col-start-1 row-start-1 size-4 appearance-none rounded-sm border border-amber-200/40 bg-transparent checked:border-amber-400 checked:bg-amber-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300"
+                                  style="appearance:none;-webkit-appearance:none"
+                                />
+                                <svg
+                                  fill="none"
+                                  viewBox="0 0 14 14"
+                                  class="pointer-events-none col-start-1 row-start-1 size-3.5 self-center justify-self-center stroke-black opacity-0 transition-opacity peer-checked:opacity-100"
+                                >
+                                  <path
+                                    d="M3 8L6 11L11 3.5"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  />
+                                </svg>
+                              </div>
+                            </div>
+                            <label for={inputId} class="text-sm leading-6 text-white">
+                              <span class="font-semibold text-white">{a.label}</span>
+                              <span id={descriptionId} class="ml-2 text-amber-200/80">
+                                {priceText}
+                              </span>
+                            </label>
+                          </div>
+                        );
+                      })}
+                    </fieldset>
+                  </section>
+                )}
               </div>
             )}
 
             {/* Custom fields (e.g., paint code with fixed surcharge) */}
-            {Array.isArray(customs) && customs.length > 0 && customs.map((c: any) => (
-              <div class="bg-black/20 rounded-none p-3 border border-white/20">
-                <div class="font-semibold mb-2">{c.label || c.title || 'Custom Option'}</div>
-                <input
-                  type={c.type === 'number' ? 'number' : 'text'}
-                  name={(c.key || c.name || 'custom').toString()}
-                  placeholder={(c.placeholder || '').toString()}
-                  class="w-full bg-black/30 border border-white/20 rounded px-2 py-2"
-                  data-group={(c.group || 'custom').toString()}
-                  data-price={(typeof c.priceDelta === 'number' ? c.priceDelta : (typeof c.price === 'number' ? c.price : (typeof c.delta === 'number' ? c.delta : 0))).toString()}
-                  required={!!c.required}
-                />
-                {c.instructions && (
-                  <div class="mt-1 text-xs opacity-80">{String(c.instructions)}</div>
-                )}
-                {(typeof c.priceDelta === 'number' || typeof c.price === 'number' || typeof c.delta === 'number') && (
-                  <div class="mt-1 text-xs opacity-70">Surcharge: +${Number(c.priceDelta ?? c.price ?? c.delta ?? 0).toFixed(2)}</div>
-                )}
-              </div>
-            ))}  
+            {Array.isArray(customs) && customs.length > 0 && customs.map((c: any, index: number) => {
+              const label = c.label || c.title || 'Custom Option';
+              const fieldId = `custom-field-${String(c.key || c.name || index)}`;
+              const isPaintCodeField = String(c?.key || c?.name || '').toLowerCase().includes('paint');
+              const helperId = `${fieldId}-helper`;
+              const helperMessages: string[] = [];
+              if (isPaintCodeField) helperMessages.push('Find your paint code on the driver door jamb.');
+              if (c.instructions) helperMessages.push(String(c.instructions));
+              const placeholderText = isPaintCodeField
+                ? (c.placeholder || 'Example: PX8 (Gloss Black)')
+                : (c.placeholder || '');
+              return (
+                <div class="rounded-2xl border border-white/15 bg-black/20 p-4 sm:p-5">
+                  <label for={fieldId} class="mb-2 block text-sm font-semibold uppercase tracking-wide text-white">
+                    {label}
+                  </label>
+                  <input
+                    id={fieldId}
+                    type={c.type === 'number' ? 'number' : 'text'}
+                    name={(c.key || c.name || 'custom').toString()}
+                    placeholder={placeholderText.toString()}
+                    class="w-full rounded-xl border border-white/20 bg-black/60 px-4 py-3 text-sm text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+                    data-group={(c.group || 'custom').toString()}
+                    data-price={(typeof c.priceDelta === 'number' ? c.priceDelta : (typeof c.price === 'number' ? c.price : (typeof c.delta === 'number' ? c.delta : 0))).toString()}
+                    required={!!c.required}
+                    aria-describedby={helperMessages.length > 0 ? helperId : undefined}
+                  />
+                  {helperMessages.length > 0 && (
+                    <div id={helperId} class="mt-2 text-xs text-white/70 space-y-1">
+                      {helperMessages.map((msg, helperIndex) => (
+                        <p>{msg}</p>
+                      ))}
+                    </div>
+                  )}
+                  {(typeof c.priceDelta === 'number' || typeof c.price === 'number' || typeof c.delta === 'number') && (
+                    <div class="mt-2 text-xs text-white/70">Surcharge: +${Number(c.priceDelta ?? c.price ?? c.delta ?? 0).toFixed(2)}</div>
+                  )}
+                </div>
+              );
+            })}  
 
-            {/* Live price & Add to Cart */}
             <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div class="flex flex-1 items-center justify-items-end bg-black/20 px-3 py-3">
                 <span class="text-sm opacity-80 px-6">Configured Price</span>
@@ -1643,50 +1786,58 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
       </div>
     </div>
 
-    <section class="mt-6 w-3/4 mx-auto px-15">
-      <InfoTabs
-        client:load
-        kitItems={includedInKitItems}
-        keyFeatures={(product as any)?.keyFeatures}
-        specifications={(product as any)?.specifications}
-        attributes={(product as any)?.attributes}
-      />
+    <section class="mt-12 w-full md:w-3/4 mx-auto px-4 sm:px-8">
+      <div class="rounded-3xl border border-white/10 bg-black/20 p-4 sm:p-8">
+        <InfoTabs
+          client:load
+          kitItems={includedInKitItems}
+          keyFeatures={(product as any)?.keyFeatures}
+          specifications={(product as any)?.specifications}
+          attributes={(product as any)?.attributes}
+        />
+      </div>
     </section>
 
     <!-- Related Products -->
 {Array.isArray(relatedProducts) && relatedProducts.length > 0 && (
-  <div class="mt-16 mx-auto px-20 mb-10">
+  <div class="mt-16 mx-auto mb-10 w-full px-4 sm:px-8 lg:px-20">
     <h2 class="text-2xl text-accent font-ethno mb-6">Related Products</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {(relatedProducts || [])
-        .filter((p: any) => p && p.slug && (p.slug.current || typeof p.slug === 'string'))
-        .map((p: any) => {
-          const s = (p.slug && (p.slug.current || p.slug)) as string;
-          if (!s) return null;
+        .filter((p: any) => p && (p.slug?.current || typeof p.slug === 'string' || p._id))
+        .map((p: any, index: number) => {
+          const slugValue = (p.slug && (p.slug.current || p.slug)) as string | undefined;
           const img = p?.images?.[0]?.asset?.url || '/logo/faslogochroma.webp';
-          const alt = p?.images?.[0]?.alt || p?.title || 'Product image';
+          const alt = collapseSpaces(p?.images?.[0]?.alt || p?.title || 'Product image');
+          const normalizedTitle = collapseSpaces(p?.title || 'Untitled product');
           const price =
-            typeof p?.price === 'number' ? `$${p.price.toFixed(2)}` : '';
-          return (
+            typeof p?.price === 'number' ? `$${p.price.toFixed(2)}` : 'Contact for pricing';
+          const key = slugValue || p?._id || `related-${index}`;
+          const CardTag = slugValue ? 'a' : 'div';
+          const cardClasses =
+            'group relative flex h-full flex-col rounded-2xl border border-white/10 bg-black/30 p-4 shadow-inner transition hover:border-primary/70 hover:shadow-lg';
+          const titleClasses = 'text-base font-semibold text-white clamp-2';
+          const priceClasses = 'mt-2 text-sm font-semibold text-accent';
+          const content = (
             <>
-              {p.slug?.current ? (
-                <a href={`/shop/${p.slug.current}`} class="block bg-black/10 rounded-lg shadow-md hover:shadow-lg transition p-4">
-                  <div class="w-full aspect-square bg-black/20 rounded-md mb-4 overflow-hidden grid place-items-center">
-                    <img src={img} alt={alt} class="max-w-full max-h-full object-contain" />
-                  </div>
-                  <h3 class="text-lg font-semibold">{p?.title || 'Untitled product'}</h3>
-                  <p class="text-primary font-bold">{price}</p>
-                </a>
-              ) : (
-                <span class="block bg-black/10 rounded-lg shadow-md transition p-4">
-                  <div class="w-full aspect-square bg-black/20 rounded-md mb-4 overflow-hidden grid place-items-center">
-                    <img src={img} alt={alt} class="max-w-full max-h-full object-contain" />
-                  </div>
-                  <h3 class="text-lg font-semibold">{p?.title || 'Untitled product'}</h3>
-                  <p class="text-primary font-bold">{price}</p>
-                </span>
-              )}
+              <div class="relative mb-4 aspect-square w-full overflow-hidden rounded-xl bg-black/40">
+                <img src={img} alt={alt} class="h-full w-full object-contain p-4" loading="lazy" decoding="async" />
+                <p class="sr-only">{`Related product image for ${normalizedTitle}`}</p>
+              </div>
+              <h3 class={titleClasses} title={normalizedTitle}>
+                {normalizedTitle}
+              </h3>
+              <p class={priceClasses}>{price}</p>
             </>
+          );
+          return CardTag === 'a' ? (
+            <a data-key={String(key)} href={`/shop/${slugValue}`} class={cardClasses}>
+              {content}
+            </a>
+          ) : (
+            <div data-key={String(key)} class={cardClasses}>
+              {content}
+            </div>
           );
         })}
     </div>
