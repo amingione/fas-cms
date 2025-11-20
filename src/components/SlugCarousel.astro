@@ -39,7 +39,13 @@ const processedImages = normalizedImages.map((image) => {
   };
 });
 
-const shouldHydrate = processedImages.length > 1;
+const dedupedImages = processedImages.filter((image, index, arr) => {
+  if (!image?.originalUrl) return true;
+  return index === arr.findIndex((candidate) => candidate?.originalUrl === image.originalUrl);
+});
+const slides = dedupedImages;
+
+const shouldHydrate = slides.length > 1;
 const carouselScript = shouldHydrate ? carouselScriptUrl : null;
 ---
 
@@ -51,7 +57,7 @@ const carouselScript = shouldHydrate ? carouselScriptUrl : null;
   >
     <div class="flex w-full h-full min-w-0" data-track>
       {
-        processedImages.map((img, i) => (
+        slides.map((img, i) => (
           <div
             class="flex-shrink-0 relative w-full h-full snap-start flex items-center justify-center"
             data-slide={i}
@@ -67,6 +73,7 @@ const carouselScript = shouldHydrate ? carouselScriptUrl : null;
               decoding="async"
               class="object-contain w-full h-full p-4"
             />
+            <span class="sr-only">{`Slide ${i + 1} of ${slides.length}: ${img.alt || 'Product image'}`}</span>
           </div>
         ))
       }
@@ -94,27 +101,29 @@ const carouselScript = shouldHydrate ? carouselScriptUrl : null;
   <!-- Thumbnails -->
   <div class="mt-3 flex gap-2 overflow-x-auto" data-carousel-thumbnails>
     {
-      processedImages.map((img, i) => (
+      slides.map((img, i) => (
         <button
           type="button"
           data-index={i}
-          class="h-16 w-16 md:h-20 md:w-20 bg-black/30 rounded cursor-pointer opacity-80 hover:opacity-100 border border-white/20 flex-shrink-0 overflow-hidden p-1 appearance-none"
+          class="h-16 w-16 md:h-20 md:w-20 bg-black/30 rounded cursor-pointer opacity-80 hover:opacity-100 border border-white/20 flex-shrink-0 p-1 appearance-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           aria-label={`View product image ${i + 1}`}
           data-carousel-thumb
         >
-          <img
-            src={
-              useOptimizedImages
-                ? img.thumbnailUrl || img.webpUrl || img.originalUrl
-                : img.originalUrl || img.webpUrl || img.thumbnailUrl
-            }
-            alt={img.alt || ''}
-            width={img.thumbWidth}
-            height={img.thumbHeight}
-            loading="lazy"
-            decoding="async"
-            class="h-full w-full object-contain"
-          />
+          <span class="block h-full w-full overflow-hidden rounded-md">
+            <img
+              src={
+                useOptimizedImages
+                  ? img.thumbnailUrl || img.webpUrl || img.originalUrl
+                  : img.originalUrl || img.webpUrl || img.thumbnailUrl
+              }
+              alt={img.alt || ''}
+              width={img.thumbWidth}
+              height={img.thumbHeight}
+              loading="lazy"
+              decoding="async"
+              class="h-full w-full object-contain"
+            />
+          </span>
         </button>
       ))
     }

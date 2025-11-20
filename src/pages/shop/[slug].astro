@@ -13,6 +13,7 @@ import SlugCarousel from '@/components/SlugCarousel.astro';
 import { inlineFieldAttrs, inlineObjectId } from '@lib/content.ts';
 import ServiceDisclaimerNotice from '@/components/storefront/ServiceDisclaimerNotice.tsx';
 import InfoTabs from '@/components/shop/InfoTabs';
+import ProductCardLite from '@/components/storefront/ProductCardLite.astro';
 import productPageScriptUrl from '../../scripts/product-page.js?url';
 
 export type KitItem = { item: string; quantity?: number };
@@ -565,7 +566,6 @@ let upsellProducts: Product[] = [];
 let options: any[] = [];
 let addOns: any[] = [];
 let customs: any[] = [];
-let premiumAddOns: any[] = [];
 let optionalAddOns: any[] = [];
 let variationOptions: any[] = [];
 let plainDescription: string = '';
@@ -689,18 +689,7 @@ try {
           };
         })
     : [];
-  const premiumAddOnCandidates = addOns.filter((addon: any) => {
-    const normalizedGroup = String(addon?.group || '').toLowerCase();
-    const normalizedKey = String(addon?.key || '').toLowerCase();
-    return (
-      normalizedGroup.includes('premium') ||
-      normalizedGroup.includes('elite') ||
-      normalizedKey.includes('premium')
-    );
-  });
-  const premiumAddOnKeys = new Set(premiumAddOnCandidates.map((addon: any) => addon.key));
-  premiumAddOns = premiumAddOnCandidates;
-  optionalAddOns = addOns.filter((addon: any) => !premiumAddOnKeys.has(addon.key));
+  optionalAddOns = addOns;
   customs = Array.isArray(customs) ? customs.filter(Boolean) : [];
   // Map Sanity customPaint object -> a custom text input with optional surcharge
   const cp = (product as any).customPaint;
@@ -1431,14 +1420,13 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
         )}
 
             {/* Add-ons (checkbox) */}
-            {(optionalAddOns.length > 0 || premiumAddOns.length > 0) && (
+            {optionalAddOns.length > 0 && (
               <div class="space-y-6">
-                {optionalAddOns.length > 0 && (
                   <section class="p-4 sm:p-5">
                     <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                       <h3 class="text-base font-semibold uppercase tracking-wide text-white">Optional Upgrades</h3>
                     </div>
-                    <fieldset class="mt-4 space-y-5">
+                    <fieldset class="mt-4 space-y-4">
                       <legend class="sr-only">Optional Upgrades</legend>
                       {optionalAddOns.map((a: any, index: number) => {
                         const inputId = `addon-${a.key}-${index}`;
@@ -1448,106 +1436,37 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                             ? `+$${Number(a.priceDelta).toFixed(2)}`
                             : 'Included';
                         return (
-                          <div class="flex items-start gap-3">
-                            <div class="flex h-6 shrink-0 items-center">
-                              <div class="grid size-5 grid-cols-1">
-                                <input
-                                  type="checkbox"
-                                  id={inputId}
-                                  name={(a.key || 'upgrade').toString()}
-                                  value={(a.value || a.label || '').toString()}
-                                  data-group={(a.group || 'upgrade').toString()}
-                                  data-price={(typeof a.priceDelta === 'number' ? a.priceDelta : 0).toString()}
-                                  data-label={a.label}
-                                  checked={!!a.defaultSelected}
-                                  aria-describedby={descriptionId}
-                                  class="peer col-start-1 row-start-1 size-4 appearance-none rounded-sm border border-white/15 bg-white/5 checked:border-primary checked:bg-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                                  style="appearance:none;-webkit-appearance:none"
-                                />
-                                <svg
-                                  fill="none"
-                                  viewBox="0 0 14 14"
-                                  class="pointer-events-none col-start-1 row-start-1 size-3.5 self-center justify-self-center stroke-white opacity-0 transition-opacity peer-checked:opacity-100"
-                                >
-                                  <path
-                                    d="M3 8L6 11L11 3.5"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
+                          <label for={inputId} class="flex items-center gap-3 text-sm leading-6 text-white">
+                            <span class="flex h-6 w-6 items-center justify-center">
+                              <input
+                                type="checkbox"
+                                id={inputId}
+                                name={(a.key || 'upgrade').toString()}
+                                value={(a.value || a.label || '').toString()}
+                                data-group={(a.group || 'upgrade').toString()}
+                                data-price={(typeof a.priceDelta === 'number' ? a.priceDelta : 0).toString()}
+                                data-label={a.label}
+                                checked={!!a.defaultSelected}
+                                aria-describedby={descriptionId}
+                                class="sr-only peer"
+                              />
+                              <span class="grid size-5 place-items-center rounded-sm border border-white/20 bg-white/5 text-white transition peer-checked:border-primary peer-checked:bg-primary [&>svg]:opacity-0 peer-checked:[&>svg]:opacity-100">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 14 14" class="h-3 w-3">
+                                  <path d="M3 8L6 11L11 3.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
-                              </div>
-                            </div>
-                            <label for={inputId} class="text-sm leading-6 text-white">
-                              <span class="font-semibold text-white">{a.label}</span>
-                              <span id={descriptionId} class="ml-2 text-white/60">
+                              </span>
+                            </span>
+                            <span class="flex flex-wrap items-center gap-1">
+                              <span class="font-semibold">{a.label}</span>
+                              <span id={descriptionId} class="text-white/60">
                                 {priceText}
                               </span>
-                            </label>
-                          </div>
+                            </span>
+                          </label>
                         );
                       })}
                     </fieldset>
                   </section>
-                )}
-                {premiumAddOns.length > 0 && (
-                  <section class="rounded-2xl border border-amber-400/30 bg-[#1b1205] p-4 sm:p-5">
-                    <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                      <h3 class="text-base font-semibold uppercase tracking-wide text-amber-200">Premium Add-ons</h3>
-                      <p class="text-xs text-amber-200/70">Premium selections are highlighted in gold.</p>
-                    </div>
-                    <fieldset class="mt-4 space-y-5">
-                      <legend class="sr-only">Premium Add-ons</legend>
-                      {premiumAddOns.map((a: any, index: number) => {
-                        const inputId = `premium-addon-${a.key}-${index}`;
-                        const descriptionId = `${inputId}-description`;
-                        const priceText =
-                          typeof a.priceDelta === 'number' && a.priceDelta !== 0
-                            ? `+$${Number(a.priceDelta).toFixed(2)}`
-                            : 'Included';
-                        return (
-                          <div class="flex items-start gap-3">
-                            <div class="flex h-6 shrink-0 items-center">
-                              <div class="grid size-5 grid-cols-1">
-                                <input
-                                  type="checkbox"
-                                  id={inputId}
-                                  name={(a.key || 'upgrade').toString()}
-                                  value={(a.value || a.label || '').toString()}
-                                  data-group={(a.group || 'upgrade').toString()}
-                                  data-price={(typeof a.priceDelta === 'number' ? a.priceDelta : 0).toString()}
-                                  data-label={a.label}
-                                  checked={!!a.defaultSelected}
-                                  aria-describedby={descriptionId}
-                                  class="peer col-start-1 row-start-1 size-4 appearance-none rounded-sm border border-amber-200/40 bg-transparent checked:border-amber-400 checked:bg-amber-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-300"
-                                  style="appearance:none;-webkit-appearance:none"
-                                />
-                                <svg
-                                  fill="none"
-                                  viewBox="0 0 14 14"
-                                  class="pointer-events-none col-start-1 row-start-1 size-3.5 self-center justify-self-center stroke-black opacity-0 transition-opacity peer-checked:opacity-100"
-                                >
-                                  <path
-                                    d="M3 8L6 11L11 3.5"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                  />
-                                </svg>
-                              </div>
-                            </div>
-                            <label for={inputId} class="text-sm leading-6 text-white">
-                              <span class="font-semibold text-white">{a.label}</span>
-                              <span id={descriptionId} class="ml-2 text-amber-200/80">
-                                {priceText}
-                              </span>
-                            </label>
-                          </div>
-                        );
-                      })}
-                    </fieldset>
-                  </section>
-                )}
               </div>
             )}
 
@@ -1558,11 +1477,12 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
               const isPaintCodeField = String(c?.key || c?.name || '').toLowerCase().includes('paint');
               const helperId = `${fieldId}-helper`;
               const helperMessages: string[] = [];
-              if (isPaintCodeField) helperMessages.push('Find your paint code on the driver door jamb.');
+                if (isPaintCodeField) helperMessages.push('Enter your preferred paint code or color reference.');
               if (c.instructions) helperMessages.push(String(c.instructions));
               const placeholderText = isPaintCodeField
-                ? (c.placeholder || 'Example: PX8 (Gloss Black)')
+                ? (c.placeholder || 'Example: LY7C (Nardo Gray)')
                 : (c.placeholder || '');
+              const surchargeAmount = Number(c.priceDelta ?? c.price ?? c.delta ?? 0);
               return (
                 <div class="rounded-2xl border border-white/15 bg-black/20 p-4 sm:p-5">
                   <label for={fieldId} class="mb-2 block text-sm font-semibold uppercase tracking-wide text-white">
@@ -1586,8 +1506,8 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                       ))}
                     </div>
                   )}
-                  {(typeof c.priceDelta === 'number' || typeof c.price === 'number' || typeof c.delta === 'number') && (
-                    <div class="mt-2 text-xs text-white/70">Surcharge: +${Number(c.priceDelta ?? c.price ?? c.delta ?? 0).toFixed(2)}</div>
+                  {surchargeAmount > 0 && (
+                    <div class="mt-2 text-xs text-white/70">Surcharge: +${surchargeAmount.toFixed(2)}</div>
                   )}
                 </div>
               );
@@ -1595,7 +1515,6 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
 
             <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div class="flex flex-1 items-center justify-items-end bg-black/20 px-3 py-3">
-                <span class="text-sm opacity-80 px-6">Configured Price</span>
                 <span id="price-total" class="text-lg font-bold">
                   $ {(typeof (product as any).price === 'number' ? (product as any).price.toFixed(2) : '0.00')}
                 </span>
@@ -1800,88 +1719,26 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
 
     <!-- Related Products -->
 {Array.isArray(relatedProducts) && relatedProducts.length > 0 && (
-  <div class="mt-16 mx-auto mb-10 w-full px-4 sm:px-8 lg:px-20">
+  <section class="mt-16 mx-auto mb-10 w-full px-4 sm:px-8 lg:px-20">
     <h2 class="text-2xl text-accent font-ethno mb-6">Related Products</h2>
-    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      {(relatedProducts || [])
-        .filter((p: any) => p && (p.slug?.current || typeof p.slug === 'string' || p._id))
-        .map((p: any, index: number) => {
-          const slugValue = (p.slug && (p.slug.current || p.slug)) as string | undefined;
-          const img = p?.images?.[0]?.asset?.url || '/logo/faslogochroma.webp';
-          const alt = collapseSpaces(p?.images?.[0]?.alt || p?.title || 'Product image');
-          const normalizedTitle = collapseSpaces(p?.title || 'Untitled product');
-          const price =
-            typeof p?.price === 'number' ? `$${p.price.toFixed(2)}` : 'Contact for pricing';
-          const key = slugValue || p?._id || `related-${index}`;
-          const CardTag = slugValue ? 'a' : 'div';
-          const cardClasses =
-            'group relative flex h-full flex-col rounded-2xl border border-white/10 bg-black/30 p-4 shadow-inner transition hover:border-primary/70 hover:shadow-lg';
-          const titleClasses = 'text-base font-semibold text-white clamp-2';
-          const priceClasses = 'mt-2 text-sm font-semibold text-accent';
-          const content = (
-            <>
-              <div class="relative mb-4 aspect-square w-full overflow-hidden rounded-xl bg-black/40">
-                <img src={img} alt={alt} class="h-full w-full object-contain p-4" loading="lazy" decoding="async" />
-                <p class="sr-only">{`Related product image for ${normalizedTitle}`}</p>
-              </div>
-              <h3 class={titleClasses} title={normalizedTitle}>
-                {normalizedTitle}
-              </h3>
-              <p class={priceClasses}>{price}</p>
-            </>
-          );
-          return CardTag === 'a' ? (
-            <a data-key={String(key)} href={`/shop/${slugValue}`} class={cardClasses}>
-              {content}
-            </a>
-          ) : (
-            <div data-key={String(key)} class={cardClasses}>
-              {content}
-            </div>
-          );
-        })}
+    <div class="grid auto-rows-fr grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+      {(relatedProducts || []).filter(Boolean).map((p: any) => (
+        <ProductCardLite product={p} productImage={p?.images?.[0]} layout="grid" />
+      ))}
     </div>
-  </div>
+  </section>
 )}
 
 <!-- Recommended Upgrades / Upsell -->
 {Array.isArray(upsellProducts) && upsellProducts.length > 0 && (
-  <div class="hidden mt-12 mx-auto px-20">
+  <section class="mt-12 mx-auto w-full px-4 sm:px-8 lg:px-20">
     <h2 class="text-2xl text-accent font-ethno mb-6">Recommended Upgrades</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      {(upsellProducts || [])
-        .filter((p: any) => p && p.slug && (p.slug.current || typeof p.slug === 'string'))
-        .map((p: any) => {
-          const s = (p.slug && (p.slug.current || p.slug)) as string;
-          if (!s) return null;
-          const img = p?.images?.[0]?.asset?.url || '/logo/faslogochroma.webp';
-          const alt = p?.images?.[0]?.alt || p?.title || 'Product image';
-          const price =
-            typeof p?.price === 'number' ? `$${p.price.toFixed(2)}` : '';
-          return (
-            <>
-              {p.slug?.current ? (
-                <a href={`/shop/${p.slug.current}`} class="block bg-black/10 rounded-lg shadow-md hover:shadow-lg transition p-4">
-                  <div class="w-full aspect-square bg-black/20 rounded-md mb-4 overflow-hidden grid place-items-center">
-                    <img src={img} alt={alt} class="max-w-full max-h-full object-contain" />
-                  </div>
-                  <h3 class="text-lg font-semibold">{p?.title || 'Untitled product'}</h3>
-                  <p class="text-primary font-bold">{price}</p>
-                </a>
-              ) : (
-                <span class="block bg-black/10 rounded-lg shadow-md transition p-4">
-                  <div class="w-full aspect-square bg-black/20 rounded-md mb-4 overflow-hidden grid place-items-center">
-                    <img src={img} alt={alt} class="max-w-full max-h-full object-contain" />
-                  </div>
-                  <h3 class="text-lg font-semibold">{p?.title || 'Untitled product'}</h3>
-                  <p class="text-primary font-bold">{price}</p>
-                </span>
-              )}
-            </>
-          );
-        })}
+    <div class="grid auto-rows-fr grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+      {(upsellProducts || []).filter(Boolean).map((p: any) => (
+        <ProductCardLite product={p} productImage={p?.images?.[0]} layout="grid" />
+      ))}
     </div>
-  </div>
+  </section>
 )}
   </div>
   </div>

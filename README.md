@@ -72,3 +72,24 @@ yarn stripe:sync --dry-run            # Preview without making changes
 ```
 
 The script requires `STRIPE_SECRET_KEY`, `SANITY_PROJECT_ID`, `SANITY_DATASET`, and a Sanity write token (`SANITY_WRITE_TOKEN`). Successful sync writes `stripeProductId`, `stripePriceId`, and `stripeLastSyncedAt` into each product document.
+
+## ⚠️ Codex Safety Rules (Summary)
+
+Codex must treat all backend files, schemas, API routes, checkout/cart logic, and server-side code as _protected areas_.
+
+Codex may ONLY modify these protected areas if the task explicitly states that changes to backend logic, API routes, schemas, Sanity utilities, /lib files, or checkout/shipping/cart logic are required.
+
+Otherwise, Codex must assume:
+
+- API routes are off-limits
+- Sanity schemas are off-limits
+- /lib functionality is off-limits
+- Checkout and pricing logic are off-limits
+- Backend/server files are off-limits
+- Dynamic routing and slug generation are off-limits
+
+Default behavior:
+
+- Unless directly instructed, Codex should perform **UI-only changes** (markup, CSS, Tailwind classes, spacing, typography, z-index, accessibility, visual layout, non-functional adjustments).
+
+If a task requires deeper functional changes, the instruction will specify this clearly.

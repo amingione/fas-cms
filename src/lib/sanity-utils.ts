@@ -385,7 +385,9 @@ const clientOptions: Parameters<typeof createClient>[0] = {
   perspective
 };
 
-if (previewDraftsEnabled && apiToken) {
+// Always attach a token when available so private datasets work in production,
+// and still honor preview draft rendering when requested.
+if (apiToken) {
   clientOptions.token = apiToken;
 }
 

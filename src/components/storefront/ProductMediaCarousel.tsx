@@ -48,8 +48,8 @@ function getUrl(img: SanityImage): string {
 }
 
 function getAlt(img: SanityImage, fallbackIndex: number): string {
-  if (typeof img === 'string') return `Image ${fallbackIndex + 1}`;
-  return img?.alt || `Image ${fallbackIndex + 1}`;
+  if (typeof img === 'string') return `Product image ${fallbackIndex + 1}`;
+  return img?.alt || `Product image ${fallbackIndex + 1}`;
 }
 
 export default function ProductMediaCarousel({
@@ -61,6 +61,15 @@ export default function ProductMediaCarousel({
   loop = true
 }: ProductMediaCarouselProps) {
   const clean = (Array.isArray(images) ? images : []).filter(Boolean);
+  const seenKeys = new Set<string>();
+  const slides = clean.filter((img) => {
+    const url = getUrl(img);
+    const alt = typeof img === 'string' ? '' : (img?.alt || '');
+    const key = `${url}|${alt}`;
+    if (seenKeys.has(key)) return false;
+    seenKeys.add(key);
+    return true;
+  });
   const containerRef = React.useRef<HTMLUListElement | null>(null);
   const [index, setIndex] = React.useState(0);
 
@@ -68,16 +77,16 @@ export default function ProductMediaCarousel({
   React.useEffect(() => {
     if (!autoplayMs || autoplayMs <= 0) return;
     const id = window.setInterval(() => {
-      if (!containerRef.current) return;
+      if (!containerRef.current || slides.length === 0) return;
       const nextIdx = index + 1;
-      if (nextIdx < clean.length) {
+      if (nextIdx < slides.length) {
         scrollToIdx(nextIdx);
       } else if (loop) {
         scrollToIdx(0);
       }
     }, autoplayMs);
     return () => window.clearInterval(id);
-  }, [autoplayMs, index, loop, clean.length]);
+  }, [autoplayMs, index, loop, slides.length]);
 
   React.useEffect(() => {
     const el = containerRef.current;
@@ -85,22 +94,22 @@ export default function ProductMediaCarousel({
     function onScroll() {
       if (!el) return;
       const i = Math.round(el.scrollLeft / el.clientWidth);
-      if (i !== index) setIndex(i);
+      if (i !== index && i >= 0 && i < slides.length) setIndex(i);
     }
     el.addEventListener('scroll', onScroll, { passive: true });
     return () => el.removeEventListener('scroll', onScroll);
-  }, [index]);
+  }, [index, slides.length]);
 
   function scrollToIdx(i: number) {
     const el = containerRef.current;
     if (!el) return;
-    const target = Math.max(0, Math.min(i, clean.length - 1));
+    const target = Math.max(0, Math.min(i, slides.length - 1));
     el.scrollTo({ left: target * el.clientWidth, behavior: 'smooth' });
     setIndex(target);
   }
 
   function next() {
-    if (index + 1 < clean.length) {
+    if (index + 1 < slides.length) {
       scrollToIdx(index + 1);
     } else if (loop) {
       scrollToIdx(0);
@@ -120,7 +129,7 @@ export default function ProductMediaCarousel({
     return () => window.removeEventListener('keydown', onKey);
   });
 
-  if (!clean.length) return null;
+  if (!slides.length) return null;
 
   return (
     <div className={`w-full ${className}`}>
@@ -148,9 +157,10 @@ export default function ProductMediaCarousel({
           className="relative flex snap-x snap-mandatory overflow-x-auto overflow-y-hidden scroll-smooth no-scrollbar rounded-xl border border-white/20 bg-black/60"
           style={{ scrollBehavior: 'smooth' }}
         >
-          {clean.map((img, i) => {
+          {slides.map((img, i) => {
             const href = Array.isArray(links) ? links[i] : undefined;
             const alt = getAlt(img, i);
+            const slideCaption = captions?.[i] || alt;
             const content = (
               <>
                 <img
@@ -159,16 +169,15 @@ export default function ProductMediaCarousel({
                   className="max-h-[75vh] h-full w-full object-contain select-none"
                   draggable={false}
                 />
+                <span className="sr-only">{`Slide ${i + 1} of ${slides.length}: ${alt}`}</span>
                 {/* index badge */}
                 <div className="pointer-events-none absolute bottom-2 right-2 rounded bg-black/60 px-2 py-0.5 text-xs text-white/80">
-                  {i + 1}/{clean.length}
+                  {i + 1}/{slides.length}
                 </div>
                 {/* optional caption */}
-                {captions?.[i] ? (
-                  <div className="pointer-events-none absolute left-2 bottom-2 mr-16 rounded bg-black/60 px-2 py-0.5 text-xs text-white/90">
-                    {captions[i]}
-                  </div>
-                ) : null}
+                <div className="pointer-events-none absolute left-2 bottom-2 mr-16 rounded bg-black/60 px-2 py-0.5 text-xs text-white/90">
+                  {slideCaption}
+                </div>
               </>
             );
             return (
@@ -190,10 +199,10 @@ export default function ProductMediaCarousel({
       </div>
 
       {/* Thumbnails */}
-      {clean.length > 1 && (
+      {slides.length > 1 && (
         <div className="mt-3 overflow-x-auto">
           <div className="flex gap-2">
-            {clean.map((img, i) => (
+            {slides.map((img, i) => (
               <button
                 key={'thumb-' + i}
                 type="button"

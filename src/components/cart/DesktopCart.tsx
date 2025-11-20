@@ -88,20 +88,24 @@ function CartSummaryPopover({
   }, []);
 
   return (
-    <Popover className="relative z-[99999]">
+    <Popover className="relative z-40">
       <PopoverButton
         ref={(node) => {
           buttonRef.current = node;
           onRegisterTrigger?.(node);
         }}
         onClick={() => setPanelOpen(true)}
-        className="z-[99999] group -m-2 flex items-center rounded-full p-2 text-white transition hover:text-accent"
+        className="group relative -m-2 flex h-11 w-11 items-center justify-center rounded-full p-2 text-white transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       >
         <ShoppingBagIcon
           aria-hidden="true"
           className="size-6 shrink-0 transition group-hover:scale-105 group-hover:text-accent"
         />
-        <span className="ml-2 text-sm font-semibold tracking-wide">{totalQuantity || 0}</span>
+        {totalQuantity > 0 && (
+          <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-black">
+            {totalQuantity}
+          </span>
+        )}
         <span className="sr-only">Open cart</span>
       </PopoverButton>
       <PopoverPanel
@@ -110,7 +114,7 @@ function CartSummaryPopover({
           onRegisterPanel?.(node as HTMLDivElement | null);
         }}
         transition
-        className={`absolute right-0 top-12 z-[99999] mt-2 w-80 max-w-xs rounded-3xl border border-white/10 bg-black/85 p-4 text-white shadow-2xl backdrop-blur-xl transition data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in ${
+        className={`absolute right-0 top-12 z-40 mt-2 w-80 max-w-xs rounded-3xl border border-white/10 bg-black/85 p-4 text-white shadow-2xl backdrop-blur-xl transition data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in ${
           pinned ? 'opacity-100 pointer-events-auto' : ''
         }`}
         onMouseEnter={() => setPinned(true)}
