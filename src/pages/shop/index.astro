@@ -278,8 +278,12 @@ const filteredProducts: Product[] = selectedFilters.length
     })
   : allProducts;
 
+// Narrow to featured when explicitly requested
+const workingProducts =
+  sortParam === 'featured' ? filteredProducts.filter((p: any) => p?.featured) : filteredProducts;
+
 // Apply sorting before pagination
-let sortedProducts: Product[] = [...filteredProducts];
+let sortedProducts: Product[] = [...workingProducts];
 try {
   switch (sortParam) {
     case 'price-low':

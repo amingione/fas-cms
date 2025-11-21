@@ -726,7 +726,7 @@ export default function CategoryPage({
                 Featured
               </h2>
               <a
-                href="/products?sort=featured&start=0&end=12"
+                href="/shop?sort=featured"
                 className="hidden text-sm font-semibold text-white hover:text-primary sm:block"
               >
                 Browse all featured
@@ -755,7 +755,7 @@ export default function CategoryPage({
 
             <div className="mt-6 sm:hidden">
               <a
-                href="/products?sort=featured&start=0&end=12"
+                href="/shop?sort=featured"
                 className="block text-sm font-semibold text-white hover:text-primary"
               >
                 Browse all featured

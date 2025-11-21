@@ -772,6 +772,8 @@ const PRODUCT_LISTING_PROJECTION = `{
   includedInKit[]{ item, quantity, notes },
   productType,
   requiresPaintCode,
+  featured,
+  status,
   images[]{
     asset->{
       _id,
@@ -955,7 +957,7 @@ export async function fetchFeaturedProducts(
     if (!hasSanityConfig || !sanity) return [];
     const limit = Math.max(1, Math.min(50, options.limit ?? 8));
     const query = `
-      *[_type == "product" && ${ACTIVE_PRODUCT_WITH_SLUG_FILTER} && ${FEATURED_PRODUCT_FILTER}][0...$limit]{
+      *[_type == "product" && ${ACTIVE_PRODUCT_WITH_SLUG_FILTER} && ${FEATURED_PRODUCT_FILTER} && (status == "active" || !defined(status))][0...$limit]{
         _id,
         name,
         title,
