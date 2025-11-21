@@ -395,26 +395,45 @@ export default function BuildConfiguratorClient({ products }: Props) {
           variants={variants}
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            <label className="sr-only" htmlFor="build-name">
+              Name
+            </label>
             <input
               name="name"
+              id="build-name"
               placeholder="Your Name"
               required
+              autoComplete="name"
               className="bg-gray-800/50 border-gray-700 rounded-lg p-3 text-text"
             />
+            <label className="sr-only" htmlFor="build-email">
+              Email
+            </label>
             <input
               name="email"
               type="email"
+              id="build-email"
               placeholder="Email"
               required
+              autoComplete="email"
               className="bg-gray-800/50 border-gray-700 rounded-lg p-3 text-text"
             />
+            <label className="sr-only" htmlFor="build-phone">
+              Phone
+            </label>
             <input
               name="phone"
+              id="build-phone"
               placeholder="Phone"
+              autoComplete="tel"
               className="bg-gray-800/50 border-gray-700 rounded-lg p-3 text-text sm:col-span-2"
             />
+            <label className="sr-only" htmlFor="build-notes">
+              Notes
+            </label>
             <textarea
               name="notes"
+              id="build-notes"
               placeholder="Notes / Goals"
               rows={4}
               className="bg-gray-800/50 border-gray-700 rounded-lg p-3 text-text sm:col-span-2"

@@ -49,41 +49,56 @@ const BookingForm = () => {
       className="relative space-y-6 industrial-card backdrop-blur-sm border border-white/30 p-6 rounded-lg shadow-md border-shadow text-white font-sans"
     >
       <div>
-        <label className="block text-sm mb-1">Name</label>
+        <label className="block text-sm mb-1" htmlFor="booking-name">
+          Name
+        </label>
         <input
           type="text"
           name="name"
+          id="booking-name"
           value={formData.name}
           onChange={handleChange}
           required
+          autoComplete="name"
           className="w-full px-4 py-2 bg-black/20 border border-white/30 rounded-sm"
         />
       </div>
       <div>
-        <label className="block text-sm mb-1">Email</label>
+        <label className="block text-sm mb-1" htmlFor="booking-email">
+          Email
+        </label>
         <input
           type="email"
           name="email"
+          id="booking-email"
           value={formData.email}
           onChange={handleChange}
           required
+          autoComplete="email"
           className="w-full px-4 py-2 bg-black/20 border border-white/30 rounded-sm"
         />
       </div>
       <div>
-        <label className="block text-sm mb-1">Phone</label>
+        <label className="block text-sm mb-1" htmlFor="booking-phone">
+          Phone
+        </label>
         <input
           type="tel"
           name="phone"
+          id="booking-phone"
           value={formData.phone}
           onChange={handleChange}
+          autoComplete="tel"
           className="w-full px-4 py-2 bg-black/20 border border-white/30 rounded-sm"
         />
       </div>
       <div>
-        <label className="block text-sm mb-1">Service</label>
+        <label className="block text-sm mb-1" htmlFor="booking-service">
+          Service
+        </label>
         <select
           name="service"
+          id="booking-service"
           value={formData.service}
           onChange={handleChange}
           required
@@ -96,23 +111,31 @@ const BookingForm = () => {
         </select>
       </div>
       <div>
-        <label className="block text-sm mb-1">Preferred Date & Time</label>
+        <label className="block text-sm mb-1" htmlFor="booking-datetime">
+          Preferred Date & Time
+        </label>
         <input
           type="datetime-local"
           name="datetime"
+          id="booking-datetime"
           value={formData.datetime}
           onChange={handleChange}
+          autoComplete="off"
           className="w-full px-4 py-2 bg-black/20 border border-white/30 rounded-sm"
         />
       </div>
       <div>
-        <label className="block text-sm mb-1">Message</label>
+        <label className="block text-sm mb-1" htmlFor="booking-message">
+          Message
+        </label>
         <textarea
           name="message"
+          id="booking-message"
           value={formData.message}
           placeholder="Please tell us about your project..."
           onChange={handleChange}
           rows={4}
+          autoComplete="off"
           className="w-full px-4 py-2 bg-black/20 border border-white/30 rounded-sm"
         />
       </div>

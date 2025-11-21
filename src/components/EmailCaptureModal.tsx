@@ -170,31 +170,21 @@ export default function EmailCaptureModal() {
     setSubmissionState('submitting');
     setErrorMessage('');
 
-    const pageUrl = typeof window !== 'undefined' ? window.location.href : '';
-
-    const payload = {
-      formName: 'Marketing Newsletter Signup',
-      fields: {
-        name: trimmedName,
-        email: trimmedEmail,
-        source: 'Homepage Scroll Popup',
-        ...(pageUrl ? { pageUrl } : {})
-      },
-      marketingOptIn: {
-        source: 'Homepage Scroll Popup',
-        tags: ['homepage', 'modal', 'email-capture']
-      }
-    } as const;
-
     try {
-      const response = await fetch('/api/form-submission', {
+      const response = await fetch('/.netlify/functions/welcome-subscriber', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          email: trimmedEmail,
+          name: trimmedName,
+          source: 'popup_modal'
+        })
       });
 
+      const result = await response.json().catch(() => ({}));
+
       if (!response.ok) {
-        throw new Error(`Request failed with status ${response.status}`);
+        throw new Error((result as any)?.error || `Request failed with status ${response.status}`);
       }
 
       setSubmissionState('success');
