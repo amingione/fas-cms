@@ -1,5 +1,4 @@
-import { useMemo } from 'react';
-import Chart from 'react-apexcharts';
+import { useEffect, useMemo, useState } from 'react';
 import type { ApexOptions } from 'apexcharts';
 import type { RankingMetricPoint } from '@/lib/seoMetrics';
 
@@ -13,6 +12,10 @@ const formatDate = (value: string) => {
 };
 
 export default function SeoMetricsChart({ data }: Props) {
+  const [shouldLoadChart, setShouldLoadChart] = useState(false);
+  const [ChartComponent, setChartComponent] = useState<null | (typeof import('react-apexcharts'))['default']>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
   const chartData = useMemo(() => {
     const sorted = [...data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     const categories = sorted.map((point) => formatDate(point.date));
@@ -70,6 +73,25 @@ export default function SeoMetricsChart({ data }: Props) {
     return { options, series };
   }, [data]);
 
+  useEffect(() => {
+    if (!shouldLoadChart || ChartComponent) return;
+    let cancelled = false;
+    setIsLoading(true);
+    import('react-apexcharts')
+      .then((mod) => {
+        if (!cancelled) setChartComponent(() => mod.default);
+      })
+      .catch((err) => {
+        if (!cancelled) console.error('[SeoMetricsChart] failed to load chart library', err);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [ChartComponent, shouldLoadChart]);
+
   if (!data.length) {
     return (
       <div className="rounded-lg border border-white/10 bg-black/40 p-6 text-sm text-white/70">
@@ -80,7 +102,23 @@ export default function SeoMetricsChart({ data }: Props) {
 
   return (
     <div className="rounded-lg border border-white/10 bg-black/40 p-4">
-      <Chart options={chartData.options} series={chartData.series} height={320} type="line" />
+      {ChartComponent ? (
+        <ChartComponent options={chartData.options} series={chartData.series} height={320} type="line" />
+      ) : (
+        <div className="flex flex-col gap-3">
+          <p className="text-sm text-white/70">
+            Load the chart to fetch the ApexCharts bundle only when you need it (saves ~150 KB).
+          </p>
+          <button
+            type="button"
+            className="inline-flex items-center justify-center rounded-md border border-white/20 bg-white/5 px-3 py-2 text-sm font-medium text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+            onClick={() => setShouldLoadChart(true)}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Loading chart…' : 'Load chart'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -116,7 +116,13 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
   const MenuContent = ({ onNavigate }: { onNavigate?: () => void }) => (
     <div className={`flex flex-col gap-6 ${isInlineMode ? 'text-white' : 'text-gray-900'}`}>
       <div className="flex">
-        <img src="/logo/faslogochroma.webp" alt="FAS Logo" className="h-8 w-auto" />
+        <img
+          src="/logo/faslogochroma.webp"
+          alt="FAS Logo"
+          width={120}
+          height={120}
+          className="h-8 w-auto"
+        />
       </div>
       <div className="w-64">
         <SearchBar
