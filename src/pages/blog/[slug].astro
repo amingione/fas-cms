@@ -1,0 +1,146 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PortableTextRenderer from '@/components/PortableTextRenderer.jsx';
+import { postBySlugQuery } from '@/lib/blogQueries';
+import { sanityClient, urlFor } from '@/lib/sanity';
+
+export const prerender = false;
+
+type PostSlug = string | { current?: string };
+
+const resolveSlug = (slug: PostSlug): string => {
+  if (!slug) return '';
+  if (typeof slug === 'string') return slug;
+  if (typeof slug === 'object' && typeof slug.current === 'string') return slug.current;
+  return '';
+};
+
+const formatDate = (value?: string) => {
+  if (!value) return '';
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return '';
+  return parsed.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+};
+
+const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+
+const { slug } = Astro.params;
+
+let post: any = null;
+
+try {
+  post = await sanityClient.fetch(postBySlugQuery, { slug });
+} catch (error) {
+  console.error('Error fetching post:', error);
+}
+
+if (!post) {
+  return new Response(null, { status: 404 });
+}
+
+const coverImage = post?.featuredImage
+  ? urlFor(post.featuredImage)?.width(1200).height(630).url()
+  : post?.imageUrl;
+const publishedLabel = formatDate(post?.publishedAt);
+---
+
+<BaseLayout title={post?.title ?? 'Blog Post'} description={post?.excerpt ?? ''} ogImage={coverImage}>
+  <article class="mx-auto max-w-4xl px-4 py-12 space-y-10">
+    <header class="space-y-4">
+      {post?.categories?.length > 0 && (
+        <div class="flex flex-wrap gap-2">
+          {post.categories.map((category: any) => (
+            <span
+              class="rounded-full px-3 py-1 text-xs font-semibold"
+              style={{
+                backgroundColor: category?.color || 'rgba(209,18,25,0.14)',
+                color: '#fdfdfd'
+              }}
+            >
+              {category?.title ?? 'Category'}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <h1 class="text-4xl font-bold text-white md:text-5xl">{post?.title}</h1>
+
+      <div class="flex flex-wrap items-center gap-3 text-sm text-neutral-400">
+        {post?.author?.avatar && (
+          <img
+            src={post.author.avatar}
+            alt={post.author?.name || 'Author avatar'}
+            class="h-10 w-10 rounded-full object-cover"
+            loading="lazy"
+          />
+        )}
+        {post?.author?.name && <span class="text-white">{post.author.name}</span>}
+        {publishedLabel && (
+          <>
+            <span class="opacity-50">•</span>
+            <time datetime={post?.publishedAt}>{publishedLabel}</time>
+          </>
+        )}
+        {post?.readTime && (
+          <>
+            <span class="opacity-50">•</span>
+            <span>{post.readTime} min read</span>
+          </>
+        )}
+      </div>
+    </header>
+
+    {coverImage && (
+      <div class="overflow-hidden rounded-2xl border border-white/10 shadow-lg">
+        <img
+          src={coverImage}
+          alt={post?.featuredImage?.alt ?? post?.title ?? 'Post cover'}
+          class="h-full w-full object-cover"
+          loading="lazy"
+        />
+      </div>
+    )}
+
+    <section class="prose prose-invert max-w-none prose-headings:text-white prose-strong:text-white">
+      <PortableTextRenderer value={post?.content ?? []} />
+    </section>
+
+    {post?.relatedProducts?.length > 0 && (
+      <section class="space-y-4 border-t border-white/10 pt-8">
+        <h2 class="text-2xl font-semibold text-white">Featured Products</h2>
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {post.relatedProducts.map((product: any) => (
+            <a
+              href={product?.slug ? `/shop/${resolveSlug(product.slug)}` : '#'}
+              class="flex flex-col gap-2 rounded-xl border border-white/10 bg-white/5 p-4 transition hover:border-primary hover:bg-white/10"
+            >
+              <h3 class="text-lg font-semibold text-white">{product?.title ?? 'Product'}</h3>
+              {typeof product?.price === 'number' && (
+                <p class="text-sm font-semibold text-primary">{currency.format(product.price)}</p>
+              )}
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    {post?.relatedPosts?.length > 0 && (
+      <section class="space-y-4 border-t border-white/10 pt-8">
+        <h2 class="text-2xl font-semibold text-white">Related Posts</h2>
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {post.relatedPosts.map((related: any) => (
+            <a
+              href={`/blog/${resolveSlug(related?.slug)}`}
+              class="group rounded-xl border border-white/10 bg-white/5 p-4 transition hover:border-primary hover:bg-white/10"
+            >
+              <h3 class="text-lg font-semibold text-white group-hover:text-primary">
+                {related?.title ?? 'Post'}
+              </h3>
+              {related?.excerpt && <p class="text-sm text-neutral-300">{related.excerpt}</p>}
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+  </article>
+</BaseLayout>

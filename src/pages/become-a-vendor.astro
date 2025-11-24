@@ -6,403 +6,558 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   <div class="vendor-application-page">
     <section class="hero">
       <div class="container">
-        <h1>Partner with F.A.S. Motorsports</h1>
-        <p class="subtitle">Join our network of performance shops and resellers</p>
-      </div>
-    </section>
-
-    <section class="benefits">
-      <div class="container">
-        <h2>Why Partner with F.A.S.?</h2>
-        <div class="benefits-grid">
-          <div class="benefit">
-            <div class="icon">💰</div>
-            <h3>Wholesale Pricing</h3>
-            <p>Get 20-40% off retail prices based on your tier</p>
-            <ul>
-              <li>Standard: 20% off retail</li>
-              <li>Preferred: 30% off retail</li>
-              <li>Platinum: 40% off retail</li>
-            </ul>
-          </div>
-
-          <div class="benefit">
-            <div class="icon">🏭</div>
-            <h3>Direct from Manufacturer</h3>
-            <p>We manufacture our own performance parts in-house</p>
-            <ul>
-              <li>No middleman markup</li>
-              <li>Quality control guaranteed</li>
-              <li>Custom builds available</li>
-            </ul>
-          </div>
-
-          <div class="benefit">
-            <div class="icon">📦</div>
-            <h3>Flexible Terms</h3>
-            <p>Payment terms that work for your business</p>
-            <ul>
-              <li>Net 30, 60, or 90 days</li>
-              <li>Credit limits up to $50k</li>
-              <li>Drop shipping available</li>
-            </ul>
-          </div>
-
-          <div class="benefit">
-            <div class="icon">🚚</div>
-            <h3>Fast Shipping</h3>
-            <p>Quick turnaround on wholesale orders</p>
-            <ul>
-              <li>Most orders ship within 2-3 days</li>
-              <li>Freight shipping available</li>
-              <li>Track orders online</li>
-            </ul>
-          </div>
-
-          <div class="benefit">
-            <div class="icon">🎯</div>
-            <h3>Marketing Support</h3>
-            <p>We help you sell our products</p>
-            <ul>
-              <li>Product photos & descriptions</li>
-              <li>Technical specs & install guides</li>
-              <li>Co-branded marketing materials</li>
-            </ul>
-          </div>
-
-          <div class="benefit">
-            <div class="icon">🤝</div>
-            <h3>Dedicated Support</h3>
-            <p>Account manager for your business</p>
-            <ul>
-              <li>Direct phone & email support</li>
-              <li>Technical assistance</li>
-              <li>Custom quote requests</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="who-should-apply">
-      <div class="container">
-        <h2>Who Should Apply?</h2>
-        <div class="apply-grid">
-          <div class="apply-card">
-            <h3>🏪 Performance Shops</h3>
-            <p>Tuning shops, dyno facilities, and performance garages looking to offer FAS products to customers</p>
-          </div>
-          <div class="apply-card">
-            <h3>🏁 Race Teams</h3>
-            <p>Professional and amateur racing teams needing reliable performance parts at wholesale pricing</p>
-          </div>
-          <div class="apply-card">
-            <h3>🛒 Online Resellers</h3>
-            <p>E-commerce stores, eBay/Amazon sellers, and online performance parts retailers</p>
-          </div>
-          <div class="apply-card">
-            <h3>🔧 Mobile Installers</h3>
-            <p>Mobile tuning and installation services offering FAS products to clients</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="application-form">
-      <div class="container">
-        <h2>Apply for Wholesale Account</h2>
-        <p class="form-intro">Fill out the form below and we'll review your application within 1-2 business days.</p>
-
-        <form id="vendor-application-form">
-          <fieldset>
-            <legend>Company Information</legend>
-            <div class="form-group">
-              <label for="companyName">Company Name *</label>
-              <input type="text" id="companyName" name="companyName" required />
-            </div>
-
-            <div class="form-group">
-              <label for="businessType">Business Type *</label>
-              <select id="businessType" name="businessType" required>
-                <option value="">Select type...</option>
-                <option value="performance_shop">Performance Shop</option>
-                <option value="tuning_shop">Tuning Shop</option>
-                <option value="race_team">Race Team</option>
-                <option value="online_retailer">Online Retailer</option>
-                <option value="mobile_installer">Mobile Installer</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="website">Website</label>
-              <input type="url" id="website" name="website" placeholder="https://" />
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="yearsInBusiness">Years in Business *</label>
-                <input type="number" id="yearsInBusiness" name="yearsInBusiness" min="0" required />
-              </div>
-
-              <div class="form-group">
-                <label for="taxId">Tax ID / EIN *</label>
-                <input type="text" id="taxId" name="taxId" required />
-                <small>Required for wholesale pricing</small>
-              </div>
-            </div>
-          </fieldset>
-
-          <fieldset>
-            <legend>Primary Contact</legend>
-            <div class="form-row">
-              <div class="form-group">
-                <label for="contactName">Full Name *</label>
-                <input type="text" id="contactName" name="contactName" required />
-              </div>
-              <div class="form-group">
-                <label for="contactTitle">Title *</label>
-                <input type="text" id="contactTitle" name="contactTitle" placeholder="Owner, Manager, etc." required />
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="contactEmail">Email *</label>
-                <input type="email" id="contactEmail" name="contactEmail" required />
-              </div>
-              <div class="form-group">
-                <label for="contactPhone">Phone *</label>
-                <input type="tel" id="contactPhone" name="contactPhone" required />
-              </div>
-            </div>
-          </fieldset>
-
-          <fieldset>
-            <legend>Business Address</legend>
-            <div class="form-group">
-              <label for="street">Street Address *</label>
-              <input type="text" id="street" name="street" required />
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="city">City *</label>
-                <input type="text" id="city" name="city" required />
-              </div>
-              <div class="form-group">
-                <label for="state">State *</label>
-                <input type="text" id="state" name="state" maxlength="2" placeholder="NY" required />
-              </div>
-              <div class="form-group">
-                <label for="zip">ZIP Code *</label>
-                <input type="text" id="zip" name="zip" required />
-              </div>
-            </div>
-          </fieldset>
-
-          <fieldset>
-            <legend>Business Details</legend>
-            <div class="form-group">
-              <label for="estimatedMonthlyVolume">Estimated Monthly Order Volume *</label>
-              <select id="estimatedMonthlyVolume" name="estimatedMonthlyVolume" required>
-                <option value="">Select range...</option>
-                <option value="under_1k">Under $1,000</option>
-                <option value="1k_5k">$1,000 - $5,000</option>
-                <option value="5k_10k">$5,000 - $10,000</option>
-                <option value="10k_25k">$10,000 - $25,000</option>
-                <option value="25k_plus">$25,000+</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="productsInterested">Which FAS products are you interested in?</label>
-              <textarea id="productsInterested" name="productsInterested" rows="3" placeholder="FAS 850, FAS 900, Turbo kits, etc."></textarea>
-            </div>
-
-            <div class="form-group">
-              <label for="currentSuppliers">Current Performance Parts Suppliers</label>
-              <textarea id="currentSuppliers" name="currentSuppliers" rows="2" placeholder="Who do you currently buy from?"></textarea>
-            </div>
-
-            <div class="form-group checkbox-group">
-              <label>
-                <input type="checkbox" name="taxExempt" value="true" />
-                We have a valid resale certificate (tax exempt)
-              </label>
-            </div>
-          </fieldset>
-
-          <fieldset>
-            <legend>Additional Information</legend>
-            <div class="form-group">
-              <label for="additionalInfo">Tell us about your business</label>
-              <textarea id="additionalInfo" name="additionalInfo" rows="4" placeholder="What makes your business unique? What are your goals?"></textarea>
-            </div>
-
-            <div class="form-group">
-              <label for="referralSource">How did you hear about FAS Motorsports?</label>
-              <select id="referralSource" name="referralSource">
-                <option value="">Select...</option>
-                <option value="google">Google Search</option>
-                <option value="social_media">Social Media</option>
-                <option value="referral">Referral from another vendor</option>
-                <option value="trade_show">Trade Show</option>
-                <option value="customer">Customer recommendation</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-          </fieldset>
-
-          <div class="form-actions">
-            <button type="submit" class="btn-primary">Submit Application</button>
-            <p class="form-note">* Required fields</p>
-          </div>
-
-          <div id="form-message" class="form-message"></div>
-        </form>
-      </div>
-    </section>
-
-    <section class="faq">
-      <div class="container">
-        <h2>Frequently Asked Questions</h2>
-        <div class="faq-item">
-          <h3>What are the requirements to become a vendor?</h3>
-          <p>You need a valid business license, tax ID/EIN, and resale certificate. We work with established businesses that have been operating for at least 1 year.</p>
-        </div>
-
-        <div class="faq-item">
-          <h3>How long does approval take?</h3>
-          <p>Most applications are reviewed within 1-2 business days. We'll contact you via email with next steps.</p>
-        </div>
-
-        <div class="faq-item">
-          <h3>What are the payment terms?</h3>
-          <p>We offer Net 30, Net 60, or Net 90 payment terms based on your credit approval. Credit limits range from $5,000 to $50,000+.</p>
-        </div>
-
-        <div class="faq-item">
-          <h3>Is there a minimum order amount?</h3>
-          <p>Yes, wholesale orders have a $500 minimum. This ensures we can offer the best pricing and service.</p>
-        </div>
-
-        <div class="faq-item">
-          <h3>Do you offer drop shipping?</h3>
-          <p>Yes! We can drop ship directly to your customers. Contact your account manager for details.</p>
-        </div>
-
-        <div class="faq-item">
-          <h3>Can I get custom products made?</h3>
-          <p>Absolutely. We manufacture in-house and can create custom builds for your customers.</p>
-        </div>
+        <h1 class="font-ethno">Partner with</h1>
+        <h1><span class="font-borg">F.A.S. </span><span class="font-ethno">Motorsports</span></h1>
+        <p class="subtitle">Join an exclusive network of high‑caliber performance partners</p>
       </div>
     </section>
   </div>
-</BaseLayout>
 
-<script>
-  document.getElementById('vendor-application-form')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
+  <section
+    class="benefits rounded-2xl shadow-inner shadow-white/20 border border-white/20 mt-[-5px]"
+  >
+    <div class="container">
+      <h2>Why Partner with F.A.S.?</h2>
+      <div class="benefits-grid">
+        <div class="benefit">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+              <path d="M12 6.5V4" stroke-linecap="round"></path>
+              <path d="M12 20v-2.5" stroke-linecap="round"></path>
+              <path
+                d="M16 6.5H8a1 1 0 0 0-.9.57L5 11l2.8 7.43A1 1 0 0 0 8.7 19h6.6a1 1 0 0 0 .9-.57L19 11l-2.1-3.93A1 1 0 0 0 16 6.5Z"
+              ></path>
+              <path d="M9.5 11.5c.5.5 1.75 1 2.5 1s2-.5 2.5-1" stroke-linecap="round"></path>
+            </svg>
+          </div>
+          <h3>Wholesale Pricing</h3>
+          <p>Wholesale rates based on your tier</p>
+        </div>
 
-    const form = e.target as HTMLFormElement;
-    const formData = new FormData(form);
-    const button = form.querySelector('button[type="submit"]') as HTMLButtonElement | null;
-    const message = document.getElementById('form-message');
+        <div class="benefit">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+              <path d="M3 21V9l6 4V9l6 4V5l6 4v12H3Z"></path>
+              <path d="M7 21v-4" stroke-linecap="round"></path>
+              <path d="M12 21v-4" stroke-linecap="round"></path>
+              <path d="M17 21v-4" stroke-linecap="round"></path>
+            </svg>
+          </div>
+          <h3>Direct from Manufacturer</h3>
+          <p>We manufacture our own performance parts in-house</p>
+        </div>
 
-    if (!message) return;
+        <div class="benefit">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+              <path d="m12 3 8 4.5-8 4.5L4 7.5 12 3Z"></path>
+              <path d="M4 7.5v9l8 4.5 8-4.5v-9"></path>
+              <path d="m12 12 8-4.5"></path>
+            </svg>
+          </div>
+          <h3>Flexible Terms</h3>
+          <p>Payment terms that work for your business</p>
+        </div>
 
-    button && (button.disabled = true);
-    const originalText = button?.textContent || 'Submit Application';
-    if (button) button.textContent = 'Submitting...';
-    message.innerHTML = '';
-    message.className = 'form-message';
+        <div class="benefit">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+              <path d="M3 6h11v9H3V6Z"></path>
+              <path d="M14 9h3l3 3v3h-6V9Z"></path>
+              <circle cx="7.5" cy="18" r="2"></circle>
+              <circle cx="16.5" cy="18" r="2"></circle>
+              <path d="M5 18h3" stroke-linecap="round"></path>
+              <path d="M14.5 18H18" stroke-linecap="round"></path>
+            </svg>
+          </div>
+          <h3>Fast Shipping</h3>
+          <p>Quick turnaround on wholesale orders</p>
+        </div>
 
-    try {
-      const data = {
-        companyName: formData.get('companyName'),
-        businessType: formData.get('businessType'),
-        website: formData.get('website'),
-        yearsInBusiness: formData.get('yearsInBusiness'),
-        taxId: formData.get('taxId'),
-        contactName: formData.get('contactName'),
-        contactTitle: formData.get('contactTitle'),
-        contactEmail: formData.get('contactEmail'),
-        contactPhone: formData.get('contactPhone'),
-        street: formData.get('street'),
-        city: formData.get('city'),
-        state: formData.get('state'),
-        zip: formData.get('zip'),
-        estimatedMonthlyVolume: formData.get('estimatedMonthlyVolume'),
-        productsInterested: formData.get('productsInterested'),
-        currentSuppliers: formData.get('currentSuppliers'),
-        taxExempt: formData.get('taxExempt') === 'true',
-        additionalInfo: formData.get('additionalInfo'),
-        referralSource: formData.get('referralSource')
-      };
+        <div class="benefit">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+              <circle cx="12" cy="12" r="8"></circle>
+              <circle cx="12" cy="12" r="4"></circle>
+              <path d="M12 4V2" stroke-linecap="round"></path>
+              <path d="M20 12h2" stroke-linecap="round"></path>
+              <path d="m16 7 2-2" stroke-linecap="round"></path>
+            </svg>
+          </div>
+          <h3>Marketing Support</h3>
+          <p>We help you sell our products</p>
+        </div>
 
-      const response = await fetch('/.netlify/functions/vendor-application', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
+        <div class="benefit">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+              <path d="M4 11s2-2 4 0l3 3c1 1 2.5 1 3.5 0l2.5-2.5" stroke-linecap="round"></path>
+              <path d="m15.5 11.5 2.5 2.5a2.12 2.12 0 0 0 3-3l-3.5-3.5a1.5 1.5 0 0 0-2.12 0L12 9"
+              ></path>
+              <path d="M4 11v6.5A1.5 1.5 0 0 0 5.5 19H8l2 2" stroke-linecap="round"></path>
+            </svg>
+          </div>
+          <h3>Dedicated Support</h3>
+          <p>Account manager for your business</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      const result = await response.json().catch(() => ({}));
+  <section class="who-should-apply">
+    <div class="container">
+      <h2>Who Should Apply?</h2>
+      <div class="apply-grid">
+        <div class="apply-card">
+          <h3>
+            <span class="heading-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M4 10h16l-1 10H5L4 10Z"></path>
+                <path d="M7 10V6h10v4"></path>
+                <path d="M9 14h6" stroke-linecap="round"></path>
+                <path d="M10 6V4h4v2"></path>
+              </svg>
+            </span>
+            Performance Shops
+          </h3>
+          <p>
+            Tuning shops, dyno facilities, and performance garages looking to offer FAS products to
+            customers
+          </p>
+        </div>
+        <div class="apply-card">
+          <h3>
+            <span class="heading-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path
+                  d="M4 20V5a2 2 0 0 1 2-2h9.5a1.5 1.5 0 0 1 1.3.75L19 6.5a1.5 1.5 0 0 1 0 1.5l-2.2 3.7a1.5 1.5 0 0 1-1.3.8H8"
+                ></path>
+                <path d="M4 12h12.5"></path>
+              </svg>
+            </span>
+            Race Teams
+          </h3>
+          <p>
+            Professional and amateur racing teams needing reliable performance parts at wholesale
+            pricing
+          </p>
+        </div>
+        <div class="apply-card">
+          <h3>
+            <span class="heading-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M6 6h15l-1.5 8.5H8.5L7 4H4" stroke-linecap="round"></path>
+                <circle cx="9" cy="19" r="1.5"></circle>
+                <circle cx="17" cy="19" r="1.5"></circle>
+              </svg>
+            </span>
+            Online Retailers
+          </h3>
+          <p>
+            Professional e‑commerce retailers offering a curated, brand‑aligned shopping experience.
+            <span class="text-accent"
+              >Mass‑market marketplace sellers (Amazon/eBay) are not eligible.</span
+            >
+          </p>
+        </div>
+        <div class="apply-card">
+          <h3>
+            <span class="heading-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M7 8 3 4"></path>
+                <path d="M13 19l-9-9 4-4 9 9-4 4Z"></path>
+                <path d="m18 11-5-5 2-2a3 3 0 1 1 4.24 4.24l-1.24 1.24Z"></path>
+                <path d="m2 22 4.5-4.5" stroke-linecap="round"></path>
+              </svg>
+            </span>
+            Mobile Installers
+          </h3>
+          <p>Mobile tuning and installation services.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      if (response.ok) {
-        message.innerHTML = `
+  <section class="application-form">
+    <div class="container">
+      <h2>Apply for Wholesale Account</h2>
+      <p class="form-intro text-accent">
+        Fill out the form below and we'll review your application within 1-2 business days.
+      </p>
+
+      <form id="vendor-application-form">
+        <fieldset>
+          <legend>Company Information</legend>
+          <div class="form-group">
+            <label for="companyName">Company Name *</label>
+            <input type="text" id="companyName" name="companyName" required />
+          </div>
+
+          <div class="form-group">
+            <label for="businessType">Business Type *</label>
+            <select id="businessType" name="businessType" required>
+              <option value="">Select type...</option>
+              <option value="performance_shop">Performance Shop</option>
+              <option value="tuning_shop">Tuning Shop</option>
+              <option value="race_team">Race Team</option>
+              <option value="online_retailer">Online Retailer</option>
+              <option value="mobile_installer">Mobile Installer</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="website">Website</label>
+            <input type="url" id="website" name="website" placeholder="https://" />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="yearsInBusiness">Years in Business *</label>
+              <input type="number" id="yearsInBusiness" name="yearsInBusiness" min="0" required />
+            </div>
+
+            <div class="form-group">
+              <label for="taxId">Tax ID / EIN *</label>
+              <input type="text" id="taxId" name="taxId" required />
+              <small>Required for wholesale pricing</small>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Primary Contact</legend>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="contactName">Full Name *</label>
+              <input type="text" id="contactName" name="contactName" required />
+            </div>
+            <div class="form-group">
+              <label for="contactTitle">Title *</label>
+              <input
+                type="text"
+                id="contactTitle"
+                name="contactTitle"
+                placeholder="Owner, Manager, etc."
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="contactEmail">Email *</label>
+              <input type="email" id="contactEmail" name="contactEmail" required />
+            </div>
+            <div class="form-group">
+              <label for="contactPhone">Phone *</label>
+              <input type="tel" id="contactPhone" name="contactPhone" required />
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Business Address</legend>
+          <div class="form-group">
+            <label for="street">Street Address *</label>
+            <input type="text" id="street" name="street" required />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="city">City *</label>
+              <input type="text" id="city" name="city" required />
+            </div>
+            <div class="form-group">
+              <label for="state">State *</label>
+              <input type="text" id="state" name="state" maxlength="2" placeholder="NY" required />
+            </div>
+            <div class="form-group">
+              <label for="zip">ZIP Code *</label>
+              <input type="text" id="zip" name="zip" required />
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Business Details</legend>
+          <div class="form-group">
+            <label for="estimatedMonthlyVolume">Estimated Monthly Order Volume *</label>
+            <select id="estimatedMonthlyVolume" name="estimatedMonthlyVolume" required>
+              <option value="">Select range...</option>
+              <option value="under_1k">Under $1,000</option>
+              <option value="1k_5k">$1,000 - $5,000</option>
+              <option value="5k_10k">$5,000 - $10,000</option>
+              <option value="10k_25k">$10,000 - $25,000</option>
+              <option value="25k_plus">$25,000+</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="productsInterested">Which FAS products are you interested in?</label>
+            <textarea
+              id="productsInterested"
+              name="productsInterested"
+              rows="3"
+              placeholder="FAS 850, FAS 900, Turbo kits, etc."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="currentSuppliers">Current Performance Parts Suppliers</label>
+            <textarea
+              id="currentSuppliers"
+              name="currentSuppliers"
+              rows="2"
+              placeholder="Who do you currently buy from?"></textarea>
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label>
+              <input type="checkbox" name="taxExempt" value="true" />
+              We have a valid resale certificate (tax exempt)
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Additional Information</legend>
+          <div class="form-group">
+            <label for="additionalInfo">Tell us about your business</label>
+            <textarea
+              id="additionalInfo"
+              name="additionalInfo"
+              rows="4"
+              placeholder="What makes your business unique? What are your goals?"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="referralSource">How did you hear about FAS Motorsports?</label>
+            <select id="referralSource" name="referralSource">
+              <option value="">Select...</option>
+              <option value="google">Google Search</option>
+              <option value="social_media">Social Media</option>
+              <option value="referral">Referral from another vendor</option>
+              <option value="trade_show">Trade Show</option>
+              <option value="customer">Customer recommendation</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </fieldset>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">Submit Application</button>
+          <p class="form-note">* Required fields</p>
+        </div>
+
+        <div id="form-message" class="form-message"></div>
+      </form>
+    </div>
+  </section>
+
+  <section class="faq">
+    <div class="container">
+      <h2>Frequently Asked Questions</h2>
+      <div class="faq-item">
+        <h3>What are the requirements to become a vendor?</h3>
+        <p>
+          We maintain strict standards to protect the integrity of our brand. Vendors must have a
+          valid business license, tax ID/EIN, and resale certificate. Only established businesses
+          with a proven track record and a premium customer experience are considered. Applications
+          are reviewed for brand alignment and operational professionalism.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>How long does approval take?</h3>
+        <p>
+          Most applications are reviewed within 1-2 business days. We'll contact you via email with
+          next steps.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>What are the payment terms?</h3>
+        <p>
+          We offer Net 30, Net 60, or Net 90 payment terms based on your credit approval. Credit
+          limits range from $5,000 to $50,000+.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Is there a minimum order amount?</h3>
+        <p>
+          Yes, wholesale orders have a $500 minimum. This ensures we can offer the best pricing and
+          service.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Do you offer drop shipping?</h3>
+        <p>
+          We offer limited drop‑shipping for approved dealers operating their own dedicated
+          storefronts. We do not authorize sales on third‑party marketplaces such as eBay or Amazon.
+          All drop‑ship arrangements must follow our brand‑protection policies.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Can I get custom products made?</h3>
+        <p>Absolutely. We manufacture in-house and can create custom builds for your customers.</p>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    document.getElementById('vendor-application-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const form = e.target as HTMLFormElement;
+      const formData = new FormData(form);
+      const button = form.querySelector('button[type="submit"]') as HTMLButtonElement | null;
+      const message = document.getElementById('form-message');
+
+      if (!message) return;
+
+      button && (button.disabled = true);
+      const originalText = button?.textContent || 'Submit Application';
+      if (button) button.textContent = 'Submitting...';
+      message.innerHTML = '';
+      message.className = 'form-message';
+
+      try {
+        const data = {
+          companyName: formData.get('companyName'),
+          businessType: formData.get('businessType'),
+          website: formData.get('website'),
+          yearsInBusiness: formData.get('yearsInBusiness'),
+          taxId: formData.get('taxId'),
+          contactName: formData.get('contactName'),
+          contactTitle: formData.get('contactTitle'),
+          contactEmail: formData.get('contactEmail'),
+          contactPhone: formData.get('contactPhone'),
+          street: formData.get('street'),
+          city: formData.get('city'),
+          state: formData.get('state'),
+          zip: formData.get('zip'),
+          estimatedMonthlyVolume: formData.get('estimatedMonthlyVolume'),
+          productsInterested: formData.get('productsInterested'),
+          currentSuppliers: formData.get('currentSuppliers'),
+          taxExempt: formData.get('taxExempt') === 'true',
+          additionalInfo: formData.get('additionalInfo'),
+          referralSource: formData.get('referralSource')
+        };
+
+        const response = await fetch('/.netlify/functions/vendor-application', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json().catch(() => ({}));
+
+        if (response.ok) {
+          message.innerHTML = `
           <div class="success-content">
-            <h3>✅ Application Submitted!</h3>
-            <p>Thanks for your interest in partnering with FAS Motorsports.</p>
+            <h3>Application Submitted</h3>
+            <p>Thanks for your interest in partnering with F.A.S. Motorsports.</p>
             <p>We'll review your application and contact you within 1-2 business days at <strong>${data.contactEmail || ''}</strong>.</p>
             ${result?.applicationNumber ? `<p style="margin-top: 1.5rem;">Application Number: <strong>${result.applicationNumber}</strong></p>` : ''}
           </div>
         `;
-        message.className = 'form-message success';
-        (message as HTMLElement).style.display = 'block';
-        form.reset();
-        message.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } else {
-        throw new Error(result.error || 'Application failed');
-      }
-    } catch (error) {
-      message.innerHTML = `
+          message.className = 'form-message success';
+          (message as HTMLElement).style.display = 'block';
+          form.reset();
+          message.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          throw new Error(result.error || 'Application failed');
+        }
+      } catch (error) {
+        message.innerHTML = `
         <div class="error-content">
-          <h3>❌ Submission Failed</h3>
+          <h3>Submission Failed</h3>
           <p>${error instanceof Error ? error.message : 'Something went wrong. Please try again.'}</p>
         </div>
       `;
-      message.className = 'form-message error';
-      (message as HTMLElement).style.display = 'block';
-    } finally {
-      if (button) {
-        button.disabled = false;
-        button.textContent = originalText;
+        message.className = 'form-message error';
+        (message as HTMLElement).style.display = 'block';
+      } finally {
+        if (button) {
+          button.disabled = false;
+          button.textContent = originalText;
+        }
       }
-    }
-  });
-</script>
+    });
+
+    // FAQ collapse/expand: toggle paragraphs, keep headers visible
+    document.querySelectorAll('.faq-item').forEach((item) => {
+      const header = item.querySelector('h3');
+      const body = item.querySelector('p');
+      if (!header || !body) return;
+
+      item.setAttribute('data-collapsed', 'true');
+      header.setAttribute('role', 'button');
+      header.setAttribute('tabindex', '0');
+
+      const toggle = () => {
+        const isCollapsed = item.getAttribute('data-collapsed') === 'true';
+        item.setAttribute('data-collapsed', isCollapsed ? 'false' : 'true');
+      };
+
+      header.addEventListener('click', toggle);
+      header.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          toggle();
+        }
+      });
+    });
+  </script>
+</BaseLayout>
 
 <style>
+  :global(body) {
+    background-color: #050505;
+    color: #f7f7f7;
+  }
+
   .vendor-application-page {
+    --primary: #d11219;
+    --primary-dark: #7d0107;
+    --accent: #fde4b2;
+    --bg: #050505;
+    --panel: #0b0b0c;
+    --card: #0f0f0f;
+    --border: rgba(255, 255, 255, 0.08);
+    --muted: #f4f4f4;
+    --muted-2: #e6e7e9;
+    --glow: 0 22px 50px rgba(209, 18, 25, 0.2);
     padding: 0;
+    background:
+      radial-gradient(circle at 10% 10%, rgba(209, 18, 25, 0.15), transparent 30%),
+      radial-gradient(circle at 80% 0%, rgba(255, 255, 255, 0.08), transparent 25%), var(--bg);
+    color: #f9f9f9;
   }
 
   .hero {
-    background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
-    color: white;
-    padding: 4rem 0;
+    background:
+      linear-gradient(120deg, rgba(209, 18, 25, 0.28), rgba(7, 7, 7, 0.85)),
+      linear-gradient(180deg, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.9));
+    color: #fdfdfd;
+    padding: 4.5rem 0;
     text-align: center;
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--glow);
   }
 
   .hero h1 {
     font-size: 3rem;
     margin-bottom: 1rem;
+    letter-spacing: 0.02em;
   }
 
   .hero .subtitle {
-    font-size: 1.5rem;
-    opacity: 0.9;
+    font-size: 1.35rem;
+    color: #cacaca;
   }
 
   .container {
@@ -416,7 +571,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
 
   .benefits {
-    background: #f9f9f9;
+    background: var(--panel);
+    border: 1px solid var(--border);
   }
 
   .benefits h2,
@@ -424,36 +580,88 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .application-form h2,
   .faq h2 {
     text-align: center;
-    font-size: 2.5rem;
+    font-size: 2.3rem;
     margin-bottom: 3rem;
+    color: #fff;
   }
 
   .benefits-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
+    gap: 1.75rem;
   }
 
   .benefit {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    background: linear-gradient(180deg, #101010, #0c0c0c);
+    color: #e5e5e5;
+    padding: 1.8rem;
+    border-radius: 14px;
+    box-shadow: var(--glow);
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .benefit::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    border: 1px solid rgba(209, 18, 25, 0.2);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .benefit:hover::after {
+    opacity: 1;
   }
 
   .benefit .icon {
-    font-size: 3rem;
+    width: 52px;
+    height: 52px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgba(209, 18, 25, 0.16);
+    color: var(--accent);
+    font-size: 1.6rem;
     margin-bottom: 1rem;
+    box-shadow: inset 0 0 0 1px rgba(209, 18, 25, 0.25);
+  }
+
+  .benefit .icon svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  .heading-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    margin-right: 0.5rem;
+    border-radius: 8px;
+    background: rgba(209, 18, 25, 0.16);
+    color: var(--accent);
+    box-shadow: inset 0 0 0 1px rgba(209, 18, 25, 0.25);
+  }
+
+  .heading-icon svg {
+    width: 18px;
+    height: 18px;
   }
 
   .benefit h3 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
+    font-size: 1.4rem;
+    margin-bottom: 0.6rem;
   }
 
   .benefit p {
     margin-bottom: 1rem;
-    color: #666;
+    color: #f5f5f5;
   }
 
   .benefit ul {
@@ -463,49 +671,66 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   .benefit ul li {
     padding: 0.5rem 0;
-    padding-left: 1.5rem;
+    padding-left: 1.4rem;
     position: relative;
+    color: #f5f5f5;
   }
 
   .benefit ul li:before {
-    content: "✓";
+    content: '✓';
     position: absolute;
     left: 0;
-    color: #00a651;
+    color: var(--primary);
     font-weight: bold;
   }
 
   .apply-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
+    gap: 1.5rem;
   }
 
   .apply-card {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    border: 2px solid #e0e0e0;
-    transition: border-color 0.3s;
+    background: var(--card);
+    color: #fafafa;
+    padding: 1.8rem;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    transition:
+      border-color 0.3s,
+      transform 0.3s,
+      box-shadow 0.3s;
+    box-shadow: 0 12px 30px rgba(34, 34, 34, 0.35);
   }
 
   .apply-card:hover {
-    border-color: #000;
+    border-color: var(--primary);
+    transform: translateY(-3px);
+    box-shadow:
+      0 16px 38px rgba(0, 0, 0, 0.45),
+      0 0 20px rgba(209, 18, 25, 0.2);
   }
 
   .apply-card h3 {
-    font-size: 1.3rem;
-    margin-bottom: 1rem;
+    font-size: 1.25rem;
+    margin-bottom: 0.85rem;
+    color: #ffffff;
+  }
+
+  .apply-card p {
+    color: #ffffff;
   }
 
   .application-form {
-    background: white;
+    background: var(--panel);
+    border-top: 1px solid var(--border);
   }
 
   .form-intro {
     text-align: center;
-    font-size: 1.1rem;
-    color: #666;
+    font-size: 1.05rem;
+    color: var(--accent) !important;
+    font-weight: 600;
     margin-bottom: 3rem;
   }
 
@@ -515,20 +740,25 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
 
   fieldset {
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 2rem;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.75rem;
     margin-bottom: 2rem;
+    background: var(--card);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.02),
+      var(--glow);
   }
 
   legend {
-    font-size: 1.3rem;
-    font-weight: bold;
+    font-size: 1.2rem;
+    font-weight: 700;
     padding: 0 1rem;
+    color: #fff;
   }
 
   .form-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.4rem;
   }
 
   .form-row {
@@ -541,6 +771,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     display: block;
     font-weight: 600;
     margin-bottom: 0.5rem;
+    color: #f9f9f9;
   }
 
   input,
@@ -548,24 +779,29 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   textarea {
     width: 100%;
     padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
     font-size: 1rem;
     font-family: inherit;
+    background: #0c0c0c;
+    color: #f5f5f5;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
   }
 
   input:focus,
   select:focus,
   textarea:focus {
     outline: none;
-    border-color: #000;
-    box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(209, 18, 25, 0.25);
   }
 
   small {
     display: block;
     margin-top: 0.25rem;
-    color: #666;
+    color: var(--muted-2);
     font-size: 0.875rem;
   }
 
@@ -573,11 +809,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-weight: normal;
+    font-weight: 700;
+    color: var(--accent);
   }
 
-  .checkbox-group input[type="checkbox"] {
+  .checkbox-group input[type='checkbox'] {
     width: auto;
+    accent-color: var(--primary);
   }
 
   .form-actions {
@@ -586,19 +824,25 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
 
   .btn-primary {
-    background: #000;
+    background: linear-gradient(120deg, var(--primary), var(--primary-dark));
     color: white;
     padding: 1rem 3rem;
-    font-size: 1.1rem;
-    font-weight: bold;
-    border: none;
-    border-radius: 4px;
+    font-size: 1.05rem;
+    font-weight: 800;
+    border-radius: 10px;
     cursor: pointer;
-    transition: background 0.3s;
+    letter-spacing: 0.05em;
+    transition:
+      transform 0.2s,
+      box-shadow 0.3s,
+      filter 0.2s;
+    box-shadow: 0 5px 15px rgba(209, 18, 25, 0.35);
   }
 
   .btn-primary:hover:not(:disabled) {
-    background: #333;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(209, 18, 25, 0.45);
+    filter: brightness(1.05);
   }
 
   .btn-primary:disabled {
@@ -608,62 +852,98 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   .form-note {
     margin-top: 1rem;
-    color: #666;
-    font-size: 0.875rem;
+    color: var(--accent);
+    font-size: 0.9rem;
   }
 
   .form-message {
     margin-top: 2rem;
-    padding: 2rem;
-    border-radius: 8px;
+    padding: 1.75rem;
+    border-radius: 12px;
     display: none;
+    background: #0d0d0d;
+    border: 1px solid var(--border);
   }
 
   .form-message.success {
     display: block;
-    background: #e8f5e9;
-    border: 2px solid #4caf50;
+    background: rgba(56, 212, 122, 0.08);
+    border: 2px solid #38d47a;
+    color: #d8f7e5;
   }
 
   .form-message.error {
     display: block;
-    background: #ffebee;
-    border: 2px solid #f44336;
+    background: rgba(209, 18, 25, 0.08);
+    border: 2px solid var(--primary);
+    color: #ffdada;
   }
 
   .form-message h3 {
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
   }
 
   .faq {
-    background: #f9f9f9;
+    background: var(--panel);
   }
 
   .faq-item {
-    background: white;
-    padding: 2rem;
+    background: var(--card);
+    padding: 1.6rem;
     margin-bottom: 1rem;
-    border-radius: 8px;
-    border-left: 4px solid #000;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--primary);
+    color: #f2f2f2;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
   }
 
   .faq-item h3 {
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
+    font-size: 1.15rem;
+    margin-bottom: 0.45rem;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .faq-item h3::after {
+    content: '▼';
+    font-size: 0.8rem;
+    transition: transform 0.3s ease;
+    color: var(--primary);
+  }
+
+  .faq-item[data-collapsed='true'] h3::after {
+    transform: rotate(-90deg);
   }
 
   .faq-item p {
-    color: #666;
+    max-height: 600px;
+    overflow: hidden;
+    transition:
+      max-height 0.3s ease,
+      opacity 0.3s ease,
+      margin 0.3s ease;
+    opacity: 1;
+    color: var(--accent);
     line-height: 1.6;
+  }
+
+  .faq-item[data-collapsed='true'] p {
+    max-height: 0;
+    opacity: 0;
+    margin: 0;
   }
 
   @media (max-width: 768px) {
     .hero h1 {
-      font-size: 2rem;
+      font-size: 1.85rem;
     }
 
     .hero .subtitle {
-      font-size: 1.2rem;
+      font-size: 1.05rem;
     }
 
     .benefits-grid,
@@ -671,12 +951,48 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       grid-template-columns: 1fr;
     }
 
+    .benefits h2 {
+      font-size: 1.6rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .benefit,
+    .apply-card,
+    .faq-item {
+      padding: 1.25rem;
+      font-size: 0.95rem;
+    }
+
+    .benefit h3,
+    .apply-card h3,
+    .faq-item h3 {
+      font-size: 1.05rem;
+    }
+
+    .benefit p,
+    .apply-card p,
+    .faq-item p {
+      font-size: 0.95rem;
+    }
+
+    .benefit ul li {
+      font-size: 0.95rem;
+    }
+
     .form-row {
       grid-template-columns: 1fr;
     }
 
     fieldset {
-      padding: 1rem;
+      padding: 1.25rem;
+    }
+
+    label,
+    input,
+    select,
+    textarea,
+    .form-intro {
+      font-size: 0.95rem;
     }
   }
 </style>

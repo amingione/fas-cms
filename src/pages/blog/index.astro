@@ -1,0 +1,77 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import BlogPostCard from '@/components/blog/BlogPostCard.tsx';
+import BlogSidebar from '@/components/blog/BlogSidebar.tsx';
+import { blogCategoriesQuery, featuredPostsQuery, publishedPostsQuery } from '@/lib/blogQueries';
+import { sanityClient } from '@/lib/sanity';
+
+export const prerender = false;
+
+let posts: any[] = [];
+let featuredPosts: any[] = [];
+let categories: any[] = [];
+
+try {
+  [posts, featuredPosts, categories] = await Promise.all([
+    sanityClient.fetch(publishedPostsQuery),
+    sanityClient.fetch(featuredPostsQuery),
+    sanityClient.fetch(blogCategoriesQuery)
+  ]);
+} catch (error) {
+  console.error('Error fetching blog data:', error);
+}
+
+const heroTitle = 'FAS Motorsports Blog';
+const heroCopy =
+  'Latest news, build stories, and performance insights from the FAS Motorsports team.';
+---
+
+<BaseLayout title={heroTitle} description={heroCopy}>
+  <div class="relative overflow-hidden">
+    <div class="pointer-events-none absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-black" />
+
+    <section class="relative mx-auto max-w-6xl px-4 py-14 space-y-12">
+      <header class="text-center space-y-4">
+        <p class="text-sm font-semibold uppercase tracking-[0.2em] text-primary">FAS Motorsports</p>
+        <h1 class="text-4xl font-bold text-white md:text-5xl">{heroTitle}</h1>
+        <p class="mx-auto max-w-2xl text-base text-neutral-300 md:text-lg">{heroCopy}</p>
+      </header>
+
+      {featuredPosts?.length > 0 && (
+        <section class="space-y-6">
+          <div class="flex items-center justify-between gap-4">
+            <h2 class="text-2xl font-semibold text-white">Featured Posts</h2>
+            <span class="text-sm text-neutral-400">Hand-picked highlights</span>
+          </div>
+
+          <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {featuredPosts.map((post) => <BlogPostCard post={post} featured />)}
+          </div>
+        </section>
+      )}
+
+      <section class="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(260px,1fr)]">
+        <div class="space-y-6">
+          <div class="flex items-center justify-between gap-4">
+            <h2 class="text-2xl font-semibold text-white">Latest Posts</h2>
+            <span class="text-sm text-neutral-400">
+              {posts?.length || 0} article{posts?.length === 1 ? '' : 's'}
+            </span>
+          </div>
+
+          {posts?.length > 0 ? (
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+              {posts.map((post) => <BlogPostCard post={post} />)}
+            </div>
+          ) : (
+            <div class="rounded-2xl border border-white/10 bg-white/5 p-8 text-center text-neutral-300">
+              No posts published yet. Check back soon for the latest builds and tech breakdowns.
+            </div>
+          )}
+        </div>
+
+        <BlogSidebar categories={categories} />
+      </section>
+    </section>
+  </div>
+</BaseLayout>

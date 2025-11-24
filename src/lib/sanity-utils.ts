@@ -1239,6 +1239,9 @@ export async function getRelatedProducts(
       title,
       slug,
       price,
+      shortDescription,
+      description,
+      excerpt,
       images[]{asset->{url}, alt},
       "categories": select(
         defined(categories) => categories[]->{ _id, title, slug },
@@ -1278,6 +1281,9 @@ export async function getUpsellProducts(
       title,
       slug,
       price,
+      shortDescription,
+      description,
+      excerpt,
       images[]{asset->{url}, alt},
       "categories": select(
         defined(categories) => categories[]->{ _id, title, slug },

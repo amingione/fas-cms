@@ -1,0 +1,118 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { Building2, Lock, Mail } from 'lucide-react';
+
+export const prerender = false;
+
+const pageTitle = 'Vendor Portal Login';
+const pageDescription = 'Access your vendor dashboard to manage products, orders, and account info.';
+---
+
+<BaseLayout title={pageTitle} description={pageDescription}>
+  <div class="flex min-h-screen items-center justify-center bg-neutral-900 px-4 py-16">
+    <div class="w-full max-w-md space-y-6 rounded-2xl border border-white/10 bg-black/70 p-8 shadow-card backdrop-blur">
+      <div class="text-center space-y-3">
+        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-xl bg-primary">
+          <Building2 className="h-8 w-8 text-white" />
+        </div>
+        <h1 class="text-3xl font-bold text-white">Vendor Portal</h1>
+        <p class="text-sm text-neutral-300">Sign in to manage products, orders, and payouts.</p>
+      </div>
+
+      <form id="vendorPortalLoginForm" class="space-y-5">
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-white">Email Address</label>
+          <div class="relative">
+            <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-500" />
+            <input
+              name="email"
+              type="email"
+              required
+              class="w-full rounded-lg border border-white/10 bg-black/60 py-3 pl-11 pr-4 text-white outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/40"
+              placeholder="vendor@company.com"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="mb-2 block text-sm font-semibold text-white">Password</label>
+          <div class="relative">
+            <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-500" />
+            <input
+              name="password"
+              type="password"
+              required
+              class="w-full rounded-lg border border-white/10 bg-black/60 py-3 pl-11 pr-4 text-white outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/40"
+              placeholder="••••••••"
+            />
+          </div>
+        </div>
+
+        <button
+          id="vendorPortalLoginSubmit"
+          type="submit"
+          class="flex w-full items-center justify-center rounded-lg bg-primary py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Sign In
+        </button>
+
+        <p id="vendorPortalLoginError" class="hidden text-center text-sm text-red-400"></p>
+      </form>
+
+      <div class="text-center text-sm text-neutral-400">
+        <a href="/vendor/forgot-password" class="hover:text-white hover:underline">Forgot password?</a>
+      </div>
+
+      <div class="text-center text-sm text-neutral-400">
+        <a href="/" class="hover:text-white hover:underline">← Back to Store</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /** @type {HTMLFormElement | null} */
+    const form = document.getElementById('vendorPortalLoginForm');
+    /** @type {HTMLButtonElement | null} */
+    const submitBtn = document.getElementById('vendorPortalLoginSubmit');
+    /** @type {HTMLParagraphElement | null} */
+    const errorEl = document.getElementById('vendorPortalLoginError');
+
+    form?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!form || !submitBtn || !errorEl) return;
+
+      const formData = new FormData(form);
+      const email = String(formData.get('email') || '').trim();
+      const password = String(formData.get('password') || '');
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Signing in...';
+      errorEl.classList.add('hidden');
+      errorEl.textContent = '';
+
+      try {
+        const res = await fetch('/api/vendor-portal/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+
+        if (data?.success) {
+          window.location.href = '/vendor-portal/dashboard';
+          return;
+        }
+
+        errorEl.textContent = data?.error || 'Login failed. Please check your credentials.';
+        errorEl.classList.remove('hidden');
+      } catch (err) {
+        console.error('Vendor portal login failed:', err);
+        errorEl.textContent = 'Login failed. Please try again.';
+        errorEl.classList.remove('hidden');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Sign In';
+      }
+    });
+  </script>
+</BaseLayout>

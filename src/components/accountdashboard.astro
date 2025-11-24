@@ -1,6 +1,7 @@
 ---
 
 ---
+
 <div class="w-full h-full">
   <aside
     id="accountDashboard"
@@ -21,23 +22,64 @@
       >
         Logout
       </button>
-      <a href="/dashboard" class="hover:text-primary font-semibold font-kwajong transition-colors text-sm">My Account</a>
+      <a
+        href="/dashboard"
+        class="hover:text-primary font-semibold font-kwajong transition-colors text-sm"
+        >My Account</a
+      >
     </nav>
     <div class="mt-6 border-t border-gray-800 pt-3">
-      <h3 class="text-[10px] uppercase tracking-wider font-semibold text-white/70 mb-1">Vendor Access</h3>
+      <h3 class="text-[10px] uppercase tracking-wider font-semibold text-white/70 mb-1">
+        Customer Account
+      </h3>
       <nav class="flex flex-col space-y-1 text-xs font-kwajong">
-        <a href="https://fasmotorsports.io/sign-in" class="text-blue-400 hover:text-white transition leading-tight">Vendor Login</a>
-        <a href="https://fasmotorsports.io/vendor/apply" class="text-blue-400 hover:text-white transition leading-tight">New Dealer Application</a>
+        <a href="/account" class="text-blue-400 hover:text-white transition leading-tight">
+          Sign in / Account
+        </a>
       </nav>
     </div>
+    <div class="mt-6 border-t border-gray-800 pt-3">
+      <h3 class="text-[10px] uppercase tracking-wider font-semibold text-white/70 mb-1">
+        Vendor Access
+      </h3>
+      <nav class="flex flex-col space-y-1 text-xs font-kwajong">
+        <a
+          href="/vendor-portal/login"
+          class="text-blue-400 hover:text-white transition leading-tight">Vendor Portal Login</a
+        >
+        <a
+          href="https://fasmotorsports.com/become-a-vendor"
+          class="text-blue-400 hover:text-white transition leading-tight">New Dealer Application</a
+        >
+      </nav>
+    </div>
+    <a href="/blog" class="blog-card" aria-label="Visit the FAS Motorsports blog">
+      <div class="blog-card__image" aria-hidden="true"></div>
+      <div class="blog-card__body">
+        <p class="blog-card__eyebrow">FAS Motorsports</p>
+        <h3 class="blog-card__title">Shop Talk & Builds</h3>
+        <span class="blog-card__cta">Read the blog -></span>
+      </div>
+    </a>
     <div class="mt-6 border-t border-gray-800 pt-3 text-[0.95rem] font-mono">
       <p class="mb-1 text-white/70 text-xs uppercase tracking-wide">Need help?</p>
       <div class="flex items-center space-x-2 mb-1 leading-tight">
         <span class="text-[11px] font-mono text-white/70 break-all">sales@fasmotorsports.com</span>
       </div>
       <div class="flex items-center space-x-2 leading-tight">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-white/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h1.5a2 2 0 011.8 1.2l1.2 2.8a2 2 0 01-.45 2.2l-1.1 1.1a16 16 0 006.6 6.6l1.1-1.1a2 2 0 012.2-.45l2.8 1.2a2 2 0 011.2 1.8V19a2 2 0 01-2 2h-1C9.4 21 3 14.6 3 7V6a2 2 0 012-2z"/>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-3.5 h-3.5 text-white/70"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M3 5a2 2 0 012-2h1.5a2 2 0 011.8 1.2l1.2 2.8a2 2 0 01-.45 2.2l-1.1 1.1a16 16 0 006.6 6.6l1.1-1.1a2 2 0 012.2-.45l2.8 1.2a2 2 0 011.2 1.8V19a2 2 0 01-2 2h-1C9.4 21 3 14.6 3 7V6a2 2 0 012-2z"
+          ></path>
         </svg>
         <span class="text-[11px] font-mono text-white/70">(812) 200-9012</span>
       </div>
@@ -69,11 +111,19 @@
 
         loginLink?.addEventListener('click', async (e) => {
           e.preventDefault();
-          try { await fas.loginTo('/dashboard'); } catch { window.location.href = '/account'; }
+          try {
+            await fas.loginTo('/dashboard');
+          } catch {
+            window.location.href = '/account';
+          }
         });
         logoutLink?.addEventListener('click', async (e) => {
           e.preventDefault();
-          try { await fas.logout(window.location.origin); } catch { window.location.href = '/account?logout=1'; }
+          try {
+            await fas.logout(window.location.origin);
+          } catch {
+            window.location.href = '/account?logout=1';
+          }
         });
       }
     } catch (err) {
@@ -81,4 +131,66 @@
       showLogin();
     }
   });
-  </script>
+</script>
+
+<style>
+  .blog-card {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background:
+      radial-gradient(circle at 20% 20%, rgba(209, 18, 25, 0.16), transparent 50%),
+      linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+    color: #f3f3f3;
+    text-decoration: none;
+    transition:
+      border-color 0.2s ease,
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .blog-card:hover {
+    border-color: #d11219;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    transform: translateY(-2px);
+  }
+
+  .blog-card__image {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    background: #0f0f0f url('/logo/faslogo150.webp') center/cover no-repeat;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+  }
+
+  .blog-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .blog-card__eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+  }
+
+  .blog-card__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .blog-card__cta {
+    font-size: 0.85rem;
+    color: #d11219;
+    font-weight: 600;
+  }
+</style>
