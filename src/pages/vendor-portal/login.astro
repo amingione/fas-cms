@@ -5,12 +5,15 @@ import { Building2, Lock, Mail } from 'lucide-react';
 export const prerender = false;
 
 const pageTitle = 'Vendor Portal Login';
-const pageDescription = 'Access your vendor dashboard to manage products, orders, and account info.';
+const pageDescription =
+  'Access your vendor dashboard to manage products, orders, and account info.';
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription}>
   <div class="flex min-h-screen items-center justify-center bg-neutral-900 px-4 py-16">
-    <div class="w-full max-w-md space-y-6 rounded-2xl border border-white/10 bg-black/70 p-8 shadow-card backdrop-blur">
+    <div
+      class="w-full max-w-md space-y-6 rounded-2xl border border-white/10 bg-black/70 p-8 shadow-card backdrop-blur"
+    >
       <div class="text-center space-y-3">
         <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-xl bg-primary">
           <Building2 className="h-8 w-8 text-white" />
@@ -60,7 +63,9 @@ const pageDescription = 'Access your vendor dashboard to manage products, orders
       </form>
 
       <div class="text-center text-sm text-neutral-400">
-        <a href="/vendor/forgot-password" class="hover:text-white hover:underline">Forgot password?</a>
+        <a href="/vendor/forgot-password" class="hover:text-white hover:underline"
+          >Forgot password?</a
+        >
       </div>
 
       <div class="text-center text-sm text-neutral-400">
@@ -70,12 +75,15 @@ const pageDescription = 'Access your vendor dashboard to manage products, orders
   </div>
 
   <script>
-    /** @type {HTMLFormElement | null} */
-    const form = document.getElementById('vendorPortalLoginForm');
+    const form = document.getElementById('vendorPortalLoginForm') as HTMLFormElement | null;
     /** @type {HTMLButtonElement | null} */
-    const submitBtn = document.getElementById('vendorPortalLoginSubmit');
+    const submitBtn = document.getElementById(
+      'vendorPortalLoginSubmit'
+    ) as HTMLButtonElement | null;
     /** @type {HTMLParagraphElement | null} */
-    const errorEl = document.getElementById('vendorPortalLoginError');
+    const errorEl = document.getElementById(
+      'vendorPortalLoginError'
+    ) as HTMLParagraphElement | null;
 
     form?.addEventListener('submit', async (event) => {
       event.preventDefault();

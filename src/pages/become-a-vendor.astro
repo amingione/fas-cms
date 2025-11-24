@@ -408,21 +408,27 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   </section>
 
   <script>
-    document.getElementById('vendor-application-form')?.addEventListener('submit', async (e) => {
-      e.preventDefault();
+  const vendorForm = document.getElementById('vendor-application-form') as HTMLFormElement | null;
 
-      const form = e.target as HTMLFormElement;
-      const formData = new FormData(form);
-      const button = form.querySelector('button[type="submit"]') as HTMLButtonElement | null;
-      const message = document.getElementById('form-message');
+  vendorForm?.addEventListener('submit', async (e: SubmitEvent) => {
+    e.preventDefault();
 
-      if (!message) return;
+    const form = e.currentTarget;
+    if (!(form instanceof HTMLFormElement)) return;
 
-      button && (button.disabled = true);
-      const originalText = button?.textContent || 'Submit Application';
-      if (button) button.textContent = 'Submitting...';
-      message.innerHTML = '';
-      message.className = 'form-message';
+    const formData = new FormData(form);
+    const button = form.querySelector('button[type="submit"]') as HTMLButtonElement | null;
+    const message = document.getElementById('form-message') as HTMLElement | null;
+
+    if (!message) return;
+
+    if (button) {
+      button.disabled = true;
+    }
+    const originalText = button?.textContent || 'Submit Application';
+    if (button) button.textContent = 'Submitting...';
+    message.innerHTML = '';
+    message.className = 'form-message';
 
       try {
         const data = {
@@ -465,28 +471,28 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </div>
         `;
           message.className = 'form-message success';
-          (message as HTMLElement).style.display = 'block';
+          message.style.display = 'block';
           form.reset();
           message.scrollIntoView({ behavior: 'smooth', block: 'center' });
         } else {
           throw new Error(result.error || 'Application failed');
         }
       } catch (error) {
-        message.innerHTML = `
+      message.innerHTML = `
         <div class="error-content">
           <h3>Submission Failed</h3>
           <p>${error instanceof Error ? error.message : 'Something went wrong. Please try again.'}</p>
         </div>
       `;
-        message.className = 'form-message error';
-        (message as HTMLElement).style.display = 'block';
-      } finally {
-        if (button) {
-          button.disabled = false;
-          button.textContent = originalText;
-        }
+      message.className = 'form-message error';
+      message.style.display = 'block';
+    } finally {
+      if (button) {
+        button.disabled = false;
+        button.textContent = originalText;
       }
-    });
+    }
+  });
 
     // FAQ collapse/expand: toggle paragraphs, keep headers visible
     document.querySelectorAll('.faq-item').forEach((item) => {
