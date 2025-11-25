@@ -5,6 +5,13 @@ import { sanity } from './_sanity';
 import type { SanityDocumentStub } from '@sanity/client';
 import { sendEmail } from './_resend';
 import { createOrderCartItem, type OrderCartItem } from '../../src/server/sanity/order-cart';
+import {
+  type InventoryOrderItem,
+  processOrderPayment,
+  releaseInventory,
+  reserveInventory
+} from './_inventory';
+import { trackPromotionUsage } from '../../src/server/sanity/promotions';
 
 type LineItemWithMetadata = Stripe.LineItem & { metadata?: Stripe.Metadata | null };
 
@@ -127,6 +134,44 @@ type OrderDocument = {
   [key: string]: unknown;
 };
 
+const toInventoryOrderItems = (items: OrderCartItem[] = []): InventoryOrderItem[] => {
+  const isPositiveQuantity = (value: unknown): value is number =>
+    typeof value === 'number' && Number.isFinite(value) && value > 0;
+
+  return items
+    .map((item) => {
+      const productId = typeof item.id === 'string' && item.id.trim() ? item.id.trim() : undefined;
+      const rawVariantSku =
+        (item as any)?.metadata?.variantSku ||
+        (item as any)?.metadata?.variant_sku ||
+        (item as any)?.metadata?.variantSKU ||
+        undefined;
+      const variantSku = typeof rawVariantSku === 'string' && rawVariantSku.trim() ? rawVariantSku.trim() : undefined;
+      const quantity = isPositiveQuantity(item.quantity) ? item.quantity : undefined;
+
+      return {
+        productId,
+        quantity: quantity ?? 0,
+        variantSku,
+        sku: item.sku
+      } satisfies InventoryOrderItem;
+    })
+    .filter((item) => item.productId && isPositiveQuantity(item.quantity));
+};
+
+const fetchOrderByPaymentIntent = async (paymentIntentId: string) => {
+  if (!paymentIntentId) return null;
+  try {
+    return await sanity.fetch(
+      `*[_type=="order" && paymentIntentId==$id][0]{ _id, cart, status }`,
+      { id: paymentIntentId }
+    );
+  } catch (error) {
+    console.warn('[stripe-webhook] unable to fetch order by paymentIntentId', error);
+    return null;
+  }
+};
+
 const parseShippingSelection = (session: Stripe.Checkout.Session): ShippingSelection | null => {
   const meta = (session.metadata || {}) as Record<string, string | null | undefined>;
   const metadata: Record<string, string> = {};
@@ -220,6 +265,10 @@ export const handler: Handler = async (event) => {
 
     if (evt.type === 'checkout.session.completed') {
       const session = evt.data.object as Stripe.Checkout.Session;
+      const promotionId =
+        (session.metadata as any)?.promotion_id ||
+        (session.metadata as any)?.promotionId ||
+        (session.metadata as any)?.promotionID;
 
       // Prefer existing order by stripeSessionId to avoid duplicates (idempotent)
       const existingOrder = await sanity
@@ -501,7 +550,7 @@ export const handler: Handler = async (event) => {
           userId,
           cart: cartLines,
           totalAmount: session.amount_total ? session.amount_total / 100 : 0,
-          status: 'paid',
+          status: session.payment_status === 'paid' ? 'paid' : 'pending',
           createdAt: new Date().toISOString(),
           shippingAddress: {
             name: session.customer_details?.name || '',
@@ -629,6 +678,26 @@ export const handler: Handler = async (event) => {
         }
       }
 
+      // Reserve inventory immediately after order creation
+      if (orderId && cartLines.length) {
+        const inventoryItems = toInventoryOrderItems(cartLines);
+        if (inventoryItems.length) {
+          try {
+            await reserveInventory(inventoryItems);
+          } catch (error) {
+            console.warn('[stripe-webhook] unable to reserve inventory', error);
+          }
+
+          if (session.payment_status === 'paid') {
+            try {
+              await processOrderPayment(orderId, inventoryItems);
+            } catch (error) {
+              console.warn('[stripe-webhook] unable to deduct inventory post-payment', error);
+            }
+          }
+        }
+      }
+
       // Send confirmation email if configured
       try {
         const RESEND_API_KEY = process.env.RESEND_API_KEY;
@@ -720,6 +789,14 @@ export const handler: Handler = async (event) => {
             typeof session.amount_total === 'number'
               ? centsToDollars(session.amount_total)
               : dollars(sanityOrder?.totalAmount ?? (session as any)?.amount_total);
+
+          if (orderId && promotionId && discountTotal > 0) {
+            try {
+              await trackPromotionUsage(sanity, promotionId as string, orderTotal, discountTotal);
+            } catch (err) {
+              console.warn('[stripe-webhook] unable to track promotion usage', err);
+            }
+          }
 
           const summaryRows = [
             { label: 'Subtotal', value: subtotal, emphasize: false, hideIfZero: false },
@@ -875,6 +952,46 @@ export const handler: Handler = async (event) => {
           '[stripe-webhook] update quote on invoice.paid failed',
           (e as any)?.message || e
         );
+      }
+    } else if (evt.type === 'payment_intent.succeeded') {
+      const pi = evt.data.object as Stripe.PaymentIntent;
+      const order = await fetchOrderByPaymentIntent(pi.id);
+      if (order?._id && order.status !== 'paid') {
+        const cartItems = Array.isArray(order.cart) ? (order.cart as OrderCartItem[]) : [];
+        await processOrderPayment(order._id, toInventoryOrderItems(cartItems));
+      }
+    } else if (evt.type === 'charge.succeeded') {
+      const charge = evt.data.object as Stripe.Charge;
+      const piId =
+        typeof charge.payment_intent === 'string'
+          ? charge.payment_intent
+          : charge.payment_intent?.id || '';
+      const order = await fetchOrderByPaymentIntent(piId);
+      if (order?._id && order.status !== 'paid') {
+        const cartItems = Array.isArray(order.cart) ? (order.cart as OrderCartItem[]) : [];
+        await processOrderPayment(order._id, toInventoryOrderItems(cartItems));
+      }
+    } else if (evt.type === 'charge.refunded' || evt.type === 'payment_intent.canceled') {
+      const piId = (() => {
+        if (evt.type === 'charge.refunded') {
+          const charge = evt.data.object as Stripe.Charge;
+          return typeof charge.payment_intent === 'string'
+            ? charge.payment_intent
+            : charge.payment_intent?.id || '';
+        }
+        const pi = evt.data.object as Stripe.PaymentIntent;
+        return pi.id;
+      })();
+
+      const order = await fetchOrderByPaymentIntent(piId);
+      if (order?._id) {
+        const cartItems = Array.isArray(order.cart) ? (order.cart as OrderCartItem[]) : [];
+        await releaseInventory(order._id, toInventoryOrderItems(cartItems));
+        await sanity
+          .patch(order._id)
+          .set({ status: 'cancelled', paymentStatus: 'refunded' })
+          .commit({ autoGenerateArrayKeys: true })
+          .catch((error) => console.warn('[stripe-webhook] unable to mark order cancelled', error));
       }
     }
 
