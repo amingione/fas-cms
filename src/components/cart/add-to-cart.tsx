@@ -127,6 +127,9 @@ export function AddToCart({ product }: { product: any }) {
     const id = (variantId || product?._id || product?.id) as Maybe<string>;
     if (!id) return;
     const { shippingClass, installOnly } = resolveProductCartMeta(product);
+    const selectedOptionsList = Object.entries(selected).map(
+      ([key, value]) => `${key}: ${value}`
+    );
 
     await addItem(null as any, {
       id,
@@ -139,6 +142,8 @@ export function AddToCart({ product }: { product: any }) {
             : undefined,
       image: product?.images?.[0]?.asset?.url || product?.images?.[0]?.url,
       options: selected,
+      selectedOptions: selectedOptionsList,
+      selectedUpgrades: [],
       quantity: 1,
       productUrl,
       ...(shippingClass ? { shippingClass } : {}),

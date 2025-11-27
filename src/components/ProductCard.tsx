@@ -57,6 +57,8 @@ function addToCart(product: SanityProduct) {
       categories,
       image,
       productUrl,
+      selectedOptions: [],
+      selectedUpgrades: [],
       ...(shippingClass ? { shippingClass } : {}),
       ...(installOnly ? { installOnly: true } : {})
     });

@@ -10,15 +10,49 @@ export type CartItem = {
   quantity: number;
   image?: string;
   options?: Record<string, string>; // e.g., { color: 'Red', size: 'L' }
+  selectedOptions?: string[];
+  selectedUpgrades?: string[];
   installOnly?: boolean;
   shippingClass?: string;
   productUrl?: string;
+  sku?: string;
+  stripePriceId?: string;
+  productId?: string;
+  productSlug?: string;
+  upgrades?: unknown;
 };
 
 export type Cart = { items: CartItem[] };
 
 function isBrowser() {
   return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+}
+
+function ensureStringArray(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value
+      .map((entry) => (typeof entry === 'string' ? entry : entry && typeof entry === 'object' ? String((entry as any).value ?? (entry as any).label ?? '') : ''))
+      .map((entry) => entry.trim())
+      .filter(Boolean);
+  }
+  if (value && typeof value === 'object') {
+    return Object.entries(value)
+      .map(([key, entry]) => {
+        if (typeof entry === 'string') return `${key}: ${entry}`;
+        if (entry && typeof entry === 'object') {
+          const normalized = (entry as any).label ?? (entry as any).value;
+          return normalized ? `${key}: ${String(normalized)}` : '';
+        }
+        return '';
+      })
+      .map((entry) => entry.trim())
+      .filter(Boolean);
+  }
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return trimmed ? [trimmed] : [];
+  }
+  return [];
 }
 
 export function getCart(): Cart {
@@ -63,6 +97,14 @@ export async function addItem(
 
   const qty =
     typeof payload === 'object' && typeof payload.quantity === 'number' ? payload.quantity! : 1;
+  const selectedOptions = ensureStringArray(
+    typeof payload === 'object'
+      ? payload.selectedOptions ?? ensureStringArray((payload as any)?.options)
+      : []
+  );
+  const selectedUpgrades = ensureStringArray(
+    typeof payload === 'object' ? payload.selectedUpgrades ?? (payload as any)?.upgrades : []
+  );
   const cart = getCart();
   const idx = cart.items.findIndex((it) => it.id === id);
   if (idx >= 0) {
@@ -71,6 +113,13 @@ export async function addItem(
       if (typeof payload.installOnly === 'boolean') cart.items[idx].installOnly = payload.installOnly;
       if (typeof payload.shippingClass === 'string') cart.items[idx].shippingClass = payload.shippingClass;
       if (typeof payload.productUrl === 'string') cart.items[idx].productUrl = payload.productUrl;
+      if (selectedOptions.length) cart.items[idx].selectedOptions = selectedOptions;
+      if (selectedUpgrades.length) cart.items[idx].selectedUpgrades = selectedUpgrades;
+      if (payload.options) cart.items[idx].options = payload.options;
+      if (payload.sku) cart.items[idx].sku = payload.sku;
+      if (payload.stripePriceId) cart.items[idx].stripePriceId = payload.stripePriceId;
+      if (payload.productId) cart.items[idx].productId = payload.productId;
+      if (payload.productSlug) cart.items[idx].productSlug = payload.productSlug;
     }
   } else {
     cart.items.push({
@@ -79,10 +128,17 @@ export async function addItem(
       price: typeof payload === 'object' ? payload.price : undefined,
       image: typeof payload === 'object' ? payload.image : undefined,
       options: typeof payload === 'object' ? payload.options : undefined,
+      selectedOptions,
+      selectedUpgrades,
       quantity: Math.max(1, qty),
       installOnly: typeof payload === 'object' ? payload.installOnly : undefined,
       shippingClass: typeof payload === 'object' ? payload.shippingClass : undefined,
-      productUrl: typeof payload === 'object' ? payload.productUrl : undefined
+      productUrl: typeof payload === 'object' ? payload.productUrl : undefined,
+      sku: typeof payload === 'object' ? payload.sku : undefined,
+      stripePriceId: typeof payload === 'object' ? payload.stripePriceId : undefined,
+      productId: typeof payload === 'object' ? payload.productId : undefined,
+      productSlug: typeof payload === 'object' ? payload.productSlug : undefined,
+      upgrades: typeof payload === 'object' ? payload.upgrades ?? payload.selectedUpgrades : undefined
     });
   }
   saveCart(cart);
@@ -131,11 +187,73 @@ export async function createCartAndSetCookie() {
 export async function redirectToCheckout() {
   try {
     const cart = getCart();
+    const urlParams = new URLSearchParams(window.location.search);
+
+    const detectBrowser = () => {
+      const ua = navigator.userAgent;
+      if (ua.includes('Chrome')) return 'chrome';
+      if (ua.includes('Safari')) return 'safari';
+      if (ua.includes('Firefox')) return 'firefox';
+      if (ua.includes('Edge')) return 'edge';
+      return 'other';
+    };
+
+    const detectOS = () => {
+      const ua = navigator.userAgent;
+      if (ua.includes('Win')) return 'windows';
+      if (ua.includes('Mac')) return 'macos';
+      if (ua.includes('Linux')) return 'linux';
+      if (ua.includes('Android')) return 'android';
+      if (ua.includes('iOS')) return 'ios';
+      return 'other';
+    };
+
+    const getOrCreateSessionId = () => {
+      let sessionId = sessionStorage.getItem('session_id');
+      if (!sessionId) {
+        sessionId = `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        sessionStorage.setItem('session_id', sessionId);
+      }
+      return sessionId;
+    };
+
+    const attribution = {
+      utm_source: urlParams.get('utm_source'),
+      utm_medium: urlParams.get('utm_medium'),
+      utm_campaign: urlParams.get('utm_campaign'),
+      utm_content: urlParams.get('utm_content'),
+      utm_term: urlParams.get('utm_term'),
+      landing_page: sessionStorage.getItem('landing_page') || window.location.href,
+      referrer: document.referrer,
+      device: /mobile/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+      browser: detectBrowser(),
+      os: detectOS(),
+      session_id: getOrCreateSessionId()
+    };
+
+    const normalizedCart = cart.items.map((item) => {
+      const selectedOptions = ensureStringArray(item.selectedOptions ?? item.options);
+      const selectedUpgrades = ensureStringArray(item.selectedUpgrades ?? item.upgrades);
+      const mergedOptions: Record<string, string> = { ...(item.options || {}) };
+      selectedOptions.forEach((entry, idx) => {
+        const key = mergedOptions[`Option ${idx + 1}`] ? `Option ${idx + 1} (${idx + 1})` : `Option ${idx + 1}`;
+        mergedOptions[key] = entry;
+      });
+
+      return {
+        ...item,
+        selectedOptions,
+        selectedUpgrades,
+        options: Object.keys(mergedOptions).length ? mergedOptions : undefined,
+        upgrades: selectedUpgrades
+      };
+    });
+
     const res = await fetch('/api/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       // API expects an array of cart items; send cart.items instead of entire cart object
-      body: JSON.stringify({ cart: cart.items })
+      body: JSON.stringify({ cart: normalizedCart, metadata: attribution })
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {

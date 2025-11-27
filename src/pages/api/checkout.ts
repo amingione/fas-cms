@@ -425,6 +425,19 @@ export async function POST({ request }: { request: Request }) {
   const clamp = (value: string, max = 500) =>
     value.length > max ? value.slice(0, max) : value;
 
+  const normalizeMetadataMap = (input?: Record<string, unknown> | null) => {
+    if (!input || typeof input !== 'object') return {} as Record<string, string>;
+    return Object.entries(input).reduce<Record<string, string>>((acc, [key, value]) => {
+      if (!key) return acc;
+      const normalizedKey = key.trim();
+      if (!normalizedKey) return acc;
+      const strValue = value == null ? '' : String(value);
+      if (!strValue.trim()) return acc;
+      acc[normalizedKey] = clamp(strValue.trim());
+      return acc;
+    }, {});
+  };
+
   const formatSelectedOptions = (
     input?: Record<string, unknown> | null,
     selectionsRaw?: unknown
@@ -786,8 +799,11 @@ export async function POST({ request }: { request: Request }) {
       site: baseUrl
     };
 
+    const attributionMetadata = normalizeMetadataMap((body as any)?.metadata || (body as any)?.attribution);
+
     const metadataForSession: Record<string, string> = {
       ...baseMetadata,
+      ...attributionMetadata,
       ...(cartSummary ? { cart_summary: cartSummary } : {}),
       ...(metaCart ? { cart: metaCart } : {})
     };
