@@ -41,6 +41,22 @@ body {
   background-color: var(--color-background);
 }
 
+.with-header-offset {
+  margin-top: calc(6rem + var(--announcement-offset, 0px));
+}
+
+@media (min-width: 640px) {
+  .with-header-offset {
+    margin-top: calc(7rem + var(--announcement-offset, 0px));
+  }
+}
+
+@media (min-width: 1024px) {
+  .with-header-offset {
+    margin-top: calc(8rem + var(--announcement-offset, 0px));
+  }
+}
+
 @media (min-width: 640px) {
   .disclaimer-pill {
     font-size: 0.68rem;
@@ -53,6 +69,7 @@ body {
 :root {
   --container-max: 1280px;
   --container-gutter: clamp(16px, 4vw, 32px);
+  --announcement-offset: 0px;
 }
 
 /* Centered content wrapper for pages/sections */

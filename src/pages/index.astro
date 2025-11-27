@@ -12,6 +12,8 @@ import AnimatedTaskCard from '@components/animated/AnimatedTaskCard.tsx';
 import AnimatedTruckPackagesHero from '@components/animated/AnimatedTruckPackagesHero.tsx';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import EmailCaptureModal from '@components/EmailCaptureModal.tsx';
+import { BlackFridayHero } from '@/components/banner/blackFridaySale.tsx';
+import AnnouncementBanner from '@components/AnnouncementBanner.tsx';
 
 const pageDocPromise: Promise<any> = loadPageDoc('index');
 const featuredProductsPromise = sanity
@@ -142,11 +144,16 @@ const structuredDataGraph =
   </div>
 
   <main class="relative flex flex-col">
+    <AnnouncementBanner client:load />
     <div {...inlineObjectId('content/pages/index.json')}>
       <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
 
       <section id="homeHero">
         <AnimatedHomeHero client:only="react" />
+      </section>
+
+      <section class="my-10">
+        <BlackFridayHero client:visible />
       </section>
 
       <section id="HeadingBanner1">

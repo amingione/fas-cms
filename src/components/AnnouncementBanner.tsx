@@ -31,11 +31,11 @@ export default function AnnouncementBanner() {
   return (
     <div
       ref={bannerRef}
-      className={`pointer-events-auto fixed inset-x-0 top-0 z-[100000] mx-auto w-full rounded-b-2xl border border-white/10 bg-black/70 px-4 py-3 shadow-2xl shadow-primary/20 backdrop-blur-lg transition-all duration-500 ease-out ${
+      className={`pointer-events-auto fixed inset-x-0 top-0 z-[100000] w-full px-4 py-3 shadow-2xl shadow-primary/20 backdrop-blur-lg transition-all duration-500 ease-out ${
         visible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
       }`}
     >
-      <div className="relative isolate flex flex-wrap items-center gap-4 overflow-hidden rounded-xl bg-gradient-to-r from-[#d11219]/85 via-[#7d0107]/90 to-[#fde4b2]/80 px-4 py-3 sm:gap-6 sm:px-5 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10 sm:before:flex-1 md:flex-nowrap md:gap-x-6">
+      <div className="border border-black/30 shadow-inner shadow-card-outter shadow-white/30 relative isolate flex items-center justify-between gap-x-4 overflow-hidden rounded-full bg-gradient-to-r from-[#d11219]/85 via-[#7d0107]/90 to-[#fde4b2]/80 px-2 py-2.5 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10 sm:px-3.5">
         <div
           aria-hidden="true"
           className="absolute top-1/2 left-[max(-7rem,calc(50%-52rem))] -z-10 -translate-y-1/2 transform-gpu blur-2xl"
@@ -60,27 +60,29 @@ export default function AnnouncementBanner() {
             className="aspect-577/310 w-144.25 bg-linear-to-r from-[#7d0107] to-[#d11219] opacity-40"
           />
         </div>
-        <p className="min-w-0 flex-1 text-sm/6 text-gray-50 md:min-w-fit md:flex-none">
-          <a href="#" className="hover:text-white">
+        <p className="text-sm/6 text-gray-50 text-center w-full sm:text-center">
+          <a href="#" className="hover:text-black">
             <strong className="font-semibold">Black Friday 2025</strong>
             <svg viewBox="0 0 2 2" aria-hidden="true" className="mx-2 inline size-0.5 fill-current">
               <circle r={1} cx={1} cy={1} />
             </svg>
             <span className="font-semibold">Unlock 10% off featured products & services.</span>{' '}
-            Click for a sneak peak into limited‑time doorbusters!
             <span aria-hidden="true" className="ml-1 inline-block">
               &rarr;
             </span>
           </a>
         </p>
-        <div className="z-100 flex flex-shrink-0 justify-end md:flex-1 md:justify-end">
+        <div className="flex-shrink-0 flex items-center ml-4">
           <button
             type="button"
             onClick={() => setIsOpen(false)}
-            className="btn-plain rounded-full px-3 py-2 text-black shadow-md shadow-black/30 ring-1 ring-black/10 transition hover:text-whitefocus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            className="btn-plain rounded-full p-2 sm:p-3 focus-visible:-outline-offset-4 z-50 hover:bg-black/10 "
             aria-label="Dismiss announcement"
           >
-            <XMarkIcon aria-hidden="true" className="size-5" />
+            <XMarkIcon
+              aria-hidden="true"
+              className="size-5 text-white drop-shadow-[0_0_4px_rgba(0,0,0,0.8)]"
+            />
           </button>
         </div>
       </div>
