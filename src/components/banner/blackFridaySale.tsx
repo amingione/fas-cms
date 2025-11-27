@@ -92,7 +92,7 @@ export function BlackFridayHero() {
                 <img
                   src="/images/sales/FAS-BLACKFRIDAY-SALE.png"
                   alt="Black Friday 2025 Featured Product"
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-fit"
                 />
               </div>
             </div>
