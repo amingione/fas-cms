@@ -152,6 +152,36 @@ const structuredDataGraph =
         <AnimatedHomeHero client:only="react" />
       </section>
 
+      <!-- Auto-scrolling Black Friday divider -->
+      <section
+        id="bf-divider"
+        class="shadow-primary/30 shadow-inner shadow-box-outer relative overflow-hidden py-3 bg-black/10 border-y border-zinc-800"
+      >
+        <div
+          class="animate-marquee whitespace-nowrap text-white text-sm tracking-widest font-semibold"
+        >
+          <span class="mx-8">🔥 BLACK FRIDAY SALE — ONE DAY ONLY 🔥</span>
+          <span class="mx-8">🔥 BLACK FRIDAY SALE — ONE DAY ONLY 🔥</span>
+          <span class="mx-8">🔥 BLACK FRIDAY SALE — ONE DAY ONLY 🔥</span>
+          <span class="mx-8">🔥 BLACK FRIDAY SALE — ONE DAY ONLY 🔥</span>
+        </div>
+      </section>
+
+      <style>
+        @keyframes marquee {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+        .animate-marquee {
+          display: inline-block;
+          animation: marquee 18s linear infinite;
+        }
+      </style>
+
       <section class="my-10">
         <BlackFridayHero client:visible />
       </section>
