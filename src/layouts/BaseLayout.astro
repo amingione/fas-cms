@@ -744,5 +744,16 @@ const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
     <!-- fas-auth client shim (provides window.fasAuth) -->
     <script src="/fas-auth.js" defer></script>
     <!-- Auth bootstrap removed: serverless login/session handles auth without Auth0 SDK -->
+    <script>
+      // Capture landing page on first visit
+      if (!sessionStorage.getItem('landing_page')) {
+        sessionStorage.setItem('landing_page', window.location.href);
+      }
+
+      // Capture first touch timestamp
+      if (!sessionStorage.getItem('first_touch')) {
+        sessionStorage.setItem('first_touch', new Date().toISOString());
+      }
+    </script>
   </body>
 </html>

@@ -239,6 +239,9 @@ export default function ProductQuickViewButton({
       const baseId = product.id || product.href || '';
       const resolvedId =
         baseId && selectionSignature ? `${baseId}::${selectionSignature}` : baseId || product.id;
+      const selectedOptionsList = selectionEntries.map(
+        (entry) => `${entry.groupTitle}: ${entry.label}`
+      );
       await addItem(null as any, {
         id: resolvedId || product.id,
         name: product.title,
@@ -247,6 +250,8 @@ export default function ProductQuickViewButton({
         quantity: 1,
         productUrl: product.href,
         options: optionsPayload,
+        selectedOptions: selectedOptionsList,
+        selectedUpgrades: [],
         ...(cartMeta.shippingClass ? { shippingClass: cartMeta.shippingClass } : {}),
         ...(cartMeta.installOnly ? { installOnly: true } : {})
       });
