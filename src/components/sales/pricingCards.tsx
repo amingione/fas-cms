@@ -8,7 +8,7 @@ import { prefersDesktopCart } from '@/lib/device';
 const products = [
   {
     id: 'prod1',
-    name: 'FAS Billet Hellcat Supercharger Lid',
+    name: 'Billet Hellcat Supercharger Lid',
     price: '$1709.99',
     sale: true,
     compareAt: '$1899.99',
@@ -19,23 +19,25 @@ const products = [
   },
   {
     id: 'prod2',
-    price: '$499.99',
+    name: 'Dominator 2.4L Dominator Package',
+    price: '$1957.50',
     sale: true,
-    compareAt: '$699.99',
+    compareAt: '$2175',
     image: '/images/products/2.4LDominatorPackage.webp',
-    highlights: ['+40–80whp gains', 'Lightweight design', 'Heat‑treated steel'],
+    highlights: ['Billet Bearing Plate', 'Upgraded Bearings', '108mm Race Ported '],
     featured: true,
     href: '/shop/dominator-2-4l-supercharger-package'
   },
   {
     id: 'prod3',
-    price: '$699.99',
+    name: '6.7L Powerstroke piping kits',
+    price: '$1899.99',
     sale: true,
-    compareAt: '$899.99',
-    image: '/images/products/intake-lid.jpg',
-    highlights: ['Real carbon fiber', 'Improves airflow', 'Premium finish'],
+    compareAt: '$1999.99',
+    image: '/images/fabrication/6.7LpowerstrokePipingKit.webp',
+    highlights: ['TIG-Welded Stainless Steel', 'Optimized Airflow', 'Direct Bolt-On Fit'],
     featured: false,
-    href: '/product/fas-carbon-lid'
+    href: '/shop/2020-6-7l-powerstroke-piping-kit'
   }
 ];
 
