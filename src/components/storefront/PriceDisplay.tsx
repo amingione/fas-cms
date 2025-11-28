@@ -14,7 +14,7 @@ export function PriceDisplay({ pricing }: { pricing: PricingShape }) {
 
   const formatCurrency = (value?: number) => {
     if (typeof value !== 'number' || Number.isNaN(value)) return '—';
-    return `$${value}`;
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
   };
 
   return (
