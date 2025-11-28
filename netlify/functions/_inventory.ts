@@ -144,6 +144,8 @@ export async function releaseInventory(orderId: string, orderItems: InventoryOrd
         }
       }
 
+    }
+
     await logInventoryTransaction(
       item.productId,
       item.quantity,
