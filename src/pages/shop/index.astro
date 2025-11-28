@@ -7,6 +7,7 @@ import type { Product, Category, Vehicle } from '@lib/sanity-utils.ts';
 import ProductGrid from '@/components/storefront/ProductGrid.astro';
 import FilterPanelMobile from '@/components/storefront/FilterPanelMobile.tsx';
 import Pagination from '@/components/storefront/Pagination.astro';
+import { isOnSale } from '@/lib/saleHelpers';
 
 export const prerender = false;
 
@@ -66,6 +67,7 @@ const currentCategory = url.searchParams.get("categorySlug") || url.searchParams
 const start = (currentPage - 1) * PAGE_SIZE;
 const end = start + PAGE_SIZE;
 const sortParam = (url.searchParams.get('sort') || 'featured').toLowerCase();
+const ON_SALE_FILTER_SLUGS = ['on-sale', 'sale', 'sale-items', 'sale-item'];
 
 function slugify(str: string): string {
   return str
@@ -138,6 +140,7 @@ const rawFilters = [
   .map((s) => normalizeFilterSlug(s))
   .filter(Boolean);
 const selectedFilters: string[] = Array.from(new Set(rawFilters));
+const hasSaleFilter = selectedFilters.some((slug) => ON_SALE_FILTER_SLUGS.includes(slug));
 
 const vehicleParamValues = [
   ...(url.searchParams.get('vehicles')?.split(',') || []),
@@ -185,6 +188,7 @@ const availableVehicleSlugs: string[] = Array.from(
 ).sort();
 
 const currentCategoryTitle = (currentCategory && categories.find((c:any) => c?.slug?.current === currentCategory)?.title) || 'All';
+const hasSaleProducts = Array.isArray(allProducts) ? allProducts.some((product) => isOnSale(product)) : false;
 
 const canonical = (() => {
   try {
@@ -262,6 +266,9 @@ for (const p of allProducts as any[]) {
     }
   });
 }
+if (hasSaleProducts && !filterTitleMap['on-sale']) {
+  filterTitleMap['on-sale'] = 'On Sale';
+}
 const uniqueFilters: string[] = Array.from(new Set(Object.keys(filterTitleMap)))
   .filter(Boolean)
   .sort();
@@ -274,13 +281,19 @@ const filteredProducts: Product[] = selectedFilters.length
         : Array.isArray((p as any).filterTitles)
         ? (p as any).filterTitles
         : [];
-      return values.some((f: any) => selectedFilters.includes(normalizeFilterSlug(f)));
+      const matchesFilters = values.some((f: any) =>
+        selectedFilters.includes(normalizeFilterSlug(f))
+      );
+      const matchesSale = hasSaleFilter && isOnSale(p as any);
+      return matchesFilters || matchesSale;
     })
   : allProducts;
 
 // Narrow to featured when explicitly requested
 const workingProducts =
-  sortParam === 'featured' ? filteredProducts.filter((p: any) => p?.featured) : filteredProducts;
+  sortParam === 'featured' && !hasSaleFilter
+    ? filteredProducts.filter((p: any) => p?.featured)
+    : filteredProducts;
 
 // Apply sorting before pagination
 let sortedProducts: Product[] = [...workingProducts];
