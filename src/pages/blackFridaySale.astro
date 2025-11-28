@@ -43,9 +43,34 @@ const maxSavings = hasSales
       0
     )
   : 0;
+
+const pageTitle = 'Black Friday Sale';
+const pageDescription = hasSales
+  ? `Save up to ${maxDiscount}% on ${saleProducts.length} performance parts and install packages at F.A.S. Motorsports. Limited-time Black Friday pricing with the biggest discounts first.`
+  : 'Shop Black Friday performance parts, install packages, and custom builds from F.A.S. Motorsports.';
+const pageKeywords = [
+  'Black Friday performance parts',
+  'F.A.S. Motorsports sale',
+  'performance packages',
+  'install specials',
+  'Hellcat upgrades',
+  'Trackhawk upgrades'
+];
+const ogImage = '/images/backgrounds/BFSaleBanner.png';
+const breadcrumbs = [
+  { href: '/', label: 'Home' },
+  { label: 'Black Friday Sale' }
+];
 ---
 
-<BaseLayout>
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  keywords={pageKeywords}
+  canonical="/blackFridaySale"
+  ogImage={ogImage}
+  breadcrumbs={breadcrumbs}
+>
   <section>
     <SalePage client:load />
   </section>

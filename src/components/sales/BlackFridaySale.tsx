@@ -22,8 +22,11 @@ export default function SalePage() {
             </div>
 
             <h1 className="text-shadow-soft text-4xl font-ethno font-bold tracking-tight sm:text-5xl lg:text-6xl">
-              <span className="italic text-black text-glow-primary font-borg">Black</span> Friday at
-              <span className="text-black text-glow-primary font-borg italic"> F.a.S.</span>{' '}
+              <span className="italic text-black text-glow-primary font-borg">Black </span> Friday{' '}
+              <p>
+                at
+                <span className="text-black text-glow-primary font-borg italic">F.a.S.</span>{' '}
+              </p>
               <span className="underline italic text-primaryB/60 text-shadow-strong">
                 Motorsports
               </span>

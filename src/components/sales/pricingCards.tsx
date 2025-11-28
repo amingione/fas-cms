@@ -86,12 +86,11 @@ export default function PricingCards() {
     <section className="relative isolate overflow-hidden bg-black py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-5xl font-semibold tracking-tight text-white sm:text-6xl">
-            BLACK FRIDAY DOORBUSTERS
+          <h2 className="text-5xl font-semibold font-ethno tracking-tight text-white sm:text-6xl">
+            BLACK FRIDAY <span className="text-glow-primary text-black font-borg">DOORBUSTERS</span>
           </h2>
-          <p className="mt-6 text-lg text-gray-400">
-            Limited time Black Friday deals! Save on our most popular products while supplies last.
-          </p>
+          <p className="mt-6 text-lg text-gray-400">Limited time Black Friday deals!</p>
+          <p>Save on our most popular products while supplies last.</p>
         </div>
 
         {/* CARD GRID */}
@@ -102,9 +101,9 @@ export default function PricingCards() {
               data-featured={product.featured ? 'true' : undefined}
               className={classNames(
                 product.featured
-                  ? 'z-10 bg-primary/20 backdrop-blur-xl shadow-primary/30 shadow-card-outter shadow-inner border border-primary/40'
-                  : 'bg-black/70 backdrop-blur-md outline-1 -outline-offset-1 outline-white/10 lg:pb-14',
-                'relative rounded-2xl lg:shadow-[0_0_35px_rgba(0,0,0,0.45)] border border-white/5'
+                  ? 'z-10 bg-primary/20 backdrop-blur-xl shadow-primary/30 shadow-card-outter shadow-inner border border-primary/40 scale-105 lg:scale-110'
+                  : 'bg-white/5 border border-white/10 backdrop-blur-md outline-1 -outline-offset-1 pb-14px',
+                'relative rounded-md border-t border-white/10 shadow-card-outter shadow-inner shadow-white/20 transition-transform hover:-translate-y-1 pb-14px'
               )}
             >
               <div className="p-8 lg:pt-12 xl:p-10 xl:pt-14">
