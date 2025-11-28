@@ -161,7 +161,7 @@ export async function handleTrackingUpdate(trackingData: any) {
       Array.isArray(tracking_details)
         ? tracking_details.map((detail: any) => ({
             _type: 'trackingEvent',
-            _key: `event-${Date.now()}-${crypto.randomUUID()}`,
+            _key: crypto.randomUUID(),
             status: detail?.status,
             statusDetail: detail?.status_detail,
             message: detail?.message,
