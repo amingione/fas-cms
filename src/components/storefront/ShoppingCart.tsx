@@ -220,6 +220,12 @@ function CartContents() {
               <h2 id="cart-items-heading" className="sr-only">
                 Items in your cart
               </h2>
+              {hasDiscounts && (
+                <div className="mb-4 flex items-center justify-between rounded-lg border border-emerald-300/30 bg-emerald-400/10 px-3 py-2 text-sm text-emerald-200">
+                  <span className="uppercase tracking-wide">Discounts</span>
+                  <span className="font-semibold">-{formattedDiscount}</span>
+                </div>
+              )}
               <ul className="divide-y divide-white/10">
                 {items.map((item) => {
                   const pricing = perItemPricing[item.id] || {
@@ -362,6 +368,19 @@ function CartContents() {
             <aside className="space-y-6 self-start rounded-3xl border border-white/10 bg-white/5 p-6 lg:w-[360px] lg:justify-self-end">
               <h2 className="text-lg font-semibold text-white">Order Summary</h2>
               <dl className="space-y-3 text-sm text-white/80">
+                {hasDiscounts && (
+                  <div className="flex items-center justify-between text-emerald-200">
+                    <dt className="flex items-center gap-2">
+                      <span className="uppercase tracking-wide">Discounts</span>
+                      {saleLabel && (
+                        <span className="rounded-full border border-emerald-300/30 bg-emerald-400/10 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-100">
+                          {saleLabel}
+                        </span>
+                      )}
+                    </dt>
+                    <dd className="font-semibold">-{formattedDiscount}</dd>
+                  </div>
+                )}
                 <div className="flex items-start justify-between">
                   <dt className="flex flex-col gap-1">
                     <span className="text-white">Subtotal</span>
@@ -371,25 +390,13 @@ function CartContents() {
                   </dt>
                   <dd className="font-semibold text-white">{formattedSubtotal}</dd>
                 </div>
-                {hasDiscounts ? (
-                  <div className="flex items-center justify-between">
-                    <dt className="flex items-center gap-2 text-emerald-100">
-                      <span className="rounded-full border border-emerald-300/30 bg-emerald-400/10 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide">
-                        {saleLabel || 'Discount'}
-                      </span>
-                      <span>Discount</span>
-                    </dt>
-                    <dd className="font-semibold text-emerald-200">-{formattedDiscount}</dd>
+                {!hasDiscounts && hasSaleItems && (
+                  <div className="flex items-center justify-between text-xs text-emerald-200">
+                    <span className="rounded-full border border-emerald-300/30 bg-emerald-400/10 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide">
+                      {saleLabel || 'Discount'}
+                    </span>
+                    <span className="text-right text-white/70">Sale price applied</span>
                   </div>
-                ) : (
-                  hasSaleItems && (
-                    <div className="flex items-center justify-between text-xs text-emerald-200">
-                      <span className="rounded-full border border-emerald-300/30 bg-emerald-400/10 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide">
-                        {saleLabel || 'Discount'}
-                      </span>
-                      <span className="text-right text-white/70">Sale price applied</span>
-                    </div>
-                  )
                 )}
                 <div className="flex items-start justify-between gap-4">
                   <dt className="flex items-center gap-2 text-white">

@@ -440,6 +440,12 @@ function CartSummary({ subtotal, pricingTotals, onCheckout, onClose }: CartSumma
 
   return (
     <div className="border-t border-white/10 px-4 py-6 text-sm text-white/70 sm:px-6">
+      {hasDiscount && (
+        <div className="mb-3 flex items-center justify-between text-sm text-emerald-300">
+          <span className="uppercase tracking-wide">Discounts</span>
+          <span className="font-semibold">-{formatPrice(discountTotal)}</span>
+        </div>
+      )}
       <div className="flex justify-between text-base font-semibold text-white">
         <div className="flex flex-col">
           <p>Subtotal</p>
