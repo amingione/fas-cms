@@ -90,7 +90,7 @@ export function BlackFridayHero() {
               {/* Swap this block with an actual product image */}
               <div className="flex h-full items-center justify-center">
                 <img
-                  src="/images/sales/FAS-BLACKFRIDAY-SALE.png"
+                  src="/images/sales/BlackFridaySaleFAS.png"
                   alt="Black Friday 2025 Featured Product"
                   className="h-full w-full object-fit"
                 />
