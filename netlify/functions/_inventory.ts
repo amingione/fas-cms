@@ -65,14 +65,18 @@ export async function processOrderPayment(orderId: string, orderItems: Inventory
     if (item.variantSku) {
       await sanity
         .patch(item.productId)
-        .dec({ 'variants[sku == $sku].inventory.quantityInStock': item.quantity })
-        .dec({ 'variants[sku == $sku].inventory.quantityReserved': item.quantity })
+        .dec({
+          'variants[sku == $sku].inventory.quantityInStock': item.quantity,
+          'variants[sku == $sku].inventory.quantityReserved': item.quantity
+        })
         .commit({ sku: item.variantSku });
     } else {
       await sanity
         .patch(item.productId)
-        .dec({ 'inventory.quantityInStock': item.quantity })
-        .dec({ 'inventory.quantityReserved': item.quantity })
+        .dec({
+          'inventory.quantityInStock': item.quantity,
+          'inventory.quantityReserved': item.quantity
+        })
         .commit();
     }
 
