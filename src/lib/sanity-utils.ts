@@ -555,7 +555,7 @@ export interface Vehicle {
   slug: { current: string };
 }
 
-type QueryParamValue = string | number | boolean | string[] | number[];
+type QueryParamValue = string | number | boolean | string[] | number[] | null;
 type QueryParams = Record<string, QueryParamValue>;
 
 const safeDecodeURIComponent = (value: string): string => {
@@ -1028,11 +1028,7 @@ const normalizeSlugList = (values?: string | string[] | null) => {
   if (!values) return null;
   const arr = Array.isArray(values) ? values : String(values).split(',');
   const normalized = Array.from(
-    new Set(
-      arr
-        .map((entry) => normalizeFilterSlug(entry))
-        .filter(Boolean)
-    )
+    new Set(arr.map((entry) => normalizeFilterSlug(entry)).filter(Boolean))
   );
   return normalized.length ? normalized : null;
 };
@@ -1551,7 +1547,9 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
     if (!normalizedSlug) return null;
     const slugCandidates = Array.from(
       new Set(
-        [normalizedSlug, normalizedSlug.replace(/\s+/g, '-')].map((value) => value.trim()).filter(Boolean)
+        [normalizedSlug, normalizedSlug.replace(/\s+/g, '-')]
+          .map((value) => value.trim())
+          .filter(Boolean)
       )
     );
     const slugLowerValues = slugCandidates.map((value) => value.toLowerCase());
@@ -1725,7 +1723,16 @@ export async function getRelatedProducts(
     return Array.isArray(results) ? results.map((item) => normalizeProductPrice(item)) : [];
   };
   return cachedSanityFetch(
-    ['getRelatedProducts', config.projectId, config.dataset, perspective, slugParam, ids, flt, limit],
+    [
+      'getRelatedProducts',
+      config.projectId,
+      config.dataset,
+      perspective,
+      slugParam,
+      ids,
+      flt,
+      limit
+    ],
     executeQuery
   );
 }
