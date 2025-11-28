@@ -51,14 +51,20 @@ export function ProductCard({ product }: ProductCardProps) {
     try {
       // Get current cart
       const cart = getCart();
-      const { shippingClass, installOnly } = resolveProductCartMeta(product);
-      const saleLabel = saleBadge || product?.saleLabel;
-      const priceValue =
-        typeof activePrice === 'number'
-          ? activePrice
-          : typeof product.price === 'number'
-            ? product.price
-            : 0;
+  const { shippingClass, installOnly } = resolveProductCartMeta(product);
+  const saleLabel = saleBadge || product?.saleLabel;
+  const priceValue =
+    typeof activePrice === 'number'
+      ? activePrice
+      : typeof product.price === 'number'
+        ? product.price
+        : 0;
+  const originalPriceValue =
+    typeof comparePrice === 'number' && (typeof activePrice !== 'number' || comparePrice > activePrice)
+      ? comparePrice
+      : typeof product.price === 'number'
+        ? product.price
+        : undefined;
 
       // Check if item already exists
       const existingIndex = cart.findIndex((item: any) => item.id === product._id);
@@ -66,8 +72,7 @@ export function ProductCard({ product }: ProductCardProps) {
       if (existingIndex >= 0) {
         cart[existingIndex].quantity += 1;
         cart[existingIndex].price = priceValue;
-        cart[existingIndex].originalPrice =
-          typeof product.price === 'number' ? product.price : cart[existingIndex].originalPrice;
+        cart[existingIndex].originalPrice = originalPriceValue ?? cart[existingIndex].originalPrice;
         cart[existingIndex].isOnSale = onSale;
         cart[existingIndex].saleLabel = saleLabel;
         if (shippingClass) {
@@ -81,7 +86,7 @@ export function ProductCard({ product }: ProductCardProps) {
           id: product._id,
           name: product.title,
           price: priceValue,
-          originalPrice: typeof product.price === 'number' ? product.price : undefined,
+          originalPrice: originalPriceValue,
           isOnSale: onSale,
           saleLabel: saleLabel ?? undefined,
           quantity: 1,

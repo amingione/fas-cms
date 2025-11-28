@@ -1,96 +1,118 @@
-import { createClient } from '@sanity/client';
+import { fetchFilteredProducts, getProductCount } from '@/lib/sanity-utils.ts';
 
-import { ACTIVE_PRODUCT_FILTER } from '@/lib/sanity-utils.ts';
+const ON_SALE_FILTER_SLUGS = ['on-sale', 'sale', 'sale-items', 'sale-item'];
 
-const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID || import.meta.env.SANITY_PROJECT_ID;
-const token = import.meta.env.SANITY_API_TOKEN;
+const slugify = (value?: string | null) => {
+  if (!value) return '';
+  return String(value)
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+};
 
-if (!projectId) throw new Error('Missing Sanity projectId (check .env or deployment settings)');
-if (!token) throw new Error('Missing Sanity API token (check .env or deployment settings)');
+const normalizeSort = (
+  value?: string | null
+): 'featured' | 'newest' | 'name' | 'price-asc' | 'price-desc' => {
+  const sort = (value || '').toLowerCase();
+  switch (sort) {
+    case 'price':
+    case 'price-low':
+    case 'price-asc':
+      return 'price-asc';
+    case 'price-high':
+    case 'price-desc':
+      return 'price-desc';
+    case 'newest':
+      return 'newest';
+    case 'name':
+      return 'name';
+    case 'featured':
+    default:
+      return 'featured';
+  }
+};
 
-const dataset =
-  (import.meta.env.PUBLIC_SANITY_DATASET as string | undefined) ||
-  (import.meta.env.SANITY_DATASET as string | undefined) ||
-  'production';
-
-const client = createClient({
-  projectId,
-  dataset,
-  apiVersion: '2023-06-07',
-  token,
-  useCdn: false
-});
+const parseNumber = (value: string | null): number | null => {
+  if (!value) return null;
+  const num = Number(value);
+  return Number.isFinite(num) ? num : null;
+};
 
 export async function GET({ url }: { url: URL }) {
-  const start = Number(url.searchParams.get('start')) || 0;
-  const end = Number(url.searchParams.get('end')) || 9;
-  const sort = url.searchParams.get('sort') || 'price';
+  const params = url.searchParams;
 
-  const category = url.searchParams.get('category');
-  const vehicle = url.searchParams.get('vehicle');
-  const tune = url.searchParams.get('tune');
-  const minHp = url.searchParams.get('minHp');
+  const categorySlug =
+    slugify(params.get('category') || params.get('categorySlug')) || undefined;
 
-  const filters = [`_type == "product"`, ACTIVE_PRODUCT_FILTER, `defined(slug.current)`];
+  const rawFilterValues = [
+    ...params.getAll('filter'),
+    ...(params.get('filters')?.split(',') || [])
+  ];
+  const filterSlugs = Array.from(new Set(rawFilterValues.map(slugify).filter(Boolean)));
 
-  if (category) filters.push(`"${category}" in categories[]->slug.current`);
-  if (vehicle) filters.push(`"${vehicle}" in compatibleVehicles[]->slug.current`);
-  if (tune) filters.push(`tune == "${tune}"`);
-  if (minHp) filters.push(`averageHorsepower >= ${minHp}`);
+  const vehicleValues = [
+    params.get('vehicle'),
+    params.get('vehicleSlug'),
+    ...(params.get('vehicles')?.split(',') || [])
+  ];
+  const vehicleSlugs = Array.from(new Set(vehicleValues.map(slugify).filter(Boolean)));
 
-  const allQuery = `*[
-    ${filters.join(' && ')}
-  ] | order(${sort} asc) {
-    _id,
-    title,
-    slug,
-    price,
-    averageHorsepower,
-    description,
-    sku,
-    onSale,
-    salePrice,
-    compareAtPrice,
-    discountPercent,
-    discountPercentage,
-    saleStartDate,
-    saleEndDate,
-    saleActive,
-    saleLabel,
-    inventory,
-    featured,
-    productType,
-    categories[]->{
-      title,
-      slug
-    },
-    images[]{
-      asset->{
-        url
-      },
-      alt
-    },
-    upsells[]->{
-      _id,
-      title,
-      slug,
-      price,
-      images[]{
-        asset->{
-          url
-        },
-        alt
-      }
-    }
-  }`;
+  const minPrice = parseNumber(params.get('minPrice') ?? params.get('priceMin'));
+  const maxPrice = parseNumber(params.get('maxPrice') ?? params.get('priceMax'));
 
-  const allProducts = await client.fetch(allQuery);
-  const slicedProducts = allProducts.slice(start, end);
+  const searchTerm = (params.get('search') || params.get('q') || '').trim() || undefined;
+
+  const sortBy = normalizeSort(params.get('sort'));
+
+  let page = parseNumber(params.get('page')) || 1;
+  let pageSize = parseNumber(params.get('pageSize')) || parseNumber(params.get('limit')) || 12;
+
+  const start = parseNumber(params.get('start'));
+  const end = parseNumber(params.get('end'));
+  if (start !== null && end !== null && end > start) {
+    pageSize = end - start;
+    page = Math.floor(start / Math.max(1, pageSize)) + 1;
+  }
+
+  page = Math.max(1, page);
+  pageSize = Math.max(1, pageSize);
+
+  const saleOnly = filterSlugs.some((slug) => ON_SALE_FILTER_SLUGS.includes(slug));
+  const filterSlugsForQuery = filterSlugs.filter((slug) => !ON_SALE_FILTER_SLUGS.includes(slug));
+
+  const filters = {
+    categorySlug,
+    filterSlugs: filterSlugsForQuery.length ? filterSlugsForQuery : undefined,
+    vehicleSlugs: vehicleSlugs.length ? vehicleSlugs : undefined,
+    minPrice: minPrice ?? undefined,
+    maxPrice: maxPrice ?? undefined,
+    searchTerm,
+    sortBy,
+    page,
+    pageSize,
+    saleOnly
+  };
+
+  const [products, total] = await Promise.all([
+    fetchFilteredProducts(filters),
+    getProductCount(filters)
+  ]);
+
+  const totalItems = total || products.length || 0;
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
 
   return new Response(
     JSON.stringify({
-      products: slicedProducts,
-      totalCount: allProducts.length
+      products,
+      pagination: {
+        page,
+        pageSize,
+        total: totalItems,
+        totalPages
+      },
+      total: totalItems,
+      totalCount: totalItems
     }),
     { headers: { 'Content-Type': 'application/json' } }
   );

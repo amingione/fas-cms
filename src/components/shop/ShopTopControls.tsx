@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { Category, Product } from '@lib/sanity-utils';
 import { SortControls } from '@/components/storefront/SortControls';
 import FilterPanel from '@components/FilterPanel';
@@ -13,7 +13,7 @@ import {
 } from '@components/ui/sheet';
 import FilterIcon from '@components/icons/FilterIcon';
 
-type SortValue = 'featured' | 'name' | 'price-low' | 'price-high';
+type SortValue = 'featured' | 'newest' | 'name' | 'price-asc' | 'price-desc';
 type ViewMode = 'grid' | 'list';
 
 export interface ShopTopControlsProps {
@@ -51,13 +51,31 @@ export default function ShopTopControls({
     max: typeof priceMax === 'number' ? Math.max(0, Math.min(100000, Math.floor(priceMax))) : 100000
   });
 
+  const normalizeSort = useCallback((value?: string | null): SortValue => {
+    const v = (value || '').toLowerCase();
+    switch (v) {
+      case 'price-low':
+      case 'price-asc':
+        return 'price-asc';
+      case 'price-high':
+      case 'price-desc':
+        return 'price-desc';
+      case 'newest':
+        return 'newest';
+      case 'name':
+        return 'name';
+      default:
+        return 'featured';
+    }
+  }, []);
+
   // Keep states in sync if URL changes (e.g., back/forward)
   useEffect(() => {
     const syncFromURL = () => {
       try {
         const url = new URL(window.location.href);
-        setSearch(url.searchParams.get('q') || '');
-        setSortBy((url.searchParams.get('sort') as SortValue) || 'featured');
+        setSearch(url.searchParams.get('search') || url.searchParams.get('q') || '');
+        setSortBy(normalizeSort(url.searchParams.get('sort')));
         const cat =
           url.searchParams.get('categorySlug') || url.searchParams.get('category') || 'all';
         setCategory(cat || 'all');
@@ -79,8 +97,8 @@ export default function ShopTopControls({
                 .filter(Boolean)
             : []
         );
-        const pm = Number(url.searchParams.get('priceMin'));
-        const px = Number(url.searchParams.get('priceMax'));
+        const pm = Number(url.searchParams.get('minPrice') ?? url.searchParams.get('priceMin'));
+        const px = Number(url.searchParams.get('maxPrice') ?? url.searchParams.get('priceMax'));
         const min = Number.isFinite(pm) ? Math.max(0, Math.min(100000, Math.floor(pm))) : 0;
         const max = Number.isFinite(px) ? Math.max(0, Math.min(100000, Math.floor(px))) : 100000;
         setPrice({ min, max });
@@ -91,7 +109,7 @@ export default function ShopTopControls({
     syncFromURL();
     window.addEventListener('popstate', syncFromURL);
     return () => window.removeEventListener('popstate', syncFromURL);
-  }, []);
+  }, [normalizeSort]);
 
   const applyURL = (opts?: {
     withFilters?: boolean;
@@ -145,12 +163,19 @@ export default function ShopTopControls({
     }
 
     // price
-    params.set('priceMin', String(price.min));
-    params.set('priceMax', String(price.max));
+    params.set('minPrice', String(price.min));
+    params.set('maxPrice', String(price.max));
+    params.delete('priceMin');
+    params.delete('priceMax');
 
     if (withSearch) {
-      if (search) params.set('q', search);
-      else params.delete('q');
+      if (search) {
+        params.set('search', search);
+        params.set('q', search);
+      } else {
+        params.delete('search');
+        params.delete('q');
+      }
     }
 
     if (withSort) {
@@ -178,6 +203,7 @@ export default function ShopTopControls({
     setSortBy('featured');
     const params = new URLSearchParams(window.location.search);
     params.delete('q');
+    params.delete('search');
     params.delete('sort');
     params.delete('category');
     params.delete('categorySlug');
@@ -187,6 +213,8 @@ export default function ShopTopControls({
     toDelete.forEach((k) => params.delete(k));
     params.delete('vehicles');
     params.delete('vehicleSlug');
+    params.delete('minPrice');
+    params.delete('maxPrice');
     params.delete('priceMin');
     params.delete('priceMax');
     params.set('page', '1');

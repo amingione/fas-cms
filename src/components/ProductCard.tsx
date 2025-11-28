@@ -40,7 +40,13 @@ function addToCart(product: SanityProduct) {
     const name = product.title || 'Item';
     const activePrice = getActivePrice(product);
     const price = Number(activePrice ?? 0) || 0;
-    const originalPrice = typeof (product as any)?.price === 'number' ? (product as any).price : undefined;
+    const comparePrice = getCompareAtPrice(product);
+    const originalPrice =
+      typeof comparePrice === 'number' && (typeof activePrice !== 'number' || comparePrice > activePrice)
+        ? comparePrice
+        : typeof (product as any)?.price === 'number'
+          ? (product as any).price
+          : undefined;
     const onSale = isOnSale(product);
     const saleLabel = getSaleBadgeText(product) || (product as any)?.saleLabel;
     const categories = Array.isArray(product.categories)

@@ -71,7 +71,7 @@ export default function FilterPanel({
 
   // Local mirrors so sliders/inputs are responsive
   const [minP, setMinP] = React.useState<number>(typeof priceMin === 'number' ? priceMin : 0);
-  const [maxP, setMaxP] = React.useState<number>(typeof priceMax === 'number' ? priceMax : 10000);
+  const [maxP, setMaxP] = React.useState<number>(typeof priceMax === 'number' ? priceMax : 100000);
 
   React.useEffect(() => {
     if (typeof priceMin === 'number') setMinP(priceMin);
@@ -107,7 +107,7 @@ export default function FilterPanel({
     onVehiclesChange(Array.from(set));
   };
 
-  const clampPrice = (n: number) => Math.max(0, Math.min(10000, Math.round(n)));
+  const clampPrice = (n: number) => Math.max(0, Math.min(100000, Math.round(n)));
 
   const commitPrice = (min: number, max: number) => {
     const a = clampPrice(min);
@@ -195,7 +195,7 @@ export default function FilterPanel({
                 type="number"
                 inputMode="numeric"
                 min={0}
-                max={10000}
+                max={100000}
                 value={minP}
                 onChange={(e) => setMinP(clampPrice(Number(e.target.value)))}
                 onBlur={() => commitPrice(minP, maxP)}
@@ -208,7 +208,7 @@ export default function FilterPanel({
                 type="number"
                 inputMode="numeric"
                 min={0}
-                max={10000}
+                max={100000}
                 value={maxP}
                 onChange={(e) => setMaxP(clampPrice(Number(e.target.value)))}
                 onBlur={() => commitPrice(minP, maxP)}
@@ -221,7 +221,7 @@ export default function FilterPanel({
             <input
               type="range"
               min={0}
-              max={10000}
+              max={100000}
               step={50}
               value={minP}
               onChange={(e) => setMinP(clampPrice(Number(e.target.value)))}
@@ -232,7 +232,7 @@ export default function FilterPanel({
             <input
               type="range"
               min={0}
-              max={10000}
+              max={100000}
               step={50}
               value={maxP}
               onChange={(e) => setMaxP(clampPrice(Number(e.target.value)))}

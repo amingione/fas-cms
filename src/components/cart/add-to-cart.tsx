@@ -121,6 +121,12 @@ export function AddToCart({ product }: { product: any }) {
   const comparePrice = getCompareAtPrice(product);
   const onSale = isOnSale(product);
   const saleLabel = getSaleBadgeText(product) || (product as any)?.saleLabel;
+  const originalPrice =
+    typeof comparePrice === 'number' && (typeof activePrice !== 'number' || comparePrice > activePrice)
+      ? comparePrice
+      : typeof (product as any)?.price === 'number'
+        ? (product as any).price
+        : undefined;
 
   const disabledReason =
     !variantId && Array.isArray(product?.variants) && product.variants.length > 1

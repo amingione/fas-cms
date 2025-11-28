@@ -82,8 +82,10 @@ export default function ShopSidebarFilters({
       params.delete('vehicleSlug');
     }
     // price
-    params.set('priceMin', String(price.min));
-    params.set('priceMax', String(price.max));
+    params.set('minPrice', String(price.min));
+    params.set('maxPrice', String(price.max));
+    params.delete('priceMin');
+    params.delete('priceMax');
     // reset page
     params.set('page', '1');
     window.location.href = `/shop?${params.toString()}`;

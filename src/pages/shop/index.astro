@@ -2,7 +2,13 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import ShopTopControls from '@components/shop/ShopTopControls.tsx';
 import ShopSidebarFilters from '@/components/storefront/ShopSidebarFilters.tsx';
-import { fetchProductsFromSanity, fetchCategories, fetchVehicles } from '@lib/sanity-utils.ts';
+import {
+  fetchFilteredProducts,
+  fetchStorefrontFilterFacets,
+  getProductCount,
+  fetchCategories,
+  fetchVehicles
+} from '@lib/sanity-utils.ts';
 import type { Product, Category, Vehicle } from '@lib/sanity-utils.ts';
 import ProductGrid from '@/components/storefront/ProductGrid.astro';
 import FilterPanelMobile from '@/components/storefront/FilterPanelMobile.tsx';
@@ -62,12 +68,44 @@ type StructuredProductListItem = {
     offers?: StructuredProductOffer;
   };
 };
-const currentPage = parseInt(url.searchParams.get("page") || "1");
-const currentCategory = url.searchParams.get("categorySlug") || url.searchParams.get("category") || "";
-const start = (currentPage - 1) * PAGE_SIZE;
-const end = start + PAGE_SIZE;
-const sortParam = (url.searchParams.get('sort') || 'featured').toLowerCase();
 const ON_SALE_FILTER_SLUGS = ['on-sale', 'sale', 'sale-items', 'sale-item'];
+
+const parsePriceParam = (value: string | null): number | null => {
+  if (!value) return null;
+  const num = Number(value);
+  return Number.isFinite(num) ? num : null;
+};
+
+const normalizeSortParam = (
+  value: string | null
+): 'featured' | 'newest' | 'price-asc' | 'price-desc' | 'name' => {
+  const sort = (value || '').toLowerCase();
+  switch (sort) {
+    case 'price-low':
+    case 'price-asc':
+      return 'price-asc';
+    case 'price-high':
+    case 'price-desc':
+      return 'price-desc';
+    case 'newest':
+      return 'newest';
+    case 'name':
+      return 'name';
+    case 'featured':
+    default:
+      return 'featured';
+  }
+};
+
+const currentPage = Math.max(1, parseInt(url.searchParams.get('page') || '1', 10));
+const currentCategory =
+  url.searchParams.get('categorySlug') || url.searchParams.get('category') || '';
+const start = (currentPage - 1) * PAGE_SIZE;
+const sortBy = normalizeSortParam(url.searchParams.get('sort'));
+const searchTermParam = url.searchParams.get('search') || url.searchParams.get('q') || '';
+const searchTerm = searchTermParam && searchTermParam.trim() ? searchTermParam.trim() : null;
+const minPrice = parsePriceParam(url.searchParams.get('minPrice') || url.searchParams.get('priceMin'));
+const maxPrice = parsePriceParam(url.searchParams.get('maxPrice') || url.searchParams.get('priceMax'));
 
 function slugify(str: string): string {
   return str
@@ -141,6 +179,7 @@ const rawFilters = [
   .filter(Boolean);
 const selectedFilters: string[] = Array.from(new Set(rawFilters));
 const hasSaleFilter = selectedFilters.some((slug) => ON_SALE_FILTER_SLUGS.includes(slug));
+const filterSlugsForQuery = selectedFilters.filter((slug) => !ON_SALE_FILTER_SLUGS.includes(slug));
 
 const vehicleParamValues = [
   ...(url.searchParams.get('vehicles')?.split(',') || []),
@@ -154,22 +193,39 @@ const vehicleFilterSlugs: string[] = Array.from(
   )
 );
 
-let allProducts: Product[] = [];
+let products: Product[] = [];
+let totalProducts = 0;
 let categories: Category[] = [];
 let vehicles: Vehicle[] = [];
+let filterFacetProducts: any[] = [];
 
 try {
-  const [productsResult, categoriesResult, vehiclesResult] = await Promise.all([
-    fetchProductsFromSanity({
-      categorySlug: currentCategory || undefined,
-      vehicleSlugs: vehicleFilterSlugs.length ? vehicleFilterSlugs : undefined
-    }),
-    fetchCategories(),
-    fetchVehicles()
-  ]);
-  allProducts = productsResult;
+  const filters = {
+    categorySlug: currentCategory || undefined,
+    filterSlugs: filterSlugsForQuery.length ? filterSlugsForQuery : undefined,
+    vehicleSlugs: vehicleFilterSlugs.length ? vehicleFilterSlugs : undefined,
+    minPrice: minPrice ?? undefined,
+    maxPrice: maxPrice ?? undefined,
+    searchTerm: searchTerm ?? undefined,
+    sortBy,
+    page: currentPage,
+    pageSize: PAGE_SIZE,
+    saleOnly: hasSaleFilter
+  };
+
+  const [productsResult, totalResult, categoriesResult, vehiclesResult, facetResult] =
+    await Promise.all([
+      fetchFilteredProducts(filters),
+      getProductCount(filters),
+      fetchCategories(),
+      fetchVehicles(),
+      fetchStorefrontFilterFacets(filters)
+    ]);
+  products = productsResult;
+  totalProducts = typeof totalResult === 'number' ? totalResult : 0;
   categories = categoriesResult;
   vehicles = vehiclesResult;
+  filterFacetProducts = Array.isArray(facetResult) ? facetResult : [];
 } catch (err) {
   console.error("🔥 Sanity Fetch Failed:", err);
 }
@@ -188,7 +244,12 @@ const availableVehicleSlugs: string[] = Array.from(
 ).sort();
 
 const currentCategoryTitle = (currentCategory && categories.find((c:any) => c?.slug?.current === currentCategory)?.title) || 'All';
-const hasSaleProducts = Array.isArray(allProducts) ? allProducts.some((product) => isOnSale(product)) : false;
+const filterSource = Array.isArray(filterFacetProducts) && filterFacetProducts.length
+  ? filterFacetProducts
+  : products;
+const hasSaleProducts = Array.isArray(filterSource)
+  ? filterSource.some((product) => isOnSale(product as any))
+  : false;
 
 const canonical = (() => {
   try {
@@ -249,7 +310,7 @@ const breadcrumbStructuredData = {
 // Build the available filters (category-aware)
 // Build a slug -> title map and unique slug list
 const filterTitleMap: Record<string, string> = {};
-for (const p of allProducts as any[]) {
+for (const p of (Array.isArray(filterSource) ? filterSource : []) as any[]) {
   const rawSlugs: any[] = Array.isArray(p?.filters)
     ? p.filters
     : Array.isArray(p?.filterTitles)
@@ -273,56 +334,8 @@ const uniqueFilters: string[] = Array.from(new Set(Object.keys(filterTitleMap)))
   .filter(Boolean)
   .sort();
 
-// Apply selected filters (match-any). If none selected, keep all.
-const filteredProducts: Product[] = selectedFilters.length
-  ? allProducts.filter((p) => {
-      const values: any[] = Array.isArray((p as any).filters)
-        ? (p as any).filters
-        : Array.isArray((p as any).filterTitles)
-        ? (p as any).filterTitles
-        : [];
-      const matchesFilters = values.some((f: any) =>
-        selectedFilters.includes(normalizeFilterSlug(f))
-      );
-      const matchesSale = hasSaleFilter && isOnSale(p as any);
-      return matchesFilters || matchesSale;
-    })
-  : allProducts;
-
-// Narrow to featured when explicitly requested
-const workingProducts =
-  sortParam === 'featured' && !hasSaleFilter
-    ? filteredProducts.filter((p: any) => p?.featured)
-    : filteredProducts;
-
-// Apply sorting before pagination
-let sortedProducts: Product[] = [...workingProducts];
-try {
-  switch (sortParam) {
-    case 'price-low':
-      sortedProducts.sort((a: any, b: any) => (Number(a?.price) || 0) - (Number(b?.price) || 0));
-      break;
-    case 'price-high':
-      sortedProducts.sort((a: any, b: any) => (Number(b?.price) || 0) - (Number(a?.price) || 0));
-      break;
-    case 'name':
-      sortedProducts.sort((a: any, b: any) => String(a?.title || '').localeCompare(String(b?.title || '')));
-      break;
-    case 'featured':
-    default:
-      sortedProducts.sort((a: any, b: any) => {
-        const fa = Boolean((a as any)?.featured);
-        const fb = Boolean((b as any)?.featured);
-        if (fa && !fb) return -1;
-        if (!fa && fb) return 1;
-        return 0;
-      });
-  }
-} catch {}
-
-const totalCount = sortedProducts.length;
-const totalPages = Math.ceil(totalCount / PAGE_SIZE);
-const products = sortedProducts.slice(start, end);
+const effectiveTotal = totalProducts || (Array.isArray(products) ? products.length : 0);
+const totalPages = Math.max(1, Math.ceil(effectiveTotal / PAGE_SIZE));
 
 const productListElements: StructuredProductListItem[] = Array.isArray(products)
   ? products
@@ -415,6 +428,8 @@ if (endPage < totalPages) {
           filterTitleMap={filterTitleMap}
           currentCategory={currentCategory}
           selectedFilters={selectedFilters}
+          priceMin={minPrice ?? undefined}
+          priceMax={maxPrice ?? undefined}
           selectedVehicles={vehicleFilterSlugs}
           availableVehicles={availableVehicleSlugs}
         />
@@ -440,6 +455,8 @@ if (endPage < totalPages) {
           filterTitleMap={filterTitleMap}
           currentCategory={currentCategory}
           selectedFilters={selectedFilters}
+          priceMin={minPrice ?? undefined}
+          priceMax={maxPrice ?? undefined}
           selectedVehicles={vehicleFilterSlugs}
           availableVehicles={availableVehicleSlugs}
         />

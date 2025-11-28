@@ -10,6 +10,19 @@ type CartOptionMap = Record<string, string | number | boolean | null | undefined
 const FALLBACK_IMAGE = '/logo/faslogo150.webp';
 const QUANTITY_CHOICES = Array.from({ length: 10 }, (_, i) => i + 1);
 
+function toNumber(value: unknown, fallback = 0): number {
+  const numeric = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN;
+  return Number.isFinite(numeric) ? numeric : fallback;
+}
+
+function extractDiscountPercent(label?: string | null): number | null {
+  if (!label || typeof label !== 'string') return null;
+  const match = label.match(/(\d+(?:\.\d+)?)\s*%/);
+  if (!match) return null;
+  const value = Number(match[1]);
+  return Number.isFinite(value) ? value : null;
+}
+
 function normalizeOptionLabel(rawKey: string) {
   return rawKey
     .split(/[^a-zA-Z0-9]+/)
@@ -56,6 +69,69 @@ function CartContents() {
   const items = cart?.items ?? [];
   const hasItems = items.length > 0;
 
+  const { perItemPricing, discountTotal, originalSubtotal, saleLabel, hasSaleItems } = useMemo(() => {
+    const pricingById: Record<
+      string,
+      {
+        unitPrice: number;
+        comparePrice: number | null;
+        onSale: boolean;
+        quantity: number;
+        savings: number;
+        lineOriginal: number;
+        lineCurrent: number;
+        saleLabel?: string;
+      }
+    > = {};
+
+    let discount = 0;
+    let original = 0;
+    let firstSaleLabel: string | null = null;
+    let hasSale = false;
+
+    items.forEach((item) => {
+      const qty = Math.max(1, toNumber(item.quantity, 1));
+      const unitPrice = Math.max(0, toNumber(item.price, 0));
+      const compareFromItem = toNumber(item.originalPrice, unitPrice);
+      const percentFromLabel = extractDiscountPercent(item.saleLabel);
+      const derivedCompare =
+        percentFromLabel && unitPrice > 0 ? unitPrice / (1 - percentFromLabel / 100) : null;
+      const bestCompare = Math.max(compareFromItem, derivedCompare ?? 0);
+      const hasCompareDiff = bestCompare > unitPrice;
+      const onSale = hasCompareDiff || Boolean(item.isOnSale) || Boolean(percentFromLabel);
+      const comparePrice = hasCompareDiff ? bestCompare : null;
+      const lineCurrent = unitPrice * qty;
+      const lineOriginal = comparePrice ? comparePrice * qty : lineCurrent;
+      const savings = lineOriginal > lineCurrent ? lineOriginal - lineCurrent : 0;
+
+      discount += savings;
+      original += lineOriginal;
+      if (!firstSaleLabel && (item.saleLabel || item.isOnSale)) firstSaleLabel = item.saleLabel || null;
+      if (onSale) hasSale = true;
+
+      pricingById[item.id] = {
+        unitPrice,
+        comparePrice,
+        onSale,
+        quantity: qty,
+        savings,
+        lineOriginal,
+        lineCurrent,
+        saleLabel: item.saleLabel || undefined
+      };
+    });
+
+    return {
+      perItemPricing: pricingById,
+      discountTotal: discount,
+      originalSubtotal: original,
+      saleLabel: firstSaleLabel,
+      hasSaleItems: hasSale
+    };
+  }, [items]);
+
+  const hasDiscounts = discountTotal > 0;
+
   const installOnlyItems = useMemo(
     () =>
       items.filter((item) => {
@@ -101,6 +177,8 @@ function CartContents() {
   };
 
   const formattedSubtotal = formatPrice(subtotal || 0);
+  const formattedOriginalSubtotal = formatPrice(originalSubtotal || subtotal || 0);
+  const formattedDiscount = formatPrice(discountTotal);
 
   return (
     <div className="bg-black text-white">
@@ -144,12 +222,26 @@ function CartContents() {
               </h2>
               <ul className="divide-y divide-white/10">
                 {items.map((item) => {
+                  const pricing = perItemPricing[item.id] || {
+                    unitPrice: toNumber(item.price, 0),
+                    comparePrice: null,
+                    onSale: Boolean(item.isOnSale),
+                    quantity: Math.max(1, toNumber(item.quantity, 1)),
+                    savings: 0,
+                    lineCurrent: toNumber(item.price, 0) * Math.max(1, toNumber(item.quantity, 1)),
+                    lineOriginal: toNumber(item.price, 0) * Math.max(1, toNumber(item.quantity, 1)),
+                    saleLabel: item.saleLabel || undefined
+                  };
                   const optionsSummary = listOptions(item.options);
                   const normalizedClass = (item.shippingClass || '')
                     .toString()
                     .toLowerCase()
                     .replace(/[^a-z]/g, '');
                   const isInstallOnly = item.installOnly || normalizedClass.includes('installonly');
+                  const unitPrice = pricing.unitPrice;
+                  const comparePrice = pricing.comparePrice;
+                  const onSale = pricing.onSale;
+                  const savings = pricing.savings;
                   const productHref = (() => {
                     const raw = item.productUrl;
                     if (!raw) return undefined;
@@ -197,9 +289,23 @@ function CartContents() {
                               <p className="text-sm text-white/70">{optionsSummary}</p>
                             )}
                             <Price
-                              amount={item.price}
+                              amount={unitPrice}
+                              originalAmount={onSale ? comparePrice ?? undefined : undefined}
+                              onSale={onSale}
                               className="text-base font-semibold text-white"
                             />
+                            {onSale && (
+                              <div className="mt-1 flex flex-wrap items-center gap-2">
+                                <span className="inline-flex items-center rounded-full border border-red-500/40 bg-red-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-red-200">
+                                  {pricing.saleLabel || item.saleLabel || 'Sale'}
+                                </span>
+                                {savings > 0 && (
+                                  <span className="text-xs text-emerald-200">
+                                    You save {formatPrice(savings)}
+                                  </span>
+                                )}
+                              </div>
+                            )}
                             {isInstallOnly && (
                               <p className="inline-flex items-center rounded-full px-3 py-1 text-xs uppercase tracking-wide text-amber-200">
                                 Install-Only Service
@@ -256,10 +362,35 @@ function CartContents() {
             <aside className="space-y-6 self-start rounded-3xl border border-white/10 bg-white/5 p-6 lg:w-[360px] lg:justify-self-end">
               <h2 className="text-lg font-semibold text-white">Order Summary</h2>
               <dl className="space-y-3 text-sm text-white/80">
-                <div className="flex items-center justify-between">
-                  <dt>Subtotal</dt>
+                <div className="flex items-start justify-between">
+                  <dt className="flex flex-col gap-1">
+                    <span className="text-white">Subtotal</span>
+                    {hasDiscounts && (
+                      <span className="text-xs text-white/50 line-through">{formattedOriginalSubtotal}</span>
+                    )}
+                  </dt>
                   <dd className="font-semibold text-white">{formattedSubtotal}</dd>
                 </div>
+                {hasDiscounts ? (
+                  <div className="flex items-center justify-between">
+                    <dt className="flex items-center gap-2 text-emerald-100">
+                      <span className="rounded-full border border-emerald-300/30 bg-emerald-400/10 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide">
+                        {saleLabel || 'Discount'}
+                      </span>
+                      <span>Discount</span>
+                    </dt>
+                    <dd className="font-semibold text-emerald-200">-{formattedDiscount}</dd>
+                  </div>
+                ) : (
+                  hasSaleItems && (
+                    <div className="flex items-center justify-between text-xs text-emerald-200">
+                      <span className="rounded-full border border-emerald-300/30 bg-emerald-400/10 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide">
+                        {saleLabel || 'Discount'}
+                      </span>
+                      <span className="text-right text-white/70">Sale price applied</span>
+                    </div>
+                  )
+                )}
                 <div className="flex items-start justify-between gap-4">
                   <dt className="flex items-center gap-2 text-white">
                     Shipping

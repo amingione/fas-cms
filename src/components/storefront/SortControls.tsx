@@ -2,7 +2,7 @@ import { cn } from '@components/ui/utils';
 import { ChevronDown, Grid3X3, List, X } from 'lucide-react';
 import { Button } from '@components/ui/button';
 
-type SortValue = 'featured' | 'name' | 'price-low' | 'price-high';
+type SortValue = 'featured' | 'newest' | 'name' | 'price-asc' | 'price-desc';
 type ViewMode = 'grid' | 'list';
 
 interface SortControlsProps {
@@ -34,9 +34,10 @@ export function SortControls({
           className="appearance-none bg-gray-800/50 border border-gray-600/50 rounded-lg px-3 py-2 pr-8 text-white font-ethno text-sm focus:border-primary focus:ring-primary/20 cursor-pointer"
         >
           <option value="featured">Featured</option>
+          <option value="newest">Newest</option>
           <option value="name">Name A-Z</option>
-          <option value="price-low">Price: Low to High</option>
-          <option value="price-high">Price: High to Low</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
         </select>
         <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 pointer-events-none" />
       </div>

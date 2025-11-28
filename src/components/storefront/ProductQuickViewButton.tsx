@@ -259,10 +259,10 @@ export default function ProductQuickViewButton({
               ? product.price
               : undefined,
         originalPrice:
-          typeof product.price === 'number'
-            ? product.price
-            : typeof comparePrice === 'number'
-              ? comparePrice
+          typeof comparePrice === 'number' && (typeof activePrice !== 'number' || comparePrice > activePrice)
+            ? comparePrice
+            : typeof product.price === 'number'
+              ? product.price
               : undefined,
         isOnSale: onSale,
         saleLabel: saleBadge || (product as any)?.saleLabel,

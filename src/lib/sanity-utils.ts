@@ -38,6 +38,15 @@ export const ACTIVE_PRODUCT_FILTER = `${BASE_PUBLISHED_PRODUCT_FILTER} && coales
 export const ACTIVE_PRODUCT_WITH_SLUG_FILTER = `${ACTIVE_PRODUCT_FILTER} && defined(slug.current)`;
 export const SERVICE_PRODUCT_FILTER = `${BASE_PUBLISHED_PRODUCT_FILTER} && productType == "service"`;
 export const SERVICE_PRODUCT_WITH_SLUG_FILTER = `${SERVICE_PRODUCT_FILTER} && defined(slug.current)`;
+const STORE_PRODUCT_WITH_SLUG_FILTER = `${BASE_PUBLISHED_PRODUCT_FILTER} && status == "active" && coalesce(productType, "") != "service" && defined(slug.current)`;
+const FINAL_PRICE_EXPRESSION = `coalesce(
+  select(
+    coalesce(onSale, pricing.onSale) && defined(coalesce(salePrice, pricing.salePrice)) => coalesce(salePrice, pricing.salePrice),
+    coalesce(price, pricing.price)
+  ),
+  coalesce(price, pricing.price),
+  0
+)`;
 const FEATURED_PRODUCT_FILTER = 'string(featured) == "true"';
 const GROQ_OPTION_VALUES_FRAGMENT = `array::compact(
         coalesce(values, []) +
@@ -557,6 +566,7 @@ const safeDecodeURIComponent = (value: string): string => {
   }
 };
 
+// normalizeSlugValue is exported for reuse across pages/components
 export const normalizeSlugValue = (value: unknown): string => {
   const raw =
     typeof value === 'string'
@@ -841,6 +851,7 @@ const PRODUCT_LISTING_PROJECTION = `{
   "saleEndDate": coalesce(saleEndDate, pricing.saleEndDate),
   "saleLabel": coalesce(saleLabel, pricing.saleLabel),
   "saleActive": pricing.saleActive,
+  "finalPrice": ${FINAL_PRICE_EXPRESSION},
   averageHorsepower,
   description,
   shortDescription,
@@ -874,6 +885,7 @@ const PRODUCT_LISTING_PROJECTION = `{
   },
   tune->{ title, slug },
   compatibleVehicles[]->{ make, model, slug },
+  tags,
   // include free-form filter tags from schema
   filters[]->{
     _id,
@@ -990,6 +1002,253 @@ export async function fetchProductsFromSanity({
     );
   } catch (err) {
     console.error('Failed to fetch products:', err);
+    return [];
+  }
+}
+
+export interface StorefrontProductFilters {
+  categorySlug?: string;
+  filterSlugs?: string[];
+  vehicleSlug?: string;
+  vehicleSlugs?: string[];
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  searchTerm?: string | null;
+  sortBy?: 'price-asc' | 'price-desc' | 'newest' | 'featured' | 'name';
+  page?: number;
+  pageSize?: number;
+  saleOnly?: boolean;
+}
+
+// Internal lowercase-normalizer for filter params; keep name distinct to avoid symbol collisions
+const normalizeFilterSlug = (value?: string | null) =>
+  typeof value === 'string' ? value.trim().toLowerCase() : '';
+
+const normalizeSlugList = (values?: string | string[] | null) => {
+  if (!values) return null;
+  const arr = Array.isArray(values) ? values : String(values).split(',');
+  const normalized = Array.from(
+    new Set(
+      arr
+        .map((entry) => normalizeFilterSlug(entry))
+        .filter(Boolean)
+    )
+  );
+  return normalized.length ? normalized : null;
+};
+
+export async function fetchFilteredProducts(
+  filters: StorefrontProductFilters = {}
+): Promise<Product[]> {
+  try {
+    if (!hasSanityConfig || !sanity) return [];
+
+    const {
+      categorySlug = null,
+      filterSlugs,
+      vehicleSlug,
+      vehicleSlugs,
+      minPrice = null,
+      maxPrice = null,
+      searchTerm = null,
+      sortBy = 'featured',
+      page = 1,
+      pageSize = 12,
+      saleOnly = false
+    } = filters;
+
+    let orderExpression = 'featured desc, _createdAt desc';
+    switch (sortBy) {
+      case 'price-asc':
+        orderExpression = 'finalPrice asc';
+        break;
+      case 'price-desc':
+        orderExpression = 'finalPrice desc';
+        break;
+      case 'newest':
+        orderExpression = '_createdAt desc';
+        break;
+      case 'name':
+        orderExpression = 'lower(title) asc';
+        break;
+      case 'featured':
+      default:
+        orderExpression = 'featured desc, _createdAt desc';
+        break;
+    }
+
+    const normalizedCategorySlug = categorySlug ? normalizeFilterSlug(categorySlug) : null;
+    const normalizedFilterSlugs = normalizeSlugList(filterSlugs);
+    const normalizedVehicleSlugs =
+      normalizeSlugList(vehicleSlugs) ??
+      (vehicleSlug && normalizeFilterSlug(vehicleSlug) ? [normalizeFilterSlug(vehicleSlug)] : null);
+
+    const start = Math.max(0, (Math.max(1, page) - 1) * Math.max(1, pageSize));
+    const end = start + Math.max(1, pageSize);
+
+    const query = `
+      *[_type == "product" 
+        && ${STORE_PRODUCT_WITH_SLUG_FILTER}
+        && ($categorySlug == null || $categorySlug in category[]->slug.current || $categorySlug in categories[]->slug.current)
+        && ($filterSlugs == null || count((filters[]->slug.current)[@ in $filterSlugs]) > 0 || count((filters[])[@ in $filterSlugs]) > 0 || count((filterTitles[])[@ in $filterSlugs]) > 0)
+        && ($vehicleSlugs == null || count((compatibleVehicles[]->slug.current)[@ in $vehicleSlugs]) > 0)
+        && ($minPrice == null || ${FINAL_PRICE_EXPRESSION} >= $minPrice)
+        && ($maxPrice == null || ${FINAL_PRICE_EXPRESSION} <= $maxPrice)
+        && ($saleOnly == false || (coalesce(onSale, pricing.onSale) == true && defined(coalesce(salePrice, pricing.salePrice))))
+        && ($searchTerm == null || 
+            lower(title) match lower("*" + $searchTerm + "*") || 
+            lower(tags[]) match lower("*" + $searchTerm + "*"))
+      ] ${PRODUCT_LISTING_PROJECTION} | order(${orderExpression})[$start...$end]
+    `;
+
+    const params: QueryParams = {
+      categorySlug: normalizedCategorySlug,
+      filterSlugs: normalizedFilterSlugs,
+      vehicleSlugs: normalizedVehicleSlugs,
+      minPrice: typeof minPrice === 'number' && Number.isFinite(minPrice) ? minPrice : null,
+      maxPrice: typeof maxPrice === 'number' && Number.isFinite(maxPrice) ? maxPrice : null,
+      searchTerm: typeof searchTerm === 'string' && searchTerm.trim() ? searchTerm.trim() : null,
+      sortBy,
+      start,
+      end,
+      saleOnly: Boolean(saleOnly)
+    };
+
+    const executeQuery = async () => {
+      const results = await sanity.fetch<Product[]>(query, params);
+      return Array.isArray(results) ? results.map((item) => normalizeProductPrice(item)) : [];
+    };
+
+    return cachedSanityFetch(
+      [
+        'fetchFilteredProducts',
+        config.projectId,
+        config.dataset,
+        perspective,
+        params,
+        STORE_PRODUCT_WITH_SLUG_FILTER
+      ],
+      executeQuery
+    );
+  } catch (err) {
+    console.error('Failed to fetch filtered products:', err);
+    return [];
+  }
+}
+
+export async function getProductCount(filters: StorefrontProductFilters = {}): Promise<number> {
+  try {
+    if (!hasSanityConfig || !sanity) return 0;
+
+    const {
+      categorySlug = null,
+      filterSlugs,
+      vehicleSlug,
+      vehicleSlugs,
+      minPrice = null,
+      maxPrice = null,
+      searchTerm = null,
+      saleOnly = false
+    } = filters;
+
+    const normalizedFilterSlugs = normalizeSlugList(filterSlugs);
+    const normalizedVehicleSlugs =
+      normalizeSlugList(vehicleSlugs) ??
+      (vehicleSlug && normalizeSlugValue(vehicleSlug) ? [normalizeSlugValue(vehicleSlug)] : null);
+
+    const query = `
+      count(*[_type == "product" 
+        && ${STORE_PRODUCT_WITH_SLUG_FILTER}
+        && ($categorySlug == null || $categorySlug in category[]->slug.current || $categorySlug in categories[]->slug.current)
+        && ($filterSlugs == null || count((filters[]->slug.current)[@ in $filterSlugs]) > 0 || count((filters[])[@ in $filterSlugs]) > 0 || count((filterTitles[])[@ in $filterSlugs]) > 0)
+        && ($vehicleSlugs == null || count((compatibleVehicles[]->slug.current)[@ in $vehicleSlugs]) > 0)
+        && ($minPrice == null || ${FINAL_PRICE_EXPRESSION} >= $minPrice)
+        && ($maxPrice == null || ${FINAL_PRICE_EXPRESSION} <= $maxPrice)
+        && ($saleOnly == false || (coalesce(onSale, pricing.onSale) == true && defined(coalesce(salePrice, pricing.salePrice))))
+        && ($searchTerm == null || 
+            lower(title) match lower("*" + $searchTerm + "*") || 
+            lower(tags[]) match lower("*" + $searchTerm + "*"))
+      ])
+    `;
+
+    const params: QueryParams = {
+      categorySlug: categorySlug ? normalizeSlugValue(categorySlug) : null,
+      filterSlugs: normalizedFilterSlugs,
+      vehicleSlugs: normalizedVehicleSlugs,
+      minPrice: typeof minPrice === 'number' && Number.isFinite(minPrice) ? minPrice : null,
+      maxPrice: typeof maxPrice === 'number' && Number.isFinite(maxPrice) ? maxPrice : null,
+      searchTerm: typeof searchTerm === 'string' && searchTerm.trim() ? searchTerm.trim() : null,
+      saleOnly: Boolean(saleOnly)
+    };
+
+    const executeQuery = async () => {
+      const result = await sanity.fetch<number>(query, params);
+      return typeof result === 'number' && Number.isFinite(result) ? result : 0;
+    };
+
+    return cachedSanityFetch(
+      ['getProductCount', config.projectId, config.dataset, perspective, params],
+      executeQuery
+    );
+  } catch (err) {
+    console.error('Failed to fetch product count:', err);
+    return 0;
+  }
+}
+
+export async function fetchStorefrontFilterFacets(filters: StorefrontProductFilters = {}) {
+  try {
+    if (!hasSanityConfig || !sanity) return [];
+    const {
+      categorySlug = null,
+      vehicleSlug,
+      vehicleSlugs,
+      minPrice = null,
+      maxPrice = null,
+      searchTerm = null,
+      saleOnly = false
+    } = filters;
+
+    const normalizedVehicleSlugs =
+      normalizeSlugList(vehicleSlugs) ??
+      (vehicleSlug && normalizeSlugValue(vehicleSlug) ? [normalizeSlugValue(vehicleSlug)] : null);
+    const params: QueryParams = {
+      categorySlug: categorySlug ? normalizeSlugValue(categorySlug) : null,
+      vehicleSlugs: normalizedVehicleSlugs,
+      minPrice: typeof minPrice === 'number' && Number.isFinite(minPrice) ? minPrice : null,
+      maxPrice: typeof maxPrice === 'number' && Number.isFinite(maxPrice) ? maxPrice : null,
+      searchTerm: typeof searchTerm === 'string' && searchTerm.trim() ? searchTerm.trim() : null,
+      saleOnly: Boolean(saleOnly)
+    };
+
+    const query = `
+      *[_type == "product" 
+        && ${STORE_PRODUCT_WITH_SLUG_FILTER}
+        && ($categorySlug == null || $categorySlug in category[]->slug.current || $categorySlug in categories[]->slug.current)
+        && ($vehicleSlugs == null || count((compatibleVehicles[]->slug.current)[@ in $vehicleSlugs]) > 0)
+        && ($minPrice == null || ${FINAL_PRICE_EXPRESSION} >= $minPrice)
+        && ($maxPrice == null || ${FINAL_PRICE_EXPRESSION} <= $maxPrice)
+        && ($saleOnly == false || (coalesce(onSale, pricing.onSale) == true && defined(coalesce(salePrice, pricing.salePrice))))
+        && ($searchTerm == null || 
+            lower(title) match lower("*" + $searchTerm + "*") || 
+            lower(tags[]) match lower("*" + $searchTerm + "*"))
+      ]{
+        "filters": coalesce(filters[]->{ _id, title, slug }, filters, []),
+        filterTitles,
+        "onSale": coalesce(onSale, pricing.onSale),
+        "salePrice": coalesce(salePrice, pricing.salePrice),
+        "saleActive": coalesce(saleActive, pricing.saleActive),
+        "saleStartDate": coalesce(saleStartDate, pricing.saleStartDate),
+        "saleEndDate": coalesce(saleEndDate, pricing.saleEndDate)
+      }
+    `;
+
+    return cachedSanityFetch(
+      ['fetchStorefrontFilterFacets', config.projectId, config.dataset, perspective, params],
+      () => sanity.fetch(query, params)
+    );
+  } catch (err) {
+    console.error('Failed to fetch storefront filter facets:', err);
     return [];
   }
 }
