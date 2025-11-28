@@ -1,10 +1,14 @@
 'use client';
 
 import { CheckIcon } from '@heroicons/react/20/solid';
+import { addItem } from '@lib/cart';
+import { emitAddToCartSuccess } from '@/lib/add-to-cart-toast';
+import { prefersDesktopCart } from '@/lib/device';
 
 const products = [
   {
     id: 'prod1',
+    name: 'FAS Billet Hellcat Supercharger Lid',
     price: '$1709.99',
     sale: true,
     compareAt: '$1899.99',
@@ -41,7 +45,43 @@ function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
 }
 
+function parsePrice(value: string | number | undefined): number {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string') {
+    const numeric = Number(value.replace(/[^0-9.]/g, ''));
+    return Number.isFinite(numeric) ? numeric : 0;
+  }
+  return 0;
+}
+
 export default function PricingCards() {
+  const handleAddToCart = (product: (typeof products)[number]) => {
+    const name = product.name || 'Black Friday deal';
+    const id = product.id || product.href || name.toLowerCase().replace(/\s+/g, '-');
+    const price = parsePrice(product.price);
+
+    try {
+      addItem({
+        id,
+        name,
+        price,
+        quantity: 1,
+        image: product.image,
+        productUrl: product.href
+      });
+      emitAddToCartSuccess({ name });
+      if (typeof window !== 'undefined') {
+        try {
+          if (!prefersDesktopCart()) window.dispatchEvent(new Event('open-cart'));
+        } catch {
+          window.dispatchEvent(new Event('open-cart'));
+        }
+      }
+    } catch (error) {
+      console.error('Failed to add doorbuster to cart', error);
+    }
+  };
+
   return (
     <section className="relative isolate overflow-hidden bg-black py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -56,22 +96,16 @@ export default function PricingCards() {
         </div>
 
         {/* CARD GRID */}
-        <div className="border border-white/5 shadow-card-outter shadow-inner shadow-white/10 rounded-xl relative mx-auto mt-10 grid max-w-md grid-cols-1 gap-y-8 lg:mx-0 lg:-mb-14 lg:max-w-none lg:grid-cols-3">
-          {/* OVERLAY PANEL (behind cards) */}
-          <div
-            aria-hidden="true"
-            className="hidden lg:absolute lg:inset-x-px lg:top-4 lg:bottom-0 lg:block lg:rounded-t-2xl lg:bg-gray-800/80 lg:ring-1 lg:ring-white/10"
-          />
-
+        <div className="relative mx-auto mt-10 grid max-w-md grid-cols-1 gap-y-8 lg:mx-0 lg:-mb-14 lg:max-w-none lg:grid-cols-3">
           {products.map((product) => (
             <div
               key={product.id}
               data-featured={product.featured ? 'true' : undefined}
               className={classNames(
                 product.featured
-                  ? 'z-10 bg-primary/20 backdrop-blur-xl shadow-2xl shadow-primary/30 border border-primary/40 outline-1 -outline-offset-1 outline-white/10'
-                  : 'bg-black/30 backdrop-blur-md outline-1 -outline-offset-1 outline-white/10 lg:bg-transparent lg:pb-14 lg:outline-0',
-                'relative rounded-2xl lg:shadow-[0_0_35px_rgba(0,0,0,0.45)]'
+                  ? 'z-10 bg-primary/20 backdrop-blur-xl shadow-2xl shadow-primary/30 border border-primary/40'
+                  : 'bg-black/70 backdrop-blur-md outline-1 -outline-offset-1 outline-white/10 lg:pb-14',
+                'relative rounded-2xl lg:shadow-[0_0_35px_rgba(0,0,0,0.45)] border border-white/5'
               )}
             >
               <div className="p-8 lg:pt-12 xl:p-10 xl:pt-14">
@@ -103,16 +137,17 @@ export default function PricingCards() {
                     className={classNames(
                       product.featured
                         ? 'bg-primary hover:bg-primary/90 shadow-lg shadow-primary/40'
-                        : 'bg-black/30 hover:bg-black/40 border border-white/10 shadow-md',
-                      'btn-plain w-1/2 rounded-md px-3 py-2 text-sm font-semibold text-white'
+                        : 'bg-black/60 hover:bg-primary/10 border border-white/10 shadow-md',
+                      'btn-plain w-1/2 rounded-md px-3 py-2 text-sm font-semibold text-white transition-colors'
                     )}
+                    onClick={() => handleAddToCart(product)}
                   >
                     Add to Cart
                   </button>
 
                   <a
                     href={product.href}
-                    className="btn-plain w-1/2 rounded-md px-3 py-2 text-sm font-semibold text-center bg-white/10 hover:bg-white/20 text-white border border-white/10"
+                    className="btn-plain w-1/2 rounded-md px-3 py-2 text-sm font-semibold text-center hover:bg-white/20 text-white border border-white/10"
                   >
                     View Product
                   </a>
