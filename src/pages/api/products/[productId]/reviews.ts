@@ -16,7 +16,7 @@ export const GET: APIRoute = async ({ params, url }) => {
   const orderBy = sortMap[sortKey] || sortMap.newest;
 
   try {
-    const query = productReviewsQuery.replace('order(featured desc, submittedAt desc)', `order(featured desc, ${orderBy})`);
+    const query = productReviewsQuery.replace(/order\(featured desc, submittedAt desc\)/g, `order(featured desc, ${orderBy})`);
     const reviews = await sanityServer.fetch(query, { productId });
     return new Response(JSON.stringify(reviews || []), { status: 200 });
   } catch (error: any) {
