@@ -7,6 +7,9 @@ export type CartItem = {
   id: string; // product or variant id
   name?: string;
   price?: number; // unit price (for quick display; source of truth remains on server)
+  originalPrice?: number;
+  isOnSale?: boolean;
+  saleLabel?: string;
   quantity: number;
   image?: string;
   options?: Record<string, string>; // e.g., { color: 'Red', size: 'L' }
@@ -120,12 +123,19 @@ export async function addItem(
       if (payload.stripePriceId) cart.items[idx].stripePriceId = payload.stripePriceId;
       if (payload.productId) cart.items[idx].productId = payload.productId;
       if (payload.productSlug) cart.items[idx].productSlug = payload.productSlug;
+      if (typeof payload.price === 'number') cart.items[idx].price = payload.price;
+      if (typeof payload.originalPrice === 'number') cart.items[idx].originalPrice = payload.originalPrice;
+      if (typeof payload.isOnSale === 'boolean') cart.items[idx].isOnSale = payload.isOnSale;
+      if (typeof payload.saleLabel === 'string') cart.items[idx].saleLabel = payload.saleLabel;
     }
   } else {
     cart.items.push({
       id,
       name: typeof payload === 'object' ? payload.name : undefined,
       price: typeof payload === 'object' ? payload.price : undefined,
+      originalPrice: typeof payload === 'object' ? payload.originalPrice : undefined,
+      isOnSale: typeof payload === 'object' ? payload.isOnSale : undefined,
+      saleLabel: typeof payload === 'object' ? payload.saleLabel : undefined,
       image: typeof payload === 'object' ? payload.image : undefined,
       options: typeof payload === 'object' ? payload.options : undefined,
       selectedOptions,

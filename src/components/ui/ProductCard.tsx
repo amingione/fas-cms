@@ -2,8 +2,15 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingCart } from 'lucide-react';
 import { getCart, saveCart } from '@lib/cart';
-import { resolveSanityImageUrl } from '@/lib/sanity-utils';
+import { normalizeSlugValue, resolveSanityImageUrl } from '@/lib/sanity-utils';
 import { resolveProductCartMeta } from '@/lib/product-flags';
+import {
+  formatPrice,
+  getActivePrice,
+  getCompareAtPrice,
+  getSaleBadgeText,
+  isOnSale
+} from '@/lib/saleHelpers';
 
 interface Product {
   _id: string;
@@ -28,11 +35,14 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const [isAdding, setIsAdding] = useState(false);
 
-  const productPrice =
-    typeof product.price === 'number' ? `$${parseFloat(product.price.toString()).toFixed(2)}` : '—';
+  const activePrice = getActivePrice(product);
+  const comparePrice = getCompareAtPrice(product);
+  const onSale = isOnSale(product);
+  const saleBadge = getSaleBadgeText(product);
+  const productPrice = formatPrice(activePrice);
 
   const imageUrl = resolveSanityImageUrl([product?.image, product?.image?.asset]) || '/logo/faslogochroma.webp';
-  const productSlug = typeof product.slug === 'string' ? product.slug : product.slug?.current || '';
+  const productSlug = normalizeSlugValue((product as any)?.slug);
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -42,12 +52,24 @@ export function ProductCard({ product }: ProductCardProps) {
       // Get current cart
       const cart = getCart();
       const { shippingClass, installOnly } = resolveProductCartMeta(product);
+      const saleLabel = saleBadge || product?.saleLabel;
+      const priceValue =
+        typeof activePrice === 'number'
+          ? activePrice
+          : typeof product.price === 'number'
+            ? product.price
+            : 0;
 
       // Check if item already exists
       const existingIndex = cart.findIndex((item: any) => item.id === product._id);
 
       if (existingIndex >= 0) {
         cart[existingIndex].quantity += 1;
+        cart[existingIndex].price = priceValue;
+        cart[existingIndex].originalPrice =
+          typeof product.price === 'number' ? product.price : cart[existingIndex].originalPrice;
+        cart[existingIndex].isOnSale = onSale;
+        cart[existingIndex].saleLabel = saleLabel;
         if (shippingClass) {
           cart[existingIndex].shippingClass = shippingClass;
         }
@@ -58,7 +80,10 @@ export function ProductCard({ product }: ProductCardProps) {
         cart.push({
           id: product._id,
           name: product.title,
-          price: product.price,
+          price: priceValue,
+          originalPrice: typeof product.price === 'number' ? product.price : undefined,
+          isOnSale: onSale,
+          saleLabel: saleLabel ?? undefined,
           quantity: 1,
           image: imageUrl,
           categories: (product.categories || [])
@@ -111,6 +136,11 @@ export function ProductCard({ product }: ProductCardProps) {
         onClick={(e) => e.preventDefault()} // Prevent navigation for demo
       >
         <div className="p-4 h-52 sm:h-64 flex justify-center items-center overflow-hidden">
+          {saleBadge && (
+            <span className="absolute left-4 top-4 rounded-full border border-red-500/60 bg-red-500/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-red-200">
+              {saleBadge}
+            </span>
+          )}
           <motion.img
             src={imageUrl}
             alt={product.title}
@@ -130,7 +160,18 @@ export function ProductCard({ product }: ProductCardProps) {
 
       <div className="px-4 pb-4 text-left">
         <div className="flex justify-between items-center mt-2">
-          <p className="text-xl font-mono text-primary engine-pulse">{productPrice}</p>
+          <p className="text-xl font-mono text-primary engine-pulse">
+            {onSale && comparePrice ? (
+              <>
+                <span className="text-red-400">{formatPrice(activePrice)}</span>
+                <span className="ml-2 text-white/60 line-through">
+                  {formatPrice(comparePrice)}
+                </span>
+              </>
+            ) : (
+              productPrice
+            )}
+          </p>
 
           {product._id && (
             <motion.button

@@ -19,18 +19,16 @@ const products = [
   },
   {
     id: 'prod2',
-    name: 'FAS Hellcat Pulley Upgrade',
     price: '$499.99',
     sale: true,
     compareAt: '$699.99',
-    image: '/images/products/pulley.jpg',
+    image: '/images/products/2.4LDominatorPackage.webp',
     highlights: ['+40–80whp gains', 'Lightweight design', 'Heat‑treated steel'],
     featured: true,
-    href: '/product/fas-pulley-upgrade'
+    href: '/shop/dominator-2-4l-supercharger-package'
   },
   {
     id: 'prod3',
-    name: 'FAS Carbon Fiber Intake Lid',
     price: '$699.99',
     sale: true,
     compareAt: '$899.99',
@@ -90,8 +88,7 @@ export default function PricingCards() {
             BLACK FRIDAY DOORBUSTERS
           </h2>
           <p className="mt-6 text-lg text-gray-400">
-            Limited time Black Friday deals! Save big on our most popular products while supplies
-            last.
+            Limited time Black Friday deals! Save on our most popular products while supplies last.
           </p>
         </div>
 
@@ -103,7 +100,7 @@ export default function PricingCards() {
               data-featured={product.featured ? 'true' : undefined}
               className={classNames(
                 product.featured
-                  ? 'z-10 bg-primary/20 backdrop-blur-xl shadow-2xl shadow-primary/30 border border-primary/40'
+                  ? 'z-10 bg-primary/20 backdrop-blur-xl shadow-primary/30 shadow-card-outter shadow-inner border border-primary/40'
                   : 'bg-black/70 backdrop-blur-md outline-1 -outline-offset-1 outline-white/10 lg:pb-14',
                 'relative rounded-2xl lg:shadow-[0_0_35px_rgba(0,0,0,0.45)] border border-white/5'
               )}
@@ -136,8 +133,8 @@ export default function PricingCards() {
                     type="button"
                     className={classNames(
                       product.featured
-                        ? 'bg-primary hover:bg-primary/90 shadow-lg shadow-primary/40'
-                        : 'bg-black/60 hover:bg-primary/10 border border-white/10 shadow-md',
+                        ? 'btn-plain bg-primary hover:bg-primary/90 shadow-lg shadow-primary/40'
+                        : 'btn-plain bg-black/60 hover:bg-primary/10 border border-white/10 shadow-md',
                       'btn-plain w-1/2 rounded-md px-3 py-2 text-sm font-semibold text-white transition-colors'
                     )}
                     onClick={() => handleAddToCart(product)}

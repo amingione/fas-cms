@@ -7,6 +7,7 @@ import { prefersDesktopCart } from '@/lib/device';
 import { emitAddToCartSuccess } from '@/lib/add-to-cart-toast';
 import * as React from 'react';
 import { resolveProductCartMeta } from '@/lib/product-flags';
+import { getActivePrice, getCompareAtPrice, getSaleBadgeText, isOnSale } from '@/lib/saleHelpers';
 
 /**
  * AddToCart — FAS + Sanity version
@@ -116,6 +117,10 @@ export function AddToCart({ product }: { product: any }) {
       ? productSlug
       : `/shop/${productSlug}`
     : undefined;
+  const activePrice = getActivePrice(product);
+  const comparePrice = getCompareAtPrice(product);
+  const onSale = isOnSale(product);
+  const saleLabel = getSaleBadgeText(product) || (product as any)?.saleLabel;
 
   const disabledReason =
     !variantId && Array.isArray(product?.variants) && product.variants.length > 1
@@ -130,16 +135,20 @@ export function AddToCart({ product }: { product: any }) {
     const selectedOptionsList = Object.entries(selected).map(
       ([key, value]) => `${key}: ${value}`
     );
+    const originalPrice =
+      typeof (product as any)?.price === 'number'
+        ? (product as any).price
+        : typeof comparePrice === 'number'
+          ? comparePrice
+          : undefined;
 
     await addItem(null as any, {
       id,
       name: product?.title,
-      price:
-        typeof product?.salePrice === 'number'
-          ? product.salePrice
-          : typeof product?.price === 'number'
-            ? product.price
-            : undefined,
+      price: typeof activePrice === 'number' ? activePrice : undefined,
+      originalPrice,
+      isOnSale: onSale,
+      saleLabel: typeof saleLabel === 'string' ? saleLabel : undefined,
       image: product?.images?.[0]?.asset?.url || product?.images?.[0]?.url,
       options: selected,
       selectedOptions: selectedOptionsList,

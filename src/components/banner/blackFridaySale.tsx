@@ -60,23 +60,14 @@ export function BlackFridayHero() {
             Kits, Exhaust Elbows, and more.
           </p>
 
-          {/* Countdown stub... */}
-          <div className="flex flex-wrap items-center justify-center gap-4 text-xs sm:text-sm lg:justify-start">
-            <div className="flex items-center gap-2 rounded-full bg-zinc-900/70 px-4 py-2 ring-1 ring-zinc-700">
-              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold">
-                !
-              </span>
-              <span className="font-medium">
-                Begins in {timeLeft.days}d : {timeLeft.hours}h : {timeLeft.minutes}m :{' '}
-                {timeLeft.seconds}s
-              </span>
-            </div>
-            <span className="text-zinc-400">
-              Sale begins Friday at midnight. Discounts auto‑apply at launch.
-            </span>
+          <div className="mt-4">
+            <a
+              href="/blackFridaySale"
+              className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-6 py-2.5 text-sm font-semibold text-black shadow-lg shadow-amber-500/30 transition hover:-translate-y-0.5 hover:bg-amber-300"
+            >
+              Shop the Sale →
+            </a>
           </div>
-
-          {/* CTA buttons hidden */}
         </div>
 
         {/* Right: product / promo card */}

@@ -21,7 +21,8 @@ export const productDetailQuery = /* groq */ `
     "saleActive": pricing.saleActive,
     "discountPercentage": pricing.discountPercentage,
     "saleStartDate": pricing.saleStartDate,
-    "saleEndDate": pricing.saleEndDate
+    "saleEndDate": pricing.saleEndDate,
+    "saleLabel": pricing.saleLabel
   },
   
   // Inventory availability
@@ -84,7 +85,11 @@ export const productListingQuery = /* groq */ `
     "salePrice": pricing.salePrice,
     "onSale": pricing.onSale && pricing.saleActive,
     "compareAtPrice": pricing.compareAtPrice,
-    "discountPercentage": pricing.discountPercentage
+    "discountPercentage": pricing.discountPercentage,
+    "saleStartDate": pricing.saleStartDate,
+    "saleEndDate": pricing.saleEndDate,
+    "saleLabel": pricing.saleLabel,
+    "saleActive": pricing.saleActive
   },
   
   "inventory": {
@@ -130,7 +135,9 @@ export const activeSalesQuery = /* groq */ `
     "salePrice": pricing.salePrice,
     "compareAtPrice": pricing.compareAtPrice,
     "discountPercentage": pricing.discountPercentage,
-    "saleEndDate": pricing.saleEndDate
+    "saleEndDate": pricing.saleEndDate,
+    "saleActive": pricing.saleActive,
+    "saleLabel": pricing.saleLabel
   }
 }
 `;

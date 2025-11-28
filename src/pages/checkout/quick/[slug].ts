@@ -1,19 +1,11 @@
 import type { APIRoute } from 'astro';
-import { getProductBySlug } from '@/lib/sanity-utils';
+import { getProductBySlug, normalizeSlugValue } from '@/lib/sanity-utils';
 
 function normalizeQuantity(value: string | null): number {
   if (!value) return 1;
   const parsed = Number.parseInt(value, 10);
   if (!Number.isFinite(parsed) || parsed <= 0) return 1;
   return Math.min(parsed, 99);
-}
-
-function normalizeSlug(value: unknown): string {
-  if (typeof value === 'string') return value;
-  if (value && typeof value === 'object' && typeof (value as any).current === 'string') {
-    return (value as any).current;
-  }
-  return '';
 }
 
 function collectFilterSlugs(filters: unknown): string[] {
@@ -41,7 +33,7 @@ function collectFilterSlugs(filters: unknown): string[] {
 }
 
 export const GET: APIRoute = async ({ params, request }) => {
-  const slugParam = params.slug ? normalizeSlug(params.slug) : '';
+  const slugParam = params.slug ? normalizeSlugValue(params.slug) : '';
   if (!slugParam) {
     return new Response('Missing product', { status: 400 });
   }
@@ -112,7 +104,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 };
 
 export const HEAD: APIRoute = async ({ params, request }) => {
-  const slugParam = params.slug ? normalizeSlug(params.slug) : '';
+  const slugParam = params.slug ? normalizeSlugValue(params.slug) : '';
   if (!slugParam) {
     return new Response(null, { status: 400 });
   }

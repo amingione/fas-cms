@@ -28,6 +28,15 @@
 
 import Price from '@/components/storefront/Price.tsx';
 import VariantSelector from '@/components/storefront/VariantSelector.tsx';
+import {
+  formatPrice,
+  getActivePrice,
+  getCompareAtPrice,
+  getSaleBadgeText,
+  getSaleTimeRemaining,
+  getSavingsAmount,
+  isOnSale
+} from '@/lib/saleHelpers';
 
 interface Slug { current?: string }
 interface Spec { key: string; value: string }
@@ -53,11 +62,15 @@ const { product } = Astro.props as {
 
 const title = product?.title || 'Untitled Product';
 const slug = typeof product?.slug === 'string' ? product.slug : (product?.slug?.current || '');
-const price = product?.salePrice ?? product?.price;
-const compareAt = product?.onSale ? product?.price : undefined;
+const price = getActivePrice(product);
+const compareAt = getCompareAtPrice(product) ?? undefined;
 const sku = product?.sku || '';
 const isFeatured = Boolean(product?.featured);
 const badges: string[] = Array.isArray(product?.badges) ? product.badges : [];
+const onSale = isOnSale(product);
+const saleBadge = getSaleBadgeText(product);
+const timeRemaining = getSaleTimeRemaining(product);
+const savings = getSavingsAmount(product);
 
 // Build Variant data for selector (optional)
 const optionGroups = Array.isArray(product?.options) ? product.options : [];
@@ -83,6 +96,11 @@ function hiddenInput(name: string, value: string) {
   <div>
     <h1 class="font-ethno text-2xl md:text-3xl">{title}</h1>
     <div class="mt-2 flex flex-wrap gap-2">
+      {saleBadge && (
+        <span class="rounded-full border border-red-500/40 bg-red-500/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-red-200">
+          {saleBadge}
+        </span>
+      )}
       {sku && (<span class="rounded-full border border-white/15 px-2 py-0.5 text-xs text-white/70">SKU: {sku}</span>)}
       {isFeatured && (<span class="rounded-full bg-primary px-2 py-0.5 text-xs text-white">Featured</span>)}
       {badges.map((b) => (<span class="rounded-full border border-white/15 px-2 py-0.5 text-xs text-white/70">{b}</span>))}
@@ -91,7 +109,13 @@ function hiddenInput(name: string, value: string) {
 
   <!-- Price -->
   <div class="mt-2">
-    <Price amount={price} originalAmount={compareAt} onSale={product?.onSale} />
+    {onSale && savings > 0 && (
+      <div class="text-sm text-red-200">
+        Save <span class="font-semibold">{formatPrice(savings)}</span>
+      </div>
+    )}
+    <Price amount={price} originalAmount={compareAt} onSale={onSale} />
+    {timeRemaining && <div class="mt-1 text-xs text-white/70">{timeRemaining}</div>}
   </div>
 
   <!-- Variant Selector (chips) -->

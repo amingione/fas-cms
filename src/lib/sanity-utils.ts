@@ -417,6 +417,27 @@ export interface Product {
   title: string;
   slug: { current: string };
   price?: number | null;
+  onSale?: boolean | null;
+  salePrice?: number | null;
+  compareAtPrice?: number | null;
+  discountPercent?: number | null;
+  discountPercentage?: number | null;
+  saleStartDate?: string | null;
+  saleEndDate?: string | null;
+  saleLabel?: string | null;
+  saleActive?: boolean | null;
+  pricing?: {
+    price?: number | null;
+    salePrice?: number | null;
+    compareAtPrice?: number | null;
+    discountPercentage?: number | null;
+    discountPercent?: number | null;
+    saleStartDate?: string | null;
+    saleEndDate?: string | null;
+    saleLabel?: string | null;
+    saleActive?: boolean | null;
+    onSale?: boolean | null;
+  };
   sku?: string;
   description?: string;
   shortDescription?: any;
@@ -527,6 +548,32 @@ export interface Vehicle {
 
 type QueryParamValue = string | number | boolean | string[] | number[];
 type QueryParams = Record<string, QueryParamValue>;
+
+const safeDecodeURIComponent = (value: string): string => {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+};
+
+export const normalizeSlugValue = (value: unknown): string => {
+  const raw =
+    typeof value === 'string'
+      ? value
+      : value && typeof value === 'object' && typeof (value as any).current === 'string'
+        ? (value as any).current
+        : '';
+  if (!raw) return '';
+  const trimmed = raw.trim().replace(/^\/+|\/+$/g, '');
+  if (!trimmed) return '';
+
+  const decodedOnce = safeDecodeURIComponent(trimmed);
+  const decodedTwice = safeDecodeURIComponent(decodedOnce);
+  const finalValue = decodedTwice || decodedOnce || trimmed;
+
+  return finalValue.trim();
+};
 
 const normalizeUrlString = (value: string | undefined | null): string | undefined => {
   if (typeof value !== 'string') return undefined;
@@ -701,12 +748,40 @@ const normalizeProductPrice = <
   product: T
 ): T => {
   if (!product) return product;
-  const normalizedPrice = coercePriceToNumber((product as any).price);
+  const normalizedPrice = coercePriceToNumber(
+    (product as any).price ?? (product as any)?.pricing?.price
+  );
+  const normalizedSalePrice = coercePriceToNumber(
+    (product as any).salePrice ?? (product as any)?.pricing?.salePrice
+  );
+  const normalizedCompareAt = coercePriceToNumber(
+    (product as any).compareAtPrice ?? (product as any)?.pricing?.compareAtPrice
+  );
   const clone: Record<string, unknown> = { ...(product as any) };
   if (normalizedPrice === null) {
     delete clone.price;
   } else {
     clone.price = normalizedPrice;
+  }
+
+  if (normalizedSalePrice === null) {
+    if ('salePrice' in clone) delete clone.salePrice;
+  } else {
+    clone.salePrice = normalizedSalePrice;
+  }
+
+  if (normalizedCompareAt === null) {
+    if ('compareAtPrice' in clone) delete clone.compareAtPrice;
+  } else {
+    clone.compareAtPrice = normalizedCompareAt;
+  }
+
+  if ('pricing' in clone && clone.pricing && typeof clone.pricing === 'object') {
+    const pricing = { ...(clone.pricing as Record<string, unknown>) };
+    if (normalizedPrice !== null) pricing.price = normalizedPrice;
+    if (normalizedSalePrice !== null) pricing.salePrice = normalizedSalePrice;
+    if (normalizedCompareAt !== null) pricing.compareAtPrice = normalizedCompareAt;
+    clone.pricing = pricing;
   }
 
   if ('images' in clone) {
@@ -757,6 +832,15 @@ const PRODUCT_LISTING_PROJECTION = `{
   metaTitle,
   metaDescription,
   price,
+  "onSale": coalesce(onSale, pricing.onSale),
+  "salePrice": coalesce(salePrice, pricing.salePrice),
+  "compareAtPrice": coalesce(compareAtPrice, pricing.compareAtPrice),
+  "discountPercent": coalesce(discountPercent, discountPercentage, pricing.discountPercentage),
+  "discountPercentage": coalesce(discountPercentage, discountPercent, pricing.discountPercentage),
+  "saleStartDate": coalesce(saleStartDate, pricing.saleStartDate),
+  "saleEndDate": coalesce(saleEndDate, pricing.saleEndDate),
+  "saleLabel": coalesce(saleLabel, pricing.saleLabel),
+  "saleActive": pricing.saleActive,
   averageHorsepower,
   description,
   shortDescription,
@@ -910,6 +994,95 @@ export async function fetchProductsFromSanity({
   }
 }
 
+export async function fetchActiveSaleProducts(
+  options: {
+    limit?: number;
+    ttlSeconds?: number;
+  } = {}
+): Promise<Product[]> {
+  try {
+    if (!hasSanityConfig || !sanity) return [];
+
+    const limit = Math.max(1, Math.min(50, options.limit ?? 12));
+    const query = `
+      *[_type == "product" && ${ACTIVE_PRODUCT_WITH_SLUG_FILTER}
+        && coalesce(onSale, pricing.onSale) == true
+        && defined(coalesce(salePrice, pricing.salePrice))
+        && coalesce(salePrice, pricing.salePrice) < coalesce(compareAtPrice, pricing.compareAtPrice, price, pricing.price)
+        && (!defined(coalesce(saleStartDate, pricing.saleStartDate)) || coalesce(saleStartDate, pricing.saleStartDate) <= now())
+        && (!defined(coalesce(saleEndDate, pricing.saleEndDate)) || coalesce(saleEndDate, pricing.saleEndDate) >= now())
+      ] | order(
+        coalesce(
+          discountPercent,
+          discountPercentage,
+          pricing.discountPercentage,
+          round(
+            100 * (
+              coalesce(compareAtPrice, pricing.compareAtPrice, price, pricing.price) -
+              coalesce(salePrice, pricing.salePrice)
+            ) / coalesce(compareAtPrice, pricing.compareAtPrice, price, pricing.price, 1)
+          ),
+          0
+        ) desc
+      )[0...$limit] ${PRODUCT_LISTING_PROJECTION}
+    `;
+
+    const executeQuery = async () => {
+      const results = await sanity.fetch<Product[]>(query, { limit });
+      if (!Array.isArray(results)) return [];
+
+      return results.map((item) => {
+        const normalized = normalizeProductPrice(item);
+        const salePrice =
+          (normalized as any)?.salePrice ?? (normalized as any)?.pricing?.salePrice ?? null;
+        const basePrice =
+          (normalized as any)?.compareAtPrice ??
+          (normalized as any)?.pricing?.compareAtPrice ??
+          (normalized as any)?.price ??
+          (normalized as any)?.pricing?.price ??
+          null;
+
+        const savings =
+          typeof salePrice === 'number' && typeof basePrice === 'number'
+            ? Math.max(0, basePrice - salePrice)
+            : null;
+
+        const computedDiscount =
+          typeof salePrice === 'number' && typeof basePrice === 'number' && basePrice > 0
+            ? Math.round(((basePrice - salePrice) / basePrice) * 100)
+            : null;
+
+        const existingDiscount =
+          typeof (normalized as any)?.discountPercent === 'number'
+            ? (normalized as any)?.discountPercent
+            : typeof (normalized as any)?.discountPercentage === 'number'
+              ? (normalized as any)?.discountPercentage
+              : null;
+
+        const discountPercent = existingDiscount ?? computedDiscount ?? null;
+
+        return {
+          ...normalized,
+          onSale: true,
+          discountPercent: discountPercent ?? undefined,
+          discountPercentage:
+            (normalized as any)?.discountPercentage ?? discountPercent ?? undefined,
+          savings: savings ?? undefined
+        };
+      });
+    };
+
+    return cachedSanityFetch(
+      ['fetchActiveSaleProducts', config.projectId, config.dataset, perspective, limit],
+      executeQuery,
+      { ttlSeconds: options.ttlSeconds ?? 60 }
+    );
+  } catch (err) {
+    console.error('Failed to fetch active sale products:', err);
+    return [];
+  }
+}
+
 export async function fetchServiceCatalogProducts(): Promise<Product[]> {
   try {
     if (!hasSanityConfig || !sanity) return [];
@@ -963,6 +1136,15 @@ export async function fetchFeaturedProducts(
         title,
         "slug": slug.current,
         price,
+        "onSale": coalesce(onSale, pricing.onSale),
+        "salePrice": coalesce(salePrice, pricing.salePrice),
+        "compareAtPrice": coalesce(compareAtPrice, pricing.compareAtPrice),
+        "discountPercent": coalesce(discountPercent, discountPercentage, pricing.discountPercentage),
+        "discountPercentage": coalesce(discountPercentage, discountPercent, pricing.discountPercentage),
+        "saleStartDate": coalesce(saleStartDate, pricing.saleStartDate),
+        "saleEndDate": coalesce(saleEndDate, pricing.saleEndDate),
+        "saleLabel": coalesce(saleLabel, pricing.saleLabel),
+        "saleActive": pricing.saleActive,
         featured,
         primaryKeyword,
         fitmentYears,
@@ -1106,17 +1288,31 @@ export async function fetchVehicles(): Promise<Vehicle[]> {
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   try {
     if (!hasSanityConfig) return null;
-    const normalizedSlug = typeof slug === 'string' ? slug.trim() : '';
+    const normalizedSlug = normalizeSlugValue(slug);
     if (!normalizedSlug) return null;
-    const slugLower = normalizedSlug.toLowerCase();
+    const slugCandidates = Array.from(
+      new Set(
+        [normalizedSlug, normalizedSlug.replace(/\s+/g, '-')].map((value) => value.trim()).filter(Boolean)
+      )
+    );
+    const slugLowerValues = slugCandidates.map((value) => value.toLowerCase());
     const query = `*[_type == "product" && ${ACTIVE_PRODUCT_FILTER} && defined(slug.current) && (
-      slug.current == $slugExact ||
-      lower(slug.current) == $slugLower
+      slug.current in $slugValues ||
+      lower(slug.current) in $slugLowerValues
     )][0]{
       _id,
       title,
       slug,
       price,
+      "onSale": coalesce(onSale, pricing.onSale),
+      "salePrice": coalesce(salePrice, pricing.salePrice),
+      "compareAtPrice": coalesce(compareAtPrice, pricing.compareAtPrice),
+      "discountPercent": coalesce(discountPercent, discountPercentage, pricing.discountPercentage),
+      "discountPercentage": coalesce(discountPercentage, discountPercent, pricing.discountPercentage),
+      "saleStartDate": coalesce(saleStartDate, pricing.saleStartDate),
+      "saleEndDate": coalesce(saleEndDate, pricing.saleEndDate),
+      "saleLabel": coalesce(saleLabel, pricing.saleLabel),
+      "saleActive": pricing.saleActive,
       sku,
       // rich text fields may be arrays
       shortDescription,
@@ -1208,13 +1404,13 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       )
     }`;
     if (!sanity) return null;
-    const params = { slugExact: normalizedSlug, slugLower };
+    const params = { slugValues: slugCandidates, slugLowerValues };
     const executeQuery = async () => {
       const productResult = await sanity!.fetch<Product | null>(query, params);
       return productResult ? normalizeProductPrice(productResult) : null;
     };
     return cachedSanityFetch(
-      ['getProductBySlug', config.projectId, config.dataset, perspective, normalizedSlug],
+      ['getProductBySlug', config.projectId, config.dataset, perspective, slugCandidates.join('|')],
       executeQuery
     );
   } catch (err) {
@@ -1231,14 +1427,26 @@ export async function getRelatedProducts(
   limit = 4
 ) {
   if (!hasSanityConfig) return [];
+  const normalizedSlug = normalizeSlugValue(slug);
   const ids = Array.isArray(categoryIds) ? categoryIds : [];
   const flt = Array.isArray(filters) ? filters : [];
+  const slugParam = normalizedSlug || (typeof slug === 'string' ? slug : '');
+  if (!slugParam) return [];
   const query = `
     *[_type == "product" && slug.current != $slug && ${ACTIVE_PRODUCT_WITH_SLUG_FILTER}]{
       _id,
       title,
       slug,
       price,
+      "onSale": coalesce(onSale, pricing.onSale),
+      "salePrice": coalesce(salePrice, pricing.salePrice),
+      "compareAtPrice": coalesce(compareAtPrice, pricing.compareAtPrice),
+      "discountPercent": coalesce(discountPercent, discountPercentage, pricing.discountPercentage),
+      "discountPercentage": coalesce(discountPercentage, discountPercent, pricing.discountPercentage),
+      "saleStartDate": coalesce(saleStartDate, pricing.saleStartDate),
+      "saleEndDate": coalesce(saleEndDate, pricing.saleEndDate),
+      "saleLabel": coalesce(saleLabel, pricing.saleLabel),
+      "saleActive": pricing.saleActive,
       shortDescription,
       description,
       excerpt,
@@ -1251,14 +1459,14 @@ export async function getRelatedProducts(
       "rel": count(coalesce(category[]._ref, categories[]._ref, [])[ @ in $catIds ]) + count(coalesce(filters, [])[ @ in $filters ])
     } | order(rel desc, onSale desc, coalesce(salePrice, price, 9e9) asc, _createdAt desc)[0...$limit]
   `;
-  const params = { slug, catIds: ids, filters: flt, limit } as Record<string, any>;
+  const params = { slug: slugParam, catIds: ids, filters: flt, limit } as Record<string, any>;
   if (!sanity) return [];
   const executeQuery = async () => {
     const results = await sanity!.fetch<Product[]>(query, params);
     return Array.isArray(results) ? results.map((item) => normalizeProductPrice(item)) : [];
   };
   return cachedSanityFetch(
-    ['getRelatedProducts', config.projectId, config.dataset, perspective, slug, ids, flt, limit],
+    ['getRelatedProducts', config.projectId, config.dataset, perspective, slugParam, ids, flt, limit],
     executeQuery
   );
 }
@@ -1271,8 +1479,11 @@ export async function getUpsellProducts(
   limit = 4
 ) {
   if (!hasSanityConfig) return [];
+  const normalizedSlug = normalizeSlugValue(slug);
   const ids = Array.isArray(categoryIds) ? categoryIds : [];
   const hasPrice = typeof basePrice === 'number' && !Number.isNaN(basePrice);
+  const slugParam = normalizedSlug || (typeof slug === 'string' ? slug : '');
+  if (!slugParam) return [];
   const query = `
     *[_type == "product" && slug.current != $slug && ${ACTIVE_PRODUCT_WITH_SLUG_FILTER}
       && count(coalesce(category[]._ref, categories[]._ref, [])[ @ in $catIds ]) > 0
@@ -1281,6 +1492,15 @@ export async function getUpsellProducts(
       title,
       slug,
       price,
+      "onSale": coalesce(onSale, pricing.onSale),
+      "salePrice": coalesce(salePrice, pricing.salePrice),
+      "compareAtPrice": coalesce(compareAtPrice, pricing.compareAtPrice),
+      "discountPercent": coalesce(discountPercent, discountPercentage, pricing.discountPercentage),
+      "discountPercentage": coalesce(discountPercentage, discountPercent, pricing.discountPercentage),
+      "saleStartDate": coalesce(saleStartDate, pricing.saleStartDate),
+      "saleEndDate": coalesce(saleEndDate, pricing.saleEndDate),
+      "saleLabel": coalesce(saleLabel, pricing.saleLabel),
+      "saleActive": pricing.saleActive,
       shortDescription,
       description,
       excerpt,
@@ -1291,7 +1511,7 @@ export async function getUpsellProducts(
       )
     } | order(price asc, _createdAt desc)[0...$limit]
   `;
-  const params: Record<string, any> = { slug, catIds: ids, limit };
+  const params: Record<string, any> = { slug: slugParam, catIds: ids, limit };
   if (hasPrice) params.price = basePrice;
   if (!sanity) return [];
   const executeQuery = async () => {
@@ -1304,7 +1524,7 @@ export async function getUpsellProducts(
       config.projectId,
       config.dataset,
       perspective,
-      slug,
+      slugParam,
       ids,
       hasPrice ? basePrice : null,
       limit

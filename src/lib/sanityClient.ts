@@ -34,6 +34,15 @@ export async function fetchProducts() {
     title,
     slug,
     price,
+    onSale,
+    salePrice,
+    compareAtPrice,
+    discountPercent,
+    discountPercentage,
+    saleStartDate,
+    saleEndDate,
+    saleActive,
+    saleLabel,
     images[]{ asset->{ url } }
   }`;
 

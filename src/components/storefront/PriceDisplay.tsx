@@ -1,4 +1,11 @@
 import * as React from 'react';
+import {
+  formatPrice,
+  getActivePrice,
+  getCompareAtPrice,
+  getSaleBadgeText,
+  isOnSale
+} from '@/lib/saleHelpers';
 
 export type PricingShape = {
   price?: number;
@@ -6,38 +13,44 @@ export type PricingShape = {
   onSale?: boolean;
   compareAtPrice?: number;
   discountPercentage?: number;
+  discountPercent?: number;
   saleActive?: boolean;
+  saleStartDate?: string;
+  saleEndDate?: string;
+  saleLabel?: string;
 };
 
 export function PriceDisplay({ pricing }: { pricing: PricingShape }) {
-  const activePrice = pricing.onSale && pricing.saleActive ? pricing.salePrice : pricing.price;
-
-  const formatCurrency = (value?: number) => {
-    if (typeof value !== 'number' || Number.isNaN(value)) return '—';
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
-  };
+  const activePrice = getActivePrice(pricing as any);
+  const comparePrice = getCompareAtPrice(pricing as any);
+  const onSale = isOnSale(pricing as any);
+  const saleBadge = getSaleBadgeText(pricing as any);
 
   return (
     <div className="price">
-      {pricing.onSale && pricing.saleActive ? (
+      {onSale ? (
         <>
-          <span className="sale-price text-2xl font-bold text-red-600">{formatCurrency(pricing.salePrice)}</span>
-          <span className="original-price text-lg line-through text-gray-500 ml-2">
-            {formatCurrency(pricing.price)}
+          <span className="sale-price text-2xl font-bold text-red-600">
+            {formatPrice(activePrice)}
           </span>
-          {pricing.discountPercentage && (
+          {comparePrice && (
+            <span className="original-price text-lg line-through text-gray-500 ml-2">
+              {formatPrice(comparePrice)}
+            </span>
+          )}
+          {saleBadge && (
             <span className="discount-badge ml-2 bg-red-100 text-red-800 px-2 py-1 rounded">
-              Save {Math.round(pricing.discountPercentage)}%
+              {saleBadge}
             </span>
           )}
         </>
       ) : (
-        <span className="regular-price text-2xl font-bold">{formatCurrency(activePrice)}</span>
+        <span className="regular-price text-2xl font-bold">{formatPrice(activePrice)}</span>
       )}
 
-      {pricing.compareAtPrice && !pricing.onSale && (
+      {comparePrice && !onSale && (
         <span className="compare-price text-lg line-through text-gray-500 ml-2">
-          {formatCurrency(pricing.compareAtPrice)}
+          {formatPrice(comparePrice)}
         </span>
       )}
     </div>

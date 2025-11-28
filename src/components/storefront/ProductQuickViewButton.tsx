@@ -11,6 +11,13 @@ import { emitAddToCartSuccess } from '@/lib/add-to-cart-toast';
 import type { QuickViewOptionGroup, QuickViewOptionValue } from '@/lib/quick-view-options';
 import { portableTextToPlainText } from '@/lib/portableText';
 import { resolveProductCartMeta } from '@/lib/product-flags';
+import {
+  formatPrice,
+  getActivePrice,
+  getCompareAtPrice,
+  getSaleBadgeText,
+  isOnSale
+} from '@/lib/saleHelpers';
 
 const sanitizeAnalyticsPayload = (payload: Record<string, unknown>) =>
   Object.fromEntries(
@@ -106,13 +113,13 @@ export default function ProductQuickViewButton({
     };
   }, [open]);
 
-  const priceLabel =
-    typeof product.price === 'number'
-      ? `$${product.price.toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        })}`
-      : undefined;
+  const activePrice = getActivePrice(product as any);
+  const comparePrice = getCompareAtPrice(product as any);
+  const formattedPrice = typeof activePrice === 'number' ? formatPrice(activePrice) : undefined;
+  const formattedCompare =
+    typeof comparePrice === 'number' ? formatPrice(comparePrice) : undefined;
+  const onSale = isOnSale(product as any);
+  const saleBadge = getSaleBadgeText(product as any);
 
   const portableDescription = useMemo(() => {
     return normalizePortableBlocks(product.shortDescriptionPortable);
@@ -143,9 +150,9 @@ export default function ProductQuickViewButton({
         product_id: typeof product.id === 'string' ? product.id : undefined,
         product_name: product.title,
         product_href: product.href,
-        price: typeof product.price === 'number' ? product.price : undefined
+        price: typeof activePrice === 'number' ? activePrice : undefined
       }),
-    [product.id, product.title, product.href, product.price]
+    [activePrice, product.id, product.title, product.href]
   );
   const openAnalyticsParams = JSON.stringify({ ...analyticsBase, interaction: 'quick_view_open' });
   const viewAnalyticsParams = JSON.stringify({
@@ -245,7 +252,20 @@ export default function ProductQuickViewButton({
       await addItem(null as any, {
         id: resolvedId || product.id,
         name: product.title,
-        price: product.price,
+        price:
+          typeof activePrice === 'number'
+            ? activePrice
+            : typeof product.price === 'number'
+              ? product.price
+              : undefined,
+        originalPrice:
+          typeof product.price === 'number'
+            ? product.price
+            : typeof comparePrice === 'number'
+              ? comparePrice
+              : undefined,
+        isOnSale: onSale,
+        saleLabel: saleBadge || (product as any)?.saleLabel,
         image: product.imageSrc,
         quantity: 1,
         productUrl: product.href,
@@ -326,8 +346,28 @@ export default function ProductQuickViewButton({
                   <div className="flex flex-col gap-4 text-left">
                     <div>
                       <h2 className="text-2xl font-bold sm:text-3xl">{product.title}</h2>
-                      {priceLabel && (
-                        <p className="mt-2 text-xl font-semibold text-white/90">{priceLabel}</p>
+                      {(formattedPrice || saleBadge) && (
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          {formattedPrice && (
+                            <p className="text-xl font-semibold text-white/90">
+                              {onSale && formattedCompare ? (
+                                <>
+                                  <span className="text-red-400">{formattedPrice}</span>
+                                  <span className="ml-2 text-base text-white/60 line-through">
+                                    {formattedCompare}
+                                  </span>
+                                </>
+                              ) : (
+                                formattedPrice
+                              )}
+                            </p>
+                          )}
+                          {saleBadge && (
+                            <span className="rounded-full border border-red-500/60 bg-red-500/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-red-200">
+                              {saleBadge}
+                            </span>
+                          )}
+                        </div>
                       )}
                     </div>
 

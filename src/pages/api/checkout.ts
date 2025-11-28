@@ -1,6 +1,7 @@
 import Stripe from 'stripe';
 import { readSession } from '../../server/auth/session';
 import { sanity } from '../../server/sanity-client';
+import { getActivePrice, getCompareAtPrice, isOnSale } from '@/lib/saleHelpers';
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-08-27.basil'
 });
@@ -110,10 +111,26 @@ type ShippingProduct = {
   _id: string;
   title?: string;
   sku?: string;
+  price?: number | null;
+  salePrice?: number | null;
+  compareAtPrice?: number | null;
+  discountPercent?: number | null;
+  discountPercentage?: number | null;
+  saleStartDate?: string | null;
+  saleEndDate?: string | null;
+  saleLabel?: string | null;
+  saleActive?: boolean | null;
   shippingWeight?: number | null;
   boxDimensions?: string | null;
   shippingClass?: string | null;
   shipsAlone?: boolean | null;
+  shippingConfig?: {
+    weight?: number | null;
+    dimensions?: { length?: number | null; width?: number | null; height?: number | null } | null;
+    shippingClass?: string | null;
+    requiresShipping?: boolean | null;
+    separateShipment?: boolean | null;
+  } | null;
 };
 
 type ShippingQuoteResult = {
@@ -240,7 +257,36 @@ async function fetchShippingProductsForCart(cart: CheckoutCartItem[]): Promise<R
     if (ids.length) conditions.push('_id in $ids');
     if (skus.length) conditions.push('sku in $skus');
     const conditionBlock = conditions.length ? conditions.join(' || ') : 'false';
-    const query = `*[_type == "product" && !(_id in path('drafts.**')) && (status == "active" || !defined(status)) && coalesce(productType, "") != "service" && (${conditionBlock})]{ _id, title, sku, shippingWeight, boxDimensions, shippingClass, shipsAlone }`;
+    const query = `*[_type == "product" && !(_id in path('drafts.**')) && (status == "active" || !defined(status)) && coalesce(productType, "") != "service" && (${conditionBlock})]{
+      _id,
+      title,
+      sku,
+      "price": coalesce(price, pricing.price),
+      "onSale": coalesce(onSale, pricing.onSale),
+      "salePrice": coalesce(salePrice, pricing.salePrice),
+      "compareAtPrice": coalesce(compareAtPrice, pricing.compareAtPrice),
+      "discountPercent": coalesce(discountPercent, discountPercentage, pricing.discountPercentage),
+      "discountPercentage": coalesce(discountPercentage, discountPercent, pricing.discountPercentage),
+      "saleStartDate": coalesce(saleStartDate, pricing.saleStartDate),
+      "saleEndDate": coalesce(saleEndDate, pricing.saleEndDate),
+      "saleLabel": coalesce(saleLabel, pricing.saleLabel),
+      "saleActive": pricing.saleActive,
+      shippingWeight,
+      boxDimensions,
+      shippingClass,
+      shipsAlone,
+      shippingConfig{
+        weight,
+        dimensions{
+          length,
+          width,
+          height
+        },
+        shippingClass,
+        requiresShipping,
+        separateShipment
+      }
+    }`;
     const products = await sanity.fetch<ShippingProduct[]>(query, { ids, skus });
     const lookup: Record<string, ShippingProduct> = {};
     if (Array.isArray(products)) {
@@ -269,22 +315,49 @@ function buildShippingQuote(
     const qty = clampQuantity(item?.quantity);
     const normalizedId = normalizeCartId(typeof item?.id === 'string' ? item.id : undefined);
     const product = normalizedId ? productLookup[normalizedId] : undefined;
-    const shippingClassRaw = item?.shippingClass || product?.shippingClass || '';
+    const shippingConfig = product?.shippingConfig;
+    const requiresShipping =
+      shippingConfig?.requiresShipping === false
+        ? false
+        : true;
+    const shippingClassRaw =
+      item?.shippingClass ||
+      shippingConfig?.shippingClass ||
+      product?.shippingClass ||
+      '';
     const normalizedClass = normalizeShippingClass(shippingClassRaw);
     const installOnly = Boolean(
-      item?.installOnly || normalizedClass.includes('installonly')
+      item?.installOnly ||
+        normalizedClass.includes('installonly') ||
+        normalizedClass === 'install_only' ||
+        requiresShipping === false
     );
     if (installOnly) {
       installOnlyCount += qty;
       return;
     }
 
-    const dims = parseDimensions(product?.boxDimensions) || DEFAULT_DIMENSIONS;
-    const physicalWeight = toPositiveNumber(product?.shippingWeight, DEFAULT_WEIGHT_LB);
+    const dimFromConfig =
+      shippingConfig?.dimensions &&
+      Number.isFinite(Number(shippingConfig.dimensions.length)) &&
+      Number.isFinite(Number(shippingConfig.dimensions.width)) &&
+      Number.isFinite(Number(shippingConfig.dimensions.height))
+        ? {
+            length: Number(shippingConfig.dimensions.length),
+            width: Number(shippingConfig.dimensions.width),
+            height: Number(shippingConfig.dimensions.height)
+          }
+        : null;
+
+    const dims = dimFromConfig || parseDimensions(product?.boxDimensions) || DEFAULT_DIMENSIONS;
+    const physicalWeight = toPositiveNumber(
+      shippingConfig?.weight ?? product?.shippingWeight,
+      DEFAULT_WEIGHT_LB
+    );
     const volumetricWeight =
       (dims.length * dims.width * dims.height) / (DIM_DIVISOR || 1);
     const billableWeight = Math.max(physicalWeight, volumetricWeight);
-    const shipsAlone = Boolean(product?.shipsAlone);
+    const shipsAlone = Boolean(product?.shipsAlone || shippingConfig?.separateShipment);
     const freeShipping = normalizedClass === 'freeshipping';
     const hazardous = normalizedClass === 'hazardous';
     const longestSide = Math.max(dims.length, dims.width, dims.height);
@@ -376,9 +449,12 @@ function buildShippingQuote(
   return quote;
 }
 
-async function estimateShippingForCart(cart: CheckoutCartItem[]): Promise<ShippingQuoteResult | null> {
+async function estimateShippingForCart(
+  cart: CheckoutCartItem[],
+  productLookup?: Record<string, ShippingProduct>
+): Promise<ShippingQuoteResult | null> {
   if (!Array.isArray(cart) || !cart.length) return null;
-  const productsById = await fetchShippingProductsForCart(cart);
+  const productsById = productLookup ?? (await fetchShippingProductsForCart(cart));
   return buildShippingQuote(cart, productsById);
 }
 
@@ -556,11 +632,22 @@ export async function POST({ request }: { request: Request }) {
     return Array.from(new Set(values));
   };
 
+  const productLookup = await fetchShippingProductsForCart(cart as CheckoutCartItem[]);
+
   const lineItems = (cart as CheckoutCartItem[]).map((item) => {
     const rawId = typeof item.id === 'string' ? item.id : undefined;
     const sanityProductId = normalizeCartId(rawId);
-    const unitAmount = Number.isFinite(item.price)
-      ? Math.max(0, Math.round(Number(item.price) * 100))
+    const product = sanityProductId ? productLookup[sanityProductId] : undefined;
+    const verifiedPrice = getActivePrice(product as any);
+    const compareAt = product ? getCompareAtPrice(product as any) : undefined;
+    const finalPrice =
+      typeof verifiedPrice === 'number' && Number.isFinite(verifiedPrice)
+        ? verifiedPrice
+        : Number.isFinite(item.price)
+          ? Number(item.price)
+          : undefined;
+    const unitAmount = Number.isFinite(finalPrice)
+      ? Math.max(0, Math.round(Number(finalPrice) * 100))
       : 0;
     if (unitAmount <= 0) {
       console.warn('[checkout] Cart item missing price, defaulting to $0.00', item);
@@ -573,14 +660,35 @@ export async function POST({ request }: { request: Request }) {
     const upgradeValues = collectUpgrades(item.upgrades ?? item.addOns, item.selections);
     const metadata: Record<string, string> = {
       ...(item.sku ? { sku: String(item.sku) } : {}),
-      ...(sanityProductId ? { sanity_product_id: sanityProductId } : {})
+      ...(sanityProductId ? { sanity_product_id: sanityProductId } : {}),
+      ...(product?._id ? { sanity_product_id_actual: product._id } : {})
     };
     if (item?.name) metadata.product_name = clamp(String(item.name), 200);
     if (item?.productUrl) metadata.product_url = clamp(String(item.productUrl), 300);
     if (item?.image) metadata.product_image = clamp(String(item.image), 400);
-    metadata.unit_price = Number(item.price ?? unitAmount / 100).toFixed(2);
+    const metaUnitPrice = Number(
+      Number.isFinite(finalPrice) ? finalPrice : item.price ?? unitAmount / 100
+    );
+    if (Number.isFinite(metaUnitPrice)) {
+      metadata.unit_price = metaUnitPrice.toFixed(2);
+    }
     metadata.quantity = String(quantity);
     if (item?.signature) metadata.configuration_signature = clamp(String(item.signature), 120);
+    if (product) {
+      metadata.product_name = metadata.product_name || clamp(String(product.title || ''), 200);
+      const originalPrice =
+        typeof product.price === 'number' && Number.isFinite(product.price)
+          ? product.price
+          : undefined;
+      if (typeof originalPrice === 'number') {
+        metadata.original_price = Number(originalPrice).toFixed(2);
+      }
+      if (typeof compareAt === 'number') {
+        metadata.compare_at_price = Number(compareAt).toFixed(2);
+      }
+      metadata.is_on_sale = isOnSale(product as any) ? 'true' : 'false';
+      if (product.saleLabel) metadata.sale_label = clamp(String(product.saleLabel), 120);
+    }
 
     if (optionDetails?.summary) {
       metadata.selected_options = clamp(optionDetails.summary);
@@ -644,7 +752,7 @@ export async function POST({ request }: { request: Request }) {
         currency: 'usd',
         tax_behavior: 'exclusive',
         product_data: {
-          name: item.name || 'Item',
+          name: (product as any)?.title || item.name || 'Item',
           tax_code: 'txcd_99999999',
           ...(description ? { description } : {}),
           // Help fulfillment map back to Sanity/Inventory and capture configured options
@@ -658,7 +766,7 @@ export async function POST({ request }: { request: Request }) {
 
   let shippingQuote: ShippingQuoteResult | null = null;
   try {
-    shippingQuote = await estimateShippingForCart(cart as CheckoutCartItem[]);
+    shippingQuote = await estimateShippingForCart(cart as CheckoutCartItem[], productLookup);
   } catch (error) {
     console.warn('[checkout] shipping estimation failed; falling back to flat rate', error);
   }
@@ -692,6 +800,9 @@ export async function POST({ request }: { request: Request }) {
       const opts = optionDetails?.summary;
       const upgrades = collectUpgrades(i?.upgrades ?? i?.addOns, i?.selections);
       const normalizedId = normalizeCartId(typeof i?.id === 'string' ? i.id : undefined);
+      const resolvedProduct = normalizedId ? productLookup[normalizedId] : undefined;
+      const resolvedPrice = getActivePrice(resolvedProduct as any);
+      const resolvedCompare = resolvedProduct ? getCompareAtPrice(resolvedProduct as any) : undefined;
       const imageUrl = typeof i?.image === 'string' ? i.image : undefined;
       const productUrl = typeof i?.productUrl === 'string' ? i.productUrl : undefined;
       const slug = extractSlugFromUrl(productUrl);
@@ -710,8 +821,17 @@ export async function POST({ request }: { request: Request }) {
       if (typeof i?.extra === 'number' && Number.isFinite(i.extra)) {
         meta['Option Upcharge'] = `$${Number(i.extra).toFixed(2)}`;
       }
-      if (typeof i?.price === 'number' && Number.isFinite(i.price)) {
-        meta['Unit Price'] = `$${Number(i.price).toFixed(2)}`;
+      const metaPrice =
+        typeof resolvedPrice === 'number' && Number.isFinite(resolvedPrice)
+          ? resolvedPrice
+          : typeof i?.price === 'number' && Number.isFinite(i.price)
+            ? i.price
+            : undefined;
+      if (typeof metaPrice === 'number') {
+        meta['Unit Price'] = `$${Number(metaPrice).toFixed(2)}`;
+      }
+      if (typeof resolvedCompare === 'number') {
+        meta['Original Price'] = `$${Number(resolvedCompare).toFixed(2)}`;
       }
       if (typeof i?.quantity === 'number' && Number.isFinite(i.quantity)) {
         meta['Quantity'] = String(i.quantity);

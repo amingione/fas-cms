@@ -1,10 +1,87 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SalePage from '@/components/sales/BlackFridaySale';
+import ProductGrid from '@/components/storefront/ProductGrid.astro';
+import { fetchActiveSaleProducts, normalizeSlugValue, type Product } from '@/lib/sanity-utils.ts';
+import { getSavingsAmount } from '@/lib/saleHelpers';
+
+const rawSaleProducts: Product[] = await fetchActiveSaleProducts({ limit: 12 });
+const saleProducts = (Array.isArray(rawSaleProducts) ? rawSaleProducts : []).map((product) => {
+  const slugValue = normalizeSlugValue((product as any)?.slug);
+
+  // Preserve the shape expected by cards and product pages: slug object with current
+  const normalizedSlug =
+    typeof product?.slug === 'object' && product?.slug !== null
+      ? { ...(product as any).slug, current: slugValue }
+      : { current: slugValue };
+
+  return {
+    ...product,
+    slug: normalizedSlug
+  };
+});
+
+const hasSales = saleProducts.length > 0;
+const maxDiscount = hasSales
+  ? saleProducts.reduce(
+      (max, product) =>
+        Math.max(
+          max,
+          Number(
+            (product as any)?.discountPercent ??
+              (product as any)?.discountPercentage ??
+              (product as any)?.pricing?.discountPercentage ??
+              0
+          ) || 0
+        ),
+      0
+    )
+  : 0;
+const maxSavings = hasSales
+  ? saleProducts.reduce(
+      (max, product) => Math.max(max, getSavingsAmount(product) || (product as any)?.savings || 0),
+      0
+    )
+  : 0;
 ---
 
 <BaseLayout>
   <section>
     <SalePage client:load />
   </section>
+
+  {
+    hasSales && (
+      <section class="relative border-y border-white/5 bg-gradient-to-b from-black via-zinc-950 to-black">
+        <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-red-500/40 to-transparent" />
+        <div class="mx-auto max-w-6xl px-4 py-14 sm:py-16">
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div class="space-y-2">
+              <p class="text-xs font-semibold uppercase tracking-[0.28em] text-red-200">
+                Black Friday Deals
+              </p>
+              <h2 class="text-3xl font-bold text-white sm:text-4xl">SALE</h2>
+              <p class="hidden max-w-2xl text-sm text-zinc-300">
+                {maxDiscount > 0
+                  ? `Save up to ${maxDiscount}% on ${saleProducts.length} products, sorted by the biggest discounts first.`
+                  : `Limited-time pricing on ${saleProducts.length} products, sorted by the biggest discounts first.`}{' '}
+                {maxSavings > 0 ? ` Top savings: $${maxSavings.toFixed(2)} off.` : ''}
+              </p>
+            </div>
+
+            <a
+              href="/shop?filter=on-sale"
+              class="inline-flex items-center justify-center rounded-md border border-red-400/50 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-100 shadow-lg shadow-red-500/20 transition hover:-translate-y-0.5 hover:border-red-400 hover:bg-red-500/20"
+            >
+              View all sale items →
+            </a>
+          </div>
+
+          <div class="mt-8">
+            <ProductGrid products={saleProducts} view="grid" showQuickView={false} />
+          </div>
+        </div>
+      </section>
+    )
+  }
 </BaseLayout>

@@ -2,12 +2,23 @@ export type CartItem = {
   id: string;
   name: string;
   price: number;
+  originalPrice?: number;
+  isOnSale?: boolean;
+  saleLabel?: string;
   quantity: number;
   categories?: string[];
   image?: string;
   installOnly?: boolean;
   shippingClass?: string;
   productUrl?: string;
+  sku?: string;
+  productSlug?: string;
+  productId?: string;
+  stripePriceId?: string;
+  options?: Record<string, string>;
+  selectedOptions?: string[];
+  selectedUpgrades?: string[];
+  upgrades?: unknown;
 };
 
 export const CART_KEY = 'fas_cart_v1';

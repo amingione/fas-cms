@@ -23,6 +23,15 @@ const productsQuery = /* groq */ `
   "slug": slug.current,
   "image": coalesce(images[0].asset->url, mainImage.asset->url),
   price,
+  onSale,
+  salePrice,
+  compareAtPrice,
+  discountPercent,
+  discountPercentage,
+  saleStartDate,
+  saleEndDate,
+  saleLabel,
+  saleActive,
   excerpt,
   primaryKeyword,
   fitmentYears,
@@ -38,6 +47,15 @@ interface ProductItem {
   slug: string;
   image?: string;
   price?: number;
+  onSale?: boolean;
+  salePrice?: number;
+  compareAtPrice?: number;
+  discountPercent?: number;
+  discountPercentage?: number;
+  saleStartDate?: string;
+  saleEndDate?: string;
+  saleLabel?: string;
+  saleActive?: boolean;
   excerpt?: string;
   primaryKeyword?: string;
   fitmentYears?: unknown;
@@ -60,6 +78,15 @@ type LiteProduct = {
   title?: string;
   slug?: LiteSlug | string;
   price?: number;
+  onSale?: boolean;
+  salePrice?: number;
+  compareAtPrice?: number;
+  discountPercent?: number;
+  discountPercentage?: number;
+  saleStartDate?: string;
+  saleEndDate?: string;
+  saleLabel?: string;
+  saleActive?: boolean;
   images?: LiteImage[];
   seoAnchorText?: string;
 };
@@ -83,6 +110,15 @@ const liteProducts: LiteProduct[] = products.map((p) => ({
   title: p.title,
   slug: { current: p.slug } as LiteSlug,
   price: p.price,
+  onSale: p.onSale,
+  salePrice: p.salePrice,
+  compareAtPrice: p.compareAtPrice,
+  discountPercent: p.discountPercent ?? p.discountPercentage,
+  discountPercentage: p.discountPercentage ?? p.discountPercent,
+  saleStartDate: p.saleStartDate,
+  saleEndDate: p.saleEndDate,
+  saleLabel: p.saleLabel,
+  saleActive: p.saleActive,
   images: p.image ? [{ asset: { url: p.image } }] : [],
   seoAnchorText: toAnchorText(p)
 }));

@@ -51,6 +51,14 @@ export const vendorBySlugQuery = /* groq */ `*[_type == "vendor" && slug.current
     title,
     slug,
     price,
+    onSale,
+    salePrice,
+    compareAtPrice,
+    discountPercent,
+    discountPercentage,
+    saleStartDate,
+    saleEndDate,
+    saleLabel,
     sku
   }
 }`;

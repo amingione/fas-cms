@@ -6,6 +6,7 @@ import {
   getRelatedProducts,
   getUpsellProducts,
   optimizeSanityImageUrl,
+  normalizeSlugValue,
   type Product
 } from '../../lib/sanity-utils';
 import PortableTextRenderer from "../../components/PortableTextRenderer.jsx";
@@ -15,6 +16,15 @@ import ServiceDisclaimerNotice from '@/components/storefront/ServiceDisclaimerNo
 import InfoTabs from '@/components/shop/InfoTabs';
 import ProductCardLite from '@/components/storefront/ProductCardLite.astro';
 import productPageScriptUrl from '../../scripts/product-page.js?url';
+import {
+  formatPrice,
+  getActivePrice,
+  getCompareAtPrice,
+  getSaleBadgeText,
+  getSaleTimeRemaining,
+  getSavingsAmount,
+  isOnSale
+} from '@/lib/saleHelpers';
 
 export type KitItem = { item: string; quantity?: number };
 export type VehicleCompat = { make?: string; model?: string; trim?: string };
@@ -488,9 +498,68 @@ const ensureDisclaimerMessaging = (value: string, message: string): string => {
 };
 
 const requestUrl = new URL(Astro.request.url);
-const slugSegments = Array.isArray(slug) ? slug : typeof slug === 'string' ? [slug] : [];
-const slugValue = slugSegments.filter((segment): segment is string => typeof segment === 'string').pop() ?? '';
-const defaultCanonical = `${requestUrl.origin}/shop/${slugValue}`;
+const slugValue = normalizeSlugValue(slug);
+const defaultCanonical = `${requestUrl.origin}/shop/${encodeURIComponent(slugValue)}`;
+
+const normalizeOptionValue = (entry: any, index: number) => {
+  if (entry == null) {
+    return null;
+  }
+  if (typeof entry === 'string') {
+    const trimmed = entry.trim();
+    if (!trimmed) return null;
+    return {
+      value: trimmed,
+      label: trimmed,
+      priceDelta: 0
+    };
+  }
+
+  const rawValue =
+    entry?.value ??
+    entry?.slug ??
+    (entry?.slug && typeof entry.slug === 'object' ? entry.slug.current : undefined) ??
+    entry?.key ??
+    entry?._key ??
+    entry?.id ??
+    entry?._id ??
+    entry?.name ??
+    entry?.title ??
+    entry?.label ??
+    entry?.option ??
+    entry?.choice ??
+    entry?.displayName ??
+    entry?.text ??
+    '';
+
+  const labelCandidate =
+    entry?.label ??
+    entry?.title ??
+    entry?.name ??
+    entry?.option ??
+    entry?.choice ??
+    entry?.displayName ??
+    entry?.text ??
+    entry?.value ??
+    rawValue ??
+    null;
+  const label = labelCandidate ?? `Option ${index + 1}`;
+  const hasMeaningfulValue = Boolean(rawValue || labelCandidate);
+  if (!hasMeaningfulValue) return null;
+
+  const priceDelta =
+    typeof entry?.priceDelta === 'number'
+      ? entry.priceDelta
+      : typeof entry?.delta === 'number'
+        ? entry.delta
+        : typeof entry?.price === 'number'
+          ? entry.price
+          : 0;
+
+  const value = rawValue ? String(rawValue) : `option-${index}`;
+
+  return { value, label: String(label), priceDelta };
+};
 
 const ensureAbsoluteUrl = (value?: string | null): string | undefined => {
   if (!value) return undefined;
@@ -524,7 +593,9 @@ const buildProductListStructuredData = (items: Product[], listName: string): Rec
             .map((image: any) => ensureAbsoluteUrl(image?.asset?.url || image?.url))
             .filter((value: string | undefined): value is string => Boolean(value))
         : [];
-      const priceNumber = coercePriceToNumber((item as any)?.price);
+      const activePrice = getActivePrice(item as any);
+      const priceNumber = coercePriceToNumber(activePrice);
+      const saleEnd = (item as any)?.saleEndDate ?? (item as any)?.pricing?.saleEndDate;
       const offers = typeof priceNumber === 'number'
         ? {
             '@type': 'Offer',
@@ -532,7 +603,8 @@ const buildProductListStructuredData = (items: Product[], listName: string): Rec
             price: priceNumber.toFixed(2),
             availability: 'https://schema.org/InStock',
             url: productUrl,
-            itemCondition: 'https://schema.org/NewCondition'
+            itemCondition: 'https://schema.org/NewCondition',
+            ...(isOnSale(item as any) && saleEnd ? { priceValidUntil: saleEnd } : {})
           }
         : undefined;
       return {
@@ -576,19 +648,55 @@ let seoOg: string | undefined;
 let productPriceNumber: number | undefined;
 let baseProductTitle = 'Product';
 let normalizedImageSlug = slugify(slugValue || baseProductTitle);
+let priceValue: number | undefined;
+let compareAtValue: number | undefined;
+let onSaleFlag = false;
+let saleBadgeText: string | null = null;
+let saleCountdown: string | null = null;
+let savingsAmount = 0;
+let saleEndDate: string | null = null;
+let breadcrumbStructuredData: Record<string, any> | null = null;
+let productStructuredData: Record<string, any> | null = null;
+let relatedProductsStructuredData: Record<string, any> | null = null;
+let upsellProductsStructuredData: Record<string, any> | null = null;
+let isInstallOnly = false;
+let isPerformanceParts = false;
+let requiresVehicleDisclaimer = false;
+let productHeading = baseProductTitle;
+let productSubheading: string | null = null;
+let headingInlineAttrs: Record<string, any> = inlineFieldAttrs('title');
+let descriptionDescriptor: ContentDescriptor | null = null;
+let whyChooseContent: ContentDescriptor | null = null;
+let featuresContent: ContentDescriptor | null = null;
+let importantNotesDescriptor: ContentDescriptor | null = null;
+let installFitmentHighlights: { label: string; value: string }[] = [];
+let compatibilityVehicles: VehicleCompat[] = [];
+let specMetaRows: { label: string; value: string }[] = [];
+let includedInKitItems: KitItem[] = [];
+let analyticsPrimaryCtaParams = '{}';
+let analyticsStickyCtaParams = '{}';
+let faqEntries: FAQEntry[] = [];
 try {
-  if (typeof slug !== 'string') {
+  if (!slugValue) {
     throw new Error('Product slug is missing or invalid.');
   }
-  product = await getProductBySlug(slug);
+  product = await getProductBySlug(slugValue);
   if (!product) {
-    throw new Error(`Product with slug "${slug}" not found.`);
+    throw new Error(`Product with slug "${slugValue}" not found.`);
   }
 
   baseProductTitle = String((product as any)?.title || 'Product');
 
-  const coercedBasePrice = coercePriceToNumber((product as any)?.price);
-  productPriceNumber = typeof coercedBasePrice === 'number' ? coercedBasePrice : undefined;
+  const activePriceValue = getActivePrice(product as any);
+  const comparePriceValue = getCompareAtPrice(product as any);
+  productPriceNumber = typeof activePriceValue === 'number' ? activePriceValue : undefined;
+  compareAtValue = typeof comparePriceValue === 'number' ? comparePriceValue : undefined;
+  onSaleFlag = isOnSale(product as any);
+  saleBadgeText = getSaleBadgeText(product as any);
+  saleCountdown = getSaleTimeRemaining(product as any);
+  savingsAmount = getSavingsAmount(product as any);
+  const rawSaleEnd = (product as any)?.saleEndDate ?? (product as any)?.pricing?.saleEndDate;
+  saleEndDate = typeof rawSaleEnd === 'string' ? rawSaleEnd : null;
 
   // Build inputs for auto-related / upsell
   const catIds = ((product as any).category || (product as any).categories || [])
@@ -600,8 +708,8 @@ try {
   const basePrice = typeof productPriceNumber === 'number' ? productPriceNumber : undefined;
 
   // Auto-related and upsell
-  relatedProducts = await getRelatedProducts(slug, catIds, tagFilters, 6);
-  upsellProducts = await getUpsellProducts(slug, catIds, basePrice, 6);
+  relatedProducts = await getRelatedProducts(slugValue, catIds, tagFilters, 6);
+  upsellProducts = await getUpsellProducts(slugValue, catIds, basePrice, 6);
 
   // ---- Options/Upgrades normalization (support multiple schema shapes) ----
   variationOptions = Array.isArray((product as any).variationOptions) ? (product as any).variationOptions : [];
@@ -641,6 +749,14 @@ try {
             title: g.title || g.name || 'Option',
             values
           };
+        })
+        .map((group: any) => {
+          const normalizedValues = Array.isArray(group?.values)
+            ? group.values
+                .map((v: any, idx: number) => normalizeOptionValue(v, idx))
+                .filter((v: any) => v && typeof v.value === 'string' && v.value.trim().length > 0)
+            : [];
+          return { ...group, values: normalizedValues };
         })
         .filter((group: any) => Array.isArray(group?.values) && group.values.length > 0)
     : [];
@@ -738,28 +854,6 @@ let productImages: ProcessedProductImage[] = [];
 let metaKeywords = '';
 let serviceDisclaimer = '';
 let serviceDisclaimerTitle = '';
-let priceValue: number | undefined;
-let breadcrumbStructuredData: Record<string, any> | null = null;
-let productStructuredData: Record<string, any> | null = null;
-let relatedProductsStructuredData: Record<string, any> | null = null;
-let upsellProductsStructuredData: Record<string, any> | null = null;
-let isInstallOnly = false;
-let isPerformanceParts = false;
-let requiresVehicleDisclaimer = false;
-let productHeading = baseProductTitle;
-let productSubheading: string | null = null;
-let headingInlineAttrs: Record<string, any> = inlineFieldAttrs('title');
-let descriptionDescriptor: ContentDescriptor | null = null;
-let whyChooseContent: ContentDescriptor | null = null;
-let featuresContent: ContentDescriptor | null = null;
-let importantNotesDescriptor: ContentDescriptor | null = null;
-let installFitmentHighlights: { label: string; value: string }[] = [];
-let compatibilityVehicles: VehicleCompat[] = [];
-let specMetaRows: { label: string; value: string }[] = [];
-let includedInKitItems: KitItem[] = [];
-let analyticsPrimaryCtaParams = '{}';
-let analyticsStickyCtaParams = '{}';
-let faqEntries: FAQEntry[] = [];
 
 const accordionSections: AccordionSection[] = [];
 
@@ -1158,7 +1252,7 @@ if (product) {
   const analyticsBase = {
     product_id: typeof (product as any)?._id === 'string' ? (product as any)._id : undefined,
     product_name: baseProductTitle,
-    product_slug: slug,
+    product_slug: slugValue,
     price: typeof priceValue === 'number' ? Number(priceValue.toFixed(2)) : undefined,
     install_only: isInstallOnly,
     performance_parts: isPerformanceParts
@@ -1190,6 +1284,9 @@ if (product) {
     itemCondition: 'https://schema.org/NewCondition',
     price: typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined
   };
+  if (onSaleFlag && saleEndDate) {
+    offerDetails.priceValidUntil = saleEndDate;
+  }
 
   const productSchemaImages = productImages.map((img) => img.webpUrl).filter(Boolean);
 
@@ -1276,10 +1373,33 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
             {productSubheading}
           </p>
         )}
-        <h2 class="text-4xl text-accent
-         font-mono mb-4" {...inlineFieldAttrs('price')}>
-          {typeof priceValue === 'number' ? `$${priceValue.toFixed(2)}` : 'Price not available'}
-        </h2>
+        {saleBadgeText && (
+          <div class="mb-2">
+            <span class="rounded-full border border-red-500/40 bg-red-500/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-red-200">
+              {saleBadgeText}
+            </span>
+          </div>
+        )}
+        <div class="mb-2" {...inlineFieldAttrs('price')}>
+          {typeof priceValue === 'number' ? (
+            onSaleFlag && compareAtValue ? (
+              <div class="flex items-baseline gap-3">
+                <span class="text-4xl font-mono text-red-400">{formatPrice(priceValue)}</span>
+                <span class="text-2xl text-white/60 line-through">{formatPrice(compareAtValue)}</span>
+              </div>
+            ) : (
+              <h2 class="text-4xl font-mono text-accent">{formatPrice(priceValue)}</h2>
+            )
+          ) : (
+            <h2 class="text-4xl font-mono text-accent">Price not available</h2>
+          )}
+        </div>
+        {onSaleFlag && savingsAmount > 0 && (
+          <div class="mb-2 text-sm text-red-200">
+            Save {formatPrice(savingsAmount)}
+          </div>
+        )}
+        {saleCountdown && <div class="mb-4 text-xs text-white/70">{saleCountdown}</div>}
 
 
         {(serviceDisclaimer || isContentDescriptor(importantNotesDescriptor)) && (
@@ -1303,7 +1423,11 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
             {Array.isArray(options) && options.length > 0 && options.filter(Boolean).map((group: any) => {
               const groupKey = (group?.key || group?.name || group?.title || 'option').toString();
               const groupLabel = (group?.title || group?.name || 'Option').toString();
-              const values = Array.isArray(group?.values) ? group.values : (Array.isArray(group?.items) ? group.items : []);
+              const valuesRaw = Array.isArray(group?.values) ? group.values : (Array.isArray(group?.items) ? group.items : []);
+              const values = valuesRaw
+                .map((v: any, idx: number) => normalizeOptionValue(v, idx))
+                .filter((v: any) => v && typeof v.value === 'string' && v.value.trim().length > 0);
+              if (values.length === 0) return null;
               const helperId = `${groupKey}-helper`;
               return (
                 <fieldset class="rounded-2xl border border-white/15 bg-black/10 p-4 sm:p-5" aria-labelledby={`${groupKey}-legend`}>
@@ -1332,13 +1456,9 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                           {`Select ${groupLabel}`}
                         </option>
                         {values.map((v: any) => {
-                          const val = typeof v === 'string' ? v : (v?.value || v?.name || v?.title || v?.label || '').toString();
-                          const label = typeof v === 'string' ? v : (v?.label || v?.title || v?.name || v?.value || 'Choice');
-                          const price = typeof v === 'object'
-                            ? (typeof v?.priceDelta === 'number'
-                                ? v.priceDelta
-                                : (typeof v?.delta === 'number' ? v.delta : (typeof v?.price === 'number' ? v.price : 0)))
-                            : 0;
+                          const val = v?.value ?? '';
+                          const label = v?.label ?? 'Choice';
+                          const price = typeof v?.priceDelta === 'number' ? v.priceDelta : 0;
                           return (
                             <option value={val} data-price={price.toString()} data-label={label}>
                               {label}
@@ -1360,13 +1480,9 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                   ) : (
                     <div class="mt-4 grid gap-3 sm:grid-cols-2">
                       {values.map((v: any, i: number) => {
-                        const val = typeof v === 'string' ? v : (v?.value || v?.name || v?.title || v?.label || '').toString();
-                        const label = typeof v === 'string' ? v : (v?.label || v?.title || v?.name || v?.value || 'Choice');
-                        const price = typeof v === 'object'
-                          ? (typeof v?.priceDelta === 'number'
-                              ? v.priceDelta
-                              : (typeof v?.delta === 'number' ? v.delta : (typeof v?.price === 'number' ? v.price : 0)))
-                          : 0;
+                        const val = v?.value ?? '';
+                        const label = v?.label ?? 'Choice';
+                        const price = typeof v?.priceDelta === 'number' ? v.priceDelta : 0;
                         const inputId = `${groupKey}-${i}`;
                         return (
                           <label
@@ -1516,7 +1632,20 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
             <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div class="flex flex-1 items-center justify-items-end bg-black/20 px-3 py-3">
                 <span id="price-total" class="text-lg font-bold">
-                  $ {(typeof (product as any).price === 'number' ? (product as any).price.toFixed(2) : '0.00')}
+                  {typeof priceValue === 'number' ? (
+                    onSaleFlag && compareAtValue ? (
+                      <>
+                        {formatPrice(priceValue)}
+                        <span class="ml-2 text-sm text-white/60 line-through">
+                          {formatPrice(compareAtValue)}
+                        </span>
+                      </>
+                    ) : (
+                      formatPrice(priceValue)
+                    )
+                  ) : (
+                    '$ 0.00'
+                  )}
                 </span>
               </div>
 
@@ -1527,13 +1656,19 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                 data-product-id={(product as any)._id}
                 data-product-name={(product as any).title}
                 data-product-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
-                data-product-base-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
+                data-product-base-price={
+                  typeof compareAtValue === 'number'
+                    ? compareAtValue.toFixed(2)
+                    : typeof priceValue === 'number'
+                      ? priceValue.toFixed(2)
+                      : undefined
+                }
                 data-product-image={productImages[0]?.webpUrl || productImages[0]?.originalUrl || ''}
                 data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
                 data-product-shipping-class={(product as any).shippingClass || ''}
                 data-product-install-only={String(isInstallOnly)}
                 data-product-performance-parts={String(isPerformanceParts)}
-                data-product-href={`/shop/${slug}`}
+                data-product-href={`/shop/${slugValue}`}
                 data-analytics-event="add_to_cart_click"
                 data-analytics-category="ecommerce"
                 data-analytics-label={`Add to Cart | ${baseProductTitle}`}
@@ -1751,7 +1886,20 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
   <div class="text-white/90 text-sm w-1/2">
     <span class="text-white/70">Total:</span>
     <span id="sticky-price" class="font-bold">
-      $ {(typeof (product as any).price === 'number' ? (product as any).price.toFixed(2) : '0.00')}
+      {typeof priceValue === 'number' ? (
+        onSaleFlag && compareAtValue ? (
+          <>
+            {formatPrice(priceValue)}
+            <span class="ml-2 text-xs text-white/60 line-through">
+              {formatPrice(compareAtValue)}
+            </span>
+          </>
+        ) : (
+          formatPrice(priceValue)
+        )
+      ) : (
+        '$ 0.00'
+      )}
     </span>
   </div>
   <button
@@ -1760,14 +1908,20 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
     data-product-id={(product as any)._id}
     data-product-name={(product as any).title}
     data-product-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
-    data-product-base-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
+    data-product-base-price={
+      typeof compareAtValue === 'number'
+        ? compareAtValue.toFixed(2)
+        : typeof priceValue === 'number'
+          ? priceValue.toFixed(2)
+          : undefined
+    }
     data-product-image={(product as any).images?.[0]?.asset?.url || (product as any).images?.[0]?.url || ''}
     data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
     data-product-shipping-class={(product as any).shippingClass || ''}
     data-product-install-only={String(
       ((product as any).shippingClass || '').toString().toLowerCase().replace(/[^a-z]/g, '') === 'installonly'
     )}
-    data-product-href={`/shop/${slug}`}
+    data-product-href={`/shop/${slugValue}`}
     data-analytics-event="add_to_cart_click"
     data-analytics-category="ecommerce"
     data-analytics-label={`Sticky Add to Cart | ${baseProductTitle}`}

@@ -61,7 +61,7 @@ export default function AnnouncementBanner() {
           />
         </div>
         <p className="text-sm/6 text-gray-50 text-center w-full sm:text-center">
-          <a href="#" className="hover:text-black">
+          <a href="/blackFridaySale" className="hover:text-black">
             <strong className="font-semibold">Black Friday 2025</strong>
             <svg viewBox="0 0 2 2" aria-hidden="true" className="mx-2 inline size-0.5 fill-current">
               <circle r={1} cx={1} cy={1} />
