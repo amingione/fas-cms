@@ -37,13 +37,14 @@ export const handler: Handler = async () => {
     );
 
     for (const product of variantProducts || []) {
+      const transaction = sanity.transaction();
       for (const variant of product.variants || []) {
         const available = Number(variant.inStock || 0) - Number(variant.reserved || 0);
-        await sanity
-          .patch(product._id)
-          .set({ [`variants[_key == "${variant._key}"].inventory.quantityAvailable`]: available })
-          .commit();
+        transaction.patch(product._id, {
+          set: { [`variants[_key == "${variant._key}"].inventory.quantityAvailable`]: available }
+        });
       }
+      await transaction.commit();
     }
 
     return { statusCode: 200, body: JSON.stringify({ synced: true }) };
