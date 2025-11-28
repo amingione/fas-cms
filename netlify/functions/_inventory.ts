@@ -102,18 +102,43 @@ export async function releaseInventory(orderId: string, orderItems: InventoryOrd
     if (!item.productId || !validQuantity(item.quantity)) continue;
 
     if (item.variantSku) {
-      await sanity
-        .patch(item.productId)
-        .inc({ 'variants[sku == $sku].inventory.quantityInStock': item.quantity })
-        .dec({ 'variants[sku == $sku].inventory.quantityReserved': item.quantity })
-        .commit({ sku: item.variantSku });
+      try {
+        await sanity
+          .patch(item.productId)
+          .inc({ 'variants[sku == $sku].inventory.quantityInStock': item.quantity })
+          .dec({ 'variants[sku == $sku].inventory.quantityReserved': item.quantity })
+          .commit({ sku: item.variantSku });
+      } catch (error) {
+        console.warn('[inventory] failed to release variant inventory', item.productId, item.variantSku, error);
+        // Compensation logic: attempt to revert increment if decrement failed
+        try {
+          await sanity
+            .patch(item.productId)
+            .dec({ 'variants[sku == $sku].inventory.quantityInStock': item.quantity })
+            .commit({ sku: item.variantSku });
+        } catch (compError) {
+          console.error('[inventory] failed to compensate variant inventory increment', item.productId, item.variantSku, compError);
+        }
+      }
     } else {
-      await sanity
-        .patch(item.productId)
-        .inc({ 'inventory.quantityInStock': item.quantity })
-        .dec({ 'inventory.quantityReserved': item.quantity })
-        .commit();
-    }
+      try {
+        await sanity
+          .patch(item.productId)
+          .inc({ 'inventory.quantityInStock': item.quantity })
+          .dec({ 'inventory.quantityReserved': item.quantity })
+          .commit();
+      } catch (error) {
+        console.warn('[inventory] failed to release inventory', item.productId, error);
+        // Compensation logic: attempt to revert increment if decrement failed
+        try {
+          await sanity
+            .patch(item.productId)
+            .dec({ 'inventory.quantityInStock': item.quantity })
+            .commit();
+        } catch (compError) {
+          console.error('[inventory] failed to compensate inventory increment', item.productId, compError);
+        }
+      }
 
     await logInventoryTransaction(
       item.productId,
