@@ -12,8 +12,7 @@ import AnimatedTaskCard from '@components/animated/AnimatedTaskCard.tsx';
 import AnimatedTruckPackagesHero from '@components/animated/AnimatedTruckPackagesHero.tsx';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import EmailCaptureModal from '@components/EmailCaptureModal.tsx';
-import { BlackFridayHero } from '@/components/banner/blackFridaySale.tsx';
-import AnnouncementBanner from '@components/AnnouncementBanner.tsx';
+import PowerstrokePipingKit from '@/components/NewProduct/PowerstrokePipingKit.astro';
 
 const pageDocPromise: Promise<any> = loadPageDoc('index');
 const featuredProductsPromise = sanity
@@ -144,7 +143,6 @@ const structuredDataGraph =
   </div>
 
   <main class="relative flex flex-col">
-    <AnnouncementBanner client:load />
     <div {...inlineObjectId('content/pages/index.json')}>
       <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
 
@@ -152,10 +150,12 @@ const structuredDataGraph =
         <AnimatedHomeHero client:only="react" />
       </section>
 
+      <PowerstrokePipingKit />
+
       <!-- Auto-scrolling Black Friday divider -->
       <section
         id="bf-divider"
-        class="shadow-primary/30 shadow-inner shadow-box-outer relative overflow-hidden py-3 bg-black/10 border-y border-zinc-800"
+        class="hidden shadow-primary/30 shadow-inner shadow-box-outer relative overflow-hidden py-3 bg-black/10 border-y border-zinc-800"
       >
         <div
           class="animate-marquee whitespace-nowrap text-white text-sm tracking-widest font-semibold"
@@ -181,10 +181,6 @@ const structuredDataGraph =
           animation: marquee 18s linear infinite;
         }
       </style>
-
-      <section class="my-10">
-        <BlackFridayHero client:visible />
-      </section>
 
       <section id="HeadingBanner1">
         <AnimatedHeadingBanner1 client:visible />

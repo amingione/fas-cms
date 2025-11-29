@@ -35,7 +35,7 @@ export default function AnnouncementBanner() {
         visible ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
       }`}
     >
-      <div className="border border-black/30 shadow-inner shadow-card-outter shadow-white/30 relative isolate flex items-center justify-between gap-x-4 overflow-hidden rounded-full bg-gradient-to-r from-[#d11219]/85 via-[#7d0107]/90 to-[#fde4b2]/80 px-2 py-2.5 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10 sm:px-3.5">
+      <div className="border border-black/30 shadow-inner shadow-card-outter shadow-white/30 relative isolate flex items-center justify-between gap-x-4 overflow-hidden rounded-full bg-gradient-to-r from-primary/90 via-black/90 to-black/95 px-2 py-2.5 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-white/10 sm:px-3.5">
         <div
           aria-hidden="true"
           className="absolute top-1/2 left-[max(-7rem,calc(50%-52rem))] -z-10 -translate-y-1/2 transform-gpu blur-2xl"
@@ -45,7 +45,7 @@ export default function AnnouncementBanner() {
               clipPath:
                 'polygon(74.8% 41.9%, 97.2% 73.2%, 100% 34.9%, 92.5% 0.4%, 87.5% 0%, 75% 28.6%, 58.5% 54.6%, 50.1% 56.8%, 46.9% 44%, 48.3% 17.4%, 24.7% 53.9%, 0% 27.9%, 11.9% 74.2%, 24.9% 54.1%, 68.6% 100%, 74.8% 41.9%)'
             }}
-            className="aspect-577/310 w-144.25 bg-linear-to-r from-[#d11219] to-[#fde4b2] opacity-50"
+            className="aspect-577/310 w-144.25 bg-linear-to-r from-primary to-black opacity-50"
           />
         </div>
         <div
@@ -57,16 +57,19 @@ export default function AnnouncementBanner() {
               clipPath:
                 'polygon(74.8% 41.9%, 97.2% 73.2%, 100% 34.9%, 92.5% 0.4%, 87.5% 0%, 75% 28.6%, 58.5% 54.6%, 50.1% 56.8%, 46.9% 44%, 48.3% 17.4%, 24.7% 53.9%, 0% 27.9%, 11.9% 74.2%, 24.9% 54.1%, 68.6% 100%, 74.8% 41.9%)'
             }}
-            className="aspect-577/310 w-144.25 bg-linear-to-r from-[#7d0107] to-[#d11219] opacity-40"
+            className="aspect-577/310 w-144.25 bg-linear-to-r from-black to-primary opacity-40"
           />
         </div>
         <p className="text-sm/6 text-gray-50 text-center w-full sm:text-center">
-          <a href="/blackFridaySale" className="hover:text-black">
-            <strong className="font-semibold">Black Friday 2025</strong>
+          <a href="/blackFridaySale" className="hover:text-accent">
+            <strong className="font-semibold">Cyber Monday 2025</strong>
             <svg viewBox="0 0 2 2" aria-hidden="true" className="mx-2 inline size-0.5 fill-current">
               <circle r={1} cx={1} cy={1} />
             </svg>
-            <span className="font-semibold">Unlock 10% off featured products & services.</span>{' '}
+            <span className="font-semibold">
+              {' '}
+              🔥 HUGE Cyber Monday deals dropping soon! Don't miss out! 🚀💥{' '}
+            </span>{' '}
             <span aria-hidden="true" className="ml-1 inline-block">
               &rarr;
             </span>
