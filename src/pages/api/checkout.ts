@@ -632,6 +632,54 @@ export async function POST({ request }: { request: Request }) {
     return Array.from(new Set(values));
   };
 
+  const calculateUpgradesTotal = (raw: unknown, selectionSource?: unknown): number | undefined => {
+    let total = 0;
+    const seen = new Set<string>();
+    const addAmount = (amount: unknown, key?: string) => {
+      const num = Number(amount);
+      if (!Number.isFinite(num) || num <= 0) return;
+      const dedupeKey = key ? key.trim().toLowerCase() : undefined;
+      if (dedupeKey) {
+        if (seen.has(dedupeKey)) return;
+        seen.add(dedupeKey);
+      }
+      total += num;
+    };
+
+    const readEntry = (entry: any, idx: number) => {
+      if (!entry || typeof entry !== 'object') return;
+      const amount = (entry as any).priceDelta ?? (entry as any).delta ?? (entry as any).price;
+      const key =
+        (entry as any).id ||
+        (entry as any).key ||
+        (entry as any).value ||
+        (entry as any).label ||
+        `upgrade-${idx}`;
+      addAmount(amount, String(key));
+    };
+
+    if (Array.isArray(raw)) {
+      raw.forEach((entry, idx) => readEntry(entry, idx));
+    } else if (raw && typeof raw === 'object') {
+      Object.values(raw).forEach((entry, idx) => readEntry(entry, idx));
+    }
+
+    const selectionArray = Array.isArray(selectionSource)
+      ? selectionSource
+      : Array.isArray((selectionSource as any)?.selections)
+        ? (selectionSource as any).selections
+        : [];
+
+    selectionArray.forEach((entry: any, idx: number) => {
+      if (!entry || typeof entry !== 'object') return;
+      const amount = (entry as any).priceDelta ?? (entry as any).delta ?? undefined;
+      const key = entry.id || entry.key || entry.value || entry.label || `sel-upgrade-${idx}`;
+      addAmount(amount, String(key));
+    });
+
+    return total > 0 ? Math.round(total * 100) / 100 : undefined;
+  };
+
   const productLookup = await fetchShippingProductsForCart(cart as CheckoutCartItem[]);
 
   const lineItems = (cart as CheckoutCartItem[]).map((item) => {
@@ -658,6 +706,7 @@ export async function POST({ request }: { request: Request }) {
       item.selections
     );
     const upgradeValues = collectUpgrades(item.upgrades ?? item.addOns, item.selections);
+    const upgradesTotal = calculateUpgradesTotal(item.upgrades ?? item.addOns, item.selections);
     const metadata: Record<string, string> = {
       ...(item.sku ? { sku: String(item.sku) } : {}),
       ...(sanityProductId ? { sanity_product_id: sanityProductId } : {}),
@@ -734,6 +783,9 @@ export async function POST({ request }: { request: Request }) {
       });
       metadata.upgrades_readable = clamp(upgradeSummary);
     }
+    if (typeof upgradesTotal === 'number') {
+      metadata.upgrades_total = upgradesTotal.toFixed(2);
+    }
     if (typeof item.basePrice === 'number' && Number.isFinite(item.basePrice)) {
       metadata.base_price = Number(item.basePrice).toFixed(2);
       metadata.base_price_display = `$${Number(item.basePrice).toFixed(2)}`;
@@ -799,6 +851,7 @@ export async function POST({ request }: { request: Request }) {
       );
       const opts = optionDetails?.summary;
       const upgrades = collectUpgrades(i?.upgrades ?? i?.addOns, i?.selections);
+      const upgradesTotal = calculateUpgradesTotal(i?.upgrades ?? i?.addOns, i?.selections);
       const normalizedId = normalizeCartId(typeof i?.id === 'string' ? i.id : undefined);
       const resolvedProduct = normalizedId ? productLookup[normalizedId] : undefined;
       const resolvedPrice = getActivePrice(resolvedProduct as any);
@@ -815,6 +868,7 @@ export async function POST({ request }: { request: Request }) {
           .join(' | ');
       }
       if (upgrades.length) meta['Upgrades'] = upgrades.join(', ');
+      if (typeof upgradesTotal === 'number') meta['Upgrades Total'] = `$${upgradesTotal.toFixed(2)}`;
       if (typeof i?.basePrice === 'number' && Number.isFinite(i.basePrice)) {
         meta['Base Price'] = `$${Number(i.basePrice).toFixed(2)}`;
       }
@@ -866,7 +920,8 @@ export async function POST({ request }: { request: Request }) {
         q: i?.quantity,
         p: i?.price,
         ...(opts ? { o: opts.slice(0, 160) } : {}),
-        ...(upgrades.length ? { u: upgrades.join(', ').slice(0, 160) } : {})
+        ...(upgrades.length ? { u: upgrades.join(', ').slice(0, 160) } : {}),
+        ...(typeof upgradesTotal === 'number' ? { ut: upgradesTotal } : {})
       };
       if (Object.keys(meta).length) entry.meta = meta;
       return entry;

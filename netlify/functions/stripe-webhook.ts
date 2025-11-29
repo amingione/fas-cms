@@ -337,6 +337,7 @@ export const handler: Handler = async (event) => {
               const metadata: Record<string, unknown> = {};
               if (l?.o) metadata.option_summary = l.o;
               if (l?.u) metadata.upgrades = l.u;
+              if (typeof l?.ut === 'number') metadata.upgrades_total = l.ut;
               if (l?.meta && typeof l.meta === 'object') {
                 Object.assign(metadata, l.meta as Record<string, unknown>);
               }
