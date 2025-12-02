@@ -1,5 +1,4 @@
 import crypto from 'crypto';
-import bcrypt from 'bcryptjs';
 import { sanity, hasWriteToken } from './sanity-client';
 
 const toCleanString = (value: unknown): string => (typeof value === 'string' ? value.trim() : '');
@@ -56,31 +55,28 @@ export async function handleVendorApplication(body: Record<string, any>): Promis
   }
 
   try {
-    const existingVendor = await sanity.fetch('*[_type == "vendor" && email == $email][0]', { email });
-    if (existingVendor) {
+    const [existingVendor, existingApplication] = await Promise.all([
+      sanity.fetch('*[_type == "vendor" && email == $email][0]', { email }),
+      sanity.fetch('*[_type == "vendorApplication" && email == $email][0]', { email })
+    ]);
+
+    if (existingVendor || existingApplication) {
       return {
         status: 409,
-        body: { message: 'A vendor with this email already exists.' }
+        body: { message: 'A vendor or application with this email already exists.' }
       };
     }
 
-    const applicationNumber = `V-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${crypto
-      .randomBytes(3)
-      .toString('hex')
-      .toUpperCase()}`;
-
-    const tempPassword = crypto.randomBytes(10).toString('hex');
-    const passwordHash = await bcrypt.hash(tempPassword, 10);
+    const applicationNumber = `APP-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
 
     const doc = await sanity.create({
-      _type: 'vendor',
-      name: contactName,
-      contactPerson: contactName,
+      _type: 'vendorApplication',
+      companyName,
+      contactName,
       contactTitle,
       email,
       phone,
       address: businessAddress,
-      companyName,
       businessType,
       website,
       resaleCertificateId: resaleCertificateId || undefined,
@@ -91,18 +87,15 @@ export async function handleVendorApplication(body: Record<string, any>): Promis
       productsInterested: productsInterested || undefined,
       currentSuppliers: currentSuppliers || undefined,
       referralSource: referralSource || undefined,
-      notes: additionalInfo || undefined,
+      additionalInfo: additionalInfo || undefined,
+      status: 'pending',
       applicationNumber,
-      passwordHash,
-      status: 'Pending',
-      approved: false,
-      active: true,
-      appliedAt: new Date().toISOString()
+      submittedAt: new Date().toISOString()
     });
 
     return {
       status: 200,
-      body: { message: 'Application received', vendor: doc, applicationNumber }
+      body: { message: 'Application received', application: doc, applicationNumber }
     };
   } catch (err: any) {
     const safeMessage =
