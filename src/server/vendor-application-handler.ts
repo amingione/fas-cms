@@ -7,15 +7,6 @@ const toNumber = (value: unknown): number => {
   return Number.isFinite(num) ? num : 0;
 };
 
-const buildAddress = (body: Record<string, any>): string => {
-  const merged =
-    toCleanString(body.businessAddress) ||
-    [toCleanString(body.street), toCleanString(body.city), toCleanString(body.state), toCleanString(body.zip)]
-      .filter(Boolean)
-      .join(', ');
-  return merged;
-};
-
 export type VendorApplicationResult = {
   status: number;
   body: Record<string, any>;
@@ -48,9 +39,15 @@ export async function handleVendorApplication(body: Record<string, any>): Promis
     body.taxExempt === true ||
     toCleanString(body.taxExempt).toLowerCase() === 'true' ||
     toCleanString(body.taxExempt).toLowerCase() === 'on';
-  const businessAddress = buildAddress(body);
+  const street = toCleanString(body.street);
+  const city = toCleanString(body.city);
+  const state = toCleanString(body.state);
+  const zip = toCleanString(body.zip);
+  const businessAddressStr =
+    toCleanString(body.businessAddress) ||
+    [street, city, state, zip].filter(Boolean).join(', ');
 
-  if (!email || !contactName || !phone || !companyName || !businessAddress) {
+  if (!email || !contactName || !phone || !companyName || !businessAddressStr) {
     return { status: 400, body: { message: 'Missing required fields.' } };
   }
 
@@ -76,7 +73,13 @@ export async function handleVendorApplication(body: Record<string, any>): Promis
       contactTitle,
       email,
       phone,
-      address: businessAddress,
+      businessAddress: {
+        street: street || undefined,
+        city: city || undefined,
+        state: state || undefined,
+        zip: zip || undefined,
+        full: businessAddressStr
+      },
       businessType,
       website,
       resaleCertificateId: resaleCertificateId || undefined,
