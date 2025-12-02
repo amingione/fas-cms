@@ -453,7 +453,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           referralSource: formData.get('referralSource')
         };
 
-        const response = await fetch('/.netlify/functions/vendor-application', {
+        const response = await fetch('/api/vendor-application', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
@@ -475,7 +475,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           form.reset();
           message.scrollIntoView({ behavior: 'smooth', block: 'center' });
         } else {
-          throw new Error(result.error || 'Application failed');
+          throw new Error(result.message || result.error || 'Application failed');
         }
       } catch (error) {
       message.innerHTML = `
