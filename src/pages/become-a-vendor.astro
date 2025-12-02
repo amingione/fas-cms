@@ -453,30 +453,49 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           referralSource: formData.get('referralSource')
         };
 
-        const response = await fetch('/api/vendor-application', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
+        const postToEndpoint = async (url: string) => {
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          let parsed: any = {};
+          let rawText = '';
+          try {
+            parsed = await res.json();
+          } catch {
+            try {
+              rawText = await res.text();
+            } catch {
+              rawText = '';
+            }
+          }
+          const msg = parsed?.message || parsed?.error || rawText || '';
+          return { res, parsed, msg };
+        };
 
-        const result = await response.json().catch(() => ({}));
-
-        if (response.ok) {
-          message.innerHTML = `
+        const endpoints = ['/api/vendor-application', '/.netlify/functions/vendor-application'];
+        let lastError = 'Application failed';
+        for (const endpoint of endpoints) {
+          const { res, parsed, msg } = await postToEndpoint(endpoint);
+          if (res.ok) {
+            message.innerHTML = `
           <div class="success-content">
             <h3>Application Submitted</h3>
             <p>Thanks for your interest in partnering with F.A.S. Motorsports.</p>
             <p>We'll review your application and contact you within 1-2 business days at <strong>${data.contactEmail || ''}</strong>.</p>
-            ${result?.applicationNumber ? `<p style="margin-top: 1.5rem;">Application Number: <strong>${result.applicationNumber}</strong></p>` : ''}
+            ${parsed?.applicationNumber ? `<p style="margin-top: 1.5rem;">Application Number: <strong>${parsed.applicationNumber}</strong></p>` : ''}
           </div>
         `;
-          message.className = 'form-message success';
-          message.style.display = 'block';
-          form.reset();
-          message.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        } else {
-          throw new Error(result.message || result.error || 'Application failed');
+            message.className = 'form-message success';
+            message.style.display = 'block';
+            form.reset();
+            message.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+          }
+          lastError = msg || `Application failed (status ${res.status})`;
         }
+        throw new Error(lastError);
       } catch (error) {
       message.innerHTML = `
         <div class="error-content">
