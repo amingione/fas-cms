@@ -493,6 +493,7 @@ export async function POST({ request }: { request: Request }) {
   }
 
   const { cart } = body;
+  const marketingOptIn = Boolean(body?.marketingOptIn);
 
   if (!Array.isArray(cart) || cart.length === 0) {
     return jsonResponse({ error: 'Cart is empty or invalid' }, 400);
@@ -971,7 +972,8 @@ export async function POST({ request }: { request: Request }) {
     const baseMetadata: Record<string, string> = {
       ...(userId ? { userId } : {}),
       ...(userEmail ? { userEmail } : {}),
-      site: baseUrl
+      site: baseUrl,
+      marketing_opt_in: marketingOptIn ? 'true' : 'false'
     };
 
     const attributionMetadata = normalizeMetadataMap((body as any)?.metadata || (body as any)?.attribution);
@@ -1066,7 +1068,8 @@ export async function POST({ request }: { request: Request }) {
       phone_number_collection: { enabled: true },
       shipping_address_collection: shippingAddressCollection,
       success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/cart`
+      cancel_url: `${baseUrl}/cart`,
+      consent_collection: { promotions: 'auto' }
     };
 
     if (shippingOptions) {

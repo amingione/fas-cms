@@ -4,18 +4,42 @@ import { formatMoney } from '@/utils/money.ts';
 ---
 
 <BaseLayout title="Checkout" canonical={`${new URL(Astro.request.url).origin}/checkout`}>
-  <section class="min-h-[60vh] bg-black text-white flex flex-col items-center justify-center px-6 py-16">
-    <div class="max-w-3xl w-full rounded-2xl border border-white/10 bg-white/5 p-8 shadow-lg shadow-primary/10">
-      <h1 class="text-3xl font-borg text-primary tracking-wide text-center mb-6">Secure Checkout</h1>
+  <section
+    class="min-h-[60vh] bg-black text-white flex flex-col items-center justify-center px-6 py-16"
+  >
+    <div
+      class="max-w-3xl w-full rounded-2xl border border-white/10 bg-white/5 p-8 shadow-lg shadow-primary/10"
+    >
+      <h1 class="text-3xl font-borg text-primary tracking-wide text-center mb-6">
+        Secure Checkout
+      </h1>
       <p class="text-sm text-white/70 text-center mb-10">
-        Review your cart items and continue to Stripe to finish your purchase. All payments are PCI compliant
-        and processed securely.
+        Review your cart items and continue to Stripe to finish your purchase. All payments are PCI
+        compliant and processed securely.
       </p>
 
       <div id="checkout-cart" class="space-y-4 text-sm text-white/80"></div>
       <div id="checkout-total" class="text-lg font-semibold text-white text-right mt-6"></div>
 
-      <div class="mt-10 flex flex-wrap justify-center gap-4">
+      <div
+        class="mt-8 rounded-lg border border-white/10 bg-black/30 p-4 text-sm text-white/80 flex items-start gap-3"
+      >
+        <input
+          id="marketing-opt-in"
+          type="checkbox"
+          class="mt-1 h-4 w-4 rounded border-white/30 bg-black/70 text-primary focus:ring-primary"
+        />
+        <label for="marketing-opt-in" class="space-y-1">
+          <span class="font-semibold text-white"
+            >Keep me updated on new products and exclusive offers</span
+          >
+          <span class="block text-xs text-white/60"
+            >You can unsubscribe at any time. We respect your privacy.</span
+          >
+        </label>
+      </div>
+
+      <div class="mt-8 flex flex-wrap justify-center gap-4">
         <a
           href="/cart"
           class="inline-flex items-center rounded-full border border-white/20 px-5 py-2 text-xs uppercase tracking-wide text-white hover:border-primary hover:text-primary transition"
@@ -39,12 +63,14 @@ import { formatMoney } from '@/utils/money.ts';
     const totalEl = document.getElementById('checkout-total');
     const statusEl = document.getElementById('checkout-status');
     const submitBtn = document.getElementById('begin-checkout');
+    const marketingCheckbox = document.getElementById('marketing-opt-in');
 
     const setStatus = (message, type = 'info') => {
       if (!statusEl) return;
       statusEl.textContent = message;
       statusEl.classList.remove('hidden', 'text-red-300', 'text-green-300', 'text-white/70');
-      const cls = type === 'error' ? 'text-red-300' : type === 'success' ? 'text-green-300' : 'text-white/70';
+      const cls =
+        type === 'error' ? 'text-red-300' : type === 'success' ? 'text-green-300' : 'text-white/70';
       statusEl.classList.add(cls);
     };
 
@@ -70,7 +96,8 @@ import { formatMoney } from '@/utils/money.ts';
       const cart = loadCart();
       const items = Array.isArray(cart.items) ? cart.items : [];
       if (!items.length) {
-        if (cartContainer) cartContainer.innerHTML = '<p class="text-center text-white/60">Your cart is empty.</p>';
+        if (cartContainer)
+          cartContainer.innerHTML = '<p class="text-center text-white/60">Your cart is empty.</p>';
         if (totalEl) totalEl.textContent = '';
         if (submitBtn) submitBtn.setAttribute('disabled', 'true');
         return;
@@ -123,7 +150,11 @@ import { formatMoney } from '@/utils/money.ts';
         const response = await fetch('/api/checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ cart: items })
+          body: JSON.stringify({
+            cart: items,
+            marketingOptIn:
+              marketingCheckbox instanceof HTMLInputElement ? marketingCheckbox.checked : false
+          })
         });
         const data = await response.json().catch(() => ({}));
         if (!response.ok || !data?.url) {
@@ -133,7 +164,9 @@ import { formatMoney } from '@/utils/money.ts';
       } catch (error) {
         console.error(error);
         setStatus(
-          error instanceof Error ? error.message : 'We were unable to begin checkout. Please try again.',
+          error instanceof Error
+            ? error.message
+            : 'We were unable to begin checkout. Please try again.',
           'error'
         );
         if (submitBtn) submitBtn.removeAttribute('disabled');

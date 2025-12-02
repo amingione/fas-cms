@@ -224,6 +224,12 @@ export async function POST({ request }: { request: Request }) {
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
     const userIdFromMetadata: string | undefined = (session.metadata as any)?.userId || undefined;
+    const marketingOptIn =
+      String((session.metadata as any)?.marketing_opt_in || '')
+        .trim()
+        .toLowerCase() === 'true' ||
+      session.consent?.promotions === 'opt_in';
+    const marketingTimestamp = new Date().toISOString();
 
     console.log('✅ Payment confirmed for session:', session.id);
     console.log('Customer Email:', session.customer_details?.email);
@@ -252,7 +258,7 @@ export async function POST({ request }: { request: Request }) {
       const email = session.customer_details?.email || '';
       if (email) {
         const existing = await sanity.fetch(
-          `*[_type=="customer" && lower(email)==lower($email)][0]{_id}`,
+          `*[_type=="customer" && lower(email)==lower($email)][0]{_id,emailMarketing,marketingOptIn,emailOptIn}`,
           { email }
         );
         let customerId = existing?._id as string | undefined;
@@ -260,7 +266,12 @@ export async function POST({ request }: { request: Request }) {
           const created = await sanity.create({
             _type: 'customer',
             email,
-            name: session.customer_details?.name || ''
+            name: session.customer_details?.name || '',
+            marketingOptIn,
+            emailOptIn: marketingOptIn,
+            emailMarketing: marketingOptIn
+              ? { subscribed: true, subscribedAt: marketingTimestamp, source: 'checkout' }
+              : { subscribed: false }
           });
           customerId = created._id as string;
         }
@@ -271,6 +282,26 @@ export async function POST({ request }: { request: Request }) {
             if (cust?.authId) userId = String(cust.authId);
           } catch (error) {
             void error;
+          }
+
+          try {
+            const patch = sanity
+              .patch(customerId)
+              .set({
+                marketingOptIn,
+                emailOptIn: marketingOptIn,
+                'emailMarketing.subscribed': marketingOptIn
+              })
+              .setIfMissing({ emailMarketing: {} });
+            if (marketingOptIn) {
+              patch.set({
+                'emailMarketing.subscribedAt': marketingTimestamp,
+                'emailMarketing.source': 'checkout'
+              });
+            }
+            await patch.commit({ autoGenerateArrayKeys: true });
+          } catch (err) {
+            console.warn('[astro webhook] unable to persist marketing opt-in', err as any);
           }
         }
       }

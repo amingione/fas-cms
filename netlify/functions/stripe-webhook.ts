@@ -269,6 +269,12 @@ export const handler: Handler = async (event) => {
         (session.metadata as any)?.promotion_id ||
         (session.metadata as any)?.promotionId ||
         (session.metadata as any)?.promotionID;
+      const marketingOptIn =
+        String((session.metadata as any)?.marketing_opt_in || '')
+          .trim()
+          .toLowerCase() === 'true' ||
+        session.consent?.promotions === 'opt_in';
+      const marketingTimestamp = new Date().toISOString();
 
       // Prefer existing order by stripeSessionId to avoid duplicates (idempotent)
       const existingOrder = await sanity
@@ -301,14 +307,21 @@ export const handler: Handler = async (event) => {
       let customerRef: { _type: 'reference'; _ref: string } | undefined;
       if (email) {
         const existing = await sanity
-          .fetch(`*[_type=="customer" && lower(email)==lower($email)][0]{_id}`, { email })
+          .fetch(`*[_type=="customer" && lower(email)==lower($email)][0]{_id,emailMarketing,marketingOptIn,emailOptIn}`, {
+            email
+          })
           .catch(() => null);
         let customerId: string | undefined = existing?._id;
         if (!customerId) {
           const created = await sanity.create({
             _type: 'customer',
             email,
-            name: session.customer_details?.name || ''
+            name: session.customer_details?.name || '',
+            marketingOptIn,
+            emailOptIn: marketingOptIn,
+            emailMarketing: marketingOptIn
+              ? { subscribed: true, subscribedAt: marketingTimestamp, source: 'checkout' }
+              : { subscribed: false }
           });
           customerId = created._id as string;
         }
@@ -319,6 +332,27 @@ export const handler: Handler = async (event) => {
             const cust = await sanity.fetch(`*[_id==$id][0]{authId}`, { id: customerId });
             if (!userId && cust?.authId) userId = String(cust.authId);
           } catch {}
+
+          // Persist marketing preference on customer
+          try {
+            const patch = sanity
+              .patch(customerId)
+              .set({
+                marketingOptIn,
+                emailOptIn: marketingOptIn,
+                'emailMarketing.subscribed': marketingOptIn
+              })
+              .setIfMissing({ emailMarketing: {} });
+            if (marketingOptIn) {
+              patch.set({
+                'emailMarketing.subscribedAt': marketingTimestamp,
+                'emailMarketing.source': 'checkout'
+              });
+            }
+            await patch.commit({ autoGenerateArrayKeys: true });
+          } catch (err) {
+            console.warn('[stripe-webhook] unable to persist marketing opt-in', err as any);
+          }
         }
       }
 
