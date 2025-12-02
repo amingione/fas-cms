@@ -42,6 +42,36 @@ const generateKey = (): string => {
   return `oc_${stamp}_${rand}`;
 };
 
+const normalizeStringArray = (input: unknown, separators: RegExp = /[|,]/): string[] => {
+  const values: string[] = [];
+  const add = (value: unknown) => {
+    if (Array.isArray(value)) {
+      value.forEach((entry) => add(entry));
+      return;
+    }
+    if (typeof value === 'string') {
+      value
+        .split(separators)
+        .map((entry) => entry.trim())
+        .filter(Boolean)
+        .forEach((entry) => values.push(entry));
+      return;
+    }
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      const trimmed = String(value).trim();
+      if (trimmed) values.push(trimmed);
+      return;
+    }
+    if (value && typeof value === 'object') {
+      const label = (value as any).label ?? (value as any).value ?? (value as any).name;
+      if (typeof label === 'string') add(label);
+    }
+  };
+
+  add(input);
+  return Array.from(new Set(values));
+};
+
 const parseOptionDetails = (metadata?: Record<string, unknown>): { summary?: string; details?: string[] } => {
   if (!metadata) return {};
   const meta = metadata as Record<string, unknown>;
@@ -86,6 +116,10 @@ const parseOptionDetails = (metadata?: Record<string, unknown>): { summary?: str
     if (name && value) pushDetail(`${name}: ${value}`);
   });
 
+  normalizeStringArray(meta['optionDetails'] ?? meta['option_details'], /[•|,]/).forEach((entry) =>
+    pushDetail(entry)
+  );
+
   if (!detailSet.size && optionSummary) {
     optionSummary
       .split(/[•|]/)
@@ -109,29 +143,41 @@ const parseUpgrades = (metadata?: Record<string, unknown>): { list?: string[]; t
   if (!metadata) return {};
   const meta = metadata as Record<string, unknown>;
   const values = new Set<string>();
-  const addFromString = (input?: unknown) => {
-    if (typeof input !== 'string') return;
-    input
-      .split(/[|,]/)
-      .map((v) => v.trim())
-      .filter(Boolean)
-      .forEach((v) => values.add(v));
+  const addValues = (input?: unknown) => {
+    normalizeStringArray(input, /[|,]/).forEach((value) => values.add(value));
   };
 
-  addFromString(meta['upgrades']);
-  addFromString(meta['upgrades_readable']);
-  addFromString(meta['upgrade_list']);
-  addFromString(meta['upgrade_titles']);
+  addValues(meta['upgrades']);
+  addValues(meta['upgrades_readable']);
+  addValues(meta['upgrade_list']);
+  addValues(meta['upgrade_titles']);
+  addValues(meta['addOns'] ?? (meta as any)?.addons ?? (meta as any)?.add_ons);
 
   Object.keys(meta)
     .filter((key) => /^upgrade_\d+$/i.test(key))
-    .forEach((key) => addFromString(meta[key]));
+    .forEach((key) => addValues(meta[key]));
 
   const total = toNumber(
     meta['upgrades_total'] ?? meta['upgrade_total'] ?? meta['upgradesTotal'] ?? meta['upgradeTotal']
   );
 
   return { list: values.size ? Array.from(values) : undefined, total: total ?? undefined };
+};
+
+const applyArrayMetadata = (
+  metadata: Record<string, unknown> | undefined,
+  key: string,
+  values: string[],
+  separators: RegExp
+) => {
+  if (!metadata) return;
+  const hadKey = key in metadata;
+  const normalized = values.length ? values : normalizeStringArray(metadata[key], separators);
+  if (normalized.length) {
+    metadata[key] = normalized;
+  } else if (hadKey) {
+    metadata[key] = [];
+  }
 };
 
 export function createOrderCartItem(data: {
@@ -160,11 +206,16 @@ export function createOrderCartItem(data: {
   const productSlug = toStringOrUndefined(data.productSlug);
   const metadata =
     data.metadata && typeof data.metadata === 'object'
-      ? (data.metadata as Record<string, unknown>)
+      ? { ...(data.metadata as Record<string, unknown>) }
       : undefined;
 
   const { summary: optionSummary, details: optionDetails } = parseOptionDetails(metadata);
   const { list: upgradeList, total: upgradesTotal } = parseUpgrades(metadata);
+
+  applyArrayMetadata(metadata, 'upgrades', upgradeList ?? [], /[|,]/);
+  applyArrayMetadata(metadata, 'addOns', upgradeList ?? [], /[|,]/);
+  applyArrayMetadata(metadata, 'optionDetails', optionDetails ?? [], /[•|,]/);
+  applyArrayMetadata(metadata, 'option_details', optionDetails ?? [], /[•|,]/);
 
   return {
     _type: 'orderCartItem',
