@@ -1418,7 +1418,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
           <PortableTextRenderer value={product?.shortDescription ?? []} />
         </div>
 
-        <form id="product-options" class="mb-6 space-y-6 rounded-2xl border border-white/10 bg-black/20 p-4 sm:p-6">
+        <form id="product-options" class="mb-6 space-y-6 bg-black/20 p-4 sm:p-6 text-white/80">
             {/* Variant Options (radio/select) */}
             {Array.isArray(options) && options.length > 0 && options.filter(Boolean).map((group: any) => {
               const groupKey = (group?.key || group?.name || group?.title || 'option').toString();
@@ -1430,12 +1430,12 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
               if (values.length === 0) return null;
               const helperId = `${groupKey}-helper`;
               return (
-                <fieldset class="rounded-2xl border border-white/15 bg-black/10 p-4 sm:p-5" aria-labelledby={`${groupKey}-legend`}>
+                <fieldset class="rounded-xl border border-white/15 bg-black/10 p-4 sm:p-5" aria-labelledby={`${groupKey}-legend`}>
                   <legend id={`${groupKey}-legend`} class="text-sm font-semibold uppercase tracking-wide text-white">
                     {groupLabel}
                   </legend>
-                  <p id={helperId} class="mt-1 text-xs text-white/60">
-                    Choose the configuration that matches your build.
+                  <p id={helperId} class="mt-1 text-xs text-primary/80">
+                    *Required
                   </p>
                   {/* Prefer select if many values, else radios */}
                   {values.length > 4 ? (
@@ -1520,8 +1520,8 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
             })}
 
             {isContentDescriptor(descriptionDescriptor) && (
-          <details class="group mt-4 rounded-xl border shadow-card-outer shadow-white/20 border-primaryB/30 text-white/90 shadow-inner shadow-md" >
-            <summary class="flex cursor-pointer select-none items-center justify-between rounded-t-xl bg-black/40 px-4 py-3 font-ethno text-base md:text-lg">
+          <details class="group mt-4 rounded-xl border shadow-card-outer shadow-white/20 border-primaryB/40 text-white shadow-inner shadow-md" >
+            <summary class="flex cursor-pointer select-none items-center justify-between text-primary/80 bg-black/40 px-4 py-3 font-ethno text-base md:text-lg">
               <span>Product Details</span>
               <span class="transition-transform group-open:rotate-180">▾</span>
             </summary>
@@ -1540,7 +1540,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
               <div class="space-y-6">
                   <section class="p-4 sm:p-5">
                     <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                      <h3 class="text-base font-semibold uppercase tracking-wide text-white">Optional Upgrades</h3>
+                      <h3 class="text-base font-semibold uppercase tracking-wide text-primary">Optional Upgrades</h3>
                     </div>
                     <fieldset class="mt-4 space-y-4">
                       <legend class="sr-only">Optional Upgrades</legend>
@@ -1841,7 +1841,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
     </div>
 
     <section class="mt-12 w-full md:w-3/4 mx-auto px-4 sm:px-8">
-      <div class="rounded-3xl border border-white/10 bg-black/20 p-4 sm:p-8">
+      <div class="rounded-3xl bg-black/20 p-4 sm:p-8">
         <InfoTabs
           client:load
           kitItems={includedInKitItems}

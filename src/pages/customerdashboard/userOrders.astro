@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { AuthProvider } from '../../components/AuthProvider.jsx';
 import RequireLogin from '../../components/RequireLogin.jsx';
 ---
+
 <AuthProvider client:load>
   <RequireLogin client:load>
     <BaseLayout hideBrandTag>
@@ -25,15 +26,30 @@ import RequireLogin from '../../components/RequireLogin.jsx';
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm mb-1" for="orderId">Order ID</label>
-                <input id="orderId" name="orderId" type="text" class="w-full rounded bg-white/5 border border-white/15 p-2" />
+                <input
+                  id="orderId"
+                  name="orderId"
+                  type="text"
+                  class="w-full rounded bg-white/5 border border-white/15 p-2"
+                />
               </div>
               <div>
                 <label class="block text-sm mb-1" for="email_order">Email</label>
-                <input id="email_order" name="email" type="email" required class="w-full rounded bg-white/5 border border-white/15 p-2" />
+                <input
+                  id="email_order"
+                  name="email"
+                  type="email"
+                  required
+                  class="w-full rounded bg-white/5 border border-white/15 p-2"
+                />
               </div>
               <div class="md:col-span-2">
                 <label class="block text-sm mb-1" for="subject">Subject</label>
-                <select id="subject" name="subject" class="w-full rounded bg-white/5 border border-white/15 p-2">
+                <select
+                  id="subject"
+                  name="subject"
+                  class="w-full rounded bg-white/5 border border-white/15 p-2"
+                >
                   <option value="question">Question about my order</option>
                   <option value="update">Update shipping/address</option>
                   <option value="cancel">Cancel order</option>
@@ -42,16 +58,26 @@ import RequireLogin from '../../components/RequireLogin.jsx';
               </div>
               <div class="md:col-span-2">
                 <label class="block text-sm mb-1" for="message">Message</label>
-                <textarea id="message" name="message" rows="4" class="w-full rounded bg-white/5 border border-white/15 p-2"></textarea>
+                <textarea
+                  id="message"
+                  name="message"
+                  rows="4"
+                  class="w-full rounded bg-white/5 border border-white/15 p-2"></textarea>
               </div>
             </div>
-            <button type="submit" class="rounded bg-primary px-4 py-2 text-white hover:bg-primary/90 hover:text-white">Send</button>
+            <button
+              type="submit"
+              class="rounded bg-primary px-4 py-2 text-white hover:bg-primary/90 hover:text-white"
+              >Send</button
+            >
             <p id="order-support-status" class="hidden text-sm mt-3"></p>
           </form>
         </div>
       </section>
 
-      <script type="module">import '../../scripts/user-orders-page.ts';</script>
+      <script type="module">
+        import '../../scripts/user-orders-page.ts';
+      </script>
       <script is:inline>
         const orderForm = document.getElementById('order-support-form');
         const orderStatus = document.getElementById('order-support-status');
@@ -59,7 +85,12 @@ import RequireLogin from '../../components/RequireLogin.jsx';
           if (!orderStatus) return;
           orderStatus.textContent = message;
           orderStatus.classList.remove('hidden', 'text-red-300', 'text-green-300', 'text-white/80');
-          const cls = type === 'error' ? 'text-red-300' : type === 'success' ? 'text-green-300' : 'text-white/80';
+          const cls =
+            type === 'error'
+              ? 'text-red-300'
+              : type === 'success'
+                ? 'text-green-300'
+                : 'text-white/80';
           orderStatus.classList.add(cls);
         };
         orderForm?.addEventListener('submit', async (event) => {

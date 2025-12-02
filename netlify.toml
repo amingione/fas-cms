@@ -768,6 +768,9 @@
 
 # Build plugins
 [[plugins]]
+  package = "@netlify/plugin-secrets-manager"
+
+[[plugins]]
   package = "netlify-plugin-cache"
   [plugins.inputs]
     paths = [

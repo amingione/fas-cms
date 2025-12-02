@@ -73,6 +73,13 @@ yarn stripe:sync --dry-run            # Preview without making changes
 
 The script requires `STRIPE_SECRET_KEY`, `SANITY_PROJECT_ID`, `SANITY_DATASET`, and a Sanity write token (`SANITY_WRITE_TOKEN`). Successful sync writes `stripeProductId`, `stripePriceId`, and `stripeLastSyncedAt` into each product document.
 
+## AWS Secrets in Netlify Builds
+
+- `@netlify/plugin-secrets-manager` is installed to pull AWS Secrets Manager values into the build so large env vars (e.g., >4 KB) avoid Netlify’s size limits.
+- Set `NETLIFY_AWS_ACCESS_KEY_ID` and `NETLIFY_AWS_SECRET_ACCESS_KEY` as Netlify build env vars with permissions for `secretsmanager:GetSecretValue`, `DescribeSecret`, and `ListSecrets` on your secret path. Override the default `us-east-1` with `NETLIFY_AWS_DEFAULT_REGION` if needed.
+- Store secrets as JSON objects, e.g. `{"MY_LARGE_SECRET":"<long string>"}`; the plugin injects them as `NETLIFY_AWS_SECRET_MY_LARGE_SECRET` unless you change the prefix via `NETLIFY_AWS_SECRET_PREFIX`.
+- Optional: tag a secret with `NETLIFY_CONTEXT=production|deploy-preview|branch-name` to scope injection to that deploy context or branch.
+
 ## ⚠️ Codex Safety Rules (Summary)
 
 Codex must treat all backend files, schemas, API routes, checkout/cart logic, and server-side code as _protected areas_.

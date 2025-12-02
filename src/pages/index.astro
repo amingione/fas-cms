@@ -13,6 +13,7 @@ import AnimatedTruckPackagesHero from '@components/animated/AnimatedTruckPackage
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import EmailCaptureModal from '@components/EmailCaptureModal.tsx';
 import PowerstrokePipingKit from '@/components/NewProduct/PowerstrokePipingKit.astro';
+import CyberMondaySection from '@/components/sales/cyberMondayPage';
 
 const pageDocPromise: Promise<any> = loadPageDoc('index');
 const featuredProductsPromise = sanity
@@ -150,7 +151,13 @@ const structuredDataGraph =
         <AnimatedHomeHero client:only="react" />
       </section>
 
-      <PowerstrokePipingKit />
+      <section>
+        <CyberMondaySection client:load />
+      </section>
+
+      <section>
+        <PowerstrokePipingKit />
+      </section>
 
       <!-- Auto-scrolling Black Friday divider -->
       <section

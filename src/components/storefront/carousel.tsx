@@ -23,7 +23,7 @@ export function Carousel({
   className = '',
   links,
   captions,
-  speedSec = 10,
+  speedSec = 45,
   products
 }: CarouselProps) {
   const css = `
@@ -48,7 +48,7 @@ export function Carousel({
       <section className={`relative w-full overflow-hidden ${className}`} aria-label="Products">
         <div className="mask-left" />
         <div className="mask-right" />
-        <div className="track" style={{ animationDuration: `${Math.max(6, speedSec)}s` }}>
+        <div className="track" style={{ animationDuration: `${Math.max(30, speedSec)}s` }}>
           {loopSlides.map((s) => (
             <div key={s.key} className="slide">
               <ProductCardLiteReact product={s.p} productImage={s.p?.images?.[0]} />
@@ -75,7 +75,7 @@ export function Carousel({
     <section className={`relative w-full overflow-hidden ${className}`} aria-label="Carousel">
       <div className="mask-left" />
       <div className="mask-right" />
-      <div className="track" style={{ animationDuration: `${Math.max(6, speedSec)}s` }}>
+      <div className="track" style={{ animationDuration: `${Math.max(30, speedSec)}s` }}>
         {loopSlides.map((s) => (
           <div key={s.key} className="slide imgSlide">
             {s.href ? (
