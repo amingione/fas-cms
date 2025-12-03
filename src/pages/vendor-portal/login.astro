@@ -1,125 +1,88 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { Building2, Lock, Mail } from 'lucide-react';
-
-export const prerender = false;
-
-const pageTitle = 'Vendor Portal Login';
-const pageDescription =
-  'Access your vendor dashboard to manage products, orders, and account info.';
+const title = 'Vendor Portal Login';
+const returnTo = Astro.url.searchParams.get('returnTo') || '/vendor-portal/dashboard';
 ---
 
-<BaseLayout title={pageTitle} description={pageDescription}>
-  <div class="flex min-h-screen items-center justify-center bg-neutral-900 px-4 py-16">
-    <div
-      class="w-full max-w-md space-y-6 rounded-2xl border border-white/10 bg-black/70 p-8 shadow-card backdrop-blur"
-    >
-      <div class="text-center space-y-3">
-        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-xl bg-primary">
-          <Building2 className="h-8 w-8 text-white" />
-        </div>
-        <h1 class="text-3xl font-bold text-white">Vendor Portal</h1>
-        <p class="text-sm text-neutral-300">Sign in to manage products, orders, and payouts.</p>
+<BaseLayout title={title} noindex>
+  <div class="min-h-screen flex items-center justify-center px-4 bg-black">
+    <div class="w-full max-w-md rounded-lg border border-white/20 bg-zinc-900/80 p-6 shadow-xl">
+      <div class="text-center mb-6">
+        <img src="/logo/faslogochroma.webp" alt="FAS Motorsports" width="120" height="120" class="mx-auto" />
+        <h1 class="mt-4 text-3xl font-bold text-primary uppercase">Vendor Portal</h1>
+        <p class="text-sm text-white/70">Sign in with your portal email and password.</p>
       </div>
-
-      <form id="vendorPortalLoginForm" class="space-y-5">
+      <form id="vendorPortalLogin" class="space-y-4" data-redirect={returnTo}>
         <div>
-          <label class="mb-2 block text-sm font-semibold text-white">Email Address</label>
-          <div class="relative">
-            <Mail className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-500" />
-            <input
-              name="email"
-              type="email"
-              required
-              class="w-full rounded-lg border border-white/10 bg-black/60 py-3 pl-11 pr-4 text-white outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/40"
-              placeholder="vendor@company.com"
-            />
-          </div>
+          <label class="block text-sm font-semibold text-white mb-2" for="vp-email">Email</label>
+          <input
+            id="vp-email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            required
+            class="w-full rounded-md border border-white/20 bg-black px-3 py-2 text-white focus:border-primary focus:outline-none"
+          />
         </div>
-
         <div>
-          <label class="mb-2 block text-sm font-semibold text-white">Password</label>
-          <div class="relative">
-            <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-500" />
-            <input
-              name="password"
-              type="password"
-              required
-              class="w-full rounded-lg border border-white/10 bg-black/60 py-3 pl-11 pr-4 text-white outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/40"
-              placeholder="••••••••"
-            />
-          </div>
+          <label class="block text-sm font-semibold text-white mb-2" for="vp-password">Password</label>
+          <input
+            id="vp-password"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            required
+            class="w-full rounded-md border border-white/20 bg-black px-3 py-2 text-white focus:border-primary focus:outline-none"
+          />
         </div>
-
+        <div class="flex items-center justify-between text-sm">
+          <a href="/vendor-portal/forgot-password" class="text-primary hover:underline">Forgot password?</a>
+        </div>
         <button
-          id="vendorPortalLoginSubmit"
           type="submit"
-          class="flex w-full items-center justify-center rounded-lg bg-primary py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+          class="w-full rounded-md bg-primary px-4 py-2 font-semibold uppercase tracking-wide text-white hover:bg-primary/80 transition"
         >
-          Sign In
+          Sign in
         </button>
-
-        <p id="vendorPortalLoginError" class="hidden text-center text-sm text-red-400"></p>
+        <p id="vp-login-status" class="text-sm text-center text-red-400 hidden"></p>
       </form>
-
-      <div class="text-center text-sm text-neutral-400">
-        <a href="/vendor/forgot-password" class="hover:text-white hover:underline"
-          >Forgot password?</a
-        >
-      </div>
-
-      <div class="text-center text-sm text-neutral-400">
-        <a href="/" class="hover:text-white hover:underline">← Back to Store</a>
-      </div>
     </div>
   </div>
 
   <script>
-    const form = document.getElementById('vendorPortalLoginForm') as HTMLFormElement | null;
-    /** @type {HTMLButtonElement | null} */
-    const submitBtn = document.getElementById(
-      'vendorPortalLoginSubmit'
-    ) as HTMLButtonElement | null;
-    /** @type {HTMLParagraphElement | null} */
-    const errorEl = document.getElementById(
-      'vendorPortalLoginError'
-    ) as HTMLParagraphElement | null;
+    const form = document.querySelector('#vendorPortalLogin');
+    const statusEl = document.querySelector('#vp-login-status');
 
     form?.addEventListener('submit', async (event) => {
       event.preventDefault();
-      if (!form || !submitBtn || !errorEl) return;
+      const emailInput = document.querySelector('#vp-email');
+      const passwordInput = document.querySelector('#vp-password');
+      const email = emailInput && 'value' in emailInput ? emailInput.value : '';
+      const password = passwordInput && 'value' in passwordInput ? passwordInput.value : '';
+      const redirectTo =
+        (form && (form as HTMLElement).dataset?.redirect) || '/vendor-portal/dashboard';
 
-      const formData = new FormData(form);
-      const email = String(formData.get('email') || '').trim();
-      const password = String(formData.get('password') || '');
-
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Signing in...';
-      errorEl.classList.add('hidden');
-      errorEl.textContent = '';
+      if (!statusEl) return;
+      statusEl.classList.add('hidden');
+      statusEl.textContent = '';
 
       try {
-        const res = await fetch('/api/vendor-portal/auth/login', {
+        const res = await fetch('/api/vendor/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
+          body: JSON.stringify({ email, password }),
+          credentials: 'include'
         });
-        const data = await res.json();
-
-        if (data?.success) {
-          window.location.href = '/vendor-portal/dashboard';
-          return;
+        const data = await res.json().catch(() => ({}));
+        if (res.ok) {
+          window.location.href = redirectTo;
+        } else {
+          statusEl.textContent = data.message || 'Unable to sign in.';
+          statusEl.classList.remove('hidden');
         }
-
-        errorEl.textContent = data?.error || 'Login failed. Please check your credentials.';
-        errorEl.classList.remove('hidden');
       } catch (err) {
-        console.error('Vendor portal login failed:', err);
-        errorEl.textContent = 'Login failed. Please try again.';
-        errorEl.classList.remove('hidden');
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Sign In';
+        statusEl.textContent = 'Network error. Try again.';
+        statusEl.classList.remove('hidden');
       }
     });
   </script>

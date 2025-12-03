@@ -150,6 +150,17 @@ const DEFAULT_OG_IMAGE =
     ? seoPayload.global.defaultOgImage
     : seoPayload.global.defaultOgImage?.asset?.url) ??
   'https://fasmotorsports.com/images/social/social-share.webp';
+const GA_MEASUREMENT_ID =
+  (import.meta.env.PUBLIC_GA_MEASUREMENT_ID as string | undefined) ||
+  (import.meta.env.PUBLIC_GA_ID as string | undefined) ||
+  'G-NQ94Z6HWGV';
+const GOOGLE_ADS_ID =
+  (import.meta.env.PUBLIC_GOOGLE_ADS_ID as string | undefined) || 'AW-17641771829';
+const PRIMARY_GTAG_ID = GOOGLE_ADS_ID || GA_MEASUREMENT_ID;
+const GTAG_SCRIPT_URL =
+  PRIMARY_GTAG_ID && typeof PRIMARY_GTAG_ID === 'string'
+    ? `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(PRIMARY_GTAG_ID)}`
+    : null;
 
 declare global {
   interface Window {
@@ -468,63 +479,50 @@ const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
         }
       })();
     </script>
-    <script is:inline type="module">
-      const GTAG_URL = 'https://www.googletagmanager.com/gtag/js?id=AW-17641771829';
-      const initAnalytics = () => {
-        if (typeof window === 'undefined') return;
-        if (window.__fasGtagInitialized) return;
-        window.__fasGtagInitialized = true;
-        window.dataLayer = window.dataLayer || [];
-        function gtag() {
-          window.dataLayer.push(arguments);
-        }
-        window.gtag = gtag;
-        gtag('js', new Date());
-        gtag('config', 'G-NQ94Z6HWGV', { send_page_view: true });
-        gtag('config', 'AW-17641771829');
-      };
+    <script
+      is:inline
+      type="module"
+      set:html={`(() => {
+        const GA_ID = ${JSON.stringify(GA_MEASUREMENT_ID)};
+        const ADS_ID = ${JSON.stringify(GOOGLE_ADS_ID)};
+        const PRIMARY_ID = ${JSON.stringify(PRIMARY_GTAG_ID)};
+        const GTAG_URL = ${GTAG_SCRIPT_URL ? JSON.stringify(GTAG_SCRIPT_URL) : 'null'};
 
-      const loadAnalyticsScript = () => {
-        if (typeof document === 'undefined') return;
-        if (document.querySelector('script[data-gtag-loader]')) return;
-        const tag = document.createElement('script');
-        tag.src = GTAG_URL;
-        tag.async = true;
-        tag.dataset.gtagLoader = 'true';
-        tag.addEventListener('load', () => {
-          try {
-            document.dispatchEvent(new Event('gtag:loaded'));
-          } catch {
-            /* noop */
+        const bootAnalytics = () => {
+          if (!PRIMARY_ID || typeof window === 'undefined' || typeof document === 'undefined') return;
+          if (window.__fasGtagInitialized) return;
+          window.__fasGtagInitialized = true;
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            window.dataLayer.push(arguments);
           }
-        });
-        document.head.appendChild(tag);
-      };
+          window.gtag = gtag;
+          gtag('js', new Date());
+          if (GA_ID) gtag('config', GA_ID, { send_page_view: true });
+          if (ADS_ID) gtag('config', ADS_ID);
 
-      const bootAnalytics = () => {
-        initAnalytics();
-        loadAnalyticsScript();
-      };
-
-      const scheduleAnalytics = () => {
-        if (typeof window === 'undefined' || typeof document === 'undefined') return;
-        const start = () => {
-          if ('requestIdleCallback' in window) {
-            window.requestIdleCallback(bootAnalytics, { timeout: 2000 });
-          } else {
-            window.setTimeout(bootAnalytics, 300);
-          }
+          if (!GTAG_URL || document.querySelector('script[data-gtag-loader]')) return;
+          const tag = document.createElement('script');
+          tag.src = GTAG_URL;
+          tag.async = true;
+          tag.dataset.gtagLoader = 'true';
+          tag.addEventListener('load', () => {
+            try {
+              document.dispatchEvent(new Event('gtag:loaded'));
+            } catch {
+              /* noop */
+            }
+          });
+          document.head.appendChild(tag);
         };
 
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
-          start();
+          bootAnalytics();
         } else {
-          document.addEventListener('DOMContentLoaded', start, { once: true });
+          document.addEventListener('DOMContentLoaded', bootAnalytics, { once: true });
         }
-      };
-
-      scheduleAnalytics();
-    </script>
+      })();`}
+    />
     <link rel="icon" type="image/webp" href="/favicon-96x96.webp" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.ico" />

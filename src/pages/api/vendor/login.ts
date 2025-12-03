@@ -1,8 +1,9 @@
 import type { APIRoute } from 'astro';
 import bcrypt from 'bcryptjs';
-import { getVendorByEmail } from '../../../server/sanity-client';
+import { getVendorByEmail, updateVendorLastLogin } from '../../../server/sanity-client';
 import { setSession } from '../../../server/auth/session';
 import { jsonResponse } from '@/server/http/responses';
+import { rateLimit } from '@/server/vendor-portal/rateLimit';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -12,6 +13,12 @@ export const POST: APIRoute = async ({ request }) => {
 
     if (!normalizedEmail || !passwordInput) {
       return jsonResponse({ message: 'Missing email or password' }, { status: 400 });
+    }
+
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('cf-connecting-ip') || 'unknown';
+    const rl = rateLimit(`vendor-login:${ip}`, { limit: 5, windowMs: 15 * 60 * 1000 });
+    if (!rl.allowed) {
+      return jsonResponse({ message: 'Too many login attempts. Try again soon.' }, { status: 429 }, { noIndex: true });
     }
 
     const vendor = await getVendorByEmail(normalizedEmail);
@@ -26,7 +33,8 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const headers = new Headers({ 'content-type': 'application/json' });
-    const rolesRaw = (vendor as any).roles || (vendor as any).userRole || 'vendor';
+    const portalPerms = (vendor as any).portalAccess?.permissions;
+    const rolesRaw = (vendor as any).roles || (vendor as any).userRole || portalPerms || 'vendor';
     const roles = Array.isArray(rolesRaw)
       ? rolesRaw
       : rolesRaw
@@ -37,6 +45,12 @@ export const POST: APIRoute = async ({ request }) => {
       { id: vendor._id, email: vendor.email, roles: roles.map((r: any) => String(r || '').toLowerCase()) },
       { expiresIn: '1h' }
     );
+
+    try {
+      await updateVendorLastLogin(vendor._id);
+    } catch (err) {
+      console.warn('[vendor login] failed to update lastLogin', err);
+    }
 
     return jsonResponse({ ok: true }, { status: 200, headers });
   } catch (err) {
