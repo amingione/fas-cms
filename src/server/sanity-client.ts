@@ -51,7 +51,8 @@ export const sanity = createClient({ projectId, dataset, apiVersion, token, useC
 export const hasWriteToken = Boolean(token);
 
 export async function getVendorByEmail(email: string) {
-  const query = '*[_type == "vendor" && lower(email) == $e][0]';
+  const query =
+    '*[_type == "vendor" && (lower(email) == $e || lower(portalAccess.email) == $e)][0]';
   return await sanity.fetch(query, { e: String(email || '').trim().toLowerCase() });
 }
 
