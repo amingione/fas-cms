@@ -1998,6 +1998,25 @@ html {
   backdrop-filter: blur(10px);
 }
 
+.btn-plain {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.btn-plain:hover,
+.btn-plain:focus-visible {
+  border-color: rgba(234, 29, 38, 0.7);
+  box-shadow: 0 0 18px rgba(234, 29, 38, 0.25);
+  outline: none;
+}
+
 /* Mobile-first button optimizations */
 @media (max-width: 640px) {
   button:not(.btn-glass):not(.btn-plain) {

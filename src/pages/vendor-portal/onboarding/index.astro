@@ -7,18 +7,21 @@ const pageTitle = 'Welcome to FAS Motorsports Vendor Portal';
 
 <OnboardingLayout title={pageTitle} section="welcome" readTime="4 min">
   <!-- Hero Section -->
-  <div class="bg-gradient-to-r from-primary to-primary-hover text-white p-8 rounded-xl mb-8 shadow-lg border border-white/10">
+  <div
+    class="bg-gradient-to-r from-primary to-primary-hover text-white p-8 rounded-xl mb-8 shadow-lg border border-white/10"
+  >
     <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div>
         <p class="text-xs uppercase tracking-[0.18em] text-white/70">Onboarding</p>
         <h1 class="text-4xl font-bold leading-tight mb-2">Welcome to FAS Motorsports!</h1>
         <p class="text-lg text-white/90">
-          We are excited to partner with you. This guide will help you get comfortable inside the Vendor Portal.
+          We are excited to partner with you. This guide will help you get comfortable inside the
+          Vendor Portal.
         </p>
       </div>
       <a
         href="/vendor-portal/onboarding/getting-started"
-        class="inline-flex items-center justify-center bg-white text-primary px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition shadow"
+        class="text-base btn-plain inline-flex items-center justify-center bg-white text-primary px-8 py-4 font-semibold hover:bg-gray-200 hover:text-black transition shadow whitespace-nowrap rounded-xl"
       >
         Get Started →
       </a>
@@ -27,36 +30,56 @@ const pageTitle = 'Welcome to FAS Motorsports Vendor Portal';
 
   <!-- Quick Links Grid -->
   <div class="grid md:grid-cols-3 gap-6 mb-8">
-    <div class="border border-white/10 bg-black/60 rounded-2xl p-6 hover:border-primary/60 hover:shadow-[0_15px_40px_rgba(234,29,38,0.25)] transition">
+    <div
+      class="border border-white/10 bg-black/60 rounded-2xl p-6 hover:border-primary/60 hover:shadow-[0_15px_40px_rgba(234,29,38,0.25)] transition"
+    >
       <div class="text-primary text-3xl mb-3">🚀</div>
       <h3 class="text-xl font-bold mb-2 text-white">Quick Start</h3>
       <p class="text-white/70 mb-4">Get up and running in 5 minutes.</p>
-      <a href="/vendor-portal/onboarding/getting-started" class="text-primary font-semibold hover:text-primary-hover">Start Here →</a>
+      <a
+        href="/vendor-portal/onboarding/getting-started"
+        class="text-primary font-semibold hover:text-primary-hover">Start Here →</a
+      >
     </div>
 
-    <div class="border border-white/10 bg-black/60 rounded-2xl p-6 hover:border-primary/60 hover:shadow-[0_15px_40px_rgba(234,29,38,0.25)] transition">
+    <div
+      class="border border-white/10 bg-black/60 rounded-2xl p-6 hover:border-primary/60 hover:shadow-[0_15px_40px_rgba(234,29,38,0.25)] transition"
+    >
       <div class="text-primary text-3xl mb-3">📦</div>
       <h3 class="text-xl font-bold mb-2 text-white">Submit Orders</h3>
       <p class="text-white/70 mb-4">Learn how to place and track orders.</p>
-      <a href="/vendor-portal/onboarding/orders" class="text-primary font-semibold hover:text-primary-hover">Learn More →</a>
+      <a
+        href="/vendor-portal/onboarding/orders"
+        class="text-primary font-semibold hover:text-primary-hover">Learn More →</a
+      >
     </div>
 
-    <div class="border border-white/10 bg-black/60 rounded-2xl p-6 hover:border-primary/60 hover:shadow-[0_15px_40px_rgba(234,29,38,0.25)] transition">
+    <div
+      class="border border-white/10 bg-black/60 rounded-2xl p-6 hover:border-primary/60 hover:shadow-[0_15px_40px_rgba(234,29,38,0.25)] transition"
+    >
       <div class="text-primary text-3xl mb-3">💬</div>
       <h3 class="text-xl font-bold mb-2 text-white">Get Support</h3>
       <p class="text-white/70 mb-4">Contact us anytime you need help.</p>
-      <a href="/vendor-portal/onboarding/support" class="text-primary font-semibold hover:text-primary-hover">Contact Us →</a>
+      <a
+        href="/vendor-portal/onboarding/support"
+        class="text-primary font-semibold hover:text-primary-hover">Contact Us →</a
+      >
     </div>
   </div>
 
-  <!-- Video Tutorial -->
+  <!-- Login Screen Preview -->
   <div class="bg-black/60 border border-white/10 p-8 rounded-2xl mb-8 shadow-lg">
     <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
-      <h2 class="text-2xl font-bold text-white">Video Walkthrough</h2>
-      <span class="text-sm text-white/60">Full tutorial coming soon</span>
+      <h2 class="text-2xl font-bold text-white">Login Screen Preview</h2>
+      <span class="text-sm text-white/60">What you will see from your invite link</span>
     </div>
-    <div class="aspect-video bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-white/60">
-      <p class="text-white/60">Video tutorial coming soon</p>
+    <div class="aspect-video bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+      <img
+        src="/images/vendors/fas-getting-started-login.png"
+        alt="FAS vendor portal login screen preview"
+        class="h-full w-full object-cover"
+        loading="lazy"
+      />
     </div>
   </div>
 
@@ -64,19 +87,24 @@ const pageTitle = 'Welcome to FAS Motorsports Vendor Portal';
   <div class="border border-white/10 rounded-2xl p-6 bg-black/60 mb-8 shadow-lg">
     <h2 class="text-2xl font-bold mb-4 text-white">Onboarding Checklist</h2>
     <ul class="space-y-3 text-white/80">
-      {[
-        'Complete account setup',
-        'Add shipping addresses',
-        'Update inventory',
-        'Submit first order',
-        'Upload an invoice',
-        'Send a test message'
-      ].map((item) => (
-        <li class="flex items-center gap-3">
-          <input type="checkbox" class="w-5 h-5 text-primary focus:ring-primary bg-black border-white/30 rounded" />
-          <span>{item}</span>
-        </li>
-      ))}
+      {
+        [
+          'Complete account setup',
+          'Add shipping addresses',
+          'Update inventory',
+          'Submit first order',
+          'Upload an invoice',
+          'Send a test message'
+        ].map((item) => (
+          <li class="flex items-center gap-3">
+            <input
+              type="checkbox"
+              class="w-5 h-5 text-primary focus:ring-primary bg-black border-white/30 rounded"
+            />
+            <span>{item}</span>
+          </li>
+        ))
+      }
     </ul>
   </div>
 
@@ -85,7 +113,8 @@ const pageTitle = 'Welcome to FAS Motorsports Vendor Portal';
     <div class="rounded-2xl border border-white/10 bg-black/60 p-6 shadow-lg">
       <h3 class="text-xl font-bold mb-2 text-white">Why vendors love this portal</h3>
       <p class="text-white/70 mb-3">
-        Faster order turnaround, clearer communication, and real-time analytics keep your business moving.
+        Faster order turnaround, clearer communication, and real-time analytics keep your business
+        moving.
       </p>
       <ul class="space-y-2 text-white/80">
         <li class="flex gap-3">

@@ -1,0 +1,66 @@
+---
+import VendorPortalLayout from '@/layouts/VendorPortalLayout.astro';
+import { sanityClient } from '@/lib/sanity';
+import VendorBlogList from '@/components/vendor-portal/VendorBlogList';
+import { requireVendor } from '@/server/vendor-portal/auth';
+
+const gate = await requireVendor(Astro.request);
+if (!gate.ok) {
+  return gate.response;
+}
+
+const { searchParams } = Astro.url;
+const type = searchParams.get('type') || 'all';
+
+const posts = await sanityClient.fetch(
+  `*[_type == "vendorPost" 
+    && defined(publishedAt) 
+    && publishedAt <= now()
+    && (!defined(expiresAt) || expiresAt > now())
+    ${type !== 'all' ? '&& postType == $type' : ''}
+  ] | order(pinned desc, priority desc, publishedAt desc) [0...50] {
+    _id,
+    title,
+    slug,
+    postType,
+    priority,
+    excerpt,
+    featuredImage { asset->{ url } },
+    publishedAt,
+    pinned,
+    author->{ name }
+  }`,
+  { type: type !== 'all' ? type : undefined }
+);
+---
+
+<VendorPortalLayout title="Vendor Updates">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold mb-2 text-white">Vendor Updates</h1>
+    <p class="text-white/70">Stay informed about new products, policy changes, and important announcements.</p>
+  </div>
+
+  <div class="border-b border-white/10 mb-6 overflow-x-auto">
+    <nav class="flex space-x-6 text-sm font-semibold">
+      {[
+        { key: 'all', label: 'All Updates' },
+        { key: 'announcement', label: '📢 Announcements' },
+        { key: 'notice', label: '🚨 Important Notices' },
+        { key: 'release', label: '🆕 New Releases' },
+        { key: 'policy', label: '📋 Policy Updates' },
+        { key: 'tip', label: '💡 Tips' }
+      ].map((tab) => (
+        <a
+          href={`/vendor-portal/blog${tab.key === 'all' ? '' : `?type=${tab.key}`}`}
+          class={`py-3 border-b-2 whitespace-nowrap ${
+            type === tab.key ? 'border-primary text-primary' : 'border-transparent text-white/60 hover:text-white'
+          }`}
+        >
+          {tab.label}
+        </a>
+      ))}
+    </nav>
+  </div>
+
+  <VendorBlogList posts={posts} client:load />
+</VendorPortalLayout>
