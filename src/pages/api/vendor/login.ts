@@ -22,11 +22,20 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const vendor = await getVendorByEmail(normalizedEmail);
-    if (!vendor || (vendor as any).status !== 'Approved') {
+    const portalAccess = (vendor as any).portalAccess || {};
+    const status = (vendor as any).status;
+    const portalEnabled = Boolean(portalAccess.enabled);
+    const approved = status === 'Approved';
+    // Allow login if portal access is enabled, even if legacy status field isn't set to Approved
+    if (!vendor || (!approved && !portalEnabled)) {
       return jsonResponse({ message: 'Invalid credentials' }, { status: 401 }, { noIndex: true });
     }
 
-    const passwordHash = (vendor as any).passwordHash;
+    const passwordHash =
+      (vendor as any).passwordHash ||
+      portalAccess.passwordHash ||
+      portalAccess.hash ||
+      (vendor as any).auth?.passwordHash;
     const isMatch = passwordHash ? await bcrypt.compare(passwordInput, passwordHash) : false;
     if (!isMatch) {
       return jsonResponse({ message: 'Invalid credentials' }, { status: 401 }, { noIndex: true });
