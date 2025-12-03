@@ -164,6 +164,11 @@ export async function requestPasswordReset(email: string, request: Request) {
   const vendor = await getVendorByEmail(email);
   const portalAccess = (vendor as any)?.portalAccess || {};
   if (!vendor || !portalAccess.enabled) {
+    console.warn('[vendor reset] no send: vendor missing or portal access disabled', {
+      email,
+      found: Boolean(vendor),
+      enabled: Boolean(portalAccess.enabled)
+    });
     return jsonResponse(
       { ok: true, message: 'If an account exists, we sent a reset link.' },
       { status: 200 },
@@ -185,6 +190,7 @@ export async function requestPasswordReset(email: string, request: Request) {
     vendorName: vendor.name || 'Vendor',
     expirationTime: `${RESET_EXPIRY_HOURS} hour`
   });
+  console.info('[vendor reset] sent email', { email, vendorId: vendor._id, resetLink });
 
   return jsonResponse(
     { ok: true, message: 'If an account exists, we sent a reset link.' },
