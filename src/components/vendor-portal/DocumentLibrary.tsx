@@ -29,6 +29,9 @@ const DocumentLibrary: React.FC = () => {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showUpload, setShowUpload] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -48,6 +51,30 @@ const DocumentLibrary: React.FC = () => {
   useEffect(() => {
     load();
   }, []);
+
+  const handleUpload = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setUploading(true);
+    setUploadError(null);
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    try {
+      const res = await fetch('/api/vendor/documents/upload', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.message || 'Upload failed');
+      setDocs((prev) => [data.document, ...prev]);
+      setShowUpload(false);
+      form.reset();
+    } catch (err: any) {
+      setUploadError(err?.message || 'Upload failed');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -89,8 +116,72 @@ const DocumentLibrary: React.FC = () => {
             placeholder="Search documents"
             className="bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
           />
+          <button
+            onClick={() => setShowUpload(true)}
+            className="bg-primary text-white rounded px-3 py-2 text-sm"
+          >
+            Upload
+          </button>
         </div>
       </div>
+      {showUpload && (
+        <div className="rounded-lg border border-white/10 bg-white/5 p-4">
+          <h3 className="text-sm font-semibold text-white mb-3">Upload Document</h3>
+          <form className="space-y-3" onSubmit={handleUpload}>
+            <input
+              name="title"
+              placeholder="Title"
+              required
+              className="w-full bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
+            />
+            <textarea
+              name="description"
+              placeholder="Description"
+              className="w-full bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
+              rows={3}
+            />
+            <select
+              name="category"
+              className="w-full bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
+            >
+              <option value="">Select category</option>
+              {categories
+                .filter((c) => c.value !== 'all')
+                .map((c) => (
+                  <option key={c.value} value={c.value}>
+                    {c.label}
+                  </option>
+                ))}
+            </select>
+            <input
+              name="file"
+              type="file"
+              required
+              className="w-full text-sm text-white/80"
+            />
+            {uploadError && <p className="text-red-400 text-sm">{uploadError}</p>}
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                disabled={uploading}
+                className="bg-primary text-white rounded px-4 py-2 text-sm disabled:opacity-50"
+              >
+                {uploading ? 'Uploading...' : 'Upload'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowUpload(false);
+                  setUploadError(null);
+                }}
+                className="text-white/70 text-sm"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((doc) => (
           <div key={doc._id} className="rounded-lg border border-white/10 bg-white/5 p-4 h-full flex flex-col">

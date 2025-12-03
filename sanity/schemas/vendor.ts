@@ -43,6 +43,37 @@ export default defineType({
       ]
     }),
     defineField({
+      name: 'shippingAddresses',
+      title: 'Shipping Addresses',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            { name: 'label', title: 'Label', type: 'string' },
+            { name: 'line1', title: 'Address Line 1', type: 'string' },
+            { name: 'line2', title: 'Address Line 2', type: 'string' },
+            { name: 'city', title: 'City', type: 'string' },
+            { name: 'state', title: 'State/Province', type: 'string' },
+            { name: 'postalCode', title: 'Postal Code', type: 'string' },
+            { name: 'country', title: 'Country', type: 'string' },
+            { name: 'default', title: 'Default', type: 'boolean', initialValue: false }
+          ]
+        }
+      ]
+    }),
+    defineField({
+      name: 'notificationPreferences',
+      title: 'Notification Preferences',
+      type: 'object',
+      fields: [
+        { name: 'emailOrders', title: 'Email: Orders', type: 'boolean', initialValue: true },
+        { name: 'emailInvoices', title: 'Email: Invoices', type: 'boolean', initialValue: true },
+        { name: 'emailMessages', title: 'Email: Messages', type: 'boolean', initialValue: true },
+        { name: 'emailPayments', title: 'Email: Payments', type: 'boolean', initialValue: true }
+      ]
+    }),
+    defineField({
       name: 'status',
       title: 'Status',
       type: 'string',

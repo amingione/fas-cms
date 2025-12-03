@@ -1,0 +1,18 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import HelpCenter from '@/components/vendor-portal/HelpCenter';
+const title = 'Vendor Portal - Help Center';
+const faqs = [
+  { question: 'How do I submit a new order?', answer: 'Go to Orders > New Order and add products to your cart, then submit.' },
+  { question: 'How do I upload an invoice?', answer: 'Navigate to Invoices and use the Upload action.' },
+  { question: 'How do I update inventory?', answer: 'Use the Inventory tab to edit quantities and lead times inline.' }
+];
+---
+
+<BaseLayout title={title} noindex>
+  <main class="min-h-screen bg-black text-white px-6 py-10">
+    <div class="max-w-4xl mx-auto">
+      <HelpCenter faqs={faqs} client:load />
+    </div>
+  </main>
+</BaseLayout>

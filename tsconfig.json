@@ -24,6 +24,13 @@
     "jsx": "react-jsx",
     "jsxImportSource": "react"
   },
-  "include": ["src/**/*", "*.astro", "**/*.ts", "**/*.tsx", "netlify/functions/**/*.ts"],
+  "include": [
+    ".astro/types.d.ts",
+    "src/**/*",
+    "*.astro",
+    "**/*.ts",
+    "**/*.tsx",
+    "netlify/functions/**/*.ts"
+  ],
   "exclude": ["node_modules", "dist", "src/dev/LegacySanityQuery.js", "public/_redirects"]
 }
