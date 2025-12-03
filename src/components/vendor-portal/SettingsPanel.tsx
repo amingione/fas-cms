@@ -9,13 +9,13 @@ type VendorProfile = {
 
 type VendorAddress = {
   label?: string;
-  line1?: string;
-  line2?: string;
+  street?: string;
+  address2?: string;
   city?: string;
   state?: string;
-  postalCode?: string;
+  zip?: string;
   country?: string;
-  default?: boolean;
+  isDefault?: boolean;
 };
 
 type NotificationPrefs = {
@@ -61,7 +61,20 @@ const SettingsPanel: React.FC = () => {
     const res = await fetch('/api/vendor/settings/addresses', { credentials: 'include' });
     const data = await res.json();
     if (!res.ok) throw new Error(data?.message || 'Failed to load addresses');
-    setAddresses(Array.isArray(data.addresses) ? data.addresses : []);
+    const normalized = Array.isArray(data.addresses)
+      ? data.addresses.map((addr: any) => ({
+          label: addr.label,
+          street: addr.street || addr.line1 || '',
+          address2: addr.address2 || addr.line2 || '',
+          city: addr.city || '',
+          state: addr.state || '',
+          zip: addr.zip || addr.postalCode || '',
+          country: addr.country || '',
+          isDefault: Boolean(addr.isDefault ?? addr.default)
+        }))
+      : [];
+    setAddresses(normalized);
+    return normalized;
   };
 
   const loadPreferences = async () => {
@@ -124,12 +137,13 @@ const SettingsPanel: React.FC = () => {
   const saveAddress = async () => {
     setError(null);
     try {
+      const payload = { ...addressDraft };
       if (editingIndex === null) {
         const res = await fetch('/api/vendor/settings/addresses', {
           method: 'POST',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(addressDraft)
+          body: JSON.stringify(payload)
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data?.message || 'Failed to add address');
@@ -138,12 +152,18 @@ const SettingsPanel: React.FC = () => {
           method: 'PATCH',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ index: editingIndex, address: addressDraft })
+          body: JSON.stringify({ index: editingIndex, address: payload })
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data?.message || 'Failed to update address');
       }
-      await loadAddresses();
+      const refreshed = await loadAddresses();
+      if (payload.isDefault && Array.isArray(refreshed)) {
+        const defaultIndex = refreshed.findIndex((addr) => addr.isDefault);
+        if (defaultIndex >= 0) {
+          await setDefaultAddress(defaultIndex, refreshed);
+        }
+      }
       setShowAddressForm(false);
       setEditingIndex(null);
     } catch (err: any) {
@@ -168,12 +188,12 @@ const SettingsPanel: React.FC = () => {
     }
   };
 
-  const setDefaultAddress = async (index: number) => {
+  const setDefaultAddress = async (index: number, source: VendorAddress[] = addresses) => {
     setError(null);
     try {
-      const next = addresses.map((addr, i) => ({
+      const next = source.map((addr, i) => ({
         ...addr,
-        default: i === index
+        isDefault: i === index
       }));
       for (let i = 0; i < next.length; i++) {
         await fetch('/api/vendor/settings/addresses', {
@@ -265,15 +285,15 @@ const SettingsPanel: React.FC = () => {
           >
             <div className="text-white/80 text-sm">
               <div className="font-semibold text-white">{addr.label || 'Address'}</div>
-              <div>{addr.line1}</div>
-              {addr.line2 && <div>{addr.line2}</div>}
+              <div>{addr.street}</div>
+              {addr.address2 && <div>{addr.address2}</div>}
               <div>
-                {[addr.city, addr.state, addr.postalCode].filter(Boolean).join(', ')} {addr.country}
+                {[addr.city, addr.state, addr.zip].filter(Boolean).join(', ')} {addr.country}
               </div>
-              {addr.default && <span className="text-green-400 text-xs font-semibold">Default</span>}
+              {addr.isDefault && <span className="text-green-400 text-xs font-semibold">Default</span>}
             </div>
             <div className="flex gap-2 text-xs">
-              {!addr.default && (
+              {!addr.isDefault && (
                 <button
                   onClick={() => setDefaultAddress(idx)}
                   className="rounded border border-white/20 px-2 py-1 text-white/80 hover:border-primary"
@@ -390,15 +410,15 @@ const SettingsPanel: React.FC = () => {
                   className="w-full bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
                 />
                 <input
-                  placeholder="Address line 1"
-                  value={addressDraft.line1 || ''}
-                  onChange={(e) => setAddressDraft({ ...addressDraft, line1: e.target.value })}
+                  placeholder="Street"
+                  value={addressDraft.street || ''}
+                  onChange={(e) => setAddressDraft({ ...addressDraft, street: e.target.value })}
                   className="w-full bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
                 />
                 <input
                   placeholder="Address line 2"
-                  value={addressDraft.line2 || ''}
-                  onChange={(e) => setAddressDraft({ ...addressDraft, line2: e.target.value })}
+                  value={addressDraft.address2 || ''}
+                  onChange={(e) => setAddressDraft({ ...addressDraft, address2: e.target.value })}
                   className="w-full bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
                 />
                 <input
@@ -415,15 +435,15 @@ const SettingsPanel: React.FC = () => {
                 />
                 <input
                   placeholder="Postal Code"
-                  value={addressDraft.postalCode || ''}
-                  onChange={(e) => setAddressDraft({ ...addressDraft, postalCode: e.target.value })}
+                  value={addressDraft.zip || ''}
+                  onChange={(e) => setAddressDraft({ ...addressDraft, zip: e.target.value })}
                   className="w-full bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
                 />
                 <label className="flex items-center gap-2 text-sm text-white/80">
                   <input
                     type="checkbox"
-                    checked={Boolean(addressDraft.default)}
-                    onChange={(e) => setAddressDraft({ ...addressDraft, default: e.target.checked })}
+                    checked={Boolean(addressDraft.isDefault)}
+                    onChange={(e) => setAddressDraft({ ...addressDraft, isDefault: e.target.checked })}
                     className="h-4 w-4"
                   />
                   Set as default

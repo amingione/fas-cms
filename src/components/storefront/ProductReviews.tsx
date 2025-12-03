@@ -37,7 +37,9 @@ function ReviewCard({ review }: { review: Review }) {
               ))}
             </div>
             {review.verifiedPurchase && (
-              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">✓ Verified Purchase</span>
+              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                ✓ Verified Purchase
+              </span>
             )}
           </div>
           <h4 className="font-semibold">{review.title}</h4>
@@ -47,7 +49,7 @@ function ReviewCard({ review }: { review: Review }) {
         </div>
       </div>
 
-      <p className="text-gray-700 mb-3">{review.content}</p>
+      <p className="text-gray-300 mb-3">{review.content}</p>
 
       {review.pros?.length ? (
         <div className="mb-2">
@@ -101,7 +103,13 @@ function ReviewCard({ review }: { review: Review }) {
   );
 }
 
-export function ProductReviews({ productId, reviewSummary }: { productId: string; reviewSummary: ReviewSummary }) {
+export function ProductReviews({
+  productId,
+  reviewSummary
+}: {
+  productId: string;
+  reviewSummary: ReviewSummary;
+}) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [sortBy, setSortBy] = useState('newest');
 
@@ -129,7 +137,13 @@ export function ProductReviews({ productId, reviewSummary }: { productId: string
 
         <div className="mt-4 space-y-2">
           {[5, 4, 3, 2, 1].map((rating) => {
-            const distributionKeys = ['oneStar', 'twoStars', 'threeStars', 'fourStars', 'fiveStars'];
+            const distributionKeys = [
+              'oneStar',
+              'twoStars',
+              'threeStars',
+              'fourStars',
+              'fiveStars'
+            ];
             const key = distributionKeys[rating - 1] || '';
             const count = reviewSummary.distribution?.[key] || 0;
             const percentage = reviewSummary.total ? (count / reviewSummary.total) * 100 : 0;
@@ -138,7 +152,10 @@ export function ProductReviews({ productId, reviewSummary }: { productId: string
               <div key={rating} className="flex items-center gap-2">
                 <span className="w-12">{rating} ⭐</span>
                 <div className="flex-1 bg-gray-200 rounded-full h-2">
-                  <div className="bg-yellow-400 h-2 rounded-full" style={{ width: `${percentage}%` }} />
+                  <div
+                    className="bg-yellow-400 h-2 rounded-full"
+                    style={{ width: `${percentage}%` }}
+                  />
                 </div>
                 <span className="w-12 text-sm text-gray-600">{count}</span>
               </div>

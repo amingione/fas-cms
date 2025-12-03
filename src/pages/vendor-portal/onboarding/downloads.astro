@@ -1,0 +1,67 @@
+---
+import OnboardingLayout from '@/layouts/OnboardingLayout.astro';
+
+const pageTitle = 'Documents & Resources';
+---
+
+<OnboardingLayout title={pageTitle} section="downloads" readTime="3 min">
+  <p class="text-gray-300 mb-6">
+    Download guides, templates, and forms to speed up onboarding. Save them for quick reference or
+    print for your team.
+  </p>
+
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="border border-white/10 rounded-lg p-6 hover:shadow-[0_12px_30px_rgba(234,29,38,0.25)] transition bg-black/60">
+      <div class="text-4xl mb-3">📄</div>
+      <h3 class="text-xl font-bold mb-2">Full Onboarding Guide</h3>
+      <p class="text-gray-400 mb-4">Complete vendor portal documentation (PDF)</p>
+      <a
+        href="https://cdn.sanity.io/files/r4og35qd/production/008e05611134e3262cded69f96d04876c68d8d52.pdf"
+        download
+        class="text-primary font-semibold hover:text-primary-hover"
+      >
+        Download PDF →
+      </a>
+    </div>
+
+    <div class="border border-white/10 rounded-lg p-6 hover:shadow-[0_12px_30px_rgba(234,29,38,0.25)] transition bg-black/60">
+      <div class="text-4xl mb-3">⚡</div>
+      <h3 class="text-xl font-bold mb-2">Quick Start Guide</h3>
+      <p class="text-gray-400 mb-4">Get started in 5 minutes (PDF)</p>
+      <a
+        href="https://cdn.sanity.io/files/r4og35qd/production/db48e0dae86e9e8ef3d2d9fd796ae8f85324bbe0.pdf"
+        download
+        class="text-primary font-semibold hover:text-primary-hover"
+      >
+        Download PDF →
+      </a>
+    </div>
+
+    <div class="border border-white/10 rounded-lg p-6 hover:shadow-[0_12px_30px_rgba(234,29,38,0.25)] transition bg-black/60">
+      <div class="text-4xl mb-3">📊</div>
+      <h3 class="text-xl font-bold mb-2">Inventory Upload Template</h3>
+      <p class="text-gray-400 mb-4">CSV template for bulk inventory updates</p>
+      <a href="/downloads/inventory-template.csv" download class="text-primary font-semibold hover:text-primary-hover">
+        Download CSV →
+      </a>
+    </div>
+
+    <div class="border border-white/10 rounded-lg p-6 hover:shadow-[0_12px_30px_rgba(234,29,38,0.25)] transition bg-black/60">
+      <div class="text-4xl mb-3">📋</div>
+      <h3 class="text-xl font-bold mb-2">Invoice Template</h3>
+      <p class="text-gray-400 mb-4">Standard invoice format</p>
+      <a href="/downloads/invoice-template.csv" download class="text-primary font-semibold hover:text-primary-hover">
+        Download CSV →
+      </a>
+    </div>
+
+    <div class="border border-white/10 rounded-lg p-6 hover:shadow-[0_12px_30px_rgba(234,29,38,0.25)] transition bg-black/60">
+      <div class="text-4xl mb-3">📝</div>
+      <h3 class="text-xl font-bold mb-2">Product Submission Form</h3>
+      <p class="text-gray-400 mb-4">Share new product details and specs</p>
+      <a href="/downloads/product-submission-form.pdf" download class="text-primary font-semibold hover:text-primary-hover">
+        Download Form →
+      </a>
+    </div>
+  </div>
+</OnboardingLayout>

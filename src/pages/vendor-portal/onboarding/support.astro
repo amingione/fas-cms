@@ -1,0 +1,46 @@
+---
+import OnboardingLayout from '@/layouts/OnboardingLayout.astro';
+
+const pageTitle = 'Support & Contact';
+---
+
+<OnboardingLayout title={pageTitle} section="support" readTime="3 min">
+  <div class="grid md:grid-cols-2 gap-8">
+    <div class="border border-gray-200 rounded-lg p-6 bg-white/80">
+      <h3 class="text-xl font-bold mb-4 text-primary">📧 Email Support</h3>
+      <p class="text-gray-600 mb-4">For general inquiries and support</p>
+      <a href="mailto:vendors@fasmotorsports.com" class="text-primary font-semibold">
+        vendors@fasmotorsports.com
+      </a>
+    </div>
+
+    <div class="border border-gray-200 rounded-lg p-6 bg-white/80">
+      <h3 class="text-xl font-bold mb-4 text-primary">📞 Phone Support</h3>
+      <p class="text-black mb-4">Call us during business hours</p>
+      <a href="tel:8122009012" class="text-primary font-semibold text-xl"> (812) 200-9012 </a>
+    </div>
+
+    <div class="border border-gray-200 rounded-lg p-6 bg-white/80">
+      <h3 class="text-xl font-bold mb-4 text-primary">💬 Portal Messages</h3>
+      <p class="text-gray-600 mb-4">Message us directly in the portal</p>
+      <a href="/vendor-portal/messages" class="text-primary font-semibold"> Send Message → </a>
+    </div>
+
+    <div class="border border-gray-200 rounded-lg p-6 bg-white/80">
+      <h3 class="text-xl font-bold mb-4 text-primary">📍 Visit Us</h3>
+      <p class="text-gray-600">
+        6161 Riverside Dr<br />
+        Punta Gorda, FL 33982
+      </p>
+    </div>
+  </div>
+
+  <div class="bg-white/80 border border-gray-200 p-6 rounded-lg mt-8">
+    <h3 class="text-xl font-bold mb-4 text-black">Business Hours</h3>
+    <ul class="space-y-2 text-gray-600">
+      <li><strong>Monday - Friday:</strong> 8:00 AM - 6:00 PM EST</li>
+      <li><strong>Saturday:</strong> 9:00 AM - 2:00 PM EST</li>
+      <li><strong>Sunday:</strong> Closed</li>
+    </ul>
+  </div>
+</OnboardingLayout>

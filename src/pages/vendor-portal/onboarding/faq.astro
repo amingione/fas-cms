@@ -1,0 +1,28 @@
+---
+import OnboardingLayout from '@/layouts/OnboardingLayout.astro';
+import FAQ from '@/components/vendor-portal/FAQ';
+
+const pageTitle = 'FAQ & Support';
+---
+
+<OnboardingLayout title={pageTitle} section="faq" readTime="5 min">
+  <p class="text-gray-300 mb-6">
+    Search common questions below. If you cannot find an answer, reach out and we will respond
+    quickly.
+  </p>
+  <FAQ client:load />
+  <div
+    class="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+  >
+    <div>
+      <p class="text-sm font-semibold text-gray-800">Still need help?</p>
+      <p class="text-gray-600 text-sm">Send us a note and the vendor success team will reply.</p>
+    </div>
+    <a
+      href="/vendor-portal/onboarding/support"
+      class="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover transition"
+    >
+      Contact Support →
+    </a>
+  </div>
+</OnboardingLayout>

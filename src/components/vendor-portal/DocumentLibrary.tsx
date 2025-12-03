@@ -23,13 +23,18 @@ const categories = [
   { value: 'other', label: 'Other' }
 ];
 
-const DocumentLibrary: React.FC = () => {
-  const [docs, setDocs] = useState<Document[]>([]);
+type Props = {
+  initialDocuments?: Document[];
+  vendorId?: string;
+};
+
+const DocumentLibrary: React.FC<Props> = ({ initialDocuments = [] }) => {
+  const [docs, setDocs] = useState<Document[]>(initialDocuments);
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showUpload, setShowUpload] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
@@ -67,7 +72,7 @@ const DocumentLibrary: React.FC = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data?.message || 'Upload failed');
       setDocs((prev) => [data.document, ...prev]);
-      setShowUpload(false);
+      setShowUploadModal(false);
       form.reset();
     } catch (err: any) {
       setUploadError(err?.message || 'Upload failed');
@@ -117,69 +122,85 @@ const DocumentLibrary: React.FC = () => {
             className="bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
           />
           <button
-            onClick={() => setShowUpload(true)}
-            className="bg-primary text-white rounded px-3 py-2 text-sm"
+            onClick={() => setShowUploadModal(true)}
+            className="bg-primary text-white rounded px-3 py-2 text-sm hover:bg-primary/80 transition"
           >
             Upload
           </button>
         </div>
       </div>
-      {showUpload && (
-        <div className="rounded-lg border border-white/10 bg-white/5 p-4">
-          <h3 className="text-sm font-semibold text-white mb-3">Upload Document</h3>
-          <form className="space-y-3" onSubmit={handleUpload}>
-            <input
-              name="title"
-              placeholder="Title"
-              required
-              className="w-full bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
-            />
-            <textarea
-              name="description"
-              placeholder="Description"
-              className="w-full bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
-              rows={3}
-            />
-            <select
-              name="category"
-              className="w-full bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
-            >
-              <option value="">Select category</option>
-              {categories
-                .filter((c) => c.value !== 'all')
-                .map((c) => (
-                  <option key={c.value} value={c.value}>
-                    {c.label}
-                  </option>
-                ))}
-            </select>
-            <input
-              name="file"
-              type="file"
-              required
-              className="w-full text-sm text-white/80"
-            />
-            {uploadError && <p className="text-red-400 text-sm">{uploadError}</p>}
-            <div className="flex gap-2">
+      {showUploadModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+          <div className="bg-zinc-950 border border-white/10 rounded-xl shadow-xl w-full max-w-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.16em] text-white/60">Upload</p>
+                <h3 className="text-lg font-semibold text-white">Upload Document</h3>
+              </div>
               <button
-                type="submit"
-                disabled={uploading}
-                className="bg-primary text-white rounded px-4 py-2 text-sm disabled:opacity-50"
-              >
-                {uploading ? 'Uploading...' : 'Upload'}
-              </button>
-              <button
-                type="button"
                 onClick={() => {
-                  setShowUpload(false);
+                  setShowUploadModal(false);
                   setUploadError(null);
                 }}
-                className="text-white/70 text-sm"
+                className="text-white/60 hover:text-white"
               >
-                Cancel
+                ✕
               </button>
             </div>
-          </form>
+            <form className="space-y-3" onSubmit={handleUpload}>
+              <input
+                name="title"
+                placeholder="Title"
+                required
+                className="w-full bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
+              />
+              <textarea
+                name="description"
+                placeholder="Description"
+                className="w-full bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
+                rows={3}
+              />
+              <select
+                name="category"
+                className="w-full bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
+              >
+                <option value="">Select category</option>
+                {categories
+                  .filter((c) => c.value !== 'all')
+                  .map((c) => (
+                    <option key={c.value} value={c.value}>
+                      {c.label}
+                    </option>
+                  ))}
+              </select>
+              <input
+                name="file"
+                type="file"
+                required
+                className="w-full text-sm text-white/80"
+              />
+              {uploadError && <p className="text-red-400 text-sm">{uploadError}</p>}
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  disabled={uploading}
+                  className="flex-1 bg-primary text-white rounded px-4 py-2 text-sm disabled:opacity-50 hover:bg-primary/80 transition"
+                >
+                  {uploading ? 'Uploading...' : 'Upload'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowUploadModal(false);
+                    setUploadError(null);
+                  }}
+                  className="flex-1 bg-white/10 text-white rounded px-4 py-2 text-sm hover:bg-white/20 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

@@ -1,0 +1,63 @@
+---
+import OnboardingLayout from '@/layouts/OnboardingLayout.astro';
+
+const pageTitle = 'Inventory Management';
+---
+
+<OnboardingLayout title={pageTitle} section="inventory" readTime="6 min">
+  <div class="space-y-6">
+    <div class="rounded-lg border border-gray-200 bg-dark p-6 shadow-sm">
+      <h3 class="text-xl font-bold mb-2">Why inventory matters</h3>
+      <p class="text-gray-400">
+        Accurate availability keeps orders moving. We surface low-stock SKUs to prevent delays and
+        keep your customers happy.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="rounded-lg border border-gray-200 bg-dark p-6 shadow-sm">
+        <h4 class="text-lg font-bold mb-2">Updating quantities</h4>
+        <ul class="space-y-2 text-gray-300">
+          <li>Open <strong>Inventory</strong> and edit quantities inline.</li>
+          <li>
+            Set <strong>available</strong>, <strong>backorder</strong>, and <strong>reserved</strong
+            > counts.
+          </li>
+          <li>Save updates to instantly reflect on active orders.</li>
+        </ul>
+      </div>
+      <div class="rounded-lg border border-gray-200 bg-dark p-6 shadow-sm">
+        <h4 class="text-lg font-bold mb-2">Setting lead times</h4>
+        <p class="text-gray-400">
+          Add lead time (in days) per SKU to set expectations. Use notes to describe constraints
+          (color, vehicle platform, etc.).
+        </p>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="rounded-lg border border-gray-200 bg-dark p-6 shadow-sm">
+        <h4 class="text-lg font-bold mb-2">Bulk uploads</h4>
+        <p class="text-gray-400 mb-2">
+          Download the CSV template from <strong>Documents & Resources</strong> and upload with your
+          latest counts.
+        </p>
+        <ul class="list-disc list-inside text-gray-300 space-y-1">
+          <li>Required columns: sku, availableQty, backorderQty, leadTimeDays.</li>
+          <li>Optional: location, notes, reorderPoint.</li>
+          <li>We validate formatting before applying changes.</li>
+        </ul>
+      </div>
+      <div class="rounded-lg border border-gray-200 bg-dark p-6 shadow-sm">
+        <h4 class="text-lg font-bold mb-2">Low stock alerts</h4>
+        <p class="text-gray-400">
+          Configure thresholds per SKU or category. Alerts show on your dashboard and can email your
+          ops team.
+        </p>
+        <p class="text-gray-400 mt-2">
+          Tip: set higher thresholds for long-lead parts so you have time to replenish.
+        </p>
+      </div>
+    </div>
+  </div>
+</OnboardingLayout>

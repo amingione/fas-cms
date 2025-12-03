@@ -1,0 +1,58 @@
+---
+import OnboardingLayout from '@/layouts/OnboardingLayout.astro';
+
+const pageTitle = 'Invoicing & Payments';
+---
+
+<OnboardingLayout title={pageTitle} section="invoicing" readTime="5 min">
+  <div class="space-y-8">
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="rounded-lg border border-gray-200 bg-dark p-6 shadow-sm">
+        <h3 class="text-xl font-bold mb-2">Uploading invoices</h3>
+        <p class="text-gray-400">
+          Go to <strong>Invoices</strong> → <strong>Upload</strong>, attach your PDF, PNG, JPG, or
+          XLSX file, and map it to an order. Add notes for partial shipments.
+        </p>
+      </div>
+      <div class="rounded-lg border border-gray-200 bg-dark p-6 shadow-sm">
+        <h3 class="text-xl font-bold mb-2">Creating invoices in portal</h3>
+        <p class="text-gray-400">
+          Use the inline creator to enter line items, tax, freight, and discounts. Save as draft to
+          revisit, or submit to notify the FAS finance team.
+        </p>
+      </div>
+    </div>
+
+    <div class="rounded-lg border border-gray-200 bg-dark p-6 shadow-sm">
+      <h3 class="text-xl font-bold mb-2">Tracking payment status</h3>
+      <p class="text-gray-400">
+        Each invoice shows <strong>Draft</strong>, <strong>Submitted</strong>, <strong
+          >Processing</strong
+        >, <strong>Paid</strong>, or <strong>Disputed</strong>. Filter by status or export to CSV
+        for your accounting system.
+      </p>
+      <p class="text-gray-400 mt-2">
+        Standard terms are <strong>Net 30</strong> unless your agreement specifies otherwise.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="rounded-lg border border-gray-200 bg-dark p-6 shadow-sm">
+        <h4 class="text-lg font-bold mb-2">Accepted file formats</h4>
+        <ul class="list-disc list-inside text-gray-300 space-y-1">
+          <li>PDF (preferred)</li>
+          <li>PNG or JPG (clear scans only)</li>
+          <li>XLSX</li>
+        </ul>
+      </div>
+      <div class="rounded-lg border border-gray-200 bg-dark p-6 shadow-sm">
+        <h4 class="text-lg font-bold mb-2">Payment terms & tips</h4>
+        <ul class="list-disc list-inside text-gray-300 space-y-1">
+          <li>Include PO numbers to speed up reconciliation.</li>
+          <li>Add banking details in Settings → Payments.</li>
+          <li>Mark invoices as partial if the shipment is split.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</OnboardingLayout>

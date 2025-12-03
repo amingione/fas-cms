@@ -1,0 +1,85 @@
+---
+import OnboardingLayout from '@/layouts/OnboardingLayout.astro';
+
+const pageTitle = 'Managing Orders';
+---
+
+<OnboardingLayout title={pageTitle} section="orders" readTime="7 min">
+  <div class="space-y-8">
+    <div class="rounded-lg border border-gray-200 bg-dark p-6 shadow-sm">
+      <h3 class="text-xl font-bold mb-3">Viewing orders</h3>
+      <p class="text-gray-400 mb-3">
+        Go to <strong>Orders</strong> to see open, in production, shipped, and completed orders. Use
+        filters for date, status, and brand, then save the view for later.
+      </p>
+      <div class="flex flex-wrap gap-3 text-sm">
+        <span class="rounded-full bg-primary/10 px-3 py-1 text-primary font-semibold">Pending</span>
+        <span class="rounded-full bg-amber-100 text-amber-800 px-3 py-1 font-semibold"
+          >In Production</span
+        >
+        <span class="rounded-full bg-blue-100 text-blue-800 px-3 py-1 font-semibold">Shipped</span>
+        <span class="rounded-full bg-green-100 text-green-800 px-3 py-1 font-semibold"
+          >Completed</span
+        >
+      </div>
+    </div>
+
+    <div class="rounded-lg border border-gray-200 bg-dark p-6 shadow-sm">
+      <h3 class="text-xl font-bold mb-3">Submitting new orders</h3>
+      <ol class="list-decimal list-inside space-y-2 text-gray-300">
+        <li>Click <strong>New Order</strong> or start from a saved template.</li>
+        <li>Add line items with SKU, quantity, and requested ship date.</li>
+        <li>Attach documents (build sheets, specs) if needed.</li>
+        <li>Review totals, confirm shipping method, and submit.</li>
+      </ol>
+      <p class="text-gray-400 mt-3">
+        Orders auto-save as drafts so you can finish later. You will receive alerts when status
+        changes or when we have questions.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="rounded-lg border border-gray-200 bg-dark p-6 shadow-sm">
+        <h4 class="text-lg font-bold mb-2">Order statuses explained</h4>
+        <ul class="space-y-2 text-gray-300">
+          <li><strong>Pending:</strong> Submitted, awaiting review.</li>
+          <li><strong>In Production:</strong> Parts are being built or sourced.</li>
+          <li><strong>Awaiting Payment:</strong> Invoice issued, payment pending.</li>
+          <li><strong>Shipped:</strong> Tracking number posted and shared.</li>
+          <li><strong>Completed:</strong> Delivered and closed.</li>
+        </ul>
+      </div>
+      <div class="rounded-lg border border-gray-200 bg-dark p-6 shadow-sm">
+        <h4 class="text-lg font-bold mb-2">Reordering & templates</h4>
+        <p class="text-gray-400 mb-2">
+          Open any past order and click <strong>Reorder</strong> to copy items. Save templates for frequently
+          ordered kits or bundles.
+        </p>
+        <ul class="space-y-2 text-gray-300">
+          <li>Rename templates by team, region, or vehicle platform.</li>
+          <li>Share templates with teammates who have order permission.</li>
+          <li>Auto-attach documents (MSO, parts lists) to templates.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="rounded-lg border border-dashed border-primary/40 bg-primary/5 p-6">
+      <div class="flex items-start gap-3">
+        <div class="text-2xl">🎯</div>
+        <div class="space-y-2">
+          <h4 class="text-lg font-bold">Interactive demo</h4>
+          <p class="text-gray-300">
+            We are adding a guided order walkthrough. Until then, start a draft order and use the
+            inline tips to learn the flow.
+          </p>
+          <a
+            href="/vendor-portal/orders/new"
+            class="inline-flex items-center gap-2 text-primary font-semibold"
+          >
+            Open draft order →
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</OnboardingLayout>

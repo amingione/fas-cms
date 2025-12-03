@@ -1,0 +1,4 @@
+sku,availableQty,backorderQty,leadTimeDays,location,notes
+ABC-123,50,0,7,Main Warehouse,Top seller
+XYZ-999,10,5,21,Secondary,Includes custom finish
+SAMPLE-001,0,25,30,Factory,"Built-to-order"

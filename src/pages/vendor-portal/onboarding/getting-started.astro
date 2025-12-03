@@ -1,0 +1,149 @@
+---
+import OnboardingLayout from '@/layouts/OnboardingLayout.astro';
+
+const pageTitle = 'Getting Started';
+---
+
+<OnboardingLayout title={pageTitle} section="getting-started" readTime="6 min">
+  <p class="text-gray-300 mb-6">
+    Start with your invite email, set a secure password, and personalize your profile so the FAS
+    team knows how to reach you.
+  </p>
+
+  <div class="space-y-8">
+    <div class="flex gap-6">
+      <div
+        class="flex-shrink-0 w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center text-xl font-bold"
+      >
+        1
+      </div>
+      <div>
+        <h3 class="text-xl font-bold mb-2">Check Your Email</h3>
+        <p class="text-gray-600">
+          Look for the invitation from FAS Motorsports and click "Set Up Your Account." The link
+          expires after 72 hours for security.
+        </p>
+      </div>
+    </div>
+
+    <div class="flex gap-6">
+      <div
+        class="flex-shrink-0 w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center text-xl font-bold"
+      >
+        2
+      </div>
+      <div>
+        <h3 class="text-xl font-bold mb-2">Create Your Password</h3>
+        <p class="text-gray-600">
+          Choose a password with 12+ characters, including a number and symbol. Use your company
+          email so we can verify access quickly.
+        </p>
+      </div>
+    </div>
+
+    <div class="flex gap-6">
+      <div
+        class="flex-shrink-0 w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center text-xl font-bold"
+      >
+        3
+      </div>
+      <div>
+        <h3 class="text-xl font-bold mb-2">First Login Walkthrough</h3>
+        <p class="text-gray-600">
+          After signing in, you will land on the dashboard with alerts for pending orders, new
+          invoices, and messages. Save the URL for quick access.
+        </p>
+      </div>
+    </div>
+
+    <div class="flex gap-6">
+      <div
+        class="flex-shrink-0 w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center text-xl font-bold"
+      >
+        4
+      </div>
+      <div>
+        <h3 class="text-xl font-bold mb-2">Complete Your Profile</h3>
+        <p class="text-gray-600">
+          Add your logo, billing address, shipping addresses, and emergency contact details in
+          Settings. These auto-fill on orders and invoices.
+        </p>
+      </div>
+    </div>
+
+    <div class="flex gap-6">
+      <div
+        class="flex-shrink-0 w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center text-xl font-bold"
+      >
+        5
+      </div>
+      <div>
+        <h3 class="text-xl font-bold mb-2">Set Preferences</h3>
+        <p class="text-gray-600">
+          Configure notification channels (email, SMS, in-portal) and select your default lead
+          times. You can also enable two-factor authentication for your account.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-10 grid lg:grid-cols-3 gap-4">
+    <div class="rounded-lg border border-gray-200 bg-gray-50 p-4">
+      <p class="text-xs uppercase tracking-[0.14em] text-gray-500 font-semibold mb-2">
+        Dashboard First Look
+      </p>
+      <p class="text-gray-600 text-sm">
+        Tiles show open orders, drafts, and recent invoices. Use Quick Actions to place your first
+        test order.
+      </p>
+    </div>
+    <div class="rounded-lg border border-gray-200 bg-gray-50 p-4">
+      <p class="text-xs uppercase tracking-[0.14em] text-gray-500 font-semibold mb-2">
+        Profile Completion
+      </p>
+      <p class="text-gray-600 text-sm">
+        Add payment preferences and tax documents now to avoid delays when your first invoice
+        arrives.
+      </p>
+    </div>
+    <div class="rounded-lg border border-gray-200 bg-gray-50 p-4">
+      <p class="text-xs uppercase tracking-[0.14em] text-gray-500 font-semibold mb-2">
+        Security Tips
+      </p>
+      <p class="text-gray-600 text-sm">
+        Invite your team instead of sharing credentials, and refresh passwords every quarter.
+      </p>
+    </div>
+  </div>
+
+  <div class="mt-10">
+    <h3 class="text-lg font-bold mb-3">Annotated first login (screenshot)</h3>
+    <div
+      class="relative border border-dashed border-primary/40 rounded-lg bg-gray-50 aspect-video overflow-hidden"
+    >
+      <div class="absolute inset-0 flex items-center justify-center text-gray-400 text-sm">
+        Screenshot placeholder
+      </div>
+      <div
+        class="absolute top-4 left-4 bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full shadow"
+      >
+        1 Dashboard tiles
+      </div>
+      <div
+        class="absolute top-16 right-4 bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full shadow"
+      >
+        2 Alerts rail
+      </div>
+      <div
+        class="absolute bottom-6 left-6 bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full shadow"
+      >
+        3 Quick Actions
+      </div>
+      <div
+        class="absolute bottom-6 right-6 bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full shadow"
+      >
+        4 Messages
+      </div>
+    </div>
+  </div>
+</OnboardingLayout>

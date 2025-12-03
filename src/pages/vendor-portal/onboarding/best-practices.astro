@@ -1,0 +1,36 @@
+---
+import OnboardingLayout from '@/layouts/OnboardingLayout.astro';
+
+const pageTitle = 'Best Practices';
+---
+
+<OnboardingLayout title={pageTitle} section="best-practices" readTime="4 min">
+  <div class="space-y-6">
+    <div class="rounded-lg border border-gray-200 bg-dark p-6 shadow-sm">
+      <h3 class="text-xl font-bold mb-2">Operational tips</h3>
+      <ul class="list-disc list-inside text-gray-300 space-y-1">
+        <li>Keep templates for your top 10 order combos and review them monthly.</li>
+        <li>Set lead times with a buffer during peak seasons to avoid missed dates.</li>
+        <li>Use portal messages instead of email so history stays tied to orders.</li>
+      </ul>
+    </div>
+
+    <div class="rounded-lg border border-gray-200 bg-dark p-6 shadow-sm">
+      <h3 class="text-xl font-bold mb-2">Compliance and docs</h3>
+      <ul class="list-disc list-inside text-gray-300 space-y-1">
+        <li>Upload tax forms and insurance docs in <strong>Documents & Resources</strong>.</li>
+        <li>Tag documents with expiration dates to get reminders before they lapse.</li>
+        <li>Keep invoice numbers consistent with your ERP for easy reconciliation.</li>
+      </ul>
+    </div>
+
+    <div class="rounded-lg border border-gray-200 bg-dark p-6 shadow-sm">
+      <h3 class="text-xl font-bold mb-2">Communication etiquette</h3>
+      <ul class="list-disc list-inside text-gray-300 space-y-1">
+        <li>Use clear subject lines and tag categories for faster routing.</li>
+        <li>Set priorities only when time-sensitive to keep queues meaningful.</li>
+        <li>Summarize next steps at the end of each thread.</li>
+      </ul>
+    </div>
+  </div>
+</OnboardingLayout>

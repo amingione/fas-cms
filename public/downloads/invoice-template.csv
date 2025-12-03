@@ -1,0 +1,4 @@
+Invoice #,PO #,Date,Due Date,Item,Qty,Unit Price,Total
+INV-001,PO-123,2024-05-01,2024-05-31,Supercharger Kit,1,4500,4500
+,, , ,Intercooler,2,750,1500
+,,,,Subtotal,, ,6000

@@ -1,0 +1,47 @@
+---
+import OnboardingLayout from '@/layouts/OnboardingLayout.astro';
+
+const pageTitle = 'Analytics';
+---
+
+<OnboardingLayout title={pageTitle} section="analytics" readTime="5 min">
+  <div class="space-y-8">
+    <div class="rounded-lg border border-gray-200 bg-dark p-6 shadow-sm">
+      <h3 class="text-xl font-bold mb-2">Key reports</h3>
+      <ul class="list-disc list-inside text-gray-300 space-y-1">
+        <li><strong>Order velocity</strong> – orders per week, average fulfillment time.</li>
+        <li><strong>Revenue by platform</strong> – spot trends by vehicle platform or category.</li>
+        <li><strong>Invoice aging</strong> – quickly see what is approaching Net 30.</li>
+        <li><strong>Inventory health</strong> – low stock, backorders, and slow movers.</li>
+      </ul>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="rounded-lg border border-gray-200 bg-dark p-6 shadow-sm">
+        <h4 class="text-lg font-bold mb-2">Exports</h4>
+        <p class="text-gray-400">
+          Export CSV or XLSX for finance, ops, or forecasting. Apply date and status filters before
+          exporting to keep files lean.
+        </p>
+      </div>
+      <div class="rounded-lg border border-gray-200 bg-dark p-6 shadow-sm">
+        <h4 class="text-lg font-bold mb-2">Alerts</h4>
+        <p class="text-gray-400">
+          Subscribe to analytics alerts for spikes, drops, or unusual lead times. Alerts show on the
+          dashboard and via email if enabled.
+        </p>
+      </div>
+    </div>
+
+    <div class="rounded-lg border border-dashed border-primary/40 bg-primary/5 p-6">
+      <h4 class="text-lg font-bold mb-2">Tips</h4>
+      <ul class="list-disc list-inside text-gray-300 space-y-1">
+        <li>Save favorite date ranges (Last 30 days, Quarter-to-date) for quick recall.</li>
+        <li>Compare lead times month over month to spot bottlenecks early.</li>
+        <li>
+          Share links with teammates who have analytics permission; they will see the same filters.
+        </li>
+      </ul>
+    </div>
+  </div>
+</OnboardingLayout>

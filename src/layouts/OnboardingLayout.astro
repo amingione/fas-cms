@@ -1,0 +1,433 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { requireVendor } from '@/server/vendor-portal/auth';
+
+type OnboardingSection =
+  | 'welcome'
+  | 'getting-started'
+  | 'dashboard'
+  | 'orders'
+  | 'inventory'
+  | 'invoicing'
+  | 'communication'
+  | 'downloads'
+  | 'analytics'
+  | 'best-practices'
+  | 'faq'
+  | 'support';
+
+const gate = await requireVendor(Astro.request);
+if (!gate.ok) {
+  return gate.response;
+}
+
+const { title, section = 'welcome', readTime = '5 min' } = Astro.props as {
+  title: string;
+  section?: OnboardingSection;
+  readTime?: string;
+};
+
+const navItems: Array<{
+  id: OnboardingSection;
+  label: string;
+  href: string;
+  description: string;
+}> = [
+  {
+    id: 'welcome',
+    label: 'Welcome',
+    href: '/vendor-portal/onboarding',
+    description: 'Overview, quick links, and onboarding checklist.'
+  },
+  {
+    id: 'getting-started',
+    label: 'Getting Started',
+    href: '/vendor-portal/onboarding/getting-started',
+    description: 'Account setup, first login, preferences, and profile completion.'
+  },
+  {
+    id: 'dashboard',
+    label: 'Dashboard Overview',
+    href: '/vendor-portal/onboarding/dashboard',
+    description: 'Tiles, alerts, and quick actions at a glance.'
+  },
+  {
+    id: 'orders',
+    label: 'Managing Orders',
+    href: '/vendor-portal/onboarding/orders',
+    description: 'Statuses, submissions, templates, and reorders.'
+  },
+  {
+    id: 'inventory',
+    label: 'Inventory Management',
+    href: '/vendor-portal/onboarding/inventory',
+    description: 'Quantities, lead times, bulk updates, and alerts.'
+  },
+  {
+    id: 'invoicing',
+    label: 'Invoicing & Payments',
+    href: '/vendor-portal/onboarding/invoicing',
+    description: 'Upload, track payment status, formats, and terms.'
+  },
+  {
+    id: 'communication',
+    label: 'Communication',
+    href: '/vendor-portal/onboarding/communication',
+    description: 'Messaging etiquette, categories, priorities, and notifications.'
+  },
+  {
+    id: 'downloads',
+    label: 'Documents & Resources',
+    href: '/vendor-portal/onboarding/downloads',
+    description: 'PDF guides, CSV templates, invoices, and forms.'
+  },
+  {
+    id: 'analytics',
+    label: 'Analytics',
+    href: '/vendor-portal/onboarding/analytics',
+    description: 'KPIs, trend reports, exports, and alerts.'
+  },
+  {
+    id: 'best-practices',
+    label: 'Best Practices',
+    href: '/vendor-portal/onboarding/best-practices',
+    description: 'Tips to stay compliant, fast, and organized.'
+  },
+  {
+    id: 'faq',
+    label: 'FAQ & Support',
+    href: '/vendor-portal/onboarding/faq',
+    description: 'Search common answers and get help.'
+  },
+  {
+    id: 'support',
+    label: 'Support Contacts',
+    href: '/vendor-portal/onboarding/support',
+    description: 'Email, phone, and visit information.'
+  }
+];
+
+const currentIndex = navItems.findIndex((item) => item.id === section);
+const totalSections = navItems.length;
+const sectionPosition = currentIndex >= 0 ? currentIndex + 1 : 0;
+const sectionProgress = currentIndex >= 0 ? Math.round((sectionPosition / totalSections) * 100) : 0;
+
+const breadcrumbs = [
+  { href: '/vendor-portal', label: 'Vendor Portal' },
+  { href: '/vendor-portal/onboarding', label: 'Onboarding' },
+  { label: title }
+];
+---
+
+<BaseLayout title={`${title} | FAS Motorsports Vendor Onboarding`} description="Guided onboarding for FAS Motorsports vendors." noindex>
+  <main class="bg-[#0b0b0b] text-white min-h-screen">
+    <div class="mx-auto max-w-6xl px-4 py-8 lg:py-12">
+      <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <nav aria-label="Breadcrumb" class="text-sm text-white/60 flex items-center gap-2">
+          {breadcrumbs.map((crumb, idx) => (
+            <>
+              {idx > 0 && <span aria-hidden="true" class="text-gray-300">/</span>}
+              {crumb.href ? (
+                <a href={crumb.href} class="hover:text-primary transition-colors">
+                  {crumb.label}
+                </a>
+              ) : (
+                <span>{crumb.label}</span>
+              )}
+            </>
+          ))}
+        </nav>
+        <div class="flex items-center gap-2 text-sm text-white/60">
+          <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 shadow-sm border border-white/10">
+            <span class="h-2 w-2 rounded-full bg-primary shadow-[0_0_10px_rgba(234,29,38,0.6)]"></span>
+            Estimated read: {readTime}
+          </span>
+          <button
+            type="button"
+            class="hidden print:hidden md:inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-sm font-medium text-white hover:border-primary-hover hover:text-primary transition"
+            onclick="window.__printOnboardingSection && window.__printOnboardingSection()"
+          >
+            <span aria-hidden="true">🖨️</span> Print Page
+          </button>
+        </div>
+      </div>
+
+      <div class="grid gap-6 lg:grid-cols-[280px,1fr]">
+        <aside class="h-full rounded-xl border border-white/10 bg-black/50 shadow-sm print:hidden">
+          <div class="border-b border-white/10 px-4 py-4">
+            <div class="flex items-center gap-3">
+              <img
+                src="https://www.fasmotorsports.com/logo/faslogo150.webp"
+                alt="FAS Motorsports logo"
+                class="h-10 w-10 rounded-lg border border-white/10 object-contain bg-white"
+                loading="lazy"
+              />
+              <div>
+                <p class="text-xs uppercase tracking-[0.12em] text-white/60 font-semibold">
+                  Vendor Onboarding
+                </p>
+                <p class="text-base font-bold text-primary">FAS Motorsports</p>
+              </div>
+            </div>
+            <div class="mt-4 flex flex-col gap-2">
+              <div class="flex items-center justify-between text-xs text-white/60">
+                <span>Progress</span>
+                <span>
+                  {sectionPosition}/{totalSections}
+                </span>
+              </div>
+              <div class="h-2 w-full rounded-full bg-white/10 overflow-hidden">
+                <div
+                  class="h-2 rounded-full bg-primary transition-all duration-500"
+                  style={`width: ${sectionProgress}%`}
+                  aria-hidden="true"
+                ></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-4 border-b border-white/10">
+            <label class="sr-only" for="onboarding-search">Search onboarding</label>
+            <div class="relative">
+              <input
+                id="onboarding-search"
+                type="search"
+                placeholder="Search topics..."
+                class="w-full rounded-lg border border-white/15 bg-white/5 text-white px-4 py-2 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
+                data-onboarding-search
+              />
+              <span class="absolute right-3 top-2.5 text-white/40 text-xs">Cmd/Ctrl+K</span>
+            </div>
+            <p class="mt-2 text-xs text-white/50">Filter any section or keyword.</p>
+          </div>
+
+          <div class="max-h-[60vh] overflow-y-auto px-2 py-2 space-y-1" data-nav-container>
+            {navItems.map((item) => {
+              const isActive = item.id === section;
+              return (
+                <a
+                  href={item.href}
+                  class={`flex flex-col rounded-lg px-3 py-2 transition hover:bg-white/5 ${
+                    isActive ? 'bg-primary/15 border border-primary/30' : 'border border-transparent'
+                  }`}
+                  data-nav-item
+                  data-label={item.label.toLowerCase()}
+                  data-description={item.description.toLowerCase()}
+                >
+                  <span class={`text-sm font-semibold ${isActive ? 'text-primary' : 'text-white'}`}>
+                    {item.label}
+                  </span>
+                  <span class="text-xs text-white/60 leading-snug">{item.description}</span>
+                </a>
+              );
+            })}
+          </div>
+          <p class="hidden px-4 pb-4 text-xs text-white/60" data-empty-message>
+            No matches found. Try a different keyword.
+          </p>
+
+          <div class="border-t border-white/10 px-4 py-3 space-y-2">
+            <div class="flex items-center justify-between text-sm font-semibold text-white">
+              <span>Need help?</span>
+              <a href="/vendor-portal/onboarding/support" class="text-primary hover:text-primary-hover">
+                Contact
+              </a>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-white/5 px-3 py-3 space-y-2">
+              <p class="text-xs text-white/60 uppercase tracking-[0.14em]">Downloads</p>
+              <p class="text-sm text-white/80">Export the full guide or quick start.</p>
+              <a
+                href="https://cdn.sanity.io/files/r4og35qd/production/008e05611134e3262cded69f96d04876c68d8d52.pdf"
+                class="mt-1 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover"
+                download
+              >
+                Print Guide (PDF)
+              </a>
+              <a
+                href="https://cdn.sanity.io/files/r4og35qd/production/db48e0dae86e9e8ef3d2d9fd796ae8f85324bbe0.pdf"
+                class="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-sm font-semibold text-white transition hover:border-primary"
+                download
+              >
+                Quick Start (PDF)
+              </a>
+              <button
+                type="button"
+                class="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm font-semibold text-white transition hover:border-primary"
+                onclick="window.__printOnboardingSection && window.__printOnboardingSection()"
+              >
+                Print Current Page
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <section class="space-y-6">
+          <header class="rounded-xl border border-white/10 bg-gradient-to-r from-primary via-primary-hover to-[#a50f17] text-white p-6 shadow-sm print:border print:border-gray-200 print:bg-white print:text-black">
+            <div class="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p class="text-xs uppercase tracking-[0.18em] text-white/80">Onboarding Guide</p>
+                <h1 class="text-3xl font-bold leading-tight">{title}</h1>
+                <p class="mt-2 text-sm text-white/80">
+                  FAS Motorsports, 6161 Riverside Dr, Punta Gorda, FL 33982 · (812) 200-9012
+                </p>
+              </div>
+              <div class="flex flex-col items-end gap-2 text-sm">
+                {sectionPosition > 0 && (
+                  <div class="rounded-full bg-white/15 px-3 py-1">
+                    Section {sectionPosition} of {totalSections}
+                  </div>
+                )}
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-2 rounded-full border border-white/50 bg-white/10 px-3 py-1 text-white hover:bg-white/20 transition print:hidden"
+                  onclick="window.__printOnboardingSection && window.__printOnboardingSection()"
+                >
+                  <span aria-hidden="true">🖨️</span> Print page
+                </button>
+              </div>
+            </div>
+          </header>
+
+          <article class="rounded-xl border border-white/10 bg-black/60 p-6 shadow-sm print:border-gray-300 print:bg-white print:text-black print:shadow-none onboarding-article" data-print-target>
+            <slot />
+          </article>
+
+          {currentIndex >= 0 && (
+            <div class="flex flex-col gap-3 rounded-xl border border-white/10 bg-black/50 p-4 shadow-sm print:hidden md:flex-row md:items-center md:justify-between">
+              <div class="flex items-center gap-2 text-sm text-white/80">
+                <span class="h-2 w-2 rounded-full bg-primary shadow-[0_0_10px_rgba(234,29,38,0.6)]"></span>
+                <span>Keep going: you are {sectionProgress}% through this guide.</span>
+              </div>
+              <div class="flex gap-3">
+                {currentIndex > 0 ? (
+                  <a
+                    href={navItems[currentIndex - 1].href}
+                    class="inline-flex items-center gap-2 rounded-lg border border-white/20 px-4 py-2 text-sm font-semibold text-white hover:border-primary hover:text-primary transition"
+                  >
+                    ← {navItems[currentIndex - 1].label}
+                  </a>
+                ) : (
+                  <span class="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/40">
+                    At start
+                  </span>
+                )}
+                {currentIndex < navItems.length - 1 ? (
+                  <a
+                    href={navItems[currentIndex + 1].href}
+                    class="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover transition"
+                  >
+                    Next: {navItems[currentIndex + 1].label} →
+                  </a>
+                ) : (
+                  <span class="inline-flex items-center gap-2 rounded-lg border border-green-700 bg-green-900/50 px-4 py-2 text-sm text-green-200">
+                    You reached the end 🎉
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const searchInput = document.querySelector<HTMLInputElement>('[data-onboarding-search]');
+    const navLinks = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-nav-item]')
+    );
+    const navContainer = document.querySelector<HTMLElement>('[data-nav-container]');
+    const emptyMessage = document.querySelector<HTMLElement>('[data-empty-message]');
+    const printTarget = document.querySelector<HTMLElement>('[data-print-target]');
+
+    const filterNav = (value: string) => {
+      const term = value.trim().toLowerCase();
+      let matchCount = 0;
+      navLinks.forEach((el) => {
+        const label = el.dataset.label || '';
+        const desc = el.dataset.description || '';
+        const isMatch = !term || label.includes(term) || desc.includes(term);
+        el.style.display = isMatch ? 'flex' : 'none';
+        if (isMatch) matchCount++;
+      });
+
+      const showEmptyState = Boolean(navContainer && term && matchCount === 0);
+      if (navContainer) navContainer.dataset.empty = showEmptyState ? 'true' : 'false';
+      if (emptyMessage) emptyMessage.classList.toggle('hidden', !showEmptyState);
+    };
+
+    const printCurrentSection = () => {
+      if (!printTarget) {
+        window.print();
+        return;
+      }
+      const newWindow = window.open('', '_blank', 'width=1024,height=768');
+      if (!newWindow) return;
+      newWindow.document.write(`
+        <html>
+          <head>
+            <title>${document.title}</title>
+            <style>
+              body { font-family: Inter, sans-serif; padding: 24px; color: #111; }
+              h1, h2, h3 { color: #111; }
+              .print-article { border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; }
+            </style>
+          </head>
+          <body>
+            <div class="print-article">
+              ${printTarget.innerHTML}
+            </div>
+            <script>window.addEventListener('load', () => { window.print(); });<\/script>
+          </body>
+        </html>
+      `);
+      newWindow.document.close();
+    };
+
+    (window as any).__printOnboardingSection = printCurrentSection;
+
+    if (searchInput) {
+      searchInput.addEventListener('input', (e: Event) => {
+        const target = e.target as HTMLInputElement | null;
+        filterNav(target?.value ?? '');
+      });
+      // Shortcut: Cmd/Ctrl + K
+      window.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+          e.preventDefault();
+          searchInput.focus();
+        }
+      });
+    }
+  </script>
+
+  <style>
+    .onboarding-article {
+      color: #e5e7eb;
+    }
+    .onboarding-article h1,
+    .onboarding-article h2,
+    .onboarding-article h3 {
+      color: #ffffff;
+    }
+    .onboarding-article p,
+    .onboarding-article li {
+      color: #e5e7eb;
+    }
+
+    @media print {
+      main {
+        background: #ffffff;
+      }
+
+      aside,
+      .print\:hidden {
+        display: none !important;
+      }
+
+      article {
+        page-break-after: always;
+      }
+    }
+  </style>
+</BaseLayout>

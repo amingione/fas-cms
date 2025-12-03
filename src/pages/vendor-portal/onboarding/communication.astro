@@ -1,0 +1,53 @@
+---
+import OnboardingLayout from '@/layouts/OnboardingLayout.astro';
+
+const pageTitle = 'Communication';
+---
+
+<OnboardingLayout title={pageTitle} section="communication" readTime="4 min">
+  <div class="space-y-6">
+    <div class="rounded-lg border border-gray-200 bg-dark p-6 shadow-sm">
+      <h3 class="text-xl font-bold mb-2">Messaging system</h3>
+      <p class="text-gray-400">
+        Use Portal Messages to keep conversations tied to orders or invoices. Everything is
+        timestamped for clean audit trails.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="rounded-lg border border-gray-200 bg-dark p-6 shadow-sm">
+        <h4 class="text-lg font-bold mb-2">Message categories</h4>
+        <ul class="list-disc list-inside text-gray-300 space-y-1">
+          <li><strong>Order</strong> – questions about a specific PO.</li>
+          <li><strong>Invoice</strong> – billing, credits, or disputes.</li>
+          <li><strong>Logistics</strong> – shipping, carriers, dates.</li>
+          <li><strong>General</strong> – everything else.</li>
+        </ul>
+      </div>
+      <div class="rounded-lg border border-gray-200 bg-dark p-6 shadow-sm">
+        <h4 class="text-lg font-bold mb-2">Priority levels</h4>
+        <p class="text-gray-400">
+          Mark a thread as <strong>Priority</strong> to alert the team. We highlight urgent threads at
+          the top of the dashboard until resolved.
+        </p>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="rounded-lg border border-gray-200 bg-dark p-6 shadow-sm">
+        <h4 class="text-lg font-bold mb-2">Response times</h4>
+        <p class="text-gray-400">
+          Business hours: 8:00 AM – 6:00 PM EST. We target <strong>&lt;2 hours</strong> response time
+          during these hours.
+        </p>
+      </div>
+      <div class="rounded-lg border border-gray-200 bg-dark p-6 shadow-sm">
+        <h4 class="text-lg font-bold mb-2">Notification preferences</h4>
+        <p class="text-gray-400">
+          Set email/SMS/push preferences in <strong>Settings → Notifications</strong>. Mute
+          non-urgent threads or follow only those you own.
+        </p>
+      </div>
+    </div>
+  </div>
+</OnboardingLayout>
