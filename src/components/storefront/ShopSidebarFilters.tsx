@@ -13,7 +13,16 @@ export interface ShopSidebarFiltersProps {
   priceMax?: number;
   selectedVehicles?: string[];
   availableVehicles?: string[];
+  basePath?: string;
 }
+
+const normalizeBasePath = (value?: string) => {
+  if (!value) return '/shop';
+  const trimmed = value.trim();
+  if (!trimmed) return '/shop';
+  const withLeading = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+  return withLeading.replace(/\/+$/, '') || '/shop';
+};
 
 export default function ShopSidebarFilters({
   categories,
@@ -24,7 +33,8 @@ export default function ShopSidebarFilters({
   priceMin = 0,
   priceMax = 100000,
   selectedVehicles = [],
-  availableVehicles = []
+  availableVehicles = [],
+  basePath = '/shop'
 }: ShopSidebarFiltersProps) {
   const [category, setCategory] = useState<string>(currentCategory || 'all');
   const [filters, setFilters] = useState<string[]>(selectedFilters);
@@ -33,6 +43,14 @@ export default function ShopSidebarFilters({
     min: typeof priceMin === 'number' ? Math.max(0, Math.min(100000, Math.floor(priceMin))) : 0,
     max: typeof priceMax === 'number' ? Math.max(0, Math.min(100000, Math.floor(priceMax))) : 100000
   });
+
+  const basePathname = normalizeBasePath(basePath);
+  const navigateWithParams = useCallback((params: URLSearchParams) => {
+    const nextUrl = new URL(window.location.href);
+    nextUrl.pathname = basePathname;
+    nextUrl.search = params.toString();
+    window.location.href = nextUrl.toString();
+  }, [basePathname]);
 
   const handleSidebarClick: React.MouseEventHandler<HTMLDivElement> = (ev) => {
     const target = ev.target as HTMLElement;
@@ -88,8 +106,8 @@ export default function ShopSidebarFilters({
     params.delete('priceMax');
     // reset page
     params.set('page', '1');
-    window.location.href = `/shop?${params.toString()}`;
-  }, [category, filters, vehicles, price.min, price.max]);
+    navigateWithParams(params);
+  }, [category, filters, navigateWithParams, price.max, price.min, vehicles]);
 
   // Auto-apply category change on desktop so radios take effect immediately
   const initialCategory = useRef<string>(category);

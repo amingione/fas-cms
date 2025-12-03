@@ -1,0 +1,13 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import AnalyticsPage from '@/components/vendor-portal/AnalyticsPage';
+const title = 'Vendor Portal - Analytics';
+---
+
+<BaseLayout title={title} noindex>
+  <main class="min-h-screen bg-black text-white px-6 py-10">
+    <div class="max-w-6xl mx-auto">
+      <AnalyticsPage client:load />
+    </div>
+  </main>
+</BaseLayout>

@@ -39,6 +39,7 @@ export const ACTIVE_PRODUCT_WITH_SLUG_FILTER = `${ACTIVE_PRODUCT_FILTER} && defi
 export const SERVICE_PRODUCT_FILTER = `${BASE_PUBLISHED_PRODUCT_FILTER} && productType == "service"`;
 export const SERVICE_PRODUCT_WITH_SLUG_FILTER = `${SERVICE_PRODUCT_FILTER} && defined(slug.current)`;
 const STORE_PRODUCT_WITH_SLUG_FILTER = `${BASE_PUBLISHED_PRODUCT_FILTER} && status == "active" && coalesce(productType, "") != "service" && defined(slug.current)`;
+const SERVICE_STORE_PRODUCT_WITH_SLUG_FILTER = `${BASE_PUBLISHED_PRODUCT_FILTER} && status == "active" && productType == "service" && defined(slug.current)`;
 const FINAL_PRICE_EXPRESSION = `coalesce(
   select(
     coalesce(onSale, pricing.onSale) && defined(coalesce(salePrice, pricing.salePrice)) => coalesce(salePrice, pricing.salePrice),
@@ -1034,7 +1035,8 @@ const normalizeSlugList = (values?: string | string[] | null) => {
 };
 
 export async function fetchFilteredProducts(
-  filters: StorefrontProductFilters = {}
+  filters: StorefrontProductFilters = {},
+  options: { includeServices?: boolean } = {}
 ): Promise<Product[]> {
   try {
     if (!hasSanityConfig || !sanity) return [];
@@ -1052,6 +1054,7 @@ export async function fetchFilteredProducts(
       pageSize = 12,
       saleOnly = false
     } = filters;
+    const { includeServices = false } = options;
 
     let orderExpression = 'featured desc, _createdAt desc';
     switch (sortBy) {
@@ -1081,10 +1084,13 @@ export async function fetchFilteredProducts(
 
     const start = Math.max(0, (Math.max(1, page) - 1) * Math.max(1, pageSize));
     const end = start + Math.max(1, pageSize);
+    const productFilter = includeServices
+      ? SERVICE_STORE_PRODUCT_WITH_SLUG_FILTER
+      : STORE_PRODUCT_WITH_SLUG_FILTER;
 
     const query = `
       *[_type == "product" 
-        && ${STORE_PRODUCT_WITH_SLUG_FILTER}
+        && ${productFilter}
         && ($categorySlug == null || $categorySlug in category[]->slug.current || $categorySlug in categories[]->slug.current)
         && ($filterSlugs == null || count((filters[]->slug.current)[@ in $filterSlugs]) > 0 || count((filters[])[@ in $filterSlugs]) > 0 || count((filterTitles[])[@ in $filterSlugs]) > 0)
         && ($vehicleSlugs == null || count((compatibleVehicles[]->slug.current)[@ in $vehicleSlugs]) > 0)
@@ -1122,7 +1128,7 @@ export async function fetchFilteredProducts(
         config.dataset,
         perspective,
         params,
-        STORE_PRODUCT_WITH_SLUG_FILTER
+        productFilter
       ],
       executeQuery
     );
@@ -1132,7 +1138,10 @@ export async function fetchFilteredProducts(
   }
 }
 
-export async function getProductCount(filters: StorefrontProductFilters = {}): Promise<number> {
+export async function getProductCount(
+  filters: StorefrontProductFilters = {},
+  options: { includeServices?: boolean } = {}
+): Promise<number> {
   try {
     if (!hasSanityConfig || !sanity) return 0;
 
@@ -1146,15 +1155,19 @@ export async function getProductCount(filters: StorefrontProductFilters = {}): P
       searchTerm = null,
       saleOnly = false
     } = filters;
+    const { includeServices = false } = options;
 
     const normalizedFilterSlugs = normalizeSlugList(filterSlugs);
     const normalizedVehicleSlugs =
       normalizeSlugList(vehicleSlugs) ??
       (vehicleSlug && normalizeSlugValue(vehicleSlug) ? [normalizeSlugValue(vehicleSlug)] : null);
+    const productFilter = includeServices
+      ? SERVICE_STORE_PRODUCT_WITH_SLUG_FILTER
+      : STORE_PRODUCT_WITH_SLUG_FILTER;
 
     const query = `
       count(*[_type == "product" 
-        && ${STORE_PRODUCT_WITH_SLUG_FILTER}
+        && ${productFilter}
         && ($categorySlug == null || $categorySlug in category[]->slug.current || $categorySlug in categories[]->slug.current)
         && ($filterSlugs == null || count((filters[]->slug.current)[@ in $filterSlugs]) > 0 || count((filters[])[@ in $filterSlugs]) > 0 || count((filterTitles[])[@ in $filterSlugs]) > 0)
         && ($vehicleSlugs == null || count((compatibleVehicles[]->slug.current)[@ in $vehicleSlugs]) > 0)
@@ -1183,7 +1196,7 @@ export async function getProductCount(filters: StorefrontProductFilters = {}): P
     };
 
     return cachedSanityFetch(
-      ['getProductCount', config.projectId, config.dataset, perspective, params],
+      ['getProductCount', config.projectId, config.dataset, perspective, params, productFilter],
       executeQuery
     );
   } catch (err) {
@@ -1192,7 +1205,10 @@ export async function getProductCount(filters: StorefrontProductFilters = {}): P
   }
 }
 
-export async function fetchStorefrontFilterFacets(filters: StorefrontProductFilters = {}) {
+export async function fetchStorefrontFilterFacets(
+  filters: StorefrontProductFilters = {},
+  options: { includeServices?: boolean } = {}
+) {
   try {
     if (!hasSanityConfig || !sanity) return [];
     const {
@@ -1204,10 +1220,14 @@ export async function fetchStorefrontFilterFacets(filters: StorefrontProductFilt
       searchTerm = null,
       saleOnly = false
     } = filters;
+    const { includeServices = false } = options;
 
     const normalizedVehicleSlugs =
       normalizeSlugList(vehicleSlugs) ??
       (vehicleSlug && normalizeSlugValue(vehicleSlug) ? [normalizeSlugValue(vehicleSlug)] : null);
+    const productFilter = includeServices
+      ? SERVICE_STORE_PRODUCT_WITH_SLUG_FILTER
+      : STORE_PRODUCT_WITH_SLUG_FILTER;
     const params: QueryParams = {
       categorySlug: categorySlug ? normalizeSlugValue(categorySlug) : null,
       vehicleSlugs: normalizedVehicleSlugs,
@@ -1219,7 +1239,7 @@ export async function fetchStorefrontFilterFacets(filters: StorefrontProductFilt
 
     const query = `
       *[_type == "product" 
-        && ${STORE_PRODUCT_WITH_SLUG_FILTER}
+        && ${productFilter}
         && ($categorySlug == null || $categorySlug in category[]->slug.current || $categorySlug in categories[]->slug.current)
         && ($vehicleSlugs == null || count((compatibleVehicles[]->slug.current)[@ in $vehicleSlugs]) > 0)
         && ($minPrice == null || ${FINAL_PRICE_EXPRESSION} >= $minPrice)
@@ -1240,7 +1260,14 @@ export async function fetchStorefrontFilterFacets(filters: StorefrontProductFilt
     `;
 
     return cachedSanityFetch(
-      ['fetchStorefrontFilterFacets', config.projectId, config.dataset, perspective, params],
+      [
+        'fetchStorefrontFilterFacets',
+        config.projectId,
+        config.dataset,
+        perspective,
+        params,
+        productFilter
+      ],
       () => sanity.fetch(query, params)
     );
   } catch (err) {
@@ -1553,7 +1580,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       )
     );
     const slugLowerValues = slugCandidates.map((value) => value.toLowerCase());
-    const query = `*[_type == "product" && ${ACTIVE_PRODUCT_FILTER} && defined(slug.current) && (
+    const buildQuery = (filter: string) => `*[_type == "product" && ${filter} && defined(slug.current) && (
       slug.current in $slugValues ||
       lower(slug.current) in $slugLowerValues
     )][0]{
@@ -1660,11 +1687,15 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
         defined(category) => category[]->{ _id, title, slug }
       )
     }`;
+    const query = buildQuery(ACTIVE_PRODUCT_FILTER);
+    const serviceQuery = buildQuery(SERVICE_PRODUCT_FILTER);
     if (!sanity) return null;
     const params = { slugValues: slugCandidates, slugLowerValues };
     const executeQuery = async () => {
       const productResult = await sanity!.fetch<Product | null>(query, params);
-      return productResult ? normalizeProductPrice(productResult) : null;
+      if (productResult) return normalizeProductPrice(productResult);
+      const serviceResult = await sanity!.fetch<Product | null>(serviceQuery, params);
+      return serviceResult ? normalizeProductPrice(serviceResult) : null;
     };
     return cachedSanityFetch(
       ['getProductBySlug', config.projectId, config.dataset, perspective, slugCandidates.join('|')],

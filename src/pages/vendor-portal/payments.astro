@@ -1,0 +1,13 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PaymentsPage from '@/components/vendor-portal/PaymentsPage';
+const title = 'Vendor Portal - Payments';
+---
+
+<BaseLayout title={title} noindex>
+  <main class="min-h-screen bg-black text-white px-6 py-10">
+    <div class="max-w-6xl mx-auto">
+      <PaymentsPage client:load />
+    </div>
+  </main>
+</BaseLayout>

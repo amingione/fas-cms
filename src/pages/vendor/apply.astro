@@ -1,16 +1,3 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import VendorApplyScriptLoader from '../../components/VendorApplyScriptLoader';
-const title = 'Vendor Application';
+return Astro.redirect('/become-a-vendor');
 ---
-
-<BaseLayout title={title}>
-  <div
-    class="relative min-h-screen flex items-center justify-center bg-cover text-white px-4"
-    style="background-image: url('/images/backgrounds/bg-asphalt-overlay.webp')"
-  >
-    <div id="applicationContainer" class="w-full"></div>
-  </div>
-
-  <VendorApplyScriptLoader client:load />
-</BaseLayout>

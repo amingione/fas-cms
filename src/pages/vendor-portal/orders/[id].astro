@@ -1,0 +1,25 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import OrderDetail from '@/components/vendor-portal/OrderDetail';
+
+const { id } = Astro.params;
+const apiUrl = new URL(`/api/vendor/orders/${id}`, Astro.request.url).toString();
+const res = await fetch(apiUrl, { headers: { cookie: Astro.request.headers.get('cookie') || '' } });
+let order: any = null;
+if (res.ok) {
+  const data = await res.json().catch(() => ({}));
+  order = data.order || null;
+}
+if (!order) {
+  return Astro.redirect('/vendor-portal/orders');
+}
+const title = `Order ${order.poNumber || id}`;
+---
+
+<BaseLayout title={title} noindex>
+  <main class="min-h-screen bg-black text-white px-6 py-10">
+    <div class="max-w-6xl mx-auto">
+      <OrderDetail order={order} client:load />
+    </div>
+  </main>
+</BaseLayout>

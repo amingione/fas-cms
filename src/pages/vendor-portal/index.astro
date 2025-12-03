@@ -1,0 +1,72 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import DashboardStats from '@/components/vendor-portal/DashboardStats';
+import RecentActivity from '@/components/vendor-portal/RecentActivity';
+import QuickActions from '@/components/vendor-portal/QuickActions';
+import PerformanceMetrics from '@/components/vendor-portal/PerformanceMetrics';
+
+const apiUrl = new URL('/api/vendor/dashboard', Astro.request.url).toString();
+const res = await fetch(apiUrl, { headers: { cookie: Astro.request.headers.get('cookie') || '' } });
+let stats = null;
+let activity = [];
+if (res.ok) {
+  const data = await res.json().catch(() => ({}));
+  stats = data.stats ?? null;
+  activity = Array.isArray(data.activity) ? data.activity : [];
+}
+if (!stats) {
+  return Astro.redirect('/vendor-portal/login');
+}
+---
+
+<BaseLayout title="Vendor Portal Dashboard" noindex>
+  <main class="min-h-screen bg-black text-white px-6 py-10">
+    <div class="max-w-6xl mx-auto space-y-6">
+      <DashboardStats stats={stats} client:load />
+      <QuickActions client:only="react" />
+      <div class="grid gap-4 lg:grid-cols-3">
+        <div class="lg:col-span-2">
+          <RecentActivity activity={activity} client:load />
+        </div>
+        <PerformanceMetrics client:visible />
+      </div>
+      <div class="rounded-xl border border-white/10 bg-white/5 p-4">
+        <h2 class="text-lg font-semibold text-white mb-3">Navigate</h2>
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <a href="/vendor-portal/orders" class="block rounded-lg border border-white/10 bg-white/5 px-4 py-3 hover:border-primary/50 transition">
+            <p class="text-sm font-semibold text-white">Orders</p>
+            <p class="text-xs text-white/60">View and manage purchase orders</p>
+          </a>
+          <a href="/vendor-portal/inventory" class="block rounded-lg border border-white/10 bg-white/5 px-4 py-3 hover:border-primary/50 transition">
+            <p class="text-sm font-semibold text-white">Inventory</p>
+            <p class="text-xs text-white/60">Update quantities and lead times</p>
+          </a>
+          <a href="/vendor-portal/invoices" class="block rounded-lg border border-white/10 bg-white/5 px-4 py-3 hover:border-primary/50 transition">
+            <p class="text-sm font-semibold text-white">Invoices</p>
+            <p class="text-xs text-white/60">View and upload invoices</p>
+          </a>
+          <a href="/vendor-portal/payments" class="block rounded-lg border border-white/10 bg-white/5 px-4 py-3 hover:border-primary/50 transition">
+            <p class="text-sm font-semibold text-white">Payments</p>
+            <p class="text-xs text-white/60">Track payment history</p>
+          </a>
+          <a href="/vendor-portal/products" class="block rounded-lg border border-white/10 bg-white/5 px-4 py-3 hover:border-primary/50 transition">
+            <p class="text-sm font-semibold text-white">Products</p>
+            <p class="text-xs text-white/60">Manage catalog pricing</p>
+          </a>
+          <a href="/vendor-portal/messages" class="block rounded-lg border border-white/10 bg-white/5 px-4 py-3 hover:border-primary/50 transition">
+            <p class="text-sm font-semibold text-white">Messages</p>
+            <p class="text-xs text-white/60">Chat with the team</p>
+          </a>
+          <a href="/vendor-portal/notifications" class="block rounded-lg border border-white/10 bg-white/5 px-4 py-3 hover:border-primary/50 transition">
+            <p class="text-sm font-semibold text-white">Notifications</p>
+            <p class="text-xs text-white/60">Recent alerts and updates</p>
+          </a>
+          <a href="/vendor-portal/analytics" class="block rounded-lg border border-white/10 bg-white/5 px-4 py-3 hover:border-primary/50 transition">
+            <p class="text-sm font-semibold text-white">Analytics</p>
+            <p class="text-xs text-white/60">Reporting and metrics</p>
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+</BaseLayout>

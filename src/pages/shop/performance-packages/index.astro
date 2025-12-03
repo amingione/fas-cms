@@ -1,0 +1,576 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import ShopTopControls from '@components/shop/ShopTopControls.tsx';
+import ShopSidebarFilters from '@/components/storefront/ShopSidebarFilters.tsx';
+import {
+  fetchFilteredProducts,
+  fetchStorefrontFilterFacets,
+  getProductCount,
+  fetchCategories,
+  fetchVehicles
+} from '@lib/sanity-utils.ts';
+import type { Product, Category, Vehicle } from '@lib/sanity-utils.ts';
+import ProductGrid from '@/components/storefront/ProductGrid.astro';
+import FilterPanelMobile from '@/components/storefront/FilterPanelMobile.tsx';
+import Pagination from '@/components/storefront/Pagination.astro';
+import { isOnSale } from '@/lib/saleHelpers';
+
+export const prerender = false;
+
+const PAGE_SIZE = 12;
+const url = new URL(Astro.request.url);
+const basePath = '/shop/performance-packages';
+
+const ensureAbsoluteUrl = (value?: string | null) => {
+  if (!value) return undefined;
+  if (/^https?:/i.test(value)) return value;
+  try {
+    return new URL(value, `${url.origin}/`).toString();
+  } catch {
+    return undefined;
+  }
+};
+
+const resolveProductSlug = (product: any): string => {
+  const slugValue = product?.slug;
+  if (typeof slugValue === 'string') return slugValue;
+  if (slugValue && typeof slugValue === 'object') {
+    const current = (slugValue as any).current;
+    if (typeof current === 'string') return current;
+  }
+  return '';
+};
+
+const resolveProductImages = (product: any): string[] => {
+  if (!product || typeof product !== 'object') return [];
+  if (!Array.isArray(product.images)) return [];
+  return product.images
+    .map((image: any) => ensureAbsoluteUrl(image?.asset?.url || image?.url))
+    .filter((value: string | undefined): value is string => Boolean(value));
+};
+
+type StructuredProductOffer = {
+  '@type': 'Offer';
+  priceCurrency: string;
+  price: string;
+  availability: string;
+  url: string;
+  itemCondition: string;
+};
+
+type StructuredProductListItem = {
+  '@type': 'ListItem';
+  position: number;
+  url: string;
+  item: {
+    '@type': 'Product';
+    name: string;
+    image?: string[];
+    offers?: StructuredProductOffer;
+  };
+};
+const ON_SALE_FILTER_SLUGS = ['on-sale', 'sale', 'sale-items', 'sale-item'];
+
+const parsePriceParam = (value: string | null): number | null => {
+  if (!value) return null;
+  const num = Number(value);
+  return Number.isFinite(num) ? num : null;
+};
+
+const normalizeSortParam = (
+  value: string | null
+): 'featured' | 'newest' | 'price-asc' | 'price-desc' | 'name' => {
+  const sort = (value || '').toLowerCase();
+  switch (sort) {
+    case 'price-low':
+    case 'price-asc':
+      return 'price-asc';
+    case 'price-high':
+    case 'price-desc':
+      return 'price-desc';
+    case 'newest':
+      return 'newest';
+    case 'name':
+      return 'name';
+    case 'featured':
+    default:
+      return 'featured';
+  }
+};
+
+const currentPage = Math.max(1, parseInt(url.searchParams.get('page') || '1', 10));
+const currentCategory =
+  url.searchParams.get('categorySlug') || url.searchParams.get('category') || '';
+const start = (currentPage - 1) * PAGE_SIZE;
+const sortBy = normalizeSortParam(url.searchParams.get('sort'));
+const searchTermParam = url.searchParams.get('search') || url.searchParams.get('q') || '';
+const searchTerm = searchTermParam && searchTermParam.trim() ? searchTermParam.trim() : null;
+const minPrice = parsePriceParam(
+  url.searchParams.get('minPrice') || url.searchParams.get('priceMin')
+);
+const maxPrice = parsePriceParam(
+  url.searchParams.get('maxPrice') || url.searchParams.get('priceMax')
+);
+
+function slugify(str: string): string {
+  return str
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function normalizeFilterSlug(value: unknown): string {
+  if (!value) return '';
+  if (typeof value === 'string') return slugify(value);
+  if (typeof value === 'object') {
+    const obj = value as Record<string, unknown>;
+    const candidates = [
+      obj.slug,
+      (obj.slug as any)?.current,
+      obj.value,
+      obj.label,
+      obj.title,
+      obj.name,
+      obj._id
+    ];
+    for (const candidate of candidates) {
+      if (typeof candidate === 'string' && candidate.trim()) return slugify(candidate);
+    }
+    try {
+      const json = JSON.stringify(value);
+      if (json && json !== '{}') return slugify(json);
+    } catch {}
+  }
+  const str = String(value ?? '').trim();
+  if (!str || str === '[object Object]') return '';
+  return slugify(str);
+}
+
+function normalizeFilterLabel(value: unknown): string {
+  if (!value) return '';
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'object') {
+    const obj = value as Record<string, unknown>;
+    const labelCandidate =
+      (typeof obj.title === 'string' ? obj.title : undefined) ??
+      (typeof obj.label === 'string' ? obj.label : undefined) ??
+      (typeof obj.name === 'string' ? obj.name : undefined) ??
+      (typeof obj.value === 'string' ? obj.value : undefined) ??
+      (typeof obj.slug === 'string' ? obj.slug : undefined) ??
+      (typeof obj.slug === 'object' && obj.slug && typeof (obj.slug as any).current === 'string'
+        ? (obj.slug as any).current
+        : undefined);
+    if (labelCandidate) return labelCandidate.trim();
+  }
+  const str = String(value ?? '').trim();
+  if (!str || str === '[object Object]') return '';
+  return str;
+}
+
+function fallbackFilterLabel(slug: string): string {
+  return slug
+    .split(/[-_]/g)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+// Selected filter tags can come from ?filter=a&filter=b or ?filters=a,b
+const rawFilters = [
+  ...url.searchParams.getAll('filter'),
+  ...(url.searchParams.get('filters')?.split(',') || [])
+]
+  .map((s) => normalizeFilterSlug(s))
+  .filter(Boolean);
+const selectedFilters: string[] = Array.from(new Set(rawFilters));
+const hasSaleFilter = selectedFilters.some((slug) => ON_SALE_FILTER_SLUGS.includes(slug));
+const filterSlugsForQuery = selectedFilters.filter((slug) => !ON_SALE_FILTER_SLUGS.includes(slug));
+
+const vehicleParamValues = [
+  ...(url.searchParams.get('vehicles')?.split(',') || []),
+  url.searchParams.get('vehicleSlug') || ''
+];
+const vehicleFilterSlugs: string[] = Array.from(
+  new Set(vehicleParamValues.map((value) => (value ? slugify(String(value)) : '')).filter(Boolean))
+);
+
+let products: Product[] = [];
+let totalProducts = 0;
+let categories: Category[] = [];
+let vehicles: Vehicle[] = [];
+let filterFacetProducts: any[] = [];
+
+try {
+  const filters = {
+    categorySlug: currentCategory || undefined,
+    filterSlugs: filterSlugsForQuery.length ? filterSlugsForQuery : undefined,
+    vehicleSlugs: vehicleFilterSlugs.length ? vehicleFilterSlugs : undefined,
+    minPrice: minPrice ?? undefined,
+    maxPrice: maxPrice ?? undefined,
+    searchTerm: searchTerm ?? undefined,
+    sortBy,
+    page: currentPage,
+    pageSize: PAGE_SIZE,
+    saleOnly: hasSaleFilter
+  };
+
+  const [productsResult, totalResult, categoriesResult, vehiclesResult, facetResult] =
+    await Promise.all([
+      fetchFilteredProducts(filters, { includeServices: true }),
+      getProductCount(filters, { includeServices: true }),
+      fetchCategories(),
+      fetchVehicles(),
+      fetchStorefrontFilterFacets(filters, { includeServices: true })
+    ]);
+  products = productsResult;
+  totalProducts = typeof totalResult === 'number' ? totalResult : 0;
+  categories = categoriesResult;
+  vehicles = vehiclesResult;
+  filterFacetProducts = Array.isArray(facetResult) ? facetResult : [];
+} catch (err) {
+  console.error('🔥 Sanity Fetch Failed:', err);
+}
+
+const availableVehicleSlugs: string[] = Array.from(
+  new Set(
+    (vehicles || [])
+      .map((vehicle) => {
+        const slug = vehicle?.slug?.current;
+        if (typeof slug === 'string' && slug.trim()) return slugify(slug);
+        if (typeof vehicle?.title === 'string' && vehicle.title.trim())
+          return slugify(vehicle.title);
+        return '';
+      })
+      .filter(Boolean)
+  )
+).sort();
+
+const filterSource =
+  Array.isArray(filterFacetProducts) && filterFacetProducts.length ? filterFacetProducts : products;
+const categorySlugsInUse = new Set(
+  (Array.isArray(products) ? products : []).flatMap((product: any) => {
+    const categoryEntries = [
+      ...(Array.isArray((product as any)?.categories) ? (product as any).categories : []),
+      ...(Array.isArray((product as any)?.category) ? (product as any).category : [])
+    ];
+    return categoryEntries
+      .map((entry: any) => {
+        const slug = entry?.slug?.current || entry?.slug;
+        return typeof slug === 'string' ? slugify(slug) : '';
+      })
+      .filter(Boolean);
+  })
+);
+const categoriesForUi =
+  Array.isArray(categories) && categories.length
+    ? (() => {
+        const filtered = categories.filter((cat: any) => {
+          const slug = cat?.slug?.current;
+          if (typeof slug !== 'string' || !slug.trim()) return false;
+          if (!categorySlugsInUse.size) return true;
+          return categorySlugsInUse.has(slugify(slug));
+        });
+        return filtered.length ? filtered : categories;
+      })()
+    : categories;
+const currentCategoryTitle =
+  (currentCategory &&
+    categoriesForUi.find((c: any) => c?.slug?.current === currentCategory)?.title) ||
+  'All';
+const hasSaleProducts = Array.isArray(filterSource)
+  ? filterSource.some((product) => isOnSale(product as any))
+  : false;
+
+const canonical = (() => {
+  try {
+    const canonicalUrl = new URL(Astro.request.url);
+    const params = new URLSearchParams();
+    const keepKeys = ['categorySlug', 'category', 'page'];
+    for (const key of keepKeys) {
+      const value = url.searchParams.get(key);
+      if (value) params.set(key, value);
+    }
+    const searchString = params.toString();
+    canonicalUrl.search = searchString ? `?${searchString}` : '';
+    canonicalUrl.hash = '';
+    return canonicalUrl.toString();
+  } catch {
+    return undefined;
+  }
+})();
+
+const metaTitle =
+  currentCategory && currentCategoryTitle && currentCategoryTitle !== 'All'
+    ? `${currentCategoryTitle} Performance Packages`
+    : 'Performance Packages & Installs';
+
+const pageDescription =
+  currentCategory && currentCategoryTitle && currentCategoryTitle !== 'All'
+    ? `Shop ${currentCategoryTitle} performance packages, install services, and dyno-backed programs from F.A.S. Motorsports.`
+    : 'Browse turnkey performance packages, installation services, and curated upgrade programs from F.A.S. Motorsports with in-house validation.';
+
+const breadcrumbItems = [
+  {
+    '@type': 'ListItem',
+    position: 1,
+    name: 'Home',
+    item: `${url.origin}/`
+  },
+  {
+    '@type': 'ListItem',
+    position: 2,
+    name: 'Shop',
+    item: `${url.origin}/shop`
+  },
+  {
+    '@type': 'ListItem',
+    position: 3,
+    name: 'Performance Packages',
+    item: `${url.origin}${basePath}`
+  }
+];
+
+if (currentCategory && currentCategoryTitle && currentCategoryTitle !== 'All') {
+  breadcrumbItems.push({
+    '@type': 'ListItem',
+    position: 4,
+    name: currentCategoryTitle,
+    item: canonical || `${url.origin}${basePath}`
+  });
+}
+
+const breadcrumbStructuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: breadcrumbItems
+};
+
+// Build the available filters (category-aware)
+// Build a slug -> title map and unique slug list
+const filterTitleMap: Record<string, string> = {};
+for (const p of (Array.isArray(filterSource) ? filterSource : []) as any[]) {
+  const rawSlugs: any[] = Array.isArray(p?.filters)
+    ? p.filters
+    : Array.isArray(p?.filterTitles)
+      ? p.filterTitles
+      : [];
+  const rawTitles: any[] = Array.isArray(p?.filterTitles) ? p.filterTitles : rawSlugs;
+  rawSlugs.forEach((entry, idx) => {
+    const slug = normalizeFilterSlug(entry);
+    if (!slug) return;
+    const titleSource = rawTitles[idx] ?? entry;
+    const label = normalizeFilterLabel(titleSource) || fallbackFilterLabel(slug);
+    if (!filterTitleMap[slug]) {
+      filterTitleMap[slug] = label;
+    }
+  });
+}
+if (hasSaleProducts && !filterTitleMap['on-sale']) {
+  filterTitleMap['on-sale'] = 'On Sale';
+}
+const uniqueFilters: string[] = Array.from(new Set(Object.keys(filterTitleMap)))
+  .filter(Boolean)
+  .sort();
+
+const effectiveTotal = totalProducts || (Array.isArray(products) ? products.length : 0);
+const totalPages = Math.max(1, Math.ceil(effectiveTotal / PAGE_SIZE));
+
+const productListElements: StructuredProductListItem[] = Array.isArray(products)
+  ? products
+      .map((product, index) => {
+        const slugValue = resolveProductSlug(product);
+        if (!slugValue) return null;
+        const productUrl = `${url.origin}/shop/${slugValue}`;
+        const images = resolveProductImages(product);
+        const priceNumber = Number((product as any)?.price);
+        const offers: StructuredProductOffer | undefined =
+          !Number.isNaN(priceNumber) && priceNumber > 0
+            ? {
+                '@type': 'Offer',
+                priceCurrency: 'USD',
+                price: priceNumber.toFixed(2),
+                availability: 'https://schema.org/InStock',
+                url: productUrl,
+                itemCondition: 'https://schema.org/NewCondition'
+              }
+            : undefined;
+
+        const listItem: StructuredProductListItem = {
+          '@type': 'ListItem',
+          position: start + index + 1,
+          url: productUrl,
+          item: {
+            '@type': 'Product',
+            name: (product as any)?.title ?? 'Product',
+            image: images.length ? images : undefined,
+            offers
+          }
+        };
+        return listItem;
+      })
+      .filter((entry): entry is StructuredProductListItem => Boolean(entry))
+  : [];
+
+const productCollectionStructuredData = productListElements.length
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: metaTitle,
+      url: canonical || `${url.origin}${basePath}`,
+      description: pageDescription,
+      isPartOf: {
+        '@type': 'WebSite',
+        url: `${url.origin}/`,
+        name: 'F.A.S. Motorsports'
+      },
+      mainEntity: {
+        '@type': 'ItemList',
+        name: `${currentCategoryTitle || 'All'} packages`,
+        numberOfItems: productListElements.length,
+        itemListElement: productListElements
+      }
+    }
+  : null;
+
+const paginationLinks = [];
+const maxVisiblePages = 5;
+const pageGroup = Math.floor((currentPage - 1) / maxVisiblePages);
+const startPage = pageGroup * maxVisiblePages + 1;
+const endPage = Math.min(startPage + maxVisiblePages - 1, totalPages);
+
+if (startPage > 1) {
+  paginationLinks.push({ label: '←', page: startPage - 1 });
+}
+for (let page = startPage; page <= endPage; page++) {
+  paginationLinks.push({ label: page.toString(), page });
+}
+if (endPage < totalPages) {
+  paginationLinks.push({ label: '→', page: endPage + 1 });
+}
+---
+
+<BaseLayout title={metaTitle} description={pageDescription} canonical={canonical}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
+    {
+      productCollectionStructuredData && (
+        <script
+          type="application/ld+json"
+          set:html={JSON.stringify(productCollectionStructuredData)}
+        />
+      )
+    }
+  </Fragment>
+  <section class="max-w-full px-2 md:px-2 mt-11 pt-10">
+    <div class="mb-6 mt-2 space-y-3">
+      <div class="hidden md:block">
+        <ShopTopControls
+          client:load
+          categories={categoriesForUi}
+          availableFilters={uniqueFilters}
+          filterTitleMap={filterTitleMap}
+          currentCategory={currentCategory}
+          selectedFilters={selectedFilters}
+          priceMin={minPrice ?? undefined}
+          priceMax={maxPrice ?? undefined}
+          selectedVehicles={vehicleFilterSlugs}
+          availableVehicles={availableVehicleSlugs}
+          basePath={basePath}
+        />
+      </div>
+      <div class="md:hidden">
+        <FilterPanelMobile
+          client:load
+          categories={categoriesForUi}
+          filters={uniqueFilters}
+          filterTitleMap={filterTitleMap}
+          selectedCategory={currentCategory}
+          selectedFilters={selectedFilters}
+        />
+      </div>
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-0 pt-8">
+      <aside class="relative w-full md:w-1/4 hidden md:block pr-4">
+        <ShopSidebarFilters
+          client:load
+          categories={categoriesForUi}
+          availableFilters={uniqueFilters}
+          filterTitleMap={filterTitleMap}
+          currentCategory={currentCategory}
+          selectedFilters={selectedFilters}
+          priceMin={minPrice ?? undefined}
+          priceMax={maxPrice ?? undefined}
+          selectedVehicles={vehicleFilterSlugs}
+          availableVehicles={availableVehicleSlugs}
+          basePath={basePath}
+        />
+      </aside>
+
+      <div class="justify-between px-3 w-full md:w-full">
+        <ProductGrid
+          products={products}
+          view={(url.searchParams.get('view') || 'grid') as 'grid' | 'list'}
+          clearHref={basePath}
+        />
+      </div>
+    </div>
+
+    <Pagination currentPage={currentPage} totalPages={Math.max(1, totalPages)} />
+  </section>
+
+  <!-- Client components handle filter interactions and URL updates -->
+
+  <style>
+    #pagination a:hover {
+      color: white !important;
+    }
+
+    /* Explicitly set text color to white on hover for category links */
+    #category-sidebar a:hover {
+      color: #ffffff !important;
+    }
+
+    /* Remove legacy mobile flex that forced side-by-side groups inside the sheet */
+  </style>
+  <script is:inline>
+    (function () {
+      function showToast(message) {
+        try {
+          const toast = document.createElement('div');
+          toast.textContent = String(message || 'Added to cart');
+          toast.style.position = 'fixed';
+          toast.style.bottom = '20px';
+          toast.style.right = '20px';
+          toast.style.background = 'rgba(255,255,255,0.9)'; // match slug page
+          toast.style.color = '#16a34a'; // green text to match slug page
+          toast.style.padding = '10px 16px';
+          toast.style.borderRadius = '6px';
+          toast.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+          toast.style.zIndex = '9999';
+          document.body.appendChild(toast);
+          setTimeout(() => {
+            toast.style.transition = 'opacity 0.5s';
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 500);
+          }, 2000);
+        } catch {}
+      }
+
+      // Expose for other components (e.g., ProductCard) to call if needed
+      try {
+        window.showToast = showToast;
+      } catch {}
+
+      // If the product cards dispatch a cart event, echo a toast here too
+      window.addEventListener('cartUpdated', (ev) => {
+        try {
+          const cart = (ev && ev.detail) || [];
+          const last = Array.isArray(cart) ? cart[cart.length - 1] : null;
+          const name = last && last.name ? last.name : 'Item';
+          showToast(`${name} added to cart`);
+        } catch {}
+      });
+    })();
+  </script>
+</BaseLayout>

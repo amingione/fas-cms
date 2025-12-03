@@ -26,7 +26,16 @@ export interface ShopTopControlsProps {
   priceMax?: number;
   selectedVehicles?: string[];
   availableVehicles?: string[];
+  basePath?: string;
 }
+
+const normalizeBasePath = (value?: string) => {
+  if (!value) return '/shop';
+  const trimmed = value.trim();
+  if (!trimmed) return '/shop';
+  const withLeading = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+  return withLeading.replace(/\/+$/, '') || '/shop';
+};
 
 export default function ShopTopControls({
   categories,
@@ -37,7 +46,8 @@ export default function ShopTopControls({
   priceMin = 0,
   priceMax = 100000,
   selectedVehicles = [],
-  availableVehicles = []
+  availableVehicles = [],
+  basePath = '/shop'
 }: ShopTopControlsProps) {
   // Local UI state
   const [search, setSearch] = useState<string>('');
@@ -110,6 +120,14 @@ export default function ShopTopControls({
     window.addEventListener('popstate', syncFromURL);
     return () => window.removeEventListener('popstate', syncFromURL);
   }, [normalizeSort]);
+
+  const basePathname = normalizeBasePath(basePath);
+  const navigateWithParams = (params: URLSearchParams) => {
+    const nextUrl = new URL(window.location.href);
+    nextUrl.pathname = basePathname;
+    nextUrl.search = params.toString();
+    window.location.href = nextUrl.toString();
+  };
 
   const applyURL = (opts?: {
     withFilters?: boolean;
@@ -191,7 +209,7 @@ export default function ShopTopControls({
     }
 
     params.set('page', '1');
-    window.location.href = `/shop?${params.toString()}`;
+    navigateWithParams(params);
   };
 
   const clearAll = () => {
@@ -218,7 +236,7 @@ export default function ShopTopControls({
     params.delete('priceMin');
     params.delete('priceMax');
     params.set('page', '1');
-    window.location.href = `/shop?${params.toString()}`;
+    navigateWithParams(params);
   };
 
   // (mobile sheet uses native input/label behavior; no delegated click handler)

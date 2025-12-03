@@ -1,0 +1,13 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import InvoicesPage from '@/components/vendor-portal/InvoicesPage';
+const title = 'Vendor Portal - Invoices';
+---
+
+<BaseLayout title={title} noindex>
+  <main class="min-h-screen bg-black text-white px-6 py-10">
+    <div class="max-w-6xl mx-auto">
+      <InvoicesPage client:load />
+    </div>
+  </main>
+</BaseLayout>

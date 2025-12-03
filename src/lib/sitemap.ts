@@ -261,6 +261,12 @@ const STATIC_PAGES: StaticPageConfig[] = [
 const SHOP_STATIC_PAGES: StaticPageConfig[] = [
   { pathname: '/shop', source: '../pages/shop/index.astro', changefreq: 'daily', priority: 0.9 },
   {
+    pathname: '/shop/performance-packages',
+    source: '../pages/shop/performance-packages/index.astro',
+    changefreq: 'daily',
+    priority: 0.85
+  },
+  {
     pathname: '/shop/storefront',
     source: '../pages/shop/storefront.astro',
     changefreq: 'daily',
