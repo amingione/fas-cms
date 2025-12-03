@@ -18,7 +18,7 @@ const vendor = await sanity.fetch(
     email,
     portalAccess
   }`,
-  { token }
+  { token } as Record<string, unknown>
 );
 
 if (!vendor) {
