@@ -39,7 +39,31 @@ export default defineType({
         }),
         defineField({ name: 'invitedAt', title: 'Invited At', type: 'datetime' }),
         defineField({ name: 'invitedBy', title: 'Invited By', type: 'string' }),
-        defineField({ name: 'lastLogin', title: 'Last Login', type: 'datetime' })
+        defineField({ name: 'lastLogin', title: 'Last Login', type: 'datetime' }),
+        defineField({
+          name: 'setupToken',
+          title: 'Setup Token',
+          type: 'string',
+          description: 'One-time token used for initial account setup'
+        }),
+        defineField({
+          name: 'setupTokenExpiry',
+          title: 'Setup Token Expiry',
+          type: 'datetime',
+          description: 'When the setup token expires'
+        }),
+        defineField({
+          name: 'setupCompletedAt',
+          title: 'Setup Completed At',
+          type: 'datetime',
+          description: 'When the vendor completed initial setup'
+        }),
+        defineField({
+          name: 'passwordHash',
+          title: 'Portal Password Hash',
+          type: 'string',
+          description: 'Hashed password for portal login'
+        })
       ]
     }),
     defineField({

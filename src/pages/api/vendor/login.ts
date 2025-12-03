@@ -32,11 +32,14 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const passwordHash =
-      (vendor as any).passwordHash ||
       portalAccess.passwordHash ||
+      (vendor as any).passwordHash ||
       portalAccess.hash ||
       (vendor as any).auth?.passwordHash;
-    const isMatch = passwordHash ? await bcrypt.compare(passwordInput, passwordHash) : false;
+    if (!passwordHash) {
+      return jsonResponse({ message: 'Account not set up yet. Please complete setup from your email link.' }, { status: 401 }, { noIndex: true });
+    }
+    const isMatch = await bcrypt.compare(passwordInput, passwordHash);
     if (!isMatch) {
       return jsonResponse({ message: 'Invalid credentials' }, { status: 401 }, { noIndex: true });
     }

@@ -64,7 +64,10 @@ export async function handleInvite(body: any, session: any, request: Request) {
   });
   await updateVendorPortalAccess(vendor._id, {
     invitedAt: new Date().toISOString(),
-    invitedBy
+    invitedBy,
+    setupToken: issued.token,
+    setupTokenExpiry: issued.expiresAt.toISOString(),
+    setupCompletedAt: null
   });
 
   const baseUrl = buildBaseUrl(request);

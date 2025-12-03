@@ -1,134 +1,62 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-const token = Astro.url.searchParams.get('token') || '';
+import SetupForm from '@/components/vendor-portal/SetupForm';
+import { sanity } from '@/server/sanity-client';
+
+const token = Astro.url.searchParams.get('token');
+
+if (!token) {
+  return Astro.redirect('/vendor-portal/login?error=missing-token');
+}
+
+const now = new Date().toISOString();
+const vendor = await sanity.fetch(
+  `*[_type == "vendor" && portalAccess.setupToken == $token][0]{
+    _id,
+    name,
+    companyName,
+    email,
+    portalAccess
+  }`,
+  { token }
+);
+
+if (!vendor) {
+  return Astro.redirect('/vendor-portal/login?error=invalid-token');
+}
+
+const completed = Boolean((vendor as any)?.portalAccess?.setupCompletedAt);
+const expiry = (vendor as any)?.portalAccess?.setupTokenExpiry;
+const expired = !expiry || expiry <= now;
+
+if (completed) {
+  return Astro.redirect('/vendor-portal/login?error=already-setup');
+}
+
+if (expired) {
+  return Astro.redirect('/vendor-portal/login?error=expired-token');
+}
+
+const email = (vendor as any)?.portalAccess?.email || vendor.email;
+const companyName = (vendor as any)?.companyName || (vendor as any)?.name || 'Vendor';
 const title = 'Vendor Portal - Account Setup';
 ---
 
 <BaseLayout title={title} noindex>
-  <div class="min-h-screen flex items-center justify-center px-4 bg-black">
-    <div class="w-full max-w-lg rounded-lg border border-white/20 bg-zinc-900/80 p-6 shadow-xl text-white">
-      <h1 class="text-3xl font-bold text-primary uppercase text-center mb-3">Set up your account</h1>
-      {token ? (
-        <div id="vp-setup-container">
-          <p id="vp-setup-status" class="text-sm text-center text-white/70 mb-4">Validating invitation…</p>
-          <div id="vp-setup-form-wrapper" class="hidden">
-            <p class="text-sm text-white/70 text-center mb-4">
-              Invitation for <span id="vp-setup-name" class="font-semibold text-white"></span><br />
-              Email: <span id="vp-setup-email" class="font-semibold text-white"></span>
-            </p>
-            <form id="vp-setup-form" class="space-y-4">
-              <div>
-                <label class="block text-sm font-semibold mb-2" for="vp-password">Password</label>
-                <input
-                  id="vp-password"
-                  type="password"
-                  minlength="12"
-                  required
-                  class="w-full rounded-md border border-white/20 bg-black px-3 py-2 text-white focus:border-primary focus:outline-none"
-                />
-                <p class="text-xs text-white/60 mt-2">
-                  Minimum 12 characters, include uppercase, lowercase, number, special character.
-                </p>
-              </div>
-              <div>
-                <label class="block text-sm font-semibold mb-2" for="vp-confirm">Confirm password</label>
-                <input
-                  id="vp-confirm"
-                  type="password"
-                  minlength="12"
-                  required
-                  class="w-full rounded-md border border-white/20 bg-black px-3 py-2 text-white focus:border-primary focus:outline-none"
-                />
-              </div>
-              <button
-                type="submit"
-                class="w-full rounded-md bg-primary px-4 py-2 font-semibold uppercase tracking-wide text-white hover:bg-primary/80 transition"
-              >
-                Create account
-              </button>
-              <p id="vp-setup-message" class="text-sm text-center hidden"></p>
-            </form>
-          </div>
-        </div>
-      ) : (
-        <p class="text-center text-red-400">Invitation token is missing.</p>
-      )}
+  <div class="min-h-screen bg-black flex items-center justify-center px-4 py-12">
+    <div class="w-full max-w-lg rounded-2xl border border-white/15 bg-zinc-900/80 p-8 shadow-2xl">
+      <div class="text-center mb-6">
+        <p class="text-xs uppercase tracking-[0.2em] text-primary font-semibold">Vendor Portal</p>
+        <h1 class="mt-2 text-3xl font-bold text-white">Complete your setup</h1>
+        <p class="text-sm text-white/70">Create a password to access your account.</p>
+      </div>
+      <SetupForm
+        vendorId={vendor._id}
+        email={email}
+        companyName={companyName}
+        token={token}
+        client:load
+      />
     </div>
   </div>
-
-  {token && (
-    <script>
-      const params = new URLSearchParams(window.location.search);
-      const token = params.get('token') || '';
-      const statusEl = document.querySelector('#vp-setup-status');
-      const wrapper = document.querySelector('#vp-setup-form-wrapper');
-      const nameEl = document.querySelector('#vp-setup-name');
-      const emailEl = document.querySelector('#vp-setup-email');
-      const form = document.querySelector('#vp-setup-form');
-      const messageEl = document.querySelector('#vp-setup-message');
-
-      const showError = (msg: string) => {
-        if (statusEl) {
-          statusEl.textContent = msg;
-          statusEl.classList.remove('text-white/70');
-          statusEl.classList.add('text-red-400');
-        }
-      };
-
-      fetch(`/api/vendors/setup?token=${encodeURIComponent(token)}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (!data?.valid) {
-            showError(data?.message || 'Invitation is invalid or expired.');
-            return;
-          }
-          if (statusEl) statusEl.classList.add('hidden');
-          if (wrapper) wrapper.classList.remove('hidden');
-          if (nameEl) nameEl.textContent = data.vendorName || 'Vendor';
-          if (emailEl) emailEl.textContent = data.email || '';
-        })
-        .catch(() => showError('Unable to validate invitation. Try again later.'));
-
-      form?.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        if (!messageEl) return;
-        messageEl.classList.add('hidden');
-        messageEl.classList.remove('text-green-400', 'text-red-400');
-        const passwordInput = document.querySelector('#vp-password') as HTMLInputElement | null;
-        const confirmInput = document.querySelector('#vp-confirm') as HTMLInputElement | null;
-        const password = passwordInput?.value || '';
-        const confirm = confirmInput?.value || '';
-        if (password !== confirm) {
-          messageEl.textContent = 'Passwords do not match.';
-          messageEl.classList.add('text-red-400');
-          messageEl.classList.remove('hidden');
-          return;
-        }
-        try {
-          const res = await fetch('/api/vendors/setup', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token, password }),
-            credentials: 'include'
-          });
-          const data = await res.json().catch(() => ({}));
-          if (res.ok) {
-            messageEl.textContent = 'Account created. Redirecting...';
-            messageEl.classList.add('text-green-400');
-            messageEl.classList.remove('hidden');
-            const redirect = data.redirect || '/vendor-portal/dashboard';
-            setTimeout(() => (window.location.href = redirect), 800);
-          } else {
-            messageEl.textContent = data.message || 'Unable to complete setup.';
-            messageEl.classList.add('text-red-400');
-            messageEl.classList.remove('hidden');
-          }
-        } catch (err) {
-          messageEl.textContent = 'Network error. Please try again.';
-          messageEl.classList.add('text-red-400');
-          messageEl.classList.remove('hidden');
-        }
-      });
-    </script>
-  )}
 </BaseLayout>

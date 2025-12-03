@@ -2,6 +2,19 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 const title = 'Vendor Portal Login';
 const returnTo = Astro.url.searchParams.get('returnTo') || '/vendor-portal/dashboard';
+const setupStatus = Astro.url.searchParams.get('setup');
+const errorParam = Astro.url.searchParams.get('error');
+
+let banner = null;
+if (setupStatus === 'success') {
+  banner = { tone: 'success', message: 'Account setup complete! Please log in with your new password.' };
+} else if (errorParam === 'missing-token') {
+  banner = { tone: 'error', message: 'Invalid setup link. Please request a new invitation.' };
+} else if (errorParam === 'invalid-token' || errorParam === 'expired-token') {
+  banner = { tone: 'error', message: 'This setup link has expired. Please request a new invite.' };
+} else if (errorParam === 'already-setup') {
+  banner = { tone: 'info', message: 'Your account is already set up. Please log in.' };
+}
 ---
 
 <BaseLayout title={title} noindex>
@@ -12,6 +25,19 @@ const returnTo = Astro.url.searchParams.get('returnTo') || '/vendor-portal/dashb
         <h1 class="mt-4 text-3xl font-bold text-primary uppercase">Vendor Portal</h1>
         <p class="text-sm text-white/70">Sign in with your portal email and password.</p>
       </div>
+      {banner && (
+        <div
+          class={`mb-4 rounded-lg px-3 py-2 text-sm ${
+            banner.tone === 'success'
+              ? 'bg-green-500/10 border border-green-400/50 text-green-200'
+              : banner.tone === 'info'
+              ? 'bg-blue-500/10 border border-blue-400/50 text-blue-200'
+              : 'bg-red-500/10 border border-red-400/50 text-red-200'
+          }`}
+        >
+          {banner.message}
+        </div>
+      )}
       <form id="vendorPortalLogin" class="space-y-4" data-redirect={returnTo}>
         <div>
           <label class="block text-sm font-semibold text-white mb-2" for="vp-email">Email</label>
