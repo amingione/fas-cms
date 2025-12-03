@@ -6,6 +6,7 @@ import vendorAuthToken from './schemas/vendorAuthToken';
 import emailCampaign from './schemas/emailCampaign';
 import vendorMessage from './schemas/vendorMessage';
 import vendorNotification from './schemas/vendorNotification';
+import vendorDocument from './schemas/vendorDocument';
 
 // Export Sanity schema types from the local schemas directory.
 export const schemaTypes = [
@@ -16,5 +17,6 @@ export const schemaTypes = [
   vendorAuthToken,
   emailCampaign,
   vendorMessage,
-  vendorNotification
+  vendorNotification,
+  vendorDocument
 ];

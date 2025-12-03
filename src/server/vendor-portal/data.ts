@@ -145,3 +145,20 @@ export async function fetchVendorAnalytics(vendorId: string, startOfMonth: strin
 
   return { totalOrders, revenueThisMonth, topProducts };
 }
+
+export async function fetchVendorDocuments(vendorId: string) {
+  const query = `*[_type == "vendorDocument" && (sharedWithAllVendors == true || vendor._ref == $vendorId)] | order(uploadedAt desc){
+    _id,
+    title,
+    description,
+    category,
+    version,
+    sharedWithAllVendors,
+    uploadedAt,
+    uploadedBy,
+    file{
+      asset->{url, originalFilename, mimeType, size}
+    }
+  }`;
+  return sanity.fetch(query, { vendorId });
+}

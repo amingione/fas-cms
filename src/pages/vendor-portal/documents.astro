@@ -1,0 +1,13 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import DocumentLibrary from '@/components/vendor-portal/DocumentLibrary';
+const title = 'Vendor Portal - Documents';
+---
+
+<BaseLayout title={title} noindex>
+  <main class="min-h-screen bg-black text-white px-6 py-10">
+    <div class="max-w-6xl mx-auto">
+      <DocumentLibrary client:load />
+    </div>
+  </main>
+</BaseLayout>

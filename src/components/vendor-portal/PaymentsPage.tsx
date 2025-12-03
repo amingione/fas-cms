@@ -10,8 +10,11 @@ type Payment = {
   checkNumber?: string;
 };
 
+type Summary = { paidAll: number; paidYtd: number; paidMtd: number; outstanding: number };
+
 const PaymentsPage: React.FC = () => {
   const [payments, setPayments] = useState<Payment[]>([]);
+  const [summary, setSummary] = useState<Summary | null>(null);
   const [filter, setFilter] = useState<'all' | 'paid' | 'unpaid'>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,6 +27,7 @@ const PaymentsPage: React.FC = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data?.message || 'Failed to load payments');
       setPayments(data.payments || []);
+      setSummary(data.summary || null);
     } catch (err: any) {
       setError(err?.message || 'Failed to load payments');
     } finally {
@@ -69,6 +73,14 @@ const PaymentsPage: React.FC = () => {
           <option value="unpaid">Unpaid</option>
         </select>
       </div>
+      {summary && (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <SummaryCard label="Paid (All time)" value={`$${summary.paidAll.toFixed(2)}`} />
+          <SummaryCard label="Paid YTD" value={`$${summary.paidYtd.toFixed(2)}`} />
+          <SummaryCard label="Paid MTD" value={`$${summary.paidMtd.toFixed(2)}`} />
+          <SummaryCard label="Outstanding" value={`$${summary.outstanding.toFixed(2)}`} />
+        </div>
+      )}
       <div className="overflow-auto rounded-lg border border-white/10">
         <table className="min-w-full text-sm text-white">
           <thead className="bg-white/5 text-left">
@@ -111,5 +123,12 @@ const PaymentsPage: React.FC = () => {
     </div>
   );
 };
+
+const SummaryCard = ({ label, value }: { label: string; value: string }) => (
+  <div className="rounded-lg border border-white/10 bg-white/5 p-3">
+    <p className="text-xs uppercase tracking-wide text-white/60">{label}</p>
+    <p className="text-lg font-bold text-white mt-1">{value}</p>
+  </div>
+);
 
 export default PaymentsPage;
