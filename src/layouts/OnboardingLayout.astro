@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { requireVendor } from '@/server/vendor-portal/auth';
+import OnboardingNavFlyout from '@/components/vendor-portal/OnboardingNavFlyout';
+import VendorPortalFlyoutNav from '@/components/vendor-portal/VendorPortalFlyoutNav';
 
 type OnboardingSection =
   | 'welcome'
@@ -121,7 +123,8 @@ const breadcrumbs = [
 
 <BaseLayout title={`${title} | FAS Motorsports Vendor Onboarding`} description="Guided onboarding for FAS Motorsports vendors." noindex>
   <main class="bg-[#0b0b0b] text-white min-h-screen">
-    <div class="mx-auto max-w-6xl px-4 py-8 lg:py-12">
+    <div class="mx-auto max-w-6xl px-4 py-8 lg:py-12 space-y-6">
+      <VendorPortalFlyoutNav client:load />
       <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
         <nav aria-label="Breadcrumb" class="text-sm text-white/60 flex items-center gap-2">
           {breadcrumbs.map((crumb, idx) => (
@@ -151,6 +154,8 @@ const breadcrumbs = [
           </button>
         </div>
       </div>
+
+      <OnboardingNavFlyout currentSection={section} client:load />
 
       <div class="grid gap-6 lg:grid-cols-[280px,1fr]">
         <aside class="h-full rounded-xl border border-white/10 bg-black/50 shadow-sm print:hidden">
