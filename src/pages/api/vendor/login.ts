@@ -24,11 +24,11 @@ export const POST: APIRoute = async ({ request }) => {
     const vendor = await getVendorByEmail(normalizedEmail);
     const portalAccess = (vendor as any).portalAccess || {};
     const status = (vendor as any).status;
-    const portalEnabled = Boolean(portalAccess.enabled);
-    const approved = status === 'Approved';
-    // Allow login if portal access is enabled, even if legacy status field isn't set to Approved
+    const portalEnabled = portalAccess.enabled !== false; // default to enabled when unset
+    const approved = String(status || '').toLowerCase() === 'approved';
+    // Allow login if portal access is enabled or vendor is approved
     if (!vendor || (!approved && !portalEnabled)) {
-      return jsonResponse({ message: 'Invalid credentials' }, { status: 401 }, { noIndex: true });
+      return jsonResponse({ message: 'Invalid credentials or portal access disabled' }, { status: 401 }, { noIndex: true });
     }
 
     const passwordHash =

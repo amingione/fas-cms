@@ -1,24 +1,29 @@
 import { sanity } from '@/server/sanity-client';
 
 export async function fetchVendorOrders(vendorId: string, status?: string) {
-  const query = `*[_type == "purchaseOrder" && vendor._ref == $vendorId${status ? ' && status == $status' : ''}] | order(orderDate desc){
-    _id,
-    poNumber,
-    status,
-    orderDate,
-    expectedDelivery,
-    actualDelivery,
-    lineItems[]{
-      product->{title, sku},
-      quantity,
-      unitPrice,
-      total
-    },
-    subtotal,
-    tax,
-    shipping,
-    total
-  }`;
+  const query = `*[_type == "order" && orderType == "wholesale" && customerRef._ref == $vendorId${status ? ' && status == $status' : ''}]
+    | order(dateTime(coalesce(orderDate, createdAt, _createdAt)) desc){
+      _id,
+      orderNumber,
+      status,
+      orderDate,
+      createdAt,
+      totalAmount,
+      amountSubtotal,
+      amountTax,
+      amountShipping,
+      currency,
+      wholesaleDetails,
+      cart[]{
+        _key,
+        name,
+        sku,
+        quantity,
+        price,
+        total,
+        productRef->{_id, title, sku, "image": coalesce(images[0].asset->url, mainImage.asset->url, thumbnail.asset->url)}
+      }
+    }`;
   return sanity.fetch(query, { vendorId, ...(status ? { status } : {}) });
 }
 

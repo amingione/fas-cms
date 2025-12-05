@@ -1,0 +1,257 @@
+---
+import VendorPortalLayout from '@/layouts/VendorPortalLayout.astro';
+import { sanityClient } from '@/lib/sanity';
+import { requireVendor } from '@/server/vendor-portal/auth';
+
+type Product = {
+  _id: string;
+  title: string;
+  slug?: string;
+  sku?: string;
+  price?: number;
+  wholesalePriceStandard?: number;
+  wholesalePricePreferred?: number;
+  mainImage?: string;
+  shortDescription?: string;
+  availability?: string;
+};
+
+const ctx = await requireVendor(Astro.request);
+if (!ctx.ok) {
+  return ctx.response;
+}
+
+const vendor = ctx.vendor ?? {};
+const vendorTierRaw = String(vendor?.portalAccess?.vendorTier || '').toLowerCase();
+const vendorTier = vendorTierRaw === 'preferred' ? 'preferred' : 'standard';
+const isPreferredVendor = vendorTier === 'preferred';
+
+let products: Product[] = [];
+
+const formatAvailability = (value?: string) => {
+  const normalized = String(value || '')
+    .replace(/_/g, ' ')
+    .trim();
+  if (!normalized) return 'In Stock';
+  return normalized.replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
+const normalizeDescription = (value: unknown) => {
+  if (typeof value === 'string') return value;
+  if (Array.isArray(value)) {
+    const strings = value
+      .map((entry) => {
+        if (typeof entry === 'string') return entry;
+        if (
+          entry &&
+          typeof entry === 'object' &&
+          'children' in entry &&
+          Array.isArray((entry as any).children)
+        ) {
+          return (entry as any).children
+            .map((child: any) => (typeof child?.text === 'string' ? child.text : ''))
+            .join(' ');
+        }
+        return '';
+      })
+      .filter(Boolean);
+    return strings.join(' ').trim();
+  }
+  if (value && typeof value === 'object') {
+    const firstString = Object.values(value as Record<string, unknown>).find(
+      (v) => typeof v === 'string'
+    ) as string | undefined;
+    return firstString ?? '';
+  }
+  return '';
+};
+
+try {
+  products =
+    (await sanityClient.fetch<Product[]>(
+      `*[_type == "product" && availableForWholesale == true && !(_id in path('drafts.**')) && (status == "active" || !defined(status))]
+       | order(title asc) {
+        _id,
+        title,
+        "slug": slug.current,
+        sku,
+        "price": coalesce(pricing.price, price),
+        "wholesalePriceStandard": coalesce(pricing.wholesalePriceStandard, wholesalePriceStandard),
+        "wholesalePricePreferred": coalesce(pricing.wholesalePricePreferred, wholesalePricePreferred),
+        "mainImage": coalesce(images[0].asset->url, mainImage.asset->url, image.asset->url),
+        "shortDescription": coalesce(
+          shortDescription,
+          summary,
+          description,
+          pt::text(body[0..1])
+        ),
+        availability
+      }`
+    )) || [];
+} catch (error) {
+  console.error('[vendor portal] failed to load wholesale catalog', error);
+  products = [];
+}
+---
+
+<VendorPortalLayout
+  title="Wholesale Catalog"
+  description="Browse wholesale-only pricing and build your order."
+>
+  <div class="space-y-6">
+    <div
+      class="flex flex-col gap-3 justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-4 sm:flex-row sm:items-center sm:px-6"
+    >
+      <div>
+        <p class="text-xs uppercase tracking-[0.2em] text-white/60 font-semibold">
+          Wholesale Catalog
+        </p>
+        <h1 class="text-2xl font-bold text-white mt-1">
+          Your pricing tier: <span class="text-primary"
+            >{vendorTier === 'preferred' ? 'Preferred' : 'Standard'}</span
+          >
+        </h1>
+        <p class="text-sm text-white/70 mt-1">Add items to build your order.</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <a
+          href="/vendor-portal/cart"
+          class="inline-flex items-center rounded-xl border border-primary/50 bg-primary/20 px-4 py-2 text-sm font-semibold text-white hover:bg-primary/30 transition"
+        >
+          View Cart
+        </a>
+      </div>
+    </div>
+
+    {
+      products.length === 0 ? (
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-6 text-center text-white/70">
+          <p class="text-sm">No wholesale products are available right now.</p>
+        </div>
+      ) : (
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {products.map((product) => {
+            const retailPrice = Number(product.price ?? 0);
+            const standardPrice = Number(product.wholesalePriceStandard ?? retailPrice);
+            const preferredPrice = Number(product.wholesalePricePreferred ?? standardPrice);
+            const wholesalePrice = isPreferredVendor ? preferredPrice : standardPrice;
+            const savings = Math.max(0, retailPrice - wholesalePrice);
+            const savingsPercent = retailPrice > 0 ? Math.round((savings / retailPrice) * 100) : 0;
+            const description = normalizeDescription(product.shortDescription);
+
+            return (
+              <div class="flex h-full flex-col rounded-2xl border border-white/10 bg-black/70 p-4 shadow-card-outter shadow-inner shadow-white/20">
+                <div class="aspect-square w-full overflow-hidden rounded-xl border border-white/5 bg-white/5 shadow-product-inset shadow-white/20">
+                  <img
+                    src={product.mainImage || '/logo/faslogo150.webp'}
+                    alt={product.title}
+                    loading="lazy"
+                    class="h-full w-full object-cover"
+                  />
+                </div>
+                <div class="mt-3 flex-1 space-y-2">
+                  <div class="flex items-start justify-between gap-2">
+                    <div>
+                      <p class="text-xs uppercase tracking-wide text-white/60">
+                        SKU: {product.sku || 'N/A'}
+                      </p>
+                      <h3 class="text-lg font-semibold text-white">{product.title}</h3>
+                    </div>
+                    <span class="tracking-tighter border border-white/10 shadow-card-outter shadow-inner shadow-white/50 rounded-full bg-primaryB/10 px-3 py-1 text-xs font-semibold text-white/80 whitespace-nowrap">
+                      {formatAvailability(product.availability)}
+                    </span>
+                  </div>
+                  {description && (
+                    <p class="text-sm text-white/70 leading-relaxed min-h-[48px]">{description}</p>
+                  )}
+                  <div class="rounded-xl border border-white/5 bg-white/5 p-3 space-y-1 shadow-card-outter shadow-inner shadow-black">
+                    <div class="flex items-center justify-between text-sm text-white/70">
+                      <span>Retail</span>
+                      <span class="font-semibold text-white/70 line-through">
+                        ${retailPrice.toFixed(2)}
+                      </span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm text-white/70">
+                      <span>Your price</span>
+                      <span class="font-semibold text-primary">${wholesalePrice.toFixed(2)}</span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs text-emerald-300/90">
+                      <span>Savings</span>
+                      <span class="font-semibold">
+                        ${savings.toFixed(2)} ({savingsPercent}%)
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  class="btn-plain add-to-order mt-3 inline-flex items-center justify-center border-t border-primary shadow-inner shadow-black rounded-xl bg-primaryB px-4 py-2 text-sm font-semibold text-white hover:bg-primaryB hover:text-white/70 hover:border-t hover:border-black/20 hover:shadow transition"
+                  data-product-id={product._id}
+                  data-price={wholesalePrice.toFixed(2)}
+                  data-title={product.title}
+                  data-sku={product.sku || ''}
+                >
+                  Add to Order
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )
+    }
+  </div>
+</VendorPortalLayout>
+
+<script>
+  type CartItem = {
+    id: string;
+    title: string;
+    sku?: string;
+    price: number;
+    quantity: number;
+  };
+
+  const cartKey = 'wholesaleCart';
+
+  const readCart = (): CartItem[] => {
+    try {
+      const existing = localStorage.getItem(cartKey);
+      return existing ? (JSON.parse(existing) as CartItem[]) : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const saveCart = (cart: CartItem[]) => {
+    localStorage.setItem(cartKey, JSON.stringify(cart));
+  };
+
+  document.querySelectorAll<HTMLButtonElement>('.add-to-order').forEach((button) => {
+    button.addEventListener('click', (event) => {
+      const btn = event.currentTarget as HTMLButtonElement;
+      const id = btn.dataset.productId || '';
+      const title = btn.dataset.title || 'Untitled Product';
+      const sku = btn.dataset.sku || '';
+      const price = Number(btn.dataset.price || '0');
+
+      if (!id) return;
+
+      const cart = readCart();
+      const existing = cart.find((item) => item.id === id);
+
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        cart.push({ id, title, sku, price, quantity: 1 });
+      }
+
+      saveCart(cart);
+
+      btn.textContent = 'Added!';
+      btn.disabled = true;
+      setTimeout(() => {
+        btn.textContent = 'Add to Order';
+        btn.disabled = false;
+      }, 1200);
+    });
+  });
+</script>

@@ -1,5 +1,5 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro';
+import VendorPortalLayout from '@/layouts/VendorPortalLayout.astro';
 import OrderDetail from '@/components/vendor-portal/OrderDetail';
 
 const { id } = Astro.params;
@@ -13,13 +13,11 @@ if (res.ok) {
 if (!order) {
   return Astro.redirect('/vendor-portal/orders');
 }
-const title = `Order ${order.poNumber || id}`;
+const title = `Order ${order.orderNumber || id}`;
 ---
 
-<BaseLayout title={title} noindex>
-  <main class="min-h-screen bg-black text-white px-6 py-10">
-    <div class="max-w-6xl mx-auto">
-      <OrderDetail order={order} client:load />
-    </div>
-  </main>
-</BaseLayout>
+<VendorPortalLayout title={title} noindex>
+  <div class="text-white">
+    <OrderDetail order={order} client:load />
+  </div>
+</VendorPortalLayout>

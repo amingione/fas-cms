@@ -1,13 +1,11 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro';
+import VendorPortalLayout from '@/layouts/VendorPortalLayout.astro';
 import OrdersPage from '@/components/vendor-portal/OrdersPage';
-const title = 'Vendor Portal - Orders';
+const title = 'Orders';
 ---
 
-<BaseLayout title={title} noindex>
-  <main class="min-h-screen bg-black text-white px-6 py-10">
-    <div class="max-w-6xl mx-auto">
-      <OrdersPage client:load />
-    </div>
-  </main>
-</BaseLayout>
+<VendorPortalLayout title={title} noindex>
+  <div class="bg-transparent text-white">
+    <OrdersPage client:load />
+  </div>
+</VendorPortalLayout>

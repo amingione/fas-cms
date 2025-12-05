@@ -4,31 +4,32 @@ import { sanity } from '@/server/sanity-client';
 import { jsonResponse } from '@/server/http/responses';
 
 export const GET: APIRoute = async ({ params, request }) => {
-  const ctx = await requireVendor(request, 'view_purchase_orders');
+  const ctx = await requireVendor(request);
   if (!ctx.ok) return ctx.response;
   const orderId = params.id;
   try {
-    const query = `*[_type == "purchaseOrder" && _id == $orderId && vendor._ref == $vendorId][0]{
+    const query = `*[_type == "order" && orderType == "wholesale" && _id == $orderId && customerRef._ref == $vendorId][0]{
       _id,
-      poNumber,
+      orderNumber,
       status,
       orderDate,
-      expectedDelivery,
-      actualDelivery,
-      lineItems[]{
-        product->{_id, title, sku, "image": featuredImage.asset->url},
+      createdAt,
+      totalAmount,
+      amountSubtotal,
+      amountTax,
+      amountShipping,
+      currency,
+      wholesaleDetails,
+      statusHistory,
+      cart[]{
+        _key,
+        name,
+        sku,
         quantity,
-        unitPrice,
-        total
-      },
-      subtotal,
-      tax,
-      shipping,
-      total,
-      shippingAddress,
-      trackingNumber,
-      notes,
-      "statusHistory": statusHistory[] | order(timestamp desc)
+        price,
+        total,
+        productRef->{_id, title, sku, "image": coalesce(images[0].asset->url, mainImage.asset->url, thumbnail.asset->url)}
+      }
     }`;
     const order = await sanity.fetch(query, { orderId, vendorId: ctx.vendorId });
     if (!order) {

@@ -1,0 +1,282 @@
+---
+import VendorPortalLayout from '@/layouts/VendorPortalLayout.astro';
+import { requireVendor } from '@/server/vendor-portal/auth';
+
+const ctx = await requireVendor(Astro.request);
+if (!ctx.ok) {
+  return ctx.response;
+}
+
+const vendor = ctx.vendor ?? {};
+const vendorTierRaw = String(vendor?.portalAccess?.vendorTier || '').toLowerCase();
+const vendorTier = vendorTierRaw === 'preferred' ? 'preferred' : 'standard';
+---
+
+<VendorPortalLayout title="Wholesale Cart" description="Review and submit your wholesale order.">
+  <div class="space-y-6">
+    <div class="flex flex-col gap-3 justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-4 sm:flex-row sm:items-center sm:px-6">
+      <div>
+        <p class="text-xs uppercase tracking-[0.2em] text-white/60 font-semibold">Wholesale Order</p>
+        <h1 class="text-2xl font-bold text-white mt-1">Review your cart</h1>
+        <p class="text-sm text-white/70 mt-1">Pricing tier: <span class="text-primary font-semibold capitalize">{vendorTier}</span></p>
+      </div>
+      <div class="flex items-center gap-3">
+        <a
+          href="/vendor-portal/catalog"
+          class="inline-flex items-center rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-white hover:border-primary/50 transition"
+        >
+          Back to Catalog
+        </a>
+      </div>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-[2fr,1fr]">
+      <section class="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-white">Items</h2>
+          <a href="/vendor-portal/catalog" class="text-sm font-semibold text-primary hover:text-primary/80">
+            Add more →
+          </a>
+        </div>
+        <div id="cart-items" class="divide-y divide-white/5 space-y-3">
+          <p class="text-sm text-white/60">Loading your cart...</p>
+        </div>
+      </section>
+
+      <aside class="space-y-4">
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
+          <h2 class="text-lg font-semibold text-white mb-4">Order Summary</h2>
+          <div class="space-y-2 text-sm text-white/70">
+            <div class="flex items-center justify-between">
+              <span>Subtotal</span>
+              <span id="subtotal" class="font-semibold text-white">$0.00</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span>Tax</span>
+              <span class="text-white/60">Calculated after submission</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span>Shipping</span>
+              <span class="text-white/60">Billed separately</span>
+            </div>
+            <div class="flex items-center justify-between border-t border-white/10 pt-3 text-base font-semibold text-white">
+              <span>Total</span>
+              <span id="total">$0.00</span>
+            </div>
+          </div>
+        </div>
+
+        <form id="checkout-form" class="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6 space-y-4">
+          <div>
+            <label for="poNumber" class="block text-sm font-semibold text-white mb-2">PO Number (optional)</label>
+            <input
+              type="text"
+              id="poNumber"
+              name="poNumber"
+              class="w-full rounded-xl border border-white/15 bg-black px-3 py-2 text-white focus:border-primary focus:outline-none"
+            />
+          </div>
+          <div>
+            <label for="notes" class="block text-sm font-semibold text-white mb-2">Order notes</label>
+            <textarea
+              id="notes"
+              name="notes"
+              rows="4"
+              class="w-full rounded-xl border border-white/15 bg-black px-3 py-2 text-white focus:border-primary focus:outline-none"
+            ></textarea>
+          </div>
+          <p id="form-status" class="text-sm text-red-300 hidden"></p>
+          <button
+            type="submit"
+            class="w-full rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary/80"
+          >
+            Submit Order
+          </button>
+        </form>
+      </aside>
+    </div>
+  </div>
+</VendorPortalLayout>
+
+<script>
+  type CartItem = {
+    id: string;
+    title: string;
+    sku?: string;
+    price: number;
+    quantity: number;
+  };
+
+  const cartKey = 'wholesaleCart';
+  const itemsContainer = document.getElementById('cart-items');
+  const subtotalEl = document.getElementById('subtotal');
+  const totalEl = document.getElementById('total');
+  const statusEl = document.getElementById('form-status');
+  const submitButton = document.querySelector<HTMLButtonElement>('#checkout-form button[type="submit"]');
+
+  const readCart = (): CartItem[] => {
+    try {
+      const stored = localStorage.getItem(cartKey);
+      const parsed = stored ? (JSON.parse(stored) as Partial<CartItem>[]) : [];
+      return Array.isArray(parsed)
+        ? parsed.map((item) => normalizeCartItem(item)).filter((item) => Boolean(item.id))
+        : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const saveCart = (cart: CartItem[]) => {
+    localStorage.setItem(cartKey, JSON.stringify(cart));
+  };
+
+  const formatMoney = (value: number) => `$${value.toFixed(2)}`;
+
+  const normalizeCartItem = (item: Partial<CartItem>): CartItem => {
+    const price = Number(item.price ?? 0);
+    const quantity = Number(item.quantity ?? 1);
+    return {
+      id: String(item.id || ''),
+      title: item.title || 'Item',
+      sku: item.sku || '',
+      price: Number.isFinite(price) ? price : 0,
+      quantity: Number.isFinite(quantity) && quantity > 0 ? quantity : 1
+    };
+  };
+
+  const renderCart = () => {
+    if (!itemsContainer) return;
+    const cart = readCart();
+
+    if (!cart.length) {
+      itemsContainer.innerHTML =
+        '<div class="rounded-xl border border-white/10 bg-black/30 p-4 text-sm text-white/70">Your cart is empty.</div>';
+      subtotalEl && (subtotalEl.textContent = '$0.00');
+      totalEl && (totalEl.textContent = '$0.00');
+      submitButton && (submitButton.disabled = true);
+      return;
+    }
+
+    submitButton && (submitButton.disabled = false);
+
+    let subtotal = 0;
+    itemsContainer.innerHTML = cart
+      .map((item) => {
+        const lineTotal = item.price * item.quantity;
+        subtotal += lineTotal;
+        return `
+          <div class="flex flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p class="text-sm font-semibold text-white">${item.title}</p>
+              <p class="text-xs text-white/60">SKU: ${item.sku || 'N/A'}</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center rounded-lg border border-white/15 bg-black/40">
+                <button class="px-3 py-1 text-white/80 hover:text-white" data-action="decrement" data-id="${item.id}" aria-label="Decrease quantity">−</button>
+                <span class="px-3 text-white">${item.quantity}</span>
+                <button class="px-3 py-1 text-white/80 hover:text-white" data-action="increment" data-id="${item.id}" aria-label="Increase quantity">+</button>
+              </div>
+              <div class="text-right">
+                <p class="text-sm text-white/80">${formatMoney(item.price)}</p>
+                <p class="text-xs text-white/60">Total: ${formatMoney(lineTotal)}</p>
+              </div>
+              <button class="text-sm text-red-300 hover:text-red-200" data-action="remove" data-id="${item.id}">Remove</button>
+            </div>
+          </div>
+        `;
+      })
+      .join('');
+
+    if (subtotalEl) subtotalEl.textContent = formatMoney(subtotal);
+    if (totalEl) totalEl.textContent = formatMoney(subtotal);
+  };
+
+  const updateQuantity = (id: string, delta: number) => {
+    const cart = readCart();
+    const item = cart.find((entry) => entry.id === id);
+    if (!item) return;
+    item.quantity += delta;
+    if (item.quantity <= 0) {
+      const nextCart = cart.filter((entry) => entry.id !== id);
+      saveCart(nextCart);
+    } else {
+      saveCart(cart);
+    }
+    renderCart();
+  };
+
+  const removeItem = (id: string) => {
+    const nextCart = readCart().filter((entry) => entry.id !== id);
+    saveCart(nextCart);
+    renderCart();
+  };
+
+  itemsContainer?.addEventListener('click', (event) => {
+    const target = event.target as HTMLElement | null;
+    const button = target?.closest('button[data-action]') as HTMLButtonElement | null;
+    if (!button) return;
+    const action = button.dataset.action;
+    const id = button.dataset.id || '';
+    if (!id) return;
+    if (action === 'increment') updateQuantity(id, 1);
+    if (action === 'decrement') updateQuantity(id, -1);
+    if (action === 'remove') removeItem(id);
+  });
+
+  document.getElementById('checkout-form')?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    statusEl?.classList.add('hidden');
+    if (statusEl) statusEl.textContent = '';
+
+    const cart = readCart();
+    if (!cart.length) {
+      if (statusEl) {
+        statusEl.textContent = 'Your cart is empty.';
+        statusEl.classList.remove('hidden');
+      }
+      return;
+    }
+
+    const form = event.currentTarget as HTMLFormElement;
+    const formData = new FormData(form);
+
+    submitButton && (submitButton.disabled = true);
+    submitButton && (submitButton.textContent = 'Submitting...');
+
+    try {
+      const response = await fetch('/api/vendors/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          cart,
+          poNumber: formData.get('poNumber'),
+          notes: formData.get('notes')
+        })
+      });
+
+      const result = await response.json().catch(() => ({}));
+
+      if (response.ok) {
+        localStorage.removeItem(cartKey);
+        window.location.href = `/vendor-portal/orders/${result.orderId}`;
+      } else {
+        if (statusEl) {
+          statusEl.textContent = result.error || result.message || 'Error submitting order.';
+          statusEl.classList.remove('hidden');
+        }
+      }
+    } catch (error) {
+      console.error('Order submission failed', error);
+      if (statusEl) {
+        statusEl.textContent = 'Unable to submit order. Please try again.';
+        statusEl.classList.remove('hidden');
+      }
+    } finally {
+      submitButton && (submitButton.disabled = false);
+      submitButton && (submitButton.textContent = 'Submit Order');
+    }
+  });
+
+  renderCart();
+</script>

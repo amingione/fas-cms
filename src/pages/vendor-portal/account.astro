@@ -1,0 +1,10 @@
+---
+import VendorPortalLayout from '@/layouts/VendorPortalLayout.astro';
+import SettingsPanel from '@/components/vendor-portal/SettingsPanel';
+---
+
+<VendorPortalLayout title="Account Settings" noindex>
+  <div class="text-white">
+    <SettingsPanel client:load />
+  </div>
+</VendorPortalLayout>

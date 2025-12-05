@@ -37,6 +37,19 @@ export default defineType({
           of: [{ type: 'string' }],
           description: 'Optional granular permissions'
         }),
+        defineField({
+          name: 'vendorTier',
+          title: 'Vendor Tier',
+          type: 'string',
+          description: 'Determines wholesale pricing level',
+          options: {
+            list: [
+              { title: 'Standard', value: 'standard' },
+              { title: 'Preferred', value: 'preferred' }
+            ]
+          },
+          initialValue: 'standard'
+        }),
         defineField({ name: 'invitedAt', title: 'Invited At', type: 'datetime' }),
         defineField({ name: 'invitedBy', title: 'Invited By', type: 'string' }),
         defineField({ name: 'lastLogin', title: 'Last Login', type: 'datetime' }),

@@ -9,56 +9,48 @@ export const GET: APIRoute = async ({ request }) => {
 
   try {
     const now = new Date();
-    const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1))
-      .toISOString()
-      .slice(0, 10);
-    const startOfLastMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1))
-      .toISOString()
-      .slice(0, 10);
+    const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
 
     const statsQuery = `{
-      "ordersThisMonth": count(*[_type == "purchaseOrder" && vendor._ref == $vendorId && orderDate >= $startOfMonth]),
-      "ordersLastMonth": count(*[_type == "purchaseOrder" && vendor._ref == $vendorId && orderDate >= $startOfLastMonth && orderDate < $startOfMonth]),
-      "pendingInvoices": *[_type == "invoice" && references($vendorId) && status == "pending"]{_id, total},
-      "lowStockItems": count(*[_type == "vendorProduct" && vendor._ref == $vendorId && quantityAvailable < minimumOrder]),
-      "outstandingPayments": *[_type == "bill" && vendor._ref == $vendorId && paid == false]{amount}
+      "ordersThisMonth": count(*[_type == "order" && orderType == "wholesale" && customerRef._ref == $vendorId && dateTime(coalesce(orderDate, createdAt, _createdAt)) >= dateTime($startOfMonth)]),
+      "ordersTotal": count(*[_type == "order" && orderType == "wholesale" && customerRef._ref == $vendorId]),
+      "amounts": *[_type == "order" && orderType == "wholesale" && customerRef._ref == $vendorId]{ "amt": coalesce(totalAmount, amountSubtotal + amountTax + amountShipping, 0) }
     }`;
 
-    const activityQuery = `*[_type in ["purchaseOrder", "invoice", "vendorMessage", "bill"] && references($vendorId)] | order(_updatedAt desc)[0...10]{
-      _type,
-      _updatedAt,
-      poNumber,
-      invoiceNumber,
+    const recentOrdersQuery = `*[_type == "order" && orderType == "wholesale" && customerRef._ref == $vendorId] | order(dateTime(coalesce(orderDate, createdAt, _createdAt)) desc)[0...5]{
+      _id,
+      orderNumber,
       status,
-      priority,
-      subject,
-      description,
-      amount
+      orderDate,
+      createdAt,
+      totalAmount,
+      amountSubtotal,
+      amountTax,
+      amountShipping,
+      currency,
+      wholesaleDetails
     }`;
 
-    const stats = await sanity.fetch(statsQuery, { vendorId: ctx.vendorId, startOfMonth, startOfLastMonth });
-    const activity = await sanity.fetch(activityQuery, { vendorId: ctx.vendorId });
-
-    const pendingTotal = Array.isArray(stats?.pendingInvoices)
-      ? stats.pendingInvoices.reduce((sum: number, inv: any) => sum + (Number(inv?.total) || 0), 0)
-      : 0;
-    const outstanding = Array.isArray(stats?.outstandingPayments)
-      ? stats.outstandingPayments.reduce((sum: number, bill: any) => sum + (Number(bill?.amount) || 0), 0)
-      : 0;
+    const stats = await sanity.fetch(statsQuery, { vendorId: ctx.vendorId, startOfMonth });
+    const recentOrders = await sanity.fetch(recentOrdersQuery, { vendorId: ctx.vendorId });
 
     return jsonResponse(
       {
+        vendor: {
+          name: ctx.vendor?.displayName || ctx.vendor?.companyName || ctx.vendor?.name || 'Vendor',
+          tier: ctx.vendor?.portalAccess?.vendorTier || 'standard'
+        },
         stats: {
           ordersThisMonth: stats?.ordersThisMonth || 0,
-          ordersLastMonth: stats?.ordersLastMonth || 0,
-          pendingInvoices: {
-            count: Array.isArray(stats?.pendingInvoices) ? stats.pendingInvoices.length : 0,
-            total: pendingTotal
-          },
-          lowStockItems: stats?.lowStockItems || 0,
-          outstandingPayments: outstanding
+          ordersTotal: stats?.ordersTotal || 0,
+          totalSpent: Array.isArray(stats?.amounts)
+            ? stats.amounts.reduce((sum: number, entry: any) => {
+                const amt = Number(entry?.amt) || 0;
+                return sum + (Number.isFinite(amt) ? amt : 0);
+              }, 0)
+            : 0
         },
-        activity: activity || []
+        recentOrders: Array.isArray(recentOrders) ? recentOrders : []
       },
       { status: 200 },
       { noIndex: true }

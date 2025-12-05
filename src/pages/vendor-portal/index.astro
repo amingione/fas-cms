@@ -1,21 +1,19 @@
 ---
 import VendorPortalLayout from '@/layouts/VendorPortalLayout.astro';
-import DashboardStats from '@/components/vendor-portal/DashboardStats';
-import RecentActivity from '@/components/vendor-portal/RecentActivity';
-import QuickActions from '@/components/vendor-portal/QuickActions';
-import PerformanceMetrics from '@/components/vendor-portal/PerformanceMetrics';
-import RecentVendorPosts from '@/components/vendor-portal/RecentVendorPosts';
-import AlertsBell from '@/components/vendor-portal/AlertsBell';
 
 const apiUrl = new URL('/api/vendor/dashboard', Astro.request.url).toString();
 const res = await fetch(apiUrl, { headers: { cookie: Astro.request.headers.get('cookie') || '' } });
+let vendor = null;
 let stats = null;
-let activity = [];
+let recentOrders: any[] = [];
+
 if (res.ok) {
   const data = await res.json().catch(() => ({}));
+  vendor = data.vendor ?? null;
   stats = data.stats ?? null;
-  activity = Array.isArray(data.activity) ? data.activity : [];
+  recentOrders = Array.isArray(data.recentOrders) ? data.recentOrders : [];
 }
+
 if (!stats) {
   return Astro.redirect('/vendor-portal/login');
 }
@@ -23,58 +21,90 @@ if (!stats) {
 
 <VendorPortalLayout title="Vendor Portal Dashboard" noindex>
   <div class="space-y-6">
-    <div class="flex items-center justify-end">
-      <AlertsBell client:load />
-    </div>
-    <DashboardStats stats={stats} client:load />
-    <QuickActions client:only="react" />
-    <div class="grid gap-4 lg:grid-cols-3">
-      <div class="lg:col-span-2 space-y-4">
-        <RecentActivity activity={activity} client:load />
-        <RecentVendorPosts client:load />
+    <div class="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p class="text-xs uppercase tracking-[0.2em] text-white/60 font-semibold">Welcome back</p>
+        <h1 class="text-2xl font-bold text-white">
+          {vendor?.name || 'Wholesale Partner'}
+        </h1>
+        <p class="text-sm text-white/70">Tier: <span class="font-semibold text-primary capitalize">{vendor?.tier || 'standard'}</span></p>
       </div>
-      <PerformanceMetrics client:visible />
-    </div>
-    <div class="rounded-xl border border-white/10 bg-white/5 p-4">
-      <h2 class="text-lg font-semibold text-white mb-3">Navigate</h2>
-      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <a href="/vendor-portal/orders" class="block rounded-lg border border-white/10 bg-white/5 px-4 py-3 hover:border-primary/50 transition">
-          <p class="text-sm font-semibold text-white">Orders</p>
-          <p class="text-xs text-white/60">View and manage purchase orders</p>
-        </a>
-        <a href="/vendor-portal/inventory" class="block rounded-lg border border-white/10 bg-white/5 px-4 py-3 hover:border-primary/50 transition">
-          <p class="text-sm font-semibold text-white">Inventory</p>
-          <p class="text-xs text-white/60">Update quantities and lead times</p>
-        </a>
-        <a href="/vendor-portal/invoices" class="block rounded-lg border border-white/10 bg-white/5 px-4 py-3 hover:border-primary/50 transition">
-          <p class="text-sm font-semibold text-white">Invoices</p>
-          <p class="text-xs text-white/60">View and upload invoices</p>
-        </a>
-        <a href="/vendor-portal/payments" class="block rounded-lg border border-white/10 bg-white/5 px-4 py-3 hover:border-primary/50 transition">
-          <p class="text-sm font-semibold text-white">Payments</p>
-          <p class="text-xs text-white/60">Track payment history</p>
-        </a>
-        <a href="/vendor-portal/products" class="block rounded-lg border border-white/10 bg-white/5 px-4 py-3 hover:border-primary/50 transition">
-          <p class="text-sm font-semibold text-white">Products</p>
-          <p class="text-xs text-white/60">Manage catalog pricing</p>
-        </a>
-        <a href="/vendor-portal/messages" class="block rounded-lg border border-white/10 bg-white/5 px-4 py-3 hover:border-primary/50 transition">
-          <p class="text-sm font-semibold text-white">Messages</p>
-          <p class="text-xs text-white/60">Chat with the team</p>
-        </a>
-        <a href="/vendor-portal/notifications" class="block rounded-lg border border-white/10 bg-white/5 px-4 py-3 hover:border-primary/50 transition">
-          <p class="text-sm font-semibold text-white">Notifications</p>
-          <p class="text-xs text-white/60">Recent alerts and updates</p>
-        </a>
-        <a href="/vendor-portal/analytics" class="block rounded-lg border border-white/10 bg-white/5 px-4 py-3 hover:border-primary/50 transition">
-          <p class="text-sm font-semibold text-white">Analytics</p>
-          <p class="text-xs text-white/60">Reporting and metrics</p>
-        </a>
-        <a href="/vendor-portal/onboarding" class="block rounded-lg border border-white/10 bg-white/5 px-4 py-3 hover:border-primary/50 transition">
-          <p class="text-sm font-semibold text-white">Onboarding Guide</p>
-          <p class="text-xs text-white/60">Step-by-step vendor setup</p>
-        </a>
+      <div class="flex flex-wrap gap-2">
+        <a href="/vendor-portal/catalog" class="inline-flex items-center rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/80 transition">Browse Wholesale Catalog</a>
+        <a href="/vendor-portal/cart" class="inline-flex items-center rounded-xl border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:border-primary/50 transition">View Cart</a>
       </div>
+    </div>
+
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
+        <p class="text-xs uppercase tracking-[0.2em] text-white/60 font-semibold">This Month</p>
+        <p class="mt-2 text-3xl font-bold text-white">{stats?.ordersThisMonth ?? 0}</p>
+        <p class="text-sm text-white/60">Wholesale orders placed</p>
+      </div>
+      <div class="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
+        <p class="text-xs uppercase tracking-[0.2em] text-white/60 font-semibold">Total Orders</p>
+        <p class="mt-2 text-3xl font-bold text-white">{stats?.ordersTotal ?? 0}</p>
+        <p class="text-sm text-white/60">Lifetime wholesale orders</p>
+      </div>
+      <div class="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
+        <p class="text-xs uppercase tracking-[0.2em] text-white/60 font-semibold">Total Spent</p>
+        <p class="mt-2 text-3xl font-bold text-white">${(stats?.totalSpent ?? 0).toFixed(2)}</p>
+        <p class="text-sm text-white/60">Across all wholesale orders</p>
+      </div>
+    </div>
+
+    <div class="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-white">Recent Orders</h2>
+        <a href="/vendor-portal/orders" class="text-sm font-semibold text-primary hover:text-primary/80">View all →</a>
+      </div>
+      {recentOrders.length === 0 ? (
+        <p class="mt-3 text-sm text-white/60">No orders yet. Start with the wholesale catalog.</p>
+      ) : (
+        <div class="mt-4 overflow-auto">
+          <table class="min-w-full text-sm text-white">
+            <thead class="text-left bg-white/5">
+              <tr>
+                <th class="px-3 py-2">Order</th>
+                <th class="px-3 py-2">Date</th>
+                <th class="px-3 py-2">Status</th>
+                <th class="px-3 py-2 text-right">Total</th>
+                <th class="px-3 py-2 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recentOrders.map((order) => {
+                const total =
+                  order.totalAmount ??
+                  ((order.amountSubtotal || 0) + (order.amountTax || 0) + (order.amountShipping || 0));
+                const totalValue =
+                  typeof total === 'number' && Number.isFinite(total) ? total : 0;
+                return (
+                  <tr class="border-t border-white/5">
+                    <td class="px-3 py-2 font-semibold">{order.orderNumber || order._id}</td>
+                    <td class="px-3 py-2 text-white/70">
+                      {order.orderDate
+                        ? new Date(order.orderDate).toLocaleDateString()
+                        : order.createdAt
+                        ? new Date(order.createdAt).toLocaleDateString()
+                        : '—'}
+                    </td>
+                    <td class="px-3 py-2">
+                      <span class="rounded-full bg-white/10 px-2 py-1 text-xs text-white/80">
+                        {order.status || 'Processing'}
+                      </span>
+                    </td>
+                    <td class="px-3 py-2 text-right">${totalValue.toFixed(2)}</td>
+                    <td class="px-3 py-2 text-right">
+                      <a href={`/vendor-portal/orders/${order._id}`} class="text-primary hover:text-primary/80">View</a>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   </div>
 </VendorPortalLayout>

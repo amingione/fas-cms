@@ -149,6 +149,11 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
                 All Products
               </a>
             </li>
+            <li>
+              <a href="/shop/performance-packages" onClick={onNavigate} className={baseLinkClass}>
+                Performance Packages
+              </a>
+            </li>
             <li className="py-2">
               <div className={titleClass}>Billet Parts</div>
               <ul className="mt-2 ml-4 space-y-2 text-lg">

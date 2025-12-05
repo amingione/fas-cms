@@ -1,13 +1,1 @@
----
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import SettingsPanel from '@/components/vendor-portal/SettingsPanel';
-const title = 'Vendor Portal - Settings';
----
-
-<BaseLayout title={title} noindex>
-  <main class="min-h-screen bg-black text-white px-6 py-10">
-    <div class="max-w-5xl mx-auto">
-      <SettingsPanel client:load />
-    </div>
-  </main>
-</BaseLayout>
+return Astro.redirect('/vendor-portal/account');
