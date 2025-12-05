@@ -1,5 +1,0 @@
----
-const params = Astro.url.searchParams;
-const returnTo = params.get('returnTo') || '/vendor-portal/dashboard';
-return Astro.redirect(`/vendor-portal/login${returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : ''}`);
----
