@@ -1,0 +1,130 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PortableTextRenderer from '@/components/PortableTextRenderer.jsx';
+import { sanityFetch } from '@/lib/sanityFetch';
+
+type ConsentResource = {
+  title?: string;
+  content?: unknown;
+  description?: string;
+  category?: string;
+  accessLevel?: string;
+  formUrl?: string;
+  externalUrl?: string;
+};
+
+const resourceQuery = `*[_type == "downloadResource" && slug.current == "employee-sms-consent"][0]{
+  title,
+  content,
+  description,
+  category,
+  accessLevel,
+  formUrl,
+  externalUrl
+}`;
+
+let resource: ConsentResource | null = null;
+
+try {
+  resource = await sanityFetch<ConsentResource>({ query: resourceQuery });
+} catch (error) {
+  console.error('Failed to load employee SMS consent resource', error);
+}
+
+const pageTitle = resource?.title ?? 'Employee SMS Consent';
+const descriptionText = typeof resource?.description === 'string' ? resource.description : '';
+const pageDescription =
+  descriptionText ||
+  'Opt in to receive SMS alerts for new orders, quote submissions, appointments, and customer or vendor messages.';
+const formUrl =
+  resource?.formUrl ??
+  resource?.externalUrl ??
+  'https://cdn.sanity.io/files/r4og35qd/production/3d49761ea25f0b5ffe5e6ecd7f82505f6f15c19d.pdf';
+const contentBlocks = Array.isArray(resource?.content) ? resource?.content : null;
+const contentString = typeof resource?.content === 'string' ? resource.content : '';
+---
+
+<BaseLayout title={pageTitle} description={pageDescription}>
+  <section class="mx-auto max-w-4xl px-6 py-12 text-white">
+    <p class="text-sm font-mono uppercase tracking-wide text-white/60">Internal alert routing</p>
+    <h1 class="mt-2 text-3xl font-ethno text-primary">{pageTitle}</h1>
+    <p class="mt-4 text-base font-mono leading-relaxed text-white/80">
+      Confirm that we can text you with time-sensitive Sanity notifications. Messages are limited to
+      operational updates and only go to enrolled team members.
+    </p>
+
+    <div class="mt-8 rounded border border-white/10 bg-black/40 p-6 shadow-inner shadow-white/10">
+      <h2 class="text-lg font-ethno text-accent">What you will receive</h2>
+      <ul class="mt-3 list-disc space-y-2 pl-5 font-mono text-white/80">
+        <li>New orders placed</li>
+        <li>New quote submissions</li>
+        <li>New appointments scheduled</li>
+        <li>New customer or vendor messages received</li>
+      </ul>
+      {
+        resource?.accessLevel && (
+          <p class="mt-4 text-xs font-mono uppercase tracking-wide text-white/50">
+            Access level: {resource.accessLevel}
+          </p>
+        )
+      }
+    </div>
+  </section>
+
+  {
+    contentBlocks ? (
+      <section class="mx-auto max-w-4xl px-6 pb-10 space-y-6">
+        {descriptionText && (
+          <div class="rounded border border-white/10 bg-black/40 p-6 text-base font-mono leading-relaxed text-white/80">
+            {descriptionText}
+          </div>
+        )}
+        <div class="prose prose-invert max-w-none prose-headings:text-white prose-strong:text-white">
+          <PortableTextRenderer value={contentBlocks} />
+        </div>
+      </section>
+    ) : (
+      (descriptionText || contentString) && (
+        <section class="mx-auto max-w-4xl px-6 pb-10 space-y-4">
+          {descriptionText && (
+            <div class="rounded border border-white/10 bg-black/40 p-6 text-base font-mono leading-relaxed text-white/80">
+              {descriptionText}
+            </div>
+          )}
+          {contentString && (
+            <div class="rounded border border-white/10 bg-black/40 p-6 text-base font-mono leading-relaxed text-white/80">
+              {contentString}
+            </div>
+          )}
+        </section>
+      )
+    )
+  }
+
+  <section class="mx-auto max-w-5xl px-6 pb-16">
+    {
+      formUrl ? (
+        <div class="overflow-hidden rounded border border-white/10 shadow-xl shadow-black/30">
+          <iframe
+            src={formUrl}
+            title="Employee SMS consent form"
+            class="h-[780px] w-full bg-black"
+            allow="clipboard-write; encrypted-media"
+          />
+        </div>
+      ) : (
+        <div class="rounded border border-dashed border-white/20 bg-black/20 p-6 text-base font-mono leading-relaxed text-white/75">
+          <p class="font-semibold text-accent">Consent form not configured.</p>
+          <p class="mt-2">
+            Add a form URL to the
+            {
+              'https://cdn.sanity.io/files/r4og35qd/production/3d49761ea25f0b5ffe5e6ecd7f82505f6f15c19d.pdf'
+            }
+            <code class="bg-white/10 px-1 text-white">employee-sms-consent</code> resource in Sanity
+            or capture the consent manually.
+          </p>
+        </div>
+      )
+    }
+  </section>
+</BaseLayout>
