@@ -2019,6 +2019,16 @@ html {
 
 /* Mobile-first button optimizations */
 @media (max-width: 640px) {
+  /* Keep plain buttons compact and pill-like on small screens */
+  button.btn-plain,
+  a.btn-plain,
+  .btn-plain[role='button'] {
+    min-height: 34px;
+    padding: 0.4rem 0.85rem;
+    border-radius: 9999px;
+    line-height: 1.1;
+  }
+
   button:not(.btn-glass):not(.btn-plain) {
     min-height: 48px;
     font-size: 16px;
@@ -2037,10 +2047,8 @@ html {
     font-size: 18px;
     padding: 16px 24px;
   }
-}
 
-/* Ensure tiny icon buttons (cart steppers, delete) are not inflated on mobile */
-@media (max-width: 640px) {
+  /* Ensure tiny icon buttons (cart steppers, delete) are not inflated on mobile */
   .btn-plain.btn-icon {
     min-height: 0 !important;
     padding: 0 !important;

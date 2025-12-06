@@ -116,8 +116,7 @@ export default function ProductQuickViewButton({
   const activePrice = getActivePrice(product as any);
   const comparePrice = getCompareAtPrice(product as any);
   const formattedPrice = typeof activePrice === 'number' ? formatPrice(activePrice) : undefined;
-  const formattedCompare =
-    typeof comparePrice === 'number' ? formatPrice(comparePrice) : undefined;
+  const formattedCompare = typeof comparePrice === 'number' ? formatPrice(comparePrice) : undefined;
   const onSale = isOnSale(product as any);
   const saleBadge = getSaleBadgeText(product as any);
 
@@ -259,7 +258,8 @@ export default function ProductQuickViewButton({
               ? product.price
               : undefined,
         originalPrice:
-          typeof comparePrice === 'number' && (typeof activePrice !== 'number' || comparePrice > activePrice)
+          typeof comparePrice === 'number' &&
+          (typeof activePrice !== 'number' || comparePrice > activePrice)
             ? comparePrice
             : typeof product.price === 'number'
               ? product.price
@@ -304,7 +304,7 @@ export default function ProductQuickViewButton({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/70 px-3 py-1 text-xs uppercase tracking-[0.18em] text-white/80 transition hover:border-white hover:text-white ${className}`.trim()}
+        className={`btn-plain inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/70 px-3 py-1 text-xs uppercase tracking-[0.18em] text-white/80 transition hover:border-white hover:text-white ${className}`.trim()}
         data-analytics-event="quick_view_open"
         data-analytics-category="engagement"
         data-analytics-label={product.title}
@@ -323,7 +323,7 @@ export default function ProductQuickViewButton({
                 onClick={() => setOpen(false)}
               />
 
-              <div className="relative z-10 w-full max-w-3xl overflow-hidden rounded-2xl border border-white/15 bg-neutral-950 text-white shadow-2xl">
+              <div className="btn-plain relative z-10 w-full max-w-3xl overflow-hidden rounded-2xl border border-white/15 bg-neutral-950 text-white shadow-2xl">
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
@@ -471,7 +471,7 @@ export default function ProductQuickViewButton({
                     <div className="mt-auto flex flex-wrap items-center gap-3 sm:flex-nowrap">
                       <a
                         href={product.href}
-                        className="inline-flex min-w-[140px] items-center justify-center rounded-full border border-primary bg-primary px-5 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-black drop-shadow-[0_0_20px_rgba(255,0,0,0.3)] transition hover:bg-primary/90 hover:drop-shadow-[0_0_26px_rgba(255,0,0,0.4)]"
+                        className="btn-plain inline-flex min-w-[150px] items-center justify-center gap-2 rounded-full border border-white/80 bg-black px-5 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-white/70 shadow-[inset_0_0_10px_rgba(125,1,7,0.18),0_0_18px_rgba(125,1,7,0.2)] transition hover:bg-white/70 hover:text-black hover:border-white hover:shadow-[inset_0_0_10px_rgba(125,1,7,0.18),0_0_22px_rgba(125,1,7,0.28)]"
                         data-analytics-event="quick_view_view_product"
                         data-analytics-category="ecommerce"
                         data-analytics-label={product.title}
@@ -483,7 +483,7 @@ export default function ProductQuickViewButton({
                         type="button"
                         onClick={handleAddToCart}
                         disabled={!canAddToCart || adding || missingSelections}
-                        className="btn-plain inline-flex min-w-[150px] items-center justify-center gap-2 rounded-full border border-primary bg-primary px-5 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-black drop-shadow-[0_0_20px_rgba(255,0,0,0.3)] transition enabled:hover:bg-primary/90 enabled:hover:drop-shadow-[0_0_26px_rgba(255,0,0,0.4)] disabled:cursor-not-allowed disabled:opacity-50"
+                        className="btn-plain inline-flex min-w-[150px] items-center justify-center gap-2 rounded-full border border-primary bg-primary px-5 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-black shadow-[inset_0_0_10px_rgba(125,1,7,0.18),0_0_18px_rgba(125,1,7,0.2)] transition enabled:hover:bg-primary/90 enabled:hover:shadow-[inset_0_0_10px_rgba(125,1,7,0.18),0_0_22px_rgba(125,1,7,0.28)] disabled:cursor-not-allowed disabled:opacity-50"
                         data-analytics-event="quick_view_add_to_cart"
                         data-analytics-category="ecommerce"
                         data-analytics-label={product.title}
