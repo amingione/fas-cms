@@ -1,5 +1,26 @@
 const CART_KEY = 'fas_cart_v1';
 
+const parsePrice = (value, fallback = 0) => {
+  if (value == null) return fallback;
+  const numeric = parseFloat(String(value).replace(/[^0-9.+-]/g, ''));
+  return Number.isFinite(numeric) ? numeric : fallback;
+};
+
+const formatCurrency = (value) => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return '$0.00';
+  try {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(numeric);
+  } catch {
+    return `$${numeric.toFixed(2)}`;
+  }
+};
+
 const getCart = () => {
   try {
     const raw = window.localStorage.getItem(CART_KEY);
@@ -143,20 +164,50 @@ const readConfiguredOptions = () => {
   return result;
 };
 
+const renderConfiguredPrice = (price, comparePrice) => {
+  const targets = document.querySelectorAll(
+    '#price-total, [data-price-target="configured"], .js-configured-price'
+  );
+  const resolvedCompare = Number.isFinite(comparePrice) ? comparePrice : price;
+  const hasCompare = resolvedCompare > price;
+  const formattedPrice = formatCurrency(price);
+  const formattedCompare = formatCurrency(resolvedCompare);
+
+  targets.forEach((node) => {
+    if (hasCompare) {
+      node.innerHTML = `<span class="text-red-400">${formattedPrice}</span> <span class="ml-2 text-white/60 line-through">${formattedCompare}</span>`;
+    } else {
+      node.textContent = formattedPrice;
+    }
+  });
+};
+
 const updateConfiguredPriceUI = () => {
   const button = document.getElementById('add-to-cart-btn');
-  if (!button) return { total: 0, cfg: readConfiguredOptions() };
-  const basePrice = parseFloat(String(button.dataset.productBasePrice || '0')) || 0;
   const cfg = readConfiguredOptions();
-  const total = Math.max(0, basePrice + (cfg.extra || 0));
+  const extra = cfg.extra || 0;
 
-  const targets = document.querySelectorAll('#price-total, [data-price-target="configured"], .js-configured-price');
-  targets.forEach((node) => {
-    node.textContent = `$ ${total.toFixed(2)}`;
-  });
+  const saleBasePrice = button
+    ? parsePrice(button.dataset.productPrice ?? button.dataset.productBasePrice, 0)
+    : 0;
+  const compareBasePrice = button
+    ? parsePrice(
+        button.dataset.productComparePrice ?? button.dataset.productBasePrice,
+        saleBasePrice
+      )
+    : saleBasePrice;
 
-  button.dataset.productPrice = String(total);
-  return { total, cfg };
+  const total = Math.max(0, saleBasePrice + extra);
+  const compareTotal = Math.max(total, compareBasePrice + extra);
+
+  renderConfiguredPrice(total, compareTotal);
+
+  if (button) {
+    button.dataset.configuredPrice = String(total);
+    button.dataset.configuredComparePrice = compareTotal > 0 ? String(compareTotal) : '';
+  }
+
+  return { total, compareTotal, cfg, extra };
 };
 
 const schedule = (() => {
@@ -232,14 +283,31 @@ const hydrateCartButtons = () => {
       }
     }
 
-    const { total, cfg } = updateConfiguredPriceUI();
+    const { total, compareTotal, cfg, extra } = updateConfiguredPriceUI();
     const selections = Array.isArray(cfg.selections) ? cfg.selections : [];
 
     const ds = button.dataset || {};
-    const basePrice = parseFloat(ds.productBasePrice || ds.productPrice || '0') || 0;
+    const saleLabel = ds.productSaleLabel || ds.saleLabel || '';
+    const baseSalePrice = parsePrice(ds.productPrice || ds.productBasePrice, total);
+    const baseComparePrice = parsePrice(
+      ds.productComparePrice ?? ds.productBasePrice,
+      baseSalePrice
+    );
     const shippingClassRaw = (ds.productShippingClass || '').toString();
     const normalizedShipping = shippingClassRaw.toLowerCase().replace(/[^a-z]/g, '');
     const installOnly = String(ds.productInstallOnly || '').toLowerCase() === 'true' || normalizedShipping.includes('installonly');
+    const normalizedExtra = Number.isFinite(extra) ? extra : 0;
+    const originalPrice =
+      compareTotal > total
+        ? compareTotal
+        : baseComparePrice > baseSalePrice
+          ? baseComparePrice + normalizedExtra
+          : undefined;
+    const isOnSale =
+      (originalPrice ?? 0) > total ||
+      String(ds.productOnSale || '').toLowerCase() === 'true' ||
+      String(ds.saleActive || '').toLowerCase() === 'true';
+    const resolvedSaleLabel = saleLabel || (isOnSale && (originalPrice ?? 0) > total ? 'Sale' : undefined);
 
     const signature = JSON.stringify(
       selections
@@ -264,8 +332,11 @@ const hydrateCartButtons = () => {
       id: `${ds.productId || ''}::${signature}`,
       name: ds.productName || 'Item',
       price: total,
-      basePrice,
-      extra: total - basePrice,
+      basePrice: baseSalePrice,
+      originalPrice: originalPrice,
+      isOnSale,
+      saleLabel: resolvedSaleLabel,
+      extra: normalizedExtra,
       image: ds.productImage || '',
       options,
       selections,
@@ -283,9 +354,13 @@ const hydrateCartButtons = () => {
       existing.price = product.price;
       existing.basePrice = product.basePrice;
       existing.extra = product.extra;
+      existing.originalPrice = product.originalPrice;
+      existing.isOnSale = product.isOnSale;
+      existing.saleLabel = product.saleLabel;
       existing.options = product.options;
       existing.installOnly = installOnly;
       existing.shippingClass = shippingClassRaw;
+      if (product.productUrl) existing.productUrl = product.productUrl;
     } else {
       cart.items.push(product);
     }

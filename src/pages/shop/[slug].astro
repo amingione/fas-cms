@@ -969,10 +969,8 @@ if (product) {
     );
 
   if (requiresVehicleDisclaimer) {
-    serviceDisclaimer = isInstallOnly
-      ? 'Professional installation service only. Vehicle not included.'
-      : 'Performance package or components only. Vehicle not included.';
-    serviceDisclaimerTitle = isInstallOnly ? 'Professional installation required' : 'Vehicle not included';
+    serviceDisclaimer = 'Vehicle not included with purchase.';
+    serviceDisclaimerTitle = 'Important Product Information';
     plainDescription = ensureDisclaimerMessaging(plainDescription, serviceDisclaimer);
   } else {
     serviceDisclaimer = '';
@@ -1663,6 +1661,11 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                       ? priceValue.toFixed(2)
                       : undefined
                 }
+                data-product-compare-price={
+                  typeof compareAtValue === 'number' ? compareAtValue.toFixed(2) : undefined
+                }
+                data-product-sale-label={saleBadgeText || undefined}
+                data-product-on-sale={String(onSaleFlag)}
                 data-product-image={productImages[0]?.webpUrl || productImages[0]?.originalUrl || ''}
                 data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
                 data-product-shipping-class={(product as any).shippingClass || ''}
@@ -1915,6 +1918,11 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
           ? priceValue.toFixed(2)
           : undefined
     }
+    data-product-compare-price={
+      typeof compareAtValue === 'number' ? compareAtValue.toFixed(2) : undefined
+    }
+    data-product-sale-label={saleBadgeText || undefined}
+    data-product-on-sale={String(onSaleFlag)}
     data-product-image={(product as any).images?.[0]?.asset?.url || (product as any).images?.[0]?.url || ''}
     data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
     data-product-shipping-class={(product as any).shippingClass || ''}
