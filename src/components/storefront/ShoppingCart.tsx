@@ -11,7 +11,8 @@ const FALLBACK_IMAGE = '/logo/faslogo150.webp';
 const QUANTITY_CHOICES = Array.from({ length: 10 }, (_, i) => i + 1);
 
 function toNumber(value: unknown, fallback = 0): number {
-  const numeric = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN;
+  const numeric =
+    typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN;
   return Number.isFinite(numeric) ? numeric : fallback;
 }
 
@@ -69,66 +70,68 @@ function CartContents() {
   const items = cart?.items ?? [];
   const hasItems = items.length > 0;
 
-  const { perItemPricing, discountTotal, originalSubtotal, saleLabel, hasSaleItems } = useMemo(() => {
-    const pricingById: Record<
-      string,
-      {
-        unitPrice: number;
-        comparePrice: number | null;
-        onSale: boolean;
-        quantity: number;
-        savings: number;
-        lineOriginal: number;
-        lineCurrent: number;
-        saleLabel?: string;
-      }
-    > = {};
+  const { perItemPricing, discountTotal, originalSubtotal, saleLabel, hasSaleItems } =
+    useMemo(() => {
+      const pricingById: Record<
+        string,
+        {
+          unitPrice: number;
+          comparePrice: number | null;
+          onSale: boolean;
+          quantity: number;
+          savings: number;
+          lineOriginal: number;
+          lineCurrent: number;
+          saleLabel?: string;
+        }
+      > = {};
 
-    let discount = 0;
-    let original = 0;
-    let firstSaleLabel: string | null = null;
-    let hasSale = false;
+      let discount = 0;
+      let original = 0;
+      let firstSaleLabel: string | null = null;
+      let hasSale = false;
 
-    items.forEach((item) => {
-      const qty = Math.max(1, toNumber(item.quantity, 1));
-      const unitPrice = Math.max(0, toNumber(item.price, 0));
-      const compareFromItem = toNumber(item.originalPrice, unitPrice);
-      const percentFromLabel = extractDiscountPercent(item.saleLabel);
-      const derivedCompare =
-        percentFromLabel && unitPrice > 0 ? unitPrice / (1 - percentFromLabel / 100) : null;
-      const bestCompare = Math.max(compareFromItem, derivedCompare ?? 0);
-      const hasCompareDiff = bestCompare > unitPrice;
-      const onSale = hasCompareDiff || Boolean(item.isOnSale) || Boolean(percentFromLabel);
-      const comparePrice = hasCompareDiff ? bestCompare : null;
-      const lineCurrent = unitPrice * qty;
-      const lineOriginal = comparePrice ? comparePrice * qty : lineCurrent;
-      const savings = lineOriginal > lineCurrent ? lineOriginal - lineCurrent : 0;
+      items.forEach((item) => {
+        const qty = Math.max(1, toNumber(item.quantity, 1));
+        const unitPrice = Math.max(0, toNumber(item.price, 0));
+        const compareFromItem = toNumber(item.originalPrice, unitPrice);
+        const percentFromLabel = extractDiscountPercent(item.saleLabel);
+        const derivedCompare =
+          percentFromLabel && unitPrice > 0 ? unitPrice / (1 - percentFromLabel / 100) : null;
+        const bestCompare = Math.max(compareFromItem, derivedCompare ?? 0);
+        const hasCompareDiff = bestCompare > unitPrice;
+        const onSale = hasCompareDiff || Boolean(item.isOnSale) || Boolean(percentFromLabel);
+        const comparePrice = hasCompareDiff ? bestCompare : null;
+        const lineCurrent = unitPrice * qty;
+        const lineOriginal = comparePrice ? comparePrice * qty : lineCurrent;
+        const savings = lineOriginal > lineCurrent ? lineOriginal - lineCurrent : 0;
 
-      discount += savings;
-      original += lineOriginal;
-      if (!firstSaleLabel && (item.saleLabel || item.isOnSale)) firstSaleLabel = item.saleLabel || null;
-      if (onSale) hasSale = true;
+        discount += savings;
+        original += lineOriginal;
+        if (!firstSaleLabel && (item.saleLabel || item.isOnSale))
+          firstSaleLabel = item.saleLabel || null;
+        if (onSale) hasSale = true;
 
-      pricingById[item.id] = {
-        unitPrice,
-        comparePrice,
-        onSale,
-        quantity: qty,
-        savings,
-        lineOriginal,
-        lineCurrent,
-        saleLabel: item.saleLabel || undefined
+        pricingById[item.id] = {
+          unitPrice,
+          comparePrice,
+          onSale,
+          quantity: qty,
+          savings,
+          lineOriginal,
+          lineCurrent,
+          saleLabel: item.saleLabel || undefined
+        };
+      });
+
+      return {
+        perItemPricing: pricingById,
+        discountTotal: discount,
+        originalSubtotal: original,
+        saleLabel: firstSaleLabel,
+        hasSaleItems: hasSale
       };
-    });
-
-    return {
-      perItemPricing: pricingById,
-      discountTotal: discount,
-      originalSubtotal: original,
-      saleLabel: firstSaleLabel,
-      hasSaleItems: hasSale
-    };
-  }, [items]);
+    }, [items]);
 
   const hasDiscounts = discountTotal > 0;
 
@@ -201,8 +204,7 @@ function CartContents() {
           <div className="mt-16 flex flex-col items-center rounded-3xl border border-white/10 p-12 text-center">
             <p className="text-lg font-semibold">Your cart is empty.</p>
             <p className="mt-2 max-w-md text-sm text-white/70">
-              Add products from the storefront to see them here. When you’re ready, we’ll send you
-              straight to Stripe for secure checkout.
+              Add products from the storefront to see them here.
             </p>
             <a
               href="/shop"
@@ -296,7 +298,7 @@ function CartContents() {
                             )}
                             <Price
                               amount={unitPrice}
-                              originalAmount={onSale ? comparePrice ?? undefined : undefined}
+                              originalAmount={onSale ? (comparePrice ?? undefined) : undefined}
                               onSale={onSale}
                               className="text-base font-semibold text-white"
                             />
@@ -385,7 +387,9 @@ function CartContents() {
                   <dt className="flex flex-col gap-1">
                     <span className="text-white">Subtotal</span>
                     {hasDiscounts && (
-                      <span className="text-xs text-white/50 line-through">{formattedOriginalSubtotal}</span>
+                      <span className="text-xs text-white/50 line-through">
+                        {formattedOriginalSubtotal}
+                      </span>
                     )}
                   </dt>
                   <dd className="font-semibold text-white">{formattedSubtotal}</dd>
