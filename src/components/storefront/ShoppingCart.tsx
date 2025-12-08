@@ -2,10 +2,9 @@
 
 import { useMemo, useState } from 'react';
 import { CartProvider, useCart } from '@/components/cart/cart-context';
+import type { CartItem } from '@/components/cart/actions';
 import { QuestionMarkCircleIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import Price, { formatPrice } from '@/components/storefront/Price';
-
-type CartOptionMap = Record<string, string | number | boolean | null | undefined>;
 
 const FALLBACK_IMAGE = '/logo/faslogo150.webp';
 const QUANTITY_CHOICES = Array.from({ length: 10 }, (_, i) => i + 1);
@@ -24,40 +23,72 @@ function extractDiscountPercent(label?: string | null): number | null {
   return Number.isFinite(value) ? value : null;
 }
 
-function normalizeOptionLabel(rawKey: string) {
-  return rawKey
-    .split(/[^a-zA-Z0-9]+/)
-    .filter(Boolean)
-    .map((segment) =>
-      segment.length > 1
-        ? segment[0].toUpperCase() + segment.slice(1).toLowerCase()
-        : segment.toUpperCase()
-    )
-    .join(' ');
+type AddOnEntry = { label: string; price?: number };
+
+const CLEAN_PREFIX_REGEX = /^(type|option|upgrade|add[-\s]?on)\s*\d*\s*:?/i;
+
+function cleanLabel(label?: string | null) {
+  if (!label) return '';
+  return label.replace(CLEAN_PREFIX_REGEX, '').trim();
 }
 
-function normalizeOptionValue(rawValue: string | number | boolean | null | undefined) {
-  if (rawValue === null || rawValue === undefined) return null;
-  if (typeof rawValue === 'boolean') return rawValue ? 'Selected' : 'None';
-  const stringy = String(rawValue).trim();
-  if (!stringy) return null;
-  const lower = stringy.toLowerCase();
-  if (lower === 'true' || lower === 'on') return 'Selected';
-  if (lower === 'false' || lower === 'off') return 'None';
-  return stringy;
+function extractVariantLabel(item: CartItem): string | null {
+  const optionEntries = Object.entries(item.options || {});
+  const variantCandidate = optionEntries.find(([key]) => !/upgrade|add[-\s]?on/i.test(key));
+  if (variantCandidate?.[1]) return cleanLabel(String(variantCandidate[1]));
+
+  const firstOption = optionEntries[0]?.[1];
+  if (firstOption) return cleanLabel(String(firstOption));
+
+  const firstSelected = item.selectedOptions?.[0];
+  return firstSelected ? cleanLabel(firstSelected) : null;
 }
 
-function listOptions(options?: CartOptionMap) {
-  if (!options) return null;
-  const entries = Object.entries(options)
-    .map(([key, value]) => {
-      const normalized = normalizeOptionValue(value);
-      if (!normalized) return null;
-      return `${normalizeOptionLabel(key)}: ${normalized}`;
-    })
-    .filter(Boolean) as string[];
-  if (!entries.length) return null;
-  return entries.join(' | ');
+function extractAddOns(item: CartItem): AddOnEntry[] {
+  const addOns: AddOnEntry[] = [];
+  const push = (label?: string | null, price?: number | null) => {
+    const cleaned = cleanLabel(label);
+    if (!cleaned) return;
+    addOns.push({ label: cleaned, price: typeof price === 'number' && Number.isFinite(price) ? price : undefined });
+  };
+
+  const readEntry = (entry: any) => {
+    if (!entry) return;
+    if (typeof entry === 'string') {
+      push(entry, undefined);
+      return;
+    }
+    if (typeof entry === 'object') {
+      const label = (entry as any).label ?? (entry as any).value ?? (entry as any).name;
+      const price =
+        typeof (entry as any).priceDelta === 'number'
+          ? (entry as any).priceDelta
+          : typeof (entry as any).delta === 'number'
+            ? (entry as any).delta
+            : (entry as any).price;
+      push(label, typeof price === 'number' && Number.isFinite(price) ? price : undefined);
+      return;
+    }
+  };
+
+  const upgradeSource = item.upgrades ?? item.selectedUpgrades;
+  if (Array.isArray(upgradeSource)) {
+    upgradeSource.forEach((entry) => readEntry(entry));
+  } else if (upgradeSource && typeof upgradeSource === 'object') {
+    Object.values(upgradeSource).forEach((entry) => readEntry(entry));
+  }
+
+  Object.entries(item.options || {}).forEach(([key, value]) => {
+    if (!/upgrade|add[-\s]?on/i.test(key)) return;
+    const price = typeof value === 'object' ? (value as any).price : undefined;
+    push(String(value), typeof price === 'number' && Number.isFinite(price) ? price : undefined);
+  });
+
+  return addOns;
+}
+
+function calculateAddOnTotal(addOns: AddOnEntry[]): number {
+  return addOns.reduce((total, entry) => total + (entry.price ?? 0), 0);
 }
 
 function CartContents() {
@@ -70,8 +101,7 @@ function CartContents() {
   const items = cart?.items ?? [];
   const hasItems = items.length > 0;
 
-  const { perItemPricing, discountTotal, originalSubtotal, saleLabel, hasSaleItems } =
-    useMemo(() => {
+  const { perItemPricing, discountTotal, originalSubtotal, saleLabel, hasSaleItems } = useMemo(() => {
       const pricingById: Record<
         string,
         {
@@ -93,7 +123,9 @@ function CartContents() {
 
       items.forEach((item) => {
         const qty = Math.max(1, toNumber(item.quantity, 1));
-        const unitPrice = Math.max(0, toNumber(item.price, 0));
+        const addOns = extractAddOns(item);
+        const addOnTotal = calculateAddOnTotal(addOns);
+        const unitPrice = Math.max(0, toNumber(item.price, 0)) + addOnTotal;
         const compareFromItem = toNumber(item.originalPrice, unitPrice);
         const percentFromLabel = extractDiscountPercent(item.saleLabel);
         const derivedCompare =
@@ -230,26 +262,41 @@ function CartContents() {
               )}
               <ul className="divide-y divide-white/10">
                 {items.map((item) => {
+                  const addOnEntries = extractAddOns(item);
+                  const addOnTotal = calculateAddOnTotal(addOnEntries);
+                  const quantityValue = Math.max(1, toNumber(item.quantity, 1));
                   const pricing = perItemPricing[item.id] || {
-                    unitPrice: toNumber(item.price, 0),
+                    unitPrice: toNumber(item.price, 0) + addOnTotal,
                     comparePrice: null,
                     onSale: Boolean(item.isOnSale),
-                    quantity: Math.max(1, toNumber(item.quantity, 1)),
+                    quantity: quantityValue,
                     savings: 0,
-                    lineCurrent: toNumber(item.price, 0) * Math.max(1, toNumber(item.quantity, 1)),
-                    lineOriginal: toNumber(item.price, 0) * Math.max(1, toNumber(item.quantity, 1)),
+                    lineCurrent: (toNumber(item.price, 0) + addOnTotal) * quantityValue,
+                    lineOriginal: (toNumber(item.price, 0) + addOnTotal) * quantityValue,
                     saleLabel: item.saleLabel || undefined
                   };
-                  const optionsSummary = listOptions(item.options);
                   const normalizedClass = (item.shippingClass || '')
                     .toString()
                     .toLowerCase()
                     .replace(/[^a-z]/g, '');
                   const isInstallOnly = item.installOnly || normalizedClass.includes('installonly');
+                  const variantLabel = extractVariantLabel(item);
+                  const displayTitle = `(${pricing.quantity}) ${variantLabel ? `${variantLabel} ` : ''}${item.name || 'Product'}`;
                   const unitPrice = pricing.unitPrice;
                   const comparePrice = pricing.comparePrice;
                   const onSale = pricing.onSale;
                   const savings = pricing.savings;
+                  const addOnLines = addOnEntries.map((entry, idx) => (
+                    <li
+                      key={`${item.id}-addon-${idx}`}
+                      className="flex items-start justify-between gap-3 text-sm text-white/80"
+                    >
+                      <span className="ml-4 italic">{entry.label}</span>
+                      {typeof entry.price === 'number' && Number.isFinite(entry.price) && (
+                        <span className="text-white">{formatPrice(entry.price)}</span>
+                      )}
+                    </li>
+                  ));
                   const productHref = (() => {
                     const raw = item.productUrl;
                     if (!raw) return undefined;
@@ -286,16 +333,12 @@ function CartContents() {
                                 href={productHref}
                                 className="text-base font-semibold text-white transition hover:text-primary"
                               >
-                                {item.name || 'Product'}
+                                {displayTitle}
                               </a>
                             ) : (
-                              <h3 className="text-base font-semibold text-white">
-                                {item.name || 'Product'}
-                              </h3>
+                              <h3 className="text-base font-semibold text-white">{displayTitle}</h3>
                             )}
-                            {optionsSummary && (
-                              <p className="text-sm text-white/70">{optionsSummary}</p>
-                            )}
+                            {addOnLines.length > 0 && <ul className="space-y-1">{addOnLines}</ul>}
                             <Price
                               amount={unitPrice}
                               originalAmount={onSale ? (comparePrice ?? undefined) : undefined}
