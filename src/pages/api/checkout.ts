@@ -683,6 +683,14 @@ export async function POST({ request }: { request: Request }) {
 
   const productLookup = await fetchShippingProductsForCart(cart as CheckoutCartItem[]);
 
+  const cleanLabel = (value?: string | null): string => {
+    if (!value) return '';
+    return value
+      .replace(/^option\s*\d*\s*:?/i, '')
+      .replace(/^(type|upgrade|add[-\s]?on)s?\s*:?/i, '')
+      .trim();
+  };
+
   const lineItems = (cart as CheckoutCartItem[]).map((item) => {
     const rawId = typeof item.id === 'string' ? item.id : undefined;
     const sanityProductId = normalizeCartId(rawId);
@@ -696,12 +704,16 @@ export async function POST({ request }: { request: Request }) {
         : Number.isFinite(item.price)
           ? Number(item.price)
           : 0;
-    const addOnTotal = Array.isArray(item.addOns)
-      ? item.addOns.reduce((total, addOn) => {
-        const price = Number((addOn as any)?.price);
-        return Number.isFinite(price) ? total + price : total;
-      }, 0)
-      : 0;
+    const upgradesTotal = calculateUpgradesTotal(item.upgrades ?? item.addOns, item.selections);
+    const addOnTotal =
+      typeof upgradesTotal === 'number'
+        ? upgradesTotal
+        : Array.isArray(item.addOns)
+          ? item.addOns.reduce((total, addOn) => {
+              const price = Number((addOn as any)?.price);
+              return Number.isFinite(price) ? total + price : total;
+            }, 0)
+          : 0;
     const discountTotal = Number.isFinite((item as any)?.discount)
       ? Number((item as any).discount)
       : 0;
@@ -715,8 +727,8 @@ export async function POST({ request }: { request: Request }) {
       item.options as Record<string, unknown> | null,
       item.selections
     );
-    const upgradeValues = collectUpgrades(item.upgrades ?? item.addOns, item.selections);
-    const upgradesTotal = calculateUpgradesTotal(item.upgrades ?? item.addOns, item.selections);
+    const upgradeValuesRaw = collectUpgrades(item.upgrades ?? item.addOns, item.selections);
+    const upgradeValues = upgradeValuesRaw.map((entry) => cleanLabel(entry)).filter(Boolean);
     const metadata: Record<string, string> = {
       ...(item.sku ? { sku: String(item.sku) } : {}),
       ...(sanityProductId ? { sanity_product_id: sanityProductId } : {}),
@@ -804,14 +816,28 @@ export async function POST({ request }: { request: Request }) {
       metadata.option_upcharge = Number(item.extra).toFixed(2);
       metadata.option_upcharge_display = `$${Number(item.extra).toFixed(2)}`;
     }
+    const variantEntry = optionDetails?.entries?.find(([key]) =>
+      /variant|type|model|option\s*1/i.test(key)
+    );
+    const firstEntry = optionDetails?.entries?.[0];
+    const variantLabel = cleanLabel(variantEntry?.[1] || firstEntry?.[1]);
+
+    const baseProductName = (product as any)?.title || item.name || 'Item';
+    const displayName = variantLabel ? `${variantLabel} ${baseProductName}` : baseProductName;
+
+    const remainingOptions = (optionDetails?.entries || [])
+      .filter((entry) => entry !== variantEntry && entry !== firstEntry)
+      .map(([, value]) => cleanLabel(value))
+      .filter(Boolean);
+
     const descriptionParts: string[] = [];
-    if (optionDetails?.summary) descriptionParts.push(optionDetails.summary);
-    if (upgradeValues.length) descriptionParts.push(`Upgrades: ${upgradeValues.join(', ')}`);
+    if (upgradeValues.length) descriptionParts.push(upgradeValues.join(' • '));
+    if (remainingOptions.length) descriptionParts.push(remainingOptions.join(' • '));
     const uniqueDescriptionParts = Array.from(
       new Set(descriptionParts.map((part) => part.trim()).filter(Boolean))
     );
     const description = uniqueDescriptionParts.length
-      ? clamp(uniqueDescriptionParts.join(' • '), 250)
+      ? clamp(uniqueDescriptionParts.join(' | '), 250)
       : undefined;
 
     return {
@@ -819,7 +845,7 @@ export async function POST({ request }: { request: Request }) {
         currency: 'usd',
         tax_behavior: 'exclusive',
         product_data: {
-          name: (product as any)?.title || item.name || 'Item',
+          name: displayName || 'Item',
           tax_code: 'txcd_99999999',
           ...(description ? { description } : {}),
           // Help fulfillment map back to Sanity/Inventory and capture configured options
