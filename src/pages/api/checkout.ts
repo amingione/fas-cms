@@ -689,15 +689,24 @@ export async function POST({ request }: { request: Request }) {
     const product = sanityProductId ? productLookup[sanityProductId] : undefined;
     const verifiedPrice = getActivePrice(product as any);
     const compareAt = product ? getCompareAtPrice(product as any) : undefined;
-    const finalPrice =
-      typeof verifiedPrice === 'number' && Number.isFinite(verifiedPrice)
-        ? verifiedPrice
+    const basePrice = Number.isFinite(item.basePrice)
+      ? Number(item.basePrice)
+      : Number.isFinite(verifiedPrice)
+        ? Number(verifiedPrice)
         : Number.isFinite(item.price)
           ? Number(item.price)
-          : undefined;
-    const unitAmount = Number.isFinite(finalPrice)
-      ? Math.max(0, Math.round(Number(finalPrice) * 100))
+          : 0;
+    const addOnTotal = Array.isArray(item.addOns)
+      ? item.addOns.reduce((total, addOn) => {
+        const price = Number((addOn as any)?.price);
+        return Number.isFinite(price) ? total + price : total;
+      }, 0)
       : 0;
+    const discountTotal = Number.isFinite((item as any)?.discount)
+      ? Number((item as any).discount)
+      : 0;
+    const finalPrice = basePrice + addOnTotal - discountTotal;
+    const unitAmount = Math.max(0, Math.round(finalPrice * 100));
     if (unitAmount <= 0) {
       console.warn('[checkout] Cart item missing price, defaulting to $0.00', item);
     }
@@ -798,7 +807,12 @@ export async function POST({ request }: { request: Request }) {
     const descriptionParts: string[] = [];
     if (optionDetails?.summary) descriptionParts.push(optionDetails.summary);
     if (upgradeValues.length) descriptionParts.push(`Upgrades: ${upgradeValues.join(', ')}`);
-    const description = descriptionParts.length ? clamp(descriptionParts.join(' • '), 250) : undefined;
+    const uniqueDescriptionParts = Array.from(
+      new Set(descriptionParts.map((part) => part.trim()).filter(Boolean))
+    );
+    const description = uniqueDescriptionParts.length
+      ? clamp(uniqueDescriptionParts.join(' • '), 250)
+      : undefined;
 
     return {
       price_data: {
