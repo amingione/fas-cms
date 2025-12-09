@@ -1595,7 +1595,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
               const isPaintCodeField = String(c?.key || c?.name || '').toLowerCase().includes('paint');
               const helperId = `${fieldId}-helper`;
               const helperMessages: string[] = [];
-                if (isPaintCodeField) helperMessages.push('Enter your preferred paint code or color reference.');
+                if (isPaintCodeField) helperMessages.push('');
               if (c.instructions) helperMessages.push(String(c.instructions));
               const placeholderText = isPaintCodeField
                 ? (c.placeholder || '')
