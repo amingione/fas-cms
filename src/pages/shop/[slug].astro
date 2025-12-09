@@ -814,7 +814,7 @@ try {
     customs.push({
       key: 'paintCode',
       name: 'paintCode',
-      label: cp.codeLabel || 'OEM Paint Code',
+      label: cp.codeLabel || 'Custom Coating/Color Code',
       placeholder: '',
       group: 'customPaint',
       type: 'text',
@@ -1542,10 +1542,10 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
               <div class="space-y-6">
                   <section class="p-4 sm:p-5">
                     <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                      <h3 class="text-base font-semibold uppercase tracking-wide text-primary">Optional Upgrades</h3>
+                      <h3 class="text-base font-semibold uppercase tracking-wide text-primary">Upgrades</h3>
                     </div>
                     <fieldset class="mt-4 space-y-4">
-                      <legend class="sr-only">Optional Upgrades</legend>
+                      <legend class="sr-only">Upgrades</legend>
                       {optionalAddOns.map((a: any, index: number) => {
                         const inputId = `addon-${a.key}-${index}`;
                         const descriptionId = `${inputId}-description`;
@@ -1598,7 +1598,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                 if (isPaintCodeField) helperMessages.push('Enter your preferred paint code or color reference.');
               if (c.instructions) helperMessages.push(String(c.instructions));
               const placeholderText = isPaintCodeField
-                ? (c.placeholder || 'Example: LY7C (Nardo Gray)')
+                ? (c.placeholder || '')
                 : (c.placeholder || '');
               const surchargeAmount = Number(c.priceDelta ?? c.price ?? c.delta ?? 0);
               return (

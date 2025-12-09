@@ -793,7 +793,7 @@ export async function POST({ request }: { request: Request }) {
     const variantLabel = cleanLabel(variantEntry?.[1] || firstEntry?.[1]);
 
     const baseProductName = (product as any)?.title || item.name || 'Item';
-    const displayName = variantLabel ? `${variantLabel} ${baseProductName}` : baseProductName;
+    const displayName = baseProductName || variantLabel || 'Item';
 
     const remainingOptions = (optionDetails?.entries || [])
       .filter((entry) => entry !== variantEntry && entry !== firstEntry)

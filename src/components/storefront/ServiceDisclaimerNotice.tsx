@@ -82,8 +82,7 @@ export default function ServiceDisclaimerNotice({
                     )}
                     <p className="text-xs text-white/60">
                       Vehicle drop-off at F.A.S. Motorsports is required for all install-only
-                      offerings. Our team will confirm scheduling, lead times, and optional upgrades
-                      after checkout.
+                      performance packages. Our team will confirm scheduling after checkout.
                     </p>
                   </div>
                 </div>
