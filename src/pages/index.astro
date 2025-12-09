@@ -13,7 +13,6 @@ import AnimatedTruckPackagesHero from '@components/animated/AnimatedTruckPackage
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import EmailCaptureModal from '@components/EmailCaptureModal.tsx';
 import PowerstrokePipingKit from '@/components/NewProduct/PowerstrokePipingKit.astro';
-import CyberMondaySection from '@/components/sales/cyberMondayPage';
 
 const pageDocPromise: Promise<any> = loadPageDoc('index');
 const featuredProductsPromise = sanity
@@ -127,7 +126,25 @@ const structuredDataGraph =
     'TRX packages',
     'custom fabrication',
     'billet supercharger parts',
-    'performance wheel packages'
+    'performance wheel packages',
+    'FAS Motorsports',
+    'performance upgrades',
+    'automotive performance',
+    'car tuning',
+    'aftermarket parts',
+    'high-performance vehicles',
+    'car enthusiasts',
+    'auto customization',
+    'performance accessories',
+    'supercharger porting',
+    'billet snouts',
+    'performance pulleys',
+    'truck performance kits',
+    'diesel performance parts',
+    'billet hellcat snout',
+    'predator pulley',
+    'powerstroke piping kit',
+    'billet performance parts'
   ]}
   -
 >
@@ -151,27 +168,11 @@ const structuredDataGraph =
         <AnimatedHomeHero client:only="react" />
       </section>
 
-      <section>
-        <CyberMondaySection client:load />
-      </section>
-
-      <section>
-        <PowerstrokePipingKit />
-      </section>
-
-      <!-- Auto-scrolling Black Friday divider -->
       <section
-        id="bf-divider"
-        class="hidden shadow-primary/30 shadow-inner shadow-box-outer relative overflow-hidden py-3 bg-black/10 border-y border-zinc-800"
+        class="mx-20 px-2 py-2 border border-primary/20 shadow-card-outter border-spacing-1 shadow-white/30 shadow-inner rounded-lg ring-offset-70 ring-1 ring-primary/10 hover:shadow-card-inner hover:shadow-white/50 transition-shadow duration-300"
+        id="PowerstrokePipingKit"
       >
-        <div
-          class="animate-marquee whitespace-nowrap text-white text-sm tracking-widest font-semibold"
-        >
-          <span class="mx-8">🔥 BLACK FRIDAY SALE — ONE DAY ONLY 🔥</span>
-          <span class="mx-8">🔥 BLACK FRIDAY SALE — ONE DAY ONLY 🔥</span>
-          <span class="mx-8">🔥 BLACK FRIDAY SALE — ONE DAY ONLY 🔥</span>
-          <span class="mx-8">🔥 BLACK FRIDAY SALE — ONE DAY ONLY 🔥</span>
-        </div>
+        <PowerstrokePipingKit />
       </section>
 
       <style>
