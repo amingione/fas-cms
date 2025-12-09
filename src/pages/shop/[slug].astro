@@ -1427,6 +1427,10 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                 .filter((v: any) => v && typeof v.value === 'string' && v.value.trim().length > 0);
               if (values.length === 0) return null;
               const helperId = `${groupKey}-helper`;
+              const preferSelect =
+                values.length > 4 ||
+                /platform/i.test(groupLabel) ||
+                /platform/i.test(groupKey);
               return (
                 <fieldset class="rounded-xl border border-white/15 bg-black/10 p-4 sm:p-5" aria-labelledby={`${groupKey}-legend`}>
                   <legend id={`${groupKey}-legend`} class="text-sm font-semibold uppercase tracking-wide text-white">
@@ -1435,8 +1439,8 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                   <p id={helperId} class="mt-1 text-xs text-primary/80">
                     *Required
                   </p>
-                  {/* Prefer select if many values, else radios */}
-                  {values.length > 4 ? (
+                  {/* Prefer select for platform or larger sets; otherwise radios */}
+                  {preferSelect ? (
                     <div class="relative mt-4">
                       <label for={`${groupKey}-select`} class="sr-only">
                         {groupLabel}
