@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import imageUrlBuilder from '@sanity/image-url';
 import { sanityClient } from '@/lib/sanityClient.ts';
 import { optimizeSanityImageUrl } from '@/lib/sanity-utils.ts';
 import { readSession } from '@/server/auth/session.ts';
@@ -24,20 +23,7 @@ interface OrderItem {
   upgrades?: string[] | string;
   optionSummary?: string;
   optionDetails?: string[];
-  image?: unknown;
   imageUrl?: string;
-  resolvedImageUrl?: string;
-  productResolvedImageUrl?: string;
-  metadata?: Record<string, unknown> | null;
-  product?: {
-    title?: string;
-    image?: unknown;
-    imageUrl?: string;
-    images?: unknown[];
-    mainImage?: unknown;
-    thumbnail?: unknown;
-    thumb?: unknown;
-  };
   productUrl?: string;
   href?: string;
   status?: string;
@@ -86,456 +72,18 @@ function normalizeValueList(input: unknown): string[] {
 }
 
 const FALLBACK_IMAGE = '/logo/faslogo150.webp';
-const imageBuilder = sanityClient ? imageUrlBuilder(sanityClient) : null;
+const imageCache = new Map<string, string>();
 
-const asNonEmptyString = (value: unknown): string | undefined => {
-  if (typeof value === 'string') {
-    const trimmed = value.trim();
-    return trimmed ? trimmed : undefined;
+const resolveImageUrl = (item: OrderItem): string => {
+  const cacheKey = item?._key || item?.name || '';
+  if (cacheKey && imageCache.has(cacheKey)) {
+    return imageCache.get(cacheKey)!;
   }
-  if (typeof value === 'number' && Number.isFinite(value)) {
-    return String(value);
-  }
-  return undefined;
+  const raw = item?.imageUrl;
+  const resolved = raw ? optimizeSanityImageUrl(raw) ?? raw : FALLBACK_IMAGE;
+  if (cacheKey) imageCache.set(cacheKey, resolved);
+  return resolved;
 };
-
-const normalizeSlug = (value: unknown): string | undefined => {
-  const raw = asNonEmptyString(value);
-  if (!raw) return undefined;
-  const withoutOrigin = raw.replace(/^https?:\/\/[^/]+/i, '');
-  const withoutQuery = withoutOrigin.split(/[?#]/)[0];
-  const segments = withoutQuery.replace(/^\/+/, '').split('/').filter(Boolean);
-  if (!segments.length) return undefined;
-  const slug = segments[segments.length - 1];
-  return slug ? slug.toLowerCase() : undefined;
-};
-
-const collectItemMetadata = (item: Record<string, any>): Record<string, unknown> => {
-  if (item?.metadata && typeof item.metadata === 'object') {
-    return item.metadata as Record<string, unknown>;
-  }
-  return {};
-};
-
-const setImageOnItem = (item: Record<string, any>, url: string) => {
-  if (!url) return;
-  item.resolvedImageUrl = url;
-  if (!asNonEmptyString(item.imageUrl)) item.imageUrl = url;
-  if (!asNonEmptyString(item.image)) item.image = url;
-  if (!asNonEmptyString(item.productResolvedImageUrl)) item.productResolvedImageUrl = url;
-  if (item.product && typeof item.product === 'object') {
-    if (!asNonEmptyString(item.product.imageUrl)) item.product.imageUrl = url;
-    if (!asNonEmptyString(item.product.image)) item.product.image = url;
-  }
-};
-
-const gatherLookupCandidates = (
-  item: Record<string, any>,
-  idSet: Set<string>,
-  slugSet: Set<string>,
-  skuSet: Set<string>,
-  titleSet: Set<string>
-) => {
-  const metadata = collectItemMetadata(item);
-  const idCandidates = [
-    item?.id,
-    metadata.sanity_product_id,
-    metadata.product_id,
-    metadata.productId,
-    metadata.sanityProductId
-  ];
-  idCandidates.forEach((candidate) => {
-    const str = asNonEmptyString(candidate);
-    if (str) idSet.add(str);
-  });
-
-  const slugCandidates = [
-    item?.productSlug,
-    metadata.product_slug,
-    metadata.slug,
-    metadata.productSlug,
-    item?.productUrl,
-    metadata.product_url,
-    metadata.url
-  ];
-  slugCandidates.forEach((candidate) => {
-    const slug = normalizeSlug(candidate);
-    if (slug) slugSet.add(slug);
-  });
-
-  const skuCandidates = [item?.sku, metadata.sku, metadata.product_sku, metadata.productSku];
-  skuCandidates.forEach((candidate) => {
-    const str = asNonEmptyString(candidate);
-    if (str) skuSet.add(str.toLowerCase());
-  });
-
-  const titleCandidates = [
-    item?.name,
-    metadata.product_name,
-    metadata.productName,
-    metadata.title,
-    metadata.name
-  ];
-  titleCandidates.forEach((candidate) => {
-    const str = asNonEmptyString(candidate);
-    if (str) titleSet.add(str.toLowerCase());
-  });
-};
-
-const applyLookupImage = (
-  item: Record<string, any>,
-  maps: {
-    byId: Map<string, string>;
-    bySlug: Map<string, string>;
-    bySku: Map<string, string>;
-    byTitle: Map<string, string>;
-  }
-) => {
-  const existing =
-    asNonEmptyString(item?.resolvedImageUrl) ||
-    asNonEmptyString(item?.imageUrl) ||
-    asNonEmptyString(item?.image) ||
-    asNonEmptyString(item?.productResolvedImageUrl) ||
-    asNonEmptyString(item?.product?.imageUrl) ||
-    asNonEmptyString(item?.product?.image);
-  if (existing) {
-    setImageOnItem(item, existing);
-    return;
-  }
-
-  const metadata = collectItemMetadata(item);
-
-  const idCandidates = [
-    item?.id,
-    metadata.sanity_product_id,
-    metadata.product_id,
-    metadata.productId,
-    metadata.sanityProductId
-  ];
-  for (const candidate of idCandidates) {
-    const str = asNonEmptyString(candidate);
-    if (str) {
-      const url = maps.byId.get(str);
-      if (url) {
-        setImageOnItem(item, url);
-        return;
-      }
-    }
-  }
-
-  const slugCandidates = [
-    item?.productSlug,
-    metadata.product_slug,
-    metadata.productSlug,
-    metadata.slug,
-    item?.productUrl,
-    metadata.product_url,
-    metadata.url
-  ];
-  for (const candidate of slugCandidates) {
-    const slug = normalizeSlug(candidate);
-    if (slug) {
-      const url = maps.bySlug.get(slug);
-      if (url) {
-        setImageOnItem(item, url);
-        return;
-      }
-    }
-  }
-
-  const skuCandidates = [item?.sku, metadata.sku, metadata.product_sku, metadata.productSku];
-  for (const candidate of skuCandidates) {
-    const str = asNonEmptyString(candidate);
-    if (str) {
-      const url = maps.bySku.get(str.toLowerCase());
-      if (url) {
-        setImageOnItem(item, url);
-        return;
-      }
-    }
-  }
-
-  const titleCandidates = [
-    item?.name,
-    metadata.product_name,
-    metadata.productName,
-    metadata.title,
-    metadata.name
-  ];
-  for (const candidate of titleCandidates) {
-    const str = asNonEmptyString(candidate);
-    if (str) {
-      const url = maps.byTitle.get(str.toLowerCase());
-      if (url) {
-        setImageOnItem(item, url);
-        return;
-      }
-    }
-  }
-};
-
-async function enrichOrderWithProductImages(orderDoc: any): Promise<void> {
-  if (!orderDoc || typeof orderDoc !== 'object') return;
-  const items = Array.isArray(orderDoc.cart) ? orderDoc.cart : [];
-  if (!items.length) return;
-
-  const idSet = new Set<string>();
-  const slugSet = new Set<string>();
-  const skuSet = new Set<string>();
-  const titleSet = new Set<string>();
-
-  items.forEach((item: OrderItem) => {
-    if (item && typeof item === 'object') {
-      gatherLookupCandidates(item as Record<string, any>, idSet, slugSet, skuSet, titleSet);
-    }
-  });
-
-  if (!idSet.size && !slugSet.size && !skuSet.size && !titleSet.size) return;
-
-  const params = {
-    ids: idSet.size ? Array.from(idSet) : ['__none__'],
-    slugs: slugSet.size ? Array.from(slugSet) : ['__none__'],
-    skus: skuSet.size ? Array.from(skuSet) : ['__none__'],
-    titles: titleSet.size ? Array.from(titleSet) : ['__none__']
-  };
-
-  const products: Array<{
-    _id?: string;
-    title?: string;
-    sku?: string;
-    slug?: string;
-    imageUrl?: string;
-  }> =
-    (await sanityClient
-      .fetch(
-        `*[_type == "product" && !(_id in path('drafts.**')) && (status == "active" || !defined(status)) && coalesce(productType, "") != "service" && (
-          (_id in $ids) ||
-          (slug.current in $slugs) ||
-          (sku in $skus) ||
-          (title in $titles)
-        )]{
-          _id,
-          title,
-          sku,
-          "slug": slug.current,
-          "imageUrl": coalesce(
-            imageUrl,
-            image.asset->url,
-            images[0].asset->url,
-            mainImage.asset->url,
-            thumbnail.asset->url,
-            thumb.asset->url
-          )
-        }`,
-        params
-      )
-      .catch(() => [])) || [];
-
-  const maps = {
-    byId: new Map<string, string>(),
-    bySlug: new Map<string, string>(),
-    bySku: new Map<string, string>(),
-    byTitle: new Map<string, string>()
-  };
-
-  products.forEach((product) => {
-    const rawUrl = asNonEmptyString(product?.imageUrl);
-    const optimizedUrl = rawUrl ? optimizeSanityImageUrl(rawUrl) ?? rawUrl : null;
-    if (!optimizedUrl) return;
-    if (product?._id) maps.byId.set(product._id, optimizedUrl);
-    const slug = normalizeSlug(product?.slug);
-    if (slug) maps.bySlug.set(slug, optimizedUrl);
-    const sku = asNonEmptyString(product?.sku);
-    if (sku) maps.bySku.set(sku.toLowerCase(), optimizedUrl);
-    const title = asNonEmptyString(product?.title);
-    if (title) maps.byTitle.set(title.toLowerCase(), optimizedUrl);
-  });
-
-  orderDoc.cart = items.map((item: OrderItem) => {
-    if (item && typeof item === 'object') {
-      applyLookupImage(item as Record<string, any>, maps);
-    }
-    return item;
-  });
-}
-
-const DIRECT_IMAGE_KEYS = [
-  'url',
-  'imageUrl',
-  'imageURL',
-  'image_url',
-  'originalUrl',
-  'originalURL',
-  'original_url',
-  'original',
-  'src',
-  'href',
-  'webpUrl',
-  'assetUrl',
-  'assetURL',
-  'downloadUrl',
-  'downloadURL',
-  'thumbUrl',
-  'thumbnail',
-  'thumbnailUrl',
-  'thumb',
-  'photo',
-  'value',
-  'current'
-] as const;
-
-function buildFromSanityRef(ref?: unknown): string | null {
-  if (typeof ref !== 'string' || !ref.trim()) return null;
-  if (!imageBuilder) return null;
-  try {
-    const built = imageBuilder
-      .image(ref)
-      .fit('max')
-      .auto('format')
-      .quality(82)
-      .width(800)
-      .url();
-    if (built) {
-      return optimizeSanityImageUrl(built) ?? built;
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-function pickImageUrl(candidate: unknown, seen = new Set<unknown>()): string | null {
-  if (!candidate) return null;
-  if (typeof candidate === 'string') {
-    const trimmed = candidate.trim();
-    if (!trimmed) return null;
-    if (trimmed.startsWith('//')) {
-      const httpsUrl = `https:${trimmed}`;
-      return optimizeSanityImageUrl(httpsUrl) ?? httpsUrl;
-    }
-    if (/^http:\/\//i.test(trimmed)) {
-      const httpsUrl = `https://${trimmed.slice('http://'.length)}`;
-      return optimizeSanityImageUrl(httpsUrl) ?? httpsUrl;
-    }
-    if (/^https?:\/\//i.test(trimmed)) {
-      return optimizeSanityImageUrl(trimmed) ?? trimmed;
-    }
-    if (/^image-/.test(trimmed)) {
-      const built = buildFromSanityRef(trimmed);
-      if (built) return built;
-    }
-    if (/^(?:\/|\.\/|\.\.\/)/.test(trimmed)) return trimmed;
-    if (/^data:image\//i.test(trimmed)) return trimmed;
-    if (/^blob:/i.test(trimmed)) return trimmed;
-    return null;
-  }
-  if (seen.has(candidate)) return null;
-  seen.add(candidate);
-
-  if (Array.isArray(candidate)) {
-    for (const entry of candidate) {
-      const url = pickImageUrl(entry, seen);
-      if (url) return url;
-    }
-    return null;
-  }
-
-  if (typeof candidate === 'object') {
-    const obj = candidate as Record<string, unknown>;
-
-    for (const key of DIRECT_IMAGE_KEYS) {
-      if (key in obj) {
-        const value = obj[key];
-        const url = pickImageUrl(value, seen);
-        if (url) return url;
-      }
-    }
-
-    if (obj.asset) {
-      const fromAsset = pickImageUrl(obj.asset, seen);
-      if (fromAsset) return fromAsset;
-    }
-
-    const refUrl = buildFromSanityRef(obj._ref);
-    if (refUrl) return refUrl;
-
-    const idUrl = buildFromSanityRef(obj._id);
-    if (idUrl) return idUrl;
-
-    const nestedKeys = ['image', 'default', 'original', 'medium', 'large'];
-    for (const key of nestedKeys) {
-      if (key in obj) {
-        const value = obj[key];
-        const url = pickImageUrl(value, seen);
-        if (url) return url;
-      }
-    }
-  }
-
-  return null;
-}
-
-function resolveImageUrlFromItem(item: OrderItem): string {
-  const product = (item?.product ?? {}) as Record<string, unknown>;
-  const productImages = Array.isArray(product['images']) ? (product['images'] as unknown[]) : [];
-  const metadata = (item?.metadata ?? {}) as Record<string, unknown>;
-  const metadataCandidates = [
-    metadata.imageUrl,
-    metadata.imageURL,
-    metadata.image_url,
-    metadata.productImage,
-    metadata.product_image,
-    metadata.productImageUrl,
-    metadata.product_image_url,
-    metadata.product_imageUrl,
-    metadata.thumbnail,
-    metadata.thumbnailUrl,
-    metadata.thumbnail_url,
-    metadata.image,
-    metadata.image0
-  ];
-  const candidates: unknown[] = [
-    item?.resolvedImageUrl,
-    item?.productResolvedImageUrl,
-    item?.image,
-    item?.imageUrl,
-    ...metadataCandidates,
-    metadata?.resolvedImageUrl,
-    item?.metadata,
-    product['image'],
-    product['resolvedImageUrl'],
-    product['imageUrl'],
-    productImages,
-    product['mainImage'],
-    product['thumbnail'],
-    product['thumb']
-  ];
-
-  for (const candidate of candidates) {
-    const url = pickImageUrl(candidate);
-    if (url) return url;
-  }
-
-  try {
-    const metadataKeys = Object.keys(metadata || {});
-    const productKeys = Object.keys(product || {});
-    console.warn('[order-image] falling back to placeholder', {
-      name: item?.name,
-      id: item?.id,
-      resolvedImageUrl: item?.resolvedImageUrl,
-      image: item?.image,
-      imageUrl: item?.imageUrl,
-      productResolvedImageUrl: item?.productResolvedImageUrl,
-      metadataKeys,
-      productKeys,
-      productImagesLength: productImages.length
-    });
-  } catch {
-    // best-effort logging only
-  }
-
-  return FALLBACK_IMAGE;
-}
 
 try {
   if (!orderId) {
@@ -549,7 +97,7 @@ try {
     throw new Error('You must be signed in to view orders.');
   }
 
-    const query = `*[_type == "order" && _id == $id][0]{
+  const query = `*[_type == "order" && _id == $id][0]{
     _id,
     orderNumber,
     status,
@@ -609,48 +157,18 @@ try {
       href,
       status,
       deliveryStatus,
-      image,
-      imageUrl,
       metadata,
-      product->{
-        title,
-        image,
-        imageUrl,
-        images[]{..., asset->{url}},
-        mainImage{..., asset->{url}},
-        thumbnail{..., asset->{url}},
-        thumb{..., asset->{url}}
-      },
-      "resolvedImageUrl": coalesce(
-        imageUrl,
+      "imageUrl": coalesce(
         image.asset->url,
-        metadata.imageUrl,
-        metadata.imageURL,
-        metadata.image_url,
+        image,
         metadata.product_image,
-        metadata.productImage,
-        metadata.productImageUrl,
-        metadata.product_image_url,
-        metadata.product_imageUrl,
-        metadata.thumbnail,
-        metadata.thumbnailUrl,
-        metadata.thumbnail_url,
-        metadata.image,
-        metadata.image0,
-        product->imageUrl,
         product->image.asset->url,
-        product->images[0].asset->url,
-        product->mainImage.asset->url,
-        product->thumbnail.asset->url,
-        product->thumb.asset->url
+        product->images[0].asset->url
       ),
-      "productResolvedImageUrl": coalesce(
-        product->imageUrl,
-        product->image.asset->url,
-        product->images[0].asset->url,
-        product->mainImage.asset->url,
-        product->thumbnail.asset->url,
-        product->thumb.asset->url
+      "productUrl": select(
+        defined(product->slug.current) => "/shop/" + product->slug.current,
+        productUrl,
+        href
       )
     },
     invoiceRef->{
@@ -662,7 +180,6 @@ try {
   }`;
 
   order = await sanityClient.fetch(query, { id: orderId });
-  await enrichOrderWithProductImages(order);
 
   if (!order) {
     throw new Error('Order not found.');
@@ -693,7 +210,11 @@ const addressLines = [
   shippingAddress?.company,
   shippingAddress?.street || shippingAddress?.addressLine1,
   shippingAddress?.addressLine2,
-  [shippingAddress?.city, shippingAddress?.state || shippingAddress?.region, shippingAddress?.postalCode]
+  [
+    shippingAddress?.city,
+    shippingAddress?.state || shippingAddress?.region,
+    shippingAddress?.postalCode
+  ]
     .filter(Boolean)
     .join(', '),
   shippingAddress?.country
@@ -708,7 +229,9 @@ function determineStep(): number {
     step = Math.max(step, 1);
   }
   const hasShipUpdate = shippingLog.some((entry) =>
-    String(entry?.status || entry?.message || '').toLowerCase().includes('ship')
+    String(entry?.status || entry?.message || '')
+      .toLowerCase()
+      .includes('ship')
   );
   if (hasShipUpdate || status.includes('ship')) {
     step = Math.max(step, 2);
@@ -726,7 +249,8 @@ const paymentSummary = order?.cardBrand
   ? `${String(order.cardBrand).toUpperCase()} •••• ${order.cardLast4 || ''}`
   : 'Card on file';
 const paymentExpiry = order?.cardExp ? String(order.cardExp) : '';
-const invoiceUrl = order?.invoiceRef?.invoicePdfUrl || order?.invoiceRef?.paymentLinkUrl || order?.receiptUrl || '';
+const invoiceUrl =
+  order?.invoiceRef?.invoicePdfUrl || order?.invoiceRef?.paymentLinkUrl || order?.receiptUrl || '';
 
 const pageTitle = order ? `Order ${order.orderNumber || order._id}` : 'Order Details';
 const canonical = `${new URL(Astro.request.url).origin}/dashboard/order/${orderId}`;
@@ -737,215 +261,259 @@ const breadcrumbItems = [
 ];
 ---
 
-<BaseLayout title={pageTitle} canonical={canonical} hideBrandTag={true} breadcrumbs={breadcrumbItems}>
+<BaseLayout
+  title={pageTitle}
+  canonical={canonical}
+  hideBrandTag={true}
+  breadcrumbs={breadcrumbItems}
+>
   <main class="bg-black text-white">
     <div class="mx-auto max-w-6xl px-6 py-14 sm:py-18 lg:px-10">
-      {error ? (
-        <div class="rounded-2xl border border-red-500/40 bg-red-500/10 p-6 text-sm text-red-200">
-          {error}
-        </div>
-      ) : (
-        <>
-          <header class="flex flex-col gap-4 border-b border-white/10 pb-8 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h1 class="text-3xl font-semibold tracking-tight text-white">
-                Order {order.orderNumber || order._id}
-              </h1>
-              <p class="mt-2 text-sm text-white/60">
-                Placed{' '}
-                <time datetime={order.orderDate || order.createdAt || order._createdAt}>
-                  {formatDate(new Date(order.orderDate || order.createdAt || order._createdAt))}
-                </time>
-              </p>
-            </div>
-            <div class="flex flex-wrap items-center gap-3">
-              <a
-                href="/dashboard#orders"
-                class="inline-flex items-center justify-center rounded-full border border-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white hover:border-primary hover:text-primary"
-              >
-                Back to orders
-              </a>
-              {invoiceUrl && (
+      {
+        error ? (
+          <div class="rounded-2xl border border-red-500/40 bg-red-500/10 p-6 text-sm text-red-200">
+            {error}
+          </div>
+        ) : (
+          <>
+            <header class="flex flex-col gap-4 border-b border-white/10 pb-8 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h1 class="text-3xl font-semibold tracking-tight text-white">
+                  Order {order.orderNumber || order._id}
+                </h1>
+                <p class="mt-2 text-sm text-white/60">
+                  Placed{' '}
+                  <time datetime={order.orderDate || order.createdAt || order._createdAt}>
+                    {formatDate(new Date(order.orderDate || order.createdAt || order._createdAt))}
+                  </time>
+                </p>
+              </div>
+              <div class="flex flex-wrap items-center gap-3">
                 <a
-                  href={invoiceUrl}
-                  target="_blank"
-                  rel="noopener"
+                  href="/dashboard#orders"
                   class="inline-flex items-center justify-center rounded-full border border-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white hover:border-primary hover:text-primary"
                 >
-                  View Invoice<span aria-hidden="true" class="ml-2">→</span>
+                  Back to orders
                 </a>
-              )}
-            </div>
-          </header>
-
-          <section class="mt-12 space-y-16">
-            <div>
-              <h2 class="sr-only">Purchased items</h2>
-              <div class="space-y-12">
-                {(order?.cart as OrderItem[] | undefined)?.map((item) => {
-                  const image = resolveImageUrlFromItem(item);
-                  const itemPrice = normalizeMoney(item?.price, currency);
-                  const itemStatus =
-                    item?.status ||
-                    item?.deliveryStatus ||
-                    (shippingLog.length ? shippingLog[shippingLog.length - 1]?.status : '');
-                  const upgrades = normalizeValueList(item?.upgrades).join(' • ');
-                  const options = item?.optionSummary || (item?.optionDetails || []).join(' • ');
-                  return (
-                    <article class="grid grid-cols-1 gap-8 rounded-2xl border border-white/10 bg-white/5 p-6 sm:grid-cols-12 sm:gap-6 lg:gap-8">
-                      <div class="sm:col-span-4 lg:col-span-5">
-                        <img
-                          src={image || FALLBACK_IMAGE}
-                          alt={item?.name || 'Order item'}
-                          class="aspect-square w-full rounded-lg bg-black/30 object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                      <div class="flex flex-col gap-6 sm:col-span-8 lg:col-span-7">
-                        <header class="space-y-2">
-                          <h3 class="text-xl font-semibold text-white">
-                            {item?.productUrl ? <a href={item.productUrl} class="hover:text-primary">{item?.name || 'Item'}</a> : item?.name || 'Item'}
-                          </h3>
-                          <p class="text-base font-semibold text-white/80">{itemPrice !== '—' ? itemPrice : ''}</p>
-                          {item?.description && <p class="text-sm text-white/60">{item.description}</p>}
-                          {(options || upgrades) && (
-                            <p class="text-xs uppercase tracking-wide text-white/50">
-                              {[options, upgrades ? `Upgrades: ${upgrades}` : ''].filter(Boolean).join(' • ')}
-                            </p>
-                          )}
-                        </header>
-                        <div class="space-y-2 rounded-xl border border-white/10 bg-black/40 p-4 text-sm text-white/70">
-                          <div class="flex flex-wrap items-center gap-3">
-                            <span class="font-semibold text-white">Quantity:</span>
-                            <span>{item?.quantity ?? 1}</span>
-                          </div>
-                          {itemStatus && (
-                            <div class="flex flex-wrap items-center gap-3">
-                              <span class="font-semibold text-white">Status:</span>
-                              <span>{itemStatus}</span>
-                            </div>
-                          )}
-                        </div>
-                        <div>
-                          <p class="text-xs font-semibold uppercase tracking-wide text-white/60">
-                            Fulfillment progress
-                          </p>
-                          <div class="mt-3 overflow-hidden rounded-full bg-white/10">
-                            <div class="h-2 rounded-full bg-primary transition-all" style={`width: ${progressPercent};`} />
-                          </div>
-                          <div class="mt-4 grid grid-cols-4 text-xs font-semibold uppercase tracking-wide text-white/60">
-                            <span class={`text-left ${progressStep >= 0 ? 'text-primary' : ''}`}>Order placed</span>
-                            <span class={`${progressStep >= 1 ? 'text-primary' : ''} text-center`}>Processing</span>
-                            <span class={`${progressStep >= 2 ? 'text-primary' : ''} text-center`}>Shipped</span>
-                            <span class={`${progressStep >= 3 ? 'text-primary' : ''} text-right`}>Delivered</span>
-                          </div>
-                        </div>
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10">
-              <section class="rounded-2xl border border-white/10 bg-white/5 p-6 text-sm text-white/70 lg:col-span-5">
-                <h2 class="text-base font-semibold text-white">Shipping Address</h2>
-                <address class="mt-4 not-italic space-y-1">
-                  {addressLines.map((line) => (
-                    <span class="block">{line}</span>
-                  ))}
-                </address>
-                <div class="mt-6 space-y-2">
-                  <h3 class="text-sm font-semibold text-white">Shipping Updates</h3>
-                  <p class="text-white/60">{shippingAddress?.email || order?.customerEmail || '—'}</p>
-                  <p class="text-white/60">{shippingAddress?.phone || order?.customer?.phone || order?.customerRef?.phone || '—'}</p>
+                {invoiceUrl && (
                   <a
-                    href="mailto:sales@fasmotorsports.com"
-                    class="inline-flex items-center text-xs font-semibold uppercase tracking-wide text-primary hover:text-primary/80"
+                    href={invoiceUrl}
+                    target="_blank"
+                    rel="noopener"
+                    class="inline-flex items-center justify-center rounded-full border border-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white hover:border-primary hover:text-primary"
                   >
-                    Contact support
+                    View Invoice
+                    <span aria-hidden="true" class="ml-2">
+                      →
+                    </span>
                   </a>
-                </div>
-              </section>
+                )}
+              </div>
+            </header>
 
-              <section class="rounded-2xl border border-white/10 bg-white/5 p-6 text-sm text-white/70 lg:col-span-7">
-                <h2 class="text-base font-semibold text-white">Billing Summary</h2>
-                <dl class="mt-4 space-y-3">
-                  <div class="flex items-center justify-between">
-                    <dt class="text-white/50">Subtotal</dt>
-                    <dd class="font-semibold text-white">{displaySubtotal}</dd>
-                  </div>
-                  <div class="flex items-center justify-between">
-                    <dt class="text-white/50">Shipping</dt>
-                    <dd class="font-semibold text-white">{displayShipping}</dd>
-                  </div>
-                  <div class="flex items-center justify-between">
-                    <dt class="text-white/50">Tax</dt>
-                    <dd class="font-semibold text-white">{displayTax}</dd>
-                  </div>
-                  <div class="flex items-center justify-between border-t border-white/10 pt-3">
-                    <dt class="text-base font-semibold text-white">Order total</dt>
-                    <dd class="text-base font-semibold text-primary">{displayTotal}</dd>
-                  </div>
-                </dl>
-                <div class="mt-6 space-y-2">
-                  <h3 class="text-sm font-semibold text-white">Payment information</h3>
-                  <p class="text-white/70">
-                    {paymentSummary}
-                    {paymentExpiry ? ` • Expires ${paymentExpiry}` : ''}
-                  </p>
-                  {order?.receiptUrl && (
+            <section class="mt-12 space-y-16">
+              <div>
+                <h2 class="sr-only">Purchased items</h2>
+                <div class="space-y-12">
+                  {(order?.cart as OrderItem[] | undefined)?.map((item) => {
+                    const image = resolveImageUrl(item);
+                    const itemPrice = normalizeMoney(item?.price, currency);
+                    const itemStatus =
+                      item?.status ||
+                      item?.deliveryStatus ||
+                      (shippingLog.length ? shippingLog[shippingLog.length - 1]?.status : '');
+                    const upgrades = normalizeValueList(item?.upgrades).join(' • ');
+                    const options = item?.optionSummary || (item?.optionDetails || []).join(' • ');
+                    return (
+                      <article class="grid grid-cols-1 gap-8 rounded-2xl border border-white/10 bg-white/5 p-6 sm:grid-cols-12 sm:gap-6 lg:gap-8">
+                        <div class="sm:col-span-4 lg:col-span-5">
+                          <img
+                            src={image || FALLBACK_IMAGE}
+                            alt={item?.name || 'Order item'}
+                            class="aspect-square w-full rounded-lg bg-black/30 object-cover"
+                            loading="lazy"
+                          />
+                        </div>
+                        <div class="flex flex-col gap-6 sm:col-span-8 lg:col-span-7">
+                          <header class="space-y-2">
+                            <h3 class="text-xl font-semibold text-white">
+                              {item?.productUrl ? (
+                                <a href={item.productUrl} class="hover:text-primary">
+                                  {item?.name || 'Item'}
+                                </a>
+                              ) : (
+                                item?.name || 'Item'
+                              )}
+                            </h3>
+                            <p class="text-base font-semibold text-white/80">
+                              {itemPrice !== '—' ? itemPrice : ''}
+                            </p>
+                            {item?.description && (
+                              <p class="text-sm text-white/60">{item.description}</p>
+                            )}
+                            {(options || upgrades) && (
+                              <p class="text-xs uppercase tracking-wide text-white/50">
+                                {[options, upgrades ? `${upgrades}` : '']
+                                  .filter(Boolean)
+                                  .join(' • ')}
+                              </p>
+                            )}
+                          </header>
+                          <div class="space-y-2 rounded-xl border border-white/10 bg-black/40 p-4 text-sm text-white/70">
+                            <div class="flex flex-wrap items-center gap-3">
+                              <span class="font-semibold text-white">Quantity:</span>
+                              <span>{item?.quantity ?? 1}</span>
+                            </div>
+                            {itemStatus && (
+                              <div class="flex flex-wrap items-center gap-3">
+                                <span class="font-semibold text-white">Status:</span>
+                                <span>{itemStatus}</span>
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <p class="text-xs font-semibold uppercase tracking-wide text-white/60">
+                              Fulfillment progress
+                            </p>
+                            <div class="mt-3 overflow-hidden rounded-full bg-white/10">
+                              <div
+                                class="h-2 rounded-full bg-primary transition-all"
+                                style={`width: ${progressPercent};`}
+                              />
+                            </div>
+                            <div class="mt-4 grid grid-cols-4 text-xs font-semibold uppercase tracking-wide text-white/60">
+                              <span class={`text-left ${progressStep >= 0 ? 'text-primary' : ''}`}>
+                                Order placed
+                              </span>
+                              <span
+                                class={`${progressStep >= 1 ? 'text-primary' : ''} text-center`}
+                              >
+                                Processing
+                              </span>
+                              <span
+                                class={`${progressStep >= 2 ? 'text-primary' : ''} text-center`}
+                              >
+                                Shipped
+                              </span>
+                              <span class={`${progressStep >= 3 ? 'text-primary' : ''} text-right`}>
+                                Delivered
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-10">
+                <section class="rounded-2xl border border-white/10 bg-white/5 p-6 text-sm text-white/70 lg:col-span-5">
+                  <h2 class="text-base font-semibold text-white">Shipping Address</h2>
+                  <address class="mt-4 not-italic space-y-1">
+                    {addressLines.map((line) => (
+                      <span class="block">{line}</span>
+                    ))}
+                  </address>
+                  <div class="mt-6 space-y-2">
+                    <h3 class="text-sm font-semibold text-white">Shipping Updates</h3>
+                    <p class="text-white/60">
+                      {shippingAddress?.email || order?.customerEmail || '—'}
+                    </p>
+                    <p class="text-white/60">
+                      {shippingAddress?.phone ||
+                        order?.customer?.phone ||
+                        order?.customerRef?.phone ||
+                        '—'}
+                    </p>
                     <a
-                      href={order.receiptUrl}
-                      target="_blank"
-                      rel="noopener"
+                      href="mailto:sales@fasmotorsports.com"
                       class="inline-flex items-center text-xs font-semibold uppercase tracking-wide text-primary hover:text-primary/80"
                     >
-                      View Stripe receipt
+                      Contact support
                     </a>
-                  )}
-                </div>
-              </section>
-            </div>
+                  </div>
+                </section>
 
-            {shippingLog.length > 0 && (
-              <section class="rounded-2xl border border-white/10 bg-white/5 p-6">
-                <h2 class="text-base font-semibold text-white">Shipping updates</h2>
-                <ul class="mt-4 space-y-3 text-sm text-white/70">
-                  {shippingLog.map((entry) => (
-                    <li class="rounded-lg border border-white/10 bg-black/40 p-4">
-                      <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                          <span class="font-semibold text-white">{entry.status || 'Update'}</span>
-                          {entry.message && <p class="text-white/60">{entry.message}</p>}
-                          {entry.trackingNumber && (
-                            <p class="text-xs text-white/50">Tracking: {entry.trackingNumber}</p>
+                <section class="rounded-2xl border border-white/10 bg-white/5 p-6 text-sm text-white/70 lg:col-span-7">
+                  <h2 class="text-base font-semibold text-white">Billing Summary</h2>
+                  <dl class="mt-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                      <dt class="text-white/50">Subtotal</dt>
+                      <dd class="font-semibold text-white">{displaySubtotal}</dd>
+                    </div>
+                    <div class="flex items-center justify-between">
+                      <dt class="text-white/50">Shipping</dt>
+                      <dd class="font-semibold text-white">{displayShipping}</dd>
+                    </div>
+                    <div class="flex items-center justify-between">
+                      <dt class="text-white/50">Tax</dt>
+                      <dd class="font-semibold text-white">{displayTax}</dd>
+                    </div>
+                    <div class="flex items-center justify-between border-t border-white/10 pt-3">
+                      <dt class="text-base font-semibold text-white">Order total</dt>
+                      <dd class="text-base font-semibold text-primary">{displayTotal}</dd>
+                    </div>
+                  </dl>
+                  <div class="mt-6 space-y-2">
+                    <h3 class="text-sm font-semibold text-white">Payment information</h3>
+                    <p class="text-white/70">
+                      {paymentSummary}
+                      {paymentExpiry ? ` • Expires ${paymentExpiry}` : ''}
+                    </p>
+                    {order?.receiptUrl && (
+                      <a
+                        href={order.receiptUrl}
+                        target="_blank"
+                        rel="noopener"
+                        class="inline-flex items-center text-xs font-semibold uppercase tracking-wide text-primary hover:text-primary/80"
+                      >
+                        View Stripe receipt
+                      </a>
+                    )}
+                  </div>
+                </section>
+              </div>
+
+              {shippingLog.length > 0 && (
+                <section class="rounded-2xl border border-white/10 bg-white/5 p-6">
+                  <h2 class="text-base font-semibold text-white">Shipping updates</h2>
+                  <ul class="mt-4 space-y-3 text-sm text-white/70">
+                    {shippingLog.map((entry) => (
+                      <li class="rounded-lg border border-white/10 bg-black/40 p-4">
+                        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                          <div>
+                            <span class="font-semibold text-white">{entry.status || 'Update'}</span>
+                            {entry.message && <p class="text-white/60">{entry.message}</p>}
+                            {entry.trackingNumber && (
+                              <p class="text-xs text-white/50">Tracking: {entry.trackingNumber}</p>
+                            )}
+                          </div>
+                          {entry.createdAt && (
+                            <time class="text-xs text-white/60" datetime={entry.createdAt}>
+                              {formatDate(new Date(entry.createdAt))}
+                            </time>
                           )}
                         </div>
-                        {entry.createdAt && (
-                          <time class="text-xs text-white/60" datetime={entry.createdAt}>
-                            {formatDate(new Date(entry.createdAt))}
-                          </time>
+                        {entry.trackingUrl && (
+                          <a
+                            href={entry.trackingUrl}
+                            target="_blank"
+                            rel="noopener"
+                            class="mt-3 inline-flex text-xs font-semibold uppercase tracking-wide text-primary hover:text-primary/80"
+                          >
+                            Track package
+                          </a>
                         )}
-                      </div>
-                      {entry.trackingUrl && (
-                        <a
-                          href={entry.trackingUrl}
-                          target="_blank"
-                          rel="noopener"
-                          class="mt-3 inline-flex text-xs font-semibold uppercase tracking-wide text-primary hover:text-primary/80"
-                        >
-                          Track package
-                        </a>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
-          </section>
-        </>
-      )}
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+            </section>
+          </>
+        )
+      }
     </div>
   </main>
 </BaseLayout>

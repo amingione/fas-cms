@@ -30,7 +30,7 @@ const toNumeric = (value: unknown): number | undefined => {
 export function isOnSale(product?: SaleAwareProduct): boolean {
   if (!product) return false;
 
-  const onSale = Boolean(getField(product, 'onSale'));
+  const onSale = getField(product, 'onSale') === true;
   const salePrice = getField(product, 'salePrice');
   const saleActive = getField(product, 'saleActive');
 

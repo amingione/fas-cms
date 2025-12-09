@@ -218,7 +218,7 @@ const collapseSpaces = (value: unknown): string => {
 };
 
 const META_DESCRIPTION_SUFFIX =
-  'Shop high-performance installs and upgrades with F.A.S. Motorsports in Fort Myers, Florida.';
+  'Shop high-performance installs and upgrades with F.A.S. Motorsports. Fast shipping & expert service. Punta Gorda, Florida.';
 const META_DESCRIPTION_LIMIT = 155;
 
 const truncateForMeta = (value: string, maxLength: number): string => {
@@ -779,7 +779,7 @@ try {
               a?.name ||
               a?.value ||
               a?.id ||
-              'Upgrade').toString();
+              '').toString();
           const value =
             (a?.value ||
               a?.label ||
@@ -800,8 +800,8 @@ try {
             label,
             value,
             priceDelta,
-            group: (a?.group || 'upgrade').toString(),
-            key: (a?.key || a?.slug || a?.id || label || 'upgrade').toString(),
+            group: (a?.group || '').toString(),
+            key: (a?.key || a?.slug || a?.id || label || '').toString(),
           };
         })
     : [];
@@ -1327,7 +1327,7 @@ if (product) {
 }
 
 relatedProductsStructuredData = buildProductListStructuredData(relatedProducts, 'Related products');
-upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'Recommended upgrades');
+upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'Recommended for you');
 ---
 
 {!productNotFound ? (
@@ -1559,9 +1559,9 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                               <input
                                 type="checkbox"
                                 id={inputId}
-                                name={(a.key || 'upgrade').toString()}
+                                name={(a.key || '').toString()}
                                 value={(a.value || a.label || '').toString()}
-                                data-group={(a.group || 'upgrade').toString()}
+                                data-group={(a.group || '').toString()}
                                 data-price={(typeof a.priceDelta === 'number' ? a.priceDelta : 0).toString()}
                                 data-label={a.label}
                                 checked={!!a.defaultSelected}

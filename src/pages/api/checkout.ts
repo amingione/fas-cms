@@ -195,7 +195,9 @@ const parseDimensions = (input?: string | null): ShippingDimensions | null => {
     width: Number(w),
     height: Number(h)
   };
-  if ([dims.length, dims.width, dims.height].some((value) => !Number.isFinite(value) || value <= 0)) {
+  if (
+    [dims.length, dims.width, dims.height].some((value) => !Number.isFinite(value) || value <= 0)
+  ) {
     return null;
   }
   return dims;
@@ -203,7 +205,9 @@ const parseDimensions = (input?: string | null): ShippingDimensions | null => {
 
 const normalizeShippingClass = (value?: string | null): string => {
   if (!value) return '';
-  return String(value).toLowerCase().replace(/[^a-z0-9]/g, '');
+  return String(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
 };
 
 const toPositiveNumber = (value: unknown, fallback = 0): number => {
@@ -236,7 +240,9 @@ const makeDeliveryEstimate = (
   maximum: { unit: 'business_day', value: Math.max(1, Math.round(max)) }
 });
 
-async function fetchShippingProductsForCart(cart: CheckoutCartItem[]): Promise<Record<string, ShippingProduct>> {
+async function fetchShippingProductsForCart(
+  cart: CheckoutCartItem[]
+): Promise<Record<string, ShippingProduct>> {
   const ids = Array.from(
     new Set(
       cart
@@ -245,11 +251,7 @@ async function fetchShippingProductsForCart(cart: CheckoutCartItem[]): Promise<R
     )
   );
   const skus = Array.from(
-    new Set(
-      cart
-        .map((item) => (item?.sku ? String(item.sku).trim() : ''))
-        .filter(Boolean)
-    )
+    new Set(cart.map((item) => (item?.sku ? String(item.sku).trim() : '')).filter(Boolean))
   );
   if (!ids.length && !skus.length) return {};
   try {
@@ -316,15 +318,9 @@ function buildShippingQuote(
     const normalizedId = normalizeCartId(typeof item?.id === 'string' ? item.id : undefined);
     const product = normalizedId ? productLookup[normalizedId] : undefined;
     const shippingConfig = product?.shippingConfig;
-    const requiresShipping =
-      shippingConfig?.requiresShipping === false
-        ? false
-        : true;
+    const requiresShipping = shippingConfig?.requiresShipping === false ? false : true;
     const shippingClassRaw =
-      item?.shippingClass ||
-      shippingConfig?.shippingClass ||
-      product?.shippingClass ||
-      '';
+      item?.shippingClass || shippingConfig?.shippingClass || product?.shippingClass || '';
     const normalizedClass = normalizeShippingClass(shippingClassRaw);
     const installOnly = Boolean(
       item?.installOnly ||
@@ -354,8 +350,7 @@ function buildShippingQuote(
       shippingConfig?.weight ?? product?.shippingWeight,
       DEFAULT_WEIGHT_LB
     );
-    const volumetricWeight =
-      (dims.length * dims.width * dims.height) / (DIM_DIVISOR || 1);
+    const volumetricWeight = (dims.length * dims.width * dims.height) / (DIM_DIVISOR || 1);
     const billableWeight = Math.max(physicalWeight, volumetricWeight);
     const shipsAlone = Boolean(product?.shipsAlone || shippingConfig?.separateShipment);
     const freeShipping = normalizedClass === 'freeshipping';
@@ -414,18 +409,14 @@ function buildShippingQuote(
     delivery = { min: 5, max: 10 };
     amount =
       chargeableWeight > 0
-        ? Math.max(
-            FREIGHT_BASE_CENTS,
-            Math.round(chargeableWeight * (FREIGHT_PER_LB_CENTS || 0))
-          )
+        ? Math.max(FREIGHT_BASE_CENTS, Math.round(chargeableWeight * (FREIGHT_PER_LB_CENTS || 0)))
         : 0;
   } else if (chargeableWeight <= 0) {
     label = 'Free Shipping';
     amount = 0;
   } else {
     const extraWeight = Math.max(chargeableWeight - GROUND_BASE_WEIGHT, 0);
-    amount =
-      GROUND_BASE_CENTS + Math.round(extraWeight * Math.max(GROUND_PER_LB_CENTS, 0));
+    amount = GROUND_BASE_CENTS + Math.round(extraWeight * Math.max(GROUND_PER_LB_CENTS, 0));
     if (oversize) amount += OVERSIZE_SURCHARGE_CENTS;
     if (hasHazmat) amount += HAZMAT_SURCHARGE_CENTS;
   }
@@ -478,7 +469,10 @@ export async function POST({ request }: { request: Request }) {
 
   const validationTarget = baseUrl || normalizedConfigured || normalizedRequest;
   if (!validationTarget) {
-    return jsonResponse({ error: 'Unable to determine site base URL for checkout redirects.' }, 500);
+    return jsonResponse(
+      { error: 'Unable to determine site base URL for checkout redirects.' },
+      500
+    );
   }
   const validationError = validateBaseUrl(validationTarget);
   if (validationError) return validationError;
@@ -499,8 +493,7 @@ export async function POST({ request }: { request: Request }) {
     return jsonResponse({ error: 'Cart is empty or invalid' }, 400);
   }
 
-  const clamp = (value: string, max = 500) =>
-    value.length > max ? value.slice(0, max) : value;
+  const clamp = (value: string, max = 500) => (value.length > max ? value.slice(0, max) : value);
 
   const normalizeMetadataMap = (input?: Record<string, unknown> | null) => {
     if (!input || typeof input !== 'object') return {} as Record<string, string>;
@@ -549,11 +542,11 @@ export async function POST({ request }: { request: Request }) {
     const selectionsArray = Array.isArray(selectionsRaw)
       ? selectionsRaw
       : selectionsRaw && typeof selectionsRaw === 'object'
-        ? (Array.isArray((selectionsRaw as any)?.selections)
-            ? (selectionsRaw as any).selections
-            : Object.entries(selectionsRaw as Record<string, unknown>).flatMap(([key, value]) =>
-                Array.isArray(value) ? value.map((entry) => ({ group: key, label: entry })) : []
-              ))
+        ? Array.isArray((selectionsRaw as any)?.selections)
+          ? (selectionsRaw as any).selections
+          : Object.entries(selectionsRaw as Record<string, unknown>).flatMap(([key, value]) =>
+              Array.isArray(value) ? value.map((entry) => ({ group: key, label: entry })) : []
+            )
         : [];
 
     selectionsArray.forEach((entry: any) => {
@@ -655,7 +648,7 @@ export async function POST({ request }: { request: Request }) {
         (entry as any).key ||
         (entry as any).value ||
         (entry as any).label ||
-        `upgrade-${idx}`;
+        `${idx}`;
       addAmount(amount, String(key));
     };
 
@@ -738,7 +731,7 @@ export async function POST({ request }: { request: Request }) {
     if (item?.productUrl) metadata.product_url = clamp(String(item.productUrl), 300);
     if (item?.image) metadata.product_image = clamp(String(item.image), 400);
     const metaUnitPrice = Number(
-      Number.isFinite(finalPrice) ? finalPrice : item.price ?? unitAmount / 100
+      Number.isFinite(finalPrice) ? finalPrice : (item.price ?? unitAmount / 100)
     );
     if (Number.isFinite(metaUnitPrice)) {
       metadata.unit_price = metaUnitPrice.toFixed(2);
@@ -763,58 +756,35 @@ export async function POST({ request }: { request: Request }) {
 
     if (optionDetails?.summary) {
       metadata.selected_options = clamp(optionDetails.summary);
-      metadata.option_summary = clamp(optionDetails.summary);
-    }
-    if (optionDetails?.entries?.length) {
-      const detailed = optionDetails.entries.map(([label, value]) => `${label}: ${value}`).join(' | ');
-      metadata.options_readable = clamp(detailed);
     }
     if (optionDetails?.json) {
       metadata.selected_options_json = clamp(optionDetails.json);
-      metadata.option_details_json = clamp(optionDetails.json);
     }
     if (optionDetails?.entries?.length) {
       optionDetails.entries.forEach(([label, value], idx) => {
         const index = idx + 1;
         metadata[`option${index}_name`] = clamp(label, 100);
         metadata[`option${index}_value`] = clamp(value, 200);
-        const normalizedKey = label
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, '_')
-          .replace(/^_|_$/g, '');
-        if (normalizedKey) {
-          const keyName = `option_${normalizedKey}`;
-          if (!(keyName in metadata)) metadata[keyName] = clamp(value, 200);
-          if (!metadata.option_vehicle && (normalizedKey.includes('vehicle') || normalizedKey.includes('platform'))) {
-            metadata.option_vehicle = clamp(value, 200);
-          }
-          if (normalizedKey.includes('upgrade') && !upgradeValues.includes(value)) {
-            upgradeValues.push(value);
-          }
-        }
       });
+      const vehicleEntry = optionDetails.entries.find(([label]) => /vehicle|platform/i.test(label));
+      if (vehicleEntry && !metadata.option_vehicle) {
+        metadata.option_vehicle = clamp(vehicleEntry[1], 200);
+      }
     }
     if (upgradeValues.length) {
-      const upgradeSummary = upgradeValues.join(', ');
-      metadata.upgrades = clamp(upgradeSummary);
-      const upgradePipe = upgradeValues.join('|');
-      metadata.upgrade_list = clamp(upgradePipe);
-      metadata.upgrade_titles = clamp(upgradePipe);
+      metadata.upgrades = clamp(upgradeValues.join(', '));
       upgradeValues.forEach((value, idx) => {
         metadata[`upgrade_${idx + 1}`] = clamp(value, 200);
       });
-      metadata.upgrades_readable = clamp(upgradeSummary);
     }
     if (typeof upgradesTotal === 'number') {
       metadata.upgrades_total = upgradesTotal.toFixed(2);
     }
     if (typeof item.basePrice === 'number' && Number.isFinite(item.basePrice)) {
       metadata.base_price = Number(item.basePrice).toFixed(2);
-      metadata.base_price_display = `$${Number(item.basePrice).toFixed(2)}`;
     }
     if (typeof item.extra === 'number' && Number.isFinite(item.extra)) {
       metadata.option_upcharge = Number(item.extra).toFixed(2);
-      metadata.option_upcharge_display = `$${Number(item.extra).toFixed(2)}`;
     }
     const variantEntry = optionDetails?.entries?.find(([key]) =>
       /variant|type|model|option\s*1/i.test(key)
@@ -896,51 +866,13 @@ export async function POST({ request }: { request: Request }) {
       const normalizedId = normalizeCartId(typeof i?.id === 'string' ? i.id : undefined);
       const resolvedProduct = normalizedId ? productLookup[normalizedId] : undefined;
       const resolvedPrice = getActivePrice(resolvedProduct as any);
-      const resolvedCompare = resolvedProduct ? getCompareAtPrice(resolvedProduct as any) : undefined;
+      const resolvedCompare = resolvedProduct
+        ? getCompareAtPrice(resolvedProduct as any)
+        : undefined;
       const imageUrl = typeof i?.image === 'string' ? i.image : undefined;
       const productUrl = typeof i?.productUrl === 'string' ? i.productUrl : undefined;
       const slug = extractSlugFromUrl(productUrl);
       const sku = typeof i?.sku === 'string' ? i.sku : undefined;
-      const meta: Record<string, string> = {};
-      if (optionDetails?.summary) meta['Options'] = optionDetails.summary;
-      if (optionDetails?.entries?.length) {
-        meta['Options Detail'] = optionDetails.entries
-          .map(([label, value]) => `${label}: ${value}`)
-          .join(' | ');
-      }
-      if (upgrades.length) meta['Upgrades'] = upgrades.join(', ');
-      if (typeof upgradesTotal === 'number') meta['Upgrades Total'] = `$${upgradesTotal.toFixed(2)}`;
-      if (typeof i?.basePrice === 'number' && Number.isFinite(i.basePrice)) {
-        meta['Base Price'] = `$${Number(i.basePrice).toFixed(2)}`;
-      }
-      if (typeof i?.extra === 'number' && Number.isFinite(i.extra)) {
-        meta['Option Upcharge'] = `$${Number(i.extra).toFixed(2)}`;
-      }
-      const metaPrice =
-        typeof resolvedPrice === 'number' && Number.isFinite(resolvedPrice)
-          ? resolvedPrice
-          : typeof i?.price === 'number' && Number.isFinite(i.price)
-            ? i.price
-            : undefined;
-      if (typeof metaPrice === 'number') {
-        meta['Unit Price'] = `$${Number(metaPrice).toFixed(2)}`;
-      }
-      if (typeof resolvedCompare === 'number') {
-        meta['Original Price'] = `$${Number(resolvedCompare).toFixed(2)}`;
-      }
-      if (typeof i?.quantity === 'number' && Number.isFinite(i.quantity)) {
-        meta['Quantity'] = String(i.quantity);
-      }
-      if (i?.signature) meta['Configuration Signature'] = String(i.signature);
-      if (productUrl) meta['Product URL'] = productUrl;
-      if (imageUrl) meta['Image URL'] = imageUrl;
-      if (slug) meta['Product Slug'] = slug;
-      Object.keys(meta).forEach((key) => {
-        const value = meta[key];
-        if (typeof value === 'string' && value.length > 200) {
-          meta[key] = value.slice(0, 200);
-        }
-      });
 
       const summaryBits: string[] = [];
       if (i?.name) summaryBits.push(String(i.name));
@@ -964,7 +896,6 @@ export async function POST({ request }: { request: Request }) {
         ...(upgrades.length ? { u: upgrades.join(', ').slice(0, 160) } : {}),
         ...(typeof upgradesTotal === 'number' ? { ut: upgradesTotal } : {})
       };
-      if (Object.keys(meta).length) entry.meta = meta;
       return entry;
     });
     let serialized = JSON.stringify(compact);
@@ -1003,9 +934,10 @@ export async function POST({ request }: { request: Request }) {
 
   const allowedCountries = resolveAllowedCountries();
   try {
-    const shippingAddressCollection: Stripe.Checkout.SessionCreateParams.ShippingAddressCollection = {
-      allowed_countries: allowedCountries
-    };
+    const shippingAddressCollection: Stripe.Checkout.SessionCreateParams.ShippingAddressCollection =
+      {
+        allowed_countries: allowedCountries
+      };
 
     const customerEmail = userEmail || undefined;
 
@@ -1016,7 +948,9 @@ export async function POST({ request }: { request: Request }) {
       marketing_opt_in: marketingOptIn ? 'true' : 'false'
     };
 
-    const attributionMetadata = normalizeMetadataMap((body as any)?.metadata || (body as any)?.attribution);
+    const attributionMetadata = normalizeMetadataMap(
+      (body as any)?.metadata || (body as any)?.attribution
+    );
 
     const metadataForSession: Record<string, string> = {
       ...baseMetadata,
@@ -1037,8 +971,9 @@ export async function POST({ request }: { request: Request }) {
     };
 
     let shippingMode = 'fallback_flat_rate';
-    let shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] | null =
-      [defaultShippingOption];
+    let shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] | null = [
+      defaultShippingOption
+    ];
 
     if (shippingQuote) {
       if (shippingQuote.requiresShipping) {
@@ -1050,7 +985,9 @@ export async function POST({ request }: { request: Request }) {
             shipping_rate_data: {
               type: 'fixed_amount',
               fixed_amount: { amount: shippingQuote.amount, currency: 'usd' },
-              display_name: shippingQuote.label || (shippingQuote.freight ? 'Freight Shipping' : 'Standard Shipping'),
+              display_name:
+                shippingQuote.label ||
+                (shippingQuote.freight ? 'Freight Shipping' : 'Standard Shipping'),
               ...(deliveryEstimate ? { delivery_estimate: deliveryEstimate } : {})
             }
           }
@@ -1073,8 +1010,7 @@ export async function POST({ request }: { request: Request }) {
     }
 
     const shippingSummaryValue =
-      shippingQuote?.summary ||
-      (shippingOptions ? 'flat_rate_995' : 'no_shipping_required');
+      shippingQuote?.summary || (shippingOptions ? 'flat_rate_995' : 'no_shipping_required');
     if (shippingSummaryValue) {
       const summaryClamped = clamp(shippingSummaryValue, 480);
       metadataForSession.shipping_summary = summaryClamped;
@@ -1087,8 +1023,7 @@ export async function POST({ request }: { request: Request }) {
       metadataForSession.shipping_chargeable_lbs = shippingQuote.chargeableWeight.toFixed(2);
       paymentIntentMetadata.shipping_total_weight_lbs =
         metadataForSession.shipping_total_weight_lbs;
-      paymentIntentMetadata.shipping_chargeable_lbs =
-        metadataForSession.shipping_chargeable_lbs;
+      paymentIntentMetadata.shipping_chargeable_lbs = metadataForSession.shipping_chargeable_lbs;
     }
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
