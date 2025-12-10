@@ -1561,7 +1561,9 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                                 id={inputId}
                                 name={(a.key || '').toString()}
                                 value={(a.value || a.label || '').toString()}
-                                data-group={(a.group || '').toString()}
+                                data-group={(a.group || 'upgrade').toString()}
+                                data-upgrade="true"
+                                data-addon="true"
                                 data-price={(typeof a.priceDelta === 'number' ? a.priceDelta : 0).toString()}
                                 data-label={a.label}
                                 checked={!!a.defaultSelected}

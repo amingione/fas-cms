@@ -125,12 +125,18 @@ function CartContents() {
         const qty = Math.max(1, toNumber(item.quantity, 1));
         const addOns = extractAddOns(item);
         const addOnTotal = calculateAddOnTotal(addOns);
-        const unitPrice = Math.max(0, toNumber(item.price, 0)) + addOnTotal;
-        const compareFromItem = toNumber(item.originalPrice, unitPrice);
+        const baseUnitPrice = Math.max(0, toNumber(item.price, 0));
+        const baseComparePrice = toNumber(item.originalPrice, baseUnitPrice);
+        const baseFromCart = toNumber((item as any).basePrice, Number.NaN);
+        const hasExplicitExtras = typeof item.extra === 'number' || Number.isFinite(baseFromCart);
+        const unitPrice = hasExplicitExtras ? baseUnitPrice : baseUnitPrice + addOnTotal;
+        const compareCandidate = hasExplicitExtras
+          ? baseComparePrice
+          : baseComparePrice + addOnTotal;
         const percentFromLabel = extractDiscountPercent(item.saleLabel);
         const derivedCompare =
           percentFromLabel && unitPrice > 0 ? unitPrice / (1 - percentFromLabel / 100) : null;
-        const bestCompare = Math.max(compareFromItem, derivedCompare ?? 0);
+        const bestCompare = Math.max(compareCandidate, derivedCompare ?? 0);
         const hasCompareDiff = bestCompare > unitPrice;
         const onSale = hasCompareDiff || Boolean(item.isOnSale) || Boolean(percentFromLabel);
         const comparePrice = hasCompareDiff ? bestCompare : null;
@@ -265,14 +271,32 @@ function CartContents() {
                   const addOnEntries = extractAddOns(item);
                   const addOnTotal = calculateAddOnTotal(addOnEntries);
                   const quantityValue = Math.max(1, toNumber(item.quantity, 1));
+                  const baseUnitPrice = Math.max(0, toNumber(item.price, 0));
+                  const baseComparePrice = toNumber(item.originalPrice, baseUnitPrice);
+                  const baseFromCart = toNumber((item as any).basePrice, Number.NaN);
+                  const hasExplicitExtras =
+                    typeof item.extra === 'number' || Number.isFinite(baseFromCart);
+                  const unitPriceWithExtras = hasExplicitExtras
+                    ? baseUnitPrice
+                    : baseUnitPrice + addOnTotal;
+                  const compareWithExtras = hasExplicitExtras
+                    ? baseComparePrice
+                    : baseComparePrice + addOnTotal;
                   const pricing = perItemPricing[item.id] || {
-                    unitPrice: toNumber(item.price, 0) + addOnTotal,
-                    comparePrice: null,
-                    onSale: Boolean(item.isOnSale),
+                    unitPrice: unitPriceWithExtras,
+                    comparePrice: compareWithExtras > unitPriceWithExtras ? compareWithExtras : null,
+                    onSale:
+                      compareWithExtras > unitPriceWithExtras || Boolean(item.isOnSale),
                     quantity: quantityValue,
-                    savings: 0,
-                    lineCurrent: (toNumber(item.price, 0) + addOnTotal) * quantityValue,
-                    lineOriginal: (toNumber(item.price, 0) + addOnTotal) * quantityValue,
+                    savings:
+                      compareWithExtras > unitPriceWithExtras
+                        ? compareWithExtras - unitPriceWithExtras
+                        : 0,
+                    lineCurrent: unitPriceWithExtras * quantityValue,
+                    lineOriginal:
+                      (compareWithExtras > unitPriceWithExtras
+                        ? compareWithExtras
+                        : unitPriceWithExtras) * quantityValue,
                     saleLabel: item.saleLabel || undefined
                   };
                   const normalizedClass = (item.shippingClass || '')

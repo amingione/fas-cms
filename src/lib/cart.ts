@@ -3,6 +3,8 @@ export type CartItem = {
   name: string;
   price: number;
   originalPrice?: number;
+  basePrice?: number;
+  extra?: number;
   isOnSale?: boolean;
   saleLabel?: string;
   quantity: number;

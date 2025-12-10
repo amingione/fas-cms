@@ -8,6 +8,8 @@ export type CartItem = {
   name?: string;
   price?: number; // unit price (for quick display; source of truth remains on server)
   originalPrice?: number;
+  basePrice?: number;
+  extra?: number;
   isOnSale?: boolean;
   saleLabel?: string;
   quantity: number;
@@ -123,6 +125,8 @@ export async function addItem(
       if (payload.stripePriceId) cart.items[idx].stripePriceId = payload.stripePriceId;
       if (payload.productId) cart.items[idx].productId = payload.productId;
       if (payload.productSlug) cart.items[idx].productSlug = payload.productSlug;
+      if (typeof payload.basePrice === 'number') cart.items[idx].basePrice = payload.basePrice;
+      if (typeof payload.extra === 'number') cart.items[idx].extra = payload.extra;
       if (typeof payload.price === 'number') cart.items[idx].price = payload.price;
       if (typeof payload.originalPrice === 'number') cart.items[idx].originalPrice = payload.originalPrice;
       if (typeof payload.isOnSale === 'boolean') cart.items[idx].isOnSale = payload.isOnSale;
@@ -140,6 +144,8 @@ export async function addItem(
       options: typeof payload === 'object' ? payload.options : undefined,
       selectedOptions,
       selectedUpgrades,
+      basePrice: typeof payload === 'object' ? payload.basePrice : undefined,
+      extra: typeof payload === 'object' ? payload.extra : undefined,
       quantity: Math.max(1, qty),
       installOnly: typeof payload === 'object' ? payload.installOnly : undefined,
       shippingClass: typeof payload === 'object' ? payload.shippingClass : undefined,

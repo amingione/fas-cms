@@ -85,15 +85,42 @@ const normalizeDelta = (value) => {
 };
 
 const readConfiguredOptions = () => {
-  const result = { selections: [], extra: 0 };
+  const result = { selections: [], upgrades: [], extra: 0 };
   const form = document.getElementById('product-options');
   if (!form) return result;
   const handled = new Set();
   const elements = Array.from(form.querySelectorAll('[data-group]'));
 
-  const addSelection = (group, value, label, delta) => {
+  const isUpgradeField = (node) => {
+    const ds = node?.dataset || {};
+    const groupAttr = node.getAttribute?.('data-group') || '';
+    const nameAttr = node.getAttribute?.('name') || '';
+    return (
+      ds.upgrade === 'true' ||
+      ds.addon === 'true' ||
+      /upgrade|add[-\s]?on/i.test(groupAttr) ||
+      /upgrade|add[-\s]?on/i.test(nameAttr)
+    );
+  };
+
+  const addSelection = (group, value, label, delta, meta = {}) => {
     const numericDelta = Number.isFinite(delta) ? delta : 0;
-    result.selections.push({ group, value, label, priceDelta: numericDelta });
+    const selection = {
+      group,
+      value,
+      label,
+      priceDelta: numericDelta,
+      isUpgrade: Boolean(meta.isUpgrade)
+    };
+    result.selections.push(selection);
+    if (selection.isUpgrade) {
+      result.upgrades.push({
+        group,
+        value,
+        label,
+        priceDelta: numericDelta
+      });
+    }
     result.extra += numericDelta;
   };
 
@@ -114,7 +141,7 @@ const readConfiguredOptions = () => {
         if (!isPlaceholder) {
           const label = option.dataset.label || option.text || value;
           const delta = normalizeDelta(option.dataset.price ?? option.getAttribute('data-price'));
-          addSelection(group, value, label, delta);
+          addSelection(group, value, label, delta, { isUpgrade: isUpgradeField(select) });
         }
       }
       handled.add(node);
@@ -135,7 +162,7 @@ const readConfiguredOptions = () => {
             const value = radio.value || '';
             const label = radio.dataset.label || value;
             const delta = normalizeDelta(radio.dataset.price ?? radio.getAttribute('data-price'));
-            addSelection(group, value, label, delta);
+            addSelection(group, value, label, delta, { isUpgrade: isUpgradeField(radio) });
           }
         });
         return;
@@ -146,7 +173,7 @@ const readConfiguredOptions = () => {
         if (input.checked) {
           const value = input.value || 'on';
           const label = input.dataset.label || value;
-          addSelection(group, value, label, baseDelta);
+          addSelection(group, value, label, baseDelta, { isUpgrade: isUpgradeField(input) });
         }
         return;
       }
@@ -154,7 +181,7 @@ const readConfiguredOptions = () => {
       const val = (input.value || '').toString().trim();
       if (val.length > 0) {
         const label = input.dataset.label || val;
-        addSelection(group, val, label, baseDelta);
+        addSelection(group, val, label, baseDelta, { isUpgrade: isUpgradeField(input) });
       }
       handled.add(input);
       return;
@@ -285,6 +312,14 @@ const hydrateCartButtons = () => {
 
     const { total, compareTotal, cfg, extra } = updateConfiguredPriceUI();
     const selections = Array.isArray(cfg.selections) ? cfg.selections : [];
+    const upgradeSelections = Array.isArray(cfg.upgrades) ? cfg.upgrades : [];
+    const selectedUpgrades = upgradeSelections
+      .map((entry) => entry?.label || entry?.value || '')
+      .filter(Boolean);
+    const selectedOptions = selections
+      .filter((sel) => !sel?.isUpgrade)
+      .map((sel) => sel?.label || sel?.value || '')
+      .filter(Boolean);
 
     const ds = button.dataset || {};
     const saleLabel = ds.productSaleLabel || ds.saleLabel || '';
@@ -340,6 +375,13 @@ const hydrateCartButtons = () => {
       image: ds.productImage || '',
       options,
       selections,
+      upgrades: upgradeSelections.map((entry) => ({
+        label: entry?.label || entry?.value || 'Upgrade',
+        value: entry?.value || entry?.label || '',
+        price: entry?.priceDelta ?? entry?.price ?? entry?.delta ?? 0
+      })),
+      selectedOptions,
+      selectedUpgrades,
       signature,
       quantity: 1,
       installOnly,
@@ -358,6 +400,10 @@ const hydrateCartButtons = () => {
       existing.isOnSale = product.isOnSale;
       existing.saleLabel = product.saleLabel;
       existing.options = product.options;
+      existing.selections = product.selections;
+      existing.upgrades = product.upgrades;
+      existing.selectedUpgrades = selectedUpgrades;
+      existing.selectedOptions = selectedOptions;
       existing.installOnly = installOnly;
       existing.shippingClass = shippingClassRaw;
       if (product.productUrl) existing.productUrl = product.productUrl;
