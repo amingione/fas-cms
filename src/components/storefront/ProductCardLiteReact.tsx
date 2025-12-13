@@ -62,7 +62,7 @@ export default function ProductCardLiteReact({
     <article className="group relative">
       <a
         href={href}
-        className="group block rounded-sm border border-[121212/40] bg-black transition-shadow duration-300 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary md:flex md:items-stretch"
+        className="group block rounded-sm border border-[121212/40] bg-dark transition-shadow duration-300 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary md:flex md:items-stretch"
         data-analytics-event="product_tile_click"
         data-analytics-category="ecommerce"
         data-analytics-label={anchorText}
@@ -73,7 +73,7 @@ export default function ProductCardLiteReact({
             {saleBadge}
           </span>
         )}
-        <div className="relative flex aspect-square items-center justify-center bg-black/30 backdrop-blur-sm md:aspect-auto md:w-56 md:min-w-56 md:max-w-56">
+        <div className="relative flex aspect-square items-center justify-center bg-dark/30 backdrop-blur-sm md:aspect-auto md:w-56 md:min-w-56 md:max-w-56">
           <img
             src={img}
             alt={anchorText}
@@ -81,12 +81,14 @@ export default function ProductCardLiteReact({
           />
         </div>
         <div className="flex-1 px-4 py-4 text-left">
-          <div className="line-clamp-2 text-[1rem] font-ethno leading-snug text-white">{anchorText}</div>
-        {shortText ? (
-          <div className="mt-2 line-clamp-2 text-sm leading-relaxed text-white/70">
-            {shortText}
+          <div className="line-clamp-2 text-[1rem] font-ethno leading-snug text-white">
+            {anchorText}
           </div>
-        ) : null}
+          {shortText ? (
+            <div className="mt-2 line-clamp-2 text-sm leading-relaxed text-white/70">
+              {shortText}
+            </div>
+          ) : null}
           <div className="mt-3 text-[1.15rem] font-mono text-accent">
             {price !== undefined ? (
               onSale ? (
@@ -110,16 +112,16 @@ export default function ProductCardLiteReact({
       <div className="pointer-events-none absolute right-4 top-4 z-10 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">
         <ProductQuickViewButton
           className="pointer-events-auto"
-            product={{
-              id: typeof product?._id === 'string' ? product._id : undefined,
-              title,
-              href,
-              price,
-              imageSrc: img,
-              imageAlt: anchorText,
-              description: shortText,
-              shortDescriptionPortable: (product as any)?.shortDescription,
-              optionGroups: quickViewOptions,
+          product={{
+            id: typeof product?._id === 'string' ? product._id : undefined,
+            title,
+            href,
+            price,
+            imageSrc: img,
+            imageAlt: anchorText,
+            description: shortText,
+            shortDescriptionPortable: (product as any)?.shortDescription,
+            optionGroups: quickViewOptions,
             shippingClass: (product as any)?.shippingClass,
             filters: (product as any)?.filters,
             installOnly: (product as any)?.installOnly
@@ -131,7 +133,7 @@ export default function ProductCardLiteReact({
     <article className="group relative">
       <a
         href={href}
-        className="group block relative overflow-hidden rounded-sm border border-white/30 bg-black transition-shadow duration-300 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary"
+        className="group block relative overflow-hidden rounded-sm border border-white/30 bg-dark transition-shadow duration-300 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary"
         data-analytics-event="product_tile_click"
         data-analytics-category="ecommerce"
         data-analytics-label={anchorText}
@@ -142,7 +144,7 @@ export default function ProductCardLiteReact({
             {saleBadge}
           </span>
         )}
-        <div className="contain relative flex aspect-square justify-center pb-10 object-contain bg-black/30 backdrop-blur-sm">
+        <div className="contain relative flex aspect-square justify-center pb-10 object-contain bg-dark/30 backdrop-blur-sm">
           <img
             src={img}
             alt={anchorText}

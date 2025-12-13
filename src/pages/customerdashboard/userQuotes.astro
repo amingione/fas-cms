@@ -1,5 +1,5 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro'
+import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
 
 <BaseLayout>
@@ -34,7 +34,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro'
 
         quotes.forEach((q) => {
           const li = document.createElement('li');
-          li.className = 'border border-gray-600 p-4 rounded-lg bg-black/30';
+          li.className = 'border border-gray-600 p-4 rounded-lg bg-dark/30';
           const dateRaw = q._createdAt || q.dateRequested;
           const date = dateRaw ? new Date(dateRaw).toLocaleDateString() : 'N/A';
           li.innerHTML = `
@@ -57,4 +57,3 @@ import BaseLayout from '../../layouts/BaseLayout.astro'
     fetchQuotes();
   </script>
 </BaseLayout>
-

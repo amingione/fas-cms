@@ -288,12 +288,12 @@ export default function CategoryPage({
       <Dialog open={open} onClose={setOpen} className="relative z-40 lg:hidden">
         <DialogBackdrop
           transition
-          className="fixed inset-0 bg-black/25 transition-opacity duration-300 ease-linear data-closed:opacity-0"
+          className="fixed inset-0 bg-dark/25 transition-opacity duration-300 ease-linear data-closed:opacity-0"
         />
         <div className="fixed inset-0 z-40 flex">
           <DialogPanel
             transition
-            className="relative flex w-full max-w-xs transform flex-col overflow-y-auto bg-black/80 backdrop-blur-sm pb-12 shadow-xl transition duration-300 ease-in-out data-closed:-translate-x-full"
+            className="relative flex w-full max-w-xs transform flex-col overflow-y-auto bg-dark/80 backdrop-blur-sm pb-12 shadow-xl transition duration-300 ease-in-out data-closed:-translate-x-full"
           >
             <div className="flex px-4 pt-5 pb-2">
               <button
@@ -428,14 +428,14 @@ export default function CategoryPage({
                       </div>
                       <PopoverPanel
                         transition
-                        className="group/popover-panel absolute inset-x-0 top-full z-20 w-full bg-black/70 backdrop-blur-sm text-sm text-gray-200 transition data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in border border-white-20 drop-shadow shadow-white/30"
+                        className="group/popover-panel absolute inset-x-0 top-full z-20 w-full bg-dark/70 backdrop-blur-sm text-sm text-gray-200 transition data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in border border-white-20 drop-shadow shadow-white/30"
                       >
                         {/* Presentational element used to render the bottom shadow, if we put the shadow on the actual panel it pokes out the top, so we use this shorter element to hide the top of the shadow */}
                         <div
                           aria-hidden="true"
-                          className="absolute inset-0 top-1/2 bg-black/80 backdrop-blur-sm shadow-sm"
+                          className="absolute inset-0 top-1/2 bg-dark/80 backdrop-blur-sm shadow-sm"
                         />
-                        <div className="relative bg-black/70 backdrop-blur-sm">
+                        <div className="relative bg-dark/70 backdrop-blur-sm">
                           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                             <div className="grid grid-cols-2 gap-x-8 gap-y-10 py-16">
                               <div className="col-start-2 grid grid-cols-2 gap-x-8">
@@ -447,7 +447,7 @@ export default function CategoryPage({
                                     <img
                                       alt={item.imageAlt}
                                       src={item.imageSrc}
-                                      className="fit w-full rounded-lg bg-black/40 object-cover group-hover:opacity-75"
+                                      className="fit w-full rounded-lg bg-dark/40 object-cover group-hover:opacity-75"
                                     />
                                     <a
                                       href={item.href}
@@ -495,7 +495,7 @@ export default function CategoryPage({
                           aria-hidden="true"
                           className="absolute inset-0 top-0 z-10 mx-auto h-px max-w-7xl px-8"
                         >
-                          <div className="h-px w-full bg-transparent transition-colors duration-200 ease-out group-data-open/popover-panel:bg-black/10" />
+                          <div className="h-px w-full bg-transparent transition-colors duration-200 ease-out group-data-open/popover-panel:bg-dark/10" />
                         </div>
                       </PopoverPanel>
                     </Popover>
@@ -631,7 +631,7 @@ export default function CategoryPage({
                     key={category.id || category.slug}
                     href={`/shop/categories/${category.slug}`}
                     aria-label={`Browse ${category.title}`}
-                    className="group relative overflow-hidden rounded-xl border border-white/10 bg-black/40 p-6 transition duration-300 hover:border-primary hover:shadow-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red/5"
+                    className="group relative overflow-hidden rounded-xl border border-white/10 bg-dark/40 p-6 transition duration-300 hover:border-primary hover:shadow-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red/5"
                   >
                     {category.imageUrl ? (
                       <img
@@ -660,7 +660,7 @@ export default function CategoryPage({
                 ))}
               </div>
             ) : (
-              <div className="mt-10 rounded-xl border border-white/15 bg-black/40 p-10 text-center text-sm text-white/60">
+              <div className="mt-10 rounded-xl border border-white/15 bg-dark/40 p-10 text-center text-sm text-white/60">
                 No categories loaded yet. Confirm your Sanity credentials and publish categories to
                 populate this section.
               </div>

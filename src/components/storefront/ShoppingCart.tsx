@@ -49,7 +49,10 @@ function extractAddOns(item: CartItem): AddOnEntry[] {
   const push = (label?: string | null, price?: number | null) => {
     const cleaned = cleanLabel(label);
     if (!cleaned) return;
-    addOns.push({ label: cleaned, price: typeof price === 'number' && Number.isFinite(price) ? price : undefined });
+    addOns.push({
+      label: cleaned,
+      price: typeof price === 'number' && Number.isFinite(price) ? price : undefined
+    });
   };
 
   const readEntry = (entry: any) => {
@@ -101,7 +104,8 @@ function CartContents() {
   const items = cart?.items ?? [];
   const hasItems = items.length > 0;
 
-  const { perItemPricing, discountTotal, originalSubtotal, saleLabel, hasSaleItems } = useMemo(() => {
+  const { perItemPricing, discountTotal, originalSubtotal, saleLabel, hasSaleItems } =
+    useMemo(() => {
       const pricingById: Record<
         string,
         {
@@ -222,7 +226,7 @@ function CartContents() {
   const formattedDiscount = formatPrice(discountTotal);
 
   return (
-    <div className="bg-black text-white">
+    <div className="bg-dark text-white">
       <div className="mx-auto max-w-7xl px-4 pb-24 pt-16 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <h1 className="font-ethno text-3xl italic tracking-tight sm:text-4xl">Shopping Cart</h1>
@@ -284,9 +288,9 @@ function CartContents() {
                     : baseComparePrice + addOnTotal;
                   const pricing = perItemPricing[item.id] || {
                     unitPrice: unitPriceWithExtras,
-                    comparePrice: compareWithExtras > unitPriceWithExtras ? compareWithExtras : null,
-                    onSale:
-                      compareWithExtras > unitPriceWithExtras || Boolean(item.isOnSale),
+                    comparePrice:
+                      compareWithExtras > unitPriceWithExtras ? compareWithExtras : null,
+                    onSale: compareWithExtras > unitPriceWithExtras || Boolean(item.isOnSale),
                     quantity: quantityValue,
                     savings:
                       compareWithExtras > unitPriceWithExtras
@@ -393,7 +397,7 @@ function CartContents() {
                               id={`quantity-${item.id}`}
                               value={item.quantity || 1}
                               onChange={(event) => onQuantityChange(item.id, event.target.value)}
-                              className="rounded-md border border-white/20 bg-black/60 px-3 py-2 text-sm text-white focus:outline-none"
+                              className="rounded-md border border-white/20 bg-dark/60 px-3 py-2 text-sm text-white focus:outline-none"
                             >
                               {(QUANTITY_CHOICES.includes(item.quantity || 1)
                                 ? QUANTITY_CHOICES
@@ -480,7 +484,7 @@ function CartContents() {
                       >
                         <QuestionMarkCircleIcon aria-hidden="true" className="size-4" />
                       </button>
-                      <span className="pointer-events-none absolute top-full left-1/2 z-10 mt-1 hidden w-max -translate-x-1/2 rounded-md border border-white/20 bg-black/90 px-3 py-2 text-xs text-white shadow-lg transition group-hover:block group-focus-within:block">
+                      <span className="pointer-events-none absolute top-full left-1/2 z-10 mt-1 hidden w-max -translate-x-1/2 rounded-md border border-white/20 bg-dark/90 px-3 py-2 text-xs text-white shadow-lg transition group-hover:block group-focus-within:block">
                         Shipping costs are calculated according to your delivery address.
                       </span>
                     </span>
@@ -498,7 +502,7 @@ function CartContents() {
                       >
                         <QuestionMarkCircleIcon aria-hidden="true" className="size-4" />
                       </button>
-                      <span className="pointer-events-none absolute top-full left-1/2 z-10 mt-1 hidden w-max -translate-x-1/2 rounded-md border border-white/20 bg-black/90 px-3 py-2 text-xs text-white shadow-lg transition group-hover:block group-focus-within:block">
+                      <span className="pointer-events-none absolute top-full left-1/2 z-10 mt-1 hidden w-max -translate-x-1/2 rounded-md border border-white/20 bg-dark/90 px-3 py-2 text-xs text-white shadow-lg transition group-hover:block group-focus-within:block">
                         Taxes are finalized during checkout based on your delivery details.
                       </span>
                     </span>

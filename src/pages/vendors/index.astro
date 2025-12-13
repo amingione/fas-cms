@@ -25,7 +25,10 @@ const pageDescription =
 
 <BaseLayout title={pageTitle} description={pageDescription}>
   <div class="relative overflow-hidden">
-    <div class="pointer-events-none absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-black" />
+    <div
+      class="pointer-events-none absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-black"
+    >
+    </div>
 
     <section class="relative mx-auto max-w-6xl px-4 py-16 space-y-14">
       <header class="text-center space-y-4">
@@ -37,18 +40,22 @@ const pageDescription =
         </p>
       </header>
 
-      {featuredVendors?.length > 0 && (
-        <section class="space-y-6">
-          <div class="flex items-center justify-between gap-4">
-            <h2 class="text-2xl font-semibold text-white">Featured Partners</h2>
-            <span class="text-sm text-neutral-400">Handpicked standouts</span>
-          </div>
+      {
+        featuredVendors?.length > 0 && (
+          <section class="space-y-6">
+            <div class="flex items-center justify-between gap-4">
+              <h2 class="text-2xl font-semibold text-white">Featured Partners</h2>
+              <span class="text-sm text-neutral-400">Handpicked standouts</span>
+            </div>
 
-          <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
-            {featuredVendors.map((vendor) => <VendorCard vendor={vendor} featured />)}
-          </div>
-        </section>
-      )}
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+              {featuredVendors.map((vendor) => (
+                <VendorCard vendor={vendor} featured />
+              ))}
+            </div>
+          </section>
+        )
+      }
 
       <section class="space-y-6">
         <div class="flex items-center justify-between gap-4">
@@ -58,15 +65,19 @@ const pageDescription =
           </span>
         </div>
 
-        {vendors?.length > 0 ? (
-          <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {vendors.map((vendor) => <VendorCard vendor={vendor} />)}
-          </div>
-        ) : (
-          <div class="rounded-2xl border border-white/10 bg-white/5 p-8 text-center text-neutral-300">
-            No vendors to show yet. Check back soon as we onboard more partners.
-          </div>
-        )}
+        {
+          vendors?.length > 0 ? (
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {vendors.map((vendor) => (
+                <VendorCard vendor={vendor} />
+              ))}
+            </div>
+          ) : (
+            <div class="rounded-2xl border border-white/10 bg-white/5 p-8 text-center text-neutral-300">
+              No vendors to show yet. Check back soon as we onboard more partners.
+            </div>
+          )
+        }
       </section>
 
       <section class="grid gap-6 md:grid-cols-[2fr_1fr]">
@@ -84,7 +95,7 @@ const pageDescription =
           </a>
         </div>
 
-        <div class="rounded-2xl border border-white/10 bg-black/60 p-6 text-center">
+        <div class="rounded-2xl border border-white/10 bg-dark/60 p-6 text-center">
           <p class="text-sm text-neutral-300">Already a vendor?</p>
           <a
             href="/vendor-portal/login"

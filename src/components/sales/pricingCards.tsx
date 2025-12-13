@@ -83,7 +83,7 @@ export default function PricingCards() {
   };
 
   return (
-    <section className="relative isolate overflow-hidden bg-black py-24 sm:py-32">
+    <section className="relative isolate overflow-hidden bg-dark py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-5xl font-semibold font-ethno tracking-tight text-white sm:text-6xl">
@@ -135,7 +135,7 @@ export default function PricingCards() {
                     className={classNames(
                       product.featured
                         ? 'btn-plain bg-primary hover:bg-primary/90 shadow-lg shadow-primary/40'
-                        : 'btn-plain bg-black/60 hover:bg-primary/10 border border-white/10 shadow-md',
+                        : 'btn-plain bg-dark/60 hover:bg-primary/10 border border-white/10 shadow-md',
                       'btn-plain w-1/2 rounded-md px-3 py-2 text-sm font-semibold text-white transition-colors'
                     )}
                     onClick={() => handleAddToCart(product)}

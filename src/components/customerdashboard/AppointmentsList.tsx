@@ -53,7 +53,9 @@ function formatDate(value: unknown): string {
 function resolveCustomerName(record: AppointmentRecord): string {
   const customer = record.customer;
   if (customer) {
-    const parts = [customer.firstName, customer.lastName].filter((part) => typeof part === 'string' && part.trim());
+    const parts = [customer.firstName, customer.lastName].filter(
+      (part) => typeof part === 'string' && part.trim()
+    );
     if (parts.length) {
       return parts.join(' ').trim();
     }
@@ -174,11 +176,7 @@ export default function AppointmentsList() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="text-center text-white/80">
-        Loading appointments...
-      </div>
-    );
+    return <div className="text-center text-white/80">Loading appointments...</div>;
   }
 
   if (error) {
@@ -190,11 +188,7 @@ export default function AppointmentsList() {
   }
 
   if (!appointments.length) {
-    return (
-      <div className="text-center text-white/70">
-        {FALLBACK_MESSAGE}
-      </div>
-    );
+    return <div className="text-center text-white/70">{FALLBACK_MESSAGE}</div>;
   }
 
   return (
@@ -202,7 +196,7 @@ export default function AppointmentsList() {
       {appointments.map((appointment) => (
         <div
           key={appointment.id}
-          className="border border-white/20 bg-black/40 text-white rounded-lg p-4 shadow-inner shadow-black/40"
+          className="border border-white/20 bg-dark/40 text-white rounded-lg p-4 shadow-inner shadow-black/40"
         >
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>

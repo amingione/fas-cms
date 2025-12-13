@@ -196,7 +196,7 @@ export function CustomFabrication() {
                 const el = ref.current as unknown as HTMLElement | null;
                 if (el) el.scrollBy({ left: Math.round(el.clientWidth * 0.8), behavior: 'smooth' });
               }}
-              className="pointer-events-auto inline-flex items-center justify-center w-9 h-9 rounded-full bg-black/60 border border-white/10 text-white hover:bg-black/80 shadow"
+              className="pointer-events-auto inline-flex items-center justify-center w-9 h-9 rounded-full bg-dark/60 border border-white/10 text-white hover:bg-dark/80 shadow"
             >
               <ArrowRight className="w-5 h-5" />
             </button>

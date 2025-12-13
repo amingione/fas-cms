@@ -52,7 +52,7 @@ const carouselScript = shouldHydrate ? carouselScriptUrl : null;
 <div class="relative w-full max-w-full" data-slug-carousel>
   <!-- Viewport -->
   <div
-    class="relative overflow-x-auto snap-x snap-mandatory no-scrollbar aspect-[4/3] md:aspect-square rounded-lg bg-black/20 min-h-[260px] md:min-h-[300px]"
+    class="relative overflow-x-auto snap-x snap-mandatory no-scrollbar aspect-[4/3] md:aspect-square rounded-lg bg-dark/20 min-h-[260px] md:min-h-[300px]"
     data-carousel-viewport
   >
     <div class="flex w-full h-full min-w-0" data-track>
@@ -87,13 +87,13 @@ const carouselScript = shouldHydrate ? carouselScriptUrl : null;
     <button
       type="button"
       aria-label="Previous image"
-      class="bg-black/60 text-white rounded-full p-2 pointer-events-auto z-50 absolute left-2 -translate-y-1/2"
+      class="bg-dark/60 text-white rounded-full p-2 pointer-events-auto z-50 absolute left-2 -translate-y-1/2"
       data-carousel-prev>‹</button
     >
     <button
       type="button"
       aria-label="Next image"
-      class="bg-black/60 text-white rounded-full p-2 pointer-events-auto z-50 absolute right-2 -translate-y-1/2"
+      class="bg-dark/60 text-white rounded-full p-2 pointer-events-auto z-50 absolute right-2 -translate-y-1/2"
       data-carousel-next>›</button
     >
   </div>
@@ -105,7 +105,7 @@ const carouselScript = shouldHydrate ? carouselScriptUrl : null;
         <button
           type="button"
           data-index={i}
-          class="h-16 w-16 md:h-20 md:w-20 bg-black/30 rounded cursor-pointer opacity-80 hover:opacity-100 border border-white/20 flex-shrink-0 p-1 appearance-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          class="h-16 w-16 md:h-20 md:w-20 bg-dark/30 rounded cursor-pointer opacity-80 hover:opacity-100 border border-white/20 flex-shrink-0 p-1 appearance-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           aria-label={`View product image ${i + 1}`}
           data-carousel-thumb
         >

@@ -34,19 +34,25 @@ export function CollectionGrid({ slug }: { slug: string }) {
             alt={collection.title}
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+          <div className="absolute inset-0 bg-dark bg-opacity-40 flex items-center justify-center">
             <h1 className="text-4xl font-bold text-white">{collection.title}</h1>
           </div>
         </div>
       )}
 
       {collection.description && (
-        <p className="text-lg text-gray-600 mb-8 text-center max-w-2xl mx-auto">{collection.description}</p>
+        <p className="text-lg text-gray-600 mb-8 text-center max-w-2xl mx-auto">
+          {collection.description}
+        </p>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {products.map((product) => (
-          <ProductCardLiteReact key={product._id} product={product} productImage={product.images?.[0]} />
+          <ProductCardLiteReact
+            key={product._id}
+            product={product}
+            productImage={product.images?.[0]}
+          />
         ))}
       </div>
     </div>

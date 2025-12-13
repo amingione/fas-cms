@@ -55,7 +55,7 @@ const capabilities = [
 
 export default function WeldingPage() {
   return (
-    <div className="bg-black text-white font-sans">
+    <div className="bg-dark text-white font-sans">
       {/* Hero */}
       <section className="relative h-screen flex items-center justify-start">
         <video

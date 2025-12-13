@@ -258,7 +258,7 @@ export default function ShopTopControls({
             </SheetTrigger>
             <SheetContent
               side="right"
-              className="bg-black/90 border-gray-700/50 overflow-hidden w-[92vw] max-w-[440px] sm:max-w-[520px]"
+              className="bg-dark/90 border-gray-700/50 overflow-hidden w-[92vw] max-w-[440px] sm:max-w-[520px]"
             >
               <SheetHeader>
                 <SheetTitle className="text-white font-kwajong">Filters</SheetTitle>

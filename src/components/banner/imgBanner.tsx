@@ -26,7 +26,7 @@ export function Banner({
       />
 
       {/* Optional overlay */}
-      <div className="absolute inset-0 bg-black/80" />
+      <div className="absolute inset-0 bg-dark/80" />
 
       {/* Content container pinned to your site max-width */}
       <div className="relative h-full flex items-center">

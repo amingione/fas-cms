@@ -23,18 +23,23 @@ const ogImageAbsolute = new URL('/logo/faslogochroma.webp', requestUrl.origin).t
   canonical={canonical}
   ogImage={ogImageAbsolute}
 >
-
   <div {...inlineObjectId('content/pages/services/igla.json')}>
-  <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>{pageDoc?.title ?? 'IGLA Security - F.A.S. Motorsports'}</div>
-  {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
-    <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
-  )}
+    <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>
+      {pageDoc?.title ?? 'IGLA Security - F.A.S. Motorsports'}
+    </div>
+    {
+      Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
+        <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
+      )
+    }
 
-   <!-- HERO -->
-  <section
+    <!-- HERO -->
+    <section
       class="relative flex items-center justify-center pt-10 pb-6 mb-12 sm:mb-16 lg:mb-[-8px]"
     >
-      <div class="relative w-full overflow-hidden rounded-none min-h-[420px] sm:min-h-[520px] lg:min-h-[620px]">
+      <div
+        class="relative w-full overflow-hidden rounded-none min-h-[420px] sm:min-h-[520px] lg:min-h-[620px]"
+      >
         {/* Video Background */}
         <video
           class="absolute inset-0 h-full w-full object-cover"
@@ -51,18 +56,22 @@ const ogImageAbsolute = new URL('/logo/faslogochroma.webp', requestUrl.origin).t
             objectPosition: '50% 50%',
             filter: 'brightness(0.6) contrast(1.2) saturate(1.2) grayscale(100%)',
             opacity: 1
-          }}
-        />
+          }}></video>
         <div
           aria-hidden="true"
-          class="absolute inset-0 bg-black/55 backdrop-blur-[1px] pointer-events-none"
-        />
-        <div class="luxury-particles relative z-10 flex h-full flex-col items-center justify-center text-center px-4 pt-16 sm:px-6 sm:pt-20 pointer-events-none">
+          class="absolute inset-0 bg-dark/55 backdrop-blur-[1px] pointer-events-none"
+        >
+        </div>
+        <div
+          class="luxury-particles relative z-10 flex h-full flex-col items-center justify-center text-center px-4 pt-16 sm:px-6 sm:pt-20 pointer-events-none"
+        >
           {/* Content */}
           <BrandDivider client:load className="justify-center" />
           <div class="max-w-3xl px-6 text-center flex flex-col items-center"></div>
 
-          <p class="text-2xl text-gradient text-primary platinum mt-10 font-borg text-glow pb-2 sm:text-3xl">
+          <p
+            class="text-2xl text-gradient text-primary platinum mt-10 font-borg text-glow pb-2 sm:text-3xl"
+          >
             Invisible. Indestructible.
           </p>
           <h2 class="text-4xl font-bold font-ethno italic sm:text-6xl">
@@ -71,153 +80,217 @@ const ogImageAbsolute = new URL('/logo/faslogochroma.webp', requestUrl.origin).t
           <p class="mt-2 text-base font-medium font-ethno italic text-white/70 sm:text-xl/8">
             Full System Lockout Without a Trace.
           </p>
-          <SocialMedia client:load className="relative pointer-events-auto mt-6 sm:mt-8 py-4 pb-6 sm:pb-10" />
+          <SocialMedia
+            client:load
+            className="relative pointer-events-auto mt-6 sm:mt-8 py-4 pb-6 sm:pb-10"
+          />
         </div>
       </div>
     </section>
 
-  <section class="luxury-particles relative text-white pt-20 pb-32 px-6">
-    <div class="absolute inset-0"></div>
-    <div class="relative z-10 max-w-6xl mx-auto">
-      <h1 class="text-4xl font-cyber font-bold text-primary mb-6">Ready to protect what moves you? </h1>
-      <p class="text-lg font-cyber text-white/70 mb-10 max-w-2xl">
-          Get advanced vehicle security backed by expert installation at F.A.S. Motorsports — one of Southwest Florida’s certified IGLA providers. No subscriptions. No gimmicks. Just serious protection.
-      </p>
+    <section class="luxury-particles relative text-white pt-20 pb-32 px-6">
+      <div class="absolute inset-0"></div>
+      <div class="relative z-10 max-w-6xl mx-auto">
+        <h1 class="text-4xl font-cyber font-bold text-primary mb-6">
+          Ready to protect what moves you?
+        </h1>
+        <p class="text-lg font-cyber text-white/70 mb-10 max-w-2xl">
+          Get advanced vehicle security backed by expert installation at F.A.S. Motorsports — one of
+          Southwest Florida’s certified IGLA providers. No subscriptions. No gimmicks. Just serious
+          protection.
+        </p>
 
-      <div class="grid md:grid-cols-2 gap-12 items-start">
-        <div class="space-y-6">
-          <h2 class="text-2xl font-ethno font-semibold text-white">Key Features:</h2>
-          <ul class="list-disc font-mono font-bold list-inside text-white/70 space-y-2">
-            <li>Undetectable to standard scanners and thieves</li>
-            <li>Prevents unauthorized engine start</li>
-            <li>Smartphone authorization via mobile app</li>
-            <li>Does not interfere with factory wiring or warranty</li>
-            <li>Silent operation — no indication it's installed</li>
-          </ul>
-          <Button href="/contact" text="Contact Us for More Info" variant="default" />
-        </div>
-        <div>
+        <div class="grid md:grid-cols-2 gap-12 items-start">
+          <div class="space-y-6">
+            <h2 class="text-2xl font-ethno font-semibold text-white">Key Features:</h2>
+            <ul class="list-disc font-mono font-bold list-inside text-white/70 space-y-2">
+              <li>Undetectable to standard scanners and thieves</li>
+              <li>Prevents unauthorized engine start</li>
+              <li>Smartphone authorization via mobile app</li>
+              <li>Does not interfere with factory wiring or warranty</li>
+              <li>Silent operation — no indication it's installed</li>
+            </ul>
+            <Button href="/contact" text="Contact Us for More Info" variant="default" />
+          </div>
+          <div></div>
         </div>
       </div>
-    </div>
-  </section>
-  <section class="relative text-white py-64 px-6 overflow-hidden ">
-    <div class="absolute inset-0 bg-full bg-center bg-no-repeat z-0" style="background-image: url('/images/igla/igla-header-page.webp');"></div>
-    <div class="absolute inset-0 bg-transparent z-0"></div>
-    <div class="relative z-10 max-w-8xl mx-auto text-center space-y-12">
-      <div id="carousel" class="space-y-6 transition-opacity duration-500">
-        <h1 id="carousel-title" class="text-4xl font-cyber text-primary">IGLA FEATURE</h1>
-        <h2 id="carousel-subtitle" class="text-xl font-ethno text-white">Smart Anti-Theft with Full System Control</h2>
+    </section>
+    <section class="relative text-white py-64 px-6 overflow-hidden">
+      <div
+        class="absolute inset-0 bg-full bg-center bg-no-repeat z-0"
+        style="background-image: url('/images/igla/igla-header-page.webp');"
+      >
       </div>
-    </div>
+      <div class="absolute inset-0 bg-transparent z-0"></div>
+      <div class="relative z-10 max-w-8xl mx-auto text-center space-y-12">
+        <div id="carousel" class="space-y-6 transition-opacity duration-500">
+          <h1 id="carousel-title" class="text-4xl font-cyber text-primary">IGLA FEATURE</h1>
+          <h2 id="carousel-subtitle" class="text-xl font-ethno text-white">
+            Smart Anti-Theft with Full System Control
+          </h2>
+        </div>
+      </div>
 
-    <script type="module">
-      const titles = [
-        "IGLA FEATURE",
-        "Secure Your Build",
-        "Invisible. Indestructible."
-      ];
-      const subtitles = [
-        "Smart Anti-Theft with Full System Control",
-        "Keep high-performance vehicles safe from theft",
-        "No wiring cuts. No alarms. Just protection."
-      ];
-      let index = 0;
-      const titleEl = document.getElementById("carousel-title");
-      const subtitleEl = document.getElementById("carousel-subtitle");
+      <script type="module">
+        const titles = ['IGLA FEATURE', 'Secure Your Build', 'Invisible. Indestructible.'];
+        const subtitles = [
+          'Smart Anti-Theft with Full System Control',
+          'Keep high-performance vehicles safe from theft',
+          'No wiring cuts. No alarms. Just protection.'
+        ];
+        let index = 0;
+        const titleEl = document.getElementById('carousel-title');
+        const subtitleEl = document.getElementById('carousel-subtitle');
 
-      setInterval(() => {
-        index = (index + 1) % titles.length;
-        titleEl.textContent = titles[index];
-        subtitleEl.textContent = subtitles[index];
-      }, 4000);
-    </script>
-  </section>
-  <section class="px-2 py-20 max-w-6xl mx-auto text-left">
-    <h1 class="text-xl font-cyber text-[#1d92ea]">What is IGLA?</h1>
-    <div class="h-[2px] w-20 bg-[#1d92ea] my-4"></div>
-    <h2 class="text-white font-mono font-bold tracking-[1.2px] text-lg mb-6">Unique digital anti-theft system</h2>
-    <p class="text-white leading-relaxed text-xs font-mono">
-      The IGLA Anti-Theft System is a modern solution that integrates with your vehicle’s electronics to prevent unauthorized use. Unlike traditional immobilizers, it uses advanced technology for seamless and robust protection.
-
-      <br/><br/>
-
-      IGLA operates invisibly, using encrypted communication and advanced algorithms to ensure only authorized users can start your vehicle. This discreet approach is crucial as car theft methods become more sophisticated.
-
-      <br/><br/>
-
-      Professional car theft is on the rise, making advanced security like IGLA essential. Fas Motorsports is Southwest Florida’s exclusive certified IGLA installer, offering expert service and peace of mind with every installation.
-
-      <br/><br/>
-
-      Fas Motorsports provides expert installation of the IGLA Anti-Theft System, ensuring reliable protection for your vehicle. Secure your investment with advanced security and trusted service.
-    </p>
-  </section>
- <div class="w-3/4 h-[2px] bg-[#1d92ea] my-2 mx-auto"></div>
-  <section class="grid md:grid-cols-2 gap-10 px-6 py-20 max-w-6xl mx-auto">
-    <!-- Left: Description -->
-    <div>
-      <h1 class="text-xl font-cyber text-[#1d92ea]">IGLA Anti-Theft System</h1>
+        setInterval(() => {
+          index = (index + 1) % titles.length;
+          titleEl.textContent = titles[index];
+          subtitleEl.textContent = subtitles[index];
+        }, 4000);
+      </script>
+    </section>
+    <section class="px-2 py-20 max-w-6xl mx-auto text-left">
+      <h1 class="text-xl font-cyber text-[#1d92ea]">What is IGLA?</h1>
       <div class="h-[2px] w-20 bg-[#1d92ea] my-4"></div>
-      <h2 class="text-white font-mono tracking-[1.2px] text-lg mb-6">Advanced Vehicle Protection Technology</h2>
-
-      <p class="text-white leading-relaxed text-xs font-mono">
-        The IGLA Anti-Theft System offers a robust suite of features designed to protect your vehicle from theft while enhancing user convenience. At the core of its functionality is the innovative technology that prevents unauthorized engine start, operation, and reprogramming of keys. This means that even if a thief attempts to gain access to the vehicle’s key system, the IGLA will automatically block these attempts, providing a significant deterrent against theft.
-      </p>
-    </div>
-
-    <!-- Right: Note and Image -->
-    <div class="flex flex-col items-center justify-start space-y-6 text-center">
-      <p class="font-kwajong text-white font-bold text-base">Note: Features may vary depending on your vehicles make, model, and Igla System Version.</p>
-      <Image src={IglaBox} alt="IGLA System Box" class="w-full max-w-sm" widths={[320,640]} sizes="(min-width: 768px) 320px, 100vw" />
-      <div class="w-full h-[2px] bg-[#1d92ea]"></div>
-    </div>
-  </section>
- 
-  <section class="grid md:grid-cols-2 gap-10 px-6 py-20 max-w-6xl mx-auto">
-    <!-- Left: Description -->
-    <div>
-      <h1 class="text-xl font-cyber text-[#1d92ea]">IGLA Integration</h1>
-      <div class="h-[2px] w-20 bg-[#1d92ea] my-2"></div>
-      <h2 class="text-white font-mono tracking-[1.2px] text-lg mb-6">The IGLA system integrates directly with your vehicle’s digital architecture</h2>
-      <p class="text-white leading-relaxed text-xs font-mono">
-        Using CAN and LIN bus protocols — to silently block unauthorized access. It doesn’t rely on visible hardware or LEDs, making it undetectable to thieves. Whether it’s key cloning, relay attacks, or ECU swapping, IGLA shuts down the engine or transmission preemptively, all controlled via a customizable PIN, mobile app, or factory buttons.
-      </p>
-    </div>
-
-    <!-- Right: Accordion -->
-    <div class="space-y-4">
-      <details class="bg-black border border-[#1d92ea] rounded">
-        <summary class="cursor-pointer px-4 py-3 font-mono text-white tracking-wide">No Subscriptions or Hidden Fees</summary>
-        <p class="px-4 py-2 text-white/70 font-mono">One-time install with full protection. No ongoing charges.</p>
-      </details>
-      <details class="bg-black border border-[#1d92ea] rounded">
-        <summary class="cursor-pointer px-4 py-3 font-mono text-white tracking-wide">Compact and Discreet</summary>
-        <p class="px-4 py-2 text-white/70 font-mono">Installs easily and remains invisible to thieves.</p>
-      </details>
-      <details class="bg-black border border-[#1d92ea] rounded">
-        <summary class="cursor-pointer px-4 py-3 font-mono text-white tracking-wide">Doesn’t Void Warranty</summary>
-        <p class="px-4 py-2 text-white/70 font-mono">Factory wiring remains untouched and compliant.</p>
-      </details>
-      <details class="bg-black border border-[#1d92ea] rounded">
-        <summary class="cursor-pointer px-4 py-3 font-mono text-white tracking-wide">Blocks Engine and Transmission</summary>
-        <p class="px-4 py-2 text-white/70 font-mono">Stops operation without needing to cut into circuits.</p>
-      </details>
-    </div>
-  </section>
-  <section class="grid md:grid-cols-2 items-center gap-10 px-6 py-20 max-w-6xl mx-auto">
-    <div>
-      <Image src={SchedIgla} alt="Schedule Installation" class="w-full rounded shadow-lg" widths={[400,800,1200]} sizes="(min-width: 768px) 50vw, 100vw" />
-    </div>
-    <div class="text-center md:text-left">
-      <h2 class="text-3xl font-cyber text-white mb-6">Schedule Your Installation</h2>
-      <p class="text-[#1d92ea] font-mono tracking-[1.2px] max-w-3xl mx-auto mb-10">
-        Our certified team will assess your vehicle’s specific needs to determine the best IGLA solution for your setup — completely seamless, with no disruption to your factory wiring.
-      </p>
-      <Button href="/schedule" text="Schedule Your Install" variant="default" />
-      <h2 class="mt-12 text-white font-mono font-bold text-base max-w-4xl mx-auto md:mx-0">
-        Pricing varies depending on the vehicle and system version. We believe in full transparency, so our team is always available to provide a detailed breakdown and answer questions before you commit.
+      <h2 class="text-white font-mono font-bold tracking-[1.2px] text-lg mb-6">
+        Unique digital anti-theft system
       </h2>
-    </div>
-  </section>
+      <p class="text-white leading-relaxed text-xs font-mono">
+        The IGLA Anti-Theft System is a modern solution that integrates with your vehicle’s
+        electronics to prevent unauthorized use. Unlike traditional immobilizers, it uses advanced
+        technology for seamless and robust protection.
+
+        <br /><br />
+
+        IGLA operates invisibly, using encrypted communication and advanced algorithms to ensure
+        only authorized users can start your vehicle. This discreet approach is crucial as car theft
+        methods become more sophisticated.
+
+        <br /><br />
+
+        Professional car theft is on the rise, making advanced security like IGLA essential. Fas
+        Motorsports is Southwest Florida’s exclusive certified IGLA installer, offering expert
+        service and peace of mind with every installation.
+
+        <br /><br />
+
+        Fas Motorsports provides expert installation of the IGLA Anti-Theft System, ensuring
+        reliable protection for your vehicle. Secure your investment with advanced security and
+        trusted service.
+      </p>
+    </section>
+    <div class="w-3/4 h-[2px] bg-[#1d92ea] my-2 mx-auto"></div>
+    <section class="grid md:grid-cols-2 gap-10 px-6 py-20 max-w-6xl mx-auto">
+      <!-- Left: Description -->
+      <div>
+        <h1 class="text-xl font-cyber text-[#1d92ea]">IGLA Anti-Theft System</h1>
+        <div class="h-[2px] w-20 bg-[#1d92ea] my-4"></div>
+        <h2 class="text-white font-mono tracking-[1.2px] text-lg mb-6">
+          Advanced Vehicle Protection Technology
+        </h2>
+
+        <p class="text-white leading-relaxed text-xs font-mono">
+          The IGLA Anti-Theft System offers a robust suite of features designed to protect your
+          vehicle from theft while enhancing user convenience. At the core of its functionality is
+          the innovative technology that prevents unauthorized engine start, operation, and
+          reprogramming of keys. This means that even if a thief attempts to gain access to the
+          vehicle’s key system, the IGLA will automatically block these attempts, providing a
+          significant deterrent against theft.
+        </p>
+      </div>
+
+      <!-- Right: Note and Image -->
+      <div class="flex flex-col items-center justify-start space-y-6 text-center">
+        <p class="font-kwajong text-white font-bold text-base">
+          Note: Features may vary depending on your vehicles make, model, and Igla System Version.
+        </p>
+        <Image
+          src={IglaBox}
+          alt="IGLA System Box"
+          class="w-full max-w-sm"
+          widths={[320, 640]}
+          sizes="(min-width: 768px) 320px, 100vw"
+        />
+        <div class="w-full h-[2px] bg-[#1d92ea]"></div>
+      </div>
+    </section>
+
+    <section class="grid md:grid-cols-2 gap-10 px-6 py-20 max-w-6xl mx-auto">
+      <!-- Left: Description -->
+      <div>
+        <h1 class="text-xl font-cyber text-[#1d92ea]">IGLA Integration</h1>
+        <div class="h-[2px] w-20 bg-[#1d92ea] my-2"></div>
+        <h2 class="text-white font-mono tracking-[1.2px] text-lg mb-6">
+          The IGLA system integrates directly with your vehicle’s digital architecture
+        </h2>
+        <p class="text-white leading-relaxed text-xs font-mono">
+          Using CAN and LIN bus protocols — to silently block unauthorized access. It doesn’t rely
+          on visible hardware or LEDs, making it undetectable to thieves. Whether it’s key cloning,
+          relay attacks, or ECU swapping, IGLA shuts down the engine or transmission preemptively,
+          all controlled via a customizable PIN, mobile app, or factory buttons.
+        </p>
+      </div>
+
+      <!-- Right: Accordion -->
+      <div class="space-y-4">
+        <details class="bg-dark border border-[#1d92ea] rounded">
+          <summary class="cursor-pointer px-4 py-3 font-mono text-white tracking-wide"
+            >No Subscriptions or Hidden Fees</summary
+          >
+          <p class="px-4 py-2 text-white/70 font-mono">
+            One-time install with full protection. No ongoing charges.
+          </p>
+        </details>
+        <details class="bg-dark border border-[#1d92ea] rounded">
+          <summary class="cursor-pointer px-4 py-3 font-mono text-white tracking-wide"
+            >Compact and Discreet</summary
+          >
+          <p class="px-4 py-2 text-white/70 font-mono">
+            Installs easily and remains invisible to thieves.
+          </p>
+        </details>
+        <details class="bg-dark border border-[#1d92ea] rounded">
+          <summary class="cursor-pointer px-4 py-3 font-mono text-white tracking-wide"
+            >Doesn’t Void Warranty</summary
+          >
+          <p class="px-4 py-2 text-white/70 font-mono">
+            Factory wiring remains untouched and compliant.
+          </p>
+        </details>
+        <details class="bg-dark border border-[#1d92ea] rounded">
+          <summary class="cursor-pointer px-4 py-3 font-mono text-white tracking-wide"
+            >Blocks Engine and Transmission</summary
+          >
+          <p class="px-4 py-2 text-white/70 font-mono">
+            Stops operation without needing to cut into circuits.
+          </p>
+        </details>
+      </div>
+    </section>
+    <section class="grid md:grid-cols-2 items-center gap-10 px-6 py-20 max-w-6xl mx-auto">
+      <div>
+        <Image
+          src={SchedIgla}
+          alt="Schedule Installation"
+          class="w-full rounded shadow-lg"
+          widths={[400, 800, 1200]}
+          sizes="(min-width: 768px) 50vw, 100vw"
+        />
+      </div>
+      <div class="text-center md:text-left">
+        <h2 class="text-3xl font-cyber text-white mb-6">Schedule Your Installation</h2>
+        <p class="text-[#1d92ea] font-mono tracking-[1.2px] max-w-3xl mx-auto mb-10">
+          Our certified team will assess your vehicle’s specific needs to determine the best IGLA
+          solution for your setup — completely seamless, with no disruption to your factory wiring.
+        </p>
+        <Button href="/schedule" text="Schedule Your Install" variant="default" />
+        <h2 class="mt-12 text-white font-mono font-bold text-base max-w-4xl mx-auto md:mx-0">
+          Pricing varies depending on the vehicle and system version. We believe in full
+          transparency, so our team is always available to provide a detailed breakdown and answer
+          questions before you commit.
+        </h2>
+      </div>
+    </section>
+  </div>
 </BaseLayout>

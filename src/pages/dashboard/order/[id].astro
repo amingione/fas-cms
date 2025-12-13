@@ -80,7 +80,7 @@ const resolveImageUrl = (item: OrderItem): string => {
     return imageCache.get(cacheKey)!;
   }
   const raw = item?.imageUrl;
-  const resolved = raw ? optimizeSanityImageUrl(raw) ?? raw : FALLBACK_IMAGE;
+  const resolved = raw ? (optimizeSanityImageUrl(raw) ?? raw) : FALLBACK_IMAGE;
   if (cacheKey) imageCache.set(cacheKey, resolved);
   return resolved;
 };
@@ -267,7 +267,7 @@ const breadcrumbItems = [
   hideBrandTag={true}
   breadcrumbs={breadcrumbItems}
 >
-  <main class="bg-black text-white">
+  <main class="bg-dark text-white">
     <div class="mx-auto max-w-6xl px-6 py-14 sm:py-18 lg:px-10">
       {
         error ? (
@@ -330,7 +330,7 @@ const breadcrumbItems = [
                           <img
                             src={image || FALLBACK_IMAGE}
                             alt={item?.name || 'Order item'}
-                            class="aspect-square w-full rounded-lg bg-black/30 object-cover"
+                            class="aspect-square w-full rounded-lg bg-dark/30 object-cover"
                             loading="lazy"
                           />
                         </div>
@@ -359,7 +359,7 @@ const breadcrumbItems = [
                               </p>
                             )}
                           </header>
-                          <div class="space-y-2 rounded-xl border border-white/10 bg-black/40 p-4 text-sm text-white/70">
+                          <div class="space-y-2 rounded-xl border border-white/10 bg-dark/40 p-4 text-sm text-white/70">
                             <div class="flex flex-wrap items-center gap-3">
                               <span class="font-semibold text-white">Quantity:</span>
                               <span>{item?.quantity ?? 1}</span>
@@ -480,7 +480,7 @@ const breadcrumbItems = [
                   <h2 class="text-base font-semibold text-white">Shipping updates</h2>
                   <ul class="mt-4 space-y-3 text-sm text-white/70">
                     {shippingLog.map((entry) => (
-                      <li class="rounded-lg border border-white/10 bg-black/40 p-4">
+                      <li class="rounded-lg border border-white/10 bg-dark/40 p-4">
                         <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                           <div>
                             <span class="font-semibold text-white">{entry.status || 'Update'}</span>

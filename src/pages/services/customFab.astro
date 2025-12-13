@@ -12,21 +12,26 @@ requestUrl.hash = '';
 const canonical = requestUrl.toString();
 
 const pageTitle = 'Custom Fabrication Services';
-const pageDescription = 'In-house TIG welding, exhaust fabrication, and motorsport-grade metalwork engineered by F.A.S. Motorsports.';
+const pageDescription =
+  'In-house TIG welding, exhaust fabrication, and motorsport-grade metalwork engineered by F.A.S. Motorsports.';
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
   <div {...inlineObjectId('content/pages/customFab.json')}>
-  <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>{pageDoc?.title ?? 'Custom Fabrication'}</div>
-  {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
-    <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
-  )}
+    <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>
+      {pageDoc?.title ?? 'Custom Fabrication'}
+    </div>
+    {
+      Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
+        <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
+      )
+    }
 
-  <!-- HERO -->
-  <section
-      class="relative flex items-center justify-center lg:mb-[-8px]"
-    >
-      <div class="relative w-full overflow-hidden rounded-none min-h-[420px] sm:min-h-[520px] lg:min-h-[620px]">
+    <!-- HERO -->
+    <section class="relative flex items-center justify-center lg:mb-[-8px]">
+      <div
+        class="relative w-full overflow-hidden rounded-none min-h-[420px] sm:min-h-[520px] lg:min-h-[620px]"
+      >
         {/* Video Background */}
         <video
           class="absolute inset-0 h-full w-full object-cover"
@@ -43,18 +48,22 @@ const pageDescription = 'In-house TIG welding, exhaust fabrication, and motorspo
             objectPosition: '50% 50%',
             filter: 'brightness(0.6) contrast(1.2) saturate(1.2) grayscale(100%)',
             opacity: 1
-          }}
-        />
+          }}></video>
         <div
           aria-hidden="true"
-          class="absolute inset-0 bg-black/55 backdrop-blur-[1px] pointer-events-none"
-        />
-        <div class="luxury-particles relative z-10 flex h-full flex-col items-center justify-center text-center px-4 py-16 sm:px-6 sm:py-20 pointer-events-none">
+          class="absolute inset-0 bg-dark/55 backdrop-blur-[1px] pointer-events-none"
+        >
+        </div>
+        <div
+          class="luxury-particles relative z-10 flex h-full flex-col items-center justify-center text-center px-4 py-16 sm:px-6 sm:py-20 pointer-events-none"
+        >
           {/* Content */}
           <BrandDivider client:load className="justify-center" />
           <div class="max-w-3xl px-6 text-center flex flex-col items-center"></div>
 
-          <p class="text-2xl text-gradient text-primary platinum mt-10 font-borg text-glow pb-2 sm:text-3xl">
+          <p
+            class="text-2xl text-gradient text-primary platinum mt-10 font-borg text-glow pb-2 sm:text-3xl"
+          >
             In-house custom fabrication
           </p>
           <h2 class="text-4xl font-bold font-ethno italic sm:text-6xl">
@@ -63,90 +72,117 @@ const pageDescription = 'In-house TIG welding, exhaust fabrication, and motorspo
           <p class="mt-2 text-base font-medium font-ethno italic text-white/70 sm:text-xl/8">
             Precision Welded. Performance Proven.
           </p>
-          <SocialMedia client:load className="relative pointer-events-auto mt-6 sm:mt-8 py-4 pb-6 sm:pb-10" />
+          <SocialMedia
+            client:load
+            className="relative pointer-events-auto mt-6 sm:mt-8 py-4 pb-6 sm:pb-10"
+          />
         </div>
       </div>
     </section>
-  <!-- ABOUT FABRICATION (rewritten from provided layout) -->
-  <section class="overflow-hidden bg-black/80 py-16 sm:py-24">
-    <div class="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
-      <div class="max-w-4xl">
-        <p class="text-base font-semibold text-primary">About Fabrication</p>
-        <h1 class="mt-2 text-4xl font-semibold tracking-tight text-pretty text-white sm:text-5xl">
-          In‑house welding & custom exhaust systems
-        </h1>
-        <p class="mt-6 text-xl text-white/80">
-          FAS Motorsports operates a full in‑house fabrication and welding department that designs, prototypes, and
-          produces custom exhaust, catalyst, and piping systems for gasoline and diesel platforms. We handle one‑off
-          projects, production runs, and motorsport‑grade assemblies with controlled QA.
-        </p>
-      </div>
-          <section class="mt-20 grid grid-cols-1 lg:grid-cols-2 lg:gap-x-8 lg:gap-y-16">
-        <div class="lg:pr-8">
-          <h2 class="text-2xl font-semibold tracking-tight text-pretty text-white">Our approach</h2>
-          <p class="mt-6 text-base text-gray-300">
-            For forced‑induction and high‑RPM builds, we prioritize flow and thermal stability. Typical deliverables
-            include cat‑back systems with optimized muffler cores, heat‑managed downpipes, and charge‑pipe routing that
-            minimizes volume while maintaining laminar flow to the throttle body.
-          </p>
-          <p class="mt-8 text-base text-gray-300">
-            Diesel systems are engineered for continuous high EGT and vibration with reinforced hangers, expansion
-            allowances, and optional resonators to control drone under load. All stainless assemblies are back‑purged TIG
-            welded for interior smoothness and corrosion resistance, then leak‑checked and documented with torque specs.
+    <!-- ABOUT FABRICATION (rewritten from provided layout) -->
+    <section class="overflow-hidden bg-dark/80 py-16 sm:py-24">
+      <div class="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
+        <div class="max-w-4xl">
+          <p class="text-base font-semibold text-primary">About Fabrication</p>
+          <h1 class="mt-2 text-4xl font-semibold tracking-tight text-pretty text-white sm:text-5xl">
+            In‑house welding & custom exhaust systems
+          </h1>
+          <p class="mt-6 text-xl text-white/80">
+            FAS Motorsports operates a full in‑house fabrication and welding department that
+            designs, prototypes, and produces custom exhaust, catalyst, and piping systems for
+            gasoline and diesel platforms. We handle one‑off projects, production runs, and
+            motorsport‑grade assemblies with controlled QA.
           </p>
         </div>
-
-        <div class="pt-16 lg:-mr-16 xl:mr-auto w-full">
-          <div class="columns-2 gap-4 [column-fill:_balance]">
-            <figure class="mb-4 break-inside-avoid overflow-hidden rounded-2xl">
-              <img alt="Mock-up & fitment checks" src="/images/fabrication/FAS-Fabrication-2.webp" class="w-full h-auto object-cover" />
-            </figure>
-            <figure class="mb-4 break-inside-avoid overflow-hidden rounded-2xl">
-              <img alt="In-house installation" src="/images/fabrication/FAS-Fabrication-Installation.webp" class="w-full h-auto object-cover" />
-            </figure>
-            <figure class="mb-4 break-inside-avoid overflow-hidden rounded-2xl">
-              <img alt="Back-purged TIG welding" src="/images/fabrication/FAS-Welding.webp" class="w-full h-auto object-cover" />
-            </figure>
-            <figure class="mb-4 break-inside-avoid overflow-hidden rounded-2xl">
-              <img alt="Precision fitment and finish" src="/images/fabrication/FAS-Fabrication-1.webp" class="w-full h-auto object-cover" />
-            </figure>
+        <section class="mt-20 grid grid-cols-1 lg:grid-cols-2 lg:gap-x-8 lg:gap-y-16">
+          <div class="lg:pr-8">
+            <h2 class="text-2xl font-semibold tracking-tight text-pretty text-white">
+              Our approach
+            </h2>
+            <p class="mt-6 text-base text-gray-300">
+              For forced‑induction and high‑RPM builds, we prioritize flow and thermal stability.
+              Typical deliverables include cat‑back systems with optimized muffler cores,
+              heat‑managed downpipes, and charge‑pipe routing that minimizes volume while
+              maintaining laminar flow to the throttle body.
+            </p>
+            <p class="mt-8 text-base text-gray-300">
+              Diesel systems are engineered for continuous high EGT and vibration with reinforced
+              hangers, expansion allowances, and optional resonators to control drone under load.
+              All stainless assemblies are back‑purged TIG welded for interior smoothness and
+              corrosion resistance, then leak‑checked and documented with torque specs.
+            </p>
           </div>
-        </div>
 
-        <div class="max-lg:mt-16 lg:col-span-1">
-          <p class="text-base font-semibold text-gray-400">At‑a‑glance</p>
-          <hr class="mt-6 border-t border-gray-700" />
-          <dl class="mt-6 grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
-            <div class="flex flex-col gap-y-2 border-b border-dotted border-gray-700 pb-4">
-              <dt class="text-sm text-gray-400">Typical Lead Time</dt>
-              <dd class="order-first text-5xl font-semibold tracking-tight text-white">
-                <span>5–10</span> days
-              </dd>
+          <div class="pt-16 lg:-mr-16 xl:mr-auto w-full">
+            <div class="columns-2 gap-4 [column-fill:_balance]">
+              <figure class="mb-4 break-inside-avoid overflow-hidden rounded-2xl">
+                <img
+                  alt="Mock-up & fitment checks"
+                  src="/images/fabrication/FAS-Fabrication-2.webp"
+                  class="w-full h-auto object-cover"
+                />
+              </figure>
+              <figure class="mb-4 break-inside-avoid overflow-hidden rounded-2xl">
+                <img
+                  alt="In-house installation"
+                  src="/images/fabrication/FAS-Fabrication-Installation.webp"
+                  class="w-full h-auto object-cover"
+                />
+              </figure>
+              <figure class="mb-4 break-inside-avoid overflow-hidden rounded-2xl">
+                <img
+                  alt="Back-purged TIG welding"
+                  src="/images/fabrication/FAS-Welding.webp"
+                  class="w-full h-auto object-cover"
+                />
+              </figure>
+              <figure class="mb-4 break-inside-avoid overflow-hidden rounded-2xl">
+                <img
+                  alt="Precision fitment and finish"
+                  src="/images/fabrication/FAS-Fabrication-1.webp"
+                  class="w-full h-auto object-cover"
+                />
+              </figure>
             </div>
-            <div class="flex flex-col gap-y-2 border-b border-dotted border-gray-700 pb-4">
-              <dt class="text-sm text-gray-400">Weld Method</dt>
-              <dd class="order-first text-5xl font-semibold tracking-tight text-white">
-                <span>100%</span> TIG
-              </dd>
-            </div>
-            <div class="flex flex-col gap-y-2 max-sm:border-b max-sm:border-dotted max-sm:border-gray-700 max-sm:pb-4">
-              <dt class="text-sm text-gray-400">Material Options</dt>
-              <dd class="order-first text-5xl font-semibold tracking-tight text-white">
-                304 / 316L
-              </dd>
-            </div>
-            <div class="flex flex-col gap-y-2">
-              <dt class="text-sm text-gray-400">Joint Types</dt>
-              <dd class="order-first text-5xl font-semibold tracking-tight text-white">
-                V‑band / Slip
-              </dd>
-            </div>
-          </dl>
-        </div>
-      </section>
-    </div>
-  </section>
-  <section class="w-75% mx-auto">
-    <Hero client:load />
-  </section>
+          </div>
+
+          <div class="max-lg:mt-16 lg:col-span-1">
+            <p class="text-base font-semibold text-gray-400">At‑a‑glance</p>
+            <hr class="mt-6 border-t border-gray-700" />
+            <dl class="mt-6 grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
+              <div class="flex flex-col gap-y-2 border-b border-dotted border-gray-700 pb-4">
+                <dt class="text-sm text-gray-400">Typical Lead Time</dt>
+                <dd class="order-first text-5xl font-semibold tracking-tight text-white">
+                  <span>5–10</span> days
+                </dd>
+              </div>
+              <div class="flex flex-col gap-y-2 border-b border-dotted border-gray-700 pb-4">
+                <dt class="text-sm text-gray-400">Weld Method</dt>
+                <dd class="order-first text-5xl font-semibold tracking-tight text-white">
+                  <span>100%</span> TIG
+                </dd>
+              </div>
+              <div
+                class="flex flex-col gap-y-2 max-sm:border-b max-sm:border-dotted max-sm:border-gray-700 max-sm:pb-4"
+              >
+                <dt class="text-sm text-gray-400">Material Options</dt>
+                <dd class="order-first text-5xl font-semibold tracking-tight text-white">
+                  304 / 316L
+                </dd>
+              </div>
+              <div class="flex flex-col gap-y-2">
+                <dt class="text-sm text-gray-400">Joint Types</dt>
+                <dd class="order-first text-5xl font-semibold tracking-tight text-white">
+                  V‑band / Slip
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </section>
+      </div>
+    </section>
+    <section class="w-75% mx-auto">
+      <Hero client:load />
+    </section>
+  </div>
 </BaseLayout>

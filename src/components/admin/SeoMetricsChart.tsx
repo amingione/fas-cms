@@ -13,16 +13,26 @@ const formatDate = (value: string) => {
 
 export default function SeoMetricsChart({ data }: Props) {
   const [shouldLoadChart, setShouldLoadChart] = useState(false);
-  const [ChartComponent, setChartComponent] = useState<null | (typeof import('react-apexcharts'))['default']>(null);
+  const [ChartComponent, setChartComponent] = useState<
+    null | (typeof import('react-apexcharts'))['default']
+  >(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const chartData = useMemo(() => {
-    const sorted = [...data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const sorted = [...data].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
     const categories = sorted.map((point) => formatDate(point.date));
 
-    const positionSeries = sorted.map((point) => (typeof point.position === 'number' ? point.position : null));
-    const clickSeries = sorted.map((point) => (typeof point.clicks === 'number' ? point.clicks : 0));
-    const impressionSeries = sorted.map((point) => (typeof point.impressions === 'number' ? point.impressions : 0));
+    const positionSeries = sorted.map((point) =>
+      typeof point.position === 'number' ? point.position : null
+    );
+    const clickSeries = sorted.map((point) =>
+      typeof point.clicks === 'number' ? point.clicks : 0
+    );
+    const impressionSeries = sorted.map((point) =>
+      typeof point.impressions === 'number' ? point.impressions : 0
+    );
 
     const options: ApexOptions = {
       chart: {
@@ -94,16 +104,21 @@ export default function SeoMetricsChart({ data }: Props) {
 
   if (!data.length) {
     return (
-      <div className="rounded-lg border border-white/10 bg-black/40 p-6 text-sm text-white/70">
+      <div className="rounded-lg border border-white/10 bg-dark/40 p-6 text-sm text-white/70">
         No SEO ranking metrics were returned from Sanity.
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border border-white/10 bg-black/40 p-4">
+    <div className="rounded-lg border border-white/10 bg-dark/40 p-4">
       {ChartComponent ? (
-        <ChartComponent options={chartData.options} series={chartData.series} height={320} type="line" />
+        <ChartComponent
+          options={chartData.options}
+          series={chartData.series}
+          height={320}
+          type="line"
+        />
       ) : (
         <div className="flex flex-col gap-3">
           <p className="text-sm text-white/70">

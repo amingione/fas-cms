@@ -16,7 +16,7 @@ const renderList = (orders: any[]) => {
   const ul = root.querySelector('ul')!;
   for (const order of orders) {
     const li = document.createElement('li');
-    li.className = 'border border-gray-600 p-4 rounded-lg bg-black/40';
+    li.className = 'border border-gray-600 p-4 rounded-lg bg-dark/40';
     const created = (order as any).orderDate || (order as any)._createdAt;
     li.innerHTML = `
       <div><strong>Order #:</strong> ${(order as any).orderNumber ?? (order as any)._id}</div>
@@ -49,7 +49,11 @@ const renderList = (orders: any[]) => {
       const res = await fetch('/api/get-user-order');
       if (res.ok) {
         const data = await res.json();
-        orders = Array.isArray(data) ? data : (Array.isArray((data as any)?.items) ? (data as any).items : []);
+        orders = Array.isArray(data)
+          ? data
+          : Array.isArray((data as any)?.items)
+            ? (data as any).items
+            : [];
       } else if (res.status === 401 || res.status === 400) {
         usedFallback = true;
       } else {
@@ -63,7 +67,11 @@ const renderList = (orders: any[]) => {
       const res2 = await fetch(`/api/get-user-order?email=${encodeURIComponent(email)}`);
       if (!res2.ok) throw new Error(await res2.text());
       const data2 = await res2.json();
-      orders = Array.isArray(data2) ? data2 : (Array.isArray((data2 as any)?.items) ? (data2 as any).items : []);
+      orders = Array.isArray(data2)
+        ? data2
+        : Array.isArray((data2 as any)?.items)
+          ? (data2 as any).items
+          : [];
     }
 
     if (!orders || orders.length === 0) return renderEmpty();

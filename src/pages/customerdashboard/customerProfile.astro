@@ -12,21 +12,41 @@ const profileScript = '../../scripts/customer-profile-page.ts';
         <h2 class="text-red-500 text-xl mb-2">ADDRESSES</h2>
         <div class="mb-4">
           <label class="block mb-1">SHIPPING</label>
-          <input id="shippingAddress" type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value="" />
+          <input
+            id="shippingAddress"
+            type="text"
+            class="w-full bg-zinc-800 text-white border border-white p-2 rounded"
+            value=""
+          />
         </div>
         <div class="mb-4">
           <label class="block mb-1">BILLING</label>
-          <input id="billingStreet" type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value="" />
+          <input
+            id="billingStreet"
+            type="text"
+            class="w-full bg-zinc-800 text-white border border-white p-2 rounded"
+            value=""
+          />
         </div>
 
         <h2 class="text-red-500 text-xl mb-2">CONTACT INFO</h2>
         <div class="mb-4">
           <label class="block mb-1">PHONE</label>
-          <input id="phone" type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value="" />
+          <input
+            id="phone"
+            type="text"
+            class="w-full bg-zinc-800 text-white border border-white p-2 rounded"
+            value=""
+          />
         </div>
         <div class="mb-4">
           <label class="block mb-1">EMAIL</label>
-          <input id="email" type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value="" />
+          <input
+            id="email"
+            type="text"
+            class="w-full bg-zinc-800 text-white border border-white p-2 rounded"
+            value=""
+          />
         </div>
       </div>
 
@@ -34,11 +54,21 @@ const profileScript = '../../scripts/customer-profile-page.ts';
         <h2 class="text-red-500 text-xl mb-2">NAME</h2>
         <div class="mb-4">
           <label class="block mb-1">FIRST</label>
-          <input id="firstName" type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value="" />
+          <input
+            id="firstName"
+            type="text"
+            class="w-full bg-zinc-800 text-white border border-white p-2 rounded"
+            value=""
+          />
         </div>
         <div class="mb-4">
           <label class="block mb-1">LAST</label>
-          <input id="lastName" type="text" class="w-full bg-zinc-800 text-white border border-white p-2 rounded" value="" />
+          <input
+            id="lastName"
+            type="text"
+            class="w-full bg-zinc-800 text-white border border-white p-2 rounded"
+            value=""
+          />
         </div>
 
         <h2 class="text-red-500 text-xl mb-2">PREFERENCES</h2>
@@ -61,13 +91,26 @@ const profileScript = '../../scripts/customer-profile-page.ts';
           </label>
         </div>
         <div class="mt-6 flex gap-3 items-center">
-          <button id="saveProfile" type="button" class="px-4 py-2 bg-primary text-white font-ethno disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.98] transition-transform hover:text-white">
+          <button
+            id="saveProfile"
+            type="button"
+            class="px-4 py-2 bg-primary text-white font-ethno disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.98] transition-transform hover:text-white"
+          >
             Save
           </button>
-          <button id="revertProfile" type="button" class="px-4 py-2 border border-white/30 font-ethno active:scale-[0.98] transition-transform">
+          <button
+            id="revertProfile"
+            type="button"
+            class="px-4 py-2 border border-white/30 font-ethno active:scale-[0.98] transition-transform"
+          >
             Revert
           </button>
-          <button id="backToDashboard" type="button" class="px-4 py-2 border border-white/30 font-ethno active:scale-[0.98] transition-transform" onclick="window.location.href='/dashboard'">
+          <button
+            id="backToDashboard"
+            type="button"
+            class="px-4 py-2 border border-white/30 font-ethno active:scale-[0.98] transition-transform"
+            onclick="window.location.href='/dashboard'"
+          >
             Back to Dashboard
           </button>
           <span id="saveStatus" class="ml-2 text-sm opacity-80"></span>
@@ -75,7 +118,7 @@ const profileScript = '../../scripts/customer-profile-page.ts';
       </div>
     </div>
   </section>
-  
+
   <!-- Netlify Profile Update Form (no JS/server required) -->
   <section class="p-8">
     <form
@@ -84,52 +127,96 @@ const profileScript = '../../scripts/customer-profile-page.ts';
       method="POST"
       action="/customerdashboard/profile/success"
       data-success="/customerdashboard/profile/success"
-      class="space-y-4 rounded-lg border border-white/20 bg-black/50 p-6 shadow-md"
+      class="space-y-4 rounded-lg border border-white/20 bg-dark/50 p-6 shadow-md"
     >
-
       <h2 class="text-xl font-ethno mb-1">Update Profile (Request)</h2>
-      <p class="text-sm text-white/70">Submit a request to update your profile. Our team will review and apply changes.</p>
+      <p class="text-sm text-white/70">
+        Submit a request to update your profile. Our team will review and apply changes.
+      </p>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label class="block text-sm mb-1" for="firstName_form">First</label>
-          <input id="firstName_form" name="firstName" type="text" class="w-full rounded bg-white/5 border border-white/15 p-2" />
+          <input
+            id="firstName_form"
+            name="firstName"
+            type="text"
+            class="w-full rounded bg-white/5 border border-white/15 p-2"
+          />
         </div>
         <div>
           <label class="block text-sm mb-1" for="lastName_form">Last</label>
-          <input id="lastName_form" name="lastName" type="text" class="w-full rounded bg-white/5 border border-white/15 p-2" />
+          <input
+            id="lastName_form"
+            name="lastName"
+            type="text"
+            class="w-full rounded bg-white/5 border border-white/15 p-2"
+          />
         </div>
         <div>
           <label class="block text-sm mb-1" for="email_form">Email</label>
-          <input id="email_form" name="email" type="email" required class="w-full rounded bg-white/5 border border-white/15 p-2" />
+          <input
+            id="email_form"
+            name="email"
+            type="email"
+            required
+            class="w-full rounded bg-white/5 border border-white/15 p-2"
+          />
         </div>
         <div>
           <label class="block text-sm mb-1" for="phone_form">Phone</label>
-          <input id="phone_form" name="phone" type="tel" class="w-full rounded bg-white/5 border border-white/15 p-2" />
+          <input
+            id="phone_form"
+            name="phone"
+            type="tel"
+            class="w-full rounded bg-white/5 border border-white/15 p-2"
+          />
         </div>
         <div class="md:col-span-2">
           <label class="block text-sm mb-1" for="shipping_form">Shipping Address</label>
-          <input id="shipping_form" name="shippingAddress" type="text" class="w-full rounded bg-white/5 border border-white/15 p-2" />
+          <input
+            id="shipping_form"
+            name="shippingAddress"
+            type="text"
+            class="w-full rounded bg-white/5 border border-white/15 p-2"
+          />
         </div>
         <div class="md:col-span-2">
           <label class="block text-sm mb-1" for="billing_form">Billing Address</label>
-          <input id="billing_form" name="billingAddress" type="text" class="w-full rounded bg-white/5 border border-white/15 p-2" />
+          <input
+            id="billing_form"
+            name="billingAddress"
+            type="text"
+            class="w-full rounded bg-white/5 border border-white/15 p-2"
+          />
         </div>
       </div>
 
       <fieldset class="mt-2">
         <legend class="text-sm mb-2">Preferences</legend>
-        <label class="flex items-center gap-2 mb-1"><input type="checkbox" name="emailOptIn" value="yes" /> Email updates</label>
-        <label class="flex items-center gap-2 mb-1"><input type="checkbox" name="textOptIn" value="yes" /> Text updates</label>
-        <label class="flex items-center gap-2"><input type="checkbox" name="marketingOptIn" value="yes" /> Marketing emails</label>
+        <label class="flex items-center gap-2 mb-1"
+          ><input type="checkbox" name="emailOptIn" value="yes" /> Email updates</label
+        >
+        <label class="flex items-center gap-2 mb-1"
+          ><input type="checkbox" name="textOptIn" value="yes" /> Text updates</label
+        >
+        <label class="flex items-center gap-2"
+          ><input type="checkbox" name="marketingOptIn" value="yes" /> Marketing emails</label
+        >
       </fieldset>
 
-      <button type="submit" class="rounded bg-primary px-4 py-2 text-white hover:bg-primary/90 hover:text-white">Submit Request</button>
+      <button
+        type="submit"
+        class="rounded bg-primary px-4 py-2 text-white hover:bg-primary/90 hover:text-white"
+        >Submit Request</button
+      >
       <p id="profile-form-status" class="hidden text-sm mt-3"></p>
     </form>
   </section>
 
-  <script type="module">import '../../scripts/customer-profile-page.ts';</script>
+  <script type="module">
+    import '../../scripts/customer-profile-page.ts';
+  </script>
   <script is:inline>
     const profileForm = document.getElementById('profile-form');
     const profileStatus = document.getElementById('profile-form-status');
@@ -137,7 +224,8 @@ const profileScript = '../../scripts/customer-profile-page.ts';
       if (!profileStatus) return;
       profileStatus.textContent = message;
       profileStatus.classList.remove('hidden', 'text-red-300', 'text-green-300', 'text-white/80');
-      const cls = type === 'error' ? 'text-red-300' : type === 'success' ? 'text-green-300' : 'text-white/80';
+      const cls =
+        type === 'error' ? 'text-red-300' : type === 'success' ? 'text-green-300' : 'text-white/80';
       profileStatus.classList.add(cls);
     };
     profileForm?.addEventListener('submit', async (event) => {
@@ -164,7 +252,8 @@ const profileScript = '../../scripts/customer-profile-page.ts';
         if (!response.ok) throw new Error('Request failed');
         const data = await response.json().catch(() => ({}));
         if (data?.ok === false) throw new Error(data?.message || 'Error');
-        const redirect = profileForm.getAttribute('data-success') || '/customerdashboard/profile/success';
+        const redirect =
+          profileForm.getAttribute('data-success') || '/customerdashboard/profile/success';
         window.location.href = redirect;
       } catch (err) {
         console.error(err);

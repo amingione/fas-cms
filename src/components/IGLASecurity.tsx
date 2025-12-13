@@ -129,7 +129,7 @@ export function IGLASecurity() {
             {certifications.map((cert, index) => (
               <div key={index} className="text-center">
                 <div
-                  className={`mx-auto mb-2 rounded-full bg-black/50 border border-slate-600/50 flex items-center justify-center backdrop-blur-sm industrial-card ${isMobile ? 'w-12 h-12' : 'w-20 h-20'}`}
+                  className={`mx-auto mb-2 rounded-full bg-dark/50 border border-slate-600/50 flex items-center justify-center backdrop-blur-sm industrial-card ${isMobile ? 'w-12 h-12' : 'w-20 h-20'}`}
                 >
                   <Star className={`text-slate-300 ${isMobile ? 'w-5 h-5' : 'w-8 h-8'}`} />
                 </div>
@@ -154,7 +154,7 @@ export function IGLASecurity() {
           >
             <Badge
               variant="outline"
-              className={`bg-black/50 border-slate-600/50 text-slate-300 font-medium tracking-[0.2em] backdrop-blur-sm industrial-card font-ethno ${isMobile ? 'px-4 py-2 text-xs' : 'px-8 py-3 text-sm'}`}
+              className={`bg-dark/50 border-slate-600/50 text-slate-300 font-medium tracking-[0.2em] backdrop-blur-sm industrial-card font-ethno ${isMobile ? 'px-4 py-2 text-xs' : 'px-8 py-3 text-sm'}`}
             >
               #1 IGLA INSTALLER IN SWFL
             </Badge>
@@ -219,7 +219,7 @@ export function IGLASecurity() {
           >
             <div className="relative">
               {/* Elegant frame with texture */}
-              <div className="absolute -inset-8 bg-black/40 rounded-3xl backdrop-blur-sm border border-slate-700/50 industrial-card"></div>
+              <div className="absolute -inset-8 bg-dark/40 rounded-3xl backdrop-blur-sm border border-slate-700/50 industrial-card"></div>
 
               {/* Product image */}
               <motion.div
@@ -236,7 +236,7 @@ export function IGLASecurity() {
 
               {/* Premium indicators */}
               <motion.div
-                className={`absolute bg-black/80 rounded-2xl backdrop-blur-sm border border-slate-700/50 industrial-card ${isMobile ? 'top-2 right-2 p-2' : 'top-6 right-6 p-4'}`}
+                className={`absolute bg-dark/80 rounded-2xl backdrop-blur-sm border border-slate-700/50 industrial-card ${isMobile ? 'top-2 right-2 p-2' : 'top-6 right-6 p-4'}`}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={isInView ? { opacity: 1, scale: 1 } : {}}
                 transition={{ delay: 1.8, duration: 0.6 }}
@@ -252,7 +252,7 @@ export function IGLASecurity() {
               </motion.div>
 
               <motion.div
-                className={`absolute bg-black/80 rounded-2xl backdrop-blur-sm border border-slate-700/50 industrial-card ${isMobile ? 'bottom-2 left-2 p-2' : 'bottom-6 left-6 p-4'}`}
+                className={`absolute bg-dark/80 rounded-2xl backdrop-blur-sm border border-slate-700/50 industrial-card ${isMobile ? 'bottom-2 left-2 p-2' : 'bottom-6 left-6 p-4'}`}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={isInView ? { opacity: 1, scale: 1 } : {}}
                 transition={{ delay: 2, duration: 0.6 }}
@@ -304,12 +304,12 @@ export function IGLASecurity() {
                       whileHover={!isMobile ? { x: 8 } : {}}
                       className="group cursor-pointer"
                     >
-                      <Card className="border-slate-700/50 hover:border-slate-600/70 transition-all duration-700 bg-black/40 backdrop-blur-sm hover:bg-black/60 industrial-card">
+                      <Card className="border-slate-700/50 hover:border-slate-600/70 transition-all duration-700 bg-dark/40 backdrop-blur-sm hover:bg-dark/60 industrial-card">
                         <CardHeader
                           className={`flex items-center space-y-0 ${isMobile ? 'flex-col space-y-2 p-3' : 'flex-row space-x-6 pb-3'}`}
                         >
                           <div
-                            className={`bg-black/60 rounded-xl flex items-center justify-center border border-slate-600/50 group-hover:border-slate-500/70 transition-all duration-500 industrial-card ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}
+                            className={`bg-dark/60 rounded-xl flex items-center justify-center border border-slate-600/50 group-hover:border-slate-500/70 transition-all duration-500 industrial-card ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}
                           >
                             <Icon
                               className={`text-slate-300 group-hover:text-white transition-colors duration-500 ${isMobile ? 'w-4 h-4' : 'w-6 h-6'}`}
@@ -339,7 +339,7 @@ export function IGLASecurity() {
 
         {/* Elegant Technology Details */}
         <motion.div
-          className={`bg-black/50 backdrop-blur-xl rounded-3xl border border-slate-700/50 industrial-card ${isMobile ? 'p-4 mb-8' : 'p-12 lg:p-16 mb-32'}`}
+          className={`bg-dark/50 backdrop-blur-xl rounded-3xl border border-slate-700/50 industrial-card ${isMobile ? 'p-4 mb-8' : 'p-12 lg:p-16 mb-32'}`}
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 2.2, duration: 1 }}
@@ -482,7 +482,7 @@ export function IGLASecurity() {
               <Button
                 size={isMobile ? 'default' : 'lg'}
                 variant="outline"
-                className={`border-2 border-slate-600/50 text-slate-300 hover:bg-black/50 hover:text-white hover:border-slate-500/70 font-medium backdrop-blur-sm rounded-xl transition-all duration-500 industrial-glow font-ethno ${isMobile ? 'px-6 py-3 text-sm' : 'px-12 py-4 text-lg'}`}
+                className={`border-2 border-slate-600/50 text-slate-300 hover:bg-dark/50 hover:text-white hover:border-slate-500/70 font-medium backdrop-blur-sm rounded-xl transition-all duration-500 industrial-glow font-ethno ${isMobile ? 'px-6 py-3 text-sm' : 'px-12 py-4 text-lg'}`}
                 href="/contact"
                 text="REQUEST QUOTE"
                 onClick={() => {

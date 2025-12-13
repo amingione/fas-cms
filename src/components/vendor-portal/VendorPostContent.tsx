@@ -28,10 +28,14 @@ const components: Partial<PortableTextReactComponents> = {
   },
   types: {
     image: ({ value }) => (
-      <img src={(value as any)?.asset?.url} alt={(value as any)?.alt || ''} className="w-full rounded-lg my-6" />
+      <img
+        src={(value as any)?.asset?.url}
+        alt={(value as any)?.alt || ''}
+        className="w-full rounded-lg my-6"
+      />
     ),
     code: ({ value }) => (
-      <pre className="bg-black text-white p-4 rounded-lg overflow-x-auto my-6">
+      <pre className="bg-dark text-white p-4 rounded-lg overflow-x-auto my-6">
         <code>{(value as any)?.code}</code>
       </pre>
     )

@@ -117,7 +117,7 @@ export function Hero() {
                     transition={{ delay: 1.5 + index * 0.2, duration: 0.6 }}
                   >
                     <div
-                      className={`w-14 h-14 lg:w-16 lg:h-16 bg-black/50 rounded-2xl flex items-center justify-center mx-auto mb-2 group-hover:shadow-xl transition-all duration-300 border border-gray-700/50 industrial-card`}
+                      className={`w-14 h-14 lg:w-16 lg:h-16 bg-dark/50 rounded-2xl flex items-center justify-center mx-auto mb-2 group-hover:shadow-xl transition-all duration-300 border border-gray-700/50 industrial-card`}
                     >
                       <Icon
                         className={`w-6 h-6 lg:w-8 lg:h-8 ${item.color} group-hover:scale-110 transition-transform duration-300`}

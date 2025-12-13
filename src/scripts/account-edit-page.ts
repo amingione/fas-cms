@@ -41,11 +41,11 @@ const root = document.getElementById('account-edit');
       <div class="space-y-6">
         <div>
           <label class="block text-sm opacity-70 mb-1">Name</label>
-          <input id="name" class="w-full bg-black/40 border border-white/30 px-3 py-2" value="${name}" />
+          <input id="name" class="w-full bg-dark/40 border border-white/30 px-3 py-2" value="${name}" />
         </div>
         <div>
           <label class="block text-sm opacity-70 mb-1">Email</label>
-          <input id="email" class="w-full bg-black/40 border border-white/30 px-3 py-2" value="${email}" disabled />
+          <input id="email" class="w-full bg-dark/40 border border-white/30 px-3 py-2" value="${email}" disabled />
           <p class="text-xs opacity-60 mt-1">Email comes from your login provider.</p>
         </div>
         <div class="flex gap-4">

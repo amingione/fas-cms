@@ -1,5 +1,5 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro'
+import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
 
 <BaseLayout>
@@ -31,7 +31,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro'
         }
 
         // Optional client sort (server already orders desc by _createdAt)
-        invoices.sort((a, b) => new Date(b._createdAt || b.dateIssued || b.date || 0) - new Date(a._createdAt || a.dateIssued || a.date || 0));
+        invoices.sort(
+          (a, b) =>
+            new Date(b._createdAt || b.dateIssued || b.date || 0) -
+            new Date(a._createdAt || a.dateIssued || a.date || 0)
+        );
 
         const money = new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' });
 
@@ -40,14 +44,19 @@ import BaseLayout from '../../layouts/BaseLayout.astro'
 
         invoices.forEach((invoice) => {
           const li = document.createElement('li');
-          li.className = 'border border-gray-600 p-4 rounded-lg bg-black/30';
+          li.className = 'border border-gray-600 p-4 rounded-lg bg-dark/30';
 
           const invoiceNumber = invoice.invoiceNumber || invoice.number || invoice._id || 'N/A';
           const dateIssuedRaw = invoice.dateIssued || invoice.date || invoice._createdAt;
           const dateIssued = dateIssuedRaw ? new Date(dateIssuedRaw).toLocaleDateString() : 'N/A';
           const status = invoice.status || 'N/A';
           const amountRaw = invoice.amount ?? invoice.total;
-          const amount = typeof amountRaw === 'number' ? money.format(amountRaw) : (amountRaw ? `$${amountRaw}` : 'N/A');
+          const amount =
+            typeof amountRaw === 'number'
+              ? money.format(amountRaw)
+              : amountRaw
+                ? `$${amountRaw}`
+                : 'N/A';
 
           li.innerHTML = `
             <div class="flex items-center justify-between">

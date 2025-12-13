@@ -15,7 +15,7 @@ export default function SalePage() {
         <div className="relative mx-auto max-w-6xl px-4 py-16 md:flex md:items-center md:gap-12 md:py-24">
           {/* Left column */}
           <div className="space-y-6 md:w-1/2">
-            <div className="font-borg inline-flex items-center gap-2 rounded-full border border-primaryB/60 shadow-card-outter shadow-inner shadow-white/60 px-3 py-1 text-xs font-medium uppercase tracking-wide bg-black">
+            <div className="font-borg inline-flex items-center gap-2 rounded-full border border-primaryB/60 shadow-card-outter shadow-inner shadow-white/60 px-3 py-1 text-xs font-medium uppercase tracking-wide bg-dark">
               Cyber Monday 2025
               <span className="h-1 w-1 rounded-full" />
               Limited-time sale

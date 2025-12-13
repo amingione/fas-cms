@@ -12,11 +12,13 @@ requestUrl.hash = '';
 const canonical = requestUrl.toString();
 
 const pageTitle = 'Power Packages';
-const pageDescription = 'Stage-based power packages from F.A.S. Motorsports with calibrated fueling, cooling, and install support for Hellcat, Trackhawk, TRX, and LS/LT platforms.';
+const pageDescription =
+  'Stage-based power packages from F.A.S. Motorsports with calibrated fueling, cooling, and install support for Hellcat, Trackhawk, TRX, and LS/LT platforms.';
 
 const hero = pageDoc?.hero ?? {};
 const heroHeading: string = hero?.heading ?? pageDoc?.title ?? 'Power Packages';
-const heroDescription: string = hero?.description ??
+const heroDescription: string =
+  hero?.description ??
   'Platform-tuned upgrade bundles engineered for clean installs, real gains, and factory-like drivability.';
 const heroBadges: string[] = Array.isArray(hero?.badges) ? hero.badges : [];
 const heroBadgesHasContent = heroBadges.length > 0;
@@ -26,28 +28,43 @@ const heroBadgeEntries = heroBadgesToRender.map((badge, idx) => ({ badge, idx })
 const primaryBadgeEntry = heroBadgeEntries[0];
 const secondaryBadgeEntries = heroBadgeEntries.slice(1);
 
-const heroCtas: Array<{ label?: string; href?: string; variant?: string }> = Array.isArray(hero?.ctas)
+const heroCtas: Array<{ label?: string; href?: string; variant?: string }> = Array.isArray(
+  hero?.ctas
+)
   ? hero.ctas
   : [];
 const heroCtasHasContent = heroCtas.length > 0;
 const heroCtasFallback = [
-  { label: 'Shop All Packages', href: '/shop?categorySlug=power-packages&category=power-packages&priceMin=0&priceMax=100000&page=1', variant: 'multi-swipe-v2' },
+  {
+    label: 'Shop All Packages',
+    href: '/shop?categorySlug=power-packages&category=power-packages&priceMin=0&priceMax=100000&page=1',
+    variant: 'multi-swipe-v2'
+  },
   { label: 'Customize Your Build', href: '/contact', variant: 'multi-swipe-v2' }
 ];
 const heroCtasToRender = heroCtasHasContent ? heroCtas : heroCtasFallback;
 
-const highlightPills: string[] = Array.isArray(pageDoc?.highlightPills) ? pageDoc.highlightPills : [];
+const highlightPills: string[] = Array.isArray(pageDoc?.highlightPills)
+  ? pageDoc.highlightPills
+  : [];
 const highlightPillsHasContent = highlightPills.length > 0;
-const highlightPillsFallback = ['Dyno-Proven Options', 'OEM-Style Fit & Finish', 'Fast Turnaround', 'Warranty-Friendly Base Kits'];
+const highlightPillsFallback = [
+  'Dyno-Proven Options',
+  'OEM-Style Fit & Finish',
+  'Fast Turnaround',
+  'Warranty-Friendly Base Kits'
+];
 const highlightPillsToRender = highlightPillsHasContent ? highlightPills : highlightPillsFallback;
 const highlightPillEntries = highlightPillsToRender.map((pill, idx) => ({ pill, idx }));
 
 const platformHeading: string = pageDoc?.platformHeading ?? 'Choose Your Platform';
-const platforms: Array<{ href?: string; image?: string; alt?: string; labelTop?: string; labelBottom?: string }> = Array.isArray(
-  pageDoc?.platforms
-)
-  ? pageDoc.platforms
-  : [];
+const platforms: Array<{
+  href?: string;
+  image?: string;
+  alt?: string;
+  labelTop?: string;
+  labelBottom?: string;
+}> = Array.isArray(pageDoc?.platforms) ? pageDoc.platforms : [];
 const platformsHasContent = platforms.length > 0;
 const platformsFallback = [
   {
@@ -61,11 +78,8 @@ const platformsFallback = [
 const platformsToRender = platformsHasContent ? platforms : platformsFallback;
 const featuredPlatform = platformsToRender[0] ?? {};
 
-const tiers: Array<{ image?: string; alt?: string; labelTop?: string; labelBottom?: string }> = Array.isArray(
-  pageDoc?.tiers
-)
-  ? pageDoc.tiers
-  : [];
+const tiers: Array<{ image?: string; alt?: string; labelTop?: string; labelBottom?: string }> =
+  Array.isArray(pageDoc?.tiers) ? pageDoc.tiers : [];
 const tiersHasContent = tiers.length > 0;
 const tiersFallback = [
   {
@@ -78,7 +92,9 @@ const tiersFallback = [
 const tiersToRender = tiersHasContent ? tiers : tiersFallback;
 const featuredTier = tiersToRender[0] ?? {};
 
-const ctaButtons: Array<{ label?: string; href?: string; variant?: string }> = Array.isArray(pageDoc?.ctaButtons)
+const ctaButtons: Array<{ label?: string; href?: string; variant?: string }> = Array.isArray(
+  pageDoc?.ctaButtons
+)
   ? pageDoc.ctaButtons
   : [];
 const ctaButtonsHasContent = ctaButtons.length > 0;
@@ -100,64 +116,73 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallbac
       style="--hero:url('/shop')"
       aria-label="Power Packages Hero"
     >
-      <img src="/images/packages/power-packages-banner.webp" alt="FAS Motorsports hellcat power packages" class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none" />
+      <img
+        src="/images/packages/power-packages-banner.webp"
+        alt="FAS Motorsports hellcat power packages"
+        class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none"
+      />
       <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80"></div>
       <div class="absolute top-0 left-0 right-0 h-px"></div>
 
-      <div class="relative z-10 h-full flex flex-col items-center justify-center text-center px-0 md:px-6">
-        {primaryBadgeEntry ? (
-          <p class="text-base font-semibold leading-7 text-primaryB">
-            {primaryBadgeEntry.badge}
-          </p>
-        ) : null}
-        <h1 class="mt-2 text-5xl md:text-7xl font-ethno tracking-[0.08em] text-white drop-shadow-[0_6px_28px_rgba(0,0,0,0.8)]">
+      <div
+        class="relative z-10 h-full flex flex-col items-center justify-center text-center px-0 md:px-6"
+      >
+        {
+          primaryBadgeEntry ? (
+            <p class="text-base font-semibold leading-7 text-primaryB">{primaryBadgeEntry.badge}</p>
+          ) : null
+        }
+        <h1
+          class="mt-2 text-5xl md:text-7xl font-ethno tracking-[0.08em] text-white drop-shadow-[0_6px_28px_rgba(0,0,0,0.8)]"
+        >
           {heroHeading}
         </h1>
         <p class="mt-3 text-base md:text-lg font-mono tracking-[0.12em] text-white/80 max-w-2xl">
           {heroDescription}
         </p>
 
-        {secondaryBadgeEntries.length > 0 ? (
-          <div class="mt-6 flex flex-wrap gap-3 justify-center">
-            {secondaryBadgeEntries.map(({ badge, idx }) => (
-              <span
-                class="px-4 py-1.5 rounded-full border border-white/30 bg-black/50 text-white/90 text-xs font-ethno uppercase tracking-[0.18em]"
-              >
-                {badge}
-              </span>
-            ))}
-          </div>
-        ) : null}
+        {
+          secondaryBadgeEntries.length > 0 ? (
+            <div class="mt-6 flex flex-wrap gap-3 justify-center">
+              {secondaryBadgeEntries.map(({ badge, idx }) => (
+                <span class="px-4 py-1.5 rounded-full border border-white/30 bg-dark/50 text-white/90 text-xs font-ethno uppercase tracking-[0.18em]">
+                  {badge}
+                </span>
+              ))}
+            </div>
+          ) : null
+        }
 
         <div class="mt-8 flex flex-col sm:flex-row gap-4">
-          {heroCtasToRender.map((cta, idx) => (
-            <Button
-              key={`hero-cta-${idx}`}
-              text={cta?.label || 'Call to Action'}
-              variant={(cta?.variant as any) || 'multi-swipe-v2'}
-              href={cta?.href || '#'}
-            />
-          ))}
+          {
+            heroCtasToRender.map((cta, idx) => (
+              <Button
+                key={`hero-cta-${idx}`}
+                text={cta?.label || 'Call to Action'}
+                variant={(cta?.variant as any) || 'multi-swipe-v2'}
+                href={cta?.href || '#'}
+              />
+            ))
+          }
         </div>
       </div>
     </section>
     <PowerPackagesComponent client:load />
-          <section id="ThreeDGallery" class="mt-10">
-        <AnimatedThreeDGallery
-          client:only="react"
-          images={[
-            '/images/packages/FAS-trackhawk-engine-bay.webp',
-            '/images/packages/Shelby-truck.webp',
-            '/images/backgrounds/powerPackages/FAS-4.webp',
-            '/images/packages/FAS-f150-1000.webp',
-            '/images/packages/Shelby-truck.webp',
-            '/images/packages/Hellcat/FAS-1.webp',
-            '/images/packages/FAS-trackhawk-bay.webp',
-          ]}
-          rotateSpeed={80}
-          pauseOnHover={true}
-        />
-      </section>
-
+    <section id="ThreeDGallery" class="mt-10">
+      <AnimatedThreeDGallery
+        client:only="react"
+        images={[
+          '/images/packages/FAS-trackhawk-engine-bay.webp',
+          '/images/packages/Shelby-truck.webp',
+          '/images/backgrounds/powerPackages/FAS-4.webp',
+          '/images/packages/FAS-f150-1000.webp',
+          '/images/packages/Shelby-truck.webp',
+          '/images/packages/Hellcat/FAS-1.webp',
+          '/images/packages/FAS-trackhawk-bay.webp'
+        ]}
+        rotateSpeed={80}
+        pauseOnHover={true}
+      />
+    </section>
   </div>
 </BaseLayout>

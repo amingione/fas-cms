@@ -119,7 +119,7 @@ export function Products() {
         className={`h-full ${isMobile ? 'mobile-carousel-item' : ''}`}
       >
         <Card
-          className={`group relative overflow-hidden bg-black border-gray-200/50 hover:border-primary/50 transition-all duration-500 industrial-card h-full flex flex-col ${isMobile ? 'mobile-compact-card' : ''}`}
+          className={`group relative overflow-hidden bg-dark border-gray-200/50 hover:border-primary/50 transition-all duration-500 industrial-card h-full flex flex-col ${isMobile ? 'mobile-compact-card' : ''}`}
         >
           {product.popular && (
             <motion.div
@@ -137,7 +137,7 @@ export function Products() {
             </motion.div>
           )}
 
-          <div className="relative overflow-hidden bg-black/30 flex items-center justify-center">
+          <div className="relative overflow-hidden bg-dark/30 flex items-center justify-center">
             <motion.img
               src={product.image}
               alt={product.name}

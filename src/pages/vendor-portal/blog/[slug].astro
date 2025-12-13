@@ -11,7 +11,46 @@ if (!gate.ok) {
 
 const { slug } = Astro.params;
 
-const post = await sanityClient.fetch(
+const typeEmoji = {
+  announcement: '📢',
+  notice: '🚨',
+  release: '🆕',
+  policy: '📋',
+  tip: '💡',
+  update: '📰'
+} as const;
+
+type VendorPostType = keyof typeof typeEmoji;
+
+type VendorAttachment = {
+  asset?: { url?: string; originalFilename?: string | null } | null;
+  title?: string | null;
+  description?: string | null;
+};
+
+type VendorRelatedProduct = {
+  _id?: string;
+  title?: string;
+  slug?: { current?: string };
+  price?: number;
+  featuredImage?: { asset?: { url?: string } | null } | null;
+};
+
+type VendorPost = {
+  _id: string;
+  title: string;
+  postType?: VendorPostType | null;
+  priority?: 'urgent' | 'high' | 'normal';
+  excerpt?: string | null;
+  featuredImage?: { asset?: { url?: string } | null } | null;
+  content?: unknown;
+  relatedProducts?: VendorRelatedProduct[] | null;
+  attachments?: VendorAttachment[] | null;
+  author?: { name?: string; avatar?: { asset?: { url?: string } | null } | null } | null;
+  publishedAt?: string;
+};
+
+const post = await sanityClient.fetch<VendorPost | null>(
   `*[_type == "vendorPost" && slug.current == $slug][0] {
     _id,
     title,
@@ -40,105 +79,122 @@ const post = await sanityClient.fetch(
 
 if (!post) return Astro.redirect('/vendor-portal/blog');
 
-const typeEmoji = {
-  announcement: '📢',
-  notice: '🚨',
-  release: '🆕',
-  policy: '📋',
-  tip: '💡',
-  update: '📰'
-};
+const isVendorPostType = (value: unknown): value is VendorPostType =>
+  typeof value === 'string' && value in typeEmoji;
+
+const postTypeKey: VendorPostType = isVendorPostType(post.postType) ? post.postType : 'update';
 ---
 
 <VendorPortalLayout title={post.title}>
-  <a href="/vendor-portal/blog" class="inline-flex items-center text-primary hover:text-primary/80 mb-6">
+  <a
+    href="/vendor-portal/blog"
+    class="inline-flex items-center text-primary hover:text-primary/80 mb-6"
+  >
     ← Back to Updates
   </a>
 
   <article class="max-w-4xl space-y-6">
     <div class="space-y-3">
       <div class="flex items-center gap-2">
-        <span class="text-3xl">{typeEmoji[post.postType]}</span>
-        {post.priority === 'urgent' && (
-          <span class="bg-red-100 text-red-800 text-sm px-3 py-1 rounded">Urgent</span>
-        )}
-        {post.priority === 'high' && (
-          <span class="bg-amber-100 text-amber-800 text-sm px-3 py-1 rounded">High Priority</span>
-        )}
+        <span class="text-3xl">{typeEmoji[postTypeKey]}</span>
+        {
+          post.priority === 'urgent' && (
+            <span class="bg-red-100 text-red-800 text-sm px-3 py-1 rounded">Urgent</span>
+          )
+        }
+        {
+          post.priority === 'high' && (
+            <span class="bg-amber-100 text-amber-800 text-sm px-3 py-1 rounded">High Priority</span>
+          )
+        }
       </div>
       <h1 class="text-4xl font-bold text-white">{post.title}</h1>
       <div class="flex items-center gap-4 text-white/70 text-sm">
-        {post.author && (
-          <div class="flex items-center gap-2">
-            {post.author.avatar && (
-              <img src={post.author.avatar.asset.url} alt={post.author.name} class="w-8 h-8 rounded-full" />
-            )}
-            <span>{post.author.name}</span>
-          </div>
-        )}
+        {
+          post.author && (
+            <div class="flex items-center gap-2">
+              {post.author.avatar && (
+                <img
+                  src={post.author.avatar.asset.url}
+                  alt={post.author.name}
+                  class="w-8 h-8 rounded-full"
+                />
+              )}
+              <span>{post.author.name}</span>
+            </div>
+          )
+        }
         <span>•</span>
         <time>{new Date(post.publishedAt).toLocaleDateString()}</time>
       </div>
     </div>
 
-    {post.featuredImage && (
-      <img
-        src={post.featuredImage.asset.url}
-        alt={post.title}
-        class="w-full h-96 object-cover rounded-lg border border-white/10"
-      />
-    )}
+    {
+      post.featuredImage && (
+        <img
+          src={post.featuredImage.asset.url}
+          alt={post.title}
+          class="w-full h-96 object-cover rounded-lg border border-white/10"
+        />
+      )
+    }
 
     <div class="prose prose-invert prose-headings:text-white max-w-none">
       <VendorPostContent content={post.content} client:load />
     </div>
 
-    {post.attachments && post.attachments.length > 0 && (
-      <div class="rounded-lg border border-white/10 bg-white/5 p-4 space-y-3">
-        <h3 class="text-xl font-bold text-white">Attachments</h3>
-        {post.attachments.map((attachment) => (
-          <a
-            href={attachment.asset.url}
-            download
-            class="flex items-center gap-3 rounded border border-white/10 bg-black/40 p-3 text-white hover:border-primary transition"
-          >
-            <span class="text-2xl">📎</span>
-            <div class="flex-1">
-              <div class="font-semibold">
-                {attachment.title || attachment.asset.originalFilename}
-              </div>
-              {attachment.description && (
-                <div class="text-sm text-white/60">{attachment.description}</div>
-              )}
-            </div>
-            <span class="text-primary font-semibold">Download</span>
-          </a>
-        ))}
-      </div>
-    )}
-
-    {post.relatedProducts && post.relatedProducts.length > 0 && (
-      <div class="space-y-3">
-        <h3 class="text-xl font-bold text-white">Related Products</h3>
-        <div class="grid md:grid-cols-3 gap-4">
-          {post.relatedProducts.map((product) => (
+    {
+      post.attachments && post.attachments.length > 0 && (
+        <div class="rounded-lg border border-white/10 bg-white/5 p-4 space-y-3">
+          <h3 class="text-xl font-bold text-white">Attachments</h3>
+          {post.attachments.map((attachment: VendorAttachment) => (
             <a
-              href={`/products/${product.slug.current}`}
-              class="rounded-lg border border-white/10 bg-white/5 p-4 hover:border-primary transition text-white"
+              href={attachment.asset?.url ?? '#'}
+              download
+              class="flex items-center gap-3 rounded border border-white/10 bg-dark/40 p-3 text-white hover:border-primary transition"
             >
-              {product.featuredImage && (
-                <img
-                  src={product.featuredImage.asset.url}
-                  alt={product.title}
-                  class="w-full h-40 object-cover rounded mb-3"
-                />
-              )}
-              <h4 class="font-semibold mb-1">{product.title}</h4>
-              {product.price && <p class="text-primary font-bold">${product.price}</p>}
+              <span class="text-2xl">📎</span>
+              <div class="flex-1">
+                <div class="font-semibold">
+                  {attachment.title || attachment.asset?.originalFilename || 'Attachment'}
+                </div>
+                {attachment.description && (
+                  <div class="text-sm text-white/60">{attachment.description}</div>
+                )}
+              </div>
+              <span class="text-primary font-semibold">Download</span>
             </a>
           ))}
         </div>
-      </div>
-    )}
+      )
+    }
+
+    {
+      post.relatedProducts && post.relatedProducts.length > 0 && (
+        <div class="space-y-3">
+          <h3 class="text-xl font-bold text-white">Related Products</h3>
+          <div class="grid md:grid-cols-3 gap-4">
+            {post.relatedProducts.map((product: VendorRelatedProduct) => (
+              <a
+                href={
+                  product.slug?.current ? `/products/${product.slug.current}` : '#'
+                }
+                class="rounded-lg border border-white/10 bg-white/5 p-4 hover:border-primary transition text-white"
+              >
+                {product.featuredImage && (
+                  <img
+                    src={product.featuredImage.asset.url}
+                    alt={product.title}
+                    class="w-full h-40 object-cover rounded mb-3"
+                  />
+                )}
+                <h4 class="font-semibold mb-1">{product.title}</h4>
+                {product.price && <p class="text-primary font-bold">${product.price}</p>}
+              </a>
+            ))}
+          </div>
+        </div>
+      )
+    }
   </article>
 </VendorPortalLayout>

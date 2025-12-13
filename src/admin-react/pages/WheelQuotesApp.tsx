@@ -48,7 +48,7 @@ export default function WheelQuotesApp() {
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-white/10 bg-black/40 p-6 text-sm text-white/70">
+      <div className="rounded-xl border border-white/10 bg-dark/40 p-6 text-sm text-white/70">
         Loading wheel quotes…
       </div>
     );
@@ -64,7 +64,7 @@ export default function WheelQuotesApp() {
 
   if (quotes.length === 0) {
     return (
-      <div className="rounded-xl border border-white/10 bg-black/40 p-6 text-sm text-white/70">
+      <div className="rounded-xl border border-white/10 bg-dark/40 p-6 text-sm text-white/70">
         No wheel quotes found.
       </div>
     );
@@ -75,14 +75,16 @@ export default function WheelQuotesApp() {
       {quotes.map((quote) => (
         <article
           key={quote.id}
-          className="rounded-xl border border-white/10 bg-black/60 p-4 text-sm text-white/80 shadow-inner shadow-black/40"
+          className="rounded-xl border border-white/10 bg-dark/60 p-4 text-sm text-white/80 shadow-inner shadow-black/40"
         >
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 className="text-base font-semibold text-white">{quote.customerName}</h3>
               <p className="text-xs text-white/60">{quote.email}</p>
             </div>
-            <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs uppercase tracking-wide ${statusClasses[quote.status]}`}>
+            <span
+              className={`inline-flex items-center rounded-full px-3 py-1 text-xs uppercase tracking-wide ${statusClasses[quote.status]}`}
+            >
               {quote.status.replace('_', ' ')}
             </span>
           </div>

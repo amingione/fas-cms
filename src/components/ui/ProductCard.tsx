@@ -41,7 +41,8 @@ export function ProductCard({ product }: ProductCardProps) {
   const saleBadge = getSaleBadgeText(product);
   const productPrice = formatPrice(activePrice);
 
-  const imageUrl = resolveSanityImageUrl([product?.image, product?.image?.asset]) || '/logo/faslogochroma.webp';
+  const imageUrl =
+    resolveSanityImageUrl([product?.image, product?.image?.asset]) || '/logo/faslogochroma.webp';
   const productSlug = normalizeSlugValue((product as any)?.slug);
 
   const handleAddToCart = async (e: React.MouseEvent) => {
@@ -51,20 +52,21 @@ export function ProductCard({ product }: ProductCardProps) {
     try {
       // Get current cart
       const cart = getCart();
-  const { shippingClass, installOnly } = resolveProductCartMeta(product);
-  const saleLabel = saleBadge || product?.saleLabel;
-  const priceValue =
-    typeof activePrice === 'number'
-      ? activePrice
-      : typeof product.price === 'number'
-        ? product.price
-        : 0;
-  const originalPriceValue =
-    typeof comparePrice === 'number' && (typeof activePrice !== 'number' || comparePrice > activePrice)
-      ? comparePrice
-      : typeof product.price === 'number'
-        ? product.price
-        : undefined;
+      const { shippingClass, installOnly } = resolveProductCartMeta(product);
+      const saleLabel = saleBadge || product?.saleLabel;
+      const priceValue =
+        typeof activePrice === 'number'
+          ? activePrice
+          : typeof product.price === 'number'
+            ? product.price
+            : 0;
+      const originalPriceValue =
+        typeof comparePrice === 'number' &&
+        (typeof activePrice !== 'number' || comparePrice > activePrice)
+          ? comparePrice
+          : typeof product.price === 'number'
+            ? product.price
+            : undefined;
 
       // Check if item already exists
       const existingIndex = cart.findIndex((item: any) => item.id === product._id);
@@ -131,7 +133,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <motion.div
-      className="relative z-0 text-white bg-black/10 rounded-xl shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_8px_20px_rgba(234,29,38,0.3)] overflow-hidden transform transition-all duration-500 group industrial-card"
+      className="relative z-0 text-white bg-dark/10 rounded-xl shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_8px_20px_rgba(234,29,38,0.3)] overflow-hidden transform transition-all duration-500 group industrial-card"
       whileHover={{ y: -5, scale: 1.02 }}
       transition={{ duration: 0.3 }}
     >
@@ -169,9 +171,7 @@ export function ProductCard({ product }: ProductCardProps) {
             {onSale && comparePrice ? (
               <>
                 <span className="text-red-400">{formatPrice(activePrice)}</span>
-                <span className="ml-2 text-white/60 line-through">
-                  {formatPrice(comparePrice)}
-                </span>
+                <span className="ml-2 text-white/60 line-through">{formatPrice(comparePrice)}</span>
               </>
             ) : (
               productPrice

@@ -14,106 +14,121 @@ requestUrl.hash = '';
 const canonical = requestUrl.toString();
 
 const pageTitle = 'Truck Packages';
-const pageDescription = 'Browse F.A.S. Motorsports truck packages for RAM TRX, Ford F-150, and 250 series builds with install, tuning, and warranty-friendly support.';
+const pageDescription =
+  'Browse F.A.S. Motorsports truck packages for RAM TRX, Ford F-150, and 250 series builds with install, tuning, and warranty-friendly support.';
 const hero = pageDoc?.hero ?? {};
 // Use plain HTML buttons/links in this SSR page to avoid React SSR for UI primitives
-const heroCtas: Array<{ label?: string; href?: string; variant?: string }> = Array.isArray(hero?.ctas)
+const heroCtas: Array<{ label?: string; href?: string; variant?: string }> = Array.isArray(
+  hero?.ctas
+)
   ? hero.ctas
   : [];
 const heroCtasHasContent = heroCtas.length > 0;
 const heroCtasFallback = [
-  { label: 'Shop All Packages', href: '/shop?categorySlug=power-packages&category=power-packages&priceMin=0&priceMax=100000&page=1', variant: 'multi-swipe-v2' },
+  {
+    label: 'Shop All Packages',
+    href: '/shop?categorySlug=power-packages&category=power-packages&priceMin=0&priceMax=100000&page=1',
+    variant: 'multi-swipe-v2'
+  },
   { label: 'Customize Your Build', href: '/contact', variant: 'multi-swipe-v2' }
 ];
 const heroCtasToRender = heroCtasHasContent ? heroCtas : heroCtasFallback;
 
 // Add missing hero heading/description and badge entries
 const heroHeading: string = pageDoc?.hero?.heading ?? 'Truck Packages';
-const heroDescription: string = pageDoc?.hero?.description ?? 'Explore our dyno-proven truck packages for RAM TRX, Ford F‑150, and more. Turn-key builds, installed & tuned in-house.';
+const heroDescription: string =
+  pageDoc?.hero?.description ??
+  'Explore our dyno-proven truck packages for RAM TRX, Ford F‑150, and more. Turn-key builds, installed & tuned in-house.';
 
-const primaryBadgeEntry = pageDoc?.hero?.primaryBadge
-  ? { badge: pageDoc.hero.primaryBadge }
-  : null;
+const primaryBadgeEntry = pageDoc?.hero?.primaryBadge ? { badge: pageDoc.hero.primaryBadge } : null;
 
-const secondaryBadgeEntries =
-  Array.isArray(pageDoc?.hero?.secondaryBadges)
-    ? pageDoc.hero.secondaryBadges.map((badge: string, idx: number) => ({ badge, idx }))
-    : [];
+const secondaryBadgeEntries = Array.isArray(pageDoc?.hero?.secondaryBadges)
+  ? pageDoc.hero.secondaryBadges.map((badge: string, idx: number) => ({ badge, idx }))
+  : [];
 
-
-
-
-const ctaButtons: Array<{ label?: string; href?: string; variant?: string }> = Array.isArray(pageDoc?.ctaButtons)
+const ctaButtons: Array<{ label?: string; href?: string; variant?: string }> = Array.isArray(
+  pageDoc?.ctaButtons
+)
   ? pageDoc.ctaButtons
   : [];
 const ctaButtonsHasContent = ctaButtons.length > 0;
 const ctaButtonsFallback = [
-  { label: 'Shop Truck Packages', href: '/shop?categorySlug=truck-packages&category=truck-packages&priceMin=0&priceMax=100000&page=1', variant: 'multi-swipe-v2' },
+  {
+    label: 'Shop Truck Packages',
+    href: '/shop?categorySlug=truck-packages&category=truck-packages&priceMin=0&priceMax=100000&page=1',
+    variant: 'multi-swipe-v2'
+  },
   { label: 'Book an Install', href: '/schedule', variant: 'multi-swipe-v2' }
 ];
 const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallback;
 ---
+
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
+  <section
+    class="relative w-full h-[72vh] md:h-[78vh] overflow-hidden"
+    style="--hero:url('/shop')"
+    aria-label="Truck Packages Hero"
+  >
+    <img
+      src="/images/backgrounds/trx-hellcat.jpg"
+      alt="FAS Motorsports Truck Packages"
+      class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none"
+    />
+    <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80"></div>
+    <div class="absolute top-0 left-0 right-0 h-px"></div>
 
-    <section
-      class="relative w-full h-[72vh] md:h-[78vh] overflow-hidden"
-      style="--hero:url('/shop')"
-      aria-label="Truck Packages Hero"
+    <div
+      class="relative z-10 h-full flex flex-col items-center justify-center text-center px-0 md:px-6"
     >
-      <img src="/images/backgrounds/trx-hellcat.jpg" alt="FAS Motorsports Truck Packages" class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none" />
-      <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80"></div>
-      <div class="absolute top-0 left-0 right-0 h-px"></div>
+      {
+        primaryBadgeEntry ? (
+          <p class="text-base font-semibold leading-7 text-primaryB">{primaryBadgeEntry.badge}</p>
+        ) : null
+      }
+      <h1
+        class="mt-2 text-5xl md:text-7xl font-ethno tracking-[0.08em] text-white drop-shadow-[0_6px_28px_rgba(0,0,0,0.8)]"
+      >
+        {heroHeading}
+      </h1>
+      <p class="mt-3 text-base md:text-lg font-mono tracking-[0.12em] text-white/80 max-w-2xl">
+        {heroDescription}
+      </p>
 
-      <div class="relative z-10 h-full flex flex-col items-center justify-center text-center px-0 md:px-6">
-        {primaryBadgeEntry ? (
-          <p class="text-base font-semibold leading-7 text-primaryB">
-            {primaryBadgeEntry.badge}
-          </p>
-        ) : null}
-        <h1 class="mt-2 text-5xl md:text-7xl font-ethno tracking-[0.08em] text-white drop-shadow-[0_6px_28px_rgba(0,0,0,0.8)]">
-          {heroHeading}
-        </h1>
-        <p class="mt-3 text-base md:text-lg font-mono tracking-[0.12em] text-white/80 max-w-2xl">
-          {heroDescription}
-        </p>
-
-        {secondaryBadgeEntries.length > 0 ? (
+      {
+        secondaryBadgeEntries.length > 0 ? (
           <div class="mt-6 flex flex-wrap gap-3 justify-center">
-            {secondaryBadgeEntries.map(
-              (entry: { badge: string; idx: number }) => (
-                <span
-                  class="px-4 py-1.5 rounded-full border border-white/30 bg-black/50 text-white/90 text-xs font-ethno uppercase tracking-[0.18em]"
-                >
-                  {entry.badge}
-                </span>
-              )
-            )}
+            {secondaryBadgeEntries.map((entry: { badge: string; idx: number }) => (
+              <span class="px-4 py-1.5 rounded-full border border-white/30 bg-dark/50 text-white/90 text-xs font-ethno uppercase tracking-[0.18em]">
+                {entry.badge}
+              </span>
+            ))}
           </div>
-        ) : null}
+        ) : null
+      }
 
-        <div class="mt-8 flex flex-col sm:flex-row gap-4">
-          {heroCtasToRender.map((cta, idx) => (
+      <div class="mt-8 flex flex-col sm:flex-row gap-4">
+        {
+          heroCtasToRender.map((cta, idx) => (
             <a href={cta?.href || '/contact'}>
-              <Button
-                key={`hero-cta-${idx}`}
-                variant={(cta?.variant as any) || 'multi-swipe-v2'}
-              >
+              <Button key={`hero-cta-${idx}`} variant={(cta?.variant as any) || 'multi-swipe-v2'}>
                 {cta?.label || 'Call to Action'}
               </Button>
             </a>
-          ))}
-        </div>
+          ))
+        }
       </div>
-    </section>
-  <TruckPackagesComponent client:load/>
+    </div>
+  </section>
+  <TruckPackagesComponent client:load />
 
   <!-- Packages Section -->
   <section class="packages section-divider section-divider-carbon">
     <div class="package-grid">
-
       <!-- Column 1: TRX + Overview -->
       <div class="package-group">
-        <div class="px-4 border border-roundeded border-black rounded-md drop-shadow shadow-md shadow-white/20">
+        <div
+          class="px-4 border border-roundeded border-black rounded-md drop-shadow shadow-md shadow-white/20"
+        >
           <div class="package-media">
             <img
               src="/images/packages/850-ram.webp"
@@ -127,68 +142,103 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallbac
               class="package-image"
             />
           </div>
-          <h3 class="font-ethno text-primary"><span class="font-borg text-white">RaM</span> TRX <span class="font-ethno text-base tracking-tight text-white">Builds</span></h3>
+          <h3 class="font-ethno text-primary">
+            <span class="font-borg text-white">RaM</span> TRX <span
+              class="font-ethno text-base tracking-tight text-white">Builds</span>
+          </h3>
           <div class="font-ethno text-base tracking-tight text-accent">
-            <div class="my-2 font-mono text-base tracking-wide text-white/70">From 800HP to 1600+HP — Your TRX, Redefined.</div>
-            <div class="font-ethno text-lg tracking-tight text-blue-500">• Starting at $1,599 •</div>
+            <div class="my-2 font-mono text-base tracking-wide text-white/70">
+              From 800HP to 1600+HP — Your TRX, Redefined.
+            </div>
+            <div class="font-ethno text-lg tracking-tight text-blue-500">
+              • Starting at $1,599 •
+            </div>
           </div>
           <ul class="font-mono font-bold pt-4 text-base tracking-tight leading-snug">
-            <li>FAS Motorsports has built more TRX’s than anyone, delivering proven power packages designed to dominate both street and strip.</li>
+            <li>
+              FAS Motorsports has built more TRX’s than anyone, delivering proven power packages
+              designed to dominate both street and strip.
+            </li>
           </ul>
           <Button className="my-3 ghost">
-            <a href="/shop/fas-factory-freak-package-trx" class="font-cyber tracking-widest transition-all duration-300">Shop Package ➟</a>
+            <a
+              href="/shop/fas-factory-freak-package-trx"
+              class="font-cyber tracking-widest transition-all duration-300">Shop Package ➟</a
+            >
           </Button>
         </div>
       </div>
 
       <!-- Column 2: F‑150 + Overview -->
       <div class="package-group">
-        <div class="px-4 border border-roundeded border-black rounded-md shadow-inner shadow-white/20">
+        <div
+          class="px-4 border border-roundeded border-black rounded-md shadow-inner shadow-white/20"
+        >
           <div class="package-media">
-            <img src="/images/packages/FAS-f150-10002.webp" alt="Ford F‑150 Packages" class="package-image">
+            <img
+              src="/images/packages/FAS-f150-10002.webp"
+              alt="Ford F‑150 Packages"
+              class="package-image"
+            />
           </div>
-          <h3 class="font-ethno text-primary"><span class="font-borg text-white">Ford</span> F‑150 <span class="font-ethno text-base tracking-tight text-white">(2018+)</span></h3>
+          <h3 class="font-ethno text-primary">
+            <span class="font-borg text-white">Ford</span> F‑150 <span
+              class="font-ethno text-base tracking-tight text-white">(2018+)</span>
+          </h3>
           <div class="font-ethno text-base tracking-tight text-accent">
-            <div class="my-2 font-mono text-base tracking-wide text-white/70">From 500+ to 1000 HP — Turn‑Key, Installed & Tuned.</div>
-            <div class="font-ethno text-lg tracking-tight text-blue-500">• Starting at $7,499 •</div>
+            <div class="my-2 font-mono text-base tracking-wide text-white/70">
+              From 500+ to 1000 HP — Turn‑Key, Installed & Tuned.
+            </div>
+            <div class="font-ethno text-lg tracking-tight text-blue-500">
+              • Starting at $7,499 •
+            </div>
           </div>
           <ul class="font-mono pt-4 text-base tracking-tight leading-snug">
-            <li>Daily‑drivable twin‑turbo packages with proper fueling, cooling, and calibration. Installed & tuned in‑house.</li>
+            <li>
+              Daily‑drivable twin‑turbo packages with proper fueling, cooling, and calibration.
+              Installed & tuned in‑house.
+            </li>
           </ul>
           <Button className="my-3 ghost">
-            <a href="/shop?categorySlug=truck-packages&category=truck-packages&filters=f150&filter=f150&priceMin=0&priceMax=100000&page=1" class="font-cyber tracking-widest transition-all duration-300">Shop F‑150 Packages ➟</a>
+            <a
+              href="/shop?categorySlug=truck-packages&category=truck-packages&filters=f150&filter=f150&priceMin=0&priceMax=100000&page=1"
+              class="font-cyber tracking-widest transition-all duration-300"
+              >Shop F‑150 Packages ➟</a
+            >
           </Button>
         </div>
       </div>
     </div>
   </section>
 
- 
   <!-- Truck Build Gallery (bottom) -->
   <section class="pt-8 shadow-inner shadow-white/20 border-black">
-    <h3 class="text-center text-3xl md:text-4xl font-ethno text-black mb-2 text-glow">Truck Build Gallery</h3>
-    <TruckGallery images={[
-      { src: '/images/packages/FAS-f150-1000.webp', alt: 'F150 Build' },
-      { src: '/images/packages/FAS-f150-10002.webp', alt: 'FAS F150 Build' },
-      { src: '/images/packages/FAS-f150.webp', alt: 'F‑150 800–1000+ Build' },
-      { src: '/images/packages/F250-FAS.webp', alt: 'Ford F‑250 Custom' },
-      { src: '/images/packages/FAS-F250-custom.webp', alt: 'Custom 250 Build' },
-      { src: '/images/packages/FAS-ram-trx-build.webp', alt: 'RAM TRX Build' },
-      { src: '/images/packages/FAS-raptor-build1.webp', alt: 'FAS Raptor Build' },
-      { src: '/images/packages/FAS-raptor-TRX.webp', alt: 'Raptor Build by FAS' },
-      { src: '/images/packages/FAS-TRX-build1.webp', alt: 'TRX Build by FAS' },
-      { src: '/images/packages/FAS-TRX.webp', alt: 'TRX Build by FAS' },
-      { src: '/images/packages/FAS-TRX2.webp', alt: 'TRX Build by FAS' },
-      { src: '/images/packages/ram-trx-factory-freak.webp', alt: 'RAM TRX Build' },
-      { src: '/images/packages/850-ram-1400.webp', alt: '850 HP RAM Build' },
-      { src: '/images/packages/fas0f150-10002800.webp', alt: 'F‑150 800–1000+ Build' },
-      { src: '/images/packages/F250-FAS.webp', alt: 'Ford F‑250 / F‑150' },
-      { src: '/images/packages/Shelby-truck.webp', alt: 'Raptor / Shelby Build' },
-      { src: '/images/packages/ram-trx-factory-freak.webp', alt: 'Dodge RAM Build' },
-    ]} />
+    <h3 class="text-center text-3xl md:text-4xl font-ethno text-black mb-2 text-glow">
+      Truck Build Gallery
+    </h3>
+    <TruckGallery
+      images={[
+        { src: '/images/packages/FAS-f150-1000.webp', alt: 'F150 Build' },
+        { src: '/images/packages/FAS-f150-10002.webp', alt: 'FAS F150 Build' },
+        { src: '/images/packages/FAS-f150.webp', alt: 'F‑150 800–1000+ Build' },
+        { src: '/images/packages/F250-FAS.webp', alt: 'Ford F‑250 Custom' },
+        { src: '/images/packages/FAS-F250-custom.webp', alt: 'Custom 250 Build' },
+        { src: '/images/packages/FAS-ram-trx-build.webp', alt: 'RAM TRX Build' },
+        { src: '/images/packages/FAS-raptor-build1.webp', alt: 'FAS Raptor Build' },
+        { src: '/images/packages/FAS-raptor-TRX.webp', alt: 'Raptor Build by FAS' },
+        { src: '/images/packages/FAS-TRX-build1.webp', alt: 'TRX Build by FAS' },
+        { src: '/images/packages/FAS-TRX.webp', alt: 'TRX Build by FAS' },
+        { src: '/images/packages/FAS-TRX2.webp', alt: 'TRX Build by FAS' },
+        { src: '/images/packages/ram-trx-factory-freak.webp', alt: 'RAM TRX Build' },
+        { src: '/images/packages/850-ram-1400.webp', alt: '850 HP RAM Build' },
+        { src: '/images/packages/fas0f150-10002800.webp', alt: 'F‑150 800–1000+ Build' },
+        { src: '/images/packages/F250-FAS.webp', alt: 'Ford F‑250 / F‑150' },
+        { src: '/images/packages/Shelby-truck.webp', alt: 'Raptor / Shelby Build' },
+        { src: '/images/packages/ram-trx-factory-freak.webp', alt: 'Dodge RAM Build' }
+      ]}
+    />
   </section>
 
-  
   <style>
     /* Dark UI Palette - Editable: Change colors via CSS variables */
 
@@ -209,20 +259,28 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallbac
     /* Dark gradient overlay + glow border on bg layer */
     .parallax-section .background-layer {
       position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       border-radius: 16px; /* soft corners for the 3D panel */
-      overflow: hidden;    /* clip inner overlays to corners */
+      overflow: hidden; /* clip inner overlays to corners */
       box-shadow:
-        0 0 40px var(--shadow-glow),      /* outer subtle glow */
-        inset 0 0 60px rgba(0,0,0,0.4),   /* inner vignette */
-        0 12px 40px var(--shadow-depth);  /* depth shadow */
-      border: 1px solid rgba(255,255,255,0.06);
+        0 0 40px var(--shadow-glow),
+        /* outer subtle glow */ inset 0 0 60px rgba(0, 0, 0, 0.4),
+        /* inner vignette */ 0 12px 40px var(--shadow-depth); /* depth shadow */
+      border: 1px solid rgba(255, 255, 255, 0.06);
     }
     .parallax-section .background-layer::after {
-      content: "";
+      content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.35) 35%, rgba(0,0,0,0.65) 100%);
+      background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.55) 0%,
+        rgba(0, 0, 0, 0.35) 35%,
+        rgba(0, 0, 0, 0.65) 100%
+      );
       pointer-events: none;
     }
     /* Optional: subtle edge light on mid layer for pop */
@@ -258,9 +316,14 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallbac
       height: 100%;
       /* Subtle layered gradients instead of busy image for better scaling */
       background:
-        radial-gradient(60% 40% at 20% 15%, rgba(255,255,255,0.06), transparent 60%),
-        radial-gradient(50% 35% at 80% 0%, rgba(234,29,38,0.10), transparent 70%),
-        linear-gradient(180deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.45) 45%, rgba(0,0,0,0.70) 100%);
+        radial-gradient(60% 40% at 20% 15%, rgba(255, 255, 255, 0.06), transparent 60%),
+        radial-gradient(50% 35% at 80% 0%, rgba(234, 29, 38, 0.1), transparent 70%),
+        linear-gradient(
+          180deg,
+          rgba(0, 0, 0, 0.65) 0%,
+          rgba(0, 0, 0, 0.45) 45%,
+          rgba(0, 0, 0, 0.7) 100%
+        );
       z-index: 1;
       transform: translateY(0);
     }
@@ -292,9 +355,15 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallbac
       }
     }
 
-    .hero-inner { max-width: 720px; margin: 0 auto; }
+    .hero-inner {
+      max-width: 720px;
+      margin: 0 auto;
+    }
     @media (min-width: 1024px) {
-      .hero-inner { max-width: 700px; margin-left: 0; }
+      .hero-inner {
+        max-width: 700px;
+        margin-left: 0;
+      }
     }
 
     .accent-image {
@@ -303,15 +372,29 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallbac
       display: block;
     }
     @media (min-width: 1024px) {
-      .accent-image { margin: 8px 0 20px; }
+      .accent-image {
+        margin: 8px 0 20px;
+      }
     }
 
     /* Mobile: show a second inline truck image and hide the absolute one */
-    .truck-mobile { display: none; width: 100%; height: auto; filter: drop-shadow(0 6px 18px var(--shadow-depth)); margin-top: 12px; }
-    .mobile-hero-media { display: none; }
+    .truck-mobile {
+      display: none;
+      width: 100%;
+      height: auto;
+      filter: drop-shadow(0 6px 18px var(--shadow-depth));
+      margin-top: 12px;
+    }
+    .mobile-hero-media {
+      display: none;
+    }
     @media (max-width: 767px) {
-      .midground-layer { display: none; }
-      .accent-image { display: none; }
+      .midground-layer {
+        display: none;
+      }
+      .accent-image {
+        display: none;
+      }
       .mobile-hero-media {
         position: relative;
         display: block;
@@ -338,9 +421,11 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallbac
     }
 
     /* Section dividers with luxury glow */
-    .section-divider { position: relative; }
+    .section-divider {
+      position: relative;
+    }
     .section-divider::before {
-      content: "";
+      content: '';
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
@@ -353,7 +438,14 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallbac
     }
     /* Gold/Red glow */
     .section-divider-gold::before {
-      background: linear-gradient(90deg, transparent 0%, rgba(212, 78, 55, 0.705) 15%, rgba(212, 63, 55, 0.665) 50%, rgba(212, 78, 55, 0.716) 85%, transparent 100%);
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(212, 78, 55, 0.705) 15%,
+        rgba(212, 63, 55, 0.665) 50%,
+        rgba(212, 78, 55, 0.716) 85%,
+        transparent 100%
+      );
       box-shadow:
         0 0 25px rgba(212, 78, 55, 0.261),
         0 0 50px rgba(212, 63, 55, 0.2),
@@ -361,7 +453,14 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallbac
     }
     /* Platinum glow */
     .section-divider-platinum::before {
-      background: linear-gradient(90deg, transparent 0%, rgba(229, 228, 226, 0.9) 15%, rgba(229, 228, 226, 1) 50%, rgba(229, 228, 226, 0.9) 85%, transparent 100%);
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(229, 228, 226, 0.9) 15%,
+        rgba(229, 228, 226, 1) 50%,
+        rgba(229, 228, 226, 0.9) 85%,
+        transparent 100%
+      );
       box-shadow:
         0 0 25px rgba(229, 228, 226, 0.35),
         0 0 50px rgba(229, 228, 226, 0.2),
@@ -369,11 +468,18 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallbac
     }
     /* Carbon subtle ice glow for hero */
     .section-divider-carbon::before {
-      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.35) 15%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.35) 85%, transparent 100%);
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.35) 15%,
+        rgba(255, 255, 255, 0.6) 50%,
+        rgba(255, 255, 255, 0.35) 85%,
+        transparent 100%
+      );
       box-shadow:
-        0 0 25px rgba(255,255,255,0.18),
-        0 0 50px rgba(255,255,255,0.12),
-        0 0 75px rgba(255,255,255,0.08);
+        0 0 25px rgba(255, 255, 255, 0.18),
+        0 0 50px rgba(255, 255, 255, 0.12),
+        0 0 75px rgba(255, 255, 255, 0.08);
     }
 
     /* Packages Section */
@@ -401,13 +507,17 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallbac
       background: color-mix(in srgb, var(--bg-dark) 95%, #000);
       border-radius: 10px;
       padding: 20px;
-      box-shadow: 0 8px 24px var(--shadow-glow), 0 4px 12px var(--shadow-depth);
+      box-shadow:
+        0 8px 24px var(--shadow-glow),
+        0 4px 12px var(--shadow-depth);
       transition: transform 0.3s ease;
     }
 
     .package-card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 12px 32px var(--shadow-glow), 0 6px 16px var(--shadow-depth);
+      box-shadow:
+        0 12px 32px var(--shadow-glow),
+        0 6px 16px var(--shadow-depth);
     }
 
     .package-media {
@@ -429,8 +539,12 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallbac
       display: block;
     }
     /* Normalize inner spacing to keep padding consistent across rows */
-    .package-card p { margin: 0; }
-    .package-card h3 { margin: 0; }
+    .package-card p {
+      margin: 0;
+    }
+    .package-card h3 {
+      margin: 0;
+    }
 
     /* Features Section */
     .features {
@@ -438,7 +552,9 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallbac
     }
 
     @media (min-width: 768px) {
-      .features { padding: 60px 20px 80px; }
+      .features {
+        padding: 60px 20px 80px;
+      }
     }
 
     .features-bg {
@@ -476,7 +592,9 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallbac
       var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
       var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-      function enabled() { return mqDesktop.matches && finePointer.matches && !reduceMotion.matches; }
+      function enabled() {
+        return mqDesktop.matches && finePointer.matches && !reduceMotion.matches;
+      }
 
       /** @param {HTMLElement} section */
       function bindTilt(section: HTMLElement) {
@@ -491,14 +609,28 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallbac
           var midTy = Math.round(-py * 10);
           var bgTx = Math.round(px * 8);
           var bgTy = Math.round(py * 6);
-          if (mid) (mid as HTMLElement).style.transform = 'translate3d(' + midTx + 'px,' + midTy + 'px,0) rotateX(' + (py*2) + 'deg) rotateY(' + (px*2) + 'deg)';
-          if (bg) (bg as HTMLElement).style.transform = 'translate3d(' + bgTx + 'px,' + bgTy + 'px,0)';
+          if (mid)
+            (mid as HTMLElement).style.transform =
+              'translate3d(' +
+              midTx +
+              'px,' +
+              midTy +
+              'px,0) rotateX(' +
+              py * 2 +
+              'deg) rotateY(' +
+              px * 2 +
+              'deg)';
+          if (bg)
+            (bg as HTMLElement).style.transform = 'translate3d(' + bgTx + 'px,' + bgTy + 'px,0)';
         };
         var onLeave = function () {
           if (mid) (mid as HTMLElement).style.transform = '';
           if (bg) (bg as HTMLElement).style.transform = '';
         };
-        (section as HTMLElement & { __tiltHandlers?: any }).__tiltHandlers = { onMove: onMove, onLeave: onLeave };
+        (section as HTMLElement & { __tiltHandlers?: any }).__tiltHandlers = {
+          onMove: onMove,
+          onLeave: onLeave
+        };
         section.addEventListener('mousemove', onMove);
         section.addEventListener('mouseleave', onLeave);
       }
@@ -536,5 +668,4 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallbac
       refresh();
     });
   </script>
-
 </BaseLayout>

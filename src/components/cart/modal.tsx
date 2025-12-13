@@ -9,7 +9,8 @@ import { useCart, type Cart } from './cart-context';
 import { prefersDesktopCart } from '@/lib/device';
 
 function toNumber(value: unknown, fallback = 0): number {
-  const numeric = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN;
+  const numeric =
+    typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN;
   return Number.isFinite(numeric) ? numeric : fallback;
 }
 
@@ -47,7 +48,8 @@ function computePricing(items: Cart['items'] = []): {
     const unitPrice = Math.max(0, toNumber(item.price, 0));
     const compareFromItem = toNumber(item.originalPrice, unitPrice);
     const percentFromLabel = extractDiscountPercent(item.saleLabel);
-    const derivedCompare = percentFromLabel && unitPrice > 0 ? unitPrice / (1 - percentFromLabel / 100) : null;
+    const derivedCompare =
+      percentFromLabel && unitPrice > 0 ? unitPrice / (1 - percentFromLabel / 100) : null;
     const bestCompare = Math.max(compareFromItem, derivedCompare ?? 0);
     const hasCompareDiff = bestCompare > unitPrice;
     const onSale = hasCompareDiff || Boolean(item.isOnSale) || Boolean(percentFromLabel);
@@ -138,7 +140,7 @@ export default function CartModal() {
             leaveFrom="opacity-100 backdrop-blur-[.5px]"
             leaveTo="opacity-0 backdrop-blur-none"
           >
-            <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+            <div className="fixed inset-0 bg-dark/30" aria-hidden="true" />
           </Transition.Child>
           <Transition.Child
             as={Fragment}
@@ -152,7 +154,7 @@ export default function CartModal() {
             <div className="fixed inset-0 overflow-hidden">
               <div className="absolute inset-0 overflow-hidden">
                 <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-4 sm:pl-10">
-                  <Dialog.Panel className="pointer-events-auto w-screen max-w-md transform bg-black/90 text-white shadow-2xl transition duration-500 ease-in-out data-closed:translate-x-full sm:duration-700">
+                  <Dialog.Panel className="pointer-events-auto w-screen max-w-md transform bg-dark/90 text-white shadow-2xl transition duration-500 ease-in-out data-closed:translate-x-full sm:duration-700">
                     <div className="flex h-full flex-col">
                       <div className="flex items-start justify-between px-4 py-6 sm:px-6">
                         <Dialog.Title className="text-lg font-semibold">Shopping Cart</Dialog.Title>
@@ -320,7 +322,7 @@ function CartItemsList({ cart, pricing, onQuantityChange, onRemove }: CartItemsL
 
             return (
               <li key={item.id || item.name} className="flex py-6">
-                <div className="size-24 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-black/40">
+                <div className="size-24 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-dark/40">
                   {productHref ? (
                     <a href={productHref} className="block size-full">
                       <img
@@ -362,7 +364,8 @@ function CartItemsList({ cart, pricing, onQuantityChange, onRemove }: CartItemsL
                     )}
                     {priced.onSale && priced.savings > 0 && (
                       <p className="mt-1 text-xs text-emerald-200">
-                        You save <span className="font-semibold">{formatPrice(priced.savings)}</span>
+                        You save{' '}
+                        <span className="font-semibold">{formatPrice(priced.savings)}</span>
                       </p>
                     )}
                     {isInstallOnly && (
@@ -382,7 +385,7 @@ function CartItemsList({ cart, pricing, onQuantityChange, onRemove }: CartItemsL
                         value={item.quantity || 1}
                         onChange={(event) => void handleQuantityChange(item.id, event.target.value)}
                         disabled={pendingRemove === item.id || pendingQuantity === item.id}
-                        className="rounded-md border border-white/20 bg-black/60 px-3 py-1 text-xs text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="rounded-md border border-white/20 bg-dark/60 px-3 py-1 text-xs text-white focus:outline-none focus:ring-2 focus:ring-primary"
                       >
                         {quantities.map((qty) => (
                           <option key={qty} value={qty}>
@@ -450,7 +453,9 @@ function CartSummary({ subtotal, pricingTotals, onCheckout, onClose }: CartSumma
         <div className="flex flex-col">
           <p>Subtotal</p>
           {hasDiscount && (
-            <span className="text-xs text-white/60 line-through">{formatPrice(originalSubtotal)}</span>
+            <span className="text-xs text-white/60 line-through">
+              {formatPrice(originalSubtotal)}
+            </span>
           )}
         </div>
         <Price amount={subtotal} />
@@ -474,7 +479,7 @@ function CartSummary({ subtotal, pricingTotals, onCheckout, onClose }: CartSumma
           disabled={loading}
           className="btn-plain flex w-full items-center justify-center rounded-full bg-primary px-6 py-3 text-base font-semibold uppercase tracking-wide text-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {loading ? <LoadingDots className="bg-black" /> : 'Checkout'}
+          {loading ? <LoadingDots className="bg-dark" /> : 'Checkout'}
         </button>
       </div>
       {error && <p className="mt-3 text-center text-xs text-red-300">{error}</p>}

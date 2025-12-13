@@ -265,7 +265,7 @@ const normalizeAttributes = (items?: AttributeLike[]): NormalizedAttribute[] => 
 };
 
 const EmptyState = ({ message }: { message: string }) => (
-  <p className="border-t border-white/10 bg-black/20 px-4 py-6 text-center text-sm text-white/60">
+  <p className="border-t border-white/10 bg-dark/20 px-4 py-6 text-center text-sm text-white/60">
     {message}
   </p>
 );
@@ -322,7 +322,7 @@ export default function InfoTabs({
         {normalizedFeatures.map((feature, index) => (
           <div
             key={`${feature.heading || 'feature'}-${index}`}
-            className="border-t border-white/10 bg-black/30 p-4 shadow-inner"
+            className="border-t border-white/10 bg-dark/30 p-4 shadow-inner"
           >
             {feature.subheading ? (
               <p className="text-xs uppercase tracking-widest text-white/60">
@@ -359,7 +359,7 @@ export default function InfoTabs({
       return <EmptyState message="Kit contents will be published soon." />;
     }
     return (
-      <dl className="divide-y divide-white/10 border-t border-white/10 bg-black/30 text-sm text-white/90">
+      <dl className="divide-y divide-white/10 border-t border-white/10 bg-dark/30 text-sm text-white/90">
         {normalizedKitItems.map((kitItem, index) => (
           <div
             key={`${kitItem.label}-${index}`}
@@ -385,7 +385,7 @@ export default function InfoTabs({
       return <EmptyState message="Technical specifications coming soon." />;
     }
     return (
-      <dl className="divide-y divide-white/10 border-t border-white/10 bg-black/30 text-sm text-white/90">
+      <dl className="divide-y divide-white/10 border-t border-white/10 bg-dark/30 text-sm text-white/90">
         {normalizedSpecs.map((spec, index) => (
           <div
             key={`${spec.label}-${index}`}
@@ -408,7 +408,7 @@ export default function InfoTabs({
         {normalizedAttributes.map((attr, index) => (
           <div
             key={`${attr.label}-${index}`}
-            className="border-t border-white/10 bg-black/30 p-4 text-sm text-white/90"
+            className="border-t border-white/10 bg-dark/30 p-4 text-sm text-white/90"
           >
             <dt className="text-xs uppercase tracking-wide text-white/60">{attr.label}</dt>
             <dd className="mt-1 font-semibold text-white">{attr.value}</dd>
@@ -440,7 +440,7 @@ export default function InfoTabs({
           value={activeTab}
           onChange={(event) => setActiveTab(event.target.value as TabId)}
           aria-label="Select product info section"
-          className="col-start-1 row-start-1 w-full appearance-none rounded-full bg-black border-white/20 border py-2 pr-8 pl-3 text-base text-white outline-1 -outline-offset-1 outline-white/10 *:bg-gray-900 focus:outline-2 focus:-outline-offset-2 focus:outline-amber-500 shadow-card-outer shadow-inner shadow-primary/30"
+          className="col-start-1 row-start-1 w-full appearance-none rounded-full bg-dark border-white/20 border py-2 pr-8 pl-3 text-base text-white outline-1 -outline-offset-1 outline-white/10 *:bg-gray-900 focus:outline-2 focus:-outline-offset-2 focus:outline-amber-500 shadow-card-outer shadow-inner shadow-primary/30"
         >
           {tabs.map((tab) => (
             <option key={tab.id} value={tab.id}>

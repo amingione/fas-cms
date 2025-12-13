@@ -10,7 +10,8 @@ requestUrl.hash = '';
 const canonical = requestUrl.toString();
 
 const pageTitle = 'Contact F.A.S. Motorsports';
-const pageDescription = 'Reach the F.A.S. Motorsports team for power packages, billet parts, installs, and service scheduling at our Fort Myers, Florida facility.';
+const pageDescription =
+  'Reach the F.A.S. Motorsports team for power packages, billet parts, installs, and service scheduling at our Fort Myers, Florida facility.';
 
 const structuredData = {
   '@context': 'https://schema.org',
@@ -27,170 +28,209 @@ const structuredData = {
     postalCode: '33982',
     addressCountry: 'US'
   },
-  openingHours: [
-    'Mo-Fr 09:00-17:00'
-  ],
-  sameAs: [
-    'https://www.facebook.com/fasmotorsports',
-    'https://www.instagram.com/fasmotorsports'
-  ]
+  openingHours: ['Mo-Fr 09:00-17:00'],
+  sameAs: ['https://www.facebook.com/fasmotorsports', 'https://www.instagram.com/fasmotorsports']
 };
---- 
+---
 
-<BaseLayout hideBrandTag={true} title={pageTitle} description={pageDescription} canonical={canonical}>
+<BaseLayout
+  hideBrandTag={true}
+  title={pageTitle}
+  description={pageDescription}
+  canonical={canonical}
+>
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
   </Fragment>
   <div>
     <div {...inlineObjectId('content/pages/contact.json')}>
-      <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>{pageDoc?.title ?? 'Contact'}</div>
-      {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
-        <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
-      )}
-      <div class="relative mt-11 pt-20">
-      <section class="min-h-screen racing-stripe text-white font-mono">
-        <!-- Google Map Embed -->
-        <div class="w-full h-[400px] grayscale contrast-125 saturate-0">
-          <iframe
-            src="https://www.google.com/maps?q=6161+Riverside+Dr,+Punta+Gorda,+FL+33982&output=embed"
-            width="100%"
-            height="100%"
-            style="border:0;"
-            allowfullscreen
-            loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade"
-          ></iframe>
-        </div>
-
-        <!-- Contact Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto px-6 py-16">
-          
-          <!-- Contact Form -->
-          <form
-            id="contact-form"
-            name="contact"
-            method="POST"
-            action="/api/contact"
-            class="space-y-6 bg-charcoal shadow-white/40 backdrop-blur-md p-8 rounded-sm border box-border border-gray-700 shadow-inner bg-black/50 relative"
-          >
-            <h2 class="text-2xl font-ethno text-accent mb-4">Contact Us</h2>
-
-            <div>
-              <label for="name" class="block text-sm text-white/60 mb-1">Name</label>
-              <input type="text" id="name" name="name" required class="w-full px-4 py-2 bg-black border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-primary text-white" />
-            </div>
-
-            <div>
-              <label for="email" class="block text-sm text-white/60 mb-1">Email</label>
-              <input type="email" id="email" name="email" required class="w-full px-4 py-2 bg-black border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-primary text-white" />
-            </div>
-
-            <div>
-              <label for="topic" class="block text-sm text-white/60 mb-1">Topic</label>
-              <select id="topic" name="topic" class="w-full px-4 py-2 bg-black border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-primary text-white">
-                <option value="support">Support</option>
-                <option value="sales">Sales</option>
-                <option value="orders">Orders</option>
-                <option value="quotes">Quotes</option>
-                <option value="info">General</option>
-              </select>
-            </div>
-
-            <div>
-              <label for="message" class="block text-sm text-white/60 mb-1">Message</label>
-              <textarea id="message" name="message" rows="4" required class="w-full px-4 py-2 bg-black border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-primary text-white"></textarea>
-            </div>
-
-            <button
-              id="contact-submit"
-              type="submit"
-              class="btn-glass btn-primary btn-md text-white font-bold px-6"
-            >
-              Send
-            </button>
-          </form>
-          <div id="contact-status" class="mt-4 hidden rounded border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/70"></div>
-
-          <!-- Contact Info -->
-          <div class="flex flex-col justify-start backdrop-blur-sm p-2 rounded-sm border box-border bg-black/50 border-gray-700 shadow-inner shadow-white/40">
-            <h2 class="text-3xl font-ethno text-accent mb-6">Contact Info</h2>
-            <p class="mb-4 text-white/60"><strong class="text-primary">Phone:</strong> (812) 200-9012</p>
-            <p class="mb-4 text-white/60">
-              <strong class="text-primary">Email:</strong>
-              <a href="mailto:sales@fasmotorsports.com" class="text-accent hover:text-primary">sales@fasmotorsports.com</a>
-            </p>
-            <p class="mb-4 text-white/60">
-              <strong class="text-primary">Sales:</strong>
-              <a href="mailto:sales@fasmotorsports.com" class="text-accent hover:text-primary">sales@fasmotorsports.com</a>
-            </p>
-            <p class="mb-4 text-white/60">
-              <strong class="text-primary">Orders:</strong>
-              <a href="mailto:orders@fasmotorsports.com" class="text-accent hover:text-primary">orders@fasmotorsports.com</a>
-            </p>
-            <p class="mb-4 text-white/60">
-              <strong class="text-primary">Hours:</strong> Mon–Fri, 9am–5pm
-            </p>
-          </div>
-        </div>
-      </section>
-    </div>
-  </div>
-  <script is:inline>
-    const contactForm = document.getElementById('contact-form');
-    const contactStatus = document.getElementById('contact-status');
-
-    const statusClasses = {
-      base: ['hidden', 'border-red-400', 'text-red-200', 'border-green-400', 'text-green-200'],
-      error: ['border-red-400', 'text-red-200'],
-      success: ['border-green-400', 'text-green-200']
-    };
-
-    function setStatus(message, type = 'info') {
-      if (!contactStatus) return;
-      contactStatus.textContent = message;
-      contactStatus.classList.remove(...statusClasses.base);
-      if (type === 'error') {
-        contactStatus.classList.add(...statusClasses.error);
-      } else if (type === 'success') {
-        contactStatus.classList.add(...statusClasses.success);
+      <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>
+        {pageDoc?.title ?? 'Contact'}
+      </div>
+      {
+        Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
+          <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
+        )
       }
-    }
+      <div class="relative mt-11 pt-20">
+        <section class="min-h-screen racing-stripe text-white font-mono">
+          <!-- Google Map Embed -->
+          <div class="w-full h-[400px] grayscale contrast-125 saturate-0">
+            <iframe
+              src="https://www.google.com/maps?q=6161+Riverside+Dr,+Punta+Gorda,+FL+33982&output=embed"
+              width="100%"
+              height="100%"
+              style="border:0;"
+              allowfullscreen
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </div>
 
-    if (contactForm) {
-      contactForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
+          <!-- Contact Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto px-6 py-16">
+            <!-- Contact Form -->
+            <form
+              id="contact-form"
+              name="contact"
+              method="POST"
+              action="/api/contact"
+              class="space-y-6 bg-charcoal shadow-white/40 backdrop-blur-md p-8 rounded-sm border box-border border-gray-700 shadow-inner bg-dark/50 relative"
+            >
+              <h2 class="text-2xl font-ethno text-accent mb-4">Contact Us</h2>
 
-        setStatus('Sending…');
+              <div>
+                <label for="name" class="block text-sm text-white/60 mb-1">Name</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  required
+                  class="w-full px-4 py-2 bg-dark border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-primary text-white"
+                />
+              </div>
 
-        try {
-          const formData = new FormData(contactForm);
-          const response = await fetch(contactForm.getAttribute('action') || '/api/contact', {
-            method: 'POST',
-            body: formData
-          });
-          const payload = await response.json().catch(() => ({}));
+              <div>
+                <label for="email" class="block text-sm text-white/60 mb-1">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  class="w-full px-4 py-2 bg-dark border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-primary text-white"
+                />
+              </div>
 
-          if (response.ok && payload && payload.ok !== false) {
+              <div>
+                <label for="topic" class="block text-sm text-white/60 mb-1">Topic</label>
+                <select
+                  id="topic"
+                  name="topic"
+                  class="w-full px-4 py-2 bg-dark border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-primary text-white"
+                >
+                  <option value="support">Support</option>
+                  <option value="sales">Sales</option>
+                  <option value="orders">Orders</option>
+                  <option value="quotes">Quotes</option>
+                  <option value="info">General</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="message" class="block text-sm text-white/60 mb-1">Message</label>
+                <textarea
+                  id="message"
+                  name="message"
+                  rows="4"
+                  required
+                  class="w-full px-4 py-2 bg-dark border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-primary text-white"
+                ></textarea>
+              </div>
+
+              <button
+                id="contact-submit"
+                type="submit"
+                class="btn-glass btn-primary btn-md text-white font-bold px-6"
+              >
+                Send
+              </button>
+            </form>
+            <div
+              id="contact-status"
+              class="mt-4 hidden rounded border border-white/10 bg-dark/40 px-4 py-3 text-sm text-white/70"
+            >
+            </div>
+
+            <!-- Contact Info -->
+            <div
+              class="flex flex-col justify-start backdrop-blur-sm p-2 rounded-sm border box-border bg-dark/50 border-gray-700 shadow-inner shadow-white/40"
+            >
+              <h2 class="text-3xl font-ethno text-accent mb-6">Contact Info</h2>
+              <p class="mb-4 text-white/60">
+                <strong class="text-primary">Phone:</strong> (812) 200-9012
+              </p>
+              <p class="mb-4 text-white/60">
+                <strong class="text-primary">Email:</strong>
+                <a href="mailto:sales@fasmotorsports.com" class="text-accent hover:text-primary"
+                  >sales@fasmotorsports.com</a
+                >
+              </p>
+              <p class="mb-4 text-white/60">
+                <strong class="text-primary">Sales:</strong>
+                <a href="mailto:sales@fasmotorsports.com" class="text-accent hover:text-primary"
+                  >sales@fasmotorsports.com</a
+                >
+              </p>
+              <p class="mb-4 text-white/60">
+                <strong class="text-primary">Orders:</strong>
+                <a href="mailto:orders@fasmotorsports.com" class="text-accent hover:text-primary"
+                  >orders@fasmotorsports.com</a
+                >
+              </p>
+              <p class="mb-4 text-white/60">
+                <strong class="text-primary">Hours:</strong> Mon–Fri, 9am–5pm
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+    <script is:inline>
+      const contactForm = document.getElementById('contact-form');
+      const contactStatus = document.getElementById('contact-status');
+
+      const statusClasses = {
+        base: ['hidden', 'border-red-400', 'text-red-200', 'border-green-400', 'text-green-200'],
+        error: ['border-red-400', 'text-red-200'],
+        success: ['border-green-400', 'text-green-200']
+      };
+
+      function setStatus(message, type = 'info') {
+        if (!contactStatus) return;
+        contactStatus.textContent = message;
+        contactStatus.classList.remove(...statusClasses.base);
+        if (type === 'error') {
+          contactStatus.classList.add(...statusClasses.error);
+        } else if (type === 'success') {
+          contactStatus.classList.add(...statusClasses.success);
+        }
+      }
+
+      if (contactForm) {
+        contactForm.addEventListener('submit', async (event) => {
+          event.preventDefault();
+
+          setStatus('Sending…');
+
+          try {
+            const formData = new FormData(contactForm);
+            const response = await fetch(contactForm.getAttribute('action') || '/api/contact', {
+              method: 'POST',
+              body: formData
+            });
+            const payload = await response.json().catch(() => ({}));
+
+            if (response.ok && payload && payload.ok !== false) {
+              setStatus(
+                (payload && payload.message) || 'Thanks! We will be in touch shortly.',
+                'success'
+              );
+              contactForm.reset();
+            } else {
+              setStatus(
+                (payload && payload.message) ||
+                  'We were unable to send your message. Please verify your details and try again.',
+                'error'
+              );
+            }
+          } catch (error) {
+            console.error('Contact submission failed:', error);
             setStatus(
-              (payload && payload.message) || 'Thanks! We will be in touch shortly.',
-              'success'
-            );
-            contactForm.reset();
-          } else {
-            setStatus(
-              (payload && payload.message) ||
-                'We were unable to send your message. Please verify your details and try again.',
+              'Something went wrong while sending your message. Please try again later.',
               'error'
             );
           }
-        } catch (error) {
-          console.error('Contact submission failed:', error);
-          setStatus(
-            'Something went wrong while sending your message. Please try again later.',
-            'error'
-          );
-        }
-      });
-    }
-  </script>
+        });
+      }
+    </script>
+  </div>
 </BaseLayout>

@@ -8,13 +8,22 @@ const { title, subtitle, imageUrl } = Astro.props;
 ---
 
 <section class="relative overflow-hidden bg-neutral-950">
-  {imageUrl && (
-    <img src={imageUrl} alt="" class="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-20" loading="lazy" />
-  )}
+  {
+    imageUrl && (
+      <img
+        src={imageUrl}
+        alt=""
+        class="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-20"
+        loading="lazy"
+      />
+    )
+  }
   <div class="relative mx-auto max-w-7xl px-6 py-16 sm:py-20">
     <div class="grid items-center gap-10 md:grid-cols-[1fr_420px]">
       <div>
-        <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white">{title}</h1>
+        <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white">
+          {title}
+        </h1>
         {subtitle && <p class="mt-4 max-w-2xl text-neutral-300">{subtitle}</p>}
         <div class="mt-6 h-px w-40 bg-gradient-to-r from-red-500/80 to-transparent"></div>
       </div>
@@ -27,7 +36,7 @@ const { title, subtitle, imageUrl } = Astro.props;
         </ul>
         <a
           href="#quote"
-          class="mt-4 inline-block rounded-xl bg-black px-4 py-2 text-white border border-black transition-colors hover:bg-primary hover:border-primary hover:text-white"
+          class="mt-4 inline-block rounded-xl bg-dark px-4 py-2 text-white border border-black transition-colors hover:bg-primary hover:border-primary hover:text-white"
         >
           Get a quote
         </a>

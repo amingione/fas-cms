@@ -5,7 +5,7 @@ import Button from './button.jsx';
 export default function SplinePortingShowcase() {
   return (
     <motion.section
-      className="flex flex-col md:flex-row items-center justify-center py-20 bg-black text-white"
+      className="flex flex-col md:flex-row items-center justify-center py-20 bg-dark text-white"
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       transition={{ duration: 0.8 }}

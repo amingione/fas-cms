@@ -94,14 +94,14 @@ export default function FaqDrawer({ href, title, image, product }: Props = {}) {
       <Dialog open={open} onClose={setOpen} className="relative z-10">
         <DialogBackdrop
           transition
-          className="fixed inset-0 bg-black/70 transition-opacity duration-500 ease-in-out data-closed:opacity-0"
+          className="fixed inset-0 bg-dark/70 transition-opacity duration-500 ease-in-out data-closed:opacity-0"
         />
         <div className="fixed inset-0 overflow-hidden">
           <div className="absolute inset-0 overflow-hidden">
             <div className="pointer-events-none fixed inset-0 flex items-center justify-center p-4">
               <DialogPanel
                 transition
-                className="pointer-events-auto relative w-full max-w-lg transform rounded-2xl bg-black/80 backdrop-blur-xl border border-white/10 shadow-2xl transition duration-500 ease-in-out data-closed:opacity-0 
+                className="pointer-events-auto relative w-full max-w-lg transform rounded-2xl bg-dark/80 backdrop-blur-xl border border-white/10 shadow-2xl transition duration-500 ease-in-out data-closed:opacity-0 
   sm:duration-500
   sm:data-closed:translate-y-4
   md:data-closed:translate-y-6
@@ -122,7 +122,7 @@ export default function FaqDrawer({ href, title, image, product }: Props = {}) {
                 <div className="relative h-full overflow-y-auto p-6 text-white">
                   <div className="space-y-6 pb-16">
                     <div>
-                      <div className="relative aspect-square object-contain contain flex pb-10 justify-center bg-black/30 backdrop-blur-sm">
+                      <div className="relative aspect-square object-contain contain flex pb-10 justify-center bg-dark/30 backdrop-blur-sm">
                         {image && (
                           <img
                             src={image}
@@ -153,7 +153,7 @@ export default function FaqDrawer({ href, title, image, product }: Props = {}) {
                     </div>
                     <div className="divide-y divide-white/10 border border-white/10 rounded-xl overflow-hidden">
                       {faqEntries.map((entry, index) => (
-                        <div key={index} className="bg-black/40 backdrop-blur">
+                        <div key={index} className="bg-dark/40 backdrop-blur">
                           <button
                             type="button"
                             onClick={() => toggleIndex(index)}

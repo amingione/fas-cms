@@ -1,11 +1,9 @@
 ---
 import type { Product as SanityProduct } from '@lib/sanity-utils.ts';
-import BaseLayout from "../layouts/BaseLayout.astro";
-import SearchTabsHeader from "@/components/search/SearchTabsHeader.tsx";
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SearchTabsHeader from '@/components/search/SearchTabsHeader.tsx';
 import { fetchProductsFromSanity, fetchCategories } from '@lib/sanity-utils.ts';
 import type { Product, Category } from '@lib/sanity-utils.ts';
-
-
 
 export interface ProductCardProps {
   product: SanityProduct;
@@ -20,11 +18,9 @@ const allProducts: Product[] = await fetchProductsFromSanity({
   vehicleSlug: undefined,
   minHp: undefined
 });
-const filteredProducts: Product[] = allProducts.map(product => ({
+const filteredProducts: Product[] = allProducts.map((product) => ({
   ...product,
-  image:
-    (Array.isArray(product.images) && product.images[0]?.asset?.url) ||
-    ''
+  image: (Array.isArray(product.images) && product.images[0]?.asset?.url) || ''
 }));
 
 // Apply sorting
@@ -40,200 +36,258 @@ const startPage = pageGroup * maxVisiblePages + 1;
 const endPage = Math.min(startPage + maxVisiblePages - 1, totalPages);
 
 if (startPage > 1) {
-  paginationLinks.push({ label: "←", page: startPage - 1 });
+  paginationLinks.push({ label: '←', page: startPage - 1 });
 }
 for (let page = startPage; page <= endPage; page++) {
   paginationLinks.push({ label: page.toString(), page });
 }
 if (endPage < totalPages) {
-  paginationLinks.push({ label: "→", page: endPage + 1 });
+  paginationLinks.push({ label: '→', page: endPage + 1 });
 }
 ---
+
 <BaseLayout>
   <main class="min-h-screen text-white px-4 sm:px-8 py-10">
     <h1 class="font-ethno text-2xl sm:text-3xl mb-6">Search</h1>
 
     <div class="mb-6">
-  <form action="/search" method="GET" class="flex gap-2 items-center">
-    <input
-      type="text"
-      name="q"
-      placeholder="Search..."
-      class="bg-transparent border-b focus:border-white text-white placeholder:text-white/80 font-ethno focus:outline-none w-full sm:w-96 py-1"
-    />
-    <button type="submit" class="px-4 py-1 bg-primary text-white font-ethno rounded hover:text-white">Search</button>
-  </form>
-  <p id="query-label" class="mt-2 text-sm text-white/70"></p>
-</div>
+      <form action="/search" method="GET" class="flex gap-2 items-center">
+        <input
+          type="text"
+          name="q"
+          placeholder="Search..."
+          class="bg-transparent border-b focus:border-white text-white placeholder:text-white/80 font-ethno focus:outline-none w-full sm:w-96 py-1"
+        />
+        <button
+          type="submit"
+          class="px-4 py-1 bg-primary text-white font-ethno rounded hover:text-white">Search</button
+        >
+      </form>
+      <p id="query-label" class="mt-2 text-sm text-white/70"></p>
+    </div>
 
-<div class="mb-4">
-  <SearchTabsHeader client:load />
-</div>
+    <div class="mb-4">
+      <SearchTabsHeader client:load />
+    </div>
 
-<div id="results" class="space-y-10">
-  <p class="text-white/70">Type a query above and press Enter.</p>
-</div>
+    <div id="results" class="space-y-10">
+      <p class="text-white/70">Type a query above and press Enter.</p>
+    </div>
 
+    <script type="module">
+      const resultsEl = document.getElementById('results');
+      const qLabel = document.getElementById('query-label');
+      const form = document.querySelector('form[action="/search"]');
+      const input = form?.querySelector('input[name="q"]');
 
+      const params = new URLSearchParams(window.location.search);
+      const q = (params.get('q') || '').trim();
+      const selectedType = (params.get('type') || 'all').toLowerCase();
+      if (input) input.value = q;
+      if (q) qLabel.textContent = `Results for "${q}"`;
 
-<script type="module">
-  const resultsEl = document.getElementById('results');
-  const qLabel = document.getElementById('query-label');
-  const form = document.querySelector('form[action="/search"]');
-  const input = form?.querySelector('input[name="q"]');
+      function debounce(fn, delay = 250) {
+        let t;
+        return (...a) => {
+          clearTimeout(t);
+          t = setTimeout(() => fn(...a), delay);
+        };
+      }
 
-  const params = new URLSearchParams(window.location.search);
-  const q = (params.get('q') || '').trim();
-  const selectedType = (params.get('type') || 'all').toLowerCase();
-  if (input) input.value = q;
-  if (q) qLabel.textContent = `Results for "${q}"`;
+      function formatPrice(v) {
+        const n = Number(v);
+        if (!isFinite(n) || n <= 0) return '';
+        try {
+          return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            maximumFractionDigits: 2
+          }).format(n);
+        } catch {
+          return `$${n.toFixed(2)}`;
+        }
+      }
 
-  function debounce(fn, delay = 250) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), delay); }; }
+      async function search(query) {
+        const q = (query || '').trim();
+        if (!q) {
+          resultsEl.innerHTML = '<p class="text-white/70">Type a query above and press Enter.</p>';
+          return;
+        }
+        if (q.length < 2) {
+          resultsEl.innerHTML = '<p class="text-white/70">Type at least 2 characters…</p>';
+          return;
+        }
+        resultsEl.innerHTML = '<p class="text-white/70">Loading...</p>';
+        try {
+          const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+          if (!res.ok) throw new Error('Search failed');
+          const data = await res.json();
+          const items = Array.isArray(data?.results) ? data.results : [];
+          render(items);
+        } catch (e) {
+          console.error(e);
+          resultsEl.innerHTML = '<p class="text-red-400">Something went wrong while searching.</p>';
+        }
+      }
 
-  function formatPrice(v) {
-    const n = Number(v);
-    if (!isFinite(n) || n <= 0) return '';
-    try { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(n); } catch { return `$${n.toFixed(2)}`; }
-  }
+      function render(items) {
+        if (!items.length) {
+          resultsEl.innerHTML = '<p class="text-white/70">No results found.</p>';
+          return;
+        }
+        const groups = items.reduce((acc, it) => {
+          const t = it._type || 'other';
+          (acc[t] ||= []).push(it);
+          return acc;
+        }, {});
+        const order = ['product', 'service', 'quote', 'invoice', 'appointment', 'page', 'other'];
+        let sortedTypes = Object.keys(groups).sort((a, b) => order.indexOf(a) - order.indexOf(b));
+        if (selectedType !== 'all') sortedTypes = sortedTypes.filter((t) => t === selectedType);
+        resultsEl.innerHTML = sortedTypes.map((type) => section(type, groups[type])).join('');
+      }
 
-  async function search(query) {
-    const q = (query || '').trim();
-    if (!q) { resultsEl.innerHTML = '<p class="text-white/70">Type a query above and press Enter.</p>'; return; }
-    if (q.length < 2) { resultsEl.innerHTML = '<p class="text-white/70">Type at least 2 characters…</p>'; return; }
-    resultsEl.innerHTML = '<p class="text-white/70">Loading...</p>';
-    try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
-      if (!res.ok) throw new Error('Search failed');
-      const data = await res.json();
-      const items = Array.isArray(data?.results) ? data.results : [];
-      render(items);
-    } catch (e) { console.error(e); resultsEl.innerHTML = '<p class="text-red-400">Something went wrong while searching.</p>'; }
-  }
-
-  function render(items) {
-    if (!items.length) { resultsEl.innerHTML = '<p class="text-white/70">No results found.</p>'; return; }
-    const groups = items.reduce((acc, it) => { const t = (it._type || 'other'); (acc[t] ||= []).push(it); return acc; }, {});
-    const order = ['product', 'service', 'quote', 'invoice', 'appointment', 'page', 'other'];
-    let sortedTypes = Object.keys(groups).sort((a,b) => order.indexOf(a) - order.indexOf(b));
-    if (selectedType !== 'all') sortedTypes = sortedTypes.filter(t => t === selectedType);
-    resultsEl.innerHTML = sortedTypes.map(type => section(type, groups[type])).join('');
-  }
-
-  function section(type, items) {
-    const titleMap = { product: 'Products', service: 'Services', quote: 'Quotes', invoice: 'Invoices', appointment: 'Appointments', page: 'Pages', other: 'Other' };
-    return `
+      function section(type, items) {
+        const titleMap = {
+          product: 'Products',
+          service: 'Services',
+          quote: 'Quotes',
+          invoice: 'Invoices',
+          appointment: 'Appointments',
+          page: 'Pages',
+          other: 'Other'
+        };
+        return `
       <section>
         <h2 class="font-ethno text-xl mb-3">${titleMap[type] || type}</h2>
         <ul class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">${items.map(card).join('')}</ul>
       </section>
     `;
-  }
-
-  function getThumb(it) {
-    const byPath = it?.image?.asset?.url
-      || it?.mainImage?.asset?.url
-      || (Array.isArray(it?.images) && it.images[0]?.asset?.url)
-      || it?.thumbnail?.asset?.url
-      || it?.thumb?.asset?.url
-      || it?.imageUrl
-      || '';
-    return typeof byPath === 'string' ? byPath : '';
-  }
-
-  function resolveLink(it) {
-    if (it && typeof it.url === 'string' && it.url) return it.url;
-    const slug = (it && it.slug && (it.slug.current || it.slug)) || '';
-    switch (it && it._type) {
-      case 'product': return slug ? `/shop/${slug}` : '';
-      case 'service': return slug ? `/service/${slug}` : '';
-      case 'quote': return `/dashboard/quotes/${it._id || ''}`;
-      case 'invoice': return `/dashboard/invoices/${it._id || ''}`;
-      case 'appointment': return `/dashboard/appointments/${it._id || ''}`;
-      case 'page': return slug ? `/${slug}` : '';
-      default: return '';
-    }
-  }
-
-  function escapeHtml(s) { return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'", '&#39;'); }
-
-  function toPlainText(value, depth = 0) {
-    if (value == null || depth > 6) return '';
-    if (typeof value === 'string') return value;
-    if (typeof value === 'number' || typeof value === 'boolean') return String(value);
-    if (Array.isArray(value)) {
-      return value
-        .map((entry) => toPlainText(entry, depth + 1))
-        .filter(Boolean)
-        .join(' ')
-        .replace(/\s+/g, ' ')
-        .trim();
-    }
-    if (typeof value === 'object') {
-      if (typeof value.text === 'string') return value.text;
-      if (Array.isArray(value.children)) return toPlainText(value.children, depth + 1);
-      if ('value' in value) {
-        const result = toPlainText(value.value, depth + 1);
-        if (result) return result;
       }
-      if ('content' in value) {
-        const result = toPlainText(value.content, depth + 1);
-        if (result) return result;
-      }
-      for (const key of Object.keys(value)) {
-        if (['_key', '_type', 'marks', 'style'].includes(key)) continue;
-        const result = toPlainText(value[key], depth + 1);
-        if (result) return result;
-      }
-    }
-    return '';
-  }
 
-  function extractDescription(it) {
-    const candidates = [
-      it?.description,
-      it?.shortDescription,
-      it?.summary,
-      it?.excerpt,
-      it?.body,
-      it?.content,
-      it?.seo?.description,
-      it?.metaDescription
-    ];
-    for (const candidate of candidates) {
-      const text = toPlainText(candidate);
-      if (text) return text;
-    }
-    return '';
-  }
+      function getThumb(it) {
+        const byPath =
+          it?.image?.asset?.url ||
+          it?.mainImage?.asset?.url ||
+          (Array.isArray(it?.images) && it.images[0]?.asset?.url) ||
+          it?.thumbnail?.asset?.url ||
+          it?.thumb?.asset?.url ||
+          it?.imageUrl ||
+          '';
+        return typeof byPath === 'string' ? byPath : '';
+      }
 
-  function card(it) {
-    const title = it.title || it.name || it._type || 'Untitled';
-    const fullDesc = extractDescription(it).replace(/\s+/g, ' ').trim();
-    const snippet = fullDesc ? fullDesc.slice(0, 120) : '';
-    const href = resolveLink(it);
-    const img = getThumb(it);
-    const badge = (it._type || '').toUpperCase();
-    const price = it._type === 'product' ? formatPrice(it.price) : '';
-    const content = `
-      <div class="border border-white/20 rounded bg-black/30 p-3 hover:bg-black/40 transition h-full">
+      function resolveLink(it) {
+        if (it && typeof it.url === 'string' && it.url) return it.url;
+        const slug = (it && it.slug && (it.slug.current || it.slug)) || '';
+        switch (it && it._type) {
+          case 'product':
+            return slug ? `/shop/${slug}` : '';
+          case 'service':
+            return slug ? `/service/${slug}` : '';
+          case 'quote':
+            return `/dashboard/quotes/${it._id || ''}`;
+          case 'invoice':
+            return `/dashboard/invoices/${it._id || ''}`;
+          case 'appointment':
+            return `/dashboard/appointments/${it._id || ''}`;
+          case 'page':
+            return slug ? `/${slug}` : '';
+          default:
+            return '';
+        }
+      }
+
+      function escapeHtml(s) {
+        return String(s)
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;')
+          .replaceAll("'", '&#39;');
+      }
+
+      function toPlainText(value, depth = 0) {
+        if (value == null || depth > 6) return '';
+        if (typeof value === 'string') return value;
+        if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+        if (Array.isArray(value)) {
+          return value
+            .map((entry) => toPlainText(entry, depth + 1))
+            .filter(Boolean)
+            .join(' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+        }
+        if (typeof value === 'object') {
+          if (typeof value.text === 'string') return value.text;
+          if (Array.isArray(value.children)) return toPlainText(value.children, depth + 1);
+          if ('value' in value) {
+            const result = toPlainText(value.value, depth + 1);
+            if (result) return result;
+          }
+          if ('content' in value) {
+            const result = toPlainText(value.content, depth + 1);
+            if (result) return result;
+          }
+          for (const key of Object.keys(value)) {
+            if (['_key', '_type', 'marks', 'style'].includes(key)) continue;
+            const result = toPlainText(value[key], depth + 1);
+            if (result) return result;
+          }
+        }
+        return '';
+      }
+
+      function extractDescription(it) {
+        const candidates = [
+          it?.description,
+          it?.shortDescription,
+          it?.summary,
+          it?.excerpt,
+          it?.body,
+          it?.content,
+          it?.seo?.description,
+          it?.metaDescription
+        ];
+        for (const candidate of candidates) {
+          const text = toPlainText(candidate);
+          if (text) return text;
+        }
+        return '';
+      }
+
+      function card(it) {
+        const title = it.title || it.name || it._type || 'Untitled';
+        const fullDesc = extractDescription(it).replace(/\s+/g, ' ').trim();
+        const snippet = fullDesc ? fullDesc.slice(0, 120) : '';
+        const href = resolveLink(it);
+        const img = getThumb(it);
+        const badge = (it._type || '').toUpperCase();
+        const price = it._type === 'product' ? formatPrice(it.price) : '';
+        const content = `
+      <div class="border border-white/20 rounded bg-dark/30 p-3 hover:bg-dark/40 transition h-full">
         <div class="text-[10px] uppercase text-white/70 mb-2">${escapeHtml(badge)}</div>
-        ${img ? `<div class="w-full aspect-square bg-black/10 rounded mb-3 overflow-hidden grid place-items-center"><img src="${escapeHtml(img)}" alt="" class="max-w-full max-h-full object-contain" /></div>` : ''}
+        ${img ? `<div class="w-full aspect-square bg-dark/10 rounded mb-3 overflow-hidden grid place-items-center"><img src="${escapeHtml(img)}" alt="" class="max-w-full max-h-full object-contain" /></div>` : ''}
         <div class="font-semibold mb-1 hover:underline line-clamp-2">${escapeHtml(title)}</div>
         ${price ? `<div class="text-accent text-sm font-bold mb-1">${escapeHtml(price)}</div>` : ''}
         ${snippet ? `<p class="text-sm text-white/70 line-clamp-3">${escapeHtml(snippet)}${fullDesc.length > 120 ? '…' : ''}</p>` : ''}
       </div>`;
-    if (href) return `<li><a href="${href}" class="block focus:outline-none focus:ring-2 focus:ring-primary">${content}</a></li>`;
-    return `<li>${content}</li>`;
-  }
+        if (href)
+          return `<li><a href="${href}" class="block focus:outline-none focus:ring-2 focus:ring-primary">${content}</a></li>`;
+        return `<li>${content}</li>`;
+      }
 
-  // Kick off initial search and live-update as you type (like header)
-  search(q);
-  if (input) {
-    const run = debounce(() => {
-      const val = (input.value || '').trim();
-      qLabel.textContent = val ? `Results for "${val}"` : '';
-      search(val);
-    }, 250);
-    input.addEventListener('input', run);
-  }
-</script>
+      // Kick off initial search and live-update as you type (like header)
+      search(q);
+      if (input) {
+        const run = debounce(() => {
+          const val = (input.value || '').trim();
+          qLabel.textContent = val ? `Results for "${val}"` : '';
+          search(val);
+        }, 250);
+        input.addEventListener('input', run);
+      }
+    </script>
+  </main></BaseLayout
+>

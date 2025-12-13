@@ -1,5 +1,5 @@
 ---
-import BaseLayout from "../layouts/BaseLayout.astro";
+import BaseLayout from '../layouts/BaseLayout.astro';
 import DashboardScriptLoader from '../components/DashboardScriptLoader';
 import { readSession } from '../server/auth/session';
 
@@ -12,21 +12,27 @@ requestUrl.hash = '';
 const canonical = requestUrl.toString();
 
 const pageTitle = 'Account Dashboard';
-const pageDescription = 'Review orders, quotes, invoices, and appointments inside your F.A.S. Motorsports account dashboard.';
+const pageDescription =
+  'Review orders, quotes, invoices, and appointments inside your F.A.S. Motorsports account dashboard.';
 if (!isLoggedIn) {
   return Astro.redirect('/account');
 }
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
- 
   <style>
     @media (max-width: 639px) {
-      [data-desktop-dash] { display: none !important; }
-      [data-mobile-dash] { display: block !important; }
+      [data-desktop-dash] {
+        display: none !important;
+      }
+      [data-mobile-dash] {
+        display: block !important;
+      }
     }
     @media (min-width: 640px) {
-      [data-mobile-dash] { display: none !important; }
+      [data-mobile-dash] {
+        display: none !important;
+      }
     }
 
     /* Dashboard should sit below header drawers/overlays to avoid conflicts */
@@ -56,13 +62,18 @@ if (!isLoggedIn) {
   <main data-mobile-dash class="block sm:hidden min-h-screen pt-20 pb-24 px-4 text-white">
     <header class="mb-6">
       <h1 class="text-lg font-ethno">My Account</h1>
-      <p class="opacity-80 text-sm">Welcome, <span id="customer-name-mobile" class="text-primary"></span></p>
+      <p class="opacity-80 text-sm">
+        Welcome, <span id="customer-name-mobile" class="text-primary"></span>
+      </p>
     </header>
 
     <!-- Simple dropdown menu -->
     <div class="mb-4">
       <label for="mobile-account-select" class="sr-only">Choose a section</label>
-      <select id="mobile-account-select" class="w-full bg-white/5 border border-white/15 rounded-lg px-3 py-2 text-sm">
+      <select
+        id="mobile-account-select"
+        class="w-full bg-white/5 border border-white/15 rounded-lg px-3 py-2 text-sm"
+      >
         <option value="dashboard" selected>Dashboard</option>
         <option value="orders">Orders</option>
         <option value="quotes">Quotes</option>
@@ -79,7 +90,9 @@ if (!isLoggedIn) {
       <h1 class="text-3xl mr-20 pr-10 font-borg text-primary text-left mb-2">F.a.S.</h1>
       <h1 class="text-2xl font-ethno text-white pr-10 mr-20 text-left mb-6">Motorsports</h1>
       <h3 class="font-cyber-italic text-sm tracking-wide opacity-90">ACCOUNT DASHBOARD</h3>
-      <p class="text-xs opacity-80">Welcome to your account dashboard. Use the menu to view your profile, orders, and more.</p>
+      <p class="text-xs opacity-80">
+        Welcome to your account dashboard. Use the menu to view your profile, orders, and more.
+      </p>
     </section>
 
     <!-- Content area -->
@@ -87,40 +100,88 @@ if (!isLoggedIn) {
 
     <!-- Bottom-only auth action (mobile): single Logout button -->
     <div class="mt-10 pt-6 border-t border-white/10">
-      {isLoggedIn && (
-        <a href="/api/auth/logout" class="logout-link inline-flex items-center gap-2 px-3 py-2 rounded bg-white/80 border border-white/15 text-red-400">Logout</a>
-      )}
+      {
+        isLoggedIn && (
+          <a
+            href="/api/auth/logout"
+            class="logout-link inline-flex items-center gap-2 px-3 py-2 rounded bg-white/80 border border-white/15 text-red-400"
+          >
+            Logout
+          </a>
+        )
+      }
     </div>
   </main>
 
   <!-- DESKTOP DASHBOARD (auto on >=640px) -->
-  <main data-desktop-dash class="hidden sm:grid grid-cols-[260px_1fr] gap-6 min-h-screen pt-10 text-white font-mono">
+  <main
+    data-desktop-dash
+    class="hidden sm:grid grid-cols-[260px_1fr] gap-6 min-h-screen pt-10 text-white font-mono"
+  >
     <!-- Sidebar -->
-    <aside class="sticky top-24 h-[calc(100vh-6rem)] w-[260px] mx-6 mt-6 rounded-lg border border-white/10 bg-black/60 backdrop-blur-sm p-4">
+    <aside
+      class="sticky top-24 h-[calc(100vh-6rem)] w-[260px] mx-6 mt-6 rounded-lg border border-white/10 bg-dark/60 backdrop-blur-sm p-4"
+    >
       <header class="mb-4">
-      <div class="text-[11px] uppercase tracking-wide text-white/60">Welcome</div>
-      <div class="text-sm font-semibold">
-        <span id="customer-name" class="text-primary"></span>
-      </div>
+        <div class="text-[11px] uppercase tracking-wide text-white/60">Welcome</div>
+        <div class="text-sm font-semibold">
+          <span id="customer-name" class="text-primary"></span>
+        </div>
       </header>
       <nav class="flex flex-col gap-1 text-sm font-ethno">
-        <a href="#profile" data-view="profile" class="js-view px-3 py-2 rounded hover:bg-white/10">My Profile</a>
-        <a href="#orders" data-view="orders" class="js-view px-3 py-2 rounded hover:bg-white/10">Orders <span id="orders-count" class="ml-2 px-2 py-0.5 text-[10px] bg-red-600/80 rounded">0</span></a>
-        <a href="#quotes" data-view="quotes" class="js-view px-3 py-2 rounded hover:bg-white/10">Quotes <span id="quotes-count" class="ml-2 px-2 py-0.5 text-[10px] bg-red-600/80 rounded">0</span></a>
-        <a href="#invoices" data-view="invoices" class="js-view px-3 py-2 rounded hover:bg-white/10">Invoices <span id="invoices-count" class="ml-2 px-2 py-0.5 text-[10px] bg-red-600/80 rounded">0</span></a>
-        <a href="#appointments" data-view="appointments" class="js-view px-3 py-2 rounded hover:bg-white/10">Appointments <span id="appts-count" class="ml-2 px-2 py-0.5 text-[10px] bg-red-600/80 rounded">0</span></a>
-        <a href="#details" data-view="details" class="js-view px-3 py-2 rounded hover:bg-white/10">Account Details</a>
+        <a href="#profile" data-view="profile" class="js-view px-3 py-2 rounded hover:bg-white/10"
+          >My Profile</a
+        >
+        <a href="#orders" data-view="orders" class="js-view px-3 py-2 rounded hover:bg-white/10"
+          >Orders <span id="orders-count" class="ml-2 px-2 py-0.5 text-[10px] bg-red-600/80 rounded"
+            >0</span
+          ></a
+        >
+        <a href="#quotes" data-view="quotes" class="js-view px-3 py-2 rounded hover:bg-white/10"
+          >Quotes <span id="quotes-count" class="ml-2 px-2 py-0.5 text-[10px] bg-red-600/80 rounded"
+            >0</span
+          ></a
+        >
+        <a href="#invoices" data-view="invoices" class="js-view px-3 py-2 rounded hover:bg-white/10"
+          >Invoices <span
+            id="invoices-count"
+            class="ml-2 px-2 py-0.5 text-[10px] bg-red-600/80 rounded">0</span
+          ></a
+        >
+        <a
+          href="#appointments"
+          data-view="appointments"
+          class="js-view px-3 py-2 rounded hover:bg-white/10"
+          >Appointments <span
+            id="appts-count"
+            class="ml-2 px-2 py-0.5 text-[10px] bg-red-600/80 rounded">0</span
+          ></a
+        >
+        <a href="#details" data-view="details" class="js-view px-3 py-2 rounded hover:bg-white/10"
+          >Account Details</a
+        >
         <div class="mt-4 pt-3 border-t border-white/10"></div>
-        {isLoggedIn ? (
-          <a href="/api/auth/logout" class="logout-link px-3 py-2 rounded text-red-500 hover:bg-white/10">Logout</a>
-        ) : (
-          <a href="/account" class="px-3 py-2 rounded text-primary hover:bg-white/10">Login</a>
-        )}
+        {
+          isLoggedIn ? (
+            <a
+              href="/api/auth/logout"
+              class="logout-link px-3 py-2 rounded text-red-500 hover:bg-white/10"
+            >
+              Logout
+            </a>
+          ) : (
+            <a href="/account" class="px-3 py-2 rounded text-primary hover:bg-white/10">
+              Login
+            </a>
+          )
+        }
       </nav>
     </aside>
 
     <!-- Main panel -->
-    <section class="relative min-h-screen content-start mt-6 mr-6 p-6 rounded-lg border border-white/10 bg-black/40 backdrop-blur-sm">
+    <section
+      class="relative min-h-screen content-start mt-6 mr-6 p-6 rounded-lg border border-white/10 bg-dark/40 backdrop-blur-sm"
+    >
       <h1 class="text-3xl font-borg text-primary text-left mb-2">F.a.S.</h1>
       <h1 class="text-2xl font-ethno text-white text-left mb-6">Motorsports</h1>
       <h2 class="text-base font-cyber-italic text-left mb-6">ACCOUNT DASHBOARD</h2>
@@ -130,5 +191,4 @@ if (!isLoggedIn) {
 
   <DashboardScriptLoader client:idle />
   <!-- All dashboard logic is handled in src/scripts/dashboard-page.ts -->
-
 </BaseLayout>

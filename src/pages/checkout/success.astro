@@ -17,7 +17,9 @@ let googleReviewOptIn: {
   products?: { gtin: string }[];
 } | null = null;
 
-const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', { apiVersion: '2025-08-27.basil' });
+const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
+  apiVersion: '2025-08-27.basil'
+});
 
 function resolveEstimatedDate(input: any): string | null {
   if (!input || typeof input !== 'object') return null;
@@ -28,10 +30,10 @@ function resolveEstimatedDate(input: any): string | null {
     typeof target.value === 'number'
       ? target.value
       : typeof target.business_days === 'number'
-      ? target.business_days
-      : typeof target.calendar_days === 'number'
-      ? target.calendar_days
-      : null;
+        ? target.business_days
+        : typeof target.calendar_days === 'number'
+          ? target.calendar_days
+          : null;
   if (typeof value !== 'number' || !Number.isFinite(value)) return null;
   const base = new Date();
   base.setUTCDate(base.getUTCDate() + value);
@@ -81,13 +83,10 @@ try {
     '';
   const email = String(session?.customer_details?.email || session?.customer_email || '').trim();
   const deliveryCountry = String(
-    session?.shipping_details?.address?.country ||
-      session?.customer_details?.address?.country ||
-      ''
+    session?.shipping_details?.address?.country || session?.customer_details?.address?.country || ''
   ).trim();
   const estimatedDeliveryDate =
-    resolveEstimatedDate((session as any)?.shipping_cost?.shipping_rate?.delivery_estimate) ||
-    null;
+    resolveEstimatedDate((session as any)?.shipping_cost?.shipping_rate?.delivery_estimate) || null;
   const products = extractProducts(items);
 
   if (orderId && email && deliveryCountry && estimatedDeliveryDate) {
@@ -112,7 +111,8 @@ const googleReviewOptInScript = googleReviewOptInJson
 
 const currency = (session?.currency || 'usd').toUpperCase();
 const formatCents = (value: number | null | undefined) => formatPrice((value || 0) / 100, currency);
-const shippingAmount = session?.shipping_cost?.amount_total ?? session?.total_details?.amount_shipping ?? 0;
+const shippingAmount =
+  session?.shipping_cost?.amount_total ?? session?.total_details?.amount_shipping ?? 0;
 const taxAmount = session?.total_details?.amount_tax ?? 0;
 const discountAmount = session?.total_details?.amount_discount ?? 0;
 const subtotalAmount = session?.amount_subtotal ?? 0;
@@ -130,9 +130,7 @@ const emailAddress =
 const shippingLines = [
   shippingDetails?.name,
   [shippingDetails?.address?.line1, shippingDetails?.address?.line2].filter(Boolean).join(', '),
-  [shippingDetails?.address?.city, shippingDetails?.address?.state]
-    .filter(Boolean)
-    .join(', '),
+  [shippingDetails?.address?.city, shippingDetails?.address?.state].filter(Boolean).join(', '),
   shippingDetails?.address?.postal_code,
   shippingDetails?.address?.country
 ]
@@ -158,12 +156,16 @@ const conversionEventScript = conversionEventData
   ? `(function(){var data=${JSON.stringify(conversionEventData).replace(/</g, '\\\\u003c')};function fire(){if(typeof window.gtag==='function'){window.gtag('event','conversion',data);}}if(typeof window.gtag==='function'){fire();}else{document.addEventListener('gtag:loaded',fire,{once:true});}})();`
   : null;
 ---
-<BaseLayout title="Order Success - F.A.S Performance" description="Thank you for your order! Your order has been received and is being processed.">
+
+<BaseLayout
+  title="Order Success - F.A.S Performance"
+  description="Thank you for your order! Your order has been received and is being processed."
+>
   <Fragment slot="head">
-    {conversionEventScript && <script is:inline set:html={conversionEventScript}></script>}
-    {googleReviewOptInScript && <script is:inline set:html={googleReviewOptInScript}></script>}
+    {conversionEventScript && <script is:inline set:html={conversionEventScript} />}
+    {googleReviewOptInScript && <script is:inline set:html={googleReviewOptInScript} />}
   </Fragment>
-  <main class="relative min-h-[85vh] bg-black text-white">
+  <main class="relative min-h-[85vh] bg-dark text-white">
     <div class="lg:absolute lg:inset-y-0 lg:right-1/2 lg:w-1/2 lg:pr-8 xl:pr-16">
       <div class="relative h-64 overflow-hidden shadow-2xl lg:h-full">
         <img
@@ -172,139 +174,145 @@ const conversionEventScript = conversionEventData
           class="size-full object-cover opacity-95"
           loading="lazy"
         />
-        <div class="absolute inset-0 bg-gradient-to-br from-black via-black/80 to-transparent" />
+        <div class="absolute inset-0 bg-gradient-to-br from-black via-black/80 to-transparent">
+        </div>
       </div>
     </div>
 
     <div class="relative">
-      <div class="mx-auto max-w-2xl px-6 py-20 sm:px-8 lg:grid lg:max-w-7xl lg:grid-cols-2 lg:gap-x-12 lg:px-12 lg:py-28 xl:gap-x-16">
+      <div
+        class="mx-auto max-w-2xl px-6 py-20 sm:px-8 lg:grid lg:max-w-7xl lg:grid-cols-2 lg:gap-x-12 lg:px-12 lg:py-28 xl:gap-x-16"
+      >
         <div class="lg:col-start-2">
           <h1 class="text-xs font-semibold uppercase tracking-[0.35em] text-primary">
             Payment successful
           </h1>
-          <p class="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">
-            Thanks for your order
-          </p>
+          <p class="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">Thanks for your order</p>
           <p class="mt-3 max-w-xl text-sm text-white/70">
-            We appreciate your business. Our team is preparing your items now and you will receive a confirmation email shortly with shipping updates.
+            We appreciate your business. Our team is preparing your items now and you will receive a
+            confirmation email shortly with shipping updates.
           </p>
 
-          {error ? (
-            <p class="mt-6 text-sm text-red-400">{error}</p>
-          ) : (
-            <>
-              <dl class="mt-10 text-sm font-medium">
-                <dt class="text-white/60">Order reference</dt>
-                <dd class="mt-2 font-mono text-sm tracking-wide text-primary">{trackingNumber}</dd>
-              </dl>
-
-              <ul
-                role="list"
-                class="mt-8 divide-y divide-white/10 border-t border-white/10 text-sm text-white/70"
-              >
-                {items.map((line) => {
-                  const product = line?.price?.product;
-                  const image = Array.isArray(product?.images) ? product?.images[0] : null;
-                  return (
-                    <li class="flex gap-5 py-6">
-                      <img
-                        src={(image && String(image)) || fallbackProductImage}
-                        alt={product?.name || line.description || 'Purchased item'}
-                        class="size-24 flex-none rounded-md bg-white/5 object-cover"
-                        loading="lazy"
-                      />
-                      <div class="flex-auto space-y-1">
-                        <h3 class="text-base font-semibold text-white">
-                          {product?.name || line.description || 'Product'}
-                        </h3>
-                        {product?.metadata?.color && (
-                          <p class="text-xs uppercase tracking-wide text-white/50">
-                            {product.metadata.color}
-                          </p>
-                        )}
-                        {product?.metadata?.size && (
-                          <p class="text-xs uppercase tracking-wide text-white/50">
-                            Size {product.metadata.size}
-                          </p>
-                        )}
-                        <p class="text-xs text-white/50">Qty {line.quantity || 1}</p>
-                      </div>
-                      <p class="flex-none font-semibold text-white">
-                        {formatCents(line.amount_total)}
-                      </p>
-                    </li>
-                  );
-                })}
-              </ul>
-
-              <dl class="space-y-4 border-t border-white/10 pt-6 text-sm text-white/70">
-                <div class="flex justify-between">
-                  <dt>Subtotal</dt>
-                  <dd class="text-white">{formatCents(subtotalAmount)}</dd>
-                </div>
-
-                <div class="flex justify-between">
-                  <dt>Shipping</dt>
-                  <dd class="text-white">{formatCents(shippingAmount)}</dd>
-                </div>
-
-                <div class="flex justify-between">
-                  <dt>Taxes</dt>
-                  <dd class="text-white">{formatCents(taxAmount)}</dd>
-                </div>
-
-                {discountAmount > 0 && (
-                  <div class="flex justify-between">
-                    <dt>Discounts</dt>
-                    <dd class="text-primary">- {formatCents(discountAmount)}</dd>
-                  </div>
-                )}
-
-                <div class="flex items-center justify-between border-t border-white/10 pt-6 text-base text-white">
-                  <dt>Total</dt>
-                  <dd class="font-semibold">{formatCents(totalAmount)}</dd>
-                </div>
-              </dl>
-
-              <dl class="mt-12 grid grid-cols-1 gap-8 text-sm text-white/70 sm:grid-cols-2">
-                <div>
-                  <dt class="font-semibold text-white">Shipping Address</dt>
-                  <dd class="mt-3">
-                    <address class="not-italic space-y-1">
-                      {shippingLines.map((line) => (
-                        <span class="block">{line}</span>
-                      ))}
-                      {emailAddress && <span class="block">{emailAddress}</span>}
-                    </address>
+          {
+            error ? (
+              <p class="mt-6 text-sm text-red-400">{error}</p>
+            ) : (
+              <>
+                <dl class="mt-10 text-sm font-medium">
+                  <dt class="text-white/60">Order reference</dt>
+                  <dd class="mt-2 font-mono text-sm tracking-wide text-primary">
+                    {trackingNumber}
                   </dd>
-                </div>
-                <div>
-                  <dt class="font-semibold text-white">Payment Information</dt>
-                  <dd class="mt-3 space-y-2">
-                    <p class="flex items-center gap-2 text-white">
-                      <span class="inline-flex h-6 w-10 items-center justify-center rounded-md bg-white/20 text-xs uppercase text-white/80">
-                        {currency}
-                      </span>
-                      <span class="text-sm text-white/70">{paymentSummary}</span>
-                    </p>
-                    <p class="text-xs text-white/50">
-                      Charged {formatCents(totalAmount)} via Stripe
-                    </p>
-                  </dd>
-                </div>
-              </dl>
+                </dl>
 
-              <div class="mt-12 border-t border-white/10 pt-6 text-right">
-                <a
-                  href="/shop"
-                  class="text-sm font-semibold text-primary transition hover:text-primary/80"
+                <ul
+                  role="list"
+                  class="mt-8 divide-y divide-white/10 border-t border-white/10 text-sm text-white/70"
                 >
-                  Continue shopping
-                  <span aria-hidden="true"> &rarr;</span>
-                </a>
-              </div>
-            </>
-          )}
+                  {items.map((line) => {
+                    const product = line?.price?.product;
+                    const image = Array.isArray(product?.images) ? product?.images[0] : null;
+                    return (
+                      <li class="flex gap-5 py-6">
+                        <img
+                          src={(image && String(image)) || fallbackProductImage}
+                          alt={product?.name || line.description || 'Purchased item'}
+                          class="size-24 flex-none rounded-md bg-white/5 object-cover"
+                          loading="lazy"
+                        />
+                        <div class="flex-auto space-y-1">
+                          <h3 class="text-base font-semibold text-white">
+                            {product?.name || line.description || 'Product'}
+                          </h3>
+                          {product?.metadata?.color && (
+                            <p class="text-xs uppercase tracking-wide text-white/50">
+                              {product.metadata.color}
+                            </p>
+                          )}
+                          {product?.metadata?.size && (
+                            <p class="text-xs uppercase tracking-wide text-white/50">
+                              Size {product.metadata.size}
+                            </p>
+                          )}
+                          <p class="text-xs text-white/50">Qty {line.quantity || 1}</p>
+                        </div>
+                        <p class="flex-none font-semibold text-white">
+                          {formatCents(line.amount_total)}
+                        </p>
+                      </li>
+                    );
+                  })}
+                </ul>
+
+                <dl class="space-y-4 border-t border-white/10 pt-6 text-sm text-white/70">
+                  <div class="flex justify-between">
+                    <dt>Subtotal</dt>
+                    <dd class="text-white">{formatCents(subtotalAmount)}</dd>
+                  </div>
+
+                  <div class="flex justify-between">
+                    <dt>Shipping</dt>
+                    <dd class="text-white">{formatCents(shippingAmount)}</dd>
+                  </div>
+
+                  <div class="flex justify-between">
+                    <dt>Taxes</dt>
+                    <dd class="text-white">{formatCents(taxAmount)}</dd>
+                  </div>
+
+                  {discountAmount > 0 && (
+                    <div class="flex justify-between">
+                      <dt>Discounts</dt>
+                      <dd class="text-primary">- {formatCents(discountAmount)}</dd>
+                    </div>
+                  )}
+
+                  <div class="flex items-center justify-between border-t border-white/10 pt-6 text-base text-white">
+                    <dt>Total</dt>
+                    <dd class="font-semibold">{formatCents(totalAmount)}</dd>
+                  </div>
+                </dl>
+
+                <dl class="mt-12 grid grid-cols-1 gap-8 text-sm text-white/70 sm:grid-cols-2">
+                  <div>
+                    <dt class="font-semibold text-white">Shipping Address</dt>
+                    <dd class="mt-3">
+                      <address class="not-italic space-y-1">
+                        {shippingLines.map((line) => (
+                          <span class="block">{line}</span>
+                        ))}
+                        {emailAddress && <span class="block">{emailAddress}</span>}
+                      </address>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt class="font-semibold text-white">Payment Information</dt>
+                    <dd class="mt-3 space-y-2">
+                      <p class="flex items-center gap-2 text-white">
+                        <span class="inline-flex h-6 w-10 items-center justify-center rounded-md bg-white/20 text-xs uppercase text-white/80">
+                          {currency}
+                        </span>
+                        <span class="text-sm text-white/70">{paymentSummary}</span>
+                      </p>
+                      <p class="text-xs text-white/50">
+                        Charged {formatCents(totalAmount)} via Stripe
+                      </p>
+                    </dd>
+                  </div>
+                </dl>
+
+                <div class="mt-12 border-t border-white/10 pt-6 text-right">
+                  <a
+                    href="/shop"
+                    class="text-sm font-semibold text-primary transition hover:text-primary/80"
+                  >
+                    Continue shopping
+                    <span aria-hidden="true"> &rarr;</span>
+                  </a>
+                </div>
+              </>
+            )
+          }
         </div>
       </div>
     </div>
@@ -316,5 +324,7 @@ const conversionEventScript = conversionEventData
 </BaseLayout>
 
 <style>
-  .font-ethno { font-family: 'Ethnocentric', sans-serif; }
+  .font-ethno {
+    font-family: 'Ethnocentric', sans-serif;
+  }
 </style>

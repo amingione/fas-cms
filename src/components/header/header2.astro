@@ -16,7 +16,7 @@ import DesktopCart from '@/components/cart/DesktopCart.tsx';
   <!-- Mobile Header -->
   <div
     id="mheader"
-    class="md:hidden w-full bg-black/60 backdrop-blur-md shadow-md shadow-primary/20 relative flex items-center justify-between px-4 h-14"
+    class="md:hidden w-full bg-dark/60 backdrop-blur-md shadow-md shadow-primary/20 relative flex items-center justify-between px-4 h-14"
   >
     <!-- Mobile menu toggle -->
     <button
@@ -66,7 +66,9 @@ import DesktopCart from '@/components/cart/DesktopCart.tsx';
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-8">
       <div class="flex items-center gap-4"></div>
       <div class="flex items-center gap-3 text-xs font-ethno tracking-wide text-white">
-        <a href="/contact" class="text-white hover:text-primary transition-colors duration-200">Contact</a>
+        <a href="/contact" class="text-white hover:text-primary transition-colors duration-200"
+          >Contact</a
+        >
         <button
           id="accountDashboardToggleTopBar"
           aria-label="Open vendor menu"
@@ -93,7 +95,7 @@ import DesktopCart from '@/components/cart/DesktopCart.tsx';
   <!-- Desktop Header -->
   <div
     id="dheader"
-    class="hidden rounded-full border border-white/5 border-shadow shadow-inner drop-shadow-md backdrop-blur-sm bg-black/40 shadow-white/10 md:block px-10 mx-10"
+    class="hidden rounded-full border border-white/5 border-shadow shadow-inner drop-shadow-md backdrop-blur-sm bg-dark/40 shadow-white/10 md:block px-10 mx-10"
   >
     <div
       class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 items-center h-16"
@@ -185,12 +187,12 @@ import DesktopCart from '@/components/cart/DesktopCart.tsx';
 <div
   id="mnavScrim"
   aria-hidden="true"
-  class="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[99998] hidden opacity-0 transition-opacity duration-300 pointer-events-none"
+  class="md:hidden fixed inset-0 bg-dark/60 backdrop-blur-sm z-[99998] hidden opacity-0 transition-opacity duration-300 pointer-events-none"
 >
 </div>
 <aside
   id="mnavDrawer"
-  class="md:hidden fixed top-0 left-0 h-full w-4/5 max-w-[360px] bg-black/95 border-r border-gray-700 z-[100000] overflow-y-auto -translate-x-full transition-transform duration-300 ease-out"
+  class="md:hidden fixed top-0 left-0 h-full w-4/5 max-w-[360px] bg-dark/95 border-r border-gray-700 z-[100000] overflow-y-auto -translate-x-full transition-transform duration-300 ease-out"
 >
   <div class="pt-12 pb-8 px-4">
     <MobileMenu mode="inline" client:only="react" />
@@ -207,13 +209,13 @@ import DesktopCart from '@/components/cart/DesktopCart.tsx';
 <div
   id="desktopScrim"
   aria-hidden="true"
-  class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[99999] opacity-0 transition-opacity duration-300 pointer-events-none"
+  class="hidden fixed inset-0 bg-dark/60 backdrop-blur-sm z-[99999] opacity-0 transition-opacity duration-300 pointer-events-none"
 >
 </div>
 <aside
   id="desktopDrawerLeft"
   aria-hidden="true"
-  class="hidden md:block invisible fixed top-0 left-0 h-full w-[330px] border-r bg-black/90 border-gray-700 z-[100000] overflow-y-auto -translate-x-full transition-transform duration-300 ease-out"
+  class="hidden md:block invisible fixed top-0 left-0 h-full w-[330px] border-r bg-dark/90 border-gray-700 z-[100000] overflow-y-auto -translate-x-full transition-transform duration-300 ease-out"
 >
   <div class="pt-16 pb-8 px-6">
     <button
@@ -229,7 +231,7 @@ import DesktopCart from '@/components/cart/DesktopCart.tsx';
 <!-- Account Dashboard Drawer (right side) -->
 <aside
   id="accountDashboardPanel"
-  class="hidden fixed top-0 right-0 h-full w-[360px] bg-black/85 backdrop-blur-md border-l border-white/10 z-[100000] overflow-y-auto translate-x-full transition-transform duration-300 ease-out"
+  class="hidden fixed top-0 right-0 h-full w-[360px] bg-dark/85 backdrop-blur-md border-l border-white/10 z-[100000] overflow-y-auto translate-x-full transition-transform duration-300 ease-out"
 >
   <div class="pt-12 pb-8 px-6">
     <h2 class="text-xl font-bold text-white">Account</h2>
@@ -247,7 +249,7 @@ import DesktopCart from '@/components/cart/DesktopCart.tsx';
 <div
   id="searchOverlayScrim"
   aria-hidden="true"
-  class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-[110000] transition-opacity duration-200 pointer-events-none"
+  class="hidden fixed inset-0 bg-dark/70 backdrop-blur-sm z-[110000] transition-opacity duration-200 pointer-events-none"
   style="opacity: 0;"
 >
 </div>
@@ -258,7 +260,7 @@ import DesktopCart from '@/components/cart/DesktopCart.tsx';
 >
   <div class="mx-auto w-full max-w-xl px-4">
     <div
-      class="rounded-2xl border border-white/15 bg-black/95 shadow-2xl p-4 flex items-start gap-3"
+      class="rounded-2xl border border-white/15 bg-dark/95 shadow-2xl p-4 flex items-start gap-3"
     >
       <div class="flex-1">
         <SearchBar

@@ -1,5 +1,7 @@
 ---
-interface Props { current: 'overview' | 'series2' | 'series3' | 'skinnies' }
+interface Props {
+  current: 'overview' | 'series2' | 'series3' | 'skinnies';
+}
 const { current } = Astro.props as Props;
 const items = [
   { key: 'overview', href: '/belak/wheels', label: 'Belak Overview' },
@@ -11,37 +13,60 @@ const items = [
 
 <!-- Mobile drawer trigger -->
 <div class="md:hidden">
-  <button id="belak-menu-open" class="btn-glass btn-outline px-4 py-2 rounded-full">Wheels Menu</button>
+  <button id="belak-menu-open" class="btn-glass btn-outline px-4 py-2 rounded-full"
+    >Wheels Menu</button
+  >
 </div>
 
 <!-- Desktop sidebar -->
 <aside class="hidden md:block sticky top-24 self-start">
-  <div class="rounded-xl border border-white/20 bg-black/50 backdrop-blur p-4 w-[240px]">
+  <div class="rounded-xl border border-white/20 bg-dark/50 backdrop-blur p-4 w-[240px]">
     <div class="text-sm font-bold mb-2 text-white/80">Wheels</div>
     <ul class="space-y-1 text-sm">
-      {items.map((it) => (
-        <li>
-          <a href={it.href} class={`block rounded px-3 py-1.5 hover:bg-white/5 ${current === it.key ? 'bg-white/10 text-white' : 'text-white/80'}`}>{it.label}</a>
-        </li>
-      ))}
+      {
+        items.map((it) => (
+          <li>
+            <a
+              href={it.href}
+              class={`block rounded px-3 py-1.5 hover:bg-white/5 ${current === it.key ? 'bg-white/10 text-white' : 'text-white/80'}`}
+            >
+              {it.label}
+            </a>
+          </li>
+        ))
+      }
     </ul>
   </div>
-  </aside>
+</aside>
 
 <!-- Mobile drawer markup -->
-<div id="belak-scrim" class="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] hidden opacity-0 transition-opacity"></div>
-<div id="belak-drawer" class="md:hidden fixed bottom-0 left-0 right-0 translate-y-full z-[95] transition-transform">
+<div
+  id="belak-scrim"
+  class="md:hidden fixed inset-0 bg-dark/60 backdrop-blur-sm z-[90] hidden opacity-0 transition-opacity"
+>
+</div>
+<div
+  id="belak-drawer"
+  class="md:hidden fixed bottom-0 left-0 right-0 translate-y-full z-[95] transition-transform"
+>
   <div class="rounded-t-2xl border-t border-white/20 bg-[#0b0b0c]/95 p-4">
     <div class="flex items-center justify-between mb-2">
       <div class="text-sm font-bold text-white/90">Wheels</div>
       <button id="belak-menu-close" class="text-white/80 hover:text-white">✕</button>
     </div>
     <ul class="space-y-1 text-base">
-      {items.map((it) => (
-        <li>
-          <a href={it.href} class={`block rounded px-3 py-2 hover:bg-white/10 ${current === it.key ? 'bg-white/10 text-white' : 'text-white/90'}`}>{it.label}</a>
-        </li>
-      ))}
+      {
+        items.map((it) => (
+          <li>
+            <a
+              href={it.href}
+              class={`block rounded px-3 py-2 hover:bg-white/10 ${current === it.key ? 'bg-white/10 text-white' : 'text-white/90'}`}
+            >
+              {it.label}
+            </a>
+          </li>
+        ))
+      }
     </ul>
   </div>
 </div>
@@ -51,10 +76,19 @@ const items = [
   const closeBtn = document.getElementById('belak-menu-close');
   const scrim = document.getElementById('belak-scrim');
   const drawer = document.getElementById('belak-drawer');
-  function open(){ if(!drawer||!scrim) return; drawer.style.transform='translateY(0)'; scrim.classList.remove('hidden'); requestAnimationFrame(()=>scrim.classList.remove('opacity-0')); }
-  function close(){ if(!drawer||!scrim) return; drawer.style.transform='translateY(100%)'; scrim.classList.add('opacity-0'); setTimeout(()=>scrim.classList.add('hidden'), 300); }
+  function open() {
+    if (!drawer || !scrim) return;
+    drawer.style.transform = 'translateY(0)';
+    scrim.classList.remove('hidden');
+    requestAnimationFrame(() => scrim.classList.remove('opacity-0'));
+  }
+  function close() {
+    if (!drawer || !scrim) return;
+    drawer.style.transform = 'translateY(100%)';
+    scrim.classList.add('opacity-0');
+    setTimeout(() => scrim.classList.add('hidden'), 300);
+  }
   openBtn?.addEventListener('click', open);
   closeBtn?.addEventListener('click', close);
   scrim?.addEventListener('click', close);
 </script>
-

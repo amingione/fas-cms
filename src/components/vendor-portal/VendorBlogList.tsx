@@ -26,7 +26,9 @@ const priorityBadge = (priority?: string) => {
   if (priority === 'urgent')
     return <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">Urgent</span>;
   if (priority === 'high')
-    return <span className="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded">High Priority</span>;
+    return (
+      <span className="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded">High Priority</span>
+    );
   return null;
 };
 
@@ -38,8 +40,7 @@ export default function VendorBlogList({ posts }: { posts: Post[] }) {
     if (!term) return posts;
     return posts.filter(
       (post) =>
-        post.title?.toLowerCase().includes(term) ||
-        post.excerpt?.toLowerCase().includes(term)
+        post.title?.toLowerCase().includes(term) || post.excerpt?.toLowerCase().includes(term)
     );
   }, [posts, searchTerm]);
 
@@ -51,7 +52,7 @@ export default function VendorBlogList({ posts }: { posts: Post[] }) {
           placeholder="Search updates..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full rounded-lg border border-white/10 bg-black/50 px-4 py-2 text-white placeholder:text-white/40 focus:border-primary focus:ring-2 focus:ring-primary/30"
+          className="w-full rounded-lg border border-white/10 bg-dark/50 px-4 py-2 text-white placeholder:text-white/40 focus:border-primary focus:ring-2 focus:ring-primary/30"
         />
       </div>
 
@@ -64,7 +65,7 @@ export default function VendorBlogList({ posts }: { posts: Post[] }) {
           >
             <div className="flex gap-4">
               {post.featuredImage?.asset?.url && (
-                <div className="hidden sm:block w-40 h-28 overflow-hidden rounded-lg border border-white/10 bg-black/40">
+                <div className="hidden sm:block w-40 h-28 overflow-hidden rounded-lg border border-white/10 bg-dark/40">
                   <img
                     src={post.featuredImage.asset.url}
                     alt={post.title}
@@ -77,7 +78,9 @@ export default function VendorBlogList({ posts }: { posts: Post[] }) {
                 <div className="flex flex-wrap items-center gap-2 text-sm">
                   <span className="text-xl">{typeEmoji[post.postType || 'update'] || '📰'}</span>
                   {post.pinned && (
-                    <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">Pinned</span>
+                    <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                      Pinned
+                    </span>
                   )}
                   {priorityBadge(post.priority)}
                   {post.publishedAt && (
@@ -85,7 +88,9 @@ export default function VendorBlogList({ posts }: { posts: Post[] }) {
                       {new Date(post.publishedAt).toLocaleDateString()}
                     </span>
                   )}
-                  {post.author?.name && <span className="text-white/60 text-xs">By {post.author.name}</span>}
+                  {post.author?.name && (
+                    <span className="text-white/60 text-xs">By {post.author.name}</span>
+                  )}
                 </div>
                 <h2 className="text-xl font-bold text-white">{post.title}</h2>
                 <p className="text-white/70 text-sm line-clamp-2">{post.excerpt}</p>
@@ -95,7 +100,7 @@ export default function VendorBlogList({ posts }: { posts: Post[] }) {
         ))}
 
         {filtered.length === 0 && (
-          <div className="rounded-lg border border-white/10 bg-black/50 p-6 text-center text-white/70">
+          <div className="rounded-lg border border-white/10 bg-dark/50 p-6 text-center text-white/70">
             No posts found matching your search.
           </div>
         )}

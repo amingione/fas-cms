@@ -36,7 +36,9 @@ const SettingsPanel: React.FC = () => {
   const [profile, setProfile] = useState<VendorProfile | null>(null);
   const [addresses, setAddresses] = useState<VendorAddress[]>([]);
   const [preferences, setPreferences] = useState<NotificationPrefs>(defaultPrefs);
-  const [activeTab, setActiveTab] = useState<'profile' | 'addresses' | 'notifications' | 'security'>('profile');
+  const [activeTab, setActiveTab] = useState<
+    'profile' | 'addresses' | 'notifications' | 'security'
+  >('profile');
   const [loading, setLoading] = useState(true);
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingPrefs, setSavingPrefs] = useState(false);
@@ -47,7 +49,11 @@ const SettingsPanel: React.FC = () => {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [addressDraft, setAddressDraft] = useState<VendorAddress>({});
 
-  const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirm: '' });
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirm: ''
+  });
   const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
 
   const loadProfile = async () => {
@@ -290,7 +296,9 @@ const SettingsPanel: React.FC = () => {
               <div>
                 {[addr.city, addr.state, addr.zip].filter(Boolean).join(', ')} {addr.country}
               </div>
-              {addr.isDefault && <span className="text-green-400 text-xs font-semibold">Default</span>}
+              {addr.isDefault && (
+                <span className="text-green-400 text-xs font-semibold">Default</span>
+              )}
             </div>
             <div className="flex gap-2 text-xs">
               {!addr.isDefault && (
@@ -395,7 +403,7 @@ const SettingsPanel: React.FC = () => {
           </div>
           {addressList}
           {showAddressForm && (
-            <div className="rounded-lg border border-white/10 bg-black/60 p-4 space-y-3">
+            <div className="rounded-lg border border-white/10 bg-dark/60 p-4 space-y-3">
               <div className="grid gap-3 sm:grid-cols-2">
                 <input
                   placeholder="Label (e.g. Warehouse)"
@@ -443,7 +451,9 @@ const SettingsPanel: React.FC = () => {
                   <input
                     type="checkbox"
                     checked={Boolean(addressDraft.isDefault)}
-                    onChange={(e) => setAddressDraft({ ...addressDraft, isDefault: e.target.checked })}
+                    onChange={(e) =>
+                      setAddressDraft({ ...addressDraft, isDefault: e.target.checked })
+                    }
                     className="h-4 w-4"
                   />
                   Set as default
@@ -509,7 +519,9 @@ const SettingsPanel: React.FC = () => {
                 type="password"
                 placeholder="Current password"
                 value={passwordForm.currentPassword}
-                onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                onChange={(e) =>
+                  setPasswordForm({ ...passwordForm, currentPassword: e.target.value })
+                }
                 className="w-full bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
                 required
               />
@@ -541,7 +553,9 @@ const SettingsPanel: React.FC = () => {
               </button>
               <button
                 type="button"
-                onClick={() => setPasswordForm({ currentPassword: '', newPassword: '', confirm: '' })}
+                onClick={() =>
+                  setPasswordForm({ currentPassword: '', newPassword: '', confirm: '' })
+                }
                 className="text-white/70 text-sm"
               >
                 Reset
@@ -550,7 +564,8 @@ const SettingsPanel: React.FC = () => {
             {passwordMessage && <p className="text-green-400 text-sm">{passwordMessage}</p>}
           </form>
           <div className="border-t border-white/10 pt-3 text-white/70 text-sm">
-            Two-factor authentication is coming soon. In the meantime, use a strong, unique password.
+            Two-factor authentication is coming soon. In the meantime, use a strong, unique
+            password.
           </div>
         </div>
       )}

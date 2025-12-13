@@ -304,7 +304,7 @@ export default function ProductQuickViewButton({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`btn-plain inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/70 px-3 py-1 text-xs uppercase tracking-[0.18em] text-white/80 transition hover:border-white hover:text-white ${className}`.trim()}
+        className={`btn-plain inline-flex items-center gap-2 rounded-full border border-white/25 bg-dark/70 px-3 py-1 text-xs uppercase tracking-[0.18em] text-white/80 transition hover:border-white hover:text-white ${className}`.trim()}
         data-analytics-event="quick_view_open"
         data-analytics-category="engagement"
         data-analytics-label={product.title}
@@ -318,7 +318,7 @@ export default function ProductQuickViewButton({
         ? createPortal(
             <div className="fixed inset-0 z-[120] flex items-center justify-center px-4 py-6">
               <div
-                className="absolute inset-0 bg-black/70"
+                className="absolute inset-0 bg-dark/70"
                 aria-hidden="true"
                 onClick={() => setOpen(false)}
               />
@@ -334,7 +334,7 @@ export default function ProductQuickViewButton({
                 </button>
 
                 <div className="grid gap-6 p-6 sm:grid-cols-2 sm:gap-8 sm:p-8">
-                  <div className="flex min-h-[220px] items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-black/40 p-3 sm:block sm:min-h-0">
+                  <div className="flex min-h-[220px] items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-dark/40 p-3 sm:block sm:min-h-0">
                     <img
                       src={product.imageSrc}
                       alt={product.imageAlt || product.title}
@@ -410,7 +410,7 @@ export default function ProductQuickViewButton({
                                     onChange={(event) =>
                                       handleOptionSelect(group.key, event.target.value)
                                     }
-                                    className="mt-2 w-full rounded-lg border border-white/15 bg-black/60 px-3 py-2 text-sm text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+                                    className="mt-2 w-full rounded-lg border border-white/15 bg-dark/60 px-3 py-2 text-sm text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
                                     aria-label={`Select ${group.title}`}
                                     aria-invalid={!selected}
                                   >
@@ -471,7 +471,7 @@ export default function ProductQuickViewButton({
                     <div className="mt-auto flex flex-wrap items-center gap-3 sm:flex-nowrap">
                       <a
                         href={product.href}
-                        className="btn-plain inline-flex min-w-[150px] items-center justify-center gap-2 rounded-full border border-white/80 bg-black px-5 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-white/70 shadow-[inset_0_0_10px_rgba(125,1,7,0.18),0_0_18px_rgba(125,1,7,0.2)] transition hover:bg-white/70 hover:text-black hover:border-white hover:shadow-[inset_0_0_10px_rgba(125,1,7,0.18),0_0_22px_rgba(125,1,7,0.28)]"
+                        className="btn-plain inline-flex min-w-[150px] items-center justify-center gap-2 rounded-full border border-white/80 bg-dark px-5 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-white/70 shadow-[inset_0_0_10px_rgba(125,1,7,0.18),0_0_18px_rgba(125,1,7,0.2)] transition hover:bg-white/70 hover:text-black hover:border-white hover:shadow-[inset_0_0_10px_rgba(125,1,7,0.18),0_0_22px_rgba(125,1,7,0.28)]"
                         data-analytics-event="quick_view_view_product"
                         data-analytics-category="ecommerce"
                         data-analytics-label={product.title}

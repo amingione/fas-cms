@@ -39,7 +39,7 @@ export function TruckPackagesHero({
     '(min-width: 1536px) 32vw, (min-width: 1280px) 38vw, (min-width: 1024px) 42vw, (min-width: 768px) 70vw, 95vw';
 
   return (
-    <section className="relative overflow-hidden bg-black/10 glass-layer-rounded back-layer rounded-md px-5 shadow-lg text-white mb-5">
+    <section className="relative overflow-hidden bg-dark/10 glass-layer-rounded back-layer rounded-md px-5 shadow-lg text-white mb-5">
       {/* subtle texture / vignette */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.06),transparent_60%)] opacity-20" />
 

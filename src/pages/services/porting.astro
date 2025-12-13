@@ -11,7 +11,8 @@ requestUrl.hash = '';
 const canonical = requestUrl.toString();
 
 const pageTitle = 'Porting Services';
-const pageDescription = 'Precision CNC and hand-finished porting for superchargers, snouts, throttle bodies, and cylinder heads by F.A.S. Motorsports.';
+const pageDescription =
+  'Precision CNC and hand-finished porting for superchargers, snouts, throttle bodies, and cylinder heads by F.A.S. Motorsports.';
 
 const hero = pageDoc?.hero ?? {};
 const heroImage = hero?.image ?? {};
@@ -20,11 +21,13 @@ const heroTagsHasContent = heroTags.length > 0;
 const heroTagFallback = ['Flow-bench guided', 'Hand finish', 'Matched interfaces', 'OEM-level fit'];
 const featurePills: string[] = Array.isArray(pageDoc?.featurePills) ? pageDoc.featurePills : [];
 const featurePillsHasContent = featurePills.length > 0;
-const featurePillsFallback = ['Flow-bench guided', 'Hand finish', 'Matched components', 'OEM-level fit & finish'];
+const featurePillsFallback = [
+  'Flow-bench guided',
+  'Hand finish',
+  'Matched components',
+  'OEM-level fit & finish'
+];
 const featurePillsToRender = featurePillsHasContent ? featurePills : featurePillsFallback;
-
-
-
 
 const portingItems: Array<{ title?: string; desc?: string }> = Array.isArray(pageDoc?.portingItems)
   ? pageDoc.portingItems
@@ -43,7 +46,9 @@ const portingItemsFallback = [
 const portingItemsToRender = portingItemsHasContent ? portingItems : portingItemsFallback;
 const methodology = pageDoc?.methodology ?? {};
 const methodologyItems: string[] = Array.isArray(methodology?.items) ? methodology.items : [];
-const deliverables: string[] = Array.isArray(methodology?.deliverables) ? methodology.deliverables : [];
+const deliverables: string[] = Array.isArray(methodology?.deliverables)
+  ? methodology.deliverables
+  : [];
 const methodologyTitle: string = methodology?.title ?? 'Methodology';
 const deliverablesTitle: string = methodology?.deliverablesTitle ?? 'Deliverables';
 const methodologyItemsToRender = methodologyItems.length
@@ -69,17 +74,16 @@ const summaryCardsHasContent = summaryCards.length > 0;
 const summaryCardsFallback = [
   {
     title: 'Typical Gains',
-    body:
-      'Supercharger/snout pairs commonly see +20–40 WHP with proper tuning and supporting mods. Cylinder head & intake work supports higher RPM power retention.'
+    body: 'Supercharger/snout pairs commonly see +20–40 WHP with proper tuning and supporting mods. Cylinder head & intake work supports higher RPM power retention.'
   },
-  { title: 'Turnaround', body: 'Most jobs 5–10 business days after parts are received. Expedited options available.' }
+  {
+    title: 'Turnaround',
+    body: 'Most jobs 5–10 business days after parts are received. Expedited options available.'
+  }
 ];
 const summaryCardsToRender = summaryCardsHasContent ? summaryCards : summaryCardsFallback;
-const ctaButtons: Array<{ label?: string; href?: string; variant?: string; size?: string }> = Array.isArray(
-  pageDoc?.ctaButtons
-)
-  ? pageDoc.ctaButtons
-  : [];
+const ctaButtons: Array<{ label?: string; href?: string; variant?: string; size?: string }> =
+  Array.isArray(pageDoc?.ctaButtons) ? pageDoc.ctaButtons : [];
 const ctaButtonsHasContent = ctaButtons.length > 0;
 const ctaButtonFallback = [
   { label: 'Ask a Porting Specialist', href: '/contact', variant: 'default', size: 'md' },
@@ -90,12 +94,18 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonFallback
 
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
   <div {...inlineObjectId('content/pages/porting.json')}>
-  <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>{pageDoc?.title ?? 'Porting'}</div>
-  {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
-    <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
-  )}
-  <!-- HERO (compact header, no full-screen background) -->
-    <div class="mx-auto w-full max-w-7xl px-0 md:px-6 py-8 md:py-10 grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr] gap-6 items-center">
+    <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>
+      {pageDoc?.title ?? 'Porting'}
+    </div>
+    {
+      Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
+        <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
+      )
+    }
+    <!-- HERO (compact header, no full-screen background) -->
+    <div
+      class="mx-auto w-full max-w-7xl px-0 md:px-6 py-8 md:py-10 grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr] gap-6 items-center"
+    >
       <div>
         <h1
           class="text-3xl md:text-5xl font-ethno text-accent mb-3"
@@ -107,36 +117,47 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonFallback
           class="text-white/80 max-w-[68ch] font-mono text-base md:text-lg"
           {...inlineFieldAttrs('hero.description')}
         >
-          {hero?.description ?? 'Superchargers, snouts, throttle bodies, intake manifolds, and cylinder heads — blueprint-level porting for real, repeatable gains.'}
+          {
+            hero?.description ??
+              'Superchargers, snouts, throttle bodies, intake manifolds, and cylinder heads — blueprint-level porting for real, repeatable gains.'
+          }
         </p>
-        <div class="mt-5 flex flex-wrap gap-3 luxury-hover-scale" {...inlineFieldAttrs('hero.tags')}>
-          {heroTagsHasContent
-            ? heroTags.map((tag, idx) => (
-                <span class="btn-glass btn-dark btn-xs" {...inlineFieldAttrs(`hero.tags[${idx}]`)}>
-                  {tag || 'Tag'}
-                </span>
-              ))
-            : heroTagFallback.map((tag) => (
-                <span class="btn-glass btn-dark btn-xs">{tag}</span>
-              ))}
+        <div
+          class="mt-5 flex flex-wrap gap-3 luxury-hover-scale"
+          {...inlineFieldAttrs('hero.tags')}
+        >
+          {
+            heroTagsHasContent
+              ? heroTags.map((tag, idx) => (
+                  <span
+                    class="btn-glass btn-dark btn-xs"
+                    {...inlineFieldAttrs(`hero.tags[${idx}]`)}
+                  >
+                    {tag || 'Tag'}
+                  </span>
+                ))
+              : heroTagFallback.map((tag) => <span class="btn-glass btn-dark btn-xs">{tag}</span>)
+          }
         </div>
         <div class="mt-6 flex flex-col sm:flex-row gap-4">
-          {ctaButtonsToRender.map((cta, idx) => {
-            const fieldAttrs = ctaButtonsHasContent ? inlineFieldAttrs(`ctaButtons[${idx}]`) : {};
-            return (
-              <Button
-                href={cta?.href || '/shop'}
-                text={cta?.label || 'Call to Action'}
-                size={(cta?.size as any) || 'md'}
-                variant={(cta?.variant as any) || 'default'}
-                {...fieldAttrs}
-              />
-            );
-          })}
+          {
+            ctaButtonsToRender.map((cta, idx) => {
+              const fieldAttrs = ctaButtonsHasContent ? inlineFieldAttrs(`ctaButtons[${idx}]`) : {};
+              return (
+                <Button
+                  href={cta?.href || '/shop'}
+                  text={cta?.label || 'Call to Action'}
+                  size={(cta?.size as any) || 'md'}
+                  variant={(cta?.variant as any) || 'default'}
+                  {...fieldAttrs}
+                />
+              );
+            })
+          }
         </div>
       </div>
       <div class="order-first md:order-last">
-        <figure class="rounded-xl border border-white/20 bg-black/50 overflow-hidden shadow-xl">
+        <figure class="rounded-xl border border-white/20 bg-dark/50 overflow-hidden shadow-xl">
           <img
             src={heroImage?.src || '/images/snouts/fas-ported-snout.webp'}
             alt={heroImage?.alt || 'Ported snout detail'}
@@ -147,20 +168,28 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonFallback
             {heroImage?.alt || 'Ported snout detail'}
           </span>
           <figcaption class="p-3 text-white/70 text-xs" {...inlineFieldAttrs('hero.image.caption')}>
-            {heroImage?.caption || 'Ported snout: smoother transition, corrected CSA, matched to throttle body and case.'}
+            {
+              heroImage?.caption ||
+                'Ported snout: smoother transition, corrected CSA, matched to throttle body and case.'
+            }
           </figcaption>
         </figure>
       </div>
     </div>
-  </section>
-   
-  <section class="bg-black/80 py-16 sm:py-24">
+  </div>
+
+  <section class="bg-dark/80 py-16 sm:py-24">
     <div class="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
       <div class="max-w-4xl">
         <p class="text-base font-semibold text-primary">Service Overview</p>
-        <h2 class="mt-2 text-4xl font-semibold tracking-tight text-pretty text-white sm:text-5xl">Supercharger Snout Porting</h2>
+        <h2 class="mt-2 text-4xl font-semibold tracking-tight text-pretty text-white sm:text-5xl">
+          Supercharger Snout Porting
+        </h2>
         <p class="mt-6 text-xl text-white/80">
-          Our porting process is tailored to maximize performance while preserving OEM fit and finish. Each snout is evaluated for casting flaws, digitally ported to spec, and hand-finished for smooth, consistent flow. Expect noticeable gains in throttle response, boost delivery, and overall efficiency.
+          Our porting process is tailored to maximize performance while preserving OEM fit and
+          finish. Each snout is evaluated for casting flaws, digitally ported to spec, and
+          hand-finished for smooth, consistent flow. Expect noticeable gains in throttle response,
+          boost delivery, and overall efficiency.
         </p>
       </div>
 
@@ -168,20 +197,35 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonFallback
         <div class="lg:pr-8">
           <h3 class="text-2xl font-semibold tracking-tight text-white">Our Process</h3>
           <p class="mt-6 text-base text-gray-300">
-            We hand-blend and polish the interior path, then reverify alignment and fitment to throttle body and blower case.
+            We hand-blend and polish the interior path, then reverify alignment and fitment to
+            throttle body and blower case.
           </p>
           <p class="mt-6 text-base text-gray-300">
-            Every ported snout is cleaned, chased, and sealed. Optional coatings available. Final QA ensures fastener threads and gasket interfaces are perfect before shipping or installation.
+            Every ported snout is cleaned, chased, and sealed. Optional coatings available. Final QA
+            ensures fastener threads and gasket interfaces are perfect before shipping or
+            installation.
           </p>
         </div>
 
         <div class="pt-16 lg:row-span-2 lg:-mr-16 xl:mr-auto">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 xl:gap-8">
-            <figure class="aspect-square overflow-hidden rounded-xl outline-1 -outline-offset-1 outline-white/10">
-              <img src="/images/snouts/FAS-Ported Snout.webp" alt="Ported Snout" class="object-cover w-full h-full" />
+            <figure
+              class="aspect-square overflow-hidden rounded-xl outline-1 -outline-offset-1 outline-white/10"
+            >
+              <img
+                src="/images/snouts/FAS-Ported Snout.webp"
+                alt="Ported Snout"
+                class="object-cover w-full h-full"
+              />
             </figure>
-            <figure class="aspect-square overflow-hidden rounded-xl outline-1 -outline-offset-1 outline-white/10">
-              <img src="/images/snouts/2.7L Ported supercharger and snout.webp" alt="Snout Flow Correction" class="object-cover w-full h-full" />
+            <figure
+              class="aspect-square overflow-hidden rounded-xl outline-1 -outline-offset-1 outline-white/10"
+            >
+              <img
+                src="/images/snouts/2.7L Ported supercharger and snout.webp"
+                alt="Snout Flow Correction"
+                class="object-cover w-full h-full"
+              />
             </figure>
           </div>
         </div>
@@ -192,7 +236,9 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonFallback
           <dl class="mt-6 grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
             <div class="flex flex-col gap-y-2 border-b border-dotted border-gray-700 pb-4">
               <dt class="text-sm text-gray-400">Typical Gains</dt>
-              <dd class="order-first text-5xl font-semibold tracking-tight text-white">+20–40 WHP</dd>
+              <dd class="order-first text-5xl font-semibold tracking-tight text-white">
+                +20–40 WHP
+              </dd>
             </div>
             <div class="flex flex-col gap-y-2 border-b border-dotted border-gray-700 pb-4">
               <dt class="text-sm text-gray-400">Lead Time</dt>
@@ -211,5 +257,4 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonFallback
       </section>
     </div>
   </section>
-  </div>
 </BaseLayout>

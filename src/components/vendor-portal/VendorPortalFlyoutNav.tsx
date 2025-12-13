@@ -41,7 +41,7 @@ export default function VendorPortalFlyoutNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="sticky mt-7 top-4 z-40 rounded-full border border-primary/30 bg-black/85 backdrop-blur shadow-lg shadow-white/20">
+    <header className="sticky mt-7 top-4 z-40 rounded-full border border-primary/30 bg-dark/85 backdrop-blur shadow-lg shadow-white/20">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 lg:px-6">
         <a href="/vendor-portal" className="inline-flex items-center gap-2">
           <img src="/logo/faslogo150.webp" alt="FAS Motorsports" className="h-8 w-auto" />
@@ -79,8 +79,8 @@ export default function VendorPortalFlyoutNav() {
       </nav>
 
       <Dialog open={mobileOpen} onClose={setMobileOpen} className="lg:hidden">
-        <DialogBackdrop className="fixed inset-0 z-40 bg-black/80" />
-        <DialogPanel className="fixed inset-y-0 right-0 z-50 w-80 max-w-[90vw] bg-black/70 p-4 border-l border-white/10">
+        <DialogBackdrop className="fixed inset-0 z-40 bg-dark/80" />
+        <DialogPanel className="fixed inset-y-0 right-0 z-50 w-80 max-w-[90vw] bg-dark/70 p-4 border-l border-white/10">
           <div className="mb-4 flex items-center justify-between">
             <p className="text-sm font-semibold text-white">Menu</p>
             <button

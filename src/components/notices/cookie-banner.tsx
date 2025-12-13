@@ -10,12 +10,17 @@ function getCookie(name: string) {
 
 function setConsentCookie() {
   const oneYear = 60 * 60 * 24 * 365;
-  const secure = typeof window !== 'undefined' && window.location?.protocol === 'https:' ? '; Secure' : '';
+  const secure =
+    typeof window !== 'undefined' && window.location?.protocol === 'https:' ? '; Secure' : '';
   // Share across www/apex in production; skip Domain on localhost
   let domainAttr = '';
   try {
     const host = window.location.hostname || '';
-    if (/\.fasmotorsports\.com$/i.test(host) || host === 'fasmotorsports.com' || host === 'www.fasmotorsports.com') {
+    if (
+      /\.fasmotorsports\.com$/i.test(host) ||
+      host === 'fasmotorsports.com' ||
+      host === 'www.fasmotorsports.com'
+    ) {
       domainAttr = '; Domain=.fasmotorsports.com';
     }
   } catch (error) {
@@ -40,7 +45,7 @@ export function CookieBanner() {
       aria-label="Cookie consent"
       className="fixed bottom-0 left-0 right-0 z-[2000] px-3 sm:px-4 pb-3 sm:pb-4"
     >
-      <div className="mx-auto max-w-5xl rounded-lg border border-white/15 bg-black/85 backdrop-blur-md p-3 sm:p-4 text-white shadow-xl">
+      <div className="mx-auto max-w-5xl rounded-lg border border-white/15 bg-dark/85 backdrop-blur-md p-3 sm:p-4 text-white shadow-xl">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
           <p className="text-sm leading-snug grow">
             🍪 We use cookies to improve your experience. By using our site, you accept cookies.

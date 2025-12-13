@@ -37,7 +37,7 @@ const mockProducts = [
   {
     _id: '1',
     title: 'Billet Supercharger Snout - LSA Platform',
-    slug: 'billet-supercharger-snout-lsa',
+    slug: '2-4l-hellcat-billet-supercharger-snout',
     price: 1299.99,
     image: 'images/products/billet bearing plate.webp',
     images: ['images/products/billet bearing plate.webp'],
@@ -286,7 +286,7 @@ export default function Shop({
           backgroundPosition: '0 0'
         }}
       ></div>
-      <div className="absolute inset-0 bg-black/15"></div>
+      <div className="absolute inset-0 bg-dark/15"></div>
 
       <div className="container mx-auto px-4 lg:px-6 relative z-10" ref={ref}>
         {/* Header */}
@@ -343,7 +343,7 @@ export default function Shop({
 
         {/* Search and Filters */}
         <motion.div
-          className="bg-black/40 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-6 mb-8 industrial-card"
+          className="bg-dark/40 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-6 mb-8 industrial-card"
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 1, duration: 0.6 }}
@@ -630,7 +630,7 @@ export default function Shop({
 
         {/* Bottom CTA */}
         <motion.div
-          className="mt-20 text-center bg-black/40 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-12 industrial-card"
+          className="mt-20 text-center bg-dark/40 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-12 industrial-card"
           initial={{ opacity: 0, y: 50 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 2, duration: 0.8 }}

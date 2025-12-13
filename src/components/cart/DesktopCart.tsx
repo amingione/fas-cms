@@ -114,7 +114,7 @@ function CartSummaryPopover({
           onRegisterPanel?.(node as HTMLDivElement | null);
         }}
         transition
-        className={`absolute right-0 top-12 z-40 mt-2 w-80 max-w-xs rounded-3xl border border-white/10 bg-black/85 p-4 text-white shadow-2xl backdrop-blur-xl transition data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in ${
+        className={`absolute right-0 top-12 z-40 mt-2 w-80 max-w-xs rounded-3xl border border-white/10 bg-dark/85 p-4 text-white shadow-2xl backdrop-blur-xl transition data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in ${
           pinned ? 'opacity-100 pointer-events-auto' : ''
         }`}
         onMouseEnter={() => setPinned(true)}

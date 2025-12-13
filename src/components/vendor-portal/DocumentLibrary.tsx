@@ -130,7 +130,7 @@ const DocumentLibrary: React.FC<Props> = ({ initialDocuments = [] }) => {
         </div>
       </div>
       {showUploadModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-dark/70 px-4">
           <div className="bg-zinc-950 border border-white/10 rounded-xl shadow-xl w-full max-w-lg p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -173,12 +173,7 @@ const DocumentLibrary: React.FC<Props> = ({ initialDocuments = [] }) => {
                     </option>
                   ))}
               </select>
-              <input
-                name="file"
-                type="file"
-                required
-                className="w-full text-sm text-white/80"
-              />
+              <input name="file" type="file" required className="w-full text-sm text-white/80" />
               {uploadError && <p className="text-red-400 text-sm">{uploadError}</p>}
               <div className="flex gap-2">
                 <button
@@ -205,14 +200,19 @@ const DocumentLibrary: React.FC<Props> = ({ initialDocuments = [] }) => {
       )}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((doc) => (
-          <div key={doc._id} className="rounded-lg border border-white/10 bg-white/5 p-4 h-full flex flex-col">
+          <div
+            key={doc._id}
+            className="rounded-lg border border-white/10 bg-white/5 p-4 h-full flex flex-col"
+          >
             <p className="text-sm font-semibold text-white">{doc.title || 'Untitled'}</p>
             <p className="text-xs text-white/60">{doc.category || 'Uncategorized'}</p>
             <p className="text-sm text-white/70 mt-2 line-clamp-3">{doc.description || ''}</p>
             <div className="text-xs text-white/60 mt-auto pt-3">
               {doc.version && <div>Version: {doc.version}</div>}
               {doc.uploadedAt && <div>{new Date(doc.uploadedAt).toLocaleDateString()}</div>}
-              {doc.sharedWithAllVendors && <div className="text-green-300">Shared with all vendors</div>}
+              {doc.sharedWithAllVendors && (
+                <div className="text-green-300">Shared with all vendors</div>
+              )}
             </div>
             {doc.file?.asset?.url && (
               <a
@@ -221,7 +221,8 @@ const DocumentLibrary: React.FC<Props> = ({ initialDocuments = [] }) => {
                 rel="noreferrer"
                 className="mt-3 inline-block text-primary text-sm underline"
               >
-                Download{doc.file.asset.originalFilename ? ` (${doc.file.asset.originalFilename})` : ''}
+                Download
+                {doc.file.asset.originalFilename ? ` (${doc.file.asset.originalFilename})` : ''}
               </a>
             )}
           </div>

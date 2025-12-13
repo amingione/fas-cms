@@ -123,7 +123,7 @@ export function WheelsHero({
                 />
                 {/* Overlay Text */}
                 <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-8">
-                  <div className="bg-black/80 backdrop-blur-sm rounded-lg p-4 md:p-6 border border-primary/20">
+                  <div className="bg-dark/80 backdrop-blur-sm rounded-lg p-4 md:p-6 border border-primary/20">
                     <h3 className="text-xl md:text-2xl font-black text-white font-cyber3d mb-2">
                       BELAK WHEELS
                     </h3>
@@ -218,7 +218,7 @@ export function WheelsHero({
                 />
                 {/* Overlay Text */}
                 <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-8">
-                  <div className="bg-black/80 backdrop-blur-sm rounded-lg p-4 md:p-6 border border-blue-500/20">
+                  <div className="bg-dark/80 backdrop-blur-sm rounded-lg p-4 md:p-6 border border-blue-500/20">
                     <h3 className="text-xl md:text-2xl font-black text-white font-cyber3d mb-2">
                       JTX FORGED
                     </h3>
@@ -256,7 +256,7 @@ export function WheelsHero({
                 />
                 {/* Overlay Text */}
                 <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-8">
-                  <div className="bg-black/80 backdrop-blur-sm rounded-lg p-4 md:p-6 border border-primary/20">
+                  <div className="bg-dark/80 backdrop-blur-sm rounded-lg p-4 md:p-6 border border-primary/20">
                     <h3 className="text-xl md:text-2xl font-black text-white font-cyber3d mb-2">
                       BELAK RACING
                     </h3>

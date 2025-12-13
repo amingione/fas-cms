@@ -71,7 +71,7 @@ const AlertsRail: React.FC = () => {
             return (
               <div
                 key={n._id}
-                className={`rounded-lg border border-white/10 bg-black/40 px-3 py-2 flex items-start gap-3 ${
+                className={`rounded-lg border border-white/10 bg-dark/40 px-3 py-2 flex items-start gap-3 ${
                   n.read ? 'opacity-75' : ''
                 }`}
               >
@@ -81,15 +81,16 @@ const AlertsRail: React.FC = () => {
                     <p className="text-sm font-semibold text-white leading-tight">
                       {n.title || 'Notification'}
                     </p>
-                    {timestamp && <span className="text-[10px] text-white/50 whitespace-nowrap">{timestamp}</span>}
+                    {timestamp && (
+                      <span className="text-[10px] text-white/50 whitespace-nowrap">
+                        {timestamp}
+                      </span>
+                    )}
                   </div>
                   <p className="text-xs text-white/70 mt-1 leading-snug">{n.message || ''}</p>
                   <div className="mt-2 flex items-center gap-2 text-xs">
                     {n.link && (
-                      <a
-                        href={n.link}
-                        className="text-primary font-semibold hover:text-primary/80"
-                      >
+                      <a href={n.link} className="text-primary font-semibold hover:text-primary/80">
                         Open →
                       </a>
                     )}

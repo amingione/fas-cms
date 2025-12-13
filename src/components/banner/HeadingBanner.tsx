@@ -96,7 +96,7 @@ export default function HeadingBanner() {
               {SELLING_POINTS.map((card) => (
                 <article
                   key={card.title}
-                  className="rounded-xl border border-white/10 bg-black/20 p-5 shadow-[0_10px_40px_rgba(0,0,0,0.25)]"
+                  className="rounded-xl border border-white/10 bg-dark/20 p-5 shadow-[0_10px_40px_rgba(0,0,0,0.25)]"
                 >
                   <h3 className="text-sm font-semibold uppercase tracking-wide text-white/70">
                     {card.title}

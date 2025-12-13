@@ -34,7 +34,7 @@ export default function ServiceDisclaimerNotice({
 
   return (
     <>
-      <div className="rounded-xl border border-amber-500/40 bg-black/40 p-3 text-xs sm:p-4 sm:text-sm shadow-md backdrop-blur">
+      <div className="rounded-xl border border-amber-500/40 bg-dark/40 p-3 text-xs sm:p-4 sm:text-sm shadow-md backdrop-blur">
         <div className="flex items-start gap-2 sm:gap-3">
           <div className="shrink-0">
             <SolidIcon aria-hidden="true" className="h-4 w-4 text-amber-400 sm:h-5 sm:w-5" />
@@ -60,11 +60,11 @@ export default function ServiceDisclaimerNotice({
       </div>
 
       <Dialog open={isOpen} onClose={setIsOpen} className="relative z-50">
-        <DialogBackdrop className="fixed inset-0 bg-black/70 backdrop-blur-sm transition duration-300 data-[closed]:opacity-0" />
+        <DialogBackdrop className="fixed inset-0 bg-dark/70 backdrop-blur-sm transition duration-300 data-[closed]:opacity-0" />
 
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <DialogPanel className="relative w-full max-w-md transform overflow-hidden rounded-2xl border border-white/10 bg-black/80 px-4 pt-5 pb-4 text-left shadow-2xl backdrop-blur transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[enter]:ease-out data-[leave]:duration-200 data-[leave]:ease-in sm:my-8 sm:px-6 sm:py-5 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95">
+            <DialogPanel className="relative w-full max-w-md transform overflow-hidden rounded-2xl border border-white/10 bg-dark/80 px-4 pt-5 pb-4 text-left shadow-2xl backdrop-blur transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[enter]:ease-out data-[leave]:duration-200 data-[leave]:ease-in sm:my-8 sm:px-6 sm:py-5 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95">
               <div className="sm:flex sm:items-start">
                 <div className="mx-auto flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-500/10 sm:mx-0 sm:h-10 sm:w-10">
                   <OutlineIcon aria-hidden="true" className="h-6 w-6 text-amber-300" />

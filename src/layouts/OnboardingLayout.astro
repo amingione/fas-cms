@@ -175,7 +175,7 @@ const breadcrumbs = [
       <OnboardingNavFlyout currentSection={section} client:load />
 
       <div class="grid gap-6 lg:grid-cols-[280px,1fr]">
-        <aside class="h-full rounded-xl border border-white/10 bg-black/50 shadow-sm print:hidden">
+        <aside class="h-full rounded-xl border border-white/10 bg-dark/50 shadow-sm print:hidden">
           <div class="border-b border-white/10 px-4 py-4">
             <div class="flex items-center gap-3">
               <img
@@ -325,7 +325,7 @@ const breadcrumbs = [
           </header>
 
           <article
-            class="rounded-xl border border-white/10 bg-black/60 p-6 shadow-sm print:border-gray-300 print:bg-white print:text-black print:shadow-none onboarding-article"
+            class="rounded-xl border border-white/10 bg-dark/60 p-6 shadow-sm print:border-gray-300 print:bg-white print:text-black print:shadow-none onboarding-article"
             data-print-target
           >
             <slot />
@@ -333,7 +333,7 @@ const breadcrumbs = [
 
           {
             currentIndex >= 0 && (
-              <div class="flex flex-col gap-3 rounded-xl border border-white/10 bg-black/50 p-4 shadow-sm print:hidden md:flex-row md:items-center md:justify-between">
+              <div class="flex flex-col gap-3 rounded-xl border border-white/10 bg-dark/50 p-4 shadow-sm print:hidden md:flex-row md:items-center md:justify-between">
                 <div class="flex items-center gap-2 text-sm text-white/80">
                   <span class="h-2 w-2 rounded-full bg-primary shadow-[0_0_10px_rgba(234,29,38,0.6)]" />
                   <span>Keep going: you are {sectionProgress}% through this guide.</span>
@@ -442,16 +442,18 @@ const breadcrumbs = [
 
   <style>
     .onboarding-article {
-      color: #e5e7eb;
+      color: var(--color-text-longform, #d1d5db);
     }
-    .onboarding-article h1,
+    .onboarding-article h1 {
+      color: var(--color-heading, #fafafa);
+    }
     .onboarding-article h2,
     .onboarding-article h3 {
-      color: #ffffff;
+      color: var(--color-heading-muted, #ededed);
     }
     .onboarding-article p,
     .onboarding-article li {
-      color: #e5e7eb;
+      color: var(--color-text-longform, #d1d5db);
     }
 
     /* Hide storefront header on vendor onboarding pages */

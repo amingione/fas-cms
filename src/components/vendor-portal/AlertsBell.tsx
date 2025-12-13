@@ -65,18 +65,23 @@ export default function AlertsBell() {
         )}
       </button>
 
-      <div className="pointer-events-none absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-black px-2 py-1 text-[10px] font-semibold text-white/80 opacity-0 transition group-hover:opacity-100">
+      <div className="pointer-events-none absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-dark px-2 py-1 text-[10px] font-semibold text-white/80 opacity-0 transition group-hover:opacity-100">
         {tooltipText}
       </div>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-96 max-w-[90vw] rounded-2xl border border-white/10 bg-black/90 shadow-2xl ring-1 ring-white/10 z-30">
+        <div className="absolute right-0 mt-2 w-96 max-w-[90vw] rounded-2xl border border-white/10 bg-dark/90 shadow-2xl ring-1 ring-white/10 z-30">
           <div className="p-4 border-b border-white/10 flex items-center justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.12em] text-white/60 font-semibold">Alerts</p>
+              <p className="text-xs uppercase tracking-[0.12em] text-white/60 font-semibold">
+                Alerts
+              </p>
               <p className="text-sm font-semibold text-white">Recent notifications</p>
             </div>
-            <a href="/vendor-portal/notifications" className="text-xs text-primary font-semibold hover:text-primary/80">
+            <a
+              href="/vendor-portal/notifications"
+              className="text-xs text-primary font-semibold hover:text-primary/80"
+            >
               View all
             </a>
           </div>

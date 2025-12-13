@@ -4,89 +4,134 @@ import MobileMenu from '@/components/navbar/mobile-menu.tsx';
 import CartEntry from '@/components/cart/CartEntry.tsx';
 import CartButton from '@/components/cart/cart-button.tsx';
 import { SearchBar } from '@/components/SearchBar.tsx';
-
 ---
 
-<header class="bg-black shadow-xl shadow-outline text-white w-full">
+<header class="bg-dark shadow-xl shadow-outline text-white w-full">
   <CartEntry client:only="react" />
 
   <!-- Top Red Bar (always visible) -->
-<div id="topRedBar" class="hidden md:block fixed top-0 w-full h-6 bg-primary text-white z-[50]">
-  <div class="max-w-screen-xl mx-auto px-6 flex pt-2 items-center justify-between">
-    <!-- Left links -->
-    <div class="flex items-center gap-0">
-      <a href="/contact" class="hover:!text-accent font-bold text-xs font-cyber hover:underline">Contact</a>
+  <div id="topRedBar" class="hidden md:block fixed top-0 w-full h-6 bg-primary text-white z-[50]">
+    <div class="max-w-screen-xl mx-auto px-6 flex pt-2 items-center justify-between">
+      <!-- Left links -->
+      <div class="flex items-center gap-0">
+        <a href="/contact" class="hover:!text-accent font-bold text-xs font-cyber hover:underline"
+          >Contact</a
+        >
+      </div>
+      <!-- Right quick account toggle -->
+      <div class="flex items-center gap-2">
+        <button
+          id="accountDashboardToggleTop"
+          aria-label="Open account panel"
+          class="inline-flex items-center justify-center p-1.5 rounded hover:text-accent focus:outline-none focus:ring-2 focus:ring-white/30"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="3" y="4" width="18" height="16" rx="2" ry="2"></rect>
+            <line x1="16" y1="4" x2="16" y2="20"></line>
+            <rect x="5" y="6" width="9" height="12" rx="1"></rect>
+          </svg>
+        </button>
+      </div>
     </div>
-    <!-- Right quick account toggle -->
-    <div class="flex items-center gap-2">
-      <button id="accountDashboardToggleTop" aria-label="Open account panel" class="inline-flex items-center justify-center p-1.5 rounded hover:text-accent focus:outline-none focus:ring-2 focus:ring-white/30">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="4" width="18" height="16" rx="2" ry="2"/>
-          <line x1="16" y1="4" x2="16" y2="20"/>
-          <rect x="5" y="6" width="9" height="12" rx="1"/>
+  </div>
+
+  <!-- ✅ Mobile Header -->
+  <div
+    id="mheader"
+    class="md:hidden fixed top-[40px] left-0 right-0 z-[49] transition-all duration-300 ease-out"
+  >
+    <div
+      class="w-full bg-dark/40 backdrop-blur-md shadow-xl flex items-center justify-between px-4 h-12 transition-all duration-300 ease-out overflow-visible"
+    >
+      <!-- SVG Toggle (hamburger→X) -->
+      <button
+        id="mnavToggle"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="mnavDrawer"
+        class="p-2 rounded-lg hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/10"
+      >
+        <svg
+          id="mnavIcon"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          class="w-7 h-7"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path id="mline1" stroke-linecap="round" stroke-linejoin="round" d="M4 7h16"></path>
+          <path id="mline2" stroke-linecap="round" stroke-linejoin="round" d="M4 12h16"></path>
+          <path id="mline3" stroke-linecap="round" stroke-linejoin="round" d="M4 17h16"></path>
         </svg>
       </button>
+
+      <!-- Center Logo -->
+      <a href="/" class="block">
+        <img
+          src="/logo/faslogochroma.webp"
+          alt="FAS Chrome Logo"
+          class="h-8 transition-all duration-300 ease-out"
+          width="1000"
+          height="1000"
+        />
+      </a>
+
+      <!-- Right side: Mobile Search + Cart -->
+      <div class="flex items-center gap-3" id="mobileHeaderRight">
+        <!-- Cart trigger (uses global CartProvider) -->
+        <CartButton client:only="react" forceMobileModal />
+      </div>
     </div>
   </div>
-</div>
 
-<!-- ✅ Mobile Header -->
-<div id="mheader" class="md:hidden fixed top-[40px] left-0 right-0 z-[49] transition-all duration-300 ease-out">
-  <div class="w-full bg-black/40 backdrop-blur-md shadow-xl flex items-center justify-between px-4 h-12 transition-all duration-300 ease-out overflow-visible">
-    <!-- SVG Toggle (hamburger→X) -->
-    <button id="mnavToggle"
-            aria-label="Open menu"
-            aria-expanded="false"
-            aria-controls="mnavDrawer"
-            class="p-2 rounded-lg hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/10">
-      <svg id="mnavIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2">
-        <path id="mline1" stroke-linecap="round" stroke-linejoin="round" d="M4 7h16"/>
-        <path id="mline2" stroke-linecap="round" stroke-linejoin="round" d="M4 12h16"/>
-        <path id="mline3" stroke-linecap="round" stroke-linejoin="round" d="M4 17h16"/>
-      </svg>
-    </button>
-
-    <!-- Center Logo -->
-    <a href="/" class="block">
-      <img
-        src="/logo/faslogochroma.webp"
-        alt="FAS Chrome Logo"
-        class="h-8 transition-all duration-300 ease-out"
-        width="1000"
-        height="1000"
-      />
-    </a>
-
-    <!-- Right side: Mobile Search + Cart -->
-    <div class="flex items-center gap-3" id="mobileHeaderRight">
-      <!-- Cart trigger (uses global CartProvider) -->
-      <CartButton client:only="react" forceMobileModal />
+  <!-- Drawer + Scrim -->
+  <div
+    id="mnavScrim"
+    aria-hidden="true"
+    class="md:hidden fixed inset-0 bg-dark/60 backdrop-blur-sm z-[59] hidden opacity-0 transition-opacity duration-300 pointer-events-none"
+  >
+  </div>
+  <aside
+    id="mnavDrawer"
+    class="md:hidden fixed top-0 left-0 h-full w-[84%] max-w-[360px] bg-[#0b0b0c]/95 border-r border-white/20 z-[60] -translate-x-full transition-transform duration-300 ease-out overflow-y-auto will-change-transform"
+  >
+    <div class="pt-10 pb-8 px-4">
+      <MobileMenu mode="inline" client:only="react" />
     </div>
-  </div>
-</div>
-
-<!-- Drawer + Scrim -->
-<div id="mnavScrim" aria-hidden="true" class="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[59] hidden opacity-0 transition-opacity duration-300 pointer-events-none"></div>
-<aside id="mnavDrawer" class="md:hidden fixed top-0 left-0 h-full w-[84%] max-w-[360px] bg-[#0b0b0c]/95 border-r border-white/20 z-[60] -translate-x-full transition-transform duration-300 ease-out overflow-y-auto will-change-transform">
-  <div class="pt-10 pb-8 px-4">
-    <MobileMenu mode="inline" client:only="react" />
-  </div>
-  <div class="flex justify-end pr-4 pb-4">
-    <button
-      id="closeDesktopDrawerRight"
-      class="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white text-xl font-bold shadow-lg shadow-primary/30 transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-    >
-      ×
-    </button>
-  </div>
-</aside>
+    <div class="flex justify-end pr-4 pb-4">
+      <button
+        id="closeDesktopDrawerRight"
+        class="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white text-xl font-bold shadow-lg shadow-primary/30 transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+      >
+        ×
+      </button>
+    </div>
+  </aside>
 
   <!-- ✅ Main Desktop Header -->
-  <div id="dheader" class="hidden backdrop-blur-sm md:block bg-black/50 fixed font-ethno-italic text-white px-6 w-full z-[700] pointer-events-auto transition-all duration-300 ease-out">
+  <div
+    id="dheader"
+    class="hidden backdrop-blur-sm md:block bg-dark/50 fixed font-ethno-italic text-white px-6 w-full z-[700] pointer-events-auto transition-all duration-300 ease-out"
+  >
     <div class="grid grid-cols-3 items-center h-16 w-full px-10 main-row duration-300 ease-out">
       <div class="flex justify-start items-center gap-3 px-4">
         <div class="relative w-64" id="mainHeaderSearch">
-          <SearchBar client:load action="/search" enableSuggestions={true} size="compact" variant="storefront" placeholder="Search products..." />
+          <SearchBar
+            client:load
+            action="/search"
+            enableSuggestions={true}
+            size="compact"
+            variant="storefront"
+            placeholder="Search products..."
+          />
         </div>
       </div>
       <div class="flex pt-2 justify-center">
@@ -107,411 +152,549 @@ import { SearchBar } from '@/components/SearchBar.tsx';
           class="hidden md:inline-flex items-center justify-center p-2 rounded-lg hover:text-accent focus:outline-none focus:ring-2 focus:ring-white/30"
           title="Account"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="4" width="18" height="16" rx="2" ry="2"/>
-            <line x1="16" y1="4" x2="16" y2="20"/>
-            <rect x="5" y="6" width="9" height="12" rx="1"/>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="3" y="4" width="18" height="16" rx="2" ry="2"></rect>
+            <line x1="16" y1="4" x2="16" y2="20"></line>
+            <rect x="5" y="6" width="9" height="12" rx="1"></rect>
           </svg>
         </button>
         <!-- Cart Modal Trigger (desktop) -->
         <CartButton client:only="react" />
       </div>
     </div>
-    <div class="w-[90%] h-px bg-white/70 mx-auto my-4 divider transition-all duration-300 ease-out"></div>
-    <div class="grid grid-cols-3 items-center px-5 max-w-7xl mx-auto second-row transition-all duration-300 ease-out">
+    <div class="w-[90%] h-px bg-white/70 mx-auto my-4 divider transition-all duration-300 ease-out">
+    </div>
+    <div
+      class="grid grid-cols-3 items-center px-5 max-w-7xl mx-auto second-row transition-all duration-300 ease-out"
+    >
       <div class="flex justify-start items-center gap-3 px-4">
         <div class="relative">
-          <button id="desktopCategoryToggleMain" aria-label="Toggle Categories" class="text-white hover:shadow-md hover:shadow-primary/40 transition-all duration-300">
-            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          <button
+            id="desktopCategoryToggleMain"
+            aria-label="Toggle Categories"
+            class="text-white hover:shadow-md hover:shadow-primary/40 transition-all duration-300"
+          >
+            <svg
+              class="w-6 h-6"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"
+              ></path>
             </svg>
           </button>
-          
         </div>
       </div>
       <nav class="flex justify-center gap-6 text-sm font-ethno relative">
         <a href="/" class="hover:text-accent">Home</a>
         <span class="text-white/70">|</span>
-         <a href="/shop" class="hover:text-accent">Shop</a>
+        <a href="/shop" class="hover:text-accent">Shop</a>
+      </nav>
 
-
-
-
-</header>
-
-<!-- Desktop Scrim and Drawers moved to root to avoid header clipping/stacking issues -->
-<div id="desktopScrim" aria-hidden="true" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[850] opacity-0 transition-opacity duration-300 pointer-events-none md:block"></div>
-<aside id="desktopDrawerLeft" class="hidden md:block fixed top-0 left-0 h-full w-[360px] bg-[#0b0b0c]/95 border-r border-white/20 z-[900] -translate-x-full transition-transform duration-300 ease-out overflow-y-auto pointer-events-auto">
-  <div class="pt-16 pb-8 px-6 font-mono text-white">
-    <div class="flex justify-end pb-2 pr-2">
-      <button
-        id="closeDesktopDrawerLeft"
-        class="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white text-xl font-bold shadow-lg shadow-primary/30 transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+      <!-- Desktop Scrim and Drawers moved to root to avoid header clipping/stacking issues -->
+      <div
+        id="desktopScrim"
+        aria-hidden="true"
+        class="hidden fixed inset-0 bg-dark/60 backdrop-blur-sm z-[850] opacity-0 transition-opacity duration-300 pointer-events-none md:block"
       >
-        ×
-      </button>
+      </div>
+      <aside
+        id="desktopDrawerLeft"
+        class="hidden md:block fixed top-0 left-0 h-full w-[360px] bg-[#0b0b0c]/95 border-r border-white/20 z-[900] -translate-x-full transition-transform duration-300 ease-out overflow-y-auto pointer-events-auto"
+      >
+        <div class="pt-16 pb-8 px-6 font-mono text-white">
+          <div class="flex justify-end pb-2 pr-2">
+            <button
+              id="closeDesktopDrawerLeft"
+              class="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white text-xl font-bold shadow-lg shadow-primary/30 transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            >
+              ×
+            </button>
+          </div>
+          <MobileMenu mode="inline" client:only="react" />
+        </div>
+      </aside>
+
+      <!-- Account Dashboard Drawer (right side) -->
+      <aside
+        id="accountDashboardPanel"
+        class="hidden fixed top-0 right-0 h-full w-[360px] bg-dark/85 backdrop-blur-md border-l border-white/10 z-[100000] overflow-y-auto translate-x-full transition-transform duration-300 ease-out"
+      >
+        <div class="pt-12 pb-8 px-6">
+          <h2 class="text-xl font-bold text-white">Account</h2>
+          <button
+            id="closeAccountDashboard"
+            class="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white text-xl font-bold shadow-lg shadow-primary/30 transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          >
+            ×
+          </button>
+          <AccountDashboard />
+        </div>
+      </aside>
+
+      <script is:inline>
+        document.addEventListener('DOMContentLoaded', function () {
+          // Ensure the top bar shows only the profile icon (clear any injected login/signup text)
+          try {
+            const badge = document.getElementById('account-top-badge');
+            const btn = document.getElementById('accountDashboardToggleTop');
+            if (badge && btn) {
+              Array.from(badge.children).forEach((node) => {
+                if (node !== btn) badge.removeChild(node);
+              });
+            }
+          } catch {}
+          // --- Mobile sticky + drawer ---
+          const mheader = document.getElementById('mheader');
+          const dheader = document.getElementById('dheader');
+          const mnavToggle = document.getElementById('mnavToggle');
+          const mnavDrawer = document.getElementById('mnavDrawer');
+          const mnavScrim = document.getElementById('mnavScrim');
+          const mline1 = document.getElementById('mline1');
+          const mline2 = document.getElementById('mline2');
+          const mline3 = document.getElementById('mline3');
+          const topBar = document.getElementById('topRedBar');
+          const desktopSticky = document.getElementById('desktopSticky');
+          let mnavOpen = false;
+
+          function syncMobileHeaderTop() {
+            const barHeight = topBar ? Math.round(topBar.getBoundingClientRect().height) : 40;
+            if (mheader) mheader.style.top = `${barHeight}px`;
+          }
+
+          function syncDesktopStickyTop() {
+            const barHeight = topBar ? Math.round(topBar.getBoundingClientRect().height) : 24;
+            if (desktopSticky) desktopSticky.style.top = `${barHeight}px`;
+          }
+
+          function syncDesktopHeaderTop() {
+            const barHeight = topBar ? Math.round(topBar.getBoundingClientRect().height) : 24;
+            if (dheader) dheader.style.top = `${barHeight}px`;
+          }
+
+          function lockScroll(lock) {
+            document.documentElement.style.overflow = lock ? 'hidden' : '';
+            document.body.style.overflow = lock ? 'hidden' : '';
+            document.body.style.touchAction = lock ? 'none' : '';
+          }
+
+          // Keep headers tight under the red bar
+          syncMobileHeaderTop();
+          syncDesktopStickyTop();
+          syncDesktopHeaderTop();
+
+          function setContentOffset() {
+            const barH = topBar ? Math.round(topBar.getBoundingClientRect().height) : 0;
+            const isDesktop = window.matchMedia('(min-width: 768px)').matches;
+            let headerH = 0;
+            if (isDesktop && dheader) headerH = Math.round(dheader.getBoundingClientRect().height);
+            if (!isDesktop && mheader) headerH = Math.round(mheader.getBoundingClientRect().height);
+            const total = Math.max(0, barH + headerH);
+            document.documentElement.style.setProperty('--header-offset', total + 'px');
+          }
+          setContentOffset();
+
+          const onResize = () => {
+            syncMobileHeaderTop();
+            syncDesktopStickyTop();
+            syncDesktopHeaderTop();
+            setContentOffset();
+          };
+          window.addEventListener('resize', onResize, { passive: true });
+          window.addEventListener('orientationchange', onResize);
+
+          // SearchBar React component handles suggestions client-side
+
+          // --- Mobile Nav Drawer handlers ---
+          function openMnav() {
+            if (!mnavDrawer || !mnavScrim) return;
+            mnavDrawer.classList.remove('-translate-x-full');
+            mnavScrim.classList.remove('hidden');
+            mnavScrim.classList.remove('pointer-events-none');
+            mnavScrim.setAttribute('aria-hidden', 'false');
+            setTimeout(() => {
+              mnavScrim.classList.remove('opacity-0');
+            }, 10);
+            mline1.setAttribute('d', 'M6 6l12 12');
+            mline2.setAttribute('d', '');
+            mline3.setAttribute('d', 'M6 18l12 -12');
+            mnavToggle.setAttribute('aria-expanded', 'true');
+            lockScroll(true);
+            mnavOpen = true;
+            try {
+              window.dispatchEvent(new Event('menu:open'));
+            } catch {}
+          }
+          function closeMnav() {
+            if (!mnavDrawer || !mnavScrim) return;
+            mnavScrim.classList.add('pointer-events-none');
+            mnavScrim.setAttribute('aria-hidden', 'true');
+            mnavDrawer.classList.add('-translate-x-full');
+            mnavScrim.classList.add('opacity-0');
+            setTimeout(() => {
+              mnavScrim.classList.add('hidden');
+            }, 300);
+            mline1.setAttribute('d', 'M4 7h16');
+            mline2.setAttribute('d', 'M4 12h16');
+            mline3.setAttribute('d', 'M4 17h16');
+            mnavToggle.setAttribute('aria-expanded', 'false');
+            lockScroll(false);
+            mnavOpen = false;
+            try {
+              window.dispatchEvent(new Event('menu:close'));
+            } catch {}
+          }
+          if (mnavToggle)
+            mnavToggle.addEventListener('click', () => (mnavOpen ? closeMnav() : openMnav()));
+          if (mnavScrim) mnavScrim.addEventListener('click', closeMnav);
+          document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && mnavOpen) closeMnav();
+          });
+
+          // Shrink mobile header on scroll
+          const mShrinkThreshold = 120;
+          function applyMobileShrink(y) {
+            if (!mheader) return;
+            if (y > mShrinkThreshold) mheader.classList.add('m-shrink');
+            else mheader.classList.remove('m-shrink');
+          }
+          applyMobileShrink(window.scrollY);
+          window.addEventListener(
+            'scroll',
+            () => {
+              applyMobileShrink(window.scrollY);
+              syncMobileHeaderTop();
+              setContentOffset();
+            },
+            { passive: true }
+          );
+
+          // Shrink desktop header on scroll (top red bar stays static)
+          const dShrinkThreshold = 120;
+          function applyDesktopShrink(y) {
+            if (!dheader) return;
+            if (y > dShrinkThreshold) {
+              dheader.classList.add('d-shrink');
+            } else {
+              dheader.classList.remove('d-shrink');
+            }
+          }
+          applyDesktopShrink(window.scrollY);
+          window.addEventListener(
+            'scroll',
+            () => {
+              applyDesktopShrink(window.scrollY);
+              // Re-sync positions since the top bar height may change
+              syncMobileHeaderTop();
+              syncDesktopHeaderTop();
+              syncDesktopStickyTop();
+              setContentOffset();
+            },
+            { passive: true }
+          );
+
+          // --- Account dashboard open/close helpers ---
+          const dashboardToggle = document.getElementById('accountDashboardToggle');
+          const dashboardToggleTop = document.getElementById('accountDashboardToggleTop');
+          const dashboardPanel = document.getElementById('accountDashboardPanel');
+          let isDashboardOpen = false;
+
+          function openDashboard() {
+            // Close desktop drawers if they are open so the panel can be interacted with
+            try {
+              closeDesktopLeft && closeDesktopLeft();
+            } catch {}
+            try {
+              closeDesktopRight && closeDesktopRight();
+            } catch {}
+            if (!dashboardPanel) return;
+            dashboardPanel.classList.remove('hidden');
+            requestAnimationFrame(() => dashboardPanel.classList.remove('translate-x-full'));
+            isDashboardOpen = true;
+          }
+          function closeDashboard() {
+            if (!dashboardPanel) return;
+            dashboardPanel.classList.add('translate-x-full');
+            setTimeout(() => dashboardPanel.classList.add('hidden'), 300);
+            isDashboardOpen = false;
+          }
+          function bindToggle(btn) {
+            if (!btn) return;
+            btn.addEventListener('click', () => {
+              isDashboardOpen ? closeDashboard() : openDashboard();
+            });
+          }
+          bindToggle(dashboardToggle);
+          bindToggle(dashboardToggleTop);
+
+          // --- Desktop LEFT Drawer (Main header) ---
+          const desktopCategoryToggleMain = document.getElementById('desktopCategoryToggleMain');
+          const desktopDrawerLeft = document.getElementById('desktopDrawerLeft');
+          const closeDesktopDrawerLeft = document.getElementById('closeDesktopDrawerLeft');
+          const desktopScrim = document.getElementById('desktopScrim');
+          const brandTag = document.getElementById('brand-tag');
+          let isDesktopLeftOpen = false;
+
+          function openDesktopLeft() {
+            if (!desktopDrawerLeft || !desktopScrim) return;
+            desktopDrawerLeft.classList.remove('hidden');
+            requestAnimationFrame(() => {
+              desktopDrawerLeft.classList.remove('-translate-x-full');
+              desktopScrim.classList.remove('hidden');
+              desktopScrim.classList.remove('pointer-events-none');
+              setTimeout(() => desktopScrim.classList.remove('opacity-0'), 10);
+            });
+            lockScroll(true);
+            isDesktopLeftOpen = true;
+            // Hide floating brand tag while menu is open
+            try {
+              brandTag && brandTag.classList.add('hidden');
+            } catch {}
+          }
+          function closeDesktopLeft() {
+            if (!desktopDrawerLeft || !desktopScrim) return;
+            desktopDrawerLeft.classList.add('-translate-x-full');
+            desktopScrim.classList.add('opacity-0');
+            desktopScrim.classList.add('pointer-events-none');
+            setTimeout(() => {
+              desktopScrim.classList.add('hidden');
+              desktopDrawerLeft.classList.add('hidden');
+            }, 300);
+            lockScroll(false);
+            isDesktopLeftOpen = false;
+            // Restore brand tag if no other drawer is open
+            try {
+              if (!isDesktopRightOpen) brandTag && brandTag.classList.remove('hidden');
+            } catch {}
+          }
+          if (desktopCategoryToggleMain)
+            desktopCategoryToggleMain.addEventListener('click', () =>
+              isDesktopLeftOpen ? closeDesktopLeft() : openDesktopLeft()
+            );
+          if (closeDesktopDrawerLeft)
+            closeDesktopDrawerLeft.addEventListener('click', closeDesktopLeft);
+
+          // --- Desktop RIGHT Drawer (Sticky header) ---
+          const stickyToggle = document.getElementById('desktopCategoryToggleSticky');
+          const desktopDrawerRight = document.getElementById('desktopDrawerRight');
+          const closeDesktopDrawerRight = document.getElementById('closeDesktopDrawerRight');
+          let isDesktopRightOpen = false;
+
+          function openDesktopRight() {
+            if (!desktopDrawerRight || !desktopScrim) return;
+            desktopDrawerRight.classList.remove('hidden');
+            requestAnimationFrame(() => {
+              desktopDrawerRight.classList.remove('translate-x-full');
+              desktopScrim.classList.remove('hidden');
+              desktopScrim.classList.remove('pointer-events-none');
+              setTimeout(() => desktopScrim.classList.remove('opacity-0'), 10);
+            });
+            lockScroll(true);
+            isDesktopRightOpen = true;
+            // Hide floating brand tag while menu is open
+            try {
+              brandTag && brandTag.classList.add('hidden');
+            } catch {}
+          }
+          function closeDesktopRight() {
+            if (!desktopDrawerRight || !desktopScrim) return;
+            desktopDrawerRight.classList.add('translate-x-full');
+            desktopScrim.classList.add('opacity-0');
+            desktopScrim.classList.add('pointer-events-none');
+            setTimeout(() => {
+              desktopScrim.classList.add('hidden');
+              desktopDrawerRight.classList.add('hidden');
+            }, 300);
+            lockScroll(false);
+            isDesktopRightOpen = false;
+            // Restore brand tag if no other drawer is open
+            try {
+              if (!isDesktopLeftOpen) brandTag && brandTag.classList.remove('hidden');
+            } catch {}
+          }
+          if (stickyToggle)
+            stickyToggle.addEventListener('click', () =>
+              isDesktopRightOpen ? closeDesktopRight() : openDesktopRight()
+            );
+          if (closeDesktopDrawerRight)
+            closeDesktopDrawerRight.addEventListener('click', closeDesktopRight);
+
+          // Close drawers by clicking scrim or ESC
+          if (desktopScrim)
+            desktopScrim.addEventListener('click', () => {
+              closeDesktopLeft();
+              closeDesktopRight();
+              closeDashboard();
+            });
+          document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+              closeDesktopLeft();
+              closeDesktopRight();
+              closeDashboard();
+            }
+          });
+
+          const closeBtn = document.getElementById('closeAccountDashboard');
+          const dashboard = document.getElementById('accountDashboardPanel');
+          if (closeBtn && dashboard) {
+            closeBtn.addEventListener('click', () => {
+              closeDashboard();
+            });
+          }
+
+          const sticky = document.querySelector('.my-sticky-header');
+          const threshold = 150;
+          window.addEventListener('scroll', () => {
+            if (!sticky) return;
+            if (window.scrollY > threshold) {
+              sticky.classList.add('show');
+            } else {
+              sticky.classList.remove('show');
+            }
+          });
+        });
+
+        // Account Dashboard
+        const accountDashboardToggle = document.getElementById('accountDashboardToggle');
+        const accountDashboardToggleTop = document.getElementById('accountDashboardToggleTop');
+        const accountDashboardPanel = document.getElementById('accountDashboardPanel');
+        const closeAccountDashboard = document.getElementById('closeAccountDashboard');
+        let isDashboardOpen = false;
+
+        function openDashboard() {
+          // make visible, then slide in
+          accountDashboardPanel.classList.remove('hidden');
+          requestAnimationFrame(() => {
+            accountDashboardPanel.classList.remove('translate-x-full');
+          });
+          desktopScrim.classList.remove('hidden', 'pointer-events-none', 'opacity-0');
+          // Hide scrollbars
+          document.documentElement.style.overflow = 'hidden';
+          document.body.style.overflow = 'hidden';
+          isDashboardOpen = true;
+        }
+
+        function closeDashboard() {
+          // slide out, then hide
+          accountDashboardPanel.classList.add('translate-x-full');
+          desktopScrim.classList.add('opacity-0', 'pointer-events-none');
+          setTimeout(() => {
+            desktopScrim.classList.add('hidden');
+            accountDashboardPanel.classList.add('hidden');
+          }, 300);
+          document.documentElement.style.overflow = '';
+          document.body.style.overflow = '';
+          isDashboardOpen = false;
+        }
+
+        accountDashboardToggle?.addEventListener('click', () => {
+          if (isDashboardOpen) return closeDashboard();
+          openDashboard();
+        });
+        accountDashboardToggleTop?.addEventListener('click', () => {
+          if (isDashboardOpen) return closeDashboard();
+          openDashboard();
+        });
+        closeAccountDashboard?.addEventListener('click', closeDashboard);
+        desktopScrim?.addEventListener('click', closeDashboard);
+        document.addEventListener(
+          'keydown',
+          (e) => e.key === 'Escape' && (closeMnav(), closeDesktopLeft(), closeDashboard())
+        );
+      </script>
+
+      <style>
+        .my-sticky-header {
+          opacity: 0;
+          pointer-events: none;
+          transform: translateY(-100%);
+          transition: all 0.3s ease;
+        }
+        .my-sticky-header.show {
+          opacity: 1;
+          pointer-events: auto;
+          transform: translateY(0);
+        }
+        #mobileMenuDropdown {
+          transition: all 0.3s ease;
+        }
+        /* Mobile sticky header shrink states */
+        #mheader > div {
+          height: 4rem;
+        } /* 64px default */
+        #mheader.m-shrink > div {
+          height: 3.25rem;
+        } /* ~52px when shrunk */
+        #mheader img {
+          height: 2rem;
+        } /* 32px logo default */
+        #mheader.m-shrink img {
+          height: 1.5rem;
+        } /* 24px when shrunk */
+
+        /* Mobile header positioning to hug the red bar (JS keeps this exact) */
+        #mheader {
+          top: 40px;
+        } /* default; JS overrides with computed bar height */
+
+        /* Desktop main header positioning under the red bar (kept in sync via JS) */
+        #dheader {
+          top: 24px;
+        }
+
+        /* Desktop main header shrink states */
+        #dheader .main-row {
+          height: 4rem;
+          padding-left: 2.5rem;
+          padding-right: 2.5rem;
+        }
+        #dheader.d-shrink .main-row {
+          height: 2.5rem;
+          padding-left: 1rem;
+          padding-right: 1rem;
+        }
+        #dheader .desktop-logo {
+          height: 4.5rem;
+          transform: scale(2);
+        }
+        #dheader.d-shrink .desktop-logo {
+          height: 3rem;
+          transform: scale(1.5);
+        }
+        #dheader .divider {
+          margin-top: 1rem;
+          margin-bottom: 1rem;
+        }
+        #dheader.d-shrink .divider {
+          margin-top: 0.25rem;
+          margin-bottom: 0.25rem;
+          opacity: 0.7;
+        }
+        #dheader .second-row {
+          padding-left: 1.25rem;
+          padding-right: 1.25rem;
+          padding-top: 0.25rem;
+          padding-bottom: 0.25rem;
+        }
+        #dheader.d-shrink .second-row {
+          padding-left: 0.75rem;
+          padding-right: 0.75rem;
+          padding-top: 0.125rem;
+          padding-bottom: 0.125rem;
+        }
+
+        /* Red top bar (desktop only; element hidden on mobile) */
+      </style>
     </div>
-    <MobileMenu mode="inline" client:only="react" />
   </div>
- </aside>
-
-  <!-- Account Dashboard Drawer (right side) -->
-  <aside
-    id="accountDashboardPanel"
-    class="hidden fixed top-0 right-0 h-full w-[360px] bg-black/85 backdrop-blur-md border-l border-white/10 z-[100000] overflow-y-auto translate-x-full transition-transform duration-300 ease-out"
-  >
-    <div class="pt-12 pb-8 px-6">
-      <h2 class="text-xl font-bold text-white">Account</h2>
-      <button
-        id="closeAccountDashboard"
-        class="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white text-xl font-bold shadow-lg shadow-primary/30 transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-      >
-        ×
-      </button>
-      <AccountDashboard />
-    </div>
-  </aside>
-
-
-  <script is:inline>
-  document.addEventListener("DOMContentLoaded", function () {
-    // Ensure the top bar shows only the profile icon (clear any injected login/signup text)
-    try {
-      const badge = document.getElementById('account-top-badge');
-      const btn = document.getElementById('accountDashboardToggleTop');
-      if (badge && btn) {
-        Array.from(badge.children).forEach((node) => { if (node !== btn) badge.removeChild(node); });
-      }
-    } catch {}
-    // --- Mobile sticky + drawer ---
-    const mheader = document.getElementById("mheader");
-    const dheader = document.getElementById("dheader");
-    const mnavToggle = document.getElementById("mnavToggle");
-    const mnavDrawer = document.getElementById("mnavDrawer");
-    const mnavScrim  = document.getElementById("mnavScrim");
-    const mline1 = document.getElementById("mline1");
-    const mline2 = document.getElementById("mline2");
-    const mline3 = document.getElementById("mline3");
-    const topBar = document.getElementById("topRedBar");
-    const desktopSticky = document.getElementById('desktopSticky');
-    let mnavOpen = false;
-
-    function syncMobileHeaderTop() {
-      const barHeight = topBar ? Math.round(topBar.getBoundingClientRect().height) : 40;
-      if (mheader) mheader.style.top = `${barHeight}px`;
-    }
-
-    function syncDesktopStickyTop() {
-      const barHeight = topBar ? Math.round(topBar.getBoundingClientRect().height) : 24;
-      if (desktopSticky) desktopSticky.style.top = `${barHeight}px`;
-    }
-
-    function syncDesktopHeaderTop() {
-      const barHeight = topBar ? Math.round(topBar.getBoundingClientRect().height) : 24;
-      if (dheader) dheader.style.top = `${barHeight}px`;
-    }
-
-    function lockScroll(lock) {
-      document.documentElement.style.overflow = lock ? 'hidden' : '';
-      document.body.style.overflow = lock ? 'hidden' : '';
-      document.body.style.touchAction = lock ? 'none' : '';
-    }
-    
-
-    // Keep headers tight under the red bar
-    syncMobileHeaderTop();
-    syncDesktopStickyTop();
-    syncDesktopHeaderTop();
-
-    function setContentOffset() {
-      const barH = topBar ? Math.round(topBar.getBoundingClientRect().height) : 0;
-      const isDesktop = window.matchMedia('(min-width: 768px)').matches;
-      let headerH = 0;
-      if (isDesktop && dheader) headerH = Math.round(dheader.getBoundingClientRect().height);
-      if (!isDesktop && mheader) headerH = Math.round(mheader.getBoundingClientRect().height);
-      const total = Math.max(0, barH + headerH);
-      document.documentElement.style.setProperty('--header-offset', total + 'px');
-    }
-    setContentOffset();
-
-    const onResize = () => { syncMobileHeaderTop(); syncDesktopStickyTop(); syncDesktopHeaderTop(); setContentOffset(); };
-    window.addEventListener('resize', onResize, { passive: true });
-    window.addEventListener('orientationchange', onResize);
-
-    // SearchBar React component handles suggestions client-side
-
-    // --- Mobile Nav Drawer handlers ---
-    function openMnav() {
-      if (!mnavDrawer || !mnavScrim) return;
-      mnavDrawer.classList.remove("-translate-x-full");
-      mnavScrim.classList.remove("hidden");
-      mnavScrim.classList.remove("pointer-events-none");
-      mnavScrim.setAttribute("aria-hidden", "false");
-      setTimeout(() => { mnavScrim.classList.remove("opacity-0"); }, 10);
-      mline1.setAttribute("d", "M6 6l12 12");
-      mline2.setAttribute("d", "");
-      mline3.setAttribute("d", "M6 18l12 -12");
-      mnavToggle.setAttribute("aria-expanded", "true");
-      lockScroll(true);
-      mnavOpen = true;
-      try { window.dispatchEvent(new Event('menu:open')); } catch {}
-    }
-    function closeMnav() {
-      if (!mnavDrawer || !mnavScrim) return;
-      mnavScrim.classList.add("pointer-events-none");
-      mnavScrim.setAttribute("aria-hidden", "true");
-      mnavDrawer.classList.add("-translate-x-full");
-      mnavScrim.classList.add("opacity-0");
-      setTimeout(() => { mnavScrim.classList.add("hidden"); }, 300);
-      mline1.setAttribute("d", "M4 7h16");
-      mline2.setAttribute("d", "M4 12h16");
-      mline3.setAttribute("d", "M4 17h16");
-      mnavToggle.setAttribute("aria-expanded", "false");
-      lockScroll(false);
-      mnavOpen = false;
-      try { window.dispatchEvent(new Event('menu:close')); } catch {}
-    }
-    if (mnavToggle) mnavToggle.addEventListener("click", () => (mnavOpen ? closeMnav() : openMnav()));
-    if (mnavScrim) mnavScrim.addEventListener("click", closeMnav);
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && mnavOpen) closeMnav(); });
-
-    // Shrink mobile header on scroll
-    const mShrinkThreshold = 120;
-    function applyMobileShrink(y) {
-      if (!mheader) return;
-      if (y > mShrinkThreshold) mheader.classList.add("m-shrink");
-      else mheader.classList.remove("m-shrink");
-    }
-    applyMobileShrink(window.scrollY);
-    window.addEventListener("scroll", () => { applyMobileShrink(window.scrollY); syncMobileHeaderTop(); setContentOffset(); }, { passive: true });
-
-      // Shrink desktop header on scroll (top red bar stays static)
-    const dShrinkThreshold = 120;
-    function applyDesktopShrink(y) {
-      if (!dheader) return;
-      if (y > dShrinkThreshold) {
-        dheader.classList.add("d-shrink");
-      } else {
-        dheader.classList.remove("d-shrink");
-      }
-    }
-    applyDesktopShrink(window.scrollY);
-    window.addEventListener("scroll", () => {
-      applyDesktopShrink(window.scrollY);
-      // Re-sync positions since the top bar height may change
-      syncMobileHeaderTop();
-      syncDesktopHeaderTop();
-      syncDesktopStickyTop();
-      setContentOffset();
-    }, { passive: true });
-
-    // --- Account dashboard open/close helpers ---
-    const dashboardToggle = document.getElementById("accountDashboardToggle");
-    const dashboardToggleTop = document.getElementById("accountDashboardToggleTop");
-    const dashboardPanel = document.getElementById("accountDashboardPanel");
-    let isDashboardOpen = false;
-
-    function openDashboard() {
-      // Close desktop drawers if they are open so the panel can be interacted with
-      try { closeDesktopLeft && closeDesktopLeft(); } catch {}
-      try { closeDesktopRight && closeDesktopRight(); } catch {}
-      if (!dashboardPanel) return;
-      dashboardPanel.classList.remove('hidden');
-      requestAnimationFrame(() => dashboardPanel.classList.remove('translate-x-full'));
-      isDashboardOpen = true;
-    }
-    function closeDashboard() {
-      if (!dashboardPanel) return;
-      dashboardPanel.classList.add('translate-x-full');
-      setTimeout(() => dashboardPanel.classList.add('hidden'), 300);
-      isDashboardOpen = false;
-    }
-    function bindToggle(btn) {
-      if (!btn) return;
-      btn.addEventListener('click', () => {
-        isDashboardOpen ? closeDashboard() : openDashboard();
-      });
-    }
-    bindToggle(dashboardToggle);
-    bindToggle(dashboardToggleTop);
-
-    // --- Desktop LEFT Drawer (Main header) ---
-    const desktopCategoryToggleMain = document.getElementById('desktopCategoryToggleMain');
-    const desktopDrawerLeft = document.getElementById('desktopDrawerLeft');
-    const closeDesktopDrawerLeft = document.getElementById('closeDesktopDrawerLeft');
-    const desktopScrim = document.getElementById('desktopScrim');
-    const brandTag = document.getElementById('brand-tag');
-    let isDesktopLeftOpen = false;
-
-    function openDesktopLeft() {
-      if (!desktopDrawerLeft || !desktopScrim) return;
-      desktopDrawerLeft.classList.remove('hidden');
-      requestAnimationFrame(() => {
-        desktopDrawerLeft.classList.remove('-translate-x-full');
-        desktopScrim.classList.remove('hidden');
-        desktopScrim.classList.remove('pointer-events-none');
-        setTimeout(() => desktopScrim.classList.remove('opacity-0'), 10);
-      });
-      lockScroll(true);
-      isDesktopLeftOpen = true;
-      // Hide floating brand tag while menu is open
-      try { brandTag && brandTag.classList.add('hidden'); } catch {}
-    }
-    function closeDesktopLeft() {
-      if (!desktopDrawerLeft || !desktopScrim) return;
-      desktopDrawerLeft.classList.add('-translate-x-full');
-      desktopScrim.classList.add('opacity-0');
-      desktopScrim.classList.add('pointer-events-none');
-      setTimeout(() => { desktopScrim.classList.add('hidden'); desktopDrawerLeft.classList.add('hidden'); }, 300);
-      lockScroll(false);
-      isDesktopLeftOpen = false;
-      // Restore brand tag if no other drawer is open
-      try { if (!isDesktopRightOpen) brandTag && brandTag.classList.remove('hidden'); } catch {}
-    }
-    if (desktopCategoryToggleMain) desktopCategoryToggleMain.addEventListener('click', () => (isDesktopLeftOpen ? closeDesktopLeft() : openDesktopLeft()));
-    if (closeDesktopDrawerLeft) closeDesktopDrawerLeft.addEventListener('click', closeDesktopLeft);
-
-    // --- Desktop RIGHT Drawer (Sticky header) ---
-    const stickyToggle = document.getElementById('desktopCategoryToggleSticky');
-    const desktopDrawerRight = document.getElementById('desktopDrawerRight');
-    const closeDesktopDrawerRight = document.getElementById('closeDesktopDrawerRight');
-    let isDesktopRightOpen = false;
-
-    function openDesktopRight() {
-      if (!desktopDrawerRight || !desktopScrim) return;
-      desktopDrawerRight.classList.remove('hidden');
-      requestAnimationFrame(() => {
-        desktopDrawerRight.classList.remove('translate-x-full');
-        desktopScrim.classList.remove('hidden');
-        desktopScrim.classList.remove('pointer-events-none');
-        setTimeout(() => desktopScrim.classList.remove('opacity-0'), 10);
-      });
-      lockScroll(true);
-      isDesktopRightOpen = true;
-      // Hide floating brand tag while menu is open
-      try { brandTag && brandTag.classList.add('hidden'); } catch {}
-    }
-    function closeDesktopRight() {
-      if (!desktopDrawerRight || !desktopScrim) return;
-      desktopDrawerRight.classList.add('translate-x-full');
-      desktopScrim.classList.add('opacity-0');
-      desktopScrim.classList.add('pointer-events-none');
-      setTimeout(() => { desktopScrim.classList.add('hidden'); desktopDrawerRight.classList.add('hidden'); }, 300);
-      lockScroll(false);
-      isDesktopRightOpen = false;
-      // Restore brand tag if no other drawer is open
-      try { if (!isDesktopLeftOpen) brandTag && brandTag.classList.remove('hidden'); } catch {}
-    }
-    if (stickyToggle) stickyToggle.addEventListener('click', () => (isDesktopRightOpen ? closeDesktopRight() : openDesktopRight()));
-    if (closeDesktopDrawerRight) closeDesktopDrawerRight.addEventListener('click', closeDesktopRight);
-
-    // Close drawers by clicking scrim or ESC
-    if (desktopScrim) desktopScrim.addEventListener('click', () => { closeDesktopLeft(); closeDesktopRight(); closeDashboard(); });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeDesktopLeft(); closeDesktopRight(); closeDashboard(); } });
-
-    const closeBtn = document.getElementById("closeAccountDashboard");
-    const dashboard = document.getElementById("accountDashboardPanel");
-    if (closeBtn && dashboard) {
-      closeBtn.addEventListener('click', () => {
-        closeDashboard();
-      });
-    }
-
-    const sticky = document.querySelector(".my-sticky-header");
-    const threshold = 150;
-    window.addEventListener("scroll", () => {
-      if (!sticky) return;
-      if (window.scrollY > threshold) {
-        sticky.classList.add("show");
-      } else {
-        sticky.classList.remove("show");
-      }
-    });
-  });
-
-   // Account Dashboard
-    const accountDashboardToggle = document.getElementById("accountDashboardToggle");
-    const accountDashboardToggleTop = document.getElementById("accountDashboardToggleTop");
-    const accountDashboardPanel = document.getElementById("accountDashboardPanel");
-    const closeAccountDashboard = document.getElementById("closeAccountDashboard");
-    let isDashboardOpen = false;
-
-    function openDashboard() {
-      // make visible, then slide in
-      accountDashboardPanel.classList.remove('hidden');
-      requestAnimationFrame(() => {
-        accountDashboardPanel.classList.remove('translate-x-full');
-      });
-      desktopScrim.classList.remove('hidden', 'pointer-events-none', 'opacity-0');
-      // Hide scrollbars
-      document.documentElement.style.overflow = 'hidden';
-      document.body.style.overflow = 'hidden';
-      isDashboardOpen = true;
-    }
-
-    function closeDashboard() {
-      // slide out, then hide
-      accountDashboardPanel.classList.add('translate-x-full');
-      desktopScrim.classList.add('opacity-0', 'pointer-events-none');
-      setTimeout(() => {
-        desktopScrim.classList.add('hidden');
-        accountDashboardPanel.classList.add('hidden');
-      }, 300);
-      document.documentElement.style.overflow = '';
-      document.body.style.overflow = '';
-      isDashboardOpen = false;
-    }
-
-    accountDashboardToggle?.addEventListener("click", () => {
-      if (isDashboardOpen) return closeDashboard();
-      openDashboard();
-    });
-    accountDashboardToggleTop?.addEventListener("click", () => {
-      if (isDashboardOpen) return closeDashboard();
-      openDashboard();
-    });
-    closeAccountDashboard?.addEventListener("click", closeDashboard);
-    desktopScrim?.addEventListener("click", closeDashboard);
-    document.addEventListener("keydown", (e) => e.key === "Escape" && (closeMnav(), closeDesktopLeft(), closeDashboard()));
-
-  </script>
-
-  <style>
-.my-sticky-header {
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-100%);
-  transition: all 0.3s ease;
-}
-.my-sticky-header.show {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
-}
-#mobileMenuDropdown {
-  transition: all 0.3s ease;
-}
-/* Mobile sticky header shrink states */
-#mheader > div { height: 4rem; } /* 64px default */
-#mheader.m-shrink > div { height: 3.25rem; } /* ~52px when shrunk */
-#mheader img { height: 2rem; } /* 32px logo default */
-#mheader.m-shrink img { height: 1.5rem; } /* 24px when shrunk */
-
-/* Mobile header positioning to hug the red bar (JS keeps this exact) */
-#mheader { top: 40px; } /* default; JS overrides with computed bar height */
-
-/* Desktop main header positioning under the red bar (kept in sync via JS) */
-#dheader { top: 24px; }
-
-/* Desktop main header shrink states */
-#dheader .main-row { height: 4rem; padding-left: 2.5rem; padding-right: 2.5rem; }
-#dheader.d-shrink .main-row { height: 2.5rem; padding-left: 1rem; padding-right: 1rem; }
-#dheader .desktop-logo { height: 4.5rem; transform: scale(2); }
-#dheader.d-shrink .desktop-logo { height: 3rem; transform: scale(1.5); }
-#dheader .divider { margin-top: 1rem; margin-bottom: 1rem; }
-#dheader.d-shrink .divider { margin-top: 0.25rem; margin-bottom: 0.25rem; opacity: 0.7; }
-#dheader .second-row { padding-left: 1.25rem; padding-right: 1.25rem; padding-top: 0.25rem; padding-bottom: 0.25rem; }
-#dheader.d-shrink .second-row { padding-left: 0.75rem; padding-right: 0.75rem; padding-top: 0.125rem; padding-bottom: 0.125rem; }
-
-/* Red top bar (desktop only; element hidden on mobile) */
-  </style>
+</header>

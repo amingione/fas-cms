@@ -1,4 +1,8 @@
-import { normalizeSlugValue, resolveSanityImageUrl, type Product as SanityProduct } from '@lib/sanity-utils';
+import {
+  normalizeSlugValue,
+  resolveSanityImageUrl,
+  type Product as SanityProduct
+} from '@lib/sanity-utils';
 import { cn } from '@components/ui/utils';
 import { addItem } from '@lib/cart';
 import { prefersDesktopCart } from '@/lib/device';
@@ -42,7 +46,8 @@ function addToCart(product: SanityProduct) {
     const price = Number(activePrice ?? 0) || 0;
     const comparePrice = getCompareAtPrice(product);
     const originalPrice =
-      typeof comparePrice === 'number' && (typeof activePrice !== 'number' || comparePrice > activePrice)
+      typeof comparePrice === 'number' &&
+      (typeof activePrice !== 'number' || comparePrice > activePrice)
         ? comparePrice
         : typeof (product as any)?.price === 'number'
           ? (product as any).price
@@ -109,7 +114,7 @@ export function ProductCard({ product, productImage, className }: ProductCardPro
   return (
     <div
       className={cn(
-        'w-full luxury-hover-scale racing-stripe h-auto bg-black/40 backdrop-blur-sm rounded-[5px] md:rounded-[10px] lg:rounded-[20px] relative overflow-hidden',
+        'w-full luxury-hover-scale racing-stripe h-auto bg-dark/40 backdrop-blur-sm rounded-[5px] md:rounded-[10px] lg:rounded-[20px] relative overflow-hidden',
         'shadow-card-outer border border-[rgba(154,154,154,0)] transition-shadow',
         // Subtle default glow + drop (barely noticeable), stronger on hover (offset to upper-left)
         'shadow-[-1px_-1px_4px_rgba(234,29,38,0.08),_-1px_-2px_6px_rgba(0,0,0,0.12)] hover:shadow-[-1px_-1px_2px_rgba(234,29,38,0.35),_-2px_-2px_3px_rgba(0,0,0,0.35)]',
@@ -167,9 +172,7 @@ export function ProductCard({ product, productImage, className }: ProductCardPro
             {onSale && comparePrice ? (
               <>
                 <span className="text-red-400">{formatPrice(activePrice)}</span>
-                <span className="ml-2 text-white/60 line-through">
-                  {formatPrice(comparePrice)}
-                </span>
+                <span className="ml-2 text-white/60 line-through">{formatPrice(comparePrice)}</span>
               </>
             ) : (
               priceLabel
@@ -177,7 +180,7 @@ export function ProductCard({ product, productImage, className }: ProductCardPro
           </span>
           {product._id && (
             <button
-              className="btn-glass flex items-center gap-1.5 bg-black/30 text-white px-1 py-2 md:px-3.5 md:py-1.5 rounded-full md:rounded-full font-cyber text-[9px] shadow-button border border-[rgba(86,86,86,0.49)] whitespace-nowrap w-auto"
+              className="btn-glass flex items-center gap-1.5 bg-dark/30 text-white px-1 py-2 md:px-3.5 md:py-1.5 rounded-full md:rounded-full font-cyber text-[9px] shadow-button border border-[rgba(86,86,86,0.49)] whitespace-nowrap w-auto"
               style={{ width: 'auto', minWidth: 0 }}
               onClick={(e) => {
                 e.preventDefault();

@@ -53,11 +53,11 @@ export default function OnboardingProgress({ vendorId, variant = 'light' }: Prop
   const isDark = variant === 'dark';
 
   const cardClass = isDark
-    ? 'bg-black/60 border border-white/10 text-white'
+    ? 'bg-dark/60 border border-white/10 text-white'
     : 'bg-white border border-gray-200 text-gray-900';
   const labelMuted = isDark ? 'text-white/60' : 'text-gray-500';
   const textMuted = isDark ? 'text-white/70' : 'text-gray-600';
-  const checkboxColor = isDark ? 'text-primary bg-black border-white/30' : 'text-primary';
+  const checkboxColor = isDark ? 'text-primary bg-dark border-white/30' : 'text-primary';
   const progressBg = isDark ? 'bg-white/10' : 'bg-gray-100';
 
   return (
