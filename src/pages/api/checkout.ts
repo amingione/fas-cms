@@ -1039,7 +1039,7 @@ export async function POST({ request }: { request: Request }) {
       tax_id_collection: { enabled: true },
       // Enable Stripe Tax for automatic sales tax calculation
       automatic_tax: { enabled: true },
-      billing_address_collection: 'auto',
+      billing_address_collection: 'required',
       phone_number_collection: { enabled: true },
       shipping_address_collection: shippingAddressCollection,
       success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
@@ -1056,7 +1056,7 @@ export async function POST({ request }: { request: Request }) {
       delete (sessionParams.payment_intent_data as { shipping?: unknown }).shipping;
     }
 
-    sessionParams.customer_creation = 'if_required';
+    sessionParams.customer_creation = 'always';
     if (customerEmail) {
       sessionParams.customer_email = customerEmail;
     }

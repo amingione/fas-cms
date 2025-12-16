@@ -301,7 +301,7 @@ export const handler: Handler = async (event) => {
       }
 
       // Find or create Sanity customer
-      const email = session.customer_details?.email || '';
+      const email = session.customer_details?.email || session.customer_email || '';
       // Prefer userId from session metadata if provided during Checkout
       let userId: string | undefined = (session.metadata as any)?.userId || undefined;
       let customerRef: { _type: 'reference'; _ref: string } | undefined;
@@ -540,7 +540,7 @@ export const handler: Handler = async (event) => {
         collectedShippingDetails
           ? {
               address: collectedShippingDetails.address,
-              email: session.customer_details?.email ?? null,
+              email: email || null,
               name: collectedShippingDetails.name,
               phone: session.customer_details?.phone ?? null,
               tax_exempt: session.customer_details?.tax_exempt ?? null,
