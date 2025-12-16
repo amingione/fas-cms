@@ -15,7 +15,7 @@ const components: Partial<PortableTextReactComponents> = {
         href={(value as any)?.href}
         className="text-primary hover:underline"
         target="_blank"
-        rel="noopener"
+        rel="noreferrer noopener"
       >
         {children}
       </a>
