@@ -255,7 +255,7 @@ export async function POST({ request }: { request: Request }) {
       // Find or create a Customer document
       let customerRef: { _type: 'reference'; _ref: string } | undefined;
       let userId: string | undefined = userIdFromMetadata;
-      const email = session.customer_details?.email || '';
+      const email = session.customer_details?.email || session.customer_email || '';
       if (email) {
         const existing = await sanity.fetch(
           `*[_type=="customer" && lower(email)==lower($email)][0]{_id,emailMarketing,marketingOptIn,emailOptIn}`,
@@ -361,7 +361,7 @@ export async function POST({ request }: { request: Request }) {
         collectedShippingDetails
           ? {
               address: collectedShippingDetails.address,
-              email: session.customer_details?.email ?? null,
+              email: email || null,
               name: collectedShippingDetails.name,
               phone: session.customer_details?.phone ?? null,
               tax_exempt: session.customer_details?.tax_exempt ?? null,
@@ -397,7 +397,7 @@ export async function POST({ request }: { request: Request }) {
           typeof session.shipping_cost?.amount_total === 'number'
             ? session.shipping_cost.amount_total / 100
             : undefined,
-        customerEmail: session.customer_details?.email || '',
+        customerEmail: email,
         customer: customerRef,
         userId,
         cart: cartLines,
@@ -407,7 +407,7 @@ export async function POST({ request }: { request: Request }) {
         shippingAddress: {
           name: session.customer_details?.name || '',
           phone: session.customer_details?.phone || '',
-          email: session.customer_details?.email || '',
+          email,
           addressLine1: session.customer_details?.address?.line1 || '',
           addressLine2: session.customer_details?.address?.line2 || '',
           city: session.customer_details?.address?.city || '',
