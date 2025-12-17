@@ -1009,17 +1009,17 @@ async function uploadViaSftp(content: string): Promise<boolean> {
   }
 }
 
-async function main() {
+export async function runMerchantFeedUpload() {
   const products = await fetchProducts();
   if (!products || products.length === 0) {
     console.warn('No products returned from Sanity; nothing to upload.');
-    return;
+    return { rows: 0, uploadedViaApi: false, uploadedViaSftp: false, localPath: LOCAL_FEED_PATH };
   }
 
   const rows = buildRows(products, DEFAULT_BASE_URL, DEFAULT_CURRENCY);
   if (!rows.length) {
     console.warn('All products were filtered out (missing SKU/title/slug).');
-    return;
+    return { rows: 0, uploadedViaApi: false, uploadedViaSftp: false, localPath: LOCAL_FEED_PATH };
   }
 
   const tsv = toTsv(rows);
@@ -1035,13 +1035,16 @@ async function main() {
 
   if (!uploadedViaApi && !uploadedViaSftp) {
     console.warn('Feed was generated but not uploaded to any remote destination.');
-    process.exitCode = 1;
   }
 
   console.log(`Feed generated with ${rows.length} products.`);
+
+  return { rows: rows.length, uploadedViaApi, uploadedViaSftp, localPath: LOCAL_FEED_PATH };
 }
 
-main().catch((err) => {
-  console.error('Failed to generate/upload Google Merchant feed:', err);
-  process.exitCode = 1;
-});
+if (process.argv[1]?.includes('upload-google-merchant-feed')) {
+  runMerchantFeedUpload().catch((err) => {
+    console.error('Failed to generate/upload Google Merchant feed:', err);
+    process.exitCode = 1;
+  });
+}
