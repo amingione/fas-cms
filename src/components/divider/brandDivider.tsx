@@ -16,7 +16,7 @@ function BrandDivider({ className }: BrandDividerProps) {
       )}
     >
       <div className="inline-flex items-center gap-3 rounded-full border border-white/20 bg-gradient-to-r from-white/10 via-white/5 to-transparent px-4 py-2 backdrop-blur-sm">
-        <span className="font-borg text-primaryB text-base sm:text-xl">F.a.S.</span>
+        <span className="font-borg text-primary text-base sm:text-xl">F.a.S.</span>
         <span className="font-ethno text-white text-base sm:text-xl">Motorsports</span>
       </div>
     </section>

@@ -46,7 +46,7 @@ export default function HomeHero() {
   return (
     <section
       id="homeHero"
-      className="relative flex items-center justify-center pt-10 pb-6 mb-12 sm:mb-16 lg:mb-[-8px]"
+      className="relative flex items-center justify-center pt-6 pb-4 sm:pt-10 sm:pb-6 mb-12 sm:mb-16 lg:mb-[-8px]"
     >
       <div className="relative w-full overflow-hidden rounded-none min-h-[420px] sm:min-h-[520px] lg:min-h-[620px]">
         {/* Video Background */}
