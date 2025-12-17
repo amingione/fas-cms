@@ -164,6 +164,7 @@
     "sharp": "^0.33.5",
     "solid-js": "^1.9.6",
     "sonner": "2.0.3",
+    "ssh2": "^1.17.0",
     "ssh2-sftp-client": "^10.0.3",
     "stripe": "^18.4.0",
     "styled-components": "^6.1.17",

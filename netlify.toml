@@ -755,8 +755,11 @@
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
-  external_node_modules = ["sharp"]
-  included_files = ["node_modules/sharp/**/*"]
+  external_node_modules = ["sharp", "ssh2"]
+  included_files = [
+    "node_modules/sharp/**/*",
+    "node_modules/ssh2/lib/protocol/crypto/build/Release/**"
+  ]
 
 # Help Netlify Dev choose the right framework command
 [dev]
