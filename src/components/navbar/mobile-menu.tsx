@@ -335,7 +335,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
                   if (onNavigate) onNavigate();
                 }
               }}
-              className="flex items-center gap-2 text-xl font-semibold text-primaryB transition-colors hover:text-primary"
+              className="flex items-center gap-2 text-xl font-semibold text-white/60 transition-colors hover:text-primary"
             >
               <UserCircleIcon className="h-6 w-6" />
               <span>Sign in</span>
