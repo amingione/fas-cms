@@ -397,7 +397,7 @@ function CartContents() {
                               id={`quantity-${item.id}`}
                               value={item.quantity || 1}
                               onChange={(event) => onQuantityChange(item.id, event.target.value)}
-                              className="rounded-md border border-white/20 bg-dark/60 px-3 py-2 text-sm text-white focus:outline-none"
+                              className="rounded-md border border-white/20 bg-transparent px-3 py-2 text-sm text-white/80 focus:outline-none"
                             >
                               {(QUANTITY_CHOICES.includes(item.quantity || 1)
                                 ? QUANTITY_CHOICES
