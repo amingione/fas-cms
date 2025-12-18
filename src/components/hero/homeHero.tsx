@@ -46,7 +46,7 @@ export default function HomeHero() {
   return (
     <section
       id="homeHero"
-      className="relative flex items-center justify-center pt-6 pb-4 sm:pt-10 sm:pb-6 mb-12 sm:mb-16 lg:mb-[-8px]"
+      className="relative flex items-center justify-center pt-6 pb-4 sm:pt-10 sm:pb-6 mb-12 sm:mb-16 lg:mb-[-8px] bg-dark"
     >
       <div className="relative w-full overflow-hidden rounded-none min-h-[420px] sm:min-h-[520px] lg:min-h-[620px]">
         {/* Video Background */}
@@ -70,7 +70,7 @@ export default function HomeHero() {
         />
         <div
           aria-hidden="true"
-          className="absolute inset-0 bg-dark/55 backdrop-blur-[1px] pointer-events-none"
+          className="absolute inset-0 bg-dark backdrop-blur-[1px] pointer-events-none"
         />
         <div className="luxury-particles relative z-10 flex h-full flex-col items-center justify-center text-center px-4 py-16 sm:px-6 sm:py-20 pointer-events-none">
           {/* Content */}

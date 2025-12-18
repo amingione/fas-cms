@@ -675,7 +675,7 @@ const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
     <slot name="head" />
   </head>
 
-  <body class="bg-background pt-3 text-white font-mono min-h-screen flex flex-col">
+  <body class="bg-dark pt-3 text-white font-mono min-h-screen flex flex-col">
     <script type="module" src={analyticsTrackingScriptUrl}></script>
     <svg
       width="0"
@@ -725,9 +725,7 @@ const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
 
     <!-- Page content -->
     <div class="relative flex flex-col flex-1">
-      <main
-        class="px-5 pt-6 flex-1 container max-w-full mx-auto with-header-offset"
-      >
+      <main class="px-5 pt-6 flex-1 container max-w-full mx-auto with-header-offset">
         {breadcrumbItems.length > 0 && <Breadcrumbs items={breadcrumbItems} />}
         <slot />
         {cmsRelatedLinks.length > 0 && <InternalLinks links={cmsRelatedLinks} />}

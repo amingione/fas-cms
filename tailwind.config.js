@@ -1,6 +1,6 @@
-const colors = require('tailwindcss/colors');
+import colors from 'tailwindcss/colors';
 
-module.exports = {
+export default {
   content: [
     './src/**/*.{astro,html,js,jsx,ts,tsx,vue,svelte,css}',
     './components/**/*.{astro,html,js,jsx,ts,tsx}',
@@ -60,12 +60,12 @@ module.exports = {
         primaryB: '#7d0107',
         'accent-foreground': '#030213',
         // Site background utility color
-        background: '#000000',
+        background: '#121212)',
         // Normalize common dark shades to your base background (if you want pure black globally)
         gray: { ...colors.gray, 900: '#111111' },
         offwhite: '#FDE4B2',
-        neutral: { ...colors.neutral, 900: '#000000' },
-        zinc: { ...colors.zinc, 900: '#000000' }
+        neutral: { ...colors.neutral, 900: '#121212)' },
+        zinc: { ...colors.zinc, 900: '#121212)' }
       },
       // Keep your existing font stacks
       fontFamily: {

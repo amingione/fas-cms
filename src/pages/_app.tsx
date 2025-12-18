@@ -52,7 +52,7 @@ function AppShell({ children }: { children: React.ReactNode }) {
   ];
 
   return (
-    <div className="dark min-h-screen bg-background text-foreground overflow-x-hidden">
+    <div className="dark min-h-screen bg-dark text-foreground overflow-x-hidden">
       {/* Base black background */}
       <div className="fixed inset-0 bg-dark z-0" />
 

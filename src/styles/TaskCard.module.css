@@ -1,7 +1,7 @@
 .card {
   width: 100%;
   border-radius: 16px;
-  background: #000000;
+  background: #121212;
   border-top: 1px solid rgba(216, 231, 242, 0.07);
   box-shadow: inset 0px 2px 1px rgba(255, 255, 255, 0.18);
   padding: 16px;
@@ -63,8 +63,9 @@
 
 .subtitle {
   font-size: 13px;
-  font-family: 'ui-monospace', 'SFMono-Regular', 'SF Mono', 'Menlo', 'Monaco', 'Consolas',
-    'Liberation Mono', 'Courier New', monospace;
+  font-family:
+    'ui-monospace', 'SFMono-Regular', 'SF Mono', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono',
+    'Courier New', monospace;
   opacity: 0.85;
   color: #e2e8f0;
   line-height: 1.5;

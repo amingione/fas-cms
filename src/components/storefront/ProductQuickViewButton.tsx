@@ -304,7 +304,7 @@ export default function ProductQuickViewButton({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`btn-plain inline-flex items-center gap-2 rounded-full border border-white/25 bg-dark/70 px-3 py-1 text-xs uppercase tracking-[0.18em] text-white/80 transition hover:border-white hover:text-white ${className}`.trim()}
+        className={`btn-plain inline-flex items-center gap-2 rounded-full border border-white/10 bg-black px-3 py-1 text-xs uppercase tracking-[0.18em] text-white/80 transition hover:border-white/10 border-t shadow-sm hover:text-white ${className}`.trim()}
         data-analytics-event="quick_view_open"
         data-analytics-category="engagement"
         data-analytics-label={product.title}
@@ -323,7 +323,7 @@ export default function ProductQuickViewButton({
                 onClick={() => setOpen(false)}
               />
 
-              <div className="btn-plain relative z-10 w-full max-w-3xl overflow-hidden rounded-2xl border border-white/15 bg-neutral-950 text-white shadow-2xl">
+              <div className="btn-plain relative z-10 w-full max-w-3xl overflow-hidden rounded-2xl border border-white/15 bg-neutral-950 text-white shadow-md">
                 <button
                   type="button"
                   onClick={() => setOpen(false)}

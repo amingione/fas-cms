@@ -154,7 +154,7 @@ export default function CartModal() {
             <div className="fixed inset-0 overflow-hidden">
               <div className="absolute inset-0 overflow-hidden">
                 <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-4 sm:pl-10">
-                  <Dialog.Panel className="pointer-events-auto w-screen max-w-md transform bg-black text-white shadow-2xl transition duration-500 ease-in-out data-closed:translate-x-full sm:duration-700">
+                  <Dialog.Panel className="pointer-events-auto w-screen max-w-md transform bg-dark text-white shadow-2xl transition duration-500 ease-in-out data-closed:translate-x-full sm:duration-700">
                     <div className="flex h-full flex-col">
                       <div className="flex items-start justify-between px-4 py-6 sm:px-6">
                         <Dialog.Title className="text-lg font-semibold">Shopping Cart</Dialog.Title>

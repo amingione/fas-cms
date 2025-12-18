@@ -63,7 +63,7 @@ function SheetContent({
   side?: 'top' | 'right' | 'bottom' | 'left';
 }) {
   const BASE =
-    'bg-background fixed z-[81] flex flex-col gap-4 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500';
+    'bg-dark fixed z-[81] flex flex-col gap-4 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500';
   const SIDE_STYLES: Record<'top' | 'right' | 'bottom' | 'left', string> = {
     right:
       'right-0 inset-y-0 h-full w-[80vw] sm:w-[20rem] border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right',

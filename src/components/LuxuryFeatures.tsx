@@ -33,7 +33,7 @@ export function LuxuryFeatures() {
       description:
         'We stand behind our work with an unmatched lifetime warranty on all custom fabricated components.',
       highlights: ['Lifetime Coverage', '24/7 Support', 'Quality Guarantee'],
-      gradient: 'from-luxury-platinum/20 to-gray-400/20',
+      gradient: 'from-luxury-platinum/20 to-gray-400/60',
       glow: 'luxury-platinum-glow'
     },
     {
@@ -84,10 +84,10 @@ export function LuxuryFeatures() {
         className={`text-center group luxury-hover-scale ${isMobile ? 'p-4' : 'p-6'} luxury-glass rounded-2xl border border-luxury-gold/20`}
       >
         <Icon
-          className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} text-primaryB mx-auto mb-2 group-hover:scale-110 transition-transform duration-300`}
+          className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} text-primary mx-auto mb-2 group-hover:scale-110 transition-transform duration-300`}
         />
         <div
-          className={`text-primaryB font-black font-cyber mb-1 ${isMobile ? 'text-lg' : 'text-3xl'}`}
+          className={`text-primary font-black font-cyber mb-1 ${isMobile ? 'text-lg' : 'text-3xl'}`}
         >
           {stat.number}
         </div>
@@ -99,10 +99,12 @@ export function LuxuryFeatures() {
   };
 
   return (
-    <section className={`relative ${isMobile ? 'py-8' : 'py-20'} asphalt-texture overflow-hidden`}>
+    <section
+      className={`relative ${isMobile ? 'py-8' : 'py-10'} asphalt-texture overflow-hidden border-rounded-lg border-black/70 shadow-box-inner shadow-outter shadow-white/20 border-rounded rounded-lg border-t `}
+    >
       {/* Enhanced Background Effects */}
       <div className="absolute inset-0 grunge-overlay"></div>
-      <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/70 to-black/90"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/20 to-bg-black/40"></div>
 
       {/* Luxury Particle Effects */}
       {!isMobile && (

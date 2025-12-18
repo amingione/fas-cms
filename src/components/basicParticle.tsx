@@ -90,7 +90,7 @@ const defaultOptions: ISourceOptions = {
       particle: { replaceCursor: false, pauseOnStop: false, stopDelay: 0 },
       light: {
         area: {
-          gradient: { start: { value: '#ffffff' }, stop: { value: '#000000' } },
+          gradient: { start: { value: '#ffffff' }, stop: { value: '#121212' } },
           radius: 1000
         },
         shadow: { color: { value: '#171717' }, length: 2000 }
@@ -279,9 +279,12 @@ const BasicParticles = ({
     if (loadedRef.current) return;
     // Respect reduced motion and small screens (skip particles)
     const prefersReduced =
-      typeof window !== 'undefined' && window.matchMedia &&
+      typeof window !== 'undefined' &&
+      window.matchMedia &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const isSmallScreen = typeof window !== 'undefined' && window.matchMedia &&
+    const isSmallScreen =
+      typeof window !== 'undefined' &&
+      window.matchMedia &&
       window.matchMedia('(max-width: 768px)').matches;
     if (prefersReduced || isSmallScreen) return;
 
@@ -289,32 +292,32 @@ const BasicParticles = ({
       if (loadedRef.current) return;
       loadedRef.current = true;
       // Dynamically import to avoid blocking main thread during initial load
-      Promise.all([
-        import('react-tsparticles'),
-        import('tsparticles-slim')
-      ]).then(async ([modParticles, modSlim]) => {
-        const Particles = (modParticles as any)?.default || (modParticles as any);
-        const loadSlim = (modSlim as any)?.loadSlim || (modSlim as any)?.default || (modSlim as any);
-        const particlesInit = async (engine: Engine) => {
-          await loadSlim(engine);
-        };
-        const particlesLoaded = async (_container?: Container) => {};
-        // Bind a tiny wrapper so we can pass init/loaded without re-creating Particles element
-        const Wrapper = (p: any) => (
-          <Particles
-            id={id}
-            className={className}
-            style={style}
-            init={particlesInit}
-            loaded={particlesLoaded}
-            options={mergedOptions}
-            {...p}
-          />
-        );
-        setParticlesComp(() => Wrapper as ComponentType<any>);
-      }).catch(() => {
-        // Fail silent; particles are purely decorative
-      });
+      Promise.all([import('react-tsparticles'), import('tsparticles-slim')])
+        .then(async ([modParticles, modSlim]) => {
+          const Particles = (modParticles as any)?.default || (modParticles as any);
+          const loadSlim =
+            (modSlim as any)?.loadSlim || (modSlim as any)?.default || (modSlim as any);
+          const particlesInit = async (engine: Engine) => {
+            await loadSlim(engine);
+          };
+          const particlesLoaded = async (_container?: Container) => {};
+          // Bind a tiny wrapper so we can pass init/loaded without re-creating Particles element
+          const Wrapper = (p: any) => (
+            <Particles
+              id={id}
+              className={className}
+              style={style}
+              init={particlesInit}
+              loaded={particlesLoaded}
+              options={mergedOptions}
+              {...p}
+            />
+          );
+          setParticlesComp(() => Wrapper as ComponentType<any>);
+        })
+        .catch(() => {
+          // Fail silent; particles are purely decorative
+        });
     };
 
     // Use requestIdleCallback where supported to defer

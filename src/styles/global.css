@@ -35,10 +35,16 @@ iframe {
 html {
   overflow-x: clip;
   background-color: var(--color-background);
+  background-image: radial-gradient(120% 120% at 50% 0%, #000000 0%, #121212 70%);
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 body {
   overflow-x: clip;
   background-color: var(--color-background);
+  background-image: radial-gradient(120% 120% at 50% 0%, #000000 0%, #121212 70%);
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 .with-header-offset {
@@ -271,7 +277,7 @@ table {
   --color-secondary: #eef2fb;
   --color-accent: #fde4b2;
   --color-graylight: #d1d0d0;
-  --color-background: #000000;
+  --color-background: #121212;
   --color-accentB: #939393;
   --color-heading: #fafafa;
   --color-heading-muted: #ededed;
@@ -287,7 +293,7 @@ table {
 
   /* System colors with brand integration */
   --font-size: 14px;
-  --background: #000000;
+  --background: #121212;
   --foreground: #d1d5db;
   --card: #1a1a1a82;
   --card-foreground: oklch(0.145 0 0);
@@ -327,14 +333,14 @@ table {
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   /* === Dark UI parallax/sections variables === */
-  --bg-dark: #161616;
+  --bg-dark: #121212;
   --shadow-glow: rgba(62, 62, 62, 0.24);
   --shadow-depth: rgba(71, 71, 71, 0.518);
 }
 
 .dark {
   --font-size: 14px;
-  --background: #000000;
+  --background: #121212;
   --foreground: #f2f2f2;
   --card: #1a1a1a82;
   --card-foreground: oklch(0.145 0 0);
@@ -374,7 +380,7 @@ table {
   --sidebar-border: oklch(92.191% 0.0001 271.152 / 0.517);
   --sidebar-ring: oklch(70.9% 0.00008 271.152 / 0.159);
   /* === Dark UI parallax/sections variables === */
-  --bg-dark: #000000;
+  --bg-dark: #121212;
   --shadow-glow: rgba(71, 71, 71, 0.375);
   --shadow-depth: rgba(111, 111, 111, 0.448);
 }
@@ -2438,7 +2444,7 @@ html {
   margin-left: 0px;
   margin-right: 0px;
   overflow: hidden;
-  background-color: #000000;
+  background-color: #121212;
   display: flex;
   align-items: center;
   justify-content: center;

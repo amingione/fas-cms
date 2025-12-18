@@ -55,9 +55,9 @@ const FeatureBlock = ({ f, isSecond }: { f: Feature; isSecond?: boolean }) => {
   return (
     <div
       className={
-        `relative grid grid-cols-1 md:grid-cols-2 items-center gap-8 md:gap-12 ` +
+        `relative grid grid-cols-1 md:grid-cols-2 items-center gap-8 md:gap-12 border-white/10` +
         (isSecond
-          ? 'mt-12 border-t border-white/10 pt-12 md:mt-0 md:border-l md:border-t-0 md:pl-12 md:pt-0'
+          ? 'mt-12 border-t border-white/10 shadow-box-inner rounded-lg shadow-white/10 shadow-outter pt-12 md:mt-0 md:border-l md:border-t-0 md:pl-12 md:pt-0'
           : 'md:pr-12')
       }
     >
@@ -90,7 +90,9 @@ const FeatureBlock = ({ f, isSecond }: { f: Feature; isSecond?: boolean }) => {
       </div>
 
       {/* Copy */}
-      <div className={`text-center ${isRight ? 'md:text-right md:order-1' : 'md:text-left md:order-2'}`}>
+      <div
+        className={`text-center ${isRight ? 'md:text-right md:order-1' : 'md:text-left md:order-2'}`}
+      >
         <div
           className={`mb-4 md:mb-6 flex justify-center ${isRight ? 'md:justify-end' : 'md:justify-start'}`}
         >
@@ -136,9 +138,9 @@ const ProductFeatureBanner: React.FC<ProductFeatureBannerProps> = ({
   return (
     <section
       className={
-        'relative isolate overflow-hidden text-white ' +
-        'bg-gradient-to-b from-black via-neutral-900 to-black ' +
-        'py-12 md:py-20 ' +
+        'relative isolate overflow-hidden text-white border-t rounded-lg shadow-box-inner shadow-outter drop-shadow-lg shadow-white/30 border-white/5' +
+        ' bg-white/15 ' +
+        'py-12 md:py-20' +
         className
       }
       aria-label="Product features"
@@ -162,11 +164,11 @@ const ProductFeatureBanner: React.FC<ProductFeatureBannerProps> = ({
       {/* Floor shadow for depth */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/70 to-transparent"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-#121212"
       />
 
       <div className="container mx-auto max-w-7xl px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 items-stretch gap-12 md:gap-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 items-stretch gap-12 py-5 px-5 md:gap-16 shadow-lg shadow-black/20 pt-8 md:pt-12 rounded-lg">
           {features.map((feature, idx) => (
             <FeatureBlock key={feature.image.src ?? idx} f={feature} isSecond={idx === 1} />
           ))}

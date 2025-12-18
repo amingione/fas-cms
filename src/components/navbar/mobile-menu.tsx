@@ -370,7 +370,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             leaveFrom="opacity-100 backdrop-blur-[.5px]"
             leaveTo="opacity-0 backdrop-blur-none"
           >
-            <div className="fixed inset-0 bg-black" aria-hidden="true" />
+            <div className="fixed inset-0 bg-dark" aria-hidden="true" />
           </Transition.Child>
           <Transition.Child
             as={Fragment}
@@ -381,7 +381,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             leaveFrom="translate-x-0"
             leaveTo="translate-x-[-100%]"
           >
-            <Dialog.Panel className="fixed bottom-0 left-0 right-0 top-0 flex h-full w-full flex-col bg-black pb-6 text-white">
+            <Dialog.Panel className="fixed bottom-0 left-0 right-0 top-0 flex h-full w-full flex-col bg-dark pb-6 text-white">
               <div className="p-4">
                 <button
                   className="mb-4 flex h-11 w-11 items-center justify-center rounded-md border border-neutral-300 text-white transition-colors hover:border-primary hover:text-primary"
