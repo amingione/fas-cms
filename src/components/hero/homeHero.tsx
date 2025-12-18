@@ -77,7 +77,7 @@ export default function HomeHero() {
           <BrandDivider className="justify-center" />
           <div className="max-w-3xl px-6 text-center flex flex-col items-center"></div>
 
-          <p className="text-2xl text-gradient text-primary platinum mt-10 font-borg text-glow pb-2 sm:text-3xl">
+          <p className="text-2xl text-white/50 platinum mt-10 font-borg pb-2 sm:text-3xl">
             Power Up Your Ride
           </p>
           <h2 className="text-4xl font-bold font-ethno italic sm:text-6xl">
