@@ -13,7 +13,7 @@ export default function OpenCart({
   return (
     <div
       className={clsx(
-        'relative flex h-11 w-11 items-center justify-center rounded-fx-md text-white transition-colors rounded-full hover:bg-white/10',
+        'relative flex h-11 w-11 items-center justify-center rounded-fx-md text-white transition-colors rounded-full hover:bg-white/5',
         className
       )}
     >
