@@ -385,7 +385,7 @@ function CartItemsList({ cart, pricing, onQuantityChange, onRemove }: CartItemsL
                         value={item.quantity || 1}
                         onChange={(event) => void handleQuantityChange(item.id, event.target.value)}
                         disabled={pendingRemove === item.id || pendingQuantity === item.id}
-                        className="rounded-md border border-white/20 bg-dark/60 px-3 py-1 text-xs text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="rounded-md border border-white/20 bg-transparent px-3 py-1 text-xs text-white/80 focus:outline-none focus:ring-2 focus:ring-primary"
                       >
                         {quantities.map((qty) => (
                           <option key={qty} value={qty}>
