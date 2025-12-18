@@ -166,11 +166,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
                   </a>
                 </li>
                 <li>
-                  <a
-                    href="/specs/BilletBearingPlate"
-                    onClick={onNavigate}
-                    className={baseLinkClass}
-                  >
+                  <a href="/specs/BearingPlate" onClick={onNavigate} className={baseLinkClass}>
                     FAS Billet Bearing Plate
                   </a>
                 </li>

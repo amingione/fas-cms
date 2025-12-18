@@ -327,7 +327,7 @@ table {
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   /* === Dark UI parallax/sections variables === */
-  --bg-dark: #1616161d;
+  --bg-dark: #161616;
   --shadow-glow: rgba(62, 62, 62, 0.24);
   --shadow-depth: rgba(71, 71, 71, 0.518);
 }
