@@ -15868,6 +15868,7 @@ __metadata:
     sharp: "npm:^0.33.5"
     solid-js: "npm:^1.9.6"
     sonner: "npm:2.0.3"
+    ssh2: "npm:^1.17.0"
     ssh2-sftp-client: "npm:^10.0.3"
     stripe: "npm:^18.4.0"
     styled-components: "npm:^6.1.17"
@@ -28565,7 +28566,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ssh2@npm:^1.15.0":
+"ssh2@npm:^1.15.0, ssh2@npm:^1.17.0":
   version: 1.17.0
   resolution: "ssh2@npm:1.17.0"
   dependencies:
