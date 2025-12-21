@@ -49,9 +49,20 @@ function extractAddOns(item: CartItem): AddOnEntry[] {
   const push = (label?: string | null, price?: number | null) => {
     const cleaned = cleanLabel(label);
     if (!cleaned) return;
+    const normalized = cleaned.toLowerCase();
+    const normalizedPrice =
+      typeof price === 'number' && Number.isFinite(price) ? price : undefined;
+    const existing = addOns.find((entry) => entry.label.toLowerCase() === normalized);
+
+    // Merge duplicate add-ons (e.g., when upgrades also show up in options) while keeping any price.
+    if (existing) {
+      if (existing.price == null && normalizedPrice !== undefined) existing.price = normalizedPrice;
+      return;
+    }
+
     addOns.push({
       label: cleaned,
-      price: typeof price === 'number' && Number.isFinite(price) ? price : undefined
+      price: normalizedPrice
     });
   };
 
