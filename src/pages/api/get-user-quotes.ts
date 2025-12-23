@@ -32,7 +32,7 @@ export const GET: APIRoute = async ({ request, url }) => {
     }
 
     const query = `*[_type == "quote" && (
-        customer->email == $email ||
+        customerRef->email == $email ||
         customerRef->email == $email ||
         billTo.email == $email
       )]

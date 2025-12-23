@@ -13,9 +13,18 @@ interface OrderPayload {
   stripeSessionId: string;
   cart: OrderCartItem[];
   totalAmount: number;
-  status: 'paid' | 'unpaid' | 'failed' | 'refunded';
+  amountSubtotal: number;
+  amountTax: number;
+  amountShipping: number;
+  amountDiscount: number;
+  status: 'pending' | 'paid' | 'unpaid' | 'failed' | 'refunded';
+  orderType: 'retail' | 'wholesale';
+  paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
   createdAt: string;
-  customer?: { _type: 'reference'; _ref: string };
+  orderNumber: string;
+  customerRef?: { _type: 'reference'; _ref: string };
+  customerEmail: string;
+  customerName: string;
 }
 
 interface SaveOrderBody {
@@ -28,7 +37,7 @@ interface SanityCustomerQueryResult {
 }
 
 const stripeClient = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-08-27.basil'
+  apiVersion: '2024-11-20'
 });
 
 
@@ -106,6 +115,23 @@ export const POST = async ({ request }: { request: Request }) => {
     const customerData: SanityCustomerQueryResult = await customerRes.json();
     const customerId = customerData.result?._id;
 
+    const amountSubtotal = stripeSession.amount_subtotal ? stripeSession.amount_subtotal / 100 : 0;
+    const amountTax =
+      typeof stripeSession.total_details?.amount_tax === 'number'
+        ? stripeSession.total_details.amount_tax / 100
+        : 0;
+    const amountShipping =
+      typeof stripeSession.total_details?.amount_shipping === 'number'
+        ? stripeSession.total_details.amount_shipping / 100
+        : 0;
+    const amountDiscount =
+      typeof stripeSession.total_details?.amount_discount === 'number'
+        ? stripeSession.total_details.amount_discount / 100
+        : 0;
+    const totalAmount = stripeSession.amount_total ? stripeSession.amount_total / 100 : 0;
+    const customerName = stripeSession.customer_details?.name || '';
+    const customerEmailValue = stripeSession.customer_details?.email || customerEmail || '';
+
     const orderPayload: OrderPayload = {
       _type: 'order',
       stripeSessionId: sessionId,
@@ -123,13 +149,22 @@ export const POST = async ({ request }: { request: Request }) => {
           metadata: item.metadata
         })
       ),
-      totalAmount: stripeSession.amount_total ? stripeSession.amount_total / 100 : 0,
-      status: 'paid',
-      createdAt: new Date().toISOString()
+      orderNumber: `FAS-${Date.now().toString().slice(-6)}`,
+      createdAt: new Date().toISOString(),
+      status: 'pending',
+      orderType: 'retail',
+      paymentStatus: 'pending',
+      amountSubtotal,
+      amountTax,
+      amountShipping,
+      amountDiscount,
+      totalAmount,
+      customerEmail: customerEmailValue,
+      customerName
     };
 
     if (customerId) {
-      orderPayload.customer = { _type: 'reference', _ref: customerId };
+      orderPayload.customerRef = { _type: 'reference', _ref: customerId };
     }
 
     const sanityRes = await fetch(`https://${projectId}.api.sanity.io/v1/data/mutate/${dataset}`, {

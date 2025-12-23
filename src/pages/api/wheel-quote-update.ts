@@ -10,7 +10,7 @@ const API_KEY = import.meta.env.FAS_DASH_API_KEY;
 const sanity = createClient({
   projectId: import.meta.env.SANITY_PROJECT_ID,
   dataset: import.meta.env.SANITY_DATASET,
-  apiVersion: '2025-09-10',
+  apiVersion: '2024-01-01',
   token: import.meta.env.SANITY_API_TOKEN,
   useCdn: false
 });

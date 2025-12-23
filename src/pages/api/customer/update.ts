@@ -28,7 +28,7 @@ export const POST: APIRoute = async ({ request }) => {
       import.meta.env.SANITY_API_TOKEN ||
       import.meta.env.VITE_SANITY_WRITE_TOKEN ||
       import.meta.env.VITE_SANITY_API_TOKEN) as string | undefined;
-    const apiVersion = (import.meta.env.SANITY_API_VERSION as string | undefined) || '2024-10-01';
+    const apiVersion = (import.meta.env.SANITY_API_VERSION as string | undefined) || '2024-01-01';
 
     if (!projectId || !dataset) {
       return new Response('Server misconfigured: missing SANITY_PROJECT_ID or SANITY_DATASET', {

@@ -40,7 +40,7 @@ const token =
   penv.VITE_SANITY_WRITE_TOKEN ||
   penv.SANITY_READ_TOKEN;
 
-const apiVersion = ime.SANITY_API_VERSION || penv.SANITY_API_VERSION || '2024-10-01';
+const apiVersion = ime.SANITY_API_VERSION || penv.SANITY_API_VERSION || '2024-01-01';
 
 if (!projectId) {
   console.warn('[sanity-client] Missing SANITY projectId. Checked SANITY_* / PUBLIC_SANITY_* / VITE_* in import.meta.env and process.env');

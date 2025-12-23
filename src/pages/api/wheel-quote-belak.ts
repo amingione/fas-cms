@@ -18,7 +18,7 @@ const sanity =
     ? createClient({
         projectId: sanityProjectId,
         dataset: sanityDataset,
-        apiVersion: '2025-09-10',
+        apiVersion: '2024-01-01',
         token: sanityToken,
         useCdn: false
       })
@@ -142,6 +142,25 @@ export const POST: APIRoute = async ({ request }) => {
           subject,
           html
         });
+
+        const quoteId = createdId || '';
+        const quoteNumber = createdId || '';
+
+        // Create email log
+        await sanity
+          ?.create({
+            _type: 'emailLog',
+            to: data.email,
+            subject: `Wheel Quote - ${quoteNumber}`,
+            status: 'sent',
+            sentAt: new Date().toISOString(),
+            emailType: 'quote',
+            relatedQuote: {
+              _type: 'reference',
+              _ref: quoteId
+            }
+          })
+          .catch((err) => console.error('Failed to log email:', err));
       } catch (err) {
         console.error('[Belak Quote] Failed to send Resend email', err);
       }

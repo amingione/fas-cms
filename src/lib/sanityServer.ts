@@ -22,8 +22,14 @@ export function getSanityServerClient(overrides: Partial<Parameters<typeof creat
     throw new Error('Sanity misconfigured: missing projectId');
   }
 
-  return createClient({ projectId, dataset, token, apiVersion: '2023-06-07', useCdn: !token, ...overrides });
+  return createClient({
+    projectId,
+    dataset,
+    token,
+    apiVersion: '2024-01-01',
+    useCdn: !token,
+    ...overrides
+  });
 }
 
 export const sanityServer = getSanityServerClient();
-

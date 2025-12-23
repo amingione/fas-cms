@@ -1,11 +1,20 @@
 import type { APIRoute } from 'astro';
 import { Resend } from 'resend';
+import { createClient } from '@sanity/client';
 
 const json = (data: any, init?: ResponseInit) =>
   new Response(JSON.stringify(data), {
     headers: { 'content-type': 'application/json' },
     ...init
   });
+
+const sanityClient = createClient({
+  projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID!,
+  dataset: import.meta.env.PUBLIC_SANITY_DATASET!,
+  token: import.meta.env.SANITY_API_TOKEN!,
+  apiVersion: '2024-01-01',
+  useCdn: false
+});
 
 async function parseBody(request: Request) {
   const ct = request.headers.get('content-type') || '';
@@ -68,6 +77,21 @@ export const POST: APIRoute = async ({ request }) => {
         subject: name ? `Contact from ${name}` : 'New website contact',
         html
       });
+
+      // Create email log
+      await sanityClient
+        .create({
+          _type: 'emailLog',
+          to: email,
+          from: 'noreply@fasmotorsports.com',
+          subject: 'Contact Form Submission',
+          status: 'sent',
+          sentAt: new Date().toISOString(),
+          emailType: 'contact_form',
+          body: message
+        })
+        .catch((err) => console.error('Failed to log email:', err));
+
       return json({ ok: true, message: 'Thanks! We\'ll get back to you shortly.' }, { status: 200 });
     } catch (err) {
       console.error('contact send failed:', err);

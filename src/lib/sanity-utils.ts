@@ -27,7 +27,7 @@ const dataset =
   (import.meta.env.PUBLIC_SANITY_DATASET as string | undefined) ||
   (import.meta.env.SANITY_DATASET as string | undefined) ||
   'production';
-const apiVersion = '2023-01-01';
+const apiVersion = '2024-01-01';
 
 const imageBuilder = projectId && dataset ? imageUrlBuilder({ projectId, dataset }) : null;
 

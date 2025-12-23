@@ -97,7 +97,7 @@ function getSanityClient() {
     penv.VITE_SANITY_DATASET ||
     'production';
 
-  const apiVersion = ime.SANITY_API_VERSION || penv.SANITY_API_VERSION || '2024-10-01';
+  const apiVersion = ime.SANITY_API_VERSION || penv.SANITY_API_VERSION || '2024-01-01';
 
   const token =
     ime.SANITY_API_TOKEN ||

@@ -6,7 +6,7 @@ import { jsonResponse } from '@/server/http/responses';
 
 const stripeSecret = process.env.STRIPE_SECRET_KEY || (import.meta as any).env?.STRIPE_SECRET_KEY;
 const stripe = stripeSecret
-  ? new Stripe(stripeSecret, { apiVersion: '2023-10-16' })
+  ? new Stripe(stripeSecret, { apiVersion: '2024-11-20' })
   : null;
 
 export const POST: APIRoute = async ({ params, request }) => {

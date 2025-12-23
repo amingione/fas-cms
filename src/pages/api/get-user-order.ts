@@ -332,207 +332,26 @@ export const GET: APIRoute = async ({ request, url }) => {
       });
     }
 
-    const query = `*[_type == "order" && (
-        customerEmail == $email ||
-        customer->email == $email ||
-        customerRef->email == $email ||
-        shippingAddress.email == $email
-      )]
-      | order(dateTime(coalesce(orderDate, createdAt, _createdAt)) desc){
+    const query = `*[_type == "order" && customerRef->email == $email]{
         _id,
         orderNumber,
-        stripeSessionId,
-        paymentIntentId,
         status,
         paymentStatus,
-        _createdAt,
-        createdAt,
-        orderDate,
-        fulfilledAt,
-        webhookNotified,
-        "total": coalesce(totalAmount, total, amountSubtotal + amountTax + amountShipping),
+        orderType,
         totalAmount,
         amountSubtotal,
         amountTax,
         amountShipping,
-        currency,
-        cardBrand,
-        cardLast4,
-        receiptUrl,
-        shippingCarrier,
-        shippingLabelUrl,
-        packingSlipUrl,
+        createdAt,
+        carrier,
+        service,
         trackingNumber,
-        selectedService{
-          carrierId,
-          carrier,
-          service,
-          serviceCode,
-          amount,
-          currency,
-          deliveryDays
-        },
+        trackingUrl,
         shippingAddress,
-        shippingLog[]{
-          _key,
-          status,
-          message,
-          labelUrl,
-          trackingUrl,
-          trackingNumber,
-          weight,
-          createdAt
-        },
-        weight{value, unit},
-        dimensions{length, width, height},
-        "cart": cart[]{
-          _key,
-          name,
-          sku,
-          quantity,
-          price,
-          productSlug,
-          productUrl,
-          href,
-          id,
-          stripeProductId,
-          stripePriceId,
-          optionSummary,
-          optionDetails,
-          upgrades,
-          metadata,
-          image,
-          imageUrl,
-          product->{
-            _id,
-            title,
-            slug,
-            image,
-            imageUrl,
-            images[]{..., asset->{url}},
-            mainImage{..., asset->{url}},
-            thumbnail{..., asset->{url}},
-            thumb{..., asset->{url}}
-          },
-          "resolvedImageUrl": coalesce(
-            imageUrl,
-            image.asset->url,
-            metadata.imageUrl,
-            metadata.imageURL,
-            metadata.image_url,
-            metadata.product_image,
-            metadata.productImage,
-            metadata.productImageUrl,
-            metadata.product_image_url,
-            metadata.product_imageUrl,
-          metadata.thumbnail,
-          metadata.thumbnailUrl,
-          metadata.thumbnail_url,
-          metadata.image,
-          metadata.image0,
-          product->imageUrl,
-          product->image.asset->url,
-          product->images[0].asset->url,
-          product->mainImage.asset->url,
-          product->thumbnail.asset->url,
-          product->thumb.asset->url
-        ),
-          "productResolvedImageUrl": coalesce(
-            product->imageUrl,
-            product->image.asset->url,
-            product->images[0].asset->url,
-            product->mainImage.asset->url,
-            product->thumbnail.asset->url,
-            product->thumb.asset->url
-          )
-        },
-        "items": cart[]{
-          _key,
-          name,
-          sku,
-          quantity,
-          price,
-          productSlug,
-          productUrl,
-          href,
-          id,
-          stripeProductId,
-          stripePriceId,
-          optionSummary,
-          optionDetails,
-          upgrades,
-          metadata,
-          image,
-          imageUrl,
-          product->{
-            _id,
-            title,
-            slug,
-            image,
-            imageUrl,
-            images[]{..., asset->{url}},
-            mainImage{..., asset->{url}},
-            thumbnail{..., asset->{url}},
-            thumb{..., asset->{url}}
-          },
-          "resolvedImageUrl": coalesce(
-            imageUrl,
-            image.asset->url,
-            metadata.imageUrl,
-            metadata.imageURL,
-            metadata.image_url,
-            metadata.product_image,
-            metadata.productImage,
-            metadata.productImageUrl,
-            metadata.product_image_url,
-            metadata.product_imageUrl,
-            metadata.thumbnail,
-            metadata.thumbnailUrl,
-            metadata.thumbnail_url,
-            metadata.image,
-            metadata.image0,
-            product->imageUrl,
-            product->image.asset->url,
-            product->images[0].asset->url,
-            product->mainImage.asset->url,
-            product->thumbnail.asset->url,
-            product->thumb.asset->url
-          ),
-          "productResolvedImageUrl": coalesce(
-            product->imageUrl,
-            product->image.asset->url,
-            product->images[0].asset->url,
-            product->mainImage.asset->url,
-            product->thumbnail.asset->url,
-            product->thumb.asset->url
-          )
-        },
-        customerRef->{
-          _id,
-          firstName,
-          lastName,
-          email,
-          phone
-        },
-        customer->{
-          _id,
-          firstName,
-          lastName,
-          email,
-          phone
-        },
-        invoiceRef->{
-          _id,
-          invoiceNumber,
-          status,
-          total,
-          amount,
-          paymentLinkUrl,
-          invoicePdfUrl,
-          receiptUrl,
-          dateIssued,
-          dueDate
-        }
+        billingAddress,
+        cart,
+        customerName,
+        customerEmail
       }`;
 
     const orders = await sanityClient.fetch(query, { email });

@@ -21,7 +21,7 @@ const token = import.meta.env.SANITY_API_TOKEN as string | undefined;
 const client = createClient({
   projectId: projectId!,
   dataset: dataset!,
-  apiVersion: '2023-01-01',
+  apiVersion: '2024-01-01',
   token,
   useCdn: false
 });
@@ -50,7 +50,7 @@ export const GET: APIRoute = async ({ request, params }) => {
       );
     }
     const order = await client.fetch(
-      `*[_type == "order" && _id == $id && customer->email == $email][0]`,
+      `*[_type == "order" && _id == $id && customerRef->email == $email][0]`,
       { id, email }
     );
     if (!order) {
@@ -86,7 +86,7 @@ export const PATCH: APIRoute = async ({ request, params }) => {
     }
 
     const existing = await client.fetch(
-      `*[_type == "order" && _id == $id && customer->email == $email][0]`,
+      `*[_type == "order" && _id == $id && customerRef->email == $email][0]`,
       { id, email }
     );
     if (!existing)

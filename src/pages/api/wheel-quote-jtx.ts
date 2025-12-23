@@ -18,7 +18,7 @@ const sanity =
     ? createClient({
         projectId: sanityProjectId,
         dataset: sanityDataset,
-        apiVersion: '2023-06-07',
+        apiVersion: '2024-01-01',
         useCdn: false,
         token: sanityToken
       })
@@ -109,6 +109,25 @@ export const POST: APIRoute = async ({ request }) => {
     if (resend) {
       try {
         await resend.emails.send({ from: FROM, to: [TO], replyTo: data.email, subject, html });
+
+        const quoteId = createdId || '';
+        const quoteNumber = createdId || '';
+
+        // Create email log
+        await sanity
+          ?.create({
+            _type: 'emailLog',
+            to: data.email,
+            subject: `Wheel Quote - ${quoteNumber}`,
+            status: 'sent',
+            sentAt: new Date().toISOString(),
+            emailType: 'quote',
+            relatedQuote: {
+              _type: 'reference',
+              _ref: quoteId
+            }
+          })
+          .catch((err) => console.error('Failed to log email:', err));
       } catch (err) {
         console.error('[JTX Quote] Failed to send Resend email', err);
       }

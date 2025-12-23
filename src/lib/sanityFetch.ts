@@ -25,7 +25,7 @@ const dataset =
 const apiVersion =
   (import.meta.env.PUBLIC_SANITY_API_VERSION as string | undefined) ||
   (import.meta.env.SANITY_API_VERSION as string | undefined) ||
-  '2023-06-07';
+  '2024-01-01';
 
 const studioUrl =
   (import.meta.env.PUBLIC_SANITY_STUDIO_URL as string | undefined) ||

@@ -14,7 +14,7 @@ if (!projectId || !dataset || !token) {
 export const sanityClient = createClient({
   projectId,
   dataset,
-  apiVersion: '2023-06-07',
+  apiVersion: '2024-01-01',
   useCdn: false,
   token
 });

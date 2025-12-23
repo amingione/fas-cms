@@ -32,7 +32,7 @@ export const GET: APIRoute = async ({ request, url }) => {
     }
 
     // Query Sanity for appointments tied to the customer's email
-    const query = `*[_type == "booking" && customer->email == $email]
+    const query = `*[_type == "booking" && customerRef->email == $email]
       | order(dateTime(coalesce(scheduledAt, createdAt, _createdAt)) desc) {
         _id,
         bookingId,

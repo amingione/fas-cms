@@ -4,7 +4,7 @@ import type { SanityDocumentStub } from '@sanity/client';
 import { createOrderCartItem, type OrderCartItem } from '@/server/sanity/order-cart';
 
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-08-27.basil'
+  apiVersion: '2024-11-20'
 });
 
 const sanity = createClient({
@@ -16,7 +16,7 @@ const sanity = createClient({
     (import.meta.env.SANITY_DATASET as string | undefined) ||
     (import.meta.env.PUBLIC_SANITY_DATASET as string | undefined) ||
     (import.meta.env.SANITY_STUDIO_DATASET as string | undefined),
-  apiVersion: '2023-06-07',
+  apiVersion: '2024-01-01',
   token: import.meta.env.SANITY_API_TOKEN,
   useCdn: false
 });
@@ -221,414 +221,569 @@ export async function POST({ request }: { request: Request }) {
   }
 
   // Handle event types
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object as Stripe.Checkout.Session;
-    const userIdFromMetadata: string | undefined = (session.metadata as any)?.userId || undefined;
-    const marketingOptIn =
-      String((session.metadata as any)?.marketing_opt_in || '')
-        .trim()
-        .toLowerCase() === 'true' ||
-      session.consent?.promotions === 'opt_in';
-    const marketingTimestamp = new Date().toISOString();
+  switch (event.type) {
+    case 'checkout.session.completed': {
+      const session = event.data.object as Stripe.Checkout.Session;
+      const sessionMetadata = (session.metadata || {}) as Record<string, string | null | undefined>;
+      const customerEmailFromMetadata: string | undefined =
+        sessionMetadata.customer_email || undefined;
+      const orderTypeFromMetadata = sessionMetadata.order_type || 'retail';
+      const marketingOptIn =
+        String(sessionMetadata.marketing_opt_in || '')
+          .trim()
+          .toLowerCase() === 'true' ||
+        session.consent?.promotions === 'opt_in';
+      const marketingTimestamp = new Date().toISOString();
 
-    console.log('✅ Payment confirmed for session:', session.id);
-    console.log('Customer Email:', session.customer_details?.email);
+      console.log('✅ Payment confirmed for session:', session.id);
+      console.log('Customer Email:', session.customer_details?.email);
 
-    try {
-      // Fetch line items to capture cart details
-      const items = await stripe.checkout.sessions.listLineItems(session.id, { limit: 100 });
-
-      // Retrieve payment intent details (brand/last4/receipt)
-      let paymentIntent: Stripe.PaymentIntent | null = null;
       try {
-        const piId =
-          typeof session.payment_intent === 'string'
-            ? session.payment_intent
-            : session.payment_intent?.id;
-        if (piId) {
-          paymentIntent = await stripe.paymentIntents.retrieve(piId, { expand: ['latest_charge'] });
-        }
-      } catch (e) {
-        console.warn('Unable to retrieve PaymentIntent for session:', session.id);
-      }
-
-      // Find or create a Customer document
-      let customerRef: { _type: 'reference'; _ref: string } | undefined;
-      let userId: string | undefined = userIdFromMetadata;
-      const email = session.customer_details?.email || session.customer_email || '';
-      if (email) {
-        const existing = await sanity.fetch(
-          `*[_type=="customer" && lower(email)==lower($email)][0]{_id,emailMarketing,marketingOptIn,emailOptIn}`,
-          { email }
-        );
-        let customerId = existing?._id as string | undefined;
-        if (!customerId) {
-          const created = await sanity.create({
-            _type: 'customer',
-            email,
-            name: session.customer_details?.name || '',
-            marketingOptIn,
-            emailOptIn: marketingOptIn,
-            emailMarketing: marketingOptIn
-              ? { subscribed: true, subscribedAt: marketingTimestamp, source: 'checkout' }
-              : { subscribed: false }
+        let sessionDetails: Stripe.Checkout.Session = session;
+        try {
+          sessionDetails = await stripe.checkout.sessions.retrieve(session.id, {
+            expand: ['line_items.data.price.product']
           });
-          customerId = created._id as string;
+        } catch (error) {
+          console.warn('[astro webhook] unable to retrieve expanded session', error);
         }
-        if (customerId) {
-          customerRef = { _type: 'reference', _ref: customerId };
+
+        // Fetch line items to capture cart details
+        const lineItems =
+          sessionDetails.line_items?.data && sessionDetails.line_items.data.length
+            ? sessionDetails.line_items.data
+            : (
+                await stripe.checkout.sessions.listLineItems(sessionDetails.id, { limit: 100 })
+              ).data;
+
+        // Retrieve payment intent details (brand/last4/receipt)
+        let paymentIntent: Stripe.PaymentIntent | null = null;
+        try {
+          const piId =
+            typeof sessionDetails.payment_intent === 'string'
+              ? sessionDetails.payment_intent
+              : sessionDetails.payment_intent?.id;
+          if (piId) {
+            paymentIntent = await stripe.paymentIntents.retrieve(piId, {
+              expand: ['latest_charge']
+            });
+          }
+        } catch (e) {
+          console.warn('Unable to retrieve PaymentIntent for session:', sessionDetails.id);
+        }
+
+        // Find or create a Customer document
+        let customerRef: { _type: 'reference'; _ref: string } | undefined;
+        const email =
+          sessionDetails.customer_details?.email ||
+          sessionDetails.customer_email ||
+          customerEmailFromMetadata ||
+          '';
+        if (email) {
+          const existing = await sanity.fetch(
+            `*[_type=="customer" && lower(email)==lower($email)][0]{_id,emailMarketing,marketingOptIn,emailOptIn}`,
+            { email }
+          );
+          let customerId = existing?._id as string | undefined;
+          if (!customerId) {
+            const created = await sanity.create({
+              _type: 'customer',
+              email,
+              name: sessionDetails.customer_details?.name || '',
+              marketingOptIn,
+              emailOptIn: marketingOptIn,
+              emailMarketing: marketingOptIn
+                ? { subscribed: true, subscribedAt: marketingTimestamp, source: 'checkout' }
+                : { subscribed: false }
+            });
+            customerId = created._id as string;
+          }
+          if (customerId) {
+            customerRef = { _type: 'reference', _ref: customerId };
+            try {
+              const patch = sanity
+                .patch(customerId)
+                .set({
+                  marketingOptIn,
+                  emailOptIn: marketingOptIn,
+                  'emailMarketing.subscribed': marketingOptIn
+                })
+                .setIfMissing({ emailMarketing: {} });
+              if (marketingOptIn) {
+                patch.set({
+                  'emailMarketing.subscribedAt': marketingTimestamp,
+                  'emailMarketing.source': 'checkout'
+                });
+              }
+              await patch.commit({ autoGenerateArrayKeys: true });
+            } catch (err) {
+              console.warn('[astro webhook] unable to persist marketing opt-in', err as any);
+            }
+          }
+        }
+
+        // Prefer cart metadata if present
+        let cartLines: OrderCartItem[] = [];
+        const metaCart =
+          (sessionDetails.metadata && (sessionDetails.metadata as any).cart_data) ||
+          (sessionDetails.metadata && (sessionDetails.metadata as any).cart) ||
+          '';
+        if (metaCart) {
           try {
-            const cust: any = await sanity.fetch(`*[_id==$id][0]{authId}`, { id: customerId });
-            if (cust?.authId) userId = String(cust.authId);
+            const parsed = JSON.parse(metaCart);
+            if (Array.isArray(parsed)) {
+              cartLines = parsed.map((l: any) => {
+                const isFull =
+                  l &&
+                  typeof l === 'object' &&
+                  ('productId' in l || 'productName' in l || 'imageUrl' in l);
+                if (isFull) {
+                  const metadata: Record<string, unknown> = {};
+                  if (l?.options != null) {
+                    if (typeof l.options === 'string') {
+                      metadata.selected_options = l.options;
+                    } else {
+                      metadata.selected_options_json = JSON.stringify(l.options);
+                    }
+                  }
+                  if (l?.upgrades != null) metadata.upgrades = l.upgrades;
+                  if (l?.imageUrl) metadata.product_image = l.imageUrl;
+                  return createOrderCartItem({
+                    id: l?.productId,
+                    sku: l?.sku,
+                    name: l?.productName,
+                    price: typeof l?.price === 'number' ? l.price : Number(l?.price || 0),
+                    quantity:
+                      typeof l?.quantity === 'number' ? l.quantity : Number(l?.quantity || 0),
+                    image: l?.imageUrl,
+                    metadata
+                  });
+                }
+                return createOrderCartItem({
+                  id: l?.i ?? l?.id,
+                  sku: l?.sku,
+                  name: l?.n || l?.name,
+                  price: typeof l?.p === 'number' ? l.p : Number(l?.p || 0),
+                  quantity: typeof l?.q === 'number' ? l.q : Number(l?.q || 0),
+                  categories: Array.isArray(l?.categories) ? l.categories : undefined,
+                  image: l?.img || l?.image,
+                  productUrl: l?.url || l?.productUrl,
+                  productSlug: l?.slug || l?.productSlug,
+                  metadata: l?.metadata && typeof l.metadata === 'object' ? l.metadata : undefined
+                });
+              });
+            }
           } catch (error) {
             void error;
           }
-
-          try {
-            const patch = sanity
-              .patch(customerId)
-              .set({
-                marketingOptIn,
-                emailOptIn: marketingOptIn,
-                'emailMarketing.subscribed': marketingOptIn
-              })
-              .setIfMissing({ emailMarketing: {} });
-            if (marketingOptIn) {
-              patch.set({
-                'emailMarketing.subscribedAt': marketingTimestamp,
-                'emailMarketing.source': 'checkout'
-              });
+        }
+        if (!cartLines.length) {
+          cartLines = lineItems.map((li) => {
+            const product = (li.price?.product as Stripe.Product) || null;
+            const productMetadata: Record<string, unknown> = product?.metadata
+              ? { ...product.metadata }
+              : {};
+            if (typeof productMetadata.options === 'string') {
+              const trimmed = productMetadata.options.trim();
+              if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+                productMetadata.selected_options_json = productMetadata.options;
+              } else {
+                productMetadata.selected_options = productMetadata.options;
+              }
             }
-            await patch.commit({ autoGenerateArrayKeys: true });
-          } catch (err) {
-            console.warn('[astro webhook] unable to persist marketing opt-in', err as any);
-          }
+            if (typeof productMetadata.upgrades === 'string') {
+              const trimmed = productMetadata.upgrades.trim();
+              if (trimmed.startsWith('[')) {
+                try {
+                  const parsedUpgrades = JSON.parse(trimmed);
+                  if (Array.isArray(parsedUpgrades)) {
+                    productMetadata.upgrades = parsedUpgrades;
+                  }
+                } catch {
+                  void 0;
+                }
+              }
+            }
+            return createOrderCartItem({
+              id:
+                (typeof productMetadata.sanity_product_id === 'string'
+                  ? productMetadata.sanity_product_id
+                  : undefined) ||
+                (typeof li.price?.product === 'string' ? li.price.product : undefined),
+              sku:
+                (typeof productMetadata.sku === 'string' ? productMetadata.sku : undefined) ||
+                (typeof li.price?.id === 'string' ? li.price.id : undefined),
+              name:
+                li.description ||
+                (typeof li.price?.nickname === 'string' ? li.price.nickname : undefined) ||
+                product?.name,
+              price:
+                typeof li.amount_subtotal === 'number'
+                  ? li.amount_subtotal / 100
+                  : typeof li.price?.unit_amount === 'number'
+                  ? li.price.unit_amount / 100
+                  : undefined,
+              quantity: li.quantity,
+              image: product?.images?.[0],
+              metadata: productMetadata
+            });
+          });
         }
-      }
 
-      // Prefer cart metadata if present
-      let cartLines: OrderCartItem[] = [];
-      const metaCart = (session.metadata && (session.metadata as any).cart) || '';
-      if (metaCart) {
-        try {
-          const parsed = JSON.parse(metaCart);
-          if (Array.isArray(parsed)) {
-            cartLines = parsed.map((l: any) =>
-              createOrderCartItem({
-                id: l?.i ?? l?.id,
-                sku: l?.sku,
-                name: l?.n || l?.name,
-                price: typeof l?.p === 'number' ? l.p : Number(l?.p || 0),
-                quantity: typeof l?.q === 'number' ? l.q : Number(l?.q || 0),
-                categories: Array.isArray(l?.categories) ? l.categories : undefined,
-                image: l?.img || l?.image,
-                productUrl: l?.url || l?.productUrl,
-                productSlug: l?.slug || l?.productSlug,
-                metadata: l?.metadata && typeof l.metadata === 'object' ? l.metadata : undefined
-              })
-            );
-          }
-        } catch (error) {
-          void error;
-        }
-      }
-      if (!cartLines.length) {
-        cartLines = (items?.data || []).map((li) =>
-          createOrderCartItem({
-            id: typeof li.price?.product === 'string' ? li.price.product : undefined,
-            sku: typeof li.price?.id === 'string' ? li.price.id : undefined,
-            name:
-              li.description ||
-              (typeof li.price?.nickname === 'string' ? li.price.nickname : undefined),
-            price:
-              typeof li.amount_subtotal === 'number'
-                ? li.amount_subtotal / 100
-                : typeof li.price?.unit_amount === 'number'
-                ? li.price.unit_amount / 100
-                : undefined,
-            quantity: li.quantity
-          })
-        );
-      }
+        const shippingSelection = parseShippingSelection(sessionDetails);
+        const shippingCarrierOption = shippingSelection
+          ? toShippingCarrierOption(shippingSelection.carrier)
+          : undefined;
 
-      const shippingSelection = parseShippingSelection(session);
-      const shippingCarrierOption = shippingSelection
-        ? toShippingCarrierOption(shippingSelection.carrier)
-        : undefined;
+        const collectedShippingDetails =
+          sessionDetails.collected_information?.shipping_details || null;
+        const shippingDetailsForEmail: Stripe.Checkout.Session.CustomerDetails | null =
+          collectedShippingDetails
+            ? {
+                address: collectedShippingDetails.address,
+                email: email || null,
+                name: collectedShippingDetails.name,
+                phone: sessionDetails.customer_details?.phone ?? null,
+                tax_exempt: sessionDetails.customer_details?.tax_exempt ?? null,
+                tax_ids: sessionDetails.customer_details?.tax_ids ?? null
+              }
+            : null;
 
-      const collectedShippingDetails = session.collected_information?.shipping_details || null;
-      const shippingDetailsForEmail: Stripe.Checkout.Session.CustomerDetails | null =
-        collectedShippingDetails
+        const shippingDetails = sessionDetails.shipping_details;
+        const customerDetails = sessionDetails.customer_details;
+        const shippingAddress = shippingDetails?.address
           ? {
-              address: collectedShippingDetails.address,
-              email: email || null,
-              name: collectedShippingDetails.name,
-              phone: session.customer_details?.phone ?? null,
-              tax_exempt: session.customer_details?.tax_exempt ?? null,
-              tax_ids: session.customer_details?.tax_ids ?? null
+              name: shippingDetails.name || '',
+              phone: customerDetails?.phone || '',
+              email: customerDetails?.email || '',
+              addressLine1: shippingDetails.address.line1 || '',
+              addressLine2: shippingDetails.address.line2 || '',
+              city: shippingDetails.address.city || '',
+              state: shippingDetails.address.state || '',
+              postalCode: shippingDetails.address.postal_code || '',
+              country: shippingDetails.address.country || ''
             }
-          : null;
+          : undefined;
+        const billingAddress = customerDetails?.address
+          ? {
+              name: customerDetails.name || '',
+              phone: customerDetails.phone || '',
+              email: customerDetails.email || '',
+              addressLine1: customerDetails.address.line1 || '',
+              addressLine2: customerDetails.address.line2 || '',
+              city: customerDetails.address.city || '',
+              state: customerDetails.address.state || '',
+              postalCode: customerDetails.address.postal_code || '',
+              country: customerDetails.address.country || ''
+            }
+          : undefined;
 
-      const orderPayload: SanityDocumentStub<OrderDocument> = {
-        _type: 'order',
-        stripeSessionId: session.id,
-        paymentIntentId:
-          typeof session.payment_intent === 'string'
-            ? session.payment_intent
-            : session.payment_intent?.id,
-        paymentStatus: paymentIntent?.status || session.payment_status || 'unknown',
-        chargeId:
-          typeof (paymentIntent as any)?.latest_charge === 'string'
-            ? (paymentIntent as any).latest_charge
-            : (paymentIntent as any)?.latest_charge?.id,
-        cardBrand:
-          (paymentIntent as any)?.charges?.data?.[0]?.payment_method_details?.card?.brand || '',
-        cardLast4:
-          (paymentIntent as any)?.charges?.data?.[0]?.payment_method_details?.card?.last4 || '',
-        receiptUrl: (paymentIntent as any)?.charges?.data?.[0]?.receipt_url || '',
-        currency: session.currency || 'usd',
-        amountSubtotal:
-          typeof session.amount_subtotal === 'number' ? session.amount_subtotal / 100 : undefined,
-        amountTax:
-          typeof session.total_details?.amount_tax === 'number'
-            ? session.total_details.amount_tax / 100
-            : undefined,
-        amountShipping:
-          typeof session.shipping_cost?.amount_total === 'number'
-            ? session.shipping_cost.amount_total / 100
-            : undefined,
-        customerEmail: email,
-        customer: customerRef,
-        userId,
-        cart: cartLines,
-        totalAmount: session.amount_total ? session.amount_total / 100 : 0, // Convert cents to dollars
-        status: 'paid',
-        createdAt: new Date().toISOString(),
-        shippingAddress: {
-          name: session.customer_details?.name || '',
-          phone: session.customer_details?.phone || '',
-          email,
-          addressLine1: session.customer_details?.address?.line1 || '',
-          addressLine2: session.customer_details?.address?.line2 || '',
-          city: session.customer_details?.address?.city || '',
-          state: session.customer_details?.address?.state || '',
-          postalCode: session.customer_details?.address?.postal_code || '',
-          country: session.customer_details?.address?.country || 'US'
-        },
-        webhookNotified: true
-      };
+        const amountSubtotal =
+          typeof sessionDetails.amount_subtotal === 'number'
+            ? sessionDetails.amount_subtotal / 100
+            : undefined;
+        const amountTax =
+          typeof sessionDetails.total_details?.amount_tax === 'number'
+            ? sessionDetails.total_details.amount_tax / 100
+            : undefined;
+        const amountShipping =
+          typeof sessionDetails.total_details?.amount_shipping === 'number'
+            ? sessionDetails.total_details.amount_shipping / 100
+            : undefined;
+        const amountDiscount =
+          typeof sessionDetails.total_details?.amount_discount === 'number'
+            ? sessionDetails.total_details.amount_discount / 100
+            : 0;
+        const totalAmount = sessionDetails.amount_total ? sessionDetails.amount_total / 100 : 0;
+        const paymentCaptured = sessionDetails.payment_status === 'paid';
+        const paymentCapturedAt = paymentCaptured ? new Date().toISOString() : undefined;
 
-      if (shippingCarrierOption) {
-        orderPayload.shippingCarrier = shippingCarrierOption;
-      }
-      if (shippingSelection?.metadata && Object.keys(shippingSelection.metadata).length) {
-        orderPayload.shippingMetadata = shippingSelection.metadata;
-      }
-      if (shippingSelection?.serviceCode) {
-        orderPayload.shippingServiceCode = shippingSelection.serviceCode;
-      }
-      if (shippingSelection?.serviceName) {
-        orderPayload.shippingServiceName = shippingSelection.serviceName;
-      }
-      if (typeof shippingSelection?.amount === 'number') {
-        orderPayload.selectedShippingAmount = shippingSelection.amount;
-      }
-      if (shippingSelection?.currency) {
-        orderPayload.selectedShippingCurrency = shippingSelection.currency;
-      }
-      if (
-        shippingSelection?.deliveryDays !== undefined &&
-        shippingSelection?.deliveryDays !== null
-      ) {
-        orderPayload.shippingDeliveryDays = shippingSelection.deliveryDays;
-      }
-      if (shippingSelection?.estimatedDeliveryDate) {
-        orderPayload.shippingEstimatedDeliveryDate = shippingSelection.estimatedDeliveryDate;
-      }
+        const orderPayload: SanityDocumentStub<OrderDocument> = {
+          _type: 'order',
+          stripeSessionId: sessionDetails.id,
+          paymentIntentId:
+            typeof sessionDetails.payment_intent === 'string'
+              ? sessionDetails.payment_intent
+              : sessionDetails.payment_intent?.id,
+          stripePaymentIntentId:
+            typeof sessionDetails.payment_intent === 'string'
+              ? sessionDetails.payment_intent
+              : sessionDetails.payment_intent?.id,
+          paymentStatus: paymentIntent?.status || sessionDetails.payment_status || 'unknown',
+          chargeId:
+            typeof (paymentIntent as any)?.latest_charge === 'string'
+              ? (paymentIntent as any).latest_charge
+              : (paymentIntent as any)?.latest_charge?.id,
+          cardBrand:
+            (paymentIntent as any)?.charges?.data?.[0]?.payment_method_details?.card?.brand || '',
+          cardLast4:
+            (paymentIntent as any)?.charges?.data?.[0]?.payment_method_details?.card?.last4 || '',
+          receiptUrl: (paymentIntent as any)?.charges?.data?.[0]?.receipt_url || '',
+          currency: sessionDetails.currency || 'usd',
+          amountSubtotal,
+          amountTax,
+          amountShipping,
+          amountDiscount,
+          totalAmount,
+          customerRef,
+          customerName: customerDetails?.name || '',
+          customerEmail: customerDetails?.email || email || '',
+          cart: cartLines,
+          status: 'paid',
+          createdAt: new Date().toISOString(),
+          orderType: orderTypeFromMetadata,
+          carrier: sessionDetails.metadata?.shipping_carrier || null,
+          service: sessionDetails.metadata?.shipping_service || null,
+          easypostRateId: sessionDetails.metadata?.easypost_rate_id || null,
+          shippingAddress,
+          billingAddress,
+          paymentCaptured,
+          paymentCapturedAt,
+          stripeSummary: {
+            data: JSON.stringify(sessionDetails),
+            amountDiscount,
+            paymentCaptured,
+            paymentCapturedAt,
+            webhookNotified: true
+          },
+          webhookNotified: true
+        };
 
-      const newOrder = await sanity.create(orderPayload);
-
-      console.log('📝 Order saved to Sanity:', newOrder._id);
-
-      if (newOrder?._id && (shippingCarrierOption || shippingSelection)) {
-        const patchData: Record<string, any> = {};
-        if (shippingCarrierOption) patchData.shippingCarrier = shippingCarrierOption;
+        if (shippingCarrierOption) {
+          orderPayload.shippingCarrier = shippingCarrierOption;
+        }
         if (shippingSelection?.metadata && Object.keys(shippingSelection.metadata).length) {
-          patchData.shippingMetadata = shippingSelection.metadata;
+          orderPayload.shippingMetadata = shippingSelection.metadata;
         }
         if (shippingSelection?.serviceCode) {
-          patchData.shippingServiceCode = shippingSelection.serviceCode;
+          orderPayload.shippingServiceCode = shippingSelection.serviceCode;
         }
         if (shippingSelection?.serviceName) {
-          patchData.shippingServiceName = shippingSelection.serviceName;
+          orderPayload.shippingServiceName = shippingSelection.serviceName;
         }
         if (typeof shippingSelection?.amount === 'number') {
-          patchData.selectedShippingAmount = shippingSelection.amount;
+          orderPayload.selectedShippingAmount = shippingSelection.amount;
         }
         if (shippingSelection?.currency) {
-          patchData.selectedShippingCurrency = shippingSelection.currency;
+          orderPayload.selectedShippingCurrency = shippingSelection.currency;
         }
         if (
           shippingSelection?.deliveryDays !== undefined &&
           shippingSelection?.deliveryDays !== null
         ) {
-          patchData.shippingDeliveryDays = shippingSelection.deliveryDays;
+          orderPayload.shippingDeliveryDays = shippingSelection.deliveryDays;
         }
         if (shippingSelection?.estimatedDeliveryDate) {
-          patchData.shippingEstimatedDeliveryDate = shippingSelection.estimatedDeliveryDate;
+          orderPayload.shippingEstimatedDeliveryDate = shippingSelection.estimatedDeliveryDate;
         }
 
-        if (Object.keys(patchData).length) {
-          await sanity
-            .patch(newOrder._id)
-            .set(patchData)
-            .commit({ autoGenerateArrayKeys: true })
-            .catch((err) =>
-              console.warn(
-                '[astro webhook] unable to persist shipping selection',
-                (err as any)?.message || err
-              )
-            );
-        }
-      }
+        const newOrder = await sanity.create(orderPayload);
 
-      // Send confirmation email via Resend if configured
-      const RESEND_API_KEY = import.meta.env.RESEND_API_KEY as string | undefined;
-      const RESEND_FROM =
-        (import.meta.env.RESEND_FROM as string | undefined) || 'noreply@fasmotorsports.com';
-      const to = session.customer_details?.email;
-      if (RESEND_API_KEY && to) {
-        const orderId = String(newOrder._id || '');
-        let sanityOrder:
-          | {
-              orderNumber?: string;
-              customerName?: string;
-              createdAt?: string;
-              amountSubtotal?: number;
-              amountTax?: number;
-              amountShipping?: number;
-              totalAmount?: number;
-            }
-          | null = null;
-        if (orderId) {
+        console.log('📝 Order saved to Sanity:', newOrder._id);
+
+        // Track attribution if UTM params exist
+        if (sessionDetails.metadata?.utm_source) {
           try {
-            sanityOrder = await sanity.fetch(
-              `*[_id==$id][0]{orderNumber,customerName,createdAt,amountSubtotal,amountTax,amountShipping,totalAmount}`,
-              { id: orderId }
-            );
-          } catch (fetchErr) {
-            console.warn(
-              '[astro webhook] unable to fetch order metadata',
-              (fetchErr as any)?.message || fetchErr
-            );
+            await sanity.create({
+              _type: 'attribution',
+              order: {
+                _type: 'reference',
+                _ref: newOrder._id
+              },
+              sessionId: sessionDetails.metadata.session_id || null,
+              utmSource: sessionDetails.metadata.utm_source || null,
+              utmMedium: sessionDetails.metadata.utm_medium || null,
+              utmCampaign: sessionDetails.metadata.utm_campaign || null,
+              utmTerm: sessionDetails.metadata.utm_term || null,
+              utmContent: sessionDetails.metadata.utm_content || null,
+              timestamp: new Date().toISOString()
+            });
+            console.log('✅ Attribution tracked for order:', newOrder._id);
+          } catch (err) {
+            console.error('Failed to track attribution:', err);
           }
         }
 
-        const sanityOrderNumber =
-          typeof sanityOrder?.orderNumber === 'string' ? sanityOrder.orderNumber.trim() : '';
-        const createdOrderNumber =
-          typeof (newOrder as any)?.orderNumber === 'string'
-            ? (newOrder as any).orderNumber.trim()
-            : '';
-        const existingOrderNumber = sanityOrderNumber || createdOrderNumber;
-        let generatedOrderNumber: string | undefined;
-        const orderNumber =
-          existingOrderNumber || generateFallbackOrderNumber(session, orderId || session.id || '');
-        if (!existingOrderNumber) {
-          generatedOrderNumber = orderNumber;
+        if (newOrder?._id && (shippingCarrierOption || shippingSelection)) {
+          const patchData: Record<string, any> = {};
+          if (shippingCarrierOption) patchData.shippingCarrier = shippingCarrierOption;
+          if (shippingSelection?.metadata && Object.keys(shippingSelection.metadata).length) {
+            patchData.shippingMetadata = shippingSelection.metadata;
+          }
+          if (shippingSelection?.serviceCode) {
+            patchData.shippingServiceCode = shippingSelection.serviceCode;
+          }
+          if (shippingSelection?.serviceName) {
+            patchData.shippingServiceName = shippingSelection.serviceName;
+          }
+          if (typeof shippingSelection?.amount === 'number') {
+            patchData.selectedShippingAmount = shippingSelection.amount;
+          }
+          if (shippingSelection?.currency) {
+            patchData.selectedShippingCurrency = shippingSelection.currency;
+          }
+          if (
+            shippingSelection?.deliveryDays !== undefined &&
+            shippingSelection?.deliveryDays !== null
+          ) {
+            patchData.shippingDeliveryDays = shippingSelection.deliveryDays;
+          }
+          if (shippingSelection?.estimatedDeliveryDate) {
+            patchData.shippingEstimatedDeliveryDate = shippingSelection.estimatedDeliveryDate;
+          }
+
+          if (Object.keys(patchData).length) {
+            await sanity
+              .patch(newOrder._id)
+              .set(patchData)
+              .commit({ autoGenerateArrayKeys: true })
+              .catch((err) =>
+                console.warn(
+                  '[astro webhook] unable to persist shipping selection',
+                  (err as any)?.message || err
+                )
+              );
+          }
         }
 
-        const orderDate = formatOrderDate(
-          sanityOrder?.createdAt || (newOrder as any)?.createdAt,
-          session.created
-        );
-        const customerName =
-          session.customer_details?.name ||
-          sanityOrder?.customerName ||
-          shippingDetailsForEmail?.name ||
-          'there';
+        // Send confirmation email via Resend if configured
+        const RESEND_API_KEY = import.meta.env.RESEND_API_KEY as string | undefined;
+        const RESEND_FROM =
+          (import.meta.env.RESEND_FROM as string | undefined) || 'noreply@fasmotorsports.com';
+        const to = sessionDetails.customer_details?.email;
+        if (RESEND_API_KEY && to) {
+          const orderId = String(newOrder._id || '');
+          let sanityOrder:
+            | {
+                orderNumber?: string;
+                customerName?: string;
+                createdAt?: string;
+                amountSubtotal?: number;
+                amountTax?: number;
+                amountShipping?: number;
+                totalAmount?: number;
+              }
+            | null = null;
+          if (orderId) {
+            try {
+              sanityOrder = await sanity.fetch(
+                `*[_id==$id][0]{orderNumber,customerName,createdAt,amountSubtotal,amountTax,amountShipping,totalAmount}`,
+                { id: orderId }
+              );
+            } catch (fetchErr) {
+              console.warn(
+                '[astro webhook] unable to fetch order metadata',
+                (fetchErr as any)?.message || fetchErr
+              );
+            }
+          }
 
-        const rows = cartLines
-          .map((line) => {
-            const quantity = line.quantity ?? 1;
-            const unit = line.price ?? 0;
-            const total = unit * quantity;
-            return `<tr>
-              <td style="padding:12px;border-bottom:1px solid #e5e7eb;">${escapeHtml(
-                line.name || 'Item'
-              )}</td>
-              <td style="padding:12px;border-bottom:1px solid #e5e7eb;text-align:center;">${quantity}</td>
-              <td style="padding:12px;border-bottom:1px solid #e5e7eb;text-align:right;">${formatCurrency(
-                total
-              )}</td>
-            </tr>`;
-          })
-          .join('');
+          const sanityOrderNumber =
+            typeof sanityOrder?.orderNumber === 'string' ? sanityOrder.orderNumber.trim() : '';
+          const createdOrderNumber =
+            typeof (newOrder as any)?.orderNumber === 'string'
+              ? (newOrder as any).orderNumber.trim()
+              : '';
+          const existingOrderNumber = sanityOrderNumber || createdOrderNumber;
+          let generatedOrderNumber: string | undefined;
+          const orderNumber =
+            existingOrderNumber ||
+            generateFallbackOrderNumber(sessionDetails, orderId || sessionDetails.id || '');
+          if (!existingOrderNumber) {
+            generatedOrderNumber = orderNumber;
+          }
 
-        const subtotal =
-          typeof session.amount_subtotal === 'number'
-            ? centsToDollars(session.amount_subtotal)
-            : dollars((newOrder as any)?.amountSubtotal ?? sanityOrder?.amountSubtotal);
-        const shippingTotal =
-          typeof session.shipping_cost?.amount_total === 'number'
-            ? centsToDollars(session.shipping_cost.amount_total)
-            : dollars((newOrder as any)?.amountShipping ?? sanityOrder?.amountShipping);
-        const taxTotal =
-          typeof session.total_details?.amount_tax === 'number'
-            ? centsToDollars(session.total_details.amount_tax)
-            : dollars((newOrder as any)?.amountTax ?? sanityOrder?.amountTax);
-        const discountTotal =
-          typeof session.total_details?.amount_discount === 'number'
-            ? centsToDollars(session.total_details.amount_discount)
-            : 0;
-        const orderTotal =
-          typeof session.amount_total === 'number'
-            ? centsToDollars(session.amount_total)
-            : dollars((newOrder as any)?.totalAmount ?? sanityOrder?.totalAmount);
+          const orderDate = formatOrderDate(
+            sanityOrder?.createdAt || (newOrder as any)?.createdAt,
+            sessionDetails.created
+          );
+          const customerName =
+            sessionDetails.customer_details?.name ||
+            sanityOrder?.customerName ||
+            shippingDetailsForEmail?.name ||
+            'there';
 
-        const summaryRows = [
-          { label: 'Subtotal', value: subtotal, emphasize: false, hideIfZero: false },
-          { label: 'Shipping', value: shippingTotal, emphasize: false, hideIfZero: true },
-          { label: 'Tax', value: taxTotal, emphasize: false, hideIfZero: true },
-          {
-            label: 'Discounts',
-            value: discountTotal > 0 ? -discountTotal : 0,
-            emphasize: false,
-            hideIfZero: discountTotal <= 0
-          },
-          { label: 'Order Total', value: orderTotal, emphasize: true, hideIfZero: false }
-        ]
-          .filter((row) => !(row.hideIfZero && Math.abs(row.value) < 0.005))
-          .map(
-            (row) => `<tr>
-              <td style="padding:6px 0;color:#4b5563;">${row.label}</td>
-              <td style="padding:6px 0;text-align:right;font-weight:${row.emphasize ? 600 : 500};color:#111827;">
-                ${row.value < 0 ? '-' : ''}${formatCurrency(Math.abs(row.value))}
-              </td>
-            </tr>`
-          )
-          .join('');
+          const rows = cartLines
+            .map((line) => {
+              const quantity = line.quantity ?? 1;
+              const unit = line.price ?? 0;
+              const total = unit * quantity;
+              return `<tr>
+                <td style="padding:12px;border-bottom:1px solid #e5e7eb;">${escapeHtml(
+                  line.name || 'Item'
+                )}</td>
+                <td style="padding:12px;border-bottom:1px solid #e5e7eb;text-align:center;">${quantity}</td>
+                <td style="padding:12px;border-bottom:1px solid #e5e7eb;text-align:right;">${formatCurrency(
+                  total
+                )}</td>
+              </tr>`;
+            })
+            .join('');
 
-        const paymentMethod = (() => {
-          const charge = (paymentIntent as any)?.charges?.data?.[0];
-          const brand = charge?.payment_method_details?.card?.brand;
-          const last4 = charge?.payment_method_details?.card?.last4;
-          if (!brand && !last4) return '';
-          return `<div style="margin-top:24px;">
-            <h3 style="font-size:16px;font-weight:600;margin:0 0 8px 0;">Payment Method</h3>
-            <div style="padding:12px;border:1px solid #e5e7eb;border-radius:8px;background:#f9fafb;">
-              <div style="margin:0;color:#111827;">${escapeHtml(
-                String(brand || 'Card')
-              ).toUpperCase()} ending in ${escapeHtml(last4 || '••••')}</div>
-            </div>
-          </div>`;
-        })();
+          const subtotal =
+            typeof sessionDetails.amount_subtotal === 'number'
+              ? centsToDollars(sessionDetails.amount_subtotal)
+              : dollars((newOrder as any)?.amountSubtotal ?? sanityOrder?.amountSubtotal);
+          const shippingTotal =
+            typeof sessionDetails.total_details?.amount_shipping === 'number'
+              ? centsToDollars(sessionDetails.total_details.amount_shipping)
+              : dollars((newOrder as any)?.amountShipping ?? sanityOrder?.amountShipping);
+          const taxTotal =
+            typeof sessionDetails.total_details?.amount_tax === 'number'
+              ? centsToDollars(sessionDetails.total_details.amount_tax)
+              : dollars((newOrder as any)?.amountTax ?? sanityOrder?.amountTax);
+          const discountTotal =
+            typeof sessionDetails.total_details?.amount_discount === 'number'
+              ? centsToDollars(sessionDetails.total_details.amount_discount)
+              : 0;
+          const orderTotal =
+            typeof sessionDetails.amount_total === 'number'
+              ? centsToDollars(sessionDetails.amount_total)
+              : dollars((newOrder as any)?.totalAmount ?? sanityOrder?.totalAmount);
 
-        const shippingBlock = buildAddressHtml(
-          shippingDetailsForEmail || session.customer_details || null
-        );
+          const summaryRows = [
+            { label: 'Subtotal', value: subtotal, emphasize: false, hideIfZero: false },
+            { label: 'Shipping', value: shippingTotal, emphasize: false, hideIfZero: true },
+            { label: 'Tax', value: taxTotal, emphasize: false, hideIfZero: true },
+            {
+              label: 'Discounts',
+              value: discountTotal > 0 ? -discountTotal : 0,
+              emphasize: false,
+              hideIfZero: discountTotal <= 0
+            },
+            { label: 'Order Total', value: orderTotal, emphasize: true, hideIfZero: false }
+          ]
+            .filter((row) => !(row.hideIfZero && Math.abs(row.value) < 0.005))
+            .map(
+              (row) => `<tr>
+                <td style="padding:6px 0;color:#4b5563;">${row.label}</td>
+                <td style="padding:6px 0;text-align:right;font-weight:${row.emphasize ? 600 : 500};color:#111827;">
+                  ${row.value < 0 ? '-' : ''}${formatCurrency(Math.abs(row.value))}
+                </td>
+              </tr>`
+            )
+            .join('');
 
-        const html = `
+          const paymentMethod = (() => {
+            const charge = (paymentIntent as any)?.charges?.data?.[0];
+            const brand = charge?.payment_method_details?.card?.brand;
+            const last4 = charge?.payment_method_details?.card?.last4;
+            if (!brand && !last4) return '';
+            return `<div style="margin-top:24px;">
+              <h3 style="font-size:16px;font-weight:600;margin:0 0 8px 0;">Payment Method</h3>
+              <div style="padding:12px;border:1px solid #e5e7eb;border-radius:8px;background:#f9fafb;">
+                <div style="margin:0;color:#111827;">${escapeHtml(
+                  String(brand || 'Card')
+                ).toUpperCase()} ending in ${escapeHtml(last4 || '••••')}</div>
+              </div>
+            </div>`;
+          })();
+
+          const shippingBlock = buildAddressHtml(
+            shippingDetailsForEmail || sessionDetails.customer_details || null
+          );
+
+          const html = `
           <div style="font-family:'Helvetica Neue',Arial,sans-serif;background-color:#f4f5f7;padding:24px;">
             <div style="max-width:640px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 12px 35px rgba(15,23,42,0.12);">
               <div style="background:#111827;padding:24px;text-align:center;">
@@ -689,6 +844,22 @@ export async function POST({ request }: { request: Request }) {
           })
         }).catch((e) => console.warn('Email send failed', e));
 
+        // Create email log
+        await sanity
+          .create({
+            _type: 'emailLog',
+            to,
+            subject: `Order Confirmation - ${orderNumber}`,
+            status: 'sent',
+            sentAt: new Date().toISOString(),
+            emailType: 'order_confirmation',
+            relatedOrder: {
+              _type: 'reference',
+              _ref: newOrder._id
+            }
+          })
+          .catch((err) => console.error('Failed to log email:', err));
+
         if (orderId) {
           const patch = sanity.patch(orderId).set({ confirmationEmailSent: true });
           if (generatedOrderNumber) {
@@ -737,6 +908,46 @@ export async function POST({ request }: { request: Request }) {
     } catch (err) {
       console.error('❌ Failed to save order to Sanity:', err);
     }
+    break;
+  }
+  case 'charge.refunded': {
+    const charge = event.data.object as Stripe.Charge;
+    const paymentIntentId =
+      typeof charge.payment_intent === 'string'
+        ? charge.payment_intent
+        : charge.payment_intent?.id;
+
+    if (!paymentIntentId) {
+      console.warn('No payment intent ID in refund charge');
+      break;
+    }
+
+    const orders = await sanity.fetch(
+      `*[_type == "order" && stripePaymentIntentId == $paymentIntentId]`,
+      { paymentIntentId }
+    );
+
+    if (orders.length === 0) {
+      console.warn('No order found for payment intent:', paymentIntentId);
+      break;
+    }
+
+    const order = orders[0];
+    await sanity
+      .patch(order._id)
+      .set({
+        status: 'refunded',
+        paymentStatus: 'refunded',
+        amountRefunded: charge.amount_refunded / 100,
+        lastRefundedAt: new Date().toISOString()
+      })
+      .commit();
+
+    console.log('✅ Order refunded:', order._id);
+    break;
+  }
+  default:
+    break;
   }
 
   return new Response('Webhook received.', { status: 200 });

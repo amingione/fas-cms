@@ -3,7 +3,7 @@ import { readSession } from '../../server/auth/session';
 import { sanity } from '../../server/sanity-client';
 import { getActivePrice, getCompareAtPrice, isOnSale } from '@/lib/saleHelpers';
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-08-27.basil'
+  apiVersion: '2024-11-20'
 });
 
 const configuredBaseUrl = import.meta.env.PUBLIC_BASE_URL || '';
@@ -488,6 +488,14 @@ export async function POST({ request }: { request: Request }) {
 
   const { cart } = body;
   const marketingOptIn = Boolean(body?.marketingOptIn);
+  const selectedCarrier = body?.selectedCarrier ?? body?.shippingCarrier ?? body?.carrier;
+  const selectedService = body?.selectedService ?? body?.shippingService ?? body?.service;
+  const selectedRateId = body?.selectedRateId ?? body?.easypostRateId ?? body?.rateId;
+  const utmSource = body?.utmSource ?? body?.utm_source;
+  const utmMedium = body?.utmMedium ?? body?.utm_medium;
+  const utmCampaign = body?.utmCampaign ?? body?.utm_campaign;
+  const utmTerm = body?.utmTerm ?? body?.utm_term;
+  const utmContent = body?.utmContent ?? body?.utm_content;
 
   if (!Array.isArray(cart) || cart.length === 0) {
     return jsonResponse({ error: 'Cart is empty or invalid' }, 400);
@@ -727,6 +735,22 @@ export async function POST({ request }: { request: Request }) {
       ...(sanityProductId ? { sanity_product_id: sanityProductId } : {}),
       ...(product?._id ? { sanity_product_id_actual: product._id } : {})
     };
+    const optionsValueRaw = item.options ?? item.selections ?? null;
+    const optionsValue =
+      optionsValueRaw == null
+        ? ''
+        : typeof optionsValueRaw === 'string'
+          ? optionsValueRaw
+          : JSON.stringify(optionsValueRaw);
+    metadata.options = clamp(optionsValue, 500);
+    const upgradesValueRaw = item.upgrades ?? item.addOns ?? null;
+    const upgradesValue =
+      upgradesValueRaw == null
+        ? '[]'
+        : typeof upgradesValueRaw === 'string'
+          ? upgradesValueRaw
+          : JSON.stringify(upgradesValueRaw);
+    metadata.upgrades = clamp(upgradesValue, 500);
     if (item?.name) metadata.product_name = clamp(String(item.name), 200);
     if (item?.productUrl) metadata.product_url = clamp(String(item.productUrl), 300);
     if (item?.image) metadata.product_image = clamp(String(item.image), 400);
@@ -772,7 +796,7 @@ export async function POST({ request }: { request: Request }) {
       }
     }
     if (upgradeValues.length) {
-      metadata.upgrades = clamp(upgradeValues.join(', '));
+      metadata.upgrades_summary = clamp(upgradeValues.join(', '));
       upgradeValues.forEach((value, idx) => {
         metadata[`upgrade_${idx + 1}`] = clamp(value, 200);
       });
@@ -853,8 +877,30 @@ export async function POST({ request }: { request: Request }) {
   // Persist compact cart metadata (Stripe metadata fields are strings and size-limited)
   let metaCart = '';
   let cartSummary = '';
+  let cartData = '';
   try {
     const summaryParts: string[] = [];
+    const fullCart = (cart as CheckoutCartItem[]).map((item) => {
+      const normalizedId = normalizeCartId(typeof item?.id === 'string' ? item.id : undefined);
+      const unitPrice =
+        typeof item?.basePrice === 'number' && Number.isFinite(item.basePrice)
+          ? item.basePrice
+          : typeof item?.price === 'number' && Number.isFinite(item.price)
+            ? item.price
+            : undefined;
+      return {
+        productId: normalizedId || undefined,
+        productName: item?.name,
+        sku: item?.sku,
+        quantity: item?.quantity,
+        price: item?.price,
+        unitPrice,
+        options: item?.options ?? item?.selections,
+        upgrades: item?.upgrades ?? item?.addOns,
+        imageUrl: item?.image
+      };
+    });
+    cartData = JSON.stringify(fullCart);
     let compact = (cart as CheckoutCartItem[]).map((i) => {
       const optionDetails = formatSelectedOptions(
         (i?.options as Record<string, unknown>) || undefined,
@@ -942,8 +988,9 @@ export async function POST({ request }: { request: Request }) {
     const customerEmail = userEmail || undefined;
 
     const baseMetadata: Record<string, string> = {
-      ...(userId ? { userId } : {}),
-      ...(userEmail ? { userEmail } : {}),
+      customer_id: userId || '',
+      customer_email: userEmail || '',
+      order_type: 'retail',
       site: baseUrl,
       marketing_opt_in: marketingOptIn ? 'true' : 'false'
     };
@@ -955,8 +1002,17 @@ export async function POST({ request }: { request: Request }) {
     const metadataForSession: Record<string, string> = {
       ...baseMetadata,
       ...attributionMetadata,
+      ...(cartData ? { cart_data: cartData } : {}),
       ...(cartSummary ? { cart_summary: cartSummary } : {}),
-      ...(metaCart ? { cart: metaCart } : {})
+      ...(metaCart ? { cart: metaCart } : {}),
+      shipping_carrier: selectedCarrier || '',
+      shipping_service: selectedService || '',
+      easypost_rate_id: selectedRateId || '',
+      utm_source: utmSource || '',
+      utm_medium: utmMedium || '',
+      utm_campaign: utmCampaign || '',
+      utm_term: utmTerm || '',
+      utm_content: utmContent || ''
     };
 
     const paymentIntentMetadata = { ...metadataForSession };
