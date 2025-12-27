@@ -2,12 +2,20 @@ import type { Handler } from '@netlify/functions';
 import { sanity } from './_sanity';
 import { requireUser } from './_auth';
 
-const ALLOWED_STATUSES = ['pending', 'unfulfilled', 'processing', 'fulfilled', 'cancelled'] as const;
+const ALLOWED_STATUSES = [
+  'pending',
+  'unfulfilled',
+  'processing',
+  'fulfilled',
+  'cancelled',
+  'refunded',
+] as const;
 type OrderStatus = (typeof ALLOWED_STATUSES)[number];
 
 const isInvalidTransition = (current: OrderStatus | undefined, next: OrderStatus) => {
   if (!current) return false;
   if (current === 'cancelled' && next !== 'cancelled') return true;
+  if (current === 'refunded' && next !== 'refunded') return true;
   if (current === 'fulfilled' && next === 'pending') return true;
   if (current === 'pending' && next === 'fulfilled') return true;
   return false;
