@@ -516,6 +516,9 @@ table {
   .flex-safe-wrap {
     flex-wrap: wrap;
   }
+  .product-title-safe {
+    @apply min-w-0 break-words leading-snug text-balance;
+  }
   /* Tailwind provides text-white/60; no custom selector with '/' to avoid PostCSS parse errors. */
 
   .bg-primary {

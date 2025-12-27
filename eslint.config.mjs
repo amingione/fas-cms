@@ -33,6 +33,22 @@ export default defineConfig([
     }
   },
   {
+    files: [
+      'src/components/storefront/ProductCardLiteReact.tsx',
+      'src/components/storefront/label.tsx'
+    ],
+    rules: {
+      'no-restricted-syntax': [
+        'warn',
+        {
+          selector:
+            "JSXOpeningElement[name.name=/^(div|p|span|h[1-6])$/] > JSXAttribute[name.name='className'][value.type='Literal'][value.value=/\\bflex\\b/][value.value=/\\btext-[^\\s]+/]:not([value.value=/\\bmin-w-0\\b/])",
+          message: 'Flex text containers should include min-w-0 to prevent truncation.'
+        }
+      ]
+    }
+  },
+  {
     ...pluginReact.configs.flat.recommended,
     settings: { react: { version: 'detect' } },
     rules: {
