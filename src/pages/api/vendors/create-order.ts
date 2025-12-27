@@ -30,10 +30,6 @@ export const POST: APIRoute = async ({ request }) => {
     return jsonResponse({ error: 'Cart is empty' }, { status: 400 }, { noIndex: true });
   }
 
-  const poNumber =
-    typeof body?.poNumber === 'string' && body.poNumber.trim() ? body.poNumber.trim() : null;
-  const notes = typeof body?.notes === 'string' && body.notes.trim() ? body.notes.trim() : null;
-
   const subtotal = cart.reduce((sum, item) => sum + (item.price ?? 0) * (item.quantity ?? 0), 0);
   const orderNumber = `WS-${Date.now()}`;
   const now = new Date().toISOString();
@@ -46,17 +42,14 @@ export const POST: APIRoute = async ({ request }) => {
     vendor?.portalAccess?.email ||
     'Wholesale Vendor';
   const vendorEmail = vendor?.portalAccess?.email || vendor?.email || null;
-  const vendorTier = String(vendor?.portalAccess?.vendorTier || 'standard');
 
   const orderDoc = {
     _type: 'order',
     orderNumber,
     orderType: 'wholesale',
-    status: 'processing',
+    status: 'paid',
     paymentStatus: 'pending',
     createdAt: now,
-    orderDate: now,
-    source: 'vendor-portal',
     customerName: vendorName,
     customerEmail: vendorEmail,
     ...(vendor?._id
@@ -68,11 +61,7 @@ export const POST: APIRoute = async ({ request }) => {
         }
       : {}),
     wholesaleDetails: {
-      vendorId: vendor?._id,
-      vendorName,
-      vendorTier,
-      poNumber,
-      notes
+      workflowStatus: 'requested'
     },
     cart: cart.map((item) => ({
       ...item,

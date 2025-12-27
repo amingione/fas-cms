@@ -44,9 +44,14 @@ export const POST: APIRoute = async ({ request }) => {
           accountFound = true;
           const passwordHash = (vendor as any).passwordHash;
           if (passwordHash && (await bcrypt.compare(password, passwordHash))) {
+            const vendorEmail =
+              (vendor as any)?.portalAccess?.email ||
+              (vendor as any)?.primaryContact?.email ||
+              (vendor as any)?.accountingContact?.email ||
+              email;
             sessionUser = {
-              id: String(vendor._id || vendor.id || vendor.email || email),
-              email: String(vendor.email || email),
+              id: String(vendor._id || vendor.id || email),
+              email: String(vendorEmail),
               roles: ['vendor']
             };
             expiresInSeconds = 60 * 60;

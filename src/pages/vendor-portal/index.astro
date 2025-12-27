@@ -83,11 +83,7 @@ if (!stats) {
                   <tr class="border-t border-white/5">
                     <td class="px-3 py-2 font-semibold">{order.orderNumber || order._id}</td>
                     <td class="px-3 py-2 text-white/70">
-                      {order.orderDate
-                        ? new Date(order.orderDate).toLocaleDateString()
-                        : order.createdAt
-                        ? new Date(order.createdAt).toLocaleDateString()
-                        : '—'}
+                      {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '—'}
                     </td>
                     <td class="px-3 py-2">
                       <span class="rounded-full bg-white/10 px-2 py-1 text-xs text-white/80">

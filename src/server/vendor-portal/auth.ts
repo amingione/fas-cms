@@ -65,7 +65,11 @@ export async function requireVendor(
   return {
     ok: true,
     vendorId: vendor._id,
-    email: vendor.email || portalAccess.email,
+    email:
+      portalAccess.email ||
+      (vendor as any)?.primaryContact?.email ||
+      (vendor as any)?.accountingContact?.email ||
+      '',
     permissions,
     vendor
   };

@@ -43,10 +43,10 @@ export const GET: APIRoute = async ({ request }) => {
       );
     }
 
-    // Prefer lookup by authId (sub), then fallback to email
+    // Prefer lookup by userId (sub), then fallback to email
     let customer = null as any;
     if (sub) {
-      customer = await sanityClient.fetch(`*[_type == "customer" && authId == $sub][0]`, { sub });
+      customer = await sanityClient.fetch(`*[_type == "customer" && userId == $sub][0]`, { sub });
     }
     if (!customer && email) {
       customer = await sanityClient.fetch(`*[_type == "customer" && email == $email][0]`, {

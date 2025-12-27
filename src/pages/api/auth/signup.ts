@@ -54,9 +54,8 @@ export const POST: APIRoute = async ({ request }) => {
     const doc = await sanity.create({
       _type: 'customer',
       email,
-      name: name || '',
+      name: name || email,
       passwordHash,
-      status: 'Active',
       roles: ['customer']
     } as any);
 

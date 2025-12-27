@@ -52,9 +52,14 @@ export const POST: APIRoute = async ({ request }) => {
       : rolesRaw
       ? [rolesRaw]
       : ['vendor'];
+    const vendorEmail =
+      portalAccess.email ||
+      (vendor as any)?.primaryContact?.email ||
+      (vendor as any)?.accountingContact?.email ||
+      normalizedEmail;
     setSession(
       headers,
-      { id: vendor._id, email: vendor.email, roles: roles.map((r: any) => String(r || '').toLowerCase()) },
+      { id: vendor._id, email: vendorEmail, roles: roles.map((r: any) => String(r || '').toLowerCase()) },
       { expiresIn: '1h' }
     );
 

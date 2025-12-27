@@ -18,11 +18,16 @@ export const GET: APIRoute = async ({ request }) => {
       );
     }
     const vendor = validation.vendor as any;
+    const vendorEmail =
+      vendor?.portalAccess?.email ||
+      vendor?.primaryContact?.email ||
+      vendor?.accountingContact?.email ||
+      '';
     return jsonResponse(
       {
         valid: true,
         vendorName: vendor.name,
-        email: vendor.email || vendor.portalAccess?.email
+        email: vendorEmail
       },
       { status: 200 },
       { noIndex: true }

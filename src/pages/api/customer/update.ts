@@ -67,23 +67,23 @@ export const POST: APIRoute = async ({ request }) => {
     } = body || {};
 
     // Basic input normalization
-    const authId = typeof sub === 'string' ? sub : '';
+    const userId = typeof sub === 'string' ? sub : '';
     const emailLc = normEmail(email);
 
-    if (!authId && !emailLc) {
+    if (!userId && !emailLc) {
       return new Response('Missing sub or email', { status: 400 });
     }
 
-    // Prefer matching by authId first, then by email (normalized)
+    // Prefer matching by userId first, then by email (normalized)
     const existing = await sanity.fetch(
-      `*[_type=="customer" && ((defined(authId) && authId==$authId) || (!defined(authId) && email==$email))][0]`,
-      { authId, email: emailLc }
+      `*[_type=="customer" && ((defined(userId) && userId==$userId) || (!defined(userId) && email==$email))][0]`,
+      { userId, email: emailLc }
     );
 
     // Build the doc fields we allow to be written
     const baseDoc: any = {
       _type: 'customer',
-      authId: authId || existing?.authId || '',
+      userId: userId || existing?.userId || '',
       email: emailLc || existing?.email || '',
       phone: phone ?? existing?.phone ?? '',
       address: address ?? existing?.address ?? '',
@@ -92,8 +92,7 @@ export const POST: APIRoute = async ({ request }) => {
       lastName: lastName ?? existing?.lastName ?? '',
       emailOptIn: !!(emailOptIn ?? existing?.emailOptIn ?? false),
       textOptIn: !!(textOptIn ?? existing?.textOptIn ?? false),
-      marketingOptIn: !!(marketingOptIn ?? existing?.marketingOptIn ?? false),
-      updatedAt: new Date().toISOString()
+      marketingOptIn: !!(marketingOptIn ?? existing?.marketingOptIn ?? false)
     };
 
     let saved;
@@ -101,7 +100,7 @@ export const POST: APIRoute = async ({ request }) => {
       if (existing?._id) {
         saved = await sanity.patch(existing._id).set(baseDoc).commit();
       } else {
-        const _id = toCustomerId(authId) || undefined; // only deterministic if we have sub
+        const _id = toCustomerId(userId) || undefined; // only deterministic if we have sub
         saved = await sanity.create({ _id, ...baseDoc });
       }
     } catch (err: any) {

@@ -46,7 +46,12 @@ export async function handleInvite(body: any, session: any, request: Request) {
 
   const portalAccess = (vendor as any).portalAccess || {};
   const enabled = portalAccess.enabled ?? false;
-  const portalEmail = String(portalAccess.email || vendor.email || '').trim();
+  const portalEmail = String(
+    portalAccess.email ||
+      (vendor as any)?.primaryContact?.email ||
+      (vendor as any)?.accountingContact?.email ||
+      ''
+  ).trim();
   if (!enabled) {
     return jsonResponse({ message: 'Portal access is disabled for this vendor.' }, { status: 400 }, { noIndex: true });
   }
@@ -129,7 +134,12 @@ export async function completeInvitation({
   const roles = Array.isArray(vendor.portalAccess?.permissions)
     ? vendor.portalAccess.permissions.map((p: any) => String(p || '').toLowerCase())
     : ['vendor'];
-  setSession(headers, { id: vendor._id, email: vendor.email, roles }, { expiresIn: '7d' });
+  const vendorEmail =
+    vendor.portalAccess?.email ||
+    (vendor as any)?.primaryContact?.email ||
+    (vendor as any)?.accountingContact?.email ||
+    '';
+  setSession(headers, { id: vendor._id, email: vendorEmail, roles }, { expiresIn: '7d' });
 
   return jsonResponse(
     {

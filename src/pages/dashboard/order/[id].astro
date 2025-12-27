@@ -104,7 +104,6 @@ try {
     paymentStatus,
     _createdAt,
     createdAt,
-    orderDate,
     fulfilledAt,
     amountSubtotal,
     amountTax,
@@ -283,8 +282,8 @@ const breadcrumbItems = [
                 </h1>
                 <p class="mt-2 text-sm text-white/60">
                   Placed{' '}
-                  <time datetime={order.orderDate || order.createdAt || order._createdAt}>
-                    {formatDate(new Date(order.orderDate || order.createdAt || order._createdAt))}
+                  <time datetime={order.createdAt || order._createdAt}>
+                    {formatDate(new Date(order.createdAt || order._createdAt))}
                   </time>
                 </p>
               </div>

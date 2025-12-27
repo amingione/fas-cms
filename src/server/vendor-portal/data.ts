@@ -2,18 +2,16 @@ import { sanity } from '@/server/sanity-client';
 
 export async function fetchVendorOrders(vendorId: string, status?: string) {
   const query = `*[_type == "order" && orderType == "wholesale" && customerRef._ref == $vendorId${status ? ' && status == $status' : ''}]
-    | order(dateTime(coalesce(orderDate, createdAt, _createdAt)) desc){
+    | order(dateTime(coalesce(createdAt, _createdAt)) desc){
       _id,
       orderNumber,
       status,
-      orderDate,
       createdAt,
       totalAmount,
       amountSubtotal,
       amountTax,
       amountShipping,
       currency,
-      wholesaleDetails,
       cart[]{
         _key,
         name,

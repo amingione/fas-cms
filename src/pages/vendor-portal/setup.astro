@@ -15,8 +15,9 @@ const vendor = await sanity.fetch(
     _id,
     name,
     companyName,
-    email,
-    portalAccess
+    portalAccess,
+    primaryContact,
+    accountingContact
   }`,
   { token } as Record<string, unknown>
 );
@@ -37,7 +38,11 @@ if (expired) {
   return Astro.redirect('/vendor-portal/login?error=expired-token');
 }
 
-const email = (vendor as any)?.portalAccess?.email || vendor.email;
+const email =
+  (vendor as any)?.portalAccess?.email ||
+  (vendor as any)?.primaryContact?.email ||
+  (vendor as any)?.accountingContact?.email ||
+  '';
 const companyName = (vendor as any)?.companyName || (vendor as any)?.name || 'Vendor';
 const title = 'Vendor Portal - Account Setup';
 ---

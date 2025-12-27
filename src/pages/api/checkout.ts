@@ -3,7 +3,7 @@ import { readSession } from '../../server/auth/session';
 import { sanity } from '../../server/sanity-client';
 import { getActivePrice, getCompareAtPrice, isOnSale } from '@/lib/saleHelpers';
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-08-27.basil'
+  apiVersion: '2024-11-20'
 });
 
 const configuredBaseUrl = import.meta.env.PUBLIC_BASE_URL || '';

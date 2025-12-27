@@ -52,7 +52,7 @@ export const hasWriteToken = Boolean(token);
 
 export async function getVendorByEmail(email: string) {
   const query =
-    '*[_type == "vendor" && (lower(email) == $e || lower(portalAccess.email) == $e)][0]';
+    '*[_type == "vendor" && (lower(portalAccess.email) == $e || lower(primaryContact.email) == $e || lower(accountingContact.email) == $e)][0]';
   return await sanity.fetch(query, { e: String(email || '').trim().toLowerCase() });
 }
 
@@ -146,7 +146,7 @@ export async function getCustomerByEmail(email: string) {
 }
 
 export async function getVendorOrdersByVendorId(vendorId: string) {
-  const query = '*[_type == "vendor" && _id == $vid][0].orders[] { orderId, status, amount, orderDate }';
+  const query = '*[_type == "vendor" && _id == $vid][0].orders[] { orderId, status, amount, createdAt }';
   return await sanity.fetch(query, { vid: vendorId });
 }
 
