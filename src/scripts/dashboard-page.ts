@@ -567,10 +567,7 @@ function renderOrdersHtml(partitions: OrderPartitions): string {
 
       const orderNumber = escapeHtml(order.orderNumber ?? rawOrderId ?? 'Order');
       const status = escapeHtml(order.status ?? '');
-      const createdDate = formatDateTime(
-        order.orderDate || order.createdAt || order._createdAt,
-        false
-      );
+      const createdDate = formatDateTime(order.createdAt || order._createdAt, false);
       const deliveredDate = formatDateTime(
         order.deliveredAt || order.completedAt || order.updatedAt,
         false
@@ -588,7 +585,7 @@ function renderOrdersHtml(partitions: OrderPartitions): string {
         {
           label: 'Date placed',
           value: createdDate ? escapeHtml(createdDate) : '—',
-          datetime: order.orderDate || order.createdAt || order._createdAt
+          datetime: order.createdAt || order._createdAt
         },
         {
           label: 'Order number',
@@ -745,7 +742,7 @@ function renderExpiredCartsHtml(expired: any[]): string {
       const previewItem = items[0] || null;
       const image = escapeHtml(resolveOrderItemImage(previewItem));
       const name = escapeHtml(previewItem?.name ?? previewItem?.title ?? 'Cart items');
-      const createdDate = formatDateTime(order?.orderDate || order?.createdAt || order?._createdAt);
+      const createdDate = formatDateTime(order?.createdAt || order?._createdAt);
       const total = formatMoney(order?.total ?? order?.totalAmount ?? order?.amountSubtotal);
       const status = escapeHtml(order?.status ?? 'expired');
       const itemCount = items.reduce((sum: number, item: any) => {

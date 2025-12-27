@@ -98,7 +98,7 @@ export async function updateCustomerPassword(customerId: string, passwordHash: s
 }
 
 export async function getVendorBySub(sub: string) {
-  const query = '*[_type == "vendor" && userSub == $sub][0]';
+  const query = '*[_type == "vendor" && portalAccess.userSub == $sub][0]';
   return await sanity.fetch(query, { sub });
 }
 

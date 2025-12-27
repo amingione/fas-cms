@@ -1,7 +1,13 @@
 import { sanity } from '@/server/sanity-client';
 
 export async function fetchVendorOrders(vendorId: string, status?: string) {
-  const query = `*[_type == "order" && orderType == "wholesale" && customerRef._ref == $vendorId${status ? ' && status == $status' : ''}]
+  const vendor = await sanity.fetch(
+    '*[_type == "vendor" && _id == $vendorId][0]{customerRef}',
+    { vendorId }
+  );
+  const customerId = vendor?.customerRef?._ref;
+  if (!customerId) return [];
+  const query = `*[_type == "order" && orderType == "wholesale" && customerRef._ref == $customerId${status ? ' && status == $status' : ''}]
     | order(dateTime(coalesce(createdAt, _createdAt)) desc){
       _id,
       orderNumber,
@@ -22,7 +28,7 @@ export async function fetchVendorOrders(vendorId: string, status?: string) {
         productRef->{_id, title, sku, "image": coalesce(images[0].asset->url, mainImage.asset->url, thumbnail.asset->url)}
       }
     }`;
-  return sanity.fetch(query, { vendorId, ...(status ? { status } : {}) });
+  return sanity.fetch(query, { customerId, ...(status ? { status } : {}) });
 }
 
 export async function fetchVendorInventory(vendorId: string) {
@@ -60,7 +66,13 @@ export async function updateVendorInventory(
 }
 
 export async function fetchVendorInvoices(vendorId: string) {
-  const query = `*[_type == "invoice" && references($vendorId)] | order(invoiceDate desc){
+  const vendor = await sanity.fetch(
+    '*[_type == "vendor" && _id == $vendorId][0]{customerRef}',
+    { vendorId }
+  );
+  const customerId = vendor?.customerRef?._ref;
+  if (!customerId) return [];
+  const query = `*[_type == "invoice" && customerRef._ref == $customerId] | order(invoiceDate desc){
     _id,
     invoiceNumber,
     status,
@@ -71,7 +83,7 @@ export async function fetchVendorInvoices(vendorId: string) {
     amountDue,
     customerRef->{companyName}
   }`;
-  return sanity.fetch(query, { vendorId });
+  return sanity.fetch(query, { customerId });
 }
 
 export async function fetchVendorPayments(vendorId: string) {

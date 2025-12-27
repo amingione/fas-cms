@@ -15,7 +15,6 @@ type Order = {
   _id: string;
   orderNumber?: string;
   status?: string;
-  orderDate?: string;
   createdAt?: string;
   cart?: LineItem[];
   amountSubtotal?: number;
@@ -38,11 +37,7 @@ const OrderDetail: React.FC<{ order: Order }> = ({ order }) => {
           <p className="text-sm text-white/60">Order</p>
           <h1 className="text-3xl font-bold text-white">#{order.orderNumber || order._id}</h1>
           <p className="text-white/60 text-sm">
-            {order.orderDate
-              ? new Date(order.orderDate).toLocaleDateString()
-              : order.createdAt
-              ? new Date(order.createdAt).toLocaleDateString()
-              : '—'}{' '}
+            {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '—'}{' '}
             • <span className="rounded-full bg-white/10 px-2 py-1 text-xs">{order.status || 'Processing'}</span>
           </p>
         </div>

@@ -38,10 +38,26 @@ export const POST: APIRoute = async ({ request }) => {
   const vendorName =
     vendor?.displayName ||
     vendor?.companyName ||
-    vendor?.name ||
     vendor?.portalAccess?.email ||
     'Wholesale Vendor';
-  const vendorEmail = vendor?.portalAccess?.email || vendor?.email || null;
+  const vendorEmail = vendor?.portalAccess?.email || null;
+
+  const customerRef = vendor?.customerRef?._ref;
+  if (!customerRef) {
+    return jsonResponse({ error: 'Vendor customer reference missing' }, { status: 400 }, { noIndex: true });
+  }
+
+  const customer = await sanity.fetch(
+    '*[_type == "customer" && _id == $id][0]{_id, name, email, roles}',
+    { id: customerRef }
+  );
+  if (!customer?._id) {
+    return jsonResponse({ error: 'Customer not found' }, { status: 404 }, { noIndex: true });
+  }
+  const roles = Array.isArray(customer.roles) ? customer.roles.map((r: any) => String(r || '').toLowerCase()) : [];
+  if (!roles.includes('vendor')) {
+    return jsonResponse({ error: 'Customer is not authorized for wholesale pricing' }, { status: 403 }, { noIndex: true });
+  }
 
   const orderDoc = {
     _type: 'order',
@@ -50,16 +66,12 @@ export const POST: APIRoute = async ({ request }) => {
     status: 'paid',
     paymentStatus: 'pending',
     createdAt: now,
-    customerName: vendorName,
-    customerEmail: vendorEmail,
-    ...(vendor?._id
-      ? {
-          customerRef: {
-            _type: 'reference',
-            _ref: vendor._id
-          }
-        }
-      : {}),
+    customerName: customer?.name || vendorName,
+    customerEmail: customer?.email || vendorEmail,
+    customerRef: {
+      _type: 'reference',
+      _ref: customer._id
+    },
     wholesaleDetails: {
       workflowStatus: 'requested'
     },

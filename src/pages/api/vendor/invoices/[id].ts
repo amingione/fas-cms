@@ -8,7 +8,15 @@ export const GET: APIRoute = async ({ params, request }) => {
   if (!ctx.ok) return ctx.response;
   const id = params.id;
   try {
-    const query = `*[_type == "invoice" && _id == $id && references($vendorId)][0]{
+    const vendor = await sanity.fetch(
+      '*[_type == "vendor" && _id == $vendorId][0]{customerRef}',
+      { vendorId: ctx.vendorId }
+    );
+    const customerId = vendor?.customerRef?._ref;
+    if (!customerId) {
+      return jsonResponse({ message: 'Vendor customer reference missing' }, { status: 404 }, { noIndex: true });
+    }
+    const query = `*[_type == "invoice" && _id == $id && customerRef._ref == $customerId][0]{
       _id,
       invoiceNumber,
       status,
@@ -30,7 +38,7 @@ export const GET: APIRoute = async ({ params, request }) => {
         method
       }
     }`;
-    const invoice = await sanity.fetch(query, { id, vendorId: ctx.vendorId });
+    const invoice = await sanity.fetch(query, { id, customerId });
     if (!invoice) return jsonResponse({ message: 'Not found' }, { status: 404 }, { noIndex: true });
     return jsonResponse({ invoice }, { status: 200 }, { noIndex: true });
   } catch (err) {

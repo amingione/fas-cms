@@ -17,7 +17,7 @@ const renderList = (orders: any[]) => {
   for (const order of orders) {
     const li = document.createElement('li');
     li.className = 'border border-gray-600 p-4 rounded-lg bg-dark/40';
-    const created = (order as any).orderDate || (order as any)._createdAt;
+    const created = (order as any).createdAt || (order as any)._createdAt;
     li.innerHTML = `
       <div><strong>Order #:</strong> ${(order as any).orderNumber ?? (order as any)._id}</div>
       <div><strong>Date:</strong> ${created ? new Date(created).toLocaleDateString() : ''}</div>

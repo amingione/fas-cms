@@ -111,6 +111,20 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
+    if (saved?._id && emailLc) {
+      try {
+        const vendor = await sanity.fetch(
+          '*[_type == "vendor" && customerRef._ref == $customerId][0]{_id}',
+          { customerId: saved._id }
+        );
+        if (vendor?._id) {
+          await sanity.patch(vendor._id).set({ 'portalAccess.email': emailLc }).commit();
+        }
+      } catch (err) {
+        console.warn('[customer/update] unable to sync vendor portal email', err);
+      }
+    }
+
     return new Response(JSON.stringify({ ok: true, id: saved._id }), {
       headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' }
     });

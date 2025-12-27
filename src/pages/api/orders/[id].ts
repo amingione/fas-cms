@@ -96,7 +96,69 @@ export const PATCH: APIRoute = async ({ request, params }) => {
       );
 
     const data = await request.json();
-    const result = await client.patch(id).set(data).commit();
+    if (!data || typeof data !== 'object') {
+      return jsonResponse({ message: 'Invalid payload' }, { status: 400, headers: { ...cors } });
+    }
+
+    const allowlist = new Set([
+      'shippingAddress',
+      'billingAddress',
+      'phone',
+      'email',
+      'notes'
+    ]);
+    const keys = Object.keys(data);
+    const invalid = keys.filter((key) => !allowlist.has(key));
+    if (invalid.length) {
+      return jsonResponse(
+        { message: 'Invalid fields', fields: invalid },
+        { status: 400, headers: { ...cors } }
+      );
+    }
+
+    const orderPatch: Record<string, unknown> = {};
+    if ('shippingAddress' in data) orderPatch.shippingAddress = data.shippingAddress;
+    if ('billingAddress' in data) orderPatch.billingAddress = data.billingAddress;
+    if ('notes' in data) orderPatch.opsInternalNotes = data.notes;
+
+    const customerPatch: Record<string, unknown> = {};
+    if ('phone' in data) customerPatch.phone = data.phone;
+    if ('email' in data) customerPatch.email = data.email;
+
+    let customerId: string | null = null;
+    let vendorId: string | null = null;
+    if (Object.keys(customerPatch).length) {
+      const order = await client.fetch(
+        '*[_type == "order" && _id == $id][0]{customerRef}',
+        { id }
+      );
+      customerId = order?.customerRef?._ref || null;
+      if (!customerId) {
+        return jsonResponse(
+          { message: 'Customer reference missing' },
+          { status: 400, headers: { ...cors } }
+        );
+      }
+      if ('email' in customerPatch) {
+        const vendor = await client.fetch(
+          '*[_type == "vendor" && customerRef._ref == $customerId][0]{_id}',
+          { customerId }
+        );
+        vendorId = vendor?._id || null;
+      }
+    }
+
+    const tx = client.transaction();
+    if (Object.keys(orderPatch).length) {
+      tx.patch(id, { set: orderPatch });
+    }
+    if (customerId) {
+      tx.patch(customerId, { set: customerPatch });
+    }
+    if (vendorId && 'email' in customerPatch) {
+      tx.patch(vendorId, { set: { 'portalAccess.email': customerPatch.email } });
+    }
+    const result = await tx.commit();
     return jsonResponse(result, { status: 200, headers: { ...cors } });
   } catch (err) {
     console.error('Error updating order:', err);

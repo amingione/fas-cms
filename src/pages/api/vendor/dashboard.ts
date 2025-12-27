@@ -8,16 +8,25 @@ export const GET: APIRoute = async ({ request }) => {
   if (!ctx.ok) return ctx.response;
 
   try {
+    const vendor = await sanity.fetch(
+      '*[_type == "vendor" && _id == $vendorId][0]{customerRef}',
+      { vendorId: ctx.vendorId }
+    );
+    const customerId = vendor?.customerRef?._ref;
+    if (!customerId) {
+      return jsonResponse({ message: 'Not found' }, { status: 404 }, { noIndex: true });
+    }
+
     const now = new Date();
     const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
 
     const statsQuery = `{
-      "ordersThisMonth": count(*[_type == "order" && orderType == "wholesale" && customerRef._ref == $vendorId && dateTime(coalesce(createdAt, _createdAt)) >= dateTime($startOfMonth)]),
-      "ordersTotal": count(*[_type == "order" && orderType == "wholesale" && customerRef._ref == $vendorId]),
-      "amounts": *[_type == "order" && orderType == "wholesale" && customerRef._ref == $vendorId]{ "amt": coalesce(totalAmount, amountSubtotal + amountTax + amountShipping, 0) }
+      "ordersThisMonth": count(*[_type == "order" && orderType == "wholesale" && customerRef._ref == $customerId && dateTime(coalesce(createdAt, _createdAt)) >= dateTime($startOfMonth)]),
+      "ordersTotal": count(*[_type == "order" && orderType == "wholesale" && customerRef._ref == $customerId]),
+      "amounts": *[_type == "order" && orderType == "wholesale" && customerRef._ref == $customerId]{ "amt": coalesce(totalAmount, amountSubtotal + amountTax + amountShipping, 0) }
     }`;
 
-    const recentOrdersQuery = `*[_type == "order" && orderType == "wholesale" && customerRef._ref == $vendorId] | order(dateTime(coalesce(createdAt, _createdAt)) desc)[0...5]{
+    const recentOrdersQuery = `*[_type == "order" && orderType == "wholesale" && customerRef._ref == $customerId] | order(dateTime(coalesce(createdAt, _createdAt)) desc)[0...5]{
       _id,
       orderNumber,
       status,
@@ -29,8 +38,8 @@ export const GET: APIRoute = async ({ request }) => {
       currency
     }`;
 
-    const stats = await sanity.fetch(statsQuery, { vendorId: ctx.vendorId, startOfMonth });
-    const recentOrders = await sanity.fetch(recentOrdersQuery, { vendorId: ctx.vendorId });
+    const stats = await sanity.fetch(statsQuery, { customerId, startOfMonth });
+    const recentOrders = await sanity.fetch(recentOrdersQuery, { customerId });
 
     return jsonResponse(
       {

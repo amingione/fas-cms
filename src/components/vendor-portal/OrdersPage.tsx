@@ -13,7 +13,6 @@ type Order = {
   _id: string;
   orderNumber?: string;
   status?: string;
-  orderDate?: string;
   createdAt?: string;
   totalAmount?: number;
   amountSubtotal?: number;
@@ -129,11 +128,7 @@ const OrdersPage: React.FC = () => {
                   <tr className="border-t border-white/5">
                     <td className="px-4 py-3 font-semibold">{order.orderNumber || order._id}</td>
                     <td className="px-4 py-3 text-white/70">
-                      {order.orderDate
-                        ? new Date(order.orderDate).toLocaleDateString()
-                        : order.createdAt
-                        ? new Date(order.createdAt).toLocaleDateString()
-                        : '—'}
+                      {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '—'}
                     </td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-1 rounded-full text-xs ${badge}`}>
