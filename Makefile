@@ -82,3 +82,81 @@ fast-path:
 	@echo ""
 	@echo "✔ Fast path complete."
 	@echo "If this was not truly trivial, you MUST rerun the governance flow."
+
+	# =========================================================
+# Gemini Audit — Checkout Discounts & Coupons
+# =========================================================
+
+.PHONY: gemini-checkout-discounts-audit
+
+gemini-checkout-discounts-audit:
+	@mkdir -p docs/prompts docs/reports
+	@echo "🔍 GEMINI AUDIT: Checkout Discounts & Coupons"
+	@echo ""
+	@echo "Scope:"
+	@echo " - Checkout UI"
+	@echo " - Cart UI"
+	@echo " - Stripe Checkout session creation"
+	@echo " - Discount / coupon handling"
+	@echo ""
+	@echo "Output:"
+	@echo " - docs/reports/checkout-discounts-audit.md"
+	@echo ""
+	@echo "Run Gemini using the generated prompt."
+	@read -p "Press ENTER once Gemini audit is complete and saved..."
+
+# =========================================================
+# Codex Audit — Promotion GROQ Execution Path
+# =========================================================
+
+.PHONY: codex-promotion-groq-execution-audit
+
+codex-promotion-groq-execution-audit:
+	@mkdir -p docs/prompts
+	@echo "🔍 CODEX AUDIT: Promotion GROQ Execution Path"
+	@echo "Writing prompt to docs/prompts/codex-promotion-groq-execution-audit.txt"
+
+	@printf "%s\n" \
+	"AUDIT TASK — READ ONLY" \
+	"" \
+	"Repository: fas-cms-fresh" \
+	"" \
+	"Objective:" \
+	"Identify the source of the GROQ parse error thrown when applying a promotion code," \
+	"given that promotions.ts already uses valid _ref projections." \
+	"" \
+	"Scope:" \
+	"- DO NOT modify any files" \
+	"- DO NOT propose fixes yet" \
+	"- ONLY identify the source of the invalid GROQ query" \
+	"" \
+	"Instructions:" \
+	"1. Trace the execution path for POST /api/promotions/apply" \
+	"2. Identify every GROQ query executed in this path" \
+	"3. Locate any query that:" \
+	"   - uses invalid projection syntax" \
+	"   - is dynamically constructed" \
+	"   - differs from promotions.ts" \
+	"4. Determine whether:" \
+	"   - an alternate query is used for eligibility checks" \
+	"   - a conditional fragment is appended at runtime" \
+	"   - cached or duplicated logic exists" \
+	"" \
+	"Output:" \
+	"Write a report to:" \
+	"docs/reports/promotion-groq-execution-audit.md" \
+	"" \
+	"The report must include:" \
+	"- File path(s)" \
+	"- Exact GROQ string(s)" \
+	"- Which query is executed at runtime" \
+	"- Why the parse error still occurs" \
+	"- Confirmation of whether promotions.ts is actually the query being used" \
+	"" \
+	"STOP AFTER AUDIT." \
+	> docs/prompts/codex-promotion-groq-execution-audit.txt
+
+	@echo ""
+	@echo "NEXT STEP:"
+	@echo "  codex"
+	@echo "  (paste docs/prompts/codex-promotion-groq-execution-audit.txt)"

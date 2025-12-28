@@ -20,15 +20,7 @@ gemini-%-audit:
 	@echo "CONTRACT SOURCE OF TRUTH:"
 	@echo "  (none yet — audit stage)"
 	@echo ""
-	$(call CODEX_WRITE_PROMPT,TASK: Perform a READ-ONLY audit for issue '$*'.
-
-Rules:
-- Inspect runtime boundaries, assumptions, and risks.
-- Do NOT modify any files.
-- Do NOT propose fixes yet.
-
-OUTPUT FILE:
-docs/reports/$*-audit.md)
+	$(call CODEX_WRITE_PROMPT,TASK: Perform a READ-ONLY audit for issue '$*'.\n\nRules:\n- Inspect runtime boundaries, assumptions, and risks.\n- Do NOT modify any files.\n- Do NOT propose fixes yet.\n\nOUTPUT FILE:\ndocs/reports/$*-audit.md)
 	@echo ""
 	@echo "NEXT STEP:"
 	@echo "1. Run: codex"
@@ -55,18 +47,7 @@ claude-%-decide:
 	@echo "  docs/reports/$*-audit.md"
 	@echo ""
 	@test -f docs/reports/$*-audit.md || (echo "❌ Missing audit file: docs/reports/$*-audit.md"; exit 1)
-	$(call CODEX_WRITE_PROMPT,TASK: Convert the audit into an AUTHORITATIVE CONTRACT.
-
-INPUT:
-docs/reports/$*-audit.md
-
-Rules:
-- This file defines what Codex is allowed to implement.
-- Be explicit and conservative.
-- Do NOT implement code.
-
-OUTPUT FILE:
-docs/reports/$*-contract-decisions.md)
+	$(call CODEX_WRITE_PROMPT,TASK: Convert the audit into an AUTHORITATIVE CONTRACT.\n\nINPUT:\ndocs/reports/$*-audit.md\n\nRules:\n- This file defines what Codex is allowed to implement.\n- Be explicit and conservative.\n- Do NOT implement code.\n\nOUTPUT FILE:\ndocs/reports/$*-contract-decisions.md)
 	@echo ""
 	@echo "NEXT STEP:"
 	@echo "1. Run: codex"
@@ -94,13 +75,7 @@ codex-%-enforce:
 	@echo "  docs/reports/$*-contract-decisions.md"
 	@echo ""
 	@test -f docs/reports/$*-contract-decisions.md || (echo "❌ Missing contract file: docs/reports/$*-contract-decisions.md"; exit 1)
-	$(call CODEX_WRITE_PROMPT,Apply ONLY the approved changes in:
-docs/reports/$*-contract-decisions.md
-
-CRITICAL RULES:
-- Do NOT exceed the contract.
-- Do NOT modify unapproved files.
-- If no changes are required, state so explicitly.)
+	$(call CODEX_WRITE_PROMPT,Apply ONLY the approved changes in:\ndocs/reports/$*-contract-decisions.md\n\nCRITICAL RULES:\n- Do NOT exceed the contract.\n- Do NOT modify unapproved files.\n- If no changes are required, state so explicitly.)
 	@echo ""
 	@echo "NEXT STEP:"
 	@echo "1. Run: codex"

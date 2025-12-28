@@ -924,6 +924,7 @@ export async function POST({ request }: { request: Request }) {
       automatic_tax: { enabled: true },
       billing_address_collection: 'required',
       phone_number_collection: { enabled: true },
+      allow_promotion_codes: true,
       shipping_address_collection: shippingAddressCollection,
       success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/cart`,

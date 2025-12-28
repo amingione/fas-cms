@@ -1,0 +1,103 @@
+TASK: Audit why checkout on facemotorsports.com does not allow entering or applying
+discounts / coupon codes, and identify all missing or incomplete discount-related
+features in the checkout flow.
+
+THIS IS A READ-ONLY AUDIT.
+DO NOT propose code changes yet.
+
+--------------------------------------------------
+SCOPE (fas-cms-fresh)
+--------------------------------------------------
+
+Frontend:
+- Cart UI (cart drawer / cart page)
+- Checkout entry point
+- Any coupon / promo UI (or lack thereof)
+
+Backend:
+- Stripe Checkout session creation
+- Metadata passed to Stripe
+- Promotion / coupon validation logic
+- Sanity promotion / discount data usage (if any)
+
+Integrations:
+- Stripe Coupons
+- Stripe Promotion Codes
+- Sanity promotion documents
+- Customer-level discounts (if applicable)
+
+--------------------------------------------------
+FILES TO INSPECT
+--------------------------------------------------
+
+Search broadly for:
+- checkout
+- cart
+- discount
+- coupon
+- promotion
+- promo
+- stripe.checkout.sessions.create
+
+Likely locations include (but are not limited to):
+- src/pages/api/checkout.ts
+- src/pages/api/cart/*
+- src/components/cart/*
+- src/components/checkout/*
+- src/lib/stripe*
+- src/lib/cart*
+- src/lib/promotions*
+- src/lib/discount*
+
+--------------------------------------------------
+QUESTIONS TO ANSWER (REQUIRED)
+--------------------------------------------------
+
+1. Is there any UI for entering a coupon or promo code?
+   - If not, where should it logically exist?
+
+2. Does the Stripe Checkout session support:
+   - discounts[]
+   - promotion_code
+   - allow_promotion_codes
+
+3. Are Stripe coupons or promotion codes:
+   - fetched?
+   - validated?
+   - passed to Stripe?
+
+4. Is there any existing Sanity promotion / discount model that is:
+   - unused?
+   - partially implemented?
+   - mismatched with checkout expectations?
+
+5. Are customer-level discounts (military, wholesale, etc.)
+   intended but not surfaced at checkout?
+
+6. Are discounts applied:
+   - before checkout?
+   - during checkout?
+   - after checkout only?
+
+7. What is missing vs what is intentionally out of scope?
+
+--------------------------------------------------
+DELIVERABLE
+--------------------------------------------------
+
+Write a report to:
+
+docs/reports/checkout-discounts-audit.md
+
+The report MUST include:
+
+- A clear explanation of why coupons cannot be entered today
+- A list of missing features (UI + backend)
+- Any dead or partial discount code paths
+- A recommended FIX SEQUENCE (NOT implementation)
+  ordered by dependency:
+    UI → API → Stripe → Sanity
+
+DO NOT WRITE CODE.
+DO NOT SUGGEST PATCHES.
+DO NOT ASSUME BUSINESS RULES.
