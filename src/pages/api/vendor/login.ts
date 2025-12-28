@@ -32,8 +32,8 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const vendor = await getVendorByEmail(normalizedEmail);
-    const portalAccess = (vendor as any).portalAccess || {};
-    const status = String((vendor as any).status || '').toLowerCase();
+    const portalAccess = vendor?.portalAccess || {};
+    const status = String(vendor?.status || '').toLowerCase();
     const portalEnabled = portalAccess.enabled === true;
     const blockedStatuses = new Set(['suspended', 'inactive', 'on_hold']);
     if (!vendor || !portalEnabled || blockedStatuses.has(status)) {
