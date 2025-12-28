@@ -87,7 +87,7 @@ export function SearchBar({
     'pl-12 bg-gray-800/50 border-gray-600/50 text-white placeholder-graylight focus:border-primary focus:ring-primary/20 font-kwajong';
   const sizeCls = size === 'compact' ? 'h-10 text-sm' : 'h-12 text-base';
   const baseStorefront =
-    'pl-12 bg-black/60 border-white/20 text-white placeholder-white/70 focus:border-primary focus:ring-primary/20 font-kwajong rounded-fx-md';
+    'pl-12 bg-[#1a1a1a]/60 border-white/20 text-white placeholder-white/70 focus:border-primary focus:ring-primary/20 font-kwajong rounded-fx-md';
   const inputClasses = cn(variant === 'storefront' ? baseStorefront : baseDefault, sizeCls);
 
   // If suggestions are disabled (e.g., header on /shop), immediately close/clear

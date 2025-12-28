@@ -220,6 +220,70 @@ codex-expired-orders-enforce:
 	@echo "Next: make verify-enforcement"
 
 # =========================================================
+# Codex Enforcement — codex-only-bootstrap
+# =========================================================
+
+.PHONY: codex-codex-only-bootstrap-enforce
+
+codex-codex-only-bootstrap-enforce:
+	@echo "🤖 CODEX ENFORCEMENT: codex-only-bootstrap"
+	@echo ""
+	@echo "CONTRACT SOURCE OF TRUTH:"
+	@echo "  docs/reports/codex-only-bootstrap-contract-decisions.md"
+	@echo ""
+	@echo "▶ Running Codex (non-interactive)"
+
+	@printf "%s\n" \
+	"Apply ONLY the approved changes in:" \
+	"docs/reports/codex-only-bootstrap-contract-decisions.md" \
+	"" \
+	"CRITICAL RULES:" \
+	"- Do NOT exceed the contract." \
+	"- Do NOT modify unapproved files." \
+	"- If no changes are required, state so explicitly." \
+	| codex || true
+
+	@echo ""
+	@echo "✔ Codex enforcement finished (codex-only-bootstrap)."
+
+# =========================================================
+# Codex Enforcement — fas-cms Runtime Validation
+# =========================================================
+
+.PHONY: codex-fas-cms-runtime-validation-enforce
+
+codex-fas-cms-runtime-validation-enforce:
+	@echo "🤖 CODEX ENFORCEMENT: fas-cms Runtime Validation"
+	@echo ""
+	@echo "CONTRACT SOURCE OF TRUTH:"
+	@echo "  docs/reports/fas-cms-runtime-validation-contract-decisions.md"
+	@echo ""
+	@read -p "Press ENTER to auto-run Codex enforcement..."
+
+	@echo "▶ Writing Codex prompt to .codex_prompt.tmp"
+	@printf "%s\n" \
+	"Apply ONLY the approved changes in:" \
+	"docs/reports/fas-cms-runtime-validation-contract-decisions.md" \
+	"" \
+	"CRITICAL RULES:" \
+	"- Add runtime validation ONLY at approved boundaries." \
+	"- Use Zod.safeParse(), never parse()." \
+	"- Do NOT modify Sanity schemas." \
+	"- Do NOT change business logic beyond validation." \
+	"- Do NOT add new dependencies." \
+	"- If no changes are required, state so explicitly." \
+	> .codex_prompt.tmp
+
+	@echo "▶ Running Codex (non-interactive)"
+	@codex "$$(cat .codex_prompt.tmp)" || true
+
+	@rm -f .codex_prompt.tmp
+
+	@echo ""
+	@echo "✔ Codex runtime validation enforcement finished."
+	@echo "Next: make verify-enforcement"
+
+# =========================================================
 # Post-Enforcement Verification — Gemini
 # =========================================================
 

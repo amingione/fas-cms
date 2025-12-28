@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { requireVendor } from '@/server/vendor-portal/auth';
 import { sanity } from '@/server/sanity-client';
 import { jsonResponse } from '@/server/http/responses';
+import { vendorReturnCreateSchema } from '@/lib/validators/api-requests';
 
 export const GET: APIRoute = async ({ request }) => {
   const ctx = await requireVendor(request);
@@ -30,7 +31,22 @@ export const POST: APIRoute = async ({ request }) => {
   const ctx = await requireVendor(request);
   if (!ctx.ok) return ctx.response;
   try {
-    const body = await request.json();
+    const bodyResult = vendorReturnCreateSchema.safeParse(await request.json());
+    if (!bodyResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'vendorReturnCreateSchema',
+        context: 'api/vendor/returns',
+        identifier: ctx.vendorId || 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: bodyResult.error.format()
+      });
+      return jsonResponse(
+        { error: 'Validation failed', details: bodyResult.error.format() },
+        { status: 422 },
+        { noIndex: true }
+      );
+    }
+    const body = bodyResult.data;
     const rmaNumber = `RMA-${Date.now()}`;
     const doc = await sanity.create({
       _type: 'vendorReturn',

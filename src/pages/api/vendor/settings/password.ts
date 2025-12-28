@@ -3,15 +3,28 @@ import bcrypt from 'bcryptjs';
 import { requireVendor } from '@/server/vendor-portal/auth';
 import { getVendorById, updateVendorPassword } from '@/server/sanity-client';
 import { jsonResponse } from '@/server/http/responses';
+import { vendorSettingsPasswordSchema } from '@/lib/validators/api-requests';
 
 export const PUT: APIRoute = async ({ request }) => {
   const ctx = await requireVendor(request);
   if (!ctx.ok) return ctx.response;
   try {
-    const { currentPassword, newPassword } = await request.json();
-    if (!currentPassword || !newPassword) {
-      return jsonResponse({ message: 'Missing password fields' }, { status: 400 }, { noIndex: true });
+    const bodyResult = vendorSettingsPasswordSchema.safeParse(await request.json());
+    if (!bodyResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'vendorSettingsPasswordSchema',
+        context: 'api/vendor/settings/password',
+        identifier: ctx.vendorId || 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: bodyResult.error.format()
+      });
+      return jsonResponse(
+        { error: 'Validation failed', details: bodyResult.error.format() },
+        { status: 422 },
+        { noIndex: true }
+      );
     }
+    const { currentPassword, newPassword } = bodyResult.data;
 
     const vendor = await getVendorById(ctx.vendorId);
     const portalAccess = (vendor as any)?.portalAccess || {};

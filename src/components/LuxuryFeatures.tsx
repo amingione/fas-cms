@@ -104,7 +104,7 @@ export function LuxuryFeatures() {
     >
       {/* Enhanced Background Effects */}
       <div className="absolute inset-0 grunge-overlay"></div>
-      <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/20 to-bg-black/40"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/20 to-bg-[#1a1a1a]/40"></div>
 
       {/* Luxury Particle Effects */}
       {!isMobile && (

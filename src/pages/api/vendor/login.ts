@@ -4,16 +4,26 @@ import { getVendorByEmail, updateVendorLastLogin } from '../../../server/sanity-
 import { setSession } from '../../../server/auth/session';
 import { jsonResponse } from '@/server/http/responses';
 import { rateLimit } from '@/server/vendor-portal/rateLimit';
+import { vendorLoginSchema } from '@/lib/validators/api-requests';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const { email, password } = await request.json();
-    const normalizedEmail = String(email || '').trim().toLowerCase();
-    const passwordInput = String(password || '');
-
-    if (!normalizedEmail || !passwordInput) {
-      return jsonResponse({ message: 'Missing email or password' }, { status: 400 });
+    const bodyResult = vendorLoginSchema.safeParse(await request.json());
+    if (!bodyResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'vendorLoginSchema',
+        context: 'api/vendor/login',
+        identifier: 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: bodyResult.error.format()
+      });
+      return jsonResponse(
+        { error: 'Validation failed', details: bodyResult.error.format() },
+        { status: 422 }
+      );
     }
+    const normalizedEmail = String(bodyResult.data.email || '').trim().toLowerCase();
+    const passwordInput = String(bodyResult.data.password || '');
 
     const ip = request.headers.get('x-forwarded-for') || request.headers.get('cf-connecting-ip') || 'unknown';
     const rl = rateLimit(`vendor-login:${ip}`, { limit: 5, windowMs: 15 * 60 * 1000 });

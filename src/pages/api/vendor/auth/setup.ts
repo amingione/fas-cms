@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { sanity, findVendorAuthTokenByHash, markVendorAuthTokenUsed } from '@/server/sanity-client';
 import { jsonResponse } from '@/server/http/responses';
 import { hashRawToken } from '@/server/vendor-portal/tokens';
+import { vendorAuthSetupSchema } from '@/lib/validators/api-requests';
 
 async function getVendorForToken(token: string) {
   const now = new Date().toISOString();
@@ -22,9 +23,23 @@ async function getVendorForToken(token: string) {
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const body = await request.json();
-    const rawToken = String(body?.token || '').trim();
-    const rawPassword = String(body?.password || '');
+    const bodyResult = vendorAuthSetupSchema.safeParse(await request.json());
+    if (!bodyResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'vendorAuthSetupSchema',
+        context: 'api/vendor/auth/setup',
+        identifier: 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: bodyResult.error.format()
+      });
+      return jsonResponse(
+        { error: 'Validation failed', details: bodyResult.error.format() },
+        { status: 422 },
+        { noIndex: true }
+      );
+    }
+    const rawToken = String(bodyResult.data.token || '').trim();
+    const rawPassword = String(bodyResult.data.password || '');
 
     if (!rawToken) {
       return jsonResponse({ message: 'Missing token' }, { status: 400 }, { noIndex: true });
@@ -37,7 +52,7 @@ export const POST: APIRoute = async ({ request }) => {
     if (!vendor?._id) {
       return jsonResponse({ message: 'Invalid or expired token' }, { status: 400 }, { noIndex: true });
     }
-    if (body?.vendorId && body.vendorId !== vendor._id) {
+    if (bodyResult.data?.vendorId && bodyResult.data.vendorId !== vendor._id) {
       return jsonResponse({ message: 'Token does not match vendor' }, { status: 400 }, { noIndex: true });
     }
 

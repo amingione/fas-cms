@@ -27,7 +27,21 @@ const sanity =
 export const POST: APIRoute = async ({ request }) => {
   try {
     const json = await request.json();
-    const data = jtxWheelQuoteSchema.parse(json);
+    const dataResult = jtxWheelQuoteSchema.safeParse(json);
+    if (!dataResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'jtxWheelQuoteSchema',
+        context: 'api/wheel-quote-jtx',
+        identifier: 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: dataResult.error.format()
+      });
+      return new Response(
+        JSON.stringify({ error: 'Validation failed', details: dataResult.error.format() }),
+        { status: 422 }
+      );
+    }
+    const data = dataResult.data;
 
     const doc = {
       _type: 'wheelQuote',

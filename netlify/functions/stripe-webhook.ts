@@ -12,6 +12,19 @@ import {
   reserveInventory
 } from './_inventory';
 import { trackPromotionUsage } from '../../src/server/sanity/promotions';
+import {
+  stripeCheckoutSessionSchema,
+  stripePaymentIntentSchema,
+  stripeWebhookEventSchema,
+  stripeLineItemsSchema,
+  stripeChargeSchema,
+  stripeInvoiceSchema
+} from '../../src/lib/validators/stripe';
+import {
+  sanityCustomerSchema,
+  sanityOrderSchema,
+  sanityQuoteSchema
+} from '../../src/lib/validators/sanity';
 
 type LineItemWithMetadata = Stripe.LineItem & { metadata?: Stripe.Metadata | null };
 
@@ -162,10 +175,20 @@ const toInventoryOrderItems = (items: OrderCartItem[] = []): InventoryOrderItem[
 const fetchOrderByPaymentIntent = async (paymentIntentId: string) => {
   if (!paymentIntentId) return null;
   try {
-    return await sanity.fetch(
+    const order = await sanity.fetch(
       `*[_type=="order" && paymentIntentId==$id][0]{ _id, cart, status }`,
       { id: paymentIntentId }
     );
+    const orderResult = sanityOrderSchema.partial().safeParse(order);
+    if (!orderResult.success) {
+      console.warn('[sanity-validation]', {
+        _id: (order as any)?._id,
+        _type: 'order',
+        errors: orderResult.error.format()
+      });
+      return null;
+    }
+    return orderResult.data;
   } catch (error) {
     console.warn('[stripe-webhook] unable to fetch order by paymentIntentId', error);
     return null;
@@ -263,8 +286,34 @@ export const handler: Handler = async (event) => {
       return json(400, { error: 'Invalid signature' });
     }
 
+    const eventResult = stripeWebhookEventSchema.safeParse(evt);
+    if (!eventResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'stripeWebhookEventSchema',
+        context: 'netlify/stripe-webhook',
+        identifier: evt?.id || 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: eventResult.error.format()
+      });
+      return json(400, { error: 'Invalid webhook payload', details: eventResult.error.format() });
+    }
+
     if (evt.type === 'checkout.session.completed') {
-      const session = evt.data.object as Stripe.Checkout.Session;
+      const sessionResult = stripeCheckoutSessionSchema.safeParse(evt.data.object);
+      if (!sessionResult.success) {
+        console.error('[validation-failure]', {
+          schema: 'stripeCheckoutSessionSchema',
+          context: 'netlify/stripe-webhook',
+          identifier: evt?.id || 'unknown',
+          timestamp: new Date().toISOString(),
+          errors: sessionResult.error.format()
+        });
+        return json(400, {
+          error: 'Invalid webhook payload',
+          details: sessionResult.error.format()
+        });
+      }
+      const session = sessionResult.data as Stripe.Checkout.Session;
       const promotionId =
         (session.metadata as any)?.promotion_id ||
         (session.metadata as any)?.promotionId ||
@@ -277,15 +326,37 @@ export const handler: Handler = async (event) => {
       const marketingTimestamp = new Date().toISOString();
 
       // Prefer existing order by stripeSessionId to avoid duplicates (idempotent)
-      const existingOrder = await sanity
+      let existingOrder = await sanity
         .fetch(`*[_type=="order" && stripeSessionId==$id][0]{_id}`, { id: session.id })
         .catch(() => null);
+      if (existingOrder) {
+        const existingOrderResult = sanityOrderSchema.partial().safeParse(existingOrder);
+        if (!existingOrderResult.success) {
+          console.warn('[sanity-validation]', {
+            _id: (existingOrder as any)?._id,
+            _type: 'order',
+            errors: existingOrderResult.error.format()
+          });
+          existingOrder = null;
+        } else {
+          existingOrder = existingOrderResult.data;
+        }
+      }
       if (existingOrder?._id) {
         console.log('[stripe-webhook] order already exists for', session.id);
       }
 
       // Fetch line items
       const items = await stripe.checkout.sessions.listLineItems(session.id, { limit: 100 });
+      const itemsResult = stripeLineItemsSchema.safeParse(items);
+      if (!itemsResult.success) {
+        console.error('[stripe-validation]', {
+          id: session.id,
+          errors: itemsResult.error.format()
+        });
+        throw new Error('Invalid Stripe line items response');
+      }
+      const validatedItems = itemsResult.data;
 
       // Retrieve payment intent details
       let paymentIntent: Stripe.PaymentIntent | null = null;
@@ -299,6 +370,17 @@ export const handler: Handler = async (event) => {
       } catch (e) {
         console.warn('[stripe-webhook] unable to retrieve PaymentIntent for', session.id);
       }
+      if (paymentIntent) {
+        const paymentIntentResult = stripePaymentIntentSchema.safeParse(paymentIntent);
+        if (!paymentIntentResult.success) {
+          console.error('[stripe-validation]', {
+            id: paymentIntent?.id,
+            errors: paymentIntentResult.error.format()
+          });
+          throw new Error('Invalid Stripe payment intent response');
+        }
+        paymentIntent = paymentIntentResult.data as Stripe.PaymentIntent;
+      }
 
       // Find or create Sanity customer
       const email = session.customer_details?.email || session.customer_email || '';
@@ -306,11 +388,24 @@ export const handler: Handler = async (event) => {
       let userId: string | undefined = (session.metadata as any)?.userId || undefined;
       let customerRef: { _type: 'reference'; _ref: string } | undefined;
       if (email) {
-        const existing = await sanity
+        let existing = await sanity
           .fetch(`*[_type=="customer" && lower(email)==lower($email)][0]{_id,emailMarketing,marketingOptIn,emailOptIn}`, {
             email
           })
           .catch(() => null);
+        if (existing) {
+          const existingResult = sanityCustomerSchema.partial().safeParse(existing);
+          if (!existingResult.success) {
+            console.warn('[sanity-validation]', {
+              _id: (existing as any)?._id,
+              _type: 'customer',
+              errors: existingResult.error.format()
+            });
+            existing = null;
+          } else {
+            existing = existingResult.data;
+          }
+        }
         let customerId: string | undefined = existing?._id;
         if (!customerId) {
           const created = await sanity.create({
@@ -393,7 +488,7 @@ export const handler: Handler = async (event) => {
       }
       if (!cartLines.length) {
         const fallbackLines: OrderCartItem[] = [];
-        for (const rawItem of items?.data || []) {
+        for (const rawItem of validatedItems?.data || []) {
           const li = rawItem as LineItemWithMetadata;
           const priceValue =
             typeof li.amount_subtotal === 'number'
@@ -657,7 +752,7 @@ export const handler: Handler = async (event) => {
           customerEmail: email,
           customer: customerRef,
           userId,
-          lineItems: (items?.data || []).map((li) => ({
+          lineItems: (validatedItems?.data || []).map((li) => ({
             _type: 'lineItem',
             description: li.description,
             quantity: li.quantity,
@@ -755,6 +850,17 @@ export const handler: Handler = async (event) => {
                 `*[_id==$id][0]{orderNumber,customerName,createdAt,amountSubtotal,amountTax,amountShipping,totalAmount}`,
                 { id: orderId }
               );
+              const sanityOrderResult = sanityOrderSchema.partial().safeParse(sanityOrder);
+              if (!sanityOrderResult.success) {
+                console.warn('[sanity-validation]', {
+                  _id: (sanityOrder as any)?._id,
+                  _type: 'order',
+                  errors: sanityOrderResult.error.format()
+                });
+                sanityOrder = null;
+              } else {
+                sanityOrder = sanityOrderResult.data;
+              }
             } catch (fetchErr) {
               console.warn(
                 '[stripe-webhook] unable to fetch order metadata',
@@ -947,13 +1053,37 @@ export const handler: Handler = async (event) => {
         console.warn('[stripe-webhook] email send failed:', (e as any)?.message || e);
       }
     } else if (evt.type === 'invoice.finalized') {
-      const inv = evt.data.object as Stripe.Invoice;
+      const invResult = stripeInvoiceSchema.safeParse(evt.data.object);
+      if (!invResult.success) {
+        console.error('[validation-failure]', {
+          schema: 'stripeInvoiceSchema',
+          context: 'netlify/stripe-webhook',
+          identifier: evt?.id || 'unknown',
+          timestamp: new Date().toISOString(),
+          errors: invResult.error.format()
+        });
+        return json(400, { error: 'Invalid webhook payload', details: invResult.error.format() });
+      }
+      const inv = invResult.data as Stripe.Invoice;
       const stripeInvoiceId = inv.id;
       try {
-        const quote = await sanity.fetch(
+        let quote = await sanity.fetch(
           `*[_type=="quote" && stripeInvoiceId==$id][0]{_id,status}`,
           { id: stripeInvoiceId }
         );
+        if (quote) {
+          const quoteResult = sanityQuoteSchema.partial().safeParse(quote);
+          if (!quoteResult.success) {
+            console.warn('[sanity-validation]', {
+              _id: (quote as any)?._id,
+              _type: 'quote',
+              errors: quoteResult.error.format()
+            });
+            quote = null;
+          } else {
+            quote = quoteResult.data;
+          }
+        }
         if (quote?._id) {
           await sanity
             .patch(quote._id)
@@ -972,13 +1102,37 @@ export const handler: Handler = async (event) => {
         );
       }
     } else if (evt.type === 'invoice.paid') {
-      const inv = evt.data.object as Stripe.Invoice;
+      const invResult = stripeInvoiceSchema.safeParse(evt.data.object);
+      if (!invResult.success) {
+        console.error('[validation-failure]', {
+          schema: 'stripeInvoiceSchema',
+          context: 'netlify/stripe-webhook',
+          identifier: evt?.id || 'unknown',
+          timestamp: new Date().toISOString(),
+          errors: invResult.error.format()
+        });
+        return json(400, { error: 'Invalid webhook payload', details: invResult.error.format() });
+      }
+      const inv = invResult.data as Stripe.Invoice;
       const stripeInvoiceId = inv.id;
       try {
-        const quote = await sanity.fetch(
+        let quote = await sanity.fetch(
           `*[_type=="quote" && stripeInvoiceId==$id][0]{_id,status}`,
           { id: stripeInvoiceId }
         );
+        if (quote) {
+          const quoteResult = sanityQuoteSchema.partial().safeParse(quote);
+          if (!quoteResult.success) {
+            console.warn('[sanity-validation]', {
+              _id: (quote as any)?._id,
+              _type: 'quote',
+              errors: quoteResult.error.format()
+            });
+            quote = null;
+          } else {
+            quote = quoteResult.data;
+          }
+        }
         if (quote?._id && quote.status !== 'paid') {
           await sanity.patch(quote._id).set({ status: 'paid' }).commit();
         }
@@ -989,14 +1143,36 @@ export const handler: Handler = async (event) => {
         );
       }
     } else if (evt.type === 'payment_intent.succeeded') {
-      const pi = evt.data.object as Stripe.PaymentIntent;
+      const piResult = stripePaymentIntentSchema.safeParse(evt.data.object);
+      if (!piResult.success) {
+        console.error('[validation-failure]', {
+          schema: 'stripePaymentIntentSchema',
+          context: 'netlify/stripe-webhook',
+          identifier: evt?.id || 'unknown',
+          timestamp: new Date().toISOString(),
+          errors: piResult.error.format()
+        });
+        return json(400, { error: 'Invalid webhook payload', details: piResult.error.format() });
+      }
+      const pi = piResult.data as Stripe.PaymentIntent;
       const order = await fetchOrderByPaymentIntent(pi.id);
       if (order?._id && order.status !== 'paid') {
         const cartItems = Array.isArray(order.cart) ? (order.cart as OrderCartItem[]) : [];
         await processOrderPayment(order._id, toInventoryOrderItems(cartItems));
       }
     } else if (evt.type === 'charge.succeeded') {
-      const charge = evt.data.object as Stripe.Charge;
+      const chargeResult = stripeChargeSchema.safeParse(evt.data.object);
+      if (!chargeResult.success) {
+        console.error('[validation-failure]', {
+          schema: 'stripeChargeSchema',
+          context: 'netlify/stripe-webhook',
+          identifier: evt?.id || 'unknown',
+          timestamp: new Date().toISOString(),
+          errors: chargeResult.error.format()
+        });
+        return json(400, { error: 'Invalid webhook payload', details: chargeResult.error.format() });
+      }
+      const charge = chargeResult.data as Stripe.Charge;
       const piId =
         typeof charge.payment_intent === 'string'
           ? charge.payment_intent
@@ -1006,19 +1182,47 @@ export const handler: Handler = async (event) => {
         const cartItems = Array.isArray(order.cart) ? (order.cart as OrderCartItem[]) : [];
         await processOrderPayment(order._id, toInventoryOrderItems(cartItems));
       }
-    } else if (evt.type === 'charge.refunded' || evt.type === 'payment_intent.canceled') {
-      const piId = (() => {
-        if (evt.type === 'charge.refunded') {
-          const charge = evt.data.object as Stripe.Charge;
-          return typeof charge.payment_intent === 'string'
-            ? charge.payment_intent
-            : charge.payment_intent?.id || '';
-        }
-        const pi = evt.data.object as Stripe.PaymentIntent;
-        return pi.id;
-      })();
-
+    } else if (evt.type === 'charge.refunded') {
+      const chargeResult = stripeChargeSchema.safeParse(evt.data.object);
+      if (!chargeResult.success) {
+        console.error('[validation-failure]', {
+          schema: 'stripeChargeSchema',
+          context: 'netlify/stripe-webhook',
+          identifier: evt?.id || 'unknown',
+          timestamp: new Date().toISOString(),
+          errors: chargeResult.error.format()
+        });
+        return json(400, { error: 'Invalid webhook payload', details: chargeResult.error.format() });
+      }
+      const charge = chargeResult.data as Stripe.Charge;
+      const piId =
+        typeof charge.payment_intent === 'string'
+          ? charge.payment_intent
+          : charge.payment_intent?.id || '';
       const order = await fetchOrderByPaymentIntent(piId);
+      if (order?._id) {
+        const cartItems = Array.isArray(order.cart) ? (order.cart as OrderCartItem[]) : [];
+        await releaseInventory(order._id, toInventoryOrderItems(cartItems));
+        await sanity
+          .patch(order._id)
+          .set({ status: 'cancelled', paymentStatus: 'refunded' })
+          .commit({ autoGenerateArrayKeys: true })
+          .catch((error) => console.warn('[stripe-webhook] unable to mark order cancelled', error));
+      }
+    } else if (evt.type === 'payment_intent.canceled') {
+      const piResult = stripePaymentIntentSchema.safeParse(evt.data.object);
+      if (!piResult.success) {
+        console.error('[validation-failure]', {
+          schema: 'stripePaymentIntentSchema',
+          context: 'netlify/stripe-webhook',
+          identifier: evt?.id || 'unknown',
+          timestamp: new Date().toISOString(),
+          errors: piResult.error.format()
+        });
+        return json(400, { error: 'Invalid webhook payload', details: piResult.error.format() });
+      }
+      const pi = piResult.data as Stripe.PaymentIntent;
+      const order = await fetchOrderByPaymentIntent(pi.id);
       if (order?._id) {
         const cartItems = Array.isArray(order.cart) ? (order.cart as OrderCartItem[]) : [];
         await releaseInventory(order._id, toInventoryOrderItems(cartItems));

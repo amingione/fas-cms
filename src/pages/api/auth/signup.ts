@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import bcrypt from 'bcryptjs';
 import { sanity, hasWriteToken } from '../../../server/sanity-client';
 import { setSession } from '../../../server/auth/session';
+import { authSignupSchema } from '@/lib/validators/api-requests';
 
 const JSON_HEADERS = { 'content-type': 'application/json' } as const;
 
@@ -19,16 +20,23 @@ export const GET: APIRoute = async () =>
 // Body: { email: string, password: string, name?: string }
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const body = await request.json();
-    const email = String(body?.email || '').trim().toLowerCase();
-    const password = String(body?.password || '');
-    const name = String(body?.name || '');
-    if (!email || !password) {
-      return new Response(JSON.stringify({ message: 'Missing email or password' }), {
-        status: 400,
-        headers: JSON_HEADERS
+    const bodyResult = authSignupSchema.safeParse(await request.json());
+    if (!bodyResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'authSignupSchema',
+        context: 'api/auth/signup',
+        identifier: 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: bodyResult.error.format()
       });
+      return new Response(
+        JSON.stringify({ message: 'Validation failed', details: bodyResult.error.format() }),
+        { status: 422, headers: JSON_HEADERS }
+      );
     }
+    const email = String(bodyResult.data.email || '').trim().toLowerCase();
+    const password = String(bodyResult.data.password || '');
+    const name = String(bodyResult.data.name || '');
 
     // Ensure no existing user (customer or vendor) with this email
     const existing = await sanity.fetch(

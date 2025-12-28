@@ -1,14 +1,35 @@
 import type { APIRoute } from 'astro';
 import { sanityServer } from '@/lib/sanityServer';
+import { reviewSubmitRequestSchema } from '@/lib/validators/api-requests';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const body = await request.json();
-    const { productId, customerId, rating, title, content, images, pros, cons, customerName, customerEmail } = body;
-
-    if (!productId || !customerId) {
-      return new Response(JSON.stringify({ error: 'productId and customerId are required' }), { status: 400 });
+    const bodyResult = reviewSubmitRequestSchema.safeParse(await request.json());
+    if (!bodyResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'reviewSubmitRequestSchema',
+        context: 'api/reviews/submit',
+        identifier: 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: bodyResult.error.format()
+      });
+      return new Response(
+        JSON.stringify({ error: 'Validation failed', details: bodyResult.error.format() }),
+        { status: 422 }
+      );
     }
+    const {
+      productId,
+      customerId,
+      rating,
+      title,
+      content,
+      images,
+      pros,
+      cons,
+      customerName,
+      customerEmail
+    } = bodyResult.data;
 
     const hasPurchased = await sanityServer.fetch(
       `count(*[_type == "order" && references($customerId) && references($productId) && paymentStatus == "paid"]) > 0`,

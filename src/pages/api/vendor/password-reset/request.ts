@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import crypto from 'node:crypto';
 import { Resend } from 'resend';
 import { getVendorByEmail, setVendorPasswordReset } from '../../../../server/sanity-client';
+import { vendorPasswordResetRequestSchema } from '@/lib/validators/api-requests';
 
 const resendApiKey = import.meta.env.RESEND_API_KEY as string | undefined;
 const resendFrom = (import.meta.env.RESEND_FROM as string | undefined) || 'FAS Motorsports <no-reply@fasmotorsports.com>';
@@ -11,15 +12,21 @@ const successMessage = "If an account exists for this email address, we've sent 
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const body = await request.json();
-    const email = String(body?.email || '').trim().toLowerCase();
-
-    if (!email) {
-      return new Response(JSON.stringify({ message: 'Email is required.' }), {
-        status: 400,
-        headers: { 'content-type': 'application/json' }
+    const bodyResult = vendorPasswordResetRequestSchema.safeParse(await request.json());
+    if (!bodyResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'vendorPasswordResetRequestSchema',
+        context: 'api/vendor/password-reset/request',
+        identifier: 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: bodyResult.error.format()
       });
+      return new Response(
+        JSON.stringify({ message: 'Validation failed', details: bodyResult.error.format() }),
+        { status: 422, headers: { 'content-type': 'application/json' } }
+      );
     }
+    const email = String(bodyResult.data.email || '').trim().toLowerCase();
 
     const vendor = await getVendorByEmail(email);
     if (!vendor) {

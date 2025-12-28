@@ -1,5 +1,6 @@
 import { createClient } from '@sanity/client';
 import type { APIRoute } from 'astro';
+import { attributionTrackSchema } from '@/lib/validators/api-requests';
 
 const sanityClient = createClient({
   projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID!,
@@ -11,11 +12,21 @@ const sanityClient = createClient({
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const { orderId, utmParams, sessionId } = await request.json();
-
-    if (!orderId) {
-      return new Response(JSON.stringify({ error: 'Order ID required' }), { status: 400 });
+    const bodyResult = attributionTrackSchema.safeParse(await request.json());
+    if (!bodyResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'attributionTrackSchema',
+        context: 'api/attribution/track',
+        identifier: 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: bodyResult.error.format()
+      });
+      return new Response(
+        JSON.stringify({ error: 'Validation failed', details: bodyResult.error.format() }),
+        { status: 422 }
+      );
     }
+    const { orderId, utmParams, sessionId } = bodyResult.data;
 
     // Create attribution record (map snake_case to camelCase)
     const attribution = await sanityClient.create({

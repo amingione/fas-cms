@@ -304,7 +304,7 @@ export default function ProductQuickViewButton({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`btn-plain inline-flex items-center gap-2 rounded-full border border-white/10 bg-black px-3 py-1 text-xs uppercase tracking-[0.18em] text-white/80 transition hover:border-white/10 border-t shadow-sm hover:text-white ${className}`.trim()}
+        className={`btn-plain inline-flex items-center gap-2 rounded-full border border-white/10 bg-[#1a1a1a] px-3 py-1 text-xs uppercase tracking-[0.18em] text-white/80 transition hover:border-white/10 border-t shadow-sm hover:text-white ${className}`.trim()}
         data-analytics-event="quick_view_open"
         data-analytics-category="engagement"
         data-analytics-label={product.title}

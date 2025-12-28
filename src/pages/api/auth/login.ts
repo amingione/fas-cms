@@ -3,17 +3,28 @@ import bcrypt from 'bcryptjs';
 // Defer importing Sanity utilities until we know env is configured
 import { setSession } from '../../../server/auth/session';
 import { jsonResponse } from '@/server/http/responses';
+import { authLoginSchema } from '@/lib/validators/api-requests';
 
 // POST /api/auth/login
 // Body: { email: string, password: string }
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const body = await request.json();
-    const email = String(body?.email || '').trim().toLowerCase();
-    const password = String(body?.password || '');
-    if (!email || !password) {
-      return jsonResponse({ message: 'Missing email or password' }, { status: 400 });
+    const bodyResult = authLoginSchema.safeParse(await request.json());
+    if (!bodyResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'authLoginSchema',
+        context: 'api/auth/login',
+        identifier: 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: bodyResult.error.format()
+      });
+      return jsonResponse(
+        { message: 'Validation failed', details: bodyResult.error.format() },
+        { status: 422 }
+      );
     }
+    const email = String(bodyResult.data.email || '').trim().toLowerCase();
+    const password = String(bodyResult.data.password || '');
 
     const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
     const adminPassword = process.env.ADMIN_PASSWORD;

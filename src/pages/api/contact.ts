@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { Resend } from 'resend';
 import { createClient } from '@sanity/client';
+import { contactRequestSchema } from '@/lib/validators/api-requests';
 
 const json = (data: any, init?: ResponseInit) =>
   new Response(JSON.stringify(data), {
@@ -35,7 +36,21 @@ async function parseBody(request: Request) {
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const body = (await parseBody(request)) || {};
+    const bodyResult = contactRequestSchema.safeParse((await parseBody(request)) || {});
+    if (!bodyResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'contactRequestSchema',
+        context: 'api/contact',
+        identifier: 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: bodyResult.error.format()
+      });
+      return json(
+        { message: 'Validation failed', details: bodyResult.error.format() },
+        { status: 422 }
+      );
+    }
+    const body = bodyResult.data;
 
     const firstName = String(body.firstName || '').trim();
     const lastName = String(body.lastName || '').trim();

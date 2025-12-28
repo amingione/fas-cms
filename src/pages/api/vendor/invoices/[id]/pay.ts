@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import { requireVendor } from '@/server/vendor-portal/auth';
 import { sanity } from '@/server/sanity-client';
 import { jsonResponse } from '@/server/http/responses';
+import { vendorInvoicePaySchema } from '@/lib/validators/api-requests';
 
 const stripeSecret = process.env.STRIPE_SECRET_KEY || (import.meta as any).env?.STRIPE_SECRET_KEY;
 const stripe = stripeSecret
@@ -19,10 +20,22 @@ export const POST: APIRoute = async ({ params, request }) => {
 
   try {
     const { id } = params;
-    const { amount, paymentMethodId } = await request.json();
-    if (!amount || !paymentMethodId) {
-      return jsonResponse({ message: 'Missing amount or paymentMethodId' }, { status: 400 }, { noIndex: true });
+    const bodyResult = vendorInvoicePaySchema.safeParse(await request.json());
+    if (!bodyResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'vendorInvoicePaySchema',
+        context: 'api/vendor/invoices/pay',
+        identifier: id || 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: bodyResult.error.format()
+      });
+      return jsonResponse(
+        { error: 'Validation failed', details: bodyResult.error.format() },
+        { status: 422 },
+        { noIndex: true }
+      );
     }
+    const { amount, paymentMethodId } = bodyResult.data;
 
     const invoice = await sanity.fetch(
       '*[_type == "invoice" && _id == $id && references($vendorId)][0]',

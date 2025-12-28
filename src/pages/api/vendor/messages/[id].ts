@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { requireVendor } from '@/server/vendor-portal/auth';
 import { sanity } from '@/server/sanity-client';
 import { jsonResponse } from '@/server/http/responses';
+import { vendorMessageReplySchema } from '@/lib/validators/api-requests';
 
 export const GET: APIRoute = async ({ params, request }) => {
   const ctx = await requireVendor(request);
@@ -41,7 +42,22 @@ export const POST: APIRoute = async ({ params, request }) => {
   if (!ctx.ok) return ctx.response;
   const id = params.id;
   try {
-    const body = await request.json();
+    const bodyResult = vendorMessageReplySchema.safeParse(await request.json());
+    if (!bodyResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'vendorMessageReplySchema',
+        context: 'api/vendor/messages/reply',
+        identifier: id || 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: bodyResult.error.format()
+      });
+      return jsonResponse(
+        { error: 'Validation failed', details: bodyResult.error.format() },
+        { status: 422 },
+        { noIndex: true }
+      );
+    }
+    const body = bodyResult.data;
     const reply = {
       _type: 'reply',
       message: body?.message || '',

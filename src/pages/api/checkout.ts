@@ -1,7 +1,10 @@
 import Stripe from 'stripe';
+import { randomUUID } from 'crypto';
 import { readSession } from '../../server/auth/session';
 import { sanity } from '../../server/sanity-client';
 import { getActivePrice, getCompareAtPrice, isOnSale } from '@/lib/saleHelpers';
+import { checkoutRequestSchema } from '@/lib/validators/api-requests';
+import { sanityProductSchema } from '@/lib/validators/sanity';
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2024-06-20' as Stripe.LatestApiVersion
 });
@@ -293,7 +296,16 @@ async function fetchShippingProductsForCart(
     const lookup: Record<string, ShippingProduct> = {};
     if (Array.isArray(products)) {
       products.forEach((product) => {
-        if (product?._id) lookup[product._id] = product;
+        const productResult = sanityProductSchema.partial().safeParse(product);
+        if (!productResult.success) {
+          console.warn('[sanity-validation]', {
+            _id: (product as any)?._id,
+            _type: 'product',
+            errors: productResult.error.format()
+          });
+          return;
+        }
+        if (productResult.data?._id) lookup[productResult.data._id] = productResult.data as ShippingProduct;
       });
     }
     return lookup;
@@ -486,35 +498,20 @@ export async function POST({ request }: { request: Request }) {
     return jsonResponse({ error: 'Missing or invalid JSON body' }, 400);
   }
 
-  const { cart } = body;
-  const marketingOptIn = Boolean(body?.marketingOptIn);
-  const selectedCarrier = body?.selectedCarrier ?? body?.shippingCarrier ?? body?.carrier;
-  const selectedService = body?.selectedService ?? body?.shippingService ?? body?.service;
-  const selectedRateId = body?.selectedRateId ?? body?.easypostRateId ?? body?.rateId;
-  const utmSource = body?.utmSource ?? body?.utm_source;
-  const utmMedium = body?.utmMedium ?? body?.utm_medium;
-  const utmCampaign = body?.utmCampaign ?? body?.utm_campaign;
-  const utmTerm = body?.utmTerm ?? body?.utm_term;
-  const utmContent = body?.utmContent ?? body?.utm_content;
-
-  if (!Array.isArray(cart) || cart.length === 0) {
-    return jsonResponse({ error: 'Cart is empty or invalid' }, 400);
+  const bodyResult = checkoutRequestSchema.safeParse(body);
+  if (!bodyResult.success) {
+    console.error('[validation-failure]', {
+      schema: 'checkoutRequestSchema',
+      context: 'api/checkout',
+      identifier: 'unknown',
+      timestamp: new Date().toISOString(),
+      errors: bodyResult.error.format()
+    });
+    return jsonResponse({ error: 'Validation failed', details: bodyResult.error.format() }, 422);
   }
 
+  const { cart } = bodyResult.data;
   const clamp = (value: string, max = 500) => (value.length > max ? value.slice(0, max) : value);
-
-  const normalizeMetadataMap = (input?: Record<string, unknown> | null) => {
-    if (!input || typeof input !== 'object') return {} as Record<string, string>;
-    return Object.entries(input).reduce<Record<string, string>>((acc, [key, value]) => {
-      if (!key) return acc;
-      const normalizedKey = key.trim();
-      if (!normalizedKey) return acc;
-      const strValue = value == null ? '' : String(value);
-      if (!strValue.trim()) return acc;
-      acc[normalizedKey] = clamp(strValue.trim());
-      return acc;
-    }, {});
-  };
 
   const formatSelectedOptions = (
     input?: Record<string, unknown> | null,
@@ -858,113 +855,6 @@ export async function POST({ request }: { request: Request }) {
     console.warn('[checkout] shipping estimation failed; falling back to flat rate', error);
   }
 
-  const extractSlugFromUrl = (url?: string | null): string | undefined => {
-    if (!url) return undefined;
-    try {
-      const trimmed = url.trim();
-      if (!trimmed) return undefined;
-      const noOrigin = trimmed.replace(/^https?:\/\/[^/]+/i, '');
-      const withoutQuery = noOrigin.split(/[?#]/)[0];
-      const segments = withoutQuery.replace(/^\/+/, '').split('/').filter(Boolean);
-      if (!segments.length) return undefined;
-      const slug = segments[segments.length - 1];
-      return slug || undefined;
-    } catch {
-      return undefined;
-    }
-  };
-
-  // Persist compact cart metadata (Stripe metadata fields are strings and size-limited)
-  let metaCart = '';
-  let cartSummary = '';
-  let cartData = '';
-  try {
-    const summaryParts: string[] = [];
-    const fullCart = (cart as CheckoutCartItem[]).map((item) => {
-      const normalizedId = normalizeCartId(typeof item?.id === 'string' ? item.id : undefined);
-      const unitPrice =
-        typeof item?.basePrice === 'number' && Number.isFinite(item.basePrice)
-          ? item.basePrice
-          : typeof item?.price === 'number' && Number.isFinite(item.price)
-            ? item.price
-            : undefined;
-      return {
-        productId: normalizedId || undefined,
-        productName: item?.name,
-        sku: item?.sku,
-        quantity: item?.quantity,
-        price: item?.price,
-        unitPrice,
-        options: item?.options ?? item?.selections,
-        upgrades: item?.upgrades ?? item?.addOns,
-        imageUrl: item?.image
-      };
-    });
-    cartData = JSON.stringify(fullCart);
-    let compact = (cart as CheckoutCartItem[]).map((i) => {
-      const optionDetails = formatSelectedOptions(
-        (i?.options as Record<string, unknown>) || undefined,
-        i?.selections
-      );
-      const opts = optionDetails?.summary;
-      const upgrades = collectUpgrades(i?.upgrades ?? i?.addOns, i?.selections);
-      const upgradesTotal = calculateUpgradesTotal(i?.upgrades ?? i?.addOns, i?.selections);
-      const normalizedId = normalizeCartId(typeof i?.id === 'string' ? i.id : undefined);
-      const resolvedProduct = normalizedId ? productLookup[normalizedId] : undefined;
-      const resolvedPrice = getActivePrice(resolvedProduct as any);
-      const resolvedCompare = resolvedProduct
-        ? getCompareAtPrice(resolvedProduct as any)
-        : undefined;
-      const imageUrl = typeof i?.image === 'string' ? i.image : undefined;
-      const productUrl = typeof i?.productUrl === 'string' ? i.productUrl : undefined;
-      const slug = extractSlugFromUrl(productUrl);
-      const sku = typeof i?.sku === 'string' ? i.sku : undefined;
-
-      const summaryBits: string[] = [];
-      if (i?.name) summaryBits.push(String(i.name));
-      if (opts) summaryBits.push(`Options: ${opts}`);
-      if (upgrades.length) summaryBits.push(`Upgrades: ${upgrades.join(', ')}`);
-      if (typeof i?.quantity === 'number' && Number.isFinite(i.quantity)) {
-        summaryBits.push(`Qty: ${i.quantity}`);
-      }
-      if (summaryBits.length) summaryParts.push(summaryBits.join(' — '));
-
-      const entry: Record<string, unknown> = {
-        ...(normalizedId ? { i: normalizedId } : {}),
-        ...(sku ? { sku } : {}),
-        ...(imageUrl ? { img: imageUrl } : {}),
-        ...(productUrl ? { url: productUrl } : {}),
-        ...(slug ? { slug } : {}),
-        n: i?.name,
-        q: i?.quantity,
-        p: i?.price,
-        ...(opts ? { o: opts.slice(0, 160) } : {}),
-        ...(upgrades.length ? { u: upgrades.join(', ').slice(0, 160) } : {}),
-        ...(typeof upgradesTotal === 'number' ? { ut: upgradesTotal } : {})
-      };
-      return entry;
-    });
-    let serialized = JSON.stringify(compact);
-    if (serialized.length > 460) {
-      compact = compact.map((entry) => {
-        if (entry && typeof entry === 'object' && 'meta' in entry) {
-          const { meta: _meta, ...rest } = entry as Record<string, unknown>;
-          return rest;
-        }
-        return entry;
-      });
-      serialized = JSON.stringify(compact);
-    }
-    if (serialized.length > 460) serialized = serialized.slice(0, 460);
-    metaCart = serialized;
-    if (summaryParts.length) {
-      const joined = summaryParts.join(' | ');
-      cartSummary = joined.length > 480 ? joined.slice(0, 480) : joined;
-    }
-  } catch (error) {
-    void error;
-  }
-
   // Derive optional user identity for reliable joins in webhook
   let userId: string | undefined;
   let userEmail: string | undefined;
@@ -987,32 +877,8 @@ export async function POST({ request }: { request: Request }) {
 
     const customerEmail = userEmail || undefined;
 
-    const baseMetadata: Record<string, string> = {
-      customer_id: userId || '',
-      customer_email: userEmail || '',
-      order_type: 'retail',
-      site: baseUrl,
-      marketing_opt_in: marketingOptIn ? 'true' : 'false'
-    };
-
-    const attributionMetadata = normalizeMetadataMap(
-      (body as any)?.metadata || (body as any)?.attribution
-    );
-
     const metadataForSession: Record<string, string> = {
-      ...baseMetadata,
-      ...attributionMetadata,
-      ...(cartData ? { cart_data: cartData } : {}),
-      ...(cartSummary ? { cart_summary: cartSummary } : {}),
-      ...(metaCart ? { cart: metaCart } : {}),
-      shipping_carrier: selectedCarrier || '',
-      shipping_service: selectedService || '',
-      easypost_rate_id: selectedRateId || '',
-      utm_source: utmSource || '',
-      utm_medium: utmMedium || '',
-      utm_campaign: utmCampaign || '',
-      utm_term: utmTerm || '',
-      utm_content: utmContent || ''
+      cart_id: randomUUID()
     };
 
     const paymentIntentMetadata = { ...metadataForSession };
@@ -1026,7 +892,6 @@ export async function POST({ request }: { request: Request }) {
       }
     };
 
-    let shippingMode = 'fallback_flat_rate';
     let shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] | null = [
       defaultShippingOption
     ];
@@ -1052,34 +917,6 @@ export async function POST({ request }: { request: Request }) {
         shippingOptions = null;
       }
 
-      shippingMode = shippingQuote.requiresShipping
-        ? shippingQuote.amount === 0
-          ? shippingQuote.freight
-            ? 'freight_included'
-            : 'free_shipping'
-          : shippingQuote.freight
-            ? 'freight'
-            : 'standard'
-        : shippingQuote.installOnlyCart
-          ? 'install_only'
-          : 'no_shipping';
-    }
-
-    const shippingSummaryValue =
-      shippingQuote?.summary || (shippingOptions ? 'flat_rate_995' : 'no_shipping_required');
-    if (shippingSummaryValue) {
-      const summaryClamped = clamp(shippingSummaryValue, 480);
-      metadataForSession.shipping_summary = summaryClamped;
-      paymentIntentMetadata.shipping_summary = summaryClamped;
-    }
-    metadataForSession.shipping_mode = shippingMode;
-    paymentIntentMetadata.shipping_mode = shippingMode;
-    if (shippingQuote) {
-      metadataForSession.shipping_total_weight_lbs = shippingQuote.totalWeight.toFixed(2);
-      metadataForSession.shipping_chargeable_lbs = shippingQuote.chargeableWeight.toFixed(2);
-      paymentIntentMetadata.shipping_total_weight_lbs =
-        metadataForSession.shipping_total_weight_lbs;
-      paymentIntentMetadata.shipping_chargeable_lbs = metadataForSession.shipping_chargeable_lbs;
     }
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {

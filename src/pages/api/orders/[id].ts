@@ -3,6 +3,8 @@ import type { APIRoute } from 'astro';
 import { createClient } from '@sanity/client';
 import { readSession } from '../../../server/auth/session';
 import { jsonResponse } from '@/server/http/responses';
+import { orderUpdateSchema } from '@/lib/validators/api-requests';
+import { sanityOrderSchema } from '@/lib/validators/sanity';
 
 const cors = {
   'access-control-allow-origin': '*',
@@ -53,13 +55,25 @@ export const GET: APIRoute = async ({ request, params }) => {
       `*[_type == "order" && _id == $id && customerRef->email == $email][0]`,
       { id, email }
     );
+    const orderResult = sanityOrderSchema.safeParse(order);
+    if (!orderResult.success) {
+      console.warn('[sanity-validation]', {
+        _id: (order as any)?._id,
+        _type: 'order',
+        errors: orderResult.error.format()
+      });
+      return jsonResponse(
+        { message: 'Order not found or access denied' },
+        { status: 404, headers: { ...cors } }
+      );
+    }
     if (!order) {
       return jsonResponse(
         { message: 'Order not found or access denied' },
         { status: 404, headers: { ...cors } }
       );
     }
-    return jsonResponse(order, { status: 200, headers: { ...cors } });
+    return jsonResponse(orderResult.data, { status: 200, headers: { ...cors } });
   } catch (err) {
     console.error('Error fetching order:', err);
     return jsonResponse(
@@ -89,16 +103,35 @@ export const PATCH: APIRoute = async ({ request, params }) => {
       `*[_type == "order" && _id == $id && customerRef->email == $email][0]`,
       { id, email }
     );
-    if (!existing)
+    const existingResult = sanityOrderSchema.safeParse(existing);
+    if (!existingResult.success) {
+      console.warn('[sanity-validation]', {
+        _id: (existing as any)?._id,
+        _type: 'order',
+        errors: existingResult.error.format()
+      });
+    }
+    if (!existingResult.success || !existing)
       return jsonResponse(
         { message: 'Access denied' },
         { status: 403, headers: { ...cors } }
       );
 
-    const data = await request.json();
-    if (!data || typeof data !== 'object') {
-      return jsonResponse({ message: 'Invalid payload' }, { status: 400, headers: { ...cors } });
+    const dataResult = orderUpdateSchema.safeParse(await request.json());
+    if (!dataResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'orderUpdateSchema',
+        context: 'api/orders/update',
+        identifier: id || 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: dataResult.error.format()
+      });
+      return jsonResponse(
+        { message: 'Validation failed', details: dataResult.error.format() },
+        { status: 422, headers: { ...cors } }
+      );
     }
+    const data = dataResult.data;
 
     const allowlist = new Set([
       'shippingAddress',
@@ -132,7 +165,19 @@ export const PATCH: APIRoute = async ({ request, params }) => {
         '*[_type == "order" && _id == $id][0]{customerRef}',
         { id }
       );
-      customerId = order?.customerRef?._ref || null;
+      const orderResult = sanityOrderSchema.partial().safeParse(order);
+      if (!orderResult.success) {
+        console.warn('[sanity-validation]', {
+          _id: (order as any)?._id,
+          _type: 'order',
+          errors: orderResult.error.format()
+        });
+        return jsonResponse(
+          { message: 'Customer reference missing' },
+          { status: 400, headers: { ...cors } }
+        );
+      }
+      customerId = orderResult.data?.customerRef?._ref || null;
       if (!customerId) {
         return jsonResponse(
           { message: 'Customer reference missing' },

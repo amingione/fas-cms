@@ -1,5 +1,7 @@
 import type { APIRoute } from 'astro';
 import { createClient } from '@sanity/client';
+import { customerUpdateSchema } from '@/lib/validators/api-requests';
+import { sanityCustomerSchema } from '@/lib/validators/sanity';
 
 const toCustomerId = (sub?: string) =>
   sub ? `customer.${sub.replace(/[^a-zA-Z0-9_.-]/g, '_')}` : undefined;
@@ -51,7 +53,20 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    const body = await request.json();
+    const bodyResult = customerUpdateSchema.safeParse(await request.json());
+    if (!bodyResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'customerUpdateSchema',
+        context: 'api/customer/update',
+        identifier: 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: bodyResult.error.format()
+      });
+      return new Response(
+        JSON.stringify({ error: 'Validation failed', details: bodyResult.error.format() }),
+        { status: 422, headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' } }
+      );
+    }
 
     const {
       sub,
@@ -64,7 +79,7 @@ export const POST: APIRoute = async ({ request }) => {
       emailOptIn,
       textOptIn,
       marketingOptIn
-    } = body || {};
+    } = bodyResult.data || {};
 
     // Basic input normalization
     const userId = typeof sub === 'string' ? sub : '';
@@ -75,10 +90,23 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // Prefer matching by userId first, then by email (normalized)
-    const existing = await sanity.fetch(
+    let existing = await sanity.fetch(
       `*[_type=="customer" && ((defined(userId) && userId==$userId) || (!defined(userId) && email==$email))][0]`,
       { userId, email: emailLc }
     );
+    if (existing) {
+      const existingResult = sanityCustomerSchema.partial().safeParse(existing);
+      if (!existingResult.success) {
+        console.warn('[sanity-validation]', {
+          _id: (existing as any)?._id,
+          _type: 'customer',
+          errors: existingResult.error.format()
+        });
+        existing = null;
+      } else {
+        existing = existingResult.data;
+      }
+    }
 
     // Build the doc fields we allow to be written
     const baseDoc: any = {

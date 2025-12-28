@@ -140,7 +140,7 @@ export default function CartModal() {
             leaveFrom="opacity-100 backdrop-blur-[.5px]"
             leaveTo="opacity-0 backdrop-blur-none"
           >
-            <div className="fixed inset-0 bg-black" aria-hidden="true" />
+            <div className="fixed inset-0 bg-[#1a1a1a]" aria-hidden="true" />
           </Transition.Child>
           <Transition.Child
             as={Fragment}

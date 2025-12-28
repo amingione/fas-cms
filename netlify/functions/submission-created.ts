@@ -1,12 +1,27 @@
 import type { Handler } from '@netlify/functions';
 import { Resend } from 'resend';
+import { netlifySubmissionSchema } from '../../src/lib/validators/api-requests';
 
 const resend = new Resend(process.env.RESEND_API_KEY || '');
 
 export const handler: Handler = async (event) => {
   try {
     const body = event.body ? JSON.parse(event.body) : {};
-    const payload = body?.payload || body;
+    const bodyResult = netlifySubmissionSchema.safeParse(body);
+    if (!bodyResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'netlifySubmissionSchema',
+        context: 'netlify/submission-created',
+        identifier: 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: bodyResult.error.format()
+      });
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Invalid request', details: bodyResult.error.format() })
+      };
+    }
+    const payload = bodyResult.data?.payload || bodyResult.data;
     const formName: string = payload?.form_name || payload?.formName || 'unknown-form';
     const data: Record<string, any> = payload?.data || payload || {};
 
@@ -31,4 +46,3 @@ export const handler: Handler = async (event) => {
     return { statusCode: 500, body: JSON.stringify({ ok: false }) };
   }
 };
-

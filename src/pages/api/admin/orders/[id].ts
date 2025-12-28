@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { readSession } from '../../../../server/auth/session';
 import { sanity } from '../../../../server/sanity-client';
+import { adminOrderPatchSchema } from '@/lib/validators/api-requests';
 
 export const OPTIONS: APIRoute = async () =>
   new Response(null, {
@@ -21,8 +22,21 @@ export const PATCH: APIRoute = async ({ request, params }) => {
   const id = String(params.id || '');
   if (!id) return new Response('Missing id', { status: 400 });
   try {
-    const body = await request.json();
-    await sanity.patch(id).set(body).commit();
+    const bodyResult = adminOrderPatchSchema.safeParse(await request.json());
+    if (!bodyResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'adminOrderPatchSchema',
+        context: 'api/admin/orders',
+        identifier: id || 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: bodyResult.error.format()
+      });
+      return new Response(JSON.stringify({ error: 'Validation failed', details: bodyResult.error.format() }), {
+        status: 422,
+        headers: { 'content-type': 'application/json' }
+      });
+    }
+    await sanity.patch(id).set(bodyResult.data).commit();
     return new Response('Updated', { status: 200 });
   } catch (err) {
     console.error(err);

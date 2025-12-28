@@ -1,13 +1,25 @@
 import type { APIRoute } from 'astro';
 import { sanityServer } from '@/lib/sanityServer';
 import { validatePromotionQuery } from '@/lib/storefrontQueries';
+import { promotionValidateSchema } from '@/lib/validators/api-requests';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const { code } = await request.json();
-    if (!code || typeof code !== 'string') {
-      return new Response(JSON.stringify({ error: 'code is required' }), { status: 400 });
+    const bodyResult = promotionValidateSchema.safeParse(await request.json());
+    if (!bodyResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'promotionValidateSchema',
+        context: 'api/promotions/validate',
+        identifier: 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: bodyResult.error.format()
+      });
+      return new Response(
+        JSON.stringify({ error: 'Validation failed', details: bodyResult.error.format() }),
+        { status: 422 }
+      );
     }
+    const { code } = bodyResult.data;
     const promotion = await sanityServer.fetch(validatePromotionQuery, { code });
     if (!promotion) return new Response(JSON.stringify({ valid: false }), { status: 404 });
     return new Response(JSON.stringify({ valid: !!promotion.isValid, promotion }), { status: 200 });

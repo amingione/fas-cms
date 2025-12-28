@@ -1,6 +1,8 @@
 import { createClient } from '@sanity/client';
 import { readSession } from '../../server/auth/session';
 import { jsonResponse } from '@/server/http/responses';
+import { saveQuoteSchema } from '@/lib/validators/api-requests';
+import { sanityCustomerSchema } from '@/lib/validators/sanity';
 
 const client = createClient({
   projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID,
@@ -25,17 +27,23 @@ export async function POST({ request }: { request: Request }) {
       email: customerEmail
     }
   );
+  if (customer) {
+    const customerResult = sanityCustomerSchema.partial().safeParse(customer);
+    if (!customerResult.success) {
+      console.warn('[sanity-validation]', {
+        _id: (customer as any)?._id,
+        _type: 'customer',
+        errors: customerResult.error.format()
+      });
+      return jsonResponse({ error: 'Customer not found' }, { status: 404 });
+    }
+  }
 
   if (!customer?._id) {
     return jsonResponse({ error: 'Customer not found' }, { status: 404 });
   }
 
-  let data: {
-    vehicleModel: string;
-    modifications: string[];
-    horsepower: number;
-    price: number;
-  };
+  let data;
 
   try {
     data = await request.json();
@@ -43,16 +51,22 @@ export async function POST({ request }: { request: Request }) {
     return jsonResponse({ error: 'Invalid JSON body' }, { status: 400 });
   }
 
-  const { vehicleModel, modifications, horsepower, price } = data;
-
-  if (
-    typeof vehicleModel !== 'string' ||
-    !Array.isArray(modifications) ||
-    typeof horsepower !== 'number' ||
-    typeof price !== 'number'
-  ) {
-    return jsonResponse({ error: 'Missing or invalid fields' }, { status: 400 });
+  const dataResult = saveQuoteSchema.safeParse(data);
+  if (!dataResult.success) {
+    console.error('[validation-failure]', {
+      schema: 'saveQuoteSchema',
+      context: 'api/save-quote',
+      identifier: customer?._id || 'unknown',
+      timestamp: new Date().toISOString(),
+      errors: dataResult.error.format()
+    });
+    return jsonResponse(
+      { error: 'Validation failed', details: dataResult.error.format() },
+      { status: 422 }
+    );
   }
+
+  const { vehicleModel, modifications, horsepower, price } = dataResult.data;
 
   try {
     const newDoc = await client.create({

@@ -3,6 +3,8 @@ import { jsonResponse } from '@/server/http/responses';
 import { hasWriteToken, sanity } from '@/server/sanity-client';
 import { ensureOrderCartItems } from '@/server/sanity/order-cart';
 import { requireVendor } from '@/server/vendor-portal/auth';
+import { vendorCreateOrderSchema } from '@/lib/validators/api-requests';
+import { sanityCustomerSchema } from '@/lib/validators/sanity';
 
 export const POST: APIRoute = async ({ request }) => {
   const ctx = await requireVendor(request);
@@ -20,7 +22,22 @@ export const POST: APIRoute = async ({ request }) => {
 
   let body: any;
   try {
-    body = await request.json();
+    const bodyResult = vendorCreateOrderSchema.safeParse(await request.json());
+    if (!bodyResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'vendorCreateOrderSchema',
+        context: 'api/vendors/create-order',
+        identifier: ctx.vendorId || 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: bodyResult.error.format()
+      });
+      return jsonResponse(
+        { error: 'Validation failed', details: bodyResult.error.format() },
+        { status: 422 },
+        { noIndex: true }
+      );
+    }
+    body = bodyResult.data;
   } catch {
     return jsonResponse({ error: 'Invalid JSON payload' }, { status: 400 }, { noIndex: true });
   }
@@ -51,10 +68,21 @@ export const POST: APIRoute = async ({ request }) => {
     '*[_type == "customer" && _id == $id][0]{_id, name, email, roles}',
     { id: customerRef }
   );
-  if (!customer?._id) {
+  const customerResult = sanityCustomerSchema.partial().safeParse(customer);
+  if (!customerResult.success) {
+    console.warn('[sanity-validation]', {
+      _id: (customer as any)?._id,
+      _type: 'customer',
+      errors: customerResult.error.format()
+    });
     return jsonResponse({ error: 'Customer not found' }, { status: 404 }, { noIndex: true });
   }
-  const roles = Array.isArray(customer.roles) ? customer.roles.map((r: any) => String(r || '').toLowerCase()) : [];
+  if (!customerResult.data?._id) {
+    return jsonResponse({ error: 'Customer not found' }, { status: 404 }, { noIndex: true });
+  }
+  const roles = Array.isArray(customerResult.data.roles)
+    ? customerResult.data.roles.map((r: any) => String(r || '').toLowerCase())
+    : [];
   if (!roles.includes('vendor')) {
     return jsonResponse({ error: 'Customer is not authorized for wholesale pricing' }, { status: 403 }, { noIndex: true });
   }
@@ -66,11 +94,11 @@ export const POST: APIRoute = async ({ request }) => {
     status: 'paid',
     paymentStatus: 'pending',
     createdAt: now,
-    customerName: customer?.name || vendorName,
-    customerEmail: customer?.email || vendorEmail,
+    customerName: customerResult.data?.name || vendorName,
+    customerEmail: customerResult.data?.email || vendorEmail,
     customerRef: {
       _type: 'reference',
-      _ref: customer._id
+      _ref: customerResult.data._id
     },
     wholesaleDetails: {
       workflowStatus: 'requested'

@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { Resend } from 'resend';
 import { createQuoteRequest } from '@/server/sanity/quote-requests';
+import { buildQuoteSchema } from '@/lib/validators/api-requests';
 
 const json = (data: any, init?: ResponseInit) =>
   new Response(JSON.stringify(data), {
@@ -10,11 +11,21 @@ const json = (data: any, init?: ResponseInit) =>
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const body = await request.json().catch(() => ({}));
-    const { name, email, phone, vehicle, items, subtotal, notes } = body || {};
-    if (!name || !email || !vehicle || !Array.isArray(items) || items.length === 0) {
-      return json({ message: 'Missing required fields' }, { status: 400 });
+    const bodyResult = buildQuoteSchema.safeParse(await request.json().catch(() => ({})));
+    if (!bodyResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'buildQuoteSchema',
+        context: 'api/build-quote',
+        identifier: 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: bodyResult.error.format()
+      });
+      return json(
+        { message: 'Validation failed', details: bodyResult.error.format() },
+        { status: 422 }
+      );
     }
+    const { name, email, phone, vehicle, items, subtotal, notes } = bodyResult.data;
 
     const resend = new Resend(import.meta.env.RESEND_API_KEY);
     const toAddress = (import.meta.env.QUOTE_EMAIL_TO as string) || 'sales@fasmotorsports.com';

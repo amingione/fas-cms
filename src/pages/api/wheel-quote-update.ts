@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
-import { z } from 'zod';
 import { createClient } from '@sanity/client';
 import { jsonResponse } from '@/server/http/responses';
+import { wheelQuoteUpdateSchema } from '@/lib/validators/api-requests';
 
 // Optional simple auth for server-to-server calls from your dashboard
 // Set FAS_DASH_API_KEY in Netlify. If present, requests must include header: Authorization: Bearer <key>
@@ -13,11 +13,6 @@ const sanity = createClient({
   apiVersion: '2024-01-01',
   token: import.meta.env.SANITY_API_TOKEN,
   useCdn: false
-});
-
-const BodySchema = z.object({
-  id: z.string().min(3),
-  status: z.enum(['new', 'contacted', 'quoted', 'won', 'lost'])
 });
 
 function unauthorized(msg = 'Unauthorized') {
@@ -34,8 +29,21 @@ export const PATCH: APIRoute = async ({ request }) => {
       if (token !== API_KEY) return unauthorized();
     }
 
-    const payload = await request.json();
-    const { id, status } = BodySchema.parse(payload);
+    const payloadResult = wheelQuoteUpdateSchema.safeParse(await request.json());
+    if (!payloadResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'wheelQuoteUpdateSchema',
+        context: 'api/wheel-quote-update',
+        identifier: 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: payloadResult.error.format()
+      });
+      return jsonResponse(
+        { error: 'Validation failed', details: payloadResult.error.format() },
+        { status: 422 }
+      );
+    }
+    const { id, status } = payloadResult.data;
 
     // Update Sanity document
     const result = await sanity.patch(id).set({ status }).commit({ autoGenerateArrayKeys: true });

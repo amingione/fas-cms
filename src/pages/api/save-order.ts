@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Stripe from 'stripe';
-import { z } from 'zod';
 import { readSession } from '../../server/auth/session';
-import type { z as ZodNamespace } from 'zod';
 import { createOrderCartItem, type OrderCartItem } from '@/server/sanity/order-cart';
 import { jsonResponse } from '@/server/http/responses';
-
-type CartItem = ZodNamespace.infer<typeof CartItemSchema>;
+import { saveOrderRequestSchema } from '@/lib/validators/api-requests';
+import { stripeCheckoutSessionSchema } from '@/lib/validators/stripe';
+import { sanityCustomerSchema } from '@/lib/validators/sanity';
 
 interface OrderPayload {
   _type: 'order';
@@ -27,37 +26,30 @@ interface OrderPayload {
   customerName: string;
 }
 
-interface SaveOrderBody {
-  sessionId: string;
-  cart: unknown;
-}
-
 interface SanityCustomerQueryResult {
   result?: { _id?: string } | null;
 }
 
 const stripeClient = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-08-27.basil'
+  apiVersion: '2025-12-15.clover'
 });
-
-
-const CartItemSchema = z.object({
-  id: z.string(),
-  sku: z.string().optional(),
-  name: z.string(),
-  price: z.number(),
-  quantity: z.number(),
-  categories: z.array(z.string()).optional(),
-  image: z.string().optional(),
-  productUrl: z.string().optional(),
-  productSlug: z.string().optional(),
-  metadata: z.record(z.any()).optional()
-});
-const CartSchema = z.array(CartItemSchema);
 
 export const POST = async ({ request }: { request: Request }) => {
   try {
-    const body = (await request.json()) as SaveOrderBody;
+    const bodyResult = saveOrderRequestSchema.safeParse(await request.json());
+    if (!bodyResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'saveOrderRequestSchema',
+        context: 'api/save-order',
+        identifier: 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: bodyResult.error.format()
+      });
+      return jsonResponse(
+        { error: 'Validation failed', details: bodyResult.error.format() },
+        { status: 422 }
+      );
+    }
 
     const sessionResult = await readSession(request);
     const customerEmail = sessionResult.session?.user?.email;
@@ -65,25 +57,20 @@ export const POST = async ({ request }: { request: Request }) => {
       return jsonResponse({ error: 'Unauthorized' }, { status: 401 }, { noIndex: true });
     }
 
-    const { sessionId, cart } = body;
-
-    if (!sessionId || !cart) {
-      return jsonResponse({ error: 'Missing sessionId or cart' }, { status: 400 });
-    }
-
-    const cartValidation = CartSchema.safeParse(cart);
-    if (!cartValidation.success) {
-      return jsonResponse(
-        { error: 'Invalid cart format', details: cartValidation.error.format() },
-        { status: 422 }
-      );
-    }
-
-    const validatedCart: CartItem[] = cartValidation.data as CartItem[];
+    const { sessionId, cart } = bodyResult.data;
 
     const stripeSession = await stripeClient.checkout.sessions.retrieve(sessionId, {
       expand: ['customer_details']
     });
+    const stripeSessionResult = stripeCheckoutSessionSchema.safeParse(stripeSession);
+    if (!stripeSessionResult.success) {
+      console.error('[stripe-validation]', {
+        id: stripeSession?.id,
+        errors: stripeSessionResult.error.format()
+      });
+      throw new Error('Invalid Stripe session response');
+    }
+    const validatedSession = stripeSessionResult.data;
 
     const projectId =
       (import.meta.env.SANITY_PROJECT_ID as string | undefined) ||
@@ -113,29 +100,44 @@ export const POST = async ({ request }: { request: Request }) => {
     });
 
     const customerData: SanityCustomerQueryResult = await customerRes.json();
-    const customerId = customerData.result?._id;
+    let customerId = customerData.result?._id;
+    if (customerData.result) {
+      const customerResult = sanityCustomerSchema.safeParse(customerData.result);
+      if (!customerResult.success) {
+        console.warn('[sanity-validation]', {
+          _id: (customerData.result as any)?._id,
+          _type: 'customer',
+          errors: customerResult.error.format()
+        });
+        customerId = undefined;
+      } else {
+        customerId = customerResult.data._id;
+      }
+    }
 
-    const amountSubtotal = stripeSession.amount_subtotal ? stripeSession.amount_subtotal / 100 : 0;
+    const amountSubtotal = validatedSession.amount_subtotal
+      ? validatedSession.amount_subtotal / 100
+      : 0;
     const amountTax =
-      typeof stripeSession.total_details?.amount_tax === 'number'
-        ? stripeSession.total_details.amount_tax / 100
+      typeof validatedSession.total_details?.amount_tax === 'number'
+        ? validatedSession.total_details.amount_tax / 100
         : 0;
     const amountShipping =
-      typeof stripeSession.total_details?.amount_shipping === 'number'
-        ? stripeSession.total_details.amount_shipping / 100
+      typeof validatedSession.total_details?.amount_shipping === 'number'
+        ? validatedSession.total_details.amount_shipping / 100
         : 0;
     const amountDiscount =
-      typeof stripeSession.total_details?.amount_discount === 'number'
-        ? stripeSession.total_details.amount_discount / 100
+      typeof validatedSession.total_details?.amount_discount === 'number'
+        ? validatedSession.total_details.amount_discount / 100
         : 0;
-    const totalAmount = stripeSession.amount_total ? stripeSession.amount_total / 100 : 0;
-    const customerName = stripeSession.customer_details?.name || '';
-    const customerEmailValue = stripeSession.customer_details?.email || customerEmail || '';
+    const totalAmount = validatedSession.amount_total ? validatedSession.amount_total / 100 : 0;
+    const customerName = validatedSession.customer_details?.name || '';
+    const customerEmailValue = validatedSession.customer_details?.email || customerEmail || '';
 
     const orderPayload: OrderPayload = {
       _type: 'order',
       stripeSessionId: sessionId,
-      cart: validatedCart.map((item) =>
+      cart: cart.map((item) =>
         createOrderCartItem({
           id: item.id,
           sku: item.sku,

@@ -1,6 +1,7 @@
 import { createClient } from '@sanity/client';
 import type { APIRoute } from 'astro';
 import { Resend } from 'resend';
+import { formSubmissionSchema } from '@/lib/validators/api-requests';
 
 const json = (data: any, init?: ResponseInit) =>
   new Response(JSON.stringify(data), {
@@ -206,7 +207,21 @@ async function recordMarketingOptIn(
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const body = await parseBody(request);
+    const bodyResult = formSubmissionSchema.safeParse(await parseBody(request));
+    if (!bodyResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'formSubmissionSchema',
+        context: 'api/form-submission',
+        identifier: 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: bodyResult.error.format()
+      });
+      return json(
+        { message: 'Validation failed', details: bodyResult.error.format() },
+        { status: 422 }
+      );
+    }
+    const body = bodyResult.data;
     const formName = String(body.formName || body.form || body.name || 'Website Form').trim();
     const rawFields = body.fields && typeof body.fields === 'object' ? body.fields : body;
     const fields = normaliseFields(rawFields);

@@ -1,6 +1,8 @@
 // src/pages/api/customer/get.ts (Astro APIRoute)
 import type { APIRoute } from 'astro';
 import { createClient } from '@sanity/client';
+import { customerGetSchema } from '@/lib/validators/api-requests';
+import { sanityCustomerSchema } from '@/lib/validators/sanity';
 
 const cors = {
   'access-control-allow-origin': '*',
@@ -39,14 +41,22 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    const { email } = (await request.json().catch(() => ({}))) as { email?: string };
-    const emailLc = (email || '').toString().trim().toLowerCase();
-    if (!emailLc) {
-      return new Response(JSON.stringify({ error: 'Missing email' }), {
-        status: 400,
-        headers: { ...cors, 'content-type': 'application/json' }
+    const rawBody = (await request.json().catch(() => ({}))) as { email?: string };
+    const bodyResult = customerGetSchema.safeParse(rawBody);
+    if (!bodyResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'customerGetSchema',
+        context: 'api/customer/get',
+        identifier: 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: bodyResult.error.format()
       });
+      return new Response(
+        JSON.stringify({ error: 'Validation failed', details: bodyResult.error.format() }),
+        { status: 422, headers: { ...cors, 'content-type': 'application/json' } }
+      );
     }
+    const emailLc = (bodyResult.data.email || '').toString().trim().toLowerCase();
 
     const client = createClient({
       projectId,
@@ -60,7 +70,20 @@ export const POST: APIRoute = async ({ request }) => {
       email: emailLc
     });
 
-    return new Response(JSON.stringify(customer || null), {
+    const customerResult = sanityCustomerSchema.safeParse(customer);
+    if (!customerResult.success) {
+      console.warn('[sanity-validation]', {
+        _id: (customer as any)?._id,
+        _type: 'customer',
+        errors: customerResult.error.format()
+      });
+      return new Response(JSON.stringify(null), {
+        status: 200,
+        headers: { ...cors, 'content-type': 'application/json' }
+      });
+    }
+
+    return new Response(JSON.stringify(customerResult.data || null), {
       status: 200,
       headers: { ...cors, 'content-type': 'application/json' }
     });

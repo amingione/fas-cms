@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { requireVendor } from '@/server/vendor-portal/auth';
 import { sanity } from '@/server/sanity-client';
 import { jsonResponse } from '@/server/http/responses';
+import { vendorSettingsNotificationsSchema } from '@/lib/validators/api-requests';
 
 export const GET: APIRoute = async ({ request }) => {
   const ctx = await requireVendor(request);
@@ -26,7 +27,22 @@ export const PUT: APIRoute = async ({ request }) => {
   const ctx = await requireVendor(request);
   if (!ctx.ok) return ctx.response;
   try {
-    const preferences = await request.json();
+    const bodyResult = vendorSettingsNotificationsSchema.safeParse(await request.json());
+    if (!bodyResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'vendorSettingsNotificationsSchema',
+        context: 'api/vendor/settings/notifications',
+        identifier: ctx.vendorId || 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: bodyResult.error.format()
+      });
+      return jsonResponse(
+        { error: 'Validation failed', details: bodyResult.error.format() },
+        { status: 422 },
+        { noIndex: true }
+      );
+    }
+    const preferences = bodyResult.data;
     await sanity.patch(ctx.vendorId).set({ notificationPreferences: preferences }).commit();
     return jsonResponse({ ok: true }, { status: 200 }, { noIndex: true });
   } catch (err) {

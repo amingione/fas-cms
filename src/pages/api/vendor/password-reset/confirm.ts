@@ -2,20 +2,27 @@ import type { APIRoute } from 'astro';
 import crypto from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import { getVendorByEmail, updateVendorPassword } from '../../../../server/sanity-client';
+import { vendorPasswordResetConfirmSchema } from '@/lib/validators/api-requests';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const body = await request.json();
-    const token = String(body?.token || '').trim();
-    const email = String(body?.email || '').trim().toLowerCase();
-    const password = String(body?.password || '');
-
-    if (!token || !email || !password) {
-      return new Response(JSON.stringify({ message: 'Missing token, email, or password.' }), {
-        status: 400,
-        headers: { 'content-type': 'application/json' }
+    const bodyResult = vendorPasswordResetConfirmSchema.safeParse(await request.json());
+    if (!bodyResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'vendorPasswordResetConfirmSchema',
+        context: 'api/vendor/password-reset/confirm',
+        identifier: 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: bodyResult.error.format()
       });
+      return new Response(
+        JSON.stringify({ message: 'Validation failed', details: bodyResult.error.format() }),
+        { status: 422, headers: { 'content-type': 'application/json' } }
+      );
     }
+    const token = String(bodyResult.data.token || '').trim();
+    const email = String(bodyResult.data.email || '').trim().toLowerCase();
+    const password = String(bodyResult.data.password || '');
 
     if (password.length < 8) {
       return new Response(JSON.stringify({ message: 'Password must be at least 8 characters long.' }), {

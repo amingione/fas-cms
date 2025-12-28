@@ -1,3 +1,6 @@
+import { cartAddSchema } from '@/lib/validators/api-requests';
+import { sanityProductSchema } from '@/lib/validators/sanity';
+
 export async function POST({ request }: { request: Request }) {
   if (!request.headers.get('content-type')?.includes('application/json')) {
     return new Response(JSON.stringify({ error: 'Invalid content type' }), {
@@ -16,14 +19,22 @@ export async function POST({ request }: { request: Request }) {
     });
   }
 
-  const { productId, quantity, sessionId } = body;
-
-  if (!productId || !quantity || !sessionId || !Number.isInteger(quantity) || quantity <= 0) {
-    return new Response(JSON.stringify({ error: 'Missing or invalid fields' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
+  const bodyResult = cartAddSchema.safeParse(body);
+  if (!bodyResult.success) {
+    console.error('[validation-failure]', {
+      schema: 'cartAddSchema',
+      context: 'api/cart',
+      identifier: 'unknown',
+      timestamp: new Date().toISOString(),
+      errors: bodyResult.error.format()
     });
+    return new Response(
+      JSON.stringify({ error: 'Validation failed', details: bodyResult.error.format() }),
+      { status: 422, headers: { 'Content-Type': 'application/json' } }
+    );
   }
+
+  const { productId, quantity, sessionId } = bodyResult.data;
 
   // Verify the referenced document is a product
   const validateRes = await fetch(
@@ -43,8 +54,20 @@ export async function POST({ request }: { request: Request }) {
   }
 
   const { result: productCheck } = await validateRes.json();
+  const productCheckResult = sanityProductSchema.partial().safeParse(productCheck);
+  if (!productCheckResult.success) {
+    console.warn('[sanity-validation]', {
+      _id: (productCheck as any)?._id,
+      _type: 'product',
+      errors: productCheckResult.error.format()
+    });
+    return new Response(JSON.stringify({ error: 'Invalid product reference' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
 
-  if (!productCheck || productCheck._type !== 'product') {
+  if (!productCheckResult.data || productCheckResult.data._type !== 'product') {
     return new Response(JSON.stringify({ error: 'Invalid product reference' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' }

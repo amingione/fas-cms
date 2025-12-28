@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { generateBlogSchema } from '@/lib/validators/api-requests';
 
 const WEBHOOK_URL =
   import.meta.env.SANITY_GENERATE_SEO_CONTENT_WEBHOOK ||
@@ -30,9 +31,24 @@ async function triggerWebhook(body: unknown) {
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const payload = request.headers.get('content-type')?.includes('application/json')
+    const rawPayload = request.headers.get('content-type')?.includes('application/json')
       ? await request.json().catch(() => ({}))
       : {};
+    const payloadResult = generateBlogSchema.safeParse(rawPayload);
+    if (!payloadResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'generateBlogSchema',
+        context: 'api/generate-blog',
+        identifier: 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: payloadResult.error.format()
+      });
+      return new Response(
+        JSON.stringify({ success: false, error: 'Validation failed', details: payloadResult.error.format() }),
+        { status: 422, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+    const payload = payloadResult.data;
     const status = await triggerWebhook(payload);
     return new Response(
       JSON.stringify({ success: true, status }),

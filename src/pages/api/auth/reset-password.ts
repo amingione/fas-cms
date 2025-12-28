@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { completePasswordReset, validateResetToken } from '@/server/vendor-portal/service';
 import { jsonResponse } from '@/server/http/responses';
+import { authResetPasswordSchema } from '@/lib/validators/api-requests';
 
 export const GET: APIRoute = async ({ request }) => {
   const url = new URL(request.url);
@@ -31,12 +32,23 @@ export const GET: APIRoute = async ({ request }) => {
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const body = await request.json();
-    const token = String(body?.token || '').trim();
-    const password = String(body?.password || '');
-    if (!token || !password) {
-      return jsonResponse({ message: 'Missing token or password' }, { status: 400 }, { noIndex: true });
+    const bodyResult = authResetPasswordSchema.safeParse(await request.json());
+    if (!bodyResult.success) {
+      console.error('[validation-failure]', {
+        schema: 'authResetPasswordSchema',
+        context: 'api/auth/reset-password',
+        identifier: 'unknown',
+        timestamp: new Date().toISOString(),
+        errors: bodyResult.error.format()
+      });
+      return jsonResponse(
+        { message: 'Validation failed', details: bodyResult.error.format() },
+        { status: 422 },
+        { noIndex: true }
+      );
     }
+    const token = String(bodyResult.data.token || '').trim();
+    const password = String(bodyResult.data.password || '');
     return await completePasswordReset({ token, password });
   } catch (err) {
     console.error('[vendor reset complete] failed', err);
