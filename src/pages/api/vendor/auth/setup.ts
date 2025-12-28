@@ -61,7 +61,8 @@ export const POST: APIRoute = async ({ request }) => {
       .patch(vendor._id)
       .set({
         'portalAccess.passwordHash': passwordHash,
-        'portalAccess.setupCompletedAt': new Date().toISOString()
+        'portalAccess.setupCompletedAt': new Date().toISOString(),
+        'portalAccess.enabled': true
       })
       .unset(['portalAccess.setupToken', 'portalAccess.setupTokenExpiry'])
       .commit();
