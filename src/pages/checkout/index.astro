@@ -92,6 +92,30 @@ import { formatMoney } from '@/utils/money.ts';
       return { items: [] };
     };
 
+    const getOptionSummary = (item) => {
+      const values = [];
+      if (item && item.options && typeof item.options === 'object') {
+        Object.values(item.options).forEach((value) => {
+          if (value === null || value === undefined) return;
+          if (typeof value === 'object') {
+            const label = value.label ?? value.value ?? value.name;
+            if (label) values.push(String(label));
+            return;
+          }
+          const stringy = String(value).trim();
+          if (stringy) values.push(stringy);
+        });
+      }
+      if (!values.length && Array.isArray(item?.selectedOptions)) {
+        item.selectedOptions.forEach((entry) => {
+          const stringy = String(entry || '').trim();
+          if (stringy) values.push(stringy);
+        });
+      }
+      if (!values.length) return null;
+      return values.join(' • ');
+    };
+
     const renderCart = () => {
       const cart = loadCart();
       const items = Array.isArray(cart.items) ? cart.items : [];
@@ -110,12 +134,15 @@ import { formatMoney } from '@/utils/money.ts';
           const qty = Math.max(1, Number(item.quantity) || 1);
           const price = Number(item.price) || 0;
           const subtotal = price * qty;
+          const optionSummary = getOptionSummary(item);
+          const displayName = item.name || 'Item';
           return `
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between rounded-lg border border-white/10 bg-dark/40 p-4 gap-3">
               <div class="flex items-center gap-3">
                 <img src="${item.image || '/logo/faslogochroma.webp'}" class="h-14 w-14 rounded object-cover border border-white/10" alt="">
                 <div>
-                  <p class="font-semibold text-white">${item.name || 'Item'}</p>
+                  <p class="font-semibold text-white">${displayName}</p>
+                  ${optionSummary ? `<p class="text-xs text-white/60">${optionSummary}</p>` : ''}
                   <p class="text-xs text-white/50">${qty} × ${money(price)}</p>
                 </div>
               </div>

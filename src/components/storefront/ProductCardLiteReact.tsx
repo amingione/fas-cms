@@ -28,11 +28,11 @@ export default function ProductCardLiteReact({
   const href = slug ? `/shop/${encodeURIComponent(slug)}` : '#';
   const fallbackImage = '/logo/faslogochroma.webp';
   const img = resolveSanityImageUrl([productImage, product?.images]) ?? fallbackImage;
-  const title = product?.title || 'Untitled Product';
+  const displayTitle = product?.displayTitle || product?.title || 'Untitled Product';
   const anchorText =
     typeof product?.seoAnchorText === 'string' && product.seoAnchorText.trim().length > 0
       ? product.seoAnchorText.trim()
-      : title;
+      : displayTitle;
   const short =
     portableTextToPlainText(product?.shortDescription) ||
     portableTextToPlainText(product?.description) ||
@@ -50,7 +50,7 @@ export default function ProductCardLiteReact({
     Object.fromEntries(
       Object.entries({
         product_id: typeof product?._id === 'string' ? product._id : undefined,
-        product_name: title,
+        product_name: displayTitle,
         product_slug: slug || undefined,
         price,
         tile_layout: layout
@@ -114,7 +114,7 @@ export default function ProductCardLiteReact({
           className="pointer-events-auto"
           product={{
             id: typeof product?._id === 'string' ? product._id : undefined,
-            title,
+            title: displayTitle,
             href,
             price,
             imageSrc: img,
@@ -166,11 +166,11 @@ export default function ProductCardLiteReact({
           className="pointer-events-auto"
           product={{
             id: typeof product?._id === 'string' ? product._id : undefined,
-            title,
+            title: displayTitle,
             href,
             price,
             imageSrc: img,
-            imageAlt: title,
+            imageAlt: anchorText,
             description: shortText,
             shortDescriptionPortable: (product as any)?.shortDescription,
             optionGroups: quickViewOptions,

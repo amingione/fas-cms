@@ -20,6 +20,7 @@ const productsQuery = /* groq */ `
 *[_type == "product" && !(_id in path('drafts.**')) && (status == "active" || !defined(status)) && coalesce(productType, "") != "service" && defined(slug.current) && references($filterId)] | order(_createdAt desc){
   _id,
   title,
+  displayTitle,
   "slug": slug.current,
   "image": coalesce(images[0].asset->url, mainImage.asset->url),
   price,
@@ -44,6 +45,7 @@ const productsQuery = /* groq */ `
 interface ProductItem {
   _id: string;
   title: string;
+  displayTitle?: string;
   slug: string;
   image?: string;
   price?: number;
@@ -76,6 +78,7 @@ type LiteSlug = { current: string };
 type LiteProduct = {
   _id: string;
   title?: string;
+  displayTitle?: string;
   slug?: LiteSlug | string;
   price?: number;
   onSale?: boolean;
@@ -91,8 +94,9 @@ type LiteProduct = {
   seoAnchorText?: string;
 };
 
-const toAnchorText = (product: ProductItem): string | undefined =>
-  buildPrimaryKeywordAnchor(
+const toAnchorText = (product: ProductItem): string | undefined => {
+  const fallbackLabel = product.displayTitle ?? product.title;
+  return buildPrimaryKeywordAnchor(
     {
       primaryKeyword: product.primaryKeyword,
       seoPrimaryKeyword: product.seoPrimaryKeyword,
@@ -100,14 +104,16 @@ const toAnchorText = (product: ProductItem): string | undefined =>
       seoFitmentYears: product.seoFitmentYears,
       fitment: product.fitment,
       seoFitment: product.seoFitment,
-      fallbackLabel: product.title
+      fallbackLabel: fallbackLabel
     },
-    product.title
+    fallbackLabel
   );
+};
 
 const liteProducts: LiteProduct[] = products.map((p) => ({
   _id: p._id,
   title: p.title,
+  displayTitle: p.displayTitle,
   slug: { current: p.slug } as LiteSlug,
   price: p.price,
   onSale: p.onSale,

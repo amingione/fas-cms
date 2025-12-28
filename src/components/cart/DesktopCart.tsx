@@ -6,46 +6,9 @@ import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import { CartProvider, useCart } from '@components/cart/cart-context';
 import { prefersDesktopCart } from '@/lib/device';
 import { useEffect, useRef, useState } from 'react';
+import { formatOptionSummary } from '@/lib/cart/format-option-summary';
 
 const FALLBACK_IMAGE = '/logo/faslogo150.webp';
-
-type CartOptionMap = Record<string, string | number | boolean | null | undefined>;
-
-function normalizeOptionLabel(rawKey: string) {
-  return rawKey
-    .split(/[^a-zA-Z0-9]+/)
-    .filter(Boolean)
-    .map((segment) =>
-      segment.length > 1
-        ? segment[0].toUpperCase() + segment.slice(1).toLowerCase()
-        : segment.toUpperCase()
-    )
-    .join(' ');
-}
-
-function normalizeOptionValue(rawValue: string | number | boolean | null | undefined) {
-  if (rawValue === null || rawValue === undefined) return null;
-  if (typeof rawValue === 'boolean') return rawValue ? 'Selected' : 'None';
-  const stringy = String(rawValue).trim();
-  if (!stringy) return null;
-  const lower = stringy.toLowerCase();
-  if (lower === 'true' || lower === 'on') return 'Selected';
-  if (lower === 'false' || lower === 'off') return 'None';
-  return stringy;
-}
-
-function listOptions(options?: CartOptionMap) {
-  if (!options) return null;
-  const entries = Object.entries(options)
-    .map(([key, value]) => {
-      const normalized = normalizeOptionValue(value);
-      if (!normalized) return null;
-      return `${normalizeOptionLabel(key)}: ${normalized}`;
-    })
-    .filter(Boolean) as string[];
-  if (!entries.length) return null;
-  return entries.join(' • ');
-}
 
 function CartSummaryPopover({
   onRegisterTrigger,
@@ -154,8 +117,14 @@ function CartSummaryPopover({
               className="max-h-72 overflow-auto pr-1 divide-y divide-white/15 [&>li]:py-6 [&>li:first-child]:pt-4 [&>li:last-child]:pb-4"
             >
               {items.map((item) => {
-                const lineTotal = (item.price || 0) * (item.quantity || 0);
-                const optionsSummary = listOptions(item.options);
+                const optionsSummary = formatOptionSummary({
+                  options: item.options as Record<string, unknown>,
+                  selections: (item as any).selections,
+                  selectedOptions: item.selectedOptions,
+                  selectedUpgrades: item.selectedUpgrades,
+                  upgrades: (item as any).upgrades
+                });
+                const displayName = item.name || 'Product';
                 const normalizedClass = (item.shippingClass || '')
                   .toString()
                   .toLowerCase()
@@ -171,7 +140,7 @@ function CartSummaryPopover({
                     />
                     <div className="flex flex-1 flex-col text-xs">
                       <span className="text-sm font-semibold text-white">
-                        {item.name || 'Product'}
+                        {displayName}
                       </span>
                       {optionsSummary && (
                         <span className="mt-1 text-white/60">{optionsSummary}</span>

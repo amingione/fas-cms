@@ -94,16 +94,16 @@ const computeAnchorText = (product: any): string | undefined =>
       seoFitmentYears: product?.seoFitmentYears,
       fitment: product?.fitment,
       seoFitment: product?.seoFitment,
-      fallbackLabel: product?.title ?? product?.name
+      fallbackLabel: product?.displayTitle ?? product?.title ?? product?.name
     },
-    product?.title ?? product?.name
+    product?.displayTitle ?? product?.title ?? product?.name
   );
 
 const featuredProducts = (Array.isArray(featuredRaw) ? featuredRaw : []).map((p: any) => {
   const anchorText = computeAnchorText(p);
   return {
     _id: p?._id,
-    title: collapseLabelSpaces(p?.title || p?.name || 'Product'),
+    title: collapseLabelSpaces(p?.displayTitle || p?.title || p?.name || 'Product'),
     slug: p?.slug,
     price: p?.price,
     images: Array.isArray(p?.images) && p.images.length

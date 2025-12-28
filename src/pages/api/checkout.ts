@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto';
 import { readSession } from '../../server/auth/session';
 import { sanity } from '../../server/sanity-client';
 import { getActivePrice, getCompareAtPrice, isOnSale } from '@/lib/saleHelpers';
+import { formatOptionSummary } from '@/lib/cart/format-option-summary';
 import { checkoutRequestSchema } from '@/lib/validators/api-requests';
 import { sanityProductSchema } from '@/lib/validators/sanity';
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
@@ -102,6 +103,8 @@ type CheckoutCartItem = {
   shippingClass?: string;
   options?: Record<string, string>;
   selections?: CartSelection[] | Record<string, unknown>;
+  selectedOptions?: string[];
+  selectedUpgrades?: string[];
   basePrice?: number;
   extra?: number;
   upgrades?: unknown;
@@ -807,29 +810,16 @@ export async function POST({ request }: { request: Request }) {
     if (typeof item.extra === 'number' && Number.isFinite(item.extra)) {
       metadata.option_upcharge = Number(item.extra).toFixed(2);
     }
-    const variantEntry = optionDetails?.entries?.find(([key]) =>
-      /variant|type|model|option\s*1/i.test(key)
-    );
-    const firstEntry = optionDetails?.entries?.[0];
-    const variantLabel = cleanLabel(variantEntry?.[1] || firstEntry?.[1]);
-
     const baseProductName = (product as any)?.title || item.name || 'Item';
-    const displayName = baseProductName || variantLabel || 'Item';
-
-    const remainingOptions = (optionDetails?.entries || [])
-      .filter((entry) => entry !== variantEntry && entry !== firstEntry)
-      .map(([, value]) => cleanLabel(value))
-      .filter(Boolean);
-
-    const descriptionParts: string[] = [];
-    if (upgradeValues.length) descriptionParts.push(upgradeValues.join(' • '));
-    if (remainingOptions.length) descriptionParts.push(remainingOptions.join(' • '));
-    const uniqueDescriptionParts = Array.from(
-      new Set(descriptionParts.map((part) => part.trim()).filter(Boolean))
-    );
-    const description = uniqueDescriptionParts.length
-      ? clamp(uniqueDescriptionParts.join(' | '), 250)
-      : undefined;
+    const displayName = baseProductName || 'Item';
+    const optionSummary = formatOptionSummary({
+      options: item.options as Record<string, unknown>,
+      selections: item.selections,
+      selectedOptions: (item as any).selectedOptions,
+      selectedUpgrades: (item as any).selectedUpgrades,
+      upgrades: item.upgrades ?? item.addOns
+    });
+    const description = optionSummary ? clamp(optionSummary, 250) : undefined;
 
     return {
       price_data: {

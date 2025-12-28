@@ -40,6 +40,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const onSale = isOnSale(product);
   const saleBadge = getSaleBadgeText(product);
   const productPrice = formatPrice(activePrice);
+  const displayTitle = (product as any)?.displayTitle || product.title || 'Product';
 
   const imageUrl =
     resolveSanityImageUrl([product?.image, product?.image?.asset]) || '/logo/faslogochroma.webp';
@@ -150,7 +151,7 @@ export function ProductCard({ product }: ProductCardProps) {
           )}
           <motion.img
             src={imageUrl}
-            alt={product.title}
+            alt={displayTitle}
             className="w-full h-full object-contain transition-transform duration-300 ease-in-out group-hover:scale-105 group-hover:-rotate-1"
             whileHover={{ scale: 1.1 }}
             transition={{ duration: 0.4 }}
@@ -159,7 +160,7 @@ export function ProductCard({ product }: ProductCardProps) {
         <div className="p-4 space-y-2">
           <div className="px-4 text-left">
             <h2 className="text-sm sm:text-base font-ethno font-semibold text-white group-hover:text-primary transition-colors duration-300">
-              {product.title}
+              {displayTitle}
             </h2>
           </div>
         </div>

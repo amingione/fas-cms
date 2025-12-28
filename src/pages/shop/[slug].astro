@@ -663,6 +663,7 @@ let isInstallOnly = false;
 let isPerformanceParts = false;
 let requiresVehicleDisclaimer = false;
 let productHeading = baseProductTitle;
+let displayTitle = baseProductTitle;
 let productSubheading: string | null = null;
 let headingInlineAttrs: Record<string, any> = inlineFieldAttrs('title');
 let descriptionDescriptor: ContentDescriptor | null = null;
@@ -686,6 +687,7 @@ try {
   }
 
   baseProductTitle = String((product as any)?.title || 'Product');
+  displayTitle = String((product as any)?.displayTitle || (product as any)?.title || 'Product');
 
   const activePriceValue = getActivePrice(product as any);
   const comparePriceValue = getCompareAtPrice(product as any);
@@ -1053,11 +1055,11 @@ if (product) {
 
   const headingParts = [primaryKeyword, fitmentPhrase].filter(Boolean);
   const derivedHeading = collapseSpaces(headingParts.join(' '));
-  productHeading = baseProductTitle;
+  productHeading = displayTitle || baseProductTitle;
   productSubheading = derivedHeading || null;
-  headingInlineAttrs = inlineFieldAttrs('title');
+  headingInlineAttrs = inlineFieldAttrs((product as any)?.displayTitle ? 'displayTitle' : 'title');
   if (!productHeading) {
-    productHeading = baseProductTitle;
+    productHeading = displayTitle || baseProductTitle;
   }
 
   const seoBenefitsDescriptor = describeContent((product as any)?.seo?.benefits, 'seo.benefits');
@@ -1658,7 +1660,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                 type="button"
                 class="add-to-cart mobile-hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-full transition relative z-10 pointer-events-auto sm:w-auto btn-glass"
                 data-product-id={(product as any)._id}
-                data-product-name={(product as any).title}
+                data-product-name={displayTitle || (product as any).title}
                 data-product-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
                 data-product-base-price={
                   typeof compareAtValue === 'number'
@@ -1915,7 +1917,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
     type="button"
     class="add-to-cart inline-flex items-center gap-2 bg-primary text-white font-ethno px-4 py-2 rounded hover:text-white btn-glass w-1/2"
     data-product-id={(product as any)._id}
-    data-product-name={(product as any).title}
+    data-product-name={displayTitle || (product as any).title}
     data-product-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
     data-product-base-price={
       typeof compareAtValue === 'number'

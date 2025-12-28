@@ -5,6 +5,7 @@ import { CartProvider, useCart } from '@/components/cart/cart-context';
 import type { CartItem } from '@/components/cart/actions';
 import { QuestionMarkCircleIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import Price, { formatPrice } from '@/components/storefront/Price';
+import { formatOptionSummary } from '@/lib/cart/format-option-summary';
 
 const FALLBACK_IMAGE = '/logo/faslogo150.webp';
 const QUANTITY_CHOICES = Array.from({ length: 10 }, (_, i) => i + 1);
@@ -30,18 +31,6 @@ const CLEAN_PREFIX_REGEX = /^(type|option|upgrade|add[-\s]?on)\s*\d*\s*:?/i;
 function cleanLabel(label?: string | null) {
   if (!label) return '';
   return label.replace(CLEAN_PREFIX_REGEX, '').trim();
-}
-
-function extractVariantLabel(item: CartItem): string | null {
-  const optionEntries = Object.entries(item.options || {});
-  const variantCandidate = optionEntries.find(([key]) => !/upgrade|add[-\s]?on/i.test(key));
-  if (variantCandidate?.[1]) return cleanLabel(String(variantCandidate[1]));
-
-  const firstOption = optionEntries[0]?.[1];
-  if (firstOption) return cleanLabel(String(firstOption));
-
-  const firstSelected = item.selectedOptions?.[0];
-  return firstSelected ? cleanLabel(firstSelected) : null;
 }
 
 function extractAddOns(item: CartItem): AddOnEntry[] {
@@ -319,23 +308,18 @@ function CartContents() {
                     .toLowerCase()
                     .replace(/[^a-z]/g, '');
                   const isInstallOnly = item.installOnly || normalizedClass.includes('installonly');
-                  const variantLabel = extractVariantLabel(item);
-                  const displayTitle = `(${pricing.quantity}) ${variantLabel ? `${variantLabel} ` : ''}${item.name || 'Product'}`;
+                  const optionSummary = formatOptionSummary({
+                    options: item.options as Record<string, unknown>,
+                    selections: (item as any).selections,
+                    selectedOptions: item.selectedOptions,
+                    selectedUpgrades: item.selectedUpgrades,
+                    upgrades: item.upgrades
+                  });
+                  const displayTitle = `(${pricing.quantity}) ${item.name || 'Product'}`;
                   const unitPrice = pricing.unitPrice;
                   const comparePrice = pricing.comparePrice;
                   const onSale = pricing.onSale;
                   const savings = pricing.savings;
-                  const addOnLines = addOnEntries.map((entry, idx) => (
-                    <li
-                      key={`${item.id}-addon-${idx}`}
-                      className="flex items-start justify-between gap-3 text-sm text-white/80"
-                    >
-                      <span className="ml-4 italic">{entry.label}</span>
-                      {typeof entry.price === 'number' && Number.isFinite(entry.price) && (
-                        <span className="text-white">{formatPrice(entry.price)}</span>
-                      )}
-                    </li>
-                  ));
                   const productHref = (() => {
                     const raw = item.productUrl;
                     if (!raw) return undefined;
@@ -365,8 +349,8 @@ function CartContents() {
                         )}
                       </div>
                       <div className="flex flex-1 flex-col gap-3">
-                        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                          <div className="space-y-1">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                          <div className="min-w-0 space-y-1">
                             {productHref ? (
                               <a
                                 href={productHref}
@@ -377,7 +361,9 @@ function CartContents() {
                             ) : (
                               <h3 className="text-base font-semibold text-white">{displayTitle}</h3>
                             )}
-                            {addOnLines.length > 0 && <ul className="space-y-1">{addOnLines}</ul>}
+                            {optionSummary && (
+                              <p className="text-sm text-white/70">{optionSummary}</p>
+                            )}
                             <Price
                               amount={unitPrice}
                               originalAmount={onSale ? (comparePrice ?? undefined) : undefined}
@@ -403,7 +389,7 @@ function CartContents() {
                             )}
                           </div>
 
-                          <div className="flex items-start gap-3">
+                          <div className="flex items-center gap-3 shrink-0">
                             <select
                               id={`quantity-${item.id}`}
                               value={item.quantity || 1}
@@ -419,20 +405,22 @@ function CartContents() {
                                 </option>
                               ))}
                             </select>
-                            <form
-                              onSubmit={(event) => {
-                                event.preventDefault();
-                                onRemove(item.id);
-                              }}
-                            >
-                              <button
-                                type="submit"
-                                aria-label="Remove item"
-                                className="text-white/60 transition hover:text-red-400"
+                            <div className="flex w-10 shrink-0 items-center justify-center">
+                              <form
+                                onSubmit={(event) => {
+                                  event.preventDefault();
+                                  onRemove(item.id);
+                                }}
                               >
-                                <XMarkIcon aria-hidden="true" className="size-5" />
-                              </button>
-                            </form>
+                                <button
+                                  type="submit"
+                                  aria-label="Remove item"
+                                  className="shrink-0 text-white/60 transition hover:text-red-400"
+                                >
+                                  <XMarkIcon aria-hidden="true" className="size-5" />
+                                </button>
+                              </form>
+                            </div>
                           </div>
                         </div>
                       </div>

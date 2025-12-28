@@ -35,6 +35,7 @@ const {
   product: {
     _id: string;
     title?: string;
+    displayTitle?: string;
     slug?: Slug | string;
     price?: number;
     images?: Img[];
@@ -50,7 +51,7 @@ const slug = normalizeSlugValue((product as any)?.slug);
 const href = slug ? `/shop/${encodeURIComponent(slug)}` : '#';
 const fallbackImage = '/logo/faslogochroma.webp';
 const img = resolveSanityImageUrl([productImage, product?.images]) ?? fallbackImage;
-const baseTitle = product?.title || 'Untitled Product';
+const baseTitle = (product as any)?.displayTitle || product?.title || 'Untitled Product';
 const anchorText =
   typeof (product as any)?.seoAnchorText === 'string' &&
   (product as any).seoAnchorText.trim().length > 0

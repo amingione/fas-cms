@@ -106,7 +106,7 @@ export function ProductCard({ product, productImage, className }: ProductCardPro
   const onSale = isOnSale(product);
   const saleBadge = getSaleBadgeText(product);
   const priceLabel = formatPrice(activePrice);
-  const name = product.title || 'Product';
+  const displayTitle = (product as any)?.displayTitle || product.title || 'Product';
   const subtitle = 'F.a.S.';
   const slug = getSlug(product);
   const productUrl = slug ? `/shop/${slug}` : '#';
@@ -132,7 +132,7 @@ export function ProductCard({ product, productImage, className }: ProductCardPro
             )}
             <img
               src={imageUrl}
-              alt={name}
+              alt={displayTitle}
               className="absolute inset-0 w-full h-full object-contain"
             />
           </a>
@@ -144,7 +144,7 @@ export function ProductCard({ product, productImage, className }: ProductCardPro
         {/* Product info */}
         <div className="">
           <h2 className="relative text-white font-ethno text-[12px] md:text-sm lg:text-base font-semibold leading-snug line-clamp-3">
-            {name}
+            {displayTitle}
           </h2>
           <div>
             <p className="relative chrome-text mt-2 text-accent font-borg text-[15px] md:text-base font-base line-clamp-2">

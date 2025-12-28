@@ -38,6 +38,7 @@ export async function getCollectionProducts(client: SanityClient, collectionId: 
       `*[_type == "product" && _id in $ids]{
         _id,
         title,
+        displayTitle,
         slug,
         images[0],
         pricing,
@@ -111,7 +112,7 @@ export async function getCollectionProducts(client: SanityClient, collectionId: 
     query = addFilter(query, '(inventory.quantityAvailable > 0 || inventory.allowBackorder == true)');
   }
 
-  query += '{ _id, title, slug, images[0], pricing, inventory, reviews, "price": pricing.price }';
+  query += '{ _id, title, displayTitle, slug, images[0], pricing, inventory, reviews, "price": pricing.price }';
 
   return client.fetch(query, {
     categoryIds: rules.categoryFilter?.map((ref) => ref._ref).filter(Boolean)

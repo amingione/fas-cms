@@ -18,6 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const query = `*[_type == "product" && !(_id in path('drafts.**')) && (status == "active" || !defined(status)) && coalesce(productType, "") != "service" && slug.current == $id][0] {
     _id,
     title,
+    displayTitle,
     slug,
     price,
     onSale,

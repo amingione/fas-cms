@@ -77,6 +77,7 @@ export const productListingQuery = /* groq */ `
 *[_type == "product" && status == "active" && references($categoryId)] | order(featured desc, _createdAt desc) [0...24] {
   _id,
   title,
+  displayTitle,
   slug,
   images[0],
   
@@ -128,6 +129,7 @@ export const activeSalesQuery = /* groq */ `
 *[_type == "product" && pricing.onSale == true && pricing.saleActive == true] | order(pricing.discountPercentage desc) [0...12] {
   _id,
   title,
+  displayTitle,
   slug,
   images[0],
   "pricing": {
@@ -271,6 +273,7 @@ export const promotionLandingQuery = /* groq */ `
     appliesTo == "products" => eligibleProducts[]->{
       _id,
       title,
+      displayTitle,
       slug,
       images,
       pricing
@@ -336,6 +339,7 @@ export const collectionWithProductsQuery = /* groq */ `
     collectionType == "manual" => manualProducts[]->{
       _id,
       title,
+      displayTitle,
       slug,
       images[0],
       pricing,
@@ -376,6 +380,7 @@ export const featuredCollectionsQuery = /* groq */ `
     collectionType == "manual" => manualProducts[0...4]->{
       _id,
       title,
+      displayTitle,
       images[0],
       pricing
     }

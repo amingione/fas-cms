@@ -74,6 +74,12 @@ verify-enforcement:
 	@echo ""
 	@echo "✔ Post-enforcement verification recorded."
 
+# =========================================================
+# Codex-Only Governance Targets
+# =========================================================
+
+include codex-only-governance.mk
+
 .PHONY: gemini-expired-orders-audit
 
 gemini-expired-orders-audit:

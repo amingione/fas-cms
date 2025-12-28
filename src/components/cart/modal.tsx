@@ -6,6 +6,7 @@ import LoadingDots from '@components/loading-dots.tsx';
 import Price, { formatPrice } from '@/components/storefront/Price';
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { useCart, type Cart } from './cart-context';
+import { formatOptionSummary } from '@/lib/cart/format-option-summary';
 import { prefersDesktopCart } from '@/lib/device';
 
 function toNumber(value: unknown, fallback = 0): number {
@@ -215,42 +216,6 @@ export default function CartModal() {
 
 const QUANTITY_CHOICES = Array.from({ length: 10 }, (_, i) => i + 1);
 
-function normalizeOptionLabel(rawKey: string) {
-  return rawKey
-    .split(/[^a-zA-Z0-9]+/)
-    .filter(Boolean)
-    .map((segment) =>
-      segment.length > 1
-        ? segment[0].toUpperCase() + segment.slice(1).toLowerCase()
-        : segment.toUpperCase()
-    )
-    .join(' ');
-}
-
-function normalizeOptionValue(rawValue: unknown) {
-  if (rawValue === null || rawValue === undefined) return null;
-  if (typeof rawValue === 'boolean') return rawValue ? 'Selected' : 'None';
-  const stringy = String(rawValue).trim();
-  if (!stringy) return null;
-  const lower = stringy.toLowerCase();
-  if (lower === 'true' || lower === 'on') return 'Selected';
-  if (lower === 'false' || lower === 'off') return 'None';
-  return stringy;
-}
-
-function listOptions(options?: Record<string, unknown> | null) {
-  if (!options) return null;
-  const entries = Object.entries(options)
-    .map(([key, value]) => {
-      const normalized = normalizeOptionValue(value);
-      if (!normalized) return null;
-      return `${normalizeOptionLabel(key)}: ${normalized}`;
-    })
-    .filter(Boolean) as string[];
-  if (!entries.length) return null;
-  return entries.join(' • ');
-}
-
 type CartItemsListProps = {
   cart: Cart;
   pricing: Record<string, PricedItem>;
@@ -302,7 +267,14 @@ function CartItemsList({ cart, pricing, onQuantityChange, onRemove }: CartItemsL
               onSale: Boolean(item.isOnSale),
               savings: 0
             };
-            const optionsSummary = listOptions(item.options as Record<string, unknown>);
+            const optionsSummary = formatOptionSummary({
+              options: item.options as Record<string, unknown>,
+              selections: (item as any).selections,
+              selectedOptions: item.selectedOptions,
+              selectedUpgrades: item.selectedUpgrades,
+              upgrades: (item as any).upgrades
+            });
+            const displayName = item.name || 'Product';
             const normalizedClass = (item.shippingClass || '')
               .toString()
               .toLowerCase()
@@ -347,10 +319,10 @@ function CartItemsList({ cart, pricing, onQuantityChange, onRemove }: CartItemsL
                     <div className="flex justify-between text-base font-semibold text-white">
                       {productHref ? (
                         <a href={productHref} className="hover:text-primary">
-                          {item.name || 'Product'}
-                        </a>
-                      ) : (
-                        <p>{item.name || 'Product'}</p>
+                        {displayName}
+                      </a>
+                    ) : (
+                        <p>{displayName}</p>
                       )}
                       <Price
                         amount={priced.lineCurrent}

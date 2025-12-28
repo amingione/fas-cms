@@ -425,6 +425,7 @@ export const previewDraftsActive = previewDraftsEnabled;
 export interface Product {
   _id: string;
   title: string;
+  displayTitle?: string | null;
   slug: { current: string };
   price?: number | null;
   onSale?: boolean | null;
@@ -839,6 +840,7 @@ const normalizeCategoryEntry = <T extends { imageUrl?: unknown }>(category: T): 
 const PRODUCT_LISTING_PROJECTION = `{
   _id,
   title,
+  displayTitle,
   slug,
   metaTitle,
   metaDescription,
@@ -1386,6 +1388,7 @@ export async function fetchServiceCatalogProducts(): Promise<Product[]> {
 export interface FeaturedProductSummary {
   _id: string;
   title?: string;
+  displayTitle?: string;
   name?: string;
   slug?: string;
   price?: number | null;
@@ -1416,6 +1419,7 @@ export async function fetchFeaturedProducts(
         _id,
         name,
         title,
+        displayTitle,
         "slug": slug.current,
         price,
         "onSale": coalesce(onSale, pricing.onSale),
@@ -1586,6 +1590,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
     )][0]{
       _id,
       title,
+      displayTitle,
       slug,
       price,
       "onSale": coalesce(onSale, pricing.onSale),
@@ -1724,6 +1729,7 @@ export async function getRelatedProducts(
     *[_type == "product" && slug.current != $slug && ${ACTIVE_PRODUCT_WITH_SLUG_FILTER}]{
       _id,
       title,
+      displayTitle,
       slug,
       price,
       "onSale": coalesce(onSale, pricing.onSale),
@@ -1787,6 +1793,7 @@ export async function getUpsellProducts(
       ${hasPrice ? '&& defined(price) && price >= $price' : ''}]{
       _id,
       title,
+      displayTitle,
       slug,
       price,
       "onSale": coalesce(onSale, pricing.onSale),
