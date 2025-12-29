@@ -17,8 +17,8 @@ export const GET: APIRoute = async ({ request }) => {
       return jsonResponse(
         {
           vendor: {
-            name: vendor?.displayName || vendor?.companyName || vendor?.name || 'Vendor',
-            tier: vendor?.portalAccess?.vendorTier || 'standard'
+            name: vendor?.displayName || vendor?.companyName || vendor?.name || 'displayName',
+            tier: vendor?.portalAccess?.vendorTier || 'vendorTier'
           },
           stats: { ordersThisMonth: 0, ordersTotal: 0, totalSpent: 0 },
           recentOrders: []
@@ -29,7 +29,9 @@ export const GET: APIRoute = async ({ request }) => {
     }
 
     const now = new Date();
-    const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
+    const startOfMonth = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)
+    ).toISOString();
 
     const statsQuery = `{
       "ordersThisMonth": count(*[_type == "order" && orderType == "wholesale" && customerRef._ref == $customerId && dateTime(coalesce(createdAt, _createdAt)) >= dateTime($startOfMonth)]),
@@ -55,8 +57,8 @@ export const GET: APIRoute = async ({ request }) => {
     return jsonResponse(
       {
         vendor: {
-          name: ctx.vendor?.displayName || ctx.vendor?.companyName || ctx.vendor?.name || 'Vendor',
-          tier: ctx.vendor?.portalAccess?.vendorTier || 'standard'
+          name: ctx.vendor?.displayName || ctx.vendor?.companyName || ctx.vendor?.name || '',
+          tier: ctx.vendor?.portalAccess?.vendorTier || ''
         },
         stats: {
           ordersThisMonth: stats?.ordersThisMonth || 0,

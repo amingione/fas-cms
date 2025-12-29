@@ -45,6 +45,11 @@ if (!ctx.ok) {
   </style>
 
   <script>
+    /** @typedef {import('@/types/vendor').VendorMessageSummary} VendorMessageSummary */
+    /** @typedef {{ messages?: VendorMessageSummary[] }} VendorMessagesResponse */
+
+    import type { VendorMessageSummary } from '@/types/vendor';
+
     const CART_KEY = 'wholesaleCart';
 
     const readCartCount = () => {
@@ -88,7 +93,7 @@ if (!ctx.ok) {
       }
     };
 
-    const updateMessageBadges = (count) => {
+    const updateMessageBadges = (count: number) => {
       document.querySelectorAll('[data-message-unread]').forEach((node) => {
         const el = node;
         if (!el) return;
@@ -107,12 +112,15 @@ if (!ctx.ok) {
     const refreshUnreadMessages = async () => {
       try {
         const res = await fetch('/api/vendor/messages', { credentials: 'include' });
+        /** @type {VendorMessagesResponse} */
         const data = await res.json();
         if (!res.ok) return;
         const readIds = readMessageReadIds();
-        const unreadCount = Array.isArray(data?.messages)
-          ? data.messages.filter((m) => m?.lastReplyIsStaff && !readIds.has(m?._id)).length
-          : 0;
+        /** @type {VendorMessageSummary[]} */
+        const messages = Array.isArray(data?.messages) ? data.messages : [];
+        const unreadCount = messages.filter(
+          (m: VendorMessageSummary) => m?.lastReplyIsStaff && !readIds.has(m?._id)
+        ).length;
         updateMessageBadges(unreadCount);
       } catch {
         /* no-op */
@@ -124,7 +132,8 @@ if (!ctx.ok) {
     window.addEventListener('storage', updateCartBadges);
     window.addEventListener('vendor-cart-updated', updateCartBadges);
     window.addEventListener('vendor-messages-unread-updated', (event) => {
-      const count = event?.detail?.count ?? 0;
+      const customEvent = event as CustomEvent<{ count?: number }>;
+      const count = customEvent?.detail?.count ?? 0;
       updateMessageBadges(Number.isFinite(count) ? count : 0);
     });
   </script>

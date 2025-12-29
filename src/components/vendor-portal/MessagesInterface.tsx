@@ -1,34 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-
-type MessageSummary = {
-  _id: string;
-  subject?: string;
-  status?: string;
-  priority?: string;
-  category?: string;
-  createdAt?: string;
-  lastReplyAt?: string;
-  lastReply?: string;
-  lastReplyIsStaff?: boolean;
-};
-
-type Reply = {
-  message?: string;
-  author?: string;
-  authorEmail?: string;
-  timestamp?: string;
-  isStaff?: boolean;
-};
-
-type MessageDetail = {
-  _id: string;
-  subject?: string;
-  status?: string;
-  priority?: string;
-  category?: string;
-  replies?: Reply[];
-};
+import type { VendorMessageDetail, VendorMessageSummary } from '@/types/vendor';
 const transition = {
   type: 'spring',
   stiffness: 200,
@@ -48,8 +20,8 @@ const variants = {
   }
 };
 const MessagesInterface: React.FC = () => {
-  const [list, setList] = useState<MessageSummary[]>([]);
-  const [selected, setSelected] = useState<MessageDetail | null>(null);
+  const [list, setList] = useState<VendorMessageSummary[]>([]);
+  const [selected, setSelected] = useState<VendorMessageDetail | null>(null);
   const [loadingList, setLoadingList] = useState(true);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [compose, setCompose] = useState(false);
@@ -354,7 +326,7 @@ const ComposeForm: React.FC<{
   );
 };
 
-const MessageThread: React.FC<{ message: MessageDetail; onReply: (msg: string) => void }> = ({
+const MessageThread: React.FC<{ message: VendorMessageDetail; onReply: (msg: string) => void }> = ({
   message,
   onReply
 }) => {
