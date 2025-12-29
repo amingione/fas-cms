@@ -9,12 +9,23 @@ export const GET: APIRoute = async ({ request }) => {
 
   try {
     const vendor = await sanity.fetch(
-      '*[_type == "vendor" && _id == $vendorId][0]{customerRef}',
+      '*[_type == "vendor" && _id == $vendorId][0]{customerRef, name, displayName, companyName, portalAccess}',
       { vendorId: ctx.vendorId }
     );
     const customerId = vendor?.customerRef?._ref;
     if (!customerId) {
-      return jsonResponse({ message: 'Not found' }, { status: 404 }, { noIndex: true });
+      return jsonResponse(
+        {
+          vendor: {
+            name: vendor?.displayName || vendor?.companyName || vendor?.name || 'Vendor',
+            tier: vendor?.portalAccess?.vendorTier || 'standard'
+          },
+          stats: { ordersThisMonth: 0, ordersTotal: 0, totalSpent: 0 },
+          recentOrders: []
+        },
+        { status: 200 },
+        { noIndex: true }
+      );
     }
 
     const now = new Date();
