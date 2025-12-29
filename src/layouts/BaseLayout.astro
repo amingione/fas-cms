@@ -22,6 +22,7 @@ const {
   noindex: rawNoindex = false,
   ogImage,
   hideBreadcrumbs = false,
+  hideHeader = false,
   breadcrumbs,
   keywords,
   breadcrumbContext
@@ -32,6 +33,7 @@ const {
   noindex?: boolean | string | number;
   ogImage?: string;
   hideBreadcrumbs?: boolean;
+  hideHeader?: boolean;
   breadcrumbs?: Array<{ href?: string; label: string }>;
   keywords?: string | string[];
   breadcrumbContext?: {
@@ -721,7 +723,7 @@ const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
     </svg>
 
     <!-- Header sits outside page stacking contexts to stay on top -->
-    <Header />
+    {!hideHeader && <Header />}
 
     <!-- Page content -->
     <div class="relative flex flex-col flex-1">

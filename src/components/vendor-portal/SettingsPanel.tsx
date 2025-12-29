@@ -55,6 +55,8 @@ const SettingsPanel: React.FC = () => {
     confirm: ''
   });
   const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
+  const inputBaseClass =
+    'w-full rounded border border-white/20 !bg-[#1a1a1a] !text-white placeholder:text-white/50 px-3 py-2 text-sm';
 
   const loadProfile = async () => {
     const res = await fetch('/api/vendor/settings/profile', { credentials: 'include' });
@@ -270,7 +272,7 @@ const SettingsPanel: React.FC = () => {
     <button
       key={key}
       onClick={() => setActiveTab(key)}
-      className={`rounded-lg px-3 py-2 text-sm font-medium border ${
+      className={`rounded-lg px-3 py-2 text-sm font-medium border shadow-white/10 shadow-box-outter shadow-inner ${
         activeTab === key
           ? 'bg-primary text-white border-primary'
           : 'bg-white/5 text-white/80 border-white/10 hover:border-white/30'
@@ -350,7 +352,7 @@ const SettingsPanel: React.FC = () => {
               <input
                 value={profile.name || ''}
                 onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                className="w-full mt-1 bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
+                className={`${inputBaseClass} mt-1`}
               />
             </label>
             <label className="text-sm text-white/80">
@@ -358,7 +360,7 @@ const SettingsPanel: React.FC = () => {
               <input
                 value={profile.email || ''}
                 onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                className="w-full mt-1 bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
+                className={`${inputBaseClass} mt-1`}
               />
             </label>
             <label className="text-sm text-white/80">
@@ -371,7 +373,7 @@ const SettingsPanel: React.FC = () => {
                     portalAccess: { ...(profile.portalAccess || {}), email: e.target.value }
                   })
                 }
-                className="w-full mt-1 bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
+                className={`${inputBaseClass} mt-1`}
               />
             </label>
           </div>
@@ -409,43 +411,43 @@ const SettingsPanel: React.FC = () => {
                   placeholder="Label (e.g. Warehouse)"
                   value={addressDraft.label || ''}
                   onChange={(e) => setAddressDraft({ ...addressDraft, label: e.target.value })}
-                  className="w-full bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
+                  className={inputBaseClass}
                 />
                 <input
                   placeholder="Country"
                   value={addressDraft.country || ''}
                   onChange={(e) => setAddressDraft({ ...addressDraft, country: e.target.value })}
-                  className="w-full bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
+                  className={inputBaseClass}
                 />
                 <input
                   placeholder="Street"
                   value={addressDraft.street || ''}
                   onChange={(e) => setAddressDraft({ ...addressDraft, street: e.target.value })}
-                  className="w-full bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
+                  className={inputBaseClass}
                 />
                 <input
                   placeholder="Address line 2"
                   value={addressDraft.address2 || ''}
                   onChange={(e) => setAddressDraft({ ...addressDraft, address2: e.target.value })}
-                  className="w-full bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
+                  className={inputBaseClass}
                 />
                 <input
                   placeholder="City"
                   value={addressDraft.city || ''}
                   onChange={(e) => setAddressDraft({ ...addressDraft, city: e.target.value })}
-                  className="w-full bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
+                  className={inputBaseClass}
                 />
                 <input
                   placeholder="State/Province"
                   value={addressDraft.state || ''}
                   onChange={(e) => setAddressDraft({ ...addressDraft, state: e.target.value })}
-                  className="w-full bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
+                  className={inputBaseClass}
                 />
                 <input
                   placeholder="Postal Code"
                   value={addressDraft.zip || ''}
                   onChange={(e) => setAddressDraft({ ...addressDraft, zip: e.target.value })}
-                  className="w-full bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
+                  className={inputBaseClass}
                 />
                 <label className="flex items-center gap-2 text-sm text-white/80">
                   <input
@@ -522,7 +524,7 @@ const SettingsPanel: React.FC = () => {
                 onChange={(e) =>
                   setPasswordForm({ ...passwordForm, currentPassword: e.target.value })
                 }
-                className="w-full bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
+                className={inputBaseClass}
                 required
               />
               <input
@@ -530,7 +532,7 @@ const SettingsPanel: React.FC = () => {
                 placeholder="New password"
                 value={passwordForm.newPassword}
                 onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-                className="w-full bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
+                className={inputBaseClass}
                 required
                 minLength={8}
               />
@@ -539,7 +541,7 @@ const SettingsPanel: React.FC = () => {
                 placeholder="Confirm new password"
                 value={passwordForm.confirm}
                 onChange={(e) => setPasswordForm({ ...passwordForm, confirm: e.target.value })}
-                className="w-full bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
+                className={inputBaseClass}
                 required
               />
             </div>

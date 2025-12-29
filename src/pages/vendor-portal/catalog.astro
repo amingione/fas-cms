@@ -116,9 +116,13 @@ try {
       <div class="flex items-center gap-3">
         <a
           href="/vendor-portal/cart"
-          class="inline-flex items-center rounded-xl border border-primary/50 bg-primary/20 px-4 py-2 text-sm font-semibold text-white hover:bg-primary/30 transition"
+          class="relative inline-flex items-center rounded-xl border border-primary/50 bg-primary/20 px-4 py-2 pr-8 text-sm font-semibold text-white hover:bg-primary/30 transition"
         >
           View Cart
+          <span
+            data-cart-count
+            class="pointer-events-none absolute -top-2 -right-2 hidden h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-white ring-1 ring-black/70 shadow-white/10 shadow-box-outter"
+          ></span>
         </a>
       </div>
     </div>
@@ -223,6 +227,7 @@ try {
 
   const saveCart = (cart: CartItem[]) => {
     localStorage.setItem(cartKey, JSON.stringify(cart));
+    window.dispatchEvent(new Event('vendor-cart-updated'));
   };
 
   document.querySelectorAll<HTMLButtonElement>('.add-to-order').forEach((button) => {

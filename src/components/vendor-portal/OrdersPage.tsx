@@ -89,18 +89,35 @@ const OrdersPage: React.FC = () => {
           <p className="text-white/60 text-sm">Total value: ${total}</p>
         </div>
         <div className="flex gap-3">
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
-          >
-            <option value="all">All statuses</option>
-            <option value="processing">Processing</option>
-            <option value="paid">Paid</option>
-            <option value="completed">Completed</option>
-            <option value="shipped">Shipped</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
+          <div className="relative">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="appearance-none rounded border border-black/90 bg-[#121212] px-3 py-2 pr-9 text-sm text-white shadow-white/10 shadow-box-outter shadow-inner"
+            >
+              <option value="all">All statuses</option>
+              <option value="processing">Processing</option>
+              <option value="paid">Paid</option>
+              <option value="completed">Completed</option>
+              <option value="shipped">Shipped</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-white/70">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                className="h-4 w-4"
+                aria-hidden="true"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.7a.75.75 0 1 1 1.06 1.06l-4.24 4.25a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08Z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </span>
+          </div>
         </div>
       </div>
 

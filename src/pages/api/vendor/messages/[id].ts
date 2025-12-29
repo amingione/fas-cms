@@ -76,3 +76,21 @@ export const POST: APIRoute = async ({ params, request }) => {
     return jsonResponse({ message: 'Internal server error' }, { status: 500 }, { noIndex: true });
   }
 };
+
+export const DELETE: APIRoute = async ({ params, request }) => {
+  const ctx = await requireVendor(request);
+  if (!ctx.ok) return ctx.response;
+  const id = params.id;
+  try {
+    const message = await sanity.fetch(
+      `*[_type == "vendorMessage" && _id == $id && vendor._ref == $vendorId][0]{_id}`,
+      { id, vendorId: ctx.vendorId }
+    );
+    if (!message) return jsonResponse({ message: 'Not found' }, { status: 404 }, { noIndex: true });
+    await sanity.delete(id);
+    return jsonResponse({ ok: true }, { status: 200 }, { noIndex: true });
+  } catch (err) {
+    console.error('[vendor message delete] failed', err);
+    return jsonResponse({ message: 'Internal server error' }, { status: 500 }, { noIndex: true });
+  }
+};

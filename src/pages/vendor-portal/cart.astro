@@ -29,7 +29,7 @@ const vendorTier = vendorTierRaw === 'preferred' ? 'preferred' : 'standard';
       <div class="flex items-center gap-3">
         <a
           href="/vendor-portal/catalog"
-          class="inline-flex items-center rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-white hover:border-primary/50 transition"
+          class="inline-flex items-center rounded-xl border border-black/90 bg-[#121212] px-4 py-2 text-sm font-semibold text-white shadow-white/10 shadow-box-outter shadow-inner transition"
         >
           Back to Catalog
         </a>
@@ -89,7 +89,7 @@ const vendorTier = vendorTierRaw === 'preferred' ? 'preferred' : 'standard';
               type="text"
               id="poNumber"
               name="poNumber"
-              class="w-full rounded-xl border border-white/15 bg-dark px-3 py-2 text-white focus:border-primary focus:outline-none"
+              class="w-full rounded-xl border border-white/15 bg-[#121212] px-3 py-2 text-white focus:border-primary focus:outline-none"
             />
           </div>
           <div>
@@ -100,7 +100,7 @@ const vendorTier = vendorTierRaw === 'preferred' ? 'preferred' : 'standard';
               id="notes"
               name="notes"
               rows="4"
-              class="w-full rounded-xl border border-white/15 bg-dark px-3 py-2 text-white focus:border-primary focus:outline-none"
+              class="w-full rounded-xl border border-white/15 bg-[#121212] px-3 py-2 text-white focus:border-primary focus:outline-none"
             ></textarea>
           </div>
           <p id="form-status" class="text-sm text-red-300 hidden"></p>
@@ -148,6 +148,7 @@ const vendorTier = vendorTierRaw === 'preferred' ? 'preferred' : 'standard';
 
   const saveCart = (cart: CartItem[]) => {
     localStorage.setItem(cartKey, JSON.stringify(cart));
+    window.dispatchEvent(new Event('vendor-cart-updated'));
   };
 
   const formatMoney = (value: number) => `$${value.toFixed(2)}`;
@@ -279,6 +280,7 @@ const vendorTier = vendorTierRaw === 'preferred' ? 'preferred' : 'standard';
 
       if (response.ok) {
         localStorage.removeItem(cartKey);
+        window.dispatchEvent(new Event('vendor-cart-updated'));
         window.location.href = `/vendor-portal/orders/${result.orderId}`;
       } else {
         if (statusEl) {

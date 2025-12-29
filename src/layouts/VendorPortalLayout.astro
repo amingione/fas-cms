@@ -14,7 +14,13 @@ if (!ctx.ok) {
 }
 ---
 
-<BaseLayout title={`${title} | FAS Motorsports`} description={description} noindex>
+<BaseLayout
+  title={`${title} | FAS Motorsports`}
+  description={description}
+  noindex
+  hideHeader
+  hideBreadcrumbs
+>
   <div class="min-h-screen bg-dark text-white">
     <VendorPortalFlyoutNav client:load />
     <main class="pt-20 pb-10">
@@ -33,12 +39,93 @@ if (!ctx.ok) {
   </div>
 
   <style>
-    /* Hide the global storefront header inside vendor portal pages */
-    :global(header.text-white.w-full.fixed.top-0) {
-      display: none !important;
-    }
     :global(.with-header-offset) {
       margin-top: 0 !important;
     }
   </style>
+
+  <script>
+    const CART_KEY = 'wholesaleCart';
+
+    const readCartCount = () => {
+      try {
+        const stored = localStorage.getItem(CART_KEY);
+        const items = stored ? JSON.parse(stored) : [];
+        if (!Array.isArray(items)) return 0;
+        return items.reduce((sum, item) => {
+          const qty = Number(item?.quantity ?? 0);
+          return sum + (Number.isFinite(qty) && qty > 0 ? qty : 0);
+        }, 0);
+      } catch {
+        return 0;
+      }
+    };
+
+    const updateCartBadges = () => {
+      const count = readCartCount();
+      document.querySelectorAll('[data-cart-count]').forEach((node) => {
+        const el = node;
+        if (!el) return;
+        if (count > 0) {
+          el.textContent = count > 99 ? '99+' : String(count);
+          el.classList.remove('hidden');
+          el.classList.add('flex');
+        } else {
+          el.textContent = '';
+          el.classList.add('hidden');
+          el.classList.remove('flex');
+        }
+      });
+    };
+
+    const readMessageReadIds = () => {
+      try {
+        const stored = sessionStorage.getItem('vendorMessagesRead');
+        const parsed = stored ? JSON.parse(stored) : [];
+        return Array.isArray(parsed) ? new Set(parsed) : new Set();
+      } catch {
+        return new Set();
+      }
+    };
+
+    const updateMessageBadges = (count) => {
+      document.querySelectorAll('[data-message-unread]').forEach((node) => {
+        const el = node;
+        if (!el) return;
+        if (count > 0) {
+          el.textContent = count > 99 ? '99+' : String(count);
+          el.classList.remove('hidden');
+          el.classList.add('flex');
+        } else {
+          el.textContent = '';
+          el.classList.add('hidden');
+          el.classList.remove('flex');
+        }
+      });
+    };
+
+    const refreshUnreadMessages = async () => {
+      try {
+        const res = await fetch('/api/vendor/messages', { credentials: 'include' });
+        const data = await res.json();
+        if (!res.ok) return;
+        const readIds = readMessageReadIds();
+        const unreadCount = Array.isArray(data?.messages)
+          ? data.messages.filter((m) => m?.lastReplyIsStaff && !readIds.has(m?._id)).length
+          : 0;
+        updateMessageBadges(unreadCount);
+      } catch {
+        /* no-op */
+      }
+    };
+
+    updateCartBadges();
+    refreshUnreadMessages();
+    window.addEventListener('storage', updateCartBadges);
+    window.addEventListener('vendor-cart-updated', updateCartBadges);
+    window.addEventListener('vendor-messages-unread-updated', (event) => {
+      const count = event?.detail?.count ?? 0;
+      updateMessageBadges(Number.isFinite(count) ? count : 0);
+    });
+  </script>
 </BaseLayout>

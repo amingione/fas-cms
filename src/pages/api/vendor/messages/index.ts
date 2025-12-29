@@ -17,6 +17,7 @@ export const GET: APIRoute = async ({ request }) => {
       createdAt,
       lastReplyAt,
       "lastReply": replies[-1].message,
+      "lastReplyIsStaff": replies[-1].isStaff,
       "replyCount": count(replies)
     }`;
     const messages = await sanity.fetch(query, { vendorId: ctx.vendorId });
