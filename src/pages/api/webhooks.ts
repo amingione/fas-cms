@@ -368,6 +368,142 @@ export async function POST({ request }: { request: Request }) {
           });
         }
 
+        // ENFORCED: Order Shipping Snapshot Contract
+        type ProductShippingConfig = {
+          weight?: number | null;
+          dimensions?: {
+            length?: number | null;
+            width?: number | null;
+            height?: number | null;
+          } | null;
+          requiresShipping?: boolean | null;
+        };
+
+        const productIds = Array.from(
+          new Set(
+            cartLines
+              .map((item) => {
+                const metadata =
+                  item.metadata && typeof item.metadata === 'object'
+                    ? (item.metadata as Record<string, unknown>)
+                    : undefined;
+                const metadataId =
+                  metadata && typeof metadata.sanity_product_id === 'string'
+                    ? metadata.sanity_product_id
+                    : undefined;
+                const itemId = typeof item.id === 'string' ? item.id : undefined;
+                return metadataId || itemId || null;
+              })
+              .filter((id): id is string => Boolean(id))
+          )
+        );
+
+        const productShippingConfigs = productIds.length
+          ? await sanity.fetch<
+              {
+                _id: string;
+                weight?: number | null;
+                dimensions?: {
+                  length?: number | null;
+                  width?: number | null;
+                  height?: number | null;
+                } | null;
+                requiresShipping?: boolean | null;
+              }[]
+            >(
+              `*[_type == "product" && _id in $productIds]{
+                _id,
+                "weight": shippingConfig.weight,
+                "dimensions": shippingConfig.dimensions,
+                "requiresShipping": shippingConfig.requiresShipping
+              }`,
+              { productIds }
+            )
+          : [];
+
+        const productShippingMap = productShippingConfigs.reduce<Record<string, ProductShippingConfig>>(
+          (acc, product) => {
+            acc[product._id] = {
+              weight: product.weight ?? null,
+              dimensions: product.dimensions ?? null,
+              requiresShipping: product.requiresShipping ?? null
+            };
+            return acc;
+          },
+          {}
+        );
+
+        let totalWeightLbs = 0;
+        let maxLength = 0;
+        let maxWidth = 0;
+        let maxHeight = 0;
+        let hasShippingData = false;
+
+        cartLines.forEach((item) => {
+          const metadata =
+            item.metadata && typeof item.metadata === 'object'
+              ? (item.metadata as Record<string, unknown>)
+              : undefined;
+          const productId =
+            (metadata && typeof metadata.sanity_product_id === 'string'
+              ? metadata.sanity_product_id
+              : undefined) || (typeof item.id === 'string' ? item.id : undefined);
+          const config = productId ? productShippingMap[productId] : null;
+
+          if (config?.requiresShipping === false) return;
+
+          const weight = typeof config?.weight === 'number' ? config.weight : 0;
+          const quantity = typeof item.quantity === 'number' ? item.quantity : 1;
+          if (weight > 0) {
+            totalWeightLbs += weight * quantity;
+            hasShippingData = true;
+          } else if (productId) {
+            console.warn(`[webhook] Product ${productId} missing shipping weight`);
+          }
+
+          const dims = config?.dimensions;
+          if (dims) {
+            const length = typeof dims.length === 'number' ? dims.length : 0;
+            const width = typeof dims.width === 'number' ? dims.width : 0;
+            const height = typeof dims.height === 'number' ? dims.height : 0;
+            if (length > 0 && width > 0 && height > 0) {
+              if (length > maxLength) maxLength = length;
+              if (width > maxWidth) maxWidth = width;
+              if (height > maxHeight) maxHeight = height;
+              hasShippingData = true;
+            }
+          } else if (productId) {
+            console.warn(`[webhook] Product ${productId} missing shipping dimensions`);
+          }
+        });
+
+        const orderShippingData: {
+          weight?: { value: number; unit: string };
+          dimensions?: { length: number; width: number; height: number };
+        } = {};
+
+        if (hasShippingData) {
+          if (totalWeightLbs > 0) {
+            orderShippingData.weight = {
+              value: totalWeightLbs,
+              unit: 'pound'
+            };
+          }
+          if (maxLength > 0 && maxWidth > 0 && maxHeight > 0) {
+            orderShippingData.dimensions = {
+              length: maxLength,
+              width: maxWidth,
+              height: maxHeight
+            };
+          }
+        } else {
+          console.error(
+            `[webhook] No shipping data found for order ${sessionDetails.id} - fulfillment will use defaults`
+          );
+          orderShippingData.weight = { value: 1, unit: 'pound' };
+          orderShippingData.dimensions = { length: 10, width: 8, height: 4 };
+        }
+
         const shippingSelection = parseShippingSelection(sessionDetails);
 
         const collectedShippingDetails =
@@ -462,6 +598,9 @@ export async function POST({ request }: { request: Request }) {
           amountShipping,
           amountDiscount,
           totalAmount,
+          // ENFORCED: Order Shipping Snapshot Contract
+          weight: orderShippingData.weight,
+          dimensions: orderShippingData.dimensions,
           customerRef,
           customerName: customerDetails?.name || '',
           customerEmail: customerDetails?.email || email || '',
