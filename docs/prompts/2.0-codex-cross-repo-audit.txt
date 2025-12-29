@@ -1,0 +1,415 @@
+2.0 CODEX SCHEMA MATCH PROMPT
+
+
+SYSTEM DIRECTIVE
+
+Load and follow docs/codex.md as authoritative.
+This is a READ-ONLY AUDIT. No code, schema, or behavior changes are permitted.
+
+⸻
+
+TASK
+
+Perform a repo-wide, deterministic audit of fas-cms-fresh with respect to its dependencies on fas-sanity schemas and data contracts.
+
+Create the primary audit artifact:
+
+docs/reports/codex-sanity-schema-audit-12-29.md
+
+
+⸻
+
+AUDIT GOAL
+
+Produce a complete, factual map of all files in fas-cms-fresh that:
+	•	Fetch data from Sanity
+	•	Assume Sanity schema fields exist
+	•	Write or patch Sanity documents
+	•	Depend on GROQ queries or schema shape
+	•	Depend on Stripe, EasyPost, or Email/SMS data mirrored into Sanity
+
+Identify:
+	•	Schema assumptions
+	•	Read/write paths
+	•	Cross-repo dependencies
+	•	Identity and ownership boundaries
+	•	Potential null or undefined data paths
+
+This audit must be decision-ready for Gemini and Claude.
+Do not propose solutions.
+
+⸻
+
+STRICT NON-NEGOTIABLE RULES
+	•	❌ Do NOT modify code
+	•	❌ Do NOT modify schemas
+	•	❌ Do NOT refactor
+	•	❌ Do NOT suggest fixes
+	•	❌ Do NOT invent abstractions
+	•	❌ Do NOT normalize data
+
+You may only observe, map, quote, and report.
+
+If ambiguity is detected, report it and STOP.
+
+⸻
+
+REQUIRED AUDIT DOMAINS
+
+1) Identity & Auth
+
+Map and document:
+	•	Customer identity source of truth
+	•	Vendor ↔ customer linkage
+	•	Email canonicalization rules
+	•	Session → document mapping
+	•	Stripe customer identity location and usage
+
+⸻
+
+2) Data Ownership
+
+For each domain, identify only what exists:
+
+Domain	Source of Truth	Read-Only Fields	Writable Fields	Direction of Updates
+
+
+Domains:
+	•	Customers
+	•	Vendors
+	•	Orders
+	•	Invoices
+	•	Quotes
+	•	Discounts / Coupons
+	•	Messages
+
+⸻
+
+3) Cross-Repo Read Paths
+
+For fas-cms-fresh, document:
+	•	Where data is fetched from Sanity
+	•	GROQ queries used
+	•	Fields assumed to exist
+	•	Any non-schema or implicit field reads
+
+⸻
+
+4) Cross-Repo Write Paths
+
+For fas-cms-fresh, document:
+	•	Where data is written or patched to Sanity
+	•	Fields created or updated
+	•	Validation assumptions
+	•	Possible null / undefined writes
+
+⸻
+
+5) External Integrations
+
+Audit only existing behavior:
+	•	Stripe (customers, payments, coupons)
+	•	EasyPost (shipments, labels)
+	•	Email / SMS (Resend, Twilio)
+
+For each:
+	•	Where the integration is authoritative
+	•	How data is mirrored into Sanity
+	•	Where drift or duplication could occur
+
+⸻
+
+6) Studio UX Contracts
+
+Document:
+	•	Document lists vs derived lists
+	•	Embedded objects vs documents
+	•	Create / Edit / Delete affordances
+	•	Any UX that may misrepresent data authority
+
+⸻
+
+REQUIRED OUTPUT FILES
+
+Primary Output File (Phase 0):
+- docs/reports/codex-sanity-schema-audit-12-29.md
+
+Primary Output File (Phase 1):
+- docs/reports/audit-summary.md
+
+The Completion Contract MUST be appended only to the
+Primary Output File of the active phase.
+
+1) _repo-map.md
+	•	High-level map of both repos
+	•	Key schemas
+	•	Key API routes
+	•	Integration points
+
+⸻
+
+2) cross-repo-data-flow.md
+
+Table of entities with:
+	•	Source of Truth
+	•	Reads
+	•	Writes
+	•	Risks
+
+⸻
+
+3) blocking-issues.md
+
+Issues that could break:
+	•	Authentication
+	•	Billing
+	•	Publishing
+	•	Data integrity
+
+⸻
+
+4) confusing-or-risky-patterns.md
+	•	Duplicate concepts
+	•	UX mismatches
+	•	Embedded vs document confusion
+
+⸻
+
+5) audit-summary.md
+	•	Executive summary
+	•	What is correct
+	•	What is fragile
+	•	What decisions are required next
+(No solutions)
+
+⸻
+
+OUTPUT FORMAT RULES
+	•	Deterministic, factual language only
+	•	No recommendations phrased as fixes
+	•	No new terminology
+	•	Quote code only if needed for clarity
+	•	Every issue labeled:
+
+🔴 Blocking
+🟡 Risky
+🟢 Cosmetic
+
+⸻
+
+SOFT STOP CONDITIONS
+	•	If any schema ambiguity is detected:
+	•	Document it
+	•	STOP the audit
+	•	Do not continue into enforcement or suggestion mode
+
+⸻
+
+Phase 0 — DISCOVERY (READ-ONLY, OBSERVATIONAL)
+
+Purpose:
+Establish a complete, factual inventory of files, schemas, and integration touchpoints without interpreting correctness.
+
+Phase 0 Scope
+	•	Enumerate all relevant files in fas-cms-fresh
+	•	Enumerate all Sanity schemas referenced
+	•	Enumerate GROQ queries and Sanity clients
+	•	Enumerate Stripe / EasyPost / Email touchpoints
+	•	Enumerate Studio structures and derived lists
+
+Phase 0 Output Files
+
+Write only:
+
+docs/reports/_repo-map.md
+docs/reports/codex-sanity-schema-audit-12-29.md
+
+Phase 0 Restrictions
+	•	❌ No risk classification
+	•	❌ No judgments
+	•	❌ No correctness statements
+	•	❌ No “this may be wrong” language
+
+Only:
+	•	File paths
+	•	Observed relationships
+	•	Quoted usage
+	•	Explicit assumptions made by code
+
+Phase 0 STOP CONDITION
+
+When discovery is complete:
+	•	Write checksum block (see below)
+	•	STOP
+	•	Do NOT proceed to Phase 1 unless explicitly instructed
+
+Phase 1 MUST NOT execute unless invoked by a new prompt
+containing the exact phrase:
+
+"BEGIN PHASE 1 — CONTRACT & RISK ANALYSIS"
+
+⸻
+
+PHASE 1 — CONTRACT & RISK ANALYSIS (STILL READ-ONLY)
+
+Phase 1 may ONLY begin when the prompt contains:
+
+"BEGIN PHASE 1 — CONTRACT & RISK ANALYSIS"
+
+Purpose:
+Classify only what Phase 0 revealed, without adding new findings.
+
+Phase 1 Scope
+	•	Identity & Auth contracts
+	•	Data ownership boundaries
+	•	Cross-repo read/write paths
+	•	External integration authority
+	•	Studio UX contract risks
+
+Phase 1 Output Files
+
+Write only:
+
+docs/reports/cross-repo-data-flow.md
+docs/reports/blocking-issues.md
+docs/reports/confusing-or-risky-patterns.md
+docs/reports/audit-summary.md
+
+Phase 1 Restrictions
+	•	❌ No fixes
+	•	❌ No refactors
+	•	❌ No enforcement language
+	•	❌ No implied solutions
+
+Only:
+	•	Classification
+	•	Risk labeling
+	•	Contract mismatches
+	•	Decision-blocking ambiguity
+
+⸻
+
+CHECKSUM & COMPLETION CONTRACT (MANDATORY)
+
+At the end of each phase, append the following section verbatim to the primary output file of that phase.
+
+Completion Contract Block
+
+---
+AUDIT COMPLETION CONTRACT
+
+Phase: <Phase 0 | Phase 1>
+
+Repos Audited:
+- fas-cms-fresh
+- fas-sanity (schema surface only)
+
+Files Touched (READ-ONLY):
+- <explicit count>
+- <explicit list or glob summary>
+
+Schemas Observed:
+- <explicit list>
+
+API Routes Observed:
+- <explicit list>
+
+Integrations Observed:
+- Stripe: <yes/no>
+- EasyPost: <yes/no>
+- Email/SMS: <yes/no>
+
+Schema Ambiguity Detected:
+- <yes/no>
+If yes, list exact schema + field names.
+
+Rules Compliance:
+- Code Modified: NO
+- Schemas Modified: NO
+- Fixes Suggested: NO
+- Enforcement Performed: NO
+
+Checksum:
+- Repo snapshot hash (best-effort): <hash or “unavailable”>
+- Timestamp (UTC): <ISO 8601>
+
+Audit Status:
+- COMPLETE
+- STOPPED BY DESIGN
+---
+
+Checksum Rules
+	•	Hash does not need to be cryptographically perfect
+	•	It must be deterministic per run
+	•	If unavailable, explicitly state "unavailable"
+	•	Silent omission is not allowed
+
+⸻
+
+MANDATORY TERMINATION CONDITIONS
+
+Immediately STOP and mark audit INCOMPLETE if:
+	•	A schema field is referenced but not found
+	•	A GROQ query shape cannot be resolved
+	•	Identity authority is ambiguous
+	•	A document serves dual authority without contract clarity
+
+These must be reported, not solved.
+
+NON-EXECUTABLE CONTEXT — The following section is for human readers only.
+Codex must not quote, paraphrase, or include it in any output.
+
+⸻
+
+Why this version is better (straight talk)
+	•	Removes ambiguity that makes Codex “helpful” in the wrong way
+	•	Forces schema-first thinking without enforcement
+	•	Prevents drift into refactors or advice
+	•	Produces artifacts Claude can make decisions from
+	•	Keeps Gemini clean for reasoning, not discovery
+
+If you want, next we can:
+	•	Add a checksum / completion contract
+	•	Or split this into Phase 0 (Discovery) / Phase 1 (Contracts Only) for even tighter governance
+
+⸻
+
+ADDENDUM: GOVERNANCE ENFORCEMENT
+
+PHASED EXECUTION MODEL (MANDATORY)
+
+Codex must execute exactly one phase at a time.
+No phase may bleed into another.
+
+⸻
+
+PHASE 0 — DISCOVERY (READ-ONLY, OBSERVATIONAL)
+
+Purpose:
+Establish a complete, factual inventory of files, schemas, and integration touchpoints without interpreting correctness.
+
+Phase 0 Scope
+	•	Enumerate all relevant files in fas-cms-fresh
+	•	Enumerate all Sanity schemas referenced
+	•	Enumerate GROQ queries and Sanity clients
+	•	Enumerate Stripe / EasyPost / Email touchpoints
+	•	Enumerate Studio structures and derived lists
+
+Phase 0 Output Files
+
+Write only:
+
+docs/reports/_repo-map.md
+docs/reports/codex-sanity-schema-audit-12-29.md
+
+Phase 0 Restrictions
+	•	❌ No risk classification
+	•	❌ No judgments
+	•	❌ No correctness statements
+	•	❌ No “this may be wrong” language
+
+Only:
+	•	File paths
+	•	Observed relationships
+	•	Quoted usage
+	•	Explicit assumptions made by code
