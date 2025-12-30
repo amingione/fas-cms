@@ -1,0 +1,82 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content.ts';
+import SectionRenderer from '@/components/SectionRenderer.astro';
+
+const pageDoc: any = await loadPageDoc('internalPolicy');
+---
+
+<BaseLayout>
+  <div {...inlineObjectId('content/pages/internalPolicy.json')}>
+    <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>
+      {pageDoc?.title ?? 'Internal Policy'}
+    </div>
+    {
+      Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
+        <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
+      )
+    }
+    <section class="py-20 px-4 max-w-5xl mx-auto text-white font-mono tracking-[1.2px]">
+      <h1 class="text-4xl font-cyber text-accent mb-10 text-center" {...inlineFieldAttrs('title')}>
+        {pageDoc?.title ?? 'Internal Policy'}
+      </h1>
+
+      <p class="mb-6">
+        This Internal SMS Communications Policy defines the acceptable use of text messaging for
+        internal operational notifications at F.A.S. Motorsports. SMS is used exclusively to deliver
+        time-sensitive, business-critical alerts that support internal workflows.
+      </p>
+
+      <h2 class="text-2xl font-cyber text-white mt-10 mb-2">1. Scope</h2>
+      <p class="mb-4">
+        This policy applies to employees and authorized internal users who have explicitly opted in
+        to receive SMS notifications. SMS communications are intended for internal use only and are
+        not customer-facing.
+      </p>
+
+      <h2 class="text-2xl font-cyber text-white mt-10 mb-2">2. Authorized Message Types</h2>
+      <p class="mb-4">
+        SMS messages sent under this policy are transactional and operational in nature and may
+        include notifications related to new website orders, vendor or customer messages,
+        appointment or service requests, quote submissions, and internal system alerts.
+      </p>
+      <p class="mb-4">
+        Marketing, promotional, or advertising messages are strictly prohibited from being sent via
+        SMS under this policy.
+      </p>
+
+      <h2 class="text-2xl font-cyber text-white mt-10 mb-2">3. Opt-In Requirement</h2>
+      <p class="mb-4">
+        SMS notifications are sent only to users who have explicitly provided consent through the
+        designated employee SMS consent form. Participation is voluntary and is not a condition of
+        employment.
+      </p>
+
+      <h2 class="text-2xl font-cyber text-white mt-10 mb-2">4. Message Frequency</h2>
+      <p class="mb-4">
+        Message frequency varies based on operational activity. Messages are event-triggered and
+        sent only when awareness or action is required.
+      </p>
+
+      <h2 class="text-2xl font-cyber text-white mt-10 mb-2">5. Opt-Out and Help</h2>
+      <p class="mb-4">
+        Users may opt out of receiving SMS communications at any time by replying STOP to any
+        message. For assistance, users may reply HELP or contact support@fasmotorsports.com.
+      </p>
+
+      <h2 class="text-2xl font-cyber text-white mt-10 mb-2">6. Data Handling & Privacy</h2>
+      <p class="mb-4">
+        Phone numbers used for SMS notifications are used exclusively for internal operational
+        communications. Mobile information is not sold, shared, or used for marketing or promotional
+        purposes and is handled in accordance with applicable privacy requirements.
+      </p>
+
+      <h2 class="text-2xl font-cyber text-white mt-10 mb-2">7. Compliance</h2>
+      <p class="mb-4">
+        F.A.S. Motorsports complies with applicable carrier requirements, including Twilio A2P 10DLC
+        policies and TCPA regulations. The associated business profile is the sole originator of SMS
+        messages and participates in traceback and compliance efforts as required.
+      </p>
+    </section>
+  </div>
+</BaseLayout>
