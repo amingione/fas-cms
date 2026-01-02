@@ -3,12 +3,15 @@ import crypto from 'node:crypto';
 import { Resend } from 'resend';
 import { getCustomerByEmail, setCustomerPasswordReset } from '../../../../server/sanity-client';
 import { customerPasswordResetRequestSchema } from '@/lib/validators/api-requests';
+import { rateLimit } from '@/server/vendor-portal/rateLimit';
 
 const resendApiKey = import.meta.env.RESEND_API_KEY as string | undefined;
 const resendFrom = (import.meta.env.RESEND_FROM as string | undefined) || 'FAS Motorsports <no-reply@fasmotorsports.com>';
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
 const successMessage = "If an account exists for this email address, we've sent password reset instructions.";
+const RESET_TOKEN_LIFETIME_MS = 1000 * 60 * 60;
+const RECENT_TOKEN_WINDOW_MS = 5 * 60 * 1000;
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -27,6 +30,13 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
     const email = String(bodyResult.data.email || '').trim().toLowerCase();
+    const rl = rateLimit(`reset:${email}`, { limit: 3, windowMs: 60 * 60 * 1000 });
+    if (!rl.allowed) {
+      return new Response(JSON.stringify({ message: successMessage }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' }
+      });
+    }
 
     const customer = await getCustomerByEmail(email);
     if (!customer) {
@@ -36,9 +46,23 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
+    const existingExpires = (customer as any)?.passwordResetExpires;
+    if (existingExpires) {
+      const existingExpiryMs = new Date(existingExpires as string).getTime();
+      if (!Number.isNaN(existingExpiryMs)) {
+        const recentThreshold = Date.now() + (RESET_TOKEN_LIFETIME_MS - RECENT_TOKEN_WINDOW_MS);
+        if (existingExpiryMs > recentThreshold) {
+          return new Response(JSON.stringify({ message: successMessage }), {
+            status: 200,
+            headers: { 'content-type': 'application/json' }
+          });
+        }
+      }
+    }
+
     const rawToken = crypto.randomBytes(32).toString('hex');
     const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
-    const expiresAt = new Date(Date.now() + 1000 * 60 * 60).toISOString();
+    const expiresAt = new Date(Date.now() + RESET_TOKEN_LIFETIME_MS).toISOString();
 
     await setCustomerPasswordReset(customer._id as string, tokenHash, expiresAt);
 

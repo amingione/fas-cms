@@ -11,7 +11,7 @@ const TYPED_GROUP_REGEX = /(paint|code|notes?|custom)/i;
 function normalizeValue(raw: unknown): string | null {
   if (raw == null) return null;
   const trimmed = String(raw).trim();
-  if (!trimmed) return null;
+  if (!trimmed || /^\[\s*\]$/.test(trimmed)) return null;
   return trimmed.replace(/\s+/g, ' ');
 }
 

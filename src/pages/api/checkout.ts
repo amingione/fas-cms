@@ -692,6 +692,14 @@ export async function POST({ request }: { request: Request }) {
       .trim();
   };
 
+  const toMetadataValue = (value: unknown): string | null => {
+    if (value == null) return null;
+    const raw = typeof value === 'string' ? value : JSON.stringify(value);
+    const trimmed = raw.trim();
+    if (!trimmed || trimmed === '[]' || trimmed === '{}') return null;
+    return trimmed;
+  };
+
   const lineItems = (cart as CheckoutCartItem[]).map((item) => {
     const rawId = typeof item.id === 'string' ? item.id : undefined;
     const sanityProductId = normalizeCartId(rawId);
@@ -730,27 +738,23 @@ export async function POST({ request }: { request: Request }) {
     );
     const upgradeValuesRaw = collectUpgrades(item.upgrades ?? item.addOns, item.selections);
     const upgradeValues = upgradeValuesRaw.map((entry) => cleanLabel(entry)).filter(Boolean);
+    const productSku = typeof product?.sku === 'string' ? product.sku.trim() : '';
+    const itemSku = typeof item.sku === 'string' ? item.sku.trim() : '';
+    const skuValue =
+      productSku || (itemSku && itemSku !== sanityProductId && itemSku !== rawId ? itemSku : '');
     const metadata: Record<string, string> = {
-      ...(item.sku ? { sku: String(item.sku) } : {}),
+      ...(skuValue ? { sku: skuValue } : {}),
       ...(sanityProductId ? { sanity_product_id: sanityProductId } : {}),
       ...(product?._id ? { sanity_product_id_actual: product._id } : {})
     };
-    const optionsValueRaw = item.options ?? item.selections ?? null;
-    const optionsValue =
-      optionsValueRaw == null
-        ? ''
-        : typeof optionsValueRaw === 'string'
-          ? optionsValueRaw
-          : JSON.stringify(optionsValueRaw);
-    metadata.options = clamp(optionsValue, 500);
-    const upgradesValueRaw = item.upgrades ?? item.addOns ?? null;
-    const upgradesValue =
-      upgradesValueRaw == null
-        ? '[]'
-        : typeof upgradesValueRaw === 'string'
-          ? upgradesValueRaw
-          : JSON.stringify(upgradesValueRaw);
-    metadata.upgrades = clamp(upgradesValue, 500);
+    const optionsValue = toMetadataValue(item.options ?? item.selections ?? null);
+    if (optionsValue) {
+      metadata.options = clamp(optionsValue, 500);
+    }
+    const upgradesValue = toMetadataValue(item.upgrades ?? item.addOns ?? null);
+    if (upgradesValue) {
+      metadata.upgrades = clamp(upgradesValue, 500);
+    }
     if (item?.name) metadata.product_name = clamp(String(item.name), 200);
     if (item?.productUrl) metadata.product_url = clamp(String(item.productUrl), 300);
     if (item?.image) metadata.product_image = clamp(String(item.image), 400);

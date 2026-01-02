@@ -44,6 +44,8 @@ const generateKey = (): string => {
 
 const normalizeStringArray = (input: unknown, separators: RegExp = /[|,]/): string[] => {
   const values: string[] = [];
+  const isEmptyArrayToken = (value: string) =>
+    /^\[\s*\]$/.test(value) || /:\s*\[\s*\]$/.test(value);
   const add = (value: unknown) => {
     if (Array.isArray(value)) {
       value.forEach((entry) => add(entry));
@@ -53,7 +55,7 @@ const normalizeStringArray = (input: unknown, separators: RegExp = /[|,]/): stri
       value
         .split(separators)
         .map((entry) => entry.trim())
-        .filter(Boolean)
+        .filter((entry) => Boolean(entry) && !isEmptyArrayToken(entry))
         .forEach((entry) => values.push(entry));
       return;
     }
