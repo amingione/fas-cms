@@ -45,10 +45,8 @@ if (!ctx.ok) {
   </style>
 
   <script>
-    /** @typedef {import('@/types/vendor').VendorMessageSummary} VendorMessageSummary */
-    /** @typedef {{ messages?: VendorMessageSummary[] }} VendorMessagesResponse */
-
     import type { VendorMessageSummary } from '@/types/vendor';
+    type VendorMessagesResponse = { messages?: VendorMessageSummary[] };
 
     const CART_KEY = 'wholesaleCart';
 
@@ -112,11 +110,9 @@ if (!ctx.ok) {
     const refreshUnreadMessages = async () => {
       try {
         const res = await fetch('/api/vendor/messages', { credentials: 'include' });
-        /** @type {VendorMessagesResponse} */
-        const data = await res.json();
+        const data = (await res.json()) as VendorMessagesResponse;
         if (!res.ok) return;
         const readIds = readMessageReadIds();
-        /** @type {VendorMessageSummary[]} */
         const messages = Array.isArray(data?.messages) ? data.messages : [];
         const unreadCount = messages.filter(
           (m: VendorMessageSummary) => m?.lastReplyIsStaff && !readIds.has(m?._id)

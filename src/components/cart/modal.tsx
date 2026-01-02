@@ -1,6 +1,6 @@
 'use client';
 
-import { Dialog, Transition } from '@headlessui/react';
+import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@headlessui/react';
 import { ShoppingCartIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import LoadingDots from '@components/loading-dots.tsx';
 import Price, { formatPrice } from '@/components/storefront/Price';
@@ -132,7 +132,7 @@ export default function CartModal() {
     <>
       <Transition show={isOpen}>
         <Dialog onClose={closeCart} className="relative z-[110000]">
-          <Transition.Child
+          <TransitionChild
             as={Fragment}
             enter="transition-all ease-in-out duration-300"
             enterFrom="opacity-0 backdrop-blur-none"
@@ -142,8 +142,8 @@ export default function CartModal() {
             leaveTo="opacity-0 backdrop-blur-none"
           >
             <div className="fixed inset-0 bg-[#1a1a1a]" aria-hidden="true" />
-          </Transition.Child>
-          <Transition.Child
+          </TransitionChild>
+          <TransitionChild
             as={Fragment}
             enter="transition ease-in-out duration-500 sm:duration-700"
             enterFrom="translate-x-full"
@@ -155,10 +155,10 @@ export default function CartModal() {
             <div className="fixed inset-0 overflow-hidden">
               <div className="absolute inset-0 overflow-hidden">
                 <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-4 sm:pl-10">
-                  <Dialog.Panel className="pointer-events-auto w-screen max-w-md transform bg-dark text-white shadow-2xl transition duration-500 ease-in-out data-closed:translate-x-full sm:duration-700">
+                  <DialogPanel className="pointer-events-auto w-screen max-w-md transform bg-dark text-white shadow-2xl transition duration-500 ease-in-out data-closed:translate-x-full sm:duration-700">
                     <div className="flex h-full flex-col">
                       <div className="flex items-start justify-between px-4 py-6 sm:px-6">
-                        <Dialog.Title className="text-lg font-semibold">Shopping Cart</Dialog.Title>
+                        <DialogTitle className="text-lg font-semibold">Shopping Cart</DialogTitle>
                         <button
                           type="button"
                           onClick={closeCart}
@@ -203,11 +203,11 @@ export default function CartModal() {
                         />
                       ) : null}
                     </div>
-                  </Dialog.Panel>
+                  </DialogPanel>
                 </div>
               </div>
             </div>
-          </Transition.Child>
+          </TransitionChild>
         </Dialog>
       </Transition>
     </>

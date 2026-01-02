@@ -451,12 +451,10 @@ if (endPage < totalPages) {
 
 <BaseLayout title={metaTitle} description={pageDescription} canonical={canonical}>
   <Fragment slot="head">
-    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
     {
       productCollectionStructuredData && (
-        <script
-          type="application/ld+json"
-          set:html={JSON.stringify(productCollectionStructuredData)}
+        <script is:inline type="application/ld+json" set:html={JSON.stringify(productCollectionStructuredData)}
         />
       )
     }

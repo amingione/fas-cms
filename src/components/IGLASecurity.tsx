@@ -1,16 +1,7 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Card, CardDescription, CardHeader, CardTitle } from './ui/card';
 import Button from '@/components/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  Shield,
-  ShieldCheck,
-  Lock,
-  CheckCircle,
-  Star,
-  Calendar,
-  ArrowRight,
-  Award
-} from 'lucide-react';
+import { Shield, ShieldCheck, Lock, CheckCircle, Star, Calendar } from 'lucide-react';
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 

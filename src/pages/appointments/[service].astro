@@ -6,7 +6,6 @@ import BookingIframe from '../../components/BookingIframe.jsx';
 
 const service = Astro.params.service ?? '';
 const title = service.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-const iframeUrl = `https://cal.com/fasmotorsports/${service}`;
 ---
 
 <AuthProvider>

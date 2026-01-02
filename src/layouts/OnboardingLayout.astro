@@ -402,24 +402,23 @@ const breadcrumbs = [
       }
       const newWindow = window.open('', '_blank', 'width=1024,height=768');
       if (!newWindow) return;
-      newWindow.document.write(`
-        <html>
-          <head>
-            <title>${document.title}</title>
-            <style>
-              body { font-family: Inter, sans-serif; padding: 24px; color: #111; }
-              h1, h2, h3 { color: #111; }
-              .print-article { border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; }
-            </style>
-          </head>
-          <body>
-            <div class="print-article">
-              ${printTarget.innerHTML}
-            </div>
-            <script>window.addEventListener('load', () => { window.print(); });<\/script>
-          </body>
-        </html>
-      `);
+      newWindow.document.open();
+      newWindow.document.documentElement.innerHTML = `
+        <head>
+          <title>${document.title}</title>
+          <style>
+            body { font-family: Inter, sans-serif; padding: 24px; color: #111; }
+            h1, h2, h3 { color: #111; }
+            .print-article { border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; }
+          </style>
+        </head>
+        <body>
+          <div class="print-article">
+            ${printTarget.innerHTML}
+          </div>
+          <script>window.addEventListener('load', () => { window.print(); });<\/script>
+        </body>
+      `;
       newWindow.document.close();
     };
 

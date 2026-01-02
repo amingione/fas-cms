@@ -2,12 +2,11 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { ArrowRight, ArrowLeft, Flame, Wrench, Gauge, Settings, Award } from 'lucide-react';
-import { motion, useInView } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 
 export function CustomFabrication() {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.2 });
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {

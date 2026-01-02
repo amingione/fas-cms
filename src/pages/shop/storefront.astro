@@ -164,20 +164,16 @@ const productCollectionStructuredData = productItemListElements.length
 
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
   <Fragment slot="head">
-    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
     {
       categoryCollectionStructuredData && (
-        <script
-          type="application/ld+json"
-          set:html={JSON.stringify(categoryCollectionStructuredData)}
+        <script is:inline type="application/ld+json" set:html={JSON.stringify(categoryCollectionStructuredData)}
         />
       )
     }
     {
       productCollectionStructuredData && (
-        <script
-          type="application/ld+json"
-          set:html={JSON.stringify(productCollectionStructuredData)}
+        <script is:inline type="application/ld+json" set:html={JSON.stringify(productCollectionStructuredData)}
         />
       )
     }

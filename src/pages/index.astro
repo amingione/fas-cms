@@ -26,9 +26,7 @@ const url = new URL(Astro.request.url);
 const siteOrigin = url.origin;
 const canonicalHome = `${siteOrigin}/`;
 const [pageDoc, featuredProductsRaw] = await Promise.all([pageDocPromise, featuredProductsPromise]);
-const v2Param = url.searchParams.get('v2');
 // Default to the new V2 homepage; allow opt-out via ?v2=0
-const showV2 = v2Param === '0' ? false : true;
 
 const featuredProducts: any[] = Array.isArray(featuredProductsRaw) ? featuredProductsRaw : [];
 
@@ -151,7 +149,7 @@ const structuredDataGraph =
   {
     structuredDataGraph && (
       <Fragment slot="head">
-        <script type="application/ld+json" set:html={JSON.stringify(structuredDataGraph)} />
+        <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredDataGraph)} />
       </Fragment>
     )
   }

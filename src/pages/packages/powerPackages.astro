@@ -44,69 +44,6 @@ const heroCtasFallback = [
 ];
 const heroCtasToRender = heroCtasHasContent ? heroCtas : heroCtasFallback;
 
-const highlightPills: string[] = Array.isArray(pageDoc?.highlightPills)
-  ? pageDoc.highlightPills
-  : [];
-const highlightPillsHasContent = highlightPills.length > 0;
-const highlightPillsFallback = [
-  'Dyno-Proven Options',
-  'OEM-Style Fit & Finish',
-  'Fast Turnaround',
-  'Warranty-Friendly Base Kits'
-];
-const highlightPillsToRender = highlightPillsHasContent ? highlightPills : highlightPillsFallback;
-const highlightPillEntries = highlightPillsToRender.map((pill, idx) => ({ pill, idx }));
-
-const platformHeading: string = pageDoc?.platformHeading ?? 'Choose Your Platform';
-const platforms: Array<{
-  href?: string;
-  image?: string;
-  alt?: string;
-  labelTop?: string;
-  labelBottom?: string;
-}> = Array.isArray(pageDoc?.platforms) ? pageDoc.platforms : [];
-const platformsHasContent = platforms.length > 0;
-const platformsFallback = [
-  {
-    href: '/shop?platform=trx',
-    image: '/images/packages/dodge-ram.webp',
-    alt: 'RAM TRX Packages',
-    labelTop: 'ram',
-    labelBottom: 'TRX'
-  }
-];
-const platformsToRender = platformsHasContent ? platforms : platformsFallback;
-const featuredPlatform = platformsToRender[0] ?? {};
-
-const tiers: Array<{ image?: string; alt?: string; labelTop?: string; labelBottom?: string }> =
-  Array.isArray(pageDoc?.tiers) ? pageDoc.tiers : [];
-const tiersHasContent = tiers.length > 0;
-const tiersFallback = [
-  {
-    image: '/images/packages/fas-1x-2.webp',
-    alt: 'F.A.S. 1X',
-    labelTop: 'F.A.S.',
-    labelBottom: '1X'
-  }
-];
-const tiersToRender = tiersHasContent ? tiers : tiersFallback;
-const featuredTier = tiersToRender[0] ?? {};
-
-const ctaButtons: Array<{ label?: string; href?: string; variant?: string }> = Array.isArray(
-  pageDoc?.ctaButtons
-)
-  ? pageDoc.ctaButtons
-  : [];
-const ctaButtonsHasContent = ctaButtons.length > 0;
-const ctaButtonsFallback = [
-  {
-    label: 'Shop All Packages',
-    href: '/shop?categorySlug=power-packages&category=power-packages&page=1',
-    variant: 'multi-swipe-v2'
-  },
-  { label: 'Book an Install', href: '/schedule', variant: 'multi-swipe-v2' }
-];
-const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallback;
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
@@ -144,7 +81,7 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallbac
         {
           secondaryBadgeEntries.length > 0 ? (
             <div class="mt-6 flex flex-wrap gap-3 justify-center">
-              {secondaryBadgeEntries.map(({ badge, idx }) => (
+              {secondaryBadgeEntries.map(({ badge }) => (
                 <span class="px-4 py-1.5 rounded-full border border-white/30 bg-dark/50 text-white/90 text-xs font-ethno uppercase tracking-[0.18em]">
                   {badge}
                 </span>

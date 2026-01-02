@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { Category, Product } from '@lib/sanity-utils';
+import type { Category } from '@lib/sanity-utils';
 import { SortControls } from '@/components/storefront/SortControls';
 import FilterPanel from '@components/FilterPanel';
 import { Button } from '@components/ui/button';

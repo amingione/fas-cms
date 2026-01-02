@@ -1,4 +1,3 @@
-import React from 'react';
 import Label from '@/components/storefront/label.tsx';
 import ProductQuickViewButton from '@/components/storefront/ProductQuickViewButton';
 import { portableTextToPlainText } from '@/lib/portableText';

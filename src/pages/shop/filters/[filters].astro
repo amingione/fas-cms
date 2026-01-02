@@ -254,9 +254,9 @@ const filterCollectionStructuredData = filter && productItemListElements.length
 >
   {breadcrumbStructuredData && (
     <Fragment slot="head">
-      <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
+      <script is:inline type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
       {filterCollectionStructuredData && (
-        <script type="application/ld+json" set:html={JSON.stringify(filterCollectionStructuredData)} />
+        <script is:inline type="application/ld+json" set:html={JSON.stringify(filterCollectionStructuredData)} />
       )}
     </Fragment>
   )}

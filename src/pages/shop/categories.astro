@@ -8,7 +8,6 @@ import { fetchFeaturedProducts } from '@/lib/sanity-utils';
 
 // Choose which categories (by slug) to show on this page.
 // Fill this list with the exact slugs you want featured. Leave empty to show all.
-const chosenSlugs: string[] = [];
 
 // Optional: Manually override category images here by slug.
 // Example: 'porting': '/images/packages/porting-custom.webp'
@@ -78,10 +77,6 @@ type ProductListItem = {
 // Fetch all categories for the grid
 const categoriesAll: Category[] = await client.fetch(categoriesQueryAll);
 // Optional: use chosenSlugs to build a curated subset elsewhere if needed
-const featuredCategories: Category[] = chosenSlugs.length
-  ? categoriesAll.filter((category) => chosenSlugs.includes(category.slug))
-  : categoriesAll;
-
 const featuredRaw = await fetchFeaturedProducts({ limit: 12, ttlSeconds: 300 });
 
 // Normalize to the shape expected by ProductCardLiteReact (images[0].asset.url)
@@ -264,12 +259,12 @@ const tileClass = (i: number) => {
   breadcrumbContext={breadcrumbContext}
 >
   <Fragment slot="head">
-    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
     {categoryCollectionStructuredData && (
-      <script type="application/ld+json" set:html={JSON.stringify(categoryCollectionStructuredData)} />
+      <script is:inline type="application/ld+json" set:html={JSON.stringify(categoryCollectionStructuredData)} />
     )}
     {featuredProductsStructuredData && (
-      <script type="application/ld+json" set:html={JSON.stringify(featuredProductsStructuredData)} />
+      <script is:inline type="application/ld+json" set:html={JSON.stringify(featuredProductsStructuredData)} />
     )}
   </Fragment>
   <section class="mt-2 pt-4">

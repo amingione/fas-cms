@@ -1,6 +1,5 @@
 import { Badge } from './ui/badge';
-import Button from '@/components/button';
-import { CheckCircle, Shield, Trophy, Zap, Users } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 
@@ -11,13 +10,6 @@ const achievements = [
   'Trusted by Enthusiasts Nationwide',
   'Specialists in High-Performance Builds',
   'Founded by enthusiasts - Driven by a genuine love for speed, precision, and pushing the limits'
-];
-
-const stats = [
-  { value: '2000+', label: 'HP BUILDS', icon: Zap },
-  { value: '20+', label: 'YEARS', icon: Trophy },
-  { value: '500+', label: 'CLIENTS', icon: Users },
-  { value: '100%', label: 'QUALITY', icon: Shield }
 ];
 
 export function About() {

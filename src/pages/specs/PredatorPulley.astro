@@ -68,7 +68,7 @@ const structuredData = {
 >
   <Fragment slot="head">
     <meta property="og:type" content="product" />
-    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
   </Fragment>
   <div {...inlineObjectId('content/pages/specs/PredatorPulley.json')}>
     <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>

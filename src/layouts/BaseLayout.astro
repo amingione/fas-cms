@@ -586,9 +586,7 @@ const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
     {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
     {
       jsonLdEntries.map((entry, index) => (
-        <script
-          type="application/ld+json"
-          set:html={JSON.stringify(entry)}
+        <script is:inline type="application/ld+json" set:html={JSON.stringify(entry)}
           data-seo-ld-index={index}
         />
       ))
@@ -672,13 +670,13 @@ const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
         });
       })();
     </script>
-    <script async defer src="https://apis.google.com/js/platform.js?onload=renderOptIn"></script>
+    <script is:inline async defer src="https://apis.google.com/js/platform.js?onload=renderOptIn"></script>
 
     <slot name="head" />
   </head>
 
   <body class="bg-dark pt-3 text-white font-mono min-h-screen flex flex-col">
-    <script type="module" src={analyticsTrackingScriptUrl}></script>
+    <script is:inline type="module" src={analyticsTrackingScriptUrl}></script>
     <svg
       width="0"
       height="0"
@@ -742,7 +740,7 @@ const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
     </div>
 
     <!-- fas-auth client shim (provides window.fasAuth) -->
-    <script src="/fas-auth.js" defer></script>
+    <script is:inline src="/fas-auth.js" defer></script>
     <!-- Auth bootstrap removed: serverless login/session handles auth without Auth0 SDK -->
     <script>
       // Capture landing page on first visit

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 export interface FilterPanelMobileProps {
   categories: Array<{ title: string; slug: { current?: string } | string }>;
@@ -90,7 +90,7 @@ export default function FilterPanelMobile({
                 accentColor: 'var(--fx-primary, #fb3636)'
               }}
               checked={pendingCategory === ''}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              onChange={() => {
                 setPendingCategory('');
                 setCategory('');
               }}
@@ -115,7 +115,7 @@ export default function FilterPanelMobile({
                     accentColor: 'var(--fx-primary, #fb3636)'
                   }}
                   checked={pendingCategory === slug}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  onChange={() => {
                     setPendingCategory(slug);
                     setCategory(slug);
                   }}

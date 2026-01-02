@@ -37,7 +37,7 @@ const structuredData = {
 
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
   <Fragment slot="head">
-    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
   </Fragment>
   <div {...inlineObjectId('content/pages/about.json')}>
     <!-- Inline-editable Page Title (mapped to content/pages/about.json:title) -->

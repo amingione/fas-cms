@@ -17,25 +17,13 @@ function CartSummaryPopover({
   onRegisterTrigger?: (ref: HTMLButtonElement | null) => void;
   onRegisterPanel?: (ref: HTMLDivElement | null) => void;
 }) {
-  const { cart, totalQuantity, subtotal } = useCart();
+  const { cart, totalQuantity } = useCart();
   const [pinned, setPinned] = useState(false);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const items = cart?.items ?? [];
   const hasItems = items.length > 0;
   const [panelOpen, setPanelOpen] = useState(false);
-
-  const openShippingStep = () => {
-    if (typeof window === 'undefined') return;
-    const eventName = prefersDesktopCart() ? 'open-desktop-cart' : 'open-cart-shipping';
-    window.dispatchEvent(new Event(eventName));
-  };
-
-  const openCartDrawer = () => {
-    if (typeof window === 'undefined') return;
-    const eventName = prefersDesktopCart() ? 'open-desktop-cart' : 'open-cart';
-    window.dispatchEvent(new Event(eventName));
-  };
 
   useEffect(() => {
     const handleDesktopOpen = () => {

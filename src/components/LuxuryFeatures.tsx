@@ -1,6 +1,6 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
-import { Crown, Shield, Zap, Award, Wrench, Settings, Target, Clock } from 'lucide-react';
+import { Zap, Award, Wrench } from 'lucide-react';
 import { Badge } from './ui/badge';
 
 export function LuxuryFeatures() {
@@ -16,45 +16,6 @@ export function LuxuryFeatures() {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-
-  const luxuryFeatures = [
-    {
-      icon: Crown,
-      title: 'Bespoke Engineering',
-      description:
-        'Every component is custom-designed and manufactured to your exact specifications using aerospace-grade materials.',
-      highlights: ['CNC Machined', 'Hand-Finished', 'One-Off Design'],
-      gradient: 'from-luxury-primary/20 to-red-600/20',
-      glow: 'luxury-platinum-glow'
-    },
-    {
-      icon: Shield,
-      title: 'Lifetime Craftsmanship Warranty',
-      description:
-        'We stand behind our work with an unmatched lifetime warranty on all custom fabricated components.',
-      highlights: ['Lifetime Coverage', '24/7 Support', 'Quality Guarantee'],
-      gradient: 'from-luxury-platinum/20 to-gray-400/60',
-      glow: 'luxury-platinum-glow'
-    },
-    {
-      icon: Target,
-      title: 'Precision Performance',
-      description:
-        'Dyno-tuned to perfection with real-world testing to ensure every build exceeds expectations.',
-      highlights: ['Dyno Verified', 'Track Tested', 'Performance Proven'],
-      gradient: 'from-primary/20 to-red-600/20',
-      glow: 'industrial-glow'
-    },
-    {
-      icon: Clock,
-      title: 'White-Glove Service',
-      description:
-        'From consultation to completion, experience concierge-level service throughout your build journey.',
-      highlights: ['Personal Consultant', 'Progress Updates', 'VIP Treatment'],
-      gradient: 'from-red/20 to-primary',
-      glow: 'luxury-platinum-glow'
-    }
-  ];
 
   const premiumStats = [
     {

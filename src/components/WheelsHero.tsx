@@ -1,6 +1,5 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
-import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Zap, Award, Star } from 'lucide-react';
 import { inlineFieldAttrs } from '@lib/content';

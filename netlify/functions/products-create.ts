@@ -1,13 +1,13 @@
 // /netlify/functions/products-create.ts
 import type { Handler } from '@netlify/functions';
 import jwt from 'jsonwebtoken';
-import sanityClient from '@sanity/client';
+import { createClient } from '@sanity/client';
 
 // --- Sanity client (write-enabled) ---
 function getClient() {
   const token =
     process.env.SANITY_WRITE_TOKEN || process.env.SANITY_API_TOKEN || process.env.SANITY_TOKEN;
-  return sanityClient({
+  return createClient({
     projectId: process.env.SANITY_PROJECT_ID,
     dataset: process.env.SANITY_DATASET,
     token,

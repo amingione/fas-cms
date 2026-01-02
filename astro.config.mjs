@@ -1,12 +1,15 @@
 // astro.config.mjs
 import { defineConfig } from 'astro/config';
-import image from '@astrojs/image';
 import netlify from '@astrojs/netlify';
 import react from '@astrojs/react';
 import tailwind from '@astrojs/tailwind';
 import sanity from '@sanity/astro';
 import { fileURLToPath } from 'url';
 import viteCompression from 'vite-plugin-compression';
+
+process.env.BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA =
+  process.env.BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA || '1';
+process.env.BROWSERSLIST_IGNORE_OLD_DATA = process.env.BROWSERSLIST_IGNORE_OLD_DATA || '1';
 
 const FN_PORT =
   process.env.NETLIFY_DEV_PORT ||
@@ -111,8 +114,7 @@ export default defineConfig({
         : undefined
     }),
     react(),
-    tailwind(),
-    image()
+    tailwind()
   ],
   image: {
     service: {

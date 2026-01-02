@@ -40,7 +40,7 @@ const structuredData = {
   canonical={canonical}
 >
   <Fragment slot="head">
-    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
   </Fragment>
   <div>
     <div {...inlineObjectId('content/pages/contact.json')}>

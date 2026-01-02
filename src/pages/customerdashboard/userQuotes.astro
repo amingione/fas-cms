@@ -10,7 +10,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     </div>
   </section>
 
-  <script type="module">
+  <script is:inline type="module">
     async function fetchQuotes() {
       const container = document.getElementById('quotes-container');
       container.innerHTML = '<p>Loading...</p>';

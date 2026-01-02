@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Cog, Wrench, Zap, Target, Clock, Award, Gauge, Settings } from 'lucide-react';
+import { Cog, Wrench, Target, Clock, Award, Gauge } from 'lucide-react';
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 

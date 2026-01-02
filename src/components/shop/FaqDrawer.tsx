@@ -8,7 +8,6 @@ import { type Product } from '../../lib/sanity-utils';
 import PortableTextRenderer from '../../components/PortableTextRenderer.jsx';
 
 interface Props {
-  href?: string;
   title?: string;
   image?: string;
   product?: Product;
@@ -18,15 +17,7 @@ type FAQEntry = {
   answer: any;
 };
 
-type AccordionSectionId = 'faq';
-
-type AccordionSection = {
-  id: AccordionSectionId;
-  title: string;
-  defaultOpen?: boolean;
-};
-
-export default function FaqDrawer({ href, title, image, product }: Props = {}) {
+export default function FaqDrawer({ title, image, product }: Props = {}) {
   // Extract FAQ entries from product
   let faqEntries: FAQEntry[] = [];
 

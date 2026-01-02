@@ -182,9 +182,7 @@ export interface ShopProps {
 export default function Shop({
   initialProducts,
   categories,
-  selectedCategory: selectedCategoryProp,
-  selectedFilters: selectedFiltersProp,
-  pageInfo
+  selectedCategory: selectedCategoryProp
 }: ShopProps) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.1 });
@@ -201,7 +199,6 @@ export default function Shop({
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>(selectedCategoryProp || 'all');
   const [sortBy, setSortBy] = useState('featured');
-  const [showFilters, setShowFilters] = useState(false);
   const [cartItems, setCartItems] = useState(0);
   const [viewMode, setViewMode] = useState('grid');
 

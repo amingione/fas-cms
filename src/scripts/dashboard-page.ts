@@ -13,7 +13,6 @@ const VIEW_KEYS = [
 type ViewKey = (typeof VIEW_KEYS)[number];
 
 const viewSet = new Set<ViewKey>(VIEW_KEYS);
-let currentView: ViewKey = 'dashboard';
 let userEmail = '';
 let defaultName = 'Guest';
 let loadToken = 0;
@@ -410,20 +409,6 @@ function formatDateTime(value: unknown, withTime = true): string {
   } catch {
     return '';
   }
-}
-
-function normalizeValueList(input: unknown): string[] {
-  if (!input) return [];
-  if (Array.isArray(input)) {
-    return input.map((entry) => escapeHtml(String(entry))).filter(Boolean);
-  }
-  if (typeof input === 'string') {
-    return input
-      .split(/[,•]/)
-      .map((part) => escapeHtml(part.trim()))
-      .filter(Boolean);
-  }
-  return [];
 }
 
 function normalizeAddressParts(address: any): string[] {
@@ -1041,7 +1026,6 @@ const viewRenderers: Record<ViewKey, () => Promise<string>> = {
 
 async function loadView(target: ViewKey) {
   const token = ++loadToken;
-  currentView = target;
   updateHash(target);
   highlightNav(target);
   setLoading();

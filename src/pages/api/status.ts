@@ -1,7 +1,5 @@
 import type { APIRoute } from 'astro';
 
-const redact = (v?: string | null) => (typeof v === 'string' && v.length > 8 ? `${v.slice(0, 4)}…${v.slice(-4)}` : undefined);
-
 export const GET: APIRoute = async () => {
   const data = {
     runtime: 'astro',

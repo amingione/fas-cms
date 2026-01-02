@@ -227,7 +227,7 @@ export async function redirectToCheckout() {
     const getOrCreateSessionId = () => {
       let sessionId = sessionStorage.getItem('session_id');
       if (!sessionId) {
-        sessionId = `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        sessionId = `sess_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
         sessionStorage.setItem('session_id', sessionId);
       }
       return sessionId;

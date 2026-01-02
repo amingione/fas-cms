@@ -110,6 +110,7 @@ export async function completeInvitation({
   password: string;
   request: Request;
 }) {
+  void request;
   const validation = await validateInvitationToken(token);
   if (!validation.valid || !validation.vendor || !validation.tokenId) {
     return jsonResponse({ message: validation.message || 'Invalid token' }, { status: 400 }, { noIndex: true });

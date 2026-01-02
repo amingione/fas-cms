@@ -1,7 +1,7 @@
 import { cn } from '@components/ui/utils';
 import { Input } from '@components/ui/input';
 import { X, Search } from 'lucide-react';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 interface SearchBarProps {

@@ -97,3 +97,5 @@ Run with `yarn <script>` or `yarn run <script>`.
 - `yarn prepare` - `husky install`
 - `yarn merchant:upload` - `tsx scripts/merchant/upload-google-merchant-feed.ts`
 - `yarn stripe:sync` - `tsx scripts/stripe/sync-products.ts`
+
+Note: use `yarn add -D baseline-browser-mapping@latest` instead of `npm i` here, since npm can hit a peer-dep conflict with the legacy `@astrojs/image` package.

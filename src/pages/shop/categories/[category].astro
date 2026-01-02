@@ -263,11 +263,9 @@ const categoryCollectionStructuredData =
   {
     breadcrumbStructuredData && (
       <Fragment slot="head">
-        <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
+        <script is:inline type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
         {categoryCollectionStructuredData && (
-          <script
-            type="application/ld+json"
-            set:html={JSON.stringify(categoryCollectionStructuredData)}
+          <script is:inline type="application/ld+json" set:html={JSON.stringify(categoryCollectionStructuredData)}
           />
         )}
       </Fragment>

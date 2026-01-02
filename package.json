@@ -10,11 +10,11 @@
     "test": "yarn lint && yarn type-check",
     "cleanup:deps": "depcheck",
     "cleanup:files": "rimraf node_modules .astro dist build .cache .netlify .turbo .parcel-cache coverage",
-    "type-check": "astro check",
+    "type-check": "cross-env BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA=1 BROWSERSLIST_IGNORE_OLD_DATA=1 astro check --minimumSeverity warning",
     "prepare": "husky install",
     "merchant:upload": "tsx scripts/merchant/upload-google-merchant-feed.ts",
     "stripe:sync": "tsx scripts/stripe/sync-products.ts",
-    "astro:check": "astro check"
+    "astro:check": "cross-env BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA=1 BROWSERSLIST_IGNORE_OLD_DATA=1 astro check --minimumSeverity warning"
   },
   "depcheck": {
     "ignorePatterns": [
@@ -94,7 +94,6 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.9.6",
-    "@astrojs/image": "^0.18.0",
     "@astrojs/netlify": "6.6.3",
     "@astrojs/react": "4.4.2",
     "@astrojs/tailwind": "^6.0.2",

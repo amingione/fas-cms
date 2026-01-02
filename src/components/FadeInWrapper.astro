@@ -6,7 +6,7 @@ const { className = '' } = Astro.props;
   <slot />
 </div>
 
-<script type="module">
+<script is:inline type="module">
   window.addEventListener('DOMContentLoaded', () => {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {

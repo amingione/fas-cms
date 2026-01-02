@@ -1,42 +1,5 @@
 // BlackFridayHero.tsx
-import { useEffect, useState } from 'react';
 export function BlackFridayHero() {
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-
-  useEffect(() => {
-    function getNextFriday() {
-      const now = new Date();
-      const day = now.getDay();
-      const daysUntilFriday = (5 - day + 7) % 7 || 7;
-      const target = new Date(now);
-      target.setDate(now.getDate() + daysUntilFriday);
-      target.setHours(0, 0, 0, 0);
-      return target;
-    }
-
-    const targetDate = getNextFriday();
-
-    const interval = setInterval(() => {
-      const now = new Date().getTime();
-      const distance = targetDate.getTime() - now;
-
-      if (distance <= 0) {
-        clearInterval(interval);
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-        return;
-      }
-
-      setTimeLeft({
-        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((distance / (1000 * 60 * 60)) % 24),
-        minutes: Math.floor((distance / (1000 * 60)) % 60),
-        seconds: Math.floor((distance / 1000) % 60)
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <section className="relative overflow-hidden bg-gradient-to-r from-black via-zinc-900 to-black text-white">
       <div className="absolute inset-0 bg-[url('/images/backgrounds/BFSaleBanner.png')] bg-cover bg-center opacity-30" />

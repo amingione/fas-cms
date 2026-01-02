@@ -35,7 +35,7 @@ const breadcrumbStructuredData = {
 
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
   <Fragment slot="head">
-    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
   </Fragment>
 
  <BelakHero

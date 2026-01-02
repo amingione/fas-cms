@@ -1,4 +1,3 @@
-import * as React from 'react';
 
 type InventoryShape = {
   trackInventory?: boolean;

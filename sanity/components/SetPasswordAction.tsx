@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import type { DocumentActionComponent } from 'sanity';
 import { useClient } from 'sanity';
 import bcrypt from 'bcryptjs';
@@ -33,4 +33,3 @@ export const setPasswordAction: DocumentActionComponent = (props) => {
     }
   };
 };
-

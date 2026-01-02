@@ -90,6 +90,7 @@ export function getBoltPatterns(diameter: number): string[] {
 }
 
 export function getBackspacings(diameter: number, isSkinnies: boolean): string[] {
+  void diameter;
   if (isSkinnies) return [BACKSPACING_COMMON[0], BACKSPACING_COMMON[3]] as unknown as string[];
   return Array.from(BACKSPACING_COMMON) as unknown as string[];
 }

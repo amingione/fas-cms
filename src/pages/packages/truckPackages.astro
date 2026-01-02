@@ -1,11 +1,10 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
-import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content.ts';
+import { loadPageDoc } from '@lib/content.ts';
 import { Button } from '@/components/ui/button.tsx';
 import TruckPackagesComponent from '@/components/packageComps/truckPackage.tsx';
 
 import TruckGallery from '@/components/storefront/TruckGallery.astro';
-import { Truck } from 'lucide-react';
 
 const pageDoc: any = await loadPageDoc('truckPackages');
 const requestUrl = new URL(Astro.request.url);
@@ -46,21 +45,6 @@ const secondaryBadgeEntries = Array.isArray(pageDoc?.hero?.secondaryBadges)
   ? pageDoc.hero.secondaryBadges.map((badge: string, idx: number) => ({ badge, idx }))
   : [];
 
-const ctaButtons: Array<{ label?: string; href?: string; variant?: string }> = Array.isArray(
-  pageDoc?.ctaButtons
-)
-  ? pageDoc.ctaButtons
-  : [];
-const ctaButtonsHasContent = ctaButtons.length > 0;
-const ctaButtonsFallback = [
-  {
-    label: 'Shop Truck Packages',
-    href: '/shop?categorySlug=truck-packages&category=truck-packages&priceMin=0&priceMax=100000&page=1',
-    variant: 'multi-swipe-v2'
-  },
-  { label: 'Book an Install', href: '/schedule', variant: 'multi-swipe-v2' }
-];
-const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonsFallback;
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>

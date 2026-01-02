@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 
@@ -41,7 +41,7 @@ const sections: Section[] = [
   }
 ];
 
-function PackageItem({ pkg, index }: { pkg: Pkg; index: number }) {
+function PackageItem({ pkg }: { pkg: Pkg }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="border-t border-white/15 first:border-t-0">
@@ -94,8 +94,8 @@ function PlatformBlock({ section }: { section: Section }) {
         <p className="mt-1 text-xs md:text-sm text-white/70">{section.intro}</p>
       </div>
       <div className="divide-y divide-white/15">
-        {section.pkgs.map((pkg, idx) => (
-          <PackageItem key={`${section.title}-${pkg.label}`} pkg={pkg} index={idx} />
+        {section.pkgs.map((pkg) => (
+          <PackageItem key={`${section.title}-${pkg.label}`} pkg={pkg} />
         ))}
       </div>
       <p className="mt-3 text-[11px] text-white/60">{section.disclaimer}</p>

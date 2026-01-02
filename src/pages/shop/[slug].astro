@@ -245,7 +245,6 @@ const describeContent = (value: unknown, field?: string): ContentDescriptor | nu
 const isContentDescriptor = (value: ContentDescriptor | null): value is ContentDescriptor =>
   value !== null;
 
-const inlineAttrsFor = (field?: string): Record<string, any> => (field ? inlineFieldAttrs(field) : {});
 
 const collectSeoStrings = (...values: unknown[]): string[] => {
   const results: string[] = [];
@@ -667,7 +666,6 @@ let displayTitle = baseProductTitle;
 let productSubheading: string | null = null;
 let headingInlineAttrs: Record<string, any> = inlineFieldAttrs('title');
 let descriptionDescriptor: ContentDescriptor | null = null;
-let whyChooseContent: ContentDescriptor | null = null;
 let featuresContent: ContentDescriptor | null = null;
 let importantNotesDescriptor: ContentDescriptor | null = null;
 let installFitmentHighlights: { label: string; value: string }[] = [];
@@ -1062,14 +1060,12 @@ if (product) {
     productHeading = displayTitle || baseProductTitle;
   }
 
-  const seoBenefitsDescriptor = describeContent((product as any)?.seo?.benefits, 'seo.benefits');
   const seoHighlightsDescriptor = describeContent((product as any)?.seo?.highlights, 'seo.highlights');
   const seoValuePropsDescriptor = describeContent((product as any)?.seo?.valueProps, 'seo.valueProps');
   const shortDescriptionDescriptor = describeContent(product?.shortDescription, 'shortDescription');
   descriptionDescriptor = describeContent(product?.description, 'description');
   importantNotesDescriptor = describeContent(product?.importantNotes, 'importantNotes');
 
-  whyChooseContent = descriptionDescriptor;
   featuresContent =
     seoHighlightsDescriptor ?? seoValuePropsDescriptor ?? descriptionDescriptor ?? shortDescriptionDescriptor ?? null;
 
@@ -1084,7 +1080,7 @@ if (product) {
   const faqSource = possibleFaqCollections.find((value) => Array.isArray(value) && value.length > 0) as any[] | undefined;
   if (faqSource) {
     faqEntries = faqSource
-      .map((entry: any, index: number) => {
+      .map((entry: any) => {
         const question =
           collapseSpaces(
             [
@@ -1345,16 +1341,16 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
     <meta property="product:availability" content="https://schema.org/InStock" />
     {metaKeywords && <meta name="keywords" content={metaKeywords} />}
     {breadcrumbStructuredData && (
-      <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
+      <script is:inline type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
     )}
     {productStructuredData && (
-      <script type="application/ld+json" set:html={JSON.stringify(productStructuredData)} />
+      <script is:inline type="application/ld+json" set:html={JSON.stringify(productStructuredData)} />
     )}
     {relatedProductsStructuredData && (
-      <script type="application/ld+json" set:html={JSON.stringify(relatedProductsStructuredData)} />
+      <script is:inline type="application/ld+json" set:html={JSON.stringify(relatedProductsStructuredData)} />
     )}
     {upsellProductsStructuredData && (
-      <script type="application/ld+json" set:html={JSON.stringify(upsellProductsStructuredData)} />
+      <script is:inline type="application/ld+json" set:html={JSON.stringify(upsellProductsStructuredData)} />
     )}
   </Fragment>
   <div {...inlineObjectId((product as any)._id)}>
@@ -1623,7 +1619,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                   />
                   {helperMessages.length > 0 && (
                     <div id={helperId} class="mt-2 text-xs text-white/70 space-y-1">
-                      {helperMessages.map((msg, helperIndex) => (
+                      {helperMessages.map((msg) => (
                         <p>{msg}</p>
                       ))}
                     </div>
@@ -1948,14 +1944,14 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
 </div>
 
   <!-- Load the hydrated product interactions as a bundled module (no raw ?url assets) -->
-  <script type="module" src={productPageScriptUrl} defer></script>
+  <script is:inline type="module" src={productPageScriptUrl} defer></script>
 
   </BaseLayout>
 ) : (
   <BaseLayout title={seoTitle} description={seoDesc} canonical={seoCanon} ogImage={seoOg}>
     <Fragment slot="head">
       {breadcrumbStructuredData && (
-        <script type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
+        <script is:inline type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
       )}
     </Fragment>
     <section class="mx-auto flex min-h-[60vh] max-w-3xl flex-col items-center justify-center px-4 py-24 text-center text-white">

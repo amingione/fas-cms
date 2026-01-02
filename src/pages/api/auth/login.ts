@@ -31,14 +31,12 @@ export const POST: APIRoute = async ({ request }) => {
     let sessionUser: { id: string; email: string; roles: string[] } | null = null;
     let expiresInSeconds: number | undefined = undefined;
     let accountFound = false;
-    let passwordMatch = false;
 
     if (adminEmail && adminPassword && email === adminEmail) {
       accountFound = true;
       if (password === adminPassword) {
         sessionUser = { id: 'admin', email, roles: ['admin'] };
         expiresInSeconds = 60 * 60;
-        passwordMatch = true;
       }
     }
 
@@ -66,7 +64,6 @@ export const POST: APIRoute = async ({ request }) => {
               roles: ['vendor']
             };
             expiresInSeconds = 60 * 60;
-            passwordMatch = true;
           }
         }
       }
@@ -92,7 +89,6 @@ export const POST: APIRoute = async ({ request }) => {
               roles: ['customer']
             };
             expiresInSeconds = 60 * 60 * 24 * 7;
-            passwordMatch = true;
           }
         }
       }

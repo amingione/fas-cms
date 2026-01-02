@@ -2,7 +2,6 @@
 import { fetchTunes, fetchVehicles } from '@lib/sanity-utils.ts';
 import type { Tune, Vehicle } from '@lib/sanity-utils.ts';
 
-const currentCategory = Astro.props.currentCategory as string | undefined;
 const url = new URL(Astro.request.url);
 const currentTuneSlug = url.searchParams.get('tuneSlug') || '';
 const currentVehicleSlug = url.searchParams.get('vehicleSlug') || '';

@@ -1,6 +1,5 @@
 import * as React from 'react';
 
-import { cva, type VariantProps } from 'class-variance-authority';
 // Minimal className combiner (avoids path alias issues)
 function cn(
   ...inputs: Array<string | number | null | undefined | false | Record<string, boolean>>

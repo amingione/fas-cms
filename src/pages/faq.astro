@@ -56,7 +56,7 @@ const faqStructuredData = {
 
 <BaseLayout>
   <Fragment slot="head">
-    <script type="application/ld+json" set:html={JSON.stringify(faqStructuredData)} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(faqStructuredData)} />
   </Fragment>
   <div {...inlineObjectId('content/pages/faq.json')}>
     <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>

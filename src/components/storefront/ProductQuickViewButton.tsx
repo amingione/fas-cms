@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { EyeIcon, ShoppingCartIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { PortableText, type PortableTextComponents } from '@portabletext/react';

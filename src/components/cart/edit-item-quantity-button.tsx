@@ -22,19 +22,13 @@ function SubmitButton({ type }: { type: 'plus' | 'minus' }) {
 // Accepts either the new local cart item shape { id, quantity } or the old Shopify shape with item.merchandise.id
 export function EditItemQuantityButton({ item, type }: { item: any; type: 'plus' | 'minus' }) {
   const { updateCartItem } = useCart();
-  const [loading, setLoading] = React.useState(false);
 
   const id: string | undefined = item?.id || item?.merchandise?.id;
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!id) return;
-    try {
-      setLoading(true);
-      await updateCartItem(id, type);
-    } finally {
-      setLoading(false);
-    }
+    await updateCartItem(id, type);
   }
 
   return (

@@ -4,22 +4,6 @@ import { sanityClient } from '@/lib/sanityClient';
 import { readSession } from '../../server/auth/session';
 import { jsonResponse } from '@/server/http/responses';
 
-function getBearer(req: Request): string | null {
-  const auth = req.headers.get('authorization') || '';
-  if (auth.toLowerCase().startsWith('bearer ')) return auth.slice(7).trim();
-  return null;
-}
-
-function getCookie(req: Request, name: string): string | null {
-  const cookie = req.headers.get('cookie') || '';
-  const parts = cookie.split(/;\s*/);
-  for (const p of parts) {
-    const [k, v] = p.split('=');
-    if (k === name && typeof v === 'string') return decodeURIComponent(v);
-  }
-  return null;
-}
-
 export const OPTIONS: APIRoute = async () =>
   new Response(null, {
     status: 204,

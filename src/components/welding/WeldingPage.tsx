@@ -14,33 +14,6 @@ const fadeUp = {
     transition: { delay, duration: 0.6, ease: easeOut }
   })
 };
-const steps = [
-  {
-    id: 1,
-    title: 'Consult',
-    desc: 'Define goals, constraints, budget, and intended use (street, track, work duty).',
-    icon: '⚡'
-  },
-  {
-    id: 2,
-    title: 'Design',
-    desc: 'On-car measurement and CAD mock-ups; choose materials, bends, joint types, and finish.',
-    icon: '📐'
-  },
-  {
-    id: 3,
-    title: 'Fabricate',
-    desc: 'Mandrel bending, precision TIG welds with back purge; fixtures for repeatability.',
-    icon: '🛠️'
-  },
-  {
-    id: 4,
-    title: 'Install',
-    desc: 'Fitment check, leak-test, and final finish. Install in-house with torque specs documented.',
-    icon: '🚀'
-  }
-];
-
 const projects = [
   'https://framerusercontent.com/images/iZXow8fbJI7uHxw4lnehA9k9dY.png',
   'https://framerusercontent.com/images/VMpH1u4xBoFeNT64AG87jI6bk.png'

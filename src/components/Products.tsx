@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from '@components/ui/button';
 import { Badge } from './ui/badge';
-import { ArrowRight, Star, Zap, Settings, Wrench } from 'lucide-react';
+import { ArrowRight, Star } from 'lucide-react';
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 

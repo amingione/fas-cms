@@ -19,69 +19,6 @@ const heroImage = hero?.image ?? {};
 const heroTags: string[] = Array.isArray(hero?.tags) ? hero.tags : [];
 const heroTagsHasContent = heroTags.length > 0;
 const heroTagFallback = ['Flow-bench guided', 'Hand finish', 'Matched interfaces', 'OEM-level fit'];
-const featurePills: string[] = Array.isArray(pageDoc?.featurePills) ? pageDoc.featurePills : [];
-const featurePillsHasContent = featurePills.length > 0;
-const featurePillsFallback = [
-  'Flow-bench guided',
-  'Hand finish',
-  'Matched components',
-  'OEM-level fit & finish'
-];
-const featurePillsToRender = featurePillsHasContent ? featurePills : featurePillsFallback;
-
-const portingItems: Array<{ title?: string; desc?: string }> = Array.isArray(pageDoc?.portingItems)
-  ? pageDoc.portingItems
-  : [];
-const portingItemsHasContent = portingItems.length > 0;
-const portingItemsFallback = [
-  {
-    title: 'Supercharger',
-    desc: 'Improves airflow and boost efficiency. Gains of 20–40+ WHP are common when paired with tuning.'
-  },
-  {
-    title: 'Bearing Plate',
-    desc: 'Reduce turbulence and drag on the rotor path, enhancing blower response.'
-  }
-];
-const portingItemsToRender = portingItemsHasContent ? portingItems : portingItemsFallback;
-const methodology = pageDoc?.methodology ?? {};
-const methodologyItems: string[] = Array.isArray(methodology?.items) ? methodology.items : [];
-const deliverables: string[] = Array.isArray(methodology?.deliverables)
-  ? methodology.deliverables
-  : [];
-const methodologyTitle: string = methodology?.title ?? 'Methodology';
-const deliverablesTitle: string = methodology?.deliverablesTitle ?? 'Deliverables';
-const methodologyItemsToRender = methodologyItems.length
-  ? methodologyItems
-  : [
-      'Baseline measurement and inspection; document casting lines and restrictions.',
-      'Hand-blend for surface finish and transition quality.',
-      'Port-matching across interfaces (snout ⇄ TB ⇄ case ⇄ manifold).',
-      'Final inspection: CSA verification, concentricity, fastener land integrity.'
-    ];
-const deliverablesToRender = deliverables.length
-  ? deliverables
-  : [
-      'Before/after photos & notes.',
-      'Recommended TB size / injector / belt guidance where applicable.',
-      'Gasket surfaces protected; threads chased; components cleaned and bagged.',
-      'Optional polish or ceramic coat on request.'
-    ];
-const summaryCards: Array<{ title?: string; body?: string }> = Array.isArray(pageDoc?.summaryCards)
-  ? pageDoc.summaryCards
-  : [];
-const summaryCardsHasContent = summaryCards.length > 0;
-const summaryCardsFallback = [
-  {
-    title: 'Typical Gains',
-    body: 'Supercharger/snout pairs commonly see +20–40 WHP with proper tuning and supporting mods. Cylinder head & intake work supports higher RPM power retention.'
-  },
-  {
-    title: 'Turnaround',
-    body: 'Most jobs 5–10 business days after parts are received. Expedited options available.'
-  }
-];
-const summaryCardsToRender = summaryCardsHasContent ? summaryCards : summaryCardsFallback;
 const ctaButtons: Array<{ label?: string; href?: string; variant?: string; size?: string }> =
   Array.isArray(pageDoc?.ctaButtons) ? pageDoc.ctaButtons : [];
 const ctaButtonsHasContent = ctaButtons.length > 0;

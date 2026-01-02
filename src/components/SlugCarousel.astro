@@ -161,4 +161,4 @@ const carouselScript = shouldHydrate ? carouselScriptUrl : null;
 </style>
 
 <!-- NOTE: Avoid Astro.resolve/Astro2.resolve for this script loader -->
-{shouldHydrate && carouselScript && <script type="module" src={carouselScript} defer />}
+{shouldHydrate && carouselScript && <script is:inline type="module" src={carouselScript} defer />}

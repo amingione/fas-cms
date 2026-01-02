@@ -1,6 +1,6 @@
 'use client';
 
-import { Dialog, Transition } from '@headlessui/react';
+import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react';
 import { Fragment, useEffect, useState } from 'react';
 
 import { Bars3Icon, XMarkIcon, UserCircleIcon } from '@heroicons/react/24/outline';
@@ -30,7 +30,6 @@ async function waitForFasAuth(timeoutMs = 8000): Promise<any | null> {
 
 export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone' | 'inline' }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [search, setSearch] = useState('');
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [displayName, setDisplayName] = useState<string>('');
 
@@ -361,7 +360,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
       </button>
       <Transition show={isOpen}>
         <Dialog onClose={closeMobileMenu} className="relative z-50">
-          <Transition.Child
+          <TransitionChild
             as={Fragment}
             enter="transition-all ease-in-out duration-300"
             enterFrom="opacity-0 backdrop-blur-none"
@@ -371,8 +370,8 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             leaveTo="opacity-0 backdrop-blur-none"
           >
             <div className="fixed inset-0 bg-dark" aria-hidden="true" />
-          </Transition.Child>
-          <Transition.Child
+          </TransitionChild>
+          <TransitionChild
             as={Fragment}
             enter="transition-all ease-in-out duration-300"
             enterFrom="translate-x-[-100%]"
@@ -381,7 +380,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
             leaveFrom="translate-x-0"
             leaveTo="translate-x-[-100%]"
           >
-            <Dialog.Panel className="fixed bottom-0 left-0 right-0 top-0 flex h-full w-full flex-col bg-dark pb-6 text-white">
+            <DialogPanel className="fixed bottom-0 left-0 right-0 top-0 flex h-full w-full flex-col bg-dark pb-6 text-white">
               <div className="p-4">
                 <button
                   className="mb-4 flex h-11 w-11 items-center justify-center rounded-md border border-neutral-300 text-white transition-colors hover:border-primary hover:text-primary"
@@ -392,8 +391,8 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
                 </button>
                 <MenuContent onNavigate={closeMobileMenu} />
               </div>
-            </Dialog.Panel>
-          </Transition.Child>
+            </DialogPanel>
+          </TransitionChild>
         </Dialog>
       </Transition>
     </>

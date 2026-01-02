@@ -1,24 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { VendorMessageDetail, VendorMessageSummary } from '@/types/vendor';
-const transition = {
-  type: 'spring',
-  stiffness: 200,
-  mass: 0.2,
-  damping: 20
-};
-
-const variants = {
-  initial: {
-    opacity: 0,
-    y: 300
-  },
-  enter: {
-    opacity: 1,
-    y: 0,
-    transition
-  }
-};
 const MessagesInterface: React.FC = () => {
   const [list, setList] = useState<VendorMessageSummary[]>([]);
   const [selected, setSelected] = useState<VendorMessageDetail | null>(null);

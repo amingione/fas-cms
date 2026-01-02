@@ -14,6 +14,5 @@ export type Theme = {
 };
 
 export async function getTheme(): Promise<Theme> {
-  const theme = (await import('../../content/theme.json')).default as Theme;
   return themeJson as Theme;
 }

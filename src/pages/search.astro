@@ -2,8 +2,8 @@
 import type { Product as SanityProduct } from '@lib/sanity-utils.ts';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SearchTabsHeader from '@/components/search/SearchTabsHeader.tsx';
-import { fetchProductsFromSanity, fetchCategories } from '@lib/sanity-utils.ts';
-import type { Product, Category } from '@lib/sanity-utils.ts';
+import { fetchProductsFromSanity } from '@lib/sanity-utils.ts';
+import type { Product } from '@lib/sanity-utils.ts';
 
 export interface ProductCardProps {
   product: SanityProduct;
@@ -74,7 +74,7 @@ if (endPage < totalPages) {
       <p class="text-white/70">Type a query above and press Enter.</p>
     </div>
 
-    <script type="module">
+    <script is:inline type="module">
       const resultsEl = document.getElementById('results');
       const qLabel = document.getElementById('query-label');
       const form = document.querySelector('form[action="/search"]');

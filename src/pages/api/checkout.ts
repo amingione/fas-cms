@@ -850,12 +850,10 @@ export async function POST({ request }: { request: Request }) {
   }
 
   // Derive optional user identity for reliable joins in webhook
-  let userId: string | undefined;
   let userEmail: string | undefined;
   try {
     const { session } = await readSession(request);
     if (session?.user) {
-      userId = String(session.user.id || '');
       userEmail = String(session.user.email || '');
     }
   } catch (error) {
