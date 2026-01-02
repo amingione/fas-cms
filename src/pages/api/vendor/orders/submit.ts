@@ -1,5 +1,4 @@
 import type { APIRoute } from 'astro';
-import type { APIRoute } from 'astro';
 import { jsonResponse } from '@/server/http/responses';
 
 export const POST: APIRoute = async ({ request }) => {

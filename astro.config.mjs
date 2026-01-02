@@ -27,9 +27,7 @@ const sanityDataset =
   'production';
 
 const sanityApiVersion =
-  process.env.SANITY_API_VERSION ||
-  process.env.PUBLIC_SANITY_API_VERSION ||
-  '2023-06-07';
+  process.env.SANITY_API_VERSION || process.env.PUBLIC_SANITY_API_VERSION || '2023-06-07';
 
 const sanityStudioUrl =
   process.env.PUBLIC_SANITY_STUDIO_URL ||
@@ -41,10 +39,7 @@ const sanityStudioUrl =
 // Netlify's adapter injects @netlify/vite-plugin automatically in a few
 // different environments (e.g. when NETLIFY_DEV is set). When multiple copies
 // are registered Vite emits a warning, so we proactively strip duplicates.
-const NETLIFY_VITE_PLUGIN_NAMES = new Set([
-  '@netlify/vite-plugin',
-  'netlify-vite-plugin'
-]);
+const NETLIFY_VITE_PLUGIN_NAMES = new Set(['@netlify/vite-plugin', 'netlify-vite-plugin']);
 
 const dedupeNetlifyVitePlugin = () => {
   const removeDuplicates = (plugins = []) => {
@@ -83,7 +78,7 @@ let svgrPlugin = null;
 try {
   const mod = await import('vite-plugin-svgr');
   svgrPlugin = mod?.default ? mod.default() : mod();
-} catch (err) {
+} catch {
   console.warn(
     '[astro.config] vite-plugin-svgr not found. SVG React imports (?react) will be disabled until it is installed.'
   );
@@ -94,7 +89,7 @@ let remarkGfm = null;
 try {
   const mod = await import('remark-gfm');
   remarkGfm = mod?.default ?? mod;
-} catch (err) {
+} catch {
   console.warn(
     '[astro.config] remark-gfm not found. GitHub-flavored Markdown (tables, task lists) will be disabled until installed.'
   );

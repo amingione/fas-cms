@@ -70,7 +70,8 @@ const SHIPPING_PRICE =
 const DEFAULT_WEIGHT_LB = Number(process.env.GMC_FEED_DEFAULT_WEIGHT_LB ?? '1');
 const CONTENT_API_SCOPE = 'https://www.googleapis.com/auth/content';
 const parsedBatchSize = Number(process.env.GMC_CONTENT_API_BATCH_SIZE ?? '250');
-const CONTENT_API_BATCH_SIZE = Number.isFinite(parsedBatchSize) && parsedBatchSize > 0 ? Math.floor(parsedBatchSize) : 250;
+const CONTENT_API_BATCH_SIZE =
+  Number.isFinite(parsedBatchSize) && parsedBatchSize > 0 ? Math.floor(parsedBatchSize) : 250;
 const DEFAULT_GOOGLE_PRODUCT_CATEGORY =
   process.env.GMC_FEED_DEFAULT_GOOGLE_CATEGORY ||
   'Vehicles & Parts > Vehicle Parts & Accessories > Performance Parts';
@@ -209,8 +210,7 @@ function buildProductHighlights(input: ProductHighlightsInput): string[] {
     highlights.push(cleaned);
   }
 
-  const baseText =
-    sanitizeText(input.shortDescription) || sanitizeText(input.description);
+  const baseText = sanitizeText(input.shortDescription) || sanitizeText(input.description);
   splitIntoSentences(baseText)
     .map((sentence) => clampLength(sentence, 150))
     .some((sentence) => {
@@ -329,9 +329,7 @@ function buildProductDetails(input: ProductDetailsInput): ProductDetailEntry[] {
     const formattedTags = input.filterTags
       .map((tag) => sanitizeText(tag))
       .filter(Boolean)
-      .map((tag) =>
-        tag.replace(/[-_]/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())
-      );
+      .map((tag) => tag.replace(/[-_]/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase()));
     if (formattedTags.length) {
       pushDetail('Fitment & Category', 'Tags', formattedTags.join(', '));
     }
@@ -426,7 +424,10 @@ function formatPrice(price: unknown, currency: string): string | null {
   return `${normalized.toFixed(2)} ${safeCurrency}`;
 }
 
-function parsePriceString(input: string | undefined, fallbackCurrency: string): content_v2_1.Schema$Price | null {
+function parsePriceString(
+  input: string | undefined,
+  fallbackCurrency: string
+): content_v2_1.Schema$Price | null {
   if (!input) return null;
   const trimmed = input.trim();
   if (!trimmed) return null;
@@ -437,7 +438,7 @@ function parsePriceString(input: string | undefined, fallbackCurrency: string): 
       currency: match[2].toUpperCase()
     };
   }
-  const numeric = trimmed.replace(/[^0-9.\-]/g, '');
+  const numeric = trimmed.replace(/[^0-9.-]/g, '');
   if (!numeric) return null;
   return {
     value: numeric,
@@ -445,7 +446,9 @@ function parsePriceString(input: string | undefined, fallbackCurrency: string): 
   };
 }
 
-function parseShippingWeight(input: string | undefined): content_v2_1.Schema$ProductShippingWeight | undefined {
+function parseShippingWeight(
+  input: string | undefined
+): content_v2_1.Schema$ProductShippingWeight | undefined {
   if (!input) return undefined;
   const trimmed = input.trim();
   if (!trimmed) return undefined;
@@ -469,7 +472,10 @@ function parseQuantity(input: string | undefined): string | undefined {
   return String(Math.floor(num));
 }
 
-function parseShippingAttribute(input: string | undefined, fallbackCurrency: string): content_v2_1.Schema$ProductShipping[] {
+function parseShippingAttribute(
+  input: string | undefined,
+  fallbackCurrency: string
+): content_v2_1.Schema$ProductShipping[] {
   if (!input) return [];
   const trimmed = input.trim();
   if (!trimmed) return [];
@@ -497,7 +503,10 @@ function parseServiceAccountJson(raw: string | undefined): ServiceAccountKey | n
     try {
       text = Buffer.from(text, 'base64').toString('utf8');
     } catch (err) {
-      console.warn('Failed to decode base64 service account key from GMC_SERVICE_ACCOUNT_KEY:', err);
+      console.warn(
+        'Failed to decode base64 service account key from GMC_SERVICE_ACCOUNT_KEY:',
+        err
+      );
       return null;
     }
   }
@@ -522,7 +531,9 @@ async function loadServiceAccountKey(): Promise<ServiceAccountKey | null> {
       const fileContents = await fs.readFile(keyPath, 'utf8');
       const parsed = parseServiceAccountJson(fileContents);
       if (parsed?.client_email && parsed?.private_key) return parsed;
-      console.warn(`Service account key file at ${keyPath} is missing client_email or private_key.`);
+      console.warn(
+        `Service account key file at ${keyPath} is missing client_email or private_key.`
+      );
     } catch (err) {
       console.error(`Unable to read service account key file at ${keyPath}:`, err);
     }
@@ -613,7 +624,7 @@ function chunkArray<T>(input: T[], size: number): T[][] {
 }
 
 async function fetchProducts() {
-const query = `*[_type=="product" && defined(slug.current) && !(_id in path("drafts.**")) && (status == "active" || !defined(status)) && coalesce(productType, "") != "service" && coalesce(draft,false) == false]{
+  const query = `*[_type=="product" && defined(slug.current) && !(_id in path("drafts.**")) && (status == "active" || !defined(status)) && coalesce(productType, "") != "service" && coalesce(draft,false) == false]{
   _id,
   "id": coalesce(sku, _id),
   title,
@@ -644,21 +655,18 @@ const query = `*[_type=="product" && defined(slug.current) && !(_id in path("dra
   return sanity.fetch<any[]>(query);
 }
 
-function appendServiceMessaging(
-  text: string,
-  message: string
-): string {
+function appendServiceMessaging(text: string, message: string): string {
   const normalized = text.toLowerCase();
-  if (!normalized.includes('vehicle not included') && !normalized.includes('vehicle is not included')) {
+  if (
+    !normalized.includes('vehicle not included') &&
+    !normalized.includes('vehicle is not included')
+  ) {
     return `${text} ${message}`.trim();
   }
   return text;
 }
 
-function ensureTitleQualifier(
-  title: string,
-  qualifier: string
-): string {
+function ensureTitleQualifier(title: string, qualifier: string): string {
   const normalized = title.toLowerCase();
   if (
     normalized.includes(qualifier.toLowerCase()) ||
@@ -688,19 +696,26 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
       const categoryTitles: string[] = Array.isArray(product?.categoryTitles)
         ? product.categoryTitles.map((category: unknown) => sanitizeText(category)).filter(Boolean)
         : [];
-      const productTypeSegments = Array.from(new Set([productTypeValue, ...categoryTitles].filter(Boolean)));
+      const productTypeSegments = Array.from(
+        new Set([productTypeValue, ...categoryTitles].filter(Boolean))
+      );
       const additionalImages: string[] = Array.isArray(product?.additionalImages)
         ? product.additionalImages
             .map((img: any) => {
               if (img && typeof img === 'object') {
-                return sanitizeText((img.asset && 'url' in img.asset ? (img.asset as any).url : (img as any).url) || '');
+                return sanitizeText(
+                  (img.asset && 'url' in img.asset ? (img.asset as any).url : (img as any).url) ||
+                    ''
+                );
               }
               return sanitizeText(img);
             })
             .filter(Boolean)
             .filter((url: string) => url !== image)
         : [];
-      const specificationItems = Array.isArray(product?.specifications) ? product.specifications : [];
+      const specificationItems = Array.isArray(product?.specifications)
+        ? product.specifications
+        : [];
       const attributeItems = Array.isArray(product?.attributes) ? product.attributes : [];
       const includedItems = Array.isArray(product?.includedInKit) ? product.includedInKit : [];
 
@@ -737,9 +752,11 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
 
       const requiresVehicleDisclaimer =
         isInstallOnly ||
-        [...normalizedCategoryTokens, ...normalizedProductTypeTokens, ...normalizedFilterTokens].some((token) =>
-          VEHICLE_DISCLAIMER_KEYWORDS.some((keyword) => token.includes(keyword))
-        );
+        [
+          ...normalizedCategoryTokens,
+          ...normalizedProductTypeTokens,
+          ...normalizedFilterTokens
+        ].some((token) => VEHICLE_DISCLAIMER_KEYWORDS.some((keyword) => token.includes(keyword)));
 
       let feedTitle = title;
       let feedDescription = baseDescription;
@@ -823,7 +840,12 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
         row.product_details = details;
       }
 
-      if (!isInstallOnly && allowsShipping && typeof SHIPPING_PRICE === 'number' && Number.isFinite(SHIPPING_PRICE)) {
+      if (
+        !isInstallOnly &&
+        allowsShipping &&
+        typeof SHIPPING_PRICE === 'number' &&
+        Number.isFinite(SHIPPING_PRICE)
+      ) {
         const shippingPrice = SHIPPING_PRICE;
         row.shipping = `US:::${shippingPrice.toFixed(2)} ${currency}`;
       }
@@ -832,9 +854,15 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
       if (product?.mpn) row.mpn = sanitizeText(product.mpn);
       const googleCategory = sanitizeText(product?.google_product_category);
       row.google_product_category = googleCategory || DEFAULT_GOOGLE_PRODUCT_CATEGORY;
-      row.custom_label_0 = clampLength(isInstallOnly ? 'install_service' : 'performance_product', 100);
+      row.custom_label_0 = clampLength(
+        isInstallOnly ? 'install_service' : 'performance_product',
+        100
+      );
       row.custom_label_2 = clampLength(allowsShipping ? 'ships_available' : 'install_only', 100);
-      row.custom_label_3 = clampLength(ENABLE_ADS_REDIRECT ? 'ads_redirect_enabled' : 'ads_redirect_disabled', 100);
+      row.custom_label_3 = clampLength(
+        ENABLE_ADS_REDIRECT ? 'ads_redirect_enabled' : 'ads_redirect_disabled',
+        100
+      );
 
       if (additionalImages.length) {
         const uniqueAdditionalImages = Array.from(new Set(additionalImages));
@@ -851,15 +879,17 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
 type MerchantRowValue = string | number | ProductDetailEntry[] | string[] | undefined;
 
 function isProductDetailArray(value: unknown): value is ProductDetailEntry[] {
-  return Array.isArray(value)
-    && value.every(
+  return (
+    Array.isArray(value) &&
+    value.every(
       (entry) =>
         entry &&
         typeof entry === 'object' &&
         'sectionName' in entry &&
         'attributeName' in entry &&
         'attributeValue' in entry
-    );
+    )
+  );
 }
 
 function formatRowValue(value: MerchantRowValue): string {
@@ -881,7 +911,10 @@ function formatRowValue(value: MerchantRowValue): string {
         .filter(Boolean)
         .join(' | ');
     }
-    return value.map((item) => sanitizeText(String(item))).filter(Boolean).join(' | ');
+    return value
+      .map((item) => sanitizeText(String(item)))
+      .filter(Boolean)
+      .join(' | ');
   }
   if (typeof value === 'number') {
     return sanitizeText(value.toString());
@@ -920,7 +953,9 @@ async function writeLocalFile(content: string) {
 async function uploadViaContentApi(rows: MerchantRow[]): Promise<boolean> {
   const merchantIdRaw = process.env.GMC_CONTENT_API_MERCHANT_ID?.trim();
   if (!merchantIdRaw) {
-    console.warn('Content API merchant ID missing; skipped API upload. Set GMC_CONTENT_API_MERCHANT_ID.');
+    console.warn(
+      'Content API merchant ID missing; skipped API upload. Set GMC_CONTENT_API_MERCHANT_ID.'
+    );
     return false;
   }
 
@@ -966,10 +1001,14 @@ async function uploadViaContentApi(rows: MerchantRow[]): Promise<boolean> {
           const errors = entry.errors?.errors ?? [];
           errors.forEach((error) => {
             const offerId = entry.product?.offerId || entry.product?.id || 'unknown';
-            console.error(`Content API error (offerId=${offerId}) [${error.reason}]: ${error.message}`);
+            console.error(
+              `Content API error (offerId=${offerId}) [${error.reason}]: ${error.message}`
+            );
           });
         });
-        throw new Error(`Content API batch ${batchIndex + 1} reported ${failures.length} error entries.`);
+        throw new Error(
+          `Content API batch ${batchIndex + 1} reported ${failures.length} error entries.`
+        );
       }
 
       processed += batchRows.length;
@@ -990,7 +1029,9 @@ async function uploadViaSftp(content: string): Promise<boolean> {
   const port = Number(process.env.GMC_SFTP_PORT || '22');
 
   if (!host || !username || !password) {
-    console.warn('SFTP credentials missing; skipped upload. Set GMC_SFTP_HOST, GMC_SFTP_USERNAME, and GMC_SFTP_PASSWORD.');
+    console.warn(
+      'SFTP credentials missing; skipped upload. Set GMC_SFTP_HOST, GMC_SFTP_USERNAME, and GMC_SFTP_PASSWORD.'
+    );
     return false;
   }
 
@@ -1029,7 +1070,11 @@ export async function runMerchantFeedUpload() {
 
   if (!uploadedViaApi) {
     uploadedViaSftp = await uploadViaSftp(tsv);
-  } else if (process.env.GMC_SFTP_HOST && process.env.GMC_SFTP_USERNAME && process.env.GMC_SFTP_PASSWORD) {
+  } else if (
+    process.env.GMC_SFTP_HOST &&
+    process.env.GMC_SFTP_USERNAME &&
+    process.env.GMC_SFTP_PASSWORD
+  ) {
     console.log('Skipping SFTP upload because Content API upload succeeded.');
   }
 

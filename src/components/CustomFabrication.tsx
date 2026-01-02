@@ -17,9 +17,11 @@ export function CustomFabrication() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const easeOut = [0.16, 1, 0.3, 1] as const;
+
   const variants = {
     hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: 'easeOut' } }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: easeOut } }
   };
 
   const fabricationServices = [

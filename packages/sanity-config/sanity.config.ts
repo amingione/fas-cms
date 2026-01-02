@@ -28,9 +28,15 @@ if (disableVisionOverride && process.env.NODE_ENV !== 'production') {
   console.info('[sanity] Vision tool disabled via SANITY_DISABLE_VISION flag.');
 }
 
+const presentationPreviewUrl =
+  process.env.SANITY_PRESENTATION_PREVIEW_URL ||
+  process.env.PUBLIC_SITE_URL ||
+  process.env.NEXTAUTH_URL ||
+  'http://localhost:4321';
+
 const plugins: any[] = [];
 
-plugins.push(presentationTool());
+plugins.push(presentationTool({ previewUrl: presentationPreviewUrl }));
 
 export default defineConfig({
   name: 'default',

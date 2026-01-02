@@ -22,7 +22,7 @@ export const handler: Handler = async (event) => {
       };
     }
     const payload = bodyResult.data?.payload || bodyResult.data;
-    const formName: string = payload?.form_name || payload?.formName || 'unknown-form';
+    const formName = String(payload?.form_name ?? payload?.formName ?? 'unknown-form');
     const data: Record<string, any> = payload?.data || payload || {};
 
     const to = process.env.NOTIFY_EMAIL || 'sales@fasmotorsports.com';

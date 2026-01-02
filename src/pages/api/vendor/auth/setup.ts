@@ -18,7 +18,7 @@ async function getVendorForToken(token: string) {
     email,
     portalAccess
   }`;
-  return sanity.fetch(query, { token, now });
+  return sanity.fetch(query, { token, now } as Record<string, string>);
 }
 
 export const POST: APIRoute = async ({ request }) => {

@@ -109,6 +109,8 @@ export function Services() {
     }
   };
 
+  const easeOut = [0.16, 1, 0.3, 1] as const;
+
   const itemVariants = {
     hidden: { opacity: 0, y: 60, rotateX: -15 },
     visible: {
@@ -117,7 +119,7 @@ export function Services() {
       rotateX: 0,
       transition: {
         duration: 0.7,
-        ease: 'easeOut'
+        ease: easeOut
       }
     }
   };
@@ -138,7 +140,7 @@ export function Services() {
               }
             : {}
         }
-        transition={{ duration: 0.4, ease: 'easeOut' }}
+        transition={{ duration: 0.4, ease: easeOut }}
         style={{ perspective: '1000px' }}
         className={`h-full ${isMobile ? 'mobile-carousel-item-small' : ''}`}
       >
@@ -216,7 +218,7 @@ export function Services() {
           className={`text-center space-y-4 ${isMobile ? 'mb-6 px-4' : 'mb-16'}`}
           initial={{ opacity: 0, y: 50 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
+          transition={{ duration: 0.8, ease: easeOut }}
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}

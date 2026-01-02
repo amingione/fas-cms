@@ -40,6 +40,7 @@ export default defineType({
       type: 'array',
       of: [
         defineField({
+          name: 'item',
           type: 'object',
           fields: [
             { name: 'product', title: 'Product', type: 'reference', to: [{ type: 'product' }] },

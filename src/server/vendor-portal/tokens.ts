@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import jwt, { type SignOptions } from 'jsonwebtoken';
 import crypto from 'node:crypto';
 import { INVITE_EXPIRY_DAYS, JWT_SECRET, RESET_EXPIRY_HOURS } from './config';
 
@@ -13,12 +13,14 @@ export interface IssuedToken {
 const DEFAULT_ISSUER = 'vendor-portal';
 
 function signToken(payload: Record<string, unknown>, expiresIn: string | number) {
-  if (!JWT_SECRET) throw new Error('JWT_SECRET is required to sign vendor portal tokens');
-  return jwt.sign(payload, JWT_SECRET, {
+  const secret = JWT_SECRET;
+  if (!secret) throw new Error('JWT_SECRET is required to sign vendor portal tokens');
+  const options: SignOptions = {
     algorithm: 'HS256',
-    expiresIn,
+    expiresIn: expiresIn as SignOptions['expiresIn'],
     issuer: DEFAULT_ISSUER
-  });
+  };
+  return jwt.sign(payload, secret, options);
 }
 
 function hashToken(token: string) {

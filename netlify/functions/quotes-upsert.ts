@@ -27,7 +27,9 @@ export const handler: Handler = async (event) => {
           cid = created?._id;
         }
         if (cid) customerRef = { _type: 'reference', _ref: cid };
-      } catch {}
+      } catch (e) {
+        // Failed to create or fetch customer, continue without reference
+      }
     }
 
     const doc: any = {

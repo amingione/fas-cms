@@ -87,6 +87,8 @@ export function Products() {
     }
   };
 
+  const easeOut = [0.16, 1, 0.3, 1] as const;
+
   const itemVariants = {
     hidden: { opacity: 0, y: 50, scale: 0.9 },
     visible: {
@@ -95,7 +97,7 @@ export function Products() {
       scale: 1,
       transition: {
         duration: 0.6,
-        ease: 'easeOut'
+        ease: easeOut
       }
     }
   };
@@ -252,7 +254,7 @@ export function Products() {
           className={`text-center space-y-4 ${isMobile ? 'mb-6 px-4' : 'mb-16'}`}
           initial={{ opacity: 0, y: 50 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
+          transition={{ duration: 0.8, ease: easeOut }}
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}

@@ -2,6 +2,15 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "node",
+      "request": "launch",
+      "name": "Install baseline-browser-mapping",
+      "program": "${workspaceFolder}/node_modules/npm/bin/npm-cli.js",
+      "args": ["i", "baseline-browser-mapping@latest", "-D"],
+      "cwd": "${workspaceFolder}",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
       "command": "./node_modules/.bin/astro dev",
       "name": "Development server",
       "request": "launch",

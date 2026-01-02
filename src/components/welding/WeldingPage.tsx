@@ -4,12 +4,14 @@ import { motion } from 'framer-motion';
 import BrandDivider from '../divider/brandDivider';
 import SocialMedia from '../divider/socialMedia';
 
+const easeOut = [0.16, 1, 0.3, 1] as const;
+
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
   show: (delay = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { delay, duration: 0.6, ease: 'easeOut' }
+    transition: { delay, duration: 0.6, ease: easeOut }
   })
 };
 const steps = [

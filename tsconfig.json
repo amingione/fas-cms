@@ -33,5 +33,11 @@
     "**/*.tsx",
     "netlify/functions/**/*.ts"
   ],
-  "exclude": ["node_modules", "dist", "src/dev/LegacySanityQuery.js", "public/_redirects"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/dev/LegacySanityQuery.js",
+    "public/_redirects",
+    ".astro/content.d.ts"
+  ]
 }

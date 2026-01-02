@@ -3,9 +3,7 @@ import { createClient } from '@sanity/client';
 import type { SanityDocumentStub } from '@sanity/client';
 import { createOrderCartItem, type OrderCartItem } from '@/server/sanity/order-cart';
 
-const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-11-20'
-});
+const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '');
 
 const sanity = createClient({
   projectId:
@@ -512,7 +510,9 @@ export async function POST({ request }: { request: Request }) {
           collectedShippingDetails
             ? {
                 address: collectedShippingDetails.address,
+                business_name: sessionDetails.customer_details?.business_name ?? null,
                 email: email || null,
+                individual_name: sessionDetails.customer_details?.individual_name ?? null,
                 name: collectedShippingDetails.name,
                 phone: sessionDetails.customer_details?.phone ?? null,
                 tax_exempt: sessionDetails.customer_details?.tax_exempt ?? null,
@@ -520,7 +520,7 @@ export async function POST({ request }: { request: Request }) {
               }
             : null;
 
-        const shippingDetails = sessionDetails.shipping_details;
+        const shippingDetails = sessionDetails.collected_information?.shipping_details || null;
         const customerDetails = sessionDetails.customer_details;
         const shippingAddress = shippingDetails?.address
           ? {

@@ -26,6 +26,7 @@ interface Product {
   shippingClass?: string | null;
   filters?: unknown;
   installOnly?: unknown;
+  saleLabel?: string | null;
 }
 
 interface ProductCardProps {
@@ -54,7 +55,7 @@ export function ProductCard({ product }: ProductCardProps) {
       // Get current cart
       const cart = getCart();
       const { shippingClass, installOnly } = resolveProductCartMeta(product);
-      const saleLabel = saleBadge || product?.saleLabel;
+      const saleLabel: string | undefined = saleBadge || product?.saleLabel || undefined;
       const priceValue =
         typeof activePrice === 'number'
           ? activePrice

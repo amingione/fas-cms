@@ -21,7 +21,9 @@ export const POST: APIRoute = async ({ request }) => {
     }
     const promotionCode = bodyResult.data.promotionCode || bodyResult.data.code;
     const customerId = bodyResult.data.customerId as string | undefined;
-    const cart: CartLine[] = Array.isArray(bodyResult.data.cart) ? bodyResult.data.cart : [];
+    const cart: CartLine[] = Array.isArray(bodyResult.data.cart)
+      ? (bodyResult.data.cart as unknown as CartLine[])
+      : [];
 
     if (!promotionCode || !cart.length) {
       return new Response(JSON.stringify({ error: 'promotionCode and cart are required' }), { status: 400 });

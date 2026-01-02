@@ -12,6 +12,11 @@ type InventoryTransactionType = 'sale' | 'return' | 'reservation' | 'release';
 const validQuantity = (qty: number | undefined | null): qty is number =>
   typeof qty === 'number' && Number.isFinite(qty) && qty > 0;
 
+const escapeSku = (sku: string) => sku.replace(/"/g, '\\"');
+
+const variantInventoryPath = (sku: string, field: string) =>
+  `variants[sku == "${escapeSku(sku)}"].inventory.${field}`;
+
 async function logInventoryTransaction(
   productId: string,
   quantity: number,
@@ -45,8 +50,8 @@ export async function reserveInventory(orderItems: InventoryOrderItem[]) {
     if (item.variantSku) {
       await sanity
         .patch(item.productId)
-        .inc({ 'variants[sku == $sku].inventory.quantityReserved': item.quantity })
-        .commit({ sku: item.variantSku });
+        .inc({ [variantInventoryPath(item.variantSku, 'quantityReserved')]: item.quantity })
+        .commit();
     } else {
       await sanity
         .patch(item.productId)
@@ -66,10 +71,10 @@ export async function processOrderPayment(orderId: string, orderItems: Inventory
       await sanity
         .patch(item.productId)
         .dec({
-          'variants[sku == $sku].inventory.quantityInStock': item.quantity,
-          'variants[sku == $sku].inventory.quantityReserved': item.quantity
+          [variantInventoryPath(item.variantSku, 'quantityInStock')]: item.quantity,
+          [variantInventoryPath(item.variantSku, 'quantityReserved')]: item.quantity
         })
-        .commit({ sku: item.variantSku });
+        .commit();
     } else {
       await sanity
         .patch(item.productId)
@@ -109,17 +114,17 @@ export async function releaseInventory(orderId: string, orderItems: InventoryOrd
       try {
         await sanity
           .patch(item.productId)
-          .inc({ 'variants[sku == $sku].inventory.quantityInStock': item.quantity })
-          .dec({ 'variants[sku == $sku].inventory.quantityReserved': item.quantity })
-          .commit({ sku: item.variantSku });
+          .inc({ [variantInventoryPath(item.variantSku, 'quantityInStock')]: item.quantity })
+          .dec({ [variantInventoryPath(item.variantSku, 'quantityReserved')]: item.quantity })
+          .commit();
       } catch (error) {
         console.warn('[inventory] failed to release variant inventory', item.productId, item.variantSku, error);
         // Compensation logic: attempt to revert increment if decrement failed
         try {
           await sanity
             .patch(item.productId)
-            .dec({ 'variants[sku == $sku].inventory.quantityInStock': item.quantity })
-            .commit({ sku: item.variantSku });
+            .dec({ [variantInventoryPath(item.variantSku, 'quantityInStock')]: item.quantity })
+            .commit();
         } catch (compError) {
           console.error('[inventory] failed to compensate variant inventory increment', item.productId, item.variantSku, compError);
         }

@@ -28,9 +28,11 @@ export default function BuildConfiguratorClient({ products }: Props) {
   const [selectedAttrFacets, setSelectedAttrFacets] = useState<Record<string, string[]>>({});
   const [selectedSpecFacets, setSelectedSpecFacets] = useState<Record<string, string[]>>({});
 
+  const easeOut = [0.16, 1, 0.3, 1] as const;
+
   const variants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: easeOut } }
   };
 
   const extractAttrPairs = (p: any) =>

@@ -8,6 +8,9 @@ export const GET: APIRoute = async ({ params, request }) => {
   const ctx = await requireVendor(request);
   if (!ctx.ok) return ctx.response;
   const id = params.id;
+  if (!id) {
+    return jsonResponse({ message: 'Missing id' }, { status: 400 }, { noIndex: true });
+  }
   try {
     const query = `*[_type == "vendorMessage" && _id == $id && vendor._ref == $vendorId][0]{
       _id,
@@ -41,6 +44,9 @@ export const POST: APIRoute = async ({ params, request }) => {
   const ctx = await requireVendor(request);
   if (!ctx.ok) return ctx.response;
   const id = params.id;
+  if (!id) {
+    return jsonResponse({ message: 'Missing id' }, { status: 400 }, { noIndex: true });
+  }
   try {
     const bodyResult = vendorMessageReplySchema.safeParse(await request.json());
     if (!bodyResult.success) {
@@ -81,6 +87,9 @@ export const DELETE: APIRoute = async ({ params, request }) => {
   const ctx = await requireVendor(request);
   if (!ctx.ok) return ctx.response;
   const id = params.id;
+  if (!id) {
+    return jsonResponse({ message: 'Missing id' }, { status: 400 }, { noIndex: true });
+  }
   try {
     const message = await sanity.fetch(
       `*[_type == "vendorMessage" && _id == $id && vendor._ref == $vendorId][0]{_id}`,

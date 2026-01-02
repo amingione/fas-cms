@@ -65,7 +65,9 @@ export const handler: Handler = async (event) => {
         if (finalized.id) {
           await stripe.invoices.sendInvoice(finalized.id);
         }
-      } catch {}
+      } catch {
+        // Invoice send failed, but invoice was finalized
+      }
       await sanity
         .patch(quote._id)
         .set({
@@ -91,11 +93,15 @@ export const handler: Handler = async (event) => {
           if (finalized.id) {
             await stripe.invoices.sendInvoice(finalized.id);
           }
-        } catch {}
+        } catch {
+          // Invoice send failed, but invoice was finalized
+        }
       } else {
         try {
           await stripe.invoices.sendInvoice(invoiceId);
-        } catch {}
+        } catch {
+          // Invoice send failed
+        }
       }
       await sanity
         .patch(quote._id)

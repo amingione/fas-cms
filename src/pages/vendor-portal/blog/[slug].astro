@@ -83,6 +83,11 @@ const isVendorPostType = (value: unknown): value is VendorPostType =>
   typeof value === 'string' && value in typeEmoji;
 
 const postTypeKey: VendorPostType = isVendorPostType(post.postType) ? post.postType : 'update';
+const authorAvatarUrl = post.author?.avatar?.asset?.url;
+const featuredImageUrl = post.featuredImage?.asset?.url;
+const publishedAtLabel = post.publishedAt
+  ? new Date(post.publishedAt).toLocaleDateString()
+  : 'Unpublished';
 ---
 
 <VendorPortalLayout title={post.title}>
@@ -113,10 +118,10 @@ const postTypeKey: VendorPostType = isVendorPostType(post.postType) ? post.postT
         {
           post.author && (
             <div class="flex items-center gap-2">
-              {post.author.avatar && (
+              {authorAvatarUrl && (
                 <img
-                  src={post.author.avatar.asset.url}
-                  alt={post.author.name}
+                  src={authorAvatarUrl}
+                  alt={post.author.name ?? 'Author avatar'}
                   class="w-8 h-8 rounded-full"
                 />
               )}
@@ -125,14 +130,14 @@ const postTypeKey: VendorPostType = isVendorPostType(post.postType) ? post.postT
           )
         }
         <span>•</span>
-        <time>{new Date(post.publishedAt).toLocaleDateString()}</time>
+        <time>{publishedAtLabel}</time>
       </div>
     </div>
 
     {
-      post.featuredImage && (
+      featuredImageUrl && (
         <img
-          src={post.featuredImage.asset.url}
+          src={featuredImageUrl}
           alt={post.title}
           class="w-full h-96 object-cover rounded-lg border border-white/10"
         />
@@ -174,24 +179,25 @@ const postTypeKey: VendorPostType = isVendorPostType(post.postType) ? post.postT
         <div class="space-y-3">
           <h3 class="text-xl font-bold text-white">Related Products</h3>
           <div class="grid md:grid-cols-3 gap-4">
-            {post.relatedProducts.map((product: VendorRelatedProduct) => (
-              <a
-                href={
-                  product.slug?.current ? `/products/${product.slug.current}` : '#'
-                }
-                class="rounded-lg border border-white/10 bg-white/5 p-4 hover:border-primary transition text-white"
-              >
-                {product.featuredImage && (
-                  <img
-                    src={product.featuredImage.asset.url}
-                    alt={product.title}
-                    class="w-full h-40 object-cover rounded mb-3"
-                  />
-                )}
-                <h4 class="font-semibold mb-1">{product.title}</h4>
-                {product.price && <p class="text-primary font-bold">${product.price}</p>}
-              </a>
-            ))}
+            {post.relatedProducts.map((product: VendorRelatedProduct) => {
+              const productImageUrl = product.featuredImage?.asset?.url;
+              return (
+                <a
+                  href={product.slug?.current ? `/products/${product.slug.current}` : '#'}
+                  class="rounded-lg border border-white/10 bg-white/5 p-4 hover:border-primary transition text-white"
+                >
+                  {productImageUrl && (
+                    <img
+                      src={productImageUrl}
+                      alt={product.title}
+                      class="w-full h-40 object-cover rounded mb-3"
+                    />
+                  )}
+                  <h4 class="font-semibold mb-1">{product.title}</h4>
+                  {product.price && <p class="text-primary font-bold">${product.price}</p>}
+                </a>
+              );
+            })}
           </div>
         </div>
       )

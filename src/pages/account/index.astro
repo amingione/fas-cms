@@ -109,7 +109,11 @@ const pageDescription = isLoggedIn
           document.getElementById('fas-login')?.addEventListener('submit', async (e) => {
             e.preventDefault();
             const form = e.target as HTMLFormElement;
-            const data = Object.fromEntries(new FormData(form));
+            const formData = new FormData(form);
+            const data: Record<string, FormDataEntryValue> = {};
+            formData.forEach((value, key) => {
+              data[key] = value;
+            });
             clearMessage();
             const res = await fetch('/api/auth/login', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(data) });
             if (res.ok) {
@@ -127,7 +131,11 @@ const pageDescription = isLoggedIn
           document.getElementById('fas-signup')?.addEventListener('submit', async (e) => {
             e.preventDefault();
             const form = e.target as HTMLFormElement;
-            const data = Object.fromEntries(new FormData(form));
+            const formData = new FormData(form);
+            const data: Record<string, FormDataEntryValue> = {};
+            formData.forEach((value, key) => {
+              data[key] = value;
+            });
             clearMessage();
             const res = await fetch('/api/auth/signup', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(data) });
             if (res.ok) {

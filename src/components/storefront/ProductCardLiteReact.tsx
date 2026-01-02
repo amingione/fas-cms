@@ -80,7 +80,7 @@ export default function ProductCardLiteReact({
             className="max-h-[80%] max-w-[88%] object-contain transition-transform duration-300 ease-out group-hover:scale-[1.03]"
           />
         </div>
-        <div className="flex-1 px-4 py-4 text-left">
+        <div className="flex-1 min-w-0 px-4 py-4 text-left">
           <div className="line-clamp-2 text-[1rem] font-ethno leading-snug text-white">
             {anchorText}
           </div>

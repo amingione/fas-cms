@@ -6,9 +6,7 @@ import { jsonResponse } from '@/server/http/responses';
 import { vendorInvoicePaySchema } from '@/lib/validators/api-requests';
 
 const stripeSecret = process.env.STRIPE_SECRET_KEY || (import.meta as any).env?.STRIPE_SECRET_KEY;
-const stripe = stripeSecret
-  ? new Stripe(stripeSecret, { apiVersion: '2024-11-20' })
-  : null;
+const stripe = stripeSecret ? new Stripe(stripeSecret) : null;
 
 export const POST: APIRoute = async ({ params, request }) => {
   const ctx = await requireVendor(request, 'view_payments');

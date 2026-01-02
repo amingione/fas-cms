@@ -1,3 +1,4 @@
+/* eslint-disable no-empty */
 import type { Handler } from '@netlify/functions';
 import Stripe from 'stripe';
 import { stripe } from './_stripe';
@@ -159,7 +160,10 @@ const toInventoryOrderItems = (items: OrderCartItem[] = []): InventoryOrderItem[
         (item as any)?.metadata?.variant_sku ||
         (item as any)?.metadata?.variantSKU ||
         undefined;
-      const variantSku = typeof rawVariantSku === 'string' && rawVariantSku.trim() ? rawVariantSku.trim() : undefined;
+      const variantSku =
+        typeof rawVariantSku === 'string' && rawVariantSku.trim()
+          ? rawVariantSku.trim()
+          : undefined;
       const quantity = isPositiveQuantity(item.quantity) ? item.quantity : undefined;
 
       return {
@@ -226,9 +230,7 @@ const parseShippingSelection = (session: Stripe.Checkout.Session): ShippingSelec
 
   const amount = amountStr && Number.isFinite(Number(amountStr)) ? Number(amountStr) : undefined;
   const deliveryDays =
-    deliveryDaysStr && Number.isFinite(Number(deliveryDaysStr))
-      ? Number(deliveryDaysStr)
-      : null;
+    deliveryDaysStr && Number.isFinite(Number(deliveryDaysStr)) ? Number(deliveryDaysStr) : null;
   const currency = currencyRaw ? currencyRaw.toUpperCase() : undefined;
 
   if (currency) metadata.shipping_currency = currency;
@@ -313,7 +315,7 @@ export const handler: Handler = async (event) => {
           details: sessionResult.error.format()
         });
       }
-      const session = sessionResult.data as Stripe.Checkout.Session;
+      const session = sessionResult.data as unknown as Stripe.Checkout.Session;
       const promotionId =
         (session.metadata as any)?.promotion_id ||
         (session.metadata as any)?.promotionId ||
@@ -321,8 +323,7 @@ export const handler: Handler = async (event) => {
       const marketingOptIn =
         String((session.metadata as any)?.marketing_opt_in || '')
           .trim()
-          .toLowerCase() === 'true' ||
-        session.consent?.promotions === 'opt_in';
+          .toLowerCase() === 'true' || session.consent?.promotions === 'opt_in';
       const marketingTimestamp = new Date().toISOString();
 
       // Prefer existing order by stripeSessionId to avoid duplicates (idempotent)
@@ -379,7 +380,7 @@ export const handler: Handler = async (event) => {
           });
           throw new Error('Invalid Stripe payment intent response');
         }
-        paymentIntent = paymentIntentResult.data as Stripe.PaymentIntent;
+        paymentIntent = paymentIntentResult.data as unknown as Stripe.PaymentIntent;
       }
 
       // Find or create Sanity customer
@@ -389,9 +390,12 @@ export const handler: Handler = async (event) => {
       let customerRef: { _type: 'reference'; _ref: string } | undefined;
       if (email) {
         let existing = await sanity
-          .fetch(`*[_type=="customer" && lower(email)==lower($email)][0]{_id,emailMarketing,marketingOptIn,emailOptIn}`, {
-            email
-          })
+          .fetch(
+            `*[_type=="customer" && lower(email)==lower($email)][0]{_id,emailMarketing,marketingOptIn,emailOptIn}`,
+            {
+              email
+            }
+          )
           .catch(() => null);
         if (existing) {
           const existingResult = sanityCustomerSchema.partial().safeParse(existing);
@@ -489,13 +493,13 @@ export const handler: Handler = async (event) => {
       if (!cartLines.length) {
         const fallbackLines: OrderCartItem[] = [];
         for (const rawItem of validatedItems?.data || []) {
-          const li = rawItem as LineItemWithMetadata;
+          const li = rawItem as unknown as LineItemWithMetadata;
           const priceValue =
             typeof li.amount_subtotal === 'number'
               ? li.amount_subtotal / 100
               : typeof li.price?.unit_amount === 'number'
-              ? li.price.unit_amount / 100
-              : undefined;
+                ? li.price.unit_amount / 100
+                : undefined;
 
           const priceMetadata = (li.price?.metadata || {}) as Record<string, unknown>;
           let productMetadata: Record<string, unknown> = {};
@@ -635,7 +639,9 @@ export const handler: Handler = async (event) => {
         collectedShippingDetails
           ? {
               address: collectedShippingDetails.address,
+              business_name: session.customer_details?.business_name ?? null,
               email: email || null,
+              individual_name: session.customer_details?.individual_name ?? null,
               name: collectedShippingDetails.name,
               phone: session.customer_details?.phone ?? null,
               tax_exempt: session.customer_details?.tax_exempt ?? null,
@@ -833,17 +839,15 @@ export const handler: Handler = async (event) => {
         const RESEND_API_KEY = process.env.RESEND_API_KEY;
         const to = email;
         if (RESEND_API_KEY && to) {
-          let sanityOrder:
-            | {
-                orderNumber?: string;
-                customerName?: string;
-                createdAt?: string;
-                amountSubtotal?: number;
-                amountTax?: number;
-                amountShipping?: number;
-                totalAmount?: number;
-              }
-            | null = null;
+          let sanityOrder: {
+            orderNumber?: string;
+            customerName?: string;
+            createdAt?: string;
+            amountSubtotal?: number;
+            amountTax?: number;
+            amountShipping?: number;
+            totalAmount?: number;
+          } | null = null;
           if (orderId) {
             try {
               sanityOrder = await sanity.fetch(
@@ -877,8 +881,9 @@ export const handler: Handler = async (event) => {
               : '';
           const existingOrderNumber = sanityOrderNumber || createdOrderNumber;
           let generatedOrderNumber: string | undefined;
-          let orderNumber =
-            existingOrderNumber || generateFallbackOrderNumber(session, orderId || session.id || '');
+          const orderNumber =
+            existingOrderNumber ||
+            generateFallbackOrderNumber(session, orderId || session.id || '');
           if (!existingOrderNumber) {
             generatedOrderNumber = orderNumber;
           }
@@ -1064,13 +1069,12 @@ export const handler: Handler = async (event) => {
         });
         return json(400, { error: 'Invalid webhook payload', details: invResult.error.format() });
       }
-      const inv = invResult.data as Stripe.Invoice;
+      const inv = invResult.data as unknown as Stripe.Invoice;
       const stripeInvoiceId = inv.id;
       try {
-        let quote = await sanity.fetch(
-          `*[_type=="quote" && stripeInvoiceId==$id][0]{_id,status}`,
-          { id: stripeInvoiceId }
-        );
+        let quote = await sanity.fetch(`*[_type=="quote" && stripeInvoiceId==$id][0]{_id,status}`, {
+          id: stripeInvoiceId
+        });
         if (quote) {
           const quoteResult = sanityQuoteSchema.partial().safeParse(quote);
           if (!quoteResult.success) {
@@ -1113,13 +1117,12 @@ export const handler: Handler = async (event) => {
         });
         return json(400, { error: 'Invalid webhook payload', details: invResult.error.format() });
       }
-      const inv = invResult.data as Stripe.Invoice;
+      const inv = invResult.data as unknown as Stripe.Invoice;
       const stripeInvoiceId = inv.id;
       try {
-        let quote = await sanity.fetch(
-          `*[_type=="quote" && stripeInvoiceId==$id][0]{_id,status}`,
-          { id: stripeInvoiceId }
-        );
+        let quote = await sanity.fetch(`*[_type=="quote" && stripeInvoiceId==$id][0]{_id,status}`, {
+          id: stripeInvoiceId
+        });
         if (quote) {
           const quoteResult = sanityQuoteSchema.partial().safeParse(quote);
           if (!quoteResult.success) {
@@ -1154,7 +1157,7 @@ export const handler: Handler = async (event) => {
         });
         return json(400, { error: 'Invalid webhook payload', details: piResult.error.format() });
       }
-      const pi = piResult.data as Stripe.PaymentIntent;
+      const pi = piResult.data as unknown as Stripe.PaymentIntent;
       const order = await fetchOrderByPaymentIntent(pi.id);
       if (order?._id && order.status !== 'paid') {
         const cartItems = Array.isArray(order.cart) ? (order.cart as OrderCartItem[]) : [];
@@ -1170,9 +1173,12 @@ export const handler: Handler = async (event) => {
           timestamp: new Date().toISOString(),
           errors: chargeResult.error.format()
         });
-        return json(400, { error: 'Invalid webhook payload', details: chargeResult.error.format() });
+        return json(400, {
+          error: 'Invalid webhook payload',
+          details: chargeResult.error.format()
+        });
       }
-      const charge = chargeResult.data as Stripe.Charge;
+      const charge = chargeResult.data as unknown as Stripe.Charge;
       const piId =
         typeof charge.payment_intent === 'string'
           ? charge.payment_intent
@@ -1192,9 +1198,12 @@ export const handler: Handler = async (event) => {
           timestamp: new Date().toISOString(),
           errors: chargeResult.error.format()
         });
-        return json(400, { error: 'Invalid webhook payload', details: chargeResult.error.format() });
+        return json(400, {
+          error: 'Invalid webhook payload',
+          details: chargeResult.error.format()
+        });
       }
-      const charge = chargeResult.data as Stripe.Charge;
+      const charge = chargeResult.data as unknown as Stripe.Charge;
       const piId =
         typeof charge.payment_intent === 'string'
           ? charge.payment_intent
@@ -1221,7 +1230,7 @@ export const handler: Handler = async (event) => {
         });
         return json(400, { error: 'Invalid webhook payload', details: piResult.error.format() });
       }
-      const pi = piResult.data as Stripe.PaymentIntent;
+      const pi = piResult.data as unknown as Stripe.PaymentIntent;
       const order = await fetchOrderByPaymentIntent(pi.id);
       if (order?._id) {
         const cartItems = Array.isArray(order.cart) ? (order.cart as OrderCartItem[]) : [];
