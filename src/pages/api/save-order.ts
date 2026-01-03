@@ -30,12 +30,10 @@ interface SanityCustomerQueryResult {
   result?: { _id?: string } | null;
 }
 
-const stripeApiVersion =
-  (import.meta.env.STRIPE_API_VERSION as Stripe.LatestApiVersion | undefined) ||
-  '2025-08-27.basil';
+const stripeApiVersion = (import.meta.env.STRIPE_API_VERSION as string | undefined) || '2025-08-27.basil';
 
 const stripeClient = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: stripeApiVersion
+  apiVersion: stripeApiVersion as Stripe.LatestApiVersion
 });
 
 export const POST = async ({ request }: { request: Request }) => {

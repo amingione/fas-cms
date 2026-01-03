@@ -7,12 +7,10 @@ import { formatOptionSummary } from '@/lib/cart/format-option-summary';
 import { checkoutRequestSchema } from '@/lib/validators/api-requests';
 import { sanityProductSchema } from '@/lib/validators/sanity';
 
-const stripeApiVersion =
-  (import.meta.env.STRIPE_API_VERSION as Stripe.LatestApiVersion | undefined) ||
-  '2025-08-27.basil';
+const stripeApiVersion = (import.meta.env.STRIPE_API_VERSION as string | undefined) || '2025-08-27.basil';
 
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: stripeApiVersion
+  apiVersion: stripeApiVersion as Stripe.LatestApiVersion
 });
 
 const configuredBaseUrl = import.meta.env.PUBLIC_BASE_URL || '';
