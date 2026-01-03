@@ -17,7 +17,12 @@ let googleReviewOptIn: {
   products?: { gtin: string }[];
 } | null = null;
 
-const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '');
+const stripeApiVersion =
+  (import.meta.env.STRIPE_API_VERSION as Stripe.LatestApiVersion | undefined) ||
+  '2025-08-27.basil';
+const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
+  apiVersion: stripeApiVersion
+});
 
 function resolveEstimatedDate(input: any): string | null {
   if (!input || typeof input !== 'object') return null;

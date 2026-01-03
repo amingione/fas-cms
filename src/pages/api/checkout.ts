@@ -6,8 +6,13 @@ import { getActivePrice, getCompareAtPrice, isOnSale } from '@/lib/saleHelpers';
 import { formatOptionSummary } from '@/lib/cart/format-option-summary';
 import { checkoutRequestSchema } from '@/lib/validators/api-requests';
 import { sanityProductSchema } from '@/lib/validators/sanity';
+
+const stripeApiVersion =
+  (import.meta.env.STRIPE_API_VERSION as Stripe.LatestApiVersion | undefined) ||
+  '2025-08-27.basil';
+
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-06-20' as Stripe.LatestApiVersion
+  apiVersion: stripeApiVersion
 });
 
 const configuredBaseUrl = import.meta.env.PUBLIC_BASE_URL || '';

@@ -3,7 +3,13 @@ import { createClient } from '@sanity/client';
 import type { SanityDocumentStub } from '@sanity/client';
 import { createOrderCartItem, type OrderCartItem } from '@/server/sanity/order-cart';
 
-const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '');
+const stripeApiVersion =
+  (import.meta.env.STRIPE_API_VERSION as Stripe.LatestApiVersion | undefined) ||
+  '2025-08-27.basil';
+
+const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
+  apiVersion: stripeApiVersion
+});
 
 const sanity = createClient({
   projectId:
