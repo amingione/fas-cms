@@ -769,6 +769,10 @@
   port = 8888
   autoLaunch = false
 
+# Local dev should not preload the Netlify build container shim.
+[context.dev.environment]
+  NODE_OPTIONS = "" # Clear aws-secrets-shim preload for netlify dev.
+
 # Build plugins
 [[plugins]]
   package = "netlify-plugin-cache"
@@ -805,10 +809,20 @@
 
 
 # Run a11y checks only on Deploy Previews to avoid slowing/failing production builds
+[context.production]
+  [[plugins]]
+    package = "@netlify/plugin-secrets-manager" # Keep secrets manager enabled in production/CI.
+
+[context.branch-deploy]
+  [[plugins]]
+    package = "@netlify/plugin-secrets-manager" # Keep secrets manager enabled in branch deploys.
+
 [context.deploy-preview]
   # Run link checking only on Deploy Previews to avoid flakiness/crashes
   [[plugins]]
     package = "netlify-plugin-checklinks"
+  [[plugins]]
+    package = "@netlify/plugin-secrets-manager" # Keep secrets manager enabled in deploy previews.
 
 ## Removed netlify-plugin-csp (not on npm) in favor of static CSP header below
 
