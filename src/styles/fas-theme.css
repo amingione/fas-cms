@@ -280,10 +280,10 @@
       border-color 0.3s ease;
   }
 
-  a:hover:not(.text-primary):not([class*='hover:text-']) {
+  a:not(.text-primary):not([class*='hover:text-']):hover {
     color: var(--color-primary);
   }
-  a.text-primary:hover:not([class*='hover:text-']) {
+  a.text-primary:not([class*='hover:text-']):hover {
     color: var(--color-secondary);
   }
 }
