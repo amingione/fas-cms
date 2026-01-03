@@ -804,25 +804,18 @@
     output_path = "tmp/lighthouse-report.html"
     fail_deploy_on_score_thresholds = false
 
-
 # (moved to deploy-preview context to save prod build time)
 
 
 # Run a11y checks only on Deploy Previews to avoid slowing/failing production builds
 [context.production]
-  [[plugins]]
-    package = "@netlify/plugin-secrets-manager" # Keep secrets manager enabled in production/CI.
 
 [context.branch-deploy]
-  [[plugins]]
-    package = "@netlify/plugin-secrets-manager" # Keep secrets manager enabled in branch deploys.
 
 [context.deploy-preview]
   # Run link checking only on Deploy Previews to avoid flakiness/crashes
   [[plugins]]
     package = "netlify-plugin-checklinks"
-  [[plugins]]
-    package = "@netlify/plugin-secrets-manager" # Keep secrets manager enabled in deploy previews.
 
 ## Removed netlify-plugin-csp (not on npm) in favor of static CSP header below
 
