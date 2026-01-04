@@ -32,14 +32,15 @@ const apiVersion = '2024-01-01';
 const imageBuilder = projectId && dataset ? imageUrlBuilder({ projectId, dataset }) : null;
 
 const SANITY_CDN_HOSTS = new Set(['cdn.sanity.io', 'cdn.sanityusercontent.com']);
-const BASE_PUBLISHED_PRODUCT_FILTER =
-  '!(_id in path("drafts.**")) && (status == "active" || !defined(status))';
-export const ACTIVE_PRODUCT_FILTER = `${BASE_PUBLISHED_PRODUCT_FILTER} && coalesce(productType, "") != "service"`;
+const BASE_PUBLISHED_PRODUCT_FILTER = '!(_id in path("drafts.**")) && status == "active"';
+const PRODUCT_TYPE_OR_FEATURED_FILTER =
+  '(productType == "service" || productType == "bundle" || productType == "physical" || featured == true)';
+export const ACTIVE_PRODUCT_FILTER = `${BASE_PUBLISHED_PRODUCT_FILTER} && ${PRODUCT_TYPE_OR_FEATURED_FILTER}`;
 export const ACTIVE_PRODUCT_WITH_SLUG_FILTER = `${ACTIVE_PRODUCT_FILTER} && defined(slug.current)`;
 export const SERVICE_PRODUCT_FILTER = `${BASE_PUBLISHED_PRODUCT_FILTER} && productType == "service"`;
 export const SERVICE_PRODUCT_WITH_SLUG_FILTER = `${SERVICE_PRODUCT_FILTER} && defined(slug.current)`;
-const STORE_PRODUCT_WITH_SLUG_FILTER = `${BASE_PUBLISHED_PRODUCT_FILTER} && status == "active" && coalesce(productType, "") != "service" && defined(slug.current)`;
-const SERVICE_STORE_PRODUCT_WITH_SLUG_FILTER = `${BASE_PUBLISHED_PRODUCT_FILTER} && status == "active" && productType == "service" && defined(slug.current)`;
+const STORE_PRODUCT_WITH_SLUG_FILTER = `${ACTIVE_PRODUCT_WITH_SLUG_FILTER}`;
+const SERVICE_STORE_PRODUCT_WITH_SLUG_FILTER = `${BASE_PUBLISHED_PRODUCT_FILTER} && productType == "service" && defined(slug.current)`;
 const FINAL_PRICE_EXPRESSION = `coalesce(
   select(
     coalesce(onSale, pricing.onSale) && defined(coalesce(salePrice, pricing.salePrice)) => coalesce(salePrice, pricing.salePrice),
@@ -1415,7 +1416,7 @@ export async function fetchFeaturedProducts(
     if (!hasSanityConfig || !sanity) return [];
     const limit = Math.max(1, Math.min(50, options.limit ?? 8));
     const query = `
-      *[_type == "product" && ${ACTIVE_PRODUCT_WITH_SLUG_FILTER} && ${FEATURED_PRODUCT_FILTER} && (status == "active" || !defined(status))][0...$limit]{
+      *[_type == "product" && ${ACTIVE_PRODUCT_WITH_SLUG_FILTER} && ${FEATURED_PRODUCT_FILTER} && status == "active"][0...$limit]{
         _id,
         name,
         title,

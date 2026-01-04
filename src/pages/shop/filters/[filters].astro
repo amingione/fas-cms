@@ -17,7 +17,7 @@ const filter = await client.fetch(filterQuery, { slug: params.filter });
 
 // Fetch products that reference this filter
 const productsQuery = /* groq */ `
-*[_type == "product" && !(_id in path('drafts.**')) && (status == "active" || !defined(status)) && coalesce(productType, "") != "service" && defined(slug.current) && references($filterId)] | order(_createdAt desc){
+*[_type == "product" && !(_id in path('drafts.**')) && status == "active" && (productType == "service" || productType == "bundle" || productType == "physical" || featured == true) && defined(slug.current) && references($filterId)] | order(_createdAt desc){
   _id,
   title,
   displayTitle,

@@ -365,7 +365,7 @@ async function fetchSanitySlugs(query: string): Promise<SanitySlugDoc[]> {
 }
 
 export async function getProductEntries(): Promise<SitemapUrlEntry[]> {
-  const query = `*[_type == "product" && !(_id in path('drafts.**')) && (status == "active" || !defined(status)) && coalesce(productType, "") != "service" && defined(slug.current) && coalesce(noindex, false) != true]{
+  const query = `*[_type == "product" && !(_id in path('drafts.**')) && status == "active" && (productType == "service" || productType == "bundle" || productType == "physical" || featured == true) && defined(slug.current) && coalesce(noindex, false) != true]{
     "slug": slug.current,
     "updatedAt": coalesce(_updatedAt, _createdAt)
   }`;

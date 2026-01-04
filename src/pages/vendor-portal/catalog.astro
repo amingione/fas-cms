@@ -69,7 +69,7 @@ const normalizeDescription = (value: unknown) => {
 try {
   products =
     (await sanityClient.fetch<Product[]>(
-      `*[_type == "product" && availableForWholesale == true && !(_id in path('drafts.**')) && (status == "active" || !defined(status))]
+      `*[_type == "product" && availableForWholesale == true && !(_id in path('drafts.**')) && status == "active"]
        | order(title asc) {
         _id,
         title,

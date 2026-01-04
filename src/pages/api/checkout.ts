@@ -268,7 +268,7 @@ async function fetchShippingProductsForCart(
     if (ids.length) conditions.push('_id in $ids');
     if (skus.length) conditions.push('sku in $skus');
     const conditionBlock = conditions.length ? conditions.join(' || ') : 'false';
-    const query = `*[_type == "product" && !(_id in path('drafts.**')) && (status == "active" || !defined(status)) && coalesce(productType, "") != "service" && (${conditionBlock})]{
+    const query = `*[_type == "product" && !(_id in path('drafts.**')) && status == "active" && (productType == "service" || productType == "bundle" || productType == "physical" || featured == true) && (${conditionBlock})]{
       _id,
       title,
       sku,

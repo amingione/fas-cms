@@ -19,7 +19,7 @@ const category = await client.fetch(categoryQuery, { slug: params.category });
 
 // Fetch published products that reference this category
 const productsQuery = /* groq */ `
-*[_type == "product" && !(_id in path('drafts.**')) && (status == "active" || !defined(status)) && coalesce(productType, "") != "service" && defined(slug.current) && references($catId)] | order(_createdAt desc){
+*[_type == "product" && !(_id in path('drafts.**')) && status == "active" && (productType == "service" || productType == "bundle" || productType == "physical" || featured == true) && defined(slug.current) && references($catId)] | order(_createdAt desc){
   _id,
   title,
   displayTitle,
