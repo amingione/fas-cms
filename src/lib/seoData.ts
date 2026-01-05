@@ -339,12 +339,7 @@ export const buildMetaEntries = (payload: SeoPayload, canonicalUrl?: string) => 
 
   if (ogImage) {
     meta.push({ property: 'og:image', content: ogImage });
-    meta.push({ name: 'twitter:card', content: 'summary_large_image' });
-    meta.push({ name: 'twitter:image', content: ogImage });
   }
-
-  meta.push({ name: 'twitter:title', content: title });
-  meta.push({ name: 'twitter:description', content: description });
 
   if (canonicalUrl) {
     meta.push({ property: 'og:url', content: canonicalUrl });
