@@ -214,17 +214,18 @@ const previewDraftsRequested = toBooleanFlag(
   (import.meta.env.PUBLIC_SANITY_PREVIEW_DRAFTS as string | undefined) ?? 'false'
 );
 
-const apiToken =
-  (import.meta.env.SANITY_API_READ_TOKEN as string | undefined) ||
-  (import.meta.env.SANITY_API_TOKEN as string | undefined) ||
-  (import.meta.env.SANITY_WRITE_TOKEN as string | undefined) ||
-  (import.meta.env.PUBLIC_SANITY_API_TOKEN as string | undefined) ||
-  undefined;
+const isServer = Boolean(import.meta.env.SSR);
+const apiToken = isServer
+  ? (import.meta.env.SANITY_API_READ_TOKEN as string | undefined) ||
+    (import.meta.env.SANITY_API_TOKEN as string | undefined) ||
+    (import.meta.env.SANITY_WRITE_TOKEN as string | undefined) ||
+    undefined
+  : undefined;
 
 let previewDraftsEnabled = Boolean(previewDraftsRequested);
 if (previewDraftsEnabled && !apiToken) {
   console.warn(
-    '[sanity-utils] Preview drafts requested but no SANITY_API_READ_TOKEN (or SANITY_API_TOKEN/PUBLIC_SANITY_API_TOKEN) was found; falling back to published content.'
+    '[sanity-utils] Preview drafts requested but no SANITY_API_READ_TOKEN (or SANITY_API_TOKEN) was found; falling back to published content.'
   );
   previewDraftsEnabled = false;
 }
@@ -503,7 +504,6 @@ export interface Product {
     trim?: string;
     slug: { current: string };
   }[];
-  averageHorsepower?: number;
   filters?: string[];
   specifications?: { key: string; value: string }[];
   attributes?: { key: string; value: string }[];
@@ -856,7 +856,6 @@ const PRODUCT_LISTING_PROJECTION = `{
   "saleLabel": coalesce(saleLabel, pricing.saleLabel),
   "saleActive": pricing.saleActive,
   "finalPrice": ${FINAL_PRICE_EXPRESSION},
-  averageHorsepower,
   description,
   shortDescription,
   importantNotes,
@@ -934,14 +933,12 @@ export async function fetchProductsFromSanity({
   categorySlug,
   tuneSlug,
   vehicleSlug,
-  vehicleSlugs,
-  minHp
+  vehicleSlugs
 }: {
   categorySlug?: string;
   tuneSlug?: string;
   vehicleSlug?: string;
   vehicleSlugs?: string[];
-  minHp?: number;
 }): Promise<Product[]> {
   try {
     if (!hasSanityConfig) return [];
@@ -979,11 +976,6 @@ export async function fetchProductsFromSanity({
         params.vehicleSlug = normalizedSlug;
       }
     }
-    if (typeof minHp === 'number' && !isNaN(minHp)) {
-      conditions.push(`averageHorsepower >= $minHp`);
-      params.minHp = minHp;
-    }
-
     const query = `*[_type == "product"${conditions.length ? ` && ${conditions.join(' && ')}` : ''}]${PRODUCT_LISTING_PROJECTION}`;
 
     if (!sanity) return [];
@@ -1631,7 +1623,6 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       attributes,
       includedInKit[]{ item, quantity, notes },
       productType,
-      averageHorsepower,
       images[]{
         asset->{
           _id,

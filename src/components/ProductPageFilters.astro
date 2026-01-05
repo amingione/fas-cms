@@ -5,7 +5,6 @@ import type { Tune, Vehicle } from '@lib/sanity-utils.ts';
 const url = new URL(Astro.request.url);
 const currentTuneSlug = url.searchParams.get('tuneSlug') || '';
 const currentVehicleSlug = url.searchParams.get('vehicleSlug') || '';
-const currentMinHp = url.searchParams.get('minHp') || '';
 
 let tunes: Tune[] = [];
 let vehicles: Vehicle[] = [];
@@ -17,7 +16,7 @@ try {
 }
 ---
 
-<form id="product-filters" class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-fx-xl border border-fx bg-fx-surface-2 shadow-fx-subtle">
+<form id="product-filters" class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-fx-xl border border-fx bg-fx-surface-2 shadow-fx-subtle">
   <div>
     <label for="tuneSlug" class="block mb-1 fas-label text-muted-foreground">Tune</label>
     <select id="tuneSlug" name="tuneSlug" class="w-full h-10 px-3 rounded-fx-md border border-fx bg-fx-surface-2 fas-body-sm text-white placeholder:text-fx-muted focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent">
@@ -43,28 +42,15 @@ try {
       ))}
     </select>
   </div>
-  <div>
-    <label for="minHp" class="block mb-1 fas-label text-muted-foreground">Minimum Horsepower</label>
-    <input
-      id="minHp"
-      name="minHp"
-      type="number"
-      value={currentMinHp}
-      class="w-full h-10 px-3 rounded-fx-md border border-fx bg-fx-surface-2 fas-body-sm text-white placeholder:text-fx-muted focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent"
-      placeholder="Enter min HP"
-    />
-  </div>
 </form>
 
 <script>
   function handleFilterChange(form: HTMLFormElement) {
     const formData = new FormData(form);
-    const minHpValue = formData.get('minHp');
     return {
       categorySlug: new URLSearchParams(window.location.search).get('categorySlug'),
       tuneSlug: formData.get('tuneSlug'),
-      vehicleSlug: formData.get('vehicleSlug'),
-      minHp: minHpValue ? parseInt(minHpValue.toString()) : undefined,
+      vehicleSlug: formData.get('vehicleSlug')
     };
   }
 

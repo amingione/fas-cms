@@ -47,7 +47,6 @@ export type ProductWithKit = Product & {
   requiresPaintCode?: boolean;
   compatibleVehicles?: VehicleCompat[];
   tune?: { title?: string } | null;
-  averageHorsepower?: number | null;
   specifications?: SpecItem[];
   attributes?: AttrItem[];
   filters?: FilterEntry[];
@@ -1227,11 +1226,6 @@ if (product) {
     }
   };
 
-  pushSpecMeta(
-    'Average Horsepower',
-    typeof (product as any)?.averageHorsepower === 'number' ? (product as any)?.averageHorsepower : undefined,
-    (value) => `${value}`
-  );
   pushSpecMeta(
     'Shipping Weight',
     typeof (product as any)?.shippingWeight === 'number' ? (product as any)?.shippingWeight : undefined,

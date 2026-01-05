@@ -2,12 +2,14 @@ import { createClient } from '@sanity/client';
 
 const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
 const dataset = import.meta.env.PUBLIC_SANITY_DATASET;
-const token =
-  import.meta.env.SANITY_API_READ_TOKEN ||
-  import.meta.env.SANITY_API_TOKEN ||
-  import.meta.env.PUBLIC_SANITY_API_TOKEN;
+const isServer = Boolean(import.meta.env.SSR);
+const token = isServer
+  ? import.meta.env.SANITY_API_READ_TOKEN ||
+    import.meta.env.SANITY_API_TOKEN ||
+    import.meta.env.SANITY_WRITE_TOKEN
+  : undefined;
 
-if (!projectId || !dataset || !token) {
+if (!projectId || !dataset) {
   throw new Error('Missing required environment variables for Sanity');
 }
 
@@ -15,7 +17,7 @@ export const sanityClient = createClient({
   projectId,
   dataset,
   apiVersion: '2024-01-01',
-  useCdn: false,
+  useCdn: !token,
   token
 });
 

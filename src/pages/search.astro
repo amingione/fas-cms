@@ -15,8 +15,7 @@ export interface ProductCardProps {
 const allProducts: Product[] = await fetchProductsFromSanity({
   categorySlug: undefined,
   tuneSlug: undefined,
-  vehicleSlug: undefined,
-  minHp: undefined
+  vehicleSlug: undefined
 });
 const filteredProducts: Product[] = allProducts.map((product) => ({
   ...product,

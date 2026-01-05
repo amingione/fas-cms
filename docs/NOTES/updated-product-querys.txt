@@ -1,0 +1,291 @@
+fix Problems in Queries
+
+    current file - netlify/functions/products-detail.ts
+
+pricing.price - Your schema has price at the root level, not nested in a pricing object
+inventory.quantityAvailable - Your schema has manualInventoryCount and trackInventory at root, not nested
+variants[] - You don't have variants in your schema; you have options[] and variantStrategy
+Your Actual Schema Structure
+Based on what I saw earlier, your products have:
+
+price (root level)
+onSale, salePrice, compareAtPrice, discountPercent (root level)
+trackInventory, manualInventoryCount, availability (root level)
+options[] for product options (not variants)
+
+
+Fixed Product Detail Query
+*[_type == "product" && slug.current == $slug][0]{
+  _id,
+  title,
+  displayTitle,
+  slug,
+  sku,
+  status,
+  productType,
+  
+  // Pricing
+  price,
+  priceCurrency,
+  onSale,
+  salePrice,
+  compareAtPrice,
+  discountPercent,
+  discountType,
+  discountValue,
+  saleLabel,
+  saleStartDate,
+  saleEndDate,
+  
+  // Content
+  description,
+  shortDescription,
+  promotionTagline,
+  
+  // Images
+  images[]{
+    asset->{
+      _id,
+      url,
+      metadata {
+        dimensions,
+        lqip
+      }
+    },
+    alt->{
+      title,
+      text
+    }
+  },
+  
+  // Inventory
+  trackInventory,
+  manualInventoryCount,
+  availability,
+  condition,
+  
+  // Product Details
+  keyFeatures[]{
+    _key,
+    title,
+    description,
+    icon
+  },
+  specifications[]{
+    _key,
+    label,
+    value,
+    unit
+  },
+  attributes[]{
+    _key,
+    name,
+    value
+  },
+  includedInKit[]{
+    _key,
+    item,
+    quantity,
+    notes
+  },
+  importantNotes,
+  faq[]{
+    _key,
+    question,
+    answer
+  },
+  
+  // Categories
+  category[]->{
+    _id,
+    title,
+    slug
+  },
+  tags,
+  featured,
+  
+  // Options (not variants)
+  variantStrategy,
+  options[]{
+    _key,
+    _type,
+    label,
+    required,
+    values[]{
+      _key,
+      label,
+      value,
+      priceDelta,
+      hexCode,
+      imageUrl
+    }
+  },
+  
+  // Add-Ons
+  addOns[]{
+    _type,
+    _key,
+    label,
+    priceDelta,
+    description,
+    defaultSelected,
+    quantity,
+    required,
+    _type == "productAddOn" => {
+      product->{
+        _id,
+        title,
+        slug,
+        price,
+        sku,
+        "imageUrl": images[0].asset->url,
+        trackInventory,
+        manualInventoryCount,
+        availability
+      }
+    }
+  },
+  
+  // Custom Paint
+  customPaint{
+    enabled,
+    basePrice,
+    description,
+    turnaroundTime
+  },
+  
+  // Shipping
+  shippingConfig{
+    requiresShipping,
+    weight,
+    dimensions{
+      length,
+      width,
+      height
+    },
+    shippingClass,
+    handlingTime,
+    freeShippingEligible,
+    separateShipment,
+    callForShippingQuote
+  },
+  
+  // Vehicle Compatibility
+  compatibleVehicles[]->{
+    _id,
+    title,
+    make,
+    model,
+    slug
+  },
+  
+  // Related Products
+  relatedProducts[]->{
+    _id,
+    title,
+    slug,
+    price,
+    onSale,
+    salePrice,
+    "imageUrl": images[0].asset->url
+  },
+  
+  // SEO
+  metaTitle,
+  metaDescription,
+  focusKeyword,
+  canonicalUrl,
+  
+  // Stripe
+  stripeProductId,
+  stripePriceId,
+  stripeActive
+}
+Fixed Product Listing Query
+*[_type == "product" && status == "active" && references($categoryId)] | order(featured desc, _createdAt desc) [0...24] {
+  _id,
+  title,
+  displayTitle,
+  slug,
+  productType,
+  
+  // Pricing
+  price,
+  onSale,
+  salePrice,
+  compareAtPrice,
+  discountPercent,
+  saleLabel,
+  
+  // Image
+  "imageUrl": images[0].asset->url,
+  
+  // Inventory
+  trackInventory,
+  manualInventoryCount,
+  availability,
+  
+  // Quick info
+  featured,
+  category[]->{
+    _id,
+    title,
+    slug
+  }
+}
+Fixed Inventory Check Query
+*[_type == "product" && _id in $productIds]{
+  _id,
+  sku,
+  trackInventory,
+  manualInventoryCount,
+  availability,
+  
+  // Check if in stock
+  "inStock": !trackInventory || manualInventoryCount > 0 || availability == "preorder" || availability == "backorder"
+}
+Fixed Active Sales Query
+*[_type == "product" && onSale == true && status == "active"] | order(discountPercent desc) [0...12] {
+  _id,
+  title,
+  displayTitle,
+  slug,
+  price,
+  salePrice,
+  compareAtPrice,
+  discountPercent,
+  saleLabel,
+  saleEndDate,
+  "imageUrl": images[0].asset->url
+}
+
+Cart Items (what you already have, but improved)
+ 
+*[_type == "cartItem" && sessionId == $sessionId] {
+  _id,
+  quantity,
+  selectedOptions,
+  addedAt,
+  product->{
+    _id,
+    title,
+    slug,
+    price,
+    onSale,
+    salePrice,
+    sku,
+    "imageUrl": images[0].asset->url,
+    trackInventory,
+    manualInventoryCount,
+    availability,
+    status
+  }
+}
+Key Changes Made
+✅ Removed nested pricing object - fields are at root level
+✅ Removed nested inventory object - fields are at root level
+✅ Removed variants[] - you use options[] instead
+✅ Fixed field names to match your actual schema
+✅ Added proper image dereferencing with asset->url
+✅ Added productType for filtering services/bundles/physical
+Your queries should work now! The main issue was trying to access nested objects that don't exist in your schema.
