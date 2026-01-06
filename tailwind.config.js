@@ -62,6 +62,7 @@ export default {
         // Site background utility color
         background: '#121212)',
         // Normalize common dark shades to your base background (if you want pure black globally)
+        dark: 'rgb(var(--bg-dark-rgb) / <alpha-value>)',
         gray: { ...colors.gray, 900: '#111111' },
         offwhite: '#FDE4B2',
         neutral: { ...colors.neutral, 900: '#121212)' },

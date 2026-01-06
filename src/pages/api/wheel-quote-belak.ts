@@ -7,7 +7,7 @@ import { createQuoteRequest } from '@/server/sanity/quote-requests';
 const resendApiKey = import.meta.env.RESEND_API_KEY;
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 const TO = 'sales@fasmotorsports.com';
-const FROM = import.meta.env.RESEND_FROM ?? 'no-reply@fasmotorsports.com';
+const FROM = import.meta.env.RESEND_FROM ?? 'noreply@updates.fasmotorsports.com';
 
 const sanityProjectId = import.meta.env.SANITY_PROJECT_ID || import.meta.env.PUBLIC_SANITY_PROJECT_ID;
 const sanityDataset = import.meta.env.SANITY_DATASET || import.meta.env.PUBLIC_SANITY_DATASET;

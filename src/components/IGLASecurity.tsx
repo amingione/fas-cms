@@ -145,7 +145,7 @@ export function IGLASecurity() {
           >
             <Badge
               variant="outline"
-              className={`bg-dark/50 border-slate-600/50 text-slate-300 font-medium tracking-[0.2em] backdrop-blur-sm industrial-card font-ethno ${isMobile ? 'px-4 py-2 text-xs' : 'px-8 py-3 text-sm'}`}
+              className={`bg-[#121212] border-slate-600/50 text-slate-300 font-medium tracking-[0.2em] backdrop-blur-sm industrial-card font-ethno ${isMobile ? 'px-4 py-2 text-xs' : 'px-8 py-3 text-sm'}`}
             >
               #1 IGLA INSTALLER IN SWFL
             </Badge>
@@ -295,12 +295,12 @@ export function IGLASecurity() {
                       whileHover={!isMobile ? { x: 8 } : {}}
                       className="group cursor-pointer"
                     >
-                      <Card className="border-slate-700/50 hover:border-slate-600/70 transition-all duration-700 bg-dark/40 backdrop-blur-sm hover:bg-dark/60 industrial-card">
+                      <Card className="border-slate-700/50 hover:border-slate-600/70 transition-all duration-700 bg-dark/40 backdrop-blur-sm hover:bg-[#1a1a1a] industrial-card">
                         <CardHeader
                           className={`flex items-center space-y-0 ${isMobile ? 'flex-col space-y-2 p-3' : 'flex-row space-x-6 pb-3'}`}
                         >
                           <div
-                            className={`bg-dark/60 rounded-xl flex items-center justify-center border border-slate-600/50 group-hover:border-slate-500/70 transition-all duration-500 industrial-card ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}
+                            className={`bg-[#1a1a1a] rounded-xl flex items-center justify-center border border-slate-600/50 group-hover:border-slate-500/70 transition-all duration-500 industrial-card ${isMobile ? 'w-8 h-8' : 'w-12 h-12'}`}
                           >
                             <Icon
                               className={`text-slate-300 group-hover:text-white transition-colors duration-500 ${isMobile ? 'w-4 h-4' : 'w-6 h-6'}`}

@@ -2,6 +2,8 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { Resend } from 'resend';
 
 const resend = new Resend(import.meta.env.RESEND_API_KEY);
+const resendFrom =
+  (import.meta.env.RESEND_FROM as string | undefined) || 'noreply@updates.fasmotorsports.com';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -16,7 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     await resend.emails.send({
-      from: 'FAS Motorsports <no-reply@fasmotorsports.io>',
+      from: resendFrom,
       to: email,
       subject: `✅ Booking Received: ${service}`,
       html: `

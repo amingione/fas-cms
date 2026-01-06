@@ -92,7 +92,7 @@ export default function OnboardingNavFlyout({ currentSection }: Props) {
   );
 
   return (
-    <header className="relative isolate rounded-xl border border-white/10 bg-dark/60 px-4 py-3 shadow-lg">
+    <header className="relative isolate rounded-xl border border-white/10 bg-black px-4 py-3 shadow-lg">
       <nav className="flex items-center justify-between gap-3" aria-label="Onboarding navigation">
         <div className="flex items-center gap-2">
           <span className="text-xs uppercase tracking-[0.14em] text-white/60 font-semibold">
@@ -108,7 +108,7 @@ export default function OnboardingNavFlyout({ currentSection }: Props) {
                 Sections
                 <ChevronDownIcon className="h-4 w-4 text-white/60" aria-hidden="true" />
               </PopoverButton>
-              <PopoverPanel className="absolute right-0 z-20 mt-2 w-80 rounded-lg border border-white/10 bg-dark/90 p-3 shadow-2xl ring-1 ring-white/10">
+              <PopoverPanel className="absolute right-0 z-20 mt-2 w-80 rounded-lg border border-white/10 bg-[#121212] p-3 shadow-2xl ring-1 ring-white/10">
                 <div className="space-y-2">
                   {NAV_ITEMS.map((item) => (
                     <a

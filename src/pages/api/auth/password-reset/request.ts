@@ -6,7 +6,9 @@ import { customerPasswordResetRequestSchema } from '@/lib/validators/api-request
 import { rateLimit } from '@/server/vendor-portal/rateLimit';
 
 const resendApiKey = import.meta.env.RESEND_API_KEY as string | undefined;
-const resendFrom = (import.meta.env.RESEND_FROM as string | undefined) || 'FAS Motorsports <no-reply@fasmotorsports.com>';
+const resendFrom =
+  (import.meta.env.RESEND_FROM as string | undefined) ||
+  'FAS Motorsports <noreply@updates.fasmotorsports.com>';
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
 const successMessage = "If an account exists for this email address, we've sent password reset instructions.";

@@ -665,7 +665,8 @@ export async function POST({ request }: { request: Request }) {
         // Send confirmation email via Resend if configured
         const RESEND_API_KEY = import.meta.env.RESEND_API_KEY as string | undefined;
         const RESEND_FROM =
-          (import.meta.env.RESEND_FROM as string | undefined) || 'noreply@fasmotorsports.com';
+          (import.meta.env.RESEND_FROM as string | undefined) ||
+          'noreply@updates.fasmotorsports.com';
         const to = sessionDetails.customer_details?.email;
         if (RESEND_API_KEY && to) {
           const orderId = String(newOrder._id || '');

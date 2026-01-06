@@ -2,7 +2,12 @@ import { Resend } from 'resend';
 import { sanityClient } from './sanity';
 
 const resendApiKey = import.meta.env.RESEND_API_KEY as string | undefined;
-const siteUrl = (import.meta.env.PUBLIC_SITE_URL as string | undefined) || 'https://www.fasmotorsports.com';
+const resendFrom =
+  (import.meta.env.RESEND_FROM as string | undefined) ||
+  (typeof process !== 'undefined' ? process.env.RESEND_FROM : undefined) ||
+  'FAS Motorsports <noreply@updates.fasmotorsports.com>';
+const siteUrl =
+  (import.meta.env.PUBLIC_SITE_URL as string | undefined) || 'https://www.fasmotorsports.com';
 
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
@@ -47,7 +52,7 @@ export async function triggerOnboardingCampaign(vendorId: string, setupToken: st
 
   try {
     const result = await resend.emails.send({
-      from: 'FAS Motorsports <noreply@fasmotorsports.com>',
+      from: resendFrom,
       to: toEmail,
       subject: campaign.emails.subject || 'Welcome to FAS Motorsports',
       html: htmlContent

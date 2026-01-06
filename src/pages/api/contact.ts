@@ -65,6 +65,8 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const resend = new Resend(import.meta.env.RESEND_API_KEY);
+    const resendFrom =
+      (import.meta.env.RESEND_FROM as string | undefined) || 'noreply@updates.fasmotorsports.com';
     const toAddress = 'sales@fasmotorsports.com';
 
     const safe = (v: any) => String(v ?? '').toString();
@@ -86,7 +88,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     try {
       await resend.emails.send({
-        from: 'FAS Motorsports <no-reply@fasmotorsports.io>',
+        from: resendFrom,
         to: [toAddress],
         replyTo: email ? [email] : undefined,
         subject: name ? `Contact from ${name}` : 'New website contact',
@@ -98,7 +100,7 @@ export const POST: APIRoute = async ({ request }) => {
         .create({
           _type: 'emailLog',
           to: email,
-          from: 'noreply@fasmotorsports.com',
+          from: resendFrom,
           subject: 'Contact Form Submission',
           status: 'sent',
           sentAt: new Date().toISOString(),

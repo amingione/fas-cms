@@ -60,7 +60,7 @@ const BookingForm = () => {
           onChange={handleChange}
           required
           autoComplete="name"
-          className="w-full px-4 py-2 bg-dark/20 border border-white/30 rounded-sm"
+          className="w-full px-4 py-2 bg-[#1a1a1a] border border-white/30 rounded-sm"
         />
       </div>
       <div>
@@ -75,7 +75,7 @@ const BookingForm = () => {
           onChange={handleChange}
           required
           autoComplete="email"
-          className="w-full px-4 py-2 bg-dark/20 border border-white/30 rounded-sm"
+          className="w-full px-4 py-2 bg-[#1a1a1a] border border-white/30 rounded-sm"
         />
       </div>
       <div>
@@ -89,7 +89,7 @@ const BookingForm = () => {
           value={formData.phone}
           onChange={handleChange}
           autoComplete="tel"
-          className="w-full px-4 py-2 bg-dark/20 border border-white/30 rounded-sm"
+          className="w-full px-4 py-2 bg-[#1a1a1a] border border-white/30 rounded-sm"
         />
       </div>
       <div>
@@ -102,7 +102,7 @@ const BookingForm = () => {
           value={formData.service}
           onChange={handleChange}
           required
-          className="w-full px-4 py-2 bg-dark/20 border border-white/30 rounded-sm"
+          className="w-full px-4 py-2 bg-[#1a1a1a] border border-white/30 rounded-sm"
         >
           <option value="">Select a service</option>
           <option value="custom-work">Custom Work</option>
@@ -121,7 +121,7 @@ const BookingForm = () => {
           value={formData.datetime}
           onChange={handleChange}
           autoComplete="off"
-          className="w-full px-4 py-2 bg-dark/20 border border-white/30 rounded-sm"
+          className="w-full px-4 py-2 bg-[#1a1a1a] border border-white/30 rounded-sm"
         />
       </div>
       <div>
@@ -136,7 +136,7 @@ const BookingForm = () => {
           onChange={handleChange}
           rows={4}
           autoComplete="off"
-          className="w-full px-4 py-2 bg-dark/20 border border-white/30 rounded-sm"
+          className="w-full px-4 py-2 bg-[#1a1a1a] border border-white/30 rounded-sm"
         />
       </div>
 

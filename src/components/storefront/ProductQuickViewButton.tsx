@@ -410,7 +410,7 @@ export default function ProductQuickViewButton({
                                     onChange={(event) =>
                                       handleOptionSelect(group.key, event.target.value)
                                     }
-                                    className="mt-2 w-full rounded-lg border border-white/15 bg-dark/60 px-3 py-2 text-sm text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+                                    className="mt-2 w-full rounded-lg border border-white/15 bg-[#1a1a1a] px-3 py-2 text-sm text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
                                     aria-label={`Select ${group.title}`}
                                     aria-invalid={!selected}
                                   >

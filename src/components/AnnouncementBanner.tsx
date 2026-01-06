@@ -79,7 +79,7 @@ export default function AnnouncementBanner() {
           <button
             type="button"
             onClick={() => setIsOpen(false)}
-            className="btn-plain rounded-full p-2 sm:p-3 focus-visible:-outline-offset-4 z-50 hover:bg-dark/10 "
+            className="btn-plain rounded-full p-2 sm:p-3 focus-visible:-outline-offset-4 z-50 hover:bg-[#404040] "
             aria-label="Dismiss announcement"
           >
             <XMarkIcon

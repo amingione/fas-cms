@@ -405,7 +405,7 @@ const SettingsPanel: React.FC = () => {
           </div>
           {addressList}
           {showAddressForm && (
-            <div className="rounded-lg border border-white/10 bg-dark/60 p-4 space-y-3">
+            <div className="rounded-lg border border-white/10 bg-[#1a1a1a] p-4 space-y-3">
               <div className="grid gap-3 sm:grid-cols-2">
                 <input
                   placeholder="Label (e.g. Warehouse)"

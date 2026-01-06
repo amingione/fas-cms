@@ -255,8 +255,11 @@ export const POST: APIRoute = async ({ request }) => {
       console.warn('RESEND_API_KEY is not set; skipping email send.');
     } else {
       const resend = new Resend(import.meta.env.RESEND_API_KEY);
+      const resendFrom =
+        (import.meta.env.RESEND_FROM as string | undefined) ||
+        'noreply@updates.fasmotorsports.com';
       await resend.emails.send({
-        from: 'FAS Motorsports <no-reply@fasmotorsports.io>',
+        from: resendFrom,
         to: ['sales@fasmotorsports.com'],
         replyTo: replyEmail ? [replyEmail] : undefined,
         subject: `${formName} Submission`,

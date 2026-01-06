@@ -139,7 +139,7 @@ export default function ProductMediaCarousel({
           type="button"
           onClick={prev}
           aria-label="Previous image"
-          className="absolute left-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-dark/60 hover:bg-dark/80 p-2 text-white border border-white/20"
+          className="absolute left-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-[#1a1a1a] hover:bg-dark/80 p-2 text-white border border-white/20"
         >
           ‹
         </button>
@@ -147,14 +147,14 @@ export default function ProductMediaCarousel({
           type="button"
           onClick={next}
           aria-label="Next image"
-          className="absolute right-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-dark/60 hover:bg-dark/80 p-2 text-white border border-white/20"
+          className="absolute right-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-[#1a1a1a] hover:bg-dark/80 p-2 text-white border border-white/20"
         >
           ›
         </button>
 
         <ul
           ref={containerRef}
-          className="relative flex snap-x snap-mandatory overflow-x-auto overflow-y-hidden scroll-smooth no-scrollbar rounded-xl border border-white/20 bg-dark/60"
+          className="relative flex snap-x snap-mandatory overflow-x-auto overflow-y-hidden scroll-smooth no-scrollbar rounded-xl border border-white/20 bg-[#1a1a1a]"
           style={{ scrollBehavior: 'smooth' }}
         >
           {slides.map((img, i) => {
@@ -171,11 +171,11 @@ export default function ProductMediaCarousel({
                 />
                 <span className="sr-only">{`Slide ${i + 1} of ${slides.length}: ${alt}`}</span>
                 {/* index badge */}
-                <div className="pointer-events-none absolute bottom-2 right-2 rounded bg-dark/60 px-2 py-0.5 text-xs text-white/80">
+                <div className="pointer-events-none absolute bottom-2 right-2 rounded bg-[#1a1a1a] px-2 py-0.5 text-xs text-white/80">
                   {i + 1}/{slides.length}
                 </div>
                 {/* optional caption */}
-                <div className="pointer-events-none absolute left-2 bottom-2 mr-16 rounded bg-dark/60 px-2 py-0.5 text-xs text-white/90">
+                <div className="pointer-events-none absolute left-2 bottom-2 mr-16 rounded bg-[#1a1a1a] px-2 py-0.5 text-xs text-white/90">
                   {slideCaption}
                 </div>
               </>

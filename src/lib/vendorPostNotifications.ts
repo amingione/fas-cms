@@ -2,6 +2,8 @@ import { Resend } from 'resend';
 import { sanityClient } from './sanity';
 
 const resend = new Resend(process.env.RESEND_API_KEY as string | undefined);
+const resendFrom =
+  process.env.RESEND_FROM || 'FAS Motorsports <noreply@updates.fasmotorsports.com>';
 
 export async function notifyVendorsOfNewPost(postId: string) {
   if (!resend) return;
@@ -32,7 +34,7 @@ export async function notifyVendorsOfNewPost(postId: string) {
   for (const vendor of vendors) {
     if (!vendor?.portalAccess?.email) continue;
     await resend.emails.send({
-      from: 'FAS Motorsports <noreply@fasmotorsports.com>',
+      from: resendFrom,
       to: vendor.portalAccess.email,
       subject: `New Update: ${post.title}`,
       html: `

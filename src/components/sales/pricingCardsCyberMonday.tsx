@@ -135,7 +135,7 @@ export default function PricingCards() {
                     className={classNames(
                       product.featured
                         ? 'btn-plain bg-primary hover:bg-primary/90 shadow-lg shadow-primary/40'
-                        : 'btn-plain bg-dark/60 hover:bg-primary/10 border border-white/10 shadow-md',
+                        : 'btn-plain bg-[#1a1a1a] hover:bg-primary/10 border border-white/10 shadow-md',
                       'btn-plain w-1/2 rounded-md px-3 py-2 text-sm font-semibold text-white transition-colors'
                     )}
                     onClick={() => handleAddToCart(product)}

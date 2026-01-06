@@ -48,7 +48,7 @@ export default function WheelQuotesApp() {
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-white/10 bg-dark/40 p-6 text-sm text-white/70">
+      <div className="rounded-xl border border-white/10 bg-[#1a1a1a] p-6 text-sm text-white/70">
         Loading wheel quotes…
       </div>
     );
@@ -64,7 +64,7 @@ export default function WheelQuotesApp() {
 
   if (quotes.length === 0) {
     return (
-      <div className="rounded-xl border border-white/10 bg-dark/40 p-6 text-sm text-white/70">
+      <div className="rounded-xl border border-white/10 bg-[#1a1a1a] p-6 text-sm text-white/70">
         No wheel quotes found.
       </div>
     );
@@ -75,7 +75,7 @@ export default function WheelQuotesApp() {
       {quotes.map((quote) => (
         <article
           key={quote.id}
-          className="rounded-xl border border-white/10 bg-dark/60 p-4 text-sm text-white/80 shadow-inner shadow-black/40"
+          className="rounded-xl border border-white/10 bg-[#1a1a1a] p-4 text-sm text-white/80 shadow-inner shadow-black/40"
         >
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>

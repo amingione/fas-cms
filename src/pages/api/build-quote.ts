@@ -28,6 +28,8 @@ export const POST: APIRoute = async ({ request }) => {
     const { name, email, phone, vehicle, items, subtotal, notes } = bodyResult.data;
 
     const resend = new Resend(import.meta.env.RESEND_API_KEY);
+    const resendFrom =
+      (import.meta.env.RESEND_FROM as string | undefined) || 'noreply@updates.fasmotorsports.com';
     const toAddress = (import.meta.env.QUOTE_EMAIL_TO as string) || 'sales@fasmotorsports.com';
 
     const safe = (v: any) => String(v ?? '').toString();
@@ -130,7 +132,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     try {
       await resend.emails.send({
-        from: 'FAS Motorsports <no-reply@fasmotorsports.io>',
+        from: resendFrom,
         to: [toAddress, safe(email)].filter(Boolean) as string[],
         subject: `Build Quote Request — ${safe(vehicle)}`,
         html
