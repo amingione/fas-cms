@@ -4,6 +4,17 @@ import { sanity } from '@/server/sanity-client';
 import { jsonResponse } from '@/server/http/responses';
 import { vendorMessageReplySchema } from '@/lib/validators/api-requests';
 
+function getVendorDisplayName(vendor: any) {
+  return (
+    vendor?.displayName ||
+    vendor?.name ||
+    vendor?.primaryContact?.name ||
+    vendor?.accountingContact?.name ||
+    vendor?.companyName ||
+    ''
+  );
+}
+
 export const GET: APIRoute = async ({ params, request }) => {
   const ctx = await requireVendor(request);
   if (!ctx.ok) return ctx.response;
@@ -33,7 +44,11 @@ export const GET: APIRoute = async ({ params, request }) => {
     }`;
     const message = await sanity.fetch(query, { id, vendorId: ctx.vendorId });
     if (!message) return jsonResponse({ message: 'Not found' }, { status: 404 }, { noIndex: true });
-    return jsonResponse({ message }, { status: 200 }, { noIndex: true });
+    return jsonResponse(
+      { message: { ...message, vendorName: getVendorDisplayName(ctx.vendor) } },
+      { status: 200 },
+      { noIndex: true }
+    );
   } catch (err) {
     console.error('[vendor message detail] failed', err);
     return jsonResponse({ message: 'Internal server error' }, { status: 500 }, { noIndex: true });
@@ -67,7 +82,7 @@ export const POST: APIRoute = async ({ params, request }) => {
     const reply = {
       _type: 'reply',
       message: body?.message || '',
-      author: body?.author || 'Vendor',
+      author: body?.author || getVendorDisplayName(ctx.vendor) || 'Vendor',
       authorEmail: ctx.email,
       timestamp: new Date().toISOString(),
       isStaff: false

@@ -48,4 +48,5 @@ export interface VendorMessageDetail {
   priority?: string;
   category?: string;
   replies?: VendorMessageReply[];
+  vendorName?: string;
 }

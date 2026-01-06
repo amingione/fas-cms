@@ -332,6 +332,12 @@ const MessageThread: React.FC<{ message: VendorMessageDetail; onReply: (msg: str
             const next = (message.replies || [])[idx + 1];
             const showTail = !next || next.isStaff !== r.isStaff;
             const isStaff = Boolean(r.isStaff);
+            const vendorName = message.vendorName || 'Vendor';
+            const authorLabel = isStaff
+              ? r.author || 'FAS'
+              : r.author && r.author.toLowerCase() !== 'vendor'
+                ? r.author
+                : vendorName;
             return (
               <motion.div
                 key={idx}
@@ -350,7 +356,7 @@ const MessageThread: React.FC<{ message: VendorMessageDetail; onReply: (msg: str
                 >
                   <p className="text-[10px] mt-1 break-words">
                     <span className={r.isStaff ? 'font-semibold' : 'font-sans'}>
-                      {r.author || (r.isStaff ? 'FAS' : 'Vendor')}
+                      {authorLabel}
                     </span>{' '}
                     • {r.timestamp ? new Date(r.timestamp).toLocaleString() : ''}
                     <p className="text-base text-bold font-sans font-bold leading-6 whitespace-pre-wrap break-words">
