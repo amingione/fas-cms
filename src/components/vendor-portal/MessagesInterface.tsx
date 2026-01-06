@@ -167,7 +167,7 @@ const MessagesInterface: React.FC = () => {
           <h2 className="text-white font-semibold">Messages</h2>
           <button
             onClick={() => setCompose(true)}
-            className="text-sm rounded bg-primary text-white px-3 py-1"
+            className="text-sm rounded bg-primary text-white px-3 py-1 transition-colors duration-200 hover:bg-primaryB/50"
           >
             New
           </button>
@@ -277,7 +277,7 @@ const ComposeForm: React.FC<{
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
+          className="btn-plain border bg-accent/80 border-white/20 text-black rounded px-3 py-2 text-sm"
         >
           <option value="order">Order</option>
           <option value="payment">Payment</option>
@@ -291,16 +291,19 @@ const ComposeForm: React.FC<{
         onChange={(e) => setMessage(e.target.value)}
         placeholder="Message"
         rows={6}
-        className="w-full bg-zinc-900 border border-white/20 text-white rounded px-3 py-2 text-sm"
+        className="w-full bg-dark/20 border border-white/20 text-white rounded px-3 py-2 text-sm"
       />
       <div className="flex gap-2">
         <button
           onClick={() => onSend({ subject, message, priority, category })}
-          className="bg-primary text-white rounded px-4 py-2 text-sm"
+          className="bg-primary text-white rounded px-4 py-2 text-sm transition-colors duration-200 hover:bg-primaryB/50"
         >
           Send
         </button>
-        <button onClick={onCancel} className="text-white/70 text-sm">
+        <button
+          onClick={onCancel}
+          className="text-white/70 text-sm transition-colors duration-200 hover:text-primary hover:bg-black/10 px-4 py-2 rounded"
+        >
           Cancel
         </button>
       </div>
