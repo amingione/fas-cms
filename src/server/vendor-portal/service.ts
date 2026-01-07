@@ -12,9 +12,8 @@ import {
   updateVendorStatus
 } from '@/server/sanity-client';
 import { clearSessionCookie, setSession } from '@/server/auth/session';
-import { INVITE_EXPIRY_DAYS, PUBLIC_SITE_URL, RESET_EXPIRY_HOURS } from './config';
+import { PUBLIC_SITE_URL } from './config';
 import { issueInvitationToken, issueResetToken, decodeToken, hashRawToken } from './tokens';
-import { sendVendorEmail } from './email';
 import { checkPwnedPassword, validatePasswordComplexity } from './passwords';
 import { rateLimit } from './rateLimit';
 
@@ -77,10 +76,9 @@ export async function handleInvite(body: any, session: any, request: Request) {
 
   const baseUrl = buildBaseUrl(request);
   const invitationLink = `${baseUrl}/vendor-portal/setup?token=${encodeURIComponent(issued.token)}`;
-  await sendVendorEmail(portalEmail, 'vendor-portal-invitation', {
-    invitationLink,
-    vendorName: vendor.name || 'Vendor',
-    expirationTime: `${INVITE_EXPIRY_DAYS} days`
+  console.warn('[vendor invite] email sending handled by fas-sanity', {
+    vendorId: vendor._id,
+    portalEmail
   });
 
   return jsonResponse({ ok: true, invitationLink }, { status: 200 }, { noIndex: true });
@@ -129,7 +127,7 @@ export async function completeInvitation({
   await updateVendorPassword(vendor._id, passwordHash);
   await markVendorAuthTokenUsed(validation.tokenId);
   await updateVendorLastLogin(vendor._id);
-  await updateVendorStatus(vendor._id, 'Approved');
+  await updateVendorStatus(vendor._id, 'active');
 
   const headers = new Headers();
   const roles = Array.isArray(vendor.portalAccess?.permissions)
@@ -197,14 +195,10 @@ export async function requestPasswordReset(email: string, request: Request) {
     expiresAt: issued.expiresAt.toISOString()
   });
 
-  const baseUrl = buildBaseUrl(request);
-  const resetLink = `${baseUrl}/vendor-portal/reset-password?token=${encodeURIComponent(issued.token)}`;
-  await sendVendorEmail(email, 'vendor-password-reset', {
-    resetLink,
-    vendorName: vendor.name || 'Vendor',
-    expirationTime: `${RESET_EXPIRY_HOURS} hour`
+  console.warn('[vendor reset] email sending handled by fas-sanity', {
+    email,
+    vendorId: vendor._id
   });
-  console.info('[vendor reset] sent email', { email, vendorId: vendor._id, resetLink });
 
   return jsonResponse(
     { ok: true, message: 'If an account exists, we sent a reset link.' },

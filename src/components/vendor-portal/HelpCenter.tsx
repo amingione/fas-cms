@@ -15,7 +15,7 @@ const HelpCenter: React.FC<{ faqs: FAQ[] }> = ({ faqs }) => {
         ))}
       </div>
       <div className="rounded-lg border border-white/10 bg-white/5 p-4 text-sm text-white/70">
-        Need more help? Send a message from the Messages tab and our team will respond.
+        Need more help? Email vendors@fasmotorsports.com or call (812) 200-9012 during business hours.
       </div>
     </div>
   );

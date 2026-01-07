@@ -90,7 +90,7 @@ export default function OnboardingProgress({ vendorId, variant = 'light' }: Prop
             ['firstOrder', 'Submit your first order'],
             ['inventoryUpdate', 'Update inventory'],
             ['invoiceUpload', 'Upload an invoice'],
-            ['messageSent', 'Send a message']
+            ['messageSent', 'Review support options']
           ] as Array<[keyof ProgressShape, string]>
         ).map(([key, label]) => (
           <li key={key} className="flex items-center">

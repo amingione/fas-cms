@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react';
 import {
   Bars3Icon,
-  ChatBubbleLeftRightIcon,
   CogIcon,
   DocumentTextIcon,
   HomeIcon,
@@ -18,41 +17,32 @@ const navItems: NavItem[] = [
   { name: 'Wholesale Catalog', href: '/vendor-portal/catalog', icon: Squares2X2Icon },
   { name: 'Cart', href: '/vendor-portal/cart', icon: ShoppingBagIcon },
   { name: 'Orders', href: '/vendor-portal/orders', icon: DocumentTextIcon },
-  { name: 'Messages', href: '/vendor-portal/messages', icon: ChatBubbleLeftRightIcon },
   { name: 'Account', href: '/vendor-portal/account', icon: CogIcon }
 ];
 
 const ctas = [{ name: 'Return to Website →', href: '/' }];
 
-const CartBadge = ({ className = '' }: { className?: string }) => (
-  <span
-    data-cart-count
-    className={`pointer-events-none absolute -top-2 -right-2 hidden h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-white ring-1 ring-black/70 shadow-white/10 shadow-box-outter ${className}`}
-  />
-);
+const CartBadge = ({ className = '' }: { className?: string }) => {
+  const baseClasses =
+    'pointer-events-none absolute -top-2 -right-2 hidden h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-white ring-1 ring-black/70 shadow-white/10 shadow-box-outter';
+  const mergedClasses = className ? `${baseClasses} ${className}` : baseClasses;
 
-const MessageBadge = ({ className = '' }: { className?: string }) => (
-  <span
-    data-message-unread
-    className={`pointer-events-none absolute -top-2 -right-2 hidden h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-white ring-1 ring-black/70 shadow-white/10 shadow-box-outter ${className}`}
-  />
-);
+  return <span data-cart-count className={mergedClasses} />;
+};
 
 const NavLink = ({ item }: { item: NavItem }) => {
   const isCart = item.href === '/vendor-portal/cart';
-  const isMessages = item.href === '/vendor-portal/messages';
   return (
     <a
       key={item.name}
       href={item.href}
       className={`relative inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-white transition hover:bg-white/10 hover:text-primary ${
-        isCart || isMessages ? 'pr-8' : ''
+        isCart ? 'pr-8' : ''
       }`}
     >
       <item.icon className="h-4 w-4 text-white/70" />
       {item.name}
       {isCart && <CartBadge />}
-      {isMessages && <MessageBadge />}
     </a>
   );
 };
@@ -116,20 +106,18 @@ export default function VendorPortalFlyoutNav() {
           <div className="space-y-2">
             {navItems.map((item) => {
               const isCart = item.href === '/vendor-portal/cart';
-              const isMessages = item.href === '/vendor-portal/messages';
               return (
                 <a
                   key={item.name}
                   href={item.href}
                   className={`relative flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 p-3 text-sm font-semibold text-white hover:border-primary/60 ${
-                    isCart || isMessages ? 'pr-8' : ''
+                    isCart ? 'pr-8' : ''
                   }`}
                   onClick={() => setMobileOpen(false)}
                 >
                   <item.icon className="h-5 w-5 text-white/70" />
                   {item.name}
                   {isCart && <CartBadge />}
-                  {isMessages && <MessageBadge />}
                 </a>
               );
             })}

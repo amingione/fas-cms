@@ -61,6 +61,12 @@ export async function getVendorById(id: string) {
   return await sanity.fetch(query, { id });
 }
 
+export async function getVendorByCustomerId(customerId: string) {
+  const normalizedId = String(customerId || '').replace(/^drafts\./, '');
+  const query = '*[_type == "vendor" && customerRef._ref == $id][0]';
+  return await sanity.fetch(query, { id: normalizedId });
+}
+
 export async function setVendorPasswordReset(vendorId: string, tokenHash: string, expiresAt: string) {
   await sanity
     .patch(vendorId)

@@ -56,7 +56,7 @@ const NAV_ITEMS: NavItem[] = [
     id: 'communication',
     label: 'Communication',
     href: '/vendor-portal/onboarding/communication',
-    description: 'Messages and priorities'
+    description: 'Support channels and response times'
   },
   {
     id: 'analytics',

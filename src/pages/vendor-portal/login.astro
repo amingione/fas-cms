@@ -170,7 +170,7 @@ if (setupStatus === 'success') {
       statusEl.textContent = '';
 
       try {
-        const res = await fetch('/api/vendor/login', {
+        const res = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),

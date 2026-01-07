@@ -3,12 +3,21 @@ import { getVendorById } from '@/server/sanity-client';
 import { jsonResponse, unauthorizedJson } from '@/server/http/responses';
 
 type Permission =
-  | 'view_purchase_orders'
-  | 'update_inventory'
-  | 'upload_invoices'
-  | 'view_payments'
-  | 'manage_products'
-  | 'view_analytics';
+  | 'view_own_orders'
+  | 'create_wholesale_orders'
+  | 'view_own_quotes'
+  | 'view_wholesale_catalog'
+  | 'send_support_messages';
+
+const FORBIDDEN_PERMISSIONS = new Set([
+  'inventory_management',
+  'product_management',
+  'analytics',
+  'upload_invoices',
+  'update_inventory',
+  'manage_products',
+  'view_analytics'
+]);
 
 export type VendorContext =
   | {
@@ -50,6 +59,17 @@ export async function requireVendor(
   const permissions = Array.isArray(permsRaw)
     ? permsRaw.map((p: any) => String(p || '').toLowerCase())
     : [];
+
+  if (permissions.some((permission) => FORBIDDEN_PERMISSIONS.has(permission))) {
+    return {
+      ok: false,
+      response: jsonResponse(
+        { message: 'Forbidden vendor permissions detected' },
+        { status: 403 },
+        { noIndex: true }
+      )
+    };
+  }
 
   if (required) {
     const requiredList = Array.isArray(required) ? required : [required];

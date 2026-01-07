@@ -3,7 +3,6 @@ import React from 'react';
 const actions = [
   { label: 'Submit New Order', href: '/vendor-portal/orders/new' },
   { label: 'Upload Invoice', href: '/vendor-portal/invoices' },
-  { label: 'Send Message', href: '/vendor-portal/messages' },
   { label: 'View Reports', href: '/vendor-portal/analytics' },
   { label: 'Onboarding Guide', href: '/vendor-portal/onboarding' }
 ];

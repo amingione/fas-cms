@@ -47,24 +47,49 @@ export const POST: APIRoute = async ({ request }) => {
           (import.meta.env.VITE_SANITY_PROJECT_ID as string | undefined)
       );
       if (hasSanity) {
-        const { getVendorByEmail } = await import('../../../server/sanity-client');
-        const vendor = await getVendorByEmail(email);
-        if (vendor && (vendor as any).status === 'Approved') {
+        const { getCustomerByEmail, getVendorByCustomerId } = await import('../../../server/sanity-client');
+        const customer = await getCustomerByEmail(email);
+        const customerRoles = Array.isArray((customer as any)?.roles) ? (customer as any).roles : [];
+        const isVendorCustomer = customerRoles.includes('vendor');
+
+        if (customer && isVendorCustomer) {
           accountFound = true;
-          const passwordHash = (vendor as any).passwordHash;
-          if (passwordHash && (await bcrypt.compare(password, passwordHash))) {
-            const vendorEmail =
-              (vendor as any)?.portalAccess?.email ||
-              (vendor as any)?.primaryContact?.email ||
-              (vendor as any)?.accountingContact?.email ||
-              email;
-            sessionUser = {
-              id: String(vendor._id || vendor.id || email),
-              email: String(vendorEmail),
-              roles: ['vendor']
-            };
-            expiresInSeconds = 60 * 60;
+          const vendor = await getVendorByCustomerId(String(customer._id || customer.id || ''));
+          if (!vendor) {
+            return jsonResponse(
+              { message: 'Vendor account not linked. Contact support.' },
+              { status: 401 },
+              { noIndex: true }
+            );
           }
+          const status = String((vendor as any).status || '').toLowerCase();
+          const portalEnabled = Boolean((vendor as any)?.portalAccess?.enabled);
+          if (!portalEnabled || status !== 'active') {
+            return jsonResponse(
+              { message: 'Vendor account not active or portal access disabled.' },
+              { status: 401 },
+              { noIndex: true }
+            );
+          }
+          const passwordHash =
+            (vendor as any)?.portalAccess?.passwordHash ||
+            (vendor as any).passwordHash ||
+            (vendor as any)?.portalAccess?.hash ||
+            (vendor as any)?.auth?.passwordHash;
+          if (!passwordHash || !(await bcrypt.compare(password, passwordHash))) {
+            return jsonResponse(
+              { message: 'Invalid credentials' },
+              { status: 401 },
+              { noIndex: true }
+            );
+          }
+
+          sessionUser = {
+            id: String(vendor._id || vendor.id || email),
+            email: String(customer.email || email),
+            roles: ['vendor']
+          };
+          expiresInSeconds = 60 * 60;
         }
       }
     }

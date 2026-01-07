@@ -50,9 +50,9 @@ const faqs: FAQItem[] = [
   },
   {
     category: 'Communication',
-    question: 'How quickly does the team respond to messages?',
+    question: 'How quickly does the team respond to support requests?',
     answer:
-      'During business hours we target responses within 2 hours. Mark a message as Priority to flag time-sensitive items.'
+      'During business hours we target responses within 2 hours. For urgent issues, call the wholesale support line.'
   },
   {
     category: 'Analytics',
@@ -64,7 +64,7 @@ const faqs: FAQItem[] = [
     category: 'Support',
     question: 'Where do I get live help?',
     answer:
-      'Email vendors@fasmotorsports.com or call (812) 200-9012 during business hours. For quick questions, start a Portal Message from Communication.'
+      'Email vendors@fasmotorsports.com or call (812) 200-9012 during business hours.'
   }
 ];
 

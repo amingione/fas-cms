@@ -46,6 +46,11 @@ export async function handleVendorApplication(body: Record<string, any>): Promis
   const businessAddressStr =
     toCleanString(body.businessAddress) ||
     [street, city, state, zip].filter(Boolean).join(', ');
+  const productsInterestedList = Array.isArray(body.productsInterested)
+    ? body.productsInterested.map(toCleanString).filter(Boolean)
+    : productsInterested
+      ? productsInterested.split(',').map((item) => item.trim()).filter(Boolean)
+      : undefined;
 
   if (!email || !contactName || !phone || !companyName || !businessAddressStr) {
     return { status: 400, body: { message: 'Missing required fields.' } };
@@ -74,23 +79,22 @@ export async function handleVendorApplication(body: Record<string, any>): Promis
       email,
       phone,
       businessAddress: {
-        street: street || undefined,
+        street: street || businessAddressStr || undefined,
         city: city || undefined,
         state: state || undefined,
         zip: zip || undefined,
-        full: businessAddressStr
+        country: toCleanString(body.country) || 'US'
       },
       businessType,
       website,
-      resaleCertificateId: resaleCertificateId || undefined,
-      taxId: taxId || undefined,
+      taxId: taxId || resaleCertificateId || undefined,
       taxExempt,
       yearsInBusiness,
       estimatedMonthlyVolume: estimatedMonthlyVolume || undefined,
-      productsInterested: productsInterested || undefined,
+      productsInterested: productsInterestedList || undefined,
       currentSuppliers: currentSuppliers || undefined,
-      referralSource: referralSource || undefined,
-      additionalInfo: additionalInfo || undefined,
+      howDidYouHear: referralSource || undefined,
+      additionalNotes: additionalInfo || undefined,
       status: 'pending',
       applicationNumber,
       submittedAt: new Date().toISOString()

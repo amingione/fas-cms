@@ -491,7 +491,7 @@ const SettingsPanel: React.FC = () => {
             {[
               { key: 'emailOrders', label: 'Order updates' },
               { key: 'emailInvoices', label: 'Invoice updates' },
-              { key: 'emailMessages', label: 'Messages and replies' },
+              { key: 'emailMessages', label: 'Support updates' },
               { key: 'emailPayments', label: 'Payments and refunds' }
             ].map((item) => (
               <label key={item.key} className="flex items-center gap-2 text-sm text-white/80">
