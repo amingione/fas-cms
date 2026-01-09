@@ -872,8 +872,19 @@ export async function POST({ request }: { request: Request }) {
 
     const customerEmail = userEmail || undefined;
 
+    const shippingQuoteMetadata: Record<string, string> = {};
+    if (shippingQuote) {
+      shippingQuoteMetadata.shipping_rate_label = shippingQuote.label || 'Standard Shipping';
+      shippingQuoteMetadata.shipping_rate_amount = shippingQuote.amount.toString();
+      const minDays = shippingQuote.delivery?.min?.toString();
+      const maxDays = shippingQuote.delivery?.max?.toString();
+      if (minDays) shippingQuoteMetadata.shipping_rate_min_days = minDays;
+      if (maxDays) shippingQuoteMetadata.shipping_rate_max_days = maxDays;
+    }
+
     const metadataForSession: Record<string, string> = {
-      cart_id: randomUUID()
+      cart_id: randomUUID(),
+      ...shippingQuoteMetadata
     };
 
     const paymentIntentMetadata = { ...metadataForSession };
