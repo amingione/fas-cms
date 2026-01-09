@@ -11895,12 +11895,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"baseline-browser-mapping@npm:^2.9.0, baseline-browser-mapping@npm:^2.9.11":
+"baseline-browser-mapping@npm:^2.9.0":
   version: 2.9.11
   resolution: "baseline-browser-mapping@npm:2.9.11"
   bin:
     baseline-browser-mapping: dist/cli.js
   checksum: 10c0/eba49fcc1b33ab994aeeb73a4848f2670e06a0886dd5b903689ae6f60d47e7f1bea9262dbb2548c48179e858f7eda2b82ddf941ae783b862f4dcc51085a246f2
+  languageName: node
+  linkType: hard
+
+"baseline-browser-mapping@npm:^2.9.14":
+  version: 2.9.14
+  resolution: "baseline-browser-mapping@npm:2.9.14"
+  bin:
+    baseline-browser-mapping: dist/cli.js
+  checksum: 10c0/c9bf03c65e9a6690e4abbe60c269ad14ce5578cac09fed51ff1ed6e899e049afb094c2b173365cb2397d48012a83747500db6e79dca2761faf548aee10574d3d
   languageName: node
   linkType: hard
 
@@ -16890,6 +16899,7 @@ __metadata:
     "@heroicons/react": "npm:^2.2.0"
     "@motionone/dom": "npm:^10.18.0"
     "@netlify/blobs": "npm:^9.0.0"
+    "@netlify/edge-functions": "npm:^3.0.3"
     "@portabletext/react": "npm:^3.2.4"
     "@portabletext/toolkit": "npm:^3.0.3"
     "@radix-ui/react-alert-dialog": "npm:^1.1.15"
@@ -16938,7 +16948,7 @@ __metadata:
     apexcharts: "npm:^5.3.6"
     astro: "npm:5.16.6"
     autoprefixer: "npm:^10.4.23"
-    baseline-browser-mapping: "npm:^2.9.11"
+    baseline-browser-mapping: "npm:^2.9.14"
     bcryptjs: "npm:^3.0.3"
     cheerio: "npm:^1.1.2"
     class-variance-authority: "npm:^0.7.1"

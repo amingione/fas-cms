@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { resolveAllowedCountries } from '@/lib/shipping-countries';
 
 export const GET: APIRoute = async () => {
   const data = {
@@ -39,10 +40,7 @@ export const GET: APIRoute = async () => {
     // Shipping
     shipping: {
       provider: 'parcelcraft',
-      allowedCountries:
-        (import.meta.env.STRIPE_SHIPPING_ALLOWED_COUNTRIES as string | undefined) ||
-        (import.meta.env.PUBLIC_STRIPE_SHIPPING_ALLOWED_COUNTRIES as string | undefined) ||
-        undefined,
+      allowedCountries: resolveAllowedCountries(),
       fulfillment: 'post-checkout-label'
     }
   };

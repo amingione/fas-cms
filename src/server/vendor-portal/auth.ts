@@ -7,7 +7,10 @@ type Permission =
   | 'create_wholesale_orders'
   | 'view_own_quotes'
   | 'view_wholesale_catalog'
-  | 'send_support_messages';
+  | 'send_support_messages'
+  | 'view_payments'
+  | 'view_analytics'
+  | 'upload_invoices';
 
 const FORBIDDEN_PERMISSIONS = new Set([
   'inventory_management',

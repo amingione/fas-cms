@@ -6,6 +6,7 @@ import { getActivePrice, getCompareAtPrice, isOnSale } from '@/lib/saleHelpers';
 import { formatOptionSummary } from '@/lib/cart/format-option-summary';
 import { checkoutRequestSchema } from '@/lib/validators/api-requests';
 import { sanityProductSchema } from '@/lib/validators/sanity';
+import { resolveAllowedCountries } from '@/lib/shipping-countries';
 
 const stripeApiVersion = (import.meta.env.STRIPE_API_VERSION as string | undefined) || '2025-08-27.basil';
 
@@ -56,35 +57,6 @@ function hostKey(url: string | null | undefined): string | null {
     const match = url.replace(/^https?:\/\//i, '').split('/')[0];
     return match ? match.replace(/^www\./i, '').toLowerCase() : null;
   }
-}
-
-function parseList(input?: string | null): string[] {
-  if (!input) return [];
-  return input
-    .split(/[,|\n]/)
-    .map((entry) => entry.trim())
-    .filter(Boolean);
-}
-
-type AllowedCountryCodes =
-  Stripe.Checkout.SessionCreateParams.ShippingAddressCollection['allowed_countries'];
-
-function resolveAllowedCountries(): AllowedCountryCodes {
-  const envValue =
-    import.meta.env.STRIPE_SHIPPING_ALLOWED_COUNTRIES ||
-    import.meta.env.PUBLIC_STRIPE_SHIPPING_ALLOWED_COUNTRIES ||
-    import.meta.env.PUBLIC_SHIPPING_ALLOWED_COUNTRIES ||
-    '';
-
-  const parsed = parseList(envValue)
-    .map((code) => code.toUpperCase())
-    .filter((code) => /^[A-Z]{2}$/.test(code)) as AllowedCountryCodes;
-
-  if (parsed.length) {
-    return parsed;
-  }
-
-  return ['US', 'CA'];
 }
 
 type CartSelection = {
