@@ -36,7 +36,13 @@ export const GET: APIRoute = async ({ request }) => {
     const statsQuery = `{
       "ordersThisMonth": count(*[_type == "order" && orderType == "wholesale" && customerRef._ref == $customerId && dateTime(coalesce(createdAt, _createdAt)) >= dateTime($startOfMonth)]),
       "ordersTotal": count(*[_type == "order" && orderType == "wholesale" && customerRef._ref == $customerId]),
-      "amounts": *[_type == "order" && orderType == "wholesale" && customerRef._ref == $customerId]{ "amt": coalesce(totalAmount, amountSubtotal + amountTax + amountShipping, 0) }
+      "amounts": *[
+        _type == "order" &&
+        orderType == "wholesale" &&
+        customerRef._ref == $customerId &&
+        paymentStatus == "paid" &&
+        !(status in ["canceled", "cancelled", "refunded"])
+      ]{ "amt": coalesce(totalAmount, amountSubtotal + amountTax + amountShipping, 0) }
     }`;
 
     const recentOrdersQuery = `*[_type == "order" && orderType == "wholesale" && customerRef._ref == $customerId] | order(dateTime(coalesce(createdAt, _createdAt)) desc)[0...5]{
