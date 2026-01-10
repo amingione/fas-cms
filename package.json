@@ -9,6 +9,7 @@
     "preview": "cross-env NODE_ENV=production astro preview",
     "lint": "eslint \"src/**/*.{js,ts,jsx,tsx}\"",
     "test": "yarn lint && yarn type-check",
+    "test:unit": "vitest run",
     "cleanup:deps": "depcheck",
     "cleanup:files": "rimraf node_modules .astro dist build .cache .netlify .turbo .parcel-cache coverage",
     "type-check": "cross-env BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA=1 BROWSERSLIST_IGNORE_OLD_DATA=1 astro check --minimumSeverity warning",
@@ -91,7 +92,9 @@
     "typescript-eslint": "^8.51.0",
     "unframer": "^3.2.17",
     "vite": "^5.4.21",
-    "vite-plugin-svgr": "^4.5.0"
+    "vite-plugin-svgr": "^4.5.0",
+    "vite-tsconfig-paths": "^6.0.4",
+    "vitest": "^4.0.16"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.6",

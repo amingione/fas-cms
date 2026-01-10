@@ -1,5 +1,21 @@
+/**
+ * Validation-only Stripe Checkout session endpoint.
+ *
+ * Architectural contract:
+ * - This endpoint ONLY validates cart, shippingAddress, and selectedRate.
+ * - It MUST NEVER quote shipping rates.
+ * - It MUST NEVER purchase shipping labels.
+ *
+ * Guardrails:
+ * - docs/checkout/architecture.md
+ * - tests/checkout.no-quote.spec.ts
+ *
+ * Any change that violates this contract must update the documentation
+ * and the regression guard test.
+ */
+
 import Stripe from 'stripe';
-import { randomUUID, createHash } from 'crypto';
+import { randomUUID } from 'crypto';
 import { readSession } from '../../server/auth/session';
 import { sanity } from '../../server/sanity-client';
 import { getActivePrice, getCompareAtPrice, isOnSale } from '@/lib/saleHelpers';
@@ -7,11 +23,17 @@ import { formatOptionSummary } from '@/lib/cart/format-option-summary';
 import { checkoutRequestSchema } from '@/lib/validators/api-requests';
 import { sanityProductSchema } from '@/lib/validators/sanity';
 import { resolveAllowedCountries } from '@/lib/shipping-countries';
+import { normalizeBaseUrl } from '@/lib/sanity-functions';
 
 const stripeApiVersion =
-  (import.meta.env.STRIPE_API_VERSION as string | undefined) || '2025-08-27.basil';
+  (import.meta.env.STRIPE_API_VERSION as string | undefined) ||
+  process.env.STRIPE_API_VERSION ||
+  '2025-08-27.basil';
 
-const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
+const stripeSecret =
+  (import.meta.env.STRIPE_SECRET_KEY as string | undefined) || process.env.STRIPE_SECRET_KEY || '';
+
+const stripe = new Stripe(stripeSecret, {
   apiVersion: stripeApiVersion as Stripe.LatestApiVersion
 });
 
@@ -27,16 +49,6 @@ const jsonResponse = (payload: unknown, status = 200): Response =>
       'Content-Security-Policy': STRIPE_CHECKOUT_CSP
     }
   });
-
-function normalizeBaseUrl(baseUrl: string): string {
-  if (!baseUrl) return baseUrl;
-  try {
-    const url = new URL(baseUrl);
-    return url.origin;
-  } catch {
-    return baseUrl.replace(/\/+$/, '');
-  }
-}
 
 function validateBaseUrl(baseUrl: string): Response | null {
   if (!baseUrl || !baseUrl.startsWith('http')) {
@@ -115,65 +127,6 @@ type ShippingProduct = {
   } | null;
 };
 
-type ShippingDestination = {
-  addressLine1: string;
-  addressLine2?: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  country: string;
-};
-
-type ShippingQuoteRate = {
-  rateId?: string;
-  carrier?: string;
-  carrierId?: string;
-  carrierCode?: string;
-  service?: string;
-  serviceCode?: string;
-  amount?: number;
-  currency?: string;
-  deliveryDays?: number | null;
-  estimatedDeliveryDate?: string | null;
-  accurateDeliveryDate?: string | null;
-  timeInTransit?: Record<string, unknown> | null;
-  deliveryConfidence?: number | null;
-  deliveryDateGuaranteed?: boolean;
-};
-
-type ShippingQuoteResponse = {
-  success: boolean;
-  installOnly?: boolean;
-  freight?: boolean;
-  message?: string;
-  rates?: ShippingQuoteRate[];
-  bestRate?: ShippingQuoteRate | null;
-  shippingQuoteId?: string | null;
-  easyPostShipmentId?: string | null;
-  quoteKey?: string | null;
-  quoteRequestId?: string | null;
-};
-
-type ShippingQuoteCartItem = {
-  sku?: string;
-  productId?: string;
-  quantity: number;
-};
-
-type ShippingQuoteRequestPayload = {
-  cart: ShippingQuoteCartItem[];
-  destination: ShippingDestination;
-  quoteKey: string;
-  quoteRequestId: string;
-};
-
-type QuoteMetadataContext = {
-  quoteKey: string;
-  quoteRequestId: string;
-  shippingQuoteId?: string | null;
-  easyPostShipmentId?: string | null;
-};
-
 async function fetchShippingProductsForCart(
   cart: CheckoutCartItem[]
 ): Promise<Record<string, ShippingProduct>> {
@@ -247,18 +200,6 @@ async function fetchShippingProductsForCart(
   }
 }
 
-const SANITY_QUOTE_FN_PATH = '/.netlify/functions/getShippingQuoteBySkus';
-const FLAT_FALLBACK_AMOUNT_CENTS = 1500;
-const FLAT_FALLBACK_DISPLAY_NAME = 'Temporary Shipping Rate (Flat Fallback)';
-
-const makeDeliveryEstimate = (
-  min: number,
-  max: number
-): Stripe.Checkout.SessionCreateParams.ShippingOption.ShippingRateData.DeliveryEstimate => ({
-  minimum: { unit: 'business_day', value: Math.max(1, Math.round(min)) },
-  maximum: { unit: 'business_day', value: Math.max(1, Math.round(max)) }
-});
-
 const normalizeCartId = (rawId?: string | null): string => {
   if (!rawId) return '';
   const trimmed = String(rawId).trim();
@@ -282,140 +223,6 @@ const toMetadataString = (value: unknown): string | undefined => {
   } catch {
     return undefined;
   }
-};
-
-function resolveSanityFunctionsBaseUrl(): string {
-  const rawUrl =
-    (import.meta.env.SANITY_FUNCTIONS_BASE_URL as string | undefined) ||
-    (import.meta.env.PUBLIC_SANITY_FUNCTIONS_BASE_URL as string | undefined) ||
-    process.env.SANITY_FUNCTIONS_BASE_URL ||
-    process.env.PUBLIC_SANITY_FUNCTIONS_BASE_URL ||
-    '';
-  const normalized = normalizeBaseUrl(rawUrl);
-  if (!normalized || !normalized.startsWith('http')) {
-    throw new Error('Missing or invalid SANITY_FUNCTIONS_BASE_URL');
-  }
-  return normalized;
-}
-
-const normalizeQuoteDestination = (destination: ShippingDestination): ShippingDestination => ({
-  addressLine1: destination.addressLine1.trim(),
-  addressLine2: destination.addressLine2?.trim() || undefined,
-  city: destination.city.trim(),
-  state: destination.state.trim(),
-  postalCode: destination.postalCode.trim(),
-  country: destination.country.trim().toUpperCase()
-});
-
-const normalizeQuoteCartItems = (cart: CheckoutCartItem[]): ShippingQuoteCartItem[] =>
-  cart
-    .map((item) => {
-      const quantity =
-        typeof item.quantity === 'number' && Number.isFinite(item.quantity)
-          ? Math.max(1, Math.floor(item.quantity))
-          : 1;
-      const sku = typeof item.sku === 'string' && item.sku.trim() ? item.sku.trim() : undefined;
-      const productId = typeof item.id === 'string' && item.id.trim() ? item.id.trim() : undefined;
-      return { sku, productId, quantity };
-    })
-    .filter((item) => item.quantity > 0);
-
-const buildQuoteKey = (
-  cartItems: ShippingQuoteCartItem[],
-  destination: ShippingDestination
-): string => {
-  const normalizedItems = cartItems
-    .map((item) => ({
-      identifier:
-        (item.sku && item.sku.trim()) || (item.productId && item.productId.trim()) || 'custom_item',
-      quantity: item.quantity
-    }))
-    .sort((a, b) => a.identifier.localeCompare(b.identifier));
-  const canonical = {
-    items: normalizedItems,
-    destination: {
-      addressLine1: destination.addressLine1.trim().toLowerCase(),
-      city: destination.city.trim().toLowerCase(),
-      state: destination.state.trim().toUpperCase(),
-      postalCode: destination.postalCode.replace(/\s+/g, '').toUpperCase(),
-      country: destination.country.trim().toUpperCase()
-    }
-  };
-  return createHash('sha256').update(JSON.stringify(canonical)).digest('hex');
-};
-
-async function fetchLiveShippingQuote(
-  payload: ShippingQuoteRequestPayload
-): Promise<ShippingQuoteResponse> {
-  const baseUrl = resolveSanityFunctionsBaseUrl();
-  const quoteUrl = `${baseUrl}${SANITY_QUOTE_FN_PATH}`;
-  const response = await fetch(quoteUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      cart: payload.cart,
-      destination: payload.destination,
-      quoteKey: payload.quoteKey,
-      quoteRequestId: payload.quoteRequestId
-    })
-  });
-
-  let payloadBody: any = {};
-  try {
-    payloadBody = await response.json();
-  } catch (error) {
-    throw new Error('Failed to parse shipping quote response');
-  }
-
-  if (!response.ok || !payloadBody?.success) {
-    const message =
-      payloadBody?.error ||
-      payloadBody?.message ||
-      'Unable to fetch shipping rates from the carrier provider';
-    throw new Error(message);
-  }
-
-  return payloadBody as ShippingQuoteResponse;
-}
-
-const buildShippingOptionsFromRates = (
-  rates: ShippingQuoteRate[],
-  context: QuoteMetadataContext
-): Stripe.Checkout.SessionCreateParams.ShippingOption[] => {
-  return rates
-    .filter((rate) => typeof rate.amount === 'number' && Number.isFinite(rate.amount))
-    .map((rate) => {
-      const amountCents = Math.max(0, Math.round((rate.amount || 0) * 100));
-      const currency = rate.currency ? rate.currency.toLowerCase() : 'usd';
-      const prefix = [rate.carrier, rate.service].filter(Boolean).join(' ').trim() || 'Shipping';
-      const deliveryEstimate =
-        typeof rate.deliveryDays === 'number' && Number.isFinite(rate.deliveryDays)
-          ? makeDeliveryEstimate(Math.max(1, rate.deliveryDays), Math.max(1, rate.deliveryDays + 2))
-          : undefined;
-      const metadata: Record<string, string> = {};
-      const pushMeta = (key: string, value?: unknown) => {
-        const converted = toMetadataString(value);
-        if (converted) metadata[key] = converted;
-      };
-      pushMeta('shipping_quote_key', context.quoteKey);
-      pushMeta('shipping_quote_request_id', context.quoteRequestId);
-      pushMeta('shipping_quote_id', context.shippingQuoteId);
-      pushMeta('easy_post_shipment_id', context.easyPostShipmentId);
-      pushMeta('selected_rate_id', rate.rateId);
-      pushMeta('shipping_carrier', rate.carrier);
-      pushMeta('shipping_service', rate.service);
-      pushMeta('shipping_amount', (amountCents / 100).toFixed(2));
-
-      return {
-        shipping_rate_data: {
-          type: 'fixed_amount',
-          fixed_amount: { amount: amountCents, currency },
-          display_name: prefix,
-          ...(deliveryEstimate ? { delivery_estimate: deliveryEstimate } : {}),
-          metadata
-        }
-      };
-    });
 };
 
 export async function POST({ request }: { request: Request }) {
@@ -467,7 +274,7 @@ export async function POST({ request }: { request: Request }) {
     return jsonResponse({ error: 'Validation failed', details: bodyResult.error.format() }, 422);
   }
 
-  const { cart, shippingDestination } = bodyResult.data;
+  const { cart, shippingAddress, selectedRate, metadata: requestMetadata } = bodyResult.data;
   const clamp = (value: string, max = 500) => (value.length > max ? value.slice(0, max) : value);
 
   const formatSelectedOptions = (
@@ -796,126 +603,42 @@ export async function POST({ request }: { request: Request }) {
     } satisfies Stripe.Checkout.SessionCreateParams.LineItem;
   });
 
-  if (!shippingDestination) {
-    return jsonResponse(
-      { error: 'Shipping address is required to calculate shipping rates.' },
-      422
-    );
+  if (!shippingAddress) {
+    return jsonResponse({ error: 'Shipping address is required' }, 400);
   }
 
-  const normalizedDestination = normalizeQuoteDestination(shippingDestination);
-  const quoteItems = normalizeQuoteCartItems(cart as CheckoutCartItem[]);
-  if (!quoteItems.length) {
-    return jsonResponse({ error: 'Unable to build a shipping request from the cart items.' }, 422);
+  if (!selectedRate) {
+    return jsonResponse({ error: 'Selected shipping rate is required' }, 400);
   }
 
-  const quoteRequestId = randomUUID();
-  const quoteKey = buildQuoteKey(quoteItems, normalizedDestination);
-
-  const rawShippingMode =
-    (import.meta.env.SHIPPING_LIVE_RATES_MODE as string | undefined) || 'live';
-  const shippingMode = rawShippingMode.trim().toLowerCase();
-
-  if (shippingMode === 'fail_closed') {
-    return jsonResponse(
-      { error: 'Shipping rates temporarily unavailable. Please try again soon.' },
-      502
-    );
+  const shippingAmountCents = Number(selectedRate.amountCents ?? 0);
+  if (!Number.isFinite(shippingAmountCents) || shippingAmountCents < 0) {
+    return jsonResponse({ error: 'Invalid shipping rate amount' }, 422);
   }
 
-  if (shippingMode !== 'live' && shippingMode !== 'flat_fallback') {
-    console.warn('[checkout] Unsupported SHIPPING_LIVE_RATES_MODE:', shippingMode);
-    return jsonResponse(
-      { error: 'Shipping rates temporarily unavailable. Please try again soon.' },
-      502
-    );
-  }
+  const shippingCurrency = (selectedRate.currency || 'USD').toLowerCase();
+  const displayNameParts = [selectedRate.carrier, selectedRate.service]
+    .filter(Boolean)
+    .map((part) => part?.trim())
+    .filter(Boolean);
+  const shippingDisplayName = displayNameParts.join(' – ') || 'Shipping';
 
-  let shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] = [];
-  let shippingQuote: ShippingQuoteResponse | null = null;
-  let selectedRateId: string | undefined;
-  let flatFallbackAmount: number | null = null;
-
-  if (shippingMode === 'flat_fallback') {
-    console.warn('[checkout] SHIPPING_LIVE_RATES_MODE=flat_fallback; using emergency flat rate');
-    flatFallbackAmount = FLAT_FALLBACK_AMOUNT_CENTS;
-    const fallbackMetadata: Record<string, string> = {
-      shipping_quote_key: quoteKey,
-      shipping_quote_request_id: quoteRequestId,
-      shipping_mode: 'flat_fallback',
-      shipping_fallback_amount: (flatFallbackAmount / 100).toFixed(2)
-    };
-    shippingOptions = [
-      {
-        shipping_rate_data: {
-          type: 'fixed_amount',
-          fixed_amount: { amount: flatFallbackAmount, currency: 'usd' },
-          display_name: FLAT_FALLBACK_DISPLAY_NAME,
-          metadata: fallbackMetadata
+  const shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] = [
+    {
+      shipping_rate_data: {
+        type: 'fixed_amount',
+        fixed_amount: { amount: Math.round(shippingAmountCents), currency: shippingCurrency },
+        display_name: shippingDisplayName,
+        metadata: {
+          shipping_provider: selectedRate.provider,
+          shipping_rate_id: selectedRate.id,
+          shipping_carrier: selectedRate.carrier,
+          shipping_service: selectedRate.service,
+          shipping_amount_cents: String(Math.round(shippingAmountCents))
         }
       }
-    ];
-  } else {
-    try {
-      shippingQuote = await fetchLiveShippingQuote({
-        cart: quoteItems,
-        destination: normalizedDestination,
-        quoteKey,
-        quoteRequestId
-      });
-    } catch (error) {
-      console.error('[checkout] shipping quote failed', { quoteKey, quoteRequestId, error });
-      const message =
-        error instanceof Error ? error.message : 'Unable to calculate shipping rates right now.';
-      return jsonResponse({ error: message }, 502);
     }
-
-    if (shippingQuote.installOnly) {
-      return jsonResponse(
-        {
-          error:
-            shippingQuote.message ||
-            'One or more cart items require installation-only service. Please contact us to proceed.'
-        },
-        422
-      );
-    }
-
-    if (shippingQuote.freight) {
-      return jsonResponse(
-        {
-          error:
-            shippingQuote.message ||
-            'This order requires a freight shipment. Please request a custom quote or contact support.'
-        },
-        422
-      );
-    }
-
-    const rates = Array.isArray(shippingQuote.rates) ? shippingQuote.rates : [];
-    if (!rates.length) {
-      return jsonResponse(
-        { error: shippingQuote.message || 'No shipping rates were returned for this destination.' },
-        422
-      );
-    }
-
-    selectedRateId = shippingQuote.bestRate?.rateId ?? rates[0]?.rateId;
-
-    shippingOptions = buildShippingOptionsFromRates(rates, {
-      quoteKey,
-      quoteRequestId,
-      shippingQuoteId: shippingQuote.shippingQuoteId,
-      easyPostShipmentId: shippingQuote.easyPostShipmentId
-    });
-  }
-
-  if (!shippingOptions.length) {
-    return jsonResponse(
-      { error: 'Unable to build Stripe shipping options from the rate data.' },
-      422
-    );
-  }
+  ];
 
   // Derive optional user identity for reliable joins in webhook
   let userEmail: string | undefined;
@@ -939,25 +662,28 @@ export async function POST({ request }: { request: Request }) {
 
     const metadataForSession: Record<string, string> = {
       cart_id: randomUUID(),
-      shipping_quote_key: quoteKey,
-      shipping_quote_request_id: quoteRequestId
+      shipping_provider: selectedRate.provider,
+      shipping_rate_id: selectedRate.id,
+      shipping_carrier: selectedRate.carrier,
+      shipping_service: selectedRate.service,
+      shipping_amount_cents: String(Math.round(shippingAmountCents)),
+      shipping_country: shippingAddress.country.toUpperCase(),
+      shipping_postal_code: shippingAddress.postalCode,
+      shipping_address_line1: shippingAddress.addressLine1,
+      shipping_city: shippingAddress.city,
+      shipping_state: shippingAddress.state
     };
-    const sessionMetaPush = (key: string, value?: unknown) => {
-      const converted = toMetadataString(value);
-      if (converted) metadataForSession[key] = converted;
-    };
-    if (shippingQuote) {
-      sessionMetaPush('shipping_quote_id', shippingQuote.shippingQuoteId);
-      sessionMetaPush('easy_post_shipment_id', shippingQuote.easyPostShipmentId);
+    if (shippingAddress.addressLine2) {
+      metadataForSession.shipping_address_line2 = shippingAddress.addressLine2;
     }
-    if (selectedRateId) {
-      sessionMetaPush('selected_rate_id', selectedRateId);
-    }
-    if (shippingMode === 'flat_fallback') {
-      sessionMetaPush('shipping_mode', 'flat_fallback');
-      if (flatFallbackAmount !== null) {
-        sessionMetaPush('shipping_fallback_amount', (flatFallbackAmount / 100).toFixed(2));
-      }
+    if (requestMetadata && typeof requestMetadata === 'object') {
+      Object.entries(requestMetadata).forEach(([key, value]) => {
+        const normalizedKey = `request_${key}`;
+        const normalizedValue = toMetadataString(value);
+        if (normalizedValue) {
+          metadataForSession[normalizedKey] = normalizedValue;
+        }
+      });
     }
 
     const paymentIntentMetadata = { ...metadataForSession };

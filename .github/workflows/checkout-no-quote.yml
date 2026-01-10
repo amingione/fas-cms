@@ -1,0 +1,22 @@
+name: Checkout Quote Guard
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  guard:
+    name: Run checkout.no-quote.spec.ts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+      - run: yarn install --frozen-lockfile
+      - run: yarn vitest run tests/checkout.no-quote.spec.ts
+        env:
+          SESSION_SECRET: 'test_session_secret_32_chars_123456'

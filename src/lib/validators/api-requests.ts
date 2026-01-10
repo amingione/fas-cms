@@ -93,19 +93,25 @@ export const checkoutShippingDestinationSchema = z
   })
   .passthrough();
 
+export const checkoutSelectedRateSchema = z
+  .object({
+    id: z.string().min(1),
+    provider: z.string().min(1),
+    carrier: z.string().min(1),
+    service: z.string().min(1),
+    amountCents: z.number().int().nonnegative(),
+    currency: z.string().min(1),
+    estDays: z.number().optional()
+  })
+  .passthrough();
+
 export const checkoutRequestSchema = z
   .object({
     cart: z.array(checkoutCartItemSchema).min(1),
     marketingOptIn: z.boolean().optional(),
-    selectedCarrier: z.string().optional(),
-    shippingCarrier: z.string().optional(),
-    carrier: z.string().optional(),
-    selectedService: z.string().optional(),
-    shippingService: z.string().optional(),
-    service: z.string().optional(),
-    selectedRateId: z.string().optional(),
-    easypostRateId: z.string().optional(),
-    rateId: z.string().optional(),
+    shippingAddress: checkoutShippingDestinationSchema,
+    selectedRate: checkoutSelectedRateSchema,
+    metadata: z.record(z.unknown()).optional(),
     utmSource: z.string().optional(),
     utm_source: z.string().optional(),
     utmMedium: z.string().optional(),
@@ -115,8 +121,7 @@ export const checkoutRequestSchema = z
     utmTerm: z.string().optional(),
     utm_term: z.string().optional(),
     utmContent: z.string().optional(),
-    utm_content: z.string().optional(),
-    shippingDestination: checkoutShippingDestinationSchema.optional()
+    utm_content: z.string().optional()
   })
   .passthrough();
 

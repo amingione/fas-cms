@@ -99,7 +99,6 @@ function CartContents() {
     useCart();
   const [clearing, setClearing] = useState(false);
   const [checkingOut, setCheckingOut] = useState(false);
-  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   const items = cart?.items ?? [];
   const hasItems = items.length > 0;
@@ -208,17 +207,9 @@ function CartContents() {
     }
   };
 
-  const handleCheckout = async () => {
-    try {
-      setCheckingOut(true);
-      setCheckoutError(null);
-      const result = await redirectToCheckout();
-      if (typeof result === 'string' && result) {
-        setCheckoutError(result);
-      }
-    } finally {
-      setCheckingOut(false);
-    }
+  const handleCheckout = () => {
+    setCheckingOut(true);
+    void redirectToCheckout();
   };
 
   const formattedSubtotal = formatPrice(subtotal || 0);
@@ -516,10 +507,9 @@ function CartContents() {
                 disabled={checkingOut}
                 className="w-full rounded-full bg-primary px-6 py-3 text-sm font-semibold uppercase tracking-wide text-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
               >
-                {checkingOut ? 'Connecting…' : 'Continue to Checkout'}
-              </button>
-              {checkoutError && <p className="mt-2 text-xs text-red-300">{checkoutError}</p>}
-            </aside>
+              {checkingOut ? 'Connecting…' : 'Continue to Checkout'}
+            </button>
+          </aside>
           </div>
         )}
       </div>

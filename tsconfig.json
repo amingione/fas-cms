@@ -33,7 +33,8 @@
     "*.astro",
     "**/*.ts",
     "**/*.tsx",
-    "netlify/functions/**/*.ts"
+    "netlify/functions/**/*.ts",
+    "tests/**/*"
   ],
   "exclude": [
     "node_modules",

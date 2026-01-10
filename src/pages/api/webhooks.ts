@@ -65,6 +65,10 @@ const formatOrderDate = (iso?: string | null, createdAtSeconds?: number | null):
   }).format(date);
 };
 
+type StripeSessionWithShippingRate = Stripe.Checkout.Session & {
+  shipping_rate?: Stripe.ShippingRate | null;
+};
+
 const generateFallbackOrderNumber = (
   session: Stripe.Checkout.Session,
   fallbackId: string
@@ -543,7 +547,8 @@ export async function POST({ request }: { request: Request }) {
 
         const shippingDetails = sessionDetails.collected_information?.shipping_details || null;
         const customerDetails = sessionDetails.customer_details;
-        const shippingRate = sessionDetails.shipping_rate || null;
+        const sessionWithShippingRate = sessionDetails as StripeSessionWithShippingRate;
+        const shippingRate = sessionWithShippingRate.shipping_rate ?? null;
         const shippingRateMetadata =
           shippingRate?.metadata && typeof shippingRate.metadata === 'object'
             ? (shippingRate.metadata as Record<string, string | null | undefined>)
