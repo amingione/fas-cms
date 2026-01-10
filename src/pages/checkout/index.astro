@@ -53,6 +53,70 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         </button>
       </div>
 
+      <div class="mt-10 rounded-lg border border-white/10 bg-dark/20 p-6 text-sm text-white/80 space-y-4">
+        <h2 class="text-base font-semibold text-white">Shipping Address</h2>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <label class="space-y-1 text-xs text-white/60">
+            <span>Address</span>
+            <input
+              id="shipping-address-line1"
+              type="text"
+              autocomplete="address-line1"
+              class="w-full rounded border border-white/20 bg-black/20 px-3 py-2 text-sm text-white shadow-inner outline-none focus:border-primary focus:ring-1 focus:ring-primary/50"
+            />
+          </label>
+          <label class="space-y-1 text-xs text-white/60">
+            <span>Address Line 2</span>
+            <input
+              id="shipping-address-line2"
+              type="text"
+              autocomplete="address-line2"
+              class="w-full rounded border border-white/20 bg-black/20 px-3 py-2 text-sm text-white shadow-inner outline-none focus:border-primary focus:ring-1 focus:ring-primary/50"
+            />
+          </label>
+          <label class="space-y-1 text-xs text-white/60">
+            <span>City</span>
+            <input
+              id="shipping-address-city"
+              type="text"
+              autocomplete="address-level2"
+              class="w-full rounded border border-white/20 bg-black/20 px-3 py-2 text-sm text-white shadow-inner outline-none focus:border-primary focus:ring-1 focus:ring-primary/50"
+            />
+          </label>
+          <label class="space-y-1 text-xs text-white/60">
+            <span>State / Province</span>
+            <input
+              id="shipping-address-state"
+              type="text"
+              autocomplete="address-level1"
+              class="w-full rounded border border-white/20 bg-black/20 px-3 py-2 text-sm text-white shadow-inner outline-none focus:border-primary focus:ring-1 focus:ring-primary/50"
+            />
+          </label>
+          <label class="space-y-1 text-xs text-white/60">
+            <span>Postal Code</span>
+            <input
+              id="shipping-address-postal"
+              type="text"
+              autocomplete="postal-code"
+              class="w-full rounded border border-white/20 bg-black/20 px-3 py-2 text-sm text-white shadow-inner outline-none focus:border-primary focus:ring-1 focus:ring-primary/50"
+            />
+          </label>
+          <label class="space-y-1 text-xs text-white/60">
+            <span>Country</span>
+            <input
+              id="shipping-address-country"
+              type="text"
+              autocomplete="country"
+              value="US"
+              class="w-full rounded border border-white/20 bg-black/20 px-3 py-2 text-sm text-white shadow-inner outline-none focus:border-primary focus:ring-1 focus:ring-primary/50"
+            />
+          </label>
+        </div>
+        <p class="text-xs text-white/50">
+          Shipping options are calculated before you leave this site. Stripe Checkout will show the live
+          carrier rates for your destination.
+        </p>
+      </div>
       <p id="checkout-status" class="mt-6 hidden text-center text-sm"></p>
     </div>
   </section>
@@ -63,6 +127,12 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     const statusEl = document.getElementById('checkout-status');
     const submitBtn = document.getElementById('begin-checkout');
     const marketingCheckbox = document.getElementById('marketing-opt-in');
+    const addrLine1 = document.getElementById('shipping-address-line1');
+    const addrLine2 = document.getElementById('shipping-address-line2');
+    const addrCity = document.getElementById('shipping-address-city');
+    const addrState = document.getElementById('shipping-address-state');
+    const addrPostal = document.getElementById('shipping-address-postal');
+    const addrCountry = document.getElementById('shipping-address-country');
 
     const setStatus = (message, type = 'info') => {
       if (!statusEl) return;
@@ -170,6 +240,29 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         return;
       }
 
+      const shippingDestination = (() => {
+        const line1 = addrLine1 instanceof HTMLInputElement ? addrLine1.value.trim() : '';
+        const city = addrCity instanceof HTMLInputElement ? addrCity.value.trim() : '';
+        const state = addrState instanceof HTMLInputElement ? addrState.value.trim() : '';
+        const postal = addrPostal instanceof HTMLInputElement ? addrPostal.value.trim() : '';
+        const country = addrCountry instanceof HTMLInputElement ? addrCountry.value.trim() : '';
+
+        if (!line1 || !city || !state || !postal || !country) return null;
+        return {
+          addressLine1: line1,
+          addressLine2: addrLine2 instanceof HTMLInputElement ? addrLine2.value.trim() : undefined,
+          city,
+          state,
+          postalCode: postal,
+          country
+        };
+      })();
+
+      if (!shippingDestination) {
+        setStatus('Please enter your shipping address before continuing.', 'error');
+        return;
+      }
+
       if (submitBtn) submitBtn.setAttribute('disabled', 'true');
       setStatus('Contacting checkout...', 'info');
       try {
@@ -179,7 +272,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           body: JSON.stringify({
             cart: items,
             marketingOptIn:
-              marketingCheckbox instanceof HTMLInputElement ? marketingCheckbox.checked : false
+              marketingCheckbox instanceof HTMLInputElement ? marketingCheckbox.checked : false,
+            shippingDestination
           })
         });
         const data = await response.json().catch(() => ({}));

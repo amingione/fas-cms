@@ -43,6 +43,12 @@ const escapeHtml = (input: unknown): string =>
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 
+const sanitizeString = (value?: string | null | undefined): string | null => {
+  if (value == null) return null;
+  const trimmed = String(value).trim();
+  return trimmed || null;
+};
+
 const formatOrderDate = (iso?: string | null, createdAtSeconds?: number | null): string => {
   let date: Date;
   if (iso) {
@@ -164,6 +170,17 @@ export async function POST({ request }: { request: Request }) {
   switch (event.type) {
     case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session;
+      const existingOrderId = await sanity.fetch<string | null>(
+        '*[_type == "order" && stripeSessionId == $sessionId][0]._id',
+        {sessionId: session.id}
+      );
+      if (existingOrderId) {
+        console.log('[astro webhook] order already exists for session', {
+          sessionId: session.id,
+          orderId: existingOrderId
+        });
+        return new Response('Order already processed', {status: 200});
+      }
       const sessionMetadata = (session.metadata || {}) as Record<string, string | null | undefined>;
       const customerEmailFromMetadata: string | undefined =
         sessionMetadata.customer_email || undefined;
@@ -526,6 +543,29 @@ export async function POST({ request }: { request: Request }) {
 
         const shippingDetails = sessionDetails.collected_information?.shipping_details || null;
         const customerDetails = sessionDetails.customer_details;
+        const shippingRate = sessionDetails.shipping_rate || null;
+        const shippingRateMetadata =
+          shippingRate?.metadata && typeof shippingRate.metadata === 'object'
+            ? (shippingRate.metadata as Record<string, string | null | undefined>)
+            : {};
+        const sessionMetadata = (sessionDetails.metadata || {}) as Record<
+          string,
+          string | null | undefined
+        >;
+        const extractShippingMeta = (key: string): string | null => {
+          const candidate =
+            sanitizeString(shippingRateMetadata[key]) ?? sanitizeString(sessionMetadata[key]);
+          return candidate;
+        };
+        const shippingQuoteId = extractShippingMeta('shipping_quote_id');
+        const shippingQuoteKey = extractShippingMeta('shipping_quote_key');
+        const shippingQuoteRequestId = extractShippingMeta('shipping_quote_request_id');
+        const easyPostShipmentId = extractShippingMeta('easy_post_shipment_id');
+        const selectedRateId = extractShippingMeta('selected_rate_id');
+        const shippingCarrier =
+          extractShippingMeta('shipping_carrier') ?? extractShippingMeta('carrier') ?? null;
+        const shippingService =
+          extractShippingMeta('shipping_service') ?? extractShippingMeta('service') ?? null;
         const shippingAddress = shippingDetails?.address
           ? {
               name: shippingDetails.name || '',
@@ -612,9 +652,22 @@ export async function POST({ request }: { request: Request }) {
           status: 'paid',
           createdAt: new Date().toISOString(),
           orderType: orderTypeFromMetadata,
-          carrier: sessionDetails.metadata?.shipping_carrier || null,
-          service: sessionDetails.metadata?.shipping_service || null,
-          easypostRateId: sessionDetails.metadata?.easypost_rate_id || null,
+          carrier:
+            shippingCarrier ??
+            sessionMetadata?.shipping_carrier ??
+            sessionDetails.metadata?.shipping_carrier ??
+            null,
+          service:
+            shippingService ??
+            sessionMetadata?.shipping_service ??
+            sessionDetails.metadata?.shipping_service ??
+            null,
+          easypostRateId:
+            selectedRateId ?? sessionMetadata?.easypost_rate_id ?? sessionDetails.metadata?.easypost_rate_id ?? null,
+          shippingQuoteId: shippingQuoteId ?? undefined,
+          shippingQuoteKey: shippingQuoteKey ?? undefined,
+          shippingQuoteRequestId: shippingQuoteRequestId ?? undefined,
+          easyPostShipmentId: easyPostShipmentId ?? undefined,
           shippingAddress,
           billingAddress,
           paymentCaptured,

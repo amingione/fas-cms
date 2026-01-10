@@ -82,6 +82,17 @@ export const checkoutCartItemSchema = z
   })
   .passthrough();
 
+export const checkoutShippingDestinationSchema = z
+  .object({
+    addressLine1: z.string().min(1),
+    addressLine2: z.string().optional(),
+    city: z.string().min(1),
+    state: z.string().min(1),
+    postalCode: z.string().min(1),
+    country: z.string().min(2)
+  })
+  .passthrough();
+
 export const checkoutRequestSchema = z
   .object({
     cart: z.array(checkoutCartItemSchema).min(1),
@@ -104,7 +115,8 @@ export const checkoutRequestSchema = z
     utmTerm: z.string().optional(),
     utm_term: z.string().optional(),
     utmContent: z.string().optional(),
-    utm_content: z.string().optional()
+    utm_content: z.string().optional(),
+    shippingDestination: checkoutShippingDestinationSchema.optional()
   })
   .passthrough();
 
