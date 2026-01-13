@@ -511,15 +511,6 @@ export async function POST({ request }: { request: Request }) {
 
   const productLookup = await fetchShippingProductsForCart(cart as CheckoutCartItem[]);
   const shippingRequired = requiresShippingSelection(cart as CheckoutCartItem[]);
-  const configuredShippingRateIds = String(
-    (import.meta.env.STRIPE_SHIPPING_RATE_IDS as string | undefined) ||
-      process.env.STRIPE_SHIPPING_RATE_IDS ||
-      ''
-  )
-    .split(',')
-    .map((value) => value.trim())
-    .filter(Boolean);
-
   const resolveBooleanEnv = (value: unknown): boolean => {
     if (typeof value === 'boolean') return value;
     if (typeof value !== 'string') return false;
@@ -527,27 +518,48 @@ export async function POST({ request }: { request: Request }) {
     return normalized === '1' || normalized === 'true' || normalized === 'yes' || normalized === 'on';
   };
 
+const useDynamicShippingRates = (() => {
+  const raw =
+    (import.meta.env.STRIPE_USE_DYNAMIC_SHIPPING_RATES as string | undefined) ||
+    process.env.STRIPE_USE_DYNAMIC_SHIPPING_RATES;
+  if (raw === undefined) return true;
+  return resolveBooleanEnv(raw);
+})();
+
+const configuredShippingRateIds = useDynamicShippingRates
+  ? []
+  : String(
+      (import.meta.env.STRIPE_SHIPPING_RATE_IDS as string | undefined) ||
+        process.env.STRIPE_SHIPPING_RATE_IDS ||
+        ''
+    )
+      .split(',')
+      .map((value) => value.trim())
+      .filter(Boolean);
+
   const allowMissingShippingRates =
     import.meta.env.DEV ||
     resolveBooleanEnv(import.meta.env.STRIPE_ALLOW_MISSING_SHIPPING_RATES) ||
     resolveBooleanEnv(process.env.STRIPE_ALLOW_MISSING_SHIPPING_RATES);
 
-  const allowedShippingRateIds =
-    shippingRequired && configuredShippingRateIds.length
-      ? await filterUpsShippingRateIds(configuredShippingRateIds)
-      : configuredShippingRateIds;
+const allowedShippingRateIds =
+  shippingRequired && configuredShippingRateIds.length
+    ? await filterUpsShippingRateIds(configuredShippingRateIds)
+    : configuredShippingRateIds;
 
+const needsFallbackShippingOption =
+  !useDynamicShippingRates && shippingRequired && !allowedShippingRateIds.length;
+
+if (!useDynamicShippingRates) {
   if (shippingRequired && configuredShippingRateIds.length && !allowedShippingRateIds.length) {
     return jsonResponse(
       {
         error:
-          'UPS-only shipping is enforced, but no UPS Stripe shipping rates are configured. Update STRIPE_SHIPPING_RATE_IDS with UPS rates.',
+          'UPS-only shipping is enforced, but no UPS Stripe shipping rates are configured. Update STRIPE_SHIPPING_RATE_IDS with UPS rates.'
       },
       422
     );
   }
-
-  const needsFallbackShippingOption = shippingRequired && !allowedShippingRateIds.length;
 
   if (needsFallbackShippingOption && !allowMissingShippingRates) {
     return jsonResponse(
@@ -558,6 +570,7 @@ export async function POST({ request }: { request: Request }) {
       422
     );
   }
+}
 
   const cleanLabel = (value?: string | null): string => {
     if (!value) return '';
@@ -817,7 +830,7 @@ export async function POST({ request }: { request: Request }) {
       });
     }
 
-    if (needsFallbackShippingOption) {
+  if (needsFallbackShippingOption) {
       metadataForSession.selected_rate_id = metadataForSession.selected_rate_id || 'fallback';
       metadataForSession.shipping_carrier = metadataForSession.shipping_carrier || 'Shipping';
       metadataForSession.shipping_service =
@@ -831,9 +844,12 @@ export async function POST({ request }: { request: Request }) {
     const paymentIntentMetadata = { ...metadataForSession };
     paymentIntentMetadata.ship_status = shippingRequired ? 'unshipped' : 'unshippable';
 
-    const shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] | undefined =
-      shippingRequired
-        ? needsFallbackShippingOption
+  const shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] | undefined =
+    !shippingRequired
+      ? undefined
+      : useDynamicShippingRates
+        ? undefined
+        : needsFallbackShippingOption
           ? [
               {
                 shipping_rate_data: {
@@ -844,8 +860,7 @@ export async function POST({ request }: { request: Request }) {
                 }
               }
             ]
-          : allowedShippingRateIds.map((id) => ({ shipping_rate: id }))
-        : undefined;
+          : allowedShippingRateIds.map((id) => ({ shipping_rate: id }));
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       // Offer standard cards plus Affirm financing at checkout
