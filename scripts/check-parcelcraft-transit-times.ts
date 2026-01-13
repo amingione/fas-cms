@@ -3,12 +3,13 @@
  * Script to check what transit times Parcelcraft is sending for UPS Ground
  * 
  * Usage:
- *   tsx scripts/check-parcelcraft-transit-times.ts <checkout_session_id>
+ *   yarn tsx scripts/check-parcelcraft-transit-times.ts <checkout_session_id>
  * 
  * Example:
- *   tsx scripts/check-parcelcraft-transit-times.ts cs_test_abc123
+ *   yarn tsx scripts/check-parcelcraft-transit-times.ts cs_test_abc123
  */
 
+import 'dotenv/config';
 import Stripe from 'stripe';
 
 const stripeSecret = process.env.STRIPE_SECRET_KEY;
