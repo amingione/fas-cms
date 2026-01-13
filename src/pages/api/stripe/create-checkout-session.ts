@@ -757,7 +757,7 @@ if (!useDynamicShippingRates) {
         allowed_countries: allowedCountries
       };
 
-    const customerEmail = userEmail || undefined;
+    let customerEmail = userEmail || undefined;
 
     const bodyRecord = body && typeof body === 'object' ? (body as Record<string, unknown>) : {};
     const metadataInput = requestMetadata && typeof requestMetadata === 'object'
@@ -814,7 +814,9 @@ if (!useDynamicShippingRates) {
     if (requestCustomerName) metadataForSession.customer_name = requestCustomerName;
     if (requestCustomerPhone) metadataForSession.customer_phone = requestCustomerPhone;
 
-    if (userEmail && !metadataForSession.customer_email) {
+    if (requestCustomerEmail) {
+      customerEmail = requestCustomerEmail;
+    } else if (userEmail && !metadataForSession.customer_email) {
       metadataForSession.customer_email = userEmail;
     }
 
@@ -872,7 +874,6 @@ if (!useDynamicShippingRates) {
         metadata: paymentIntentMetadata
       },
       client_reference_id: metadataForSession.cart_id,
-      locale: 'en',
       tax_id_collection: { enabled: true },
       // Enable Stripe Tax for automatic sales tax calculation
       automatic_tax: { enabled: true },
