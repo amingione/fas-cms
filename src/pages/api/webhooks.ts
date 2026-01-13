@@ -2,6 +2,7 @@ import Stripe from 'stripe';
 import { createClient } from '@sanity/client';
 import type { SanityDocumentStub } from '@sanity/client';
 import { createOrderCartItem, type OrderCartItem } from '@/server/sanity/order-cart';
+import { extractResendMessageId, safeJsonParse } from '@/lib/resend';
 
 const stripeApiVersion = (import.meta.env.STRIPE_API_VERSION as string | undefined) || '2025-08-27.basil';
 
@@ -47,6 +48,11 @@ const sanitizeString = (value?: string | null | undefined): string | null => {
   if (value == null) return null;
   const trimmed = String(value).trim();
   return trimmed || null;
+};
+
+const parseResendResponse = async (response: Response) => {
+  const rawText = await response.text().catch(() => '');
+  return { body: safeJsonParse(rawText), rawText };
 };
 
 const formatOrderDate = (iso?: string | null, createdAtSeconds?: number | null): string => {
@@ -172,6 +178,44 @@ export async function POST({ request }: { request: Request }) {
 
   // Handle event types
   switch (event.type) {
+    case 'payment_intent.updated': {
+      const paymentIntent = event.data.object as Stripe.PaymentIntent;
+      const metadata = (paymentIntent.metadata || {}) as Record<string, string | null | undefined>;
+
+      const shipStatus = sanitizeString(metadata.ship_status);
+      const shipDate = sanitizeString(metadata.ship_date);
+      const trackingNumber = sanitizeString(metadata.tracking_number);
+      const trackingUrl = sanitizeString(metadata.tracking_URL) ?? sanitizeString(metadata.tracking_url);
+      const serviceName = sanitizeString(metadata.service_name);
+
+      const hasParcelcraftSignal = Boolean(shipStatus || shipDate || trackingNumber || trackingUrl || serviceName);
+      if (!hasParcelcraftSignal) {
+        return new Response('Ignored payment_intent.updated', { status: 200 });
+      }
+
+      try {
+        const orderId = await sanity.fetch<string | null>(
+          '*[_type == "order" && paymentIntentId == $piId][0]._id',
+          { piId: paymentIntent.id }
+        );
+        if (!orderId) {
+          return new Response('No matching order', { status: 200 });
+        }
+
+        const patch = sanity.patch(orderId);
+        if (shipDate) patch.set({ shippedAt: shipDate });
+        if (trackingNumber) patch.set({ trackingNumber });
+        if (trackingUrl) patch.set({ trackingUrl });
+        if (serviceName) patch.set({ service: serviceName });
+
+        await patch.commit({ autoGenerateArrayKeys: true });
+      } catch (err) {
+        console.error('[astro webhook] failed to sync Parcelcraft metadata from PaymentIntent', err);
+        return new Response('Failed to sync Parcelcraft metadata', { status: 500 });
+      }
+
+      return new Response('Synced payment_intent.updated', { status: 200 });
+    }
     case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session;
       const existingOrderId = await sanity.fetch<string | null>(
@@ -199,21 +243,34 @@ export async function POST({ request }: { request: Request }) {
       console.log('✅ Payment confirmed for session:', session.id);
       console.log('Customer Email:', session.customer_details?.email);
 
-      try {
-        let sessionDetails: Stripe.Checkout.Session = session;
         try {
-          sessionDetails = await stripe.checkout.sessions.retrieve(session.id, {
-            expand: ['line_items.data.price.product']
-          });
-        } catch (error) {
-          console.warn('[astro webhook] unable to retrieve expanded session', error);
-        }
+          let sessionDetails: Stripe.Checkout.Session = session;
+          try {
+            sessionDetails = await stripe.checkout.sessions.retrieve(session.id, {
+              expand: ['line_items.data.price.product']
+            });
+          } catch (error) {
+            console.warn('[astro webhook] unable to retrieve expanded session', error);
+          }
 
-        // Fetch line items to capture cart details
-        const lineItems =
-          sessionDetails.line_items?.data && sessionDetails.line_items.data.length
-            ? sessionDetails.line_items.data
-            : (
+          // Parcelcraft: persist "company" onto the Stripe Customer record so it can be used in labels.
+          try {
+            const company = sessionDetails.custom_fields?.find((field) => field.key === 'company')
+              ?.text?.value;
+            const normalizedCompany = sanitizeString(company);
+            const customerId = typeof sessionDetails.customer === 'string' ? sessionDetails.customer : null;
+            if (normalizedCompany && customerId) {
+              await stripe.customers.update(customerId, { metadata: { company: normalizedCompany } });
+            }
+          } catch (err) {
+            console.warn('[astro webhook] unable to update Stripe customer company metadata', err);
+          }
+
+          // Fetch line items to capture cart details
+          const lineItems =
+            sessionDetails.line_items?.data && sessionDetails.line_items.data.length
+              ? sessionDetails.line_items.data
+              : (
                 await stripe.checkout.sessions.listLineItems(sessionDetails.id, { limit: 100 })
               ).data;
 
@@ -545,10 +602,23 @@ export async function POST({ request }: { request: Request }) {
               }
             : null;
 
-        const shippingDetails = sessionDetails.collected_information?.shipping_details || null;
+        const shippingDetails =
+          sessionDetails.collected_information?.shipping_details ||
+          (sessionDetails as any)?.shipping_details ||
+          null;
         const customerDetails = sessionDetails.customer_details;
-        const sessionWithShippingRate = sessionDetails as StripeSessionWithShippingRate;
-        const shippingRate = sessionWithShippingRate.shipping_rate ?? null;
+        const shippingCost = (sessionDetails as any)?.shipping_cost as
+          | Stripe.Checkout.Session.ShippingCost
+          | null
+          | undefined;
+        const shippingRate =
+          shippingCost && typeof shippingCost.shipping_rate === 'object'
+            ? (shippingCost.shipping_rate as Stripe.ShippingRate)
+            : null;
+        const shippingRateId =
+          shippingCost && typeof shippingCost.shipping_rate === 'string'
+            ? shippingCost.shipping_rate
+            : shippingRate?.id ?? null;
         const shippingRateMetadata =
           shippingRate?.metadata && typeof shippingRate.metadata === 'object'
             ? (shippingRate.metadata as Record<string, string | null | undefined>)
@@ -565,10 +635,12 @@ export async function POST({ request }: { request: Request }) {
         const shippingQuoteId = extractShippingMeta('shipping_quote_id');
         const shippingQuoteKey = extractShippingMeta('shipping_quote_key');
         const shippingQuoteRequestId = extractShippingMeta('shipping_quote_request_id');
-        const easyPostShipmentId = extractShippingMeta('easy_post_shipment_id');
-        const selectedRateId = extractShippingMeta('selected_rate_id');
+        const selectedRateId = extractShippingMeta('selected_rate_id') ?? shippingRateId;
         const shippingCarrier =
-          extractShippingMeta('shipping_carrier') ?? extractShippingMeta('carrier') ?? null;
+          extractShippingMeta('shipping_carrier') ??
+          extractShippingMeta('carrier') ??
+          sanitizeString(shippingRate?.display_name) ??
+          null;
         const shippingService =
           extractShippingMeta('shipping_service') ?? extractShippingMeta('service') ?? null;
         const shippingAddress = shippingDetails?.address
@@ -667,12 +739,9 @@ export async function POST({ request }: { request: Request }) {
             sessionMetadata?.shipping_service ??
             sessionDetails.metadata?.shipping_service ??
             null,
-          easypostRateId:
-            selectedRateId ?? sessionMetadata?.easypost_rate_id ?? sessionDetails.metadata?.easypost_rate_id ?? null,
           shippingQuoteId: shippingQuoteId ?? undefined,
           shippingQuoteKey: shippingQuoteKey ?? undefined,
           shippingQuoteRequestId: shippingQuoteRequestId ?? undefined,
-          easyPostShipmentId: easyPostShipmentId ?? undefined,
           shippingAddress,
           billingAddress,
           paymentCaptured,
@@ -905,19 +974,32 @@ export async function POST({ request }: { request: Request }) {
             </div>
           </div>`;
 
-        await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${RESEND_API_KEY}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            from: RESEND_FROM,
-            to,
-            subject: `Your FAS Motorsports Order Confirmation – ${orderNumber}`,
-            html
-          })
-        }).catch((e) => console.warn('Email send failed', e));
+        try {
+          const response = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${RESEND_API_KEY}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              from: RESEND_FROM,
+              to,
+              subject: `Your FAS Motorsports Order Confirmation – ${orderNumber}`,
+              html
+            })
+          });
+          const { body, rawText } = await parseResendResponse(response);
+          if (!extractResendMessageId(body)) {
+            console.warn('[astro webhook] resend confirmation email missing id', {
+              orderNumber
+            });
+          }
+          if (!response.ok) {
+            console.warn('[astro webhook] confirmation email failed', response.status, rawText);
+          }
+        } catch (error) {
+          console.warn('Email send failed', error);
+        }
 
         // Create email log
         await sanity
@@ -966,19 +1048,32 @@ export async function POST({ request }: { request: Request }) {
               <tbody>${rows}</tbody>
             </table>
           </div>`;
-        await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${RESEND_API_KEY}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            from: RESEND_FROM,
-            to: ['sales@fasmotorsports.com', 'info@fasmotorsports.com'],
-            subject: `New Order: ${orderNumber}`,
-            html: internalHtml
-          })
-        }).catch((e) => console.warn('Internal email send failed', e));
+        try {
+          const response = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${RESEND_API_KEY}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              from: RESEND_FROM,
+              to: ['sales@fasmotorsports.com', 'info@fasmotorsports.com'],
+              subject: `New Order: ${orderNumber}`,
+              html: internalHtml
+            })
+          });
+          const { body, rawText } = await parseResendResponse(response);
+          if (!extractResendMessageId(body)) {
+            console.warn('[astro webhook] resend internal email missing id', {
+              orderNumber
+            });
+          }
+          if (!response.ok) {
+            console.warn('Internal email send failed', response.status, rawText);
+          }
+        } catch (error) {
+          console.warn('Internal email send failed', error);
+        }
       }
     } catch (err) {
       console.error('❌ Failed to save order to Sanity:', err);

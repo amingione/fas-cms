@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type MouseEvent } from 'react';
 import { CartProvider, useCart } from '@/components/cart/cart-context';
 import type { CartItem } from '@/components/cart/actions';
 import { QuestionMarkCircleIcon, XMarkIcon } from '@heroicons/react/20/solid';
@@ -99,6 +99,7 @@ function CartContents() {
     useCart();
   const [clearing, setClearing] = useState(false);
   const [checkingOut, setCheckingOut] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   const items = cart?.items ?? [];
   const hasItems = items.length > 0;
@@ -207,9 +208,19 @@ function CartContents() {
     }
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setCheckoutError(null);
     setCheckingOut(true);
-    void redirectToCheckout();
+    try {
+      const result = await redirectToCheckout();
+      if (typeof result === 'string' && result) {
+        setCheckoutError(result);
+      }
+    } finally {
+      setCheckingOut(false);
+    }
   };
 
   const formattedSubtotal = formatPrice(subtotal || 0);
@@ -503,12 +514,15 @@ function CartContents() {
 
               <button
                 type="button"
-                onClick={() => void handleCheckout()}
+                onClick={handleCheckout}
                 disabled={checkingOut}
                 className="w-full rounded-full bg-primary px-6 py-3 text-sm font-semibold uppercase tracking-wide text-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
               >
-              {checkingOut ? 'Connecting…' : 'Continue to Checkout'}
-            </button>
+                {checkingOut ? 'Connecting…' : 'Continue to Checkout'}
+              </button>
+              {checkoutError && (
+                <p className="mt-2 text-xs text-red-400">{checkoutError}</p>
+              )}
           </aside>
           </div>
         )}

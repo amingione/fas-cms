@@ -1,9 +1,0 @@
----
-import BaseLayout from '../../layouts/BaseLayout.astro'
-import CheckoutPageApp from '@components/checkout/CheckoutPageApp'
-const canonical = `${new URL(Astro.request.url).origin}/checkout`
----
-
-<BaseLayout title="Checkout" canonical={canonical}>
-  <CheckoutPageApp client:load />
-</BaseLayout>

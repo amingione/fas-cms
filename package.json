@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development NETLIFY_DEV=1 astro dev",
+    "dev": "dotenv -e .env -- cross-env NODE_ENV=development NETLIFY_DEV=1 astro dev",
     "build": "cross-env NODE_ENV=production astro build",
     "preview": "cross-env NODE_ENV=production astro preview",
     "lint": "eslint \"src/**/*.{js,ts,jsx,tsx}\"",
@@ -16,6 +16,7 @@
     "prepare": "husky install",
     "merchant:upload": "tsx scripts/merchant/upload-google-merchant-feed.ts",
     "stripe:sync": "tsx scripts/stripe/sync-products.ts",
+    "resend-flow-check": "tsx scripts/resend-flow-check.ts",
     "astro:check": "cross-env BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA=1 BROWSERSLIST_IGNORE_OLD_DATA=1 astro check --minimumSeverity warning"
   },
   "depcheck": {

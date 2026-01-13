@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises'
 import { describe, it, expect } from 'vitest'
 
-const checkoutPath = new URL('../src/pages/api/checkout.ts', import.meta.url)
+const checkoutPath = new URL('../src/pages/api/stripe/create-checkout-session.ts', import.meta.url)
 const forbiddenTerms = [
   'fetchLiveShippingQuote',
   'getShippingQuoteBySkus',

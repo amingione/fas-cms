@@ -74,7 +74,7 @@ export const GET: APIRoute = async ({ params, request }) => {
     ]
   };
 
-  const checkoutUrl = new URL('/api/checkout', origin);
+  const checkoutUrl = new URL('/api/stripe/create-checkout-session', origin);
   let response: Response;
   try {
     response = await fetch(checkoutUrl, {

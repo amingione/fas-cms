@@ -201,5 +201,36 @@ export async function createCartAndSetCookie() {
 // Redirect to the checkout page so the flow can complete on the dedicated checkout form.
 export async function redirectToCheckout() {
   if (!isBrowser()) return;
-  window.location.href = '/checkout';
+
+  const cart = getCart();
+  if (!Array.isArray(cart.items) || cart.items.length === 0) {
+    return 'Your cart is empty.';
+  }
+
+  try {
+    const response = await fetch('/api/stripe/create-checkout-session', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ cart: cart.items })
+    });
+
+    let payload: any = null;
+    try {
+      payload = (await response.json()) as any;
+    } catch {
+      payload = null;
+    }
+
+    if (!response.ok || !payload?.url) {
+      console.error('Checkout session creation failed', response.status, payload);
+      return payload?.error || 'Unable to start checkout. Please try again.';
+    }
+
+    window.location.href = payload.url;
+  } catch (error) {
+    console.error('Checkout redirect failed', error);
+    return 'Unable to start checkout. Please try again.';
+  }
 }

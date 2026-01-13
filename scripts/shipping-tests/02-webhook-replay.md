@@ -22,7 +22,6 @@ Run the same command twice.
   - shipping_quote_key
   - shipping_quote_request_id
   - shipping_quote_id
-  - easy_post_shipment_id
   - selected_rate_id
 - No second order is created.
 

@@ -19,20 +19,18 @@ payload='{
 
 echo "1) First quote call..."
 r1="$(curl -sS -X POST "$QUOTE_URL" -H "Content-Type: application/json" -d "$payload")"
-echo "$r1" | python3 -c 'import sys,json; d=json.load(sys.stdin); print("shipment:", d.get("easyPostShipmentId"), "quoteKey:", d.get("quoteKey"))'
-s1="$(echo "$r1" | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get("easyPostShipmentId") or "")')"
+echo "$r1" | python3 -c 'import sys,json; d=json.load(sys.stdin); print("quoteKey:", d.get("quoteKey"))'
 k1="$(echo "$r1" | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get("quoteKey") or "")')"
 
 echo "2) Second quote call (same cart/address)..."
 payload2="$(echo "$payload" | python3 -c "import sys,json; d=json.load(sys.stdin); d['quoteRequestId']='test-req-2'; d['quoteKey']='$k1'; print(json.dumps(d))")"
 r2="$(curl -sS -X POST "$QUOTE_URL" -H "Content-Type: application/json" -d "$payload2")"
-echo "$r2" | python3 -c 'import sys,json; d=json.load(sys.stdin); print("shipment:", d.get("easyPostShipmentId"), "quoteKey:", d.get("quoteKey"))'
-s2="$(echo "$r2" | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get("easyPostShipmentId") or "")')"
+echo "$r2" | python3 -c 'import sys,json; d=json.load(sys.stdin); print("quoteKey:", d.get("quoteKey"))'
 k2="$(echo "$r2" | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get("quoteKey") or "")')"
 
 echo
-if [[ -z "$s1" || -z "$s2" ]]; then
-  echo "FAIL: Missing shipmentId in response"
+if [[ -z "$k1" || -z "$k2" ]]; then
+  echo "FAIL: Missing quoteKey in response"
   exit 1
 fi
 
@@ -41,9 +39,4 @@ if [[ "$k1" != "$k2" ]]; then
   exit 1
 fi
 
-if [[ "$s1" != "$s2" ]]; then
-  echo "FAIL: shipmentId changed for identical inputs ($s1 vs $s2)"
-  exit 1
-fi
-
-echo "PASS: Same quoteKey + same shipmentId reused."
+echo "PASS: Same quoteKey reused."

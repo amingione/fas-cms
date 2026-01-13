@@ -41,3 +41,4 @@ node_modules/
 .yarnrc.yml
 yarn.lock.netlify/plugins/
 .astro/
+docs/

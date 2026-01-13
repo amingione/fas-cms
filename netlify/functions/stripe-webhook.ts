@@ -5,6 +5,7 @@ import { stripe } from './_stripe';
 import { sanity } from './_sanity';
 import type { SanityDocumentStub } from '@sanity/client';
 import { sendEmail } from './_resend';
+import { extractResendMessageId } from '../../src/lib/resend';
 import { createOrderCartItem, type OrderCartItem } from '../../src/server/sanity/order-cart';
 import {
   type InventoryOrderItem,
@@ -1035,11 +1036,17 @@ export const handler: Handler = async (event) => {
               </div>
             </div>`;
 
-          await sendEmail({
+          const emailResponse = await sendEmail({
             to,
             subject: `Your FAS Motorsports Order Confirmation – ${orderNumber}`,
             html
           });
+          if (!extractResendMessageId(emailResponse)) {
+            console.warn('[stripe-webhook] resend confirmation email returned no id', {
+              orderId,
+              orderNumber
+            });
+          }
 
           if (orderId) {
             const patch = sanity.patch(orderId).set({ confirmationEmailSent: true });

@@ -67,6 +67,7 @@ export const checkoutCartItemSchema = z
     sku: z.string().optional(),
     name: z.string().min(1),
     price: z.number(),
+    stripePriceId: z.string().optional(),
     quantity: z.number(),
     image: z.string().optional(),
     productUrl: z.string().optional(),
@@ -82,36 +83,36 @@ export const checkoutCartItemSchema = z
   })
   .passthrough();
 
-export const checkoutShippingDestinationSchema = z
-  .object({
-    addressLine1: z.string().min(1),
-    addressLine2: z.string().optional(),
-    city: z.string().min(1),
-    state: z.string().min(1),
-    postalCode: z.string().min(1),
-    country: z.string().min(2)
-  })
-  .passthrough();
-
-export const checkoutSelectedRateSchema = z
+const checkoutShippingRateSchema = z
   .object({
     id: z.string().min(1),
-    provider: z.string().min(1),
     carrier: z.string().min(1),
     service: z.string().min(1),
     amountCents: z.number().int().nonnegative(),
-    currency: z.string().min(1),
-    estDays: z.number().optional()
+    currency: z.string().min(1).optional(),
+    estDays: z.number().int().optional(),
+    quoteId: z.string().optional(),
+    quoteKey: z.string().optional(),
+    quoteRequestId: z.string().optional(),
+    carrierId: z.string().optional(),
+    serviceCode: z.string().optional(),
+    packageCode: z.string().optional(),
+    packagingWeight: z.number().optional(),
+    packagingWeightUnit: z.string().optional(),
+    length: z.number().optional(),
+    width: z.number().optional(),
+    height: z.number().optional(),
+    provider: z.string().optional()
   })
   .passthrough();
 
-export const checkoutRequestSchema = z
+export const stripeCheckoutRequestSchema = z
   .object({
     cart: z.array(checkoutCartItemSchema).min(1),
-    marketingOptIn: z.boolean().optional(),
-    shippingAddress: checkoutShippingDestinationSchema,
-    selectedRate: checkoutSelectedRateSchema,
+    shippingRate: checkoutShippingRateSchema.optional(),
+    selectedRate: checkoutShippingRateSchema.optional(),
     metadata: z.record(z.unknown()).optional(),
+    marketingOptIn: z.boolean().optional(),
     utmSource: z.string().optional(),
     utm_source: z.string().optional(),
     utmMedium: z.string().optional(),

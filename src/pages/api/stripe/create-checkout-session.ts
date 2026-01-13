@@ -1,26 +1,19 @@
 /**
- * Validation-only Stripe Checkout session endpoint.
+ * Hosted Stripe Checkout session endpoint.
  *
- * Architectural contract:
- * - This endpoint ONLY validates cart, shippingAddress, and selectedRate.
- * - It MUST NEVER quote shipping rates.
- * - It MUST NEVER purchase shipping labels.
- *
- * Guardrails:
- * - docs/checkout/architecture.md
- * - tests/checkout.no-quote.spec.ts
- *
- * Any change that violates this contract must update the documentation
- * and the regression guard test.
+ * The storefront posts cart data. Stripe Shipping Rates configured in Stripe
+ * determine the available shipping options in Checkout. Any client changes
+ * that execute before the redirect must revalidate this flow and keep the hosted
+ * checkout UX as the single source of truth.
  */
 
 import Stripe from 'stripe';
 import { randomUUID } from 'crypto';
-import { readSession } from '../../server/auth/session';
-import { sanity } from '../../server/sanity-client';
+import { readSession } from '../../../server/auth/session';
+import { sanity } from '../../../server/sanity-client';
 import { getActivePrice, getCompareAtPrice, isOnSale } from '@/lib/saleHelpers';
 import { formatOptionSummary } from '@/lib/cart/format-option-summary';
-import { checkoutRequestSchema } from '@/lib/validators/api-requests';
+import { stripeCheckoutRequestSchema } from '@/lib/validators/api-requests';
 import { sanityProductSchema } from '@/lib/validators/sanity';
 import { resolveAllowedCountries } from '@/lib/shipping-countries';
 import { normalizeBaseUrl } from '@/lib/sanity-functions';
@@ -84,6 +77,7 @@ type CheckoutCartItem = {
   sku?: string;
   name: string;
   price: number;
+  stripePriceId?: string;
   quantity: number;
   image?: string;
   productUrl?: string;
@@ -100,7 +94,6 @@ type CheckoutCartItem = {
   signature?: string;
 };
 
-type ShippingDimensions = { length: number; width: number; height: number };
 type ShippingProduct = {
   _id: string;
   title?: string;
@@ -125,6 +118,26 @@ type ShippingProduct = {
     requiresShipping?: boolean | null;
     separateShipment?: boolean | null;
   } | null;
+};
+
+type CheckoutShippingRate = {
+  id: string;
+  carrier: string;
+  service: string;
+  amountCents: number;
+  currency?: string;
+  estDays?: number;
+  quoteId?: string;
+  quoteKey?: string;
+  quoteRequestId?: string;
+  carrierId?: string;
+  serviceCode?: string;
+  packageCode?: string;
+  packagingWeight?: number;
+  packagingWeightUnit?: string;
+  length?: number;
+  width?: number;
+  height?: number;
 };
 
 async function fetchShippingProductsForCart(
@@ -225,6 +238,50 @@ const toMetadataString = (value: unknown): string | undefined => {
   }
 };
 
+const readString = (value: unknown): string | undefined => {
+  if (value === undefined || value === null) return undefined;
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return trimmed || undefined;
+  }
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
+  }
+  return undefined;
+};
+
+const UPS_CARRIER_REGEX = /\bups\b/i;
+
+const resolveShippingCarrierLabel = (rate: Stripe.ShippingRate): string => {
+  const meta = (rate.metadata || {}) as Record<string, string | undefined>;
+  return (
+    meta.shipping_carrier ||
+    meta.carrier ||
+    meta.shipping_carrier_id ||
+    meta.carrier_id ||
+    rate.display_name ||
+    ''
+  );
+};
+
+async function filterUpsShippingRateIds(rateIds: string[]): Promise<string[]> {
+  if (!rateIds.length) return [];
+  const entries = await Promise.all(
+    rateIds.map(async (rateId) => {
+      try {
+        const rate = await stripe.shippingRates.retrieve(rateId);
+        const label = resolveShippingCarrierLabel(rate).trim();
+        const isUps = UPS_CARRIER_REGEX.test(label);
+        return { id: rateId, isUps, label };
+      } catch (error) {
+        console.warn('[checkout] Failed to load Stripe shipping rate', rateId, error);
+        return { id: rateId, isUps: false, label: '' };
+      }
+    })
+  );
+  return entries.filter((entry) => entry.isUps).map((entry) => entry.id);
+}
+
 export async function POST({ request }: { request: Request }) {
   // Resolve base URL: prefer explicit env var, else Origin header during dev/preview
   const origin = request.headers.get('origin') || '';
@@ -262,10 +319,10 @@ export async function POST({ request }: { request: Request }) {
     return jsonResponse({ error: 'Missing or invalid JSON body' }, 400);
   }
 
-  const bodyResult = checkoutRequestSchema.safeParse(body);
+  const bodyResult = stripeCheckoutRequestSchema.safeParse(body);
   if (!bodyResult.success) {
     console.error('[validation-failure]', {
-      schema: 'checkoutRequestSchema',
+    schema: 'stripeCheckoutRequestSchema',
       context: 'api/checkout',
       identifier: 'unknown',
       timestamp: new Date().toISOString(),
@@ -274,7 +331,7 @@ export async function POST({ request }: { request: Request }) {
     return jsonResponse({ error: 'Validation failed', details: bodyResult.error.format() }, 422);
   }
 
-  const { cart, shippingAddress, selectedRate, metadata: requestMetadata } = bodyResult.data;
+  const { cart, metadata: requestMetadata } = bodyResult.data;
   const clamp = (value: string, max = 500) => (value.length > max ? value.slice(0, max) : value);
 
   const formatSelectedOptions = (
@@ -443,7 +500,64 @@ export async function POST({ request }: { request: Request }) {
     return total > 0 ? Math.round(total * 100) / 100 : undefined;
   };
 
+  const requiresShippingSelection = (items: CheckoutCartItem[]): boolean => {
+    return items.some((item) => {
+      if (item.installOnly) return false;
+      const rawClass = typeof item.shippingClass === 'string' ? item.shippingClass : '';
+      const normalizedClass = rawClass.toLowerCase().replace(/[^a-z0-9]+/g, '');
+      return normalizedClass !== 'installonly';
+    });
+  };
+
   const productLookup = await fetchShippingProductsForCart(cart as CheckoutCartItem[]);
+  const shippingRequired = requiresShippingSelection(cart as CheckoutCartItem[]);
+  const configuredShippingRateIds = String(
+    (import.meta.env.STRIPE_SHIPPING_RATE_IDS as string | undefined) ||
+      process.env.STRIPE_SHIPPING_RATE_IDS ||
+      ''
+  )
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  const resolveBooleanEnv = (value: unknown): boolean => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value !== 'string') return false;
+    const normalized = value.trim().toLowerCase();
+    return normalized === '1' || normalized === 'true' || normalized === 'yes' || normalized === 'on';
+  };
+
+  const allowMissingShippingRates =
+    import.meta.env.DEV ||
+    resolveBooleanEnv(import.meta.env.STRIPE_ALLOW_MISSING_SHIPPING_RATES) ||
+    resolveBooleanEnv(process.env.STRIPE_ALLOW_MISSING_SHIPPING_RATES);
+
+  const allowedShippingRateIds =
+    shippingRequired && configuredShippingRateIds.length
+      ? await filterUpsShippingRateIds(configuredShippingRateIds)
+      : configuredShippingRateIds;
+
+  if (shippingRequired && configuredShippingRateIds.length && !allowedShippingRateIds.length) {
+    return jsonResponse(
+      {
+        error:
+          'UPS-only shipping is enforced, but no UPS Stripe shipping rates are configured. Update STRIPE_SHIPPING_RATE_IDS with UPS rates.',
+      },
+      422
+    );
+  }
+
+  const needsFallbackShippingOption = shippingRequired && !allowedShippingRateIds.length;
+
+  if (needsFallbackShippingOption && !allowMissingShippingRates) {
+    return jsonResponse(
+      {
+        error:
+          'Shipping is required, but no Stripe shipping rates are configured. Set STRIPE_SHIPPING_RATE_IDS, or set STRIPE_ALLOW_MISSING_SHIPPING_RATES=true to use a $0 placeholder rate (recommended only for dev).'
+      },
+      422
+    );
+  }
 
   const cleanLabel = (value?: string | null): string => {
     if (!value) return '';
@@ -462,6 +576,7 @@ export async function POST({ request }: { request: Request }) {
   };
 
   const lineItems = (cart as CheckoutCartItem[]).map((item) => {
+    const stripePriceId = typeof item.stripePriceId === 'string' ? item.stripePriceId.trim() : '';
     const rawId = typeof item.id === 'string' ? item.id : undefined;
     const sanityProductId = normalizeCartId(rawId);
     const product = sanityProductId ? productLookup[sanityProductId] : undefined;
@@ -493,6 +608,14 @@ export async function POST({ request }: { request: Request }) {
       console.warn('[checkout] Cart item missing price, defaulting to $0.00', item);
     }
     const quantity = Math.max(1, Number.isFinite(item.quantity) ? Number(item.quantity) : 1);
+
+    if (stripePriceId.startsWith('price_')) {
+      return {
+        price: stripePriceId,
+        quantity
+      } satisfies Stripe.Checkout.SessionCreateParams.LineItem;
+    }
+
     const optionDetails = formatSelectedOptions(
       item.options as Record<string, unknown> | null,
       item.selections
@@ -603,43 +726,6 @@ export async function POST({ request }: { request: Request }) {
     } satisfies Stripe.Checkout.SessionCreateParams.LineItem;
   });
 
-  if (!shippingAddress) {
-    return jsonResponse({ error: 'Shipping address is required' }, 400);
-  }
-
-  if (!selectedRate) {
-    return jsonResponse({ error: 'Selected shipping rate is required' }, 400);
-  }
-
-  const shippingAmountCents = Number(selectedRate.amountCents ?? 0);
-  if (!Number.isFinite(shippingAmountCents) || shippingAmountCents < 0) {
-    return jsonResponse({ error: 'Invalid shipping rate amount' }, 422);
-  }
-
-  const shippingCurrency = (selectedRate.currency || 'USD').toLowerCase();
-  const displayNameParts = [selectedRate.carrier, selectedRate.service]
-    .filter(Boolean)
-    .map((part) => part?.trim())
-    .filter(Boolean);
-  const shippingDisplayName = displayNameParts.join(' – ') || 'Shipping';
-
-  const shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] = [
-    {
-      shipping_rate_data: {
-        type: 'fixed_amount',
-        fixed_amount: { amount: Math.round(shippingAmountCents), currency: shippingCurrency },
-        display_name: shippingDisplayName,
-        metadata: {
-          shipping_provider: selectedRate.provider,
-          shipping_rate_id: selectedRate.id,
-          shipping_carrier: selectedRate.carrier,
-          shipping_service: selectedRate.service,
-          shipping_amount_cents: String(Math.round(shippingAmountCents))
-        }
-      }
-    }
-  ];
-
   // Derive optional user identity for reliable joins in webhook
   let userEmail: string | undefined;
   try {
@@ -660,25 +746,70 @@ export async function POST({ request }: { request: Request }) {
 
     const customerEmail = userEmail || undefined;
 
+    const bodyRecord = body && typeof body === 'object' ? (body as Record<string, unknown>) : {};
+    const metadataInput = requestMetadata && typeof requestMetadata === 'object'
+      ? (requestMetadata as Record<string, unknown>)
+      : {};
+    const cartId =
+      readString(bodyRecord.cartId) ||
+      readString(bodyRecord.cart_id) ||
+      readString(metadataInput.cart_id) ||
+      readString(metadataInput.cartId) ||
+      randomUUID();
+
     const metadataForSession: Record<string, string> = {
-      cart_id: randomUUID(),
-      shipping_provider: selectedRate.provider,
-      shipping_rate_id: selectedRate.id,
-      shipping_carrier: selectedRate.carrier,
-      shipping_service: selectedRate.service,
-      shipping_amount_cents: String(Math.round(shippingAmountCents)),
-      shipping_country: shippingAddress.country.toUpperCase(),
-      shipping_postal_code: shippingAddress.postalCode,
-      shipping_address_line1: shippingAddress.addressLine1,
-      shipping_city: shippingAddress.city,
-      shipping_state: shippingAddress.state
+      cart_id: cartId,
     };
-    if (shippingAddress.addressLine2) {
-      metadataForSession.shipping_address_line2 = shippingAddress.addressLine2;
+
+    const cartType =
+      readString(bodyRecord.cartType) ||
+      readString(bodyRecord.cart_type) ||
+      readString(metadataInput.cart_type) ||
+      readString(metadataInput.cartType);
+    if (cartType) {
+      metadataForSession.cart_type = cartType;
     }
-    if (requestMetadata && typeof requestMetadata === 'object') {
-      Object.entries(requestMetadata).forEach(([key, value]) => {
-        const normalizedKey = `request_${key}`;
+
+    const orderType =
+      readString(bodyRecord.orderType) ||
+      readString(bodyRecord.order_type) ||
+      readString(metadataInput.order_type) ||
+      readString(metadataInput.orderType);
+    if (orderType) {
+      metadataForSession.order_type = orderType;
+    }
+
+    const requestCustomerEmail =
+      readString(bodyRecord.customerEmail) ||
+      readString(bodyRecord.customer_email) ||
+      readString(metadataInput.customer_email) ||
+      readString(metadataInput.customerEmail);
+
+    const requestCustomerName =
+      readString(bodyRecord.customerName) ||
+      readString(bodyRecord.customer_name) ||
+      readString(metadataInput.customer_name) ||
+      readString(metadataInput.customerName);
+
+    const requestCustomerPhone =
+      readString(bodyRecord.customerPhone) ||
+      readString(bodyRecord.customer_phone) ||
+      readString(metadataInput.customer_phone) ||
+      readString(metadataInput.customerPhone);
+
+    if (requestCustomerEmail) metadataForSession.customer_email = requestCustomerEmail;
+    if (requestCustomerName) metadataForSession.customer_name = requestCustomerName;
+    if (requestCustomerPhone) metadataForSession.customer_phone = requestCustomerPhone;
+
+    if (userEmail && !metadataForSession.customer_email) {
+      metadataForSession.customer_email = userEmail;
+    }
+
+    if (metadataInput && typeof metadataInput === 'object') {
+      Object.entries(metadataInput).forEach(([key, value]) => {
+        const normalizedKey = key?.toString().trim();
+        if (!normalizedKey) return;
+        if (normalizedKey in metadataForSession) return;
         const normalizedValue = toMetadataString(value);
         if (normalizedValue) {
           metadataForSession[normalizedKey] = normalizedValue;
@@ -686,7 +817,35 @@ export async function POST({ request }: { request: Request }) {
       });
     }
 
+    if (needsFallbackShippingOption) {
+      metadataForSession.selected_rate_id = metadataForSession.selected_rate_id || 'fallback';
+      metadataForSession.shipping_carrier = metadataForSession.shipping_carrier || 'Shipping';
+      metadataForSession.shipping_service =
+        metadataForSession.shipping_service || 'Calculated after checkout';
+      metadataForSession.shipping_amount_cents = metadataForSession.shipping_amount_cents || '0';
+      metadataForSession.shipping_amount = metadataForSession.shipping_amount || '0.00';
+      metadataForSession.shipping_currency = metadataForSession.shipping_currency || 'usd';
+      metadataForSession.shipping_rate_fallback = 'true';
+    }
+
     const paymentIntentMetadata = { ...metadataForSession };
+    paymentIntentMetadata.ship_status = shippingRequired ? 'unshipped' : 'unshippable';
+
+    const shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] | undefined =
+      shippingRequired
+        ? needsFallbackShippingOption
+          ? [
+              {
+                shipping_rate_data: {
+                  type: 'fixed_amount',
+                  fixed_amount: { amount: 0, currency: 'usd' },
+                  display_name: 'Shipping (calculated after checkout)',
+                  metadata: { fallback: 'true' }
+                }
+              }
+            ]
+          : allowedShippingRateIds.map((id) => ({ shipping_rate: id }))
+        : undefined;
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       // Offer standard cards plus Affirm financing at checkout
@@ -697,6 +856,7 @@ export async function POST({ request }: { request: Request }) {
       payment_intent_data: {
         metadata: paymentIntentMetadata
       },
+      client_reference_id: metadataForSession.cart_id,
       locale: 'en',
       tax_id_collection: { enabled: true },
       // Enable Stripe Tax for automatic sales tax calculation
@@ -707,12 +867,17 @@ export async function POST({ request }: { request: Request }) {
       shipping_address_collection: shippingAddressCollection,
       success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/cart`,
-      consent_collection: { promotions: 'auto' }
+      consent_collection: { promotions: 'auto' },
+      ...(shippingOptions ? { shipping_options: shippingOptions } : {}),
+      custom_fields: [
+        {
+          key: 'company',
+          label: { type: 'custom', custom: 'Company' },
+          type: 'text',
+          optional: true
+        }
+      ]
     };
-
-    if (shippingOptions) {
-      sessionParams.shipping_options = shippingOptions;
-    }
 
     // Guard rail: Stripe rejects automatic tax when payment_intent_data.shipping is present.
     if (sessionParams.payment_intent_data && 'shipping' in sessionParams.payment_intent_data) {

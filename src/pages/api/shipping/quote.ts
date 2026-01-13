@@ -12,7 +12,7 @@ type ShippingQuoteRequest = {
 type ShippingQuoteResponse = {
   rates: Array<{
     id: string
-    provider: 'easypost'
+    provider: 'parcelcraft'
     carrier: string
     service: string
     amountCents: number
@@ -79,7 +79,7 @@ export const POST: APIRoute = async ({ request }) => {
           : undefined
         return {
           id,
-          provider: 'easypost',
+          provider: 'parcelcraft',
           carrier: carrier || 'Shipping',
           service: service || 'Shipping',
           amountCents,

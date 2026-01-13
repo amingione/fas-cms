@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { Resend } from 'resend';
 import { createQuoteRequest } from '@/server/sanity/quote-requests';
+import { extractResendMessageId } from '@/lib/resend';
 import { buildQuoteSchema } from '@/lib/validators/api-requests';
 
 const json = (data: any, init?: ResponseInit) =>
@@ -57,7 +58,8 @@ export const POST: APIRoute = async ({ request }) => {
           .join('')
       : '';
 
-    const summary = [vehicle ? `Vehicle: ${safe(vehicle)}` : '', `${items.length} item(s)`]
+    const safeVehicle = safe(vehicle);
+    const summary = [vehicle ? `Vehicle: ${safeVehicle}` : '', `${items.length} item(s)`]
       .filter(Boolean)
       .join(' — ');
 
@@ -88,6 +90,10 @@ export const POST: APIRoute = async ({ request }) => {
     } catch (err) {
       console.error('[build-quote] Failed to persist quote request', err);
     }
+
+    const quoteSubject = safeVehicle
+      ? `Build Quote Request — ${safeVehicle}`
+      : 'Build Quote Request';
 
     const html = `
       <div>
@@ -131,12 +137,15 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     try {
-      await resend.emails.send({
+      const sendResult = await resend.emails.send({
         from: resendFrom,
         to: [toAddress, safe(email)].filter(Boolean) as string[],
-        subject: `Build Quote Request — ${safe(vehicle)}`,
+        subject: quoteSubject,
         html
       });
+      if (!extractResendMessageId(sendResult)) {
+        console.warn('[build-quote] Resend response missing id', { quoteRequestId, subject: quoteSubject });
+      }
       return json({ ok: true, message: 'Quote sent', quoteRequestId }, { status: 200 });
     } catch (sendErr) {
       console.error('Resend send failed:', sendErr);
