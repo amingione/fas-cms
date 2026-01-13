@@ -4,7 +4,7 @@
 When creating a checkout in Stripe Dashboard with Parcelcraft dynamic rates, UPS Ground shipping always shows "1 day" delivery estimate regardless of the destination location.
 
 ## Root Cause
-This is a **Parcelcraft configuration issue**, not a code issue. Your code correctly reads delivery estimates from Parcelcraft/Stripe metadata - it doesn't set them. Parcelcraft is either:
+This is a Parcelcraft configuration issue, not a code issue. Your code correctly reads delivery estimates from Parcelcraft/Stripe metadata - it doesn't set them. Parcelcraft is either:
 1. Not querying UPS transit times properly
 2. Using a default/fallback value of 1 day
 3. Not configured to use UPS's Time-in-Transit API
@@ -12,28 +12,28 @@ This is a **Parcelcraft configuration issue**, not a code issue. Your code corre
 ## Solution: Configure Parcelcraft Transit Times
 
 ### Step 1: Access Parcelcraft Settings in Stripe
-1. Go to **Stripe Dashboard** → **Apps** → **Parcelcraft**
-2. Click on **Settings** or **Configuration**
+1. Go to Stripe Dashboard → Apps → Parcelcraft
+2. Click on Settings or Configuration
 
 ### Step 2: Check UPS Integration Settings
 Look for settings related to:
-- **UPS Time-in-Transit API** - Should be enabled
-- **Transit Time Calculation** - Should use UPS's actual transit time data
-- **Default Transit Times** - Should NOT be hardcoded to 1 day
+- UPS Time-in-Transit API - Should be enabled
+- Transit Time Calculation - Should use UPS's actual transit time data
+- Default Transit Times - Should NOT be hardcoded to 1 day
 
 ### Step 3: Verify UPS Service Configuration
-In Parcelcraft settings, check the **UPS Ground** service configuration:
-- **Transit Time Source**: Should be "UPS API" or "Dynamic" (not "Fixed" or "Default")
-- **Minimum Transit Days**: Should be empty or set to actual minimum (typically 1-2 days)
-- **Maximum Transit Days**: Should be empty or set to actual maximum (typically 5-8 days for Ground)
+In Parcelcraft settings, check the UPS Ground service configuration:
+- Transit Time Source: Should be "UPS API" or "Dynamic" (not "Fixed" or "Default")
+- Minimum Transit Days: Should be empty or set to actual minimum (typically 1-2 days)
+- Maximum Transit Days: Should be empty or set to actual maximum (typically 5-8 days for Ground)
 
 ### Step 4: Test with Different Addresses
 After updating settings:
 1. Create a test checkout in Stripe Dashboard
 2. Try different shipping addresses:
-   - **Local address** (same state): Should show 1-2 days
-   - **Cross-country** (e.g., CA to NY): Should show 4-7 days
-   - **International** (if applicable): Should show longer transit times
+   - Local address (same state): Should show 1-2 days
+   - Cross-country (e.g., CA to NY): Should show 4-7 days
+   - International (if applicable): Should show longer transit times
 
 ### Step 5: Check Parcelcraft Logs/Dashboard
 If Parcelcraft has a dashboard or logs:
@@ -45,12 +45,12 @@ If Parcelcraft has a dashboard or logs:
 
 If you cannot find these settings or they don't exist:
 
-1. **Contact Parcelcraft Support**:
+1. Contact Parcelcraft Support:
    - Email: support@parcelcraft.com (or check their website)
    - Explain: "UPS Ground shipping always shows 1 day transit time regardless of destination"
    - Request: Enable dynamic transit time calculation using UPS Time-in-Transit API
 
-2. **Provide Details**:
+2. Provide Details:
    - Your Stripe account ID
    - UPS account number (if they need it)
    - Examples of incorrect transit times you're seeing
@@ -82,23 +82,23 @@ These values come from Parcelcraft, so if they're always "1", Parcelcraft is sen
 
 ## Expected Behavior
 
-**UPS Ground transit times should vary by distance:**
-- **Same city/state**: 1-2 business days
-- **Adjacent states**: 2-3 business days  
-- **Cross-country**: 4-7 business days
-- **Remote areas**: 5-8 business days
+UPS Ground transit times should vary by distance:
+- Same city/state: 1-2 business days
+- Adjacent states: 2-3 business days
+- Cross-country: 4-7 business days
+- Remote areas: 5-8 business days
 
 ## Code Status
 
-✅ **Your code is correct** - It reads delivery estimates from Parcelcraft/Stripe:
+Your code is correct - it reads delivery estimates from Parcelcraft/Stripe:
 - `src/pages/api/webhooks.ts` reads `shipping_delivery_days` and `shipping_estimated_delivery_date` from session metadata
 - No hardcoded transit times in your code
 - Code will automatically use correct transit times once Parcelcraft is configured properly
 
 ## Next Steps
 
-1. ✅ Check Parcelcraft settings in Stripe Dashboard
-2. ✅ Verify UPS Time-in-Transit API is enabled
-3. ✅ Test with multiple addresses to confirm transit times vary
-4. ✅ Contact Parcelcraft support if settings don't exist or don't work
-5. ✅ Verify transit times are correct in production after fix
+1. Check Parcelcraft settings in Stripe Dashboard
+2. Verify UPS Time-in-Transit API is enabled
+3. Test with multiple addresses to confirm transit times vary
+4. Contact Parcelcraft support if settings don't exist or don't work
+5. Verify transit times are correct in production after fix

@@ -29,14 +29,84 @@ const stripe = new Stripe(stripeSecret, {
   apiVersion: '2025-08-27.basil' as Stripe.LatestApiVersion
 });
 
+// Mirror the storefront's shipping logic
+const resolveBooleanEnv = (value: unknown): boolean => {
+  if (typeof value === 'boolean') return value;
+  if (typeof value !== 'string') return false;
+  const normalized = value.trim().toLowerCase();
+  return normalized === '1' || normalized === 'true' || normalized === 'yes' || normalized === 'on';
+};
+
+const useDynamicShippingRates = (() => {
+  const raw = process.env.STRIPE_USE_DYNAMIC_SHIPPING_RATES;
+  if (raw === undefined) return true; // Default to true (dynamic)
+  return resolveBooleanEnv(raw);
+})();
+
+const UPS_CARRIER_REGEX = /\bups\b/i;
+
+const resolveShippingCarrierLabel = (rate: Stripe.ShippingRate): string => {
+  const meta = (rate.metadata || {}) as Record<string, string | undefined>;
+  return (
+    meta.shipping_carrier ||
+    meta.carrier ||
+    meta.shipping_carrier_id ||
+    meta.carrier_id ||
+    rate.display_name ||
+    ''
+  );
+};
+
+async function filterUpsShippingRateIds(rateIds: string[]): Promise<string[]> {
+  if (!rateIds.length) return [];
+  const entries = await Promise.all(
+    rateIds.map(async (rateId) => {
+      try {
+        const rate = await stripe.shippingRates.retrieve(rateId);
+        const label = resolveShippingCarrierLabel(rate).trim();
+        const isUps = UPS_CARRIER_REGEX.test(label);
+        return { id: rateId, isUps, label };
+      } catch (error) {
+        console.warn('[test-checkout] Failed to load Stripe shipping rate', rateId, error);
+        return { id: rateId, isUps: false, label: '' };
+      }
+    })
+  );
+  return entries.filter((entry) => entry.isUps).map((entry) => entry.id);
+}
+
 async function createTestCheckout() {
   try {
     console.log(`\n🛒 Creating test Checkout Session with shipping...\n`);
     console.log(`📍 Shipping Address: ${city}, ${state} ${zip}\n`);
+    console.log(`⚙️  Shipping Mode: ${useDynamicShippingRates ? 'Dynamic (Parcelcraft)' : 'Static (STRIPE_SHIPPING_RATE_IDS)'}\n`);
 
-    // Create a test product/price if needed, or use an existing one
-    // For simplicity, we'll create a session with a simple line item
-    
+    // Mirror storefront shipping logic
+    const configuredShippingRateIds = useDynamicShippingRates
+      ? []
+      : String(process.env.STRIPE_SHIPPING_RATE_IDS || '')
+          .split(',')
+          .map((value) => value.trim())
+          .filter(Boolean);
+
+    const allowedShippingRateIds =
+      configuredShippingRateIds.length
+        ? await filterUpsShippingRateIds(configuredShippingRateIds)
+        : [];
+
+    if (!useDynamicShippingRates && configuredShippingRateIds.length && !allowedShippingRateIds.length) {
+      console.error('❌ UPS-only shipping is enforced, but no UPS Stripe shipping rates are configured.');
+      console.error('   Update STRIPE_SHIPPING_RATE_IDS with UPS rates, or set STRIPE_USE_DYNAMIC_SHIPPING_RATES=true');
+      process.exit(1);
+    }
+
+    const shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] | undefined =
+      useDynamicShippingRates
+        ? undefined // Let Parcelcraft handle dynamic rates (matches storefront)
+        : allowedShippingRateIds.length
+          ? allowedShippingRateIds.map((id) => ({ shipping_rate: id }))
+          : undefined;
+
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       payment_method_types: ['card'],
@@ -56,7 +126,7 @@ async function createTestCheckout() {
       shipping_address_collection: {
         allowed_countries: ['US']
       },
-      shipping_options: undefined, // Let Parcelcraft handle dynamic rates
+      ...(shippingOptions ? { shipping_options: shippingOptions } : {}),
       automatic_tax: {
         enabled: true
       },
@@ -82,8 +152,13 @@ async function createTestCheckout() {
     console.log('   1. Open the URL above in your browser');
     console.log('   2. Enter the shipping address when prompted:');
     console.log(`      ${city}, ${state} ${zip}`);
-    console.log('   3. Wait for Parcelcraft to calculate UPS shipping rates');
-    console.log('   4. Check if UPS Ground shows correct transit time (not always 1 day)');
+    if (useDynamicShippingRates) {
+      console.log('   3. Wait for Parcelcraft to calculate UPS shipping rates dynamically');
+      console.log('   4. Check if UPS Ground shows correct transit time (not always 1 day)');
+    } else {
+      console.log('   3. Select from the configured UPS shipping rates');
+      console.log(`   4. ${allowedShippingRateIds.length} UPS rate(s) available`);
+    }
     console.log('   5. After selecting a shipping option, run:');
     console.log(`      yarn tsx scripts/check-parcelcraft-transit-times.ts ${session.id}\n`);
     

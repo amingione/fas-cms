@@ -24,11 +24,16 @@ yarn tsx scripts/create-test-checkout-with-shipping.ts "Los Angeles" "CA" "90001
 yarn tsx scripts/create-test-checkout-with-shipping.ts "New York" "NY" "10001"
 ```
 
+**Note:** This script mirrors your storefront's shipping logic:
+- Uses `STRIPE_USE_DYNAMIC_SHIPPING_RATES` (defaults to `true` for Parcelcraft)
+- When dynamic: Sets `shipping_options: undefined` to let Parcelcraft handle rates
+- When static: Uses `STRIPE_SHIPPING_RATE_IDS` with UPS-only filtering (same as storefront)
+
 Then:
 1. Open the URL from the script output
 2. Enter the shipping address when prompted
-3. Wait for Parcelcraft to show UPS shipping options
-4. **Check if UPS Ground shows "1 day" for all locations** (this is the bug)
+3. Wait for Parcelcraft to show UPS shipping options (if dynamic) or select from configured rates (if static)
+4. Check if UPS Ground shows "1 day" for all locations (this is the bug)
 5. After selecting a shipping option, run the check script on the session ID
 
 ---
@@ -56,7 +61,7 @@ yarn tsx scripts/check-parcelcraft-transit-times.ts cs_live_xxxxx
 This shows detailed information:
 - Shipping rate name and amount
 - Delivery estimate (minimum/maximum days)
-- **WARNING if transit time is hardcoded to 1 day**
+- WARNING if transit time is hardcoded to 1 day
 - Shipping address
 - Metadata from Parcelcraft
 
@@ -68,7 +73,7 @@ Test with various locations to verify transit times vary:
 # Local (same state) - Should show 1-2 days
 yarn tsx scripts/create-test-checkout-with-shipping.ts "Los Angeles" "CA" "90001"
 
-# Adjacent state - Should show 2-3 days  
+# Adjacent state - Should show 2-3 days
 yarn tsx scripts/create-test-checkout-with-shipping.ts "Las Vegas" "NV" "89101"
 
 # Cross-country - Should show 4-7 days
@@ -83,31 +88,31 @@ yarn tsx scripts/create-test-checkout-with-shipping.ts "Anchorage" "AK" "99501"
 
 After creating checkouts and entering addresses:
 
-1. **In Stripe Checkout UI:**
+1. In Stripe Checkout UI:
    - Check if UPS Ground always shows "1 day" regardless of destination
    - Note which addresses you tested
 
-2. **Using the Script:**
+2. Using the Script:
    ```bash
    yarn tsx scripts/check-parcelcraft-transit-times.ts <session_id>
    ```
-   - Look for the warning: `⚠️ WARNING: Transit time is hardcoded to 1 day!`
+   - Look for the warning: "WARNING: Transit time is hardcoded to 1 day!"
    - Check the delivery estimate values
 
 ---
 
 ## What to Look For
 
-### ✅ Correct Behavior
-- **Local address (CA to CA)**: 1-2 business days
-- **Cross-country (CA to NY)**: 4-7 business days
-- **Remote area (CA to AK)**: 5-8 business days
-- Transit times **vary** based on destination
+### Correct Behavior
+- Local address (CA to CA): 1-2 business days
+- Cross-country (CA to NY): 4-7 business days
+- Remote area (CA to AK): 5-8 business days
+- Transit times vary based on destination
 
-### ❌ Bug (Current Issue)
-- **All addresses**: Always shows "1 day"
-- Transit time is **the same** regardless of destination
-- Delivery estimate shows: `Minimum: 1 day, Maximum: 1 day`
+### Bug (Current Issue)
+- All addresses: Always shows "1 day"
+- Transit time is the same regardless of destination
+- Delivery estimate shows: Minimum: 1 day, Maximum: 1 day
 
 ---
 
@@ -122,7 +127,7 @@ After creating checkouts and entering addresses:
 
 ### Bad Output (Always 1 Day)
 ```
-✅ Shipping Rate: UPS Ground  
+✅ Shipping Rate: UPS Ground
    Transit Time: 1-1 business_day
 ⚠️  WARNING: Transit time is hardcoded to 1 day!
    This suggests Parcelcraft is not using dynamic UPS transit times.
@@ -138,17 +143,17 @@ After creating checkouts and entering addresses:
 
 ## Next Steps After Testing
 
-1. **Document the Issue:**
+1. Document the issue:
    - Note which addresses always show "1 day"
    - Save session IDs that demonstrate the problem
    - Take screenshots of Stripe Checkout showing incorrect transit times
 
-2. **Contact Parcelcraft Support:**
+2. Contact Parcelcraft support:
    - Provide session IDs showing the issue
    - Explain that UPS Ground always shows 1 day regardless of destination
    - Request they enable dynamic transit time calculation using UPS Time-in-Transit API
 
-3. **Check Parcelcraft Settings:**
+3. Check Parcelcraft settings:
    - Go to Stripe Dashboard → Apps → Parcelcraft → Settings
    - Verify UPS Time-in-Transit API is enabled
    - Check if there's a default transit time setting that's overriding dynamic calculation
