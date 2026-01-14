@@ -43,6 +43,27 @@ const jsonResponse = (payload: unknown, status = 200): Response =>
     }
   });
 
+const readEnvValue = (key: string): string => {
+  const metaValue = (import.meta.env[key] as string | undefined) || '';
+  if (metaValue && metaValue.trim()) return metaValue.trim();
+  const processValue = process.env[key];
+  return processValue ? processValue.trim() : '';
+};
+
+const resolveBooleanEnv = (value: unknown, defaultValue = false): boolean => {
+  if (typeof value === 'boolean') return value;
+  if (typeof value !== 'string') return defaultValue;
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) return defaultValue;
+  return normalized === '1' || normalized === 'true' || normalized === 'yes' || normalized === 'on';
+};
+
+const parseEnvList = (raw: string): string[] =>
+  raw
+    .split(/[,|\n]/)
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+
 function validateBaseUrl(baseUrl: string): Response | null {
   if (!baseUrl || !baseUrl.startsWith('http')) {
     console.error('❌ Invalid PUBLIC_BASE_URL:', baseUrl);
@@ -333,7 +354,7 @@ export async function POST({ request }: { request: Request }) {
     return jsonResponse({ error: 'Validation failed', details: bodyResult.error.format() }, 422);
   }
 
-  const { cart, metadata: requestMetadata } = bodyResult.data;
+  const { cart, metadata: requestMetadata, shippingRate, selectedRate } = bodyResult.data;
   const clamp = (value: string, max = 500) => (value.length > max ? value.slice(0, max) : value);
 
   const formatSelectedOptions = (
@@ -513,6 +534,17 @@ export async function POST({ request }: { request: Request }) {
 
   const productLookup = await fetchShippingProductsForCart(cart as CheckoutCartItem[]);
   const shippingRequired = requiresShippingSelection(cart as CheckoutCartItem[]);
+  const useDynamicShippingRates = resolveBooleanEnv(
+    readEnvValue('STRIPE_USE_DYNAMIC_SHIPPING_RATES'),
+    true
+  );
+  const allowMissingShippingRates = resolveBooleanEnv(
+    readEnvValue('STRIPE_ALLOW_MISSING_SHIPPING_RATES'),
+    false
+  );
+  const configuredShippingRateIds = parseEnvList(readEnvValue('STRIPE_SHIPPING_RATE_IDS'));
+  const requestedShippingRate =
+    selectedRate && typeof selectedRate === 'object' ? selectedRate : shippingRate;
 
   const cleanLabel = (value?: string | null): string => {
     if (!value) return '';
@@ -776,12 +808,157 @@ export async function POST({ request }: { request: Request }) {
       });
     }
 
+    const assignMetadata = (target: Record<string, string>, key: string, value: unknown) => {
+      const normalized = toMetadataString(value);
+      if (normalized) {
+        target[key] = clamp(normalized, 500);
+      }
+    };
+
+    const buildShippingMetadata = (rate: Record<string, unknown>): Record<string, string> => {
+      const metadata: Record<string, string> = {};
+      assignMetadata(metadata, 'selected_rate_id', rate.id);
+      assignMetadata(metadata, 'shipping_quote_id', rate.quoteId);
+      assignMetadata(metadata, 'shipping_quote_key', rate.quoteKey);
+      assignMetadata(metadata, 'shipping_quote_request_id', rate.quoteRequestId);
+      assignMetadata(metadata, 'shipping_carrier', rate.carrier);
+      assignMetadata(metadata, 'shipping_carrier_id', rate.carrierId);
+      assignMetadata(metadata, 'shipping_service', rate.service);
+      assignMetadata(metadata, 'shipping_service_name', rate.service);
+      assignMetadata(metadata, 'shipping_service_code', rate.serviceCode);
+      assignMetadata(metadata, 'shipping_package_code', rate.packageCode);
+      assignMetadata(metadata, 'shipping_packaging_weight', rate.packagingWeight);
+      assignMetadata(metadata, 'shipping_packaging_weight_unit', rate.packagingWeightUnit);
+      assignMetadata(metadata, 'shipping_length', rate.length);
+      assignMetadata(metadata, 'shipping_width', rate.width);
+      assignMetadata(metadata, 'shipping_height', rate.height);
+
+      const amountCentsRaw =
+        typeof rate.amountCents === 'number' && Number.isFinite(rate.amountCents)
+          ? rate.amountCents
+          : null;
+      if (typeof amountCentsRaw === 'number') {
+        const amountDollars = (Math.max(0, amountCentsRaw) / 100).toFixed(2);
+        assignMetadata(metadata, 'shipping_amount', amountDollars);
+      }
+
+      const currencyRaw = toMetadataString(rate.currency);
+      if (currencyRaw) {
+        assignMetadata(metadata, 'shipping_currency', currencyRaw.toUpperCase());
+      }
+
+      if (typeof rate.estDays === 'number' && Number.isFinite(rate.estDays)) {
+        assignMetadata(metadata, 'shipping_delivery_days', Math.max(0, rate.estDays).toString());
+      }
+
+      return metadata;
+    };
+
+    const applyShippingMetadata = (metadata: Record<string, string>) => {
+      Object.entries(metadata).forEach(([key, value]) => {
+        if (!value) return;
+        if (!(key in metadataForSession)) {
+          metadataForSession[key] = value;
+        }
+      });
+    };
+
+    const buildShippingOptionFromRate = (
+      rate: Record<string, unknown>
+    ): Stripe.Checkout.SessionCreateParams.ShippingOption | null => {
+      const amountCents =
+        typeof rate.amountCents === 'number' && Number.isFinite(rate.amountCents)
+          ? Math.max(0, Math.round(rate.amountCents))
+          : null;
+      if (amountCents === null) return null;
+
+      const currencyRaw = toMetadataString(rate.currency) || 'USD';
+      const currency = currencyRaw.toLowerCase();
+      const carrier = toMetadataString(rate.carrier) || '';
+      const service = toMetadataString(rate.service) || '';
+      const displayName = [carrier, service].filter(Boolean).join(' ') || 'Shipping';
+      const deliveryDays =
+        typeof rate.estDays === 'number' && Number.isFinite(rate.estDays)
+          ? Math.max(0, Math.round(rate.estDays))
+          : null;
+
+      const metadata = buildShippingMetadata(rate);
+      if (Object.keys(metadata).length) {
+        applyShippingMetadata(metadata);
+      }
+
+      const shippingRateData: Stripe.Checkout.SessionCreateParams.ShippingOption.ShippingRateData =
+        {
+          display_name: displayName,
+          type: 'fixed_amount',
+          fixed_amount: {
+            amount: amountCents,
+            currency
+          },
+          tax_behavior: 'exclusive',
+          tax_code: 'txcd_92010001',
+          ...(Object.keys(metadata).length ? { metadata } : {}),
+          ...(deliveryDays
+            ? {
+                delivery_estimate: {
+                  minimum: { unit: 'business_day', value: deliveryDays },
+                  maximum: { unit: 'business_day', value: deliveryDays }
+                }
+              }
+            : {})
+        };
+
+      return { shipping_rate_data: shippingRateData };
+    };
+
+    const shippingOptionFromPayload =
+      shippingRequired && requestedShippingRate && typeof requestedShippingRate === 'object'
+        ? buildShippingOptionFromRate(requestedShippingRate as Record<string, unknown>)
+        : null;
+
+    let shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] | undefined =
+      shippingOptionFromPayload ? [shippingOptionFromPayload] : undefined;
+
+    if (!shippingOptions && configuredShippingRateIds.length) {
+      shippingOptions = configuredShippingRateIds.map((id) => ({ shipping_rate: id }));
+    }
+
+    if (!shippingOptions && allowMissingShippingRates && shippingRequired) {
+      shippingOptions = [
+        {
+          shipping_rate_data: {
+            display_name: 'Shipping',
+            type: 'fixed_amount',
+            fixed_amount: { amount: 0, currency: 'usd' },
+            tax_behavior: 'exclusive',
+            tax_code: 'txcd_92010001'
+          }
+        }
+      ];
+    }
+
+    if (!shippingRequired) {
+      shippingOptions = undefined;
+    }
+
+    if (!shippingOptions && shippingRequired && !useDynamicShippingRates && !allowMissingShippingRates) {
+      return jsonResponse(
+        {
+          error:
+            'Shipping options are not configured. Provide STRIPE_SHIPPING_RATE_IDS or send a shippingRate payload.'
+        },
+        500
+      );
+    }
+
+    if (!shippingOptions && shippingRequired && useDynamicShippingRates) {
+      console.warn(
+        '[checkout] No shipping options configured; Stripe Checkout will only show rates if a provider is enabled.'
+      );
+    }
+
     const paymentIntentMetadata = { ...metadataForSession };
     paymentIntentMetadata.ship_status = shippingRequired ? 'unshipped' : 'unshippable';
-
-    // Parcelcraft handles shipping rates dynamically; never pass static shipping options.
-    const shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] | undefined =
-      undefined;
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       // Offer standard cards plus Affirm financing at checkout

@@ -1,49 +1,38 @@
 import { createClient } from '@sanity/client';
 
-// Read envs in a way that works in both Vite/SSR and Node/serverless.
-// Prefer import.meta.env (configured via envPrefix) and fall back to process.env.
-const ime = (typeof import.meta !== 'undefined' ? (import.meta as any).env : {}) as Record<string, string | undefined>;
-const penv = (typeof process !== 'undefined' ? (process as any).env : {}) as Record<string, string | undefined>;
+// Read envs in a way that works in Node/serverless execution.
+const env = (typeof process !== 'undefined' ? (process as any).env : {}) as Record<
+  string,
+  string | undefined
+>;
 
 const projectId =
-  ime.SANITY_PROJECT_ID ||
-  ime.SANITY_STUDIO_PROJECT_ID ||
-  ime.PUBLIC_SANITY_PROJECT_ID ||
-  ime.VITE_SANITY_PROJECT_ID ||
-  penv.SANITY_PROJECT_ID ||
-  penv.SANITY_STUDIO_PROJECT_ID ||
-  penv.PUBLIC_SANITY_PROJECT_ID ||
-  penv.VITE_SANITY_PROJECT_ID;
+  env.SANITY_PROJECT_ID ||
+  env.SANITY_STUDIO_PROJECT_ID ||
+  env.PUBLIC_SANITY_PROJECT_ID ||
+  env.VITE_SANITY_PROJECT_ID;
 
 const dataset =
-  ime.SANITY_DATASET ||
-  ime.SANITY_STUDIO_DATASET ||
-  ime.PUBLIC_SANITY_DATASET ||
-  ime.VITE_SANITY_DATASET ||
-  penv.SANITY_DATASET ||
-  penv.SANITY_STUDIO_DATASET ||
-  penv.PUBLIC_SANITY_DATASET ||
-  penv.VITE_SANITY_DATASET ||
+  env.SANITY_DATASET ||
+  env.SANITY_STUDIO_DATASET ||
+  env.PUBLIC_SANITY_DATASET ||
+  env.VITE_SANITY_DATASET ||
   'production';
 
 const token =
-  ime.SANITY_WRITE_TOKEN ||
-  ime.SANITY_API_TOKEN ||
-  ime.SANITY_API_READ_TOKEN ||
-  ime.VITE_SANITY_API_TOKEN ||
-  ime.VITE_SANITY_WRITE_TOKEN ||
-  ime.SANITY_READ_TOKEN ||
-  penv.SANITY_WRITE_TOKEN ||
-  penv.SANITY_API_TOKEN ||
-  penv.SANITY_API_READ_TOKEN ||
-  penv.VITE_SANITY_API_TOKEN ||
-  penv.VITE_SANITY_WRITE_TOKEN ||
-  penv.SANITY_READ_TOKEN;
+  env.SANITY_WRITE_TOKEN ||
+  env.SANITY_API_TOKEN ||
+  env.SANITY_API_READ_TOKEN ||
+  env.VITE_SANITY_API_TOKEN ||
+  env.VITE_SANITY_WRITE_TOKEN ||
+  env.SANITY_READ_TOKEN;
 
-const apiVersion = ime.SANITY_API_VERSION || penv.SANITY_API_VERSION || '2024-01-01';
+const apiVersion = env.SANITY_API_VERSION || '2024-01-01';
 
 if (!projectId) {
-  console.warn('[sanity-client] Missing SANITY projectId. Checked SANITY_* / PUBLIC_SANITY_* / VITE_* in import.meta.env and process.env');
+  console.warn(
+    '[sanity-client] Missing SANITY projectId. Checked SANITY_* / PUBLIC_SANITY_* / VITE_* in process.env'
+  );
   throw new Error('Sanity client misconfigured: missing SANITY_PROJECT_ID / PUBLIC_SANITY_PROJECT_ID');
 }
 

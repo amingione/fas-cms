@@ -33,7 +33,7 @@ describe('redirectToCheckout helper', () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
-      json: async () => ({ url: 'https://checkout.stripe.com/pay/cs_test_123' })
+      json: async () => ({ url: 'https://checkout.stripe.com/pay/cs_test_123#fid_test' })
     });
     vi.stubGlobal('fetch', fetchMock as any);
 
@@ -47,7 +47,7 @@ describe('redirectToCheckout helper', () => {
     expect(fetchOptions?.headers?.['Content-Type']).toBe('application/json');
     const parsedBody = JSON.parse(fetchOptions?.body ?? '{}');
     expect(parsedBody.cart).toHaveLength(1);
-    expect(fakeWindow.location.href).toBe('https://checkout.stripe.com/pay/cs_test_123');
+    expect(fakeWindow.location.href).toBe('https://checkout.stripe.com/pay/cs_test_123#fid_test');
   });
 });
 

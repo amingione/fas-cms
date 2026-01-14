@@ -1,5 +1,4 @@
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { promises as fs } from 'node:fs';
 import fg from 'fast-glob';
 import { load } from 'cheerio';
@@ -83,7 +82,10 @@ async function runFromCli() {
 }
 
 const entrypoint = process.argv[1] ? path.resolve(process.argv[1]) : '';
-if (entrypoint === fileURLToPath(import.meta.url)) {
+if (
+  entrypoint.endsWith(`${path.sep}checkMeta.ts`) ||
+  entrypoint.endsWith(`${path.sep}checkMeta.js`)
+) {
   runFromCli().catch((error) => {
     console.error('[checkMeta] Unhandled error', error);
     process.exitCode = 1;

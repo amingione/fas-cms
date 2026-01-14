@@ -193,6 +193,17 @@ export async function clearCart() {
   saveCart({ items: [] });
 }
 
+const CHECKOUT_SESSION_ID_PATTERN = /cs_(?:live|test)_[A-Za-z0-9]+/;
+
+function resolveCheckoutUrl(url: string): string {
+  if (url.includes('#')) return url;
+  const match = url.match(CHECKOUT_SESSION_ID_PATTERN);
+  if (!match || !isBrowser()) return url;
+  const resolverUrl = new URL('/api/stripe/resolve-checkout-session', window.location.origin);
+  resolverUrl.searchParams.set('session_id', match[0]);
+  return resolverUrl.toString();
+}
+
 // Creates/ensures a cart exists; kept for API compatibility with old code
 export async function createCartAndSetCookie() {
   if (!getCart().items) saveCart({ items: [] });
@@ -228,7 +239,7 @@ export async function redirectToCheckout() {
       return payload?.error || 'Unable to start checkout. Please try again.';
     }
 
-    window.location.href = payload.url;
+    window.location.href = resolveCheckoutUrl(payload.url);
   } catch (error) {
     console.error('Checkout redirect failed', error);
     return 'Unable to start checkout. Please try again.';

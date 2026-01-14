@@ -32,6 +32,17 @@ function collectFilterSlugs(filters: unknown): string[] {
     .filter(Boolean);
 }
 
+const CHECKOUT_SESSION_ID_PATTERN = /cs_(?:live|test)_[A-Za-z0-9]+/;
+
+function resolveCheckoutUrl(url: string, origin: string): string {
+  if (url.includes('#')) return url;
+  const match = url.match(CHECKOUT_SESSION_ID_PATTERN);
+  if (!match) return url;
+  const resolverUrl = new URL('/api/stripe/resolve-checkout-session', origin);
+  resolverUrl.searchParams.set('session_id', match[0]);
+  return resolverUrl.toString();
+}
+
 export const GET: APIRoute = async ({ params, request }) => {
   const slugParam = params.slug ? normalizeSlugValue(params.slug) : '';
   if (!slugParam) {
@@ -96,7 +107,7 @@ export const GET: APIRoute = async ({ params, request }) => {
   }
 
   if (response.ok && data?.url && typeof data.url === 'string') {
-    return Response.redirect(data.url, 303);
+    return Response.redirect(resolveCheckoutUrl(data.url, origin), 303);
   }
 
   console.error('[quick-checkout] Checkout API error:', response.status, rawBody);
