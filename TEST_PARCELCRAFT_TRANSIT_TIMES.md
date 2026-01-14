@@ -25,14 +25,13 @@ yarn tsx scripts/create-test-checkout-with-shipping.ts "New York" "NY" "10001"
 ```
 
 **Note:** This script mirrors your storefront's shipping logic:
-- Uses `STRIPE_USE_DYNAMIC_SHIPPING_RATES` (defaults to `true` for Parcelcraft)
-- When dynamic: Sets `shipping_options: undefined` to let Parcelcraft handle rates
-- When static: Uses `STRIPE_SHIPPING_RATE_IDS` with UPS-only filtering (same as storefront)
+- Uses dynamic Parcelcraft rates only
+- Never sets `shipping_options`
 
 Then:
 1. Open the URL from the script output
 2. Enter the shipping address when prompted
-3. Wait for Parcelcraft to show UPS shipping options (if dynamic) or select from configured rates (if static)
+3. Wait for Parcelcraft to show UPS shipping options
 4. Check if UPS Ground shows "1 day" for all locations (this is the bug)
 5. After selecting a shipping option, run the check script on the session ID
 

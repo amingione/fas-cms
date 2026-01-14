@@ -83,34 +83,9 @@ export const checkoutCartItemSchema = z
   })
   .passthrough();
 
-const checkoutShippingRateSchema = z
-  .object({
-    id: z.string().min(1),
-    carrier: z.string().min(1),
-    service: z.string().min(1),
-    amountCents: z.number().int().nonnegative(),
-    currency: z.string().min(1).optional(),
-    estDays: z.number().int().optional(),
-    quoteId: z.string().optional(),
-    quoteKey: z.string().optional(),
-    quoteRequestId: z.string().optional(),
-    carrierId: z.string().optional(),
-    serviceCode: z.string().optional(),
-    packageCode: z.string().optional(),
-    packagingWeight: z.number().optional(),
-    packagingWeightUnit: z.string().optional(),
-    length: z.number().optional(),
-    width: z.number().optional(),
-    height: z.number().optional(),
-    provider: z.string().optional()
-  })
-  .passthrough();
-
 export const stripeCheckoutRequestSchema = z
   .object({
     cart: z.array(checkoutCartItemSchema).min(1),
-    shippingRate: checkoutShippingRateSchema.optional(),
-    selectedRate: checkoutShippingRateSchema.optional(),
     metadata: z.record(z.unknown()).optional(),
     marketingOptIn: z.boolean().optional(),
     utmSource: z.string().optional(),

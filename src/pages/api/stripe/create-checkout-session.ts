@@ -354,7 +354,7 @@ export async function POST({ request }: { request: Request }) {
     return jsonResponse({ error: 'Validation failed', details: bodyResult.error.format() }, 422);
   }
 
-  const { cart, metadata: requestMetadata, shippingRate, selectedRate } = bodyResult.data;
+  const { cart, metadata: requestMetadata } = bodyResult.data;
   const clamp = (value: string, max = 500) => (value.length > max ? value.slice(0, max) : value);
 
   const formatSelectedOptions = (
@@ -543,8 +543,6 @@ export async function POST({ request }: { request: Request }) {
     false
   );
   const configuredShippingRateIds = parseEnvList(readEnvValue('STRIPE_SHIPPING_RATE_IDS'));
-  const requestedShippingRate =
-    selectedRate && typeof selectedRate === 'object' ? selectedRate : shippingRate;
 
   const cleanLabel = (value?: string | null): string => {
     if (!value) return '';
@@ -808,152 +806,35 @@ export async function POST({ request }: { request: Request }) {
       });
     }
 
-    const assignMetadata = (target: Record<string, string>, key: string, value: unknown) => {
-      const normalized = toMetadataString(value);
-      if (normalized) {
-        target[key] = clamp(normalized, 500);
-      }
-    };
-
-    const buildShippingMetadata = (rate: Record<string, unknown>): Record<string, string> => {
-      const metadata: Record<string, string> = {};
-      assignMetadata(metadata, 'selected_rate_id', rate.id);
-      assignMetadata(metadata, 'shipping_quote_id', rate.quoteId);
-      assignMetadata(metadata, 'shipping_quote_key', rate.quoteKey);
-      assignMetadata(metadata, 'shipping_quote_request_id', rate.quoteRequestId);
-      assignMetadata(metadata, 'shipping_carrier', rate.carrier);
-      assignMetadata(metadata, 'shipping_carrier_id', rate.carrierId);
-      assignMetadata(metadata, 'shipping_service', rate.service);
-      assignMetadata(metadata, 'shipping_service_name', rate.service);
-      assignMetadata(metadata, 'shipping_service_code', rate.serviceCode);
-      assignMetadata(metadata, 'shipping_package_code', rate.packageCode);
-      assignMetadata(metadata, 'shipping_packaging_weight', rate.packagingWeight);
-      assignMetadata(metadata, 'shipping_packaging_weight_unit', rate.packagingWeightUnit);
-      assignMetadata(metadata, 'shipping_length', rate.length);
-      assignMetadata(metadata, 'shipping_width', rate.width);
-      assignMetadata(metadata, 'shipping_height', rate.height);
-
-      const amountCentsRaw =
-        typeof rate.amountCents === 'number' && Number.isFinite(rate.amountCents)
-          ? rate.amountCents
-          : null;
-      if (typeof amountCentsRaw === 'number') {
-        const amountDollars = (Math.max(0, amountCentsRaw) / 100).toFixed(2);
-        assignMetadata(metadata, 'shipping_amount', amountDollars);
-      }
-
-      const currencyRaw = toMetadataString(rate.currency);
-      if (currencyRaw) {
-        assignMetadata(metadata, 'shipping_currency', currencyRaw.toUpperCase());
-      }
-
-      if (typeof rate.estDays === 'number' && Number.isFinite(rate.estDays)) {
-        assignMetadata(metadata, 'shipping_delivery_days', Math.max(0, rate.estDays).toString());
-      }
-
-      return metadata;
-    };
-
-    const applyShippingMetadata = (metadata: Record<string, string>) => {
-      Object.entries(metadata).forEach(([key, value]) => {
-        if (!value) return;
-        if (!(key in metadataForSession)) {
-          metadataForSession[key] = value;
-        }
-      });
-    };
-
-    const buildShippingOptionFromRate = (
-      rate: Record<string, unknown>
-    ): Stripe.Checkout.SessionCreateParams.ShippingOption | null => {
-      const amountCents =
-        typeof rate.amountCents === 'number' && Number.isFinite(rate.amountCents)
-          ? Math.max(0, Math.round(rate.amountCents))
-          : null;
-      if (amountCents === null) return null;
-
-      const currencyRaw = toMetadataString(rate.currency) || 'USD';
-      const currency = currencyRaw.toLowerCase();
-      const carrier = toMetadataString(rate.carrier) || '';
-      const service = toMetadataString(rate.service) || '';
-      const displayName = [carrier, service].filter(Boolean).join(' ') || 'Shipping';
-      const deliveryDays =
-        typeof rate.estDays === 'number' && Number.isFinite(rate.estDays)
-          ? Math.max(0, Math.round(rate.estDays))
-          : null;
-
-      const metadata = buildShippingMetadata(rate);
-      if (Object.keys(metadata).length) {
-        applyShippingMetadata(metadata);
-      }
-
-      const shippingRateData: Stripe.Checkout.SessionCreateParams.ShippingOption.ShippingRateData =
-        {
-          display_name: displayName,
-          type: 'fixed_amount',
-          fixed_amount: {
-            amount: amountCents,
-            currency
-          },
-          tax_behavior: 'exclusive',
-          tax_code: 'txcd_92010001',
-          ...(Object.keys(metadata).length ? { metadata } : {}),
-          ...(deliveryDays
-            ? {
-                delivery_estimate: {
-                  minimum: { unit: 'business_day', value: deliveryDays },
-                  maximum: { unit: 'business_day', value: deliveryDays }
-                }
-              }
-            : {})
-        };
-
-      return { shipping_rate_data: shippingRateData };
-    };
-
-    const shippingOptionFromPayload =
-      shippingRequired && requestedShippingRate && typeof requestedShippingRate === 'object'
-        ? buildShippingOptionFromRate(requestedShippingRate as Record<string, unknown>)
-        : null;
-
-    let shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] | undefined =
-      shippingOptionFromPayload ? [shippingOptionFromPayload] : undefined;
-
-    if (!shippingOptions && configuredShippingRateIds.length) {
-      shippingOptions = configuredShippingRateIds.map((id) => ({ shipping_rate: id }));
-    }
-
-    if (!shippingOptions && allowMissingShippingRates && shippingRequired) {
-      shippingOptions = [
-        {
-          shipping_rate_data: {
-            display_name: 'Shipping',
-            type: 'fixed_amount',
-            fixed_amount: { amount: 0, currency: 'usd' },
-            tax_behavior: 'exclusive',
-            tax_code: 'txcd_92010001'
-          }
-        }
-      ];
-    }
-
-    if (!shippingRequired) {
-      shippingOptions = undefined;
-    }
-
-    if (!shippingOptions && shippingRequired && !useDynamicShippingRates && !allowMissingShippingRates) {
+    if (!useDynamicShippingRates && shippingRequired) {
       return jsonResponse(
         {
           error:
-            'Shipping options are not configured. Provide STRIPE_SHIPPING_RATE_IDS or send a shippingRate payload.'
+            'Static shipping rates are disabled. Enable STRIPE_USE_DYNAMIC_SHIPPING_RATES for Parcelcraft.'
         },
-        500
+        400
       );
     }
 
-    if (!shippingOptions && shippingRequired && useDynamicShippingRates) {
+    const hasStaticRatePayload =
+      'shippingRate' in bodyRecord || 'shipping_rate' in bodyRecord || 'selectedRate' in bodyRecord;
+
+    if (
+      shippingRequired &&
+      (hasStaticRatePayload || configuredShippingRateIds.length > 0 || allowMissingShippingRates)
+    ) {
+      return jsonResponse(
+        {
+          error:
+            'Static shipping rates are disabled. Remove shippingRate/selectedRate payloads and STRIPE_SHIPPING_RATE_IDS.'
+        },
+        400
+      );
+    }
+
+    if (shippingRequired) {
       console.warn(
-        '[checkout] No shipping options configured; Stripe Checkout will only show rates if a provider is enabled.'
+        '[checkout] Static shipping rates are disabled; Parcelcraft must supply dynamic rates.'
       );
     }
 
@@ -982,7 +863,6 @@ export async function POST({ request }: { request: Request }) {
       success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/cart`,
       consent_collection: { promotions: 'auto' },
-      ...(shippingOptions ? { shipping_options: shippingOptions } : {}),
       custom_fields: [
         {
           key: 'company',

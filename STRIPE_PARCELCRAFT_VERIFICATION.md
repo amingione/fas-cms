@@ -7,11 +7,11 @@ Based on your codebase, here's what I can verify:
 ### Environment Variables ✅
 - ✅ `STRIPE_USE_DYNAMIC_SHIPPING_RATES=true` - **SET CORRECTLY**
 - ✅ `SHIPPING_PROVIDER=parcelcraft` - **SET CORRECTLY**
-- ✅ `STRIPE_SHIPPING_RATE_IDS` - Empty (correct for dynamic rates)
+- ✅ Static Stripe shipping rates are forbidden
 
 ### Code Implementation ✅
 - ✅ `create-checkout-session.ts` defaults to dynamic shipping when env var is unset
-- ✅ When `useDynamicShippingRates=true`, the code sets `shipping_options: undefined` (lets Stripe/Parcelcraft handle it)
+- ✅ Checkout never sets `shipping_options` (Parcelcraft supplies dynamic rates)
 - ✅ Shipping address collection is enabled: `shipping_address_collection` with `allowed_countries`
 - ✅ Automatic tax is enabled: `automatic_tax: { enabled: true }`
 - ✅ Webhook handler (`webhooks.ts`) already reads Parcelcraft metadata from PaymentIntent and Checkout Session
