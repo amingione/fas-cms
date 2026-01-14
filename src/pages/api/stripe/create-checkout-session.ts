@@ -140,6 +140,8 @@ type CheckoutShippingRate = {
   height?: number;
 };
 
+type Dimensions = { length: number; width: number; height: number };
+
 async function fetchShippingProductsForCart(
   cart: CheckoutCartItem[]
 ): Promise<Record<string, ShippingProduct>> {
@@ -281,6 +283,53 @@ async function filterUpsShippingRateIds(rateIds: string[]): Promise<string[]> {
   );
   return entries.filter((entry) => entry.isUps).map((entry) => entry.id);
 }
+
+const parseBoxDimensions = (raw?: string | null): Dimensions | undefined => {
+  if (!raw || typeof raw !== 'string') return undefined;
+  const parts = raw
+    .toLowerCase()
+    .split(/[x×]/)
+    .map((part) => Number.parseFloat(part.trim()))
+    .filter((value) => Number.isFinite(value) && value > 0);
+  if (parts.length !== 3) return undefined;
+  const [length, width, height] = parts;
+  return { length, width, height };
+};
+
+const buildParcelcraftProductMetadata = (
+  product?: ShippingProduct,
+  item?: CheckoutCartItem
+): Record<string, string> => {
+  if (!product || !item) return {};
+  const requiresShipping = product.shippingConfig?.requiresShipping;
+  if (requiresShipping === false || item.installOnly) return {};
+  const weight =
+    typeof product.shippingConfig?.weight === 'number'
+      ? product.shippingConfig.weight
+      : typeof product.shippingWeight === 'number'
+        ? product.shippingWeight
+        : undefined;
+  const dimensions =
+    product.shippingConfig?.dimensions &&
+    typeof product.shippingConfig.dimensions.length === 'number' &&
+    typeof product.shippingConfig.dimensions.width === 'number' &&
+    typeof product.shippingConfig.dimensions.height === 'number'
+      ? (product.shippingConfig.dimensions as Dimensions)
+      : parseBoxDimensions(product.boxDimensions);
+
+  const metadata: Record<string, string> = {};
+  if (typeof weight === 'number' && Number.isFinite(weight) && weight > 0) {
+    metadata.weight = String(weight);
+    metadata.weight_unit = 'pound';
+  }
+  if (dimensions) {
+    metadata.length = String(dimensions.length);
+    metadata.width = String(dimensions.width);
+    metadata.height = String(dimensions.height);
+    metadata.dimension_unit = 'inch';
+  }
+  return metadata;
+};
 
 export async function POST({ request }: { request: Request }) {
   // Resolve base URL: prefer explicit env var, else Origin header during dev/preview
@@ -644,6 +693,7 @@ if (!useDynamicShippingRates) {
       ...(sanityProductId ? { sanity_product_id: sanityProductId } : {}),
       ...(product?._id ? { sanity_product_id_actual: product._id } : {})
     };
+    Object.assign(metadata, buildParcelcraftProductMetadata(product, item));
     const optionsValue = toMetadataValue(item.options ?? item.selections ?? null);
     if (optionsValue) {
       metadata.options = clamp(optionsValue, 500);
