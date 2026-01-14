@@ -252,6 +252,38 @@ const readString = (value: unknown): string | undefined => {
   return undefined;
 };
 
+type NormalizedCheckoutShippingRate = CheckoutShippingRate & {
+  id: string;
+  carrier: string;
+  service: string;
+  amountCents: number;
+  currency: string;
+  estDays?: number;
+};
+
+const normalizeCheckoutShippingRate = (
+  rate?: CheckoutShippingRate | null
+): NormalizedCheckoutShippingRate | null => {
+  if (!rate || typeof rate !== 'object') return null;
+  const amountCentsRaw = Number(rate.amountCents);
+  if (!Number.isFinite(amountCentsRaw) || amountCentsRaw < 0) return null;
+  const carrier = readString(rate.carrier) || 'Shipping';
+  const service = readString(rate.service) || 'Standard';
+  const currency = (readString(rate.currency) || 'usd').toLowerCase();
+  const id = readString(rate.id) || `${carrier}-${service}-${Math.round(amountCentsRaw)}`;
+  const estDays =
+    typeof rate.estDays === 'number' && Number.isFinite(rate.estDays) ? rate.estDays : undefined;
+  return {
+    ...rate,
+    id,
+    carrier,
+    service,
+    currency,
+    amountCents: Math.round(amountCentsRaw),
+    estDays
+  };
+};
+
 const UPS_CARRIER_REGEX = /\bups\b/i;
 
 const resolveShippingCarrierLabel = (rate: Stripe.ShippingRate): string => {
@@ -380,8 +412,53 @@ export async function POST({ request }: { request: Request }) {
     return jsonResponse({ error: 'Validation failed', details: bodyResult.error.format() }, 422);
   }
 
-  const { cart, metadata: requestMetadata } = bodyResult.data;
+  const { cart, metadata: requestMetadata, shippingRate, selectedRate } = bodyResult.data;
   const clamp = (value: string, max = 500) => (value.length > max ? value.slice(0, max) : value);
+  const buildShippingRateMetadata = (
+    rate: NormalizedCheckoutShippingRate
+  ): Record<string, string> => {
+    const metadata: Record<string, string> = {};
+    const push = (key: string, value: unknown) => {
+      const normalized = readString(value);
+      if (!normalized) return;
+      metadata[key] = clamp(normalized, 500);
+    };
+    const pushNumber = (key: string, value: unknown) => {
+      const num = Number(value);
+      if (!Number.isFinite(num)) return;
+      metadata[key] = clamp(String(num), 120);
+    };
+
+    push('selected_rate_id', rate.id);
+    push('shipping_carrier', rate.carrier);
+    push('shipping_service', rate.service);
+    push('shipping_amount_cents', rate.amountCents);
+    push('shipping_amount', (rate.amountCents / 100).toFixed(2));
+    push('shipping_currency', rate.currency);
+    if (rate.estDays !== undefined) push('shipping_delivery_days', rate.estDays);
+    push('shipping_quote_id', rate.quoteId);
+    push('shipping_quote_key', rate.quoteKey);
+    push('shipping_quote_request_id', rate.quoteRequestId);
+    push('shipping_carrier_id', rate.carrierId);
+    push('shipping_service_code', rate.serviceCode);
+    push('shipping_package_code', rate.packageCode);
+    push('shipping_provider', rate.provider);
+    pushNumber('shipping_packaging_weight', rate.packagingWeight);
+    push('shipping_packaging_weight_unit', rate.packagingWeightUnit);
+    pushNumber('shipping_package_length', rate.length);
+    pushNumber('shipping_package_width', rate.width);
+    pushNumber('shipping_package_height', rate.height);
+
+    return metadata;
+  };
+  const buildShippingRateLabel = (rate: NormalizedCheckoutShippingRate): string => {
+    const carrier = rate.carrier.trim();
+    const service = rate.service.trim();
+    if (carrier && service && carrier.toLowerCase() !== service.toLowerCase()) {
+      return `${carrier} ${service}`;
+    }
+    return carrier || service || 'Shipping';
+  };
 
   const formatSelectedOptions = (
     input?: Record<string, unknown> | null,
@@ -560,6 +637,8 @@ export async function POST({ request }: { request: Request }) {
 
   const productLookup = await fetchShippingProductsForCart(cart as CheckoutCartItem[]);
   const shippingRequired = requiresShippingSelection(cart as CheckoutCartItem[]);
+  const requestedShippingRate = normalizeCheckoutShippingRate(selectedRate ?? shippingRate);
+  const resolvedShippingRate = shippingRequired ? requestedShippingRate : null;
   const resolveBooleanEnv = (value: unknown): boolean => {
     if (typeof value === 'boolean') return value;
     if (typeof value !== 'string') return false;
@@ -599,10 +678,18 @@ export async function POST({ request }: { request: Request }) {
       : configuredShippingRateIds;
 
   const needsFallbackShippingOption =
-    !useDynamicShippingRates && shippingRequired && !allowedShippingRateIds.length;
+    !resolvedShippingRate &&
+    !useDynamicShippingRates &&
+    shippingRequired &&
+    !allowedShippingRateIds.length;
 
   if (!useDynamicShippingRates) {
-    if (shippingRequired && configuredShippingRateIds.length && !allowedShippingRateIds.length) {
+    if (
+      !resolvedShippingRate &&
+      shippingRequired &&
+      configuredShippingRateIds.length &&
+      !allowedShippingRateIds.length
+    ) {
       return jsonResponse(
         {
           error:
@@ -885,6 +972,16 @@ export async function POST({ request }: { request: Request }) {
       });
     }
 
+    const shippingRateMetadata = resolvedShippingRate
+      ? buildShippingRateMetadata(resolvedShippingRate)
+      : null;
+    if (shippingRateMetadata) {
+      Object.entries(shippingRateMetadata).forEach(([key, value]) => {
+        if (!value) return;
+        if (!(key in metadataForSession)) metadataForSession[key] = value;
+      });
+    }
+
     if (needsFallbackShippingOption) {
       metadataForSession.selected_rate_id = metadataForSession.selected_rate_id || 'fallback';
       metadataForSession.shipping_carrier = metadataForSession.shipping_carrier || 'Shipping';
@@ -902,20 +999,34 @@ export async function POST({ request }: { request: Request }) {
     const shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] | undefined =
       !shippingRequired
         ? undefined
-        : useDynamicShippingRates
-          ? undefined
-          : needsFallbackShippingOption
-            ? [
-                {
-                  shipping_rate_data: {
-                    type: 'fixed_amount',
-                    fixed_amount: { amount: 0, currency: 'usd' },
-                    display_name: 'Shipping (calculated after checkout)',
-                    metadata: { fallback: 'true' }
-                  }
+        : resolvedShippingRate
+          ? [
+              {
+                shipping_rate_data: {
+                  type: 'fixed_amount',
+                  fixed_amount: {
+                    amount: resolvedShippingRate.amountCents,
+                    currency: resolvedShippingRate.currency
+                  },
+                  display_name: buildShippingRateLabel(resolvedShippingRate),
+                  ...(shippingRateMetadata ? { metadata: shippingRateMetadata } : {})
                 }
-              ]
-            : allowedShippingRateIds.map((id) => ({ shipping_rate: id }));
+              }
+            ]
+          : useDynamicShippingRates
+            ? undefined
+            : needsFallbackShippingOption
+              ? [
+                  {
+                    shipping_rate_data: {
+                      type: 'fixed_amount',
+                      fixed_amount: { amount: 0, currency: 'usd' },
+                      display_name: 'Shipping (calculated after checkout)',
+                      metadata: { fallback: 'true' }
+                    }
+                  }
+                ]
+              : allowedShippingRateIds.map((id) => ({ shipping_rate: id }));
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       // Offer standard cards plus Affirm financing at checkout
