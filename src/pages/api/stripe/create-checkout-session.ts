@@ -265,7 +265,12 @@ const buildParcelcraftProductMetadata = (
       ? (product.shippingConfig.dimensions as Dimensions)
       : parseBoxDimensions(product.boxDimensions);
 
-  const metadata: Record<string, string> = {};
+  const metadata: Record<string, string> = {
+    customs_description:
+      'Parts and accessories of the motor vehicles of headings 8701 to 8705:',
+    origin_country: 'US',
+    tariff_code: '8708'
+  };
   if (typeof weight === 'number' && Number.isFinite(weight) && weight > 0) {
     metadata.weight = String(weight);
     metadata.weight_unit = 'pound';
