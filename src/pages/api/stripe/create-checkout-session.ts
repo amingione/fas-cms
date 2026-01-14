@@ -120,26 +120,6 @@ type ShippingProduct = {
   } | null;
 };
 
-type CheckoutShippingRate = {
-  id: string;
-  carrier: string;
-  service: string;
-  amountCents: number;
-  currency?: string;
-  estDays?: number;
-  quoteId?: string;
-  quoteKey?: string;
-  quoteRequestId?: string;
-  carrierId?: string;
-  serviceCode?: string;
-  packageCode?: string;
-  packagingWeight?: number;
-  packagingWeightUnit?: string;
-  length?: number;
-  width?: number;
-  height?: number;
-};
-
 type Dimensions = { length: number; width: number; height: number };
 
 async function fetchShippingProductsForCart(
@@ -252,70 +232,6 @@ const readString = (value: unknown): string | undefined => {
   return undefined;
 };
 
-type NormalizedCheckoutShippingRate = CheckoutShippingRate & {
-  id: string;
-  carrier: string;
-  service: string;
-  amountCents: number;
-  currency: string;
-  estDays?: number;
-};
-
-const normalizeCheckoutShippingRate = (
-  rate?: CheckoutShippingRate | null
-): NormalizedCheckoutShippingRate | null => {
-  if (!rate || typeof rate !== 'object') return null;
-  const amountCentsRaw = Number(rate.amountCents);
-  if (!Number.isFinite(amountCentsRaw) || amountCentsRaw < 0) return null;
-  const carrier = readString(rate.carrier) || 'Shipping';
-  const service = readString(rate.service) || 'Standard';
-  const currency = (readString(rate.currency) || 'usd').toLowerCase();
-  const id = readString(rate.id) || `${carrier}-${service}-${Math.round(amountCentsRaw)}`;
-  const estDays =
-    typeof rate.estDays === 'number' && Number.isFinite(rate.estDays) ? rate.estDays : undefined;
-  return {
-    ...rate,
-    id,
-    carrier,
-    service,
-    currency,
-    amountCents: Math.round(amountCentsRaw),
-    estDays
-  };
-};
-
-const UPS_CARRIER_REGEX = /\bups\b/i;
-
-const resolveShippingCarrierLabel = (rate: Stripe.ShippingRate): string => {
-  const meta = (rate.metadata || {}) as Record<string, string | undefined>;
-  return (
-    meta.shipping_carrier ||
-    meta.carrier ||
-    meta.shipping_carrier_id ||
-    meta.carrier_id ||
-    rate.display_name ||
-    ''
-  );
-};
-
-async function filterUpsShippingRateIds(rateIds: string[]): Promise<string[]> {
-  if (!rateIds.length) return [];
-  const entries = await Promise.all(
-    rateIds.map(async (rateId) => {
-      try {
-        const rate = await stripe.shippingRates.retrieve(rateId);
-        const label = resolveShippingCarrierLabel(rate).trim();
-        const isUps = UPS_CARRIER_REGEX.test(label);
-        return { id: rateId, isUps, label };
-      } catch (error) {
-        console.warn('[checkout] Failed to load Stripe shipping rate', rateId, error);
-        return { id: rateId, isUps: false, label: '' };
-      }
-    })
-  );
-  return entries.filter((entry) => entry.isUps).map((entry) => entry.id);
-}
-
 const parseBoxDimensions = (raw?: string | null): Dimensions | undefined => {
   if (!raw || typeof raw !== 'string') return undefined;
   const parts = raw
@@ -412,53 +328,8 @@ export async function POST({ request }: { request: Request }) {
     return jsonResponse({ error: 'Validation failed', details: bodyResult.error.format() }, 422);
   }
 
-  const { cart, metadata: requestMetadata, shippingRate, selectedRate } = bodyResult.data;
+  const { cart, metadata: requestMetadata } = bodyResult.data;
   const clamp = (value: string, max = 500) => (value.length > max ? value.slice(0, max) : value);
-  const buildShippingRateMetadata = (
-    rate: NormalizedCheckoutShippingRate
-  ): Record<string, string> => {
-    const metadata: Record<string, string> = {};
-    const push = (key: string, value: unknown) => {
-      const normalized = readString(value);
-      if (!normalized) return;
-      metadata[key] = clamp(normalized, 500);
-    };
-    const pushNumber = (key: string, value: unknown) => {
-      const num = Number(value);
-      if (!Number.isFinite(num)) return;
-      metadata[key] = clamp(String(num), 120);
-    };
-
-    push('selected_rate_id', rate.id);
-    push('shipping_carrier', rate.carrier);
-    push('shipping_service', rate.service);
-    push('shipping_amount_cents', rate.amountCents);
-    push('shipping_amount', (rate.amountCents / 100).toFixed(2));
-    push('shipping_currency', rate.currency);
-    if (rate.estDays !== undefined) push('shipping_delivery_days', rate.estDays);
-    push('shipping_quote_id', rate.quoteId);
-    push('shipping_quote_key', rate.quoteKey);
-    push('shipping_quote_request_id', rate.quoteRequestId);
-    push('shipping_carrier_id', rate.carrierId);
-    push('shipping_service_code', rate.serviceCode);
-    push('shipping_package_code', rate.packageCode);
-    push('shipping_provider', rate.provider);
-    pushNumber('shipping_packaging_weight', rate.packagingWeight);
-    push('shipping_packaging_weight_unit', rate.packagingWeightUnit);
-    pushNumber('shipping_package_length', rate.length);
-    pushNumber('shipping_package_width', rate.width);
-    pushNumber('shipping_package_height', rate.height);
-
-    return metadata;
-  };
-  const buildShippingRateLabel = (rate: NormalizedCheckoutShippingRate): string => {
-    const carrier = rate.carrier.trim();
-    const service = rate.service.trim();
-    if (carrier && service && carrier.toLowerCase() !== service.toLowerCase()) {
-      return `${carrier} ${service}`;
-    }
-    return carrier || service || 'Shipping';
-  };
 
   const formatSelectedOptions = (
     input?: Record<string, unknown> | null,
@@ -637,78 +508,6 @@ export async function POST({ request }: { request: Request }) {
 
   const productLookup = await fetchShippingProductsForCart(cart as CheckoutCartItem[]);
   const shippingRequired = requiresShippingSelection(cart as CheckoutCartItem[]);
-  const requestedShippingRate = normalizeCheckoutShippingRate(selectedRate ?? shippingRate);
-  const resolvedShippingRate = shippingRequired ? requestedShippingRate : null;
-  const resolveBooleanEnv = (value: unknown): boolean => {
-    if (typeof value === 'boolean') return value;
-    if (typeof value !== 'string') return false;
-    const normalized = value.trim().toLowerCase();
-    return (
-      normalized === '1' || normalized === 'true' || normalized === 'yes' || normalized === 'on'
-    );
-  };
-
-  const useDynamicShippingRates = (() => {
-    const raw =
-      (import.meta.env.STRIPE_USE_DYNAMIC_SHIPPING_RATES as string | undefined) ||
-      process.env.STRIPE_USE_DYNAMIC_SHIPPING_RATES;
-    if (raw === undefined) return true;
-    return resolveBooleanEnv(raw);
-  })();
-
-  const configuredShippingRateIds = useDynamicShippingRates
-    ? []
-    : String(
-        (import.meta.env.STRIPE_SHIPPING_RATE_IDS as string | undefined) ||
-          process.env.STRIPE_SHIPPING_RATE_IDS ||
-          ''
-      )
-        .split(',')
-        .map((value) => value.trim())
-        .filter(Boolean);
-
-  const allowMissingShippingRates =
-    import.meta.env.DEV ||
-    resolveBooleanEnv(import.meta.env.STRIPE_ALLOW_MISSING_SHIPPING_RATES) ||
-    resolveBooleanEnv(process.env.STRIPE_ALLOW_MISSING_SHIPPING_RATES);
-
-  const allowedShippingRateIds =
-    shippingRequired && configuredShippingRateIds.length
-      ? await filterUpsShippingRateIds(configuredShippingRateIds)
-      : configuredShippingRateIds;
-
-  const needsFallbackShippingOption =
-    !resolvedShippingRate &&
-    !useDynamicShippingRates &&
-    shippingRequired &&
-    !allowedShippingRateIds.length;
-
-  if (!useDynamicShippingRates) {
-    if (
-      !resolvedShippingRate &&
-      shippingRequired &&
-      configuredShippingRateIds.length &&
-      !allowedShippingRateIds.length
-    ) {
-      return jsonResponse(
-        {
-          error:
-            'UPS-only shipping is enforced, but no UPS Stripe shipping rates are configured. Update STRIPE_SHIPPING_RATE_IDS with UPS rates.'
-        },
-        422
-      );
-    }
-
-    if (needsFallbackShippingOption && !allowMissingShippingRates) {
-      return jsonResponse(
-        {
-          error:
-            'Shipping is required, but no Stripe shipping rates are configured. Set STRIPE_SHIPPING_RATE_IDS, or set STRIPE_ALLOW_MISSING_SHIPPING_RATES=true to use a $0 placeholder rate (recommended only for dev).'
-        },
-        422
-      );
-    }
-  }
 
   const cleanLabel = (value?: string | null): string => {
     if (!value) return '';
@@ -972,61 +771,12 @@ export async function POST({ request }: { request: Request }) {
       });
     }
 
-    const shippingRateMetadata = resolvedShippingRate
-      ? buildShippingRateMetadata(resolvedShippingRate)
-      : null;
-    if (shippingRateMetadata) {
-      Object.entries(shippingRateMetadata).forEach(([key, value]) => {
-        if (!value) return;
-        if (!(key in metadataForSession)) metadataForSession[key] = value;
-      });
-    }
-
-    if (needsFallbackShippingOption) {
-      metadataForSession.selected_rate_id = metadataForSession.selected_rate_id || 'fallback';
-      metadataForSession.shipping_carrier = metadataForSession.shipping_carrier || 'Shipping';
-      metadataForSession.shipping_service =
-        metadataForSession.shipping_service || 'Calculated after checkout';
-      metadataForSession.shipping_amount_cents = metadataForSession.shipping_amount_cents || '0';
-      metadataForSession.shipping_amount = metadataForSession.shipping_amount || '0.00';
-      metadataForSession.shipping_currency = metadataForSession.shipping_currency || 'usd';
-      metadataForSession.shipping_rate_fallback = 'true';
-    }
-
     const paymentIntentMetadata = { ...metadataForSession };
     paymentIntentMetadata.ship_status = shippingRequired ? 'unshipped' : 'unshippable';
 
+    // Parcelcraft handles shipping rates dynamically; never pass static shipping options.
     const shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] | undefined =
-      !shippingRequired
-        ? undefined
-        : resolvedShippingRate
-          ? [
-              {
-                shipping_rate_data: {
-                  type: 'fixed_amount',
-                  fixed_amount: {
-                    amount: resolvedShippingRate.amountCents,
-                    currency: resolvedShippingRate.currency
-                  },
-                  display_name: buildShippingRateLabel(resolvedShippingRate),
-                  ...(shippingRateMetadata ? { metadata: shippingRateMetadata } : {})
-                }
-              }
-            ]
-          : useDynamicShippingRates
-            ? undefined
-            : needsFallbackShippingOption
-              ? [
-                  {
-                    shipping_rate_data: {
-                      type: 'fixed_amount',
-                      fixed_amount: { amount: 0, currency: 'usd' },
-                      display_name: 'Shipping (calculated after checkout)',
-                      metadata: { fallback: 'true' }
-                    }
-                  }
-                ]
-              : allowedShippingRateIds.map((id) => ({ shipping_rate: id }));
+      undefined;
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       // Offer standard cards plus Affirm financing at checkout
