@@ -371,7 +371,7 @@ export async function POST({ request }: { request: Request }) {
   const bodyResult = stripeCheckoutRequestSchema.safeParse(body);
   if (!bodyResult.success) {
     console.error('[validation-failure]', {
-    schema: 'stripeCheckoutRequestSchema',
+      schema: 'stripeCheckoutRequestSchema',
       context: 'api/checkout',
       identifier: 'unknown',
       timestamp: new Date().toISOString(),
@@ -564,62 +564,64 @@ export async function POST({ request }: { request: Request }) {
     if (typeof value === 'boolean') return value;
     if (typeof value !== 'string') return false;
     const normalized = value.trim().toLowerCase();
-    return normalized === '1' || normalized === 'true' || normalized === 'yes' || normalized === 'on';
+    return (
+      normalized === '1' || normalized === 'true' || normalized === 'yes' || normalized === 'on'
+    );
   };
 
-const useDynamicShippingRates = (() => {
-  const raw =
-    (import.meta.env.STRIPE_USE_DYNAMIC_SHIPPING_RATES as string | undefined) ||
-    process.env.STRIPE_USE_DYNAMIC_SHIPPING_RATES;
-  if (raw === undefined) return true;
-  return resolveBooleanEnv(raw);
-})();
+  const useDynamicShippingRates = (() => {
+    const raw =
+      (import.meta.env.STRIPE_USE_DYNAMIC_SHIPPING_RATES as string | undefined) ||
+      process.env.STRIPE_USE_DYNAMIC_SHIPPING_RATES;
+    if (raw === undefined) return true;
+    return resolveBooleanEnv(raw);
+  })();
 
-const configuredShippingRateIds = useDynamicShippingRates
-  ? []
-  : String(
-      (import.meta.env.STRIPE_SHIPPING_RATE_IDS as string | undefined) ||
-        process.env.STRIPE_SHIPPING_RATE_IDS ||
-        ''
-    )
-      .split(',')
-      .map((value) => value.trim())
-      .filter(Boolean);
+  const configuredShippingRateIds = useDynamicShippingRates
+    ? []
+    : String(
+        (import.meta.env.STRIPE_SHIPPING_RATE_IDS as string | undefined) ||
+          process.env.STRIPE_SHIPPING_RATE_IDS ||
+          ''
+      )
+        .split(',')
+        .map((value) => value.trim())
+        .filter(Boolean);
 
   const allowMissingShippingRates =
     import.meta.env.DEV ||
     resolveBooleanEnv(import.meta.env.STRIPE_ALLOW_MISSING_SHIPPING_RATES) ||
     resolveBooleanEnv(process.env.STRIPE_ALLOW_MISSING_SHIPPING_RATES);
 
-const allowedShippingRateIds =
-  shippingRequired && configuredShippingRateIds.length
-    ? await filterUpsShippingRateIds(configuredShippingRateIds)
-    : configuredShippingRateIds;
+  const allowedShippingRateIds =
+    shippingRequired && configuredShippingRateIds.length
+      ? await filterUpsShippingRateIds(configuredShippingRateIds)
+      : configuredShippingRateIds;
 
-const needsFallbackShippingOption =
-  !useDynamicShippingRates && shippingRequired && !allowedShippingRateIds.length;
+  const needsFallbackShippingOption =
+    !useDynamicShippingRates && shippingRequired && !allowedShippingRateIds.length;
 
-if (!useDynamicShippingRates) {
-  if (shippingRequired && configuredShippingRateIds.length && !allowedShippingRateIds.length) {
-    return jsonResponse(
-      {
-        error:
-          'UPS-only shipping is enforced, but no UPS Stripe shipping rates are configured. Update STRIPE_SHIPPING_RATE_IDS with UPS rates.'
-      },
-      422
-    );
+  if (!useDynamicShippingRates) {
+    if (shippingRequired && configuredShippingRateIds.length && !allowedShippingRateIds.length) {
+      return jsonResponse(
+        {
+          error:
+            'UPS-only shipping is enforced, but no UPS Stripe shipping rates are configured. Update STRIPE_SHIPPING_RATE_IDS with UPS rates.'
+        },
+        422
+      );
+    }
+
+    if (needsFallbackShippingOption && !allowMissingShippingRates) {
+      return jsonResponse(
+        {
+          error:
+            'Shipping is required, but no Stripe shipping rates are configured. Set STRIPE_SHIPPING_RATE_IDS, or set STRIPE_ALLOW_MISSING_SHIPPING_RATES=true to use a $0 placeholder rate (recommended only for dev).'
+        },
+        422
+      );
+    }
   }
-
-  if (needsFallbackShippingOption && !allowMissingShippingRates) {
-    return jsonResponse(
-      {
-        error:
-          'Shipping is required, but no Stripe shipping rates are configured. Set STRIPE_SHIPPING_RATE_IDS, or set STRIPE_ALLOW_MISSING_SHIPPING_RATES=true to use a $0 placeholder rate (recommended only for dev).'
-      },
-      422
-    );
-  }
-}
 
   const cleanLabel = (value?: string | null): string => {
     if (!value) return '';
@@ -810,9 +812,10 @@ if (!useDynamicShippingRates) {
     let customerEmail = userEmail || undefined;
 
     const bodyRecord = body && typeof body === 'object' ? (body as Record<string, unknown>) : {};
-    const metadataInput = requestMetadata && typeof requestMetadata === 'object'
-      ? (requestMetadata as Record<string, unknown>)
-      : {};
+    const metadataInput =
+      requestMetadata && typeof requestMetadata === 'object'
+        ? (requestMetadata as Record<string, unknown>)
+        : {};
     const cartId =
       readString(bodyRecord.cartId) ||
       readString(bodyRecord.cart_id) ||
@@ -821,7 +824,7 @@ if (!useDynamicShippingRates) {
       randomUUID();
 
     const metadataForSession: Record<string, string> = {
-      cart_id: cartId,
+      cart_id: cartId
     };
 
     const cartType =
@@ -882,7 +885,7 @@ if (!useDynamicShippingRates) {
       });
     }
 
-  if (needsFallbackShippingOption) {
+    if (needsFallbackShippingOption) {
       metadataForSession.selected_rate_id = metadataForSession.selected_rate_id || 'fallback';
       metadataForSession.shipping_carrier = metadataForSession.shipping_carrier || 'Shipping';
       metadataForSession.shipping_service =
@@ -896,23 +899,23 @@ if (!useDynamicShippingRates) {
     const paymentIntentMetadata = { ...metadataForSession };
     paymentIntentMetadata.ship_status = shippingRequired ? 'unshipped' : 'unshippable';
 
-  const shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] | undefined =
-    !shippingRequired
-      ? undefined
-      : useDynamicShippingRates
+    const shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] | undefined =
+      !shippingRequired
         ? undefined
-        : needsFallbackShippingOption
-          ? [
-              {
-                shipping_rate_data: {
-                  type: 'fixed_amount',
-                  fixed_amount: { amount: 0, currency: 'usd' },
-                  display_name: 'Shipping (calculated after checkout)',
-                  metadata: { fallback: 'true' }
+        : useDynamicShippingRates
+          ? undefined
+          : needsFallbackShippingOption
+            ? [
+                {
+                  shipping_rate_data: {
+                    type: 'fixed_amount',
+                    fixed_amount: { amount: 0, currency: 'usd' },
+                    display_name: 'Shipping (calculated after checkout)',
+                    metadata: { fallback: 'true' }
+                  }
                 }
-              }
-            ]
-          : allowedShippingRateIds.map((id) => ({ shipping_rate: id }));
+              ]
+            : allowedShippingRateIds.map((id) => ({ shipping_rate: id }));
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       // Offer standard cards plus Affirm financing at checkout
@@ -927,6 +930,8 @@ if (!useDynamicShippingRates) {
       tax_id_collection: { enabled: true },
       // Enable Stripe Tax for automatic sales tax calculation
       automatic_tax: { enabled: true },
+      // Enable invoice creation (required for Parcelcraft)
+      invoice_creation: { enabled: true },
       billing_address_collection: 'required',
       phone_number_collection: { enabled: true },
       allow_promotion_codes: true,
