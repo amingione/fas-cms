@@ -726,7 +726,6 @@ export async function POST({ request }: { request: Request }) {
       metadata.is_on_sale = isOnSale(product as any) ? 'true' : 'false';
       if (product.saleLabel) metadata.sale_label = clamp(String(product.saleLabel), 120);
     }
-
     if (optionDetails?.summary) {
       metadata.selected_options = clamp(optionDetails.summary);
     }
@@ -939,6 +938,25 @@ export async function POST({ request }: { request: Request }) {
       phone_number_collection: { enabled: true },
       allow_promotion_codes: true,
       shipping_address_collection: shippingAddressCollection,
+      ...(shippingRequired
+        ? {
+            shipping_options: [
+              {
+                shipping_rate_data: {
+                  type: 'fixed_amount',
+                  fixed_amount: {
+                    amount: 0,
+                    currency: 'usd'
+                  },
+                  display_name: 'Calculated at checkout',
+                  metadata: {
+                    parcelcraft: 'true'
+                  }
+                }
+              }
+            ]
+          }
+        : {}),
       success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/cart`,
       consent_collection: { promotions: 'auto' },
