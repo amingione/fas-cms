@@ -287,8 +287,7 @@ const buildParcelcraftProductMetadata = (
       : parseBoxDimensions(product.boxDimensions);
 
   const metadata: Record<string, string> = {
-    customs_description:
-      'Parts and accessories of the motor vehicles of headings 8701 to 8705:',
+    customs_description: 'Parts and accessories of the motor vehicles of headings 8701 to 8705:',
     origin_country: 'US',
     tariff_code: '8708'
   };
@@ -534,6 +533,25 @@ export async function POST({ request }: { request: Request }) {
 
   const productLookup = await fetchShippingProductsForCart(cart as CheckoutCartItem[]);
   const shippingRequired = requiresShippingSelection(cart as CheckoutCartItem[]);
+  const stripePriceIds = Array.from(
+    new Set(
+      (cart as CheckoutCartItem[])
+        .map((item) => (typeof item.stripePriceId === 'string' ? item.stripePriceId.trim() : ''))
+        .filter((priceId) => priceId.startsWith('price_'))
+    )
+  );
+  let stripePriceMap = new Map<string, Stripe.Price>();
+  if (stripePriceIds.length) {
+    try {
+      const prices = await Promise.all(
+        stripePriceIds.map((priceId) => stripe.prices.retrieve(priceId, { expand: ['product'] }))
+      );
+      stripePriceMap = new Map(prices.filter(Boolean).map((price) => [price.id, price]));
+    } catch (error) {
+      console.error('[checkout] Failed to load Stripe price metadata', error);
+      return jsonResponse({ error: 'Unable to load Stripe price metadata' }, 400);
+    }
+  }
   const useDynamicShippingRates = resolveBooleanEnv(
     readEnvValue('STRIPE_USE_DYNAMIC_SHIPPING_RATES'),
     true
@@ -560,7 +578,8 @@ export async function POST({ request }: { request: Request }) {
     return trimmed;
   };
 
-  const lineItems = (cart as CheckoutCartItem[]).map((item) => {
+  const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
+  for (const item of cart as CheckoutCartItem[]) {
     const stripePriceId = typeof item.stripePriceId === 'string' ? item.stripePriceId.trim() : '';
     const rawId = typeof item.id === 'string' ? item.id : undefined;
     const sanityProductId = normalizeCartId(rawId);
@@ -595,10 +614,66 @@ export async function POST({ request }: { request: Request }) {
     const quantity = Math.max(1, Number.isFinite(item.quantity) ? Number(item.quantity) : 1);
 
     if (stripePriceId.startsWith('price_')) {
-      return {
-        price: stripePriceId,
-        quantity
-      } satisfies Stripe.Checkout.SessionCreateParams.LineItem;
+      const price = stripePriceMap.get(stripePriceId);
+      if (!price) {
+        return jsonResponse({ error: 'Stripe price not found' }, 400);
+      }
+      const rawClass = typeof item.shippingClass === 'string' ? item.shippingClass : '';
+      const normalizedClass = rawClass.toLowerCase().replace(/[^a-z0-9]+/g, '');
+      const isInstallOnly = Boolean(item.installOnly) || normalizedClass === 'installonly';
+      const requiresShipping = product?.shippingConfig?.requiresShipping;
+      const isShippable = !isInstallOnly && requiresShipping !== false;
+      const stripeProduct = typeof price.product === 'string' ? undefined : price.product;
+      const stripeMeta =
+        stripeProduct && 'metadata' in stripeProduct && !('deleted' in stripeProduct)
+          ? stripeProduct.metadata
+          : {};
+      const hasShippingMeta =
+        Boolean(stripeMeta?.weight) &&
+        Boolean(stripeMeta?.weight_unit) &&
+        Boolean(stripeMeta?.origin_country);
+
+      if (isShippable && !hasShippingMeta) {
+        if (price.type !== 'one_time' || !Number.isFinite(price.unit_amount ?? NaN)) {
+          return jsonResponse({ error: 'Stripe price missing shippable metadata' }, 400);
+        }
+        const metadata: Record<string, string> = {
+          ...stripeMeta,
+          ...buildParcelcraftProductMetadata(product, item)
+        };
+        if (!metadata.weight || !metadata.weight_unit || !metadata.origin_country) {
+          return jsonResponse(
+            { error: 'Parcelcraft shipping metadata required for Stripe price items' },
+            400
+          );
+        }
+        lineItems.push({
+          price_data: {
+            currency: price.currency,
+            tax_behavior: price.tax_behavior || 'exclusive',
+            product_data: {
+              name:
+                (stripeProduct && !('deleted' in stripeProduct) ? stripeProduct.name : undefined) ||
+                item.name ||
+                'Item',
+              images: item.image
+                ? [item.image]
+                : (stripeProduct && !('deleted' in stripeProduct) ? stripeProduct.images : []) ||
+                  [],
+              tax_code: 'txcd_99999999',
+              metadata
+            },
+            unit_amount: price.unit_amount ?? unitAmount
+          },
+          quantity
+        });
+      } else {
+        lineItems.push({
+          price: stripePriceId,
+          quantity
+        });
+      }
+      continue;
     }
 
     const optionDetails = formatSelectedOptions(
@@ -695,7 +770,7 @@ export async function POST({ request }: { request: Request }) {
     });
     const description = optionSummary ? clamp(optionSummary, 250) : undefined;
 
-    return {
+    lineItems.push({
       price_data: {
         currency: 'usd',
         tax_behavior: 'exclusive',
@@ -709,8 +784,12 @@ export async function POST({ request }: { request: Request }) {
         unit_amount: unitAmount
       },
       quantity
-    } satisfies Stripe.Checkout.SessionCreateParams.LineItem;
-  });
+    } satisfies Stripe.Checkout.SessionCreateParams.LineItem);
+  }
+
+  if (!lineItems.length) {
+    return jsonResponse({ error: 'Cart has no valid line items' }, 400);
+  }
 
   // Derive optional user identity for reliable joins in webhook
   let userEmail: string | undefined;
