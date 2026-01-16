@@ -693,7 +693,7 @@ export async function POST({ request }: { request: Request }) {
       ...(sanityProductId ? { sanity_product_id: sanityProductId } : {}),
       ...(product?._id ? { sanity_product_id_actual: product._id } : {})
     };
-    
+
     // Build Parcelcraft metadata and validate for shippable items
     const parcelcraftMeta = buildParcelcraftProductMetadata(product, item);
     const requiresShipping = product?.shippingConfig?.requiresShipping;
@@ -723,7 +723,7 @@ export async function POST({ request }: { request: Request }) {
         400
       );
     }
-    
+
     // Merge Parcelcraft metadata into main metadata object
     Object.assign(metadata, parcelcraftMeta);
     const optionsValue = toMetadataValue(item.options ?? item.selections ?? null);
@@ -988,9 +988,7 @@ export async function POST({ request }: { request: Request }) {
       allow_promotion_codes: true,
       // Parcelcraft automatically injects dynamic shipping rates when shipping_address_collection is enabled
       // and invoice_creation is true. Do NOT manually pass shipping_options as it overrides Parcelcraft.
-      ...(shippingRequired
-        ? { shipping_address_collection: shippingAddressCollection }
-        : {}),
+      ...(shippingRequired ? { shipping_address_collection: shippingAddressCollection } : {}),
       success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/cart`,
       consent_collection: { promotions: 'auto' },
