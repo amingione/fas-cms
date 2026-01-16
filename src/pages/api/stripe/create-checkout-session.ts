@@ -287,6 +287,8 @@ const buildParcelcraftProductMetadata = (
       : parseBoxDimensions(product.boxDimensions);
 
   const metadata: Record<string, string> = {
+    // CRITICAL: Parcelcraft uses this flag to detect shippable products
+    shipping_required: 'true',
     customs_description: 'Parts and accessories of the motor vehicles of headings 8701 to 8705:',
     origin_country: 'US',
     tariff_code: '8708'
@@ -691,7 +693,39 @@ export async function POST({ request }: { request: Request }) {
       ...(sanityProductId ? { sanity_product_id: sanityProductId } : {}),
       ...(product?._id ? { sanity_product_id_actual: product._id } : {})
     };
-    Object.assign(metadata, buildParcelcraftProductMetadata(product, item));
+    
+    // Build Parcelcraft metadata and validate for shippable items
+    const parcelcraftMeta = buildParcelcraftProductMetadata(product, item);
+    const requiresShipping = product?.shippingConfig?.requiresShipping;
+    const isItemShippable = !item.installOnly && requiresShipping !== false;
+    const hasParcelcraftMeta = Boolean(
+      parcelcraftMeta.weight &&
+      parcelcraftMeta.weight_unit &&
+      parcelcraftMeta.origin_country &&
+      parcelcraftMeta.shipping_required
+    );
+
+    // Validate Parcelcraft metadata for shippable items
+    if (isItemShippable && !hasParcelcraftMeta) {
+      const productId = product?._id || sanityProductId || item.sku || 'unknown';
+      console.error('[checkout] Missing Parcelcraft metadata for shippable item', {
+        productId,
+        itemName: item.name,
+        hasWeight: Boolean(parcelcraftMeta.weight),
+        hasOriginCountry: Boolean(parcelcraftMeta.origin_country),
+        hasShippingRequired: Boolean(parcelcraftMeta.shipping_required)
+      });
+      return jsonResponse(
+        {
+          error: `Product "${item.name || 'Unknown'}" requires shipping but is missing required weight, dimensions, or shipping configuration. Please configure shipping details in Sanity.`,
+          productId
+        },
+        400
+      );
+    }
+    
+    // Merge Parcelcraft metadata into main metadata object
+    Object.assign(metadata, parcelcraftMeta);
     const optionsValue = toMetadataValue(item.options ?? item.selections ?? null);
     if (optionsValue) {
       metadata.options = clamp(optionsValue, 500);
@@ -778,6 +812,8 @@ export async function POST({ request }: { request: Request }) {
           tax_code: 'txcd_99999999',
           ...(description ? { description } : {}),
           // Help fulfillment map back to Sanity/Inventory and capture configured options
+          // CRITICAL: Includes Parcelcraft metadata (weight, dimensions, shipping_required, origin_country)
+          // This metadata is required for Parcelcraft to detect shippable products and inject dynamic shipping rates
           metadata
         },
         unit_amount: unitAmount
@@ -914,6 +950,19 @@ export async function POST({ request }: { request: Request }) {
       console.warn(
         '[checkout] Static shipping rates are disabled; Parcelcraft must supply dynamic rates.'
       );
+      // Log Parcelcraft configuration for debugging
+      const shippableItemCount = lineItems.filter((item) => {
+        if (!item.price_data?.product_data?.metadata) return false;
+        const meta = item.price_data.product_data.metadata as Record<string, string>;
+        return meta.shipping_required === 'true' && meta.weight && meta.origin_country;
+      }).length;
+      console.log('[checkout] Parcelcraft configuration check', {
+        shippingRequired,
+        lineItemCount: lineItems.length,
+        shippableItemCount,
+        invoiceCreationEnabled: true,
+        shippingAddressCollectionEnabled: true
+      });
     }
 
     const paymentIntentMetadata = { ...metadataForSession };
