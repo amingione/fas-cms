@@ -937,25 +937,10 @@ export async function POST({ request }: { request: Request }) {
       billing_address_collection: 'required',
       phone_number_collection: { enabled: true },
       allow_promotion_codes: true,
-      shipping_address_collection: shippingAddressCollection,
+      // Parcelcraft automatically injects dynamic shipping rates when shipping_address_collection is enabled
+      // and invoice_creation is true. Do NOT manually pass shipping_options as it overrides Parcelcraft.
       ...(shippingRequired
-        ? {
-            shipping_options: [
-              {
-                shipping_rate_data: {
-                  type: 'fixed_amount',
-                  fixed_amount: {
-                    amount: 0,
-                    currency: 'usd'
-                  },
-                  display_name: 'Calculated at checkout',
-                  metadata: {
-                    parcelcraft: 'true'
-                  }
-                }
-              }
-            ]
-          }
+        ? { shipping_address_collection: shippingAddressCollection }
         : {}),
       success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/cart`,

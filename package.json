@@ -44,7 +44,8 @@
   },
   "resolutions": {
     "@netlify/edge-functions": "npm:2.18.2",
-    "esbuild": "0.25.5"
+    "esbuild": "0.25.5",
+    "baseline-browser-mapping": "^2.9.14"
   },
   "devDependencies": {
     "@babel/core": "^7.28.5",
