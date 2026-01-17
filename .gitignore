@@ -43,3 +43,5 @@ node_modules/
 yarn.lock.netlify/plugins/
 .astro/
 docs/
+
+.early.coverage

@@ -7,6 +7,11 @@ import { saveOrderRequestSchema } from '@/lib/validators/api-requests';
 import { stripeCheckoutSessionSchema } from '@/lib/validators/stripe';
 import { sanityCustomerSchema } from '@/lib/validators/sanity';
 
+/**
+ * FIELD MAPPING CONTRACT
+ * Canonical source: .docs/reports/field-to-api-map.md
+ */
+
 interface OrderPayload {
   _type: 'order';
   stripeSessionId: string;
@@ -16,19 +21,101 @@ interface OrderPayload {
   amountTax: number;
   amountShipping: number;
   amountDiscount: number;
-  status: 'pending' | 'paid' | 'unpaid' | 'failed' | 'refunded';
-  orderType: 'retail' | 'wholesale';
-  paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
+  status: 'pending' | 'paid' | 'fulfilled' | 'delivered' | 'canceled' | 'refunded';
+  orderType: 'online' | 'retail' | 'wholesale' | 'in-store' | 'phone';
+  paymentStatus:
+    | 'pending'
+    | 'unpaid'
+    | 'paid'
+    | 'failed'
+    | 'refunded'
+    | 'partially_refunded'
+    | 'cancelled';
   createdAt: string;
   orderNumber: string;
   customerRef?: { _type: 'reference'; _ref: string };
   customerEmail: string;
   customerName: string;
+  currency?: string;
+  carrier?: string;
+  service?: string;
+  stripeShippingRateId?: string;
+  shippingQuoteId?: string;
+  shippingQuoteKey?: string;
+  shippingQuoteRequestId?: string;
+  deliveryDays?: number;
+  estimatedDeliveryDate?: string;
+  shippingAddress?: {
+    name: string;
+    phone: string;
+    email: string;
+    addressLine1: string;
+    addressLine2: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+  };
+  billingAddress?: {
+    name: string;
+    phone: string;
+    email: string;
+    addressLine1: string;
+    addressLine2: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+  };
 }
 
 interface SanityCustomerQueryResult {
   result?: { _id?: string } | null;
 }
+
+const normalizePaymentStatus = (
+  sessionStatus?: string | null
+): 'pending' | 'unpaid' | 'paid' | 'failed' | 'refunded' | 'partially_refunded' | 'cancelled' => {
+  const normalizedSession = (sessionStatus || '').toLowerCase().trim();
+  if (normalizedSession === 'paid') return 'paid';
+  if (normalizedSession === 'unpaid') return 'unpaid';
+  if (normalizedSession === 'no_payment_required') return 'paid';
+  return 'pending';
+};
+
+const splitShippingDisplayName = (
+  displayName?: string | null
+): { carrier?: string; service?: string } => {
+  const name = (displayName || '').trim();
+  if (!name) return {};
+  const parts = name
+    .split(/[\u2013\u2014-]/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (parts.length >= 2) {
+    return {
+      carrier: parts[0],
+      service: parts.slice(1).join(' - ')
+    };
+  }
+  return { service: name };
+};
+
+const deriveDeliveryEstimate = (
+  shippingRate?: Stripe.ShippingRate | null
+): { deliveryDays?: number; estimatedDeliveryDate?: string } => {
+  const estimate = shippingRate?.delivery_estimate;
+  const value = estimate?.maximum?.value ?? estimate?.minimum?.value;
+  if (!Number.isFinite(value)) return {};
+  const days = Math.max(0, Math.trunc(Number(value)));
+  if (!days) return {};
+  const base = new Date();
+  base.setDate(base.getDate() + days);
+  return {
+    deliveryDays: days,
+    estimatedDeliveryDate: base.toISOString()
+  };
+};
 
 const stripeApiVersion = (import.meta.env.STRIPE_API_VERSION as string | undefined) || '2025-08-27.basil';
 
@@ -62,7 +149,7 @@ export const POST = async ({ request }: { request: Request }) => {
     const { sessionId, cart } = bodyResult.data;
 
     const stripeSession = await stripeClient.checkout.sessions.retrieve(sessionId, {
-      expand: ['customer_details']
+      expand: ['customer_details', 'shipping_cost.shipping_rate']
     });
     const stripeSessionResult = stripeCheckoutSessionSchema.safeParse(stripeSession);
     if (!stripeSessionResult.success) {
@@ -73,6 +160,83 @@ export const POST = async ({ request }: { request: Request }) => {
       throw new Error('Invalid Stripe session response');
     }
     const validatedSession = stripeSessionResult.data;
+
+    const shippingCost = (stripeSession as any)?.shipping_cost as
+      | Stripe.Checkout.Session.ShippingCost
+      | null
+      | undefined;
+    const shippingRate =
+      shippingCost && typeof shippingCost.shipping_rate === 'object'
+        ? (shippingCost.shipping_rate as Stripe.ShippingRate)
+        : null;
+    const shippingRateId =
+      shippingCost && typeof shippingCost.shipping_rate === 'string'
+        ? shippingCost.shipping_rate
+        : shippingRate?.id ?? null;
+    const shippingRateMetadata =
+      shippingRate?.metadata && typeof shippingRate.metadata === 'object'
+        ? (shippingRate.metadata as Record<string, string | null | undefined>)
+        : {};
+    const sessionMetadata = (stripeSession.metadata || {}) as Record<
+      string,
+      string | null | undefined
+    >;
+    const extractShippingMeta = (key: string): string | undefined => {
+      const candidate = shippingRateMetadata[key] ?? sessionMetadata[key];
+      return typeof candidate === 'string' && candidate.trim() ? candidate.trim() : undefined;
+    };
+    const selectedRateId = extractShippingMeta('selected_rate_id') ?? shippingRateId ?? undefined;
+    const stripeShippingRateId =
+      shippingRateId || (selectedRateId && selectedRateId.startsWith('shr_') ? selectedRateId : undefined);
+    const { carrier: displayCarrier, service: displayService } = splitShippingDisplayName(
+      shippingRate?.display_name
+    );
+    const carrier =
+      extractShippingMeta('shipping_carrier') ?? extractShippingMeta('carrier') ?? displayCarrier;
+    const service =
+      extractShippingMeta('shipping_service') ?? extractShippingMeta('service') ?? displayService;
+    const derivedEstimate = deriveDeliveryEstimate(shippingRate);
+    const deliveryDaysFromMeta = extractShippingMeta('shipping_delivery_days');
+    const estimatedDeliveryDate =
+      extractShippingMeta('shipping_estimated_delivery_date') || derivedEstimate.estimatedDeliveryDate;
+    const deliveryDays =
+      deliveryDaysFromMeta && Number.isFinite(Number(deliveryDaysFromMeta))
+        ? Number(deliveryDaysFromMeta)
+        : derivedEstimate.deliveryDays;
+    const shippingQuoteId = extractShippingMeta('shipping_quote_id');
+    const shippingQuoteKey = extractShippingMeta('shipping_quote_key');
+    const shippingQuoteRequestId = extractShippingMeta('shipping_quote_request_id');
+    const shippingDetails =
+      (stripeSession as any)?.collected_information?.shipping_details ||
+      (stripeSession as any)?.shipping_details ||
+      null;
+    const customerDetails = validatedSession.customer_details || null;
+    const shippingAddress = shippingDetails?.address
+      ? {
+          name: shippingDetails.name || '',
+          phone: customerDetails?.phone || '',
+          email: customerDetails?.email || '',
+          addressLine1: shippingDetails.address.line1 || '',
+          addressLine2: shippingDetails.address.line2 || '',
+          city: shippingDetails.address.city || '',
+          state: shippingDetails.address.state || '',
+          postalCode: shippingDetails.address.postal_code || '',
+          country: shippingDetails.address.country || ''
+        }
+      : undefined;
+    const billingAddress = customerDetails?.address
+      ? {
+          name: customerDetails.name || '',
+          phone: customerDetails.phone || '',
+          email: customerDetails.email || '',
+          addressLine1: customerDetails.address.line1 || '',
+          addressLine2: customerDetails.address.line2 || '',
+          city: customerDetails.address.city || '',
+          state: customerDetails.address.state || '',
+          postalCode: customerDetails.address.postal_code || '',
+          country: customerDetails.address.country || ''
+        }
+      : undefined;
 
     const projectId =
       (import.meta.env.SANITY_PROJECT_ID as string | undefined) ||
@@ -135,6 +299,7 @@ export const POST = async ({ request }: { request: Request }) => {
     const totalAmount = validatedSession.amount_total ? validatedSession.amount_total / 100 : 0;
     const customerName = validatedSession.customer_details?.name || '';
     const customerEmailValue = validatedSession.customer_details?.email || customerEmail || '';
+    const normalizedPaymentStatus = normalizePaymentStatus(validatedSession.payment_status);
 
     const orderPayload: OrderPayload = {
       _type: 'order',
@@ -155,16 +320,27 @@ export const POST = async ({ request }: { request: Request }) => {
       ),
       orderNumber: `FAS-${Date.now().toString().slice(-6)}`,
       createdAt: new Date().toISOString(),
-      status: 'pending',
+      status: normalizedPaymentStatus === 'paid' ? 'paid' : 'pending',
       orderType: 'retail',
-      paymentStatus: 'pending',
+      paymentStatus: normalizedPaymentStatus,
       amountSubtotal,
       amountTax,
       amountShipping,
       amountDiscount,
       totalAmount,
       customerEmail: customerEmailValue,
-      customerName
+      customerName,
+      currency: validatedSession.currency || 'usd',
+      carrier,
+      service,
+      stripeShippingRateId,
+      shippingQuoteId,
+      shippingQuoteKey,
+      shippingQuoteRequestId,
+      deliveryDays,
+      estimatedDeliveryDate,
+      shippingAddress,
+      billingAddress
     };
 
     if (customerId) {

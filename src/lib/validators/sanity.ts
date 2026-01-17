@@ -22,7 +22,7 @@ export const sanityOrderSchema = z
     orderNumber: z.string().optional(),
     stripeSessionId: z.string(),
     paymentIntentId: z.string().optional(),
-    status: z.enum(['pending', 'paid', 'unpaid', 'failed', 'refunded', 'cancelled']),
+    status: z.enum(['pending', 'paid', 'fulfilled', 'delivered', 'canceled', 'refunded']),
     cart: z.array(sanityOrderCartItemSchema),
     totalAmount: z.number(),
     customerEmail: z.string().email(),
