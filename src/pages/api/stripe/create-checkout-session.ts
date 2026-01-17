@@ -265,13 +265,44 @@ const parseBoxDimensions = (raw?: string | null): Dimensions | undefined => {
   return { length, width, height };
 };
 
+const normalizeShippingClass = (value?: string | null): string => {
+  if (!value) return '';
+  return String(value).toLowerCase().replace(/[^a-z0-9]+/g, '');
+};
+
+const isInstallOnlyShippingClass = (value?: string | null): boolean => {
+  const normalized = normalizeShippingClass(value);
+  return normalized.includes('installonly') || normalized.includes('installservice');
+};
+
+const resolveRequiresShipping = (
+  product?: ShippingProduct,
+  item?: CheckoutCartItem
+): boolean => {
+  const requiresShipping = product?.shippingConfig?.requiresShipping;
+  if (requiresShipping === true) return true;
+  if (requiresShipping === false) return false;
+
+  const rawClass =
+    typeof item?.shippingClass === 'string'
+      ? item.shippingClass
+      : typeof product?.shippingConfig?.shippingClass === 'string'
+        ? product.shippingConfig.shippingClass
+        : typeof product?.shippingClass === 'string'
+          ? product.shippingClass
+          : '';
+
+  if (item?.installOnly) return false;
+  if (isInstallOnlyShippingClass(rawClass)) return false;
+  return true;
+};
+
 const buildParcelcraftProductMetadata = (
   product?: ShippingProduct,
   item?: CheckoutCartItem
 ): Record<string, string> => {
   if (!product || !item) return {};
-  const requiresShipping = product.shippingConfig?.requiresShipping;
-  if (requiresShipping === false || item.installOnly) return {};
+  if (!resolveRequiresShipping(product, item)) return {};
   const weight =
     typeof product.shippingConfig?.weight === 'number'
       ? product.shippingConfig.weight
@@ -524,17 +555,20 @@ export async function POST({ request }: { request: Request }) {
     return total > 0 ? Math.round(total * 100) / 100 : undefined;
   };
 
-  const requiresShippingSelection = (items: CheckoutCartItem[]): boolean => {
+  const requiresShippingSelection = (
+    items: CheckoutCartItem[],
+    productLookup: Record<string, ShippingProduct>
+  ): boolean => {
     return items.some((item) => {
-      if (item.installOnly) return false;
-      const rawClass = typeof item.shippingClass === 'string' ? item.shippingClass : '';
-      const normalizedClass = rawClass.toLowerCase().replace(/[^a-z0-9]+/g, '');
-      return normalizedClass !== 'installonly';
+      if (!item) return false;
+      const productId = normalizeCartId(typeof item.id === 'string' ? item.id : undefined);
+      const product = productId ? productLookup[productId] : undefined;
+      return resolveRequiresShipping(product, item);
     });
   };
 
   const productLookup = await fetchShippingProductsForCart(cart as CheckoutCartItem[]);
-  const shippingRequired = requiresShippingSelection(cart as CheckoutCartItem[]);
+  const shippingRequired = requiresShippingSelection(cart as CheckoutCartItem[], productLookup);
   const stripePriceIds = Array.from(
     new Set(
       (cart as CheckoutCartItem[])
@@ -620,11 +654,7 @@ export async function POST({ request }: { request: Request }) {
       if (!price) {
         return jsonResponse({ error: 'Stripe price not found' }, 400);
       }
-      const rawClass = typeof item.shippingClass === 'string' ? item.shippingClass : '';
-      const normalizedClass = rawClass.toLowerCase().replace(/[^a-z0-9]+/g, '');
-      const isInstallOnly = Boolean(item.installOnly) || normalizedClass === 'installonly';
-      const requiresShipping = product?.shippingConfig?.requiresShipping;
-      const isShippable = !isInstallOnly && requiresShipping !== false;
+      const isShippable = resolveRequiresShipping(product, item);
       const stripeProduct = typeof price.product === 'string' ? undefined : price.product;
       const stripeMeta =
         stripeProduct && 'metadata' in stripeProduct && !('deleted' in stripeProduct)
@@ -696,8 +726,7 @@ export async function POST({ request }: { request: Request }) {
 
     // Build Parcelcraft metadata and validate for shippable items
     const parcelcraftMeta = buildParcelcraftProductMetadata(product, item);
-    const requiresShipping = product?.shippingConfig?.requiresShipping;
-    const isItemShippable = !item.installOnly && requiresShipping !== false;
+    const isItemShippable = resolveRequiresShipping(product, item);
     const hasParcelcraftMeta = Boolean(
       parcelcraftMeta.weight &&
       parcelcraftMeta.weight_unit &&
@@ -963,6 +992,25 @@ export async function POST({ request }: { request: Request }) {
         invoiceCreationEnabled: true,
         shippingAddressCollectionEnabled: true
       });
+      const parcelcraftLineItemMeta = lineItems.map((item, index) => {
+        const productData = item.price_data?.product_data;
+        const metadata = (productData?.metadata ?? {}) as Record<string, string>;
+        return {
+          index,
+          name: productData?.name,
+          price: typeof (item as { price?: string }).price === 'string' ? item.price : undefined,
+          hasMetadata: Object.keys(metadata).length > 0,
+          shipping_required: metadata.shipping_required ?? null,
+          weight: metadata.weight ?? null,
+          weight_unit: metadata.weight_unit ?? null,
+          origin_country: metadata.origin_country ?? null,
+          length: metadata.length ?? null,
+          width: metadata.width ?? null,
+          height: metadata.height ?? null,
+          dimension_unit: metadata.dimension_unit ?? null
+        };
+      });
+      console.log('[checkout] Parcelcraft line item metadata', parcelcraftLineItemMeta);
     }
 
     const paymentIntentMetadata = { ...metadataForSession };
