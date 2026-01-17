@@ -359,7 +359,73 @@ export const handler: Handler = async (event) => {
         throw new Error('Invalid Stripe line items response');
       }
       const validatedItems = itemsResult.data;
+      // Retrieve the full session with expanded shipping data
+      const fullSession = (await stripe.checkout.sessions.retrieve(session.id, {
+        expand: ['shipping_cost.shipping_rate', 'shipping_details']
+      })) as Stripe.Checkout.Session;
 
+      // Extract shipping options
+      const shippingOptions = fullSession.shipping_options?.map((option) => ({
+        _type: 'object',
+        shippingRateId: option.shipping_rate as string,
+        shippingAmount: option.shipping_amount
+      }));
+
+      // Extract shipping cost details
+      let shippingCostDetails: any = undefined;
+      if (fullSession.shipping_cost) {
+        const shippingRate = fullSession.shipping_cost.shipping_rate;
+        const displayName =
+          typeof shippingRate === 'string'
+            ? shippingRate
+            : (shippingRate as Stripe.ShippingRate)?.display_name;
+
+        shippingCostDetails = {
+          _type: 'object',
+          amount: fullSession.shipping_cost.amount_total,
+          displayName: displayName || undefined
+        };
+
+        // Add delivery estimate if available
+        if (typeof shippingRate !== 'string' && shippingRate?.delivery_estimate) {
+          const estimate = shippingRate.delivery_estimate;
+          if (estimate.minimum || estimate.maximum) {
+            shippingCostDetails.deliveryEstimate = {
+              _type: 'object',
+              minimum: estimate.minimum?.value || undefined,
+              maximum: estimate.maximum?.value || undefined
+            };
+          }
+        }
+      }
+
+      // Extract shipping details (address)
+      let shippingDetailsData: any = undefined;
+      const shippingDetails = (fullSession as any).shipping_details;
+      if (shippingDetails) {
+        shippingDetailsData = {
+          _type: 'object',
+          name: shippingDetails.name || undefined
+        };
+
+        if (shippingDetails.address) {
+          shippingDetailsData.address = {
+            _type: 'object',
+            line1: shippingDetails.address.line1 || undefined,
+            line2: shippingDetails.address.line2 || undefined,
+            city: shippingDetails.address.city || undefined,
+            state: shippingDetails.address.state || undefined,
+            postalCode: shippingDetails.address.postal_code || undefined,
+            country: shippingDetails.address.country || undefined
+          };
+        }
+      }
+
+      // Extract selected shipping rate ID
+      const selectedShippingRate =
+        typeof fullSession.shipping_cost?.shipping_rate === 'string'
+          ? fullSession.shipping_cost.shipping_rate
+          : (fullSession.shipping_cost?.shipping_rate as Stripe.ShippingRate)?.id;
       // Retrieve payment intent details
       let paymentIntent: Stripe.PaymentIntent | null = null;
       try {
@@ -700,6 +766,11 @@ export const handler: Handler = async (event) => {
             postalCode: session.customer_details?.address?.postal_code || '',
             country: session.customer_details?.address?.country || 'US'
           },
+          shippingOptions:
+            shippingOptions && shippingOptions.length > 0 ? shippingOptions : undefined,
+          selectedShippingRate: selectedShippingRate || undefined,
+          shippingCost: shippingCostDetails || undefined,
+          shippingDetails: shippingDetailsData || undefined,
           webhookNotified: true
         };
 
@@ -734,6 +805,35 @@ export const handler: Handler = async (event) => {
         const orderDoc = await sanity.create(orderPayload);
         orderId = orderDoc._id as string;
         createdOrderDoc = orderDoc;
+      }
+
+      try {
+        const cartId = session.client_reference_id || session.id;
+        await sanity
+          .patch(cartId)
+          .set({
+            sessionId: session.id,
+            status: 'complete',
+            customerEmail: email,
+            customerName: session.customer_details?.name || undefined,
+            customerPhone: session.customer_details?.phone || undefined,
+            amountSubtotal: session.amount_subtotal ? session.amount_subtotal / 100 : 0,
+            amountTax: session.total_details?.amount_tax ? session.total_details.amount_tax / 100 : 0,
+            amountShipping: session.shipping_cost?.amount_total
+              ? session.shipping_cost.amount_total / 100
+              : 0,
+            totalAmount: session.amount_total ? session.amount_total / 100 : 0,
+            currency: session.currency?.toUpperCase() || 'USD',
+            shippingOptions:
+              shippingOptions && shippingOptions.length > 0 ? shippingOptions : undefined,
+            selectedShippingRate: selectedShippingRate || undefined,
+            shippingCost: shippingCostDetails || undefined,
+            shippingDetails: shippingDetailsData || undefined
+          })
+          .commit({ autoGenerateArrayKeys: true });
+        console.log(`✅ Updated checkout session ${cartId} with shipping data`);
+      } catch (err) {
+        console.warn('[stripe-webhook] unable to update checkout session with shipping data', err);
       }
 
       // Create invoice doc for the order (idempotent by session)
