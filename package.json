@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "dotenv -e .env -- cross-env NODE_ENV=development NETLIFY_DEV=1 astro dev",
     "prebuild": "node scripts/netlify/prepare-functions-internal.cjs",
+    "postbuild": "node scripts/netlify/prepare-functions-internal.cjs",
     "build": "cross-env NODE_ENV=production astro build",
     "preview": "cross-env NODE_ENV=production astro preview",
     "lint": "eslint \"src/**/*.{js,ts,jsx,tsx}\"",

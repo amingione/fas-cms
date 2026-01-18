@@ -615,6 +615,11 @@ export async function POST({ request }: { request: Request }) {
   };
 
   const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
+  const parcelcraftLineItemMeta: Array<{
+    name?: string;
+    price?: string;
+    metadata: Record<string, string>;
+  }> = [];
   for (const item of cart as CheckoutCartItem[]) {
     const stripePriceId = typeof item.stripePriceId === 'string' ? item.stripePriceId.trim() : '';
     const rawId = typeof item.id === 'string' ? item.id : undefined;
@@ -656,55 +661,47 @@ export async function POST({ request }: { request: Request }) {
       }
       const isShippable = resolveRequiresShipping(product, item);
       const stripeProduct = typeof price.product === 'string' ? undefined : price.product;
-      const stripeMeta =
-        stripeProduct && 'metadata' in stripeProduct && !('deleted' in stripeProduct)
-          ? stripeProduct.metadata
-          : {};
-      const hasShippingMeta =
-        Boolean(stripeMeta?.weight) &&
-        Boolean(stripeMeta?.weight_unit) &&
-        Boolean(stripeMeta?.origin_country);
+      const liveStripeProduct =
+        stripeProduct && !('deleted' in stripeProduct) ? stripeProduct : undefined;
+      const stripeProductId =
+        typeof price.product === 'string' ? price.product : liveStripeProduct?.id;
+      const stripeMeta = liveStripeProduct?.metadata ?? {};
+      const parcelcraftMeta = buildParcelcraftProductMetadata(product, item);
+      const mergedMetadata: Record<string, string> = { ...stripeMeta, ...parcelcraftMeta };
 
-      if (isShippable && !hasShippingMeta) {
-        if (price.type !== 'one_time' || !Number.isFinite(price.unit_amount ?? NaN)) {
-          return jsonResponse({ error: 'Stripe price missing shippable metadata' }, 400);
-        }
-        const metadata: Record<string, string> = {
-          ...stripeMeta,
-          ...buildParcelcraftProductMetadata(product, item)
-        };
-        if (!metadata.weight || !metadata.weight_unit || !metadata.origin_country) {
+      if (isShippable) {
+        if (!mergedMetadata.weight || !mergedMetadata.weight_unit || !mergedMetadata.origin_country) {
           return jsonResponse(
             { error: 'Parcelcraft shipping metadata required for Stripe price items' },
             400
           );
         }
-        lineItems.push({
-          price_data: {
-            currency: price.currency,
-            tax_behavior: price.tax_behavior || 'exclusive',
-            product_data: {
-              name:
-                (stripeProduct && !('deleted' in stripeProduct) ? stripeProduct.name : undefined) ||
-                item.name ||
-                'Item',
-              images: item.image
-                ? [item.image]
-                : (stripeProduct && !('deleted' in stripeProduct) ? stripeProduct.images : []) ||
-                  [],
-              tax_code: 'txcd_99999999',
-              metadata
-            },
-            unit_amount: price.unit_amount ?? unitAmount
-          },
-          quantity
-        });
-      } else {
-        lineItems.push({
-          price: stripePriceId,
-          quantity
-        });
+        const needsUpdate =
+          !liveStripeProduct ||
+          liveStripeProduct.shippable !== true ||
+          !liveStripeProduct.metadata?.weight ||
+          !liveStripeProduct.metadata?.weight_unit ||
+          !liveStripeProduct.metadata?.origin_country;
+        if (needsUpdate && stripeProductId) {
+          await stripe.products.update(stripeProductId, {
+            shippable: true,
+            metadata: mergedMetadata
+          });
+        }
       }
+
+      lineItems.push({
+        price: stripePriceId,
+        quantity
+      });
+      parcelcraftLineItemMeta.push({
+        name:
+          (stripeProduct && !('deleted' in stripeProduct) ? stripeProduct.name : undefined) ||
+          item.name ||
+          'Item',
+        price: stripePriceId,
+        metadata: mergedMetadata
+      });
       continue;
     }
 
@@ -720,8 +717,7 @@ export async function POST({ request }: { request: Request }) {
       productSku || (itemSku && itemSku !== sanityProductId && itemSku !== rawId ? itemSku : '');
     const metadata: Record<string, string> = {
       ...(skuValue ? { sku: skuValue } : {}),
-      ...(sanityProductId ? { sanity_product_id: sanityProductId } : {}),
-      ...(product?._id ? { sanity_product_id_actual: product._id } : {})
+      ...(sanityProductId ? { sanity_product_id: sanityProductId } : {})
     };
 
     // Build Parcelcraft metadata and validate for shippable items
@@ -772,6 +768,9 @@ export async function POST({ request }: { request: Request }) {
     if (Number.isFinite(metaUnitPrice)) {
       metadata.unit_price = metaUnitPrice.toFixed(2);
     }
+    if (Number.isFinite(basePrice)) {
+      metadata.original_price = Number(basePrice).toFixed(2);
+    }
     metadata.quantity = String(quantity);
     if (item?.signature) metadata.configuration_signature = clamp(String(item.signature), 120);
     if (product) {
@@ -786,8 +785,11 @@ export async function POST({ request }: { request: Request }) {
       if (typeof compareAt === 'number') {
         metadata.compare_at_price = Number(compareAt).toFixed(2);
       }
-      metadata.is_on_sale = isOnSale(product as any) ? 'true' : 'false';
-      if (product.saleLabel) metadata.sale_label = clamp(String(product.saleLabel), 120);
+      const onSale = isOnSale(product as any);
+      metadata.is_on_sale = onSale ? 'true' : 'false';
+      if (onSale && product.saleLabel) {
+        metadata.sale_label = clamp(String(product.saleLabel), 120);
+      }
     }
     if (optionDetails?.summary) {
       metadata.selected_options = clamp(optionDetails.summary);
@@ -815,9 +817,6 @@ export async function POST({ request }: { request: Request }) {
     if (typeof upgradesTotal === 'number') {
       metadata.upgrades_total = upgradesTotal.toFixed(2);
     }
-    if (typeof item.basePrice === 'number' && Number.isFinite(item.basePrice)) {
-      metadata.base_price = Number(item.basePrice).toFixed(2);
-    }
     if (typeof item.extra === 'number' && Number.isFinite(item.extra)) {
       metadata.option_upcharge = Number(item.extra).toFixed(2);
     }
@@ -831,24 +830,37 @@ export async function POST({ request }: { request: Request }) {
       upgrades: item.upgrades ?? item.addOns
     });
     const description = optionSummary ? clamp(optionSummary, 250) : undefined;
+    const resolvedDescription = description || clamp(displayName, 250);
+
+    const stripeProduct = await stripe.products.create({
+      name: displayName || 'Item',
+      description: resolvedDescription,
+      images: item.image ? [item.image] : undefined,
+      tax_code: 'txcd_99999999',
+      type: isItemShippable ? 'good' : 'service',
+      shippable: isItemShippable,
+      metadata
+    });
+
+    const stripePrice = await stripe.prices.create({
+      product: stripeProduct.id,
+      unit_amount: unitAmount,
+      currency: 'usd',
+      tax_behavior: 'exclusive'
+    });
+    await stripe.products.update(stripeProduct.id, {
+      default_price: stripePrice.id
+    });
 
     lineItems.push({
-      price_data: {
-        currency: 'usd',
-        tax_behavior: 'exclusive',
-        product_data: {
-          name: displayName || 'Item',
-          tax_code: 'txcd_99999999',
-          ...(description ? { description } : {}),
-          // Help fulfillment map back to Sanity/Inventory and capture configured options
-          // CRITICAL: Includes Parcelcraft metadata (weight, dimensions, shipping_required, origin_country)
-          // This metadata is required for Parcelcraft to detect shippable products and inject dynamic shipping rates
-          metadata
-        },
-        unit_amount: unitAmount
-      },
+      price: stripePrice.id,
       quantity
     } satisfies Stripe.Checkout.SessionCreateParams.LineItem);
+    parcelcraftLineItemMeta.push({
+      name: stripeProduct.name,
+      price: stripePrice.id,
+      metadata
+    });
   }
 
   if (!lineItems.length) {
@@ -980,9 +992,8 @@ export async function POST({ request }: { request: Request }) {
         '[checkout] Static shipping rates are disabled; Parcelcraft must supply dynamic rates.'
       );
       // Log Parcelcraft configuration for debugging
-      const shippableItemCount = lineItems.filter((item) => {
-        if (!item.price_data?.product_data?.metadata) return false;
-        const meta = item.price_data.product_data.metadata as Record<string, string>;
+      const shippableItemCount = parcelcraftLineItemMeta.filter((item) => {
+        const meta = item.metadata;
         return meta.shipping_required === 'true' && meta.weight && meta.origin_country;
       }).length;
       console.log('[checkout] Parcelcraft configuration check', {
@@ -992,13 +1003,12 @@ export async function POST({ request }: { request: Request }) {
         invoiceCreationEnabled: true,
         shippingAddressCollectionEnabled: true
       });
-      const parcelcraftLineItemMeta = lineItems.map((item, index) => {
-        const productData = item.price_data?.product_data;
-        const metadata = (productData?.metadata ?? {}) as Record<string, string>;
+      const parcelcraftMetaSnapshot = parcelcraftLineItemMeta.map((item, index) => {
+        const metadata = item.metadata || {};
         return {
           index,
-          name: productData?.name,
-          price: typeof (item as { price?: string }).price === 'string' ? item.price : undefined,
+          name: item.name,
+          price: item.price,
           hasMetadata: Object.keys(metadata).length > 0,
           shipping_required: metadata.shipping_required ?? null,
           weight: metadata.weight ?? null,
@@ -1010,7 +1020,7 @@ export async function POST({ request }: { request: Request }) {
           dimension_unit: metadata.dimension_unit ?? null
         };
       });
-      console.log('[checkout] Parcelcraft line item metadata', parcelcraftLineItemMeta);
+      console.log('[checkout] Parcelcraft line item metadata', parcelcraftMetaSnapshot);
     }
 
     const paymentIntentMetadata = { ...metadataForSession };

@@ -121,7 +121,10 @@ async function checkTransitTimes() {
     }
 
     // Check shipping address
-    const shippingAddress = session.shipping_details?.address;
+    const shippingDetails = (session as Stripe.Checkout.Session & {
+      shipping_details?: { address?: Stripe.Address | null } | null;
+    }).shipping_details;
+    const shippingAddress = shippingDetails?.address;
     if (shippingAddress) {
       console.log(`\n📍 Shipping Address:`);
       console.log(`   ${shippingAddress.line1 || ''}`);

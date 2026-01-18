@@ -81,7 +81,10 @@ async function listSessions() {
         console.log(`   Shipping: No shipping cost`);
       }
 
-      const shippingAddress = session.shipping_details?.address;
+      const shippingDetails = (session as Stripe.Checkout.Session & {
+        shipping_details?: { address?: Stripe.Address | null } | null;
+      }).shipping_details;
+      const shippingAddress = shippingDetails?.address;
       if (shippingAddress) {
         console.log(`   Address: ${shippingAddress.city}, ${shippingAddress.state} ${shippingAddress.postal_code}`);
       }

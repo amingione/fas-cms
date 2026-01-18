@@ -234,7 +234,7 @@ export async function POST({ request }: { request: Request }) {
     return new Response('Missing stripe-signature.', { status: 400 });
   }
 
-  let event: Stripe.Event;
+  let event: Omit<Stripe.Event, 'type'> & { type: string };
 
   try {
     event = stripe.webhooks.constructEvent(rawBody, sig, secret);

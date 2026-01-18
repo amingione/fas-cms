@@ -16,7 +16,6 @@ The following areas are ALWAYS off-limits **unless the task explicitly states th
 - Any Netlify function
 - Stripe integration files
 - Resend email logic
-- ShipEngine or ShipStation logic
 - Any server-side JavaScript/TypeScript
 - Astro server endpoints
 
