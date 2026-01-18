@@ -44,10 +44,13 @@ const jsonResponse = (payload: unknown, status = 200): Response =>
   });
 
 const readEnvValue = (key: string): string => {
-  const metaValue = (import.meta.env[key] as string | undefined) || '';
-  if (metaValue && metaValue.trim()) return metaValue.trim();
+  const metaValue = import.meta.env[key];
+  if (typeof metaValue === 'string') {
+    const trimmed = metaValue.trim();
+    if (trimmed) return trimmed;
+  }
   const processValue = process.env[key];
-  return processValue ? processValue.trim() : '';
+  return typeof processValue === 'string' ? processValue.trim() : '';
 };
 
 const resolveBooleanEnv = (value: unknown, defaultValue = false): boolean => {
