@@ -1065,6 +1065,8 @@ export async function POST({ request }: { request: Request }) {
 
     const paymentIntentMetadata = { ...metadataForSession };
     paymentIntentMetadata.ship_status = shippingRequired ? 'unshipped' : 'unshippable';
+    metadataForSession.ship_status = paymentIntentMetadata.ship_status;
+    metadataForSession.shipping_required = shippingRequired ? 'true' : 'false';
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       // Offer standard cards plus Affirm financing at checkout
@@ -1080,7 +1082,12 @@ export async function POST({ request }: { request: Request }) {
       // Enable Stripe Tax for automatic sales tax calculation
       automatic_tax: { enabled: true },
       // Enable invoice creation (required for Parcelcraft)
-      invoice_creation: { enabled: true },
+      invoice_creation: {
+        enabled: true,
+        invoice_data: {
+          metadata: { ...metadataForSession }
+        }
+      },
       billing_address_collection: 'required',
       phone_number_collection: { enabled: true },
       allow_promotion_codes: true,
