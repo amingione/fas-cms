@@ -31,6 +31,7 @@ export type QuickViewProduct = {
   title: string;
   href: string;
   price?: number;
+  stripePriceId?: string | null;
   imageSrc: string;
   imageAlt?: string;
   description?: string;
@@ -257,6 +258,7 @@ export default function ProductQuickViewButton({
             : typeof product.price === 'number'
               ? product.price
               : undefined,
+        stripePriceId: product.stripePriceId ?? undefined,
         originalPrice:
           typeof comparePrice === 'number' &&
           (typeof activePrice !== 'number' || comparePrice > activePrice)

@@ -516,7 +516,7 @@ function CartContents() {
                 type="button"
                 onClick={handleCheckout}
                 disabled={checkingOut}
-                className="w-full rounded-full bg-primary px-6 py-3 text-sm font-semibold uppercase tracking-wide text-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
+                className="btn-plain w-full rounded-full bg-primary px-6 py-3 text-sm font-semibold uppercase tracking-wide text-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {checkingOut ? 'Connecting…' : 'Continue to Checkout'}
               </button>

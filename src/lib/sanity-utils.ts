@@ -430,6 +430,7 @@ export interface Product {
   displayTitle?: string | null;
   slug: { current: string };
   price?: number | null;
+  stripePriceId?: string | null;
   onSale?: boolean | null;
   salePrice?: number | null;
   compareAtPrice?: number | null;
@@ -846,6 +847,7 @@ const PRODUCT_LISTING_PROJECTION = `{
   metaTitle,
   metaDescription,
   price,
+  stripePriceId,
   "onSale": coalesce(onSale, pricing.onSale),
   "salePrice": coalesce(salePrice, pricing.salePrice),
   "compareAtPrice": coalesce(compareAtPrice, pricing.compareAtPrice),
@@ -1586,6 +1588,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       displayTitle,
       slug,
       price,
+      stripePriceId,
       "onSale": coalesce(onSale, pricing.onSale),
       "salePrice": coalesce(salePrice, pricing.salePrice),
       "compareAtPrice": coalesce(compareAtPrice, pricing.compareAtPrice),

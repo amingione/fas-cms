@@ -65,6 +65,7 @@ function addToCart(product: SanityProduct) {
       id,
       name,
       price,
+      stripePriceId: (product as any)?.stripePriceId,
       originalPrice,
       isOnSale: onSale,
       saleLabel: typeof saleLabel === 'string' ? saleLabel : undefined,

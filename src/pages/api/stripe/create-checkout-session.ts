@@ -123,6 +123,7 @@ type ShippingProduct = {
   title?: string;
   sku?: string;
   price?: number | null;
+  stripePriceId?: string | null;
   salePrice?: number | null;
   compareAtPrice?: number | null;
   discountPercent?: number | null;
@@ -170,6 +171,7 @@ async function fetchShippingProductsForCart(
       title,
       sku,
       "price": coalesce(price, pricing.price),
+      stripePriceId,
       "onSale": coalesce(onSale, pricing.onSale),
       "salePrice": coalesce(salePrice, pricing.salePrice),
       "compareAtPrice": coalesce(compareAtPrice, pricing.compareAtPrice),
@@ -601,10 +603,40 @@ export async function POST({ request }: { request: Request }) {
 
   const productLookup = await fetchShippingProductsForCart(cart as CheckoutCartItem[]);
   const shippingRequired = requiresShippingSelection(cart as CheckoutCartItem[], productLookup);
+  
+  // Debug logging for shipping requirement determination
+  console.log('[checkout] Shipping requirement check', {
+    shippingRequired,
+    cartItemCount: (cart as CheckoutCartItem[]).length,
+    productLookupSize: Object.keys(productLookup).length,
+    itemDetails: (cart as CheckoutCartItem[]).map((item) => {
+      const productId = normalizeCartId(typeof item.id === 'string' ? item.id : undefined);
+      const product = productId ? productLookup[productId] : undefined;
+      return {
+        itemId: item.id,
+        itemName: item.name,
+        productId,
+        hasProduct: !!product,
+        requiresShipping: resolveRequiresShipping(product, item),
+        installOnly: item.installOnly,
+        shippingClass: item.shippingClass || product?.shippingClass || product?.shippingConfig?.shippingClass
+      };
+    })
+  });
+  
   const stripePriceIds = Array.from(
     new Set(
       (cart as CheckoutCartItem[])
-        .map((item) => (typeof item.stripePriceId === 'string' ? item.stripePriceId.trim() : ''))
+        .map((item) => {
+          const itemPriceId =
+            typeof item.stripePriceId === 'string' ? item.stripePriceId.trim() : '';
+          if (itemPriceId.startsWith('price_')) return itemPriceId;
+          const productId = normalizeCartId(typeof item.id === 'string' ? item.id : undefined);
+          const product = productId ? productLookup[productId] : undefined;
+          const productPriceId =
+            typeof product?.stripePriceId === 'string' ? product.stripePriceId.trim() : '';
+          return productPriceId.startsWith('price_') ? productPriceId : '';
+        })
         .filter((priceId) => priceId.startsWith('price_'))
     )
   );
@@ -653,10 +685,17 @@ export async function POST({ request }: { request: Request }) {
     metadata: Record<string, string>;
   }> = [];
   for (const item of cart as CheckoutCartItem[]) {
-    const stripePriceId = typeof item.stripePriceId === 'string' ? item.stripePriceId.trim() : '';
     const rawId = typeof item.id === 'string' ? item.id : undefined;
     const sanityProductId = normalizeCartId(rawId);
     const product = sanityProductId ? productLookup[sanityProductId] : undefined;
+    const itemPriceId = typeof item.stripePriceId === 'string' ? item.stripePriceId.trim() : '';
+    const productPriceId =
+      typeof product?.stripePriceId === 'string' ? product.stripePriceId.trim() : '';
+    const stripePriceId = itemPriceId.startsWith('price_')
+      ? itemPriceId
+      : productPriceId.startsWith('price_')
+        ? productPriceId
+        : '';
     const verifiedPrice = getActivePrice(product as any);
     const compareAt = product ? getCompareAtPrice(product as any) : undefined;
     const basePrice = Number.isFinite(item.basePrice)
@@ -1091,8 +1130,13 @@ export async function POST({ request }: { request: Request }) {
       billing_address_collection: 'required',
       phone_number_collection: { enabled: true },
       allow_promotion_codes: true,
+      // CRITICAL: Explicit locale required for branded checkout domains
+      // Without this, Stripe tries to auto-detect locale and fails with "Cannot find module './en'"
+      // Try 'auto' if 'en' doesn't work - Stripe will use browser Accept-Language header
+      locale: 'auto',
       // Parcelcraft automatically injects dynamic shipping rates when shipping_address_collection is enabled
       // and invoice_creation is true. Do NOT manually pass shipping_options as it overrides Parcelcraft.
+      // CRITICAL: shipping_address_collection MUST be set for Parcelcraft to inject dynamic rates
       ...(shippingRequired ? { shipping_address_collection: shippingAddressCollection } : {}),
       success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/cart`,
@@ -1119,7 +1163,39 @@ export async function POST({ request }: { request: Request }) {
 
     // With automatic tax enabled, Stripe expects to collect the shipping address at checkout.
     // Avoid passing payment_intent_data.shipping so we don't trigger the "cannot enable automatic tax" error.
+    
+    // Final validation: Log shipping configuration for debugging
+    console.log('[checkout] Final session configuration', {
+      shippingRequired,
+      hasShippingAddressCollection: !!sessionParams.shipping_address_collection,
+      shippingAddressCollectionAllowedCountries: sessionParams.shipping_address_collection?.allowed_countries,
+      invoiceCreationEnabled: sessionParams.invoice_creation?.enabled,
+      lineItemCount: sessionParams.line_items?.length,
+      hasDynamicShippingRates: useDynamicShippingRates,
+      automaticTaxEnabled: sessionParams.automatic_tax?.enabled,
+      locale: sessionParams.locale
+    });
+    
+    // Log the actual shipping_address_collection object being sent
+    if (sessionParams.shipping_address_collection) {
+      console.log('[checkout] Shipping address collection details', JSON.stringify(sessionParams.shipping_address_collection, null, 2));
+    } else {
+      console.warn('[checkout] ⚠️ WARNING: shipping_address_collection is NOT set in session params, but shippingRequired is:', shippingRequired);
+    }
+    
     const session = await stripe.checkout.sessions.create(sessionParams);
+    
+    // Log what Stripe actually created (after the API call)
+    console.log('[checkout] ✅ Stripe session created:', {
+      sessionId: session.id,
+      locale: session.locale || '(not set)',
+      hasShippingAddressCollection: !!session.shipping_address_collection,
+      allowedCountries: session.shipping_address_collection?.allowed_countries
+    });
+    
+    if (!session.locale) {
+      console.warn('[checkout] ⚠️ WARNING: Stripe session does NOT have locale set! This may cause "Cannot find module ./en" errors on branded domains.');
+    }
 
     return jsonResponse({ url: session.url }, 200);
   } catch (err: unknown) {

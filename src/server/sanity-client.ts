@@ -1,37 +1,47 @@
 import { createClient } from '@sanity/client';
 
-// Read envs in a way that works in Node/serverless execution.
-const env = (typeof process !== 'undefined' ? (process as any).env : {}) as Record<
+// Read envs in a way that works in Node/serverless execution and Astro development.
+// In Astro, env vars from .env files are available via import.meta.env, not process.env.
+const processEnv = (typeof process !== 'undefined' ? (process as any).env : {}) as Record<
+  string,
+  string | undefined
+>;
+const metaEnv = (typeof import.meta !== 'undefined' ? (import.meta as any).env : {}) as Record<
   string,
   string | undefined
 >;
 
+// Check both process.env (for Node/serverless) and import.meta.env (for Astro dev)
+const getEnv = (key: string): string | undefined => {
+  return processEnv[key] || metaEnv[key];
+};
+
 const projectId =
-  env.SANITY_PROJECT_ID ||
-  env.SANITY_STUDIO_PROJECT_ID ||
-  env.PUBLIC_SANITY_PROJECT_ID ||
-  env.VITE_SANITY_PROJECT_ID;
+  getEnv('SANITY_PROJECT_ID') ||
+  getEnv('SANITY_STUDIO_PROJECT_ID') ||
+  getEnv('PUBLIC_SANITY_PROJECT_ID') ||
+  getEnv('VITE_SANITY_PROJECT_ID');
 
 const dataset =
-  env.SANITY_DATASET ||
-  env.SANITY_STUDIO_DATASET ||
-  env.PUBLIC_SANITY_DATASET ||
-  env.VITE_SANITY_DATASET ||
+  getEnv('SANITY_DATASET') ||
+  getEnv('SANITY_STUDIO_DATASET') ||
+  getEnv('PUBLIC_SANITY_DATASET') ||
+  getEnv('VITE_SANITY_DATASET') ||
   'production';
 
 const token =
-  env.SANITY_WRITE_TOKEN ||
-  env.SANITY_API_TOKEN ||
-  env.SANITY_API_READ_TOKEN ||
-  env.VITE_SANITY_API_TOKEN ||
-  env.VITE_SANITY_WRITE_TOKEN ||
-  env.SANITY_READ_TOKEN;
+  getEnv('SANITY_WRITE_TOKEN') ||
+  getEnv('SANITY_API_TOKEN') ||
+  getEnv('SANITY_API_READ_TOKEN') ||
+  getEnv('VITE_SANITY_API_TOKEN') ||
+  getEnv('VITE_SANITY_WRITE_TOKEN') ||
+  getEnv('SANITY_READ_TOKEN');
 
-const apiVersion = env.SANITY_API_VERSION || '2024-01-01';
+const apiVersion = getEnv('SANITY_API_VERSION') || '2024-01-01';
 
 if (!projectId) {
   console.warn(
-    '[sanity-client] Missing SANITY projectId. Checked SANITY_* / PUBLIC_SANITY_* / VITE_* in process.env'
+    '[sanity-client] Missing SANITY projectId. Checked SANITY_* / PUBLIC_SANITY_* / VITE_* in process.env and import.meta.env'
   );
   throw new Error('Sanity client misconfigured: missing SANITY_PROJECT_ID / PUBLIC_SANITY_PROJECT_ID');
 }
