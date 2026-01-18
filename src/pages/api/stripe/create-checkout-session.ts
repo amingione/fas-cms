@@ -1143,6 +1143,12 @@ export async function POST({ request }: { request: Request }) {
       consent_collection: { promotions: 'auto' },
       custom_fields: [
         {
+          key: 'phone',
+          label: { type: 'custom', custom: 'Phone' },
+          type: 'text',
+          optional: false
+        },
+        {
           key: 'company',
           label: { type: 'custom', custom: 'Company' },
           type: 'text',
