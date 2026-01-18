@@ -105,9 +105,9 @@ const buildSyncPlan = (product: Stripe.Product): SyncPlan | null => {
   const weight =
     readNumber(meta.weight) ??
     readNumber(meta.shipping_weight) ??
-    readNumber(meta.shipping_weight_lbs) ??
-    (readNumber(meta.shipping_weight_oz) != null
-      ? Math.round((readNumber(meta.shipping_weight_oz) as number) / 16 * 100) / 100
+    readNumber(meta.shipping_weight_lbs) ?? //do we need?
+    (readNumber(meta.shipping_weight_oz) != null // do we need??
+      ? Math.round(((readNumber(meta.shipping_weight_oz) as number) / 16) * 100) / 100
       : null);
   if (weight != null && !meta.weight) {
     metadataUpdates.weight = String(weight);
@@ -160,12 +160,7 @@ const buildSyncPlan = (product: Stripe.Product): SyncPlan | null => {
     reasons.push('product.shippable');
   }
 
-  if (
-    shippingRequiredFinal &&
-    !product.package_dimensions &&
-    boxDimensions &&
-    weight != null
-  ) {
+  if (shippingRequiredFinal && !product.package_dimensions && boxDimensions && weight != null) {
     updates.package_dimensions = {
       length: boxDimensions.length,
       width: boxDimensions.width,

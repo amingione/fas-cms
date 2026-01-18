@@ -272,7 +272,9 @@ const parseBoxDimensions = (raw?: string | null): Dimensions | undefined => {
 
 const normalizeShippingClass = (value?: string | null): string => {
   if (!value) return '';
-  return String(value).toLowerCase().replace(/[^a-z0-9]+/g, '');
+  return String(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '');
 };
 
 const isInstallOnlyShippingClass = (value?: string | null): boolean => {
@@ -280,10 +282,7 @@ const isInstallOnlyShippingClass = (value?: string | null): boolean => {
   return normalized.includes('installonly') || normalized.includes('installservice');
 };
 
-const resolveRequiresShipping = (
-  product?: ShippingProduct,
-  item?: CheckoutCartItem
-): boolean => {
+const resolveRequiresShipping = (product?: ShippingProduct, item?: CheckoutCartItem): boolean => {
   const requiresShipping = product?.shippingConfig?.requiresShipping;
   if (requiresShipping === true) return true;
   if (requiresShipping === false) return false;
@@ -603,7 +602,7 @@ export async function POST({ request }: { request: Request }) {
 
   const productLookup = await fetchShippingProductsForCart(cart as CheckoutCartItem[]);
   const shippingRequired = requiresShippingSelection(cart as CheckoutCartItem[], productLookup);
-  
+
   // Debug logging for shipping requirement determination
   console.log('[checkout] Shipping requirement check', {
     shippingRequired,
@@ -619,11 +618,12 @@ export async function POST({ request }: { request: Request }) {
         hasProduct: !!product,
         requiresShipping: resolveRequiresShipping(product, item),
         installOnly: item.installOnly,
-        shippingClass: item.shippingClass || product?.shippingClass || product?.shippingConfig?.shippingClass
+        shippingClass:
+          item.shippingClass || product?.shippingClass || product?.shippingConfig?.shippingClass
       };
     })
   });
-  
+
   const stripePriceIds = Array.from(
     new Set(
       (cart as CheckoutCartItem[])
@@ -742,7 +742,11 @@ export async function POST({ request }: { request: Request }) {
       const packageDimensions = toPackageDimensions(mergedMetadata);
 
       if (isShippable) {
-        if (!mergedMetadata.weight || !mergedMetadata.weight_unit || !mergedMetadata.origin_country) {
+        if (
+          !mergedMetadata.weight ||
+          !mergedMetadata.weight_unit ||
+          !mergedMetadata.origin_country
+        ) {
           return jsonResponse(
             { error: 'Parcelcraft shipping metadata required for Stripe price items' },
             400
@@ -1169,28 +1173,35 @@ export async function POST({ request }: { request: Request }) {
 
     // With automatic tax enabled, Stripe expects to collect the shipping address at checkout.
     // Avoid passing payment_intent_data.shipping so we don't trigger the "cannot enable automatic tax" error.
-    
+
     // Final validation: Log shipping configuration for debugging
     console.log('[checkout] Final session configuration', {
       shippingRequired,
       hasShippingAddressCollection: !!sessionParams.shipping_address_collection,
-      shippingAddressCollectionAllowedCountries: sessionParams.shipping_address_collection?.allowed_countries,
+      shippingAddressCollectionAllowedCountries:
+        sessionParams.shipping_address_collection?.allowed_countries,
       invoiceCreationEnabled: sessionParams.invoice_creation?.enabled,
       lineItemCount: sessionParams.line_items?.length,
       hasDynamicShippingRates: useDynamicShippingRates,
       automaticTaxEnabled: sessionParams.automatic_tax?.enabled,
       locale: sessionParams.locale
     });
-    
+
     // Log the actual shipping_address_collection object being sent
     if (sessionParams.shipping_address_collection) {
-      console.log('[checkout] Shipping address collection details', JSON.stringify(sessionParams.shipping_address_collection, null, 2));
+      console.log(
+        '[checkout] Shipping address collection details',
+        JSON.stringify(sessionParams.shipping_address_collection, null, 2)
+      );
     } else {
-      console.warn('[checkout] ⚠️ WARNING: shipping_address_collection is NOT set in session params, but shippingRequired is:', shippingRequired);
+      console.warn(
+        '[checkout] ⚠️ WARNING: shipping_address_collection is NOT set in session params, but shippingRequired is:',
+        shippingRequired
+      );
     }
-    
+
     const session = await stripe.checkout.sessions.create(sessionParams);
-    
+
     // Log what Stripe actually created (after the API call)
     console.log('[checkout] ✅ Stripe session created:', {
       sessionId: session.id,
@@ -1198,9 +1209,11 @@ export async function POST({ request }: { request: Request }) {
       hasShippingAddressCollection: !!session.shipping_address_collection,
       allowedCountries: session.shipping_address_collection?.allowed_countries
     });
-    
+
     if (!session.locale) {
-      console.warn('[checkout] ⚠️ WARNING: Stripe session does NOT have locale set! This may cause "Cannot find module ./en" errors on branded domains.');
+      console.warn(
+        '[checkout] ⚠️ WARNING: Stripe session does NOT have locale set! This may cause "Cannot find module ./en" errors on branded domains.'
+      );
     }
 
     return jsonResponse({ url: session.url }, 200);
