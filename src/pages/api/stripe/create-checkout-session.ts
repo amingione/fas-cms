@@ -340,6 +340,35 @@ const buildParcelcraftProductMetadata = (
   return metadata;
 };
 
+const toPackageDimensions = (
+  metadata: Record<string, string>
+): Stripe.ProductCreateParams.PackageDimensions | undefined => {
+  const weight = Number(metadata.weight);
+  const length = Number(metadata.length);
+  const width = Number(metadata.width);
+  const height = Number(metadata.height);
+
+  if (
+    !Number.isFinite(weight) ||
+    !Number.isFinite(length) ||
+    !Number.isFinite(width) ||
+    !Number.isFinite(height)
+  ) {
+    return undefined;
+  }
+  if (weight <= 0 || length <= 0 || width <= 0 || height <= 0) {
+    return undefined;
+  }
+  if (metadata.weight_unit && metadata.weight_unit !== 'pound') {
+    return undefined;
+  }
+  if (metadata.dimension_unit && metadata.dimension_unit !== 'inch') {
+    return undefined;
+  }
+
+  return { weight, length, width, height };
+};
+
 export async function POST({ request }: { request: Request }) {
   // Resolve base URL: prefer explicit env var, else Origin header during dev/preview
   const origin = request.headers.get('origin') || '';
@@ -671,6 +700,7 @@ export async function POST({ request }: { request: Request }) {
       const stripeMeta = liveStripeProduct?.metadata ?? {};
       const parcelcraftMeta = buildParcelcraftProductMetadata(product, item);
       const mergedMetadata: Record<string, string> = { ...stripeMeta, ...parcelcraftMeta };
+      const packageDimensions = toPackageDimensions(mergedMetadata);
 
       if (isShippable) {
         if (!mergedMetadata.weight || !mergedMetadata.weight_unit || !mergedMetadata.origin_country) {
@@ -684,12 +714,17 @@ export async function POST({ request }: { request: Request }) {
           liveStripeProduct.shippable !== true ||
           !liveStripeProduct.metadata?.weight ||
           !liveStripeProduct.metadata?.weight_unit ||
-          !liveStripeProduct.metadata?.origin_country;
+          !liveStripeProduct.metadata?.origin_country ||
+          (packageDimensions && !liveStripeProduct.package_dimensions);
         if (needsUpdate && stripeProductId) {
-          await stripe.products.update(stripeProductId, {
+          const updatePayload: Stripe.ProductUpdateParams = {
             shippable: true,
             metadata: mergedMetadata
-          });
+          };
+          if (packageDimensions) {
+            updatePayload.package_dimensions = packageDimensions;
+          }
+          await stripe.products.update(stripeProductId, updatePayload);
         }
       }
 
@@ -754,6 +789,7 @@ export async function POST({ request }: { request: Request }) {
 
     // Merge Parcelcraft metadata into main metadata object
     Object.assign(metadata, parcelcraftMeta);
+    const packageDimensions = toPackageDimensions(metadata);
     const optionsValue = toMetadataValue(item.options ?? item.selections ?? null);
     if (optionsValue) {
       metadata.options = clamp(optionsValue, 500);
@@ -842,6 +878,7 @@ export async function POST({ request }: { request: Request }) {
       tax_code: 'txcd_99999999',
       type: isItemShippable ? 'good' : 'service',
       shippable: isItemShippable,
+      ...(packageDimensions ? { package_dimensions: packageDimensions } : {}),
       metadata
     });
 
