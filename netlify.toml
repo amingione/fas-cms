@@ -705,22 +705,6 @@
   force = true
 
 [[redirects]]
-  from = "/checkout/success"
-  to = "/checkout/success"
-  status = 200
-
-[[redirects]]
-  from = "/checkout/cancel"
-  to = "/checkout/cancel"
-  status = 200
-
-[[redirects]]
-  from = "/checkout/*"
-  to = "/cart"
-  status = 301
-  force = true
-
-[[redirects]]
   from = "/cart/*"
   to = "/cart"
   status = 301

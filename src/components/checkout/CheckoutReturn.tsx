@@ -170,12 +170,20 @@ export default function CheckoutReturn() {
         <p className="text-yellow-700 mb-6">
           You'll receive a confirmation email once your payment is complete.
         </p>
-        <button
-          onClick={() => verifySession()}
-          className="bg-yellow-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-yellow-700 transition"
-        >
-          Check Status Again
-        </button>
+        <div className="space-x-4">
+          <button
+            onClick={() => verifySession()}
+            className="bg-yellow-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-yellow-700 transition"
+          >
+            Check Status Again
+          </button>
+          <a
+            href="/cart"
+            className="inline-block bg-white text-yellow-700 border border-yellow-600 px-8 py-3 rounded-lg font-semibold hover:bg-yellow-50 transition"
+          >
+            Return to Cart
+          </a>
+        </div>
       </div>
     );
   }
@@ -215,10 +223,10 @@ export default function CheckoutReturn() {
           Return to Cart
         </a>
         <a
-          href="/contact"
+          href="/"
           className="inline-block bg-white text-red-600 border border-red-600 px-8 py-3 rounded-lg font-semibold hover:bg-red-50 transition"
         >
-          Contact Support
+          Continue Shopping
         </a>
       </div>
     </div>
