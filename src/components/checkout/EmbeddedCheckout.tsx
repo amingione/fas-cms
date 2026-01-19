@@ -5,11 +5,11 @@
  * 1. Reads cart from localStorage
  * 2. Creates a checkout session via API
  * 3. Embeds Stripe Checkout form directly on the page
- * 4. Handles real-time shipping rate updates via Parcelcraft
+ * 4. Handles real-time shipping rate updates
  *
  * Customer flow:
- * - Enters address ONCE in the embedded form
- * - Sees shipping rates update in real-time as they type
+ * - Enters address in the embedded form
+ * - Sees shipping rates update in real-time as they complete address
  * - Completes payment without leaving your site
  * - Redirects to /checkout/return on success
  */
@@ -38,6 +38,46 @@ export default function EmbeddedCheckout() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [checkoutReady, setCheckoutReady] = useState(false);
+
+  // Memoize onComplete callback to prevent prop change warnings
+  const handleComplete = useCallback(() => {
+    console.log('[EmbeddedCheckout] ✅ Payment complete - redirecting to return_url');
+    // Stripe will automatically redirect to return_url
+  }, []);
+
+  // Handle shipping address/details changes for dynamic shipping
+  const handleShippingDetailsChange = useCallback(async (event: any) => {
+    console.log('[EmbeddedCheckout] 🚚 Shipping details changed:', {
+      hasAddress: !!event.address,
+      country: event.address?.country,
+      postalCode: event.address?.postal_code
+    });
+
+    // Call backend to update shipping options based on address
+    if (event.address && clientSecret) {
+      try {
+        const sessionId = clientSecret.split('_secret_')[0];
+
+        const response = await fetch('/api/stripe/update-shipping-options', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sessionId,
+            shippingAddress: event.address
+          })
+        });
+
+        if (!response.ok) {
+          console.warn('[EmbeddedCheckout] ⚠️ Failed to update shipping options:', response.status);
+        } else {
+          const data = await response.json();
+          console.log('[EmbeddedCheckout] ✅ Shipping options updated:', data);
+        }
+      } catch (err) {
+        console.error('[EmbeddedCheckout] ❌ Error updating shipping options:', err);
+      }
+    }
+  }, [clientSecret]);
 
   useEffect(() => {
     // Load existing session from sessionStorage (created by cart)
@@ -232,12 +272,6 @@ export default function EmbeddedCheckout() {
     }
     return null;
   }
-
-  // Memoize onComplete callback to prevent prop change warnings
-  const handleComplete = useCallback(() => {
-    console.log('[EmbeddedCheckout] ✅ Payment complete - redirecting to return_url');
-    // Stripe will automatically redirect to return_url
-  }, []);
 
   // Render Stripe Embedded Checkout
   console.log('[EmbeddedCheckout] RENDER: Rendering Stripe Embedded Checkout', {

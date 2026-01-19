@@ -1150,7 +1150,7 @@ export async function POST({ request }: { request: Request }) {
     console.log('[checkout] Using Embedded Checkout with Parcelcraft dynamic shipping rates');
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
-      // CRITICAL: Use embedded mode for Parcelcraft dynamic shipping
+      // CRITICAL: Use embedded mode for dynamic shipping
       ui_mode: 'embedded',
       // Return URL for embedded checkout (customer stays on your site)
       return_url: `${baseUrl}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
@@ -1177,14 +1177,28 @@ export async function POST({ request }: { request: Request }) {
       phone_number_collection: { enabled: true },
       allow_promotion_codes: true,
       // CRITICAL: Explicit locale required for branded checkout domains
-      // Without this, Stripe tries to auto-detect locale and fails with "Cannot find module './en'"
-      // Use 'en' explicitly to avoid loading issues
       locale: 'en',
-      // Parcelcraft automatically injects dynamic shipping rates in embedded mode
-      // CRITICAL: shipping_address_collection MUST be set for Parcelcraft to work
-      // Parcelcraft detects shippable products via metadata and injects rates automatically
-      // Do NOT pass shipping_options manually - Parcelcraft handles this automatically
+      // CRITICAL: shipping_address_collection MUST be set for dynamic shipping
       ...(shippingRequired ? { shipping_address_collection: shippingAddressCollection } : {}),
+      // CRITICAL: Enable dynamic shipping - allows server to update shipping options
+      ...(shippingRequired ? {
+        permissions: {
+          update_shipping_details: 'server_only' as const
+        },
+        // Initial placeholder shipping option (required for embedded checkout)
+        shipping_options: [
+          {
+            shipping_rate_data: {
+              display_name: 'Calculating shipping rates...',
+              type: 'fixed_amount' as const,
+              fixed_amount: {
+                amount: 0,
+                currency: 'usd'
+              }
+            }
+          }
+        ]
+      } : {}),
       consent_collection: { promotions: 'auto' },
       custom_fields: [
         {
