@@ -117,7 +117,8 @@ const deriveDeliveryEstimate = (
   };
 };
 
-const stripeApiVersion = (import.meta.env.STRIPE_API_VERSION as string | undefined) || '2025-08-27.basil';
+const stripeApiVersion =
+  (import.meta.env.STRIPE_API_VERSION as string | undefined) || '2025-08-27.basil';
 
 const stripeClient = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
   apiVersion: stripeApiVersion as Stripe.LatestApiVersion
@@ -172,7 +173,7 @@ export const POST = async ({ request }: { request: Request }) => {
     const shippingRateId =
       shippingCost && typeof shippingCost.shipping_rate === 'string'
         ? shippingCost.shipping_rate
-        : shippingRate?.id ?? null;
+        : (shippingRate?.id ?? null);
     const shippingRateMetadata =
       shippingRate?.metadata && typeof shippingRate.metadata === 'object'
         ? (shippingRate.metadata as Record<string, string | null | undefined>)
@@ -187,7 +188,8 @@ export const POST = async ({ request }: { request: Request }) => {
     };
     const selectedRateId = extractShippingMeta('selected_rate_id') ?? shippingRateId ?? undefined;
     const stripeShippingRateId =
-      shippingRateId || (selectedRateId && selectedRateId.startsWith('shr_') ? selectedRateId : undefined);
+      shippingRateId ||
+      (selectedRateId && selectedRateId.startsWith('shr_') ? selectedRateId : undefined);
     const { carrier: displayCarrier, service: displayService } = splitShippingDisplayName(
       shippingRate?.display_name
     );
@@ -198,7 +200,8 @@ export const POST = async ({ request }: { request: Request }) => {
     const derivedEstimate = deriveDeliveryEstimate(shippingRate);
     const deliveryDaysFromMeta = extractShippingMeta('shipping_delivery_days');
     const estimatedDeliveryDate =
-      extractShippingMeta('shipping_estimated_delivery_date') || derivedEstimate.estimatedDeliveryDate;
+      extractShippingMeta('shipping_estimated_delivery_date') ||
+      derivedEstimate.estimatedDeliveryDate;
     const deliveryDays =
       deliveryDaysFromMeta && Number.isFinite(Number(deliveryDaysFromMeta))
         ? Number(deliveryDaysFromMeta)
