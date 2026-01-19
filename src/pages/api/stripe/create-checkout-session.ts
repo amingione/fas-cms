@@ -941,6 +941,22 @@ export async function POST({ request }: { request: Request }) {
       metadata
     });
 
+    // Log product creation for Parcelcraft debugging
+    if (isItemShippable) {
+      console.log('[checkout] Created shippable product for Parcelcraft:', {
+        productId: stripeProduct.id,
+        productName: stripeProduct.name,
+        shippable: stripeProduct.shippable,
+        type: stripeProduct.type,
+        hasWeight: !!metadata.weight,
+        hasWeightUnit: !!metadata.weight_unit,
+        hasOriginCountry: !!metadata.origin_country,
+        hasShippingRequired: metadata.shipping_required === 'true',
+        hasPackageDimensions: !!stripeProduct.package_dimensions,
+        allMetadataKeys: Object.keys(metadata)
+      });
+    }
+
     const stripePrice = await stripe.prices.create({
       product: stripeProduct.id,
       unit_amount: unitAmount,
@@ -1166,6 +1182,7 @@ export async function POST({ request }: { request: Request }) {
       locale: 'en',
       // Parcelcraft automatically injects dynamic shipping rates in embedded mode
       // CRITICAL: shipping_address_collection MUST be set for Parcelcraft to work
+      // Parcelcraft detects shippable products via metadata and injects rates automatically
       // Do NOT pass shipping_options manually - Parcelcraft handles this automatically
       ...(shippingRequired ? { shipping_address_collection: shippingAddressCollection } : {}),
       consent_collection: { promotions: 'auto' },
@@ -1208,8 +1225,39 @@ export async function POST({ request }: { request: Request }) {
       lineItemCount: sessionParams.line_items?.length,
       hasDynamicShippingRates: useDynamicShippingRates,
       automaticTaxEnabled: sessionParams.automatic_tax?.enabled,
-      locale: sessionParams.locale
+      locale: sessionParams.locale,
+      hasPermissions: !!(sessionParams as any).permissions,
+      permissionsUpdateShipping: (sessionParams as any).permissions?.update_shipping_details
     });
+
+    // Log detailed product information for Parcelcraft debugging
+    if (shippingRequired) {
+      console.log('[checkout] Parcelcraft product verification - checking Stripe products...');
+      for (const lineItem of lineItems) {
+        if (lineItem.price && typeof lineItem.price === 'string') {
+          try {
+            const price = await stripe.prices.retrieve(lineItem.price, { expand: ['product'] });
+            const product = typeof price.product === 'string' ? undefined : price.product;
+            if (product && !('deleted' in product)) {
+              console.log('[checkout] Product details for Parcelcraft:', {
+                productId: product.id,
+                productName: product.name,
+                productType: product.type,
+                shippable: product.shippable,
+                hasWeight: !!product.metadata?.weight,
+                hasWeightUnit: !!product.metadata?.weight_unit,
+                hasOriginCountry: !!product.metadata?.origin_country,
+                hasShippingRequired: product.metadata?.shipping_required === 'true',
+                hasPackageDimensions: !!product.package_dimensions,
+                metadataKeys: Object.keys(product.metadata || {})
+              });
+            }
+          } catch (err) {
+            console.warn('[checkout] Could not retrieve product details:', err);
+          }
+        }
+      }
+    }
 
     // Log the actual shipping_address_collection object being sent
     if (sessionParams.shipping_address_collection) {
@@ -1232,9 +1280,32 @@ export async function POST({ request }: { request: Request }) {
       locale: session.locale || '(not set)',
       hasShippingAddressCollection: !!session.shipping_address_collection,
       allowedCountries: session.shipping_address_collection?.allowed_countries,
-      uiMode: 'embedded',
-      hasClientSecret: !!session.client_secret
+      uiMode: session.ui_mode || '(not set)',
+      hasClientSecret: !!session.client_secret,
+      invoiceCreationEnabled: session.invoice_creation?.enabled,
+      automaticTaxEnabled: session.automatic_tax?.enabled
     });
+
+    // Final Parcelcraft diagnostic
+    if (shippingRequired) {
+      console.log('[checkout] 🔍 Parcelcraft Diagnostic Summary:', {
+        sessionId: session.id,
+        uiMode: 'embedded',
+        hasShippingAddressCollection: !!session.shipping_address_collection,
+        invoiceCreationEnabled: session.invoice_creation?.enabled,
+        lineItemCount: lineItems.length,
+        shippableProductsCount: parcelcraftLineItemMeta.filter(
+          (item) => item.metadata?.shipping_required === 'true'
+        ).length,
+        allProductsHaveWeight: parcelcraftLineItemMeta.every(
+          (item) => item.metadata?.shipping_required !== 'true' || item.metadata?.weight
+        ),
+        allProductsHaveOriginCountry: parcelcraftLineItemMeta.every(
+          (item) => item.metadata?.shipping_required !== 'true' || item.metadata?.origin_country
+        ),
+        note: 'If shipping rates still do not appear, verify Parcelcraft is installed and configured in Stripe Dashboard (Apps → Parcelcraft → Settings)'
+      });
+    }
 
     if (!session.locale) {
       console.warn(
