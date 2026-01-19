@@ -234,12 +234,29 @@ export async function redirectToCheckout() {
       payload = null;
     }
 
-    if (!response.ok || !payload?.url) {
+    // Embedded Checkout: API returns clientSecret, redirect to /checkout page
+    // Hosted Checkout (old): API returns url, redirect to Stripe
+    if (!response.ok) {
       console.error('Checkout session creation failed', response.status, payload);
       return payload?.error || 'Unable to start checkout. Please try again.';
     }
 
-    window.location.href = resolveCheckoutUrl(payload.url);
+    if (payload?.clientSecret) {
+      // New: Embedded Checkout - save session info and redirect to our checkout page
+      console.log('Redirecting to embedded checkout');
+      sessionStorage.setItem('stripe_checkout_session', JSON.stringify({
+        clientSecret: payload.clientSecret,
+        sessionId: payload.sessionId
+      }));
+      window.location.href = '/checkout';
+    } else if (payload?.url) {
+      // Old: Hosted Checkout - redirect to Stripe
+      console.log('Redirecting to Stripe hosted checkout');
+      window.location.href = resolveCheckoutUrl(payload.url);
+    } else {
+      console.error('Invalid response - missing clientSecret and url', payload);
+      return 'Unable to start checkout. Please try again.';
+    }
   } catch (error) {
     console.error('Checkout redirect failed', error);
     return 'Unable to start checkout. Please try again.';

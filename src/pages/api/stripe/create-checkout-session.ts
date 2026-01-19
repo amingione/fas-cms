@@ -330,13 +330,13 @@ const buildParcelcraftProductMetadata = (
   };
   if (typeof weight === 'number' && Number.isFinite(weight) && weight > 0) {
     metadata.weight = String(weight);
-    metadata.weight_unit = 'pound';
+    metadata.weight_unit = 'lb'; // Parcelcraft requires 'lb' not 'pound'
   }
   if (dimensions) {
     metadata.length = String(dimensions.length);
     metadata.width = String(dimensions.width);
     metadata.height = String(dimensions.height);
-    metadata.dimension_unit = 'inch';
+    metadata.dimension_unit = 'in'; // Parcelcraft requires 'in' not 'inch'
   }
   return metadata;
 };
@@ -360,10 +360,10 @@ const toPackageDimensions = (
   if (weight <= 0 || length <= 0 || width <= 0 || height <= 0) {
     return undefined;
   }
-  if (metadata.weight_unit && metadata.weight_unit !== 'pound') {
+  if (metadata.weight_unit && metadata.weight_unit !== 'lb') {
     return undefined;
   }
-  if (metadata.dimension_unit && metadata.dimension_unit !== 'inch') {
+  if (metadata.dimension_unit && metadata.dimension_unit !== 'in') {
     return undefined;
   }
 

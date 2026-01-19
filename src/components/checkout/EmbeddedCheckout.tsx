@@ -49,14 +49,40 @@ export default function EmbeddedCheckout() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Create checkout session when component mounts
-    createCheckoutSession();
+    // Load existing session from sessionStorage (created by cart)
+    console.log('[EmbeddedCheckout] Component mounted, loading session...');
+    loadCheckoutSession();
   }, []);
 
-  const createCheckoutSession = async () => {
+  useEffect(() => {
+    if (clientSecret) {
+      console.log('[EmbeddedCheckout] ✅ Client secret loaded, Stripe should initialize now');
+    }
+  }, [clientSecret]);
+
+  const loadCheckoutSession = async () => {
     try {
       setLoading(true);
       setError(null);
+
+      // Check if we have a session already created by the cart
+      const sessionJson = sessionStorage.getItem('stripe_checkout_session');
+      if (sessionJson) {
+        console.log('[EmbeddedCheckout] Loading existing session from sessionStorage');
+        const sessionData = JSON.parse(sessionJson);
+
+        if (sessionData.clientSecret) {
+          console.log('[EmbeddedCheckout] Using session:', sessionData.sessionId);
+          setClientSecret(sessionData.clientSecret);
+          setLoading(false);
+          // Clear it so refresh doesn't reuse stale session
+          sessionStorage.removeItem('stripe_checkout_session');
+          return;
+        }
+      }
+
+      // Fallback: Create new session (in case user navigates directly to /checkout)
+      console.log('[EmbeddedCheckout] No existing session, creating new one');
 
       // Read cart from localStorage
       const cartJson = localStorage.getItem('cart');
@@ -117,15 +143,22 @@ export default function EmbeddedCheckout() {
 
   // Show loading state
   if (loading || !clientSecret) {
+    console.log('[EmbeddedCheckout] RENDER: Still loading...', { loading, hasClientSecret: !!clientSecret });
     return null; // Loading UI is in the Astro page
   }
 
   // Show error state
   if (error) {
+    console.error('[EmbeddedCheckout] RENDER: Error state', error);
     return null; // Error UI is in the Astro page
   }
 
   // Render Stripe Embedded Checkout
+  console.log('[EmbeddedCheckout] RENDER: Rendering Stripe Embedded Checkout', {
+    hasClientSecret: !!clientSecret,
+    clientSecretLength: clientSecret?.length
+  });
+
   return (
     <div id="stripe-embedded-checkout">
       <EmbeddedCheckoutProvider
@@ -133,7 +166,7 @@ export default function EmbeddedCheckout() {
         options={{
           clientSecret,
           onComplete: () => {
-            console.log('[EmbeddedCheckout] Payment complete');
+            console.log('[EmbeddedCheckout] ✅ Payment complete - redirecting to return_url');
             // Stripe will automatically redirect to return_url
           },
         }}
