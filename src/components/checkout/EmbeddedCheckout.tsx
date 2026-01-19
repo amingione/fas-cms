@@ -47,35 +47,50 @@ export default function EmbeddedCheckout() {
 
   // Handle shipping address/details changes for dynamic shipping
   const handleShippingDetailsChange = useCallback(async (event: any) => {
+    const shippingDetails =
+      event?.shippingDetails ||
+      event?.shipping_details ||
+      event ||
+      {};
+    const address = shippingDetails?.address || event?.address || null;
+
     console.log('[EmbeddedCheckout] 🚚 Shipping details changed:', {
-      hasAddress: !!event.address,
-      country: event.address?.country,
-      postalCode: event.address?.postal_code
+      hasAddress: !!address,
+      country: address?.country,
+      postalCode: address?.postal_code
     });
 
     // Call backend to update shipping options based on address
-    if (event.address && clientSecret) {
-      try {
-        const sessionId = clientSecret.split('_secret_')[0];
+    if (!address || !clientSecret) {
+      return { type: 'accept' as const };
+    }
 
-        const response = await fetch('/api/stripe/update-shipping-options', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            sessionId,
-            shippingAddress: event.address
-          })
-        });
+    try {
+      const sessionId = clientSecret.split('_secret_')[0];
 
-        if (!response.ok) {
-          console.warn('[EmbeddedCheckout] ⚠️ Failed to update shipping options:', response.status);
-        } else {
-          const data = await response.json();
-          console.log('[EmbeddedCheckout] ✅ Shipping options updated:', data);
-        }
-      } catch (err) {
-        console.error('[EmbeddedCheckout] ❌ Error updating shipping options:', err);
+      const response = await fetch('/api/stripe/update-shipping-options', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId,
+          shippingAddress: {
+            name: shippingDetails?.name,
+            address
+          }
+        })
+      });
+
+      if (!response.ok) {
+        console.warn('[EmbeddedCheckout] ⚠️ Failed to update shipping options:', response.status);
+        return { type: 'accept' as const };
       }
+
+      const data = await response.json();
+      console.log('[EmbeddedCheckout] ✅ Shipping options updated:', data);
+      return { type: 'accept' as const };
+    } catch (err) {
+      console.error('[EmbeddedCheckout] ❌ Error updating shipping options:', err);
+      return { type: 'accept' as const };
     }
   }, [clientSecret]);
 
@@ -286,6 +301,7 @@ export default function EmbeddedCheckout() {
         options={{
           clientSecret,
           onComplete: handleComplete,
+          onShippingDetailsChange: handleShippingDetailsChange,
         }}
       >
         <StripeEmbeddedCheckout />
