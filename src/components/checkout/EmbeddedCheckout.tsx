@@ -45,17 +45,85 @@ export default function EmbeddedCheckout() {
     loadCheckoutSession();
   }, []);
 
+  // Watch for checkout iframe to appear (indicates checkout is ready)
   useEffect(() => {
-    if (clientSecret) {
-      console.log('[EmbeddedCheckout] ✅ Client secret loaded, Stripe should initialize now');
-      // Set a timeout to detect if checkout is stuck loading
-      const timeout = setTimeout(() => {
-        if (!checkoutReady) {
-          console.warn('[EmbeddedCheckout] ⚠️ Checkout taking longer than expected to load. This might indicate a Parcelcraft configuration issue.');
-        }
-      }, 10000); // 10 second timeout
-      return () => clearTimeout(timeout);
+    if (!clientSecret) return;
+
+    console.log('[EmbeddedCheckout] ✅ Client secret loaded, Stripe should initialize now');
+    
+    // Watch for Stripe checkout iframe to appear
+    const checkoutContainer = document.getElementById('stripe-embedded-checkout');
+    if (!checkoutContainer) return;
+
+    const observer = new MutationObserver((mutations) => {
+      // Check if Stripe iframe has been added
+      const iframe = checkoutContainer.querySelector('iframe[src*="stripe.com"]');
+      if (iframe && !checkoutReady) {
+        console.log('[EmbeddedCheckout] ✅ Checkout iframe detected - checkout is ready');
+        setCheckoutReady(true);
+        // Hide loading UI
+        const loadingEl = document.getElementById('checkout-loading');
+        if (loadingEl) loadingEl.style.display = 'none';
+        observer.disconnect();
+      }
+    });
+
+    // Start observing
+    observer.observe(checkoutContainer, {
+      childList: true,
+      subtree: true
+    });
+
+    // Also check immediately in case iframe is already there
+    const existingIframe = checkoutContainer.querySelector('iframe[src*="stripe.com"]');
+    if (existingIframe && !checkoutReady) {
+      console.log('[EmbeddedCheckout] ✅ Checkout iframe already present - checkout is ready');
+      setCheckoutReady(true);
+      const loadingEl = document.getElementById('checkout-loading');
+      if (loadingEl) loadingEl.style.display = 'none';
+      observer.disconnect();
     }
+
+    // Set a timeout to detect if checkout is stuck loading
+    const timeout = setTimeout(() => {
+      if (!checkoutReady) {
+        console.warn('[EmbeddedCheckout] ⚠️ Checkout taking longer than expected to load. This might indicate a Parcelcraft configuration issue.');
+        // Show a warning but don't fail - checkout might still be loading
+        const loadingEl = document.getElementById('checkout-loading');
+        if (loadingEl) {
+          const loadingText = loadingEl.querySelector('p');
+          if (loadingText) {
+            loadingText.textContent = 'Loading checkout... (This may take a moment if shipping rates are being calculated)';
+          }
+        }
+      }
+    }, 10000); // 10 second timeout
+    
+    // Set a longer timeout to show an error if checkout never loads
+    const errorTimeout = setTimeout(() => {
+      if (!checkoutReady) {
+        console.error('[EmbeddedCheckout] ❌ Checkout failed to load after 30 seconds');
+        setError('Checkout is taking too long to load. This may indicate a configuration issue with Parcelcraft shipping. Please verify Parcelcraft is installed and configured in your Stripe Dashboard.');
+        setLoading(false);
+        const loadingEl = document.getElementById('checkout-loading');
+        const errorEl = document.getElementById('checkout-error');
+        if (loadingEl) loadingEl.style.display = 'none';
+        if (errorEl) {
+          errorEl.style.display = 'block';
+          const errorMsg = errorEl.querySelector('p');
+          if (errorMsg) {
+            errorMsg.textContent = 'Checkout is taking too long to load. This may indicate a configuration issue with Parcelcraft shipping. Please verify Parcelcraft is installed and configured in your Stripe Dashboard (Apps → Parcelcraft → Settings).';
+          }
+        }
+        observer.disconnect();
+      }
+    }, 30000); // 30 second error timeout
+    
+    return () => {
+      observer.disconnect();
+      clearTimeout(timeout);
+      clearTimeout(errorTimeout);
+    };
   }, [clientSecret, checkoutReady]);
 
   const loadCheckoutSession = async () => {
@@ -181,32 +249,9 @@ export default function EmbeddedCheckout() {
             console.log('[EmbeddedCheckout] ✅ Payment complete - redirecting to return_url');
             // Stripe will automatically redirect to return_url
           },
-          onReady: () => {
-            console.log('[EmbeddedCheckout] ✅ Checkout is ready');
-            setCheckoutReady(true);
-            // Hide loading UI
-            const loadingEl = document.getElementById('checkout-loading');
-            if (loadingEl) loadingEl.style.display = 'none';
-          },
         }}
       >
-        <StripeEmbeddedCheckout
-          onError={(error) => {
-            console.error('[EmbeddedCheckout] ❌ Stripe checkout error:', error);
-            setError(error.message || 'Failed to load checkout form. Please check your Parcelcraft configuration in Stripe Dashboard.');
-            setLoading(false);
-            const loadingEl = document.getElementById('checkout-loading');
-            const errorEl = document.getElementById('checkout-error');
-            if (loadingEl) loadingEl.style.display = 'none';
-            if (errorEl) {
-              errorEl.style.display = 'block';
-              const errorMsg = errorEl.querySelector('p');
-              if (errorMsg) {
-                errorMsg.textContent = error.message || 'Failed to load checkout form. If shipping is required, please verify Parcelcraft is configured in your Stripe Dashboard.';
-              }
-            }
-          }}
-        />
+        <StripeEmbeddedCheckout />
       </EmbeddedCheckoutProvider>
     </div>
   );
