@@ -14,7 +14,7 @@
  * - Redirects to /checkout/return on success
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import {
   EmbeddedCheckoutProvider,
@@ -233,6 +233,12 @@ export default function EmbeddedCheckout() {
     return null;
   }
 
+  // Memoize onComplete callback to prevent prop change warnings
+  const handleComplete = useCallback(() => {
+    console.log('[EmbeddedCheckout] ✅ Payment complete - redirecting to return_url');
+    // Stripe will automatically redirect to return_url
+  }, []);
+
   // Render Stripe Embedded Checkout
   console.log('[EmbeddedCheckout] RENDER: Rendering Stripe Embedded Checkout', {
     hasClientSecret: !!clientSecret,
@@ -245,10 +251,7 @@ export default function EmbeddedCheckout() {
         stripe={stripePromise}
         options={{
           clientSecret,
-          onComplete: () => {
-            console.log('[EmbeddedCheckout] ✅ Payment complete - redirecting to return_url');
-            // Stripe will automatically redirect to return_url
-          },
+          onComplete: handleComplete,
         }}
       >
         <StripeEmbeddedCheckout />
