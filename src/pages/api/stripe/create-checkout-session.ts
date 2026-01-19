@@ -1162,8 +1162,8 @@ export async function POST({ request }: { request: Request }) {
       allow_promotion_codes: true,
       // CRITICAL: Explicit locale required for branded checkout domains
       // Without this, Stripe tries to auto-detect locale and fails with "Cannot find module './en'"
-      // Try 'auto' if 'en' doesn't work - Stripe will use browser Accept-Language header
-      locale: 'auto',
+      // Use 'en' explicitly to avoid loading issues
+      locale: 'en',
       // Parcelcraft automatically injects dynamic shipping rates in embedded mode
       // CRITICAL: shipping_address_collection MUST be set for Parcelcraft to work
       // Do NOT pass shipping_options manually - Parcelcraft handles this automatically

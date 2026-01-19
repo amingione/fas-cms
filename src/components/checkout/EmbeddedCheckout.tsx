@@ -37,6 +37,7 @@ export default function EmbeddedCheckout() {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [checkoutReady, setCheckoutReady] = useState(false);
 
   useEffect(() => {
     // Load existing session from sessionStorage (created by cart)
@@ -47,8 +48,15 @@ export default function EmbeddedCheckout() {
   useEffect(() => {
     if (clientSecret) {
       console.log('[EmbeddedCheckout] ✅ Client secret loaded, Stripe should initialize now');
+      // Set a timeout to detect if checkout is stuck loading
+      const timeout = setTimeout(() => {
+        if (!checkoutReady) {
+          console.warn('[EmbeddedCheckout] ⚠️ Checkout taking longer than expected to load. This might indicate a Parcelcraft configuration issue.');
+        }
+      }, 10000); // 10 second timeout
+      return () => clearTimeout(timeout);
     }
-  }, [clientSecret]);
+  }, [clientSecret, checkoutReady]);
 
   const loadCheckoutSession = async () => {
     try {
@@ -119,7 +127,8 @@ export default function EmbeddedCheckout() {
       setLoading(false);
     } catch (err) {
       console.error('[EmbeddedCheckout] Error:', err);
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      setError(errorMessage);
       setLoading(false);
 
       // Show error UI
@@ -129,7 +138,7 @@ export default function EmbeddedCheckout() {
       if (errorEl) {
         errorEl.style.display = 'block';
         const errorMsg = errorEl.querySelector('p');
-        if (errorMsg) errorMsg.textContent = err instanceof Error ? err.message : 'Unknown error';
+        if (errorMsg) errorMsg.textContent = errorMessage;
       }
     }
   };
@@ -137,13 +146,23 @@ export default function EmbeddedCheckout() {
   // Show loading state
   if (loading || !clientSecret) {
     console.log('[EmbeddedCheckout] RENDER: Still loading...', { loading, hasClientSecret: !!clientSecret });
-    return null; // Loading UI is in the Astro page
+    // Keep loading UI visible in Astro page
+    return null;
   }
 
   // Show error state
   if (error) {
     console.error('[EmbeddedCheckout] RENDER: Error state', error);
-    return null; // Error UI is in the Astro page
+    // Show error UI in Astro page
+    const loadingEl = document.getElementById('checkout-loading');
+    const errorEl = document.getElementById('checkout-error');
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (errorEl) {
+      errorEl.style.display = 'block';
+      const errorMsg = errorEl.querySelector('p');
+      if (errorMsg) errorMsg.textContent = error;
+    }
+    return null;
   }
 
   // Render Stripe Embedded Checkout
@@ -162,9 +181,32 @@ export default function EmbeddedCheckout() {
             console.log('[EmbeddedCheckout] ✅ Payment complete - redirecting to return_url');
             // Stripe will automatically redirect to return_url
           },
+          onReady: () => {
+            console.log('[EmbeddedCheckout] ✅ Checkout is ready');
+            setCheckoutReady(true);
+            // Hide loading UI
+            const loadingEl = document.getElementById('checkout-loading');
+            if (loadingEl) loadingEl.style.display = 'none';
+          },
         }}
       >
-        <StripeEmbeddedCheckout />
+        <StripeEmbeddedCheckout
+          onError={(error) => {
+            console.error('[EmbeddedCheckout] ❌ Stripe checkout error:', error);
+            setError(error.message || 'Failed to load checkout form. Please check your Parcelcraft configuration in Stripe Dashboard.');
+            setLoading(false);
+            const loadingEl = document.getElementById('checkout-loading');
+            const errorEl = document.getElementById('checkout-error');
+            if (loadingEl) loadingEl.style.display = 'none';
+            if (errorEl) {
+              errorEl.style.display = 'block';
+              const errorMsg = errorEl.querySelector('p');
+              if (errorMsg) {
+                errorMsg.textContent = error.message || 'Failed to load checkout form. If shipping is required, please verify Parcelcraft is configured in your Stripe Dashboard.';
+              }
+            }
+          }}
+        />
       </EmbeddedCheckoutProvider>
     </div>
   );
