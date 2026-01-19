@@ -122,6 +122,7 @@ type ShippingProduct = {
   _id: string;
   title?: string;
   sku?: string;
+  productType?: string | null;
   price?: number | null;
   stripePriceId?: string | null;
   salePrice?: number | null;
@@ -170,6 +171,7 @@ async function fetchShippingProductsForCart(
       _id,
       title,
       sku,
+      productType,
       "price": coalesce(price, pricing.price),
       stripePriceId,
       "onSale": coalesce(onSale, pricing.onSale),
@@ -283,9 +285,23 @@ const isInstallOnlyShippingClass = (value?: string | null): boolean => {
 };
 
 const resolveRequiresShipping = (product?: ShippingProduct, item?: CheckoutCartItem): boolean => {
+  const productType = typeof product?.productType === 'string' ? product.productType.toLowerCase() : '';
+  if (productType === 'service') return false;
   const requiresShipping = product?.shippingConfig?.requiresShipping;
   if (requiresShipping === true) return true;
-  if (requiresShipping === false) return false;
+  if (requiresShipping === false) {
+    if (item?.installOnly) return false;
+    const rawClass =
+      typeof item?.shippingClass === 'string'
+        ? item.shippingClass
+        : typeof product?.shippingConfig?.shippingClass === 'string'
+          ? product.shippingConfig.shippingClass
+          : typeof product?.shippingClass === 'string'
+            ? product.shippingClass
+            : '';
+    if (isInstallOnlyShippingClass(rawClass)) return false;
+    return productType === 'physical' || productType === 'bundle' || !productType;
+  }
 
   const rawClass =
     typeof item?.shippingClass === 'string'

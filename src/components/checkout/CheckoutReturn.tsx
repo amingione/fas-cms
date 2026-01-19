@@ -11,6 +11,7 @@
 
 import { useEffect, useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
+import { CART_KEY } from '@/lib/cart';
 
 const stripePromise = loadStripe(
   import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY ||
@@ -70,7 +71,7 @@ export default function CheckoutReturn() {
       if (session.status === 'complete' && session.payment_status === 'paid') {
         setStatus('success');
         // Clear cart from localStorage
-        localStorage.removeItem('cart');
+        localStorage.removeItem(CART_KEY);
         console.log('[CheckoutReturn] Payment successful, cart cleared');
       } else if (session.status === 'complete' && session.payment_status === 'unpaid') {
         setStatus('processing');

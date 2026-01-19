@@ -20,6 +20,7 @@ import {
   EmbeddedCheckoutProvider,
   EmbeddedCheckout as StripeEmbeddedCheckout,
 } from '@stripe/react-stripe-js';
+import { getCart, type CartItem as StoreCartItem } from '@/lib/cart';
 
 // Initialize Stripe (replace with your publishable key)
 const stripePromise = loadStripe(
@@ -30,17 +31,6 @@ const stripePromise = loadStripe(
 interface CheckoutSessionResponse {
   clientSecret: string;
   sessionId: string;
-}
-
-interface CartItem {
-  id: string;
-  sku?: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image?: string;
-  stripePriceId?: string;
-  [key: string]: any;
 }
 
 export default function EmbeddedCheckout() {
@@ -85,13 +75,16 @@ export default function EmbeddedCheckout() {
       console.log('[EmbeddedCheckout] No existing session, creating new one');
 
       // Read cart from localStorage
-      const cartJson = localStorage.getItem('cart');
-      if (!cartJson) {
-        throw new Error('Your cart is empty');
+      const cartFromStore = getCart();
+      let cart: StoreCartItem[] = Array.isArray(cartFromStore) ? cartFromStore : [];
+
+      if (!cart.length) {
+        const legacyCartJson = localStorage.getItem('cart');
+        const legacyCart = legacyCartJson ? JSON.parse(legacyCartJson) : [];
+        cart = Array.isArray(legacyCart) ? legacyCart : [];
       }
 
-      const cart: CartItem[] = JSON.parse(cartJson);
-      if (!Array.isArray(cart) || cart.length === 0) {
+      if (!cart.length) {
         throw new Error('Your cart is empty');
       }
 
