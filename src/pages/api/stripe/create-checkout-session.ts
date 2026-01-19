@@ -752,54 +752,63 @@ export async function POST({ request }: { request: Request }) {
         stripeProduct && !('deleted' in stripeProduct) ? stripeProduct : undefined;
       const stripeProductId =
         typeof price.product === 'string' ? price.product : liveStripeProduct?.id;
-      const stripeMeta = liveStripeProduct?.metadata ?? {};
-      const parcelcraftMeta = buildParcelcraftProductMetadata(product, item);
-      const mergedMetadata: Record<string, string> = { ...stripeMeta, ...parcelcraftMeta };
-      const packageDimensions = toPackageDimensions(mergedMetadata);
 
-      if (isShippable) {
-        if (
-          !mergedMetadata.weight ||
-          !mergedMetadata.weight_unit ||
-          !mergedMetadata.origin_country
-        ) {
-          return jsonResponse(
-            { error: 'Parcelcraft shipping metadata required for Stripe price items' },
-            400
-          );
-        }
-        const needsUpdate =
-          !liveStripeProduct ||
-          liveStripeProduct.shippable !== true ||
-          !liveStripeProduct.metadata?.weight ||
-          !liveStripeProduct.metadata?.weight_unit ||
-          !liveStripeProduct.metadata?.origin_country ||
-          (packageDimensions && !liveStripeProduct.package_dimensions);
-        if (needsUpdate && stripeProductId) {
-          const updatePayload: Stripe.ProductUpdateParams = {
-            shippable: true,
-            metadata: mergedMetadata
-          };
-          if (packageDimensions) {
-            updatePayload.package_dimensions = packageDimensions;
+      if (isShippable && liveStripeProduct?.type === 'service') {
+        console.warn('[checkout] Stripe product type is "service" for shippable item. Falling back to ad-hoc product creation.', {
+          priceId: price.id,
+          productId: stripeProductId,
+          itemId: item.id
+        });
+      } else {
+        const stripeMeta = liveStripeProduct?.metadata ?? {};
+        const parcelcraftMeta = buildParcelcraftProductMetadata(product, item);
+        const mergedMetadata: Record<string, string> = { ...stripeMeta, ...parcelcraftMeta };
+        const packageDimensions = toPackageDimensions(mergedMetadata);
+
+        if (isShippable) {
+          if (
+            !mergedMetadata.weight ||
+            !mergedMetadata.weight_unit ||
+            !mergedMetadata.origin_country
+          ) {
+            return jsonResponse(
+              { error: 'Parcelcraft shipping metadata required for Stripe price items' },
+              400
+            );
           }
-          await stripe.products.update(stripeProductId, updatePayload);
+          const needsUpdate =
+            !liveStripeProduct ||
+            liveStripeProduct.shippable !== true ||
+            !liveStripeProduct.metadata?.weight ||
+            !liveStripeProduct.metadata?.weight_unit ||
+            !liveStripeProduct.metadata?.origin_country ||
+            (packageDimensions && !liveStripeProduct.package_dimensions);
+          if (needsUpdate && stripeProductId) {
+            const updatePayload: Stripe.ProductUpdateParams = {
+              shippable: true,
+              metadata: mergedMetadata
+            };
+            if (packageDimensions) {
+              updatePayload.package_dimensions = packageDimensions;
+            }
+            await stripe.products.update(stripeProductId, updatePayload);
+          }
         }
-      }
 
-      lineItems.push({
-        price: stripePriceId,
-        quantity
-      });
-      parcelcraftLineItemMeta.push({
-        name:
-          (stripeProduct && !('deleted' in stripeProduct) ? stripeProduct.name : undefined) ||
-          item.name ||
-          'Item',
-        price: stripePriceId,
-        metadata: mergedMetadata
-      });
-      continue;
+        lineItems.push({
+          price: stripePriceId,
+          quantity
+        });
+        parcelcraftLineItemMeta.push({
+          name:
+            (stripeProduct && !('deleted' in stripeProduct) ? stripeProduct.name : undefined) ||
+            item.name ||
+            'Item',
+          price: stripePriceId,
+          metadata: mergedMetadata
+        });
+        continue;
+      }
     }
 
     const optionDetails = formatSelectedOptions(
@@ -1184,20 +1193,7 @@ export async function POST({ request }: { request: Request }) {
       ...(shippingRequired ? {
         permissions: {
           update_shipping_details: 'server_only' as const
-        },
-        // Initial placeholder shipping option (required for embedded checkout)
-        shipping_options: [
-          {
-            shipping_rate_data: {
-              display_name: 'Calculating shipping rates...',
-              type: 'fixed_amount' as const,
-              fixed_amount: {
-                amount: 0,
-                currency: 'usd'
-              }
-            }
-          }
-        ]
+        }
       } : {}),
       consent_collection: { promotions: 'auto' },
       custom_fields: [
