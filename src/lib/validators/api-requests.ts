@@ -97,7 +97,17 @@ export const stripeCheckoutRequestSchema = z
     utmTerm: z.string().optional(),
     utm_term: z.string().optional(),
     utmContent: z.string().optional(),
-    utm_content: z.string().optional()
+    utm_content: z.string().optional(),
+    // Optional shipping address for pre-calculating shipping rates
+    shippingAddress: z.object({
+      name: z.string().optional(),
+      line1: z.string().optional(),
+      line2: z.string().optional(),
+      city: z.string().optional(),
+      state: z.string().optional(),
+      postal_code: z.string().optional(),
+      country: z.string().optional()
+    }).optional()
   })
   .passthrough();
 

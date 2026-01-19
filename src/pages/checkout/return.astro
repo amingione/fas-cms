@@ -1,0 +1,36 @@
+---
+/**
+ * Checkout Return Page
+ *
+ * This page handles the redirect after Stripe Embedded Checkout completes.
+ * URL: /checkout/return?session_id={CHECKOUT_SESSION_ID}
+ *
+ * Flow:
+ * 1. Customer completes payment in embedded checkout
+ * 2. Stripe redirects to this page with session_id
+ * 3. We verify the session status
+ * 4. Show success message or redirect to order confirmation
+ */
+
+import Layout from '@/layouts/Layout.astro';
+import CheckoutReturn from '@/components/checkout/CheckoutReturn';
+
+const pageTitle = 'Order Confirmation | FAS Motorsports';
+const pageDescription = 'Your order has been received';
+---
+
+<Layout title={pageTitle} description={pageDescription}>
+  <main class="return-page">
+    <div class="container mx-auto px-4 py-8 max-w-2xl">
+      <!-- React component handles session verification -->
+      <CheckoutReturn client:load />
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .return-page {
+    min-height: calc(100vh - 200px);
+    background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
+  }
+</style>

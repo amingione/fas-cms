@@ -150,6 +150,8 @@
     "@sanity/ui": "^2.16.22",
     "@splinetool/react-spline": "^4.1.0",
     "@splinetool/runtime": "^1.12.28",
+    "@stripe/react-stripe-js": "^5.4.1",
+    "@stripe/stripe-js": "^8.6.1",
     "@types/react-router-dom": "^5.3.3",
     "apexcharts": "^5.3.6",
     "astro": "5.16.6",

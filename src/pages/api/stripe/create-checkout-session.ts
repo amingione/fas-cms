@@ -419,7 +419,7 @@ export async function POST({ request }: { request: Request }) {
     return jsonResponse({ error: 'Validation failed', details: bodyResult.error.format() }, 422);
   }
 
-  const { cart, metadata: requestMetadata } = bodyResult.data;
+  const { cart, metadata: requestMetadata, shippingAddress } = bodyResult.data;
   const clamp = (value: string, max = 500) => (value.length > max ? value.slice(0, max) : value);
 
   const formatSelectedOptions = (
@@ -1111,7 +1111,17 @@ export async function POST({ request }: { request: Request }) {
     metadataForSession.ship_status = paymentIntentMetadata.ship_status;
     metadataForSession.shipping_required = shippingRequired ? 'true' : 'false';
 
+    // For Embedded Checkout with Parcelcraft:
+    // - No need to pre-fetch shipping rates
+    // - Parcelcraft automatically injects rates as customer types their address
+    // - Rates update in real-time within the embedded checkout form
+    console.log('[checkout] Using Embedded Checkout with Parcelcraft dynamic shipping rates');
+
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
+      // CRITICAL: Use embedded mode for Parcelcraft dynamic shipping
+      ui_mode: 'embedded',
+      // Return URL for embedded checkout (customer stays on your site)
+      return_url: `${baseUrl}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
       // Offer standard cards plus Affirm financing at checkout
       payment_method_types: ['card', 'affirm'],
       mode: 'payment',
@@ -1138,12 +1148,10 @@ export async function POST({ request }: { request: Request }) {
       // Without this, Stripe tries to auto-detect locale and fails with "Cannot find module './en'"
       // Try 'auto' if 'en' doesn't work - Stripe will use browser Accept-Language header
       locale: 'auto',
-      // Parcelcraft automatically injects dynamic shipping rates when shipping_address_collection is enabled
-      // and invoice_creation is true. Do NOT manually pass shipping_options as it overrides Parcelcraft.
-      // CRITICAL: shipping_address_collection MUST be set for Parcelcraft to inject dynamic rates
+      // Parcelcraft automatically injects dynamic shipping rates in embedded mode
+      // CRITICAL: shipping_address_collection MUST be set for Parcelcraft to work
+      // Do NOT pass shipping_options manually - Parcelcraft handles this automatically
       ...(shippingRequired ? { shipping_address_collection: shippingAddressCollection } : {}),
-      success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/cart`,
       consent_collection: { promotions: 'auto' },
       custom_fields: [
         {
@@ -1203,11 +1211,13 @@ export async function POST({ request }: { request: Request }) {
     const session = await stripe.checkout.sessions.create(sessionParams);
 
     // Log what Stripe actually created (after the API call)
-    console.log('[checkout] ✅ Stripe session created:', {
+    console.log('[checkout] ✅ Stripe Embedded Checkout session created:', {
       sessionId: session.id,
       locale: session.locale || '(not set)',
       hasShippingAddressCollection: !!session.shipping_address_collection,
-      allowedCountries: session.shipping_address_collection?.allowed_countries
+      allowedCountries: session.shipping_address_collection?.allowed_countries,
+      uiMode: 'embedded',
+      hasClientSecret: !!session.client_secret
     });
 
     if (!session.locale) {
@@ -1216,7 +1226,17 @@ export async function POST({ request }: { request: Request }) {
       );
     }
 
-    return jsonResponse({ url: session.url }, 200);
+    if (!session.client_secret) {
+      console.error('[checkout] ❌ ERROR: Embedded checkout session missing client_secret!');
+      return jsonResponse({ error: 'Session creation failed - missing client secret' }, 500);
+    }
+
+    // For embedded checkout, return the client_secret (NOT url)
+    // Frontend uses this to initialize the Stripe Checkout component
+    return jsonResponse({
+      clientSecret: session.client_secret,
+      sessionId: session.id
+    }, 200);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     console.error('❌ Stripe Checkout Session Error:', err);

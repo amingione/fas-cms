@@ -8605,6 +8605,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@stripe/react-stripe-js@npm:^5.4.1":
+  version: 5.4.1
+  resolution: "@stripe/react-stripe-js@npm:5.4.1"
+  dependencies:
+    prop-types: "npm:^15.7.2"
+  peerDependencies:
+    "@stripe/stripe-js": ">=8.0.0 <9.0.0"
+    react: ">=16.8.0 <20.0.0"
+    react-dom: ">=16.8.0 <20.0.0"
+  checksum: 10c0/9418be614419e6d3169dc29e78251395648aebfc19b0d7be8ca1e5195518d72fa5110eaccf88a3a3195dbc8d51f47bac722ad60518834d65b60d44b1573fa066
+  languageName: node
+  linkType: hard
+
+"@stripe/stripe-js@npm:^8.6.1":
+  version: 8.6.1
+  resolution: "@stripe/stripe-js@npm:8.6.1"
+  checksum: 10c0/53604b5501de9a03b3e4ae3af067990b4b15158eb8e6dc7c72106648bf5f0945731b2624f864561557651bfb5a64e566b00be6dccc650e6b2e5dcc0a1d0af385
+  languageName: node
+  linkType: hard
+
 "@svgdotjs/svg.draggable.js@npm:^3.0.4":
   version: 3.0.6
   resolution: "@svgdotjs/svg.draggable.js@npm:3.0.6"
@@ -16836,6 +16856,8 @@ __metadata:
     "@sanity/ui": "npm:^2.16.22"
     "@splinetool/react-spline": "npm:^4.1.0"
     "@splinetool/runtime": "npm:^1.12.28"
+    "@stripe/react-stripe-js": "npm:^5.4.1"
+    "@stripe/stripe-js": "npm:^8.6.1"
     "@types/add": "npm:^2.0.3"
     "@types/bcryptjs": "npm:^3.0.0"
     "@types/jsonwebtoken": "npm:^9.0.10"
@@ -26865,7 +26887,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prop-types@npm:^15.6.2, prop-types@npm:^15.8.1":
+"prop-types@npm:^15.6.2, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
   version: 15.8.1
   resolution: "prop-types@npm:15.8.1"
   dependencies:
