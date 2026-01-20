@@ -32,17 +32,37 @@ interface ShippingAddress {
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch (parseErr) {
+      console.error('[update-shipping-options] Failed to parse JSON:', parseErr);
+      return new Response(
+        JSON.stringify({
+          error: 'Invalid JSON in request body',
+          details: parseErr instanceof Error ? parseErr.message : 'Unknown parse error'
+        }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { sessionId, shippingAddress } = body as {
       sessionId: string;
       shippingAddress: ShippingAddress;
     };
 
     if (!sessionId) {
-      return new Response(JSON.stringify({ error: 'Missing sessionId' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      console.error('[update-shipping-options] Missing sessionId in request body');
+      return new Response(
+        JSON.stringify({
+          error: 'Missing sessionId',
+          details: 'sessionId is required to update shipping options'
+        }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
     }
 
     console.log('[update-shipping-options] Address change received:', {
@@ -53,10 +73,38 @@ export const POST: APIRoute = async ({ request }) => {
       city: shippingAddress?.address?.city
     });
 
+    // Validate Stripe secret key
+    if (!stripeSecret) {
+      console.error('[update-shipping-options] STRIPE_SECRET_KEY not configured');
+      return new Response(
+        JSON.stringify({
+          error: 'Server configuration error',
+          details: 'STRIPE_SECRET_KEY is not configured'
+        }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Retrieve current session with line items
-    const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ['line_items.data.price.product']
-    });
+    let session;
+    try {
+      session = await stripe.checkout.sessions.retrieve(sessionId, {
+        expand: ['line_items.data.price.product']
+      });
+    } catch (retrieveErr) {
+      console.error('[update-shipping-options] Failed to retrieve session:', {
+        sessionId,
+        error: retrieveErr instanceof Error ? retrieveErr.message : String(retrieveErr)
+      });
+      return new Response(
+        JSON.stringify({
+          error: 'Failed to retrieve checkout session',
+          details: retrieveErr instanceof Error ? retrieveErr.message : 'Unknown error',
+          sessionId
+        }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
 
     console.log('[update-shipping-options] Session retrieved:', {
       sessionId: session.id,

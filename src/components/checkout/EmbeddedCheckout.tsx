@@ -13,19 +13,19 @@
  * - Completes payment without leaving your site
  * - Redirects to /checkout/return on success
  */
-
+<script src="http://localhost:8097"></script>;
 import { useEffect, useState, useCallback } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import {
   EmbeddedCheckoutProvider,
-  EmbeddedCheckout as StripeEmbeddedCheckout,
+  EmbeddedCheckout as StripeEmbeddedCheckout
 } from '@stripe/react-stripe-js';
 import { getCart, type CartItem as StoreCartItem } from '@/lib/cart';
 
 // Initialize Stripe (replace with your publishable key)
 const stripePromise = loadStripe(
   import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY ||
-  'pk_live_51QVZPDIlHCPvGTm2i8hhRw1KWvdvO1D9S33BGcOIAaV7xN2dV1EXjlxqPbHHPWrj7KMLMlOzBCTKAKf3rTVYhKH800IcjRFRWE'
+    'pk_live_51QVZPDIlHCPvGTm2i8hhRw1KWvdvO1D9S33BGcOIAaV7xN2dV1EXjlxqPbHHPWrj7KMLMlOzBCTKAKf3rTVYhKH800IcjRFRWE'
 );
 
 interface CheckoutSessionResponse {
@@ -46,53 +46,78 @@ export default function EmbeddedCheckout() {
   }, []);
 
   // Handle shipping address/details changes for dynamic shipping
-  const handleShippingDetailsChange = useCallback(async (event: any) => {
-    const shippingDetails =
-      event?.shippingDetails ||
-      event?.shipping_details ||
-      event ||
-      {};
-    const address = shippingDetails?.address || event?.address || null;
+  const handleShippingDetailsChange = useCallback(
+    async (event: any) => {
+      const shippingDetails = event?.shippingDetails || event?.shipping_details || event || {};
+      const address = shippingDetails?.address || event?.address || null;
 
-    console.log('[EmbeddedCheckout] 🚚 Shipping details changed:', {
-      hasAddress: !!address,
-      country: address?.country,
-      postalCode: address?.postal_code
-    });
-
-    // Call backend to update shipping options based on address
-    if (!address || !clientSecret) {
-      return { type: 'accept' as const };
-    }
-
-    try {
-      const sessionId = clientSecret.split('_secret_')[0];
-
-      const response = await fetch('/api/stripe/update-shipping-options', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sessionId,
-          shippingAddress: {
-            name: shippingDetails?.name,
-            address
-          }
-        })
+      console.log('[EmbeddedCheckout] 🚚 Shipping details changed:', {
+        hasAddress: !!address,
+        country: address?.country,
+        postalCode: address?.postal_code
       });
 
-      if (!response.ok) {
-        console.warn('[EmbeddedCheckout] ⚠️ Failed to update shipping options:', response.status);
+      // Call backend to update shipping options based on address
+      if (!address || !clientSecret) {
         return { type: 'accept' as const };
       }
 
-      const data = await response.json();
-      console.log('[EmbeddedCheckout] ✅ Shipping options updated:', data);
-      return { type: 'accept' as const };
-    } catch (err) {
-      console.error('[EmbeddedCheckout] ❌ Error updating shipping options:', err);
-      return { type: 'accept' as const };
-    }
-  }, [clientSecret]);
+      try {
+        const sessionId = clientSecret.split('_secret_')[0];
+
+        console.log('[EmbeddedCheckout] Calling update-shipping-options endpoint:', {
+          sessionId,
+          country: address?.country,
+          state: address?.state
+        });
+
+        const response = await fetch('/api/stripe/update-shipping-options', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sessionId,
+            shippingAddress: {
+              name: shippingDetails?.name,
+              address
+            }
+          })
+        });
+
+        let data;
+        try {
+          data = await response.json();
+        } catch (parseErr) {
+          console.error('[EmbeddedCheckout] Failed to parse response JSON:', {
+            status: response.status,
+            statusText: response.statusText,
+            parseError: parseErr instanceof Error ? parseErr.message : String(parseErr)
+          });
+          // If we can't parse response, still accept to let Parcelcraft work
+          return { type: 'accept' as const };
+        }
+
+        if (!response.ok) {
+          console.error('[EmbeddedCheckout] ❌ Shipping options update failed:', {
+            status: response.status,
+            statusText: response.statusText,
+            error: data?.error,
+            details: data?.details
+          });
+          // Log the full error for debugging
+          console.error('[EmbeddedCheckout] Full error response:', data);
+          // Still accept to let Parcelcraft attempt to work
+          return { type: 'accept' as const };
+        }
+
+        console.log('[EmbeddedCheckout] ✅ Shipping options updated:', data);
+        return { type: 'accept' as const };
+      } catch (err) {
+        console.error('[EmbeddedCheckout] ❌ Error updating shipping options:', err);
+        return { type: 'accept' as const };
+      }
+    },
+    [clientSecret]
+  );
 
   useEffect(() => {
     // Load existing session from sessionStorage (created by cart)
@@ -105,7 +130,7 @@ export default function EmbeddedCheckout() {
     if (!clientSecret) return;
 
     console.log('[EmbeddedCheckout] ✅ Client secret loaded, Stripe should initialize now');
-    
+
     // Watch for Stripe checkout iframe to appear
     const checkoutContainer = document.getElementById('stripe-embedded-checkout');
     if (!checkoutContainer) return;
@@ -142,23 +167,28 @@ export default function EmbeddedCheckout() {
     // Set a timeout to detect if checkout is stuck loading
     const timeout = setTimeout(() => {
       if (!checkoutReady) {
-        console.warn('[EmbeddedCheckout] ⚠️ Checkout taking longer than expected to load. This might indicate a Parcelcraft configuration issue.');
+        console.warn(
+          '[EmbeddedCheckout] ⚠️ Checkout taking longer than expected to load. This might indicate a Parcelcraft configuration issue.'
+        );
         // Show a warning but don't fail - checkout might still be loading
         const loadingEl = document.getElementById('checkout-loading');
         if (loadingEl) {
           const loadingText = loadingEl.querySelector('p');
           if (loadingText) {
-            loadingText.textContent = 'Loading checkout... (This may take a moment if shipping rates are being calculated)';
+            loadingText.textContent =
+              'Loading checkout... (This may take a moment if shipping rates are being calculated)';
           }
         }
       }
     }, 10000); // 10 second timeout
-    
+
     // Set a longer timeout to show an error if checkout never loads
     const errorTimeout = setTimeout(() => {
       if (!checkoutReady) {
         console.error('[EmbeddedCheckout] ❌ Checkout failed to load after 30 seconds');
-        setError('Checkout is taking too long to load. This may indicate a configuration issue with Parcelcraft shipping. Please verify Parcelcraft is installed and configured in your Stripe Dashboard.');
+        setError(
+          'Checkout is taking too long to load. This may indicate a configuration issue with Parcelcraft shipping. Please verify Parcelcraft is installed and configured in your Stripe Dashboard.'
+        );
         setLoading(false);
         const loadingEl = document.getElementById('checkout-loading');
         const errorEl = document.getElementById('checkout-error');
@@ -167,13 +197,14 @@ export default function EmbeddedCheckout() {
           errorEl.style.display = 'block';
           const errorMsg = errorEl.querySelector('p');
           if (errorMsg) {
-            errorMsg.textContent = 'Checkout is taking too long to load. This may indicate a configuration issue with Parcelcraft shipping. Please verify Parcelcraft is installed and configured in your Stripe Dashboard (Apps → Parcelcraft → Settings).';
+            errorMsg.textContent =
+              'Checkout is taking too long to load. This may indicate a configuration issue with Parcelcraft shipping. Please verify Parcelcraft is installed and configured in your Stripe Dashboard (Apps → Parcelcraft → Settings).';
           }
         }
         observer.disconnect();
       }
     }, 30000); // 30 second error timeout
-    
+
     return () => {
       observer.disconnect();
       clearTimeout(timeout);
@@ -225,13 +256,13 @@ export default function EmbeddedCheckout() {
       const response = await fetch('/api/stripe/create-checkout-session', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          cart,
+          cart
           // No shippingAddress needed - customer enters it in the embedded form
           // Parcelcraft will fetch rates automatically as they type
-        }),
+        })
       });
 
       if (!response.ok) {
@@ -268,7 +299,10 @@ export default function EmbeddedCheckout() {
 
   // Show loading state
   if (loading || !clientSecret) {
-    console.log('[EmbeddedCheckout] RENDER: Still loading...', { loading, hasClientSecret: !!clientSecret });
+    console.log('[EmbeddedCheckout] RENDER: Still loading...', {
+      loading,
+      hasClientSecret: !!clientSecret
+    });
     // Keep loading UI visible in Astro page
     return null;
   }
@@ -301,7 +335,7 @@ export default function EmbeddedCheckout() {
         options={{
           clientSecret,
           onComplete: handleComplete,
-          onShippingDetailsChange: handleShippingDetailsChange,
+          onShippingDetailsChange: handleShippingDetailsChange
         }}
       >
         <StripeEmbeddedCheckout />
