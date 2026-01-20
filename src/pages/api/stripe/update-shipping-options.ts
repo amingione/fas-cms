@@ -1,10 +1,10 @@
 /**
  * Update shipping options endpoint for Stripe Embedded Checkout
- * 
+ *
  * This endpoint is called when the shipping address changes in the embedded
  * checkout form. It calculates shipping rates (via Parcelcraft or other provider)
  * and updates the Checkout Session with available shipping options.
- * 
+ *
  * This is required when using permissions.update_shipping_details = 'server_only'
  */
 
@@ -12,9 +12,7 @@ import type { APIRoute } from 'astro';
 import Stripe from 'stripe';
 
 const stripeSecret =
-  (import.meta.env.STRIPE_SECRET_KEY as string | undefined) || 
-  process.env.STRIPE_SECRET_KEY || 
-  '';
+  (import.meta.env.STRIPE_SECRET_KEY as string | undefined) || process.env.STRIPE_SECRET_KEY || '';
 
 const stripe = new Stripe(stripeSecret, {
   apiVersion: '2025-08-27.basil' as Stripe.LatestApiVersion
@@ -35,16 +33,16 @@ interface ShippingAddress {
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json();
-    const { sessionId, shippingAddress } = body as { 
-      sessionId: string; 
-      shippingAddress: ShippingAddress 
+    const { sessionId, shippingAddress } = body as {
+      sessionId: string;
+      shippingAddress: ShippingAddress;
     };
 
     if (!sessionId) {
-      return new Response(
-        JSON.stringify({ error: 'Missing sessionId' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'Missing sessionId' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     console.log('[update-shipping-options] Address change received:', {
@@ -66,56 +64,72 @@ export const POST: APIRoute = async ({ request }) => {
       lineItemCount: session.line_items?.data.length || 0
     });
 
-    // Calculate shipping options
-    // With Parcelcraft, this happens automatically via their app
-    // For manual implementation, you would:
-    // 1. Calculate weight/dimensions from line items
-    // 2. Call your shipping API (UPS, FedEx, etc.)
-    // 3. Return shipping options
-    
-    // For Parcelcraft: Let Parcelcraft handle rate calculation automatically
-    // The app will inject shipping rates based on product metadata
-    // We just need to update the session to trigger Parcelcraft
-    
-    try {
-      // Update the session to trigger Parcelcraft recalculation
-      // Parcelcraft monitors session updates and injects rates automatically
-      await stripe.checkout.sessions.update(sessionId, {
-        metadata: {
-          ...session.metadata,
-          shipping_address_updated: new Date().toISOString(),
-          shipping_country: shippingAddress?.address?.country || '',
-          shipping_postal_code: shippingAddress?.address?.postal_code || ''
-        }
-      });
+    // For Parcelcraft: The app automatically injects shipping rates
+    // when it detects a session with the right configuration:
+    // 1. ui_mode: 'embedded'
+    // 2. permissions.update_shipping_details: 'server_only'
+    // 3. Products with Parcelcraft metadata (shipping_required, package_weight, etc.)
+    // 4. shipping_address_collection enabled
+    // 5. invoice_creation.enabled: true
 
-      console.log('[update-shipping-options] ✅ Session updated, Parcelcraft should inject rates');
+    // We DON'T need to manually update the session or call any APIs
+    // Parcelcraft handles everything automatically
 
-      // Return success response
-      return new Response(
-        JSON.stringify({ 
-          success: true,
-          message: 'Shipping options will be updated by Parcelcraft'
-        }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
-      );
-    } catch (updateErr) {
-      console.error('[update-shipping-options] Failed to update session:', updateErr);
-      
-      // Even if update fails, Parcelcraft might still work
-      return new Response(
-        JSON.stringify({ 
-          success: true,
-          warning: 'Session update failed but Parcelcraft may still provide rates',
-          details: updateErr instanceof Error ? updateErr.message : 'Unknown error'
-        }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
-      );
+    console.log(
+      '[update-shipping-options] ℹ️ Parcelcraft will automatically inject shipping rates'
+    );
+    console.log('[update-shipping-options] Session configuration:', {
+      sessionId: session.id,
+      status: session.status,
+      uiMode: session.ui_mode,
+      hasShippingAddressCollection: !!session.shipping_address_collection,
+      invoiceCreationEnabled: session.invoice_creation?.enabled,
+      shippingOptionsCount: session.shipping_options?.length || 0
+    });
+
+    // Check if products have required Parcelcraft metadata
+    const lineItems = session.line_items?.data || [];
+    for (const item of lineItems) {
+      const product =
+        typeof item.price?.product === 'object' &&
+        item.price.product &&
+        !('deleted' in item.price.product)
+          ? item.price.product
+          : null;
+
+      if (product) {
+        const meta = product.metadata || {};
+        console.log('[update-shipping-options] Product metadata check:', {
+          productId: product.id,
+          productName: product.name,
+          shippable: product.shippable,
+          shipping_required: meta.shipping_required,
+          package_weight: meta.package_weight,
+          package_weight_unit: meta.package_weight_unit,
+          dimensions_unit: meta.dimensions_unit,
+          origin_country: meta.origin_country,
+          hasAllRequiredFields: !!(
+            meta.shipping_required &&
+            meta.package_weight &&
+            meta.package_weight_unit &&
+            meta.origin_country
+          )
+        });
+      }
     }
+
+    // Return success - Parcelcraft will handle the rest
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: 'Address received. Parcelcraft will automatically provide shipping rates.'
+      }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
   } catch (err) {
     console.error('[update-shipping-options] Error:', err);
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: 'Failed to process shipping address change',
         details: err instanceof Error ? err.message : 'Unknown error'
       }),

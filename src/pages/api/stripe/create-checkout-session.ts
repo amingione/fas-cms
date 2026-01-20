@@ -285,7 +285,8 @@ const isInstallOnlyShippingClass = (value?: string | null): boolean => {
 };
 
 const resolveRequiresShipping = (product?: ShippingProduct, item?: CheckoutCartItem): boolean => {
-  const productType = typeof product?.productType === 'string' ? product.productType.toLowerCase() : '';
+  const productType =
+    typeof product?.productType === 'string' ? product.productType.toLowerCase() : '';
   if (productType === 'service') return false;
   const requiresShipping = product?.shippingConfig?.requiresShipping;
   if (requiresShipping === true) return true;
@@ -344,15 +345,17 @@ const buildParcelcraftProductMetadata = (
     origin_country: 'US',
     tariff_code: '8708'
   };
+  // CRITICAL: Parcelcraft metadata field names MUST match exactly
+  // Based on Stripe Parcelcraft documentation
   if (typeof weight === 'number' && Number.isFinite(weight) && weight > 0) {
-    metadata.weight = String(weight);
-    metadata.weight_unit = 'lb'; // Parcelcraft requires 'lb' not 'pound'
+    metadata.package_weight = String(weight);
+    metadata.package_weight_unit = 'pound'; // Parcelcraft requires 'pound' not 'lb'
   }
   if (dimensions) {
-    metadata.length = String(dimensions.length);
-    metadata.width = String(dimensions.width);
-    metadata.height = String(dimensions.height);
-    metadata.dimension_unit = 'in'; // Parcelcraft requires 'in' not 'inch'
+    metadata.package_length = String(dimensions.length);
+    metadata.package_width = String(dimensions.width);
+    metadata.package_height = String(dimensions.height);
+    metadata.dimensions_unit = 'inch'; // Parcelcraft requires 'inch' not 'in'
   }
   return metadata;
 };
@@ -360,10 +363,10 @@ const buildParcelcraftProductMetadata = (
 const toPackageDimensions = (
   metadata: Record<string, string>
 ): Stripe.ProductCreateParams.PackageDimensions | undefined => {
-  const weight = Number(metadata.weight);
-  const length = Number(metadata.length);
-  const width = Number(metadata.width);
-  const height = Number(metadata.height);
+  const weight = Number(metadata.package_weight);
+  const length = Number(metadata.package_length);
+  const width = Number(metadata.package_width);
+  const height = Number(metadata.package_height);
 
   if (
     !Number.isFinite(weight) ||
@@ -376,10 +379,10 @@ const toPackageDimensions = (
   if (weight <= 0 || length <= 0 || width <= 0 || height <= 0) {
     return undefined;
   }
-  if (metadata.weight_unit && metadata.weight_unit !== 'lb') {
+  if (metadata.package_weight_unit && metadata.package_weight_unit !== 'pound') {
     return undefined;
   }
-  if (metadata.dimension_unit && metadata.dimension_unit !== 'in') {
+  if (metadata.dimensions_unit && metadata.dimensions_unit !== 'inch') {
     return undefined;
   }
 
@@ -754,11 +757,14 @@ export async function POST({ request }: { request: Request }) {
         typeof price.product === 'string' ? price.product : liveStripeProduct?.id;
 
       if (isShippable && liveStripeProduct?.type === 'service') {
-        console.warn('[checkout] Stripe product type is "service" for shippable item. Falling back to ad-hoc product creation.', {
-          priceId: price.id,
-          productId: stripeProductId,
-          itemId: item.id
-        });
+        console.warn(
+          '[checkout] Stripe product type is "service" for shippable item. Falling back to ad-hoc product creation.',
+          {
+            priceId: price.id,
+            productId: stripeProductId,
+            itemId: item.id
+          }
+        );
       } else {
         const stripeMeta = liveStripeProduct?.metadata ?? {};
         const parcelcraftMeta = buildParcelcraftProductMetadata(product, item);
@@ -767,8 +773,8 @@ export async function POST({ request }: { request: Request }) {
 
         if (isShippable) {
           if (
-            !mergedMetadata.weight ||
-            !mergedMetadata.weight_unit ||
+            !mergedMetadata.package_weight ||
+            !mergedMetadata.package_weight_unit ||
             !mergedMetadata.origin_country
           ) {
             return jsonResponse(
@@ -779,8 +785,8 @@ export async function POST({ request }: { request: Request }) {
           const needsUpdate =
             !liveStripeProduct ||
             liveStripeProduct.shippable !== true ||
-            !liveStripeProduct.metadata?.weight ||
-            !liveStripeProduct.metadata?.weight_unit ||
+            !liveStripeProduct.metadata?.package_weight ||
+            !liveStripeProduct.metadata?.package_weight_unit ||
             !liveStripeProduct.metadata?.origin_country ||
             (packageDimensions && !liveStripeProduct.package_dimensions);
           if (needsUpdate && stripeProductId) {
@@ -830,8 +836,8 @@ export async function POST({ request }: { request: Request }) {
     const parcelcraftMeta = buildParcelcraftProductMetadata(product, item);
     const isItemShippable = resolveRequiresShipping(product, item);
     const hasParcelcraftMeta = Boolean(
-      parcelcraftMeta.weight &&
-      parcelcraftMeta.weight_unit &&
+      parcelcraftMeta.package_weight &&
+      parcelcraftMeta.package_weight_unit &&
       parcelcraftMeta.origin_country &&
       parcelcraftMeta.shipping_required
     );
@@ -842,7 +848,7 @@ export async function POST({ request }: { request: Request }) {
       console.error('[checkout] Missing Parcelcraft metadata for shippable item', {
         productId,
         itemName: item.name,
-        hasWeight: Boolean(parcelcraftMeta.weight),
+        hasWeight: Boolean(parcelcraftMeta.package_weight),
         hasOriginCountry: Boolean(parcelcraftMeta.origin_country),
         hasShippingRequired: Boolean(parcelcraftMeta.shipping_required)
       });
@@ -957,12 +963,26 @@ export async function POST({ request }: { request: Request }) {
         productName: stripeProduct.name,
         shippable: stripeProduct.shippable,
         type: stripeProduct.type,
-        hasWeight: !!metadata.weight,
-        hasWeightUnit: !!metadata.weight_unit,
+        hasPackageWeight: !!metadata.package_weight,
+        hasPackageWeightUnit: !!metadata.package_weight_unit,
         hasOriginCountry: !!metadata.origin_country,
         hasShippingRequired: metadata.shipping_required === 'true',
         hasPackageDimensions: !!stripeProduct.package_dimensions,
-        allMetadataKeys: Object.keys(metadata)
+        hasDimensionsUnit: !!metadata.dimensions_unit,
+        allMetadataKeys: Object.keys(metadata),
+        // Show actual Parcelcraft values
+        parcelcraftMetadata: {
+          shipping_required: metadata.shipping_required,
+          package_weight: metadata.package_weight,
+          package_weight_unit: metadata.package_weight_unit,
+          package_length: metadata.package_length,
+          package_width: metadata.package_width,
+          package_height: metadata.package_height,
+          dimensions_unit: metadata.dimensions_unit,
+          origin_country: metadata.origin_country,
+          customs_description: metadata.customs_description,
+          tariff_code: metadata.tariff_code
+        }
       });
     }
 
@@ -1118,7 +1138,7 @@ export async function POST({ request }: { request: Request }) {
       // Log Parcelcraft configuration for debugging
       const shippableItemCount = parcelcraftLineItemMeta.filter((item) => {
         const meta = item.metadata;
-        return meta.shipping_required === 'true' && meta.weight && meta.origin_country;
+        return meta.shipping_required === 'true' && meta.package_weight && meta.origin_country;
       }).length;
       console.log('[checkout] Parcelcraft configuration check', {
         shippingRequired,
@@ -1135,13 +1155,13 @@ export async function POST({ request }: { request: Request }) {
           price: item.price,
           hasMetadata: Object.keys(metadata).length > 0,
           shipping_required: metadata.shipping_required ?? null,
-          weight: metadata.weight ?? null,
-          weight_unit: metadata.weight_unit ?? null,
+          package_weight: metadata.package_weight ?? null,
+          package_weight_unit: metadata.package_weight_unit ?? null,
           origin_country: metadata.origin_country ?? null,
-          length: metadata.length ?? null,
-          width: metadata.width ?? null,
-          height: metadata.height ?? null,
-          dimension_unit: metadata.dimension_unit ?? null
+          package_length: metadata.package_length ?? null,
+          package_width: metadata.package_width ?? null,
+          package_height: metadata.package_height ?? null,
+          dimensions_unit: metadata.dimensions_unit ?? null
         };
       });
       console.log('[checkout] Parcelcraft line item metadata', parcelcraftMetaSnapshot);
@@ -1190,11 +1210,26 @@ export async function POST({ request }: { request: Request }) {
       // CRITICAL: shipping_address_collection MUST be set for dynamic shipping
       ...(shippingRequired ? { shipping_address_collection: shippingAddressCollection } : {}),
       // CRITICAL: Enable dynamic shipping - allows server to update shipping options
-      ...(shippingRequired ? {
-        permissions: {
-          update_shipping_details: 'server_only' as const
-        }
-      } : {}),
+      ...(shippingRequired
+        ? {
+            permissions: {
+              update_shipping_details: 'server_only' as const
+            },
+            // CRITICAL: Must provide initial placeholder shipping option for dynamic shipping
+            shipping_options: [
+              {
+                shipping_rate_data: {
+                  display_name: 'Calculating shipping...',
+                  type: 'fixed_amount',
+                  fixed_amount: {
+                    amount: 0,
+                    currency: 'usd'
+                  }
+                }
+              }
+            ]
+          }
+        : {}),
       consent_collection: { promotions: 'auto' },
       custom_fields: [
         {
@@ -1254,8 +1289,8 @@ export async function POST({ request }: { request: Request }) {
                 productName: product.name,
                 productType: product.type,
                 shippable: product.shippable,
-                hasWeight: !!product.metadata?.weight,
-                hasWeightUnit: !!product.metadata?.weight_unit,
+                hasPackageWeight: !!product.metadata?.package_weight,
+                hasPackageWeightUnit: !!product.metadata?.package_weight_unit,
                 hasOriginCountry: !!product.metadata?.origin_country,
                 hasShippingRequired: product.metadata?.shipping_required === 'true',
                 hasPackageDimensions: !!product.package_dimensions,
@@ -1308,7 +1343,7 @@ export async function POST({ request }: { request: Request }) {
           (item) => item.metadata?.shipping_required === 'true'
         ).length,
         allProductsHaveWeight: parcelcraftLineItemMeta.every(
-          (item) => item.metadata?.shipping_required !== 'true' || item.metadata?.weight
+          (item) => item.metadata?.shipping_required !== 'true' || item.metadata?.package_weight
         ),
         allProductsHaveOriginCountry: parcelcraftLineItemMeta.every(
           (item) => item.metadata?.shipping_required !== 'true' || item.metadata?.origin_country
@@ -1330,10 +1365,13 @@ export async function POST({ request }: { request: Request }) {
 
     // For embedded checkout, return the client_secret (NOT url)
     // Frontend uses this to initialize the Stripe Checkout component
-    return jsonResponse({
-      clientSecret: session.client_secret,
-      sessionId: session.id
-    }, 200);
+    return jsonResponse(
+      {
+        clientSecret: session.client_secret,
+        sessionId: session.id
+      },
+      200
+    );
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     console.error('❌ Stripe Checkout Session Error:', err);
