@@ -1,0 +1,202 @@
+# 🚀 Webhook Setup Instructions
+
+## ✅ Step 1: Add Environment Variables
+
+Add these to your `.env` file in `fas-cms-fresh`:
+
+```bash
+# Stripe Adaptive Pricing Webhook Secret
+# Get this from Stripe Dashboard after configuring the webhook
+STRIPE_SHIPPING_WEBHOOK_SECRET=whsec_your_webhook_signing_secret_here
+
+# Sanity Backend URL (where EasyPost function lives)
+SANITY_BASE_URL=https://fassanity.fasmotorsports.com
+
+# Existing variables (should already be set)
+STRIPE_SECRET_KEY=sk_live_... # or sk_test_...
+PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_... # or pk_test_...
+```
+
+---
+
+## ✅ Step 2: Configure Stripe Dashboard
+
+### **A. Enable Adaptive Pricing:**
+
+1. Go to [Stripe Dashboard](https://dashboard.stripe.com)
+2. Navigate to: **Settings → Payments → Checkout**
+3. Scroll to **"Shipping rates"**
+4. Enable: ☑️ **"Calculate shipping rates dynamically"**
+5. Save changes
+
+### **B. Add Webhook Endpoint:**
+
+1. Go to: **Developers → Webhooks**
+2. Click **"Add endpoint"**
+3. Set **Endpoint URL:**
+   ```
+   https://fasmotorsports.com/api/stripe/shipping-rates-webhook
+   ```
+   
+4. Under **"Events to send"**, select:
+   - ☑️ `checkout.session.async_shipping_options`
+   
+5. Click **"Add endpoint"**
+
+### **C. Get Webhook Secret:**
+
+1. After creating the endpoint, click on it
+2. Click **"Reveal"** next to "Signing secret"
+3. Copy the secret (starts with `whsec_`)
+4. Add it to your `.env` file as `STRIPE_SHIPPING_WEBHOOK_SECRET`
+
+---
+
+## ✅ Step 3: Verify Backend is Ready
+
+Check that `fas-sanity` has the EasyPost function:
+
+```bash
+# This function should exist:
+fas-sanity/netlify/functions/getShippingQuoteBySkus.ts
+```
+
+**If it doesn't exist**, you'll need to implement it (see integration plan).
+
+---
+
+## ✅ Step 4: Test Locally (Optional)
+
+### **A. Start Local Dev Server:**
+
+```bash
+cd fas-cms-fresh
+npm run dev
+```
+
+### **B. Use Stripe CLI to Forward Webhooks:**
+
+```bash
+# Forward webhooks to local server
+stripe listen --forward-to http://localhost:4321/api/stripe/shipping-rates-webhook
+
+# This will output a webhook secret like:
+# whsec_abc123...
+# Use this temporarily in your .env for local testing
+```
+
+### **C. Test the Flow:**
+
+1. Add item to cart
+2. Go to checkout
+3. Enter shipping address
+4. Watch console logs for webhook activity
+5. Shipping rates should appear!
+
+---
+
+## ✅ Step 5: Deploy & Test Production
+
+### **A. Deploy fas-cms-fresh:**
+
+```bash
+# Commit the new webhook file
+git add src/pages/api/stripe/shipping-rates-webhook.ts
+git commit -m "Add Stripe Adaptive Pricing webhook for dynamic shipping"
+git push
+
+# Deploy will happen automatically (Netlify/Vercel)
+```
+
+### **B. Test Production Checkout:**
+
+1. Go to: https://fasmotorsports.com/checkout
+2. Enter a real shipping address
+3. Shipping rates should appear dynamically!
+
+---
+
+## 🔍 Troubleshooting
+
+### **Problem: Webhook returns 401 (Unauthorized)**
+
+**Solution:** Check that `STRIPE_SHIPPING_WEBHOOK_SECRET` is set correctly in `.env`
+
+### **Problem: Webhook returns 400 (Missing cart data)**
+
+**Solution:** Verify `create-checkout-session.ts` has this in metadata:
+```typescript
+metadata: {
+  cart: JSON.stringify(cartItems.map(item => ({
+    sku: item.sku || item.id,
+    quantity: item.quantity
+  })))
+}
+```
+
+### **Problem: Webhook returns 500 (EasyPost failed)**
+
+**Solution:** 
+- Check `SANITY_BASE_URL` is correct
+- Verify `fas-sanity` is deployed and accessible
+- Check EasyPost function exists and has `EASYPOST_API_KEY` set
+
+### **Problem: No shipping rates appear**
+
+**Solution:**
+1. Check Stripe Dashboard → Developers → Webhooks → View logs
+2. Look for webhook errors
+3. Check browser console for errors
+4. Verify `shipping_address_collection` is enabled in session creation
+
+---
+
+## 📊 Monitoring
+
+### **Check Webhook Activity:**
+
+**Stripe Dashboard:**
+- Developers → Webhooks → Click your endpoint → View logs
+
+**Server Logs:**
+- Look for `[ShippingWebhook]` prefixed logs
+- Check for rate fetch calls to fas-sanity
+- Verify rates are being returned
+
+---
+
+## 🎯 Success Criteria
+
+When everything is working:
+
+✅ Customer enters address in Stripe Checkout  
+✅ Webhook receives address and session ID  
+✅ Cart data extracted from session metadata  
+✅ EasyPost rates fetched from fas-sanity  
+✅ Rates formatted and returned to Stripe  
+✅ **Shipping options appear in checkout UI!** 🎉  
+✅ Customer selects rate and completes payment  
+✅ Order stores EasyPost metadata for label creation  
+
+---
+
+## 📝 Next Steps After Webhook Works
+
+Once shipping rates are appearing:
+
+1. **Update Order Webhook** - Store EasyPost metadata in orders
+2. **Update Label Creation** - Use stored shipment/rate IDs
+3. **Test End-to-End** - Create order → generate label → track shipment
+4. **Monitor & Optimize** - Check rate accuracy, delivery estimates
+
+---
+
+## 🆘 Need Help?
+
+Common issues and solutions are in the troubleshooting section above.
+
+For detailed technical info, see:
+- `/home/claude/EASYPOST_STRIPE_INTEGRATION_PLAN.md`
+- `/home/claude/CODE_CHANGES_GUIDE.md`
+
+**Current Status:** ✅ Webhook file created, ready for deployment!
