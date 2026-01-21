@@ -45,80 +45,6 @@ export default function EmbeddedCheckout() {
     // Stripe will automatically redirect to return_url
   }, []);
 
-  // Handle shipping address/details changes for dynamic shipping
-  const handleShippingDetailsChange = useCallback(
-    async (event: any) => {
-      const shippingDetails = event?.shippingDetails || event?.shipping_details || event || {};
-      const address = shippingDetails?.address || event?.address || null;
-
-      console.log('[EmbeddedCheckout] 🚚 Shipping details changed:', {
-        hasAddress: !!address,
-        country: address?.country,
-        postalCode: address?.postal_code
-      });
-
-      // Call backend to update shipping options based on address
-      if (!address || !clientSecret) {
-        return { type: 'accept' as const };
-      }
-
-      try {
-        const sessionId = clientSecret.split('_secret_')[0];
-
-        console.log('[EmbeddedCheckout] Calling update-shipping-options endpoint:', {
-          sessionId,
-          country: address?.country,
-          state: address?.state
-        });
-
-        const response = await fetch('/api/stripe/update-shipping-options', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            sessionId,
-            shippingAddress: {
-              name: shippingDetails?.name,
-              address
-            }
-          })
-        });
-
-        let data;
-        try {
-          data = await response.json();
-        } catch (parseErr) {
-          console.error('[EmbeddedCheckout] Failed to parse response JSON:', {
-            status: response.status,
-            statusText: response.statusText,
-            parseError: parseErr instanceof Error ? parseErr.message : String(parseErr)
-          });
-          // If we can't parse response, still accept to let Parcelcraft work
-          return { type: 'accept' as const };
-        }
-
-        if (!response.ok) {
-          console.error('[EmbeddedCheckout] ❌ Shipping options update failed:', {
-            status: response.status,
-            statusText: response.statusText,
-            error: data?.error,
-            details: data?.details
-          });
-          // Log the full error for debugging
-          console.error('[EmbeddedCheckout] Full error response:', data);
-          // Still accept to let Parcelcraft attempt to work
-          return { type: 'accept' as const };
-        }
-
-        console.log('[EmbeddedCheckout] ✅ Shipping options updated:', data);
-        return { type: 'accept' as const };
-      } catch (err) {
-        console.error('[EmbeddedCheckout] ❌ Error updating shipping options:', err);
-        return { type: 'accept' as const };
-      }
-    },
-    [clientSecret]
-  );
-
   useEffect(() => {
     // Load existing session from sessionStorage (created by cart)
     console.log('[EmbeddedCheckout] Component mounted, loading session...');
@@ -334,8 +260,8 @@ export default function EmbeddedCheckout() {
         stripe={stripePromise}
         options={{
           clientSecret,
-          onComplete: handleComplete,
-          onShippingDetailsChange: handleShippingDetailsChange
+          onComplete: handleComplete
+          // onShippingDetailsChange removed - Stripe Adaptive Pricing handles shipping via webhook
         }}
       >
         <StripeEmbeddedCheckout />
