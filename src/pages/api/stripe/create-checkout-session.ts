@@ -1044,7 +1044,14 @@ export async function POST({ request }: { request: Request }) {
       randomUUID();
 
     const metadataForSession: Record<string, string> = {
-      cart_id: cartId
+      cart_id: cartId,
+      // Add cart items for EasyPost webhook access
+      cart: JSON.stringify(
+        (cart as CheckoutCartItem[]).map((item) => ({
+          sku: item.sku || (typeof item.id === 'string' ? normalizeCartId(item.id) : ''),
+          quantity: item.quantity || 1
+        }))
+      )
     };
 
     const cartType =
@@ -1172,11 +1179,11 @@ export async function POST({ request }: { request: Request }) {
     metadataForSession.ship_status = paymentIntentMetadata.ship_status;
     metadataForSession.shipping_required = shippingRequired ? 'true' : 'false';
 
-    // For Embedded Checkout with Parcelcraft:
-    // - No need to pre-fetch shipping rates
-    // - Parcelcraft automatically injects rates as customer types their address
-    // - Rates update in real-time within the embedded checkout form
-    console.log('[checkout] Using Embedded Checkout with Parcelcraft dynamic shipping rates');
+    // EasyPost + Stripe Adaptive Pricing Integration:
+    // - Stripe calls our webhook endpoint when customer enters shipping address
+    // - Webhook forwards to fas-sanity to calculate EasyPost rates
+    // - Rates appear dynamically in Stripe Checkout UI
+    console.log('[checkout] Using Stripe Adaptive Pricing with EasyPost for dynamic shipping rates');
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       // CRITICAL: Use embedded mode for dynamic shipping
@@ -1195,7 +1202,7 @@ export async function POST({ request }: { request: Request }) {
       tax_id_collection: { enabled: true },
       // Enable Stripe Tax for automatic sales tax calculation
       automatic_tax: { enabled: true },
-      // Enable invoice creation (required for Parcelcraft)
+      // Enable invoice creation for record keeping
       invoice_creation: {
         enabled: true,
         invoice_data: {
@@ -1207,29 +1214,9 @@ export async function POST({ request }: { request: Request }) {
       allow_promotion_codes: true,
       // CRITICAL: Explicit locale required for branded checkout domains
       locale: 'en',
-      // CRITICAL: shipping_address_collection MUST be set for dynamic shipping
+      // CRITICAL: shipping_address_collection MUST be set for Adaptive Pricing webhook to fire
       ...(shippingRequired ? { shipping_address_collection: shippingAddressCollection } : {}),
-      // CRITICAL: Enable dynamic shipping - allows server to update shipping options
-      ...(shippingRequired
-        ? {
-            permissions: {
-              update_shipping_details: 'server_only' as const
-            },
-            // CRITICAL: Must provide initial placeholder shipping option for dynamic shipping
-            shipping_options: [
-              {
-                shipping_rate_data: {
-                  display_name: 'Calculating shipping...',
-                  type: 'fixed_amount',
-                  fixed_amount: {
-                    amount: 0,
-                    currency: 'usd'
-                  }
-                }
-              }
-            ]
-          }
-        : {}),
+      // DO NOT set shipping_options or permissions here - Stripe Adaptive Pricing handles this
       consent_collection: { promotions: 'auto' },
       custom_fields: [
         {
