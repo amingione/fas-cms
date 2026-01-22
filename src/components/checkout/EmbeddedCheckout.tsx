@@ -23,7 +23,10 @@ import {
 import { getCart, type CartItem as StoreCartItem } from '@/lib/cart';
 
 // Initialize Stripe (replace with your publishable key)
-const stripePromise = loadStripe(import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+const stripePublishableKey = import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY;
+const stripePromise = stripePublishableKey
+  ? loadStripe(stripePublishableKey)
+  : Promise.resolve(null);
 
 interface CheckoutSessionResponse {
   clientSecret: string;
@@ -51,6 +54,12 @@ export default function EmbeddedCheckout() {
   );
 
   useEffect(() => {
+    if (!stripePublishableKey) {
+      console.error('[EmbeddedCheckout] ❌ Missing PUBLIC_STRIPE_PUBLISHABLE_KEY');
+      setError('Stripe publishable key is missing. Please set PUBLIC_STRIPE_PUBLISHABLE_KEY.');
+      setLoading(false);
+      return;
+    }
     // Load existing session from sessionStorage (created by cart)
     console.log('[EmbeddedCheckout] Component mounted, loading session...');
     loadCheckoutSession();
@@ -228,16 +237,6 @@ export default function EmbeddedCheckout() {
     }
   };
 
-  // Show loading state
-  if (loading || !clientSecret) {
-    console.log('[EmbeddedCheckout] RENDER: Still loading...', {
-      loading,
-      hasClientSecret: !!clientSecret
-    });
-    // Keep loading UI visible in Astro page
-    return null;
-  }
-
   // Show error state
   if (error) {
     console.error('[EmbeddedCheckout] RENDER: Error state', error);
@@ -250,6 +249,16 @@ export default function EmbeddedCheckout() {
       const errorMsg = errorEl.querySelector('p');
       if (errorMsg) errorMsg.textContent = error;
     }
+    return null;
+  }
+
+  // Show loading state
+  if (loading || !clientSecret) {
+    console.log('[EmbeddedCheckout] RENDER: Still loading...', {
+      loading,
+      hasClientSecret: !!clientSecret
+    });
+    // Keep loading UI visible in Astro page
     return null;
   }
 
