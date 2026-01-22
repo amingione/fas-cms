@@ -33,6 +33,11 @@ interface CheckoutSessionResponse {
   sessionId: string;
 }
 
+const CLIENT_SECRET_PATTERN = /^cs_(?:live|test)_[A-Za-z0-9]+_secret_[A-Za-z0-9]+$/;
+
+const isValidClientSecret = (secret: unknown): secret is string =>
+  typeof secret === 'string' && CLIENT_SECRET_PATTERN.test(secret);
+
 export default function EmbeddedCheckout() {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -163,13 +168,21 @@ export default function EmbeddedCheckout() {
         console.log('[EmbeddedCheckout] Loading existing session from sessionStorage');
         const sessionData = JSON.parse(sessionJson);
 
-        if (sessionData.clientSecret) {
+        if (isValidClientSecret(sessionData.clientSecret)) {
           console.log('[EmbeddedCheckout] Using session:', sessionData.sessionId);
           setClientSecret(sessionData.clientSecret);
           setLoading(false);
           // Clear it so refresh doesn't reuse stale session
           sessionStorage.removeItem('stripe_checkout_session');
           return;
+        }
+
+        if (sessionData?.clientSecret) {
+          console.warn(
+            '[EmbeddedCheckout] Discarding invalid client secret from sessionStorage',
+            sessionData.sessionId
+          );
+          sessionStorage.removeItem('stripe_checkout_session');
         }
       }
 
@@ -212,7 +225,7 @@ export default function EmbeddedCheckout() {
 
       const data: CheckoutSessionResponse = await response.json();
 
-      if (!data.clientSecret) {
+      if (!isValidClientSecret(data.clientSecret)) {
         throw new Error('No client secret returned from server');
       }
 
