@@ -13,10 +13,7 @@ import { useEffect, useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { CART_KEY } from '@/lib/cart';
 
-const stripePromise = loadStripe(
-  import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY ||
-  'pk_live_51QVZPDIlHCPvGTm2i8hhRw1KWvdvO1D9S33BGcOIAaV7xN2dV1EXjlxqPbHHPWrj7KMLMlOzBCTKAKf3rTVYhKH800IcjRFRWE'
-);
+const stripePromise = loadStripe(import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 type SessionStatus = 'open' | 'complete' | 'expired';
 type PaymentStatus = 'paid' | 'unpaid' | 'no_payment_required';

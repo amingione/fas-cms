@@ -17,17 +17,13 @@ import { stripeCheckoutRequestSchema } from '@/lib/validators/api-requests';
 import { sanityProductSchema } from '@/lib/validators/sanity';
 import { resolveAllowedCountries } from '@/lib/shipping-countries';
 import { normalizeBaseUrl } from '@/lib/sanity-functions';
-
-const stripeApiVersion =
-  (import.meta.env.STRIPE_API_VERSION as string | undefined) ||
-  process.env.STRIPE_API_VERSION ||
-  '2025-08-27.basil';
+import { STRIPE_API_VERSION } from '@/lib/stripe-config';
 
 const stripeSecret =
   (import.meta.env.STRIPE_SECRET_KEY as string | undefined) || process.env.STRIPE_SECRET_KEY || '';
 
 const stripe = new Stripe(stripeSecret, {
-  apiVersion: stripeApiVersion as Stripe.LatestApiVersion
+  apiVersion: STRIPE_API_VERSION as Stripe.LatestApiVersion
 });
 
 const configuredBaseUrl = import.meta.env.PUBLIC_BASE_URL || '';
@@ -1200,8 +1196,9 @@ export async function POST({ request }: { request: Request }) {
       // CRITICAL: Explicit locale required for branded checkout domains
       locale: 'en',
       // CRITICAL: shipping_address_collection MUST be set for Adaptive Pricing webhook to fire
-      ...(shippingRequired ? { shipping_address_collection: shippingAddressCollection } : {}),
-      // DO NOT set shipping_options or permissions here - Stripe Adaptive Pricing handles this
+      shipping_address_collection: shippingAddressCollection,
+      permissions: { update_shipping_details: 'server_only' },
+      // DO NOT set shipping_options here - Stripe Adaptive Pricing handles this
       consent_collection: { promotions: 'auto' },
       custom_fields: [
         {

@@ -6,9 +6,10 @@
 
 import type { APIRoute } from 'astro';
 import Stripe from 'stripe';
+import { STRIPE_API_VERSION } from '@/lib/stripe-config';
 
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2024-11-20.acacia',
+  apiVersion: STRIPE_API_VERSION as Stripe.LatestApiVersion,
 });
 
 interface ShippingAddressInput {
@@ -44,6 +45,12 @@ type ShippingMeta = {
 };
 
 const EASYPOST_API_BASE = import.meta.env.EASYPOST_API_BASE || 'https://api.easypost.com';
+const REQUIRED_WAREHOUSE_FIELDS = [
+  'WAREHOUSE_ADDRESS_LINE1',
+  'WAREHOUSE_CITY',
+  'WAREHOUSE_STATE',
+  'WAREHOUSE_ZIP'
+];
 
 const parseNumber = (value?: string | null): number | null => {
   if (!value) return null;
@@ -65,11 +72,11 @@ const parseShippingMeta = (metadata: Record<string, string>, quantity: number): 
 
 const resolveOriginAddress = () => ({
   name: 'F.A.S. Motorsports LLC',
-  street1: import.meta.env.WAREHOUSE_ADDRESS_LINE1 || '0000 Main St',
+  street1: import.meta.env.WAREHOUSE_ADDRESS_LINE1!,
   street2: import.meta.env.WAREHOUSE_ADDRESS_LINE2 || undefined,
-  city: import.meta.env.WAREHOUSE_CITY || 'Clermont',
-  state: import.meta.env.WAREHOUSE_STATE || 'FL',
-  zip: import.meta.env.WAREHOUSE_ZIP || '34711',
+  city: import.meta.env.WAREHOUSE_CITY!,
+  state: import.meta.env.WAREHOUSE_STATE!,
+  zip: import.meta.env.WAREHOUSE_ZIP!,
   country: 'US',
   phone: import.meta.env.WAREHOUSE_PHONE || undefined,
   email: import.meta.env.WAREHOUSE_EMAIL || undefined
@@ -155,6 +162,25 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
+    const shippingWebhookSecret = import.meta.env.STRIPE_SHIPPING_WEBHOOK_SECRET;
+    if (!shippingWebhookSecret) {
+      console.error('❌ Missing STRIPE_SHIPPING_WEBHOOK_SECRET');
+      return new Response('Webhook secret not configured', { status: 500 });
+    }
+
+    const missingWarehouseFields = REQUIRED_WAREHOUSE_FIELDS.filter(
+      (key) => !import.meta.env[key]
+    );
+    if (missingWarehouseFields.length > 0) {
+      return new Response(
+        JSON.stringify({
+          error: 'Missing required warehouse config',
+          missing: missingWarehouseFields
+        }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
     const body = await request.text();
     let event: Stripe.Event;
 
@@ -162,7 +188,7 @@ export const POST: APIRoute = async ({ request }) => {
       event = stripe.webhooks.constructEvent(
         body,
         signature,
-        import.meta.env.STRIPE_SHIPPING_WEBHOOK_SECRET
+        shippingWebhookSecret
       );
     } catch (err) {
       console.error('[ShippingWebhook] Webhook signature verification failed:', err);
@@ -257,11 +283,8 @@ export const POST: APIRoute = async ({ request }) => {
 
     // 5. Transform EasyPost rates to Stripe format
     const shippingRates = rateData.rates.map((rate: EasyPostRate, index: number) => {
-      const sanitizedCarrier = rate.carrier.toLowerCase().replace(/\s+/g, '_');
-      const sanitizedService = rate.service.toLowerCase().replace(/\s+/g, '_');
-      
-      // Create unique ID for this rate
-      const rateId = `rate_${index}_${sanitizedCarrier}_${sanitizedService}`;
+      // Create stable ID that won't collide with EasyPost rate IDs.
+      const rateId = `dyn_${rate.rateId}`;
       
       console.log(`[ShippingWebhook] 📦 Rate ${index + 1}:`, {
         carrier: rate.carrier,

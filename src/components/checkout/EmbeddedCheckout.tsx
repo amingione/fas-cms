@@ -13,7 +13,6 @@
  * - Completes payment without leaving your site
  * - Redirects to /checkout/return on success
  */
-<script src="http://localhost:8097"></script>;
 import { useEffect, useState, useCallback } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import {
@@ -23,10 +22,7 @@ import {
 import { getCart, type CartItem as StoreCartItem } from '@/lib/cart';
 
 // Initialize Stripe (replace with your publishable key)
-const stripePromise = loadStripe(
-  import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY ||
-    'pk_live_51QVZPDIlHCPvGTm2i8hhRw1KWvdvO1D9S33BGcOIAaV7xN2dV1EXjlxqPbHHPWrj7KMLMlOzBCTKAKf3rTVYhKH800IcjRFRWE'
-);
+const stripePromise = loadStripe(import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 interface CheckoutSessionResponse {
   clientSecret: string;
