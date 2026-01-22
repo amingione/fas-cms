@@ -12,21 +12,27 @@ import { extractResendMessageId, safeJsonParse } from '@/lib/resend';
 const stripeApiVersion =
   (import.meta.env.STRIPE_API_VERSION as string | undefined) || '2025-08-27.basil';
 
+const SANITY_PROJECT_ID =
+  (import.meta.env.SANITY_PROJECT_ID as string | undefined) ||
+  (import.meta.env.PUBLIC_SANITY_PROJECT_ID as string | undefined) ||
+  (import.meta.env.SANITY_STUDIO_PROJECT_ID as string | undefined) ||
+  '';
+const SANITY_DATASET =
+  (import.meta.env.SANITY_DATASET as string | undefined) ||
+  (import.meta.env.PUBLIC_SANITY_DATASET as string | undefined) ||
+  (import.meta.env.SANITY_STUDIO_DATASET as string | undefined) ||
+  '';
+const SANITY_API_TOKEN = (import.meta.env.SANITY_API_TOKEN as string | undefined) || '';
+
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
   apiVersion: stripeApiVersion as Stripe.LatestApiVersion
 });
 
 const sanity = createClient({
-  projectId:
-    (import.meta.env.SANITY_PROJECT_ID as string | undefined) ||
-    (import.meta.env.PUBLIC_SANITY_PROJECT_ID as string | undefined) ||
-    (import.meta.env.SANITY_STUDIO_PROJECT_ID as string | undefined),
-  dataset:
-    (import.meta.env.SANITY_DATASET as string | undefined) ||
-    (import.meta.env.PUBLIC_SANITY_DATASET as string | undefined) ||
-    (import.meta.env.SANITY_STUDIO_DATASET as string | undefined),
+  projectId: SANITY_PROJECT_ID,
+  dataset: SANITY_DATASET,
   apiVersion: '2024-01-01',
-  token: import.meta.env.SANITY_API_TOKEN,
+  token: SANITY_API_TOKEN,
   useCdn: false
 });
 
@@ -114,6 +120,43 @@ const deriveDeliveryEstimate = (
 const parseResendResponse = async (response: Response) => {
   const rawText = await response.text().catch(() => '');
   return { body: safeJsonParse(rawText), rawText };
+};
+
+const validateAmountFields = (params: {
+  amountSubtotal?: number;
+  amountTax?: number;
+  amountShipping?: number;
+  amountDiscount?: number;
+  totalAmount?: number;
+}): string[] => {
+  const issues: string[] = [];
+  const amountSubtotal = dollars(params.amountSubtotal);
+  const amountTax = dollars(params.amountTax);
+  const amountShipping = dollars(params.amountShipping);
+  const amountDiscount = dollars(params.amountDiscount);
+  const totalAmount = dollars(params.totalAmount);
+
+  if (params.amountSubtotal === undefined) issues.push('amountSubtotal missing');
+  if (params.amountTax === undefined) issues.push('amountTax missing');
+  if (params.amountShipping === undefined) issues.push('amountShipping missing');
+
+  if (amountSubtotal < 0) issues.push('amountSubtotal negative');
+  if (amountTax < 0) issues.push('amountTax negative');
+  if (amountShipping < 0) issues.push('amountShipping negative');
+  if (amountDiscount < 0) issues.push('amountDiscount negative');
+
+  if (amountDiscount > amountSubtotal + 0.01) {
+    issues.push('amountDiscount exceeds amountSubtotal');
+  }
+
+  const expectedTotal = amountSubtotal + amountTax + amountShipping - amountDiscount;
+  if (Math.abs(expectedTotal - totalAmount) > 0.01) {
+    issues.push(
+      `totalAmount mismatch (expected ${expectedTotal.toFixed(2)} got ${totalAmount.toFixed(2)})`
+    );
+  }
+
+  return issues;
 };
 
 const formatOrderDate = (iso?: string | null, createdAtSeconds?: number | null): string => {
@@ -220,6 +263,18 @@ const parseShippingSelection = (
 };
 
 export async function POST({ request }: { request: Request }) {
+  const missingSanity: string[] = [];
+  if (!SANITY_PROJECT_ID) missingSanity.push('SANITY_PROJECT_ID');
+  if (!SANITY_DATASET) missingSanity.push('SANITY_DATASET');
+  if (!SANITY_API_TOKEN) missingSanity.push('SANITY_API_TOKEN');
+  if (missingSanity.length > 0) {
+    console.error('❌ Missing Sanity configuration for webhook:', missingSanity);
+    return new Response(
+      `Sanity configuration missing: ${missingSanity.join(', ')}`,
+      { status: 500 }
+    );
+  }
+
   const secret = import.meta.env.STRIPE_WEBHOOK_SECRET;
 
   if (!secret) {
@@ -723,6 +778,28 @@ export async function POST({ request }: { request: Request }) {
             ? sessionDetails.total_details.amount_discount / 100
             : 0;
         const totalAmount = sessionDetails.amount_total ? sessionDetails.amount_total / 100 : 0;
+        const amountIssues = validateAmountFields({
+          amountSubtotal,
+          amountTax,
+          amountShipping,
+          amountDiscount,
+          totalAmount
+        });
+        if (amountIssues.length > 0) {
+          console.error('❌ Invalid amount totals for order', {
+            sessionId: sessionDetails.id,
+            issues: amountIssues,
+            amountSubtotal,
+            amountTax,
+            amountShipping,
+            amountDiscount,
+            totalAmount
+          });
+          return new Response(
+            JSON.stringify({ error: 'Invalid amount totals', issues: amountIssues }),
+            { status: 422, headers: { 'Content-Type': 'application/json' } }
+          );
+        }
         const normalizedPaymentStatus = normalizePaymentStatus(
           sessionDetails.payment_status,
           paymentIntent?.status
@@ -787,6 +864,7 @@ export async function POST({ request }: { request: Request }) {
           billingAddress,
           paymentCaptured,
           paymentCapturedAt,
+          confirmationEmailSent: false,
           stripeSummary: {
             data: JSON.stringify(sessionDetails)
           },

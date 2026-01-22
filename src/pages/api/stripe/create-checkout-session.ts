@@ -1171,6 +1171,12 @@ export async function POST({ request }: { request: Request }) {
       ui_mode: 'embedded',
       // Return URL for embedded checkout (customer stays on your site)
       return_url: `${baseUrl}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
+      branding_settings: {
+        background_color: '#0b0b0c',
+        button_color: '#d11219',
+        border_style: 'rounded',
+        font_family: 'inter'
+      },
       // Offer standard cards plus Affirm financing at checkout
       payment_method_types: ['card', 'affirm'],
       mode: 'payment',

@@ -24,14 +24,14 @@ const pageDescription = 'Complete your purchase';
       <h1 class="text-3xl font-bold mb-6">Checkout</h1>
 
       <!-- Embedded Checkout Component -->
-      <div id="checkout-container" class="bg-white rounded-lg shadow-lg p-6">
+      <div id="checkout-container" class="bg-base rounded-lg shadow-lg p-6">
         <EmbeddedCheckout client:load />
       </div>
 
       <!-- Loading State -->
       <div id="checkout-loading" class="text-center py-12">
-        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-        <p class="mt-4 text-gray-600">Loading checkout...</p>
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-200"></div>
+        <p class="mt-4 text-gray-200">Loading checkout...</p>
       </div>
 
       <!-- Error State -->
@@ -49,7 +49,7 @@ const pageDescription = 'Complete your purchase';
 <style>
   .checkout-page {
     min-height: calc(100vh - 200px);
-    background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
+    background: linear-gradient(to bottom, #0b0b0c 0%, #151515 100%);
   }
 
   #checkout-container {

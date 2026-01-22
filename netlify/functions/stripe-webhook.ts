@@ -273,6 +273,10 @@ const toShippingCarrierOption = (carrier?: string): string | undefined => {
 };
 
 export const handler: Handler = async (event) => {
+  return json(410, {
+    error: 'Deprecated webhook. Use /api/webhooks for Stripe events.'
+  });
+
   try {
     const sig = event.headers['stripe-signature'] || event.headers['Stripe-Signature'];
     const secret = process.env.STRIPE_WEBHOOK_SECRET;

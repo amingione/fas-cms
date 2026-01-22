@@ -60,7 +60,7 @@ async function main() {
   console.log('   ℹ️  This requires manual verification in Stripe Dashboard:');
   console.log('   Go to: https://dashboard.stripe.com/settings/checkout');
   console.log('   Verify: Dynamic shipping rates are enabled');
-  console.log('   Verify: Your carriers (UPS, USPS, FedEx) are configured in EasyPost');
+  console.log('   Verify: Your carriers (UPS, DHL, FedEx) are configured in EasyPost');
 
   // 3. Check recent checkout sessions
   console.log('\n3. Checking recent checkout sessions...');
@@ -102,13 +102,19 @@ async function main() {
                 `       - shipping_required: ${metadata.shipping_required || 'missing ❌'}`
               );
               console.log(`       - package_weight: ${metadata.package_weight || 'missing ❌'}`);
-              console.log(`       - package_weight_unit: ${metadata.package_weight_unit || 'missing ❌'}`);
+              console.log(
+                `       - package_weight_unit: ${metadata.package_weight_unit || 'missing ❌'}`
+              );
               console.log(`       - origin_country: ${metadata.origin_country || 'missing ❌'}`);
               console.log(
                 `       - dimensions: ${metadata.package_length ? `${metadata.package_length}x${metadata.package_width}x${metadata.package_height} ${metadata.dimensions_unit}` : 'missing ❌'}`
               );
 
-              if (!metadata.shipping_required || !metadata.package_weight || !metadata.origin_country) {
+              if (
+                !metadata.shipping_required ||
+                !metadata.package_weight ||
+                !metadata.origin_country
+              ) {
                 console.log(`     ⚠️  Missing required shipping metadata!`);
               } else {
                 console.log(`     ✅ Has all required shipping metadata`);
