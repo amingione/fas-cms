@@ -10,18 +10,15 @@
  */
 
 import { useEffect, useState } from 'react';
-import { loadStripe } from '@stripe/stripe-js';
 import { CART_KEY } from '@/lib/cart';
-
-const stripePromise = loadStripe(import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 type SessionStatus = 'open' | 'complete' | 'expired';
 type PaymentStatus = 'paid' | 'unpaid' | 'no_payment_required';
 
 interface SessionInfo {
   id: string;
-  status: SessionStatus;
-  payment_status: PaymentStatus;
+  status: SessionStatus | null;
+  payment_status: PaymentStatus | null;
   customer_email?: string;
   amount_total?: number;
 }
@@ -49,18 +46,13 @@ export default function CheckoutReturn() {
 
       console.log('[CheckoutReturn] Verifying session:', sessionId);
 
-      // Retrieve the session from Stripe
-      const stripe = await stripePromise;
-      if (!stripe) {
-        throw new Error('Stripe failed to load');
+      const response = await fetch(`/api/stripe/retrieve-checkout-session?session_id=${sessionId}`);
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data?.error || 'Unable to retrieve checkout session');
       }
 
-      const { error: retrieveError, session } = await stripe.checkout.sessions.retrieve(sessionId) as any;
-
-      if (retrieveError) {
-        throw new Error(retrieveError.message);
-      }
-
+      const session = data?.session as SessionInfo;
       console.log('[CheckoutReturn] Session retrieved:', session);
       setSessionInfo(session);
 
@@ -125,7 +117,7 @@ export default function CheckoutReturn() {
         )}
         <div className="space-x-4">
           <a
-            href="/checkout/success?session_id={sessionInfo?.id}"
+            href={`/checkout/success?session_id=${sessionInfo?.id ?? ''}`}
             className="inline-block bg-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-700 transition"
           >
             View Order Details

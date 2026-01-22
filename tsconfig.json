@@ -41,6 +41,7 @@
     "dist",
     "src/dev/LegacySanityQuery.js",
     "public/_redirects",
-    ".astro/content.d.ts"
+    ".astro/content.d.ts",
+    "netlify/functions/stripe-webhook.ts"
   ]
 }

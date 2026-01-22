@@ -15,6 +15,7 @@
  */
 import { useEffect, useState, useCallback } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
+import type { StripeEmbeddedCheckoutShippingDetailsChangeEvent, ResultAction } from '@stripe/stripe-js';
 import {
   EmbeddedCheckoutProvider,
   EmbeddedCheckout as StripeEmbeddedCheckout
@@ -40,6 +41,14 @@ export default function EmbeddedCheckout() {
     console.log('[EmbeddedCheckout] ✅ Payment complete - redirecting to return_url');
     // Stripe will automatically redirect to return_url
   }, []);
+
+  const handleShippingDetailsChange = useCallback(
+    async (_event: StripeEmbeddedCheckoutShippingDetailsChangeEvent): Promise<ResultAction> => {
+      // Required when permissions.update_shipping_details is server_only.
+      return { type: 'accept' };
+    },
+    []
+  );
 
   useEffect(() => {
     // Load existing session from sessionStorage (created by cart)
@@ -256,8 +265,8 @@ export default function EmbeddedCheckout() {
         stripe={stripePromise}
         options={{
           clientSecret,
-          onComplete: handleComplete
-          // onShippingDetailsChange removed - Stripe Adaptive Pricing handles shipping via webhook
+          onComplete: handleComplete,
+          onShippingDetailsChange: handleShippingDetailsChange
         }}
       >
         <StripeEmbeddedCheckout />

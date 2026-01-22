@@ -13,12 +13,38 @@ export const OPTIONS: APIRoute = async () =>
     headers: {
       'access-control-allow-origin': '*',
       'access-control-allow-methods': 'POST, OPTIONS',
-      'access-control-allow-headers': 'content-type'
+      'access-control-allow-headers': 'content-type, authorization'
     }
   });
 
 export const POST: APIRoute = async ({ request }) => {
   try {
+    const authHeader = request.headers.get('authorization') || '';
+    const authToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
+    const requiredToken =
+      (import.meta.env.CUSTOMER_UPDATE_API_TOKEN as string | undefined) ||
+      (import.meta.env.FAS_CUSTOMER_UPDATE_API_TOKEN as string | undefined) ||
+      process.env.CUSTOMER_UPDATE_API_TOKEN ||
+      process.env.FAS_CUSTOMER_UPDATE_API_TOKEN ||
+      '';
+
+    if (!requiredToken) {
+      return new Response(
+        JSON.stringify({ error: 'Server misconfigured: missing CUSTOMER_UPDATE_API_TOKEN' }),
+        {
+          status: 500,
+          headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' }
+        }
+      );
+    }
+
+    if (!authToken || authToken !== requiredToken) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' }
+      });
+    }
+
     // Resolve env vars for server (support SANITY_*, VITE_*, PUBLIC_*)
     const projectId = (import.meta.env.SANITY_PROJECT_ID ||
       import.meta.env.VITE_SANITY_PROJECT_ID ||
