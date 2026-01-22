@@ -23,6 +23,36 @@ import { getCart, type CartItem as StoreCartItem } from '@/lib/cart';
 
 // Initialize Stripe (replace with your publishable key)
 const stripePromise = loadStripe(import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+const checkoutAppearance = {
+  theme: 'night',
+  variables: {
+    colorPrimary: '#d11219',
+    colorBackground: '#0b0b0c',
+    colorText: '#ededed',
+    colorTextSecondary: '#cbd5e1',
+    colorTextPlaceholder: '#9ca3af',
+    colorDanger: '#ef4444',
+    fontFamily: 'Inter, system-ui, sans-serif',
+    borderRadius: '12px'
+  },
+  rules: {
+    '.Input': {
+      backgroundColor: '#121212',
+      color: '#ededed'
+    },
+    '.Label': {
+      color: '#e5e7eb'
+    },
+    '.Tab': {
+      backgroundColor: '#121212',
+      color: '#e5e7eb'
+    },
+    '.Tab--selected': {
+      backgroundColor: '#1f2937',
+      color: '#ffffff'
+    }
+  }
+};
 
 interface CheckoutSessionResponse {
   clientSecret: string;
@@ -118,10 +148,10 @@ export default function EmbeddedCheckout() {
         if (errorEl) {
           errorEl.style.display = 'block';
           const errorMsg = errorEl.querySelector('p');
-            if (errorMsg) {
-              errorMsg.textContent =
+          if (errorMsg) {
+            errorMsg.textContent =
               'Checkout is taking too long to load. This may indicate a configuration issue with shipping rates. Please verify Stripe dynamic rates are configured.';
-            }
+          }
         }
         observer.disconnect();
       }
