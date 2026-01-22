@@ -39,7 +39,7 @@ export const GET: APIRoute = async () => {
     },
     // Shipping
     shipping: {
-      provider: 'parcelcraft',
+      provider: 'easypost',
       allowedCountries: resolveAllowedCountries(),
       fulfillment: 'post-checkout-label'
     }

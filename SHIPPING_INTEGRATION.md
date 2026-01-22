@@ -63,17 +63,7 @@ Webhook creates EasyPost label post-purchase
 │  /api/stripe/shipping-rates-webhook                        │
 │  - Receives address from Stripe                            │
 │  - Validates session_id                                    │
-│  - Forwards to fas-sanity for rate calculation             │
-└────────────────────┬───────────────────────────────────────┘
-                     │
-                     ▼
-┌────────────────────────────────────────────────────────────┐
-│              fas-sanity                                     │
-│  netlify/functions/getShippingQuoteBySkus                  │
-│  - Fetches cart items from Sanity                          │
-│  - Gets product weights/dimensions                         │
-│  - Calls EasyPost API                                      │
-│  - Returns formatted rates                                 │
+│  - Calls EasyPost API for rate calculation                 │
 └────────────────────┬───────────────────────────────────────┘
                      │
                      ▼
@@ -114,11 +104,19 @@ STRIPE_SECRET_KEY=sk_live_...
 STRIPE_PUBLISHABLE_KEY=pk_live_...
 STRIPE_SHIPPING_WEBHOOK_SECRET=whsec_LB37zu2i1xBwPTXtWgGiswM1uBBJSUHn
 
-# EasyPost Integration
-SANITY_BASE_URL=https://fassanity.fasmotorsports.com
+# EasyPost Integration (Checkout Rates)
+EASYPOST_API_KEY=EZAK_...
+EASYPOST_API_BASE=https://api.easypost.com
+WAREHOUSE_ADDRESS_LINE1=6161 Riverside Dr
+WAREHOUSE_ADDRESS_LINE2=
+WAREHOUSE_CITY=Punta Gorda
+WAREHOUSE_STATE=FL
+WAREHOUSE_ZIP=33982
+WAREHOUSE_PHONE=812-200-9012
+WAREHOUSE_EMAIL=orders@updates.fasmotorsports.com
 ```
 
-#### fas-sanity (.env)
+#### fas-sanity (.env) (Labels & Tracking Only)
 
 Ensure you have:
 
@@ -147,9 +145,11 @@ SHIP_FROM_PHONE=555-123-4567
 |----------|------------|---------|
 | `STRIPE_SECRET_KEY` | fas-cms-fresh | Stripe API authentication |
 | `STRIPE_SHIPPING_WEBHOOK_SECRET` | fas-cms-fresh | Verify webhook signatures |
-| `SANITY_BASE_URL` | fas-cms-fresh | URL to fas-sanity for rate calls |
-| `EASYPOST_API_KEY` | fas-sanity | EasyPost API authentication |
-| `SHIP_FROM_*` | fas-sanity | Warehouse shipping address |
+| `EASYPOST_API_KEY` | fas-cms-fresh | EasyPost API authentication for checkout rates |
+| `EASYPOST_API_BASE` | fas-cms-fresh | EasyPost API base URL |
+| `WAREHOUSE_*` | fas-cms-fresh | Warehouse shipping address for checkout rates |
+| `EASYPOST_API_KEY` | fas-sanity | EasyPost API authentication for labels |
+| `SHIP_FROM_*` | fas-sanity | Warehouse shipping address for labels |
 
 ### Optional Variables
 
@@ -245,8 +245,8 @@ SHIP_FROM_PHONE=555-123-4567
 **Flow:**
 1. Verify Stripe signature
 2. Extract shipping address and session ID
-3. Retrieve session to get cart metadata
-4. Call fas-sanity's `getShippingQuoteBySkus` function
+3. Retrieve session line items for shipping metadata
+4. Call EasyPost API to calculate rates
 5. Transform EasyPost rates to Stripe format
 6. Return rates to Stripe
 
@@ -255,18 +255,7 @@ SHIP_FROM_PHONE=555-123-4567
 - 400: Missing required data
 - 500: EasyPost API failure
 
-### 2. getShippingQuoteBySkus
-
-**Location:** `fas-sanity/netlify/functions/getShippingQuoteBySkus.ts`
-
-**Flow:**
-1. Receive cart items and destination address
-2. Fetch product data from Sanity (weights, dimensions)
-3. Calculate total package specifications
-4. Create EasyPost shipment
-5. Return formatted rates with shipment ID
-
-### 3. stripe-order webhook
+### 2. stripe-order webhook
 
 **Location:** `fas-sanity/src/pages/api/webhooks/stripe-order.ts`
 
@@ -284,7 +273,7 @@ SHIP_FROM_PHONE=555-123-4567
 
 **When:** After order is created in Sanity
 
-**How:** Manual trigger from Sanity Studio (currently) or automated via webhook
+**How:** Manual trigger from Sanity Studio only
 
 **Process:**
 
@@ -293,7 +282,7 @@ SHIP_FROM_PHONE=555-123-4567
    const order = await sanity.fetch(`*[_type == "order" && _id == $orderId][0]`, { orderId });
    ```
 
-2. **Use Stored Metadata** (Future Enhancement)
+2. **Use Stored Metadata**
    ```typescript
    // Current: Creates new shipment
    // Future: Reuse stored shipment
@@ -324,7 +313,7 @@ SHIP_FROM_PHONE=555-123-4567
 #### 1. Webhook Configuration
 - [ ] Webhook endpoint is accessible publicly
 - [ ] Webhook secret is correctly configured
-- [ ] SANITY_BASE_URL points to deployed fas-sanity
+- [ ] EasyPost API key configured in fas-cms-fresh
 
 #### 2. Test Checkout Flow
 ```bash
@@ -361,14 +350,11 @@ curl -X POST https://fasmotorsports.com/api/stripe/create-checkout-session \
 
 ```bash
 # fas-cms-fresh
-[checkout] Using Stripe Adaptive Pricing with EasyPost
+[checkout] Using Stripe Checkout with EasyPost for dynamic shipping rates
 
 # Webhook logs
 Shipping rates webhook error: [error details]
-
-# fas-sanity
-getShippingQuoteBySkus: Fetching products for SKUs
-EasyPost shipment created: shp_xyz
+# EasyPost shipment created: shp_xyz
 ```
 
 ---
@@ -380,10 +366,9 @@ EasyPost shipment created: shp_xyz
 **Check:**
 1. Webhook endpoint is publicly accessible
 2. Webhook secret matches Stripe Dashboard
-3. SANITY_BASE_URL is correct
-4. fas-sanity is deployed and running
-5. Products have weight/dimensions in Sanity
-6. EasyPost API key is valid
+3. EasyPost API key is correct
+4. Products have weight/dimensions in Stripe metadata
+5. EasyPost API status is healthy
 
 **Debug:**
 ```bash
@@ -430,7 +415,7 @@ curl -X POST https://fasmotorsports.com/api/stripe/shipping-rates-webhook \
 
 ## FAQ
 
-### Q: Why use EasyPost instead of Parcelcraft?
+### Q: Why use EasyPost?
 
 **A:** EasyPost provides:
 - Full API access for custom logic
@@ -453,7 +438,7 @@ curl -X POST https://fasmotorsports.com/api/stripe/shipping-rates-webhook \
 
 ### Q: Can I customize which carriers are shown?
 
-**A:** Yes! Modify the `getShippingQuoteBySkus` function to filter carriers:
+**A:** Yes! Filter carriers in `shipping-rates-webhook.ts` after the EasyPost response:
 ```typescript
 const rates = rateData.rates.filter(rate =>
   ['USPS', 'UPS'].includes(rate.carrier)

@@ -246,50 +246,6 @@ export async function POST({ request }: { request: Request }) {
 
   // Handle event types
   switch (event.type) {
-    case 'payment_intent.updated': {
-      const paymentIntent = event.data.object as Stripe.PaymentIntent;
-      const metadata = (paymentIntent.metadata || {}) as Record<string, string | null | undefined>;
-
-      const shipStatus = sanitizeString(metadata.ship_status);
-      const shipDate = sanitizeString(metadata.ship_date);
-      const trackingNumber = sanitizeString(metadata.tracking_number);
-      const trackingUrl =
-        sanitizeString(metadata.tracking_URL) ?? sanitizeString(metadata.tracking_url);
-      const serviceName = sanitizeString(metadata.service_name);
-
-      const hasParcelcraftSignal = Boolean(
-        shipStatus || shipDate || trackingNumber || trackingUrl || serviceName
-      );
-      if (!hasParcelcraftSignal) {
-        return new Response('Ignored payment_intent.updated', { status: 200 });
-      }
-
-      try {
-        const orderId = await sanity.fetch<string | null>(
-          '*[_type == "order" && paymentIntentId == $piId][0]._id',
-          { piId: paymentIntent.id }
-        );
-        if (!orderId) {
-          return new Response('No matching order', { status: 200 });
-        }
-
-        const patch = sanity.patch(orderId);
-        if (shipDate) patch.set({ shippedAt: shipDate });
-        if (trackingNumber) patch.set({ trackingNumber });
-        if (trackingUrl) patch.set({ trackingUrl });
-        if (serviceName) patch.set({ service: serviceName });
-
-        await patch.commit({ autoGenerateArrayKeys: true });
-      } catch (err) {
-        console.error(
-          '[astro webhook] failed to sync Parcelcraft metadata from PaymentIntent',
-          err
-        );
-        return new Response('Failed to sync Parcelcraft metadata', { status: 500 });
-      }
-
-      return new Response('Synced payment_intent.updated', { status: 200 });
-    }
     case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session;
       const existingOrderId = await sanity.fetch<string | null>(
@@ -326,7 +282,7 @@ export async function POST({ request }: { request: Request }) {
           console.warn('[astro webhook] unable to retrieve expanded session', error);
         }
 
-        // Parcelcraft: persist "company" onto the Stripe Customer record so it can be used in labels.
+        // Persist "company" onto the Stripe Customer record so it can be used in labels.
         try {
           const company = sessionDetails.custom_fields?.find((field) => field.key === 'company')
             ?.text?.value;

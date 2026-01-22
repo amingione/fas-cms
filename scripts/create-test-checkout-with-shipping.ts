@@ -1,6 +1,6 @@
 #!/usr/bin/env tsx
 /**
- * Create a test Stripe Checkout Session with shipping to test Parcelcraft transit times
+ * Create a test Stripe Checkout Session with shipping to test rate estimates
  *
  * Usage:
  *   yarn tsx scripts/create-test-checkout-with-shipping.ts [shipping_city] [shipping_state] [shipping_zip]
@@ -33,7 +33,7 @@ async function createTestCheckout() {
   try {
     console.log(`\n🛒 Creating test Checkout Session with shipping...\n`);
     console.log(`📍 Shipping Address: ${city}, ${state} ${zip}\n`);
-    console.log(`⚙️  Shipping Mode: Dynamic (Parcelcraft)\n`);
+    console.log(`⚙️  Shipping Mode: Dynamic (EasyPost)\n`);
 
     const existingPriceId = process.env.STRIPE_TEST_SHIPPABLE_PRICE_ID;
     let priceId = existingPriceId;
@@ -41,7 +41,7 @@ async function createTestCheckout() {
     if (!priceId) {
       const product = await stripe.products.create({
         name: 'Test Product for Shipping',
-        description: 'Test product to verify Parcelcraft transit times',
+        description: 'Test product to verify shipping rate estimates',
         shippable: true,
         package_dimensions: {
           length: 12,
@@ -52,13 +52,13 @@ async function createTestCheckout() {
         tax_code: 'txcd_99999999',
         metadata: {
           shipping_required: 'true',
-          weight: '15',
-          weight_unit: 'pound',
+          package_weight: '15',
+          package_weight_unit: 'pound',
           origin_country: 'US',
-          length: '12',
-          width: '12',
-          height: '12',
-          dimension_unit: 'inch'
+          package_length: '12',
+          package_width: '12',
+          package_height: '12',
+          dimensions_unit: 'inch'
         }
       });
 
@@ -95,7 +95,7 @@ async function createTestCheckout() {
       cancel_url: 'https://example.com/cancel',
       metadata: {
         test_checkout: 'true',
-        purpose: 'parcelcraft_transit_time_test',
+        purpose: 'shipping_rate_test',
         test_shipping_city: city,
         test_shipping_state: state,
         test_shipping_zip: zip
@@ -113,10 +113,10 @@ async function createTestCheckout() {
     console.log('   1. Open the URL above in your browser');
     console.log('   2. Enter the shipping address when prompted:');
     console.log(`      ${city}, ${state} ${zip}`);
-    console.log('   3. Wait for Parcelcraft to calculate UPS shipping rates dynamically');
+    console.log('   3. Wait for shipping rates to appear inside checkout');
     console.log('   4. Check if UPS Ground shows correct transit time (not always 1 day)');
     console.log('   5. After selecting a shipping option, run:');
-    console.log(`      yarn tsx scripts/check-parcelcraft-transit-times.ts ${session.id}\n`);
+    console.log(`      yarn tsx scripts/check-shipping-transit-times.ts ${session.id}\n`);
 
     console.log('💡 Tip: Try different addresses to test:');
     console.log('   - Local (same state): Should show 1-2 days');
@@ -125,7 +125,7 @@ async function createTestCheckout() {
 
     console.log('─'.repeat(80));
     console.log(`\n🔍 To check this session later, run:`);
-    console.log(`   yarn tsx scripts/check-parcelcraft-transit-times.ts ${session.id}\n`);
+  console.log(`   yarn tsx scripts/check-shipping-transit-times.ts ${session.id}\n`);
   } catch (error: any) {
     console.error('❌ Error creating checkout session:', error.message);
     if (error.type === 'StripeInvalidRequestError') {

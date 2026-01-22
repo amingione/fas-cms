@@ -10,7 +10,7 @@ export const POST: APIRoute = async () =>
   jsonResponse(
     {
       error:
-        'Shipping quotes are handled exclusively by Stripe Checkout + Parcelcraft. This endpoint is disabled.'
+        'Shipping quotes are handled inside Stripe Checkout. This endpoint is disabled.'
     },
     410
   );

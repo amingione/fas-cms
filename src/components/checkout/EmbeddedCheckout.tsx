@@ -94,7 +94,7 @@ export default function EmbeddedCheckout() {
     const timeout = setTimeout(() => {
       if (!checkoutReady) {
         console.warn(
-          '[EmbeddedCheckout] ⚠️ Checkout taking longer than expected to load. This might indicate a Parcelcraft configuration issue.'
+          '[EmbeddedCheckout] ⚠️ Checkout taking longer than expected to load. This might indicate a shipping configuration issue.'
         );
         // Show a warning but don't fail - checkout might still be loading
         const loadingEl = document.getElementById('checkout-loading');
@@ -113,7 +113,7 @@ export default function EmbeddedCheckout() {
       if (!checkoutReady) {
         console.error('[EmbeddedCheckout] ❌ Checkout failed to load after 30 seconds');
         setError(
-          'Checkout is taking too long to load. This may indicate a configuration issue with Parcelcraft shipping. Please verify Parcelcraft is installed and configured in your Stripe Dashboard.'
+          'Checkout is taking too long to load. This may indicate a configuration issue with shipping rates. Please verify Stripe dynamic rates are configured.'
         );
         setLoading(false);
         const loadingEl = document.getElementById('checkout-loading');
@@ -122,10 +122,10 @@ export default function EmbeddedCheckout() {
         if (errorEl) {
           errorEl.style.display = 'block';
           const errorMsg = errorEl.querySelector('p');
-          if (errorMsg) {
-            errorMsg.textContent =
-              'Checkout is taking too long to load. This may indicate a configuration issue with Parcelcraft shipping. Please verify Parcelcraft is installed and configured in your Stripe Dashboard (Apps → Parcelcraft → Settings).';
-          }
+            if (errorMsg) {
+              errorMsg.textContent =
+              'Checkout is taking too long to load. This may indicate a configuration issue with shipping rates. Please verify Stripe dynamic rates are configured.';
+            }
         }
         observer.disconnect();
       }
@@ -187,7 +187,7 @@ export default function EmbeddedCheckout() {
         body: JSON.stringify({
           cart
           // No shippingAddress needed - customer enters it in the embedded form
-          // Parcelcraft will fetch rates automatically as they type
+          // Stripe Checkout will fetch rates after address entry
         })
       });
 

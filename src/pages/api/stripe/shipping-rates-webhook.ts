@@ -20,11 +20,6 @@ interface ShippingAddressInput {
   state?: string;
 }
 
-interface CartItem {
-  sku: string;
-  quantity: number;
-}
-
 interface EasyPostRate {
   rateId: string;
   carrier: string;
@@ -39,6 +34,114 @@ interface EasyPostResponse {
   rates: EasyPostRate[];
   easyPostShipmentId: string;
 }
+
+type ShippingMeta = {
+  weightLbs: number;
+  length: number;
+  width: number;
+  height: number;
+  quantity: number;
+};
+
+const EASYPOST_API_BASE = import.meta.env.EASYPOST_API_BASE || 'https://api.easypost.com';
+
+const parseNumber = (value?: string | null): number | null => {
+  if (!value) return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const parseShippingMeta = (metadata: Record<string, string>, quantity: number): ShippingMeta | null => {
+  if (metadata.shipping_required !== 'true') return null;
+  const weight = parseNumber(metadata.package_weight);
+  const length = parseNumber(metadata.package_length);
+  const width = parseNumber(metadata.package_width);
+  const height = parseNumber(metadata.package_height);
+  if (!weight || !length || !width || !height) return null;
+  if (metadata.package_weight_unit && metadata.package_weight_unit !== 'pound') return null;
+  if (metadata.dimensions_unit && metadata.dimensions_unit !== 'inch') return null;
+  return { weightLbs: weight, length, width, height, quantity };
+};
+
+const resolveOriginAddress = () => ({
+  name: 'F.A.S. Motorsports LLC',
+  street1: import.meta.env.WAREHOUSE_ADDRESS_LINE1 || '0000 Main St',
+  street2: import.meta.env.WAREHOUSE_ADDRESS_LINE2 || undefined,
+  city: import.meta.env.WAREHOUSE_CITY || 'Clermont',
+  state: import.meta.env.WAREHOUSE_STATE || 'FL',
+  zip: import.meta.env.WAREHOUSE_ZIP || '34711',
+  country: 'US',
+  phone: import.meta.env.WAREHOUSE_PHONE || undefined,
+  email: import.meta.env.WAREHOUSE_EMAIL || undefined
+});
+
+const requestEasyPostRates = async (
+  destination: ShippingAddressInput,
+  parcels: ShippingMeta[]
+): Promise<EasyPostResponse> => {
+  const apiKey = import.meta.env.EASYPOST_API_KEY;
+  if (!apiKey) {
+    throw new Error('EASYPOST_API_KEY not configured');
+  }
+
+  const totalWeightLbs = parcels.reduce(
+    (sum, parcel) => sum + parcel.weightLbs * parcel.quantity,
+    0
+  );
+  const maxLength = Math.max(...parcels.map((parcel) => parcel.length));
+  const maxWidth = Math.max(...parcels.map((parcel) => parcel.width));
+  const maxHeight = Math.max(...parcels.map((parcel) => parcel.height));
+
+  const payload = {
+    shipment: {
+      to_address: {
+        street1: destination.line1 || '',
+        street2: destination.line2 || '',
+        city: destination.city || '',
+        state: destination.state || '',
+        zip: destination.postal_code || '',
+        country: destination.country || 'US'
+      },
+      from_address: resolveOriginAddress(),
+      parcel: {
+        length: maxLength,
+        width: maxWidth,
+        height: maxHeight,
+        weight: Math.max(1, Math.round(totalWeightLbs * 16))
+      }
+    }
+  };
+
+  const response = await fetch(`${EASYPOST_API_BASE}/v2/shipments`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Basic ${Buffer.from(`${apiKey}:`).toString('base64')}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`EasyPost rate request failed: ${errorText}`);
+  }
+
+  const data = await response.json();
+  const rates = Array.isArray(data?.rates) ? data.rates : [];
+
+  return {
+    easyPostShipmentId: data?.id,
+    rates: rates.map((rate: any) => ({
+      rateId: rate.id,
+      carrier: rate.carrier,
+      service: rate.service,
+      amount: Number(rate.rate),
+      deliveryDays: rate.delivery_days ?? undefined,
+      carrierId: rate.carrier_id,
+      serviceCode: rate.service_code
+    }))
+  };
+};
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -95,7 +198,7 @@ export const POST: APIRoute = async ({ request }) => {
       country: shipping_address.country,
     });
 
-    // 3. Retrieve checkout session to get cart items
+    // 3. Retrieve checkout session and line items
     let session: Stripe.Checkout.Session;
     try {
       session = await stripe.checkout.sessions.retrieve(session_id);
@@ -110,82 +213,46 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    const cartMetadata = session.metadata?.cart;
-    if (!cartMetadata) {
-      console.error('[ShippingWebhook] ❌ Cart data not found in session metadata');
-      return new Response(
-        JSON.stringify({
-          error: 'Cart data not found in session metadata'
-        }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
-    let cart: CartItem[];
-    try {
-      cart = JSON.parse(cartMetadata);
-      console.log('[ShippingWebhook] 🛒 Cart items parsed:', cart.length, 'items');
-    } catch (err) {
-      console.error('[ShippingWebhook] ❌ Failed to parse cart metadata:', err);
-      return new Response(
-        JSON.stringify({
-          error: 'Invalid cart data format'
-        }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // 4. Call fas-sanity Netlify function to get EasyPost rates
-    const sanityBaseUrl = import.meta.env.SANITY_BASE_URL;
-    if (!sanityBaseUrl) {
-      console.error('[ShippingWebhook] ❌ SANITY_BASE_URL not configured');
-      return new Response(
-        JSON.stringify({
-          error: 'Configuration error: SANITY_BASE_URL missing'
-        }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const easyPostEndpoint = `${sanityBaseUrl}/.netlify/functions/getShippingQuoteBySkus`;
-    console.log('[ShippingWebhook] 📞 Calling EasyPost rate function:', easyPostEndpoint);
-
-    const rateResponse = await fetch(
-      easyPostEndpoint,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          cart,
-          destination: {
-            addressLine1: shipping_address.line1 || '',
-            addressLine2: shipping_address.line2 || '',
-            city: shipping_address.city || '',
-            state: shipping_address.state || '',
-            postalCode: shipping_address.postal_code || '',
-            country: shipping_address.country || 'US',
-          },
-        }),
+    const lineItems = await stripe.checkout.sessions.listLineItems(session_id, {
+      limit: 100,
+      expand: ['data.price.product']
+    });
+    const shippable: ShippingMeta[] = [];
+    for (const item of lineItems.data) {
+      const quantity = Math.max(1, item.quantity || 1);
+      const product = typeof item.price?.product === 'string' ? null : item.price?.product;
+      const metadata = (product && !('deleted' in product) ? product.metadata : {}) || {};
+      const parsed = parseShippingMeta(metadata as Record<string, string>, quantity);
+      if (parsed) {
+        shippable.push(parsed);
       }
-    );
+    }
 
-    if (!rateResponse.ok) {
-      const errorText = await rateResponse.text();
-      console.error('[ShippingWebhook] ❌ EasyPost rate fetch failed:', {
-        status: rateResponse.status,
-        statusText: rateResponse.statusText,
-        error: errorText,
-      });
+    if (!shippable.length) {
+      console.error('[ShippingWebhook] ❌ No shippable items found for EasyPost rates');
+      return new Response(
+        JSON.stringify({ error: 'No shippable items available for shipping rates' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('[ShippingWebhook] 📦 Shippable items:', shippable.length);
+
+    // 4. Call EasyPost API directly to get rates
+    let rateData: EasyPostResponse;
+    try {
+      rateData = await requestEasyPostRates(shipping_address, shippable);
+    } catch (err) {
+      console.error('[ShippingWebhook] ❌ EasyPost rate fetch failed:', err);
       return new Response(
         JSON.stringify({
           error: 'Failed to calculate shipping rates',
-          details: errorText,
+          message: err instanceof Error ? err.message : 'Unknown error'
         }),
         { status: 500, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    const rateData: EasyPostResponse = await rateResponse.json();
     console.log('[ShippingWebhook] ✅ EasyPost rates received:', rateData.rates.length, 'rates');
 
     // 5. Transform EasyPost rates to Stripe format

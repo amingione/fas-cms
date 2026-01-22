@@ -1,12 +1,12 @@
 #!/usr/bin/env tsx
 /**
- * Script to check what transit times Parcelcraft is sending for UPS Ground
+ * Deprecated shipping script.
  * 
  * Usage:
- *   yarn tsx scripts/check-parcelcraft-transit-times.ts <checkout_session_id>
+ *   yarn tsx scripts/check-shipping-transit-times.ts <checkout_session_id>
  * 
  * Example:
- *   yarn tsx scripts/check-parcelcraft-transit-times.ts cs_test_abc123
+ *   yarn tsx scripts/check-shipping-transit-times.ts cs_test_abc123
  */
 
 import 'dotenv/config';
@@ -21,7 +21,7 @@ if (!stripeSecret) {
 const sessionId = process.argv[2];
 if (!sessionId) {
   console.error('❌ Please provide a Stripe Checkout Session ID');
-  console.error('   Usage: tsx scripts/check-parcelcraft-transit-times.ts <session_id>');
+  console.error('   Usage: tsx scripts/check-shipping-transit-times.ts <session_id>');
   process.exit(1);
 }
 
@@ -78,8 +78,8 @@ async function checkTransitTimes() {
       
       if (minDays === 1 && maxDays === 1) {
         console.log(`\n⚠️  WARNING: Transit time is hardcoded to 1 day!`);
-        console.log(`   This suggests Parcelcraft is not using dynamic UPS transit times.`);
-        console.log(`   Check Parcelcraft settings in Stripe Dashboard.`);
+        console.log(`   This suggests dynamic transit times are not being provided.`);
+        console.log(`   Check your shipping configuration.`);
       } else if (minDays === maxDays) {
         console.log(`\n⚠️  WARNING: Min and max transit times are the same (${minDays} days)`);
         console.log(`   This may indicate a configuration issue.`);
@@ -88,7 +88,7 @@ async function checkTransitTimes() {
       }
     } else {
       console.log(`\n⚠️  No delivery estimate found in shipping rate`);
-      console.log(`   Parcelcraft may not be providing transit time data.`);
+      console.log(`   Shipping provider may not be providing transit time data.`);
     }
 
     // Check metadata

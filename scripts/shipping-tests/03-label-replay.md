@@ -5,7 +5,7 @@ Calling create-shipping-label twice does not repurchase the label.
 
 ## Preconditions
 - A Sanity order exists with:
-  - parcelcraftShipmentId (or your shipping app shipment id)
+  - easypostShipmentId (or your shipping app shipment id)
   - selected_rate_id (or equivalent)
 - labelPurchased is false initially
 

@@ -9,8 +9,16 @@ Add these to your `.env` file in `fas-cms-fresh`:
 # Get this from Stripe Dashboard after configuring the webhook
 STRIPE_SHIPPING_WEBHOOK_SECRET=whsec_your_webhook_signing_secret_here
 
-# Sanity Backend URL (where EasyPost function lives)
-SANITY_BASE_URL=https://fassanity.fasmotorsports.com
+# EasyPost API (for checkout rate calculation)
+EASYPOST_API_KEY=EZAK_...
+EASYPOST_API_BASE=https://api.easypost.com
+WAREHOUSE_ADDRESS_LINE1=6161 Riverside Dr
+WAREHOUSE_ADDRESS_LINE2=
+WAREHOUSE_CITY=Punta Gorda
+WAREHOUSE_STATE=FL
+WAREHOUSE_ZIP=33982
+WAREHOUSE_PHONE=812-200-9012
+WAREHOUSE_EMAIL=orders@updates.fasmotorsports.com
 
 # Existing variables (should already be set)
 STRIPE_SECRET_KEY=sk_live_... # or sk_test_...
@@ -52,20 +60,7 @@ PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_... # or pk_test_...
 
 ---
 
-## ✅ Step 3: Verify Backend is Ready
-
-Check that `fas-sanity` has the EasyPost function:
-
-```bash
-# This function should exist:
-fas-sanity/netlify/functions/getShippingQuoteBySkus.ts
-```
-
-**If it doesn't exist**, you'll need to implement it (see integration plan).
-
----
-
-## ✅ Step 4: Test Locally (Optional)
+## ✅ Step 3: Test Locally (Optional)
 
 ### **A. Start Local Dev Server:**
 
@@ -95,7 +90,7 @@ stripe listen --forward-to http://localhost:4321/api/stripe/shipping-rates-webho
 
 ---
 
-## ✅ Step 5: Deploy & Test Production
+## ✅ Step 4: Deploy & Test Production
 
 ### **A. Deploy fas-cms-fresh:**
 
@@ -137,9 +132,8 @@ metadata: {
 ### **Problem: Webhook returns 500 (EasyPost failed)**
 
 **Solution:** 
-- Check `SANITY_BASE_URL` is correct
-- Verify `fas-sanity` is deployed and accessible
-- Check EasyPost function exists and has `EASYPOST_API_KEY` set
+- Check EasyPost API key and warehouse address env vars
+- Verify EasyPost API status in dashboard
 
 ### **Problem: No shipping rates appear**
 
@@ -160,8 +154,8 @@ metadata: {
 
 **Server Logs:**
 - Look for `[ShippingWebhook]` prefixed logs
-- Check for rate fetch calls to fas-sanity
-- Verify rates are being returned
+- Check for EasyPost rate requests
+- Verify rates are being returned from EasyPost
 
 ---
 

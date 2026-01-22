@@ -11,7 +11,7 @@ export type CheckoutStatus =
 
 export type CheckoutRate = {
   id: string
-  provider: 'parcelcraft'
+  provider: 'easypost'
   carrier: string
   service: string
   amountCents: number

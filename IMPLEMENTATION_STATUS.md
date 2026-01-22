@@ -22,8 +22,8 @@
 **What it does:**
 - Receives webhook call from Stripe when customer enters address
 - Validates webhook signature for security
-- Extracts cart items from session metadata
-- Calls fas-sanity to calculate EasyPost rates
+- Extracts line items and shipping metadata from Stripe
+- Calls EasyPost API directly to calculate rates
 - Transforms rates to Stripe's required format
 - Returns rates for immediate display
 
@@ -37,7 +37,7 @@
 **Changes made:**
 - Added cart items to session metadata
 - Configured `shipping_address_collection`
-- Removed Parcelcraft-specific code
+- Removed legacy shipping-specific code
 - Enabled Stripe Adaptive Pricing mode
 
 **Status:** ✅ Complete and tested
@@ -62,7 +62,15 @@
 **fas-cms-fresh:**
 ```bash
 STRIPE_SHIPPING_WEBHOOK_SECRET=whsec_LB37zu2i1xBwPTXtWgGiswM1uBBJSUHn
-SANITY_BASE_URL=https://fassanity.fasmotorsports.com
+EASYPOST_API_KEY=EZAK_...
+EASYPOST_API_BASE=https://api.easypost.com
+WAREHOUSE_ADDRESS_LINE1=6161 Riverside Dr
+WAREHOUSE_ADDRESS_LINE2=
+WAREHOUSE_CITY=Punta Gorda
+WAREHOUSE_STATE=FL
+WAREHOUSE_ZIP=33982
+WAREHOUSE_PHONE=812-200-9012
+WAREHOUSE_EMAIL=orders@updates.fasmotorsports.com
 ```
 
 **Status:** ✅ Configured
@@ -91,8 +99,6 @@ Stripe Adaptive Pricing Triggered
 Webhook: /api/stripe/shipping-rates-webhook
          ↓
 Fetch Session → Extract Cart
-         ↓
-Call: fas-sanity/getShippingQuoteBySkus
          ↓
 EasyPost API → Calculate Rates
          ↓
@@ -247,7 +253,7 @@ Label Created from Stored Data
 
 **No rates appearing:**
 - Check webhook secret
-- Verify SANITY_BASE_URL
+- Verify EasyPost API key and warehouse address env vars
 - Ensure products have weights
 - Review Stripe webhook logs
 

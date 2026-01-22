@@ -8,9 +8,9 @@ the Checkout Session has permissions[update_shipping_details]=server_only.
 ```
 
 ## Root Cause
-**Configuration Mismatch:** Frontend was using `onShippingDetailsChange` (Parcelcraft approach) but backend didn't have the required `permissions.update_shipping_details` setting.
+**Configuration Mismatch:** Frontend was using `onShippingDetailsChange`, but backend didn't have the required shipping configuration.
 
-This was a **leftover from Parcelcraft attempts** that conflicts with the Stripe Adaptive Pricing approach.
+This was a legacy checkout integration mismatch that conflicts with the current flow.
 
 ## Solution Applied ✅
 
@@ -39,7 +39,7 @@ This was a **leftover from Parcelcraft attempts** that conflicts with the Stripe
 
 ## Why This Fix Works
 
-### Old Approach (Parcelcraft - Removed):
+### Old Approach (Removed):
 ```
 Frontend → onShippingDetailsChange → Manual API call → Update session
           ↑ Requires permissions.update_shipping_details
@@ -67,7 +67,7 @@ To complete the EasyPost + Stripe Adaptive Pricing integration:
 
 1. **Create shipping-rates-webhook.ts** endpoint (see integration plan)
 2. **Configure Stripe Dashboard:** Enable Adaptive Pricing and set webhook URL
-3. **Deploy fas-sanity functions** (getShippingQuoteBySkus already exists)
+3. **Ensure EasyPost env vars are set** (EASYPOST_API_KEY + warehouse address)
 4. **Test:** Enter address in Stripe Checkout → rates appear dynamically
 
 ## Test Now

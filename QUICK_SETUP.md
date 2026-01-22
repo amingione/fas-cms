@@ -14,7 +14,15 @@ Add to `fas-cms-fresh/.env`:
 
 ```bash
 STRIPE_SHIPPING_WEBHOOK_SECRET=whsec_YOUR_SECRET_HERE
-SANITY_BASE_URL=https://fassanity.fasmotorsports.com
+EASYPOST_API_KEY=EZAK_...
+EASYPOST_API_BASE=https://api.easypost.com
+WAREHOUSE_ADDRESS_LINE1=6161 Riverside Dr
+WAREHOUSE_ADDRESS_LINE2=
+WAREHOUSE_CITY=Punta Gorda
+WAREHOUSE_STATE=FL
+WAREHOUSE_ZIP=33982
+WAREHOUSE_PHONE=812-200-9012
+WAREHOUSE_EMAIL=orders@updates.fasmotorsports.com
 ```
 
 ### **2. Configure Stripe Dashboard** ⚙️
@@ -68,7 +76,7 @@ git push
 **Fix:** Verify `cart` is in session metadata (see create-checkout-session.ts)
 
 **Issue:** Webhook returns 500  
-**Fix:** Check `SANITY_BASE_URL` is correct and fas-sanity is deployed
+**Fix:** Check EasyPost keys and warehouse address env vars are set
 
 **Issue:** No rates appear  
 **Fix:** Check Stripe Dashboard → Webhooks → View logs for errors
@@ -110,6 +118,6 @@ git push
 1. **Test locally first** using `stripe listen --forward-to http://localhost:4321/api/stripe/shipping-rates-webhook`
 2. **Check logs** - Both Stripe Dashboard and your server logs
 3. **Verify cart metadata** - Session must have cart data in metadata
-4. **Monitor EasyPost calls** - Make sure fas-sanity function is accessible
+4. **Monitor EasyPost calls** - Check EasyPost dashboard for shipment rate requests
 
 **You're 95% there! Just need to configure Stripe Dashboard and deploy.** 🚀

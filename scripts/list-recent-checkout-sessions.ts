@@ -90,7 +90,7 @@ async function listSessions() {
       }
 
       console.log(`\n   To check this session in detail, run:`);
-      console.log(`   yarn tsx scripts/check-parcelcraft-transit-times.ts ${session.id}`);
+      console.log(`   yarn tsx scripts/check-shipping-transit-times.ts ${session.id}`);
     });
 
     console.log(`\n${'─'.repeat(80)}\n`);

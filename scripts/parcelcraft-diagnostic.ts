@@ -1,10 +1,10 @@
 /**
- * Parcelcraft Diagnostic Script
+ * Shipping Diagnostic Script
  *
  * This script checks your Stripe account for configurations that might
- * prevent Parcelcraft from injecting dynamic shipping rates.
+ * diagnose dynamic shipping rate configuration.
  *
- * Run: tsx scripts/parcelcraft-diagnostic.ts
+ * Run: tsx scripts/shipping-diagnostic.ts
  */
 
 import Stripe from 'stripe';
@@ -26,7 +26,7 @@ const stripe = new Stripe(stripeSecret, {
 });
 
 async function main() {
-  console.log('🔍 Parcelcraft Diagnostic Report\n');
+  console.log('🔍 Shipping Diagnostic Report\n');
   console.log('='.repeat(60));
 
   // 1. Check for static shipping rates
@@ -35,7 +35,7 @@ async function main() {
     const shippingRates = await stripe.shippingRates.list({ limit: 100 });
 
     if (shippingRates.data.length === 0) {
-      console.log('   ✅ No static shipping rates found (Good for Parcelcraft)');
+      console.log('   ✅ No static shipping rates found (Good for dynamic rates)');
     } else {
       console.log(`   ⚠️  Found ${shippingRates.data.length} static shipping rate(s):`);
       shippingRates.data.forEach((rate) => {
@@ -46,7 +46,7 @@ async function main() {
           `        Amount: $${rate.fixed_amount?.amount ? rate.fixed_amount.amount / 100 : 'N/A'}`
         );
       });
-      console.log('\n   ⛔ CRITICAL: Static shipping rates prevent Parcelcraft from working!');
+      console.log('\n   ⛔ CRITICAL: Static shipping rates prevent dynamic rates from working!');
       console.log('   ACTION REQUIRED: Delete these rates in Stripe Dashboard:');
       console.log('   https://dashboard.stripe.com/settings/shipping-rates');
       console.log('   OR run: tsx scripts/delete-static-shipping-rates.ts');
@@ -55,13 +55,12 @@ async function main() {
     console.error('   ❌ Error checking shipping rates:', err);
   }
 
-  // 2. Check Parcelcraft app installation
-  console.log('\n2. Checking Parcelcraft app installation...');
+  // 2. Check Stripe dynamic rate configuration
+  console.log('\n2. Checking Stripe dynamic rate configuration...');
   console.log('   ℹ️  This requires manual verification in Stripe Dashboard:');
-  console.log('   Go to: https://dashboard.stripe.com/apps');
-  console.log('   Verify: "Parcelcraft" is listed and shows "Installed"');
-  console.log('   Then go to: https://dashboard.stripe.com/apps/parcelcraft/settings');
-  console.log('   Verify: Your shipping carriers (UPS, USPS, FedEx) are configured');
+  console.log('   Go to: https://dashboard.stripe.com/settings/checkout');
+  console.log('   Verify: Dynamic shipping rates are enabled');
+  console.log('   Verify: Your carriers (UPS, USPS, FedEx) are configured in EasyPost');
 
   // 3. Check recent checkout sessions
   console.log('\n3. Checking recent checkout sessions...');
@@ -102,17 +101,17 @@ async function main() {
               console.log(
                 `       - shipping_required: ${metadata.shipping_required || 'missing ❌'}`
               );
-              console.log(`       - weight: ${metadata.weight || 'missing ❌'}`);
-              console.log(`       - weight_unit: ${metadata.weight_unit || 'missing ❌'}`);
+              console.log(`       - package_weight: ${metadata.package_weight || 'missing ❌'}`);
+              console.log(`       - package_weight_unit: ${metadata.package_weight_unit || 'missing ❌'}`);
               console.log(`       - origin_country: ${metadata.origin_country || 'missing ❌'}`);
               console.log(
-                `       - dimensions: ${metadata.length ? `${metadata.length}x${metadata.width}x${metadata.height} ${metadata.dimension_unit}` : 'missing ❌'}`
+                `       - dimensions: ${metadata.package_length ? `${metadata.package_length}x${metadata.package_width}x${metadata.package_height} ${metadata.dimensions_unit}` : 'missing ❌'}`
               );
 
-              if (!metadata.shipping_required || !metadata.weight || !metadata.origin_country) {
-                console.log(`     ⚠️  Missing required Parcelcraft metadata!`);
+              if (!metadata.shipping_required || !metadata.package_weight || !metadata.origin_country) {
+                console.log(`     ⚠️  Missing required shipping metadata!`);
               } else {
-                console.log(`     ✅ Has all required Parcelcraft metadata`);
+                console.log(`     ✅ Has all required shipping metadata`);
               }
             }
           }
@@ -127,22 +126,21 @@ async function main() {
   // 4. Summary and recommendations
   console.log('\n' + '='.repeat(60));
   console.log('\n📋 SUMMARY & RECOMMENDATIONS:\n');
-  console.log('For Parcelcraft to work, you MUST:');
+  console.log('For dynamic shipping to work, you MUST:');
   console.log('  1. ✅ Delete ALL static shipping rates from Stripe Dashboard');
-  console.log('  2. ✅ Install Parcelcraft app from Stripe App Marketplace');
-  console.log('  3. ✅ Configure your carriers in Parcelcraft settings');
+  console.log('  2. ✅ Enable dynamic shipping rates in Stripe Checkout');
+  console.log('  3. ✅ Configure your carriers in EasyPost');
   console.log('  4. ✅ Ensure products have type="good" (not "service")');
   console.log(
-    '  5. ✅ Ensure products have all metadata: shipping_required, weight, origin_country'
+    '  5. ✅ Ensure products have all metadata: shipping_required, package_weight, origin_country'
   );
   console.log('  6. ✅ Use ui_mode="embedded" in Checkout Session');
   console.log('  7. ✅ Enable invoice_creation in Checkout Session');
   console.log('  8. ✅ Set shipping_address_collection in Checkout Session');
-  console.log('  9. ✅ Set permissions.update_shipping_details="server_only"');
   console.log("\nIf all above are correct and shipping rates still don't appear:");
-  console.log('  - Check Parcelcraft logs in Stripe Dashboard (Apps → Parcelcraft → Logs)');
-  console.log('  - Verify carrier API keys are valid in Parcelcraft settings');
-  console.log('  - Contact Parcelcraft support with your session ID');
+  console.log('  - Check Stripe webhook logs in the Stripe Dashboard');
+  console.log('  - Verify carrier API keys are valid in EasyPost');
+  console.log('  - Contact support with your session ID');
 
   console.log('\n' + '='.repeat(60));
 }

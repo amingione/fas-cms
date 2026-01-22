@@ -2,7 +2,7 @@
  * Delete Static Shipping Rates Script
  *
  * This script archives (soft-deletes) all static shipping rates in your Stripe account.
- * This is necessary for Parcelcraft to work, as static rates take precedence over dynamic rates.
+ * Static rates take precedence over dynamic rates in Stripe Checkout.
  *
  * Run: tsx scripts/delete-static-shipping-rates.ts
  */
@@ -66,10 +66,7 @@ async function main() {
     console.log('');
   });
 
-  console.log(
-    '⚠️  WARNING: Deleting these rates will make Parcelcraft the ONLY source of shipping rates.'
-  );
-  console.log('⚠️  Make sure Parcelcraft is installed and configured before proceeding!');
+  console.log('⚠️  WARNING: Deleting these rates will require dynamic rates in Stripe Checkout.');
   console.log('');
 
   const answer = await askQuestion('Do you want to archive (delete) these rates? (yes/no): ');
@@ -92,10 +89,10 @@ async function main() {
   }
 
   console.log('\n✅ Done! All shipping rates have been archived.');
-  console.log('Parcelcraft should now be able to inject dynamic shipping rates.');
+  console.log('Dynamic rates should now be able to appear in Stripe Checkout.');
   console.log('\nNext steps:');
-  console.log('  1. Verify Parcelcraft is installed: https://dashboard.stripe.com/apps');
-  console.log('  2. Configure your carriers in Parcelcraft settings');
+  console.log('  1. Verify dynamic shipping rates are enabled in Stripe Checkout');
+  console.log('  2. Configure your carriers in EasyPost');
   console.log('  3. Test checkout with a shippable product');
 }
 

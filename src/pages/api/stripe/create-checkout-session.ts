@@ -318,7 +318,7 @@ const resolveRequiresShipping = (product?: ShippingProduct, item?: CheckoutCartI
   return true;
 };
 
-const buildParcelcraftProductMetadata = (
+const buildShippingProductMetadata = (
   product?: ShippingProduct,
   item?: CheckoutCartItem
 ): Record<string, string> => {
@@ -339,23 +339,22 @@ const buildParcelcraftProductMetadata = (
       : parseBoxDimensions(product.boxDimensions);
 
   const metadata: Record<string, string> = {
-    // CRITICAL: Parcelcraft uses this flag to detect shippable products
+    // Stripe uses this flag to detect shippable products
     shipping_required: 'true',
     customs_description: 'Parts and accessories of the motor vehicles of headings 8701 to 8705:',
     origin_country: 'US',
     tariff_code: '8708'
   };
-  // CRITICAL: Parcelcraft metadata field names MUST match exactly
-  // Based on Stripe Parcelcraft documentation
+  // Stripe product metadata must include weight and dimensions for rate calculation
   if (typeof weight === 'number' && Number.isFinite(weight) && weight > 0) {
     metadata.package_weight = String(weight);
-    metadata.package_weight_unit = 'pound'; // Parcelcraft requires 'pound' not 'lb'
+    metadata.package_weight_unit = 'pound';
   }
   if (dimensions) {
     metadata.package_length = String(dimensions.length);
     metadata.package_width = String(dimensions.width);
     metadata.package_height = String(dimensions.height);
-    metadata.dimensions_unit = 'inch'; // Parcelcraft requires 'inch' not 'in'
+    metadata.dimensions_unit = 'inch';
   }
   return metadata;
 };
@@ -671,10 +670,6 @@ export async function POST({ request }: { request: Request }) {
       return jsonResponse({ error: 'Unable to load Stripe price metadata' }, 400);
     }
   }
-  const useDynamicShippingRates = resolveBooleanEnv(
-    readEnvValue('STRIPE_USE_DYNAMIC_SHIPPING_RATES'),
-    true
-  );
   const allowMissingShippingRates = resolveBooleanEnv(
     readEnvValue('STRIPE_ALLOW_MISSING_SHIPPING_RATES'),
     false
@@ -698,7 +693,7 @@ export async function POST({ request }: { request: Request }) {
   };
 
   const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
-  const parcelcraftLineItemMeta: Array<{
+  const shippingLineItemMeta: Array<{
     name?: string;
     price?: string;
     metadata: Record<string, string>;
@@ -767,8 +762,8 @@ export async function POST({ request }: { request: Request }) {
         );
       } else {
         const stripeMeta = liveStripeProduct?.metadata ?? {};
-        const parcelcraftMeta = buildParcelcraftProductMetadata(product, item);
-        const mergedMetadata: Record<string, string> = { ...stripeMeta, ...parcelcraftMeta };
+        const shippingMeta = buildShippingProductMetadata(product, item);
+        const mergedMetadata: Record<string, string> = { ...stripeMeta, ...shippingMeta };
         const packageDimensions = toPackageDimensions(mergedMetadata);
 
         if (isShippable) {
@@ -778,7 +773,7 @@ export async function POST({ request }: { request: Request }) {
             !mergedMetadata.origin_country
           ) {
             return jsonResponse(
-              { error: 'Parcelcraft shipping metadata required for Stripe price items' },
+              { error: 'Shipping metadata required for Stripe price items' },
               400
             );
           }
@@ -805,7 +800,7 @@ export async function POST({ request }: { request: Request }) {
           price: stripePriceId,
           quantity
         });
-        parcelcraftLineItemMeta.push({
+        shippingLineItemMeta.push({
           name:
             (stripeProduct && !('deleted' in stripeProduct) ? stripeProduct.name : undefined) ||
             item.name ||
@@ -832,25 +827,25 @@ export async function POST({ request }: { request: Request }) {
       ...(sanityProductId ? { sanity_product_id: sanityProductId } : {})
     };
 
-    // Build Parcelcraft metadata and validate for shippable items
-    const parcelcraftMeta = buildParcelcraftProductMetadata(product, item);
+    // Build shipping metadata and validate for shippable items
+    const shippingMeta = buildShippingProductMetadata(product, item);
     const isItemShippable = resolveRequiresShipping(product, item);
-    const hasParcelcraftMeta = Boolean(
-      parcelcraftMeta.package_weight &&
-      parcelcraftMeta.package_weight_unit &&
-      parcelcraftMeta.origin_country &&
-      parcelcraftMeta.shipping_required
+    const hasShippingMeta = Boolean(
+      shippingMeta.package_weight &&
+      shippingMeta.package_weight_unit &&
+      shippingMeta.origin_country &&
+      shippingMeta.shipping_required
     );
 
-    // Validate Parcelcraft metadata for shippable items
-    if (isItemShippable && !hasParcelcraftMeta) {
+    // Validate shipping metadata for shippable items
+    if (isItemShippable && !hasShippingMeta) {
       const productId = product?._id || sanityProductId || item.sku || 'unknown';
-      console.error('[checkout] Missing Parcelcraft metadata for shippable item', {
+      console.error('[checkout] Missing shipping metadata for shippable item', {
         productId,
         itemName: item.name,
-        hasWeight: Boolean(parcelcraftMeta.package_weight),
-        hasOriginCountry: Boolean(parcelcraftMeta.origin_country),
-        hasShippingRequired: Boolean(parcelcraftMeta.shipping_required)
+        hasWeight: Boolean(shippingMeta.package_weight),
+        hasOriginCountry: Boolean(shippingMeta.origin_country),
+        hasShippingRequired: Boolean(shippingMeta.shipping_required)
       });
       return jsonResponse(
         {
@@ -861,8 +856,8 @@ export async function POST({ request }: { request: Request }) {
       );
     }
 
-    // Merge Parcelcraft metadata into main metadata object
-    Object.assign(metadata, parcelcraftMeta);
+    // Merge shipping metadata into main metadata object
+    Object.assign(metadata, shippingMeta);
     const packageDimensions = toPackageDimensions(metadata);
     const optionsValue = toMetadataValue(item.options ?? item.selections ?? null);
     if (optionsValue) {
@@ -956,9 +951,9 @@ export async function POST({ request }: { request: Request }) {
       metadata
     });
 
-    // Log product creation for Parcelcraft debugging
+    // Log product creation for shipping metadata debugging
     if (isItemShippable) {
-      console.log('[checkout] Created shippable product for Parcelcraft:', {
+      console.log('[checkout] Created shippable product for shipping:', {
         productId: stripeProduct.id,
         productName: stripeProduct.name,
         shippable: stripeProduct.shippable,
@@ -970,8 +965,8 @@ export async function POST({ request }: { request: Request }) {
         hasPackageDimensions: !!stripeProduct.package_dimensions,
         hasDimensionsUnit: !!metadata.dimensions_unit,
         allMetadataKeys: Object.keys(metadata),
-        // Show actual Parcelcraft values
-        parcelcraftMetadata: {
+        // Show actual shipping values
+        shippingMetadata: {
           shipping_required: metadata.shipping_required,
           package_weight: metadata.package_weight,
           package_weight_unit: metadata.package_weight_unit,
@@ -1000,7 +995,7 @@ export async function POST({ request }: { request: Request }) {
       price: stripePrice.id,
       quantity
     } satisfies Stripe.Checkout.SessionCreateParams.LineItem);
-    parcelcraftLineItemMeta.push({
+    shippingLineItemMeta.push({
       name: stripeProduct.name,
       price: stripePrice.id,
       metadata
@@ -1112,16 +1107,6 @@ export async function POST({ request }: { request: Request }) {
       });
     }
 
-    if (!useDynamicShippingRates && shippingRequired) {
-      return jsonResponse(
-        {
-          error:
-            'Static shipping rates are disabled. Enable STRIPE_USE_DYNAMIC_SHIPPING_RATES for Parcelcraft.'
-        },
-        400
-      );
-    }
-
     const hasStaticRatePayload =
       'shippingRate' in bodyRecord || 'shipping_rate' in bodyRecord || 'selectedRate' in bodyRecord;
 
@@ -1140,21 +1125,21 @@ export async function POST({ request }: { request: Request }) {
 
     if (shippingRequired) {
       console.warn(
-        '[checkout] Static shipping rates are disabled; Parcelcraft must supply dynamic rates.'
+        '[checkout] Static shipping rates are disabled; Stripe Checkout must supply dynamic rates.'
       );
-      // Log Parcelcraft configuration for debugging
-      const shippableItemCount = parcelcraftLineItemMeta.filter((item) => {
+      // Log shipping configuration for debugging
+      const shippableItemCount = shippingLineItemMeta.filter((item) => {
         const meta = item.metadata;
         return meta.shipping_required === 'true' && meta.package_weight && meta.origin_country;
       }).length;
-      console.log('[checkout] Parcelcraft configuration check', {
+      console.log('[checkout] Shipping configuration check', {
         shippingRequired,
         lineItemCount: lineItems.length,
         shippableItemCount,
         invoiceCreationEnabled: true,
         shippingAddressCollectionEnabled: true
       });
-      const parcelcraftMetaSnapshot = parcelcraftLineItemMeta.map((item, index) => {
+      const shippingMetaSnapshot = shippingLineItemMeta.map((item, index) => {
         const metadata = item.metadata || {};
         return {
           index,
@@ -1171,7 +1156,7 @@ export async function POST({ request }: { request: Request }) {
           dimensions_unit: metadata.dimensions_unit ?? null
         };
       });
-      console.log('[checkout] Parcelcraft line item metadata', parcelcraftMetaSnapshot);
+      console.log('[checkout] Shipping line item metadata', shippingMetaSnapshot);
     }
 
     const paymentIntentMetadata = { ...metadataForSession };
@@ -1183,7 +1168,7 @@ export async function POST({ request }: { request: Request }) {
     // - Stripe calls our webhook endpoint when customer enters shipping address
     // - Webhook forwards to fas-sanity to calculate EasyPost rates
     // - Rates appear dynamically in Stripe Checkout UI
-    console.log('[checkout] Using Stripe Adaptive Pricing with EasyPost for dynamic shipping rates');
+    console.log('[checkout] Using Stripe Checkout with EasyPost for dynamic shipping rates');
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       // CRITICAL: Use embedded mode for dynamic shipping
@@ -1255,23 +1240,23 @@ export async function POST({ request }: { request: Request }) {
         sessionParams.shipping_address_collection?.allowed_countries,
       invoiceCreationEnabled: sessionParams.invoice_creation?.enabled,
       lineItemCount: sessionParams.line_items?.length,
-      hasDynamicShippingRates: useDynamicShippingRates,
+      hasDynamicShippingRates: true,
       automaticTaxEnabled: sessionParams.automatic_tax?.enabled,
       locale: sessionParams.locale,
       hasPermissions: !!(sessionParams as any).permissions,
       permissionsUpdateShipping: (sessionParams as any).permissions?.update_shipping_details
     });
 
-    // Log detailed product information for Parcelcraft debugging
+    // Log detailed product information for shipping metadata debugging
     if (shippingRequired) {
-      console.log('[checkout] Parcelcraft product verification - checking Stripe products...');
+      console.log('[checkout] Shipping product verification - checking Stripe products...');
       for (const lineItem of lineItems) {
         if (lineItem.price && typeof lineItem.price === 'string') {
           try {
             const price = await stripe.prices.retrieve(lineItem.price, { expand: ['product'] });
             const product = typeof price.product === 'string' ? undefined : price.product;
             if (product && !('deleted' in product)) {
-              console.log('[checkout] Product details for Parcelcraft:', {
+              console.log('[checkout] Product details for shipping:', {
                 productId: product.id,
                 productName: product.name,
                 productType: product.type,
@@ -1318,24 +1303,24 @@ export async function POST({ request }: { request: Request }) {
       automaticTaxEnabled: session.automatic_tax?.enabled
     });
 
-    // Final Parcelcraft diagnostic
+    // Final shipping diagnostic
     if (shippingRequired) {
-      console.log('[checkout] 🔍 Parcelcraft Diagnostic Summary:', {
+      console.log('[checkout] 🔍 Shipping Diagnostic Summary:', {
         sessionId: session.id,
         uiMode: 'embedded',
         hasShippingAddressCollection: !!session.shipping_address_collection,
         invoiceCreationEnabled: session.invoice_creation?.enabled,
         lineItemCount: lineItems.length,
-        shippableProductsCount: parcelcraftLineItemMeta.filter(
+        shippableProductsCount: shippingLineItemMeta.filter(
           (item) => item.metadata?.shipping_required === 'true'
         ).length,
-        allProductsHaveWeight: parcelcraftLineItemMeta.every(
+        allProductsHaveWeight: shippingLineItemMeta.every(
           (item) => item.metadata?.shipping_required !== 'true' || item.metadata?.package_weight
         ),
-        allProductsHaveOriginCountry: parcelcraftLineItemMeta.every(
+        allProductsHaveOriginCountry: shippingLineItemMeta.every(
           (item) => item.metadata?.shipping_required !== 'true' || item.metadata?.origin_country
         ),
-        note: 'If shipping rates still do not appear, verify Parcelcraft is installed and configured in Stripe Dashboard (Apps → Parcelcraft → Settings)'
+        note: 'If shipping rates do not appear, verify Stripe dynamic rates are configured.'
       });
     }
 
