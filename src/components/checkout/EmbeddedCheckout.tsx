@@ -34,9 +34,13 @@ interface CheckoutSessionResponse {
 }
 
 const CLIENT_SECRET_PATTERN = /^cs_(?:live|test)_[A-Za-z0-9]+_secret_[A-Za-z0-9]+$/;
+const SESSION_ID_PATTERN = /^cs_(?:live|test)_[A-Za-z0-9]+$/;
 
 const isValidClientSecret = (secret: unknown): secret is string =>
   typeof secret === 'string' && CLIENT_SECRET_PATTERN.test(secret);
+
+const isSessionId = (value: unknown): value is string =>
+  typeof value === 'string' && SESSION_ID_PATTERN.test(value);
 
 export default function EmbeddedCheckout() {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
@@ -157,6 +161,24 @@ export default function EmbeddedCheckout() {
     };
   }, [clientSecret, checkoutReady]);
 
+  const resolveClientSecret = async (sessionId: string): Promise<string | null> => {
+    try {
+      const response = await fetch(
+        `/api/stripe/retrieve-checkout-session?session_id=${encodeURIComponent(
+          sessionId
+        )}&include_client_secret=1`
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data?.error || 'Unable to retrieve checkout session');
+      }
+      return isValidClientSecret(data?.clientSecret) ? data.clientSecret : null;
+    } catch (err) {
+      console.error('[EmbeddedCheckout] Failed to resolve client secret:', err);
+      return null;
+    }
+  };
+
   const loadCheckoutSession = async () => {
     try {
       setLoading(true);
@@ -175,6 +197,20 @@ export default function EmbeddedCheckout() {
           // Clear it so refresh doesn't reuse stale session
           sessionStorage.removeItem('stripe_checkout_session');
           return;
+        }
+
+        if (isSessionId(sessionData?.clientSecret) || isSessionId(sessionData?.sessionId)) {
+          const sessionId = isSessionId(sessionData?.clientSecret)
+            ? sessionData.clientSecret
+            : sessionData.sessionId;
+          console.warn('[EmbeddedCheckout] Resolving client secret for session:', sessionId);
+          const resolvedSecret = await resolveClientSecret(sessionId);
+          if (resolvedSecret) {
+            setClientSecret(resolvedSecret);
+            setLoading(false);
+            sessionStorage.removeItem('stripe_checkout_session');
+            return;
+          }
         }
 
         if (sessionData?.clientSecret) {
@@ -224,13 +260,22 @@ export default function EmbeddedCheckout() {
       }
 
       const data: CheckoutSessionResponse = await response.json();
+      let resolvedClientSecret = isValidClientSecret(data.clientSecret) ? data.clientSecret : null;
 
-      if (!isValidClientSecret(data.clientSecret)) {
+      if (!resolvedClientSecret && isSessionId(data.clientSecret)) {
+        resolvedClientSecret = await resolveClientSecret(data.clientSecret);
+      }
+
+      if (!resolvedClientSecret && isSessionId(data.sessionId)) {
+        resolvedClientSecret = await resolveClientSecret(data.sessionId);
+      }
+
+      if (!resolvedClientSecret) {
         throw new Error('No client secret returned from server');
       }
 
       console.log('[EmbeddedCheckout] Session created:', data.sessionId);
-      setClientSecret(data.clientSecret);
+      setClientSecret(resolvedClientSecret);
       setLoading(false);
     } catch (err) {
       console.error('[EmbeddedCheckout] Error:', err);

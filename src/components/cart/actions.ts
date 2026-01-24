@@ -219,6 +219,7 @@ export async function redirectToCheckout() {
   }
 
   try {
+    console.log('[checkout] Starting checkout session creation...');
     const response = await fetch('/api/stripe/create-checkout-session', {
       method: 'POST',
       headers: {
@@ -227,23 +228,42 @@ export async function redirectToCheckout() {
       body: JSON.stringify({ cart: cart.items })
     });
 
+    // Log response metadata for debugging
+    console.log('[checkout] Response received:', {
+      status: response.status,
+      statusText: response.statusText,
+      contentType: response.headers.get('content-type'),
+      ok: response.ok
+    });
+
     let payload: any = null;
+    let rawText: string | null = null;
     try {
-      payload = (await response.json()) as any;
-    } catch {
+      // Clone response to read as text for debugging if JSON parse fails
+      rawText = await response.clone().text();
+      payload = await response.json();
+    } catch (parseError) {
+      // Log the actual response content when JSON parsing fails
+      console.error('[checkout] JSON parse error:', parseError);
+      console.error('[checkout] Raw response (first 500 chars):', rawText?.slice(0, 500));
+      console.error('[checkout] This often indicates the server returned HTML (error page) instead of JSON');
       payload = null;
     }
 
     // Embedded Checkout: API returns clientSecret, redirect to /checkout page
     // Hosted Checkout (old): API returns url, redirect to Stripe
     if (!response.ok) {
-      console.error('Checkout session creation failed', response.status, payload);
-      return payload?.error || 'Unable to start checkout. Please try again.';
+      console.error('[checkout] Session creation failed:', {
+        status: response.status,
+        error: payload?.error,
+        fullPayload: payload
+      });
+      return payload?.error || `Checkout failed (HTTP ${response.status}). Please try again.`;
     }
 
     if (payload?.clientSecret) {
       // New: Embedded Checkout - save session info and redirect to our checkout page
-      console.log('Redirecting to embedded checkout');
+      console.log('[checkout] ✅ Redirecting to embedded checkout with clientSecret');
       sessionStorage.setItem('stripe_checkout_session', JSON.stringify({
         clientSecret: payload.clientSecret,
         sessionId: payload.sessionId
@@ -251,14 +271,23 @@ export async function redirectToCheckout() {
       window.location.href = '/checkout';
     } else if (payload?.url) {
       // Old: Hosted Checkout - redirect to Stripe
-      console.log('Redirecting to Stripe hosted checkout');
+      console.log('[checkout] Redirecting to Stripe hosted checkout');
       window.location.href = resolveCheckoutUrl(payload.url);
     } else {
-      console.error('Invalid response - missing clientSecret and url', payload);
-      return 'Unable to start checkout. Please try again.';
+      // Detailed diagnostic for missing clientSecret
+      console.error('[checkout] ❌ Invalid response - missing clientSecret and url');
+      console.error('[checkout] Payload received:', JSON.stringify(payload, null, 2));
+      console.error('[checkout] Expected: { clientSecret: "cs_..._secret_...", sessionId: "cs_..." }');
+      if (payload?.error) {
+        return `Checkout error: ${payload.error}`;
+      }
+      return 'Unable to start checkout: No client secret returned. Check browser console for details.';
     }
   } catch (error) {
-    console.error('Checkout redirect failed', error);
+    console.error('[checkout] ❌ Checkout redirect failed:', error);
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      return 'Network error: Unable to reach checkout server. Please check your connection.';
+    }
     return 'Unable to start checkout. Please try again.';
   }
 }

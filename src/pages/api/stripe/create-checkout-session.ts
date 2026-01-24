@@ -1305,6 +1305,7 @@ export async function POST({ request }: { request: Request }) {
       invoiceCreationEnabled: session.invoice_creation?.enabled,
       automaticTaxEnabled: session.automatic_tax?.enabled
     });
+    console.log('[checkout] Stripe client_secret returned directly:', !!session.client_secret);
 
     // Final shipping diagnostic
     if (shippingRequired) {
