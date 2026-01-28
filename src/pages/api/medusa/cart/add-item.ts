@@ -58,6 +58,18 @@ export const POST: APIRoute = async ({ request }) => {
   const cartItems = sanitizeCartItems(body?.cart?.items ?? body?.items ?? body?.cartItems);
   const metadataPayload = { local_cart_items: cartItems };
 
+  const missingVariants = cartItems.filter((item) => !item.medusaVariantId).map((item) => item.id);
+  if (missingVariants.length) {
+    return jsonResponse(
+      {
+        error: 'Missing medusaVariantId for one or more items.',
+        missingItems: missingVariants
+      },
+      { status: 400 },
+      { noIndex: true }
+    );
+  }
+
   const updateResponse = await medusaFetch(`/store/carts/${cartId}`, {
     method: 'POST',
     body: JSON.stringify({ metadata: metadataPayload })
@@ -72,50 +84,37 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  const warnings: string[] = [];
-  const fallbackVariantId = config.fallbackVariantId?.trim() || '';
   for (const item of cartItems) {
-    const variantId = item.medusaVariantId || fallbackVariantId;
-    const usingFallback = !item.medusaVariantId && Boolean(fallbackVariantId);
-    if (!variantId) {
-      warnings.push(
-        `No medusaVariantId for cart item ${item.id}; line item not added to Medusa.`
-      );
-      continue;
-    }
     const lineItemResponse = await medusaFetch(`/store/carts/${cartId}/line-items`, {
       method: 'POST',
       body: JSON.stringify({
-        variant_id: variantId,
+        variant_id: item.medusaVariantId,
         quantity: Math.max(1, item.quantity ?? 1),
         metadata: {
           local_item_id: item.id,
           sku: item.sku,
           product_url: item.productUrl,
           shipping_class: item.shippingClass,
-          install_only: item.installOnly ?? false,
-          placeholder_variant: usingFallback
+          install_only: item.installOnly ?? false
         }
       })
     });
     if (!lineItemResponse.ok) {
       const lineItemData = await readJsonSafe<any>(lineItemResponse);
-      warnings.push(
-        `Failed to add Medusa line item for ${item.id}: ${
-          lineItemData?.message || lineItemResponse.status
-        }`
-      );
-    } else if (usingFallback) {
-      warnings.push(
-        `Used fallback Medusa variant for cart item ${item.id}; replace when mapping is ready.`
+      return jsonResponse(
+        {
+          error: `Failed to add Medusa line item for ${item.id}.`,
+          details: lineItemData
+        },
+        { status: lineItemResponse.status },
+        { noIndex: true }
       );
     }
   }
 
   return jsonResponse(
     {
-      cart: updateData?.cart ?? null,
-      warnings
+      cart: updateData?.cart ?? null
     },
     { status: 200 },
     { noIndex: true }

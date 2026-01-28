@@ -77,11 +77,15 @@ async function ensureCartId(): Promise<string | null> {
 
 async function syncCartToMedusa(cartId: string) {
   const cart = getCart();
-  await fetch("/api/medusa/cart/add-item", {
+  const response = await fetch("/api/medusa/cart/add-item", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ cartId, cart })
   });
+  if (!response.ok) {
+    const payload = await response.json().catch(() => null);
+    throw new Error(payload?.error || "Unable to sync cart to Medusa.");
+  }
 }
 
 export default function MedusaShippingOptions() {
@@ -89,6 +93,8 @@ export default function MedusaShippingOptions() {
   const [address, setAddress] = useState<AddressState>(EMPTY_ADDRESS);
   const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
   const [loading, setLoading] = useState(false);
+  const [paying, setPaying] = useState(false);
+  const [selectedOptionId, setSelectedOptionId] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -170,6 +176,7 @@ export default function MedusaShippingOptions() {
       }
 
       setShippingOptions(Array.isArray(optionsPayload?.shippingOptions) ? optionsPayload.shippingOptions : []);
+      setSelectedOptionId("");
     } catch (err: any) {
       setError(err?.message || "Unable to load shipping options.");
       setShippingOptions([]);
@@ -180,6 +187,68 @@ export default function MedusaShippingOptions() {
 
   const currency =
     shippingOptions.find((option) => option?.region?.currency_code)?.region?.currency_code || "USD";
+
+  const handleSelectOption = async (optionId: string) => {
+    setError(null);
+    try {
+      const id = cartId || (await ensureCartId());
+      if (!id) {
+        throw new Error("Unable to initialize cart.");
+      }
+      setCartId(id);
+      await syncCartToMedusa(id);
+
+      const response = await fetch("/api/medusa/cart/select-shipping", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cartId: id, optionId })
+      });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new Error(payload?.error || "Unable to select shipping option.");
+      }
+
+      setSelectedOptionId(optionId);
+    } catch (err: any) {
+      setError(err?.message || "Unable to select shipping option.");
+      setSelectedOptionId("");
+    }
+  };
+
+  const handleCheckout = async () => {
+    setError(null);
+    setPaying(true);
+    try {
+      const id = cartId || (await ensureCartId());
+      if (!id) {
+        throw new Error("Unable to initialize cart.");
+      }
+      if (!selectedOptionId) {
+        throw new Error("Select a shipping option to continue.");
+      }
+
+      const response = await fetch("/api/medusa/checkout/create-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cartId: id })
+      });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new Error(payload?.error || "Unable to start Stripe checkout.");
+      }
+
+      if (payload?.url) {
+        window.location.href = payload.url;
+        return;
+      }
+
+      throw new Error("Stripe checkout URL missing.");
+    } catch (err: any) {
+      setError(err?.message || "Unable to start payment.");
+    } finally {
+      setPaying(false);
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -281,11 +350,23 @@ export default function MedusaShippingOptions() {
         ) : (
           <ul className="mt-4 space-y-3 text-sm text-white/80">
             {shippingOptions.map((option) => (
-              <li key={option.id} className="flex items-center justify-between rounded-md border border-white/10 px-4 py-3">
-                <div>
-                  <p className="font-medium text-white">{option.name || "Shipping option"}</p>
-                  <p className="text-xs text-white/60">{option.price_type || "flat_rate"}</p>
-                </div>
+              <li
+                key={option.id}
+                className="flex items-center justify-between rounded-md border border-white/10 px-4 py-3"
+              >
+                <label className="flex items-center gap-3">
+                  <input
+                    type="radio"
+                    name="shipping-option"
+                    className="h-4 w-4 accent-primary"
+                    checked={selectedOptionId === option.id}
+                    onChange={() => handleSelectOption(option.id)}
+                  />
+                  <div>
+                    <p className="font-medium text-white">{option.name || "Shipping option"}</p>
+                    <p className="text-xs text-white/60">{option.price_type || "flat_rate"}</p>
+                  </div>
+                </label>
                 <span className="font-semibold text-primary">
                   {formatCurrency(option.amount, option.region?.currency_code || currency)}
                 </span>
@@ -293,18 +374,22 @@ export default function MedusaShippingOptions() {
             ))}
           </ul>
         )}
-        <p className="mt-4 text-xs text-white/50">
-          TODO: Replace fallback Medusa variant IDs with real product mappings before enabling
-          checkout.
-        </p>
       </div>
 
       <div className="rounded-lg border border-white/10 bg-black/30 p-6">
         <h2 className="text-xl font-semibold text-white">Payment</h2>
         <p className="mt-2 text-sm text-white/70">
-          TODO: Checkout payment is not enabled yet. We will reintroduce payment after Medusa cart
-          validation is complete.
+          Continue to Stripe Checkout to complete payment. Shipping rates are sourced from Medusa +
+          Shippo (USPS/UPS only).
         </p>
+        <button
+          type="button"
+          onClick={handleCheckout}
+          disabled={!selectedOptionId || paying}
+          className="mt-4 inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-black disabled:opacity-60"
+        >
+          {paying ? "Redirecting to Stripe..." : "Continue to Payment"}
+        </button>
       </div>
     </div>
   );

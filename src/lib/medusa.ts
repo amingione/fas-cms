@@ -4,7 +4,6 @@ type MedusaConfig = {
   baseUrl: string;
   publishableKey?: string;
   regionId?: string;
-  fallbackVariantId?: string;
 };
 
 export function getMedusaConfig(): MedusaConfig | null {
@@ -21,11 +20,7 @@ export function getMedusaConfig(): MedusaConfig | null {
   const regionId =
     (import.meta.env.MEDUSA_REGION_ID as string | undefined) ||
     (process.env.MEDUSA_REGION_ID as string | undefined);
-  const fallbackVariantId =
-    (import.meta.env.MEDUSA_FALLBACK_VARIANT_ID as string | undefined) ||
-    (process.env.MEDUSA_FALLBACK_VARIANT_ID as string | undefined);
-
-  return { baseUrl, publishableKey, regionId, fallbackVariantId };
+  return { baseUrl, publishableKey, regionId };
 }
 
 export function buildMedusaHeaders(

@@ -11,7 +11,7 @@ export type CheckoutStatus =
 
 export type CheckoutRate = {
   id: string
-  provider: 'easypost'
+  provider: 'shippo' | 'medusa'
   carrier: string
   service: string
   amountCents: number

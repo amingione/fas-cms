@@ -25,7 +25,7 @@ function normalizeAddress(input: any): Record<string, string> | null {
     city: address.city?.trim() || '',
     province: address.province?.trim() || '',
     postal_code: address.postalCode?.trim() || '',
-    country_code: address.countryCode?.trim() || '',
+    country_code: address.countryCode?.trim().toLowerCase() || '',
     phone: address.phone?.trim() || ''
   };
 
@@ -60,6 +60,14 @@ export const POST: APIRoute = async ({ request }) => {
 
   if (!shippingAddress) {
     return jsonResponse({ error: 'Invalid shipping address.' }, { status: 400 }, { noIndex: true });
+  }
+
+  if (shippingAddress.country_code.toUpperCase() !== 'US') {
+    return jsonResponse(
+      { error: 'Only US shipping addresses are supported.' },
+      { status: 400 },
+      { noIndex: true }
+    );
   }
 
   const payload: Record<string, any> = {

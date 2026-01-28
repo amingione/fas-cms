@@ -3,7 +3,9 @@ import { jsonResponse } from '@/server/http/responses';
 import { getMedusaConfig, medusaFetch, readJsonSafe } from '@/lib/medusa';
 
 async function fetchShippingOptions(cartId: string) {
-  const primary = await medusaFetch(`/store/shipping-options/${cartId}`, { method: 'GET' });
+  const primary = await medusaFetch(`/store/shipping-options?cart_id=${encodeURIComponent(cartId)}`, {
+    method: 'GET'
+  });
   if (primary.ok) {
     return primary;
   }
@@ -44,8 +46,39 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
+  const options = Array.isArray(data?.shipping_options)
+    ? data.shipping_options
+    : Array.isArray(data?.shippingOptions)
+      ? data.shippingOptions
+      : [];
+
+  const allowed = options.filter((option: any) => {
+    const carrier = String(option?.data?.carrier || '').toLowerCase();
+    return carrier === 'ups' || carrier === 'usps';
+  });
+
+  const withRates = [];
+  for (const option of allowed) {
+    const calcResponse = await medusaFetch(`/store/shipping-options/${option.id}/calculate`, {
+      method: 'POST',
+      body: JSON.stringify({
+        cart_id: cartId,
+        data: option?.data ?? {}
+      })
+    });
+    const calcData = await readJsonSafe<any>(calcResponse);
+    if (!calcResponse.ok) {
+      return jsonResponse(
+        { error: calcData?.message || 'Failed to calculate shipping rate.', details: calcData },
+        { status: calcResponse.status },
+        { noIndex: true }
+      );
+    }
+    withRates.push(calcData?.shipping_option ?? option);
+  }
+
   return jsonResponse(
-    { shippingOptions: data?.shipping_options ?? data?.shippingOptions ?? [] },
+    { shippingOptions: withRates },
     { status: 200 },
     { noIndex: true }
   );

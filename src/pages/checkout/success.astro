@@ -10,14 +10,13 @@ const pageDescription =
 <BaseLayout title={pageTitle} description={pageDescription}>
   <section class="min-h-[85vh] bg-dark text-white">
     <div class="mx-auto max-w-3xl px-6 py-20">
-      <!-- TODO: Replace with the new order confirmation details. -->
-      <h1 class="text-3xl font-bold tracking-tight">Order confirmation pending</h1>
-      <p class="mt-4 text-white/70">
-        We are currently upgrading the checkout flow. If you completed a purchase, please contact
-        our team so we can confirm your order details.
+      <h1 class="text-3xl font-bold tracking-tight">Order confirmed</h1>
+      <p class="mt-4 text-white/70" id="order-status">
+        Finalizing your order with Medusa…
       </p>
-      <a href="/contact" class="mt-6 inline-block text-primary underline">
-        Contact support
+      <p class="mt-4 text-white/70" id="order-id"></p>
+      <a href="/" class="mt-6 inline-block text-primary underline">
+        Continue shopping
       </a>
       <div class="mt-12">
         <TrustStrip />
@@ -25,3 +24,39 @@ const pageDescription =
     </div>
   </section>
 </BaseLayout>
+
+<script is:inline>
+  const statusEl = document.getElementById('order-status');
+  const orderIdEl = document.getElementById('order-id');
+  const params = new URLSearchParams(window.location.search);
+  const sessionId = params.get('session_id');
+
+  async function finalizeOrder() {
+    if (!sessionId) {
+      statusEl.textContent = 'Missing Stripe session id. Please contact support.';
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/medusa/checkout/complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId })
+      });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) {
+        statusEl.textContent = payload?.error || 'Unable to finalize order.';
+        return;
+      }
+      const orderId = payload?.order?.id;
+      statusEl.textContent = 'Your order is confirmed.';
+      if (orderId) {
+        orderIdEl.textContent = `Order ID: ${orderId}`;
+      }
+    } catch (err) {
+      statusEl.textContent = 'Unable to finalize order. Please contact support.';
+    }
+  }
+
+  finalizeOrder();
+</script>
