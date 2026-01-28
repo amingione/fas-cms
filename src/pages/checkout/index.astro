@@ -1,19 +1,6 @@
 ---
-/**
- * Stripe Embedded Checkout Page
- *
- * This page embeds the Stripe Checkout directly on your site.
- * Benefits:
- * - Customer never leaves your site
- * - Real-time shipping rate updates via EasyPost
- * - Better UX with no redirects
- * - Full styling control
- */
-
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import EmbeddedCheckout from '@/components/checkout/EmbeddedCheckout';
-
-// Get cart from session/localStorage on server side if needed
+import MedusaShippingOptions from '@/components/checkout/MedusaShippingOptions';
 const pageTitle = 'Checkout | FAS Motorsports';
 const pageDescription = 'Complete your purchase';
 ---
@@ -23,24 +10,8 @@ const pageDescription = 'Complete your purchase';
     <div class="container mx-auto px-4 py-8 max-w-4xl">
       <h1 class="text-3xl font-bold mb-6">Checkout</h1>
 
-      <!-- Embedded Checkout Component -->
       <div id="checkout-container" class="bg-base rounded-lg shadow-lg p-6">
-        <EmbeddedCheckout client:load />
-      </div>
-
-      <!-- Loading State -->
-      <div id="checkout-loading" class="text-center py-12">
-        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-200"></div>
-        <p class="mt-4 text-gray-200">Loading checkout...</p>
-      </div>
-
-      <!-- Error State -->
-      <div id="checkout-error" class="hidden bg-red-50 border border-red-200 rounded-lg p-6">
-        <h2 class="text-xl font-semibold text-red-800 mb-2">Checkout Error</h2>
-        <p class="text-red-700 mb-4">We encountered an error loading the checkout form.</p>
-        <a href="/cart" class="inline-block bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700">
-          Return to Cart
-        </a>
+        <MedusaShippingOptions client:load />
       </div>
     </div>
   </main>
@@ -53,12 +24,6 @@ const pageDescription = 'Complete your purchase';
   }
 
   #checkout-container {
-    min-height: 600px;
-  }
-
-  /* Stripe Embedded Checkout will inject content here */
-  #checkout-container iframe {
-    width: 100%;
-    min-height: 600px;
+    min-height: 240px;
   }
 </style>

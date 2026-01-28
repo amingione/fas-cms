@@ -90,7 +90,7 @@ Webhook creates EasyPost label post-purchase
    ```
    https://fasmotorsports.com/api/stripe/shipping-rates-webhook
    ```
-5. Copy the webhook signing secret (starts with `whsec_`)
+5. Copy the webhook signing secret (provided by Stripe Dashboard)
 
 ### 2. Environment Variables Setup
 
@@ -102,7 +102,7 @@ Add these variables to your `.env` file:
 # Stripe Configuration
 STRIPE_SECRET_KEY=sk_live...
 STRIPE_PUBLISHABLE_KEY=pk_live...
-STRIPE_SHIPPING_WEBHOOK_SECRET=whsec_LB37zu2i1xBwPTXtWgGiswM1uBBJSUHn
+STRIPE_SHIPPING_WEBHOOK_SECRET=YOUR_STRIPE_SHIPPING_WEBHOOK_SECRET
 
 # EasyPost Integration (Checkout Rates)
 EASYPOST_API_KEY=EZAK_...
@@ -189,7 +189,7 @@ SHIP_FROM_PHONE=555-123-4567
 {
   "shipping_rates": [
     {
-      "id": "rate_0_usps_priority",
+      "id": "dyn_<easypostRateId>",
       "display_name": "USPS Priority",
       "delivery_estimate": {
         "minimum": { "unit": "business_day", "value": 2 },
@@ -200,7 +200,7 @@ SHIP_FROM_PHONE=555-123-4567
         "currency": "usd"
       },
       "metadata": {
-        "easypost_rate_id": "rate_abc123",
+        "easypost_rate_id": "<easypostRateId>",
         "easypost_shipment_id": "shp_xyz789",
         "carrier": "USPS",
         "service": "Priority",
@@ -469,10 +469,10 @@ stripe listen --forward-to localhost:3000/api/stripe/shipping-rates-webhook
 
 ### Q: What about international shipping?
 
-**A:** Update `allowed_countries` in create-checkout-session.ts:
+**A:** Phase 1 hard-locks `allowed_countries` to US:
 ```typescript
 shipping_address_collection: {
-  allowed_countries: ['US', 'CA', 'GB', 'AU']
+  allowed_countries: ['US']
 }
 ```
 

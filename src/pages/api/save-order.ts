@@ -6,6 +6,7 @@ import { jsonResponse } from '@/server/http/responses';
 import { saveOrderRequestSchema } from '@/lib/validators/api-requests';
 import { stripeCheckoutSessionSchema } from '@/lib/validators/stripe';
 import { sanityCustomerSchema } from '@/lib/validators/sanity';
+import { STRIPE_API_VERSION } from '@/lib/stripe-config';
 
 /**
  * FIELD MAPPING CONTRACT
@@ -117,11 +118,8 @@ const deriveDeliveryEstimate = (
   };
 };
 
-const stripeApiVersion =
-  (import.meta.env.STRIPE_API_VERSION as string | undefined) || '2025-08-27.basil';
-
 const stripeClient = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: stripeApiVersion as Stripe.LatestApiVersion
+  apiVersion: STRIPE_API_VERSION as Stripe.LatestApiVersion
 });
 
 export const POST = async ({ request }: { request: Request }) => {
@@ -170,10 +168,6 @@ export const POST = async ({ request }: { request: Request }) => {
       shippingCost && typeof shippingCost.shipping_rate === 'object'
         ? (shippingCost.shipping_rate as Stripe.ShippingRate)
         : null;
-    const shippingRateId =
-      shippingCost && typeof shippingCost.shipping_rate === 'string'
-        ? shippingCost.shipping_rate
-        : (shippingRate?.id ?? null);
     const shippingRateMetadata =
       shippingRate?.metadata && typeof shippingRate.metadata === 'object'
         ? (shippingRate.metadata as Record<string, string | null | undefined>)
@@ -186,10 +180,13 @@ export const POST = async ({ request }: { request: Request }) => {
       const candidate = shippingRateMetadata[key] ?? sessionMetadata[key];
       return typeof candidate === 'string' && candidate.trim() ? candidate.trim() : undefined;
     };
-    const selectedRateId = extractShippingMeta('selected_rate_id') ?? shippingRateId ?? undefined;
-    const stripeShippingRateId =
-      shippingRateId ||
-      (selectedRateId && selectedRateId.startsWith('shr_') ? selectedRateId : undefined);
+    const easypostRateMeta =
+      extractShippingMeta('easypost_rate_id') ?? extractShippingMeta('easypostRateId');
+    const stripeShippingRateId = easypostRateMeta
+      ? easypostRateMeta.startsWith('dyn_')
+        ? easypostRateMeta
+        : `dyn_${easypostRateMeta}`
+      : undefined;
     const { carrier: displayCarrier, service: displayService } = splitShippingDisplayName(
       shippingRate?.display_name
     );

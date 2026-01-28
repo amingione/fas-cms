@@ -3,14 +3,12 @@ import { createClient } from '@sanity/client';
 import type { SanityDocumentStub } from '@sanity/client';
 import { createOrderCartItem, type OrderCartItem } from '@/server/sanity/order-cart';
 import { extractResendMessageId, safeJsonParse } from '@/lib/resend';
+import { STRIPE_API_VERSION } from '@/lib/stripe-config';
 
 /**
  * FIELD MAPPING CONTRACT
  * Canonical source: .docs/reports/field-to-api-map.md
  */
-
-const stripeApiVersion =
-  (import.meta.env.STRIPE_API_VERSION as string | undefined) || '2025-08-27.basil';
 
 const SANITY_PROJECT_ID =
   (import.meta.env.SANITY_PROJECT_ID as string | undefined) ||
@@ -25,7 +23,7 @@ const SANITY_DATASET =
 const SANITY_API_TOKEN = (import.meta.env.SANITY_API_TOKEN as string | undefined) || '';
 
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: stripeApiVersion as Stripe.LatestApiVersion
+  apiVersion: STRIPE_API_VERSION as Stripe.LatestApiVersion
 });
 
 const sanity = createClient({
@@ -61,6 +59,19 @@ const sanitizeString = (value?: string | null | undefined): string | null => {
   const trimmed = String(value).trim();
   return trimmed || null;
 };
+
+const REQUIRED_WAREHOUSE_KEYS = [
+  'WAREHOUSE_ADDRESS_LINE1',
+  'WAREHOUSE_CITY',
+  'WAREHOUSE_STATE',
+  'WAREHOUSE_ZIP'
+] as const;
+
+const findMissingWarehouseKeys = (): string[] =>
+  REQUIRED_WAREHOUSE_KEYS.filter((key) => {
+    const value = import.meta.env[key] ?? process.env[key];
+    return typeof value !== 'string' || !value.trim();
+  });
 
 const normalizePaymentStatus = (
   sessionStatus?: string | null,
@@ -275,11 +286,11 @@ export async function POST({ request }: { request: Request }) {
     );
   }
 
-  const secret = import.meta.env.STRIPE_WEBHOOK_SECRET;
+  const secret = import.meta.env.STRIPE_SHIPPING_WEBHOOK_SECRET;
 
   if (!secret) {
-    console.error('❌ Missing STRIPE_WEBHOOK_SECRET in env.');
-    return new Response('Webhook secret not configured.', { status: 500 });
+    console.error('❌ Missing STRIPE_SHIPPING_WEBHOOK_SECRET in env.');
+    return new Response('STRIPE_SHIPPING_WEBHOOK_SECRET is required.', { status: 500 });
   }
 
   const rawBody = await request.text();
@@ -301,6 +312,17 @@ export async function POST({ request }: { request: Request }) {
 
   // Handle event types
   switch (event.type) {
+    case 'checkout.session.async_shipping_rates': {
+      const missingWarehouse = findMissingWarehouseKeys();
+      if (missingWarehouse.length > 0) {
+        console.error('❌ Missing warehouse configuration for rates request:', missingWarehouse);
+        return new Response(
+          `Missing warehouse configuration: ${missingWarehouse.join(', ')}`,
+          { status: 500 }
+        );
+      }
+      break;
+    }
     case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session;
       const existingOrderId = await sanity.fetch<string | null>(
@@ -696,10 +718,6 @@ export async function POST({ request }: { request: Request }) {
           shippingCost && typeof shippingCost.shipping_rate === 'object'
             ? (shippingCost.shipping_rate as Stripe.ShippingRate)
             : null;
-        const shippingRateId =
-          shippingCost && typeof shippingCost.shipping_rate === 'string'
-            ? shippingCost.shipping_rate
-            : (shippingRate?.id ?? null);
         const shippingSelection = parseShippingSelection(sessionDetails, shippingRate);
         const shippingRateMetadata =
           shippingRate?.metadata && typeof shippingRate.metadata === 'object'
@@ -717,10 +735,13 @@ export async function POST({ request }: { request: Request }) {
         const shippingQuoteId = extractShippingMeta('shipping_quote_id');
         const shippingQuoteKey = extractShippingMeta('shipping_quote_key');
         const shippingQuoteRequestId = extractShippingMeta('shipping_quote_request_id');
-        const selectedRateId = extractShippingMeta('selected_rate_id') ?? shippingRateId;
-        const stripeShippingRateId =
-          shippingRateId ||
-          (selectedRateId && selectedRateId.startsWith('shr_') ? selectedRateId : null);
+        const easypostRateMeta =
+          extractShippingMeta('easypost_rate_id') ?? extractShippingMeta('easypostRateId');
+        const stripeShippingRateId = easypostRateMeta
+          ? easypostRateMeta.startsWith('dyn_')
+            ? easypostRateMeta
+            : `dyn_${easypostRateMeta}`
+          : null;
         const { carrier: displayCarrier, service: displayService } = splitShippingDisplayName(
           shippingRate?.display_name
         );

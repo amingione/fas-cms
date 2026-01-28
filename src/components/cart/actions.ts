@@ -1,4 +1,6 @@
-// Cart actions for Astro + client-side cart (localStorage) + Stripe checkout
+import { MEDUSA_CART_ID_KEY } from '@/lib/medusa';
+
+// Cart actions for Astro + client-side cart (localStorage).
 // These helpers are safe to import in client components. No Next.js/Shopify deps.
 
 const CART_KEY = 'fas_cart_v1';
@@ -22,6 +24,7 @@ export type CartItem = {
   productUrl?: string;
   sku?: string;
   stripePriceId?: string;
+  medusaVariantId?: string;
   productId?: string;
   productSlug?: string;
   upgrades?: unknown;
@@ -84,6 +87,54 @@ function saveCart(cart: Cart) {
   }
 }
 
+function readMedusaCartId(): string | null {
+  if (!isBrowser()) return null;
+  const raw = localStorage.getItem(MEDUSA_CART_ID_KEY);
+  return raw && raw.trim() ? raw.trim() : null;
+}
+
+function writeMedusaCartId(cartId: string) {
+  if (!isBrowser()) return;
+  localStorage.setItem(MEDUSA_CART_ID_KEY, cartId);
+}
+
+async function ensureMedusaCartId(): Promise<string | null> {
+  const existing = readMedusaCartId();
+  if (existing) return existing;
+  try {
+    const response = await fetch('/api/medusa/cart/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({})
+    });
+    const data = await response.json().catch(() => null);
+    const cartId = data?.cartId;
+    if (response.ok && typeof cartId === 'string' && cartId.trim()) {
+      writeMedusaCartId(cartId.trim());
+      return cartId.trim();
+    }
+  } catch (error) {
+    void error;
+  }
+  return null;
+}
+
+async function syncMedusaCart(cart: Cart) {
+  if (!isBrowser()) return;
+  const cartId = await ensureMedusaCartId();
+  if (!cartId) return;
+
+  try {
+    await fetch('/api/medusa/cart/add-item', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cartId, cart })
+    });
+  } catch (error) {
+    void error;
+  }
+}
+
 function normalizeId(input: any): string | undefined {
   if (!input) return undefined;
   if (typeof input === 'string') return input;
@@ -123,6 +174,7 @@ export async function addItem(
       if (payload.options) cart.items[idx].options = payload.options;
       if (payload.sku) cart.items[idx].sku = payload.sku;
       if (payload.stripePriceId) cart.items[idx].stripePriceId = payload.stripePriceId;
+      if (payload.medusaVariantId) cart.items[idx].medusaVariantId = payload.medusaVariantId;
       if (payload.productId) cart.items[idx].productId = payload.productId;
       if (payload.productSlug) cart.items[idx].productSlug = payload.productSlug;
       if (typeof payload.basePrice === 'number') cart.items[idx].basePrice = payload.basePrice;
@@ -152,12 +204,14 @@ export async function addItem(
       productUrl: typeof payload === 'object' ? payload.productUrl : undefined,
       sku: typeof payload === 'object' ? payload.sku : undefined,
       stripePriceId: typeof payload === 'object' ? payload.stripePriceId : undefined,
+      medusaVariantId: typeof payload === 'object' ? payload.medusaVariantId : undefined,
       productId: typeof payload === 'object' ? payload.productId : undefined,
       productSlug: typeof payload === 'object' ? payload.productSlug : undefined,
       upgrades: typeof payload === 'object' ? payload.upgrades ?? payload.selectedUpgrades : undefined
     });
   }
   saveCart(cart);
+  await syncMedusaCart(cart);
 }
 
 export async function removeItem(_prevState: any, id: string) {
@@ -165,6 +219,7 @@ export async function removeItem(_prevState: any, id: string) {
   const cart = getCart();
   const next: Cart = { items: cart.items.filter((it) => it.id !== id) };
   saveCart(next);
+  await syncMedusaCart(next);
 }
 
 export async function updateItemQuantity(
@@ -187,21 +242,12 @@ export async function updateItemQuantity(
     }
   }
   saveCart(cart);
+  await syncMedusaCart(cart);
 }
 
 export async function clearCart() {
   saveCart({ items: [] });
-}
-
-const CHECKOUT_SESSION_ID_PATTERN = /cs_(?:live|test)_[A-Za-z0-9]+/;
-
-function resolveCheckoutUrl(url: string): string {
-  if (url.includes('#')) return url;
-  const match = url.match(CHECKOUT_SESSION_ID_PATTERN);
-  if (!match || !isBrowser()) return url;
-  const resolverUrl = new URL('/api/stripe/resolve-checkout-session', window.location.origin);
-  resolverUrl.searchParams.set('session_id', match[0]);
-  return resolverUrl.toString();
+  await syncMedusaCart({ items: [] });
 }
 
 // Creates/ensures a cart exists; kept for API compatibility with old code
@@ -209,7 +255,7 @@ export async function createCartAndSetCookie() {
   if (!getCart().items) saveCart({ items: [] });
 }
 
-// Redirect to the checkout page so the flow can complete on the dedicated checkout form.
+// Attempt to start checkout; currently a placeholder until the new flow lands.
 export async function redirectToCheckout() {
   if (!isBrowser()) return;
 
@@ -218,76 +264,8 @@ export async function redirectToCheckout() {
     return 'Your cart is empty.';
   }
 
-  try {
-    console.log('[checkout] Starting checkout session creation...');
-    const response = await fetch('/api/stripe/create-checkout-session', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ cart: cart.items })
-    });
-
-    // Log response metadata for debugging
-    console.log('[checkout] Response received:', {
-      status: response.status,
-      statusText: response.statusText,
-      contentType: response.headers.get('content-type'),
-      ok: response.ok
-    });
-
-    let payload: any = null;
-    let rawText: string | null = null;
-    try {
-      // Clone response to read as text for debugging if JSON parse fails
-      rawText = await response.clone().text();
-      payload = await response.json();
-    } catch (parseError) {
-      // Log the actual response content when JSON parsing fails
-      console.error('[checkout] JSON parse error:', parseError);
-      console.error('[checkout] Raw response (first 500 chars):', rawText?.slice(0, 500));
-      console.error('[checkout] This often indicates the server returned HTML (error page) instead of JSON');
-      payload = null;
-    }
-
-    // Embedded Checkout: API returns clientSecret, redirect to /checkout page
-    // Hosted Checkout (old): API returns url, redirect to Stripe
-    if (!response.ok) {
-      console.error('[checkout] Session creation failed:', {
-        status: response.status,
-        error: payload?.error,
-        fullPayload: payload
-      });
-      return payload?.error || `Checkout failed (HTTP ${response.status}). Please try again.`;
-    }
-
-    if (payload?.clientSecret) {
-      // New: Embedded Checkout - save session info and redirect to our checkout page
-      console.log('[checkout] ✅ Redirecting to embedded checkout with clientSecret');
-      sessionStorage.setItem('stripe_checkout_session', JSON.stringify({
-        clientSecret: payload.clientSecret,
-        sessionId: payload.sessionId
-      }));
-      window.location.href = '/checkout';
-    } else if (payload?.url) {
-      // Old: Hosted Checkout - redirect to Stripe
-      console.log('[checkout] Redirecting to Stripe hosted checkout');
-      window.location.href = resolveCheckoutUrl(payload.url);
-    } else {
-      // Detailed diagnostic for missing clientSecret
-      console.error('[checkout] ❌ Invalid response - missing clientSecret and url');
-      console.error('[checkout] Payload received:', JSON.stringify(payload, null, 2));
-      console.error('[checkout] Expected: { clientSecret: "cs_..._secret_...", sessionId: "cs_..." }');
-      if (payload?.error) {
-        return `Checkout error: ${payload.error}`;
-      }
-      return 'Unable to start checkout: No client secret returned. Check browser console for details.';
-    }
-  } catch (error) {
-    console.error('[checkout] ❌ Checkout redirect failed:', error);
-    if (error instanceof TypeError && error.message.includes('fetch')) {
-      return 'Network error: Unable to reach checkout server. Please check your connection.';
-    }
-    return 'Unable to start checkout. Please try again.';
-  }
+  await ensureMedusaCartId();
+  // TODO: Replace with the new checkout flow when available.
+  console.warn('[checkout] Checkout is currently disabled.');
+  return 'Checkout is temporarily unavailable. Please contact support.';
 }

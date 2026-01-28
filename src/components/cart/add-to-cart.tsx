@@ -147,6 +147,7 @@ export function AddToCart({ product }: { product: any }) {
       name: product?.title,
       price: typeof activePrice === 'number' ? activePrice : undefined,
       stripePriceId: (product as any)?.stripePriceId,
+      medusaVariantId: (product as any)?.medusaVariantId,
       originalPrice,
       isOnSale: onSale,
       saleLabel: typeof saleLabel === 'string' ? saleLabel : undefined,

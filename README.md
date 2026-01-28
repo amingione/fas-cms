@@ -73,6 +73,15 @@ yarn stripe:sync --dry-run            # Preview without making changes
 
 The script requires `STRIPE_SECRET_KEY`, `SANITY_PROJECT_ID`, `SANITY_DATASET`, and a Sanity write token (`SANITY_WRITE_TOKEN`). Successful sync writes `stripeProductId`, `stripePriceId`, and `stripeLastSyncedAt` into each product document.
 
+## Medusa Cart + Shipping (Phase 2)
+
+Set the following environment variables to enable Medusa cart state and shipping rate lookups:
+
+- `MEDUSA_BACKEND_URL` (required)
+- `MEDUSA_PUBLISHABLE_KEY` (optional, required if your Medusa store uses publishable API keys)
+- `MEDUSA_REGION_ID` (optional, used when creating carts)
+- `MEDUSA_FALLBACK_VARIANT_ID` (optional, placeholder variant for shipping validation until product mapping is ready)
+
 ## ⚠️ Codex Safety Rules (Summary)
 
 Codex must treat all backend files, schemas, API routes, checkout/cart logic, and server-side code as _protected areas_.

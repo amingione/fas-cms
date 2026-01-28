@@ -32,6 +32,7 @@ export type QuickViewProduct = {
   href: string;
   price?: number;
   stripePriceId?: string | null;
+  medusaVariantId?: string | null;
   imageSrc: string;
   imageAlt?: string;
   description?: string;
@@ -259,6 +260,7 @@ export default function ProductQuickViewButton({
               ? product.price
               : undefined,
         stripePriceId: product.stripePriceId ?? undefined,
+        medusaVariantId: product.medusaVariantId ?? undefined,
         originalPrice:
           typeof comparePrice === 'number' &&
           (typeof activePrice !== 'number' || comparePrice > activePrice)

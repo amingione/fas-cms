@@ -7,7 +7,7 @@ Add these to your `.env` file in `fas-cms-fresh`:
 ```bash
 # Stripe Adaptive Pricing Webhook Secret
 # Get this from Stripe Dashboard after configuring the webhook
-STRIPE_SHIPPING_WEBHOOK_SECRET=whsec_your_webhook_signing_secret_here
+STRIPE_SHIPPING_WEBHOOK_SECRET=YOUR_STRIPE_SHIPPING_WEBHOOK_SECRET
 
 # EasyPost API (for checkout rate calculation)
 EASYPOST_API_KEY=EZAK_...
@@ -55,7 +55,7 @@ PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live... # or pk_test...
 
 1. After creating the endpoint, click on it
 2. Click **"Reveal"** next to "Signing secret"
-3. Copy the secret (starts with `whsec_`)
+3. Copy the secret from the Stripe Dashboard
 4. Add it to your `.env` file as `STRIPE_SHIPPING_WEBHOOK_SECRET`
 
 ---
@@ -76,7 +76,7 @@ npm run dev
 stripe listen --forward-to http://localhost:4321/api/stripe/shipping-rates-webhook
 
 # This will output a webhook secret like:
-# whsec_abc123...
+# webhook_signing_secret_placeholder
 # Use this temporarily in your .env for local testing
 ```
 

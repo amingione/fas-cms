@@ -4,14 +4,11 @@ import { requireVendor } from '@/server/vendor-portal/auth';
 import { sanity } from '@/server/sanity-client';
 import { jsonResponse } from '@/server/http/responses';
 import { vendorInvoicePaySchema } from '@/lib/validators/api-requests';
+import { STRIPE_API_VERSION } from '@/lib/stripe-config';
 
 const stripeSecret = process.env.STRIPE_SECRET_KEY || (import.meta as any).env?.STRIPE_SECRET_KEY;
-const stripeApiVersion =
-  process.env.STRIPE_API_VERSION ||
-  (import.meta as any).env?.STRIPE_API_VERSION ||
-  '2025-08-27.basil';
 const stripe = stripeSecret
-  ? new Stripe(stripeSecret, { apiVersion: stripeApiVersion as Stripe.LatestApiVersion })
+  ? new Stripe(stripeSecret, { apiVersion: STRIPE_API_VERSION as Stripe.LatestApiVersion })
   : null;
 
 export const POST: APIRoute = async ({ params, request }) => {
