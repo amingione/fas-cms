@@ -125,11 +125,27 @@ async function syncMedusaCart(cart: Cart) {
   if (!cartId) return;
 
   try {
-    await fetch('/api/medusa/cart/add-item', {
+    const response = await fetch('/api/medusa/cart/add-item', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ cartId, cart })
     });
+    const payload = await response.json().catch(() => null);
+    if (!response.ok) return;
+
+    const mappings = Array.isArray(payload?.mappings) ? payload.mappings : [];
+    if (mappings.length) {
+      const next = getCart();
+      let changed = false;
+      for (const map of mappings) {
+        const idx = next.items.findIndex((item) => item.id === map.id);
+        if (idx >= 0 && !next.items[idx].medusaVariantId) {
+          next.items[idx].medusaVariantId = map.medusaVariantId;
+          changed = true;
+        }
+      }
+      if (changed) saveCart(next);
+    }
   } catch (error) {
     void error;
   }
@@ -154,7 +170,8 @@ export async function addItem(
     return 'This item cannot be added to checkout yet (missing Medusa variant mapping).';
   }
   const medusaVariantId = payload.medusaVariantId;
-  if (!medusaVariantId || typeof medusaVariantId !== 'string') {
+  const sku = payload.sku;
+  if ((!medusaVariantId || typeof medusaVariantId !== 'string') && (!sku || typeof sku !== 'string')) {
     return 'This item cannot be added to checkout yet (missing Medusa variant mapping).';
   }
 
@@ -271,11 +288,14 @@ export async function redirectToCheckout() {
     return 'Your cart is empty.';
   }
 
-  const missingMedusa = cart.items.filter((item) => !item.medusaVariantId);
+  await ensureMedusaCartId();
+  await syncMedusaCart(cart);
+
+  const refreshed = getCart();
+  const missingMedusa = refreshed.items.filter((item) => !item.medusaVariantId);
   if (missingMedusa.length) {
     return 'One or more items are missing Medusa variant mappings. Please remove them before checkout.';
   }
 
-  await ensureMedusaCartId();
   window.location.href = '/checkout';
 }

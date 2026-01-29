@@ -58,18 +58,6 @@ export const POST: APIRoute = async ({ request }) => {
   const cartItems = sanitizeCartItems(body?.cart?.items ?? body?.items ?? body?.cartItems);
   const metadataPayload = { local_cart_items: cartItems };
 
-  const missingVariants = cartItems.filter((item) => !item.medusaVariantId).map((item) => item.id);
-  if (missingVariants.length) {
-    return jsonResponse(
-      {
-        error: 'Missing medusaVariantId for one or more items.',
-        missingItems: missingVariants
-      },
-      { status: 400 },
-      { noIndex: true }
-    );
-  }
-
   const updateResponse = await medusaFetch(`/store/carts/${cartId}`, {
     method: 'POST',
     body: JSON.stringify({ metadata: metadataPayload })
@@ -84,11 +72,57 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
+  const skuCache = new Map<string, string>();
+  const mappings: { id: string; medusaVariantId: string }[] = [];
+  const missingVariants: string[] = [];
+
   for (const item of cartItems) {
+    let variantId = item.medusaVariantId;
+    if (!variantId) {
+      const sku = item.sku?.trim();
+      if (!sku) {
+        missingVariants.push(item.id);
+        continue;
+      }
+
+      if (skuCache.has(sku)) {
+        variantId = skuCache.get(sku);
+      } else {
+        const lookupResponse = await medusaFetch(
+          `/store/product-variants?sku=${encodeURIComponent(sku)}&limit=1&fields=id,sku`,
+          { method: 'GET' }
+        );
+        const lookupData = await readJsonSafe<any>(lookupResponse);
+        if (!lookupResponse.ok) {
+          return jsonResponse(
+            { error: lookupData?.message || 'Failed to resolve Medusa variant by SKU.', details: lookupData },
+            { status: lookupResponse.status },
+            { noIndex: true }
+          );
+        }
+
+        const resolved = Array.isArray(lookupData?.variants) ? lookupData.variants[0] : null;
+        if (!resolved?.id) {
+          missingVariants.push(item.id);
+          continue;
+        }
+
+        skuCache.set(sku, resolved.id);
+        variantId = resolved.id;
+      }
+    }
+
+    if (!variantId) {
+      missingVariants.push(item.id);
+      continue;
+    }
+
+    mappings.push({ id: item.id, medusaVariantId: variantId });
+
     const lineItemResponse = await medusaFetch(`/store/carts/${cartId}/line-items`, {
       method: 'POST',
       body: JSON.stringify({
-        variant_id: item.medusaVariantId,
+        variant_id: variantId,
         quantity: Math.max(1, item.quantity ?? 1),
         metadata: {
           local_item_id: item.id,
@@ -112,9 +146,21 @@ export const POST: APIRoute = async ({ request }) => {
     }
   }
 
+  if (missingVariants.length) {
+    return jsonResponse(
+      {
+        error: 'Missing medusaVariantId for one or more items.',
+        missingItems: missingVariants
+      },
+      { status: 400 },
+      { noIndex: true }
+    );
+  }
+
   return jsonResponse(
     {
-      cart: updateData?.cart ?? null
+      cart: updateData?.cart ?? null,
+      mappings
     },
     { status: 200 },
     { noIndex: true }

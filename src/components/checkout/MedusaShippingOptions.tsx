@@ -86,6 +86,26 @@ async function syncCartToMedusa(cartId: string) {
     const payload = await response.json().catch(() => null);
     throw new Error(payload?.error || "Unable to sync cart to Medusa.");
   }
+  const payload = await response.json().catch(() => null);
+  const mappings = Array.isArray(payload?.mappings) ? payload.mappings : [];
+  if (mappings.length) {
+    const next = getCart();
+    let changed = false;
+    for (const map of mappings) {
+      const idx = next.items.findIndex((item) => item.id === map.id);
+      if (idx >= 0 && !next.items[idx].medusaVariantId) {
+        next.items[idx].medusaVariantId = map.medusaVariantId;
+        changed = true;
+      }
+    }
+    if (changed) {
+      try {
+        window.localStorage.setItem("fas_cart_v1", JSON.stringify(next));
+      } catch (err) {
+        void err;
+      }
+    }
+  }
 }
 
 export default function MedusaShippingOptions() {
