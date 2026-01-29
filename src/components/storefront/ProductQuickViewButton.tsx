@@ -167,7 +167,13 @@ export default function ProductQuickViewButton({
 
   const [adding, setAdding] = useState(false);
   const [cartError, setCartError] = useState<string | null>(null);
-  const hasMedusaVariant = Boolean(product.medusaVariantId);
+  const selectedVariantId = useMemo(() => {
+    const selectedValues = Object.values(selectedOptions || {});
+    const fromSelection =
+      selectedValues.find((v) => v?.medusaVariantId)?.medusaVariantId || null;
+    return fromSelection || product.medusaVariantId || undefined;
+  }, [selectedOptions, product.medusaVariantId]);
+  const hasMedusaVariant = Boolean(selectedVariantId);
   const canAddToCart = Boolean(product.id && hasMedusaVariant);
   const [selectedOptions, setSelectedOptions] = useState<Record<string, QuickViewOptionValue>>({});
 
@@ -244,7 +250,7 @@ export default function ProductQuickViewButton({
 
   async function handleAddToCart() {
     if (!product.id || adding) return;
-    if (!hasMedusaVariant) {
+    if (!selectedVariantId) {
       setCartError('This item is missing a required variant. Please contact support.');
       return;
     }
@@ -267,7 +273,7 @@ export default function ProductQuickViewButton({
               ? product.price
               : undefined,
         stripePriceId: product.stripePriceId ?? undefined,
-        medusaVariantId: product.medusaVariantId ?? undefined,
+        medusaVariantId: selectedVariantId ?? undefined,
         originalPrice:
           typeof comparePrice === 'number' &&
           (typeof activePrice !== 'number' || comparePrice > activePrice)

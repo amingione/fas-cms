@@ -556,7 +556,15 @@ const normalizeOptionValue = (entry: any, index: number) => {
 
   const value = rawValue ? String(rawValue) : `option-${index}`;
 
-  return { value, label: String(label), priceDelta };
+  // Preserve optional Medusa variant mapping if provided on the option value
+  const medusaVariantId =
+    (entry as any)?.medusaVariantId ||
+    (entry as any)?.medusaVariantID ||
+    (entry as any)?.variantId ||
+    (entry as any)?.variant_id ||
+    null;
+
+  return { value, label: String(label), priceDelta, medusaVariantId };
 };
 
 const ensureAbsoluteUrl = (value?: string | null): string | undefined => {
@@ -1454,7 +1462,12 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                           const label = v?.label ?? 'Choice';
                           const price = typeof v?.priceDelta === 'number' ? v.priceDelta : 0;
                           return (
-                            <option value={val} data-price={price.toString()} data-label={label}>
+                            <option
+                              value={val}
+                              data-price={price.toString()}
+                              data-label={label}
+                              data-variant-id={v?.medusaVariantId || ''}
+                            >
                               {label}
                               {price ? ` (+$${Number(price).toFixed(2)})` : ''}
                             </option>
@@ -1490,6 +1503,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                               data-group={groupKey}
                               data-price={price}
                               data-label={label}
+                              data-variant-id={v?.medusaVariantId || ''}
                               required={i === 0}
                               id={inputId}
                               class="sr-only peer"

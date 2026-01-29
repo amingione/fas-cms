@@ -5,6 +5,7 @@ export type QuickViewOptionValue = {
   priceDelta?: number;
   description?: string;
   defaultSelected?: boolean;
+  medusaVariantId?: string | null;
 };
 
 export type QuickViewOptionGroup = {
@@ -98,6 +99,12 @@ const normalizeOptionValue = (
     const defaultSelected = Boolean(
       record.defaultSelected ?? record.default ?? record.isDefault ?? false
     );
+    const medusaVariantId =
+      (record as any)?.medusaVariantId ||
+      (record as any)?.medusaVariantID ||
+      (record as any)?.variantId ||
+      (record as any)?.variant_id ||
+      null;
 
     return {
       id: `${groupKey}-${index}-${normalizedValue}`,
@@ -105,7 +112,8 @@ const normalizeOptionValue = (
       value: normalizedValue,
       priceDelta,
       description,
-      defaultSelected
+      defaultSelected,
+      medusaVariantId
     };
   }
 
