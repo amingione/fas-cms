@@ -1,10 +1,9 @@
 /**
  * Hosted Stripe Checkout session endpoint.
  *
- * The storefront posts cart data. Stripe Shipping Rates configured in Stripe
- * determine the available shipping options in Checkout. Any client changes
- * that execute before the redirect must revalidate this flow and keep the hosted
- * checkout UX as the single source of truth.
+ * The storefront posts cart data. Medusa (Shippo) determines shipping options
+ * and we forward those rates into Stripe Checkout. Any client changes that
+ * execute before the redirect must revalidate this flow.
  */
 
 import Stripe from 'stripe';
@@ -15,7 +14,6 @@ import { getActivePrice, getCompareAtPrice, isOnSale } from '@/lib/saleHelpers';
 import { formatOptionSummary } from '@/lib/cart/format-option-summary';
 import { stripeCheckoutRequestSchema } from '@/lib/validators/api-requests';
 import { sanityProductSchema } from '@/lib/validators/sanity';
-import { resolveAllowedCountries } from '@/lib/shipping-countries';
 import { normalizeBaseUrl } from '@/lib/sanity-functions';
 import { STRIPE_API_VERSION } from '@/lib/stripe-config';
 
@@ -38,30 +36,6 @@ const jsonResponse = (payload: unknown, status = 200): Response =>
       'Content-Security-Policy': STRIPE_CHECKOUT_CSP
     }
   });
-
-const readEnvValue = (key: string): string => {
-  const metaValue = import.meta.env[key];
-  if (typeof metaValue === 'string') {
-    const trimmed = metaValue.trim();
-    if (trimmed) return trimmed;
-  }
-  const processValue = process.env[key];
-  return typeof processValue === 'string' ? processValue.trim() : '';
-};
-
-const resolveBooleanEnv = (value: unknown, defaultValue = false): boolean => {
-  if (typeof value === 'boolean') return value;
-  if (typeof value !== 'string') return defaultValue;
-  const normalized = value.trim().toLowerCase();
-  if (!normalized) return defaultValue;
-  return normalized === '1' || normalized === 'true' || normalized === 'yes' || normalized === 'on';
-};
-
-const parseEnvList = (raw: string): string[] =>
-  raw
-    .split(/[,|\n]/)
-    .map((entry) => entry.trim())
-    .filter(Boolean);
 
 function validateBaseUrl(baseUrl: string): Response | null {
   if (!baseUrl || !baseUrl.startsWith('http')) {
@@ -143,6 +117,75 @@ type ShippingProduct = {
 };
 
 type Dimensions = { length: number; width: number; height: number };
+
+type MedusaShippingOption = {
+  id: string;
+  name?: string;
+  amount?: number;
+  raw_amount?: { value?: string | number };
+  data?: Record<string, any>;
+  region?: { currency_code?: string };
+};
+
+type MedusaAddressInput = {
+  name?: string;
+  line1?: string;
+  line2?: string;
+  city?: string;
+  state?: string;
+  postal_code?: string;
+  country?: string;
+};
+
+const toMedusaAmount = (option: MedusaShippingOption): number | null => {
+  if (typeof option.amount === 'number') return Math.round(option.amount);
+  const raw = option.raw_amount?.value;
+  const parsed = typeof raw === 'string' ? Number(raw) : typeof raw === 'number' ? raw : NaN;
+  return Number.isFinite(parsed) ? Math.round(parsed) : null;
+};
+
+const splitName = (name?: string): { firstName: string; lastName: string } => {
+  const trimmed = typeof name === 'string' ? name.trim() : '';
+  if (!trimmed) return { firstName: '', lastName: '' };
+  const parts = trimmed.split(/\s+/);
+  if (parts.length === 1) return { firstName: parts[0], lastName: '' };
+  return { firstName: parts[0], lastName: parts.slice(1).join(' ') };
+};
+
+const buildMedusaAddressPayload = (
+  address: MedusaAddressInput | undefined,
+  name?: string,
+  phone?: string
+): {
+  firstName: string;
+  lastName: string;
+  address1: string;
+  address2: string;
+  city: string;
+  province: string;
+  postalCode: string;
+  countryCode: string;
+  phone: string;
+} | null => {
+  if (!address) return null;
+  const { firstName, lastName } = splitName(address.name || name);
+  const address1 = address.line1?.trim() || '';
+  const city = address.city?.trim() || '';
+  const postalCode = address.postal_code?.trim() || '';
+  const countryCode = address.country?.trim() || 'US';
+  if (!address1 || !city || !postalCode || !countryCode) return null;
+  return {
+    firstName,
+    lastName,
+    address1,
+    address2: address.line2?.trim() || '',
+    city,
+    province: address.state?.trim() || '',
+    postalCode,
+    countryCode,
+    phone: phone?.trim() || ''
+  };
+};
 
 async function fetchShippingProductsForCart(
   cart: CheckoutCartItem[]
@@ -666,12 +709,6 @@ export async function POST({ request }: { request: Request }) {
       return jsonResponse({ error: 'Unable to load Stripe price metadata' }, 400);
     }
   }
-  const allowMissingShippingRates = resolveBooleanEnv(
-    readEnvValue('STRIPE_ALLOW_MISSING_SHIPPING_RATES'),
-    false
-  );
-  const configuredShippingRateIds = parseEnvList(readEnvValue('STRIPE_SHIPPING_RATE_IDS'));
-
   const cleanLabel = (value?: string | null): string => {
     if (!value) return '';
     return value
@@ -1013,7 +1050,7 @@ export async function POST({ request }: { request: Request }) {
     void error;
   }
 
-  const allowedCountries = resolveAllowedCountries();
+  const allowedCountries = ['US'];
   try {
     const shippingAddressCollection: Stripe.Checkout.SessionCreateParams.ShippingAddressCollection =
       {
@@ -1036,7 +1073,7 @@ export async function POST({ request }: { request: Request }) {
 
     const metadataForSession: Record<string, string> = {
       cart_id: cartId,
-      // Add cart items for EasyPost webhook access
+      // Add cart items for post-checkout joins
       cart: JSON.stringify(
         (cart as CheckoutCartItem[]).map((item) => ({
           sku: item.sku || (typeof item.id === 'string' ? normalizeCartId(item.id) : ''),
@@ -1103,26 +1140,161 @@ export async function POST({ request }: { request: Request }) {
       });
     }
 
-    const hasStaticRatePayload =
-      'shippingRate' in bodyRecord || 'shipping_rate' in bodyRecord || 'selectedRate' in bodyRecord;
+    const paymentIntentMetadata: Record<string, string> = { ...metadataForSession };
 
-    if (
-      shippingRequired &&
-      (hasStaticRatePayload || configuredShippingRateIds.length > 0 || allowMissingShippingRates)
-    ) {
+    const proxyUrl = (path: string) => `${baseUrl}${path}`;
+    const postProxy = async (path: string, payload: Record<string, unknown>) => {
+      return fetch(proxyUrl(path), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    };
+
+    console.log('[checkout][step 1/8] Creating Medusa cart');
+    const medusaCreateRes = await postProxy('/api/medusa/cart/create', {});
+    const medusaCreatePayload = await medusaCreateRes.json().catch(() => null);
+    if (!medusaCreateRes.ok) {
+      return jsonResponse(
+        {
+          error: 'Step 1 failed: unable to create Medusa cart.',
+          details: medusaCreatePayload
+        },
+        medusaCreateRes.status
+      );
+    }
+    const medusaCartId =
+      typeof medusaCreatePayload?.cartId === 'string' ? medusaCreatePayload.cartId : '';
+    if (!medusaCartId) {
+      return jsonResponse({ error: 'Step 1 failed: Medusa cart id missing.' }, 500);
+    }
+
+    console.log('[checkout][step 2/8] Adding line items to Medusa cart');
+    const medusaAddRes = await postProxy('/api/medusa/cart/add-item', {
+      cartId: medusaCartId,
+      cart: { items: cart }
+    });
+    const medusaAddPayload = await medusaAddRes.json().catch(() => null);
+    if (!medusaAddRes.ok) {
+      return jsonResponse(
+        {
+          error: 'Step 2 failed: unable to add items to Medusa cart.',
+          details: medusaAddPayload
+        },
+        medusaAddRes.status
+      );
+    }
+
+    const addressPayload = buildMedusaAddressPayload(
+      shippingAddress as MedusaAddressInput | undefined,
+      requestCustomerName,
+      requestCustomerPhone
+    );
+    if (!addressPayload) {
       return jsonResponse(
         {
           error:
-            'Static shipping rates are disabled. Remove shippingRate/selectedRate payloads and STRIPE_SHIPPING_RATE_IDS.'
+            'Step 3 failed: shippingAddress must include line1, city, postal_code, and country (US only).'
+        },
+        400
+      );
+    }
+    if (addressPayload.countryCode.toUpperCase() !== 'US') {
+      return jsonResponse(
+        { error: 'Step 3 failed: only US shipping addresses are supported.' },
+        400
+      );
+    }
+
+    console.log('[checkout][step 3/8] Setting Medusa shipping address');
+    const medusaAddressRes = await postProxy('/api/medusa/cart/update-address', {
+      cartId: medusaCartId,
+      email: requestCustomerEmail || userEmail || undefined,
+      shippingAddress: addressPayload
+    });
+    const medusaAddressPayload = await medusaAddressRes.json().catch(() => null);
+    if (!medusaAddressRes.ok) {
+      return jsonResponse(
+        {
+          error: 'Step 3 failed: unable to update Medusa shipping address.',
+          details: medusaAddressPayload
+        },
+        medusaAddressRes.status
+      );
+    }
+
+    console.log('[checkout][step 4/8] Fetching Medusa shipping options');
+    const medusaOptionsRes = await postProxy('/api/medusa/cart/shipping-options', {
+      cartId: medusaCartId
+    });
+    const medusaOptionsPayload = await medusaOptionsRes.json().catch(() => null);
+    if (!medusaOptionsRes.ok) {
+      return jsonResponse(
+        {
+          error: 'Step 4 failed: unable to fetch Medusa shipping options.',
+          details: medusaOptionsPayload
+        },
+        medusaOptionsRes.status
+      );
+    }
+
+    const medusaOptions: MedusaShippingOption[] = Array.isArray(
+      medusaOptionsPayload?.shippingOptions
+    )
+      ? medusaOptionsPayload.shippingOptions
+      : [];
+    if (!medusaOptions.length) {
+      return jsonResponse(
+        { error: 'Step 4 failed: Medusa returned no shipping options.' },
+        400
+      );
+    }
+
+    console.log('[checkout][step 5/8] Converting Medusa rates for Stripe Checkout');
+    const stripeShippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] = [];
+    for (const option of medusaOptions) {
+      const amount = toMedusaAmount(option);
+      if (amount === null) {
+        return jsonResponse(
+          {
+            error: 'Step 5 failed: invalid Medusa shipping amount.',
+            details: { optionId: option?.id }
+          },
+          400
+        );
+      }
+      const carrier = String(option?.data?.carrier || '').toLowerCase();
+      stripeShippingOptions.push({
+        shipping_rate_data: {
+          type: 'fixed_amount',
+          display_name: option.name || (carrier ? carrier.toUpperCase() : 'Shipping'),
+          fixed_amount: {
+            amount,
+            currency: String(option?.region?.currency_code || 'usd').toLowerCase()
+          },
+          metadata: {
+            medusa_shipping_option_id: option.id,
+            medusa_shipping_option_name: option.name || '',
+            carrier: carrier || ''
+          }
+        }
+      });
+    }
+
+    const hasStaticRatePayload =
+      'shippingRate' in bodyRecord || 'shipping_rate' in bodyRecord || 'selectedRate' in bodyRecord;
+
+    if (shippingRequired && hasStaticRatePayload) {
+      return jsonResponse(
+        {
+          error: 'Static shipping rates are disabled. Remove shippingRate/selectedRate payloads.'
         },
         400
       );
     }
 
     if (shippingRequired) {
-      console.warn(
-        '[checkout] Static shipping rates are disabled; Stripe Checkout must supply dynamic rates.'
-      );
+      console.log('[checkout] Using Medusa + Shippo shipping rates for Stripe Checkout.');
       // Log shipping configuration for debugging
       const shippableItemCount = shippingLineItemMeta.filter((item) => {
         const meta = item.metadata;
@@ -1155,19 +1327,16 @@ export async function POST({ request }: { request: Request }) {
       console.log('[checkout] Shipping line item metadata', shippingMetaSnapshot);
     }
 
-    const paymentIntentMetadata = { ...metadataForSession };
     paymentIntentMetadata.ship_status = shippingRequired ? 'unshipped' : 'unshippable';
     metadataForSession.ship_status = paymentIntentMetadata.ship_status;
     metadataForSession.shipping_required = shippingRequired ? 'true' : 'false';
 
-    // EasyPost + Stripe Adaptive Pricing Integration:
-    // - Stripe calls our webhook endpoint when customer enters shipping address
-    // - Webhook forwards to fas-sanity to calculate EasyPost rates
-    // - Rates appear dynamically in Stripe Checkout UI
-    console.log('[checkout] Using Stripe Checkout with EasyPost for dynamic shipping rates');
-
+    console.log('[checkout][step 6/8] Attaching Medusa shipping options to Stripe Checkout session');
+    metadataForSession.medusa_cart_id = medusaCartId;
+    paymentIntentMetadata.medusa_cart_id = medusaCartId;
+    console.log('[checkout][step 7/8] Stored medusa_cart_id in Stripe metadata');
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
-      // CRITICAL: Use embedded mode for dynamic shipping
+      // CRITICAL: Use embedded mode for shipping
       ui_mode: 'embedded',
       // Return URL for embedded checkout (customer stays on your site)
       return_url: `${baseUrl}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
@@ -1201,10 +1370,9 @@ export async function POST({ request }: { request: Request }) {
       allow_promotion_codes: true,
       // CRITICAL: Explicit locale required for branded checkout domains
       locale: 'en',
-      // CRITICAL: shipping_address_collection MUST be set for Adaptive Pricing webhook to fire
+      // Shipping address is required for Medusa/Shippo rate calculation
       shipping_address_collection: shippingAddressCollection,
-      permissions: { update_shipping_details: 'server_only' },
-      // DO NOT set shipping_options here - Stripe Adaptive Pricing handles this
+      shipping_options: stripeShippingOptions,
       consent_collection: { promotions: 'auto' },
       custom_fields: [
         {
@@ -1243,7 +1411,7 @@ export async function POST({ request }: { request: Request }) {
         sessionParams.shipping_address_collection?.allowed_countries,
       invoiceCreationEnabled: sessionParams.invoice_creation?.enabled,
       lineItemCount: sessionParams.line_items?.length,
-      hasDynamicShippingRates: true,
+      hasMedusaShippingRates: true,
       automaticTaxEnabled: sessionParams.automatic_tax?.enabled,
       locale: sessionParams.locale,
       hasPermissions: !!(sessionParams as any).permissions,
@@ -1324,7 +1492,7 @@ export async function POST({ request }: { request: Request }) {
         allProductsHaveOriginCountry: shippingLineItemMeta.every(
           (item) => item.metadata?.shipping_required !== 'true' || item.metadata?.origin_country
         ),
-        note: 'If shipping rates do not appear, verify Stripe dynamic rates are configured.'
+        note: 'If shipping rates do not appear, verify Medusa shipping options are available.'
       });
     }
 

@@ -30,7 +30,9 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const stripe = new Stripe(stripeSecret, { apiVersion: STRIPE_API_VERSION as Stripe.LatestApiVersion });
-  const session = await stripe.checkout.sessions.retrieve(sessionId);
+  const session = await stripe.checkout.sessions.retrieve(sessionId, {
+    expand: ['shipping_cost.shipping_rate']
+  });
 
   if (session.payment_status !== 'paid') {
     return jsonResponse(
@@ -43,6 +45,47 @@ export const POST: APIRoute = async ({ request }) => {
   const cartId = session?.metadata?.medusa_cart_id || session?.client_reference_id;
   if (!cartId) {
     return jsonResponse({ error: 'Medusa cart id missing from Stripe session.' }, { status: 400 }, { noIndex: true });
+  }
+
+  const shippingCost = session.shipping_cost;
+  let medusaShippingOptionId = '';
+  if (shippingCost?.shipping_rate) {
+    if (typeof shippingCost.shipping_rate === 'string') {
+      const shippingRate = await stripe.shippingRates.retrieve(shippingCost.shipping_rate);
+      medusaShippingOptionId = shippingRate?.metadata?.medusa_shipping_option_id || '';
+    } else if (
+      shippingCost.shipping_rate &&
+      typeof shippingCost.shipping_rate === 'object' &&
+      !('deleted' in shippingCost.shipping_rate)
+    ) {
+      medusaShippingOptionId = shippingCost.shipping_rate.metadata?.medusa_shipping_option_id || '';
+    }
+  }
+
+  if (session?.metadata?.shipping_required === 'true' && !medusaShippingOptionId) {
+    return jsonResponse(
+      { error: 'Selected shipping option missing from Stripe session.' },
+      { status: 400 },
+      { noIndex: true }
+    );
+  }
+
+  if (medusaShippingOptionId) {
+    const shippingMethodRes = await medusaFetch(`/store/carts/${cartId}/shipping-methods`, {
+      method: 'POST',
+      body: JSON.stringify({ option_id: medusaShippingOptionId })
+    });
+    const shippingMethodData = await readJsonSafe<any>(shippingMethodRes);
+    if (!shippingMethodRes.ok) {
+      return jsonResponse(
+        {
+          error: shippingMethodData?.message || 'Failed to apply selected shipping option.',
+          details: shippingMethodData
+        },
+        { status: shippingMethodRes.status },
+        { noIndex: true }
+      );
+    }
   }
 
   const paymentCollectionRes = await medusaFetch('/store/payment-collections', {
@@ -79,6 +122,7 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
+  console.log('[checkout][step 8/8] Completing Medusa cart into order');
   const completeRes = await medusaFetch(`/store/carts/${cartId}/complete`, {
     method: 'POST',
     body: JSON.stringify({})
