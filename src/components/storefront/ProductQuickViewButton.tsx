@@ -167,7 +167,8 @@ export default function ProductQuickViewButton({
 
   const [adding, setAdding] = useState(false);
   const [cartError, setCartError] = useState<string | null>(null);
-  const canAddToCart = Boolean(product.id);
+  const hasMedusaVariant = Boolean(product.medusaVariantId);
+  const canAddToCart = Boolean(product.id && hasMedusaVariant);
   const [selectedOptions, setSelectedOptions] = useState<Record<string, QuickViewOptionValue>>({});
 
   useEffect(() => {
@@ -243,6 +244,10 @@ export default function ProductQuickViewButton({
 
   async function handleAddToCart() {
     if (!product.id || adding) return;
+    if (!hasMedusaVariant) {
+      setCartError('This item is missing a required variant. Please contact support.');
+      return;
+    }
     try {
       setAdding(true);
       setCartError(null);
@@ -491,7 +496,10 @@ export default function ProductQuickViewButton({
                       </a>
                       <button
                         type="button"
-                        onClick={handleAddToCart}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleAddToCart();
+                        }}
                         disabled={!canAddToCart || adding || missingSelections}
                         className="btn-plain inline-flex min-w-[150px] items-center justify-center gap-2 rounded-full border border-primary bg-primary px-5 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-black shadow-[inset_0_0_10px_rgba(125,1,7,0.18),0_0_18px_rgba(125,1,7,0.2)] transition enabled:hover:bg-primary/90 enabled:hover:shadow-[inset_0_0_10px_rgba(125,1,7,0.18),0_0_22px_rgba(125,1,7,0.28)] disabled:cursor-not-allowed disabled:opacity-50"
                         data-analytics-event="quick_view_add_to_cart"

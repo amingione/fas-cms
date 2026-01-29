@@ -283,6 +283,24 @@ const hydrateCartButtons = () => {
   if (win.__fasProductInit) return;
   win.__fasProductInit = true;
 
+  const validateButtons = () => {
+    const buttons = Array.from(document.querySelectorAll('.add-to-cart'));
+    buttons.forEach((button) => {
+      const ds = button.dataset || {};
+      const medusaVariantId = (ds.productMedusaVariantId || ds.productMedusaVariantID || '')
+        .toString()
+        .trim();
+      if (!medusaVariantId) {
+        button.setAttribute('aria-disabled', 'true');
+        button.classList.add('opacity-60', 'cursor-not-allowed');
+        button.setAttribute(
+          'title',
+          'This item is missing a required variant. Please contact support.'
+        );
+      }
+    });
+  };
+
   const handleClick = (event) => {
     const target = event.target;
     const button = target?.closest('.add-to-cart');
@@ -331,6 +349,10 @@ const hydrateCartButtons = () => {
     const shippingClassRaw = (ds.productShippingClass || '').toString();
     const normalizedShipping = shippingClassRaw.toLowerCase().replace(/[^a-z]/g, '');
     const installOnly = String(ds.productInstallOnly || '').toLowerCase() === 'true' || normalizedShipping.includes('installonly');
+    const medusaVariantId = (ds.productMedusaVariantId || ds.productMedusaVariantID || '').toString().trim();
+    if (!medusaVariantId) {
+      return;
+    }
     const normalizedExtra = Number.isFinite(extra) ? extra : 0;
     const originalPrice =
       compareTotal > total
@@ -386,6 +408,7 @@ const hydrateCartButtons = () => {
       quantity: 1,
       installOnly,
       shippingClass: shippingClassRaw,
+      medusaVariantId,
       productUrl: ds.productHref
     };
 
@@ -406,6 +429,7 @@ const hydrateCartButtons = () => {
       existing.selectedOptions = selectedOptions;
       existing.installOnly = installOnly;
       existing.shippingClass = shippingClassRaw;
+      if (medusaVariantId) existing.medusaVariantId = medusaVariantId;
       if (product.productUrl) existing.productUrl = product.productUrl;
     } else {
       cart.items.push(product);
@@ -428,6 +452,7 @@ const hydrateCartButtons = () => {
   };
 
   document.addEventListener('click', handleClick, true);
+  validateButtons();
 
   const attachRecalcListeners = () => {
     const form = document.getElementById('product-options');

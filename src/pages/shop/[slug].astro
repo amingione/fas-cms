@@ -1668,6 +1668,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                 data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
                 data-product-shipping-class={(product as any).shippingClass || ''}
                 data-product-install-only={String(isInstallOnly)}
+                data-product-medusa-variant-id={(product as any).medusaVariantId || ''}
                 data-product-performance-parts={String(isPerformanceParts)}
                 data-product-href={`/shop/${slugValue}`}
                 data-analytics-event="add_to_cart_click"
@@ -1927,6 +1928,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
     data-product-install-only={String(
       ((product as any).shippingClass || '').toString().toLowerCase().replace(/[^a-z]/g, '') === 'installonly'
     )}
+    data-product-medusa-variant-id={(product as any).medusaVariantId || ''}
     data-product-href={`/shop/${slugValue}`}
     data-analytics-event="add_to_cart_click"
     data-analytics-category="ecommerce"
