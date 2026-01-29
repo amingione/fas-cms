@@ -282,7 +282,7 @@ This report inventories Sanity dependencies in `fas-cms-fresh` and maps them to 
 - `src/pages/api/webhooks.ts`
   - Creates `customer` with fields: `email, name, marketingOptIn, emailOptIn, emailMarketing{subscribed,subscribedAt,source}`
   - Patches `customer`: `marketingOptIn, emailOptIn, emailMarketing.subscribed, emailMarketing.subscribedAt, emailMarketing.source`
-  - Creates `order` with fields: `orderNumber, stripeSessionId, paymentIntentId, stripePaymentIntentId, paymentStatus, chargeId, cardBrand, cardLast4, receiptUrl, currency, amountSubtotal, amountTax, amountShipping, amountDiscount, totalAmount, customerRef, customerName, customerEmail, cart, status, createdAt, orderType, carrier, service, easypostRateId, shippingAddress, billingAddress, paymentCaptured, paymentCapturedAt, stripeSummary{data}, webhookNotified, deliveryDays, estimatedDeliveryDate`
+  - Creates `order` with fields: `orderNumber, stripeSessionId, paymentIntentId, stripePaymentIntentId, paymentStatus, chargeId, cardBrand, cardLast4, receiptUrl, currency, amountSubtotal, amountTax, amountShipping, amountDiscount, totalAmount, customerRef, customerName, customerEmail, cart, status, createdAt, orderType, carrier, service, shippoRateId, shippingAddress, billingAddress, paymentCaptured, paymentCapturedAt, stripeSummary{data}, webhookNotified, deliveryDays, estimatedDeliveryDate`
   - Creates `attribution` with fields: `order (ref), sessionId, utmSource, utmMedium, utmCampaign, utmTerm, utmContent, timestamp`
   - Creates `emailLog` with fields: `to, subject, status, sentAt, emailType, relatedOrder (ref)`
   - Patches `order`: `confirmationEmailSent`, `orderNumber` (optional)
@@ -388,8 +388,8 @@ This report inventories Sanity dependencies in `fas-cms-fresh` and maps them to 
   - `src/pages/api/vendor/invoices/[id]/pay.ts` creates Stripe payment intents and mirrors payment status into `invoice` and `vendorNotification`.
   - `src/pages/api/save-order.ts` fetches Stripe session and writes `order` into Sanity.
 
-- EasyPost
-  - `src/pages/api/checkout.ts` accepts `easypostRateId` and shipping metadata fields; `src/pages/api/webhooks.ts` persists `carrier`, `service`, `easypostRateId` into `order`.
+- Shippo
+  - `src/pages/api/checkout.ts` accepts `shippoRateId` and shipping metadata fields; `src/pages/api/webhooks.ts` persists `carrier`, `service`, `shippoRateId` into `order`.
 
 - Email (Resend)
   - Writes `emailLog` in Sanity from `src/pages/api/webhooks.ts`, `src/pages/api/contact.ts`, `src/pages/api/wheel-quote-*.ts`.
@@ -668,7 +668,7 @@ API Routes Observed:
 
 Integrations Observed:
 - Stripe: yes
-- EasyPost: yes
+- Shippo: yes
 - Email/SMS: yes (Resend; SMS consent content only)
 
 Schema Ambiguity Detected:

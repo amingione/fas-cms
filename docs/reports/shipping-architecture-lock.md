@@ -12,7 +12,7 @@ Carrier quoting and shipment creation are owned exclusively by **fas-sanity**:
   - `src/pages/api/create-shipping-label.ts` (fas-sanity)
 
 The storefront (fas-cms-fresh) MUST NOT:
-- call EasyPost/Parcelcraft directly
+- call Shippo/Parcelcraft directly
 - compute “real” shipping via local heuristics for checkout totals
 - create shipments or purchase labels
 
@@ -45,7 +45,7 @@ Stripe webhooks MUST:
 
 ### Label Purchase Idempotency
 Label purchase MUST:
-- reuse stored `easyPostShipmentId`
+- reuse stored `shippoShipmentId`
 - short-circuit if the label is already purchased
 - never create a new shipment when one exists
 

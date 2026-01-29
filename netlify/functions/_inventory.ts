@@ -207,7 +207,7 @@ export async function handleTrackingUpdate(trackingData: any) {
             zip: detail?.tracking_location?.zip,
             country: detail?.tracking_location?.country,
             timestamp: detail?.datetime,
-            source: 'easypost'
+            source: 'shippo'
           }))
         : []
     )

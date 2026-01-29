@@ -119,4 +119,4 @@ Local schema subset in fas-cms-fresh:
 
 - Stripe: `src/pages/api/checkout.ts`, `src/pages/api/webhooks.ts`, `src/pages/api/vendor/invoices/[id]/pay.ts`, `src/pages/api/save-order.ts`
 - Email (Resend): `src/lib/emailService.ts`, `src/pages/api/contact.ts`, `src/pages/api/form-submission.ts`, `src/pages/api/webhooks.ts`, `src/pages/api/wheel-quote-*.ts`, `src/lib/vendorPostNotifications.ts`, `src/server/vendor-portal/email.ts`
-- EasyPost: fields referenced in `src/pages/api/checkout.ts` + `src/pages/api/webhooks.ts` (rate IDs, carrier/service metadata)
+- Shippo: fields referenced in `src/pages/api/checkout.ts` + `src/pages/api/webhooks.ts` (rate IDs, carrier/service metadata)

@@ -735,12 +735,15 @@ export async function POST({ request }: { request: Request }) {
         const shippingQuoteId = extractShippingMeta('shipping_quote_id');
         const shippingQuoteKey = extractShippingMeta('shipping_quote_key');
         const shippingQuoteRequestId = extractShippingMeta('shipping_quote_request_id');
-        const easypostRateMeta =
-          extractShippingMeta('easypost_rate_id') ?? extractShippingMeta('easypostRateId');
-        const stripeShippingRateId = easypostRateMeta
-          ? easypostRateMeta.startsWith('dyn_')
-            ? easypostRateMeta
-            : `dyn_${easypostRateMeta}`
+        const shippingRateMeta =
+          extractShippingMeta('shippo_rate_id') ??
+          extractShippingMeta('shippoRateId') ??
+          extractShippingMeta('shipping_rate_id') ??
+          extractShippingMeta('shippingRateId');
+        const stripeShippingRateId = shippingRateMeta
+          ? shippingRateMeta.startsWith('dyn_')
+            ? shippingRateMeta
+            : `dyn_${shippingRateMeta}`
           : null;
         const { carrier: displayCarrier, service: displayService } = splitShippingDisplayName(
           shippingRate?.display_name

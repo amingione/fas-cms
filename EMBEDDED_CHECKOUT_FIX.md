@@ -63,11 +63,11 @@ Stripe → Webhook to your server → Return rates dynamically
 
 ## Next Steps for Full Adaptive Pricing
 
-To complete the EasyPost + Stripe Adaptive Pricing integration:
+To complete the Shippo + Stripe Adaptive Pricing integration:
 
 1. **Create shipping-rates-webhook.ts** endpoint (see integration plan)
 2. **Configure Stripe Dashboard:** Enable Adaptive Pricing and set webhook URL
-3. **Ensure EasyPost env vars are set** (EASYPOST_API_KEY + warehouse address)
+3. **Ensure Shippo env vars are set** (SHIPPO_API_KEY + warehouse address)
 4. **Test:** Enter address in Stripe Checkout → rates appear dynamically
 
 ## Test Now

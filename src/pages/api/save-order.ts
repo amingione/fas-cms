@@ -180,12 +180,15 @@ export const POST = async ({ request }: { request: Request }) => {
       const candidate = shippingRateMetadata[key] ?? sessionMetadata[key];
       return typeof candidate === 'string' && candidate.trim() ? candidate.trim() : undefined;
     };
-    const easypostRateMeta =
-      extractShippingMeta('easypost_rate_id') ?? extractShippingMeta('easypostRateId');
-    const stripeShippingRateId = easypostRateMeta
-      ? easypostRateMeta.startsWith('dyn_')
-        ? easypostRateMeta
-        : `dyn_${easypostRateMeta}`
+    const shippingRateMeta =
+      extractShippingMeta('shippo_rate_id') ??
+      extractShippingMeta('shippoRateId') ??
+      extractShippingMeta('shipping_rate_id') ??
+      extractShippingMeta('shippingRateId');
+    const stripeShippingRateId = shippingRateMeta
+      ? shippingRateMeta.startsWith('dyn_')
+        ? shippingRateMeta
+        : `dyn_${shippingRateMeta}`
       : undefined;
     const { carrier: displayCarrier, service: displayService } = splitShippingDisplayName(
       shippingRate?.display_name

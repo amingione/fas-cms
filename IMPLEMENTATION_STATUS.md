@@ -1,4 +1,4 @@
-# ✅ EasyPost + Stripe Adaptive Pricing - Implementation Status
+# ✅ Shippo + Stripe Adaptive Pricing - Implementation Status
 
 **Last Updated:** January 21, 2026
 **Implementation:** COMPLETE
@@ -10,7 +10,7 @@
 
 ### What Was Built
 
-**Real-time dynamic shipping rates** that appear inside Stripe Checkout as customers type their shipping address. The system uses EasyPost to fetch live rates from USPS, UPS, and FedEx, then displays them dynamically through Stripe's Adaptive Pricing feature.
+**Real-time dynamic shipping rates** that appear inside Stripe Checkout as customers type their shipping address. The system uses Shippo to fetch live rates from USPS, UPS, and FedEx, then displays them dynamically through Stripe's Adaptive Pricing feature.
 
 ---
 
@@ -23,7 +23,7 @@
 - Receives webhook call from Stripe when customer enters address
 - Validates webhook signature for security
 - Extracts line items and shipping metadata from Stripe
-- Calls EasyPost API directly to calculate rates
+- Calls Shippo API directly to calculate rates
 - Transforms rates to Stripe's required format
 - Returns rates for immediate display
 
@@ -48,9 +48,9 @@
 **File:** `fas-sanity/src/pages/api/webhooks/stripe-order.ts`
 
 **Changes made:**
-- Extracts EasyPost metadata from shipping rate
-- Stores `easypostShipmentId` for label creation
-- Stores `easypostRateId` for tracking
+- Extracts Shippo metadata from shipping rate
+- Stores `shippoShipmentId` for label creation
+- Stores `shippoRateId` for tracking
 - Stores carrier and service information
 
 **Status:** ✅ Complete and tested
@@ -62,8 +62,8 @@
 **fas-cms-fresh:**
 ```bash
 STRIPE_SHIPPING_WEBHOOK_SECRET=YOUR_STRIPE_SHIPPING_WEBHOOK_SECRET
-EASYPOST_API_KEY=EZAK_...
-EASYPOST_API_BASE=https://api.easypost.com
+SHIPPO_API_KEY=EZAK_...
+SHIPPO_API_BASE=https://api.shippo.com
 WAREHOUSE_ADDRESS_LINE1=6161 Riverside Dr
 WAREHOUSE_ADDRESS_LINE2=
 WAREHOUSE_CITY=Punta Gorda
@@ -100,7 +100,7 @@ Webhook: /api/stripe/shipping-rates-webhook
          ↓
 Fetch Session → Extract Cart
          ↓
-EasyPost API → Calculate Rates
+Shippo API → Calculate Rates
          ↓
 Transform Rates → Return to Stripe
          ↓
@@ -108,7 +108,7 @@ Rates Display in Checkout (< 2s)
          ↓
 Customer Selects Rate & Pays
          ↓
-Order Created with EasyPost Metadata
+Order Created with Shippo Metadata
          ↓
 Label Created from Stored Data
 ```
@@ -145,7 +145,7 @@ Label Created from Stored Data
 |-----------|-----------|---------|--------|
 | Shipping Webhook | fas-cms-fresh | Receive Stripe calls | ✅ |
 | Checkout Session | fas-cms-fresh | Create session with metadata | ✅ |
-| Rate Calculator | fas-sanity | Call EasyPost API | ✅ |
+| Rate Calculator | fas-sanity | Call Shippo API | ✅ |
 | Order Webhook | fas-sanity | Store shipping metadata | ✅ |
 | Label Creator | fas-sanity | Purchase shipping labels | ✅ |
 
@@ -154,7 +154,7 @@ Label Created from Stored Data
 | Service | Purpose | Configuration |
 |---------|---------|---------------|
 | Stripe | Checkout & webhooks | ✅ API keys configured |
-| EasyPost | Rate calculation & labels | ✅ API key configured |
+| Shippo | Rate calculation & labels | ✅ API key configured |
 | Sanity | Product & order data | ✅ Client configured |
 
 ---
@@ -253,25 +253,25 @@ Label Created from Stored Data
 
 **No rates appearing:**
 - Check webhook secret
-- Verify EasyPost API key and warehouse address env vars
+- Verify Shippo API key and warehouse address env vars
 - Ensure products have weights
 - Review Stripe webhook logs
 
 **Wrong rates:**
 - Verify warehouse address
 - Check product weights
-- Confirm EasyPost mode (test vs prod)
+- Confirm Shippo mode (test vs prod)
 
 **Slow response:**
 - Monitor Netlify function logs
-- Check EasyPost API status
+- Check Shippo API status
 - Optimize Sanity queries
 
 ### Debug Resources
 
 - **Stripe Webhooks:** https://dashboard.stripe.com/test/webhooks
 - **Netlify Functions:** Deployment logs
-- **EasyPost Dashboard:** API usage and shipments
+- **Shippo Dashboard:** API usage and shipments
 - **Local Testing:** Use Stripe CLI for webhook forwarding
 
 ---
@@ -280,7 +280,7 @@ Label Created from Stored Data
 
 **Technical:**
 - Stripe Support: https://support.stripe.com
-- EasyPost Support: support@easypost.com
+- Shippo Support: support@shippo.com
 
 **Documentation:**
 - Integration Guide: `SHIPPING_INTEGRATION.md`
@@ -330,5 +330,5 @@ Label Created from Stored Data
 ---
 
 **Built by:** Claude (Anthropic AI)
-**Integration Plan:** `EASYPOST_STRIPE_INTEGRATION_PLAN.md`
+**Integration Plan:** `SHIPPO_STRIPE_INTEGRATION_PLAN.md`
 **Implementation Date:** January 21, 2026

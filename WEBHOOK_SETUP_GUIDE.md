@@ -9,9 +9,9 @@ Add these to your `.env` file in `fas-cms-fresh`:
 # Get this from Stripe Dashboard after configuring the webhook
 STRIPE_SHIPPING_WEBHOOK_SECRET=YOUR_STRIPE_SHIPPING_WEBHOOK_SECRET
 
-# EasyPost API (for checkout rate calculation)
-EASYPOST_API_KEY=EZAK_...
-EASYPOST_API_BASE=https://api.easypost.com
+# Shippo API (for checkout rate calculation)
+SHIPPO_API_KEY=EZAK_...
+SHIPPO_API_BASE=https://api.shippo.com
 WAREHOUSE_ADDRESS_LINE1=6161 Riverside Dr
 WAREHOUSE_ADDRESS_LINE2=
 WAREHOUSE_CITY=Punta Gorda
@@ -129,11 +129,11 @@ metadata: {
 }
 ```
 
-### **Problem: Webhook returns 500 (EasyPost failed)**
+### **Problem: Webhook returns 500 (Shippo failed)**
 
 **Solution:** 
-- Check EasyPost API key and warehouse address env vars
-- Verify EasyPost API status in dashboard
+- Check Shippo API key and warehouse address env vars
+- Verify Shippo API status in dashboard
 
 ### **Problem: No shipping rates appear**
 
@@ -154,8 +154,8 @@ metadata: {
 
 **Server Logs:**
 - Look for `[ShippingWebhook]` prefixed logs
-- Check for EasyPost rate requests
-- Verify rates are being returned from EasyPost
+- Check for Shippo rate requests
+- Verify rates are being returned from Shippo
 
 ---
 
@@ -166,11 +166,11 @@ When everything is working:
 ✅ Customer enters address in Stripe Checkout  
 ✅ Webhook receives address and session ID  
 ✅ Cart data extracted from session metadata  
-✅ EasyPost rates fetched from fas-sanity  
+✅ Shippo rates fetched from fas-sanity  
 ✅ Rates formatted and returned to Stripe  
 ✅ **Shipping options appear in checkout UI!** 🎉  
 ✅ Customer selects rate and completes payment  
-✅ Order stores EasyPost metadata for label creation  
+✅ Order stores Shippo metadata for label creation  
 
 ---
 
@@ -178,7 +178,7 @@ When everything is working:
 
 Once shipping rates are appearing:
 
-1. **Update Order Webhook** - Store EasyPost metadata in orders
+1. **Update Order Webhook** - Store Shippo metadata in orders
 2. **Update Label Creation** - Use stored shipment/rate IDs
 3. **Test End-to-End** - Create order → generate label → track shipment
 4. **Monitor & Optimize** - Check rate accuracy, delivery estimates
@@ -190,7 +190,7 @@ Once shipping rates are appearing:
 Common issues and solutions are in the troubleshooting section above.
 
 For detailed technical info, see:
-- `/home/claude/EASYPOST_STRIPE_INTEGRATION_PLAN.md`
+- `/home/claude/SHIPPO_STRIPE_INTEGRATION_PLAN.md`
 - `/home/claude/CODE_CHANGES_GUIDE.md`
 
 **Current Status:** ✅ Webhook file created, ready for deployment!

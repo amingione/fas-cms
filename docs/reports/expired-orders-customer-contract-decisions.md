@@ -386,7 +386,7 @@ cd /Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh
 
 **Cross-Reference:**
 - Pattern established in: `docs/reports/cross-repo-contract-decisions.md` (schema-first approach)
-- Similar fix: Decision #3 (vendor.userSub) and Decision #11 (EasyPost fields)
+- Similar fix: Decision #3 (vendor.userSub) and Decision #11 (Shippo fields)
 - Governance model: Schema changes approved when fas-cms-fresh usage is confirmed
 
 ---

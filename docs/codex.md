@@ -87,7 +87,7 @@ Core Principles
    │ ├── customer.ts # Customer document type
    │ ├── vendor.ts # Vendor document type
    │ ├── invoice.ts # Invoice document type
-   │ ├── shippingLabel.ts # EasyPost shipping labels
+   │ ├── shippingLabel.ts # Shippo shipping labels
    │ └── [other schemas]
    ├── components/ # Custom Studio components
    ├── lib/
@@ -102,13 +102,13 @@ Core Principles
    │ │ ├── checkout.ts # Stripe checkout creation
    │ │ ├── webhooks.ts # Stripe webhook handler
    │ │ ├── shipping/
-   │ │ │ └── rates.ts # EasyPost rate fetching
+   │ │ │ └── rates.ts # Shippo rate fetching
    │ │ └── military-verify/
    │ │ ├── start.ts # Military verification
    │ │ └── check-status.ts
    │ ├── lib/
    │ │ ├── sanity.ts # Sanity client config
-   │ │ ├── easypost.ts # EasyPost client config
+   │ │ ├── shippo.ts # Shippo client config
    │ │ ├── auth.ts # Auth utilities
    │ │ └── session.ts # Session management
    │ ├── components/ # React/Astro components
@@ -405,20 +405,20 @@ Metadata must include: sanity_product_id, customer_id, order_type
 Webhook must create order with complete cart data
 Totals: amountSubtotal + amountShipping + amountTax = totalAmount
 All amounts stored in dollars (not cents) in Sanity
-Stripe amounts divided by 100 before storing 2. EasyPost Integration
+Stripe amounts divided by 100 before storing 2. Shippo Integration
 Shipping Flow:
 
-Customer enters address → fas-cms-fresh/api/shipping/rates.ts → EasyPost API → Return rates → Customer selects → Stored in checkout session
+Customer enters address → fas-cms-fresh/api/shipping/rates.ts → Shippo API → Return rates → Customer selects → Stored in checkout session
 Key Files:
 
-fas-cms-fresh/src/lib/easypost.ts — EasyPost client
+fas-cms-fresh/src/lib/shippo.ts — Shippo client
 fas-cms-fresh/src/pages/api/shipping/rates.ts — Fetch shipping rates
 fas-cms-fresh/src/pages/api/shipping/create-label.ts — Create shipping labels
 fas-sanity/schemas/shippingLabel.ts — Label tracking schema
 Rules:
 
 Always validate addresses before rate calculation
-Store EasyPost shipment ID in easyPostShipmentId field
+Store Shippo shipment ID in shippoShipmentId field
 Track label URLs in shippingLabelUrl field
 Store tracking numbers in trackingNumber field
 Handle rate errors gracefully 3. Sanity Integration
@@ -671,7 +671,7 @@ group: 'overview'
       group: 'fulfillment'
     },
     {
-      name: 'easypostRateId',
+      name: 'shippoRateId',
       type: 'string',
       group: 'fulfillment'
     },
@@ -721,7 +721,7 @@ group: 'overview'
       group: 'fulfillment'
     },
     {
-      name: 'easyPostTrackerId',
+      name: 'shippoTrackerId',
       type: 'string',
       group: 'fulfillment'
     },
@@ -799,7 +799,7 @@ group: 'overview'
       group: 'technical'
     },
     {
-      name: 'easyPostShipmentId',
+      name: 'shippoShipmentId',
       type: 'string',
       group: 'technical'
     },
@@ -1105,9 +1105,9 @@ SANITY_API_TOKEN=skxxx
 
 SANITY_STUDIO_STRIPE_SECRET_KEY=<YOUR_SANITY_STUDIO_STRIPE_SECRET_KEY>
 
-# EasyPost (if needed in Studio)
+# Shippo (if needed in Studio)
 
-SANITY_STUDIO_EASYPOST_API_KEY=EZAK_xxx
+SANITY_STUDIO_SHIPPO_API_KEY=EZAK_xxx
 fas-cms-fresh (.env.local)
 
 # Sanity
@@ -1122,9 +1122,9 @@ STRIPE_SECRET_KEY=<your_stripe_secret_key>
 PUBLIC_STRIPE_PUBLISHABLE_KEY=<your_stripe_publishable_key>
 STRIPE_WEBHOOK_SECRET=<your_stripe_webhook_secret>
 
-# EasyPost
+# Shippo
 
-EASYPOST_API_KEY=EZAK_xxx
+SHIPPO_API_KEY=EZAK_xxx
 
 # SheerID (Military Verification)
 
@@ -1290,7 +1290,7 @@ fas-sanity/
 │   ├── customer.ts                 # Customer document type
 │   ├── vendor.ts                   # Vendor document type
 │   ├── invoice.ts                  # Invoice document type
-│   ├── shippingLabel.ts            # EasyPost shipping labels
+│   ├── shippingLabel.ts            # Shippo shipping labels
 │   └── [other schemas]
 ├── components/                     # Custom Studio components
 ├── lib/
@@ -1309,13 +1309,13 @@ fas-cms-fresh/
 │   │       ├── checkout.ts        # Stripe checkout creation
 │   │       ├── webhooks.ts        # Stripe webhook handler
 │   │       ├── shipping/
-│   │       │   └── rates.ts       # EasyPost rate fetching
+│   │       │   └── rates.ts       # Shippo rate fetching
 │   │       └── military-verify/
 │   │           ├── start.ts       # Military verification
 │   │           └── check-status.ts
 │   ├── lib/
 │   │   ├── sanity.ts              # Sanity client config
-│   │   ├── easypost.ts            # EasyPost client config
+│   │   ├── shippo.ts            # Shippo client config
 │   │   ├── auth.ts                # Auth utilities
 │   │   └── session.ts             # Session management
 │   ├── components/                # React/Astro components
@@ -1726,17 +1726,17 @@ function generateKey(): string {
 - All amounts stored in dollars (not cents) in Sanity
 - Stripe amounts divided by 100 before storing
 
-### 2. EasyPost Integration
+### 2. Shippo Integration
 
 **Shipping Flow:**
 
 ```
-Customer enters address → fas-cms-fresh/api/shipping/rates.ts → EasyPost API → Return rates → Customer selects → Stored in checkout session
+Customer enters address → fas-cms-fresh/api/shipping/rates.ts → Shippo API → Return rates → Customer selects → Stored in checkout session
 ```
 
 **Key Files:**
 
-- `fas-cms-fresh/src/lib/easypost.ts` — EasyPost client
+- `fas-cms-fresh/src/lib/shippo.ts` — Shippo client
 - `fas-cms-fresh/src/pages/api/shipping/rates.ts` — Fetch shipping rates
 - `fas-cms-fresh/src/pages/api/shipping/create-label.ts` — Create shipping labels
 - `fas-sanity/schemas/shippingLabel.ts` — Label tracking schema
@@ -1744,7 +1744,7 @@ Customer enters address → fas-cms-fresh/api/shipping/rates.ts → EasyPost API
 **Rules:**
 
 - Always validate addresses before rate calculation
-- Store EasyPost shipment ID in `easyPostShipmentId` field
+- Store Shippo shipment ID in `shippoShipmentId` field
 - Track label URLs in `shippingLabelUrl` field
 - Store tracking numbers in `trackingNumber` field
 - Handle rate errors gracefully
@@ -1977,7 +1977,7 @@ export default {
       group: 'fulfillment',
     },
     {
-      name: 'easyPostShipmentId',
+      name: 'shippoShipmentId',
       type: 'string',
       group: 'technical',
     },
@@ -2271,8 +2271,8 @@ SANITY_API_TOKEN=skxxx
 # Stripe (if needed in Studio)
 SANITY_STUDIO_STRIPE_SECRET_KEY=<your_sanity_studio_stripe_secret_key>
 
-# EasyPost (if needed in Studio)
-SANITY_STUDIO_EASYPOST_API_KEY=EZAK_xxx
+# Shippo (if needed in Studio)
+SANITY_STUDIO_SHIPPO_API_KEY=EZAK_xxx
 ```
 
 ### fas-cms-fresh (.env.local)
@@ -2288,8 +2288,8 @@ STRIPE_SECRET_KEY=<your_stripe_secret_key>
 PUBLIC_STRIPE_PUBLISHABLE_KEY=<your_stripe_publishable_key>
 STRIPE_WEBHOOK_SECRET=<your_stripe_webhook_secret>
 
-# EasyPost
-EASYPOST_API_KEY=EZAK_xxx
+# Shippo
+SHIPPO_API_KEY=EZAK_xxx
 
 # SheerID (Military Verification)
 SHEERID_ACCESS_TOKEN=xxx

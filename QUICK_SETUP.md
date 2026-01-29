@@ -14,8 +14,8 @@ Add to `fas-cms-fresh/.env`:
 
 ```bash
 STRIPE_SHIPPING_WEBHOOK_SECRET=YOUR_STRIPE_SHIPPING_WEBHOOK_SECRET
-EASYPOST_API_KEY=EZAK_...
-EASYPOST_API_BASE=https://api.easypost.com
+SHIPPO_API_KEY=EZAK_...
+SHIPPO_API_BASE=https://api.shippo.com
 WAREHOUSE_ADDRESS_LINE1=6161 Riverside Dr
 WAREHOUSE_ADDRESS_LINE2=
 WAREHOUSE_CITY=Punta Gorda
@@ -76,7 +76,7 @@ git push
 **Fix:** Verify `cart` is in session metadata (see create-checkout-session.ts)
 
 **Issue:** Webhook returns 500  
-**Fix:** Check EasyPost keys and warehouse address env vars are set
+**Fix:** Check Shippo keys and warehouse address env vars are set
 
 **Issue:** No rates appear  
 **Fix:** Check Stripe Dashboard → Webhooks → View logs for errors
@@ -95,7 +95,7 @@ git push
 - `src/pages/api/stripe/create-checkout-session.ts` - Already configured correctly
 
 **Integration Docs (for reference):**
-- `/home/claude/EASYPOST_STRIPE_INTEGRATION_PLAN.md`
+- `/home/claude/SHIPPO_STRIPE_INTEGRATION_PLAN.md`
 - `/home/claude/CODE_CHANGES_GUIDE.md`
 - `/home/claude/INTEGRATION_CHECKLIST.md`
 
@@ -118,6 +118,6 @@ git push
 1. **Test locally first** using `stripe listen --forward-to http://localhost:4321/api/stripe/shipping-rates-webhook`
 2. **Check logs** - Both Stripe Dashboard and your server logs
 3. **Verify cart metadata** - Session must have cart data in metadata
-4. **Monitor EasyPost calls** - Check EasyPost dashboard for shipment rate requests
+4. **Monitor Shippo calls** - Check Shippo dashboard for shipment rate requests
 
 **You're 95% there! Just need to configure Stripe Dashboard and deploy.** 🚀

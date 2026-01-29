@@ -26,7 +26,7 @@ Produce a complete, factual map of all files in fas-cms-fresh that:
 	•	Assume Sanity schema fields exist
 	•	Write or patch Sanity documents
 	•	Depend on GROQ queries or schema shape
-	•	Depend on Stripe, EasyPost, or Email/SMS data mirrored into Sanity
+	•	Depend on Stripe, Shippo, or Email/SMS data mirrored into Sanity
 
 Identify:
 	•	Schema assumptions
@@ -109,7 +109,7 @@ For fas-cms-fresh, document:
 
 Audit only existing behavior:
 	•	Stripe (customers, payments, coupons)
-	•	EasyPost (shipments, labels)
+	•	Shippo (shipments, labels)
 	•	Email / SMS (Resend, Twilio)
 
 For each:
@@ -214,7 +214,7 @@ Phase 0 Scope
 	•	Enumerate all relevant files in fas-cms-fresh
 	•	Enumerate all Sanity schemas referenced
 	•	Enumerate GROQ queries and Sanity clients
-	•	Enumerate Stripe / EasyPost / Email touchpoints
+	•	Enumerate Stripe / Shippo / Email touchpoints
 	•	Enumerate Studio structures and derived lists
 
 Phase 0 Output Files
@@ -316,7 +316,7 @@ API Routes Observed:
 
 Integrations Observed:
 - Stripe: <yes/no>
-- EasyPost: <yes/no>
+- Shippo: <yes/no>
 - Email/SMS: <yes/no>
 
 Schema Ambiguity Detected:
@@ -392,7 +392,7 @@ Phase 0 Scope
 	•	Enumerate all relevant files in fas-cms-fresh
 	•	Enumerate all Sanity schemas referenced
 	•	Enumerate GROQ queries and Sanity clients
-	•	Enumerate Stripe / EasyPost / Email touchpoints
+	•	Enumerate Stripe / Shippo / Email touchpoints
 	•	Enumerate Studio structures and derived lists
 
 Phase 0 Output Files

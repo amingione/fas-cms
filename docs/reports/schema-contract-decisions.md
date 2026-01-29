@@ -40,15 +40,15 @@ The Invoice schema has an editable datetime field (shippingDetails.labelPurchase
    Critical Decision — shippingDetails.labelPurchasedAt: Current State:
    Type: datetime ✅
    Editability: User-editable ❌
-   Source: Should be EasyPost webhook/API
+   Source: Should be Shippo webhook/API
    Risk: Users can enter invalid timestamps, breaking shipping workflow
    Correct Contract:
    Type: datetime (ISO 8601)
    Editability: readOnly
-   Source: System-only (EasyPost API response)
+   Source: System-only (Shippo API response)
    Validation: None needed (system-set)
    Why This Is Blocking:
-   Data Integrity: Label purchase time is a factual event from EasyPost, not user opinion
+   Data Integrity: Label purchase time is a factual event from Shippo, not user opinion
    Workflow Dependencies: Other systems may rely on this timestamp for tracking/auditing
    Publishing: Sanity may block publish if user enters malformed datetime
    Financial Audit: Label purchase time ties to billing events; must be accurate
@@ -56,7 +56,7 @@ The Invoice schema has an editable datetime field (shippingDetails.labelPurchase
    Prevents users from entering incorrect label purchase times
    Ensures shipping workflow integrity
    Allows safe publishing of invoice documents
-   Aligns with EasyPost API contract
+   Aligns with Shippo API contract
    Additional Validation Decisions:
    Add validation: invoiceDate must be ≥ order.createdAt (if order reference exists)
    Add validation: dueDate must be > invoiceDate
@@ -102,7 +102,7 @@ The Invoice schema has an editable datetime field (shippingDetails.labelPurchase
    createdAt datetime datetime readOnly None ✅ Correct
    updatedAt datetime datetime readOnly None ✅ Correct
    Decisions:
-   No changes needed. Shipments are purely system-managed via EasyPost webhooks. All contracts are correct.
+   No changes needed. Shipments are purely system-managed via Shippo webhooks. All contracts are correct.
 2. Cross-Document Consistency Rules
    2.1 System Timestamps
    Rule: All system-generated timestamps use datetime (ISO 8601) and are readOnly.
@@ -115,8 +115,8 @@ The Invoice schema has an editable datetime field (shippingDetails.labelPurchase
    2.2 Business Event Timestamps
    Rule: Timestamps for business events (payment, shipping, delivery) use datetime and are readOnly.
    Field Pattern Type Editability Source
-   labelPurchasedAt datetime readOnly EasyPost API
-   labelPrintedAt datetime readOnly EasyPost webhook
+   labelPurchasedAt datetime readOnly Shippo API
+   labelPrintedAt datetime readOnly Shippo webhook
    paidAt datetime readOnly Stripe webhook
    shippedAt datetime readOnly Carrier API
    Apply to: Orders, Invoices, Shipments Critical: These are factual events from external systems, never user-entered.
@@ -171,7 +171,7 @@ INVOICE SCHEMA:
 
 - Field: shippingDetails.labelPurchasedAt
   - Set: readOnly = true
-  - Reason: System-generated from EasyPost API
+  - Reason: System-generated from Shippo API
   - Risk: 🔴 Blocking
 
 Change Set 2: Data Integrity Fixes

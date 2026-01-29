@@ -60,7 +60,7 @@ async function main() {
   console.log('   ℹ️  This requires manual verification in Stripe Dashboard:');
   console.log('   Go to: https://dashboard.stripe.com/settings/checkout');
   console.log('   Verify: Dynamic shipping rates are enabled');
-  console.log('   Verify: Your carriers (UPS, DHL, FedEx) are configured in EasyPost');
+  console.log('   Verify: Your carriers (UPS, DHL, FedEx) are configured in Shippo');
 
   // 3. Check recent checkout sessions
   console.log('\n3. Checking recent checkout sessions...');
@@ -135,7 +135,7 @@ async function main() {
   console.log('For dynamic shipping to work, you MUST:');
   console.log('  1. ✅ Delete ALL static shipping rates from Stripe Dashboard');
   console.log('  2. ✅ Enable dynamic shipping rates in Stripe Checkout');
-  console.log('  3. ✅ Configure your carriers in EasyPost');
+  console.log('  3. ✅ Configure your carriers in Shippo');
   console.log('  4. ✅ Ensure products have type="good" (not "service")');
   console.log(
     '  5. ✅ Ensure products have all metadata: shipping_required, package_weight, origin_country'
@@ -145,7 +145,7 @@ async function main() {
   console.log('  8. ✅ Set shipping_address_collection in Checkout Session');
   console.log("\nIf all above are correct and shipping rates still don't appear:");
   console.log('  - Check Stripe webhook logs in the Stripe Dashboard');
-  console.log('  - Verify carrier API keys are valid in EasyPost');
+  console.log('  - Verify carrier API keys are valid in Shippo');
   console.log('  - Contact support with your session ID');
 
   console.log('\n' + '='.repeat(60));

@@ -92,7 +92,7 @@ async function main() {
   console.log('Dynamic rates should now be able to appear in Stripe Checkout.');
   console.log('\nNext steps:');
   console.log('  1. Verify dynamic shipping rates are enabled in Stripe Checkout');
-  console.log('  2. Configure your carriers in EasyPost');
+  console.log('  2. Configure your carriers in Shippo');
   console.log('  3. Test checkout with a shippable product');
 }
 

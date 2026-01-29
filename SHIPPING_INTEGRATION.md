@@ -1,6 +1,6 @@
 # Shipping Integration Documentation
 
-**EasyPost + Stripe Adaptive Pricing**
+**Shippo + Stripe Adaptive Pricing**
 Real-time dynamic shipping rates in Stripe Checkout
 
 Last Updated: January 21, 2026
@@ -32,7 +32,7 @@ User enters address in Stripe Checkout
          ↓
 Stripe calls YOUR webhook endpoint
          ↓
-Webhook calls EasyPost API for rates
+Webhook calls Shippo API for rates
          ↓
 Returns rates to Stripe in real-time
          ↓
@@ -40,7 +40,7 @@ User sees live UPS/USPS/FedEx rates
          ↓
 User selects rate and completes payment
          ↓
-Webhook creates EasyPost label post-purchase
+Webhook creates Shippo label post-purchase
 ```
 
 ### Components Overview
@@ -63,12 +63,12 @@ Webhook creates EasyPost label post-purchase
 │  /api/stripe/shipping-rates-webhook                        │
 │  - Receives address from Stripe                            │
 │  - Validates session_id                                    │
-│  - Calls EasyPost API for rate calculation                 │
+│  - Calls Shippo API for rate calculation                 │
 └────────────────────┬───────────────────────────────────────┘
                      │
                      ▼
             ┌────────────────────┐
-            │   EasyPost API     │
+            │   Shippo API     │
             │  - Creates shipment │
             │  - Returns rates    │
             └────────┬───────────┘
@@ -104,9 +104,9 @@ STRIPE_SECRET_KEY=sk_live...
 STRIPE_PUBLISHABLE_KEY=pk_live...
 STRIPE_SHIPPING_WEBHOOK_SECRET=YOUR_STRIPE_SHIPPING_WEBHOOK_SECRET
 
-# EasyPost Integration (Checkout Rates)
-EASYPOST_API_KEY=EZAK_...
-EASYPOST_API_BASE=https://api.easypost.com
+# Shippo Integration (Checkout Rates)
+SHIPPO_API_KEY=EZAK_...
+SHIPPO_API_BASE=https://api.shippo.com
 WAREHOUSE_ADDRESS_LINE1=6161 Riverside Dr
 WAREHOUSE_ADDRESS_LINE2=
 WAREHOUSE_CITY=Punta Gorda
@@ -121,9 +121,9 @@ WAREHOUSE_EMAIL=orders@updates.fasmotorsports.com
 Ensure you have:
 
 ```bash
-# EasyPost Configuration
-EASYPOST_API_KEY=EZAK...
-EASYPOST_MODE=production  # or 'test' for sandbox
+# Shippo Configuration
+SHIPPO_API_KEY=EZAK...
+SHIPPO_MODE=production  # or 'test' for sandbox
 
 # Warehouse Address
 SHIP_FROM_NAME=FAS Motorsports
@@ -145,10 +145,10 @@ SHIP_FROM_PHONE=555-123-4567
 |----------|------------|---------|
 | `STRIPE_SECRET_KEY` | fas-cms-fresh | Stripe API authentication |
 | `STRIPE_SHIPPING_WEBHOOK_SECRET` | fas-cms-fresh | Verify webhook signatures |
-| `EASYPOST_API_KEY` | fas-cms-fresh | EasyPost API authentication for checkout rates |
-| `EASYPOST_API_BASE` | fas-cms-fresh | EasyPost API base URL |
+| `SHIPPO_API_KEY` | fas-cms-fresh | Shippo API authentication for checkout rates |
+| `SHIPPO_API_BASE` | fas-cms-fresh | Shippo API base URL |
 | `WAREHOUSE_*` | fas-cms-fresh | Warehouse shipping address for checkout rates |
-| `EASYPOST_API_KEY` | fas-sanity | EasyPost API authentication for labels |
+| `SHIPPO_API_KEY` | fas-sanity | Shippo API authentication for labels |
 | `SHIP_FROM_*` | fas-sanity | Warehouse shipping address for labels |
 
 ### Optional Variables
@@ -156,7 +156,7 @@ SHIP_FROM_PHONE=555-123-4567
 | Variable | Default | Purpose |
 |----------|---------|---------|
 | `DEFAULT_PACKAGE_WEIGHT_LBS` | 5 | Fallback weight if product missing |
-| `EASYPOST_MODE` | production | Use 'test' for sandbox testing |
+| `SHIPPO_MODE` | production | Use 'test' for sandbox testing |
 
 ---
 
@@ -189,7 +189,7 @@ SHIP_FROM_PHONE=555-123-4567
 {
   "shipping_rates": [
     {
-      "id": "dyn_<easypostRateId>",
+      "id": "dyn_<shippoRateId>",
       "display_name": "USPS Priority",
       "delivery_estimate": {
         "minimum": { "unit": "business_day", "value": 2 },
@@ -200,8 +200,8 @@ SHIP_FROM_PHONE=555-123-4567
         "currency": "usd"
       },
       "metadata": {
-        "easypost_rate_id": "<easypostRateId>",
-        "easypost_shipment_id": "shp_xyz789",
+        "shippo_rate_id": "<shippoRateId>",
+        "shippo_shipment_id": "shp_xyz789",
         "carrier": "USPS",
         "service": "Priority",
         "carrier_id": "ca_123",
@@ -230,8 +230,8 @@ SHIP_FROM_PHONE=555-123-4567
 **Purpose:** Create order in Sanity after successful payment
 
 **Key Changes:**
-- Extracts EasyPost metadata from `shipping_cost.shipping_rate.metadata`
-- Stores `easypostShipmentId`, `easypostRateId`, `carrierId`, `serviceCode`
+- Extracts Shippo metadata from `shipping_cost.shipping_rate.metadata`
+- Stores `shippoShipmentId`, `shippoRateId`, `carrierId`, `serviceCode`
 - Used later for label creation
 
 ---
@@ -246,14 +246,14 @@ SHIP_FROM_PHONE=555-123-4567
 1. Verify Stripe signature
 2. Extract shipping address and session ID
 3. Retrieve session line items for shipping metadata
-4. Call EasyPost API to calculate rates
-5. Transform EasyPost rates to Stripe format
+4. Call Shippo API to calculate rates
+5. Transform Shippo rates to Stripe format
 6. Return rates to Stripe
 
 **Error Handling:**
 - 401: Invalid signature
 - 400: Missing required data
-- 500: EasyPost API failure
+- 500: Shippo API failure
 
 ### 2. stripe-order webhook
 
@@ -263,7 +263,7 @@ SHIP_FROM_PHONE=555-123-4567
 1. Receive `checkout.session.completed` event
 2. Extract shipping metadata from session
 3. Create order document in Sanity
-4. Store EasyPost IDs for label creation
+4. Store Shippo IDs for label creation
 
 ---
 
@@ -286,8 +286,8 @@ SHIP_FROM_PHONE=555-123-4567
    ```typescript
    // Current: Creates new shipment
    // Future: Reuse stored shipment
-   const shipment = await easyPost.Shipment.retrieve(order.easypostShipmentId);
-   const selectedRate = shipment.rates.find(r => r.id === order.easypostRateId);
+   const shipment = await shippo.Shipment.retrieve(order.shippoShipmentId);
+   const selectedRate = shipment.rates.find(r => r.id === order.shippoRateId);
    ```
 
 3. **Purchase Label**
@@ -313,7 +313,7 @@ SHIP_FROM_PHONE=555-123-4567
 #### 1. Webhook Configuration
 - [ ] Webhook endpoint is accessible publicly
 - [ ] Webhook secret is correctly configured
-- [ ] EasyPost API key configured in fas-cms-fresh
+- [ ] Shippo API key configured in fas-cms-fresh
 
 #### 2. Test Checkout Flow
 ```bash
@@ -340,7 +340,7 @@ curl -X POST https://fasmotorsports.com/api/stripe/create-checkout-session \
 
 #### 4. Verify Order Creation
 - [ ] Order created in Sanity with correct data
-- [ ] EasyPost metadata stored (`easypostShipmentId`, `easypostRateId`)
+- [ ] Shippo metadata stored (`shippoShipmentId`, `shippoRateId`)
 - [ ] Shipping address populated
 - [ ] Customer details correct
 
@@ -350,11 +350,11 @@ curl -X POST https://fasmotorsports.com/api/stripe/create-checkout-session \
 
 ```bash
 # fas-cms-fresh
-[checkout] Using Stripe Checkout with EasyPost for dynamic shipping rates
+[checkout] Using Stripe Checkout with Shippo for dynamic shipping rates
 
 # Webhook logs
 Shipping rates webhook error: [error details]
-# EasyPost shipment created: shp_xyz
+# Shippo shipment created: shp_xyz
 ```
 
 ---
@@ -366,9 +366,9 @@ Shipping rates webhook error: [error details]
 **Check:**
 1. Webhook endpoint is publicly accessible
 2. Webhook secret matches Stripe Dashboard
-3. EasyPost API key is correct
+3. Shippo API key is correct
 4. Products have weight/dimensions in Stripe metadata
-5. EasyPost API status is healthy
+5. Shippo API status is healthy
 
 **Debug:**
 ```bash
@@ -385,12 +385,12 @@ curl -X POST https://fasmotorsports.com/api/stripe/shipping-rates-webhook \
 - Incorrect product weights in Sanity
 - Missing dimensions
 - Wrong warehouse address in SHIP_FROM_* variables
-- EasyPost in test mode vs production
+- Shippo in test mode vs production
 
 **Fix:**
 1. Verify product shipping data in Sanity Studio
 2. Check SHIP_FROM_* environment variables
-3. Ensure EASYPOST_MODE matches environment
+3. Ensure SHIPPO_MODE matches environment
 
 ### Webhook signature verification fails
 
@@ -403,21 +403,21 @@ curl -X POST https://fasmotorsports.com/api/stripe/shipping-rates-webhook \
 
 **Common causes:**
 - Missing order data
-- Invalid EasyPost shipment ID
+- Invalid Shippo shipment ID
 - Address validation errors
 
 **Fix:**
 1. Verify order has complete shipping address
-2. Check EasyPost dashboard for shipment status
+2. Check Shippo dashboard for shipment status
 3. Review address format (street1, city, state, zip required)
 
 ---
 
 ## FAQ
 
-### Q: Why use EasyPost?
+### Q: Why use Shippo?
 
-**A:** EasyPost provides:
+**A:** Shippo provides:
 - Full API access for custom logic
 - Multiple carrier support (USPS, UPS, FedEx, DHL, etc.)
 - Real-time rate calculation
@@ -429,7 +429,7 @@ curl -X POST https://fasmotorsports.com/api/stripe/shipping-rates-webhook \
 
 **A:** Yes! Stripe's Adaptive Pricing calls your webhook every time the user updates their shipping address, providing instant rate updates.
 
-### Q: What happens if EasyPost is down?
+### Q: What happens if Shippo is down?
 
 **A:** The webhook will return an error and Stripe won't show shipping rates. Consider implementing:
 - Fallback to static rates
@@ -438,7 +438,7 @@ curl -X POST https://fasmotorsports.com/api/stripe/shipping-rates-webhook \
 
 ### Q: Can I customize which carriers are shown?
 
-**A:** Yes! Filter carriers in `shipping-rates-webhook.ts` after the EasyPost response:
+**A:** Yes! Filter carriers in `shipping-rates-webhook.ts` after the Shippo response:
 ```typescript
 const rates = rateData.rates.filter(rate =>
   ['USPS', 'UPS'].includes(rate.carrier)
@@ -490,7 +490,7 @@ shipping_address_collection: {
 2. **Monitor error rates**
    - Set up error tracking (Sentry, LogRocket, etc.)
    - Create alerts for webhook failures
-   - Monitor EasyPost API quotas
+   - Monitor Shippo API quotas
 
 3. **Performance optimization**
    - Cache common routes (if applicable)
@@ -515,17 +515,17 @@ shipping_address_collection: {
 ## Support & Resources
 
 ### Getting Help
-- **EasyPost Support**: support@easypost.com
+- **Shippo Support**: support@shippo.com
 - **Stripe Support**: https://support.stripe.com
 - **Documentation**: This file and inline code comments
 
 ### Useful Resources
 - [Stripe Adaptive Pricing Docs](https://stripe.com/docs/payments/checkout/shipping)
-- [EasyPost API Reference](https://www.easypost.com/docs/api)
+- [Shippo API Reference](https://www.shippo.com/docs/api)
 - [Webhook Best Practices](https://stripe.com/docs/webhooks/best-practices)
 
 ---
 
-**🎯 End Goal**: Customers see real-time UPS/USPS/FedEx rates inside Stripe Checkout based on their exact shipping address, with automatic label creation after purchase using EasyPost.
+**🎯 End Goal**: Customers see real-time UPS/USPS/FedEx rates inside Stripe Checkout based on their exact shipping address, with automatic label creation after purchase using Shippo.
 
 **💰 Business Value**: Accurate shipping costs, reduced manual work, better customer experience, support for growth and international expansion.

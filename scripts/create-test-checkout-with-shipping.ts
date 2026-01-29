@@ -33,7 +33,7 @@ async function createTestCheckout() {
   try {
     console.log(`\n🛒 Creating test Checkout Session with shipping...\n`);
     console.log(`📍 Shipping Address: ${city}, ${state} ${zip}\n`);
-    console.log(`⚙️  Shipping Mode: Dynamic (EasyPost)\n`);
+    console.log(`⚙️  Shipping Mode: Dynamic (Shippo)\n`);
 
     const existingPriceId = process.env.STRIPE_TEST_SHIPPABLE_PRICE_ID;
     let priceId = existingPriceId;

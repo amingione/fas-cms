@@ -2,13 +2,13 @@
 
 ## Executive Summary
 - Sanity is the shared system of record for customers, vendors, orders, invoices, quotes, and messages; fas-cms-fresh reads and mutates these documents via API routes and server helpers.
-- Stripe and EasyPost are active external authorities for payments and shipping, with order creation in `src/pages/api/webhooks.ts` and shipment updates in `netlify/functions/easypostWebhook.ts`.
+- Stripe and Shippo are active external authorities for payments and shipping, with order creation in `src/pages/api/webhooks.ts` and shipment updates in `netlify/functions/shippoWebhook.ts`.
 - Multiple cross-repo contract mismatches exist (missing schemas, divergent field usage, and mixed document types), which currently destabilize vendor auth, promotions, and invoice/quote retrieval.
 
 ## What Is Correct
 - Checkout and Stripe webhook flow creates Sanity orders with structured addresses, cart line items, and Stripe summary data (`src/pages/api/checkout.ts`, `src/pages/api/webhooks.ts`, `packages/sanity-config/src/schemaTypes/documents/order.tsx`).
 - Customer identity is consistently normalized to lowercase emails in fas-cms-fresh auth and profile endpoints (`src/pages/api/auth/login.ts`, `src/pages/api/get-customer-profile.ts`).
-- EasyPost rate and label flows are separated into rate lookup and label purchase (`src/pages/api/shipping/rates.ts`, `src/pages/api/shipping/create-label.ts`) with downstream shipment syncing in fas-sanity (`netlify/functions/easypostWebhook.ts`).
+- Shippo rate and label flows are separated into rate lookup and label purchase (`src/pages/api/shipping/rates.ts`, `src/pages/api/shipping/create-label.ts`) with downstream shipment syncing in fas-sanity (`netlify/functions/shippoWebhook.ts`).
 
 ## What Is Fragile
 - fas-cms-fresh assumes `promotion` and `vendorAuthToken` schemas that are not present in fas-sanity schema definitions, impacting promotions and vendor invite/reset flows.

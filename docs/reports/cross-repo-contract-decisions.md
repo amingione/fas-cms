@@ -425,7 +425,7 @@ Action:
 **DECISION:** **NO SCHEMA CHANGE.** Add server-side validation allowlist.
 
 **Source of Truth:**
-- **Order Fields**: Schema defines authority per field (Stripe, EasyPost, or customer)
+- **Order Fields**: Schema defines authority per field (Stripe, Shippo, or customer)
 - **Patch Authority**: Only customer-editable fields may be patched
 
 **Contract - Field Authority:**
@@ -440,8 +440,8 @@ Action:
 | `status` | Admin/Fulfillment | ❌ No | Enum validation |
 | `paymentStatus` | Stripe | ❌ No | Webhook-only |
 | `stripePaymentIntentId` | Stripe | ❌ No | Webhook-only |
-| `trackingNumber` | EasyPost | ❌ No | Webhook-only |
-| `shippingCarrier` | EasyPost | ❌ No | Webhook-only |
+| `trackingNumber` | Shippo | ❌ No | Webhook-only |
+| `shippingCarrier` | Shippo | ❌ No | Webhook-only |
 | `total` | Stripe | ❌ No | Webhook-only |
 
 **Required Allowlist (Server-Side):**
@@ -477,24 +477,24 @@ const CUSTOMER_EDITABLE_FIELDS = [
 
 ---
 
-### 11. EasyPost Webhook Writes Undefined Schema Fields
+### 11. Shippo Webhook Writes Undefined Schema Fields
 
-**Audit Finding:** `netlify/functions/easypostWebhook.ts` writes `shippingStatus` and `shippingLog` on orders, but the order schema does not define these fields, making them invisible in Studio.
+**Audit Finding:** `netlify/functions/shippoWebhook.ts` writes `shippingStatus` and `shippingLog` on orders, but the order schema does not define these fields, making them invisible in Studio.
 
 **DECISION:** **SCHEMA CHANGE APPROVED.**
 
 **Source of Truth:**
-- **Canonical**: Order schema (EXTEND with EasyPost fields)
-- **Authority**: EasyPost (via webhooks)
+- **Canonical**: Order schema (EXTEND with Shippo fields)
+- **Authority**: Shippo (via webhooks)
 
 **Required Schema Fields:**
 
 | Field | Type | Authority | Editability | Display |
 |-------|------|-----------|-------------|---------|
-| `shippingStatus` | string enum | EasyPost webhook | Read-only | Visible in fulfillment group |
-| `shippingLog` | array of objects | EasyPost webhook | Read-only | Visible in fulfillment group |
+| `shippingStatus` | string enum | Shippo webhook | Read-only | Visible in fulfillment group |
+| `shippingLog` | array of objects | Shippo webhook | Read-only | Visible in fulfillment group |
 
-**`shippingStatus` Enum Values (from EasyPost):**
+**`shippingStatus` Enum Values (from Shippo):**
 - `pre_transit`: Label created, not yet picked up
 - `in_transit`: Package in carrier's possession
 - `out_for_delivery`: Out for delivery
@@ -516,13 +516,13 @@ const CUSTOMER_EDITABLE_FIELDS = [
 ```
 
 **Read/Write Direction:**
-- **Write**: EasyPost webhook → Sanity (status updates)
+- **Write**: Shippo webhook → Sanity (status updates)
 - **Read**: Studio + fas-cms-fresh → Sanity (order details)
-- **Validation**: EasyPost-authoritative (no manual edits)
+- **Validation**: Shippo-authoritative (no manual edits)
 
 **Allowed Mutations:**
-- ✅ EasyPost webhook writes `shippingStatus`
-- ✅ EasyPost webhook appends to `shippingLog`
+- ✅ Shippo webhook writes `shippingStatus`
+- ✅ Shippo webhook appends to `shippingLog`
 - ✅ Studio displays shipping timeline
 
 **Forbidden Mutations:**
@@ -650,7 +650,7 @@ Decision intent is semantic alignment, not structural replacement.
 | Authority | Fields | Mutation Rules |
 |-----------|--------|----------------|
 | **Stripe** | `customer.stripeCustomerId`, `order.stripePaymentIntentId`, `order.total`, `order.paymentStatus`, `customer.discounts[]` | Webhook-only writes, read-only in Studio and fas-cms-fresh |
-| **EasyPost** | `order.trackingNumber`, `order.shippingCarrier`, `order.shippingStatus`, `order.shippingLog` | Webhook-only writes, read-only in Studio and fas-cms-fresh |
+| **Shippo** | `order.trackingNumber`, `order.shippingCarrier`, `order.shippingStatus`, `order.shippingLog` | Webhook-only writes, read-only in Studio and fas-cms-fresh |
 | **Customer** | `customer.email`, `customer.firstName`, `customer.phone`, `order.shippingAddress`, `order.billingAddress` | Editable in fas-cms-fresh with validation, visible in Studio |
 | **Admin** | `vendor.status`, `order.status` (fulfillment), `promotion.*` | Editable in Studio and admin APIs, read-only for customers |
 | **System** | `vendor.portalAccess.email`, `vendor.portalAccess.userSub`, `customer.name` (computed) | Auto-computed or synced, read-only everywhere |
@@ -659,7 +659,7 @@ Decision intent is semantic alignment, not structural replacement.
 
 ```
 Stripe → fas-sanity webhooks → Sanity dataset → fas-cms-fresh queries
-EasyPost → fas-sanity webhooks → Sanity dataset → fas-cms-fresh queries
+Shippo → fas-sanity webhooks → Sanity dataset → fas-cms-fresh queries
 fas-cms-fresh writes → Sanity dataset → fas-sanity Studio display
 fas-sanity Studio edits → Sanity dataset → fas-cms-fresh queries
 ```
@@ -694,8 +694,8 @@ fas-sanity Studio edits → Sanity dataset → fas-cms-fresh queries
    - `status`: Add 'pending' as first value
    - `paymentStatus`: Add 'pending' as first value
 
-5. **Add EasyPost fields to order schema** in `order.tsx`
-   - `shippingStatus`: string enum (EasyPost statuses)
+5. **Add Shippo fields to order schema** in `order.tsx`
+   - `shippingStatus`: string enum (Shippo statuses)
    - `shippingLog`: array of shippingLogEntry objects
    - Group: Fulfillment
    - Read-only: true
@@ -733,7 +733,7 @@ fas-sanity Studio edits → Sanity dataset → fas-cms-fresh queries
 
 **Server-Side Validation Rules:**
 
-1. **Field Authority Validation**: Reject mutations to Stripe/EasyPost-authoritative fields from non-webhook sources
+1. **Field Authority Validation**: Reject mutations to Stripe/Shippo-authoritative fields from non-webhook sources
 2. **Reference Integrity**: Validate `vendor.customerRef` points to customer with 'vendor' role
 3. **Email Sync**: Enforce `vendor.portalAccess.email ← customer.email` on customer email changes
 4. **Status Transitions**: Validate order status transitions follow allowed lifecycle
@@ -755,7 +755,7 @@ fas-sanity Studio edits → Sanity dataset → fas-cms-fresh queries
 ### 🟡 HIGH PRIORITY (Data Integrity Risk)
 
 7. Order patch allowlist - risk of customer overwriting system fields
-8. EasyPost schema fields - shipping status invisible in Studio
+8. Shippo schema fields - shipping status invisible in Studio
 9. Vendor profile field mapping - vendor edits appear unsaved
 
 ### 🟢 MEDIUM PRIORITY (UX Confusion)
