@@ -166,6 +166,7 @@ export default function ProductQuickViewButton({
   });
 
   const [adding, setAdding] = useState(false);
+  const [cartError, setCartError] = useState<string | null>(null);
   const canAddToCart = Boolean(product.id);
   const [selectedOptions, setSelectedOptions] = useState<Record<string, QuickViewOptionValue>>({});
 
@@ -244,13 +245,14 @@ export default function ProductQuickViewButton({
     if (!product.id || adding) return;
     try {
       setAdding(true);
+      setCartError(null);
       const baseId = product.id || product.href || '';
       const resolvedId =
         baseId && selectionSignature ? `${baseId}::${selectionSignature}` : baseId || product.id;
       const selectedOptionsList = selectionEntries.map(
         (entry) => `${entry.groupTitle}: ${entry.label}`
       );
-      await addItem(null as any, {
+      const result = await addItem(null as any, {
         id: resolvedId || product.id,
         name: product.title,
         price:
@@ -279,6 +281,10 @@ export default function ProductQuickViewButton({
         ...(cartMeta.shippingClass ? { shippingClass: cartMeta.shippingClass } : {}),
         ...(cartMeta.installOnly ? { installOnly: true } : {})
       });
+      if (typeof result === 'string') {
+        setCartError(result);
+        return;
+      }
 
       emitAddToCartSuccess({ name: product.title });
 
@@ -501,6 +507,9 @@ export default function ProductQuickViewButton({
                     </div>
                   </div>
                 </div>
+                {cartError ? (
+                  <p className="px-6 pb-6 text-sm text-red-400 sm:px-8 sm:pb-8">{cartError}</p>
+                ) : null}
               </div>
             </div>,
             portalNode

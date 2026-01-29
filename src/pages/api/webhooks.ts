@@ -740,6 +740,8 @@ export async function POST({ request }: { request: Request }) {
           extractShippingMeta('shippoRateId') ??
           extractShippingMeta('shipping_rate_id') ??
           extractShippingMeta('shippingRateId');
+        const shippoRateId =
+          extractShippingMeta('shippo_rate_id') ?? extractShippingMeta('shippoRateId');
         const stripeShippingRateId = shippingRateMeta
           ? shippingRateMeta.startsWith('dyn_')
             ? shippingRateMeta
@@ -758,6 +760,8 @@ export async function POST({ request }: { request: Request }) {
           extractShippingMeta('service') ??
           displayService ??
           null;
+        const shippingProvider =
+          extractShippingMeta('shipping_provider') ?? extractShippingMeta('provider') ?? null;
         const shippingAddress = shippingDetails?.address
           ? {
               name: shippingDetails.name || '',
@@ -880,6 +884,8 @@ export async function POST({ request }: { request: Request }) {
             sessionMetadata?.shipping_service ??
             sessionDetails.metadata?.shipping_service ??
             null,
+          shippingProvider: shippingProvider ?? undefined,
+          shippoRateId: shippoRateId ?? undefined,
           stripeShippingRateId: stripeShippingRateId ?? undefined,
           shippingQuoteId: shippingQuoteId ?? undefined,
           shippingQuoteKey: shippingQuoteKey ?? undefined,

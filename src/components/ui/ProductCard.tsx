@@ -27,6 +27,7 @@ interface Product {
   filters?: unknown;
   installOnly?: unknown;
   saleLabel?: string | null;
+  medusaVariantId?: string | null;
 }
 
 interface ProductCardProps {
@@ -55,6 +56,15 @@ export function ProductCard({ product }: ProductCardProps) {
       // Get current cart
       const cart = getCart();
       const { shippingClass, installOnly } = resolveProductCartMeta(product);
+      const medusaVariantId = (product as any)?.medusaVariantId;
+      if (!medusaVariantId) {
+        showToast(
+          'Please select a product variant before adding this item to your cart.',
+          false
+        );
+        setIsAdding(false);
+        return;
+      }
       const saleLabel: string | undefined = saleBadge || product?.saleLabel || undefined;
       const priceValue =
         typeof activePrice === 'number'
@@ -79,6 +89,7 @@ export function ProductCard({ product }: ProductCardProps) {
         cart[existingIndex].originalPrice = originalPriceValue ?? cart[existingIndex].originalPrice;
         cart[existingIndex].isOnSale = onSale;
         cart[existingIndex].saleLabel = saleLabel;
+        cart[existingIndex].medusaVariantId = medusaVariantId;
         if (shippingClass) {
           cart[existingIndex].shippingClass = shippingClass;
         }
@@ -93,6 +104,7 @@ export function ProductCard({ product }: ProductCardProps) {
           originalPrice: originalPriceValue,
           isOnSale: onSale,
           saleLabel: saleLabel ?? undefined,
+          medusaVariantId,
           quantity: 1,
           image: imageUrl,
           categories: (product.categories || [])

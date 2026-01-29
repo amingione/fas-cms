@@ -83,7 +83,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   async function addCartItem(item: Partial<CartItem> & { id: string; quantity?: number }) {
-    await addItemAction(null as any, item);
+    const result = await addItemAction(null as any, item);
+    if (typeof result === 'string') {
+      if (typeof window !== 'undefined') {
+        window.alert(result);
+      }
+      return;
+    }
     emitAddToCartSuccess({ name: item?.name });
     // actions.ts will emit cart:changed; no need to manually setCart
   }

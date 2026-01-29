@@ -17,6 +17,8 @@ type MedusaShippingMethod = {
   amount?: number;
   raw_amount?: { value?: string | number };
   data?: Record<string, any>;
+  shipping_option_id?: string;
+  provider_id?: string;
 };
 
 function getBaseUrl(request: Request): string | null {
@@ -42,6 +44,30 @@ function toUnitAmount(item: MedusaCartItem): number | null {
   const parsed = typeof raw === 'string' ? Number(raw) : typeof raw === 'number' ? raw : NaN;
   return Number.isFinite(parsed) ? Math.round(parsed) : null;
 }
+
+function toShippingAmount(method: MedusaShippingMethod): number | null {
+  if (typeof method.amount === 'number') return Math.round(method.amount);
+  const raw = method.raw_amount?.value;
+  const parsed = typeof raw === 'string' ? Number(raw) : typeof raw === 'number' ? raw : NaN;
+  return Number.isFinite(parsed) ? Math.round(parsed) : null;
+}
+
+const toString = (value: unknown): string | undefined => {
+  if (value === undefined || value === null) return undefined;
+  const trimmed = String(value).trim();
+  return trimmed ? trimmed : undefined;
+};
+
+const resolveServiceName = (value: unknown): string | undefined => {
+  if (typeof value === 'string') return toString(value);
+  if (value && typeof value === 'object') {
+    const name = toString((value as any).name);
+    if (name) return name;
+    const token = toString((value as any).token);
+    if (token) return token;
+  }
+  return undefined;
+};
 
 export const POST: APIRoute = async ({ request }) => {
   const config = getMedusaConfig();
@@ -125,27 +151,41 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
-  const shippingAmount =
-    typeof shipping.amount === 'number'
-      ? Math.round(shipping.amount)
-      : typeof shipping.raw_amount?.value === 'string'
-        ? Math.round(Number(shipping.raw_amount.value))
-        : typeof shipping.raw_amount?.value === 'number'
-          ? Math.round(shipping.raw_amount.value)
-          : null;
-
-  if (shippingAmount !== null && shippingAmount > 0) {
-    lineItems.push({
-      quantity: 1,
-      price_data: {
-        currency,
-        unit_amount: shippingAmount,
-        product_data: {
-          name: `Shipping (${shipping.name || carrier.toUpperCase()})`
-        }
-      }
-    });
+  const shippingAmount = toShippingAmount(shipping);
+  if (shippingAmount === null) {
+    return jsonResponse(
+      { error: 'Shipping amount missing from Medusa selection.' },
+      { status: 400 },
+      { noIndex: true }
+    );
   }
+
+  const shippoRateId = toString(shipping?.data?.shippo_rate_id);
+  const shippoRateAmount = toString(shipping?.data?.shippo_rate_amount);
+  const shippoRateCurrency = toString(shipping?.data?.shippo_rate_currency);
+  const shippoService = resolveServiceName(shipping?.data?.shippo_servicelevel);
+  const shippingOptionId = toString(shipping?.shipping_option_id);
+  const shippingMethodId = toString(shipping?.id);
+  const providerId = toString(shipping?.provider_id);
+
+  const rateMetadata: Record<string, string> = {};
+  const addMeta = (key: string, value?: string) => {
+    if (value) rateMetadata[key] = value;
+  };
+  addMeta('medusa_cart_id', cartId);
+  addMeta('medusa_shipping_method_id', shippingMethodId);
+  addMeta('medusa_shipping_option_id', shippingOptionId);
+  addMeta('medusa_shipping_option_name', toString(shipping?.name));
+  addMeta('shipping_provider', providerId || 'shippo');
+  addMeta('provider', providerId || 'shippo');
+  addMeta('carrier', carrier || undefined);
+  addMeta('shipping_carrier', carrier || undefined);
+  addMeta('service', shippoService);
+  addMeta('shipping_service', shippoService);
+  addMeta('shippo_rate_id', shippoRateId);
+  addMeta('shipping_rate_id', shippoRateId);
+  addMeta('shippo_rate_amount', shippoRateAmount);
+  addMeta('shippo_rate_currency', shippoRateCurrency || currency);
 
   const baseUrl = getBaseUrl(request);
   if (!baseUrl) {
@@ -159,15 +199,37 @@ export const POST: APIRoute = async ({ request }) => {
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
     line_items: lineItems,
+    shipping_address_collection: { allowed_countries: ['US'] },
+    shipping_options: [
+      {
+        shipping_rate_data: {
+          type: 'fixed_amount',
+          display_name: shipping.name || (carrier ? carrier.toUpperCase() : 'Shipping'),
+          fixed_amount: {
+            amount: shippingAmount,
+            currency
+          },
+          metadata: rateMetadata
+        }
+      }
+    ],
     success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${baseUrl}/checkout/cancel`,
     customer_email: cart?.email || undefined,
     client_reference_id: cartId,
     metadata: {
       medusa_cart_id: cartId,
-      medusa_shipping_method_id: shipping.id,
-      medusa_shipping_option_id: shipping?.shipping_option_id || '',
-      carrier
+      medusa_shipping_method_id: shippingMethodId || '',
+      medusa_shipping_option_id: shippingOptionId || '',
+      carrier,
+      shipping_provider: providerId || 'shippo',
+      provider: providerId || 'shippo',
+      shippo_rate_id: shippoRateId || '',
+      shipping_rate_id: shippoRateId || '',
+      shippo_rate_amount: shippoRateAmount || '',
+      shippo_rate_currency: shippoRateCurrency || currency,
+      shipping_service: shippoService || '',
+      shipping_carrier: carrier || ''
     }
   });
 

@@ -42,6 +42,13 @@ function addToCart(product: SanityProduct) {
   try {
     const id = product._id;
     const name = product.title || 'Item';
+    const medusaVariantId = (product as any)?.medusaVariantId;
+    if (!medusaVariantId) {
+      if (typeof window !== 'undefined') {
+        window.alert('Please select a product variant before adding this item to your cart.');
+      }
+      return;
+    }
     const activePrice = getActivePrice(product);
     const price = Number(activePrice ?? 0) || 0;
     const comparePrice = getCompareAtPrice(product);
@@ -66,7 +73,7 @@ function addToCart(product: SanityProduct) {
       name,
       price,
       stripePriceId: (product as any)?.stripePriceId,
-      medusaVariantId: (product as any)?.medusaVariantId,
+      medusaVariantId,
       originalPrice,
       isOnSale: onSale,
       saleLabel: typeof saleLabel === 'string' ? saleLabel : undefined,
@@ -98,6 +105,9 @@ function addToCart(product: SanityProduct) {
     }
   } catch (e) {
     console.error('addToCart failed', e);
+    if (typeof window !== 'undefined') {
+      window.alert('Unable to add this item. Please select a product variant and try again.');
+    }
   }
 }
 

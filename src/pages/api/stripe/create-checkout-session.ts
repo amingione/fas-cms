@@ -287,6 +287,17 @@ const toMetadataString = (value: unknown): string | undefined => {
   }
 };
 
+const resolveServiceLabel = (value: unknown): string | undefined => {
+  if (typeof value === 'string') return toMetadataString(value);
+  if (value && typeof value === 'object') {
+    const name = toMetadataString((value as any).name);
+    if (name) return name;
+    const token = toMetadataString((value as any).token);
+    if (token) return token;
+  }
+  return undefined;
+};
+
 const readString = (value: unknown): string | undefined => {
   if (value === undefined || value === null) return undefined;
   if (typeof value === 'string') {
@@ -1264,6 +1275,32 @@ export async function POST({ request }: { request: Request }) {
         );
       }
       const carrier = String(option?.data?.carrier || '').toLowerCase();
+      const shippoRateId = toMetadataString(option?.data?.shippo_rate_id);
+      const shippoRateAmount = toMetadataString(option?.data?.shippo_rate_amount);
+      const shippoRateCurrency = toMetadataString(option?.data?.shippo_rate_currency);
+      const serviceLabel = resolveServiceLabel(
+        option?.data?.shippo_servicelevel ??
+          option?.data?.service ??
+          option?.data?.servicelevel ??
+          option?.data?.service_level
+      );
+      const rateMetadata: Record<string, string> = {};
+      const addMeta = (key: string, value: unknown) => {
+        const normalized = toMetadataString(value);
+        if (normalized) rateMetadata[key] = normalized;
+      };
+      addMeta('medusa_shipping_option_id', option.id);
+      addMeta('medusa_shipping_option_name', option.name);
+      addMeta('shipping_provider', option?.data?.provider || 'shippo');
+      addMeta('provider', option?.data?.provider || 'shippo');
+      addMeta('carrier', carrier || undefined);
+      addMeta('shipping_carrier', carrier || undefined);
+      addMeta('service', serviceLabel);
+      addMeta('shipping_service', serviceLabel);
+      addMeta('shippo_rate_id', shippoRateId);
+      addMeta('shipping_rate_id', shippoRateId);
+      addMeta('shippo_rate_amount', shippoRateAmount);
+      addMeta('shippo_rate_currency', shippoRateCurrency);
       stripeShippingOptions.push({
         shipping_rate_data: {
           type: 'fixed_amount',
@@ -1272,11 +1309,7 @@ export async function POST({ request }: { request: Request }) {
             amount,
             currency: String(option?.region?.currency_code || 'usd').toLowerCase()
           },
-          metadata: {
-            medusa_shipping_option_id: option.id,
-            medusa_shipping_option_name: option.name || '',
-            carrier: carrier || ''
-          }
+          metadata: rateMetadata
         }
       });
     }

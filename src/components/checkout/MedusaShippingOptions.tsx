@@ -77,6 +77,12 @@ async function ensureCartId(): Promise<string | null> {
 
 async function syncCartToMedusa(cartId: string) {
   const cart = getCart();
+  const missing = cart.items.filter((item) => !item.medusaVariantId);
+  if (missing.length) {
+    throw new Error(
+      'Some items in your cart are missing required variant selections. Please remove them and re-add with a valid variant.'
+    );
+  }
   const response = await fetch("/api/medusa/cart/add-item", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

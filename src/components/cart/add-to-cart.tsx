@@ -99,6 +99,7 @@ function SubmitButton({
 
 export function AddToCart({ product }: { product: any }) {
   const [selected, setSelected] = React.useState<Record<string, string>>({});
+  const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     setSelected(readSelectedFromURL());
@@ -129,6 +130,7 @@ export function AddToCart({ product }: { product: any }) {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setError(null);
     const id = (variantId || product?._id || product?.id) as Maybe<string>;
     if (!id) return;
     const { shippingClass, installOnly } = resolveProductCartMeta(product);
@@ -142,7 +144,7 @@ export function AddToCart({ product }: { product: any }) {
           ? comparePrice
           : undefined;
 
-    await addItem(null as any, {
+    const result = await addItem(null as any, {
       id,
       name: product?.title,
       price: typeof activePrice === 'number' ? activePrice : undefined,
@@ -160,6 +162,10 @@ export function AddToCart({ product }: { product: any }) {
       ...(shippingClass ? { shippingClass } : {}),
       ...(installOnly ? { installOnly: true } : {})
     });
+    if (typeof result === 'string') {
+      setError(result);
+      return;
+    }
 
     emitAddToCartSuccess({ name: product?.title });
 
@@ -180,6 +186,7 @@ export function AddToCart({ product }: { product: any }) {
   return (
     <form onSubmit={onSubmit}>
       <SubmitButton available={availableForSale} disabledReason={disabledReason} />
+      {error ? <p className="mt-3 text-sm text-red-400">{error}</p> : null}
     </form>
   );
 }

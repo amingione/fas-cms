@@ -59,12 +59,20 @@ export default function PricingCards() {
     const name = product.name || 'Cyber Monday deal';
     const id = product.id || product.href || name.toLowerCase().replace(/\s+/g, '-');
     const price = parsePrice(product.price);
+    const medusaVariantId = (product as any)?.medusaVariantId;
+    if (!medusaVariantId) {
+      if (typeof window !== 'undefined') {
+        window.alert('Please choose a product variant on the product page before adding to cart.');
+      }
+      return;
+    }
 
     try {
       addItem({
         id,
         name,
         price,
+        medusaVariantId,
         quantity: 1,
         image: product.image,
         productUrl: product.href

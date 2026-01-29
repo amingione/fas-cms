@@ -109,6 +109,9 @@ export function emitCartUpdated(cart: CartItem[]): void {
 }
 
 export function addItem(item: CartItem): CartItem[] {
+  if (!item.medusaVariantId || typeof item.medusaVariantId !== 'string') {
+    throw new Error('Please select a product variant before adding this item to your cart.');
+  }
   const cart = getCart();
   const idx = cart.findIndex((c) => c.id === item.id);
   if (idx >= 0) {

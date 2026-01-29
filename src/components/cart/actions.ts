@@ -167,12 +167,11 @@ export async function addItem(
   const id = normalizeId(payload);
   if (!id) return 'Error adding item to cart';
   if (typeof payload !== 'object') {
-    return 'This item cannot be added to checkout yet (missing Medusa variant mapping).';
+    return 'Please select a product variant before adding this item to your cart.';
   }
   const medusaVariantId = payload.medusaVariantId;
-  const sku = payload.sku;
-  if ((!medusaVariantId || typeof medusaVariantId !== 'string') && (!sku || typeof sku !== 'string')) {
-    return 'This item cannot be added to checkout yet (missing Medusa variant mapping).';
+  if (!medusaVariantId || typeof medusaVariantId !== 'string') {
+    return 'Please select a product variant before adding this item to your cart.';
   }
 
   const qty =
@@ -294,7 +293,7 @@ export async function redirectToCheckout() {
   const refreshed = getCart();
   const missingMedusa = refreshed.items.filter((item) => !item.medusaVariantId);
   if (missingMedusa.length) {
-    return 'One or more items are missing Medusa variant mappings. Please remove them before checkout.';
+    return 'Some items in your cart are missing required variant selections. Please update your cart before checkout.';
   }
 
   window.location.href = '/checkout';

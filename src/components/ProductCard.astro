@@ -54,6 +54,7 @@ const cartMeta = resolveProductCartMeta(product);
                 .filter(Boolean)
                 .map((c: { _ref?: string; _id?: string }) => c._ref || c._id || '')
             )}
+            data-product-medusa-variant-id={product?.medusaVariantId || ''}
             data-product-shipping-class={cartMeta.shippingClass || ''}
             data-product-install-only={cartMeta.installOnly ? 'true' : 'false'}
           >
@@ -144,6 +145,7 @@ const cartMeta = resolveProductCartMeta(product);
         items[idx].price = item.price ?? items[idx].price;
         items[idx].image = item.image ?? items[idx].image;
         items[idx].options = item.options || items[idx].options;
+        if (item.medusaVariantId) items[idx].medusaVariantId = item.medusaVariantId;
         if (item.shippingClass) items[idx].shippingClass = item.shippingClass;
         if (item.installOnly) items[idx].installOnly = true;
       } else {
@@ -154,6 +156,7 @@ const cartMeta = resolveProductCartMeta(product);
           image: item.image,
           quantity: item.quantity || 1,
           options: item.options || undefined,
+          medusaVariantId: item.medusaVariantId,
           ...(item.shippingClass ? { shippingClass: item.shippingClass } : {}),
           ...(item.installOnly ? { installOnly: true } : {})
         });
@@ -184,10 +187,18 @@ const cartMeta = resolveProductCartMeta(product);
         const image = btn.getAttribute('data-product-image') || '';
         const shippingClass = btn.getAttribute('data-product-shipping-class') || '';
         const installOnlyAttr = btn.getAttribute('data-product-install-only') || 'false';
+        const medusaVariantId = btn.getAttribute('data-product-medusa-variant-id') || '';
         const installOnly = installOnlyAttr === 'true';
         const price = Number.parseFloat(String(priceRaw ?? '0')) || 0;
         if (!baseId) {
           showProductToast('Unable to add item (missing id)', false);
+          return;
+        }
+        if (!medusaVariantId) {
+          showProductToast(
+            'Please select a product variant before adding this item to your cart.',
+            false
+          );
           return;
         }
 
@@ -197,6 +208,7 @@ const cartMeta = resolveProductCartMeta(product);
           id,
           name,
           price,
+          medusaVariantId,
           image: image || '${imageUrl}',
           quantity: 1,
           ...(shippingClass ? { shippingClass } : {}),

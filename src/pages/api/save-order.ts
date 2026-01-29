@@ -185,6 +185,8 @@ export const POST = async ({ request }: { request: Request }) => {
       extractShippingMeta('shippoRateId') ??
       extractShippingMeta('shipping_rate_id') ??
       extractShippingMeta('shippingRateId');
+    const shippoRateId =
+      extractShippingMeta('shippo_rate_id') ?? extractShippingMeta('shippoRateId');
     const stripeShippingRateId = shippingRateMeta
       ? shippingRateMeta.startsWith('dyn_')
         ? shippingRateMeta
@@ -197,6 +199,8 @@ export const POST = async ({ request }: { request: Request }) => {
       extractShippingMeta('shipping_carrier') ?? extractShippingMeta('carrier') ?? displayCarrier;
     const service =
       extractShippingMeta('shipping_service') ?? extractShippingMeta('service') ?? displayService;
+    const shippingProvider =
+      extractShippingMeta('shipping_provider') ?? extractShippingMeta('provider');
     const derivedEstimate = deriveDeliveryEstimate(shippingRate);
     const deliveryDaysFromMeta = extractShippingMeta('shipping_delivery_days');
     const estimatedDeliveryDate =
@@ -336,6 +340,8 @@ export const POST = async ({ request }: { request: Request }) => {
       currency: validatedSession.currency || 'usd',
       carrier,
       service,
+      shippingProvider,
+      shippoRateId,
       stripeShippingRateId,
       shippingQuoteId,
       shippingQuoteKey,
