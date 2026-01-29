@@ -41,11 +41,11 @@
     ]
   },
   "engines": {
-    "node": "18.x"
+    "node": "20.x"
   },
   "resolutions": {
     "@netlify/edge-functions": "npm:2.18.2",
-    "esbuild": "0.25.5",
+    "esbuild": "0.27.2",
     "baseline-browser-mapping": "^2.9.14"
   },
   "devDependencies": {
