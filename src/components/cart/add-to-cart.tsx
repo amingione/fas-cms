@@ -34,20 +34,29 @@ function readSelectedFromURL(): Record<string, string> {
 
 function pickVariantId(product: any, selected: Record<string, string>): string | undefined {
   const variants: any[] = Array.isArray(product?.variants) ? product.variants : [];
-  if (!variants.length) return undefined;
-  // Normalize into { name, value } pairs and compare
-  const selEntries = Object.entries(selected);
-  const match = variants.find((v) => {
-    const opts = Array.isArray(v?.selectedOptions) ? v.selectedOptions : [];
-    return selEntries.every(([k, val]) =>
-      opts.some(
-        (o: any) =>
-          String(o?.name || '').toLowerCase() === String(k).toLowerCase() &&
-          String(o?.value || '') === String(val)
-      )
-    );
-  });
-  return match?._id || match?.id; // support either _id or id
+
+  // If product has variants array, try to match selected options
+  if (variants.length > 0) {
+    const selEntries = Object.entries(selected);
+    const match = variants.find((v) => {
+      const opts = Array.isArray(v?.selectedOptions) ? v.selectedOptions : [];
+      return selEntries.every(([k, val]) =>
+        opts.some(
+          (o: any) =>
+            String(o?.name || '').toLowerCase() === String(k).toLowerCase() &&
+            String(o?.value || '') === String(val)
+        )
+      );
+    });
+
+    if (match) {
+      // Return variant's medusaVariantId or _id
+      return match.medusaVariantId || match._id || match.id;
+    }
+  }
+
+  // FALLBACK: Use product-level medusaVariantId (current schema)
+  return product.medusaVariantId || undefined;
 }
 
 function isAvailable(product: any, variantId?: string): boolean {
@@ -149,7 +158,7 @@ export function AddToCart({ product }: { product: any }) {
       name: product?.title,
       price: typeof activePrice === 'number' ? activePrice : undefined,
       stripePriceId: (product as any)?.stripePriceId,
-      medusaVariantId: (product as any)?.medusaVariantId,
+      medusaVariantId: variantId || (product as any)?.medusaVariantId,
       originalPrice,
       isOnSale: onSale,
       saleLabel: typeof saleLabel === 'string' ? saleLabel : undefined,

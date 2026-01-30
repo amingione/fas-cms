@@ -167,6 +167,7 @@ export default function ProductQuickViewButton({
 
   const [adding, setAdding] = useState(false);
   const [cartError, setCartError] = useState<string | null>(null);
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, QuickViewOptionValue>>({});
   const selectedVariantId = useMemo(() => {
     const selectedValues = Object.values(selectedOptions || {});
     const fromSelection =
@@ -175,7 +176,6 @@ export default function ProductQuickViewButton({
   }, [selectedOptions, product.medusaVariantId]);
   const hasMedusaVariant = Boolean(selectedVariantId);
   const canAddToCart = Boolean(product.id && hasMedusaVariant);
-  const [selectedOptions, setSelectedOptions] = useState<Record<string, QuickViewOptionValue>>({});
 
   useEffect(() => {
     if (!open) return;
