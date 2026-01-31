@@ -1061,11 +1061,11 @@ export async function POST({ request }: { request: Request }) {
     void error;
   }
 
-  const allowedCountries = ['US'];
+  const allowedCountries = ['US'] as const;
   try {
     const shippingAddressCollection: Stripe.Checkout.SessionCreateParams.ShippingAddressCollection =
       {
-        allowed_countries: allowedCountries
+        allowed_countries: [...allowedCountries]
       };
 
     let customerEmail = userEmail || undefined;
@@ -1255,10 +1255,7 @@ export async function POST({ request }: { request: Request }) {
       ? medusaOptionsPayload.shippingOptions
       : [];
     if (!medusaOptions.length) {
-      return jsonResponse(
-        { error: 'Step 4 failed: Medusa returned no shipping options.' },
-        400
-      );
+      return jsonResponse({ error: 'Step 4 failed: Medusa returned no shipping options.' }, 400);
     }
 
     console.log('[checkout][step 5/8] Converting Medusa rates for Stripe Checkout');
@@ -1364,7 +1361,9 @@ export async function POST({ request }: { request: Request }) {
     metadataForSession.ship_status = paymentIntentMetadata.ship_status;
     metadataForSession.shipping_required = shippingRequired ? 'true' : 'false';
 
-    console.log('[checkout][step 6/8] Attaching Medusa shipping options to Stripe Checkout session');
+    console.log(
+      '[checkout][step 6/8] Attaching Medusa shipping options to Stripe Checkout session'
+    );
     metadataForSession.medusa_cart_id = medusaCartId;
     paymentIntentMetadata.medusa_cart_id = medusaCartId;
     console.log('[checkout][step 7/8] Stored medusa_cart_id in Stripe metadata');

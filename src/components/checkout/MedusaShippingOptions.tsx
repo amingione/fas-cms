@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
-import { MEDUSA_CART_ID_KEY } from "@/lib/medusa";
-import { getCart } from "@/components/cart/actions";
+import React, { useEffect, useState } from 'react';
+import { MEDUSA_CART_ID_KEY } from '@/lib/medusa';
+import { getCart } from '@/components/cart/actions';
 
 type AddressState = {
   email: string;
@@ -27,24 +27,24 @@ type ShippingOption = {
 };
 
 const EMPTY_ADDRESS: AddressState = {
-  email: "",
-  firstName: "",
-  lastName: "",
-  address1: "",
-  address2: "",
-  city: "",
-  province: "",
-  postalCode: "",
-  countryCode: "US",
-  phone: ""
+  email: '',
+  firstName: '',
+  lastName: '',
+  address1: '',
+  address2: '',
+  city: '',
+  province: '',
+  postalCode: '',
+  countryCode: 'US',
+  phone: ''
 };
 
 function formatCurrency(amount?: number, currency?: string) {
-  if (typeof amount !== "number") return "--";
-  const code = currency || "USD";
+  if (typeof amount !== 'number') return '--';
+  const code = currency || 'USD';
   try {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
       currency: code.toUpperCase()
     }).format(amount / 100);
   } catch {
@@ -53,18 +53,18 @@ function formatCurrency(amount?: number, currency?: string) {
 }
 
 async function ensureCartId(): Promise<string | null> {
-  if (typeof window === "undefined") return null;
+  if (typeof window === 'undefined') return null;
   const existing = window.localStorage.getItem(MEDUSA_CART_ID_KEY);
   if (existing && existing.trim()) return existing.trim();
 
   try {
-    const response = await fetch("/api/medusa/cart/create", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    const response = await fetch('/api/medusa/cart/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({})
     });
     const data = await response.json().catch(() => null);
-    if (response.ok && typeof data?.cartId === "string") {
+    if (response.ok && typeof data?.cartId === 'string') {
       window.localStorage.setItem(MEDUSA_CART_ID_KEY, data.cartId);
       return data.cartId;
     }
@@ -80,17 +80,17 @@ async function syncCartToMedusa(cartId: string) {
   const missing = cart.items.filter((item) => !item.medusaVariantId);
   if (missing.length) {
     throw new Error(
-      'Some items in your cart are missing required variant selections. Please remove them and re-add with a valid variant.'
+      'Some items require additional selections. Please review your cart and ensure all options are selected.'
     );
   }
-  const response = await fetch("/api/medusa/cart/add-item", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+  const response = await fetch('/api/medusa/cart/add-item', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ cartId, cart })
   });
   if (!response.ok) {
     const payload = await response.json().catch(() => null);
-    throw new Error(payload?.error || "Unable to sync cart to Medusa.");
+    throw new Error(payload?.error || 'Unable to process your cart.');
   }
   const payload = await response.json().catch(() => null);
   const mappings = Array.isArray(payload?.mappings) ? payload.mappings : [];
@@ -106,7 +106,7 @@ async function syncCartToMedusa(cartId: string) {
     }
     if (changed) {
       try {
-        window.localStorage.setItem("fas_cart_v1", JSON.stringify(next));
+        window.localStorage.setItem('fas_cart_v1', JSON.stringify(next));
       } catch (err) {
         void err;
       }
@@ -120,7 +120,7 @@ export default function MedusaShippingOptions() {
   const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
   const [loading, setLoading] = useState(false);
   const [paying, setPaying] = useState(false);
-  const [selectedOptionId, setSelectedOptionId] = useState<string>("");
+  const [selectedOptionId, setSelectedOptionId] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -145,9 +145,10 @@ export default function MedusaShippingOptions() {
     };
   }, []);
 
-  const updateField = (field: keyof AddressState) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    setAddress((prev) => ({ ...prev, [field]: event.target.value }));
-  };
+  const updateField =
+    (field: keyof AddressState) => (event: React.ChangeEvent<HTMLInputElement>) => {
+      setAddress((prev) => ({ ...prev, [field]: event.target.value }));
+    };
 
   const handleFetchShipping = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -157,7 +158,7 @@ export default function MedusaShippingOptions() {
     try {
       const id = cartId || (await ensureCartId());
       if (!id) {
-        setError("Unable to initialize cart. Please try again.");
+        setError('Unable to initialize cart. Please try again.');
         setLoading(false);
         return;
       }
@@ -165,9 +166,9 @@ export default function MedusaShippingOptions() {
       setCartId(id);
       await syncCartToMedusa(id);
 
-      const updateResponse = await fetch("/api/medusa/cart/update-address", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const updateResponse = await fetch('/api/medusa/cart/update-address', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           cartId: id,
           email: address.email,
@@ -187,24 +188,26 @@ export default function MedusaShippingOptions() {
 
       if (!updateResponse.ok) {
         const payload = await updateResponse.json().catch(() => null);
-        throw new Error(payload?.error || "Unable to save shipping address.");
+        throw new Error(payload?.error || 'Unable to save delivery address.');
       }
 
-      const optionsResponse = await fetch("/api/medusa/cart/shipping-options", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const optionsResponse = await fetch('/api/medusa/cart/shipping-options', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ cartId: id })
       });
 
       const optionsPayload = await optionsResponse.json().catch(() => null);
       if (!optionsResponse.ok) {
-        throw new Error(optionsPayload?.error || "Unable to load shipping options.");
+        throw new Error(optionsPayload?.error || 'Unable to calculate delivery rates.');
       }
 
-      setShippingOptions(Array.isArray(optionsPayload?.shippingOptions) ? optionsPayload.shippingOptions : []);
-      setSelectedOptionId("");
+      setShippingOptions(
+        Array.isArray(optionsPayload?.shippingOptions) ? optionsPayload.shippingOptions : []
+      );
+      setSelectedOptionId('');
     } catch (err: any) {
-      setError(err?.message || "Unable to load shipping options.");
+      setError(err?.message || 'Unable to calculate delivery rates.');
       setShippingOptions([]);
     } finally {
       setLoading(false);
@@ -212,32 +215,32 @@ export default function MedusaShippingOptions() {
   };
 
   const currency =
-    shippingOptions.find((option) => option?.region?.currency_code)?.region?.currency_code || "USD";
+    shippingOptions.find((option) => option?.region?.currency_code)?.region?.currency_code || 'USD';
 
   const handleSelectOption = async (optionId: string) => {
     setError(null);
     try {
       const id = cartId || (await ensureCartId());
       if (!id) {
-        throw new Error("Unable to initialize cart.");
+        throw new Error('Unable to initialize cart.');
       }
       setCartId(id);
       await syncCartToMedusa(id);
 
-      const response = await fetch("/api/medusa/cart/select-shipping", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/medusa/cart/select-shipping', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ cartId: id, optionId })
       });
       const payload = await response.json().catch(() => null);
       if (!response.ok) {
-        throw new Error(payload?.error || "Unable to select shipping option.");
+        throw new Error(payload?.error || 'Unable to select delivery method.');
       }
 
       setSelectedOptionId(optionId);
     } catch (err: any) {
-      setError(err?.message || "Unable to select shipping option.");
-      setSelectedOptionId("");
+      setError(err?.message || 'Unable to select delivery method.');
+      setSelectedOptionId('');
     }
   };
 
@@ -247,20 +250,20 @@ export default function MedusaShippingOptions() {
     try {
       const id = cartId || (await ensureCartId());
       if (!id) {
-        throw new Error("Unable to initialize cart.");
+        throw new Error('Unable to initialize cart.');
       }
       if (!selectedOptionId) {
-        throw new Error("Select a shipping option to continue.");
+        throw new Error('Please select a delivery method to continue.');
       }
 
-      const response = await fetch("/api/medusa/checkout/create-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/medusa/checkout/create-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ cartId: id })
       });
       const payload = await response.json().catch(() => null);
       if (!response.ok) {
-        throw new Error(payload?.error || "Unable to start Stripe checkout.");
+        throw new Error(payload?.error || 'Unable to proceed to checkout.');
       }
 
       if (payload?.url) {
@@ -268,9 +271,9 @@ export default function MedusaShippingOptions() {
         return;
       }
 
-      throw new Error("Stripe checkout URL missing.");
+      throw new Error('Checkout session could not be created.');
     } catch (err: any) {
-      setError(err?.message || "Unable to start payment.");
+      setError(err?.message || 'Unable to proceed to checkout.');
     } finally {
       setPaying(false);
     }
@@ -281,7 +284,7 @@ export default function MedusaShippingOptions() {
       <div className="rounded-lg border border-white/10 bg-black/30 p-6">
         <h2 className="text-xl font-semibold text-white">Shipping details</h2>
         <p className="mt-2 text-sm text-white/70">
-          Enter your address to fetch available shipping options from Medusa.
+          Provide your delivery address to calculate shipping costs.
         </p>
 
         <form onSubmit={handleFetchShipping} className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -290,77 +293,77 @@ export default function MedusaShippingOptions() {
             placeholder="Email"
             className="w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm text-white"
             value={address.email}
-            onChange={updateField("email")}
+            onChange={updateField('email')}
           />
           <input
             type="tel"
             placeholder="Phone"
             className="w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm text-white"
             value={address.phone}
-            onChange={updateField("phone")}
+            onChange={updateField('phone')}
           />
           <input
             type="text"
             placeholder="First name"
             className="w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm text-white"
             value={address.firstName}
-            onChange={updateField("firstName")}
+            onChange={updateField('firstName')}
           />
           <input
             type="text"
             placeholder="Last name"
             className="w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm text-white"
             value={address.lastName}
-            onChange={updateField("lastName")}
+            onChange={updateField('lastName')}
           />
           <input
             type="text"
             placeholder="Address line 1"
             className="w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm text-white sm:col-span-2"
             value={address.address1}
-            onChange={updateField("address1")}
+            onChange={updateField('address1')}
           />
           <input
             type="text"
             placeholder="Address line 2"
             className="w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm text-white sm:col-span-2"
             value={address.address2}
-            onChange={updateField("address2")}
+            onChange={updateField('address2')}
           />
           <input
             type="text"
             placeholder="City"
             className="w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm text-white"
             value={address.city}
-            onChange={updateField("city")}
+            onChange={updateField('city')}
           />
           <input
             type="text"
             placeholder="State / Province"
             className="w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm text-white"
             value={address.province}
-            onChange={updateField("province")}
+            onChange={updateField('province')}
           />
           <input
             type="text"
             placeholder="Postal code"
             className="w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm text-white"
             value={address.postalCode}
-            onChange={updateField("postalCode")}
+            onChange={updateField('postalCode')}
           />
           <input
             type="text"
             placeholder="Country (2-letter code)"
             className="w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm text-white"
             value={address.countryCode}
-            onChange={updateField("countryCode")}
+            onChange={updateField('countryCode')}
           />
           <button
             type="submit"
             disabled={loading}
             className="mt-2 inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-black disabled:opacity-60 sm:col-span-2"
           >
-            {loading ? "Loading shipping options..." : "Get shipping options"}
+            {loading ? 'Calculating rates...' : 'Calculate shipping'}
           </button>
         </form>
 
@@ -368,10 +371,10 @@ export default function MedusaShippingOptions() {
       </div>
 
       <div className="rounded-lg border border-white/10 bg-black/30 p-6">
-        <h2 className="text-xl font-semibold text-white">Shipping options</h2>
+        <h2 className="text-xl font-semibold text-white">Delivery options</h2>
         {shippingOptions.length === 0 ? (
           <p className="mt-3 text-sm text-white/60">
-            No shipping options loaded yet. Submit an address to see available rates.
+            Enter your address above to view available delivery methods.
           </p>
         ) : (
           <ul className="mt-4 space-y-3 text-sm text-white/80">
@@ -389,8 +392,8 @@ export default function MedusaShippingOptions() {
                     onChange={() => handleSelectOption(option.id)}
                   />
                   <div>
-                    <p className="font-medium text-white">{option.name || "Shipping option"}</p>
-                    <p className="text-xs text-white/60">{option.price_type || "flat_rate"}</p>
+                    <p className="font-medium text-white">{option.name || 'Standard delivery'}</p>
+                    <p className="text-xs text-white/60">{option.price_type || 'flat_rate'}</p>
                   </div>
                 </label>
                 <span className="font-semibold text-primary">
@@ -403,10 +406,9 @@ export default function MedusaShippingOptions() {
       </div>
 
       <div className="rounded-lg border border-white/10 bg-black/30 p-6">
-        <h2 className="text-xl font-semibold text-white">Payment</h2>
+        <h2 className="text-xl font-semibold text-white">Complete order</h2>
         <p className="mt-2 text-sm text-white/70">
-          Continue to Stripe Checkout to complete payment. Shipping rates are sourced from Medusa +
-          Shippo (USPS/UPS only).
+          Review your selections and proceed to secure payment.
         </p>
         <button
           type="button"
@@ -414,7 +416,7 @@ export default function MedusaShippingOptions() {
           disabled={!selectedOptionId || paying}
           className="mt-4 inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-black disabled:opacity-60"
         >
-          {paying ? "Redirecting to Stripe..." : "Continue to Payment"}
+          {paying ? 'Processing...' : 'Proceed to checkout'}
         </button>
       </div>
     </div>
