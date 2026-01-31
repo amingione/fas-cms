@@ -116,9 +116,6 @@ This migration includes:
 - Keeping Sanity strictly for content (descriptions, images, SEO)
 - Finalizing fas-cms-fresh ↔ Medusa API boundaries
 
-Once complete (see [IMPLEMENTATION_STATUS.md](../IMPLEMENTATION_STATUS.md)),  
-these areas will become protected.
-
 ### Testing Across Repos
 
 **Current State:**
@@ -232,5 +229,5 @@ src/
 2. Never split commerce responsibility (don't duplicate pricing logic)
 3. If checkout breaks, inspect Medusa first (check cart creation, variant links, region setup)
 4. Sanity should never block checkout (content is async enrichment only)
-5. Document migrations clearly to avoid drift (update IMPLEMENTATION_STATUS.md)
+5. Document migrations clearly to avoid drift
 6. Medusa regions must be configured before cart creation (check region_id in cart API calls)
