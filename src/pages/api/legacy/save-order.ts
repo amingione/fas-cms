@@ -1,4 +1,32 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/**
+ * ⚠️ LEGACY: Direct Sanity Order Creation Endpoint (DEPRECATED)
+ *
+ * STATUS: Retained for historical compatibility only.
+ * This endpoint creates orders directly in Sanity from Stripe session data.
+ *
+ * NEW CHECKOUT FLOW (Phase 1 - Active):
+ * - Orders created in Medusa first: POST /store/carts/{cartId}/complete
+ * - Then mirrored to Sanity via webhook: /api/medusa/webhooks/payment-intent
+ * - Sanity is NOT the source of truth for orders
+ *
+ * AUTHORITY MODEL (Medusa-first):
+ * - Medusa: authoritative for orders, totals, payment state, shipping, tax
+ * - Sanity: read-only mirrors + ops annotations (notes, flags, fulfillment context)
+ * - This endpoint violates the authority model (creates orders in Sanity directly)
+ *
+ * SANITY ROLE (Office Dashboard):
+ * - Orders: display Medusa mirrors (read-only)
+ * - Ops fields: notes, flags, attachments (authoritative for ops context only)
+ * - Totals: read-only snapshots (never computed or modified)
+ * - Fulfillment: annotation workspace (tracking notes, exception flags)
+ *
+ * DO NOT USE FOR NEW IMPLEMENTATIONS.
+ * Refer to:
+ * - docs/checkout/FRONTEND_IMPLEMENTATION.md
+ * - fas-sanity/docs/office-dashboard-role-definition.md
+ * - PHASE1_PAYMENTINTENT_IMPLEMENTATION.md
+ */
 import Stripe from 'stripe';
 import { readSession } from '../../server/auth/session';
 import { createOrderCartItem, type OrderCartItem } from '@/server/sanity/order-cart';

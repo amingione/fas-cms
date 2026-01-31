@@ -1,3 +1,25 @@
+/**
+ * ⚠️ LEGACY: Medusa Checkout Session Completion (DEPRECATED)
+ *
+ * STATUS: Retained for historical Stripe Checkout Session orders.
+ * This endpoint completes orders from Stripe Checkout Sessions.
+ *
+ * NEW CHECKOUT FLOW (Phase 1 - Active):
+ * - PaymentIntent creation: POST /api/medusa/payments/create-intent
+ * - Payment confirmation: via Stripe Elements (client-side)
+ * - Order completion: via webhook /api/medusa/webhooks/payment-intent
+ * - Webhook validates cart total matches PaymentIntent amount
+ *
+ * AUTHORITY MODEL:
+ * - Medusa: authoritative for cart state, totals, order creation
+ * - Stripe: payment processing only (no cart, no shipping, no tax)
+ * - Cart locked after PaymentIntent creation (prevents mutation)
+ *
+ * DO NOT USE FOR NEW IMPLEMENTATIONS.
+ * Refer to: docs/checkout/FRONTEND_IMPLEMENTATION.md
+ *
+ * Legacy behavior (Stripe Checkout Sessions):
+ */
 import type { APIRoute } from 'astro';
 import Stripe from 'stripe';
 import { jsonResponse } from '@/server/http/responses';

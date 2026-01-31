@@ -1,3 +1,25 @@
+/**
+ * ⚠️ LEGACY: Medusa Checkout Session Creation (DEPRECATED)
+ *
+ * STATUS: Retained for historical compatibility with Stripe Checkout Sessions.
+ * This endpoint creates Stripe Checkout Sessions with Medusa cart data.
+ *
+ * NEW CHECKOUT FLOW (Phase 1 - Active):
+ * - Single-page checkout: /checkout (CheckoutFlow.tsx)
+ * - PaymentIntent creation: POST /api/medusa/payments/create-intent
+ * - Stripe Elements for payment (not hosted checkout)
+ * - Cart locked after PaymentIntent creation
+ *
+ * AUTHORITY MODEL:
+ * - Medusa: cart, shipping, tax, totals (authoritative)
+ * - Stripe: payment processing only (receives amount, not line items)
+ * - No cart, shipping, or tax data sent to Stripe
+ *
+ * DO NOT USE FOR NEW IMPLEMENTATIONS.
+ * Refer to: docs/checkout/FRONTEND_IMPLEMENTATION.md
+ *
+ * Legacy behavior (Stripe Checkout Sessions):
+ */
 import type { APIRoute } from 'astro';
 import Stripe from 'stripe';
 import { jsonResponse } from '@/server/http/responses';

@@ -1,6 +1,23 @@
 /**
- * Hosted Stripe Checkout session endpoint.
+ * ⚠️ LEGACY: Hosted Stripe Checkout session endpoint (DEPRECATED)
  *
+ * STATUS: Retained for historical compatibility only.
+ * This endpoint creates Stripe Checkout Sessions (hosted checkout).
+ *
+ * NEW CHECKOUT FLOW (Phase 1 - Active):
+ * - Single-page checkout at /checkout using CheckoutFlow.tsx
+ * - Stripe PaymentIntents (not Checkout Sessions)
+ * - PaymentIntent creation: /api/medusa/payments/create-intent
+ * - Webhook: /api/medusa/webhooks/payment-intent
+ *
+ * AUTHORITY MODEL:
+ * - Medusa: products, pricing, cart, shipping, tax, orders
+ * - Stripe: payment processing only (no line items, addresses, shipping, tax)
+ *
+ * DO NOT USE THIS ENDPOINT FOR NEW IMPLEMENTATIONS.
+ * Refer to: docs/checkout/FRONTEND_IMPLEMENTATION.md
+ *
+ * Legacy behavior (kept for backward compatibility):
  * The storefront posts cart data. Medusa (Shippo) determines shipping options
  * and we forward those rates into Stripe Checkout. Any client changes that
  * execute before the redirect must revalidate this flow.

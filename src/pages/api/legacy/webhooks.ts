@@ -1,3 +1,32 @@
+/**
+ * ⚠️ LEGACY: Stripe Checkout Session Webhook Handler (DEPRECATED)
+ *
+ * STATUS: Retained for historical Stripe Checkout Session orders.
+ * This webhook handles checkout.session.completed events from Stripe.
+ *
+ * NEW CHECKOUT FLOW (Phase 1 - Active):
+ * - Webhook: /api/medusa/webhooks/payment-intent
+ * - Event: payment_intent.succeeded
+ * - Creates orders in Medusa first, then mirrors to Sanity
+ *
+ * AUTHORITY MODEL (Medusa-first):
+ * - Medusa: authoritative for products, pricing, cart, shipping, tax, orders
+ * - Sanity: read-only mirrors + ops annotations (notes, flags, attachments)
+ * - Stripe: payment processing only
+ *
+ * SANITY ROLE (Office Dashboard - Read-only):
+ * - Orders: display-only mirrors from Medusa
+ * - Totals: read-only snapshots (never computed in Sanity)
+ * - Shipping: fulfillment annotations only (tracking, notes)
+ * - Payment: status mirrors (never changes payment state)
+ *
+ * DO NOT MODIFY FOR NEW CHECKOUT FEATURES.
+ * Refer to:
+ * - docs/checkout/FRONTEND_IMPLEMENTATION.md
+ * - fas-sanity/docs/office-dashboard-role-definition.md
+ *
+ * Legacy behavior (Stripe Checkout Sessions):
+ */
 import Stripe from 'stripe';
 import { createClient } from '@sanity/client';
 import type { SanityDocumentStub } from '@sanity/client';
