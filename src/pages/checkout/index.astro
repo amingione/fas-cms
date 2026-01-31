@@ -1,17 +1,17 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import MedusaShippingOptions from '@/components/checkout/MedusaShippingOptions';
+import CheckoutFlow from '@/components/checkout/CheckoutFlow';
 const pageTitle = 'Checkout | FAS Motorsports';
 const pageDescription = 'Complete your purchase';
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription}>
   <main class="checkout-page">
-    <div class="container mx-auto px-4 py-8 max-w-4xl">
-      <h1 class="text-3xl font-bold mb-6">Checkout</h1>
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+      <h1 class="text-3xl font-bold mb-6 text-white">Checkout</h1>
 
-      <div id="checkout-container" class="bg-base rounded-lg shadow-lg p-6">
-        <MedusaShippingOptions client:load />
+      <div id="checkout-container" class="bg-white rounded-lg shadow-lg p-6">
+        <CheckoutFlow client:load />
       </div>
     </div>
   </main>
@@ -24,6 +24,6 @@ const pageDescription = 'Complete your purchase';
   }
 
   #checkout-container {
-    min-height: 240px;
+    min-height: 400px;
   }
 </style>

@@ -42,6 +42,8 @@ node_modules/
 .yarnrc.yml
 yarn.lock.netlify/plugins/
 .astro/
-docs/
+docs/*
+!docs/checkout/
+!docs/checkout/**
 
 .early.coverage

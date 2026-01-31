@@ -1,62 +1,177 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import TrustStrip from '@/components/TrustStrip.astro';
 
-const pageTitle = 'Order Success - F.A.S Performance';
-const pageDescription =
-  'Thank you for your order! Your order has been received and is being processed.';
+const pageTitle = 'Order Confirmed | FAS Motorsports';
+const pageDescription = 'Your order has been confirmed';
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription}>
-  <section class="min-h-[85vh] bg-dark text-white">
-    <div class="mx-auto max-w-3xl px-6 py-20">
-      <h1 class="text-3xl font-bold tracking-tight">Order confirmed</h1>
-      <p class="mt-4 text-white/70" id="order-status">
-        Finalizing your order with Medusa…
-      </p>
-      <p class="mt-4 text-white/70" id="order-id"></p>
-      <a href="/" class="mt-6 inline-block text-primary underline">
-        Continue shopping
-      </a>
-      <div class="mt-12">
-        <TrustStrip />
+  <main class="success-page">
+    <div class="container mx-auto px-4 py-12 max-w-2xl">
+      <div id="success-content" class="bg-white rounded-lg shadow-lg p-8 text-center">
+        <!-- Loading state (shown initially while polling) -->
+        <div id="loading-state" class="hidden">
+          <div class="inline-block animate-spin text-4xl mb-4">⏳</div>
+          <h1 class="text-2xl font-bold mb-4">Processing Your Order...</h1>
+          <p class="text-gray-600 mb-6">
+            Please wait while we confirm your order details.
+          </p>
+        </div>
+
+        <!-- Success state (shown after order is confirmed) -->
+        <div id="confirmed-state">
+          <div class="text-6xl mb-6">✅</div>
+          <h1 class="text-3xl font-bold mb-4">Order Confirmed!</h1>
+          <p class="text-gray-600 mb-6">
+            Thank you for your order. We've received your payment and will begin processing your order shortly.
+          </p>
+          <p class="text-sm text-gray-500 mb-8">
+            You'll receive a confirmation email with your order details at the email address you provided.
+          </p>
+
+          <div class="space-y-4">
+            <a
+              href="/account/orders"
+              class="inline-block bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 font-medium"
+            >
+              View Your Orders
+            </a>
+            <div>
+              <a
+                href="/shop"
+                class="text-blue-600 hover:underline"
+              >
+                Continue Shopping
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timeout state (shown if polling times out) -->
+        <div id="timeout-state" class="hidden">
+          <div class="text-5xl mb-6">⏱️</div>
+          <h1 class="text-2xl font-bold mb-4">Still Processing Your Order</h1>
+          <p class="text-gray-600 mb-6">
+            Your payment was successful, but we're still finalizing your order details.
+          </p>
+          <p class="text-sm text-gray-500 mb-8">
+            You'll receive a confirmation email shortly at the email address you provided. If you have any concerns, please contact our support team.
+          </p>
+
+          <div class="space-y-4">
+            <a
+              href="/contact"
+              class="inline-block bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 font-medium"
+            >
+              Contact Support
+            </a>
+            <div>
+              <a
+                href="/shop"
+                class="text-blue-600 hover:underline"
+              >
+                Continue Shopping
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  </section>
+  </main>
 </BaseLayout>
 
-<script is:inline>
-  const statusEl = document.getElementById('order-status');
-  const orderIdEl = document.getElementById('order-id');
-  const params = new URLSearchParams(window.location.search);
-  const sessionId = params.get('session_id');
+<style>
+  .success-page {
+    min-height: calc(100vh - 200px);
+    background: linear-gradient(to bottom, #0b0b0c 0%, #151515 100%);
+    display: flex;
+    align-items: center;
+  }
+</style>
 
-  async function finalizeOrder() {
-    if (!sessionId) {
-      statusEl.textContent = 'Missing Stripe session id. Please contact support.';
+<script>
+  /**
+   * Success Page Order Polling
+   *
+   * Guards against race condition where user arrives before webhook completes.
+   * Polls for order completion using payment_intent_id from URL params.
+   */
+
+  (function() {
+    const loadingState = document.getElementById('loading-state');
+    const confirmedState = document.getElementById('confirmed-state');
+    const timeoutState = document.getElementById('timeout-state');
+
+    // Extract payment_intent from URL (Stripe redirects with ?payment_intent=xxx)
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentIntentId = urlParams.get('payment_intent');
+
+    if (!paymentIntentId) {
+      // No payment_intent in URL - assume order is already processed
+      // This handles direct navigation to success page
+      confirmedState?.classList.remove('hidden');
+      clearCart();
       return;
     }
 
-    try {
-      const response = await fetch('/api/medusa/checkout/complete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId })
-      });
-      const payload = await response.json().catch(() => null);
-      if (!response.ok) {
-        statusEl.textContent = payload?.error || 'Unable to finalize order.';
+    // Show loading state while polling
+    confirmedState?.classList.add('hidden');
+    loadingState?.classList.remove('hidden');
+
+    // Poll for order completion
+    const POLL_INTERVAL_MS = 2000; // 2 seconds
+    const POLL_TIMEOUT_MS = 30000; // 30 seconds
+    const startTime = Date.now();
+    let pollCount = 0;
+
+    const pollForOrder = async () => {
+      pollCount++;
+      const elapsed = Date.now() - startTime;
+
+      // Check timeout
+      if (elapsed > POLL_TIMEOUT_MS) {
+        console.warn('[Success Page] Order polling timeout after', pollCount, 'attempts');
+        loadingState?.classList.add('hidden');
+        timeoutState?.classList.remove('hidden');
+        clearCart();
         return;
       }
-      const orderId = payload?.order?.id;
-      statusEl.textContent = 'Your order is confirmed.';
-      if (orderId) {
-        orderIdEl.textContent = `Order ID: ${orderId}`;
-      }
-    } catch (err) {
-      statusEl.textContent = 'Unable to finalize order. Please contact support.';
-    }
-  }
 
-  finalizeOrder();
+      try {
+        // Check if order exists in Sanity by payment_intent_id
+        const response = await fetch(
+          `/api/orders/check-by-payment-intent?payment_intent_id=${encodeURIComponent(paymentIntentId)}`
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.exists && data.order) {
+            // Order found! Show success
+            console.log('[Success Page] Order confirmed:', data.order._id);
+            loadingState?.classList.add('hidden');
+            confirmedState?.classList.remove('hidden');
+            clearCart();
+            return;
+          }
+        }
+
+        // Order not ready yet, continue polling
+        console.log('[Success Page] Polling attempt', pollCount, '- order not ready yet');
+        setTimeout(pollForOrder, POLL_INTERVAL_MS);
+
+      } catch (error) {
+        console.error('[Success Page] Polling error:', error);
+        // Continue polling on error (webhook might still be processing)
+        setTimeout(pollForOrder, POLL_INTERVAL_MS);
+      }
+    };
+
+    // Start polling
+    pollForOrder();
+
+    function clearCart() {
+      const cartIdKey = 'fas_medusa_cart_id';
+      localStorage.removeItem(cartIdKey);
+    }
+  })();
 </script>
