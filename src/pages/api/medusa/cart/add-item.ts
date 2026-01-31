@@ -79,6 +79,9 @@ export const POST: APIRoute = async ({ request }) => {
     const variantId = item.medusaVariantId;
 
     if (!variantId) {
+      // Skip items without variant IDs (e.g., option-only items)
+      // They should be part of the parent item's metadata
+      console.warn(`Skipping cart item without medusaVariantId: ${item.id}`);
       missingVariants.push(item.id);
       continue;
     }
@@ -101,6 +104,14 @@ export const POST: APIRoute = async ({ request }) => {
     });
     if (!lineItemResponse.ok) {
       const lineItemData = await readJsonSafe<any>(lineItemResponse);
+
+      // Log detailed error for debugging
+      console.error(`Failed to add Medusa line item for ${item.id}:`, {
+        variantId,
+        status: lineItemResponse.status,
+        details: lineItemData
+      });
+
       return jsonResponse(
         {
           error: `Failed to add Medusa line item for ${item.id}.`,
