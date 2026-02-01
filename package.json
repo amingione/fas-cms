@@ -105,6 +105,7 @@
     "@astrojs/netlify": "6.6.3",
     "@astrojs/react": "4.4.2",
     "@astrojs/tailwind": "^6.0.2",
+    "@fontsource/jetbrains-mono": "^5.2.8",
     "@fullcalendar/core": "^6.1.20",
     "@fullcalendar/daygrid": "^6.1.20",
     "@fullcalendar/interaction": "^6.1.20",

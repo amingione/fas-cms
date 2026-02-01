@@ -59,7 +59,13 @@ export async function fetchShippingOptions(
   );
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch shipping options: ${response.statusText}`);
+    const errorData = await response.json().catch(() => ({}));
+    const errorMsg = errorData?.message || response.statusText;
+    throw new Error(
+      `Failed to fetch shipping options: ${errorMsg}. ` +
+      `This may indicate missing weight/dimensions on product variants. ` +
+      `Check Medusa Admin → Products → Variants for complete shipping data.`
+    );
   }
 
   const data = await response.json();
@@ -111,6 +117,10 @@ export async function createPaymentIntent(
 }
 
 export function formatCurrency(amount: number, currencyCode: string): string {
+  if (typeof amount !== 'number' || !Number.isFinite(amount)) {
+    return 'Price unavailable';
+  }
+
   try {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',

@@ -2559,6 +2559,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fontsource/jetbrains-mono@npm:^5.2.8":
+  version: 5.2.8
+  resolution: "@fontsource/jetbrains-mono@npm:5.2.8"
+  checksum: 10c0/a51a1ad9cc847ccb3f5986d00b49fcd0eb2061200eb9caf215f968d658806e96e0ee305ab45df3d167f62223e45935cb7e89f984e7fb88fbe6928855a20e044e
+  languageName: node
+  linkType: hard
+
 "@fullcalendar/core@npm:^6.1.20":
   version: 6.1.20
   resolution: "@fullcalendar/core@npm:6.1.20"
@@ -16180,6 +16187,7 @@ __metadata:
     "@astrojs/tailwind": "npm:^6.0.2"
     "@babel/core": "npm:^7.28.5"
     "@eslint/js": "npm:^9.39.2"
+    "@fontsource/jetbrains-mono": "npm:^5.2.8"
     "@fullcalendar/core": "npm:^6.1.20"
     "@fullcalendar/daygrid": "npm:^6.1.20"
     "@fullcalendar/interaction": "npm:^6.1.20"

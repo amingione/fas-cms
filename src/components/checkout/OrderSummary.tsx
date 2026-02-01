@@ -39,10 +39,18 @@ export default function OrderSummary({ cart, isLocked = false }: OrderSummaryPro
               )}
               <div className="flex-1">
                 <div className="font-medium text-sm">{item.title}</div>
+                {(item as any).metadata?.selected_options && (item as any).metadata.selected_options.length > 0 && (
+                  <div className="text-xs text-gray-500 mt-1">
+                    {(item as any).metadata.selected_options.join(', ')}
+                  </div>
+                )}
                 <div className="text-sm text-gray-600">Qty: {item.quantity}</div>
               </div>
               <div className="font-medium text-sm">
-                {formatCurrency(item.total, cart.currency_code)}
+                {typeof item.total === 'number' && item.total >= 0
+                  ? formatCurrency(item.total, cart.currency_code)
+                  : <span className="text-red-500">Price unavailable</span>
+                }
               </div>
             </div>
           ))}

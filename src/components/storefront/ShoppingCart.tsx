@@ -3,7 +3,7 @@
 import { useMemo, useState, type MouseEvent } from 'react';
 import { CartProvider, useCart } from '@/components/cart/cart-context';
 import type { CartItem } from '@/components/cart/actions';
-import { QuestionMarkCircleIcon, XMarkIcon } from '@heroicons/react/20/solid';
+import { CheckIcon, ClockIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import Price, { formatPrice } from '@/components/storefront/Price';
 import { formatOptionSummary } from '@/lib/cart/format-option-summary';
 
@@ -43,7 +43,6 @@ function extractAddOns(item: CartItem): AddOnEntry[] {
       typeof price === 'number' && Number.isFinite(price) ? price : undefined;
     const existing = addOns.find((entry) => entry.label.toLowerCase() === normalized);
 
-    // Merge duplicate add-ons (e.g., when upgrades also show up in options) while keeping any price.
     if (existing) {
       if (existing.price == null && normalizedPrice !== undefined) existing.price = normalizedPrice;
       return;
@@ -224,87 +223,48 @@ function CartContents() {
   };
 
   const formattedSubtotal = formatPrice(subtotal || 0);
-  const formattedOriginalSubtotal = formatPrice(originalSubtotal || subtotal || 0);
-  const formattedDiscount = formatPrice(discountTotal);
 
   return (
     <div className="bg-dark text-white">
-      <div className="mx-auto max-w-7xl px-4 pb-24 pt-16 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-          <h1 className="font-ethno text-3xl italic tracking-tight sm:text-4xl">Shopping Cart</h1>
-          {hasItems && (
-            <button
-              type="button"
-              disabled={clearing}
-              onClick={onClearCart}
-              className="self-start rounded-full border border-white/30 px-4 py-2 text-xs uppercase tracking-wide text-white hover:border-primary disabled:opacity-60 lg:self-center"
-            >
-              Clear Cart
-            </button>
-          )}
-        </div>
+      <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:px-0">
+        <h1 className="text-center text-3xl font-bold tracking-tight text-white sm:text-4xl">
+          Shopping Cart
+        </h1>
 
         {!hasItems ? (
-          <div className="mt-16 flex flex-col items-center rounded-3xl border border-white/10 p-12 text-center">
-            <p className="text-lg font-semibold">Your cart is empty.</p>
-            <p className="mt-2 max-w-md text-sm text-white/70">
+          <div className="mt-16 text-center">
+            <p className="text-lg font-semibold text-white">Your cart is empty.</p>
+            <p className="mt-2 max-w-md mx-auto text-sm text-white/70">
               Add products from the storefront to see them here.
             </p>
             <a
               href="/shop"
-              className="mt-8 inline-flex items-center rounded-full bg-primary px-6 py-3 text-sm font-semibold uppercase tracking-wide text-black transition hover:opacity-90"
+              className="mt-8 inline-block bg-primary px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-primary-hover rounded-md"
             >
               Browse Products
             </a>
           </div>
         ) : (
-          <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
-            <section
-              aria-labelledby="cart-items-heading"
-              className="rounded-3xl border border-white/10 p-4 sm:p-6"
-            >
-              <h2 id="cart-items-heading" className="sr-only">
-                Items in your cart
+          <form className="mt-12">
+            {hasDiscounts && (
+              <div className="mb-4 flex items-center justify-between rounded-lg border border-emerald-300/30 bg-emerald-400/10 px-3 py-2 text-sm text-emerald-700">
+                <span className="uppercase tracking-wide font-semibold">Discounts Applied</span>
+                <span className="font-semibold">-{formatPrice(discountTotal)}</span>
+              </div>
+            )}
+
+            <section aria-labelledby="cart-heading">
+              <h2 id="cart-heading" className="sr-only">
+                Items in your shopping cart
               </h2>
-              {hasDiscounts && (
-                <div className="mb-4 flex items-center justify-between rounded-lg border border-emerald-300/30 bg-emerald-400/10 px-3 py-2 text-sm text-emerald-200">
-                  <span className="uppercase tracking-wide">Discounts</span>
-                  <span className="font-semibold">-{formattedDiscount}</span>
-                </div>
-              )}
-              <ul className="divide-y divide-white/10">
+
+              <ul
+                role="list"
+                className="divide-y divide-white/10 border-t border-b border-white/10"
+              >
                 {items.map((item) => {
                   const addOnEntries = extractAddOns(item);
-                  const addOnTotal = calculateAddOnTotal(addOnEntries);
-                  const quantityValue = Math.max(1, toNumber(item.quantity, 1));
-                  const baseUnitPrice = Math.max(0, toNumber(item.price, 0));
-                  const baseComparePrice = toNumber(item.originalPrice, baseUnitPrice);
-                  const baseFromCart = toNumber((item as any).basePrice, Number.NaN);
-                  const hasExplicitExtras =
-                    typeof item.extra === 'number' || Number.isFinite(baseFromCart);
-                  const unitPriceWithExtras = hasExplicitExtras
-                    ? baseUnitPrice
-                    : baseUnitPrice + addOnTotal;
-                  const compareWithExtras = hasExplicitExtras
-                    ? baseComparePrice
-                    : baseComparePrice + addOnTotal;
-                  const pricing = perItemPricing[item.id] || {
-                    unitPrice: unitPriceWithExtras,
-                    comparePrice:
-                      compareWithExtras > unitPriceWithExtras ? compareWithExtras : null,
-                    onSale: compareWithExtras > unitPriceWithExtras || Boolean(item.isOnSale),
-                    quantity: quantityValue,
-                    savings:
-                      compareWithExtras > unitPriceWithExtras
-                        ? compareWithExtras - unitPriceWithExtras
-                        : 0,
-                    lineCurrent: unitPriceWithExtras * quantityValue,
-                    lineOriginal:
-                      (compareWithExtras > unitPriceWithExtras
-                        ? compareWithExtras
-                        : unitPriceWithExtras) * quantityValue,
-                    saleLabel: item.saleLabel || undefined
-                  };
+                  const pricing = perItemPricing[item.id];
                   const normalizedClass = (item.shippingClass || '')
                     .toString()
                     .toLowerCase()
@@ -317,112 +277,106 @@ function CartContents() {
                     selectedUpgrades: item.selectedUpgrades,
                     upgrades: item.upgrades
                   });
-                  const displayTitle = `(${pricing.quantity}) ${item.name || 'Product'}`;
-                  const unitPrice = pricing.unitPrice;
-                  const comparePrice = pricing.comparePrice;
-                  const onSale = pricing.onSale;
-                  const savings = pricing.savings;
-                  const productHref = (() => {
-                    const raw = item.productUrl;
-                    if (!raw) return undefined;
-                    if (raw.startsWith('http')) return raw;
-                    if (raw.startsWith('/')) return raw;
-                    return `/shop/${raw}`;
-                  })();
+
                   return (
-                    <li key={item.id} className="flex flex-col gap-4 py-6 sm:flex-row sm:gap-6">
-                      <div className="size-24 rounded-md object-cover">
-                        {productHref ? (
-                          <a href={productHref} className="block">
-                            <img
-                              src={item.image || FALLBACK_IMAGE}
-                              alt={item.name || 'Cart item'}
-                              className="h-full w-full object-cover"
-                              loading="lazy"
-                            />
-                          </a>
-                        ) : (
-                          <img
-                            src={item.image || FALLBACK_IMAGE}
-                            alt={item.name || 'Cart item'}
-                            className="h-full w-full object-cover"
-                            loading="lazy"
-                          />
-                        )}
+                    <li key={item.id} className="flex py-6">
+                      <div className="shrink-0">
+                        <img
+                          alt={item.name || 'Cart item'}
+                          src={item.image || FALLBACK_IMAGE}
+                          className="size-24 rounded-md object-cover sm:size-32"
+                        />
                       </div>
-                      <div className="flex flex-1 flex-col gap-3">
-                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                          <div className="min-w-0 space-y-1">
-                            {productHref ? (
+
+                      <div className="ml-4 flex flex-1 flex-col sm:ml-6">
+                        <div>
+                          <div className="flex justify-between">
+                            <h4 className="text-sm">
                               <a
-                                href={productHref}
-                                className="text-base font-semibold text-white transition hover:text-primary"
+                                href={
+                                  item.productUrl
+                                    ? item.productUrl.startsWith('/')
+                                      ? item.productUrl
+                                      : `/shop/${item.productUrl}`
+                                    : '#'
+                                }
+                                className="font-medium text-white hover:text-primary"
                               >
-                                {displayTitle}
+                                {item.name || 'Product'}
                               </a>
-                            ) : (
-                              <h3 className="text-base font-semibold text-white">{displayTitle}</h3>
-                            )}
-                            {optionSummary && (
-                              <p className="text-sm text-white/70">{optionSummary}</p>
-                            )}
+                            </h4>
                             <Price
-                              amount={unitPrice}
-                              originalAmount={onSale ? (comparePrice ?? undefined) : undefined}
-                              onSale={onSale}
-                              className="text-base font-semibold text-white"
+                              amount={pricing?.unitPrice ?? 0}
+                              originalAmount={
+                                pricing?.onSale ? (pricing.comparePrice ?? undefined) : undefined
+                              }
+                              onSale={pricing?.onSale}
+                              className="ml-4 text-sm font-medium text-white"
                             />
-                            {onSale && (
-                              <div className="mt-1 flex flex-wrap items-center gap-2">
-                                <span className="inline-flex items-center rounded-full border border-red-500/40 bg-red-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-red-200">
-                                  {pricing.saleLabel || item.saleLabel || 'Sale'}
+                          </div>
+                          {optionSummary && <p className="mt-1 text-sm text-white/70">{optionSummary}</p>}
+                          {addOnEntries.length > 0 && (
+                            <ul className="mt-1 text-sm text-white/70">
+                              {addOnEntries.map((addon, idx) => (
+                                <li key={idx}>
+                                  + {addon.label}
+                                  {addon.price !== undefined && ` (+${formatPrice(addon.price)})`}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+
+                        <div className="mt-4 flex flex-1 items-end justify-between">
+                          <div className="flex flex-col gap-2">
+                            {pricing?.onSale && (
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className="inline-flex items-center rounded-full border border-red-500/40 bg-red-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-red-600">
+                                  {pricing.saleLabel || 'Sale'}
                                 </span>
-                                {savings > 0 && (
-                                  <span className="text-xs text-emerald-200">
-                                    You save {formatPrice(savings)}
+                                {pricing.savings > 0 && (
+                                  <span className="text-xs text-emerald-600">
+                                    You save {formatPrice(pricing.savings)}
                                   </span>
                                 )}
                               </div>
                             )}
                             {isInstallOnly && (
-                              <p className="inline-flex items-center rounded-full px-3 py-1 text-xs uppercase tracking-wide text-amber-200">
+                              <p className="inline-flex items-center rounded-full px-3 py-1 text-xs uppercase tracking-wide text-amber-200 bg-amber-500/10 border border-amber-500/40">
                                 Install-Only Service
                               </p>
                             )}
+                            <p className="flex items-center space-x-2 text-sm text-white/80">
+                              <CheckIcon aria-hidden="true" className="size-5 shrink-0 text-green-400" />
+                              <span>In stock</span>
+                            </p>
                           </div>
-
-                          <div className="flex items-center gap-3 shrink-0">
+                          <div className="ml-4 flex items-center gap-3">
+                            <label htmlFor={`quantity-${item.id}`} className="sr-only">
+                              Quantity
+                            </label>
                             <select
                               id={`quantity-${item.id}`}
                               value={item.quantity || 1}
                               onChange={(event) => onQuantityChange(item.id, event.target.value)}
-                              className="rounded-md border border-white/20 bg-transparent px-3 py-2 text-sm text-white/80 focus:outline-none"
+                              className="rounded-md border border-white/20 bg-transparent px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                             >
                               {(QUANTITY_CHOICES.includes(item.quantity || 1)
                                 ? QUANTITY_CHOICES
                                 : [...QUANTITY_CHOICES, item.quantity || QUANTITY_CHOICES[0]]
                               ).map((qty) => (
                                 <option key={qty} value={qty}>
-                                  {qty}
+                                  Qty {qty}
                                 </option>
                               ))}
                             </select>
-                            <div className="flex w-10 shrink-0 items-center justify-center">
-                              <form
-                                onSubmit={(event) => {
-                                  event.preventDefault();
-                                  onRemove(item.id);
-                                }}
-                              >
-                                <button
-                                  type="submit"
-                                  aria-label="Remove item"
-                                  className="shrink-0 text-white/60 transition hover:text-red-400"
-                                >
-                                  <XMarkIcon aria-hidden="true" className="size-5" />
-                                </button>
-                              </form>
-                            </div>
+                            <button
+                              type="button"
+                              onClick={() => onRemove(item.id)}
+                              className="text-sm font-medium text-primary hover:text-primary-hover"
+                            >
+                              <span>Remove</span>
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -430,101 +384,60 @@ function CartContents() {
                   );
                 })}
               </ul>
-
-              {installOnlyItems.length > 0 && (
-                <div className="mt-6 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-100">
-                  Install-only services are scheduled directly with our team. You will not be
-                  charged for shipping on these items.
-                </div>
-              )}
             </section>
 
-            <aside className="space-y-6 self-start rounded-3xl border border-white/10 bg-white/5 p-6 lg:w-[360px] lg:justify-self-end">
-              <h2 className="text-lg font-semibold text-white">Order Summary</h2>
-              <dl className="space-y-3 text-sm text-white/80">
-                {hasDiscounts && (
-                  <div className="flex items-center justify-between text-emerald-200">
-                    <dt className="flex items-center gap-2">
-                      <span className="uppercase tracking-wide">Discounts</span>
-                      {saleLabel && (
-                        <span className="rounded-full border border-emerald-300/30 bg-emerald-400/10 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald-100">
-                          {saleLabel}
-                        </span>
-                      )}
-                    </dt>
-                    <dd className="font-semibold">-{formattedDiscount}</dd>
-                  </div>
-                )}
-                <div className="flex items-start justify-between">
-                  <dt className="flex flex-col gap-1">
-                    <span className="text-white">Subtotal</span>
-                    {hasDiscounts && (
-                      <span className="text-xs text-white/50 line-through">
-                        {formattedOriginalSubtotal}
-                      </span>
-                    )}
-                  </dt>
-                  <dd className="font-semibold text-white">{formattedSubtotal}</dd>
-                </div>
-                {!hasDiscounts && hasSaleItems && (
-                  <div className="flex items-center justify-between text-xs text-emerald-200">
-                    <span className="rounded-full border border-emerald-300/30 bg-emerald-400/10 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide">
-                      {saleLabel || 'Discount'}
-                    </span>
-                    <span className="text-right text-white/70">Sale price applied</span>
-                  </div>
-                )}
-                <div className="flex items-start justify-between gap-4">
-                  <dt className="flex items-center gap-2 text-white">
-                    Shipping
-                    <span className="group relative inline-flex">
-                      <button
-                        type="button"
-                        aria-label="Calculated at checkout"
-                        className="shrink-0 text-white/50 transition hover:text-white"
-                      >
-                        <QuestionMarkCircleIcon aria-hidden="true" className="size-4" />
-                      </button>
-                      <span className="pointer-events-none absolute top-full left-1/2 z-10 mt-1 hidden w-max -translate-x-1/2 rounded-md border border-white/20 bg-dark/90 px-3 py-2 text-xs text-white shadow-lg transition group-hover:block group-focus-within:block">
-                        Shipping costs are calculated according to your delivery address.
-                      </span>
-                    </span>
-                  </dt>
-                  <dd className="text-white/60">Calculated at checkout</dd>
-                </div>
-                <div className="flex items-start justify-between gap-4">
-                  <dt className="flex items-center gap-2 text-white">
-                    Taxes
-                    <span className="group relative inline-flex">
-                      <button
-                        type="button"
-                        aria-label="Taxes are calculated at checkout"
-                        className="shrink-0 text-white/50 transition hover:text-white"
-                      >
-                        <QuestionMarkCircleIcon aria-hidden="true" className="size-4" />
-                      </button>
-                      <span className="pointer-events-none absolute top-full left-1/2 z-10 mt-1 hidden w-max -translate-x-1/2 rounded-md border border-white/20 bg-dark/90 px-3 py-2 text-xs text-white shadow-lg transition group-hover:block group-focus-within:block">
-                        Taxes are finalized during checkout based on your delivery details.
-                      </span>
-                    </span>
-                  </dt>
-                  <dd className="text-white/60">Calculated at checkout</dd>
-                </div>
-              </dl>
+            {installOnlyItems.length > 0 && (
+              <div className="mt-6 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-200">
+                Install-only services are scheduled directly with our team. You will not be charged
+                for shipping on these items.
+              </div>
+            )}
 
-              <button
-                type="button"
-                onClick={handleCheckout}
-                disabled={checkingOut}
-                className="btn-plain w-full rounded-full bg-primary px-6 py-3 text-sm font-semibold uppercase tracking-wide text-black transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                {checkingOut ? 'Connecting…' : 'Continue to Checkout'}
-              </button>
-              {checkoutError && (
-                <p className="mt-2 text-xs text-red-400">{checkoutError}</p>
-              )}
-          </aside>
-          </div>
+            {/* Order summary */}
+            <section aria-labelledby="summary-heading" className="mt-10">
+              <h2 id="summary-heading" className="sr-only">
+                Order summary
+              </h2>
+
+              <div>
+                <dl className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <dt className="text-base font-medium text-white">Subtotal</dt>
+                    <dd className="ml-4 text-base font-medium text-white">
+                      {formattedSubtotal}
+                    </dd>
+                  </div>
+                </dl>
+                <p className="mt-1 text-sm text-white/70">
+                  Shipping and taxes will be calculated at checkout.
+                </p>
+              </div>
+
+              <div className="mt-10">
+                <button
+                  type="button"
+                  onClick={handleCheckout}
+                  disabled={checkingOut}
+                  className="w-full rounded-full bg-primary px-4 py-3 text-base font-medium text-white shadow-sm hover:bg-primary-hover focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-dark focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {checkingOut ? 'Connecting...' : 'Checkout'}
+                </button>
+                {checkoutError && (
+                  <p className="mt-2 text-xs text-red-400 text-center">{checkoutError}</p>
+                )}
+              </div>
+
+              <div className="mt-6 text-center text-sm">
+                <p>
+                  or{' '}
+                  <a href="/shop" className="font-medium text-primary hover:text-primary-hover">
+                    Continue Shopping
+                    <span aria-hidden="true"> &rarr;</span>
+                  </a>
+                </p>
+              </div>
+            </section>
+          </form>
         )}
       </div>
     </div>

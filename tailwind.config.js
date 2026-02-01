@@ -82,7 +82,15 @@ export default {
         'cyber3dfilled-italic': ['Cyber Princess 3D Filled', 'sans-serif'],
         kwajong: ['Kwajong', 'sans-serif'],
         'kwajong-italic': ['Kwajong', 'sans-serif'],
-        body: ['American Captain', 'sans-serif']
+        body: ['American Captain', 'sans-serif'],
+        mono: [
+          'JetBrains Mono',
+          'Fira Code',
+          'SF Mono',
+          'Consolas',
+          'Monaco',
+          'monospace'
+        ]
       },
 
       // Mobile-first type scale (smaller base, scales up on breakpoints)

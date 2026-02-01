@@ -72,6 +72,20 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
+  // STEP 1: Fetch existing Medusa cart to check for duplicates
+  const cartFetchResponse = await medusaFetch(`/store/carts/${cartId}`);
+  const existingCartData = await readJsonSafe<any>(cartFetchResponse);
+  const existingCart = existingCartData?.cart;
+  const existingItems = Array.isArray(existingCart?.items) ? existingCart.items : [];
+
+  // STEP 2: Build a map of variant_id → existing line_item_id
+  const existingItemsByVariant = new Map<string, string>();
+  existingItems.forEach((item: any) => {
+    if (item.variant_id) {
+      existingItemsByVariant.set(item.variant_id, item.id);
+    }
+  });
+
   const mappings: { id: string; medusaVariantId: string }[] = [];
   const missingVariants: string[] = [];
 
@@ -88,38 +102,68 @@ export const POST: APIRoute = async ({ request }) => {
 
     mappings.push({ id: item.id, medusaVariantId: variantId });
 
-    const lineItemResponse = await medusaFetch(`/store/carts/${cartId}/line-items`, {
-      method: 'POST',
-      body: JSON.stringify({
-        variant_id: variantId,
-        quantity: Math.max(1, item.quantity ?? 1),
-        metadata: {
-          local_item_id: item.id,
-          sku: item.sku,
-          product_url: item.productUrl,
-          shipping_class: item.shippingClass,
-          install_only: item.installOnly ?? false
-        }
-      })
-    });
-    if (!lineItemResponse.ok) {
-      const lineItemData = await readJsonSafe<any>(lineItemResponse);
+    // STEP 3: Check if item already exists in Medusa cart
+    const existingLineItemId = existingItemsByVariant.get(variantId);
 
-      // Log detailed error for debugging
-      console.error(`Failed to add Medusa line item for ${item.id}:`, {
-        variantId,
-        status: lineItemResponse.status,
-        details: lineItemData
+    if (existingLineItemId) {
+      // UPDATE existing line item quantity
+      const updateResponse = await medusaFetch(
+        `/store/carts/${cartId}/line-items/${existingLineItemId}`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            quantity: Math.max(1, item.quantity ?? 1)
+          })
+        }
+      );
+
+      if (!updateResponse.ok) {
+        const errorData = await readJsonSafe<any>(updateResponse);
+        console.error(`Failed to update line item ${existingLineItemId}:`, errorData);
+        return jsonResponse(
+          { error: `Failed to update line item for ${item.id}.`, details: errorData },
+          { status: updateResponse.status },
+          { noIndex: true }
+        );
+      }
+    } else {
+      // CREATE new line item
+      const lineItemResponse = await medusaFetch(`/store/carts/${cartId}/line-items`, {
+        method: 'POST',
+        body: JSON.stringify({
+          variant_id: variantId,
+          quantity: Math.max(1, item.quantity ?? 1),
+          metadata: {
+            local_item_id: item.id,
+            sku: item.sku,
+            selected_options: item.selectedOptions || [],
+            selected_upgrades: item.selectedUpgrades || [],
+            product_url: item.productUrl,
+            shipping_class: item.shippingClass,
+            install_only: item.installOnly ?? false
+          }
+        })
       });
 
-      return jsonResponse(
-        {
-          error: `Failed to add Medusa line item for ${item.id}.`,
+      if (!lineItemResponse.ok) {
+        const lineItemData = await readJsonSafe<any>(lineItemResponse);
+
+        // Log detailed error for debugging
+        console.error(`Failed to add Medusa line item for ${item.id}:`, {
+          variantId,
+          status: lineItemResponse.status,
           details: lineItemData
-        },
-        { status: lineItemResponse.status },
-        { noIndex: true }
-      );
+        });
+
+        return jsonResponse(
+          {
+            error: `Failed to add Medusa line item for ${item.id}.`,
+            details: lineItemData
+          },
+          { status: lineItemResponse.status },
+          { noIndex: true }
+        );
+      }
     }
   }
 

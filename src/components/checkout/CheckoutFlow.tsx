@@ -22,6 +22,7 @@ import {
   createPaymentIntent,
   filterValidShippingOptions
 } from '@/lib/checkout/utils';
+import { validateCartForCheckout } from '@/lib/checkout/validation';
 
 import AddressForm from './AddressForm';
 import ShippingSelector from './ShippingSelector';
@@ -47,8 +48,23 @@ export default function CheckoutFlow() {
       return;
     }
 
-    fetchCart(cartId)
-      .then((cartData) => {
+    Promise.all([
+      fetchCart(cartId),
+      validateCartForCheckout(cartId)
+    ])
+      .then(([cartData, validation]) => {
+        if (!validation.valid) {
+          console.error('[Checkout] Cart validation failed:', validation.errors);
+          setError(`Cart validation failed: ${validation.errors.join('; ')}`);
+          dispatch({ type: 'CART_EMPTY' });
+          return;
+        }
+
+        // Log warnings (non-blocking)
+        if (validation.warnings && validation.warnings.length > 0) {
+          console.warn('[Checkout] Cart validation warnings:', validation.warnings);
+        }
+
         setCart(cartData);
         if (cartData.items.length === 0) {
           dispatch({ type: 'CART_EMPTY' });
@@ -209,8 +225,32 @@ export default function CheckoutFlow() {
 
   // Render based on state
   const renderContent = () => {
-    switch (state) {
+      switch (state) {
       case 'CART_LOADING':
+        if (error) {
+          return (
+            <div className="space-y-6">
+              <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+                <h3 className="font-bold text-red-800 mb-2">Cart Load Error</h3>
+                <p className="text-red-700 text-sm">{error}</p>
+              </div>
+              <div className="flex space-x-4">
+                <button
+                  onClick={() => window.location.reload()}
+                  className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700"
+                >
+                  Retry
+                </button>
+                <button
+                  onClick={() => (window.location.href = '/cart')}
+                  className="flex-1 bg-gray-300 text-gray-700 py-3 px-4 rounded-md hover:bg-gray-400"
+                >
+                  Back to Cart
+                </button>
+              </div>
+            </div>
+          );
+        }
         return (
           <div className="text-center py-12">
             <div className="inline-block animate-spin text-4xl mb-4">⏳</div>

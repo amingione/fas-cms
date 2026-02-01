@@ -1,5 +1,10 @@
 @import './fas-theme.css';
 
+/* Import JetBrains Mono font weights */
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+@import '@fontsource/jetbrains-mono/600.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -437,6 +442,14 @@ table {
 }
 
 @layer utilities {
+  /* Monospace Font Override - Better readability */
+  .font-mono {
+    font-size: 0.9375rem; /* 15px instead of default 14px */
+    font-weight: 500; /* Medium weight for better visibility */
+    letter-spacing: -0.01em; /* Slight tightening for better readability */
+    line-height: 1.5; /* Better vertical spacing */
+  }
+
   /* Custom Font Utilities */
   .font-ethno {
     font-family: 'Ethnocentric', sans-serif;

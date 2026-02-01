@@ -53,15 +53,48 @@ export async function medusaFetch(
     throw new Error('Medusa backend not configured');
   }
 
+  if (!/^https?:\/\//i.test(config.baseUrl)) {
+    throw new Error(
+      `Invalid Medusa base URL "${config.baseUrl}". Expected an absolute URL starting with http:// or https://`
+    );
+  }
+
   const headers = buildMedusaHeaders(config.publishableKey, init.headers);
   if (init.body && !headers.has('content-type')) {
     headers.set('content-type', 'application/json');
   }
 
-  return fetch(`${config.baseUrl}${path}`, {
-    ...init,
-    headers
-  });
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  const url = new URL(normalizedPath, config.baseUrl).toString();
+  const method = (init.method ?? 'GET').toUpperCase();
+
+  try {
+    return await fetch(url, {
+      ...init,
+      headers
+    });
+  } catch (error) {
+    const origin = typeof window !== 'undefined' ? window.location.origin : undefined;
+    const crossOrigin =
+      typeof window !== 'undefined' ? new URL(url).origin !== window.location.origin : undefined;
+
+    console.error('[Medusa] fetch() failed', {
+      url,
+      method,
+      origin,
+      crossOrigin,
+      baseUrl: config.baseUrl
+    });
+
+    const hint =
+      crossOrigin === true
+        ? `This looks like a cross-origin request from "${origin}". If you're running Medusa locally, ensure its STORE_CORS includes your frontend origin.`
+        : 'Check that the Medusa server is running and reachable from the browser.';
+
+    const wrapped = new Error(`Failed to fetch Medusa API: ${url}. ${hint}`);
+    (wrapped as any).cause = error;
+    throw wrapped;
+  }
 }
 
 export async function readJsonSafe<T = any>(response: Response): Promise<T | null> {
