@@ -119,20 +119,29 @@ async function ensureMedusaCartId(): Promise<string | null> {
   return null;
 }
 
-async function syncMedusaCart(cart: Cart) {
-  if (!isBrowser()) return;
+async function syncMedusaCart(cart: Cart): Promise<boolean> {
+  if (!isBrowser()) return false;
   const cartId = await ensureMedusaCartId();
-  if (!cartId) return;
+  if (!cartId) {
+    console.error('[Cart] Failed to get or create Medusa cart ID');
+    return false;
+  }
 
   try {
+    console.log('[Cart] Syncing to Medusa cart:', cartId, 'Items:', cart.items.length);
     const response = await fetch('/api/medusa/cart/add-item', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ cartId, cart })
     });
     const payload = await response.json().catch(() => null);
-    if (!response.ok) return;
 
+    if (!response.ok) {
+      console.error('[Cart] Medusa sync failed:', response.status, payload);
+      return false;
+    }
+
+    console.log('[Cart] Medusa sync successful');
     const mappings = Array.isArray(payload?.mappings) ? payload.mappings : [];
     if (mappings.length) {
       const next = getCart();
@@ -146,8 +155,10 @@ async function syncMedusaCart(cart: Cart) {
       }
       if (changed) saveCart(next);
     }
+    return true;
   } catch (error) {
-    void error;
+    console.error('[Cart] Medusa sync exception:', error);
+    return false;
   }
 }
 
@@ -287,14 +298,30 @@ export async function redirectToCheckout() {
     return 'Your cart is empty.';
   }
 
-  await ensureMedusaCartId();
-  await syncMedusaCart(cart);
+  console.log('[Cart] Starting checkout process...');
 
+  // Ensure Medusa cart exists
+  const medusaCartId = await ensureMedusaCartId();
+  if (!medusaCartId) {
+    console.error('[Cart] Failed to create Medusa cart');
+    return 'Failed to initialize checkout. Please try again.';
+  }
+
+  // Sync cart to Medusa and wait for success
+  const syncSuccess = await syncMedusaCart(cart);
+  if (!syncSuccess) {
+    console.error('[Cart] Failed to sync cart to Medusa');
+    return 'Failed to sync your cart. Please try again or contact support.';
+  }
+
+  // Verify all items have Medusa variant IDs
   const refreshed = getCart();
   const missingMedusa = refreshed.items.filter((item) => !item.medusaVariantId);
   if (missingMedusa.length) {
+    console.error('[Cart] Items missing Medusa variant IDs:', missingMedusa);
     return 'Some items in your cart are missing required variant selections. Please update your cart before checkout.';
   }
 
+  console.log('[Cart] Redirecting to checkout with Medusa cart:', medusaCartId);
   window.location.href = '/checkout';
 }

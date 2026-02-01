@@ -11,12 +11,10 @@ import {
 
 interface StripePaymentProps {
   clientSecret: string;
-  cartId?: string;
-  paymentIntentId?: string;
-  amount?: number;
-  currencyCode?: string;
-  onSuccess?: () => void;
-  onError?: (error: string) => void;
+  amount: number;
+  currencyCode: string;
+  onSuccess: () => void;
+  onError: (error: string) => void;
   disabled?: boolean;
 }
 
@@ -72,18 +70,18 @@ function PaymentForm({
       </div>
 
       {errorMessage && (
-        <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
-          <p className="text-red-400 text-sm">{errorMessage}</p>
+        <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-red-800 text-sm">{errorMessage}</p>
         </div>
       )}
 
       <button
         type="submit"
         disabled={!stripe || isProcessing || disabled}
-        className={`w-full rounded-full px-6 py-3 text-base font-medium transition ${
+        className={`w-full py-3 px-4 rounded-md font-medium ${
           !stripe || isProcessing || disabled
-            ? 'bg-gray-600 cursor-not-allowed opacity-50'
-            : 'bg-primary hover:bg-primary-hover text-white'
+            ? 'bg-gray-300 cursor-not-allowed'
+            : 'bg-green-600 hover:bg-green-700 text-white'
         }`}
       >
         {isProcessing ? (
@@ -100,7 +98,7 @@ function PaymentForm({
       </button>
 
       {isProcessing && (
-        <p className="text-sm text-white/70 text-center">
+        <p className="text-sm text-gray-600 text-center">
           Please do not close this page...
         </p>
       )}
@@ -135,17 +133,17 @@ export default function StripePayment({
   if (!stripePromise) {
     return (
       <div className="text-center py-8">
-        <p className="text-white/70">Loading payment form...</p>
+        <p className="text-gray-600">Loading payment form...</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-lg font-ethno text-white">Payment Details</h2>
+    <div className="space-y-4">
+      <h2 className="text-2xl font-bold">Payment</h2>
 
-      <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-lg mb-4">
-        <p className="text-sm text-emerald-400">
+      <div className="p-4 bg-blue-50 border border-blue-200 rounded-md mb-4">
+        <p className="text-sm text-blue-800">
           🔒 <strong>Your order is secured.</strong> To make changes, you'll need to
           start over.
         </p>
@@ -156,14 +154,9 @@ export default function StripePayment({
         options={{
           clientSecret,
           appearance: {
-            theme: 'night',
+            theme: 'stripe',
             variables: {
-              colorPrimary: '#ea1d26',
-              colorBackground: '#0b0b0c',
-              colorText: '#ffffff',
-              colorDanger: '#ff4444',
-              fontFamily: 'American Captain, sans-serif',
-              borderRadius: '8px'
+              colorPrimary: '#2563eb'
             }
           }
         }}
@@ -177,7 +170,7 @@ export default function StripePayment({
         />
       </Elements>
 
-      <div className="pt-6 border-t border-white/10">
+      <div className="pt-4 border-t">
         <button
           onClick={() => {
             if (
@@ -188,10 +181,10 @@ export default function StripePayment({
               window.location.href = '/cart';
             }
           }}
-          className="text-sm text-white/70 hover:text-white transition"
+          className="text-sm text-gray-600 hover:underline"
           disabled={disabled}
         >
-          ← Start Over
+          Start Over
         </button>
       </div>
     </div>

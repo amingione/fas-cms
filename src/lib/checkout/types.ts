@@ -59,9 +59,10 @@ export interface LineItem {
   title: string;
   quantity: number;
   unit_price: number;
-  total: number;
+  total?: number; // Optional in Medusa v2 - totals calculated at cart level
   thumbnail?: string;
   variant_id?: string;
+  metadata?: Record<string, any>; // Added for compatibility
 }
 
 export interface Address {

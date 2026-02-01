@@ -25,8 +25,8 @@
 
 import Stripe from 'stripe';
 import { randomUUID } from 'crypto';
-import { readSession } from '../../../server/auth/session';
-import { sanity } from '../../../server/sanity-client';
+import { readSession } from '@/server/auth/session';
+import { sanity } from '@/server/sanity-client';
 import { getActivePrice, getCompareAtPrice, isOnSale } from '@/lib/saleHelpers';
 import { formatOptionSummary } from '@/lib/cart/format-option-summary';
 import { stripeCheckoutRequestSchema } from '@/lib/validators/api-requests';

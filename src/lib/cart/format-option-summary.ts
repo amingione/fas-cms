@@ -4,15 +4,22 @@ type OptionSummaryInput = {
   selectedOptions?: string[] | null;
   selectedUpgrades?: string[] | null;
   upgrades?: unknown;
+  includeUpgrades?: boolean;
+  includeUpgradeKeys?: boolean;
+  includeOpaqueValues?: boolean;
 };
 
 const TYPED_GROUP_REGEX = /(paint|code|notes?|custom)/i;
+const UPGRADE_KEY_REGEX = /upgrade|add[-\s]?on/i;
+const INTERNAL_KEY_REGEX = /(variant|medusa|stripe|sku|product|slug|handle|url|id)/i;
 
 function normalizeValue(raw: unknown): string | null {
   if (raw == null) return null;
   const trimmed = String(raw).trim();
   if (!trimmed || /^\[\s*\]$/.test(trimmed)) return null;
-  return trimmed.replace(/\s+/g, ' ');
+  const normalized = trimmed.replace(/\s+/g, ' ');
+  if (normalized === '[object Object]') return null;
+  return normalized;
 }
 
 function extractValueFromString(raw: string): { value: string; key?: string } | null {
@@ -31,6 +38,15 @@ function extractValueFromString(raw: string): { value: string; key?: string } | 
 function hasTypedGroup(group?: string | null): boolean {
   if (!group) return false;
   return TYPED_GROUP_REGEX.test(group);
+}
+
+function looksLikeOpaqueId(value: string): boolean {
+  const trimmed = value.trim();
+  if (!trimmed) return false;
+  if (trimmed.includes(' ')) return false;
+  if (trimmed.length < 12) return false;
+  if (!/^[a-z0-9]+$/i.test(trimmed)) return false;
+  return /[a-z]/i.test(trimmed) && /\d/.test(trimmed);
 }
 
 function readUpgradeEntries(raw: unknown): string[] {
@@ -60,6 +76,10 @@ function readUpgradeEntries(raw: unknown): string[] {
 }
 
 export function formatOptionSummary(input: OptionSummaryInput): string | null {
+  const includeUpgrades = input.includeUpgrades !== false;
+  const includeUpgradeKeys = input.includeUpgradeKeys !== false;
+  const includeOpaqueValues = input.includeOpaqueValues === true;
+
   const values: string[] = [];
   const typedValues: string[] = [];
   const seen = new Set<string>();
@@ -67,6 +87,7 @@ export function formatOptionSummary(input: OptionSummaryInput): string | null {
   const pushValue = (rawValue: unknown, typed = false) => {
     const normalized = normalizeValue(rawValue);
     if (!normalized) return;
+    if (!includeOpaqueValues && looksLikeOpaqueId(normalized)) return;
     const key = normalized.toLowerCase();
     if (seen.has(key)) return;
     seen.add(key);
@@ -87,6 +108,7 @@ export function formatOptionSummary(input: OptionSummaryInput): string | null {
   selectionsArray.forEach((entry: any) => {
     if (!entry || typeof entry !== 'object') return;
     const group = entry.group ?? entry.name ?? entry.key;
+    if (!includeUpgrades && typeof group === 'string' && UPGRADE_KEY_REGEX.test(group)) return;
     const label = entry.label ?? entry.value ?? '';
     pushValue(label, hasTypedGroup(group));
   });
@@ -96,12 +118,20 @@ export function formatOptionSummary(input: OptionSummaryInput): string | null {
       if (typeof entry !== 'string') return;
       const parsed = extractValueFromString(entry);
       if (!parsed) return;
+      if (
+        !includeUpgrades &&
+        typeof parsed.key === 'string' &&
+        UPGRADE_KEY_REGEX.test(parsed.key)
+      )
+        return;
       pushValue(parsed.value, hasTypedGroup(parsed.key));
     });
   }
 
   if (input.options && typeof input.options === 'object') {
     Object.entries(input.options).forEach(([key, value]) => {
+      if (!includeUpgradeKeys && UPGRADE_KEY_REGEX.test(key)) return;
+      if (!includeOpaqueValues && INTERNAL_KEY_REGEX.test(key) && typeof value === 'string') return;
       const typed = hasTypedGroup(key);
       if (Array.isArray(value)) {
         value.forEach((entry) => pushValue(entry, typed));
@@ -121,6 +151,12 @@ export function formatOptionSummary(input: OptionSummaryInput): string | null {
       if (typeof value === 'string') {
         const parsed = extractValueFromString(value);
         if (!parsed) return;
+        if (
+          !includeOpaqueValues &&
+          (INTERNAL_KEY_REGEX.test(key) || (parsed.key && INTERNAL_KEY_REGEX.test(parsed.key))) &&
+          looksLikeOpaqueId(parsed.value)
+        )
+          return;
         pushValue(parsed.value, typed || hasTypedGroup(parsed.key));
         return;
       }
@@ -128,11 +164,13 @@ export function formatOptionSummary(input: OptionSummaryInput): string | null {
     });
   }
 
-  if (Array.isArray(input.selectedUpgrades)) {
-    input.selectedUpgrades.forEach((entry) => pushValue(entry, false));
-  }
+  if (includeUpgrades) {
+    if (Array.isArray(input.selectedUpgrades)) {
+      input.selectedUpgrades.forEach((entry) => pushValue(entry, false));
+    }
 
-  readUpgradeEntries(input.upgrades).forEach((entry) => pushValue(entry, false));
+    readUpgradeEntries(input.upgrades).forEach((entry) => pushValue(entry, false));
+  }
 
   const combined = [...values, ...typedValues];
   if (!combined.length) return null;

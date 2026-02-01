@@ -6,6 +6,7 @@ import type { CartItem } from '@/components/cart/actions';
 import { CheckIcon, ClockIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import Price, { formatPrice } from '@/components/storefront/Price';
 import { formatOptionSummary } from '@/lib/cart/format-option-summary';
+import { calculateAddOnTotal, extractAddOns } from '@/lib/cart/extract-add-ons';
 
 const FALLBACK_IMAGE = '/logo/faslogo150.webp';
 const QUANTITY_CHOICES = Array.from({ length: 10 }, (_, i) => i + 1);
@@ -22,75 +23,6 @@ function extractDiscountPercent(label?: string | null): number | null {
   if (!match) return null;
   const value = Number(match[1]);
   return Number.isFinite(value) ? value : null;
-}
-
-type AddOnEntry = { label: string; price?: number };
-
-const CLEAN_PREFIX_REGEX = /^(type|option|upgrade|add[-\s]?on)\s*\d*\s*:?/i;
-
-function cleanLabel(label?: string | null) {
-  if (!label) return '';
-  return label.replace(CLEAN_PREFIX_REGEX, '').trim();
-}
-
-function extractAddOns(item: CartItem): AddOnEntry[] {
-  const addOns: AddOnEntry[] = [];
-  const push = (label?: string | null, price?: number | null) => {
-    const cleaned = cleanLabel(label);
-    if (!cleaned) return;
-    const normalized = cleaned.toLowerCase();
-    const normalizedPrice =
-      typeof price === 'number' && Number.isFinite(price) ? price : undefined;
-    const existing = addOns.find((entry) => entry.label.toLowerCase() === normalized);
-
-    if (existing) {
-      if (existing.price == null && normalizedPrice !== undefined) existing.price = normalizedPrice;
-      return;
-    }
-
-    addOns.push({
-      label: cleaned,
-      price: normalizedPrice
-    });
-  };
-
-  const readEntry = (entry: any) => {
-    if (!entry) return;
-    if (typeof entry === 'string') {
-      push(entry, undefined);
-      return;
-    }
-    if (typeof entry === 'object') {
-      const label = (entry as any).label ?? (entry as any).value ?? (entry as any).name;
-      const price =
-        typeof (entry as any).priceDelta === 'number'
-          ? (entry as any).priceDelta
-          : typeof (entry as any).delta === 'number'
-            ? (entry as any).delta
-            : (entry as any).price;
-      push(label, typeof price === 'number' && Number.isFinite(price) ? price : undefined);
-      return;
-    }
-  };
-
-  const upgradeSource = item.upgrades ?? item.selectedUpgrades;
-  if (Array.isArray(upgradeSource)) {
-    upgradeSource.forEach((entry) => readEntry(entry));
-  } else if (upgradeSource && typeof upgradeSource === 'object') {
-    Object.values(upgradeSource).forEach((entry) => readEntry(entry));
-  }
-
-  Object.entries(item.options || {}).forEach(([key, value]) => {
-    if (!/upgrade|add[-\s]?on/i.test(key)) return;
-    const price = typeof value === 'object' ? (value as any).price : undefined;
-    push(String(value), typeof price === 'number' && Number.isFinite(price) ? price : undefined);
-  });
-
-  return addOns;
-}
-
-function calculateAddOnTotal(addOns: AddOnEntry[]): number {
-  return addOns.reduce((total, entry) => total + (entry.price ?? 0), 0);
 }
 
 function CartContents() {
@@ -270,13 +202,15 @@ function CartContents() {
                     .toLowerCase()
                     .replace(/[^a-z]/g, '');
                   const isInstallOnly = item.installOnly || normalizedClass.includes('installonly');
-                  const optionSummary = formatOptionSummary({
-                    options: item.options as Record<string, unknown>,
-                    selections: (item as any).selections,
-                    selectedOptions: item.selectedOptions,
-                    selectedUpgrades: item.selectedUpgrades,
-                    upgrades: item.upgrades
-                  });
+                const optionSummary = formatOptionSummary({
+                  options: item.options as Record<string, unknown>,
+                  selections: (item as any).selections,
+                  selectedOptions: item.selectedOptions,
+                  selectedUpgrades: item.selectedUpgrades,
+                  upgrades: item.upgrades,
+                  includeUpgrades: false,
+                  includeUpgradeKeys: false
+                });
 
                   return (
                     <li key={item.id} className="flex py-6">

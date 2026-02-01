@@ -1,16 +1,137 @@
 ---
+/**
+ * Checkout Cancelled Page - Enhanced Version
+ *
+ * User arrives here when they cancel Stripe checkout
+ * Features:
+ * - Visual feedback with icon
+ * - Clear messaging hierarchy
+ * - Multiple action options
+ * - Support contact link
+ * - Cart preservation notice
+ * - Trust elements
+ */
+
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import Button from '@/components/Button.astro';
 import TrustStrip from '@/components/TrustStrip.astro';
+
+const pageTitle = 'Checkout Cancelled | FAS Motorsports';
+const pageDescription = 'Your checkout was cancelled. Your cart has been preserved.';
 ---
 
-<BaseLayout>
-  <section class="min-h-screen flex flex-col items-center justify-center text-center text-white px-4">
-    <h1 class="text-4xl font-ethno mb-4 text-primary">Checkout Cancelled</h1>
-    <p class="mb-6 font-mono rem-1.5 text-lg">Your payment was not completed.</p>
-    <Button text="Return Home" variant="multi-swipe-v2" href="/" />
-    <div class="w-full mt-10 max-w-4xl">
-      <TrustStrip />
+<BaseLayout title={pageTitle} description={pageDescription}>
+  <main class="cancelled-page">
+    <div class="container mx-auto px-4 py-12 sm:py-24 max-w-2xl">
+      <div class="text-center">
+
+        <!-- Icon/Visual Indicator -->
+        <div class="mb-8 inline-block">
+          <svg
+            class="w-20 h-20 sm:w-24 sm:h-24 text-amber-400 mx-auto"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
+          </svg>
+        </div>
+
+        <!-- Main Heading -->
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-ethno mb-4 text-white">
+          Checkout Cancelled
+        </h1>
+
+        <!-- Primary Message -->
+        <p class="text-lg sm:text-xl text-white/80 mb-3 max-w-md mx-auto">
+          Your payment was not completed.
+        </p>
+
+        <!-- Secondary Message -->
+        <p class="text-sm sm:text-base text-white/60 mb-12 max-w-md mx-auto">
+          No charges were made to your account. Your cart has been preserved and is waiting for you.
+        </p>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+          <a
+            href="/cart"
+            class="inline-flex items-center justify-center gap-2 rounded-full bg-primary hover:bg-primary-hover px-8 py-3 text-base font-medium text-white transition shadow-lg"
+          >
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            Return to Cart
+          </a>
+
+          <a
+            href="/shop"
+            class="inline-flex items-center justify-center gap-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/30 px-8 py-3 text-base font-medium text-white transition"
+          >
+            Continue Shopping
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </a>
+        </div>
+
+        <!-- Help Section -->
+        <div class="mb-16 p-6 bg-white/5 border border-white/10 rounded-lg max-w-md mx-auto">
+          <p class="text-sm text-white/70 mb-2">
+            Need help with your order?
+          </p>
+          <a
+            href="/contact"
+            class="text-primary hover:text-primary-hover font-medium transition inline-flex items-center gap-1"
+          >
+            Contact Support
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+
+        <!-- Trust Strip -->
+        <div class="w-full max-w-4xl mx-auto">
+          <TrustStrip />
+        </div>
+
+        <!-- Additional Context -->
+        <div class="mt-12 text-center">
+          <p class="text-xs text-white/40">
+            Your session is secure. Feel free to try again when you're ready.
+          </p>
+        </div>
+
+      </div>
     </div>
-  </section>
+  </main>
 </BaseLayout>
+
+<style>
+  .cancelled-page {
+    min-height: calc(100vh - 200px);
+    background: linear-gradient(to bottom, #0b0b0c 0%, #151515 100%);
+    display: flex;
+    align-items: center;
+    padding-top: 80px; /* Account for header */
+  }
+
+  /* Smooth transitions */
+  a {
+    transition: all 0.2s ease-in-out;
+  }
+
+  /* Hover effects */
+  a:hover svg {
+    transform: translateX(2px);
+  }
+
+  a:hover svg:first-child {
+    transform: translateX(-2px);
+  }
+</style>

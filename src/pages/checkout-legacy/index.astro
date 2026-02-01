@@ -1,0 +1,29 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import CheckoutFlow from '@/components/checkout/CheckoutFlow';
+const pageTitle = 'Checkout | FAS Motorsports';
+const pageDescription = 'Complete your purchase';
+---
+
+<BaseLayout title={pageTitle} description={pageDescription}>
+  <main class="checkout-page">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+      <h1 class="text-3xl font-bold mb-6 text-white">Checkout</h1>
+
+      <div id="checkout-container" class="bg-white rounded-lg shadow-lg p-6">
+        <CheckoutFlow client:load />
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .checkout-page {
+    min-height: calc(100vh - 200px);
+    background: linear-gradient(to bottom, #0b0b0c 0%, #151515 100%);
+  }
+
+  #checkout-container {
+    min-height: 400px;
+  }
+</style>

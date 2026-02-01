@@ -1,53 +1,59 @@
 import fs from 'fs/promises';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { redirectToCheckout } from '../src/components/cart/actions';
-import { POST as checkoutHandler } from '../src/pages/api/stripe/create-checkout-session';
+import { POST as checkoutHandler } from '../src/pages/api/legacy/stripe/create-checkout-session';
 
 describe('redirectToCheckout helper', () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  it('posts the cart payload and navigates to Stripe Checkout', async () => {
+  it('syncs cart to Medusa and navigates to checkout', async () => {
+    const storage = new Map<string, string>();
     const fakeWindow = {
       location: {
         href: ''
-      }
+      },
+      dispatchEvent: vi.fn()
     };
     vi.stubGlobal('window', fakeWindow as any);
     vi.stubGlobal('localStorage', {
-      getItem: () =>
-        JSON.stringify({
-          items: [
-            {
-              id: 'item-1',
-              name: 'Widget',
-              price: 1000,
-              quantity: 1
-            }
-          ]
-        }),
-      setItem: () => null
+      getItem: (key: string) => storage.get(key) ?? null,
+      setItem: (key: string, value: string) => void storage.set(key, value)
     } as any);
 
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: true,
-      status: 200,
-      json: async () => ({ url: 'https://checkout.stripe.com/pay/cs_test_123#fid_test' })
+    storage.set(
+      'fas_cart_v1',
+      JSON.stringify({
+        items: [
+          {
+            id: 'item-1',
+            name: 'Widget',
+            price: 1000,
+            quantity: 1,
+            medusaVariantId: 'variant_1'
+          }
+        ]
+      })
+    );
+
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url === '/api/medusa/cart/create') {
+        return { ok: true, status: 200, json: async () => ({ cartId: 'cart_123' }) } as any;
+      }
+      if (url === '/api/medusa/cart/add-item') {
+        return { ok: true, status: 200, json: async () => ({ mappings: [] }) } as any;
+      }
+      return { ok: false, status: 500, json: async () => ({}) } as any;
     });
     vi.stubGlobal('fetch', fetchMock as any);
 
     await redirectToCheckout();
 
-    expect(fetchMock).toHaveBeenCalled();
-    const fetchCall = fetchMock.mock.calls[0];
-    expect(fetchCall[0]).toBe('/api/stripe/create-checkout-session');
-    const fetchOptions = fetchCall[1];
-    expect(fetchOptions?.method).toBe('POST');
-    expect(fetchOptions?.headers?.['Content-Type']).toBe('application/json');
-    const parsedBody = JSON.parse(fetchOptions?.body ?? '{}');
-    expect(parsedBody.cart).toHaveLength(1);
-    expect(fakeWindow.location.href).toBe('https://checkout.stripe.com/pay/cs_test_123#fid_test');
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock.mock.calls[0]?.[0]).toBe('/api/medusa/cart/create');
+    expect(fetchMock.mock.calls[1]?.[0]).toBe('/api/medusa/cart/add-item');
+    expect(fakeWindow.location.href).toBe('/checkout');
   });
 });
 
@@ -69,7 +75,7 @@ describe('checkout API validation', () => {
 describe('checkout API file', () => {
   it('never references label purchase helpers', async () => {
     const file = await fs.readFile(
-      new URL('../src/pages/api/stripe/create-checkout-session.ts', import.meta.url),
+      new URL('../src/pages/api/legacy/stripe/create-checkout-session.ts', import.meta.url),
       'utf-8'
     );
     expect(file).not.toMatch(/create-shipping-label/i);

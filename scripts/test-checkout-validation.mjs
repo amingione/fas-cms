@@ -1,38 +1,31 @@
-/**
- * Checkout Cart Validation
- * 
- * Validates Medusa cart before allowing checkout to proceed.
- * Catches common issues: missing prices, invalid variants, malformed data.
- */
-
-import { medusaFetch } from '../medusa';
-
-export interface ValidationResult {
-  valid: boolean;
-  errors: string[];
-  warnings?: string[];
-}
+#!/usr/bin/env node
 
 /**
- * Validates a Medusa cart is ready for checkout
- * 
- * Checks:
- * - Cart exists and has items
- * - All line items have valid prices
- * - All line items have valid totals
- * - All line items have variant IDs
- * 
- * @param cartId - Medusa cart ID
- * @returns Validation result with errors array
+ * Test Checkout Validation
+ * Tests if the cart passes validation with the updated logic
  */
-export async function validateCartForCheckout(cartId: string): Promise<ValidationResult> {
-  const errors: string[] = [];
-  const warnings: string[] = [];
+
+import fetch from 'node-fetch';
+
+const MEDUSA_BACKEND_URL = 'http://localhost:9000';
+const MEDUSA_PUBLISHABLE_KEY = 'pk_f845f736dea225523c815ec65dedb635fd9130713ea6876f82608c435322d162';
+
+async function validateCartForCheckout(cartId) {
+  const errors = [];
+  const warnings = [];
 
   try {
-    // Fetch cart
-    const response = await medusaFetch(`/store/carts/${cartId}`);
-    
+    const headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'x-publishable-api-key': MEDUSA_PUBLISHABLE_KEY
+    };
+
+    const response = await fetch(`${MEDUSA_BACKEND_URL}/store/carts/${cartId}`, {
+      method: 'GET',
+      headers
+    });
+
     if (!response.ok) {
       errors.push('Failed to load cart from Medusa');
       return { valid: false, errors, warnings };
@@ -97,9 +90,40 @@ export async function validateCartForCheckout(cartId: string): Promise<Validatio
       errors,
       warnings
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error('[Validation] Cart validation failed:', error);
     errors.push(`Validation error: ${error.message || 'Unknown error'}`);
     return { valid: false, errors, warnings };
   }
 }
+
+const cartId = process.argv[2] || 'cart_01KGCCKZA2Q5NF7NJ6TVT64TA2';
+
+console.log(`\n🧪 Testing Checkout Validation for Cart: ${cartId}\n`);
+
+validateCartForCheckout(cartId).then(result => {
+  console.log('═══════════════════════════════════════════════════════════');
+  console.log('VALIDATION RESULT');
+  console.log('═══════════════════════════════════════════════════════════\n');
+
+  if (result.valid) {
+    console.log('✅ VALIDATION PASSED\n');
+    console.log('The cart should now proceed to checkout successfully.');
+  } else {
+    console.log('❌ VALIDATION FAILED\n');
+    console.log('Errors:');
+    result.errors.forEach((err, i) => {
+      console.log(`  ${i + 1}. ${err}`);
+    });
+  }
+
+  if (result.warnings && result.warnings.length > 0) {
+    console.log('\n⚠️  Warnings:');
+    result.warnings.forEach((warn, i) => {
+      console.log(`  ${i + 1}. ${warn}`);
+    });
+  }
+
+  console.log('');
+  process.exit(result.valid ? 0 : 1);
+});

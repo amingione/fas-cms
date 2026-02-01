@@ -1,7 +1,10 @@
-import fs from 'node:fs/promises'
-import { describe, it, expect } from 'vitest'
+import fs from 'node:fs/promises';
+import { describe, it, expect } from 'vitest';
 
-const checkoutPath = new URL('../src/pages/api/stripe/create-checkout-session.ts', import.meta.url)
+const checkoutPath = new URL(
+  '../src/pages/api/legacy/stripe/create-checkout-session.ts',
+  import.meta.url
+);
 const forbiddenTerms = [
   'fetchLiveShippingQuote',
   'getShippingQuoteBySkus',
@@ -13,9 +16,9 @@ const forbiddenTerms = [
 
 describe('checkout API quote guardrail', () => {
   it('does not import or reference legacy quote helpers', async () => {
-    const content = await fs.readFile(checkoutPath, 'utf-8')
+    const content = await fs.readFile(checkoutPath, 'utf-8');
     forbiddenTerms.forEach((term) => {
-      expect(content).not.toContain(term)
-    })
-  })
-})
+      expect(content).not.toContain(term);
+    });
+  });
+});

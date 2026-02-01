@@ -1,4 +1,16 @@
 ---
+/**
+ * Order Success/Confirmation Page - Enhanced Version
+ *
+ * Features:
+ * - Polling logic for order confirmation (race condition protection)
+ * - Full order details display when available
+ * - Dark theme with FAS styling
+ * - Loading, success, and timeout states
+ * - Order items, addresses, payment info
+ * - Price breakdown
+ */
+
 import BaseLayout from '@/layouts/BaseLayout.astro';
 
 const pageTitle = 'Order Confirmed | FAS Motorsports';
@@ -7,75 +19,114 @@ const pageDescription = 'Your order has been confirmed';
 
 <BaseLayout title={pageTitle} description={pageDescription}>
   <main class="success-page">
-    <div class="container mx-auto px-4 py-12 max-w-2xl">
-      <div id="success-content" class="bg-white rounded-lg shadow-lg p-8 text-center">
-        <!-- Loading state (shown initially while polling) -->
-        <div id="loading-state" class="hidden">
-          <div class="inline-block animate-spin text-4xl mb-4">⏳</div>
-          <h1 class="text-2xl font-bold mb-4">Processing Your Order...</h1>
-          <p class="text-gray-600 mb-6">
-            Please wait while we confirm your order details.
-          </p>
-        </div>
+    <div class="container mx-auto px-4 py-12 sm:py-24 max-w-3xl">
 
-        <!-- Success state (shown after order is confirmed) -->
-        <div id="confirmed-state">
-          <div class="text-6xl mb-6">✅</div>
-          <h1 class="text-3xl font-bold mb-4">Order Confirmed!</h1>
-          <p class="text-gray-600 mb-6">
-            Thank you for your order. We've received your payment and will begin processing your order shortly.
-          </p>
-          <p class="text-sm text-gray-500 mb-8">
-            You'll receive a confirmation email with your order details at the email address you provided.
-          </p>
-
-          <div class="space-y-4">
-            <a
-              href="/account/orders"
-              class="inline-block bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 font-medium"
-            >
-              View Your Orders
-            </a>
-            <div>
-              <a
-                href="/shop"
-                class="text-blue-600 hover:underline"
-              >
-                Continue Shopping
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Timeout state (shown if polling times out) -->
-        <div id="timeout-state" class="hidden">
-          <div class="text-5xl mb-6">⏱️</div>
-          <h1 class="text-2xl font-bold mb-4">Still Processing Your Order</h1>
-          <p class="text-gray-600 mb-6">
-            Your payment was successful, but we're still finalizing your order details.
-          </p>
-          <p class="text-sm text-gray-500 mb-8">
-            You'll receive a confirmation email shortly at the email address you provided. If you have any concerns, please contact our support team.
-          </p>
-
-          <div class="space-y-4">
-            <a
-              href="/contact"
-              class="inline-block bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 font-medium"
-            >
-              Contact Support
-            </a>
-            <div>
-              <a
-                href="/shop"
-                class="text-blue-600 hover:underline"
-              >
-                Continue Shopping
-              </a>
-            </div>
-          </div>
+      <!-- Loading State -->
+      <div id="loading-state" class="hidden text-center">
+        <div class="inline-block animate-spin text-6xl mb-6">⏳</div>
+        <h1 class="text-2xl sm:text-3xl font-ethno text-white mb-4">
+          Processing Your Order...
+        </h1>
+        <p class="text-white/70 mb-6">
+          Please wait while we confirm your order details.
+        </p>
+        <div class="inline-block px-4 py-2 bg-white/10 border border-white/20 rounded-full text-sm text-white/60">
+          This usually takes just a few seconds
         </div>
       </div>
+
+      <!-- Success State -->
+      <div id="confirmed-state" class="success-content">
+        <!-- Header -->
+        <div class="text-center mb-12">
+          <div class="text-6xl mb-6">🎉</div>
+          <p class="text-primary font-semibold mb-2 text-sm uppercase tracking-wide">Thank you!</p>
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-ethno font-bold text-white mb-4">
+            It's on the way!
+          </h1>
+          <p class="text-white/70 text-base sm:text-lg">
+            Your order <span class="text-white font-mono" id="order-number">#[ORDER]</span> has been confirmed and will be with you soon.
+          </p>
+        </div>
+
+        <!-- Order Details Container (populated by JavaScript) -->
+        <div id="order-details" class="space-y-8">
+          <!-- Tracking Info (if available) -->
+          <div id="tracking-section" class="hidden p-6 bg-primary/10 border border-primary/30 rounded-lg">
+            <dt class="text-sm font-semibold text-white mb-2">Tracking number</dt>
+            <dd class="text-primary font-mono text-lg" id="tracking-number"></dd>
+          </div>
+
+          <!-- Order Items -->
+          <div class="border-t border-white/10 pt-8">
+            <h2 class="text-lg font-ethno text-white mb-6">Your Items</h2>
+            <div id="order-items" class="space-y-6">
+              <!-- Items will be populated by JavaScript -->
+            </div>
+          </div>
+
+          <!-- Addresses & Payment Info -->
+          <div id="order-info" class="grid grid-cols-1 sm:grid-cols-2 gap-6 border-t border-white/10 pt-8">
+            <!-- Will be populated by JavaScript -->
+          </div>
+
+          <!-- Order Summary -->
+          <div id="order-summary" class="border-t border-white/10 pt-8">
+            <!-- Will be populated by JavaScript -->
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="mt-12 flex flex-col sm:flex-row gap-4 justify-center">
+          <a
+            href="/account/orders"
+            class="inline-flex items-center justify-center rounded-full bg-primary hover:bg-primary-hover px-8 py-3 text-base font-medium text-white transition"
+          >
+            View Your Orders
+          </a>
+          <a
+            href="/shop"
+            class="inline-flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 border border-white/30 px-8 py-3 text-base font-medium text-white transition"
+          >
+            Continue Shopping
+          </a>
+        </div>
+
+        <!-- Email Confirmation Notice -->
+        <p class="text-sm text-white/50 text-center mt-8">
+          You'll receive a confirmation email with your order details shortly.
+        </p>
+      </div>
+
+      <!-- Timeout State -->
+      <div id="timeout-state" class="hidden text-center">
+        <div class="text-6xl mb-6">⏱️</div>
+        <h1 class="text-2xl sm:text-3xl font-ethno text-white mb-4">
+          Still Processing Your Order
+        </h1>
+        <p class="text-white/70 mb-6 max-w-md mx-auto">
+          Your payment was successful, but we're still finalizing your order details.
+        </p>
+        <p class="text-sm text-white/60 mb-8 max-w-md mx-auto">
+          You'll receive a confirmation email shortly. If you have any concerns, please contact our support team.
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a
+            href="/contact"
+            class="inline-flex items-center justify-center rounded-full bg-primary hover:bg-primary-hover px-8 py-3 text-base font-medium text-white transition"
+          >
+            Contact Support
+          </a>
+          <a
+            href="/shop"
+            class="inline-flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 border border-white/30 px-8 py-3 text-base font-medium text-white transition"
+          >
+            Continue Shopping
+          </a>
+        </div>
+      </div>
+
     </div>
   </main>
 </BaseLayout>
@@ -84,17 +135,27 @@ const pageDescription = 'Your order has been confirmed';
   .success-page {
     min-height: calc(100vh - 200px);
     background: linear-gradient(to bottom, #0b0b0c 0%, #151515 100%);
-    display: flex;
-    align-items: center;
+    padding-top: 80px;
+  }
+
+  .success-content {
+    animation: fadeIn 0.5s ease-in;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 </style>
 
 <script>
   /**
-   * Success Page Order Polling
+   * Success Page Order Polling & Display
    *
-   * Guards against race condition where user arrives before webhook completes.
-   * Polls for order completion using payment_intent_id from URL params.
+   * 1. Polls for order confirmation
+   * 2. Fetches full order details
+   * 3. Displays order items, addresses, payment info
+   * 4. Handles loading, success, and timeout states
    */
 
   (function() {
@@ -102,25 +163,24 @@ const pageDescription = 'Your order has been confirmed';
     const confirmedState = document.getElementById('confirmed-state');
     const timeoutState = document.getElementById('timeout-state');
 
-    // Extract payment_intent from URL (Stripe redirects with ?payment_intent=xxx)
+    // Extract payment_intent from URL
     const urlParams = new URLSearchParams(window.location.search);
     const paymentIntentId = urlParams.get('payment_intent');
 
     if (!paymentIntentId) {
-      // No payment_intent in URL - assume order is already processed
-      // This handles direct navigation to success page
+      // No payment_intent - show success with basic info
       confirmedState?.classList.remove('hidden');
       clearCart();
       return;
     }
 
-    // Show loading state while polling
+    // Show loading state
     confirmedState?.classList.add('hidden');
     loadingState?.classList.remove('hidden');
 
-    // Poll for order completion
-    const POLL_INTERVAL_MS = 2000; // 2 seconds
-    const POLL_TIMEOUT_MS = 30000; // 30 seconds
+    // Polling configuration
+    const POLL_INTERVAL_MS = 2000;
+    const POLL_TIMEOUT_MS = 30000;
     const startTime = Date.now();
     let pollCount = 0;
 
@@ -128,9 +188,8 @@ const pageDescription = 'Your order has been confirmed';
       pollCount++;
       const elapsed = Date.now() - startTime;
 
-      // Check timeout
       if (elapsed > POLL_TIMEOUT_MS) {
-        console.warn('[Success Page] Order polling timeout after', pollCount, 'attempts');
+        console.warn('[Success] Polling timeout after', pollCount, 'attempts');
         loadingState?.classList.add('hidden');
         timeoutState?.classList.remove('hidden');
         clearCart();
@@ -138,7 +197,6 @@ const pageDescription = 'Your order has been confirmed';
       }
 
       try {
-        // Check if order exists in Sanity by payment_intent_id
         const response = await fetch(
           `/api/orders/check-by-payment-intent?payment_intent_id=${encodeURIComponent(paymentIntentId)}`
         );
@@ -146,28 +204,159 @@ const pageDescription = 'Your order has been confirmed';
         if (response.ok) {
           const data = await response.json();
           if (data.exists && data.order) {
-            // Order found! Show success
-            console.log('[Success Page] Order confirmed:', data.order._id);
+            console.log('[Success] Order confirmed:', data.order._id);
             loadingState?.classList.add('hidden');
             confirmedState?.classList.remove('hidden');
+            displayOrderDetails(data.order);
             clearCart();
             return;
           }
         }
 
-        // Order not ready yet, continue polling
-        console.log('[Success Page] Polling attempt', pollCount, '- order not ready yet');
+        // Continue polling
+        console.log('[Success] Polling attempt', pollCount);
         setTimeout(pollForOrder, POLL_INTERVAL_MS);
 
       } catch (error) {
-        console.error('[Success Page] Polling error:', error);
-        // Continue polling on error (webhook might still be processing)
+        console.error('[Success] Polling error:', error);
         setTimeout(pollForOrder, POLL_INTERVAL_MS);
       }
     };
 
     // Start polling
     pollForOrder();
+
+    function displayOrderDetails(order: any) {
+      // Order number
+      const orderNumberEl = document.getElementById('order-number');
+      if (orderNumberEl && order.order_number) {
+        orderNumberEl.textContent = `#${order.order_number}`;
+      }
+
+      // Tracking number (if available)
+      if (order.tracking_number) {
+        const trackingSection = document.getElementById('tracking-section');
+        const trackingNumber = document.getElementById('tracking-number');
+        if (trackingSection && trackingNumber) {
+          trackingNumber.textContent = order.tracking_number;
+          trackingSection.classList.remove('hidden');
+        }
+      }
+
+      // Order items
+      const itemsContainer = document.getElementById('order-items');
+      if (itemsContainer && order.items && order.items.length > 0) {
+        itemsContainer.innerHTML = order.items.map((item: any) => `
+          <div class="flex gap-6 border-b border-white/10 pb-6 last:border-0">
+            ${item.thumbnail ? `
+              <img
+                src="${item.thumbnail}"
+                alt="${item.title}"
+                class="w-20 h-20 sm:w-32 sm:h-32 flex-none object-cover rounded-lg bg-white/5"
+              />
+            ` : ''}
+            <div class="flex-auto">
+              <h4 class="font-medium text-white text-base">${item.title}</h4>
+              ${item.description ? `
+                <p class="text-sm text-white/60 mt-2">${item.description}</p>
+              ` : ''}
+              <dl class="flex gap-6 text-sm mt-4">
+                <div class="flex gap-2">
+                  <dt class="font-medium text-white">Quantity</dt>
+                  <dd class="text-white/70">${item.quantity}</dd>
+                </div>
+                <div class="flex gap-2">
+                  <dt class="font-medium text-white">Price</dt>
+                  <dd class="text-white/70">${formatCurrency(item.unit_price * item.quantity)}</dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Addresses & Payment Info
+      const orderInfo = document.getElementById('order-info');
+      if (orderInfo) {
+        let infoHTML = '';
+
+        // Shipping Address
+        if (order.shipping_address) {
+          const addr = order.shipping_address;
+          infoHTML += `
+            <div>
+              <dt class="font-medium text-white mb-2 text-sm">Shipping address</dt>
+              <dd class="text-sm text-white/70">
+                <address class="not-italic">
+                  <span class="block">${addr.first_name} ${addr.last_name}</span>
+                  <span class="block">${addr.address_1}</span>
+                  ${addr.address_2 ? `<span class="block">${addr.address_2}</span>` : ''}
+                  <span class="block">${addr.city}, ${addr.province} ${addr.postal_code}</span>
+                </address>
+              </dd>
+            </div>
+          `;
+        }
+
+        // Payment Method
+        if (order.payment_method) {
+          infoHTML += `
+            <div>
+              <dt class="font-medium text-white mb-2 text-sm">Payment method</dt>
+              <dd class="text-sm text-white/70">
+                <p>${order.payment_method}</p>
+                ${order.card_last4 ? `<p>Card ending in ••••${order.card_last4}</p>` : ''}
+              </dd>
+            </div>
+          `;
+        }
+
+        orderInfo.innerHTML = infoHTML;
+      }
+
+      // Order Summary
+      const orderSummary = document.getElementById('order-summary');
+      if (orderSummary) {
+        orderSummary.innerHTML = `
+          <h3 class="text-lg font-ethno text-white mb-6">Summary</h3>
+          <dl class="space-y-4 text-sm">
+            <div class="flex justify-between">
+              <dt class="text-white/70">Subtotal</dt>
+              <dd class="text-white">${formatCurrency(order.subtotal)}</dd>
+            </div>
+            ${order.discount_total ? `
+              <div class="flex justify-between text-emerald-400">
+                <dt>Discount</dt>
+                <dd>-${formatCurrency(order.discount_total)}</dd>
+              </div>
+            ` : ''}
+            ${order.shipping_total ? `
+              <div class="flex justify-between">
+                <dt class="text-white/70">Shipping</dt>
+                <dd class="text-white">${formatCurrency(order.shipping_total)}</dd>
+              </div>
+            ` : ''}
+            ${order.tax_total ? `
+              <div class="flex justify-between">
+                <dt class="text-white/70">Taxes</dt>
+                <dd class="text-white">${formatCurrency(order.tax_total)}</dd>
+              </div>
+            ` : ''}
+            <div class="flex justify-between border-t border-white/10 pt-4">
+              <dt class="text-base font-medium text-white">Total</dt>
+              <dd class="text-base font-bold text-white">${formatCurrency(order.total)}</dd>
+            </div>
+          </dl>
+        `;
+      }
+    }
+
+    function formatCurrency(amount: number): string {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+      }).format(amount / 100);
+    }
 
     function clearCart() {
       const cartIdKey = 'fas_medusa_cart_id';
