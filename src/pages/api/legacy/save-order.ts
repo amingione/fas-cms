@@ -28,7 +28,7 @@
  * - PHASE1_PAYMENTINTENT_IMPLEMENTATION.md
  */
 import Stripe from 'stripe';
-import { readSession } from '../../server/auth/session';
+import { readSession } from '@/server/auth/session';
 import { createOrderCartItem, type OrderCartItem } from '@/server/sanity/order-cart';
 import { jsonResponse } from '@/server/http/responses';
 import { saveOrderRequestSchema } from '@/lib/validators/api-requests';
