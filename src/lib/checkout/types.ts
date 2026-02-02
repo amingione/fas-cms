@@ -59,6 +59,7 @@ export interface LineItem {
   title: string;
   quantity: number;
   unit_price: number;
+  subtotal?: number;
   total?: number; // Optional in Medusa v2 - totals calculated at cart level
   thumbnail?: string;
   variant_id?: string;
@@ -84,6 +85,7 @@ export interface ShippingOption {
   provider_id?: string;
   price_type?: string; // 'flat' | 'calculated' | etc.
   calculated_price?: number | null;
+  metadata?: Record<string, any>;
   data?: {
     carrier?: string;
     estimated_delivery?: string;

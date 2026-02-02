@@ -60,30 +60,37 @@ export default function CheckoutFlowNew() {
       const cartId = localStorage.getItem(MEDUSA_CART_ID_KEY);
       if (!cartId) {
         setCart(null);
-        setError('No cart found. Please add items to your cart first.');
+        setError(null); // No cart ID is not an error
         dispatch({ type: 'CART_EMPTY' });
         return;
       }
 
       Promise.all([fetchCart(cartId), validateCartForCheckout(cartId)])
         .then(([cartData, validation]) => {
-          if (!validation.valid || cartData.items.length === 0) {
+          // Handle empty cart (not an error)
+          if (validation.isEmpty || cartData.items.length === 0) {
             setCart(cartData);
-            setError(
-              !validation.valid
-                ? `Cart validation failed: ${validation.errors.join('; ')}`
-                : 'Your cart is empty.'
-            );
+            setError(null); // Clear any previous errors
             dispatch({ type: 'CART_EMPTY' });
             return;
           }
 
+          // Handle validation errors (real errors)
+          if (!validation.valid) {
+            setCart(cartData);
+            setError(`Cart validation failed: ${validation.errors.join('; ')}`);
+            dispatch({ type: 'CART_EMPTY' });
+            return;
+          }
+
+          // Valid cart with items
           setError(null);
           setCart(cartData);
           dispatch({ type: 'CART_LOADED', cart: cartData });
         })
         .catch((err) => {
           console.error('[Checkout] Failed to refresh cart:', err);
+          setError('Failed to load cart. Please try again.');
         });
     };
 
@@ -99,7 +106,7 @@ export default function CheckoutFlowNew() {
 
     if (!cartId) {
       console.warn('[Checkout] No Medusa cart ID found in localStorage');
-      setError('No cart found. Please add items to your cart first.');
+      setError(null); // No cart ID is not an error
       dispatch({ type: 'CART_EMPTY' });
       return;
     }
@@ -109,25 +116,33 @@ export default function CheckoutFlowNew() {
         console.log('[Checkout] Cart fetched:', cartData);
         console.log('[Checkout] Validation result:', validation);
 
+        // Handle empty cart (not an error)
+        if (validation.isEmpty || cartData.items.length === 0) {
+          console.warn('[Checkout] Cart is empty');
+          setCart(cartData);
+          setError(null); // Clear any previous errors
+          dispatch({ type: 'CART_EMPTY' });
+          return;
+        }
+
+        // Handle validation errors (real errors)
         if (!validation.valid) {
           console.error('[Checkout] Cart validation failed:', validation.errors);
+          setCart(cartData);
           setError(`Cart validation failed: ${validation.errors.join('; ')}`);
           dispatch({ type: 'CART_EMPTY' });
           return;
         }
 
+        // Valid cart with items
         if (validation.warnings && validation.warnings.length > 0) {
           console.warn('[Checkout] Cart validation warnings:', validation.warnings);
         }
 
         setCart(cartData);
-        if (cartData.items.length === 0) {
-          console.warn('[Checkout] Cart is empty');
-          dispatch({ type: 'CART_EMPTY' });
-        } else {
-          console.log('[Checkout] Cart loaded successfully with', cartData.items.length, 'items');
-          dispatch({ type: 'CART_LOADED', cart: cartData });
-        }
+        setError(null);
+        console.log('[Checkout] Cart loaded successfully with', cartData.items.length, 'items');
+        dispatch({ type: 'CART_LOADED', cart: cartData });
       })
       .catch((err) => {
         console.error('[Checkout] Failed to load cart:', err);
@@ -246,14 +261,30 @@ export default function CheckoutFlowNew() {
   if (state === 'CART_EMPTY') {
     return (
       <div className="max-w-2xl mx-auto px-4 py-16 text-center">
-        <h2 className="text-2xl font-ethno text-white mb-4">Your cart is empty</h2>
-        <p className="text-white/70 mb-8">Add some products to get started.</p>
-        <a
-          href="/shop"
-          className="inline-block rounded-full bg-primary hover:bg-primary-hover px-8 py-3 text-white font-medium transition"
-        >
-          Continue Shopping
-        </a>
+        {error ? (
+          <>
+            <div className="text-4xl mb-4">⚠️</div>
+            <h2 className="text-xl font-ethno text-white mb-4">Something went wrong</h2>
+            <p className="text-white/70 mb-8">{error}</p>
+            <a
+              href="/cart"
+              className="inline-block rounded-full bg-primary hover:bg-primary-hover px-8 py-3 text-white font-medium transition"
+            >
+              Return to Cart
+            </a>
+          </>
+        ) : (
+          <>
+            <h2 className="text-2xl font-ethno text-white mb-4">Your cart is empty</h2>
+            <p className="text-white/70 mb-8">Add some products to get started.</p>
+            <a
+              href="/shop"
+              className="inline-block rounded-full bg-primary hover:bg-primary-hover px-8 py-3 text-white font-medium transition"
+            >
+              Continue Shopping
+            </a>
+          </>
+        )}
       </div>
     );
   }
@@ -264,23 +295,6 @@ export default function CheckoutFlowNew() {
       <div className="max-w-2xl mx-auto px-4 py-16 text-center">
         <div className="inline-block animate-spin text-4xl mb-4">⏳</div>
         <p className="text-white/70">Loading your cart...</p>
-      </div>
-    );
-  }
-
-  // Error state
-  if (error && state === 'CART_EMPTY') {
-    return (
-      <div className="max-w-2xl mx-auto px-4 py-16 text-center">
-        <div className="text-4xl mb-4">⚠️</div>
-        <h2 className="text-xl font-ethno text-white mb-4">Something went wrong</h2>
-        <p className="text-white/70 mb-8">{error}</p>
-        <a
-          href="/cart"
-          className="inline-block rounded-full bg-primary hover:bg-primary-hover px-8 py-3 text-white font-medium transition"
-        >
-          Return to Cart
-        </a>
       </div>
     );
   }
@@ -302,26 +316,29 @@ export default function CheckoutFlowNew() {
             )}
 
             {/* Shipping Options Section */}
-            {state !== 'CART_LOADING' && state !== 'CART_EMPTY' && state !== 'ADDRESS_ENTRY' && (
+            {state !== 'ADDRESS_ENTRY' && (
               <ShippingSelectorNew
                 options={shippingOptions}
                 selectedId={selectedShippingId}
                 onSelect={handleShippingSelect}
                 onContinue={handleShippingContinue}
                 disabled={!canEditShipping(state)}
-                loading={state === 'SHIPPING_OPTIONS_LOADING'}
+                loading={state === 'SHIPPING_CALCULATION'}
               />
             )}
 
             {/* Payment Section */}
-            {state === 'PAYMENT_READY' || state === 'PROCESSING_PAYMENT' ? (
+            {!paymentClientSecret &&
+            (state === 'CART_FINALIZED' ||
+              state === 'PAYMENT_INTENT_CREATING' ||
+              state === 'PAYMENT_READY') ? (
               <div className="mt-10">
                 <button
                   onClick={handleProceedToPayment}
-                  disabled={state === 'PROCESSING_PAYMENT'}
+                  disabled={state === 'PAYMENT_INTENT_CREATING'}
                   className="w-full rounded-full bg-primary hover:bg-primary-hover px-6 py-3 text-white font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {state === 'PROCESSING_PAYMENT' ? 'Processing...' : 'Proceed to Payment'}
+                  {state === 'PAYMENT_INTENT_CREATING' ? 'Preparing payment...' : 'Proceed to Payment'}
                 </button>
               </div>
             ) : null}
@@ -337,7 +354,7 @@ export default function CheckoutFlowNew() {
             )}
 
             {/* Error Display */}
-            {error && state !== 'CART_EMPTY' && (
+            {error && (
               <div className="mt-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
                 <p className="text-sm text-red-400">{error}</p>
               </div>

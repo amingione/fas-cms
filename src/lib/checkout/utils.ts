@@ -137,17 +137,16 @@ export function filterValidShippingOptions(
   // UPS only - carrier filter
   const validCarriers = ['UPS'];
 
-  console.log('[ShippingFilter] Filtering shipping options:', {
-    total: options.length,
-    options: options.map(o => ({
-      name: o.name,
-      carrier: o.data?.carrier,
-      amount: o.amount,
-      price_type: o.price_type,
-      calculated_price: o.calculated_price,
-      type: o.type
-    }))
-  });
+	  console.log('[ShippingFilter] Filtering shipping options:', {
+	    total: options.length,
+	    options: options.map((o) => ({
+	      name: o.name,
+	      carrier: o.data?.carrier,
+	      amount: o.amount,
+	      price_type: o.price_type,
+	      calculated_price: o.calculated_price
+	    }))
+	  });
 
   const filtered = options.filter((option) => {
     const carrier = option.data?.carrier?.toUpperCase();

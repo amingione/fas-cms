@@ -52,18 +52,21 @@ function PaymentForm({
 
       if (error) {
         setErrorMessage(error.message || 'Payment failed');
-        onError(error.message || 'Payment failed');
+        onError?.(error.message || 'Payment failed');
       } else {
-        onSuccess();
+        onSuccess?.();
       }
     } catch (err: any) {
       const message = err?.message || 'An unexpected error occurred';
       setErrorMessage(message);
-      onError(message);
+      onError?.(message);
     } finally {
       setIsProcessing(false);
     }
   };
+
+  const currency = (currencyCode || 'usd').toUpperCase();
+  const totalAmount = typeof amount === 'number' && Number.isFinite(amount) ? amount : 0;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -94,8 +97,8 @@ function PaymentForm({
         ) : (
           `Pay ${new Intl.NumberFormat('en-US', {
             style: 'currency',
-            currency: currencyCode.toUpperCase()
-          }).format(amount / 100)}`
+            currency
+          }).format(totalAmount / 100)}`
         )}
       </button>
 
@@ -125,7 +128,7 @@ export default function StripePayment({
 
     if (!publishableKey) {
       console.error('Stripe publishable key not found');
-      onError('Payment system not configured');
+      onError?.('Payment system not configured');
       return;
     }
 

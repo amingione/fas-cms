@@ -68,6 +68,8 @@ interface OrderPayload {
   currency?: string;
   carrier?: string;
   service?: string;
+  shippingProvider?: string;
+  shippoRateId?: string;
   stripeShippingRateId?: string;
   shippingQuoteId?: string;
   shippingQuoteKey?: string;

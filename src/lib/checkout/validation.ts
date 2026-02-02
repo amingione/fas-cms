@@ -11,6 +11,7 @@ export interface ValidationResult {
   valid: boolean;
   errors: string[];
   warnings?: string[];
+  isEmpty?: boolean; // Explicitly signal empty cart (not an error)
 }
 
 /**
@@ -47,8 +48,8 @@ export async function validateCartForCheckout(cartId: string): Promise<Validatio
     }
 
     if (!cart.items || cart.items.length === 0) {
-      errors.push('Cart is empty');
-      return { valid: false, errors, warnings };
+      // Empty cart is NOT an error - it's a normal expected state
+      return { valid: true, errors: [], warnings: [], isEmpty: true };
     }
 
     // Check each line item
