@@ -25,6 +25,8 @@ import {
   getSavingsAmount,
   isOnSale
 } from '@/lib/saleHelpers';
+import { centsToDollars, formatCentsWithSign } from '@/lib/pricing';
+import { getCallForShippingQuote, getMetadataTags, getRequiresShipping } from '@/lib/medusa-metadata';
 
 export type KitItem = { item: string; quantity?: number };
 export type VehicleCompat = { make?: string; model?: string; trim?: string };
@@ -601,12 +603,13 @@ const buildProductListStructuredData = (items: Product[], listName: string): Rec
         : [];
       const activePrice = getActivePrice(item as any);
       const priceNumber = coercePriceToNumber(activePrice);
+      const priceDollars = centsToDollars(priceNumber);
       const saleEnd = (item as any)?.saleEndDate ?? (item as any)?.pricing?.saleEndDate;
-      const offers = typeof priceNumber === 'number'
+      const offers = typeof priceDollars === 'number'
         ? {
             '@type': 'Offer',
             priceCurrency: 'USD',
-            price: priceNumber.toFixed(2),
+            price: priceDollars.toFixed(2),
             availability: 'https://schema.org/InStock',
             url: productUrl,
             itemCondition: 'https://schema.org/NewCondition',
@@ -655,6 +658,7 @@ let productPriceNumber: number | undefined;
 let baseProductTitle = 'Product';
 let normalizedImageSlug = slugify(slugValue || baseProductTitle);
 let priceValue: number | undefined;
+let priceDollars: number | null = null;
 let compareAtValue: number | undefined;
 let onSaleFlag = false;
 let saleBadgeText: string | null = null;
@@ -667,6 +671,9 @@ let relatedProductsStructuredData: Record<string, any> | null = null;
 let upsellProductsStructuredData: Record<string, any> | null = null;
 let isInstallOnly = false;
 let isPerformanceParts = false;
+let metadataRequiresShipping: boolean | undefined;
+let metadataCallForQuote: boolean | undefined;
+let metadataTags: string[] = [];
 let requiresVehicleDisclaimer = false;
 let productHeading = baseProductTitle;
 let displayTitle = baseProductTitle;
@@ -709,9 +716,15 @@ try {
   const catIds = ((product as any).category || (product as any).categories || [])
     .map((c: any) => c?._id || c?._ref)
     .filter(Boolean);
-  const tagFilters = Array.isArray((product as any).filters)
-    ? (product as any).filters.map((entry: FilterEntry) => normalizeFilterSlug(entry)).filter(Boolean)
-    : [];
+  metadataTags = getMetadataTags(product as any);
+  const tagFilters = [
+    ...(Array.isArray((product as any).filters)
+      ? (product as any).filters
+          .map((entry: FilterEntry) => normalizeFilterSlug(entry))
+          .filter(Boolean)
+      : []),
+    ...metadataTags.map((tag) => normalizeFilterSlug(tag as any)).filter(Boolean)
+  ];
   const basePrice = typeof productPriceNumber === 'number' ? productPriceNumber : undefined;
 
   // Auto-related and upsell
@@ -945,10 +958,10 @@ if (product) {
 
   const shippingClassRaw = ((product as any)?.shippingClass || '').toString();
   const normalizedShippingClass = shippingClassRaw.toLowerCase().replace(/[^a-z0-9]/g, '');
+  metadataRequiresShipping = getRequiresShipping(product as any);
+  metadataCallForQuote = getCallForShippingQuote(product as any);
   const computedInstallOnly =
-    normalizedShippingClass.includes('installonly') ||
-    canonicalFilterSlugs.has('installonly') ||
-    canonicalFilterSlugs.has('install-only');
+    metadataRequiresShipping === false || metadataCallForQuote === true;
   const computedPerformanceParts =
     normalizedShippingClass === 'performanceparts' ||
     canonicalFilterSlugs.has('performanceparts') ||
@@ -1246,12 +1259,13 @@ if (product) {
     : [];
 
   priceValue = typeof productPriceNumber === 'number' ? productPriceNumber : undefined;
+  priceDollars = centsToDollars(priceValue);
 
   const analyticsBase = {
     product_id: typeof (product as any)?._id === 'string' ? (product as any)._id : undefined,
     product_name: baseProductTitle,
     product_slug: slugValue,
-    price: typeof priceValue === 'number' ? Number(priceValue.toFixed(2)) : undefined,
+    price: typeof priceDollars === 'number' ? Number(priceDollars.toFixed(2)) : undefined,
     install_only: isInstallOnly,
     performance_parts: isPerformanceParts
   };
@@ -1280,7 +1294,7 @@ if (product) {
     availability: 'https://schema.org/InStock',
     url: seoCanon,
     itemCondition: 'https://schema.org/NewCondition',
-    price: typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined
+    price: typeof priceDollars === 'number' ? priceDollars.toFixed(2) : undefined
   };
   if (onSaleFlag && saleEndDate) {
     offerDetails.priceValidUntil = saleEndDate;
@@ -1334,9 +1348,9 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
   <BaseLayout title={seoTitle} description={seoDesc} canonical={seoCanon} ogImage={seoOg}>
   <Fragment slot="head">
     <meta property="og:type" content="product" />
-    {typeof priceValue === 'number' && (
+    {typeof priceDollars === 'number' && (
       <>
-        <meta property="product:price:amount" content={priceValue.toFixed(2)} />
+        <meta property="product:price:amount" content={priceDollars.toFixed(2)} />
         <meta property="product:price:currency" content="USD" />
       </>
     )}
@@ -1469,7 +1483,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                               data-variant-id={v?.medusaVariantId || ''}
                             >
                               {label}
-                              {price ? ` (+$${Number(price).toFixed(2)})` : ''}
+                              {price ? ` (${formatCentsWithSign(price)})` : ''}
                             </option>
                           );
                         })}
@@ -1515,7 +1529,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                             <span class="flex flex-col text-sm font-medium leading-snug text-white">
                               {label}
                               <span class="text-xs font-semibold text-white/60">
-                                {price ? `+$${Number(price).toFixed(2)}` : ''}
+                                {price ? formatCentsWithSign(price) : ''}
                               </span>
                             </span>
                           </label>
@@ -1557,7 +1571,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                         const descriptionId = `${inputId}-description`;
                         const priceText =
                           typeof a.priceDelta === 'number' && a.priceDelta !== 0
-                            ? `+$${Number(a.priceDelta).toFixed(2)}`
+                            ? formatCentsWithSign(a.priceDelta)
                             : 'Included';
                         return (
                           <label for={inputId} class="flex items-center gap-3 text-sm leading-6 text-white">
@@ -1633,7 +1647,9 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                     </div>
                   )}
                   {surchargeAmount > 0 && (
-                    <div class="mt-2 text-xs text-white/70">Surcharge: +${surchargeAmount.toFixed(2)}</div>
+                    <div class="mt-2 text-xs text-white/70">
+                      Surcharge: {formatCentsWithSign(surchargeAmount)}
+                    </div>
                   )}
                 </div>
               );
@@ -1665,16 +1681,16 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                 class="add-to-cart mobile-hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-full transition relative z-10 pointer-events-auto sm:w-auto btn-glass"
                 data-product-id={(product as any)._id}
                 data-product-name={displayTitle || (product as any).title}
-                data-product-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
+                data-product-price={typeof priceValue === 'number' ? Math.round(priceValue) : undefined}
                 data-product-base-price={
                   typeof compareAtValue === 'number'
-                    ? compareAtValue.toFixed(2)
+                    ? Math.round(compareAtValue)
                     : typeof priceValue === 'number'
-                      ? priceValue.toFixed(2)
+                      ? Math.round(priceValue)
                       : undefined
                 }
                 data-product-compare-price={
-                  typeof compareAtValue === 'number' ? compareAtValue.toFixed(2) : undefined
+                  typeof compareAtValue === 'number' ? Math.round(compareAtValue) : undefined
                 }
                 data-product-sale-label={saleBadgeText || undefined}
                 data-product-on-sale={String(onSaleFlag)}
@@ -1682,6 +1698,16 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                 data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
                 data-product-shipping-class={(product as any).shippingClass || ''}
                 data-product-install-only={String(isInstallOnly)}
+                data-product-requires-shipping={
+                  typeof metadataRequiresShipping === 'boolean'
+                    ? String(metadataRequiresShipping)
+                    : undefined
+                }
+                data-product-call-for-quote={
+                  typeof metadataCallForQuote === 'boolean'
+                    ? String(metadataCallForQuote)
+                    : undefined
+                }
                 data-product-medusa-variant-id={(product as any).medusaVariantId || ''}
                 data-product-performance-parts={String(isPerformanceParts)}
                 data-product-href={`/shop/${slugValue}`}
@@ -1923,25 +1949,29 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
     class="add-to-cart inline-flex items-center gap-2 bg-primary text-white font-ethno px-4 py-2 rounded hover:text-white btn-glass w-1/2"
     data-product-id={(product as any)._id}
     data-product-name={displayTitle || (product as any).title}
-    data-product-price={typeof priceValue === 'number' ? priceValue.toFixed(2) : undefined}
+    data-product-price={typeof priceValue === 'number' ? Math.round(priceValue) : undefined}
     data-product-base-price={
       typeof compareAtValue === 'number'
-        ? compareAtValue.toFixed(2)
+        ? Math.round(compareAtValue)
         : typeof priceValue === 'number'
-          ? priceValue.toFixed(2)
+          ? Math.round(priceValue)
           : undefined
     }
     data-product-compare-price={
-      typeof compareAtValue === 'number' ? compareAtValue.toFixed(2) : undefined
+      typeof compareAtValue === 'number' ? Math.round(compareAtValue) : undefined
     }
     data-product-sale-label={saleBadgeText || undefined}
     data-product-on-sale={String(onSaleFlag)}
     data-product-image={(product as any).images?.[0]?.asset?.url || (product as any).images?.[0]?.url || ''}
     data-product-categories={`${JSON.stringify((product as any).categories || [])}`}
     data-product-shipping-class={(product as any).shippingClass || ''}
-    data-product-install-only={String(
-      ((product as any).shippingClass || '').toString().toLowerCase().replace(/[^a-z]/g, '') === 'installonly'
-    )}
+    data-product-install-only={String(isInstallOnly)}
+    data-product-requires-shipping={
+      typeof metadataRequiresShipping === 'boolean' ? String(metadataRequiresShipping) : undefined
+    }
+    data-product-call-for-quote={
+      typeof metadataCallForQuote === 'boolean' ? String(metadataCallForQuote) : undefined
+    }
     data-product-medusa-variant-id={(product as any).medusaVariantId || ''}
     data-product-href={`/shop/${slugValue}`}
     data-analytics-event="add_to_cart_click"

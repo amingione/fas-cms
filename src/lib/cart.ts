@@ -3,7 +3,7 @@ import { MEDUSA_CART_ID_KEY } from '@/lib/medusa';
 export type CartItem = {
   id: string;
   name: string;
-  price: number;
+  price: number; // cents
   originalPrice?: number;
   basePrice?: number;
   extra?: number;

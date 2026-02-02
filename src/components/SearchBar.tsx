@@ -3,6 +3,7 @@ import { Input } from '@components/ui/input';
 import { X, Search } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { formatCents } from '@/lib/pricing';
 
 interface SearchBarProps {
   value?: string;
@@ -415,15 +416,7 @@ function getThumb(it: any) {
 function formatPrice(v: any) {
   const n = Number(v);
   if (!isFinite(n) || n <= 0) return '';
-  try {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: 2
-    }).format(n);
-  } catch {
-    return `$${n.toFixed(2)}`;
-  }
+  return formatCents(n, { currency: 'USD', locale: 'en-US' });
 }
 
 function resolveLink(it: any, q: string) {

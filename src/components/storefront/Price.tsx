@@ -1,11 +1,11 @@
 import clsx from 'clsx';
 import * as React from 'react';
+import { formatCents } from '@/lib/pricing';
 
 /**
- * Price — FAS + Sanity friendly
+ * Price — FAS + Medusa cents
  *
- * Works with Sanity fields like: price (number), salePrice (number), onSale (boolean).
- * Accepts number or string amounts and renders a themed price with optional compare/original.
+ * Accepts cent-based amounts (Medusa price.amount) and renders a themed price with optional compare/original.
  */
 
 export function formatPrice(
@@ -18,26 +18,19 @@ export function formatPrice(
     maximumFractionDigits?: number;
   } = {}
 ): string {
-  const n = typeof amount === 'string' ? parseFloat(amount) : amount;
-  if (!Number.isFinite(n as number)) return '—';
   const { narrowSymbol = true, minimumFractionDigits = 2, maximumFractionDigits = 2 } = opts;
-  try {
-    return new Intl.NumberFormat(locale, {
-      style: 'currency',
-      currency,
-      currencyDisplay: narrowSymbol ? 'narrowSymbol' : 'symbol',
-      minimumFractionDigits,
-      maximumFractionDigits
-    }).format(n as number);
-  } catch {
-    // Fallback: simple toFixed with currency code suffix
-    return `${currency} ${(n as number).toFixed(minimumFractionDigits)}`;
-  }
+  return formatCents(amount, {
+    currency,
+    locale,
+    narrowSymbol,
+    minimumFractionDigits,
+    maximumFractionDigits
+  });
 }
 
 export type PriceProps = {
-  amount: number | string | null | undefined; // current/primary price
-  originalAmount?: number | string | null; // compare-at price
+  amount: number | string | null | undefined; // current/primary price (cents)
+  originalAmount?: number | string | null; // compare-at price (cents)
   onSale?: boolean; // optional explicit flag
   currencyCode?: string;
   className?: string;

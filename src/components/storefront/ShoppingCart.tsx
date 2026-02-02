@@ -109,14 +109,7 @@ function CartContents() {
   const hasDiscounts = discountTotal > 0;
 
   const installOnlyItems = useMemo(
-    () =>
-      items.filter((item) => {
-        const normalizedClass = (item.shippingClass || '')
-          .toString()
-          .toLowerCase()
-          .replace(/[^a-z]/g, '');
-        return item.installOnly || normalizedClass.includes('installonly');
-      }),
+    () => items.filter((item) => item.installOnly === true),
     [items]
   );
 
@@ -197,11 +190,7 @@ function CartContents() {
                 {items.map((item) => {
                   const addOnEntries = extractAddOns(item);
                   const pricing = perItemPricing[item.id];
-                  const normalizedClass = (item.shippingClass || '')
-                    .toString()
-                    .toLowerCase()
-                    .replace(/[^a-z]/g, '');
-                  const isInstallOnly = item.installOnly || normalizedClass.includes('installonly');
+                  const isInstallOnly = item.installOnly === true;
                 const optionSummary = formatOptionSummary({
                   options: item.options as Record<string, unknown>,
                   selections: (item as any).selections,

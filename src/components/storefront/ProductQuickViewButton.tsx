@@ -18,6 +18,7 @@ import {
   getSaleBadgeText,
   isOnSale
 } from '@/lib/saleHelpers';
+import { formatCentsWithSign } from '@/lib/pricing';
 
 const sanitizeAnalyticsPayload = (payload: Record<string, unknown>) =>
   Object.fromEntries(
@@ -232,9 +233,7 @@ export default function ProductQuickViewButton({
 
   const formatPriceDelta = (delta?: number | null) => {
     if (typeof delta !== 'number' || !Number.isFinite(delta) || delta === 0) return null;
-    const absolute = Math.abs(delta);
-    const prefix = delta > 0 ? '+' : '-';
-    return `${prefix}$${absolute.toFixed(2)}`;
+    return formatCentsWithSign(delta, { currency: 'USD', locale: 'en-US' });
   };
 
   const handleOptionSelect = (groupKey: string, value: string) => {

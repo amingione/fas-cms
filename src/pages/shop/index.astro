@@ -14,6 +14,7 @@ import ProductGrid from '@/components/storefront/ProductGrid.astro';
 import FilterPanelMobile from '@/components/storefront/FilterPanelMobile.tsx';
 import Pagination from '@/components/storefront/Pagination.astro';
 import { isOnSale } from '@/lib/saleHelpers';
+import { centsToDollars } from '@/lib/pricing';
 
 export const prerender = false;
 
@@ -345,12 +346,13 @@ const productListElements: StructuredProductListItem[] = Array.isArray(products)
         const productUrl = `${url.origin}/shop/${slugValue}`;
         const images = resolveProductImages(product);
         const priceNumber = Number((product as any)?.price);
+        const priceDollars = centsToDollars(priceNumber);
         const offers: StructuredProductOffer | undefined =
-          !Number.isNaN(priceNumber) && priceNumber > 0
+          typeof priceDollars === 'number' && priceDollars > 0
             ? {
                 '@type': 'Offer',
                 priceCurrency: 'USD',
-                price: priceNumber.toFixed(2),
+                price: priceDollars.toFixed(2),
                 availability: 'https://schema.org/InStock',
                 url: productUrl,
                 itemCondition: 'https://schema.org/NewCondition'

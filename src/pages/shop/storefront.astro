@@ -3,6 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import CategoryPage from '@/components/storefront/CategoryPage.tsx';
 import { fetchProductsFromSanity, normalizeSanityImageUrl } from '@/lib/sanity-utils.ts';
 import { sanityClient as client } from '@/lib/sanityClient.ts';
+import { centsToDollars } from '@/lib/pricing';
 
 const products = await fetchProductsFromSanity({});
 
@@ -126,12 +127,13 @@ const productItemListElements = Array.isArray(products)
         const productUrl = `${requestUrl.origin}/shop/${slugValue}`;
         const images = resolveProductImages(product);
         const priceNumber = Number(product?.price);
+        const priceDollars = centsToDollars(priceNumber);
         const offers =
-          !Number.isNaN(priceNumber) && priceNumber > 0
+          typeof priceDollars === 'number' && priceDollars > 0
             ? {
                 '@type': 'Offer',
                 priceCurrency: 'USD',
-                price: priceNumber.toFixed(2),
+                price: priceDollars.toFixed(2),
                 availability: 'https://schema.org/InStock',
                 url: productUrl,
                 itemCondition: 'https://schema.org/NewCondition'

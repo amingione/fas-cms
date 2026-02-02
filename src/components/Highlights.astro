@@ -1,5 +1,6 @@
 ---
 import { coercePriceToNumber, optimizeSanityImageUrl } from '@/lib/sanity-utils.ts';
+import { formatCents } from '@/lib/pricing';
 
 const { items = [] } = Astro.props as { items?: any[] };
 
@@ -12,7 +13,7 @@ const HIGHLIGHT_IMAGE_SIZES = '(min-width: 1024px) 220px, (min-width: 768px) 240
 const formatPriceDisplay = (value: unknown): string | null => {
   const numeric = coercePriceToNumber(value);
   if (typeof numeric === 'number') {
-    return `$${numeric.toFixed(2)}`;
+    return formatCents(numeric, { currency: 'USD', locale: 'en-US' });
   }
   if (typeof value === 'string') {
     const trimmed = value.trim();

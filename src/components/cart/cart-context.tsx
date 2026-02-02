@@ -28,7 +28,7 @@ export type Cart = LocalCart; // { items: CartItem[] }
 type CartContextType = {
   cart: Cart;
   totalQuantity: number;
-  subtotal: number; // display-only subtotal from item.price * qty (server remains source of truth)
+  subtotal: number; // display-only subtotal in cents (item.price * qty; server remains source of truth)
   addCartItem: (item: Partial<CartItem> & { id: string; quantity?: number }) => Promise<void>;
   updateCartItem: (id: string, updateType: UpdateType) => Promise<void>;
   setItemQuantity: (id: string, quantity: number) => Promise<void>;

@@ -13,6 +13,7 @@ import AnimatedTruckPackagesHero from '@components/animated/AnimatedTruckPackage
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import EmailCaptureModal from '@components/EmailCaptureModal.tsx';
 import PowerstrokePipingKit from '@/components/NewProduct/PowerstrokePipingKit.astro';
+import { centsToDollars } from '@/lib/pricing';
 
 const pageDocPromise: Promise<any> = loadPageDoc('index');
 const featuredProductsPromise = sanity
@@ -47,12 +48,15 @@ const productSchemas = featuredProductsNormalized
     const name = (product as any).name || (product as any).title || 'F.A.S. Motorsports Product';
     const slug = typeof (product as any).slug === 'string' ? (product as any).slug : undefined;
     const priceRaw = (product as any).price;
-    const priceValue =
+    const numericPrice =
       typeof priceRaw === 'number'
-        ? priceRaw.toFixed(2)
+        ? priceRaw
         : typeof priceRaw === 'string'
-          ? priceRaw.replace(/[^0-9.]/g, '')
-          : undefined;
+          ? Number(priceRaw.replace(/[^0-9.]/g, ''))
+          : NaN;
+    const priceDollars = centsToDollars(numericPrice);
+    const priceValue =
+      typeof priceDollars === 'number' ? priceDollars.toFixed(2) : undefined;
     const productUrl = slug ? `${canonicalHome}shop/${slug}` : canonicalHome;
     const image =
       typeof (product as any).imageUrl === 'string' ? (product as any).imageUrl : undefined;

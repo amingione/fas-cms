@@ -22,6 +22,8 @@ interface ShippingSelectorNewProps {
   onSelect: (optionId: string) => void;
   onContinue: () => Promise<void>;
   onEditAddress?: () => void;
+  shippingRequired?: boolean;
+  callForQuote?: boolean;
   disabled?: boolean;
   loading?: boolean;
 }
@@ -32,13 +34,15 @@ export default function ShippingSelectorNew({
   onSelect,
   onContinue,
   onEditAddress,
+  shippingRequired = true,
+  callForQuote = false,
   disabled = false,
   loading = false
 }: ShippingSelectorNewProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleContinue = async () => {
-    if (!selectedId || disabled) return;
+    if ((shippingRequired && !selectedId) || disabled) return;
 
     setIsSubmitting(true);
     try {
@@ -58,6 +62,47 @@ export default function ShippingSelectorNew({
         <div className="p-6 bg-dark/50 border border-white/10 rounded-lg text-center">
           <div className="inline-block animate-spin text-2xl mb-2">⏳</div>
           <p className="text-white/70 text-sm">Loading shipping options...</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (callForQuote) {
+    return (
+      <section className="mt-10">
+        <h2 className="text-lg font-ethno text-white mb-6">Shipping Method</h2>
+        <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+          <p className="text-amber-400 font-medium">Shipping requires a manual quote.</p>
+          <p className="text-sm text-amber-300/70 mt-2">
+            One or more items in your cart are marked as call-for-quote. Please contact us to
+            finalize shipping.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  if (!shippingRequired) {
+    return (
+      <section className="mt-10">
+        <h2 className="text-lg font-ethno text-white mb-6">Shipping Method</h2>
+        <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-lg">
+          <p className="text-emerald-300 font-medium">No shipping required.</p>
+          <p className="text-sm text-emerald-200/70 mt-2">
+            Your cart contains only non-shippable items.
+          </p>
+        </div>
+        <div className="mt-6">
+          <button
+            onClick={handleContinue}
+            disabled={disabled || isSubmitting}
+            className={`
+              w-full rounded-full px-6 py-3 text-base font-medium transition
+              ${disabled || isSubmitting ? 'bg-gray-600 cursor-not-allowed opacity-50' : 'bg-primary hover:bg-primary-hover text-white'}
+            `}
+          >
+            {isSubmitting ? 'Continuing...' : 'Continue to Payment'}
+          </button>
         </div>
       </section>
     );
@@ -173,11 +218,11 @@ export default function ShippingSelectorNew({
       <div className="mt-6">
         <button
           onClick={handleContinue}
-          disabled={!selectedId || disabled || isSubmitting}
+          disabled={(shippingRequired && !selectedId) || disabled || isSubmitting}
           className={`
             w-full rounded-full px-6 py-3 text-base font-medium transition
             ${
-              !selectedId || disabled || isSubmitting
+              (shippingRequired && !selectedId) || disabled || isSubmitting
                 ? 'bg-gray-600 cursor-not-allowed opacity-50'
                 : 'bg-primary hover:bg-primary-hover text-white'
             }
@@ -188,7 +233,7 @@ export default function ShippingSelectorNew({
       </div>
 
       {/* Helper Text */}
-      {!selectedId && !disabled && (
+      {shippingRequired && !selectedId && !disabled && (
         <p className="text-sm text-white/50 text-center mt-3">
           Please select a shipping method to continue
         </p>

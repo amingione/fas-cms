@@ -33,6 +33,7 @@ import {
   filterValidShippingOptions
 } from '@/lib/checkout/utils';
 import { validateCartForCheckout } from '@/lib/checkout/validation';
+import { resolveCartShippingIntent } from '@/lib/checkout/shipping-intent';
 
 // Import redesigned components
 import AddressFormNew from './AddressFormNew';
@@ -48,6 +49,7 @@ export default function CheckoutFlowNew() {
   const [paymentClientSecret, setPaymentClientSecret] = useState<string>('');
   const [paymentIntentId, setPaymentIntentId] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
+  const shippingIntent = resolveCartShippingIntent(cart);
 
   // If the cart changes elsewhere (e.g., user removes an item from the cart modal),
   // refresh the Medusa cart so checkout doesn't keep showing stale line items.
@@ -165,6 +167,14 @@ export default function CheckoutFlowNew() {
       console.log('[Checkout] Cart address updated:', updatedCart.shipping_address);
       setCart(updatedCart);
 
+      const intent = resolveCartShippingIntent(updatedCart);
+      if (intent.hasCallForQuote || !intent.requiresShipping) {
+        setShippingOptions([]);
+        setSelectedShippingId('');
+        dispatch({ type: 'SHIPPING_OPTIONS_LOADED', options: [] });
+        return;
+      }
+
       console.log('[Checkout] Fetching shipping options for cart:', updatedCart.id);
       const options = await fetchShippingOptions(updatedCart.id);
       console.log('[Checkout] Shipping options response:', options);
@@ -205,6 +215,15 @@ export default function CheckoutFlowNew() {
     });
 
     if (!cart || !selectedShippingId) {
+      if (!cart) {
+        console.error('[Checkout] Cannot continue - missing cart');
+        return;
+      }
+      if (!shippingIntent.requiresShipping || shippingIntent.hasCallForQuote) {
+        dispatch({ type: 'SHIPPING_SELECTED', optionId: 'not_required' });
+        dispatch({ type: 'SHIPPING_APPLIED', cart });
+        return;
+      }
       console.error('[Checkout] Cannot continue - missing cart or shipping selection');
       return;
     }
@@ -322,6 +341,8 @@ export default function CheckoutFlowNew() {
                 selectedId={selectedShippingId}
                 onSelect={handleShippingSelect}
                 onContinue={handleShippingContinue}
+                shippingRequired={shippingIntent.requiresShipping}
+                callForQuote={shippingIntent.hasCallForQuote}
                 disabled={!canEditShipping(state)}
                 loading={state === 'SHIPPING_CALCULATION'}
               />

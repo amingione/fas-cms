@@ -4,6 +4,7 @@ import SalePage from '@/components/sales/BlackFridaySale';
 import ProductGrid from '@/components/storefront/ProductGrid.astro';
 import { fetchActiveSaleProducts, normalizeSlugValue, type Product } from '@/lib/sanity-utils.ts';
 import { getSavingsAmount } from '@/lib/saleHelpers';
+import { formatCents } from '@/lib/pricing';
 
 const rawSaleProducts: Product[] = await fetchActiveSaleProducts({ limit: 12 });
 const saleProducts = (Array.isArray(rawSaleProducts) ? rawSaleProducts : []).map((product) => {
@@ -90,7 +91,7 @@ const breadcrumbs = [
                 {maxDiscount > 0
                   ? `Save up to ${maxDiscount}% on ${saleProducts.length} products, sorted by the biggest discounts first.`
                   : `Limited-time pricing on ${saleProducts.length} products, sorted by the biggest discounts first.`}{' '}
-                {maxSavings > 0 ? ` Top savings: $${maxSavings.toFixed(2)} off.` : ''}
+                {maxSavings > 0 ? ` Top savings: ${formatCents(maxSavings)} off.` : ''}
               </p>
             </div>
 

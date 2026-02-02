@@ -1,10 +1,10 @@
 ---
 import { resolveSanityImageUrl } from '@/lib/sanity-utils.ts';
 import { resolveProductCartMeta } from '@/lib/product-flags.ts';
+import { formatCents } from '@/lib/pricing';
 
 const { productImage, product, layout = 'grid' } = Astro.props as any;
-const productPrice =
-  typeof product.price === 'number' ? `$${parseFloat(product.price).toFixed(2)}` : '—';
+const productPrice = typeof product.price === 'number' ? formatCents(product.price) : '—';
 
 const fallbackImage = '/logo/faslogochroma.webp';
 const imageUrl = resolveSanityImageUrl([productImage, product?.images]) ?? fallbackImage;

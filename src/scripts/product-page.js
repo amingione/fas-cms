@@ -9,15 +9,16 @@ const parsePrice = (value, fallback = 0) => {
 const formatCurrency = (value) => {
   const numeric = Number(value);
   if (!Number.isFinite(numeric)) return '$0.00';
+  const dollars = numeric / 100;
   try {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
-    }).format(numeric);
+    }).format(dollars);
   } catch {
-    return `$${numeric.toFixed(2)}`;
+    return `$${dollars.toFixed(2)}`;
   }
 };
 
@@ -367,8 +368,17 @@ const hydrateCartButtons = () => {
       baseSalePrice
     );
     const shippingClassRaw = (ds.productShippingClass || '').toString();
-    const normalizedShipping = shippingClassRaw.toLowerCase().replace(/[^a-z]/g, '');
-    const installOnly = String(ds.productInstallOnly || '').toLowerCase() === 'true' || normalizedShipping.includes('installonly');
+    const readFlag = (value) => {
+      if (value == null) return undefined;
+      const normalized = String(value).trim().toLowerCase();
+      if (normalized === 'true') return true;
+      if (normalized === 'false') return false;
+      return undefined;
+    };
+    const requiresShipping = readFlag(ds.productRequiresShipping);
+    const callForQuote = readFlag(ds.productCallForQuote) === true;
+    const installOnly =
+      callForQuote || (typeof requiresShipping === 'boolean' && requiresShipping === false);
     const selectionVariantId =
       selections.map((sel) => sel?.medusaVariantId).find(Boolean) || '';
     const medusaVariantId = (

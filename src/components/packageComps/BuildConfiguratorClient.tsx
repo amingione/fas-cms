@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import type { Product } from '@lib/sanity-utils';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
+import { formatCents } from '@/lib/pricing';
 
 interface Props {
   products: Product[];
@@ -285,7 +286,7 @@ export default function BuildConfiguratorClient({ products }: Props) {
                 </div>
               ))}
               <div className="text-right text-xl font-bold text-blue-400">
-                Subtotal: ${subtotal.toFixed(2)}
+                Subtotal: {formatCents(subtotal)}
               </div>
             </div>
           </motion.div>
@@ -379,7 +380,9 @@ export default function BuildConfiguratorClient({ products }: Props) {
                   className="w-full h-48 object-cover rounded-lg mb-4"
                 />
                 <h4 className="text-lg font-medium text-text mb-2">{p.title}</h4>
-                <p className="text-blue-400 font-bold mb-4">${p.price?.toFixed(2)}</p>
+                <p className="text-blue-400 font-bold mb-4">
+                  {typeof p.price === 'number' ? formatCents(p.price) : '—'}
+                </p>
                 <Button
                   onClick={() => addToBuild(p)}
                   className="w-full bg-blue-600 hover:bg-blue-700 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.4)]"

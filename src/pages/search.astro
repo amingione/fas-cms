@@ -96,14 +96,15 @@ if (endPage < totalPages) {
       function formatPrice(v) {
         const n = Number(v);
         if (!isFinite(n) || n <= 0) return '';
+        const dollars = n / 100;
         try {
           return new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'USD',
             maximumFractionDigits: 2
-          }).format(n);
+          }).format(dollars);
         } catch {
-          return `$${n.toFixed(2)}`;
+          return `$${dollars.toFixed(2)}`;
         }
       }
 

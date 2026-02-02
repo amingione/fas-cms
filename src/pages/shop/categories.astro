@@ -5,6 +5,7 @@ import { sanityClient as client } from "@/lib/sanityClient.ts";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import StoreHero from '@/components/storefront/StoreHero.astro';
 import { fetchFeaturedProducts } from '@/lib/sanity-utils';
+import { centsToDollars } from '@/lib/pricing';
 
 // Choose which categories (by slug) to show on this page.
 // Fill this list with the exact slugs you want featured. Leave empty to show all.
@@ -201,11 +202,12 @@ const featuredItemListElements: ProductListItem[] = Array.isArray(featuredProduc
               .filter((value): value is string => Boolean(value))
           : [];
         const priceNumber = Number(product.price);
-        const offers: ProductOffer | undefined = !Number.isNaN(priceNumber) && priceNumber > 0
+        const priceDollars = centsToDollars(priceNumber);
+        const offers: ProductOffer | undefined = typeof priceDollars === 'number' && priceDollars > 0
           ? {
               '@type': 'Offer',
               priceCurrency: 'USD',
-              price: priceNumber.toFixed(2),
+              price: priceDollars.toFixed(2),
               availability: 'https://schema.org/InStock',
               url: productUrl,
               itemCondition: 'https://schema.org/NewCondition'

@@ -3,10 +3,10 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { sanityClient, urlFor } from '@/lib/sanity';
 import { vendorBySlugQuery } from '@/lib/queries';
 import { ExternalLink, Globe, Package } from 'lucide-react';
+import { formatCents } from '@/lib/pricing';
 
 export const prerender = false;
 
-const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 const { slug } = Astro.params;
 
 const resolveSlug = (value: any): string => {
@@ -140,7 +140,7 @@ const productCount = products.length || vendor?.productCount || 0;
                   )}
                   {typeof product?.price === 'number' && (
                     <p class="mt-3 text-xl font-bold text-primary">
-                      {currency.format(product.price)}
+                      {formatCents(product.price)}
                     </p>
                   )}
                 </a>

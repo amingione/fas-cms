@@ -8,7 +8,7 @@ const CART_KEY = 'fas_cart_v1';
 export type CartItem = {
   id: string; // product or variant id
   name?: string;
-  price?: number; // unit price (for quick display; source of truth remains on server)
+  price?: number; // unit price in cents (display-only; source of truth remains on server)
   originalPrice?: number;
   basePrice?: number;
   extra?: number;

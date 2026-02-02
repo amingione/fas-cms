@@ -3,6 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import PortableTextRenderer from '@/components/PortableTextRenderer.jsx';
 import { postBySlugQuery } from '@/lib/blogQueries';
 import { sanityClient, urlFor } from '@/lib/sanity';
+import { formatCents } from '@/lib/pricing';
 
 export const prerender = false;
 
@@ -21,8 +22,6 @@ const formatDate = (value?: string) => {
   if (Number.isNaN(parsed.getTime())) return '';
   return parsed.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 };
-
-const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 
 const { slug } = Astro.params;
 
@@ -116,7 +115,7 @@ const publishedLabel = formatDate(post?.publishedAt);
             >
               <h3 class="text-lg font-semibold text-white">{product?.title ?? 'Product'}</h3>
               {typeof product?.price === 'number' && (
-                <p class="text-sm font-semibold text-primary">{currency.format(product.price)}</p>
+                <p class="text-sm font-semibold text-primary">{formatCents(product.price)}</p>
               )}
             </a>
           ))}

@@ -275,11 +275,7 @@ function CartItemsList({ cart, pricing, onQuantityChange, onRemove }: CartItemsL
               upgrades: (item as any).upgrades
             });
             const displayName = item.name || 'Product';
-            const normalizedClass = (item.shippingClass || '')
-              .toString()
-              .toLowerCase()
-              .replace(/[^a-z]/g, '');
-            const isInstallOnly = item.installOnly || normalizedClass.includes('installonly');
+            const isInstallOnly = item.installOnly === true;
             const productHref = (() => {
               const raw = item.productUrl;
               if (!raw) return undefined;

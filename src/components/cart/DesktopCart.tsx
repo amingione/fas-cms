@@ -113,11 +113,7 @@ function CartSummaryPopover({
                   upgrades: (item as any).upgrades
                 });
                 const displayName = item.name || 'Product';
-                const normalizedClass = (item.shippingClass || '')
-                  .toString()
-                  .toLowerCase()
-                  .replace(/[^a-z]/g, '');
-                const isInstallOnly = item.installOnly || normalizedClass.includes('installonly');
+                const isInstallOnly = item.installOnly === true;
                 return (
                   <li key={item.id} className="flex gap-3 py-3">
                     <img

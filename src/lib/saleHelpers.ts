@@ -1,3 +1,5 @@
+import { formatCents } from '@/lib/pricing';
+
 /**
  * Sale Helper Functions for FAS Motorsports
  * Handles sale pricing logic, date validation, and badge text
@@ -133,13 +135,7 @@ export function getSavingsAmount(product?: SaleAwareProduct): number {
  * @returns {string}
  */
 export function formatPrice(price: number | null | undefined): string {
-  if (price == null || !Number.isFinite(Number(price))) return '—';
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(Number(price));
+  return formatCents(price, { currency: 'USD', locale: 'en-US' });
 }
 
 /**
