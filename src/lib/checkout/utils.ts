@@ -134,11 +134,53 @@ export function formatCurrency(amount: number, currencyCode: string): string {
 export function filterValidShippingOptions(
   options: ShippingOption[]
 ): ShippingOption[] {
-  // Filter to only UPS as specified in spec (exclude USPS)
+  // UPS only - carrier filter
   const validCarriers = ['UPS'];
 
-  return options.filter((option) => {
-    const carrier = option.data?.carrier?.toUpperCase();
-    return carrier && validCarriers.includes(carrier) && option.amount > 0;
+  console.log('[ShippingFilter] Filtering shipping options:', {
+    total: options.length,
+    options: options.map(o => ({
+      name: o.name,
+      carrier: o.data?.carrier,
+      amount: o.amount,
+      price_type: o.price_type,
+      calculated_price: o.calculated_price,
+      type: o.type
+    }))
   });
+
+  const filtered = options.filter((option) => {
+    const carrier = option.data?.carrier?.toUpperCase();
+    
+    // Step 1: Check carrier is UPS
+    if (!carrier || !validCarriers.includes(carrier)) {
+      console.log(`[ShippingFilter] ❌ Rejected ${option.name}: Wrong carrier (${carrier})`);
+      return false;
+    }
+
+    // Step 2: Check price validity
+    // For Medusa v2 with Shippo "live rates":
+    // - price_type: "calculated" means dynamic pricing
+    // - amount might be 0 or undefined initially
+    // - Shippo returns all available UPS services (Ground, 2-Day, etc.) dynamically
+    // - No need to filter by service level here - Shippo handles that
+    
+    // Accept if:
+    // 1. Has amount > 0 (fixed price), OR
+    // 2. price_type is "calculated" (dynamic Shippo pricing)
+    const hasValidPrice = 
+      (typeof option.amount === 'number' && option.amount > 0) ||
+      option.price_type === 'calculated';
+    
+    if (!hasValidPrice) {
+      console.log(`[ShippingFilter] ❌ Rejected ${option.name}: Invalid price (amount=${option.amount}, type=${option.price_type})`);
+      return false;
+    }
+
+    console.log(`[ShippingFilter] ✅ Accepted ${option.name} (carrier=${carrier}, price_type=${option.price_type})`);
+    return true;
+  });
+
+  console.log(`[ShippingFilter] Result: ${filtered.length} of ${options.length} options passed filter`);
+  return filtered;
 }

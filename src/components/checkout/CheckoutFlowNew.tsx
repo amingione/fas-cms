@@ -49,10 +49,51 @@ export default function CheckoutFlowNew() {
   const [paymentIntentId, setPaymentIntentId] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
+  // If the cart changes elsewhere (e.g., user removes an item from the cart modal),
+  // refresh the Medusa cart so checkout doesn't keep showing stale line items.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const onSynced = () => {
+      if (isCartLocked(state)) return;
+
+      const cartId = localStorage.getItem(MEDUSA_CART_ID_KEY);
+      if (!cartId) {
+        setCart(null);
+        setError('No cart found. Please add items to your cart first.');
+        dispatch({ type: 'CART_EMPTY' });
+        return;
+      }
+
+      Promise.all([fetchCart(cartId), validateCartForCheckout(cartId)])
+        .then(([cartData, validation]) => {
+          if (!validation.valid || cartData.items.length === 0) {
+            setCart(cartData);
+            setError(
+              !validation.valid
+                ? `Cart validation failed: ${validation.errors.join('; ')}`
+                : 'Your cart is empty.'
+            );
+            dispatch({ type: 'CART_EMPTY' });
+            return;
+          }
+
+          setError(null);
+          setCart(cartData);
+          dispatch({ type: 'CART_LOADED', cart: cartData });
+        })
+        .catch((err) => {
+          console.error('[Checkout] Failed to refresh cart:', err);
+        });
+    };
+
+    window.addEventListener('cart:medusa-synced', onSynced as EventListener);
+    return () => window.removeEventListener('cart:medusa-synced', onSynced as EventListener);
+  }, [state]);
+
   // Load cart on mount
   useEffect(() => {
-    const cartId =
-      typeof window !== 'undefined' ? localStorage.getItem(MEDUSA_CART_ID_KEY) : null;
+    const cartId = typeof window !== 'undefined' ? localStorage.getItem(MEDUSA_CART_ID_KEY) : null;
 
     console.log('[Checkout] Initializing checkout with cart ID:', cartId);
 
@@ -63,10 +104,7 @@ export default function CheckoutFlowNew() {
       return;
     }
 
-    Promise.all([
-      fetchCart(cartId),
-      validateCartForCheckout(cartId)
-    ])
+    Promise.all([fetchCart(cartId), validateCartForCheckout(cartId)])
       .then(([cartData, validation]) => {
         console.log('[Checkout] Cart fetched:', cartData);
         console.log('[Checkout] Validation result:', validation);
@@ -102,13 +140,23 @@ export default function CheckoutFlowNew() {
   const handleAddressSubmit = async (addressData: AddressFormData) => {
     if (!cart) return;
 
+    console.log('[Checkout] Submitting address:', addressData);
+
     try {
       dispatch({ type: 'ADDRESS_SUBMITTED', cart });
+      
+      console.log('[Checkout] Updating cart address for cart:', cart.id);
       const updatedCart = await updateCartAddress(cart.id, addressData);
+      console.log('[Checkout] Cart address updated:', updatedCart.shipping_address);
       setCart(updatedCart);
 
-      const options = await fetchShippingOptions(cart.id);
+      console.log('[Checkout] Fetching shipping options for cart:', updatedCart.id);
+      const options = await fetchShippingOptions(updatedCart.id);
+      console.log('[Checkout] Shipping options response:', options);
+      console.log('[Checkout] Full option structure:', JSON.stringify(options, null, 2));
+      
       const validOptions = filterValidShippingOptions(options);
+      console.log('[Checkout] Valid shipping options:', validOptions);
       setShippingOptions(validOptions);
 
       if (validOptions.length === 0) {
@@ -117,7 +165,7 @@ export default function CheckoutFlowNew() {
         dispatch({ type: 'SHIPPING_OPTIONS_LOADED', options: validOptions });
       }
     } catch (err: any) {
-      console.error('Address submission failed:', err);
+      console.error('[Checkout] Address submission failed:', err);
       setError(err.message || 'Failed to update address');
       dispatch({
         type: 'SHIPPING_OPTIONS_ERROR',
@@ -128,20 +176,36 @@ export default function CheckoutFlowNew() {
 
   // Handle shipping selection
   const handleShippingSelect = (optionId: string) => {
+    console.log('[Checkout] Shipping option selected:', optionId);
     setSelectedShippingId(optionId);
+    console.log('[Checkout] selectedShippingId updated to:', optionId);
   };
 
   // Handle shipping confirmation
   const handleShippingContinue = async () => {
-    if (!cart || !selectedShippingId) return;
+    console.log('[Checkout] Attempting to continue with shipping:', {
+      cartId: cart?.id,
+      selectedShippingId,
+      hasCart: !!cart
+    });
+
+    if (!cart || !selectedShippingId) {
+      console.error('[Checkout] Cannot continue - missing cart or shipping selection');
+      return;
+    }
 
     try {
+      console.log('[Checkout] Dispatching SHIPPING_SELECTED');
       dispatch({ type: 'SHIPPING_SELECTED', optionId: selectedShippingId });
+      
+      console.log('[Checkout] Applying shipping method to cart:', cart.id);
       const updatedCart = await applyShippingMethod(cart.id, selectedShippingId);
+      
+      console.log('[Checkout] Shipping applied successfully:', updatedCart);
       setCart(updatedCart);
       dispatch({ type: 'SHIPPING_APPLIED', cart: updatedCart });
     } catch (err: any) {
-      console.error('Shipping application failed:', err);
+      console.error('[Checkout] Shipping application failed:', err);
       setError(err.message || 'Failed to apply shipping method');
       dispatch({ type: 'SHIPPING_APPLY_ERROR', error: err.message });
     }
@@ -225,11 +289,9 @@ export default function CheckoutFlowNew() {
     <div className="checkout-flow-new min-h-screen">
       {/* Split-screen layout */}
       <div className="relative mx-auto grid max-w-7xl grid-cols-1 gap-x-16 lg:grid-cols-2 lg:px-8 xl:gap-x-24">
-
         {/* Left Column: Form Sections */}
         <section className="px-4 pt-8 pb-36 sm:px-6 lg:col-start-1 lg:row-start-1 lg:px-0 lg:pb-16">
           <div className="mx-auto max-w-lg lg:max-w-none">
-
             {/* Address Form Section */}
             {canEditAddress(state) && (
               <AddressFormNew
@@ -286,20 +348,10 @@ export default function CheckoutFlowNew() {
         {/* Right Column: Order Summary (Sticky Sidebar) */}
         <section className="bg-transparent px-4 pt-8 pb-10 sm:px-6 lg:col-start-2 lg:row-start-1 lg:bg-transparent lg:px-0 lg:pb-16">
           <div className="mx-auto max-w-lg lg:max-w-none">
-            <OrderSummaryNew
-              cart={cart}
-              isLocked={isCartLocked(state)}
-            />
+            <OrderSummaryNew cart={cart} isLocked={isCartLocked(state)} />
           </div>
         </section>
       </div>
-
-      {/* Dev Mode Indicator - only show when checkout is actually working */}
-      {import.meta.env.DEV && cart && state !== 'CART_EMPTY' && state !== 'CART_LOADING' && (
-        <div className="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg z-50">
-          🆕 NEW CHECKOUT UI
-        </div>
-      )}
     </div>
   );
 }

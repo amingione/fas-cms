@@ -12,6 +12,8 @@ type IncomingCartItem = {
   shippingClass?: string;
   installOnly?: boolean;
   medusaVariantId?: string;
+  selectedOptions?: string[];
+  selectedUpgrades?: string[];
 };
 
 function sanitizeCartItems(items: unknown): IncomingCartItem[] {
@@ -30,6 +32,12 @@ function sanitizeCartItems(items: unknown): IncomingCartItem[] {
         productUrl: typeof entry.productUrl === 'string' ? entry.productUrl : undefined,
         shippingClass: typeof entry.shippingClass === 'string' ? entry.shippingClass : undefined,
         installOnly: typeof entry.installOnly === 'boolean' ? entry.installOnly : undefined,
+        selectedOptions: Array.isArray(entry.selectedOptions)
+          ? entry.selectedOptions.filter((value: unknown) => typeof value === 'string')
+          : undefined,
+        selectedUpgrades: Array.isArray(entry.selectedUpgrades)
+          ? entry.selectedUpgrades.filter((value: unknown) => typeof value === 'string')
+          : undefined,
         medusaVariantId:
           typeof entry.medusaVariantId === 'string' ? entry.medusaVariantId : undefined
       };
@@ -88,6 +96,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   const mappings: { id: string; medusaVariantId: string }[] = [];
   const missingVariants: string[] = [];
+  const desiredVariantIds = new Set<string>();
 
   for (const item of cartItems) {
     const variantId = item.medusaVariantId;
@@ -100,6 +109,7 @@ export const POST: APIRoute = async ({ request }) => {
       continue;
     }
 
+    desiredVariantIds.add(variantId);
     mappings.push({ id: item.id, medusaVariantId: variantId });
 
     // STEP 3: Check if item already exists in Medusa cart
@@ -177,6 +187,35 @@ export const POST: APIRoute = async ({ request }) => {
       { status: 400 },
       { noIndex: true }
     );
+  }
+
+  // STEP 4: Remove any Medusa line items that are no longer present in the local cart.
+  // Without this, removing an item client-side won't remove it from the Medusa cart, and
+  // checkout/order summary will continue to show "ghost" items.
+  const deletions: Array<{ id: string; variant_id?: string }> = [];
+  for (const existing of existingItems) {
+    const existingVariantId = existing?.variant_id;
+    const existingLineItemId = existing?.id;
+    if (typeof existingLineItemId !== 'string' || !existingLineItemId) continue;
+    if (typeof existingVariantId !== 'string' || !existingVariantId) continue;
+    if (!desiredVariantIds.has(existingVariantId)) {
+      deletions.push({ id: existingLineItemId, variant_id: existingVariantId });
+    }
+  }
+
+  for (const deletion of deletions) {
+    const deleteResponse = await medusaFetch(`/store/carts/${cartId}/line-items/${deletion.id}`, {
+      method: 'DELETE'
+    });
+    if (!deleteResponse.ok) {
+      const errorData = await readJsonSafe<any>(deleteResponse);
+      console.error(`Failed to delete line item ${deletion.id}:`, errorData);
+      return jsonResponse(
+        { error: 'Failed to remove stale cart items.', details: errorData },
+        { status: deleteResponse.status },
+        { noIndex: true }
+      );
+    }
   }
 
   return jsonResponse(

@@ -157,9 +157,11 @@ export default function ShippingSelectorNew({
 
               {/* Price */}
               <div className="font-medium text-white ml-4">
-                {option.amount === 0
-                  ? 'FREE'
-                  : formatCurrency(option.amount, 'usd')
+                {option.price_type === 'calculated'
+                  ? 'Calculated at checkout'
+                  : option.amount === 0
+                    ? 'FREE'
+                    : formatCurrency(option.amount, 'usd')
                 }
               </div>
             </label>

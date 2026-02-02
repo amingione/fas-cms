@@ -23,7 +23,13 @@ interface OrderSummaryProps {
 
 export default function OrderSummaryNew({ cart, isLocked = false }: OrderSummaryProps) {
   const hasShipping = cart.shipping_methods && cart.shipping_methods.length > 0;
-  const hasTax = typeof cart.tax_total === 'number';
+  const hasTax = typeof cart.tax_total === 'number' && cart.tax_total > 0;
+
+  console.log('[OrderSummary] Debug:', {
+    tax_total: cart.tax_total,
+    hasTax,
+    hasShipping
+  });
 
   return (
     <div className="lg:sticky lg:top-8">
@@ -70,6 +76,10 @@ export default function OrderSummaryNew({ cart, isLocked = false }: OrderSummary
             <div className="flex-none text-base font-medium text-white">
               {typeof item.total === 'number' && item.total >= 0
                 ? formatCurrency(item.total, cart.currency_code)
+                : typeof item.subtotal === 'number' && item.subtotal >= 0
+                ? formatCurrency(item.subtotal, cart.currency_code)
+                : (typeof item.unit_price === 'number' && typeof item.quantity === 'number')
+                ? formatCurrency(item.unit_price * item.quantity, cart.currency_code)
                 : <span className="text-red-400 text-sm">Price unavailable</span>
               }
             </div>
@@ -114,11 +124,11 @@ export default function OrderSummaryNew({ cart, isLocked = false }: OrderSummary
           )}
 
           {/* Tax */}
-          {hasTax ? (
+          {typeof cart.tax_total === 'number' && cart.tax_total > 0 ? (
             <div className="flex items-center justify-between">
               <dt className="text-white/70">Taxes</dt>
               <dd className="font-medium text-white">
-                {formatCurrency(cart.tax_total || 0, cart.currency_code)}
+                {formatCurrency(cart.tax_total, cart.currency_code)}
               </dd>
             </div>
           ) : (

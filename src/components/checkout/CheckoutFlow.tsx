@@ -38,6 +38,47 @@ export default function CheckoutFlow() {
   const [paymentIntentId, setPaymentIntentId] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
+  // If the cart changes elsewhere (e.g., user removes an item from the cart modal),
+  // refresh the Medusa cart so checkout doesn't keep showing stale line items.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const onSynced = () => {
+      if (isCartLocked(state)) return;
+
+      const cartId = localStorage.getItem(MEDUSA_CART_ID_KEY);
+      if (!cartId) {
+        setCart(null);
+        dispatch({ type: 'CART_EMPTY' });
+        return;
+      }
+
+      Promise.all([fetchCart(cartId), validateCartForCheckout(cartId)])
+        .then(([cartData, validation]) => {
+          if (!validation.valid || cartData.items.length === 0) {
+            setCart(cartData);
+            setError(
+              !validation.valid
+                ? `Cart validation failed: ${validation.errors.join('; ')}`
+                : 'Your cart is empty.'
+            );
+            dispatch({ type: 'CART_EMPTY' });
+            return;
+          }
+
+          setError(null);
+          setCart(cartData);
+          dispatch({ type: 'CART_LOADED', cart: cartData });
+        })
+        .catch((err) => {
+          console.error('[Checkout] Failed to refresh cart:', err);
+        });
+    };
+
+    window.addEventListener('cart:medusa-synced', onSynced as EventListener);
+    return () => window.removeEventListener('cart:medusa-synced', onSynced as EventListener);
+  }, [state]);
+
   // Load cart on mount
   useEffect(() => {
     const cartId =

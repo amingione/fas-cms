@@ -82,6 +82,8 @@ export interface ShippingOption {
   name: string;
   amount: number;
   provider_id?: string;
+  price_type?: string; // 'flat' | 'calculated' | etc.
+  calculated_price?: number | null;
   data?: {
     carrier?: string;
     estimated_delivery?: string;

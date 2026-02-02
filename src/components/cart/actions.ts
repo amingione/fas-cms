@@ -142,6 +142,11 @@ async function syncMedusaCart(cart: Cart): Promise<boolean> {
     }
 
     console.log('[Cart] Medusa sync successful');
+    try {
+      window.dispatchEvent(new CustomEvent('cart:medusa-synced', { detail: { cartId } }));
+    } catch (error) {
+      void error;
+    }
     const mappings = Array.isArray(payload?.mappings) ? payload.mappings : [];
     if (mappings.length) {
       const next = getCart();
