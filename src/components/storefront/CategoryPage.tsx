@@ -180,32 +180,8 @@ type FeaturedProduct = {
   imageAlt: string;
 };
 
-const fallbackFeaturedProducts: FeaturedProduct[] = [
-  {
-    id: 'predator-pulley',
-    name: 'Predator Pulley',
-    price: '$899.99',
-    href: '/shop/fas-predator-lower-pulley-no-tune-required',
-    imageSrc: '/images/pulleys/FASpredator-lower-pulley.webp',
-    imageAlt: 'F.A.S. Motorsports Predator Lower Pulley.'
-  },
-  {
-    id: 'billet-supercharger-lid',
-    name: 'Billet Supercharger Lid',
-    price: '$1899.99',
-    href: '/shop/fas-motorsports-billet-hellcat-supercharger-lid',
-    imageSrc: '/images/billetParts/fas-new-billet-lid-tilt.webp',
-    imageAlt: 'F.A.S. Motorsports Billet Supercharger Lid.'
-  },
-  {
-    id: 'billet-snout',
-    name: '2.4L Billet Snout',
-    price: '$1899',
-    href: '/shop/2-4l-hellcat-billet-supercharger-snout',
-    imageSrc: '/images/snouts/FAS-Billet-Snout-Front.webp',
-    imageAlt: 'F.A.S. Motorsports 2.4L Billet Snout.'
-  }
-];
+// ❌ REMOVED: Hardcoded fallback pricing violates Medusa-first pricing authority
+// All pricing must come from Medusa /store/products API, never from hardcoded values
 
 export default function CategoryPage({
   products,
@@ -256,23 +232,24 @@ export default function CategoryPage({
 
   const featuredProducts = useMemo<FeaturedProduct[]>(() => {
     if (!Array.isArray(products) || products.length === 0) {
-      return fallbackFeaturedProducts;
+      return []; // ✅ No fallback products - show empty state if no products exist
     }
 
-    return products.slice(0, 3).map((product, index) => {
-      const fallback = fallbackFeaturedProducts[index % fallbackFeaturedProducts.length];
-      const price =
-        typeof product.price === 'number' && Number.isFinite(product.price)
-          ? product.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
-          : fallback.price;
+    return products.slice(0, 3).map((product) => {
+      // ✅ MEDUSA-FIRST: Only display products with valid Medusa pricing
+      // If price is missing, show "Unavailable" instead of guessing
+      const hasValidPrice = typeof product.price === 'number' && Number.isFinite(product.price);
+      const price = hasValidPrice
+        ? product.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+        : 'Unavailable';
 
       return {
-        id: product._id ?? fallback.id,
-        name: product.title ?? fallback.name,
+        id: product._id ?? `product-${Math.random()}`,
+        name: product.title ?? 'Untitled Product',
         price,
-        href: product.slug?.current ? `/shop/${product.slug.current}` : fallback.href,
-        imageSrc: product.images?.[0]?.asset?.url ?? fallback.imageSrc,
-        imageAlt: product.images?.[0]?.alt ?? product.title ?? fallback.imageAlt
+        href: product.slug?.current ? `/shop/${product.slug.current}` : '#',
+        imageSrc: product.images?.[0]?.asset?.url ?? '/images/placeholder.webp',
+        imageAlt: product.images?.[0]?.alt ?? product.title ?? 'Product image'
       };
     });
   }, [products]);

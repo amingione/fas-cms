@@ -142,6 +142,23 @@ export function AddToCart({ product }: { product: any }) {
     setError(null);
     const id = (variantId || product?._id || product?.id) as Maybe<string>;
     if (!id) return;
+
+    // ✅ MEDUSA-FIRST PRICING VALIDATION
+    // Block cart additions if price is not a valid number from Medusa
+    if (typeof activePrice !== 'number' || !Number.isFinite(activePrice) || activePrice <= 0) {
+      setError(
+        'This product is currently unavailable. Price information is missing or invalid.'
+      );
+      console.error('[add-to-cart] Blocked cart addition - invalid price', {
+        productId: id,
+        productTitle: product?.title,
+        activePrice,
+        priceType: typeof activePrice,
+        medusaVariantId: variantId
+      });
+      return;
+    }
+
     const { shippingClass, installOnly } = resolveProductCartMeta(product);
     const selectedOptionsList = Object.entries(selected).map(
       ([key, value]) => `${key}: ${value}`
@@ -156,7 +173,7 @@ export function AddToCart({ product }: { product: any }) {
     const result = await addItem(null as any, {
       id,
       name: product?.title,
-      price: typeof activePrice === 'number' ? activePrice : undefined,
+      price: activePrice, // ✅ Guaranteed to be valid number > 0
       stripePriceId: (product as any)?.stripePriceId,
       medusaVariantId: variantId || (product as any)?.medusaVariantId,
       originalPrice,

@@ -79,7 +79,34 @@ export function getCart(): CartItem[] {
     const raw = localStorage.getItem(CART_KEY);
     const parsed = raw ? JSON.parse(raw) : null;
     const items = parsed && Array.isArray(parsed.items) ? parsed.items : [];
-    return items as CartItem[];
+    
+    // ✅ MEDUSA-FIRST PRICING VALIDATION
+    // Filter out any cart items with invalid pricing
+    const validItems = items.filter((item: any) => {
+      const hasValidPrice =
+        typeof item.price === 'number' && Number.isFinite(item.price) && item.price > 0;
+      
+      if (!hasValidPrice) {
+        console.warn('[cart] Removing item with invalid price from cart', {
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          priceType: typeof item.price
+        });
+        return false;
+      }
+      return true;
+    });
+    
+    // If we filtered out invalid items, save the cleaned cart
+    if (validItems.length !== items.length) {
+      console.log(`[cart] Cleaned ${items.length - validItems.length} invalid items from cart`);
+      if (isBrowser()) {
+        localStorage.setItem(CART_KEY, JSON.stringify({ items: validItems }));
+      }
+    }
+    
+    return validItems as CartItem[];
   } catch {
     return [];
   }

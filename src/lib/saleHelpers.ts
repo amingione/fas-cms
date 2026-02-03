@@ -1,8 +1,37 @@
 import { formatCents } from '@/lib/pricing';
 
 /**
+ * ⚠️⚠️⚠️ CRITICAL PRICING WARNING ⚠️⚠️⚠️
+ * 
  * Sale Helper Functions for FAS Motorsports
  * Handles sale pricing logic, date validation, and badge text
+ * 
+ * **PRICING AUTHORITY MODEL:**
+ * - Medusa: AUTHORITATIVE for ALL transactional pricing
+ * - Sanity: Display metadata only (sale badges, UI labels)
+ * 
+ * **THESE FUNCTIONS ARE FOR DISPLAY PURPOSES ONLY**
+ * 
+ * ✅ ALLOWED:
+ * - Product card displays
+ * - Price labels in UI
+ * - Sale badges and indicators
+ * - Marketing content
+ * 
+ * ❌ FORBIDDEN:
+ * - Cart operations
+ * - Checkout calculations
+ * - Payment processing
+ * - Any backend pricing logic
+ * - Creating Stripe prices
+ * 
+ * **FOR TRANSACTIONAL PRICING:**
+ * Use Medusa APIs exclusively:
+ * - GET /store/products (for product prices)
+ * - GET /store/carts/:id (for cart totals)
+ * - POST /api/medusa/payments/create-intent (for checkout)
+ * 
+ * Violations of this rule will cause pricing bugs ($19 fallback issue).
  */
 
 type MaybeDate = string | number | Date | null | undefined;
@@ -51,11 +80,51 @@ export function isOnSale(product?: SaleAwareProduct): boolean {
 }
 
 /**
- * Returns the active price (sale or regular)
- * @param {Object} product - Product object from Sanity
- * @returns {number}
+ * ⚠️ DEPRECATED FOR CHECKOUT/CART: Returns the active price (sale or regular)
+ * 
+ * **CRITICAL WARNING:**
+ * This function pulls prices from Sanity CMS, NOT from Medusa.
+ * 
+ * **ALLOWED USE CASES:**
+ * - Display purposes only (product cards, price labels, UI)
+ * - Sale badge indicators
+ * - Promotional content
+ * 
+ * **FORBIDDEN USE CASES:**
+ * - Adding items to cart (use Medusa variant price)
+ * - Checkout calculations (use Medusa cart totals)
+ * - Payment processing (use Medusa order total)
+ * - Any backend pricing logic
+ * 
+ * **PRICING AUTHORITY:**
+ * Medusa is the ONLY source of truth for transactional pricing.
+ * This function is for UI display only.
+ * 
+ * @param {Object} product - Product object from Sanity (for display only)
+ * @returns {number|undefined} Display price (NOT authoritative for transactions)
  */
 export function getActivePrice(product?: SaleAwareProduct): number | undefined {
+  if (process.env.NODE_ENV !== 'production') {
+    const stack = new Error().stack;
+    // Check if called from cart or checkout contexts
+    if (
+      stack?.includes('cart/actions') ||
+      stack?.includes('checkout') ||
+      stack?.includes('create-checkout-session')
+    ) {
+      console.error(
+        '❌ [PRICING VIOLATION] getActivePrice() called from cart/checkout context!',
+        '\n',
+        'This function returns Sanity prices, NOT Medusa prices.',
+        '\n',
+        'Use Medusa /store/products API for transactional pricing.',
+        '\n',
+        'Stack trace:',
+        stack
+      );
+    }
+  }
+
   if (!product) return undefined;
   if (isOnSale(product)) {
     return toNumeric(getField(product, 'salePrice'));
@@ -64,11 +133,46 @@ export function getActivePrice(product?: SaleAwareProduct): number | undefined {
 }
 
 /**
- * Returns the original price for comparison (strikethrough display)
- * @param {Object} product - Product object from Sanity
- * @returns {number|null}
+ * ⚠️ DEPRECATED FOR CHECKOUT/CART: Returns the original price for comparison (strikethrough display)
+ * 
+ * **CRITICAL WARNING:**
+ * This function pulls prices from Sanity CMS, NOT from Medusa.
+ * 
+ * **ALLOWED USE CASES:**
+ * - Display purposes only (strikethrough prices, sale indicators)
+ * - UI comparison displays
+ * - Marketing content
+ * 
+ * **FORBIDDEN USE CASES:**
+ * - Cart calculations
+ * - Checkout processing
+ * - Payment intents
+ * - Any transactional logic
+ * 
+ * **PRICING AUTHORITY:**
+ * Medusa is the ONLY source of truth for transactional pricing.
+ * 
+ * @param {Object} product - Product object from Sanity (for display only)
+ * @returns {number|null} Display price (NOT authoritative for transactions)
  */
 export function getCompareAtPrice(product?: SaleAwareProduct): number | null {
+  if (process.env.NODE_ENV !== 'production') {
+    const stack = new Error().stack;
+    if (
+      stack?.includes('cart/actions') ||
+      stack?.includes('checkout') ||
+      stack?.includes('create-checkout-session')
+    ) {
+      console.error(
+        '❌ [PRICING VIOLATION] getCompareAtPrice() called from cart/checkout context!',
+        '\n',
+        'This function returns Sanity prices, NOT Medusa prices.',
+        '\n',
+        'Use Medusa /store/products API for transactional pricing.'
+      );
+    }
+  }
+
   if (!product) return null;
   if (isOnSale(product)) {
     return (

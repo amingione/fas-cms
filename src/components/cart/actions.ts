@@ -190,6 +190,23 @@ export async function addItem(
     return 'Please select a product variant before adding this item to your cart.';
   }
 
+  // ✅ MEDUSA-FIRST PRICING ENFORCEMENT
+  // Block cart additions if price is undefined, null, 0, or invalid
+  if (
+    typeof payload.price !== 'number' ||
+    !Number.isFinite(payload.price) ||
+    payload.price <= 0
+  ) {
+    console.error('[cart/actions] BLOCKED: Invalid price for cart item', {
+      id,
+      price: payload.price,
+      priceType: typeof payload.price,
+      medusaVariantId,
+      name: payload.name
+    });
+    return 'This product cannot be added to cart. Price information is missing or invalid.';
+  }
+
   const qty =
     typeof payload === 'object' && typeof payload.quantity === 'number' ? payload.quantity! : 1;
   const selectedOptions = ensureStringArray(
@@ -218,16 +235,20 @@ export async function addItem(
       if (payload.productSlug) cart.items[idx].productSlug = payload.productSlug;
       if (typeof payload.basePrice === 'number') cart.items[idx].basePrice = payload.basePrice;
       if (typeof payload.extra === 'number') cart.items[idx].extra = payload.extra;
-      if (typeof payload.price === 'number') cart.items[idx].price = payload.price;
+      // ✅ Price is already validated above - only update if valid
+      if (typeof payload.price === 'number' && payload.price > 0) {
+        cart.items[idx].price = payload.price;
+      }
       if (typeof payload.originalPrice === 'number') cart.items[idx].originalPrice = payload.originalPrice;
       if (typeof payload.isOnSale === 'boolean') cart.items[idx].isOnSale = payload.isOnSale;
       if (typeof payload.saleLabel === 'string') cart.items[idx].saleLabel = payload.saleLabel;
     }
   } else {
+    // ✅ New item - price is guaranteed valid from validation above
     cart.items.push({
       id,
       name: typeof payload === 'object' ? payload.name : undefined,
-      price: typeof payload === 'object' ? payload.price : undefined,
+      price: payload.price, // ✅ Guaranteed to be valid number > 0
       originalPrice: typeof payload === 'object' ? payload.originalPrice : undefined,
       isOnSale: typeof payload === 'object' ? payload.isOnSale : undefined,
       saleLabel: typeof payload === 'object' ? payload.saleLabel : undefined,
