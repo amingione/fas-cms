@@ -21,7 +21,10 @@
     "resend-flow-check": "tsx scripts/resend-flow-check.ts",
     "astro:check": "cross-env BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA=1 BROWSERSLIST_IGNORE_OLD_DATA=1 astro check --minimumSeverity warning",
     "audit:sanity-addons": "dotenv -e .env -- tsx src/scripts/audit-sanity-addons.ts",
-    "audit:create-priority-list": "dotenv -e .env -- tsx src/scripts/create-migration-priority-list.ts"
+    "audit:create-priority-list": "dotenv -e .env -- tsx src/scripts/create-migration-priority-list.ts",
+    "env:sync": "node scripts/sync-env-to-netlify.js",
+    "env:sync:dry": "node scripts/sync-env-to-netlify.js --dry-run",
+    "env:sync:remove": "node scripts/sync-env-to-netlify.js --remove"
   },
   "depcheck": {
     "ignorePatterns": [

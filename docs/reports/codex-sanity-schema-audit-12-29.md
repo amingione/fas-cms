@@ -173,7 +173,6 @@ This report inventories Sanity dependencies in `fas-cms-fresh` and maps them to 
   - Customer lookup by `userId` then `email`
 - `src/pages/api/get-user-appointments.ts`
   - Booking query: `*[_type == "booking" && customerRef->email == $email]{ bookingId, status, service, scheduledAt, notes, customer->{...} }`
-- `src/pages/api/customer/update.ts`
   - Customer lookup by `userId` or `email`
   - Vendor lookup by `customerRef`
 - `src/pages/api/customer/get.ts`
@@ -301,7 +300,6 @@ This report inventories Sanity dependencies in `fas-cms-fresh` and maps them to 
 
 ### Customers, Vendors, Messages, Returns
 
-- `src/pages/api/customer/update.ts`
   - Creates/patches `customer` fields: `userId, email, phone, address, billingAddress, firstName, lastName, emailOptIn, textOptIn, marketingOptIn`
   - Patches `vendor.portalAccess.email`
 
@@ -494,7 +492,6 @@ Files Touched (READ-ONLY):
 - src/pages/api/get-user-quotes.ts
 - src/pages/api/get-customer-profile.ts
 - src/pages/api/get-user-appointments.ts
-- src/pages/api/customer/update.ts
 - src/pages/api/customer/get.ts
 - src/pages/api/vendor/dashboard.ts
 - src/pages/api/vendor/notifications/index.ts
@@ -606,7 +603,6 @@ API Routes Observed:
 - src/pages/api/get-user-quotes.ts
 - src/pages/api/get-customer-profile.ts
 - src/pages/api/get-user-appointments.ts
-- src/pages/api/customer/update.ts
 - src/pages/api/customer/get.ts
 - src/pages/api/vendor/dashboard.ts
 - src/pages/api/vendor/notifications/index.ts

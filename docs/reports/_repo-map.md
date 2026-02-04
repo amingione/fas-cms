@@ -20,7 +20,6 @@
   - `src/pages/api/webhooks.ts` (orders, customers, attribution, emailLog)
   - `src/pages/api/save-order.ts` (order)
   - `src/pages/api/orders/[id].ts` (order + customer + vendor)
-  - `src/pages/api/customer/update.ts` (customer + vendor)
   - `src/pages/api/vendor/messages/*.ts` (vendorMessage)
   - `src/pages/api/vendor/returns/index.ts` (vendorReturn)
   - `src/pages/api/vendor/documents/upload.ts` (vendorDocument)
@@ -107,7 +106,7 @@ Local schema subset in fas-cms-fresh:
 
 - Checkout + Stripe webhook: `src/pages/api/checkout.ts`, `src/pages/api/webhooks.ts`
 - Orders: `src/pages/api/save-order.ts`, `src/pages/api/orders/[id].ts`, `src/pages/api/get-user-order.ts`, `src/pages/api/admin/orders/*`
-- Customers: `src/pages/api/customer/get.ts`, `src/pages/api/customer/update.ts`, `src/pages/api/get-customer-profile.ts`
+- Customers: `src/pages/api/customer/get.ts`, `src/pages/api/get-customer-profile.ts`
 - Vendor portal: `src/pages/api/vendor/*`, `src/server/vendor-portal/*`
 - Promotions & reviews: `src/pages/api/promotions/*`, `src/pages/api/reviews/*`
 - Quotes: `src/pages/api/save-quote.ts`, `src/pages/api/build-quote.ts`, `src/pages/api/wheel-quote-*.ts`
