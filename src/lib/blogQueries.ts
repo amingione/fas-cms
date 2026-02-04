@@ -33,7 +33,7 @@ export const postBySlugQuery = /* groq */ `
   "categories": categories[]->{ _id, title, slug, color },
   tags,
   seo,
-  "relatedProducts": relatedProducts[]->{ _id, title, slug, price },
+  "relatedProducts": relatedProducts[]->{ _id, title, slug },
   "relatedPosts": *[
     _type == "post" &&
     slug.current != $slug &&

@@ -6,6 +6,13 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import StoreHero from '@/components/storefront/StoreHero.astro';
 import { fetchFeaturedProducts } from '@/lib/sanity-utils';
 import { centsToDollars } from '@/lib/pricing';
+import {
+  attachMedusaPricingBySanityIdentity,
+  listStoreProductsForPricing,
+  resolveProductCalculatedPriceAmount
+} from '@/lib/medusa-storefront-pricing';
+
+export const prerender = false;
 
 // Choose which categories (by slug) to show on this page.
 // Fill this list with the exact slugs you want featured. Leave empty to show all.
@@ -78,7 +85,8 @@ type ProductListItem = {
 // Fetch all categories for the grid
 const categoriesAll: Category[] = await client.fetch(categoriesQueryAll);
 // Optional: use chosenSlugs to build a curated subset elsewhere if needed
-const featuredRaw = await fetchFeaturedProducts({ limit: 12, ttlSeconds: 300 });
+Astro.response.headers.set('Cache-Control', 'no-store');
+const featuredRaw = await fetchFeaturedProducts({ limit: 12, ttlSeconds: 0 });
 
 // Normalize to the shape expected by ProductCardLiteReact (images[0].asset.url)
 const computeAnchorText = (product: any): string | undefined =>
@@ -95,13 +103,12 @@ const computeAnchorText = (product: any): string | undefined =>
     product?.displayTitle ?? product?.title ?? product?.name
   );
 
-const featuredProducts = (Array.isArray(featuredRaw) ? featuredRaw : []).map((p: any) => {
+let featuredProducts = (Array.isArray(featuredRaw) ? featuredRaw : []).map((p: any) => {
   const anchorText = computeAnchorText(p);
   return {
     _id: p?._id,
     title: collapseLabelSpaces(p?.displayTitle || p?.title || p?.name || 'Product'),
     slug: p?.slug,
-    price: p?.price,
     images: Array.isArray(p?.images) && p.images.length
       ? p.images
       : (p?.imageUrl ? [{ asset: { url: p.imageUrl } }] : []),
@@ -109,6 +116,14 @@ const featuredProducts = (Array.isArray(featuredRaw) ? featuredRaw : []).map((p:
     seoAnchorText: anchorText
   };
 });
+
+// ✅ PRICING AUTHORITY: attach Medusa pricing to products rendered on this page (no fallbacks).
+try {
+  const medusaProducts = await listStoreProductsForPricing();
+  featuredProducts = attachMedusaPricingBySanityIdentity(featuredProducts as any, medusaProducts) as any;
+} catch (error) {
+  console.error('[shop/categories] Failed to attach Medusa pricing', error);
+}
 
 
 const requestUrl = new URL(Astro.request.url);
@@ -201,8 +216,8 @@ const featuredItemListElements: ProductListItem[] = Array.isArray(featuredProduc
               .map((image: any) => ensureAbsoluteUrl(image?.asset?.url || image?.url))
               .filter((value): value is string => Boolean(value))
           : [];
-        const priceNumber = Number(product.price);
-        const priceDollars = centsToDollars(priceNumber);
+        const amount = resolveProductCalculatedPriceAmount(product);
+        const priceDollars = centsToDollars(amount);
         const offers: ProductOffer | undefined = typeof priceDollars === 'number' && priceDollars > 0
           ? {
               '@type': 'Offer',

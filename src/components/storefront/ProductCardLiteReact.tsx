@@ -3,13 +3,11 @@ import ProductQuickViewButton from '@/components/storefront/ProductQuickViewButt
 import { portableTextToPlainText } from '@/lib/portableText';
 import { normalizeSlugValue, resolveSanityImageUrl, type Product } from '@/lib/sanity-utils';
 import { getQuickViewOptionGroups } from '@/lib/quick-view-options';
+import Price from '@/components/storefront/Price';
 import {
-  formatPrice,
-  getActivePrice,
-  getCompareAtPrice,
-  getSaleBadgeText,
-  isOnSale
-} from '@/lib/saleHelpers';
+  resolveProductCalculatedPriceAmount,
+  resolveProductMedusaVariant
+} from '@/lib/medusa-storefront-pricing';
 
 type ImgAsset = { url?: string };
 type Img = { asset?: ImgAsset; alt?: string };
@@ -40,11 +38,8 @@ export default function ProductCardLiteReact({
     '';
   const shortText = typeof short === 'string' ? short : '';
   const quickViewOptions = getQuickViewOptionGroups(product);
-  const activePrice = getActivePrice(product);
-  const comparePrice = getCompareAtPrice(product);
-  const onSale = isOnSale(product);
-  const saleBadge = getSaleBadgeText(product);
-  const price = typeof activePrice === 'number' ? activePrice : undefined;
+  const price = resolveProductCalculatedPriceAmount(product) ?? undefined;
+  const medusaVariant = resolveProductMedusaVariant(product);
   const analyticsParams = JSON.stringify(
     Object.fromEntries(
       Object.entries({
@@ -57,6 +52,12 @@ export default function ProductCardLiteReact({
     )
   );
 
+  if (import.meta.env.DEV) {
+    // Temporary sanity-check: confirms whether the card is wired to Medusa calculated pricing.
+    // eslint-disable-next-line no-console
+    console.log('price source', (medusaVariant as any)?.calculated_price);
+  }
+
   return layout === 'list' ? (
     <article className="group relative">
       <a
@@ -67,11 +68,6 @@ export default function ProductCardLiteReact({
         data-analytics-label={anchorText}
         data-analytics-params={analyticsParams}
       >
-        {saleBadge && (
-          <span className="absolute left-3 top-3 z-10 rounded-full border border-red-500/60 bg-red-500/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-red-200">
-            {saleBadge}
-          </span>
-        )}
         <div className="relative flex aspect-square items-center justify-center bg-dark/30 backdrop-blur-sm md:aspect-auto md:w-56 md:min-w-56 md:max-w-56">
           <img
             src={img}
@@ -89,21 +85,12 @@ export default function ProductCardLiteReact({
             </div>
           ) : null}
           <div className="mt-3 text-[1.15rem] font-mono text-accent">
-            {price !== undefined ? (
-              onSale ? (
-                <>
-                  <span className="text-red-400">{formatPrice(price)}</span>
-                  {comparePrice && (
-                    <span className="ml-2 text-white/60 line-through">
-                      {formatPrice(comparePrice)}
-                    </span>
-                  )}
-                </>
-              ) : (
-                <span>{formatPrice(price)}</span>
-              )
+            {typeof price === 'number' ? (
+              <Price amount={price} />
             ) : (
-              '—'
+              <span className="text-white/70 uppercase tracking-wide text-xs font-semibold">
+                Unavailable
+              </span>
             )}
           </div>
         </div>
@@ -117,7 +104,9 @@ export default function ProductCardLiteReact({
             href,
             price,
             stripePriceId: (product as any)?.stripePriceId,
-            medusaVariantId: (product as any)?.medusaVariantId,
+            medusaVariantId:
+              (product as any)?.medusaVariantId ||
+              (typeof (medusaVariant as any)?.id === 'string' ? (medusaVariant as any).id : undefined),
             imageSrc: img,
             imageAlt: anchorText,
             description: shortText,
@@ -140,11 +129,6 @@ export default function ProductCardLiteReact({
         data-analytics-label={anchorText}
         data-analytics-params={analyticsParams}
       >
-        {saleBadge && (
-          <span className="absolute left-3 top-3 z-10 rounded-full border border-red-500/60 bg-red-500/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-red-200">
-            {saleBadge}
-          </span>
-        )}
         <div className="contain relative flex aspect-square justify-center pb-10 object-contain bg-dark/30 backdrop-blur-sm">
           <img
             src={img}
@@ -155,9 +139,7 @@ export default function ProductCardLiteReact({
         <div className="absolute bottom-4 flex w-full items-center gap-1">
           <Label
             title={anchorText}
-            amount={price ?? 0}
-            originalAmount={comparePrice ?? undefined}
-            onSale={onSale}
+            amount={price ?? null}
             position="bottom"
           />
         </div>
@@ -171,7 +153,9 @@ export default function ProductCardLiteReact({
             href,
             price,
             stripePriceId: (product as any)?.stripePriceId,
-            medusaVariantId: (product as any)?.medusaVariantId,
+            medusaVariantId:
+              (product as any)?.medusaVariantId ||
+              (typeof (medusaVariant as any)?.id === 'string' ? (medusaVariant as any).id : undefined),
             imageSrc: img,
             imageAlt: anchorText,
             description: shortText,

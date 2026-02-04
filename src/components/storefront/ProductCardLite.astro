@@ -3,18 +3,16 @@
  * ProductCardLite.astro — demo-store tile (badge chips, centered product)
  */
 
-import Label from '@/components/storefront/label.tsx';
-import ProductQuickViewButton from '@/components/storefront/ProductQuickViewButton.tsx';
-import { portableTextToPlainText } from '@/lib/portableText.ts';
-import { normalizeSlugValue, resolveSanityImageUrl } from '@/lib/sanity-utils.ts';
-import { getQuickViewOptionGroups } from '@/lib/quick-view-options.ts';
-import {
-  formatPrice,
-  getActivePrice,
-  getCompareAtPrice,
-  getSaleBadgeText,
-  isOnSale
-} from '@/lib/saleHelpers';
+	import Label from '@/components/storefront/label.tsx';
+	import ProductQuickViewButton from '@/components/storefront/ProductQuickViewButton.tsx';
+	import { portableTextToPlainText } from '@/lib/portableText.ts';
+	import { normalizeSlugValue, resolveSanityImageUrl } from '@/lib/sanity-utils.ts';
+	import { getQuickViewOptionGroups } from '@/lib/quick-view-options.ts';
+	import Price from '@/components/storefront/Price.tsx';
+	import {
+	  resolveProductCalculatedPriceAmount,
+	  resolveProductMedusaVariant
+	} from '@/lib/medusa-storefront-pricing';
 
 interface ImgAsset {
   url?: string;
@@ -62,24 +60,21 @@ const short =
   portableTextToPlainText((product as any)?.description) ||
   (product as any)?.excerpt ||
   '';
-const shortText = typeof short === 'string' ? short : '';
-const quickViewOptions = getQuickViewOptionGroups(product);
-const activePrice = getActivePrice(product);
-const comparePrice = getCompareAtPrice(product);
-const onSale = isOnSale(product);
-const saleBadge = getSaleBadgeText(product);
-const price = typeof activePrice === 'number' ? activePrice : undefined;
-const analyticsParams = JSON.stringify(
-  Object.fromEntries(
-    Object.entries({
-      product_id: typeof product?._id === 'string' ? product._id : undefined,
-      product_name: baseTitle,
-      product_slug: slug || undefined,
-      price,
-      tile_layout: layout
-    }).filter(([, value]) => value !== undefined && value !== null && value !== '')
-  )
-);
+	const shortText = typeof short === 'string' ? short : '';
+	const quickViewOptions = getQuickViewOptionGroups(product);
+	const price = resolveProductCalculatedPriceAmount(product) ?? undefined;
+	const medusaVariant = resolveProductMedusaVariant(product);
+	const analyticsParams = JSON.stringify(
+	  Object.fromEntries(
+	    Object.entries({
+	      product_id: typeof product?._id === 'string' ? product._id : undefined,
+	      product_name: baseTitle,
+	      product_slug: slug || undefined,
+	      price,
+	      tile_layout: layout
+	    }).filter(([, value]) => value !== undefined && value !== null && value !== '')
+	  )
+	);
 ---
 
 {
@@ -87,119 +82,104 @@ const analyticsParams = JSON.stringify(
     <article class="group relative">
       <a
         href={href}
-        class="group block rounded-sm border border-[121212/40] bg-dark transition-shadow duration-300 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary md:flex md:items-stretch"
+	        class="group block rounded-sm border border-[121212/40] bg-dark transition-shadow duration-300 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary md:flex md:items-stretch"
         data-analytics-event="product_tile_click"
         data-analytics-category="ecommerce"
         data-analytics-label={anchorText}
         data-analytics-params={analyticsParams}
       >
-        {saleBadge && (
-          <span class="absolute left-3 top-3 z-10 rounded-full border border-red-500/60 bg-red-500/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-red-200">
-            {saleBadge}
-          </span>
-        )}
-        <div class="relative bg-dark/30 backdrop-blur-sm md:w-56 md:min-w-56 md:max-w-56 aspect-square md:aspect-auto flex items-center justify-center">
-          <img
+	        <div class="relative bg-dark/30 backdrop-blur-sm md:w-56 md:min-w-56 md:max-w-56 aspect-square md:aspect-auto flex items-center justify-center">
+	          <img
             src={img}
             alt={anchorText}
             class="max-h-[80%] max-w-[88%] object-contain transition-transform duration-300 ease-out group-hover:scale-[1.03]"
           />
         </div>
-        <div class="flex-1 px-4 py-4 text-left">
+	        <div class="flex-1 px-4 py-4 text-left">
           <div class="text-white font-ethno text-[1rem] leading-snug line-clamp-2">
             {anchorText}
           </div>
           {shortText && (
             <div class="mt-2 text-white/70 text-sm leading-relaxed line-clamp-2">{shortText}</div>
           )}
-          <div class="mt-3 text-accent font-mono text-[1.15rem]">
-            {price !== undefined ? (
-              onSale ? (
-                <>
-                  <span class="text-red-400">{formatPrice(price)}</span>
-                  {comparePrice && (
-                    <span class="ml-2 text-white/60 line-through">{formatPrice(comparePrice)}</span>
-                  )}
-                </>
-              ) : (
-                <span>{formatPrice(price)}</span>
-              )
-            ) : (
-              '—'
-            )}
-          </div>
-        </div>
+	          <div class="mt-3 text-accent font-mono text-[1.15rem]">
+	            {typeof price === 'number' ? (
+	              <Price amount={price} />
+	            ) : (
+	              <span class="text-white/70 uppercase tracking-wide text-xs font-semibold">
+	                Unavailable
+	              </span>
+	            )}
+	          </div>
+	        </div>
       </a>
       {showQuickView && (
         <div class="pointer-events-none absolute right-4 top-4 z-10 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">
-          <ProductQuickViewButton
+	          <ProductQuickViewButton
             client:idle
             className="pointer-events-auto"
-            product={{
-              id: typeof product?._id === 'string' ? product._id : undefined,
-              title: baseTitle,
-              href,
-              price,
-              stripePriceId: (product as any)?.stripePriceId,
-              medusaVariantId: (product as any)?.medusaVariantId,
-              imageSrc: img,
-              imageAlt: anchorText,
-              description: shortText,
-              shortDescriptionPortable: (product as any)?.shortDescription,
+	            product={{
+	              id: typeof product?._id === 'string' ? product._id : undefined,
+	              title: baseTitle,
+	              href,
+	              price,
+	              stripePriceId: (product as any)?.stripePriceId,
+	              medusaVariantId:
+	                (product as any)?.medusaVariantId ||
+	                (typeof (medusaVariant as any)?.id === 'string' ? (medusaVariant as any).id : undefined),
+	              imageSrc: img,
+	              imageAlt: anchorText,
+	              description: shortText,
+	              shortDescriptionPortable: (product as any)?.shortDescription,
               optionGroups: quickViewOptions
             }}
           />
         </div>
       )}
     </article>
-  ) : (
-    <article class="group relative">
+	  ) : (
+	    <article class="group relative">
       <a
         href={href}
-        class="block relative overflow-hidden rounded-md border border-white/5 shadow-inner shadow-white/20 bg-dark transition-shadow duration-300 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primaryB"
+	        class="block relative overflow-hidden rounded-md border border-white/5 shadow-inner shadow-white/20 bg-dark transition-shadow duration-300 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primaryB"
         data-analytics-event="product_tile_click"
         data-analytics-category="ecommerce"
         data-analytics-label={anchorText}
         data-analytics-params={analyticsParams}
       >
-        {saleBadge && (
-          <span class="absolute left-3 top-3 z-10 rounded-full border border-red-500/60 bg-red-500/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-red-200">
-            {saleBadge}
-          </span>
-        )}
-        <div class="relative aspect-square object-contain contain flex pb-10 justify-center bg-dark/30 backdrop-blur-sm">
+	        <div class="relative aspect-square object-contain contain flex pb-10 justify-center bg-dark/30 backdrop-blur-sm">
           <img
             src={img}
             alt={anchorText}
             class="max-h-[78%] max-w-[88%] object-contain transition-transform duration-300 ease-out group-hover:scale-[1.03]"
           />
         </div>
-        <div class="absolute bottom-4 flex w-full items-center gap-1">
-          <Label
-            title={anchorText}
-            amount={price ?? 0}
-            originalAmount={comparePrice ?? undefined}
-            onSale={onSale}
-            position="bottom"
-          />
-        </div>
-      </a>
+	        <div class="absolute bottom-4 flex w-full items-center gap-1">
+	          <Label
+	            title={anchorText}
+	            amount={price ?? null}
+	            position="bottom"
+	          />
+	        </div>
+	      </a>
       {showQuickView && (
         <div class="pointer-events-none absolute right-3 top-3 z-10 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">
-          <ProductQuickViewButton
+	          <ProductQuickViewButton
             client:idle
             className="pointer-events-auto"
-            product={{
-              id: typeof product?._id === 'string' ? product._id : undefined,
-              title: baseTitle,
-              href,
-              price,
-              stripePriceId: (product as any)?.stripePriceId,
-              medusaVariantId: (product as any)?.medusaVariantId,
-              imageSrc: img,
-              imageAlt: anchorText,
-              description: shortText,
-              shortDescriptionPortable: (product as any)?.shortDescription,
+	            product={{
+	              id: typeof product?._id === 'string' ? product._id : undefined,
+	              title: baseTitle,
+	              href,
+	              price,
+	              stripePriceId: (product as any)?.stripePriceId,
+	              medusaVariantId:
+	                (product as any)?.medusaVariantId ||
+	                (typeof (medusaVariant as any)?.id === 'string' ? (medusaVariant as any).id : undefined),
+	              imageSrc: img,
+	              imageAlt: anchorText,
+	              description: shortText,
+	              shortDescriptionPortable: (product as any)?.shortDescription,
               optionGroups: quickViewOptions
             }}
           />

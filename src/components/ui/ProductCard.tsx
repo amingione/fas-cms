@@ -4,13 +4,8 @@ import { ShoppingCart } from 'lucide-react';
 import { getCart, saveCart } from '@lib/cart';
 import { normalizeSlugValue, resolveSanityImageUrl } from '@/lib/sanity-utils';
 import { resolveProductCartMeta } from '@/lib/product-flags';
-import {
-  formatPrice,
-  getActivePrice,
-  getCompareAtPrice,
-  getSaleBadgeText,
-  isOnSale
-} from '@/lib/saleHelpers';
+import Price from '@/components/storefront/Price';
+import { resolveProductCalculatedPriceAmount } from '@/lib/medusa-storefront-pricing';
 
 interface Product {
   _id: string;
@@ -37,11 +32,7 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const [isAdding, setIsAdding] = useState(false);
 
-  const activePrice = getActivePrice(product);
-  const comparePrice = getCompareAtPrice(product);
-  const onSale = isOnSale(product);
-  const saleBadge = getSaleBadgeText(product);
-  const productPrice = formatPrice(activePrice);
+  const price = resolveProductCalculatedPriceAmount(product);
   const displayTitle = (product as any)?.displayTitle || product.title || 'Product';
 
   const imageUrl =
@@ -65,30 +56,18 @@ export function ProductCard({ product }: ProductCardProps) {
         setIsAdding(false);
         return;
       }
-      const saleLabel: string | undefined = saleBadge || product?.saleLabel || undefined;
-      const priceValue =
-        typeof activePrice === 'number'
-          ? activePrice
-          : typeof product.price === 'number'
-            ? product.price
-            : 0;
-      const originalPriceValue =
-        typeof comparePrice === 'number' &&
-        (typeof activePrice !== 'number' || comparePrice > activePrice)
-          ? comparePrice
-          : typeof product.price === 'number'
-            ? product.price
-            : undefined;
+      if (typeof price !== 'number') {
+        showToast('Pricing is unavailable for this product.', false);
+        setIsAdding(false);
+        return;
+      }
 
       // Check if item already exists
       const existingIndex = cart.findIndex((item: any) => item.id === product._id);
 
       if (existingIndex >= 0) {
         cart[existingIndex].quantity += 1;
-        cart[existingIndex].price = priceValue;
-        cart[existingIndex].originalPrice = originalPriceValue ?? cart[existingIndex].originalPrice;
-        cart[existingIndex].isOnSale = onSale;
-        cart[existingIndex].saleLabel = saleLabel;
+        cart[existingIndex].price = price;
         cart[existingIndex].medusaVariantId = medusaVariantId;
         if (shippingClass) {
           cart[existingIndex].shippingClass = shippingClass;
@@ -100,10 +79,7 @@ export function ProductCard({ product }: ProductCardProps) {
         cart.push({
           id: product._id,
           name: product.title,
-          price: priceValue,
-          originalPrice: originalPriceValue,
-          isOnSale: onSale,
-          saleLabel: saleLabel ?? undefined,
+          price,
           medusaVariantId,
           quantity: 1,
           image: imageUrl,
@@ -157,11 +133,6 @@ export function ProductCard({ product }: ProductCardProps) {
         onClick={(e) => e.preventDefault()} // Prevent navigation for demo
       >
         <div className="p-4 h-52 sm:h-64 flex justify-center items-center overflow-hidden">
-          {saleBadge && (
-            <span className="absolute left-4 top-4 rounded-full border border-red-500/60 bg-red-500/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-red-200">
-              {saleBadge}
-            </span>
-          )}
           <motion.img
             src={imageUrl}
             alt={displayTitle}
@@ -182,13 +153,12 @@ export function ProductCard({ product }: ProductCardProps) {
       <div className="px-4 pb-4 text-left">
         <div className="flex justify-between items-center mt-2">
           <p className="text-xl font-mono text-primary engine-pulse">
-            {onSale && comparePrice ? (
-              <>
-                <span className="text-red-400">{formatPrice(activePrice)}</span>
-                <span className="ml-2 text-white/60 line-through">{formatPrice(comparePrice)}</span>
-              </>
+            {typeof price === 'number' ? (
+              <Price amount={price} />
             ) : (
-              productPrice
+              <span className="text-white/70 uppercase tracking-wide text-xs font-semibold">
+                Unavailable
+              </span>
             )}
           </p>
 

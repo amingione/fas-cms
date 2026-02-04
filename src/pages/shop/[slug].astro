@@ -16,17 +16,17 @@ import ServiceDisclaimerNotice from '@/components/storefront/ServiceDisclaimerNo
 import InfoTabs from '@/components/shop/InfoTabs';
 import ProductCardLite from '@/components/storefront/ProductCardLite.astro';
 import productPageScriptUrl from '../../scripts/product-page.js?url';
-import {
-  formatPrice,
-  getActivePrice,
-  getCompareAtPrice,
-  getSaleBadgeText,
-  getSaleTimeRemaining,
-  getSavingsAmount,
-  isOnSale
-} from '@/lib/saleHelpers';
-import { centsToDollars, formatCentsWithSign } from '@/lib/pricing';
+import { centsToDollars, formatCents, formatCentsWithSign } from '@/lib/pricing';
 import { getCallForShippingQuote, getMetadataTags, getRequiresShipping } from '@/lib/medusa-metadata';
+import {
+  attachMedusaPricingBySanityIdentity,
+  listStoreProductsForPricing,
+  resolveProductCalculatedPriceAmount,
+  resolveProductMedusaVariant
+} from '@/lib/medusa-storefront-pricing';
+
+export const prerender = false;
+Astro.response.headers.set('Cache-Control', 'no-store');
 
 export type KitItem = { item: string; quantity?: number };
 export type VehicleCompat = { make?: string; model?: string; trim?: string };
@@ -601,21 +601,20 @@ const buildProductListStructuredData = (items: Product[], listName: string): Rec
             .map((image: any) => ensureAbsoluteUrl(image?.asset?.url || image?.url))
             .filter((value: string | undefined): value is string => Boolean(value))
         : [];
-      const activePrice = getActivePrice(item as any);
-      const priceNumber = coercePriceToNumber(activePrice);
-      const priceDollars = centsToDollars(priceNumber);
-      const saleEnd = (item as any)?.saleEndDate ?? (item as any)?.pricing?.saleEndDate;
-      const offers = typeof priceDollars === 'number'
-        ? {
-            '@type': 'Offer',
-            priceCurrency: 'USD',
-            price: priceDollars.toFixed(2),
-            availability: 'https://schema.org/InStock',
-            url: productUrl,
-            itemCondition: 'https://schema.org/NewCondition',
-            ...(isOnSale(item as any) && saleEnd ? { priceValidUntil: saleEnd } : {})
-          }
-        : undefined;
+      // ✅ PRICING AUTHORITY: structured data prices must come from Medusa-calculated amounts.
+      const amount = resolveProductCalculatedPriceAmount(item as any);
+      const priceDollars = centsToDollars(amount);
+      const offers =
+        typeof priceDollars === 'number' && priceDollars > 0
+          ? {
+              '@type': 'Offer',
+              priceCurrency: 'USD',
+              price: priceDollars.toFixed(2),
+              availability: 'https://schema.org/InStock',
+              url: productUrl,
+              itemCondition: 'https://schema.org/NewCondition'
+            }
+          : undefined;
       return {
         '@type': 'ListItem',
         position: index + 1,
@@ -701,16 +700,41 @@ try {
   baseProductTitle = String((product as any)?.title || 'Product');
   displayTitle = String((product as any)?.displayTitle || (product as any)?.title || 'Product');
 
-  const activePriceValue = getActivePrice(product as any);
-  const comparePriceValue = getCompareAtPrice(product as any);
-  productPriceNumber = typeof activePriceValue === 'number' ? activePriceValue : undefined;
-  compareAtValue = typeof comparePriceValue === 'number' ? comparePriceValue : undefined;
-  onSaleFlag = isOnSale(product as any);
-  saleBadgeText = getSaleBadgeText(product as any);
-  saleCountdown = getSaleTimeRemaining(product as any);
-  savingsAmount = getSavingsAmount(product as any);
-  const rawSaleEnd = (product as any)?.saleEndDate ?? (product as any)?.pricing?.saleEndDate;
-  saleEndDate = typeof rawSaleEnd === 'string' ? rawSaleEnd : null;
+  // ✅ PRICING AUTHORITY: Medusa is the only valid pricing source.
+  // Attach live Medusa pricing to this Sanity product and compute display values from the Medusa variant payload.
+  let medusaProducts: any[] = [];
+  try {
+    medusaProducts = await listStoreProductsForPricing();
+    const attached = attachMedusaPricingBySanityIdentity([product as any], medusaProducts);
+    product = (attached[0] as any) ?? product;
+  } catch (error) {
+    console.error('[shop/pdp] Failed to attach Medusa pricing to product', error);
+  }
+
+  const medusaVariant = resolveProductMedusaVariant(product as any);
+  const calculated = (medusaVariant as any)?.calculated_price;
+  const calculatedAmount = resolveProductCalculatedPriceAmount(product as any);
+  const originalAmount =
+    typeof calculated === 'object' && calculated ? (calculated as any).original_amount : undefined;
+
+  productPriceNumber = typeof calculatedAmount === 'number' ? calculatedAmount : undefined;
+  priceValue = productPriceNumber;
+  compareAtValue =
+    typeof originalAmount === 'number' &&
+    typeof priceValue === 'number' &&
+    Number.isFinite(originalAmount) &&
+    Number.isFinite(priceValue) &&
+    originalAmount > priceValue
+      ? originalAmount
+      : undefined;
+  onSaleFlag = typeof compareAtValue === 'number' && typeof priceValue === 'number';
+  saleBadgeText = onSaleFlag ? 'Sale' : null;
+  saleCountdown = null;
+  savingsAmount =
+    onSaleFlag && typeof compareAtValue === 'number' && typeof priceValue === 'number'
+      ? Math.max(0, compareAtValue - priceValue)
+      : 0;
+  saleEndDate = null;
 
   // Build inputs for auto-related / upsell
   const catIds = ((product as any).category || (product as any).categories || [])
@@ -730,6 +754,16 @@ try {
   // Auto-related and upsell
   relatedProducts = await getRelatedProducts(slugValue, catIds, tagFilters, 6);
   upsellProducts = await getUpsellProducts(slugValue, catIds, basePrice, 6);
+
+  // Attach Medusa pricing to related/upsell lists for authoritative rendering.
+  try {
+    if (medusaProducts.length) {
+      relatedProducts = attachMedusaPricingBySanityIdentity(relatedProducts as any, medusaProducts) as any;
+      upsellProducts = attachMedusaPricingBySanityIdentity(upsellProducts as any, medusaProducts) as any;
+    }
+  } catch (error) {
+    console.error('[shop/pdp] Failed to attach Medusa pricing to related products', error);
+  }
 
   // ---- Options/Upgrades normalization (support multiple schema shapes) ----
   variationOptions = Array.isArray((product as any).variationOptions) ? (product as any).variationOptions : [];
@@ -1396,19 +1430,19 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
           {typeof priceValue === 'number' ? (
             onSaleFlag && compareAtValue ? (
               <div class="flex items-baseline gap-3">
-                <span class="text-4xl font-mono text-red-400">{formatPrice(priceValue)}</span>
-                <span class="text-2xl text-white/60 line-through">{formatPrice(compareAtValue)}</span>
+                <span class="text-4xl font-mono text-red-400">{formatCents(priceValue)}</span>
+                <span class="text-2xl text-white/60 line-through">{formatCents(compareAtValue)}</span>
               </div>
             ) : (
-              <h2 class="text-4xl font-mono text-accent">{formatPrice(priceValue)}</h2>
+              <h2 class="text-4xl font-mono text-accent">{formatCents(priceValue)}</h2>
             )
           ) : (
-            <h2 class="text-4xl font-mono text-accent">Price not available</h2>
+            <h2 class="text-4xl font-mono text-accent">Unavailable</h2>
           )}
         </div>
         {onSaleFlag && savingsAmount > 0 && (
           <div class="mb-2 text-sm text-red-200">
-            Save {formatPrice(savingsAmount)}
+            Save {formatCents(savingsAmount)}
           </div>
         )}
         {saleCountdown && <div class="mb-4 text-xs text-white/70">{saleCountdown}</div>}
@@ -1661,16 +1695,16 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                   {typeof priceValue === 'number' ? (
                     onSaleFlag && compareAtValue ? (
                       <>
-                        {formatPrice(priceValue)}
+                        {formatCents(priceValue)}
                         <span class="ml-2 text-sm text-white/60 line-through">
-                          {formatPrice(compareAtValue)}
+                          {formatCents(compareAtValue)}
                         </span>
                       </>
                     ) : (
-                      formatPrice(priceValue)
+                      formatCents(priceValue)
                     )
                   ) : (
-                    '$ 0.00'
+                    'Unavailable'
                   )}
                 </span>
               </div>
@@ -1931,16 +1965,16 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
       {typeof priceValue === 'number' ? (
         onSaleFlag && compareAtValue ? (
           <>
-            {formatPrice(priceValue)}
+            {formatCents(priceValue)}
             <span class="ml-2 text-xs text-white/60 line-through">
-              {formatPrice(compareAtValue)}
+              {formatCents(compareAtValue)}
             </span>
           </>
         ) : (
-          formatPrice(priceValue)
+          formatCents(priceValue)
         )
       ) : (
-        '$ 0.00'
+        'Unavailable'
       )}
     </span>
   </div>

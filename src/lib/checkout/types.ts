@@ -81,7 +81,7 @@ export interface Address {
 export interface ShippingOption {
   id: string;
   name: string;
-  amount: number;
+  amount?: number;
   provider_id?: string;
   price_type?: string; // 'flat' | 'calculated' | etc.
   calculated_price?: number | null;

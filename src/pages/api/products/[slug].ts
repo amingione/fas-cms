@@ -1,44 +1,10 @@
-// /pages/api/products/[slug].ts
+// Deprecated: pricing authority moved fully to Medusa Store API.
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { sanityClient as client } from '../../../lib/sanityClient';
-import { normalizeSlugValue } from '@/lib/sanity-utils';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { id } = req.query;
-
-  if (!id || typeof id !== 'string') {
-    return res.status(400).json({ error: 'Invalid product ID' });
-  }
-
-  const slug = normalizeSlugValue(id);
-  if (!slug) {
-    return res.status(400).json({ error: 'Invalid product ID' });
-  }
-
-  const query = `*[_type == "product" && !(_id in path('drafts.**')) && status == "active" && (productType == "service" || productType == "bundle" || productType == "physical" || featured == true) && slug.current == $id][0] {
-    _id,
-    title,
-    displayTitle,
-    slug,
-    price,
-    onSale,
-    salePrice,
-    compareAtPrice,
-    discountPercent,
-    discountPercentage,
-    saleStartDate,
-    saleEndDate,
-    saleActive,
-    saleLabel,
-    description,
-    images[]{ asset->{ url } }
-  }`;
-
-  try {
-    const product = await client.fetch(query, { id: slug });
-    if (!product) return res.status(404).json({ error: 'Not found' });
-    return res.status(200).json(product);
-  } catch {
-    return res.status(500).json({ error: 'Failed to fetch product' });
-  }
+export default async function handler(_req: NextApiRequest, res: NextApiResponse) {
+  res.setHeader('Cache-Control', 'no-store, max-age=0, must-revalidate');
+  return res.status(410).json({
+    error: 'Deprecated: pricing data must be fetched from Medusa /store/products.',
+    status: 410
+  });
 }

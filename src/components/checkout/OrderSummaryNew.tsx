@@ -22,13 +22,13 @@ interface OrderSummaryProps {
 }
 
 export default function OrderSummaryNew({ cart, isLocked = false }: OrderSummaryProps) {
-  const hasShipping = cart.shipping_methods && cart.shipping_methods.length > 0;
-  const hasTax = typeof cart.tax_total === 'number' && cart.tax_total > 0;
+  const shippingTotal = typeof cart.shipping_total === 'number' ? cart.shipping_total : null;
+  const taxTotal = typeof cart.tax_total === 'number' ? cart.tax_total : null;
 
   console.log('[OrderSummary] Debug:', {
     tax_total: cart.tax_total,
-    hasTax,
-    hasShipping
+    hasTaxTotal: taxTotal !== null,
+    hasShippingTotal: shippingTotal !== null
   });
 
   return (
@@ -109,32 +109,22 @@ export default function OrderSummaryNew({ cart, isLocked = false }: OrderSummary
           )}
 
           {/* Shipping */}
-          {hasShipping ? (
+          {shippingTotal !== null && (
             <div className="flex items-center justify-between">
               <dt className="text-white/70">Shipping</dt>
               <dd className="font-medium text-white">
-                {formatCurrency(cart.shipping_total || 0, cart.currency_code)}
+                {formatCurrency(shippingTotal, cart.currency_code)}
               </dd>
-            </div>
-          ) : (
-            <div className="flex items-center justify-between text-white/50">
-              <dt>Shipping</dt>
-              <dd className="text-sm">Calculated at checkout</dd>
             </div>
           )}
 
           {/* Tax */}
-          {typeof cart.tax_total === 'number' && cart.tax_total > 0 ? (
+          {taxTotal !== null && (
             <div className="flex items-center justify-between">
               <dt className="text-white/70">Taxes</dt>
               <dd className="font-medium text-white">
-                {formatCurrency(cart.tax_total, cart.currency_code)}
+                {formatCurrency(taxTotal, cart.currency_code)}
               </dd>
-            </div>
-          ) : (
-            <div className="flex items-center justify-between text-white/50">
-              <dt>Taxes</dt>
-              <dd className="text-sm">Calculated at checkout</dd>
             </div>
           )}
         </div>

@@ -2,6 +2,8 @@
 
 import { Fragment, useMemo, useState } from 'react';
 import type { Product } from '@/lib/sanity-utils';
+import { formatCents } from '@/lib/pricing';
+import { resolveProductCalculatedPriceAmount } from '@/lib/medusa-storefront-pricing';
 import {
   Dialog,
   DialogBackdrop,
@@ -236,12 +238,12 @@ export default function CategoryPage({
     }
 
     return products.slice(0, 3).map((product) => {
-      // ✅ MEDUSA-FIRST: Only display products with valid Medusa pricing
-      // If price is missing, show "Unavailable" instead of guessing
-      const hasValidPrice = typeof product.price === 'number' && Number.isFinite(product.price);
-      const price = hasValidPrice
-        ? product.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
-        : 'Unavailable';
+      // ✅ PRICING AUTHORITY: render only Medusa calculated_price.
+      const priceCents = resolveProductCalculatedPriceAmount(product);
+      const price =
+        typeof priceCents === 'number' && Number.isFinite(priceCents)
+          ? formatCents(priceCents, { currency: 'USD' })
+          : 'Unavailable';
 
       return {
         id: product._id ?? `product-${Math.random()}`,

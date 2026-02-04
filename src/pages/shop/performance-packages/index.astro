@@ -13,14 +13,20 @@ import type { Product, Category, Vehicle } from '@lib/sanity-utils.ts';
 import ProductGrid from '@/components/storefront/ProductGrid.astro';
 import FilterPanelMobile from '@/components/storefront/FilterPanelMobile.tsx';
 import Pagination from '@/components/storefront/Pagination.astro';
-import { isOnSale } from '@/lib/saleHelpers';
 import { centsToDollars } from '@/lib/pricing';
+import {
+  attachMedusaPricingBySanityIdentity,
+  listStoreProductsForPricing,
+  resolveProductCalculatedPriceAmount,
+  resolveProductMedusaVariant
+} from '@/lib/medusa-storefront-pricing';
 
 export const prerender = false;
 
 const PAGE_SIZE = 12;
 const url = new URL(Astro.request.url);
 const basePath = '/shop/performance-packages';
+Astro.response.headers.set('Cache-Control', 'no-store');
 
 const ensureAbsoluteUrl = (value?: string | null) => {
   if (!value) return undefined;
@@ -85,10 +91,10 @@ const normalizeSortParam = (
   switch (sort) {
     case 'price-low':
     case 'price-asc':
-      return 'price-asc';
+      return 'featured';
     case 'price-high':
     case 'price-desc':
-      return 'price-desc';
+      return 'featured';
     case 'newest':
       return 'newest';
     case 'name':
@@ -206,13 +212,15 @@ try {
     categorySlug: currentCategory || undefined,
     filterSlugs: filterSlugsForQuery.length ? filterSlugsForQuery : undefined,
     vehicleSlugs: vehicleFilterSlugs.length ? vehicleFilterSlugs : undefined,
-    minPrice: minPrice ?? undefined,
-    maxPrice: maxPrice ?? undefined,
+    // ✅ PRICING AUTHORITY: do not filter storefront lists by Sanity price snapshots.
+    minPrice: undefined,
+    maxPrice: undefined,
     searchTerm: searchTerm ?? undefined,
     sortBy,
     page: currentPage,
     pageSize: PAGE_SIZE,
-    saleOnly: hasSaleFilter
+    // Sale filtering must not rely on Sanity pricing flags.
+    saleOnly: false
   };
 
   const [productsResult, totalResult, categoriesResult, vehiclesResult, facetResult] =
@@ -230,6 +238,15 @@ try {
   filterFacetProducts = Array.isArray(facetResult) ? facetResult : [];
 } catch (err) {
   console.error('🔥 Sanity Fetch Failed:', err);
+}
+
+// ✅ PRICING AUTHORITY: attach Medusa pricing to Sanity products (no fallbacks).
+try {
+  const medusaProducts = await listStoreProductsForPricing();
+  products = attachMedusaPricingBySanityIdentity(products, medusaProducts);
+  filterFacetProducts = attachMedusaPricingBySanityIdentity(filterFacetProducts, medusaProducts);
+} catch (error) {
+  console.error('[shop/performance-packages] Failed to attach Medusa pricing', error);
 }
 
 const availableVehicleSlugs: string[] = Array.from(
@@ -279,7 +296,20 @@ const currentCategoryTitle =
     categoriesForUi.find((c: any) => c?.slug?.current === currentCategory)?.title) ||
   'All';
 const hasSaleProducts = Array.isArray(filterSource)
-  ? filterSource.some((product) => isOnSale(product as any))
+  ? filterSource.some((product) => {
+      const variant = resolveProductMedusaVariant(product);
+      const calculated = (variant as any)?.calculated_price;
+      const amount = resolveProductCalculatedPriceAmount(product);
+      const original =
+        typeof calculated === 'object' && calculated ? (calculated as any).original_amount : undefined;
+      return (
+        typeof amount === 'number' &&
+        typeof original === 'number' &&
+        Number.isFinite(amount) &&
+        Number.isFinite(original) &&
+        original > amount
+      );
+    })
   : false;
 
 const canonical = (() => {
@@ -383,8 +413,8 @@ const productListElements: StructuredProductListItem[] = Array.isArray(products)
         if (!slugValue) return null;
         const productUrl = `${url.origin}/shop/${slugValue}`;
         const images = resolveProductImages(product);
-        const priceNumber = Number((product as any)?.price);
-        const priceDollars = centsToDollars(priceNumber);
+        const amount = resolveProductCalculatedPriceAmount(product);
+        const priceDollars = centsToDollars(amount ?? null);
         const offers: StructuredProductOffer | undefined =
           typeof priceDollars === 'number' && priceDollars > 0
             ? {

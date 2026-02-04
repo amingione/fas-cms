@@ -1,14 +1,21 @@
 ---
-import ProductCard from '@/components/storefront/ProductCardLite.astro';
-import { buildPrimaryKeywordAnchor, collapseLabelSpaces } from '@/lib/seoAnchors';
-import { sanityClient as client } from '@/lib/sanityClient.ts';
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import { centsToDollars } from '@/lib/pricing';
+	import ProductCard from '@/components/storefront/ProductCardLite.astro';
+	import { buildPrimaryKeywordAnchor, collapseLabelSpaces } from '@/lib/seoAnchors';
+	import { sanityClient as client } from '@/lib/sanityClient.ts';
+	import BaseLayout from '@/layouts/BaseLayout.astro';
+	import { centsToDollars } from '@/lib/pricing';
+	import {
+	  attachMedusaPricingBySanityIdentity,
+	  listStoreProductsForPricing,
+	  resolveProductCalculatedPriceAmount
+	} from '@/lib/medusa-storefront-pricing';
 
-interface Props {
-  params: { category: string };
-}
-const { params } = Astro as unknown as Props;
+	interface Props {
+	  params: { category: string };
+	}
+	const { params } = Astro as unknown as Props;
+	export const prerender = false;
+	Astro.response.headers.set('Cache-Control', 'no-store');
 
 // Get the category document by slug
 const categoryQuery = /* groq */ `
@@ -19,52 +26,34 @@ const categoryQuery = /* groq */ `
 const category = await client.fetch(categoryQuery, { slug: params.category });
 
 // Fetch published products that reference this category
-const productsQuery = /* groq */ `
-*[_type == "product" && !(_id in path('drafts.**')) && status == "active" && (productType == "service" || productType == "bundle" || productType == "physical" || featured == true) && defined(slug.current) && references($catId)] | order(_createdAt desc){
-  _id,
-  title,
-  displayTitle,
-  "slug": slug.current,
-  "image": coalesce(images[0].asset->url, mainImage.asset->url),
-  price,
-  onSale,
-  salePrice,
-  compareAtPrice,
-  discountPercent,
-  discountPercentage,
-  saleStartDate,
-  saleEndDate,
-  saleLabel,
-  saleActive,
-  excerpt,
-  primaryKeyword,
-  fitmentYears,
-  fitment,
-  "seoPrimaryKeyword": coalesce(seo.primaryKeyword, seo.keyphrase, seo.keyword, seo.targetKeyword),
+	const productsQuery = /* groq */ `
+	*[_type == "product" && !(_id in path('drafts.**')) && status == "active" && (productType == "service" || productType == "bundle" || productType == "physical" || featured == true) && defined(slug.current) && references($catId)] | order(_createdAt desc){
+	  _id,
+	  title,
+	  displayTitle,
+	  "slug": slug.current,
+	  "image": coalesce(images[0].asset->url, mainImage.asset->url),
+	  saleLabel,
+	  excerpt,
+	  primaryKeyword,
+	  fitmentYears,
+	  fitment,
+	  "seoPrimaryKeyword": coalesce(seo.primaryKeyword, seo.keyphrase, seo.keyword, seo.targetKeyword),
   "seoFitmentYears": seo.fitmentYears,
   "seoFitment": coalesce(seo.fitmentText, seo.fitment)
 }
 `;
-interface ProductItem {
-  _id: string;
-  title: string;
-  displayTitle?: string;
-  slug: string;
-  image?: string;
-  price?: number;
-  onSale?: boolean;
-  salePrice?: number;
-  compareAtPrice?: number;
-  discountPercent?: number;
-  discountPercentage?: number;
-  saleStartDate?: string;
-  saleEndDate?: string;
-  saleLabel?: string;
-  saleActive?: boolean;
-  excerpt?: string;
-  primaryKeyword?: string;
-  fitmentYears?: unknown;
-  fitment?: string;
+	interface ProductItem {
+	  _id: string;
+	  title: string;
+	  displayTitle?: string;
+	  slug: string;
+	  image?: string;
+	  saleLabel?: string;
+	  excerpt?: string;
+	  primaryKeyword?: string;
+	  fitmentYears?: unknown;
+	  fitment?: string;
   seoPrimaryKeyword?: string;
   seoFitmentYears?: unknown;
   seoFitment?: string;
@@ -78,24 +67,15 @@ const products: ProductItem[] = category
 type LiteAsset = { url: string };
 type LiteImage = { asset: LiteAsset };
 type LiteSlug = { current: string };
-type LiteProduct = {
-  _id: string;
-  title?: string;
-  displayTitle?: string;
-  slug?: LiteSlug | string;
-  price?: number;
-  onSale?: boolean;
-  salePrice?: number;
-  compareAtPrice?: number;
-  discountPercent?: number;
-  discountPercentage?: number;
-  saleStartDate?: string;
-  saleEndDate?: string;
-  saleLabel?: string;
-  saleActive?: boolean;
-  images?: LiteImage[];
-  seoAnchorText?: string;
-};
+	type LiteProduct = {
+	  _id: string;
+	  title?: string;
+	  displayTitle?: string;
+	  slug?: LiteSlug | string;
+	  saleLabel?: string;
+	  images?: LiteImage[];
+	  seoAnchorText?: string;
+	};
 
 const toAnchorText = (product: ProductItem): string | undefined => {
   const fallbackLabel = product.displayTitle ?? product.title;
@@ -113,24 +93,18 @@ const toAnchorText = (product: ProductItem): string | undefined => {
   );
 };
 
-const liteProducts: LiteProduct[] = products.map((p) => ({
-  _id: p._id,
-  title: p.title,
-  displayTitle: p.displayTitle,
-  slug: { current: p.slug } as LiteSlug,
-  price: p.price,
-  onSale: p.onSale,
-  salePrice: p.salePrice,
-  compareAtPrice: p.compareAtPrice,
-  discountPercent: p.discountPercent ?? p.discountPercentage,
-  discountPercentage: p.discountPercentage ?? p.discountPercent,
-  saleStartDate: p.saleStartDate,
-  saleEndDate: p.saleEndDate,
-  saleLabel: p.saleLabel,
-  saleActive: p.saleActive,
-  images: p.image ? [{ asset: { url: p.image } }] : [],
-  seoAnchorText: toAnchorText(p)
-}));
+	const liteProducts: LiteProduct[] = products.map((p) => ({
+	  _id: p._id,
+	  title: p.title,
+	  displayTitle: p.displayTitle,
+	  slug: { current: p.slug } as LiteSlug,
+	  saleLabel: p.saleLabel,
+	  images: p.image ? [{ asset: { url: p.image } }] : [],
+	  seoAnchorText: toAnchorText(p)
+	}));
+
+	const medusaProducts = await listStoreProductsForPricing();
+	const productsWithMedusa = attachMedusaPricingBySanityIdentity(liteProducts, medusaProducts);
 
 const requestUrl = new URL(Astro.request.url);
 requestUrl.search = '';
@@ -194,9 +168,9 @@ const breadcrumbStructuredData = category
     }
   : null;
 
-const productItemListElements = category
-  ? liteProducts
-      .map((product, index) => {
+	const productItemListElements = category
+	  ? productsWithMedusa
+	      .map((product, index) => {
         const slugValue = resolveProductSlug(product);
         if (!slugValue) return null;
         const productUrl = `${requestUrl.origin}/shop/${slugValue}`;
@@ -210,8 +184,8 @@ const productItemListElements = category
           (product as any).seoAnchorText.trim().length > 0
             ? (product as any).seoAnchorText.trim()
             : (product.title ?? resolvedCategoryLabel);
-        const priceNumber = Number(product.price);
-        const priceDollars = centsToDollars(priceNumber);
+	        const priceCents = resolveProductCalculatedPriceAmount(product);
+	        const priceDollars = centsToDollars(priceCents);
         const offers =
           typeof priceDollars === 'number' && priceDollars > 0
             ? {
@@ -290,11 +264,11 @@ const categoryCollectionStructuredData =
             {category.description && <p class="mt-2 text-sm opacity-80">{category.description}</p>}
           </header>
 
-          <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {liteProducts.map((p) => (
-              <ProductCard key={p._id} product={p} productImage={p.images?.[0]} />
-            ))}
-          </section>
+	          <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+	            {productsWithMedusa.map((p) => (
+	              <ProductCard key={p._id} product={p} productImage={p.images?.[0]} />
+	            ))}
+	          </section>
         </>
       )
     }

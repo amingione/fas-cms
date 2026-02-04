@@ -156,6 +156,10 @@ export default function ShippingSelectorNew({
                                    (option.metadata as any)?.estimated_delivery;
           const carrier = (option.data as any)?.carrier ||
                          (option.metadata as any)?.carrier;
+          const displayAmount =
+            typeof option.calculated_price === 'number'
+              ? option.calculated_price
+              : option.amount;
 
           return (
             <label
@@ -202,11 +206,13 @@ export default function ShippingSelectorNew({
 
               {/* Price */}
               <div className="font-medium text-white ml-4">
-                {option.price_type === 'calculated'
-                  ? 'Calculated at checkout'
-                  : option.amount === 0
+                {typeof displayAmount === 'number'
+                  ? displayAmount === 0
                     ? 'FREE'
-                    : formatCurrency(option.amount, 'usd')
+                    : formatCurrency(displayAmount, 'usd')
+                  : option.price_type === 'calculated'
+                    ? 'Calculating...'
+                    : 'Price unavailable'
                 }
               </div>
             </label>

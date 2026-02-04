@@ -54,9 +54,27 @@ export async function updateCartAddress(
 export async function fetchShippingOptions(
   cartId: string
 ): Promise<ShippingOption[]> {
-  const response = await medusaFetch(
-    `/store/shipping-options?cart_id=${cartId}`
-  );
+  if (typeof window !== 'undefined') {
+    const apiResponse = await fetch('/api/medusa/cart/shipping-options', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cartId })
+    });
+
+    const payload = await apiResponse.json().catch(() => ({}));
+
+    if (apiResponse.ok) {
+      return payload?.shippingOptions ?? payload?.shipping_options ?? [];
+    }
+
+    // If the API route is unavailable, fall back to the Medusa store endpoint.
+    if (apiResponse.status !== 404 && apiResponse.status !== 405) {
+      const errorMsg = payload?.error || payload?.message;
+      throw new Error(errorMsg || 'Failed to calculate shipping options.');
+    }
+  }
+
+  const response = await medusaFetch(`/store/shipping-options?cart_id=${cartId}`);
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
@@ -167,9 +185,9 @@ export function filterValidShippingOptions(
     // Accept if:
     // 1. Has amount > 0 (fixed price), OR
     // 2. price_type is "calculated" (dynamic Shippo pricing)
-    const hasValidPrice = 
-      (typeof option.amount === 'number' && option.amount > 0) ||
-      option.price_type === 'calculated';
+    const hasAmount = typeof option.amount === 'number' && Number.isFinite(option.amount);
+    const hasCalculated = typeof option.calculated_price === 'number' && Number.isFinite(option.calculated_price);
+    const hasValidPrice = hasAmount || hasCalculated;
     
     if (!hasValidPrice) {
       console.log(`[ShippingFilter] ❌ Rejected ${option.name}: Invalid price (amount=${option.amount}, type=${option.price_type})`);

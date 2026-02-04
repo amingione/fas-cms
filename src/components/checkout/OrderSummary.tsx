@@ -10,8 +10,8 @@ interface OrderSummaryProps {
 }
 
 export default function OrderSummary({ cart, isLocked = false }: OrderSummaryProps) {
-  const hasShipping = cart.shipping_methods && cart.shipping_methods.length > 0;
-  const hasTax = typeof cart.tax_total === 'number';
+  const shippingTotal = typeof cart.shipping_total === 'number' ? cart.shipping_total : null;
+  const taxTotal = typeof cart.tax_total === 'number' ? cart.tax_total : null;
 
   return (
     <div className="bg-gray-50 rounded-lg p-6 sticky top-4">
@@ -19,9 +19,7 @@ export default function OrderSummary({ cart, isLocked = false }: OrderSummaryPro
 
       {isLocked && (
         <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md">
-          <p className="text-sm text-green-800 font-medium">
-            🔒 Your order is secured for payment
-          </p>
+          <p className="text-sm text-green-800 font-medium">🔒 Your order is secured for payment</p>
         </div>
       )}
 
@@ -39,18 +37,20 @@ export default function OrderSummary({ cart, isLocked = false }: OrderSummaryPro
               )}
               <div className="flex-1">
                 <div className="font-medium text-sm">{item.title}</div>
-                {(item as any).metadata?.selected_options && (item as any).metadata.selected_options.length > 0 && (
-                  <div className="text-xs text-gray-500 mt-1">
-                    {(item as any).metadata.selected_options.join(', ')}
-                  </div>
-                )}
+                {(item as any).metadata?.selected_options &&
+                  (item as any).metadata.selected_options.length > 0 && (
+                    <div className="text-xs text-gray-500 mt-1">
+                      {(item as any).metadata.selected_options.join(', ')}
+                    </div>
+                  )}
                 <div className="text-sm text-gray-600">Qty: {item.quantity}</div>
               </div>
               <div className="font-medium text-sm">
-                {typeof item.total === 'number' && item.total >= 0
-                  ? formatCurrency(item.total, cart.currency_code)
-                  : <span className="text-red-500">Price unavailable</span>
-                }
+                {typeof item.total === 'number' && item.total >= 0 ? (
+                  formatCurrency(item.total, cart.currency_code)
+                ) : (
+                  <span className="text-red-500">Price unavailable</span>
+                )}
               </div>
             </div>
           ))}
@@ -60,9 +60,7 @@ export default function OrderSummary({ cart, isLocked = false }: OrderSummaryPro
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
             <span>Subtotal</span>
-            <span className="font-medium">
-              {formatCurrency(cart.subtotal, cart.currency_code)}
-            </span>
+            <span className="font-medium">{formatCurrency(cart.subtotal, cart.currency_code)}</span>
           </div>
 
           {cart.discount_total && cart.discount_total > 0 && (
@@ -74,31 +72,21 @@ export default function OrderSummary({ cart, isLocked = false }: OrderSummaryPro
             </div>
           )}
 
-          {hasShipping ? (
+          {shippingTotal !== null && (
             <div className="flex justify-between">
               <span>Shipping</span>
               <span className="font-medium">
-                {formatCurrency(cart.shipping_total || 0, cart.currency_code)}
+                {formatCurrency(shippingTotal, cart.currency_code)}
               </span>
-            </div>
-          ) : (
-            <div className="flex justify-between text-gray-500">
-              <span>Shipping</span>
-              <span className="text-sm">Calculated at checkout</span>
             </div>
           )}
 
-          {hasTax ? (
+          {taxTotal !== null && (
             <div className="flex justify-between">
               <span>Tax</span>
               <span className="font-medium">
-                {formatCurrency(cart.tax_total || 0, cart.currency_code)}
+                {formatCurrency(taxTotal, cart.currency_code)}
               </span>
-            </div>
-          ) : (
-            <div className="flex justify-between text-gray-500">
-              <span>Tax</span>
-              <span className="text-sm">Calculated at checkout</span>
             </div>
           )}
         </div>

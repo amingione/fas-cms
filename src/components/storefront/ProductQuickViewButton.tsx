@@ -11,14 +11,7 @@ import { emitAddToCartSuccess } from '@/lib/add-to-cart-toast';
 import type { QuickViewOptionGroup, QuickViewOptionValue } from '@/lib/quick-view-options';
 import { portableTextToPlainText } from '@/lib/portableText';
 import { resolveProductCartMeta } from '@/lib/product-flags';
-import {
-  formatPrice,
-  getActivePrice,
-  getCompareAtPrice,
-  getSaleBadgeText,
-  isOnSale
-} from '@/lib/saleHelpers';
-import { formatCentsWithSign } from '@/lib/pricing';
+import { formatCents, formatCentsWithSign } from '@/lib/pricing';
 
 const sanitizeAnalyticsPayload = (payload: Record<string, unknown>) =>
   Object.fromEntries(
@@ -116,12 +109,10 @@ export default function ProductQuickViewButton({
     };
   }, [open]);
 
-  const activePrice = getActivePrice(product as any);
-  const comparePrice = getCompareAtPrice(product as any);
-  const formattedPrice = typeof activePrice === 'number' ? formatPrice(activePrice) : undefined;
-  const formattedCompare = typeof comparePrice === 'number' ? formatPrice(comparePrice) : undefined;
-  const onSale = isOnSale(product as any);
-  const saleBadge = getSaleBadgeText(product as any);
+  // ✅ PRICING AUTHORITY: Product quick view may only display prices that were sourced from Medusa.
+  // `product.price` is expected to be the Medusa-calculated amount in cents.
+  const formattedPrice =
+    typeof product.price === 'number' && Number.isFinite(product.price) ? formatCents(product.price) : undefined;
 
   const portableDescription = useMemo(() => {
     return normalizePortableBlocks(product.shortDescriptionPortable);
@@ -152,9 +143,9 @@ export default function ProductQuickViewButton({
         product_id: typeof product.id === 'string' ? product.id : undefined,
         product_name: product.title,
         product_href: product.href,
-        price: typeof activePrice === 'number' ? activePrice : undefined
+        price: typeof product.price === 'number' ? product.price : undefined
       }),
-    [activePrice, product.id, product.title, product.href]
+    [product.price, product.id, product.title, product.href]
   );
   const openAnalyticsParams = JSON.stringify({ ...analyticsBase, interaction: 'quick_view_open' });
   const viewAnalyticsParams = JSON.stringify({
@@ -265,23 +256,10 @@ export default function ProductQuickViewButton({
       const result = await addItem(null as any, {
         id: resolvedId || product.id,
         name: product.title,
-        price:
-          typeof activePrice === 'number'
-            ? activePrice
-            : typeof product.price === 'number'
-              ? product.price
-              : undefined,
+        // display-only; must be Medusa-sourced (cart totals remain authoritative from Medusa cart)
+        price: typeof product.price === 'number' ? product.price : undefined,
         stripePriceId: product.stripePriceId ?? undefined,
         medusaVariantId: selectedVariantId ?? undefined,
-        originalPrice:
-          typeof comparePrice === 'number' &&
-          (typeof activePrice !== 'number' || comparePrice > activePrice)
-            ? comparePrice
-            : typeof product.price === 'number'
-              ? product.price
-              : undefined,
-        isOnSale: onSale,
-        saleLabel: saleBadge || (product as any)?.saleLabel,
         image: product.imageSrc,
         quantity: 1,
         productUrl: product.href,
@@ -366,27 +344,9 @@ export default function ProductQuickViewButton({
                   <div className="flex flex-col gap-4 text-left">
                     <div>
                       <h2 className="text-2xl font-bold sm:text-3xl">{product.title}</h2>
-                      {(formattedPrice || saleBadge) && (
+                      {formattedPrice && (
                         <div className="mt-2 flex flex-wrap items-center gap-2">
-                          {formattedPrice && (
-                            <p className="text-xl font-semibold text-white/90">
-                              {onSale && formattedCompare ? (
-                                <>
-                                  <span className="text-red-400">{formattedPrice}</span>
-                                  <span className="ml-2 text-base text-white/60 line-through">
-                                    {formattedCompare}
-                                  </span>
-                                </>
-                              ) : (
-                                formattedPrice
-                              )}
-                            </p>
-                          )}
-                          {saleBadge && (
-                            <span className="rounded-full border border-red-500/60 bg-red-500/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-red-200">
-                              {saleBadge}
-                            </span>
-                          )}
+                          <p className="text-xl font-semibold text-white/90">{formattedPrice}</p>
                         </div>
                       )}
                     </div>

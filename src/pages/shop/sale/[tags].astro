@@ -1,11 +1,18 @@
 ---
-import BaseLayout from '../../../layouts/BaseLayout.astro';
-import ProductGrid from '@/components/storefront/ProductGrid.astro';
-import { sanity, normalizeSlugValue, type Product } from '@/lib/sanity-utils';
+	import BaseLayout from '../../../layouts/BaseLayout.astro';
+	import ProductGrid from '@/components/storefront/ProductGrid.astro';
+	import { sanity, normalizeSlugValue, type Product } from '@/lib/sanity-utils';
+	import {
+	  attachMedusaPricingBySanityIdentity,
+	  listStoreProductsForPricing
+	} from '@/lib/medusa-storefront-pricing';
 
-const tagsParam = Astro.params.tags || '';
-const parsedTags = tagsParam
-  .split(',')
+	export const prerender = false;
+	Astro.response.headers.set('Cache-Control', 'no-store');
+
+	const tagsParam = Astro.params.tags || '';
+	const parsedTags = tagsParam
+	  .split(',')
   .map((tag) => tag.trim().toLowerCase())
   .filter(Boolean);
 
@@ -24,43 +31,25 @@ if (sanity) {
         ? tags.map((t) => `"${t}" in tags`).join(' && ')
         : `count((tags[])[@ in ${JSON.stringify(tags)}]) > 0`;
 
-  const query = `
-    *[_type == "product" && status == "active" && ${filter}]
-      | order(featured desc, title asc) {
-        _id,
-        title,
-        displayTitle,
-        slug,
-        price,
-        onSale,
-        salePrice,
-        compareAtPrice,
-        discountPercent,
-        discountPercentage,
-        saleLabel,
-        pricing{
-          price,
-          salePrice,
-          compareAtPrice,
-          discountPercentage,
-          discountPercent,
-          saleStartDate,
-          saleEndDate,
-          saleLabel,
-          saleActive,
-          onSale
-        },
-        tags,
-        images[]{ asset->{ _id, url }, alt },
-        shortDescription,
-        promotionTagline,
-        featured
-      }
-  `;
+	  const query = `
+	    *[_type == "product" && status == "active" && ${filter}]
+	      | order(featured desc, title asc) {
+	        _id,
+	        title,
+	        displayTitle,
+	        slug,
+	        saleLabel,
+	        tags,
+	        images[]{ asset->{ _id, url }, alt },
+	        shortDescription,
+	        promotionTagline,
+	        featured
+	      }
+	  `;
 
-  const rawProducts = await sanity.fetch<Product[]>(query);
-  products = Array.isArray(rawProducts)
-    ? rawProducts.map((product) => {
+	  const rawProducts = await sanity.fetch<Product[]>(query);
+	  products = Array.isArray(rawProducts)
+	    ? rawProducts.map((product) => {
         const slugValue = normalizeSlugValue((product as any)?.slug);
         const normalizedSlug =
           product?.slug && typeof product.slug === 'object'
@@ -68,8 +57,16 @@ if (sanity) {
             : { current: slugValue };
         return { ...product, slug: normalizedSlug };
       })
-    : [];
-}
+	    : [];
+	}
+
+	// ✅ PRICING AUTHORITY: attach Medusa pricing to sale pages.
+	try {
+	  const medusaProducts = await listStoreProductsForPricing();
+	  products = attachMedusaPricingBySanityIdentity(products as any, medusaProducts) as any;
+	} catch (error) {
+	  console.error('[sale] Failed to attach Medusa pricing', error);
+	}
 
 const titleTags = includeAll ? 'All Sale Tags' : tags.join(', ') || 'Sale';
 const pageTitle = `Sale: ${titleTags}`;

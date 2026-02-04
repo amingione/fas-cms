@@ -4,6 +4,11 @@ import PortableTextRenderer from '@/components/PortableTextRenderer.jsx';
 import { postBySlugQuery } from '@/lib/blogQueries';
 import { sanityClient, urlFor } from '@/lib/sanity';
 import { formatCents } from '@/lib/pricing';
+import {
+  attachMedusaPricingBySanityIdentity,
+  listStoreProductsForPricing,
+  resolveProductCalculatedPriceAmount
+} from '@/lib/medusa-storefront-pricing';
 
 export const prerender = false;
 
@@ -24,6 +29,7 @@ const formatDate = (value?: string) => {
 };
 
 const { slug } = Astro.params;
+Astro.response.headers.set('Cache-Control', 'no-store');
 
 let post: any = null;
 
@@ -35,6 +41,16 @@ try {
 
 if (!post) {
   return new Response(null, { status: 404 });
+}
+
+// ✅ PRICING AUTHORITY: any product prices displayed inside blog content must come from live Medusa data.
+try {
+  if (Array.isArray(post?.relatedProducts) && post.relatedProducts.length) {
+    const medusaProducts = await listStoreProductsForPricing();
+    post.relatedProducts = attachMedusaPricingBySanityIdentity(post.relatedProducts, medusaProducts);
+  }
+} catch (error) {
+  console.error('[blog] Failed to attach Medusa pricing to related products', error);
 }
 
 const coverImage = post?.featuredImage
@@ -114,9 +130,16 @@ const publishedLabel = formatDate(post?.publishedAt);
               class="flex flex-col gap-2 rounded-xl border border-white/10 bg-white/5 p-4 transition hover:border-primary hover:bg-white/10"
             >
               <h3 class="text-lg font-semibold text-white">{product?.title ?? 'Product'}</h3>
-              {typeof product?.price === 'number' && (
-                <p class="text-sm font-semibold text-primary">{formatCents(product.price)}</p>
-              )}
+              {(() => {
+                const amount = resolveProductCalculatedPriceAmount(product);
+                return typeof amount === 'number' ? (
+                  <p class="text-sm font-semibold text-primary">{formatCents(amount)}</p>
+                ) : (
+                  <p class="text-xs font-semibold uppercase tracking-wide text-white/70">
+                    Unavailable
+                  </p>
+                );
+              })()}
             </a>
           ))}
         </div>

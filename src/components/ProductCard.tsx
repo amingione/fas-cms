@@ -8,13 +8,8 @@ import { addItem } from '@lib/cart';
 import { prefersDesktopCart } from '@/lib/device';
 import { emitAddToCartSuccess } from '@/lib/add-to-cart-toast';
 import { resolveProductCartMeta } from '@/lib/product-flags';
-import {
-  formatPrice,
-  getActivePrice,
-  getCompareAtPrice,
-  getSaleBadgeText,
-  isOnSale
-} from '@/lib/saleHelpers';
+import Price from '@/components/storefront/Price';
+import { resolveProductCalculatedPriceAmount } from '@/lib/medusa-storefront-pricing';
 import '../styles/global.css';
 
 export interface ProductCardProps {
@@ -49,18 +44,15 @@ function addToCart(product: SanityProduct) {
       }
       return;
     }
-    const activePrice = getActivePrice(product);
-    const price = Number(activePrice ?? 0) || 0;
-    const comparePrice = getCompareAtPrice(product);
-    const originalPrice =
-      typeof comparePrice === 'number' &&
-      (typeof activePrice !== 'number' || comparePrice > activePrice)
-        ? comparePrice
-        : typeof (product as any)?.price === 'number'
-          ? (product as any).price
-          : undefined;
-    const onSale = isOnSale(product);
-    const saleLabel = getSaleBadgeText(product) || (product as any)?.saleLabel;
+
+    const price = resolveProductCalculatedPriceAmount(product);
+    if (typeof price !== 'number') {
+      if (typeof window !== 'undefined') {
+        window.alert('Pricing is unavailable for this product. Please try again later.');
+      }
+      return;
+    }
+
     const categories = Array.isArray(product.categories)
       ? product.categories.map((c: any) => c?._ref || c?._id || '').filter(Boolean)
       : [];
@@ -74,9 +66,6 @@ function addToCart(product: SanityProduct) {
       price,
       stripePriceId: (product as any)?.stripePriceId,
       medusaVariantId,
-      originalPrice,
-      isOnSale: onSale,
-      saleLabel: typeof saleLabel === 'string' ? saleLabel : undefined,
       quantity: 1,
       categories,
       image,
@@ -113,11 +102,7 @@ function addToCart(product: SanityProduct) {
 
 export function ProductCard({ product, productImage, className }: ProductCardProps) {
   const imageUrl = getImageUrl(product, productImage ?? null);
-  const activePrice = getActivePrice(product);
-  const comparePrice = getCompareAtPrice(product);
-  const onSale = isOnSale(product);
-  const saleBadge = getSaleBadgeText(product);
-  const priceLabel = formatPrice(activePrice);
+  const price = resolveProductCalculatedPriceAmount(product);
   const displayTitle = (product as any)?.displayTitle || product.title || 'Product';
   const subtitle = 'F.a.S.';
   const slug = getSlug(product);
@@ -137,11 +122,6 @@ export function ProductCard({ product, productImage, className }: ProductCardPro
       <div className="px-3 package-card md:px-4 lg:px-5 pt-12 md:pt-8">
         <div className="relative mx-auto w-full aspect-square">
           <a href={productUrl} className="inline-flex items-center justify-between gap-1">
-            {saleBadge && (
-              <span className="absolute left-0 top-0 rounded-full border border-red-500/60 bg-red-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-red-200">
-                {saleBadge}
-              </span>
-            )}
             <img
               src={imageUrl}
               alt={displayTitle}
@@ -181,13 +161,12 @@ export function ProductCard({ product, productImage, className }: ProductCardPro
         {/* Price and Add to Cart */}
         <div className="mt-2 inline-flex items-center justify-between gap-1">
           <span className="text-accent flex items-center font-ethno text-[12px] md:text-[13px] lg:text-[13px] font-bold whitespace-nowrap">
-            {onSale && comparePrice ? (
-              <>
-                <span className="text-red-400">{formatPrice(activePrice)}</span>
-                <span className="ml-2 text-white/60 line-through">{formatPrice(comparePrice)}</span>
-              </>
+            {typeof price === 'number' ? (
+              <Price amount={price} />
             ) : (
-              priceLabel
+              <span className="text-white/70 uppercase tracking-wide text-xs font-semibold">
+                Unavailable
+              </span>
             )}
           </span>
           {product._id && (

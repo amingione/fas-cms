@@ -78,44 +78,56 @@ export default function ShippingSelector({
       </div>
 
       <div className="space-y-3">
-        {options.map((option) => (
-          <label
-            key={option.id}
-            className={`flex items-center justify-between p-4 border rounded-md cursor-pointer transition ${
-              selectedOptionId === option.id
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-300 hover:border-gray-400'
-            } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            <div className="flex items-center space-x-3">
-              <input
-                type="radio"
-                name="shipping_option"
-                value={option.id}
-                checked={selectedOptionId === option.id}
-                onChange={() => !disabled && onSelect(option.id)}
-                disabled={disabled}
-                className="w-4 h-4 text-blue-600"
-              />
-              <div>
-                <div className="font-medium">{option.name}</div>
-                {option.data?.carrier && (
-                  <div className="text-sm text-gray-600">
-                    {option.data.carrier}
-                  </div>
-                )}
-                {option.data?.estimated_delivery && (
-                  <div className="text-sm text-gray-500">
-                    Est. delivery: {option.data.estimated_delivery}
-                  </div>
-                )}
+        {options.map((option) => {
+          const displayAmount =
+            typeof option.calculated_price === 'number'
+              ? option.calculated_price
+              : option.amount;
+
+          return (
+            <label
+              key={option.id}
+              className={`flex items-center justify-between p-4 border rounded-md cursor-pointer transition ${
+                selectedOptionId === option.id
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-300 hover:border-gray-400'
+              } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <div className="flex items-center space-x-3">
+                <input
+                  type="radio"
+                  name="shipping_option"
+                  value={option.id}
+                  checked={selectedOptionId === option.id}
+                  onChange={() => !disabled && onSelect(option.id)}
+                  disabled={disabled}
+                  className="w-4 h-4 text-blue-600"
+                />
+                <div>
+                  <div className="font-medium">{option.name}</div>
+                  {option.data?.carrier && (
+                    <div className="text-sm text-gray-600">
+                      {option.data.carrier}
+                    </div>
+                  )}
+                  {option.data?.estimated_delivery && (
+                    <div className="text-sm text-gray-500">
+                      Est. delivery: {option.data.estimated_delivery}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-            <div className="font-medium">
-              {formatCurrency(option.amount, currencyCode)}
-            </div>
-          </label>
-        ))}
+              <div className="font-medium">
+                {typeof displayAmount === 'number'
+                  ? formatCurrency(displayAmount, currencyCode)
+                  : option.price_type === 'calculated'
+                    ? 'Calculating...'
+                    : 'Price unavailable'
+                }
+              </div>
+            </label>
+          );
+        })}
       </div>
 
       <button
