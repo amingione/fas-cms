@@ -19,7 +19,9 @@
     "merchant:upload": "tsx scripts/merchant/upload-google-merchant-feed.ts",
     "stripe:sync": "tsx scripts/stripe/sync-products.ts",
     "resend-flow-check": "tsx scripts/resend-flow-check.ts",
-    "astro:check": "cross-env BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA=1 BROWSERSLIST_IGNORE_OLD_DATA=1 astro check --minimumSeverity warning"
+    "astro:check": "cross-env BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA=1 BROWSERSLIST_IGNORE_OLD_DATA=1 astro check --minimumSeverity warning",
+    "audit:sanity-addons": "dotenv -e .env -- tsx src/scripts/audit-sanity-addons.ts",
+    "audit:create-priority-list": "dotenv -e .env -- tsx src/scripts/create-migration-priority-list.ts"
   },
   "depcheck": {
     "ignorePatterns": [
