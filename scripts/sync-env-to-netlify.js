@@ -17,9 +17,14 @@
  *   - NETLIFY_SITE_ID and NETLIFY_AUTH_TOKEN in .env
  */
 
-const fs = require('fs');
-const { execSync } = require('child_process');
-const path = require('path');
+import fs from 'fs';
+import { execSync } from 'child_process';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Get __dirname equivalent in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Parse CLI arguments
 const args = process.argv.slice(2);
