@@ -1,0 +1,352 @@
+---
+/**
+ * Order Confirmation Page
+ * Displayed after successful payment
+ */
+import Stripe from 'stripe';
+
+const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2026-01-28.clover'
+});
+
+// Get payment_intent from query params
+const url = new URL(Astro.request.url);
+const paymentIntentId = url.searchParams.get('payment_intent');
+
+if (!paymentIntentId) {
+  return Astro.redirect('/checkout');
+}
+
+// Fetch Payment Intent to get order details
+let paymentIntent;
+let orderDetails;
+try {
+  paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+
+  if (paymentIntent.status !== 'succeeded') {
+    return Astro.redirect('/checkout');
+  }
+
+  // Extract order details from metadata and shipping
+  const shipping = paymentIntent.shipping || {};
+  const metadata = paymentIntent.metadata || {};
+
+  orderDetails = {
+    amount: paymentIntent.amount,
+    shippingAmount: parseInt(metadata.shipping_amount_cents || '0'),
+    subtotal: paymentIntent.amount - parseInt(metadata.shipping_amount_cents || '0'),
+    customerEmail: paymentIntent.receipt_email || 'your email',
+    shippingAddress: {
+      name: shipping.name || 'Customer',
+      line1: shipping.address?.line1,
+      line2: shipping.address?.line2,
+      city: shipping.address?.city,
+      state: shipping.address?.state,
+      postal_code: shipping.address?.postal_code,
+      country: shipping.address?.country
+    },
+    shippingMethod: {
+      carrier: metadata.carrier || 'UPS',
+      serviceName: metadata.service_name || 'Ground',
+      deliveryDays: metadata.delivery_days || '3-5'
+    }
+  };
+} catch (error) {
+  console.error('Failed to fetch payment intent:', error);
+  return Astro.redirect('/checkout');
+}
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Order Confirmed - FAS Motorsports</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background: #000;
+        color: #fff;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+      }
+
+      .confirmation-container {
+        max-width: 600px;
+        width: 100%;
+      }
+
+      .success-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 2rem;
+        background: rgba(34, 197, 94, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .success-icon svg {
+        width: 48px;
+        height: 48px;
+        color: #22c55e;
+      }
+
+      h1 {
+        text-align: center;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .subtitle {
+        text-align: center;
+        color: #999;
+        margin-bottom: 3rem;
+      }
+
+      .info-box {
+        background: #0a0a0a;
+        border: 1px solid #1a1a1a;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .info-box h2 {
+        font-size: 1.125rem;
+        margin-bottom: 1rem;
+        color: #fff;
+      }
+
+      .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        color: #999;
+        border-bottom: 1px solid #1a1a1a;
+      }
+
+      .info-row:last-child {
+        border-bottom: none;
+      }
+
+      .info-row strong {
+        color: #fff;
+      }
+
+      .total-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem 0;
+        border-top: 1px solid #333;
+        margin-top: 1rem;
+        font-size: 1.25rem;
+        font-weight: 600;
+      }
+
+      .total-amount {
+        color: #dc2626;
+      }
+
+      .address-block {
+        line-height: 1.6;
+        color: #999;
+      }
+
+      .next-steps {
+        background: rgba(220, 38, 38, 0.1);
+        border: 1px solid #dc2626;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .next-steps h2 {
+        font-size: 1.125rem;
+        margin-bottom: 1rem;
+        color: #fff;
+      }
+
+      .next-steps ul {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .next-steps li {
+        display: flex;
+        align-items: start;
+        gap: 0.75rem;
+        color: #ccc;
+      }
+
+      .next-steps li svg {
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+      }
+
+      .button {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s;
+      }
+
+      .button-primary {
+        background: #dc2626;
+        color: #fff;
+      }
+
+      .button-primary:hover {
+        background: #b91c1c;
+      }
+
+      .button-secondary {
+        background: #1a1a1a;
+        color: #fff;
+        border: 1px solid #333;
+      }
+
+      .button-secondary:hover {
+        background: #222;
+      }
+
+      @media (max-width: 640px) {
+        h1 {
+          font-size: 1.5rem;
+        }
+
+        .button-group {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="confirmation-container">
+      <!-- Success Icon -->
+      <div class="success-icon">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"
+          ></path>
+        </svg>
+      </div>
+
+      <!-- Title -->
+      <h1>Order Confirmed!</h1>
+      <p class="subtitle">
+        A confirmation email has been sent to {orderDetails.customerEmail}
+      </p>
+
+      <!-- Order Summary -->
+      <div class="info-box">
+        <h2>Order Summary</h2>
+        <div class="info-row">
+          <span>Subtotal</span>
+          <strong>${(orderDetails.subtotal / 100).toFixed(2)}</strong>
+        </div>
+        <div class="info-row">
+          <span
+            >Shipping ({orderDetails.shippingMethod.carrier}
+            {orderDetails.shippingMethod.serviceName})</span
+          >
+          <strong>${(orderDetails.shippingAmount / 100).toFixed(2)}</strong>
+        </div>
+        <div class="total-row">
+          <span>Total</span>
+          <span class="total-amount">${(orderDetails.amount / 100).toFixed(2)}</span>
+        </div>
+      </div>
+
+      <!-- Shipping Info -->
+      <div class="info-box">
+        <h2>Shipping Address</h2>
+        <div class="address-block">
+          {orderDetails.shippingAddress.name}<br />
+          {orderDetails.shippingAddress.line1}<br />
+          {
+            orderDetails.shippingAddress.line2 && (
+              <>
+                {orderDetails.shippingAddress.line2}
+                <br />
+              </>
+            )
+          }
+          {orderDetails.shippingAddress.city}, {orderDetails.shippingAddress.state}
+          {orderDetails.shippingAddress.postal_code}<br />
+          {orderDetails.shippingAddress.country}
+        </div>
+        <div class="info-row" style="margin-top: 1rem;">
+          <span>Estimated Delivery</span>
+          <strong>{orderDetails.shippingMethod.deliveryDays} business days</strong>
+        </div>
+      </div>
+
+      <!-- Next Steps -->
+      <div class="next-steps">
+        <h2>What's Next?</h2>
+        <ul>
+          <li>
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span>Your order is being prepared for shipment</span>
+          </li>
+          <li>
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span>You'll receive a tracking number via email once shipped</span>
+          </li>
+          <li>
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span>Questions? Contact us at support@fasmotorsports.com</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="button-group">
+        <a href="/" class="button button-primary">Continue Shopping</a>
+        <a href="/account/orders" class="button button-secondary">View Orders</a>
+      </div>
+    </div>
+  </body>
+</html>

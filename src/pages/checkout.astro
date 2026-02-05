@@ -1,0 +1,88 @@
+---
+/**
+ * Unified Checkout Page
+ * Features: Stripe Elements + Real-time Shippo Rates
+ * User stays on this page throughout entire checkout process
+ */
+import CheckoutForm from '../components/checkout/CheckoutForm'
+import Layout from '../layouts/Layout.astro'
+
+const pageTitle = 'Checkout - FAS Motorsports'
+const pageDescription = 'Complete your order'
+---
+
+<Layout title={pageTitle} description={pageDescription}>
+  <main class="checkout-page">
+    <div class="checkout-container">
+      <div class="checkout-header">
+        <a href="/" class="back-link">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Back to Store
+        </a>
+        <h1>Checkout</h1>
+      </div>
+
+      {/* React Island - handles all interactivity */}
+      <CheckoutForm client:only="react" />
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .checkout-page {
+    min-height: 100vh;
+    background: #000;
+    color: #fff;
+    padding: 2rem 1rem;
+  }
+
+  .checkout-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .checkout-header {
+    margin-bottom: 2rem;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #999;
+    text-decoration: none;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+    transition: color 0.2s;
+  }
+
+  .back-link:hover {
+    color: #fff;
+  }
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    .checkout-page {
+      padding: 1rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+    }
+  }
+</style>
+
+<script>
+  // Load Stripe.js
+  const script = document.createElement('script')
+  script.src = 'https://js.stripe.com/v3/'
+  script.async = true
+  document.head.appendChild(script)
+</script>
