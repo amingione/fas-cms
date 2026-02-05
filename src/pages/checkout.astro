@@ -4,11 +4,11 @@
  * Features: Stripe Elements + Real-time Shippo Rates
  * User stays on this page throughout entire checkout process
  */
-import CheckoutForm from '../components/checkout/CheckoutForm'
-import Layout from '../layouts/Layout.astro'
+import CheckoutForm from '../components/checkout/CheckoutForm';
+import Layout from '../layouts/BaseLayout.astro';
 
-const pageTitle = 'Checkout - FAS Motorsports'
-const pageDescription = 'Complete your order'
+const pageTitle = 'Checkout - FAS Motorsports';
+const pageDescription = 'Complete your order';
 ---
 
 <Layout title={pageTitle} description={pageDescription}>
@@ -17,7 +17,12 @@ const pageDescription = 'Complete your order'
       <div class="checkout-header">
         <a href="/" class="back-link">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path
+              d="M12.5 15L7.5 10L12.5 5"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
           </svg>
           Back to Store
         </a>
@@ -81,8 +86,8 @@ const pageDescription = 'Complete your order'
 
 <script>
   // Load Stripe.js
-  const script = document.createElement('script')
-  script.src = 'https://js.stripe.com/v3/'
-  script.async = true
-  document.head.appendChild(script)
+  const script = document.createElement('script');
+  script.src = 'https://js.stripe.com/v3/';
+  script.async = true;
+  document.head.appendChild(script);
 </script>

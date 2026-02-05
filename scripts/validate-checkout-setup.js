@@ -70,6 +70,30 @@ function check(name, status, message = '') {
   }
 }
 
+function findPackageVersion(depName) {
+  try {
+    const pkg = require(`${depName}/package.json`);
+    return pkg.version;
+  } catch {}
+
+  try {
+    const resolved = require.resolve(depName);
+    let dir = dirname(resolved);
+    while (dir && dir !== dirname(dir)) {
+      const pkgPath = join(dir, 'package.json');
+      if (existsSync(pkgPath)) {
+        const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
+        if (pkg?.name === depName) {
+          return pkg.version;
+        }
+      }
+      dir = dirname(dir);
+    }
+  } catch {}
+
+  return null;
+}
+
 // ============================================
 // 1. Check Node.js Version
 // ============================================
@@ -96,10 +120,10 @@ const requiredDeps = [
 ];
 
 for (const dep of requiredDeps) {
-  try {
-    const pkg = require(`${dep.name}/package.json`);
-    check(`${dep.name}@${pkg.version}`, 'pass');
-  } catch (error) {
+  const version = findPackageVersion(dep.name);
+  if (version) {
+    check(`${dep.name}@${version}`, 'pass');
+  } else {
     check(dep.name, 'fail', 'Not installed - Run: npm install ' + dep.name);
   }
 }
