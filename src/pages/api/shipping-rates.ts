@@ -3,7 +3,7 @@
  * Called when address is complete to show UPS options
  */
 import type { APIRoute } from 'astro'
-import Shippo from 'shippo'
+import { Shippo, type Rate } from 'shippo'
 
 const shippo = new Shippo({
   apiKeyHeader: import.meta.env.SHIPPO_API_KEY!
@@ -59,8 +59,8 @@ export const POST: APIRoute = async ({ request }) => {
 
     // Create Shippo shipment to get rates
     const shipment = await shippo.shipments.create({
-      address_from: FROM_ADDRESS,
-      address_to: {
+      addressFrom: FROM_ADDRESS,
+      addressTo: {
         name: address.name || 'Customer',
         street1: address.street1,
         street2: address.street2 || '',
@@ -73,14 +73,16 @@ export const POST: APIRoute = async ({ request }) => {
         length: packageDetails.length.toString(),
         width: packageDetails.width.toString(),
         height: packageDetails.height.toString(),
-        distance_unit: 'in',
+        distanceUnit: 'in',
         weight: packageDetails.weight.toString(),
-        mass_unit: 'lb'
+        massUnit: 'lb'
       }],
       async: false // Wait for rates synchronously
     })
 
-    if (!shipment.rates || shipment.rates.length === 0) {
+    const rates = shipment.rates as Rate[] | undefined
+
+    if (!rates || rates.length === 0) {
       return new Response(
         JSON.stringify({
           rates: [],
@@ -91,19 +93,19 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // Filter for UPS rates only and map to our format
-    const upsRates = shipment.rates
-      .filter(rate => rate.provider === 'UPS')
-      .filter(rate => UPS_SERVICES.some(s => s.code === rate.servicelevel.token))
-      .map((rate, index) => {
+    const upsRates = rates
+      .filter((rate: Rate) => rate.provider === 'UPS')
+      .filter((rate: Rate) => UPS_SERVICES.some(s => s.code === rate.servicelevel.token))
+      .map((rate: Rate, index: number) => {
         const service = UPS_SERVICES.find(s => s.code === rate.servicelevel.token)
         return {
           id: `rate_${index + 1}`,
-          name: service?.name || rate.servicelevel.name,
+          name: service?.name || rate.servicelevel.name || 'UPS Service',
           carrier: 'UPS',
           service_code: rate.servicelevel.token,
           amount_cents: Math.round(parseFloat(rate.amount) * 100),
-          delivery_days: rate.estimated_days?.toString() || rate.duration_terms || 'N/A',
-          shippo_rate_id: rate.object_id
+          delivery_days: rate.estimatedDays?.toString() || rate.durationTerms || 'N/A',
+          shippo_rate_id: rate.objectId
         }
       })
       // Sort by price (cheapest first)

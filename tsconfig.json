@@ -39,6 +39,7 @@
   "exclude": [
     "node_modules",
     "dist",
+    ".cleanup-backup",
     "src/dev/LegacySanityQuery.js",
     "public/_redirects",
     ".astro/content.d.ts",

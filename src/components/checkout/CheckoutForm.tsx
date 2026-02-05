@@ -458,9 +458,9 @@ function CheckoutFormInner({
           {error && (
             <div className="error-message">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18Z" stroke="currentColor" stroke-width="2"/>
-                <path d="M10 6V10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                <path d="M10 14H10.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18Z" stroke="currentColor" strokeWidth="2" />
+                <path d="M10 6V10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <path d="M10 14H10.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
               {error}
             </div>
@@ -484,7 +484,7 @@ function CheckoutFormInner({
 
           <p className="secure-notice">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M8 1L3 3V7C3 10.5 5.5 13.5 8 14C10.5 13.5 13 10.5 13 7V3L8 1Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              <path d="M8 1L3 3V7C3 10.5 5.5 13.5 8 14C10.5 13.5 13 10.5 13 7V3L8 1Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
             </svg>
             Secure checkout powered by Stripe
           </p>
@@ -539,9 +539,9 @@ function CheckoutFormInner({
 }
 
 // Utility functions
-function debounce(fn: Function, delay: number) {
-  let timeoutId: NodeJS.Timeout
-  return (...args: any[]) => {
+function debounce<T extends (...args: any[]) => void>(fn: T, delay: number) {
+  let timeoutId: ReturnType<typeof setTimeout>
+  return (...args: Parameters<T>) => {
     clearTimeout(timeoutId)
     timeoutId = setTimeout(() => fn(...args), delay)
   }

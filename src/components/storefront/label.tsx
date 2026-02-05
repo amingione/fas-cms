@@ -42,7 +42,7 @@ const Label = ({
               pill
             />
           ) : (
-            <span className="flex-none rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-white/70">
+            <span className="flex-none min-w-0 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-white/70">
               Unavailable
             </span>
           ))}

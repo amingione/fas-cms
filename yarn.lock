@@ -16314,6 +16314,7 @@ __metadata:
     rimraf: "npm:^6.1.2"
     sanity: "npm:^3.99.0"
     sharp: "npm:^0.34.5"
+    shippo: "npm:^2.18.0"
     solid-js: "npm:^1.9.10"
     sonner: "npm:2.0.7"
     ssh2: "npm:^1.17.0"
@@ -28748,6 +28749,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"shippo@npm:^2.18.0":
+  version: 2.18.0
+  resolution: "shippo@npm:2.18.0"
+  dependencies:
+    zod: "npm:^3.25.65 || ^4.0.0"
+  checksum: 10c0/7b536918fcb0aa31e1c776ec9bcb608ec1d40fb4d035d2ac7f0b789a46790f689f6c3d65de56cd441690de9556585a0c582b0c2bf21496ef51ec1722bef573ae
+  languageName: node
+  linkType: hard
+
 "side-channel-list@npm:^1.0.0":
   version: 1.0.0
   resolution: "side-channel-list@npm:1.0.0"
@@ -33891,7 +33901,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod@npm:^3.25 || ^4.0, zod@npm:^4.0.5, zod@npm:^4.1.11":
+"zod@npm:^3.25 || ^4.0, zod@npm:^3.25.65 || ^4.0.0, zod@npm:^4.0.5, zod@npm:^4.1.11":
   version: 4.3.6
   resolution: "zod@npm:4.3.6"
   checksum: 10c0/860d25a81ab41d33aa25f8d0d07b091a04acb426e605f396227a796e9e800c44723ed96d0f53a512b57be3d1520f45bf69c0cb3b378a232a00787a2609625307

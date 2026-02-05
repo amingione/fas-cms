@@ -54,7 +54,6 @@ export default function ProductCardLiteReact({
 
   if (import.meta.env.DEV) {
     // Temporary sanity-check: confirms whether the card is wired to Medusa calculated pricing.
-    // eslint-disable-next-line no-console
     console.log('price source', (medusaVariant as any)?.calculated_price);
   }
 
