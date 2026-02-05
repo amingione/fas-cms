@@ -1,3 +1,9 @@
+|-----------------------------------|
+| ❌THIS IS ALL WRONG. DO NOT USE.❌ |
+| <centered>02-06-26</centered> |
+| <centered>ambermin</centered> |
+|-----------------------------------|
+
 # Checkout Implementation - Phase 1 Frontend
 
 ## Overview
@@ -17,8 +23,8 @@ This document describes the frontend implementation of the single-page checkout 
 The checkout implements a 13-state machine with explicit transitions:
 
 ```
-CART_LOADING → ADDRESS_ENTRY → SHIPPING_CALCULATION → SHIPPING_SELECTION → 
-SHIPPING_APPLYING → CART_FINALIZED → PAYMENT_INTENT_CREATING (LOCK) → 
+CART_LOADING → ADDRESS_ENTRY → SHIPPING_CALCULATION → SHIPPING_SELECTION →
+SHIPPING_APPLYING → CART_FINALIZED → PAYMENT_INTENT_CREATING (LOCK) →
 PAYMENT_READY → PAYMENT_PROCESSING → PAYMENT_SUCCESS
 ```
 
@@ -78,39 +84,46 @@ After `PAYMENT_INTENT_CREATING` state:
 ## API Interaction Flow
 
 ### 1. Initial Cart Load
+
 ```
 GET /store/carts/{cartId}
 ```
 
 ### 2. Address Submission
+
 ```
 POST /store/carts/{cartId}
 Body: { email, shipping_address }
 ```
 
 ### 3. Fetch Shipping Options
+
 ```
 GET /store/shipping-options?cart_id={cartId}
 ```
 
 ### 4. Apply Shipping Method
+
 ```
 POST /store/carts/{cartId}/shipping-methods
 Body: { option_id }
 ```
 
 ### 5. Create PaymentIntent
+
 ```
 POST /api/medusa/payments/create-intent
 Body: { cartId }
 ```
 
 ### 6. Confirm Payment (Stripe)
+
 ```
 stripe.confirmPayment({ elements, confirmParams })
 ```
 
 ### 7. Webhook Processing (Backend)
+
 ```
 POST /api/medusa/webhooks/payment-intent
 Stripe sends: payment_intent.succeeded
@@ -171,6 +184,7 @@ Backend completes order in Medusa
 ### Environment Variables
 
 Already configured:
+
 - ✅ `PUBLIC_STRIPE_PUBLISHABLE_KEY`
 - ✅ `MEDUSA_BACKEND_URL`
 - ✅ `MEDUSA_PUBLISHABLE_KEY`
@@ -179,6 +193,7 @@ Already configured:
 ### Stripe Dashboard
 
 Configure webhook endpoint:
+
 ```
 URL: https://yourdomain.com/api/medusa/webhooks/payment-intent
 Events: payment_intent.succeeded
@@ -225,6 +240,7 @@ Events: payment_intent.succeeded
 ### Updating States
 
 To add/modify states:
+
 1. Update `CheckoutState` type in `types.ts`
 2. Update `checkoutReducer` in `state-machine.ts`
 3. Add corresponding UI in `CheckoutFlow.tsx`
@@ -238,6 +254,7 @@ ZIP validation regex: `/^\d{5}(-\d{4})?$/`
 ### Debugging
 
 Enable state logging in `state-machine.ts`:
+
 ```typescript
 console.log('[Checkout State]', state, '→', action.type);
 ```
@@ -245,6 +262,7 @@ console.log('[Checkout State]', state, '→', action.type);
 ## Support
 
 For issues or questions:
+
 - Refer to specification: `docs/checkout/checkout-flow-spec.md`
 - Check backend docs: `PHASE1_PAYMENTINTENT_IMPLEMENTATION.md`
 - Review state machine logic: `src/lib/checkout/state-machine.ts`
