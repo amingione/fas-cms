@@ -3,12 +3,13 @@
  * CRITICAL: This enables dynamic shipping with Stripe Elements
  * Updates amount when customer selects shipping option
  */
-import type { APIRoute } from 'astro'
-import Stripe from 'stripe'
+import type { APIRoute } from 'astro';
+import Stripe from 'stripe';
+import { STRIPE_API_VERSION } from '@/lib/stripe-config';
 
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2026-01-28.clover'
-})
+  apiVersion: STRIPE_API_VERSION as Stripe.LatestApiVersion
+});
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -21,13 +22,13 @@ export const POST: APIRoute = async ({ request }) => {
       carrier,
       service_name,
       delivery_days
-    } = await request.json()
+    } = await request.json();
 
     if (!payment_intent_id || !amount) {
-      return new Response(
-        JSON.stringify({ error: 'payment_intent_id and amount are required' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      )
+      return new Response(JSON.stringify({ error: 'payment_intent_id and amount are required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     // Update Payment Intent with new total and shipping metadata
@@ -41,7 +42,7 @@ export const POST: APIRoute = async ({ request }) => {
         service_name: service_name || '',
         delivery_days: delivery_days || ''
       }
-    })
+    });
 
     return new Response(
       JSON.stringify({
@@ -54,9 +55,9 @@ export const POST: APIRoute = async ({ request }) => {
         status: 200,
         headers: { 'Content-Type': 'application/json' }
       }
-    )
+    );
   } catch (error) {
-    console.error('Payment Intent update error:', error)
+    console.error('Payment Intent update error:', error);
 
     return new Response(
       JSON.stringify({
@@ -67,6 +68,6 @@ export const POST: APIRoute = async ({ request }) => {
         status: 500,
         headers: { 'Content-Type': 'application/json' }
       }
-    )
+    );
   }
-}
+};

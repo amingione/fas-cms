@@ -4,9 +4,10 @@
  * Displayed after successful payment
  */
 import Stripe from 'stripe';
+import { STRIPE_API_VERSION } from '@/lib/stripe-config';
 
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2026-01-28.clover'
+  apiVersion: STRIPE_API_VERSION as Stripe.LatestApiVersion
 });
 
 // Get payment_intent from query params

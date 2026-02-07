@@ -2,36 +2,37 @@
  * Create Stripe Payment Intent
  * Initializes checkout with cart subtotal (shipping added later)
  */
-import type { APIRoute } from 'astro'
-import Stripe from 'stripe'
+import type { APIRoute } from 'astro';
+import Stripe from 'stripe';
+import { STRIPE_API_VERSION } from '@/lib/stripe-config';
 
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2026-01-28.clover'
-})
+  apiVersion: STRIPE_API_VERSION as Stripe.LatestApiVersion
+});
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const { cart_id } = await request.json()
+    const { cart_id } = await request.json();
 
     if (!cart_id) {
-      return new Response(
-        JSON.stringify({ error: 'cart_id is required' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      )
+      return new Response(JSON.stringify({ error: 'cart_id is required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     // Fetch cart from Medusa
-    const medusaUrl = import.meta.env.MEDUSA_API_URL || 'http://localhost:9000'
-    const cartResponse = await fetch(`${medusaUrl}/store/carts/${cart_id}`)
+    const medusaUrl = import.meta.env.MEDUSA_API_URL || 'http://localhost:9000';
+    const cartResponse = await fetch(`${medusaUrl}/store/carts/${cart_id}`);
 
     if (!cartResponse.ok) {
-      return new Response(
-        JSON.stringify({ error: 'Cart not found' }),
-        { status: 404, headers: { 'Content-Type': 'application/json' } }
-      )
+      return new Response(JSON.stringify({ error: 'Cart not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
-    const { cart } = await cartResponse.json()
+    const { cart } = await cartResponse.json();
 
     // Create Payment Intent with cart subtotal (shipping added later)
     const paymentIntent = await stripe.paymentIntents.create({
@@ -45,7 +46,7 @@ export const POST: APIRoute = async ({ request }) => {
         integration: 'fas_checkout',
         source: 'astro_storefront'
       }
-    })
+    });
 
     return new Response(
       JSON.stringify({
@@ -56,9 +57,9 @@ export const POST: APIRoute = async ({ request }) => {
         status: 200,
         headers: { 'Content-Type': 'application/json' }
       }
-    )
+    );
   } catch (error) {
-    console.error('Payment Intent creation error:', error)
+    console.error('Payment Intent creation error:', error);
 
     return new Response(
       JSON.stringify({
@@ -69,6 +70,6 @@ export const POST: APIRoute = async ({ request }) => {
         status: 500,
         headers: { 'Content-Type': 'application/json' }
       }
-    )
+    );
   }
-}
+};
