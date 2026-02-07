@@ -30,7 +30,8 @@ const requireSecret = (event: Parameters<Handler>[0]) => {
   const expected = (process.env.CLAUDE_API_SECRET || '').trim();
   if (!expected) return { ok: true as const };
   const presented = readBearer(event.headers?.authorization || event.headers?.Authorization);
-  if (!presented || presented !== expected) return { ok: false as const, statusCode: 401, body: 'Unauthorized' };
+  if (!presented || presented !== expected)
+    return { ok: false as const, statusCode: 401, body: 'Unauthorized' };
   return { ok: true as const };
 };
 
@@ -45,7 +46,10 @@ export const handler: Handler = async (event) => {
 
   let body: ClaudeRequest;
   try {
-    body = typeof event.body === 'string' ? JSON.parse(event.body) : (event.body as ClaudeRequest);
+    body =
+      typeof event.body === 'string'
+        ? JSON.parse(event.body)
+        : (event.body as unknown as ClaudeRequest);
   } catch {
     return { statusCode: 400, body: 'Invalid JSON body' };
   }
@@ -64,7 +68,7 @@ export const handler: Handler = async (event) => {
     temperature: body.temperature,
     top_p: body.top_p,
     stop_sequences: body.stop_sequences,
-    metadata: body.metadata,
+    metadata: body.metadata
   };
 
   try {
@@ -73,16 +77,16 @@ export const handler: Handler = async (event) => {
       headers: {
         'Content-Type': 'application/json',
         'anthropic-version': '2023-06-01',
-        'x-api-key': apiKey,
+        'x-api-key': apiKey
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     });
 
     const text = await response.text();
     return {
       statusCode: response.status,
       headers: { 'Content-Type': 'application/json' },
-      body: text,
+      body: text
     };
   } catch (error) {
     console.error('claude-chat error', error);
