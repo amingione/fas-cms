@@ -76,22 +76,44 @@ function getNetlifyVars() {
       stdio: ['pipe', 'pipe', 'pipe']
     });
 
-    // Netlify CLI outputs each var as a separate JSON object per line
+    const trimmed = output.trim();
+    if (!trimmed) return {};
+
+    // Netlify CLI has returned multiple shapes over time:
+    // 1) JSON object map: { "KEY": "value", ... }
+    // 2) JSON array of objects: [{ key, value, ... }, ...]
+    // 3) Newline-delimited JSON objects (older behavior)
     const vars = {};
-    output
-      .trim()
-      .split('\n')
-      .forEach((line) => {
+
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) {
+        parsed.forEach((item) => {
+          if (item && item.key) {
+            vars[item.key] = item.value ?? true;
+          }
+        });
+      } else if (parsed && typeof parsed === 'object') {
+        Object.entries(parsed).forEach(([key, value]) => {
+          vars[key] = value ?? true;
+        });
+      } else {
+        throw new Error('Unexpected JSON shape');
+      }
+    } catch (e) {
+      // Fallback: Netlify CLI outputs each var as a separate JSON object per line
+      trimmed.split('\n').forEach((line) => {
         if (!line.trim()) return;
         try {
           const parsed = JSON.parse(line);
           if (parsed.key) {
-            vars[parsed.key] = parsed.value || true;
+            vars[parsed.key] = parsed.value ?? true;
           }
-        } catch (e) {
+        } catch {
           // Skip invalid JSON lines
         }
       });
+    }
 
     return vars;
   } catch (error) {
