@@ -110,11 +110,7 @@ const previewCookieRequested = parseBooleanFlag(Astro.cookies.get('sanity-previe
 const previewQueryRequested = getUrlBooleanFlag(currentUrl, ['sanity-preview', 'preview']);
 const previewDraftsEnabled = previewEnvEnabled || previewCookieRequested || previewQueryRequested;
 
-const previewToken =
-  (import.meta.env.SANITY_API_READ_TOKEN as string | undefined) ||
-  (import.meta.env.SANITY_API_TOKEN as string | undefined) ||
-  (import.meta.env.SANITY_WRITE_TOKEN as string | undefined) ||
-  undefined;
+const previewToken = process.env.SANITY_API_TOKEN || undefined;
 
 const seoPayload = await fetchSeoForPath(Astro.url?.pathname ?? '/', {
   preview: previewDraftsEnabled,

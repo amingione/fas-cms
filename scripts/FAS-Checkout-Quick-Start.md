@@ -1,6 +1,5 @@
 # FAS Unified Checkout - Quick Start
 
-**30-Second Overview:** Stripe Elements + Shippo dynamic shipping on a single checkout page.
 
 ---
 
@@ -50,7 +49,7 @@ npm run dev
 - ✅ `order/confirmation.astro` - Success page
 
 ### API Routes
-- ✅ `create-payment-intent.ts` - Initialize payment
+- ✅ `src/pages/api/medusa/payments/create-intent.ts` - Initialize payment
 - ✅ `shipping-rates.ts` - Fetch Shippo rates
 - ✅ `update-payment-intent.ts` - Dynamic amount updates ⭐
 - ✅ `cart/[id].ts` - Get cart data
@@ -140,7 +139,6 @@ cd ../fas-medusa && npm run dev
 
 ### Immediate (Before Production)
 - [ ] Add real product dimensions to Sanity
-- [ ] Set up Stripe webhook handler
 - [ ] Test with production API keys
 - [ ] Configure fulfillment UI in Sanity
 

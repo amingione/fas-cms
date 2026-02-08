@@ -3,7 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import BrandDivider from '@/components/divider/brandDivider.tsx';
 
 const studioUrl =
-  import.meta.env.PUBLIC_STUDIO_URL || import.meta.env.SANITY_STUDIO_NETLIFY_BASE || '';
+  import.meta.env.PUBLIC_SANITY_STUDIO_URL || process.env.SANITY_STUDIO_URL || '';
 ---
 
 <BaseLayout>
@@ -21,8 +21,7 @@ const studioUrl =
       ) : (
         <div class="max-w-2xl text-white/80">
           <p class="mb-3">
-            Set <code class="px-1 rounded bg-white/10">PUBLIC_STUDIO_URL</code> (or{' '}
-            <code class="px-1 rounded bg-white/10">SANITY_STUDIO_NETLIFY_BASE</code>) to embed your
+            Set <code class="px-1 rounded bg-white/10">PUBLIC_SANITY_STUDIO_URL</code> to embed your
             hosted Sanity Studio here.
           </p>
           <p class="mb-3">

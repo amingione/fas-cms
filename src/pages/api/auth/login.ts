@@ -43,8 +43,7 @@ export const POST: APIRoute = async ({ request }) => {
     if (!sessionUser) {
       const hasSanity = Boolean(
         (import.meta.env.PUBLIC_SANITY_PROJECT_ID as string | undefined) ||
-          (import.meta.env.SANITY_PROJECT_ID as string | undefined) ||
-          (import.meta.env.VITE_SANITY_PROJECT_ID as string | undefined)
+          process.env.SANITY_PROJECT_ID
       );
       if (hasSanity) {
         const { getCustomerByEmail, getVendorByCustomerId } = await import('../../../server/sanity-client');
@@ -98,8 +97,7 @@ export const POST: APIRoute = async ({ request }) => {
     if (!sessionUser) {
       const hasSanity = Boolean(
         (import.meta.env.PUBLIC_SANITY_PROJECT_ID as string | undefined) ||
-          (import.meta.env.SANITY_PROJECT_ID as string | undefined) ||
-          (import.meta.env.VITE_SANITY_PROJECT_ID as string | undefined)
+          process.env.SANITY_PROJECT_ID
       );
       if (hasSanity) {
         const { getCustomerByEmail } = await import('../../../server/sanity-client');

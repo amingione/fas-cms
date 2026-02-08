@@ -1,11 +1,12 @@
 import { createClient } from '@sanity/client';
 import type { APIRoute } from 'astro';
 import { attributionTrackSchema } from '@/lib/validators/api-requests';
+import { requireSanityApiToken } from '@/server/sanity-token';
 
 const sanityClient = createClient({
   projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID!,
   dataset: import.meta.env.PUBLIC_SANITY_DATASET!,
-  token: import.meta.env.SANITY_API_TOKEN!,
+  token: requireSanityApiToken('api/attribution/track'),
   apiVersion: '2024-01-01',
   useCdn: false
 });

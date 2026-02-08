@@ -77,11 +77,9 @@ This document maintains an inventory of **all active webhooks** in the FAS Motor
 **URL:** `https://yourdomain.com/api/stripe/webhooks/shipping`
 
 **Events Handled:**
-- `checkout.session.completed` (if using legacy Stripe Checkout)
 - Custom shipping rate events (if applicable)
 
 **Webhook Secret:**
-- Environment Variable: `STRIPE_SHIPPING_WEBHOOK_SECRET`
 - Configured In: Stripe Dashboard → Webhooks
 - Separate from `STRIPE_WEBHOOK_SECRET`
 
@@ -91,7 +89,6 @@ This document maintains an inventory of **all active webhooks** in the FAS Motor
 - This webhook may be legacy/unused
 
 **Dependencies:**
-- `STRIPE_SHIPPING_WEBHOOK_SECRET` (environment variable)
 - May depend on legacy flow
 
 **Security Notes:**
@@ -144,18 +141,15 @@ This document maintains an inventory of **all active webhooks** in the FAS Motor
 
 ## Legacy Webhooks (ARCHIVED)
 
-### 🚫 Stripe Checkout Session Webhook (DEPRECATED)
 
 **Status:** ❌ ARCHIVED - DO NOT USE
 
 **Original URL:** `https://yourdomain.com/api/webhooks`
 
 **Events Handled:**
-- `checkout.session.completed` (legacy Stripe Checkout flow)
 
 **Archived:** 2026-01-31  
 **Reason:** 
-- Used legacy Stripe Checkout Sessions (not PaymentIntents)
 - Created orders directly in Sanity (violated authority model)
 - No cart mutation validation
 - Replaced by PaymentIntent webhook
@@ -167,7 +161,6 @@ This document maintains an inventory of **all active webhooks** in the FAS Motor
 - Sanity mirrors read-only state
 
 **Safe to Remove From Stripe Dashboard:**
-- After confirming no legacy Checkout Session orders pending
 - After validating new PaymentIntent webhook is working
 - Estimated: 2026-07-31 (6 months after archive)
 

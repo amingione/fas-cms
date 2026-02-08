@@ -104,7 +104,6 @@ Local schema subset in fas-cms-fresh:
 
 ## Key API Routes (fas-cms-fresh)
 
-- Checkout + Stripe webhook: `src/pages/api/checkout.ts`, `src/pages/api/webhooks.ts`
 - Orders: `src/pages/api/save-order.ts`, `src/pages/api/orders/[id].ts`, `src/pages/api/get-user-order.ts`, `src/pages/api/admin/orders/*`
 - Customers: `src/pages/api/customer/get.ts`, `src/pages/api/get-customer-profile.ts`
 - Vendor portal: `src/pages/api/vendor/*`, `src/server/vendor-portal/*`

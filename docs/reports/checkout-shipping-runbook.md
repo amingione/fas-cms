@@ -3,7 +3,6 @@
 ## Required environment variables
 - `SANITY_FUNCTIONS_BASE_URL` – full origin of the fas-sanity deployment so `fas-cms-fresh` can call `getShippingQuoteBySkus`.
 - `SHIPPING_QUOTE_CACHE_TTL_SECONDS` – how long the Sanity `shippingQuote` doc is considered fresh (default 1800s).
-- Stripe credentials (`STRIPE_SECRET_KEY`, `STRIPE_API_VERSION`, optional `STRIPE_WEBHOOK_SECRET`) for creating checkout sessions and validating webhooks.
 - `SHIPPO_API_KEY` and `SHIPPO_WEBHOOK_SECRET` (fas-sanity) to perform carrier rating/labeling.
 
 ## Testing the quote endpoint
@@ -17,9 +16,7 @@
 2. Confirm the response includes `rates`, `quoteKey`, `shippingQuoteId`, and `shippoShipmentId`, plus the `source` (`fresh` vs `cache`), `rateCount`, `cartSummary`, and the `createdAt`/`expiresAt` timestamps. Re-run with the same `quoteKey` and ensure the payload now reports `source: "cache"` (no new Shippo Shipment created).
 3. Verify a new Sanity document `_type == "shippingQuote"` exists for that key, contains the rates array, packages, `source`, `rateCount`, and `expiresAt`, and that `expiresAt` aligns with `SHIPPING_QUOTE_CACHE_TTL_SECONDS` if set.
 
-## Testing Stripe checkout shipping options
 1. Hit `https://<fas-cms-base>/api/checkout` with the same cart + shipping destination. The response should include a `url` and the server log should show the quote metadata.
-2. Open the returned Stripe Checkout `url` and confirm the shipping options list the live carrier rates (carrier name + delivery estimate). Stripe should charge the selected option.
 3. After completing payment in test mode, fetch the Stripe session via the Dashboard/CLI and ensure `session.shipping_rate` metadata (`selected_rate_id`, `shipping_quote_key`, `easy_post_shipment_id`) is populated.
 
 ## Testing webhook persistence

@@ -2,7 +2,6 @@
 
 ## Overview
 
-Phase 1 replaces Stripe Hosted Checkout Sessions with Stripe PaymentIntents to enable a single-page checkout where **Medusa handles all cart, shipping, and tax logic**, and **Stripe is only a payment processor**.
 
 ---
 
@@ -65,7 +64,6 @@ Phase 1 replaces Stripe Hosted Checkout Sessions with Stripe PaymentIntents to e
 **Handles Event**: `payment_intent.succeeded`
 
 **Flow**:
-1. Verifies Stripe webhook signature
 2. Extracts `medusa_cart_id` from PaymentIntent metadata
 3. **Validates cart total matches intent amount** (prevents cart mutation)
 4. Completes order in Medusa
@@ -143,9 +141,7 @@ curl -X POST http://localhost:4321/api/medusa/payments/create-intent \
 
 These files still exist but are **bypassed** for the new PaymentIntent flow:
 
-### Stripe Checkout Session Files
 - **src/pages/api/stripe/create-checkout-session.ts**
-  - Creates Stripe Hosted Checkout Sessions
   - Rebuilds line items in Stripe
   - Has Stripe collect address and calculate shipping
   - **Status**: Active but not used for new flow
@@ -269,7 +265,6 @@ Current implementation creates minimal Sanity order. Phase 2 needs:
 ### Legacy Code Removal
 
 1. Deprecate `create-checkout-session.ts`
-2. Remove Checkout Session calls from frontend
 3. Update documentation
 
 ---

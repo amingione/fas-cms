@@ -25,7 +25,6 @@ Date: 2025-12-27
 - Order cart normalization is runtime logic in `src/server/sanity/order-cart.ts` and must track schema contracts without redefining them.
 
 ## Stripe payload usage observations
-- Checkout session creation uses runtime-derived cart data and metadata for order creation.
 - Webhook handling relies on session metadata (customer_email, order_type, marketing_opt_in) and Stripe line items; these are authoritative runtime inputs.
 - Fallbacks exist for missing expanded session data and line items (e.g., retrieve failure falls back to listLineItems).
 

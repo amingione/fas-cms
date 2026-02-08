@@ -6,15 +6,16 @@ import type { APIRoute } from 'astro';
 import Stripe from 'stripe';
 import { STRIPE_API_VERSION } from '@/lib/stripe-config';
 import { createClient } from '@sanity/client';
+import { requireSanityApiToken } from '@/server/sanity-token';
 
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY!, {
   apiVersion: STRIPE_API_VERSION as Stripe.LatestApiVersion
 });
 
 const sanityClient = createClient({
-  projectId: import.meta.env.SANITY_PROJECT_ID!,
-  dataset: import.meta.env.SANITY_DATASET || 'production',
-  token: import.meta.env.SANITY_API_TOKEN!,
+  projectId: process.env.SANITY_PROJECT_ID!,
+  dataset: process.env.SANITY_DATASET || 'production',
+  token: requireSanityApiToken('api/complete-order'),
   apiVersion: '2024-01-01',
   useCdn: false
 });

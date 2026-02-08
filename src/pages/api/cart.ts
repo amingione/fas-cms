@@ -1,5 +1,6 @@
 import { cartAddSchema } from '@/lib/validators/api-requests';
 import { sanityProductSchema } from '@/lib/validators/sanity';
+import { requireSanityApiToken } from '@/server/sanity-token';
 
 export async function POST({ request }: { request: Request }) {
   if (!request.headers.get('content-type')?.includes('application/json')) {
@@ -35,13 +36,14 @@ export async function POST({ request }: { request: Request }) {
   }
 
   const { productId, quantity, sessionId } = bodyResult.data;
+  const sanityToken = requireSanityApiToken('api/cart');
 
   // Verify the referenced document is a product
   const validateRes = await fetch(
     `https://${import.meta.env.PUBLIC_SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/${import.meta.env.PUBLIC_SANITY_DATASET}?query=*[_id == "${productId}"][0]{_type}`,
     {
       headers: {
-        Authorization: `Bearer ${import.meta.env.SANITY_API_TOKEN}`
+        Authorization: `Bearer ${sanityToken}`
       }
     }
   );
@@ -75,11 +77,11 @@ export async function POST({ request }: { request: Request }) {
   }
 
   const res = await fetch(
-    `https://${import.meta.env.PUBLIC_SANITY_PROJECT_ID}.api.sanity.io/${import.meta.env.SANITY_API_VERSION}/data/mutate/${import.meta.env.PUBLIC_SANITY_DATASET}`,
+    `https://${import.meta.env.PUBLIC_SANITY_PROJECT_ID}.api.sanity.io/${process.env.SANITY_API_VERSION}/data/mutate/${import.meta.env.PUBLIC_SANITY_DATASET}`,
     {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${import.meta.env.SANITY_API_TOKEN}`,
+        Authorization: `Bearer ${sanityToken}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({

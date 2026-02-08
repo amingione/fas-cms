@@ -16,7 +16,7 @@ export async function handleVendorApplication(body: Record<string, any>): Promis
   if (!hasWriteToken) {
     return {
       status: 500,
-      body: { message: 'Sanity write token missing. Set SANITY_WRITE_TOKEN (or SANITY_API_TOKEN) to accept applications.' }
+      body: { message: 'Sanity API token missing. Set SANITY_API_TOKEN to accept applications.' }
     };
   }
 

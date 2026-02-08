@@ -77,7 +77,7 @@ section('1. Duplicate Checkout Routes (CONFLICT)');
 
 const checkoutDir = join(rootDir, 'src/pages/checkout');
 if (existsSync(checkoutDir)) {
-  item('src/pages/checkout/index.astro (OLD - Stripe Checkout Sessions)', 'remove');
+item('src/pages/checkout/index.astro (OLD - hosted checkout)', 'remove');
   item('src/pages/checkout/index-with-toggle.astro (OLD - variant)', 'remove');
   item('src/pages/checkout/success.astro (OLD - replaced by order/confirmation)', 'remove');
   item('src/pages/checkout/cancel.astro (OLD - not needed with Elements)', 'remove');
@@ -123,7 +123,7 @@ for (const dir of emptyDirs) {
 }
 
 // New unified checkout routes
-item('src/pages/api/create-payment-intent.ts (NEW)', 'keep');
+item('src/pages/api/medusa/payments/create-intent.ts (NEW)', 'keep');
 item('src/pages/api/shipping-rates.ts (NEW)', 'keep');
 item('src/pages/api/update-payment-intent.ts (NEW)', 'keep');
 item('src/pages/api/cart/[id].ts (NEW)', 'keep');
@@ -203,10 +203,6 @@ if (existsSync(envPath)) {
     item('No obvious Checkout Sessions variables found', 'info');
   }
 
-  // Check for STRIPE_SHIPPING_WEBHOOK_SECRET (may be duplicate)
-  if (envContent.includes('STRIPE_SHIPPING_WEBHOOK_SECRET')) {
-    item('STRIPE_SHIPPING_WEBHOOK_SECRET (may duplicate STRIPE_WEBHOOK_SECRET)', 'review');
-  }
 } else {
   item('.env.example not found', 'info');
 }
@@ -218,27 +214,15 @@ section('6. Code References to Old Patterns');
 
 // Find files that reference old checkout
 const srcFiles = findFiles(join(rootDir, 'src'), /\.(ts|tsx|astro|js|jsx)$/);
-let checkoutSessionRefs = 0;
 let checkoutPageRefs = 0;
 
 for (const file of srcFiles) {
   const content = readFileSync(join(rootDir, file), 'utf-8');
 
-  if (content.includes('createCheckoutSession') ||
-      content.includes('checkout_session') ||
-      content.includes('stripe.checkout.sessions')) {
-    checkoutSessionRefs++;
-  }
-
   if (content.includes('/checkout/success') ||
       content.includes('/checkout/cancel')) {
     checkoutPageRefs++;
   }
-}
-
-if (checkoutSessionRefs > 0) {
-  item(`${checkoutSessionRefs} files reference Checkout Sessions API`, 'review');
-  item('These files may need updating to use Payment Intents', 'review');
 }
 
 if (checkoutPageRefs > 0) {
@@ -261,7 +245,7 @@ ${bright}Safe to Remove:${reset}
 ${bright}Keep (New Unified Checkout):${reset}
   • src/pages/checkout.astro
   • src/pages/order/confirmation.astro
-  • src/pages/api/create-payment-intent.ts
+  • src/pages/api/medusa/payments/create-intent.ts
   • src/pages/api/shipping-rates.ts
   • src/pages/api/update-payment-intent.ts
   • src/pages/api/cart/[id].ts

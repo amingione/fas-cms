@@ -37,7 +37,6 @@ All archived files were moved to: `/src/pages/api/legacy/`
 **Archived:** 2026-01-31
 
 **Why Archived:**
-- Uses Stripe Checkout Sessions (replaced by PaymentIntents)
 - Sends line items, shipping, and tax to Stripe (violates authority model)
 - Collects address in Stripe UI (duplicates Medusa data collection)
 - No cart lock mechanism (allows mutation after checkout)
@@ -47,7 +46,6 @@ All archived files were moved to: `/src/pages/api/legacy/`
 
 ---
 
-### 2. Legacy Checkout Session Webhook
 
 **File:** `src/pages/api/webhooks.ts`  
 **Moved To:** `src/pages/api/legacy/webhooks.ts`  
@@ -62,7 +60,6 @@ All archived files were moved to: `/src/pages/api/legacy/`
 
 **Impact:** NONE - New webhook handles PaymentIntent events separately
 
-**Note:** May still receive legacy webhook events if Stripe webhook not yet migrated. Safe to leave in archive until Stripe webhook is updated.
 
 ---
 
@@ -83,7 +80,6 @@ All archived files were moved to: `/src/pages/api/legacy/`
 
 ---
 
-### 4. Legacy Medusa Checkout Sessions
 
 **Files:**
 - `src/pages/api/medusa/checkout/create-session.ts`
@@ -96,7 +92,6 @@ All archived files were moved to: `/src/pages/api/legacy/`
 **Archived:** 2026-01-31
 
 **Why Archived:**
-- Implements old Checkout Session flow (not PaymentIntents)
 - No cart lock mechanism (allows mutation after intent creation)
 - Session-based completion (not webhook-driven)
 - No protection against product duplication or cart drift
@@ -115,7 +110,6 @@ All archived files were moved to: `/src/pages/api/legacy/`
 
 **Why Archived:**
 - Calculated shipping quotes outside of Medusa
-- Used by legacy Stripe Checkout flow
 - Shipping now handled entirely in Medusa
 - Already disabled with 410 error response
 
@@ -172,7 +166,6 @@ Comprehensive canonical environment variable reference including:
 - `STRIPE_PUBLISHABLE_KEY` (canonical)
 - `PUBLIC_STRIPE_PUBLISHABLE_KEY` (canonical)
 - `STRIPE_WEBHOOK_SECRET` (PaymentIntent webhook - KEEP)
-- `STRIPE_SHIPPING_WEBHOOK_SECRET` (shipping webhook - KEEP if used)
 
 **Deprecated Stripe Variables (to be removed):**
 - `STRIPE_API_VERSION` (SDK handles versioning automatically)
@@ -238,7 +231,6 @@ Comprehensive webhook inventory including:
 
 2. **Stripe Shipping Webhook** (OPTIONAL)
    - URL: `/api/stripe/webhooks/shipping`
-   - Secret: `STRIPE_SHIPPING_WEBHOOK_SECRET`
    - Status: ⚠️ CONDITIONAL (may be unused)
 
 3. **Shippo Tracking Webhook** (OPTIONAL)
@@ -247,7 +239,6 @@ Comprehensive webhook inventory including:
    - Status: ⚠️ CONDITIONAL (only if `SHIPPO_WEBHOOKS_ENABLED=true`)
 
 **Legacy Webhooks (Archived):**
-1. **Stripe Checkout Session Webhook** (DEPRECATED)
    - URL: `/api/webhooks` (archived to `/api/legacy/webhooks`)
    - Events: `checkout.session.completed`
    - Status: ❌ ARCHIVED
@@ -381,13 +372,11 @@ Comprehensive webhook inventory including:
 
 ### Medium-term (1-3 months)
 - [ ] Monitor for any accidental calls to archived routes (should be zero)
-- [ ] Confirm Stripe webhook migration complete (no more `checkout.session.completed` events)
 - [ ] Confirm Shippo webhook status (active or unused)
 - [ ] Review webhook logs for errors
 - [ ] Consider removing legacy webhook from Stripe Dashboard
 
 ### Long-term (6 months - 2026-07-31)
-- [ ] Confirm no legacy Checkout Session orders pending
 - [ ] Confirm no refunds needed on legacy orders
 - [ ] Delete archived files if criteria met:
   - Zero calls to archived routes in logs
@@ -410,7 +399,6 @@ Comprehensive webhook inventory including:
 ### Medium Confidence - MONITOR ⚠️
 - Legacy webhook may still receive events during transition
   - **Mitigation:** Archived handler still exists in codebase
-  - **Action:** Monitor Stripe webhook logs
   - **Timeline:** Migrate webhook endpoint within 1-3 months
 
 - Deprecated environment variables still in use
@@ -455,7 +443,6 @@ Phase 3 Cleanup was **successfully completed** as a **non-destructive archival a
 
 **What's Next:**
 - Environment variable consolidation (code updates)
-- Stripe webhook migration (Stripe Dashboard update)
 - Long-term: Consider deletion after 6 months
 
 **Principle Followed:**

@@ -406,7 +406,6 @@ Locked:
 API Calls:
 
      - Stripe confirms payment (client → Stripe)
-     - Stripe webhook fires (Stripe → backend)
      - Backend completes order in Medusa
 
 What Happens:
@@ -631,7 +630,6 @@ ELSE - Proceed with order completion
 
 Error Response:
 
-     - HTTP 400 to Stripe webhook
      - Error logged with details:
        - cart_id
        - current_total
@@ -1211,7 +1209,6 @@ System Behavior:
          difference: 14070,
          timestamp: "2026-01-31T16:30:00Z"
        }
-     - Return 400 to Stripe webhook
      - User sees payment failure on frontend
 
 Recovery Path:
@@ -1735,7 +1732,6 @@ Design Solution:
        - Shipping fetch: GET /store/shipping-options (read-only,
 
 no cart mutation) - Shipping apply: POST /store/carts/{id}/shipping-methods
-(write, updates total only) - API Call Order: - Fetch shipping options (display only) - User selects option (local state) - Apply selected option (single API call) - Cart Mutation Guard: - Only ONE shipping method per checkout session - Re-applying shipping replaces previous (not adds) - Medusa should handle replacement, not addition
 
 Why This Prevents It:
 
@@ -1823,7 +1819,6 @@ Backend is already implemented:
 Configuration required:
 
      - [ ]  Set STRIPE_WEBHOOK_SECRET in environment
-     - [ ]  Configure Stripe webhook endpoint in dashboard
      - [ ]  Test end-to-end flow in staging
 
 ---

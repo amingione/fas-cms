@@ -1,4 +1,5 @@
 import { createClient } from '@sanity/client';
+import { requireSanityApiToken } from '@/server/sanity-token';
 import { readSession } from '../../server/auth/session';
 import { jsonResponse } from '@/server/http/responses';
 import { saveQuoteSchema } from '@/lib/validators/api-requests';
@@ -7,8 +8,8 @@ import { sanityCustomerSchema } from '@/lib/validators/sanity';
 const client = createClient({
   projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID,
   dataset: import.meta.env.PUBLIC_SANITY_DATASET,
-  apiVersion: import.meta.env.SANITY_API_VERSION,
-  token: import.meta.env.SANITY_API_TOKEN,
+  apiVersion: process.env.SANITY_API_VERSION,
+  token: requireSanityApiToken('api/save-quote'),
   useCdn: false
 });
 

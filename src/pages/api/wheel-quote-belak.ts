@@ -3,26 +3,24 @@ import { Resend } from 'resend';
 import { createClient } from '@sanity/client';
 import { wheelQuoteSchema } from '@/lib/validators/belakWheelSpec';
 import { createQuoteRequest } from '@/server/sanity/quote-requests';
+import { requireSanityApiToken } from '@/server/sanity-token';
 
 const resendApiKey = import.meta.env.RESEND_API_KEY;
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 const TO = 'sales@fasmotorsports.com';
 const FROM = import.meta.env.RESEND_FROM ?? 'noreply@updates.fasmotorsports.com';
 
-const sanityProjectId = import.meta.env.SANITY_PROJECT_ID || import.meta.env.PUBLIC_SANITY_PROJECT_ID;
-const sanityDataset = import.meta.env.SANITY_DATASET || import.meta.env.PUBLIC_SANITY_DATASET;
-const sanityToken = import.meta.env.SANITY_API_TOKEN;
+const sanityProjectId = process.env.SANITY_PROJECT_ID || import.meta.env.PUBLIC_SANITY_PROJECT_ID;
+const sanityDataset = process.env.SANITY_DATASET || import.meta.env.PUBLIC_SANITY_DATASET;
+const sanityToken = requireSanityApiToken('api/wheel-quote-belak');
 
-const sanity =
-  sanityProjectId && sanityDataset && sanityToken
-    ? createClient({
-        projectId: sanityProjectId,
-        dataset: sanityDataset,
-        apiVersion: '2024-01-01',
-        token: sanityToken,
-        useCdn: false
-      })
-    : null;
+const sanity = createClient({
+  projectId: sanityProjectId,
+  dataset: sanityDataset,
+  apiVersion: '2024-01-01',
+  token: sanityToken,
+  useCdn: false
+});
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -79,15 +77,11 @@ export const POST: APIRoute = async ({ request }) => {
     };
 
     let createdId: string | null = null;
-    if (sanity) {
-      try {
-        const created = await sanity.create(doc);
-        createdId = created?._id ?? null;
-      } catch (err) {
-        console.error('[Belak Quote] Failed to persist to Sanity', err);
-      }
-    } else {
-      console.warn('[Belak Quote] Sanity credentials missing. Skipping persistence.');
+    try {
+      const created = await sanity.create(doc);
+      createdId = created?._id ?? null;
+    } catch (err) {
+      console.error('[Belak Quote] Failed to persist to Sanity', err);
     }
 
     let quoteRequestId: string | null = null;

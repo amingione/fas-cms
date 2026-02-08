@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { Resend } from 'resend';
 import { createClient } from '@sanity/client';
 import { contactRequestSchema } from '@/lib/validators/api-requests';
+import { requireSanityApiToken } from '@/server/sanity-token';
 
 const json = (data: any, init?: ResponseInit) =>
   new Response(JSON.stringify(data), {
@@ -12,7 +13,7 @@ const json = (data: any, init?: ResponseInit) =>
 const sanityClient = createClient({
   projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID!,
   dataset: import.meta.env.PUBLIC_SANITY_DATASET!,
-  token: import.meta.env.SANITY_API_TOKEN!,
+  token: requireSanityApiToken('api/contact'),
   apiVersion: '2024-01-01',
   useCdn: false
 });

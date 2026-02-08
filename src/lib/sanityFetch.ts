@@ -10,35 +10,29 @@ type SanityFetchOptions = {
   tag?: string
 }
 
-const projectId =
-  (import.meta.env.PUBLIC_SANITY_PROJECT_ID as string | undefined) ||
-  (import.meta.env.SANITY_PROJECT_ID as string | undefined) ||
-  (import.meta.env.SANITY_STUDIO_PROJECT_ID as string | undefined) ||
-  'r4og35qd';
+const serverEnv =
+  (typeof process !== 'undefined' ? (process as any).env : {}) as Record<string, string | undefined>;
+const isServer = Boolean(import.meta.env.SSR);
 
-const dataset =
-  (import.meta.env.PUBLIC_SANITY_DATASET as string | undefined) ||
-  (import.meta.env.SANITY_DATASET as string | undefined) ||
-  (import.meta.env.SANITY_STUDIO_DATASET as string | undefined) ||
-  'production';
+const publicProjectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID as string | undefined;
+const serverProjectId = serverEnv.SANITY_PROJECT_ID;
+const projectId = (isServer ? serverProjectId || publicProjectId : publicProjectId) || 'r4og35qd';
+
+const publicDataset = import.meta.env.PUBLIC_SANITY_DATASET as string | undefined;
+const serverDataset = serverEnv.SANITY_DATASET;
+const dataset = (isServer ? serverDataset || publicDataset : publicDataset) || 'production';
 
 const apiVersion =
   (import.meta.env.PUBLIC_SANITY_API_VERSION as string | undefined) ||
-  (import.meta.env.SANITY_API_VERSION as string | undefined) ||
+  serverEnv.SANITY_API_VERSION ||
   '2024-01-01';
 
 const studioUrl =
   (import.meta.env.PUBLIC_SANITY_STUDIO_URL as string | undefined) ||
-  (import.meta.env.PUBLIC_STUDIO_URL as string | undefined) ||
-  (import.meta.env.SANITY_STUDIO_URL as string | undefined) ||
-  (import.meta.env.SANITY_STUDIO_NETLIFY_BASE as string | undefined) ||
+  serverEnv.SANITY_STUDIO_URL ||
   undefined;
 
-const defaultToken =
-  (import.meta.env.SANITY_API_READ_TOKEN as string | undefined) ||
-  (import.meta.env.SANITY_API_TOKEN as string | undefined) ||
-  (import.meta.env.SANITY_WRITE_TOKEN as string | undefined) ||
-  undefined;
+const defaultToken = isServer ? serverEnv.SANITY_API_TOKEN : undefined;
 
 const baseClient = createClient({projectId, dataset, apiVersion, useCdn: true});
 

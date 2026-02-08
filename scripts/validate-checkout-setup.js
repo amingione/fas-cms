@@ -240,7 +240,7 @@ const requiredFiles = [
   'src/components/checkout/CheckoutForm.tsx',
   'src/components/checkout/CheckoutForm.css',
   'src/pages/order/confirmation.astro',
-  'src/pages/api/create-payment-intent.ts',
+  'src/pages/api/medusa/payments/create-intent.ts',
   'src/pages/api/shipping-rates.ts',
   'src/pages/api/update-payment-intent.ts',
   'src/pages/api/cart/[id].ts',

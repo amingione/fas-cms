@@ -80,39 +80,19 @@ function getSanityClient() {
   const projectId =
     ime.PUBLIC_SANITY_PROJECT_ID ||
     ime.SANITY_PROJECT_ID ||
-    ime.SANITY_STUDIO_PROJECT_ID ||
-    ime.VITE_SANITY_PROJECT_ID ||
     penv.PUBLIC_SANITY_PROJECT_ID ||
-    penv.SANITY_PROJECT_ID ||
-    penv.SANITY_STUDIO_PROJECT_ID ||
-    penv.VITE_SANITY_PROJECT_ID;
+    penv.SANITY_PROJECT_ID;
 
   const dataset =
     ime.PUBLIC_SANITY_DATASET ||
     ime.SANITY_DATASET ||
-    ime.SANITY_STUDIO_DATASET ||
-    ime.VITE_SANITY_DATASET ||
     penv.PUBLIC_SANITY_DATASET ||
     penv.SANITY_DATASET ||
-    penv.SANITY_STUDIO_DATASET ||
-    penv.VITE_SANITY_DATASET ||
     'production';
 
-  const apiVersion = ime.SANITY_API_VERSION || penv.SANITY_API_VERSION || '2024-01-01';
+  const apiVersion = penv.SANITY_API_VERSION || '2024-01-01';
 
-  const token =
-    ime.SANITY_API_TOKEN ||
-    ime.SANITY_WRITE_TOKEN ||
-    ime.SANITY_API_READ_TOKEN ||
-    ime.SANITY_READ_TOKEN ||
-    ime.VITE_SANITY_API_TOKEN ||
-    ime.VITE_SANITY_WRITE_TOKEN ||
-    penv.SANITY_API_TOKEN ||
-    penv.SANITY_WRITE_TOKEN ||
-    penv.SANITY_API_READ_TOKEN ||
-    penv.SANITY_READ_TOKEN ||
-    penv.VITE_SANITY_API_TOKEN ||
-    penv.VITE_SANITY_WRITE_TOKEN;
+  const token = penv.SANITY_API_TOKEN;
 
   if (projectId && dataset && apiVersion && token) {
     cachedSanityClient = createClient({

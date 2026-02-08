@@ -71,7 +71,7 @@ yarn stripe:sync --slug=hellcat-snout  # Sync a single product by slug
 yarn stripe:sync --dry-run            # Preview without making changes
 ```
 
-The script requires `STRIPE_SECRET_KEY`, `SANITY_PROJECT_ID`, `SANITY_DATASET`, and a Sanity write token (`SANITY_WRITE_TOKEN`). Successful sync writes `stripeProductId`, `stripePriceId`, and `stripeLastSyncedAt` into each product document.
+The script requires `STRIPE_SECRET_KEY`, `SANITY_PROJECT_ID`, `SANITY_DATASET`, and a Sanity API token with write access (`SANITY_API_TOKEN`). Successful sync writes `stripeProductId`, `stripePriceId`, and `stripeLastSyncedAt` into each product document.
 
 ## Medusa Cart + Shipping (Phase 2)
 

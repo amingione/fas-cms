@@ -33,7 +33,7 @@ function isBrowser() {
   return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
 }
 
-async function ensureMedusaCartId(): Promise<string | null> {
+export async function ensureMedusaCartId(): Promise<string | null> {
   if (!isBrowser()) return null;
   const existing = localStorage.getItem(MEDUSA_CART_ID_KEY);
   if (existing && existing.trim()) return existing.trim();
@@ -57,7 +57,7 @@ async function ensureMedusaCartId(): Promise<string | null> {
   return null;
 }
 
-async function syncMedusaCart(cart: CartItem[]) {
+export async function syncMedusaCart(cart: CartItem[]) {
   if (!isBrowser()) return;
   const cartId = await ensureMedusaCartId();
   if (!cartId) return;

@@ -91,7 +91,6 @@ Core Principles
    │ └── [other schemas]
    ├── components/ # Custom Studio components
    ├── lib/
-   │ └── stripe-order.ts # Stripe order completion utilities
    ├── plugins/ # Studio plugins
    └── sanity.config.ts # Studio configuration
    fas-cms-fresh
@@ -99,8 +98,6 @@ Core Principles
    ├── src/
    │ ├── pages/
    │ │ └── api/ # Astro API routes
-   │ │ ├── checkout.ts # Stripe checkout creation
-   │ │ ├── webhooks.ts # Stripe webhook handler
    │ │ ├── shipping/
    │ │ │ └── rates.ts # Shippo rate fetching
    │ │ └── military-verify/
@@ -119,20 +116,14 @@ Core Principles
 No stripe.ts file exists - Stripe is imported directly in API routes
 Order schema is order.tsx (TSX, not TS)
 Webhook handler is webhooks.ts (not in subfolder)
-Stripe order utilities live in fas-sanity/lib/stripe-order.ts
 Integration Points
 
 1. Stripe Integration
    Checkout Flow:
 
-Customer → fas-cms-fresh/api/checkout.ts → Stripe Checkout Session → Stripe Webhook → fas-cms-fresh/api/webhooks.ts → fas-sanity/lib/stripe-order.ts → Sanity Order Document
 Key Files:
 
-fas-cms-fresh/src/pages/api/checkout.ts — Create checkout sessions (imports Stripe directly)
-fas-cms-fresh/src/pages/api/webhooks.ts — Handle Stripe webhook events
-fas-sanity/lib/stripe-order.ts — Order creation utilities (used by webhook)
 fas-sanity/schemas/order.tsx — Order document schema (TSX!)
-Checkout Session Creation Pattern:
 
 // fas-cms-fresh/src/pages/api/checkout.ts
 import Stripe from 'stripe'
@@ -177,7 +168,6 @@ unit_amount: Math.round(item.price \* 100) // Price in cents
 quantity: item.quantity
 }))
 
-// Create checkout session
 const checkoutSession = await stripe.checkout.sessions.create({
 mode: 'payment',
 line_items: lineItems,
@@ -279,7 +269,6 @@ return new Response(JSON.stringify({ received: true }), { status: 200 })
 }
 Order Creation Utility Pattern:
 
-// fas-sanity/lib/stripe-order.ts
 import { createClient } from '@sanity/client'
 import type Stripe from 'stripe'
 
@@ -408,7 +397,6 @@ All amounts stored in dollars (not cents) in Sanity
 Stripe amounts divided by 100 before storing 2. Shippo Integration
 Shipping Flow:
 
-Customer enters address → fas-cms-fresh/api/shipping/rates.ts → Shippo API → Return rates → Customer selects → Stored in checkout session
 Key Files:
 
 fas-cms-fresh/src/lib/shippo.ts — Shippo client
@@ -960,7 +948,6 @@ CHANGES REQUIRED:
    - Update calculation
    - Reason: [why needed]
 
-3. fas-sanity/lib/stripe-order.ts
    - Map new field from Stripe
    - Reason: [why needed]
 
@@ -1009,7 +996,6 @@ group: 'overview', // or 'fulfillment', 'documents', 'technical'
 validation: Rule => Rule.required()
 }
 
-// 2. Update stripe-order.ts to populate it (fas-sanity/lib/stripe-order.ts)
 export async function createOrderFromStripeSession(session) {
 const order = await sanityClient.create({
 \_type: 'order',
@@ -1025,7 +1011,6 @@ const query = `*[_type == "order"]{
   // ... other fields
 }`
 Fix Calculation Error
-// 1. Identify incorrect calculation in fas-sanity/lib/stripe-order.ts
 
 // BEFORE (wrong):
 totalAmount: session.amount_total // Missing division by 100
@@ -1034,7 +1019,6 @@ totalAmount: session.amount_total // Missing division by 100
 totalAmount: (session.amount_total || 0) / 100
 
 // 2. Verify in all locations:
-// - fas-sanity/lib/stripe-order.ts (order creation)
 // - fas-cms-fresh/src/pages/api/checkout.ts (line item creation)
 // - Frontend display components
 Add New Integration
@@ -1097,7 +1081,6 @@ SANITY_STUDIO_PROJECT_ID=your_project_id
 SANITY_STUDIO_DATASET=production
 SANITY_STUDIO_API_VERSION=2024-01-01
 
-# API Token (for stripe-order.ts)
 
 SANITY_API_TOKEN=skxxx
 
@@ -1200,7 +1183,6 @@ v1.1.0 (2025-12-23)
 Updated with actual repo structure
 Added real order.tsx schema (TSX, not TS)
 Documented checkout.ts and webhooks.ts patterns
-Added stripe-order.ts utility patterns
 Removed non-existent stripe.ts references
 Added complete field mappings for Stripe → Sanity
 v1.0.0 (2025-12-23)
@@ -1294,7 +1276,6 @@ fas-sanity/
 │   └── [other schemas]
 ├── components/                     # Custom Studio components
 ├── lib/
-│   └── stripe-order.ts            # Stripe order completion utilities
 ├── plugins/                        # Studio plugins
 └── sanity.config.ts               # Studio configuration
 ```
@@ -1306,8 +1287,6 @@ fas-cms-fresh/
 ├── src/
 │   ├── pages/
 │   │   └── api/                   # Astro API routes
-│   │       ├── checkout.ts        # Stripe checkout creation
-│   │       ├── webhooks.ts        # Stripe webhook handler
 │   │       ├── shipping/
 │   │       │   └── rates.ts       # Shippo rate fetching
 │   │       └── military-verify/
@@ -1328,7 +1307,6 @@ fas-cms-fresh/
 - No `stripe.ts` file exists - Stripe is imported directly in API routes
 - Order schema is `order.tsx` (TSX, not TS) - contains React components
 - Webhook handler is `webhooks.ts` (not in subfolder)
-- Stripe order utilities live in `fas-sanity/lib/stripe-order.ts`
 
 ---
 
@@ -1339,17 +1317,12 @@ fas-cms-fresh/
 **Checkout Flow:**
 
 ```
-Customer → fas-cms-fresh/api/checkout.ts → Stripe Checkout Session → Stripe Webhook → fas-cms-fresh/api/webhooks.ts → Sanity Order Document
 ```
 
 **Key Files:**
 
-- `fas-cms-fresh/src/pages/api/checkout.ts` — Create checkout sessions (imports Stripe directly)
-- `fas-cms-fresh/src/pages/api/webhooks.ts` — Handle Stripe webhook events
-- `fas-sanity/lib/stripe-order.ts` — Order creation utilities (optional, may not be used)
 - `fas-sanity/schemas/order.tsx` — Order document schema (TSX!)
 
-**Checkout Session Creation Pattern:**
 
 ```typescript
 // fas-cms-fresh/src/pages/api/checkout.ts
@@ -1407,7 +1380,6 @@ export const POST: APIRoute = async ({request}) => {
       import.meta.env.PUBLIC_BASE_URL ||
       'http://localhost:4321'
 
-    // Create checkout session
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: 'payment',
       line_items: lineItems,
@@ -1473,7 +1445,6 @@ export const POST: APIRoute = async ({request}) => {
       )
     }
 
-    return new Response(JSON.stringify({error: 'Failed to create checkout session'}), {
       status: 500,
       headers: {'Content-Type': 'application/json'},
     })
@@ -1731,7 +1702,6 @@ function generateKey(): string {
 **Shipping Flow:**
 
 ```
-Customer enters address → fas-cms-fresh/api/shipping/rates.ts → Shippo API → Return rates → Customer selects → Stored in checkout session
 ```
 
 **Key Files:**
@@ -2385,7 +2355,6 @@ cat > docs/codex.md << 'EOF'
 ### v1.2.0 (2025-12-23)
 
 - ✅ Corrected all references to `order.tsx` (was incorrectly showing as `order.tsx`)
-- ✅ Removed references to non-existent `fas-sanity/lib/stripe-order.ts` from main flow
 - ✅ Clarified that webhooks.ts creates orders directly (not via utility)
 - ✅ Updated orderType values to include 'online', 'retail', 'wholesale', 'in-store', 'phone'
 - ✅ Updated status values to match actual schema: 'pending', 'paid', 'fulfilled', 'delivered', 'canceled', 'refunded'

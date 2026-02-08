@@ -381,7 +381,6 @@ This report inventories Sanity dependencies in `fas-cms-fresh` and maps them to 
 ## External Integrations Observed
 
 - Stripe
-  - `src/pages/api/checkout.ts` creates Stripe checkout sessions using Sanity product fields for shipping config and metadata.
   - `src/pages/api/webhooks.ts` maps Stripe sessions into `order` documents and updates `customer` marketing flags.
   - `src/pages/api/vendor/invoices/[id]/pay.ts` creates Stripe payment intents and mirrors payment status into `invoice` and `vendorNotification`.
   - `src/pages/api/save-order.ts` fetches Stripe session and writes `order` into Sanity.

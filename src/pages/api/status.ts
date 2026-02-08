@@ -9,22 +9,17 @@ export const GET: APIRoute = async () => {
     sanity: {
       projectId:
         (import.meta.env.PUBLIC_SANITY_PROJECT_ID as string | undefined) ||
-        (import.meta.env.SANITY_PROJECT_ID as string | undefined) ||
-        (import.meta.env.VITE_SANITY_PROJECT_ID as string | undefined),
+        process.env.SANITY_PROJECT_ID,
       dataset:
         (import.meta.env.PUBLIC_SANITY_DATASET as string | undefined) ||
-        (import.meta.env.SANITY_DATASET as string | undefined) ||
-        (import.meta.env.VITE_SANITY_DATASET as string | undefined),
+        process.env.SANITY_DATASET,
       writeToken: Boolean(
-        import.meta.env.SANITY_WRITE_TOKEN ||
-          import.meta.env.SANITY_API_TOKEN ||
-          import.meta.env.VITE_SANITY_API_TOKEN
+        process.env.SANITY_API_TOKEN
       )
     },
     // Stripe
     stripe: {
-      hasSecret: Boolean(import.meta.env.STRIPE_SECRET_KEY),
-      hasWebhookSecret: Boolean(import.meta.env.STRIPE_WEBHOOK_SECRET)
+      hasSecret: Boolean(import.meta.env.STRIPE_SECRET_KEY)
     },
     // Auth
     auth: {

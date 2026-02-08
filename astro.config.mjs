@@ -20,24 +20,18 @@ const FN_PORT =
 const sanityProjectId =
   process.env.SANITY_PROJECT_ID ||
   process.env.PUBLIC_SANITY_PROJECT_ID ||
-  process.env.SANITY_STUDIO_PROJECT_ID ||
   'r4og35qd';
 
 const sanityDataset =
   process.env.SANITY_DATASET ||
   process.env.PUBLIC_SANITY_DATASET ||
-  process.env.SANITY_STUDIO_DATASET ||
   'production';
 
 const sanityApiVersion =
   process.env.SANITY_API_VERSION || process.env.PUBLIC_SANITY_API_VERSION || '2023-06-07';
 
 const sanityStudioUrl =
-  process.env.PUBLIC_SANITY_STUDIO_URL ||
-  process.env.PUBLIC_STUDIO_URL ||
-  process.env.SANITY_STUDIO_URL ||
-  process.env.SANITY_STUDIO_NETLIFY_BASE ||
-  undefined;
+  process.env.PUBLIC_SANITY_STUDIO_URL || process.env.SANITY_STUDIO_URL || undefined;
 
 // Netlify's adapter injects @netlify/vite-plugin automatically in a few
 // different environments (e.g. when NETLIFY_DEV is set). When multiple copies
@@ -166,8 +160,7 @@ export default defineConfig({
         }
       }
     },
-    // Expose VITE_* so server code can read VITE_SANITY_* via import.meta.env
-    envPrefix: ['PUBLIC_', 'SANITY_', 'PUBLIC_SANITY_', 'VITE_'],
+    envPrefix: ['PUBLIC_'],
     optimizeDeps: {
       include: ['react', 'react-dom', 'react-router-dom', '@fullcalendar/core', 'apexcharts'],
       exclude: [

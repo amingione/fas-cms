@@ -18,30 +18,18 @@ const getEnv = (key: string): string | undefined => {
 
 const projectId =
   getEnv('SANITY_PROJECT_ID') ||
-  getEnv('SANITY_STUDIO_PROJECT_ID') ||
-  getEnv('PUBLIC_SANITY_PROJECT_ID') ||
-  getEnv('VITE_SANITY_PROJECT_ID');
+  getEnv('PUBLIC_SANITY_PROJECT_ID');
 
 const dataset =
-  getEnv('SANITY_DATASET') ||
-  getEnv('SANITY_STUDIO_DATASET') ||
-  getEnv('PUBLIC_SANITY_DATASET') ||
-  getEnv('VITE_SANITY_DATASET') ||
-  'production';
+  getEnv('SANITY_DATASET') || getEnv('PUBLIC_SANITY_DATASET') || 'production';
 
-const token =
-  getEnv('SANITY_WRITE_TOKEN') ||
-  getEnv('SANITY_API_TOKEN') ||
-  getEnv('SANITY_API_READ_TOKEN') ||
-  getEnv('VITE_SANITY_API_TOKEN') ||
-  getEnv('VITE_SANITY_WRITE_TOKEN') ||
-  getEnv('SANITY_READ_TOKEN');
+const token = getEnv('SANITY_API_TOKEN');
 
 const apiVersion = getEnv('SANITY_API_VERSION') || '2024-01-01';
 
 if (!projectId) {
   console.warn(
-    '[sanity-client] Missing SANITY projectId. Checked SANITY_* / PUBLIC_SANITY_* / VITE_* in process.env and import.meta.env'
+    '[sanity-client] Missing SANITY projectId. Checked SANITY_* / PUBLIC_SANITY_* in process.env and import.meta.env'
   );
   throw new Error('Sanity client misconfigured: missing SANITY_PROJECT_ID / PUBLIC_SANITY_PROJECT_ID');
 }

@@ -6,18 +6,15 @@ import { schemaTypes } from '../../sanity/schemaTypes';
 const projectId =
   process.env.SANITY_PROJECT_ID ||
   process.env.PUBLIC_SANITY_PROJECT_ID ||
-  process.env.SANITY_STUDIO_PROJECT_ID ||
   'r4og35qd';
 
 const dataset =
   process.env.SANITY_DATASET ||
   process.env.PUBLIC_SANITY_DATASET ||
-  process.env.SANITY_STUDIO_DATASET ||
   'production';
 
 const disableVisionOverride =
   (process.env.SANITY_DISABLE_VISION ||
-    process.env.SANITY_STUDIO_DISABLE_VISION ||
     process.env.PUBLIC_SANITY_DISABLE_VISION ||
     '')
     .toString()

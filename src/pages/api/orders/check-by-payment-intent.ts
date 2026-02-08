@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { createClient } from '@sanity/client';
+import { requireSanityApiToken } from '@/server/sanity-token';
 
 /**
  * Check Order by Payment Intent ID
@@ -9,14 +10,14 @@ import { createClient } from '@sanity/client';
  */
 
 const SANITY_PROJECT_ID =
-  (import.meta.env.SANITY_PROJECT_ID as string | undefined) ||
+  process.env.SANITY_PROJECT_ID ||
   (import.meta.env.PUBLIC_SANITY_PROJECT_ID as string | undefined) ||
   '';
 const SANITY_DATASET =
-  (import.meta.env.SANITY_DATASET as string | undefined) ||
+  process.env.SANITY_DATASET ||
   (import.meta.env.PUBLIC_SANITY_DATASET as string | undefined) ||
   '';
-const SANITY_API_TOKEN = (import.meta.env.SANITY_API_TOKEN as string | undefined) || '';
+const SANITY_API_TOKEN = requireSanityApiToken('api/orders/check-by-payment-intent');
 
 const sanity = createClient({
   projectId: SANITY_PROJECT_ID,

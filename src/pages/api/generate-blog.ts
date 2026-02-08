@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import { generateBlogSchema } from '@/lib/validators/api-requests';
 
 const WEBHOOK_URL =
-  import.meta.env.SANITY_GENERATE_SEO_CONTENT_WEBHOOK ||
+  process.env.SANITY_GENERATE_SEO_CONTENT_WEBHOOK ||
   import.meta.env.PUBLIC_SANITY_GENERATE_SEO_CONTENT_WEBHOOK ||
   import.meta.env.PUBLIC_SANITY_GENERATE_SEO_CONTENT_URL;
 

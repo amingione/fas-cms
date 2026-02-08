@@ -15,22 +15,18 @@ export const OPTIONS: APIRoute = async () => new Response(null, { status: 204, h
 export const POST: APIRoute = async ({ request }) => {
   try {
     const projectId =
-      (import.meta.env.SANITY_PROJECT_ID as string | undefined) ||
-      (import.meta.env.VITE_SANITY_PROJECT_ID as string | undefined) ||
+      process.env.SANITY_PROJECT_ID ||
       (import.meta.env.PUBLIC_SANITY_PROJECT_ID as string | undefined);
 
     const dataset =
-      (import.meta.env.SANITY_DATASET as string | undefined) ||
-      (import.meta.env.VITE_SANITY_DATASET as string | undefined) ||
+      process.env.SANITY_DATASET ||
       (import.meta.env.PUBLIC_SANITY_DATASET as string | undefined);
 
     const token =
-      (import.meta.env.SANITY_READ_TOKEN as string | undefined) ||
-      (import.meta.env.SANITY_TOKEN as string | undefined) ||
-      (import.meta.env.VITE_SANITY_TOKEN as string | undefined) ||
-      (import.meta.env.VITE_SANITY_API_TOKEN as string | undefined);
+      process.env.SANITY_API_TOKEN ||
+      (import.meta.env.PUBLIC_SANITY_API_TOKEN as string | undefined);
 
-    const apiVersion = (import.meta.env.SANITY_API_VERSION as string | undefined) || '2024-01-01';
+    const apiVersion = process.env.SANITY_API_VERSION || '2024-01-01';
 
     if (!projectId || !dataset) {
       return new Response(

@@ -5,6 +5,7 @@ import { readSession } from '../../../server/auth/session';
 import { jsonResponse } from '@/server/http/responses';
 import { orderUpdateSchema } from '@/lib/validators/api-requests';
 import { sanityOrderSchema } from '@/lib/validators/sanity';
+import { requireSanityApiToken } from '@/server/sanity-token';
 
 const cors = {
   'access-control-allow-origin': '*',
@@ -12,13 +13,13 @@ const cors = {
   'access-control-allow-headers': 'authorization, content-type'
 };
 
-const projectId = (import.meta.env.PUBLIC_SANITY_PROJECT_ID || import.meta.env.SANITY_PROJECT_ID) as
+const projectId = (import.meta.env.PUBLIC_SANITY_PROJECT_ID || process.env.SANITY_PROJECT_ID) as
   | string
   | undefined;
-const dataset = (import.meta.env.PUBLIC_SANITY_DATASET || import.meta.env.SANITY_DATASET) as
+const dataset = (import.meta.env.PUBLIC_SANITY_DATASET || process.env.SANITY_DATASET) as
   | string
   | undefined;
-const token = import.meta.env.SANITY_API_TOKEN as string | undefined;
+const token = requireSanityApiToken('api/orders/[id]');
 
 const client = createClient({
   projectId: projectId!,

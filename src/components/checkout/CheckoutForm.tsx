@@ -1,31 +1,25 @@
 /**
  * Unified Checkout Form
- * Integrates: Stripe Elements + Real-time Shippo Rates
- * Flow: Address → Shipping Rates → Payment (all on same page)
+ * Integrates: Stripe Elements (PaymentIntent) + Medusa shipping rates (Shippo)
+ * Flow: Address → Medusa shipping options → Payment (all on same page)
  */
-import { useState, useEffect, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
-import type { Stripe as StripeType } from '@stripe/stripe-js'
-import {
-  Elements,
-  PaymentElement,
-  AddressElement,
-  useStripe,
-  useElements
-} from '@stripe/react-stripe-js'
+import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js'
 import './CheckoutForm.css'
+import { ensureMedusaCartId, getCart, syncMedusaCart } from '@/lib/cart'
 
 // Load Stripe
 const stripePromise = loadStripe(import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
 interface ShippingRate {
   id: string
-  name: string
-  carrier: string
-  service_code: string
-  amount_cents: number
-  delivery_days: string
-  shippo_rate_id: string
+  name?: string
+  amount?: number
+  calculated_price?: number
+  price_type?: string
+  data?: Record<string, any>
+  region?: { currency_code?: string }
 }
 
 interface CartItem {
@@ -45,300 +39,185 @@ interface Cart {
   email?: string
 }
 
-export default function CheckoutForm() {
-  const [clientSecret, setClientSecret] = useState<string | null>(null)
-  const [cartId] = useState(() => getOrCreateCartId())
-
-  // Initialize Payment Intent on mount
-  useEffect(() => {
-    initializePaymentIntent()
-  }, [])
-
-  async function initializePaymentIntent() {
-    try {
-      const response = await fetch('/api/create-payment-intent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cart_id: cartId })
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to initialize payment')
-      }
-
-      const data = await response.json()
-      setClientSecret(data.client_secret)
-    } catch (error) {
-      console.error('Payment Intent creation failed:', error)
-      alert('Failed to initialize checkout. Please try again.')
-    }
-  }
-
-  if (!clientSecret) {
-    return (
-      <div className="checkout-loading">
-        <div className="spinner"></div>
-        <p>Initializing secure checkout...</p>
-      </div>
-    )
-  }
-
-  const stripeOptions = {
-    clientSecret,
-    appearance: {
-      theme: 'night' as const,
-      variables: {
-        colorPrimary: '#dc2626',
-        colorBackground: '#0a0a0a',
-        colorText: '#ffffff',
-        colorDanger: '#ef4444',
-        fontFamily: 'system-ui, sans-serif',
-        spacingUnit: '4px',
-        borderRadius: '8px'
-      },
-      rules: {
-        '.Input': {
-          backgroundColor: '#1a1a1a',
-          border: '1px solid #333',
-        },
-        '.Input:focus': {
-          border: '1px solid #dc2626',
-          boxShadow: '0 0 0 2px rgba(220, 38, 38, 0.2)'
-        },
-        '.Label': {
-          color: '#999',
-          fontWeight: '500'
-        }
-      }
-    }
-  }
-
-  return (
-    <Elements stripe={stripePromise} options={stripeOptions}>
-      <CheckoutFormInner cartId={cartId} clientSecret={clientSecret} />
-    </Elements>
-  )
+type ShippingAddress = {
+  email: string
+  firstName: string
+  lastName: string
+  address1: string
+  address2: string
+  city: string
+  province: string
+  postalCode: string
+  countryCode: string
+  phone: string
 }
 
-function CheckoutFormInner({
-  cartId,
-  clientSecret
-}: {
-  cartId: string
-  clientSecret: string
-}) {
-  const stripe = useStripe()
-  const elements = useElements()
+const EMPTY_ADDRESS: ShippingAddress = {
+  email: '',
+  firstName: '',
+  lastName: '',
+  address1: '',
+  address2: '',
+  city: '',
+  province: '',
+  postalCode: '',
+  countryCode: 'US',
+  phone: ''
+}
 
-  // Cart state
+export default function CheckoutForm() {
+  const [cartId, setCartId] = useState<string | null>(null)
   const [cart, setCart] = useState<Cart | null>(null)
   const [loadingCart, setLoadingCart] = useState(true)
-
-  // Shipping state
-  const [shippingAddress, setShippingAddress] = useState<any>(null)
+  const [shippingAddress, setShippingAddress] = useState<ShippingAddress>(EMPTY_ADDRESS)
   const [shippingRates, setShippingRates] = useState<ShippingRate[]>([])
   const [selectedRateId, setSelectedRateId] = useState<string | null>(null)
   const [loadingRates, setLoadingRates] = useState(false)
-
-  // Payment state
+  const [clientSecret, setClientSecret] = useState<string | null>(null)
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Load cart
   useEffect(() => {
-    loadCart()
+    let cancelled = false
+
+    const init = async () => {
+      const id = await ensureMedusaCartId()
+      if (cancelled) return
+      setCartId(id)
+      if (id) {
+        await syncMedusaCart(getCart())
+        await loadCart(id)
+      }
+    }
+
+    void init()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
-  async function loadCart() {
+  async function loadCart(id: string) {
     try {
-      const response = await fetch(`/api/cart/${cartId}`)
+      const response = await fetch(`/api/cart/${id}`)
       if (!response.ok) throw new Error('Cart not found')
-
       const data = await response.json()
       setCart(data.cart)
-    } catch (error) {
-      console.error('Failed to load cart:', error)
+    } catch (err) {
+      console.error('Failed to load cart:', err)
       setError('Failed to load cart. Please refresh the page.')
     } finally {
       setLoadingCart(false)
     }
   }
 
-  // Debounced shipping rate fetch
-  const fetchShippingRates = useCallback(
-    debounce(async (address: any) => {
-      if (!isAddressComplete(address)) return
-
-      setLoadingRates(true)
-      setError(null)
-
-      try {
-        const response = await fetch('/api/shipping-rates', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            cart_id: cartId,
-            address: {
-              street1: address.line1,
-              street2: address.line2,
-              city: address.city,
-              state: address.state,
-              postal_code: address.postal_code,
-              country: address.country
-            }
-          })
-        })
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch shipping rates')
-        }
-
-        const data = await response.json()
-        setShippingRates(data.rates)
-
-        // Auto-select cheapest rate
-        if (data.rates.length > 0) {
-          selectShippingRate(data.rates[0])
-        } else {
-          setError('No shipping options available for this address')
-        }
-      } catch (error) {
-        console.error('Shipping rates error:', error)
-        setError('Unable to calculate shipping for this address. Please verify your address.')
-        setShippingRates([])
-      } finally {
-        setLoadingRates(false)
-      }
-    }, 500),
-    [cartId]
-  )
-
-  // Handle address change from Stripe Address Element
-  function handleAddressChange(event: any) {
-    if (event.complete) {
-      const address = event.value.address
-      setShippingAddress(address)
-      fetchShippingRates(address)
-    }
+  const updateAddressField = (field: keyof ShippingAddress) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    setShippingAddress((prev) => ({ ...prev, [field]: event.target.value }))
   }
 
-  // Select shipping rate and update Payment Intent
-  async function selectShippingRate(rate: ShippingRate) {
-    if (!cart) return
+  async function handleCalculateShipping() {
+    if (!cartId) return
+    if (!isAddressComplete(shippingAddress)) {
+      setError('Please complete your shipping address before calculating rates.')
+      return
+    }
 
-    setSelectedRateId(rate.id)
+    setLoadingRates(true)
     setError(null)
+    setClientSecret(null)
 
     try {
-      const newTotal = cart.subtotal_cents + rate.amount_cents
+      await syncMedusaCart(getCart())
 
-      // Extract Payment Intent ID from client secret
-      const paymentIntentId = clientSecret.split('_secret_')[0]
-
-      const response = await fetch('/api/update-payment-intent', {
+      const updateResponse = await fetch('/api/medusa/cart/update-address', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          payment_intent_id: paymentIntentId,
-          amount: newTotal,
-          shipping_rate_id: rate.id,
-          shipping_amount: rate.amount_cents,
-          shippo_rate_id: rate.shippo_rate_id,
-          carrier: rate.carrier,
-          service_name: rate.name,
-          delivery_days: rate.delivery_days
+          cartId,
+          email: shippingAddress.email,
+          shippingAddress: {
+            firstName: shippingAddress.firstName,
+            lastName: shippingAddress.lastName,
+            address1: shippingAddress.address1,
+            address2: shippingAddress.address2,
+            city: shippingAddress.city,
+            province: shippingAddress.province,
+            postalCode: shippingAddress.postalCode,
+            countryCode: shippingAddress.countryCode,
+            phone: shippingAddress.phone
+          }
+        })
+      })
+
+      if (!updateResponse.ok) {
+        const payload = await updateResponse.json().catch(() => null)
+        throw new Error(payload?.error || 'Unable to save delivery address.')
+      }
+
+      const optionsResponse = await fetch('/api/medusa/cart/shipping-options', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cartId })
+      })
+
+      const data = await optionsResponse.json().catch(() => null)
+      if (!optionsResponse.ok) {
+        throw new Error(data?.error || 'Unable to calculate delivery rates.')
+      }
+
+      const options = Array.isArray(data?.shippingOptions) ? data.shippingOptions : []
+      setShippingRates(options)
+      setSelectedRateId(null)
+    } catch (err) {
+      console.error('Shipping rates error:', err)
+      setError('Unable to calculate shipping for this address. Please verify your address.')
+      setShippingRates([])
+    } finally {
+      setLoadingRates(false)
+    }
+  }
+
+  async function selectShippingRate(rate: ShippingRate) {
+    if (!cartId) return
+    setSelectedRateId(rate.id)
+    setError(null)
+    setClientSecret(null)
+
+    try {
+      await syncMedusaCart(getCart())
+
+      const response = await fetch('/api/medusa/cart/select-shipping', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cartId,
+          optionId: rate.id
         })
       })
 
       if (!response.ok) {
-        throw new Error('Failed to update payment amount')
+        const payload = await response.json().catch(() => null)
+        throw new Error(payload?.error || 'Failed to apply shipping option')
       }
 
-      // Update local cart state
-      setCart({
-        ...cart,
-        shipping_amount_cents: rate.amount_cents,
-        total_cents: newTotal
-      })
-    } catch (error) {
-      console.error('Failed to update shipping:', error)
-      setError('Failed to update shipping. Please try again.')
-    }
-  }
+      await loadCart(cartId)
 
-  // Handle payment submission
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-
-    if (!stripe || !elements) {
-      return
-    }
-
-    if (!selectedRateId) {
-      setError('Please select a shipping option')
-      return
-    }
-
-    if (!shippingAddress) {
-      setError('Please enter your shipping address')
-      return
-    }
-
-    setProcessing(true)
-    setError(null)
-
-    try {
-      // Confirm payment with Stripe
-      const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/order/confirmation`,
-          shipping: {
-            name: shippingAddress.name || 'Customer',
-            phone: shippingAddress.phone,
-            address: {
-              line1: shippingAddress.line1,
-              line2: shippingAddress.line2 || '',
-              city: shippingAddress.city,
-              state: shippingAddress.state,
-              postal_code: shippingAddress.postal_code,
-              country: shippingAddress.country
-            }
-          }
-        },
-        redirect: 'if_required' // Stay on page if no 3DS
-      })
-
-      if (stripeError) {
-        setError(stripeError.message || 'Payment failed')
-      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        // Payment succeeded without redirect
-        await completeOrder(paymentIntent.id)
-
-        // Redirect to confirmation
-        window.location.href = '/order/confirmation?payment_intent=' + paymentIntent.id
-      }
-    } catch (error) {
-      console.error('Payment error:', error)
-      setError('Payment failed. Please try again.')
-    } finally {
-      setProcessing(false)
-    }
-  }
-
-  async function completeOrder(paymentIntentId: string) {
-    try {
-      await fetch('/api/complete-order', {
+      const intentResponse = await fetch('/api/medusa/payments/create-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          cart_id: cartId,
-          payment_intent_id: paymentIntentId
-        })
+        body: JSON.stringify({ cartId })
       })
-    } catch (error) {
-      console.error('Order completion warning:', error)
-      // Don't block success page - order will be created via webhook
+      if (!intentResponse.ok) {
+        const payload = await intentResponse.json().catch(() => null)
+        throw new Error(payload?.error || 'Failed to initialize payment')
+      }
+      const payload = await intentResponse.json().catch(() => null)
+      if (!payload?.client_secret) {
+        throw new Error('Payment intent not ready')
+      }
+      setClientSecret(payload.client_secret)
+    } catch (err) {
+      console.error('Failed to update shipping:', err)
+      setError('Failed to update shipping. Please try again.')
     }
   }
 
@@ -351,7 +230,7 @@ function CheckoutFormInner({
     )
   }
 
-  if (!cart || cart.items.length === 0) {
+  if (!cartId || !cart || cart.items.length === 0) {
     return (
       <div className="checkout-empty">
         <h2>Your cart is empty</h2>
@@ -362,30 +241,93 @@ function CheckoutFormInner({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="checkout-form">
+    <form onSubmit={(e) => e.preventDefault()} className="checkout-form">
       <div className="checkout-grid">
         {/* Left Column: Form */}
         <div className="checkout-main">
           {/* Shipping Address */}
           <section className="checkout-section">
             <h2 className="section-title">Shipping Address</h2>
-            <div className="address-element-wrapper">
-              <AddressElement
-                options={{
-                  mode: 'shipping',
-                  allowedCountries: ['US'],
-                  fields: {
-                    phone: 'always'
-                  },
-                  validation: {
-                    phone: {
-                      required: 'always'
-                    }
-                  }
-                }}
-                onChange={handleAddressChange}
+            <div className="grid gap-3 sm:grid-cols-2">
+              <input
+                type="email"
+                placeholder="Email"
+                value={shippingAddress.email}
+                onChange={updateAddressField('email')}
+                className="w-full rounded border border-white/10 bg-black/40 px-3 py-2 text-sm text-white"
+              />
+              <input
+                type="tel"
+                placeholder="Phone"
+                value={shippingAddress.phone}
+                onChange={updateAddressField('phone')}
+                className="w-full rounded border border-white/10 bg-black/40 px-3 py-2 text-sm text-white"
+              />
+              <input
+                type="text"
+                placeholder="First name"
+                value={shippingAddress.firstName}
+                onChange={updateAddressField('firstName')}
+                className="w-full rounded border border-white/10 bg-black/40 px-3 py-2 text-sm text-white"
+              />
+              <input
+                type="text"
+                placeholder="Last name"
+                value={shippingAddress.lastName}
+                onChange={updateAddressField('lastName')}
+                className="w-full rounded border border-white/10 bg-black/40 px-3 py-2 text-sm text-white"
+              />
+              <input
+                type="text"
+                placeholder="Address line 1"
+                value={shippingAddress.address1}
+                onChange={updateAddressField('address1')}
+                className="w-full rounded border border-white/10 bg-black/40 px-3 py-2 text-sm text-white sm:col-span-2"
+              />
+              <input
+                type="text"
+                placeholder="Address line 2"
+                value={shippingAddress.address2}
+                onChange={updateAddressField('address2')}
+                className="w-full rounded border border-white/10 bg-black/40 px-3 py-2 text-sm text-white sm:col-span-2"
+              />
+              <input
+                type="text"
+                placeholder="City"
+                value={shippingAddress.city}
+                onChange={updateAddressField('city')}
+                className="w-full rounded border border-white/10 bg-black/40 px-3 py-2 text-sm text-white"
+              />
+              <input
+                type="text"
+                placeholder="State / Province"
+                value={shippingAddress.province}
+                onChange={updateAddressField('province')}
+                className="w-full rounded border border-white/10 bg-black/40 px-3 py-2 text-sm text-white"
+              />
+              <input
+                type="text"
+                placeholder="Postal code"
+                value={shippingAddress.postalCode}
+                onChange={updateAddressField('postalCode')}
+                className="w-full rounded border border-white/10 bg-black/40 px-3 py-2 text-sm text-white"
+              />
+              <input
+                type="text"
+                placeholder="Country (2-letter code)"
+                value={shippingAddress.countryCode}
+                onChange={updateAddressField('countryCode')}
+                className="w-full rounded border border-white/10 bg-black/40 px-3 py-2 text-sm text-white"
               />
             </div>
+            <button
+              type="button"
+              onClick={handleCalculateShipping}
+              disabled={loadingRates}
+              className="mt-3 inline-flex items-center justify-center rounded bg-primary px-3 py-2 text-sm font-semibold text-black disabled:opacity-60"
+            >
+              {loadingRates ? 'Calculating rates...' : 'Calculate shipping'}
+            </button>
           </section>
 
           {/* Shipping Rates */}
@@ -399,7 +341,7 @@ function CheckoutFormInner({
               </div>
             )}
 
-            {!loadingRates && shippingRates.length === 0 && shippingAddress && !error && (
+            {!loadingRates && shippingRates.length === 0 && !error && (
               <div className="shipping-placeholder">
                 <p>Enter a complete address to see shipping options</p>
               </div>
@@ -423,14 +365,12 @@ function CheckoutFormInner({
                     />
                     <div className="option-content">
                       <div className="option-details">
-                        <strong className="option-name">{rate.name}</strong>
-                        <span className="option-carrier">{rate.carrier}</span>
-                        <span className="option-delivery">
-                          {rate.delivery_days} business days
-                        </span>
+                        <strong className="option-name">{rate.name || 'Shipping option'}</strong>
+                        <span className="option-carrier">{rate.data?.carrier || 'Carrier'}</span>
+                        <span className="option-delivery">{rate.price_type || 'calculated'}</span>
                       </div>
                       <div className="option-price">
-                        ${(rate.amount_cents / 100).toFixed(2)}
+                        ${(((rate.calculated_price ?? rate.amount ?? 0) as number) / 100).toFixed(2)}
                       </div>
                     </div>
                   </label>
@@ -442,16 +382,53 @@ function CheckoutFormInner({
           {/* Payment */}
           <section className="checkout-section">
             <h2 className="section-title">Payment</h2>
-            <div className="payment-element-wrapper">
-              <PaymentElement
+            {clientSecret ? (
+              <Elements
+                stripe={stripePromise}
                 options={{
-                  layout: {
-                    type: 'tabs',
-                    defaultCollapsed: false
+                  clientSecret,
+                  appearance: {
+                    theme: 'night' as const,
+                    variables: {
+                      colorPrimary: '#dc2626',
+                      colorBackground: '#0a0a0a',
+                      colorText: '#ffffff',
+                      colorDanger: '#ef4444',
+                      fontFamily: 'system-ui, sans-serif',
+                      spacingUnit: '4px',
+                      borderRadius: '8px'
+                    },
+                    rules: {
+                      '.Input': {
+                        backgroundColor: '#1a1a1a',
+                        border: '1px solid #333'
+                      },
+                      '.Input:focus': {
+                        border: '1px solid #dc2626',
+                        boxShadow: '0 0 0 2px rgba(220, 38, 38, 0.2)'
+                      },
+                      '.Label': {
+                        color: '#999',
+                        fontWeight: '500'
+                      }
+                    }
                   }
                 }}
-              />
-            </div>
+              >
+                <PaymentSection
+                  shippingAddress={shippingAddress}
+                  cartId={cartId}
+                  setError={setError}
+                  processing={processing}
+                  setProcessing={setProcessing}
+                  selectedRateId={selectedRateId}
+                />
+              </Elements>
+            ) : (
+              <p className="text-sm text-white/70">
+                Select a shipping option to initialize secure payment.
+              </p>
+            )}
           </section>
 
           {/* Error Display */}
@@ -465,22 +442,6 @@ function CheckoutFormInner({
               {error}
             </div>
           )}
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={!stripe || processing || !selectedRateId}
-            className="checkout-button"
-          >
-            {processing ? (
-              <>
-                <div className="spinner-small"></div>
-                Processing...
-              </>
-            ) : (
-              `Pay ${cart ? `$${(cart.total_cents / 100).toFixed(2)}` : ''}`
-            )}
-          </button>
 
           <p className="secure-notice">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -538,36 +499,126 @@ function CheckoutFormInner({
   )
 }
 
-// Utility functions
-function debounce<T extends (...args: any[]) => void>(fn: T, delay: number) {
-  let timeoutId: ReturnType<typeof setTimeout>
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeoutId)
-    timeoutId = setTimeout(() => fn(...args), delay)
-  }
-}
+function PaymentSection({
+  shippingAddress,
+  cartId,
+  setError,
+  processing,
+  setProcessing,
+  selectedRateId
+}: {
+  shippingAddress: ShippingAddress
+  cartId: string
+  setError: (value: string | null) => void
+  processing: boolean
+  setProcessing: (value: boolean) => void
+  selectedRateId: string | null
+}) {
+  const stripe = useStripe()
+  const elements = useElements()
 
-function isAddressComplete(address: any): boolean {
-  return !!(
-    address?.line1 &&
-    address?.city &&
-    address?.state &&
-    address?.postal_code &&
-    address?.country
+  async function handleSubmit() {
+    if (!stripe || !elements) return
+    if (!selectedRateId) {
+      setError('Please select a shipping option')
+      return
+    }
+    if (!isAddressComplete(shippingAddress)) {
+      setError('Please enter your shipping address')
+      return
+    }
+
+    setProcessing(true)
+    setError(null)
+
+    try {
+      const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/order/confirmation`,
+          shipping: {
+            name:
+              `${shippingAddress.firstName || ''} ${shippingAddress.lastName || ''}`.trim() ||
+              'Customer',
+            phone: shippingAddress.phone,
+            address: {
+              line1: shippingAddress.address1,
+              line2: shippingAddress.address2 || '',
+              city: shippingAddress.city,
+              state: shippingAddress.province,
+              postal_code: shippingAddress.postalCode,
+              country: shippingAddress.countryCode
+            }
+          }
+        },
+        redirect: 'if_required'
+      })
+
+      if (stripeError) {
+        setError(stripeError.message || 'Payment failed')
+      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+        await completeOrder(cartId, paymentIntent.id)
+        window.location.href = '/order/confirmation?payment_intent=' + paymentIntent.id
+      }
+    } catch (error) {
+      console.error('Payment error:', error)
+      setError('Payment failed. Please try again.')
+    } finally {
+      setProcessing(false)
+    }
+  }
+
+  return (
+    <div className="payment-element-wrapper">
+      <PaymentElement
+        options={{
+          layout: {
+            type: 'tabs',
+            defaultCollapsed: false
+          }
+        }}
+      />
+      <button
+        type="button"
+        disabled={!stripe || processing}
+        className="checkout-button mt-4"
+        onClick={handleSubmit}
+      >
+        {processing ? (
+          <>
+            <div className="spinner-small"></div>
+            Processing...
+          </>
+        ) : (
+          'Pay now'
+        )}
+      </button>
+    </div>
   )
 }
 
-function getOrCreateCartId(): string {
-  // Check for existing cart ID in cookie
-  const cookies = document.cookie.split('; ')
-  const cartCookie = cookies.find(c => c.startsWith('cart_id='))
-
-  if (cartCookie) {
-    return cartCookie.split('=')[1]
+async function completeOrder(cartId: string, paymentIntentId: string) {
+  try {
+    await fetch('/api/complete-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        cart_id: cartId,
+        payment_intent_id: paymentIntentId
+      })
+    })
+  } catch (error) {
+    console.error('Order completion warning:', error)
   }
+}
 
-  // Generate new cart ID
-  const newCartId = 'cart_' + Math.random().toString(36).substr(2, 9)
-  document.cookie = `cart_id=${newCartId}; path=/; max-age=${7 * 24 * 60 * 60}` // 7 days
-  return newCartId
+function isAddressComplete(address: ShippingAddress): boolean {
+  return !!(
+    address.address1 &&
+    address.city &&
+    address.province &&
+    address.postalCode &&
+    address.countryCode &&
+    address.email
+  )
 }

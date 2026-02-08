@@ -2,12 +2,13 @@ import type { APIRoute } from 'astro';
 import { createClient } from '@sanity/client';
 import { jsonResponse } from '@/server/http/responses';
 import { wheelQuoteUpdateSchema } from '@/lib/validators/api-requests';
+import { requireSanityApiToken } from '@/server/sanity-token';
 
 const sanity = createClient({
-  projectId: import.meta.env.SANITY_PROJECT_ID,
-  dataset: import.meta.env.SANITY_DATASET,
+  projectId: process.env.SANITY_PROJECT_ID,
+  dataset: process.env.SANITY_DATASET,
   apiVersion: '2024-01-01',
-  token: import.meta.env.SANITY_API_TOKEN,
+  token: requireSanityApiToken('api/wheel-quote-update'),
   useCdn: false
 });
 

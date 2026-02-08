@@ -96,7 +96,6 @@ gemini-checkout-discounts-audit:
 	@echo "Scope:"
 	@echo " - Checkout UI"
 	@echo " - Cart UI"
-	@echo " - Stripe Checkout session creation"
 	@echo " - Discount / coupon handling"
 	@echo ""
 	@echo "Output:"

@@ -8,21 +8,14 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 
 const projectId =
-  process.env.SANITY_PROJECT_ID ||
-  process.env.SANITY_STUDIO_PROJECT_ID ||
-  process.env.PUBLIC_SANITY_PROJECT_ID;
+  process.env.SANITY_PROJECT_ID || process.env.PUBLIC_SANITY_PROJECT_ID;
 const dataset =
-  process.env.SANITY_DATASET ||
-  process.env.SANITY_STUDIO_DATASET ||
-  process.env.PUBLIC_SANITY_DATASET ||
-  'production';
+  process.env.SANITY_DATASET || process.env.PUBLIC_SANITY_DATASET || 'production';
 const token =
-  process.env.SANITY_WRITE_TOKEN ||
-  process.env.SANITY_API_TOKEN ||
-  process.env.SANITY_TOKEN;
+  process.env.SANITY_API_TOKEN || process.env.SANITY_TOKEN;
 
 if (!projectId || !dataset || !token) {
-  console.error('❌ Missing Sanity credentials (need SANITY_PROJECT_ID/DATASET and SANITY_WRITE_TOKEN)');
+  console.error('❌ Missing Sanity credentials (need SANITY_PROJECT_ID/DATASET and SANITY_API_TOKEN)');
   process.exit(1);
 }
 

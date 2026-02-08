@@ -10,7 +10,6 @@ export function normalizeBaseUrl(baseUrl: string): string {
 
 export function resolveSanityFunctionsBaseUrl(): string {
   const rawUrlCandidates = [
-    import.meta.env.SANITY_FUNCTIONS_BASE_URL,
     import.meta.env.PUBLIC_SANITY_FUNCTIONS_BASE_URL,
     process.env.SANITY_FUNCTIONS_BASE_URL,
     process.env.PUBLIC_SANITY_FUNCTIONS_BASE_URL,

@@ -10,7 +10,6 @@ Prove replay safety: the same Stripe session event does not create duplicate ord
 4) POST it twice to the storefront webhook endpoint (exact URL depends on your deploy).
 
 Example (replace URL):
-curl -X POST "https://<your-site>/.netlify/functions/stripeWebhook" \
   -H "Content-Type: application/json" \
   -d @event.json
 

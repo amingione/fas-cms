@@ -3,11 +3,9 @@ import { createClient } from '@sanity/client';
 const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
 const dataset = import.meta.env.PUBLIC_SANITY_DATASET;
 const isServer = Boolean(import.meta.env.SSR);
-const token = isServer
-  ? import.meta.env.SANITY_API_READ_TOKEN ||
-    import.meta.env.SANITY_API_TOKEN ||
-    import.meta.env.SANITY_WRITE_TOKEN
-  : undefined;
+const serverEnv =
+  (typeof process !== 'undefined' ? (process as any).env : {}) as Record<string, string | undefined>;
+const token = isServer ? serverEnv.SANITY_API_TOKEN : undefined;
 
 if (!projectId || !dataset) {
   throw new Error('Missing required environment variables for Sanity');

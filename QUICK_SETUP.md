@@ -13,7 +13,6 @@
 Add to `fas-cms-fresh/.env`:
 
 ```bash
-STRIPE_SHIPPING_WEBHOOK_SECRET=YOUR_STRIPE_SHIPPING_WEBHOOK_SECRET
 SHIPPO_API_KEY=EZAK_...
 SHIPPO_API_BASE=https://api.shippo.com
 WAREHOUSE_ADDRESS_LINE1=6161 Riverside Dr
@@ -60,7 +59,6 @@ git push
 
 **Failure Signs:**
 
-❌ Stripe webhook logs show errors  
 ❌ No shipping options appear after entering address  
 ❌ Server logs show `[ShippingWebhook] ❌` errors  
 ❌ Customer can't complete checkout  
@@ -70,7 +68,6 @@ git push
 ## 🆘 Quick Troubleshooting
 
 **Issue:** Webhook returns 401  
-**Fix:** Check `STRIPE_SHIPPING_WEBHOOK_SECRET` is correct
 
 **Issue:** Webhook returns 400  
 **Fix:** Verify `cart` is in session metadata (see create-checkout-session.ts)

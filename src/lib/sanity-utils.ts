@@ -20,13 +20,16 @@ const toBooleanFlag = (value: unknown): boolean => {
 };
 
 // Initialize Sanity client (support both PUBLIC_* and server-side SANITY_* envs)
+const serverEnv =
+  (typeof process !== 'undefined' ? (process as any).env : {}) as Record<string, string | undefined>;
+const isServer = Boolean(import.meta.env.SSR);
+const publicProjectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID as string | undefined;
 const projectId =
-  (import.meta.env.PUBLIC_SANITY_PROJECT_ID as string | undefined) ||
-  (import.meta.env.SANITY_PROJECT_ID as string | undefined);
+  (isServer ? serverEnv.SANITY_PROJECT_ID || publicProjectId : publicProjectId);
 const dataset =
-  (import.meta.env.PUBLIC_SANITY_DATASET as string | undefined) ||
-  (import.meta.env.SANITY_DATASET as string | undefined) ||
-  'production';
+  (isServer
+    ? serverEnv.SANITY_DATASET || (import.meta.env.PUBLIC_SANITY_DATASET as string | undefined)
+    : (import.meta.env.PUBLIC_SANITY_DATASET as string | undefined)) || 'production';
 const apiVersion = '2024-01-01';
 
 const imageBuilder = projectId && dataset ? imageUrlBuilder({ projectId, dataset }) : null;
@@ -203,9 +206,7 @@ export const optimizeSanityImageUrl = (
 
 const studioUrlRaw =
   (import.meta.env.PUBLIC_SANITY_STUDIO_URL as string | undefined) ||
-  (import.meta.env.PUBLIC_STUDIO_URL as string | undefined) ||
-  (import.meta.env.SANITY_STUDIO_URL as string | undefined) ||
-  (import.meta.env.SANITY_STUDIO_NETLIFY_BASE as string | undefined) ||
+  serverEnv.SANITY_STUDIO_URL ||
   undefined;
 const studioUrl =
   typeof studioUrlRaw === 'string' && studioUrlRaw.trim() ? studioUrlRaw : undefined;
@@ -214,18 +215,12 @@ const previewDraftsRequested = toBooleanFlag(
   (import.meta.env.PUBLIC_SANITY_PREVIEW_DRAFTS as string | undefined) ?? 'false'
 );
 
-const isServer = Boolean(import.meta.env.SSR);
-const apiToken = isServer
-  ? (import.meta.env.SANITY_API_READ_TOKEN as string | undefined) ||
-    (import.meta.env.SANITY_API_TOKEN as string | undefined) ||
-    (import.meta.env.SANITY_WRITE_TOKEN as string | undefined) ||
-    undefined
-  : undefined;
+const apiToken = isServer ? serverEnv.SANITY_API_TOKEN : undefined;
 
 let previewDraftsEnabled = Boolean(previewDraftsRequested);
 if (previewDraftsEnabled && !apiToken) {
   console.warn(
-    '[sanity-utils] Preview drafts requested but no SANITY_API_READ_TOKEN (or SANITY_API_TOKEN) was found; falling back to published content.'
+    '[sanity-utils] Preview drafts requested but no SANITY_API_TOKEN was found; falling back to published content.'
   );
   previewDraftsEnabled = false;
 }
@@ -244,10 +239,8 @@ const parsePositiveInt = (value: unknown, fallback: number): number => {
 };
 
 const manualCacheDisableFlag =
-  toBooleanFlag((import.meta.env.SANITY_DISABLE_CACHE as string | undefined) ?? 'false') ||
   toBooleanFlag((import.meta.env.PUBLIC_SANITY_DISABLE_CACHE as string | undefined) ?? 'false');
 const manualCacheEnableFlagRaw =
-  (import.meta.env.SANITY_ENABLE_CACHE as string | undefined) ||
   (import.meta.env.PUBLIC_SANITY_ENABLE_CACHE as string | undefined);
 const manualCacheEnableFlag =
   manualCacheEnableFlagRaw === undefined ? true : toBooleanFlag(manualCacheEnableFlagRaw);
@@ -256,8 +249,7 @@ export const sanityCacheEnabled =
   !manualCacheDisableFlag && manualCacheEnableFlag && !import.meta.env.DEV && !previewDraftsEnabled;
 
 const DEFAULT_SANITY_CACHE_TTL_SECONDS = parsePositiveInt(
-  (import.meta.env.SANITY_CACHE_TTL_SECONDS as string | undefined) ||
-    (import.meta.env.PUBLIC_SANITY_CACHE_TTL_SECONDS as string | undefined) ||
+  (import.meta.env.PUBLIC_SANITY_CACHE_TTL_SECONDS as string | undefined) ||
     0,
   300
 );

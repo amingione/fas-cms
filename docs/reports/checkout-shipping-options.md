@@ -10,13 +10,10 @@
         ↓ Live rates + shipmentId metadata
   (fas-cms storefront) Customer selects rate → /api/checkout
         ↓ server builds Stripe sessionParams.shipping_options from chosen Shippo rate (carrier/service/rateId)
-  Stripe Checkout shows live Shippo shipping option → charges shipping
-        ↓ Stripe webhook → `src/pages/api/webhooks.ts` stores metadata in Sanity order
   (fas-sanity label tooling) create-shipping-label.ts uses stored Shippo rate/shipment IDs paid later
   ```
 - **Idempotency strategy:** quote requests carry a deterministic `quoteKey` (hash of `cart` + `destination`) so `getShippingQuoteBySkus` can reuse an existing Shippo `shipment.id` saved on a temporary Sanity `shippingQuote` doc (avoiding duplicate shipments for retries, and retaining `rateId`). Stripe metadata will include that `quoteKey`/`shipmentId` for downstream correlation.
 - The cache document now records `source` (`fresh` vs `cache`), `rateCount`, `cartSummary`, `createdAt`, and `expiresAt`, and the API response mirrors those fields so you can explain why the customer saw a specific carrier rate.
-- **Error handling:** propagate Sanity function errors (missing address, Shippo downtime) to the storefront with user-friendly copy; backend logs include the `quoteKey`, cart summary, and Shippo error text; Stripe checkout is not created until a rate exists.
 - **Rates inside Stripe UI:** `fas-cms` builds `sessionParams.shipping_options` with the selected Shippo rate (`fixed_amount`, `display_name`, `delivery_estimate`, metadata). Because the rate originates from `getShippingQuoteBySkus`, Stripe displays the live carrier amount rather than the legacy estimator.
 - **Label purchase approach:** `create-shipping-label.ts`/Shippo webhooks in `fas-sanity` remain the only label creators; they consume the stored `shippoRateId`, `carrier`, and `shipmentId` that the quote wrote into the `order`. Manual label purchases run through the Sanity backend or rely on the same Shippo client logic, avoiding duplication.
 - **Pros:** reuses existing Shippo quoting + label tooling, keeps carrier credentials centralized, Sanity already owns schema/data (order fields, shipping log). `fas-cms` only needs to call the Netlify function and lift the returned metadata into Stripe. Live rates appear immediately; there is no need to duplicate Shippo clients/UI.
@@ -31,7 +28,6 @@
   (fas-cms) ↔ Shippo.Shipment.create + /smartrate (internal helper)
         ↓ live rates
   (fas-cms) builds Stripe sessionParams.shipping_options from Shippo rate metadata
-  Stripe Checkout charges carrier amount and sends metadata in webhook
   (fas-cms webhooks) writes Sanity order, then `fas-sanity` label tooling still uses `create-shipping-label.ts` but reads inserted `shipmentId`/`rateId`
   ```
 - **Idempotency strategy:** `fas-cms` keeps a local `quoteKey`/`shipmentId` store (in Memory/Redis or Sanity) so retries reuse the same Shippo shipment and avoid accumulating extra shipments. The `checkout` handler must detect repeated quote requests for the same cart/address and reuse the cached `shipmentId` and `rates`.

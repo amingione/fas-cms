@@ -3,7 +3,7 @@
 /**
  * FAS Checkout Cleanup Script
  *
- * Safely removes old Stripe Checkout Sessions code after creating backups
+ * Safely removes old hosted-checkout code after creating backups
  * Run after unified checkout (Stripe Elements) is tested and working
  *
  * Usage: node scripts/cleanup-old-checkout.js
@@ -135,7 +135,7 @@ log('Checking new checkout files exist...', 'info');
 const requiredFiles = [
   'src/pages/checkout.astro',
   'src/pages/order/confirmation.astro',
-  'src/pages/api/create-payment-intent.ts',
+  'src/pages/api/medusa/payments/create-intent.ts',
   'src/pages/api/shipping-rates.ts'
 ];
 
