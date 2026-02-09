@@ -77,8 +77,24 @@ export const POST: APIRoute = async ({ request }) => {
     withRates.push(calcData?.shipping_option ?? option);
   }
 
+  let shippoRates: any[] = [];
+  let bestShippoRate: any | null = null;
+  try {
+    const shippoResponse = await medusaFetch(
+      `/store/shippo-rates?cart_id=${encodeURIComponent(cartId)}&carrier=ups`,
+      { method: 'GET' }
+    );
+    const shippoData = await readJsonSafe<any>(shippoResponse);
+    if (shippoResponse.ok) {
+      shippoRates = Array.isArray(shippoData?.rates) ? shippoData.rates : [];
+      bestShippoRate = shippoData?.best_rate ?? null;
+    }
+  } catch {
+    // Optional enhancement; ignore failures here.
+  }
+
   return jsonResponse(
-    { shippingOptions: withRates },
+    { shippingOptions: withRates, shippoRates, bestShippoRate },
     { status: 200 },
     { noIndex: true }
   );

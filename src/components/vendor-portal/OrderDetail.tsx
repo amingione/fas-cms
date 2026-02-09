@@ -9,20 +9,17 @@ type LineItem = {
   total?: number;
 };
 
-type StatusHistory = { status?: string; timestamp?: string };
-
 type Order = {
   _id: string;
   orderNumber?: string;
   status?: string;
+  paymentStatus?: string;
   createdAt?: string;
   cart?: LineItem[];
   amountSubtotal?: number;
   amountTax?: number;
   amountShipping?: number;
   totalAmount?: number;
-  wholesaleDetails?: { poNumber?: string; notes?: string; vendorTier?: string };
-  statusHistory?: StatusHistory[];
 };
 
 const OrderDetail: React.FC<{ order: Order }> = ({ order }) => {
@@ -39,6 +36,15 @@ const OrderDetail: React.FC<{ order: Order }> = ({ order }) => {
           <p className="text-white/60 text-sm">
             {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '—'}{' '}
             • <span className="rounded-full bg-white/10 px-2 py-1 text-xs">{order.status || 'Processing'}</span>
+            {order.paymentStatus && (
+              <>
+                {' '}
+                •{' '}
+                <span className="rounded-full bg-white/10 px-2 py-1 text-xs">
+                  {order.paymentStatus}
+                </span>
+              </>
+            )}
           </p>
         </div>
         <div className="text-right">
@@ -98,33 +104,13 @@ const OrderDetail: React.FC<{ order: Order }> = ({ order }) => {
             </div>
           </div>
           <div className="rounded-lg border border-white/10 bg-white/5 p-4">
-            <h3 className="text-sm font-semibold text-white mb-3">Status Timeline</h3>
-            <ul className="space-y-2 text-sm text-white/80">
-              {(order.statusHistory || []).map((entry, idx) => (
-                <li key={idx} className="flex justify-between">
-                  <span className="font-semibold">{entry.status || '—'}</span>
-                  <span>{entry.timestamp ? new Date(entry.timestamp).toLocaleString() : ''}</span>
-                </li>
-              ))}
-              {!order.statusHistory?.length && <li className="text-white/60">No history.</li>}
-            </ul>
+            <h3 className="text-sm font-semibold text-white mb-3">Payment</h3>
+            <div className="text-sm text-white/80">
+              Status: <span className="font-semibold">{order.paymentStatus || 'unpaid'}</span>
+            </div>
           </div>
         </div>
       </div>
-
-      {(order.wholesaleDetails?.notes || order.wholesaleDetails?.poNumber) && (
-        <div className="rounded-lg border border-white/10 bg-white/5 p-4">
-          <h3 className="text-sm font-semibold text-white mb-2">Wholesale Details</h3>
-          {order.wholesaleDetails?.poNumber && (
-            <p className="text-sm text-white/80">PO: {order.wholesaleDetails.poNumber}</p>
-          )}
-          {order.wholesaleDetails?.notes && (
-            <p className="text-sm text-white/80 whitespace-pre-wrap mt-1">
-              {order.wholesaleDetails.notes}
-            </p>
-          )}
-        </div>
-      )}
     </div>
   );
 };

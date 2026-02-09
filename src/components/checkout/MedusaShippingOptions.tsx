@@ -26,6 +26,15 @@ type ShippingOption = {
   region?: { currency_code?: string };
 };
 
+type ShippoRate = {
+  rate_id: string;
+  amount: string;
+  currency: string;
+  provider?: string;
+  servicelevel?: string;
+  estimated_days?: number | null;
+};
+
 const EMPTY_ADDRESS: AddressState = {
   email: '',
   firstName: '',
@@ -121,6 +130,7 @@ export default function MedusaShippingOptions() {
   const [loading, setLoading] = useState(false);
   const [paying, setPaying] = useState(false);
   const [selectedOptionId, setSelectedOptionId] = useState<string>('');
+  const [selectedRate, setSelectedRate] = useState<ShippoRate | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -205,10 +215,16 @@ export default function MedusaShippingOptions() {
       setShippingOptions(
         Array.isArray(optionsPayload?.shippingOptions) ? optionsPayload.shippingOptions : []
       );
+      setSelectedRate(
+        optionsPayload?.bestShippoRate && typeof optionsPayload.bestShippoRate === 'object'
+          ? optionsPayload.bestShippoRate
+          : null
+      );
       setSelectedOptionId('');
     } catch (err: any) {
       setError(err?.message || 'Unable to calculate delivery rates.');
       setShippingOptions([]);
+      setSelectedRate(null);
     } finally {
       setLoading(false);
     }
@@ -230,7 +246,7 @@ export default function MedusaShippingOptions() {
       const response = await fetch('/api/medusa/cart/select-shipping', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cartId: id, optionId })
+        body: JSON.stringify({ cartId: id, optionId, shippoRate: selectedRate })
       });
       const payload = await response.json().catch(() => null);
       if (!response.ok) {

@@ -14,10 +14,7 @@ export const productDetailQuery = /* groq */ `
   
   // Pricing with sale logic
   "pricing": {
-    "price": pricing.price,
-    "salePrice": pricing.salePrice,
     "onSale": pricing.onSale,
-    "compareAtPrice": pricing.compareAtPrice,
     "saleActive": pricing.saleActive,
     "discountPercentage": pricing.discountPercentage,
     "saleStartDate": pricing.saleStartDate,
@@ -50,8 +47,6 @@ export const productDetailQuery = /* groq */ `
     sku,
     title,
     options,
-    price,
-    compareAtPrice,
     image,
     "inventory": {
       "inStock": inventory.quantityAvailable > 0,
@@ -82,10 +77,7 @@ export const productListingQuery = /* groq */ `
   images[0],
   
   "pricing": {
-    "price": pricing.price,
-    "salePrice": pricing.salePrice,
     "onSale": pricing.onSale && pricing.saleActive,
-    "compareAtPrice": pricing.compareAtPrice,
     "discountPercentage": pricing.discountPercentage,
     "saleStartDate": pricing.saleStartDate,
     "saleEndDate": pricing.saleEndDate,
@@ -133,9 +125,6 @@ export const activeSalesQuery = /* groq */ `
   slug,
   images[0],
   "pricing": {
-    "price": pricing.price,
-    "salePrice": pricing.salePrice,
-    "compareAtPrice": pricing.compareAtPrice,
     "discountPercentage": pricing.discountPercentage,
     "saleEndDate": pricing.saleEndDate,
     "saleActive": pricing.saleActive,
@@ -342,11 +331,9 @@ export const collectionWithProductsQuery = /* groq */ `
       displayTitle,
       slug,
       images[0],
-      pricing,
       inventory,
       reviews.averageRating,
-      reviews.totalReviews,
-      "price": pricing.price
+      reviews.totalReviews
     }
   )
 }`;
@@ -381,8 +368,7 @@ export const featuredCollectionsQuery = /* groq */ `
       _id,
       title,
       displayTitle,
-      images[0],
-      pricing
+      images[0]
     }
   )
 }`;

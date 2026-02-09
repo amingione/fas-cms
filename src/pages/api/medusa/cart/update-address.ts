@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { jsonResponse } from '@/server/http/responses';
 import { getMedusaConfig, medusaFetch, readJsonSafe } from '@/lib/medusa';
+import { normalizeCartTotals } from '@/lib/money';
 
 type AddressInput = {
   firstName?: string;
@@ -88,6 +89,10 @@ export const POST: APIRoute = async ({ request }) => {
       { status: response.status },
       { noIndex: true }
     );
+  }
+
+  if (data?.cart) {
+    normalizeCartTotals(data.cart);
   }
 
   return jsonResponse({ cart: data?.cart ?? null }, { status: 200 }, { noIndex: true });

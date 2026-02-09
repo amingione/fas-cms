@@ -2,9 +2,19 @@
 import { resolveSanityImageUrl } from '@/lib/sanity-utils.ts';
 import { resolveProductCartMeta } from '@/lib/product-flags.ts';
 import { formatCents } from '@/lib/pricing';
+import { resolveProductCalculatedPriceAmount, resolveProductMedusaVariant } from '@/lib/medusa-storefront-pricing';
 
 const { productImage, product, layout = 'grid' } = Astro.props as any;
-const productPrice = typeof product.price === 'number' ? formatCents(product.price) : '—';
+const medusaPrice = resolveProductCalculatedPriceAmount(product);
+const productPrice =
+  typeof medusaPrice === 'number'
+    ? formatCents(medusaPrice)
+    : '—';
+const medusaVariant = resolveProductMedusaVariant(product);
+const productPriceCents =
+  typeof medusaPrice === 'number'
+    ? Math.round(medusaPrice)
+    : undefined;
 
 const fallbackImage = '/logo/faslogochroma.webp';
 const imageUrl = resolveSanityImageUrl([productImage, product?.images]) ?? fallbackImage;
@@ -47,14 +57,16 @@ const cartMeta = resolveProductCartMeta(product);
             class="add-to-cart p-2 text-primary hover:text-white hover:bg-primary transition rounded-full"
             data-product-id={product._id}
             data-product-name={product.title}
-            data-product-price={product.price}
+            data-product-price={productPriceCents}
             data-product-image={imageUrl}
             data-product-categories={JSON.stringify(
               (product.categories || [])
                 .filter(Boolean)
                 .map((c: { _ref?: string; _id?: string }) => c._ref || c._id || '')
             )}
-            data-product-medusa-variant-id={product?.medusaVariantId || ''}
+            data-product-medusa-variant-id={
+              product?.medusaVariantId || (typeof (medusaVariant as any)?.id === 'string' ? (medusaVariant as any).id : '')
+            }
             data-product-shipping-class={cartMeta.shippingClass || ''}
             data-product-install-only={cartMeta.installOnly ? 'true' : 'false'}
           >

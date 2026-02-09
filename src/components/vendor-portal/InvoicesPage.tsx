@@ -59,6 +59,7 @@ const InvoicesPage: React.FC = () => {
               <th className="px-4 py-3 text-right">Total</th>
               <th className="px-4 py-3 text-right">Paid</th>
               <th className="px-4 py-3 text-right">Due</th>
+              <th className="px-4 py-3 text-right">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -82,6 +83,18 @@ const InvoicesPage: React.FC = () => {
                 <td className="px-4 py-3 text-right">${(inv.total || 0).toFixed(2)}</td>
                 <td className="px-4 py-3 text-right">${(inv.amountPaid || 0).toFixed(2)}</td>
                 <td className="px-4 py-3 text-right">${(inv.amountDue || 0).toFixed(2)}</td>
+                <td className="px-4 py-3 text-right">
+                  {inv.amountDue && inv.amountDue > 0 ? (
+                    <a
+                      href={`/vendor-portal/invoices/${inv._id}`}
+                      className="inline-flex items-center justify-center rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white hover:bg-white/20"
+                    >
+                      Pay
+                    </a>
+                  ) : (
+                    <span className="text-white/40 text-xs">Paid</span>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>

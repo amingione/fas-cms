@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { jsonResponse } from '@/server/http/responses';
 import { getMedusaConfig, medusaFetch, readJsonSafe } from '@/lib/medusa';
+import { normalizeCartTotals } from '@/lib/money';
 
 type IncomingCartItem = {
   id: string;
@@ -11,6 +12,8 @@ type IncomingCartItem = {
   productUrl?: string;
   shippingClass?: string;
   installOnly?: boolean;
+  shippingWeight?: number;
+  shippingDimensions?: { length?: number; width?: number; height?: number };
   medusaVariantId?: string;
   selectedOptions?: string[];
   selectedUpgrades?: string[];
@@ -32,6 +35,25 @@ function sanitizeCartItems(items: unknown): IncomingCartItem[] {
         productUrl: typeof entry.productUrl === 'string' ? entry.productUrl : undefined,
         shippingClass: typeof entry.shippingClass === 'string' ? entry.shippingClass : undefined,
         installOnly: typeof entry.installOnly === 'boolean' ? entry.installOnly : undefined,
+        shippingWeight:
+          typeof entry.shippingWeight === 'number' ? entry.shippingWeight : undefined,
+        shippingDimensions:
+          typeof entry.shippingDimensions === 'object' && entry.shippingDimensions
+            ? {
+                length:
+                  typeof entry.shippingDimensions.length === 'number'
+                    ? entry.shippingDimensions.length
+                    : undefined,
+                width:
+                  typeof entry.shippingDimensions.width === 'number'
+                    ? entry.shippingDimensions.width
+                    : undefined,
+                height:
+                  typeof entry.shippingDimensions.height === 'number'
+                    ? entry.shippingDimensions.height
+                    : undefined
+              }
+            : undefined,
         selectedOptions: Array.isArray(entry.selectedOptions)
           ? entry.selectedOptions.filter((value: unknown) => typeof value === 'string')
           : undefined,
@@ -150,7 +172,9 @@ export const POST: APIRoute = async ({ request }) => {
             selected_upgrades: item.selectedUpgrades || [],
             product_url: item.productUrl,
             shipping_class: item.shippingClass,
-            install_only: item.installOnly ?? false
+            install_only: item.installOnly ?? false,
+            shipping_weight: item.shippingWeight,
+            shipping_dimensions: item.shippingDimensions
           }
         })
       });
@@ -218,9 +242,27 @@ export const POST: APIRoute = async ({ request }) => {
     }
   }
 
+  const finalCartResponse = await medusaFetch(`/store/carts/${cartId}`);
+  const finalCartData = await readJsonSafe<any>(finalCartResponse);
+
+  if (!finalCartResponse.ok) {
+    return jsonResponse(
+      {
+        error: finalCartData?.message || 'Failed to fetch updated Medusa cart.',
+        details: finalCartData
+      },
+      { status: finalCartResponse.status },
+      { noIndex: true }
+    );
+  }
+
+  if (finalCartData?.cart) {
+    normalizeCartTotals(finalCartData.cart);
+  }
+
   return jsonResponse(
     {
-      cart: updateData?.cart ?? null,
+      cart: finalCartData?.cart ?? null,
       mappings
     },
     { status: 200 },

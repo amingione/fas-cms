@@ -60,6 +60,26 @@ function addToCart(product: SanityProduct) {
     const slug = getSlug(product);
     const productUrl = slug ? `/shop/${slug}` : undefined;
     const { shippingClass, installOnly } = resolveProductCartMeta(product);
+    const shippingConfig = (product as any)?.shippingConfig || (product as any)?.shipping_config;
+    const shippingWeight =
+      typeof shippingConfig?.weight === 'number' ? shippingConfig.weight : undefined;
+    const shippingDimensions =
+      shippingConfig?.dimensions && typeof shippingConfig.dimensions === 'object'
+        ? {
+            length:
+              typeof shippingConfig.dimensions.length === 'number'
+                ? shippingConfig.dimensions.length
+                : undefined,
+            width:
+              typeof shippingConfig.dimensions.width === 'number'
+                ? shippingConfig.dimensions.width
+                : undefined,
+            height:
+              typeof shippingConfig.dimensions.height === 'number'
+                ? shippingConfig.dimensions.height
+                : undefined
+          }
+        : undefined;
     addItem({
       id,
       name,
@@ -72,6 +92,8 @@ function addToCart(product: SanityProduct) {
       productUrl,
       selectedOptions: [],
       selectedUpgrades: [],
+      shippingWeight,
+      shippingDimensions,
       ...(shippingClass ? { shippingClass } : {}),
       ...(installOnly ? { installOnly: true } : {})
     });

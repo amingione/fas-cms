@@ -40,6 +40,26 @@ export default function ProductCardLiteReact({
   const quickViewOptions = getQuickViewOptionGroups(product);
   const price = resolveProductCalculatedPriceAmount(product) ?? undefined;
   const medusaVariant = resolveProductMedusaVariant(product);
+  const shippingConfig = (product as any)?.shippingConfig || (product as any)?.shipping_config;
+  const shippingWeight =
+    typeof shippingConfig?.weight === 'number' ? shippingConfig.weight : undefined;
+  const shippingDimensions =
+    shippingConfig?.dimensions && typeof shippingConfig.dimensions === 'object'
+      ? {
+          length:
+            typeof shippingConfig.dimensions.length === 'number'
+              ? shippingConfig.dimensions.length
+              : undefined,
+          width:
+            typeof shippingConfig.dimensions.width === 'number'
+              ? shippingConfig.dimensions.width
+              : undefined,
+          height:
+            typeof shippingConfig.dimensions.height === 'number'
+              ? shippingConfig.dimensions.height
+              : undefined
+        }
+      : undefined;
   const analyticsParams = JSON.stringify(
     Object.fromEntries(
       Object.entries({
@@ -112,6 +132,8 @@ export default function ProductCardLiteReact({
             shortDescriptionPortable: (product as any)?.shortDescription,
             optionGroups: quickViewOptions,
             shippingClass: (product as any)?.shippingClass,
+            shippingWeight,
+            shippingDimensions,
             filters: (product as any)?.filters,
             installOnly: (product as any)?.installOnly
           }}
@@ -161,6 +183,8 @@ export default function ProductCardLiteReact({
             shortDescriptionPortable: (product as any)?.shortDescription,
             optionGroups: quickViewOptions,
             shippingClass: (product as any)?.shippingClass,
+            shippingWeight,
+            shippingDimensions,
             filters: (product as any)?.filters,
             installOnly: (product as any)?.installOnly
           }}

@@ -1,7 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import {
-  coercePriceToNumber,
   getProductBySlug,
   getRelatedProducts,
   getUpsellProducts,
@@ -763,6 +762,19 @@ try {
     }
   } catch (error) {
     console.error('[shop/pdp] Failed to attach Medusa pricing to related products', error);
+  }
+
+  if (typeof basePrice === 'number' && Array.isArray(upsellProducts) && upsellProducts.length) {
+    upsellProducts = upsellProducts
+      .filter((entry) => {
+        const amount = resolveProductCalculatedPriceAmount(entry);
+        return typeof amount === 'number' && Number.isFinite(amount) && amount >= basePrice;
+      })
+      .sort((a, b) => {
+        const aPrice = resolveProductCalculatedPriceAmount(a) ?? Number.POSITIVE_INFINITY;
+        const bPrice = resolveProductCalculatedPriceAmount(b) ?? Number.POSITIVE_INFINITY;
+        return aPrice - bPrice;
+      });
   }
 
   // ---- Options/Upgrades normalization (support multiple schema shapes) ----

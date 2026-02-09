@@ -2,9 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import ProductGrid from '@/components/storefront/ProductGrid.astro';
 import { sanity, normalizeSlugValue, type Product } from '@/lib/sanity-utils.ts';
-import { getSavingsAmount } from '@/lib/saleHelpers';
 import { Banner } from '@/components/banner/imgBanner.tsx';
-import { formatCents } from '@/lib/pricing';
 
 const saleTag = 'cyber-monday';
 
@@ -17,17 +15,11 @@ if (sanity) {
         title,
         displayTitle,
         slug,
-        price,
         onSale,
-        salePrice,
-        compareAtPrice,
         discountPercent,
         discountPercentage,
         saleLabel,
         pricing{
-          price,
-          salePrice,
-          compareAtPrice,
           discountPercentage,
           discountPercent,
           saleStartDate,
@@ -73,12 +65,6 @@ const maxDiscount = hasSales
               0
           ) || 0
         ),
-      0
-    )
-  : 0;
-const maxSavings = hasSales
-  ? saleProducts.reduce(
-      (max, product) => Math.max(max, getSavingsAmount(product) || (product as any)?.savings || 0),
       0
     )
   : 0;
@@ -129,8 +115,7 @@ const breadcrumbs = [{ href: '/', label: 'Home' }, { label: 'Cyber Monday Sale' 
               <p class="hidden max-w-2xl text-sm text-zinc-300">
                 {maxDiscount > 0
                   ? `Save up to ${maxDiscount}% on ${saleProducts.length} products, sorted by the biggest discounts first.`
-                  : `Limited-time pricing on ${saleProducts.length} products, sorted by the biggest discounts first.`}{' '}
-                {maxSavings > 0 ? ` Top savings: ${formatCents(maxSavings)} off.` : ''}
+                  : `Limited-time pricing on ${saleProducts.length} products, sorted by the biggest discounts first.`}
               </p>
             </div>
           </div>

@@ -4,8 +4,19 @@ import CategoryPage from '@/components/storefront/CategoryPage.tsx';
 import { fetchProductsFromSanity, normalizeSanityImageUrl } from '@/lib/sanity-utils.ts';
 import { sanityClient as client } from '@/lib/sanityClient.ts';
 import { centsToDollars } from '@/lib/pricing';
+import {
+  attachMedusaPricingBySanityIdentity,
+  listStoreProductsForPricing,
+  resolveProductCalculatedPriceAmount
+} from '@/lib/medusa-storefront-pricing';
 
-const products = await fetchProductsFromSanity({});
+let products = await fetchProductsFromSanity({});
+try {
+  const medusaProducts = await listStoreProductsForPricing();
+  products = attachMedusaPricingBySanityIdentity(products, medusaProducts);
+} catch (error) {
+  console.error('[shop/storefront] Failed to attach Medusa pricing', error);
+}
 
 const categoriesRaw =
   await client.fetch(`*[_type == "category" && defined(slug.current)] | order(orderRank asc){
@@ -126,8 +137,8 @@ const productItemListElements = Array.isArray(products)
         if (!slugValue) return null;
         const productUrl = `${requestUrl.origin}/shop/${slugValue}`;
         const images = resolveProductImages(product);
-        const priceNumber = Number(product?.price);
-        const priceDollars = centsToDollars(priceNumber);
+        const priceNumber = resolveProductCalculatedPriceAmount(product);
+        const priceDollars = centsToDollars(priceNumber ?? undefined);
         const offers =
           typeof priceDollars === 'number' && priceDollars > 0
             ? {

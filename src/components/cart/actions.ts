@@ -21,6 +21,8 @@ export type CartItem = {
   selectedUpgrades?: string[];
   installOnly?: boolean;
   shippingClass?: string;
+  shippingWeight?: number;
+  shippingDimensions?: { length?: number; width?: number; height?: number };
   productUrl?: string;
   sku?: string;
   stripePriceId?: string;
@@ -28,9 +30,19 @@ export type CartItem = {
   productId?: string;
   productSlug?: string;
   upgrades?: unknown;
+  medusaLineItemId?: string;
 };
 
-export type Cart = { items: CartItem[] };
+export type CartTotals = {
+  subtotal?: number;
+  tax_total?: number;
+  shipping_total?: number;
+  discount_total?: number;
+  total?: number;
+  original_total?: number;
+};
+
+export type Cart = { items: CartItem[]; totals?: CartTotals };
 
 function isBrowser() {
   return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
@@ -148,8 +160,9 @@ async function syncMedusaCart(cart: Cart): Promise<boolean> {
       void error;
     }
     const mappings = Array.isArray(payload?.mappings) ? payload.mappings : [];
+    const next = getCart();
+
     if (mappings.length) {
-      const next = getCart();
       let changed = false;
       for (const map of mappings) {
         const idx = next.items.findIndex((item) => item.id === map.id);
@@ -159,6 +172,59 @@ async function syncMedusaCart(cart: Cart): Promise<boolean> {
         }
       }
       if (changed) saveCart(next);
+    }
+
+    // ✅ Medusa is authoritative: pull prices + totals from server cart response
+    const serverCart = payload?.cart;
+    if (serverCart && Array.isArray(serverCart.items)) {
+      const byVariant = new Map<string, any>();
+      const byLocalId = new Map<string, any>();
+      for (const item of serverCart.items) {
+        if (typeof item?.variant_id === 'string') {
+          byVariant.set(item.variant_id, item);
+        }
+        const localId = item?.metadata?.local_item_id;
+        if (typeof localId === 'string') {
+          byLocalId.set(localId, item);
+        }
+      }
+
+      let changed = false;
+      next.items = next.items.map((item) => {
+        const serverItem =
+          (item.medusaVariantId ? byVariant.get(item.medusaVariantId) : undefined) ??
+          byLocalId.get(item.id);
+        if (!serverItem) return item;
+
+        const unitPrice = typeof serverItem.unit_price === 'number' ? serverItem.unit_price : item.price;
+        const quantity = typeof serverItem.quantity === 'number' ? serverItem.quantity : item.quantity;
+        const name = typeof serverItem.title === 'string' ? serverItem.title : item.name;
+        const medusaLineItemId =
+          typeof serverItem.id === 'string' ? serverItem.id : item.medusaLineItemId;
+
+        if (unitPrice !== item.price || quantity !== item.quantity || name !== item.name || medusaLineItemId !== item.medusaLineItemId) {
+          changed = true;
+        }
+
+        return {
+          ...item,
+          price: unitPrice,
+          quantity,
+          name,
+          medusaLineItemId
+        };
+      });
+
+      next.totals = {
+        subtotal: serverCart.subtotal,
+        tax_total: serverCart.tax_total,
+        shipping_total: serverCart.shipping_total,
+        discount_total: serverCart.discount_total,
+        total: serverCart.total,
+        original_total: serverCart.original_total
+      };
+
+      saveCart(next);
     }
     return true;
   } catch (error) {
@@ -224,6 +290,10 @@ export async function addItem(
     if (typeof payload === 'object') {
       if (typeof payload.installOnly === 'boolean') cart.items[idx].installOnly = payload.installOnly;
       if (typeof payload.shippingClass === 'string') cart.items[idx].shippingClass = payload.shippingClass;
+      if (typeof payload.shippingWeight === 'number') cart.items[idx].shippingWeight = payload.shippingWeight;
+      if (payload.shippingDimensions && typeof payload.shippingDimensions === 'object') {
+        cart.items[idx].shippingDimensions = payload.shippingDimensions as CartItem['shippingDimensions'];
+      }
       if (typeof payload.productUrl === 'string') cart.items[idx].productUrl = payload.productUrl;
       if (selectedOptions.length) cart.items[idx].selectedOptions = selectedOptions;
       if (selectedUpgrades.length) cart.items[idx].selectedUpgrades = selectedUpgrades;
@@ -261,6 +331,8 @@ export async function addItem(
       quantity: Math.max(1, qty),
       installOnly: typeof payload === 'object' ? payload.installOnly : undefined,
       shippingClass: typeof payload === 'object' ? payload.shippingClass : undefined,
+      shippingWeight: typeof payload === 'object' ? payload.shippingWeight : undefined,
+      shippingDimensions: typeof payload === 'object' ? payload.shippingDimensions : undefined,
       productUrl: typeof payload === 'object' ? payload.productUrl : undefined,
       sku: typeof payload === 'object' ? payload.sku : undefined,
       stripePriceId: typeof payload === 'object' ? payload.stripePriceId : undefined,

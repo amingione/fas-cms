@@ -91,10 +91,10 @@ const normalizeSortParam = (
   switch (sort) {
     case 'price-low':
     case 'price-asc':
-      return 'featured';
+      return 'price-asc';
     case 'price-high':
     case 'price-desc':
-      return 'featured';
+      return 'price-desc';
     case 'newest':
       return 'newest';
     case 'name':
@@ -118,6 +118,11 @@ const minPrice = parsePriceParam(
 const maxPrice = parsePriceParam(
   url.searchParams.get('maxPrice') || url.searchParams.get('priceMax')
 );
+const priceDrivenListing =
+  typeof minPrice === 'number' ||
+  typeof maxPrice === 'number' ||
+  sortBy === 'price-asc' ||
+  sortBy === 'price-desc';
 
 function slugify(str: string): string {
   return str
@@ -217,10 +222,10 @@ try {
     maxPrice: undefined,
     searchTerm: searchTerm ?? undefined,
     sortBy,
-    page: currentPage,
-    pageSize: PAGE_SIZE,
-    // Sale filtering must not rely on Sanity pricing flags.
-    saleOnly: false
+    page: priceDrivenListing ? 1 : currentPage,
+    pageSize: priceDrivenListing ? 5000 : PAGE_SIZE,
+    // Sale filtering must not rely on Sanity pricing math; onSale flag is display-only.
+    saleOnly: hasSaleFilter
   };
 
   const [productsResult, totalResult, categoriesResult, vehiclesResult, facetResult] =
@@ -247,6 +252,51 @@ try {
   filterFacetProducts = attachMedusaPricingBySanityIdentity(filterFacetProducts, medusaProducts);
 } catch (error) {
   console.error('[shop/performance-packages] Failed to attach Medusa pricing', error);
+}
+
+// ✅ PRICING AUTHORITY: price filtering/sorting happens only after Medusa pricing is attached.
+if (priceDrivenListing && Array.isArray(products)) {
+  const minCents =
+    typeof minPrice === 'number' && Number.isFinite(minPrice)
+      ? Math.max(0, Math.trunc(minPrice) * 100)
+      : null;
+  const maxCents =
+    typeof maxPrice === 'number' && Number.isFinite(maxPrice)
+      ? Math.max(0, Math.trunc(maxPrice) * 100)
+      : null;
+
+  let filtered = products.filter((product) => {
+    if (minCents == null && maxCents == null) return true;
+    const amount = resolveProductCalculatedPriceAmount(product);
+    if (typeof amount !== 'number' || !Number.isFinite(amount)) return false;
+    if (minCents != null && amount < minCents) return false;
+    if (maxCents != null && amount > maxCents) return false;
+    return true;
+  });
+
+  if (sortBy === 'price-asc' || sortBy === 'price-desc') {
+    const direction = sortBy === 'price-asc' ? 1 : -1;
+    filtered = [...filtered].sort((a, b) => {
+      const aRaw = resolveProductCalculatedPriceAmount(a);
+      const bRaw = resolveProductCalculatedPriceAmount(b);
+      const aPrice =
+        typeof aRaw === 'number' && Number.isFinite(aRaw)
+          ? aRaw
+          : direction === 1
+            ? Number.POSITIVE_INFINITY
+            : Number.NEGATIVE_INFINITY;
+      const bPrice =
+        typeof bRaw === 'number' && Number.isFinite(bRaw)
+          ? bRaw
+          : direction === 1
+            ? Number.POSITIVE_INFINITY
+            : Number.NEGATIVE_INFINITY;
+      return (aPrice - bPrice) * direction;
+    });
+  }
+
+  totalProducts = filtered.length;
+  products = filtered.slice(start, start + PAGE_SIZE) as any;
 }
 
 const availableVehicleSlugs: string[] = Array.from(

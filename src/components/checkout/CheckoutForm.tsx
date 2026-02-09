@@ -22,6 +22,14 @@ interface ShippingRate {
   region?: { currency_code?: string }
 }
 
+type ShippoRate = {
+  rate_id: string
+  amount: string
+  currency: string
+  provider?: string
+  servicelevel?: string
+  estimated_days?: number | null
+}
 interface CartItem {
   id: string
   title: string
@@ -72,6 +80,7 @@ export default function CheckoutForm() {
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>(EMPTY_ADDRESS)
   const [shippingRates, setShippingRates] = useState<ShippingRate[]>([])
   const [selectedRateId, setSelectedRateId] = useState<string | null>(null)
+  const [selectedShippoRate, setSelectedShippoRate] = useState<ShippoRate | null>(null)
   const [loadingRates, setLoadingRates] = useState(false)
   const [clientSecret, setClientSecret] = useState<string | null>(null)
   const [processing, setProcessing] = useState(false)
@@ -167,10 +176,14 @@ export default function CheckoutForm() {
       const options = Array.isArray(data?.shippingOptions) ? data.shippingOptions : []
       setShippingRates(options)
       setSelectedRateId(null)
+      setSelectedShippoRate(
+        data?.bestShippoRate && typeof data.bestShippoRate === 'object' ? data.bestShippoRate : null
+      )
     } catch (err) {
       console.error('Shipping rates error:', err)
       setError('Unable to calculate shipping for this address. Please verify your address.')
       setShippingRates([])
+      setSelectedShippoRate(null)
     } finally {
       setLoadingRates(false)
     }
@@ -190,7 +203,8 @@ export default function CheckoutForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           cartId,
-          optionId: rate.id
+          optionId: rate.id,
+          shippoRate: selectedShippoRate
         })
       })
 

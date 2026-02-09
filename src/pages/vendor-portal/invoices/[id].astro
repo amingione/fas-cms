@@ -1,0 +1,21 @@
+---
+import VendorPortalLayout from '@/layouts/VendorPortalLayout.astro';
+import VendorInvoicePayPage from '@/components/vendor-portal/VendorInvoicePayPage';
+
+const { id } = Astro.params;
+const apiUrl = new URL(`/api/vendor/invoices/${id}`, Astro.request.url).toString();
+const res = await fetch(apiUrl, { headers: { cookie: Astro.request.headers.get('cookie') || '' } });
+let invoice: any = null;
+if (res.ok) {
+  const data = await res.json().catch(() => ({}));
+  invoice = data.invoice || null;
+}
+if (!invoice) {
+  return Astro.redirect('/vendor-portal/invoices');
+}
+const title = `Invoice ${invoice.invoiceNumber || id}`;
+---
+
+<VendorPortalLayout title={title} noindex>
+  <VendorInvoicePayPage invoice={invoice} client:load />
+</VendorPortalLayout>

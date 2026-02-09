@@ -14,6 +14,11 @@ import SectionRenderer from '@/components/SectionRenderer.astro';
 import EmailCaptureModal from '@components/EmailCaptureModal.tsx';
 import PowerstrokePipingKit from '@/components/NewProduct/PowerstrokePipingKit.astro';
 import { centsToDollars } from '@/lib/pricing';
+import {
+  attachMedusaPricingBySanityIdentity,
+  listStoreProductsForPricing,
+  resolveProductCalculatedPriceAmount
+} from '@/lib/medusa-storefront-pricing';
 
 const pageDocPromise: Promise<any> = loadPageDoc('index');
 const featuredProductsPromise = sanity
@@ -31,7 +36,7 @@ const [pageDoc, featuredProductsRaw] = await Promise.all([pageDocPromise, featur
 
 const featuredProducts: any[] = Array.isArray(featuredProductsRaw) ? featuredProductsRaw : [];
 
-const featuredProductsNormalized = Array.isArray(featuredProducts)
+let featuredProductsNormalized = Array.isArray(featuredProducts)
   ? featuredProducts.map((product) => {
       if (!product || typeof product !== 'object') return product;
       const normalizedImageUrl =
@@ -42,19 +47,24 @@ const featuredProductsNormalized = Array.isArray(featuredProducts)
     })
   : [];
 
+// ✅ PRICING AUTHORITY: attach Medusa pricing to featured products.
+try {
+  const medusaProducts = await listStoreProductsForPricing();
+  featuredProductsNormalized = attachMedusaPricingBySanityIdentity(
+    featuredProductsNormalized as any,
+    medusaProducts
+  ) as any;
+} catch (error) {
+  console.error('[home] Failed to attach Medusa pricing to featured products', error);
+}
+
 const productSchemas = featuredProductsNormalized
   .map((product, index) => {
     if (!product || typeof product !== 'object') return null;
     const name = (product as any).name || (product as any).title || 'F.A.S. Motorsports Product';
     const slug = typeof (product as any).slug === 'string' ? (product as any).slug : undefined;
-    const priceRaw = (product as any).price;
-    const numericPrice =
-      typeof priceRaw === 'number'
-        ? priceRaw
-        : typeof priceRaw === 'string'
-          ? Number(priceRaw.replace(/[^0-9.]/g, ''))
-          : NaN;
-    const priceDollars = centsToDollars(numericPrice);
+    const priceCents = resolveProductCalculatedPriceAmount(product as any);
+    const priceDollars = centsToDollars(priceCents ?? null);
     const priceValue =
       typeof priceDollars === 'number' ? priceDollars.toFixed(2) : undefined;
     const productUrl = slug ? `${canonicalHome}shop/${slug}` : canonicalHome;

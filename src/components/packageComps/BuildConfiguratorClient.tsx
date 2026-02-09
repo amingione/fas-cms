@@ -3,6 +3,7 @@ import type { Product } from '@lib/sanity-utils';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { formatCents } from '@/lib/pricing';
+import { resolveProductCalculatedPriceAmount } from '@/lib/medusa-storefront-pricing';
 
 interface Props {
   products: Product[];
@@ -130,12 +131,22 @@ export default function BuildConfiguratorClient({ products }: Props) {
     });
   }, [products, selectedAttrFacets, selectedSpecFacets, vehicle]);
 
-  const subtotal = Object.values(build).reduce(
-    (acc, { p, qty }) => acc + (Number(p.price) || 0) * qty,
-    0
-  );
+  const resolveMedusaPrice = (p: Product): number | null => {
+    const cents = resolveProductCalculatedPriceAmount(p);
+    return typeof cents === 'number' ? cents : null;
+  };
+
+  const subtotal = Object.values(build).reduce((acc, { p, qty }) => {
+    const price = resolveMedusaPrice(p) ?? 0;
+    return acc + price * qty;
+  }, 0);
 
   const addToBuild = (p: Product) => {
+    const price = resolveMedusaPrice(p);
+    if (typeof price !== 'number' || !Number.isFinite(price) || price <= 0) {
+      alert('This item is unavailable because Medusa pricing is missing.');
+      return;
+    }
     setBuild((prev) => {
       const id = p._id;
       const next = { ...prev };
@@ -169,7 +180,7 @@ export default function BuildConfiguratorClient({ products }: Props) {
       items: Object.entries(build).map(([, { p, qty }]) => ({
         id: p._id,
         name: p.title || 'Item',
-        price: Number(p.price) || 0,
+        price: resolveMedusaPrice(p) ?? 0,
         qty
       })),
       subtotal,
@@ -381,7 +392,7 @@ export default function BuildConfiguratorClient({ products }: Props) {
                 />
                 <h4 className="text-lg font-medium text-text mb-2">{p.title}</h4>
                 <p className="text-blue-400 font-bold mb-4">
-                  {typeof p.price === 'number' ? formatCents(p.price) : '—'}
+                  {typeof resolveMedusaPrice(p) === 'number' ? formatCents(resolveMedusaPrice(p)!) : '—'}
                 </p>
                 <Button
                   onClick={() => addToBuild(p)}

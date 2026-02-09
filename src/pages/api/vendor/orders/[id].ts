@@ -8,15 +8,7 @@ export const GET: APIRoute = async ({ params, request }) => {
   if (!ctx.ok) return ctx.response;
   const orderId = params.id;
   try {
-    const vendor = await sanity.fetch(
-      '*[_type == "vendor" && _id == $vendorId][0]{customerRef}',
-      { vendorId: ctx.vendorId }
-    );
-    const customerId = vendor?.customerRef?._ref;
-    if (!customerId) {
-      return jsonResponse({ message: 'Not found' }, { status: 404 }, { noIndex: true });
-    }
-    const query = `*[_type == "order" && orderType == "wholesale" && _id == $orderId && customerRef._ref == $customerId][0]{
+    const query = `*[_type == "vendorOrder" && _id == $orderId && vendor._ref == $vendorId][0]{
       _id,
       orderNumber,
       status,
@@ -26,7 +18,7 @@ export const GET: APIRoute = async ({ params, request }) => {
       amountTax,
       amountShipping,
       currency,
-      statusHistory,
+      paymentStatus,
       cart[]{
         _key,
         name,
@@ -37,7 +29,7 @@ export const GET: APIRoute = async ({ params, request }) => {
         productRef->{_id, title, sku, "image": coalesce(images[0].asset->url, mainImage.asset->url, thumbnail.asset->url)}
       }
     }`;
-    const order = await sanity.fetch(query, { orderId, customerId });
+    const order = await sanity.fetch(query, { orderId, vendorId: ctx.vendorId });
     if (!order) {
       return jsonResponse({ message: 'Not found' }, { status: 404 }, { noIndex: true });
     }

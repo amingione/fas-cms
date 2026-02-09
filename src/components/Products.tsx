@@ -104,7 +104,6 @@ export function Products() {
 
   const ProductCard = ({ product, index }: { product: any; index: number }) => {
     const Icon = (product?.icon as React.ElementType) || undefined;
-    const hasPrice = Boolean(product?.price);
     return (
       <motion.div
         variants={itemVariants}
@@ -177,15 +176,8 @@ export function Products() {
             className={`flex-grow flex flex-col ${isMobile ? 'p-3 space-y-3' : 'p-4 space-y-4'}`}
           >
             <div
-              className={`flex items-center ${hasPrice ? 'justify-between' : 'justify-end'} mt-auto ${isMobile ? 'flex-col gap-2' : ''}`}
+              className={`flex items-center justify-end mt-auto ${isMobile ? 'flex-col gap-2' : ''}`}
             >
-              {hasPrice && (
-                <span
-                  className={`font-bold text-white font-cyber ${isMobile ? 'text-xs' : 'text-xl'}`}
-                >
-                  {product.price}
-                </span>
-              )}
               {product.specHref ? (
                 <Button
                   asChild

@@ -79,7 +79,7 @@ function computePricing(items: Cart['items'] = []): {
 }
 
 export default function CartModal() {
-  const { cart, totalQuantity, subtotal, setItemQuantity, removeCartItem, redirectToCheckout } =
+  const { cart, totalQuantity, subtotal, totals, setItemQuantity, removeCartItem, redirectToCheckout } =
     useCart();
   const [isOpen, setIsOpen] = useState(false);
   const quantityRef = useRef(totalQuantity);
@@ -197,6 +197,7 @@ export default function CartModal() {
                       {cart && cart.items && cart.items.length > 0 ? (
                         <CartSummary
                           subtotal={subtotal}
+                          totals={totals}
                           pricingTotals={pricingTotals}
                           onCheckout={() => redirectToCheckout()}
                           onClose={closeCart}
@@ -383,18 +384,22 @@ function CartItemsList({ cart, pricing, onQuantityChange, onRemove }: CartItemsL
 
 type CartSummaryProps = {
   subtotal: number;
+  totals?: Cart['totals'];
   pricingTotals: ReturnType<typeof computePricing>;
   onCheckout: () => Promise<void | string>;
   onClose: () => void;
 };
 
-function CartSummary({ subtotal, pricingTotals, onCheckout, onClose }: CartSummaryProps) {
+function CartSummary({ subtotal, totals, pricingTotals, onCheckout, onClose }: CartSummaryProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const discountTotal = pricingTotals?.discountTotal ?? 0;
   const originalSubtotal = pricingTotals?.originalSubtotal ?? subtotal;
   const saleLabel = pricingTotals?.saleLabel ?? null;
   const hasDiscount = discountTotal > 0 && originalSubtotal > subtotal;
+  const shipping = totals?.shipping_total;
+  const tax = totals?.tax_total;
+  const total = totals?.total;
 
   const handleCheckout = async () => {
     try {
@@ -428,6 +433,24 @@ function CartSummary({ subtotal, pricingTotals, onCheckout, onClose }: CartSumma
         </div>
         <Price amount={subtotal} />
       </div>
+      {typeof shipping === 'number' && (
+        <div className="mt-2 flex justify-between text-sm text-white/70">
+          <span>Shipping</span>
+          <Price amount={shipping} />
+        </div>
+      )}
+      {typeof tax === 'number' && (
+        <div className="mt-2 flex justify-between text-sm text-white/70">
+          <span>Tax</span>
+          <Price amount={tax} />
+        </div>
+      )}
+      {typeof total === 'number' && (
+        <div className="mt-3 flex justify-between text-base font-semibold text-white">
+          <span>Total</span>
+          <Price amount={total} />
+        </div>
+      )}
       {hasDiscount && (
         <div className="mt-2 flex items-center justify-between text-xs text-emerald-200">
           <div className="flex items-center gap-2">

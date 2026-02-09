@@ -2,25 +2,56 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SalePage from '@/components/sales/BlackFridaySale';
 import ProductGrid from '@/components/storefront/ProductGrid.astro';
-import { fetchActiveSaleProducts, normalizeSlugValue, type Product } from '@/lib/sanity-utils.ts';
-import { getSavingsAmount } from '@/lib/saleHelpers';
-import { formatCents } from '@/lib/pricing';
+import { sanity, normalizeSlugValue, type Product } from '@/lib/sanity-utils.ts';
 
-const rawSaleProducts: Product[] = await fetchActiveSaleProducts({ limit: 12 });
-const saleProducts = (Array.isArray(rawSaleProducts) ? rawSaleProducts : []).map((product) => {
-  const slugValue = normalizeSlugValue((product as any)?.slug);
+const saleTag = 'black-friday';
 
-  // Preserve the shape expected by cards and product pages: slug object with current
-  const normalizedSlug =
-    typeof product?.slug === 'object' && product?.slug !== null
-      ? { ...(product as any).slug, current: slugValue }
-      : { current: slugValue };
+let saleProducts: Product[] = [];
+if (sanity) {
+  const query = `
+    *[_type == "product" && status == "active" && "${saleTag}" in tags]
+      | order(featured desc, title asc) {
+        _id,
+        title,
+        displayTitle,
+        slug,
+        onSale,
+        discountPercent,
+        discountPercentage,
+        saleLabel,
+        pricing{
+          discountPercentage,
+          discountPercent,
+          saleStartDate,
+          saleEndDate,
+          saleLabel,
+          saleActive,
+          onSale
+        },
+        tags,
+        images[]{ asset->{ _id, url }, alt },
+        shortDescription,
+        promotionTagline,
+        featured
+      }
+  `;
 
-  return {
-    ...product,
-    slug: normalizedSlug
-  };
-});
+  const rawSaleProducts = await sanity.fetch<Product[]>(query);
+  saleProducts = (Array.isArray(rawSaleProducts) ? rawSaleProducts : []).map((product) => {
+    const slugValue = normalizeSlugValue((product as any)?.slug);
+
+    // Preserve the shape expected by cards and product pages: slug object with current
+    const normalizedSlug =
+      typeof product?.slug === 'object' && product?.slug !== null
+        ? { ...(product as any).slug, current: slugValue }
+        : { current: slugValue };
+
+    return {
+      ...product,
+      slug: normalizedSlug
+    };
+  });
+}
 
 const hasSales = saleProducts.length > 0;
 const maxDiscount = hasSales
@@ -35,12 +66,6 @@ const maxDiscount = hasSales
               0
           ) || 0
         ),
-      0
-    )
-  : 0;
-const maxSavings = hasSales
-  ? saleProducts.reduce(
-      (max, product) => Math.max(max, getSavingsAmount(product) || (product as any)?.savings || 0),
       0
     )
   : 0;
@@ -90,8 +115,7 @@ const breadcrumbs = [
               <p class="hidden max-w-2xl text-sm text-zinc-300">
                 {maxDiscount > 0
                   ? `Save up to ${maxDiscount}% on ${saleProducts.length} products, sorted by the biggest discounts first.`
-                  : `Limited-time pricing on ${saleProducts.length} products, sorted by the biggest discounts first.`}{' '}
-                {maxSavings > 0 ? ` Top savings: ${formatCents(maxSavings)} off.` : ''}
+                  : `Limited-time pricing on ${saleProducts.length} products, sorted by the biggest discounts first.`}
               </p>
             </div>
 

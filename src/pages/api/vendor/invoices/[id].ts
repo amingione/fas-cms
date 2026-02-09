@@ -8,15 +8,7 @@ export const GET: APIRoute = async ({ params, request }) => {
   if (!ctx.ok) return ctx.response;
   const id = params.id;
   try {
-    const vendor = await sanity.fetch(
-      '*[_type == "vendor" && _id == $vendorId][0]{customerRef}',
-      { vendorId: ctx.vendorId }
-    );
-    const customerId = vendor?.customerRef?._ref;
-    if (!customerId) {
-      return jsonResponse({ message: 'Vendor customer reference missing' }, { status: 404 }, { noIndex: true });
-    }
-    const query = `*[_type == "invoice" && _id == $id && customerRef._ref == $customerId][0]{
+    const query = `*[_type == "invoice" && _id == $id && vendorRef._ref == $vendorId][0]{
       _id,
       invoiceNumber,
       status,
@@ -26,19 +18,16 @@ export const GET: APIRoute = async ({ params, request }) => {
       amountPaid,
       amountDue,
       customerRef->{companyName},
+      vendorOrderRef->{_id, orderNumber},
       lineItems[]{
         description,
         quantity,
-        rate,
-        amount
-      },
-      payments[]{
-        amount,
-        date,
-        method
+        unitPrice,
+        lineTotal,
+        sku
       }
     }`;
-    const invoice = await sanity.fetch(query, { id, customerId });
+    const invoice = await sanity.fetch(query, { id, vendorId: ctx.vendorId });
     if (!invoice) return jsonResponse({ message: 'Not found' }, { status: 404 }, { noIndex: true });
     return jsonResponse({ invoice }, { status: 200 }, { noIndex: true });
   } catch (err) {

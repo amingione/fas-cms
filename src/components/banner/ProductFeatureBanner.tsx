@@ -105,14 +105,9 @@ const FeatureBlock = ({ f, isSecond }: { f: Feature; isSecond?: boolean }) => {
           {f.lines[2] && <div className="uppercase">{f.lines[2]}</div>}
         </h2>
 
-        {(f.pricePrefix || f.price) && (
-          <p className="mt-4 text-base md:text-xl font-extrabold tracking-wide text-neutral-300">
-            {(f.pricePrefix ?? '').toUpperCase()}{' '}
-            {f.price && (
-              <span className="text-red-500 italic font-ethno drop-shadow-sm">{f.price}</span>
-            )}
-          </p>
-        )}
+        <p className="mt-4 text-xs uppercase tracking-wide text-neutral-400">
+          View product for pricing
+        </p>
 
         <div
           className={`mt-8 flex w-full justify-center md:w-auto ${

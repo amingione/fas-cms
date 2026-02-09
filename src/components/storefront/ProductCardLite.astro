@@ -69,12 +69,32 @@ const short =
 	    Object.entries({
 	      product_id: typeof product?._id === 'string' ? product._id : undefined,
 	      product_name: baseTitle,
-	      product_slug: slug || undefined,
-	      price,
-	      tile_layout: layout
-	    }).filter(([, value]) => value !== undefined && value !== null && value !== '')
-	  )
-	);
+              product_slug: slug || undefined,
+              price,
+              tile_layout: layout
+            }).filter(([, value]) => value !== undefined && value !== null && value !== '')
+          )
+        );
+  const shippingConfig = (product as any)?.shippingConfig || (product as any)?.shipping_config;
+  const shippingWeight =
+    typeof shippingConfig?.weight === 'number' ? shippingConfig.weight : undefined;
+  const shippingDimensions =
+    shippingConfig?.dimensions && typeof shippingConfig.dimensions === 'object'
+      ? {
+          length:
+            typeof shippingConfig.dimensions.length === 'number'
+              ? shippingConfig.dimensions.length
+              : undefined,
+          width:
+            typeof shippingConfig.dimensions.width === 'number'
+              ? shippingConfig.dimensions.width
+              : undefined,
+          height:
+            typeof shippingConfig.dimensions.height === 'number'
+              ? shippingConfig.dimensions.height
+              : undefined
+        }
+      : undefined;
 ---
 
 {
@@ -131,6 +151,8 @@ const short =
 	              imageAlt: anchorText,
 	              description: shortText,
 	              shortDescriptionPortable: (product as any)?.shortDescription,
+                shippingWeight,
+                shippingDimensions,
               optionGroups: quickViewOptions
             }}
           />
@@ -180,6 +202,8 @@ const short =
 	              imageAlt: anchorText,
 	              description: shortText,
 	              shortDescriptionPortable: (product as any)?.shortDescription,
+                shippingWeight,
+                shippingDimensions,
               optionGroups: quickViewOptions
             }}
           />

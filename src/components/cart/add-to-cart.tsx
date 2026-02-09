@@ -7,7 +7,10 @@ import { prefersDesktopCart } from '@/lib/device';
 import { emitAddToCartSuccess } from '@/lib/add-to-cart-toast';
 import * as React from 'react';
 import { resolveProductCartMeta } from '@/lib/product-flags';
-import { getActivePrice, getCompareAtPrice, getSaleBadgeText, isOnSale } from '@/lib/saleHelpers';
+import {
+  resolveProductCalculatedOriginalAmount,
+  resolveProductCalculatedPriceAmount
+} from '@/lib/medusa-storefront-pricing';
 
 /**
  * AddToCart — FAS + Sanity version
@@ -127,14 +130,39 @@ export function AddToCart({ product }: { product: any }) {
       ? productSlug
       : `/shop/${productSlug}`
     : undefined;
-  const activePrice = getActivePrice(product);
-  const comparePrice = getCompareAtPrice(product);
-  const onSale = isOnSale(product);
-  const saleLabel = getSaleBadgeText(product) || (product as any)?.saleLabel;
+  const activePrice = resolveProductCalculatedPriceAmount(product);
+  const comparePrice = resolveProductCalculatedOriginalAmount(product) ?? undefined;
+  const onSale =
+    typeof comparePrice === 'number' &&
+    typeof activePrice === 'number' &&
+    Number.isFinite(comparePrice) &&
+    Number.isFinite(activePrice) &&
+    comparePrice > activePrice;
+  const saleLabel = onSale ? 'Sale' : undefined;
 
   const disabledReason =
     !variantId && Array.isArray(product?.variants) && product.variants.length > 1
       ? 'Please select an option'
+      : undefined;
+  const shippingConfig = (product as any)?.shippingConfig || (product as any)?.shipping_config;
+  const shippingWeight =
+    typeof shippingConfig?.weight === 'number' ? shippingConfig.weight : undefined;
+  const shippingDimensions =
+    shippingConfig?.dimensions && typeof shippingConfig.dimensions === 'object'
+      ? {
+          length:
+            typeof shippingConfig.dimensions.length === 'number'
+              ? shippingConfig.dimensions.length
+              : undefined,
+          width:
+            typeof shippingConfig.dimensions.width === 'number'
+              ? shippingConfig.dimensions.width
+              : undefined,
+          height:
+            typeof shippingConfig.dimensions.height === 'number'
+              ? shippingConfig.dimensions.height
+              : undefined
+        }
       : undefined;
 
   async function onSubmit(e: React.FormEvent) {
@@ -163,31 +191,28 @@ export function AddToCart({ product }: { product: any }) {
     const selectedOptionsList = Object.entries(selected).map(
       ([key, value]) => `${key}: ${value}`
     );
-    const originalPrice =
-      typeof (product as any)?.price === 'number'
-        ? (product as any).price
-        : typeof comparePrice === 'number'
-          ? comparePrice
-          : undefined;
+    const originalPrice = typeof comparePrice === 'number' ? comparePrice : undefined;
 
-    const result = await addItem(null as any, {
-      id,
-      name: product?.title,
-      price: activePrice, // ✅ Guaranteed to be valid number > 0
-      stripePriceId: (product as any)?.stripePriceId,
-      medusaVariantId: variantId || (product as any)?.medusaVariantId,
-      originalPrice,
-      isOnSale: onSale,
-      saleLabel: typeof saleLabel === 'string' ? saleLabel : undefined,
-      image: product?.images?.[0]?.asset?.url || product?.images?.[0]?.url,
-      options: selected,
-      selectedOptions: selectedOptionsList,
-      selectedUpgrades: [],
-      quantity: 1,
-      productUrl,
-      ...(shippingClass ? { shippingClass } : {}),
-      ...(installOnly ? { installOnly: true } : {})
-    });
+      const result = await addItem(null as any, {
+        id,
+        name: product?.title,
+        price: activePrice, // ✅ Guaranteed to be valid number > 0
+        stripePriceId: (product as any)?.stripePriceId,
+        medusaVariantId: variantId || (product as any)?.medusaVariantId,
+        originalPrice,
+        isOnSale: onSale,
+        saleLabel: typeof saleLabel === 'string' ? saleLabel : undefined,
+        image: product?.images?.[0]?.asset?.url || product?.images?.[0]?.url,
+        options: selected,
+        selectedOptions: selectedOptionsList,
+        selectedUpgrades: [],
+        quantity: 1,
+        productUrl,
+        shippingWeight,
+        shippingDimensions,
+        ...(shippingClass ? { shippingClass } : {}),
+        ...(installOnly ? { installOnly: true } : {})
+      });
     if (typeof result === 'string') {
       setError(result);
       return;

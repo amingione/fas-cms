@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import { jsonResponse } from '@/server/http/responses';
 import { getMedusaConfig, medusaFetch, readJsonSafe } from '@/lib/medusa';
 import { STRIPE_API_VERSION } from '@/lib/stripe-config';
+import { normalizeCartTotals, toCentsStrict } from '@/lib/money';
 
 /**
  * Phase 1: PaymentIntent Checkout Endpoint
@@ -91,6 +92,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const cart: MedusaCart = cartData?.cart;
+  normalizeCartTotals(cart as any);
   
   // Validation 1: Cart must have items
   const items = Array.isArray(cart?.items) ? cart.items : [];
@@ -122,7 +124,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   // Validation 4: Total must be finalized
-  const total = cart?.total;
+  const total = toCentsStrict(cart?.total, 'cart.total');
   if (typeof total !== 'number' || total <= 0) {
     return jsonResponse(
       { error: 'Cart total is invalid or not calculated. Ensure shipping and tax are finalized.' },
@@ -132,8 +134,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   // Create PaymentIntent with finalized amount
-  // Ensure amount is an integer (Stripe requires cents, not dollars)
-  const amountInCents = Math.round(total);
+  const amountInCents = total;
   const currency = (cart?.currency_code || 'usd').toLowerCase();
   const customerEmail = cart?.email || undefined;
 
@@ -147,9 +148,9 @@ export const POST: APIRoute = async ({ request }) => {
       metadata: {
         medusa_cart_id: cartId,
         customer_email: customerEmail || '',
-        subtotal: String(cart?.subtotal || 0),
-        tax_total: String(cart?.tax_total || 0),
-        shipping_total: String(cart?.shipping_total || 0),
+        subtotal: String(cart?.subtotal ?? 0),
+        tax_total: String(cart?.tax_total ?? 0),
+        shipping_total: String(cart?.shipping_total ?? 0),
         item_count: String(items.length),
       },
       description: `Order for ${items.length} item(s) - Cart ${cartId}`,

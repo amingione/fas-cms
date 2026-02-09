@@ -44,14 +44,6 @@ export const SERVICE_PRODUCT_FILTER = `${BASE_PUBLISHED_PRODUCT_FILTER} && produ
 export const SERVICE_PRODUCT_WITH_SLUG_FILTER = `${SERVICE_PRODUCT_FILTER} && defined(slug.current)`;
 const STORE_PRODUCT_WITH_SLUG_FILTER = `${ACTIVE_PRODUCT_WITH_SLUG_FILTER}`;
 const SERVICE_STORE_PRODUCT_WITH_SLUG_FILTER = `${BASE_PUBLISHED_PRODUCT_FILTER} && productType == "service" && defined(slug.current)`;
-const FINAL_PRICE_EXPRESSION = `coalesce(
-  select(
-    coalesce(onSale, pricing.onSale) && defined(coalesce(salePrice, pricing.salePrice)) => coalesce(salePrice, pricing.salePrice),
-    coalesce(price, pricing.price)
-  ),
-  coalesce(price, pricing.price),
-  0
-)`;
 const FEATURED_PRODUCT_FILTER = 'string(featured) == "true"';
 const GROQ_OPTION_VALUES_FRAGMENT = `array::compact(
         coalesce(values, []) +
@@ -736,60 +728,13 @@ const normalizeImageEntry = (value: unknown): unknown => {
   return value;
 };
 
-export const coercePriceToNumber = (value: unknown): number | null => {
-  if (typeof value === 'number') {
-    return Number.isFinite(value) ? value : null;
-  }
-  if (typeof value === 'string') {
-    const normalized = value.replace(/[^0-9.,-]+/g, '').replace(/,/g, '');
-    if (!normalized) return null;
-    const parsed = Number.parseFloat(normalized);
-    return Number.isFinite(parsed) ? parsed : null;
-  }
-  return null;
-};
-
 const normalizeProductPrice = <
-  T extends { price?: unknown; images?: unknown; socialImage?: unknown }
+  T extends { images?: unknown; socialImage?: unknown }
 >(
   product: T
 ): T => {
   if (!product) return product;
-  const normalizedPrice = coercePriceToNumber(
-    (product as any).price ?? (product as any)?.pricing?.price
-  );
-  const normalizedSalePrice = coercePriceToNumber(
-    (product as any).salePrice ?? (product as any)?.pricing?.salePrice
-  );
-  const normalizedCompareAt = coercePriceToNumber(
-    (product as any).compareAtPrice ?? (product as any)?.pricing?.compareAtPrice
-  );
   const clone: Record<string, unknown> = { ...(product as any) };
-  if (normalizedPrice === null) {
-    delete clone.price;
-  } else {
-    clone.price = normalizedPrice;
-  }
-
-  if (normalizedSalePrice === null) {
-    if ('salePrice' in clone) delete clone.salePrice;
-  } else {
-    clone.salePrice = normalizedSalePrice;
-  }
-
-  if (normalizedCompareAt === null) {
-    if ('compareAtPrice' in clone) delete clone.compareAtPrice;
-  } else {
-    clone.compareAtPrice = normalizedCompareAt;
-  }
-
-  if ('pricing' in clone && clone.pricing && typeof clone.pricing === 'object') {
-    const pricing = { ...(clone.pricing as Record<string, unknown>) };
-    if (normalizedPrice !== null) pricing.price = normalizedPrice;
-    if (normalizedSalePrice !== null) pricing.salePrice = normalizedSalePrice;
-    if (normalizedCompareAt !== null) pricing.compareAtPrice = normalizedCompareAt;
-    clone.pricing = pricing;
-  }
 
   if ('images' in clone) {
     const value = clone.images;
@@ -839,19 +784,13 @@ const PRODUCT_LISTING_PROJECTION = `{
   slug,
   metaTitle,
   metaDescription,
-  price,
   stripePriceId,
   "medusaVariantId": coalesce(medusaVariantId, medusaVariantID),
   "onSale": coalesce(onSale, pricing.onSale),
-  "salePrice": coalesce(salePrice, pricing.salePrice),
-  "compareAtPrice": coalesce(compareAtPrice, pricing.compareAtPrice),
-  "discountPercent": coalesce(discountPercent, discountPercentage, pricing.discountPercentage),
-  "discountPercentage": coalesce(discountPercentage, discountPercent, pricing.discountPercentage),
   "saleStartDate": coalesce(saleStartDate, pricing.saleStartDate),
   "saleEndDate": coalesce(saleEndDate, pricing.saleEndDate),
   "saleLabel": coalesce(saleLabel, pricing.saleLabel),
   "saleActive": pricing.saleActive,
-  "finalPrice": ${FINAL_PRICE_EXPRESSION},
   description,
   shortDescription,
   importantNotes,
@@ -1050,10 +989,10 @@ export async function fetchFilteredProducts(
     let orderExpression = 'featured desc, _createdAt desc';
     switch (sortBy) {
       case 'price-asc':
-        orderExpression = 'finalPrice asc';
+        orderExpression = 'featured desc, _createdAt desc';
         break;
       case 'price-desc':
-        orderExpression = 'finalPrice desc';
+        orderExpression = 'featured desc, _createdAt desc';
         break;
       case 'newest':
         orderExpression = '_createdAt desc';
@@ -1085,9 +1024,7 @@ export async function fetchFilteredProducts(
         && ($categorySlug == null || $categorySlug in category[]->slug.current || $categorySlug in categories[]->slug.current)
         && ($filterSlugs == null || count((filters[]->slug.current)[@ in $filterSlugs]) > 0 || count((filters[])[@ in $filterSlugs]) > 0 || count((filterTitles[])[@ in $filterSlugs]) > 0)
         && ($vehicleSlugs == null || count((compatibleVehicles[]->slug.current)[@ in $vehicleSlugs]) > 0)
-        && ($minPrice == null || ${FINAL_PRICE_EXPRESSION} >= $minPrice)
-        && ($maxPrice == null || ${FINAL_PRICE_EXPRESSION} <= $maxPrice)
-        && ($saleOnly == false || (coalesce(onSale, pricing.onSale) == true && defined(coalesce(salePrice, pricing.salePrice))))
+        && ($saleOnly == false || coalesce(onSale, pricing.onSale) == true)
         && ($searchTerm == null || 
             lower(title) match lower("*" + $searchTerm + "*") || 
             lower(tags[]) match lower("*" + $searchTerm + "*"))
@@ -1098,8 +1035,8 @@ export async function fetchFilteredProducts(
       categorySlug: normalizedCategorySlug,
       filterSlugs: normalizedFilterSlugs,
       vehicleSlugs: normalizedVehicleSlugs,
-      minPrice: typeof minPrice === 'number' && Number.isFinite(minPrice) ? minPrice : null,
-      maxPrice: typeof maxPrice === 'number' && Number.isFinite(maxPrice) ? maxPrice : null,
+      minPrice: null,
+      maxPrice: null,
       searchTerm: typeof searchTerm === 'string' && searchTerm.trim() ? searchTerm.trim() : null,
       sortBy,
       start,
@@ -1162,9 +1099,7 @@ export async function getProductCount(
         && ($categorySlug == null || $categorySlug in category[]->slug.current || $categorySlug in categories[]->slug.current)
         && ($filterSlugs == null || count((filters[]->slug.current)[@ in $filterSlugs]) > 0 || count((filters[])[@ in $filterSlugs]) > 0 || count((filterTitles[])[@ in $filterSlugs]) > 0)
         && ($vehicleSlugs == null || count((compatibleVehicles[]->slug.current)[@ in $vehicleSlugs]) > 0)
-        && ($minPrice == null || ${FINAL_PRICE_EXPRESSION} >= $minPrice)
-        && ($maxPrice == null || ${FINAL_PRICE_EXPRESSION} <= $maxPrice)
-        && ($saleOnly == false || (coalesce(onSale, pricing.onSale) == true && defined(coalesce(salePrice, pricing.salePrice))))
+        && ($saleOnly == false || coalesce(onSale, pricing.onSale) == true)
         && ($searchTerm == null || 
             lower(title) match lower("*" + $searchTerm + "*") || 
             lower(tags[]) match lower("*" + $searchTerm + "*"))
@@ -1175,8 +1110,8 @@ export async function getProductCount(
       categorySlug: categorySlug ? normalizeSlugValue(categorySlug) : null,
       filterSlugs: normalizedFilterSlugs,
       vehicleSlugs: normalizedVehicleSlugs,
-      minPrice: typeof minPrice === 'number' && Number.isFinite(minPrice) ? minPrice : null,
-      maxPrice: typeof maxPrice === 'number' && Number.isFinite(maxPrice) ? maxPrice : null,
+      minPrice: null,
+      maxPrice: null,
       searchTerm: typeof searchTerm === 'string' && searchTerm.trim() ? searchTerm.trim() : null,
       saleOnly: Boolean(saleOnly)
     };
@@ -1222,8 +1157,8 @@ export async function fetchStorefrontFilterFacets(
     const params: QueryParams = {
       categorySlug: categorySlug ? normalizeSlugValue(categorySlug) : null,
       vehicleSlugs: normalizedVehicleSlugs,
-      minPrice: typeof minPrice === 'number' && Number.isFinite(minPrice) ? minPrice : null,
-      maxPrice: typeof maxPrice === 'number' && Number.isFinite(maxPrice) ? maxPrice : null,
+      minPrice: null,
+      maxPrice: null,
       searchTerm: typeof searchTerm === 'string' && searchTerm.trim() ? searchTerm.trim() : null,
       saleOnly: Boolean(saleOnly)
     };
@@ -1233,9 +1168,7 @@ export async function fetchStorefrontFilterFacets(
         && ${productFilter}
         && ($categorySlug == null || $categorySlug in category[]->slug.current || $categorySlug in categories[]->slug.current)
         && ($vehicleSlugs == null || count((compatibleVehicles[]->slug.current)[@ in $vehicleSlugs]) > 0)
-        && ($minPrice == null || ${FINAL_PRICE_EXPRESSION} >= $minPrice)
-        && ($maxPrice == null || ${FINAL_PRICE_EXPRESSION} <= $maxPrice)
-        && ($saleOnly == false || (coalesce(onSale, pricing.onSale) == true && defined(coalesce(salePrice, pricing.salePrice))))
+        && ($saleOnly == false || coalesce(onSale, pricing.onSale) == true)
         && ($searchTerm == null || 
             lower(title) match lower("*" + $searchTerm + "*") || 
             lower(tags[]) match lower("*" + $searchTerm + "*"))
@@ -1243,7 +1176,6 @@ export async function fetchStorefrontFilterFacets(
         "filters": coalesce(filters[]->{ _id, title, slug }, filters, []),
         filterTitles,
         "onSale": coalesce(onSale, pricing.onSale),
-        "salePrice": coalesce(salePrice, pricing.salePrice),
         "saleActive": coalesce(saleActive, pricing.saleActive),
         "saleStartDate": coalesce(saleStartDate, pricing.saleStartDate),
         "saleEndDate": coalesce(saleEndDate, pricing.saleEndDate)
@@ -1280,8 +1212,6 @@ export async function fetchActiveSaleProducts(
     const query = `
       *[_type == "product" && ${ACTIVE_PRODUCT_WITH_SLUG_FILTER}
         && coalesce(onSale, pricing.onSale) == true
-        && defined(coalesce(salePrice, pricing.salePrice))
-        && coalesce(salePrice, pricing.salePrice) < coalesce(compareAtPrice, pricing.compareAtPrice, price, pricing.price)
         && (!defined(coalesce(saleStartDate, pricing.saleStartDate)) || coalesce(saleStartDate, pricing.saleStartDate) <= now())
         && (!defined(coalesce(saleEndDate, pricing.saleEndDate)) || coalesce(saleEndDate, pricing.saleEndDate) >= now())
       ] | order(
@@ -1289,12 +1219,6 @@ export async function fetchActiveSaleProducts(
           discountPercent,
           discountPercentage,
           pricing.discountPercentage,
-          round(
-            100 * (
-              coalesce(compareAtPrice, pricing.compareAtPrice, price, pricing.price) -
-              coalesce(salePrice, pricing.salePrice)
-            ) / coalesce(compareAtPrice, pricing.compareAtPrice, price, pricing.price, 1)
-          ),
           0
         ) desc
       )[0...$limit] ${PRODUCT_LISTING_PROJECTION}
@@ -1306,25 +1230,6 @@ export async function fetchActiveSaleProducts(
 
       return results.map((item) => {
         const normalized = normalizeProductPrice(item);
-        const salePrice =
-          (normalized as any)?.salePrice ?? (normalized as any)?.pricing?.salePrice ?? null;
-        const basePrice =
-          (normalized as any)?.compareAtPrice ??
-          (normalized as any)?.pricing?.compareAtPrice ??
-          (normalized as any)?.price ??
-          (normalized as any)?.pricing?.price ??
-          null;
-
-        const savings =
-          typeof salePrice === 'number' && typeof basePrice === 'number'
-            ? Math.max(0, basePrice - salePrice)
-            : null;
-
-        const computedDiscount =
-          typeof salePrice === 'number' && typeof basePrice === 'number' && basePrice > 0
-            ? Math.round(((basePrice - salePrice) / basePrice) * 100)
-            : null;
-
         const existingDiscount =
           typeof (normalized as any)?.discountPercent === 'number'
             ? (normalized as any)?.discountPercent
@@ -1332,15 +1237,14 @@ export async function fetchActiveSaleProducts(
               ? (normalized as any)?.discountPercentage
               : null;
 
-        const discountPercent = existingDiscount ?? computedDiscount ?? null;
+        const discountPercent = existingDiscount ?? null;
 
         return {
           ...normalized,
           onSale: true,
           discountPercent: discountPercent ?? undefined,
           discountPercentage:
-            (normalized as any)?.discountPercentage ?? discountPercent ?? undefined,
-          savings: savings ?? undefined
+            (normalized as any)?.discountPercentage ?? discountPercent ?? undefined
         };
       });
     };
@@ -1410,10 +1314,7 @@ export async function fetchFeaturedProducts(
         title,
         displayTitle,
         "slug": slug.current,
-        price,
         "onSale": coalesce(onSale, pricing.onSale),
-        "salePrice": coalesce(salePrice, pricing.salePrice),
-        "compareAtPrice": coalesce(compareAtPrice, pricing.compareAtPrice),
         "discountPercent": coalesce(discountPercent, discountPercentage, pricing.discountPercentage),
         "discountPercentage": coalesce(discountPercentage, discountPercent, pricing.discountPercentage),
         "saleStartDate": coalesce(saleStartDate, pricing.saleStartDate),
@@ -1581,12 +1482,9 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       title,
       displayTitle,
       slug,
-      price,
       stripePriceId,
       "medusaVariantId": coalesce(medusaVariantId, medusaVariantID),
       "onSale": coalesce(onSale, pricing.onSale),
-      "salePrice": coalesce(salePrice, pricing.salePrice),
-      "compareAtPrice": coalesce(compareAtPrice, pricing.compareAtPrice),
       "discountPercent": coalesce(discountPercent, discountPercentage, pricing.discountPercentage),
       "discountPercentage": coalesce(discountPercentage, discountPercent, pricing.discountPercentage),
       "saleStartDate": coalesce(saleStartDate, pricing.saleStartDate),
@@ -1721,10 +1619,7 @@ export async function getRelatedProducts(
       title,
       displayTitle,
       slug,
-      price,
       "onSale": coalesce(onSale, pricing.onSale),
-      "salePrice": coalesce(salePrice, pricing.salePrice),
-      "compareAtPrice": coalesce(compareAtPrice, pricing.compareAtPrice),
       "discountPercent": coalesce(discountPercent, discountPercentage, pricing.discountPercentage),
       "discountPercentage": coalesce(discountPercentage, discountPercent, pricing.discountPercentage),
       "saleStartDate": coalesce(saleStartDate, pricing.saleStartDate),
@@ -1741,7 +1636,7 @@ export async function getRelatedProducts(
       ),
       // relevance: category overlap (supports either field name) + filter overlap
       "rel": count(coalesce(category[]._ref, categories[]._ref, [])[ @ in $catIds ]) + count(coalesce(filters, [])[ @ in $filters ])
-    } | order(rel desc, onSale desc, coalesce(salePrice, price, 9e9) asc, _createdAt desc)[0...$limit]
+    } | order(rel desc, onSale desc, _createdAt desc)[0...$limit]
   `;
   const params = { slug: slugParam, catIds: ids, filters: flt, limit } as Record<string, any>;
   if (!sanity) return [];
@@ -1764,7 +1659,7 @@ export async function getRelatedProducts(
   );
 }
 
-// Auto-upsell: same category, higher (or equal) price than current item
+// Auto-upsell: same category, freshest items (Medusa handles pricing authority)
 export async function getUpsellProducts(
   slug: string,
   categoryIds: string[] = [],
@@ -1774,21 +1669,16 @@ export async function getUpsellProducts(
   if (!hasSanityConfig) return [];
   const normalizedSlug = normalizeSlugValue(slug);
   const ids = Array.isArray(categoryIds) ? categoryIds : [];
-  const hasPrice = typeof basePrice === 'number' && !Number.isNaN(basePrice);
   const slugParam = normalizedSlug || (typeof slug === 'string' ? slug : '');
   if (!slugParam) return [];
   const query = `
     *[_type == "product" && slug.current != $slug && ${ACTIVE_PRODUCT_WITH_SLUG_FILTER}
-      && count(coalesce(category[]._ref, categories[]._ref, [])[ @ in $catIds ]) > 0
-      ${hasPrice ? '&& defined(price) && price >= $price' : ''}]{
+      && count(coalesce(category[]._ref, categories[]._ref, [])[ @ in $catIds ]) > 0]{
       _id,
       title,
       displayTitle,
       slug,
-      price,
       "onSale": coalesce(onSale, pricing.onSale),
-      "salePrice": coalesce(salePrice, pricing.salePrice),
-      "compareAtPrice": coalesce(compareAtPrice, pricing.compareAtPrice),
       "discountPercent": coalesce(discountPercent, discountPercentage, pricing.discountPercentage),
       "discountPercentage": coalesce(discountPercentage, discountPercent, pricing.discountPercentage),
       "saleStartDate": coalesce(saleStartDate, pricing.saleStartDate),
@@ -1803,10 +1693,9 @@ export async function getUpsellProducts(
         defined(categories) => categories[]->{ _id, title, slug },
         defined(category) => category[]->{ _id, title, slug }
       )
-    } | order(price asc, _createdAt desc)[0...$limit]
+    } | order(_createdAt desc)[0...$limit]
   `;
   const params: Record<string, any> = { slug: slugParam, catIds: ids, limit };
-  if (hasPrice) params.price = basePrice;
   if (!sanity) return [];
   const executeQuery = async () => {
     const results = await sanity!.fetch<Product[]>(query, params);
@@ -1820,7 +1709,7 @@ export async function getUpsellProducts(
       perspective,
       slugParam,
       ids,
-      hasPrice ? basePrice : null,
+      basePrice ?? null,
       limit
     ],
     executeQuery

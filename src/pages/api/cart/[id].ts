@@ -3,6 +3,7 @@
  * Fetches cart from Medusa for checkout display
  */
 import type { APIRoute } from 'astro'
+import { normalizeCartTotals, toCentsStrict } from '@/lib/money'
 
 export const GET: APIRoute = async ({ params }) => {
   try {
@@ -27,6 +28,9 @@ export const GET: APIRoute = async ({ params }) => {
     }
 
     const medusaData = await response.json()
+    if (medusaData?.cart) {
+      normalizeCartTotals(medusaData.cart)
+    }
 
     // Transform Medusa cart to our format
     const cart = {
@@ -35,12 +39,17 @@ export const GET: APIRoute = async ({ params }) => {
         id: item.id,
         title: item.title,
         quantity: item.quantity,
-        unit_price: item.unit_price,
-        total: item.total
+        unit_price: toCentsStrict(item.unit_price, 'item.unit_price') ?? item.unit_price,
+        total:
+          toCentsStrict(item.total, 'item.total') ??
+          toCentsStrict(item.unit_price, 'item.unit_price') ??
+          item.unit_price * item.quantity
       })),
-      subtotal_cents: medusaData.cart.subtotal,
-      shipping_amount_cents: medusaData.cart.shipping_total || 0,
-      total_cents: medusaData.cart.total,
+      subtotal_cents:
+        toCentsStrict(medusaData.cart.subtotal, 'cart.subtotal') ?? medusaData.cart.subtotal,
+      shipping_amount_cents:
+        toCentsStrict(medusaData.cart.shipping_total, 'cart.shipping_total') ?? 0,
+      total_cents: toCentsStrict(medusaData.cart.total, 'cart.total') ?? medusaData.cart.total,
       email: medusaData.cart.email
     }
 

@@ -22,14 +22,11 @@ type Order = {
 };
 
 const statusColors: Record<string, string> = {
-  pending: 'bg-yellow-500/20 text-yellow-300',
-  approved: 'bg-blue-500/20 text-blue-200',
-  processing: 'bg-blue-500/20 text-blue-200',
+  draft: 'bg-white/10 text-white/80',
+  sent: 'bg-blue-500/20 text-blue-200',
+  payable: 'bg-yellow-500/20 text-yellow-300',
   paid: 'bg-green-500/20 text-green-200',
-  shipped: 'bg-indigo-500/20 text-indigo-200',
-  received: 'bg-green-500/20 text-green-200',
-  completed: 'bg-green-500/20 text-green-200',
-  cancelled: 'bg-red-500/20 text-red-200'
+  failed: 'bg-red-500/20 text-red-200'
 };
 
 const OrdersPage: React.FC = () => {
@@ -96,11 +93,11 @@ const OrdersPage: React.FC = () => {
               className="appearance-none rounded border border-black/90 bg-[#121212] px-3 py-2 pr-9 text-sm text-white shadow-white/10 shadow-box-outter shadow-inner"
             >
               <option value="all">All statuses</option>
-              <option value="processing">Processing</option>
+              <option value="draft">Draft</option>
+              <option value="sent">Sent</option>
+              <option value="payable">Payable</option>
               <option value="paid">Paid</option>
-              <option value="completed">Completed</option>
-              <option value="shipped">Shipped</option>
-              <option value="cancelled">Cancelled</option>
+              <option value="failed">Failed</option>
             </select>
             <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-white/70">
               <svg

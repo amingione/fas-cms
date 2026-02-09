@@ -2,13 +2,17 @@
 import VendorPortalLayout from '@/layouts/VendorPortalLayout.astro';
 import { sanityClient } from '@/lib/sanity';
 import { requireVendor } from '@/server/vendor-portal/auth';
+import {
+  attachMedusaPricingBySanityIdentity,
+  listStoreProductsForPricing,
+  resolveProductCalculatedPriceAmount
+} from '@/lib/medusa-storefront-pricing';
 
 type Product = {
   _id: string;
   title: string;
   slug?: string;
   sku?: string;
-  price?: number;
   wholesalePriceStandard?: number;
   wholesalePricePreferred?: number;
   mainImage?: string;
@@ -75,7 +79,6 @@ try {
         title,
         "slug": slug.current,
         sku,
-        "price": coalesce(pricing.price, price),
         "wholesalePriceStandard": coalesce(pricing.wholesalePriceStandard, wholesalePriceStandard),
         "wholesalePricePreferred": coalesce(pricing.wholesalePricePreferred, wholesalePricePreferred),
         "mainImage": coalesce(images[0].asset->url, mainImage.asset->url, image.asset->url),
@@ -91,6 +94,13 @@ try {
 } catch (error) {
   console.error('[vendor portal] failed to load wholesale catalog', error);
   products = [];
+}
+
+try {
+  const medusaProducts = await listStoreProductsForPricing();
+  products = attachMedusaPricingBySanityIdentity(products, medusaProducts) as Product[];
+} catch (error) {
+  console.error('[vendor portal] failed to attach Medusa pricing', error);
 }
 ---
 
@@ -135,13 +145,29 @@ try {
       ) : (
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {products.map((product) => {
-            const retailPrice = Number(product.price ?? 0);
-            const standardPrice = Number(product.wholesalePriceStandard ?? retailPrice);
-            const preferredPrice = Number(product.wholesalePricePreferred ?? standardPrice);
+            const retailPriceCents = resolveProductCalculatedPriceAmount(product);
+            const retailPrice =
+              typeof retailPriceCents === 'number' ? retailPriceCents / 100 : null;
+            const standardPrice =
+              typeof product.wholesalePriceStandard === 'number'
+                ? product.wholesalePriceStandard
+                : retailPrice;
+            const preferredPrice =
+              typeof product.wholesalePricePreferred === 'number'
+                ? product.wholesalePricePreferred
+                : standardPrice;
             const wholesalePrice = isPreferredVendor ? preferredPrice : standardPrice;
-            const savings = Math.max(0, retailPrice - wholesalePrice);
-            const savingsPercent = retailPrice > 0 ? Math.round((savings / retailPrice) * 100) : 0;
+            const savings =
+              typeof retailPrice === 'number' && typeof wholesalePrice === 'number'
+                ? Math.max(0, retailPrice - wholesalePrice)
+                : 0;
+            const savingsPercent =
+              typeof retailPrice === 'number' && retailPrice > 0
+                ? Math.round((savings / retailPrice) * 100)
+                : 0;
             const description = normalizeDescription(product.shortDescription);
+            const canQuote =
+              typeof retailPrice === 'number' && typeof wholesalePrice === 'number';
 
             return (
               <div class="flex h-full flex-col rounded-2xl border border-white/10 bg-dark/70 p-4 shadow-card-outter shadow-inner shadow-white/20">
@@ -172,17 +198,21 @@ try {
                     <div class="flex items-center justify-between text-sm text-white/70">
                       <span>Retail</span>
                       <span class="font-semibold text-white/70 line-through">
-                        ${retailPrice.toFixed(2)}
+                        {typeof retailPrice === 'number' ? `$${retailPrice.toFixed(2)}` : '—'}
                       </span>
                     </div>
                     <div class="flex items-center justify-between text-sm text-white/70">
                       <span>Your price</span>
-                      <span class="font-semibold text-primary">${wholesalePrice.toFixed(2)}</span>
+                      <span class="font-semibold text-primary">
+                        {typeof wholesalePrice === 'number' ? `$${wholesalePrice.toFixed(2)}` : '—'}
+                      </span>
                     </div>
                     <div class="flex items-center justify-between text-xs text-emerald-300/90">
                       <span>Savings</span>
                       <span class="font-semibold">
-                        ${savings.toFixed(2)} ({savingsPercent}%)
+                        {typeof retailPrice === 'number' && typeof wholesalePrice === 'number'
+                          ? `$${savings.toFixed(2)} (${savingsPercent}%)`
+                          : '—'}
                       </span>
                     </div>
                   </div>
@@ -190,11 +220,12 @@ try {
                 <button
                   class="btn-plain add-to-order mt-3 inline-flex items-center justify-center border-t border-primary shadow-inner shadow-black rounded-xl bg-primaryB px-4 py-2 text-sm font-semibold text-white hover:bg-primaryB hover:text-white/70 hover:border-t hover:border-black/20 hover:shadow transition"
                   data-product-id={product._id}
-                  data-price={wholesalePrice.toFixed(2)}
+                  data-price={typeof wholesalePrice === 'number' ? wholesalePrice.toFixed(2) : '0'}
                   data-title={product.title}
                   data-sku={product.sku || ''}
+                  disabled={!canQuote}
                 >
-                  Add to Order
+                  {canQuote ? 'Add to Order' : 'Pricing Unavailable'}
                 </button>
               </div>
             );

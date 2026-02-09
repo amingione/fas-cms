@@ -12,6 +12,7 @@ import type { QuickViewOptionGroup, QuickViewOptionValue } from '@/lib/quick-vie
 import { portableTextToPlainText } from '@/lib/portableText';
 import { resolveProductCartMeta } from '@/lib/product-flags';
 import { formatCents, formatCentsWithSign } from '@/lib/pricing';
+import { resolveProductCalculatedPriceAmount } from '@/lib/medusa-storefront-pricing';
 
 const sanitizeAnalyticsPayload = (payload: Record<string, unknown>) =>
   Object.fromEntries(
@@ -33,6 +34,8 @@ export type QuickViewProduct = {
   shortDescriptionPortable?: unknown;
   optionGroups?: QuickViewOptionGroup[];
   shippingClass?: string | null;
+  shippingWeight?: number;
+  shippingDimensions?: { length?: number; width?: number; height?: number };
   filters?: unknown;
   installOnly?: unknown;
 };
@@ -109,10 +112,12 @@ export default function ProductQuickViewButton({
     };
   }, [open]);
 
-  // ✅ PRICING AUTHORITY: Product quick view may only display prices that were sourced from Medusa.
-  // `product.price` is expected to be the Medusa-calculated amount in cents.
+  // ✅ PRICING AUTHORITY: Product quick view may only display prices sourced from Medusa.
+  const medusaPrice = resolveProductCalculatedPriceAmount(product);
   const formattedPrice =
-    typeof product.price === 'number' && Number.isFinite(product.price) ? formatCents(product.price) : undefined;
+    typeof medusaPrice === 'number' && Number.isFinite(medusaPrice)
+      ? formatCents(medusaPrice)
+      : undefined;
 
   const portableDescription = useMemo(() => {
     return normalizePortableBlocks(product.shortDescriptionPortable);
@@ -143,9 +148,9 @@ export default function ProductQuickViewButton({
         product_id: typeof product.id === 'string' ? product.id : undefined,
         product_name: product.title,
         product_href: product.href,
-        price: typeof product.price === 'number' ? product.price : undefined
+        price: typeof medusaPrice === 'number' ? medusaPrice : undefined
       }),
-    [product.price, product.id, product.title, product.href]
+    [medusaPrice, product.id, product.title, product.href]
   );
   const openAnalyticsParams = JSON.stringify({ ...analyticsBase, interaction: 'quick_view_open' });
   const viewAnalyticsParams = JSON.stringify({
@@ -257,7 +262,7 @@ export default function ProductQuickViewButton({
         id: resolvedId || product.id,
         name: product.title,
         // display-only; must be Medusa-sourced (cart totals remain authoritative from Medusa cart)
-        price: typeof product.price === 'number' ? product.price : undefined,
+        price: typeof medusaPrice === 'number' ? medusaPrice : undefined,
         stripePriceId: product.stripePriceId ?? undefined,
         medusaVariantId: selectedVariantId ?? undefined,
         image: product.imageSrc,
@@ -266,6 +271,8 @@ export default function ProductQuickViewButton({
         options: optionsPayload,
         selectedOptions: selectedOptionsList,
         selectedUpgrades: [],
+        shippingWeight: product.shippingWeight,
+        shippingDimensions: product.shippingDimensions,
         ...(cartMeta.shippingClass ? { shippingClass: cartMeta.shippingClass } : {}),
         ...(cartMeta.installOnly ? { installOnly: true } : {})
       });

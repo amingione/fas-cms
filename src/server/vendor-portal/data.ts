@@ -1,13 +1,7 @@
 import { sanity } from '@/server/sanity-client';
 
 export async function fetchVendorOrders(vendorId: string, status?: string) {
-  const vendor = await sanity.fetch(
-    '*[_type == "vendor" && _id == $vendorId][0]{customerRef}',
-    { vendorId }
-  );
-  const customerId = vendor?.customerRef?._ref;
-  if (!customerId) return [];
-  const query = `*[_type == "order" && orderType == "wholesale" && customerRef._ref == $customerId${status ? ' && status == $status' : ''}]
+  const query = `*[_type == "vendorOrder" && vendor._ref == $vendorId${status ? ' && status == $status' : ''}]
     | order(dateTime(coalesce(createdAt, _createdAt)) desc){
       _id,
       orderNumber,
@@ -28,7 +22,7 @@ export async function fetchVendorOrders(vendorId: string, status?: string) {
         productRef->{_id, title, sku, "image": coalesce(images[0].asset->url, mainImage.asset->url, thumbnail.asset->url)}
       }
     }`;
-  return sanity.fetch(query, { customerId, ...(status ? { status } : {}) });
+  return sanity.fetch(query, { vendorId, ...(status ? { status } : {}) });
 }
 
 export async function fetchVendorInventory(vendorId: string) {
@@ -66,13 +60,7 @@ export async function updateVendorInventory(
 }
 
 export async function fetchVendorInvoices(vendorId: string) {
-  const vendor = await sanity.fetch(
-    '*[_type == "vendor" && _id == $vendorId][0]{customerRef}',
-    { vendorId }
-  );
-  const customerId = vendor?.customerRef?._ref;
-  if (!customerId) return [];
-  const query = `*[_type == "invoice" && customerRef._ref == $customerId] | order(invoiceDate desc){
+  const query = `*[_type == "invoice" && vendorRef._ref == $vendorId] | order(invoiceDate desc){
     _id,
     invoiceNumber,
     status,
@@ -83,7 +71,7 @@ export async function fetchVendorInvoices(vendorId: string) {
     amountDue,
     customerRef->{companyName}
   }`;
-  return sanity.fetch(query, { customerId });
+  return sanity.fetch(query, { vendorId });
 }
 
 export async function fetchVendorPayments(vendorId: string) {

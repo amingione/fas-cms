@@ -4,6 +4,11 @@ import { sanityClient, urlFor } from '@/lib/sanity';
 import { vendorBySlugQuery } from '@/lib/queries';
 import { ExternalLink, Globe, Package } from 'lucide-react';
 import { formatCents } from '@/lib/pricing';
+import {
+  attachMedusaPricingBySanityIdentity,
+  listStoreProductsForPricing,
+  resolveProductCalculatedPriceAmount
+} from '@/lib/medusa-storefront-pricing';
 
 export const prerender = false;
 
@@ -31,8 +36,15 @@ if (!vendor) {
 const vendorName = vendor?.displayName || vendor?.companyName || 'Vendor';
 const logoUrl = vendor?.logo ? urlFor(vendor.logo).width(320).height(320).url() : '';
 const tags: string[] = Array.isArray(vendor?.tags) ? vendor.tags : [];
-const products: any[] = Array.isArray(vendor?.products) ? vendor.products : [];
+let products: any[] = Array.isArray(vendor?.products) ? vendor.products : [];
 const productCount = products.length || vendor?.productCount || 0;
+
+try {
+  const medusaProducts = await listStoreProductsForPricing();
+  products = attachMedusaPricingBySanityIdentity(products, medusaProducts);
+} catch (error) {
+  console.error('[vendors] Failed to attach Medusa pricing', error);
+}
 ---
 
 <BaseLayout title={`${vendorName} | Vendor`} description={vendor?.description || ''}>
@@ -138,11 +150,16 @@ const productCount = products.length || vendor?.productCount || 0;
                       SKU: <span class="text-neutral-200">{product.sku}</span>
                     </p>
                   )}
-                  {typeof product?.price === 'number' && (
-                    <p class="mt-3 text-xl font-bold text-primary">
-                      {formatCents(product.price)}
-                    </p>
-                  )}
+                  {(() => {
+                    const priceCents = resolveProductCalculatedPriceAmount(product);
+                    return typeof priceCents === 'number' ? (
+                      <p class="mt-3 text-xl font-bold text-primary">
+                        {formatCents(priceCents)}
+                      </p>
+                    ) : (
+                      <p class="mt-3 text-xs text-neutral-400 uppercase tracking-wide">Unavailable</p>
+                    );
+                  })()}
                 </a>
               );
             })}

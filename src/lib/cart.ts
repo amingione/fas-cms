@@ -14,6 +14,8 @@ export type CartItem = {
   image?: string;
   installOnly?: boolean;
   shippingClass?: string;
+  shippingWeight?: number;
+  shippingDimensions?: { length?: number; width?: number; height?: number };
   productUrl?: string;
   sku?: string;
   productSlug?: string;

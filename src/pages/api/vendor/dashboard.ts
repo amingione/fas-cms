@@ -12,40 +12,23 @@ export const GET: APIRoute = async ({ request }) => {
       '*[_type == "vendor" && _id == $vendorId][0]{customerRef, name, displayName, companyName, portalAccess}',
       { vendorId: ctx.vendorId }
     );
-    const customerId = vendor?.customerRef?._ref;
-    if (!customerId) {
-      return jsonResponse(
-        {
-          vendor: {
-            name: vendor?.displayName || vendor?.companyName || vendor?.name || 'displayName',
-            tier: vendor?.portalAccess?.vendorTier || 'vendorTier'
-          },
-          stats: { ordersThisMonth: 0, ordersTotal: 0, totalSpent: 0 },
-          recentOrders: []
-        },
-        { status: 200 },
-        { noIndex: true }
-      );
-    }
-
     const now = new Date();
     const startOfMonth = new Date(
       Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)
     ).toISOString();
 
     const statsQuery = `{
-      "ordersThisMonth": count(*[_type == "order" && orderType == "wholesale" && customerRef._ref == $customerId && dateTime(coalesce(createdAt, _createdAt)) >= dateTime($startOfMonth)]),
-      "ordersTotal": count(*[_type == "order" && orderType == "wholesale" && customerRef._ref == $customerId]),
+      "ordersThisMonth": count(*[_type == "vendorOrder" && vendor._ref == $vendorId && dateTime(coalesce(createdAt, _createdAt)) >= dateTime($startOfMonth)]),
+      "ordersTotal": count(*[_type == "vendorOrder" && vendor._ref == $vendorId]),
       "amounts": *[
-        _type == "order" &&
-        orderType == "wholesale" &&
-        customerRef._ref == $customerId &&
+        _type == "vendorOrder" &&
+        vendor._ref == $vendorId &&
         paymentStatus == "paid" &&
         !(status in ["canceled", "cancelled", "refunded"])
       ]{ "amt": coalesce(totalAmount, amountSubtotal + amountTax + amountShipping, 0) }
     }`;
 
-    const recentOrdersQuery = `*[_type == "order" && orderType == "wholesale" && customerRef._ref == $customerId] | order(dateTime(coalesce(createdAt, _createdAt)) desc)[0...5]{
+    const recentOrdersQuery = `*[_type == "vendorOrder" && vendor._ref == $vendorId] | order(dateTime(coalesce(createdAt, _createdAt)) desc)[0...5]{
       _id,
       orderNumber,
       status,
@@ -57,8 +40,8 @@ export const GET: APIRoute = async ({ request }) => {
       currency
     }`;
 
-    const stats = await sanity.fetch(statsQuery, { customerId, startOfMonth });
-    const recentOrders = await sanity.fetch(recentOrdersQuery, { customerId });
+    const stats = await sanity.fetch(statsQuery, { vendorId: ctx.vendorId, startOfMonth });
+    const recentOrders = await sanity.fetch(recentOrdersQuery, { vendorId: ctx.vendorId });
 
     return jsonResponse(
       {

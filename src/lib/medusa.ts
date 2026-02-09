@@ -67,12 +67,24 @@ export async function medusaFetch(
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
   const url = new URL(normalizedPath, config.baseUrl).toString();
   const method = (init.method ?? 'GET').toUpperCase();
+  const debugLog =
+    typeof process !== 'undefined' && process.env?.MEDUSA_DEBUG_LOG === 'true';
 
   try {
-    return await fetch(url, {
+    if (debugLog) {
+      console.log(`[Medusa] ${method} ${url}`);
+    }
+
+    const response = await fetch(url, {
       ...init,
       headers
     });
+
+    if (debugLog) {
+      console.log(`[Medusa] ${method} ${url} -> ${response.status}`);
+    }
+
+    return response;
   } catch (error) {
     const origin = typeof window !== 'undefined' ? window.location.origin : undefined;
     const crossOrigin =

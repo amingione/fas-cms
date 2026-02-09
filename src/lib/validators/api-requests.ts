@@ -164,11 +164,6 @@ export const vendorAuthSetupSchema = z.object({
   vendorId: z.string().optional()
 });
 
-export const vendorInvoicePaySchema = z.object({
-  amount: z.union([z.number(), z.string()]),
-  paymentMethodId: z.string().min(1)
-});
-
 export const vendorSettingsProfileSchema = z
   .object({
     name: z.string().optional(),

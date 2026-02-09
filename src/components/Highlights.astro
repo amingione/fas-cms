@@ -1,36 +1,13 @@
 ---
-import { coercePriceToNumber, optimizeSanityImageUrl } from '@/lib/sanity-utils.ts';
-import { formatCents } from '@/lib/pricing';
+import { optimizeSanityImageUrl } from '@/lib/sanity-utils.ts';
 
 const { items = [] } = Astro.props as { items?: any[] };
 
-const PRICE_PLACEHOLDER_PATTERN = /^\[price\]$/i;
 const HIGHLIGHT_FALLBACK_IMAGE = '/logo/faslogochroma.webp';
 const HIGHLIGHT_IMAGE_WIDTHS = [200, 320, 360, 480, 640];
 const HIGHLIGHT_IMAGE_BASE_WIDTH = 360;
 const HIGHLIGHT_IMAGE_SIZES = '(min-width: 1024px) 220px, (min-width: 768px) 240px, 55vw';
-
-const formatPriceDisplay = (value: unknown): string | null => {
-  const numeric = coercePriceToNumber(value);
-  if (typeof numeric === 'number') {
-    return formatCents(numeric, { currency: 'USD', locale: 'en-US' });
-  }
-  if (typeof value === 'string') {
-    const trimmed = value.trim();
-    if (!trimmed || PRICE_PLACEHOLDER_PATTERN.test(trimmed)) {
-      return null;
-    }
-    return trimmed;
-  }
-  return null;
-};
-
-const normalizedItems = Array.isArray(items)
-  ? items.map((item) => ({
-      ...item,
-      __priceDisplay: formatPriceDisplay((item as any)?.price)
-    }))
-  : [];
+const normalizedItems = Array.isArray(items) ? items : [];
 
 const getHighlightImageSources = (rawUrl: unknown): { src: string; srcset?: string } => {
   const normalized =
@@ -85,9 +62,7 @@ const getHighlightImageSources = (rawUrl: unknown): { src: string; srcset?: stri
                   <div class="text-white font-semibold truncate">
                     {(p?.title || p?.name || 'Untitled').toString()}
                   </div>
-                  {p?.__priceDisplay && (
-                    <div class="text-sm text-accent mt-1">{p.__priceDisplay}</div>
-                  )}
+                  <div class="text-xs text-white/60 uppercase tracking-wide mt-1">View for pricing</div>
                 </div>
               </a>
             );

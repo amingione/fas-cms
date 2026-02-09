@@ -28,15 +28,11 @@
 
 import Price from '@/components/storefront/Price.tsx';
 import VariantSelector from '@/components/storefront/VariantSelector.tsx';
+import { formatCents } from '@/lib/pricing';
 import {
-  formatPrice,
-  getActivePrice,
-  getCompareAtPrice,
-  getSaleBadgeText,
-  getSaleTimeRemaining,
-  getSavingsAmount,
-  isOnSale
-} from '@/lib/saleHelpers';
+  resolveProductCalculatedOriginalAmount,
+  resolveProductCalculatedPriceAmount
+} from '@/lib/medusa-storefront-pricing';
 
 interface Slug { current?: string }
 interface Spec { key: string; value: string }
@@ -62,15 +58,22 @@ const { product } = Astro.props as {
 
 const title = product?.title || 'Untitled Product';
 const slug = typeof product?.slug === 'string' ? product.slug : (product?.slug?.current || '');
-const price = getActivePrice(product);
-const compareAt = getCompareAtPrice(product) ?? undefined;
+const price = resolveProductCalculatedPriceAmount(product);
+const compareAt = resolveProductCalculatedOriginalAmount(product) ?? undefined;
 const sku = product?.sku || '';
 const isFeatured = Boolean(product?.featured);
 const badges: string[] = Array.isArray(product?.badges) ? product.badges : [];
-const onSale = isOnSale(product);
-const saleBadge = getSaleBadgeText(product);
-const timeRemaining = getSaleTimeRemaining(product);
-const savings = getSavingsAmount(product);
+const onSale =
+  typeof compareAt === 'number' &&
+  typeof price === 'number' &&
+  Number.isFinite(compareAt) &&
+  Number.isFinite(price) &&
+  compareAt > price;
+const saleBadge = onSale ? 'Sale' : null;
+const timeRemaining = null;
+const savings = onSale && typeof compareAt === 'number' && typeof price === 'number'
+  ? Math.max(0, compareAt - price)
+  : 0;
 
 // Build Variant data for selector (optional)
 const optionGroups = Array.isArray(product?.options) ? product.options : [];
@@ -111,7 +114,7 @@ function hiddenInput(name: string, value: string) {
   <div class="mt-2">
     {onSale && savings > 0 && (
       <div class="text-sm text-red-200">
-        Save <span class="font-semibold">{formatPrice(savings)}</span>
+        Save <span class="font-semibold">{formatCents(savings)}</span>
       </div>
     )}
     <Price amount={price} originalAmount={compareAt} onSale={onSale} />

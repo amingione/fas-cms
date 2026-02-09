@@ -1,4 +1,5 @@
 import { getMedusaConfig, medusaFetch, readJsonSafe } from '@/lib/medusa';
+import { toCentsStrict } from '@/lib/money';
 import { normalizeSlugValue } from '@/lib/sanity-utils';
 
 export type MedusaCalculatedPrice =
@@ -35,13 +36,55 @@ export function resolveVariantCalculatedPriceAmount(
   if (!variant || typeof variant !== 'object') return null;
 
   const calculated = (variant as any)?.calculated_price as MedusaCalculatedPrice;
-  if (typeof calculated === 'number' && Number.isFinite(calculated)) return calculated;
+  if (typeof calculated === 'number' && Number.isFinite(calculated)) {
+    try {
+      return toCentsStrict(calculated, 'calculated_price');
+    } catch (error) {
+      console.warn('[medusa-pricing] Invalid calculated_price (number)', error);
+      return null;
+    }
+  }
 
   const amount = (calculated as any)?.amount;
-  if (typeof amount === 'number' && Number.isFinite(amount)) return amount;
+  if (amount !== undefined && amount !== null) {
+    try {
+      return toCentsStrict(amount, 'calculated_price.amount');
+    } catch (error) {
+      console.warn('[medusa-pricing] Invalid calculated_price.amount', error);
+      return null;
+    }
+  }
 
   const calculatedAmount = (calculated as any)?.calculated_amount;
-  if (typeof calculatedAmount === 'number' && Number.isFinite(calculatedAmount)) return calculatedAmount;
+  if (calculatedAmount !== undefined && calculatedAmount !== null) {
+    try {
+      return toCentsStrict(calculatedAmount, 'calculated_price.calculated_amount');
+    } catch (error) {
+      console.warn('[medusa-pricing] Invalid calculated_price.calculated_amount', error);
+      return null;
+    }
+  }
+
+  return null;
+}
+
+export function resolveVariantCalculatedOriginalAmount(
+  variant: unknown
+): number | null {
+  if (!variant || typeof variant !== 'object') return null;
+
+  const calculated = (variant as any)?.calculated_price as MedusaCalculatedPrice;
+  if (!calculated || typeof calculated !== 'object') return null;
+
+  const originalAmount = (calculated as any)?.original_amount;
+  if (originalAmount !== undefined && originalAmount !== null) {
+    try {
+      return toCentsStrict(originalAmount, 'calculated_price.original_amount');
+    } catch (error) {
+      console.warn('[medusa-pricing] Invalid calculated_price.original_amount', error);
+      return null;
+    }
+  }
 
   return null;
 }
@@ -59,6 +102,19 @@ export function resolveProductCalculatedPriceAmount(
   if (!firstVariant) return null;
 
   return resolveVariantCalculatedPriceAmount(firstVariant);
+}
+
+export function resolveProductCalculatedOriginalAmount(
+  product: unknown
+): number | null {
+  if (!product || typeof product !== 'object') return null;
+
+  const medusaProduct = (product as any)?.medusa ?? product;
+  const variants = (medusaProduct as any)?.variants;
+  const firstVariant = Array.isArray(variants) ? variants[0] : null;
+  if (!firstVariant) return null;
+
+  return resolveVariantCalculatedOriginalAmount(firstVariant);
 }
 
 export function resolveProductMedusaVariant(
@@ -168,4 +224,3 @@ export function attachMedusaPricingBySanityIdentity<T extends Record<string, any
     return medusa ? ({ ...sp, medusa } as any) : ({ ...sp } as any);
   });
 }
-

@@ -32,7 +32,6 @@ type VendorRelatedProduct = {
   _id?: string;
   title?: string;
   slug?: { current?: string };
-  price?: number;
   featuredImage?: { asset?: { url?: string } | null } | null;
 };
 
@@ -63,7 +62,6 @@ const post = await sanityClient.fetch<VendorPost | null>(
       _id,
       title,
       slug,
-      price,
       featuredImage { asset->{ url } }
     },
     attachments[] {
@@ -194,7 +192,7 @@ const publishedAtLabel = post.publishedAt
                     />
                   )}
                   <h4 class="font-semibold mb-1">{product.title}</h4>
-                  {product.price && <p class="text-primary font-bold">${product.price}</p>}
+                  <p class="text-xs text-white/60">Pricing available on product page</p>
                 </a>
               );
             })}

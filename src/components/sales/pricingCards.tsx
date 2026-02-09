@@ -1,17 +1,16 @@
 'use client';
 
 import { CheckIcon } from '@heroicons/react/20/solid';
-import { addItem } from '@lib/cart';
-import { emitAddToCartSuccess } from '@/lib/add-to-cart-toast';
-import { prefersDesktopCart } from '@/lib/device';
+import { useEffect, useMemo, useState } from 'react';
+
+import { formatCents } from '@/lib/pricing';
 
 const products = [
   {
     id: 'prod1',
     name: 'Billet Hellcat Supercharger Lid',
-    price: '$1709.99',
     sale: true,
-    compareAt: '$1899.99',
+    handle: 'fas-motorsports-billet-hellcat-supercharger-lid',
     image: '/images/billetParts/fas-new-billet-lid-tilt.webp',
     highlights: ['CNC‑machined billet', 'Dyno‑tested', 'Direct bolt‑on'],
     featured: false,
@@ -20,9 +19,8 @@ const products = [
   {
     id: 'prod2',
     name: 'Dominator 2.4L Dominator Package',
-    price: '$1957.50',
     sale: true,
-    compareAt: '$2175',
+    handle: 'dominator-2-4l-supercharger-package',
     image: '/images/products/2.4LDominatorPackage.webp',
     highlights: ['Billet Bearing Plate', 'Upgraded Bearings', '108mm Race Ported '],
     featured: true,
@@ -31,9 +29,8 @@ const products = [
   {
     id: 'prod3',
     name: '6.7L Powerstroke piping kits',
-    price: '$1899.99',
     sale: true,
-    compareAt: '$1999.99',
+    handle: '2020-6-7l-powerstroke-piping-kit',
     image: '/images/fabrication/6.7LpowerstrokePipingKit.webp',
     highlights: ['TIG-Welded Stainless Steel', 'Optimized Airflow', 'Direct Bolt-On Fit'],
     featured: false,
@@ -45,50 +42,85 @@ function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
 }
 
-function parsePrice(value: string | number | undefined): number {
-  if (typeof value === 'number' && Number.isFinite(value)) return value;
-  if (typeof value === 'string') {
-    const numeric = Number(value.replace(/[^0-9.]/g, ''));
-    return Number.isFinite(numeric) ? numeric : 0;
-  }
-  return 0;
-}
-
 export default function PricingCards() {
-  const handleAddToCart = (product: (typeof products)[number]) => {
-    const name = product.name || 'Black Friday deal';
-    const id = product.id || product.href || name.toLowerCase().replace(/\s+/g, '-');
-    const price = parsePrice(product.price);
-    const medusaVariantId = (product as any)?.medusaVariantId;
-    if (!medusaVariantId) {
-      if (typeof window !== 'undefined') {
-        window.alert('Please choose a product variant on the product page before adding to cart.');
-      }
-      return;
-    }
+  const [priceVisibility, setPriceVisibility] = useState<Record<string, boolean>>({});
+  const [visibilityStatus, setVisibilityStatus] = useState<
+    'idle' | 'loading' | 'ready' | 'error'
+  >('idle');
+  const [priceByHandle, setPriceByHandle] = useState<
+    Record<string, { priceCents?: number; variantId?: string }>
+  >({});
+  const [pricingStatus, setPricingStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
 
-    try {
-      addItem({
-        id,
-        name,
-        price,
-        medusaVariantId,
-        quantity: 1,
-        image: product.image,
-        productUrl: product.href
-      });
-      emitAddToCartSuccess({ name });
-      if (typeof window !== 'undefined') {
-        try {
-          if (!prefersDesktopCart()) window.dispatchEvent(new Event('open-cart'));
-        } catch {
-          window.dispatchEvent(new Event('open-cart'));
-        }
+  const allHandles = useMemo(
+    () => products.map((product) => product.handle).filter(Boolean),
+    []
+  );
+
+  const pricedHandles = useMemo(
+    () => allHandles.filter((handle) => priceVisibility[handle] === true),
+    [allHandles, priceVisibility]
+  );
+
+  useEffect(() => {
+    if (!allHandles.length) return;
+    let isActive = true;
+    const fetchVisibility = async () => {
+      setVisibilityStatus('loading');
+      try {
+        const response = await fetch('/api/promotions/promo-cards', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ handles: allHandles })
+        });
+        if (!response.ok) throw new Error('Failed to load promo card visibility');
+        const data = (await response.json()) as { visibility?: Record<string, boolean> };
+        if (!isActive) return;
+        setPriceVisibility(data?.visibility ?? {});
+        setVisibilityStatus('ready');
+      } catch {
+        if (!isActive) return;
+        setVisibilityStatus('error');
       }
-    } catch (error) {
-      console.error('Failed to add doorbuster to cart', error);
-    }
-  };
+    };
+
+    void fetchVisibility();
+
+    return () => {
+      isActive = false;
+    };
+  }, [allHandles]);
+
+  useEffect(() => {
+    if (!pricedHandles.length) return;
+    let isActive = true;
+
+    const fetchPricing = async () => {
+      setPricingStatus('loading');
+      try {
+        const response = await fetch('/api/medusa/pricing', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ handles: pricedHandles })
+        });
+
+        if (!response.ok) throw new Error('Failed to load pricing');
+        const data = (await response.json()) as { prices?: Record<string, { priceCents?: number }> };
+        if (!isActive) return;
+        setPriceByHandle(data?.prices ?? {});
+        setPricingStatus('ready');
+      } catch {
+        if (!isActive) return;
+        setPricingStatus('error');
+      }
+    };
+
+    void fetchPricing();
+
+    return () => {
+      isActive = false;
+    };
+  }, [pricedHandles]);
 
   return (
     <section className="relative isolate overflow-hidden bg-dark py-24 sm:py-32">
@@ -123,37 +155,31 @@ export default function PricingCards() {
                   </div>
                 )}
 
+                {priceVisibility[product.handle] === true && (
+                  <div className="mb-4 text-xl font-semibold text-white">
+                    {product.handle && priceByHandle[product.handle]?.priceCents != null
+                      ? formatCents(priceByHandle[product.handle]?.priceCents)
+                      : pricingStatus === 'loading' || visibilityStatus === 'loading'
+                        ? 'Loading price...'
+                        : 'Pricing unavailable'}
+                  </div>
+                )}
+
                 <img
                   src={product.image}
                   alt={product.name}
                   className="w-full h-40 object-contain rounded-lg mb-4"
                 />
-                <div className="flex items-center gap-3 mt-1">
-                  <p className="text-3xl font-semibold text-white">{product.price}</p>
-                  {product.sale && (
-                    <p className="text-lg font-medium text-red-400 line-through">
-                      {product.compareAt}
-                    </p>
-                  )}
-                </div>
 
                 <div className="mt-6 flex gap-3">
-                  <button
-                    type="button"
+                  <a
+                    href={product.href}
                     className={classNames(
                       product.featured
                         ? 'btn-plain bg-primary hover:bg-primary/90 shadow-lg shadow-primary/40'
                         : 'btn-plain bg-[#1a1a1a] hover:bg-primary/10 border border-white/10 shadow-md',
-                      'btn-plain w-1/2 rounded-md px-3 py-2 text-sm font-semibold text-white transition-colors'
+                      'btn-plain w-full rounded-md px-3 py-2 text-sm font-semibold text-center text-white transition-colors'
                     )}
-                    onClick={() => handleAddToCart(product)}
-                  >
-                    Add to Cart
-                  </button>
-
-                  <a
-                    href={product.href}
-                    className="btn-plain w-1/2 rounded-md px-3 py-2 text-sm font-semibold text-center hover:bg-white/20 text-white border border-white/10"
                   >
                     View Product
                   </a>

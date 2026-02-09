@@ -45,6 +45,33 @@ export const formatCents = (
   }
 };
 
+export const formatDollars = (
+  amount: number | string | null | undefined,
+  {
+    currency = 'USD',
+    locale,
+    narrowSymbol = true,
+    minimumFractionDigits = 2,
+    maximumFractionDigits = 2
+  }: PriceFormatOptions = {}
+): string => {
+  if (amount == null) return '—';
+  const numeric = typeof amount === 'string' ? Number(amount) : amount;
+  if (!Number.isFinite(numeric)) return '—';
+
+  try {
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency,
+      currencyDisplay: narrowSymbol ? 'narrowSymbol' : 'symbol',
+      minimumFractionDigits,
+      maximumFractionDigits
+    }).format(numeric);
+  } catch {
+    return `${currency} ${numeric.toFixed(minimumFractionDigits)}`;
+  }
+};
+
 export const formatCentsWithSign = (
   amount: number | string | null | undefined,
   opts: PriceFormatOptions = {}

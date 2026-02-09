@@ -23,12 +23,13 @@ import { emitAddToCartSuccess } from '@/lib/add-to-cart-toast';
 
 type UpdateType = 'plus' | 'minus' | 'delete';
 
-export type Cart = LocalCart; // { items: CartItem[] }
+export type Cart = LocalCart; // { items: CartItem[]; totals?: {...} }
 
 type CartContextType = {
   cart: Cart;
   totalQuantity: number;
   subtotal: number; // display-only subtotal in cents (item.price * qty; server remains source of truth)
+  totals?: Cart['totals'];
   addCartItem: (item: Partial<CartItem> & { id: string; quantity?: number }) => Promise<void>;
   updateCartItem: (id: string, updateType: UpdateType) => Promise<void>;
   setItemQuantity: (id: string, quantity: number) => Promise<void>;
@@ -41,7 +42,10 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 function computeTotals(cart: Cart) {
   const totalQuantity = cart.items.reduce((sum, it) => sum + (it.quantity || 0), 0);
-  const subtotal = cart.items.reduce((sum, it) => sum + (it.price || 0) * (it.quantity || 0), 0);
+  const subtotal =
+    typeof cart?.totals?.subtotal === 'number'
+      ? cart.totals.subtotal
+      : cart.items.reduce((sum, it) => sum + (it.price || 0) * (it.quantity || 0), 0);
   return { totalQuantity, subtotal };
 }
 
@@ -124,6 +128,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       cart,
       totalQuantity,
       subtotal,
+      totals: cart.totals,
       addCartItem,
       updateCartItem,
       setItemQuantity,

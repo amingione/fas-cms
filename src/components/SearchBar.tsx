@@ -3,7 +3,6 @@ import { Input } from '@components/ui/input';
 import { X, Search } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { formatCents } from '@/lib/pricing';
 
 interface SearchBarProps {
   value?: string;
@@ -276,7 +275,6 @@ export function SearchBar({
                 resolveLink(it, q) || `${action || '/search'}?q=${encodeURIComponent(q)}`;
               const title = it?.title || it?.name || it?._type || 'Untitled';
               const img = getThumb(it);
-              const price = formatPrice(it?.price);
               const isActive = idx === active;
               return (
                 <a
@@ -308,7 +306,7 @@ export function SearchBar({
                         style={{ fontFamily: 'Arial, sans-serif', fontSize: 11 }}
                       >
                         <span className="uppercase">{String(it?._type || '')}</span>
-                        {price ? <span className="text-accent">{price}</span> : null}
+                        <span className="text-xs text-white/50 uppercase">View for pricing</span>
                       </div>
                     </div>
                   </div>
@@ -345,7 +343,6 @@ export function SearchBar({
                   resolveLink(it, q) || `${action || '/search'}?q=${encodeURIComponent(q)}`;
                 const title = it?.title || it?.name || it?._type || 'Untitled';
                 const img = getThumb(it);
-                const price = formatPrice(it?.price);
                 const isActive = idx === active;
                 return (
                   <a
@@ -377,7 +374,7 @@ export function SearchBar({
                           style={{ fontFamily: 'Arial, sans-serif', fontSize: 11 }}
                         >
                           <span className="uppercase">{String(it?._type || '')}</span>
-                          {price ? <span className="text-accent">{price}</span> : null}
+                        <span className="text-xs text-white/50 uppercase">View for pricing</span>
                         </div>
                       </div>
                     </div>
@@ -411,12 +408,6 @@ function getThumb(it: any) {
     it?.imageUrl ||
     '';
   return typeof byPath === 'string' ? byPath : '';
-}
-
-function formatPrice(v: any) {
-  const n = Number(v);
-  if (!isFinite(n) || n <= 0) return '';
-  return formatCents(n, { currency: 'USD', locale: 'en-US' });
 }
 
 function resolveLink(it: any, q: string) {
