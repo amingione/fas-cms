@@ -43,9 +43,25 @@ export const POST: APIRoute = async ({ request }) => {
 
     // Complete cart in Medusa (convert to order)
     const medusaUrl = import.meta.env.MEDUSA_API_URL || 'http://localhost:9000';
+    const publishableKey =
+      (import.meta.env.MEDUSA_PUBLISHABLE_KEY as string | undefined) ||
+      (import.meta.env.PUBLIC_MEDUSA_PUBLISHABLE_KEY as string | undefined) ||
+      (process.env.MEDUSA_PUBLISHABLE_KEY as string | undefined) ||
+      (process.env.PUBLIC_MEDUSA_PUBLISHABLE_KEY as string | undefined);
+
+    if (!publishableKey) {
+      return new Response(JSON.stringify({ error: 'Missing Medusa publishable key.' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
     const completeResponse = await fetch(`${medusaUrl}/store/carts/${cart_id}/complete`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
+      headers: {
+        'Content-Type': 'application/json',
+        'x-publishable-api-key': publishableKey
+      }
     });
 
     if (!completeResponse.ok) {

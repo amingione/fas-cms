@@ -40,6 +40,14 @@ type MedusaCart = {
   };
 };
 
+type ShippoRateInput = {
+  rate_id?: string;
+  amount?: string;
+  currency?: string;
+  servicelevel?: string;
+  provider?: string;
+};
+
 export const POST: APIRoute = async ({ request }) => {
   const config = getMedusaConfig();
   if (!config) {
@@ -133,14 +141,18 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  // Create PaymentIntent with finalized amount
-  const amountInCents = total;
   const currency = (cart?.currency_code || 'usd').toLowerCase();
   const customerEmail = cart?.email || undefined;
 
+  let shippoRate: ShippoRateInput | null = null;
+  if (body?.shippoRate && typeof body.shippoRate === 'object') {
+    shippoRate = body.shippoRate as ShippoRateInput;
+  }
+
   try {
+    // Create Stripe PaymentIntent with finalized amount (cents).
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: amountInCents,
+      amount: total,
       currency,
       automatic_payment_methods: {
         enabled: true,
@@ -152,9 +164,94 @@ export const POST: APIRoute = async ({ request }) => {
         tax_total: String(cart?.tax_total ?? 0),
         shipping_total: String(cart?.shipping_total ?? 0),
         item_count: String(items.length),
+        ...(shippoRate?.rate_id ? { shippo_rate_id: shippoRate.rate_id } : {}),
+        ...(shippoRate?.amount ? { shipping_amount_cents: String(shippoRate.amount) } : {}),
+        ...(shippoRate?.currency ? { shippo_rate_currency: String(shippoRate.currency) } : {}),
+        ...(shippoRate?.servicelevel ? { service_name: String(shippoRate.servicelevel) } : {}),
+        ...(shippoRate?.provider ? { carrier: String(shippoRate.provider) } : {})
       },
-      description: `Order for ${items.length} item(s) - Cart ${cartId}`,
+      shipping: cart?.shipping_address
+        ? {
+            name: `${cart.shipping_address.first_name || ''} ${cart.shipping_address.last_name || ''}`.trim() ||
+              undefined,
+            phone: cart.shipping_address.phone || undefined,
+            address: {
+              line1: cart.shipping_address.address_1,
+              line2: cart.shipping_address.address_2 || undefined,
+              city: cart.shipping_address.city,
+              state: cart.shipping_address.province,
+              postal_code: cart.shipping_address.postal_code,
+              country: cart.shipping_address.country_code?.toUpperCase()
+            }
+          }
+        : undefined
     });
+
+    // Create a Medusa payment collection + system session so cart completion is allowed.
+    const paymentCollectionResponse = await medusaFetch(`/store/payment-collections`, {
+      method: 'POST',
+      body: JSON.stringify({ cart_id: cartId })
+    });
+    const paymentCollectionData = await readJsonSafe<any>(paymentCollectionResponse);
+    if (!paymentCollectionResponse.ok) {
+      return jsonResponse(
+        { error: paymentCollectionData?.message || 'Failed to create payment collection.' },
+        { status: paymentCollectionResponse.status },
+        { noIndex: true }
+      );
+    }
+
+    const paymentCollectionId = paymentCollectionData?.payment_collection?.id;
+    if (!paymentCollectionId) {
+      return jsonResponse(
+        { error: 'Payment collection not returned by Medusa.' },
+        { status: 500 },
+        { noIndex: true }
+      );
+    }
+
+    const providersResponse = await medusaFetch(
+      `/store/payment-providers?region_id=${encodeURIComponent(cart?.region_id || '')}`,
+      { method: 'GET' }
+    );
+    const providersData = await readJsonSafe<any>(providersResponse);
+    if (!providersResponse.ok) {
+      return jsonResponse(
+        { error: providersData?.message || 'Failed to load payment providers.' },
+        { status: providersResponse.status },
+        { noIndex: true }
+      );
+    }
+
+    const providers = Array.isArray(providersData?.payment_providers)
+      ? providersData.payment_providers
+      : [];
+    const systemProvider = providers.find((provider: any) =>
+      String(provider?.id || '').includes('system')
+    );
+    if (!systemProvider?.id) {
+      return jsonResponse(
+        { error: 'System payment provider unavailable in Medusa.' },
+        { status: 500 },
+        { noIndex: true }
+      );
+    }
+
+    const paymentSessionResponse = await medusaFetch(
+      `/store/payment-collections/${paymentCollectionId}/payment-sessions`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ provider_id: systemProvider.id })
+      }
+    );
+    const paymentSessionData = await readJsonSafe<any>(paymentSessionResponse);
+    if (!paymentSessionResponse.ok) {
+      return jsonResponse(
+        { error: paymentSessionData?.message || 'Failed to create payment session.' },
+        { status: paymentSessionResponse.status },
+        { noIndex: true }
+      );
+    }
 
     return jsonResponse(
       {

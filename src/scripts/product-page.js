@@ -233,7 +233,6 @@ const renderConfiguredPrice = (price, comparePrice) => {
 const updateConfiguredPriceUI = () => {
   const button = document.getElementById('add-to-cart-btn');
   const cfg = readConfiguredOptions();
-  const extra = cfg.extra || 0;
 
   const saleBasePrice = button
     ? parsePrice(button.dataset.productPrice ?? button.dataset.productBasePrice, 0)
@@ -245,17 +244,15 @@ const updateConfiguredPriceUI = () => {
       )
     : saleBasePrice;
 
-  const total = Math.max(0, saleBasePrice + extra);
-  const compareTotal = Math.max(total, compareBasePrice + extra);
-
-  renderConfiguredPrice(total, compareTotal);
+  // Pricing must be authoritative in Medusa. Do not calculate configured totals client-side.
+  renderConfiguredPrice(saleBasePrice, compareBasePrice);
 
   if (button) {
-    button.dataset.configuredPrice = String(total);
-    button.dataset.configuredComparePrice = compareTotal > 0 ? String(compareTotal) : '';
+    button.dataset.configuredPrice = String(saleBasePrice);
+    button.dataset.configuredComparePrice = compareBasePrice > 0 ? String(compareBasePrice) : '';
   }
 
-  return { total, compareTotal, cfg, extra };
+  return { total: saleBasePrice, compareTotal: compareBasePrice, cfg, extra: 0 };
 };
 
 const schedule = (() => {
