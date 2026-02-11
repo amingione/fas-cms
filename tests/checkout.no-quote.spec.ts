@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import { describe, it, expect } from 'vitest';
 
 const checkoutPath = new URL(
-  '../src/pages/api/legacy/stripe/create-checkout-session.ts',
+  '../src/pages/api/medusa/payments/create-intent.ts',
   import.meta.url
 );
 const forbiddenTerms = [
