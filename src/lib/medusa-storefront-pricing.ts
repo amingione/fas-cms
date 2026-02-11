@@ -9,6 +9,13 @@ export type MedusaCalculatedPrice =
       calculated_amount?: number;
       original_amount?: number;
       currency_code?: string;
+      calculated_price?: {
+        amount?: number;
+        calculated_amount?: number;
+      };
+      original_price?: {
+        amount?: number;
+      };
     }
   | null
   | undefined;
@@ -65,6 +72,32 @@ export function resolveVariantCalculatedPriceAmount(
     }
   }
 
+  const nestedAmount = (calculated as any)?.calculated_price?.amount;
+  if (nestedAmount !== undefined && nestedAmount !== null) {
+    try {
+      return toCentsStrict(nestedAmount, 'calculated_price.calculated_price.amount');
+    } catch (error) {
+      console.warn('[medusa-pricing] Invalid calculated_price.calculated_price.amount', error);
+      return null;
+    }
+  }
+
+  const nestedCalculatedAmount = (calculated as any)?.calculated_price?.calculated_amount;
+  if (nestedCalculatedAmount !== undefined && nestedCalculatedAmount !== null) {
+    try {
+      return toCentsStrict(
+        nestedCalculatedAmount,
+        'calculated_price.calculated_price.calculated_amount'
+      );
+    } catch (error) {
+      console.warn(
+        '[medusa-pricing] Invalid calculated_price.calculated_price.calculated_amount',
+        error
+      );
+      return null;
+    }
+  }
+
   return null;
 }
 
@@ -82,6 +115,16 @@ export function resolveVariantCalculatedOriginalAmount(
       return toCentsStrict(originalAmount, 'calculated_price.original_amount');
     } catch (error) {
       console.warn('[medusa-pricing] Invalid calculated_price.original_amount', error);
+      return null;
+    }
+  }
+
+  const nestedOriginalAmount = (calculated as any)?.original_price?.amount;
+  if (nestedOriginalAmount !== undefined && nestedOriginalAmount !== null) {
+    try {
+      return toCentsStrict(nestedOriginalAmount, 'calculated_price.original_price.amount');
+    } catch (error) {
+      console.warn('[medusa-pricing] Invalid calculated_price.original_price.amount', error);
       return null;
     }
   }
@@ -143,6 +186,10 @@ export async function listStoreProductsForPricing(
     const search = new URLSearchParams();
     search.set('limit', String(limit));
     search.set('offset', String(offset));
+    search.set(
+      'fields',
+      '*variants.calculated_price,+metadata,+variants.inventory_quantity,+variants.manage_inventory,+variants.allow_backorder'
+    );
     if (regionId) search.set('region_id', regionId);
 
     const response = await medusaFetch(`/store/products?${search.toString()}`, {
@@ -183,13 +230,39 @@ function resolveSanitySlug(product: any): string | null {
 }
 
 function resolveMedusaSanityId(medusa: MedusaStoreProduct): string | null {
-  const sanityId = (medusa as any)?.metadata?.sanity_id;
-  return typeof sanityId === 'string' && sanityId.trim() ? sanityId.trim() : null;
+  const metadata = (medusa as any)?.metadata;
+  if (!metadata || typeof metadata !== 'object') return null;
+
+  const sanityIdCandidates = [
+    (metadata as any)?.sanity_id,
+    (metadata as any)?.sanityId,
+    (metadata as any)?.sanity_product_id,
+    (metadata as any)?.sanityProductId
+  ];
+  for (const candidate of sanityIdCandidates) {
+    if (typeof candidate === 'string' && candidate.trim()) {
+      return candidate.trim();
+    }
+  }
+  return null;
 }
 
 function resolveMedusaSanitySlug(medusa: MedusaStoreProduct): string | null {
-  const sanitySlug = (medusa as any)?.metadata?.sanity_slug;
-  return typeof sanitySlug === 'string' && sanitySlug.trim() ? sanitySlug.trim() : null;
+  const metadata = (medusa as any)?.metadata;
+  if (!metadata || typeof metadata !== 'object') return null;
+
+  const sanitySlugCandidates = [
+    (metadata as any)?.sanity_slug,
+    (metadata as any)?.sanitySlug,
+    (metadata as any)?.sanity_product_slug,
+    (metadata as any)?.sanityProductSlug
+  ];
+  for (const candidate of sanitySlugCandidates) {
+    if (typeof candidate === 'string' && candidate.trim()) {
+      return candidate.trim();
+    }
+  }
+  return null;
 }
 
 export function attachMedusaPricingBySanityIdentity<T extends Record<string, any>>(
