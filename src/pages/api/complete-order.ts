@@ -7,22 +7,58 @@ import Stripe from 'stripe';
 import { STRIPE_API_VERSION } from '@/lib/stripe-config';
 import { createClient } from '@sanity/client';
 import { requireSanityApiToken } from '@/server/sanity-token';
-import { formatOrderNumber } from '@fas-sanity/sanity-config/utils/orderNumber';
+import { formatOrderNumber } from '@/lib/order-number';
 
-const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY!, {
-  apiVersion: STRIPE_API_VERSION as Stripe.LatestApiVersion
-});
+const resolveEnv = (name: string): string => {
+  const runtimeValue = process.env[name];
+  if (typeof runtimeValue === 'string' && runtimeValue.trim()) {
+    return runtimeValue.trim();
+  }
+  const buildValue = (import.meta.env as Record<string, string | undefined>)[name];
+  return typeof buildValue === 'string' ? buildValue.trim() : '';
+};
 
-const sanityClient = createClient({
-  projectId: process.env.SANITY_PROJECT_ID!,
-  dataset: process.env.SANITY_DATASET || 'production',
-  token: requireSanityApiToken('api/complete-order'),
-  apiVersion: '2024-01-01',
-  useCdn: false
-});
+let cachedSanityClient: ReturnType<typeof createClient> | null = null;
+
+const getSanityClient = () => {
+  if (cachedSanityClient) return cachedSanityClient;
+
+  const projectId =
+    resolveEnv('SANITY_PROJECT_ID') ||
+    ((import.meta.env.PUBLIC_SANITY_PROJECT_ID as string | undefined) || '').trim();
+  if (!projectId) {
+    throw new Error('Missing SANITY_PROJECT_ID for api/complete-order');
+  }
+
+  const dataset =
+    resolveEnv('SANITY_DATASET') ||
+    ((import.meta.env.PUBLIC_SANITY_DATASET as string | undefined) || 'production').trim();
+
+  cachedSanityClient = createClient({
+    projectId,
+    dataset,
+    token: requireSanityApiToken('api/complete-order'),
+    apiVersion: '2024-01-01',
+    useCdn: false
+  });
+
+  return cachedSanityClient;
+};
 
 export const POST: APIRoute = async ({ request }) => {
   try {
+    const stripeSecretKey = resolveEnv('STRIPE_SECRET_KEY');
+    if (!stripeSecretKey) {
+      return new Response(JSON.stringify({ error: 'Missing Stripe secret key.' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const stripe = new Stripe(stripeSecretKey, {
+      apiVersion: STRIPE_API_VERSION as Stripe.LatestApiVersion
+    });
+
     const { cart_id, payment_intent_id } = await request.json();
 
     if (!cart_id || !payment_intent_id) {
@@ -43,7 +79,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // Complete cart in Medusa (convert to order)
-    const medusaUrl = import.meta.env.MEDUSA_API_URL || 'http://localhost:9000';
+    const medusaUrl = resolveEnv('MEDUSA_API_URL') || 'http://localhost:9000';
     const publishableKey =
       (import.meta.env.MEDUSA_PUBLISHABLE_KEY as string | undefined) ||
       (import.meta.env.PUBLIC_MEDUSA_PUBLISHABLE_KEY as string | undefined) ||
@@ -291,6 +327,8 @@ const computeShipmentSnapshot = (items: any[], weightUnit: string | undefined) =
  */
 async function syncOrderToSanity(medusaOrder: any, paymentIntent: any): Promise<string> {
   try {
+    const sanityClient = getSanityClient();
+
     // Check if order already exists (idempotency)
     const existing = await sanityClient.fetch(
       `*[_type == "order" && medusaOrderId == $orderId][0]`,

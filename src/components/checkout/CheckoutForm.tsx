@@ -8,6 +8,7 @@ import { loadStripe } from '@stripe/stripe-js'
 import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js'
 import './CheckoutForm.css'
 import { ensureMedusaCartId, getCart, syncMedusaCart } from '@/lib/cart'
+import { MEDUSA_CART_ID_KEY } from '@/lib/medusa'
 
 // Load Stripe
 const stripePromise = loadStripe(import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY!)
@@ -42,6 +43,7 @@ interface Cart {
   id: string
   items: CartItem[]
   subtotal_cents: number
+  tax_amount_cents?: number
   shipping_amount_cents: number
   total_cents: number
   email?: string
@@ -73,6 +75,58 @@ const EMPTY_ADDRESS: ShippingAddress = {
   phone: ''
 }
 
+function toDisplayCents(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return Number.isInteger(value) ? value : Math.round(value * 100)
+  }
+
+  if (typeof value === 'string') {
+    const normalized = value.trim()
+    if (!normalized) return null
+    if (/^-?\d+$/.test(normalized)) {
+      const parsed = Number.parseInt(normalized, 10)
+      return Number.isFinite(parsed) ? parsed : null
+    }
+    if (/^-?\d+(\.\d+)?$/.test(normalized)) {
+      const parsed = Number.parseFloat(normalized)
+      return Number.isFinite(parsed) ? Math.round(parsed * 100) : null
+    }
+  }
+
+  return null
+}
+
+function resolveShippingOptionAmountCents(rate: ShippingRate): number | null {
+  const direct =
+    toDisplayCents(rate.calculated_price) ??
+    toDisplayCents(rate.amount) ??
+    toDisplayCents((rate as any)?.price) ??
+    toDisplayCents((rate as any)?.value)
+  if (typeof direct === 'number') return direct
+
+  const calculatedPrice = (rate as any)?.calculated_price
+  if (calculatedPrice && typeof calculatedPrice === 'object') {
+    const nested =
+      toDisplayCents((calculatedPrice as any)?.amount) ??
+      toDisplayCents((calculatedPrice as any)?.calculated_amount) ??
+      toDisplayCents((calculatedPrice as any)?.calculated_price?.amount) ??
+      toDisplayCents((calculatedPrice as any)?.calculated_price?.calculated_amount)
+    if (typeof nested === 'number') return nested
+  }
+
+  const priceSet = (rate as any)?.calculated_price_set
+  if (priceSet && typeof priceSet === 'object') {
+    const setAmount =
+      toDisplayCents((priceSet as any)?.calculated_amount?.value) ??
+      toDisplayCents((priceSet as any)?.calculated_amount) ??
+      toDisplayCents((priceSet as any)?.amount?.value) ??
+      toDisplayCents((priceSet as any)?.amount)
+    if (typeof setAmount === 'number') return setAmount
+  }
+
+  return null
+}
+
 export default function CheckoutForm() {
   const [cartId, setCartId] = useState<string | null>(null)
   const [cart, setCart] = useState<Cart | null>(null)
@@ -90,12 +144,29 @@ export default function CheckoutForm() {
     let cancelled = false
 
     const init = async () => {
-      const id = await ensureMedusaCartId()
-      if (cancelled) return
-      setCartId(id)
-      if (id) {
+      try {
+        const id = await ensureMedusaCartId()
+        if (cancelled) return
+        setCartId(id)
+        if (!id) return
+
         await syncMedusaCart(getCart())
-        await loadCart(id)
+        const loaded = await loadCart(id)
+        if (!loaded) {
+          const recoveredId = await recoverMissingCart()
+          if (!cancelled) {
+            setCartId(recoveredId)
+          }
+        }
+      } catch (err) {
+        console.error('Checkout init failed:', err)
+        if (!cancelled) {
+          setError('Failed to load cart. Please refresh the page.')
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingCart(false)
+        }
       }
     }
 
@@ -105,18 +176,38 @@ export default function CheckoutForm() {
     }
   }, [])
 
-  async function loadCart(id: string) {
-    try {
-      const response = await fetch(`/api/cart/${id}`)
-      if (!response.ok) throw new Error('Cart not found')
-      const data = await response.json()
-      setCart(data.cart)
-    } catch (err) {
-      console.error('Failed to load cart:', err)
-      setError('Failed to load cart. Please refresh the page.')
-    } finally {
-      setLoadingCart(false)
+  async function loadCart(id: string): Promise<boolean> {
+    const response = await fetch(`/api/cart/${id}`)
+    if (response.status === 404) {
+      return false
     }
+    if (!response.ok) {
+      const payload = await response.json().catch(() => null)
+      throw new Error(payload?.error || 'Cart fetch failed')
+    }
+
+    const data = await response.json()
+    setCart(data.cart)
+    return true
+  }
+
+  async function recoverMissingCart(): Promise<string> {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(MEDUSA_CART_ID_KEY)
+    }
+
+    const freshCartId = await ensureMedusaCartId()
+    if (!freshCartId) {
+      throw new Error('Unable to create replacement cart')
+    }
+
+    await syncMedusaCart(getCart())
+    const loaded = await loadCart(freshCartId)
+    if (!loaded) {
+      throw new Error('Replacement cart was not found')
+    }
+
+    return freshCartId
   }
 
   const updateAddressField = (field: keyof ShippingAddress) => (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -364,6 +455,9 @@ export default function CheckoutForm() {
             {!loadingRates && shippingRates.length > 0 && (
               <div className="shipping-options">
                 {shippingRates.map((rate) => (
+                  (() => {
+                    const amountCents = resolveShippingOptionAmountCents(rate)
+                    return (
                   <label
                     key={rate.id}
                     className={`shipping-option ${
@@ -384,10 +478,12 @@ export default function CheckoutForm() {
                         <span className="option-delivery">{rate.price_type || 'calculated'}</span>
                       </div>
                       <div className="option-price">
-                        ${(((rate.calculated_price ?? rate.amount ?? 0) as number) / 100).toFixed(2)}
+                        {typeof amountCents === 'number' ? `$${(amountCents / 100).toFixed(2)}` : '—'}
                       </div>
                     </div>
                   </label>
+                    )
+                  })()
                 ))}
               </div>
             )}
@@ -492,11 +588,12 @@ export default function CheckoutForm() {
 
               <div className="total-row">
                 <span>Shipping</span>
-                <span>
-                  {selectedRateId
-                    ? `$${(cart.shipping_amount_cents / 100).toFixed(2)}`
-                    : 'Calculated at next step'}
-                </span>
+                <span>{selectedRateId ? `$${(cart.shipping_amount_cents / 100).toFixed(2)}` : ''}</span>
+              </div>
+
+              <div className="total-row">
+                <span>Tax</span>
+                <span>${(((cart.tax_amount_cents as number) ?? 0) / 100).toFixed(2)}</span>
               </div>
 
               <div className="total-row total-final">
