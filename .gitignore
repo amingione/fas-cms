@@ -19,6 +19,8 @@ pnpm-debug.log*
 .env.development
 !.env.example
 .env.local
+.env-CLEANUP-REPORT.md
+.env.canonical
 
 # macOS-specific files
 .DS_Store

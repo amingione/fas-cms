@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(CART_ID=cart_01KGKTBAHH2GZFECNXVV8MTCVR npm run diagnose-cart:*)",
+      "Bash(npx medusa exec:*)"
+    ]
+  }
+}
