@@ -6,6 +6,27 @@ import { requireVendor } from '@/server/vendor-portal/auth';
 import { vendorCreateOrderSchema } from '@/lib/validators/api-requests';
 import { sanityCustomerSchema } from '@/lib/validators/sanity';
 
+const ORDER_NUMBER_PREFIX = 'FAS-';
+const ORDER_NUMBER_DIGITS = 6;
+
+const extractOrderDigits = (value: unknown): number => {
+  if (typeof value !== 'string' && typeof value !== 'number') return 0;
+  const normalized = String(value).trim().toUpperCase();
+  if (!normalized) return 0;
+  const digits = normalized.replace(/\D/g, '');
+  if (!digits) return 0;
+  const parsed = Number.parseInt(digits, 10);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const getNextOrderNumber = async (): Promise<string> => {
+  const latest = await sanity.fetch<string | null>(
+    '*[_type == "order" && defined(orderNumber)] | order(_createdAt desc)[0].orderNumber'
+  );
+  const next = extractOrderDigits(latest) + 1;
+  return `${ORDER_NUMBER_PREFIX}${String(next).padStart(ORDER_NUMBER_DIGITS, '0')}`;
+};
+
 export const POST: APIRoute = async ({ request }) => {
   const ctx = await requireVendor(request);
   if (!ctx.ok) {
@@ -48,7 +69,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const subtotal = cart.reduce((sum, item) => sum + (item.price ?? 0) * (item.quantity ?? 0), 0);
-  const orderNumber = `WS-${Date.now()}`;
+  const orderNumber = await getNextOrderNumber();
   const now = new Date().toISOString();
 
   const vendor = ctx.vendor as any;

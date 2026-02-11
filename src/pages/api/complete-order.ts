@@ -7,6 +7,7 @@ import Stripe from 'stripe';
 import { STRIPE_API_VERSION } from '@/lib/stripe-config';
 import { createClient } from '@sanity/client';
 import { requireSanityApiToken } from '@/server/sanity-token';
+import { formatOrderNumber } from '@fas-sanity/sanity-config/utils/orderNumber';
 
 const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY!, {
   apiVersion: STRIPE_API_VERSION as Stripe.LatestApiVersion
@@ -71,13 +72,13 @@ export const POST: APIRoute = async ({ request }) => {
     const { order } = await completeResponse.json();
 
     // Sync order to Sanity for fulfillment
-    await syncOrderToSanity(order, paymentIntent);
+    const formattedOrderNumber = await syncOrderToSanity(order, paymentIntent);
 
     return new Response(
       JSON.stringify({
         success: true,
         order_id: order.id,
-        order_number: order.display_id
+        order_number: formattedOrderNumber || order.display_id
       }),
       {
         status: 200,
@@ -110,6 +111,22 @@ const toDollars = (cents: unknown): number | undefined => {
   const n = toNumber(cents);
   if (n === undefined) return undefined;
   return Math.round(n) / 100;
+};
+
+const ORDER_NUMBER_PATTERN = /^FAS-\d{6}$/;
+
+const toCanonicalOrderNumber = (...values: Array<unknown>): string | undefined => {
+  for (const value of values) {
+    const raw = typeof value === 'string' || typeof value === 'number' ? String(value).trim() : '';
+    if (!raw) continue;
+    const normalized = raw.toUpperCase();
+    if (ORDER_NUMBER_PATTERN.test(normalized)) return normalized;
+    const digits = normalized.replace(/\D/g, '');
+    if (digits) {
+      return `FAS-${digits.slice(-6).padStart(6, '0')}`;
+    }
+  }
+  return undefined;
 };
 
 const normalizePaymentStatus = (status: string | undefined): string => {
@@ -272,7 +289,7 @@ const computeShipmentSnapshot = (items: any[], weightUnit: string | undefined) =
 /**
  * Sync completed order to Sanity for fulfillment workflow
  */
-async function syncOrderToSanity(medusaOrder: any, paymentIntent: any) {
+async function syncOrderToSanity(medusaOrder: any, paymentIntent: any): Promise<string> {
   try {
     // Check if order already exists (idempotency)
     const existing = await sanityClient.fetch(
@@ -282,7 +299,8 @@ async function syncOrderToSanity(medusaOrder: any, paymentIntent: any) {
 
     if (existing) {
       console.log(`Order ${medusaOrder.id} already exists in Sanity`);
-      return existing;
+      const existingOrderNumber = toCanonicalOrderNumber(existing?.orderNumber, medusaOrder?.display_id, medusaOrder?.id) || '';
+      return formatOrderNumber(existingOrderNumber) || existingOrderNumber;
     }
 
     // Extract shipping details from Payment Intent metadata
@@ -357,13 +375,25 @@ async function syncOrderToSanity(medusaOrder: any, paymentIntent: any) {
       process.env.SHIPPO_WEIGHT_UNIT,
     );
 
+    const canonicalOrderNumber = toCanonicalOrderNumber(
+      medusaOrder?.display_id,
+      medusaOrder?.id,
+      paymentIntent?.metadata?.order_number,
+    );
+    if (!canonicalOrderNumber) {
+      throw new Error(`Unable to derive canonical order number for Medusa order ${medusaOrder?.id || 'unknown'}`);
+    }
+
+    // Ensure order number is properly formatted using centralized utility
+    const formattedOrderNumber = formatOrderNumber(canonicalOrderNumber) || canonicalOrderNumber;
+
     // Create order document in Sanity
     const sanityOrder = await sanityClient.create(
       {
         _type: 'order',
         medusaOrderId: medusaOrder.id,
         medusaCartId: metadata?.medusa_cart_id || medusaOrder?.cart_id,
-        orderNumber: String(medusaOrder.display_id || ''),
+        orderNumber: formattedOrderNumber,
         status: orderStatus,
         paymentStatus,
         fulfillmentStatus,
@@ -404,7 +434,7 @@ async function syncOrderToSanity(medusaOrder: any, paymentIntent: any) {
         cart: cartItems,
 
         // Order items (legacy)
-        items: cartItems.map((item) => ({
+        items: cartItems.map((item: any) => ({
           productId: undefined,
           variantId: undefined,
           title: item.name,
@@ -449,7 +479,7 @@ async function syncOrderToSanity(medusaOrder: any, paymentIntent: any) {
     );
 
     console.log(`Order synced to Sanity: ${sanityOrder._id}`);
-    return sanityOrder;
+    return formattedOrderNumber;
   } catch (error) {
     console.error('Sanity sync error:', error);
     throw error;
