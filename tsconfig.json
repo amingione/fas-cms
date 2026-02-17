@@ -1,5 +1,5 @@
 {
-  "extends": "astro/tsconfigs/strict",
+  "extends": "node_modules/astro/tsconfigs/strict.json",
   "compilerOptions": {
     "types": ["astro/client", "vite/client", "node", "stripe"],
     "module": "es2020",
@@ -27,15 +27,7 @@
     "jsx": "react-jsx",
     "jsxImportSource": "react"
   },
-  "include": [
-    ".astro/types.d.ts",
-    "src/**/*",
-    "*.astro",
-    "**/*.ts",
-    "**/*.tsx",
-    "netlify/functions/**/*.ts",
-    "tests/**/*"
-  ],
+  "include": ["**/*.ts", "**/*.tsx", "netlify/functions/**/*.ts", "tests/**/*"],
   "exclude": [
     "node_modules",
     "dist",
