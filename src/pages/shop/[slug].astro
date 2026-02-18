@@ -10,22 +10,9 @@ import {
 } from '../../lib/sanity-utils';
 import PortableTextRenderer from "../../components/PortableTextRenderer.jsx";
 import SlugCarousel from '@/components/SlugCarousel.astro';
-import { inlineFieldAttrs, inlineObjectId } from '@lib/content.ts';
-import ServiceDisclaimerNotice from '@/components/storefront/ServiceDisclaimerNotice.tsx';
-import InfoTabs from '@/components/shop/InfoTabs';
-import ProductCardLite from '@/components/storefront/ProductCardLite.astro';
-import productPageScriptUrl from '../../scripts/product-page.js?url';
-import { centsToDollars, formatCents, formatCentsWithSign } from '@/lib/pricing';
-import { getCallForShippingQuote, getMetadataTags, getRequiresShipping } from '@/lib/medusa-metadata';
-import {
-  attachMedusaPricingBySanityIdentity,
-  listStoreProductsForPricing,
-  resolveProductCalculatedPriceAmount,
-  resolveProductMedusaVariant
-} from '@/lib/medusa-storefront-pricing';
-
-export const prerender = false;
-Astro.response.headers.set('Cache-Control', 'no-store');
+import TrustStrip from '@/components/TrustStrip.astro';
+import { inlineFieldAttrs, inlineObjectId } from '@lib/content';
+import { serializeJsonLd } from '@lib/utils';
 
 export type KitItem = { item: string; quantity?: number };
 export type VehicleCompat = { make?: string; model?: string; trim?: string };
@@ -1403,16 +1390,16 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
     <meta property="product:availability" content="https://schema.org/InStock" />
     {metaKeywords && <meta name="keywords" content={metaKeywords} />}
     {breadcrumbStructuredData && (
-      <script is:inline type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
+      <script
+        type="application/ld+json"
+        set:html={serializeJsonLd(breadcrumbStructuredData)}
+      />
     )}
     {productStructuredData && (
-      <script is:inline type="application/ld+json" set:html={JSON.stringify(productStructuredData)} />
-    )}
-    {relatedProductsStructuredData && (
-      <script is:inline type="application/ld+json" set:html={JSON.stringify(relatedProductsStructuredData)} />
-    )}
-    {upsellProductsStructuredData && (
-      <script is:inline type="application/ld+json" set:html={JSON.stringify(upsellProductsStructuredData)} />
+      <script
+        type="application/ld+json"
+        set:html={serializeJsonLd(productStructuredData)}
+      />
     )}
   </Fragment>
   <div {...inlineObjectId((product as any)._id)}>
@@ -2034,12 +2021,15 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
 
   </BaseLayout>
 ) : (
-  <BaseLayout title={seoTitle} description={seoDesc} canonical={seoCanon} ogImage={seoOg}>
-    <Fragment slot="head">
-      {breadcrumbStructuredData && (
-        <script is:inline type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
-      )}
-    </Fragment>
+  <BaseLayout title={seoTitle} description={seoDesc} canonical={seoCanon} noindex>
+    {breadcrumbStructuredData && (
+      <Fragment slot="head">
+        <script
+          type="application/ld+json"
+          set:html={serializeJsonLd(breadcrumbStructuredData)}
+        />
+      </Fragment>
+    )}
     <section class="mx-auto flex min-h-[60vh] max-w-3xl flex-col items-center justify-center px-4 py-24 text-center text-white">
       <h1 class="text-4xl font-ethno md:text-5xl">Product not found</h1>
       <p class="mt-4 text-sm text-white/80 md:text-base">

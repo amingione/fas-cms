@@ -1,14 +1,9 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import CategoryPage from '@/components/storefront/CategoryPage.tsx';
-import { fetchProductsFromSanity, normalizeSanityImageUrl } from '@/lib/sanity-utils.ts';
-import { sanityClient as client } from '@/lib/sanityClient.ts';
-import { centsToDollars } from '@/lib/pricing';
-import {
-  attachMedusaPricingBySanityIdentity,
-  listStoreProductsForPricing,
-  resolveProductCalculatedPriceAmount
-} from '@/lib/medusa-storefront-pricing';
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import CategoryPage from "@/components/storefront/CategoryPage.tsx";
+import { fetchProductsFromSanity } from "@/lib/sanity-utils";
+import { sanityClient as client } from "@/lib/sanityClient";
+import { serializeJsonLd } from '@lib/utils';
 
 let products = await fetchProductsFromSanity({});
 try {
@@ -177,19 +172,10 @@ const productCollectionStructuredData = productItemListElements.length
 
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
   <Fragment slot="head">
-    <script is:inline type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
-    {
-      categoryCollectionStructuredData && (
-        <script is:inline type="application/ld+json" set:html={JSON.stringify(categoryCollectionStructuredData)}
-        />
-      )
-    }
-    {
-      productCollectionStructuredData && (
-        <script is:inline type="application/ld+json" set:html={JSON.stringify(productCollectionStructuredData)}
-        />
-      )
-    }
+    <script
+      type="application/ld+json"
+      set:html={serializeJsonLd(breadcrumbStructuredData)}
+    />
   </Fragment>
 
   <section class="px-5 py-5">

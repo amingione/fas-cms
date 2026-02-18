@@ -1,25 +1,13 @@
 --- 
 import BaseLayout from '@layouts/BaseLayout.astro';
-import ShopTopControls from '@components/shop/ShopTopControls.tsx';
-import ShopSidebarFilters from '@/components/storefront/ShopSidebarFilters.tsx';
-import {
-  fetchFilteredProducts,
-  fetchStorefrontFilterFacets,
-  getProductCount,
-  fetchCategories,
-  fetchVehicles
-} from '@lib/sanity-utils.ts';
-import type { Product, Category, Vehicle } from '@lib/sanity-utils.ts';
-	import ProductGrid from '@/components/storefront/ProductGrid.astro';
-	import FilterPanelMobile from '@/components/storefront/FilterPanelMobile.tsx';
-	import Pagination from '@/components/storefront/Pagination.astro';
-	import { centsToDollars } from '@/lib/pricing';
-	import {
-	  attachMedusaPricingBySanityIdentity,
-	  listStoreProductsForPricing,
-	  resolveProductCalculatedPriceAmount,
-	  resolveProductMedusaVariant
-	} from '@/lib/medusa-storefront-pricing';
+import ShopTopControls from '@components/shop/ShopTopControls';
+import ShopSidebarFilters from '@/components/storefront/ShopSidebarFilters';
+import { fetchProductsFromSanity, fetchCategories } from '@lib/sanity-utils';
+import type { Product, Category } from '@lib/sanity-utils';
+import { serializeJsonLd } from '@lib/utils';
+import ProductGrid from '@/components/storefront/ProductGrid.astro';
+import FilterPanelMobile from '@/components/storefront/FilterPanelMobile.tsx';
+import Pagination from '@/components/storefront/Pagination.astro';
 
 	export const prerender = false;
 
@@ -493,10 +481,10 @@ if (endPage < totalPages) {
 
 <BaseLayout title={metaTitle} description={pageDescription} canonical={canonical}>
   <Fragment slot="head">
-    <script is:inline type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
-    {productCollectionStructuredData && (
-      <script is:inline type="application/ld+json" set:html={JSON.stringify(productCollectionStructuredData)} />
-    )}
+    <script
+      type="application/ld+json"
+      set:html={serializeJsonLd(breadcrumbStructuredData)}
+    />
   </Fragment>
   <section class="max-w-full px-2 md:px-2 mt-11 pt-10">
     <div class="mb-6 mt-2 space-y-3">
