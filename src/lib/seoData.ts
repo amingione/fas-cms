@@ -20,6 +20,8 @@ export interface SanitySeo {
   relatedLinks?: Array<{
     label: string;
     href?: string;
+    source?: string;
+    docType?: string;
   }>;
 }
 
@@ -127,15 +129,79 @@ const dedupeByHref = (
   return results;
 };
 
-type FetchSeoOptions = {
-  preview?: boolean;
-  token?: string;
+interface RawRelatedLink {
+  label?: string | null;
+  href?: string | null;
+  source?: string | null;
+  docType?: string | null;
+}
+
+const isHttpUrl = (value: string) => /^https?:\/\//i.test(value);
+
+const normalizeRelatedLink = (
+  link: RawRelatedLink
+): { label: string; href?: string } | null => {
+  const label = (link.label ?? '').trim();
+  if (!label) return null;
+
+  const rawHref = (link.href ?? '').trim();
+  if (!rawHref) {
+    return { label };
+  }
+
+  if (isHttpUrl(rawHref)) {
+    return { label, href: rawHref };
+  }
+
+  if (rawHref.startsWith('//')) {
+    return { label, href: `https:${rawHref}` };
+  }
+
+  if (rawHref.startsWith('/')) {
+    return { label, href: rawHref };
+  }
+
+  const identifier = (link.source ?? link.docType ?? '').toLowerCase();
+
+  const pickPrefix = () => {
+    if (identifier.includes('product')) return '/shop';
+    if (identifier.includes('category')) return '/shop/categories';
+    if (identifier.includes('article') || identifier.includes('blog') || identifier.includes('post')) {
+      return '/blog';
+    }
+    if (identifier.includes('service')) return '/services';
+    return '';
+  };
+
+  const prefix = pickPrefix();
+  const sanitized = rawHref.replace(/^\/+/, '');
+  const sanitizedPrefix = prefix.replace(/^\/+|\/+$/g, '');
+  const lowerSanitized = sanitized.toLowerCase();
+
+  if (!sanitized) {
+    if (!sanitizedPrefix) return { label, href: '/' };
+    return { label, href: `/${sanitizedPrefix}` };
+  }
+
+  if (!sanitizedPrefix && lowerSanitized === 'home') {
+    return { label, href: '/' };
+  }
+
+  if (sanitizedPrefix) {
+    const normalizedPrefix = sanitizedPrefix.toLowerCase();
+    if (
+      lowerSanitized === normalizedPrefix ||
+      lowerSanitized.startsWith(`${normalizedPrefix}/`)
+    ) {
+      return { label, href: `/${sanitized}` };
+    }
+  }
+
+  const segments = [sanitizedPrefix, sanitized].filter(Boolean);
+  return { label, href: `/${segments.join('/')}` };
 };
 
-export async function fetchSeoForPath(
-  pathname: string,
-  options: FetchSeoOptions = {},
-): Promise<SeoPayload> {
+export async function fetchSeoForPath(pathname: string): Promise<SeoPayload> {
   const normalized = pathname.replace(/\/+$/, '') || '/';
 
   const fetcher = async () => {
@@ -178,22 +244,53 @@ export async function fetchSeoForPath(
     "ogImage": coalesce(seo.ogImage, seo.openGraphImage),
     "jsonLd": coalesce(seo.jsonLd[], []),
     "breadcrumbs": coalesce(seo.breadcrumbs[], []),
-    "relatedSeoLinks": coalesce(seo.relatedLinks[]->{"label": title, "href": slug.current}, []),
-    "relatedPageLinks": coalesce(relatedPages[]->{"label": title, "href": slug.current}, []),
-    "relatedProductLinks": coalesce(relatedProducts[]->{
-      "label": title,
-      "href": slug.current,
-      "primaryKeyword": primaryKeyword,
-      "seoPrimaryKeyword": coalesce(seo.primaryKeyword, seo.keyphrase, seo.keyword, seo.targetKeyword),
-      "fitment": fitment,
-      "seoFitment": coalesce(seo.fitment, seo.fitmentText),
-      "fitmentText": fitment,
-      "seoFitmentText": coalesce(seo.fitmentText, seo.fitment),
-      "fitmentYears": fitmentYears,
-      "seoFitmentYears": seo.fitmentYears
-    }, []),
-    "relatedArticleLinks": coalesce(relatedArticles[]->{"label": title, "href": slug.current}, []),
-    "relatedServiceLinks": coalesce(relatedServices[]->{"label": title, "href": slug.current}, [])
+    "relatedLinks": array::compact(
+      coalesce(
+        seo.relatedLinks[]->{
+          "label": coalesce(title, name, label),
+          "href": coalesce(slug.current, href, url),
+          "source": "seo",
+          "docType": _type
+        },
+        []
+      ) +
+      coalesce(
+        relatedPages[]->{
+          "label": coalesce(title, name, label),
+          "href": coalesce(slug.current, href, url),
+          "source": "page",
+          "docType": _type
+        },
+        []
+      ) +
+      coalesce(
+        relatedProducts[]->{
+          "label": coalesce(title, name, label),
+          "href": coalesce(slug.current, href, url),
+          "source": "product",
+          "docType": _type
+        },
+        []
+      ) +
+      coalesce(
+        relatedArticles[]->{
+          "label": coalesce(title, name, label),
+          "href": coalesce(slug.current, href, url),
+          "source": "article",
+          "docType": _type
+        },
+        []
+      ) +
+      coalesce(
+        relatedServices[]->{
+          "label": coalesce(title, name, label),
+          "href": coalesce(slug.current, href, url),
+          "source": "service",
+          "docType": _type
+        },
+        []
+      )
+    )
   }
 }`,
         params: {
@@ -276,8 +373,12 @@ export async function fetchSeoForPath(
       ...ensureArray(relatedServiceLinks).map(normalizeSimpleLink).filter(Boolean)
     ] as Array<{ label: string; href?: string }>);
 
-    const globalKeywords = normalizeKeywordsArray(globalSettings?.defaultKeywords);
-    const pageKeywords = normalizeKeywordsArray(pageSeoRest.keywords);
+        const normalizedBreadcrumbs = dedupeByHref(ensureArray(pageSeo.breadcrumbs));
+        const normalizedLinks = dedupeByHref(
+          ensureArray(pageSeo.relatedLinks as RawRelatedLink[])
+            .map((link) => normalizeRelatedLink(link))
+            .filter((link): link is { label: string; href?: string } => link !== null)
+        );
 
     return {
       global: {
