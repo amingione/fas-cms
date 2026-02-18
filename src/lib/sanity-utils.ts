@@ -308,7 +308,7 @@ const visualEditingOriginAllowed = isBrowserRuntime
   ? isHostnameAllowlisted(runtimeHostname)
   : true; // Allow server-side rendering to honor request-level hostname checks
 
-const visualEditingRequested = toBooleanFlag(
+const visualEditingEnvFlag = toBooleanFlag(
   import.meta.env.PUBLIC_SANITY_ENABLE_VISUAL_EDITING as string | undefined
 );
 const globalVisualEditingOverride = (() => {
@@ -361,6 +361,150 @@ if (previewDraftsEnabled && !apiToken) {
   );
   previewDraftsEnabled = false;
 }
+
+const parsePositiveInt = (value: unknown, fallback: number): number => {
+  if (typeof value === 'number' && Number.isFinite(value) && value > 0) {
+    return Math.floor(value);
+  }
+  if (typeof value === 'string') {
+    const numeric = Number.parseInt(value.trim(), 10);
+    if (Number.isFinite(numeric) && numeric > 0) {
+      return numeric;
+    }
+  }
+  return fallback;
+};
+
+const manualCacheDisableFlag =
+  toBooleanFlag((import.meta.env.PUBLIC_SANITY_DISABLE_CACHE as string | undefined) ?? 'false');
+const manualCacheEnableFlagRaw = import.meta.env.PUBLIC_SANITY_ENABLE_CACHE as string | undefined;
+const manualCacheEnableFlag =
+  manualCacheEnableFlagRaw === undefined ? true : toBooleanFlag(manualCacheEnableFlagRaw);
+
+export const sanityCacheEnabled =
+  !manualCacheDisableFlag && manualCacheEnableFlag && !import.meta.env.DEV && !previewDraftsEnabled;
+
+const DEFAULT_SANITY_CACHE_TTL_SECONDS = parsePositiveInt(
+  (import.meta.env.PUBLIC_SANITY_CACHE_TTL_SECONDS as string | undefined) || 0,
+  300
+);
+
+type SanityCacheEntry = {
+  value?: unknown;
+  expiresAt: number;
+  promise?: Promise<unknown>;
+};
+
+type SanityCacheStore = Map<string, SanityCacheEntry>;
+
+const SANITY_CACHE_SYMBOL = Symbol.for('__fasSanityCacheStore__');
+
+const getSanityCacheStore = (): SanityCacheStore => {
+  const globalTarget = globalThis as typeof globalThis & {
+    [SANITY_CACHE_SYMBOL]?: SanityCacheStore;
+  };
+  if (!globalTarget[SANITY_CACHE_SYMBOL]) {
+    globalTarget[SANITY_CACHE_SYMBOL] = new Map<string, SanityCacheEntry>();
+  }
+  return globalTarget[SANITY_CACHE_SYMBOL]!;
+};
+
+const stableStringify = (value: unknown): string => {
+  if (value === null) return 'null';
+
+  switch (typeof value) {
+    case 'undefined':
+      return 'undefined';
+    case 'number':
+    case 'boolean':
+      return JSON.stringify(value);
+    case 'string':
+      return JSON.stringify(value);
+    case 'bigint':
+      return `"${(value as bigint).toString()}"`;
+    case 'symbol':
+    case 'function':
+      return `"${String(value)}"`;
+    default:
+      break;
+  }
+
+  if (Array.isArray(value)) {
+    return `[${value.map((entry) => stableStringify(entry)).join(',')}]`;
+  }
+
+  const objectValue = value as Record<string, unknown>;
+  const entries = Object.entries(objectValue)
+    .filter(([, v]) => v !== undefined)
+    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+    .map(([k, v]) => `${JSON.stringify(k)}:${stableStringify(v)}`);
+  return `{${entries.join(',')}}`;
+};
+
+export interface SanityCacheOptions {
+  ttlSeconds?: number;
+  forceRefresh?: boolean;
+}
+
+export const cachedSanityFetch = async <T>(
+  keyParts: unknown[],
+  fetcher: () => Promise<T>,
+  options: SanityCacheOptions = {}
+): Promise<T> => {
+  const shouldUseCache = sanityCacheEnabled && !options.forceRefresh;
+  const cacheStore = shouldUseCache ? getSanityCacheStore() : null;
+  const ttlSeconds =
+    options.ttlSeconds !== undefined
+      ? Math.max(0, Math.floor(options.ttlSeconds))
+      : DEFAULT_SANITY_CACHE_TTL_SECONDS;
+
+  const cacheKey = shouldUseCache ? keyParts.map((part) => stableStringify(part)).join('|') : null;
+
+  if (shouldUseCache && cacheStore && cacheKey) {
+    const entry = cacheStore.get(cacheKey);
+    const now = Date.now();
+    if (entry) {
+      if (entry.value !== undefined && entry.expiresAt > now) {
+        return entry.value as T;
+      }
+      if (entry.promise) {
+        return entry.promise as Promise<T>;
+      }
+    }
+
+    if (ttlSeconds <= 0) {
+      return fetcher();
+    }
+
+    const promise = (async () => {
+      try {
+        const result = await fetcher();
+        cacheStore.set(cacheKey, {
+          value: result,
+          expiresAt: Date.now() + ttlSeconds * 1000
+        });
+        return result;
+      } catch (err) {
+        if (entry && entry.value !== undefined && entry.expiresAt > now) {
+          cacheStore.set(cacheKey, entry);
+        } else {
+          cacheStore.delete(cacheKey);
+        }
+        throw err;
+      }
+    })();
+
+    cacheStore.set(cacheKey, {
+      value: entry?.value,
+      expiresAt: Date.now() + ttlSeconds * 1000,
+      promise
+    });
+
+    return promise;
+  }
+
+  return fetcher();
+};
 
 const perspective = previewDraftsEnabled ? 'previewDrafts' : 'published';
 const stegaEnabled = visualEditingRequested && Boolean(studioUrl);
@@ -416,6 +560,7 @@ export interface Product {
   price?: number | null;
   stripePriceId?: string | null;
   medusaVariantId?: string | null;
+  // Legacy sale fields retained for compatibility; Medusa now owns sale state.
   onSale?: boolean | null;
   salePrice?: number | null;
   compareAtPrice?: number | null;
@@ -466,6 +611,7 @@ export interface Product {
   brand?: string;
   gtin?: string;
   mpn?: string;
+  // Legacy shipping fields retained for compatibility; Medusa now owns shipping metadata.
   shippingClass?: string;
   shippingWeight?: number;
   images: {
@@ -786,11 +932,6 @@ const PRODUCT_LISTING_PROJECTION = `{
   metaDescription,
   stripePriceId,
   "medusaVariantId": coalesce(medusaVariantId, medusaVariantID),
-  "onSale": coalesce(onSale, pricing.onSale),
-  "saleStartDate": coalesce(saleStartDate, pricing.saleStartDate),
-  "saleEndDate": coalesce(saleEndDate, pricing.saleEndDate),
-  "saleLabel": coalesce(saleLabel, pricing.saleLabel),
-  "saleActive": pricing.saleActive,
   description,
   shortDescription,
   importantNotes,
@@ -948,6 +1089,7 @@ export interface StorefrontProductFilters {
   sortBy?: 'price-asc' | 'price-desc' | 'newest' | 'featured' | 'name';
   page?: number;
   pageSize?: number;
+  // Legacy filter retained for compatibility; sale state is no longer sourced from Sanity.
   saleOnly?: boolean;
 }
 
@@ -981,8 +1123,7 @@ export async function fetchFilteredProducts(
       searchTerm = null,
       sortBy = 'featured',
       page = 1,
-      pageSize = 12,
-      saleOnly = false
+      pageSize = 12
     } = filters;
     const { includeServices = false } = options;
 
@@ -1024,7 +1165,6 @@ export async function fetchFilteredProducts(
         && ($categorySlug == null || $categorySlug in category[]->slug.current || $categorySlug in categories[]->slug.current)
         && ($filterSlugs == null || count((filters[]->slug.current)[@ in $filterSlugs]) > 0 || count((filters[])[@ in $filterSlugs]) > 0 || count((filterTitles[])[@ in $filterSlugs]) > 0)
         && ($vehicleSlugs == null || count((compatibleVehicles[]->slug.current)[@ in $vehicleSlugs]) > 0)
-        && ($saleOnly == false || coalesce(onSale, pricing.onSale) == true)
         && ($searchTerm == null || 
             lower(title) match lower("*" + $searchTerm + "*") || 
             lower(tags[]) match lower("*" + $searchTerm + "*"))
@@ -1040,8 +1180,7 @@ export async function fetchFilteredProducts(
       searchTerm: typeof searchTerm === 'string' && searchTerm.trim() ? searchTerm.trim() : null,
       sortBy,
       start,
-      end,
-      saleOnly: Boolean(saleOnly)
+      end
     };
 
     const executeQuery = async () => {
@@ -1080,8 +1219,7 @@ export async function getProductCount(
       vehicleSlugs,
       minPrice = null,
       maxPrice = null,
-      searchTerm = null,
-      saleOnly = false
+      searchTerm = null
     } = filters;
     const { includeServices = false } = options;
 
@@ -1099,7 +1237,6 @@ export async function getProductCount(
         && ($categorySlug == null || $categorySlug in category[]->slug.current || $categorySlug in categories[]->slug.current)
         && ($filterSlugs == null || count((filters[]->slug.current)[@ in $filterSlugs]) > 0 || count((filters[])[@ in $filterSlugs]) > 0 || count((filterTitles[])[@ in $filterSlugs]) > 0)
         && ($vehicleSlugs == null || count((compatibleVehicles[]->slug.current)[@ in $vehicleSlugs]) > 0)
-        && ($saleOnly == false || coalesce(onSale, pricing.onSale) == true)
         && ($searchTerm == null || 
             lower(title) match lower("*" + $searchTerm + "*") || 
             lower(tags[]) match lower("*" + $searchTerm + "*"))
@@ -1112,8 +1249,7 @@ export async function getProductCount(
       vehicleSlugs: normalizedVehicleSlugs,
       minPrice: null,
       maxPrice: null,
-      searchTerm: typeof searchTerm === 'string' && searchTerm.trim() ? searchTerm.trim() : null,
-      saleOnly: Boolean(saleOnly)
+      searchTerm: typeof searchTerm === 'string' && searchTerm.trim() ? searchTerm.trim() : null
     };
 
     const executeQuery = async () => {
@@ -1143,8 +1279,7 @@ export async function fetchStorefrontFilterFacets(
       vehicleSlugs,
       minPrice = null,
       maxPrice = null,
-      searchTerm = null,
-      saleOnly = false
+      searchTerm = null
     } = filters;
     const { includeServices = false } = options;
 
@@ -1159,8 +1294,7 @@ export async function fetchStorefrontFilterFacets(
       vehicleSlugs: normalizedVehicleSlugs,
       minPrice: null,
       maxPrice: null,
-      searchTerm: typeof searchTerm === 'string' && searchTerm.trim() ? searchTerm.trim() : null,
-      saleOnly: Boolean(saleOnly)
+      searchTerm: typeof searchTerm === 'string' && searchTerm.trim() ? searchTerm.trim() : null
     };
 
     const query = `
@@ -1168,17 +1302,12 @@ export async function fetchStorefrontFilterFacets(
         && ${productFilter}
         && ($categorySlug == null || $categorySlug in category[]->slug.current || $categorySlug in categories[]->slug.current)
         && ($vehicleSlugs == null || count((compatibleVehicles[]->slug.current)[@ in $vehicleSlugs]) > 0)
-        && ($saleOnly == false || coalesce(onSale, pricing.onSale) == true)
         && ($searchTerm == null || 
             lower(title) match lower("*" + $searchTerm + "*") || 
             lower(tags[]) match lower("*" + $searchTerm + "*"))
       ]{
         "filters": coalesce(filters[]->{ _id, title, slug }, filters, []),
-        filterTitles,
-        "onSale": coalesce(onSale, pricing.onSale),
-        "saleActive": coalesce(saleActive, pricing.saleActive),
-        "saleStartDate": coalesce(saleStartDate, pricing.saleStartDate),
-        "saleEndDate": coalesce(saleEndDate, pricing.saleEndDate)
+        filterTitles
       }
     `;
 
@@ -1205,59 +1334,11 @@ export async function fetchActiveSaleProducts(
     ttlSeconds?: number;
   } = {}
 ): Promise<Product[]> {
-  try {
-    if (!hasSanityConfig || !sanity) return [];
-
-    const limit = Math.max(1, Math.min(50, options.limit ?? 12));
-    const query = `
-      *[_type == "product" && ${ACTIVE_PRODUCT_WITH_SLUG_FILTER}
-        && coalesce(onSale, pricing.onSale) == true
-        && (!defined(coalesce(saleStartDate, pricing.saleStartDate)) || coalesce(saleStartDate, pricing.saleStartDate) <= now())
-        && (!defined(coalesce(saleEndDate, pricing.saleEndDate)) || coalesce(saleEndDate, pricing.saleEndDate) >= now())
-      ] | order(
-        coalesce(
-          discountPercent,
-          discountPercentage,
-          pricing.discountPercentage,
-          0
-        ) desc
-      )[0...$limit] ${PRODUCT_LISTING_PROJECTION}
-    `;
-
-    const executeQuery = async () => {
-      const results = await sanity.fetch<Product[]>(query, { limit });
-      if (!Array.isArray(results)) return [];
-
-      return results.map((item) => {
-        const normalized = normalizeProductPrice(item);
-        const existingDiscount =
-          typeof (normalized as any)?.discountPercent === 'number'
-            ? (normalized as any)?.discountPercent
-            : typeof (normalized as any)?.discountPercentage === 'number'
-              ? (normalized as any)?.discountPercentage
-              : null;
-
-        const discountPercent = existingDiscount ?? null;
-
-        return {
-          ...normalized,
-          onSale: true,
-          discountPercent: discountPercent ?? undefined,
-          discountPercentage:
-            (normalized as any)?.discountPercentage ?? discountPercent ?? undefined
-        };
-      });
-    };
-
-    return cachedSanityFetch(
-      ['fetchActiveSaleProducts', config.projectId, config.dataset, perspective, limit],
-      executeQuery,
-      { ttlSeconds: options.ttlSeconds ?? 60 }
-    );
-  } catch (err) {
-    console.error('Failed to fetch active sale products:', err);
-    return [];
+  // Kept as a compatibility export. Sale ownership moved to Medusa, not Sanity.
+  if (import.meta.env.DEV) {
+    console.warn('[sanity-utils] fetchActiveSaleProducts is deprecated; Medusa now owns sales data.');
   }
+  return [];
 }
 
 export async function fetchServiceCatalogProducts(): Promise<Product[]> {
@@ -1314,13 +1395,6 @@ export async function fetchFeaturedProducts(
         title,
         displayTitle,
         "slug": slug.current,
-        "onSale": coalesce(onSale, pricing.onSale),
-        "discountPercent": coalesce(discountPercent, discountPercentage, pricing.discountPercentage),
-        "discountPercentage": coalesce(discountPercentage, discountPercent, pricing.discountPercentage),
-        "saleStartDate": coalesce(saleStartDate, pricing.saleStartDate),
-        "saleEndDate": coalesce(saleEndDate, pricing.saleEndDate),
-        "saleLabel": coalesce(saleLabel, pricing.saleLabel),
-        "saleActive": pricing.saleActive,
         featured,
         primaryKeyword,
         fitmentYears,
@@ -1484,13 +1558,6 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       slug,
       stripePriceId,
       "medusaVariantId": coalesce(medusaVariantId, medusaVariantID),
-      "onSale": coalesce(onSale, pricing.onSale),
-      "discountPercent": coalesce(discountPercent, discountPercentage, pricing.discountPercentage),
-      "discountPercentage": coalesce(discountPercentage, discountPercent, pricing.discountPercentage),
-      "saleStartDate": coalesce(saleStartDate, pricing.saleStartDate),
-      "saleEndDate": coalesce(saleEndDate, pricing.saleEndDate),
-      "saleLabel": coalesce(saleLabel, pricing.saleLabel),
-      "saleActive": pricing.saleActive,
       sku,
       // rich text fields may be arrays
       shortDescription,
@@ -1540,8 +1607,6 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       },
       tune->{ title, slug },
       compatibleVehicles[]->{ make, model, trim, slug },
-      shippingClass,
-      shippingWeight,
       brand,
       gtin,
       mpn,
@@ -1619,13 +1684,6 @@ export async function getRelatedProducts(
       title,
       displayTitle,
       slug,
-      "onSale": coalesce(onSale, pricing.onSale),
-      "discountPercent": coalesce(discountPercent, discountPercentage, pricing.discountPercentage),
-      "discountPercentage": coalesce(discountPercentage, discountPercent, pricing.discountPercentage),
-      "saleStartDate": coalesce(saleStartDate, pricing.saleStartDate),
-      "saleEndDate": coalesce(saleEndDate, pricing.saleEndDate),
-      "saleLabel": coalesce(saleLabel, pricing.saleLabel),
-      "saleActive": pricing.saleActive,
       shortDescription,
       description,
       excerpt,
@@ -1636,7 +1694,7 @@ export async function getRelatedProducts(
       ),
       // relevance: category overlap (supports either field name) + filter overlap
       "rel": count(coalesce(category[]._ref, categories[]._ref, [])[ @ in $catIds ]) + count(coalesce(filters, [])[ @ in $filters ])
-    } | order(rel desc, onSale desc, _createdAt desc)[0...$limit]
+    } | order(rel desc, _createdAt desc)[0...$limit]
   `;
   const params = { slug: slugParam, catIds: ids, filters: flt, limit } as Record<string, any>;
   if (!sanity) return [];
@@ -1678,13 +1736,6 @@ export async function getUpsellProducts(
       title,
       displayTitle,
       slug,
-      "onSale": coalesce(onSale, pricing.onSale),
-      "discountPercent": coalesce(discountPercent, discountPercentage, pricing.discountPercentage),
-      "discountPercentage": coalesce(discountPercentage, discountPercent, pricing.discountPercentage),
-      "saleStartDate": coalesce(saleStartDate, pricing.saleStartDate),
-      "saleEndDate": coalesce(saleEndDate, pricing.saleEndDate),
-      "saleLabel": coalesce(saleLabel, pricing.saleLabel),
-      "saleActive": pricing.saleActive,
       shortDescription,
       description,
       excerpt,
