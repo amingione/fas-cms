@@ -261,7 +261,54 @@ const studioUrlRaw =
 const studioUrl =
   typeof studioUrlRaw === 'string' && studioUrlRaw.trim() ? studioUrlRaw : undefined;
 
-const visualEditingEnvFlag = toBooleanFlag(
+const parseHostList = (input: string | undefined): string[] =>
+  typeof input === 'string'
+    ? input
+        .split(/[,\s]+/)
+        .map((part) => part.trim().toLowerCase())
+        .filter(Boolean)
+    : [];
+
+const defaultVisualEditingHosts = new Set<string>(['localhost', '127.0.0.1']);
+let studioHost: string | undefined;
+if (studioUrl) {
+  try {
+    studioHost = new URL(studioUrl).hostname.toLowerCase();
+    if (studioHost) {
+      defaultVisualEditingHosts.add(studioHost);
+    }
+  } catch {
+    // ignore invalid URL
+  }
+}
+
+const visualEditingAllowedHosts = new Set<string>([
+  ...defaultVisualEditingHosts,
+  ...parseHostList(import.meta.env.PUBLIC_SANITY_VISUAL_EDITING_ALLOWED_HOSTS as string | undefined),
+]);
+
+const isBrowserRuntime = typeof window !== 'undefined' && typeof window.location !== 'undefined';
+const runtimeHostname = isBrowserRuntime ? window.location.hostname.toLowerCase() : undefined;
+
+const isHostnameAllowlisted = (hostname: string | null | undefined): boolean => {
+  const normalized = typeof hostname === 'string' ? hostname.trim().toLowerCase() : undefined;
+
+  if (!normalized) {
+    return visualEditingAllowedHosts.size === 0;
+  }
+
+  if (visualEditingAllowedHosts.size === 0) {
+    return true;
+  }
+
+  return visualEditingAllowedHosts.has(normalized);
+};
+
+const visualEditingOriginAllowed = isBrowserRuntime
+  ? isHostnameAllowlisted(runtimeHostname)
+  : true; // Allow server-side rendering to honor request-level hostname checks
+
+const visualEditingRequested = toBooleanFlag(
   import.meta.env.PUBLIC_SANITY_ENABLE_VISUAL_EDITING as string | undefined
 );
 const globalVisualEditingOverride = (() => {
