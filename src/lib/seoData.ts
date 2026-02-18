@@ -209,7 +209,10 @@ const normalizeRelatedLink = (
   return { label, href: `/${segments.join('/')}` };
 };
 
-export async function fetchSeoForPath(pathname: string): Promise<SeoPayload> {
+export async function fetchSeoForPath(
+  pathname: string,
+  options: { preview?: boolean; token?: string } = {}
+): Promise<SeoPayload> {
   const normalized = pathname.replace(/\/+$/, '') || '/';
 
   const fetcher = async () => {
@@ -380,13 +383,8 @@ export async function fetchSeoForPath(pathname: string): Promise<SeoPayload> {
       ...ensureArray(relatedArticleLinks).map(normalizeSimpleLink).filter(Boolean),
       ...ensureArray(relatedServiceLinks).map(normalizeSimpleLink).filter(Boolean)
     ] as Array<{ label: string; href?: string }>);
-
-        const normalizedBreadcrumbs = dedupeByHref(ensureArray(pageSeo.breadcrumbs));
-        const normalizedLinks = dedupeByHref(
-          ensureArray(pageSeo.relatedLinks as RawRelatedLink[])
-            .map((link) => normalizeRelatedLink(link))
-            .filter((link): link is { label: string; href?: string } => link !== null)
-        );
+    const globalKeywords = normalizeKeywordsArray(globalSettings?.defaultKeywords);
+    const pageKeywords = normalizeKeywordsArray((pageSeoRest as { keywords?: unknown }).keywords);
 
     return {
       global: {
