@@ -117,7 +117,24 @@ const seoPayload = await fetchSeoForPath(Astro.url?.pathname ?? '/', {
   token: previewToken
 });
 
-const canonicalFromSanity = seoPayload.page?.canonicalUrl;
+if (import.meta.env.SSR) {
+  (globalThis as { __SANITY_VISUAL_EDITING_OVERRIDE__?: boolean }).__SANITY_VISUAL_EDITING_OVERRIDE__ =
+    visualEditingEnabled;
+  (globalThis as { __SANITY_VISUAL_EDITING_URL__?: string | undefined }).__SANITY_VISUAL_EDITING_URL__ =
+    currentUrl?.toString();
+}
+
+const syncVisualEditingStateScript = `
+  window.__SANITY_VISUAL_EDITING_OVERRIDE__ = ${JSON.stringify(visualEditingEnabled)};
+  window.__SANITY_VISUAL_EDITING_URL__ = ${JSON.stringify(currentUrl?.toString() ?? null)};
+`;
+
+const resolvedStudioUrl =
+  (import.meta.env.PUBLIC_SANITY_STUDIO_URL as string | undefined) ||
+  (import.meta.env.PUBLIC_STUDIO_URL as string | undefined) ||
+  (import.meta.env.SANITY_STUDIO_URL as string | undefined) ||
+  (import.meta.env.SANITY_STUDIO_NETLIFY_BASE as string | undefined) ||
+  undefined;
 
 const cmsNoindex = Boolean(seoPayload.page?.noindex);
 const noindex = normalizeNoindex(rawNoindex) || cmsNoindex;
@@ -478,51 +495,8 @@ const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
         }
       })();
     </script>
-    <script
-      is:inline
-      type="module"
-      set:html={`(() => {
-        const GA_ID = ${JSON.stringify(GA_MEASUREMENT_ID)};
-        const ADS_ID = ${JSON.stringify(GOOGLE_ADS_ID)};
-        const PRIMARY_ID = ${JSON.stringify(PRIMARY_GTAG_ID)};
-        const GTAG_URL = ${GTAG_SCRIPT_URL ? JSON.stringify(GTAG_SCRIPT_URL) : 'null'};
-
-        const bootAnalytics = () => {
-          if (!PRIMARY_ID || typeof window === 'undefined' || typeof document === 'undefined') return;
-          if (window.__fasGtagInitialized) return;
-          window.__fasGtagInitialized = true;
-          window.dataLayer = window.dataLayer || [];
-          function gtag() {
-            window.dataLayer.push(arguments);
-          }
-          window.gtag = gtag;
-          gtag('js', new Date());
-          if (GA_ID) gtag('config', GA_ID, { send_page_view: true });
-          if (ADS_ID) gtag('config', ADS_ID);
-
-          if (!GTAG_URL || document.querySelector('script[data-gtag-loader]')) return;
-          const tag = document.createElement('script');
-          tag.src = GTAG_URL;
-          tag.async = true;
-          tag.dataset.gtagLoader = 'true';
-          tag.addEventListener('load', () => {
-            try {
-              document.dispatchEvent(new Event('gtag:loaded'));
-            } catch {
-              /* noop */
-            }
-          });
-          document.head.appendChild(tag);
-        };
-
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-          bootAnalytics();
-        } else {
-          document.addEventListener('DOMContentLoaded', bootAnalytics, { once: true });
-        }
-      })();`}
-    />
-    <link rel="icon" type="image/webp" href="/favicon-96x96.webp" sizes="96x96" />
+    <script is:inline set:html={syncVisualEditingStateScript}></script>
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.webp" />

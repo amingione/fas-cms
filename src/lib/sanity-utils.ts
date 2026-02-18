@@ -19,6 +19,64 @@ const toBooleanFlag = (value: unknown): boolean => {
   return false;
 };
 
+const parseRuntimeUrl = (): URL | null => {
+  try {
+    const overrideUrl =
+      (globalThis as { __SANITY_VISUAL_EDITING_URL__?: unknown }).__SANITY_VISUAL_EDITING_URL__;
+    if (typeof overrideUrl === 'string' && overrideUrl.trim()) {
+      return new URL(overrideUrl);
+    }
+    if (overrideUrl && typeof (overrideUrl as { href?: string }).href === 'string') {
+      return new URL((overrideUrl as { href: string }).href);
+    }
+  } catch {
+    // ignore override parsing errors
+  }
+
+  try {
+    if (typeof window !== 'undefined' && typeof window.location?.href === 'string') {
+      return new URL(window.location.href);
+    }
+  } catch {
+    // ignore runtime URL parsing errors
+  }
+
+  if (typeof globalThis !== 'undefined') {
+    const maybeLocation = (globalThis as { location?: unknown }).location;
+
+    if (maybeLocation && typeof (maybeLocation as { href?: string }).href === 'string') {
+      try {
+        return new URL((maybeLocation as { href: string }).href);
+      } catch {
+        // ignore runtime URL parsing errors
+      }
+    }
+
+    if (typeof maybeLocation === 'string') {
+      try {
+        return new URL(maybeLocation);
+      } catch {
+        // ignore runtime URL parsing errors
+      }
+    }
+  }
+
+  return null;
+};
+
+const getUrlBooleanFlag = (url: URL | null, keys: string[]): boolean => {
+  if (!url) return false;
+
+  for (const key of keys) {
+    const value = url.searchParams.get(key);
+    if (value !== null) {
+      return toBooleanFlag(value);
+    }
+  }
+
+  return false;
+};
+
 // Initialize Sanity client (support both PUBLIC_* and server-side SANITY_* envs)
 const serverEnv =
   (typeof process !== 'undefined' ? (process as any).env : {}) as Record<string, string | undefined>;
@@ -203,8 +261,48 @@ const studioUrlRaw =
 const studioUrl =
   typeof studioUrlRaw === 'string' && studioUrlRaw.trim() ? studioUrlRaw : undefined;
 
-const previewDraftsRequested = toBooleanFlag(
-  (import.meta.env.PUBLIC_SANITY_PREVIEW_DRAFTS as string | undefined) ?? 'false'
+const visualEditingEnvFlag = toBooleanFlag(
+  import.meta.env.PUBLIC_SANITY_ENABLE_VISUAL_EDITING as string | undefined
+);
+const globalVisualEditingOverride = (() => {
+  try {
+    const value =
+      (globalThis as { __SANITY_VISUAL_EDITING_OVERRIDE__?: unknown })
+        .__SANITY_VISUAL_EDITING_OVERRIDE__;
+    if (typeof value === 'boolean') {
+      return value;
+    }
+    if (typeof value === 'string') {
+      return toBooleanFlag(value);
+    }
+  } catch {
+    // ignore global override errors
+  }
+  return null;
+})();
+
+const runtimeVisualEditingFlag = getUrlBooleanFlag(parseRuntimeUrl(), [
+  'sanity-preview',
+  'presentation',
+  'preview',
+  'visual-editing',
+]);
+const visualEditingRequested =
+  globalVisualEditingOverride ??
+  (visualEditingEnvFlag || runtimeVisualEditingFlag);
+
+if (visualEditingRequested && !studioUrl) {
+  console.warn(
+    '[sanity-utils] Visual editing enabled but no PUBLIC_SANITY_STUDIO_URL (or SANITY_STUDIO_URL) configured.'
+  );
+}
+
+const previewDraftsRequested =
+  visualEditingRequested ||
+  toBooleanFlag((import.meta.env.PUBLIC_SANITY_PREVIEW_DRAFTS as string | undefined) ?? 'false');
+
+const liveSubscriptionsFlag = toBooleanFlag(
+  import.meta.env.PUBLIC_SANITY_ENABLE_LIVE_SUBSCRIPTIONS as string | undefined
 );
 
 const apiToken = isServer ? serverEnv.SANITY_API_TOKEN : undefined;
@@ -217,153 +315,8 @@ if (previewDraftsEnabled && !apiToken) {
   previewDraftsEnabled = false;
 }
 
-const parsePositiveInt = (value: unknown, fallback: number): number => {
-  if (typeof value === 'number' && Number.isFinite(value) && value > 0) {
-    return Math.floor(value);
-  }
-  if (typeof value === 'string') {
-    const numeric = Number.parseInt(value.trim(), 10);
-    if (Number.isFinite(numeric) && numeric > 0) {
-      return numeric;
-    }
-  }
-  return fallback;
-};
-
-const manualCacheDisableFlag =
-  toBooleanFlag((import.meta.env.PUBLIC_SANITY_DISABLE_CACHE as string | undefined) ?? 'false');
-const manualCacheEnableFlagRaw =
-  (import.meta.env.PUBLIC_SANITY_ENABLE_CACHE as string | undefined);
-const manualCacheEnableFlag =
-  manualCacheEnableFlagRaw === undefined ? true : toBooleanFlag(manualCacheEnableFlagRaw);
-
-export const sanityCacheEnabled =
-  !manualCacheDisableFlag && manualCacheEnableFlag && !import.meta.env.DEV && !previewDraftsEnabled;
-
-const DEFAULT_SANITY_CACHE_TTL_SECONDS = parsePositiveInt(
-  (import.meta.env.PUBLIC_SANITY_CACHE_TTL_SECONDS as string | undefined) ||
-    0,
-  300
-);
-
-type SanityCacheEntry = {
-  value?: unknown;
-  expiresAt: number;
-  promise?: Promise<unknown>;
-};
-
-type SanityCacheStore = Map<string, SanityCacheEntry>;
-
-const SANITY_CACHE_SYMBOL = Symbol.for('__fasSanityCacheStore__');
-
-const getSanityCacheStore = (): SanityCacheStore => {
-  const globalTarget = globalThis as typeof globalThis & {
-    [SANITY_CACHE_SYMBOL]?: SanityCacheStore;
-  };
-  if (!globalTarget[SANITY_CACHE_SYMBOL]) {
-    globalTarget[SANITY_CACHE_SYMBOL] = new Map<string, SanityCacheEntry>();
-  }
-  return globalTarget[SANITY_CACHE_SYMBOL]!;
-};
-
-const stableStringify = (value: unknown): string => {
-  if (value === null) return 'null';
-
-  switch (typeof value) {
-    case 'undefined':
-      return 'undefined';
-    case 'number':
-    case 'boolean':
-      return JSON.stringify(value);
-    case 'string':
-      return JSON.stringify(value);
-    case 'bigint':
-      return `"${(value as bigint).toString()}"`;
-    case 'symbol':
-    case 'function':
-      return `"${String(value)}"`;
-    default:
-      break;
-  }
-
-  if (Array.isArray(value)) {
-    return `[${value.map((entry) => stableStringify(entry)).join(',')}]`;
-  }
-
-  const objectValue = value as Record<string, unknown>;
-  const entries = Object.entries(objectValue)
-    .filter(([, v]) => v !== undefined)
-    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-    .map(([k, v]) => `${JSON.stringify(k)}:${stableStringify(v)}`);
-  return `{${entries.join(',')}}`;
-};
-
-export interface SanityCacheOptions {
-  ttlSeconds?: number;
-  forceRefresh?: boolean;
-}
-
-export const cachedSanityFetch = async <T>(
-  keyParts: unknown[],
-  fetcher: () => Promise<T>,
-  options: SanityCacheOptions = {}
-): Promise<T> => {
-  const shouldUseCache = sanityCacheEnabled && !options.forceRefresh;
-  const cacheStore = shouldUseCache ? getSanityCacheStore() : null;
-  const ttlSeconds =
-    options.ttlSeconds !== undefined
-      ? Math.max(0, Math.floor(options.ttlSeconds))
-      : DEFAULT_SANITY_CACHE_TTL_SECONDS;
-
-  const cacheKey = shouldUseCache ? keyParts.map((part) => stableStringify(part)).join('|') : null;
-
-  if (shouldUseCache && cacheStore && cacheKey) {
-    const entry = cacheStore.get(cacheKey);
-    const now = Date.now();
-    if (entry) {
-      if (entry.value !== undefined && entry.expiresAt > now) {
-        return entry.value as T;
-      }
-      if (entry.promise) {
-        return entry.promise as Promise<T>;
-      }
-    }
-
-    if (ttlSeconds <= 0) {
-      return fetcher();
-    }
-
-    const promise = (async () => {
-      try {
-        const result = await fetcher();
-        cacheStore.set(cacheKey, {
-          value: result,
-          expiresAt: Date.now() + ttlSeconds * 1000
-        });
-        return result;
-      } catch (err) {
-        if (entry && entry.value !== undefined && entry.expiresAt > now) {
-          cacheStore.set(cacheKey, entry);
-        } else {
-          cacheStore.delete(cacheKey);
-        }
-        throw err;
-      }
-    })();
-
-    cacheStore.set(cacheKey, {
-      value: entry?.value,
-      expiresAt: Date.now() + ttlSeconds * 1000,
-      promise
-    });
-
-    return promise;
-  }
-
-  return fetcher();
-};
-
-const perspective = previewDraftsEnabled ? 'drafts' : 'published';
+const perspective = previewDraftsEnabled ? 'previewDrafts' : 'published';
+const stegaEnabled = visualEditingRequested && Boolean(studioUrl);
 
 // Gracefully handle missing env vars in preview/editor environments
 const hasSanityConfig = Boolean(projectId && dataset);
