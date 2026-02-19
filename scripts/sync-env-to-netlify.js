@@ -5,6 +5,11 @@
  *
  * Usage:
  *   node scripts/sync-env-to-netlify.js [options]
+ *   node scripts/sync-env-to-netlify.js --dry-run
+ *   node scripts/sync-env-to-netlify.js --remove
+ *   node scripts/sync-env-to-netlify.js --context=production
+ *   node scripts/sync-env-to-netlify.js --context=deploy-preview
+ *
  *
  * Options:
  *   --dry-run    Show what would be updated without making changes
