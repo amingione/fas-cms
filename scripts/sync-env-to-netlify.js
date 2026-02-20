@@ -199,6 +199,13 @@ function removeNetlifyVar(key) {
       return true;
     }
     execSync(`netlify env:unset ${key}`, { encoding: 'utf8', stdio: 'pipe' });
+    // Verify it's actually gone — team-level vars override site-level unset silently
+    const check = execSync(`netlify env:get ${key} 2>/dev/null || echo ""`, { encoding: 'utf8', stdio: 'pipe' }).trim();
+    if (check) {
+      console.warn(`\n   ⚠️  ${key} still present after unset — likely a team-level var.`);
+      console.warn(`      Remove it manually: Netlify UI → Team Settings → Environment Variables`);
+      return false;
+    }
     return true;
   } catch (error) {
     console.error(`   ❌ Failed to remove ${key}: ${error.message}`);

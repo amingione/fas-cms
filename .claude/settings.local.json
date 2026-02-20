@@ -4,11 +4,17 @@
       "Bash(find:*)",
       "Bash(ls:*)",
       "Bash(CART_ID=cart_01KGKTBAHH2GZFECNXVV8MTCVR npm run diagnose-cart:*)",
-      "Bash(npx medusa exec:*)"
+      "Bash(npx medusa exec:*)",
+      "Bash(node scripts/sync-env-to-netlify.js:*)",
+      "Bash(netlify env:list:*)",
+      "Bash(netlify env:get:*)",
+      "Bash(node:*)",
+      "Bash(netlify env:unset:*)",
+      "Bash(netlify api listAccountsForUser:*)"
     ]
   },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "framer"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }
