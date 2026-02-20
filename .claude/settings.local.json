@@ -6,5 +6,9 @@
       "Bash(CART_ID=cart_01KGKTBAHH2GZFECNXVV8MTCVR npm run diagnose-cart:*)",
       "Bash(npx medusa exec:*)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "framer"
+  ],
+  "enableAllProjectMcpServers": true
 }

@@ -735,6 +735,82 @@
   PUBLIC_BASE_URL = "https://fasmotorsports.com"
   # Canonical site URL used as a fallback by auth flows
   PUBLIC_SITE_URL = "https://www.fasmotorsports.com"
+  # Public Sanity config (baked into client-side bundle at build time)
+  PUBLIC_SANITY_PROJECT_ID = "r4og35qd"
+  PUBLIC_SANITY_DATASET = "production"
+  PUBLIC_SANITY_API_VERSION = "2025-10-22"
+  PUBLIC_SANITY_STUDIO_URL = "https://fassanity.fasmotorsports.com"
+  PUBLIC_SANITY_FUNCTIONS_BASE_URL = "https://fassanity.fasmotorsports.com"
+  PUBLIC_SANITY_ENABLE_CACHE = "true"
+  PUBLIC_SANITY_CACHE_TTL_SECONDS = "300"
+  # Sanity build-time config (non-secret identifiers)
+  SANITY_PROJECT_ID = "r4og35qd"
+  SANITY_DATASET = "production"
+  SANITY_API_VERSION = "2025-10-22"
+  SANITY_STUDIO_URL = "https://fassanity.fasmotorsports.com"
+  SANITY_FUNCTIONS_BASE_URL = "https://fassanity.fasmotorsports.com"
+  # Stripe API version (non-secret)
+  STRIPE_API_VERSION = "2025-08-27.basil"
+  # Google Merchant Center feed defaults (build-time, non-secret)
+  GMC_SFTP_HOST = "partnerupload.google.com"
+  GMC_SFTP_PORT = "19321"
+  GMC_SFTP_FEED_FILENAME = "fas-products-feed.txt"
+  GMC_FEED_BASE_URL = "https://www.fasmotorsports.com"
+  GMC_FEED_CURRENCY = "USD"
+  GMC_FEED_DEFAULT_QUANTITY = "30"
+  GMC_FEED_DEFAULT_WEIGHT_LB = "1"
+  GMC_FEED_SHIPPING_PRICE = "0.00"
+  GMC_FEED_LANGUAGE = "en"
+  GMC_FEED_TARGET_COUNTRY = "US"
+  GMC_CONTENT_API_BATCH_SIZE = "250"
+  GMC_CONTENT_API_MERCHANT_ID = "5664091767"
+  GMC_SFTP_USERNAME = "mc-sftp-5664091767"
+  # Shippo warehouse/origin address (non-secret constants)
+  SHIPPO_ORIGIN_NAME = "F.A.S. Motorsports LLC"
+  SHIPPO_ORIGIN_COMPANY = "F.A.S. Motorsports LLC"
+  SHIPPO_ORIGIN_STREET1 = "6161 Riverside Dr"
+  SHIPPO_ORIGIN_CITY = "Punta Gorda"
+  SHIPPO_ORIGIN_STATE = "FL"
+  SHIPPO_ORIGIN_ZIP = "33982"
+  SHIPPO_ORIGIN_COUNTRY = "US"
+  SHIPPO_ORIGIN_PHONE = "812-200-9012"
+  SHIPPO_ORIGIN_EMAIL = "sales@fasmotorsports.com"
+  SHIPPO_WEIGHT_UNIT = "lb"
+  SHIPPO_DIMENSION_UNIT = "in"
+  SHIPPO_API_BASE = "https://api.shippo.com"
+  SHIPPING_PROVIDER = "shippo"
+  # Warehouse address defaults (non-secret)
+  WAREHOUSE_ADDRESS_LINE1 = "6161 Riverside Dr"
+  WAREHOUSE_CITY = "Punta Gorda"
+  WAREHOUSE_STATE = "FL"
+  WAREHOUSE_ZIP = "33982"
+  WAREHOUSE_PHONE = "812-200-9012"
+  WAREHOUSE_EMAIL = "orders@updates.fasmotorsports.com"
+  # Webhook forwarding defaults (false = disabled unless overridden in UI)
+  PAYMENT_INTENT_WEBHOOK_FORWARD_ENABLED = "false"
+  PAYMENT_INTENT_WEBHOOK_FORWARD_FAIL_OPEN = "true"
+  PAYMENT_INTENT_WEBHOOK_LOCAL_PROCESS_ENABLED = "true"
+  WEBHOOK_FORWARD_TIMEOUT_MS = "10000"
+  # Email defaults (non-secret sender addresses)
+  RESEND_FROM = "noreply@updates.fasmotorsports.com"
+  NOTIFY_EMAIL = "support@fasmotorsports.com"
+  NOTIFY_FROM = "no-reply@fasmotorsports.com"
+  # Public Stripe key (non-secret, baked into bundle)
+  PUBLIC_STRIPE_PUBLISHABLE_KEY = "pk_live_51RCVrQP1CiCjkLwl8zRiIdemS9CGhNO8MypMRMk6UJCaxPQMwHvzbZvK3ViiR1Pb2DBFs847aefqOZwfX027c5A6005ra461fx"
+  # Public Medusa config
+  PUBLIC_MEDUSA_BACKEND_URL = "https://medusa.fasmotorsports.com"
+  # Misc non-secret build flags
+  NPM_CONFIG_OPTIONAL = "false"
+  SESSION_COOKIE_NAME = "fas_session"
+  SESSION_SAMESITE = "lax"
+  SESSION_SECURE = "true"
+  ADMIN_EMAIL = "sales@fasmotorsports.com"
+  NEXT_PUBLIC_API_BASE_URL = "https://fasmotorsports.com"
+  SITE_NAME = "FAS Motorsports"
+  CORS_ALLOW = "https://www.fasmotorsports.com,https://fassanity.fasmotorsports.com"
+  CORS_ORIGIN = "https://fassanity.fasmotorsports.com"
+  # Anthropic model selection (non-secret)
+  ANTHROPIC_MODEL = "claude-3-5-sonnet-latest"
 
 [functions]
   directory = "netlify/functions"
