@@ -8,11 +8,13 @@
  *   node scripts/sync-env-to-netlify.js --dry-run
  *   node scripts/sync-env-to-netlify.js --remove
  *   node scripts/sync-env-to-netlify.js --context=production
+ *   node scripts/sync-env-to-netlify.js --file=.env
  *
  * Options:
  *   --dry-run    Show what would be updated without making changes
  *   --remove     Remove Netlify vars not in .env (careful!)
  *   --context    Override context (default: per-var rules below)
+ *   --file       Override env file path (default: .env)
  *
  * Context strategy:
  *   - Secrets (API keys, tokens, passwords) → all 5 contexts
@@ -38,8 +40,12 @@ const dryRun = args.includes('--dry-run');
 const removeUnused = args.includes('--remove');
 const contextArg = args.find((arg) => arg.startsWith('--context='));
 const contextOverride = contextArg ? contextArg.split('=')[1] : null;
+const fileArg = args.find((arg) => arg.startsWith('--file='));
+const envFileOverride = fileArg ? fileArg.split('=')[1] : process.env.NETLIFY_ENV_FILE;
 
-const ENV_FILE = path.join(__dirname, '../.env');
+const ENV_FILE = envFileOverride
+  ? path.resolve(__dirname, '..', envFileOverride)
+  : path.join(__dirname, '../.env');
 
 // ─── Context definitions ───────────────────────────────────────────────────
 // All 5 Netlify contexts:
@@ -113,8 +119,17 @@ const ALL_CONTEXT_KEYS = new Set([
   'CALCOM_API_KEY', 'PUBLIC_CALCOM_API_KEY', 'CALCOM_WEBHOOK_SECRET',
   'NETLIFY_AUTH_TOKEN', 'NETLIFY_SITE_ID',
   'WEBHOOK_FORWARD_SHARED_SECRET',
-  'GMC_SFTP_PASSWORD', 'GMC_SERVICE_ACCOUNT_KEY_BASE64', 'GMC_SERVICE_ACCOUNT_KEY',
+  'GMC_SFTP_PASSWORD',
 ]);
+
+// Large inline GMC credential blobs can exceed Netlify env limits and break deploy sync.
+// Default behavior: skip syncing inline key values; prefer GMC_SERVICE_ACCOUNT_KEY_FILE.
+// To force syncing inline values, set NETLIFY_SYNC_GMC_INLINE_KEYS=true.
+const INLINE_GMC_KEY_VARS = new Set([
+  'GMC_SERVICE_ACCOUNT_KEY_BASE64',
+  'GMC_SERVICE_ACCOUNT_KEY',
+]);
+const syncInlineGmcKeys = process.env.NETLIFY_SYNC_GMC_INLINE_KEYS === 'true';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -234,6 +249,7 @@ async function main() {
   // Separate build-only keys (skip) from runtime keys (sync)
   const skippedBuildOnly = localKeys.filter((k) => BUILD_ONLY_KEYS.has(k));
   const toSync = localKeys.filter((k) => !BUILD_ONLY_KEYS.has(k));
+  const skippedInlineGmc = toSync.filter((k) => INLINE_GMC_KEY_VARS.has(k) && !syncInlineGmcKeys);
 
   if (skippedBuildOnly.length > 0) {
     console.log(`⚙️  Skipping ${skippedBuildOnly.length} build-only vars (already in netlify.toml):`);
@@ -241,14 +257,24 @@ async function main() {
     console.log('');
   }
 
-  const placeholders = toSync.filter((k) => localVars[k].startsWith('TODO_'));
+  if (skippedInlineGmc.length > 0) {
+    console.log(
+      `🔐 Skipping ${skippedInlineGmc.length} inline GMC key var(s) (use GMC_SERVICE_ACCOUNT_KEY_FILE):`
+    );
+    skippedInlineGmc.forEach((k) => console.log(`   - ${k}`));
+    console.log('');
+  }
+
+  const syncCandidates = toSync.filter((k) => !(INLINE_GMC_KEY_VARS.has(k) && !syncInlineGmcKeys));
+
+  const placeholders = syncCandidates.filter((k) => localVars[k].startsWith('TODO_'));
   if (placeholders.length > 0) {
     console.log(`⏭️  Skipping ${placeholders.length} placeholder vars (TODO_ prefix):`);
     placeholders.forEach((k) => console.log(`   - ${k}`));
     console.log('');
   }
 
-  const toSet = toSync.filter((k) => !localVars[k].startsWith('TODO_'));
+  const toSet = syncCandidates.filter((k) => !localVars[k].startsWith('TODO_'));
 
   console.log('🌐 Fetching current Netlify variables...');
   const netlifyVars = getNetlifyVars();

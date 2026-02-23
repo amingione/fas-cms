@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "dotenv -e .env -- cross-env NODE_ENV=development NETLIFY_DEV=1 astro dev",
-    "prebuild": "node scripts/netlify/prepare-functions-internal.cjs",
+    "prebuild": "node scripts/netlify/prepare-gmc-service-account.cjs && node scripts/netlify/prepare-functions-internal.cjs",
     "postbuild": "node scripts/netlify/prepare-functions-internal.cjs",
     "build": "cross-env NODE_ENV=production astro build",
     "preview": "cross-env NODE_ENV=production astro preview",
@@ -22,9 +22,13 @@
     "astro:check": "cross-env BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA=1 BROWSERSLIST_IGNORE_OLD_DATA=1 astro check --minimumSeverity warning",
     "audit:sanity-addons": "dotenv -e .env -- tsx src/scripts/audit-sanity-addons.ts",
     "audit:create-priority-list": "dotenv -e .env -- tsx src/scripts/create-migration-priority-list.ts",
+    "env:check:netlify": "node ./scripts/check-env-unused.mjs --file .env",
+    "env:check:local": "node ./scripts/check-env-unused.mjs --file .env.local",
     "env:sync": "node scripts/sync-env-to-netlify.js",
     "env:sync:dry": "node scripts/sync-env-to-netlify.js --dry-run",
-    "env:sync:remove": "node scripts/sync-env-to-netlify.js --remove"
+    "env:sync:remove": "node scripts/sync-env-to-netlify.js --remove",
+    "deploy:netlify": "node ./scripts/netlify-deploy.mjs",
+    "deploy:netlify:skip-env-check": "node ./scripts/netlify-deploy.mjs --skip-env-check"
   },
   "depcheck": {
     "ignorePatterns": [
@@ -153,6 +157,7 @@
     "@sanity/client": "7.13.2",
     "@sanity/icons": "3.7.4",
     "@sanity/image-url": "1.2.0",
+    "@sanity/overlays": "^2.3.59",
     "@sanity/types": "3.99.0",
     "@sanity/ui": "2.16.22",
     "@splinetool/react-spline": "4.1.0",

@@ -525,8 +525,12 @@ async function loadServiceAccountKey(): Promise<ServiceAccountKey | null> {
   const base64Key = parseServiceAccountJson(process.env.GMC_SERVICE_ACCOUNT_KEY_BASE64);
   if (base64Key?.client_email && base64Key?.private_key) return base64Key;
 
-  const keyPath = process.env.GMC_SERVICE_ACCOUNT_KEY_FILE;
-  if (keyPath) {
+  const candidateKeyPaths = [
+    process.env.GMC_SERVICE_ACCOUNT_KEY_FILE,
+    path.join(process.cwd(), '.netlify', 'secrets', 'gmc-service-account.json')
+  ].filter(Boolean) as string[];
+
+  for (const keyPath of candidateKeyPaths) {
     try {
       const fileContents = await fs.readFile(keyPath, 'utf8');
       const parsed = parseServiceAccountJson(fileContents);
@@ -535,7 +539,10 @@ async function loadServiceAccountKey(): Promise<ServiceAccountKey | null> {
         `Service account key file at ${keyPath} is missing client_email or private_key.`
       );
     } catch (err) {
-      console.error(`Unable to read service account key file at ${keyPath}:`, err);
+      // Only warn on explicit path; fallback path may not exist in local runs.
+      if (keyPath === process.env.GMC_SERVICE_ACCOUNT_KEY_FILE) {
+        console.error(`Unable to read service account key file at ${keyPath}:`, err);
+      }
     }
   }
 

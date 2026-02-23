@@ -52,7 +52,9 @@ Feel free to check [our documentation](https://docs.astro.build) or jump into ou
 This project now includes a helper script that exports current products from Sanity, writes a tab-separated file, and uploads them to Google Merchant Center. It prefers the Google Content API when configured, and falls back to SFTP if API credentials are absent.
 
 1. Configure credentials (see `.env.example` for full list):
-   - **Content API (recommended):** set `GMC_CONTENT_API_MERCHANT_ID` and supply a service account credential via `GMC_SERVICE_ACCOUNT_KEY` (JSON string), `GMC_SERVICE_ACCOUNT_KEY_BASE64`, or `GMC_SERVICE_ACCOUNT_KEY_FILE`. Store the JSON in your secret manager and inject it at runtime; avoid committing the file.
+   - **Content API (recommended):** set `GMC_CONTENT_API_MERCHANT_ID` and supply a service account credential via `GMC_SERVICE_ACCOUNT_KEY` (JSON string), `GMC_SERVICE_ACCOUNT_KEY_BASE64`, or `GMC_SERVICE_ACCOUNT_KEY_FILE`.
+   - **Automatic prebuild secret fetch:** set `GMC_SERVICE_ACCOUNT_SECRET_ID` (+ `AWS_REGION`) to fetch from AWS Secrets Manager during `prebuild`, or provide `GMC_SERVICE_ACCOUNT_SECRET_JSON` / `GMC_SERVICE_ACCOUNT_SECRET_JSON_BASE64` from your platform secret manager.
+   - The prebuild step writes `.netlify/secrets/gmc-service-account.json`, and the uploader auto-uses this file when present.
    - **SFTP fallback:** keep `GMC_SFTP_HOST`, `GMC_SFTP_PORT`, `GMC_SFTP_USERNAME`, `GMC_SFTP_PASSWORD`, and `GMC_SFTP_FEED_FILENAME` if you still need file-based uploads.
    - Optional defaults: `GMC_FEED_BASE_URL`, `GMC_FEED_CURRENCY`, `GMC_FEED_LANGUAGE`, `GMC_FEED_TARGET_COUNTRY`, `GMC_FEED_DEFAULT_WEIGHT_LB`, `GMC_FEED_DEFAULT_QUANTITY`, and `GMC_FEED_SHIPPING_PRICE`.
    - Opt-in behaviour: set `GMC_FEED_ENABLE_ADS_REDIRECT=true` only if you explicitly want Merchant Center to use the `/checkout/quick/<slug>` landing pages for ads. It defaults to `false` so product ads lead to the full product detail page on all devices.
@@ -72,6 +74,18 @@ yarn stripe:sync --dry-run            # Preview without making changes
 ```
 
 The script requires `STRIPE_SECRET_KEY`, `SANITY_PROJECT_ID`, `SANITY_DATASET`, and a Sanity API token with write access (`SANITY_API_TOKEN`). Successful sync writes `stripeProductId`, `stripePriceId`, and `stripeLastSyncedAt` into each product document.
+
+## Netlify Env Deploy Sync
+
+Use `.env` (or set `NETLIFY_ENV_FILE`) as the source of truth for Netlify function/runtime variables.
+
+- Validate env keys are used in repo: `npm run env:check:netlify`
+- Sync vars to Netlify (dry run): `npm run env:sync:dry`
+- Sync vars and prune extras: `npm run env:sync:remove`
+- Validate, sync+prune, then deploy: `npm run deploy:netlify`
+- Skip env check during deploy: `npm run deploy:netlify:skip-env-check`
+
+The env check fails with `TS Error [env-unused]` and `not needed in repo` when an env key exists in the file but is not referenced by code.
 
 ## Medusa Cart + Shipping (Phase 2)
 
