@@ -1,110 +1,27 @@
-import { cartAddSchema } from '@/lib/validators/api-requests';
-import { sanityProductSchema } from '@/lib/validators/sanity';
-import { requireSanityApiToken } from '@/server/sanity-token';
-
-export async function POST({ request }: { request: Request }) {
-  if (!request.headers.get('content-type')?.includes('application/json')) {
-    return new Response(JSON.stringify({ error: 'Invalid content type' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
-  let body;
-  try {
-    body = await request.json();
-  } catch (_err) {
-    return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
-  const bodyResult = cartAddSchema.safeParse(body);
-  if (!bodyResult.success) {
-    console.error('[validation-failure]', {
-      schema: 'cartAddSchema',
-      context: 'api/cart',
-      identifier: 'unknown',
-      timestamp: new Date().toISOString(),
-      errors: bodyResult.error.format()
-    });
-    return new Response(
-      JSON.stringify({ error: 'Validation failed', details: bodyResult.error.format() }),
-      { status: 422, headers: { 'Content-Type': 'application/json' } }
-    );
-  }
-
-  const { productId, quantity, sessionId } = bodyResult.data;
-  const sanityToken = requireSanityApiToken('api/cart');
-
-  // Verify the referenced document is a product
-  const validateRes = await fetch(
-    `https://${import.meta.env.PUBLIC_SANITY_PROJECT_ID}.api.sanity.io/v1/data/query/${import.meta.env.PUBLIC_SANITY_DATASET}?query=*[_id == "${productId}"][0]{_type}`,
+/**
+ * DEPRECATED: Legacy Sanity-backed cart endpoint.
+ *
+ * This route previously created `cartItem` documents in Sanity, which is a
+ * pre-Medusa pattern. Cart state now lives exclusively in Medusa:
+ *   - Create cart: POST /api/medusa/cart/create
+ *   - Add item:    POST /api/medusa/cart/add-item
+ *   - Read cart:   GET  /api/cart/[id]  (reads from Medusa /store/carts/:id)
+ *
+ * Nothing in the codebase calls this POST endpoint; it exists only as a
+ * historical artifact. Returning 410 Gone prevents accidental usage.
+ */
+export async function POST() {
+  return new Response(
+    JSON.stringify({
+      error: 'Deprecated: cart operations must use Medusa /api/medusa/cart/*.',
+      status: 410
+    }),
     {
+      status: 410,
       headers: {
-        Authorization: `Bearer ${sanityToken}`
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, max-age=0, must-revalidate'
       }
     }
   );
-
-  if (!validateRes.ok) {
-    return new Response(JSON.stringify({ error: 'Failed to validate product with Sanity' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
-  const { result: productCheck } = await validateRes.json();
-  const productCheckResult = sanityProductSchema.partial().safeParse(productCheck);
-  if (!productCheckResult.success) {
-    console.warn('[sanity-validation]', {
-      _id: (productCheck as any)?._id,
-      _type: 'product',
-      errors: productCheckResult.error.format()
-    });
-    return new Response(JSON.stringify({ error: 'Invalid product reference' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
-  if (!productCheckResult.data || productCheckResult.data._type !== 'product') {
-    return new Response(JSON.stringify({ error: 'Invalid product reference' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
-  const res = await fetch(
-    `https://${import.meta.env.PUBLIC_SANITY_PROJECT_ID}.api.sanity.io/${process.env.SANITY_API_VERSION}/data/mutate/${import.meta.env.PUBLIC_SANITY_DATASET}`,
-    {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${sanityToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        mutations: [
-          {
-            create: {
-              _type: 'cartItem',
-              product: { _type: 'reference', _ref: productId },
-              quantity,
-              sessionId,
-              addedAt: new Date().toISOString()
-            }
-          }
-        ]
-      })
-    }
-  );
-
-  const result = await res.json();
-  return new Response(JSON.stringify(result), {
-    status: 200,
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  });
 }
