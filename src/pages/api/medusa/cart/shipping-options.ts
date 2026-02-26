@@ -54,7 +54,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   const allowed = options.filter((option: any) => {
     const carrier = String(option?.data?.carrier || '').toLowerCase();
-    return carrier === 'ups' || carrier === 'usps';
+    return carrier === 'ups';
   });
 
   const withRates = [];

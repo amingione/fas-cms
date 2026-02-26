@@ -9,24 +9,19 @@ const cors = {
   'access-control-allow-headers': 'authorization, content-type'
 };
 
-// Session-based; allow ?email override
+// Session-authenticated endpoint only. Do not allow query-based email override.
 
 export const OPTIONS: APIRoute = async () => new Response(null, { status: 204, headers: cors });
 
-export const GET: APIRoute = async ({ request, url }) => {
+export const GET: APIRoute = async ({ request }) => {
   try {
-    // Prefer email from query string for simple counts; otherwise pull from the active session
-    let email = (url.searchParams.get('email') || '').trim().toLowerCase();
+    const { session } = await readSession(request);
+    const se = (session?.user?.email as string | undefined) || '';
+    const email = se ? se.toLowerCase() : '';
 
     if (!email) {
-      const { session } = await readSession(request);
-      const se = (session?.user?.email as string | undefined) || '';
-      email = se ? se.toLowerCase() : '';
-    }
-
-    if (!email) {
-      return new Response(JSON.stringify({ error: 'Missing email' }), {
-        status: 400,
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
         headers: { ...cors, 'content-type': 'application/json' }
       });
     }

@@ -668,7 +668,11 @@ function PaymentSection({
       if (stripeError) {
         setError(stripeError.message || 'Payment failed')
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        await completeOrder(cartId, paymentIntent.id)
+        const completion = await completeOrder(cartId, paymentIntent.id)
+        if (!completion.ok) {
+          setError(completion.error || 'Payment captured but order completion failed. Please retry.')
+          return
+        }
         window.location.href = '/order/confirmation?payment_intent=' + paymentIntent.id
       }
     } catch (error) {
@@ -708,9 +712,12 @@ function PaymentSection({
   )
 }
 
-async function completeOrder(cartId: string, paymentIntentId: string) {
+async function completeOrder(
+  cartId: string,
+  paymentIntentId: string
+): Promise<{ ok: boolean; error?: string }> {
   try {
-    await fetch('/api/complete-order', {
+    const response = await fetch('/api/complete-order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -718,8 +725,16 @@ async function completeOrder(cartId: string, paymentIntentId: string) {
         payment_intent_id: paymentIntentId
       })
     })
+
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}))
+      return { ok: false, error: payload?.error || 'Order completion failed.' }
+    }
+
+    return { ok: true }
   } catch (error) {
     console.error('Order completion warning:', error)
+    return { ok: false, error: 'Order completion failed.' }
   }
 }
 

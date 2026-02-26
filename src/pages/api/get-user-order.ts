@@ -309,30 +309,24 @@ async function enrichOrdersWithProductImages(orders: any[]): Promise<void> {
   });
 }
 
-// No bearer/jwks needed; use fas_session or query ?email
+// Session-authenticated endpoint only. Do not allow query-based email override.
 
 export const OPTIONS: APIRoute = async () => new Response(null, { status: 204, headers: cors });
 
-export const GET: APIRoute = async ({ request, url }) => {
+export const GET: APIRoute = async ({ request }) => {
   try {
-    // Allow either query param or token-derived email
-    let email = (url.searchParams.get('email') || '').trim().toLowerCase();
-
-    // If no email in query, try session cookie
-    if (!email) {
-      const { session } = await readSession(request);
-      const se = (session?.user?.email as string | undefined) || '';
-      email = se ? se.toLowerCase() : '';
-    }
+    const { session } = await readSession(request);
+    const se = (session?.user?.email as string | undefined) || '';
+    const email = se ? se.toLowerCase() : '';
 
     if (!email) {
-      return new Response(JSON.stringify({ error: 'Missing email' }), {
-        status: 400,
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
         headers: { ...cors, 'content-type': 'application/json' }
       });
     }
 
-    const query = `*[_type == "order" && customerRef->email == $email]{
+    const query = `*[_type == "order" && (customerRef->email == $email || customerEmail == $email)]{
         _id,
         orderNumber,
         status,

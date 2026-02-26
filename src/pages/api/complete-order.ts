@@ -78,6 +78,20 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
+    const metadataCartId =
+      String(
+        paymentIntent?.metadata?.medusa_cart_id ||
+          paymentIntent?.metadata?.medusaCartId ||
+          paymentIntent?.metadata?.cart_id ||
+          ''
+      ).trim();
+    if (!metadataCartId || metadataCartId !== cart_id) {
+      return new Response(JSON.stringify({ error: 'Payment/cart mismatch' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
     // Complete cart in Medusa (convert to order)
     const medusaUrl = resolveEnv('MEDUSA_API_URL') || 'http://localhost:9000';
     const publishableKey =
@@ -93,6 +107,50 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
+    const cartResponse = await fetch(`${medusaUrl}/store/carts/${cart_id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-publishable-api-key': publishableKey
+      }
+    });
+
+    const cartPayload = await cartResponse.json().catch(() => ({}));
+    if (!cartResponse.ok || !cartPayload?.cart) {
+      return new Response(JSON.stringify({ error: 'Failed to load cart before completion.' }), {
+        status: 502,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const cartTotalCents = Number(cartPayload.cart?.total ?? NaN);
+    const cartCurrency = String(cartPayload.cart?.currency_code || '').toLowerCase();
+    const piAmount = Number(paymentIntent.amount ?? NaN);
+    const piCurrency = String(paymentIntent.currency || '').toLowerCase();
+    if (
+      !Number.isFinite(cartTotalCents) ||
+      !Number.isFinite(piAmount) ||
+      cartTotalCents !== piAmount ||
+      !cartCurrency ||
+      cartCurrency !== piCurrency
+    ) {
+      return new Response(
+        JSON.stringify({
+          error: 'Payment amount/currency mismatch.',
+          details: {
+            cart_total: cartTotalCents,
+            payment_intent_amount: piAmount,
+            cart_currency: cartCurrency,
+            payment_intent_currency: piCurrency
+          }
+        }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
     const completeResponse = await fetch(`${medusaUrl}/store/carts/${cart_id}/complete`, {
       method: 'POST',
       headers: {
@@ -102,7 +160,16 @@ export const POST: APIRoute = async ({ request }) => {
     });
 
     if (!completeResponse.ok) {
-      throw new Error('Failed to complete cart in Medusa');
+      const completePayload = await completeResponse.json().catch(() => ({}));
+      return new Response(
+        JSON.stringify({
+          error: completePayload?.message || 'Failed to complete cart in Medusa'
+        }),
+        {
+          status: 502,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
     }
 
     const { order } = await completeResponse.json();
@@ -124,14 +191,14 @@ export const POST: APIRoute = async ({ request }) => {
   } catch (error) {
     console.error('Order completion error:', error);
 
-    // Don't fail completely - webhook will handle this
+    // Explicit error status so frontend can block redirect and show retry state.
     return new Response(
       JSON.stringify({
-        warning: 'Order may be completed via webhook',
+        error: 'Failed to complete order.',
         details: error instanceof Error ? error.message : 'Unknown error'
       }),
       {
-        status: 200,
+        status: 500,
         headers: { 'Content-Type': 'application/json' }
       }
     );
