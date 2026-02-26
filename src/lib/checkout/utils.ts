@@ -149,55 +149,65 @@ export function formatCurrency(amount: number, currencyCode: string): string {
   }
 }
 
+/**
+ * Service tiers shown to customers at checkout.
+ *
+ * Workers in fas-dash see the full carrier account menu when purchasing
+ * a label — these restrictions apply to the storefront only.
+ *
+ * Each tier is matched against the option name (case-insensitive).
+ * Medusa shipping option names are typically the UPS service level name
+ * e.g. "UPS Ground", "UPS 3 Day Select", "UPS 2nd Day Air", "UPS Next Day Air".
+ */
+const STOREFRONT_SERVICE_TIERS: { label: string; pattern: RegExp }[] = [
+  // Ground / Standard
+  { label: 'Ground', pattern: /\bground\b|\bstandard\b/i },
+  // 3-Day Select
+  { label: '3-Day', pattern: /3[\s-]?day/i },
+  // 2nd Day Air (includes A.M. variant)
+  { label: '2nd Day', pattern: /2n?d[\s-]?day/i },
+  // Next Day Air (includes Saver, Early A.M.)
+  { label: 'Next Day', pattern: /next[\s-]?day/i },
+];
+
+function matchesStorefrontTier(name: string): boolean {
+  return STOREFRONT_SERVICE_TIERS.some(({ pattern }) => pattern.test(name));
+}
+
 export function filterValidShippingOptions(
   options: ShippingOption[]
 ): ShippingOption[] {
-  // UPS only - carrier filter
-  const validCarriers = ['UPS'];
-
-	  console.log('[ShippingFilter] Filtering shipping options:', {
-	    total: options.length,
-	    options: options.map((o) => ({
-	      name: o.name,
-	      carrier: o.data?.carrier,
-	      amount: o.amount,
-	      price_type: o.price_type,
-	      calculated_price: o.calculated_price
-	    }))
-	  });
-
   const filtered = options.filter((option) => {
-    const carrier = option.data?.carrier?.toUpperCase();
-    
-    // Step 1: Check carrier is UPS
-    if (!carrier || !validCarriers.includes(carrier)) {
-      console.log(`[ShippingFilter] ❌ Rejected ${option.name}: Wrong carrier (${carrier})`);
+    const carrier = (option.data?.carrier || '').toUpperCase();
+    const name = option.name || '';
+
+    // Carrier must be UPS
+    if (carrier !== 'UPS') {
       return false;
     }
 
-    // Step 2: Check price validity
-    // For Medusa v2 with Shippo "live rates":
-    // - price_type: "calculated" means dynamic pricing
-    // - amount might be 0 or undefined initially
-    // - Shippo returns all available UPS services (Ground, 2-Day, etc.) dynamically
-    // - No need to filter by service level here - Shippo handles that
-    
-    // Accept if:
-    // 1. Has amount > 0 (fixed price), OR
-    // 2. price_type is "calculated" (dynamic Shippo pricing)
-    const hasAmount = typeof option.amount === 'number' && Number.isFinite(option.amount);
-    const hasCalculated = typeof option.calculated_price === 'number' && Number.isFinite(option.calculated_price);
-    const hasValidPrice = hasAmount || hasCalculated;
-    
-    if (!hasValidPrice) {
-      console.log(`[ShippingFilter] ❌ Rejected ${option.name}: Invalid price (amount=${option.amount}, type=${option.price_type})`);
+    // Service must match one of the 4 customer tiers
+    if (!matchesStorefrontTier(name)) {
       return false;
     }
 
-    console.log(`[ShippingFilter] ✅ Accepted ${option.name} (carrier=${carrier}, price_type=${option.price_type})`);
-    return true;
+    // Price must be present (fixed) or dynamic (calculated)
+    const hasAmount =
+      typeof option.amount === 'number' && Number.isFinite(option.amount);
+    const hasCalculated =
+      typeof option.calculated_price === 'number' &&
+      Number.isFinite(option.calculated_price);
+
+    return hasAmount || hasCalculated;
   });
 
-  console.log(`[ShippingFilter] Result: ${filtered.length} of ${options.length} options passed filter`);
-  return filtered;
+  // Sort: Ground → 3-Day → 2nd Day → Next Day
+  const tierOrder = (name: string): number => {
+    for (let i = 0; i < STOREFRONT_SERVICE_TIERS.length; i++) {
+      if (STOREFRONT_SERVICE_TIERS[i].pattern.test(name)) return i;
+    }
+    return STOREFRONT_SERVICE_TIERS.length;
+  };
+
+  return filtered.sort((a, b) => tierOrder(a.name || '') - tierOrder(b.name || ''));
 }

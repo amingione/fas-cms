@@ -52,13 +52,14 @@ export const POST: APIRoute = async ({ request }) => {
       ? data.shippingOptions
       : [];
 
-  const allowed = options.filter((option: any) => {
+  const upsOnly = options.filter((option: any) => {
     const carrier = String(option?.data?.carrier || '').toLowerCase();
     return carrier === 'ups';
   });
+  const candidates = upsOnly.length ? upsOnly : options;
 
   const withRates = [];
-  for (const option of allowed) {
+  for (const option of candidates) {
     const calcResponse = await medusaFetch(`/store/shipping-options/${option.id}/calculate`, {
       method: 'POST',
       body: JSON.stringify({
@@ -68,11 +69,10 @@ export const POST: APIRoute = async ({ request }) => {
     });
     const calcData = await readJsonSafe<any>(calcResponse);
     if (!calcResponse.ok) {
-      return jsonResponse(
-        { error: calcData?.message || 'Failed to calculate shipping rate.', details: calcData },
-        { status: calcResponse.status },
-        { noIndex: true }
-      );
+      // Fallback to raw option so storefront can still select a valid method.
+      // Some providers fail pre-calc but still support selection and downstream totals.
+      withRates.push(option);
+      continue;
     }
     withRates.push(calcData?.shipping_option ?? option);
   }
