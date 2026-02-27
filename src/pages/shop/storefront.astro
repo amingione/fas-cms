@@ -1,9 +1,15 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import CategoryPage from "@/components/storefront/CategoryPage.tsx";
-import { fetchProductsFromSanity } from "@/lib/sanity-utils";
+import { fetchProductsFromSanity, normalizeSanityImageUrl } from "@/lib/sanity-utils";
 import { sanityClient as client } from "@/lib/sanityClient";
 import { serializeJsonLd } from '@lib/utils';
+import { centsToDollars } from "@/lib/pricing";
+import {
+  attachMedusaPricingBySanityIdentity,
+  listStoreProductsForPricing,
+  resolveProductCalculatedPriceAmount
+} from "@/lib/medusa-storefront-pricing";
 
 let products = await fetchProductsFromSanity({});
 try {

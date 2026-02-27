@@ -131,7 +131,7 @@ export default function VisualEditingBridge({
             tag: 'sanity-visual-editing',
           })
 
-          let refreshTimer: ReturnType<typeof setTimeout> | undefined
+          let refreshTimer: number | undefined
 
           const subscription = events.subscribe((event) => {
             window.dispatchEvent(
@@ -193,4 +193,3 @@ export default function VisualEditingBridge({
 
   return null
 }
-

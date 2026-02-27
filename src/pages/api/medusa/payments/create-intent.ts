@@ -23,6 +23,7 @@ type MedusaCart = {
   id: string;
   email?: string | null;
   currency_code?: string;
+  region_id?: string;
   total?: number;
   subtotal?: number;
   tax_total?: number;
@@ -33,10 +34,12 @@ type MedusaCart = {
     first_name?: string;
     last_name?: string;
     address_1?: string;
+    address_2?: string;
     city?: string;
     province?: string;
     postal_code?: string;
     country_code?: string;
+    phone?: string;
   };
 };
 
@@ -143,6 +146,10 @@ export const POST: APIRoute = async ({ request }) => {
 
   const currency = (cart?.currency_code || 'usd').toLowerCase();
   const customerEmail = cart?.email || undefined;
+  const shippingName =
+    `${cart?.shipping_address?.first_name || ''} ${cart?.shipping_address?.last_name || ''}`.trim() ||
+    customerEmail ||
+    'Customer';
 
   let shippoRate: ShippoRateInput | null = null;
   if (body?.shippoRate && typeof body.shippoRate === 'object') {
@@ -172,8 +179,7 @@ export const POST: APIRoute = async ({ request }) => {
       },
       shipping: cart?.shipping_address
         ? {
-            name: `${cart.shipping_address.first_name || ''} ${cart.shipping_address.last_name || ''}`.trim() ||
-              undefined,
+            name: shippingName,
             phone: cart.shipping_address.phone || undefined,
             address: {
               line1: cart.shipping_address.address_1,
@@ -210,10 +216,11 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    const providersResponse = await medusaFetch(
-      `/store/payment-providers?region_id=${encodeURIComponent(cart?.region_id || '')}`,
-      { method: 'GET' }
-    );
+    const regionId = (cart?.region_id || config.regionId || '').trim();
+    const providersPath = regionId
+      ? `/store/payment-providers?region_id=${encodeURIComponent(regionId)}`
+      : '/store/payment-providers';
+    const providersResponse = await medusaFetch(providersPath, { method: 'GET' });
     const providersData = await readJsonSafe<any>(providersResponse);
     if (!providersResponse.ok) {
       return jsonResponse(
