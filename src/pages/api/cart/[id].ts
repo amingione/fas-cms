@@ -6,6 +6,31 @@ import type { APIRoute } from 'astro'
 import { medusaFetch, readJsonSafe } from '@/lib/medusa'
 import { normalizeCartTotals, toCentsStrict } from '@/lib/money'
 
+function asString(value: unknown): string | null {
+  if (typeof value !== 'string') return null
+  const trimmed = value.trim()
+  return trimmed.length ? trimmed : null
+}
+
+function resolveCartItemThumbnail(item: any): string | null {
+  const variant = item?.variant
+  const product = variant?.product
+  const metadata = product?.metadata && typeof product.metadata === 'object' ? product.metadata : null
+
+  return (
+    asString(item?.thumbnail) ||
+    asString(variant?.thumbnail) ||
+    asString(product?.thumbnail) ||
+    asString(product?.images?.[0]?.url) ||
+    asString((metadata as any)?.thumbnail) ||
+    asString((metadata as any)?.thumbnail_url) ||
+    asString((metadata as any)?.thumbnailUrl) ||
+    asString((metadata as any)?.image) ||
+    asString((metadata as any)?.image_url) ||
+    null
+  )
+}
+
 export const GET: APIRoute = async ({ params }) => {
   try {
     const cartId = params.id
@@ -41,6 +66,8 @@ export const GET: APIRoute = async ({ params }) => {
       items: medusaData.cart.items.map((item: any) => ({
         id: item.id,
         title: item.title,
+        thumbnail: resolveCartItemThumbnail(item),
+        variant_title: asString(item?.variant_title) ?? asString(item?.variant?.title),
         quantity: item.quantity,
         unit_price: toCentsStrict(item.unit_price, 'item.unit_price') ?? item.unit_price,
         total:

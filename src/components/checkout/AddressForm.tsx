@@ -144,6 +144,7 @@ export default function AddressForm({
           type="email"
           id="email"
           name="email"
+          autoComplete="email"
           value={formData.email}
           onChange={handleChange}
           disabled={disabled}
@@ -163,6 +164,7 @@ export default function AddressForm({
             type="text"
             id="first_name"
             name="first_name"
+            autoComplete="given-name"
             value={formData.first_name}
             onChange={handleChange}
             disabled={disabled}
@@ -183,6 +185,7 @@ export default function AddressForm({
             type="text"
             id="last_name"
             name="last_name"
+            autoComplete="family-name"
             value={formData.last_name}
             onChange={handleChange}
             disabled={disabled}
@@ -204,6 +207,7 @@ export default function AddressForm({
           type="text"
           id="address_1"
           name="address_1"
+          autoComplete="street-address"
           value={formData.address_1}
           onChange={handleChange}
           disabled={disabled}
@@ -224,6 +228,7 @@ export default function AddressForm({
           type="text"
           id="address_2"
           name="address_2"
+          autoComplete="address-line2"
           value={formData.address_2}
           onChange={handleChange}
           disabled={disabled}
@@ -241,6 +246,7 @@ export default function AddressForm({
           type="text"
           id="city"
           name="city"
+          autoComplete="address-level2"
           value={formData.city}
           onChange={handleChange}
           disabled={disabled}
@@ -259,6 +265,7 @@ export default function AddressForm({
           <select
             id="province"
             name="province"
+            autoComplete="address-level1"
             value={formData.province}
             onChange={handleChange}
             disabled={disabled}
@@ -286,6 +293,7 @@ export default function AddressForm({
             type="text"
             id="postal_code"
             name="postal_code"
+            autoComplete="postal-code"
             value={formData.postal_code}
             onChange={handleChange}
             disabled={disabled}
@@ -307,6 +315,7 @@ export default function AddressForm({
           type="tel"
           id="phone"
           name="phone"
+          autoComplete="tel"
           value={formData.phone}
           onChange={handleChange}
           disabled={disabled}

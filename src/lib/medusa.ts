@@ -13,21 +13,28 @@ export function getMedusaConfig(): MedusaConfig | null {
   
   const rawBaseUrl = isBrowser
     ? (import.meta.env.PUBLIC_MEDUSA_BACKEND_URL as string | undefined) || ''
-    : (typeof process !== 'undefined' && process.env?.MEDUSA_BACKEND_URL) || 
-      (import.meta.env.MEDUSA_BACKEND_URL as string | undefined) || '';
+    : (typeof process !== 'undefined' &&
+        (process.env?.MEDUSA_BACKEND_URL || process.env?.PUBLIC_MEDUSA_BACKEND_URL)) ||
+      (import.meta.env.MEDUSA_BACKEND_URL as string | undefined) ||
+      (import.meta.env.PUBLIC_MEDUSA_BACKEND_URL as string | undefined) ||
+      '';
   
   const baseUrl = rawBaseUrl.trim().replace(/\/+$/, '');
   if (!baseUrl) return null;
 
   const publishableKey = isBrowser
     ? (import.meta.env.PUBLIC_MEDUSA_PUBLISHABLE_KEY as string | undefined)
-    : (typeof process !== 'undefined' && process.env?.MEDUSA_PUBLISHABLE_KEY) ||
-      (import.meta.env.MEDUSA_PUBLISHABLE_KEY as string | undefined);
+    : (typeof process !== 'undefined' &&
+        (process.env?.MEDUSA_PUBLISHABLE_KEY || process.env?.PUBLIC_MEDUSA_PUBLISHABLE_KEY)) ||
+      (import.meta.env.MEDUSA_PUBLISHABLE_KEY as string | undefined) ||
+      (import.meta.env.PUBLIC_MEDUSA_PUBLISHABLE_KEY as string | undefined);
       
   const regionId = isBrowser
     ? (import.meta.env.PUBLIC_MEDUSA_REGION_ID as string | undefined)
-    : (typeof process !== 'undefined' && process.env?.MEDUSA_REGION_ID) ||
-      (import.meta.env.MEDUSA_REGION_ID as string | undefined);
+    : (typeof process !== 'undefined' &&
+        (process.env?.MEDUSA_REGION_ID || process.env?.PUBLIC_MEDUSA_REGION_ID)) ||
+      (import.meta.env.MEDUSA_REGION_ID as string | undefined) ||
+      (import.meta.env.PUBLIC_MEDUSA_REGION_ID as string | undefined);
       
   return { baseUrl, publishableKey, regionId };
 }

@@ -72,9 +72,7 @@ function resolveOrderItemImage(item: any): string {
   const product = item.product ?? {};
   const price = item.price ?? {};
   const priceProduct =
-    price && typeof price.product === 'object' && price.product !== null
-      ? price.product
-      : {};
+    price && typeof price.product === 'object' && price.product !== null ? price.product : {};
 
   const productImages = Array.isArray(product.images) ? product.images : [];
   const priceProductImages = Array.isArray(priceProduct.images) ? priceProduct.images : [];
@@ -218,11 +216,11 @@ function hasPaymentEvidence(order: any): boolean {
   if (!order || typeof order !== 'object') return false;
   return Boolean(
     order.paymentIntentId ||
-      order.stripePaymentIntentId ||
-      order.receiptUrl ||
-      order.invoiceRef?._id ||
-      order.paymentStatus === 'paid' ||
-      order.paymentStatus === 'succeeded'
+    order.stripePaymentIntentId ||
+    order.receiptUrl ||
+    order.invoiceRef?._id ||
+    order.paymentStatus === 'paid' ||
+    order.paymentStatus === 'succeeded'
   );
 }
 
@@ -779,7 +777,7 @@ function renderExpiredCartsHtml(expired: any[]): string {
     <section class="space-y-4" data-expired-carts>
       <div>
         <h3 class="font-ethno text-base">Expired carts</h3>
-        <p class="text-sm text-white/70">Checkout sessions that timed out before payment. Restore a cart to try checkout again. Restoring will overwrite the items currently in your cart.</p>
+        <p class="text-sm text-white/70">Restore a cart to try checkout again. Restoring will overwrite the items currently in your cart.</p>
       </div>
       ${
         cards

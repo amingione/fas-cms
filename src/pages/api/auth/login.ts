@@ -25,12 +25,43 @@ export const POST: APIRoute = async ({ request }) => {
     }
     const email = String(bodyResult.data.email || '').trim().toLowerCase();
     const password = String(bodyResult.data.password || '');
+    const forwardedHost = request.headers.get('x-forwarded-host');
+    const hostHeader = request.headers.get('host');
+    const requestHost = String(forwardedHost || hostHeader || '')
+      .trim()
+      .toLowerCase()
+      .split(':')[0];
+    const isLocalhostHost =
+      requestHost === 'localhost' ||
+      requestHost.endsWith('.localhost') ||
+      requestHost === '127.0.0.1' ||
+      requestHost === '::1';
+    const forceAdminOnLocalhost =
+      process.env.LOCALHOST_FORCE_ADMIN_LOGIN?.trim().toLowerCase() === 'true' &&
+      isLocalhostHost;
+    const forcedAdminEmail = String(
+      process.env.LOCALHOST_FORCE_ADMIN_EMAIL || process.env.ADMIN_EMAIL || email || 'admin@localhost'
+    )
+      .trim()
+      .toLowerCase();
+    const forcedVendorId = String(process.env.LOCALHOST_FORCE_VENDOR_ID || '')
+      .trim()
+      .replace(/^drafts\./, '');
 
     const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
     const adminPassword = process.env.ADMIN_PASSWORD;
     let sessionUser: { id: string; email: string; roles: string[] } | null = null;
     let expiresInSeconds: number | undefined = undefined;
     let accountFound = false;
+
+    if (forceAdminOnLocalhost) {
+      sessionUser = {
+        id: forcedVendorId || 'admin-localhost',
+        email: forcedAdminEmail,
+        roles: forcedVendorId ? ['admin', 'vendor'] : ['admin']
+      };
+      expiresInSeconds = 60 * 60 * 24 * 30;
+    }
 
     if (adminEmail && adminPassword && email === adminEmail) {
       accountFound = true;

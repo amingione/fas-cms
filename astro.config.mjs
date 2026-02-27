@@ -68,8 +68,6 @@ const dedupeNetlifyVitePlugin = () => {
   };
 };
 
-const isDev = process.env.NODE_ENV !== 'production';
-
 // Lazy-load svgr so dev doesn't fail if it's not installed
 let svgrPlugin = null;
 try {
@@ -171,21 +169,11 @@ export default defineConfig({
         '@tsparticles/engine',
         'tsparticles'
       ],
-      esbuildOptions: {
-        define: {
-          'process.env.NODE_ENV': JSON.stringify(isDev ? 'development' : 'production')
-        }
-      }
+      esbuildOptions: {}
     },
     resolve: {
       // Prevent multiple React copies across islands/SSR
-      dedupe: [
-        'react',
-        'react-dom',
-        'react-dom/client',
-        'react/jsx-runtime',
-        'react/jsx-dev-runtime'
-      ],
+      dedupe: ['react', 'react-dom'],
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
         '@components': fileURLToPath(new URL('./src/components', import.meta.url)),

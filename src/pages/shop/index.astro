@@ -2,12 +2,25 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import ShopTopControls from '@components/shop/ShopTopControls';
 import ShopSidebarFilters from '@/components/storefront/ShopSidebarFilters';
-import { fetchProductsFromSanity, fetchCategories } from '@lib/sanity-utils';
-import type { Product, Category } from '@lib/sanity-utils';
+import {
+  fetchCategories,
+  fetchFilteredProducts,
+  fetchStorefrontFilterFacets,
+  fetchVehicles,
+  getProductCount
+} from '@lib/sanity-utils';
+import type { Product, Category, Vehicle } from '@lib/sanity-utils';
 import { serializeJsonLd } from '@lib/utils';
+import { centsToDollars } from '@/lib/pricing';
 import ProductGrid from '@/components/storefront/ProductGrid.astro';
 import FilterPanelMobile from '@/components/storefront/FilterPanelMobile.tsx';
 import Pagination from '@/components/storefront/Pagination.astro';
+import {
+  attachMedusaPricingBySanityIdentity,
+  listStoreProductsForPricing,
+  resolveProductCalculatedPriceAmount,
+  resolveProductMedusaVariant
+} from '@/lib/medusa-storefront-pricing';
 
 	export const prerender = false;
 

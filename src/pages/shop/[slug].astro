@@ -8,9 +8,22 @@ import {
   normalizeSlugValue,
   type Product
 } from '../../lib/sanity-utils';
+import { centsToDollars, formatCents, formatCentsWithSign } from '@/lib/pricing';
+import { getCallForShippingQuote, getMetadataTags, getRequiresShipping } from '@/lib/medusa-metadata';
+import {
+  attachMedusaPricingBySanityIdentity,
+  listStoreProductsForPricing,
+  resolveProductCalculatedPriceAmount,
+  resolveProductMedusaVariant,
+  type MedusaStoreProduct
+} from '@/lib/medusa-storefront-pricing';
 import PortableTextRenderer from "../../components/PortableTextRenderer.jsx";
 import SlugCarousel from '@/components/SlugCarousel.astro';
 import TrustStrip from '@/components/TrustStrip.astro';
+import InfoTabs from '@/components/shop/InfoTabs.tsx';
+import ProductCardLite from '@/components/storefront/ProductCardLite.astro';
+import ServiceDisclaimerNotice from '@/components/storefront/ServiceDisclaimerNotice.tsx';
+import productPageScriptUrl from '@/scripts/product-page.js?url';
 import { inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import { serializeJsonLd } from '@lib/utils';
 
@@ -574,6 +587,37 @@ const resolveProductSlug = (item: Product | null | undefined): string => {
   return '';
 };
 
+const buildFallbackSanityProductFromMedusa = (
+  medusaProduct: MedusaStoreProduct,
+  normalizedSlug: string
+): ProductWithKit => {
+  const images = Array.isArray(medusaProduct.images)
+    ? medusaProduct.images
+        .map((image) => (typeof image?.url === 'string' && image.url ? { asset: { url: image.url } } : null))
+        .filter((value): value is { asset: { url: string } } => Boolean(value))
+    : [];
+
+  if (!images.length && typeof medusaProduct.thumbnail === 'string' && medusaProduct.thumbnail) {
+    images.push({ asset: { url: medusaProduct.thumbnail } });
+  }
+
+  return {
+    _id: medusaProduct.id || `medusa-${normalizedSlug}`,
+    title: medusaProduct.title || normalizedSlug.replace(/-/g, ' '),
+    displayTitle: medusaProduct.title || normalizedSlug.replace(/-/g, ' '),
+    slug: { current: medusaProduct.handle || normalizedSlug },
+    shortDescription: '',
+    description: '',
+    productType: 'physical',
+    status: 'active',
+    images,
+    categories: [],
+    filters: [],
+    tags: [],
+    medusa: medusaProduct
+  } as ProductWithKit;
+};
+
 const buildProductListStructuredData = (items: Product[], listName: string): Record<string, any> | null => {
   if (!Array.isArray(items) || items.length === 0) return null;
   const itemListElement = items
@@ -680,7 +724,14 @@ try {
   }
   product = await getProductBySlug(slugValue);
   if (!product) {
-    throw new Error(`Product with slug "${slugValue}" not found.`);
+    const medusaProducts = await listStoreProductsForPricing();
+    const medusaByHandle = medusaProducts.find(
+      (entry) => typeof entry.handle === 'string' && normalizeSlugValue(entry.handle) === slugValue
+    );
+    if (!medusaByHandle) {
+      throw new Error(`Product with slug "${slugValue}" not found.`);
+    }
+    product = buildFallbackSanityProductFromMedusa(medusaByHandle, slugValue);
   }
 
   baseProductTitle = String((product as any)?.title || 'Product');

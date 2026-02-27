@@ -2,16 +2,80 @@ import type { Handler } from '@netlify/functions';
 import { sanity } from './_sanity';
 import { requireUser } from './_auth';
 
+const readHeader = (headers: Record<string, string | undefined>, name: string): string => {
+  const direct = headers?.[name];
+  if (typeof direct === 'string') return direct.trim();
+  const lower = headers?.[name.toLowerCase()];
+  if (typeof lower === 'string') return lower.trim();
+  const upper = headers?.[name.toUpperCase()];
+  if (typeof upper === 'string') return upper.trim();
+  return '';
+};
+
+const readBearer = (value: string): string => value.replace(/^Bearer\s+/i, '').trim();
+
+const isMachineAuthorized = (event: Parameters<Handler>[0]): boolean => {
+  const configuredSecrets = [
+    process.env.MEDUSA_PRODUCT_SYNC_SECRET,
+    process.env.WEBHOOK_FORWARD_SHARED_SECRET
+  ].filter((value): value is string => typeof value === 'string' && value.trim().length > 0);
+
+  if (configuredSecrets.length === 0) return false;
+
+  const headers = event.headers || {};
+  const candidates = [
+    readHeader(headers, 'x-medusa-sync-secret'),
+    readHeader(headers, 'x-fas-forwarded-secret'),
+    readBearer(readHeader(headers, 'authorization'))
+  ].filter(Boolean);
+
+  return candidates.some((candidate) => configuredSecrets.includes(candidate));
+};
+
+const toNumber = (value: unknown): number | null => {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string' && value.trim()) {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return null;
+};
+
+const derivePrice = (input: any): number | null => {
+  const direct = toNumber(input?.price);
+  if (direct !== null) return direct;
+
+  const amountCandidates = [
+    input?.variant?.calculated_price?.calculated_amount,
+    input?.variants?.[0]?.calculated_price?.calculated_amount,
+    input?.variant?.prices?.[0]?.amount,
+    input?.variants?.[0]?.prices?.[0]?.amount
+  ];
+
+  for (const rawAmount of amountCandidates) {
+    const amount = toNumber(rawAmount);
+    if (amount === null) continue;
+    if (amount > 1000) return Number((amount / 100).toFixed(2));
+    return amount;
+  }
+
+  return null;
+};
+
 export const handler: Handler = async (event) => {
   try {
     if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
-    await requireUser(event);
+    if (!isMachineAuthorized(event)) {
+      await requireUser(event);
+    }
+
     const body = JSON.parse(event.body || '{}');
+    const source = body?.product && typeof body.product === 'object' ? body.product : body;
     const {
       _id,
       title,
       sku,
-      price,
+      price: rawPrice,
       featured = false,
       categoryIds = [],
       imageAssetId,
@@ -25,8 +89,10 @@ export const handler: Handler = async (event) => {
       canonicalUrl,
       noindex,
       draft
-    } = body;
-    if (!title || typeof price !== 'number') return { statusCode: 400, body: 'Missing fields' };
+    } = source;
+
+    const price = derivePrice(source);
+    if (!title || price === null) return { statusCode: 400, body: 'Missing fields' };
 
     // Prepare reference arrays for both legacy `category` and newer `categories` fields
     const catRefs = (categoryIds as string[]).map((id) => ({ _type: 'reference', _ref: String(id) }));

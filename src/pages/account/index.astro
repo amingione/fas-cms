@@ -43,11 +43,11 @@ const pageDescription = isLoggedIn
         <form id="fas-login" class="space-y-3 max-w-sm">
           <div>
             <label class="block text-sm mb-1">Email</label>
-            <input type="email" name="email" required class="w-full bg-white/5 border border-white/15 rounded px-3 py-2" />
+            <input type="email" name="email" autocomplete="email" required class="w-full bg-white/5 border border-white/15 rounded px-3 py-2" />
           </div>
           <div>
             <label class="block text-sm mb-1">Password</label>
-            <input type="password" name="password" required class="w-full bg-white/5 border border-white/15 rounded px-3 py-2" />
+            <input type="password" name="password" autocomplete="current-password" required class="w-full bg-white/5 border border-white/15 rounded px-3 py-2" />
             <div class="mt-2 text-xs">
               <a href="/account/forgot-password" class="text-primary hover:text-primary/80">Forgot password?</a>
             </div>
@@ -57,15 +57,15 @@ const pageDescription = isLoggedIn
         <form id="fas-signup" class="space-y-3 max-w-sm hidden">
           <div>
             <label class="block text-sm mb-1">Name (optional)</label>
-            <input type="text" name="name" class="w-full bg-white/5 border border-white/15 rounded px-3 py-2" />
+            <input type="text" name="name" autocomplete="name" class="w-full bg-white/5 border border-white/15 rounded px-3 py-2" />
           </div>
           <div>
             <label class="block text-sm mb-1">Email</label>
-            <input type="email" name="email" required class="w-full bg-white/5 border border-white/15 rounded px-3 py-2" />
+            <input type="email" name="email" autocomplete="email" required class="w-full bg-white/5 border border-white/15 rounded px-3 py-2" />
           </div>
           <div>
             <label class="block text-sm mb-1">Password</label>
-            <input type="password" name="password" required minlength="8" class="w-full bg-white/5 border border-white/15 rounded px-3 py-2" />
+            <input type="password" name="password" autocomplete="new-password" required minlength="8" class="w-full bg-white/5 border border-white/15 rounded px-3 py-2" />
           </div>
           <button type="submit" class="px-4 py-2 rounded bg-primary text-white font-ethno hover:text-white">Create account</button>
         </form>

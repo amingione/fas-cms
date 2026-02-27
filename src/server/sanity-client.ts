@@ -39,13 +39,24 @@ export const hasWriteToken = Boolean(token);
 
 export async function getVendorByEmail(email: string) {
   const query =
-    '*[_type == "vendor" && (lower(portalAccess.email) == $e || lower(primaryContact.email) == $e || lower(accountingContact.email) == $e)][0]';
+    `*[_type == "vendor" && (
+      lower(portalAccess.email) == $e ||
+      lower(primaryContact.email) == $e ||
+      lower(accountingContact.email) == $e ||
+      lower(email) == $e ||
+      count(portalUsers[lower(email) == $e]) > 0
+    )][0]`;
   return await sanity.fetch(query, { e: String(email || '').trim().toLowerCase() });
 }
 
 export async function getVendorById(id: string) {
   const query = '*[_type == "vendor" && _id == $id][0]';
   return await sanity.fetch(query, { id });
+}
+
+export async function getAnyVendor() {
+  const query = '*[_type == "vendor"] | order(_createdAt asc)[0]';
+  return await sanity.fetch(query, {});
 }
 
 export async function getVendorByCustomerId(customerId: string) {
@@ -66,13 +77,21 @@ export async function updateVendorPortalAccess(vendorId: string, fields: Record<
   for (const [key, value] of Object.entries(fields)) {
     prefixed[`portalAccess.${key}`] = value;
   }
+  if ('enabled' in fields) {
+    prefixed.portalEnabled = fields.enabled;
+  }
   await sanity.patch(vendorId).set(prefixed).commit();
 }
 
 export async function updateVendorPassword(vendorId: string, passwordHash: string) {
   await sanity
     .patch(vendorId)
-    .set({ passwordHash, passwordResetToken: null, passwordResetExpires: null })
+    .set({
+      passwordHash,
+      'portalAccess.passwordHash': passwordHash,
+      passwordResetToken: null,
+      passwordResetExpires: null
+    })
     .commit();
 }
 
@@ -91,7 +110,7 @@ export async function updateCustomerPassword(customerId: string, passwordHash: s
 }
 
 export async function getVendorBySub(sub: string) {
-  const query = '*[_type == "vendor" && portalAccess.userSub == $sub][0]';
+  const query = '*[_type == "vendor" && (portalAccess.userSub == $sub || userSub == $sub)][0]';
   return await sanity.fetch(query, { sub });
 }
 
@@ -121,7 +140,7 @@ export async function markVendorAuthTokenUsed(tokenId: string) {
 
 export async function findVendorAuthTokenByHash(tokenHash: string, tokenType: 'invitation' | 'password-reset') {
   const query =
-    '*[_type == "vendorAuthToken" && tokenHash == $hash && tokenType == $type && (!defined(usedAt) || usedAt == null) && expiresAt > now()][0]{..., vendor->{_id, name, email, portalAccess}}';
+    '*[_type == "vendorAuthToken" && tokenHash == $hash && tokenType == $type && (!defined(usedAt) || usedAt == null) && expiresAt > now()][0]{..., vendor->{_id, name, email, primaryContact, accountingContact, portalAccess, portalUsers, status}}';
   return await sanity.fetch(query, { hash: tokenHash, type: tokenType });
 }
 

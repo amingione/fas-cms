@@ -24,5 +24,8 @@
   "chatgpt.openOnStartup": true,
   "[astro]": {
     "editor.defaultFormatter": "astro-build.astro-vscode"
+  },
+  "workbench.editor.autoLockGroups": {
+    "workbench.editorinputs.browser": true
   }
 }

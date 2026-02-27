@@ -3,7 +3,10 @@
     "astro-build.astro-vscode",
     "haselerdev.aiquickfix",
     "openai.chatgpt",
-    "andrewbutson.vscode-openai"
+    "andrewbutson.vscode-openai",
+    "wscats.cors-browser",
+    "ms-vscode.live-server",
+    "jasonlhy.vscode-browser-sync"
   ],
   "unwantedRecommendations": []
 }

@@ -190,7 +190,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <legend>Company Information</legend>
           <div class="form-group">
             <label for="companyName">Company Name *</label>
-            <input type="text" id="companyName" name="companyName" required />
+            <input type="text" id="companyName" name="companyName" autocomplete="organization" required />
           </div>
 
           <div class="form-group">
@@ -208,7 +208,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
           <div class="form-group">
             <label for="website">Website</label>
-            <input type="url" id="website" name="website" placeholder="https://" />
+            <input type="url" id="website" name="website" autocomplete="url" placeholder="https://" />
           </div>
 
           <div class="form-row">
@@ -219,7 +219,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
             <div class="form-group">
               <label for="taxId">Tax ID / EIN *</label>
-              <input type="text" id="taxId" name="taxId" required />
+              <input type="text" id="taxId" name="taxId" autocomplete="off" required />
               <small>Required for wholesale pricing</small>
             </div>
           </div>
@@ -230,7 +230,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <div class="form-row">
             <div class="form-group">
               <label for="contactName">Full Name *</label>
-              <input type="text" id="contactName" name="contactName" required />
+              <input type="text" id="contactName" name="contactName" autocomplete="name" required />
             </div>
             <div class="form-group">
               <label for="contactTitle">Title *</label>
@@ -238,6 +238,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                 type="text"
                 id="contactTitle"
                 name="contactTitle"
+                autocomplete="organization-title"
                 placeholder="Owner, Manager, etc."
                 required
               />
@@ -247,11 +248,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <div class="form-row">
             <div class="form-group">
               <label for="contactEmail">Email *</label>
-              <input type="email" id="contactEmail" name="contactEmail" required />
+              <input type="email" id="contactEmail" name="contactEmail" autocomplete="email" required />
             </div>
             <div class="form-group">
               <label for="contactPhone">Phone *</label>
-              <input type="tel" id="contactPhone" name="contactPhone" required />
+              <input type="tel" id="contactPhone" name="contactPhone" autocomplete="tel" required />
             </div>
           </div>
         </fieldset>
@@ -260,21 +261,21 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <legend>Business Address</legend>
           <div class="form-group">
             <label for="street">Street Address *</label>
-            <input type="text" id="street" name="street" required />
+            <input type="text" id="street" name="street" autocomplete="street-address" required />
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label for="city">City *</label>
-              <input type="text" id="city" name="city" required />
+              <input type="text" id="city" name="city" autocomplete="address-level2" required />
             </div>
             <div class="form-group">
               <label for="state">State *</label>
-              <input type="text" id="state" name="state" maxlength="2" placeholder="NY" required />
+              <input type="text" id="state" name="state" maxlength="2" autocomplete="address-level1" placeholder="NY" required />
             </div>
             <div class="form-group">
               <label for="zip">ZIP Code *</label>
-              <input type="text" id="zip" name="zip" required />
+              <input type="text" id="zip" name="zip" autocomplete="postal-code" required />
             </div>
           </div>
         </fieldset>

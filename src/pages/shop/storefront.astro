@@ -1,22 +1,37 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import CategoryPage from "@/components/storefront/CategoryPage.tsx";
-import { fetchProductsFromSanity, normalizeSanityImageUrl } from "@/lib/sanity-utils";
+import * as sanityUtils from "@/lib/sanity-utils";
 import { sanityClient as client } from "@/lib/sanityClient";
 import { serializeJsonLd } from '@lib/utils';
 import { centsToDollars } from "@/lib/pricing";
-import {
-  attachMedusaPricingBySanityIdentity,
-  listStoreProductsForPricing,
-  resolveProductCalculatedPriceAmount
-} from "@/lib/medusa-storefront-pricing";
+import * as medusaPricing from "@/lib/medusa-storefront-pricing";
 
-let products = await fetchProductsFromSanity({});
+let products = await sanityUtils.fetchProductsFromSanity({});
+let medusaProducts: medusaPricing.MedusaStoreProduct[] = [];
 try {
-  const medusaProducts = await listStoreProductsForPricing();
-  products = attachMedusaPricingBySanityIdentity(products, medusaProducts);
+  medusaProducts = await medusaPricing.listStoreProductsForPricing();
+  products = medusaPricing.attachMedusaPricingBySanityIdentity(products, medusaProducts);
 } catch (error) {
   console.error('[shop/storefront] Failed to attach Medusa pricing', error);
+}
+
+// If Sanity query yields no products, build a fallback list from Medusa so
+// storefront still renders catalog inventory.
+if ((!Array.isArray(products) || products.length === 0) && Array.isArray(medusaProducts) && medusaProducts.length > 0) {
+  products = medusaProducts
+    .filter((product) => typeof product?.handle === "string" && product.handle.length > 0)
+    .map((product) => ({
+      _id: product.id,
+      title: product.title ?? product.handle ?? product.id,
+      slug: { current: product.handle ?? product.id },
+      images: Array.isArray(product.images)
+        ? product.images
+            .map((image) => ({ url: image?.url ?? null }))
+            .filter((image) => typeof image.url === "string" && image.url.length > 0)
+        : [],
+      medusa: product
+    }));
 }
 
 const categoriesRaw =
@@ -33,7 +48,7 @@ const categories = (Array.isArray(categoriesRaw) ? categoriesRaw : [])
     id: category?._id ?? category?.slug ?? category?.title ?? '',
     title: category?.title ?? 'Category',
     slug: typeof category?.slug === 'string' ? category.slug : '',
-    imageUrl: normalizeSanityImageUrl(category?.imageUrl) ?? null,
+    imageUrl: sanityUtils.normalizeSanityImageUrl(category?.imageUrl) ?? null,
     description: category?.description ?? null
   }))
   .filter((category) => Boolean(category.slug));
@@ -138,7 +153,7 @@ const productItemListElements = Array.isArray(products)
         if (!slugValue) return null;
         const productUrl = `${requestUrl.origin}/shop/${slugValue}`;
         const images = resolveProductImages(product);
-        const priceNumber = resolveProductCalculatedPriceAmount(product);
+        const priceNumber = medusaPricing.resolveProductCalculatedPriceAmount(product);
         const priceDollars = centsToDollars(priceNumber ?? undefined);
         const offers =
           typeof priceDollars === 'number' && priceDollars > 0

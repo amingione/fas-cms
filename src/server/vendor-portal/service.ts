@@ -17,6 +17,39 @@ import { issueInvitationToken, issueResetToken, decodeToken, hashRawToken } from
 import { checkPwnedPassword, validatePasswordComplexity } from './passwords';
 import { rateLimit } from './rateLimit';
 
+const DEFAULT_VENDOR_PERMISSIONS = [
+  'view_own_orders',
+  'create_wholesale_orders',
+  'view_own_quotes',
+  'view_wholesale_catalog',
+  'send_support_messages',
+  'view_payments',
+  'view_analytics',
+  'upload_invoices'
+];
+
+function isPortalAccessEnabled(vendor: any): boolean {
+  const portalAccess = vendor?.portalAccess || {};
+  return (
+    portalAccess.enabled === true ||
+    vendor?.portalEnabled === true ||
+    Boolean(portalAccess.setupCompletedAt) ||
+    Boolean(portalAccess.passwordHash) ||
+    Boolean(vendor?.passwordHash)
+  );
+}
+
+function resolveVendorPortalEmail(vendor: any): string {
+  return String(
+    vendor?.portalAccess?.email ||
+      vendor?.primaryContact?.email ||
+      vendor?.accountingContact?.email ||
+      vendor?.email ||
+      (Array.isArray(vendor?.portalUsers) ? vendor.portalUsers[0]?.email : '') ||
+      ''
+  ).trim();
+}
+
 function buildBaseUrl(request: Request) {
   const origin = PUBLIC_SITE_URL || new URL(request.url).origin;
   return origin.replace(/\/+$/, '');
@@ -43,14 +76,8 @@ export async function handleInvite(body: any, session: any, request: Request) {
     return jsonResponse({ message: 'Vendor not found' }, { status: 404 }, { noIndex: true });
   }
 
-  const portalAccess = (vendor as any).portalAccess || {};
-  const enabled = portalAccess.enabled ?? false;
-  const portalEmail = String(
-    portalAccess.email ||
-      (vendor as any)?.primaryContact?.email ||
-      (vendor as any)?.accountingContact?.email ||
-      ''
-  ).trim();
+  const enabled = isPortalAccessEnabled(vendor);
+  const portalEmail = resolveVendorPortalEmail(vendor);
   if (!enabled) {
     return jsonResponse({ message: 'Portal access is disabled for this vendor.' }, { status: 400 }, { noIndex: true });
   }
@@ -130,14 +157,10 @@ export async function completeInvitation({
   await updateVendorStatus(vendor._id, 'active');
 
   const headers = new Headers();
-  const roles = Array.isArray(vendor.portalAccess?.permissions)
+  const roles = Array.isArray(vendor.portalAccess?.permissions) && vendor.portalAccess.permissions.length > 0
     ? vendor.portalAccess.permissions.map((p: any) => String(p || '').toLowerCase())
-    : ['vendor'];
-  const vendorEmail =
-    vendor.portalAccess?.email ||
-    (vendor as any)?.primaryContact?.email ||
-    (vendor as any)?.accountingContact?.email ||
-    '';
+    : DEFAULT_VENDOR_PERMISSIONS;
+  const vendorEmail = resolveVendorPortalEmail(vendor);
   setSession(headers, { id: vendor._id, email: vendorEmail, roles }, { expiresIn: '7d' });
 
   return jsonResponse(
@@ -174,12 +197,11 @@ export async function requestPasswordReset(email: string, request: Request) {
   }
 
   const vendor = await getVendorByEmail(email);
-  const portalAccess = (vendor as any)?.portalAccess || {};
-  if (!vendor || !portalAccess.enabled) {
+  if (!vendor || !isPortalAccessEnabled(vendor)) {
     console.warn('[vendor reset] no send: vendor missing or portal access disabled', {
       email,
       found: Boolean(vendor),
-      enabled: Boolean(portalAccess.enabled)
+      enabled: Boolean(vendor && isPortalAccessEnabled(vendor))
     });
     return jsonResponse(
       { ok: true, message: 'If an account exists, we sent a reset link.' },
