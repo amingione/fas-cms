@@ -11,7 +11,7 @@ import { emitAddToCartSuccess } from '@/lib/add-to-cart-toast';
 import type { QuickViewOptionGroup, QuickViewOptionValue } from '@/lib/quick-view-options';
 import { portableTextToPlainText } from '@/lib/portableText';
 import { resolveProductCartMeta } from '@/lib/product-flags';
-import { formatCents, formatCentsWithSign } from '@/lib/pricing';
+import { formatCents, formatDollarsWithSign } from '@/lib/pricing';
 import { resolveProductCalculatedPriceAmount } from '@/lib/medusa-storefront-pricing';
 
 const sanitizeAnalyticsPayload = (payload: Record<string, unknown>) =>
@@ -229,7 +229,7 @@ export default function ProductQuickViewButton({
 
   const formatPriceDelta = (delta?: number | null) => {
     if (typeof delta !== 'number' || !Number.isFinite(delta) || delta === 0) return null;
-    return formatCentsWithSign(delta, { currency: 'USD', locale: 'en-US' });
+    return formatDollarsWithSign(delta, { currency: 'USD', locale: 'en-US' });
   };
 
   const handleOptionSelect = (groupKey: string, value: string) => {

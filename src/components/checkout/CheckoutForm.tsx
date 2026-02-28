@@ -458,105 +458,107 @@ export default function CheckoutForm() {
         </span>
       </div>
 
-      <div className="checkout-v2-grid">
-        <div className="checkout-v2-summary">
-          {cart.items.map((product) => (
-            <div key={product.id} className="checkout-v2-item">
-              <div className="checkout-v2-image-wrap">
-                <img
-                  src={resolveCheckoutImageSrc(product.thumbnail)}
-                  alt={product.title}
-                  className="checkout-v2-image"
-                  onError={(event) => {
-                    const image = event.currentTarget;
-                    if (image.src.endsWith(CHECKOUT_IMAGE_FALLBACK)) return;
-                    image.src = CHECKOUT_IMAGE_FALLBACK;
-                  }}
-                />
-                <span className="checkout-v2-qty">{product.quantity}</span>
-              </div>
-              <div className="checkout-v2-item-body">
-                <div>
-                  <p className="checkout-v2-name">{product.title}</p>
-                  <p className="checkout-v2-variant">{product.variant_title || 'Default'}</p>
+      <div className="checkout-v2-shell">
+        <div className="checkout-v2-grid">
+          <div className="checkout-v2-summary">
+            {cart.items.map((product) => (
+              <div key={product.id} className="checkout-v2-item">
+                <div className="checkout-v2-image-wrap">
+                  <img
+                    src={resolveCheckoutImageSrc(product.thumbnail)}
+                    alt={product.title}
+                    className="checkout-v2-image"
+                    onError={(event) => {
+                      const image = event.currentTarget;
+                      if (image.src.endsWith(CHECKOUT_IMAGE_FALLBACK)) return;
+                      image.src = CHECKOUT_IMAGE_FALLBACK;
+                    }}
+                  />
+                  <span className="checkout-v2-qty">{product.quantity}</span>
                 </div>
-                <p className="checkout-v2-price">{formatCurrency(product.total)}</p>
+                <div className="checkout-v2-item-body">
+                  <div>
+                    <p className="checkout-v2-name">{product.title}</p>
+                    <p className="checkout-v2-variant">{product.variant_title || 'Default'}</p>
+                  </div>
+                  <p className="checkout-v2-price">{formatCurrency(product.total)}</p>
+                </div>
+              </div>
+            ))}
+
+            <div className="checkout-v2-discount">
+              <input
+                type="text"
+                value={discountCode}
+                onChange={(e) => setDiscountCode(e.target.value)}
+                placeholder="Discount code"
+                autoComplete="off"
+              />
+              <button type="button">Apply</button>
+            </div>
+
+            <div className="checkout-v2-totals">
+              <div>
+                <span>Subtotal</span>
+                <span>{formatCurrency(cart.subtotal_cents)}</span>
+              </div>
+              <div>
+                <span>Shipping</span>
+                <span>{formatCurrency(cart.shipping_amount_cents)}</span>
+              </div>
+              <div>
+                <span>Taxes</span>
+                <span>{formatCurrency(cart.tax_amount_cents ?? 0)}</span>
+              </div>
+              <div className="final">
+                <span>Total</span>
+                <span>{formatCurrency(cart.total_cents)}</span>
               </div>
             </div>
-          ))}
-
-          <div className="checkout-v2-discount">
-            <input
-              type="text"
-              value={discountCode}
-              onChange={(e) => setDiscountCode(e.target.value)}
-              placeholder="Discount code"
-              autoComplete="off"
-            />
-            <button type="button">Apply</button>
           </div>
 
-          <div className="checkout-v2-totals">
-            <div>
-              <span>Subtotal</span>
-              <span>{formatCurrency(cart.subtotal_cents)}</span>
-            </div>
-            <div>
-              <span>Shipping</span>
-              <span>{formatCurrency(cart.shipping_amount_cents)}</span>
-            </div>
-            <div>
-              <span>Taxes</span>
-              <span>{formatCurrency(cart.tax_amount_cents ?? 0)}</span>
-            </div>
-            <div className="final">
-              <span>Total</span>
-              <span>{formatCurrency(cart.total_cents)}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="checkout-v2-pay">
-          {clientSecret ? (
-            <Elements
-              stripe={stripePromise}
-              options={{
-                clientSecret,
-                appearance: {
-                  theme: 'night' as const,
-                  variables: {
-                    colorPrimary: '#dc2626',
-                    colorBackground: '#0f0f0f',
-                    colorText: '#ffffff'
+          <div className="checkout-v2-pay">
+            {clientSecret ? (
+              <Elements
+                stripe={stripePromise}
+                options={{
+                  clientSecret,
+                  appearance: {
+                    theme: 'night' as const,
+                    variables: {
+                      colorPrimary: '#dc2626',
+                      colorBackground: '#0f0f0f',
+                      colorText: '#ffffff'
+                    }
                   }
-                }
-              }}
-            >
-              <StripePaymentPane
-                cartId={cartId}
-                cart={cart}
+                }}
+              >
+                <StripePaymentPane
+                  cartId={cartId}
+                  cart={cart}
+                  shippingAddress={shippingAddress}
+                  selectedRateId={selectedOptionId}
+                  processing={processing}
+                  setProcessing={setProcessing}
+                  setError={setError}
+                />
+              </Elements>
+            ) : (
+              <NonReadyPaymentPane
                 shippingAddress={shippingAddress}
-                selectedRateId={selectedOptionId}
-                processing={processing}
-                setProcessing={setProcessing}
-                setError={setError}
+                loadingRates={loadingRates}
+                shippingRates={shippingRates}
+                shippoRates={shippoRates}
+                selectedRateId={selectedRateId}
+                selectedShippoRate={selectedShippoRate}
+                onAddressChange={updateAddressField}
+                onCalculateShipping={handleCalculateShipping}
+                onSelectRate={selectShippingRate}
               />
-            </Elements>
-          ) : (
-            <NonReadyPaymentPane
-              shippingAddress={shippingAddress}
-              loadingRates={loadingRates}
-              shippingRates={shippingRates}
-              shippoRates={shippoRates}
-              selectedRateId={selectedRateId}
-              selectedShippoRate={selectedShippoRate}
-              onAddressChange={updateAddressField}
-              onCalculateShipping={handleCalculateShipping}
-              onSelectRate={selectShippingRate}
-            />
-          )}
+            )}
 
-          {error && <p className="checkout-v2-error">{error}</p>}
+            {error && <p className="checkout-v2-error">{error}</p>}
+          </div>
         </div>
       </div>
     </div>
@@ -598,7 +600,7 @@ function NonReadyPaymentPane({
         className="checkout-v2-pay-top"
         onClick={() => void onCalculateShipping()}
       >
-        Pay
+        Apple Pay
       </button>
 
       <div className="checkout-v2-divider">Or pay another way</div>
@@ -824,7 +826,7 @@ function StripePaymentPane({
         disabled={processing || !stripe}
         onClick={() => void submit()}
       >
-        {processing ? 'Processing...' : 'Pay'}
+        {processing ? 'Processing...' : 'Apple Pay'}
       </button>
 
       <div className="checkout-v2-divider">Or pay another way</div>

@@ -8,7 +8,7 @@ import {
   normalizeSlugValue,
   type Product
 } from '../../lib/sanity-utils';
-import { centsToDollars, formatCents, formatCentsWithSign } from '@/lib/pricing';
+import { centsToDollars, formatCents, formatDollarsWithSign } from '@/lib/pricing';
 import { getCallForShippingQuote, getMetadataTags, getRequiresShipping } from '@/lib/medusa-metadata';
 import {
   attachMedusaPricingBySanityIdentity,
@@ -1567,7 +1567,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                               data-variant-id={v?.medusaVariantId || ''}
                             >
                               {label}
-                              {price ? ` (${formatCentsWithSign(price)})` : ''}
+                              {price ? ` (${formatDollarsWithSign(price)})` : ''}
                             </option>
                           );
                         })}
@@ -1613,7 +1613,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                             <span class="flex flex-col text-sm font-medium leading-snug text-white">
                               {label}
                               <span class="text-xs font-semibold text-white/60">
-                                {price ? formatCentsWithSign(price) : ''}
+                                {price ? formatDollarsWithSign(price) : ''}
                               </span>
                             </span>
                           </label>
@@ -1655,7 +1655,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                         const descriptionId = `${inputId}-description`;
                         const priceText =
                           typeof a.priceDelta === 'number' && a.priceDelta !== 0
-                            ? formatCentsWithSign(a.priceDelta)
+                            ? formatDollarsWithSign(a.priceDelta)
                             : 'Included';
                         return (
                           <label for={inputId} class="flex items-center gap-3 text-sm leading-6 text-white">
@@ -1732,7 +1732,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                   )}
                   {surchargeAmount > 0 && (
                     <div class="mt-2 text-xs text-white/70">
-                      Surcharge: {formatCentsWithSign(surchargeAmount)}
+                      Surcharge: {formatDollarsWithSign(surchargeAmount)}
                     </div>
                   )}
                 </div>

@@ -82,3 +82,15 @@ export const formatCentsWithSign = (
   const formatted = formatCents(Math.abs(cents), opts);
   return `${sign}${formatted}`;
 };
+
+export const formatDollarsWithSign = (
+  amount: number | string | null | undefined,
+  opts: PriceFormatOptions = {}
+): string => {
+  if (amount == null) return '—';
+  const numeric = typeof amount === 'string' ? Number(amount) : amount;
+  if (!Number.isFinite(numeric)) return '—';
+  const sign = numeric < 0 ? '-' : numeric > 0 ? '+' : '';
+  const formatted = formatDollars(Math.abs(numeric), opts);
+  return `${sign}${formatted}`;
+};
