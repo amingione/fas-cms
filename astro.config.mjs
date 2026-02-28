@@ -186,6 +186,10 @@ export default defineConfig({
       }
     },
     server: {
+      // Prevent intermittent Astro island hydrate failures when the page and
+      // module URLs resolve under different local hosts (localhost/127.0.0.1/
+      // Netlify dev host). Module scripts require CORS in that case.
+      cors: true,
       // Allow Netlify DevServer hosts to connect
       allowedHosts: [
         'devserver-main--fasmoto.netlify.app',
