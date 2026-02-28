@@ -25,6 +25,11 @@ export type CartItem = {
   options?: Record<string, string>;
   selectedOptions?: string[];
   selectedUpgrades?: string[];
+  selectedUpgradesDetailed?: Array<{
+    label: string;
+    priceCents: number;
+    medusaOptionValueId: string;
+  }>;
   upgrades?: unknown;
 };
 
@@ -33,6 +38,35 @@ export const CART_EVENT = 'cart:changed';
 
 function isBrowser() {
   return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+}
+
+function normalizeLegacyUpgradeCents(item: CartItem): { item: CartItem; changed: boolean } {
+  const entries = Array.isArray(item.selectedUpgradesDetailed) ? item.selectedUpgradesDetailed : [];
+  if (!entries.length) return { item, changed: false };
+  let changed = false;
+  const normalized = entries.map((entry) => {
+    const cents = Number.isFinite(entry?.priceCents) ? Math.round(entry.priceCents) : 0;
+    if (cents > 0 && cents < 100) {
+      changed = true;
+      return { ...entry, priceCents: cents * 100 };
+    }
+    return { ...entry, priceCents: cents };
+  });
+  if (!changed) return { item, changed: false };
+  return {
+    item: {
+      ...item,
+      selectedUpgradesDetailed: normalized,
+      upgrades: normalized.map((entry) => ({
+        label: entry.label,
+        value: entry.label,
+        price: entry.priceCents,
+        priceCents: entry.priceCents,
+        medusaOptionValueId: entry.medusaOptionValueId
+      }))
+    },
+    changed: true
+  };
 }
 
 export async function ensureMedusaCartId(): Promise<string | null> {
@@ -80,7 +114,13 @@ export function getCart(): CartItem[] {
     if (!isBrowser()) return [];
     const raw = localStorage.getItem(CART_KEY);
     const parsed = raw ? JSON.parse(raw) : null;
-    const items = parsed && Array.isArray(parsed.items) ? parsed.items : [];
+    const parsedItems = parsed && Array.isArray(parsed.items) ? parsed.items : [];
+    let healed = false;
+    const items = parsedItems.map((item: CartItem) => {
+      const normalized = normalizeLegacyUpgradeCents(item);
+      if (normalized.changed) healed = true;
+      return normalized.item;
+    });
     
     // ✅ MEDUSA-FIRST PRICING VALIDATION
     // Filter out any cart items with invalid pricing
@@ -101,10 +141,18 @@ export function getCart(): CartItem[] {
     });
     
     // If we filtered out invalid items, save the cleaned cart
-    if (validItems.length !== items.length) {
-      console.log(`[cart] Cleaned ${items.length - validItems.length} invalid items from cart`);
+    if (validItems.length !== items.length || healed) {
+      const removed = items.length - validItems.length;
+      if (removed > 0) {
+        console.log(`[cart] Cleaned ${removed} invalid items from cart`);
+      }
       if (isBrowser()) {
         localStorage.setItem(CART_KEY, JSON.stringify({ items: validItems }));
+        if (healed) {
+          queueMicrotask(() => {
+            void syncMedusaCart(validItems as CartItem[]);
+          });
+        }
       }
     }
     

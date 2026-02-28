@@ -10,6 +10,13 @@ function cleanLabel(label?: string | null) {
 
 function normalizePrice(raw: unknown): number | undefined {
   if (typeof raw !== 'number' || !Number.isFinite(raw)) return undefined;
+  return Math.round(raw);
+}
+
+function normalizeLegacyCents(raw: number | undefined): number | undefined {
+  if (raw == null) return undefined;
+  // Legacy bug stored dollars (e.g. 60) where cents were expected.
+  if (raw > 0 && raw < 100) return raw * 100;
   return raw;
 }
 
@@ -41,7 +48,7 @@ function pushEntry(addOns: AddOnEntry[], rawLabel: string, rawPrice?: number) {
   const cleaned = cleanLabel(rawLabel);
   if (!cleaned) return;
   const normalized = cleaned.toLowerCase();
-  const price = normalizePrice(rawPrice);
+  const price = normalizeLegacyCents(normalizePrice(rawPrice));
 
   const existing = addOns.find((entry) => entry.label.toLowerCase() === normalized);
   if (existing) {
@@ -54,10 +61,23 @@ function pushEntry(addOns: AddOnEntry[], rawLabel: string, rawPrice?: number) {
 
 export function extractAddOns(item: {
   upgrades?: unknown;
+  selectedUpgradesDetailed?: unknown;
   selectedUpgrades?: unknown;
   options?: Record<string, unknown> | null;
 }): AddOnEntry[] {
   const addOns: AddOnEntry[] = [];
+
+  if (Array.isArray(item.selectedUpgradesDetailed)) {
+    item.selectedUpgradesDetailed.forEach((entry) => {
+      if (!entry || typeof entry !== 'object') return;
+      const label = String((entry as any).label ?? '').trim();
+      if (!label) return;
+      const priceCents = normalizeLegacyCents(
+        normalizePrice((entry as any).priceCents ?? (entry as any).price)
+      );
+      pushEntry(addOns, label, priceCents);
+    });
+  }
 
   const readEntry = (entry: unknown) => {
     if (!entry) return;
@@ -104,4 +124,3 @@ export function extractAddOns(item: {
 export function calculateAddOnTotal(addOns: AddOnEntry[]): number {
   return addOns.reduce((total, entry) => total + (entry.price ?? 0), 0);
 }
-

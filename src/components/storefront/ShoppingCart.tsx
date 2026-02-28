@@ -62,10 +62,9 @@ function CartContents() {
         const addOnTotal = calculateAddOnTotal(addOns);
         const baseUnitPrice = Math.max(0, toNumber(item.price, 0));
         const baseComparePrice = toNumber(item.originalPrice, baseUnitPrice);
-        const baseFromCart = toNumber((item as any).basePrice, Number.NaN);
-        const hasExplicitExtras = typeof item.extra === 'number' || Number.isFinite(baseFromCart);
-        const unitPrice = hasExplicitExtras ? baseUnitPrice : baseUnitPrice + addOnTotal;
-        const compareCandidate = hasExplicitExtras
+        const hasDetailedUpgradePricing = Array.isArray((item as any).selectedUpgradesDetailed);
+        const unitPrice = hasDetailedUpgradePricing ? baseUnitPrice : baseUnitPrice + addOnTotal;
+        const compareCandidate = hasDetailedUpgradePricing
           ? baseComparePrice
           : baseComparePrice + addOnTotal;
         const percentFromLabel = extractDiscountPercent(item.saleLabel);
@@ -196,6 +195,7 @@ function CartContents() {
                   selections: (item as any).selections,
                   selectedOptions: item.selectedOptions,
                   selectedUpgrades: item.selectedUpgrades,
+                  selectedUpgradesDetailed: (item as any).selectedUpgradesDetailed,
                   upgrades: item.upgrades,
                   includeUpgrades: false,
                   includeUpgradeKeys: false

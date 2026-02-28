@@ -17,6 +17,11 @@ type IncomingCartItem = {
   medusaVariantId?: string;
   selectedOptions?: string[];
   selectedUpgrades?: string[];
+  selectedUpgradesDetailed?: Array<{
+    label: string;
+    priceCents: number;
+    medusaOptionValueId: string;
+  }>;
 };
 
 function sanitizeCartItems(items: unknown): IncomingCartItem[] {
@@ -60,6 +65,24 @@ function sanitizeCartItems(items: unknown): IncomingCartItem[] {
         selectedUpgrades: Array.isArray(entry.selectedUpgrades)
           ? entry.selectedUpgrades.filter((value: unknown) => typeof value === 'string')
           : undefined,
+        selectedUpgradesDetailed: Array.isArray(entry.selectedUpgradesDetailed)
+          ? entry.selectedUpgradesDetailed
+              .map((value: any) => {
+                if (!value || typeof value !== 'object') return null;
+                const label = String(value.label ?? '').trim();
+                const medusaOptionValueId = String(value.medusaOptionValueId ?? '').trim();
+                const priceCentsRaw =
+                  typeof value.priceCents === 'number'
+                    ? value.priceCents
+                    : typeof value.priceCents === 'string'
+                      ? Number(value.priceCents)
+                      : Number.NaN;
+                const priceCents = Number.isFinite(priceCentsRaw) ? Math.round(priceCentsRaw) : 0;
+                if (!label) return null;
+                return { label, medusaOptionValueId, priceCents };
+              })
+              .filter(Boolean) as IncomingCartItem['selectedUpgradesDetailed']
+          : undefined,
         medusaVariantId:
           typeof entry.medusaVariantId === 'string' ? entry.medusaVariantId : undefined
       };
@@ -86,6 +109,33 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const cartItems = sanitizeCartItems(body?.cart?.items ?? body?.items ?? body?.cartItems);
+  const unresolvedUpgradeItems = cartItems.filter((item) => {
+    const labels = Array.isArray(item.selectedUpgrades) ? item.selectedUpgrades : [];
+    const detailed = Array.isArray(item.selectedUpgradesDetailed)
+      ? item.selectedUpgradesDetailed
+      : [];
+    if (labels.length > 0 && detailed.length === 0) return true;
+    return detailed.some((entry) => !entry.medusaOptionValueId);
+  });
+  if (unresolvedUpgradeItems.length > 0) {
+    console.warn('[unmapped_addon_selection] cart_sync_blocked', {
+      cartId,
+      count: unresolvedUpgradeItems.length,
+      itemIds: unresolvedUpgradeItems.map((item) => item.id)
+    });
+    return jsonResponse(
+      {
+        error:
+          'One or more selected upgrades are not mapped to Medusa option values. Update product mapping before checkout.',
+        details: unresolvedUpgradeItems.map((entry) => ({
+          id: entry.id,
+          selectedUpgrades: entry.selectedUpgradesDetailed
+        }))
+      },
+      { status: 400 },
+      { noIndex: true }
+    );
+  }
   const metadataPayload = { local_cart_items: cartItems };
 
   const updateResponse = await medusaFetch(`/store/carts/${cartId}`, {
@@ -137,6 +187,24 @@ export const POST: APIRoute = async ({ request }) => {
     // STEP 3: Check if item already exists in Medusa cart
     const existingLineItemId = existingItemsByVariant.get(variantId);
 
+    const lineItemMetadata = {
+      local_item_id: item.id,
+      sku: item.sku,
+      selected_options: item.selectedOptions || [],
+      selected_upgrades: item.selectedUpgrades || [],
+      selected_upgrades_detailed: item.selectedUpgradesDetailed || [],
+      selected_upgrade_option_value_ids: Array.isArray(item.selectedUpgradesDetailed)
+        ? item.selectedUpgradesDetailed
+            .map((entry) => entry.medusaOptionValueId)
+            .filter(Boolean)
+        : [],
+      product_url: item.productUrl,
+      shipping_class: item.shippingClass,
+      install_only: item.installOnly ?? false,
+      shipping_weight: item.shippingWeight,
+      shipping_dimensions: item.shippingDimensions
+    };
+
     if (existingLineItemId) {
       // UPDATE existing line item quantity
       const updateResponse = await medusaFetch(
@@ -144,7 +212,8 @@ export const POST: APIRoute = async ({ request }) => {
         {
           method: 'POST',
           body: JSON.stringify({
-            quantity: Math.max(1, item.quantity ?? 1)
+            quantity: Math.max(1, item.quantity ?? 1),
+            metadata: lineItemMetadata
           })
         }
       );
@@ -165,17 +234,7 @@ export const POST: APIRoute = async ({ request }) => {
         body: JSON.stringify({
           variant_id: variantId,
           quantity: Math.max(1, item.quantity ?? 1),
-          metadata: {
-            local_item_id: item.id,
-            sku: item.sku,
-            selected_options: item.selectedOptions || [],
-            selected_upgrades: item.selectedUpgrades || [],
-            product_url: item.productUrl,
-            shipping_class: item.shippingClass,
-            install_only: item.installOnly ?? false,
-            shipping_weight: item.shippingWeight,
-            shipping_dimensions: item.shippingDimensions
-          }
+          metadata: lineItemMetadata
         })
       });
 

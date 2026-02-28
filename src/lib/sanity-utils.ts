@@ -649,6 +649,10 @@ export interface Product {
     description?: string;
     skuSuffix?: string;
     defaultSelected?: boolean;
+    medusaOptionId?: string;
+    medusaOptionValueId?: string;
+    syncStatus?: string;
+    lastSyncedAt?: string;
     group?: string;
     key?: string;
     name?: string;
@@ -982,6 +986,10 @@ const PRODUCT_LISTING_PROJECTION = `{
     description,
     skuSuffix,
     defaultSelected,
+    medusaOptionId,
+    medusaOptionValueId,
+    syncStatus,
+    lastSyncedAt,
     group,
     key,
     name,
@@ -1629,6 +1637,10 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
         description,
         skuSuffix,
         defaultSelected,
+        medusaOptionId,
+        medusaOptionValueId,
+        syncStatus,
+        lastSyncedAt,
         group, key, name, title, value, price, delta
       },
       customPaint{

@@ -917,13 +917,20 @@ try {
                 : typeof a?.delta === 'number'
                   ? a.delta
                   : 0;
+          const priceDeltaCents =
+            Number.isFinite(priceDelta) ? Math.round(Number(priceDelta) * 100) : 0;
           return {
             ...a,
             label,
             value,
             priceDelta,
+            priceDeltaCents,
             group: (a?.group || '').toString(),
             key: (a?.key || a?.slug || a?.id || label || '').toString(),
+            medusaOptionId:
+              typeof a?.medusaOptionId === 'string' ? a.medusaOptionId : undefined,
+            medusaOptionValueId:
+              typeof a?.medusaOptionValueId === 'string' ? a.medusaOptionValueId : undefined,
           };
         })
     : [];
@@ -1687,7 +1694,10 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                                 data-upgrade="true"
                                 data-addon="true"
                                 data-price={(typeof a.priceDelta === 'number' ? a.priceDelta : 0).toString()}
+                                data-price-cents={(typeof a.priceDeltaCents === 'number' ? a.priceDeltaCents : 0).toString()}
                                 data-label={a.label}
+                                data-medusa-option-id={a.medusaOptionId || ''}
+                                data-medusa-option-value-id={a.medusaOptionValueId || ''}
                                 checked={!!a.defaultSelected}
                                 aria-describedby={descriptionId}
                                 class="sr-only peer"

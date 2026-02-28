@@ -8,6 +8,7 @@ import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { useCart, type Cart } from './cart-context';
 import { formatOptionSummary } from '@/lib/cart/format-option-summary';
 import { prefersDesktopCart } from '@/lib/device';
+import { calculateAddOnTotal, extractAddOns } from '@/lib/cart/extract-add-ons';
 
 function toNumber(value: unknown, fallback = 0): number {
   const numeric =
@@ -46,8 +47,15 @@ function computePricing(items: Cart['items'] = []): {
 
   items.forEach((item, idx) => {
     const qty = Math.max(1, toNumber(item.quantity, 1));
-    const unitPrice = Math.max(0, toNumber(item.price, 0));
-    const compareFromItem = toNumber(item.originalPrice, unitPrice);
+    const addOns = extractAddOns(item);
+    const addOnTotal = calculateAddOnTotal(addOns);
+    const baseUnitPrice = Math.max(0, toNumber(item.price, 0));
+    const baseComparePrice = toNumber(item.originalPrice, baseUnitPrice);
+    const hasDetailedUpgradePricing = Array.isArray((item as any).selectedUpgradesDetailed);
+    const unitPrice = hasDetailedUpgradePricing ? baseUnitPrice : baseUnitPrice + addOnTotal;
+    const compareFromItem = hasDetailedUpgradePricing
+      ? baseComparePrice
+      : baseComparePrice + addOnTotal;
     const percentFromLabel = extractDiscountPercent(item.saleLabel);
     const derivedCompare =
       percentFromLabel && unitPrice > 0 ? unitPrice / (1 - percentFromLabel / 100) : null;
@@ -273,6 +281,7 @@ function CartItemsList({ cart, pricing, onQuantityChange, onRemove }: CartItemsL
               selections: (item as any).selections,
               selectedOptions: item.selectedOptions,
               selectedUpgrades: item.selectedUpgrades,
+              selectedUpgradesDetailed: (item as any).selectedUpgradesDetailed,
               upgrades: (item as any).upgrades
             });
             const displayName = item.name || 'Product';

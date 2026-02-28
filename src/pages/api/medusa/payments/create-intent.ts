@@ -21,6 +21,7 @@ import { normalizeCartTotals, toCentsStrict } from '@/lib/money';
 
 type MedusaCart = {
   id: string;
+  metadata?: Record<string, any> | null;
   email?: string | null;
   currency_code?: string;
   region_id?: string;
@@ -99,6 +100,39 @@ function isInstallOnlyItem(item: any): boolean {
   }
 
   return false;
+}
+
+function collectUnmappedUpgrades(cart: MedusaCart): Array<{ id: string; label: string }> {
+  const rawItems = Array.isArray(cart?.metadata?.local_cart_items)
+    ? cart.metadata.local_cart_items
+    : [];
+  const unresolved: Array<{ id: string; label: string }> = [];
+
+  rawItems.forEach((entry: any) => {
+    if (!entry || typeof entry !== 'object') return;
+    const id = String(entry.id ?? '').trim() || 'item';
+    const selectedUpgrades = Array.isArray(entry.selectedUpgrades)
+      ? entry.selectedUpgrades.filter((value: unknown) => typeof value === 'string')
+      : [];
+    const detailed = Array.isArray(entry.selectedUpgradesDetailed)
+      ? entry.selectedUpgradesDetailed
+      : [];
+
+    if (!selectedUpgrades.length && !detailed.length) return;
+    if (!detailed.length) {
+      selectedUpgrades.forEach((label: string) => unresolved.push({ id, label }));
+      return;
+    }
+
+    detailed.forEach((detail: any) => {
+      if (!detail || typeof detail !== 'object') return;
+      const label = String(detail.label ?? '').trim() || 'upgrade';
+      const mapped = String(detail.medusaOptionValueId ?? '').trim();
+      if (!mapped) unresolved.push({ id, label });
+    });
+  });
+
+  return unresolved;
 }
 
 type ShippoRateInput = {
@@ -199,6 +233,25 @@ export const POST: APIRoute = async ({ request }) => {
   if (typeof total !== 'number' || total <= 0) {
     return jsonResponse(
       { error: 'Cart total is invalid or not calculated. Ensure shipping and tax are finalized.' },
+      { status: 400 },
+      { noIndex: true }
+    );
+  }
+
+  // Validation 5: upgrades must be mapped to Medusa option values.
+  const unresolvedUpgrades = collectUnmappedUpgrades(cart);
+  if (unresolvedUpgrades.length > 0) {
+    console.warn('[unmapped_addon_selection] payment_intent_blocked', {
+      cartId,
+      count: unresolvedUpgrades.length,
+      itemIds: Array.from(new Set(unresolvedUpgrades.map((entry) => entry.id)))
+    });
+    return jsonResponse(
+      {
+        error:
+          'One or more selected upgrades are not mapped for checkout. Please update product mappings before payment.',
+        details: unresolvedUpgrades
+      },
       { status: 400 },
       { noIndex: true }
     );

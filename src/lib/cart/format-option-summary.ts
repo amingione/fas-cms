@@ -3,6 +3,7 @@ type OptionSummaryInput = {
   selections?: unknown;
   selectedOptions?: string[] | null;
   selectedUpgrades?: string[] | null;
+  selectedUpgradesDetailed?: Array<{ label?: string }> | null;
   upgrades?: unknown;
   includeUpgrades?: boolean;
   includeUpgradeKeys?: boolean;
@@ -165,6 +166,9 @@ export function formatOptionSummary(input: OptionSummaryInput): string | null {
   }
 
   if (includeUpgrades) {
+    if (Array.isArray(input.selectedUpgradesDetailed)) {
+      input.selectedUpgradesDetailed.forEach((entry) => pushValue(entry?.label, false));
+    }
     if (Array.isArray(input.selectedUpgrades)) {
       input.selectedUpgrades.forEach((entry) => pushValue(entry, false));
     }

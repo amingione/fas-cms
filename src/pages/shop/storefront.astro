@@ -25,10 +25,21 @@ if ((!Array.isArray(products) || products.length === 0) && Array.isArray(medusaP
       _id: product.id,
       title: product.title ?? product.handle ?? product.id,
       slug: { current: product.handle ?? product.id },
+      categories: [],
       images: Array.isArray(product.images)
         ? product.images
-            .map((image) => ({ url: image?.url ?? null }))
-            .filter((image) => typeof image.url === "string" && image.url.length > 0)
+            .map((image, index) => {
+              if (typeof image?.url !== 'string' || image.url.length === 0) return null;
+              return {
+                asset: {
+                  _id: `${product.id}-image-${index}`,
+                  url: image.url
+                }
+              };
+            })
+            .filter(
+              (image): image is { asset: { _id: string; url: string } } => Boolean(image)
+            )
         : [],
       medusa: product
     }));

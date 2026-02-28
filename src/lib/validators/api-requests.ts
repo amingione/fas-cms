@@ -77,6 +77,15 @@ export const checkoutCartItemSchema = z
     selections: z.union([z.array(z.record(z.unknown())), z.record(z.unknown())]).optional(),
     basePrice: z.number().optional(),
     extra: z.number().optional(),
+    selectedUpgradesDetailed: z
+      .array(
+        z.object({
+          label: z.string(),
+          priceCents: z.number(),
+          medusaOptionValueId: z.string()
+        })
+      )
+      .optional(),
     upgrades: z.unknown().optional(),
     addOns: z.unknown().optional(),
     signature: z.string().optional()
