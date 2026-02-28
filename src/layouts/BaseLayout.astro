@@ -505,6 +505,13 @@ const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.webp" />
     <meta name="apple-mobile-web-app-title" content="FAS Moto" />
     <link rel="manifest" href="/site.webmanifest" crossorigin="use-credentials" />
+    <script is:inline>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {});
+        });
+      }
+    </script>
     <link rel="icon" type="image/webp" href="/logo/faslogochroma.webp" />
     <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
     <link rel="preconnect" href="https://www.google-analytics.com" crossorigin />

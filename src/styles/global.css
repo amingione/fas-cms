@@ -590,11 +590,13 @@ table {
       border-color 0.3s ease;
   }
 
-  a:not(.text-accentB):not([class*='hover:text-']):hover {
-    color: var(--color-accentB);
-  }
-  a.text-secondary:hover {
-    color: var(--color-accentB);
+  @media (hover: hover) {
+    :where(a):where(:not(.text-accentB)):hover {
+      color: var(--color-accentB);
+    }
+    :where(a.text-secondary):hover {
+      color: var(--color-accentB);
+    }
   }
 }
 

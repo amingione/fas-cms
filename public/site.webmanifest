@@ -1,18 +1,21 @@
 {
   "name": "FAS Motorsports",
   "short_name": "FAS Moto",
+  "start_url": "/",
+  "scope": "/",
+  "id": "/",
   "icons": [
     {
-      "src": "/web-app-manifest-192x192.webp",
+      "src": "/web-app-manifest-192x192.png",
       "sizes": "192x192",
-      "type": "image/webp",
-      "purpose": "maskable"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "/web-app-manifest-512x512.webp",
+      "src": "/web-app-manifest-512x512.png",
       "sizes": "512x512",
-      "type": "image/webp",
-      "purpose": "maskable"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ],
   "theme_color": "#ffffff",
