@@ -28,7 +28,20 @@ type MedusaCart = {
   subtotal?: number;
   tax_total?: number;
   shipping_total?: number;
-  items?: Array<{ id: string; title?: string; quantity?: number }>;
+  items?: Array<{
+    id: string;
+    title?: string;
+    quantity?: number;
+    install_only?: boolean | string | number | null;
+    shipping_class?: string | null;
+    metadata?: Record<string, any> | null;
+    variant?: {
+      metadata?: Record<string, any> | null;
+      product?: {
+        metadata?: Record<string, any> | null;
+      };
+    };
+  }>;
   shipping_methods?: Array<{ id: string; name?: string; amount?: number }>;
   shipping_address?: {
     first_name?: string;
@@ -42,6 +55,51 @@ type MedusaCart = {
     phone?: string;
   };
 };
+
+function parseBooleanLike(value: unknown): boolean | undefined {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'number') return value !== 0;
+  if (typeof value !== 'string') return undefined;
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) return undefined;
+  if (['1', 'true', 'yes', 'y', 'on'].includes(normalized)) return true;
+  if (['0', 'false', 'no', 'n', 'off'].includes(normalized)) return false;
+  return undefined;
+}
+
+function normalizeShippingClass(value: unknown): string {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+}
+
+function isInstallOnlyItem(item: any): boolean {
+  const directInstall = parseBooleanLike(item?.install_only);
+  if (directInstall === true) return true;
+  const directShippingClass = normalizeShippingClass(item?.shipping_class);
+  if (directShippingClass.includes('installonly')) return true;
+
+  const metadataSources = [
+    item?.metadata,
+    item?.variant?.metadata,
+    item?.variant?.product?.metadata
+  ].filter((metadata) => metadata && typeof metadata === 'object');
+
+  for (const metadata of metadataSources) {
+    const installOnly =
+      parseBooleanLike((metadata as any)?.install_only) ??
+      parseBooleanLike((metadata as any)?.installOnly);
+    if (installOnly === true) return true;
+
+    const shippingClass = normalizeShippingClass(
+      (metadata as any)?.shipping_class ?? (metadata as any)?.shippingClass
+    );
+    if (shippingClass.includes('installonly')) return true;
+  }
+
+  return false;
+}
 
 type ShippoRateInput = {
   rate_id?: string;
@@ -115,9 +173,11 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  // Validation 2: Shipping method must be selected
+  const requiresShipping = items.some((item) => !isInstallOnlyItem(item));
+
+  // Validation 2: Shipping method must be selected when shipping is required.
   const shippingMethods = Array.isArray(cart?.shipping_methods) ? cart.shipping_methods : [];
-  if (!shippingMethods.length) {
+  if (requiresShipping && !shippingMethods.length) {
     return jsonResponse(
       { error: 'Shipping method not selected. Complete shipping selection before payment.' },
       { status: 400 },
@@ -125,8 +185,8 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  // Validation 3: Shipping address must exist (for tax calculation)
-  if (!cart?.shipping_address?.country_code) {
+  // Validation 3: Shipping address must exist when shipping is required.
+  if (requiresShipping && !cart?.shipping_address?.country_code) {
     return jsonResponse(
       { error: 'Shipping address required for tax calculation.' },
       { status: 400 },
@@ -171,13 +231,14 @@ export const POST: APIRoute = async ({ request }) => {
         tax_total: String(cart?.tax_total ?? 0),
         shipping_total: String(cart?.shipping_total ?? 0),
         item_count: String(items.length),
+        requires_shipping: String(requiresShipping),
         ...(shippoRate?.rate_id ? { shippo_rate_id: shippoRate.rate_id } : {}),
         ...(shippoRate?.amount ? { shipping_amount_cents: String(shippoRate.amount) } : {}),
         ...(shippoRate?.currency ? { shippo_rate_currency: String(shippoRate.currency) } : {}),
         ...(shippoRate?.servicelevel ? { service_name: String(shippoRate.servicelevel) } : {}),
         ...(shippoRate?.provider ? { carrier: String(shippoRate.provider) } : {})
       },
-      shipping: cart?.shipping_address
+      shipping: requiresShipping && cart?.shipping_address
         ? {
             name: shippingName,
             phone: cart.shipping_address.phone || undefined,

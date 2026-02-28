@@ -665,74 +665,80 @@ function NonReadyPaymentPane({
         autoComplete="email"
       />
 
-      <label>Shipping address</label>
-      <div className="checkout-v2-address-grid">
-        <input
-          value={shippingAddress.firstName}
-          onChange={onAddressChange('firstName')}
-          placeholder="First name"
-          autoComplete="shipping given-name"
-        />
-        <input
-          value={shippingAddress.lastName}
-          onChange={onAddressChange('lastName')}
-          placeholder="Last name"
-          autoComplete="shipping family-name"
-        />
-        <input
-          value={shippingAddress.address1}
-          onChange={onAddressChange('address1')}
-          placeholder="Address line 1"
-          className="span-2"
-          autoComplete="shipping street-address"
-        />
-        <input
-          value={shippingAddress.address2}
-          onChange={onAddressChange('address2')}
-          placeholder="Address line 2"
-          className="span-2"
-          autoComplete="shipping address-line2"
-        />
-        <input
-          value={shippingAddress.city}
-          onChange={onAddressChange('city')}
-          placeholder="City"
-          autoComplete="shipping address-level2"
-        />
-        <input
-          value={shippingAddress.province}
-          onChange={onAddressChange('province')}
-          placeholder="State / Province"
-          autoComplete="shipping address-level1"
-        />
-        <input
-          value={shippingAddress.postalCode}
-          onChange={onAddressChange('postalCode')}
-          placeholder="Postal code"
-          autoComplete="shipping postal-code"
-        />
-        <input
-          value={shippingAddress.phone}
-          onChange={onAddressChange('phone')}
-          placeholder="Phone"
-          autoComplete="shipping tel"
-        />
-      </div>
+      {requiresShipping ? (
+        <>
+          <label>Shipping address</label>
+          <div className="checkout-v2-address-grid">
+            <input
+              value={shippingAddress.firstName}
+              onChange={onAddressChange('firstName')}
+              placeholder="First name"
+              autoComplete="shipping given-name"
+            />
+            <input
+              value={shippingAddress.lastName}
+              onChange={onAddressChange('lastName')}
+              placeholder="Last name"
+              autoComplete="shipping family-name"
+            />
+            <input
+              value={shippingAddress.address1}
+              onChange={onAddressChange('address1')}
+              placeholder="Address line 1"
+              className="span-2"
+              autoComplete="shipping street-address"
+            />
+            <input
+              value={shippingAddress.address2}
+              onChange={onAddressChange('address2')}
+              placeholder="Address line 2"
+              className="span-2"
+              autoComplete="shipping address-line2"
+            />
+            <input
+              value={shippingAddress.city}
+              onChange={onAddressChange('city')}
+              placeholder="City"
+              autoComplete="shipping address-level2"
+            />
+            <input
+              value={shippingAddress.province}
+              onChange={onAddressChange('province')}
+              placeholder="State / Province"
+              autoComplete="shipping address-level1"
+            />
+            <input
+              value={shippingAddress.postalCode}
+              onChange={onAddressChange('postalCode')}
+              placeholder="Postal code"
+              autoComplete="shipping postal-code"
+            />
+            <input
+              value={shippingAddress.phone}
+              onChange={onAddressChange('phone')}
+              placeholder="Phone"
+              autoComplete="shipping tel"
+            />
+          </div>
 
-      <label>Country or region</label>
-      <select
-        value={shippingAddress.countryCode.toUpperCase()}
-        onChange={onAddressChange('countryCode')}
-        autoComplete="shipping country"
-      >
-        <option value="US">United States</option>
-        <option value="CA">Canada</option>
-        <option value="GB">United Kingdom</option>
-        <option value="AU">Australia</option>
-        <option value="DE">Germany</option>
-        <option value="JP">Japan</option>
-        <option value="IN">India</option>
-      </select>
+          <label>Country or region</label>
+          <select
+            value={shippingAddress.countryCode.toUpperCase()}
+            onChange={onAddressChange('countryCode')}
+            autoComplete="shipping country"
+          >
+            <option value="US">United States</option>
+            <option value="CA">Canada</option>
+            <option value="GB">United Kingdom</option>
+            <option value="AU">Australia</option>
+            <option value="DE">Germany</option>
+            <option value="JP">Japan</option>
+            <option value="IN">India</option>
+          </select>
+        </>
+      ) : (
+        <p className="muted">Install-only package selected. No shipping required.</p>
+      )}
 
       <button
         type="button"
@@ -740,29 +746,33 @@ function NonReadyPaymentPane({
         onClick={() => void onCalculateShipping()}
         disabled={loadingRates}
       >
-        {loadingRates ? 'Calculating...' : 'Calculate shipping'}
+        {loadingRates ? 'Preparing...' : requiresShipping ? 'Calculate shipping' : 'Continue to payment'}
       </button>
 
-      <label>Shipping method</label>
-      <div className="checkout-v2-rates">
-        {selectableRates.length === 0 ? (
-          <p className="muted">Enter shipping info and calculate rates to continue.</p>
-        ) : (
-          selectableRates.map((rate) => {
-            return (
-              <button
-                type="button"
-                key={rate.id}
-                className={`rate ${selectedRateId === rate.id ? 'selected' : ''}`}
-                onClick={() => void onSelectRate(rate)}
-              >
-                <span>{rate.label}</span>
-                <span>{formatCurrency(rate.amountCents)}</span>
-              </button>
-            );
-          })
-        )}
-      </div>
+      {requiresShipping && (
+        <>
+          <label>Shipping method</label>
+          <div className="checkout-v2-rates">
+            {selectableRates.length === 0 ? (
+              <p className="muted">Enter shipping info and calculate rates to continue.</p>
+            ) : (
+              selectableRates.map((rate) => {
+                return (
+                  <button
+                    type="button"
+                    key={rate.id}
+                    className={`rate ${selectedRateId === rate.id ? 'selected' : ''}`}
+                    onClick={() => void onSelectRate(rate)}
+                  >
+                    <span>{rate.label}</span>
+                    <span>{formatCurrency(rate.amountCents)}</span>
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </>
+      )}
 
       {selectedShippoRate && (
         <p className="muted">
@@ -792,6 +802,7 @@ function StripePaymentPane({
   cart,
   shippingAddress,
   selectedRateId,
+  requiresShipping,
   processing,
   setProcessing,
   setError
@@ -800,6 +811,7 @@ function StripePaymentPane({
   cart: Cart;
   shippingAddress: ShippingAddress;
   selectedRateId: string | null;
+  requiresShipping: boolean;
   processing: boolean;
   setProcessing: (value: boolean) => void;
   setError: (value: string | null) => void;
@@ -810,12 +822,12 @@ function StripePaymentPane({
   const submit = async () => {
     if (!stripe || !elements) return;
 
-    if (!selectedRateId) {
+    if (requiresShipping && !selectedRateId) {
       setError('Please select a shipping option');
       return;
     }
 
-    if (!isAddressComplete(shippingAddress)) {
+    if (requiresShipping && !isAddressComplete(shippingAddress)) {
       setError('Please complete shipping address before paying');
       return;
     }
@@ -829,20 +841,22 @@ function StripePaymentPane({
         confirmParams: {
           return_url: `${window.location.origin}/order/confirmation`,
           receipt_email: shippingAddress.email || cart.email,
-          shipping: {
-            name:
-              `${shippingAddress.firstName || ''} ${shippingAddress.lastName || ''}`.trim() ||
-              'Customer',
-            phone: shippingAddress.phone,
-            address: {
-              line1: shippingAddress.address1,
-              line2: shippingAddress.address2 || '',
-              city: shippingAddress.city,
-              state: shippingAddress.province,
-              postal_code: shippingAddress.postalCode,
-              country: shippingAddress.countryCode
-            }
-          }
+          shipping: requiresShipping
+            ? {
+                name:
+                  `${shippingAddress.firstName || ''} ${shippingAddress.lastName || ''}`.trim() ||
+                  'Customer',
+                phone: shippingAddress.phone,
+                address: {
+                  line1: shippingAddress.address1,
+                  line2: shippingAddress.address2 || '',
+                  city: shippingAddress.city,
+                  state: shippingAddress.province,
+                  postal_code: shippingAddress.postalCode,
+                  country: shippingAddress.countryCode
+                }
+              }
+            : undefined
         },
         redirect: 'if_required'
       });

@@ -24,9 +24,9 @@ import {
 import PortableTextRenderer from "../../components/PortableTextRenderer.jsx";
 import SlugCarousel from '../../components/SlugCarousel.astro';
 import TrustStrip from '../../components/TrustStrip.astro';
-import InfoTabs from '../../components/shop/InfoTabs.tsx';
+import InfoTabs from '../../components/shop/InfoTabs';
 import ProductCardLite from '../../components/storefront/ProductCardLite.astro';
-import ServiceDisclaimerNotice from '../../components/storefront/ServiceDisclaimerNotice.tsx';
+import ServiceDisclaimerNotice from '../../components/storefront/ServiceDisclaimerNotice';
 import productPageScriptUrl from '../../scripts/product-page.js?url';
 import { inlineFieldAttrs, inlineObjectId } from '../../lib/content';
 import { serializeJsonLd } from '../../lib/utils';
@@ -597,12 +597,26 @@ const buildFallbackSanityProductFromMedusa = (
 ): ProductWithKit => {
   const images = Array.isArray(medusaProduct.images)
     ? medusaProduct.images
-        .map((image) => (typeof image?.url === 'string' && image.url ? { asset: { url: image.url } } : null))
-        .filter((value): value is { asset: { url: string } } => Boolean(value))
+        .map((image, index) =>
+          typeof image?.url === 'string' && image.url
+            ? {
+                asset: {
+                  _id: `medusa-image-${medusaProduct.id || normalizedSlug}-${index}`,
+                  url: image.url
+                }
+              }
+            : null
+        )
+        .filter((value): value is { asset: { _id: string; url: string } } => Boolean(value))
     : [];
 
   if (!images.length && typeof medusaProduct.thumbnail === 'string' && medusaProduct.thumbnail) {
-    images.push({ asset: { url: medusaProduct.thumbnail } });
+    images.push({
+      asset: {
+        _id: `medusa-image-thumb-${medusaProduct.id || normalizedSlug}`,
+        url: medusaProduct.thumbnail
+      }
+    });
   }
 
   return {

@@ -31,6 +31,55 @@ function resolveCartItemThumbnail(item: any): string | null {
   )
 }
 
+function parseBooleanLike(value: unknown): boolean | null {
+  if (typeof value === 'boolean') return value
+  if (typeof value === 'number') return value !== 0
+  if (typeof value !== 'string') return null
+  const normalized = value.trim().toLowerCase()
+  if (!normalized) return null
+  if (['1', 'true', 'yes', 'y', 'on'].includes(normalized)) return true
+  if (['0', 'false', 'no', 'n', 'off'].includes(normalized)) return false
+  return null
+}
+
+function resolveItemInstallOnly(item: any): boolean {
+  const direct = parseBooleanLike(item?.install_only)
+  if (direct !== null) return direct
+
+  const metadataSources = [
+    item?.metadata,
+    item?.variant?.metadata,
+    item?.variant?.product?.metadata
+  ].filter((metadata) => metadata && typeof metadata === 'object')
+
+  for (const metadata of metadataSources) {
+    const value =
+      parseBooleanLike((metadata as any)?.install_only) ??
+      parseBooleanLike((metadata as any)?.installOnly)
+    if (value !== null) return value
+  }
+
+  return false
+}
+
+function resolveItemShippingClass(item: any): string | null {
+  const direct = asString(item?.shipping_class)
+  if (direct) return direct
+
+  const metadataSources = [
+    item?.metadata,
+    item?.variant?.metadata,
+    item?.variant?.product?.metadata
+  ].filter((metadata) => metadata && typeof metadata === 'object')
+
+  for (const metadata of metadataSources) {
+    const value = asString((metadata as any)?.shipping_class) || asString((metadata as any)?.shippingClass)
+    if (value) return value
+  }
+
+  return null
+}
+
 export const GET: APIRoute = async ({ params }) => {
   try {
     const cartId = params.id
@@ -69,6 +118,8 @@ export const GET: APIRoute = async ({ params }) => {
         thumbnail: resolveCartItemThumbnail(item),
         variant_title: asString(item?.variant_title) ?? asString(item?.variant?.title),
         quantity: item.quantity,
+        install_only: resolveItemInstallOnly(item),
+        shipping_class: resolveItemShippingClass(item),
         unit_price: toCentsStrict(item.unit_price, 'item.unit_price') ?? item.unit_price,
         total:
           toCentsStrict(item.total, 'item.total') ??
