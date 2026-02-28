@@ -80,6 +80,38 @@ function resolveItemShippingClass(item: any): string | null {
   return null
 }
 
+function toRoundedCents(value: unknown): number {
+  if (typeof value === 'number' && Number.isFinite(value)) return Math.round(value)
+  if (typeof value === 'string') {
+    const parsed = Number(value)
+    if (Number.isFinite(parsed)) return Math.round(parsed)
+  }
+  return 0
+}
+
+function collectLocalAddOnCentsByLocalId(cart: any): Map<string, number> {
+  const result = new Map<string, number>()
+  const localItems = Array.isArray(cart?.metadata?.local_cart_items)
+    ? cart.metadata.local_cart_items
+    : []
+
+  for (const entry of localItems) {
+    if (!entry || typeof entry !== 'object') continue
+    const id = asString((entry as any).id)
+    if (!id) continue
+    const detailed = Array.isArray((entry as any).selectedUpgradesDetailed)
+      ? (entry as any).selectedUpgradesDetailed
+      : []
+    const addOnTotal = detailed.reduce((sum: number, detail: any) => {
+      const cents = toRoundedCents(detail?.priceCents)
+      return sum + (cents > 0 ? cents : 0)
+    }, 0)
+    if (addOnTotal > 0) result.set(id, addOnTotal)
+  }
+
+  return result
+}
+
 export const GET: APIRoute = async ({ params }) => {
   try {
     const cartId = params.id
@@ -109,25 +141,36 @@ export const GET: APIRoute = async ({ params }) => {
       normalizeCartTotals(medusaData.cart)
     }
 
+    const localAddOnCents = collectLocalAddOnCentsByLocalId(medusaData?.cart)
+
     // Transform Medusa cart to our format
     const cart = {
       id: medusaData.cart.id,
       items: medusaData.cart.items.map((item: any) => ({
+        ...(function () {
+          const localId = asString(item?.metadata?.local_item_id)
+          const addOnCents = localId ? localAddOnCents.get(localId) ?? 0 : 0
+          const baseUnit =
+            toCentsStrict(item.unit_price, 'item.unit_price') ?? item.unit_price
+          const effectiveUnit = Math.max(0, baseUnit + addOnCents)
+          return {
+            unit_price: effectiveUnit,
+            total:
+              (toCentsStrict(item.total, 'item.total') ??
+                toCentsStrict(item.unit_price, 'item.unit_price') ??
+                item.unit_price * item.quantity) +
+              addOnCents * Math.max(1, Number(item.quantity) || 1)
+          }
+        })(),
         id: item.id,
         title: item.title,
         thumbnail: resolveCartItemThumbnail(item),
         variant_title: asString(item?.variant_title) ?? asString(item?.variant?.title),
         quantity: item.quantity,
         install_only: resolveItemInstallOnly(item),
-        shipping_class: resolveItemShippingClass(item),
-        unit_price: toCentsStrict(item.unit_price, 'item.unit_price') ?? item.unit_price,
-        total:
-          toCentsStrict(item.total, 'item.total') ??
-          toCentsStrict(item.unit_price, 'item.unit_price') ??
-          item.unit_price * item.quantity
+        shipping_class: resolveItemShippingClass(item)
       })),
-      subtotal_cents:
-        toCentsStrict(medusaData.cart.subtotal, 'cart.subtotal') ?? medusaData.cart.subtotal,
+      subtotal_cents: 0,
       tax_amount_cents:
         toCentsStrict(medusaData.cart.tax_total, 'cart.tax_total') ??
         Math.max(
@@ -138,9 +181,20 @@ export const GET: APIRoute = async ({ params }) => {
         ),
       shipping_amount_cents:
         toCentsStrict(medusaData.cart.shipping_total, 'cart.shipping_total') ?? 0,
-      total_cents: toCentsStrict(medusaData.cart.total, 'cart.total') ?? medusaData.cart.total,
+      total_cents: 0,
       email: medusaData.cart.email
     }
+
+    const subtotalCents = cart.items.reduce(
+      (sum: number, item: any) => sum + Math.max(0, toRoundedCents(item.total)),
+      0
+    )
+    const discountCents = toCentsStrict(medusaData.cart.discount_total, 'cart.discount_total') ?? 0
+    cart.subtotal_cents = subtotalCents
+    cart.total_cents = Math.max(
+      0,
+      subtotalCents + cart.shipping_amount_cents + cart.tax_amount_cents - discountCents
+    )
 
     return new Response(
       JSON.stringify({ cart }),

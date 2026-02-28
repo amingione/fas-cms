@@ -45,6 +45,48 @@ const getSanityClient = () => {
   return cachedSanityClient;
 };
 
+const toCents = (value: unknown): number => {
+  if (typeof value === 'number' && Number.isFinite(value)) return Math.round(value);
+  if (typeof value === 'string') {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) return Math.round(parsed);
+  }
+  return 0;
+};
+
+const resolveEffectiveCartTotalCents = (cart: any): number => {
+  const baseTotal = toCents(cart?.total);
+  const localItems = Array.isArray(cart?.metadata?.local_cart_items)
+    ? cart.metadata.local_cart_items
+    : [];
+  const medusaItems = Array.isArray(cart?.items) ? cart.items : [];
+  const byLocalId = new Map<string, any>();
+  medusaItems.forEach((item: any) => {
+    const localId = typeof item?.metadata?.local_item_id === 'string' ? item.metadata.local_item_id : '';
+    if (localId) byLocalId.set(localId, item);
+  });
+
+  let delta = 0;
+  localItems.forEach((entry: any) => {
+    if (!entry || typeof entry !== 'object') return;
+    const id = typeof entry.id === 'string' ? entry.id : '';
+    if (!id) return;
+    const baseUnit = toCents(entry.price);
+    if (baseUnit <= 0) return;
+    const detailed = Array.isArray(entry.selectedUpgradesDetailed) ? entry.selectedUpgradesDetailed : [];
+    const addOnTotal = detailed.reduce((sum: number, detail: any) => sum + Math.max(0, toCents(detail?.priceCents)), 0);
+    if (addOnTotal <= 0) return;
+    const expectedUnit = baseUnit + addOnTotal;
+    const actualUnit = toCents(byLocalId.get(id)?.unit_price);
+    if (actualUnit < expectedUnit) {
+      const qty = Math.max(1, toCents(byLocalId.get(id)?.quantity || entry.quantity || 1));
+      delta += (expectedUnit - actualUnit) * qty;
+    }
+  });
+
+  return baseTotal + delta;
+};
+
 export const POST: APIRoute = async ({ request }) => {
   try {
     const stripeSecretKey = resolveEnv('STRIPE_SECRET_KEY');
@@ -123,7 +165,7 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    const cartTotalCents = Number(cartPayload.cart?.total ?? NaN);
+    const cartTotalCents = resolveEffectiveCartTotalCents(cartPayload.cart);
     const cartCurrency = String(cartPayload.cart?.currency_code || '').toLowerCase();
     const piAmount = Number(paymentIntent.amount ?? NaN);
     const piCurrency = String(paymentIntent.currency || '').toLowerCase();

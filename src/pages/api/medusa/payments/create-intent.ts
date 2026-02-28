@@ -197,6 +197,18 @@ function collectAddonPriceMismatches(cart: MedusaCart): Array<{
   return mismatches;
 }
 
+function resolveEffectiveCartTotalCents(cart: MedusaCart): number {
+  const medusaTotal = toCentsStrict(cart?.total, 'cart.total');
+  const baseTotal = typeof medusaTotal === 'number' ? medusaTotal : 0;
+  const mismatches = collectAddonPriceMismatches(cart);
+  if (!mismatches.length) return baseTotal;
+  const delta = mismatches.reduce((sum, entry) => {
+    if (entry.actualUnitPrice == null) return sum + entry.addOnTotal;
+    return sum + Math.max(0, entry.expectedUnitPrice - entry.actualUnitPrice);
+  }, 0);
+  return baseTotal + delta;
+}
+
 type ShippoRateInput = {
   rate_id?: string;
   amount?: string;
@@ -290,8 +302,8 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  // Validation 4: Total must be finalized
-  const total = toCentsStrict(cart?.total, 'cart.total');
+  // Validation 4: Total must be finalized (with local add-on surcharge reconciliation)
+  const total = resolveEffectiveCartTotalCents(cart);
   if (typeof total !== 'number' || total <= 0) {
     return jsonResponse(
       { error: 'Cart total is invalid or not calculated. Ensure shipping and tax are finalized.' },
@@ -319,23 +331,13 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  // Validation 6: mapped add-on price must be reflected in Medusa line-item unit pricing.
+  // Validation 6: mapped add-on price drift monitoring.
   const addOnPriceMismatches = collectAddonPriceMismatches(cart);
   if (addOnPriceMismatches.length > 0) {
     console.warn('[unmapped_addon_selection] payment_intent_price_mismatch', {
       cartId,
       mismatches: addOnPriceMismatches
     });
-    return jsonResponse(
-      {
-        error:
-          'Selected add-on pricing is not resolved in Medusa cart totals. Please fix product mapping before payment.',
-        code: 'unmapped_addon_selection',
-        details: addOnPriceMismatches
-      },
-      { status: 400 },
-      { noIndex: true }
-    );
   }
 
   const currency = (cart?.currency_code || 'usd').toLowerCase();

@@ -61,12 +61,11 @@ function CartContents() {
         const addOns = extractAddOns(item);
         const addOnTotal = calculateAddOnTotal(addOns);
         const baseUnitPrice = Math.max(0, toNumber(item.price, 0));
+        const baseConfiguredPrice = Math.max(0, toNumber((item as any).basePrice, baseUnitPrice));
         const baseComparePrice = toNumber(item.originalPrice, baseUnitPrice);
-        const hasDetailedUpgradePricing = Array.isArray((item as any).selectedUpgradesDetailed);
-        const unitPrice = hasDetailedUpgradePricing ? baseUnitPrice : baseUnitPrice + addOnTotal;
-        const compareCandidate = hasDetailedUpgradePricing
-          ? baseComparePrice
-          : baseComparePrice + addOnTotal;
+        const expectedWithAddOns = baseConfiguredPrice + addOnTotal;
+        const unitPrice = addOnTotal > 0 ? Math.max(baseUnitPrice, expectedWithAddOns) : baseUnitPrice;
+        const compareCandidate = baseComparePrice + addOnTotal;
         const percentFromLabel = extractDiscountPercent(item.saleLabel);
         const derivedCompare =
           percentFromLabel && unitPrice > 0 ? unitPrice / (1 - percentFromLabel / 100) : null;
@@ -146,7 +145,9 @@ function CartContents() {
     }
   };
 
-  const formattedSubtotal = formatPrice(subtotal || 0);
+  const effectiveSubtotal =
+    Object.values(perItemPricing).reduce((sum, entry) => sum + entry.lineCurrent, 0) || subtotal || 0;
+  const formattedSubtotal = formatPrice(effectiveSubtotal);
 
   return (
     <div className="bg-dark text-white">

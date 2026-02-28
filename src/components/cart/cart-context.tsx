@@ -42,10 +42,10 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 function computeTotals(cart: Cart) {
   const totalQuantity = cart.items.reduce((sum, it) => sum + (it.quantity || 0), 0);
+  const derivedSubtotal = cart.items.reduce((sum, it) => sum + (it.price || 0) * (it.quantity || 0), 0);
+  const serverSubtotal = typeof cart?.totals?.subtotal === 'number' ? cart.totals.subtotal : undefined;
   const subtotal =
-    typeof cart?.totals?.subtotal === 'number'
-      ? cart.totals.subtotal
-      : cart.items.reduce((sum, it) => sum + (it.price || 0) * (it.quantity || 0), 0);
+    typeof serverSubtotal === 'number' ? Math.max(serverSubtotal, derivedSubtotal) : derivedSubtotal;
   return { totalQuantity, subtotal };
 }
 

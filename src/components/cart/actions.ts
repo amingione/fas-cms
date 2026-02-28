@@ -136,6 +136,14 @@ function normalizeCartItemUpgrades(item: CartItem): { item: CartItem; changed: b
   };
 }
 
+function sumSelectedUpgradeCents(item: CartItem): number {
+  const detailed = ensureSelectedUpgradesDetailed((item as any).selectedUpgradesDetailed);
+  return detailed.reduce((sum, entry) => {
+    const cents = Number.isFinite(entry.priceCents) ? Math.round(entry.priceCents) : 0;
+    return sum + (cents > 0 ? cents : 0);
+  }, 0);
+}
+
 export function getCart(): Cart {
   if (!isBrowser()) return { items: [] };
   try {
@@ -276,7 +284,13 @@ async function syncMedusaCart(cart: Cart): Promise<SyncMedusaCartResult> {
           byLocalId.get(item.id);
         if (!serverItem) return item;
 
-        const unitPrice = typeof serverItem.unit_price === 'number' ? serverItem.unit_price : item.price;
+        const serverUnitPrice =
+          typeof serverItem.unit_price === 'number' ? serverItem.unit_price : item.price;
+        const addOnTotalCents = sumSelectedUpgradeCents(item);
+        const unitPrice =
+          typeof serverUnitPrice === 'number'
+            ? serverUnitPrice + (addOnTotalCents > 0 ? addOnTotalCents : 0)
+            : item.price;
         const quantity = typeof serverItem.quantity === 'number' ? serverItem.quantity : item.quantity;
         const name = typeof serverItem.title === 'string' ? serverItem.title : item.name;
         const medusaLineItemId =
@@ -295,12 +309,36 @@ async function syncMedusaCart(cart: Cart): Promise<SyncMedusaCartResult> {
         };
       });
 
+      const derivedSubtotal = next.items.reduce((sum, entry) => {
+        const unit = typeof entry.price === 'number' && Number.isFinite(entry.price) ? entry.price : 0;
+        const qty = typeof entry.quantity === 'number' && Number.isFinite(entry.quantity) ? entry.quantity : 0;
+        return sum + unit * qty;
+      }, 0);
+      const serverSubtotal =
+        typeof serverCart.subtotal === 'number' && Number.isFinite(serverCart.subtotal)
+          ? serverCart.subtotal
+          : 0;
+      const subtotal = Math.max(serverSubtotal, derivedSubtotal);
+      const shippingTotal =
+        typeof serverCart.shipping_total === 'number' && Number.isFinite(serverCart.shipping_total)
+          ? serverCart.shipping_total
+          : 0;
+      const taxTotal =
+        typeof serverCart.tax_total === 'number' && Number.isFinite(serverCart.tax_total)
+          ? serverCart.tax_total
+          : 0;
+      const discountTotal =
+        typeof serverCart.discount_total === 'number' && Number.isFinite(serverCart.discount_total)
+          ? serverCart.discount_total
+          : 0;
+      const total = subtotal + shippingTotal + taxTotal - discountTotal;
+
       next.totals = {
-        subtotal: serverCart.subtotal,
-        tax_total: serverCart.tax_total,
-        shipping_total: serverCart.shipping_total,
-        discount_total: serverCart.discount_total,
-        total: serverCart.total,
+        subtotal,
+        tax_total: taxTotal,
+        shipping_total: shippingTotal,
+        discount_total: discountTotal,
+        total,
         original_total: serverCart.original_total
       };
 

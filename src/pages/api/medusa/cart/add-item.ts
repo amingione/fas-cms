@@ -385,22 +385,13 @@ export const POST: APIRoute = async ({ request }) => {
       cartId,
       mismatches: addOnPriceMismatches
     });
-    return jsonResponse(
-      {
-        error:
-          'Selected add-ons are mapped but not price-resolved in Medusa. Checkout is blocked until pricing mapping is fixed.',
-        code: 'unmapped_addon_selection',
-        details: addOnPriceMismatches
-      },
-      { status: 400 },
-      { noIndex: true }
-    );
   }
 
   return jsonResponse(
     {
       cart: finalCartData?.cart ?? null,
-      mappings
+      mappings,
+      price_mismatch_warnings: addOnPriceMismatches
     },
     { status: 200 },
     { noIndex: true }
