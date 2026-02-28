@@ -43,6 +43,8 @@ interface CartItem {
   quantity: number;
   unit_price: number;
   total: number;
+  install_only?: boolean;
+  shipping_class?: string | null;
 }
 
 interface Cart {
@@ -156,6 +158,15 @@ function toShippoAmountCents(value: unknown): number {
   return Math.round(parsed * 100);
 }
 
+function isInstallOnlyLineItem(item: CartItem): boolean {
+  if (item.install_only === true) return true;
+  const shippingClass = String(item.shipping_class || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+  return shippingClass.includes('installonly');
+}
+
 function normalizeShippoServiceLabel(rate: ShippoRate): string {
   const raw = `${rate.servicelevel || ''}`.trim().toLowerCase();
   if (!raw) return 'UPS';
@@ -241,6 +252,12 @@ export default function CheckoutForm() {
   const [error, setError] = useState<string | null>(null);
   const [discountCode, setDiscountCode] = useState('');
 
+  const allItemsInstallOnly = useMemo(() => {
+    const items = Array.isArray(cart?.items) ? cart.items : [];
+    if (!items.length) return false;
+    return items.every((item) => isInstallOnlyLineItem(item));
+  }, [cart]);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -307,6 +324,37 @@ export default function CheckoutForm() {
 
   async function handleCalculateShipping() {
     if (!cartId) return;
+
+    if (allItemsInstallOnly) {
+      setLoadingRates(true);
+      setError(null);
+      setClientSecret(null);
+      try {
+        await syncMedusaCart(getCart());
+        const intentResponse = await fetch('/api/medusa/payments/create-intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cartId })
+        });
+        if (!intentResponse.ok) {
+          const payload = await intentResponse.json().catch(() => null);
+          throw new Error(payload?.error || 'Failed to initialize payment');
+        }
+        const payload = await intentResponse.json().catch(() => null);
+        if (!payload?.client_secret) {
+          throw new Error('Payment intent not ready');
+        }
+        setClientSecret(payload.client_secret);
+        await loadCart(cartId);
+      } catch (err) {
+        console.error('Payment intent init error (install-only):', err);
+        setError('Unable to initialize payment. Please try again.');
+      } finally {
+        setLoadingRates(false);
+      }
+      return;
+    }
+
     if (!isAddressComplete(shippingAddress)) {
       setError('Please complete your shipping address before calculating rates.');
       return;
@@ -538,6 +586,7 @@ export default function CheckoutForm() {
                   cart={cart}
                   shippingAddress={shippingAddress}
                   selectedRateId={selectedOptionId}
+                  requiresShipping={!allItemsInstallOnly}
                   processing={processing}
                   setProcessing={setProcessing}
                   setError={setError}
@@ -546,6 +595,7 @@ export default function CheckoutForm() {
             ) : (
               <NonReadyPaymentPane
                 shippingAddress={shippingAddress}
+                requiresShipping={!allItemsInstallOnly}
                 loadingRates={loadingRates}
                 shippingRates={shippingRates}
                 shippoRates={shippoRates}
@@ -567,6 +617,7 @@ export default function CheckoutForm() {
 
 function NonReadyPaymentPane({
   shippingAddress,
+  requiresShipping,
   loadingRates,
   shippingRates,
   shippoRates,
@@ -577,6 +628,7 @@ function NonReadyPaymentPane({
   onSelectRate
 }: {
   shippingAddress: ShippingAddress;
+  requiresShipping: boolean;
   loadingRates: boolean;
   shippingRates: ShippingRate[];
   shippoRates: ShippoRate[];

@@ -8,24 +8,28 @@ import {
   normalizeSlugValue,
   type Product
 } from '../../lib/sanity-utils';
-import { centsToDollars, formatCents, formatDollarsWithSign } from '@/lib/pricing';
-import { getCallForShippingQuote, getMetadataTags, getRequiresShipping } from '@/lib/medusa-metadata';
+import { centsToDollars, formatCents, formatDollarsWithSign } from '../../lib/pricing';
+import {
+  getCallForShippingQuote,
+  getMetadataTags,
+  getRequiresShipping
+} from '../../lib/medusa-metadata';
 import {
   attachMedusaPricingBySanityIdentity,
   listStoreProductsForPricing,
   resolveProductCalculatedPriceAmount,
   resolveProductMedusaVariant,
   type MedusaStoreProduct
-} from '@/lib/medusa-storefront-pricing';
+} from '../../lib/medusa-storefront-pricing';
 import PortableTextRenderer from "../../components/PortableTextRenderer.jsx";
-import SlugCarousel from '@/components/SlugCarousel.astro';
-import TrustStrip from '@/components/TrustStrip.astro';
-import InfoTabs from '@/components/shop/InfoTabs.tsx';
-import ProductCardLite from '@/components/storefront/ProductCardLite.astro';
-import ServiceDisclaimerNotice from '@/components/storefront/ServiceDisclaimerNotice.tsx';
-import productPageScriptUrl from '@/scripts/product-page.js?url';
-import { inlineFieldAttrs, inlineObjectId } from '@lib/content';
-import { serializeJsonLd } from '@lib/utils';
+import SlugCarousel from '../../components/SlugCarousel.astro';
+import TrustStrip from '../../components/TrustStrip.astro';
+import InfoTabs from '../../components/shop/InfoTabs.tsx';
+import ProductCardLite from '../../components/storefront/ProductCardLite.astro';
+import ServiceDisclaimerNotice from '../../components/storefront/ServiceDisclaimerNotice.tsx';
+import productPageScriptUrl from '../../scripts/product-page.js?url';
+import { inlineFieldAttrs, inlineObjectId } from '../../lib/content';
+import { serializeJsonLd } from '../../lib/utils';
 
 export type KitItem = { item: string; quantity?: number };
 export type VehicleCompat = { make?: string; model?: string; trim?: string };
