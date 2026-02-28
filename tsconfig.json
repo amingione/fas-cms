@@ -27,7 +27,7 @@
     "jsx": "react-jsx",
     "jsxImportSource": "react"
   },
-  "include": ["**/*.ts", "**/*.tsx", "netlify/functions/**/*.ts", "tests/**/*"],
+  "include": ["**/*.astro", "**/*.ts", "**/*.tsx", "**/*.d.ts", "tests/**/*"],
   "exclude": [
     "node_modules",
     "dist",

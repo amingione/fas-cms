@@ -119,7 +119,7 @@ const seoPayload = await fetchSeoForPath(Astro.url?.pathname ?? '/', {
 
 const visualEditingEnabled = previewDraftsEnabled;
 const canonicalFromSanity =
-  typeof seoPayload.page?.canonical === 'string' ? seoPayload.page.canonical : undefined;
+  typeof seoPayload.page?.canonicalUrl === 'string' ? seoPayload.page.canonicalUrl : undefined;
 
 if (import.meta.env.SSR) {
   (globalThis as { __SANITY_VISUAL_EDITING_OVERRIDE__?: boolean }).__SANITY_VISUAL_EDITING_OVERRIDE__ =
