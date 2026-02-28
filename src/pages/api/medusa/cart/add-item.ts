@@ -24,6 +24,15 @@ type IncomingCartItem = {
   }>;
 };
 
+function toRoundedNumber(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return Math.round(value);
+  if (typeof value === 'string') {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) return Math.round(parsed);
+  }
+  return null;
+}
+
 function sanitizeCartItems(items: unknown): IncomingCartItem[] {
   if (!Array.isArray(items)) return [];
   return items
@@ -317,6 +326,75 @@ export const POST: APIRoute = async ({ request }) => {
 
   if (finalCartData?.cart) {
     normalizeCartTotals(finalCartData.cart);
+  }
+
+  const finalCartItems = Array.isArray(finalCartData?.cart?.items) ? finalCartData.cart.items : [];
+  const finalByLocalId = new Map<string, any>();
+  const finalByVariantId = new Map<string, any>();
+  for (const lineItem of finalCartItems) {
+    const localId = lineItem?.metadata?.local_item_id;
+    if (typeof localId === 'string' && localId.trim()) {
+      finalByLocalId.set(localId, lineItem);
+    }
+    const variantId = lineItem?.variant_id;
+    if (typeof variantId === 'string' && variantId.trim()) {
+      finalByVariantId.set(variantId, lineItem);
+    }
+  }
+
+  const addOnPriceMismatches = cartItems
+    .map((item) => {
+      const detailed = Array.isArray(item.selectedUpgradesDetailed) ? item.selectedUpgradesDetailed : [];
+      const addOnTotal = detailed.reduce((sum, entry) => {
+        const cents = toRoundedNumber(entry?.priceCents);
+        return sum + (cents && cents > 0 ? cents : 0);
+      }, 0);
+      if (addOnTotal <= 0) return null;
+
+      const basePrice = toRoundedNumber(item.price);
+      if (basePrice == null) return null;
+      const expectedUnitPrice = basePrice + addOnTotal;
+
+      const lineItem =
+        finalByLocalId.get(item.id) ??
+        (item.medusaVariantId ? finalByVariantId.get(item.medusaVariantId) : undefined);
+      const actualUnitPrice = toRoundedNumber(lineItem?.unit_price);
+      if (actualUnitPrice == null) {
+        return {
+          id: item.id,
+          expectedUnitPrice,
+          actualUnitPrice: null,
+          addOnTotal
+        };
+      }
+
+      if (actualUnitPrice !== expectedUnitPrice) {
+        return {
+          id: item.id,
+          expectedUnitPrice,
+          actualUnitPrice,
+          addOnTotal
+        };
+      }
+      return null;
+    })
+    .filter(Boolean);
+
+  if (addOnPriceMismatches.length > 0) {
+    console.warn('[unmapped_addon_selection] medusa_price_mismatch', {
+      cartId,
+      mismatches: addOnPriceMismatches
+    });
+    return jsonResponse(
+      {
+        error:
+          'Selected add-ons are mapped but not price-resolved in Medusa. Checkout is blocked until pricing mapping is fixed.',
+        code: 'unmapped_addon_selection',
+        details: addOnPriceMismatches
+      },
+      { status: 400 },
+      { noIndex: true }
+    );
   }
 
   return jsonResponse(

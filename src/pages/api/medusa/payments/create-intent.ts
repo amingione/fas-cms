@@ -31,6 +31,7 @@ type MedusaCart = {
   shipping_total?: number;
   items?: Array<{
     id: string;
+    unit_price?: number;
     title?: string;
     quantity?: number;
     install_only?: boolean | string | number | null;
@@ -56,6 +57,15 @@ type MedusaCart = {
     phone?: string;
   };
 };
+
+function toRoundedNumber(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return Math.round(value);
+  if (typeof value === 'string') {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) return Math.round(parsed);
+  }
+  return null;
+}
 
 function parseBooleanLike(value: unknown): boolean | undefined {
   if (typeof value === 'boolean') return value;
@@ -133,6 +143,58 @@ function collectUnmappedUpgrades(cart: MedusaCart): Array<{ id: string; label: s
   });
 
   return unresolved;
+}
+
+function collectAddonPriceMismatches(cart: MedusaCart): Array<{
+  id: string;
+  expectedUnitPrice: number;
+  actualUnitPrice: number | null;
+  addOnTotal: number;
+}> {
+  const rawItems = Array.isArray(cart?.metadata?.local_cart_items)
+    ? cart.metadata.local_cart_items
+    : [];
+  const medusaItems = Array.isArray(cart?.items) ? cart.items : [];
+  const byLocalId = new Map<string, any>();
+  medusaItems.forEach((item) => {
+    const localId = item?.metadata?.local_item_id;
+    if (typeof localId === 'string' && localId.trim()) byLocalId.set(localId, item);
+  });
+
+  const mismatches: Array<{
+    id: string;
+    expectedUnitPrice: number;
+    actualUnitPrice: number | null;
+    addOnTotal: number;
+  }> = [];
+
+  rawItems.forEach((entry: any) => {
+    if (!entry || typeof entry !== 'object') return;
+    const id = String(entry.id ?? '').trim();
+    if (!id) return;
+
+    const basePrice = toRoundedNumber(entry.price);
+    const detailed = Array.isArray(entry.selectedUpgradesDetailed) ? entry.selectedUpgradesDetailed : [];
+    const addOnTotal = detailed.reduce((sum: number, detail: any) => {
+      const cents = toRoundedNumber(detail?.priceCents);
+      return sum + (cents && cents > 0 ? cents : 0);
+    }, 0);
+    if (basePrice == null || addOnTotal <= 0) return;
+
+    const expectedUnitPrice = basePrice + addOnTotal;
+    const medusaItem = byLocalId.get(id);
+    const actualUnitPrice = toRoundedNumber(medusaItem?.unit_price);
+    if (actualUnitPrice == null || actualUnitPrice !== expectedUnitPrice) {
+      mismatches.push({
+        id,
+        expectedUnitPrice,
+        actualUnitPrice: actualUnitPrice ?? null,
+        addOnTotal
+      });
+    }
+  });
+
+  return mismatches;
 }
 
 type ShippoRateInput = {
@@ -251,6 +313,25 @@ export const POST: APIRoute = async ({ request }) => {
         error:
           'One or more selected upgrades are not mapped for checkout. Please update product mappings before payment.',
         details: unresolvedUpgrades
+      },
+      { status: 400 },
+      { noIndex: true }
+    );
+  }
+
+  // Validation 6: mapped add-on price must be reflected in Medusa line-item unit pricing.
+  const addOnPriceMismatches = collectAddonPriceMismatches(cart);
+  if (addOnPriceMismatches.length > 0) {
+    console.warn('[unmapped_addon_selection] payment_intent_price_mismatch', {
+      cartId,
+      mismatches: addOnPriceMismatches
+    });
+    return jsonResponse(
+      {
+        error:
+          'Selected add-on pricing is not resolved in Medusa cart totals. Please fix product mapping before payment.',
+        code: 'unmapped_addon_selection',
+        details: addOnPriceMismatches
       },
       { status: 400 },
       { noIndex: true }
