@@ -45,6 +45,25 @@ function getSelectedUpgradeOptionValueIds(item: IncomingCartItem): string[] {
   return Array.from(unique);
 }
 
+function remapSelectedUpgradeOptionValueIds(
+  item: IncomingCartItem,
+  remap: Map<string, string>
+): IncomingCartItem {
+  if (!Array.isArray(item.selectedUpgradesDetailed) || item.selectedUpgradesDetailed.length === 0) {
+    return item;
+  }
+  let changed = false;
+  const nextDetailed = item.selectedUpgradesDetailed.map((entry) => {
+    const current = typeof entry?.medusaOptionValueId === 'string' ? entry.medusaOptionValueId.trim() : '';
+    const replacement = current ? remap.get(current) : undefined;
+    if (!replacement || replacement === current) return entry;
+    changed = true;
+    return { ...entry, medusaOptionValueId: replacement };
+  });
+  if (!changed) return item;
+  return { ...item, selectedUpgradesDetailed: nextDetailed };
+}
+
 function sanitizeCartItems(items: unknown): IncomingCartItem[] {
   if (!Array.isArray(items)) return [];
   return items
@@ -194,19 +213,18 @@ export const POST: APIRoute = async ({ request }) => {
   const missingVariants: string[] = [];
   const desiredVariantIds = new Set<string>();
   const resolvedVariantCache = new Map<string, string>();
+  const normalizedCartItems: IncomingCartItem[] = [];
 
   const resolveVariantIdForItem = async (
     baseVariantId: string,
     item: IncomingCartItem
-  ): Promise<string> => {
-    const optionValueIds = getSelectedUpgradeOptionValueIds(item).sort();
-    if (!optionValueIds.length) return baseVariantId;
-
-    const cacheKey = `${baseVariantId}::${optionValueIds.join(',')}`;
-    const cached = resolvedVariantCache.get(cacheKey);
-    if (cached) return cached;
-
-    try {
+  ): Promise<{ variantId: string; item: IncomingCartItem }> => {
+    const resolveOnce = async (optionValueIds: string[]) => {
+      const cacheKey = `${baseVariantId}::${optionValueIds.join(',')}`;
+      const cached = resolvedVariantCache.get(cacheKey);
+      if (cached) {
+        return { variantId: cached, data: null as any };
+      }
       const response = await medusaFetch('/store/resolve-variant', {
         method: 'POST',
         body: JSON.stringify({
@@ -220,18 +238,64 @@ export const POST: APIRoute = async ({ request }) => {
           ? data.variant_id.trim()
           : baseVariantId;
       resolvedVariantCache.set(cacheKey, resolved);
-      return resolved;
+      return { variantId: resolved, data };
+    };
+
+    let workingItem = item;
+    let optionValueIds = getSelectedUpgradeOptionValueIds(workingItem).sort();
+    if (!optionValueIds.length) return { variantId: baseVariantId, item: workingItem };
+
+    try {
+      let resolved = await resolveOnce(optionValueIds);
+      if (resolved.variantId !== baseVariantId) {
+        return { variantId: resolved.variantId, item: workingItem };
+      }
+
+      const missingRequested: string[] = Array.isArray(resolved.data?.missing_requested_option_value_ids)
+        ? resolved.data.missing_requested_option_value_ids
+        : [];
+      const availableOptionValueIds: string[] = Array.isArray(resolved.data?.available_option_value_ids)
+        ? resolved.data.available_option_value_ids
+        : [];
+      if (resolved.data?.reason === 'no_matching_variant' && missingRequested.length > 0 && availableOptionValueIds.length === 1) {
+        const replacement = String(availableOptionValueIds[0] || '').trim();
+        if (replacement) {
+          const remap = new Map<string, string>();
+          missingRequested.forEach((oldId) => {
+            const normalized = String(oldId || '').trim();
+            if (normalized) remap.set(normalized, replacement);
+          });
+          if (remap.size > 0) {
+            workingItem = remapSelectedUpgradeOptionValueIds(workingItem, remap);
+            optionValueIds = getSelectedUpgradeOptionValueIds(workingItem).sort();
+            if (optionValueIds.length > 0) {
+              resolved = await resolveOnce(optionValueIds);
+              console.warn('[cart/add-item] auto-remapped stale option value ids', {
+                itemId: item.id,
+                baseVariantId,
+                missingRequested,
+                replacement,
+                resolvedVariantId: resolved.variantId
+              });
+              return { variantId: resolved.variantId, item: workingItem };
+            }
+          }
+        }
+      }
+
+      return { variantId: resolved.variantId, item: workingItem };
     } catch (error) {
       console.warn('[cart/add-item] variant resolution failed; using base variant', {
         baseVariantId,
         optionValueIds,
         error: error instanceof Error ? error.message : String(error)
       });
-      return baseVariantId;
+      return { variantId: baseVariantId, item: workingItem };
     }
   };
 
-  for (const item of cartItems) {
+  for (const sourceItem of cartItems) {
+    let item = sourceItem;
     const baseVariantId = item.medusaVariantId;
 
     if (!baseVariantId) {
@@ -242,7 +306,10 @@ export const POST: APIRoute = async ({ request }) => {
       continue;
     }
 
-    const variantId = await resolveVariantIdForItem(baseVariantId, item);
+    const resolvedItem = await resolveVariantIdForItem(baseVariantId, item);
+    const variantId = resolvedItem.variantId;
+    item = resolvedItem.item;
+    normalizedCartItems.push(item);
 
     desiredVariantIds.add(variantId);
     mappings.push({ id: item.id, medusaVariantId: variantId });
@@ -394,7 +461,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
   }
 
-  const addOnPriceMismatches = cartItems
+  const addOnPriceMismatches = normalizedCartItems
     .map((item) => {
       const detailed = Array.isArray(item.selectedUpgradesDetailed) ? item.selectedUpgradesDetailed : [];
       const addOnTotal = detailed.reduce((sum, entry) => {
