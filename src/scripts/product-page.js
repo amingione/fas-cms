@@ -479,17 +479,16 @@ const hydrateCartButtons = () => {
       (entry) => !entry.medusaOptionValueId
     );
     if (unresolvedUpgrade) {
+      const friendlyMessage = `The option “${unresolvedUpgrade.label}” isn’t available for checkout right now. Please remove it and try again.`;
       try {
-        window.alert(
-          `Upgrade "${unresolvedUpgrade.label}" is not mapped for checkout yet.`
-        );
+        window.alert(friendlyMessage);
       } catch {
         /* noop */
       }
       window.dispatchEvent(
         new CustomEvent('cart:validation-error', {
           detail: {
-            message: `Upgrade "${unresolvedUpgrade.label}" is not mapped for checkout yet.`
+            message: friendlyMessage
           }
         })
       );

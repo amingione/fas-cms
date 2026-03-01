@@ -409,13 +409,13 @@ export async function addItem(
     typeof payload === 'object' ? (payload as any).selectedUpgradesDetailed : []
   );
   if (selectedUpgrades.length > 0 && selectedUpgradesDetailed.length === 0) {
-    return 'One or more upgrades are missing Medusa mapping data. Please reselect options.';
+    return 'One of the options you selected is not available for checkout right now. Please remove that option and try again.';
   }
   const missingMappedUpgrade = selectedUpgradesDetailed.find(
     (entry) => !entry.medusaOptionValueId
   );
   if (missingMappedUpgrade) {
-    return `Upgrade "${missingMappedUpgrade.label}" is not mapped for checkout yet.`;
+    return `“${missingMappedUpgrade.label}” can’t be checked out right now. Please remove it and try again, or contact support.`;
   }
   const cart = getCart();
   const idx = cart.items.findIndex((it) => it.id === id);

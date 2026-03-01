@@ -317,7 +317,7 @@ export const POST: APIRoute = async ({ request }) => {
     return jsonResponse(
       {
         error:
-          'One or more selected upgrades are not mapped for checkout. Please update product mappings before payment.',
+          'One or more selected options is not available for payment right now. Please remove that option and try again.',
         details: unresolvedUpgrades
       },
       { status: 400 },
@@ -335,7 +335,7 @@ export const POST: APIRoute = async ({ request }) => {
     return jsonResponse(
       {
         error:
-          'Cart pricing is out of sync for one or more selected upgrades. Re-add item(s) after mapping sync.',
+          'Your cart has an option with unconfirmed pricing. Please remove that option and try checkout again.',
         details: addOnPriceMismatches
       },
       { status: 400 },

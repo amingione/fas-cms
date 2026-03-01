@@ -135,7 +135,7 @@ export const POST: APIRoute = async ({ request }) => {
     return jsonResponse(
       {
         error:
-          'One or more selected upgrades are not mapped to Medusa option values. Update product mapping before checkout.',
+          'One or more selected options is not available for checkout right now. Please remove that option and try again.',
         details: unresolvedUpgradeItems.map((entry) => ({
           id: entry.id,
           selectedUpgrades: entry.selectedUpgradesDetailed
@@ -388,7 +388,7 @@ export const POST: APIRoute = async ({ request }) => {
     return jsonResponse(
       {
         error:
-          'Selected upgrades are not reflected in Medusa line item pricing. Cart sync blocked to prevent checkout total drift.',
+          'We could not confirm pricing for one of your selected options. Please remove that option and try again.',
         details: addOnPriceMismatches
       },
       { status: 400 },
