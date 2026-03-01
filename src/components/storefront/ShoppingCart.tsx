@@ -104,7 +104,8 @@ function CartContents() {
       };
     }, [items]);
 
-  const hasDiscounts = discountTotal > 0;
+  const serverDiscountTotal = Math.max(0, toNumber(cart?.totals?.discount_total, 0));
+  const hasDiscounts = serverDiscountTotal > 0;
 
   const installOnlyItems = useMemo(
     () => items.filter((item) => item.installOnly === true),
@@ -174,7 +175,7 @@ function CartContents() {
             {hasDiscounts && (
               <div className="mb-4 flex items-center justify-between rounded-lg border border-emerald-300/30 bg-emerald-400/10 px-3 py-2 text-sm text-emerald-700">
                 <span className="uppercase tracking-wide font-semibold">Discounts Applied</span>
-                <span className="font-semibold">-{formatPrice(discountTotal)}</span>
+                <span className="font-semibold">-{formatPrice(serverDiscountTotal)}</span>
               </div>
             )}
 

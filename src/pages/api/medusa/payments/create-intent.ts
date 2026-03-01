@@ -200,13 +200,7 @@ function collectAddonPriceMismatches(cart: MedusaCart): Array<{
 function resolveEffectiveCartTotalCents(cart: MedusaCart): number {
   const medusaTotal = toCentsStrict(cart?.total, 'cart.total');
   const baseTotal = typeof medusaTotal === 'number' ? medusaTotal : 0;
-  const mismatches = collectAddonPriceMismatches(cart);
-  if (!mismatches.length) return baseTotal;
-  const delta = mismatches.reduce((sum, entry) => {
-    if (entry.actualUnitPrice == null) return sum + entry.addOnTotal;
-    return sum + Math.max(0, entry.expectedUnitPrice - entry.actualUnitPrice);
-  }, 0);
-  return baseTotal + delta;
+  return baseTotal;
 }
 
 type ShippoRateInput = {
@@ -331,13 +325,22 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  // Validation 6: mapped add-on price drift monitoring.
+  // Validation 6: mapped add-on price drift must not proceed to payment.
   const addOnPriceMismatches = collectAddonPriceMismatches(cart);
   if (addOnPriceMismatches.length > 0) {
     console.warn('[unmapped_addon_selection] payment_intent_price_mismatch', {
       cartId,
       mismatches: addOnPriceMismatches
     });
+    return jsonResponse(
+      {
+        error:
+          'Cart pricing is out of sync for one or more selected upgrades. Re-add item(s) after mapping sync.',
+        details: addOnPriceMismatches
+      },
+      { status: 400 },
+      { noIndex: true }
+    );
   }
 
   const currency = (cart?.currency_code || 'usd').toLowerCase();

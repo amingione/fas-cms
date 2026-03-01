@@ -327,10 +327,14 @@ async function syncMedusaCart(cart: Cart): Promise<SyncMedusaCartResult> {
         typeof serverCart.tax_total === 'number' && Number.isFinite(serverCart.tax_total)
           ? serverCart.tax_total
           : 0;
-      const discountTotal =
+      const hasExplicitDiscounts =
+        (Array.isArray((serverCart as any)?.discounts) && (serverCart as any).discounts.length > 0) ||
+        (Array.isArray((serverCart as any)?.promotions) && (serverCart as any).promotions.length > 0);
+      const rawDiscountTotal =
         typeof serverCart.discount_total === 'number' && Number.isFinite(serverCart.discount_total)
           ? serverCart.discount_total
           : 0;
+      const discountTotal = hasExplicitDiscounts ? rawDiscountTotal : 0;
       const total = subtotal + shippingTotal + taxTotal - discountTotal;
 
       next.totals = {

@@ -318,15 +318,20 @@ const updateConfiguredPriceUI = () => {
       )
     : saleBasePrice;
 
-  // Pricing must be authoritative in Medusa. Do not calculate configured totals client-side.
-  renderConfiguredPrice(saleBasePrice, compareBasePrice);
+  const extra = Number.isFinite(cfg?.extra) ? Math.max(0, Math.round(cfg.extra)) : 0;
+  const configuredPrice = saleBasePrice + extra;
+  const configuredComparePrice = compareBasePrice + extra;
+
+  // Display the configured cents total on PDP so selected options/upgrades are visible before cart.
+  renderConfiguredPrice(configuredPrice, configuredComparePrice);
 
   if (button) {
-    button.dataset.configuredPrice = String(saleBasePrice);
-    button.dataset.configuredComparePrice = compareBasePrice > 0 ? String(compareBasePrice) : '';
+    button.dataset.configuredPrice = String(configuredPrice);
+    button.dataset.configuredComparePrice =
+      configuredComparePrice > 0 ? String(configuredComparePrice) : '';
   }
 
-  return { total: saleBasePrice, compareTotal: compareBasePrice, cfg, extra: 0 };
+  return { total: configuredPrice, compareTotal: configuredComparePrice, cfg, extra };
 };
 
 const schedule = (() => {
@@ -604,11 +609,20 @@ const hydrateCartButtons = () => {
       }
     };
     ['input', 'change'].forEach((evt) => document.addEventListener(evt, recalc, true));
+    // Label clicks can toggle checkboxes/radios without immediate input event in some cases.
+    document.addEventListener(
+      'click',
+      (event) => {
+        if (form.contains(event.target)) {
+          schedule(updateConfiguredPriceUI);
+        }
+      },
+      true
+    );
   };
 
-  if (document.readyState === 'complete') {
-    attachRecalcListeners();
-  } else {
+  attachRecalcListeners();
+  if (document.readyState !== 'complete') {
     window.addEventListener('load', attachRecalcListeners, { once: true });
   }
 

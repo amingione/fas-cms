@@ -385,6 +385,15 @@ export const POST: APIRoute = async ({ request }) => {
       cartId,
       mismatches: addOnPriceMismatches
     });
+    return jsonResponse(
+      {
+        error:
+          'Selected upgrades are not reflected in Medusa line item pricing. Cart sync blocked to prevent checkout total drift.',
+        details: addOnPriceMismatches
+      },
+      { status: 400 },
+      { noIndex: true }
+    );
   }
 
   return jsonResponse(

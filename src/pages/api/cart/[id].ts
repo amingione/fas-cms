@@ -189,7 +189,14 @@ export const GET: APIRoute = async ({ params }) => {
       (sum: number, item: any) => sum + Math.max(0, toRoundedCents(item.total)),
       0
     )
-    const discountCents = toCentsStrict(medusaData.cart.discount_total, 'cart.discount_total') ?? 0
+    const hasExplicitDiscounts =
+      (Array.isArray((medusaData?.cart as any)?.discounts) &&
+        (medusaData.cart as any).discounts.length > 0) ||
+      (Array.isArray((medusaData?.cart as any)?.promotions) &&
+        (medusaData.cart as any).promotions.length > 0)
+    const discountCents = hasExplicitDiscounts
+      ? toCentsStrict(medusaData.cart.discount_total, 'cart.discount_total') ?? 0
+      : 0
     cart.subtotal_cents = subtotalCents
     cart.total_cents = Math.max(
       0,
