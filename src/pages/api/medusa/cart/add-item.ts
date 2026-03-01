@@ -35,6 +35,16 @@ function toRoundedNumber(value: unknown): number | null {
   return null;
 }
 
+function getSelectedUpgradeOptionValueIds(item: IncomingCartItem): string[] {
+  const detailed = Array.isArray(item.selectedUpgradesDetailed) ? item.selectedUpgradesDetailed : [];
+  const unique = new Set<string>();
+  detailed.forEach((entry) => {
+    const valueId = typeof entry?.medusaOptionValueId === 'string' ? entry.medusaOptionValueId.trim() : '';
+    if (valueId) unique.add(valueId);
+  });
+  return Array.from(unique);
+}
+
 function sanitizeCartItems(items: unknown): IncomingCartItem[] {
   if (!Array.isArray(items)) return [];
   return items
@@ -183,17 +193,56 @@ export const POST: APIRoute = async ({ request }) => {
   const mappings: { id: string; medusaVariantId: string }[] = [];
   const missingVariants: string[] = [];
   const desiredVariantIds = new Set<string>();
+  const resolvedVariantCache = new Map<string, string>();
+
+  const resolveVariantIdForItem = async (
+    baseVariantId: string,
+    item: IncomingCartItem
+  ): Promise<string> => {
+    const optionValueIds = getSelectedUpgradeOptionValueIds(item).sort();
+    if (!optionValueIds.length) return baseVariantId;
+
+    const cacheKey = `${baseVariantId}::${optionValueIds.join(',')}`;
+    const cached = resolvedVariantCache.get(cacheKey);
+    if (cached) return cached;
+
+    try {
+      const response = await medusaFetch('/store/resolve-variant', {
+        method: 'POST',
+        body: JSON.stringify({
+          base_variant_id: baseVariantId,
+          option_value_ids: optionValueIds
+        })
+      });
+      const data = await readJsonSafe<any>(response);
+      const resolved =
+        typeof data?.variant_id === 'string' && data.variant_id.trim()
+          ? data.variant_id.trim()
+          : baseVariantId;
+      resolvedVariantCache.set(cacheKey, resolved);
+      return resolved;
+    } catch (error) {
+      console.warn('[cart/add-item] variant resolution failed; using base variant', {
+        baseVariantId,
+        optionValueIds,
+        error: error instanceof Error ? error.message : String(error)
+      });
+      return baseVariantId;
+    }
+  };
 
   for (const item of cartItems) {
-    const variantId = item.medusaVariantId;
+    const baseVariantId = item.medusaVariantId;
 
-    if (!variantId) {
+    if (!baseVariantId) {
       // Skip items without variant IDs (e.g., option-only items)
       // They should be part of the parent item's metadata
       console.warn(`Skipping cart item without medusaVariantId: ${item.id}`);
       missingVariants.push(item.id);
       continue;
     }
+
+    const variantId = await resolveVariantIdForItem(baseVariantId, item);
 
     desiredVariantIds.add(variantId);
     mappings.push({ id: item.id, medusaVariantId: variantId });
@@ -207,11 +256,9 @@ export const POST: APIRoute = async ({ request }) => {
       selected_options: item.selectedOptions || [],
       selected_upgrades: item.selectedUpgrades || [],
       selected_upgrades_detailed: item.selectedUpgradesDetailed || [],
-      selected_upgrade_option_value_ids: Array.isArray(item.selectedUpgradesDetailed)
-        ? item.selectedUpgradesDetailed
-            .map((entry) => entry.medusaOptionValueId)
-            .filter(Boolean)
-        : [],
+      selected_upgrade_option_value_ids: getSelectedUpgradeOptionValueIds(item),
+      base_variant_id: baseVariantId,
+      resolved_variant_id: variantId,
       product_url: item.productUrl,
       shipping_class: item.shippingClass,
       install_only: item.installOnly ?? false,
