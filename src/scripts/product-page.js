@@ -79,13 +79,7 @@ const prefersDesktopOverlay = () => {
   }
 };
 
-const normalizeDelta = (value) => {
-  if (value == null) return 0;
-  const numeric = parseFloat(String(value).replace(/[^0-9.+-]/g, ''));
-  return Number.isFinite(numeric) ? numeric : 0;
-};
-
-const normalizeCents = (value, fallbackDollars = null) => {
+const normalizeCents = (value) => {
   if (value != null) {
     const numeric =
       typeof value === 'number'
@@ -93,13 +87,7 @@ const normalizeCents = (value, fallbackDollars = null) => {
         : parseFloat(String(value).replace(/[^0-9.+-]/g, ''));
     if (Number.isFinite(numeric)) return Math.round(numeric);
   }
-
-  if (fallbackDollars == null) return 0;
-  const dollars =
-    typeof fallbackDollars === 'number'
-      ? fallbackDollars
-      : parseFloat(String(fallbackDollars).replace(/[^0-9.+-]/g, ''));
-  return Number.isFinite(dollars) ? Math.round(dollars * 100) : 0;
+  return 0;
 };
 
 const readConfiguredOptions = () => {
@@ -122,8 +110,8 @@ const readConfiguredOptions = () => {
   };
 
 const addSelection = (group, value, label, delta, meta = {}) => {
-  const numericDelta = Number.isFinite(delta) ? delta : 0;
-  const numericDeltaCents = normalizeCents(meta.priceCents, numericDelta);
+  const numericDeltaCents = normalizeCents(meta.priceCents);
+  const numericDelta = Number.isFinite(delta) ? delta : numericDeltaCents / 100;
   const selection = {
     group,
     value,
@@ -167,11 +155,10 @@ const addSelection = (group, value, label, delta, meta = {}) => {
           value === '';
         if (!isPlaceholder) {
           const label = option.dataset.label || option.text || value;
-          const delta = normalizeDelta(option.dataset.price ?? option.getAttribute('data-price'));
           const priceCents = normalizeCents(
-            option.dataset.priceCents ?? option.getAttribute('data-price-cents'),
-            delta
+            option.dataset.priceCents ?? option.getAttribute('data-price-cents')
           );
+          const delta = priceCents / 100;
           const medusaVariantId =
             option.dataset.variantId ||
             option.dataset.medusaVariantId ||
@@ -202,11 +189,10 @@ const addSelection = (group, value, label, delta, meta = {}) => {
     if (tag === 'input') {
       const input = node;
       const type = (input.type || 'text').toLowerCase();
-      const baseDelta = normalizeDelta(input.dataset.price ?? input.getAttribute('data-price'));
       const baseDeltaCents = normalizeCents(
-        input.dataset.priceCents ?? input.getAttribute('data-price-cents'),
-        baseDelta
+        input.dataset.priceCents ?? input.getAttribute('data-price-cents')
       );
+      const baseDelta = baseDeltaCents / 100;
       const medusaOptionId =
         input.dataset.medusaOptionId || input.getAttribute('data-medusa-option-id') || null;
       const medusaOptionValueId =
@@ -222,11 +208,10 @@ const addSelection = (group, value, label, delta, meta = {}) => {
           if (radio.checked) {
             const value = radio.value || '';
             const label = radio.dataset.label || value;
-            const delta = normalizeDelta(radio.dataset.price ?? radio.getAttribute('data-price'));
             const priceCents = normalizeCents(
-              radio.dataset.priceCents ?? radio.getAttribute('data-price-cents'),
-              delta
+              radio.dataset.priceCents ?? radio.getAttribute('data-price-cents')
             );
+            const delta = priceCents / 100;
             const medusaVariantId =
               radio.dataset.variantId ||
               radio.dataset.medusaVariantId ||
@@ -434,7 +419,7 @@ const hydrateCartButtons = () => {
     const selectedUpgradesDetailed = upgradeSelections
       .map((entry) => ({
         label: entry?.label || entry?.value || '',
-        priceCents: normalizeCents(entry?.priceCents, entry?.priceDelta ?? entry?.price),
+        priceCents: normalizeCents(entry?.priceCents),
         medusaOptionValueId: (entry?.medusaOptionValueId || '').toString().trim()
       }))
       .filter((entry) => entry.label);
@@ -541,8 +526,8 @@ const hydrateCartButtons = () => {
       upgrades: upgradeSelections.map((entry) => ({
         label: entry?.label || entry?.value || 'Upgrade',
         value: entry?.value || entry?.label || '',
-        price: normalizeCents(entry?.priceCents, entry?.priceDelta ?? entry?.price ?? entry?.delta ?? 0),
-        priceCents: normalizeCents(entry?.priceCents, entry?.priceDelta ?? entry?.price ?? entry?.delta ?? 0),
+        price: normalizeCents(entry?.priceCents),
+        priceCents: normalizeCents(entry?.priceCents),
         medusaOptionValueId: entry?.medusaOptionValueId || undefined
       })),
       selectedOptions,

@@ -72,9 +72,7 @@ export function extractAddOns(item: {
       if (!entry || typeof entry !== 'object') return;
       const label = String((entry as any).label ?? '').trim();
       if (!label) return;
-      const priceCents = normalizeLegacyCents(
-        normalizePrice((entry as any).priceCents ?? (entry as any).price)
-      );
+      const priceCents = normalizeLegacyCents(normalizePrice((entry as any).priceCents));
       pushEntry(addOns, label, priceCents);
     });
   }

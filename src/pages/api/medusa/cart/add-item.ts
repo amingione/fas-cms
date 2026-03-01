@@ -8,6 +8,8 @@ type IncomingCartItem = {
   name?: string;
   sku?: string;
   price?: number;
+  basePrice?: number;
+  extra?: number;
   quantity?: number;
   productUrl?: string;
   shippingClass?: string;
@@ -45,6 +47,8 @@ function sanitizeCartItems(items: unknown): IncomingCartItem[] {
         name: typeof entry.name === 'string' ? entry.name : undefined,
         sku: typeof entry.sku === 'string' ? entry.sku : undefined,
         price: typeof entry.price === 'number' ? entry.price : undefined,
+        basePrice: typeof entry.basePrice === 'number' ? entry.basePrice : undefined,
+        extra: typeof entry.extra === 'number' ? entry.extra : undefined,
         quantity: typeof entry.quantity === 'number' ? entry.quantity : undefined,
         productUrl: typeof entry.productUrl === 'string' ? entry.productUrl : undefined,
         shippingClass: typeof entry.shippingClass === 'string' ? entry.shippingClass : undefined,
@@ -86,7 +90,8 @@ function sanitizeCartItems(items: unknown): IncomingCartItem[] {
                     : typeof value.priceCents === 'string'
                       ? Number(value.priceCents)
                       : Number.NaN;
-                const priceCents = Number.isFinite(priceCentsRaw) ? Math.round(priceCentsRaw) : 0;
+                if (!Number.isFinite(priceCentsRaw)) return null;
+                const priceCents = Math.round(priceCentsRaw);
                 if (!label) return null;
                 return { label, medusaOptionValueId, priceCents };
               })
@@ -351,9 +356,19 @@ export const POST: APIRoute = async ({ request }) => {
       }, 0);
       if (addOnTotal <= 0) return null;
 
-      const basePrice = toRoundedNumber(item.price);
-      if (basePrice == null) return null;
-      const expectedUnitPrice = basePrice + addOnTotal;
+      const explicitBasePrice = toRoundedNumber(item.basePrice);
+      const cartItemPrice = toRoundedNumber(item.price);
+      const cartItemExtra = toRoundedNumber(item.extra);
+      const inferredBasePrice =
+        explicitBasePrice ??
+        (cartItemPrice != null &&
+        cartItemExtra != null &&
+        cartItemExtra > 0 &&
+        cartItemPrice >= cartItemExtra
+          ? cartItemPrice - cartItemExtra
+          : cartItemPrice);
+      if (inferredBasePrice == null) return null;
+      const expectedUnitPrice = inferredBasePrice + addOnTotal;
 
       const lineItem =
         finalByLocalId.get(item.id) ??

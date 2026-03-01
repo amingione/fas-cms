@@ -89,14 +89,15 @@ function ensureSelectedUpgradesDetailed(value: unknown): SelectedUpgradeDetailed
       if (!entry || typeof entry !== 'object') return null;
       const rec = entry as Record<string, unknown>;
       const label = String(rec.label ?? rec.value ?? '').trim();
-      const priceCentsRaw = rec.priceCents ?? rec.price ?? rec.priceDelta;
+      const priceCentsRaw = rec.priceCents;
       const parsedPrice =
         typeof priceCentsRaw === 'number'
           ? priceCentsRaw
           : typeof priceCentsRaw === 'string'
             ? Number(priceCentsRaw)
             : NaN;
-      const priceCents = Number.isFinite(parsedPrice) ? Math.round(parsedPrice) : 0;
+      if (!Number.isFinite(parsedPrice)) return null;
+      const priceCents = Math.round(parsedPrice);
       const medusaOptionValueId = String(rec.medusaOptionValueId ?? '').trim();
       if (!label) return null;
       return { label, priceCents, medusaOptionValueId };

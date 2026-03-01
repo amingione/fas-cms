@@ -1584,10 +1584,12 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                           const val = v?.value ?? '';
                           const label = v?.label ?? 'Choice';
                           const price = typeof v?.priceDelta === 'number' ? v.priceDelta : 0;
+                          const priceCents = Number.isFinite(price) ? Math.round(price * 100) : 0;
                           return (
                             <option
                               value={val}
                               data-price={price.toString()}
+                              data-price-cents={priceCents.toString()}
                               data-label={label}
                               data-variant-id={v?.medusaVariantId || ''}
                             >
@@ -1613,6 +1615,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                         const val = v?.value ?? '';
                         const label = v?.label ?? 'Choice';
                         const price = typeof v?.priceDelta === 'number' ? v.priceDelta : 0;
+                        const priceCents = Number.isFinite(price) ? Math.round(price * 100) : 0;
                         const inputId = `${groupKey}-${i}`;
                         return (
                           <label
@@ -1625,6 +1628,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                               value={val}
                               data-group={groupKey}
                               data-price={price}
+                              data-price-cents={priceCents}
                               data-label={label}
                               data-variant-id={v?.medusaVariantId || ''}
                               required={i === 0}
@@ -1735,6 +1739,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                 ? (c.placeholder || '')
                 : (c.placeholder || '');
               const surchargeAmount = Number(c.priceDelta ?? c.price ?? c.delta ?? 0);
+              const surchargeCents = Number.isFinite(surchargeAmount) ? Math.round(surchargeAmount * 100) : 0;
               return (
                 <div class="rounded-2xl border border-white/15 bg-dark/20 p-4 sm:p-5">
                   <label for={fieldId} class="mb-2 block text-sm font-semibold uppercase tracking-wide text-white">
@@ -1748,6 +1753,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                     class="w-full rounded-xl border border-white/20 bg-[#0b0b0c] text-[#ededed] px-4 py-3 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
                     data-group={(c.group || 'custom').toString()}
                     data-price={(typeof c.priceDelta === 'number' ? c.priceDelta : (typeof c.price === 'number' ? c.price : (typeof c.delta === 'number' ? c.delta : 0))).toString()}
+                    data-price-cents={surchargeCents.toString()}
                     required={!!c.required}
                     aria-describedby={helperMessages.length > 0 ? helperId : undefined}
                   />
