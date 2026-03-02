@@ -20,7 +20,7 @@ interface FeedProduct {
 const FEED_DIR = path.join('tmp', 'feeds');
 
 const resolveSiteUrl = () =>
-  process.env.PUBLIC_SITE_URL || process.env.PUBLIC_BASE_URL || 'https://www.fasmotorsports.com';
+  process.env.PUBLIC_SITE_URL || process.env.PUBLIC_BASE_URL || 'https://fasmotorsports.com';
 
 const toAbsoluteUrl = (slug?: string) => {
   if (!slug) return '';

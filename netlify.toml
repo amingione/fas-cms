@@ -3,6 +3,24 @@
   to = "/site.webmanifest"
   status = 200
 
+[[redirects]]
+  from = "https://fasmotorsports.us/*"
+  to = "https://fasmotorsports.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://www.fasmotorsports.us/*"
+  to = "https://fasmotorsports.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://fas.fasmotorsports.com/*"
+  to = "https://fasmotorsports.com/:splat"
+  status = 301
+  force = true
+
 # Legacy domain + WooCommerce URL redirects consolidated from public/_redirects
 [[redirects]]
   from = "/*"
@@ -11,7 +29,9 @@
   force = true
   conditions = { Host = [
     "fasmotorsports.us",
-    "www.fasmotorsports.us"
+    "www.fasmotorsports.us",
+    "www.fasmotorsports.com",
+    "fas.fasmotorsports.com"
   ] }
 
 [[redirects]]
@@ -734,7 +754,7 @@
   # In production on Netlify, forwarded host headers are present, so this is a safe default.
   PUBLIC_BASE_URL = "https://fasmotorsports.com"
   # Canonical site URL used as a fallback by auth flows
-  PUBLIC_SITE_URL = "https://www.fasmotorsports.com"
+  PUBLIC_SITE_URL = "https://fasmotorsports.com"
   # Public Sanity config (baked into client-side bundle at build time)
   PUBLIC_SANITY_PROJECT_ID = "r4og35qd"
   PUBLIC_SANITY_DATASET = "production"
@@ -755,7 +775,7 @@
   GMC_SFTP_HOST = "partnerupload.google.com"
   GMC_SFTP_PORT = "19321"
   GMC_SFTP_FEED_FILENAME = "fas-products-feed.txt"
-  GMC_FEED_BASE_URL = "https://www.fasmotorsports.com"
+  GMC_FEED_BASE_URL = "https://fasmotorsports.com"
   GMC_FEED_CURRENCY = "USD"
   GMC_FEED_DEFAULT_QUANTITY = "30"
   GMC_FEED_DEFAULT_WEIGHT_LB = "1"
@@ -807,7 +827,7 @@
   ADMIN_EMAIL = "sales@fasmotorsports.com"
   NEXT_PUBLIC_API_BASE_URL = "https://fasmotorsports.com"
   SITE_NAME = "FAS Motorsports"
-  CORS_ALLOW = "https://www.fasmotorsports.com,https://fassanity.fasmotorsports.com"
+  CORS_ALLOW = "https://fasmotorsports.com,https://fassanity.fasmotorsports.com"
   CORS_ORIGIN = "https://fassanity.fasmotorsports.com"
   # Anthropic model selection (non-secret)
   ANTHROPIC_MODEL = "claude-3-5-sonnet-latest"
@@ -855,7 +875,7 @@
 [[plugins]]
   package = "netlify-plugin-submit-sitemap"
   [plugins.inputs]
-    baseUrl = "https://www.fasmotorsports.com"
+    baseUrl = "https://fasmotorsports.com"
     sitemapPath = "/sitemap_index.xml"
 
 [[plugins]]

@@ -1,4 +1,4 @@
-const FALLBACK_SITE_URL = 'https://www.fasmotorsports.com/';
+const FALLBACK_SITE_URL = 'https://fasmotorsports.com/';
 const FALLBACK_IMAGE_URL = `${FALLBACK_SITE_URL}images/social/social-share.webp`;
 const FALLBACK_LOGO_URL = `${FALLBACK_SITE_URL}logo/faslogochroma.webp`;
 const FALLBACK_DESCRIPTION =

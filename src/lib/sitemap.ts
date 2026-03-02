@@ -2,7 +2,7 @@ import { stat } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { sanity } from './sanity-utils';
 
-const FALLBACK_SITE_URL = 'https://www.fasmotorsports.com';
+const FALLBACK_SITE_URL = 'https://fasmotorsports.com';
 
 type ChangeFreq = 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never';
 

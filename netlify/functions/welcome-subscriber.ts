@@ -5,7 +5,7 @@ const DEFAULT_FROM =
   process.env.RESEND_FROM || 'F.A.S. Motorsports <noreply@updates.fasmotorsports.com>';
 const DEFAULT_SUBJECT = 'Welcome to F.A.S. Motorsports — Where Real Builds Begin';
 const PREVIEW_TEXT = 'Early access to new parts, pre-orders, and member-only pricing.';
-const CTA_URL = 'https://www.fasmotorsports.com/shop';
+const CTA_URL = 'https://fasmotorsports.com/shop';
 
 const buildHtml = (name?: string) => `
   <div style="display:none;visibility:hidden;opacity:0;height:0;width:0;font-size:0;line-height:0;color:transparent;">

@@ -33,10 +33,10 @@ const rawBaseSiteUrl =
   process.env.PUBLIC_SITE_URL ||
   process.env.PUBLIC_BASE_URL ||
   process.env.BASE_URL ||
-  'https://www.fasmotorsports.com';
+  'https://fasmotorsports.com';
 
 const normalizeBaseUrl = (value: string): string => {
-  if (!value) return 'https://www.fasmotorsports.com';
+  if (!value) return 'https://fasmotorsports.com';
   try {
     const url = new URL(value);
     return url.origin;

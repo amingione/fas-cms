@@ -103,6 +103,18 @@ const resolveCanonical = (value?: string | null) => {
   return undefined;
 };
 
+const CANONICAL_SITE_ORIGIN = (() => {
+  const candidate =
+    (import.meta.env.PUBLIC_SITE_URL as string | undefined) ||
+    (import.meta.env.PUBLIC_BASE_URL as string | undefined) ||
+    'https://fasmotorsports.com';
+  try {
+    return new URL(candidate).origin;
+  } catch {
+    return 'https://fasmotorsports.com';
+  }
+})();
+
 const previewEnvEnabled = parseBooleanFlag(
   (import.meta.env.PUBLIC_SANITY_PREVIEW_DRAFTS as string | undefined) ?? 'true'
 );
@@ -194,11 +206,20 @@ try {
     const url = new URL(Astro.request.url);
     url.search = '';
     url.hash = '';
-    canonicalUrl = url.toString();
+    canonicalUrl = new URL(url.pathname, CANONICAL_SITE_ORIGIN).toString();
   }
 } catch {
   canonicalUrl =
     resolveCanonical(canonical) ?? resolveCanonical(canonicalFromSanity) ?? canonical ?? undefined;
+}
+
+if (canonicalUrl) {
+  try {
+    const parsedCanonical = new URL(canonicalUrl);
+    canonicalUrl = new URL(`${parsedCanonical.pathname}${parsedCanonical.search}`, CANONICAL_SITE_ORIGIN).toString();
+  } catch {
+    canonicalUrl = new URL('/', CANONICAL_SITE_ORIGIN).toString();
+  }
 }
 
 const siteUrl = (() => {
@@ -224,7 +245,7 @@ const siteUrl = (() => {
       /* noop */
     }
   }
-  return 'https://www.fasmotorsports.com/';
+  return `${CANONICAL_SITE_ORIGIN}/`;
 })();
 
 const cmsTitle = seoPayload.page?.title;

@@ -18,7 +18,7 @@ export interface BrokenLink {
 
 const DEFAULT_HTML_GLOBS = ['dist/**/*.html', 'public/**/*.html'];
 
-const FALLBACK_SITE_URL = 'https://www.fasmotorsports.com';
+const FALLBACK_SITE_URL = 'https://fasmotorsports.com';
 
 const resolveSiteBaseUrl = () => {
   const candidate =

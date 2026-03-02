@@ -4,6 +4,5 @@ Disallow: /api/
 Disallow: /account
 Disallow: /dashboard
 Disallow: /vendor
-Sitemap: https://www.fasmotorsports.com/sitemap_index.xml
-Sitemap: https://www.fasmotorsports.com/sitemap.xml
-
+Sitemap: https://fasmotorsports.com/sitemap_index.xml
+Sitemap: https://fasmotorsports.com/sitemap.xml

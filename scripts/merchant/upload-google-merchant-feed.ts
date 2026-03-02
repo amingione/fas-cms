@@ -53,7 +53,7 @@ const DEFAULT_BASE_URL =
   process.env.PUBLIC_SITE_URL ||
   process.env.PUBLIC_BASE_URL ||
   process.env.SITE_URL ||
-  'https://www.fasmotorsports.com';
+  'https://fasmotorsports.com';
 
 const DEFAULT_CURRENCY = process.env.GMC_FEED_CURRENCY || 'USD';
 const DEFAULT_LANGUAGE = process.env.GMC_FEED_LANGUAGE || 'en';

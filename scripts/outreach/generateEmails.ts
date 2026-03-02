@@ -25,7 +25,7 @@ Topic: {topic}
 Value Proposition: {valueProposition}
 Call To Action: {callToAction}
 
-Write a concise email (<= 160 words) that feels personal, highlights mutual value, and links to https://www.fasmotorsports.com/blog.
+Write a concise email (<= 160 words) that feels personal, highlights mutual value, and links to https://fasmotorsports.com/blog.
 `;
 
 const readProspects = async () => {
