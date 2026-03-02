@@ -449,6 +449,9 @@ export default function CheckoutForm() {
         throw new Error(payload?.error || 'Failed to apply shipping option');
       }
 
+      // Refresh base cart state (Medusa returns shipping_total=0 for calculated
+      // price options until checkout completion — display is patched below using
+      // the confirmed PaymentIntent amount as the source of truth).
       await loadCart(cartId);
 
       const intentResponse = await fetch('/api/medusa/payments/create-intent', {
@@ -464,6 +467,34 @@ export default function CheckoutForm() {
       if (!payload?.client_secret) {
         throw new Error('Payment intent not ready');
       }
+
+      // Option A: use the confirmed PaymentIntent amount (Medusa's authoritative
+      // cart.total) to derive correct shipping and tax display values.
+      // Medusa 2.x doesn't update cart.shipping_total for calculated-price options
+      // until checkout completion, so we back-calculate from the PI total here.
+      const confirmedTotalCents: number =
+        typeof payload.amount === 'number' && Number.isFinite(payload.amount)
+          ? payload.amount
+          : 0;
+
+      if (confirmedTotalCents > 0) {
+        setCart((prev) => {
+          if (!prev) return prev;
+          const shippingCents = rate.amountCents;
+          const subtotalCents = prev.subtotal_cents;
+          // Discount is only applied when Medusa returns explicit promotions.
+          // The cart already has the correct subtotal_cents accounting for discounts.
+          // confirmed total = subtotal + shipping + tax (- discount already in subtotal)
+          const taxCents = Math.max(0, confirmedTotalCents - subtotalCents - shippingCents);
+          return {
+            ...prev,
+            shipping_amount_cents: shippingCents,
+            tax_amount_cents: taxCents,
+            total_cents: confirmedTotalCents
+          };
+        });
+      }
+
       setClientSecret(payload.client_secret);
     } catch (err) {
       console.error('Failed to update shipping:', err);
