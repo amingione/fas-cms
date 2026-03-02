@@ -15,12 +15,6 @@
   status = 301
   force = true
 
-[[redirects]]
-  from = "https://fas.fasmotorsports.com/*"
-  to = "https://fasmotorsports.com/:splat"
-  status = 301
-  force = true
-
 # Legacy domain + WooCommerce URL redirects consolidated from public/_redirects
 [[redirects]]
   from = "/*"
@@ -30,8 +24,7 @@
   conditions = { Host = [
     "fasmotorsports.us",
     "www.fasmotorsports.us",
-    "www.fasmotorsports.com",
-    "fas.fasmotorsports.com"
+    "www.fasmotorsports.com"
   ] }
 
 [[redirects]]
