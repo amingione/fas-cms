@@ -906,7 +906,32 @@ function StripePaymentPane({
           return;
         }
         window.location.href = '/order/confirmation?payment_intent=' + paymentIntent.id;
+        return;
       }
+
+      if (paymentIntent?.status === 'processing') {
+        window.location.href = '/order/confirmation?payment_intent=' + paymentIntent.id;
+        return;
+      }
+
+      if (paymentIntent?.status === 'requires_action') {
+        setError('Additional authentication is required. Please complete verification and try again.');
+        return;
+      }
+
+      if (paymentIntent?.status === 'requires_payment_method') {
+        setError(
+          'Payment method was not accepted. Please review your payment details and try again.'
+        );
+        return;
+      }
+
+      if (paymentIntent?.status) {
+        setError(`Payment did not complete (status: ${paymentIntent.status}). Please try again.`);
+        return;
+      }
+
+      setError('Unable to confirm payment. Please try again.');
     } catch (error) {
       console.error('Payment error:', error);
       setError('Payment failed. Please try again.');
