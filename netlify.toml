@@ -740,7 +740,7 @@
 ## Note: Custom auth uses Astro API under /api/auth/*; no redirects needed.
 
 [build]
-  command = "yarn install && yarn build"
+  command = "yarn build"
   publish = "dist"
 
 [build.environment]
@@ -748,8 +748,8 @@
   GO_VERSION = "1.20"
   PHP_VERSION = "8.3"
   NETLIFY_USE_YARN = "true"
-  NETLIFY_EXPERIMENTAL_YARN_BERRY = "false"
-  YARN_VERSION = "1.22.19"
+  NETLIFY_EXPERIMENTAL_YARN_BERRY = "true"
+  YARN_VERSION = "4.12.0"
   # Used by /api/checkout to build absolute success/cancel URLs
   # In production on Netlify, forwarded host headers are present, so this is a safe default.
   PUBLIC_BASE_URL = "https://fasmotorsports.com"
