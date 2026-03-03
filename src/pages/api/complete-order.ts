@@ -8,6 +8,7 @@ import { STRIPE_API_VERSION } from '@/lib/stripe-config';
 import { createClient } from '@sanity/client';
 import { requireSanityApiToken } from '@/server/sanity-token';
 import { formatOrderNumber } from '@/lib/order-number';
+import { getMedusaConfig, medusaFetch } from '@/lib/medusa';
 
 const resolveEnv = (name: string): string => {
   const runtimeValue = process.env[name];
@@ -135,30 +136,52 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // Complete cart in Medusa (convert to order)
-    const medusaUrl = resolveEnv('MEDUSA_API_URL') || 'http://localhost:9000';
-    const publishableKey =
-      (import.meta.env.MEDUSA_PUBLISHABLE_KEY as string | undefined) ||
-      (import.meta.env.PUBLIC_MEDUSA_PUBLISHABLE_KEY as string | undefined) ||
-      (process.env.MEDUSA_PUBLISHABLE_KEY as string | undefined) ||
-      (process.env.PUBLIC_MEDUSA_PUBLISHABLE_KEY as string | undefined);
-
-    if (!publishableKey) {
-      return new Response(JSON.stringify({ error: 'Missing Medusa publishable key.' }), {
-        status: 500,
+    // Uses getMedusaConfig() / medusaFetch() — the standard pattern across all API routes.
+    // This reads MEDUSA_BACKEND_URL (server) or PUBLIC_MEDUSA_BACKEND_URL (build) so there
+    // is no more localhost:9000 fallback from a missing MEDUSA_API_URL variable.
+    const medusaConfig = getMedusaConfig();
+    if (!medusaConfig) {
+      return new Response(JSON.stringify({ error: 'Medusa backend not configured.' }), {
+        status: 503,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    const cartResponse = await fetch(`${medusaUrl}/store/carts/${cart_id}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-publishable-api-key': publishableKey
+    // Helper: fetch an existing order that was already created for this cart.
+    // Used for race-condition recovery when the Stripe webhook completes the cart first.
+    const fetchOrderByCartId = async (cartId: string): Promise<any | null> => {
+      try {
+        const res = await medusaFetch(`/store/orders?cart_id=${encodeURIComponent(cartId)}`, {
+          method: 'GET'
+        });
+        const data = await res.json().catch(() => ({}));
+        return data?.orders?.[0] ?? data?.order ?? null;
+      } catch {
+        return null;
       }
-    });
+    };
 
+    // Fetch cart — if 404, the Stripe webhook may have already completed it.
+    const cartResponse = await medusaFetch(`/store/carts/${cart_id}`, { method: 'GET' });
     const cartPayload = await cartResponse.json().catch(() => ({}));
+
     if (!cartResponse.ok || !cartPayload?.cart) {
+      if (cartResponse.status === 404) {
+        // Cart gone → webhook likely completed it first. Look up the resulting order.
+        const existingOrder = await fetchOrderByCartId(cart_id);
+        if (existingOrder) {
+          console.log(`[complete-order] cart ${cart_id} already converted; recovering order ${existingOrder.id}`);
+          const formattedOrderNumber = await syncOrderToSanity(existingOrder, paymentIntent);
+          return new Response(
+            JSON.stringify({
+              success: true,
+              order_id: existingOrder.id,
+              order_number: formattedOrderNumber || existingOrder.display_id
+            }),
+            { status: 200, headers: { 'Content-Type': 'application/json' } }
+          );
+        }
+      }
       return new Response(JSON.stringify({ error: 'Failed to load cart before completion.' }), {
         status: 502,
         headers: { 'Content-Type': 'application/json' }
@@ -193,15 +216,26 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    const completeResponse = await fetch(`${medusaUrl}/store/carts/${cart_id}/complete`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-publishable-api-key': publishableKey
-      }
+    const completeResponse = await medusaFetch(`/store/carts/${cart_id}/complete`, {
+      method: 'POST'
     });
 
     if (!completeResponse.ok) {
+      // Race-condition recovery: webhook may have completed the cart between our cart fetch
+      // and the complete call. Look up the resulting order before returning an error.
+      const existingOrder = await fetchOrderByCartId(cart_id);
+      if (existingOrder) {
+        console.log(`[complete-order] complete failed but order found for cart ${cart_id}; recovering order ${existingOrder.id}`);
+        const formattedOrderNumber = await syncOrderToSanity(existingOrder, paymentIntent);
+        return new Response(
+          JSON.stringify({
+            success: true,
+            order_id: existingOrder.id,
+            order_number: formattedOrderNumber || existingOrder.display_id
+          }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
       const completePayload = await completeResponse.json().catch(() => ({}));
       return new Response(
         JSON.stringify({
@@ -214,7 +248,9 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    const { order } = await completeResponse.json();
+    const completeData = await completeResponse.json().catch(() => ({}));
+    // Medusa v2 returns { type: 'order', order: {...} }
+    const order = completeData?.order ?? completeData;
 
     // Sync order to Sanity for fulfillment
     const formattedOrderNumber = await syncOrderToSanity(order, paymentIntent);
