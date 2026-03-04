@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { EyeIcon, ShoppingCartIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { PortableText, type PortableTextComponents } from '@portabletext/react';
@@ -82,6 +82,9 @@ export default function ProductQuickViewButton({
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const instanceIdRef = useRef(
+    `quick-view-${Math.random().toString(36).slice(2)}-${Date.now().toString(36)}`
+  );
   const portalNode = useMemo(() => {
     if (typeof document === 'undefined') return null;
     return document.createElement('div');
@@ -111,6 +114,27 @@ export default function ProductQuickViewButton({
       document.removeEventListener('keydown', handleKey);
     };
   }, [open]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleGlobalQuickViewOpen = (event: Event) => {
+      const custom = event as CustomEvent<{ instanceId?: string }>;
+      const incomingId = custom?.detail?.instanceId;
+      if (!incomingId) return;
+      if (incomingId !== instanceIdRef.current) {
+        setOpen(false);
+      }
+    };
+
+    window.addEventListener('fas:quick-view-open', handleGlobalQuickViewOpen as EventListener);
+    return () => {
+      window.removeEventListener(
+        'fas:quick-view-open',
+        handleGlobalQuickViewOpen as EventListener
+      );
+    };
+  }, []);
 
   // ✅ PRICING AUTHORITY: Product quick view may only display prices sourced from Medusa.
   const medusaPrice = resolveProductCalculatedPriceAmount(product);
@@ -304,11 +328,22 @@ export default function ProductQuickViewButton({
     }
   }
 
+  const openModal = () => {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('fas:quick-view-open', {
+          detail: { instanceId: instanceIdRef.current }
+        })
+      );
+    }
+    setOpen(true);
+  };
+
   return (
     <>
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={openModal}
         className={`btn-plain inline-flex items-center gap-2 rounded-full border border-white/10 bg-[#1a1a1a] px-3 py-1 text-xs uppercase tracking-[0.18em] text-white/80 transition hover:border-white/10 border-t shadow-sm hover:text-white ${className}`.trim()}
         data-analytics-event="quick_view_open"
         data-analytics-category="engagement"

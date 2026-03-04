@@ -114,14 +114,8 @@ export default function CartModal() {
     function handleOpen(event: Event) {
       const customEvent = event as CustomEvent<{ forceMobile?: boolean }>;
       const forceMobile = Boolean(customEvent.detail?.forceMobile);
-      if (!forceMobile && prefersDesktopRef.current) {
-        try {
-          window.dispatchEvent(new Event('open-desktop-cart'));
-        } catch (error) {
-          void error;
-        }
-        return;
-      }
+      // Do not auto-open desktop cart preview when items are added.
+      if (!forceMobile && prefersDesktopRef.current) return;
       setIsOpen(true);
     }
     window.addEventListener('open-cart' as any, handleOpen as EventListener);

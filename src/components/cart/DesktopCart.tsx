@@ -17,7 +17,7 @@ function CartSummaryPopover({
   onRegisterTrigger?: (ref: HTMLButtonElement | null) => void;
   onRegisterPanel?: (ref: HTMLDivElement | null) => void;
 }) {
-  const { cart, totalQuantity } = useCart();
+  const { cart, totalQuantity, removeCartItem } = useCart();
   const [pinned, setPinned] = useState(false);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
@@ -123,14 +123,21 @@ function CartSummaryPopover({
                       loading="lazy"
                     />
                     <div className="flex flex-1 flex-col text-xs">
-                      <span className="text-sm font-semibold text-white">
-                        {displayName}
-                      </span>
+                      <span className="text-sm font-semibold text-white">{displayName}</span>
                       {optionsSummary && (
                         <span className="mt-1 text-white/60">{optionsSummary}</span>
                       )}
                       <div className="mt-2 flex items-center justify-between text-white/70">
                         <span>Qty {item.quantity || 1}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            void removeCartItem(item.id);
+                          }}
+                          className="text-[11px] font-semibold uppercase tracking-wide text-red-300 transition hover:text-red-200"
+                        >
+                          Remove
+                        </button>
                       </div>
                       {isInstallOnly && (
                         <span className="mt-2 inline-flex w-fit rounded-full bg-amber-500/20 px-2 py-1 text-[10px] uppercase tracking-wide text-amber-200">
@@ -148,7 +155,7 @@ function CartSummaryPopover({
                 href="/cart"
                 className="btn-glass px-4 py-2 text-center font-semibold text-accent transition hover:bg-accent/10"
               >
-                Go To Cart
+                Checkout
               </a>
             </div>
           </div>
