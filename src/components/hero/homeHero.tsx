@@ -14,7 +14,8 @@ export default function HomeHero() {
     if (typeof window === 'undefined') return;
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+    const connection = (navigator as Navigator & { connection?: { saveData?: boolean } })
+      .connection;
     const saveDataEnabled = connection?.saveData === true;
 
     // Keep hero static for users who opt into reduced motion / data savings.
@@ -32,13 +33,15 @@ export default function HomeHero() {
     };
 
     if ('requestIdleCallback' in window) {
-      const idleId = (window as Window & { requestIdleCallback: (cb: () => void) => number }).requestIdleCallback(
-        loadVideo
-      );
+      const idleId = (
+        window as Window & { requestIdleCallback: (cb: () => void) => number }
+      ).requestIdleCallback(loadVideo);
       return () => {
         cancelled = true;
         if ('cancelIdleCallback' in window) {
-          (window as Window & { cancelIdleCallback: (id: number) => void }).cancelIdleCallback(idleId);
+          (window as Window & { cancelIdleCallback: (id: number) => void }).cancelIdleCallback(
+            idleId
+          );
         }
       };
     }
@@ -106,7 +109,7 @@ export default function HomeHero() {
           src={shouldLoadVideo ? HERO_VIDEO_SRC : undefined}
           loop
           preload="metadata"
-          poster="/logo/faslogochroma.webp"
+          poster="/logo/fas-logo500.webp"
           muted
           playsInline
           autoPlay

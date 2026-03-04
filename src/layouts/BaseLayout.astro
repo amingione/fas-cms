@@ -139,10 +139,12 @@ const canonicalFromSanity =
   typeof seoPayload.page?.canonicalUrl === 'string' ? seoPayload.page.canonicalUrl : undefined;
 
 if (import.meta.env.SSR) {
-  (globalThis as { __SANITY_VISUAL_EDITING_OVERRIDE__?: boolean }).__SANITY_VISUAL_EDITING_OVERRIDE__ =
-    visualEditingEnabled;
-  (globalThis as { __SANITY_VISUAL_EDITING_URL__?: string | undefined }).__SANITY_VISUAL_EDITING_URL__ =
-    currentUrl?.toString();
+  (
+    globalThis as { __SANITY_VISUAL_EDITING_OVERRIDE__?: boolean }
+  ).__SANITY_VISUAL_EDITING_OVERRIDE__ = visualEditingEnabled;
+  (
+    globalThis as { __SANITY_VISUAL_EDITING_URL__?: string | undefined }
+  ).__SANITY_VISUAL_EDITING_URL__ = currentUrl?.toString();
 }
 
 const syncVisualEditingStateScript = `
@@ -221,7 +223,10 @@ try {
 if (canonicalUrl) {
   try {
     const parsedCanonical = new URL(canonicalUrl);
-    canonicalUrl = new URL(`${parsedCanonical.pathname}${parsedCanonical.search}`, CANONICAL_SITE_ORIGIN).toString();
+    canonicalUrl = new URL(
+      `${parsedCanonical.pathname}${parsedCanonical.search}`,
+      CANONICAL_SITE_ORIGIN
+    ).toString();
   } catch {
     canonicalUrl = new URL('/', CANONICAL_SITE_ORIGIN).toString();
   }
@@ -524,7 +529,7 @@ const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
         }
       })();
     </script>
-    <script is:inline set:html={syncVisualEditingStateScript}></script>
+    <script is:inline set:html={syncVisualEditingStateScript} />
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.ico" />
@@ -538,7 +543,7 @@ const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
         });
       }
     </script>
-    <link rel="icon" type="image/webp" href="/logo/faslogochroma.webp" />
+    <link rel="icon" type="image/webp" href="/logo/fas-logo500.webp" />
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
     <link rel="dns-prefetch" href="https://www.google-analytics.com" />
     <link rel="dns-prefetch" href="https://stats.g.doubleclick.net" />
@@ -592,7 +597,10 @@ const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
     {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
     {
       jsonLdEntries.map((entry, index) => (
-        <script is:inline type="application/ld+json" set:html={JSON.stringify(entry)}
+        <script
+          is:inline
+          type="application/ld+json"
+          set:html={JSON.stringify(entry)}
           data-seo-ld-index={index}
         />
       ))
@@ -676,7 +684,8 @@ const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
         });
       })();
     </script>
-    <script is:inline async defer src="https://apis.google.com/js/platform.js?onload=renderOptIn"></script>
+    <script is:inline async defer src="https://apis.google.com/js/platform.js?onload=renderOptIn"
+    ></script>
 
     <slot name="head" />
   </head>

@@ -19,7 +19,7 @@ export interface ProductCardProps {
 }
 
 function getImageUrl(product: SanityProduct, productImage?: ProductCardProps['productImage']) {
-  const fallback = '/logo/faslogochroma.webp';
+  const fallback = '/logo/fas-logo500.webp';
   const candidates: unknown[] = [
     productImage,
     product && typeof product === 'object' ? (product as any).image : undefined,
@@ -56,7 +56,7 @@ function addToCart(product: SanityProduct) {
     const categories = Array.isArray(product.categories)
       ? product.categories.map((c: any) => c?._ref || c?._id || '').filter(Boolean)
       : [];
-    const image = resolveSanityImageUrl([product?.images]) || '/logo/faslogochroma.webp';
+    const image = resolveSanityImageUrl([product?.images]) || '/logo/fas-logo500.webp';
     const slug = getSlug(product);
     const productUrl = slug ? `/shop/${slug}` : undefined;
     const { shippingClass, installOnly } = resolveProductCartMeta(product);

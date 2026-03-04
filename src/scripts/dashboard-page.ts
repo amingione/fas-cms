@@ -18,7 +18,7 @@ let defaultName = 'Guest';
 let loadToken = 0;
 
 const AUTH_TIMEOUT = 8000;
-const FALLBACK_ITEM_IMAGE = '/logo/FASmotorsportsLLC-LOGO.webp';
+const FALLBACK_ITEM_IMAGE = '/logo/fas-logo500.webp';
 
 type OrderPartitions = {
   active: any[];

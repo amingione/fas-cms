@@ -8,7 +8,7 @@ import Price, { formatPrice } from '@/components/storefront/Price';
 import { formatOptionSummary } from '@/lib/cart/format-option-summary';
 import { calculateAddOnTotal, extractAddOns } from '@/lib/cart/extract-add-ons';
 
-const FALLBACK_IMAGE = '/logo/FASmotorsportsLLC-LOGO.webp';
+const FALLBACK_IMAGE = '/logo/fas-logo500.webp';
 const QUANTITY_CHOICES = Array.from({ length: 10 }, (_, i) => i + 1);
 
 function toNumber(value: unknown, fallback = 0): number {

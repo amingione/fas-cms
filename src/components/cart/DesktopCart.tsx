@@ -8,7 +8,7 @@ import { prefersDesktopCart } from '@/lib/device';
 import { useEffect, useRef, useState } from 'react';
 import { formatOptionSummary } from '@/lib/cart/format-option-summary';
 
-const FALLBACK_IMAGE = '/logo/FASmotorsportsLLC-LOGO.webp';
+const FALLBACK_IMAGE = '/logo/fas-logo500.webp';
 
 function CartSummaryPopover({
   onRegisterTrigger,

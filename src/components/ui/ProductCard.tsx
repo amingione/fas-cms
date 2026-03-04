@@ -36,7 +36,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const displayTitle = (product as any)?.displayTitle || product.title || 'Product';
 
   const imageUrl =
-    resolveSanityImageUrl([product?.image, product?.image?.asset]) || '/logo/faslogochroma.webp';
+    resolveSanityImageUrl([product?.image, product?.image?.asset]) || '/logo/fas-logo500.webp';
   const productSlug = normalizeSlugValue((product as any)?.slug);
 
   const handleAddToCart = async (e: React.MouseEvent) => {
@@ -49,10 +49,7 @@ export function ProductCard({ product }: ProductCardProps) {
       const { shippingClass, installOnly } = resolveProductCartMeta(product);
       const medusaVariantId = (product as any)?.medusaVariantId;
       if (!medusaVariantId) {
-        showToast(
-          'Please select a product variant before adding this item to your cart.',
-          false
-        );
+        showToast('Please select a product variant before adding this item to your cart.', false);
         setIsAdding(false);
         return;
       }

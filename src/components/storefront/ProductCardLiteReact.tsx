@@ -23,7 +23,7 @@ export default function ProductCardLiteReact({
 }) {
   const slug = normalizeSlugValue((product as any)?.slug);
   const href = slug ? `/shop/${encodeURIComponent(slug)}` : '#';
-  const fallbackImage = '/logo/faslogochroma.webp';
+  const fallbackImage = '/logo/fas-logo500.webp';
   const img = resolveSanityImageUrl([productImage, product?.images]) ?? fallbackImage;
   const displayTitle = product?.displayTitle || product?.title || 'Untitled Product';
   const anchorText =
@@ -125,7 +125,9 @@ export default function ProductCardLiteReact({
             stripePriceId: (product as any)?.stripePriceId,
             medusaVariantId:
               (product as any)?.medusaVariantId ||
-              (typeof (medusaVariant as any)?.id === 'string' ? (medusaVariant as any).id : undefined),
+              (typeof (medusaVariant as any)?.id === 'string'
+                ? (medusaVariant as any).id
+                : undefined),
             imageSrc: img,
             imageAlt: anchorText,
             description: shortText,
@@ -158,11 +160,7 @@ export default function ProductCardLiteReact({
           />
         </div>
         <div className="absolute bottom-4 flex w-full items-center gap-1">
-          <Label
-            title={anchorText}
-            amount={price ?? null}
-            position="bottom"
-          />
+          <Label title={anchorText} amount={price ?? null} position="bottom" />
         </div>
       </a>
       <div className="pointer-events-none absolute right-3 top-3 z-10 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">
@@ -176,7 +174,9 @@ export default function ProductCardLiteReact({
             stripePriceId: (product as any)?.stripePriceId,
             medusaVariantId:
               (product as any)?.medusaVariantId ||
-              (typeof (medusaVariant as any)?.id === 'string' ? (medusaVariant as any).id : undefined),
+              (typeof (medusaVariant as any)?.id === 'string'
+                ? (medusaVariant as any).id
+                : undefined),
             imageSrc: img,
             imageAlt: anchorText,
             description: shortText,

@@ -385,14 +385,16 @@ export default function BuildConfiguratorClient({ products }: Props) {
                   src={
                     typeof p.images?.[0] === 'string'
                       ? p.images[0]
-                      : p.images?.[0]?.asset?.url || '/logo/faslogochroma.webp'
+                      : p.images?.[0]?.asset?.url || '/logo/fas-logo500.webp'
                   }
                   alt={p.title}
                   className="w-full h-48 object-cover rounded-lg mb-4"
                 />
                 <h4 className="text-lg font-medium text-text mb-2">{p.title}</h4>
                 <p className="text-blue-400 font-bold mb-4">
-                  {typeof resolveMedusaPrice(p) === 'number' ? formatCents(resolveMedusaPrice(p)!) : '—'}
+                  {typeof resolveMedusaPrice(p) === 'number'
+                    ? formatCents(resolveMedusaPrice(p)!)
+                    : '—'}
                 </p>
                 <Button
                   onClick={() => addToBuild(p)}

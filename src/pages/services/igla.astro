@@ -14,7 +14,7 @@ const requestUrl = new URL(Astro.request.url);
 requestUrl.search = '';
 requestUrl.hash = '';
 const canonical = requestUrl.toString();
-const ogImageAbsolute = new URL('/logo/faslogochroma.webp', requestUrl.origin).toString();
+const ogImageAbsolute = new URL('/logo/fas-logo500.webp', requestUrl.origin).toString();
 ---
 
 <BaseLayout

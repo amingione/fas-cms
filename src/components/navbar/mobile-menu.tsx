@@ -114,7 +114,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
     <div className={`flex flex-col gap-6 ${isInlineMode ? 'text-white' : 'text-white'}`}>
       <div className="flex">
         <img
-          src="/logo/faslogochroma.webp"
+          src="/logo/fas-logo500.webp"
           alt="FAS Logo"
           width={120}
           height={120}

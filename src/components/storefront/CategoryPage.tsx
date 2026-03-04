@@ -383,7 +383,7 @@ export default function CategoryPage({
                   <span className="sr-only">F.A.S. Motorsports</span>
                   <img
                     alt="F.A.S. Motorsports Performance Parts and Supercharger Modifications"
-                    src="/logo/FASmotorsportsLLC-LOGO.webp"
+                    src="/logo/fas-logo500.webp"
                     className="h-8 w-auto"
                     width={1000}
                     height={1000}

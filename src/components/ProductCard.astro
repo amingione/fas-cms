@@ -2,21 +2,18 @@
 import { resolveSanityImageUrl } from '@/lib/sanity-utils.ts';
 import { resolveProductCartMeta } from '@/lib/product-flags.ts';
 import { formatCents } from '@/lib/pricing';
-import { resolveProductCalculatedPriceAmount, resolveProductMedusaVariant } from '@/lib/medusa-storefront-pricing';
+import {
+  resolveProductCalculatedPriceAmount,
+  resolveProductMedusaVariant
+} from '@/lib/medusa-storefront-pricing';
 
 const { productImage, product, layout = 'grid' } = Astro.props as any;
 const medusaPrice = resolveProductCalculatedPriceAmount(product);
-const productPrice =
-  typeof medusaPrice === 'number'
-    ? formatCents(medusaPrice)
-    : '—';
+const productPrice = typeof medusaPrice === 'number' ? formatCents(medusaPrice) : '—';
 const medusaVariant = resolveProductMedusaVariant(product);
-const productPriceCents =
-  typeof medusaPrice === 'number'
-    ? Math.round(medusaPrice)
-    : undefined;
+const productPriceCents = typeof medusaPrice === 'number' ? Math.round(medusaPrice) : undefined;
 
-const fallbackImage = '/logo/faslogochroma.webp';
+const fallbackImage = '/logo/fas-logo500.webp';
 const imageUrl = resolveSanityImageUrl([productImage, product?.images]) ?? fallbackImage;
 const cartMeta = resolveProductCartMeta(product);
 ---
@@ -41,7 +38,7 @@ const cartMeta = resolveProductCartMeta(product);
       <div class={`${layout === 'list' ? '' : 'mt-4 px-4'} text-left`}>
         <h2 class="text-sm sm:text-base font-ethno font-semibold text-white">{product.title}</h2>
       </div>
-      {layout === 'list' && <p class="mt-2 text-xs sm:text-sm text-white/70 line-clamp-2"></p>}
+      {layout === 'list' && <p class="mt-2 text-xs sm:text-sm text-white/70 line-clamp-2" />}
     </div>
   </a>
   <div
@@ -65,7 +62,8 @@ const cartMeta = resolveProductCartMeta(product);
                 .map((c: { _ref?: string; _id?: string }) => c._ref || c._id || '')
             )}
             data-product-medusa-variant-id={
-              product?.medusaVariantId || (typeof (medusaVariant as any)?.id === 'string' ? (medusaVariant as any).id : '')
+              product?.medusaVariantId ||
+              (typeof (medusaVariant as any)?.id === 'string' ? (medusaVariant as any).id : '')
             }
             data-product-shipping-class={cartMeta.shippingClass || ''}
             data-product-install-only={cartMeta.installOnly ? 'true' : 'false'}

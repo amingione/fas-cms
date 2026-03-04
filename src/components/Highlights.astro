@@ -3,7 +3,7 @@ import { optimizeSanityImageUrl } from '@/lib/sanity-utils.ts';
 
 const { items = [] } = Astro.props as { items?: any[] };
 
-const HIGHLIGHT_FALLBACK_IMAGE = '/logo/faslogochroma.webp';
+const HIGHLIGHT_FALLBACK_IMAGE = '/logo/fas-logo500.webp';
 const HIGHLIGHT_IMAGE_WIDTHS = [200, 320, 360, 480, 640];
 const HIGHLIGHT_IMAGE_BASE_WIDTH = 360;
 const HIGHLIGHT_IMAGE_SIZES = '(min-width: 1024px) 220px, (min-width: 768px) 240px, 55vw';
@@ -62,7 +62,9 @@ const getHighlightImageSources = (rawUrl: unknown): { src: string; srcset?: stri
                   <div class="text-white font-semibold truncate">
                     {(p?.title || p?.name || 'Untitled').toString()}
                   </div>
-                  <div class="text-xs text-white/60 uppercase tracking-wide mt-1">View for pricing</div>
+                  <div class="text-xs text-white/60 uppercase tracking-wide mt-1">
+                    View for pricing
+                  </div>
                 </div>
               </a>
             );

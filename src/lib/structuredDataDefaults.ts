@@ -1,6 +1,6 @@
 const FALLBACK_SITE_URL = 'https://fasmotorsports.com/';
 const FALLBACK_IMAGE_URL = `${FALLBACK_SITE_URL}images/social/social-share.webp`;
-const FALLBACK_LOGO_URL = `${FALLBACK_SITE_URL}logo/faslogochroma.webp`;
+const FALLBACK_LOGO_URL = `${FALLBACK_SITE_URL}logo/fas-logo500.webp`;
 const FALLBACK_DESCRIPTION =
   'F.A.S. Motorsports delivers billet upgrades, fabrication, installs, and premium performance packages from Fort Myers, Florida.';
 const DEFAULT_EMAIL = 'sales@fasmotorsports.com';
@@ -100,7 +100,8 @@ export const buildDefaultJsonLdGraph = ({
   const normalizedSiteUrl = normalizeSiteUrl(siteUrl, canonicalUrl);
   const normalizedPageUrl = normalizePageUrl(canonicalUrl, normalizedSiteUrl);
   const resolvedImage = normalizeAbsoluteUrl(imageUrl, normalizedSiteUrl) ?? FALLBACK_IMAGE_URL;
-  const resolvedLogo = normalizeAbsoluteUrl('/logo/faslogochroma.webp', normalizedSiteUrl) ?? FALLBACK_LOGO_URL;
+  const resolvedLogo =
+    normalizeAbsoluteUrl('/logo/fas-logo500.webp', normalizedSiteUrl) ?? FALLBACK_LOGO_URL;
   const resolvedTitle = pageTitle?.trim() || siteName;
   const resolvedDescription = description?.trim() || FALLBACK_DESCRIPTION;
 
