@@ -17,8 +17,9 @@ function CartSummaryPopover({
   onRegisterTrigger?: (ref: HTMLButtonElement | null) => void;
   onRegisterPanel?: (ref: HTMLDivElement | null) => void;
 }) {
-  const { cart, totalQuantity, removeCartItem } = useCart();
+  const { cart, totalQuantity, removeCartItem, redirectToCheckout } = useCart();
   const [pinned, setPinned] = useState(false);
+  const [checkoutPending, setCheckoutPending] = useState(false);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const items = cart?.items ?? [];
@@ -151,12 +152,25 @@ function CartSummaryPopover({
             </ul>
 
             <div className="flex flex-col gap-2 text-xs uppercase tracking-wide">
-              <a
-                href="/checkout"
+              <button
+                type="button"
+                disabled={checkoutPending}
+                onClick={async () => {
+                  if (checkoutPending) return;
+                  try {
+                    setCheckoutPending(true);
+                    const result = await redirectToCheckout();
+                    if (typeof result === 'string' && result.trim()) {
+                      window.alert(result);
+                    }
+                  } finally {
+                    setCheckoutPending(false);
+                  }
+                }}
                 className="btn-glass px-4 py-2 text-center font-semibold text-accent transition hover:bg-accent/10"
               >
-                Checkout
-              </a>
+                {checkoutPending ? 'Syncing...' : 'Checkout'}
+              </button>
               <p className="mt-6 text-center">
                 <a
                   href="/cart"
