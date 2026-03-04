@@ -473,9 +473,7 @@ export default function CheckoutForm() {
       // Medusa 2.x doesn't update cart.shipping_total for calculated-price options
       // until checkout completion, so we back-calculate from the PI total here.
       const confirmedTotalCents: number =
-        typeof payload.amount === 'number' && Number.isFinite(payload.amount)
-          ? payload.amount
-          : 0;
+        typeof payload.amount === 'number' && Number.isFinite(payload.amount) ? payload.amount : 0;
 
       if (confirmedTotalCents > 0) {
         setCart((prev) => {
@@ -777,7 +775,11 @@ function NonReadyPaymentPane({
         onClick={() => void onCalculateShipping()}
         disabled={loadingRates}
       >
-        {loadingRates ? 'Preparing...' : requiresShipping ? 'Calculate shipping' : 'Continue to payment'}
+        {loadingRates
+          ? 'Preparing...'
+          : requiresShipping
+            ? 'Calculate shipping'
+            : 'Continue to payment'}
       </button>
 
       {requiresShipping && (
@@ -807,8 +809,8 @@ function NonReadyPaymentPane({
 
       {selectedShippoRate && (
         <p className="muted">
-          Live Shippo UPS quote: {normalizeShippoServiceLabel(selectedShippoRate)}{' '}
-          {selectedShippoRate.amount} {selectedShippoRate.currency}
+          UPS quote: {normalizeShippoServiceLabel(selectedShippoRate)} {selectedShippoRate.amount}{' '}
+          {selectedShippoRate.currency}
         </p>
       )}
 
@@ -915,7 +917,9 @@ function StripePaymentPane({
       }
 
       if (paymentIntent?.status === 'requires_action') {
-        setError('Additional authentication is required. Please complete verification and try again.');
+        setError(
+          'Additional authentication is required. Please complete verification and try again.'
+        );
         return;
       }
 
