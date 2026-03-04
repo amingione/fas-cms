@@ -865,14 +865,6 @@
   [plugins.inputs]
     extract = true
 
-[[plugins]]
-  package = "netlify-plugin-cloudinary"
-  [plugins.inputs]
-    cloudName = "dnazrdkss"
-    deliveryType = "fetch"
-    imagesPath = ["/images", "/logo"]
-    maxSize = 20000000
-
 #[[plugins]]
 #  package = "netlify-plugin-minify-html"
 
@@ -893,6 +885,13 @@
 
 # Run a11y checks only on Deploy Previews to avoid slowing/failing production builds
 [context.production]
+  [[context.production.plugins]]
+    package = "netlify-plugin-cloudinary"
+    [context.production.plugins.inputs]
+      cloudName = "dnazrdkss"
+      deliveryType = "fetch"
+      imagesPath = ["/images", "/logo"]
+      maxSize = 20000000
 
 [context.branch-deploy]
 

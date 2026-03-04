@@ -461,18 +461,6 @@ export const POST: APIRoute = async ({ request }) => {
     }
   }
 
-  if (missingVariants.length) {
-    return jsonResponse(
-      {
-        error:
-          'Some cart items are missing required Medusa variant IDs. Please update your cart before checkout.',
-        missingItems: missingVariants
-      },
-      { status: 400 },
-      { noIndex: true }
-    );
-  }
-
   // STEP 4: Remove any Medusa line items that are no longer present in the local cart.
   // Without this, removing an item client-side won't remove it from the Medusa cart, and
   // checkout/order summary will continue to show "ghost" items.
@@ -592,6 +580,20 @@ export const POST: APIRoute = async ({ request }) => {
         error:
           'We could not confirm pricing for one of your selected options. Please remove that option and try again.',
         details: addOnPriceMismatches
+      },
+      { status: 400 },
+      { noIndex: true }
+    );
+  }
+
+  if (missingVariants.length) {
+    return jsonResponse(
+      {
+        error:
+          'Some cart items are missing required Medusa variant IDs. Please update your cart before checkout.',
+        missingItems: missingVariants,
+        cart: finalCartData?.cart ?? null,
+        mappings
       },
       { status: 400 },
       { noIndex: true }

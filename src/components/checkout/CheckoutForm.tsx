@@ -252,6 +252,20 @@ export default function CheckoutForm() {
   const [error, setError] = useState<string | null>(null);
   const [discountCode, setDiscountCode] = useState('');
 
+  async function syncCheckoutCart(
+    context: string,
+    options: { suppressError?: boolean } = {}
+  ): Promise<boolean> {
+    const syncResult = await syncMedusaCart(getCart());
+    if (syncResult.ok) return true;
+    const message = syncResult.error || 'Unable to sync your cart. Please refresh and try again.';
+    console.warn(`[checkout] cart sync failed during ${context}`, { message });
+    if (!options.suppressError) {
+      setError(message);
+    }
+    return false;
+  }
+
   const allItemsInstallOnly = useMemo(() => {
     const items = Array.isArray(cart?.items) ? cart.items : [];
     if (!items.length) return false;
@@ -268,7 +282,12 @@ export default function CheckoutForm() {
         setCartId(id);
         if (!id) return;
 
-        await syncMedusaCart(getCart());
+        const synced = await syncCheckoutCart('checkout init', { suppressError: true });
+        if (!synced) {
+          const recoveredId = await recoverMissingCart();
+          if (!cancelled) setCartId(recoveredId);
+          return;
+        }
         const loaded = await loadCart(id);
         if (!loaded) {
           const recoveredId = await recoverMissingCart();
@@ -309,7 +328,8 @@ export default function CheckoutForm() {
     const freshCartId = await ensureMedusaCartId();
     if (!freshCartId) throw new Error('Unable to create replacement cart');
 
-    await syncMedusaCart(getCart());
+    const synced = await syncCheckoutCart('cart recovery', { suppressError: true });
+    if (!synced) throw new Error('Unable to sync replacement cart');
     const loaded = await loadCart(freshCartId);
     if (!loaded) throw new Error('Replacement cart was not found');
 
@@ -330,7 +350,8 @@ export default function CheckoutForm() {
       setError(null);
       setClientSecret(null);
       try {
-        await syncMedusaCart(getCart());
+        const synced = await syncCheckoutCart('payment intent init');
+        if (!synced) return;
         const intentResponse = await fetch('/api/medusa/payments/create-intent', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -365,7 +386,8 @@ export default function CheckoutForm() {
     setClientSecret(null);
 
     try {
-      await syncMedusaCart(getCart());
+      const synced = await syncCheckoutCart('shipping quote');
+      if (!synced) return;
 
       const updateResponse = await fetch('/api/medusa/cart/update-address', {
         method: 'POST',
@@ -432,7 +454,8 @@ export default function CheckoutForm() {
     setClientSecret(null);
 
     try {
-      await syncMedusaCart(getCart());
+      const synced = await syncCheckoutCart('shipping selection');
+      if (!synced) return;
 
       const response = await fetch('/api/medusa/cart/select-shipping', {
         method: 'POST',
@@ -519,6 +542,7 @@ export default function CheckoutForm() {
       <div className="checkout-empty">
         <h2>Your cart is empty</h2>
         <p>Add some items to your cart before checking out.</p>
+        {error && <p className="checkout-v2-error">{error}</p>}
         <a href="/" className="button">
           Continue Shopping
         </a>

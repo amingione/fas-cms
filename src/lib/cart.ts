@@ -93,19 +93,33 @@ export async function ensureMedusaCartId(): Promise<string | null> {
   return null;
 }
 
-export async function syncMedusaCart(cart: CartItem[]) {
-  if (!isBrowser()) return;
+export type SyncMedusaCartResult = { ok: boolean; error?: string };
+
+export async function syncMedusaCart(cart: CartItem[]): Promise<SyncMedusaCartResult> {
+  if (!isBrowser()) return { ok: false, error: 'Browser context is required.' };
   const cartId = await ensureMedusaCartId();
-  if (!cartId) return;
+  if (!cartId) return { ok: false, error: 'Failed to initialize Medusa cart.' };
 
   try {
-    await fetch('/api/medusa/cart/add-item', {
+    const response = await fetch('/api/medusa/cart/add-item', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ cartId, cart: { items: cart } })
     });
+
+    if (!response.ok) {
+      const payload = await response.json().catch(() => null);
+      console.warn('[lib/cart] Medusa cart sync failed', {
+        status: response.status,
+        error: payload?.error,
+        missingItems: payload?.missingItems
+      });
+      return { ok: false, error: payload?.error || 'Failed to sync cart with checkout.' };
+    }
+    return { ok: true };
   } catch (error) {
-    void error;
+    console.warn('[lib/cart] Medusa cart sync exception', error);
+    return { ok: false, error: 'Failed to sync cart with checkout.' };
   }
 }
 
