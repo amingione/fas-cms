@@ -4,7 +4,7 @@ import type { FormEvent } from 'react';
 const STORAGE_KEY = 'fas-email-popup-dismissed-at';
 const SUPPRESSION_MS = 1000 * 60 * 60 * 24 * 7; // 7 days
 const SCROLL_THRESHOLD = 250;
-const DELAY_AFTER_SCROLL_MS = 10_000;
+const DELAY_AFTER_SCROLL_MS = 12_000;
 const FALLBACK_DELAY_MS = 25_000;
 
 type SubmissionState = 'idle' | 'submitting' | 'success' | 'error';
@@ -102,20 +102,12 @@ export default function EmailCaptureModal() {
       }
     };
 
-    const handleInteraction = () => {
-      startShowTimer();
-    };
-
     fallbackTimeout = window.setTimeout(openPopup, FALLBACK_DELAY_MS);
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('pointerdown', handleInteraction, { passive: true });
-    window.addEventListener('keydown', handleInteraction);
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('pointerdown', handleInteraction);
-      window.removeEventListener('keydown', handleInteraction);
       if (showTimeout != null) {
         window.clearTimeout(showTimeout);
       }
