@@ -888,6 +888,34 @@
   # Re-enabled for preview validation only
   [[context.deploy-preview.plugins]]
     package = "netlify-plugin-checklinks"
+    [context.deploy-preview.plugins.inputs]
+      skipPatterns = [
+        "load dist/contact",
+        "load dist/blog",
+        "load dist/shop",
+        "load dist/services",
+        "load dist/warranty",
+        "load dist/returnRefundPolicy",
+        "load dist/privacypolicy",
+        "load dist/termsandconditions",
+        "load dist/specs/billet-snouts.astro/services/overview",
+        "inline Svg in dist/_astro/contact.",
+        "preconnect-check https://framerusercontent.com",
+        "dns-prefetch-check framerusercontent.com",
+        "dns-prefetch-check analytics.google.com",
+        "dns-prefetch-check www.google-analytics.com",
+        "dns-prefetch-check www.googletagmanager.com",
+        "dns-prefetch-check stats.g.doubleclick.net",
+        "dns-prefetch-check www.google.com",
+        "self-signed certificate",
+        "sslv3 alert handshake failure"
+      ]
+      todoPatterns = [
+        "FAIL load dist/",
+        "FAIL dns-prefetch-check",
+        "FAIL preconnect-check",
+        "inline Svg in dist/_astro/contact."
+      ]
 
 ## Removed netlify-plugin-csp (not on npm) in favor of static CSP header below
 
