@@ -26,6 +26,14 @@ type IncomingCartItem = {
   }>;
 };
 
+function normalizeLocalItemId(input: unknown): string {
+  const raw = String(input ?? '').trim();
+  if (!raw) return raw;
+  if (raw.endsWith('::[]')) return raw.slice(0, -4);
+  if (raw.endsWith('::')) return raw.slice(0, -2);
+  return raw;
+}
+
 function toRoundedNumber(value: unknown): number | null {
   if (typeof value === 'number' && Number.isFinite(value)) return Math.round(value);
   if (typeof value === 'string') {
@@ -33,6 +41,54 @@ function toRoundedNumber(value: unknown): number | null {
     if (Number.isFinite(parsed)) return Math.round(parsed);
   }
   return null;
+}
+
+function buildLineItemMetadata(item: IncomingCartItem, baseVariantId: string, variantId: string) {
+  const metadata: Record<string, unknown> = {
+    local_item_id: normalizeLocalItemId(item.id),
+    base_variant_id: baseVariantId,
+    resolved_variant_id: variantId,
+    install_only: item.installOnly ?? false
+  };
+
+  if (item.sku) metadata.sku = item.sku;
+  if (item.productUrl) metadata.product_url = item.productUrl;
+  if (item.shippingClass) metadata.shipping_class = item.shippingClass;
+  if (typeof item.shippingWeight === 'number') metadata.shipping_weight = item.shippingWeight;
+  if (
+    item.shippingDimensions &&
+    (typeof item.shippingDimensions.length === 'number' ||
+      typeof item.shippingDimensions.width === 'number' ||
+      typeof item.shippingDimensions.height === 'number')
+  ) {
+    metadata.shipping_dimensions = item.shippingDimensions;
+  }
+
+  const selectedOptions = Array.isArray(item.selectedOptions)
+    ? item.selectedOptions.filter((v) => typeof v === 'string' && v.trim())
+    : [];
+  if (selectedOptions.length) metadata.selected_options = selectedOptions;
+
+  const selectedUpgrades = Array.isArray(item.selectedUpgrades)
+    ? item.selectedUpgrades.filter((v) => typeof v === 'string' && v.trim())
+    : [];
+  if (selectedUpgrades.length) metadata.selected_upgrades = selectedUpgrades;
+
+  const detailed = Array.isArray(item.selectedUpgradesDetailed)
+    ? item.selectedUpgradesDetailed.filter(
+        (entry) =>
+          entry &&
+          typeof entry.label === 'string' &&
+          entry.label.trim() &&
+          Number.isFinite(entry.priceCents)
+      )
+    : [];
+  if (detailed.length) metadata.selected_upgrades_detailed = detailed;
+
+  const optionValueIds = getSelectedUpgradeOptionValueIds(item);
+  if (optionValueIds.length) metadata.selected_upgrade_option_value_ids = optionValueIds;
+
+  return metadata;
 }
 
 function getSelectedUpgradeOptionValueIds(item: IncomingCartItem): string[] {
@@ -110,7 +166,7 @@ function sanitizeCartItems(items: unknown): IncomingCartItem[] {
       const entry = item as Record<string, any>;
       if (typeof entry.id !== 'string' || !entry.id.trim()) return null;
       return {
-        id: entry.id,
+        id: normalizeLocalItemId(entry.id),
         name: typeof entry.name === 'string' ? entry.name : undefined,
         sku: typeof entry.sku === 'string' ? entry.sku : undefined,
         price: typeof entry.price === 'number' ? entry.price : undefined,
@@ -390,25 +446,11 @@ export const POST: APIRoute = async ({ request }) => {
     // STEP 3: Check if item already exists in Medusa cart
     const existingLineItemId = existingItemsByVariant.get(variantId);
 
-    const lineItemMetadata = {
-      local_item_id: item.id,
-      sku: item.sku,
-      selected_options: item.selectedOptions || [],
-      selected_upgrades: item.selectedUpgrades || [],
-      selected_upgrades_detailed: item.selectedUpgradesDetailed || [],
-      selected_upgrade_option_value_ids: getSelectedUpgradeOptionValueIds(item),
-      base_variant_id: baseVariantId,
-      resolved_variant_id: variantId,
-      product_url: item.productUrl,
-      shipping_class: item.shippingClass,
-      install_only: item.installOnly ?? false,
-      shipping_weight: item.shippingWeight,
-      shipping_dimensions: item.shippingDimensions
-    };
+    const lineItemMetadata = buildLineItemMetadata(item, baseVariantId, variantId);
 
     if (existingLineItemId) {
       // UPDATE existing line item quantity
-      const updateResponse = await medusaFetch(
+      let updateResponse = await medusaFetch(
         `/store/carts/${cartId}/line-items/${existingLineItemId}`,
         {
           method: 'POST',
@@ -421,12 +463,25 @@ export const POST: APIRoute = async ({ request }) => {
 
       if (!updateResponse.ok) {
         const errorData = await readJsonSafe<any>(updateResponse);
-        console.error(`Failed to update line item ${existingLineItemId}:`, errorData);
-        return jsonResponse(
-          { error: `Failed to update line item for ${item.id}.`, details: errorData },
-          { status: updateResponse.status },
-          { noIndex: true }
+        console.warn(
+          `[cart/add-item] metadata update failed for ${existingLineItemId}, retrying quantity-only`,
+          { status: updateResponse.status, errorData }
         );
+        updateResponse = await medusaFetch(`/store/carts/${cartId}/line-items/${existingLineItemId}`, {
+          method: 'POST',
+          body: JSON.stringify({
+            quantity: Math.max(1, item.quantity ?? 1)
+          })
+        });
+        if (!updateResponse.ok) {
+          const retryErrorData = await readJsonSafe<any>(updateResponse);
+          console.error(`Failed to update line item ${existingLineItemId}:`, retryErrorData);
+          return jsonResponse(
+            { error: `Failed to update line item for ${item.id}.`, details: retryErrorData },
+            { status: updateResponse.status },
+            { noIndex: true }
+          );
+        }
       }
     } else {
       // CREATE new line item

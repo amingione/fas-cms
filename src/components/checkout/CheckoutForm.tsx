@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type ChangeEvent } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import './CheckoutForm.css';
-import { ensureMedusaCartId, getCart, syncMedusaCart } from '@/lib/cart';
+import { CART_EVENT, CART_KEY, ensureMedusaCartId, getCart, syncMedusaCart } from '@/lib/cart';
 import { MEDUSA_CART_ID_KEY } from '@/lib/medusa';
 
 const stripePromise = loadStripe(import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY!);
@@ -37,6 +37,8 @@ type SelectableShippingRate = {
 
 interface CartItem {
   id: string;
+  local_item_id?: string | null;
+  medusa_variant_id?: string | null;
   title: string;
   thumbnail?: string | null;
   variant_title?: string | null;
@@ -56,6 +58,8 @@ interface Cart {
   total_cents: number;
   email?: string;
 }
+
+type LocalCartItem = ReturnType<typeof getCart>[number];
 
 type ShippingAddress = {
   email: string;
@@ -156,6 +160,62 @@ function toShippoAmountCents(value: unknown): number {
   const parsed = Number.parseFloat(value.trim());
   if (!Number.isFinite(parsed)) return 0;
   return Math.round(parsed * 100);
+}
+
+function toLocalCartId(input: unknown): string {
+  const raw = String(input ?? '').trim();
+  if (!raw) return '';
+  if (raw.endsWith('::[]')) return raw.slice(0, -4);
+  if (raw.endsWith('::')) return raw.slice(0, -2);
+  return raw;
+}
+
+function reconcileLocalCartFromCheckoutCart(cart: Cart | null): void {
+  if (typeof window === 'undefined' || !cart || !Array.isArray(cart.items)) return;
+
+  const existing = getCart();
+  const nextItems: LocalCartItem[] = cart.items
+    .map((serverItem) => {
+      const candidateId =
+        toLocalCartId(serverItem.local_item_id) ||
+        toLocalCartId(serverItem.medusa_variant_id) ||
+        toLocalCartId(serverItem.id);
+      if (!candidateId) return null;
+
+      const existingMatch =
+        existing.find((entry) => toLocalCartId(entry.id) === candidateId) ??
+        existing.find(
+          (entry) =>
+            typeof entry.medusaVariantId === 'string' &&
+            entry.medusaVariantId === (serverItem.medusa_variant_id || '')
+        );
+
+      return {
+        ...(existingMatch || {}),
+        id: candidateId,
+        name: serverItem.title || existingMatch?.name || 'Product',
+        price:
+          typeof serverItem.unit_price === 'number' && Number.isFinite(serverItem.unit_price)
+            ? Math.round(serverItem.unit_price)
+            : existingMatch?.price || 0,
+        quantity:
+          typeof serverItem.quantity === 'number' && Number.isFinite(serverItem.quantity)
+            ? Math.max(1, Math.round(serverItem.quantity))
+            : existingMatch?.quantity || 1,
+        image: resolveCheckoutImageSrc(serverItem.thumbnail),
+        medusaVariantId:
+          serverItem.medusa_variant_id ||
+          (typeof existingMatch?.medusaVariantId === 'string' ? existingMatch.medusaVariantId : undefined),
+      } as LocalCartItem;
+    })
+    .filter((entry): entry is LocalCartItem => Boolean(entry));
+
+  const previousSerialized = JSON.stringify(existing);
+  const nextSerialized = JSON.stringify(nextItems);
+  if (previousSerialized === nextSerialized) return;
+
+  localStorage.setItem(CART_KEY, JSON.stringify({ items: nextItems }));
+  window.dispatchEvent(new CustomEvent(CART_EVENT, { detail: { cart: { items: nextItems } } }));
 }
 
 function isInstallOnlyLineItem(item: CartItem): boolean {
@@ -321,6 +381,7 @@ export default function CheckoutForm() {
 
     const data = await response.json();
     setCart(data.cart);
+    reconcileLocalCartFromCheckoutCart(data.cart);
     return true;
   }
 

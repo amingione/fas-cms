@@ -51,6 +51,7 @@ export default function HeadingBanner1() {
               decoding="async"
               sizes={heroImageSizes}
               srcSet={heroImageSrcSet}
+              style={{ aspectRatio: '2432/1442' }}
               className="relative -z-20 max-w-xl fit min-w-full rounded-xl shadow-xl ring-1 ring-white/10 lg:row-span-4 lg:w-5xl lg:max-w-90%"
             />
             <div className="max-w-xl lg:row-start-3 lg:mt-10 lg:max-w-md lg:border-t lg:border-white/10 lg:pt-10">

@@ -311,7 +311,7 @@ function CartItemsList({ cart, pricing, onQuantityChange, onRemove }: CartItemsL
                   {productHref ? (
                     <a href={productHref} className="block size-full">
                       <img
-                        src={item.image || '/logo/FASmotorsportsLLC-LOGO.png'}
+                        src={item.image || '/logo/FASmotorsportsLLC-LOGO.webp'}
                         alt={item.name || 'Cart item'}
                         className="size-full object-cover"
                         loading="lazy"
@@ -319,7 +319,7 @@ function CartItemsList({ cart, pricing, onQuantityChange, onRemove }: CartItemsL
                     </a>
                   ) : (
                     <img
-                      src={item.image || '/logo/FASmotorsportsLLC-LOGO.png'}
+                      src={item.image || '/logo/FASmotorsportsLLC-LOGO.webp'}
                       alt={item.name || 'Cart item'}
                       className="size-full object-cover"
                       loading="lazy"

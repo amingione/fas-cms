@@ -183,6 +183,9 @@ export const GET: APIRoute = async ({ params }) => {
           }
         })(),
         id: item.id,
+        local_item_id: asString(item?.metadata?.local_item_id),
+        medusa_variant_id: asString(item?.variant_id),
+        medusa_line_item_id: asString(item?.id),
         title: item.title,
         thumbnail: resolveCartItemThumbnail(item),
         variant_title: asString(item?.variant_title) ?? asString(item?.variant?.title),

@@ -40,6 +40,14 @@ function isBrowser() {
   return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
 }
 
+function normalizeLocalItemId(input: unknown): string {
+  const raw = String(input ?? '').trim();
+  if (!raw) return raw;
+  if (raw.endsWith('::[]')) return raw.slice(0, -4);
+  if (raw.endsWith('::')) return raw.slice(0, -2);
+  return raw;
+}
+
 function normalizeLegacyUpgradeCents(item: CartItem): { item: CartItem; changed: boolean } {
   const entries = Array.isArray(item.selectedUpgradesDetailed) ? item.selectedUpgradesDetailed : [];
   if (!entries.length) return { item, changed: false };
@@ -131,7 +139,13 @@ export function getCart(): CartItem[] {
     const parsedItems = parsed && Array.isArray(parsed.items) ? parsed.items : [];
     let healed = false;
     const items = parsedItems.map((item: CartItem) => {
-      const normalized = normalizeLegacyUpgradeCents(item);
+      const normalizedId = normalizeLocalItemId(item?.id);
+      const withNormalizedId = {
+        ...item,
+        id: normalizedId || String(item?.id || '')
+      };
+      if (normalizedId !== String(item?.id || '')) healed = true;
+      const normalized = normalizeLegacyUpgradeCents(withNormalizedId);
       if (normalized.changed) healed = true;
       return normalized.item;
     });
@@ -203,17 +217,21 @@ export function addItem(item: CartItem): CartItem[] {
   if (!item.medusaVariantId || typeof item.medusaVariantId !== 'string') {
     throw new Error('Please select a product variant before adding this item to your cart.');
   }
+  const normalizedItem: CartItem = {
+    ...item,
+    id: normalizeLocalItemId(item.id)
+  };
   const cart = getCart();
-  const idx = cart.findIndex((c) => c.id === item.id);
+  const idx = cart.findIndex((c) => c.id === normalizedItem.id);
   if (idx >= 0) {
     const existing = cart[idx];
     cart[idx] = {
       ...existing,
-      ...item,
-      quantity: (existing.quantity || 0) + (item.quantity || 1)
+      ...normalizedItem,
+      quantity: (existing.quantity || 0) + (normalizedItem.quantity || 1)
     };
   } else {
-    cart.push({ ...item, quantity: item.quantity || 1 });
+    cart.push({ ...normalizedItem, quantity: normalizedItem.quantity || 1 });
   }
   saveCart(cart);
   return cart;

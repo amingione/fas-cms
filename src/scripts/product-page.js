@@ -480,6 +480,9 @@ const hydrateCartButtons = () => {
         .slice()
         .sort((a, b) => `${a.group}:${a.value}`.localeCompare(`${b.group}:${b.value}`))
     );
+    const baseItemId = (ds.productId || medusaVariantId || '').toString().trim();
+    const hasMeaningfulSignature = signature && signature !== '[]';
+    const localItemId = hasMeaningfulSignature ? `${baseItemId}::${signature}` : baseItemId;
 
     const options = {};
     selections.forEach((selection) => {
@@ -495,7 +498,7 @@ const hydrateCartButtons = () => {
     });
 
     const product = {
-      id: `${ds.productId || ''}::${signature}`,
+      id: localItemId,
       name: ds.productName || 'Item',
       price: total,
       basePrice: baseSalePrice,

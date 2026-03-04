@@ -118,7 +118,12 @@ const CANONICAL_SITE_ORIGIN = (() => {
 const previewEnvEnabled = parseBooleanFlag(
   (import.meta.env.PUBLIC_SANITY_PREVIEW_DRAFTS as string | undefined) ?? 'true'
 );
-const previewCookieRequested = parseBooleanFlag(Astro.cookies.get('sanity-preview')?.value ?? '');
+let previewCookieRequested = false;
+try {
+  previewCookieRequested = parseBooleanFlag(Astro.cookies.get('sanity-preview')?.value ?? '');
+} catch {
+  // Astro.cookies reads Astro.request.headers which is not available during static prerendering
+}
 const previewQueryRequested = getUrlBooleanFlag(currentUrl, ['sanity-preview', 'preview']);
 const previewDraftsEnabled = previewEnvEnabled || previewCookieRequested || previewQueryRequested;
 
@@ -534,15 +539,14 @@ const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
       }
     </script>
     <link rel="icon" type="image/webp" href="/logo/faslogochroma.webp" />
-    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
-    <link rel="preconnect" href="https://www.google-analytics.com" crossorigin />
-    <link rel="preconnect" href="https://stats.g.doubleclick.net" crossorigin />
-    <link rel="preconnect" href="https://www.google.com" crossorigin />
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
     <link rel="dns-prefetch" href="https://www.google-analytics.com" />
     <link rel="dns-prefetch" href="https://stats.g.doubleclick.net" />
     <link rel="dns-prefetch" href="https://analytics.google.com" />
     <link rel="dns-prefetch" href="https://www.google.com" />
+    <!-- Preconnect for hero video hosted on Framer CDN (LCP element) -->
+    <link rel="preconnect" href="https://framerusercontent.com" crossorigin />
+    <link rel="dns-prefetch" href="https://framerusercontent.com" />
     <link
       rel="preload"
       href="/fonts/AmericanCaptain.woff2"

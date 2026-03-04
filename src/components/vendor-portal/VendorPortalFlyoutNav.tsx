@@ -55,7 +55,7 @@ export default function VendorPortalFlyoutNav() {
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 lg:px-6">
         <a href="/vendor-portal" className="inline-flex items-center gap-2">
           <img
-            src="/logo/FASmotorsportsLLC-LOGO.png"
+            src="/logo/FASmotorsportsLLC-LOGO.webp"
             alt="FAS Motorsports"
             className="h-8 w-auto"
           />

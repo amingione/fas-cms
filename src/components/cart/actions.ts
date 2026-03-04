@@ -55,6 +55,14 @@ function isBrowser() {
   return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
 }
 
+function normalizeLocalItemId(input: unknown): string {
+  const raw = String(input ?? '').trim();
+  if (!raw) return raw;
+  if (raw.endsWith('::[]')) return raw.slice(0, -4);
+  if (raw.endsWith('::')) return raw.slice(0, -2);
+  return raw;
+}
+
 function ensureStringArray(value: unknown): string[] {
   if (Array.isArray(value)) {
     return value
@@ -155,7 +163,13 @@ export function getCart(): Cart {
       const base = parsed as Cart;
       let changed = false;
       const nextItems = base.items.map((item) => {
-        const normalized = normalizeCartItemUpgrades(item as CartItem);
+        const nextId = normalizeLocalItemId((item as CartItem)?.id);
+        const idChanged = nextId !== String((item as CartItem)?.id || '');
+        const normalized = normalizeCartItemUpgrades({
+          ...(item as CartItem),
+          id: nextId || String((item as CartItem)?.id || '')
+        });
+        if (idChanged) changed = true;
         if (normalized.changed) changed = true;
         return normalized.item;
       });
@@ -358,8 +372,9 @@ async function syncMedusaCart(cart: Cart): Promise<SyncMedusaCartResult> {
 
 function normalizeId(input: any): string | undefined {
   if (!input) return undefined;
-  if (typeof input === 'string') return input;
-  if (typeof input === 'object') return input.id || input.selectedVariantId || input.productId;
+  if (typeof input === 'string') return normalizeLocalItemId(input);
+  if (typeof input === 'object')
+    return normalizeLocalItemId(input.id || input.selectedVariantId || input.productId);
 }
 
 // Add item: accepts either a string id or a payload object
