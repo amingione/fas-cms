@@ -460,25 +460,8 @@ const hydrateCartButtons = () => {
     if (!medusaVariantId) {
       return;
     }
-    const unresolvedUpgrade = selectedUpgradesDetailed.find(
-      (entry) => !entry.medusaOptionValueId
-    );
-    if (unresolvedUpgrade) {
-      const friendlyMessage = `The option “${unresolvedUpgrade.label}” isn’t available for checkout right now. Please remove it and try again.`;
-      try {
-        window.alert(friendlyMessage);
-      } catch {
-        /* noop */
-      }
-      window.dispatchEvent(
-        new CustomEvent('cart:validation-error', {
-          detail: {
-            message: friendlyMessage
-          }
-        })
-      );
-      return;
-    }
+    // Some legacy products still have add-on labels without mapped Medusa option-value IDs.
+    // Allow add-to-cart and let server-side cart sync resolve by label when possible.
     const normalizedExtra = Number.isFinite(extra) ? extra : 0;
     const originalPrice =
       compareTotal > total

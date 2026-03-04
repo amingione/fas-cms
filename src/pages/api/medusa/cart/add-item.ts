@@ -45,6 +45,16 @@ function getSelectedUpgradeOptionValueIds(item: IncomingCartItem): string[] {
   return Array.from(unique);
 }
 
+function getSelectedUpgradeLabels(item: IncomingCartItem): string[] {
+  const detailed = Array.isArray(item.selectedUpgradesDetailed) ? item.selectedUpgradesDetailed : [];
+  const unique = new Set<string>();
+  detailed.forEach((entry) => {
+    const label = typeof entry?.label === 'string' ? entry.label.trim() : '';
+    if (label) unique.add(label);
+  });
+  return Array.from(unique);
+}
+
 function remapSelectedUpgradeOptionValueIds(
   item: IncomingCartItem,
   remap: Map<string, string>
@@ -60,6 +70,34 @@ function remapSelectedUpgradeOptionValueIds(
     changed = true;
     return { ...entry, medusaOptionValueId: replacement };
   });
+  if (!changed) return item;
+  return { ...item, selectedUpgradesDetailed: nextDetailed };
+}
+
+function populateMissingUpgradeOptionValueIds(
+  item: IncomingCartItem,
+  optionValueIds: string[]
+): IncomingCartItem {
+  if (!Array.isArray(item.selectedUpgradesDetailed) || item.selectedUpgradesDetailed.length === 0) {
+    return item;
+  }
+  const normalizedIds = optionValueIds
+    .map((value) => String(value || '').trim())
+    .filter(Boolean);
+  if (!normalizedIds.length) return item;
+
+  let idx = 0;
+  let changed = false;
+  const nextDetailed = item.selectedUpgradesDetailed.map((entry) => {
+    const current = String(entry?.medusaOptionValueId || '').trim();
+    if (current) return entry;
+    const replacement = normalizedIds[idx] || '';
+    if (!replacement) return entry;
+    idx += 1;
+    changed = true;
+    return { ...entry, medusaOptionValueId: replacement };
+  });
+
   if (!changed) return item;
   return { ...item, selectedUpgradesDetailed: nextDetailed };
 }
@@ -158,7 +196,9 @@ export const POST: APIRoute = async ({ request }) => {
       ? item.selectedUpgradesDetailed
       : [];
     if (labels.length > 0 && detailed.length === 0) return true;
-    return detailed.some((entry) => !entry.medusaOptionValueId);
+    return detailed.some(
+      (entry) => !entry.medusaOptionValueId && !(typeof entry?.label === 'string' && entry.label.trim())
+    );
   });
   if (unresolvedUpgradeItems.length > 0) {
     console.warn('[unmapped_addon_selection] cart_sync_blocked', {
@@ -243,9 +283,42 @@ export const POST: APIRoute = async ({ request }) => {
 
     let workingItem = item;
     let optionValueIds = getSelectedUpgradeOptionValueIds(workingItem).sort();
-    if (!optionValueIds.length) return { variantId: baseVariantId, item: workingItem };
+    const optionLabels = getSelectedUpgradeLabels(workingItem);
+    if (!optionValueIds.length && !optionLabels.length) {
+      return { variantId: baseVariantId, item: workingItem };
+    }
+
+    const resolveByLabels = async (labels: string[]) => {
+      const normalized = labels
+        .map((label) => String(label || '').trim())
+        .filter(Boolean);
+      if (!normalized.length) return null;
+      const response = await medusaFetch('/store/resolve-variant', {
+        method: 'POST',
+        body: JSON.stringify({
+          base_variant_id: baseVariantId,
+          option_labels: normalized
+        })
+      });
+      return readJsonSafe<any>(response);
+    };
 
     try {
+      if (!optionValueIds.length && optionLabels.length > 0) {
+        const labelResolved = await resolveByLabels(optionLabels);
+        const resolvedIds: string[] = Array.isArray(labelResolved?.requested_option_value_ids)
+          ? labelResolved.requested_option_value_ids.map((value: unknown) => String(value || '').trim()).filter(Boolean)
+          : [];
+        if (resolvedIds.length > 0) {
+          optionValueIds = resolvedIds.sort();
+          workingItem = populateMissingUpgradeOptionValueIds(workingItem, optionValueIds);
+        }
+      }
+
+      if (!optionValueIds.length) {
+        return { variantId: baseVariantId, item: workingItem };
+      }
+
       let resolved = await resolveOnce(optionValueIds);
       if (resolved.variantId !== baseVariantId) {
         return { variantId: resolved.variantId, item: workingItem };
