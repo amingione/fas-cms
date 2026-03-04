@@ -5,7 +5,6 @@ import './CheckoutForm.css';
 import { CART_EVENT, CART_KEY, ensureMedusaCartId, getCart, syncMedusaCart } from '@/lib/cart';
 import { MEDUSA_CART_ID_KEY } from '@/lib/medusa';
 
-const stripePromise = loadStripe(import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 const CHECKOUT_IMAGE_FALLBACK = '/placeholder.webp';
 
 interface ShippingRate {
@@ -333,6 +332,11 @@ function buildSelectableRates(
 }
 
 export default function CheckoutForm() {
+  const [stripePublishableKey, setStripePublishableKey] = useState(
+    typeof import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY === 'string'
+      ? import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY
+      : ''
+  );
   const [cartId, setCartId] = useState<string | null>(null);
   const [cart, setCart] = useState<Cart | null>(null);
   const [loadingCart, setLoadingCart] = useState(true);
@@ -348,6 +352,11 @@ export default function CheckoutForm() {
   const [error, setError] = useState<string | null>(null);
   const [discountCode, setDiscountCode] = useState('');
   const [driftDebug, setDriftDebug] = useState<string | null>(null);
+  const stripePromise = useMemo(() => {
+    const key = stripePublishableKey.trim();
+    if (!key) return null;
+    return loadStripe(key);
+  }, [stripePublishableKey]);
 
   async function syncCheckoutCart(
     context: string,
@@ -479,6 +488,13 @@ export default function CheckoutForm() {
         if (!payload?.client_secret) {
           throw new Error('Payment intent not ready');
         }
+        if (
+          typeof payload?.publishable_key === 'string' &&
+          payload.publishable_key.trim() &&
+          payload.publishable_key.trim() !== stripePublishableKey.trim()
+        ) {
+          setStripePublishableKey(payload.publishable_key.trim());
+        }
         setClientSecret(payload.client_secret);
         await loadCart(cartId);
       } catch (err) {
@@ -603,6 +619,13 @@ export default function CheckoutForm() {
       const payload = await intentResponse.json().catch(() => null);
       if (!payload?.client_secret) {
         throw new Error('Payment intent not ready');
+      }
+      if (
+        typeof payload?.publishable_key === 'string' &&
+        payload.publishable_key.trim() &&
+        payload.publishable_key.trim() !== stripePublishableKey.trim()
+      ) {
+        setStripePublishableKey(payload.publishable_key.trim());
       }
 
       // Option A: use the confirmed PaymentIntent amount (Medusa's authoritative
@@ -739,31 +762,37 @@ export default function CheckoutForm() {
 
           <div className="checkout-v2-pay">
             {clientSecret ? (
-              <Elements
-                stripe={stripePromise}
-                options={{
-                  clientSecret,
-                  appearance: {
-                    theme: 'night' as const,
-                    variables: {
-                      colorPrimary: '#dc2626',
-                      colorBackground: '#0f0f0f',
-                      colorText: '#ffffff'
+              stripePromise ? (
+                <Elements
+                  stripe={stripePromise}
+                  options={{
+                    clientSecret,
+                    appearance: {
+                      theme: 'night' as const,
+                      variables: {
+                        colorPrimary: '#dc2626',
+                        colorBackground: '#0f0f0f',
+                        colorText: '#ffffff'
+                      }
                     }
-                  }
-                }}
-              >
-                <StripePaymentPane
-                  cartId={cartId}
-                  cart={cart}
-                  shippingAddress={shippingAddress}
-                  selectedRateId={selectedOptionId}
-                  requiresShipping={!allItemsInstallOnly}
-                  processing={processing}
-                  setProcessing={setProcessing}
-                  setError={setError}
-                />
-              </Elements>
+                  }}
+                >
+                  <StripePaymentPane
+                    cartId={cartId}
+                    cart={cart}
+                    shippingAddress={shippingAddress}
+                    selectedRateId={selectedOptionId}
+                    requiresShipping={!allItemsInstallOnly}
+                    processing={processing}
+                    setProcessing={setProcessing}
+                    setError={setError}
+                  />
+                </Elements>
+              ) : (
+                <p className="checkout-v2-error">
+                  Payment configuration is unavailable. Please refresh and try again.
+                </p>
+              )
             ) : (
               <NonReadyPaymentPane
                 shippingAddress={shippingAddress}
@@ -994,6 +1023,7 @@ function StripePaymentPane({
 }) {
   const stripe = useStripe();
   const elements = useElements();
+  const [paymentElementReady, setPaymentElementReady] = useState(false);
 
   const submit = async () => {
     if (!stripe || !elements) return;
@@ -1012,6 +1042,12 @@ function StripePaymentPane({
     setError(null);
 
     try {
+      const paymentElement = elements.getElement(PaymentElement);
+      if (!paymentElement) {
+        setError('Payment form is still loading. Please wait a moment and try again.');
+        return;
+      }
+
       const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: {
@@ -1081,7 +1117,12 @@ function StripePaymentPane({
       setError('Unable to confirm payment. Please try again.');
     } catch (error) {
       console.error('Payment error:', error);
-      setError('Payment failed. Please try again.');
+      const message = error instanceof Error ? error.message : '';
+      if (message.includes('mounted Payment Element')) {
+        setError('Payment form failed to initialize. Please refresh and try again.');
+      } else {
+        setError('Payment failed. Please try again.');
+      }
     } finally {
       setProcessing(false);
     }
@@ -1106,6 +1147,7 @@ function StripePaymentPane({
       <label>Card information</label>
       <div className="checkout-v2-payment-element">
         <PaymentElement
+          onReady={() => setPaymentElementReady(true)}
           options={{
             layout: {
               type: 'tabs',
@@ -1124,7 +1166,7 @@ function StripePaymentPane({
       <button
         type="button"
         className="checkout-v2-pay-bottom"
-        disabled={processing || !stripe}
+        disabled={processing || !stripe || !paymentElementReady}
         onClick={() => void submit()}
       >
         {processing ? 'Processing...' : 'Pay'}

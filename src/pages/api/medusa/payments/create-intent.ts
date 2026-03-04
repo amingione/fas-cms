@@ -4,7 +4,7 @@ import { jsonResponse } from '@/server/http/responses';
 import { getMedusaConfig, medusaFetch, readJsonSafe } from '@/lib/medusa';
 import { STRIPE_API_VERSION } from '@/lib/stripe-config';
 import { normalizeCartTotals, toCentsStrict } from '@/lib/money';
-import { requireSecret } from '@/server/aws-secrets';
+import { getSecret, requireSecret } from '@/server/aws-secrets';
 
 /**
  * Phase 1: PaymentIntent Checkout Endpoint
@@ -253,6 +253,21 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
+  const publishableKey =
+    (await getSecret('STRIPE_PUBLISHABLE_KEY')) ||
+    (await getSecret('PUBLIC_STRIPE_PUBLISHABLE_KEY')) ||
+    (typeof import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY === 'string'
+      ? import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY.trim()
+      : '');
+
+  if (!publishableKey || !publishableKey.startsWith('pk_')) {
+    return jsonResponse(
+      { error: 'Stripe publishable key is missing.' },
+      { status: 500 },
+      { noIndex: true }
+    );
+  }
+
   const stripe = new Stripe(stripeSecret, {
     apiVersion: STRIPE_API_VERSION as Stripe.LatestApiVersion
   });
@@ -487,6 +502,7 @@ export const POST: APIRoute = async ({ request }) => {
         payment_intent_id: paymentIntent.id,
         amount: paymentIntent.amount,
         currency: paymentIntent.currency,
+        publishable_key: publishableKey
       },
       { status: 200 },
       { noIndex: true }

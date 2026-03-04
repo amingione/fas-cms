@@ -77,6 +77,48 @@ function normalizeLegacyUpgradeCents(item: CartItem): { item: CartItem; changed:
   };
 }
 
+type CartSanitization = {
+  items: CartItem[];
+  removedMissingVariant: number;
+  removedInvalidPrice: number;
+  removedInvalidQuantity: number;
+};
+
+function sanitizeCartItems(items: CartItem[]): CartSanitization {
+  let removedMissingVariant = 0;
+  let removedInvalidPrice = 0;
+  let removedInvalidQuantity = 0;
+
+  const sanitized = items.filter((item) => {
+    const hasVariant =
+      typeof item.medusaVariantId === 'string' && item.medusaVariantId.trim().length > 0;
+    if (!hasVariant) {
+      removedMissingVariant += 1;
+      return false;
+    }
+
+    const hasValidPrice =
+      typeof item.price === 'number' && Number.isFinite(item.price) && item.price > 0;
+    if (!hasValidPrice) {
+      removedInvalidPrice += 1;
+      return false;
+    }
+
+    const hasValidQuantity =
+      typeof item.quantity === 'number' &&
+      Number.isFinite(item.quantity) &&
+      Math.floor(item.quantity) > 0;
+    if (!hasValidQuantity) {
+      removedInvalidQuantity += 1;
+      return false;
+    }
+
+    return true;
+  });
+
+  return { items: sanitized, removedMissingVariant, removedInvalidPrice, removedInvalidQuantity };
+}
+
 export async function ensureMedusaCartId(): Promise<string | null> {
   if (!isBrowser()) return null;
   const existing = localStorage.getItem(MEDUSA_CART_ID_KEY);
@@ -104,7 +146,24 @@ export async function ensureMedusaCartId(): Promise<string | null> {
 export type SyncMedusaCartResult = { ok: boolean; error?: string };
 
 export async function syncMedusaCart(cart: CartItem[]): Promise<SyncMedusaCartResult> {
+  return syncMedusaCartAttempt(cart, 0);
+}
+
+async function syncMedusaCartAttempt(
+  cart: CartItem[],
+  attempt: number
+): Promise<SyncMedusaCartResult> {
   if (!isBrowser()) return { ok: false, error: 'Browser context is required.' };
+
+  const sanitized = sanitizeCartItems(cart);
+  const sanitizedCart = sanitized.items;
+  const removedCount =
+    sanitized.removedMissingVariant + sanitized.removedInvalidPrice + sanitized.removedInvalidQuantity;
+  if (removedCount > 0) {
+    localStorage.setItem(CART_KEY, JSON.stringify({ items: sanitizedCart }));
+    emitCartUpdated(sanitizedCart);
+  }
+
   const cartId = await ensureMedusaCartId();
   if (!cartId) return { ok: false, error: 'Failed to initialize Medusa cart.' };
 
@@ -112,7 +171,7 @@ export async function syncMedusaCart(cart: CartItem[]): Promise<SyncMedusaCartRe
     const response = await fetch('/api/medusa/cart/add-item', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cartId, cart: { items: cart } })
+      body: JSON.stringify({ cartId, cart: { items: sanitizedCart } })
     });
 
     if (!response.ok) {
@@ -122,6 +181,21 @@ export async function syncMedusaCart(cart: CartItem[]): Promise<SyncMedusaCartRe
         error: payload?.error,
         missingItems: payload?.missingItems
       });
+
+      if (attempt === 0 && Array.isArray(payload?.missingItems) && payload.missingItems.length > 0) {
+        const missingIds = new Set(
+          payload.missingItems
+            .map((entry: unknown) => normalizeLocalItemId(entry))
+            .filter((entry: string) => entry.length > 0)
+        );
+        const recovered = sanitizedCart.filter((item) => !missingIds.has(normalizeLocalItemId(item.id)));
+        if (recovered.length !== sanitizedCart.length) {
+          localStorage.setItem(CART_KEY, JSON.stringify({ items: recovered }));
+          emitCartUpdated(recovered);
+          return syncMedusaCartAttempt(recovered, attempt + 1);
+        }
+      }
+
       return { ok: false, error: payload?.error || 'Failed to sync cart with checkout.' };
     }
     return { ok: true };
@@ -150,29 +224,19 @@ export function getCart(): CartItem[] {
       return normalized.item;
     });
     
-    // ✅ MEDUSA-FIRST PRICING VALIDATION
-    // Filter out any cart items with invalid pricing
-    const validItems = items.filter((item: any) => {
-      const hasValidPrice =
-        typeof item.price === 'number' && Number.isFinite(item.price) && item.price > 0;
-      
-      if (!hasValidPrice) {
-        console.warn('[cart] Removing item with invalid price from cart', {
-          id: item.id,
-          name: item.name,
-          price: item.price,
-          priceType: typeof item.price
-        });
-        return false;
-      }
-      return true;
-    });
+    const sanitized = sanitizeCartItems(items as CartItem[]);
+    const validItems = sanitized.items;
     
     // If we filtered out invalid items, save the cleaned cart
     if (validItems.length !== items.length || healed) {
       const removed = items.length - validItems.length;
       if (removed > 0) {
-        console.log(`[cart] Cleaned ${removed} invalid items from cart`);
+        console.log('[cart] Cleaned invalid items from cart', {
+          removed,
+          removedMissingVariant: sanitized.removedMissingVariant,
+          removedInvalidPrice: sanitized.removedInvalidPrice,
+          removedInvalidQuantity: sanitized.removedInvalidQuantity
+        });
       }
       if (isBrowser()) {
         localStorage.setItem(CART_KEY, JSON.stringify({ items: validItems }));
