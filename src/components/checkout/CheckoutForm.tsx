@@ -218,6 +218,38 @@ function reconcileLocalCartFromCheckoutCart(cart: Cart | null): void {
   window.dispatchEvent(new CustomEvent(CART_EVENT, { detail: { cart: { items: nextItems } } }));
 }
 
+function buildLocalCartSignature(items: LocalCartItem[]): string {
+  return items
+    .map((item) => {
+      const id = toLocalCartId(item.id);
+      const variant = toLocalCartId(item.medusaVariantId || '');
+      const qty = Math.max(1, Number(item.quantity) || 1);
+      return `${id}|${variant}|${qty}`;
+    })
+    .sort()
+    .join('::');
+}
+
+function buildServerCartSignature(cart: Cart): string {
+  const items = Array.isArray(cart?.items) ? cart.items : [];
+  return items
+    .map((item) => {
+      const id =
+        toLocalCartId(item.local_item_id) ||
+        toLocalCartId(item.medusa_variant_id) ||
+        toLocalCartId(item.id);
+      const variant = toLocalCartId(item.medusa_variant_id || '');
+      const qty = Math.max(1, Number(item.quantity) || 1);
+      return `${id}|${variant}|${qty}`;
+    })
+    .sort()
+    .join('::');
+}
+
+function hasCheckoutCartDrift(localItems: LocalCartItem[], serverCart: Cart): boolean {
+  return buildLocalCartSignature(localItems) !== buildServerCartSignature(serverCart);
+}
+
 function isInstallOnlyLineItem(item: CartItem): boolean {
   if (item.install_only === true) return true;
   const shippingClass = String(item.shipping_class || '')
@@ -315,6 +347,7 @@ export default function CheckoutForm() {
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [discountCode, setDiscountCode] = useState('');
+  const [driftDebug, setDriftDebug] = useState<string | null>(null);
 
   async function syncCheckoutCart(
     context: string,
@@ -353,9 +386,23 @@ export default function CheckoutForm() {
           return;
         }
         const loaded = await loadCart(id);
-        if (!loaded) {
+        if (!loaded.loaded) {
           const recoveredId = await recoverMissingCart();
           if (!cancelled) setCartId(recoveredId);
+          return;
+        }
+
+        if (loaded.driftDetected) {
+          setDriftDebug('Cart drift detected. Auto-resync applied.');
+          console.warn('[checkout] cart drift detected on load, forcing one resync');
+          const syncedAfterDrift = await syncCheckoutCart('checkout drift recovery', {
+            suppressError: true
+          });
+          if (syncedAfterDrift) {
+            await loadCart(id);
+          }
+        } else {
+          setDriftDebug(null);
         }
       } catch (err) {
         console.error('Checkout init failed:', err);
@@ -371,18 +418,20 @@ export default function CheckoutForm() {
     };
   }, []);
 
-  async function loadCart(id: string): Promise<boolean> {
+  async function loadCart(id: string): Promise<{ loaded: boolean; driftDetected: boolean }> {
+    const localBeforeLoad = getCart();
     const response = await fetch(`/api/cart/${id}`);
-    if (response.status === 404) return false;
+    if (response.status === 404) return { loaded: false, driftDetected: false };
     if (!response.ok) {
       const payload = await response.json().catch(() => null);
       throw new Error(payload?.error || 'Cart fetch failed');
     }
 
     const data = await response.json();
+    const driftDetected = hasCheckoutCartDrift(localBeforeLoad, data.cart);
     setCart(data.cart);
     reconcileLocalCartFromCheckoutCart(data.cart);
-    return true;
+    return { loaded: true, driftDetected };
   }
 
   async function recoverMissingCart(): Promise<string> {
@@ -396,7 +445,7 @@ export default function CheckoutForm() {
     const synced = await syncCheckoutCart('cart recovery', { suppressError: true });
     if (!synced) throw new Error('Unable to sync replacement cart');
     const loaded = await loadCart(freshCartId);
-    if (!loaded) throw new Error('Replacement cart was not found');
+    if (!loaded.loaded) throw new Error('Replacement cart was not found');
 
     return freshCartId;
   }
@@ -623,6 +672,11 @@ export default function CheckoutForm() {
           {cartCount} item{cartCount === 1 ? '' : 's'}
         </span>
       </div>
+      {import.meta.env.DEV && driftDebug && (
+        <p className="checkout-v2-error" style={{ marginBottom: '0.75rem', color: '#34d399' }}>
+          {driftDebug}
+        </p>
+      )}
 
       <div className="checkout-v2-shell">
         <div className="checkout-v2-grid">

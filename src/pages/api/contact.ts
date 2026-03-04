@@ -3,6 +3,7 @@ import { Resend } from 'resend';
 import { createClient } from '@sanity/client';
 import { contactRequestSchema } from '@/lib/validators/api-requests';
 import { requireSanityApiToken } from '@/server/sanity-token';
+import { getSecret } from '@/server/aws-secrets';
 
 const json = (data: any, init?: ResponseInit) =>
   new Response(JSON.stringify(data), {
@@ -10,13 +11,6 @@ const json = (data: any, init?: ResponseInit) =>
     ...init
   });
 
-const sanityClient = createClient({
-  projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID!,
-  dataset: import.meta.env.PUBLIC_SANITY_DATASET!,
-  token: requireSanityApiToken('api/contact'),
-  apiVersion: '2024-01-01',
-  useCdn: false
-});
 
 async function parseBody(request: Request) {
   const ct = request.headers.get('content-type') || '';
@@ -65,7 +59,21 @@ export const POST: APIRoute = async ({ request }) => {
       return json({ message: 'Missing required fields' }, { status: 400 });
     }
 
-    const resend = new Resend(import.meta.env.RESEND_API_KEY);
+    const sanityToken = await requireSanityApiToken('api/contact');
+    const sanityClient = createClient({
+      projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID!,
+      dataset: import.meta.env.PUBLIC_SANITY_DATASET!,
+      token: sanityToken,
+      apiVersion: '2024-01-01',
+      useCdn: false
+    });
+
+    const resendApiKey = await getSecret('RESEND_API_KEY');
+    if (!resendApiKey) {
+      console.warn('RESEND_API_KEY is not set; skipping email send.');
+      return json({ ok: true, message: 'Message received (email not sent: missing RESEND_API_KEY).' }, { status: 200 });
+    }
+    const resend = new Resend(resendApiKey);
     const resendFrom =
       (import.meta.env.RESEND_FROM as string | undefined) || 'noreply@updates.fasmotorsports.com';
     const toAddress = 'sales@fasmotorsports.com';
@@ -81,11 +89,6 @@ export const POST: APIRoute = async ({ request }) => {
         <p><strong>Message:</strong><br/>${safe(message).replace(/\n/g, '<br/>')}</p>
       </div>
     `;
-
-    if (!import.meta.env.RESEND_API_KEY) {
-      console.warn('RESEND_API_KEY is not set; skipping email send.');
-      return json({ ok: true, message: 'Message received (email not sent: missing RESEND_API_KEY).' }, { status: 200 });
-    }
 
     try {
       await resend.emails.send({

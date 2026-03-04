@@ -4,6 +4,7 @@ import { jsonResponse } from '@/server/http/responses';
 import { getMedusaConfig, medusaFetch, readJsonSafe } from '@/lib/medusa';
 import { STRIPE_API_VERSION } from '@/lib/stripe-config';
 import { normalizeCartTotals, toCentsStrict } from '@/lib/money';
+import { requireSecret } from '@/server/aws-secrets';
 
 /**
  * Phase 1: PaymentIntent Checkout Endpoint
@@ -241,10 +242,10 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  const stripeSecret =
-    (import.meta.env.STRIPE_SECRET_KEY as string | undefined) ||
-    (process.env.STRIPE_SECRET_KEY as string | undefined);
-  if (!stripeSecret) {
+  let stripeSecret: string;
+  try {
+    stripeSecret = await requireSecret('STRIPE_SECRET_KEY', 'create-payment-intent');
+  } catch {
     return jsonResponse(
       { error: 'Stripe secret key is missing.' },
       { status: 500 },

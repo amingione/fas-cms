@@ -160,7 +160,21 @@ export default defineConfig({
     },
     envPrefix: ['PUBLIC_'],
     optimizeDeps: {
-      include: ['react', 'react-dom', 'react-router-dom', '@fullcalendar/core', 'apexcharts'],
+      include: [
+        'react',
+        'react-dom',
+        'react-router-dom',
+        '@fullcalendar/core',
+        'apexcharts',
+        'sonner',
+        'framer-motion',
+        '@headlessui/react',
+        '@heroicons/react/20/solid',
+        '@heroicons/react/24/outline',
+        'lucide-react',
+        'clsx',
+        'tailwind-merge'
+      ],
       exclude: [
         // Avoid prebundling particles to reduce dev 504 "Outdated Optimize Dep" churn
         'react-tsparticles',
@@ -190,6 +204,10 @@ export default defineConfig({
       // module URLs resolve under different local hosts (localhost/127.0.0.1/
       // Netlify dev host). Module scripts require CORS in that case.
       cors: true,
+      // Disable HMR in this local Astro+Netlify middleware mode; the websocket
+      // handshake is unreliable and can load mixed dep hashes, which leads to
+      // duplicate React runtimes and invalid-hook hydration failures.
+      hmr: false,
       // Allow Netlify DevServer hosts to connect
       allowedHosts: [
         'devserver-main--fasmoto.netlify.app',
