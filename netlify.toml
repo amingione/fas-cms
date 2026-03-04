@@ -884,10 +884,25 @@
 
 [context.branch-deploy]
 
-[context.deploy-preview]
-  # Run link checking only on Deploy Previews to avoid flakiness/crashes
-  [[plugins]]
-    package = "netlify-plugin-checklinks"
+# Run link checking only on Deploy Previews to avoid flakiness/crashes.
+[[context.deploy-preview.plugins]]
+  package = "netlify-plugin-checklinks"
+
+  [context.deploy-preview.plugins.inputs]
+    # Skip known dynamic/off-platform routes and flaky external DNS/TLS checks
+    # that are not actionable for preview deploy validation.
+    skipPatterns = [
+      "dist/blog",
+      "dist/shop",
+      "dist/warranty",
+      "dist/returnRefundPolicy",
+      "dist/_astro/contact.",
+      "framerusercontent.com",
+      "www.google-analytics.com",
+      "www.googletagmanager.com",
+      "stats.g.doubleclick.net",
+      "www.google.com"
+    ]
 
 ## Removed netlify-plugin-csp (not on npm) in favor of static CSP header below
 

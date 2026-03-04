@@ -4,23 +4,9 @@ import { createClient } from '@sanity/client';
 import { jtxWheelQuoteSchema } from '@/lib/validators/jtxWheelSpec';
 import { createQuoteRequest } from '@/server/sanity/quote-requests';
 import { requireSanityApiToken } from '@/server/sanity-token';
+import { getSecret } from '@/server/aws-secrets';
 
-const resendApiKey = import.meta.env.RESEND_API_KEY;
-const resend = resendApiKey ? new Resend(resendApiKey) : null;
 const TO = 'sales@fasmotorsports.com';
-const FROM = import.meta.env.RESEND_FROM ?? 'noreply@updates.fasmotorsports.com';
-
-const sanityProjectId = process.env.SANITY_PROJECT_ID || import.meta.env.PUBLIC_SANITY_PROJECT_ID;
-const sanityDataset = process.env.SANITY_DATASET || import.meta.env.PUBLIC_SANITY_DATASET;
-const sanityToken = requireSanityApiToken('api/wheel-quote-jtx');
-
-const sanity = createClient({
-  projectId: sanityProjectId,
-  dataset: sanityDataset,
-  apiVersion: '2024-01-01',
-  useCdn: false,
-  token: sanityToken
-});
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -40,6 +26,20 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
     const data = dataResult.data;
+
+    const sanityProjectId = process.env.SANITY_PROJECT_ID || import.meta.env.PUBLIC_SANITY_PROJECT_ID;
+    const sanityDataset = process.env.SANITY_DATASET || import.meta.env.PUBLIC_SANITY_DATASET;
+    const sanityToken = await requireSanityApiToken('api/wheel-quote-jtx');
+    const sanity = createClient({
+      projectId: sanityProjectId,
+      dataset: sanityDataset,
+      apiVersion: '2024-01-01',
+      token: sanityToken,
+      useCdn: false
+    });
+    const resendApiKey = await getSecret('RESEND_API_KEY');
+    const resend = resendApiKey ? new Resend(resendApiKey) : null;
+    const FROM = import.meta.env.RESEND_FROM ?? 'noreply@updates.fasmotorsports.com';
 
     const doc = {
       _type: 'wheelQuote',

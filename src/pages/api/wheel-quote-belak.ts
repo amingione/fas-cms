@@ -27,6 +27,20 @@ export const POST: APIRoute = async ({ request }) => {
     }
     const data = dataResult.data;
 
+    const sanityProjectId = process.env.SANITY_PROJECT_ID || import.meta.env.PUBLIC_SANITY_PROJECT_ID;
+    const sanityDataset = process.env.SANITY_DATASET || import.meta.env.PUBLIC_SANITY_DATASET;
+    const sanityToken = await requireSanityApiToken('api/wheel-quote-belak');
+    const sanity = createClient({
+      projectId: sanityProjectId,
+      dataset: sanityDataset,
+      apiVersion: '2024-01-01',
+      token: sanityToken,
+      useCdn: false
+    });
+    const resendApiKey = await getSecret('RESEND_API_KEY');
+    const resend = resendApiKey ? new Resend(resendApiKey) : null;
+    const FROM = import.meta.env.RESEND_FROM ?? 'noreply@updates.fasmotorsports.com';
+
     const doc = {
       _type: 'wheelQuote',
       source: 'belak',

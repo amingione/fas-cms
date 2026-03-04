@@ -28,17 +28,16 @@ Astro storefront — public customer UI, BFF API layer, login portal (customers 
 ## Key Env Vars
 ```
 MEDUSA_BACKEND_URL=https://api.fasmotorsports.com
-PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_...   ← needs rotation (currently invalid)
+PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_...
 SANITY_PROJECT_ID=r4og35qd
 SANITY_STUDIO_URL=https://fassanity.fasmotorsports.com
 STRIPE_SECRET_KEY=...
 SHIPPO_API_KEY=...
 ```
 
-## Current State (2026-02-24)
+## Current State (2026-03-04)
 - ✅ Checkout flow live (Stripe + Shippo + Medusa BFF)
 - ✅ Stripe webhook ingress deployed (fas-webhook-ingress-20260211.netlify.app)
-- ⚠️ Publishable key needs rotation → cart/store routes will reject until fixed
 - ⚠️ 6 legacy routes flagged for migration to /store/* pattern
 
 ## Active Patterns
