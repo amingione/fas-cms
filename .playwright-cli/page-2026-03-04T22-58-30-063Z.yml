@@ -1,0 +1,347 @@
+- generic [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - button "Open menu" [ref=e4] [cursor=pointer]:
+        - img [ref=e5]
+      - link "FAS Chrome Logo" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img "FAS Chrome Logo" [ref=e7]
+      - button "Open cart" [ref=e10] [cursor=pointer]:
+        - img [ref=e12]
+  - complementary [ref=e14]:
+    - generic [ref=e15]:
+      - generic [ref=e17]:
+        - img "FAS Logo" [ref=e19]
+        - generic [ref=e22]:
+          - img [ref=e23]
+          - textbox "Search" [ref=e26]:
+            - /placeholder: Search products...
+        - list [ref=e27]:
+          - listitem [ref=e28]:
+            - link "Home" [ref=e29] [cursor=pointer]:
+              - /url: /
+          - listitem [ref=e30]:
+            - generic [ref=e31]: Shop
+            - list [ref=e32]:
+              - listitem [ref=e33]:
+                - link "All Products" [ref=e34] [cursor=pointer]:
+                  - /url: /shop
+              - listitem [ref=e35]:
+                - link "Performance Packages" [ref=e36] [cursor=pointer]:
+                  - /url: /shop/performance-packages
+              - listitem [ref=e37]:
+                - generic [ref=e38]: Billet Parts
+                - list [ref=e39]:
+                  - listitem [ref=e40]:
+                    - link "FAS Predator Pulley" [ref=e41] [cursor=pointer]:
+                      - /url: /specs/PredatorPulley
+                  - listitem [ref=e42]:
+                    - link "FAS Hub & Pulley" [ref=e43] [cursor=pointer]:
+                      - /url: /specs/PulleyHub
+                  - listitem [ref=e44]:
+                    - link "FAS Billet Bearing Plate" [ref=e45] [cursor=pointer]:
+                      - /url: /specs/BearingPlate
+                  - listitem [ref=e46]:
+                    - link "FAS Billet Snouts" [ref=e47] [cursor=pointer]:
+                      - /url: /specs/BilletSnout
+              - listitem [ref=e48]:
+                - generic [ref=e49]: Wheels
+                - list [ref=e50]:
+                  - listitem
+                  - listitem [ref=e51]: BELAK
+                  - listitem [ref=e52]:
+                    - link "Belak Overview" [ref=e53] [cursor=pointer]:
+                      - /url: /belak/wheels
+                  - listitem
+                  - listitem [ref=e54]: JTX FORGED
+                  - listitem [ref=e55]:
+                    - link "JTX Overview" [ref=e56] [cursor=pointer]:
+                      - /url: /jtx/wheels
+          - listitem [ref=e57]:
+            - separator [ref=e58]
+          - listitem [ref=e59]:
+            - link "Packages" [ref=e60] [cursor=pointer]:
+              - /url: /packages
+            - list [ref=e61]:
+              - listitem [ref=e62]:
+                - link "Truck Packages" [ref=e63] [cursor=pointer]:
+                  - /url: /packages/truckPackages
+              - listitem [ref=e64]:
+                - link "Power Packages" [ref=e65] [cursor=pointer]:
+                  - /url: /packages/powerPackages
+          - listitem [ref=e66]:
+            - link "All Services" [ref=e68] [cursor=pointer]:
+              - /url: /services/overview
+            - list [ref=e69]:
+              - listitem [ref=e70]:
+                - link "IGLA Security" [ref=e71] [cursor=pointer]:
+                  - /url: /services/igla
+              - listitem [ref=e72]:
+                - link "Porting" [ref=e73] [cursor=pointer]:
+                  - /url: /services/porting
+              - listitem [ref=e74]:
+                - link "Custom Fabrication" [ref=e75] [cursor=pointer]:
+                  - /url: /services/customFab
+              - listitem [ref=e76]:
+                - link "Core Exchange" [ref=e77] [cursor=pointer]:
+                  - /url: /services/coreExchange
+              - listitem [ref=e78]:
+                - link "Welding" [ref=e79] [cursor=pointer]:
+                  - /url: /services/welding
+              - listitem [ref=e80]:
+                - link "Schedule Service" [ref=e81] [cursor=pointer]:
+                  - /url: /schedule
+          - listitem [ref=e82]:
+            - separator [ref=e83]
+          - listitem [ref=e84]:
+            - link "About" [ref=e85] [cursor=pointer]:
+              - /url: /about
+          - listitem [ref=e86]:
+            - link "FAQ" [ref=e87] [cursor=pointer]:
+              - /url: /faq2
+          - listitem [ref=e88]:
+            - link "Contact" [ref=e89] [cursor=pointer]:
+              - /url: /contact
+          - listitem [ref=e90]:
+            - button "Sign in" [ref=e91] [cursor=pointer]:
+              - img [ref=e92]
+              - generic [ref=e94]: Sign in
+      - button "×" [ref=e95] [cursor=pointer]
+  - generic [ref=e96]:
+    - main [ref=e97]:
+      - navigation "Breadcrumb" [ref=e98]:
+        - list [ref=e99]:
+          - listitem [ref=e100]:
+            - link "Home" [ref=e101] [cursor=pointer]:
+              - /url: /
+            - generic [ref=e102]: /
+          - listitem [ref=e103]:
+            - link "Shop" [ref=e104] [cursor=pointer]:
+              - /url: /shop
+            - generic [ref=e105]: /
+          - listitem [ref=e106]:
+            - generic [ref=e107]: Performance Categories
+      - generic [ref=e110]:
+        - generic [ref=e111]:
+          - navigation "Top" [ref=e112]:
+            - generic [ref=e114]:
+              - button "Open menu" [ref=e115] [cursor=pointer]:
+                - generic [ref=e117]: Open menu
+                - img [ref=e118]
+              - link "F.A.S. Motorsports F.A.S. Motorsports Performance Parts and Supercharger Modifications" [ref=e121] [cursor=pointer]:
+                - /url: /
+                - generic [ref=e122]: F.A.S. Motorsports
+                - img "F.A.S. Motorsports Performance Parts and Supercharger Modifications" [ref=e123]
+          - generic [ref=e125]:
+            - generic [ref=e126]:
+              - heading "Performance Categories" [level=1] [ref=e127]
+              - paragraph [ref=e128]: Jump into the platform that matches your build. Each category highlights curated hardware stacks, tuning paths, and proven package tiers engineered in-house by F.A.S.
+            - generic [ref=e130]:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - img
+                    - generic:
+                      - img
+                  - generic:
+                    - generic:
+                      - img
+                    - generic:
+                      - img
+                    - generic:
+                      - img
+                  - generic:
+                    - generic:
+                      - img
+                    - generic:
+                      - img
+              - link "Shop All Products ➤" [ref=e131] [cursor=pointer]:
+                - /url: /shop
+        - main [ref=e132]:
+          - region "Shop by Category" [ref=e133]:
+            - generic [ref=e134]:
+              - heading "Shop by Category" [level=2] [ref=e136]
+              - generic [ref=e137]:
+                - link "Browse Intake Filters" [ref=e138] [cursor=pointer]:
+                  - /url: /shop/categories/intake-filters
+                  - img "Intake Filters" [ref=e139]
+                  - generic [ref=e141]:
+                    - heading "Intake Filters" [level=3] [ref=e142]: Intake Filters
+                    - paragraph [ref=e144]: 2 Products
+                - link "Browse Performance Upgrades" [ref=e145] [cursor=pointer]:
+                  - /url: /shop/categories/performance-upgrades
+                  - img "Performance Upgrades" [ref=e146]
+                  - generic [ref=e148]:
+                    - heading "Performance Upgrades" [level=3] [ref=e149]: Performance Upgrades
+                    - paragraph [ref=e151]: 6 Products
+                - link "Browse Snout Rebuilds" [ref=e152] [cursor=pointer]:
+                  - /url: /shop/categories/snout-rebuilds
+                  - img "Snout Rebuilds" [ref=e153]
+                  - generic [ref=e155]:
+                    - heading "Snout Rebuilds" [level=3] [ref=e156]: Snout Rebuilds
+                    - paragraph [ref=e158]: 1 Product
+                - link "Browse Custom Coating" [ref=e159] [cursor=pointer]:
+                  - /url: /shop/categories/custom-coating
+                  - img "Custom Coating" [ref=e160]
+                  - generic [ref=e162]:
+                    - heading "Custom Coating" [level=3] [ref=e163]: Custom Coating
+                    - paragraph [ref=e165]: 5 Products
+                - link "Browse Diesel" [ref=e166] [cursor=pointer]:
+                  - /url: /shop/categories/diesel
+                  - img "Diesel" [ref=e167]
+                  - generic [ref=e169]:
+                    - heading "Diesel" [level=3] [ref=e170]: Diesel
+                    - paragraph [ref=e172]: View builds
+                - link "Browse Tools & Accessories" [ref=e173] [cursor=pointer]:
+                  - /url: /shop/categories/tools-and-accessories
+                  - img "Tools & Accessories" [ref=e174]
+                  - generic [ref=e176]:
+                    - heading "Tools & Accessories" [level=3] [ref=e177]: Tools & Accessories
+                    - paragraph [ref=e179]: 9 Products
+              - link "Browse all categories" [ref=e181] [cursor=pointer]:
+                - /url: /shop/categories
+                - text: Browse all categories →
+          - region "Precision. Power. Performance" [ref=e182]:
+            - generic [ref=e183]:
+              - img "hellcat charger FAS Motorsports" [ref=e185]
+              - generic [ref=e187]:
+                - heading "Precision. Power. Performance" [level=2] [ref=e188]
+                - paragraph [ref=e189]: F.A.S. Motorsports delivers high-performance billet parts, superchargers, and custom packages engineered for power, precision, and reliability. Explore our innovative solutions to elevate your build and dominate the road or track.
+                - link "Shop All Products ➤➤➤" [ref=e190] [cursor=pointer]:
+                  - /url: /shop
+          - region "Featured" [ref=e191]:
+            - generic [ref=e192]:
+              - heading "Featured" [level=2] [ref=e194]
+              - generic [ref=e195]:
+                - generic [ref=e196]:
+                  - img "[object Object]" [ref=e197]
+                  - heading "FAS 850 Package | Trackhawk & Durango" [level=3] [ref=e198]:
+                    - link "FAS 850 Package | Trackhawk & Durango" [ref=e199] [cursor=pointer]:
+                      - /url: /shop/fas-850-package-td
+                      - text: FAS 850 Package | Trackhawk & Durango
+                  - paragraph [ref=e201]: $7,099.00
+                - generic [ref=e202]:
+                  - img "FAS “Factory Freak” Package (TRX)" [ref=e203]
+                  - heading "FAS “Factory Freak” Package (TRX)" [level=3] [ref=e204]:
+                    - link "FAS “Factory Freak” Package (TRX)" [ref=e205] [cursor=pointer]:
+                      - /url: /shop/fas-factory-freak-package-trx
+                      - text: FAS “Factory Freak” Package (TRX)
+                  - paragraph [ref=e207]: $1,599.00
+                - generic [ref=e208]:
+                  - img "[object Object]" [ref=e209]
+                  - heading "FAS 2.7L IHI Supercharger Rebuild" [level=3] [ref=e210]:
+                    - link "FAS 2.7L IHI Supercharger Rebuild" [ref=e211] [cursor=pointer]:
+                      - /url: /shop/2-7l-ihi-supercharger-rebuild
+                      - text: FAS 2.7L IHI Supercharger Rebuild
+                  - paragraph [ref=e213]: $1,200.00
+              - link "Browse all featured" [ref=e215] [cursor=pointer]:
+                - /url: /shop?sort=featured
+                - text: Browse all featured →
+    - generic [ref=e218]:
+      - generic [ref=e219]:
+        - heading "Top Products" [level=2] [ref=e220]
+        - paragraph [ref=e221]: Explore our most requested billet components and performance upgrades, each engineered in-house and backed by track data.
+        - navigation "Top products" [ref=e222]:
+          - list [ref=e223]:
+            - listitem [ref=e224]:
+              - link "Predator Pulley Upgrades" [ref=e225] [cursor=pointer]:
+                - /url: /specs/PredatorPulley
+                - generic [ref=e226]: Predator Pulley Upgrades
+                - img [ref=e227]
+            - listitem [ref=e229]:
+              - link "Hellcat Snout Porting" [ref=e230] [cursor=pointer]:
+                - /url: /shop/2-4l-2-7l-snout-porting
+                - generic [ref=e231]: Hellcat Snout Porting
+                - img [ref=e232]
+            - listitem [ref=e234]:
+              - link "2.4L Hellcat Billet Supercharger Snout" [ref=e235] [cursor=pointer]:
+                - /url: /services/overview
+                - generic [ref=e236]: 2.4L Hellcat Billet Supercharger Snout
+                - img [ref=e237]
+            - listitem [ref=e239]:
+              - link "2.4L Hellcat Billet Bearing Plate" [ref=e240] [cursor=pointer]:
+                - /url: /shop/2-4l-hellcat-billet-bearing-plate
+                - generic [ref=e241]: 2.4L Hellcat Billet Bearing Plate
+                - img [ref=e242]
+            - listitem [ref=e244]:
+              - link "2.4L Hellcat Billet Turbo Snout" [ref=e245] [cursor=pointer]:
+                - /url: /shop/2-4l-hellcat-billet-turbo-snout
+                - generic [ref=e246]: 2.4L Hellcat Billet Turbo Snout
+                - img [ref=e247]
+      - generic [ref=e249]:
+        - heading "Top Services" [level=2] [ref=e250]
+        - paragraph [ref=e251]: Pair your hardware upgrades with professional installation, calibration, and security options from the F.A.S. Motorsports team.
+        - navigation "Top services" [ref=e252]:
+          - list [ref=e253]:
+            - listitem [ref=e254]:
+              - link "Performance Services Overview" [ref=e255] [cursor=pointer]:
+                - /url: /services/overview
+                - generic [ref=e256]: Performance Services Overview
+                - img [ref=e257]
+            - listitem [ref=e259]:
+              - link "Precision Porting Services" [ref=e260] [cursor=pointer]:
+                - /url: /services/overview
+                - generic [ref=e261]: Precision Porting Services
+                - img [ref=e262]
+            - listitem [ref=e264]:
+              - link "Custom Fabrication" [ref=e265] [cursor=pointer]:
+                - /url: /services/customFab
+                - generic [ref=e266]: Custom Fabrication
+                - img [ref=e267]
+            - listitem [ref=e269]:
+              - link "Certified Welding" [ref=e270] [cursor=pointer]:
+                - /url: /services/welding
+                - generic [ref=e271]: Certified Welding
+                - img [ref=e272]
+            - listitem [ref=e274]:
+              - link "IGLA Security Installs" [ref=e275] [cursor=pointer]:
+                - /url: /services/igla
+                - generic [ref=e276]: IGLA Security Installs
+                - img [ref=e277]
+    - contentinfo [ref=e280]:
+      - generic [ref=e281]:
+        - generic [ref=e282]:
+          - link "Facebook" [ref=e283] [cursor=pointer]:
+            - /url: https://www.facebook.com/fasmotorsportz
+            - generic [ref=e284]: Facebook
+            - img [ref=e285]
+          - link "Instagram" [ref=e287] [cursor=pointer]:
+            - /url: https://www.instagram.com/fas_moto
+            - generic [ref=e288]: Instagram
+            - img [ref=e289]
+        - paragraph [ref=e291]: © 2025 F.a.S. Motorsports, Inc. All rights reserved.
+    - generic:
+      - region "Notifications alt+T"
+  - generic:
+    - generic:
+      - alert:
+        - generic:
+          - img
+        - generic:
+          - paragraph: Item added to cart
+          - generic:
+            - link:
+              - /url: /cart
+              - text: View Cart
+        - button:
+          - generic: Close add to cart notification
+          - img
+  - generic:
+    - generic:
+      - button [ref=e293] [cursor=pointer]
+      - generic:
+        - dialog "Shopping Cart" [active]:
+          - generic [ref=e298]:
+            - generic [ref=e299]:
+              - heading "Shopping Cart" [level=2] [ref=e300]
+              - button "Close panel" [ref=e301] [cursor=pointer]:
+                - generic [ref=e302]: Close panel
+                - img [ref=e303]
+            - generic [ref=e306]:
+              - img [ref=e307]
+              - paragraph [ref=e309]: Your cart is empty.
+              - paragraph [ref=e310]: Add products from the storefront to see them here.
+              - link "Browse Products" [ref=e311] [cursor=pointer]:
+                - /url: /shop
+      - button [ref=e312] [cursor=pointer]

@@ -1,0 +1,377 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - button "Open menu" [ref=e4] [cursor=pointer]:
+        - img [ref=e5]
+      - link "FAS Chrome Logo" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img "FAS Chrome Logo" [ref=e7]
+      - button "Open cart" [ref=e10] [cursor=pointer]:
+        - img [ref=e12]
+  - complementary [ref=e14]:
+    - generic [ref=e15]:
+      - generic [ref=e17]:
+        - img "FAS Logo" [ref=e19]
+        - generic [ref=e22]:
+          - img [ref=e23]
+          - textbox "Search" [ref=e26]:
+            - /placeholder: Search products...
+        - list [ref=e27]:
+          - listitem [ref=e28]:
+            - link "Home" [ref=e29] [cursor=pointer]:
+              - /url: /
+          - listitem [ref=e30]:
+            - generic [ref=e31]: Shop
+            - list [ref=e32]:
+              - listitem [ref=e33]:
+                - link "All Products" [ref=e34] [cursor=pointer]:
+                  - /url: /shop
+              - listitem [ref=e35]:
+                - link "Performance Packages" [ref=e36] [cursor=pointer]:
+                  - /url: /shop/performance-packages
+              - listitem [ref=e37]:
+                - generic [ref=e38]: Billet Parts
+                - list [ref=e39]:
+                  - listitem [ref=e40]:
+                    - link "FAS Predator Pulley" [ref=e41] [cursor=pointer]:
+                      - /url: /specs/PredatorPulley
+                  - listitem [ref=e42]:
+                    - link "FAS Hub & Pulley" [ref=e43] [cursor=pointer]:
+                      - /url: /specs/PulleyHub
+                  - listitem [ref=e44]:
+                    - link "FAS Billet Bearing Plate" [ref=e45] [cursor=pointer]:
+                      - /url: /specs/BearingPlate
+                  - listitem [ref=e46]:
+                    - link "FAS Billet Snouts" [ref=e47] [cursor=pointer]:
+                      - /url: /specs/BilletSnout
+              - listitem [ref=e48]:
+                - generic [ref=e49]: Wheels
+                - list [ref=e50]:
+                  - listitem
+                  - listitem [ref=e51]: BELAK
+                  - listitem [ref=e52]:
+                    - link "Belak Overview" [ref=e53] [cursor=pointer]:
+                      - /url: /belak/wheels
+                  - listitem
+                  - listitem [ref=e54]: JTX FORGED
+                  - listitem [ref=e55]:
+                    - link "JTX Overview" [ref=e56] [cursor=pointer]:
+                      - /url: /jtx/wheels
+          - listitem [ref=e57]:
+            - separator [ref=e58]
+          - listitem [ref=e59]:
+            - link "Packages" [ref=e60] [cursor=pointer]:
+              - /url: /packages
+            - list [ref=e61]:
+              - listitem [ref=e62]:
+                - link "Truck Packages" [ref=e63] [cursor=pointer]:
+                  - /url: /packages/truckPackages
+              - listitem [ref=e64]:
+                - link "Power Packages" [ref=e65] [cursor=pointer]:
+                  - /url: /packages/powerPackages
+          - listitem [ref=e66]:
+            - link "All Services" [ref=e68] [cursor=pointer]:
+              - /url: /services/overview
+            - list [ref=e69]:
+              - listitem [ref=e70]:
+                - link "IGLA Security" [ref=e71] [cursor=pointer]:
+                  - /url: /services/igla
+              - listitem [ref=e72]:
+                - link "Porting" [ref=e73] [cursor=pointer]:
+                  - /url: /services/porting
+              - listitem [ref=e74]:
+                - link "Custom Fabrication" [ref=e75] [cursor=pointer]:
+                  - /url: /services/customFab
+              - listitem [ref=e76]:
+                - link "Core Exchange" [ref=e77] [cursor=pointer]:
+                  - /url: /services/coreExchange
+              - listitem [ref=e78]:
+                - link "Welding" [ref=e79] [cursor=pointer]:
+                  - /url: /services/welding
+              - listitem [ref=e80]:
+                - link "Schedule Service" [ref=e81] [cursor=pointer]:
+                  - /url: /schedule
+          - listitem [ref=e82]:
+            - separator [ref=e83]
+          - listitem [ref=e84]:
+            - link "About" [ref=e85] [cursor=pointer]:
+              - /url: /about
+          - listitem [ref=e86]:
+            - link "FAQ" [ref=e87] [cursor=pointer]:
+              - /url: /faq2
+          - listitem [ref=e88]:
+            - link "Contact" [ref=e89] [cursor=pointer]:
+              - /url: /contact
+          - listitem [ref=e90]:
+            - button "Sign in" [ref=e91] [cursor=pointer]:
+              - img [ref=e92]
+              - generic [ref=e94]: Sign in
+      - button "×" [ref=e95] [cursor=pointer]
+  - generic [ref=e96]:
+    - main [ref=e97]:
+      - navigation "Breadcrumb" [ref=e98]:
+        - list [ref=e99]:
+          - listitem [ref=e100]:
+            - link "Home" [ref=e101] [cursor=pointer]:
+              - /url: /
+            - generic [ref=e102]: /
+          - listitem [ref=e103]:
+            - link "Shop" [ref=e104] [cursor=pointer]:
+              - /url: /shop
+            - generic [ref=e105]: /
+          - listitem [ref=e106]:
+            - generic [ref=e107]: 2.4L 130mm Billet Supercharger Snout | Billet Parts | FAS Motorsports
+      - generic [ref=e108]:
+        - generic [ref=e110]:
+          - generic [ref=e112]:
+            - generic [ref=e114]:
+              - generic [ref=e115]:
+                - img "2.4L 130mm Billet Supercharger Snout Billet Parts F.A.S. Motorsports main product image | F.A.S. Motorsports" [ref=e116]
+                - generic [ref=e117]: "Slide 1 of 4: 2.4L 130mm Billet Supercharger Snout Billet Parts F.A.S. Motorsports main product image | F.A.S. Motorsports"
+              - generic [ref=e118]:
+                - img "2.4L 130mm Billet Supercharger Snout Billet Parts F.A.S. Motorsports detail image 2 | F.A.S. Motorsports" [ref=e119]
+                - generic [ref=e120]: "Slide 2 of 4: 2.4L 130mm Billet Supercharger Snout Billet Parts F.A.S. Motorsports detail image 2 | F.A.S. Motorsports"
+              - generic [ref=e121]:
+                - img "2.4L 130mm Billet Supercharger Snout Billet Parts F.A.S. Motorsports detail image 3 | F.A.S. Motorsports" [ref=e122]
+                - generic [ref=e123]: "Slide 3 of 4: 2.4L 130mm Billet Supercharger Snout Billet Parts F.A.S. Motorsports detail image 3 | F.A.S. Motorsports"
+              - generic [ref=e124]:
+                - img "2.4L 130mm Billet Supercharger Snout Billet Parts F.A.S. Motorsports detail image 4 | F.A.S. Motorsports" [ref=e125]
+                - generic [ref=e126]: "Slide 4 of 4: 2.4L 130mm Billet Supercharger Snout Billet Parts F.A.S. Motorsports detail image 4 | F.A.S. Motorsports"
+            - generic:
+              - button "Previous image" [ref=e127] [cursor=pointer]: ‹
+              - button "Next image" [ref=e128] [cursor=pointer]: ›
+            - generic [ref=e129]:
+              - button "View product image 1" [ref=e130] [cursor=pointer]:
+                - img "2.4L 130mm Billet Supercharger Snout Billet Parts F.A.S. Motorsports main product image | F.A.S. Motorsports" [ref=e132]
+              - button "View product image 2" [ref=e133] [cursor=pointer]:
+                - img "2.4L 130mm Billet Supercharger Snout Billet Parts F.A.S. Motorsports detail image 2 | F.A.S. Motorsports" [ref=e135]
+              - button "View product image 3" [ref=e136] [cursor=pointer]:
+                - img "2.4L 130mm Billet Supercharger Snout Billet Parts F.A.S. Motorsports detail image 3 | F.A.S. Motorsports" [ref=e138]
+              - button "View product image 4" [ref=e139] [cursor=pointer]:
+                - img "2.4L 130mm Billet Supercharger Snout Billet Parts F.A.S. Motorsports detail image 4 | F.A.S. Motorsports" [ref=e141]
+          - generic [ref=e142]:
+            - heading "2.4L 130mm Billet Supercharger Snout" [level=1] [ref=e143]
+            - paragraph [ref=e144]: Billet Parts
+            - heading "$1,899.99" [level=2] [ref=e146]
+            - paragraph [ref=e148]:
+              - text: This 130mm Billet Supercharger snout will be a
+              - strong [ref=e149]:
+                - emphasis [ref=e150]: DIRECT BOLT
+              - strong [ref=e151]:
+                - emphasis [ref=e152]: "ON"
+              - text: to your factory 2.4L Supercharger. Pre-Orders are NOW LIVE!
+            - generic [ref=e153]:
+              - group [ref=e154]:
+                - generic "Product Details ▾" [ref=e155] [cursor=pointer]:
+                  - generic [ref=e156]: Product Details
+                  - generic [ref=e157]: ▾
+              - generic [ref=e160]: $1,899.99
+            - generic [ref=e161]:
+              - generic [ref=e162]:
+                - text: "Categories:"
+                - link "Billet Parts" [ref=e163] [cursor=pointer]:
+                  - /url: /shop?categorySlug=billet-parts
+              - generic [ref=e164]:
+                - text: "Filters:"
+                - link "supercharger components" [ref=e165] [cursor=pointer]:
+                  - /url: /shop?filters=supercharger-components
+                - text: ","
+                - link "2.4L" [ref=e166] [cursor=pointer]:
+                  - /url: /shop?filters=2-4l
+        - generic [ref=e169]:
+          - heading "Related Products" [level=2] [ref=e170]
+          - generic [ref=e171]:
+            - article [ref=e172]:
+              - link "2.7L Billet Supercharger Snout 2.7L Billet Supercharger Snout $1,899.99" [ref=e173] [cursor=pointer]:
+                - /url: /shop/2-7l-hellcat-billet-supercharger-snout
+                - img "2.7L Billet Supercharger Snout" [ref=e175]
+                - generic [ref=e177]:
+                  - heading "2.7L Billet Supercharger Snout" [level=3] [ref=e178]
+                  - paragraph [ref=e179]:
+                    - generic [ref=e180]: $1,899.99
+              - button "Quick View" [ref=e181] [cursor=pointer]:
+                - img [ref=e182]
+                - text: Quick View
+            - article [ref=e185]:
+              - link "Billet Hellcat Supercharger Lid Billet Hellcat Supercharger Lid $1,899.99" [ref=e186] [cursor=pointer]:
+                - /url: /shop/fas-motorsports-billet-hellcat-supercharger-lid
+                - img "Billet Hellcat Supercharger Lid" [ref=e188]
+                - generic [ref=e190]:
+                  - heading "Billet Hellcat Supercharger Lid" [level=3] [ref=e191]
+                  - paragraph [ref=e192]:
+                    - generic [ref=e193]: $1,899.99
+              - button "Quick View" [ref=e194] [cursor=pointer]:
+                - img [ref=e195]
+                - text: Quick View
+            - article [ref=e198]:
+              - link "2.4L 130mm Billet Snout & Throttle 2.4L 130mm Billet Snout & Throttle $2,599.99" [ref=e199] [cursor=pointer]:
+                - /url: /shop/2-4l-hellcat-130mm-billet-supercharger-snout-and-130mm-throttle-body
+                - img "2.4L 130mm Billet Snout & Throttle" [ref=e201]
+                - generic [ref=e203]:
+                  - heading "2.4L 130mm Billet Snout & Throttle" [level=3] [ref=e204]
+                  - paragraph [ref=e205]:
+                    - generic [ref=e206]: $2,599.99
+              - button "Quick View" [ref=e207] [cursor=pointer]:
+                - img [ref=e208]
+                - text: Quick View
+            - article [ref=e211]:
+              - link "Hellcat Billet Air Foil Hellcat Billet Air Foil $75.00" [ref=e212] [cursor=pointer]:
+                - /url: /shop/hellcat-billet-air-foil
+                - img "Hellcat Billet Air Foil" [ref=e214]
+                - generic [ref=e216]:
+                  - heading "Hellcat Billet Air Foil" [level=3] [ref=e217]
+                  - paragraph [ref=e218]:
+                    - generic [ref=e219]: $75.00
+              - button "Quick View" [ref=e220] [cursor=pointer]:
+                - img [ref=e221]
+                - text: Quick View
+            - article [ref=e224]:
+              - link "TRX 5” High Flow Intake w/ Heat Shield TRX 5” High Flow Intake w/ Heat Shield $699.99" [ref=e225] [cursor=pointer]:
+                - /url: /shop/ram-trx-5-high-flow-intake-w-heat-shield
+                - img "TRX 5” High Flow Intake w/ Heat Shield" [ref=e227]
+                - generic [ref=e229]:
+                  - heading "TRX 5” High Flow Intake w/ Heat Shield" [level=3] [ref=e230]
+                  - paragraph [ref=e231]:
+                    - generic [ref=e232]: $699.99
+              - button "Quick View" [ref=e233] [cursor=pointer]:
+                - img [ref=e234]
+                - text: Quick View
+            - article [ref=e237]:
+              - link "Hellcat Upper Pulley & Hub Kit Hellcat Upper Pulley & Hub Kit $219.99" [ref=e238] [cursor=pointer]:
+                - /url: /shop/pulley-and-hub-kit
+                - img "Hellcat Upper Pulley & Hub Kit" [ref=e240]
+                - generic [ref=e242]:
+                  - heading "Hellcat Upper Pulley & Hub Kit" [level=3] [ref=e243]
+                  - paragraph [ref=e244]:
+                    - generic [ref=e245]: $219.99
+              - button "Quick View" [ref=e246] [cursor=pointer]:
+                - img [ref=e247]
+                - text: Quick View
+        - generic [ref=e250]:
+          - heading "Recommended Upgrades" [level=2] [ref=e251]
+          - generic [ref=e252]:
+            - article [ref=e253]:
+              - link "2.7L Billet Supercharger Snout 2.7L Billet Supercharger Snout $1,899.99" [ref=e254] [cursor=pointer]:
+                - /url: /shop/2-7l-hellcat-billet-supercharger-snout
+                - img "2.7L Billet Supercharger Snout" [ref=e256]
+                - generic [ref=e258]:
+                  - heading "2.7L Billet Supercharger Snout" [level=3] [ref=e259]
+                  - paragraph [ref=e260]:
+                    - generic [ref=e261]: $1,899.99
+              - button "Quick View" [ref=e262] [cursor=pointer]:
+                - img [ref=e263]
+                - text: Quick View
+            - article [ref=e266]:
+              - link "Billet Hellcat Supercharger Lid Billet Hellcat Supercharger Lid $1,899.99" [ref=e267] [cursor=pointer]:
+                - /url: /shop/fas-motorsports-billet-hellcat-supercharger-lid
+                - img "Billet Hellcat Supercharger Lid" [ref=e269]
+                - generic [ref=e271]:
+                  - heading "Billet Hellcat Supercharger Lid" [level=3] [ref=e272]
+                  - paragraph [ref=e273]:
+                    - generic [ref=e274]: $1,899.99
+              - button "Quick View" [ref=e275] [cursor=pointer]:
+                - img [ref=e276]
+                - text: Quick View
+            - article [ref=e279]:
+              - link "2.4L 130mm Billet Snout & Throttle 2.4L 130mm Billet Snout & Throttle $2,599.99" [ref=e280] [cursor=pointer]:
+                - /url: /shop/2-4l-hellcat-130mm-billet-supercharger-snout-and-130mm-throttle-body
+                - img "2.4L 130mm Billet Snout & Throttle" [ref=e282]
+                - generic [ref=e284]:
+                  - heading "2.4L 130mm Billet Snout & Throttle" [level=3] [ref=e285]
+                  - paragraph [ref=e286]:
+                    - generic [ref=e287]: $2,599.99
+              - button "Quick View" [ref=e288] [cursor=pointer]:
+                - img [ref=e289]
+                - text: Quick View
+      - generic [ref=e292]:
+        - generic [ref=e293]: Total:$1,899.99
+        - button "Add to Cart" [ref=e294] [cursor=pointer]
+    - generic [ref=e297]:
+      - generic [ref=e298]:
+        - heading "Top Products" [level=2] [ref=e299]
+        - paragraph [ref=e300]: Explore our most requested billet components and performance upgrades, each engineered in-house and backed by track data.
+        - navigation "Top products" [ref=e301]:
+          - list [ref=e302]:
+            - listitem [ref=e303]:
+              - link "Predator Pulley Upgrades" [ref=e304] [cursor=pointer]:
+                - /url: /specs/PredatorPulley
+                - generic [ref=e305]: Predator Pulley Upgrades
+                - img [ref=e306]
+            - listitem [ref=e308]:
+              - link "Hellcat Snout Porting" [ref=e309] [cursor=pointer]:
+                - /url: /shop/2-4l-2-7l-snout-porting
+                - generic [ref=e310]: Hellcat Snout Porting
+                - img [ref=e311]
+            - listitem [ref=e313]:
+              - link "2.4L Hellcat Billet Supercharger Snout" [ref=e314] [cursor=pointer]:
+                - /url: /services/overview
+                - generic [ref=e315]: 2.4L Hellcat Billet Supercharger Snout
+                - img [ref=e316]
+            - listitem [ref=e318]:
+              - link "2.4L Hellcat Billet Bearing Plate" [ref=e319] [cursor=pointer]:
+                - /url: /shop/2-4l-hellcat-billet-bearing-plate
+                - generic [ref=e320]: 2.4L Hellcat Billet Bearing Plate
+                - img [ref=e321]
+            - listitem [ref=e323]:
+              - link "2.4L Hellcat Billet Turbo Snout" [ref=e324] [cursor=pointer]:
+                - /url: /shop/2-4l-hellcat-billet-turbo-snout
+                - generic [ref=e325]: 2.4L Hellcat Billet Turbo Snout
+                - img [ref=e326]
+      - generic [ref=e328]:
+        - heading "Top Services" [level=2] [ref=e329]
+        - paragraph [ref=e330]: Pair your hardware upgrades with professional installation, calibration, and security options from the F.A.S. Motorsports team.
+        - navigation "Top services" [ref=e331]:
+          - list [ref=e332]:
+            - listitem [ref=e333]:
+              - link "Performance Services Overview" [ref=e334] [cursor=pointer]:
+                - /url: /services/overview
+                - generic [ref=e335]: Performance Services Overview
+                - img [ref=e336]
+            - listitem [ref=e338]:
+              - link "Precision Porting Services" [ref=e339] [cursor=pointer]:
+                - /url: /services/overview
+                - generic [ref=e340]: Precision Porting Services
+                - img [ref=e341]
+            - listitem [ref=e343]:
+              - link "Custom Fabrication" [ref=e344] [cursor=pointer]:
+                - /url: /services/customFab
+                - generic [ref=e345]: Custom Fabrication
+                - img [ref=e346]
+            - listitem [ref=e348]:
+              - link "Certified Welding" [ref=e349] [cursor=pointer]:
+                - /url: /services/welding
+                - generic [ref=e350]: Certified Welding
+                - img [ref=e351]
+            - listitem [ref=e353]:
+              - link "IGLA Security Installs" [ref=e354] [cursor=pointer]:
+                - /url: /services/igla
+                - generic [ref=e355]: IGLA Security Installs
+                - img [ref=e356]
+    - contentinfo [ref=e359]:
+      - generic [ref=e360]:
+        - generic [ref=e361]:
+          - link "Facebook" [ref=e362] [cursor=pointer]:
+            - /url: https://www.facebook.com/fasmotorsportz
+            - generic [ref=e363]: Facebook
+            - img [ref=e364]
+          - link "Instagram" [ref=e366] [cursor=pointer]:
+            - /url: https://www.instagram.com/fas_moto
+            - generic [ref=e367]: Instagram
+            - img [ref=e368]
+        - paragraph [ref=e370]: © 2025 F.a.S. Motorsports, Inc. All rights reserved.
+    - generic:
+      - region "Notifications alt+T"
+  - generic:
+    - generic:
+      - alert:
+        - generic:
+          - img
+        - generic:
+          - paragraph: Item added to cart
+          - generic:
+            - link:
+              - /url: /cart
+              - text: View Cart
+        - button:
+          - generic: Close add to cart notification
+          - img

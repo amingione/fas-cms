@@ -1,0 +1,387 @@
+- generic [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - button "Open menu" [ref=e4] [cursor=pointer]:
+        - img [ref=e5]
+      - link "FAS Chrome Logo" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img "FAS Chrome Logo" [ref=e7]
+      - button "Open cart" [ref=e10] [cursor=pointer]:
+        - generic [ref=e11]:
+          - img [ref=e12]
+          - generic [ref=e14]: "1"
+  - complementary [ref=e15]:
+    - generic [ref=e16]:
+      - generic [ref=e365]:
+        - img "FAS Logo" [ref=e367]
+        - generic [ref=e370]:
+          - img [ref=e371]
+          - textbox "Search" [ref=e374]:
+            - /placeholder: Search products...
+        - list [ref=e375]:
+          - listitem [ref=e376]:
+            - link "Home" [ref=e377] [cursor=pointer]:
+              - /url: /
+          - listitem [ref=e378]:
+            - generic [ref=e379]: Shop
+            - list [ref=e380]:
+              - listitem [ref=e381]:
+                - link "All Products" [ref=e382] [cursor=pointer]:
+                  - /url: /shop
+              - listitem [ref=e383]:
+                - link "Performance Packages" [ref=e384] [cursor=pointer]:
+                  - /url: /shop/performance-packages
+              - listitem [ref=e385]:
+                - generic [ref=e386]: Billet Parts
+                - list [ref=e387]:
+                  - listitem [ref=e388]:
+                    - link "FAS Predator Pulley" [ref=e389] [cursor=pointer]:
+                      - /url: /specs/PredatorPulley
+                  - listitem [ref=e390]:
+                    - link "FAS Hub & Pulley" [ref=e391] [cursor=pointer]:
+                      - /url: /specs/PulleyHub
+                  - listitem [ref=e392]:
+                    - link "FAS Billet Bearing Plate" [ref=e393] [cursor=pointer]:
+                      - /url: /specs/BearingPlate
+                  - listitem [ref=e394]:
+                    - link "FAS Billet Snouts" [ref=e395] [cursor=pointer]:
+                      - /url: /specs/BilletSnout
+              - listitem [ref=e396]:
+                - generic [ref=e397]: Wheels
+                - list [ref=e398]:
+                  - listitem
+                  - listitem [ref=e399]: BELAK
+                  - listitem [ref=e400]:
+                    - link "Belak Overview" [ref=e401] [cursor=pointer]:
+                      - /url: /belak/wheels
+                  - listitem
+                  - listitem [ref=e402]: JTX FORGED
+                  - listitem [ref=e403]:
+                    - link "JTX Overview" [ref=e404] [cursor=pointer]:
+                      - /url: /jtx/wheels
+          - listitem [ref=e405]:
+            - separator [ref=e406]
+          - listitem [ref=e407]:
+            - link "Packages" [ref=e408] [cursor=pointer]:
+              - /url: /packages
+            - list [ref=e409]:
+              - listitem [ref=e410]:
+                - link "Truck Packages" [ref=e411] [cursor=pointer]:
+                  - /url: /packages/truckPackages
+              - listitem [ref=e412]:
+                - link "Power Packages" [ref=e413] [cursor=pointer]:
+                  - /url: /packages/powerPackages
+          - listitem [ref=e414]:
+            - link "All Services" [ref=e416] [cursor=pointer]:
+              - /url: /services/overview
+            - list [ref=e417]:
+              - listitem [ref=e418]:
+                - link "IGLA Security" [ref=e419] [cursor=pointer]:
+                  - /url: /services/igla
+              - listitem [ref=e420]:
+                - link "Porting" [ref=e421] [cursor=pointer]:
+                  - /url: /services/porting
+              - listitem [ref=e422]:
+                - link "Custom Fabrication" [ref=e423] [cursor=pointer]:
+                  - /url: /services/customFab
+              - listitem [ref=e424]:
+                - link "Core Exchange" [ref=e425] [cursor=pointer]:
+                  - /url: /services/coreExchange
+              - listitem [ref=e426]:
+                - link "Welding" [ref=e427] [cursor=pointer]:
+                  - /url: /services/welding
+              - listitem [ref=e428]:
+                - link "Schedule Service" [ref=e429] [cursor=pointer]:
+                  - /url: /schedule
+          - listitem [ref=e430]:
+            - separator [ref=e431]
+          - listitem [ref=e432]:
+            - link "About" [ref=e433] [cursor=pointer]:
+              - /url: /about
+          - listitem [ref=e434]:
+            - link "FAQ" [ref=e435] [cursor=pointer]:
+              - /url: /faq2
+          - listitem [ref=e436]:
+            - link "Contact" [ref=e437] [cursor=pointer]:
+              - /url: /contact
+          - listitem [ref=e438]:
+            - button "Sign in" [ref=e439] [cursor=pointer]:
+              - img [ref=e440]
+              - generic [ref=e442]: Sign in
+      - button "×" [ref=e96] [cursor=pointer]
+  - generic [ref=e97]:
+    - main [ref=e98]:
+      - navigation "Breadcrumb" [ref=e99]:
+        - list [ref=e100]:
+          - listitem [ref=e101]:
+            - link "Home" [ref=e102] [cursor=pointer]:
+              - /url: /
+            - generic [ref=e103]: /
+          - listitem [ref=e104]:
+            - generic [ref=e105]: Performance Parts & Accessories
+      - generic [ref=e106]:
+        - generic [ref=e110]:
+          - group [ref=e111]:
+            - generic "Categories" [ref=e112] [cursor=pointer]
+          - group [ref=e113]:
+            - generic "Filters" [ref=e114] [cursor=pointer]
+        - generic [ref=e117]:
+          - article [ref=e118]:
+            - link "FAS “Factory Freak” Package (TRX) FAS “Factory Freak” Package (TRX) $1,599.00" [ref=e119] [cursor=pointer]:
+              - /url: /shop/fas-factory-freak-package-trx
+              - img "FAS “Factory Freak” Package (TRX)" [ref=e121]
+              - generic [ref=e123]:
+                - heading "FAS “Factory Freak” Package (TRX)" [level=3] [ref=e124]
+                - paragraph [ref=e125]:
+                  - generic [ref=e126]: $1,599.00
+            - button "Quick View" [ref=e127] [cursor=pointer]:
+              - img [ref=e128]
+              - text: Quick View
+          - article [ref=e131]:
+            - link "Hellcat 426 Short block (BGE) Hellcat 426 Short block (BGE) $9,499.00" [ref=e132] [cursor=pointer]:
+              - /url: /shop/hellcat-426-short-block
+              - img "Hellcat 426 Short block (BGE)" [ref=e134]
+              - generic [ref=e136]:
+                - heading "Hellcat 426 Short block (BGE)" [level=3] [ref=e137]
+                - paragraph [ref=e138]:
+                  - generic [ref=e139]: $9,499.00
+            - button "Quick View" [ref=e140] [cursor=pointer]:
+              - img [ref=e141]
+              - text: Quick View
+          - article [ref=e144]:
+            - link "2.7L Billet Supercharger Snout 2.7L Billet Supercharger Snout $1,899.99" [ref=e145] [cursor=pointer]:
+              - /url: /shop/2-7l-hellcat-billet-supercharger-snout
+              - img "2.7L Billet Supercharger Snout" [ref=e147]
+              - generic [ref=e149]:
+                - heading "2.7L Billet Supercharger Snout" [level=3] [ref=e150]
+                - paragraph [ref=e151]:
+                  - generic [ref=e152]: $1,899.99
+            - button "Quick View" [ref=e153] [cursor=pointer]:
+              - img [ref=e154]
+              - text: Quick View
+          - article [ref=e157]:
+            - link "2020+ 6.7L Powerstroke Piping Kit 2020+ 6.7L Powerstroke Piping Kit $1,599.99" [ref=e158] [cursor=pointer]:
+              - /url: /shop/2020-6-7l-powerstroke-piping-kit
+              - img "2020+ 6.7L Powerstroke Piping Kit" [ref=e160]
+              - generic [ref=e162]:
+                - heading "2020+ 6.7L Powerstroke Piping Kit" [level=3] [ref=e163]
+                - paragraph [ref=e164]:
+                  - generic [ref=e165]: $1,599.99
+            - button "Quick View" [ref=e166] [cursor=pointer]:
+              - img [ref=e167]
+              - text: Quick View
+          - article [ref=e170]:
+            - link "Billet Hellcat Supercharger Lid Billet Hellcat Supercharger Lid $1,899.99" [ref=e171] [cursor=pointer]:
+              - /url: /shop/fas-motorsports-billet-hellcat-supercharger-lid
+              - img "Billet Hellcat Supercharger Lid" [ref=e173]
+              - generic [ref=e175]:
+                - heading "Billet Hellcat Supercharger Lid" [level=3] [ref=e176]
+                - paragraph [ref=e177]:
+                  - generic [ref=e178]: $1,899.99
+            - button "Quick View" [ref=e179] [cursor=pointer]:
+              - img [ref=e180]
+              - text: Quick View
+          - article [ref=e183]:
+            - link "TRX 5” High Flow Intake w/ Heat Shield TRX 5” High Flow Intake w/ Heat Shield $699.99" [ref=e184] [cursor=pointer]:
+              - /url: /shop/ram-trx-5-high-flow-intake-w-heat-shield
+              - img "TRX 5” High Flow Intake w/ Heat Shield" [ref=e186]
+              - generic [ref=e188]:
+                - heading "TRX 5” High Flow Intake w/ Heat Shield" [level=3] [ref=e189]
+                - paragraph [ref=e190]:
+                  - generic [ref=e191]: $699.99
+            - button "Quick View" [ref=e192] [cursor=pointer]:
+              - img [ref=e193]
+              - text: Quick View
+          - article [ref=e196]:
+            - link "Hellcat Upper Pulley & Hub Kit Hellcat Upper Pulley & Hub Kit $219.99" [ref=e197] [cursor=pointer]:
+              - /url: /shop/pulley-and-hub-kit
+              - img "Hellcat Upper Pulley & Hub Kit" [ref=e199]
+              - generic [ref=e201]:
+                - heading "Hellcat Upper Pulley & Hub Kit" [level=3] [ref=e202]
+                - paragraph [ref=e203]:
+                  - generic [ref=e204]: $219.99
+            - button "Quick View" [ref=e205] [cursor=pointer]:
+              - img [ref=e206]
+              - text: Quick View
+          - article [ref=e209]:
+            - link "800 HP Package (Charger/Challenger) 800 HP Package (Charger/Challenger) $6,499.00" [ref=e210] [cursor=pointer]:
+              - /url: /shop/fas-800-package-charger-challenger
+              - img "800 HP Package (Charger/Challenger)" [ref=e212]
+              - generic [ref=e214]:
+                - heading "800 HP Package (Charger/Challenger)" [level=3] [ref=e215]
+                - paragraph [ref=e216]:
+                  - generic [ref=e217]: $6,499.00
+            - button "Quick View" [ref=e218] [cursor=pointer]:
+              - img [ref=e219]
+              - text: Quick View
+          - article [ref=e222]:
+            - link "F.A.S. Predator Lower Pulley F.A.S. Predator Lower Pulley $899.99" [ref=e223] [cursor=pointer]:
+              - /url: /shop/fas-predator-lower-pulley-no-tune-required
+              - img "F.A.S. Predator Lower Pulley" [ref=e225]
+              - generic [ref=e227]:
+                - heading "F.A.S. Predator Lower Pulley" [level=3] [ref=e228]
+                - paragraph [ref=e229]:
+                  - generic [ref=e230]: $899.99
+            - button "Quick View" [ref=e231] [cursor=pointer]:
+              - img [ref=e232]
+              - text: Quick View
+          - article [ref=e235]:
+            - link "Hellcat Throttle Body Porting Hellcat Throttle Body Porting $300.00" [ref=e236] [cursor=pointer]:
+              - /url: /shop/hellcat-throttle-body-porting
+              - img "Hellcat Throttle Body Porting" [ref=e238]
+              - generic [ref=e240]:
+                - heading "Hellcat Throttle Body Porting" [level=3] [ref=e241]
+                - paragraph [ref=e242]:
+                  - generic [ref=e243]: $300.00
+            - button "Quick View" [ref=e244] [cursor=pointer]:
+              - img [ref=e245]
+              - text: Quick View
+          - article [ref=e248]:
+            - link "Full Supercharger Coating Full Supercharger Coating $1,000.00" [ref=e249] [cursor=pointer]:
+              - /url: /shop/custom-supercharger-painting
+              - img "Full Supercharger Coating" [ref=e251]
+              - generic [ref=e253]:
+                - heading "Full Supercharger Coating" [level=3] [ref=e254]
+                - paragraph [ref=e255]:
+                  - generic [ref=e256]: $1,000.00
+            - button "Quick View" [ref=e257] [cursor=pointer]:
+              - img [ref=e258]
+              - text: Quick View
+          - article [ref=e261]:
+            - link "TRX Drop-In Air Filter Set (Pair) TRX Drop-In Air Filter Set (Pair) $249.99" [ref=e262] [cursor=pointer]:
+              - /url: /shop/trx-performance-drop-in-filters-pair
+              - img "TRX Drop-In Air Filter Set (Pair)" [ref=e264]
+              - generic [ref=e266]:
+                - heading "TRX Drop-In Air Filter Set (Pair)" [level=3] [ref=e267]
+                - paragraph [ref=e268]:
+                  - generic [ref=e269]: $249.99
+            - button "Quick View" [active] [ref=e270] [cursor=pointer]:
+              - img [ref=e271]
+              - text: Quick View
+        - navigation "Pagination" [ref=e274]:
+          - list [ref=e275]:
+            - listitem [ref=e276]:
+              - link "1" [ref=e277] [cursor=pointer]:
+                - /url: /shop?page=1
+            - listitem [ref=e278]:
+              - link "2" [ref=e279] [cursor=pointer]:
+                - /url: /shop?page=2
+            - listitem [ref=e280]:
+              - link "3" [ref=e281] [cursor=pointer]:
+                - /url: /shop?page=3
+            - listitem [ref=e282]:
+              - link "4" [ref=e283] [cursor=pointer]:
+                - /url: /shop?page=4
+            - listitem [ref=e284]:
+              - link "5" [ref=e285] [cursor=pointer]:
+                - /url: /shop?page=5
+            - listitem [ref=e286]:
+              - link "→" [ref=e287] [cursor=pointer]:
+                - /url: /shop?page=2
+    - generic [ref=e290]:
+      - generic [ref=e291]:
+        - heading "Top Products" [level=2] [ref=e292]
+        - paragraph [ref=e293]: Explore our most requested billet components and performance upgrades, each engineered in-house and backed by track data.
+        - navigation "Top products" [ref=e294]:
+          - list [ref=e295]:
+            - listitem [ref=e296]:
+              - link "Predator Pulley Upgrades" [ref=e297] [cursor=pointer]:
+                - /url: /specs/PredatorPulley
+                - generic [ref=e298]: Predator Pulley Upgrades
+                - img [ref=e299]
+            - listitem [ref=e301]:
+              - link "Hellcat Snout Porting" [ref=e302] [cursor=pointer]:
+                - /url: /shop/2-4l-2-7l-snout-porting
+                - generic [ref=e303]: Hellcat Snout Porting
+                - img [ref=e304]
+            - listitem [ref=e306]:
+              - link "2.4L Hellcat Billet Supercharger Snout" [ref=e307] [cursor=pointer]:
+                - /url: /services/overview
+                - generic [ref=e308]: 2.4L Hellcat Billet Supercharger Snout
+                - img [ref=e309]
+            - listitem [ref=e311]:
+              - link "2.4L Hellcat Billet Bearing Plate" [ref=e312] [cursor=pointer]:
+                - /url: /shop/2-4l-hellcat-billet-bearing-plate
+                - generic [ref=e313]: 2.4L Hellcat Billet Bearing Plate
+                - img [ref=e314]
+            - listitem [ref=e316]:
+              - link "2.4L Hellcat Billet Turbo Snout" [ref=e317] [cursor=pointer]:
+                - /url: /shop/2-4l-hellcat-billet-turbo-snout
+                - generic [ref=e318]: 2.4L Hellcat Billet Turbo Snout
+                - img [ref=e319]
+      - generic [ref=e321]:
+        - heading "Top Services" [level=2] [ref=e322]
+        - paragraph [ref=e323]: Pair your hardware upgrades with professional installation, calibration, and security options from the F.A.S. Motorsports team.
+        - navigation "Top services" [ref=e324]:
+          - list [ref=e325]:
+            - listitem [ref=e326]:
+              - link "Performance Services Overview" [ref=e327] [cursor=pointer]:
+                - /url: /services/overview
+                - generic [ref=e328]: Performance Services Overview
+                - img [ref=e329]
+            - listitem [ref=e331]:
+              - link "Precision Porting Services" [ref=e332] [cursor=pointer]:
+                - /url: /services/overview
+                - generic [ref=e333]: Precision Porting Services
+                - img [ref=e334]
+            - listitem [ref=e336]:
+              - link "Custom Fabrication" [ref=e337] [cursor=pointer]:
+                - /url: /services/customFab
+                - generic [ref=e338]: Custom Fabrication
+                - img [ref=e339]
+            - listitem [ref=e341]:
+              - link "Certified Welding" [ref=e342] [cursor=pointer]:
+                - /url: /services/welding
+                - generic [ref=e343]: Certified Welding
+                - img [ref=e344]
+            - listitem [ref=e346]:
+              - link "IGLA Security Installs" [ref=e347] [cursor=pointer]:
+                - /url: /services/igla
+                - generic [ref=e348]: IGLA Security Installs
+                - img [ref=e349]
+    - contentinfo [ref=e352]:
+      - generic [ref=e353]:
+        - generic [ref=e354]:
+          - link "Facebook" [ref=e355] [cursor=pointer]:
+            - /url: https://www.facebook.com/fasmotorsportz
+            - generic [ref=e356]: Facebook
+            - img [ref=e357]
+          - link "Instagram" [ref=e359] [cursor=pointer]:
+            - /url: https://www.instagram.com/fas_moto
+            - generic [ref=e360]: Instagram
+            - img [ref=e361]
+        - paragraph [ref=e363]: © 2025 F.a.S. Motorsports, Inc. All rights reserved.
+    - generic:
+      - region "Notifications alt+T"
+  - generic:
+    - generic:
+      - alert:
+        - generic:
+          - img
+        - generic:
+          - paragraph: Item added to cart
+          - generic:
+            - link:
+              - /url: /cart
+              - text: View Cart
+        - button:
+          - generic: Close add to cart notification
+          - img
+  - generic [ref=e445]:
+    - button "Close quick view" [ref=e446] [cursor=pointer]:
+      - generic [ref=e447]: Close quick view
+      - img [ref=e448]
+    - generic [ref=e450]:
+      - img "TRX Drop-In Air Filter Set (Pair)" [ref=e452]
+      - generic [ref=e453]:
+        - generic [ref=e454]:
+          - heading "TRX Drop-In Air Filter Set (Pair)" [level=2] [ref=e455]
+          - paragraph [ref=e457]: $249.99
+        - paragraph [ref=e459]: A pair of high-flow drop-in air filters for the RAM TRX, designed to work with the factory “Ram Air” box for improved airflow, horsepower, and sound.
+        - generic [ref=e460]:
+          - link "View Product" [ref=e461] [cursor=pointer]:
+            - /url: /shop/trx-performance-drop-in-filters-pair
+            - generic [ref=e462]: View Product
+          - button "Add to Cart" [ref=e463] [cursor=pointer]:
+            - img [ref=e464]
+            - generic [ref=e466]: Add to Cart
