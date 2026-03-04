@@ -27,7 +27,6 @@ import TrustStrip from '../../components/TrustStrip.astro';
 import InfoTabs from '../../components/shop/InfoTabs';
 import ProductCardLite from '../../components/storefront/ProductCardLite.astro';
 import ServiceDisclaimerNotice from '../../components/storefront/ServiceDisclaimerNotice';
-import DesktopAddToCartToast from '../../components/cart/DesktopAddToCartToast.tsx';
 import productPageScriptUrl from '../../scripts/product-page.js?url';
 import { inlineFieldAttrs, inlineObjectId } from '../../lib/content';
 import { serializeJsonLd } from '../../lib/utils';
@@ -2101,9 +2100,6 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
     Add to Cart
   </button>
 </div>
-
-  <DesktopAddToCartToast client:load />
-
   <!-- Load the hydrated product interactions as a bundled module (no raw ?url assets) -->
   <script is:inline type="module" src={productPageScriptUrl} defer></script>
 

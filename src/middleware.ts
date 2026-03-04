@@ -12,11 +12,16 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const path = url.pathname;
 
   if (path.startsWith('/vendor-portal')) {
-    if (!ALLOWED_PUBLIC.has(path)) {
+    const isSetupRoute = path === '/vendor-portal/setup';
+    if (!ALLOWED_PUBLIC.has(path) && !isSetupRoute) {
       const { session } = await readSession(request);
-      if (!session?.user) {
+      const roles = Array.isArray(session?.user?.roles)
+        ? session!.user.roles.map((role) => String(role || '').toLowerCase())
+        : [];
+      const isVendorSession = roles.includes('vendor') || roles.includes('admin');
+      if (!session?.user || !isVendorSession) {
         const returnTo = encodeURIComponent(path + (url.search || ''));
-        return redirect(`/vendor-portal/login?returnTo=${returnTo}`);
+        return redirect(`/vendor-portal/login?returnTo=${returnTo}&error=vendor-only`);
       }
     }
   }

@@ -1,7 +1,11 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 const title = 'Vendor Portal Login';
-const returnTo = Astro.url.searchParams.get('returnTo') || '/vendor-portal/dashboard';
+const rawReturnTo = Astro.url.searchParams.get('returnTo') || '/vendor-portal/dashboard';
+const returnTo =
+  rawReturnTo.startsWith('/vendor-portal') && !rawReturnTo.startsWith('/vendor-portal/login')
+    ? rawReturnTo
+    : '/vendor-portal/dashboard';
 const setupStatus = Astro.url.searchParams.get('setup');
 const errorParam = Astro.url.searchParams.get('error');
 
@@ -17,6 +21,8 @@ if (setupStatus === 'success') {
   banner = { tone: 'error', message: 'This setup link has expired. Please request a new invite.' };
 } else if (errorParam === 'already-setup') {
   banner = { tone: 'info', message: 'Your account is already set up. Please log in.' };
+} else if (errorParam === 'vendor-only') {
+  banner = { tone: 'error', message: 'Please sign in with a vendor portal account.' };
 }
 ---
 

@@ -6,20 +6,27 @@ const res = await fetch(apiUrl, { headers: { cookie: Astro.request.headers.get('
 let vendor = null;
 let stats = null;
 let recentOrders: any[] = [];
+let loadError: string | null = null;
+const statusCode = res.status;
 
 if (res.ok) {
   const data = await res.json().catch(() => ({}));
   vendor = data.vendor ?? null;
   stats = data.stats ?? null;
   recentOrders = Array.isArray(data.recentOrders) ? data.recentOrders : [];
+} else if (statusCode === 401 || statusCode === 403) {
+  return Astro.redirect('/vendor-portal/login');
+} else if (statusCode === 404) {
+  loadError = 'Vendor account details are unavailable. Please contact support.';
+} else {
+  loadError = 'Vendor dashboard is temporarily unavailable. Please try again.';
 }
 
-if (!stats) {
-  return Astro.redirect('/vendor-portal/login');
-}
+const showDashboard = Boolean(stats);
 ---
 
 <VendorPortalLayout title="Vendor Portal Dashboard" noindex>
+  {showDashboard ? (
   <div class="space-y-6">
     <div class="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
       <div>
@@ -111,4 +118,15 @@ if (!stats) {
       )}
     </div>
   </div>
+  ) : (
+    <div class="rounded-2xl border border-red-500/40 bg-red-500/10 p-6 text-red-100">
+      <h1 class="text-xl font-semibold">Vendor dashboard unavailable</h1>
+      <p class="mt-2 text-sm text-red-200/90">{loadError || 'Unable to load vendor dashboard data.'}</p>
+      <div class="mt-4">
+        <a href="/vendor-portal/login" class="text-sm font-semibold text-primary hover:text-primary/80">
+          Return to login
+        </a>
+      </div>
+    </div>
+  )}
 </VendorPortalLayout>

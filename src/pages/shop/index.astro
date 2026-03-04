@@ -15,7 +15,6 @@ import { centsToDollars } from '@/lib/pricing';
 import ProductGrid from '@/components/storefront/ProductGrid.astro';
 import FilterPanelMobile from '@/components/storefront/FilterPanelMobile.tsx';
 import Pagination from '@/components/storefront/Pagination.astro';
-import DesktopAddToCartToast from '@/components/cart/DesktopAddToCartToast.tsx';
 import {
   attachMedusaPricingBySanityIdentity,
   listStoreProductsForPricing,
@@ -554,7 +553,6 @@ if (endPage < totalPages) {
 
   
   <!-- Client components handle filter interactions and URL updates -->
-  <DesktopAddToCartToast client:load />
 
   <style>
     #pagination a:hover {

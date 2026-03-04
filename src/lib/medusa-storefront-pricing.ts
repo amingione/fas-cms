@@ -37,6 +37,43 @@ export type MedusaStoreProduct = {
   variants?: MedusaVariant[];
 };
 
+function resolvePreferredVariantId(product: any): string | null {
+  const candidates = [
+    product?.medusaVariantId,
+    product?.medusa_variant_id,
+    product?.variantId,
+    product?.variant_id
+  ];
+
+  for (const candidate of candidates) {
+    if (typeof candidate === 'string' && candidate.trim()) {
+      return candidate.trim();
+    }
+  }
+
+  return null;
+}
+
+function resolvePreferredVariant(product: any): unknown | null {
+  if (!product || typeof product !== 'object') return null;
+
+  const medusaProduct = (product as any)?.medusa ?? product;
+  const variants = Array.isArray((medusaProduct as any)?.variants)
+    ? ((medusaProduct as any).variants as unknown[])
+    : [];
+  if (!variants.length) return null;
+
+  const preferredVariantId = resolvePreferredVariantId(product);
+  if (preferredVariantId) {
+    const match = variants.find(
+      (variant) => typeof (variant as any)?.id === 'string' && (variant as any).id === preferredVariantId
+    );
+    if (match) return match;
+  }
+
+  return variants[0] ?? null;
+}
+
 export function resolveVariantCalculatedPriceAmount(
   variant: unknown
 ): number | null {
@@ -135,38 +172,23 @@ export function resolveVariantCalculatedOriginalAmount(
 export function resolveProductCalculatedPriceAmount(
   product: unknown
 ): number | null {
-  if (!product || typeof product !== 'object') return null;
-
-  // Prefer explicitly-attached Medusa payload when the base product object is a Sanity doc.
-  const medusaProduct = (product as any)?.medusa ?? product;
-
-  const variants = (medusaProduct as any)?.variants;
-  const firstVariant = Array.isArray(variants) ? variants[0] : null;
-  if (!firstVariant) return null;
-
-  return resolveVariantCalculatedPriceAmount(firstVariant);
+  const variant = resolvePreferredVariant(product as any);
+  if (!variant) return null;
+  return resolveVariantCalculatedPriceAmount(variant);
 }
 
 export function resolveProductCalculatedOriginalAmount(
   product: unknown
 ): number | null {
-  if (!product || typeof product !== 'object') return null;
-
-  const medusaProduct = (product as any)?.medusa ?? product;
-  const variants = (medusaProduct as any)?.variants;
-  const firstVariant = Array.isArray(variants) ? variants[0] : null;
-  if (!firstVariant) return null;
-
-  return resolveVariantCalculatedOriginalAmount(firstVariant);
+  const variant = resolvePreferredVariant(product as any);
+  if (!variant) return null;
+  return resolveVariantCalculatedOriginalAmount(variant);
 }
 
 export function resolveProductMedusaVariant(
   product: unknown
 ): unknown | null {
-  if (!product || typeof product !== 'object') return null;
-  const medusaProduct = (product as any)?.medusa ?? product;
-  const variants = (medusaProduct as any)?.variants;
-  return Array.isArray(variants) ? variants[0] : null;
+  return resolvePreferredVariant(product as any);
 }
 
 export async function listStoreProductsForPricing(

@@ -71,13 +71,52 @@ export const POST: APIRoute = async ({ request }) => {
       }
     }
 
+    let vendorAuthAttempted = false;
     if (!sessionUser) {
       const hasSanity = Boolean(
         (import.meta.env.PUBLIC_SANITY_PROJECT_ID as string | undefined) ||
           process.env.SANITY_PROJECT_ID
       );
       if (hasSanity) {
-        const { getCustomerByEmail, getVendorByCustomerId } = await import('../../../server/sanity-client');
+        const { getCustomerByEmail, getVendorByCustomerId, getVendorByEmail } = await import('../../../server/sanity-client');
+        // Vendor auth path (canonical for vendor-portal): resolve vendor by portal email first.
+        const vendorByEmail = await getVendorByEmail(email);
+        if (vendorByEmail) {
+          vendorAuthAttempted = true;
+          accountFound = true;
+          const status = String((vendorByEmail as any).status || '').toLowerCase();
+          const portalEnabled = Boolean((vendorByEmail as any)?.portalAccess?.enabled);
+          if (!portalEnabled || status !== 'active') {
+            return jsonResponse(
+              { message: 'Vendor account not active or portal access disabled.' },
+              { status: 401 },
+              { noIndex: true }
+            );
+          }
+          const passwordHash =
+            (vendorByEmail as any)?.portalAccess?.passwordHash ||
+            (vendorByEmail as any).passwordHash ||
+            (vendorByEmail as any)?.portalAccess?.hash ||
+            (vendorByEmail as any)?.auth?.passwordHash;
+          if (!passwordHash || !(await bcrypt.compare(password, passwordHash))) {
+            return jsonResponse(
+              { message: 'Invalid vendor email or password.' },
+              { status: 401 },
+              { noIndex: true }
+            );
+          }
+
+          sessionUser = {
+            id: String((vendorByEmail as any)._id || (vendorByEmail as any).id || email),
+            email,
+            roles: ['vendor']
+          };
+          expiresInSeconds = 60 * 60;
+        }
+
+        if (sessionUser) {
+          // no-op
+        } else {
         const customer = await getCustomerByEmail(email);
         const customerRoles = Array.isArray((customer as any)?.roles) ? (customer as any).roles : [];
         const isVendorCustomer = customerRoles.includes('vendor');
@@ -121,11 +160,12 @@ export const POST: APIRoute = async ({ request }) => {
           };
           expiresInSeconds = 60 * 60;
         }
+        }
       }
     }
 
     // Customer login via Sanity
-    if (!sessionUser) {
+    if (!sessionUser && !vendorAuthAttempted) {
       const hasSanity = Boolean(
         (import.meta.env.PUBLIC_SANITY_PROJECT_ID as string | undefined) ||
           process.env.SANITY_PROJECT_ID

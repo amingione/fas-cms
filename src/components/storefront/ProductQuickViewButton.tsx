@@ -137,7 +137,13 @@ export default function ProductQuickViewButton({
   }, []);
 
   // ✅ PRICING AUTHORITY: Product quick view may only display prices sourced from Medusa.
-  const medusaPrice = resolveProductCalculatedPriceAmount(product);
+  const resolvedCalculatedPrice = resolveProductCalculatedPriceAmount(product);
+  const medusaPrice =
+    typeof resolvedCalculatedPrice === 'number'
+      ? resolvedCalculatedPrice
+      : typeof product.price === 'number'
+        ? product.price
+        : undefined;
   const formattedPrice =
     typeof medusaPrice === 'number' && Number.isFinite(medusaPrice)
       ? formatCents(medusaPrice)
