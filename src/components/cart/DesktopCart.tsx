@@ -8,7 +8,7 @@ import { prefersDesktopCart } from '@/lib/device';
 import { useEffect, useRef, useState } from 'react';
 import { formatOptionSummary } from '@/lib/cart/format-option-summary';
 
-const FALLBACK_IMAGE = '/logo/faslogo150.webp';
+const FALLBACK_IMAGE = '/logo/FASmotorsportsLLC-LOGO.png';
 
 function CartSummaryPopover({
   onRegisterTrigger,
@@ -152,11 +152,19 @@ function CartSummaryPopover({
 
             <div className="flex flex-col gap-2 text-xs uppercase tracking-wide">
               <a
-                href="/cart"
+                href="/checkout"
                 className="btn-glass px-4 py-2 text-center font-semibold text-accent transition hover:bg-accent/10"
               >
                 Checkout
               </a>
+              <p className="mt-6 text-center">
+                <a
+                  href="/cart"
+                  className="text-sm font-medium text-center hover:text-primary transition"
+                >
+                  View Cart
+                </a>
+              </p>
             </div>
           </div>
         )}

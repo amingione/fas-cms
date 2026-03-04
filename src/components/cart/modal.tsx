@@ -87,8 +87,15 @@ function computePricing(items: Cart['items'] = []): {
 }
 
 export default function CartModal() {
-  const { cart, totalQuantity, subtotal, totals, setItemQuantity, removeCartItem, redirectToCheckout } =
-    useCart();
+  const {
+    cart,
+    totalQuantity,
+    subtotal,
+    totals,
+    setItemQuantity,
+    removeCartItem,
+    redirectToCheckout
+  } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const quantityRef = useRef(totalQuantity);
   const prefersDesktopRef = useRef(false);
@@ -114,8 +121,14 @@ export default function CartModal() {
     function handleOpen(event: Event) {
       const customEvent = event as CustomEvent<{ forceMobile?: boolean }>;
       const forceMobile = Boolean(customEvent.detail?.forceMobile);
-      // Do not auto-open desktop cart preview when items are added.
-      if (!forceMobile && prefersDesktopRef.current) return;
+      if (!forceMobile && prefersDesktopRef.current) {
+        try {
+          window.dispatchEvent(new Event('open-desktop-cart'));
+        } catch (error) {
+          void error;
+        }
+        return;
+      }
       setIsOpen(true);
     }
     window.addEventListener('open-cart' as any, handleOpen as EventListener);
@@ -298,7 +311,7 @@ function CartItemsList({ cart, pricing, onQuantityChange, onRemove }: CartItemsL
                   {productHref ? (
                     <a href={productHref} className="block size-full">
                       <img
-                        src={item.image || '/logo/faslogo150.webp'}
+                        src={item.image || '/logo/FASmotorsportsLLC-LOGO.png'}
                         alt={item.name || 'Cart item'}
                         className="size-full object-cover"
                         loading="lazy"
@@ -306,7 +319,7 @@ function CartItemsList({ cart, pricing, onQuantityChange, onRemove }: CartItemsL
                     </a>
                   ) : (
                     <img
-                      src={item.image || '/logo/faslogo150.webp'}
+                      src={item.image || '/logo/FASmotorsportsLLC-LOGO.png'}
                       alt={item.name || 'Cart item'}
                       className="size-full object-cover"
                       loading="lazy"
@@ -319,9 +332,9 @@ function CartItemsList({ cart, pricing, onQuantityChange, onRemove }: CartItemsL
                     <div className="flex justify-between text-base font-semibold text-white">
                       {productHref ? (
                         <a href={productHref} className="hover:text-primary">
-                        {displayName}
-                      </a>
-                    ) : (
+                          {displayName}
+                        </a>
+                      ) : (
                         <p>{displayName}</p>
                       )}
                       <Price

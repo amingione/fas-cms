@@ -5,8 +5,6 @@ import AboutHero from '@/components/hero/AboutHero.astro';
 import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import { serializeJsonLd } from '@lib/utils';
 
-
-
 const pageDoc: any = await loadPageDoc('about');
 const requestUrl = new URL(Astro.request.url);
 requestUrl.search = '';
@@ -22,7 +20,7 @@ const structuredData = {
   '@type': 'AutoRepair',
   name: 'F.A.S. Motorsports',
   url: canonical,
-  logo: 'https://fasmotorsports.com/logo/faslogo150.webp',
+  logo: 'https://fasmotorsports.com/logo/FASmotorsportsLLC-LOGO.png',
   image: 'https://fasmotorsports.com/images/FAS-Team-Testing-Day.webp',
   description: pageDescription,
   address: {

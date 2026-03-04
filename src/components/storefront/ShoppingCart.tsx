@@ -8,7 +8,7 @@ import Price, { formatPrice } from '@/components/storefront/Price';
 import { formatOptionSummary } from '@/lib/cart/format-option-summary';
 import { calculateAddOnTotal, extractAddOns } from '@/lib/cart/extract-add-ons';
 
-const FALLBACK_IMAGE = '/logo/faslogo150.webp';
+const FALLBACK_IMAGE = '/logo/FASmotorsportsLLC-LOGO.png';
 const QUANTITY_CHOICES = Array.from({ length: 10 }, (_, i) => i + 1);
 
 function toNumber(value: unknown, fallback = 0): number {
@@ -64,7 +64,8 @@ function CartContents() {
         const baseConfiguredPrice = Math.max(0, toNumber((item as any).basePrice, baseUnitPrice));
         const baseComparePrice = toNumber(item.originalPrice, baseUnitPrice);
         const expectedWithAddOns = baseConfiguredPrice + addOnTotal;
-        const unitPrice = addOnTotal > 0 ? Math.max(baseUnitPrice, expectedWithAddOns) : baseUnitPrice;
+        const unitPrice =
+          addOnTotal > 0 ? Math.max(baseUnitPrice, expectedWithAddOns) : baseUnitPrice;
         const compareCandidate = baseComparePrice + addOnTotal;
         const percentFromLabel = extractDiscountPercent(item.saleLabel);
         const derivedCompare =
@@ -147,7 +148,9 @@ function CartContents() {
   };
 
   const effectiveSubtotal =
-    Object.values(perItemPricing).reduce((sum, entry) => sum + entry.lineCurrent, 0) || subtotal || 0;
+    Object.values(perItemPricing).reduce((sum, entry) => sum + entry.lineCurrent, 0) ||
+    subtotal ||
+    0;
   const formattedSubtotal = formatPrice(effectiveSubtotal);
 
   return (
@@ -192,16 +195,16 @@ function CartContents() {
                   const addOnEntries = extractAddOns(item);
                   const pricing = perItemPricing[item.id];
                   const isInstallOnly = item.installOnly === true;
-                const optionSummary = formatOptionSummary({
-                  options: item.options as Record<string, unknown>,
-                  selections: (item as any).selections,
-                  selectedOptions: item.selectedOptions,
-                  selectedUpgrades: item.selectedUpgrades,
-                  selectedUpgradesDetailed: (item as any).selectedUpgradesDetailed,
-                  upgrades: item.upgrades,
-                  includeUpgrades: false,
-                  includeUpgradeKeys: false
-                });
+                  const optionSummary = formatOptionSummary({
+                    options: item.options as Record<string, unknown>,
+                    selections: (item as any).selections,
+                    selectedOptions: item.selectedOptions,
+                    selectedUpgrades: item.selectedUpgrades,
+                    selectedUpgradesDetailed: (item as any).selectedUpgradesDetailed,
+                    upgrades: item.upgrades,
+                    includeUpgrades: false,
+                    includeUpgradeKeys: false
+                  });
 
                   return (
                     <li key={item.id} className="flex py-6">
@@ -239,7 +242,9 @@ function CartContents() {
                               className="ml-4 text-sm font-medium text-white"
                             />
                           </div>
-                          {optionSummary && <p className="mt-1 text-sm text-white/70">{optionSummary}</p>}
+                          {optionSummary && (
+                            <p className="mt-1 text-sm text-white/70">{optionSummary}</p>
+                          )}
                           {addOnEntries.length > 0 && (
                             <ul className="mt-1 text-sm text-white/70">
                               {addOnEntries.map((addon, idx) => (
@@ -272,7 +277,10 @@ function CartContents() {
                               </p>
                             )}
                             <p className="flex items-center space-x-2 text-sm text-white/80">
-                              <CheckIcon aria-hidden="true" className="size-5 shrink-0 text-green-400" />
+                              <CheckIcon
+                                aria-hidden="true"
+                                className="size-5 shrink-0 text-green-400"
+                              />
                               <span>In stock</span>
                             </p>
                           </div>
@@ -328,9 +336,7 @@ function CartContents() {
                 <dl className="space-y-4">
                   <div className="flex items-center justify-between">
                     <dt className="text-base font-medium text-white">Subtotal</dt>
-                    <dd className="ml-4 text-base font-medium text-white">
-                      {formattedSubtotal}
-                    </dd>
+                    <dd className="ml-4 text-base font-medium text-white">{formattedSubtotal}</dd>
                   </div>
                 </dl>
                 <p className="mt-1 text-sm text-white/70">
