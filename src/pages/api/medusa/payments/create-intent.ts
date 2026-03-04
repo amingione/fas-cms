@@ -88,8 +88,18 @@ function normalizeShippingClass(value: unknown): string {
 function isInstallOnlyItem(item: any): boolean {
   const directInstall = parseBooleanLike(item?.install_only);
   if (directInstall === true) return true;
+  const directRequiresShipping =
+    parseBooleanLike(item?.requires_shipping) ??
+    parseBooleanLike(item?.is_shipping_required);
+  if (directRequiresShipping === false) return true;
   const directShippingClass = normalizeShippingClass(item?.shipping_class);
-  if (directShippingClass.includes('installonly')) return true;
+  if (
+    directShippingClass.includes('installonly') ||
+    directShippingClass.includes('service') ||
+    directShippingClass.includes('package')
+  ) {
+    return true;
+  }
 
   const metadataSources = [
     item?.metadata,
@@ -102,11 +112,21 @@ function isInstallOnlyItem(item: any): boolean {
       parseBooleanLike((metadata as any)?.install_only) ??
       parseBooleanLike((metadata as any)?.installOnly);
     if (installOnly === true) return true;
+    const requiresShipping =
+      parseBooleanLike((metadata as any)?.requires_shipping) ??
+      parseBooleanLike((metadata as any)?.requiresShipping);
+    if (requiresShipping === false) return true;
 
     const shippingClass = normalizeShippingClass(
       (metadata as any)?.shipping_class ?? (metadata as any)?.shippingClass
     );
-    if (shippingClass.includes('installonly')) return true;
+    if (
+      shippingClass.includes('installonly') ||
+      shippingClass.includes('service') ||
+      shippingClass.includes('package')
+    ) {
+      return true;
+    }
   }
 
   return false;

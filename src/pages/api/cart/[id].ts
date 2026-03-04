@@ -45,6 +45,10 @@ function parseBooleanLike(value: unknown): boolean | null {
 function resolveItemInstallOnly(item: any): boolean {
   const direct = parseBooleanLike(item?.install_only)
   if (direct !== null) return direct
+  const requiresShippingDirect =
+    parseBooleanLike(item?.requires_shipping) ??
+    parseBooleanLike(item?.is_shipping_required)
+  if (requiresShippingDirect === false) return true
 
   const metadataSources = [
     item?.metadata,
@@ -57,6 +61,22 @@ function resolveItemInstallOnly(item: any): boolean {
       parseBooleanLike((metadata as any)?.install_only) ??
       parseBooleanLike((metadata as any)?.installOnly)
     if (value !== null) return value
+    const requiresShipping =
+      parseBooleanLike((metadata as any)?.requires_shipping) ??
+      parseBooleanLike((metadata as any)?.requiresShipping)
+    if (requiresShipping === false) return true
+  }
+
+  const shippingClass = String(resolveItemShippingClass(item) || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '')
+  if (
+    shippingClass.includes('installonly') ||
+    shippingClass.includes('service') ||
+    shippingClass.includes('package')
+  ) {
+    return true
   }
 
   return false

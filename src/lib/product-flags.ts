@@ -7,12 +7,19 @@ const normalizeShippingClass = (value: unknown): string => {
 
 export function resolveProductCartMeta(product: {
   shippingClass?: unknown;
+  productType?: unknown;
   metadata?: Record<string, any>;
 } | null | undefined): { shippingClass?: string; installOnly: boolean } {
   const shippingClass = normalizeShippingClass(product?.shippingClass);
   const requiresShipping = getRequiresShipping(product as any);
   const callForQuote = getCallForShippingQuote(product as any);
-  const installOnlyFromMetadata = requiresShipping === false || callForQuote === true;
+  const normalizedShippingClass = shippingClass.toLowerCase();
+  const productType = String(product?.productType || '').trim().toLowerCase();
+  const installOnlyFromClass =
+    /(install.?only|service|package)/.test(normalizedShippingClass) ||
+    productType === 'service' ||
+    productType === 'package';
+  const installOnlyFromMetadata = requiresShipping === false || callForQuote === true || installOnlyFromClass;
 
   return {
     shippingClass: shippingClass || undefined,

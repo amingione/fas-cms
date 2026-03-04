@@ -885,13 +885,11 @@
 
 # Run a11y checks only on Deploy Previews to avoid slowing/failing production builds
 [context.production]
-  [[context.production.plugins]]
-    package = "netlify-plugin-cloudinary"
-    [context.production.plugins.inputs]
-      cloudName = "dnazrdkss"
-      deliveryType = "fetch"
-      imagesPath = ["/images", "/logo"]
-      maxSize = 20000000
+  # Cloudinary rewrite plugin disabled.
+  # It rewrites local `/images` and `/logo` assets to Cloudinary fetch URLs,
+  # and this deployment is currently returning 401 responses from Cloudinary.
+  # Keep static assets served directly by Netlify until Cloudinary account
+  # delivery/auth settings are corrected and verified.
 
 [context.branch-deploy]
 

@@ -19,8 +19,16 @@ const readMetadata = (input: MetadataCarrier | null | undefined): Record<string,
   return null;
 };
 
-const readBoolean = (value: unknown): boolean | undefined =>
-  typeof value === 'boolean' ? value : undefined;
+const readBoolean = (value: unknown): boolean | undefined => {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'number') return value !== 0;
+  if (typeof value !== 'string') return undefined;
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) return undefined;
+  if (['1', 'true', 'yes', 'y', 'on'].includes(normalized)) return true;
+  if (['0', 'false', 'no', 'n', 'off'].includes(normalized)) return false;
+  return undefined;
+};
 
 export const getMetadataFlag = (
   input: MetadataCarrier | null | undefined,

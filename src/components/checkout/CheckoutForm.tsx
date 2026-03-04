@@ -164,7 +164,11 @@ function isInstallOnlyLineItem(item: CartItem): boolean {
     .trim()
     .toLowerCase()
     .replace(/[^a-z0-9]/g, '');
-  return shippingClass.includes('installonly');
+  return (
+    shippingClass.includes('installonly') ||
+    shippingClass.includes('service') ||
+    shippingClass.includes('package')
+  );
 }
 
 function normalizeShippoServiceLabel(rate: ShippoRate): string {

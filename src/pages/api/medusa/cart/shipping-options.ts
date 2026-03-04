@@ -2,6 +2,70 @@ import type { APIRoute } from 'astro';
 import { jsonResponse } from '@/server/http/responses';
 import { getMedusaConfig, medusaFetch, readJsonSafe } from '@/lib/medusa';
 
+function parseBooleanLike(value: unknown): boolean | undefined {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'number') return value !== 0;
+  if (typeof value !== 'string') return undefined;
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) return undefined;
+  if (['1', 'true', 'yes', 'y', 'on'].includes(normalized)) return true;
+  if (['0', 'false', 'no', 'n', 'off'].includes(normalized)) return false;
+  return undefined;
+}
+
+function normalizeShippingClass(value: unknown): string {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+}
+
+function itemRequiresShipping(item: any): boolean {
+  const directInstall = parseBooleanLike(item?.install_only);
+  if (directInstall === true) return false;
+  const directRequiresShipping =
+    parseBooleanLike(item?.requires_shipping) ??
+    parseBooleanLike(item?.is_shipping_required);
+  if (directRequiresShipping !== undefined) return directRequiresShipping;
+
+  const metadataSources = [
+    item?.metadata,
+    item?.variant?.metadata,
+    item?.variant?.product?.metadata
+  ].filter((metadata) => metadata && typeof metadata === 'object');
+
+  for (const metadata of metadataSources) {
+    const installOnly =
+      parseBooleanLike((metadata as any)?.install_only) ??
+      parseBooleanLike((metadata as any)?.installOnly);
+    if (installOnly === true) return false;
+    const requiresShipping =
+      parseBooleanLike((metadata as any)?.requires_shipping) ??
+      parseBooleanLike((metadata as any)?.requiresShipping);
+    if (requiresShipping !== undefined) return requiresShipping;
+    const shippingClass = normalizeShippingClass(
+      (metadata as any)?.shipping_class ?? (metadata as any)?.shippingClass
+    );
+    if (
+      shippingClass.includes('installonly') ||
+      shippingClass.includes('service') ||
+      shippingClass.includes('package')
+    ) {
+      return false;
+    }
+  }
+
+  const shippingClass = normalizeShippingClass(item?.shipping_class);
+  if (
+    shippingClass.includes('installonly') ||
+    shippingClass.includes('service') ||
+    shippingClass.includes('package')
+  ) {
+    return false;
+  }
+  return true;
+}
+
 async function fetchShippingOptions(cartId: string) {
   const primary = await medusaFetch(`/store/shipping-options?cart_id=${encodeURIComponent(cartId)}`, {
     method: 'GET'
@@ -33,6 +97,20 @@ export const POST: APIRoute = async ({ request }) => {
   const cartId = typeof body?.cartId === 'string' ? body.cartId.trim() : '';
   if (!cartId) {
     return jsonResponse({ error: 'Missing cartId.' }, { status: 400 }, { noIndex: true });
+  }
+
+  const cartResponse = await medusaFetch(`/store/carts/${cartId}`, { method: 'GET' });
+  const cartData = await readJsonSafe<any>(cartResponse);
+  if (cartResponse.ok && cartData?.cart) {
+    const items = Array.isArray(cartData.cart.items) ? cartData.cart.items : [];
+    const requiresShipping = items.some((item: any) => itemRequiresShipping(item));
+    if (!requiresShipping) {
+      return jsonResponse(
+        { shippingOptions: [], shippoRates: [], bestShippoRate: null, requiresShipping: false },
+        { status: 200 },
+        { noIndex: true }
+      );
+    }
   }
 
   const response = await fetchShippingOptions(cartId);
