@@ -48,8 +48,7 @@ function itemRequiresShipping(item: any): boolean {
     );
     if (
       shippingClass.includes('installonly') ||
-      shippingClass.includes('service') ||
-      shippingClass.includes('package')
+      shippingClass.includes('service')
     ) {
       return false;
     }
@@ -58,8 +57,7 @@ function itemRequiresShipping(item: any): boolean {
   const shippingClass = normalizeShippingClass(item?.shipping_class);
   if (
     shippingClass.includes('installonly') ||
-    shippingClass.includes('service') ||
-    shippingClass.includes('package')
+    shippingClass.includes('service')
   ) {
     return false;
   }

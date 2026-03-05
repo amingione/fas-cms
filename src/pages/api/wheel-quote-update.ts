@@ -4,18 +4,35 @@ import { jsonResponse } from '@/server/http/responses';
 import { wheelQuoteUpdateSchema } from '@/lib/validators/api-requests';
 import { requireSanityApiToken } from '@/server/sanity-token';
 
-const sanity = createClient({
-  projectId: process.env.SANITY_PROJECT_ID,
-  dataset: process.env.SANITY_DATASET,
-  apiVersion: '2024-01-01',
-  token: requireSanityApiToken('api/wheel-quote-update'),
-  useCdn: false
-});
+let cachedSanityClient: ReturnType<typeof createClient> | null = null;
+let sanityClientPromise: Promise<ReturnType<typeof createClient>> | null = null;
+
+async function getSanityClient() {
+  if (cachedSanityClient) return cachedSanityClient;
+  if (sanityClientPromise) return sanityClientPromise;
+  sanityClientPromise = (async () => {
+    const token = await requireSanityApiToken('api/wheel-quote-update');
+    cachedSanityClient = createClient({
+      projectId: process.env.SANITY_PROJECT_ID,
+      dataset: process.env.SANITY_DATASET,
+      apiVersion: '2024-01-01',
+      token,
+      useCdn: false
+    });
+    return cachedSanityClient;
+  })();
+  try {
+    return await sanityClientPromise;
+  } finally {
+    sanityClientPromise = null;
+  }
+}
 
 export const OPTIONS: APIRoute = async () => new Response(null, { status: 204 });
 
 export const PATCH: APIRoute = async ({ request }) => {
   try {
+    const sanity = await getSanityClient();
     const payloadResult = wheelQuoteUpdateSchema.safeParse(await request.json());
     if (!payloadResult.success) {
       console.error('[validation-failure]', {

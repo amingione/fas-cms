@@ -3,16 +3,33 @@ import type { APIRoute } from 'astro';
 import { attributionTrackSchema } from '@/lib/validators/api-requests';
 import { requireSanityApiToken } from '@/server/sanity-token';
 
-const sanityClient = createClient({
-  projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID!,
-  dataset: import.meta.env.PUBLIC_SANITY_DATASET!,
-  token: requireSanityApiToken('api/attribution/track'),
-  apiVersion: '2024-01-01',
-  useCdn: false
-});
+let cachedSanityClient: ReturnType<typeof createClient> | null = null;
+let sanityClientPromise: Promise<ReturnType<typeof createClient>> | null = null;
+
+async function getSanityClient() {
+  if (cachedSanityClient) return cachedSanityClient;
+  if (sanityClientPromise) return sanityClientPromise;
+  sanityClientPromise = (async () => {
+    const token = await requireSanityApiToken('api/attribution/track');
+    cachedSanityClient = createClient({
+      projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID!,
+      dataset: import.meta.env.PUBLIC_SANITY_DATASET!,
+      token,
+      apiVersion: '2024-01-01',
+      useCdn: false
+    });
+    return cachedSanityClient;
+  })();
+  try {
+    return await sanityClientPromise;
+  } finally {
+    sanityClientPromise = null;
+  }
+}
 
 export const POST: APIRoute = async ({ request }) => {
   try {
+    const sanityClient = await getSanityClient();
     const bodyResult = attributionTrackSchema.safeParse(await request.json());
     if (!bodyResult.success) {
       console.error('[validation-failure]', {

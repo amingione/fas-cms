@@ -5,15 +5,32 @@ import { jsonResponse } from '@/server/http/responses';
 import { saveQuoteSchema } from '@/lib/validators/api-requests';
 import { sanityCustomerSchema } from '@/lib/validators/sanity';
 
-const client = createClient({
-  projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID,
-  dataset: import.meta.env.PUBLIC_SANITY_DATASET,
-  apiVersion: process.env.SANITY_API_VERSION,
-  token: requireSanityApiToken('api/save-quote'),
-  useCdn: false
-});
+let cachedClient: ReturnType<typeof createClient> | null = null;
+let clientPromise: Promise<ReturnType<typeof createClient>> | null = null;
+
+async function getSanityClient() {
+  if (cachedClient) return cachedClient;
+  if (clientPromise) return clientPromise;
+  clientPromise = (async () => {
+    const token = await requireSanityApiToken('api/save-quote');
+    cachedClient = createClient({
+      projectId: import.meta.env.PUBLIC_SANITY_PROJECT_ID,
+      dataset: import.meta.env.PUBLIC_SANITY_DATASET,
+      apiVersion: process.env.SANITY_API_VERSION,
+      token,
+      useCdn: false
+    });
+    return cachedClient;
+  })();
+  try {
+    return await clientPromise;
+  } finally {
+    clientPromise = null;
+  }
+}
 
 export async function POST({ request }: { request: Request }) {
+  const client = await getSanityClient();
   // Session-based auth
   const { session } = await readSession(request);
   if (!session?.user?.email) {

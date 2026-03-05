@@ -145,14 +145,6 @@ function normalizeCartItemUpgrades(item: CartItem): { item: CartItem; changed: b
   };
 }
 
-function sumSelectedUpgradeCents(item: CartItem): number {
-  const detailed = ensureSelectedUpgradesDetailed((item as any).selectedUpgradesDetailed);
-  return detailed.reduce((sum, entry) => {
-    const cents = Number.isFinite(entry.priceCents) ? Math.round(entry.priceCents) : 0;
-    return sum + (cents > 0 ? cents : 0);
-  }, 0);
-}
-
 export function getCart(): Cart {
   if (!isBrowser()) return { items: [] };
   try {
@@ -301,10 +293,9 @@ async function syncMedusaCart(cart: Cart): Promise<SyncMedusaCartResult> {
 
         const serverUnitPrice =
           typeof serverItem.unit_price === 'number' ? serverItem.unit_price : item.price;
-        const addOnTotalCents = sumSelectedUpgradeCents(item);
         const unitPrice =
-          typeof serverUnitPrice === 'number'
-            ? serverUnitPrice + (addOnTotalCents > 0 ? addOnTotalCents : 0)
+          typeof serverUnitPrice === 'number' && Number.isFinite(serverUnitPrice)
+            ? serverUnitPrice
             : item.price;
         const quantity = typeof serverItem.quantity === 'number' ? serverItem.quantity : item.quantity;
         const name = typeof serverItem.title === 'string' ? serverItem.title : item.name;

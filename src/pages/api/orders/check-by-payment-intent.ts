@@ -17,17 +17,32 @@ const SANITY_DATASET =
   process.env.SANITY_DATASET ||
   (import.meta.env.PUBLIC_SANITY_DATASET as string | undefined) ||
   '';
-const SANITY_API_TOKEN = requireSanityApiToken('api/orders/check-by-payment-intent');
+let cachedSanityClient: ReturnType<typeof createClient> | null = null;
+let sanityClientPromise: Promise<ReturnType<typeof createClient>> | null = null;
 
-const sanity = createClient({
-  projectId: SANITY_PROJECT_ID,
-  dataset: SANITY_DATASET,
-  apiVersion: '2024-01-01',
-  token: SANITY_API_TOKEN,
-  useCdn: false
-});
+async function getSanityClient() {
+  if (cachedSanityClient) return cachedSanityClient;
+  if (sanityClientPromise) return sanityClientPromise;
+  sanityClientPromise = (async () => {
+    const token = await requireSanityApiToken('api/orders/check-by-payment-intent');
+    cachedSanityClient = createClient({
+      projectId: SANITY_PROJECT_ID,
+      dataset: SANITY_DATASET,
+      apiVersion: '2024-01-01',
+      token,
+      useCdn: false
+    });
+    return cachedSanityClient;
+  })();
+  try {
+    return await sanityClientPromise;
+  } finally {
+    sanityClientPromise = null;
+  }
+}
 
 export const GET: APIRoute = async ({ url }) => {
+  const sanity = await getSanityClient();
   const paymentIntentId = url.searchParams.get('payment_intent_id');
 
   if (!paymentIntentId) {

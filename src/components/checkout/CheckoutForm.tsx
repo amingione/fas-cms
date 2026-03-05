@@ -38,6 +38,7 @@ interface CartItem {
   id: string;
   local_item_id?: string | null;
   medusa_variant_id?: string | null;
+  medusa_line_item_id?: string | null;
   title: string;
   thumbnail?: string | null;
   variant_title?: string | null;
@@ -175,12 +176,20 @@ function reconcileLocalCartFromCheckoutCart(cart: Cart | null): void {
   const existing = getCart();
   const nextItems: LocalCartItem[] = cart.items
     .map((serverItem) => {
+      const existingMatch =
+        existing.find((entry) => toLocalCartId(entry.id) === toLocalCartId(serverItem.local_item_id)) ??
+        existing.find(
+          (entry) =>
+            String((entry as any).medusaLineItemId || '').trim() ===
+            String(serverItem.medusa_line_item_id || '').trim()
+        ) ??
+        existing.find(
+          (entry) =>
+            toLocalCartId(entry.medusaVariantId || '') === toLocalCartId(serverItem.medusa_variant_id || '')
+        );
       const resolvedVariantId =
         toLocalCartId(serverItem.medusa_variant_id) ||
-        toLocalCartId(
-          existing.find((entry) => toLocalCartId(entry.id) === toLocalCartId(serverItem.local_item_id))
-            ?.medusaVariantId || ''
-        );
+        toLocalCartId(existingMatch?.medusaVariantId || '');
       if (!resolvedVariantId) {
         // Keep local cart syncable by skipping line items that cannot be mapped to a Medusa variant.
         return null;
@@ -188,17 +197,10 @@ function reconcileLocalCartFromCheckoutCart(cart: Cart | null): void {
 
       const candidateId =
         toLocalCartId(serverItem.local_item_id) ||
+        toLocalCartId(existingMatch?.id || '') ||
         resolvedVariantId ||
         toLocalCartId(serverItem.id);
       if (!candidateId) return null;
-
-      const existingMatch =
-        existing.find((entry) => toLocalCartId(entry.id) === candidateId) ??
-        existing.find(
-          (entry) =>
-            typeof entry.medusaVariantId === 'string' &&
-            entry.medusaVariantId === (serverItem.medusa_variant_id || '')
-        );
 
       return {
         ...(existingMatch || {}),
@@ -266,8 +268,7 @@ function isInstallOnlyLineItem(item: CartItem): boolean {
     .replace(/[^a-z0-9]/g, '');
   return (
     shippingClass.includes('installonly') ||
-    shippingClass.includes('service') ||
-    shippingClass.includes('package')
+    shippingClass.includes('service')
   );
 }
 

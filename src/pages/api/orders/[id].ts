@@ -19,15 +19,29 @@ const projectId = (import.meta.env.PUBLIC_SANITY_PROJECT_ID || process.env.SANIT
 const dataset = (import.meta.env.PUBLIC_SANITY_DATASET || process.env.SANITY_DATASET) as
   | string
   | undefined;
-const token = requireSanityApiToken('api/orders/[id]');
+let cachedClient: ReturnType<typeof createClient> | null = null;
+let clientPromise: Promise<ReturnType<typeof createClient>> | null = null;
 
-const client = createClient({
-  projectId: projectId!,
-  dataset: dataset!,
-  apiVersion: '2024-01-01',
-  token,
-  useCdn: false
-});
+async function getSanityClient() {
+  if (cachedClient) return cachedClient;
+  if (clientPromise) return clientPromise;
+  clientPromise = (async () => {
+    const token = await requireSanityApiToken('api/orders/[id]');
+    cachedClient = createClient({
+      projectId: projectId!,
+      dataset: dataset!,
+      apiVersion: '2024-01-01',
+      token,
+      useCdn: false
+    });
+    return cachedClient;
+  })();
+  try {
+    return await clientPromise;
+  } finally {
+    clientPromise = null;
+  }
+}
 
 async function requireSessionEmail(req: Request): Promise<string | null> {
   const { session } = await readSession(req);
@@ -39,6 +53,7 @@ export const OPTIONS: APIRoute = async () => new Response(null, { status: 204, h
 
 export const GET: APIRoute = async ({ request, params }) => {
   try {
+    const client = await getSanityClient();
     const id = params.id as string | undefined;
     if (!id) {
       return jsonResponse({ message: 'Missing order ID' }, { status: 400, headers: { ...cors } });
@@ -86,6 +101,7 @@ export const GET: APIRoute = async ({ request, params }) => {
 
 export const PATCH: APIRoute = async ({ request, params }) => {
   try {
+    const client = await getSanityClient();
     const id = params.id as string | undefined;
     if (!id) {
       return jsonResponse({ message: 'Missing order ID' }, { status: 400, headers: { ...cors } });

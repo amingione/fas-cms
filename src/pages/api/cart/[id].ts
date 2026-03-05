@@ -31,6 +31,16 @@ function resolveCartItemThumbnail(item: any): string | null {
   )
 }
 
+function resolveCartItemVariantId(item: any): string | null {
+  return (
+    asString(item?.variant_id) ||
+    asString(item?.metadata?.resolved_variant_id) ||
+    asString(item?.metadata?.base_variant_id) ||
+    asString(item?.metadata?.medusa_variant_id) ||
+    null
+  )
+}
+
 function parseBooleanLike(value: unknown): boolean | null {
   if (typeof value === 'boolean') return value
   if (typeof value === 'number') return value !== 0
@@ -73,8 +83,7 @@ function resolveItemInstallOnly(item: any): boolean {
     .replace(/[^a-z0-9]/g, '')
   if (
     shippingClass.includes('installonly') ||
-    shippingClass.includes('service') ||
-    shippingClass.includes('package')
+    shippingClass.includes('service')
   ) {
     return true
   }
@@ -143,7 +152,7 @@ export const GET: APIRoute = async ({ params }) => {
         })(),
         id: item.id,
         local_item_id: asString(item?.metadata?.local_item_id),
-        medusa_variant_id: asString(item?.variant_id),
+        medusa_variant_id: resolveCartItemVariantId(item),
         medusa_line_item_id: asString(item?.id),
         title: item.title,
         thumbnail: resolveCartItemThumbnail(item),

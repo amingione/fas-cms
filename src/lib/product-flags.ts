@@ -16,9 +16,7 @@ export function resolveProductCartMeta(product: {
   const normalizedShippingClass = shippingClass.toLowerCase();
   const productType = String(product?.productType || '').trim().toLowerCase();
   const installOnlyFromClass =
-    /(install.?only|service|package)/.test(normalizedShippingClass) ||
-    productType === 'service' ||
-    productType === 'package';
+    /(install.?only|service)/.test(normalizedShippingClass) || productType === 'service';
   const installOnlyFromMetadata = requiresShipping === false || callForQuote === true || installOnlyFromClass;
 
   return {

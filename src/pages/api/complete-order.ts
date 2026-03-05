@@ -20,30 +20,40 @@ const resolveEnv = (name: string): string => {
 };
 
 let cachedSanityClient: ReturnType<typeof createClient> | null = null;
+let sanityClientPromise: Promise<ReturnType<typeof createClient>> | null = null;
 
-const getSanityClient = () => {
+const getSanityClient = async () => {
   if (cachedSanityClient) return cachedSanityClient;
+  if (sanityClientPromise) return sanityClientPromise;
 
-  const projectId =
-    resolveEnv('SANITY_PROJECT_ID') ||
-    ((import.meta.env.PUBLIC_SANITY_PROJECT_ID as string | undefined) || '').trim();
-  if (!projectId) {
-    throw new Error('Missing SANITY_PROJECT_ID for api/complete-order');
+  sanityClientPromise = (async () => {
+    const projectId =
+      resolveEnv('SANITY_PROJECT_ID') ||
+      ((import.meta.env.PUBLIC_SANITY_PROJECT_ID as string | undefined) || '').trim();
+    if (!projectId) {
+      throw new Error('Missing SANITY_PROJECT_ID for api/complete-order');
+    }
+
+    const dataset =
+      resolveEnv('SANITY_DATASET') ||
+      ((import.meta.env.PUBLIC_SANITY_DATASET as string | undefined) || 'production').trim();
+
+    const token = await requireSanityApiToken('api/complete-order');
+    cachedSanityClient = createClient({
+      projectId,
+      dataset,
+      token,
+      apiVersion: '2024-01-01',
+      useCdn: false
+    });
+    return cachedSanityClient;
+  })();
+
+  try {
+    return await sanityClientPromise;
+  } finally {
+    sanityClientPromise = null;
   }
-
-  const dataset =
-    resolveEnv('SANITY_DATASET') ||
-    ((import.meta.env.PUBLIC_SANITY_DATASET as string | undefined) || 'production').trim();
-
-  cachedSanityClient = createClient({
-    projectId,
-    dataset,
-    token: requireSanityApiToken('api/complete-order'),
-    apiVersion: '2024-01-01',
-    useCdn: false
-  });
-
-  return cachedSanityClient;
 };
 
 const toCents = (value: unknown): number => {
@@ -479,7 +489,7 @@ const computeShipmentSnapshot = (items: any[], weightUnit: string | undefined) =
  */
 async function syncOrderToSanity(medusaOrder: any, paymentIntent: any): Promise<string> {
   try {
-    const sanityClient = getSanityClient();
+    const sanityClient = await getSanityClient();
 
     // Check if order already exists (idempotency)
     const existing = await sanityClient.fetch(

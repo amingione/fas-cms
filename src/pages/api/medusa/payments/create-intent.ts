@@ -96,8 +96,7 @@ function isInstallOnlyItem(item: any): boolean {
   const directShippingClass = normalizeShippingClass(item?.shipping_class);
   if (
     directShippingClass.includes('installonly') ||
-    directShippingClass.includes('service') ||
-    directShippingClass.includes('package')
+    directShippingClass.includes('service')
   ) {
     return true;
   }
@@ -123,8 +122,7 @@ function isInstallOnlyItem(item: any): boolean {
     );
     if (
       shippingClass.includes('installonly') ||
-      shippingClass.includes('service') ||
-      shippingClass.includes('package')
+      shippingClass.includes('service')
     ) {
       return true;
     }
