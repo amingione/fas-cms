@@ -100,38 +100,6 @@ function resolveItemShippingClass(item: any): string | null {
   return null
 }
 
-function toRoundedCents(value: unknown): number {
-  if (typeof value === 'number' && Number.isFinite(value)) return Math.round(value)
-  if (typeof value === 'string') {
-    const parsed = Number(value)
-    if (Number.isFinite(parsed)) return Math.round(parsed)
-  }
-  return 0
-}
-
-function collectLocalAddOnCentsByLocalId(cart: any): Map<string, number> {
-  const result = new Map<string, number>()
-  const localItems = Array.isArray(cart?.metadata?.local_cart_items)
-    ? cart.metadata.local_cart_items
-    : []
-
-  for (const entry of localItems) {
-    if (!entry || typeof entry !== 'object') continue
-    const id = asString((entry as any).id)
-    if (!id) continue
-    const detailed = Array.isArray((entry as any).selectedUpgradesDetailed)
-      ? (entry as any).selectedUpgradesDetailed
-      : []
-    const addOnTotal = detailed.reduce((sum: number, detail: any) => {
-      const cents = toRoundedCents(detail?.priceCents)
-      return sum + (cents > 0 ? cents : 0)
-    }, 0)
-    if (addOnTotal > 0) result.set(id, addOnTotal)
-  }
-
-  return result
-}
-
 export const GET: APIRoute = async ({ params }) => {
   try {
     const cartId = params.id
@@ -161,25 +129,16 @@ export const GET: APIRoute = async ({ params }) => {
       normalizeCartTotals(medusaData.cart)
     }
 
-    const localAddOnCents = collectLocalAddOnCentsByLocalId(medusaData?.cart)
-
     // Transform Medusa cart to our format
     const cart = {
       id: medusaData.cart.id,
       items: medusaData.cart.items.map((item: any) => ({
         ...(function () {
-          const localId = asString(item?.metadata?.local_item_id)
-          const addOnCents = localId ? localAddOnCents.get(localId) ?? 0 : 0
-          const baseUnit =
+          const effectiveUnit =
             toCentsStrict(item.unit_price, 'item.unit_price') ?? item.unit_price
-          const effectiveUnit = Math.max(0, baseUnit + addOnCents)
           return {
             unit_price: effectiveUnit,
-            total:
-              (toCentsStrict(item.total, 'item.total') ??
-                toCentsStrict(item.unit_price, 'item.unit_price') ??
-                item.unit_price * item.quantity) +
-              addOnCents * Math.max(1, Number(item.quantity) || 1)
+            total: toCentsStrict(item.total, 'item.total') ?? effectiveUnit * item.quantity
           }
         })(),
         id: item.id,

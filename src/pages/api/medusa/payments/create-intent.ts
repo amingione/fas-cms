@@ -232,6 +232,24 @@ type ShippoRateInput = {
   provider?: string;
 };
 
+function resolveShippingAmountCents(
+  cart: MedusaCart,
+  body: any,
+  shippingMethods: Array<{ id: string; name?: string; amount?: number }>
+): number {
+  const explicit = toRoundedNumber(body?.shippingAmountCents);
+  if (typeof explicit === 'number' && explicit > 0) return explicit;
+
+  const cartShipping = toRoundedNumber(cart?.shipping_total);
+  if (typeof cartShipping === 'number' && cartShipping > 0) return cartShipping;
+
+  const methodAmount = shippingMethods.reduce((max, method) => {
+    const amount = toRoundedNumber(method?.amount);
+    return typeof amount === 'number' && amount > max ? amount : max;
+  }, 0);
+  return methodAmount > 0 ? methodAmount : 0;
+}
+
 export const POST: APIRoute = async ({ request }) => {
   const config = getMedusaConfig();
   if (!config) {
@@ -333,8 +351,8 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   // Validation 4: Total must be finalized (with local add-on surcharge reconciliation)
-  const total = resolveEffectiveCartTotalCents(cart);
-  if (typeof total !== 'number' || total <= 0) {
+  const medusaTotal = resolveEffectiveCartTotalCents(cart);
+  if (typeof medusaTotal !== 'number' || medusaTotal <= 0) {
     return jsonResponse(
       { error: 'Cart total is invalid or not calculated. Ensure shipping and tax are finalized.' },
       { status: 400 },
@@ -392,6 +410,71 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   try {
+    let stripeTaxTotalCents = 0;
+    let stripeTaxCalculationId: string | null = null;
+    const medusaTaxCents = toRoundedNumber(cart?.tax_total) ?? 0;
+    const shippingAmountCents = resolveShippingAmountCents(cart, body, shippingMethods);
+    const canCalculateStripeTax =
+      requiresShipping &&
+      medusaTaxCents <= 0 &&
+      Boolean(
+        cart?.shipping_address?.country_code &&
+          cart?.shipping_address?.postal_code &&
+          cart?.shipping_address?.city
+      );
+
+    if (canCalculateStripeTax) {
+      const lineItems: Stripe.Tax.CalculationCreateParams.LineItem[] = items
+        .map((item, index) => {
+          const unitPrice = toRoundedNumber(item?.unit_price);
+          const quantity = Math.max(1, toRoundedNumber(item?.quantity) ?? 1);
+          if (typeof unitPrice !== 'number' || unitPrice <= 0) return null;
+          return {
+            amount: unitPrice * quantity,
+            reference: String(item?.id || item?.title || `item_${index + 1}`),
+            tax_behavior: 'exclusive'
+          };
+        })
+        .filter((entry): entry is Stripe.Tax.CalculationCreateParams.LineItem => Boolean(entry));
+
+      if (!lineItems.length) {
+        return jsonResponse(
+          { error: 'Unable to calculate tax. Cart line items are invalid.' },
+          { status: 400 },
+          { noIndex: true }
+        );
+      }
+
+      const calculation = await stripe.tax.calculations.create({
+        currency,
+        line_items: lineItems,
+        shipping_cost:
+          shippingAmountCents > 0
+            ? { amount: shippingAmountCents, tax_behavior: 'exclusive' }
+            : undefined,
+        customer_details: {
+          address_source: 'shipping',
+          address: {
+            line1: cart.shipping_address?.address_1 || undefined,
+            line2: cart.shipping_address?.address_2 || undefined,
+            city: cart.shipping_address?.city || undefined,
+            state: cart.shipping_address?.province || undefined,
+            postal_code: cart.shipping_address?.postal_code || undefined,
+            country: String(cart.shipping_address?.country_code || '').toUpperCase()
+          }
+        }
+      });
+
+      const amountTax =
+        toRoundedNumber((calculation as any)?.tax_amount_exclusive) ??
+        toRoundedNumber((calculation as any)?.amount_tax) ??
+        0;
+      stripeTaxTotalCents = Math.max(0, amountTax);
+      stripeTaxCalculationId = calculation.id;
+    }
+
+    const total = medusaTotal + stripeTaxTotalCents;
+
     // Create Stripe PaymentIntent with finalized amount (cents).
     const paymentIntent = await stripe.paymentIntents.create({
       amount: total,
@@ -405,6 +488,8 @@ export const POST: APIRoute = async ({ request }) => {
         subtotal: String(cart?.subtotal ?? 0),
         tax_total: String(cart?.tax_total ?? 0),
         shipping_total: String(cart?.shipping_total ?? 0),
+        stripe_tax_total_cents: String(stripeTaxTotalCents),
+        stripe_tax_calculation_id: stripeTaxCalculationId || '',
         item_count: String(items.length),
         requires_shipping: String(requiresShipping),
         ...(shippoRate?.rate_id ? { shippo_rate_id: shippoRate.rate_id } : {}),

@@ -629,7 +629,11 @@ export default function CheckoutForm() {
       const intentResponse = await fetch('/api/medusa/payments/create-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cartId })
+        body: JSON.stringify({
+          cartId,
+          shippingAmountCents: rate.amountCents,
+          shippoRate: rate.shippoRate || undefined
+        })
       });
       if (!intentResponse.ok) {
         const payload = await intentResponse.json().catch(() => null);

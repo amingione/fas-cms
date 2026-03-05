@@ -189,13 +189,18 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const cartTotalCents = resolveEffectiveCartTotalCents(cartPayload.cart);
+    const stripeTaxTotalCents = Math.max(
+      0,
+      toCents(paymentIntent?.metadata?.stripe_tax_total_cents)
+    );
+    const expectedTotalCents = cartTotalCents + stripeTaxTotalCents;
     const cartCurrency = String(cartPayload.cart?.currency_code || '').toLowerCase();
     const piAmount = Number(paymentIntent.amount ?? NaN);
     const piCurrency = String(paymentIntent.currency || '').toLowerCase();
     if (
-      !Number.isFinite(cartTotalCents) ||
+      !Number.isFinite(expectedTotalCents) ||
       !Number.isFinite(piAmount) ||
-      cartTotalCents !== piAmount ||
+      expectedTotalCents !== piAmount ||
       !cartCurrency ||
       cartCurrency !== piCurrency
     ) {
@@ -204,6 +209,8 @@ export const POST: APIRoute = async ({ request }) => {
           error: 'Payment amount/currency mismatch.',
           details: {
             cart_total: cartTotalCents,
+            stripe_tax_total: stripeTaxTotalCents,
+            expected_total: expectedTotalCents,
             payment_intent_amount: piAmount,
             cart_currency: cartCurrency,
             payment_intent_currency: piCurrency
@@ -549,9 +556,14 @@ async function syncOrderToSanity(medusaOrder: any, paymentIntent: any): Promise<
 
     const subtotalCents = toNumber(medusaOrder?.subtotal) ?? 0;
     const shippingCents = toNumber(medusaOrder?.shipping_total) ?? 0;
-    const taxCents = toNumber(medusaOrder?.tax_total) ?? 0;
+    const medusaTaxCents = toNumber(medusaOrder?.tax_total) ?? 0;
+    const stripeTaxCents = toNumber(paymentIntent?.metadata?.stripe_tax_total_cents) ?? 0;
+    const taxCents = medusaTaxCents > 0 ? medusaTaxCents : Math.max(0, stripeTaxCents);
     const discountCents = toNumber(medusaOrder?.discount_total) ?? 0;
-    const totalCents = toNumber(medusaOrder?.total) ?? 0;
+    const medusaTotalCents = toNumber(medusaOrder?.total) ?? 0;
+    const capturedTotalCents =
+      toNumber((paymentIntent as any)?.amount_received) ?? toNumber(paymentIntent?.amount) ?? 0;
+    const totalCents = capturedTotalCents > 0 ? capturedTotalCents : medusaTotalCents;
 
     const shipmentSnapshot = computeShipmentSnapshot(
       Array.isArray(medusaOrder?.items) ? medusaOrder.items : [],
