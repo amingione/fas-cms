@@ -35,6 +35,7 @@ export type CartItem = {
 
 export const CART_KEY = 'fas_cart_v1';
 export const CART_EVENT = 'cart:changed';
+let hasLoggedCartCleanupThisPage = false;
 
 function isBrowser() {
   return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
@@ -230,13 +231,14 @@ export function getCart(): CartItem[] {
     // If we filtered out invalid items, save the cleaned cart
     if (validItems.length !== items.length || healed) {
       const removed = items.length - validItems.length;
-      if (removed > 0) {
+      if (removed > 0 && !hasLoggedCartCleanupThisPage) {
         console.log('[cart] Cleaned invalid items from cart', {
           removed,
           removedMissingVariant: sanitized.removedMissingVariant,
           removedInvalidPrice: sanitized.removedInvalidPrice,
           removedInvalidQuantity: sanitized.removedInvalidQuantity
         });
+        hasLoggedCartCleanupThisPage = true;
       }
       if (isBrowser()) {
         localStorage.setItem(CART_KEY, JSON.stringify({ items: validItems }));

@@ -83,7 +83,7 @@ const getUrlBooleanFlag = (url: URL | null, keys: string[]): boolean => {
 
 let currentUrl: URL | null = null;
 try {
-  currentUrl = new URL(Astro.request.url);
+  currentUrl = Astro.url ? new URL(Astro.url.toString()) : null;
 } catch {
   currentUrl = null;
 }
@@ -119,10 +119,12 @@ const previewEnvEnabled = parseBooleanFlag(
   (import.meta.env.PUBLIC_SANITY_PREVIEW_DRAFTS as string | undefined) ?? 'true'
 );
 let previewCookieRequested = false;
-try {
-  previewCookieRequested = parseBooleanFlag(Astro.cookies.get('sanity-preview')?.value ?? '');
-} catch {
-  // Astro.cookies reads Astro.request.headers which is not available during static prerendering
+if (!Astro.isPrerendered) {
+  try {
+    previewCookieRequested = parseBooleanFlag(Astro.cookies.get('sanity-preview')?.value ?? '');
+  } catch {
+    // noop
+  }
 }
 const previewQueryRequested = getUrlBooleanFlag(currentUrl, ['sanity-preview', 'preview']);
 const previewDraftsEnabled = previewEnvEnabled || previewCookieRequested || previewQueryRequested;
@@ -210,7 +212,8 @@ declare global {
 let canonicalUrl = resolveCanonical(canonical) ?? resolveCanonical(canonicalFromSanity);
 try {
   if (!canonicalUrl) {
-    const url = new URL(Astro.request.url);
+    const url = currentUrl ? new URL(currentUrl.toString()) : null;
+    if (!url) throw new Error('No current URL available');
     url.search = '';
     url.hash = '';
     canonicalUrl = new URL(url.pathname, CANONICAL_SITE_ORIGIN).toString();

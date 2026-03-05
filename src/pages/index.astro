@@ -30,8 +30,14 @@ const featuredProductsPromise = sanity
     return [];
   });
 
-const url = new URL(Astro.request.url);
-const siteOrigin = url.origin;
+const siteOrigin = (() => {
+  const candidate = (import.meta.env.PUBLIC_SITE_URL as string | undefined) || 'https://fasmotorsports.com';
+  try {
+    return new URL(candidate).origin;
+  } catch {
+    return 'https://fasmotorsports.com';
+  }
+})();
 const canonicalHome = `${siteOrigin}/`;
 const [pageDoc, featuredProductsRaw] = await Promise.all([pageDocPromise, featuredProductsPromise]);
 // Default to the new V2 homepage; allow opt-out via ?v2=0

@@ -175,9 +175,20 @@ function reconcileLocalCartFromCheckoutCart(cart: Cart | null): void {
   const existing = getCart();
   const nextItems: LocalCartItem[] = cart.items
     .map((serverItem) => {
+      const resolvedVariantId =
+        toLocalCartId(serverItem.medusa_variant_id) ||
+        toLocalCartId(
+          existing.find((entry) => toLocalCartId(entry.id) === toLocalCartId(serverItem.local_item_id))
+            ?.medusaVariantId || ''
+        );
+      if (!resolvedVariantId) {
+        // Keep local cart syncable by skipping line items that cannot be mapped to a Medusa variant.
+        return null;
+      }
+
       const candidateId =
         toLocalCartId(serverItem.local_item_id) ||
-        toLocalCartId(serverItem.medusa_variant_id) ||
+        resolvedVariantId ||
         toLocalCartId(serverItem.id);
       if (!candidateId) return null;
 
@@ -202,9 +213,7 @@ function reconcileLocalCartFromCheckoutCart(cart: Cart | null): void {
             ? Math.max(1, Math.round(serverItem.quantity))
             : existingMatch?.quantity || 1,
         image: resolveCheckoutImageSrc(serverItem.thumbnail),
-        medusaVariantId:
-          serverItem.medusa_variant_id ||
-          (typeof existingMatch?.medusaVariantId === 'string' ? existingMatch.medusaVariantId : undefined),
+        medusaVariantId: resolvedVariantId,
       } as LocalCartItem;
     })
     .filter((entry): entry is LocalCartItem => Boolean(entry));
@@ -360,10 +369,15 @@ export default function CheckoutForm() {
 
   async function syncCheckoutCart(
     context: string,
-    options: { suppressError?: boolean } = {}
+    options: { suppressError?: boolean; allowIfNoDrift?: boolean } = {}
   ): Promise<boolean> {
-    const syncResult = await syncMedusaCart(getCart());
+    const localItems = getCart();
+    const syncResult = await syncMedusaCart(localItems);
     if (syncResult.ok) return true;
+    if (options.allowIfNoDrift && cart && !hasCheckoutCartDrift(localItems, cart)) {
+      console.warn(`[checkout] cart sync failed during ${context}, continuing with in-sync cart`);
+      return true;
+    }
     const message = syncResult.error || 'Unable to sync your cart. Please refresh and try again.';
     console.warn(`[checkout] cart sync failed during ${context}`, { message });
     if (!options.suppressError) {
@@ -402,13 +416,18 @@ export default function CheckoutForm() {
         }
 
         if (loaded.driftDetected) {
-          setDriftDebug('Cart drift detected. Auto-resync applied.');
-          console.warn('[checkout] cart drift detected on load, forcing one resync');
+          setDriftDebug('Cart mismatch detected. Auto-resyncing.');
           const syncedAfterDrift = await syncCheckoutCart('checkout drift recovery', {
             suppressError: true
           });
           if (syncedAfterDrift) {
-            await loadCart(id);
+            const postRecovery = await loadCart(id);
+            if (postRecovery.driftDetected) {
+              setDriftDebug('Cart mismatch persists after auto-resync.');
+              console.warn('[checkout] cart drift still present after resync');
+            } else {
+              setDriftDebug(null);
+            }
           }
         } else {
           setDriftDebug(null);
@@ -516,7 +535,7 @@ export default function CheckoutForm() {
     setClientSecret(null);
 
     try {
-      const synced = await syncCheckoutCart('shipping quote');
+      const synced = await syncCheckoutCart('shipping quote', { allowIfNoDrift: true });
       if (!synced) return;
 
       const updateResponse = await fetch('/api/medusa/cart/update-address', {
@@ -584,7 +603,7 @@ export default function CheckoutForm() {
     setClientSecret(null);
 
     try {
-      const synced = await syncCheckoutCart('shipping selection');
+      const synced = await syncCheckoutCart('shipping selection', { allowIfNoDrift: true });
       if (!synced) return;
 
       const response = await fetch('/api/medusa/cart/select-shipping', {
