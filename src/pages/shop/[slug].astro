@@ -21,6 +21,7 @@ import {
   resolveProductMedusaVariant,
   type MedusaStoreProduct
 } from '../../lib/medusa-storefront-pricing';
+import { resolvePdpSsrData } from '../../lib/pdp-ssr';
 import PortableTextRenderer from "../../components/PortableTextRenderer.jsx";
 import SlugCarousel from '../../components/SlugCarousel.astro';
 import TrustStrip from '../../components/TrustStrip.astro';
@@ -738,95 +739,128 @@ let analyticsPrimaryCtaParams = '{}';
 let analyticsStickyCtaParams = '{}';
 let faqEntries: FAQEntry[] = [];
 let leadingFaqAnswer: { question: string; answer: string } | null = null;
+let medusaProductsForPricing: MedusaStoreProduct[] = [];
+let productSource: 'sanity' | 'medusa-fallback' | null = null;
+let pdpFatalError = false;
+let basePrice: number | undefined;
 try {
-  if (!slugValue) {
-    throw new Error('Product slug is missing or invalid.');
-  }
-  product = await getProductBySlug(slugValue);
+  const pricingTimeoutMs = Number.parseInt(
+    String(import.meta.env.PDP_MEDUSA_LIST_TIMEOUT_MS ?? '4500'),
+    10
+  );
+  const resolved = await resolvePdpSsrData({
+    slugValue,
+    requestUrl: Astro.request.url,
+    catIds: [],
+    tagFilters: [],
+    pricingTimeoutMs,
+    includeOptionalFetches: false,
+    includePricingAttach: false,
+    deps: {
+      getProductBySlug: async (value) => (await getProductBySlug(value)) as ProductWithKit | null,
+      listStoreProductsForPricing: async () => await listStoreProductsForPricing(),
+      getRelatedProducts: async (value, catIds, tagFilters, limit) =>
+        await getRelatedProducts(value, catIds, tagFilters, limit),
+      getUpsellProducts: async (value, catIds, basePrice, limit) =>
+        await getUpsellProducts(value, catIds, basePrice, limit),
+      attachMedusaPricingBySanityIdentity: (products, medusaProducts) =>
+        attachMedusaPricingBySanityIdentity(products, medusaProducts),
+      resolveProductCalculatedPriceAmount: (value) => {
+        const amount = resolveProductCalculatedPriceAmount(value);
+        return typeof amount === 'number' ? amount : undefined;
+      },
+      normalizeSlugValue: (value) => normalizeSlugValue(value),
+      buildFallbackProduct: (medusaProduct, value) =>
+        buildFallbackSanityProductFromMedusa(medusaProduct, value) as ProductWithKit
+    }
+  });
+
+  product = resolved.product as ProductWithKit | null;
+  productSource = resolved.source;
+  medusaProductsForPricing = resolved.medusaProductsForPricing as MedusaStoreProduct[];
+
   if (!product) {
-    const medusaProducts = await listStoreProductsForPricing();
-    const medusaByHandle = medusaProducts.find(
-      (entry) => typeof entry.handle === 'string' && normalizeSlugValue(entry.handle) === slugValue
-    );
-    if (!medusaByHandle) {
-      throw new Error(`Product with slug "${slugValue}" not found.`);
-    }
-    product = buildFallbackSanityProductFromMedusa(medusaByHandle, slugValue);
+    // Required path failed to resolve a product: always a controlled 404.
+    Astro.response.status = 404;
+  } else {
+    baseProductTitle = String((product as any)?.title || 'Product');
+    displayTitle = String((product as any)?.displayTitle || (product as any)?.title || 'Product');
+
+    const medusaVariant = resolveProductMedusaVariant(product as any);
+    const calculated = (medusaVariant as any)?.calculated_price;
+    const calculatedAmount = resolveProductCalculatedPriceAmount(product as any);
+    const originalAmount =
+      typeof calculated === 'object' && calculated ? (calculated as any).original_amount : undefined;
+
+    productPriceNumber = typeof calculatedAmount === 'number' ? calculatedAmount : undefined;
+    basePrice = typeof productPriceNumber === 'number' ? productPriceNumber : undefined;
+    priceValue = productPriceNumber;
+    compareAtValue =
+      typeof originalAmount === 'number' &&
+      typeof priceValue === 'number' &&
+      Number.isFinite(originalAmount) &&
+      Number.isFinite(priceValue) &&
+      originalAmount > priceValue
+        ? originalAmount
+        : undefined;
+    onSaleFlag = typeof compareAtValue === 'number' && typeof priceValue === 'number';
+    saleBadgeText = onSaleFlag ? 'Sale' : null;
+    saleCountdown = null;
+    savingsAmount =
+      onSaleFlag && typeof compareAtValue === 'number' && typeof priceValue === 'number'
+        ? Math.max(0, compareAtValue - priceValue)
+        : 0;
+    saleEndDate = null;
+
+    // Optional/non-critical SSR enrichments:
+    const catIds = ((product as any).category || (product as any).categories || [])
+      .map((c: any) => c?._id || c?._ref)
+      .filter(Boolean);
+    metadataTags = getMetadataTags(product as any);
+    const tagFilters = [
+      ...(Array.isArray((product as any).filters)
+        ? (product as any).filters
+            .map((entry: FilterEntry) => normalizeFilterSlug(entry))
+            .filter(Boolean)
+        : []),
+      ...metadataTags.map((tag) => normalizeFilterSlug(tag as any)).filter(Boolean)
+    ];
+    const optionalResolved = await resolvePdpSsrData({
+      slugValue,
+      requestUrl: Astro.request.url,
+      catIds,
+      tagFilters,
+      pricingTimeoutMs,
+      includeOptionalFetches: true,
+      includePricingAttach: true,
+      deps: {
+        getProductBySlug: async () => product as ProductWithKit,
+        listStoreProductsForPricing: async () => medusaProductsForPricing,
+        getRelatedProducts: async (value, ids, filters, limit) =>
+          await getRelatedProducts(value, ids, filters, limit),
+        getUpsellProducts: async (value, ids, resolvedBasePrice, limit) =>
+          await getUpsellProducts(value, ids, resolvedBasePrice, limit),
+        attachMedusaPricingBySanityIdentity: (products, medusaProducts) =>
+          attachMedusaPricingBySanityIdentity(products, medusaProducts),
+        resolveProductCalculatedPriceAmount: (value) => {
+          const amount = resolveProductCalculatedPriceAmount(value);
+          return typeof amount === 'number' ? amount : undefined;
+        },
+        normalizeSlugValue: (value) => normalizeSlugValue(value),
+        buildFallbackProduct: () => product as ProductWithKit
+      }
+    });
+    relatedProducts = optionalResolved.relatedProducts as Product[];
+    upsellProducts = optionalResolved.upsellProducts as Product[];
   }
 
-  baseProductTitle = String((product as any)?.title || 'Product');
-  displayTitle = String((product as any)?.displayTitle || (product as any)?.title || 'Product');
-
-  // ✅ PRICING AUTHORITY: Medusa is the only valid pricing source.
-  // Attach live Medusa pricing to this Sanity product and compute display values from the Medusa variant payload.
-  let medusaProducts: any[] = [];
-  try {
-    medusaProducts = await listStoreProductsForPricing();
-    const attached = attachMedusaPricingBySanityIdentity([product as any], medusaProducts);
-    product = (attached[0] as any) ?? product;
-  } catch (error) {
-    console.error('[shop/pdp] Failed to attach Medusa pricing to product', error);
-  }
-
-  const medusaVariant = resolveProductMedusaVariant(product as any);
-  const calculated = (medusaVariant as any)?.calculated_price;
-  const calculatedAmount = resolveProductCalculatedPriceAmount(product as any);
-  const originalAmount =
-    typeof calculated === 'object' && calculated ? (calculated as any).original_amount : undefined;
-
-  productPriceNumber = typeof calculatedAmount === 'number' ? calculatedAmount : undefined;
-  priceValue = productPriceNumber;
-  compareAtValue =
-    typeof originalAmount === 'number' &&
-    typeof priceValue === 'number' &&
-    Number.isFinite(originalAmount) &&
-    Number.isFinite(priceValue) &&
-    originalAmount > priceValue
-      ? originalAmount
-      : undefined;
-  onSaleFlag = typeof compareAtValue === 'number' && typeof priceValue === 'number';
-  saleBadgeText = onSaleFlag ? 'Sale' : null;
-  saleCountdown = null;
-  savingsAmount =
-    onSaleFlag && typeof compareAtValue === 'number' && typeof priceValue === 'number'
-      ? Math.max(0, compareAtValue - priceValue)
-      : 0;
-  saleEndDate = null;
-
-  // Build inputs for auto-related / upsell
-  const catIds = ((product as any).category || (product as any).categories || [])
-    .map((c: any) => c?._id || c?._ref)
-    .filter(Boolean);
-  metadataTags = getMetadataTags(product as any);
-  const tagFilters = [
-    ...(Array.isArray((product as any).filters)
-      ? (product as any).filters
-          .map((entry: FilterEntry) => normalizeFilterSlug(entry))
-          .filter(Boolean)
-      : []),
-    ...metadataTags.map((tag) => normalizeFilterSlug(tag as any)).filter(Boolean)
-  ];
-  const basePrice = typeof productPriceNumber === 'number' ? productPriceNumber : undefined;
-
-  // Auto-related and upsell
-  relatedProducts = await getRelatedProducts(slugValue, catIds, tagFilters, 6);
-  upsellProducts = await getUpsellProducts(slugValue, catIds, basePrice, 6);
-
-  // Attach Medusa pricing to related/upsell lists for authoritative rendering.
-  try {
-    if (medusaProducts.length) {
-      relatedProducts = attachMedusaPricingBySanityIdentity(relatedProducts as any, medusaProducts) as any;
-      upsellProducts = attachMedusaPricingBySanityIdentity(upsellProducts as any, medusaProducts) as any;
-    }
-  } catch (error) {
-    console.error('[shop/pdp] Failed to attach Medusa pricing to related products', error);
-  }
-
+  if (product) {
   if (typeof basePrice === 'number' && Array.isArray(upsellProducts) && upsellProducts.length) {
+    const resolvedBasePrice = basePrice;
     upsellProducts = upsellProducts
       .filter((entry) => {
         const amount = resolveProductCalculatedPriceAmount(entry);
-        return typeof amount === 'number' && Number.isFinite(amount) && amount >= basePrice;
+        return typeof amount === 'number' && Number.isFinite(amount) && amount >= resolvedBasePrice;
       })
       .sort((a, b) => {
         const aPrice = resolveProductCalculatedPriceAmount(a) ?? Number.POSITIVE_INFINITY;
@@ -963,13 +997,21 @@ try {
   seoOg = ensureAbsoluteUrl(
     (product as any)?.images?.[0]?.asset?.url || (product as any)?.images?.[0]?.url || undefined
   );
+  }
 } catch (err) {
-  console.error('❌ Failed to fetch product or similar products:', err);
+  console.error('[pdp-ssr] product fetch failed', {
+    slug: slugValue,
+    requestUrl: Astro.request.url,
+    source: productSource,
+    error: err instanceof Error ? err.message : String(err)
+  });
   product = null;
+  pdpFatalError = true;
+  Astro.response.status = 500;
 }
 
 const productNotFound = !product;
-if (!product) {
+if (!product && !pdpFatalError) {
   Astro.response.status = 404;
 }
 
@@ -2159,10 +2201,21 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
       </Fragment>
     )}
     <section class="mx-auto flex min-h-[60vh] max-w-3xl flex-col items-center justify-center px-4 py-24 text-center text-white">
-      <h1 class="text-4xl font-ethno md:text-5xl">Product not found</h1>
-      <p class="mt-4 text-sm text-white/80 md:text-base">
-        The product you are looking for may have been removed, renamed, or is temporarily unavailable.
-      </p>
+      {pdpFatalError ? (
+        <>
+          <h1 class="text-4xl font-ethno md:text-5xl">Unable to load product</h1>
+          <p class="mt-4 text-sm text-white/80 md:text-base">
+            We hit an unexpected server error while loading this product page. Please try again.
+          </p>
+        </>
+      ) : (
+        <>
+          <h1 class="text-4xl font-ethno md:text-5xl">Product not found</h1>
+          <p class="mt-4 text-sm text-white/80 md:text-base">
+            The product you are looking for may have been removed, renamed, or is temporarily unavailable.
+          </p>
+        </>
+      )}
       <a
         class="mt-8 inline-flex items-center rounded-full border border-white/30 px-5 py-2 text-sm uppercase tracking-wide transition hover:bg-primary hover:text-white"
         href="/shop"
