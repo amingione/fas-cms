@@ -822,7 +822,7 @@
   SESSION_SECURE = "true"
   ADMIN_EMAIL = "sales@fasmotorsports.com"
   NEXT_PUBLIC_API_BASE_URL = "https://fasmotorsports.com"
-  SITE_NAME = "FAS Motorsports"
+  SITE_NAME = "F.A.S. Motorsports"
   CORS_ALLOW = "https://fasmotorsports.com,https://fassanity.fasmotorsports.com"
   CORS_ORIGIN = "https://fassanity.fasmotorsports.com"
   # Anthropic model selection (non-secret)

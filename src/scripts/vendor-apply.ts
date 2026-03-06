@@ -105,7 +105,7 @@ function renderSuccess(): void {
   container.innerHTML = `
     <div class="text-center max-w-xl mx-auto space-y-4">
       <h1 class="text-3xl font-bold text-red-600">Application Received</h1>
-      <p class="text-lg">Thank you for your interest in becoming a vendor with FAS Motorsports.</p>
+      <p class="text-lg">Thank you for your interest in becoming a vendor with F.A.S. Motorsports.</p>
       <p class="text-md text-gray-300">Our sales team will review your application and reach out within 48 hours.</p>
     </div>
   `;

@@ -5,21 +5,20 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 const images = [
   { src: '/images/packages/mustang/FAS-5.webp', alt: 'FAS Mustang build' },
   { src: '/images/packages/mustang/FAS-6.webp', alt: 'FAS Mustang build' },
-  { src: '/images/packages/mustang/FAS-7.webp', alt: 'FAS Mustang build' },
+  { src: '/images/packages/mustang/FAS-7.webp', alt: 'FAS Mustang build' }
 ];
 ---
 
 <BaseLayout
   title="Mustang Builds"
-  description="F.A.S. Motorsports Ford Mustang builds — real customer vehicles from our Fort Myers, Florida performance shop."
+  description="F.A.S. Motorsports Ford Mustang builds — real customer vehicles from our Punta Gorda, Florida performance shop."
   breadcrumbs={[
     { href: '/', label: 'Home' },
     { href: '/builds', label: 'Builds' },
-    { label: 'Mustang' },
+    { label: 'Mustang' }
   ]}
 >
   <div class="bp-page">
-
     <section class="bp-hero">
       <div class="bp-hero__img-wrap">
         <img
@@ -47,10 +46,14 @@ const images = [
           <span class="bp-eyebrow">Platform</span>
           <h2 class="bp-section-title">What We Do on Mustangs</h2>
           <p class="bp-body">
-            FAS works on Mustang platforms at our Fort Myers shop. The three builds in this gallery are real customer cars that came through our garage. We don&apos;t have a large volume of Mustang builds on record yet — what you see is what we have.
+            FAS works on Mustang platforms at our Punta Gorda shop. The three builds in this gallery
+            are real customer cars that came through our garage. We don&apos;t have a large volume
+            of Mustang builds on record yet — what you see is what we have.
           </p>
           <p class="bp-body">
-            If you have a Mustang and want to discuss performance work, reach out directly. We&apos;ll be straight with you about what we can and can&apos;t do on your specific car.
+            If you have a Mustang and want to discuss performance work, reach out directly.
+            We&apos;ll be straight with you about what we can and can&apos;t do on your specific
+            car.
           </p>
           <div class="bp-action-row">
             <a href="/schedule" class="bp-btn bp-btn--primary">Schedule a Consultation</a>
@@ -65,17 +68,19 @@ const images = [
         <span class="bp-eyebrow">Gallery</span>
         <h2 class="bp-section-title">Customer Builds</h2>
         <div class="bp-grid">
-          {images.map((img) => (
-            <div class="bp-card">
-              <img
-                src={img.src}
-                alt={img.alt}
-                class="bp-card__img"
-                loading="eager"
-                decoding="async"
-              />
-            </div>
-          ))}
+          {
+            images.map((img) => (
+              <div class="bp-card">
+                <img
+                  src={img.src}
+                  alt={img.alt}
+                  class="bp-card__img"
+                  loading="eager"
+                  decoding="async"
+                />
+              </div>
+            ))
+          }
         </div>
       </div>
     </section>
@@ -90,7 +95,6 @@ const images = [
         </div>
       </div>
     </section>
-
   </div>
 </BaseLayout>
 
@@ -99,74 +103,237 @@ const images = [
     --bp-red: #ea1d26;
     --bp-red-dark: #c91820;
     --bp-bg: #121212;
-    --bp-border: rgba(255,255,255,0.08);
+    --bp-border: rgba(255, 255, 255, 0.08);
     --bp-muted: #a1a1aa;
   }
-  .bp-page { background: var(--bp-bg); }
+  .bp-page {
+    background: var(--bp-bg);
+  }
   .bp-eyebrow {
-    display: inline-block; font-family: 'Ethnocentric', sans-serif;
-    font-size: 0.62rem; letter-spacing: 0.3em; text-transform: uppercase;
-    color: var(--bp-red); margin-bottom: 0.75rem;
+    display: inline-block;
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--bp-red);
+    margin-bottom: 0.75rem;
   }
   .bp-hero {
-    position: relative; min-height: 75vh;
-    display: flex; align-items: flex-end; overflow: hidden;
+    position: relative;
+    min-height: 75vh;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
   }
-  .bp-hero__img-wrap { position: absolute; inset: 0; }
-  .bp-hero__img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.45) saturate(0.85); }
+  .bp-hero__img-wrap {
+    position: absolute;
+    inset: 0;
+  }
+  .bp-hero__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.45) saturate(0.85);
+  }
   .bp-hero__overlay {
-    position: absolute; inset: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.1) 60%, transparent 100%);
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.88) 0%,
+      rgba(0, 0, 0, 0.1) 60%,
+      transparent 100%
+    );
   }
-  .bp-hero__content { position: relative; z-index: 1; padding-block: 3.5rem 4rem; }
+  .bp-hero__content {
+    position: relative;
+    z-index: 1;
+    padding-block: 3.5rem 4rem;
+  }
   .bp-hero__title {
-    font-family: 'American Captain', sans-serif; font-weight: 400;
+    font-family: 'American Captain', sans-serif;
+    font-weight: 400;
     font-size: clamp(3.5rem, 10vw, 8rem);
-    line-height: 0.9; color: #fff; letter-spacing: 0.02em; margin: 0 0 1rem;
+    line-height: 0.9;
+    color: #fff;
+    letter-spacing: 0.02em;
+    margin: 0 0 1rem;
   }
-  .bp-hero__title-outline { -webkit-text-stroke: 2px rgba(255,255,255,0.35); color: transparent; }
-  .bp-hero__platform { font-size: 0.8rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--bp-muted); margin-bottom: 2rem; }
+  .bp-hero__title-outline {
+    -webkit-text-stroke: 2px rgba(255, 255, 255, 0.35);
+    color: transparent;
+  }
+  .bp-hero__platform {
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--bp-muted);
+    margin-bottom: 2rem;
+  }
   .bp-btn {
-    display: inline-flex; align-items: center; font-family: 'Ethnocentric', sans-serif;
-    font-size: 0.62rem; letter-spacing: 0.22em; text-transform: uppercase;
-    padding: 0.875rem 2rem; border-radius: 4px; text-decoration: none;
-    border: 1px solid transparent; transition: background 0.2s, border-color 0.2s, transform 0.15s; white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 0.875rem 2rem;
+    border-radius: 4px;
+    text-decoration: none;
+    border: 1px solid transparent;
+    transition:
+      background 0.2s,
+      border-color 0.2s,
+      transform 0.15s;
+    white-space: nowrap;
   }
-  .bp-btn--primary { background: var(--bp-red); color: #fff; border-color: var(--bp-red); }
-  .bp-btn--primary:hover { background: var(--bp-red-dark); border-color: var(--bp-red-dark); transform: translateY(-1px); }
-  .bp-btn--ghost { background: transparent; color: #fff; border-color: rgba(255,255,255,0.3); }
-  .bp-btn--ghost:hover { border-color: rgba(255,255,255,0.7); transform: translateY(-1px); }
+  .bp-btn--primary {
+    background: var(--bp-red);
+    color: #fff;
+    border-color: var(--bp-red);
+  }
+  .bp-btn--primary:hover {
+    background: var(--bp-red-dark);
+    border-color: var(--bp-red-dark);
+    transform: translateY(-1px);
+  }
+  .bp-btn--ghost {
+    background: transparent;
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  .bp-btn--ghost:hover {
+    border-color: rgba(255, 255, 255, 0.7);
+    transform: translateY(-1px);
+  }
   .bp-section-title {
-    font-family: 'American Captain', sans-serif; font-weight: 400;
-    font-size: clamp(2rem, 4vw, 3rem); color: #fff; letter-spacing: 0.03em; line-height: 1; margin: 0 0 1.25rem;
+    font-family: 'American Captain', sans-serif;
+    font-weight: 400;
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: #fff;
+    letter-spacing: 0.03em;
+    line-height: 1;
+    margin: 0 0 1.25rem;
   }
-  .bp-body { font-size: 0.9rem; color: var(--bp-muted); line-height: 1.7; max-width: 600px; margin-bottom: 1rem; }
-  .bp-action-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 2rem; }
-  .bp-action-row--center { justify-content: center; }
-  .bp-about { padding-block: 5rem; border-bottom: 1px solid var(--bp-border); }
-  .bp-about__text-col { max-width: 680px; }
-  .bp-gallery { padding-block: 5rem; }
-  .bp-gallery .bp-eyebrow { display: block; margin-bottom: 0.5rem; }
-  .bp-gallery .bp-section-title { margin-bottom: 2.5rem; }
-  .bp-grid { columns: 3; column-gap: 1rem; }
-  .bp-card { break-inside: avoid; margin-bottom: 1rem; border-radius: 10px; overflow: hidden; border: 1px solid var(--bp-border); background: #000; }
-  .bp-card__img { width: 100%; height: auto; display: block; transition: transform 0.55s cubic-bezier(0.25,0.46,0.45,0.94), filter 0.35s; filter: brightness(0.92); }
-  .bp-card:hover .bp-card__img { transform: scale(1.05); filter: brightness(0.75); }
-  .bp-cta { padding-block: 5rem; text-align: center; border-top: 1px solid var(--bp-border); }
-  .bp-cta__title { font-family: 'American Captain', sans-serif; font-weight: 400; font-size: clamp(2rem, 5vw, 3.5rem); color: #fff; letter-spacing: 0.04em; line-height: 1; margin: 0 0 1rem; }
-  .bp-cta .bp-body { margin-inline: auto; text-align: center; }
-  @media (max-width: 1024px) { .bp-grid { columns: 2; } .bp-hero { min-height: 65vh; } }
+  .bp-body {
+    font-size: 0.9rem;
+    color: var(--bp-muted);
+    line-height: 1.7;
+    max-width: 600px;
+    margin-bottom: 1rem;
+  }
+  .bp-action-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+  }
+  .bp-action-row--center {
+    justify-content: center;
+  }
+  .bp-about {
+    padding-block: 5rem;
+    border-bottom: 1px solid var(--bp-border);
+  }
+  .bp-about__text-col {
+    max-width: 680px;
+  }
+  .bp-gallery {
+    padding-block: 5rem;
+  }
+  .bp-gallery .bp-eyebrow {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  .bp-gallery .bp-section-title {
+    margin-bottom: 2.5rem;
+  }
+  .bp-grid {
+    columns: 3;
+    column-gap: 1rem;
+  }
+  .bp-card {
+    break-inside: avoid;
+    margin-bottom: 1rem;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--bp-border);
+    background: #000;
+  }
+  .bp-card__img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition:
+      transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+      filter 0.35s;
+    filter: brightness(0.92);
+  }
+  .bp-card:hover .bp-card__img {
+    transform: scale(1.05);
+    filter: brightness(0.75);
+  }
+  .bp-cta {
+    padding-block: 5rem;
+    text-align: center;
+    border-top: 1px solid var(--bp-border);
+  }
+  .bp-cta__title {
+    font-family: 'American Captain', sans-serif;
+    font-weight: 400;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    color: #fff;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    margin: 0 0 1rem;
+  }
+  .bp-cta .bp-body {
+    margin-inline: auto;
+    text-align: center;
+  }
+  @media (max-width: 1024px) {
+    .bp-grid {
+      columns: 2;
+    }
+    .bp-hero {
+      min-height: 65vh;
+    }
+  }
   @media (max-width: 768px) {
-    .bp-hero { min-height: 55vh; }
-    .bp-hero__title { font-size: clamp(2.75rem, 14vw, 5rem); }
-    .bp-grid { columns: 2; column-gap: 0.75rem; }
-    .bp-about, .bp-gallery, .bp-cta { padding-block: 3.5rem; }
+    .bp-hero {
+      min-height: 55vh;
+    }
+    .bp-hero__title {
+      font-size: clamp(2.75rem, 14vw, 5rem);
+    }
+    .bp-grid {
+      columns: 2;
+      column-gap: 0.75rem;
+    }
+    .bp-about,
+    .bp-gallery,
+    .bp-cta {
+      padding-block: 3.5rem;
+    }
   }
   @media (max-width: 560px) {
-    .bp-grid { columns: 1; }
-    .bp-action-row { flex-direction: column; }
-    .bp-btn { justify-content: center; width: 100%; }
-    .bp-hero { min-height: 50vh; }
-    .bp-about, .bp-gallery, .bp-cta { padding-block: 2.75rem; }
+    .bp-grid {
+      columns: 1;
+    }
+    .bp-action-row {
+      flex-direction: column;
+    }
+    .bp-btn {
+      justify-content: center;
+      width: 100%;
+    }
+    .bp-hero {
+      min-height: 50vh;
+    }
+    .bp-about,
+    .bp-gallery,
+    .bp-cta {
+      padding-block: 2.75rem;
+    }
   }
 </style>

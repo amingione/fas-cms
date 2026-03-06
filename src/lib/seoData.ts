@@ -30,20 +30,18 @@ type SanitySeoQueryResult = Omit<SanitySeo, 'jsonLd' | 'breadcrumbs' | 'relatedL
   breadcrumbs?: Array<{ label?: string | null; href?: string | null }> | null;
   relatedSeoLinks?: Array<{ label?: string | null; href?: string | null }> | null;
   relatedPageLinks?: Array<{ label?: string | null; href?: string | null }> | null;
-  relatedProductLinks?:
-    | Array<{
-        label?: string | null;
-        href?: string | null;
-        primaryKeyword?: string | null;
-        seoPrimaryKeyword?: string | null;
-        fitment?: string | null;
-        seoFitment?: string | null;
-        fitmentText?: string | null;
-        seoFitmentText?: string | null;
-        fitmentYears?: unknown;
-        seoFitmentYears?: unknown;
-      }>
-    | null;
+  relatedProductLinks?: Array<{
+    label?: string | null;
+    href?: string | null;
+    primaryKeyword?: string | null;
+    seoPrimaryKeyword?: string | null;
+    fitment?: string | null;
+    seoFitment?: string | null;
+    fitmentText?: string | null;
+    seoFitmentText?: string | null;
+    fitmentYears?: unknown;
+    seoFitmentYears?: unknown;
+  }> | null;
   relatedArticleLinks?: Array<{ label?: string | null; href?: string | null }> | null;
   relatedServiceLinks?: Array<{ label?: string | null; href?: string | null }> | null;
 };
@@ -65,7 +63,7 @@ export interface SeoPayload {
 const FALLBACK_GLOBAL: GlobalSeoSettings = {
   siteName: 'F.A.S. Motorsports',
   defaultDescription:
-    'F.A.S. Motorsports delivers premium performance parts, custom fabrication, installs, and wheel packages in Fort Myers, Florida.',
+    'F.A.S. Motorsports delivers premium performance parts, custom fabrication, installs, and wheel packages in Punta Gorda, Florida.',
   defaultOgImage: 'https://fasmotorsports.com/images/social/social-share.webp',
   defaultKeywords: [
     'F.A.S. Motorsports',
@@ -73,7 +71,7 @@ const FALLBACK_GLOBAL: GlobalSeoSettings = {
     'supercharger upgrades',
     'billet parts',
     'custom fabrication',
-    'Fort Myers auto shop',
+    'Punta Gorda auto shop',
     'Hellcat performance',
     'Trackhawk upgrades',
     'TRX packages'
@@ -113,10 +111,10 @@ const normalizeKeywordsArray = (value: unknown): string[] | undefined => {
 };
 
 const dedupeByHref = (
-  items: Array<{label?: string | null; href?: string | null}>,
-): Array<{label: string; href?: string}> => {
+  items: Array<{ label?: string | null; href?: string | null }>
+): Array<{ label: string; href?: string }> => {
   const seen = new Set<string>();
-  const results: Array<{label: string; href?: string}> = [];
+  const results: Array<{ label: string; href?: string }> = [];
   for (const item of items) {
     const label = (item.label ?? '').trim();
     const href = (item.href ?? undefined) || undefined;
@@ -158,9 +156,7 @@ const resolveRoutePrefix = (...identifiers: Array<string | null | undefined>) =>
   return '';
 };
 
-const normalizeRelatedLink = (
-  link: RawRelatedLink
-): { label: string; href?: string } | null => {
+const normalizeRelatedLink = (link: RawRelatedLink): { label: string; href?: string } | null => {
   const label = (link.label ?? '').trim();
   if (!label) return null;
 
@@ -197,10 +193,7 @@ const normalizeRelatedLink = (
 
   if (sanitizedPrefix) {
     const normalizedPrefix = sanitizedPrefix.toLowerCase();
-    if (
-      lowerSanitized === normalizedPrefix ||
-      lowerSanitized.startsWith(`${normalizedPrefix}/`)
-    ) {
+    if (lowerSanitized === normalizedPrefix || lowerSanitized.startsWith(`${normalizedPrefix}/`)) {
       return { label, href: `/${sanitized}` };
     }
   }
@@ -221,7 +214,7 @@ export async function fetchSeoForPath(
       token: options.token,
       useCdn: !options.preview,
       stega: options.preview,
-      tag: 'seo.fetchSeoForPath',
+      tag: 'seo.fetchSeoForPath'
     };
 
     const data = await sanityFetch<{
@@ -305,10 +298,10 @@ export async function fetchSeoForPath(
   }
 }`,
         params: {
-          slug: normalized === '/' ? 'home' : normalized.replace(/^\//, ''),
-        },
+          slug: normalized === '/' ? 'home' : normalized.replace(/^\//, '')
+        }
       },
-      queryOptions,
+      queryOptions
     ).catch((error) => {
       console.error('[seo] Failed to fetch SEO data', error);
       return { globalSettings: undefined, page: undefined };
@@ -350,8 +343,7 @@ export async function fetchSeoForPath(
             seoFitmentText?: string | null;
             fitmentYears?: unknown;
             seoFitmentYears?: unknown;
-          }
-          | null)
+          } | null)
         | undefined
     ) => {
       if (!entry) return null;
@@ -390,8 +382,9 @@ export async function fetchSeoForPath(
       global: {
         ...FALLBACK_GLOBAL,
         ...globalSettings,
-        defaultOgImage: normalizeOgImage(globalSettings?.defaultOgImage) ?? FALLBACK_GLOBAL.defaultOgImage,
-        defaultKeywords: globalKeywords ?? FALLBACK_GLOBAL.defaultKeywords,
+        defaultOgImage:
+          normalizeOgImage(globalSettings?.defaultOgImage) ?? FALLBACK_GLOBAL.defaultOgImage,
+        defaultKeywords: globalKeywords ?? FALLBACK_GLOBAL.defaultKeywords
       },
       page: {
         ...pageSeoRest,
@@ -399,8 +392,8 @@ export async function fetchSeoForPath(
         ogImage: normalizeOgImage(pageSeoRest.ogImage),
         breadcrumbs: normalizedBreadcrumbs,
         relatedLinks: normalizedLinks,
-        keywords: pageKeywords ?? pageSeoRest.keywords,
-      },
+        keywords: pageKeywords ?? pageSeoRest.keywords
+      }
     } satisfies SeoPayload;
   };
 
@@ -417,21 +410,20 @@ export async function fetchSeoForPath(
 export const buildMetaEntries = (payload: SeoPayload, canonicalUrl?: string) => {
   const { global, page } = payload;
   const description =
-    page.description ||
-    global.defaultDescription ||
-    FALLBACK_GLOBAL.defaultDescription ||
-    '';
+    page.description || global.defaultDescription || FALLBACK_GLOBAL.defaultDescription || '';
   const ogImage =
     (page.ogImage as string | undefined) ||
     (global.defaultOgImage as string | undefined) ||
     undefined;
-  const keywords = (page.keywords && page.keywords.length > 0
-    ? page.keywords
-    : global.defaultKeywords) ?? FALLBACK_GLOBAL.defaultKeywords ?? [];
+  const keywords =
+    (page.keywords && page.keywords.length > 0 ? page.keywords : global.defaultKeywords) ??
+    FALLBACK_GLOBAL.defaultKeywords ??
+    [];
 
-  const title = page.title && global.siteName && !page.title.includes(global.siteName)
-    ? `${page.title} | ${global.siteName}`
-    : page.title || global.siteName || FALLBACK_GLOBAL.siteName!;
+  const title =
+    page.title && global.siteName && !page.title.includes(global.siteName)
+      ? `${page.title} | ${global.siteName}`
+      : page.title || global.siteName || FALLBACK_GLOBAL.siteName!;
 
   const robots = page.noindex ? 'noindex,follow' : 'index,follow';
 

@@ -10,21 +10,20 @@ const images = [
   { src: '/images/packages/Hellcat/FAS-4.webp', alt: 'FAS Hellcat build' },
   { src: '/images/packages/Hellcat/FAS-8.webp', alt: 'FAS Hellcat build' },
   { src: '/images/packages/Hellcat/FAS-9.webp', alt: 'FAS Hellcat build' },
-  { src: '/images/packages/challenger FAS.webp', alt: 'FAS Challenger build' },
+  { src: '/images/packages/challenger FAS.webp', alt: 'FAS Challenger build' }
 ];
 ---
 
 <BaseLayout
   title="Hellcat / Challenger Builds"
-  description="F.A.S. Motorsports Hellcat and Challenger builds — real customer vehicles from our Fort Myers, Florida performance shop."
+  description="F.A.S. Motorsports Hellcat and Challenger builds — real customer vehicles from our Punta Gorda, Florida performance shop."
   breadcrumbs={[
     { href: '/', label: 'Home' },
     { href: '/builds', label: 'Builds' },
-    { label: 'Hellcat / Challenger' },
+    { label: 'Hellcat / Challenger' }
   ]}
 >
   <div class="bp-page">
-
     <section class="bp-hero">
       <div class="bp-hero__img-wrap">
         <img
@@ -52,10 +51,14 @@ const images = [
           <span class="bp-eyebrow">Platform</span>
           <h2 class="bp-section-title">What We Do on Hellcats</h2>
           <p class="bp-body">
-            The Dodge Challenger SRT Hellcat is one of the most capable supercharged platforms we work with at our Fort Myers shop. FAS specializes in supercharger work, billet parts, and performance upgrades on Hellcat-powered vehicles.
+            The Dodge Challenger SRT Hellcat is one of the most capable supercharged platforms we
+            work with at our Punta Gorda shop. FAS specializes in supercharger work, billet parts,
+            and performance upgrades on Hellcat-powered vehicles.
           </p>
           <p class="bp-body">
-            Every photo in this gallery is a real customer car that came through our garage. Want to know what&apos;s possible for your specific car? Contact us — we&apos;ll give you an honest assessment.
+            Every photo in this gallery is a real customer car that came through our garage. Want to
+            know what&apos;s possible for your specific car? Contact us — we&apos;ll give you an
+            honest assessment.
           </p>
           <div class="bp-action-row">
             <a href="/schedule" class="bp-btn bp-btn--primary">Schedule a Consultation</a>
@@ -70,17 +73,19 @@ const images = [
         <span class="bp-eyebrow">Gallery</span>
         <h2 class="bp-section-title">Customer Builds</h2>
         <div class="bp-grid">
-          {images.map((img, i) => (
-            <div class="bp-card">
-              <img
-                src={img.src}
-                alt={img.alt}
-                class="bp-card__img"
-                loading={i < 3 ? 'eager' : 'lazy'}
-                decoding="async"
-              />
-            </div>
-          ))}
+          {
+            images.map((img, i) => (
+              <div class="bp-card">
+                <img
+                  src={img.src}
+                  alt={img.alt}
+                  class="bp-card__img"
+                  loading={i < 3 ? 'eager' : 'lazy'}
+                  decoding="async"
+                />
+              </div>
+            ))
+          }
         </div>
       </div>
     </section>
@@ -95,7 +100,6 @@ const images = [
         </div>
       </div>
     </section>
-
   </div>
 </BaseLayout>
 
@@ -106,11 +110,13 @@ const images = [
     --bp-gold: #fde4b2;
     --bp-bg: #121212;
     --bp-bg-card: #1a1a1a;
-    --bp-border: rgba(255,255,255,0.08);
+    --bp-border: rgba(255, 255, 255, 0.08);
     --bp-muted: #a1a1aa;
   }
 
-  .bp-page { background: var(--bp-bg); }
+  .bp-page {
+    background: var(--bp-bg);
+  }
 
   /* ── Eyebrow ── */
   .bp-eyebrow {
@@ -131,18 +137,29 @@ const images = [
     align-items: flex-end;
     overflow: hidden;
   }
-  .bp-hero__img-wrap { position: absolute; inset: 0; }
+  .bp-hero__img-wrap {
+    position: absolute;
+    inset: 0;
+  }
   .bp-hero__img {
-    width: 100%; height: 100%;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
     filter: brightness(0.45) saturate(0.85);
   }
   .bp-hero__overlay {
-    position: absolute; inset: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.1) 60%, transparent 100%);
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.88) 0%,
+      rgba(0, 0, 0, 0.1) 60%,
+      transparent 100%
+    );
   }
   .bp-hero__content {
-    position: relative; z-index: 1;
+    position: relative;
+    z-index: 1;
     padding-block: 3.5rem 4rem;
   }
   .bp-hero__title {
@@ -155,7 +172,7 @@ const images = [
     margin: 0 0 1rem;
   }
   .bp-hero__title-outline {
-    -webkit-text-stroke: 2px rgba(255,255,255,0.35);
+    -webkit-text-stroke: 2px rgba(255, 255, 255, 0.35);
     color: transparent;
   }
   .bp-hero__platform {
@@ -178,14 +195,32 @@ const images = [
     border-radius: 4px;
     text-decoration: none;
     border: 1px solid transparent;
-    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    transition:
+      background 0.2s,
+      border-color 0.2s,
+      transform 0.15s;
     cursor: pointer;
     white-space: nowrap;
   }
-  .bp-btn--primary { background: var(--bp-red); color: #fff; border-color: var(--bp-red); }
-  .bp-btn--primary:hover { background: var(--bp-red-dark); border-color: var(--bp-red-dark); transform: translateY(-1px); }
-  .bp-btn--ghost { background: transparent; color: #fff; border-color: rgba(255,255,255,0.3); }
-  .bp-btn--ghost:hover { border-color: rgba(255,255,255,0.7); transform: translateY(-1px); }
+  .bp-btn--primary {
+    background: var(--bp-red);
+    color: #fff;
+    border-color: var(--bp-red);
+  }
+  .bp-btn--primary:hover {
+    background: var(--bp-red-dark);
+    border-color: var(--bp-red-dark);
+    transform: translateY(-1px);
+  }
+  .bp-btn--ghost {
+    background: transparent;
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  .bp-btn--ghost:hover {
+    border-color: rgba(255, 255, 255, 0.7);
+    transform: translateY(-1px);
+  }
 
   /* ── Section titles ── */
   .bp-section-title {
@@ -206,18 +241,38 @@ const images = [
   }
 
   /* ── Action rows ── */
-  .bp-action-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 2rem; }
-  .bp-action-row--center { justify-content: center; }
+  .bp-action-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+  }
+  .bp-action-row--center {
+    justify-content: center;
+  }
 
   /* ── About ── */
-  .bp-about { padding-block: 5rem; border-bottom: 1px solid var(--bp-border); }
-  .bp-about__inner { }
-  .bp-about__text-col { max-width: 680px; }
+  .bp-about {
+    padding-block: 5rem;
+    border-bottom: 1px solid var(--bp-border);
+  }
+  .bp-about__inner {
+  }
+  .bp-about__text-col {
+    max-width: 680px;
+  }
 
   /* ── Gallery ── */
-  .bp-gallery { padding-block: 5rem; }
-  .bp-gallery .bp-eyebrow { display: block; margin-bottom: 0.5rem; }
-  .bp-gallery .bp-section-title { margin-bottom: 2.5rem; }
+  .bp-gallery {
+    padding-block: 5rem;
+  }
+  .bp-gallery .bp-eyebrow {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  .bp-gallery .bp-section-title {
+    margin-bottom: 2.5rem;
+  }
 
   .bp-grid {
     columns: 3;
@@ -235,7 +290,9 @@ const images = [
     width: 100%;
     height: auto;
     display: block;
-    transition: transform 0.55s cubic-bezier(0.25,0.46,0.45,0.94), filter 0.35s;
+    transition:
+      transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+      filter 0.35s;
     filter: brightness(0.92);
   }
   .bp-card:hover .bp-card__img {
@@ -249,7 +306,8 @@ const images = [
     text-align: center;
     border-top: 1px solid var(--bp-border);
   }
-  .bp-cta__inner { }
+  .bp-cta__inner {
+  }
   .bp-cta__title {
     font-family: 'American Captain', sans-serif;
     font-weight: 400;
@@ -259,25 +317,60 @@ const images = [
     line-height: 1;
     margin: 0 0 1rem;
   }
-  .bp-cta .bp-body { margin-inline: auto; text-align: center; }
+  .bp-cta .bp-body {
+    margin-inline: auto;
+    text-align: center;
+  }
 
   /* ── Responsive ── */
-  @media (max-width: 1280px) { .bp-grid { columns: 3; } }
+  @media (max-width: 1280px) {
+    .bp-grid {
+      columns: 3;
+    }
+  }
   @media (max-width: 1024px) {
-    .bp-grid { columns: 2; }
-    .bp-hero { min-height: 65vh; }
+    .bp-grid {
+      columns: 2;
+    }
+    .bp-hero {
+      min-height: 65vh;
+    }
   }
   @media (max-width: 768px) {
-    .bp-hero { min-height: 55vh; }
-    .bp-hero__title { font-size: clamp(2.75rem, 14vw, 5rem); }
-    .bp-grid { columns: 2; column-gap: 0.75rem; }
-    .bp-about, .bp-gallery, .bp-cta { padding-block: 3.5rem; }
+    .bp-hero {
+      min-height: 55vh;
+    }
+    .bp-hero__title {
+      font-size: clamp(2.75rem, 14vw, 5rem);
+    }
+    .bp-grid {
+      columns: 2;
+      column-gap: 0.75rem;
+    }
+    .bp-about,
+    .bp-gallery,
+    .bp-cta {
+      padding-block: 3.5rem;
+    }
   }
   @media (max-width: 560px) {
-    .bp-grid { columns: 1; }
-    .bp-action-row { flex-direction: column; }
-    .bp-btn { justify-content: center; width: 100%; }
-    .bp-hero { min-height: 50vh; }
-    .bp-about, .bp-gallery, .bp-cta { padding-block: 2.75rem; }
+    .bp-grid {
+      columns: 1;
+    }
+    .bp-action-row {
+      flex-direction: column;
+    }
+    .bp-btn {
+      justify-content: center;
+      width: 100%;
+    }
+    .bp-hero {
+      min-height: 50vh;
+    }
+    .bp-about,
+    .bp-gallery,
+    .bp-cta {
+      padding-block: 2.75rem;
+    }
   }
 </style>

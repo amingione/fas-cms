@@ -13,9 +13,9 @@ const pageDescription =
 const specSheet = {
   title: pageTitle,
   description:
-    'Engineered, fabricated, and validated by FAS Motorsports to deliver superior strength, precision, and reliability under extreme conditions.',
+    'Engineered, fabricated, and validated by F.A.S. Motorsports to deliver superior strength, precision, and reliability under extreme conditions.',
   imageSrc: '/images/billetParts/billet-bearing-plate.webp',
-  imageAlt: 'FAS Motorsports Billet Bearing Plate',
+  imageAlt: 'F.A.S. Motorsports Billet Bearing Plate',
   specs: [
     { label: 'Material', value: 'Billet aluminum, heat-treated' },
     { label: 'Manufacturing', value: '5-axis CNC, precision fit' },
@@ -61,21 +61,26 @@ const structuredData = {
   }))
 };
 ---
-<BaseLayout title={pageTitle} description={pageDescription} canonical={canonical} ogImage={ensureAbsolute(specSheet.imageSrc)}>
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  canonical={canonical}
+  ogImage={ensureAbsolute(specSheet.imageSrc)}
+>
   <Fragment slot="head">
     <meta property="og:type" content="product" />
-    <script
-      type="application/ld+json"
-      set:html={serializeJsonLd(structuredData)}
-    />
+    <script type="application/ld+json" set:html={serializeJsonLd(structuredData)} />
   </Fragment>
   <div {...inlineObjectId('content/pages/BilletBearingPlateSpecs.json')}>
     <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>
       {pageTitle}
     </div>
-    {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
-      <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
-    )}
+    {
+      Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
+        <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
+      )
+    }
     <section class="mt-5 pt-5"></section>
     <ProductSpecSheet
       title={specSheet.title}

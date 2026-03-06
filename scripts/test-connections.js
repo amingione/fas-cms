@@ -123,7 +123,7 @@ async function testShippo() {
 
     const shipment = await shippo.shipments.create({
       address_from: {
-        name: 'FAS Motorsports',
+        name: 'F.A.S. Motorsports',
         street1: process.env.WAREHOUSE_ADDRESS_LINE1 || '6161 Riverside Dr',
         city: process.env.WAREHOUSE_CITY || 'Punta Gorda',
         state: process.env.WAREHOUSE_STATE || 'FL',
@@ -138,20 +138,22 @@ async function testShippo() {
         zip: '94102',
         country: 'US'
       },
-      parcels: [{
-        length: '12',
-        width: '12',
-        height: '8',
-        distance_unit: 'in',
-        weight: '5',
-        mass_unit: 'lb'
-      }],
+      parcels: [
+        {
+          length: '12',
+          width: '12',
+          height: '8',
+          distance_unit: 'in',
+          weight: '5',
+          mass_unit: 'lb'
+        }
+      ],
       async: false
     });
 
     if (shipment.rates && shipment.rates.length > 0) {
       log(`Retrieved ${shipment.rates.length} shipping rates`, 'success');
-      const upsRates = shipment.rates.filter(r => r.provider === 'UPS');
+      const upsRates = shipment.rates.filter((r) => r.provider === 'UPS');
       log(`UPS rates available: ${upsRates.length}`, 'info');
 
       if (upsRates.length > 0) {
@@ -293,7 +295,9 @@ async function runTests() {
   console.log(`  Medusa:  ${results.medusa ? green + '✓' : red + '✗'}${reset}`);
   console.log(`  Sanity:  ${results.sanity ? green + '✓' : red + '✗'}${reset}`);
 
-  console.log(`\n${passed === total ? green : yellow}${passed}/${total} connections successful${reset}\n`);
+  console.log(
+    `\n${passed === total ? green : yellow}${passed}/${total} connections successful${reset}\n`
+  );
 
   if (passed === total) {
     console.log(`${green}${bright}🎉 All connections working! Ready for checkout testing.${reset}`);
@@ -308,7 +312,7 @@ async function runTests() {
   }
 }
 
-runTests().catch(error => {
+runTests().catch((error) => {
   console.error(`${red}Unexpected error:${reset}`, error);
   process.exit(1);
 });

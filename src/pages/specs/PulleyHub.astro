@@ -15,7 +15,7 @@ const specSheet = {
   description:
     'Engineered for Hellcat/Redeye/Demon/TRX platforms, this billet pulley & hub system delivers superior boost stability, strength, and fast ratio changes compared to press-fit OE assemblies.',
   imageSrc: '/images/billetParts/FAS-Pulley-Hub-Kit.webp',
-  imageAlt: 'FAS Motorsports Pulley & Hub Kit',
+  imageAlt: 'F.A.S. Motorsports Pulley & Hub Kit',
   specs: [
     { label: 'Hub Material', value: 'Chromoly steel, CNC-machined, plated' },
     { label: 'Pulley Material', value: 'Billet aluminum, hard anodized' },
@@ -67,21 +67,26 @@ const structuredData = {
   }))
 };
 ---
-<BaseLayout title={pageTitle} description={pageDescription} canonical={canonical} ogImage={ensureAbsolute(specSheet.imageSrc)}>
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  canonical={canonical}
+  ogImage={ensureAbsolute(specSheet.imageSrc)}
+>
   <Fragment slot="head">
     <meta property="og:type" content="product" />
-    <script
-      type="application/ld+json"
-      set:html={serializeJsonLd(structuredData)}
-    />
+    <script type="application/ld+json" set:html={serializeJsonLd(structuredData)} />
   </Fragment>
   <div {...inlineObjectId('content/pages/HellcatPulleyHubSpecSheet.json')}>
     <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>
       {pageTitle}
     </div>
-    {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
-      <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
-    )}
+    {
+      Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
+        <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
+      )
+    }
     <section class="mt-6 pt-6"></section>
     <ProductSpecSheet
       title={specSheet.title}
@@ -94,5 +99,4 @@ const structuredData = {
       ctaLabel={specSheet.ctaLabel}
     />
   </div>
-
 </BaseLayout>

@@ -1135,10 +1135,10 @@ if (product) {
 
   const secondaryTitleParts = [fitmentPhrase, primaryKeyword].filter(Boolean);
   const assembledTitle = secondaryTitleParts.length
-    ? [baseProductTitle, secondaryTitleParts.join(' '), 'FAS Motorsports']
+    ? [baseProductTitle, secondaryTitleParts.join(' '), 'F.A.S. Motorsports']
         .filter(Boolean)
         .join(' | ')
-    : `${baseProductTitle} | FAS Motorsports`;
+    : `${baseProductTitle} | F.A.S. Motorsports`;
   seoTitle = collapseSpaces(assembledTitle);
 
   const descriptionSegments: string[] = [];

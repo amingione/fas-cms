@@ -15,7 +15,8 @@ const title = service.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()
         <div class="max-w-4xl mx-auto text-center">
           <h1 class="text-4xl font-bold mb-4">{title}</h1>
           <p class="text-lg text-white/70 mb-8">
-            Book your {title} appointment with FAS Motorsports. Our team will confirm details after submission.
+            Book your {title} appointment with F.A.S. Motorsports. Our team will confirm details after
+            submission.
           </p>
           <BookingIframe client:load service={service} />
         </div>

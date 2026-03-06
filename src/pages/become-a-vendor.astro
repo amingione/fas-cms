@@ -190,7 +190,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <legend>Company Information</legend>
           <div class="form-group">
             <label for="companyName">Company Name *</label>
-            <input type="text" id="companyName" name="companyName" autocomplete="organization" required />
+            <input
+              type="text"
+              id="companyName"
+              name="companyName"
+              autocomplete="organization"
+              required
+            />
           </div>
 
           <div class="form-group">
@@ -208,7 +214,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
           <div class="form-group">
             <label for="website">Website</label>
-            <input type="url" id="website" name="website" autocomplete="url" placeholder="https://" />
+            <input
+              type="url"
+              id="website"
+              name="website"
+              autocomplete="url"
+              placeholder="https://"
+            />
           </div>
 
           <div class="form-row">
@@ -248,7 +260,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <div class="form-row">
             <div class="form-group">
               <label for="contactEmail">Email *</label>
-              <input type="email" id="contactEmail" name="contactEmail" autocomplete="email" required />
+              <input
+                type="email"
+                id="contactEmail"
+                name="contactEmail"
+                autocomplete="email"
+                required
+              />
             </div>
             <div class="form-group">
               <label for="contactPhone">Phone *</label>
@@ -271,7 +289,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             </div>
             <div class="form-group">
               <label for="state">State *</label>
-              <input type="text" id="state" name="state" maxlength="2" autocomplete="address-level1" placeholder="NY" required />
+              <input
+                type="text"
+                id="state"
+                name="state"
+                maxlength="2"
+                autocomplete="address-level1"
+                placeholder="NY"
+                required
+              />
             </div>
             <div class="form-group">
               <label for="zip">ZIP Code *</label>
@@ -332,7 +358,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </div>
 
           <div class="form-group">
-            <label for="referralSource">How did you hear about FAS Motorsports?</label>
+            <label for="referralSource">How did you hear about F.A.S. Motorsports?</label>
             <select id="referralSource" name="referralSource">
               <option value="">Select...</option>
               <option value="google">Google Search</option>
@@ -409,27 +435,27 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   </section>
 
   <script>
-  const vendorForm = document.getElementById('vendor-application-form') as HTMLFormElement | null;
+    const vendorForm = document.getElementById('vendor-application-form') as HTMLFormElement | null;
 
-  vendorForm?.addEventListener('submit', async (e: SubmitEvent) => {
-    e.preventDefault();
+    vendorForm?.addEventListener('submit', async (e: SubmitEvent) => {
+      e.preventDefault();
 
-    const form = e.currentTarget;
-    if (!(form instanceof HTMLFormElement)) return;
+      const form = e.currentTarget;
+      if (!(form instanceof HTMLFormElement)) return;
 
-    const formData = new FormData(form);
-    const button = form.querySelector('button[type="submit"]') as HTMLButtonElement | null;
-    const message = document.getElementById('form-message') as HTMLElement | null;
+      const formData = new FormData(form);
+      const button = form.querySelector('button[type="submit"]') as HTMLButtonElement | null;
+      const message = document.getElementById('form-message') as HTMLElement | null;
 
-    if (!message) return;
+      if (!message) return;
 
-    if (button) {
-      button.disabled = true;
-    }
-    const originalText = button?.textContent || 'Submit Application';
-    if (button) button.textContent = 'Submitting...';
-    message.innerHTML = '';
-    message.className = 'form-message';
+      if (button) {
+        button.disabled = true;
+      }
+      const originalText = button?.textContent || 'Submit Application';
+      if (button) button.textContent = 'Submitting...';
+      message.innerHTML = '';
+      message.className = 'form-message';
 
       try {
         const data = {
@@ -498,21 +524,21 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         }
         throw new Error(lastError);
       } catch (error) {
-      message.innerHTML = `
+        message.innerHTML = `
         <div class="error-content">
           <h3>Submission Failed</h3>
           <p>${error instanceof Error ? error.message : 'Something went wrong. Please try again.'}</p>
         </div>
       `;
-      message.className = 'form-message error';
-      message.style.display = 'block';
-    } finally {
-      if (button) {
-        button.disabled = false;
-        button.textContent = originalText;
+        message.className = 'form-message error';
+        message.style.display = 'block';
+      } finally {
+        if (button) {
+          button.disabled = false;
+          button.textContent = originalText;
+        }
       }
-    }
-  });
+    });
 
     // FAQ collapse/expand: toggle paragraphs, keep headers visible
     document.querySelectorAll('.faq-item').forEach((item) => {

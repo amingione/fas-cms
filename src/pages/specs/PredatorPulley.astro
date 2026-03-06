@@ -15,7 +15,7 @@ const specSheet = {
   description:
     'Slip-on lower pulley designed for quick install and repeatable traction. Delivers additional boost without requiring a calibration change on compatible setups.',
   imageSrc: '/images/billetParts/fas-pred-pully.webp',
-  imageAlt: 'FAS Motorsports Predator Pulley',
+  imageAlt: 'F.A.S. Motorsports Predator Pulley',
   specs: [
     { label: 'Material', value: 'Aluminum billet, heat-treated' },
     { label: 'Manufacturing', value: 'Multi-axis CNC for concentricity and finish' },
@@ -69,10 +69,7 @@ const structuredData = {
 >
   <Fragment slot="head">
     <meta property="og:type" content="product" />
-    <script
-      type="application/ld+json"
-      set:html={serializeJsonLd(structuredData)}
-    />
+    <script type="application/ld+json" set:html={serializeJsonLd(structuredData)} />
   </Fragment>
   <div {...inlineObjectId('content/pages/specs/PredatorPulley.json')}>
     <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>

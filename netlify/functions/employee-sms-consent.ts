@@ -7,8 +7,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const sanityClient = createClient({
   projectId: process.env.SANITY_PROJECT_ID || 'r4og35qd',
   dataset: process.env.SANITY_DATASET || 'production',
-  token:
-    process.env.SANITY_API_TOKEN || process.env.SANITY_TOKEN,
+  token: process.env.SANITY_API_TOKEN || process.env.SANITY_TOKEN,
   apiVersion: '2024-01-01',
   useCdn: false
 });
@@ -29,10 +28,7 @@ export const handler: Handler = async (event) => {
       };
     }
 
-    const ipAddress =
-      event.headers['x-forwarded-for'] ||
-      event.headers['x-real-ip'] ||
-      'unknown';
+    const ipAddress = event.headers['x-forwarded-for'] || event.headers['x-real-ip'] || 'unknown';
     const userAgent = event.headers['user-agent'] || 'unknown';
 
     const nameParts = full_name.trim().split(' ');
@@ -80,7 +76,7 @@ export const handler: Handler = async (event) => {
     }
 
     await resend.emails.send({
-      from: 'FAS Motorsports <no-reply@updates.fasmotorsports.com>',
+      from: 'F.A.S. Motorsports <no-reply@updates.fasmotorsports.com>',
       to: ['support@fasmotorsports.com'],
       subject: 'Employee SMS Consent Submitted',
       html: `

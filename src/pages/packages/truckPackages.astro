@@ -44,7 +44,6 @@ const primaryBadgeEntry = pageDoc?.hero?.primaryBadge ? { badge: pageDoc.hero.pr
 const secondaryBadgeEntries = Array.isArray(pageDoc?.hero?.secondaryBadges)
   ? pageDoc.hero.secondaryBadges.map((badge: string, idx: number) => ({ badge, idx }))
   : [];
-
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
@@ -55,7 +54,7 @@ const secondaryBadgeEntries = Array.isArray(pageDoc?.hero?.secondaryBadges)
   >
     <img
       src="/images/backgrounds/trx-hellcat.jpg"
-      alt="FAS Motorsports Truck Packages"
+      alt="F.A.S. Motorsports Truck Packages"
       class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none"
     />
     <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80"></div>
@@ -128,7 +127,8 @@ const secondaryBadgeEntries = Array.isArray(pageDoc?.hero?.secondaryBadges)
           </div>
           <h3 class="font-ethno text-primary">
             <span class="font-borg text-white">RaM</span> TRX <span
-              class="font-ethno text-base tracking-tight text-white">Builds</span>
+              class="font-ethno text-base tracking-tight text-white">Builds</span
+            >
           </h3>
           <div class="font-ethno text-base tracking-tight text-accent">
             <div class="my-2 font-mono text-base tracking-wide text-white/70">
@@ -140,7 +140,7 @@ const secondaryBadgeEntries = Array.isArray(pageDoc?.hero?.secondaryBadges)
           </div>
           <ul class="font-mono font-bold pt-4 text-base tracking-tight leading-snug">
             <li>
-              FAS Motorsports has built more TRX’s than anyone, delivering proven power packages
+              F.A.S. Motorsports has built more TRX’s than anyone, delivering proven power packages
               designed to dominate both street and strip.
             </li>
           </ul>
@@ -167,7 +167,8 @@ const secondaryBadgeEntries = Array.isArray(pageDoc?.hero?.secondaryBadges)
           </div>
           <h3 class="font-ethno text-primary">
             <span class="font-borg text-white">Ford</span> F‑150 <span
-              class="font-ethno text-base tracking-tight text-white">(2018+)</span>
+              class="font-ethno text-base tracking-tight text-white">(2018+)</span
+            >
           </h3>
           <div class="font-ethno text-base tracking-tight text-accent">
             <div class="my-2 font-mono text-base tracking-wide text-white/70">

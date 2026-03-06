@@ -2,14 +2,14 @@ const FALLBACK_SITE_URL = 'https://fasmotorsports.com/';
 const FALLBACK_IMAGE_URL = `${FALLBACK_SITE_URL}images/social/social-share.webp`;
 const FALLBACK_LOGO_URL = `${FALLBACK_SITE_URL}logo/fas-logo500.webp`;
 const FALLBACK_DESCRIPTION =
-  'F.A.S. Motorsports delivers billet upgrades, fabrication, installs, and premium performance packages from Fort Myers, Florida.';
+  'F.A.S. Motorsports delivers billet upgrades, fabrication, installs, and premium performance packages from Punta Gorda, Florida.';
 const DEFAULT_EMAIL = 'sales@fasmotorsports.com';
 const DEFAULT_PHONE = '+1-812-200-9012';
 
 const BUSINESS_ADDRESS = {
   '@type': 'PostalAddress',
   streetAddress: '6161 Riverside Dr',
-  addressLocality: 'Fort Myers',
+  addressLocality: 'Punta Gorda',
   addressRegion: 'FL',
   postalCode: '33982',
   addressCountry: 'US'

@@ -522,7 +522,7 @@ export default function CategoryPage({
                         </div>
                         <div className="shadow-white/20 drop-shadow shadow-md h-64 w-44 overflow-hidden rounded-lg">
                           <img
-                            alt="FAS Motorsports Blue TRX Supercharger"
+                            alt="F.A.S. Motorsports Blue TRX Supercharger"
                             src="/images/products/blue-trx.webp"
                             className="size-full object-cover"
                           />
@@ -531,21 +531,21 @@ export default function CategoryPage({
                       <div className="grid shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
                         <div className="shadow-white/20 drop-shadow shadow-md h-64 w-44 overflow-hidden rounded-lg">
                           <img
-                            alt="FAS Motorsports Supercharger Installed"
+                            alt="F.A.S. Motorsports Supercharger Installed"
                             src="/images/products/supercharger-installed.webp"
                             className="size-full object-cover"
                           />
                         </div>
                         <div className="h-64 w-44 overflow-hidden rounded-lg">
                           <img
-                            alt="FAS Motorsports red coated supercharger"
+                            alt="F.A.S. Motorsports red coated supercharger"
                             src="/images/products/billetParts.webp"
                             className="size-full object-cover"
                           />
                         </div>
                         <div className="h-64 w-44 overflow-hidden rounded-lg">
                           <img
-                            alt="FAS Motorsports black coated supercharger"
+                            alt="F.A.S. Motorsports black coated supercharger"
                             src="/images/products/supercharger-white.webp"
                             className="size-full object-cover"
                           />
@@ -554,14 +554,14 @@ export default function CategoryPage({
                       <div className="grid shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
                         <div className="h-64 w-44 overflow-hidden rounded-lg">
                           <img
-                            alt="FAS Motorsports red coated supercharger"
+                            alt="F.A.S. Motorsports red coated supercharger"
                             src="/images/products/supercharger-red.webp"
                             className="size-full object-cover"
                           />
                         </div>
                         <div className="h-64 w-44 overflow-hidden rounded-lg">
                           <img
-                            alt="FAS Motorsports white coated supercharger"
+                            alt="F.A.S. Motorsports white coated supercharger"
                             src="/images/products/customWeldedParts.webp"
                             className="size-full object-cover"
                           />
@@ -662,7 +662,7 @@ export default function CategoryPage({
           <div className="relative bg-gray-800 px-6 py-32 sm:px-12 sm:py-40 lg:px-16">
             <div className="absolute inset-0 overflow-hidden">
               <img
-                alt="hellcat charger FAS Motorsports"
+                alt="hellcat charger F.A.S. Motorsports"
                 src="/images/backgrounds/charger-category.webp"
                 style={{ filter: 'grayscale(60%) brightness(80%)' }}
                 className="size-full object-cover"

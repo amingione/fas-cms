@@ -17,7 +17,7 @@ const specSheet = {
   description:
     'High-flow, CNC-machined billet throttle body tuned for smooth driveability and repeatable airflow on high-boost builds.',
   imageSrc: '/images/billetParts/108mm-TB-fas.webp',
-  imageAlt: 'FAS Motorsports 108mm Billet Throttle Body',
+  imageAlt: 'F.A.S. Motorsports 108mm Billet Throttle Body',
   specs: [
     { label: 'Material', value: 'Billet aluminum, CNC-machined' },
     { label: 'Bore Class', value: '108 mm high-flow' },
@@ -62,22 +62,27 @@ const structuredData = {
   }))
 };
 ---
-<BaseLayout title={pageTitle} description={pageDescription} canonical={canonical} ogImage={ensureAbsolute(specSheet.imageSrc)}>
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  canonical={canonical}
+  ogImage={ensureAbsolute(specSheet.imageSrc)}
+>
   <Fragment slot="head">
     <meta property="og:type" content="product" />
-    <script
-      type="application/ld+json"
-      set:html={serializeJsonLd(structuredData)}
-    />
+    <script type="application/ld+json" set:html={serializeJsonLd(structuredData)} />
   </Fragment>
   <div {...inlineObjectId('content/pages/BilletThrottleBody108Specs.json')}>
     <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>
       {pageTitle}
     </div>
 
-    {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
-      <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
-    )}
+    {
+      Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
+        <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
+      )
+    }
 
     <section class="mt-5 pt-5">
       <ProductSpecSheet

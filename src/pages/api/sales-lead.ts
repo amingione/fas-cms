@@ -12,12 +12,20 @@ export async function POST({ request }: { request: Request }) {
   const returnTo = (data.get('returnTo') as string) || '';
 
   if (honeypot) {
-    return new Response(null, { status: 303, headers: { Location: (returnTo && returnTo.startsWith('/')) ? `${returnTo}?success=true` : '/contact?success=true' } });
+    return new Response(null, {
+      status: 303,
+      headers: {
+        Location:
+          returnTo && returnTo.startsWith('/')
+            ? `${returnTo}?success=true`
+            : '/contact?success=true'
+      }
+    });
   }
 
   try {
     await resend.emails.send({
-      from: 'FAS Motorsports <sales@updates.fasmotorsports.com>',
+      from: 'F.A.S. Motorsports <sales@updates.fasmotorsports.com>',
       to: ['sales@fasmotorsports.com'],
       subject: `New Sales Lead from ${name || 'Unknown'}`,
       replyTo: email || undefined,
@@ -36,16 +44,19 @@ export async function POST({ request }: { request: Request }) {
     return new Response(null, {
       status: 303,
       headers: {
-        Location: (returnTo && returnTo.startsWith('/')) ? `${returnTo}?success=true` : '/contact?success=true'
+        Location:
+          returnTo && returnTo.startsWith('/')
+            ? `${returnTo}?success=true`
+            : '/contact?success=true'
       }
     });
   } catch (error) {
     return new Response(null, {
       status: 303,
       headers: {
-        Location: (returnTo && returnTo.startsWith('/')) ? `${returnTo}?error=true` : '/contact?error=true'
+        Location:
+          returnTo && returnTo.startsWith('/') ? `${returnTo}?error=true` : '/contact?error=true'
       }
     });
   }
 }
-

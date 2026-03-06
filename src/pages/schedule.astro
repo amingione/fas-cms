@@ -40,10 +40,7 @@ const structuredData = {
 
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
   <Fragment slot="head">
-    <script
-      type="application/ld+json"
-      set:html={serializeJsonLd(structuredData)}
-    />
+    <script type="application/ld+json" set:html={serializeJsonLd(structuredData)} />
   </Fragment>
   <div {...inlineObjectId('content/pages/schedule.json')} class="bg-[#121212]">
     <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>
@@ -149,7 +146,7 @@ const structuredData = {
                 width="100%"
                 height="840"
                 class="block w-full min-h-[720px] md:min-h-[820px]"
-                title="FAS Motorsports Appointments"></iframe>
+                title="F.A.S. Motorsports Appointments"></iframe>
             </div>
           </div>
         </div>

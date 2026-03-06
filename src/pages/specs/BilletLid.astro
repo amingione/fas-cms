@@ -17,14 +17,17 @@ const specSheet = {
   description:
     'CNC-machined billet lid engineered for strength, improved airflow, and thermal stability under sustained boost.',
   imageSrc: '/images/billetParts/HC-Billet-SC-Lid.webp',
-  imageAlt: 'FAS Motorsports Billet Supercharger Lid',
+  imageAlt: 'F.A.S. Motorsports Billet Supercharger Lid',
   specs: [
     { label: 'Material', value: '6061-T6 billet aluminum, heat treated' },
     { label: 'Machining', value: '5-axis CNC, one-setup critical faces for alignment' },
     { label: 'Inlet Geometry', value: 'High-flow, blended transitions to reduce turbulence' },
     { label: 'Sealing', value: 'OE-spec sealing surfaces; gasket compatibility maintained' },
     { label: 'Finish', value: 'Anodized for corrosion resistance and heat management' },
-    { label: 'Compatibility', value: 'Gen III HEMI supercharged platforms; verify fitment per application' }
+    {
+      label: 'Compatibility',
+      value: 'Gen III HEMI supercharged platforms; verify fitment per application'
+    }
   ],
   about: [
     'The billet lid increases rigidity to help maintain rotor pack alignment during high belt loads, reducing distortion and improving long-term reliability.',
@@ -63,22 +66,27 @@ const structuredData = {
   }))
 };
 ---
-<BaseLayout title={pageTitle} description={pageDescription} canonical={canonical} ogImage={ensureAbsolute(specSheet.imageSrc)}>
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  canonical={canonical}
+  ogImage={ensureAbsolute(specSheet.imageSrc)}
+>
   <Fragment slot="head">
     <meta property="og:type" content="product" />
-    <script
-      type="application/ld+json"
-      set:html={serializeJsonLd(structuredData)}
-    />
+    <script type="application/ld+json" set:html={serializeJsonLd(structuredData)} />
   </Fragment>
   <div {...inlineObjectId('content/pages/BilletLidSpecsSheet.json')}>
     <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>
       {pageTitle}
     </div>
 
-    {Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
-      <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
-    )}
+    {
+      Array.isArray(pageDoc?.sections) && pageDoc.sections.length > 0 && (
+        <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
+      )
+    }
 
     <section class="mt-5 pt-5">
       <ProductSpecSheet

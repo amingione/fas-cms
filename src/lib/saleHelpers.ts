@@ -2,35 +2,35 @@ import { formatCents } from '@/lib/pricing';
 
 /**
  * ⚠️⚠️⚠️ CRITICAL PRICING WARNING ⚠️⚠️⚠️
- * 
- * Sale Helper Functions for FAS Motorsports
+ *
+ * Sale Helper Functions for F.A.S. Motorsports
  * Handles sale pricing logic, date validation, and badge text
- * 
+ *
  * **PRICING AUTHORITY MODEL:**
  * - Medusa: AUTHORITATIVE for ALL transactional pricing
  * - Sanity: Display metadata only (sale badges, UI labels)
- * 
+ *
  * **THESE FUNCTIONS ARE FOR DISPLAY PURPOSES ONLY**
- * 
+ *
  * ✅ ALLOWED:
  * - Product card displays
  * - Price labels in UI
  * - Sale badges and indicators
  * - Marketing content
- * 
+ *
  * ❌ FORBIDDEN:
  * - Cart operations
  * - Checkout calculations
  * - Payment processing
  * - Any backend pricing logic
  * - Creating Stripe prices
- * 
+ *
  * **FOR TRANSACTIONAL PRICING:**
  * Use Medusa APIs exclusively:
  * - GET /store/products (for product prices)
  * - GET /store/carts/:id (for cart totals)
  * - POST /api/medusa/payments/create-intent (for checkout)
- * 
+ *
  * Violations of this rule will cause pricing bugs ($19 fallback issue).
  */
 
@@ -96,9 +96,7 @@ export function getSaleBadgeText(product?: SaleAwareProduct): string | null {
   }
 
   const discount =
-    getField(product, 'discountPercent') ??
-    getField(product, 'discountPercentage') ??
-    null;
+    getField(product, 'discountPercent') ?? getField(product, 'discountPercentage') ?? null;
   if (typeof discount === 'number' && Number.isFinite(discount) && discount > 0) {
     return `${discount}% OFF`;
   }
@@ -161,10 +159,12 @@ export function filterOnSaleProducts<T extends SaleAwareProduct>(products: T[]):
 export function sortByDiscount<T extends SaleAwareProduct>(products: T[]): T[] {
   return Array.isArray(products)
     ? [...products].sort((a, b) => {
-        const discountA =
-          (getField(a, 'discountPercent') ?? getField(a, 'discountPercentage') ?? 0) as number;
-        const discountB =
-          (getField(b, 'discountPercent') ?? getField(b, 'discountPercentage') ?? 0) as number;
+        const discountA = (getField(a, 'discountPercent') ??
+          getField(a, 'discountPercentage') ??
+          0) as number;
+        const discountB = (getField(b, 'discountPercent') ??
+          getField(b, 'discountPercentage') ??
+          0) as number;
         return (discountB || 0) - (discountA || 0);
       })
     : [];

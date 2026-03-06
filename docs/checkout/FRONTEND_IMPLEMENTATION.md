@@ -8,7 +8,7 @@
 
 ## Overview
 
-This document describes the frontend implementation of the single-page checkout flow for the FAS Motorsports commerce system, following the specification in `docs/checkout/checkout-flow-spec.md`.
+This document describes the frontend implementation of the single-page checkout flow for the F.A.S. Motorsports commerce system, following the specification in `docs/checkout/checkout-flow-spec.md`.
 
 ## Architecture
 
