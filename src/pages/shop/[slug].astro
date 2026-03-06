@@ -791,9 +791,7 @@ try {
     resolvedMedusaVariantId =
       typeof (medusaVariant as any)?.id === 'string' && (medusaVariant as any).id.trim()
         ? (medusaVariant as any).id.trim()
-        : typeof (product as any)?.medusaVariantId === 'string' && (product as any).medusaVariantId.trim()
-          ? (product as any).medusaVariantId.trim()
-          : null;
+        : null;
     const calculated = (medusaVariant as any)?.calculated_price;
     const calculatedAmount = resolveProductCalculatedPriceAmount(product as any);
     const originalAmount =
