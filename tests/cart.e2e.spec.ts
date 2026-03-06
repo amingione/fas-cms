@@ -68,6 +68,27 @@ function createBrowserHarness() {
       } as any;
     }
 
+    if (url === '/api/cart/cart_e2e_123') {
+      const raw = storage.get('fas_cart_v1');
+      const parsed = raw ? JSON.parse(raw) : { items: [] };
+      const localItems = Array.isArray(parsed?.items) ? parsed.items : [];
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          cart: {
+            id: 'cart_e2e_123',
+            items: localItems.map((item: any) => ({
+              id: `line_${item.id}`,
+              local_item_id: item.id,
+              medusa_variant_id: item.medusaVariantId,
+              quantity: item.quantity ?? 1
+            }))
+          }
+        })
+      } as any;
+    }
+
     return {
       ok: false,
       status: 500,

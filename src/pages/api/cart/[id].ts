@@ -6,6 +6,12 @@ import type { APIRoute } from 'astro'
 import { medusaFetch, readJsonSafe } from '@/lib/medusa'
 import { normalizeCartTotals, toCentsStrict } from '@/lib/money'
 
+const GUEST_CART_ID_MIN_LENGTH = 16
+
+function isLikelyBearerCartId(value: string): boolean {
+  return /^[A-Za-z0-9_-]+$/.test(value) && value.length >= GUEST_CART_ID_MIN_LENGTH
+}
+
 function asString(value: unknown): string | null {
   if (typeof value !== 'string') return null
   const trimmed = value.trim()
@@ -111,11 +117,19 @@ function resolveItemShippingClass(item: any): string | null {
 
 export const GET: APIRoute = async ({ params }) => {
   try {
-    const cartId = params.id
+    const cartId = typeof params.id === 'string' ? params.id.trim() : ''
 
     if (!cartId) {
       return new Response(
         JSON.stringify({ error: 'Cart ID is required' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+    // Guest-checkout decision: cart IDs are capability tokens and auth is optional by design.
+    // Guardrail: reject malformed/low-entropy IDs and avoid logging raw cart IDs.
+    if (!isLikelyBearerCartId(cartId)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid cart ID' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       )
     }
@@ -139,6 +153,24 @@ export const GET: APIRoute = async ({ params }) => {
     }
 
     // Transform Medusa cart to our format
+    const hasExplicitDiscounts =
+      (Array.isArray((medusaData?.cart as any)?.discounts) &&
+        (medusaData.cart as any).discounts.length > 0) ||
+      (Array.isArray((medusaData?.cart as any)?.promotions) &&
+        (medusaData.cart as any).promotions.length > 0)
+    const discountCents = hasExplicitDiscounts
+      ? toCentsStrict(medusaData.cart.discount_total, 'cart.discount_total') ?? 0
+      : 0
+    const medusaSubtotalCents =
+      toCentsStrict(medusaData.cart.subtotal, 'cart.subtotal') ?? 0
+    const medusaTaxCents =
+      toCentsStrict(medusaData.cart.tax_total, 'cart.tax_total') ?? 0
+    const medusaShippingCents =
+      toCentsStrict(medusaData.cart.shipping_total, 'cart.shipping_total') ?? 0
+    const medusaTotalCents =
+      toCentsStrict(medusaData.cart.total, 'cart.total') ??
+      Math.max(0, medusaSubtotalCents + medusaShippingCents + medusaTaxCents - discountCents)
+
     const cart = {
       id: medusaData.cart.id,
       items: medusaData.cart.items.map((item: any) => ({
@@ -161,39 +193,13 @@ export const GET: APIRoute = async ({ params }) => {
         install_only: resolveItemInstallOnly(item),
         shipping_class: resolveItemShippingClass(item)
       })),
-      subtotal_cents: 0,
-      tax_amount_cents:
-        toCentsStrict(medusaData.cart.tax_total, 'cart.tax_total') ??
-        Math.max(
-          0,
-          (toCentsStrict(medusaData.cart.total, 'cart.total') ?? 0) -
-            (toCentsStrict(medusaData.cart.subtotal, 'cart.subtotal') ?? 0) -
-            (toCentsStrict(medusaData.cart.shipping_total, 'cart.shipping_total') ?? 0)
-        ),
-      shipping_amount_cents:
-        toCentsStrict(medusaData.cart.shipping_total, 'cart.shipping_total') ?? 0,
-      total_cents: 0,
+      subtotal_cents: medusaSubtotalCents,
+      tax_amount_cents: medusaTaxCents,
+      shipping_amount_cents: medusaShippingCents,
+      discount_amount_cents: discountCents,
+      total_cents: medusaTotalCents,
       email: medusaData.cart.email
     }
-
-    const subtotalCents = cart.items.reduce(
-      (sum: number, item: any) =>
-        sum + Math.max(0, toCentsStrict(item.total, 'item.total') ?? 0),
-      0
-    )
-    const hasExplicitDiscounts =
-      (Array.isArray((medusaData?.cart as any)?.discounts) &&
-        (medusaData.cart as any).discounts.length > 0) ||
-      (Array.isArray((medusaData?.cart as any)?.promotions) &&
-        (medusaData.cart as any).promotions.length > 0)
-    const discountCents = hasExplicitDiscounts
-      ? toCentsStrict(medusaData.cart.discount_total, 'cart.discount_total') ?? 0
-      : 0
-    cart.subtotal_cents = subtotalCents
-    cart.total_cents = Math.max(
-      0,
-      subtotalCents + cart.shipping_amount_cents + cart.tax_amount_cents - discountCents
-    )
 
     return new Response(
       JSON.stringify({ cart }),

@@ -40,6 +40,10 @@ const setCart = (cart) => {
   try {
     window.localStorage.setItem(CART_KEY, JSON.stringify(cart));
     window.cart = cart;
+    console.info('[cart-debug] cart write', {
+      source: 'product-page',
+      itemCount: Array.isArray(cart?.items) ? cart.items.length : 0
+    });
   } catch {
     /* noop */
   }

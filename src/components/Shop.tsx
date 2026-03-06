@@ -5,6 +5,7 @@ import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import ProductCard from '@components/ProductCard';
+import { getCart as getSharedCart } from '@components/cart/actions';
 
 import {
   Search,
@@ -206,9 +207,8 @@ export default function Shop({
   useEffect(() => {
     const updateCartCount = () => {
       try {
-        const raw = localStorage.getItem('fas_cart_v1');
-        const parsed = raw ? JSON.parse(raw) : null;
-        const items: any[] = parsed && Array.isArray(parsed.items) ? parsed.items : [];
+        const cart = getSharedCart();
+        const items: any[] = Array.isArray(cart?.items) ? cart.items : [];
         const count = items.reduce((total: number, item: any) => total + (item.quantity || 0), 0);
         setCartItems(count);
       } catch {

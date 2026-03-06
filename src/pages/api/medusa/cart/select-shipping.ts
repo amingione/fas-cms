@@ -21,6 +21,12 @@ function normalizeShippingClass(value: unknown): string {
     .replace(/[^a-z0-9]/g, '');
 }
 
+const GUEST_CART_ID_MIN_LENGTH = 16;
+
+function isLikelyBearerCartId(value: string): boolean {
+  return /^[A-Za-z0-9_-]+$/.test(value) && value.length >= GUEST_CART_ID_MIN_LENGTH;
+}
+
 function itemRequiresShipping(item: any): boolean {
   const directInstall = parseBooleanLike(item?.install_only);
   if (directInstall === true) return false;
@@ -84,6 +90,11 @@ export const POST: APIRoute = async ({ request }) => {
 
   if (!cartId || !optionId) {
     return jsonResponse({ error: 'Missing cartId or optionId.' }, { status: 400 }, { noIndex: true });
+  }
+  // Guest-checkout decision: cart IDs are capability tokens and auth is optional by design.
+  // Guardrail: reject malformed/low-entropy IDs and avoid logging raw cart IDs.
+  if (!isLikelyBearerCartId(cartId)) {
+    return jsonResponse({ error: 'Invalid cartId.' }, { status: 400 }, { noIndex: true });
   }
 
   // Service/package carts can be intentionally non-shippable. In that case this

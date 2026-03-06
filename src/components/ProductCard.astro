@@ -116,6 +116,10 @@ const cartMeta = resolveProductCartMeta(product);
     function saveCart(cart) {
       try {
         localStorage.setItem(CART_KEY, JSON.stringify(cart));
+        console.info('[cart-debug] cart write', {
+          source: 'product-card',
+          itemCount: Array.isArray(cart?.items) ? cart.items.length : 0
+        });
       } catch {}
       // Notify global cart context
       try {

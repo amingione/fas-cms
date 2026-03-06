@@ -167,6 +167,10 @@ async function syncMedusaCartAttempt(
 
   const cartId = await ensureMedusaCartId();
   if (!cartId) return { ok: false, error: 'Failed to initialize Medusa cart.' };
+  console.info('[cart-debug] before medusa sync', {
+    itemCount: sanitizedCart.length,
+    attempt
+  });
 
   try {
     const response = await fetch('/api/medusa/cart/add-item', {
@@ -174,9 +178,9 @@ async function syncMedusaCartAttempt(
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ cartId, cart: { items: sanitizedCart } })
     });
+    const payload = await response.json().catch(() => null);
 
     if (!response.ok) {
-      const payload = await response.json().catch(() => null);
       console.warn('[lib/cart] Medusa cart sync failed', {
         status: response.status,
         error: payload?.error,
@@ -199,6 +203,10 @@ async function syncMedusaCartAttempt(
 
       return { ok: false, error: payload?.error || 'Failed to sync cart with checkout.' };
     }
+    console.info('[cart-debug] after medusa sync response', {
+      ok: true,
+      itemCount: Array.isArray(payload?.cart?.items) ? payload.cart.items.length : undefined
+    });
     return { ok: true };
   } catch (error) {
     console.warn('[lib/cart] Medusa cart sync exception', error);
@@ -261,6 +269,7 @@ export function saveCart(cart: CartItem[]): void {
     if (isBrowser()) {
       localStorage.setItem(CART_KEY, JSON.stringify({ items: cart }));
     }
+    console.info('[cart-debug] cart write', { itemCount: cart.length });
     emitCartUpdated(cart);
     void syncMedusaCart(cart);
   } catch (error) {
@@ -299,6 +308,11 @@ export function addItem(item: CartItem): CartItem[] {
   } else {
     cart.push({ ...normalizedItem, quantity: normalizedItem.quantity || 1 });
   }
+  console.info('[cart-debug] cart write', {
+    action: 'add',
+    itemId: normalizedItem.id,
+    itemCount: cart.length
+  });
   saveCart(cart);
   return cart;
 }

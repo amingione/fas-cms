@@ -1,9 +1,13 @@
-import { MEDUSA_CART_ID_KEY } from '@/lib/medusa';
-
-// Cart actions for Astro + client-side cart (localStorage).
-// These helpers are safe to import in client components. No Next.js/Shopify deps.
-
-const CART_KEY = 'fas_cart_v1';
+import {
+  CART_EVENT,
+  CART_KEY,
+  addItem as addCanonicalItem,
+  ensureMedusaCartId,
+  getCart as getCanonicalCart,
+  saveCart as saveCanonicalCart,
+  syncMedusaCart,
+  type CartItem as CanonicalCartItem
+} from '@/lib/cart';
 
 export type SelectedUpgradeDetailed = {
   label: string;
@@ -11,32 +15,7 @@ export type SelectedUpgradeDetailed = {
   medusaOptionValueId: string;
 };
 
-export type CartItem = {
-  id: string; // product or variant id
-  name?: string;
-  price?: number; // unit price in cents (display-only; source of truth remains on server)
-  originalPrice?: number;
-  basePrice?: number;
-  extra?: number;
-  isOnSale?: boolean;
-  saleLabel?: string;
-  quantity: number;
-  image?: string;
-  options?: Record<string, string>; // e.g., { color: 'Red', size: 'L' }
-  selectedOptions?: string[];
-  selectedUpgrades?: string[];
-  selectedUpgradesDetailed?: SelectedUpgradeDetailed[];
-  installOnly?: boolean;
-  shippingClass?: string;
-  shippingWeight?: number;
-  shippingDimensions?: { length?: number; width?: number; height?: number };
-  productUrl?: string;
-  sku?: string;
-  stripePriceId?: string;
-  medusaVariantId?: string;
-  productId?: string;
-  productSlug?: string;
-  upgrades?: unknown;
+export type CartItem = CanonicalCartItem & {
   medusaLineItemId?: string;
 };
 
@@ -66,20 +45,13 @@ function normalizeLocalItemId(input: unknown): string {
 function ensureStringArray(value: unknown): string[] {
   if (Array.isArray(value)) {
     return value
-      .map((entry) => (typeof entry === 'string' ? entry : entry && typeof entry === 'object' ? String((entry as any).value ?? (entry as any).label ?? '') : ''))
-      .map((entry) => entry.trim())
-      .filter(Boolean);
-  }
-  if (value && typeof value === 'object') {
-    return Object.entries(value)
-      .map(([key, entry]) => {
-        if (typeof entry === 'string') return `${key}: ${entry}`;
-        if (entry && typeof entry === 'object') {
-          const normalized = (entry as any).label ?? (entry as any).value;
-          return normalized ? `${key}: ${String(normalized)}` : '';
-        }
-        return '';
-      })
+      .map((entry) =>
+        typeof entry === 'string'
+          ? entry
+          : entry && typeof entry === 'object'
+            ? String((entry as any).value ?? (entry as any).label ?? '')
+            : ''
+      )
       .map((entry) => entry.trim())
       .filter(Boolean);
   }
@@ -104,271 +76,74 @@ function ensureSelectedUpgradesDetailed(value: unknown): SelectedUpgradeDetailed
           : typeof priceCentsRaw === 'string'
             ? Number(priceCentsRaw)
             : NaN;
-      if (!Number.isFinite(parsedPrice)) return null;
+      if (!Number.isFinite(parsedPrice) || !label) return null;
       const priceCents = Math.round(parsedPrice);
       const medusaOptionValueId = String(rec.medusaOptionValueId ?? '').trim();
-      if (!label) return null;
       return { label, priceCents, medusaOptionValueId };
     })
     .filter((entry): entry is SelectedUpgradeDetailed => Boolean(entry));
 }
 
-function normalizeCartItemUpgrades(item: CartItem): { item: CartItem; changed: boolean } {
-  const detailed = ensureSelectedUpgradesDetailed((item as any).selectedUpgradesDetailed);
-  if (!detailed.length) return { item, changed: false };
+function emitCartChanged(cart: Cart) {
+  if (!isBrowser()) return;
+  try {
+    window.dispatchEvent(new CustomEvent(CART_EVENT, { detail: { cart } }));
+  } catch {
+    // no-op
+  }
+}
 
-  let changed = false;
-  const normalized = detailed.map((entry) => {
-    let next = entry.priceCents;
-    // Legacy bad state used dollars in a cents field (e.g. 60 interpreted/displayed as $0.60).
-    if (next > 0 && next < 100) {
-      next = next * 100;
-      changed = true;
-    }
-    return next === entry.priceCents ? entry : { ...entry, priceCents: next };
-  });
+function writeCartState(cart: Cart) {
+  if (!isBrowser()) return;
+  try {
+    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  } catch {
+    // no-op
+  }
+  emitCartChanged(cart);
+}
 
-  if (!changed) return { item, changed: false };
+function toDisplayCart(items: CanonicalCartItem[]): Cart {
+  const subtotal = items.reduce((sum, item) => {
+    const price = typeof item.price === 'number' && Number.isFinite(item.price) ? item.price : 0;
+    const qty = typeof item.quantity === 'number' && Number.isFinite(item.quantity) ? item.quantity : 0;
+    return sum + price * Math.max(0, qty);
+  }, 0);
   return {
-    item: {
-      ...item,
-      selectedUpgradesDetailed: normalized,
-      upgrades: normalized.map((entry) => ({
-        label: entry.label,
-        value: entry.label,
-        price: entry.priceCents,
-        priceCents: entry.priceCents,
-        medusaOptionValueId: entry.medusaOptionValueId
-      }))
-    },
-    changed: true
+    items: items as CartItem[],
+    totals: {
+      subtotal,
+      tax_total: 0,
+      shipping_total: 0,
+      discount_total: 0,
+      total: subtotal
+    }
   };
 }
 
 export function getCart(): Cart {
-  if (!isBrowser()) return { items: [] };
-  try {
-    const raw = localStorage.getItem(CART_KEY);
-    if (!raw) return { items: [] };
-    const parsed = JSON.parse(raw);
-    if (parsed && Array.isArray(parsed.items)) {
-      const base = parsed as Cart;
-      let changed = false;
-      const nextItems = base.items.map((item) => {
-        const nextId = normalizeLocalItemId((item as CartItem)?.id);
-        const idChanged = nextId !== String((item as CartItem)?.id || '');
-        const normalized = normalizeCartItemUpgrades({
-          ...(item as CartItem),
-          id: nextId || String((item as CartItem)?.id || '')
-        });
-        if (idChanged) changed = true;
-        if (normalized.changed) changed = true;
-        return normalized.item;
-      });
-      if (changed) {
-        const healed = { ...base, items: nextItems };
-        localStorage.setItem(CART_KEY, JSON.stringify(healed));
-        queueMicrotask(() => {
-          void syncMedusaCart(healed);
-        });
-        return healed;
-      }
-      return base;
-    }
-    return { items: [] };
-  } catch {
-    return { items: [] };
-  }
+  return toDisplayCart(getCanonicalCart());
 }
 
-function saveCart(cart: Cart) {
-  if (!isBrowser()) return;
-  localStorage.setItem(CART_KEY, JSON.stringify(cart));
-  // Notify listeners (e.g., floating cart) that cart has changed
-  try {
-    window.dispatchEvent(new CustomEvent('cart:changed', { detail: { cart } }));
-  } catch (error) {
-    void error;
-  }
-}
-
-function readMedusaCartId(): string | null {
-  if (!isBrowser()) return null;
-  const raw = localStorage.getItem(MEDUSA_CART_ID_KEY);
-  return raw && raw.trim() ? raw.trim() : null;
-}
-
-function writeMedusaCartId(cartId: string) {
-  if (!isBrowser()) return;
-  localStorage.setItem(MEDUSA_CART_ID_KEY, cartId);
-}
-
-async function ensureMedusaCartId(): Promise<string | null> {
-  const existing = readMedusaCartId();
-  if (existing) return existing;
-  try {
-    const response = await fetch('/api/medusa/cart/create', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({})
-    });
-    const data = await response.json().catch(() => null);
-    const cartId = data?.cartId;
-    if (response.ok && typeof cartId === 'string' && cartId.trim()) {
-      writeMedusaCartId(cartId.trim());
-      return cartId.trim();
-    }
-  } catch (error) {
-    void error;
-  }
-  return null;
-}
-
-type SyncMedusaCartResult = { ok: boolean; error?: string };
-
-async function syncMedusaCart(cart: Cart): Promise<SyncMedusaCartResult> {
-  if (!isBrowser()) return { ok: false, error: 'Cart is unavailable in this environment.' };
-  const cartId = await ensureMedusaCartId();
-  if (!cartId) {
-    console.error('[Cart] Failed to get or create Medusa cart ID');
-    return { ok: false, error: 'Failed to initialize cart.' };
-  }
-
-  try {
-    console.log('[Cart] Syncing to Medusa cart:', cartId, 'Items:', cart.items.length);
-    const response = await fetch('/api/medusa/cart/add-item', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cartId, cart })
-    });
-    const payload = await response.json().catch(() => null);
-
-    if (!response.ok) {
-      console.error('[Cart] Medusa sync failed:', response.status, payload);
-      return { ok: false, error: payload?.error || 'Failed to sync cart with checkout.' };
-    }
-
-    console.log('[Cart] Medusa sync successful');
-    try {
-      window.dispatchEvent(new CustomEvent('cart:medusa-synced', { detail: { cartId } }));
-    } catch (error) {
-      void error;
-    }
-    const mappings = Array.isArray(payload?.mappings) ? payload.mappings : [];
-    const next = getCart();
-
-    if (mappings.length) {
-      let changed = false;
-      for (const map of mappings) {
-        const idx = next.items.findIndex((item) => item.id === map.id);
-        if (idx >= 0 && !next.items[idx].medusaVariantId) {
-          next.items[idx].medusaVariantId = map.medusaVariantId;
-          changed = true;
-        }
-      }
-      if (changed) saveCart(next);
-    }
-
-    // ✅ Medusa is authoritative: pull prices + totals from server cart response
-    const serverCart = payload?.cart;
-    if (serverCart && Array.isArray(serverCart.items)) {
-      const byVariant = new Map<string, any>();
-      const byLocalId = new Map<string, any>();
-      for (const item of serverCart.items) {
-        if (typeof item?.variant_id === 'string') {
-          byVariant.set(item.variant_id, item);
-        }
-        const localId = item?.metadata?.local_item_id;
-        if (typeof localId === 'string') {
-          byLocalId.set(localId, item);
-        }
-      }
-
-      let changed = false;
-      next.items = next.items.map((item) => {
-        const serverItem =
-          (item.medusaVariantId ? byVariant.get(item.medusaVariantId) : undefined) ??
-          byLocalId.get(item.id);
-        if (!serverItem) return item;
-
-        const serverUnitPrice =
-          typeof serverItem.unit_price === 'number' ? serverItem.unit_price : item.price;
-        const unitPrice =
-          typeof serverUnitPrice === 'number' && Number.isFinite(serverUnitPrice)
-            ? serverUnitPrice
-            : item.price;
-        const quantity = typeof serverItem.quantity === 'number' ? serverItem.quantity : item.quantity;
-        const name = typeof serverItem.title === 'string' ? serverItem.title : item.name;
-        const medusaLineItemId =
-          typeof serverItem.id === 'string' ? serverItem.id : item.medusaLineItemId;
-
-        if (unitPrice !== item.price || quantity !== item.quantity || name !== item.name || medusaLineItemId !== item.medusaLineItemId) {
-          changed = true;
-        }
-
-        return {
-          ...item,
-          price: unitPrice,
-          quantity,
-          name,
-          medusaLineItemId
-        };
-      });
-
-      const derivedSubtotal = next.items.reduce((sum, entry) => {
-        const unit = typeof entry.price === 'number' && Number.isFinite(entry.price) ? entry.price : 0;
-        const qty = typeof entry.quantity === 'number' && Number.isFinite(entry.quantity) ? entry.quantity : 0;
-        return sum + unit * qty;
-      }, 0);
-      const serverSubtotal =
-        typeof serverCart.subtotal === 'number' && Number.isFinite(serverCart.subtotal)
-          ? serverCart.subtotal
-          : 0;
-      const subtotal = Math.max(serverSubtotal, derivedSubtotal);
-      const shippingTotal =
-        typeof serverCart.shipping_total === 'number' && Number.isFinite(serverCart.shipping_total)
-          ? serverCart.shipping_total
-          : 0;
-      const taxTotal =
-        typeof serverCart.tax_total === 'number' && Number.isFinite(serverCart.tax_total)
-          ? serverCart.tax_total
-          : 0;
-      const hasExplicitDiscounts =
-        (Array.isArray((serverCart as any)?.discounts) && (serverCart as any).discounts.length > 0) ||
-        (Array.isArray((serverCart as any)?.promotions) && (serverCart as any).promotions.length > 0);
-      const rawDiscountTotal =
-        typeof serverCart.discount_total === 'number' && Number.isFinite(serverCart.discount_total)
-          ? serverCart.discount_total
-          : 0;
-      const discountTotal = hasExplicitDiscounts ? rawDiscountTotal : 0;
-      const total = subtotal + shippingTotal + taxTotal - discountTotal;
-
-      next.totals = {
-        subtotal,
-        tax_total: taxTotal,
-        shipping_total: shippingTotal,
-        discount_total: discountTotal,
-        total,
-        original_total: serverCart.original_total
-      };
-
-      saveCart(next);
-    }
-    return { ok: true };
-  } catch (error) {
-    console.error('[Cart] Medusa sync exception:', error);
-    return { ok: false, error: 'Failed to sync cart with checkout.' };
-  }
+async function syncDisplayCart(cart: Cart): Promise<{ ok: boolean; error?: string }> {
+  console.info('[cart-debug] before medusa sync', { itemCount: cart.items.length, source: 'actions' });
+  const result = await syncMedusaCart(cart.items as CanonicalCartItem[]);
+  console.info('[cart-debug] after medusa sync response', {
+    ok: result.ok,
+    source: 'actions',
+    hasError: Boolean(result.error)
+  });
+  return result;
 }
 
 function normalizeId(input: any): string | undefined {
   if (!input) return undefined;
   if (typeof input === 'string') return normalizeLocalItemId(input);
-  if (typeof input === 'object')
+  if (typeof input === 'object') {
     return normalizeLocalItemId(input.id || input.selectedVariantId || input.productId);
+  }
 }
 
-// Add item: accepts either a string id or a payload object
 export async function addItem(
   _prevState: any,
   payload:
@@ -380,120 +155,76 @@ export async function addItem(
   if (typeof payload !== 'object') {
     return 'Please select a product variant before adding this item to your cart.';
   }
+
   const medusaVariantId = payload.medusaVariantId;
   if (!medusaVariantId || typeof medusaVariantId !== 'string') {
     return 'Please select a product variant before adding this item to your cart.';
   }
 
-  // ✅ MEDUSA-FIRST PRICING ENFORCEMENT
-  // Block cart additions if price is undefined, null, 0, or invalid
-  if (
-    typeof payload.price !== 'number' ||
-    !Number.isFinite(payload.price) ||
-    payload.price <= 0
-  ) {
-    console.error('[cart/actions] BLOCKED: Invalid price for cart item', {
-      id,
-      price: payload.price,
-      priceType: typeof payload.price,
-      medusaVariantId,
-      name: payload.name
-    });
+  if (typeof payload.price !== 'number' || !Number.isFinite(payload.price) || payload.price <= 0) {
     return 'This product cannot be added to cart. Price information is missing or invalid.';
   }
 
-  const qty =
-    typeof payload === 'object' && typeof payload.quantity === 'number' ? payload.quantity! : 1;
-  const selectedOptions = ensureStringArray(
-    typeof payload === 'object'
-      ? payload.selectedOptions ?? ensureStringArray((payload as any)?.options)
-      : []
-  );
-  const selectedUpgrades = ensureStringArray(
-    typeof payload === 'object' ? payload.selectedUpgrades ?? (payload as any)?.upgrades : []
-  );
+  const qty = typeof payload.quantity === 'number' ? payload.quantity : 1;
+  const selectedOptions = ensureStringArray(payload.selectedOptions ?? (payload as any)?.options);
+  const selectedUpgrades = ensureStringArray(payload.selectedUpgrades ?? (payload as any)?.upgrades);
   const selectedUpgradesDetailed = ensureSelectedUpgradesDetailed(
-    typeof payload === 'object' ? (payload as any).selectedUpgradesDetailed : []
+    (payload as any).selectedUpgradesDetailed
   );
   if (selectedUpgrades.length > 0 && selectedUpgradesDetailed.length === 0) {
     return 'One of the options you selected is not available for checkout right now. Please remove that option and try again.';
   }
-  // Allow legacy items that only carry add-on labels; server-side sync can map labels to
-  // current Medusa option value IDs before checkout.
-  const cart = getCart();
-  const idx = cart.items.findIndex((it) => it.id === id);
-  if (idx >= 0) {
-    cart.items[idx].quantity = Math.max(1, (cart.items[idx].quantity || 0) + qty);
-    if (typeof payload === 'object') {
-      if (typeof payload.installOnly === 'boolean') cart.items[idx].installOnly = payload.installOnly;
-      if (typeof payload.shippingClass === 'string') cart.items[idx].shippingClass = payload.shippingClass;
-      if (typeof payload.shippingWeight === 'number') cart.items[idx].shippingWeight = payload.shippingWeight;
-      if (payload.shippingDimensions && typeof payload.shippingDimensions === 'object') {
-        cart.items[idx].shippingDimensions = payload.shippingDimensions as CartItem['shippingDimensions'];
-      }
-      if (typeof payload.productUrl === 'string') cart.items[idx].productUrl = payload.productUrl;
-      if (selectedOptions.length) cart.items[idx].selectedOptions = selectedOptions;
-      if (selectedUpgrades.length) cart.items[idx].selectedUpgrades = selectedUpgrades;
-      if (selectedUpgradesDetailed.length) {
-        cart.items[idx].selectedUpgradesDetailed = selectedUpgradesDetailed;
-      }
-      if (payload.options) cart.items[idx].options = payload.options;
-      if (payload.sku) cart.items[idx].sku = payload.sku;
-      if (payload.stripePriceId) cart.items[idx].stripePriceId = payload.stripePriceId;
-      if (payload.medusaVariantId) cart.items[idx].medusaVariantId = payload.medusaVariantId;
-      if (payload.productId) cart.items[idx].productId = payload.productId;
-      if (payload.productSlug) cart.items[idx].productSlug = payload.productSlug;
-      if (typeof payload.basePrice === 'number') cart.items[idx].basePrice = payload.basePrice;
-      if (typeof payload.extra === 'number') cart.items[idx].extra = payload.extra;
-      // ✅ Price is already validated above - only update if valid
-      if (typeof payload.price === 'number' && payload.price > 0) {
-        cart.items[idx].price = payload.price;
-      }
-      if (typeof payload.originalPrice === 'number') cart.items[idx].originalPrice = payload.originalPrice;
-      if (typeof payload.isOnSale === 'boolean') cart.items[idx].isOnSale = payload.isOnSale;
-      if (typeof payload.saleLabel === 'string') cart.items[idx].saleLabel = payload.saleLabel;
-    }
-  } else {
-    // ✅ New item - price is guaranteed valid from validation above
-    cart.items.push({
-      id,
-      name: typeof payload === 'object' ? payload.name : undefined,
-      price: payload.price, // ✅ Guaranteed to be valid number > 0
-      originalPrice: typeof payload === 'object' ? payload.originalPrice : undefined,
-      isOnSale: typeof payload === 'object' ? payload.isOnSale : undefined,
-      saleLabel: typeof payload === 'object' ? payload.saleLabel : undefined,
-      image: typeof payload === 'object' ? payload.image : undefined,
-      options: typeof payload === 'object' ? payload.options : undefined,
-      selectedOptions,
-      selectedUpgrades,
-      selectedUpgradesDetailed,
-      basePrice: typeof payload === 'object' ? payload.basePrice : undefined,
-      extra: typeof payload === 'object' ? payload.extra : undefined,
-      quantity: Math.max(1, qty),
-      installOnly: typeof payload === 'object' ? payload.installOnly : undefined,
-      shippingClass: typeof payload === 'object' ? payload.shippingClass : undefined,
-      shippingWeight: typeof payload === 'object' ? payload.shippingWeight : undefined,
-      shippingDimensions: typeof payload === 'object' ? payload.shippingDimensions : undefined,
-      productUrl: typeof payload === 'object' ? payload.productUrl : undefined,
-      sku: typeof payload === 'object' ? payload.sku : undefined,
-      stripePriceId: typeof payload === 'object' ? payload.stripePriceId : undefined,
-      medusaVariantId: typeof payload === 'object' ? payload.medusaVariantId : undefined,
-      productId: typeof payload === 'object' ? payload.productId : undefined,
-      productSlug: typeof payload === 'object' ? payload.productSlug : undefined,
-      upgrades: typeof payload === 'object' ? payload.upgrades ?? payload.selectedUpgrades : undefined
-    });
+
+  const nextItem: CartItem = {
+    id,
+    name: payload.name || 'Item',
+    price: payload.price,
+    originalPrice: typeof payload.originalPrice === 'number' ? payload.originalPrice : undefined,
+    basePrice: typeof payload.basePrice === 'number' ? payload.basePrice : undefined,
+    extra: typeof payload.extra === 'number' ? payload.extra : undefined,
+    isOnSale: typeof payload.isOnSale === 'boolean' ? payload.isOnSale : undefined,
+    saleLabel: typeof payload.saleLabel === 'string' ? payload.saleLabel : undefined,
+    quantity: Math.max(1, qty),
+    image: payload.image,
+    options: payload.options,
+    selectedOptions,
+    selectedUpgrades,
+    selectedUpgradesDetailed,
+    installOnly: typeof payload.installOnly === 'boolean' ? payload.installOnly : undefined,
+    shippingClass: typeof payload.shippingClass === 'string' ? payload.shippingClass : undefined,
+    shippingWeight: typeof payload.shippingWeight === 'number' ? payload.shippingWeight : undefined,
+    shippingDimensions:
+      payload.shippingDimensions && typeof payload.shippingDimensions === 'object'
+        ? payload.shippingDimensions
+        : undefined,
+    productUrl: payload.productUrl,
+    sku: payload.sku,
+    stripePriceId: payload.stripePriceId,
+    medusaVariantId,
+    productId: payload.productId,
+    productSlug: payload.productSlug,
+    upgrades: payload.upgrades ?? payload.selectedUpgrades
+  };
+
+  console.info('[cart-debug] cart write', { action: 'add', itemId: nextItem.id });
+  try {
+    addCanonicalItem(nextItem as CanonicalCartItem);
+  } catch (error: any) {
+    return error?.message || 'Failed to add item to cart.';
   }
-  saveCart(cart);
-  const syncResult = await syncMedusaCart(cart);
+
+  const syncResult = await syncDisplayCart(getCart());
   if (!syncResult.ok) return syncResult.error || 'Failed to sync your cart.';
 }
 
 export async function removeItem(_prevState: any, id: string) {
   if (!id) return 'Error removing item from cart';
   const cart = getCart();
-  const next: Cart = { items: cart.items.filter((it) => it.id !== id) };
-  saveCart(next);
-  await syncMedusaCart(next);
+  const next: Cart = { ...cart, items: cart.items.filter((it) => it.id !== id) };
+  console.info('[cart-debug] cart write', { action: 'remove', itemId: id, itemCount: next.items.length });
+  writeCartState(next);
+  const syncResult = await syncDisplayCart(next);
+  if (!syncResult.ok) return syncResult.error || 'Failed to sync your cart.';
 }
 
 export async function updateItemQuantity(
@@ -502,66 +233,130 @@ export async function updateItemQuantity(
 ) {
   const { id, quantity } = payload || ({} as any);
   if (!id || typeof quantity !== 'number') return 'Error updating item quantity';
+
   const cart = getCart();
   const idx = cart.items.findIndex((it) => it.id === id);
   if (idx < 0) {
     if (quantity > 0) {
-      cart.items.push({ id, quantity });
+      return 'Item not found in cart.';
     }
-  } else {
-    if (quantity <= 0) {
-      cart.items.splice(idx, 1);
-    } else {
-      cart.items[idx].quantity = Math.floor(quantity);
-    }
+    return;
   }
-  saveCart(cart);
-  await syncMedusaCart(cart);
+
+  if (quantity <= 0) {
+    cart.items.splice(idx, 1);
+  } else {
+    cart.items[idx] = { ...cart.items[idx], quantity: Math.max(1, Math.floor(quantity)) };
+  }
+
+  console.info('[cart-debug] cart write', { action: 'quantity', itemId: id, quantity });
+  writeCartState(cart);
+  const syncResult = await syncDisplayCart(cart);
+  if (!syncResult.ok) return syncResult.error || 'Failed to sync your cart.';
 }
 
 export async function clearCart() {
-  saveCart({ items: [] });
-  await syncMedusaCart({ items: [] });
+  const empty: Cart = { items: [] };
+  console.info('[cart-debug] cart write', { action: 'clear' });
+  writeCartState(empty);
+  const syncResult = await syncDisplayCart(empty);
+  if (!syncResult.ok) return syncResult.error || 'Failed to sync your cart.';
 }
 
-// Creates/ensures a cart exists; kept for API compatibility with old code
 export async function createCartAndSetCookie() {
-  if (!getCart().items) saveCart({ items: [] });
+  await ensureMedusaCartId();
 }
 
-// Attempt to start checkout; currently a placeholder until the new flow lands.
+function buildLocalSignature(items: CartItem[]): string {
+  return items
+    .map((item) => {
+      const id = normalizeLocalItemId(item.id);
+      const variant = normalizeLocalItemId(item.medusaVariantId || '');
+      const qty = Math.max(1, Number(item.quantity) || 1);
+      return `${id}|${variant}|${qty}`;
+    })
+    .sort()
+    .join('::');
+}
+
+function buildCheckoutSignature(checkoutCart: any): string {
+  const items = Array.isArray(checkoutCart?.items) ? checkoutCart.items : [];
+  return items
+    .map((item: any) => {
+      const id =
+        normalizeLocalItemId(item?.local_item_id) ||
+        normalizeLocalItemId(item?.medusa_variant_id) ||
+        normalizeLocalItemId(item?.id);
+      const variant = normalizeLocalItemId(item?.medusa_variant_id || '');
+      const qty = Math.max(1, Number(item?.quantity) || 1);
+      return `${id}|${variant}|${qty}`;
+    })
+    .sort()
+    .join('::');
+}
+
+async function fetchAuthoritativeCheckoutCart(cartId: string): Promise<any | null> {
+  const response = await fetch(`/api/cart/${encodeURIComponent(cartId)}`);
+  if (!response.ok) return null;
+  const payload = await response.json().catch(() => null);
+  return payload?.cart ?? null;
+}
+
 export async function redirectToCheckout() {
   if (!isBrowser()) return;
 
-  const cart = getCart();
-  if (!Array.isArray(cart.items) || cart.items.length === 0) {
+  const localCart = getCart();
+  if (!Array.isArray(localCart.items) || localCart.items.length === 0) {
     return 'Your cart is empty.';
   }
 
-  console.log('[Cart] Starting checkout process...');
-
-  // Ensure Medusa cart exists
-  const medusaCartId = await ensureMedusaCartId();
-  if (!medusaCartId) {
-    console.error('[Cart] Failed to create Medusa cart');
+  const cartId = await ensureMedusaCartId();
+  if (!cartId) {
     return 'Failed to initialize checkout. Please try again.';
   }
 
-  // Sync cart to Medusa and wait for success
-  const syncResult = await syncMedusaCart(cart);
-  if (!syncResult.ok) {
-    console.error('[Cart] Failed to sync cart to Medusa');
-    return syncResult.error || 'Failed to sync your cart. Please try again or contact support.';
+  console.info('[cart-debug] before medusa sync', {
+    source: 'redirectToCheckout',
+    itemCount: localCart.items.length
+  });
+  const firstSync = await syncDisplayCart(localCart);
+  if (!firstSync.ok) {
+    return firstSync.error || 'Failed to sync your cart. Please try again.';
   }
 
-  // Verify all items have Medusa variant IDs
-  const refreshed = getCart();
-  const missingMedusa = refreshed.items.filter((item) => !item.medusaVariantId);
-  if (missingMedusa.length) {
-    console.error('[Cart] Items missing Medusa variant IDs:', missingMedusa);
-    return 'Some items in your cart are missing required variant selections. Please update your cart before checkout.';
+  let authoritative = await fetchAuthoritativeCheckoutCart(cartId);
+  if (!authoritative) {
+    return 'Unable to validate cart for checkout. Please try again.';
   }
 
-  console.log('[Cart] Redirecting to checkout with Medusa cart:', medusaCartId);
+  const localSignature = buildLocalSignature(localCart.items);
+  let serverSignature = buildCheckoutSignature(authoritative);
+  const hasServerItems = Array.isArray(authoritative.items) && authoritative.items.length > 0;
+  const driftDetected = localSignature !== serverSignature;
+
+  if (!hasServerItems || driftDetected) {
+    const retrySync = await syncDisplayCart(getCart());
+    if (!retrySync.ok) {
+      return retrySync.error || 'Unable to prepare checkout cart. Please try again.';
+    }
+    authoritative = await fetchAuthoritativeCheckoutCart(cartId);
+    if (!authoritative) {
+      return 'Unable to validate cart for checkout. Please try again.';
+    }
+    serverSignature = buildCheckoutSignature(authoritative);
+
+    if (!Array.isArray(authoritative.items) || authoritative.items.length === 0) {
+      return 'Checkout cart is empty after sync. Please refresh your cart and try again.';
+    }
+    if (localSignature !== serverSignature) {
+      return 'Your cart could not be reconciled for checkout. Please refresh and try again.';
+    }
+  }
+
+  console.info('[cart-debug] before redirect checkout', {
+    itemCount: authoritative.items.length,
+    driftDetected: driftDetected
+  });
+
   window.location.href = '/checkout';
 }

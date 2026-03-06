@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import Stripe from 'stripe';
+import { createHash } from 'node:crypto';
 import { jsonResponse } from '@/server/http/responses';
 import { getMedusaConfig, medusaFetch, readJsonSafe } from '@/lib/medusa';
 import { STRIPE_API_VERSION } from '@/lib/stripe-config';
@@ -32,6 +33,7 @@ type MedusaCart = {
   shipping_total?: number;
   items?: Array<{
     id: string;
+    variant_id?: string;
     unit_price?: number;
     title?: string;
     quantity?: number;
@@ -46,6 +48,10 @@ type MedusaCart = {
     };
   }>;
   shipping_methods?: Array<{ id: string; name?: string; amount?: number }>;
+  payment_collection?: {
+    id?: string;
+    payment_sessions?: Array<{ id?: string; provider_id?: string }>;
+  } | null;
   shipping_address?: {
     first_name?: string;
     last_name?: string;
@@ -58,6 +64,12 @@ type MedusaCart = {
     phone?: string;
   };
 };
+
+const GUEST_CART_ID_MIN_LENGTH = 16;
+
+function isLikelyBearerCartId(value: string): boolean {
+  return /^[A-Za-z0-9_-]+$/.test(value) && value.length >= GUEST_CART_ID_MIN_LENGTH;
+}
 
 function toRoundedNumber(value: unknown): number | null {
   if (typeof value === 'number' && Number.isFinite(value)) return Math.round(value);
@@ -232,12 +244,8 @@ type ShippoRateInput = {
 
 function resolveShippingAmountCents(
   cart: MedusaCart,
-  body: any,
   shippingMethods: Array<{ id: string; name?: string; amount?: number }>
 ): number {
-  const explicit = toRoundedNumber(body?.shippingAmountCents);
-  if (typeof explicit === 'number' && explicit > 0) return explicit;
-
   const cartShipping = toRoundedNumber(cart?.shipping_total);
   if (typeof cartShipping === 'number' && cartShipping > 0) return cartShipping;
 
@@ -246,6 +254,98 @@ function resolveShippingAmountCents(
     return typeof amount === 'number' && amount > max ? amount : max;
   }, 0);
   return methodAmount > 0 ? methodAmount : 0;
+}
+
+async function ensurePaymentCollectionAndSession(
+  cart: MedusaCart,
+  cartId: string,
+  systemProviderId: string
+): Promise<{ ok: true } | { ok: false; status: number; error: string }> {
+  let paymentCollectionId = String(cart?.payment_collection?.id || '').trim();
+  const existingSessions = Array.isArray(cart?.payment_collection?.payment_sessions)
+    ? cart.payment_collection?.payment_sessions
+    : [];
+  const existingSystemSession = existingSessions?.some(
+    (session) => String(session?.provider_id || '').trim() === systemProviderId
+  );
+
+  if (!paymentCollectionId) {
+    const paymentCollectionResponse = await medusaFetch(`/store/payment-collections`, {
+      method: 'POST',
+      body: JSON.stringify({ cart_id: cartId })
+    });
+    const paymentCollectionData = await readJsonSafe<any>(paymentCollectionResponse);
+    if (!paymentCollectionResponse.ok) {
+      return {
+        ok: false,
+        status: paymentCollectionResponse.status,
+        error: paymentCollectionData?.message || 'Failed to create payment collection.'
+      };
+    }
+    paymentCollectionId = String(paymentCollectionData?.payment_collection?.id || '').trim();
+    if (!paymentCollectionId) {
+      return { ok: false, status: 500, error: 'Payment collection not returned by Medusa.' };
+    }
+  }
+
+  if (existingSystemSession) {
+    return { ok: true };
+  }
+
+  const paymentSessionResponse = await medusaFetch(
+    `/store/payment-collections/${paymentCollectionId}/payment-sessions`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ provider_id: systemProviderId })
+    }
+  );
+  const paymentSessionData = await readJsonSafe<any>(paymentSessionResponse);
+  if (!paymentSessionResponse.ok) {
+    return {
+      ok: false,
+      status: paymentSessionResponse.status,
+      error: paymentSessionData?.message || 'Failed to create payment session.'
+    };
+  }
+  return { ok: true };
+}
+
+function buildCartIntentFingerprint(
+  cart: MedusaCart,
+  shippingAmountCents: number,
+  taxAmountCents: number
+): string {
+  const normalizedItems = (Array.isArray(cart?.items) ? cart.items : [])
+    .map((item) => {
+      const lineId = String(item?.id || '').trim();
+      const variantId = String(item?.variant_id || '').trim();
+      const localItemId = String(item?.metadata?.local_item_id || '').trim();
+      const qty = Math.max(1, toRoundedNumber(item?.quantity) ?? 1);
+      const unitPrice = Math.max(0, toRoundedNumber(item?.unit_price) ?? 0);
+      return `${lineId}|${variantId}|${localItemId}|${qty}|${unitPrice}`;
+    })
+    .sort();
+
+  const normalizedShippingMethods = (Array.isArray(cart?.shipping_methods) ? cart.shipping_methods : [])
+    .map((method) => {
+      const id = String(method?.id || '').trim();
+      const amount = Math.max(0, toRoundedNumber(method?.amount) ?? 0);
+      return `${id}|${amount}`;
+    })
+    .sort();
+
+  const payload = JSON.stringify({
+    cartId: String(cart?.id || '').trim(),
+    currency: String(cart?.currency_code || '').trim().toLowerCase(),
+    subtotal: Math.max(0, toRoundedNumber(cart?.subtotal) ?? 0),
+    total: Math.max(0, toRoundedNumber(cart?.total) ?? 0),
+    shippingAmountCents,
+    taxAmountCents,
+    items: normalizedItems,
+    shippingMethods: normalizedShippingMethods
+  });
+
+  return createHash('sha256').update(payload).digest('hex').slice(0, 24);
 }
 
 export const POST: APIRoute = async ({ request }) => {
@@ -299,119 +399,124 @@ export const POST: APIRoute = async ({ request }) => {
   if (!cartId) {
     return jsonResponse({ error: 'Missing cartId.' }, { status: 400 }, { noIndex: true });
   }
-
-  // Fetch cart from Medusa
-  const cartResponse = await medusaFetch(`/store/carts/${cartId}`, {
-    method: 'GET'
-  });
-  const cartData = await readJsonSafe<any>(cartResponse);
-  
-  if (!cartResponse.ok) {
-    return jsonResponse(
-      { error: cartData?.message || 'Unable to load cart.', details: cartData },
-      { status: cartResponse.status },
-      { noIndex: true }
-    );
-  }
-
-  const cart: MedusaCart = cartData?.cart;
-  normalizeCartTotals(cart as any);
-  
-  // Validation 1: Cart must have items
-  const items = Array.isArray(cart?.items) ? cart.items : [];
-  if (!items.length) {
-    return jsonResponse(
-      { error: 'Cart has no items. Cannot create payment intent.' },
-      { status: 400 },
-      { noIndex: true }
-    );
-  }
-
-  const requiresShipping = items.some((item) => !isInstallOnlyItem(item));
-
-  // Validation 2: Shipping method must be selected when shipping is required.
-  const shippingMethods = Array.isArray(cart?.shipping_methods) ? cart.shipping_methods : [];
-  if (requiresShipping && !shippingMethods.length) {
-    return jsonResponse(
-      { error: 'Shipping method not selected. Complete shipping selection before payment.' },
-      { status: 400 },
-      { noIndex: true }
-    );
-  }
-
-  // Validation 3: Shipping address must exist when shipping is required.
-  if (requiresShipping && !cart?.shipping_address?.country_code) {
-    return jsonResponse(
-      { error: 'Shipping address required for tax calculation.' },
-      { status: 400 },
-      { noIndex: true }
-    );
-  }
-
-  // Validation 4: Total must be finalized (with local add-on surcharge reconciliation)
-  const medusaTotal = resolveEffectiveCartTotalCents(cart);
-  if (typeof medusaTotal !== 'number' || medusaTotal <= 0) {
-    return jsonResponse(
-      { error: 'Cart total is invalid or not calculated. Ensure shipping and tax are finalized.' },
-      { status: 400 },
-      { noIndex: true }
-    );
-  }
-
-  // Validation 5: upgrades must be mapped to Medusa option values.
-  const unresolvedUpgrades = collectUnmappedUpgrades(cart);
-  if (unresolvedUpgrades.length > 0) {
-    console.warn('[unmapped_addon_selection] payment_intent_blocked', {
-      cartId,
-      count: unresolvedUpgrades.length,
-      itemIds: Array.from(new Set(unresolvedUpgrades.map((entry) => entry.id)))
-    });
-    return jsonResponse(
-      {
-        error:
-          'One or more selected options is not available for payment right now. Please remove that option and try again.',
-        details: unresolvedUpgrades
-      },
-      { status: 400 },
-      { noIndex: true }
-    );
-  }
-
-  // Validation 6: mapped add-on price drift must not proceed to payment.
-  const addOnPriceMismatches = collectAddonPriceMismatches(cart);
-  if (addOnPriceMismatches.length > 0) {
-    console.warn('[unmapped_addon_selection] payment_intent_price_mismatch', {
-      cartId,
-      mismatches: addOnPriceMismatches
-    });
-    return jsonResponse(
-      {
-        error:
-          'Your cart has an option with unconfirmed pricing. Please remove that option and try checkout again.',
-        details: addOnPriceMismatches
-      },
-      { status: 400 },
-      { noIndex: true }
-    );
-  }
-
-  const currency = (cart?.currency_code || 'usd').toLowerCase();
-  const customerEmail = cart?.email || undefined;
-  const shippingName =
-    `${cart?.shipping_address?.first_name || ''} ${cart?.shipping_address?.last_name || ''}`.trim() ||
-    customerEmail ||
-    'Customer';
-
-  let shippoRate: ShippoRateInput | null = null;
-  if (body?.shippoRate && typeof body.shippoRate === 'object') {
-    shippoRate = body.shippoRate as ShippoRateInput;
+  // Guest-checkout decision: cart IDs are capability tokens by design in this flow.
+  // Guardrail: reject clearly invalid/low-entropy IDs and avoid logging cart IDs in plaintext.
+  if (!isLikelyBearerCartId(cartId)) {
+    return jsonResponse({ error: 'Invalid cartId.' }, { status: 400 }, { noIndex: true });
   }
 
   try {
+    console.info('[cart-debug] create-intent started', {
+      hasCartId: true
+    });
+    // Fetch authoritative cart state from Medusa. Client payload cannot influence totals.
+    const cartResponse = await medusaFetch(`/store/carts/${cartId}`, {
+      method: 'GET'
+    });
+    const cartData = await readJsonSafe<any>(cartResponse);
+    if (!cartResponse.ok) {
+      return jsonResponse(
+        { error: cartData?.message || 'Unable to load cart.', details: cartData },
+        { status: cartResponse.status },
+        { noIndex: true }
+      );
+    }
+
+    const cart: MedusaCart = cartData?.cart;
+    normalizeCartTotals(cart as any);
+
+    // Validation 1: Cart must have items
+    const items = Array.isArray(cart?.items) ? cart.items : [];
+    if (!items.length) {
+      return jsonResponse(
+        { error: 'Cart has no items. Cannot create payment intent.' },
+        { status: 400 },
+        { noIndex: true }
+      );
+    }
+
+    const requiresShipping = items.some((item) => !isInstallOnlyItem(item));
+
+    // Validation 2: Shipping method must be selected when shipping is required.
+    const shippingMethods = Array.isArray(cart?.shipping_methods) ? cart.shipping_methods : [];
+    if (requiresShipping && !shippingMethods.length) {
+      return jsonResponse(
+        { error: 'Shipping method not selected. Complete shipping selection before payment.' },
+        { status: 400 },
+        { noIndex: true }
+      );
+    }
+
+    // Validation 3: Shipping address must exist when shipping is required.
+    if (requiresShipping && !cart?.shipping_address?.country_code) {
+      return jsonResponse(
+        { error: 'Shipping address required for tax calculation.' },
+        { status: 400 },
+        { noIndex: true }
+      );
+    }
+
+    // Validation 4: Total must be finalized (with local add-on surcharge reconciliation)
+    const medusaTotal = resolveEffectiveCartTotalCents(cart);
+    if (typeof medusaTotal !== 'number' || medusaTotal <= 0) {
+      return jsonResponse(
+        { error: 'Cart total is invalid or not calculated. Ensure shipping and tax are finalized.' },
+        { status: 400 },
+        { noIndex: true }
+      );
+    }
+
+    // Validation 5: upgrades must be mapped to Medusa option values.
+    const unresolvedUpgrades = collectUnmappedUpgrades(cart);
+    if (unresolvedUpgrades.length > 0) {
+      console.warn('[unmapped_addon_selection] payment_intent_blocked', {
+        count: unresolvedUpgrades.length,
+        itemIds: Array.from(new Set(unresolvedUpgrades.map((entry) => entry.id)))
+      });
+      return jsonResponse(
+        {
+          error:
+            'One or more selected options is not available for payment right now. Please remove that option and try again.',
+          details: unresolvedUpgrades
+        },
+        { status: 400 },
+        { noIndex: true }
+      );
+    }
+
+    // Validation 6: mapped add-on price drift must not proceed to payment.
+    const addOnPriceMismatches = collectAddonPriceMismatches(cart);
+    if (addOnPriceMismatches.length > 0) {
+      console.warn('[unmapped_addon_selection] payment_intent_price_mismatch', {
+        mismatches: addOnPriceMismatches
+      });
+      return jsonResponse(
+        {
+          error:
+            'Your cart has an option with unconfirmed pricing. Please remove that option and try checkout again.',
+          details: addOnPriceMismatches
+        },
+        { status: 400 },
+        { noIndex: true }
+      );
+    }
+
+    const currency = (cart?.currency_code || 'usd').toLowerCase();
+    const customerEmail = cart?.email || undefined;
+    const shippingName =
+      `${cart?.shipping_address?.first_name || ''} ${cart?.shipping_address?.last_name || ''}`.trim() ||
+      customerEmail ||
+      'Customer';
+
+    let shippoRate: ShippoRateInput | null = null;
+    if (body?.shippoRate && typeof body.shippoRate === 'object') {
+      shippoRate = body.shippoRate as ShippoRateInput;
+    }
+
     let stripeTaxTotalCents = 0;
     let stripeTaxCalculationId: string | null = null;
     const medusaTaxCents = toRoundedNumber(cart?.tax_total) ?? 0;
-    const shippingAmountCents = resolveShippingAmountCents(cart, body, shippingMethods);
+    const shippingAmountCents = resolveShippingAmountCents(cart, shippingMethods);
     const canCalculateStripeTax =
       requiresShipping &&
       medusaTaxCents <= 0 &&
@@ -422,18 +527,17 @@ export const POST: APIRoute = async ({ request }) => {
       );
 
     if (canCalculateStripeTax) {
-      const lineItems: Stripe.Tax.CalculationCreateParams.LineItem[] = items
-        .map((item, index) => {
-          const unitPrice = toRoundedNumber(item?.unit_price);
-          const quantity = Math.max(1, toRoundedNumber(item?.quantity) ?? 1);
-          if (typeof unitPrice !== 'number' || unitPrice <= 0) return null;
-          return {
-            amount: unitPrice * quantity,
-            reference: String(item?.id || item?.title || `item_${index + 1}`),
-            tax_behavior: 'exclusive'
-          };
-        })
-        .filter((entry): entry is Stripe.Tax.CalculationCreateParams.LineItem => Boolean(entry));
+      const lineItems: Stripe.Tax.CalculationCreateParams.LineItem[] = [];
+      for (const [index, item] of items.entries()) {
+        const unitPrice = toRoundedNumber(item?.unit_price);
+        const quantity = Math.max(1, toRoundedNumber(item?.quantity) ?? 1);
+        if (typeof unitPrice !== 'number' || unitPrice <= 0) continue;
+        lineItems.push({
+          amount: unitPrice * quantity,
+          reference: String(item?.id || item?.title || `item_${index + 1}`),
+          tax_behavior: 'exclusive'
+        });
+      }
 
       if (!lineItems.length) {
         return jsonResponse(
@@ -472,8 +576,19 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const total = medusaTotal + stripeTaxTotalCents;
+    const subtotalCents = toRoundedNumber(cart?.subtotal) ?? 0;
+    const effectiveTaxCents = Math.max(0, medusaTaxCents + stripeTaxTotalCents);
+    console.info('[cart-debug] create-intent authoritative totals', {
+      subtotalCents,
+      shippingAmountCents,
+      medusaTaxCents,
+      stripeTaxTotalCents,
+      total
+    });
 
     // Create Stripe PaymentIntent with finalized amount (cents).
+    const cartFingerprint = buildCartIntentFingerprint(cart, shippingAmountCents, effectiveTaxCents);
+    const idempotencyKey = `pi:${cartId}:${currency}:${total}:${cartFingerprint}`;
     const paymentIntent = await stripe.paymentIntents.create({
       amount: total,
       currency,
@@ -510,30 +625,7 @@ export const POST: APIRoute = async ({ request }) => {
             }
           }
         : undefined
-    });
-
-    // Create a Medusa payment collection + system session so cart completion is allowed.
-    const paymentCollectionResponse = await medusaFetch(`/store/payment-collections`, {
-      method: 'POST',
-      body: JSON.stringify({ cart_id: cartId })
-    });
-    const paymentCollectionData = await readJsonSafe<any>(paymentCollectionResponse);
-    if (!paymentCollectionResponse.ok) {
-      return jsonResponse(
-        { error: paymentCollectionData?.message || 'Failed to create payment collection.' },
-        { status: paymentCollectionResponse.status },
-        { noIndex: true }
-      );
-    }
-
-    const paymentCollectionId = paymentCollectionData?.payment_collection?.id;
-    if (!paymentCollectionId) {
-      return jsonResponse(
-        { error: 'Payment collection not returned by Medusa.' },
-        { status: 500 },
-        { noIndex: true }
-      );
-    }
+    }, { idempotencyKey });
 
     const regionId = (cart?.region_id || config.regionId || '').trim();
     const providersPath = regionId
@@ -563,18 +655,11 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    const paymentSessionResponse = await medusaFetch(
-      `/store/payment-collections/${paymentCollectionId}/payment-sessions`,
-      {
-        method: 'POST',
-        body: JSON.stringify({ provider_id: systemProvider.id })
-      }
-    );
-    const paymentSessionData = await readJsonSafe<any>(paymentSessionResponse);
-    if (!paymentSessionResponse.ok) {
+    const paymentSetup = await ensurePaymentCollectionAndSession(cart, cartId, systemProvider.id);
+    if (!paymentSetup.ok) {
       return jsonResponse(
-        { error: paymentSessionData?.message || 'Failed to create payment session.' },
-        { status: paymentSessionResponse.status },
+        { error: paymentSetup.error },
+        { status: paymentSetup.status },
         { noIndex: true }
       );
     }
@@ -585,6 +670,12 @@ export const POST: APIRoute = async ({ request }) => {
         payment_intent_id: paymentIntent.id,
         amount: paymentIntent.amount,
         currency: paymentIntent.currency,
+        breakdown: {
+          subtotal_cents: subtotalCents,
+          shipping_amount_cents: shippingAmountCents,
+          tax_amount_cents: effectiveTaxCents,
+          total_cents: total
+        },
         publishable_key: publishableKey
       },
       { status: 200 },
@@ -595,7 +686,7 @@ export const POST: APIRoute = async ({ request }) => {
     return jsonResponse(
       {
         error: 'Failed to create payment intent.',
-        details: error?.message || String(error),
+        details: 'internal_error',
       },
       { status: 500 },
       { noIndex: true }

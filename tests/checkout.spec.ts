@@ -42,15 +42,35 @@ describe('redirectToCheckout helper', () => {
       if (url === '/api/medusa/cart/add-item') {
         return { ok: true, status: 200, json: async () => ({ mappings: [] }) } as any;
       }
+      if (url === '/api/cart/cart_123') {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            cart: {
+              id: 'cart_123',
+              items: [
+                {
+                  id: 'line_1',
+                  local_item_id: 'item-1',
+                  medusa_variant_id: 'variant_1',
+                  quantity: 1
+                }
+              ]
+            }
+          })
+        } as any;
+      }
       return { ok: false, status: 500, json: async () => ({}) } as any;
     });
     vi.stubGlobal('fetch', fetchMock as any);
 
     await redirectToCheckout();
 
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
     expect(fetchMock.mock.calls[0]?.[0]).toBe('/api/medusa/cart/create');
     expect(fetchMock.mock.calls[1]?.[0]).toBe('/api/medusa/cart/add-item');
+    expect(fetchMock.mock.calls[2]?.[0]).toBe('/api/cart/cart_123');
     expect(fakeWindow.location.href).toBe('/checkout');
   });
 });

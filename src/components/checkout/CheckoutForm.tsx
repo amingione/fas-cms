@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ChangeEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import './CheckoutForm.css';
@@ -304,7 +304,10 @@ function buildSelectableRates(
   shippoRates: ShippoRate[]
 ): SelectableShippingRate[] {
   if (!shippingRates.length) return [];
-  const baseOption = shippingRates[0];
+  const upsOption =
+    shippingRates.find((rate) => String(rate?.data?.carrier || '').toLowerCase() === 'ups') ??
+    shippingRates[0];
+  const baseOption = upsOption;
   if (!baseOption?.id) return [];
 
   if (!shippoRates.length) {
@@ -359,9 +362,11 @@ export default function CheckoutForm() {
   const [loadingRates, setLoadingRates] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
+  const [selectingShipping, setSelectingShipping] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [discountCode, setDiscountCode] = useState('');
   const [driftDebug, setDriftDebug] = useState<string | null>(null);
+  const shippingSelectionRequestIdRef = useRef(0);
   const stripePromise = useMemo(() => {
     const key = stripePublishableKey.trim();
     if (!key) return null;
@@ -400,6 +405,9 @@ export default function CheckoutForm() {
       try {
         const id = await ensureMedusaCartId();
         if (cancelled) return;
+        console.info('[cart-debug] checkout load', {
+          hasCartId: Boolean(id)
+        });
         setCartId(id);
         if (!id) return;
 
@@ -412,6 +420,10 @@ export default function CheckoutForm() {
         let loaded: { loaded: boolean; driftDetected: boolean };
         try {
           loaded = await loadCart(id);
+          console.info('[cart-debug] checkout cart fetched', {
+            itemCount: loaded.loaded ? (cart?.items?.length ?? 0) : 0,
+            driftDetected: loaded.driftDetected
+          });
         } catch (loadError) {
           console.warn('[checkout] initial cart load failed, attempting recovery', loadError);
           const recoveredId = await recoverMissingCart();
@@ -466,6 +478,10 @@ export default function CheckoutForm() {
 
     const data = await response.json();
     const driftDetected = hasCheckoutCartDrift(localBeforeLoad, data.cart);
+    console.info('[cart-debug] checkout cart fetch result', {
+      itemCount: Array.isArray(data?.cart?.items) ? data.cart.items.length : 0,
+      driftDetected
+    });
     setCart(data.cart);
     reconcileLocalCartFromCheckoutCart(data.cart);
     return { loaded: true, driftDetected };
@@ -596,6 +612,7 @@ export default function CheckoutForm() {
       setError('Unable to calculate shipping for this address. Please verify your address.');
       setShippingRates([]);
       setShippoRates([]);
+      setSelectedRateId(null);
       setSelectedOptionId(null);
       setSelectedShippoRate(null);
     } finally {
@@ -605,15 +622,23 @@ export default function CheckoutForm() {
 
   async function selectShippingRate(rate: SelectableShippingRate) {
     if (!cartId) return;
+    const requestId = ++shippingSelectionRequestIdRef.current;
+    setSelectingShipping(true);
     setSelectedRateId(rate.id);
     setSelectedOptionId(rate.optionId);
     setSelectedShippoRate(rate.shippoRate || null);
     setError(null);
     setClientSecret(null);
+    console.info('[cart-debug] shipping selection started', {
+      requestId,
+      rateId: rate.id,
+      optionId: rate.optionId
+    });
 
     try {
       const synced = await syncCheckoutCart('shipping selection', { allowIfNoDrift: true });
       if (!synced) return;
+      if (requestId !== shippingSelectionRequestIdRef.current) return;
 
       const response = await fetch('/api/medusa/cart/select-shipping', {
         method: 'POST',
@@ -629,6 +654,7 @@ export default function CheckoutForm() {
         const payload = await response.json().catch(() => null);
         throw new Error(payload?.error || 'Failed to apply shipping option');
       }
+      if (requestId !== shippingSelectionRequestIdRef.current) return;
 
       // Refresh base cart state (Medusa returns shipping_total=0 for calculated
       // price options until checkout completion — display is patched below using
@@ -640,7 +666,6 @@ export default function CheckoutForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           cartId,
-          shippingAmountCents: rate.amountCents,
           shippoRate: rate.shippoRate || undefined
         })
       });
@@ -648,6 +673,7 @@ export default function CheckoutForm() {
         const payload = await intentResponse.json().catch(() => null);
         throw new Error(payload?.error || 'Failed to initialize payment');
       }
+      if (requestId !== shippingSelectionRequestIdRef.current) return;
       const payload = await intentResponse.json().catch(() => null);
       if (!payload?.client_secret) {
         throw new Error('Payment intent not ready');
@@ -660,35 +686,51 @@ export default function CheckoutForm() {
         setStripePublishableKey(payload.publishable_key.trim());
       }
 
-      // Option A: use the confirmed PaymentIntent amount (Medusa's authoritative
-      // cart.total) to derive correct shipping and tax display values.
-      // Medusa 2.x doesn't update cart.shipping_total for calculated-price options
-      // until checkout completion, so we back-calculate from the PI total here.
-      const confirmedTotalCents: number =
-        typeof payload.amount === 'number' && Number.isFinite(payload.amount) ? payload.amount : 0;
-
-      if (confirmedTotalCents > 0) {
+      const breakdown = payload?.breakdown;
+      if (breakdown && typeof breakdown === 'object') {
+        const totalCents =
+          typeof breakdown.total_cents === 'number' && Number.isFinite(breakdown.total_cents)
+            ? breakdown.total_cents
+            : 0;
+        const shippingCents =
+          typeof breakdown.shipping_amount_cents === 'number' &&
+          Number.isFinite(breakdown.shipping_amount_cents)
+            ? breakdown.shipping_amount_cents
+            : 0;
+        const taxCents =
+          typeof breakdown.tax_amount_cents === 'number' && Number.isFinite(breakdown.tax_amount_cents)
+            ? breakdown.tax_amount_cents
+            : 0;
+        const subtotalCents =
+          typeof breakdown.subtotal_cents === 'number' && Number.isFinite(breakdown.subtotal_cents)
+            ? breakdown.subtotal_cents
+            : 0;
         setCart((prev) => {
           if (!prev) return prev;
-          const shippingCents = rate.amountCents;
-          const subtotalCents = prev.subtotal_cents;
-          // Discount is only applied when Medusa returns explicit promotions.
-          // The cart already has the correct subtotal_cents accounting for discounts.
-          // confirmed total = subtotal + shipping + tax (- discount already in subtotal)
-          const taxCents = Math.max(0, confirmedTotalCents - subtotalCents - shippingCents);
           return {
             ...prev,
+            subtotal_cents: subtotalCents || prev.subtotal_cents,
             shipping_amount_cents: shippingCents,
             tax_amount_cents: taxCents,
-            total_cents: confirmedTotalCents
+            total_cents: totalCents || prev.total_cents
           };
         });
       }
 
       setClientSecret(payload.client_secret);
+      console.info('[cart-debug] shipping selection completed', { requestId, rateId: rate.id });
     } catch (err) {
+      if (requestId !== shippingSelectionRequestIdRef.current) return;
       console.error('Failed to update shipping:', err);
       setError('Failed to update shipping. Please try again.');
+      setSelectedRateId(null);
+      setSelectedOptionId(null);
+      setSelectedShippoRate(null);
+      console.info('[cart-debug] shipping selection failed', { requestId, rateId: rate.id });
+    } finally {
+      if (requestId === shippingSelectionRequestIdRef.current) {
+        setSelectingShipping(false);
+      }
     }
   }
 
@@ -768,9 +810,14 @@ export default function CheckoutForm() {
                 onChange={(e) => setDiscountCode(e.target.value)}
                 placeholder="Discount code"
                 autoComplete="off"
+                disabled
+                title="Discount codes are not available yet."
               />
-              <button type="button">Apply</button>
+              <button type="button" disabled title="Discount codes are not available yet.">
+                Not available
+              </button>
             </div>
+            <p className="muted">Discount codes are not available yet.</p>
 
             <div className="checkout-v2-totals">
               <div>
@@ -837,6 +884,7 @@ export default function CheckoutForm() {
                 onAddressChange={updateAddressField}
                 onCalculateShipping={handleCalculateShipping}
                 onSelectRate={selectShippingRate}
+                selectingShipping={selectingShipping}
               />
             )}
 
@@ -856,6 +904,7 @@ function NonReadyPaymentPane({
   shippoRates,
   selectedRateId,
   selectedShippoRate,
+  selectingShipping,
   onAddressChange,
   onCalculateShipping,
   onSelectRate
@@ -867,6 +916,7 @@ function NonReadyPaymentPane({
   shippoRates: ShippoRate[];
   selectedRateId: string | null;
   selectedShippoRate: ShippoRate | null;
+  selectingShipping: boolean;
   onAddressChange: (
     field: keyof ShippingAddress
   ) => (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
@@ -1022,6 +1072,7 @@ function NonReadyPaymentPane({
                     key={rate.id}
                     className={`rate ${selectedRateId === rate.id ? 'selected' : ''}`}
                     onClick={() => void onSelectRate(rate)}
+                    disabled={selectingShipping}
                   >
                     <span>{rate.label}</span>
                     <span>{formatCurrency(rate.amountCents)}</span>

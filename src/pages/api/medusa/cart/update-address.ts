@@ -15,6 +15,12 @@ type AddressInput = {
   phone?: string;
 };
 
+const GUEST_CART_ID_MIN_LENGTH = 16;
+
+function isLikelyBearerCartId(value: string): boolean {
+  return /^[A-Za-z0-9_-]+$/.test(value) && value.length >= GUEST_CART_ID_MIN_LENGTH;
+}
+
 function normalizeAddress(input: any): Record<string, string> | null {
   if (!input || typeof input !== 'object') return null;
   const address = input as AddressInput;
@@ -53,6 +59,11 @@ export const POST: APIRoute = async ({ request }) => {
   const cartId = typeof body?.cartId === 'string' ? body.cartId.trim() : '';
   if (!cartId) {
     return jsonResponse({ error: 'Missing cartId.' }, { status: 400 }, { noIndex: true });
+  }
+  // Guest-checkout decision: cart IDs are capability tokens and auth is optional by design.
+  // Guardrail: reject malformed/low-entropy IDs and avoid logging raw cart IDs.
+  if (!isLikelyBearerCartId(cartId)) {
+    return jsonResponse({ error: 'Invalid cartId.' }, { status: 400 }, { noIndex: true });
   }
 
   const shippingAddress = normalizeAddress(body?.shippingAddress);
