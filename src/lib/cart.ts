@@ -266,15 +266,19 @@ export function getCart(): CartItem[] {
 
 export function saveCart(cart: CartItem[]): void {
   try {
-    if (isBrowser()) {
-      localStorage.setItem(CART_KEY, JSON.stringify({ items: cart }));
-    }
-    console.info('[cart-debug] cart write', { itemCount: cart.length });
-    emitCartUpdated(cart);
+    persistCartLocally(cart);
     void syncMedusaCart(cart);
   } catch (error) {
     void error;
   }
+}
+
+export function persistCartLocally(cart: CartItem[]): void {
+  if (isBrowser()) {
+    localStorage.setItem(CART_KEY, JSON.stringify({ items: cart }));
+  }
+  console.info('[cart-debug] cart write', { itemCount: cart.length });
+  emitCartUpdated(cart);
 }
 
 export function emitCartUpdated(cart: CartItem[]): void {

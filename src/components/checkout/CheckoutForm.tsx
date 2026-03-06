@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import './CheckoutForm.css';
-import { ensureMedusaCartId, getCart, saveCart, syncMedusaCart } from '@/lib/cart';
+import { ensureMedusaCartId, getCart, persistCartLocally, syncMedusaCart } from '@/lib/cart';
 import { MEDUSA_CART_ID_KEY } from '@/lib/medusa';
 
 const CHECKOUT_IMAGE_FALLBACK = '/placeholder.webp';
@@ -224,7 +224,7 @@ function reconcileLocalCartFromCheckoutCart(cart: Cart | null): void {
   const nextSerialized = JSON.stringify(nextItems);
   if (previousSerialized === nextSerialized) return;
 
-  saveCart(nextItems);
+  persistCartLocally(nextItems);
 }
 
 function buildLocalCartSignature(items: LocalCartItem[]): string {
