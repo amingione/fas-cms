@@ -1,7 +1,9 @@
 ---
+import { Image } from 'astro:assets';
 import '@/styles/components.css';
 import '@/styles/global.css';
 import BasicParticles from '@/components/basicParticle.tsx';
+import heroBackground from '@/assets/images/backgrounds/bg-home.webp';
 
 const { headline, subtext, ctaText, ctaLink, altText = 'Performance Shop Hero' } = Astro.props;
 
@@ -12,7 +14,18 @@ const { headline, subtext, ctaText, ctaLink, altText = 'Performance Shop Hero' }
   {/* Background Effects */}
   <div class="absolute inset-0"></div>
   <div class="parallax-bg">
-    <img src="/images/backgrounds/bg-home.webp" alt={altText} class="bg-image" loading="eager" decoding="async" fetchpriority="high" />
+    <Image
+      src={heroBackground}
+      alt={altText}
+      class="bg-image"
+      loading="eager"
+      decoding="async"
+      fetchpriority="high"
+      widths={[640, 960, 1280, 1600, 1920]}
+      sizes="100vw"
+      format="webp"
+      quality={85}
+    />
   </div>
   <div class="content">
     <h1 class="headline font-sm font-ethno text-white text-glow">{headline}</h1>

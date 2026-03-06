@@ -17,7 +17,6 @@ type Feature = {
   side: 'left' | 'right'; // where the product image sits
   image: FeatureImage;
   sticker?: { src: string; alt: string; className?: string }; // optional badge/logo
-  stars?: number; // 0–5 (defaults 5)
   lines: [string, string?, string?]; // up to 3 headline lines
   pricePrefix?: string; // "ONLY FROM"
   price?: string; // "$899.99"
@@ -29,16 +28,6 @@ export type ProductFeatureBannerProps = {
   backgroundUrl?: string; // optional bg texture
   className?: string;
 };
-
-const StarRow = ({ count = 5 }: { count?: number }) => (
-  <div className="flex gap-2" aria-label={`${count} stars`}>
-    {Array.from({ length: count }).map((_, i) => (
-      <span key={i} className="inline-block text-yellow-400" aria-hidden="true">
-        ★
-      </span>
-    ))}
-  </div>
-);
 
 const FeatureBlock = ({ f, isSecond }: { f: Feature; isSecond?: boolean }) => {
   const isRight = f.side === 'right';
@@ -93,21 +82,22 @@ const FeatureBlock = ({ f, isSecond }: { f: Feature; isSecond?: boolean }) => {
       <div
         className={`text-center ${isRight ? 'md:text-right md:order-1' : 'md:text-left md:order-2'}`}
       >
-        <div
-          className={`mb-4 md:mb-6 flex justify-center ${isRight ? 'md:justify-end' : 'md:justify-start'}`}
-        >
-          <StarRow count={f.stars ?? 5} />
-        </div>
-
         <h2 className="font-ethno leading-tight tracking-wide text-white text-2xl md:text-3xl space-y-1">
           <div className="uppercase">{f.lines[0]}</div>
           {f.lines[1] && <div className="uppercase">{f.lines[1]}</div>}
           {f.lines[2] && <div className="uppercase">{f.lines[2]}</div>}
         </h2>
 
-        <p className="mt-4 text-xs uppercase tracking-wide text-neutral-400">
-          View product for pricing
-        </p>
+        {f.price ? (
+          <p className="mt-4 text-xs uppercase tracking-wide text-neutral-300">
+            {f.pricePrefix ? `${f.pricePrefix} ` : ''}
+            <span className="text-white">{f.price}</span>
+          </p>
+        ) : (
+          <p className="mt-4 text-xs uppercase tracking-wide text-neutral-500">
+            Pricing unavailable
+          </p>
+        )}
 
         <div
           className={`mt-8 flex w-full justify-center md:w-auto ${

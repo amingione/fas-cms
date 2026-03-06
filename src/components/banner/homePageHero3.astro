@@ -116,10 +116,10 @@ const titleAccent = lastSpaceIndex > 0 ? cleanTitleEmphasis.slice(lastSpaceIndex
     isolation: isolate;
     min-height: clamp(620px, 72vh, 900px);
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 18px;
-    margin-inline: clamp(0.75rem, 2vw, 2rem);
-    margin-top: clamp(0.5rem, 1.8vw, 1.5rem);
+    border: 0;
+    border-radius: 0;
+    margin-inline: 0;
+    margin-top: 0;
     background: #06070b;
   }
 
@@ -409,9 +409,6 @@ const titleAccent = lastSpaceIndex > 0 ? cleanTitleEmphasis.slice(lastSpaceIndex
   @media (max-width: 960px) {
     .fas-hero-ultra {
       min-height: 0;
-      margin-inline: 0;
-      border-left: 0;
-      border-right: 0;
       border-radius: 0;
     }
 

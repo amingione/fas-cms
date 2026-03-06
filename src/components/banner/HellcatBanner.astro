@@ -1,0 +1,429 @@
+---
+// HellcatBanner.astro
+// Hellcat platform feature section — 100% factual copy, no fabricated specs.
+// All images are real customer builds from the FAS Fort Myers shop.
+import { Image } from 'astro:assets';
+import hellcatPrimary from '@/assets/images/packages/Hellcat/FAS-fas-1000-challenger.webp';
+import hellcatSecondary from '@/assets/images/packages/Hellcat/FAS-1.webp';
+import hellcatTertiary from '@/assets/images/packages/Hellcat/FAS-4.webp';
+---
+
+<section class="hc" aria-labelledby="hc-heading">
+  <div class="hc__inner site-container">
+
+    <!-- ── Left: images ────────────────────────────────────── -->
+    <div class="hc__media" aria-hidden="true">
+      <div class="hc__img-primary-wrap">
+        <Image
+          src={hellcatPrimary}
+          alt=""
+          class="hc__img hc__img--primary"
+          loading="lazy"
+          decoding="async"
+          widths={[480, 720, 960, 1200]}
+          sizes="(max-width: 900px) 100vw, 55vw"
+          format="webp"
+        />
+      </div>
+      <div class="hc__img-secondary-wrap">
+        <Image
+          src={hellcatSecondary}
+          alt=""
+          class="hc__img hc__img--secondary"
+          loading="lazy"
+          decoding="async"
+          widths={[320, 480, 720]}
+          sizes="(max-width: 900px) 100vw, 28vw"
+          format="webp"
+        />
+        <Image
+          src={hellcatTertiary}
+          alt=""
+          class="hc__img hc__img--tertiary"
+          loading="lazy"
+          decoding="async"
+          widths={[320, 480, 720]}
+          sizes="(max-width: 900px) 100vw, 28vw"
+          format="webp"
+        />
+      </div>
+      <div class="hc__accent-bar" aria-hidden="true"></div>
+    </div>
+
+    <!-- ── Right: copy ─────────────────────────────────────── -->
+    <div class="hc__body">
+      <span class="hc__eyebrow">Platform Focus</span>
+
+      <h2 class="hc__heading" id="hc-heading">
+        Hellcat<br /><span class="hc__heading-outline">Built Here</span>
+      </h2>
+
+      <p class="hc__platform">Dodge Challenger SRT &nbsp;·&nbsp; Dodge Charger SRT</p>
+
+      <p class="hc__copy">
+        The Dodge Challenger and Charger SRT platforms are the foundation of what this shop does.
+        Supercharger work, billet components, precision upgrades — the Hellcat is where F.A.S.
+        Motorsports built its name, and it's still the platform we know best.
+      </p>
+      <p class="hc__copy">
+        Every vehicle in this gallery is a customer car that came through our Fort Myers shop.
+        If you have a Hellcat and want a straight answer on what's possible for your build, contact us.
+      </p>
+
+      <ul class="hc__pillars" aria-label="What we do on Hellcats">
+        <li class="hc__pillar">
+          <span class="hc__pillar-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="8" r="7" stroke="#ea1d26" stroke-width="1.5"/>
+              <path d="M5 8l2 2 4-4" stroke="#ea1d26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          Supercharger porting &amp; snout upgrades
+        </li>
+        <li class="hc__pillar">
+          <span class="hc__pillar-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="8" r="7" stroke="#ea1d26" stroke-width="1.5"/>
+              <path d="M5 8l2 2 4-4" stroke="#ea1d26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          Billet snout &amp; lower pulley kits
+        </li>
+        <li class="hc__pillar">
+          <span class="hc__pillar-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="8" r="7" stroke="#ea1d26" stroke-width="1.5"/>
+              <path d="M5 8l2 2 4-4" stroke="#ea1d26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          Challenger SRT &amp; Charger SRT
+        </li>
+        <li class="hc__pillar">
+          <span class="hc__pillar-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="8" r="7" stroke="#ea1d26" stroke-width="1.5"/>
+              <path d="M5 8l2 2 4-4" stroke="#ea1d26" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          In-shop service — Fort Myers, Florida
+        </li>
+      </ul>
+
+      <div class="hc__cta-row">
+        <a href="/builds/challenger" class="hc__btn hc__btn--primary">View Hellcat Builds</a>
+        <a href="/shop" class="hc__btn hc__btn--ghost">Shop Hellcat Parts</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<style>
+  .hc {
+    background: #06070b;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-block: clamp(4rem, 8vw, 7rem);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* subtle red glow top-right */
+  .hc::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      50rem 34rem at 85% 10%,
+      rgba(225, 26, 33, 0.18),
+      transparent 65%
+    );
+    pointer-events: none;
+  }
+
+  .hc__inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(2.5rem, 5vw, 5rem);
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Media column ── */
+  .hc__media {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 0.55fr;
+    grid-template-rows: auto auto;
+    gap: 0.75rem;
+  }
+
+  .hc__img-primary-wrap {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    background: #000;
+  }
+
+  .hc__img-secondary-wrap {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .hc__img-secondary-wrap > div,
+  .hc__img-secondary-wrap > * {
+    flex: 1;
+  }
+
+  .hc__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: brightness(0.88) saturate(0.9);
+    transition: filter 0.4s, transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .hc__img-primary-wrap:hover .hc__img--primary,
+  .hc__img-secondary-wrap:hover .hc__img {
+    filter: brightness(0.7) saturate(1);
+    transform: scale(1.04);
+  }
+
+  .hc__img--secondary,
+  .hc__img--tertiary {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    background: #000;
+    flex: 1;
+    object-fit: cover;
+    height: 100%;
+    display: block;
+  }
+
+  /* wrapping the secondary images so overflow:hidden works per image */
+  .hc__img-secondary-wrap {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .hc__img--secondary {
+    height: 52%;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    object-fit: cover;
+    filter: brightness(0.88) saturate(0.9);
+    transition: filter 0.4s;
+  }
+
+  .hc__img--tertiary {
+    height: 48%;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    object-fit: cover;
+    filter: brightness(0.88) saturate(0.9);
+    transition: filter 0.4s;
+  }
+
+  .hc__img--secondary:hover,
+  .hc__img--tertiary:hover {
+    filter: brightness(0.7);
+  }
+
+  /* red accent bar bottom-left of image grid */
+  .hc__accent-bar {
+    position: absolute;
+    bottom: -1rem;
+    left: 0;
+    width: 3.5rem;
+    height: 3px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #ea1d26 0%, rgba(234, 29, 38, 0.15) 100%);
+  }
+
+  /* ── Body column ── */
+  .hc__eyebrow {
+    display: inline-block;
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: #ea1d26;
+    margin-bottom: 1rem;
+  }
+
+  .hc__heading {
+    font-family: 'American Captain', sans-serif;
+    font-weight: 400;
+    font-size: clamp(3.2rem, 6vw, 6rem);
+    line-height: 0.9;
+    color: #fff;
+    letter-spacing: 0.02em;
+    margin: 0 0 0.75rem;
+  }
+
+  .hc__heading-outline {
+    -webkit-text-stroke: 2px rgba(255, 255, 255, 0.3);
+    color: transparent;
+  }
+
+  .hc__platform {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(0.68rem, 1vw, 0.8rem);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(161, 161, 170, 0.85);
+    margin-bottom: 1.5rem;
+  }
+
+  .hc__copy {
+    font-size: clamp(0.84rem, 1.1vw, 0.95rem);
+    color: rgba(220, 224, 236, 0.8);
+    line-height: 1.7;
+    max-width: 56ch;
+    margin-bottom: 0.85rem;
+  }
+
+  /* ── Pillar list ── */
+  .hc__pillars {
+    list-style: none;
+    margin: 1.5rem 0 2rem;
+    padding: 0;
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .hc__pillar {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(0.72rem, 1vw, 0.82rem);
+    letter-spacing: 0.04em;
+    color: rgba(235, 238, 248, 0.88);
+    border-left: 2px solid rgba(234, 29, 38, 0.35);
+    padding-left: 0.85rem;
+  }
+
+  .hc__pillar-icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  /* ── CTAs ── */
+  .hc__cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .hc__btn {
+    display: inline-flex;
+    align-items: center;
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 0.85rem 1.75rem;
+    border-radius: 4px;
+    text-decoration: none;
+    border: 1px solid transparent;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    white-space: nowrap;
+  }
+
+  .hc__btn--primary {
+    background: #ea1d26;
+    color: #fff;
+    border-color: #ea1d26;
+  }
+
+  .hc__btn--primary:hover {
+    background: #c91820;
+    border-color: #c91820;
+    transform: translateY(-1px);
+  }
+
+  .hc__btn--ghost {
+    background: transparent;
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.28);
+  }
+
+  .hc__btn--ghost:hover {
+    border-color: rgba(255, 255, 255, 0.65);
+    transform: translateY(-1px);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 1024px) {
+    .hc__inner {
+      grid-template-columns: 1fr;
+    }
+
+    .hc__media {
+      order: 2;
+      max-height: 420px;
+    }
+
+    .hc__body {
+      order: 1;
+    }
+
+    .hc__copy {
+      max-width: 100%;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .hc__media {
+      max-height: 320px;
+    }
+
+    .hc__heading {
+      font-size: clamp(2.75rem, 12vw, 4rem);
+    }
+  }
+
+  @media (max-width: 560px) {
+    .hc__media {
+      grid-template-columns: 1fr;
+      max-height: none;
+    }
+
+    .hc__img-secondary-wrap {
+      display: none;
+    }
+
+    .hc__img-primary-wrap {
+      grid-column: 1;
+      grid-row: 1;
+      max-height: 240px;
+    }
+
+    .hc__img--primary {
+      height: 240px;
+    }
+
+    .hc__cta-row {
+      flex-direction: column;
+    }
+
+    .hc__btn {
+      justify-content: center;
+      width: 100%;
+    }
+  }
+</style>

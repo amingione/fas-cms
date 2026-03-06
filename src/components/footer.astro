@@ -1,4 +1,8 @@
 ---
+import { Image } from 'astro:assets';
+import fasLogo from '@/assets/logo/fas-logo500.webp';
+import launchwellLogo from '@/assets/logo/launchwell brands logo white.webp';
+
 const socialLinks = [
   { name: 'Instagram', href: 'https://instagram.com/fas_moto', handle: '@fas_moto' },
   { name: 'Facebook', href: 'https://facebook.com/fasmotorsports', handle: 'F.A.S. Motorsports' }
@@ -34,12 +38,14 @@ const socialLinks = [
 
       <div class="flex flex-col items-center gap-4 text-center">
         <div class="flex items-center gap-4">
-          <img
-            src="/logo/fas-logo500.webp"
+          <Image
+            src={fasLogo}
             alt="F.A.S. Motorsports"
-            width="52"
-            height="52"
             class="h-12 w-12 object-contain drop-shadow-lg"
+            widths={[64, 128]}
+            sizes="52px"
+            format="webp"
+            quality={85}
           />
           <div class="text-left">
             <span
@@ -140,12 +146,16 @@ const socialLinks = [
         </div>
         <p class="font-kwajong text-white/70">© 2025 F.A.S. Motorsports. All rights reserved.</p>
         <p class="flex flex-col items-center gap-2 font-montserrat text-white/80 sm:flex-row">
-          <img
-            src="/logo/launchwell brands logo white.webp"
+          <Image
+            src={launchwellLogo}
             alt="LaunchWell Brands"
             class="h-8 w-auto max-w-[200px] object-contain"
             loading="lazy"
             decoding="async"
+            widths={[200, 400]}
+            sizes="200px"
+            format="webp"
+            quality={85}
           />
           <span class="text-center sm:text-left">
             Website by <a href="https://launchwellbrands.com" class="hover:text-accent"

@@ -6,6 +6,7 @@ import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content.ts';
 import * as sanity from '../lib/sanity-utils';
 import { LuxuryFeatures } from '@components/LuxuryFeatures.tsx';
 import HomePageHero3 from '@/components/banner/homePageHero3.astro';
+import HellcatBanner from '@/components/banner/HellcatBanner.astro';
 import AnimatedHeadingBanner1 from '@components/animated/AnimatedHeadingBanner1.tsx';
 import Highlights from '@/components/Highlights.astro';
 import AnimatedHeadingBanner from '@components/animated/AnimatedHeadingBanner.tsx';
@@ -231,6 +232,10 @@ const homepageFaqStructuredData = {
     <div {...inlineObjectId('content/pages/index.json')}>
       <section id="homeHero">
         <HomePageHero3 />
+      </section>
+
+      <section id="hellcatBanner">
+        <HellcatBanner />
       </section>
 
       <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
