@@ -1,3 +1,15 @@
+/**
+ * DEPRECATED — Not called by any active API route.
+ *
+ * This module previously calculated promotions from Sanity CMS outside the Medusa cart.
+ * That approach caused checkout amount mismatches (Medusa cart total ≠ Stripe PI amount).
+ *
+ * Promotions are now applied via Medusa's native discount module:
+ *   POST /store/carts/:cartId/promotions  { promo_codes: ["CODE"] }
+ *
+ * To create promotions: use fas-dash → Medusa admin API POST /admin/promotions
+ * (or Medusa admin dashboard at api.fasmotorsports.com/app)
+ */
 import type { SanityClient } from '@sanity/client';
 
 export type CartLine = { productId: string; price: number; quantity: number };

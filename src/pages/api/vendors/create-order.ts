@@ -7,6 +7,9 @@ import { vendorCreateOrderSchema } from '@/lib/validators/api-requests';
 import { sanityCustomerSchema } from '@/lib/validators/sanity';
 
 const ORDER_NUMBER_PREFIX = 'FAS-';
+// Wholesale orders use a distinct prefix to prevent collision with retail FAS-XXXXXX numbers.
+// Retail: Medusa display_id sequence (FAS-). Wholesale: Sanity order sequence (WHS-).
+const WHOLESALE_ORDER_NUMBER_PREFIX = 'WHS-';
 const ORDER_NUMBER_DIGITS = 6;
 
 const extractOrderDigits = (value: unknown): number => {
@@ -24,7 +27,7 @@ const getNextOrderNumber = async (): Promise<string> => {
     '*[_type == "order" && defined(orderNumber)] | order(_createdAt desc)[0].orderNumber'
   );
   const next = extractOrderDigits(latest) + 1;
-  return `${ORDER_NUMBER_PREFIX}${String(next).padStart(ORDER_NUMBER_DIGITS, '0')}`;
+  return `${WHOLESALE_ORDER_NUMBER_PREFIX}${String(next).padStart(ORDER_NUMBER_DIGITS, '0')}`;
 };
 
 export const POST: APIRoute = async ({ request }) => {
