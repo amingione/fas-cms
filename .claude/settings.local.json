@@ -10,7 +10,11 @@
       "Bash(netlify env:get:*)",
       "Bash(node:*)",
       "Bash(netlify env:unset:*)",
-      "Bash(netlify api listAccountsForUser:*)"
+      "Bash(netlify api listAccountsForUser:*)",
+      "Bash(test:*)",
+      "mcp__MCP_DOCKER__mcp-find",
+      "mcp__MCP_DOCKER__mcp-add",
+      "mcp__MCP_DOCKER__mcp-config-set"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -1,0 +1,1272 @@
+---
+export const prerender = true;
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const categories = [
+  { id: 'all', label: 'All Builds' },
+  { id: 'hellcat', label: 'Hellcat / Charger' },
+  { id: 'trackhawk', label: 'Trackhawk' },
+  { id: 'trx', label: 'RAM TRX' },
+  { id: 'truck', label: 'Truck Builds' },
+  { id: 'mustang', label: 'Mustang' },
+  { id: 'packages', label: 'Packages' },
+];
+
+const builds = [
+  // ─── Hellcat / Challenger / Charger ───────────────────────────────────────
+  {
+    src: '/images/packages/Hellcat/FAS-fas-1000-challenger.webp',
+    alt: 'FAS Challenger build',
+    title: 'FAS Challenger',
+    subtitle: 'Hellcat',
+    category: 'hellcat',
+    featured: true,
+    href: '/builds/challenger',
+  },
+  {
+    src: '/images/packages/Hellcat/FAS-1.webp',
+    alt: 'FAS Hellcat build',
+    title: 'FAS Hellcat',
+    subtitle: 'Hellcat',
+    category: 'hellcat',
+  },
+  {
+    src: '/images/packages/Hellcat/FAS-2.webp',
+    alt: 'FAS Hellcat build',
+    title: 'FAS Hellcat',
+    subtitle: 'Hellcat',
+    category: 'hellcat',
+  },
+  {
+    src: '/images/packages/Hellcat/FAS-3.webp',
+    alt: 'FAS Hellcat build',
+    title: 'FAS Hellcat',
+    subtitle: 'Hellcat',
+    category: 'hellcat',
+  },
+  {
+    src: '/images/packages/Hellcat/FAS-4.webp',
+    alt: 'FAS Hellcat build',
+    title: 'FAS Hellcat',
+    subtitle: 'Hellcat',
+    category: 'hellcat',
+  },
+  {
+    src: '/images/packages/Hellcat/FAS-8.webp',
+    alt: 'FAS Hellcat build',
+    title: 'FAS Hellcat',
+    subtitle: 'Hellcat',
+    category: 'hellcat',
+  },
+  {
+    src: '/images/packages/Hellcat/FAS-9.webp',
+    alt: 'FAS Hellcat build',
+    title: 'FAS Hellcat',
+    subtitle: 'Hellcat',
+    category: 'hellcat',
+  },
+  {
+    src: '/images/packages/challenger FAS.webp',
+    alt: 'FAS Challenger build',
+    title: 'FAS Challenger',
+    subtitle: 'Hellcat',
+    category: 'hellcat',
+  },
+
+  // ─── Trackhawk ──────────────────────────────────────────────────────────
+  {
+    src: '/images/packages/FAS-Trackhawk-build.webp',
+    alt: 'FAS Jeep Trackhawk build',
+    title: 'FAS Trackhawk',
+    subtitle: 'Jeep Grand Cherokee Trackhawk',
+    category: 'trackhawk',
+    featured: true,
+    href: '/builds/trackhawk',
+  },
+  {
+    src: '/images/packages/FAS-trackhawk-build2.webp',
+    alt: 'FAS Trackhawk build',
+    title: 'FAS Trackhawk',
+    subtitle: 'Jeep Grand Cherokee Trackhawk',
+    category: 'trackhawk',
+  },
+  {
+    src: '/images/packages/FAS-trackhawk-build3.webp',
+    alt: 'FAS Trackhawk build',
+    title: 'FAS Trackhawk',
+    subtitle: 'Jeep Grand Cherokee Trackhawk',
+    category: 'trackhawk',
+  },
+  {
+    src: '/images/packages/FAS-trackhawk-build4.webp',
+    alt: 'FAS Trackhawk build',
+    title: 'FAS Trackhawk',
+    subtitle: 'Jeep Grand Cherokee Trackhawk',
+    category: 'trackhawk',
+  },
+  {
+    src: '/images/packages/FAS-trackhawk-engine-bay.webp',
+    alt: 'FAS Trackhawk engine bay',
+    title: 'Trackhawk Engine Bay',
+    subtitle: 'Jeep Grand Cherokee Trackhawk',
+    category: 'trackhawk',
+  },
+  {
+    src: '/images/packages/FAS-trackhawk-bay.webp',
+    alt: 'FAS Trackhawk engine bay',
+    title: 'Trackhawk Engine Bay',
+    subtitle: 'Jeep Grand Cherokee Trackhawk',
+    category: 'trackhawk',
+  },
+  {
+    src: '/images/packages/jeep trackhawk 900 package.webp',
+    alt: 'FAS Trackhawk 900 package',
+    title: 'Trackhawk 900 Package',
+    subtitle: 'Jeep Grand Cherokee Trackhawk',
+    category: 'trackhawk',
+  },
+  {
+    src: '/images/packages/THpackage.webp',
+    alt: 'FAS Trackhawk package',
+    title: 'FAS Trackhawk',
+    subtitle: 'Jeep Grand Cherokee Trackhawk',
+    category: 'trackhawk',
+  },
+  {
+    src: '/images/packages/FAS-durango.webp',
+    alt: 'FAS Dodge Durango build',
+    title: 'FAS Durango',
+    subtitle: 'Dodge Durango',
+    category: 'trackhawk',
+  },
+
+  // ─── RAM TRX ────────────────────────────────────────────────────────────
+  {
+    src: '/images/packages/FAS-TRX-build1.webp',
+    alt: 'FAS RAM TRX build',
+    title: 'FAS RAM TRX',
+    subtitle: 'RAM 1500 TRX',
+    category: 'trx',
+    featured: true,
+    href: '/builds/trx',
+  },
+  {
+    src: '/images/packages/FAS-TRX.webp',
+    alt: 'FAS RAM TRX',
+    title: 'FAS RAM TRX',
+    subtitle: 'RAM 1500 TRX',
+    category: 'trx',
+  },
+  {
+    src: '/images/packages/FAS-TRX2.webp',
+    alt: 'FAS RAM TRX build',
+    title: 'FAS RAM TRX',
+    subtitle: 'RAM 1500 TRX',
+    category: 'trx',
+  },
+  {
+    src: '/images/packages/FAS-ram-trx-build.webp',
+    alt: 'FAS RAM TRX build',
+    title: 'FAS RAM TRX',
+    subtitle: 'RAM 1500 TRX',
+    category: 'trx',
+  },
+  {
+    src: '/images/packages/D-FAS-TRX-Package.webp',
+    alt: 'FAS Dominator TRX package',
+    title: 'Dominator TRX Package',
+    subtitle: 'RAM 1500 TRX',
+    category: 'trx',
+  },
+  {
+    src: '/images/packages/FAS-raptor-TRX.webp',
+    alt: 'FAS Raptor and TRX',
+    title: 'Raptor & TRX',
+    subtitle: 'Ford Raptor / RAM TRX',
+    category: 'trx',
+  },
+  {
+    src: '/images/packages/ram-trx-factory-freak.webp',
+    alt: 'RAM TRX Factory Freak build',
+    title: 'TRX Factory Freak',
+    subtitle: 'RAM 1500 TRX',
+    category: 'trx',
+  },
+
+  // ─── Truck Builds ───────────────────────────────────────────────────────
+  {
+    src: '/images/packages/FAS-f150-1000.webp',
+    alt: 'FAS Ford F-150 build',
+    title: 'FAS F-150',
+    subtitle: 'Ford F-150',
+    category: 'truck',
+    featured: true,
+    href: '/builds/f150',
+  },
+  {
+    src: '/images/packages/FAS-f150-10002.webp',
+    alt: 'FAS Ford F-150 build',
+    title: 'FAS F-150',
+    subtitle: 'Ford F-150',
+    category: 'truck',
+  },
+  {
+    src: '/images/packages/FAS-f150.webp',
+    alt: 'FAS Ford F-150 build',
+    title: 'FAS F-150',
+    subtitle: 'Ford F-150',
+    category: 'truck',
+  },
+  {
+    src: '/images/packages/FAS-raptor-build1.webp',
+    alt: 'FAS Ford Raptor build',
+    title: 'FAS Raptor',
+    subtitle: 'Ford Raptor',
+    category: 'truck',
+  },
+  {
+    src: '/images/packages/FAS-raptor.webp',
+    alt: 'FAS Ford Raptor',
+    title: 'FAS Raptor',
+    subtitle: 'Ford Raptor',
+    category: 'truck',
+  },
+  {
+    src: '/images/packages/FAS-F250-custom.webp',
+    alt: 'FAS Ford F-250 build',
+    title: 'FAS F-250',
+    subtitle: 'Ford F-250',
+    category: 'truck',
+  },
+  {
+    src: '/images/packages/F250-FAS.webp',
+    alt: 'FAS Ford F-250 build',
+    title: 'FAS F-250',
+    subtitle: 'Ford F-250',
+    category: 'truck',
+  },
+  {
+    src: '/images/packages/850-ram.webp',
+    alt: 'FAS RAM 850 build',
+    title: 'FAS RAM 850',
+    subtitle: 'Dodge RAM',
+    category: 'truck',
+  },
+  {
+    src: '/images/packages/dodge-ram.webp',
+    alt: 'FAS Dodge RAM build',
+    title: 'FAS Dodge RAM',
+    subtitle: 'Dodge RAM',
+    category: 'truck',
+  },
+  {
+    src: '/images/packages/Shelby-truck.webp',
+    alt: 'FAS Shelby truck build',
+    title: 'FAS Shelby Truck',
+    subtitle: 'Shelby F-150',
+    category: 'truck',
+  },
+
+  // ─── Mustang ────────────────────────────────────────────────────────────
+  {
+    src: '/images/packages/mustang/FAS-5.webp',
+    alt: 'FAS Mustang build',
+    title: 'FAS Mustang',
+    subtitle: 'Ford Mustang',
+    category: 'mustang',
+    featured: true,
+    href: '/builds/mustang',
+  },
+  {
+    src: '/images/packages/mustang/FAS-6.webp',
+    alt: 'FAS Mustang build',
+    title: 'FAS Mustang',
+    subtitle: 'Ford Mustang',
+    category: 'mustang',
+  },
+  {
+    src: '/images/packages/mustang/FAS-7.webp',
+    alt: 'FAS Mustang build',
+    title: 'FAS Mustang',
+    subtitle: 'Ford Mustang',
+    category: 'mustang',
+  },
+
+  // ─── Packages ───────────────────────────────────────────────────────────
+  {
+    src: '/images/packages/power-packages-banner.webp',
+    alt: 'FAS Power Packages',
+    title: 'FAS Power Packages',
+    subtitle: 'Performance Packages',
+    category: 'packages',
+    featured: true,
+    href: '#gallery-heading',
+    cta: 'Browse All Builds',
+  },
+  {
+    src: '/images/packages/1.webp',
+    alt: 'FAS build',
+    title: 'FAS Build',
+    subtitle: 'Performance Package',
+    category: 'packages',
+  },
+  {
+    src: '/images/packages/fas 2x.webp',
+    alt: 'FAS 2X package',
+    title: 'FAS 2X Package',
+    subtitle: 'Performance Package',
+    category: 'packages',
+  },
+  {
+    src: '/images/packages/fas-1x-2.webp',
+    alt: 'FAS 1X package',
+    title: 'FAS 1X Package',
+    subtitle: 'Performance Package',
+    category: 'packages',
+  },
+];
+
+const featuredBuilds = builds.filter((b) => b.featured);
+const pageTitle = 'Build Gallery';
+const pageDescription =
+  'Explore custom car and truck builds by F.A.S. Motorsports — Hellcat packages, Trackhawk builds, RAM TRX performance, F-150 stage kits, Mustang builds, and more from our Fort Myers performance shop.';
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  keywords={[
+    'F.A.S. Motorsports builds',
+    'Hellcat performance build',
+    'Trackhawk custom build',
+    'RAM TRX stage build',
+    'Ford F-150 performance package',
+    'Mustang GT500 build',
+    'custom car builds Fort Myers',
+    'luxury performance shop builds',
+    'supercharged builds gallery',
+    'performance package showcase'
+  ]}
+>
+  <!-- ══════════════════════════════════════════════════════════════
+       HERO SECTION
+  ══════════════════════════════════════════════════════════════ -->
+  <section class="build-hero" aria-label="Build gallery hero">
+    <div class="build-hero__bg" aria-hidden="true">
+      <img
+        src="/images/backgrounds/hero/fas-garage.webp"
+        alt=""
+        class="build-hero__bg-img"
+        loading="eager"
+        decoding="async"
+      />
+      <div class="build-hero__bg-overlay" aria-hidden="true"></div>
+    </div>
+    <div class="build-hero__content site-container">
+      <p class="build-hero__eyebrow">F.A.S. Motorsports</p>
+      <h1 class="build-hero__title">
+        <span class="build-hero__title-line1">BUILD</span>
+        <span class="build-hero__title-line2">GALLERY</span>
+      </h1>
+      <p class="build-hero__subtitle">
+        Every vehicle that rolls through our Fort Myers shop leaves transformed.<br
+          class="build-hero__br"
+        />
+        Hellcats, TRXs, Trackhawks, F-Series, Mustangs — built to a standard most shops
+        can&apos;t reach.
+      </p>
+      <div class="build-hero__stats" aria-label="Shop statistics">
+        <div class="build-hero__stat">
+          <span class="build-hero__stat-num">6<sup>+</sup></span>
+          <span class="build-hero__stat-label">Vehicle Platforms</span>
+        </div>
+        <div class="build-hero__stat-divider" aria-hidden="true"></div>
+        <div class="build-hero__stat">
+          <span class="build-hero__stat-num">FL</span>
+          <span class="build-hero__stat-label">Fort Myers, Florida</span>
+        </div>
+      </div>
+    </div>
+    <div class="build-hero__scroll-cue" aria-hidden="true">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 5v14M5 12l7 7 7-7"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       FEATURED BUILDS — editorial spotlight row
+  ══════════════════════════════════════════════════════════════ -->
+  <section class="build-featured" aria-labelledby="featured-heading">
+    <div class="site-container">
+      <header class="build-section-header">
+        <span class="build-section-header__tag">Spotlight</span>
+        <h2 id="featured-heading" class="build-section-header__title">
+          Signature Builds
+        </h2>
+        <p class="build-section-header__desc">
+          Our most ambitious projects — each one a statement in precision engineering and performance.
+        </p>
+      </header>
+
+      <div class="build-featured__grid">
+        {featuredBuilds.map((build, i) => {
+          const Tag = build.href ? 'a' : 'article';
+          return (
+            <Tag
+              href={build.href ?? undefined}
+              class={`build-featured__card${i === 0 ? ' build-featured__card--hero' : ''}${build.href ? ' build-featured__card--link' : ''}`}
+              aria-label={build.title}
+            >
+              <div class="build-featured__card-img-wrap">
+                <img
+                  src={build.src}
+                  alt={build.alt}
+                  class="build-featured__card-img"
+                  loading={i < 2 ? 'eager' : 'lazy'}
+                  decoding="async"
+                />
+                <div class="build-featured__card-overlay" aria-hidden="true"></div>
+              </div>
+              <div class="build-featured__card-body">
+                <p class="build-featured__card-sub">{build.subtitle}</p>
+                <h3 class="build-featured__card-title">{build.title}</h3>
+                {build.href && (
+                  <span class="build-featured__card-cta">{build.cta ?? 'View Builds'} &rarr;</span>
+                )}
+              </div>
+            </Tag>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       FILTER TABS + MASONRY GALLERY
+  ══════════════════════════════════════════════════════════════ -->
+  <section class="build-gallery" aria-labelledby="gallery-heading">
+    <div class="site-container">
+      <header class="build-section-header">
+        <span class="build-section-header__tag">Full Portfolio</span>
+        <h2 id="gallery-heading" class="build-section-header__title">
+          Every Build. Every Platform.
+        </h2>
+      </header>
+
+      <!-- Filter tabs -->
+      <nav class="build-filters" aria-label="Filter builds by category" role="tablist">
+        {categories.map((cat) => (
+          <button
+            class="build-filter-btn"
+            data-category={cat.id}
+            role="tab"
+            aria-selected={cat.id === 'all' ? 'true' : 'false'}
+            aria-controls="build-gallery-grid"
+          >
+            {cat.label}
+          </button>
+        ))}
+      </nav>
+
+      <!-- Gallery grid -->
+      <div
+        id="build-gallery-grid"
+        class="build-grid"
+        role="tabpanel"
+        aria-label="Build gallery"
+      >
+        {builds.map((build) => (
+          <article
+            class="build-card"
+            data-category={build.category}
+            aria-label={build.title}
+          >
+            <div class="build-card__img-wrap">
+              <img
+                src={build.src}
+                alt={build.alt}
+                class="build-card__img"
+                loading="lazy"
+                decoding="async"
+              />
+              <div class="build-card__shine" aria-hidden="true"></div>
+            </div>
+            <div class="build-card__overlay" aria-hidden="true">
+              <div class="build-card__overlay-inner">
+                <p class="build-card__overlay-sub">{build.subtitle}</p>
+                <p class="build-card__overlay-title">{build.title}</p>
+              </div>
+            </div>
+            <div class="build-card__footer">
+              <p class="build-card__footer-sub">{build.subtitle}</p>
+              <p class="build-card__footer-title">{build.title}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <!-- Empty state -->
+      <div class="build-empty" id="build-empty" aria-live="polite" hidden>
+        <p class="build-empty__text">No builds in this category yet.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       CTA STRIP
+  ══════════════════════════════════════════════════════════════ -->
+  <section class="build-cta" aria-label="Start your build">
+    <div class="build-cta__bg" aria-hidden="true">
+      <img
+        src="/images/backgrounds/bg-asphalt.webp"
+        alt=""
+        class="build-cta__bg-img"
+        loading="lazy"
+        decoding="async"
+      />
+      <div class="build-cta__bg-overlay" aria-hidden="true"></div>
+    </div>
+    <div class="build-cta__content site-container">
+      <h2 class="build-cta__title">Ready to Build?</h2>
+      <p class="build-cta__desc">
+        Every build in this gallery started with a conversation. Tell us your platform,
+        your goals, and we&apos;ll put together a package that delivers.
+      </p>
+      <div class="build-cta__actions">
+        <a href="/schedule" class="build-cta__btn build-cta__btn--primary">
+          Schedule a Consultation
+        </a>
+        <a href="/shop" class="build-cta__btn build-cta__btn--ghost">
+          Browse Packages
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<!-- ──────────────────────────────────────────────────────────────
+     FILTER SCRIPT
+────────────────────────────────────────────────────────────────── -->
+<script>
+  const filterBtns = document.querySelectorAll<HTMLButtonElement>('.build-filter-btn');
+  const cards = document.querySelectorAll<HTMLElement>('.build-card');
+  const emptyState = document.getElementById('build-empty');
+
+  function applyFilter(category: string) {
+    let visible = 0;
+    cards.forEach((card) => {
+      const match = category === 'all' || card.dataset.category === category;
+      card.hidden = !match;
+      if (match) visible++;
+    });
+    if (emptyState) emptyState.hidden = visible > 0;
+
+    filterBtns.forEach((btn) => {
+      const active = btn.dataset.category === category;
+      btn.setAttribute('aria-selected', active ? 'true' : 'false');
+      btn.classList.toggle('build-filter-btn--active', active);
+    });
+  }
+
+  filterBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      applyFilter(btn.dataset.category ?? 'all');
+    });
+  });
+
+  // Initialize
+  applyFilter('all');
+</script>
+
+<!-- ──────────────────────────────────────────────────────────────
+     STYLES
+────────────────────────────────────────────────────────────────── -->
+<style>
+  /* ── Design tokens ─────────────────────────────────────── */
+  :root {
+    --red: #ea1d26;
+    --red-dark: #c91820;
+    --gold: #fde4b2;
+    --bg: #121212;
+    --bg-card: #1a1a1a;
+    --border: rgba(255, 255, 255, 0.08);
+    --text-muted: #a1a1aa;
+  }
+
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     HERO
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .build-hero {
+    position: relative;
+    min-height: 88vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .build-hero__bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .build-hero__bg-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    filter: brightness(0.45) saturate(0.8);
+  }
+  .build-hero__bg-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.75) 0%,
+      rgba(125, 1, 7, 0.15) 50%,
+      rgba(0, 0, 0, 0.85) 100%
+    );
+  }
+
+  .build-hero__content {
+    position: relative;
+    z-index: 1;
+    padding-block: 6rem 5rem;
+  }
+
+  .build-hero__eyebrow {
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 1.25rem;
+  }
+
+  .build-hero__title {
+    font-family: 'American Captain', sans-serif;
+    font-weight: 400;
+    line-height: 0.9;
+    letter-spacing: 0.02em;
+    color: #fff;
+    margin: 0 0 1.5rem;
+  }
+  .build-hero__title-line1 {
+    display: block;
+    font-size: clamp(5rem, 14vw, 11rem);
+    color: #fff;
+  }
+  .build-hero__title-line2 {
+    display: block;
+    font-size: clamp(5rem, 14vw, 11rem);
+    -webkit-text-stroke: 2px rgba(255, 255, 255, 0.35);
+    color: transparent;
+  }
+
+  .build-hero__subtitle {
+    font-size: clamp(0.875rem, 1.5vw, 1.05rem);
+    color: rgba(255, 255, 255, 0.72);
+    line-height: 1.65;
+    max-width: 560px;
+    margin-bottom: 3rem;
+  }
+  .build-hero__br { display: none; }
+
+  .build-hero__stats {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: wrap;
+    row-gap: 1.5rem;
+  }
+  .build-hero__stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding-inline: 2rem;
+  }
+  .build-hero__stat:first-child { padding-left: 0; }
+  .build-hero__stat-num {
+    font-family: 'American Captain', sans-serif;
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    color: var(--red);
+    line-height: 1;
+  }
+  .build-hero__stat-num sup {
+    font-size: 0.55em;
+    vertical-align: super;
+  }
+  .build-hero__stat-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .build-hero__stat-divider {
+    width: 1px;
+    height: 2.5rem;
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  .build-hero__scroll-cue {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255, 255, 255, 0.3);
+    animation: scrollBob 2s ease-in-out infinite;
+    z-index: 1;
+  }
+  @keyframes scrollBob {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50%       { transform: translateX(-50%) translateY(8px); }
+  }
+
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     SHARED SECTION HEADER
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .build-section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  .build-section-header__tag {
+    display: inline-block;
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 0.75rem;
+  }
+  .build-section-header__title {
+    font-family: 'American Captain', sans-serif;
+    font-weight: 400;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    color: #fff;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    margin: 0 0 0.875rem;
+  }
+  .build-section-header__desc {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    max-width: 520px;
+    margin-inline: auto;
+    line-height: 1.6;
+  }
+
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     FEATURED BUILDS
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .build-featured {
+    padding-block: 6rem;
+    background: var(--bg);
+  }
+
+  .build-featured__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+  .build-featured__card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    cursor: default;
+    background: #000;
+    aspect-ratio: 4 / 3;
+  }
+  .build-featured__card--hero {
+    grid-column: span 2;
+    aspect-ratio: 16 / 9;
+  }
+
+  .build-featured__card-img-wrap {
+    position: absolute;
+    inset: 0;
+  }
+  .build-featured__card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .build-featured__card:hover .build-featured__card-img {
+    transform: scale(1.05);
+  }
+
+  .build-featured__card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.85) 0%,
+      rgba(0, 0, 0, 0.2) 45%,
+      transparent 100%
+    );
+  }
+
+  .build-featured__card-body {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1.5rem;
+    z-index: 1;
+  }
+  .build-featured__card--link {
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .build-featured__card-cta {
+    display: inline-block;
+    margin-top: 0.6rem;
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--red);
+    transition: color 0.2s;
+  }
+  .build-featured__card--link:hover .build-featured__card-cta {
+    color: #fff;
+  }
+  .build-featured__card-sub {
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 0.35rem;
+  }
+  .build-featured__card-title {
+    font-family: 'American Captain', sans-serif;
+    font-weight: 400;
+    font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+    color: #fff;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    margin: 0;
+  }
+
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     GALLERY SECTION
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .build-gallery {
+    padding-block: 6rem;
+    background: #0d0d0d;
+  }
+
+  /* ── Filter tabs ──────────────────────────────────────── */
+  .build-filters {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 3rem;
+  }
+  .build-filter-btn {
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+    padding: 0.55rem 1.1rem;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+    white-space: nowrap;
+  }
+  .build-filter-btn:hover {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  .build-filter-btn--active,
+  .build-filter-btn[aria-selected='true'] {
+    color: #fff;
+    background: var(--red);
+    border-color: var(--red);
+  }
+
+  /* ── Masonry grid ─────────────────────────────────────── */
+  .build-grid {
+    columns: 4;
+    column-gap: 1rem;
+  }
+  .build-card {
+    position: relative;
+    break-inside: avoid;
+    margin-bottom: 1rem;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: #000;
+    cursor: default;
+  }
+  .build-card[hidden] { display: none; }
+
+  .build-card__img-wrap {
+    position: relative;
+    overflow: hidden;
+  }
+  .build-card__img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 0.4s;
+    filter: brightness(0.9);
+  }
+  .build-card:hover .build-card__img {
+    transform: scale(1.07);
+    filter: brightness(0.7);
+  }
+
+  /* Gloss shine sweep on hover */
+  .build-card__shine {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      115deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.07) 45%,
+      transparent 55%
+    );
+    transform: translateX(-100%);
+    transition: transform 0.55s ease;
+    pointer-events: none;
+  }
+  .build-card:hover .build-card__shine {
+    transform: translateX(200%);
+  }
+
+  /* Hover overlay with text */
+  .build-card__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(125, 1, 7, 0.7) 0%,
+      rgba(0, 0, 0, 0.3) 60%,
+      transparent 100%
+    );
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    display: flex;
+    align-items: flex-end;
+    padding: 1.25rem;
+    pointer-events: none;
+  }
+  .build-card:hover .build-card__overlay {
+    opacity: 1;
+  }
+  .build-card__overlay-inner {
+    transform: translateY(8px);
+    transition: transform 0.35s ease;
+  }
+  .build-card:hover .build-card__overlay-inner {
+    transform: translateY(0);
+  }
+  .build-card__overlay-sub {
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.3rem;
+  }
+  .build-card__overlay-title {
+    font-family: 'American Captain', sans-serif;
+    font-weight: 400;
+    font-size: 1.1rem;
+    color: #fff;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    margin: 0;
+  }
+
+  /* Static footer (always visible on mobile) */
+  .build-card__footer {
+    padding: 0.75rem 0.9rem 0.8rem;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border);
+  }
+  .build-card__footer-sub {
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.52rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 0.2rem;
+  }
+  .build-card__footer-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.88);
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  /* Empty state */
+  .build-empty {
+    text-align: center;
+    padding: 4rem 0;
+  }
+  .build-empty__text {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     CTA STRIP
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  .build-cta {
+    position: relative;
+    overflow: hidden;
+    padding-block: 6rem;
+    text-align: center;
+  }
+  .build-cta__bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .build-cta__bg-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.25) saturate(0.6);
+  }
+  .build-cta__bg-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.6) 0%,
+      rgba(125, 1, 7, 0.25) 50%,
+      rgba(0, 0, 0, 0.7) 100%
+    );
+  }
+
+  .build-cta__content {
+    position: relative;
+    z-index: 1;
+  }
+  .build-cta__title {
+    font-family: 'American Captain', sans-serif;
+    font-weight: 400;
+    font-size: clamp(2.5rem, 7vw, 5rem);
+    color: #fff;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    margin: 0 0 1.25rem;
+  }
+  .build-cta__desc {
+    font-size: clamp(0.875rem, 1.5vw, 1rem);
+    color: rgba(255, 255, 255, 0.7);
+    max-width: 520px;
+    margin-inline: auto;
+    margin-bottom: 2.5rem;
+    line-height: 1.65;
+  }
+  .build-cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+  .build-cta__btn {
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 0.875rem 2.25rem;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background 0.25s, color 0.25s, border-color 0.25s, transform 0.15s;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+  }
+  .build-cta__btn--primary {
+    background: var(--red);
+    color: #fff;
+    border: 1px solid var(--red);
+  }
+  .build-cta__btn--primary:hover {
+    background: var(--red-dark);
+    border-color: var(--red-dark);
+    transform: translateY(-1px);
+  }
+  .build-cta__btn--ghost {
+    background: transparent;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+  }
+  .build-cta__btn--ghost:hover {
+    border-color: rgba(255, 255, 255, 0.7);
+    transform: translateY(-1px);
+  }
+
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     RESPONSIVE BREAKPOINTS
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+  /* Large laptop — tighten up featured grid */
+  @media (max-width: 1280px) {
+    .build-featured__grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    .build-grid {
+      columns: 3;
+    }
+    .build-hero__title-line1,
+    .build-hero__title-line2 {
+      font-size: clamp(4rem, 11vw, 9rem);
+    }
+    .build-hero__stat { padding-inline: 1.5rem; }
+  }
+
+  /* Tablet landscape */
+  @media (max-width: 1024px) {
+    .build-featured__grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 0.875rem;
+    }
+    .build-featured__card--hero {
+      grid-column: span 2;
+      aspect-ratio: 16 / 9;
+    }
+    .build-grid {
+      columns: 3;
+      column-gap: 0.875rem;
+    }
+    .build-hero {
+      min-height: 80vh;
+    }
+    .build-hero__stat { padding-inline: 1.25rem; }
+    .build-hero__br { display: block; }
+    .build-featured,
+    .build-gallery,
+    .build-cta {
+      padding-block: 4.5rem;
+    }
+  }
+
+  /* Tablet portrait — switch to stacked layout */
+  @media (max-width: 768px) {
+    .build-hero {
+      min-height: 70vh;
+      align-items: flex-end;
+    }
+    .build-hero__content {
+      padding-block: 3rem 2.5rem;
+    }
+    .build-hero__title-line1,
+    .build-hero__title-line2 {
+      font-size: clamp(3.5rem, 16vw, 6rem);
+    }
+    .build-hero__stats {
+      gap: 0;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      padding-bottom: 0.25rem;
+    }
+    .build-hero__stat { padding-inline: 1rem; }
+    .build-hero__stat-divider { flex-shrink: 0; }
+
+    /* Featured: single column stack */
+    .build-featured__grid {
+      grid-template-columns: 1fr;
+      gap: 0.875rem;
+    }
+    .build-featured__card--hero {
+      grid-column: span 1;
+    }
+
+    /* Gallery: 2-column masonry */
+    .build-grid {
+      columns: 2;
+      column-gap: 0.75rem;
+    }
+    .build-card { margin-bottom: 0.75rem; }
+
+    /* Filters: scrollable row */
+    .build-filters {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      justify-content: flex-start;
+      padding-bottom: 0.5rem;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .build-filters::-webkit-scrollbar { display: none; }
+    .build-filter-btn { flex-shrink: 0; }
+
+    .build-featured,
+    .build-gallery,
+    .build-cta { padding-block: 3.5rem; }
+
+    .build-section-header { margin-bottom: 2rem; }
+  }
+
+  /* Mobile — tighter constraints, full-width buttons */
+  @media (max-width: 560px) {
+    .build-hero {
+      min-height: 65vh;
+    }
+    .build-hero__content {
+      padding-block: 2rem 2rem;
+    }
+    .build-hero__title-line1,
+    .build-hero__title-line2 {
+      font-size: clamp(3rem, 18vw, 5rem);
+    }
+    .build-hero__subtitle {
+      font-size: 0.82rem;
+    }
+    .build-hero__stats {
+      gap: 0;
+    }
+    .build-hero__stat { padding-inline: 0.75rem; }
+    .build-hero__stat:first-child { padding-left: 0; }
+    .build-hero__stat-num { font-size: 1.6rem; }
+
+    /* Gallery: single column */
+    .build-grid {
+      columns: 2;
+      column-gap: 0.5rem;
+    }
+    .build-card { margin-bottom: 0.5rem; }
+
+    /* CTA full-width buttons */
+    .build-cta__actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .build-cta__btn {
+      justify-content: center;
+      width: 100%;
+      padding: 1rem 1.5rem;
+    }
+
+    .build-featured,
+    .build-gallery,
+    .build-cta { padding-block: 2.75rem; }
+
+    .build-section-header__title {
+      font-size: clamp(1.75rem, 8vw, 2.5rem);
+    }
+
+    .build-filter-btn {
+      padding: 0.5rem 0.875rem;
+      font-size: 0.55rem;
+    }
+  }
+</style>

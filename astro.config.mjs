@@ -32,6 +32,8 @@ const sanityApiVersion =
 
 const sanityStudioUrl =
   process.env.PUBLIC_SANITY_STUDIO_URL || process.env.SANITY_STUDIO_URL || undefined;
+const isLocalDev = process.env.NODE_ENV === 'development';
+
 
 // Netlify's adapter injects @netlify/vite-plugin automatically in a few
 // different environments (e.g. when NETLIFY_DEV is set). When multiple copies
@@ -92,7 +94,12 @@ try {
 
 export default defineConfig({
   output: 'server',
-  adapter: netlify(),
+  adapter: netlify({
+    devFeatures: {
+      images: false,
+      environmentVariables: false
+    }
+  }),
   integrations: [
     sanity({
       projectId: sanityProjectId,
@@ -109,9 +116,13 @@ export default defineConfig({
     tailwind()
   ],
   image: {
-    service: {
-      entrypoint: '@astrojs/image/services/netlify'
-    },
+    ...(isLocalDev
+      ? {}
+      : {
+          service: {
+            entrypoint: '@astrojs/image/services/netlify'
+          }
+        }),
     domains: ['cdn.sanity.io', 'cdn.sanityusercontent.com']
   },
   markdown: {
@@ -160,10 +171,12 @@ export default defineConfig({
     },
     envPrefix: ['PUBLIC_'],
     optimizeDeps: {
+      noDiscovery: true,
       include: [
-        'react',
-        'react-dom',
         'react-router-dom',
+        '@stripe/react-stripe-js',
+        '@stripe/stripe-js',
+        'prop-types',
         '@fullcalendar/core',
         'apexcharts',
         'sonner',
@@ -194,22 +207,35 @@ export default defineConfig({
         '@layouts': fileURLToPath(new URL('./src/layouts', import.meta.url)),
         '@pages': fileURLToPath(new URL('./src/pages', import.meta.url)),
         '@lib': fileURLToPath(new URL('./src/lib', import.meta.url)),
+        '@sanity/image-url': fileURLToPath(
+          new URL('./node_modules/@sanity/image-url/lib/browser/image-url.esm.mjs', import.meta.url)
+        ),
         lib: fileURLToPath(new URL('./src/lib', import.meta.url)),
         unframer$: fileURLToPath(new URL('./src/lib/unframer-shim.ts', import.meta.url)),
         moment$: fileURLToPath(new URL('./src/lib/moment-shim.ts', import.meta.url))
       }
     },
     server: {
+      // Keep dev networking deterministic. If 4321 is occupied, fail fast
+      // instead of silently shifting ports and breaking HMR/client URLs.
+      strictPort: true,
       // Prevent intermittent Astro island hydrate failures when the page and
       // module URLs resolve under different local hosts (localhost/127.0.0.1/
       // Netlify dev host). Module scripts require CORS in that case.
       cors: true,
-      // Disable HMR in this local Astro+Netlify middleware mode; the websocket
-      // handshake is unreliable and can load mixed dep hashes, which leads to
-      // duplicate React runtimes and invalid-hook hydration failures.
-      hmr: false,
+      // Keep the HMR websocket on the same public origin/port as Astro dev.
+      // This avoids Vite fallback to 5173, which can create mixed React runtimes.
+      hmr: {
+        protocol: 'ws',
+        host: 'localhost',
+        port: 24678,
+        clientPort: 24678
+      },
       // Allow Netlify DevServer hosts to connect
       allowedHosts: [
+        'localhost',
+        '127.0.0.1',
+        'host.docker.internal',
         'devserver-main--fasmoto.netlify.app',
         /^(?:devserver|deploy-preview|branch|main)--.*\.netlify\.app$/
       ],

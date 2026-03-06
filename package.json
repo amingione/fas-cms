@@ -4,8 +4,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "dotenv -e .env -- cross-env NODE_ENV=development astro dev --force",
-    "dev:clean": "rimraf node_modules/.vite .astro && dotenv -e .env -- cross-env NODE_ENV=development astro dev --force",
+    "dev": "dotenv -e .env -- cross-env NODE_ENV=development NETLIFY_DEV=1 astro dev --host localhost --port 4321 --strictPort",
+    "dev:clean": "rimraf node_modules/.vite .astro && dotenv -e .env -- cross-env NODE_ENV=development NETLIFY_DEV=1 astro dev --host localhost --port 4321 --strictPort",
     "prebuild": "node scripts/netlify/prepare-gmc-service-account.cjs && node scripts/netlify/prepare-functions-internal.cjs",
     "postbuild": "node scripts/netlify/prepare-functions-internal.cjs",
     "build": "cross-env NODE_ENV=production astro build",

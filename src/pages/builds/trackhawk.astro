@@ -1,0 +1,206 @@
+---
+export const prerender = true;
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const images = [
+  { src: '/images/packages/FAS-Trackhawk-build.webp', alt: 'FAS Trackhawk build' },
+  { src: '/images/packages/FAS-trackhawk-build2.webp', alt: 'FAS Trackhawk build' },
+  { src: '/images/packages/FAS-trackhawk-build3.webp', alt: 'FAS Trackhawk build' },
+  { src: '/images/packages/FAS-trackhawk-build4.webp', alt: 'FAS Trackhawk build' },
+  { src: '/images/packages/FAS-trackhawk-engine-bay.webp', alt: 'FAS Trackhawk engine bay' },
+  { src: '/images/packages/FAS-trackhawk-bay.webp', alt: 'FAS Trackhawk engine bay' },
+  { src: '/images/packages/jeep trackhawk 900 package.webp', alt: 'FAS Trackhawk 900 package' },
+  { src: '/images/packages/THpackage.webp', alt: 'FAS Trackhawk package' },
+  { src: '/images/packages/FAS-durango.webp', alt: 'FAS Dodge Durango build' },
+];
+---
+
+<BaseLayout
+  title="Trackhawk Builds"
+  description="F.A.S. Motorsports Jeep Grand Cherokee Trackhawk builds — real customer vehicles from our Fort Myers, Florida performance shop."
+  breadcrumbs={[
+    { href: '/', label: 'Home' },
+    { href: '/builds', label: 'Builds' },
+    { label: 'Trackhawk' },
+  ]}
+>
+  <div class="bp-page">
+
+    <section class="bp-hero">
+      <div class="bp-hero__img-wrap">
+        <img
+          src="/images/packages/FAS-Trackhawk-build.webp"
+          alt="FAS Trackhawk build"
+          class="bp-hero__img"
+          loading="eager"
+          decoding="async"
+        />
+        <div class="bp-hero__overlay" aria-hidden="true"></div>
+      </div>
+      <div class="bp-hero__content site-container">
+        <p class="bp-eyebrow">FAS Builds</p>
+        <h1 class="bp-hero__title">
+          Jeep<br /><span class="bp-hero__title-outline">Trackhawk</span>
+        </h1>
+        <p class="bp-hero__platform">Jeep Grand Cherokee Trackhawk</p>
+        <a href="/schedule" class="bp-btn bp-btn--primary">Schedule Your Build</a>
+      </div>
+    </section>
+
+    <section class="bp-about">
+      <div class="site-container bp-about__inner">
+        <div class="bp-about__text-col">
+          <span class="bp-eyebrow">Platform</span>
+          <h2 class="bp-section-title">What We Do on Trackhawks</h2>
+          <p class="bp-body">
+            The Jeep Grand Cherokee Trackhawk is a supercharged SUV platform that responds exceptionally well to performance work. At our Fort Myers shop, FAS has built numerous Trackhawks for customers across Florida and beyond.
+          </p>
+          <p class="bp-body">
+            The gallery below includes the Trackhawk 900 package — named for the package, not a specific number we&apos;ll guarantee on your car. Every result depends on your specific vehicle, tune, and configuration. Talk to us before you assume anything about output.
+          </p>
+          <div class="bp-action-row">
+            <a href="/schedule" class="bp-btn bp-btn--primary">Schedule a Consultation</a>
+            <a href="/shop" class="bp-btn bp-btn--ghost">Browse Parts</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bp-gallery">
+      <div class="site-container">
+        <span class="bp-eyebrow">Gallery</span>
+        <h2 class="bp-section-title">Customer Builds</h2>
+        <div class="bp-grid">
+          {images.map((img, i) => (
+            <div class="bp-card">
+              <img
+                src={img.src}
+                alt={img.alt}
+                class="bp-card__img"
+                loading={i < 3 ? 'eager' : 'lazy'}
+                decoding="async"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="bp-cta">
+      <div class="site-container bp-cta__inner">
+        <h2 class="bp-cta__title">Ready to Build Your Trackhawk?</h2>
+        <p class="bp-body">Reach out and we&apos;ll put together a plan for your car.</p>
+        <div class="bp-action-row bp-action-row--center">
+          <a href="/schedule" class="bp-btn bp-btn--primary">Schedule a Consultation</a>
+          <a href="/builds" class="bp-btn bp-btn--ghost">Back to All Builds</a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</BaseLayout>
+
+<style>
+  :root {
+    --bp-red: #ea1d26;
+    --bp-red-dark: #c91820;
+    --bp-bg: #121212;
+    --bp-border: rgba(255,255,255,0.08);
+    --bp-muted: #a1a1aa;
+  }
+  .bp-page { background: var(--bp-bg); }
+  .bp-eyebrow {
+    display: inline-block;
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--bp-red);
+    margin-bottom: 0.75rem;
+  }
+  .bp-hero {
+    position: relative; min-height: 75vh;
+    display: flex; align-items: flex-end; overflow: hidden;
+  }
+  .bp-hero__img-wrap { position: absolute; inset: 0; }
+  .bp-hero__img {
+    width: 100%; height: 100%; object-fit: cover;
+    filter: brightness(0.45) saturate(0.85);
+  }
+  .bp-hero__overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.1) 60%, transparent 100%);
+  }
+  .bp-hero__content { position: relative; z-index: 1; padding-block: 3.5rem 4rem; }
+  .bp-hero__title {
+    font-family: 'American Captain', sans-serif;
+    font-weight: 400;
+    font-size: clamp(3.5rem, 10vw, 8rem);
+    line-height: 0.9; color: #fff;
+    letter-spacing: 0.02em; margin: 0 0 1rem;
+  }
+  .bp-hero__title-outline { -webkit-text-stroke: 2px rgba(255,255,255,0.35); color: transparent; }
+  .bp-hero__platform {
+    font-size: 0.8rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--bp-muted); margin-bottom: 2rem;
+  }
+  .bp-btn {
+    display: inline-flex; align-items: center;
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.62rem; letter-spacing: 0.22em; text-transform: uppercase;
+    padding: 0.875rem 2rem; border-radius: 4px;
+    text-decoration: none; border: 1px solid transparent;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    white-space: nowrap;
+  }
+  .bp-btn--primary { background: var(--bp-red); color: #fff; border-color: var(--bp-red); }
+  .bp-btn--primary:hover { background: var(--bp-red-dark); border-color: var(--bp-red-dark); transform: translateY(-1px); }
+  .bp-btn--ghost { background: transparent; color: #fff; border-color: rgba(255,255,255,0.3); }
+  .bp-btn--ghost:hover { border-color: rgba(255,255,255,0.7); transform: translateY(-1px); }
+  .bp-section-title {
+    font-family: 'American Captain', sans-serif; font-weight: 400;
+    font-size: clamp(2rem, 4vw, 3rem); color: #fff;
+    letter-spacing: 0.03em; line-height: 1; margin: 0 0 1.25rem;
+  }
+  .bp-body { font-size: 0.9rem; color: var(--bp-muted); line-height: 1.7; max-width: 600px; margin-bottom: 1rem; }
+  .bp-action-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 2rem; }
+  .bp-action-row--center { justify-content: center; }
+  .bp-about { padding-block: 5rem; border-bottom: 1px solid var(--bp-border); }
+  .bp-about__text-col { max-width: 680px; }
+  .bp-gallery { padding-block: 5rem; }
+  .bp-gallery .bp-eyebrow { display: block; margin-bottom: 0.5rem; }
+  .bp-gallery .bp-section-title { margin-bottom: 2.5rem; }
+  .bp-grid { columns: 3; column-gap: 1rem; }
+  .bp-card {
+    break-inside: avoid; margin-bottom: 1rem;
+    border-radius: 10px; overflow: hidden;
+    border: 1px solid var(--bp-border); background: #000;
+  }
+  .bp-card__img {
+    width: 100%; height: auto; display: block;
+    transition: transform 0.55s cubic-bezier(0.25,0.46,0.45,0.94), filter 0.35s;
+    filter: brightness(0.92);
+  }
+  .bp-card:hover .bp-card__img { transform: scale(1.05); filter: brightness(0.75); }
+  .bp-cta { padding-block: 5rem; text-align: center; border-top: 1px solid var(--bp-border); }
+  .bp-cta__title {
+    font-family: 'American Captain', sans-serif; font-weight: 400;
+    font-size: clamp(2rem, 5vw, 3.5rem); color: #fff;
+    letter-spacing: 0.04em; line-height: 1; margin: 0 0 1rem;
+  }
+  .bp-cta .bp-body { margin-inline: auto; text-align: center; }
+  @media (max-width: 1024px) { .bp-grid { columns: 2; } .bp-hero { min-height: 65vh; } }
+  @media (max-width: 768px) {
+    .bp-hero { min-height: 55vh; }
+    .bp-hero__title { font-size: clamp(2.75rem, 14vw, 5rem); }
+    .bp-grid { columns: 2; column-gap: 0.75rem; }
+    .bp-about, .bp-gallery, .bp-cta { padding-block: 3.5rem; }
+  }
+  @media (max-width: 560px) {
+    .bp-grid { columns: 1; }
+    .bp-action-row { flex-direction: column; }
+    .bp-btn { justify-content: center; width: 100%; }
+    .bp-hero { min-height: 50vh; }
+    .bp-about, .bp-gallery, .bp-cta { padding-block: 2.75rem; }
+  }
+</style>

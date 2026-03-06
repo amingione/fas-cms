@@ -15,6 +15,7 @@ import { centsToDollars } from '@/lib/pricing';
 import ProductGrid from '@/components/storefront/ProductGrid.astro';
 import FilterPanelMobile from '@/components/storefront/FilterPanelMobile.tsx';
 import Pagination from '@/components/storefront/Pagination.astro';
+import StorefrontFaqSection from '@/components/storefront/StorefrontFaqSection.astro';
 import {
   attachMedusaPricingBySanityIdentity,
   listStoreProductsForPricing,
@@ -475,6 +476,42 @@ const productCollectionStructuredData = productListElements.length
     }
   : null;
 
+const shopFaqEntries = [
+  {
+    question: 'Do you support Hellcat, TRX, Trackhawk, and diesel platforms?',
+    answer:
+      'Yes. The storefront includes platform-specific parts, packages, and services for core domestic performance and diesel builds.'
+  },
+  {
+    question: 'How do I confirm fitment before ordering?',
+    answer:
+      'Use category, vehicle, and filter controls first, then confirm details on the product page. If your combo is custom, contact F.A.S. before checkout.'
+  },
+  {
+    question: 'Are install-only services mixed with shippable parts?',
+    answer:
+      'Yes. Install-only items are clearly tagged and handled correctly in cart/checkout while standard parts continue through normal shipping flow.'
+  },
+  {
+    question: 'Do you offer free shipping on eligible package profiles?',
+    answer:
+      'Eligible package profiles can receive free shipping. Shipping is computed from live cart data during checkout based on the selected items.'
+  }
+];
+
+const shopFaqStructuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: shopFaqEntries.map((entry) => ({
+    '@type': 'Question',
+    name: entry.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: entry.answer
+    }
+  }))
+};
+
 const paginationLinks = [];
 const maxVisiblePages = 5;
 const pageGroup = Math.floor((currentPage - 1) / maxVisiblePages);
@@ -497,6 +534,10 @@ if (endPage < totalPages) {
     <script
       type="application/ld+json"
       set:html={serializeJsonLd(breadcrumbStructuredData)}
+    />
+    <script
+      type="application/ld+json"
+      set:html={serializeJsonLd(shopFaqStructuredData)}
     />
   </Fragment>
   <section class="max-w-full px-2 md:px-2 mt-11 pt-10">
@@ -528,7 +569,7 @@ if (endPage < totalPages) {
     </div>
 
     <div class="flex flex-col md:flex-row gap-0 pt-8">
-      <aside class="relative w-full md:w-1/4 hidden md:block pr-4">
+      <aside class="relative hidden w-full pr-4 md:block md:w-1/4 md:shrink-0">
         <ShopSidebarFilters
           client:load
           categories={categories}
@@ -543,12 +584,18 @@ if (endPage < totalPages) {
         />
       </aside>
 
-      <div class="justify-between px-3 w-full md:w-full">
+      <div class="w-full px-3 md:w-3/4">
         <ProductGrid products={products} view={(url.searchParams.get('view') || 'grid') as 'grid' | 'list'} />
       </div>
     </div>
 
     <Pagination currentPage={currentPage} totalPages={Math.max(1, totalPages)} />
+
+    <StorefrontFaqSection
+      title="Shop Questions, Answered"
+      subtitle="Get quick clarity on fitment, shipping, and checkout behavior before you add to cart."
+      items={shopFaqEntries}
+    />
   </section>
 
   

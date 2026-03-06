@@ -177,7 +177,8 @@ export const GET: APIRoute = async ({ params }) => {
     }
 
     const subtotalCents = cart.items.reduce(
-      (sum: number, item: any) => sum + Math.max(0, toRoundedCents(item.total)),
+      (sum: number, item: any) =>
+        sum + Math.max(0, toCentsStrict(item.total, 'item.total') ?? 0),
       0
     )
     const hasExplicitDiscounts =

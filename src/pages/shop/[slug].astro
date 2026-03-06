@@ -716,6 +716,7 @@ let breadcrumbStructuredData: Record<string, any> | null = null;
 let productStructuredData: Record<string, any> | null = null;
 let relatedProductsStructuredData: Record<string, any> | null = null;
 let upsellProductsStructuredData: Record<string, any> | null = null;
+let productFaqStructuredData: Record<string, any> | null = null;
 let isInstallOnly = false;
 let isPerformanceParts = false;
 let metadataRequiresShipping: boolean | undefined;
@@ -736,6 +737,7 @@ let includedInKitItems: KitItem[] = [];
 let analyticsPrimaryCtaParams = '{}';
 let analyticsStickyCtaParams = '{}';
 let faqEntries: FAQEntry[] = [];
+let leadingFaqAnswer: { question: string; answer: string } | null = null;
 try {
   if (!slugValue) {
     throw new Error('Product slug is missing or invalid.');
@@ -1250,6 +1252,35 @@ if (product) {
       })
       .filter((entry): entry is FAQEntry => Boolean(entry));
   }
+  if (faqEntries.length > 0) {
+    const [topFaq] = faqEntries;
+    const topAnswerText = collapseSpaces(
+      topFaq.answer.type === 'text' ? topFaq.answer.value : toPlainText(topFaq.answer.value)
+    );
+    if (topFaq.question && topAnswerText) {
+      leadingFaqAnswer = { question: topFaq.question, answer: topAnswerText };
+    }
+    productFaqStructuredData = {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faqEntries
+        .map((entry) => {
+          const answerText = collapseSpaces(
+            entry.answer.type === 'text' ? entry.answer.value : toPlainText(entry.answer.value)
+          );
+          if (!entry.question || !answerText) return null;
+          return {
+            '@type': 'Question',
+            name: entry.question,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: answerText
+            }
+          };
+        })
+        .filter(Boolean)
+    };
+  }
 
   const altFallback = collapseSpaces(
     [productHeading, productSubheading, 'F.A.S. Motorsports'].filter(Boolean).join(' ')
@@ -1477,6 +1508,12 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
         set:html={serializeJsonLd(productStructuredData)}
       />
     )}
+    {productFaqStructuredData && (
+      <script
+        type="application/ld+json"
+        set:html={serializeJsonLd(productFaqStructuredData)}
+      />
+    )}
   </Fragment>
   <div {...inlineObjectId((product as any)._id)}>
   <div class="container mx-auto px-4 sm:px-8 lg:px-10 pb-10 pt-16 text-white">
@@ -1493,6 +1530,13 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
           <p class="text-xs uppercase tracking-[0.5em] text-white/60 mb-4">
             {productSubheading}
           </p>
+        )}
+        {leadingFaqAnswer && (
+          <div class="mb-4 rounded-md border border-white/20 bg-dark/40 p-3">
+            <p class="text-xs font-semibold uppercase tracking-wide text-white/70">Quick Answer</p>
+            <p class="mt-1 text-sm font-semibold text-white">{leadingFaqAnswer.question}</p>
+            <p class="mt-1 text-sm leading-relaxed text-white/80">{leadingFaqAnswer.answer}</p>
+          </div>
         )}
         {saleBadgeText && (
           <div class="mb-2">

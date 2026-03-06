@@ -409,7 +409,15 @@ export default function CheckoutForm() {
           if (!cancelled) setCartId(recoveredId);
           return;
         }
-        const loaded = await loadCart(id);
+        let loaded: { loaded: boolean; driftDetected: boolean };
+        try {
+          loaded = await loadCart(id);
+        } catch (loadError) {
+          console.warn('[checkout] initial cart load failed, attempting recovery', loadError);
+          const recoveredId = await recoverMissingCart();
+          if (!cancelled) setCartId(recoveredId);
+          return;
+        }
         if (!loaded.loaded) {
           const recoveredId = await recoverMissingCart();
           if (!cancelled) setCartId(recoveredId);
@@ -884,10 +892,13 @@ function NonReadyPaymentPane({
 
       <label>Email</label>
       <input
+        type="email"
+        name="email"
         value={shippingAddress.email}
         onChange={onAddressChange('email')}
         placeholder="mail@example.com"
         autoComplete="email"
+        inputMode="email"
       />
 
       {requiresShipping ? (
@@ -895,18 +906,24 @@ function NonReadyPaymentPane({
           <label>Shipping address</label>
           <div className="checkout-v2-address-grid">
             <input
+              type="text"
+              name="given-name"
               value={shippingAddress.firstName}
               onChange={onAddressChange('firstName')}
               placeholder="First name"
               autoComplete="shipping given-name"
             />
             <input
+              type="text"
+              name="family-name"
               value={shippingAddress.lastName}
               onChange={onAddressChange('lastName')}
               placeholder="Last name"
               autoComplete="shipping family-name"
             />
             <input
+              type="text"
+              name="address-line1"
               value={shippingAddress.address1}
               onChange={onAddressChange('address1')}
               placeholder="Address line 1"
@@ -914,6 +931,8 @@ function NonReadyPaymentPane({
               autoComplete="shipping street-address"
             />
             <input
+              type="text"
+              name="address-line2"
               value={shippingAddress.address2}
               onChange={onAddressChange('address2')}
               placeholder="Address line 2"
@@ -921,33 +940,44 @@ function NonReadyPaymentPane({
               autoComplete="shipping address-line2"
             />
             <input
+              type="text"
+              name="address-level2"
               value={shippingAddress.city}
               onChange={onAddressChange('city')}
               placeholder="City"
               autoComplete="shipping address-level2"
             />
             <input
+              type="text"
+              name="address-level1"
               value={shippingAddress.province}
               onChange={onAddressChange('province')}
               placeholder="State / Province"
               autoComplete="shipping address-level1"
             />
             <input
+              type="text"
+              name="postal-code"
               value={shippingAddress.postalCode}
               onChange={onAddressChange('postalCode')}
               placeholder="Postal code"
               autoComplete="shipping postal-code"
+              inputMode="numeric"
             />
             <input
+              type="tel"
+              name="tel"
               value={shippingAddress.phone}
               onChange={onAddressChange('phone')}
               placeholder="Phone"
               autoComplete="shipping tel"
+              inputMode="tel"
             />
           </div>
 
           <label>Country or region</label>
           <select
+            name="country"
             value={shippingAddress.countryCode.toUpperCase()}
             onChange={onAddressChange('countryCode')}
             autoComplete="shipping country"
@@ -1013,7 +1043,13 @@ function NonReadyPaymentPane({
       <label>Card information</label>
 
       <label>Name on card</label>
-      <input value={`${shippingAddress.firstName} ${shippingAddress.lastName}`.trim()} readOnly />
+      <input
+        type="text"
+        name="cc-name"
+        value={`${shippingAddress.firstName} ${shippingAddress.lastName}`.trim()}
+        autoComplete="cc-name"
+        readOnly
+      />
 
       <button
         type="button"
@@ -1166,7 +1202,13 @@ function StripePaymentPane({
       <div className="checkout-v2-divider">Or pay another way</div>
 
       <label>Email</label>
-      <input value={shippingAddress.email || cart.email || ''} readOnly />
+      <input
+        type="email"
+        name="email"
+        value={shippingAddress.email || cart.email || ''}
+        autoComplete="email"
+        readOnly
+      />
 
       <label>Card information</label>
       <div className="checkout-v2-payment-element">
@@ -1182,10 +1224,22 @@ function StripePaymentPane({
       </div>
 
       <label>Name on card</label>
-      <input value={`${shippingAddress.firstName} ${shippingAddress.lastName}`.trim()} readOnly />
+      <input
+        type="text"
+        name="cc-name"
+        value={`${shippingAddress.firstName} ${shippingAddress.lastName}`.trim()}
+        autoComplete="cc-name"
+        readOnly
+      />
 
       <label>Country or region</label>
-      <input value={shippingAddress.countryCode.toUpperCase()} readOnly />
+      <input
+        type="text"
+        name="country"
+        value={shippingAddress.countryCode.toUpperCase()}
+        autoComplete="shipping country"
+        readOnly
+      />
 
       <button
         type="button"

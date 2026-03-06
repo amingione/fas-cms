@@ -91,6 +91,11 @@ export default function ProductCardLiteReact({
           <img
             src={img}
             alt={anchorText}
+            loading="lazy"
+            decoding="async"
+            fetchPriority="low"
+            referrerPolicy="strict-origin-when-cross-origin"
+            draggable={false}
             className="max-h-[80%] max-w-[88%] object-contain transition-transform duration-300 ease-out group-hover:scale-[1.03]"
           />
         </div>
@@ -156,6 +161,11 @@ export default function ProductCardLiteReact({
           <img
             src={img}
             alt={anchorText}
+            loading="lazy"
+            decoding="async"
+            fetchPriority="low"
+            referrerPolicy="strict-origin-when-cross-origin"
+            draggable={false}
             className="max-h-[78%] max-w-[88%] object-contain transition-transform duration-300 ease-out group-hover:scale-[1.03]"
           />
         </div>
