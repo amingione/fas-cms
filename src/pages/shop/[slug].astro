@@ -741,6 +741,7 @@ let faqEntries: FAQEntry[] = [];
 let leadingFaqAnswer: { question: string; answer: string } | null = null;
 let medusaProductsForPricing: MedusaStoreProduct[] = [];
 let productSource: 'sanity' | 'medusa-fallback' | null = null;
+let resolvedMedusaVariantId: string | null = null;
 let pdpFatalError = false;
 let basePrice: number | undefined;
 try {
@@ -787,6 +788,12 @@ try {
     displayTitle = String((product as any)?.displayTitle || (product as any)?.title || 'Product');
 
     const medusaVariant = resolveProductMedusaVariant(product as any);
+    resolvedMedusaVariantId =
+      typeof (medusaVariant as any)?.id === 'string' && (medusaVariant as any).id.trim()
+        ? (medusaVariant as any).id.trim()
+        : typeof (product as any)?.medusaVariantId === 'string' && (product as any).medusaVariantId.trim()
+          ? (product as any).medusaVariantId.trim()
+          : null;
     const calculated = (medusaVariant as any)?.calculated_price;
     const calculatedAmount = resolveProductCalculatedPriceAmount(product as any);
     const originalAmount =
@@ -1912,7 +1919,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                     ? String(metadataCallForQuote)
                     : undefined
                 }
-                data-product-medusa-variant-id={(product as any).medusaVariantId || ''}
+                data-product-medusa-variant-id={resolvedMedusaVariantId || ''}
                 data-product-performance-parts={String(isPerformanceParts)}
                 data-product-href={`/shop/${slugValue}`}
                 data-analytics-event="add_to_cart_click"
@@ -2176,7 +2183,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
     data-product-call-for-quote={
       typeof metadataCallForQuote === 'boolean' ? String(metadataCallForQuote) : undefined
     }
-    data-product-medusa-variant-id={(product as any).medusaVariantId || ''}
+    data-product-medusa-variant-id={resolvedMedusaVariantId || ''}
     data-product-href={`/shop/${slugValue}`}
     data-analytics-event="add_to_cart_click"
     data-analytics-category="ecommerce"

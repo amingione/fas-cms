@@ -1,3 +1,17 @@
+/**
+ * ⚠️  DEPRECATED — Direct Stripe product/price sync from fas-cms-fresh is no longer canonical.
+ *
+ * WHY: Stripe product and price records must be owned exclusively by Medusa
+ *      (via @medusajs/payment-stripe). Running this script creates Stripe product records
+ *      that are UNKNOWN to Medusa, causing payment intent creation failures and price
+ *      divergence between Medusa's catalog and Stripe.
+ *
+ * CANONICAL PATH:
+ *   - Medusa manages Stripe products/prices via its payment module
+ *   - fas-cms-fresh reads prices from Medusa's store API, not directly from Stripe
+ *
+ * TODO: Remove this script. It was written for the pre-Medusa direct Stripe checkout flow.
+ */
 import 'dotenv/config';
 import Stripe from 'stripe';
 import { createClient } from '@sanity/client';

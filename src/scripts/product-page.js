@@ -1,4 +1,4 @@
-const CART_KEY = 'fas_cart_v1';
+import { addItem as addCanonicalCartItem } from '@/lib/cart';
 
 const parsePrice = (value, fallback = 0) => {
   if (value == null) return fallback;
@@ -19,41 +19,6 @@ const formatCurrency = (value) => {
     }).format(dollars);
   } catch {
     return `$${dollars.toFixed(2)}`;
-  }
-};
-
-const getCart = () => {
-  try {
-    const raw = window.localStorage.getItem(CART_KEY);
-    if (!raw) return { items: [] };
-    const parsed = JSON.parse(raw);
-    if (parsed && Array.isArray(parsed.items)) {
-      return { items: parsed.items };
-    }
-  } catch {
-    /* noop */
-  }
-  return { items: [] };
-};
-
-const setCart = (cart) => {
-  try {
-    window.localStorage.setItem(CART_KEY, JSON.stringify(cart));
-    window.cart = cart;
-    console.info('[cart-debug] cart write', {
-      source: 'product-page',
-      itemCount: Array.isArray(cart?.items) ? cart.items.length : 0
-    });
-  } catch {
-    /* noop */
-  }
-};
-
-const emitCartChanged = (cart) => {
-  try {
-    window.dispatchEvent(new CustomEvent('cart:changed', { detail: { cart } }));
-  } catch {
-    /* noop */
   }
 };
 
@@ -531,32 +496,7 @@ const hydrateCartButtons = () => {
       productUrl: ds.productHref
     };
 
-    const cart = getCart();
-    const existing = cart.items.find((item) => item && item.id === product.id);
-    if (existing) {
-      existing.quantity = (existing.quantity || 1) + 1;
-      existing.price = product.price;
-      existing.basePrice = product.basePrice;
-      existing.extra = product.extra;
-      existing.originalPrice = product.originalPrice;
-      existing.isOnSale = product.isOnSale;
-      existing.saleLabel = product.saleLabel;
-      existing.options = product.options;
-      existing.selections = product.selections;
-      existing.upgrades = product.upgrades;
-      existing.selectedUpgrades = selectedUpgrades;
-      existing.selectedUpgradesDetailed = selectedUpgradesDetailed;
-      existing.selectedOptions = selectedOptions;
-      existing.installOnly = installOnly;
-      existing.shippingClass = shippingClassRaw;
-      if (medusaVariantId) existing.medusaVariantId = medusaVariantId;
-      if (product.productUrl) existing.productUrl = product.productUrl;
-    } else {
-      cart.items.push(product);
-    }
-
-    setCart(cart);
-    emitCartChanged(cart);
+    addCanonicalCartItem(product);
     try {
       emitAddToCartSuccess({ name: product.name });
     } catch (error) {

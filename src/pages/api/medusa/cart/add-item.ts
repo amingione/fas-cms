@@ -275,22 +275,6 @@ export const POST: APIRoute = async ({ request }) => {
       { noIndex: true }
     );
   }
-  const metadataPayload = { local_cart_items: cartItems };
-
-  const updateResponse = await medusaFetch(`/store/carts/${cartId}`, {
-    method: 'POST',
-    body: JSON.stringify({ metadata: metadataPayload })
-  });
-  const updateData = await readJsonSafe<any>(updateResponse);
-
-  if (!updateResponse.ok) {
-    return jsonResponse(
-      { error: updateData?.message || 'Failed to update Medusa cart metadata.', details: updateData },
-      { status: updateResponse.status },
-      { noIndex: true }
-    );
-  }
-
   // STEP 1: Fetch existing Medusa cart to check for duplicates
   const cartFetchResponse = await medusaFetch(`/store/carts/${cartId}`);
   const existingCartData = await readJsonSafe<any>(cartFetchResponse);

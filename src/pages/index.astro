@@ -5,7 +5,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content.ts';
 import * as sanity from '../lib/sanity-utils';
 import { LuxuryFeatures } from '@components/LuxuryFeatures.tsx';
-import HomePageHero3 from '@/components/banner/homePageHero3.astro';
+import homeHero from '@components/hero/homeHero.astro';
 import HellcatBanner from '@/components/banner/HellcatBanner.astro';
 import AnimatedHeadingBanner1 from '@components/animated/AnimatedHeadingBanner1.tsx';
 import Highlights from '@/components/Highlights.astro';
@@ -22,6 +22,7 @@ import {
   listStoreProductsForPricing,
   resolveProductCalculatedPriceAmount
 } from '@/lib/medusa-storefront-pricing';
+import HomeHero from '@/components/hero/homeHero';
 
 const pageDocPromise: Promise<any> = loadPageDoc('index');
 const featuredProductsPromise = sanity
@@ -231,7 +232,7 @@ const homepageFaqStructuredData = {
   <main class="relative flex flex-col">
     <div {...inlineObjectId('content/pages/index.json')}>
       <section id="homeHero">
-        <HomePageHero3 />
+        <HomeHero client:load />
       </section>
 
       <section id="hellcatBanner">
