@@ -756,7 +756,7 @@ try {
     tagFilters: [],
     pricingTimeoutMs,
     includeOptionalFetches: false,
-    includePricingAttach: false,
+    includePricingAttach: true,
     deps: {
       getProductBySlug: async (value) => (await getProductBySlug(value)) as ProductWithKit | null,
       listStoreProductsForPricing: async () => await listStoreProductsForPricing(),

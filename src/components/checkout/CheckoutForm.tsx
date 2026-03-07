@@ -55,6 +55,8 @@ interface Cart {
   subtotal_cents: number;
   tax_amount_cents?: number;
   shipping_amount_cents: number;
+  discount_amount_cents?: number;
+  applied_discount_codes?: string[];
   total_cents: number;
   email?: string;
 }
@@ -364,6 +366,8 @@ export default function CheckoutForm() {
   const [selectingShipping, setSelectingShipping] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [discountCode, setDiscountCode] = useState('');
+  const [discountMessage, setDiscountMessage] = useState<string | null>(null);
+  const [applyingDiscount, setApplyingDiscount] = useState(false);
   const [driftDebug, setDriftDebug] = useState<string | null>(null);
   const shippingSelectionRequestIdRef = useRef(0);
   const stripePromise = useMemo(() => {
@@ -737,6 +741,125 @@ export default function CheckoutForm() {
     () => (cart?.items || []).reduce((sum, p) => sum + Number(p.quantity || 0), 0),
     [cart]
   );
+  const itemSubtotalCents = useMemo(
+    () => (cart?.items || []).reduce((sum, item) => sum + (toDisplayCents(item.total) ?? 0), 0),
+    [cart]
+  );
+  const displayTotals = useMemo(() => {
+    const discountCents = Math.max(0, cart?.discount_amount_cents ?? 0);
+    const authoritativeTotalCents = Math.max(0, cart?.total_cents ?? 0);
+    const shippingFromSelection = selectedShippoRate ? toShippoAmountCents(selectedShippoRate.amount) : null;
+    const shippingFromCart = Math.max(0, cart?.shipping_amount_cents ?? 0);
+    const selectedShippingCents =
+      typeof shippingFromSelection === 'number' && Number.isFinite(shippingFromSelection)
+        ? Math.max(0, shippingFromSelection)
+        : shippingFromCart;
+
+    // Until the shopper explicitly selects a rate this session, prevent stale persisted
+    // shipping/tax totals from previous carts/addresses from being rendered.
+    const hasCurrentShippingSelection = allItemsInstallOnly || Boolean(selectedOptionId);
+    if (!hasCurrentShippingSelection) {
+      return {
+        subtotalCents: Math.max(0, itemSubtotalCents),
+        shippingCents: 0,
+        taxCents: 0,
+        totalCents: Math.max(0, itemSubtotalCents - discountCents),
+        discountCents
+      };
+    }
+
+    const taxCents = Math.max(
+      0,
+      authoritativeTotalCents - Math.max(0, itemSubtotalCents) - selectedShippingCents + discountCents
+    );
+    return {
+      subtotalCents: Math.max(0, itemSubtotalCents),
+      shippingCents: selectedShippingCents,
+      taxCents,
+      totalCents: authoritativeTotalCents,
+      discountCents
+    };
+  }, [
+    allItemsInstallOnly,
+    cart?.discount_amount_cents,
+    cart?.shipping_amount_cents,
+    cart?.total_cents,
+    itemSubtotalCents,
+    selectedOptionId,
+    selectedShippoRate
+  ]);
+
+  async function refreshPaymentIntentAfterCartChange(currentCartId: string): Promise<void> {
+    if (!clientSecret) return;
+    const response = await fetch('/api/medusa/payments/create-intent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        cartId: currentCartId,
+        shippoRate: selectedShippoRate || undefined
+      })
+    });
+    if (!response.ok) {
+      const payload = await response.json().catch(() => null);
+      throw new Error(payload?.error || 'Failed to refresh payment intent');
+    }
+    const payload = await response.json().catch(() => null);
+    if (!payload?.client_secret) {
+      throw new Error('Payment intent refresh did not return a client secret');
+    }
+    if (
+      typeof payload?.publishable_key === 'string' &&
+      payload.publishable_key.trim() &&
+      payload.publishable_key.trim() !== stripePublishableKey.trim()
+    ) {
+      setStripePublishableKey(payload.publishable_key.trim());
+    }
+    setClientSecret(payload.client_secret);
+  }
+
+  async function mutateDiscountCode(action: 'apply' | 'remove', codeValue: string): Promise<void> {
+    if (!cartId) return;
+    const code = codeValue.trim();
+    if (!code) {
+      setDiscountMessage('Enter a discount code.');
+      return;
+    }
+
+    setApplyingDiscount(true);
+    setDiscountMessage(null);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/medusa/cart/discount-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cartId,
+          code,
+          action
+        })
+      });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new Error(payload?.error || 'Unable to update discount code.');
+      }
+
+      await loadCart(cartId);
+      await refreshPaymentIntentAfterCartChange(cartId);
+
+      if (action === 'apply') {
+        setDiscountCode('');
+        setDiscountMessage(`Code "${code}" applied.`);
+      } else {
+        setDiscountMessage(`Code "${code}" removed.`);
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unable to update discount code.';
+      setDiscountMessage(message);
+    } finally {
+      setApplyingDiscount(false);
+    }
+  }
 
   if (loadingCart) {
     return (
@@ -809,31 +932,55 @@ export default function CheckoutForm() {
                 onChange={(e) => setDiscountCode(e.target.value)}
                 placeholder="Discount code"
                 autoComplete="off"
-                disabled
-                title="Discount codes are not available yet."
               />
-              <button type="button" disabled title="Discount codes are not available yet.">
-                Not available
+              <button
+                type="button"
+                disabled={applyingDiscount || !discountCode.trim()}
+                onClick={() => void mutateDiscountCode('apply', discountCode)}
+              >
+                {applyingDiscount ? 'Applying...' : 'Apply'}
               </button>
             </div>
-            <p className="muted">Discount codes are not available yet.</p>
+            {Array.isArray(cart.applied_discount_codes) && cart.applied_discount_codes.length > 0 && (
+              <div className="checkout-v2-discount-applied">
+                {cart.applied_discount_codes.map((code) => (
+                  <div key={code} className="checkout-v2-discount-code">
+                    <span>{code}</span>
+                    <button
+                      type="button"
+                      disabled={applyingDiscount}
+                      onClick={() => void mutateDiscountCode('remove', code)}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {discountMessage && <p className="muted">{discountMessage}</p>}
 
             <div className="checkout-v2-totals">
               <div>
                 <span>Subtotal</span>
-                <span>{formatCurrency(cart.subtotal_cents)}</span>
+                <span>{formatCurrency(displayTotals.subtotalCents)}</span>
               </div>
               <div>
                 <span>Shipping</span>
-                <span>{formatCurrency(cart.shipping_amount_cents)}</span>
+                <span>{formatCurrency(displayTotals.shippingCents)}</span>
               </div>
               <div>
                 <span>Taxes</span>
-                <span>{formatCurrency(cart.tax_amount_cents ?? 0)}</span>
+                <span>{formatCurrency(displayTotals.taxCents)}</span>
               </div>
+              {displayTotals.discountCents > 0 && (
+                <div>
+                  <span>Discount</span>
+                  <span>-{formatCurrency(displayTotals.discountCents)}</span>
+                </div>
+              )}
               <div className="final">
                 <span>Total</span>
-                <span>{formatCurrency(cart.total_cents)}</span>
+                <span>{formatCurrency(displayTotals.totalCents)}</span>
               </div>
             </div>
           </div>

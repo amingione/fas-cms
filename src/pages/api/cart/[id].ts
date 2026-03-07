@@ -58,6 +58,32 @@ function parseBooleanLike(value: unknown): boolean | null {
   return null
 }
 
+function resolveAppliedDiscountCodes(cart: any): string[] {
+  const unique = new Set<string>()
+  const promotions = Array.isArray(cart?.promotions) ? cart.promotions : []
+  const discounts = Array.isArray(cart?.discounts) ? cart.discounts : []
+
+  const collect = (raw: unknown) => {
+    if (typeof raw !== 'string') return
+    const normalized = raw.trim()
+    if (!normalized) return
+    unique.add(normalized)
+  }
+
+  for (const promo of promotions) {
+    collect((promo as any)?.code)
+    collect((promo as any)?.promotion_code)
+    collect((promo as any)?.campaign?.code)
+  }
+
+  for (const discount of discounts) {
+    collect((discount as any)?.code)
+    collect((discount as any)?.discount_rule?.code)
+  }
+
+  return Array.from(unique)
+}
+
 function resolveItemInstallOnly(item: any): boolean {
   const direct = parseBooleanLike(item?.install_only)
   if (direct !== null) return direct
@@ -197,6 +223,7 @@ export const GET: APIRoute = async ({ params }) => {
       tax_amount_cents: medusaTaxCents,
       shipping_amount_cents: medusaShippingCents,
       discount_amount_cents: discountCents,
+      applied_discount_codes: resolveAppliedDiscountCodes(medusaData.cart),
       total_cents: medusaTotalCents,
       email: medusaData.cart.email
     }

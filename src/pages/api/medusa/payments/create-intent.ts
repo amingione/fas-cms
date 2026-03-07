@@ -80,6 +80,28 @@ function toRoundedNumber(value: unknown): number | null {
   return null;
 }
 
+async function resolveStripePublishableKey(): Promise<string> {
+  const buildEnv = import.meta.env as Record<string, string | undefined>;
+  const candidates = [
+    await getSecret('STRIPE_PUBLISHABLE_KEY'),
+    await getSecret('PUBLIC_STRIPE_PUBLISHABLE_KEY'),
+    typeof process.env.STRIPE_PUBLISHABLE_KEY === 'string'
+      ? process.env.STRIPE_PUBLISHABLE_KEY.trim()
+      : '',
+    typeof process.env.PUBLIC_STRIPE_PUBLISHABLE_KEY === 'string'
+      ? process.env.PUBLIC_STRIPE_PUBLISHABLE_KEY.trim()
+      : '',
+    typeof buildEnv.STRIPE_PUBLISHABLE_KEY === 'string'
+      ? buildEnv.STRIPE_PUBLISHABLE_KEY.trim()
+      : '',
+    typeof buildEnv.PUBLIC_STRIPE_PUBLISHABLE_KEY === 'string'
+      ? buildEnv.PUBLIC_STRIPE_PUBLISHABLE_KEY.trim()
+      : ''
+  ];
+
+  return candidates.find((value) => typeof value === 'string' && value.startsWith('pk_')) || '';
+}
+
 function parseBooleanLike(value: unknown): boolean | undefined {
   if (typeof value === 'boolean') return value;
   if (typeof value === 'number') return value !== 0;
@@ -284,12 +306,7 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  const publishableKey =
-    (await getSecret('STRIPE_PUBLISHABLE_KEY')) ||
-    (await getSecret('PUBLIC_STRIPE_PUBLISHABLE_KEY')) ||
-    (typeof import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY === 'string'
-      ? import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY.trim()
-      : '');
+  const publishableKey = await resolveStripePublishableKey();
 
   if (!publishableKey || !publishableKey.startsWith('pk_')) {
     return jsonResponse(
