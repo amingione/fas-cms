@@ -346,11 +346,7 @@ function buildSelectableRates(
 }
 
 export default function CheckoutForm() {
-  const [stripePublishableKey, setStripePublishableKey] = useState(
-    typeof import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY === 'string'
-      ? import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY
-      : ''
-  );
+  const [stripePublishableKey, setStripePublishableKey] = useState('');
   const [cartId, setCartId] = useState<string | null>(null);
   const [cart, setCart] = useState<Cart | null>(null);
   const [loadingCart, setLoadingCart] = useState(true);

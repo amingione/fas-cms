@@ -80,7 +80,13 @@ function toRoundedNumber(value: unknown): number | null {
   return null;
 }
 
-async function resolveStripePublishableKey(): Promise<string> {
+function resolveStripeKeyMode(secretKey: string): 'live' | 'test' | null {
+  if (secretKey.startsWith('sk_live_')) return 'live';
+  if (secretKey.startsWith('sk_test_')) return 'test';
+  return null;
+}
+
+async function resolveStripePublishableKey(expectedMode: 'live' | 'test' | null): Promise<string> {
   const buildEnv = import.meta.env as Record<string, string | undefined>;
   const candidates = [
     await getSecret('STRIPE_PUBLISHABLE_KEY'),
@@ -99,7 +105,17 @@ async function resolveStripePublishableKey(): Promise<string> {
       : ''
   ];
 
-  return candidates.find((value) => typeof value === 'string' && value.startsWith('pk_')) || '';
+  const normalized = candidates.filter(
+    (value): value is string => typeof value === 'string' && value.startsWith('pk_')
+  );
+
+  if (expectedMode === 'live') {
+    return normalized.find((value) => value.startsWith('pk_live_')) || '';
+  }
+  if (expectedMode === 'test') {
+    return normalized.find((value) => value.startsWith('pk_test_')) || '';
+  }
+  return normalized[0] || '';
 }
 
 function parseBooleanLike(value: unknown): boolean | undefined {
@@ -306,11 +322,27 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  const publishableKey = await resolveStripePublishableKey();
+  const stripeKeyMode = resolveStripeKeyMode(stripeSecret);
+  const publishableKey = await resolveStripePublishableKey(stripeKeyMode);
 
   if (!publishableKey || !publishableKey.startsWith('pk_')) {
     return jsonResponse(
       { error: 'Stripe publishable key is missing.' },
+      { status: 500 },
+      { noIndex: true }
+    );
+  }
+
+  if (stripeKeyMode === 'live' && !publishableKey.startsWith('pk_live_')) {
+    return jsonResponse(
+      { error: 'Stripe key mode mismatch (expected live publishable key).' },
+      { status: 500 },
+      { noIndex: true }
+    );
+  }
+  if (stripeKeyMode === 'test' && !publishableKey.startsWith('pk_test_')) {
+    return jsonResponse(
+      { error: 'Stripe key mode mismatch (expected test publishable key).' },
       { status: 500 },
       { noIndex: true }
     );
