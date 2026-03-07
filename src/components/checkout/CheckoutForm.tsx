@@ -76,6 +76,16 @@ type ShippingAddress = {
   phone: string;
 };
 
+type AddressSuggestion = {
+  id: string;
+  label: string;
+  address1: string;
+  city: string;
+  province: string;
+  postalCode: string;
+  countryCode: string;
+};
+
 const EMPTY_ADDRESS: ShippingAddress = {
   email: '',
   firstName: '',
@@ -507,6 +517,17 @@ export default function CheckoutForm() {
     (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       setShippingAddress((prev) => ({ ...prev, [field]: event.target.value }));
     };
+
+  const applyAddressSuggestion = (suggestion: AddressSuggestion) => {
+    setShippingAddress((prev) => ({
+      ...prev,
+      address1: suggestion.address1,
+      city: suggestion.city,
+      province: suggestion.province,
+      postalCode: suggestion.postalCode,
+      countryCode: suggestion.countryCode || prev.countryCode
+    }));
+  };
 
   async function handleCalculateShipping() {
     if (!cartId) return;
@@ -1024,6 +1045,7 @@ export default function CheckoutForm() {
                 selectedRateId={selectedRateId}
                 selectedShippoRate={selectedShippoRate}
                 onAddressChange={updateAddressField}
+                onApplyAddressSuggestion={applyAddressSuggestion}
                 onCalculateShipping={handleCalculateShipping}
                 onSelectRate={selectShippingRate}
                 selectingShipping={selectingShipping}
@@ -1048,6 +1070,7 @@ function NonReadyPaymentPane({
   selectedShippoRate,
   selectingShipping,
   onAddressChange,
+  onApplyAddressSuggestion,
   onCalculateShipping,
   onSelectRate
 }: {
@@ -1062,13 +1085,120 @@ function NonReadyPaymentPane({
   onAddressChange: (
     field: keyof ShippingAddress
   ) => (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  onApplyAddressSuggestion: (suggestion: AddressSuggestion) => void;
   onCalculateShipping: () => Promise<void>;
   onSelectRate: (rate: SelectableShippingRate) => Promise<void>;
 }) {
+  const [addressSuggestions, setAddressSuggestions] = useState<AddressSuggestion[]>([]);
+  const [loadingAddressSuggestions, setLoadingAddressSuggestions] = useState(false);
+  const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
+  const addressLookupRequestIdRef = useRef(0);
+  const addressLookupTimerRef = useRef<number | null>(null);
+  const mapboxToken = useMemo(() => {
+    const candidateA =
+      typeof import.meta.env.PUBLIC_MAPBOX_ACCESS_TOKEN === 'string'
+        ? import.meta.env.PUBLIC_MAPBOX_ACCESS_TOKEN.trim()
+        : '';
+    if (candidateA) return candidateA;
+    return typeof import.meta.env.PUBLIC_MAPBOX_TOKEN === 'string'
+      ? import.meta.env.PUBLIC_MAPBOX_TOKEN.trim()
+      : '';
+  }, []);
+
   const selectableRates = useMemo(
     () => buildSelectableRates(shippingRates, shippoRates),
     [shippingRates, shippoRates]
   );
+
+  useEffect(() => {
+    return () => {
+      if (addressLookupTimerRef.current) {
+        window.clearTimeout(addressLookupTimerRef.current);
+      }
+    };
+  }, []);
+
+  const handleAddress1Change = (event: ChangeEvent<HTMLInputElement>) => {
+    onAddressChange('address1')(event);
+    const query = event.target.value.trim();
+    if (!mapboxToken || query.length < 3) {
+      setAddressSuggestions([]);
+      setLoadingAddressSuggestions(false);
+      setShowAddressSuggestions(false);
+      if (addressLookupTimerRef.current) {
+        window.clearTimeout(addressLookupTimerRef.current);
+        addressLookupTimerRef.current = null;
+      }
+      return;
+    }
+
+    const requestId = ++addressLookupRequestIdRef.current;
+    if (addressLookupTimerRef.current) {
+      window.clearTimeout(addressLookupTimerRef.current);
+    }
+    addressLookupTimerRef.current = window.setTimeout(async () => {
+      setLoadingAddressSuggestions(true);
+      try {
+        const params = new URLSearchParams({
+          access_token: mapboxToken,
+          autocomplete: 'true',
+          limit: '5',
+          country: 'us',
+          types: 'address',
+          language: 'en',
+          q: query
+        });
+        const response = await fetch(
+          `https://api.mapbox.com/search/geocode/v6/forward?${params.toString()}`
+        );
+        const payload = await response.json().catch(() => null);
+        if (requestId !== addressLookupRequestIdRef.current) return;
+        const features = Array.isArray(payload?.features) ? payload.features : [];
+        const nextSuggestions: AddressSuggestion[] = features
+          .map((feature: any) => {
+            const context = feature?.properties?.context || {};
+            const addressNumber = String(context?.address?.address_number || '').trim();
+            const street = String(context?.street?.name || '').trim();
+            const address1 = [addressNumber, street].filter(Boolean).join(' ').trim();
+            const city =
+              String(context?.place?.name || '').trim() ||
+              String(context?.locality?.name || '').trim();
+            const province = String(context?.region?.region_code || '').trim();
+            const postalCode = String(context?.postcode?.name || '').trim();
+            const countryCode = String(context?.country?.country_code || 'US').trim().toUpperCase();
+            return {
+              id: String(feature?.id || '').trim(),
+              label: String(feature?.properties?.full_address || feature?.properties?.name || '').trim(),
+              address1,
+              city,
+              province,
+              postalCode,
+              countryCode
+            };
+          })
+          .filter(
+            (entry: AddressSuggestion) =>
+              Boolean(entry.id) &&
+              Boolean(entry.label) &&
+              Boolean(entry.address1) &&
+              Boolean(entry.city) &&
+              Boolean(entry.province) &&
+              Boolean(entry.postalCode)
+          );
+        setAddressSuggestions(nextSuggestions);
+        setShowAddressSuggestions(nextSuggestions.length > 0);
+      } catch (lookupError) {
+        if (requestId !== addressLookupRequestIdRef.current) return;
+        console.warn('[checkout] mapbox address lookup failed', lookupError);
+        setAddressSuggestions([]);
+        setShowAddressSuggestions(false);
+      } finally {
+        if (requestId === addressLookupRequestIdRef.current) {
+          setLoadingAddressSuggestions(false);
+        }
+      }
+    }, 220);
+  };
 
   return (
     <>
@@ -1103,7 +1233,7 @@ function NonReadyPaymentPane({
               value={shippingAddress.firstName}
               onChange={onAddressChange('firstName')}
               placeholder="First name"
-              autoComplete="shipping given-name"
+              autoComplete="given-name"
             />
             <input
               type="text"
@@ -1111,17 +1241,66 @@ function NonReadyPaymentPane({
               value={shippingAddress.lastName}
               onChange={onAddressChange('lastName')}
               placeholder="Last name"
-              autoComplete="shipping family-name"
+              autoComplete="family-name"
             />
-            <input
-              type="text"
-              name="address-line1"
-              value={shippingAddress.address1}
-              onChange={onAddressChange('address1')}
-              placeholder="Address line 1"
-              className="span-2"
-              autoComplete="shipping street-address"
-            />
+            <div className="span-2" style={{ position: 'relative' }}>
+              <input
+                type="text"
+                name="address-line1"
+                value={shippingAddress.address1}
+                onChange={handleAddress1Change}
+                placeholder="Address line 1"
+                autoComplete="street-address"
+                onFocus={() => {
+                  if (addressSuggestions.length > 0) setShowAddressSuggestions(true);
+                }}
+                onBlur={() => {
+                  window.setTimeout(() => setShowAddressSuggestions(false), 120);
+                }}
+              />
+              {showAddressSuggestions && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    zIndex: 20,
+                    top: '100%',
+                    left: 0,
+                    right: 0,
+                    background: '#111',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    borderRadius: 8,
+                    maxHeight: 220,
+                    overflowY: 'auto',
+                    marginTop: 4
+                  }}
+                >
+                  {addressSuggestions.map((suggestion) => (
+                    <button
+                      type="button"
+                      key={suggestion.id}
+                      onMouseDown={() => onApplyAddressSuggestion(suggestion)}
+                      style={{
+                        display: 'block',
+                        width: '100%',
+                        textAlign: 'left',
+                        padding: '10px 12px',
+                        background: 'transparent',
+                        color: '#fff',
+                        border: 0,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {suggestion.label}
+                    </button>
+                  ))}
+                  {loadingAddressSuggestions && (
+                    <div style={{ padding: '10px 12px', color: 'rgba(255,255,255,0.7)' }}>
+                      Looking up addresses...
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
             <input
               type="text"
               name="address-line2"
@@ -1129,7 +1308,7 @@ function NonReadyPaymentPane({
               onChange={onAddressChange('address2')}
               placeholder="Address line 2"
               className="span-2"
-              autoComplete="shipping address-line2"
+              autoComplete="address-line2"
             />
             <input
               type="text"
@@ -1137,7 +1316,7 @@ function NonReadyPaymentPane({
               value={shippingAddress.city}
               onChange={onAddressChange('city')}
               placeholder="City"
-              autoComplete="shipping address-level2"
+              autoComplete="address-level2"
             />
             <input
               type="text"
@@ -1145,7 +1324,7 @@ function NonReadyPaymentPane({
               value={shippingAddress.province}
               onChange={onAddressChange('province')}
               placeholder="State / Province"
-              autoComplete="shipping address-level1"
+              autoComplete="address-level1"
             />
             <input
               type="text"
@@ -1153,7 +1332,7 @@ function NonReadyPaymentPane({
               value={shippingAddress.postalCode}
               onChange={onAddressChange('postalCode')}
               placeholder="Postal code"
-              autoComplete="shipping postal-code"
+              autoComplete="postal-code"
               inputMode="numeric"
             />
             <input
@@ -1162,7 +1341,7 @@ function NonReadyPaymentPane({
               value={shippingAddress.phone}
               onChange={onAddressChange('phone')}
               placeholder="Phone"
-              autoComplete="shipping tel"
+              autoComplete="tel"
               inputMode="tel"
             />
           </div>
@@ -1172,7 +1351,7 @@ function NonReadyPaymentPane({
             name="country"
             value={shippingAddress.countryCode.toUpperCase()}
             onChange={onAddressChange('countryCode')}
-            autoComplete="shipping country"
+            autoComplete="country"
           >
             <option value="US">United States</option>
             <option value="CA">Canada</option>
