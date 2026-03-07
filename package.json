@@ -29,7 +29,8 @@
     "env:sync:dry": "node scripts/sync-env-to-netlify.js --dry-run",
     "env:sync:remove": "node scripts/sync-env-to-netlify.js --remove",
     "deploy:netlify": "node ./scripts/netlify-deploy.mjs",
-    "deploy:netlify:skip-env-check": "node ./scripts/netlify-deploy.mjs --skip-env-check"
+    "deploy:netlify:skip-env-check": "node ./scripts/netlify-deploy.mjs --skip-env-check",
+    "docs:check": "node ./scripts/docs-drift-check.mjs"
   },
   "depcheck": {
     "ignorePatterns": [
