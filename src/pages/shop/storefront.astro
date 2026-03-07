@@ -16,11 +16,16 @@ try {
   console.error('[shop/storefront] Failed to attach Medusa pricing', error);
 }
 
-// If Sanity query yields no products, build a fallback list from Medusa so
-// storefront still renders catalog inventory.
-if ((!Array.isArray(products) || products.length === 0) && Array.isArray(medusaProducts) && medusaProducts.length > 0) {
-  products = medusaProducts
+if (Array.isArray(medusaProducts) && medusaProducts.length > 0) {
+  const seenSlugs = new Set(
+    (Array.isArray(products) ? products : [])
+      .map((product: any) => sanityUtils.normalizeSlugValue(product?.slug))
+      .filter(Boolean)
+  );
+
+  const medusaOnlyProducts = medusaProducts
     .filter((product) => typeof product?.handle === "string" && product.handle.length > 0)
+    .filter((product) => !seenSlugs.has(sanityUtils.normalizeSlugValue(product.handle)))
     .map((product) => ({
       _id: product.id,
       title: product.title ?? product.handle ?? product.id,
@@ -43,6 +48,10 @@ if ((!Array.isArray(products) || products.length === 0) && Array.isArray(medusaP
         : [],
       medusa: product
     }));
+
+  if (medusaOnlyProducts.length > 0) {
+    products = [...products, ...medusaOnlyProducts];
+  }
 }
 
 const categoriesRaw =
