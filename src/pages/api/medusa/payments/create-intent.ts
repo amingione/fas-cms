@@ -5,7 +5,7 @@ import { jsonResponse } from '@/server/http/responses';
 import { getMedusaConfig, medusaFetch, readJsonSafe } from '@/lib/medusa';
 import { STRIPE_API_VERSION } from '@/lib/stripe-config';
 import { normalizeCartTotals, toCentsStrict } from '@/lib/money';
-import { getSecret, requireSecret } from '@/server/aws-secrets';
+import { getAllSecrets } from '@/server/aws-secrets';
 
 /**
  * Phase 1: PaymentIntent Checkout Endpoint
@@ -86,36 +86,111 @@ function resolveStripeKeyMode(secretKey: string): 'live' | 'test' | null {
   return null;
 }
 
-async function resolveStripePublishableKey(expectedMode: 'live' | 'test' | null): Promise<string> {
+type StripeKeySource = 'process.env' | 'aws-secrets' | 'build-env';
+
+type StripeKeys = {
+  source: StripeKeySource;
+  secretKey: string;
+  publishableKey: string;
+  mode: 'live' | 'test';
+};
+
+function readFromSource(
+  sourceName: StripeKeySource,
+  source: Record<string, string | undefined>
+): { source: StripeKeySource; secretKey: string; publishableKey: string } {
+  const secretKey = typeof source.STRIPE_SECRET_KEY === 'string' ? source.STRIPE_SECRET_KEY.trim() : '';
+  const publicPublishable =
+    typeof source.PUBLIC_STRIPE_PUBLISHABLE_KEY === 'string'
+      ? source.PUBLIC_STRIPE_PUBLISHABLE_KEY.trim()
+      : '';
+  const legacyPublishable =
+    typeof source.STRIPE_PUBLISHABLE_KEY === 'string' ? source.STRIPE_PUBLISHABLE_KEY.trim() : '';
+  return {
+    source: sourceName,
+    secretKey,
+    publishableKey: publicPublishable || legacyPublishable
+  };
+}
+
+function keyShape(value: string): string {
+  if (!value) return 'missing';
+  if (value.startsWith('sk_live_')) return 'sk_live';
+  if (value.startsWith('sk_test_')) return 'sk_test';
+  if (value.startsWith('pk_live_')) return 'pk_live';
+  if (value.startsWith('pk_test_')) return 'pk_test';
+  if (value.startsWith('sk_')) return 'sk_unknown';
+  if (value.startsWith('pk_')) return 'pk_unknown';
+  return 'invalid';
+}
+
+async function resolveStripeKeys(): Promise<
+  | { ok: true; keys: StripeKeys }
+  | { ok: false; status: number; error: string }
+> {
   const buildEnv = import.meta.env as Record<string, string | undefined>;
+  const awsSecrets = await getAllSecrets();
   const candidates = [
-    await getSecret('STRIPE_PUBLISHABLE_KEY'),
-    await getSecret('PUBLIC_STRIPE_PUBLISHABLE_KEY'),
-    typeof process.env.STRIPE_PUBLISHABLE_KEY === 'string'
-      ? process.env.STRIPE_PUBLISHABLE_KEY.trim()
-      : '',
-    typeof process.env.PUBLIC_STRIPE_PUBLISHABLE_KEY === 'string'
-      ? process.env.PUBLIC_STRIPE_PUBLISHABLE_KEY.trim()
-      : '',
-    typeof buildEnv.STRIPE_PUBLISHABLE_KEY === 'string'
-      ? buildEnv.STRIPE_PUBLISHABLE_KEY.trim()
-      : '',
-    typeof buildEnv.PUBLIC_STRIPE_PUBLISHABLE_KEY === 'string'
-      ? buildEnv.PUBLIC_STRIPE_PUBLISHABLE_KEY.trim()
-      : ''
+    readFromSource('process.env', process.env as Record<string, string | undefined>),
+    readFromSource('aws-secrets', awsSecrets),
+    readFromSource('build-env', buildEnv)
   ];
 
-  const normalized = candidates.filter(
-    (value): value is string => typeof value === 'string' && value.startsWith('pk_')
-  );
+  for (const candidate of candidates) {
+    if (!candidate.secretKey || !candidate.publishableKey) continue;
+    const mode = resolveStripeKeyMode(candidate.secretKey);
+    if (!mode) {
+      console.error('[stripe-config] invalid secret key format', {
+        source: candidate.source,
+        secretShape: keyShape(candidate.secretKey),
+        publishableShape: keyShape(candidate.publishableKey)
+      });
+      return { ok: false, status: 500, error: 'Invalid Stripe secret key format.' };
+    }
+    const expectedPublishablePrefix = mode === 'live' ? 'pk_live_' : 'pk_test_';
+    if (!candidate.publishableKey.startsWith(expectedPublishablePrefix)) {
+      console.error('[stripe-config] key mode mismatch in same source', {
+        source: candidate.source,
+        mode,
+        secretShape: keyShape(candidate.secretKey),
+        publishableShape: keyShape(candidate.publishableKey)
+      });
+      return {
+        ok: false,
+        status: 500,
+        error: `Stripe key mode mismatch in ${candidate.source} (expected ${expectedPublishablePrefix}).`
+      };
+    }
+    console.info('[stripe-config] resolved Stripe keys', {
+      source: candidate.source,
+      mode
+    });
+    return {
+      ok: true,
+      keys: {
+        source: candidate.source,
+        secretKey: candidate.secretKey,
+        publishableKey: candidate.publishableKey,
+        mode
+      }
+    };
+  }
 
-  if (expectedMode === 'live') {
-    return normalized.find((value) => value.startsWith('pk_live_')) || '';
-  }
-  if (expectedMode === 'test') {
-    return normalized.find((value) => value.startsWith('pk_test_')) || '';
-  }
-  return normalized[0] || '';
+  console.error('[stripe-config] missing Stripe key pair in all sources', {
+    sources: candidates.map((candidate) => ({
+      source: candidate.source,
+      hasSecret: Boolean(candidate.secretKey),
+      hasPublishable: Boolean(candidate.publishableKey),
+      secretShape: keyShape(candidate.secretKey),
+      publishableShape: keyShape(candidate.publishableKey)
+    }))
+  });
+  return {
+    ok: false,
+    status: 500,
+    error:
+      'Missing Stripe key pair. Configure STRIPE_SECRET_KEY and PUBLIC_STRIPE_PUBLISHABLE_KEY in the same environment source.'
+  };
 }
 
 function parseBooleanLike(value: unknown): boolean | undefined {
@@ -311,42 +386,16 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  let stripeSecret: string;
-  try {
-    stripeSecret = await requireSecret('STRIPE_SECRET_KEY', 'create-payment-intent');
-  } catch {
+  const stripeResolution = await resolveStripeKeys();
+  if (!stripeResolution.ok) {
     return jsonResponse(
-      { error: 'Stripe secret key is missing.' },
-      { status: 500 },
+      { error: stripeResolution.error },
+      { status: stripeResolution.status },
       { noIndex: true }
     );
   }
-
-  const stripeKeyMode = resolveStripeKeyMode(stripeSecret);
-  const publishableKey = await resolveStripePublishableKey(stripeKeyMode);
-
-  if (!publishableKey || !publishableKey.startsWith('pk_')) {
-    return jsonResponse(
-      { error: 'Stripe publishable key is missing.' },
-      { status: 500 },
-      { noIndex: true }
-    );
-  }
-
-  if (stripeKeyMode === 'live' && !publishableKey.startsWith('pk_live_')) {
-    return jsonResponse(
-      { error: 'Stripe key mode mismatch (expected live publishable key).' },
-      { status: 500 },
-      { noIndex: true }
-    );
-  }
-  if (stripeKeyMode === 'test' && !publishableKey.startsWith('pk_test_')) {
-    return jsonResponse(
-      { error: 'Stripe key mode mismatch (expected test publishable key).' },
-      { status: 500 },
-      { noIndex: true }
-    );
-  }
+  const stripeSecret = stripeResolution.keys.secretKey;
+  const publishableKey = stripeResolution.keys.publishableKey;
 
   const stripe = new Stripe(stripeSecret, {
     apiVersion: STRIPE_API_VERSION as Stripe.LatestApiVersion
