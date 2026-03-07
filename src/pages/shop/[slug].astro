@@ -2190,8 +2190,8 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
     Add to Cart
   </button>
 </div>
-  <!-- Load product interactions through Astro/Vite bundling so path aliases are resolved -->
-  <script type="module">
+  <!-- Load product interactions through Astro/Vite bundling (alias-safe). -->
+  <script>
     import '../../scripts/product-page.js';
   </script>
 
