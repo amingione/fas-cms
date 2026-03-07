@@ -345,8 +345,9 @@ if (visualEditingRequested && !studioUrl) {
 }
 
 const previewDraftsRequested =
-  visualEditingRequested ||
-  toBooleanFlag((import.meta.env.PUBLIC_SANITY_PREVIEW_DRAFTS as string | undefined) ?? 'false');
+  isServer &&
+  (visualEditingRequested ||
+    toBooleanFlag((import.meta.env.PUBLIC_SANITY_PREVIEW_DRAFTS as string | undefined) ?? 'false'));
 
 const liveSubscriptionsFlag = toBooleanFlag(
   import.meta.env.PUBLIC_SANITY_ENABLE_LIVE_SUBSCRIPTIONS as string | undefined
@@ -355,7 +356,7 @@ const liveSubscriptionsFlag = toBooleanFlag(
 const apiToken = isServer ? serverEnv.SANITY_API_TOKEN : undefined;
 
 let previewDraftsEnabled = Boolean(previewDraftsRequested);
-if (previewDraftsEnabled && !apiToken) {
+if (isServer && previewDraftsEnabled && !apiToken) {
   console.warn(
     '[sanity-utils] Preview drafts requested but no SANITY_API_TOKEN was found; falling back to published content.'
   );

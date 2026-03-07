@@ -116,7 +116,7 @@ const CANONICAL_SITE_ORIGIN = (() => {
 })();
 
 const previewEnvEnabled = parseBooleanFlag(
-  (import.meta.env.PUBLIC_SANITY_PREVIEW_DRAFTS as string | undefined) ?? 'true'
+  (import.meta.env.PUBLIC_SANITY_PREVIEW_DRAFTS as string | undefined) ?? 'false'
 );
 let previewCookieRequested = false;
 if (!Astro.isPrerendered) {
