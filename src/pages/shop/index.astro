@@ -19,6 +19,7 @@ import StorefrontFaqSection from '@/components/storefront/StorefrontFaqSection.a
 import {
   attachMedusaPricingBySanityIdentity,
   listStoreProductsForPricing,
+  resolveMedusaProductSlug,
   resolveProductCalculatedPriceAmount,
   resolveProductMedusaVariant,
   type MedusaStoreProduct
@@ -58,8 +59,9 @@ const resolveProductImages = (product: any): string[] => {
     .filter((value: string | undefined): value is string => Boolean(value));
 };
 
-const buildListingProductFromMedusa = (medusaProduct: MedusaStoreProduct): Product => {
-  const normalizedSlug = slugify(String(medusaProduct?.handle || ''));
+const buildListingProductFromMedusa = (medusaProduct: MedusaStoreProduct): Product | null => {
+  const normalizedSlug = resolveMedusaProductSlug(medusaProduct);
+  if (!normalizedSlug) return null;
   const images = Array.isArray(medusaProduct?.images)
     ? medusaProduct.images
         .map((image: any, index: number) =>
@@ -88,7 +90,7 @@ const buildListingProductFromMedusa = (medusaProduct: MedusaStoreProduct): Produ
     _id: medusaProduct.id || `medusa-${normalizedSlug}`,
     title: medusaProduct.title || normalizedSlug || 'Product',
     displayTitle: medusaProduct.title || normalizedSlug || 'Product',
-    slug: { current: normalizedSlug || medusaProduct.id || '' },
+    slug: { current: normalizedSlug },
     images,
     medusa: medusaProduct
   } as any;
@@ -308,10 +310,11 @@ if (shouldMergeMedusaOnlyRows && medusaProducts.length) {
 
   const medusaOnlyProducts = medusaProducts
     .filter((entry) => {
-      const handle = slugify(String(entry?.handle || ''));
+      const handle = resolveMedusaProductSlug(entry) || '';
       return Boolean(handle) && !seenSlugs.has(handle);
     })
     .map((entry) => buildListingProductFromMedusa(entry))
+    .filter((entry): entry is Product => Boolean(entry))
     .filter((entry: any) => {
       if (!normalizedSearchTerm) return true;
       const title = String(entry?.title || '').toLowerCase();

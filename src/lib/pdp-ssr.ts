@@ -46,6 +46,10 @@ function asErrorMessage(error: unknown): string {
   return String(error);
 }
 
+function normalizeLookupSlug(value: string, normalize: (input: string) => string): string {
+  return normalize(value).trim().toLowerCase();
+}
+
 function logPdp(prefix: string, payload: Record<string, unknown>, error?: unknown) {
   if (error) {
     console.error(prefix, {
@@ -126,9 +130,14 @@ export async function resolvePdpSsrData<TProduct = any, TMedusaProduct = any>(
         pricingTimeoutMs,
         'listStoreProductsForPricing'
       );
+      const normalizedRequestedSlug = normalizeLookupSlug(slugValue, deps.normalizeSlugValue);
       const medusaByHandle = medusaProductsForPricing.find((entry: any) => {
         const handle = typeof entry?.handle === 'string' ? entry.handle : '';
-        return deps.normalizeSlugValue(handle) === slugValue;
+        const id = typeof entry?.id === 'string' ? entry.id : '';
+        return (
+          normalizeLookupSlug(handle, deps.normalizeSlugValue) === normalizedRequestedSlug ||
+          normalizeLookupSlug(id, deps.normalizeSlugValue) === normalizedRequestedSlug
+        );
       });
       if (medusaByHandle) {
         product = deps.buildFallbackProduct(medusaByHandle, slugValue);

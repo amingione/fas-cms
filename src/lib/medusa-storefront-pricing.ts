@@ -37,6 +37,12 @@ export type MedusaStoreProduct = {
   variants?: MedusaVariant[];
 };
 
+export function resolveMedusaProductSlug(medusa: MedusaStoreProduct | null | undefined): string | null {
+  if (!medusa || typeof medusa !== 'object') return null;
+  const handle = normalizeSlugValue(medusa.handle);
+  return handle ? handle : null;
+}
+
 function resolvePreferredVariantId(product: any): string | null {
   const candidates = [
     product?.medusaVariantId,
