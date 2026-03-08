@@ -407,6 +407,27 @@ const sanitizePrimaryKeyword = (value: string, productTitle: string): string => 
   return normalized ? toTitleCase(normalized) : '';
 };
 
+const INTERNAL_PRODUCT_TYPE_TOKENS = new Set(['physical', 'service', 'bundle']);
+
+const resolvePreferredCategoryLabel = (categories: any[], selectedCategorySlug?: string): string => {
+  if (!Array.isArray(categories) || categories.length === 0) return '';
+
+  const normalizedSelectedSlug = normalizeSlugValue(selectedCategorySlug || '');
+  if (normalizedSelectedSlug) {
+    const matched = categories.find((category: any) => {
+      const rawSlug = category?.slug?.current ?? category?.slug ?? '';
+      return normalizeSlugValue(rawSlug) === normalizedSelectedSlug;
+    });
+    const matchedTitle = collapseSpaces(String(matched?.title || ''));
+    if (matchedTitle) return matchedTitle;
+  }
+
+  const firstTitle = categories
+    .map((category: any) => collapseSpaces(String(category?.title || '')))
+    .find((title: string) => Boolean(title));
+  return firstTitle || '';
+};
+
 const derivePrimaryKeyword = (
   product: ProductWithKit | null,
   productTitle: string,
@@ -427,9 +448,13 @@ const derivePrimaryKeyword = (
     (product as any)?.seo?.targetKeyword
   );
 
+  const customerFacingTypeSegments = productTypeSegments.filter(
+    (segment) => !INTERNAL_PRODUCT_TYPE_TOKENS.has(collapseSpaces(segment).toLowerCase())
+  );
+
   const fallbackCandidates = [
     ...categoryTitles,
-    ...productTypeSegments,
+    ...customerFacingTypeSegments,
     ...filterTokens,
     fitmentPhrase.replace(/^(?:19|20)\d{2}(?:\s*(?:\+|[-–—]|to)\s*(?:19|20)?\d{2})?\s*/i, ''),
     metaKeywordTokens[0],
@@ -1244,10 +1269,14 @@ if (product) {
     metaKeywords = collapseSpaces([metaKeywords, primaryKeyword].filter(Boolean).join(', '));
   }
 
+  const preferredCategoryLabel = resolvePreferredCategoryLabel(
+    Array.isArray((product as any)?.categories) ? (product as any).categories : [],
+    requestUrl.searchParams.get('categorySlug') ?? requestUrl.searchParams.get('category') ?? ''
+  );
   const headingParts = [primaryKeyword, fitmentPhrase].filter(Boolean);
   const derivedHeading = collapseSpaces(headingParts.join(' '));
   productHeading = displayTitle || baseProductTitle;
-  productSubheading = derivedHeading || null;
+  productSubheading = preferredCategoryLabel || derivedHeading || null;
   headingInlineAttrs = inlineFieldAttrs((product as any)?.displayTitle ? 'displayTitle' : 'title');
   if (!productHeading) {
     productHeading = displayTitle || baseProductTitle;
