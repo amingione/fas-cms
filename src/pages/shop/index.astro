@@ -337,9 +337,10 @@ if (shouldMergeMedusaOnlyRows && medusaProducts.length) {
     });
 
   if (medusaOnlyProducts.length > 0) {
-    // Keep existing server-side pagination flow intact; inject Medusa-only rows on page 1.
+    // Surface Medusa-only rows first on page 1 so newly published Medusa products
+    // are immediately visible even when Sanity-backed rows fill the initial slice.
     if (currentPage === 1) {
-      products = [...products, ...medusaOnlyProducts] as any;
+      products = [...medusaOnlyProducts, ...products].slice(0, PAGE_SIZE) as any;
     }
     totalProducts += medusaOnlyProducts.length;
     filterFacetProducts = [...filterFacetProducts, ...medusaOnlyProducts] as any;
