@@ -252,6 +252,7 @@ let categories: Category[] = [];
 let vehicles: Vehicle[] = [];
 let filterFacetProducts: any[] = [];
 let medusaProducts: MedusaStoreProduct[] = [];
+let usedMedusaPrimaryCatalog = false;
 
 try {
   const filters = {
@@ -284,37 +285,39 @@ try {
 	  console.error("🔥 Sanity Fetch Failed:", err);
 	}
 
-	// ✅ PRICING AUTHORITY: attach Medusa pricing to Sanity products.
-	try {
-	  medusaProducts = await listStoreProductsForPricing();
+const shouldUseMedusaPrimaryCatalog =
+  !currentCategory &&
+  filterSlugsForQuery.length === 0 &&
+  vehicleFilterSlugs.length === 0;
+
+// ✅ PRICING AUTHORITY: attach Medusa pricing and treat Medusa as catalog authority
+// for the core /shop route. Sanity rows are optional enrichment only.
+try {
+  medusaProducts = await listStoreProductsForPricing();
   products = attachMedusaPricingBySanityIdentity(products, medusaProducts) as any;
   filterFacetProducts = attachMedusaPricingBySanityIdentity(filterFacetProducts as any, medusaProducts) as any;
 } catch (error) {
   console.error('[shop] Failed to attach Medusa pricing', error);
 }
 
-const shouldMergeMedusaOnlyRows =
-  !currentCategory &&
-  filterSlugsForQuery.length === 0 &&
-  vehicleFilterSlugs.length === 0;
-
-if (shouldMergeMedusaOnlyRows && medusaProducts.length) {
-  const seenSlugs = new Set(
+if (shouldUseMedusaPrimaryCatalog && medusaProducts.length) {
+  const sanityBySlug = new Map(
     (Array.isArray(products) ? products : [])
-      .map((product) => slugify(resolveProductSlug(product as any)))
-      .filter(Boolean)
+      .map((entry: any) => [slugify(resolveProductSlug(entry)), entry] as const)
+      .filter(([slug]) => Boolean(slug))
   );
   const normalizedSearchTerm = String(searchTerm || '')
     .trim()
     .toLowerCase();
 
-  const medusaOnlyProducts = medusaProducts
-    .filter((entry) => {
-      const handle = resolveMedusaProductSlug(entry) || '';
-      return Boolean(handle) && !seenSlugs.has(handle);
-    })
+  let medusaCatalogRows = medusaProducts
     .map((entry) => buildListingProductFromMedusa(entry))
     .filter((entry): entry is Product => Boolean(entry))
+    .map((entry: any) => {
+      const slug = slugify(resolveProductSlug(entry));
+      const sanityMatch = sanityBySlug.get(slug);
+      return sanityMatch ? ({ ...sanityMatch, medusa: entry.medusa } as any) : entry;
+    })
     .filter((entry: any) => {
       if (!normalizedSearchTerm) return true;
       const title = String(entry?.title || '').toLowerCase();
@@ -336,19 +339,65 @@ if (shouldMergeMedusaOnlyRows && medusaProducts.length) {
       );
     });
 
-  if (medusaOnlyProducts.length > 0) {
-    // Surface Medusa-only rows first on page 1 so newly published Medusa products
-    // are immediately visible even when Sanity-backed rows fill the initial slice.
-    if (currentPage === 1) {
-      products = [...medusaOnlyProducts, ...products].slice(0, PAGE_SIZE) as any;
-    }
-    totalProducts += medusaOnlyProducts.length;
-    filterFacetProducts = [...filterFacetProducts, ...medusaOnlyProducts] as any;
+  const minCents =
+    typeof minPrice === 'number' && Number.isFinite(minPrice)
+      ? Math.max(0, Math.trunc(minPrice) * 100)
+      : null;
+  const maxCents =
+    typeof maxPrice === 'number' && Number.isFinite(maxPrice)
+      ? Math.max(0, Math.trunc(maxPrice) * 100)
+      : null;
+
+  medusaCatalogRows = medusaCatalogRows.filter((entry) => {
+    if (minCents == null && maxCents == null) return true;
+    const amount = resolveProductCalculatedPriceAmount(entry);
+    if (typeof amount !== 'number' || !Number.isFinite(amount)) return false;
+    if (minCents != null && amount < minCents) return false;
+    if (maxCents != null && amount > maxCents) return false;
+    return true;
+  });
+
+  if (sortBy === 'name') {
+    medusaCatalogRows = [...medusaCatalogRows].sort((a: any, b: any) =>
+      String(a?.title || '').localeCompare(String(b?.title || ''), undefined, { sensitivity: 'base' })
+    );
+  } else if (sortBy === 'price-asc' || sortBy === 'price-desc') {
+    const direction = sortBy === 'price-asc' ? 1 : -1;
+    medusaCatalogRows = [...medusaCatalogRows].sort((a, b) => {
+      const aRaw = resolveProductCalculatedPriceAmount(a);
+      const bRaw = resolveProductCalculatedPriceAmount(b);
+      const aPrice =
+        typeof aRaw === 'number' && Number.isFinite(aRaw)
+          ? aRaw
+          : direction === 1
+            ? Number.POSITIVE_INFINITY
+            : Number.NEGATIVE_INFINITY;
+      const bPrice =
+        typeof bRaw === 'number' && Number.isFinite(bRaw)
+          ? bRaw
+          : direction === 1
+            ? Number.POSITIVE_INFINITY
+            : Number.NEGATIVE_INFINITY;
+      return (aPrice - bPrice) * direction;
+    });
+  } else if (sortBy === 'newest') {
+    medusaCatalogRows = [...medusaCatalogRows].sort((a: any, b: any) => {
+      const aDate = Date.parse(String(a?.medusa?.created_at || ''));
+      const bDate = Date.parse(String(b?.medusa?.created_at || ''));
+      const aTime = Number.isFinite(aDate) ? aDate : 0;
+      const bTime = Number.isFinite(bDate) ? bDate : 0;
+      return bTime - aTime;
+    });
   }
+
+  totalProducts = medusaCatalogRows.length;
+  products = medusaCatalogRows.slice(start, start + PAGE_SIZE) as any;
+  filterFacetProducts = [...filterFacetProducts, ...medusaCatalogRows] as any;
+  usedMedusaPrimaryCatalog = true;
 }
 
 // ✅ PRICING AUTHORITY: price filtering/sorting happens only after Medusa pricing is attached.
-if (priceDrivenListing && Array.isArray(products)) {
+if (priceDrivenListing && Array.isArray(products) && !usedMedusaPrimaryCatalog) {
   const minCents =
     typeof minPrice === 'number' && Number.isFinite(minPrice)
       ? Math.max(0, Math.trunc(minPrice) * 100)
