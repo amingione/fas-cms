@@ -281,9 +281,16 @@ export const POST: APIRoute = async ({ request }) => {
   const existingCart = existingCartData?.cart;
   const existingItems = Array.isArray(existingCart?.items) ? existingCart.items : [];
 
-  // STEP 2: Build a map of variant_id → existing line_item_id
+  // STEP 2: Build identity maps for existing line items.
+  // Canonical identity is local_item_id (mirrors client cart item id).
+  // variant_id is a legacy fallback only.
+  const existingItemsByLocalId = new Map<string, string>();
   const existingItemsByVariant = new Map<string, string>();
   existingItems.forEach((item: any) => {
+    const localId = normalizeLocalItemId(item?.metadata?.local_item_id);
+    if (localId) {
+      existingItemsByLocalId.set(localId, item.id);
+    }
     if (item.variant_id) {
       existingItemsByVariant.set(item.variant_id, item.id);
     }
@@ -291,6 +298,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   const mappings: { id: string; medusaVariantId: string }[] = [];
   const missingVariants: string[] = [];
+  const desiredLocalIds = new Set<string>();
   const desiredVariantIds = new Set<string>();
   const resolvedVariantCache = new Map<string, string>();
   const normalizedCartItems: IncomingCartItem[] = [];
@@ -424,11 +432,16 @@ export const POST: APIRoute = async ({ request }) => {
     item = resolvedItem.item;
     normalizedCartItems.push(item);
 
+    desiredLocalIds.add(normalizeLocalItemId(item.id));
     desiredVariantIds.add(variantId);
     mappings.push({ id: item.id, medusaVariantId: variantId });
 
-    // STEP 3: Check if item already exists in Medusa cart
-    const existingLineItemId = existingItemsByVariant.get(variantId);
+    // STEP 3: Check if item already exists in Medusa cart.
+    // Prefer canonical local identity; fallback to variant for legacy lines.
+    const localItemId = normalizeLocalItemId(item.id);
+    const existingLineItemId =
+      (localItemId ? existingItemsByLocalId.get(localItemId) : undefined) ??
+      existingItemsByVariant.get(variantId);
 
     const lineItemMetadata = buildLineItemMetadata(item, baseVariantId, variantId);
 
@@ -505,11 +518,17 @@ export const POST: APIRoute = async ({ request }) => {
   // checkout/order summary will continue to show "ghost" items.
   const deletions: Array<{ id: string; variant_id?: string }> = [];
   for (const existing of existingItems) {
+    const existingLocalId = normalizeLocalItemId(existing?.metadata?.local_item_id);
     const existingVariantId = existing?.variant_id;
     const existingLineItemId = existing?.id;
     if (typeof existingLineItemId !== 'string' || !existingLineItemId) continue;
-    if (typeof existingVariantId !== 'string' || !existingVariantId) continue;
-    if (!desiredVariantIds.has(existingVariantId)) {
+    if (existingLocalId) {
+      if (!desiredLocalIds.has(existingLocalId)) {
+        deletions.push({ id: existingLineItemId, variant_id: existingVariantId });
+      }
+      continue;
+    }
+    if (typeof existingVariantId === 'string' && existingVariantId && !desiredVariantIds.has(existingVariantId)) {
       deletions.push({ id: existingLineItemId, variant_id: existingVariantId });
     }
   }

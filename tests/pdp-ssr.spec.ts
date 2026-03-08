@@ -63,6 +63,30 @@ describe('resolvePdpSsrData', () => {
     expect(result.source).toBe('medusa-fallback');
   });
 
+  it('prefers Sanity product when both Sanity and Medusa handle match the slug', async () => {
+    const deps = createDeps({
+      getProductBySlug: vi.fn(async () => ({ _id: 'sanity-target', title: 'Sanity Target' })),
+      listStoreProductsForPricing: vi.fn(async () => [
+        { id: 'med_2', handle: 'target-slug', title: 'Target From Medusa' }
+      ])
+    });
+
+    const result = await resolvePdpSsrData({
+      slugValue: 'target-slug',
+      requestUrl: 'https://example.com/shop/target-slug',
+      catIds: [],
+      tagFilters: [],
+      pricingTimeoutMs: 100,
+      includeOptionalFetches: false,
+      includePricingAttach: false,
+      deps
+    });
+
+    expect(result.product).toBeTruthy();
+    expect((result.product as any)?._id).toBe('sanity-target');
+    expect(result.source).toBe('sanity');
+  });
+
   it('returns null product for nonexistent slug (404 path)', async () => {
     const deps = createDeps({
       getProductBySlug: vi.fn(async () => null),

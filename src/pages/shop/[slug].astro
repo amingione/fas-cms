@@ -595,6 +595,17 @@ const buildFallbackSanityProductFromMedusa = (
   medusaProduct: MedusaStoreProduct,
   normalizedSlug: string
 ): ProductWithKit => {
+  const medusaDescription = collapseSpaces(
+    toPlainText((medusaProduct as any)?.description ?? (medusaProduct as any)?.subtitle ?? '')
+  );
+  const medusaTypeValue = collapseSpaces(
+    toPlainText(
+      (medusaProduct as any)?.type?.value ??
+        (medusaProduct as any)?.type?.name ??
+        (medusaProduct as any)?.type ??
+        ''
+    )
+  );
   const images = Array.isArray(medusaProduct.images)
     ? medusaProduct.images
         .map((image, index) =>
@@ -624,9 +635,9 @@ const buildFallbackSanityProductFromMedusa = (
     title: medusaProduct.title || normalizedSlug.replace(/-/g, ' '),
     displayTitle: medusaProduct.title || normalizedSlug.replace(/-/g, ' '),
     slug: { current: medusaProduct.handle || normalizedSlug },
-    shortDescription: '',
-    description: '',
-    productType: 'physical',
+    shortDescription: medusaDescription,
+    description: medusaDescription,
+    productType: medusaTypeValue || undefined,
     status: 'active',
     images,
     categories: [],
@@ -728,12 +739,17 @@ let displayTitle = baseProductTitle;
 let productSubheading: string | null = null;
 let headingInlineAttrs: Record<string, any> = inlineFieldAttrs('title');
 let descriptionDescriptor: ContentDescriptor | null = null;
+let shortDescriptionDescriptor: ContentDescriptor | null = null;
 let featuresContent: ContentDescriptor | null = null;
 let importantNotesDescriptor: ContentDescriptor | null = null;
 let installFitmentHighlights: { label: string; value: string }[] = [];
 let compatibilityVehicles: VehicleCompat[] = [];
 let specMetaRows: { label: string; value: string }[] = [];
 let includedInKitItems: KitItem[] = [];
+let infoTabsKeyFeatures: any[] = [];
+let infoTabsSpecifications: Array<{ label?: string; name?: string; key?: string; value?: string; detail?: string }> = [];
+let infoTabsAttributes: Array<{ label?: string; name?: string; key?: string; value?: string; detail?: string }> = [];
+let hasInfoTabsContent = false;
 let analyticsPrimaryCtaParams = '{}';
 let analyticsStickyCtaParams = '{}';
 let faqEntries: FAQEntry[] = [];
@@ -1239,7 +1255,7 @@ if (product) {
 
   const seoHighlightsDescriptor = describeContent((product as any)?.seo?.highlights, 'seo.highlights');
   const seoValuePropsDescriptor = describeContent((product as any)?.seo?.valueProps, 'seo.valueProps');
-  const shortDescriptionDescriptor = describeContent(product?.shortDescription, 'shortDescription');
+  shortDescriptionDescriptor = describeContent(product?.shortDescription, 'shortDescription');
   descriptionDescriptor = describeContent(product?.description, 'description');
   importantNotesDescriptor = describeContent(product?.importantNotes, 'importantNotes');
 
@@ -1444,6 +1460,62 @@ if (product) {
     ? (product?.includedInKit as KitItem[]).filter(Boolean)
     : [];
 
+  infoTabsKeyFeatures = Array.isArray((product as any)?.keyFeatures)
+    ? (product as any).keyFeatures.filter(Boolean)
+    : [];
+
+  infoTabsSpecifications = Array.isArray((product as any)?.specifications)
+    ? (product as any).specifications.filter(Boolean)
+    : [];
+  if (!infoTabsSpecifications.length && specMetaRows.length > 0) {
+    infoTabsSpecifications = specMetaRows.map((row) => ({
+      label: row.label,
+      value: row.value
+    }));
+  }
+
+  infoTabsAttributes = Array.isArray((product as any)?.attributes)
+    ? (product as any).attributes.filter(Boolean)
+    : [];
+  if (!infoTabsAttributes.length) {
+    const medusaSource = (product as any)?.medusa;
+    const medusaPrimaryVariant =
+      Array.isArray((medusaSource as any)?.variants) && (medusaSource as any).variants.length > 0
+        ? (medusaSource as any).variants[0]
+        : null;
+    const medusaSku = collapseSpaces(
+      String((product as any)?.sku || (medusaPrimaryVariant as any)?.sku || '')
+    );
+    const medusaTypeForDisplay = collapseSpaces(
+      String(
+        (product as any)?.productType ||
+          (medusaSource as any)?.type?.value ||
+          (medusaSource as any)?.type?.name ||
+          (medusaSource as any)?.type ||
+          ''
+      )
+    );
+    const medusaBrandDisplay = collapseSpaces(
+      String((product as any)?.brand || (medusaSource as any)?.metadata?.brand || '')
+    );
+
+    if (medusaBrandDisplay) {
+      infoTabsAttributes.push({ label: 'Brand', value: medusaBrandDisplay });
+    }
+    if (medusaTypeForDisplay) {
+      infoTabsAttributes.push({ label: 'Product Type', value: medusaTypeForDisplay });
+    }
+    if (medusaSku) {
+      infoTabsAttributes.push({ label: 'SKU', value: medusaSku });
+    }
+  }
+
+  hasInfoTabsContent =
+    includedInKitItems.length > 0 ||
+    infoTabsKeyFeatures.length > 0 ||
+    infoTabsSpecifications.length > 0 ||
+    infoTabsAttributes.length > 0;
+
   priceValue = typeof productPriceNumber === 'number' ? productPriceNumber : undefined;
   priceDollars = centsToDollars(priceValue);
 
@@ -1625,9 +1697,15 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
         )}
 
         <!-- Short intro (truncated) -->
-        <div class="break-words bg-dark/30 p-4 text-base md:text-lg text-[#F2F2F2]" {...inlineFieldAttrs('shortDescription')}>
-          <PortableTextRenderer value={product?.shortDescription ?? []} />
-        </div>
+        {isContentDescriptor(shortDescriptionDescriptor) && (
+          <div class="break-words bg-dark/30 p-4 text-base md:text-lg text-[#F2F2F2]" {...inlineFieldAttrs('shortDescription')}>
+            {shortDescriptionDescriptor.type === 'portable' ? (
+              <PortableTextRenderer value={shortDescriptionDescriptor.value as any[]} />
+            ) : (
+              <p class="mb-0">{shortDescriptionDescriptor.value as string}</p>
+            )}
+          </div>
+        )}
 
         <form id="product-options" class="mb-6 space-y-6 bg-dark/20 p-4 sm:p-6 text-white/80">
             {/* Variant Options (radio/select) */}
@@ -2090,17 +2168,19 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
       </div>
     </div>
 
-    <section class="mt-12 w-full md:w-3/4 mx-auto px-4 sm:px-8">
-      <div class="rounded-3xl bg-dark/20 p-4 sm:p-8">
-        <InfoTabs
-          client:load
-          kitItems={includedInKitItems}
-          keyFeatures={(product as any)?.keyFeatures}
-          specifications={(product as any)?.specifications}
-          attributes={(product as any)?.attributes}
-        />
-      </div>
-    </section>
+    {hasInfoTabsContent && (
+      <section class="mt-12 w-full md:w-3/4 mx-auto px-4 sm:px-8">
+        <div class="rounded-3xl bg-dark/20 p-4 sm:p-8">
+          <InfoTabs
+            client:load
+            kitItems={includedInKitItems}
+            keyFeatures={infoTabsKeyFeatures}
+            specifications={infoTabsSpecifications}
+            attributes={infoTabsAttributes}
+          />
+        </div>
+      </section>
+    )}
 
     <!-- Related Products -->
 {Array.isArray(relatedProducts) && relatedProducts.length > 0 && (

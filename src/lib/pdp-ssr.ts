@@ -114,37 +114,37 @@ export async function resolvePdpSsrData<TProduct = any, TMedusaProduct = any>(
   }
 
   try {
-    medusaProductsForPricing = await withTimeout(
-      deps.listStoreProductsForPricing(),
-      pricingTimeoutMs,
-      'listStoreProductsForPricing'
-    );
-    const normalizedRequestedSlug = normalizeLookupSlug(slugValue, deps.normalizeSlugValue);
-    const medusaByHandle = medusaProductsForPricing.find((entry: any) => {
-      const handle = typeof entry?.handle === 'string' ? entry.handle : '';
-      const id = typeof entry?.id === 'string' ? entry.id : '';
-      return (
-        normalizeLookupSlug(handle, deps.normalizeSlugValue) === normalizedRequestedSlug ||
-        normalizeLookupSlug(id, deps.normalizeSlugValue) === normalizedRequestedSlug
-      );
-    });
-    if (medusaByHandle) {
-      product = deps.buildFallbackProduct(medusaByHandle, slugValue);
-      source = 'medusa-fallback';
+    product = await deps.getProductBySlug(slugValue);
+    if (product) {
+      source = 'sanity';
     }
   } catch (error) {
-    logPdp('[pdp-ssr] medusa fallback failed', { ...logBase, source: 'medusa-fallback' }, error);
+    logPdp('[pdp-ssr] product fetch failed', { ...logBase }, error);
+    product = null;
   }
 
   if (!product) {
     try {
-      product = await deps.getProductBySlug(slugValue);
-      if (product) {
-        source = 'sanity';
+      medusaProductsForPricing = await withTimeout(
+        deps.listStoreProductsForPricing(),
+        pricingTimeoutMs,
+        'listStoreProductsForPricing'
+      );
+      const normalizedRequestedSlug = normalizeLookupSlug(slugValue, deps.normalizeSlugValue);
+      const medusaByHandle = medusaProductsForPricing.find((entry: any) => {
+        const handle = typeof entry?.handle === 'string' ? entry.handle : '';
+        const id = typeof entry?.id === 'string' ? entry.id : '';
+        return (
+          normalizeLookupSlug(handle, deps.normalizeSlugValue) === normalizedRequestedSlug ||
+          normalizeLookupSlug(id, deps.normalizeSlugValue) === normalizedRequestedSlug
+        );
+      });
+      if (medusaByHandle) {
+        product = deps.buildFallbackProduct(medusaByHandle, slugValue);
+        source = 'medusa-fallback';
       }
     } catch (error) {
-      logPdp('[pdp-ssr] product fetch failed', { ...logBase }, error);
-      product = null;
+      logPdp('[pdp-ssr] medusa fallback failed', { ...logBase, source: 'medusa-fallback' }, error);
     }
   }
 

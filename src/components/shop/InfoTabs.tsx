@@ -77,6 +77,21 @@ type NormalizedAttribute = {
   value: string;
 };
 
+const CUSTOMER_BRAND_LABEL = 'F.A.S. Motorsports';
+
+const mapCustomerFacingAttributeValue = (label: string, value: string): string => {
+  const normalizedLabel = label.trim().toLowerCase();
+  const normalizedValue = value.trim().toLowerCase();
+  const isProductTypeLabel =
+    normalizedLabel === 'type' ||
+    normalizedLabel === 'product type' ||
+    normalizedLabel === 'product_type';
+  if (isProductTypeLabel && normalizedValue === 'physical') {
+    return CUSTOMER_BRAND_LABEL;
+  }
+  return value;
+};
+
 const toPlainString = (value: unknown): string => {
   if (value == null) return '';
   if (typeof value === 'string') return value.trim();
@@ -229,7 +244,7 @@ const normalizeSpecs = (items?: SpecItemLike[]): NormalizedSpec[] => {
     }
     results.push({
       label: label || `Spec ${index + 1}`,
-      value: value || '—'
+      value: mapCustomerFacingAttributeValue(label || `Spec ${index + 1}`, value || '—')
     });
   });
   return results;
@@ -258,7 +273,7 @@ const normalizeAttributes = (items?: AttributeLike[]): NormalizedAttribute[] => 
     }
     results.push({
       label: label || `Attribute ${index + 1}`,
-      value: value || '—'
+      value: mapCustomerFacingAttributeValue(label || `Attribute ${index + 1}`, value || '—')
     });
   });
   return results;
