@@ -1156,10 +1156,17 @@ if (product) {
 
   const shippingClassRaw = ((product as any)?.shippingClass || '').toString();
   const normalizedShippingClass = shippingClassRaw.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const normalizedProductType = productTypeRaw.toLowerCase().replace(/[^a-z0-9]/g, '');
   metadataRequiresShipping = getRequiresShipping(product as any);
   metadataCallForQuote = getCallForShippingQuote(product as any);
   const computedInstallOnly =
-    metadataRequiresShipping === false || metadataCallForQuote === true;
+    metadataRequiresShipping === false ||
+    metadataCallForQuote === true ||
+    normalizedProductType.includes('service') ||
+    normalizedProductType.includes('performancepackage') ||
+    canonicalFilterSlugs.has('performancepackages') ||
+    canonicalFilterSlugs.has('performance-package') ||
+    canonicalFilterSlugs.has('performance_package');
   const computedPerformanceParts =
     normalizedShippingClass === 'performanceparts' ||
     canonicalFilterSlugs.has('performanceparts') ||

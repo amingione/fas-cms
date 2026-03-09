@@ -1,5 +1,6 @@
 export type MetadataCarrier = {
   metadata?: Record<string, any> | null;
+  medusa?: { metadata?: Record<string, any> | null } | null;
   product?: { metadata?: Record<string, any> | null } | null;
   variant?: { metadata?: Record<string, any> | null; product?: { metadata?: Record<string, any> | null } | null } | null;
 };
@@ -7,6 +8,9 @@ export type MetadataCarrier = {
 const readMetadata = (input: MetadataCarrier | null | undefined): Record<string, any> | null => {
   if (!input) return null;
   if (input.metadata && typeof input.metadata === 'object') return input.metadata as Record<string, any>;
+  if (input.medusa?.metadata && typeof input.medusa.metadata === 'object') {
+    return input.medusa.metadata as Record<string, any>;
+  }
   if (input.product?.metadata && typeof input.product.metadata === 'object') {
     return input.product.metadata as Record<string, any>;
   }
@@ -35,8 +39,29 @@ export const getMetadataFlag = (
   key: string
 ): boolean | undefined => {
   const metadata = readMetadata(input);
-  if (!metadata) return undefined;
-  return readBoolean(metadata[key]);
+  const toCamel = (value: string): string =>
+    value.replace(/_([a-z])/g, (_match, ch: string) => ch.toUpperCase());
+  const toSnake = (value: string): string =>
+    value.replace(/[A-Z]/g, (ch) => `_${ch.toLowerCase()}`);
+
+  const readFromObject = (obj: Record<string, any> | null | undefined): boolean | undefined => {
+    if (!obj) return undefined;
+    const variants = [key, toCamel(key), toSnake(key)];
+    for (const candidate of variants) {
+      const parsed = readBoolean(obj[candidate]);
+      if (parsed !== undefined) return parsed;
+    }
+    return undefined;
+  };
+
+  return (
+    readFromObject(metadata) ??
+    readFromObject((input as any)?.medusa?.metadata) ??
+    readFromObject((input as any)?.metadata) ??
+    readFromObject((input as any)?.product?.metadata) ??
+    readFromObject((input as any)?.variant?.metadata) ??
+    readFromObject((input as any)?.variant?.product?.metadata)
+  );
 };
 
 export const getMetadataTags = (input: MetadataCarrier | null | undefined): string[] => {

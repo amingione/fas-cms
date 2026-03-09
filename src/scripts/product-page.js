@@ -414,8 +414,18 @@ const hydrateCartButtons = () => {
     };
     const requiresShipping = readFlag(ds.productRequiresShipping);
     const callForQuote = readFlag(ds.productCallForQuote) === true;
+    const normalizedShippingClass = shippingClassRaw
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]/g, '');
+    const installOnlyFromClass =
+      normalizedShippingClass.includes('installonly') ||
+      normalizedShippingClass.includes('service') ||
+      normalizedShippingClass.includes('performancepackage');
     const installOnly =
-      callForQuote || (typeof requiresShipping === 'boolean' && requiresShipping === false);
+      callForQuote ||
+      (typeof requiresShipping === 'boolean' && requiresShipping === false) ||
+      installOnlyFromClass;
     const selectionVariantId =
       selections.map((sel) => sel?.medusaVariantId).find(Boolean) || '';
     const medusaVariantId = (

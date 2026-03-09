@@ -43,13 +43,40 @@ function toRoundedNumber(value: unknown): number | null {
   return null;
 }
 
+function normalizeShippingClass(value: unknown): string {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+}
+
+function inferInstallOnly(item: IncomingCartItem): boolean {
+  if (item.installOnly === true) return true;
+  const shippingClass = normalizeShippingClass(item.shippingClass);
+  const title = String(item.name || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+  if (
+    shippingClass.includes('installonly') ||
+    shippingClass.includes('service') ||
+    shippingClass.includes('performancepackage')
+  ) {
+    return true;
+  }
+  if (title.includes('performancepackage') || title.includes('installonly')) {
+    return true;
+  }
+  return false;
+}
+
 function buildLineItemMetadata(item: IncomingCartItem, baseVariantId: string, variantId: string) {
   const metadata: Record<string, unknown> = {
     local_item_id: normalizeLocalItemId(item.id),
     base_variant_id: baseVariantId,
-    resolved_variant_id: variantId,
-    install_only: item.installOnly ?? false
+    resolved_variant_id: variantId
   };
+  if (inferInstallOnly(item)) metadata.install_only = true;
 
   if (item.sku) metadata.sku = item.sku;
   if (item.productUrl) metadata.product_url = item.productUrl;

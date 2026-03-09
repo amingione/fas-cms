@@ -305,7 +305,8 @@ function isInstallOnlyLineItem(item: CartItem): boolean {
     .replace(/[^a-z0-9]/g, '');
   return (
     shippingClass.includes('installonly') ||
-    shippingClass.includes('service')
+    shippingClass.includes('service') ||
+    shippingClass.includes('performancepackage')
   );
 }
 

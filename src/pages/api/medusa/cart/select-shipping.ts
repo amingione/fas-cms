@@ -28,6 +28,13 @@ function isLikelyBearerCartId(value: string): boolean {
 }
 
 function itemRequiresShipping(item: any): boolean {
+  const normalizedTitle = String(item?.title || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+  if (normalizedTitle.includes('performancepackage') || normalizedTitle.includes('installonly')) {
+    return false;
+  }
   const directInstall = parseBooleanLike(item?.install_only);
   if (directInstall === true) return false;
   const directRequiresShipping =
@@ -54,16 +61,23 @@ function itemRequiresShipping(item: any): boolean {
     );
     if (
       shippingClass.includes('installonly') ||
-      shippingClass.includes('service')
+      shippingClass.includes('service') ||
+      shippingClass.includes('performancepackage')
     ) {
       return false;
     }
   }
 
   const shippingClass = normalizeShippingClass(item?.shipping_class);
+  const productType = normalizeShippingClass(
+    item?.variant?.product?.type?.value ?? item?.variant?.product?.type?.name
+  );
   if (
     shippingClass.includes('installonly') ||
-    shippingClass.includes('service')
+    shippingClass.includes('service') ||
+    shippingClass.includes('performancepackage') ||
+    productType.includes('service') ||
+    productType.includes('performancepackage')
   ) {
     return false;
   }

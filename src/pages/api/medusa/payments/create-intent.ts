@@ -98,7 +98,12 @@ type StripeKeys = {
 function readFromSource(
   sourceName: StripeKeySource,
   source: Record<string, string | undefined>
-): { source: StripeKeySource; secretKey: string; publishableKey: string } {
+): {
+  source: StripeKeySource;
+  secretKey: string;
+  publishableKey: string;
+  legacyPublishableKey: string;
+} {
   const secretKey = typeof source.STRIPE_SECRET_KEY === 'string' ? source.STRIPE_SECRET_KEY.trim() : '';
   const publicPublishable =
     typeof source.PUBLIC_STRIPE_PUBLISHABLE_KEY === 'string'
@@ -109,7 +114,8 @@ function readFromSource(
   return {
     source: sourceName,
     secretKey,
-    publishableKey: publicPublishable || legacyPublishable
+    publishableKey: publicPublishable,
+    legacyPublishableKey: legacyPublishable
   };
 }
 
@@ -137,6 +143,25 @@ async function resolveStripeKeys(): Promise<
   ];
 
   for (const candidate of candidates) {
+    if (
+      candidate.publishableKey &&
+      candidate.legacyPublishableKey &&
+      candidate.publishableKey !== candidate.legacyPublishableKey
+    ) {
+      console.error('[stripe-config] conflicting publishable keys in same source', {
+        source: candidate.source,
+        publicShape: keyShape(candidate.publishableKey),
+        legacyShape: keyShape(candidate.legacyPublishableKey)
+      });
+      return {
+        ok: false,
+        status: 500,
+        error:
+          `Conflicting Stripe publishable keys in ${candidate.source}. ` +
+          'Set PUBLIC_STRIPE_PUBLISHABLE_KEY only and remove stale STRIPE_PUBLISHABLE_KEY.'
+      };
+    }
+
     if (!candidate.secretKey || !candidate.publishableKey) continue;
     const mode = resolveStripeKeyMode(candidate.secretKey);
     if (!mode) {

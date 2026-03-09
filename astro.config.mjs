@@ -173,6 +173,8 @@ export default defineConfig({
     optimizeDeps: {
       noDiscovery: true,
       include: [
+        'react',
+        'react-dom',
         'react-router-dom',
         '@stripe/react-stripe-js',
         '@stripe/stripe-js',

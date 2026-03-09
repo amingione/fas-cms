@@ -85,6 +85,13 @@ function resolveAppliedDiscountCodes(cart: any): string[] {
 }
 
 function resolveItemInstallOnly(item: any): boolean {
+  const normalizedTitle = String(item?.title || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '')
+  if (normalizedTitle.includes('performancepackage') || normalizedTitle.includes('installonly')) {
+    return true
+  }
   const direct = parseBooleanLike(item?.install_only)
   if (direct !== null) return direct
   const requiresShippingDirect =
@@ -113,9 +120,16 @@ function resolveItemInstallOnly(item: any): boolean {
     .trim()
     .toLowerCase()
     .replace(/[^a-z0-9]/g, '')
+  const productType = String(item?.variant?.product?.type?.value || item?.variant?.product?.type?.name || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '')
   if (
     shippingClass.includes('installonly') ||
-    shippingClass.includes('service')
+    shippingClass.includes('service') ||
+    shippingClass.includes('performancepackage') ||
+    productType.includes('service') ||
+    productType.includes('performancepackage')
   ) {
     return true
   }
