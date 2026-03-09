@@ -1,23 +1,24 @@
 import type { Handler } from '@netlify/functions';
-import { sanity } from './_sanity';
-import { inventoryCheckQuery } from '../../src/lib/storefrontQueries';
 
-export const handler: Handler = async (event) => {
-  try {
-    const body = event.body ? JSON.parse(event.body) : {};
-    const productIds: string[] = Array.isArray(body.productIds) ? body.productIds : [];
-    const variantSkus: string[] = Array.isArray(body.variantSkus) ? body.variantSkus : [];
-
-    if (!productIds.length) {
-      return { statusCode: 400, body: JSON.stringify({ error: 'productIds is required' }) };
-    }
-
-    const result = await sanity.fetch(inventoryCheckQuery, { productIds, variantSkus });
-    return { statusCode: 200, body: JSON.stringify({ inventory: result }) };
-  } catch (error: any) {
-    console.error('[inventory-check] failed', error?.message || error);
-    return { statusCode: 500, body: JSON.stringify({ error: 'Failed to check inventory' }) };
-  }
+const headers = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Allow-Methods': 'OPTIONS,GET,POST'
 };
 
-export default { handler };
+export const handler: Handler = async (event) => {
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 204, headers, body: '' };
+  }
+
+  return {
+    statusCode: 410,
+    headers: { ...headers, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      error:
+        'Deprecated legacy commerce endpoint. Commerce products, pricing, inventory, carts, checkout, and orders are Medusa-authoritative.'
+    })
+  };
+};
+
+export default handler;
