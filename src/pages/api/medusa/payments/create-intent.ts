@@ -491,76 +491,15 @@ export const POST: APIRoute = async ({ request }) => {
       shippoRate = body.shippoRate as ShippoRateInput;
     }
 
-    let stripeTaxTotalCents = 0;
-    let stripeTaxCalculationId: string | null = null;
     const medusaTaxCents = toRoundedNumber(cart?.tax_total) ?? 0;
     const shippingAmountCents = resolveShippingAmountCents(cart, shippingMethods);
-    const canCalculateStripeTax =
-      requiresShipping &&
-      medusaTaxCents <= 0 &&
-      Boolean(
-        cart?.shipping_address?.country_code &&
-          cart?.shipping_address?.postal_code &&
-          cart?.shipping_address?.city
-      );
-
-    if (canCalculateStripeTax) {
-      const lineItems: Stripe.Tax.CalculationCreateParams.LineItem[] = [];
-      for (const [index, item] of items.entries()) {
-        const unitPrice = toRoundedNumber(item?.unit_price);
-        const quantity = Math.max(1, toRoundedNumber(item?.quantity) ?? 1);
-        if (typeof unitPrice !== 'number' || unitPrice <= 0) continue;
-        lineItems.push({
-          amount: unitPrice * quantity,
-          reference: String(item?.id || item?.title || `item_${index + 1}`),
-          tax_behavior: 'exclusive'
-        });
-      }
-
-      if (!lineItems.length) {
-        return jsonResponse(
-          { error: 'Unable to calculate tax. Cart line items are invalid.' },
-          { status: 400 },
-          { noIndex: true }
-        );
-      }
-
-      const calculation = await stripe.tax.calculations.create({
-        currency,
-        line_items: lineItems,
-        shipping_cost:
-          shippingAmountCents > 0
-            ? { amount: shippingAmountCents, tax_behavior: 'exclusive' }
-            : undefined,
-        customer_details: {
-          address_source: 'shipping',
-          address: {
-            line1: cart.shipping_address?.address_1 || undefined,
-            line2: cart.shipping_address?.address_2 || undefined,
-            city: cart.shipping_address?.city || undefined,
-            state: cart.shipping_address?.province || undefined,
-            postal_code: cart.shipping_address?.postal_code || undefined,
-            country: String(cart.shipping_address?.country_code || '').toUpperCase()
-          }
-        }
-      });
-
-      const amountTax =
-        toRoundedNumber((calculation as any)?.tax_amount_exclusive) ??
-        toRoundedNumber((calculation as any)?.amount_tax) ??
-        0;
-      stripeTaxTotalCents = Math.max(0, amountTax);
-      stripeTaxCalculationId = calculation.id;
-    }
-
-    const total = medusaTotal + stripeTaxTotalCents;
+    const total = medusaTotal;
     const subtotalCents = toRoundedNumber(cart?.subtotal) ?? 0;
-    const effectiveTaxCents = Math.max(0, medusaTaxCents + stripeTaxTotalCents);
+    const effectiveTaxCents = Math.max(0, medusaTaxCents);
     console.info('[cart-debug] create-intent authoritative totals', {
       subtotalCents,
       shippingAmountCents,
       medusaTaxCents,
-      stripeTaxTotalCents,
       total
     });
 
@@ -579,12 +518,10 @@ export const POST: APIRoute = async ({ request }) => {
         subtotal: String(cart?.subtotal ?? 0),
         tax_total: String(cart?.tax_total ?? 0),
         shipping_total: String(cart?.shipping_total ?? 0),
-        stripe_tax_total_cents: String(stripeTaxTotalCents),
-        stripe_tax_calculation_id: stripeTaxCalculationId || '',
         item_count: String(items.length),
         requires_shipping: String(requiresShipping),
         ...(shippoRate?.rate_id ? { shippo_rate_id: shippoRate.rate_id } : {}),
-        ...(shippoRate?.amount ? { shipping_amount_cents: String(shippoRate.amount) } : {}),
+        shipping_amount_cents: String(shippingAmountCents),
         ...(shippoRate?.currency ? { shippo_rate_currency: String(shippoRate.currency) } : {}),
         ...(shippoRate?.servicelevel ? { service_name: String(shippoRate.servicelevel) } : {}),
         ...(shippoRate?.provider ? { carrier: String(shippoRate.provider) } : {})
