@@ -215,7 +215,9 @@ function reconcileLocalCartFromCheckoutCart(cart: Cart | null): void {
   const nextItems: LocalCartItem[] = cart.items
     .map((serverItem) => {
       const existingMatch =
-        existing.find((entry) => toLocalCartId(entry.id) === toLocalCartId(serverItem.local_item_id)) ??
+        existing.find(
+          (entry) => toLocalCartId(entry.id) === toLocalCartId(serverItem.local_item_id)
+        ) ??
         existing.find(
           (entry) =>
             String((entry as any).medusaLineItemId || '').trim() ===
@@ -223,7 +225,8 @@ function reconcileLocalCartFromCheckoutCart(cart: Cart | null): void {
         ) ??
         existing.find(
           (entry) =>
-            toLocalCartId(entry.medusaVariantId || '') === toLocalCartId(serverItem.medusa_variant_id || '')
+            toLocalCartId(entry.medusaVariantId || '') ===
+            toLocalCartId(serverItem.medusa_variant_id || '')
         );
       const resolvedVariantId =
         toLocalCartId(serverItem.medusa_variant_id) ||
@@ -253,7 +256,7 @@ function reconcileLocalCartFromCheckoutCart(cart: Cart | null): void {
             ? Math.max(1, Math.round(serverItem.quantity))
             : existingMatch?.quantity || 1,
         image: resolveCheckoutImageSrc(serverItem.thumbnail),
-        medusaVariantId: resolvedVariantId,
+        medusaVariantId: resolvedVariantId
       } as LocalCartItem;
     })
     .filter((entry): entry is LocalCartItem => Boolean(entry));
@@ -745,7 +748,8 @@ export default function CheckoutForm() {
             ? breakdown.shipping_amount_cents
             : 0;
         const taxCents =
-          typeof breakdown.tax_amount_cents === 'number' && Number.isFinite(breakdown.tax_amount_cents)
+          typeof breakdown.tax_amount_cents === 'number' &&
+          Number.isFinite(breakdown.tax_amount_cents)
             ? breakdown.tax_amount_cents
             : 0;
         const subtotalCents =
@@ -792,7 +796,9 @@ export default function CheckoutForm() {
   const displayTotals = useMemo(() => {
     const discountCents = Math.max(0, cart?.discount_amount_cents ?? 0);
     const authoritativeTotalCents = Math.max(0, cart?.total_cents ?? 0);
-    const shippingFromSelection = selectedShippoRate ? toShippoAmountCents(selectedShippoRate.amount) : null;
+    const shippingFromSelection = selectedShippoRate
+      ? toShippoAmountCents(selectedShippoRate.amount)
+      : null;
     const shippingFromCart = Math.max(0, cart?.shipping_amount_cents ?? 0);
     const selectedShippingCents =
       typeof shippingFromSelection === 'number' && Number.isFinite(shippingFromSelection)
@@ -814,7 +820,10 @@ export default function CheckoutForm() {
 
     const taxCents = Math.max(
       0,
-      authoritativeTotalCents - Math.max(0, itemSubtotalCents) - selectedShippingCents + discountCents
+      authoritativeTotalCents -
+        Math.max(0, itemSubtotalCents) -
+        selectedShippingCents +
+        discountCents
     );
     return {
       subtotalCents: Math.max(0, itemSubtotalCents),
@@ -985,22 +994,23 @@ export default function CheckoutForm() {
                 {applyingDiscount ? 'Applying...' : 'Apply'}
               </button>
             </div>
-            {Array.isArray(cart.applied_discount_codes) && cart.applied_discount_codes.length > 0 && (
-              <div className="checkout-v2-discount-applied">
-                {cart.applied_discount_codes.map((code) => (
-                  <div key={code} className="checkout-v2-discount-code">
-                    <span>{code}</span>
-                    <button
-                      type="button"
-                      disabled={applyingDiscount}
-                      onClick={() => void mutateDiscountCode('remove', code)}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
+            {Array.isArray(cart.applied_discount_codes) &&
+              cart.applied_discount_codes.length > 0 && (
+                <div className="checkout-v2-discount-applied">
+                  {cart.applied_discount_codes.map((code) => (
+                    <div key={code} className="checkout-v2-discount-code">
+                      <span>{code}</span>
+                      <button
+                        type="button"
+                        disabled={applyingDiscount}
+                        onClick={() => void mutateDiscountCode('remove', code)}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             {discountMessage && <p className="muted">{discountMessage}</p>}
 
             <div className="checkout-v2-totals">
@@ -1194,7 +1204,9 @@ function NonReadyPaymentPane({
             const countryCode = normalizeCountryCode(context?.country?.country_code);
             return {
               id: String(feature?.id || '').trim(),
-              label: String(feature?.properties?.full_address || feature?.properties?.name || '').trim(),
+              label: String(
+                feature?.properties?.full_address || feature?.properties?.name || ''
+              ).trim(),
               address1,
               city,
               province,
@@ -1217,7 +1229,10 @@ function NonReadyPaymentPane({
         if (requestId !== addressLookupRequestIdRef.current) return;
         if (!lookupErrorLoggedRef.current) {
           lookupErrorLoggedRef.current = true;
-          console.warn('[checkout] address lookup unavailable; continuing with manual address entry', lookupError);
+          console.warn(
+            '[checkout] address lookup unavailable; continuing with manual address entry',
+            lookupError
+          );
         }
         setAddressSuggestions([]);
         setShowAddressSuggestions(false);
