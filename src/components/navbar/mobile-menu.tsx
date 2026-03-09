@@ -97,8 +97,10 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
   const openMobileMenu = () => setIsOpen(true);
   const closeMobileMenu = () => setIsOpen(false);
   const isInlineMode = mode === 'inline';
-  const baseLinkClass = `transition-colors hover:text-primary ${isInlineMode ? 'text-white' : 'text-white'}`;
-  const titleClass = `text-xl font-semibold ${isInlineMode ? 'text-white' : 'text-white'}`;
+  const baseLinkClass = `font-medium transition-colors hover:text-primary ${
+    isInlineMode ? 'text-zinc-100' : 'text-zinc-100'
+  }`;
+  const titleClass = `text-xl font-semibold ${isInlineMode ? 'text-zinc-100' : 'text-zinc-100'}`;
 
   useEffect(() => {
     const handleResize = () => {
@@ -111,7 +113,9 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
   }, [isOpen]);
 
   const MenuContent = ({ onNavigate }: { onNavigate?: () => void }) => (
-    <div className={`flex flex-col gap-6 ${isInlineMode ? 'text-white' : 'text-white'}`}>
+    <div
+      className={`flex flex-col gap-6 ${isInlineMode ? 'rounded-md bg-[#121212] p-3 text-zinc-100' : 'text-zinc-100'}`}
+    >
       <div className="flex">
         <img
           src="/logo/fas-logo500.webp"
@@ -334,7 +338,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
                   if (onNavigate) onNavigate();
                 }
               }}
-              className="flex items-center gap-2 text-xl font-semibold text-white/60 transition-colors hover:text-primary"
+              className="flex items-center gap-2 text-xl font-semibold text-zinc-100 transition-colors hover:text-primary"
             >
               <UserCircleIcon className="h-6 w-6" />
               <span>Sign in</span>

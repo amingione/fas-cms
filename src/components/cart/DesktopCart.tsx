@@ -54,7 +54,7 @@ function CartSummaryPopover({
           className="size-6 shrink-0 transition group-hover:scale-105 group-hover:text-accent"
         />
         {totalQuantity > 0 && (
-          <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-black">
+          <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-800 text-xs font-bold text-white">
             {totalQuantity}
           </span>
         )}

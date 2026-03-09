@@ -971,7 +971,11 @@ export default function CheckoutForm() {
                 <div className="checkout-v2-item-body">
                   <div>
                     <p className="checkout-v2-name">{product.title}</p>
-                    <p className="checkout-v2-variant">{product.variant_title || 'Default'}</p>
+                    {typeof product.variant_title === 'string' &&
+                      product.variant_title.trim() &&
+                      product.variant_title.trim().toLowerCase() !== 'default' && (
+                        <p className="checkout-v2-variant">{product.variant_title.trim()}</p>
+                      )}
                   </div>
                   <p className="checkout-v2-price">{formatCurrency(product.total)}</p>
                 </div>
@@ -981,6 +985,8 @@ export default function CheckoutForm() {
             <div className="checkout-v2-discount">
               <input
                 type="text"
+                id="discount-code"
+                name="discountCode"
                 value={discountCode}
                 onChange={(e) => setDiscountCode(e.target.value)}
                 placeholder="Discount code"
@@ -1051,7 +1057,9 @@ export default function CheckoutForm() {
                       variables: {
                         colorPrimary: '#dc2626',
                         colorBackground: '#0f0f0f',
-                        colorText: '#ffffff'
+                        colorText: '#ffffff',
+                        colorTextSecondary: '#e5e7eb',
+                        colorTextPlaceholder: '#cbd5e1'
                       }
                     }
                   }}
@@ -1256,8 +1264,9 @@ function NonReadyPaymentPane({
 
       <div className="checkout-v2-divider">Or pay another way</div>
 
-      <label>Email</label>
+      <label htmlFor="nonready-email">Email</label>
       <input
+        id="nonready-email"
         type="email"
         name="email"
         value={shippingAddress.email}
@@ -1456,10 +1465,13 @@ function NonReadyPaymentPane({
         </p>
       )}
 
-      <label>Card information</label>
+      <p id="nonready-card-information-label" className="checkout-v2-field-label">
+        Card information
+      </p>
 
-      <label>Name on card</label>
+      <label htmlFor="nonready-cc-name">Name on card</label>
       <input
+        id="nonready-cc-name"
         type="text"
         name="cc-name"
         value={`${shippingAddress.firstName} ${shippingAddress.lastName}`.trim()}
@@ -1610,8 +1622,9 @@ function StripePaymentPane({
 
       <div className="checkout-v2-divider">Or pay another way</div>
 
-      <label>Email</label>
+      <label htmlFor="stripe-email">Email</label>
       <input
+        id="stripe-email"
         type="email"
         name="email"
         value={shippingAddress.email || cart.email || ''}
@@ -1619,8 +1632,10 @@ function StripePaymentPane({
         readOnly
       />
 
-      <label>Card information</label>
-      <div className="checkout-v2-payment-element">
+      <p id="stripe-card-information-label" className="checkout-v2-field-label">
+        Card information
+      </p>
+      <div className="checkout-v2-payment-element" role="group" aria-labelledby="stripe-card-information-label">
         <PaymentElement
           onReady={() => setPaymentElementReady(true)}
           options={{
@@ -1632,8 +1647,9 @@ function StripePaymentPane({
         />
       </div>
 
-      <label>Name on card</label>
+      <label htmlFor="stripe-cc-name">Name on card</label>
       <input
+        id="stripe-cc-name"
         type="text"
         name="cc-name"
         value={`${shippingAddress.firstName} ${shippingAddress.lastName}`.trim()}

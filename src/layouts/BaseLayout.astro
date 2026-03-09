@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import globalStylesheetUrl from '../styles/global.css?url';
 import Header from '../components/header/header2.astro';
 import Footer from '@/components/footer.astro';
 import Footer2 from '@/components/footer/footer2';
@@ -176,7 +177,8 @@ const FALLBACK_KEYWORDS = [
   'TRX packages'
 ];
 
-const SITE_NAME = seoPayload.global.siteName ?? 'F.A.S. Motorsports';
+const FALLBACK_SITE_TITLE = 'F.A.S. Motorsports';
+const SITE_NAME = seoPayload.global.siteName ?? FALLBACK_SITE_TITLE;
 const SITE_AUTHOR = seoPayload.global.siteName ?? 'F.A.S. Motorsports';
 const DEFAULT_DESCRIPTION =
   seoPayload.global.defaultDescription ??
@@ -455,7 +457,7 @@ const computedPayload = {
 };
 
 const metaEntries = buildMetaEntries(computedPayload, canonicalUrl ?? undefined);
-const computedTitle = metaEntries.title || pageTitle;
+const computedTitle = metaEntries.title || pageTitle || FALLBACK_SITE_TITLE;
 const metaTags = [{ property: 'og:site_name', content: SITE_NAME }, ...metaEntries.meta];
 const cmsJsonLdEntries = buildJsonLd(computedPayload);
 const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
@@ -583,6 +585,7 @@ const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
     <!-- Preconnect for hero video hosted on Framer CDN (LCP element) -->
     <link rel="preconnect" href="https://framerusercontent.com" crossorigin />
     <link rel="dns-prefetch" href="https://framerusercontent.com" />
+    <link rel="preload" href={globalStylesheetUrl} as="style" />
     <link
       rel="preload"
       href="/fonts/AmericanCaptain.woff2"
@@ -597,6 +600,7 @@ const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
       type="font/woff2"
       crossorigin
     />
+    <link rel="preload" href="/fonts/Kwajong.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/Borgsquad.woff2" as="font" type="font/woff2" crossorigin />
 
     <meta charset="UTF-8" />
@@ -771,7 +775,7 @@ const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
 
     <!-- Page content -->
     <div class="relative flex flex-col flex-1">
-      <main class="px-5 pt-6 flex-1 container max-w-full mx-auto with-header-offset">
+      <main id="main-content" class="px-5 pt-6 flex-1 container max-w-full mx-auto with-header-offset">
         {breadcrumbItems.length > 0 && <Breadcrumbs items={breadcrumbItems} />}
         <slot />
         {cmsRelatedLinks.length > 0 && <InternalLinks links={cmsRelatedLinks} />}
