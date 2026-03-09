@@ -100,6 +100,18 @@ export const GET: APIRoute = async ({ request, params }) => {
 };
 
 export const PATCH: APIRoute = async ({ request, params }) => {
+  void request;
+  void params;
+  return jsonResponse(
+    {
+      message:
+        'Deprecated endpoint. Order mutations must be executed via Medusa-authoritative APIs.'
+    },
+    { status: 410, headers: { ...cors } },
+    { noIndex: true }
+  );
+
+  /*
   try {
     const client = await getSanityClient();
     const id = params.id as string | undefined;
@@ -229,4 +241,5 @@ export const PATCH: APIRoute = async ({ request, params }) => {
       { status: 500, headers: { ...cors } }
     );
   }
+  */
 };
