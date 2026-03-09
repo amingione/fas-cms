@@ -1,6 +1,5 @@
 ---
 import '../styles/global.css';
-import globalStylesheetUrl from '../styles/global.css?url';
 import Header from '../components/header/header2.astro';
 import Footer from '@/components/footer.astro';
 import Footer2 from '@/components/footer/footer2';
@@ -12,8 +11,7 @@ import { Toaster } from 'sonner';
 import { buildJsonLd, buildMetaEntries, fetchSeoForPath } from '@/lib/seoData';
 import { buildDefaultJsonLdGraph } from '@/lib/structuredDataDefaults';
 import analyticsTrackingScriptUrl from '../scripts/analytics-tracking.js?url';
-import DesktopAddToCartToast from '@/components/cart/DesktopAddToCartToast.tsx';
-import MobileAddToCartToast from '@/components/cart/MobileAddToCartToast.tsx';
+
 
 // SEO props (optional per-page)
 const {
@@ -585,7 +583,6 @@ const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
     <!-- Preconnect for hero video hosted on Framer CDN (LCP element) -->
     <link rel="preconnect" href="https://framerusercontent.com" crossorigin />
     <link rel="dns-prefetch" href="https://framerusercontent.com" />
-    <link rel="preload" href={globalStylesheetUrl} as="style" />
     <link
       rel="preload"
       href="/fonts/AmericanCaptain.woff2"
@@ -785,8 +782,6 @@ const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
       <Footer2 client:visible />
       <CookieBanner client:idle />
       <Toaster client:idle />
-      <MobileAddToCartToast client:only="react" />
-      <DesktopAddToCartToast client:only="react" />
     </div>
 
     <!-- fas-auth client shim (provides window.fasAuth) -->
