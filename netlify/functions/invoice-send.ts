@@ -1,19 +1,24 @@
 import type { Handler } from '@netlify/functions';
-import { requireUser } from './_auth';
-import { stripe } from './_stripe';
+
+const methodNotAllowed = (): ReturnType<Handler> => ({
+  statusCode: 405,
+  headers: { 'content-type': 'application/json; charset=utf-8' },
+  body: JSON.stringify({ error: 'Method Not Allowed' })
+});
+
+const deprecated = (): ReturnType<Handler> => ({
+  statusCode: 410,
+  headers: { 'content-type': 'application/json; charset=utf-8' },
+  body: JSON.stringify({
+    error:
+      'Deprecated legacy commerce endpoint. Customer and invoice operations must flow through Medusa-authoritative admin APIs.',
+    code: 'legacy_commerce_endpoint_disabled'
+  })
+});
 
 export const handler: Handler = async (event) => {
-  try {
-    if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
-    await requireUser(event);
-    const { invoiceId } = JSON.parse(event.body || '{}');
-    if (!invoiceId) return { statusCode: 400, body: 'Missing invoiceId' };
-    const sent = await stripe.invoices.sendInvoice(invoiceId);
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ ok: true, hostedInvoiceUrl: sent.hosted_invoice_url })
-    };
-  } catch (e: any) {
-    return { statusCode: e.statusCode || 500, body: e.message || 'Send failed' };
-  }
+  if (event.httpMethod !== 'POST') return methodNotAllowed();
+  return deprecated();
 };
+
+export default { handler };
