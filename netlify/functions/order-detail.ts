@@ -1,6 +1,6 @@
-import type { Handler } from '@netlify/functions';
+import type { Handler, HandlerResponse } from '@netlify/functions';
 
-const deprecated = (): ReturnType<Handler> => ({
+const deprecated = (): HandlerResponse => ({
   statusCode: 410,
   headers: { 'content-type': 'application/json; charset=utf-8' },
   body: JSON.stringify({

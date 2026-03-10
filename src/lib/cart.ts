@@ -144,7 +144,7 @@ export async function ensureMedusaCartId(): Promise<string | null> {
   return null;
 }
 
-export type SyncMedusaCartResult = { ok: boolean; error?: string };
+export type SyncMedusaCartResult = { ok: boolean; error?: string; cart?: any | null };
 
 export async function syncMedusaCart(cart: CartItem[]): Promise<SyncMedusaCartResult> {
   return syncMedusaCartAttempt(cart, 0);
@@ -207,7 +207,7 @@ async function syncMedusaCartAttempt(
       ok: true,
       itemCount: Array.isArray(payload?.cart?.items) ? payload.cart.items.length : undefined
     });
-    return { ok: true };
+    return { ok: true, cart: payload?.cart ?? null };
   } catch (error) {
     console.warn('[lib/cart] Medusa cart sync exception', error);
     return { ok: false, error: 'Failed to sync cart with checkout.' };

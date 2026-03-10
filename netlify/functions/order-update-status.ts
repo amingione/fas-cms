@@ -1,12 +1,12 @@
-import type { Handler } from '@netlify/functions';
+import type { Handler, HandlerResponse } from '@netlify/functions';
 
-const methodNotAllowed = (): ReturnType<Handler> => ({
+const methodNotAllowed = (): HandlerResponse => ({
   statusCode: 405,
   headers: { 'content-type': 'application/json; charset=utf-8' },
   body: JSON.stringify({ error: 'Method Not Allowed' })
 });
 
-const deprecated = (): ReturnType<Handler> => ({
+const deprecated = (): HandlerResponse => ({
   statusCode: 410,
   headers: { 'content-type': 'application/json; charset=utf-8' },
   body: JSON.stringify({

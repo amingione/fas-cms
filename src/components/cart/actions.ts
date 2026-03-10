@@ -6,6 +6,7 @@ import {
   getCart as getCanonicalCart,
   saveCart as saveCanonicalCart,
   syncMedusaCart,
+  type SyncMedusaCartResult,
   type CartItem as CanonicalCartItem
 } from '@/lib/cart';
 
@@ -125,7 +126,7 @@ export function getCart(): Cart {
   return toDisplayCart(getCanonicalCart());
 }
 
-async function syncDisplayCart(cart: Cart): Promise<{ ok: boolean; error?: string }> {
+async function syncDisplayCart(cart: Cart): Promise<SyncMedusaCartResult> {
   console.info('[cart-debug] before medusa sync', { itemCount: cart.items.length, source: 'actions' });
   const result = await syncMedusaCart(cart.items as CanonicalCartItem[]);
   console.info('[cart-debug] after medusa sync response', {
@@ -285,9 +286,19 @@ function buildCheckoutSignature(checkoutCart: any): string {
     .map((item: any) => {
       const id =
         normalizeLocalItemId(item?.local_item_id) ||
+        normalizeLocalItemId(item?.metadata?.local_item_id) ||
         normalizeLocalItemId(item?.medusa_variant_id) ||
+        normalizeLocalItemId(item?.variant_id) ||
+        normalizeLocalItemId(item?.metadata?.resolved_variant_id) ||
+        normalizeLocalItemId(item?.metadata?.base_variant_id) ||
         normalizeLocalItemId(item?.id);
-      const variant = normalizeLocalItemId(item?.medusa_variant_id || '');
+      const variant = normalizeLocalItemId(
+        item?.medusa_variant_id ||
+          item?.variant_id ||
+          item?.metadata?.resolved_variant_id ||
+          item?.metadata?.base_variant_id ||
+          ''
+      );
       const qty = Math.max(1, Number(item?.quantity) || 1);
       return `${id}|${variant}|${qty}`;
     })
@@ -324,7 +335,7 @@ export async function redirectToCheckout() {
     return firstSync.error || 'Failed to sync your cart. Please try again.';
   }
 
-  let authoritative = await fetchAuthoritativeCheckoutCart(cartId);
+  let authoritative = firstSync.cart ?? (await fetchAuthoritativeCheckoutCart(cartId));
   if (!authoritative) {
     return 'Unable to validate cart for checkout. Please try again.';
   }
@@ -339,7 +350,7 @@ export async function redirectToCheckout() {
     if (!retrySync.ok) {
       return retrySync.error || 'Unable to prepare checkout cart. Please try again.';
     }
-    authoritative = await fetchAuthoritativeCheckoutCart(cartId);
+    authoritative = retrySync.cart ?? (await fetchAuthoritativeCheckoutCart(cartId));
     if (!authoritative) {
       return 'Unable to validate cart for checkout. Please try again.';
     }

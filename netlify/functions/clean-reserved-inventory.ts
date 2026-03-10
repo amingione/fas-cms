@@ -1,11 +1,11 @@
-import type { Handler } from '@netlify/functions';
+import type { Handler, HandlerResponse } from '@netlify/functions';
 
 export const config = {
   schedule: '0 * * * *'
 };
 
 // Keep scheduled invocation green while this legacy inventory path is retired.
-const acknowledgedNoop = (): ReturnType<Handler> => ({
+const acknowledgedNoop = (): HandlerResponse => ({
   statusCode: 200,
   headers: { 'content-type': 'application/json; charset=utf-8' },
   body: JSON.stringify({

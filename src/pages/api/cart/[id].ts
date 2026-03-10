@@ -211,6 +211,44 @@ export const GET: APIRoute = async ({ params }) => {
       toCentsStrict(medusaData.cart.total, 'cart.total') ??
       Math.max(0, medusaSubtotalCents + medusaShippingCents + medusaTaxCents - discountCents)
 
+    // Transform discount/promotion data into detailed discount objects
+    const discountsArray: any[] = []
+    const promotions = Array.isArray(medusaData?.cart?.promotions) ? medusaData.cart.promotions : []
+    const discounts = Array.isArray(medusaData?.cart?.discounts) ? medusaData.cart.discounts : []
+
+    // Medusa v2 uses promotions; v1 uses discounts - handle both
+    for (const promo of promotions) {
+      const code = asString(promo?.code) || asString(promo?.promotion_code)
+      if (code) {
+        discountsArray.push({
+          code,
+          description: asString(promo?.description),
+          amount: toCentsStrict(promo?.amount, 'promo.amount'),
+          rule: promo?.application_method ? {
+            type: asString(promo.application_method.type),
+            value: typeof promo.application_method.value === 'number' ? promo.application_method.value : undefined,
+            description: asString(promo.application_method.description)
+          } : undefined
+        })
+      }
+    }
+
+    for (const discount of discounts) {
+      const code = asString(discount?.code)
+      if (code && !discountsArray.some(d => d.code === code)) {
+        discountsArray.push({
+          code,
+          description: asString(discount?.rule?.description) || asString(discount?.description),
+          amount: toCentsStrict(discount?.amount, 'discount.amount'),
+          rule: discount?.rule ? {
+            type: asString(discount.rule.type),
+            value: typeof discount.rule.value === 'number' ? discount.rule.value : undefined,
+            description: asString(discount.rule.description)
+          } : undefined
+        })
+      }
+    }
+
     const cart = {
       id: medusaData.cart.id,
       items: medusaData.cart.items.map((item: any) => ({
@@ -238,6 +276,7 @@ export const GET: APIRoute = async ({ params }) => {
       shipping_amount_cents: medusaShippingCents,
       discount_amount_cents: discountCents,
       applied_discount_codes: resolveAppliedDiscountCodes(medusaData.cart),
+      discounts: discountsArray,
       total_cents: medusaTotalCents,
       email: medusaData.cart.email
     }

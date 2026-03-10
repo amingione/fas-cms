@@ -49,6 +49,17 @@ interface CartItem {
   shipping_class?: string | null;
 }
 
+interface Discount {
+  code: string;
+  description?: string;
+  amount?: number; // cents
+  rule?: {
+    type?: string;
+    value?: number;
+    description?: string;
+  };
+}
+
 interface Cart {
   id: string;
   items: CartItem[];
@@ -57,6 +68,7 @@ interface Cart {
   shipping_amount_cents: number;
   discount_amount_cents?: number;
   applied_discount_codes?: string[];
+  discounts?: Discount[]; // Add full discount details
   total_cents: number;
   email?: string;
 }
@@ -1000,24 +1012,54 @@ export default function CheckoutForm() {
                 {applyingDiscount ? 'Applying...' : 'Apply'}
               </button>
             </div>
-            {Array.isArray(cart.applied_discount_codes) &&
-              cart.applied_discount_codes.length > 0 && (
-                <div className="checkout-v2-discount-applied">
-                  {cart.applied_discount_codes.map((code) => (
-                    <div key={code} className="checkout-v2-discount-code">
-                      <span>{code}</span>
+            {Array.isArray(cart.discounts) && cart.discounts.length > 0 && (
+              <div className="checkout-v2-discount-applied">
+                {cart.discounts.map((discount) => {
+                  const discountAmount = discount.amount ?? 0;
+                  const discountName =
+                    discount.rule?.description || discount.description || discount.code;
+                  const discountType = discount.rule?.type || 'fixed';
+                  const discountValue = discount.rule?.value || 0;
+
+                  return (
+                    <div key={discount.code} className="checkout-v2-discount-card">
+                      <div className="checkout-v2-discount-details">
+                        <div className="checkout-v2-discount-header">
+                          <span className="checkout-v2-discount-icon">✓</span>
+                          <div className="checkout-v2-discount-info">
+                            <p className="checkout-v2-discount-name">{discountName}</p>
+                            <p className="checkout-v2-discount-code">
+                              Code: {discount.code}
+                              {discountType === 'percentage' && discountValue > 0 && (
+                                <span className="checkout-v2-discount-value">
+                                  {' '}• {discountValue}% off
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="checkout-v2-discount-savings">
+                          <p className="checkout-v2-saved-label">You saved</p>
+                          <p className="checkout-v2-saved-amount">
+                            {formatCurrency(discountAmount)}
+                          </p>
+                        </div>
+                      </div>
                       <button
                         type="button"
+                        className="checkout-v2-discount-remove"
                         disabled={applyingDiscount}
-                        onClick={() => void mutateDiscountCode('remove', code)}
+                        onClick={() => void mutateDiscountCode('remove', discount.code)}
+                        aria-label={`Remove discount ${discount.code}`}
                       >
-                        Remove
+                        ×
                       </button>
                     </div>
-                  ))}
-                </div>
-              )}
-            {discountMessage && <p className="muted">{discountMessage}</p>}
+                  );
+                })}
+              </div>
+            )}
+            {discountMessage && <p className="checkout-v2-discount-message">{discountMessage}</p>}
 
             <div className="checkout-v2-totals">
               <div>
