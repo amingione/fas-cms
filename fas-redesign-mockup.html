@@ -3,453 +3,312 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FAS Motorsports — Redesign Mockup v2</title>
-
-  <!--
-    =====================================================
-    FONT STRATEGY — FAS Motorsports 2026
-    =====================================================
-    BRAND FONTS (load in production Astro via @font-face):
-      - Borgsquad     → "F.A.S." in logo mark only
-      - Ethnocentric  → Hero H1, select H2, "MOTORSPORTS" in nav logo
-    Mockup fallback: Orbitron (Google Fonts, closest geometric substitute)
-
-    SYSTEM FONTS (Google Fonts — use in production as-is):
-      - Barlow Condensed → Nav links, labels, tags, badges, buttons
-      - Barlow           → Sub-headings, UI text
-      - Inter            → ALL body copy, descriptions, prices, meta
-    =====================================================
-  -->
+  <title>F.A.S. Motorsports — Fast. Aggressive. Superior.</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&family=Barlow+Condensed:wght@400;500;600;700;800&family=Barlow:wght@300;400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&family=Barlow:wght@400;500;600&family=Inter:wght@400;500;600&family=Orbitron:wght@700;800;900&display=swap" rel="stylesheet" />
 
   <style>
-    /* =====================================================
-       FONT FACE — In production, replace Orbitron with
-       actual Ethnocentric and Borgsquad font files.
-       local() checks if installed; src falls back to Orbitron.
-       ===================================================== */
+    /* =========================================================
+       DESIGN TOKENS
+    ========================================================= */
+    :root {
+      --bg-base:     #080808;
+      --bg-surface:  #0D0D0D;
+      --bg-elevated: #141414;
+      --bg-overlay:  #1A1A1A;
+
+      --red:         #C41218;
+      --red-hover:   #E01420;
+      --red-glow:    rgba(196, 18, 24, 0.14);
+      --red-border:  rgba(196, 18, 24, 0.4);
+      --red-dim:     rgba(196, 18, 24, 0.08);
+      --amber:       #C8922A;
+      --amber-dim:   rgba(200, 146, 42, 0.12);
+
+      --text-primary:   #F2EFEA;
+      --text-secondary: #ABA7A2;
+      --text-muted:     #726E6A;
+      --text-inverse:   #080808;
+
+      --border-subtle:  rgba(242, 239, 234, 0.06);
+      --border-default: rgba(242, 239, 234, 0.12);
+      --border-strong:  rgba(242, 239, 234, 0.22);
+
+      --font-brand:   'Borgsquad', 'Orbitron', sans-serif;
+      --font-display: 'Ethnocentric', 'Orbitron', sans-serif;
+      --font-label:   'Barlow Condensed', sans-serif;
+      --font-ui:      'Barlow', sans-serif;
+      --font-body:    'Inter', system-ui, sans-serif;
+
+      --ease-snap:  cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-out:   cubic-bezier(0.0, 0, 0.2, 1);
+      --dur-fast:   160ms;
+      --dur-base:   260ms;
+      --dur-slow:   400ms;
+
+      --max-w: 1280px;
+      --nav-h: 64px;
+    }
+
     @font-face {
       font-family: 'Ethnocentric';
-      src: local('Ethnocentric'),
-           local('ethnocentric'),
-           url('/fonts/ethnocentric.woff2') format('woff2');
-      font-weight: 400 900;
+      src:
+        local('Ethnocentric'),
+        url('/fonts/Ethnocentric-Regular.woff2') format('woff2'),
+        url('/fonts/Ethnocentric-Regular.woff') format('woff'),
+        url('/fonts/Ethnocentric-Regular.ttf') format('truetype'),
+        url('https://fasmotorsports.com/fonts/Ethnocentric-Regular.woff2') format('woff2'),
+        url('https://fasmotorsports.com/fonts/Ethnocentric-Regular.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Ethnocentric';
+      src:
+        local('Ethnocentric Italic'),
+        url('/fonts/Ethnocentric-Italic.woff2') format('woff2'),
+        url('/fonts/Ethnocentric-Italic.woff') format('woff'),
+        url('/fonts/Ethnocentric-Italic.ttf') format('truetype'),
+        url('https://fasmotorsports.com/fonts/Ethnocentric-Italic.woff2') format('woff2'),
+        url('https://fasmotorsports.com/fonts/Ethnocentric-Italic.woff') format('woff');
+      font-weight: normal;
+      font-style: italic;
       font-display: swap;
     }
     @font-face {
       font-family: 'Borgsquad';
-      src: local('Borgsquad'),
-           local('borgsquad'),
-           url('/fonts/borgsquad.woff2') format('woff2');
-      font-weight: 400 700;
+      src:
+        local('Borgsquad'),
+        url('/fonts/Borgsquad.woff2') format('woff2'),
+        url('/fonts/Borgsquad.woff') format('woff'),
+        url('/fonts/borgsquad.ttf') format('truetype'),
+        url('https://fasmotorsports.com/fonts/Borgsquad.woff2') format('woff2'),
+        url('https://fasmotorsports.com/fonts/Borgsquad.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Borgsquad Italic';
+      src:
+        local('Borgsquad Italic'),
+        url('/fonts/BorgsquadItalic.woff2') format('woff2'),
+        url('/fonts/BorgsquadItalic.woff') format('woff'),
+        url('/fonts/borgsquadital.ttf') format('truetype'),
+        url('https://fasmotorsports.com/fonts/BorgsquadItalic.woff2') format('woff2'),
+        url('https://fasmotorsports.com/fonts/BorgsquadItalic.woff') format('woff');
+      font-weight: normal;
+      font-style: italic;
       font-display: swap;
     }
 
-    /* =====================================================
-       DESIGN TOKENS
-       ===================================================== */
-    :root {
-      /* ── Backgrounds ── */
-      --bg-base:        #080808;
-      --bg-surface:     #0D0D0D;
-      --bg-elevated:    #141414;
-      --bg-overlay:     #1A1A1A;
-
-      /* ── Brand Red — primary accent ── */
-      --red:            #C41218;
-      --red-hover:      #E01420;
-      --red-dim:        #7A0B10;
-      --red-glow:       rgba(196, 18, 24, 0.14);
-      --red-border:     rgba(196, 18, 24, 0.4);
-
-      /* ── Amber — secondary, minimal use only ── */
-      --amber:          #C8922A;
-      --amber-dim:      rgba(200, 146, 42, 0.5);
-      --amber-subtle:   rgba(200, 146, 42, 0.08);
-
-      /* ── Text ── */
-      --text-primary:   #F2EFEA;
-      --text-secondary: #9A9490;
-      --text-muted:     #585450;
-
-      /* ── Borders ── */
-      --border-subtle:  rgba(242, 239, 234, 0.06);
-      --border-mid:     rgba(242, 239, 234, 0.12);
-
-      /* ── Typography ── */
-      --font-brand:     'Borgsquad',    'Orbitron', sans-serif;   /* F.A.S. logo text */
-      --font-display:   'Ethnocentric', 'Orbitron', sans-serif;   /* Hero H1, select H2 */
-      --font-label:     'Barlow Condensed', sans-serif;           /* Labels, badges, buttons, nav */
-      --font-ui:        'Barlow', sans-serif;                     /* Sub-headings, UI text */
-      --font-body:      'Inter', system-ui, sans-serif;           /* Body copy, prices, meta */
-
-      /* ── Spacing ── */
-      --s1: 4px;   --s2: 8px;   --s3: 12px;  --s4: 16px;
-      --s5: 24px;  --s6: 32px;  --s7: 48px;  --s8: 64px;
-      --s9: 96px;  --s10: 128px;
-
-      /* ── Radii ── */
-      --r-sm: 2px;
-      --r-md: 4px;
-      --r-lg: 8px;
-
-      /* ── Motion ── */
-      --ease-snap: cubic-bezier(0.16, 1, 0.3, 1);
-      --ease-out:  cubic-bezier(0.0, 0, 0.2, 1);
-      --fast:      140ms;
-      --mid:       240ms;
-      --slow:      380ms;
-
-      /* ── Layout ── */
-      --nav-h: 60px;
-      --container: 1320px;
-      --gutter: var(--s5);
-    }
-
-    @media (min-width: 640px)  { :root { --gutter: var(--s6); } }
-    @media (min-width: 1024px) { :root { --nav-h: 68px; } }
-
-    /* =====================================================
-       RESET
-       ===================================================== */
+    /* =========================================================
+       RESET & BASE
+    ========================================================= */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
     body {
       background: var(--bg-base);
       color: var(--text-primary);
       font-family: var(--font-body);
-      font-size: 15px;
-      line-height: 1.65;
-      -webkit-font-smoothing: antialiased;
+      font-size: 16px;
+      line-height: 1.6;
       overflow-x: hidden;
     }
-
     a { color: inherit; text-decoration: none; }
     img { display: block; max-width: 100%; }
-    button { cursor: pointer; border: none; background: none; font: inherit; color: inherit; }
+    button { cursor: pointer; border: none; background: none; font: inherit; }
     ul { list-style: none; }
-    select { appearance: none; -webkit-appearance: none; }
 
-    /* =====================================================
-       LAYOUT UTILITIES
-       ===================================================== */
+    /* =========================================================
+       LAYOUT
+    ========================================================= */
     .container {
       width: 100%;
-      max-width: var(--container);
+      max-width: var(--max-w);
       margin: 0 auto;
-      padding: 0 var(--gutter);
+      padding: 0 28px;
     }
+    @media (min-width: 640px)  { .container { padding: 0 48px; } }
+    @media (min-width: 1024px) { .container { padding: 0 72px; } }
 
-    /* ── Type atoms ── */
-    .eyebrow {
-      font-family: var(--font-label);
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--red);
-    }
-
-    .section-title {
-      font-family: var(--font-label);
-      font-size: clamp(26px, 3.5vw, 42px);
-      font-weight: 800;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: var(--text-primary);
-      line-height: 1.05;
-    }
-
-    /* H1/H2 using Ethnocentric — only where specified */
-    .heading-display {
-      font-family: var(--font-display);
-      font-size: clamp(34px, 6vw, 80px);
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      text-transform: uppercase;
-      line-height: 1.0;
-      color: var(--text-primary);
-    }
-
-    .heading-display em {
-      font-style: normal;
-      color: var(--red);
-    }
-
-    .rule-red {
-      display: block;
-      width: 40px;
-      height: 2px;
+    /* =========================================================
+       ANNOUNCEMENT BAR
+    ========================================================= */
+    .announcement {
       background: var(--red);
-      margin: var(--s3) 0 var(--s4);
+      padding: 8px 20px;
+      text-align: center;
+      position: relative;
+      z-index: 100;
     }
-
-    /* =====================================================
-       BUTTONS
-       ===================================================== */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--s2);
+    .announcement p {
       font-family: var(--font-label);
       font-size: 12px;
       font-weight: 700;
-      letter-spacing: 0.16em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      border-radius: var(--r-sm);
-      padding: 13px var(--s5);
-      transition:
-        background var(--fast) var(--ease-snap),
-        border-color var(--fast) var(--ease-snap),
-        color var(--fast) var(--ease-snap),
-        transform var(--fast) var(--ease-snap),
-        box-shadow var(--fast) var(--ease-snap);
-      white-space: nowrap;
-    }
-
-    .btn svg { width: 14px; height: 14px; flex-shrink: 0; }
-
-    .btn-red {
-      background: var(--red);
       color: #fff;
-      border: 1px solid var(--red);
     }
-    .btn-red:hover {
-      background: var(--red-hover);
-      border-color: var(--red-hover);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 28px rgba(196, 18, 24, 0.35);
-    }
-
-    .btn-outline {
-      background: transparent;
-      color: var(--text-secondary);
-      border: 1px solid var(--border-mid);
-    }
-    .btn-outline:hover {
-      color: var(--text-primary);
-      border-color: rgba(242, 239, 234, 0.25);
-      transform: translateY(-2px);
-    }
-
-    .btn-sm { padding: 9px var(--s4); font-size: 11px; }
-
-    /* =====================================================
-       ANNOUNCEMENT BAR
-       ===================================================== */
-    .announce {
-      background: var(--red);
+    .announcement a {
       color: #fff;
-      font-family: var(--font-label);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      text-align: center;
-      padding: 8px var(--s5);
-      position: relative;
-      z-index: 200;
-    }
-
-    .announce a {
-      color: rgba(255,255,255,0.8);
       text-decoration: underline;
-      text-underline-offset: 2px;
-      margin-left: var(--s3);
-      transition: color var(--fast);
+      text-underline-offset: 3px;
     }
-    .announce a:hover { color: #fff; }
 
-    /* =====================================================
+    /* =========================================================
        NAVIGATION
-       ===================================================== */
+    ========================================================= */
     .nav-wrapper {
       position: sticky;
       top: 0;
-      z-index: 100;
-      background: rgba(8, 8, 8, 0.97);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      z-index: 200;
+      background: rgba(8, 8, 8, 0.94);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border-subtle);
     }
-
-    .nav-inner {
+    nav {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       height: var(--nav-h);
-      gap: var(--s4);
+      gap: 24px;
     }
 
-    /* ── Logo ── */
     .nav-logo {
       display: flex;
-      align-items: center;
-      gap: var(--s3);
-      flex-shrink: 0;
-      text-decoration: none;
-    }
-
-    /* Hexagon mark */
-    .logo-mark {
-      position: relative;
-      width: 38px;
-      height: 38px;
+      align-items: baseline;
+      gap: 6px;
       flex-shrink: 0;
     }
-
-    .logo-mark svg {
-      width: 38px;
-      height: 38px;
-    }
-
-    .logo-text-wrap {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
+    .nav-logo .fas-letters {
+      font-family: var(--font-brand);
+      font-size: 22px;
+      color: var(--red);
+      letter-spacing: 0.06em;
       line-height: 1;
     }
-
-    /* "F.A.S." — Borgsquad, red */
-    .logo-fas {
-      font-family: var(--font-brand);
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      color: var(--red);
-      text-transform: uppercase;
-    }
-
-    /* "MOTORSPORTS" — Ethnocentric, white */
-    .logo-motorsports {
+    .nav-logo .nav-logo-sub {
       font-family: var(--font-display);
-      font-size: 11px;
+      font-size: 9px;
       font-weight: 700;
-      letter-spacing: 0.14em;
       color: var(--text-primary);
+      letter-spacing: 0.14em;
       text-transform: uppercase;
+      line-height: 1;
+      align-self: center;
+      opacity: 0.9;
     }
 
-    /* ── Desktop nav links ── */
     .nav-links {
       display: none;
       align-items: center;
       gap: 2px;
       flex: 1;
     }
+    @media (min-width: 1024px) { .nav-links { display: flex; } }
 
-    @media (min-width: 1024px) {
-      .nav-links { display: flex; }
+    .nav-item { position: relative; }
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 14px;
+      font-family: var(--font-label);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      border-radius: 6px;
+      transition: color var(--dur-fast) var(--ease-snap), background var(--dur-fast) var(--ease-snap);
+    }
+    .nav-link:hover { color: var(--text-primary); background: var(--border-subtle); }
+    .nav-link svg { width: 10px; height: 10px; transition: transform var(--dur-fast) var(--ease-snap); }
+    .nav-item:hover .nav-link svg { transform: rotate(180deg); }
+
+    .nav-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      min-width: 220px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: 10px;
+      padding: 8px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-6px);
+      transition: opacity var(--dur-fast) var(--ease-snap), transform var(--dur-fast) var(--ease-snap);
+    }
+    .nav-item:hover .nav-dropdown { opacity: 1; pointer-events: all; transform: translateY(0); }
+    .nav-dropdown a {
+      display: block;
+      padding: 9px 12px;
+      font-family: var(--font-label);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      border-radius: 6px;
+      transition: color var(--dur-fast), background var(--dur-fast);
+    }
+    .nav-dropdown a:hover { color: var(--text-primary); background: var(--border-subtle); }
+    .nav-dropdown .dd-divider { height: 1px; background: var(--border-subtle); margin: 6px 8px; }
+    .dd-badge {
+      display: inline-block;
+      margin-left: 6px;
+      padding: 1px 6px;
+      background: var(--red-dim);
+      border: 1px solid var(--red-border);
+      border-radius: 3px;
+      font-size: 9px;
+      color: var(--red);
+      font-weight: 800;
+      letter-spacing: 0.06em;
     }
 
-    .nav-link {
+    .nav-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+    .nav-vendor-btn {
+      display: none;
+      padding: 7px 14px;
+      background: transparent;
+      border: 1px solid var(--red-border);
+      border-radius: 6px;
       font-family: var(--font-label);
       font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.1em;
+      font-weight: 700;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--text-secondary);
-      padding: var(--s2) var(--s3);
-      border-radius: var(--r-sm);
-      position: relative;
-      transition: color var(--fast) var(--ease-out),
-                  background var(--fast) var(--ease-out);
+      color: var(--red);
+      transition: background var(--dur-fast) var(--ease-snap), color var(--dur-fast) var(--ease-snap);
     }
+    .nav-vendor-btn:hover { background: var(--red-glow); color: var(--text-primary); }
+    @media (min-width: 768px) { .nav-vendor-btn { display: block; } }
 
-    .nav-link:hover { color: var(--text-primary); background: var(--border-subtle); }
-
-    .nav-link.active { color: var(--text-primary); }
-
-    .nav-link.active::after {
-      content: '';
-      position: absolute;
-      bottom: -1px;
-      left: var(--s3);
-      right: var(--s3);
-      height: 2px;
+    .nav-cart-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
       background: var(--red);
-      border-radius: 1px;
-    }
-
-    .nav-badge {
-      display: inline-block;
+      border-radius: 6px;
       font-family: var(--font-label);
-      font-size: 8px;
+      font-size: 12px;
       font-weight: 700;
       letter-spacing: 0.06em;
-      background: var(--red);
-      color: #fff;
-      padding: 2px 4px;
-      border-radius: var(--r-sm);
-      margin-left: 4px;
-      vertical-align: middle;
-      line-height: 1.4;
-    }
-
-    /* ── Nav actions ── */
-    .nav-actions {
-      display: flex;
-      align-items: center;
-      gap: var(--s2);
-      margin-left: auto;
-    }
-
-    .nav-icon {
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: var(--r-md);
-      color: var(--text-secondary);
-      transition: color var(--fast), background var(--fast);
-    }
-
-    .nav-icon:hover { color: var(--text-primary); background: var(--border-subtle); }
-    .nav-icon svg { width: 18px; height: 18px; }
-
-    .nav-cart {
-      display: flex;
-      align-items: center;
-      gap: var(--s2);
-      padding: 0 var(--s4);
-      height: 36px;
-      background: var(--red);
-      color: #fff;
-      font-family: var(--font-label);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.12em;
       text-transform: uppercase;
-      border-radius: var(--r-sm);
-      transition: background var(--fast) var(--ease-snap),
-                  transform var(--fast) var(--ease-snap),
-                  box-shadow var(--fast) var(--ease-snap);
+      color: #fff;
+      transition: background var(--dur-fast) var(--ease-snap);
     }
+    .nav-cart-btn:hover { background: var(--red-hover); }
+    .nav-cart-btn svg { width: 15px; height: 15px; }
 
-    .nav-cart:hover {
-      background: var(--red-hover);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 16px var(--red-glow);
-    }
-
-    .cart-pill {
-      background: rgba(255,255,255,0.15);
-      font-size: 9px;
-      font-weight: 800;
-      min-width: 16px;
-      height: 16px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 4px;
-    }
-
-    /* ── Hamburger (mobile) ── */
     .hamburger {
       display: flex;
       flex-direction: column;
@@ -457,1896 +316,2226 @@
       gap: 5px;
       width: 36px;
       height: 36px;
-      padding: 8px;
-      border-radius: var(--r-md);
-      color: var(--text-secondary);
-      transition: color var(--fast);
+      padding: 6px;
+      border-radius: 6px;
+      transition: background var(--dur-fast);
     }
-
-    .hamburger:hover { color: var(--text-primary); }
-
-    .ham-line {
-      height: 1.5px;
-      background: currentColor;
-      transition: transform var(--mid) var(--ease-snap),
-                  opacity var(--fast);
+    .hamburger:hover { background: var(--bg-overlay); }
+    .hamburger span {
+      display: block;
+      width: 100%;
+      height: 2px;
+      background: var(--text-primary);
+      border-radius: 2px;
+      transition: transform var(--dur-base) var(--ease-snap), opacity var(--dur-base) var(--ease-snap);
       transform-origin: center;
     }
-
-    .hamburger.open .ham-line:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
-    .hamburger.open .ham-line:nth-child(2) { opacity: 0; transform: scaleX(0); }
-    .hamburger.open .ham-line:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
-
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
     @media (min-width: 1024px) { .hamburger { display: none; } }
 
-    /* ── Mobile nav drawer ── */
     .mobile-nav {
-      display: none;
       position: fixed;
-      top: calc(var(--nav-h) + 36px); /* announce bar + nav */
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: var(--bg-surface);
-      border-top: 1px solid var(--border-subtle);
-      z-index: 99;
+      inset: 0;
+      z-index: 190;
+      background: var(--bg-base);
+      transform: translateX(100%);
+      transition: transform var(--dur-slow) var(--ease-snap);
       overflow-y: auto;
-      padding: var(--s5);
-      flex-direction: column;
-      gap: 2px;
+      padding-top: calc(var(--nav-h) + 24px);
+      padding-bottom: 40px;
     }
-
-    .mobile-nav.open { display: flex; }
-
-    @media (min-width: 1024px) { .mobile-nav { display: none !important; } }
-
+    .mobile-nav.open { transform: translateX(0); }
+    .mobile-nav-inner { padding: 0 20px; }
     .mobile-nav-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 4px;
       font-family: var(--font-label);
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 700;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
       color: var(--text-secondary);
-      padding: var(--s4) var(--s3);
       border-bottom: 1px solid var(--border-subtle);
-      transition: color var(--fast);
+      transition: color var(--dur-fast);
     }
-
-    .mobile-nav-link:hover,
-    .mobile-nav-link.active { color: var(--text-primary); }
-
-    .mobile-nav-link.active { color: var(--red); }
-
-    .mobile-nav-bottom {
-      margin-top: var(--s5);
-      display: flex;
-      flex-direction: column;
-      gap: var(--s3);
+    .mobile-nav-link:hover { color: var(--text-primary); }
+    .mobile-nav-sub { padding: 8px 0 8px 12px; }
+    .mobile-nav-sub a {
+      display: block;
+      padding: 8px 4px;
+      font-family: var(--font-label);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      transition: color var(--dur-fast);
     }
+    .mobile-nav-sub a:hover { color: var(--text-secondary); }
+    .mobile-nav-ctas { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+    .mobile-nav-ctas a {
+      display: block;
+      padding: 14px;
+      text-align: center;
+      font-family: var(--font-label);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-radius: 8px;
+    }
+    .mobile-cta-primary { background: var(--red); color: #fff; }
+    .mobile-cta-outline { border: 1px solid var(--red-border); color: var(--red); }
 
-    /* =====================================================
-       HERO
-       ===================================================== */
+    /* =========================================================
+       HERO — Two-Column Split
+    ========================================================= */
     .hero {
       position: relative;
-      min-height: calc(100svh - var(--nav-h) - 36px);
-      display: flex;
-      align-items: flex-end;
+      min-height: 100svh;
       overflow: hidden;
+      background: var(--bg-base);
+      display: flex;
+      align-items: stretch;
     }
 
-    /* Background stack */
     .hero-bg {
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(to right,  rgba(8,8,8,0.95) 0%, rgba(8,8,8,0.7) 45%, rgba(8,8,8,0.15) 100%),
-        linear-gradient(to top,    rgba(8,8,8,1) 0%, rgba(8,8,8,0.5) 20%, transparent 55%),
-        /* Subtle red atmospheric glow on far left */
-        radial-gradient(ellipse at 0% 50%, rgba(196,18,24,0.08) 0%, transparent 50%),
-        /* Dark plate (swap for actual hero image) */
-        linear-gradient(135deg, #110806 0%, #090909 50%, #0E0C0A 100%);
+        radial-gradient(ellipse 50% 80% at 0% 100%, rgba(196, 18, 24, 0.10) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 60% at 100% 0%, rgba(20, 8, 8, 0.5) 0%, transparent 65%),
+        linear-gradient(160deg, #0C0505 0%, #080808 50%, #0A0A0A 100%);
     }
 
-    /* Carbon texture */
-    .hero-bg::after {
-      content: '';
+    .hero-redline {
       position: absolute;
-      inset: 0;
-      background-image:
-        repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,0.01) 3px, rgba(255,255,255,0.01) 4px),
-        repeating-linear-gradient(90deg, transparent, transparent 3px, rgba(255,255,255,0.006) 3px, rgba(255,255,255,0.006) 4px);
-      pointer-events: none;
+      left: 0;
+      top: 20%;
+      bottom: 20%;
+      width: 3px;
+      background: linear-gradient(to bottom, transparent, var(--red) 30%, var(--red) 70%, transparent);
+      opacity: 0.55;
+      z-index: 3;
     }
 
-    /* Image placeholder (right side) */
-    .hero-img {
-      position: absolute;
-      right: 0;
-      top: 0;
-      width: 60%;
-      height: 100%;
-      background: linear-gradient(135deg, #150C07 0%, #0A0908 60%, #110D0A 100%);
+    /* Inner wrapper: max-width container + full height grid */
+    .hero-inner {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 100px 72px 64px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 48px;
+    }
+    @media (max-width: 1023px) { .hero-inner { padding: 100px 48px 56px; } }
+    @media (max-width: 639px)  { .hero-inner { padding: 88px 28px 48px; gap: 36px; } }
+
+    /* Two-column content row */
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 52fr 48fr;
+      gap: 56px;
+      align-items: center;
+    }
+    @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; gap: 40px; } }
+
+    .hero-left { display: flex; flex-direction: column; }
+
+    /* Right column — vehicle image placeholder */
+    .hero-right {
+      position: relative;
+      aspect-ratio: 16/11;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+      background:
+        linear-gradient(135deg, #1a0c0c 0%, #120808 50%, #0d0d0d 100%);
       display: flex;
       align-items: center;
       justify-content: center;
     }
-
-    @media (max-width: 767px) { .hero-img { width: 100%; opacity: 0.25; } }
-
-    .hero-img-note {
+    .hero-right::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 75% 65% at 65% 45%, rgba(196,18,24,0.07) 0%, transparent 65%),
+        repeating-linear-gradient(-40deg, transparent, transparent 55px, rgba(255,255,255,0.018) 55px, rgba(255,255,255,0.018) 56px);
+    }
+    /* Red corner accent */
+    .hero-right::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px; height: 60px;
+      background: var(--red);
+      border-radius: 0 0 2px 0;
+    }
+    .hero-right-label {
+      position: relative;
+      z-index: 1;
       font-family: var(--font-label);
       font-size: 10px;
-      letter-spacing: 0.16em;
-      color: var(--text-muted);
+      font-weight: 600;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      opacity: 0.5;
+      color: rgba(242,239,234,0.22);
+      text-align: center;
+      line-height: 2;
+      padding: 20px;
     }
-
-    .hero-content {
-      position: relative;
-      z-index: 2;
-      width: 100%;
-      padding-top: var(--s8);
-      padding-bottom: var(--s8);
+    .hero-right-label strong {
+      display: block;
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      color: rgba(242,239,234,0.38);
+      margin-bottom: 6px;
     }
-
-    @media (min-width: 640px) {
-      .hero-content { padding-top: var(--s10); padding-bottom: var(--s9); }
-    }
+    @media (max-width: 900px) { .hero-right { display: none; } }
 
     .hero-eyebrow {
       display: flex;
       align-items: center;
-      gap: var(--s3);
-      margin-bottom: var(--s4);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .hero-eyebrow .line { width: 32px; height: 2px; background: var(--red); flex-shrink: 0; }
+    .hero-eyebrow span {
+      font-family: var(--font-label);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--red);
     }
 
-    .hero-eyebrow-line {
-      width: 28px;
-      height: 2px;
-      background: var(--red);
-      flex-shrink: 0;
-    }
-
-    /* Hero H1 — Ethnocentric */
     .hero-h1 {
       font-family: var(--font-display);
-      font-size: clamp(36px, 7vw, 90px);
+      font-size: clamp(38px, 5.2vw, 76px);
       font-weight: 700;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.04em;
       text-transform: uppercase;
       line-height: 1.0;
       color: var(--text-primary);
-      max-width: 700px;
-      margin-bottom: var(--s3);
+      margin-bottom: 24px;
     }
-
-    .hero-h1 span {
-      color: var(--red);
-      display: block;
-    }
+    .hero-h1 .h1-red { color: var(--red); }
 
     .hero-sub {
-      font-family: var(--font-body);
-      font-size: clamp(14px, 1.5vw, 16px);
-      line-height: 1.75;
+      max-width: 480px;
+      font-size: 16px;
+      line-height: 1.7;
       color: var(--text-secondary);
-      max-width: 420px;
-      margin-bottom: var(--s6);
+      margin-bottom: 36px;
     }
+    .hero-sub strong { color: var(--text-primary); font-weight: 600; }
+    @media (min-width: 768px) { .hero-sub { font-size: 17px; } }
 
-    .hero-actions {
+    .hero-ctas {
       display: flex;
       flex-wrap: wrap;
-      gap: var(--s3);
-      margin-bottom: var(--s7);
+      gap: 12px;
     }
 
-    /* Stats bar */
-    .hero-stats {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--s5) var(--s6);
-      padding-top: var(--s5);
-      border-top: 1px solid var(--border-subtle);
-    }
-
-    .stat {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .stat-val {
+    /* BUTTONS */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      background: var(--red);
+      border-radius: 6px;
       font-family: var(--font-label);
-      font-size: clamp(20px, 2.5vw, 28px);
-      font-weight: 800;
-      letter-spacing: 0.03em;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #fff;
+      transition: background var(--dur-fast) var(--ease-snap), transform var(--dur-fast) var(--ease-snap);
+    }
+    .btn-primary:hover { background: var(--red-hover); transform: translateY(-1px); }
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 28px;
+      border: 1px solid var(--border-default);
+      border-radius: 6px;
+      font-family: var(--font-label);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      transition: border-color var(--dur-fast) var(--ease-snap), color var(--dur-fast) var(--ease-snap), transform var(--dur-fast) var(--ease-snap);
+    }
+    .btn-ghost:hover { border-color: var(--border-strong); color: var(--text-primary); transform: translateY(-1px); }
+    .btn-sm { padding: 9px 18px; font-size: 12px; }
+
+    /* Hero stat bar */
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 28px;
+      gap: 0;
+    }
+    @media (max-width: 639px) {
+      .hero-stats { grid-template-columns: repeat(2, 1fr); gap: 20px 0; padding-top: 24px; }
+    }
+    .hero-stat { padding: 0 20px 0 0; }
+    .hero-stat + .hero-stat { padding-left: 20px; border-left: 1px solid var(--border-subtle); }
+    @media (max-width: 639px) {
+      .hero-stat:nth-child(even) { padding-left: 20px; border-left: 1px solid var(--border-subtle); }
+      .hero-stat:nth-child(odd) { padding-left: 0; border-left: none; }
+      .hero-stat + .hero-stat { border-left: none; padding-left: 0; }
+    }
+    .hero-stat-val {
+      font-family: var(--font-display);
+      font-size: clamp(24px, 3.2vw, 38px);
+      font-weight: 700;
+      letter-spacing: 0.02em;
       color: var(--text-primary);
       line-height: 1;
     }
-
-    .stat-label {
+    .hero-stat-val .red { color: var(--red); }
+    .hero-stat-label {
       font-family: var(--font-label);
-      font-size: 9px;
-      font-weight: 600;
-      letter-spacing: 0.18em;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--text-muted);
+      margin-top: 5px;
     }
 
-    /* =====================================================
-       TICKER
-       ===================================================== */
-    .ticker {
-      background: var(--bg-elevated);
+    /* =========================================================
+       TRUST TICKER
+    ========================================================= */
+    .trust-ticker {
+      background: var(--bg-surface);
       border-top: 1px solid var(--border-subtle);
       border-bottom: 1px solid var(--border-subtle);
       overflow: hidden;
-      padding: 11px 0;
-    }
-
-    .ticker-track {
-      display: flex;
-      width: max-content;
-      animation: tick 32s linear infinite;
-    }
-
-    @keyframes tick {
-      from { transform: translateX(0); }
-      to   { transform: translateX(-50%); }
-    }
-
-    .tick-item {
+      height: 44px;
       display: flex;
       align-items: center;
-      gap: var(--s4);
-      padding: 0 var(--s5);
+    }
+    .ticker-track {
+      display: flex;
+      align-items: center;
+      animation: ticker-scroll 36s linear infinite;
+      white-space: nowrap;
+      will-change: transform;
+    }
+    .trust-ticker:hover .ticker-track { animation-play-state: paused; }
+    @keyframes ticker-scroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .ticker-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 28px;
       font-family: var(--font-label);
       font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.14em;
+      font-weight: 700;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
-      color: var(--text-secondary);
+      color: var(--text-muted);
       white-space: nowrap;
     }
-
-    .tick-dot {
-      width: 3px;
-      height: 3px;
-      border-radius: 50%;
+    .ticker-dot {
+      width: 4px;
+      height: 4px;
       background: var(--red);
+      border-radius: 50%;
       flex-shrink: 0;
     }
 
-    /* =====================================================
-       VEHICLE SELECTOR
-       ===================================================== */
-    .section-vehicle { padding: var(--s5) 0; }
-
-    .vehicle-card {
+    /* =========================================================
+       FITMENT SEARCH
+    ========================================================= */
+    .fitment-section {
       background: var(--bg-elevated);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--r-lg);
-      padding: var(--s6) var(--s6);
-      position: relative;
-      overflow: hidden;
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 36px 0;
     }
-
-    /* Subtle red top rule */
-    .vehicle-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: var(--red);
+    .fitment-inner {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 48px;
+      align-items: center;
     }
+    @media (max-width: 900px) { .fitment-inner { grid-template-columns: 1fr; gap: 20px; } }
 
-    .vehicle-card-inner {
-      display: flex;
-      flex-direction: column;
-      gap: var(--s5);
-    }
-
-    @media (min-width: 768px) {
-      .vehicle-card-inner {
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        gap: var(--s8);
-      }
-    }
-
-    .vehicle-heading {
+    .fitment-kicker {
       font-family: var(--font-label);
-      font-size: clamp(18px, 2.5vw, 26px);
-      font-weight: 800;
-      letter-spacing: 0.06em;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 6px;
+    }
+    .fitment-title {
+      font-family: var(--font-ui);
+      font-size: clamp(19px, 2.2vw, 26px);
+      font-weight: 700;
       color: var(--text-primary);
+      line-height: 1.2;
       margin-bottom: 4px;
     }
-
-    .vehicle-sub {
-      font-family: var(--font-body);
+    .fitment-sub {
       font-size: 13px;
-      color: var(--text-secondary);
+      color: var(--text-muted);
+      line-height: 1.5;
     }
-
-    .vehicle-selectors {
+    .fitment-controls {
       display: flex;
+      gap: 10px;
       flex-wrap: wrap;
-      gap: var(--s2);
+      align-items: stretch;
+    }
+    @media (max-width: 600px) { .fitment-controls { flex-direction: column; } }
+    .fitment-select {
+      flex: 1 1 130px;
+      min-width: 120px;
+      appearance: none;
+      background: var(--bg-overlay);
+      border: 1px solid var(--border-default);
+      border-radius: 6px;
+      padding: 11px 36px 11px 14px;
+      font-family: var(--font-label);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: border-color var(--dur-fast) var(--ease-snap);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23726E6A' stroke-width='2.2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+    }
+    .fitment-select:focus { outline: none; border-color: var(--red); color: var(--text-primary); }
+    .fitment-select option { background: #1a1a1a; color: var(--text-primary); }
+    .fitment-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 22px;
+      background: var(--red);
+      border: none;
+      border-radius: 6px;
+      font-family: var(--font-label);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #fff;
+      cursor: pointer;
+      transition: background var(--dur-fast) var(--ease-snap), transform var(--dur-fast) var(--ease-snap);
+      white-space: nowrap;
       flex-shrink: 0;
     }
+    .fitment-btn:hover { background: var(--red-hover); transform: translateY(-1px); }
 
-    @media (min-width: 640px) {
-      .vehicle-selectors { flex-wrap: nowrap; }
+    /* =========================================================
+       PLATFORM STRIP
+    ========================================================= */
+    .platform-strip {
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      overflow-x: auto;
+      scrollbar-width: none;
     }
-
-    .v-select-wrap {
-      position: relative;
-      flex: 1;
-      min-width: 120px;
-    }
-
-    .v-select-wrap::after {
-      content: '▾';
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-muted);
-      font-size: 11px;
-      pointer-events: none;
-    }
-
-    .v-select {
-      width: 100%;
-      background: var(--bg-base);
-      border: 1px solid var(--border-mid);
-      border-radius: var(--r-sm);
-      color: var(--text-primary);
-      font-family: var(--font-body);
-      font-size: 13px;
-      padding: 10px 32px 10px var(--s4);
-      outline: none;
+    .platform-strip::-webkit-scrollbar { display: none; }
+    .platform-inner { display: flex; min-width: max-content; }
+    .platform-item {
+      flex: 1 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 22px 30px;
+      border-right: 1px solid var(--border-subtle);
       cursor: pointer;
-      transition: border-color var(--fast);
+      position: relative;
+      transition: background var(--dur-fast) var(--ease-snap);
+      text-decoration: none;
+    }
+    .platform-item:last-child { border-right: none; }
+    .platform-item::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--red);
+      transform: scaleX(0);
+      transition: transform var(--dur-base) var(--ease-snap);
+    }
+    .platform-item:hover::after, .platform-item.active::after { transform: scaleX(1); }
+    .platform-item:hover { background: var(--bg-elevated); }
+    .platform-icon {
+      width: 48px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: color var(--dur-fast);
+    }
+    .platform-item:hover .platform-icon, .platform-item.active .platform-icon { color: var(--text-primary); }
+    .platform-icon svg { width: 100%; height: 100%; }
+    .platform-name {
+      font-family: var(--font-label);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      white-space: nowrap;
+      transition: color var(--dur-fast);
+    }
+    .platform-item:hover .platform-name, .platform-item.active .platform-name { color: var(--text-primary); }
+    .platform-range {
+      font-family: var(--font-label);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--red);
     }
 
-    .v-select:focus { border-color: var(--red-border); }
-    .v-select option { background: var(--bg-surface); }
-
-    /* =====================================================
-       CATEGORY SECTION
-       ===================================================== */
-    .section-cats {
-      padding: var(--s8) 0;
-    }
+    /* =========================================================
+       SECTION HELPERS
+    ========================================================= */
+    .section { padding: 96px 0; }
+    .section-sm { padding: 64px 0; }
 
     .section-header {
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
-      gap: var(--s4);
-      margin-bottom: var(--s6);
-      flex-wrap: wrap;
+      gap: 24px;
+      margin-bottom: 56px;
     }
 
-    .see-all {
+    .kicker {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .kicker .line { width: 24px; height: 2px; background: var(--red); flex-shrink: 0; }
+    .kicker span {
       font-family: var(--font-label);
       font-size: 11px;
       font-weight: 700;
-      letter-spacing: 0.16em;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--red);
-      display: flex;
-      align-items: center;
-      gap: var(--s2);
-      flex-shrink: 0;
-      transition: gap var(--fast) var(--ease-snap), opacity var(--fast);
     }
 
-    .see-all:hover { gap: var(--s3); }
-    .see-all svg { width: 13px; height: 13px; }
-
-    /* Category grid — responsive */
-    .cat-grid {
-      display: grid;
-      gap: var(--s3);
-      grid-template-columns: 1fr 1fr;
-    }
-
-    @media (min-width: 640px) {
-      .cat-grid { grid-template-columns: 1fr 1fr 1fr; }
-    }
-
-    @media (min-width: 1024px) {
-      .cat-grid { grid-template-columns: 2fr 1fr 1fr 1fr; }
-    }
-
-    .cat-card {
-      position: relative;
-      overflow: hidden;
-      border-radius: var(--r-md);
-      border: 1px solid var(--border-subtle);
-      cursor: pointer;
-      aspect-ratio: 3/4;
-      transition: border-color var(--mid) var(--ease-snap);
-    }
-
-    .cat-card:hover { border-color: var(--red-border); }
-
-    /* Featured card — taller on desktop */
-    @media (min-width: 1024px) {
-      .cat-card--feat { aspect-ratio: 4/5; }
-    }
-
-    .cat-bg {
-      position: absolute;
-      inset: 0;
-      transition: transform var(--slow) var(--ease-snap);
-    }
-
-    .cat-card:hover .cat-bg { transform: scale(1.05); }
-
-    /* Placeholder gradients (swap for real images) */
-    .cb-1 { background: radial-gradient(ellipse at 40% 30%, #1E0A08 0%, #0A0808 70%); }
-    .cb-2 { background: radial-gradient(ellipse at 40% 30%, #0C1018 0%, #080A10 70%); }
-    .cb-3 { background: radial-gradient(ellipse at 40% 30%, #101010 0%, #080808 70%); }
-    .cb-4 { background: radial-gradient(ellipse at 40% 30%, #18100A 0%, #0A0808 70%); }
-
-    .cat-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to top, rgba(8,8,8,0.92) 0%, rgba(8,8,8,0.2) 55%, transparent 100%);
-    }
-
-    .cat-arrow {
-      position: absolute;
-      top: var(--s3);
-      right: var(--s3);
-      width: 28px;
-      height: 28px;
-      background: var(--red-glow);
-      border: 1px solid var(--red-border);
-      border-radius: var(--r-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--red);
-      opacity: 0;
-      transform: translate(-4px, 4px);
-      transition: opacity var(--mid) var(--ease-snap), transform var(--mid) var(--ease-snap);
-      z-index: 3;
-    }
-
-    .cat-card:hover .cat-arrow { opacity: 1; transform: translate(0, 0); }
-    .cat-arrow svg { width: 12px; height: 12px; }
-
-    .cat-content {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      padding: var(--s4);
-      z-index: 2;
-    }
-
-    .cat-tag {
-      font-family: var(--font-label);
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--red);
-      margin-bottom: 5px;
-    }
-
-    /* Category names — Ethnocentric H2 */
-    .cat-name {
+    .section-title {
       font-family: var(--font-display);
-      font-size: clamp(14px, 2.2vw, 22px);
+      font-size: clamp(22px, 4vw, 36px);
       font-weight: 700;
       letter-spacing: 0.04em;
       text-transform: uppercase;
       color: var(--text-primary);
       line-height: 1.1;
-      margin-bottom: 4px;
+    }
+    .section-sub {
+      font-size: 15px;
+      color: var(--text-secondary);
+      margin-top: 10px;
+      max-width: 500px;
+      line-height: 1.65;
     }
 
-    .cat-count {
-      font-family: var(--font-body);
-      font-size: 11px;
+    /* =========================================================
+       BILLET PRODUCTS GRID
+    ========================================================= */
+    .products-grid {
+      display: grid;
+      gap: 1px;
+      grid-template-columns: 1fr;
+      background: var(--border-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    @media (min-width: 480px) { .products-grid { grid-template-columns: 1fr 1fr; } }
+    @media (min-width: 1024px) { .products-grid { grid-template-columns: repeat(4, 1fr); } }
+
+    .product-card {
+      background: var(--bg-surface);
+      overflow: hidden;
+      transition: background var(--dur-base) var(--ease-snap);
+    }
+    .product-card:hover { background: var(--bg-elevated); }
+
+    .product-img {
+      aspect-ratio: 4 / 3;
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 40%, rgba(160,160,160,0.1) 0%, transparent 55%),
+        repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,0.02) 3px, rgba(255,255,255,0.02) 4px),
+        linear-gradient(135deg, #1a1a1a 0%, #111 50%, #1e1e1e 100%);
+    }
+    .product-img::after {
+      content: attr(data-label);
+      position: absolute;
+      bottom: 10px;
+      left: 12px;
+      font-family: var(--font-label);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: rgba(242,239,234,0.22);
+    }
+
+    .product-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      padding: 3px 8px;
+      background: var(--red);
+      border-radius: 4px;
+      font-family: var(--font-label);
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #fff;
+      z-index: 2;
+    }
+    .product-badge.amber-badge {
+      background: transparent;
+      border: 1px solid rgba(200,146,42,0.5);
+      color: var(--amber);
+    }
+
+    .product-info { padding: 16px 18px 20px; }
+    .product-platform {
+      font-family: var(--font-label);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
       color: var(--text-muted);
+      margin-bottom: 6px;
     }
+    .product-name {
+      font-family: var(--font-label);
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      line-height: 1.25;
+      margin-bottom: 8px;
+    }
+    .product-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 14px; }
+    .product-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .product-price {
+      font-family: var(--font-label);
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: var(--text-primary);
+    }
+    .product-add {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      background: var(--red-dim);
+      border: 1px solid var(--red-border);
+      color: var(--red);
+      transition: background var(--dur-fast), border-color var(--dur-fast), color var(--dur-fast);
+    }
+    .product-add:hover { background: var(--red); border-color: var(--red); color: #fff; }
+    .product-add svg { width: 14px; height: 14px; }
 
-    /* =====================================================
-       PRODUCTS SECTION
-       ===================================================== */
-    .section-products {
-      padding: var(--s8) 0;
+    /* =========================================================
+       PERFORMANCE PACKAGES
+    ========================================================= */
+    .packages-section {
       background: var(--bg-surface);
       border-top: 1px solid var(--border-subtle);
       border-bottom: 1px solid var(--border-subtle);
     }
-
-    .prod-grid {
+    .packages-grid {
       display: grid;
-      gap: var(--s4);
+      gap: 16px;
       grid-template-columns: 1fr;
     }
+    @media (min-width: 640px) { .packages-grid { grid-template-columns: 1fr 1fr; } }
+    @media (min-width: 1024px) { .packages-grid { grid-template-columns: repeat(3, 1fr); } }
 
-    @media (min-width: 480px)  { .prod-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (min-width: 768px)  { .prod-grid { grid-template-columns: repeat(3, 1fr); } }
-    @media (min-width: 1100px) { .prod-grid { grid-template-columns: repeat(4, 1fr); } }
-
-    .prod-card {
+    .pkg-card {
+      position: relative;
       background: var(--bg-elevated);
       border: 1px solid var(--border-subtle);
-      border-radius: var(--r-md);
+      border-radius: 12px;
       overflow: hidden;
-      transition:
-        border-color var(--mid) var(--ease-snap),
-        transform var(--mid) var(--ease-snap),
-        box-shadow var(--mid) var(--ease-snap);
+      transition: border-color var(--dur-base) var(--ease-snap), transform var(--dur-base) var(--ease-snap);
     }
-
-    .prod-card:hover {
+    .pkg-card:hover { border-color: var(--red-border); transform: translateY(-2px); }
+    .pkg-card.featured {
       border-color: var(--red-border);
-      transform: translateY(-4px);
-      box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px var(--red-border);
+      background: linear-gradient(160deg, rgba(196,18,24,0.06) 0%, var(--bg-elevated) 40%);
     }
-
-    .prod-img {
-      aspect-ratio: 4/3;
-      background: var(--bg-overlay);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .prod-img-inner {
+    .pkg-card.featured::before {
+      content: 'Most Popular';
       position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      background: radial-gradient(ellipse at 50% 55%, rgba(196,18,24,0.04) 0%, transparent 65%);
-    }
-
-    .prod-img-inner svg { width: 36px; height: 36px; color: var(--text-muted); opacity: 0.3; }
-    .prod-img-inner span { font-family: var(--font-label); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); opacity: 0.3; }
-
-    /* Quick add overlay */
-    .prod-quick {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      background: rgba(8,8,8,0.92);
-      backdrop-filter: blur(4px);
-      padding: var(--s3) var(--s4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--s2);
-      font-family: var(--font-label);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--red);
-      transform: translateY(100%);
-      transition: transform var(--mid) var(--ease-snap);
-    }
-
-    .prod-card:hover .prod-quick { transform: translateY(0); }
-    .prod-quick svg { width: 13px; height: 13px; }
-
-    /* Badge */
-    .prod-badge {
-      position: absolute;
-      top: var(--s3);
-      left: var(--s3);
+      top: 0; right: 0;
+      padding: 4px 12px;
+      background: var(--red);
       font-family: var(--font-label);
       font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #fff;
+      border-bottom-left-radius: 8px;
+    }
+
+    .pkg-visual {
+      aspect-ratio: 16 / 9;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #130808 0%, #1a0d0d 40%, #111 100%);
+    }
+    .pkg-visual::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 80% at 50% 30%, rgba(196,18,24,0.14) 0%, transparent 70%);
+    }
+    .pkg-visual::after {
+      content: attr(data-label);
+      position: absolute;
+      bottom: 10px;
+      left: 14px;
+      font-family: var(--font-label);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: rgba(242,239,234,0.18);
+    }
+
+    .pkg-hp {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      z-index: 2;
+    }
+    .pkg-hp .val {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+    .pkg-hp .unit {
+      font-family: var(--font-label);
+      font-size: 13px;
       font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      padding: 3px 7px;
-      border-radius: var(--r-sm);
-      z-index: 2;
-      line-height: 1.4;
+      color: var(--red);
     }
 
-    .badge-new  { background: var(--red); color: #fff; }
-    .badge-sale { background: #fff; color: #080808; }
-    .badge-hot  { background: var(--amber); color: #080808; }
-
-    .prod-info {
-      padding: var(--s4) var(--s4) var(--s5);
-    }
-
-    .prod-brand {
+    .pkg-body { padding: 18px 20px 22px; }
+    .pkg-platform {
       font-family: var(--font-label);
-      font-size: 9px;
+      font-size: 10px;
       font-weight: 700;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
       color: var(--red);
       margin-bottom: 5px;
     }
-
-    .prod-name {
-      font-family: var(--font-ui);
-      font-size: 13px;
-      font-weight: 600;
-      line-height: 1.35;
+    .pkg-name {
+      font-family: var(--font-label);
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
       color: var(--text-primary);
-      margin-bottom: var(--s2);
+      margin-bottom: 12px;
     }
-
-    .prod-fitment {
-      font-family: var(--font-body);
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-bottom: var(--s4);
+    .pkg-features { display: flex; flex-direction: column; gap: 5px; margin-bottom: 18px; }
+    .pkg-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      font-size: 13px;
+      color: var(--text-secondary);
     }
-
-    .prod-foot {
+    .pkg-features li::before {
+      content: '';
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--red);
+      flex-shrink: 0;
+      margin-top: 7px;
+    }
+    .pkg-footer {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 12px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
     }
-
-    .prod-price {
-      font-family: var(--font-body);
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    /* Amber for price — minimal luxury touch */
-    .prod-price-was {
-      font-family: var(--font-body);
-      font-size: 12px;
-      color: var(--text-muted);
-      text-decoration: line-through;
-      margin-right: 5px;
-    }
-
-    .prod-avail {
-      display: flex;
-      align-items: center;
-      gap: 5px;
+    .pkg-from {
       font-family: var(--font-label);
-      font-size: 9px;
-      font-weight: 600;
+      font-size: 10px;
+      font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--text-muted);
     }
-
-    .avail-dot {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-    }
-
-    .in-stock  { background: #2E7D52; box-shadow: 0 0 5px rgba(46,125,82,0.5); }
-    .low-stock { background: #B37421; box-shadow: 0 0 5px rgba(179,116,33,0.5); }
-
-    /* =====================================================
-       BRAND STATEMENT
-       ===================================================== */
-    .section-statement {
-      padding: var(--s8) 0;
-      position: relative;
-    }
-
-    .statement-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: var(--s7);
-    }
-
-    @media (min-width: 768px) {
-      .statement-grid { grid-template-columns: 1fr 1fr; align-items: center; }
-    }
-
-    /* H2 — Ethnocentric */
-    .statement-h2 {
-      font-family: var(--font-display);
-      font-size: clamp(24px, 3.5vw, 46px);
-      font-weight: 700;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-      line-height: 1.05;
+    .pkg-price {
+      font-family: var(--font-label);
+      font-size: 20px;
+      font-weight: 800;
       color: var(--text-primary);
-      margin-bottom: var(--s5);
+      letter-spacing: 0.02em;
     }
 
-    .statement-h2 span { color: var(--red); }
-
-    .statement-body {
-      font-family: var(--font-body);
-      font-size: 15px;
-      line-height: 1.8;
-      color: var(--text-secondary);
+    /* =========================================================
+       CUSTOM FABRICATION
+    ========================================================= */
+    .fab-grid {
+      display: grid;
+      gap: 64px;
+      grid-template-columns: 1fr;
+      align-items: center;
     }
+    @media (min-width: 768px) { .fab-grid { grid-template-columns: 1fr 1fr; } }
 
-    .statement-body p + p { margin-top: var(--s4); }
-
-    .statement-cta { margin-top: var(--s5); }
-
-    /* Features */
-    .features {
-      display: flex;
-      flex-direction: column;
-      gap: var(--s3);
-    }
-
-    .feat-item {
-      display: flex;
-      gap: var(--s4);
-      align-items: flex-start;
-      padding: var(--s5);
+    .fab-visual {
+      position: relative;
+      aspect-ratio: 4 / 3;
       background: var(--bg-elevated);
       border: 1px solid var(--border-subtle);
-      border-radius: var(--r-md);
-      transition:
-        border-color var(--mid) var(--ease-snap),
-        background var(--mid) var(--ease-snap);
+      border-radius: 12px;
+      overflow: hidden;
+      order: -1;
+    }
+    @media (min-width: 768px) { .fab-visual { order: 0; } }
+    .fab-visual::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 50% at 40% 60%, rgba(196,18,24,0.12) 0%, transparent 60%),
+        repeating-linear-gradient(30deg, transparent, transparent 28px, rgba(255,255,255,0.012) 28px, rgba(255,255,255,0.012) 29px),
+        linear-gradient(145deg, #0f0e0e 0%, #1a1212 40%, #131111 100%);
+    }
+    .fab-visual::after {
+      content: "[ TIG welding / exhaust fab — your actual shop photo ]";
+      position: absolute;
+      bottom: 18px;
+      left: 18px;
+      font-family: var(--font-label);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(242,239,234,0.16);
+    }
+    /* Weld arc glow */
+    .fab-glow {
+      position: absolute;
+      top: 28%;
+      left: 32%;
+      width: 120px;
+      height: 120px;
+      background: radial-gradient(circle, rgba(196,18,24,0.2) 0%, transparent 70%);
+      pointer-events: none;
     }
 
-    .feat-item:hover {
-      border-color: var(--red-border);
+    .fab-specs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 24px;
+      margin-bottom: 32px;
+    }
+    .fab-spec {
+      padding: 14px 16px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      transition: border-color var(--dur-fast);
+    }
+    .fab-spec:hover { border-color: var(--red-border); }
+    .fab-spec-lbl {
+      font-family: var(--font-label);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+    }
+    .fab-spec-val {
+      font-family: var(--font-label);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+    }
+
+    /* =========================================================
+       FAMILY / BRAND STORY
+    ========================================================= */
+    .story-section {
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .story-grid {
+      display: grid;
+      gap: 64px;
+      grid-template-columns: 1fr;
+      align-items: start;
+    }
+    @media (min-width: 768px) { .story-grid { grid-template-columns: 1fr 1fr; } }
+
+    .story-headline {
+      font-family: var(--font-display);
+      font-size: clamp(22px, 3.5vw, 32px);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      line-height: 1.15;
+      margin-bottom: 24px;
+    }
+    .story-body p {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.8;
+      margin-bottom: 14px;
+    }
+    .story-body p strong { color: var(--text-primary); font-weight: 600; }
+    .story-body p em { color: var(--red); font-style: normal; }
+
+    /* Timeline */
+    .timeline { display: flex; flex-direction: column; gap: 0; }
+    .tl-item { display: grid; grid-template-columns: 48px 1fr; gap: 16px; }
+    .tl-left { display: flex; flex-direction: column; align-items: center; padding-top: 4px; }
+    .tl-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
       background: var(--bg-overlay);
+      border: 2px solid var(--border-default);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+      transition: border-color var(--dur-fast), background var(--dur-fast);
+    }
+    .tl-item:hover .tl-dot { border-color: var(--red); background: var(--red-dim); }
+    .tl-line {
+      flex: 1;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--border-default), transparent);
+      margin-top: 4px;
+    }
+    .tl-item:last-child .tl-line { display: none; }
+    .tl-content { padding: 0 0 28px; }
+    .tl-year {
+      font-family: var(--font-label);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 3px;
+    }
+    .tl-name {
+      font-family: var(--font-label);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      margin-bottom: 5px;
+    }
+    .tl-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+    /* Quote card */
+    .brand-promise {
+      margin-top: 24px;
+      padding: 18px 20px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--red-border);
+      border-left: 3px solid var(--red);
+      border-radius: 10px;
+    }
+    .brand-promise .promise-label {
+      font-family: var(--font-label);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 8px;
+    }
+    .brand-promise .promise-text {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+    .brand-promise .promise-sub {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-top: 8px;
     }
 
-    .feat-icon {
-      width: 38px;
-      height: 38px;
-      background: var(--red-glow);
-      border: 1px solid var(--red-border);
-      border-radius: var(--r-sm);
+    /* =========================================================
+       STATS
+    ========================================================= */
+    .stats-section {
+      padding: 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .stats-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border-subtle);
+    }
+    @media (min-width: 768px) { .stats-row { grid-template-columns: repeat(4, 1fr); } }
+    .stat-cell {
+      background: var(--bg-surface);
+      padding: 40px 28px;
+      text-align: center;
+      transition: background var(--dur-fast);
+    }
+    .stat-cell:hover { background: var(--bg-elevated); }
+    .stat-num {
+      font-family: var(--font-display);
+      font-size: clamp(34px, 5vw, 54px);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+    .stat-num .red { color: var(--red); }
+    .stat-lbl {
+      font-family: var(--font-label);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    /* =========================================================
+       SERVICES
+    ========================================================= */
+    .services-grid {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: 1fr 1fr;
+    }
+    @media (min-width: 640px) { .services-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 1024px) { .services-grid { grid-template-columns: repeat(6, 1fr); } }
+
+    .service-card {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 20px 16px 18px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      text-decoration: none;
+      transition: background var(--dur-fast) var(--ease-snap), border-color var(--dur-fast) var(--ease-snap), transform var(--dur-fast) var(--ease-snap);
+    }
+    .service-card:hover { background: var(--bg-elevated); border-color: var(--red-border); transform: translateY(-2px); }
+    .service-icon {
+      width: 36px;
+      height: 36px;
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-shrink: 0;
+      background: var(--red-dim);
+      border: 1px solid var(--red-border);
+      border-radius: 8px;
       color: var(--red);
     }
-
-    .feat-icon svg { width: 16px; height: 16px; }
-
-    .feat-title {
-      font-family: var(--font-ui);
-      font-size: 14px;
-      font-weight: 600;
+    .service-icon svg { width: 16px; height: 16px; }
+    .service-name {
+      font-family: var(--font-label);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
       color: var(--text-primary);
-      margin-bottom: 3px;
     }
+    .service-meta { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
 
-    .feat-desc {
-      font-family: var(--font-body);
-      font-size: 12px;
-      line-height: 1.6;
-      color: var(--text-muted);
-    }
-
-    /* =====================================================
-       BRANDS MARQUEE
-       ===================================================== */
-    .section-brands {
-      padding: var(--s6) 0;
-      border-top: 1px solid var(--border-subtle);
-      border-bottom: 1px solid var(--border-subtle);
+    /* =========================================================
+       B2B VENDOR
+    ========================================================= */
+    .vendor-section {
       background: var(--bg-surface);
+      border-top: 1px solid var(--border-subtle);
     }
-
-    .brands-label {
-      text-align: center;
-      margin-bottom: var(--s4);
-    }
-
-    .brands-scroll {
+    .vendor-card {
+      display: grid;
+      grid-template-columns: 1fr;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: 16px;
       overflow: hidden;
-      mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-      -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
     }
+    @media (min-width: 768px) { .vendor-card { grid-template-columns: 1fr 1fr; } }
 
-    .brands-track {
+    .vendor-left { padding: 48px 40px; }
+    @media (max-width: 768px) { .vendor-left { padding: 36px 28px; } }
+
+    .vendor-headline {
+      font-family: var(--font-display);
+      font-size: clamp(22px, 3.5vw, 34px);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .vendor-headline em { font-style: normal; color: var(--red); }
+
+    .vendor-desc { font-size: 15px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 28px; }
+
+    .vendor-perks { display: flex; flex-direction: column; gap: 9px; margin-bottom: 32px; }
+    .vendor-perk {
       display: flex;
-      align-items: center;
-      gap: var(--s6);
-      width: max-content;
-      animation: brandScroll 28s linear infinite;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    .vendor-perk::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--red);
+      flex-shrink: 0;
+      margin-top: 8px;
     }
 
-    @keyframes brandScroll {
-      from { transform: translateX(0); }
-      to   { transform: translateX(-50%); }
+    .vendor-ctas { display: flex; flex-direction: column; gap: 10px; }
+    @media (min-width: 480px) { .vendor-ctas { flex-direction: row; } }
+
+    .vendor-right {
+      background: linear-gradient(135deg, rgba(196,18,24,0.05) 0%, rgba(196,18,24,0.02) 100%);
+      border-left: 1px solid var(--border-subtle);
+      padding: 40px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    @media (max-width: 768px) { .vendor-right { border-left: none; border-top: 1px solid var(--border-subtle); padding: 28px; } }
+
+    .vr-heading {
+      font-family: var(--font-label);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-subtle);
     }
 
-    .brand-item {
+    .vpf {
+      background: var(--bg-overlay);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 16px 18px;
+      transition: border-color var(--dur-fast);
+    }
+    .vpf:hover { border-color: var(--red-border); }
+    .vpf-label {
+      font-family: var(--font-label);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 4px;
+    }
+    .vpf-title {
+      font-family: var(--font-label);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      margin-bottom: 5px;
+    }
+    .vpf-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+
+    .vendor-apply-link {
       font-family: var(--font-label);
       font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: color var(--dur-fast);
+    }
+    .vendor-apply-link:hover { color: var(--text-secondary); }
+
+    /* =========================================================
+       FOOTER
+    ========================================================= */
+    footer {
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-subtle);
+      padding: 80px 0 32px;
+    }
+    .footer-grid {
+      display: grid;
+      gap: 48px;
+      grid-template-columns: 1fr;
+      margin-bottom: 48px;
+    }
+    @media (min-width: 640px)  { .footer-grid { grid-template-columns: 1fr 1fr; } }
+    @media (min-width: 1024px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr; } }
+
+    .footer-brandmark {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .footer-fas {
+      font-family: var(--font-brand);
+      font-size: 24px;
+      color: var(--red);
+      letter-spacing: 0.06em;
+    }
+    .footer-moto {
+      font-family: var(--font-display);
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .footer-tagline {
+      font-family: var(--font-label);
+      font-size: 11px;
       font-weight: 700;
       letter-spacing: 0.18em;
       text-transform: uppercase;
       color: var(--text-muted);
-      white-space: nowrap;
-      transition: color var(--fast);
+      margin-bottom: 14px;
     }
+    .footer-tagline strong { color: var(--red); }
+    .footer-about { font-size: 13px; color: var(--text-muted); line-height: 1.7; max-width: 290px; margin-bottom: 20px; }
 
-    .brand-item:hover { color: var(--text-secondary); }
-
-    .brand-sep {
-      width: 3px;
-      height: 3px;
-      border-radius: 50%;
-      background: var(--red-dim);
-      flex-shrink: 0;
-    }
-
-    /* =====================================================
-       TESTIMONIALS
-       ===================================================== */
-    .section-testi {
-      padding: var(--s8) 0;
-    }
-
-    .testi-grid {
-      display: grid;
-      gap: var(--s4);
-      grid-template-columns: 1fr;
-    }
-
-    @media (min-width: 640px)  { .testi-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (min-width: 1024px) { .testi-grid { grid-template-columns: repeat(3, 1fr); } }
-
-    .testi-card {
-      background: var(--bg-elevated);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--r-md);
-      padding: var(--s5);
-      transition: border-color var(--mid) var(--ease-snap);
-    }
-
-    .testi-card:hover { border-color: var(--red-border); }
-
-    .testi-stars {
+    .footer-contact { display: flex; flex-direction: column; gap: 8px; }
+    .footer-contact a, .footer-contact span {
       display: flex;
-      gap: 2px;
-      margin-bottom: var(--s4);
-    }
-
-    .testi-stars svg {
-      width: 13px; height: 13px;
-      fill: var(--red);
-      color: var(--red);
-    }
-
-    .testi-text {
-      font-family: var(--font-body);
+      align-items: center;
+      gap: 9px;
       font-size: 13px;
-      line-height: 1.75;
       color: var(--text-secondary);
-      font-style: italic;
-      margin-bottom: var(--s4);
+      transition: color var(--dur-fast);
     }
+    .footer-contact a:hover { color: var(--text-primary); }
+    .footer-contact svg { width: 14px; height: 14px; color: var(--red); flex-shrink: 0; }
 
-    .testi-author {
-      display: flex;
-      align-items: center;
-      gap: var(--s3);
-    }
-
-    .testi-avatar {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      background: var(--red-glow);
-      border: 1px solid var(--red-border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .footer-col h4 {
       font-family: var(--font-label);
       font-size: 11px;
       font-weight: 700;
-      color: var(--red);
-      flex-shrink: 0;
-    }
-
-    .testi-name {
-      font-family: var(--font-ui);
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .testi-vehicle {
-      font-family: var(--font-body);
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    /* =====================================================
-       EMAIL
-       ===================================================== */
-    .section-email {
-      padding: var(--s8) 0;
-      background: var(--bg-surface);
-      border-top: 1px solid var(--border-subtle);
-    }
-
-    .email-inner {
-      max-width: 500px;
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    .email-inner .eyebrow { display: block; margin-bottom: var(--s3); }
-    .email-inner .section-title { font-size: clamp(22px, 3vw, 34px); margin-bottom: var(--s3); }
-
-    .email-sub {
-      font-family: var(--font-body);
-      font-size: 14px;
-      color: var(--text-secondary);
-      margin-bottom: var(--s5);
-    }
-
-    .email-form {
-      display: flex;
-      gap: var(--s2);
-    }
-
-    .email-input {
-      flex: 1;
-      min-width: 0;
-      background: var(--bg-elevated);
-      border: 1px solid var(--border-mid);
-      border-radius: var(--r-sm);
-      color: var(--text-primary);
-      font-family: var(--font-body);
-      font-size: 14px;
-      padding: 12px var(--s4);
-      outline: none;
-      transition: border-color var(--fast);
-    }
-
-    .email-input::placeholder { color: var(--text-muted); }
-    .email-input:focus { border-color: var(--red-border); }
-
-    .email-fine {
-      font-family: var(--font-body);
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-top: var(--s3);
-    }
-
-    /* =====================================================
-       FOOTER
-       ===================================================== */
-    footer {
-      background: var(--bg-base);
-      border-top: 1px solid var(--border-subtle);
-      padding: var(--s8) 0 var(--s5);
-    }
-
-    .footer-grid {
-      display: grid;
-      gap: var(--s6);
-      grid-template-columns: 1fr 1fr;
-      margin-bottom: var(--s7);
-    }
-
-    @media (min-width: 640px)  { .footer-grid { grid-template-columns: repeat(3, 1fr); } }
-    @media (min-width: 1024px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr; } }
-
-    .footer-brand { grid-column: 1 / -1; }
-    @media (min-width: 640px)  { .footer-brand { grid-column: span 3; } }
-    @media (min-width: 1024px) { .footer-brand { grid-column: span 1; } }
-
-    .footer-logo { display: flex; align-items: center; gap: var(--s3); margin-bottom: var(--s4); }
-
-    .footer-desc {
-      font-family: var(--font-body);
-      font-size: 13px;
-      line-height: 1.7;
-      color: var(--text-muted);
-      max-width: 280px;
-      margin-bottom: var(--s5);
-    }
-
-    .footer-social { display: flex; gap: var(--s2); }
-
-    .social-link {
-      width: 32px;
-      height: 32px;
-      background: var(--bg-overlay);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--r-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-muted);
-      transition: color var(--fast), border-color var(--fast), background var(--fast);
-    }
-
-    .social-link:hover {
-      color: var(--text-primary);
-      border-color: var(--red-border);
-      background: var(--red-glow);
-    }
-
-    .social-link svg { width: 14px; height: 14px; }
-
-    .footer-col-title {
-      font-family: var(--font-label);
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
       color: var(--text-primary);
-      margin-bottom: var(--s4);
+      margin-bottom: 16px;
     }
-
-    .footer-nav {
-      display: flex;
-      flex-direction: column;
-      gap: var(--s3);
-    }
-
-    .footer-nav a {
-      font-family: var(--font-body);
-      font-size: 13px;
-      color: var(--text-muted);
-      transition: color var(--fast);
-    }
-
-    .footer-nav a:hover { color: var(--text-secondary); }
+    .footer-col ul { display: flex; flex-direction: column; gap: 8px; }
+    .footer-col ul a { font-size: 13px; color: var(--text-muted); transition: color var(--dur-fast); }
+    .footer-col ul a:hover { color: var(--text-secondary); }
 
     .footer-bottom {
       display: flex;
       flex-direction: column;
-      gap: var(--s3);
-      padding-top: var(--s5);
+      gap: 16px;
+      padding-top: 24px;
       border-top: 1px solid var(--border-subtle);
     }
+    @media (min-width: 640px) { .footer-bottom { flex-direction: row; align-items: center; justify-content: space-between; } }
+    .footer-legal { font-size: 12px; color: var(--text-muted); }
 
-    @media (min-width: 640px) {
-      .footer-bottom {
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-      }
-    }
-
-    .footer-legal {
-      font-family: var(--font-body);
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    .footer-legal a { color: var(--text-muted); transition: color var(--fast); }
-    .footer-legal a:hover { color: var(--text-secondary); }
-
-    .pay-methods { display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; }
-
-    .pay-chip {
+    .footer-social { display: flex; gap: 8px; }
+    .social-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
       background: var(--bg-overlay);
       border: 1px solid var(--border-subtle);
-      border-radius: var(--r-sm);
-      padding: 3px 7px;
-      font-family: var(--font-label);
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
+      border-radius: 8px;
       color: var(--text-muted);
+      transition: background var(--dur-fast), border-color var(--dur-fast), color var(--dur-fast);
     }
-
-    /* =====================================================
-       SCROLLBAR
-       ===================================================== */
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: var(--bg-base); }
-    ::-webkit-scrollbar-thumb { background: var(--bg-overlay); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--red-dim); }
-
-    ::selection { background: rgba(196,18,24,0.25); color: var(--text-primary); }
-
-    /* =====================================================
-       MOCKUP BADGE
-       ===================================================== */
-    .mockup-badge {
-      position: fixed;
-      bottom: var(--s4);
-      right: var(--s4);
-      background: var(--red);
-      color: #fff;
-      font-family: var(--font-label);
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      padding: 6px 12px;
-      border-radius: 20px;
-      z-index: 9999;
-      box-shadow: 0 4px 16px rgba(196,18,24,0.4);
-    }
+    .social-btn:hover { background: var(--red-dim); border-color: var(--red-border); color: var(--red); }
+    .social-btn svg { width: 15px; height: 15px; }
   </style>
 </head>
+
 <body>
 
-<!-- ================================================
-     ANNOUNCEMENT BAR
-     ================================================ -->
-<div class="announce">
-  Free shipping on orders over $150 &nbsp;·&nbsp; Expert fitment support on every order
-  <a href="#">Get Help →</a>
-</div>
+  <!-- ANNOUNCEMENT BAR -->
+  <div class="announcement">
+    <p>Now shipping: No-Tune Predator Pulley from $899.99 — <a href="/shop/billet-parts/predator-pulley">Shop Billet Parts →</a></p>
+  </div>
 
-<!-- ================================================
-     NAV
-     ================================================ -->
-<div class="nav-wrapper">
-  <div class="container">
-    <div class="nav-inner">
-
-      <!-- Logo -->
-      <a href="/" class="nav-logo">
-        <!--
-          Logo mark: red hexagon with monogram.
-          In production, replace with <img src="/logo.svg" />.
-          The SVG below approximates the pill/hex shape from the brand image.
-        -->
-        <svg class="logo-mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="1" y="1" width="38" height="38" rx="10" fill="#C41218" fill-opacity="0.12" stroke="#C41218" stroke-width="1"/>
-          <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle"
-            font-family="Orbitron, sans-serif" font-size="10" font-weight="900"
-            fill="#C41218" letter-spacing="0">FAS</text>
-        </svg>
-        <div class="logo-text-wrap">
-          <!-- "F.A.S." — Borgsquad in production -->
-          <span class="logo-fas">F.A.S.</span>
-          <!-- "MOTORSPORTS" — Ethnocentric in production -->
-          <span class="logo-motorsports">Motorsports</span>
-        </div>
+  <!-- NAV -->
+  <div class="nav-wrapper">
+    <nav class="container">
+      <a href="/" class="nav-logo" aria-label="F.A.S. Motorsports home">
+        <span class="fas-letters">F.A.S.</span>
+        <span class="nav-logo-sub">Motorsports</span>
       </a>
 
-      <!-- Desktop nav -->
-      <nav class="nav-links">
-        <a href="#" class="nav-link active">Shop</a>
-        <a href="#" class="nav-link">Forced Induction <span class="nav-badge">New</span></a>
-        <a href="#" class="nav-link">Engine</a>
-        <a href="#" class="nav-link">Exhaust</a>
-        <a href="#" class="nav-link">Suspension</a>
-        <a href="#" class="nav-link">Builds</a>
-        <a href="#" class="nav-link">About</a>
-      </nav>
+      <ul class="nav-links" role="menubar">
+        <li class="nav-item" role="none">
+          <a href="/shop" class="nav-link" role="menuitem" aria-haspopup="true">
+            Shop
+            <svg viewBox="0 0 10 6" fill="none" aria-hidden="true"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <div class="nav-dropdown" role="menu">
+            <a href="/shop/billet-parts" role="menuitem">Billet Parts <span class="dd-badge">FAS Made</span></a>
+            <a href="/shop/performance-packages" role="menuitem">Performance Packages</a>
+            <a href="/shop/wheels" role="menuitem">Wheels</a>
+            <div class="dd-divider" role="separator"></div>
+            <a href="/shop/all" role="menuitem">All Products</a>
+          </div>
+        </li>
+        <li class="nav-item" role="none">
+          <a href="/packages" class="nav-link" role="menuitem" aria-haspopup="true">
+            Packages
+            <svg viewBox="0 0 10 6" fill="none" aria-hidden="true"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <div class="nav-dropdown" role="menu">
+            <a href="/packages/truck" role="menuitem">Truck Packages</a>
+            <a href="/packages/power" role="menuitem">Power Packages</a>
+            <a href="/packages/diesel" role="menuitem">Diesel Builds</a>
+          </div>
+        </li>
+        <li class="nav-item" role="none">
+          <a href="/services" class="nav-link" role="menuitem" aria-haspopup="true">
+            Services
+            <svg viewBox="0 0 10 6" fill="none" aria-hidden="true"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <div class="nav-dropdown" role="menu">
+            <a href="/services/custom-fab" role="menuitem">Custom Fabrication</a>
+            <a href="/services/porting" role="menuitem">Porting</a>
+            <a href="/services/welding" role="menuitem">Welding</a>
+            <div class="dd-divider" role="separator"></div>
+            <a href="/services/igla" role="menuitem">IGLA Security</a>
+            <a href="/services/core-exchange" role="menuitem">Core Exchange</a>
+            <a href="/services/schedule" role="menuitem">Schedule Service</a>
+          </div>
+        </li>
+        <li class="nav-item" role="none"><a href="/about" class="nav-link" role="menuitem">About</a></li>
+        <li class="nav-item" role="none"><a href="/contact" class="nav-link" role="menuitem">Contact</a></li>
+      </ul>
 
-      <!-- Actions -->
-      <div class="nav-actions">
-        <button class="nav-icon" aria-label="Search">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-          </svg>
+      <div class="nav-right">
+        <a href="/vendor-portal/login" class="nav-vendor-btn">Vendor Portal</a>
+        <a href="/cart" class="nav-cart-btn" aria-label="Shopping cart">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+          Cart
+        </a>
+        <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav">
+          <span></span><span></span><span></span>
         </button>
+      </div>
+    </nav>
+  </div>
 
-        <button class="nav-icon" aria-label="Account" style="display:none;" id="acct-btn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-          </svg>
-        </button>
-
-        <button class="nav-cart" aria-label="Cart">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;">
-            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
-          </svg>
-          <span style="display:none;" id="cart-label">Cart</span>
-          <span class="cart-pill">3</span>
-        </button>
-
-        <!-- Hamburger -->
-        <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
-          <span class="ham-line"></span>
-          <span class="ham-line"></span>
-          <span class="ham-line"></span>
-        </button>
+  <!-- MOBILE NAV DRAWER -->
+  <div class="mobile-nav" id="mobile-nav" role="dialog" aria-modal="true" aria-label="Site navigation">
+    <div class="mobile-nav-inner">
+      <ul>
+        <li>
+          <a href="/shop" class="mobile-nav-link">Shop</a>
+          <div class="mobile-nav-sub">
+            <a href="/shop/billet-parts">Billet Parts — FAS Made</a>
+            <a href="/shop/performance-packages">Performance Packages</a>
+            <a href="/shop/wheels">Wheels</a>
+            <a href="/shop/all">All Products</a>
+          </div>
+        </li>
+        <li>
+          <a href="/packages" class="mobile-nav-link">Packages</a>
+          <div class="mobile-nav-sub">
+            <a href="/packages/truck">Truck Packages</a>
+            <a href="/packages/power">Power Packages</a>
+            <a href="/packages/diesel">Diesel Builds</a>
+          </div>
+        </li>
+        <li>
+          <a href="/services" class="mobile-nav-link">Services</a>
+          <div class="mobile-nav-sub">
+            <a href="/services/custom-fab">Custom Fabrication</a>
+            <a href="/services/porting">Porting</a>
+            <a href="/services/welding">Welding</a>
+            <a href="/services/igla">IGLA Security</a>
+            <a href="/services/core-exchange">Core Exchange</a>
+            <a href="/services/schedule">Schedule Service</a>
+          </div>
+        </li>
+        <li><a href="/about" class="mobile-nav-link">About</a></li>
+        <li><a href="/contact" class="mobile-nav-link">Contact</a></li>
+      </ul>
+      <div class="mobile-nav-ctas">
+        <a href="/shop/billet-parts" class="mobile-cta-primary">Shop Billet Parts</a>
+        <a href="/vendor-portal/login" class="mobile-cta-outline">Vendor Portal Login</a>
       </div>
     </div>
   </div>
-</div>
 
-<!-- Mobile nav drawer -->
-<nav class="mobile-nav" id="mobile-nav" aria-hidden="true">
-  <a href="#" class="mobile-nav-link active">Shop</a>
-  <a href="#" class="mobile-nav-link">Forced Induction</a>
-  <a href="#" class="mobile-nav-link">Engine</a>
-  <a href="#" class="mobile-nav-link">Exhaust</a>
-  <a href="#" class="mobile-nav-link">Suspension</a>
-  <a href="#" class="mobile-nav-link">Builds</a>
-  <a href="#" class="mobile-nav-link">About</a>
-  <div class="mobile-nav-bottom">
-    <a href="#" class="btn btn-red" style="width:100%; justify-content:center;">View Cart (3)</a>
-    <a href="#" class="btn btn-outline" style="width:100%; justify-content:center;">My Account</a>
-  </div>
-</nav>
+  <main>
 
-<!-- ================================================
-     HERO
-     ================================================ -->
-<section class="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-img"><span class="hero-img-note">Hero Image — Engine Bay / Action Shot</span></div>
+    <!-- ===================================================
+         HERO — Two-Column Split
+    =================================================== -->
+    <section class="hero" aria-label="Homepage hero">
+      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="hero-redline" aria-hidden="true"></div>
 
-  <div class="container hero-content">
-    <div class="hero-eyebrow">
-      <div class="hero-eyebrow-line"></div>
-      <span class="eyebrow">Expert-Built. Track-Proven.</span>
-    </div>
+      <div class="hero-inner">
+        <!-- Two-column grid: copy left / image right -->
+        <div class="hero-grid">
+          <!-- LEFT: Headline + sub + CTAs -->
+          <div class="hero-left">
+            <div class="hero-eyebrow">
+              <div class="line"></div>
+              <span>Punta Gorda, FL — Est. 2002</span>
+            </div>
 
-    <!--
-      H1 — Ethnocentric font.
-      In Astro: style="font-family: 'Ethnocentric', 'Orbitron', sans-serif"
-    -->
-    <h1 class="hero-h1">
-      Unleash
-      <span>Performance.</span>
-    </h1>
+            <h1 class="hero-h1">
+              <span class="h1-red">Fast.</span><br>
+              Aggressive.<br>
+              Superior.
+            </h1>
 
-    <p class="hero-sub">
-      Premium forced induction systems, performance parts, and full build support — for drivers who demand the best.
-    </p>
+            <p class="hero-sub">
+              Three generations. <strong>One obsession.</strong> We don't resell parts — we
+              <strong>manufacture them.</strong> Every billet component is designed,
+              CNC-machined, and dyno-proven in our Punta Gorda shop before it reaches your build.
+            </p>
 
-    <div class="hero-actions">
-      <a href="#" class="btn btn-red">
-        Shop Performance Parts
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M5 12h14m-7-7 7 7-7 7"/>
-        </svg>
-      </a>
-      <a href="#" class="btn btn-outline">See Featured Builds</a>
-    </div>
+            <div class="hero-ctas">
+              <a href="/shop/billet-parts" class="btn-primary">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                Shop Billet Parts
+              </a>
+              <a href="/packages" class="btn-ghost">View Power Packages</a>
+            </div>
+          </div>
 
-    <div class="hero-stats">
-      <div class="stat">
-        <span class="stat-val">12+</span>
-        <span class="stat-label">Years in Business</span>
-      </div>
-      <div class="stat">
-        <span class="stat-val">4,000+</span>
-        <span class="stat-label">Builds Completed</span>
-      </div>
-      <div class="stat">
-        <span class="stat-val">500+</span>
-        <span class="stat-label">Parts In Stock</span>
-      </div>
-      <div class="stat">
-        <span class="stat-val">Same Day</span>
-        <span class="stat-label">Order Processing</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ================================================
-     TICKER
-     ================================================ -->
-<div class="ticker">
-  <div class="ticker-track">
-    <span class="tick-item"><span class="tick-dot"></span>Free Shipping Over $150</span>
-    <span class="tick-item"><span class="tick-dot"></span>Fitment Verified Before Shipping</span>
-    <span class="tick-item"><span class="tick-dot"></span>30-Day Returns</span>
-    <span class="tick-item"><span class="tick-dot"></span>Same-Day Processing</span>
-    <span class="tick-item"><span class="tick-dot"></span>1-on-1 Build Consultation</span>
-    <span class="tick-item"><span class="tick-dot"></span>Authorized Dealer — Whipple · Procharger · Vortech</span>
-    <span class="tick-item"><span class="tick-dot"></span>Track-Tested Components Only</span>
-    <!-- dupe for seamless loop -->
-    <span class="tick-item"><span class="tick-dot"></span>Free Shipping Over $150</span>
-    <span class="tick-item"><span class="tick-dot"></span>Fitment Verified Before Shipping</span>
-    <span class="tick-item"><span class="tick-dot"></span>30-Day Returns</span>
-    <span class="tick-item"><span class="tick-dot"></span>Same-Day Processing</span>
-    <span class="tick-item"><span class="tick-dot"></span>1-on-1 Build Consultation</span>
-    <span class="tick-item"><span class="tick-dot"></span>Authorized Dealer — Whipple · Procharger · Vortech</span>
-    <span class="tick-item"><span class="tick-dot"></span>Track-Tested Components Only</span>
-  </div>
-</div>
-
-<!-- ================================================
-     VEHICLE SELECTOR
-     ================================================ -->
-<section class="section-vehicle">
-  <div class="container">
-    <div class="vehicle-card">
-      <div class="vehicle-card-inner">
-        <div>
-          <span class="eyebrow" style="display:block; margin-bottom:6px;">Find Your Fit</span>
-          <h2 class="vehicle-heading">Shop Parts for Your Exact Build</h2>
-          <p class="vehicle-sub">Select year, make, and model to filter compatible parts only.</p>
+          <!-- RIGHT: Vehicle image placeholder -->
+          <div class="hero-right" aria-hidden="true">
+            <div class="hero-right-label">
+              <strong>Your Build Here</strong>
+              Hero: TRX / Hellcat Build<br>
+              Full-Bleed Vehicle Photo
+            </div>
+          </div>
         </div>
-        <div class="vehicle-selectors">
-          <div class="v-select-wrap">
-            <select class="v-select">
+
+        <!-- Stats band below the grid -->
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-val">50<span class="red">+</span></div>
+            <div class="hero-stat-label">Years Combined</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-val">500<span class="red">+</span></div>
+            <div class="hero-stat-label">Builds Completed</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-val">1,500<span class="red">+</span></div>
+            <div class="hero-stat-label">HP Achieved</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-val">2002</div>
+            <div class="hero-stat-label">Est. in Florida</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================
+         TRUST TICKER
+    =================================================== -->
+    <div class="trust-ticker" aria-hidden="true">
+      <div class="ticker-track">
+        <span class="ticker-item"><span class="ticker-dot"></span>In-House CNC Manufactured</span>
+        <span class="ticker-item"><span class="ticker-dot"></span>Dyno-Proven Performance</span>
+        <span class="ticker-item"><span class="ticker-dot"></span>Free Shipping on Orders $200+</span>
+        <span class="ticker-item"><span class="ticker-dot"></span>5–10 Day Build Lead Time</span>
+        <span class="ticker-item"><span class="ticker-dot"></span>Hard Anodized Billet Aluminum</span>
+        <span class="ticker-item"><span class="ticker-dot"></span>Three Generations of Expertise</span>
+        <span class="ticker-item"><span class="ticker-dot"></span>Punta Gorda, FL Shop</span>
+        <span class="ticker-item"><span class="ticker-dot"></span>No-Tune Predator Pulley Available</span>
+        <span class="ticker-item"><span class="ticker-dot"></span>Fit-Verified Parts</span>
+        <!-- Duplicate set for seamless loop -->
+        <span class="ticker-item"><span class="ticker-dot"></span>In-House CNC Manufactured</span>
+        <span class="ticker-item"><span class="ticker-dot"></span>Dyno-Proven Performance</span>
+        <span class="ticker-item"><span class="ticker-dot"></span>Free Shipping on Orders $200+</span>
+        <span class="ticker-item"><span class="ticker-dot"></span>5–10 Day Build Lead Time</span>
+        <span class="ticker-item"><span class="ticker-dot"></span>Hard Anodized Billet Aluminum</span>
+        <span class="ticker-item"><span class="ticker-dot"></span>Three Generations of Expertise</span>
+        <span class="ticker-item"><span class="ticker-dot"></span>Punta Gorda, FL Shop</span>
+        <span class="ticker-item"><span class="ticker-dot"></span>No-Tune Predator Pulley Available</span>
+        <span class="ticker-item"><span class="ticker-dot"></span>Fit-Verified Parts</span>
+      </div>
+    </div>
+
+    <!-- ===================================================
+         FITMENT SEARCH
+    =================================================== -->
+    <section class="fitment-section" aria-labelledby="fitment-heading">
+      <div class="container">
+        <div class="fitment-inner">
+          <div class="fitment-text">
+            <div class="fitment-kicker">Find Your Fit</div>
+            <h2 class="fitment-title" id="fitment-heading">Shop Parts for<br>Your Exact Build</h2>
+            <p class="fitment-sub">Select year, make, and model to see only compatible parts.</p>
+          </div>
+          <div class="fitment-controls">
+            <select class="fitment-select" aria-label="Select year">
               <option value="">Year</option>
-              <option>2024</option><option>2023</option><option>2022</option>
-              <option>2021</option><option>2020</option><option>2019</option>
-              <option>2018</option><option>2017</option><option>2016</option>
+              <option>2024</option>
+              <option>2023</option>
+              <option>2022</option>
+              <option>2021</option>
+              <option>2020</option>
+              <option>2019</option>
+              <option>2018</option>
             </select>
-          </div>
-          <div class="v-select-wrap">
-            <select class="v-select">
+            <select class="fitment-select" aria-label="Select make">
               <option value="">Make</option>
-              <option>Ford</option><option>Chevrolet</option>
-              <option>Dodge</option><option>BMW</option>
+              <option>Dodge</option>
+              <option>RAM</option>
+              <option>Ford</option>
+              <option>Chevrolet</option>
             </select>
-          </div>
-          <div class="v-select-wrap">
-            <select class="v-select">
+            <select class="fitment-select" aria-label="Select model">
               <option value="">Model</option>
-              <option>Mustang GT500</option><option>Mustang GT</option>
-              <option>Camaro SS</option><option>Challenger SRT</option>
+              <option>Charger Hellcat</option>
+              <option>Challenger Hellcat</option>
+              <option>RAM 1500 TRX</option>
+              <option>F-150 Raptor R</option>
+              <option>Camaro ZL1</option>
             </select>
-          </div>
-          <button class="btn btn-red btn-sm" style="flex-shrink:0;">
-            Search
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ================================================
-     CATEGORIES
-     ================================================ -->
-<section class="section-cats">
-  <div class="container">
-    <div class="section-header">
-      <div>
-        <span class="eyebrow">Browse by Category</span>
-        <span class="rule-red"></span>
-        <!--
-          Section heading — using Barlow Condensed for readability.
-          Could optionally use Ethnocentric here at a smaller size.
-        -->
-        <h2 class="section-title">Where Do You<br/>Want More Power?</h2>
-      </div>
-      <a href="#" class="see-all">
-        All Categories
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M5 12h14m-7-7 7 7-7 7"/>
-        </svg>
-      </a>
-    </div>
-
-    <div class="cat-grid">
-
-      <!-- Featured: Forced Induction -->
-      <div class="cat-card cat-card--feat">
-        <div class="cat-bg cb-1"></div>
-        <div class="cat-overlay"></div>
-        <div class="cat-arrow">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M7 17 17 7M7 7h10v10"/>
-          </svg>
-        </div>
-        <div class="cat-content">
-          <div class="cat-tag">Most Popular</div>
-          <!-- Category names — Ethnocentric H2 -->
-          <div class="cat-name">Forced<br/>Induction</div>
-          <div class="cat-count">Superchargers, Turbos &amp; Kits · 84 parts</div>
-        </div>
-      </div>
-
-      <!-- Engine -->
-      <div class="cat-card">
-        <div class="cat-bg cb-2"></div>
-        <div class="cat-overlay"></div>
-        <div class="cat-arrow">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M7 17 17 7M7 7h10v10"/>
-          </svg>
-        </div>
-        <div class="cat-content">
-          <div class="cat-tag">Internal</div>
-          <div class="cat-name">Engine</div>
-          <div class="cat-count">112 parts</div>
-        </div>
-      </div>
-
-      <!-- Exhaust -->
-      <div class="cat-card">
-        <div class="cat-bg cb-3"></div>
-        <div class="cat-overlay"></div>
-        <div class="cat-arrow">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M7 17 17 7M7 7h10v10"/>
-          </svg>
-        </div>
-        <div class="cat-content">
-          <div class="cat-tag">Sound &amp; Flow</div>
-          <div class="cat-name">Exhaust</div>
-          <div class="cat-count">67 parts</div>
-        </div>
-      </div>
-
-      <!-- Suspension -->
-      <div class="cat-card">
-        <div class="cat-bg cb-4"></div>
-        <div class="cat-overlay"></div>
-        <div class="cat-arrow">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M7 17 17 7M7 7h10v10"/>
-          </svg>
-        </div>
-        <div class="cat-content">
-          <div class="cat-tag">Handling</div>
-          <div class="cat-name">Suspension</div>
-          <div class="cat-count">53 parts</div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ================================================
-     PRODUCTS
-     ================================================ -->
-<section class="section-products">
-  <div class="container">
-    <div class="section-header">
-      <div>
-        <span class="eyebrow">Hand-Picked</span>
-        <span class="rule-red"></span>
-        <h2 class="section-title">Featured Products</h2>
-      </div>
-      <a href="#" class="see-all">
-        Shop All
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M5 12h14m-7-7 7 7-7 7"/>
-        </svg>
-      </a>
-    </div>
-
-    <div class="prod-grid">
-
-      <!-- Card 1 -->
-      <div class="prod-card">
-        <div class="prod-img">
-          <div class="prod-img-inner">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
-            <span>Product Photo</span>
-          </div>
-          <span class="prod-badge badge-new">New</span>
-          <div class="prod-quick">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14m-7-7h14"/></svg>
-            Add to Cart
-          </div>
-        </div>
-        <div class="prod-info">
-          <div class="prod-brand">Whipple Superchargers</div>
-          <div class="prod-name">3.0L Stage 2 Supercharger Kit — Mustang GT500</div>
-          <div class="prod-fitment">2020–2024 Ford Mustang Shelby GT500</div>
-          <div class="prod-foot">
-            <span class="prod-price">$6,299</span>
-            <span class="prod-avail"><span class="avail-dot in-stock"></span> In Stock</span>
+            <button class="fitment-btn" type="button">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              Search
+            </button>
           </div>
         </div>
       </div>
+    </section>
 
-      <!-- Card 2 -->
-      <div class="prod-card">
-        <div class="prod-img">
-          <div class="prod-img-inner">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
-            <span>Product Photo</span>
+    <!-- ===================================================
+         PLATFORM STRIP
+    =================================================== -->
+    <nav class="platform-strip" aria-label="Shop by vehicle platform">
+      <div class="platform-inner">
+        <a href="/shop?platform=hellcat" class="platform-item active">
+          <div class="platform-icon" aria-hidden="true">
+            <svg viewBox="0 0 60 38" fill="none"><rect x="2" y="14" width="56" height="16" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M8 14V10a2 2 0 012-2h30l8 6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="13" cy="30" r="4" stroke="currentColor" stroke-width="1.5"/><circle cx="47" cy="30" r="4" stroke="currentColor" stroke-width="1.5"/></svg>
           </div>
-          <span class="prod-badge badge-hot">Best Seller</span>
-          <div class="prod-quick">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14m-7-7h14"/></svg>
-            Add to Cart
+          <div class="platform-name">Hellcat SRT</div>
+          <div class="platform-range">Up to 1,600+ HP</div>
+        </a>
+        <a href="/shop?platform=trx" class="platform-item">
+          <div class="platform-icon" aria-hidden="true">
+            <svg viewBox="0 0 60 38" fill="none"><path d="M4 22h52l-4-10H8L4 22z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><rect x="2" y="22" width="56" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><circle cx="14" cy="32" r="4" stroke="currentColor" stroke-width="1.5"/><circle cx="46" cy="32" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M4 18l3-10h46l3 10" stroke="currentColor" stroke-width="1.2" opacity=".4"/></svg>
           </div>
-        </div>
-        <div class="prod-info">
-          <div class="prod-brand">Procharger</div>
-          <div class="prod-name">High Output Intercooled System — Camaro SS LT1</div>
-          <div class="prod-fitment">2016–2023 Chevrolet Camaro SS 6.2L LT1</div>
-          <div class="prod-foot">
-            <div>
-              <span class="prod-price-was">$4,950</span>
-              <span class="prod-price">$4,499</span>
+          <div class="platform-name">RAM TRX</div>
+          <div class="platform-range">800–1,600 HP — from $1,599</div>
+        </a>
+        <a href="/shop?platform=f150" class="platform-item">
+          <div class="platform-icon" aria-hidden="true">
+            <svg viewBox="0 0 60 38" fill="none"><path d="M4 22h52l-4-10H8L4 22z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><rect x="2" y="22" width="56" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><circle cx="14" cy="32" r="4" stroke="currentColor" stroke-width="1.5"/><circle cx="46" cy="32" r="4" stroke="currentColor" stroke-width="1.5"/><rect x="8" y="8" width="44" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
+          </div>
+          <div class="platform-name">Ford F-150</div>
+          <div class="platform-range">500–1,000 HP — from $7,499</div>
+        </a>
+        <a href="/shop?platform=diesel" class="platform-item">
+          <div class="platform-icon" aria-hidden="true">
+            <svg viewBox="0 0 60 38" fill="none"><rect x="6" y="10" width="28" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M34 14h16l4 8H34" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="30" r="4" stroke="currentColor" stroke-width="1.5"/><circle cx="44" cy="30" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M20 10V7M28 10V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <div class="platform-name">Diesel</div>
+          <div class="platform-range">Custom Fab Builds</div>
+        </a>
+      </div>
+    </nav>
+
+    <!-- ===================================================
+         BILLET PARTS — "MADE IN OUR SHOP"
+    =================================================== -->
+    <section class="section" aria-labelledby="billet-heading">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <div class="kicker">
+              <div class="line"></div>
+              <span>Manufactured In-House</span>
             </div>
-            <span class="prod-avail"><span class="avail-dot in-stock"></span> In Stock</span>
+            <h2 id="billet-heading" class="section-title">Made In Our Shop</h2>
+            <p class="section-sub">CNC-machined billet aluminum. Hard anodized. Dyno-proven. Designed and built by FAS — not imported, not rebranded. If our name is on it, we made it.</p>
           </div>
+          <a href="/shop/billet-parts" class="btn-ghost btn-sm" style="white-space:nowrap; flex-shrink:0;">All Billet Parts →</a>
         </div>
-      </div>
 
-      <!-- Card 3 -->
-      <div class="prod-card">
-        <div class="prod-img">
-          <div class="prod-img-inner">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
-            <span>Product Photo</span>
-          </div>
-          <div class="prod-quick">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14m-7-7h14"/></svg>
-            Add to Cart
-          </div>
-        </div>
-        <div class="prod-info">
-          <div class="prod-brand">Roush Performance</div>
-          <div class="prod-name">Cold Air Intake Kit — Mustang 5.0L Coyote</div>
-          <div class="prod-fitment">2018–2024 Ford Mustang GT 5.0L</div>
-          <div class="prod-foot">
-            <span class="prod-price">$389</span>
-            <span class="prod-avail"><span class="avail-dot in-stock"></span> In Stock</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card 4 -->
-      <div class="prod-card">
-        <div class="prod-img">
-          <div class="prod-img-inner">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
-            <span>Product Photo</span>
-          </div>
-          <span class="prod-badge badge-sale">Sale</span>
-          <div class="prod-quick">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14m-7-7h14"/></svg>
-            Add to Cart
-          </div>
-        </div>
-        <div class="prod-info">
-          <div class="prod-brand">Kooks Headers</div>
-          <div class="prod-name">Long Tube Headers + X-Pipe — Challenger 392</div>
-          <div class="prod-fitment">2015–2023 Dodge Challenger 392 Scat Pack</div>
-          <div class="prod-foot">
-            <div>
-              <span class="prod-price-was">$1,299</span>
-              <span class="prod-price">$1,099</span>
+        <div class="products-grid">
+          <div class="product-card">
+            <div class="product-img" data-label="FAS Predator Pulley">
+              <span class="product-badge">No-Tune</span>
             </div>
-            <span class="prod-avail"><span class="avail-dot low-stock"></span> Low Stock</span>
+            <div class="product-info">
+              <div class="product-platform">Hellcat SRT / RAM TRX</div>
+              <div class="product-name">Predator Pulley</div>
+              <p class="product-desc">Slip-on install. Zero tune required. CNC-machined billet aluminum with hard anodized finish. Bolt-on power without the ECU headache.</p>
+              <div class="product-footer">
+                <div class="product-price">$899.99</div>
+                <button class="product-add" aria-label="Add Predator Pulley to cart">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="product-card">
+            <div class="product-img" data-label="FAS Billet Supercharger Snout">
+              <span class="product-badge amber-badge">FAS Signature</span>
+            </div>
+            <div class="product-info">
+              <div class="product-platform">Hellcat Supercharger</div>
+              <div class="product-name">Billet Supercharger Snout</div>
+              <p class="product-desc">Full billet replacement snout. Dramatically outflows the factory casting. Built to handle the boost levels we actually run on customer cars — because we tested it on ours first.</p>
+              <div class="product-footer">
+                <div class="product-price">$1,899.99</div>
+                <button class="product-add" aria-label="Add Billet Supercharger Snout to cart">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="product-card">
+            <div class="product-img" data-label="FAS Billet Bearing Plate">
+              <span class="product-badge">FAS Made</span>
+            </div>
+            <div class="product-info">
+              <div class="product-platform">Hellcat Platform</div>
+              <div class="product-name">Billet Bearing Plate</div>
+              <p class="product-desc">Drop-in replacement. Machined from solid billet — not a stamping, not a casting. Holds up at the power levels you're actually targeting, not the ones the factory planned for.</p>
+              <div class="product-footer">
+                <div class="product-price">View Pricing</div>
+                <button class="product-add" aria-label="View Billet Bearing Plate">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="product-card">
+            <div class="product-img" data-label="FAS Billet Turbo Snout">
+              <span class="product-badge">FAS Made</span>
+            </div>
+            <div class="product-info">
+              <div class="product-platform">Diesel / Forced Induction</div>
+              <div class="product-name">Billet Turbo Snout</div>
+              <p class="product-desc">Purpose-built for high-boost applications. Rigid billet construction resists torsional loads that destroy factory components when you push past what the OEM engineer had in mind.</p>
+              <div class="product-footer">
+                <div class="product-price">View Pricing</div>
+                <button class="product-add" aria-label="View Billet Turbo Snout">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+    </section>
 
+    <!-- ===================================================
+         PERFORMANCE PACKAGES
+    =================================================== -->
+    <section class="section packages-section" aria-labelledby="packages-heading">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <div class="kicker">
+              <div class="line"></div>
+              <span>Install-Only · FAS Parts · Dyno-Proven</span>
+            </div>
+            <h2 id="packages-heading" class="section-title">Power Packages</h2>
+            <p class="section-sub">Every package is built with parts we designed and manufactured. Every install happens in our shop. Every number gets proven on the dyno before your keys come back.</p>
+          </div>
+          <a href="/packages" class="btn-ghost btn-sm" style="white-space:nowrap; flex-shrink:0;">All Packages →</a>
+        </div>
+
+        <div class="packages-grid">
+          <div class="pkg-card">
+            <div class="pkg-visual" data-label="RAM TRX Stage 2 — your build photo">
+              <div class="pkg-hp"><div class="val">800</div><div class="unit">HP</div></div>
+            </div>
+            <div class="pkg-body">
+              <div class="pkg-platform">RAM TRX</div>
+              <div class="pkg-name">Stage 2 — Supercharged</div>
+              <ul class="pkg-features">
+                <li>FAS Predator Pulley + Snout Upgrade</li>
+                <li>Ported Throttle Body &amp; Intake</li>
+                <li>FAS Custom Dyno Tune</li>
+                <li>Full Install — in our shop, on our lift</li>
+              </ul>
+              <div class="pkg-footer">
+                <div>
+                  <div class="pkg-from">Starting From</div>
+                  <div class="pkg-price">$1,599</div>
+                </div>
+                <a href="/packages/trx-stage-2" class="btn-ghost btn-sm">Details</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="pkg-card featured">
+            <div class="pkg-visual" data-label="RAM TRX Stage 4 — your build photo">
+              <div class="pkg-hp"><div class="val">1200</div><div class="unit">HP</div></div>
+            </div>
+            <div class="pkg-body">
+              <div class="pkg-platform">RAM TRX</div>
+              <div class="pkg-name">Stage 4 — Daily Monster</div>
+              <ul class="pkg-features">
+                <li>Full FAS Billet Supercharger Package</li>
+                <li>FAS Custom Stainless Exhaust System</li>
+                <li>Upgraded High-Flow Fuel System</li>
+                <li>Dyno Tune + Street-Proven Calibration</li>
+                <li>Full In-Shop Install</li>
+              </ul>
+              <div class="pkg-footer">
+                <div>
+                  <div class="pkg-from">Starting From</div>
+                  <div class="pkg-price">$4,999</div>
+                </div>
+                <a href="/packages/trx-stage-4" class="btn-primary btn-sm">Details</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="pkg-card">
+            <div class="pkg-visual" data-label="Ford F-150 Stage 3 — your build photo">
+              <div class="pkg-hp"><div class="val">500</div><div class="unit">HP</div></div>
+            </div>
+            <div class="pkg-body">
+              <div class="pkg-platform">Ford F-150</div>
+              <div class="pkg-name">Stage 3 — Supercharged</div>
+              <ul class="pkg-features">
+                <li>FAS Billet Pulley + Snout</li>
+                <li>Custom FAS Intake Fabrication</li>
+                <li>Professional Dyno Tune</li>
+                <li>Full In-Shop Install</li>
+              </ul>
+              <div class="pkg-footer">
+                <div>
+                  <div class="pkg-from">Starting From</div>
+                  <div class="pkg-price">$7,499</div>
+                </div>
+                <a href="/packages/f150-stage-3" class="btn-ghost btn-sm">Details</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================
+         CUSTOM FABRICATION
+    =================================================== -->
+    <section class="section" aria-labelledby="fab-heading">
+      <div class="container">
+        <div class="fab-grid">
+          <div>
+            <div class="kicker">
+              <div class="line"></div>
+              <span>In-House · No Outsourcing</span>
+            </div>
+            <h2 id="fab-heading" class="section-title" style="margin-bottom:16px;">Custom<br>Fabrication</h2>
+            <p style="font-size:15px; color:var(--text-secondary); line-height:1.75; max-width:460px;">
+              If you can imagine it, we can build it. Our in-house fab team works in
+              <strong style="color:var(--text-primary);">304 and 316L stainless steel</strong> — TIG-welded,
+              precision-fitted, and held to the same standard as every other part that leaves our shop.
+              Exhausts, headers, downpipes, air intakes, tow hooks, diesel custom work.
+              <em style="color:var(--red); font-style:normal;">No job too specific.</em>
+            </p>
+            <div class="fab-specs">
+              <div class="fab-spec">
+                <div class="fab-spec-lbl">Material</div>
+                <div class="fab-spec-val">304 / 316L Stainless</div>
+              </div>
+              <div class="fab-spec">
+                <div class="fab-spec-lbl">Process</div>
+                <div class="fab-spec-val">TIG Welded</div>
+              </div>
+              <div class="fab-spec">
+                <div class="fab-spec-lbl">Lead Time</div>
+                <div class="fab-spec-val">5–10 Business Days</div>
+              </div>
+              <div class="fab-spec">
+                <div class="fab-spec-lbl">Location</div>
+                <div class="fab-spec-val">Punta Gorda, FL</div>
+              </div>
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:10px;">
+              <a href="/services/custom-fab" class="btn-primary">Request Custom Fab</a>
+              <a href="/services/schedule" class="btn-ghost">Schedule a Consultation</a>
+            </div>
+          </div>
+
+          <div class="fab-visual" aria-label="FAS Motorsports fabrication shop">
+            <div class="fab-glow" aria-hidden="true"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================
+         FAMILY / BRAND STORY
+    =================================================== -->
+    <section class="section story-section" aria-labelledby="story-heading">
+      <div class="container">
+        <div class="story-grid">
+          <div class="story-body">
+            <div class="kicker" style="margin-bottom:10px;">
+              <div class="line"></div>
+              <span>Three Generations. One Standard.</span>
+            </div>
+            <h2 id="story-heading" class="story-headline">Built by Racing.<br>Carried by Family.</h2>
+            <p>
+              <strong>F.A.S. Motorsports</strong> was built on a foundation most shops can't claim —
+              a professional racing legacy started by <em>Frank Mingione II</em>,
+              who set the standard before handing it to the next generation.
+            </p>
+            <p>
+              When Frank II passed in 2011, Frank III carried the torch. Then Frank IV
+              brought the family's obsession with quality into a full-scale manufacturing operation
+              in <strong>Punta Gorda, Florida</strong>. The track at Bradenton isn't just nearby —
+              it's where our parts get proven before they ever reach a customer.
+            </p>
+            <p>
+              Since 2002, we've grown from a performance shop into a <em>billet parts manufacturer</em>
+              with our own CNC equipment, our own fabrication team, and a B2B wholesale network
+              serving shops across the country. Every product in our catalog exists because
+              we needed it, couldn't find it built right, and decided to build it ourselves.
+            </p>
+          </div>
+
+          <div>
+            <div class="timeline">
+              <div class="tl-item">
+                <div class="tl-left">
+                  <div class="tl-dot"></div>
+                  <div class="tl-line"></div>
+                </div>
+                <div class="tl-content">
+                  <div class="tl-year">The Foundation</div>
+                  <div class="tl-name">Frank Mingione II</div>
+                  <p class="tl-desc">Professional racer. Standard-setter. Built the culture of precision and authenticity that still defines FAS. Passed in 2011. The philosophy he established runs through everything we build.</p>
+                </div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-left">
+                  <div class="tl-dot"></div>
+                  <div class="tl-line"></div>
+                </div>
+                <div class="tl-content">
+                  <div class="tl-year">The Bridge</div>
+                  <div class="tl-name">Frank Mingione III</div>
+                  <p class="tl-desc">Carried the legacy after 2011. Kept the standards, expanded the operation, and made sure the family's reputation wasn't just maintained — it was built on.</p>
+                </div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-left">
+                  <div class="tl-dot"></div>
+                  <div class="tl-line"></div>
+                </div>
+                <div class="tl-content">
+                  <div class="tl-year">Today — Punta Gorda, FL</div>
+                  <div class="tl-name">Frank Mingione IV</div>
+                  <p class="tl-desc">Current owner. Scaled a family shop into a full billet manufacturing operation with in-house CNC, custom fab, B2B wholesale distribution, and a dealer network that's still growing.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="brand-promise">
+              <div class="promise-label">Not Marketing Copy</div>
+              <div class="promise-text">Fast. Aggressive. Superior.</div>
+              <p class="promise-sub">Three words that describe the cars we build, the parts we make, and the standard we hold ourselves to. Not a slogan — a commitment that started with Frank II and doesn't stop with Frank IV.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATS BAND -->
+    <div class="stats-section" aria-label="FAS by the numbers">
+      <div class="stats-row">
+        <div class="stat-cell">
+          <div class="stat-num">50<span class="red">+</span></div>
+          <div class="stat-lbl">Years Combined Experience</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-num">500<span class="red">+</span></div>
+          <div class="stat-lbl">Builds Completed</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-num">1,500<span class="red">+</span></div>
+          <div class="stat-lbl">HP Achieved</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-num" style="font-size:clamp(22px,3.5vw,40px);">Est. <span class="red">2002</span></div>
+          <div class="stat-lbl">Punta Gorda, Florida</div>
+        </div>
+      </div>
     </div>
-  </div>
-</section>
 
-<!-- ================================================
-     BRAND STATEMENT
-     ================================================ -->
-<section class="section-statement">
-  <div class="container">
-    <div class="statement-grid">
-      <div>
-        <span class="eyebrow">Who We Are</span>
-        <span class="rule-red"></span>
-        <!--
-          H2 — Ethnocentric font for this section specifically.
-          Ethnocentric here gives a "built tough" feel that matches the message.
-        -->
-        <h2 class="statement-h2">
-          Not a Parts<br/>Warehouse.<br/>
-          A <span>Performance</span><br/>Partner.
-        </h2>
-        <div class="statement-body">
-          <p>FAS Motorsports was built by gearheads for gearheads. We don't list ten thousand parts and hope you figure it out — we carry what we've tested, what we trust, and what actually makes a difference on your build.</p>
-          <p>Every order ships with fitment verified. Every product we stock, we stand behind. If you have a question, you reach a builder — not a chatbot.</p>
-        </div>
-        <div class="statement-cta">
-          <a href="#" class="btn btn-outline">Meet the Team →</a>
-        </div>
-      </div>
-
-      <div class="features">
-        <div class="feat-item">
-          <div class="feat-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            </svg>
-          </div>
+    <!-- ===================================================
+         SERVICES
+    =================================================== -->
+    <section class="section" aria-labelledby="services-heading">
+      <div class="container">
+        <div class="section-header">
           <div>
-            <div class="feat-title">Fitment Guaranteed</div>
-            <div class="feat-desc">We verify your vehicle before your order ships. No guesswork, no wrong-part returns.</div>
+            <div class="kicker">
+              <div class="line"></div>
+              <span>Everything Done In-House</span>
+            </div>
+            <h2 id="services-heading" class="section-title">Shop Services</h2>
           </div>
+          <a href="/services/schedule" class="btn-ghost btn-sm" style="white-space:nowrap; flex-shrink:0;">Schedule Service →</a>
         </div>
-        <div class="feat-item">
-          <div class="feat-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
-            </svg>
-          </div>
-          <div>
-            <div class="feat-title">Same-Day Processing</div>
-            <div class="feat-desc">Orders placed by 2PM EST ship the same business day from our warehouse.</div>
-          </div>
-        </div>
-        <div class="feat-item">
-          <div class="feat-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            </svg>
-          </div>
-          <div>
-            <div class="feat-title">1-on-1 Build Support</div>
-            <div class="feat-desc">Real builders available to consult on your exact setup. Free for every customer.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- ================================================
-     BRANDS MARQUEE
-     ================================================ -->
-<section class="section-brands">
-  <div class="container">
-    <div class="brands-label"><span class="eyebrow">Authorized Dealers For</span></div>
-  </div>
-  <div class="brands-scroll">
-    <div class="brands-track">
-      <span class="brand-item">Whipple</span><span class="brand-sep"></span>
-      <span class="brand-item">Procharger</span><span class="brand-sep"></span>
-      <span class="brand-item">Vortech</span><span class="brand-sep"></span>
-      <span class="brand-item">Kooks</span><span class="brand-sep"></span>
-      <span class="brand-item">Roush</span><span class="brand-sep"></span>
-      <span class="brand-item">Edelbrock</span><span class="brand-sep"></span>
-      <span class="brand-item">Borla</span><span class="brand-sep"></span>
-      <span class="brand-item">BMR Suspension</span><span class="brand-sep"></span>
-      <span class="brand-item">Mishimoto</span><span class="brand-sep"></span>
-      <span class="brand-item">Holley</span><span class="brand-sep"></span>
-      <span class="brand-item">ATI Performance</span><span class="brand-sep"></span>
-      <span class="brand-item">Trick Flow</span><span class="brand-sep"></span>
-      <!-- dupe -->
-      <span class="brand-item">Whipple</span><span class="brand-sep"></span>
-      <span class="brand-item">Procharger</span><span class="brand-sep"></span>
-      <span class="brand-item">Vortech</span><span class="brand-sep"></span>
-      <span class="brand-item">Kooks</span><span class="brand-sep"></span>
-      <span class="brand-item">Roush</span><span class="brand-sep"></span>
-      <span class="brand-item">Edelbrock</span><span class="brand-sep"></span>
-      <span class="brand-item">Borla</span><span class="brand-sep"></span>
-      <span class="brand-item">BMR Suspension</span><span class="brand-sep"></span>
-      <span class="brand-item">Mishimoto</span><span class="brand-sep"></span>
-      <span class="brand-item">Holley</span><span class="brand-sep"></span>
-      <span class="brand-item">ATI Performance</span><span class="brand-sep"></span>
-      <span class="brand-item">Trick Flow</span><span class="brand-sep"></span>
-    </div>
-  </div>
-</section>
-
-<!-- ================================================
-     TESTIMONIALS
-     ================================================ -->
-<section class="section-testi">
-  <div class="container">
-    <div class="section-header">
-      <div>
-        <span class="eyebrow">Customer Reviews</span>
-        <span class="rule-red"></span>
-        <h2 class="section-title">Trusted by Builders<br/>Across the Country</h2>
-      </div>
-    </div>
-
-    <div class="testi-grid">
-      <div class="testi-card">
-        <div class="testi-stars">
-          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-        </div>
-        <p class="testi-text">"Ordered a Whipple kit for my GT500. Called FAS with a fuel system question and talked to someone who actually knew the car. Shipped same day. Install went flawless."</p>
-        <div class="testi-author">
-          <div class="testi-avatar">JM</div>
-          <div>
-            <div class="testi-name">James M.</div>
-            <div class="testi-vehicle">2022 Mustang GT500 · Charleston, SC</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="testi-card">
-        <div class="testi-stars">
-          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-        </div>
-        <p class="testi-text">"These guys are the real deal. Not some drop-shipper reading off a spec sheet — they've actually run this stuff on track. Best customer service I've had at any online shop, period."</p>
-        <div class="testi-author">
-          <div class="testi-avatar">DR</div>
-          <div>
-            <div class="testi-name">Danny R.</div>
-            <div class="testi-vehicle">2021 Camaro SS · Atlanta, GA</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="testi-card">
-        <div class="testi-stars">
-          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-        </div>
-        <p class="testi-text">"I've bought from the big box performance shops. FAS is different. Competitive pricing, but what you're really paying for is knowing it's right before it leaves the warehouse."</p>
-        <div class="testi-author">
-          <div class="testi-avatar">TK</div>
-          <div>
-            <div class="testi-name">Tyler K.</div>
-            <div class="testi-vehicle">2020 Challenger Hellcat · Houston, TX</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ================================================
-     EMAIL CAPTURE
-     ================================================ -->
-<section class="section-email">
-  <div class="container">
-    <div class="email-inner">
-      <span class="eyebrow">Stay in the Loop</span>
-      <span class="rule-red" style="margin:var(--s3) auto var(--s3);"></span>
-      <h2 class="section-title" style="font-size: clamp(22px, 3vw, 32px); margin-bottom: var(--s3);">New Parts. Build Guides.<br/>No Spam.</h2>
-      <p class="email-sub">Join 8,000+ builders who get first access to new arrivals and exclusive pricing.</p>
-      <div class="email-form">
-        <input type="email" class="email-input" placeholder="your@email.com" />
-        <button class="btn btn-red" style="flex-shrink:0;">Subscribe</button>
-      </div>
-      <p class="email-fine">No spam. Unsubscribe anytime.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ================================================
-     FOOTER
-     ================================================ -->
-<footer>
-  <div class="container">
-    <div class="footer-grid">
-
-      <!-- Brand col -->
-      <div class="footer-brand">
-        <div class="footer-logo">
-          <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
-            <rect x="1" y="1" width="38" height="38" rx="10" fill="#C41218" fill-opacity="0.12" stroke="#C41218" stroke-width="1"/>
-            <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="Orbitron, sans-serif" font-size="10" font-weight="900" fill="#C41218">FAS</text>
-          </svg>
-          <div>
-            <span class="logo-fas" style="font-size:13px;">F.A.S.</span><br/>
-            <span class="logo-motorsports" style="font-size:10px;">Motorsports</span>
-          </div>
-        </div>
-        <p class="footer-desc">Expert performance parts, forced induction specialists, and build consultation for serious drivers. Based in the USA, shipping nationwide.</p>
-        <div class="footer-social">
-          <a href="#" class="social-link" aria-label="Instagram">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-            </svg>
+        <div class="services-grid">
+          <a href="/services/custom-fab" class="service-card">
+            <div class="service-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            </div>
+            <div class="service-name">Custom Fab</div>
+            <div class="service-meta">Exhaust, headers, intakes, tow hooks, diesel. TIG-welded 304/316L stainless. 5–10 day lead.</div>
           </a>
-          <a href="#" class="social-link" aria-label="YouTube">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.95A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75,15.02 15.5,12 9.75,8.98 9.75,15.02"/>
-            </svg>
+          <a href="/services/porting" class="service-card">
+            <div class="service-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+            </div>
+            <div class="service-name">Porting</div>
+            <div class="service-meta">Head and intake porting for max airflow at your target HP level.</div>
           </a>
-          <a href="#" class="social-link" aria-label="Facebook">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
-            </svg>
+          <a href="/services/welding" class="service-card">
+            <div class="service-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22V8M5 12H2a10 10 0 0020 0h-3"/><path d="M8 2v4M16 2v4M12 2v4"/></svg>
+            </div>
+            <div class="service-name">Welding</div>
+            <div class="service-meta">TIG and MIG. Custom brackets, roll cages, frame work, exhaust joining. All in-house.</div>
+          </a>
+          <a href="/services/igla" class="service-card">
+            <div class="service-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            </div>
+            <div class="service-name">IGLA Security</div>
+            <div class="service-meta">Authorized IGLA install. Covert vehicle immobilization for high-value builds.</div>
+          </a>
+          <a href="/services/core-exchange" class="service-card">
+            <div class="service-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 013.51 15"/></svg>
+            </div>
+            <div class="service-name">Core Exchange</div>
+            <div class="service-meta">Send your core, get a rebuilt unit back. Keeps costs down without cutting corners.</div>
+          </a>
+          <a href="/services/schedule" class="service-card">
+            <div class="service-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div class="service-name">Schedule Service</div>
+            <div class="service-meta">Drop your car at our Punta Gorda shop. Done right, the first time.</div>
           </a>
         </div>
       </div>
+    </section>
 
-      <!-- Shop -->
-      <div>
-        <div class="footer-col-title">Shop</div>
-        <nav class="footer-nav">
-          <a href="#">Forced Induction</a>
-          <a href="#">Engine Components</a>
-          <a href="#">Exhaust Systems</a>
-          <a href="#">Suspension</a>
-          <a href="#">Fuel System</a>
-          <a href="#">New Arrivals</a>
-          <a href="#">Sale</a>
-        </nav>
+    <!-- ===================================================
+         B2B VENDOR SECTION
+    =================================================== -->
+    <section class="section vendor-section" aria-labelledby="vendor-heading">
+      <div class="container">
+        <div class="vendor-card">
+          <div class="vendor-left">
+            <div class="kicker" style="margin-bottom:14px;">
+              <div class="line"></div>
+              <span>B2B Wholesale Program</span>
+            </div>
+            <h2 id="vendor-heading" class="vendor-headline">
+              Are you a shop<br>or dealer?<br><em>Let's talk wholesale.</em>
+            </h2>
+            <p class="vendor-desc">
+              FAS Motorsports operates a full B2B wholesale platform. Dealers and shop accounts access
+              our entire billet catalog, performance packages, and fabrication services at wholesale pricing —
+              managed entirely through a dedicated vendor account dashboard.
+            </p>
+            <div class="vendor-perks">
+              <div class="vendor-perk">Wholesale pricing on all FAS-manufactured billet parts</div>
+              <div class="vendor-perk">Dedicated dashboard — order tracking, invoices, reorder history</div>
+              <div class="vendor-perk">Priority fulfillment for dealer accounts on stocked items</div>
+              <div class="vendor-perk">Co-marketing opportunities for authorized FAS dealers</div>
+              <div class="vendor-perk">Direct line to the shop team for technical support</div>
+            </div>
+            <div class="vendor-ctas">
+              <a href="/vendor-portal/login" class="btn-primary">Vendor Portal Login</a>
+              <a href="/vendor-portal/apply" class="btn-ghost">New Dealer Application</a>
+            </div>
+          </div>
+
+          <div class="vendor-right">
+            <div class="vr-heading">Your Vendor Dashboard Includes:</div>
+            <div class="vpf">
+              <div class="vpf-label">Wholesale Catalog</div>
+              <div class="vpf-title">Full FAS Product Access</div>
+              <div class="vpf-desc">Browse and order our entire billet catalog — pulleys, snouts, bearing plates, turbo components — at your dealer price tier.</div>
+            </div>
+            <div class="vpf">
+              <div class="vpf-label">Account Management</div>
+              <div class="vpf-title">Orders, Invoices &amp; History</div>
+              <div class="vpf-desc">Manage everything from one dashboard. Reorder history, downloadable invoices, real-time shipment tracking.</div>
+            </div>
+            <div class="vpf">
+              <div class="vpf-label">Partner Benefits</div>
+              <div class="vpf-title">Priority + Co-Marketing</div>
+              <div class="vpf-desc">Active dealer accounts get priority fulfillment and access to FAS marketing assets for your own shop promotions.</div>
+            </div>
+            <a href="/vendor-portal/apply" class="vendor-apply-link">Not a dealer yet? Apply for an account →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===================================================
+       FOOTER
+  =================================================== -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brandmark">
+            <span class="footer-fas">F.A.S.</span>
+            <span class="footer-moto">Motorsports</span>
+          </div>
+          <div class="footer-tagline">
+            <strong>Fast</strong> · <strong>Aggressive</strong> · <strong>Superior</strong>
+          </div>
+          <p class="footer-about">Three generations of performance. One standard: build it right or don't build it at all. Punta Gorda, Florida — Est. 2002.</p>
+          <div class="footer-contact">
+            <a href="tel:8122009012">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.09 9a19.79 19.79 0 01-3.07-8.67A2 2 0 012 .18h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.89.35 1.82.58 2.81.7A2 2 0 0122 14.92z"/></svg>
+              812-200-9012
+            </a>
+            <a href="mailto:sales@fasmotorsports.com">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              sales@fasmotorsports.com
+            </a>
+            <span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Punta Gorda, Florida
+            </span>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h4>Shop</h4>
+          <ul>
+            <li><a href="/shop/billet-parts">Billet Parts</a></li>
+            <li><a href="/shop/performance-packages">Performance Packages</a></li>
+            <li><a href="/shop/wheels">Wheels</a></li>
+            <li><a href="/shop/all">All Products</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Services</h4>
+          <ul>
+            <li><a href="/services/custom-fab">Custom Fabrication</a></li>
+            <li><a href="/services/porting">Porting</a></li>
+            <li><a href="/services/welding">Welding</a></li>
+            <li><a href="/services/igla">IGLA Security</a></li>
+            <li><a href="/services/core-exchange">Core Exchange</a></li>
+            <li><a href="/services/schedule">Schedule Service</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Account</h4>
+          <ul>
+            <li><a href="/account/login">Customer Login</a></li>
+            <li><a href="/vendor-portal/login">Vendor Portal</a></li>
+            <li><a href="/vendor-portal/apply">Dealer Application</a></li>
+            <li><a href="/faq">FAQ</a></li>
+            <li><a href="/about">About FAS</a></li>
+            <li><a href="/contact">Contact</a></li>
+          </ul>
+        </div>
       </div>
 
-      <!-- Support -->
-      <div>
-        <div class="footer-col-title">Support</div>
-        <nav class="footer-nav">
-          <a href="#">Fitment Guide</a>
-          <a href="#">Shipping Info</a>
-          <a href="#">Returns &amp; Warranty</a>
-          <a href="#">Contact Us</a>
-          <a href="#">Build Consultation</a>
-          <a href="#">FAQ</a>
-        </nav>
-      </div>
-
-      <!-- Company -->
-      <div>
-        <div class="footer-col-title">Company</div>
-        <nav class="footer-nav">
-          <a href="#">About FAS</a>
-          <a href="#">Our Builds</a>
-          <a href="#">Blog</a>
-          <a href="#">Vendor Portal</a>
-        </nav>
+      <div class="footer-bottom">
+        <div class="footer-legal">© 2026 F.A.S. Motorsports. All rights reserved. Punta Gorda, FL.</div>
+        <div class="footer-social" aria-label="Follow FAS Motorsports">
+          <a href="https://instagram.com/fas_moto" class="social-btn" aria-label="FAS on Instagram" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+          <a href="#" class="social-btn" aria-label="FAS on Facebook" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+          </a>
+          <a href="#" class="social-btn" aria-label="FAS on YouTube" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.97C18.88 4 12 4 12 4s-6.88 0-8.59.45A2.78 2.78 0 001.46 6.42 29 29 0 001 12a29 29 0 00.46 5.58A2.78 2.78 0 003.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.4a2.78 2.78 0 001.95-1.97A29 29 0 0023 12a29 29 0 00-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>
+          </a>
+        </div>
       </div>
     </div>
+  </footer>
 
-    <div class="footer-bottom">
-      <p class="footer-legal">
-        © 2026 FAS Motorsports. All rights reserved. &nbsp;·&nbsp;
-        <a href="#">Privacy Policy</a> &nbsp;·&nbsp;
-        <a href="#">Terms of Service</a>
-      </p>
-      <div class="pay-methods">
-        <span class="pay-chip">Visa</span>
-        <span class="pay-chip">MC</span>
-        <span class="pay-chip">Amex</span>
-        <span class="pay-chip">PayPal</span>
-        <span class="pay-chip">Shop Pay</span>
-      </div>
-    </div>
-  </div>
-</footer>
+  <script>
+    // Mobile nav
+    const hamburger = document.getElementById('hamburger');
+    const mobileNav = document.getElementById('mobile-nav');
 
-<div class="mockup-badge">✦ FAS Redesign Mockup v2</div>
-
-<!-- ================================================
-     HAMBURGER TOGGLE (vanilla JS, no dependencies)
-     ================================================ -->
-<script>
-  const hamburger = document.getElementById('hamburger');
-  const mobileNav = document.getElementById('mobile-nav');
-
-  hamburger.addEventListener('click', () => {
-    const isOpen = mobileNav.classList.toggle('open');
-    hamburger.classList.toggle('open', isOpen);
-    hamburger.setAttribute('aria-expanded', isOpen);
-    mobileNav.setAttribute('aria-hidden', !isOpen);
-    // Prevent body scroll when drawer open
-    document.body.style.overflow = isOpen ? 'hidden' : '';
-  });
-
-  // Close on nav link click (mobile)
-  mobileNav.querySelectorAll('.mobile-nav-link').forEach(link => {
-    link.addEventListener('click', () => {
+    function openNav() {
+      mobileNav.classList.add('open');
+      hamburger.classList.add('open');
+      hamburger.setAttribute('aria-expanded', 'true');
+      hamburger.setAttribute('aria-label', 'Close menu');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeNav() {
       mobileNav.classList.remove('open');
       hamburger.classList.remove('open');
       hamburger.setAttribute('aria-expanded', 'false');
-      mobileNav.setAttribute('aria-hidden', 'true');
+      hamburger.setAttribute('aria-label', 'Open menu');
       document.body.style.overflow = '';
+    }
+
+    hamburger.addEventListener('click', () => {
+      mobileNav.classList.contains('open') ? closeNav() : openNav();
     });
-  });
 
-  // Show account + cart label on desktop
-  const mq = window.matchMedia('(min-width: 1024px)');
-  function handleBreakpoint(e) {
-    document.getElementById('acct-btn').style.display = e.matches ? 'flex' : 'none';
-    document.getElementById('cart-label').style.display = e.matches ? 'inline' : 'none';
-  }
-  mq.addEventListener('change', handleBreakpoint);
-  handleBreakpoint(mq);
-</script>
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && mobileNav.classList.contains('open')) {
+        closeNav();
+        hamburger.focus();
+      }
+    });
 
+    // Platform strip active state
+    document.querySelectorAll('.platform-item').forEach(item => {
+      item.addEventListener('click', function() {
+        document.querySelectorAll('.platform-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // Entrance animations for stats
+    const animateTargets = document.querySelectorAll('.stat-num, .hero-stat-val');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+
+    animateTargets.forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(10px)';
+      el.style.transition = 'opacity 0.5s ease, transform 0.5s cubic-bezier(0.16,1,0.3,1)';
+      io.observe(el);
+    });
+
+    // Stagger-in cards on scroll
+    const cards = document.querySelectorAll('.product-card, .pkg-card, .service-card');
+    const cardObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+          }, (entry.target.dataset.stagger || 0) * 60);
+          cardObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    cards.forEach((card, i) => {
+      card.dataset.stagger = i % 4;
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(16px)';
+      card.style.transition = 'opacity 0.45s ease, transform 0.45s cubic-bezier(0.16,1,0.3,1)';
+      cardObserver.observe(card);
+    });
+  </script>
 </body>
 </html>
