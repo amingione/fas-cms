@@ -36,13 +36,13 @@ export default function HomeHero() {
           <BrandDivider className="justify-center" />
           <div className="max-w-3xl px-6 text-center flex flex-col items-center"></div>
 
-          <p className="text-2xl text-white/50 platinum mt-10 font-borg pb-2 sm:text-3xl">
+          <p className="text-2xl text-white/50 platinum mt-10 font-ui-h3 pb-2 sm:text-3xl">
             Power Up Your Ride
           </p>
           <h2 className="text-4xl font-bold font-ethno italic sm:text-6xl">
             Unleash <span className="text-gray-400">Performance</span>
           </h2>
-          <p className="mt-2 text-base font-medium font-ethno italic text-white/70 sm:text-xl/8">
+          <p className="mt-2 text-base font-body font-medium text-white/70 sm:text-xl/8">
             Premium performance upgrades tailored to your build.
           </p>
           <SocialMedia className="relative pointer-events-auto mt-6 sm:mt-8 py-4 pb-6 sm:pb-10" />

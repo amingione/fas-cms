@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;600&family=Merriweather:ital,wght@1,400&family=Montserrat:wght@700&family=Open+Sans:wght@300;400;600;700&display=swap');
+
 :root {
   --color-primary: #7d0107;
   --color-secondary: #ededed;
@@ -8,6 +10,11 @@
   --color-text-dashboard: #f2f2f2;
   --color-heading: #fafafa;
   --color-heading-muted: #ededed;
+  --font-body: 'Open Sans', 'Inter', system-ui, sans-serif;
+  --font-body-light: 'Open Sans', 'Inter', system-ui, sans-serif;
+  --font-heading-secondary: 'Montserrat', 'Inter', system-ui, sans-serif;
+  --font-heading-tertiary: 'Lato', 'Inter', system-ui, sans-serif;
+  --font-quote: 'Merriweather', 'Georgia', serif;
 }
 
 @font-face {
@@ -192,6 +199,38 @@
 }
 
 @layer utilities {
+  .font-body {
+    font-family: var(--font-body);
+  }
+
+  .font-caption {
+    font-family: var(--font-body-light);
+    font-weight: 300;
+  }
+
+  .font-ui-h2 {
+    font-family: var(--font-heading-secondary);
+    font-weight: 700;
+  }
+
+  .font-ui-h3 {
+    font-family: var(--font-heading-tertiary);
+    font-weight: 600;
+  }
+
+  .font-quote {
+    font-family: var(--font-quote);
+    font-style: italic;
+  }
+
+  .font-sans {
+    font-family: var(--font-body);
+  }
+
+  .font-serif {
+    font-family: var(--font-quote);
+  }
+
   .font-ethno {
     font-family: 'Ethnocentric', sans-serif;
   }
@@ -292,7 +331,10 @@
       background-color 0.3s ease,
       border-color 0.3s ease;
   }
+}
 
+body {
+  font-family: var(--font-body);
 }
 
 /* Global heading palette for consistent contrast */
@@ -301,8 +343,28 @@ h1 {
   font-weight: 700;
 }
 
-h2,
+h2 {
+  color: var(--color-heading-muted);
+  font-family: var(--font-heading-secondary);
+  font-weight: 700;
+}
+
 h3 {
   color: var(--color-heading-muted);
+  font-family: var(--font-heading-tertiary);
   font-weight: 600;
+}
+
+small,
+.caption,
+.eyebrow {
+  font-family: var(--font-body-light);
+  font-weight: 300;
+}
+
+blockquote,
+blockquote p,
+.pull-quote {
+  font-family: var(--font-quote);
+  font-style: italic;
 }
