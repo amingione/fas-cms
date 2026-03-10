@@ -8,3 +8,8 @@
 /shop/fas-1000-performance-package-charger-challenger/ /shop/fas-1000-hellcat-package 301
 /shop/fas-500-performance-package-f150 /shop/fas500-package-2018f150 301
 /shop/fas-500-performance-package-f150/ /shop/fas500-package-2018f150 301
+/xmlrpc.php / 410
+/wp-login.php / 410
+/wp-admin/* / 410
+/wp-content/* / 410
+/wp-includes/* / 410

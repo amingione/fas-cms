@@ -175,7 +175,9 @@ export const GET: APIRoute = async ({ params }) => {
     }
 
     // Fetch cart from Medusa using shared config/headers so all cart routes stay aligned.
-    const response = await medusaFetch(`/store/carts/${cartId}`, { method: 'GET' })
+    // Include promotions and discounts fields to get full discount details
+    const fieldsParam = 'fields=+promotions,+promotions.application_method'
+    const response = await medusaFetch(`/store/carts/${cartId}?${fieldsParam}`, { method: 'GET' })
     const medusaData = await readJsonSafe<any>(response)
 
     if (!response.ok) {

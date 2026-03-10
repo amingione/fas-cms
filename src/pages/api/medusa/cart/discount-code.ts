@@ -69,7 +69,9 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    const cartResponse = await medusaFetch(`/store/carts/${encodeURIComponent(cartId)}`, { method: 'GET' });
+    // Include promotions fields to get full discount details
+    const fieldsParam = 'fields=+promotions,+promotions.application_method';
+    const cartResponse = await medusaFetch(`/store/carts/${encodeURIComponent(cartId)}?${fieldsParam}`, { method: 'GET' });
     const cartPayload = await readJsonSafe<any>(cartResponse);
     if (!cartResponse.ok || !cartPayload?.cart) {
       return new Response(JSON.stringify({ error: 'Failed to refresh cart after discount update.' }), {

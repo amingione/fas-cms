@@ -122,7 +122,8 @@ export const POST: APIRoute = async ({ request }) => {
     return jsonResponse({ error: 'Invalid cartId.' }, { status: 400 }, { noIndex: true });
   }
 
-  const cartResponse = await medusaFetch(`/store/carts/${cartId}`, { method: 'GET' });
+  const fieldsParam = 'fields=+promotions,+promotions.application_method';
+  const cartResponse = await medusaFetch(`/store/carts/${cartId}?${fieldsParam}`, { method: 'GET' });
   const cartData = await readJsonSafe<any>(cartResponse);
   if (cartResponse.ok && cartData?.cart) {
     const items = Array.isArray(cartData.cart.items) ? cartData.cart.items : [];
