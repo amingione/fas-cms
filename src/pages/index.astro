@@ -13,6 +13,7 @@ import AnimatedHeadingBanner from '@components/animated/AnimatedHeadingBanner.ts
 import AnimatedProductFeatureBanner from '@components/animated/AnimatedProductFeatureBanner.tsx';
 import AnimatedTaskCard from '@components/animated/AnimatedTaskCard.tsx';
 import AnimatedTruckPackagesHero from '@components/animated/AnimatedTruckPackagesHero.tsx';
+import FASHeroUltra from '@components/hero/FASHeroUltra';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import EmailCaptureModal from '@components/EmailCaptureModal.tsx';
 import StorefrontFaqSection from '@/components/storefront/StorefrontFaqSection.astro';
@@ -233,6 +234,10 @@ const homepageFaqStructuredData = {
     <div {...inlineObjectId('content/pages/index.json')}>
       <section id="homeHero">
         <HomeHero client:load />
+      </section>
+
+      <section id="fasHeroUltra">
+        <FASHeroUltra client:visible />
       </section>
 
       <section id="hellcatBanner">

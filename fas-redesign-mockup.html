@@ -1,0 +1,2352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FAS Motorsports — Redesign Mockup v2</title>
+
+  <!--
+    =====================================================
+    FONT STRATEGY — FAS Motorsports 2026
+    =====================================================
+    BRAND FONTS (load in production Astro via @font-face):
+      - Borgsquad     → "F.A.S." in logo mark only
+      - Ethnocentric  → Hero H1, select H2, "MOTORSPORTS" in nav logo
+    Mockup fallback: Orbitron (Google Fonts, closest geometric substitute)
+
+    SYSTEM FONTS (Google Fonts — use in production as-is):
+      - Barlow Condensed → Nav links, labels, tags, badges, buttons
+      - Barlow           → Sub-headings, UI text
+      - Inter            → ALL body copy, descriptions, prices, meta
+    =====================================================
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&family=Barlow+Condensed:wght@400;500;600;700;800&family=Barlow:wght@300;400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* =====================================================
+       FONT FACE — In production, replace Orbitron with
+       actual Ethnocentric and Borgsquad font files.
+       local() checks if installed; src falls back to Orbitron.
+       ===================================================== */
+    @font-face {
+      font-family: 'Ethnocentric';
+      src: local('Ethnocentric'),
+           local('ethnocentric'),
+           url('/fonts/ethnocentric.woff2') format('woff2');
+      font-weight: 400 900;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Borgsquad';
+      src: local('Borgsquad'),
+           local('borgsquad'),
+           url('/fonts/borgsquad.woff2') format('woff2');
+      font-weight: 400 700;
+      font-display: swap;
+    }
+
+    /* =====================================================
+       DESIGN TOKENS
+       ===================================================== */
+    :root {
+      /* ── Backgrounds ── */
+      --bg-base:        #080808;
+      --bg-surface:     #0D0D0D;
+      --bg-elevated:    #141414;
+      --bg-overlay:     #1A1A1A;
+
+      /* ── Brand Red — primary accent ── */
+      --red:            #C41218;
+      --red-hover:      #E01420;
+      --red-dim:        #7A0B10;
+      --red-glow:       rgba(196, 18, 24, 0.14);
+      --red-border:     rgba(196, 18, 24, 0.4);
+
+      /* ── Amber — secondary, minimal use only ── */
+      --amber:          #C8922A;
+      --amber-dim:      rgba(200, 146, 42, 0.5);
+      --amber-subtle:   rgba(200, 146, 42, 0.08);
+
+      /* ── Text ── */
+      --text-primary:   #F2EFEA;
+      --text-secondary: #9A9490;
+      --text-muted:     #585450;
+
+      /* ── Borders ── */
+      --border-subtle:  rgba(242, 239, 234, 0.06);
+      --border-mid:     rgba(242, 239, 234, 0.12);
+
+      /* ── Typography ── */
+      --font-brand:     'Borgsquad',    'Orbitron', sans-serif;   /* F.A.S. logo text */
+      --font-display:   'Ethnocentric', 'Orbitron', sans-serif;   /* Hero H1, select H2 */
+      --font-label:     'Barlow Condensed', sans-serif;           /* Labels, badges, buttons, nav */
+      --font-ui:        'Barlow', sans-serif;                     /* Sub-headings, UI text */
+      --font-body:      'Inter', system-ui, sans-serif;           /* Body copy, prices, meta */
+
+      /* ── Spacing ── */
+      --s1: 4px;   --s2: 8px;   --s3: 12px;  --s4: 16px;
+      --s5: 24px;  --s6: 32px;  --s7: 48px;  --s8: 64px;
+      --s9: 96px;  --s10: 128px;
+
+      /* ── Radii ── */
+      --r-sm: 2px;
+      --r-md: 4px;
+      --r-lg: 8px;
+
+      /* ── Motion ── */
+      --ease-snap: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-out:  cubic-bezier(0.0, 0, 0.2, 1);
+      --fast:      140ms;
+      --mid:       240ms;
+      --slow:      380ms;
+
+      /* ── Layout ── */
+      --nav-h: 60px;
+      --container: 1320px;
+      --gutter: var(--s5);
+    }
+
+    @media (min-width: 640px)  { :root { --gutter: var(--s6); } }
+    @media (min-width: 1024px) { :root { --nav-h: 68px; } }
+
+    /* =====================================================
+       RESET
+       ===================================================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    button { cursor: pointer; border: none; background: none; font: inherit; color: inherit; }
+    ul { list-style: none; }
+    select { appearance: none; -webkit-appearance: none; }
+
+    /* =====================================================
+       LAYOUT UTILITIES
+       ===================================================== */
+    .container {
+      width: 100%;
+      max-width: var(--container);
+      margin: 0 auto;
+      padding: 0 var(--gutter);
+    }
+
+    /* ── Type atoms ── */
+    .eyebrow {
+      font-family: var(--font-label);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--red);
+    }
+
+    .section-title {
+      font-family: var(--font-label);
+      font-size: clamp(26px, 3.5vw, 42px);
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      line-height: 1.05;
+    }
+
+    /* H1/H2 using Ethnocentric — only where specified */
+    .heading-display {
+      font-family: var(--font-display);
+      font-size: clamp(34px, 6vw, 80px);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      line-height: 1.0;
+      color: var(--text-primary);
+    }
+
+    .heading-display em {
+      font-style: normal;
+      color: var(--red);
+    }
+
+    .rule-red {
+      display: block;
+      width: 40px;
+      height: 2px;
+      background: var(--red);
+      margin: var(--s3) 0 var(--s4);
+    }
+
+    /* =====================================================
+       BUTTONS
+       ===================================================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--s2);
+      font-family: var(--font-label);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      border-radius: var(--r-sm);
+      padding: 13px var(--s5);
+      transition:
+        background var(--fast) var(--ease-snap),
+        border-color var(--fast) var(--ease-snap),
+        color var(--fast) var(--ease-snap),
+        transform var(--fast) var(--ease-snap),
+        box-shadow var(--fast) var(--ease-snap);
+      white-space: nowrap;
+    }
+
+    .btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    .btn-red {
+      background: var(--red);
+      color: #fff;
+      border: 1px solid var(--red);
+    }
+    .btn-red:hover {
+      background: var(--red-hover);
+      border-color: var(--red-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(196, 18, 24, 0.35);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-mid);
+    }
+    .btn-outline:hover {
+      color: var(--text-primary);
+      border-color: rgba(242, 239, 234, 0.25);
+      transform: translateY(-2px);
+    }
+
+    .btn-sm { padding: 9px var(--s4); font-size: 11px; }
+
+    /* =====================================================
+       ANNOUNCEMENT BAR
+       ===================================================== */
+    .announce {
+      background: var(--red);
+      color: #fff;
+      font-family: var(--font-label);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 8px var(--s5);
+      position: relative;
+      z-index: 200;
+    }
+
+    .announce a {
+      color: rgba(255,255,255,0.8);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      margin-left: var(--s3);
+      transition: color var(--fast);
+    }
+    .announce a:hover { color: #fff; }
+
+    /* =====================================================
+       NAVIGATION
+       ===================================================== */
+    .nav-wrapper {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(8, 8, 8, 0.97);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      height: var(--nav-h);
+      gap: var(--s4);
+    }
+
+    /* ── Logo ── */
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: var(--s3);
+      flex-shrink: 0;
+      text-decoration: none;
+    }
+
+    /* Hexagon mark */
+    .logo-mark {
+      position: relative;
+      width: 38px;
+      height: 38px;
+      flex-shrink: 0;
+    }
+
+    .logo-mark svg {
+      width: 38px;
+      height: 38px;
+    }
+
+    .logo-text-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      line-height: 1;
+    }
+
+    /* "F.A.S." — Borgsquad, red */
+    .logo-fas {
+      font-family: var(--font-brand);
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--red);
+      text-transform: uppercase;
+    }
+
+    /* "MOTORSPORTS" — Ethnocentric, white */
+    .logo-motorsports {
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: var(--text-primary);
+      text-transform: uppercase;
+    }
+
+    /* ── Desktop nav links ── */
+    .nav-links {
+      display: none;
+      align-items: center;
+      gap: 2px;
+      flex: 1;
+    }
+
+    @media (min-width: 1024px) {
+      .nav-links { display: flex; }
+    }
+
+    .nav-link {
+      font-family: var(--font-label);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      padding: var(--s2) var(--s3);
+      border-radius: var(--r-sm);
+      position: relative;
+      transition: color var(--fast) var(--ease-out),
+                  background var(--fast) var(--ease-out);
+    }
+
+    .nav-link:hover { color: var(--text-primary); background: var(--border-subtle); }
+
+    .nav-link.active { color: var(--text-primary); }
+
+    .nav-link.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: var(--s3);
+      right: var(--s3);
+      height: 2px;
+      background: var(--red);
+      border-radius: 1px;
+    }
+
+    .nav-badge {
+      display: inline-block;
+      font-family: var(--font-label);
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      background: var(--red);
+      color: #fff;
+      padding: 2px 4px;
+      border-radius: var(--r-sm);
+      margin-left: 4px;
+      vertical-align: middle;
+      line-height: 1.4;
+    }
+
+    /* ── Nav actions ── */
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--s2);
+      margin-left: auto;
+    }
+
+    .nav-icon {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--r-md);
+      color: var(--text-secondary);
+      transition: color var(--fast), background var(--fast);
+    }
+
+    .nav-icon:hover { color: var(--text-primary); background: var(--border-subtle); }
+    .nav-icon svg { width: 18px; height: 18px; }
+
+    .nav-cart {
+      display: flex;
+      align-items: center;
+      gap: var(--s2);
+      padding: 0 var(--s4);
+      height: 36px;
+      background: var(--red);
+      color: #fff;
+      font-family: var(--font-label);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      border-radius: var(--r-sm);
+      transition: background var(--fast) var(--ease-snap),
+                  transform var(--fast) var(--ease-snap),
+                  box-shadow var(--fast) var(--ease-snap);
+    }
+
+    .nav-cart:hover {
+      background: var(--red-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px var(--red-glow);
+    }
+
+    .cart-pill {
+      background: rgba(255,255,255,0.15);
+      font-size: 9px;
+      font-weight: 800;
+      min-width: 16px;
+      height: 16px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+    }
+
+    /* ── Hamburger (mobile) ── */
+    .hamburger {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      width: 36px;
+      height: 36px;
+      padding: 8px;
+      border-radius: var(--r-md);
+      color: var(--text-secondary);
+      transition: color var(--fast);
+    }
+
+    .hamburger:hover { color: var(--text-primary); }
+
+    .ham-line {
+      height: 1.5px;
+      background: currentColor;
+      transition: transform var(--mid) var(--ease-snap),
+                  opacity var(--fast);
+      transform-origin: center;
+    }
+
+    .hamburger.open .ham-line:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .hamburger.open .ham-line:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .hamburger.open .ham-line:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+    @media (min-width: 1024px) { .hamburger { display: none; } }
+
+    /* ── Mobile nav drawer ── */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      top: calc(var(--nav-h) + 36px); /* announce bar + nav */
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-subtle);
+      z-index: 99;
+      overflow-y: auto;
+      padding: var(--s5);
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .mobile-nav.open { display: flex; }
+
+    @media (min-width: 1024px) { .mobile-nav { display: none !important; } }
+
+    .mobile-nav-link {
+      font-family: var(--font-label);
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      padding: var(--s4) var(--s3);
+      border-bottom: 1px solid var(--border-subtle);
+      transition: color var(--fast);
+    }
+
+    .mobile-nav-link:hover,
+    .mobile-nav-link.active { color: var(--text-primary); }
+
+    .mobile-nav-link.active { color: var(--red); }
+
+    .mobile-nav-bottom {
+      margin-top: var(--s5);
+      display: flex;
+      flex-direction: column;
+      gap: var(--s3);
+    }
+
+    /* =====================================================
+       HERO
+       ===================================================== */
+    .hero {
+      position: relative;
+      min-height: calc(100svh - var(--nav-h) - 36px);
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+    }
+
+    /* Background stack */
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to right,  rgba(8,8,8,0.95) 0%, rgba(8,8,8,0.7) 45%, rgba(8,8,8,0.15) 100%),
+        linear-gradient(to top,    rgba(8,8,8,1) 0%, rgba(8,8,8,0.5) 20%, transparent 55%),
+        /* Subtle red atmospheric glow on far left */
+        radial-gradient(ellipse at 0% 50%, rgba(196,18,24,0.08) 0%, transparent 50%),
+        /* Dark plate (swap for actual hero image) */
+        linear-gradient(135deg, #110806 0%, #090909 50%, #0E0C0A 100%);
+    }
+
+    /* Carbon texture */
+    .hero-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,0.01) 3px, rgba(255,255,255,0.01) 4px),
+        repeating-linear-gradient(90deg, transparent, transparent 3px, rgba(255,255,255,0.006) 3px, rgba(255,255,255,0.006) 4px);
+      pointer-events: none;
+    }
+
+    /* Image placeholder (right side) */
+    .hero-img {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(135deg, #150C07 0%, #0A0908 60%, #110D0A 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    @media (max-width: 767px) { .hero-img { width: 100%; opacity: 0.25; } }
+
+    .hero-img-note {
+      font-family: var(--font-label);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      opacity: 0.5;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      padding-top: var(--s8);
+      padding-bottom: var(--s8);
+    }
+
+    @media (min-width: 640px) {
+      .hero-content { padding-top: var(--s10); padding-bottom: var(--s9); }
+    }
+
+    .hero-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: var(--s3);
+      margin-bottom: var(--s4);
+    }
+
+    .hero-eyebrow-line {
+      width: 28px;
+      height: 2px;
+      background: var(--red);
+      flex-shrink: 0;
+    }
+
+    /* Hero H1 — Ethnocentric */
+    .hero-h1 {
+      font-family: var(--font-display);
+      font-size: clamp(36px, 7vw, 90px);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      line-height: 1.0;
+      color: var(--text-primary);
+      max-width: 700px;
+      margin-bottom: var(--s3);
+    }
+
+    .hero-h1 span {
+      color: var(--red);
+      display: block;
+    }
+
+    .hero-sub {
+      font-family: var(--font-body);
+      font-size: clamp(14px, 1.5vw, 16px);
+      line-height: 1.75;
+      color: var(--text-secondary);
+      max-width: 420px;
+      margin-bottom: var(--s6);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--s3);
+      margin-bottom: var(--s7);
+    }
+
+    /* Stats bar */
+    .hero-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--s5) var(--s6);
+      padding-top: var(--s5);
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-val {
+      font-family: var(--font-label);
+      font-size: clamp(20px, 2.5vw, 28px);
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-family: var(--font-label);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    /* =====================================================
+       TICKER
+       ===================================================== */
+    .ticker {
+      background: var(--bg-elevated);
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      overflow: hidden;
+      padding: 11px 0;
+    }
+
+    .ticker-track {
+      display: flex;
+      width: max-content;
+      animation: tick 32s linear infinite;
+    }
+
+    @keyframes tick {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    .tick-item {
+      display: flex;
+      align-items: center;
+      gap: var(--s4);
+      padding: 0 var(--s5);
+      font-family: var(--font-label);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .tick-dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--red);
+      flex-shrink: 0;
+    }
+
+    /* =====================================================
+       VEHICLE SELECTOR
+       ===================================================== */
+    .section-vehicle { padding: var(--s5) 0; }
+
+    .vehicle-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-lg);
+      padding: var(--s6) var(--s6);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Subtle red top rule */
+    .vehicle-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--red);
+    }
+
+    .vehicle-card-inner {
+      display: flex;
+      flex-direction: column;
+      gap: var(--s5);
+    }
+
+    @media (min-width: 768px) {
+      .vehicle-card-inner {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--s8);
+      }
+    }
+
+    .vehicle-heading {
+      font-family: var(--font-label);
+      font-size: clamp(18px, 2.5vw, 26px);
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .vehicle-sub {
+      font-family: var(--font-body);
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .vehicle-selectors {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--s2);
+      flex-shrink: 0;
+    }
+
+    @media (min-width: 640px) {
+      .vehicle-selectors { flex-wrap: nowrap; }
+    }
+
+    .v-select-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .v-select-wrap::after {
+      content: '▾';
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 11px;
+      pointer-events: none;
+    }
+
+    .v-select {
+      width: 100%;
+      background: var(--bg-base);
+      border: 1px solid var(--border-mid);
+      border-radius: var(--r-sm);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 13px;
+      padding: 10px 32px 10px var(--s4);
+      outline: none;
+      cursor: pointer;
+      transition: border-color var(--fast);
+    }
+
+    .v-select:focus { border-color: var(--red-border); }
+    .v-select option { background: var(--bg-surface); }
+
+    /* =====================================================
+       CATEGORY SECTION
+       ===================================================== */
+    .section-cats {
+      padding: var(--s8) 0;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--s4);
+      margin-bottom: var(--s6);
+      flex-wrap: wrap;
+    }
+
+    .see-all {
+      font-family: var(--font-label);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--red);
+      display: flex;
+      align-items: center;
+      gap: var(--s2);
+      flex-shrink: 0;
+      transition: gap var(--fast) var(--ease-snap), opacity var(--fast);
+    }
+
+    .see-all:hover { gap: var(--s3); }
+    .see-all svg { width: 13px; height: 13px; }
+
+    /* Category grid — responsive */
+    .cat-grid {
+      display: grid;
+      gap: var(--s3);
+      grid-template-columns: 1fr 1fr;
+    }
+
+    @media (min-width: 640px) {
+      .cat-grid { grid-template-columns: 1fr 1fr 1fr; }
+    }
+
+    @media (min-width: 1024px) {
+      .cat-grid { grid-template-columns: 2fr 1fr 1fr 1fr; }
+    }
+
+    .cat-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--r-md);
+      border: 1px solid var(--border-subtle);
+      cursor: pointer;
+      aspect-ratio: 3/4;
+      transition: border-color var(--mid) var(--ease-snap);
+    }
+
+    .cat-card:hover { border-color: var(--red-border); }
+
+    /* Featured card — taller on desktop */
+    @media (min-width: 1024px) {
+      .cat-card--feat { aspect-ratio: 4/5; }
+    }
+
+    .cat-bg {
+      position: absolute;
+      inset: 0;
+      transition: transform var(--slow) var(--ease-snap);
+    }
+
+    .cat-card:hover .cat-bg { transform: scale(1.05); }
+
+    /* Placeholder gradients (swap for real images) */
+    .cb-1 { background: radial-gradient(ellipse at 40% 30%, #1E0A08 0%, #0A0808 70%); }
+    .cb-2 { background: radial-gradient(ellipse at 40% 30%, #0C1018 0%, #080A10 70%); }
+    .cb-3 { background: radial-gradient(ellipse at 40% 30%, #101010 0%, #080808 70%); }
+    .cb-4 { background: radial-gradient(ellipse at 40% 30%, #18100A 0%, #0A0808 70%); }
+
+    .cat-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(8,8,8,0.92) 0%, rgba(8,8,8,0.2) 55%, transparent 100%);
+    }
+
+    .cat-arrow {
+      position: absolute;
+      top: var(--s3);
+      right: var(--s3);
+      width: 28px;
+      height: 28px;
+      background: var(--red-glow);
+      border: 1px solid var(--red-border);
+      border-radius: var(--r-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--red);
+      opacity: 0;
+      transform: translate(-4px, 4px);
+      transition: opacity var(--mid) var(--ease-snap), transform var(--mid) var(--ease-snap);
+      z-index: 3;
+    }
+
+    .cat-card:hover .cat-arrow { opacity: 1; transform: translate(0, 0); }
+    .cat-arrow svg { width: 12px; height: 12px; }
+
+    .cat-content {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: var(--s4);
+      z-index: 2;
+    }
+
+    .cat-tag {
+      font-family: var(--font-label);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 5px;
+    }
+
+    /* Category names — Ethnocentric H2 */
+    .cat-name {
+      font-family: var(--font-display);
+      font-size: clamp(14px, 2.2vw, 22px);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+
+    .cat-count {
+      font-family: var(--font-body);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* =====================================================
+       PRODUCTS SECTION
+       ===================================================== */
+    .section-products {
+      padding: var(--s8) 0;
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .prod-grid {
+      display: grid;
+      gap: var(--s4);
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 480px)  { .prod-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 768px)  { .prod-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 1100px) { .prod-grid { grid-template-columns: repeat(4, 1fr); } }
+
+    .prod-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-md);
+      overflow: hidden;
+      transition:
+        border-color var(--mid) var(--ease-snap),
+        transform var(--mid) var(--ease-snap),
+        box-shadow var(--mid) var(--ease-snap);
+    }
+
+    .prod-card:hover {
+      border-color: var(--red-border);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px var(--red-border);
+    }
+
+    .prod-img {
+      aspect-ratio: 4/3;
+      background: var(--bg-overlay);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .prod-img-inner {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: radial-gradient(ellipse at 50% 55%, rgba(196,18,24,0.04) 0%, transparent 65%);
+    }
+
+    .prod-img-inner svg { width: 36px; height: 36px; color: var(--text-muted); opacity: 0.3; }
+    .prod-img-inner span { font-family: var(--font-label); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); opacity: 0.3; }
+
+    /* Quick add overlay */
+    .prod-quick {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: rgba(8,8,8,0.92);
+      backdrop-filter: blur(4px);
+      padding: var(--s3) var(--s4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--s2);
+      font-family: var(--font-label);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--red);
+      transform: translateY(100%);
+      transition: transform var(--mid) var(--ease-snap);
+    }
+
+    .prod-card:hover .prod-quick { transform: translateY(0); }
+    .prod-quick svg { width: 13px; height: 13px; }
+
+    /* Badge */
+    .prod-badge {
+      position: absolute;
+      top: var(--s3);
+      left: var(--s3);
+      font-family: var(--font-label);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 3px 7px;
+      border-radius: var(--r-sm);
+      z-index: 2;
+      line-height: 1.4;
+    }
+
+    .badge-new  { background: var(--red); color: #fff; }
+    .badge-sale { background: #fff; color: #080808; }
+    .badge-hot  { background: var(--amber); color: #080808; }
+
+    .prod-info {
+      padding: var(--s4) var(--s4) var(--s5);
+    }
+
+    .prod-brand {
+      font-family: var(--font-label);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 5px;
+    }
+
+    .prod-name {
+      font-family: var(--font-ui);
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.35;
+      color: var(--text-primary);
+      margin-bottom: var(--s2);
+    }
+
+    .prod-fitment {
+      font-family: var(--font-body);
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: var(--s4);
+    }
+
+    .prod-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .prod-price {
+      font-family: var(--font-body);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* Amber for price — minimal luxury touch */
+    .prod-price-was {
+      font-family: var(--font-body);
+      font-size: 12px;
+      color: var(--text-muted);
+      text-decoration: line-through;
+      margin-right: 5px;
+    }
+
+    .prod-avail {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--font-label);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .avail-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+    }
+
+    .in-stock  { background: #2E7D52; box-shadow: 0 0 5px rgba(46,125,82,0.5); }
+    .low-stock { background: #B37421; box-shadow: 0 0 5px rgba(179,116,33,0.5); }
+
+    /* =====================================================
+       BRAND STATEMENT
+       ===================================================== */
+    .section-statement {
+      padding: var(--s8) 0;
+      position: relative;
+    }
+
+    .statement-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--s7);
+    }
+
+    @media (min-width: 768px) {
+      .statement-grid { grid-template-columns: 1fr 1fr; align-items: center; }
+    }
+
+    /* H2 — Ethnocentric */
+    .statement-h2 {
+      font-family: var(--font-display);
+      font-size: clamp(24px, 3.5vw, 46px);
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      line-height: 1.05;
+      color: var(--text-primary);
+      margin-bottom: var(--s5);
+    }
+
+    .statement-h2 span { color: var(--red); }
+
+    .statement-body {
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--text-secondary);
+    }
+
+    .statement-body p + p { margin-top: var(--s4); }
+
+    .statement-cta { margin-top: var(--s5); }
+
+    /* Features */
+    .features {
+      display: flex;
+      flex-direction: column;
+      gap: var(--s3);
+    }
+
+    .feat-item {
+      display: flex;
+      gap: var(--s4);
+      align-items: flex-start;
+      padding: var(--s5);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-md);
+      transition:
+        border-color var(--mid) var(--ease-snap),
+        background var(--mid) var(--ease-snap);
+    }
+
+    .feat-item:hover {
+      border-color: var(--red-border);
+      background: var(--bg-overlay);
+    }
+
+    .feat-icon {
+      width: 38px;
+      height: 38px;
+      background: var(--red-glow);
+      border: 1px solid var(--red-border);
+      border-radius: var(--r-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--red);
+    }
+
+    .feat-icon svg { width: 16px; height: 16px; }
+
+    .feat-title {
+      font-family: var(--font-ui);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 3px;
+    }
+
+    .feat-desc {
+      font-family: var(--font-body);
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--text-muted);
+    }
+
+    /* =====================================================
+       BRANDS MARQUEE
+       ===================================================== */
+    .section-brands {
+      padding: var(--s6) 0;
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+    }
+
+    .brands-label {
+      text-align: center;
+      margin-bottom: var(--s4);
+    }
+
+    .brands-scroll {
+      overflow: hidden;
+      mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    }
+
+    .brands-track {
+      display: flex;
+      align-items: center;
+      gap: var(--s6);
+      width: max-content;
+      animation: brandScroll 28s linear infinite;
+    }
+
+    @keyframes brandScroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    .brand-item {
+      font-family: var(--font-label);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      white-space: nowrap;
+      transition: color var(--fast);
+    }
+
+    .brand-item:hover { color: var(--text-secondary); }
+
+    .brand-sep {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--red-dim);
+      flex-shrink: 0;
+    }
+
+    /* =====================================================
+       TESTIMONIALS
+       ===================================================== */
+    .section-testi {
+      padding: var(--s8) 0;
+    }
+
+    .testi-grid {
+      display: grid;
+      gap: var(--s4);
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 640px)  { .testi-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) { .testi-grid { grid-template-columns: repeat(3, 1fr); } }
+
+    .testi-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-md);
+      padding: var(--s5);
+      transition: border-color var(--mid) var(--ease-snap);
+    }
+
+    .testi-card:hover { border-color: var(--red-border); }
+
+    .testi-stars {
+      display: flex;
+      gap: 2px;
+      margin-bottom: var(--s4);
+    }
+
+    .testi-stars svg {
+      width: 13px; height: 13px;
+      fill: var(--red);
+      color: var(--red);
+    }
+
+    .testi-text {
+      font-family: var(--font-body);
+      font-size: 13px;
+      line-height: 1.75;
+      color: var(--text-secondary);
+      font-style: italic;
+      margin-bottom: var(--s4);
+    }
+
+    .testi-author {
+      display: flex;
+      align-items: center;
+      gap: var(--s3);
+    }
+
+    .testi-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--red-glow);
+      border: 1px solid var(--red-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-label);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--red);
+      flex-shrink: 0;
+    }
+
+    .testi-name {
+      font-family: var(--font-ui);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .testi-vehicle {
+      font-family: var(--font-body);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* =====================================================
+       EMAIL
+       ===================================================== */
+    .section-email {
+      padding: var(--s8) 0;
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .email-inner {
+      max-width: 500px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .email-inner .eyebrow { display: block; margin-bottom: var(--s3); }
+    .email-inner .section-title { font-size: clamp(22px, 3vw, 34px); margin-bottom: var(--s3); }
+
+    .email-sub {
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: var(--s5);
+    }
+
+    .email-form {
+      display: flex;
+      gap: var(--s2);
+    }
+
+    .email-input {
+      flex: 1;
+      min-width: 0;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-mid);
+      border-radius: var(--r-sm);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 14px;
+      padding: 12px var(--s4);
+      outline: none;
+      transition: border-color var(--fast);
+    }
+
+    .email-input::placeholder { color: var(--text-muted); }
+    .email-input:focus { border-color: var(--red-border); }
+
+    .email-fine {
+      font-family: var(--font-body);
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: var(--s3);
+    }
+
+    /* =====================================================
+       FOOTER
+       ===================================================== */
+    footer {
+      background: var(--bg-base);
+      border-top: 1px solid var(--border-subtle);
+      padding: var(--s8) 0 var(--s5);
+    }
+
+    .footer-grid {
+      display: grid;
+      gap: var(--s6);
+      grid-template-columns: 1fr 1fr;
+      margin-bottom: var(--s7);
+    }
+
+    @media (min-width: 640px)  { .footer-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 1024px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr; } }
+
+    .footer-brand { grid-column: 1 / -1; }
+    @media (min-width: 640px)  { .footer-brand { grid-column: span 3; } }
+    @media (min-width: 1024px) { .footer-brand { grid-column: span 1; } }
+
+    .footer-logo { display: flex; align-items: center; gap: var(--s3); margin-bottom: var(--s4); }
+
+    .footer-desc {
+      font-family: var(--font-body);
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--text-muted);
+      max-width: 280px;
+      margin-bottom: var(--s5);
+    }
+
+    .footer-social { display: flex; gap: var(--s2); }
+
+    .social-link {
+      width: 32px;
+      height: 32px;
+      background: var(--bg-overlay);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: color var(--fast), border-color var(--fast), background var(--fast);
+    }
+
+    .social-link:hover {
+      color: var(--text-primary);
+      border-color: var(--red-border);
+      background: var(--red-glow);
+    }
+
+    .social-link svg { width: 14px; height: 14px; }
+
+    .footer-col-title {
+      font-family: var(--font-label);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      margin-bottom: var(--s4);
+    }
+
+    .footer-nav {
+      display: flex;
+      flex-direction: column;
+      gap: var(--s3);
+    }
+
+    .footer-nav a {
+      font-family: var(--font-body);
+      font-size: 13px;
+      color: var(--text-muted);
+      transition: color var(--fast);
+    }
+
+    .footer-nav a:hover { color: var(--text-secondary); }
+
+    .footer-bottom {
+      display: flex;
+      flex-direction: column;
+      gap: var(--s3);
+      padding-top: var(--s5);
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    @media (min-width: 640px) {
+      .footer-bottom {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+
+    .footer-legal {
+      font-family: var(--font-body);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .footer-legal a { color: var(--text-muted); transition: color var(--fast); }
+    .footer-legal a:hover { color: var(--text-secondary); }
+
+    .pay-methods { display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; }
+
+    .pay-chip {
+      background: var(--bg-overlay);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-sm);
+      padding: 3px 7px;
+      font-family: var(--font-label);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    /* =====================================================
+       SCROLLBAR
+       ===================================================== */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg-base); }
+    ::-webkit-scrollbar-thumb { background: var(--bg-overlay); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--red-dim); }
+
+    ::selection { background: rgba(196,18,24,0.25); color: var(--text-primary); }
+
+    /* =====================================================
+       MOCKUP BADGE
+       ===================================================== */
+    .mockup-badge {
+      position: fixed;
+      bottom: var(--s4);
+      right: var(--s4);
+      background: var(--red);
+      color: #fff;
+      font-family: var(--font-label);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      border-radius: 20px;
+      z-index: 9999;
+      box-shadow: 0 4px 16px rgba(196,18,24,0.4);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ================================================
+     ANNOUNCEMENT BAR
+     ================================================ -->
+<div class="announce">
+  Free shipping on orders over $150 &nbsp;·&nbsp; Expert fitment support on every order
+  <a href="#">Get Help →</a>
+</div>
+
+<!-- ================================================
+     NAV
+     ================================================ -->
+<div class="nav-wrapper">
+  <div class="container">
+    <div class="nav-inner">
+
+      <!-- Logo -->
+      <a href="/" class="nav-logo">
+        <!--
+          Logo mark: red hexagon with monogram.
+          In production, replace with <img src="/logo.svg" />.
+          The SVG below approximates the pill/hex shape from the brand image.
+        -->
+        <svg class="logo-mark" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1" y="1" width="38" height="38" rx="10" fill="#C41218" fill-opacity="0.12" stroke="#C41218" stroke-width="1"/>
+          <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle"
+            font-family="Orbitron, sans-serif" font-size="10" font-weight="900"
+            fill="#C41218" letter-spacing="0">FAS</text>
+        </svg>
+        <div class="logo-text-wrap">
+          <!-- "F.A.S." — Borgsquad in production -->
+          <span class="logo-fas">F.A.S.</span>
+          <!-- "MOTORSPORTS" — Ethnocentric in production -->
+          <span class="logo-motorsports">Motorsports</span>
+        </div>
+      </a>
+
+      <!-- Desktop nav -->
+      <nav class="nav-links">
+        <a href="#" class="nav-link active">Shop</a>
+        <a href="#" class="nav-link">Forced Induction <span class="nav-badge">New</span></a>
+        <a href="#" class="nav-link">Engine</a>
+        <a href="#" class="nav-link">Exhaust</a>
+        <a href="#" class="nav-link">Suspension</a>
+        <a href="#" class="nav-link">Builds</a>
+        <a href="#" class="nav-link">About</a>
+      </nav>
+
+      <!-- Actions -->
+      <div class="nav-actions">
+        <button class="nav-icon" aria-label="Search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+        </button>
+
+        <button class="nav-icon" aria-label="Account" style="display:none;" id="acct-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
+        </button>
+
+        <button class="nav-cart" aria-label="Cart">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+          <span style="display:none;" id="cart-label">Cart</span>
+          <span class="cart-pill">3</span>
+        </button>
+
+        <!-- Hamburger -->
+        <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+          <span class="ham-line"></span>
+          <span class="ham-line"></span>
+          <span class="ham-line"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile nav drawer -->
+<nav class="mobile-nav" id="mobile-nav" aria-hidden="true">
+  <a href="#" class="mobile-nav-link active">Shop</a>
+  <a href="#" class="mobile-nav-link">Forced Induction</a>
+  <a href="#" class="mobile-nav-link">Engine</a>
+  <a href="#" class="mobile-nav-link">Exhaust</a>
+  <a href="#" class="mobile-nav-link">Suspension</a>
+  <a href="#" class="mobile-nav-link">Builds</a>
+  <a href="#" class="mobile-nav-link">About</a>
+  <div class="mobile-nav-bottom">
+    <a href="#" class="btn btn-red" style="width:100%; justify-content:center;">View Cart (3)</a>
+    <a href="#" class="btn btn-outline" style="width:100%; justify-content:center;">My Account</a>
+  </div>
+</nav>
+
+<!-- ================================================
+     HERO
+     ================================================ -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-img"><span class="hero-img-note">Hero Image — Engine Bay / Action Shot</span></div>
+
+  <div class="container hero-content">
+    <div class="hero-eyebrow">
+      <div class="hero-eyebrow-line"></div>
+      <span class="eyebrow">Expert-Built. Track-Proven.</span>
+    </div>
+
+    <!--
+      H1 — Ethnocentric font.
+      In Astro: style="font-family: 'Ethnocentric', 'Orbitron', sans-serif"
+    -->
+    <h1 class="hero-h1">
+      Unleash
+      <span>Performance.</span>
+    </h1>
+
+    <p class="hero-sub">
+      Premium forced induction systems, performance parts, and full build support — for drivers who demand the best.
+    </p>
+
+    <div class="hero-actions">
+      <a href="#" class="btn btn-red">
+        Shop Performance Parts
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14m-7-7 7 7-7 7"/>
+        </svg>
+      </a>
+      <a href="#" class="btn btn-outline">See Featured Builds</a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-val">12+</span>
+        <span class="stat-label">Years in Business</span>
+      </div>
+      <div class="stat">
+        <span class="stat-val">4,000+</span>
+        <span class="stat-label">Builds Completed</span>
+      </div>
+      <div class="stat">
+        <span class="stat-val">500+</span>
+        <span class="stat-label">Parts In Stock</span>
+      </div>
+      <div class="stat">
+        <span class="stat-val">Same Day</span>
+        <span class="stat-label">Order Processing</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================
+     TICKER
+     ================================================ -->
+<div class="ticker">
+  <div class="ticker-track">
+    <span class="tick-item"><span class="tick-dot"></span>Free Shipping Over $150</span>
+    <span class="tick-item"><span class="tick-dot"></span>Fitment Verified Before Shipping</span>
+    <span class="tick-item"><span class="tick-dot"></span>30-Day Returns</span>
+    <span class="tick-item"><span class="tick-dot"></span>Same-Day Processing</span>
+    <span class="tick-item"><span class="tick-dot"></span>1-on-1 Build Consultation</span>
+    <span class="tick-item"><span class="tick-dot"></span>Authorized Dealer — Whipple · Procharger · Vortech</span>
+    <span class="tick-item"><span class="tick-dot"></span>Track-Tested Components Only</span>
+    <!-- dupe for seamless loop -->
+    <span class="tick-item"><span class="tick-dot"></span>Free Shipping Over $150</span>
+    <span class="tick-item"><span class="tick-dot"></span>Fitment Verified Before Shipping</span>
+    <span class="tick-item"><span class="tick-dot"></span>30-Day Returns</span>
+    <span class="tick-item"><span class="tick-dot"></span>Same-Day Processing</span>
+    <span class="tick-item"><span class="tick-dot"></span>1-on-1 Build Consultation</span>
+    <span class="tick-item"><span class="tick-dot"></span>Authorized Dealer — Whipple · Procharger · Vortech</span>
+    <span class="tick-item"><span class="tick-dot"></span>Track-Tested Components Only</span>
+  </div>
+</div>
+
+<!-- ================================================
+     VEHICLE SELECTOR
+     ================================================ -->
+<section class="section-vehicle">
+  <div class="container">
+    <div class="vehicle-card">
+      <div class="vehicle-card-inner">
+        <div>
+          <span class="eyebrow" style="display:block; margin-bottom:6px;">Find Your Fit</span>
+          <h2 class="vehicle-heading">Shop Parts for Your Exact Build</h2>
+          <p class="vehicle-sub">Select year, make, and model to filter compatible parts only.</p>
+        </div>
+        <div class="vehicle-selectors">
+          <div class="v-select-wrap">
+            <select class="v-select">
+              <option value="">Year</option>
+              <option>2024</option><option>2023</option><option>2022</option>
+              <option>2021</option><option>2020</option><option>2019</option>
+              <option>2018</option><option>2017</option><option>2016</option>
+            </select>
+          </div>
+          <div class="v-select-wrap">
+            <select class="v-select">
+              <option value="">Make</option>
+              <option>Ford</option><option>Chevrolet</option>
+              <option>Dodge</option><option>BMW</option>
+            </select>
+          </div>
+          <div class="v-select-wrap">
+            <select class="v-select">
+              <option value="">Model</option>
+              <option>Mustang GT500</option><option>Mustang GT</option>
+              <option>Camaro SS</option><option>Challenger SRT</option>
+            </select>
+          </div>
+          <button class="btn btn-red btn-sm" style="flex-shrink:0;">
+            Search
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================
+     CATEGORIES
+     ================================================ -->
+<section class="section-cats">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <span class="eyebrow">Browse by Category</span>
+        <span class="rule-red"></span>
+        <!--
+          Section heading — using Barlow Condensed for readability.
+          Could optionally use Ethnocentric here at a smaller size.
+        -->
+        <h2 class="section-title">Where Do You<br/>Want More Power?</h2>
+      </div>
+      <a href="#" class="see-all">
+        All Categories
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14m-7-7 7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+
+    <div class="cat-grid">
+
+      <!-- Featured: Forced Induction -->
+      <div class="cat-card cat-card--feat">
+        <div class="cat-bg cb-1"></div>
+        <div class="cat-overlay"></div>
+        <div class="cat-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 17 17 7M7 7h10v10"/>
+          </svg>
+        </div>
+        <div class="cat-content">
+          <div class="cat-tag">Most Popular</div>
+          <!-- Category names — Ethnocentric H2 -->
+          <div class="cat-name">Forced<br/>Induction</div>
+          <div class="cat-count">Superchargers, Turbos &amp; Kits · 84 parts</div>
+        </div>
+      </div>
+
+      <!-- Engine -->
+      <div class="cat-card">
+        <div class="cat-bg cb-2"></div>
+        <div class="cat-overlay"></div>
+        <div class="cat-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 17 17 7M7 7h10v10"/>
+          </svg>
+        </div>
+        <div class="cat-content">
+          <div class="cat-tag">Internal</div>
+          <div class="cat-name">Engine</div>
+          <div class="cat-count">112 parts</div>
+        </div>
+      </div>
+
+      <!-- Exhaust -->
+      <div class="cat-card">
+        <div class="cat-bg cb-3"></div>
+        <div class="cat-overlay"></div>
+        <div class="cat-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 17 17 7M7 7h10v10"/>
+          </svg>
+        </div>
+        <div class="cat-content">
+          <div class="cat-tag">Sound &amp; Flow</div>
+          <div class="cat-name">Exhaust</div>
+          <div class="cat-count">67 parts</div>
+        </div>
+      </div>
+
+      <!-- Suspension -->
+      <div class="cat-card">
+        <div class="cat-bg cb-4"></div>
+        <div class="cat-overlay"></div>
+        <div class="cat-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 17 17 7M7 7h10v10"/>
+          </svg>
+        </div>
+        <div class="cat-content">
+          <div class="cat-tag">Handling</div>
+          <div class="cat-name">Suspension</div>
+          <div class="cat-count">53 parts</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================================================
+     PRODUCTS
+     ================================================ -->
+<section class="section-products">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <span class="eyebrow">Hand-Picked</span>
+        <span class="rule-red"></span>
+        <h2 class="section-title">Featured Products</h2>
+      </div>
+      <a href="#" class="see-all">
+        Shop All
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14m-7-7 7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+
+    <div class="prod-grid">
+
+      <!-- Card 1 -->
+      <div class="prod-card">
+        <div class="prod-img">
+          <div class="prod-img-inner">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            <span>Product Photo</span>
+          </div>
+          <span class="prod-badge badge-new">New</span>
+          <div class="prod-quick">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14m-7-7h14"/></svg>
+            Add to Cart
+          </div>
+        </div>
+        <div class="prod-info">
+          <div class="prod-brand">Whipple Superchargers</div>
+          <div class="prod-name">3.0L Stage 2 Supercharger Kit — Mustang GT500</div>
+          <div class="prod-fitment">2020–2024 Ford Mustang Shelby GT500</div>
+          <div class="prod-foot">
+            <span class="prod-price">$6,299</span>
+            <span class="prod-avail"><span class="avail-dot in-stock"></span> In Stock</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="prod-card">
+        <div class="prod-img">
+          <div class="prod-img-inner">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            <span>Product Photo</span>
+          </div>
+          <span class="prod-badge badge-hot">Best Seller</span>
+          <div class="prod-quick">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14m-7-7h14"/></svg>
+            Add to Cart
+          </div>
+        </div>
+        <div class="prod-info">
+          <div class="prod-brand">Procharger</div>
+          <div class="prod-name">High Output Intercooled System — Camaro SS LT1</div>
+          <div class="prod-fitment">2016–2023 Chevrolet Camaro SS 6.2L LT1</div>
+          <div class="prod-foot">
+            <div>
+              <span class="prod-price-was">$4,950</span>
+              <span class="prod-price">$4,499</span>
+            </div>
+            <span class="prod-avail"><span class="avail-dot in-stock"></span> In Stock</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="prod-card">
+        <div class="prod-img">
+          <div class="prod-img-inner">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            <span>Product Photo</span>
+          </div>
+          <div class="prod-quick">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14m-7-7h14"/></svg>
+            Add to Cart
+          </div>
+        </div>
+        <div class="prod-info">
+          <div class="prod-brand">Roush Performance</div>
+          <div class="prod-name">Cold Air Intake Kit — Mustang 5.0L Coyote</div>
+          <div class="prod-fitment">2018–2024 Ford Mustang GT 5.0L</div>
+          <div class="prod-foot">
+            <span class="prod-price">$389</span>
+            <span class="prod-avail"><span class="avail-dot in-stock"></span> In Stock</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="prod-card">
+        <div class="prod-img">
+          <div class="prod-img-inner">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            <span>Product Photo</span>
+          </div>
+          <span class="prod-badge badge-sale">Sale</span>
+          <div class="prod-quick">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14m-7-7h14"/></svg>
+            Add to Cart
+          </div>
+        </div>
+        <div class="prod-info">
+          <div class="prod-brand">Kooks Headers</div>
+          <div class="prod-name">Long Tube Headers + X-Pipe — Challenger 392</div>
+          <div class="prod-fitment">2015–2023 Dodge Challenger 392 Scat Pack</div>
+          <div class="prod-foot">
+            <div>
+              <span class="prod-price-was">$1,299</span>
+              <span class="prod-price">$1,099</span>
+            </div>
+            <span class="prod-avail"><span class="avail-dot low-stock"></span> Low Stock</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================================================
+     BRAND STATEMENT
+     ================================================ -->
+<section class="section-statement">
+  <div class="container">
+    <div class="statement-grid">
+      <div>
+        <span class="eyebrow">Who We Are</span>
+        <span class="rule-red"></span>
+        <!--
+          H2 — Ethnocentric font for this section specifically.
+          Ethnocentric here gives a "built tough" feel that matches the message.
+        -->
+        <h2 class="statement-h2">
+          Not a Parts<br/>Warehouse.<br/>
+          A <span>Performance</span><br/>Partner.
+        </h2>
+        <div class="statement-body">
+          <p>FAS Motorsports was built by gearheads for gearheads. We don't list ten thousand parts and hope you figure it out — we carry what we've tested, what we trust, and what actually makes a difference on your build.</p>
+          <p>Every order ships with fitment verified. Every product we stock, we stand behind. If you have a question, you reach a builder — not a chatbot.</p>
+        </div>
+        <div class="statement-cta">
+          <a href="#" class="btn btn-outline">Meet the Team →</a>
+        </div>
+      </div>
+
+      <div class="features">
+        <div class="feat-item">
+          <div class="feat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="feat-title">Fitment Guaranteed</div>
+            <div class="feat-desc">We verify your vehicle before your order ships. No guesswork, no wrong-part returns.</div>
+          </div>
+        </div>
+        <div class="feat-item">
+          <div class="feat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+            </svg>
+          </div>
+          <div>
+            <div class="feat-title">Same-Day Processing</div>
+            <div class="feat-desc">Orders placed by 2PM EST ship the same business day from our warehouse.</div>
+          </div>
+        </div>
+        <div class="feat-item">
+          <div class="feat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="feat-title">1-on-1 Build Support</div>
+            <div class="feat-desc">Real builders available to consult on your exact setup. Free for every customer.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================
+     BRANDS MARQUEE
+     ================================================ -->
+<section class="section-brands">
+  <div class="container">
+    <div class="brands-label"><span class="eyebrow">Authorized Dealers For</span></div>
+  </div>
+  <div class="brands-scroll">
+    <div class="brands-track">
+      <span class="brand-item">Whipple</span><span class="brand-sep"></span>
+      <span class="brand-item">Procharger</span><span class="brand-sep"></span>
+      <span class="brand-item">Vortech</span><span class="brand-sep"></span>
+      <span class="brand-item">Kooks</span><span class="brand-sep"></span>
+      <span class="brand-item">Roush</span><span class="brand-sep"></span>
+      <span class="brand-item">Edelbrock</span><span class="brand-sep"></span>
+      <span class="brand-item">Borla</span><span class="brand-sep"></span>
+      <span class="brand-item">BMR Suspension</span><span class="brand-sep"></span>
+      <span class="brand-item">Mishimoto</span><span class="brand-sep"></span>
+      <span class="brand-item">Holley</span><span class="brand-sep"></span>
+      <span class="brand-item">ATI Performance</span><span class="brand-sep"></span>
+      <span class="brand-item">Trick Flow</span><span class="brand-sep"></span>
+      <!-- dupe -->
+      <span class="brand-item">Whipple</span><span class="brand-sep"></span>
+      <span class="brand-item">Procharger</span><span class="brand-sep"></span>
+      <span class="brand-item">Vortech</span><span class="brand-sep"></span>
+      <span class="brand-item">Kooks</span><span class="brand-sep"></span>
+      <span class="brand-item">Roush</span><span class="brand-sep"></span>
+      <span class="brand-item">Edelbrock</span><span class="brand-sep"></span>
+      <span class="brand-item">Borla</span><span class="brand-sep"></span>
+      <span class="brand-item">BMR Suspension</span><span class="brand-sep"></span>
+      <span class="brand-item">Mishimoto</span><span class="brand-sep"></span>
+      <span class="brand-item">Holley</span><span class="brand-sep"></span>
+      <span class="brand-item">ATI Performance</span><span class="brand-sep"></span>
+      <span class="brand-item">Trick Flow</span><span class="brand-sep"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================
+     TESTIMONIALS
+     ================================================ -->
+<section class="section-testi">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <span class="eyebrow">Customer Reviews</span>
+        <span class="rule-red"></span>
+        <h2 class="section-title">Trusted by Builders<br/>Across the Country</h2>
+      </div>
+    </div>
+
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="testi-stars">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <p class="testi-text">"Ordered a Whipple kit for my GT500. Called FAS with a fuel system question and talked to someone who actually knew the car. Shipped same day. Install went flawless."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">JM</div>
+          <div>
+            <div class="testi-name">James M.</div>
+            <div class="testi-vehicle">2022 Mustang GT500 · Charleston, SC</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testi-card">
+        <div class="testi-stars">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <p class="testi-text">"These guys are the real deal. Not some drop-shipper reading off a spec sheet — they've actually run this stuff on track. Best customer service I've had at any online shop, period."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">DR</div>
+          <div>
+            <div class="testi-name">Danny R.</div>
+            <div class="testi-vehicle">2021 Camaro SS · Atlanta, GA</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testi-card">
+        <div class="testi-stars">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <p class="testi-text">"I've bought from the big box performance shops. FAS is different. Competitive pricing, but what you're really paying for is knowing it's right before it leaves the warehouse."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">TK</div>
+          <div>
+            <div class="testi-name">Tyler K.</div>
+            <div class="testi-vehicle">2020 Challenger Hellcat · Houston, TX</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================
+     EMAIL CAPTURE
+     ================================================ -->
+<section class="section-email">
+  <div class="container">
+    <div class="email-inner">
+      <span class="eyebrow">Stay in the Loop</span>
+      <span class="rule-red" style="margin:var(--s3) auto var(--s3);"></span>
+      <h2 class="section-title" style="font-size: clamp(22px, 3vw, 32px); margin-bottom: var(--s3);">New Parts. Build Guides.<br/>No Spam.</h2>
+      <p class="email-sub">Join 8,000+ builders who get first access to new arrivals and exclusive pricing.</p>
+      <div class="email-form">
+        <input type="email" class="email-input" placeholder="your@email.com" />
+        <button class="btn btn-red" style="flex-shrink:0;">Subscribe</button>
+      </div>
+      <p class="email-fine">No spam. Unsubscribe anytime.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================
+     FOOTER
+     ================================================ -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+
+      <!-- Brand col -->
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+            <rect x="1" y="1" width="38" height="38" rx="10" fill="#C41218" fill-opacity="0.12" stroke="#C41218" stroke-width="1"/>
+            <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="Orbitron, sans-serif" font-size="10" font-weight="900" fill="#C41218">FAS</text>
+          </svg>
+          <div>
+            <span class="logo-fas" style="font-size:13px;">F.A.S.</span><br/>
+            <span class="logo-motorsports" style="font-size:10px;">Motorsports</span>
+          </div>
+        </div>
+        <p class="footer-desc">Expert performance parts, forced induction specialists, and build consultation for serious drivers. Based in the USA, shipping nationwide.</p>
+        <div class="footer-social">
+          <a href="#" class="social-link" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+            </svg>
+          </a>
+          <a href="#" class="social-link" aria-label="YouTube">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.95A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75,15.02 15.5,12 9.75,8.98 9.75,15.02"/>
+            </svg>
+          </a>
+          <a href="#" class="social-link" aria-label="Facebook">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Shop -->
+      <div>
+        <div class="footer-col-title">Shop</div>
+        <nav class="footer-nav">
+          <a href="#">Forced Induction</a>
+          <a href="#">Engine Components</a>
+          <a href="#">Exhaust Systems</a>
+          <a href="#">Suspension</a>
+          <a href="#">Fuel System</a>
+          <a href="#">New Arrivals</a>
+          <a href="#">Sale</a>
+        </nav>
+      </div>
+
+      <!-- Support -->
+      <div>
+        <div class="footer-col-title">Support</div>
+        <nav class="footer-nav">
+          <a href="#">Fitment Guide</a>
+          <a href="#">Shipping Info</a>
+          <a href="#">Returns &amp; Warranty</a>
+          <a href="#">Contact Us</a>
+          <a href="#">Build Consultation</a>
+          <a href="#">FAQ</a>
+        </nav>
+      </div>
+
+      <!-- Company -->
+      <div>
+        <div class="footer-col-title">Company</div>
+        <nav class="footer-nav">
+          <a href="#">About FAS</a>
+          <a href="#">Our Builds</a>
+          <a href="#">Blog</a>
+          <a href="#">Vendor Portal</a>
+        </nav>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p class="footer-legal">
+        © 2026 FAS Motorsports. All rights reserved. &nbsp;·&nbsp;
+        <a href="#">Privacy Policy</a> &nbsp;·&nbsp;
+        <a href="#">Terms of Service</a>
+      </p>
+      <div class="pay-methods">
+        <span class="pay-chip">Visa</span>
+        <span class="pay-chip">MC</span>
+        <span class="pay-chip">Amex</span>
+        <span class="pay-chip">PayPal</span>
+        <span class="pay-chip">Shop Pay</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div class="mockup-badge">✦ FAS Redesign Mockup v2</div>
+
+<!-- ================================================
+     HAMBURGER TOGGLE (vanilla JS, no dependencies)
+     ================================================ -->
+<script>
+  const hamburger = document.getElementById('hamburger');
+  const mobileNav = document.getElementById('mobile-nav');
+
+  hamburger.addEventListener('click', () => {
+    const isOpen = mobileNav.classList.toggle('open');
+    hamburger.classList.toggle('open', isOpen);
+    hamburger.setAttribute('aria-expanded', isOpen);
+    mobileNav.setAttribute('aria-hidden', !isOpen);
+    // Prevent body scroll when drawer open
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  });
+
+  // Close on nav link click (mobile)
+  mobileNav.querySelectorAll('.mobile-nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+      mobileNav.classList.remove('open');
+      hamburger.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+      mobileNav.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    });
+  });
+
+  // Show account + cart label on desktop
+  const mq = window.matchMedia('(min-width: 1024px)');
+  function handleBreakpoint(e) {
+    document.getElementById('acct-btn').style.display = e.matches ? 'flex' : 'none';
+    document.getElementById('cart-label').style.display = e.matches ? 'inline' : 'none';
+  }
+  mq.addEventListener('change', handleBreakpoint);
+  handleBreakpoint(mq);
+</script>
+
+</body>
+</html>
