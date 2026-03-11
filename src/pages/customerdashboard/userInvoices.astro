@@ -44,7 +44,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
         invoices.forEach((invoice) => {
           const li = document.createElement('li');
-          li.className = 'border border-gray-600 p-4 rounded-lg bg-dark/30';
+          li.className = 'border border-gray-600 p-4 rounded-lg bg-dark/70';
 
           const invoiceNumber = invoice.invoiceNumber || invoice.number || invoice._id || 'N/A';
           const dateIssuedRaw = invoice.dateIssued || invoice.date || invoice._createdAt;

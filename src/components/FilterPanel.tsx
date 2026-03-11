@@ -148,7 +148,7 @@ export default function FilterPanel({
                 checked={norm(selectedCategory) === 'all' || !selectedCategory}
                 onChange={handleCategoryChange}
                 className="mr-2 fas-radio focus:outline-none"
-                style={{ accentColor: 'var(--fx-primary, #fb3636)' }}
+                style={{ accentColor: 'var(--red)' }}
               />
               <label htmlFor="cat-all" className="cursor-pointer">
                 All
@@ -167,7 +167,7 @@ export default function FilterPanel({
                     checked={norm(selectedCategory) === slug}
                     onChange={handleCategoryChange}
                     className="mr-2 fas-radio focus:outline-none"
-                    style={{ accentColor: 'var(--fx-primary, #fb3636)' }}
+                    style={{ accentColor: 'var(--red)' }}
                   />
                   <label htmlFor={id} className="cursor-pointer">
                     {c?.title || slug || 'Untitled'}

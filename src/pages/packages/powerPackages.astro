@@ -4,7 +4,6 @@ import powerPackagesData from '../../../content/pages/powerPackages.json' assert
 const pageDoc: any = powerPackagesData;
 import Button from '@/components/Button.astro';
 import PowerPackagesComponent from '@/components/packageComps/powerPackage.tsx';
-import AnimatedThreeDGallery from '@components/animated/AnimatedThreeDGallery.tsx';
 
 const requestUrl = new URL(Astro.request.url);
 requestUrl.search = '';
@@ -81,7 +80,7 @@ const heroCtasToRender = heroCtasHasContent ? heroCtas : heroCtasFallback;
           secondaryBadgeEntries.length > 0 ? (
             <div class="mt-6 flex flex-wrap gap-3 justify-center">
               {secondaryBadgeEntries.map(({ badge }) => (
-                <span class="px-4 py-1.5 rounded-full border border-white/30 bg-dark/50 text-white/90 text-xs font-ethno uppercase tracking-[0.18em]">
+                <span class="px-4 py-1.5 rounded-full border border-white/30 bg-dark text-white/90 text-xs font-ethno uppercase tracking-[0.18em]">
                   {badge}
                 </span>
               ))}
@@ -104,21 +103,5 @@ const heroCtasToRender = heroCtasHasContent ? heroCtas : heroCtasFallback;
       </div>
     </section>
     <PowerPackagesComponent client:load />
-    <section id="ThreeDGallery" class="mt-10">
-      <AnimatedThreeDGallery
-        client:only="react"
-        images={[
-          '/images/packages/FAS-trackhawk-engine-bay.webp',
-          '/images/packages/Shelby-truck.webp',
-          '/images/backgrounds/powerPackages/FAS-4.webp',
-          '/images/packages/FAS-f150-1000.webp',
-          '/images/packages/Shelby-truck.webp',
-          '/images/packages/Hellcat/FAS-1.webp',
-          '/images/packages/FAS-trackhawk-bay.webp'
-        ]}
-        rotateSpeed={80}
-        pauseOnHover={true}
-      />
-    </section>
   </div>
 </BaseLayout>

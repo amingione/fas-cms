@@ -337,7 +337,7 @@ export default function InfoTabs({
         {normalizedFeatures.map((feature, index) => (
           <div
             key={`${feature.heading || 'feature'}-${index}`}
-            className="border-t border-white/10 bg-dark/30 p-4 shadow-inner"
+            className="border-t border-white/10 bg-dark/70 p-4 shadow-inner"
           >
             {feature.subheading ? (
               <p className="text-xs uppercase tracking-widest text-white/60">
@@ -374,7 +374,7 @@ export default function InfoTabs({
       return <EmptyState message="Kit contents will be published soon." />;
     }
     return (
-      <dl className="divide-y divide-white/10 border-t border-white/10 bg-dark/30 text-sm text-white/90">
+      <dl className="divide-y divide-white/10 border-t border-white/10 bg-dark/70 text-sm text-white/90">
         {normalizedKitItems.map((kitItem, index) => (
           <div
             key={`${kitItem.label}-${index}`}
@@ -400,7 +400,7 @@ export default function InfoTabs({
       return <EmptyState message="Technical specifications coming soon." />;
     }
     return (
-      <dl className="divide-y divide-white/10 border-t border-white/10 bg-dark/30 text-sm text-white/90">
+      <dl className="divide-y divide-white/10 border-t border-white/10 bg-dark/70 text-sm text-white/90">
         {normalizedSpecs.map((spec, index) => (
           <div
             key={`${spec.label}-${index}`}
@@ -423,7 +423,7 @@ export default function InfoTabs({
         {normalizedAttributes.map((attr, index) => (
           <div
             key={`${attr.label}-${index}`}
-            className="border-t border-white/10 bg-dark/30 p-4 text-sm text-white/90"
+            className="border-t border-white/10 bg-dark/70 p-4 text-sm text-white/90"
           >
             <dt className="text-xs uppercase tracking-wide text-white/60">{attr.label}</dt>
             <dd className="mt-1 font-semibold text-white">{attr.value}</dd>

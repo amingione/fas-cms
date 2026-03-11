@@ -8,7 +8,7 @@ function renderForm(): void {
         <span class="font-ethno text-white ml-1">Motorsports</span>
       </h1>
       <h2 class="text-2xl font-bold mt-2 text-primary tracking-wide uppercase">Vendor Application</h2>
-      <form id="vendorApplicationForm" class="space-y-4 bg-dark/30 p-6 border border-white/15 mt-6">
+      <form id="vendorApplicationForm" class="space-y-4 bg-dark/70 p-6 border border-white/15 mt-6">
         <input type="text" name="businessName" placeholder="Company Name" class="w-full px-3 py-2 bg-gray-900 border border-white/20 text-white focus:outline-none focus:ring-1 focus:ring-primary" required />
         <input type="text" name="contactName" placeholder="Main Contact Person" class="w-full px-3 py-2 bg-gray-900 border border-white/20 text-white focus:outline-none focus:ring-1 focus:ring-primary" required />
         <input type="email" name="email" placeholder="Email" class="w-full px-3 py-2 bg-gray-900 border border-white/20 text-white focus:outline-none focus:ring-1 focus:ring-primary" required />

@@ -30,9 +30,21 @@ export type MedusaVariant = {
 export type MedusaStoreProduct = {
   id: string;
   title?: string;
+  subtitle?: string | null;
+  description?: string | null;
   handle?: string;
   thumbnail?: string | null;
   images?: Array<{ url?: string | null }>;
+  categories?: Array<{
+    id?: string;
+    name?: string | null;
+    handle?: string | null;
+  }>;
+  collection?: {
+    id?: string;
+    title?: string | null;
+    handle?: string | null;
+  } | null;
   metadata?: Record<string, unknown> | null;
   variants?: MedusaVariant[];
 };

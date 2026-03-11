@@ -1,13 +1,14 @@
 .pc {
   display: flex;
   flex-direction: column;
+  position: relative;
   height: 100%;
   text-decoration: none;
   overflow: hidden;
-  border-radius: 8px;
-  border: 1px solid rgba(242, 239, 234, 0.08);
-  background: linear-gradient(180deg, rgba(21, 21, 21, 0.98) 0%, rgba(10, 10, 10, 0.98) 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  border-radius: 6px;
+  border: 0.5px solid rgba(77, 77, 77, 0.204);
+  background: linear-gradient(rgba(8, 8, 8, 0.99), rgba(8, 8, 8, 0.99));
+  box-shadow: inset 1px 2px 4px rgba(107, 107, 107, 0.397);
   transition:
     transform 220ms ease,
     border-color 220ms ease,
@@ -15,17 +16,18 @@
 }
 
 .pc:hover {
-  transform: translateY(-2px);
-  border-color: rgba(196, 18, 24, 0.32);
+  transform: translateY(-1px);
+  border-color: rgba(50, 46, 43, 0.51);
   box-shadow:
-    0 18px 44px rgba(0, 0, 0, 0.42),
-    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    0 2px 8px rgba(0, 0, 0, 0.34),
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 1px 1px rgba(255, 255, 255, 0.14);
 }
 
 .pc-badge-wrap {
   position: absolute;
-  top: 18px;
-  left: 18px;
+  top: 10px;
+  left: 10px;
   z-index: 3;
 }
 
@@ -66,7 +68,7 @@
 .pc-badge--custom {
   background: rgba(242, 239, 234, 0.2);
   color: #fff;
-  border: 1px solid rgba(242, 239, 234, 0.25);
+  border: 0.5px solid rgba(242, 239, 234, 0.25);
 }
 
 .pc-image {
@@ -76,28 +78,30 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(196, 18, 24, 0.08), transparent 56%),
-    linear-gradient(180deg, rgba(31, 31, 31, 0.94) 0%, rgba(18, 18, 18, 0.98) 100%);
+  background: #000;
 }
 
 .pc-image::after {
   content: '';
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.02), transparent 30%, transparent 70%, rgba(255, 255, 255, 0.02));
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.02),
+    transparent 30%,
+    transparent 70%,
+    rgba(255, 255, 255, 0.02)
+  );
   pointer-events: none;
 }
 
 .pc-image img {
   position: relative;
-  z-index: 1;
-  max-width: 82%;
-  max-height: 76%;
+  max-width: 90%;
+  max-height: 90%;
   width: auto;
   height: auto;
-  object-fit: contain;
+  object-fit: cover;
   transition: transform 280ms ease;
 }
 
@@ -133,20 +137,60 @@
 }
 
 .pc-body {
+  position: relative;
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding: 18px 22px 20px;
-  border-top: 1px solid rgba(242, 239, 234, 0.04);
-  background: linear-gradient(180deg, rgba(15, 15, 15, 0.92) 0%, rgba(10, 10, 10, 0.98) 100%);
+  padding: 16px 18px 18px;
+  overflow: hidden;
+  border-top: 1px solid rgba(61, 61, 61, 0.4);
+  background: linear-gradient(rgba(16, 16, 16, 0.96), rgba(16, 16, 16, 0.96));
+}
+
+.pc-body::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.32;
+  background-image:
+    linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.06) 25%,
+      transparent 25%,
+      transparent 50%,
+      rgba(255, 255, 255, 0.06) 50%,
+      rgba(255, 255, 255, 0.06) 75%,
+      transparent 75%,
+      transparent 100%
+    ),
+    linear-gradient(
+      -45deg,
+      rgba(0, 0, 0, 0.2) 25%,
+      transparent 25%,
+      transparent 50%,
+      rgba(0, 0, 0, 0.2) 50%,
+      rgba(0, 0, 0, 0.2) 75%,
+      transparent 75%,
+      transparent 100%
+    );
+  background-size: 12px 12px;
+  mix-blend-mode: soft-light;
+}
+
+.pc-body > * {
+  position: relative;
+  z-index: 1;
 }
 
 .pc-brand {
   display: block;
-  margin: 0 0 12px;
+  margin: 0 0 10px;
   font-family: 'Ethnocentric', sans-serif;
-  font-size: 0.62rem;
-  letter-spacing: 0.2em;
+  font-style: italic;
+  font-size: 0.46rem;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: #c8922a;
 }
@@ -154,64 +198,77 @@
 .pc-title {
   margin: 0;
   font-family: 'Barlow', sans-serif;
-  font-size: 2rem;
-  font-weight: 600;
-  line-height: 1.24;
-  color: #f2efea;
+  font-size: clamp(0.92rem, 0.92vw, 1.08rem);
+  font-weight: 650;
+  line-height: 1.2;
+  color: rgba(242, 239, 234, 0.82);
   display: -webkit-box;
+  line-clamp: 2;
   -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: calc(1.2em * 2);
+}
+
+.pc-fitment {
+  margin: 10px 0 0;
+  font-family: 'Barlow', sans-serif;
+  font-size: clamp(0.5rem, 0.4vw, 0.6rem);
+  line-height: 1.16;
+  color: rgba(147, 147, 147, 0.5);
+  display: -webkit-box;
+  line-clamp: 3;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.pc-fitment {
-  margin: 12px 0 0;
-  font-family: 'Barlow', sans-serif;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  color: rgba(147, 147, 147, 0.74);
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+@media (min-width: 1280px) {
+  .pc-fitment {
+    line-clamp: 3;
+    -webkit-line-clamp: 3;
+  }
 }
 
 .pc-footer {
   margin-top: auto;
-  padding-top: 26px;
+  padding-top: 18px;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 14px;
+  gap: 10px;
 }
 
 .pc-price {
   display: flex;
   align-items: baseline;
-  gap: 10px;
+  color: rgba(196, 196, 196, 0.851);
+  gap: 8px;
   min-width: 0;
+  flex-wrap: wrap;
 }
 
 .pc-price-original {
   font-family: 'Barlow', sans-serif;
-  font-size: 1.95rem;
+  font-size: clamp(0.76rem, 0.84vw, 0.92rem);
   line-height: 1;
-  color: rgba(147, 147, 147, 0.42);
+  color: rgba(147, 147, 147, 0.36);
   text-decoration: line-through;
 }
 
 .pc-price-current {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 2.7rem;
+  font-family: 'Barlow Semi Condensed', 'Barlow', sans-serif;
+  font-size: clamp(0.98rem, 1.08vw, 1.18rem);
   font-weight: 700;
-  line-height: 0.95;
-  color: #f2efea;
-  letter-spacing: 0.01em;
+  font-style: italic;
+  line-height: 1;
+  color: rgba(144, 144, 144, 0.9);
+  letter-spacing: 0;
 }
 
 .pc-price-unavail {
   font-family: 'Ethnocentric', sans-serif;
-  font-size: 0.6rem;
+  font-size: 0.5rem;
   letter-spacing: 0.13em;
   text-transform: uppercase;
   color: rgba(147, 147, 147, 0.66);
@@ -220,11 +277,11 @@
 .pc-stock {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
   font-family: 'Ethnocentric', sans-serif;
-  font-size: 0.62rem;
-  letter-spacing: 0.16em;
+  font-size: 0.54rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -250,12 +307,17 @@
 }
 
 @media (max-width: 1024px) {
-  .pc-title {
-    font-size: 1.75rem;
+  .pc-price-original {
+    font-size: 0.72rem;
   }
 
   .pc-price-current {
-    font-size: 2.35rem;
+    font-size: 1.02rem;
+  }
+
+  .pc-stock {
+    font-size: 0.5rem;
+    letter-spacing: 0.1em;
   }
 }
 
@@ -264,27 +326,16 @@
     padding: 16px 16px 18px;
   }
 
-  .pc-title {
-    font-size: 1.45rem;
-  }
-
-  .pc-fitment {
-    font-size: 0.88rem;
-  }
-
   .pc-footer {
     padding-top: 18px;
   }
 
   .pc-price-original {
-    font-size: 1.2rem;
+    font-size: 0.68rem;
   }
 
   .pc-price-current {
-    font-size: 2rem;
-  }
-
-  .pc-stock {
-    font-size: 0.56rem;
+    font-size: 0.92rem;
+    line-height: 1;
   }
 }

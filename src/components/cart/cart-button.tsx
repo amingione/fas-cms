@@ -33,7 +33,7 @@ export default function CartButton() {
   };
 
   return (
-    <button aria-label="Open cart" onClick={handleClick}>
+    <button aria-label="Open cart" className="cart-trigger-btn" onClick={handleClick}>
       <OpenCart quantity={total} />
     </button>
   );

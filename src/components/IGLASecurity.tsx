@@ -120,7 +120,7 @@ export function IGLASecurity() {
             {certifications.map((cert, index) => (
               <div key={index} className="text-center">
                 <div
-                  className={`mx-auto mb-2 rounded-full bg-dark/50 border border-slate-600/50 flex items-center justify-center backdrop-blur-sm industrial-card ${isMobile ? 'w-12 h-12' : 'w-20 h-20'}`}
+                  className={`mx-auto mb-2 rounded-full bg-dark border border-slate-600/50 flex items-center justify-center backdrop-blur-sm industrial-card ${isMobile ? 'w-12 h-12' : 'w-20 h-20'}`}
                 >
                   <Star className={`text-slate-300 ${isMobile ? 'w-5 h-5' : 'w-8 h-8'}`} />
                 </div>
@@ -330,7 +330,7 @@ export function IGLASecurity() {
 
         {/* Elegant Technology Details */}
         <motion.div
-          className={`bg-dark/50 backdrop-blur-xl rounded-3xl border border-slate-700/50 industrial-card ${isMobile ? 'p-4 mb-8' : 'p-12 lg:p-16 mb-32'}`}
+          className={`bg-dark backdrop-blur-xl rounded-3xl border border-slate-700/50 industrial-card ${isMobile ? 'p-4 mb-8' : 'p-12 lg:p-16 mb-32'}`}
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 2.2, duration: 1 }}
@@ -473,7 +473,7 @@ export function IGLASecurity() {
               <Button
                 size={isMobile ? 'default' : 'lg'}
                 variant="outline"
-                className={`border-2 border-slate-600/50 text-slate-300 hover:bg-dark/50 hover:text-white hover:border-slate-500/70 font-medium backdrop-blur-sm rounded-xl transition-all duration-500 industrial-glow font-ethno ${isMobile ? 'px-6 py-3 text-sm' : 'px-12 py-4 text-lg'}`}
+                className={`border-2 border-slate-600/50 text-slate-300 hover:bg-dark hover:text-white hover:border-slate-500/70 font-medium backdrop-blur-sm rounded-xl transition-all duration-500 industrial-glow font-ethno ${isMobile ? 'px-6 py-3 text-sm' : 'px-12 py-4 text-lg'}`}
                 href="/contact"
                 text="REQUEST QUOTE"
                 onClick={() => {

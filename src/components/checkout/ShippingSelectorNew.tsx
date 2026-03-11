@@ -59,7 +59,7 @@ export default function ShippingSelectorNew({
     return (
       <section className="mt-10">
         <h2 className="text-lg font-ethno text-white mb-6">Shipping Method</h2>
-        <div className="p-6 bg-dark/50 border border-white/10 rounded-lg text-center">
+        <div className="p-6 bg-dark border border-white/10 rounded-lg text-center">
           <div className="inline-block animate-spin text-2xl mb-2">⏳</div>
           <p className="text-white/70 text-sm">Loading shipping options...</p>
         </div>
@@ -152,14 +152,12 @@ export default function ShippingSelectorNew({
       <div className="space-y-3">
         {options.map((option) => {
           const isSelected = selectedId === option.id;
-          const estimatedDelivery = (option.data as any)?.estimated_delivery ||
-                                   (option.metadata as any)?.estimated_delivery;
-          const carrier = (option.data as any)?.carrier ||
-                         (option.metadata as any)?.carrier;
+          const estimatedDelivery =
+            (option.data as any)?.estimated_delivery ||
+            (option.metadata as any)?.estimated_delivery;
+          const carrier = (option.data as any)?.carrier || (option.metadata as any)?.carrier;
           const displayAmount =
-            typeof option.calculated_price === 'number'
-              ? option.calculated_price
-              : option.amount;
+            typeof option.calculated_price === 'number' ? option.calculated_price : option.amount;
 
           return (
             <label
@@ -167,9 +165,10 @@ export default function ShippingSelectorNew({
               className={`
                 flex items-center justify-between p-4 border rounded-lg
                 cursor-pointer transition
-                ${isSelected
-                  ? 'border-primary bg-primary/5'
-                  : 'border-white/20 hover:border-white/40 bg-dark/30'
+                ${
+                  isSelected
+                    ? 'border-primary bg-primary/5'
+                    : 'border-white/20 hover:border-white/40 bg-dark/70'
                 }
                 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
               `}
@@ -184,18 +183,14 @@ export default function ShippingSelectorNew({
                     checked={isSelected}
                     onChange={() => !disabled && onSelect(option.id)}
                     disabled={disabled}
-                    className="w-4 h-4 text-primary border-white/30 bg-dark/50 focus:ring-primary focus:ring-offset-dark"
+                    className="w-4 h-4 text-primary border-white/30 bg-dark focus:ring-primary focus:ring-offset-dark"
                   />
                 </div>
 
                 {/* Option Details */}
                 <div className="flex-1">
                   <div className="font-medium text-white">{option.name}</div>
-                  {carrier && (
-                    <div className="text-sm text-white/60 mt-0.5">
-                      {carrier}
-                    </div>
-                  )}
+                  {carrier && <div className="text-sm text-white/60 mt-0.5">{carrier}</div>}
                   {estimatedDelivery && (
                     <div className="text-sm text-white/50 mt-0.5">
                       Est. delivery: {estimatedDelivery}
@@ -212,8 +207,7 @@ export default function ShippingSelectorNew({
                     : formatCurrency(displayAmount, 'usd')
                   : option.price_type === 'calculated'
                     ? 'Calculating...'
-                    : 'Price unavailable'
-                }
+                    : 'Price unavailable'}
               </div>
             </label>
           );

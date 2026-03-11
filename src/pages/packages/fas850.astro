@@ -1,0 +1,644 @@
+---
+export const prerender = true;
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const variants = [
+  { platform: 'Charger & Challenger', price: '$6,699.00', slug: 'fas-850-package', note: 'Hellcat Platform' },
+  { platform: 'Trackhawk / Durango SRT', price: '$7,099.00', slug: 'fas-850-package-trackhawk-durango', note: 'Hellcat Platform' },
+  { platform: 'RAM 1500 TRX', price: '$7,499.99', slug: 'fas-850-package-trx', note: 'Supercharged HEMI' },
+];
+
+const included = [
+  { name: 'Pulley Upgrade Package', detail: 'Smaller lower pulley for higher boost pressure and increased supercharger speed across the RPM range.' },
+  { name: 'Upgraded Fuel Injectors', detail: 'Higher-flow injectors matched to the increased fueling demand of an 850 WHP calibration.' },
+  { name: 'Pinned Crank Assembly', detail: 'Crankshaft pin upgrade to secure the supercharger drive hub under sustained high-boost conditions — a critical reliability item at this power level.' },
+  { name: 'Performance Thermostat', detail: 'Lower-temperature thermostat allows the engine to maintain optimal coolant temperature during extended high-output pulls.' },
+  { name: 'Full Custom Dyno Tune', detail: 'Complete calibration developed for your specific vehicle on FAS in-house AWD dynamometer. Not a mail-order tune — done by FAS technicians.' },
+  { name: 'Installation Labor', detail: 'Full installation at our Punta Gorda, FL facility. Every build follows the FAS validated build sheet for your platform.' },
+];
+
+const faqs = [
+  {
+    q: 'What separates the FAS850 from the FAS800?',
+    a: 'The FAS850 adds fuel injectors, a pinned crank, and a performance thermostat to the baseline FAS800 pulley and tune combination. These additions support both the higher power target and long-term reliability at 850 WHP.',
+  },
+  {
+    q: 'Does the pinned crank affect drivability?',
+    a: 'No. The crank pin is a reliability upgrade — it reinforces the supercharger hub attachment without changing engine feel, response, or day-to-day streetability.',
+  },
+  {
+    q: 'Can the FAS850 run on pump gas?',
+    a: 'Yes. The FAS850 is calibrated for 91–93 octane pump gas. E85 is not required at this tier, though it is available as an upgrade at the FAS900 and FAS1000 level.',
+  },
+  {
+    q: 'How long does the FAS850 build take?',
+    a: 'Typical build time is 1–2 days depending on shop schedule and vehicle condition. Contact FAS to get a current timeline and schedule your slot.',
+  },
+];
+---
+
+<BaseLayout
+  title="FAS850 Performance Package — 850 WHP Hellcat Build"
+  description="The FAS850 builds on the FAS800 foundation with upgraded injectors, a pinned crank, and a performance thermostat. 850 WHP with full custom dyno tuning. Available for Charger, Challenger, Trackhawk, Durango SRT, and RAM TRX."
+  canonical="https://fasmotorsports.com/packages/fas850"
+  keywords={['FAS850 package', 'Hellcat 850 WHP', 'TRX 850 HP package', 'Trackhawk 850 HP', 'Hellcat pinned crank', 'custom dyno tune Hellcat', 'F.A.S. Motorsports packages']}
+  bodyClass="bg-dark text-white min-h-screen flex flex-col"
+  mainClass="flex-1 w-full max-w-none px-0 pt-0"
+>
+
+  <!-- ── HERO ─────────────────────────────────────────────── -->
+  <section class="pkg-hero" aria-label="FAS850 package hero">
+    <div class="pkg-hero__noise" aria-hidden="true"></div>
+    <div class="pkg-hero__inner site-container">
+      <div class="pkg-hero__eyebrow">
+        <span class="pkg-tier-badge">STREET PERFORMANCE</span>
+        <span class="pkg-tier-divider" aria-hidden="true">|</span>
+        <span class="pkg-tier-label">F.A.S. MOTORSPORTS</span>
+      </div>
+      <h1 class="pkg-hero__name">FAS<span class="pkg-hero__num">850</span></h1>
+      <p class="pkg-hero__claim">850 Wheel Horsepower. Built for Reliability at Speed.</p>
+      <p class="pkg-hero__sub">
+        The FAS850 adds the critical reliability layer to the FAS800 foundation — fuel injectors sized
+        for the demand, a pinned crank to secure the drive hub under sustained boost, and a performance
+        thermostat to keep temps in check. 850 WHP. Street-legal. Fully dyno-verified.
+      </p>
+      <div class="pkg-hero__cta-row">
+        <a href="/shop/fas-850-package" class="btn-pkg-primary">Order Your Build</a>
+        <a href="#variants" class="btn-pkg-ghost">Compare Platforms</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── POWER STAT BAR ───────────────────────────────────── -->
+  <div class="stat-bar" role="list" aria-label="FAS850 key specifications">
+    <div class="stat-bar__item" role="listitem">
+      <span class="stat-bar__val">850</span>
+      <span class="stat-bar__label">Wheel HP Target</span>
+    </div>
+    <div class="stat-bar__sep" aria-hidden="true"></div>
+    <div class="stat-bar__item" role="listitem">
+      <span class="stat-bar__val">91–93</span>
+      <span class="stat-bar__label">Octane — Pump Gas</span>
+    </div>
+    <div class="stat-bar__sep" aria-hidden="true"></div>
+    <div class="stat-bar__item" role="listitem">
+      <span class="stat-bar__val">Pinned</span>
+      <span class="stat-bar__label">Crank Included</span>
+    </div>
+    <div class="stat-bar__sep" aria-hidden="true"></div>
+    <div class="stat-bar__item" role="listitem">
+      <span class="stat-bar__val">3</span>
+      <span class="stat-bar__label">Platform Variants</span>
+    </div>
+    <div class="stat-bar__sep" aria-hidden="true"></div>
+    <div class="stat-bar__item" role="listitem">
+      <span class="stat-bar__val">AWD</span>
+      <span class="stat-bar__label">In-House Dyno</span>
+    </div>
+  </div>
+
+  <!-- ── WHAT'S INCLUDED ──────────────────────────────────── -->
+  <section class="pkg-section site-container" id="included" aria-labelledby="included-heading">
+    <h2 class="pkg-section__heading" id="included-heading">What's Included</h2>
+    <p class="pkg-section__sub">The FAS850 build sheet adds essential reliability components to the baseline platform work. Everything installed, calibrated, and verified in-house.</p>
+    <ul class="included-grid" role="list">
+      {included.map((item) => (
+        <li class="included-card" role="listitem">
+          <div class="included-card__icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16.667 5L8.333 13.333 3.333 8.333" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <strong class="included-card__name">{item.name}</strong>
+            <p class="included-card__detail">{item.detail}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <!-- ── PLATFORM VARIANTS ────────────────────────────────── -->
+  <section class="pkg-section pkg-section--dark site-container" id="variants" aria-labelledby="variants-heading">
+    <h2 class="pkg-section__heading" id="variants-heading">Platform Variants &amp; Pricing</h2>
+    <p class="pkg-section__sub">The FAS850 is platform-specific in pricing and tune but follows the same build process and quality standard across all three Hellcat variants.</p>
+    <div class="variants-table-wrap table-wrap" role="region" aria-label="Platform variants">
+      <table class="variants-table">
+        <thead>
+          <tr>
+            <th scope="col">Platform</th>
+            <th scope="col">Price</th>
+            <th scope="col">Power Target</th>
+            <th scope="col">Fuel</th>
+            <th scope="col">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {variants.map((v) => (
+            <tr>
+              <td><strong>{v.platform}</strong> <small class="platform-note">{v.note}</small></td>
+              <td class="price-cell">{v.price}</td>
+              <td>850 WHP</td>
+              <td>91–93 Oct</td>
+              <td>
+                <a href={`/shop/${v.slug}`} class="btn-table-cta" aria-label={`Order FAS850 for ${v.platform}`}>
+                  Order →
+                </a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="variants-disclaimer">
+      <strong>Note:</strong> Vehicle not included with purchase. Prices shown are for installation service at our Punta Gorda, FL facility.
+      Modifying your vehicle may affect factory warranty.
+      <a href="/packages/fas800" class="text-link">← FAS800</a> &nbsp;·&nbsp;
+      <a href="/packages/fas900" class="text-link">FAS900 →</a>
+    </p>
+  </section>
+
+  <!-- ── WHY THE PINNED CRANK MATTERS ─────────────────────── -->
+  <section class="pkg-section site-container" aria-labelledby="tech-heading">
+    <h2 class="pkg-section__heading" id="tech-heading">Why the Pinned Crank Matters</h2>
+    <p class="pkg-section__sub">At 850 WHP, the forces on the supercharger drive hub exceed the factory design intent. The pinned crank eliminates the failure mode before it becomes a problem.</p>
+    <div class="tech-block">
+      <div class="tech-block__item">
+        <h3 class="tech-block__label">The Problem</h3>
+        <p class="tech-block__body">The factory Hellcat supercharger hub relies on friction and a pressed fit to drive the blower. Under sustained high-boost loads, the hub can spin on the crank nose — causing immediate and expensive damage to both the engine and supercharger.</p>
+      </div>
+      <div class="tech-block__item">
+        <h3 class="tech-block__label">The FAS Fix</h3>
+        <p class="tech-block__body">The pinned crank installs a positive mechanical lock between the crank nose and the supercharger drive hub. The pin physically prevents rotation under any load condition. It is a standard FAS procedure at the 850 WHP tier and above.</p>
+      </div>
+      <div class="tech-block__item">
+        <h3 class="tech-block__label">The Result</h3>
+        <p class="tech-block__body">A mechanically sound foundation that supports the FAS850 calibration reliably — on the street, on the strip, and on the dyno — without the risk of supercharger hub slip that comes with lesser builds at this power level.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── UPGRADE PATH ─────────────────────────────────────── -->
+  <section class="pkg-section pkg-section--dark site-container" aria-labelledby="upgrade-heading">
+    <h2 class="pkg-section__heading" id="upgrade-heading">The FAS Performance Ladder</h2>
+    <p class="pkg-section__sub">Every FAS tier builds on the last. Start here. Move up when you're ready.</p>
+    <nav class="upgrade-ladder" aria-label="Performance package tiers">
+      <a href="/packages/fas800" class="upgrade-rung">
+        <span class="upgrade-rung__tier">FAS800</span>
+        <span class="upgrade-rung__hp">800 WHP</span>
+        <span class="upgrade-rung__tag">Pulley / Cooling / Tune</span>
+      </a>
+      <a href="/packages/fas850" class="upgrade-rung upgrade-rung--active" aria-current="page">
+        <span class="upgrade-rung__tier">FAS850</span>
+        <span class="upgrade-rung__hp">850 WHP</span>
+        <span class="upgrade-rung__tag">Current</span>
+      </a>
+      <a href="/packages/fas900" class="upgrade-rung">
+        <span class="upgrade-rung__tier">FAS900</span>
+        <span class="upgrade-rung__hp">900 WHP</span>
+        <span class="upgrade-rung__tag">+ Fuel System Upgrade</span>
+      </a>
+      <a href="/packages/fas1000" class="upgrade-rung">
+        <span class="upgrade-rung__tier">FAS1000</span>
+        <span class="upgrade-rung__hp">1000+ WHP</span>
+        <span class="upgrade-rung__tag">Race Ported SC / Headers / E85</span>
+      </a>
+      <a href="/packages/fas-1x" class="upgrade-rung">
+        <span class="upgrade-rung__tier">FAS 1X</span>
+        <span class="upgrade-rung__hp">1200–1500 HP</span>
+        <span class="upgrade-rung__tag">Contact for Pricing</span>
+      </a>
+      <a href="/packages/fas-2x" class="upgrade-rung">
+        <span class="upgrade-rung__tier">FAS 2X</span>
+        <span class="upgrade-rung__hp">1600+ HP</span>
+        <span class="upgrade-rung__tag">Contact for Pricing</span>
+      </a>
+    </nav>
+  </section>
+
+  <!-- ── FAQ ──────────────────────────────────────────────── -->
+  <section class="pkg-section site-container" aria-labelledby="faq-heading">
+    <h2 class="pkg-section__heading" id="faq-heading">Common Questions</h2>
+    <dl class="pkg-faq">
+      {faqs.map((faq) => (
+        <div class="pkg-faq__entry">
+          <dt class="pkg-faq__q">{faq.q}</dt>
+          <dd class="pkg-faq__a">{faq.a}</dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+
+  <!-- ── FINAL CTA ─────────────────────────────────────────── -->
+  <section class="pkg-cta-final" aria-labelledby="cta-heading">
+    <div class="site-container">
+      <h2 class="pkg-cta-final__heading" id="cta-heading">850 WHP. Proven. Reliable.</h2>
+      <p class="pkg-cta-final__sub">The FAS850 is the smart step up from the FAS800 — more power, more reliability, same in-house dyno standard.</p>
+      <div class="pkg-cta-final__row">
+        <a href="/shop/fas-850-package" class="btn-pkg-primary btn-pkg-primary--large">Order the FAS850</a>
+        <a href="tel:+18122009012" class="btn-pkg-ghost">Call (812) 200-9012</a>
+      </div>
+      <address class="pkg-cta-final__address">
+        F.A.S. Motorsports · 6161 Riverside Dr, Punta Gorda, FL 33982 · Mon–Fri 9AM–5PM
+      </address>
+    </div>
+  </section>
+
+</BaseLayout>
+
+<style>
+.pkg-hero {
+  position: relative;
+  background: linear-gradient(160deg, #0a0202 0%, #080808 55%, #0d0303 100%);
+  border-bottom: 1px solid var(--red-border);
+  padding: clamp(80px, 12vw, 140px) 0 clamp(56px, 8vw, 96px);
+  overflow: hidden;
+}
+.pkg-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(196,18,24,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.pkg-hero__noise {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  opacity: 0.4;
+}
+.pkg-hero__inner { position: relative; z-index: 1; }
+.pkg-hero__eyebrow { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.pkg-tier-badge {
+  font-family: var(--font-label);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--red);
+  border: 1px solid var(--red-border);
+  padding: 3px 10px;
+  border-radius: 2px;
+}
+.pkg-tier-divider { color: var(--border-strong); font-size: 0.75rem; }
+.pkg-tier-label {
+  font-family: var(--font-label);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.pkg-hero__name {
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 10vw, 7rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin: 0 0 12px;
+  text-transform: uppercase;
+}
+.pkg-hero__num { color: var(--red); }
+.pkg-hero__claim {
+  font-family: var(--font-label);
+  font-size: clamp(1rem, 2.5vw, 1.35rem);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin: 0 0 20px;
+}
+.pkg-hero__sub {
+  font-family: var(--font-body);
+  font-size: clamp(0.95rem, 1.5vw, 1.05rem);
+  color: var(--text-secondary);
+  max-width: 640px;
+  line-height: 1.65;
+  margin: 0 0 36px;
+}
+.pkg-hero__cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
+.stat-bar {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.stat-bar__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 28px;
+  flex: 1;
+  min-width: 120px;
+}
+.stat-bar__val {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  color: var(--red);
+  line-height: 1;
+}
+.stat-bar__label {
+  font-family: var(--font-label);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 4px;
+  text-align: center;
+}
+.stat-bar__sep { width: 1px; background: var(--border-subtle); align-self: stretch; }
+.pkg-section { padding: clamp(56px, 8vw, 96px) 0; }
+.pkg-section--dark {
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.pkg-section__heading {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3.5vw, 2.4rem);
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  margin: 0 0 10px;
+}
+.pkg-section__sub {
+  font-family: var(--font-body);
+  font-size: 0.97rem;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 0 40px;
+  line-height: 1.65;
+}
+.included-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.included-card {
+  display: flex;
+  gap: 14px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 20px;
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+.included-card:hover { border-color: var(--red-border); }
+.included-card__icon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--red-dim);
+  border: 1px solid var(--red-border);
+  border-radius: 50%;
+  color: var(--red);
+}
+.included-card__name {
+  display: block;
+  font-family: var(--font-label);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.included-card__detail {
+  font-family: var(--font-body);
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin: 0;
+}
+.variants-table-wrap { margin-bottom: 20px; }
+.variants-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+}
+.variants-table th {
+  font-family: var(--font-label);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: var(--bg-overlay);
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-default);
+}
+.variants-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  vertical-align: middle;
+}
+.variants-table td strong { color: var(--text-primary); }
+.variants-table tr:hover td { background: rgba(196,18,24,0.04); }
+.price-cell {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--text-primary) !important;
+}
+.platform-note {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 400;
+  font-family: var(--font-body);
+}
+.btn-table-cta {
+  font-family: var(--font-label);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--red);
+  text-decoration: none;
+  border: 1px solid var(--red-border);
+  padding: 6px 14px;
+  border-radius: 2px;
+  white-space: nowrap;
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+.btn-table-cta:hover { background: var(--red); color: #fff; }
+.variants-disclaimer {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin: 0;
+}
+.text-link { color: var(--red); text-decoration: underline; }
+
+/* TECH BLOCK */
+.tech-block {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+.tech-block__item {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 24px;
+}
+.tech-block__label {
+  font-family: var(--font-label);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin: 0 0 10px;
+}
+.tech-block__body {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin: 0;
+}
+
+.upgrade-ladder {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+}
+.upgrade-rung {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 20px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  text-decoration: none;
+  transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+}
+.upgrade-rung:hover { border-color: var(--red-border); background: var(--bg-overlay); }
+.upgrade-rung--active { border-color: var(--red); background: var(--red-dim); }
+.upgrade-rung__tier {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.upgrade-rung--active .upgrade-rung__tier { color: var(--red); }
+.upgrade-rung__hp {
+  font-family: var(--font-label);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--amber);
+  letter-spacing: 0.05em;
+}
+.upgrade-rung__tag {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+.pkg-faq { display: flex; flex-direction: column; gap: 0; }
+.pkg-faq__entry {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.pkg-faq__entry:last-child { border-bottom: none; }
+.pkg-faq__q {
+  font-family: var(--font-label);
+  font-size: 0.97rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.pkg-faq__a {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin: 0;
+}
+.pkg-cta-final {
+  background: linear-gradient(160deg, #100202 0%, #0a0000 100%);
+  border-top: 1px solid var(--red-border);
+  padding: clamp(64px, 10vw, 112px) 0;
+  text-align: center;
+}
+.pkg-cta-final__heading {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 0 12px;
+}
+.pkg-cta-final__sub {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--text-secondary);
+  max-width: 520px;
+  margin: 0 auto 36px;
+  line-height: 1.65;
+}
+.pkg-cta-final__row { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin-bottom: 28px; }
+.pkg-cta-final__address {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-style: normal;
+  color: var(--text-muted);
+}
+.btn-pkg-primary {
+  font-family: var(--font-label);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  background: var(--red);
+  color: #fff;
+  padding: 14px 32px;
+  border-radius: 2px;
+  display: inline-flex;
+  align-items: center;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.btn-pkg-primary:hover { background: var(--red-hover); }
+.btn-pkg-primary--large { padding: 16px 40px; font-size: 0.95rem; }
+.btn-pkg-ghost {
+  font-family: var(--font-label);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  background: transparent;
+  color: var(--text-secondary);
+  padding: 14px 32px;
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+  display: inline-flex;
+  align-items: center;
+  transition: border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+.btn-pkg-ghost:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+@media (max-width: 640px) {
+  .stat-bar { flex-direction: column; }
+  .stat-bar__sep { width: 100%; height: 1px; }
+  .upgrade-ladder { grid-template-columns: 1fr 1fr; }
+}
+</style>

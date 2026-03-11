@@ -1,0 +1,668 @@
+---
+export const prerender = true;
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const included = [
+  {
+    name: 'Complete FAS 1X Foundation',
+    detail: 'Every component from the FAS 1X build — built bottom end, compound induction system, high-flow fuel, and full intercooling — carried forward as the 2X platform baseline. The 2X begins where the 1X maxes out.',
+  },
+  {
+    name: 'Secondary Turbocharger System',
+    detail: 'A second platform-specific turbocharger is added to the 2X build, running in parallel with the first. Twin turbo architecture allows independent boost control across the RPM range and dramatically increases total airflow capacity.',
+  },
+  {
+    name: 'Cylinder Head Package',
+    detail: 'Full CNC ported cylinder heads, upgraded valvetrain, and head gasket package rated for sustained 1600+ HP operation. Head work is the single largest contributor to top-end power at the 2X tier.',
+  },
+  {
+    name: 'Dry Sump Lubrication System',
+    detail: 'Stage-switched from the factory wet sump to a dry sump oiling system. At 1600+ HP under sustained track use, oil control under high lateral G-load and extended WOT runs is non-negotiable.',
+  },
+  {
+    name: 'Dual-Feed High-Output Fuel System',
+    detail: 'Dual in-tank fuel pumps, oversized injectors, and a flex fuel management system capable of supporting E85 and methanol injection simultaneously. Fuel delivery is never the limiting factor in a 2X build.',
+  },
+  {
+    name: 'Methanol Injection System',
+    detail: 'Direct port methanol injection provides charge cooling and additional combustion energy at peak boost. At 2X power levels, methanol is not optional — it is the margin between reliable power and detonation.',
+  },
+  {
+    name: 'Upgraded Transmission Internals',
+    detail: 'The factory 8HP90 transmission is internally reinforced for the torque load the 2X produces. Clutch packs, shift solenoids, and valve body calibration are all addressed as part of the complete 2X build.',
+  },
+  {
+    name: 'Full Custom Dyno Tune Package',
+    detail: 'Comprehensive multi-fuel calibration (pump gas, E85, methanol) developed for your specific 2X build on our in-house AWD dynamometer. Multiple operating maps for street, strip, and track environments.',
+  },
+  {
+    name: 'Installation Labor',
+    detail: 'Complete build at our Punta Gorda, FL facility. The FAS 2X is a multi-week to multi-month project. A consultation is required — we scope and schedule every 2X build individually.',
+  },
+];
+
+const faqs = [
+  {
+    q: 'What does 2X mean in the FAS naming system?',
+    a: 'The 2X designation indicates dual turbocharger architecture — two turbos operating in parallel on the Hellcat platform, alongside or in replacement of the factory supercharger depending on final build specification. The 2X targets 1600 HP and above, with actual output dependent on platform, fuel, and tune.',
+  },
+  {
+    q: 'How is the 2X different from the 1X?',
+    a: 'The FAS 1X is compound forced induction — one supercharger and one turbocharger working together. The 2X adds a second turbocharger, cylinder head work, dry sump lubrication, methanol injection, and transmission reinforcement. It is a fundamentally different level of commitment in both cost and build complexity.',
+  },
+  {
+    q: 'Is the FAS 2X a street car?',
+    a: 'The 2X can be built for street and strip use, but it is fundamentally a maximum-output build. Customers typically use 2X vehicles primarily for track and drag strip applications. A street-drivable calibration is developed as part of the tune package, but daily driving a 2X requires understanding and intention.',
+  },
+  {
+    q: 'What fuels does the FAS 2X require?',
+    a: 'The full-power 2X calibration requires E85 fuel with methanol injection active. A conservative pump gas street tune is also developed. The 1600+ HP range is achievable only with ethanol and methanol — there is no shortcut on fuel chemistry at this power level.',
+  },
+  {
+    q: 'Does the FAS 2X include transmission work?',
+    a: 'Yes. Unlike the 1X, the 2X build includes internal transmission reinforcement as a standard component. The factory 8HP90 is not rated for the torque output of a 2X build under sustained use, and FAS does not leave that unaddressed.',
+  },
+  {
+    q: 'How long does a FAS 2X build take?',
+    a: 'The FAS 2X is a multi-week to multi-month build depending on scope, parts lead time, and current shop schedule. This is not a bolt-on program. Call FAS to discuss current availability and to begin the consultation process.',
+  },
+];
+---
+
+<BaseLayout
+  title="FAS 2X Package — 1600+ HP Maximum Build"
+  description="The FAS 2X is the maximum FAS Motorsports performance build: twin turbo architecture, built heads, dry sump lubrication, methanol injection, and reinforced transmission. 1600+ HP on the Hellcat platform. Contact FAS for pricing and consultation."
+  canonical="https://fasmotorsports.com/packages/fas-2x"
+  keywords={['FAS 2X package', 'Hellcat 1600 HP build', 'twin turbo Hellcat', 'maximum Hellcat build', 'FAS Motorsports 2X', '2000 HP Hellcat', 'F.A.S. Motorsports maximum build']}
+  bodyClass="bg-dark text-white min-h-screen flex flex-col"
+  mainClass="flex-1 w-full max-w-none px-0 pt-0"
+>
+
+  <section class="pkg-hero pkg-hero--2x" aria-label="FAS 2X package hero">
+    <div class="pkg-hero__noise" aria-hidden="true"></div>
+    <div class="pkg-hero__grid-overlay" aria-hidden="true"></div>
+    <div class="pkg-hero__inner site-container">
+      <div class="pkg-hero__eyebrow">
+        <span class="pkg-tier-badge pkg-tier-badge--max">TWIN TURBO · MAXIMUM</span>
+        <span class="pkg-tier-divider" aria-hidden="true">|</span>
+        <span class="pkg-tier-label">F.A.S. MOTORSPORTS</span>
+      </div>
+      <h1 class="pkg-hero__name">FAS <span class="pkg-hero__num">2X</span></h1>
+      <p class="pkg-hero__claim">1600+ Horsepower. The Limit of the Platform.</p>
+      <p class="pkg-hero__sub">
+        The FAS 2X is the top of the ladder. Twin turbocharger architecture, CNC ported cylinder heads,
+        dry sump lubrication, methanol injection, and full transmission reinforcement. Built for customers
+        who have already done the 1X and need more — or who have a specific number in mind and are
+        committed to reaching it. FAS has been building cars at this level since 2002. The 2X is the
+        expression of everything we know.
+      </p>
+      <div class="pkg-hero__cta-row">
+        <a href="tel:+18122009012" class="btn-pkg-primary btn-pkg-primary--max">Call to Consult</a>
+        <a href="mailto:sales@fasmotorsports.com" class="btn-pkg-ghost">Email FAS</a>
+      </div>
+      <p class="pkg-hero__pricing-note">Pricing by consultation. Every 2X build is scoped individually.</p>
+    </div>
+  </section>
+
+  <div class="stat-bar" role="list" aria-label="FAS 2X key specifications">
+    <div class="stat-bar__item" role="listitem">
+      <span class="stat-bar__val stat-bar__val--max">1600+</span>
+      <span class="stat-bar__label">Horsepower Target</span>
+    </div>
+    <div class="stat-bar__sep" aria-hidden="true"></div>
+    <div class="stat-bar__item" role="listitem">
+      <span class="stat-bar__val">T×T</span>
+      <span class="stat-bar__label">Twin Turbo</span>
+    </div>
+    <div class="stat-bar__sep" aria-hidden="true"></div>
+    <div class="stat-bar__item" role="listitem">
+      <span class="stat-bar__val">CNC</span>
+      <span class="stat-bar__label">Ported Heads</span>
+    </div>
+    <div class="stat-bar__sep" aria-hidden="true"></div>
+    <div class="stat-bar__item" role="listitem">
+      <span class="stat-bar__val">Dry</span>
+      <span class="stat-bar__label">Sump System</span>
+    </div>
+    <div class="stat-bar__sep" aria-hidden="true"></div>
+    <div class="stat-bar__item" role="listitem">
+      <span class="stat-bar__val">MeOH</span>
+      <span class="stat-bar__label">Methanol Injection</span>
+    </div>
+    <div class="stat-bar__sep" aria-hidden="true"></div>
+    <div class="stat-bar__item" role="listitem">
+      <span class="stat-bar__val">Custom</span>
+      <span class="stat-bar__label">Pricing by Build</span>
+    </div>
+  </div>
+
+  <!-- ── WHAT CHANGES AT THE 2X LEVEL ──────────────────────── -->
+  <section class="pkg-section site-container" aria-labelledby="upgrade-delta-heading">
+    <h2 class="pkg-section__heading" id="upgrade-delta-heading">What Changes at the 2X Level</h2>
+    <p class="pkg-section__sub">The FAS 2X is not the FAS 1X with more boost. It is a different class of build — four systems are rebuilt or added that the 1X does not address.</p>
+    <div class="delta-grid">
+      <div class="delta-card">
+        <div class="delta-card__label" aria-hidden="true">01</div>
+        <h3 class="delta-card__title">Second Turbocharger</h3>
+        <p class="delta-card__body">
+          The 1X uses one turbocharger downstream of the supercharger. The 2X adds a second turbocharger running in parallel. Twin turbos allow independent boost control and more than double the airflow capacity available to the engine — the prerequisite for 1600+ HP on a displacement-limited platform.
+        </p>
+      </div>
+      <div class="delta-card">
+        <div class="delta-card__label" aria-hidden="true">02</div>
+        <h3 class="delta-card__title">CNC Cylinder Head Work</h3>
+        <p class="delta-card__body">
+          At 1X power levels, the factory head ports become the limiting factor on top-end power. The 2X includes full CNC porting, upgraded valvetrain, and a head gasket package rated for the cylinder pressures involved. Head work unlocks the RPM range that additional boost cannot reach on its own.
+        </p>
+      </div>
+      <div class="delta-card">
+        <div class="delta-card__label" aria-hidden="true">03</div>
+        <h3 class="delta-card__title">Dry Sump Lubrication</h3>
+        <p class="delta-card__body">
+          The factory wet sump is acceptable through the 1X level on street-oriented builds. At 1600+ HP under sustained track use and high lateral loads, oil starvation becomes a real failure mode. The 2X includes a full dry sump conversion — an external reservoir, scavenge pump, and pressure stage — so oil supply is never a concern.
+        </p>
+      </div>
+      <div class="delta-card">
+        <div class="delta-card__label" aria-hidden="true">04</div>
+        <h3 class="delta-card__title">Methanol Injection</h3>
+        <p class="delta-card__body">
+          E85 is the primary fuel for the 2X, but methanol injection is added as a direct-port supplement. Methanol provides additional charge cooling under peak boost — a critical contribution to detonation resistance at pressure levels the 2X routinely operates at. It also adds combustion energy, contributing directly to peak output numbers.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── WHAT'S INCLUDED ──────────────────────────────────────── -->
+  <section class="pkg-section pkg-section--dark site-container" id="included" aria-labelledby="included-heading">
+    <h2 class="pkg-section__heading" id="included-heading">What's Included</h2>
+    <p class="pkg-section__sub">The standard 2X build sheet covers the complete system. Final specification is confirmed during consultation — some components vary by vehicle condition and power target.</p>
+    <ul class="included-grid" role="list">
+      {included.map((item) => (
+        <li class="included-card" role="listitem">
+          <div class="included-card__icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M16.667 5L8.333 13.333 3.333 8.333" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <strong class="included-card__name">{item.name}</strong>
+            <p class="included-card__detail">{item.detail}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <!-- ── TRANSMISSION NOTE ────────────────────────────────────── -->
+  <section class="pkg-section site-container" aria-labelledby="trans-heading">
+    <h2 class="pkg-section__heading" id="trans-heading">The Transmission Problem — Solved</h2>
+    <p class="pkg-section__sub">Most shops ignore the 8HP90 until it fails. FAS does not.</p>
+    <div class="trans-grid">
+      <div class="trans-block">
+        <h3 class="trans-block__title">Factory Limit</h3>
+        <p class="trans-block__body">
+          The ZF 8HP90 is an excellent transmission for factory output and even most modified builds through
+          the 1X level. But the torque multiplication at 1600+ HP — particularly at launch on a drag strip
+          or under aggressive track use — is outside the factory clutch and solenoid calibration envelope.
+          Failure at this level is not gradual. It is immediate and expensive.
+        </p>
+      </div>
+      <div class="trans-block">
+        <h3 class="trans-block__title">The 2X Solution</h3>
+        <p class="trans-block__body">
+          Every FAS 2X build includes internal transmission reinforcement as a standard line item: upgraded
+          clutch packs rated for the torque load, revised valve body calibration, and shift solenoid
+          upgrades to manage the harder launch events the 2X delivers. The transmission is addressed once,
+          completely, before the car ever sees the dyno.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── UPGRADE LADDER ──────────────────────────────────────── -->
+  <section class="pkg-section pkg-section--dark site-container" aria-labelledby="ladder-heading">
+    <h2 class="pkg-section__heading" id="ladder-heading">The FAS Performance Ladder</h2>
+    <nav class="upgrade-ladder" aria-label="Performance package tiers">
+      <a href="/packages/fas800" class="upgrade-rung"><span class="upgrade-rung__tier">FAS800</span><span class="upgrade-rung__hp">800 WHP</span><span class="upgrade-rung__tag">Entry</span></a>
+      <a href="/packages/fas850" class="upgrade-rung"><span class="upgrade-rung__tier">FAS850</span><span class="upgrade-rung__hp">850 WHP</span><span class="upgrade-rung__tag">Street</span></a>
+      <a href="/packages/fas900" class="upgrade-rung"><span class="upgrade-rung__tier">FAS900</span><span class="upgrade-rung__hp">900 WHP</span><span class="upgrade-rung__tag">High Performance</span></a>
+      <a href="/packages/fas1000" class="upgrade-rung"><span class="upgrade-rung__tier">FAS1000</span><span class="upgrade-rung__hp">1000+ WHP</span><span class="upgrade-rung__tag">Elite</span></a>
+      <a href="/packages/fas-1x" class="upgrade-rung"><span class="upgrade-rung__tier">FAS 1X</span><span class="upgrade-rung__hp">1200–1500 HP</span><span class="upgrade-rung__tag">Compound Boost</span></a>
+      <a href="/packages/fas-2x" class="upgrade-rung upgrade-rung--active" aria-current="page"><span class="upgrade-rung__tier">FAS 2X</span><span class="upgrade-rung__hp">1600+ HP</span><span class="upgrade-rung__tag">Current</span></a>
+    </nav>
+  </section>
+
+  <!-- ── FAQ ──────────────────────────────────────────────────── -->
+  <section class="pkg-section site-container" aria-labelledby="faq-heading">
+    <h2 class="pkg-section__heading" id="faq-heading">Common Questions</h2>
+    <dl class="pkg-faq">
+      {faqs.map((faq) => (
+        <div class="pkg-faq__entry">
+          <dt class="pkg-faq__q">{faq.q}</dt>
+          <dd class="pkg-faq__a">{faq.a}</dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+
+  <!-- ── CTA ──────────────────────────────────────────────────── -->
+  <section class="pkg-cta-final pkg-cta-final--2x" aria-labelledby="cta-heading">
+    <div class="site-container">
+      <h2 class="pkg-cta-final__heading" id="cta-heading">1600+ HP Starts with a Conversation.</h2>
+      <p class="pkg-cta-final__sub">The FAS 2X is the most capable build we produce. Every one is scoped individually. Call FAS to talk through your platform, your goals, and what a 2X build realistically looks like for your car.</p>
+      <div class="pkg-cta-final__row">
+        <a href="tel:+18122009012" class="btn-pkg-primary btn-pkg-primary--large btn-pkg-primary--max">Call (812) 200-9012</a>
+        <a href="mailto:sales@fasmotorsports.com" class="btn-pkg-ghost">Email sales@fasmotorsports.com</a>
+      </div>
+      <address class="pkg-cta-final__address">
+        F.A.S. Motorsports · 6161 Riverside Dr, Punta Gorda, FL 33982 · Mon–Fri 9AM–5PM
+      </address>
+    </div>
+  </section>
+
+</BaseLayout>
+
+<style>
+/* ─── ACCENT COLOR: PLATINUM/WHITE-HOT ────────────────────── */
+/* Tier progression: red → amber → purple → white-platinum    */
+:root {
+  --2x-accent:       #e8e4f8;
+  --2x-accent-dim:   rgba(232,228,248,0.08);
+  --2x-accent-border: rgba(232,228,248,0.25);
+  --2x-accent-btn:   #d0c8f0;
+  --2x-accent-btn-hover: #b8b0e8;
+}
+
+/* ─── HERO ────────────────────────────────────────────────── */
+.pkg-hero {
+  position: relative;
+  background: #040404;
+  border-bottom: 1px solid var(--2x-accent-border);
+  padding: clamp(80px, 12vw, 140px) 0 clamp(56px, 8vw, 96px);
+  overflow: hidden;
+}
+.pkg-hero--2x::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 90% 50% at 50% 0%, rgba(200,195,240,0.07) 0%, rgba(167,139,250,0.06) 35%, rgba(196,18,24,0.04) 65%, transparent 80%);
+  pointer-events: none;
+}
+.pkg-hero__noise {
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  opacity: 0.4;
+}
+.pkg-hero__grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+}
+.pkg-hero__inner { position: relative; z-index: 1; }
+.pkg-hero__eyebrow { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.pkg-tier-badge {
+  font-family: var(--font-label);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--red);
+  border: 1px solid var(--red-border);
+  padding: 3px 10px;
+  border-radius: 2px;
+}
+.pkg-tier-badge--max { color: var(--2x-accent); border-color: var(--2x-accent-border); }
+.pkg-tier-divider { color: var(--border-strong); font-size: 0.75rem; }
+.pkg-tier-label {
+  font-family: var(--font-label);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.pkg-hero__name {
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 10vw, 7rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin: 0 0 12px;
+  text-transform: uppercase;
+}
+.pkg-hero__num { color: var(--2x-accent); text-shadow: 0 0 40px rgba(200,195,240,0.35); }
+.pkg-hero__claim {
+  font-family: var(--font-label);
+  font-size: clamp(1rem, 2.5vw, 1.35rem);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--2x-accent);
+  margin: 0 0 20px;
+}
+.pkg-hero__sub {
+  font-family: var(--font-body);
+  font-size: clamp(0.95rem, 1.5vw, 1.05rem);
+  color: var(--text-secondary);
+  max-width: 640px;
+  line-height: 1.65;
+  margin: 0 0 36px;
+}
+.pkg-hero__cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+.pkg-hero__pricing-note { font-family: var(--font-body); font-size: 0.82rem; color: var(--text-muted); }
+
+/* ─── STAT BAR ────────────────────────────────────────────── */
+.stat-bar {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.stat-bar__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 24px;
+  flex: 1;
+  min-width: 110px;
+}
+.stat-bar__val {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  color: var(--red);
+  line-height: 1;
+}
+.stat-bar__val--max { color: var(--2x-accent); text-shadow: 0 0 20px rgba(200,195,240,0.3); }
+.stat-bar__label {
+  font-family: var(--font-label);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 4px;
+  text-align: center;
+}
+.stat-bar__sep { width: 1px; background: var(--border-subtle); align-self: stretch; }
+
+/* ─── SECTION ─────────────────────────────────────────────── */
+.pkg-section { padding: clamp(56px, 8vw, 96px) 0; }
+.pkg-section--dark {
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.pkg-section__heading {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3.5vw, 2.4rem);
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  margin: 0 0 10px;
+}
+.pkg-section__sub {
+  font-family: var(--font-body);
+  font-size: 0.97rem;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 0 40px;
+  line-height: 1.65;
+}
+
+/* ─── DELTA GRID (4 upgrades) ────────────────────────────── */
+.delta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+.delta-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 28px 24px;
+  transition: border-color var(--dur-fast) var(--ease-snap);
+}
+.delta-card:hover { border-color: var(--2x-accent-border); }
+.delta-card__label {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  line-height: 1;
+  color: var(--2x-accent);
+  opacity: 0.18;
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+}
+.delta-card__title {
+  font-family: var(--font-label);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin: 0 0 10px;
+}
+.delta-card__body {
+  font-family: var(--font-body);
+  font-size: 0.87rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ─── INCLUDED GRID ───────────────────────────────────────── */
+.included-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.included-card {
+  display: flex;
+  gap: 14px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 20px;
+  transition: border-color var(--dur-fast) var(--ease-snap);
+}
+.included-card:hover { border-color: var(--2x-accent-border); }
+.included-card__icon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--2x-accent-dim);
+  border: 1px solid var(--2x-accent-border);
+  border-radius: 50%;
+  color: var(--2x-accent);
+}
+.included-card__name {
+  display: block;
+  font-family: var(--font-label);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.included-card__detail {
+  font-family: var(--font-body);
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* ─── TRANSMISSION GRID ───────────────────────────────────── */
+.trans-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+@media (max-width: 768px) { .trans-grid { grid-template-columns: 1fr; } }
+.trans-block {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 28px;
+}
+.trans-block__title {
+  font-family: var(--font-label);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin: 0 0 12px;
+}
+.trans-block__body {
+  font-family: var(--font-body);
+  font-size: 0.87rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ─── UPGRADE LADDER ──────────────────────────────────────── */
+.upgrade-ladder {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+}
+.upgrade-rung {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 20px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  text-decoration: none;
+  transition: border-color var(--dur-fast) var(--ease-snap), background var(--dur-fast) var(--ease-snap);
+}
+.upgrade-rung:hover { border-color: var(--red-border); background: var(--bg-overlay); }
+.upgrade-rung--active { border-color: var(--2x-accent-border); background: var(--2x-accent-dim); }
+.upgrade-rung__tier {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.upgrade-rung--active .upgrade-rung__tier { color: var(--2x-accent); }
+.upgrade-rung__hp { font-family: var(--font-label); font-size: 0.85rem; font-weight: 700; color: var(--amber); letter-spacing: 0.05em; }
+.upgrade-rung__tag { font-family: var(--font-body); font-size: 0.75rem; color: var(--text-muted); line-height: 1.3; }
+
+/* ─── FAQ ─────────────────────────────────────────────────── */
+.pkg-faq { display: flex; flex-direction: column; gap: 0; }
+.pkg-faq__entry { padding: 24px 0; border-bottom: 1px solid var(--border-subtle); }
+.pkg-faq__entry:last-child { border-bottom: none; }
+.pkg-faq__q {
+  font-family: var(--font-label);
+  font-size: 0.97rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.pkg-faq__a {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ─── CTA FINAL ───────────────────────────────────────────── */
+.pkg-cta-final {
+  padding: clamp(64px, 10vw, 112px) 0;
+  text-align: center;
+  border-top: 1px solid var(--2x-accent-border);
+}
+.pkg-cta-final--2x {
+  background: linear-gradient(160deg, #070610 0%, #060508 40%, #080408 100%);
+}
+.pkg-cta-final__heading {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 0 12px;
+}
+.pkg-cta-final__sub {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--text-secondary);
+  max-width: 520px;
+  margin: 0 auto 36px;
+  line-height: 1.65;
+}
+.pkg-cta-final__row { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin-bottom: 28px; }
+.pkg-cta-final__address {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-style: normal;
+  color: var(--text-muted);
+}
+
+/* ─── BUTTONS ─────────────────────────────────────────────── */
+.btn-pkg-primary {
+  font-family: var(--font-label);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  background: var(--red);
+  color: #fff;
+  padding: 14px 32px;
+  border-radius: 2px;
+  display: inline-flex;
+  align-items: center;
+  transition: background var(--dur-fast) var(--ease-snap);
+}
+.btn-pkg-primary:hover { background: var(--red-hover); }
+.btn-pkg-primary--large { padding: 16px 40px; font-size: 0.95rem; }
+.btn-pkg-primary--max { background: #5a4fa0; }
+.btn-pkg-primary--max:hover { background: #6b5db8; }
+.btn-pkg-ghost {
+  font-family: var(--font-label);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  background: transparent;
+  color: var(--text-secondary);
+  padding: 14px 32px;
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+  display: inline-flex;
+  align-items: center;
+  transition: border-color var(--dur-fast) var(--ease-snap), color var(--dur-fast) var(--ease-snap);
+}
+.btn-pkg-ghost:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+
+/* ─── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .stat-bar { flex-direction: column; }
+  .stat-bar__sep { width: 100%; height: 1px; }
+  .upgrade-ladder { grid-template-columns: 1fr 1fr; }
+  .delta-grid { grid-template-columns: 1fr; }
+}
+</style>

@@ -1,0 +1,320 @@
+---
+export const prerender = true;
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const variants = [
+  { platform: 'Charger & Challenger', price: '$16,999.99', slug: 'fas-1000-hellcat-package', note: 'Hellcat Platform' },
+  { platform: 'RAM 1500 TRX', price: '$17,999.00', slug: 'fas-1000-hellcat-package-trx', note: 'Supercharged HEMI' },
+];
+
+const included = [
+  { name: 'Race Ported Supercharger', detail: 'FAS in-house ported supercharger rotor pack with port-matched inlet for maximum airflow and reduced restriction at high boost.' },
+  { name: '108mm Throttle Body', detail: 'Oversized 108mm throttle body removes the factory restriction and allows the ported supercharger to breathe at full capacity.' },
+  { name: 'Upgraded Fuel System', detail: 'Comprehensive fuel system upgrade — injectors, fuel pump, and supporting hardware — to support sustained 1000+ WHP fueling demand.' },
+  { name: 'Pulley Package', detail: 'Aggressive platform-specific pulley combination calibrated to achieve 1000+ WHP with the ported supercharger and full fuel system.' },
+  { name: 'Longtube Headers', detail: 'Full long tube header installation for improved exhaust flow, reduced backpressure, and meaningful power gains across the RPM range.' },
+  { name: 'E85 Conversion', detail: 'Complete E85 conversion including flex fuel sensor, injector upgrade, and a dedicated E85 calibration for safe and reliable use on ethanol.' },
+  { name: 'Full Custom Dyno Tune', detail: 'Comprehensive calibration developed on our in-house AWD dynamometer for your specific vehicle. Pump gas and E85 maps both developed and verified.' },
+  { name: 'Installation Labor', detail: 'Full professional installation at our Punta Gorda, FL facility by FAS technicians. Documented on the FAS1000 validated build sheet.' },
+];
+
+const faqs = [
+  {
+    q: 'What makes the FAS1000 different from the FAS900?',
+    a: 'The FAS1000 is a fundamentally different build. It adds a race-ported supercharger, 108mm throttle body, longtube headers, E85 conversion, and a comprehensive fuel system upgrade. The FAS900 is a bolt-on external build. The FAS1000 is a full-system performance build.',
+  },
+  {
+    q: 'Does the FAS1000 require E85 to hit 1000 WHP?',
+    a: 'The E85 conversion is included in the FAS1000 build and we develop both a pump gas and an E85 calibration for your vehicle. On E85 you will see higher peak output. On pump gas the car makes excellent power at a safe, conservative tune.',
+  },
+  {
+    q: 'Are there internal engine upgrades included?',
+    a: 'The FAS1000 does not include bottom-end internal work (rods, pistons, crankshaft) as standard. For customers planning to push beyond 1000 WHP or wanting additional insurance at this power level, we can discuss engine internals as an add-on.',
+  },
+  {
+    q: 'Can a daily driver realistically run at the FAS1000 level?',
+    a: 'Yes — with the right expectations. The FAS1000 is a track-capable street build. It is daily drivable in pump gas mode. However, at this power level, maintenance intervals become more important, tire wear is accelerated, and we recommend being honest about how and where you drive.',
+  },
+  {
+    q: 'How long does the FAS1000 build take?',
+    a: 'The FAS1000 is a multi-day build. Expect 3–5 days depending on vehicle condition and our current schedule. Contact us to confirm current build slots and expected turnaround.',
+  },
+];
+---
+
+<BaseLayout
+  title="FAS1000 Performance Package — 1000+ WHP Hellcat Build"
+  description="The FAS1000 is a full-system 1000+ WHP build: race ported supercharger, 108mm throttle body, longtube headers, E85 conversion, upgraded fuel system, and custom dyno tuning. Available for Hellcat Charger/Challenger and RAM TRX."
+  canonical="https://fasmotorsports.com/packages/fas1000"
+  keywords={['FAS1000 package', 'Hellcat 1000 WHP', 'TRX 1000 HP build', 'race ported supercharger Hellcat', 'E85 Hellcat build', 'longtube headers Hellcat', 'FAS1000 Charger Challenger TRX']}
+  bodyClass="bg-dark text-white min-h-screen flex flex-col"
+  mainClass="flex-1 w-full max-w-none px-0 pt-0"
+>
+
+  <section class="pkg-hero pkg-hero--1000" aria-label="FAS1000 package hero">
+    <div class="pkg-hero__noise" aria-hidden="true"></div>
+    <div class="pkg-hero__inner site-container">
+      <div class="pkg-hero__eyebrow">
+        <span class="pkg-tier-badge pkg-tier-badge--gold">ELITE PERFORMANCE</span>
+        <span class="pkg-tier-divider" aria-hidden="true">|</span>
+        <span class="pkg-tier-label">F.A.S. MOTORSPORTS</span>
+      </div>
+      <h1 class="pkg-hero__name">FAS<span class="pkg-hero__num">1000</span></h1>
+      <p class="pkg-hero__claim">1000+ Wheel Horsepower. Full System. Race Built.</p>
+      <p class="pkg-hero__sub">
+        The FAS1000 is not a simple bolt-on package. It is a complete performance system — race ported
+        supercharger, 108mm throttle body, longtube headers, upgraded fuel system, E85 conversion, and
+        a custom tune built on our AWD dyno. The result: a verified 1000+ WHP build that goes from
+        the street to the strip without apology.
+      </p>
+      <div class="pkg-hero__cta-row">
+        <a href="/shop/fas-1000-hellcat-package" class="btn-pkg-primary">Order Your Build</a>
+        <a href="tel:+18122009012" class="btn-pkg-ghost">Call to Schedule</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="stat-bar" role="list" aria-label="FAS1000 key specifications">
+    <div class="stat-bar__item" role="listitem">
+      <span class="stat-bar__val stat-bar__val--gold">1000+</span>
+      <span class="stat-bar__label">Wheel HP Target</span>
+    </div>
+    <div class="stat-bar__sep" aria-hidden="true"></div>
+    <div class="stat-bar__item" role="listitem">
+      <span class="stat-bar__val">108mm</span>
+      <span class="stat-bar__label">Throttle Body</span>
+    </div>
+    <div class="stat-bar__sep" aria-hidden="true"></div>
+    <div class="stat-bar__item" role="listitem">
+      <span class="stat-bar__val">E85</span>
+      <span class="stat-bar__label">Conversion Included</span>
+    </div>
+    <div class="stat-bar__sep" aria-hidden="true"></div>
+    <div class="stat-bar__item" role="listitem">
+      <span class="stat-bar__val">Race</span>
+      <span class="stat-bar__label">Ported Supercharger</span>
+    </div>
+    <div class="stat-bar__sep" aria-hidden="true"></div>
+    <div class="stat-bar__item" role="listitem">
+      <span class="stat-bar__val">8 Items</span>
+      <span class="stat-bar__label">Included in Build</span>
+    </div>
+  </div>
+
+  <section class="pkg-section site-container" id="included" aria-labelledby="included-heading">
+    <h2 class="pkg-section__heading" id="included-heading">What's Included</h2>
+    <p class="pkg-section__sub">Eight components. Every one essential. This is what a 1000 WHP build actually requires.</p>
+    <ul class="included-grid" role="list">
+      {included.map((item) => (
+        <li class="included-card" role="listitem">
+          <div class="included-card__icon included-card__icon--gold" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M16.667 5L8.333 13.333 3.333 8.333" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <strong class="included-card__name">{item.name}</strong>
+            <p class="included-card__detail">{item.detail}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="pkg-section pkg-section--dark site-container" id="variants" aria-labelledby="variants-heading">
+    <h2 class="pkg-section__heading" id="variants-heading">Platform Variants &amp; Pricing</h2>
+    <p class="pkg-section__sub">The FAS1000 is available for the Hellcat Charger/Challenger and the RAM TRX. Same build standard. Same power target. Platform-specific calibration.</p>
+    <div class="variants-table-wrap table-wrap" role="region" aria-label="Platform variants">
+      <table class="variants-table">
+        <thead>
+          <tr>
+            <th scope="col">Platform</th>
+            <th scope="col">Price</th>
+            <th scope="col">Power Target</th>
+            <th scope="col">Fuel Options</th>
+            <th scope="col">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {variants.map((v) => (
+            <tr>
+              <td>
+                <strong>{v.platform}</strong>
+                <small class="platform-note">{v.note}</small>
+              </td>
+              <td class="price-cell">{v.price}</td>
+              <td>1000+ WHP</td>
+              <td>91–93 Oct / E85</td>
+              <td>
+                <a href={`/shop/${v.slug}`} class="btn-table-cta" aria-label={`Order FAS1000 for ${v.platform}`}>
+                  Order →
+                </a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="variants-disclaimer">
+      Vehicle not included. Installation service performed at our Punta Gorda, FL facility. Build time is 3–5 days.
+      Modifying your vehicle may affect the factory warranty.
+      <a href="/packages/fas900" class="text-link">← FAS900</a> &nbsp;·&nbsp;
+      <a href="/packages/fas-1x" class="text-link">FAS 1X →</a>
+    </p>
+  </section>
+
+  <!-- ── THE RACE PORTED SUPERCHARGER ─────────────────────── -->
+  <section class="pkg-section site-container" aria-labelledby="sc-heading">
+    <h2 class="pkg-section__heading" id="sc-heading">The Race Ported Supercharger</h2>
+    <p class="pkg-section__sub">The most critical component in the FAS1000 build is the race ported supercharger — and it is done entirely in-house at FAS.</p>
+    <div class="sc-block">
+      <div class="sc-block__content">
+        <p>
+          The factory Hellcat supercharger is a capable unit — but it has meaningful restrictions built in for OEM emissions and noise compliance. At the FAS1000 tier, those restrictions come out. FAS performs a full race port on the supercharger inlet, rotor outlet ports, and bypass valve area to maximize airflow volume and reduce restriction at high RPM.
+        </p>
+        <p>
+          This is not a surface cleanup or a light cleanup pass. It is the same race porting service FAS performs as a standalone service on units shipped in from across the country — done on your supercharger as part of your FAS1000 build.
+        </p>
+        <p>
+          Combined with the 108mm throttle body and the upgraded fuel system, the ported supercharger is what puts the FAS1000 in a different category than any external bolt-on package.
+        </p>
+      </div>
+      <aside class="sc-block__stats" aria-label="Race port specifications">
+        <div class="sc-stat">
+          <span class="sc-stat__label">Porting Location</span>
+          <span class="sc-stat__val">Inlet / Outlet / Bypass</span>
+        </div>
+        <div class="sc-stat">
+          <span class="sc-stat__label">Performed By</span>
+          <span class="sc-stat__val">FAS In-House</span>
+        </div>
+        <div class="sc-stat">
+          <span class="sc-stat__label">Available Standalone</span>
+          <span class="sc-stat__val">Yes — Porting Services</span>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="pkg-section pkg-section--dark site-container" aria-labelledby="upgrade-heading">
+    <h2 class="pkg-section__heading" id="upgrade-heading">The FAS Performance Ladder</h2>
+    <nav class="upgrade-ladder" aria-label="Performance package tiers">
+      <a href="/packages/fas800" class="upgrade-rung"><span class="upgrade-rung__tier">FAS800</span><span class="upgrade-rung__hp">800 WHP</span><span class="upgrade-rung__tag">Pulley / ECU / Tune</span></a>
+      <a href="/packages/fas850" class="upgrade-rung"><span class="upgrade-rung__tier">FAS850</span><span class="upgrade-rung__hp">850 WHP</span><span class="upgrade-rung__tag">+ Injectors / Pinned Crank</span></a>
+      <a href="/packages/fas900" class="upgrade-rung"><span class="upgrade-rung__tier">FAS900</span><span class="upgrade-rung__hp">900 WHP</span><span class="upgrade-rung__tag">+ Full Fuel System</span></a>
+      <a href="/packages/fas1000" class="upgrade-rung upgrade-rung--active" aria-current="page"><span class="upgrade-rung__tier">FAS1000</span><span class="upgrade-rung__hp">1000+ WHP</span><span class="upgrade-rung__tag">Current</span></a>
+      <a href="/packages/fas-1x" class="upgrade-rung"><span class="upgrade-rung__tier">FAS 1X</span><span class="upgrade-rung__hp">1200–1500 HP</span><span class="upgrade-rung__tag">Contact for Pricing</span></a>
+      <a href="/packages/fas-2x" class="upgrade-rung"><span class="upgrade-rung__tier">FAS 2X</span><span class="upgrade-rung__hp">1600+ HP</span><span class="upgrade-rung__tag">Contact for Pricing</span></a>
+    </nav>
+  </section>
+
+  <section class="pkg-section site-container" aria-labelledby="faq-heading">
+    <h2 class="pkg-section__heading" id="faq-heading">Common Questions</h2>
+    <dl class="pkg-faq">
+      {faqs.map((faq) => (
+        <div class="pkg-faq__entry">
+          <dt class="pkg-faq__q">{faq.q}</dt>
+          <dd class="pkg-faq__a">{faq.a}</dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+
+  <section class="pkg-cta-final pkg-cta-final--elite" aria-labelledby="cta-heading">
+    <div class="site-container">
+      <h2 class="pkg-cta-final__heading" id="cta-heading">This is What 1000 WHP Looks Like.</h2>
+      <p class="pkg-cta-final__sub">Race ported. Headers on. E85 ready. Custom tuned and dyno verified at our Punta Gorda facility before you ever turn a key on the street.</p>
+      <div class="pkg-cta-final__row">
+        <a href="/shop/fas-1000-hellcat-package" class="btn-pkg-primary btn-pkg-primary--large btn-pkg-primary--gold">Order the FAS1000</a>
+        <a href="tel:+18122009012" class="btn-pkg-ghost">Call (812) 200-9012</a>
+      </div>
+      <address class="pkg-cta-final__address">
+        F.A.S. Motorsports · 6161 Riverside Dr, Punta Gorda, FL 33982 · Mon–Fri 9AM–5PM
+      </address>
+    </div>
+  </section>
+
+</BaseLayout>
+
+<style>
+.pkg-hero { position: relative; background: linear-gradient(160deg, #080101 0%, #080808 50%, #050505 100%); border-bottom: 1px solid var(--red-border); padding: clamp(80px, 12vw, 140px) 0 clamp(56px, 8vw, 96px); overflow: hidden; }
+.pkg-hero--1000::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(200,146,42,0.08) 0%, rgba(196,18,24,0.1) 40%, transparent 75%); pointer-events: none; }
+.pkg-hero__noise { position: absolute; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events: none; opacity: 0.4; }
+.pkg-hero__inner { position: relative; z-index: 1; }
+.pkg-hero__eyebrow { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.pkg-tier-badge { font-family: var(--font-label); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--red); border: 1px solid var(--red-border); padding: 3px 10px; border-radius: 2px; }
+.pkg-tier-badge--gold { color: var(--amber); border-color: rgba(200,146,42,0.4); }
+.pkg-tier-divider { color: var(--border-strong); font-size: 0.75rem; }
+.pkg-tier-label { font-family: var(--font-label); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); }
+.pkg-hero__name { font-family: var(--font-display); font-size: clamp(3.5rem, 10vw, 7rem); line-height: 0.9; letter-spacing: -0.02em; color: var(--text-primary); margin: 0 0 12px; text-transform: uppercase; }
+.pkg-hero__num { color: var(--amber); }
+.pkg-hero__claim { font-family: var(--font-label); font-size: clamp(1rem, 2.5vw, 1.35rem); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--amber); margin: 0 0 20px; }
+.pkg-hero__sub { font-family: var(--font-body); font-size: clamp(0.95rem, 1.5vw, 1.05rem); color: var(--text-secondary); max-width: 640px; line-height: 1.65; margin: 0 0 36px; }
+.pkg-hero__cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
+.stat-bar { background: var(--bg-surface); border-bottom: 1px solid var(--border-subtle); display: flex; flex-wrap: wrap; justify-content: center; }
+.stat-bar__item { display: flex; flex-direction: column; align-items: center; padding: 20px 28px; flex: 1; min-width: 120px; }
+.stat-bar__val { font-family: var(--font-display); font-size: clamp(1.4rem, 3vw, 1.9rem); color: var(--red); line-height: 1; }
+.stat-bar__val--gold { color: var(--amber); }
+.stat-bar__label { font-family: var(--font-label); font-size: 0.68rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-top: 4px; text-align: center; }
+.stat-bar__sep { width: 1px; background: var(--border-subtle); align-self: stretch; }
+.pkg-section { padding: clamp(56px, 8vw, 96px) 0; }
+.pkg-section--dark { background: var(--bg-surface); border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); }
+.pkg-section__heading { font-family: var(--font-display); font-size: clamp(1.5rem, 3.5vw, 2.4rem); color: var(--text-primary); letter-spacing: 0.02em; text-transform: uppercase; margin: 0 0 10px; }
+.pkg-section__sub { font-family: var(--font-body); font-size: 0.97rem; color: var(--text-secondary); max-width: 600px; margin: 0 0 40px; line-height: 1.65; }
+.included-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; list-style: none; padding: 0; margin: 0; }
+.included-card { display: flex; gap: 14px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: 4px; padding: 20px; transition: border-color var(--dur-fast) var(--ease-out); }
+.included-card:hover { border-color: rgba(200,146,42,0.4); }
+.included-card__icon { flex-shrink: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--amber-dim); border: 1px solid rgba(200,146,42,0.3); border-radius: 50%; color: var(--amber); }
+.included-card__icon--gold { background: var(--amber-dim); border-color: rgba(200,146,42,0.3); color: var(--amber); }
+.included-card__name { display: block; font-family: var(--font-label); font-size: 0.88rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-primary); margin-bottom: 4px; }
+.included-card__detail { font-family: var(--font-body); font-size: 0.84rem; color: var(--text-secondary); line-height: 1.55; margin: 0; }
+.variants-table-wrap { margin-bottom: 20px; }
+.variants-table { width: 100%; border-collapse: collapse; font-family: var(--font-body); font-size: 0.9rem; }
+.variants-table th { font-family: var(--font-label); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); background: var(--bg-overlay); padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border-default); }
+.variants-table td { padding: 14px 16px; border-bottom: 1px solid var(--border-subtle); color: var(--text-secondary); vertical-align: middle; }
+.variants-table td strong { color: var(--text-primary); }
+.variants-table tr:hover td { background: rgba(200,146,42,0.04); }
+.price-cell { font-family: var(--font-display); font-size: 1rem; color: var(--amber) !important; }
+.platform-note { display: block; font-size: 0.75rem; color: var(--text-muted); font-weight: 400; font-family: var(--font-body); }
+.btn-table-cta { font-family: var(--font-label); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--amber); text-decoration: none; border: 1px solid rgba(200,146,42,0.4); padding: 6px 14px; border-radius: 2px; white-space: nowrap; transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); }
+.btn-table-cta:hover { background: var(--amber); color: #000; }
+.variants-disclaimer { font-family: var(--font-body); font-size: 0.8rem; color: var(--text-muted); line-height: 1.55; margin: 0; }
+.text-link { color: var(--red); text-decoration: underline; }
+/* SC BLOCK */
+.sc-block { display: grid; grid-template-columns: 1fr 280px; gap: 40px; align-items: start; }
+@media (max-width: 768px) { .sc-block { grid-template-columns: 1fr; } }
+.sc-block__content p { font-family: var(--font-body); font-size: 0.92rem; color: var(--text-secondary); line-height: 1.7; margin: 0 0 16px; }
+.sc-block__stats { display: flex; flex-direction: column; gap: 0; }
+.sc-stat { padding: 16px 0; border-bottom: 1px solid var(--border-subtle); }
+.sc-stat:last-child { border-bottom: none; }
+.sc-stat__label { display: block; font-family: var(--font-label); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+.sc-stat__val { font-family: var(--font-body); font-size: 0.9rem; color: var(--text-primary); }
+.upgrade-ladder { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+.upgrade-rung { display: flex; flex-direction: column; gap: 4px; padding: 18px 20px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: 4px; text-decoration: none; transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out); }
+.upgrade-rung:hover { border-color: var(--red-border); background: var(--bg-overlay); }
+.upgrade-rung--active { border-color: var(--amber); background: var(--amber-dim); }
+.upgrade-rung__tier { font-family: var(--font-display); font-size: 1rem; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+.upgrade-rung--active .upgrade-rung__tier { color: var(--amber); }
+.upgrade-rung__hp { font-family: var(--font-label); font-size: 0.85rem; font-weight: 700; color: var(--amber); letter-spacing: 0.05em; }
+.upgrade-rung__tag { font-family: var(--font-body); font-size: 0.75rem; color: var(--text-muted); line-height: 1.3; }
+.pkg-faq { display: flex; flex-direction: column; gap: 0; }
+.pkg-faq__entry { padding: 24px 0; border-bottom: 1px solid var(--border-subtle); }
+.pkg-faq__entry:last-child { border-bottom: none; }
+.pkg-faq__q { font-family: var(--font-label); font-size: 0.97rem; font-weight: 700; letter-spacing: 0.04em; color: var(--text-primary); text-transform: uppercase; margin-bottom: 8px; }
+.pkg-faq__a { font-family: var(--font-body); font-size: 0.9rem; color: var(--text-secondary); line-height: 1.65; margin: 0; }
+.pkg-cta-final { background: linear-gradient(160deg, #0c0800 0%, #080500 100%); border-top: 1px solid rgba(200,146,42,0.3); padding: clamp(64px, 10vw, 112px) 0; text-align: center; }
+.pkg-cta-final--elite { background: linear-gradient(160deg, #0c0800 0%, #080500 50%, #050000 100%); }
+.pkg-cta-final__heading { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3.5rem); color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 12px; }
+.pkg-cta-final__sub { font-family: var(--font-body); font-size: 1rem; color: var(--text-secondary); max-width: 520px; margin: 0 auto 36px; line-height: 1.65; }
+.pkg-cta-final__row { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin-bottom: 28px; }
+.pkg-cta-final__address { font-family: var(--font-body); font-size: 0.8rem; font-style: normal; color: var(--text-muted); }
+.btn-pkg-primary { font-family: var(--font-label); font-size: 0.88rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; background: var(--red); color: #fff; padding: 14px 32px; border-radius: 2px; display: inline-flex; align-items: center; transition: background var(--dur-fast) var(--ease-out); }
+.btn-pkg-primary:hover { background: var(--red-hover); }
+.btn-pkg-primary--large { padding: 16px 40px; font-size: 0.95rem; }
+.btn-pkg-primary--gold { background: var(--amber); color: #000; }
+.btn-pkg-primary--gold:hover { background: #d9a030; }
+.btn-pkg-ghost { font-family: var(--font-label); font-size: 0.88rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; background: transparent; color: var(--text-secondary); padding: 14px 32px; border: 1px solid var(--border-strong); border-radius: 2px; display: inline-flex; align-items: center; transition: border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); }
+.btn-pkg-ghost:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+@media (max-width: 640px) { .stat-bar { flex-direction: column; } .stat-bar__sep { width: 100%; height: 1px; } .upgrade-ladder { grid-template-columns: 1fr 1fr; } }
+</style>

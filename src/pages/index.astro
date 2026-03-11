@@ -12,7 +12,6 @@ import {
 import { centsToDollars } from '@/lib/pricing';
 import HomepageHero from '@/components/homepage/HomepageHero.astro';
 import FASHeroUltra from '@/components/hero/FASHeroUltra';
-import FitmentSearch from '@/components/homepage/FitmentSearch.astro';
 import BilletProductGrid from '@/components/homepage/BilletProductGrid.astro';
 import PowerPackages from '@/components/homepage/PowerPackages.astro';
 import CustomFabricationSection from '@/components/homepage/CustomFabricationSection.astro';
@@ -20,7 +19,6 @@ import ServicesStrip from '@/components/homepage/ServicesStrip.astro';
 import VendorWholesaleSection from '@/components/homepage/VendorWholesaleSection.astro';
 import HomepageFooter from '@/components/homepage/HomepageFooter.astro';
 import EmailCaptureModal from '@components/EmailCaptureModal.tsx';
-import StorefrontFaqSection from '@/components/storefront/StorefrontFaqSection.astro';
 
 const siteOrigin = (() => {
   const candidate =
@@ -53,12 +51,11 @@ const billetProductsPromise = sanity
     return [];
   });
 
-const [medusaProducts, featuredProductsRaw, billetProductsRaw] =
-  await Promise.all([
-    medusaProductsPromise,
-    featuredProductsPromise,
-    billetProductsPromise,
-  ]);
+const [medusaProducts, featuredProductsRaw, billetProductsRaw] = await Promise.all([
+  medusaProductsPromise,
+  featuredProductsPromise,
+  billetProductsPromise
+]);
 
 const attachPricing = <T extends Record<string, unknown>>(products: T[]) => {
   if (!Array.isArray(products) || products.length === 0 || medusaProducts.length === 0)
@@ -230,20 +227,11 @@ const homepageFaqStructuredData = {
   <div class="homepage-redesign">
     <HomepageHero />
     <FASHeroUltra client:load />
-    <FitmentSearch />
     <BilletProductGrid products={billetProducts} />
     <PowerPackages />
     <CustomFabricationSection />
     <ServicesStrip />
     <VendorWholesaleSection />
-
-    <div class="homepage-shell" style="padding-bottom: 56px;">
-      <StorefrontFaqSection
-        title="Quick Answers Before You Buy"
-        subtitle="The top storefront questions we hear from shoppers every week."
-        items={homepageFaqEntries}
-      />
-    </div>
 
     <HomepageFooter />
     <EmailCaptureModal client:idle />

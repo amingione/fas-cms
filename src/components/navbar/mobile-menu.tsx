@@ -4,48 +4,11 @@ import { useEffect, useState } from 'react';
 
 function MobileNavContent({
   onNavigate,
-  onClose,
 }: {
   onNavigate?: () => void;
-  onClose?: () => void;
 }) {
   return (
     <>
-      {/* Internal sticky drawer header */}
-      <div className="mobile-nav-header">
-        <a href="/" className="mobile-nav-logo" onClick={onNavigate} aria-label="F.A.S. Motorsports home">
-          <img src="/logo/fas-logo500.webp" alt="F.A.S. Motorsports" height="36" />
-        </a>
-        <div className="mobile-nav-header-actions">
-          <a href="/cart" className="mobile-nav-cart-pill" onClick={onNavigate}>
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              aria-hidden="true"
-              width="15"
-              height="15"
-            >
-              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <path d="M16 10a4 4 0 01-8 0" />
-            </svg>
-            Cart
-          </a>
-          <button
-            className="mobile-nav-close-btn homepage-hamburger is-open"
-            onClick={onClose}
-            aria-label="Close navigation menu"
-            type="button"
-          >
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
-        </div>
-      </div>
-
       {/* Scrollable nav content */}
       <div className="mobile-nav-inner">
         <ul>
@@ -92,14 +55,14 @@ function MobileNavContent({
               Packages
             </a>
             <div className="mobile-nav-sub">
-              <a href="/packages/truck" onClick={onNavigate}>
-                Truck Packages
+              <a href="/packages" onClick={onNavigate}>
+                All Packages
               </a>
-              <a href="/packages/power" onClick={onNavigate}>
+              <a href="/packages/powerPackages" onClick={onNavigate}>
                 Power Packages
               </a>
-              <a href="/packages/diesel" onClick={onNavigate}>
-                Diesel Builds
+              <a href="/packages/truckPackages" onClick={onNavigate}>
+                Truck Packages
               </a>
             </div>
           </li>
@@ -108,7 +71,7 @@ function MobileNavContent({
               Services
             </a>
             <div className="mobile-nav-sub">
-              <a href="/services/custom-fab" onClick={onNavigate}>
+              <a href="/services/customFab" onClick={onNavigate}>
                 Custom Fabrication
               </a>
               <a href="/services/porting" onClick={onNavigate}>
@@ -120,10 +83,10 @@ function MobileNavContent({
               <a href="/services/igla" onClick={onNavigate}>
                 IGLA Security
               </a>
-              <a href="/services/core-exchange" onClick={onNavigate}>
+              <a href="/services/coreExchange" onClick={onNavigate}>
                 Core Exchange
               </a>
-              <a href="/services/schedule" onClick={onNavigate}>
+              <a href="/schedule" onClick={onNavigate}>
                 Schedule Service
               </a>
             </div>
@@ -140,7 +103,7 @@ function MobileNavContent({
           </li>
         </ul>
         <div className="mobile-nav-ctas">
-          <a href="/shop/billet-parts" className="mobile-cta-primary" onClick={onNavigate}>
+          <a href="/shop/categories/billet-parts" className="mobile-cta-primary" onClick={onNavigate}>
             Shop Billet Parts
           </a>
           <a href="/vendor-portal/login" className="mobile-cta-outline" onClick={onNavigate}>
@@ -170,7 +133,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
   // Close on resize to desktop breakpoint
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 980) {
+      if (window.innerWidth >= 1024) {
         setIsOpen(false);
       }
     };
@@ -181,7 +144,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
   const close = () => setIsOpen(false);
 
   if (mode === 'inline') {
-    return <MobileNavContent onNavigate={undefined} onClose={undefined} />;
+    return <MobileNavContent onNavigate={undefined} />;
   }
 
   return (
@@ -207,7 +170,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
         aria-modal="true"
         aria-label="Site navigation"
       >
-        <MobileNavContent onNavigate={close} onClose={close} />
+        <MobileNavContent onNavigate={close} />
       </div>
     </>
   );

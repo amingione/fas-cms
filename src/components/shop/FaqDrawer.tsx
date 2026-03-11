@@ -113,7 +113,7 @@ export default function FaqDrawer({ title, image, product }: Props = {}) {
                 <div className="relative h-full overflow-y-auto p-6 text-white">
                   <div className="space-y-6 pb-16">
                     <div>
-                      <div className="relative aspect-square object-contain contain flex pb-10 justify-center bg-dark/30 backdrop-blur-sm">
+                      <div className="relative aspect-square object-contain contain flex pb-10 justify-center bg-dark/70 backdrop-blur-sm">
                         {image && (
                           <img
                             src={image}

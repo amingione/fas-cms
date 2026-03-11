@@ -957,7 +957,7 @@ export default function CheckoutForm() {
         </span>
       </div>
       {import.meta.env.DEV && driftDebug && (
-        <p className="checkout-v2-error" style={{ marginBottom: '0.75rem', color: '#34d399' }}>
+        <p className="checkout-v2-error" style={{ marginBottom: '0.75rem', color: '#10b981' }}>
           {driftDebug}
         </p>
       )}
@@ -1006,6 +1006,7 @@ export default function CheckoutForm() {
               />
               <button
                 type="button"
+                className="btn-plain"
                 disabled={applyingDiscount || !discountCode.trim()}
                 onClick={() => void mutateDiscountCode('apply', discountCode)}
               >
@@ -1097,7 +1098,7 @@ export default function CheckoutForm() {
                     appearance: {
                       theme: 'night' as const,
                       variables: {
-                        colorPrimary: '#dc2626',
+                        colorPrimary: '#c41218',
                         colorBackground: '#0f0f0f',
                         colorText: '#ffffff',
                         colorTextSecondary: '#e5e7eb',
@@ -1298,7 +1299,7 @@ function NonReadyPaymentPane({
     <>
       <button
         type="button"
-        className="checkout-v2-pay-top"
+        className="checkout-v2-pay-top btn-plain"
         onClick={() => void onCalculateShipping()}
       >
         Apple Pay
@@ -1463,7 +1464,7 @@ function NonReadyPaymentPane({
 
       <button
         type="button"
-        className="checkout-v2-calc"
+        className="checkout-v2-calc btn-plain"
         onClick={() => void onCalculateShipping()}
         disabled={loadingRates}
       >
@@ -1523,7 +1524,7 @@ function NonReadyPaymentPane({
 
       <button
         type="button"
-        className="checkout-v2-pay-bottom"
+        className="checkout-v2-pay-bottom btn-plain"
         onClick={() => void onCalculateShipping()}
       >
         Pay
@@ -1655,7 +1656,7 @@ function StripePaymentPane({
     <>
       <button
         type="button"
-        className="checkout-v2-pay-top"
+        className="checkout-v2-pay-top btn-plain"
         disabled={processing || !stripe}
         onClick={() => void submit()}
       >
@@ -1710,7 +1711,7 @@ function StripePaymentPane({
 
       <button
         type="button"
-        className="checkout-v2-pay-bottom"
+        className="checkout-v2-pay-bottom btn-plain"
         disabled={processing || !stripe || !paymentElementReady}
         onClick={() => void submit()}
       >

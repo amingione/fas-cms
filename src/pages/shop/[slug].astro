@@ -620,9 +620,10 @@ const buildFallbackSanityProductFromMedusa = (
   medusaProduct: MedusaStoreProduct,
   normalizedSlug: string
 ): ProductWithKit => {
-  const medusaDescription = collapseSpaces(
-    toPlainText((medusaProduct as any)?.description ?? (medusaProduct as any)?.subtitle ?? '')
-  );
+  const medusaSubtitle = collapseSpaces(toPlainText((medusaProduct as any)?.subtitle ?? ''));
+  const medusaDescription = collapseSpaces(toPlainText((medusaProduct as any)?.description ?? ''));
+  const shortDescriptionValue = medusaSubtitle || medusaDescription;
+  const longDescriptionValue = medusaDescription || medusaSubtitle;
   const medusaTypeValue = collapseSpaces(
     toPlainText(
       (medusaProduct as any)?.type?.value ??
@@ -660,8 +661,8 @@ const buildFallbackSanityProductFromMedusa = (
     title: medusaProduct.title || normalizedSlug.replace(/-/g, ' '),
     displayTitle: medusaProduct.title || normalizedSlug.replace(/-/g, ' '),
     slug: { current: medusaProduct.handle || normalizedSlug },
-    shortDescription: medusaDescription,
-    description: medusaDescription,
+    shortDescription: shortDescriptionValue,
+    description: longDescriptionValue,
     productType: medusaTypeValue || undefined,
     status: 'active',
     images,
@@ -1734,7 +1735,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
 
         <!-- Short intro (truncated) -->
         {isContentDescriptor(shortDescriptionDescriptor) && (
-          <div class="break-words bg-dark/30 p-4 text-base md:text-lg text-[#F2F2F2]" {...inlineFieldAttrs('shortDescription')}>
+          <div class="break-words bg-dark/70 p-4 text-base md:text-lg text-[#F2F2F2]" {...inlineFieldAttrs('shortDescription')}>
             {shortDescriptionDescriptor.type === 'portable' ? (
               <PortableTextRenderer value={shortDescriptionDescriptor.value as any[]} />
             ) : (
@@ -2080,7 +2081,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                   if (playbackId) {
                     const muxMp4 = `https://stream.mux.com/${playbackId}/medium.mp4`;
                     return (
-                      <video controls preload="metadata" class="w-64 h-36 rounded border border-white/20 bg-dark/30" src={muxMp4}></video>
+                      <video controls preload="metadata" class="w-64 h-36 rounded border border-white/20 bg-dark/70" src={muxMp4}></video>
                     );
                   }
                   if (yt) {
@@ -2091,13 +2092,13 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                         title={alt}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowfullscreen
-                        class="w-64 h-36 rounded border border-white/20 bg-dark/30"
+                        class="w-64 h-36 rounded border border-white/20 bg-dark/70"
                       />
                     );
                   }
                   if (isVideoFile) {
                     return (
-                      <video controls preload="metadata" class="w-64 h-36 rounded border border-white/20 bg-dark/30" src={url}></video>
+                      <video controls preload="metadata" class="w-64 h-36 rounded border border-white/20 bg-dark/70" src={url}></video>
                     );
                   }
                   if (isImage) {
@@ -2127,7 +2128,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                         height={360}
                         loading="lazy"
                         decoding="async"
-                        class="w-64 h-36 object-cover rounded border border-white/20 bg-dark/30"
+                        class="w-64 h-36 object-cover rounded border border-white/20 bg-dark/70"
                         data-thumb={thumbSrc}
                       />
                     );

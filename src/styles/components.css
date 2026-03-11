@@ -1,6 +1,11 @@
-.hero-banner {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  height: 600px;
-}
+/*
+ * components.css — Component-scoped styles
+ *
+ * Use this file for styles that belong to a specific shared component and
+ * cannot be expressed purely with Tailwind utilities. Prefer CSS custom
+ * properties from fas-theme2.css over hardcoded values.
+ *
+ * Source of truth for all design tokens: src/styles/fas-theme2.css
+ * Global base styles and utilities:      src/styles/global.css
+ * Homepage section layouts:              src/styles/homepage-redesign.css
+ */

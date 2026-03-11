@@ -26,8 +26,7 @@ const defaultGalleries: GalleryCard[] = [
 
 export default function FASHeroUltra({
   bgUrl = '/images/backgrounds/hero/breaks-and-misc-car-parts.webp',
-  titleTop = 'SEE WHAT\'S POSSIBLE',
-  titleEmphasis = 'FROM VISION TO REALITY',
+  titleTop = "SEE WHAT'S POSSIBLE",
   subtitle = 'Browse our builds, galleries, and custom work. Real cars. Real transformations.',
   primaryCta = { label: 'Shop Performance', href: '/shop' },
   secondaryCta = { label: 'View Packages', href: '/packages' },
@@ -60,14 +59,8 @@ export default function FASHeroUltra({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="fas-hero-chip-v2">
-            <span className="dot-v2" />
-            NEW DROPS • BILLET • CUSTOM FAB
-          </div>
-
           <h1 className="fas-hero-h1-v2">
             <span className="top-v2">{titleTop}</span>
-            <span className="main-v2">{titleEmphasis}</span>
           </h1>
 
           <p className="fas-hero-p-v2">{subtitle}</p>

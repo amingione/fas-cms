@@ -847,7 +847,7 @@ function renderQuotesHtml(items: any[]): string {
               if (description) metaParts.push(description);
               if (unit) metaParts.push(`Unit $${unit}`);
               if (line) metaParts.push(`Line $${line}`);
-              return `<div class="border border-white/10 rounded px-3 py-2 bg-dark/30">
+              return `<div class="border border-white/10 rounded px-3 py-2 bg-dark/70">
                 <div class="flex justify-between text-sm">
                   <span class="font-medium">${label}</span>
                   ${quantity ? `<span class="opacity-70">Qty ${quantity}</span>` : ''}
@@ -912,7 +912,7 @@ function renderInvoicesHtml(items: any[]): string {
               if (sku) metaParts.push(`SKU ${sku}`);
               if (unit) metaParts.push(`Unit $${unit}`);
               if (line) metaParts.push(`Line $${line}`);
-              return `<div class="border border-white/10 rounded px-3 py-2 bg-dark/30">
+              return `<div class="border border-white/10 rounded px-3 py-2 bg-dark/70">
                 <div class="flex justify-between text-sm">
                   <span class="font-medium">${description}</span>
                   ${quantity ? `<span class="opacity-70">Qty ${quantity}</span>` : ''}

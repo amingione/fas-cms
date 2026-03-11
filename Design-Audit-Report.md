@@ -13,20 +13,20 @@ The codebase exhibits **significant design inconsistencies** following the recen
 
 ## 1. Theme Source of Truth
 
-| Token Category | Files That Define It |
-|---|---|
-| **Fonts (CSS vars)** | `src/styles/fas-theme.css` `:root` lines 13–22 (active), `src/styles/fas-theme2.css` `:root` lines 27–31 (also loaded — **conflicts**) |
-| **Font sizes** | `tailwind.config.js` `fontSize` block |
-| **Font weights** | Tailwind defaults + `--font-weight-medium/normal` in `global.css` lines 144–145 |
-| **Line heights** | Embedded inside `tailwind.config.js` fontSize tuples only |
-| **Colors** | Fragmented across **4 files**: `fas-theme.css` `:root`, `fas-theme2.css` `:root`, `global.css` second `:root` (line 103), `tailwind.config.js` `colors` block |
-| **Spacing / layout** | `fas-theme.css` (`--container-pad-*`, `--max-w`), `global.css` (`--container-max`, `--container-gutter`), `fas-theme2.css` (`--max-w`, `--nav-h`) — **three separate systems** |
-| **Border radius** | `tailwind.config.js` `borderRadius` block |
-| **Shadows** | `tailwind.config.js` `boxShadow` block |
-| **Borders** | `fas-theme.css` / `fas-theme2.css` `--border-subtle/default/strong` |
-| **Dark/light mode** | `global.css` `.dark {}` block (line 170) — manually toggled class, not a system-wide mode |
-| **CSS variables** | `fas-theme.css` (brand/layout tokens), `fas-theme2.css` (duplicate brand tokens, homepage tokens), `global.css` (Tailwind shadcn tokens, color aliases, container vars) |
-| **Component variants** | `global.css` `.btn-glass`, `.btn-primary`, `.btn-glass.*` — all in one 60KB file |
+| Token Category         | Files That Define It                                                                                                                                                           |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Fonts (CSS vars)**   | `src/styles/fas-theme.css` `:root` lines 13–22 (active), `src/styles/fas-theme2.css` `:root` lines 27–31 (also loaded — **conflicts**)                                         |
+| **Font sizes**         | `tailwind.config.js` `fontSize` block                                                                                                                                          |
+| **Font weights**       | Tailwind defaults + `--font-weight-medium/normal` in `global.css` lines 144–145                                                                                                |
+| **Line heights**       | Embedded inside `tailwind.config.js` fontSize tuples only                                                                                                                      |
+| **Colors**             | Fragmented across **4 files**: `fas-theme.css` `:root`, `fas-theme2.css` `:root`, `global.css` second `:root` (line 103), `tailwind.config.js` `colors` block                  |
+| **Spacing / layout**   | `fas-theme.css` (`--container-pad-*`, `--max-w`), `global.css` (`--container-max`, `--container-gutter`), `fas-theme2.css` (`--max-w`, `--nav-h`) — **three separate systems** |
+| **Border radius**      | `tailwind.config.js` `borderRadius` block                                                                                                                                      |
+| **Shadows**            | `tailwind.config.js` `boxShadow` block                                                                                                                                         |
+| **Borders**            | `fas-theme.css` / `fas-theme2.css` `--border-subtle/default/strong`                                                                                                            |
+| **Dark/light mode**    | `global.css` `.dark {}` block (line 170) — manually toggled class, not a system-wide mode                                                                                      |
+| **CSS variables**      | `fas-theme.css` (brand/layout tokens), `fas-theme2.css` (duplicate brand tokens, homepage tokens), `global.css` (Tailwind shadcn tokens, color aliases, container vars)        |
+| **Component variants** | `global.css` `.btn-glass`, `.btn-primary`, `.btn-glass.*` — all in one 60KB file                                                                                               |
 
 ---
 
@@ -120,16 +120,16 @@ Using the Tailwind class `font-body` loads **American Captain** (a display typef
 - **Severity:** Critical
 - **Category:** Hardcoded value / stale legacy style / duplicate token
 
-| Value | Occurrences | File examples |
-|---|---|---|
-| `#ea1d26` | 18 | `tailwind.config.js`, `HellcatBanner.astro` |
-| `#c41218` | 37 | `fas-theme.css`, `fas-header.astro`, `ProductCardShowcase.astro` |
-| `#c91820` | 8 | `tailwind.config.js` (`primary-hover`) |
-| `#d11219` | 8 | `global.css` (sidebar), `accountdashboard.astro`, `BlogSidebar.tsx` |
-| `#d73a40` | 6 | `ProductCardShowcase.astro` (text labels) |
-| `#dc2626` | 14 | `CheckoutForm.tsx` (Stripe `colorPrimary`) |
-| `#fb3636` | 7 | `FilterPanel.tsx`, `FilterPanelMobile.tsx`, `ShopSidebarFilters.tsx` |
-| `#e01420` | 3 | `fas-theme.css` (`--red-hover`) |
+| Value     | Occurrences | File examples                                                        |
+| --------- | ----------- | -------------------------------------------------------------------- |
+| `#ea1d26` | 18          | `tailwind.config.js`, `HellcatBanner.astro`                          |
+| `#c41218` | 37          | `fas-theme.css`, `fas-header.astro`, `ProductCardShowcase.astro`     |
+| `#c91820` | 8           | `tailwind.config.js` (`primary-hover`)                               |
+| `#d11219` | 8           | `global.css` (sidebar), `accountdashboard.astro`, `BlogSidebar.tsx`  |
+| `#d73a40` | 6           | `ProductCardShowcase.astro` (text labels)                            |
+| `#dc2626` | 14          | `CheckoutForm.tsx` (Stripe `colorPrimary`)                           |
+| `#fb3636` | 7           | `FilterPanel.tsx`, `FilterPanelMobile.tsx`, `ShopSidebarFilters.tsx` |
+| `#e01420` | 3           | `fas-theme.css` (`--red-hover`)                                      |
 
 **Fix:** All reds must resolve to `var(--red)` or `var(--color-primary)`. Define one canonical value, replace all instances.
 
@@ -146,8 +146,8 @@ Using the Tailwind class `font-body` loads **American Captain** (a display typef
 - **File:** `global.css:131` and `global.css:178`
 
 ```css
---primary: #c41218;  /* Line 131 - first :root block */
---primary: #c41218;  /* Line 178 - .dark block */
+--primary: #c41218; /* Line 131 - first :root block */
+--primary: #c41218; /* Line 178 - .dark block */
 ```
 
 Both are the same value now, but structurally defined in two places. If one changes during the next theme update, the other won't.
@@ -207,7 +207,12 @@ font-family: Nunito, sans-serif;
 - **File:** `src/styles/components.css`
 
 ```css
-.hero-banner { position: relative; width: 100%; overflow: hidden; height: 600px; }
+.hero-banner {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  height: 600px;
+}
 ```
 
 A file named `components.css` containing one rule. All button, card, form, nav, table component styles live inside the 60KB `global.css`, causing confusion about where new component styles belong.
@@ -221,10 +226,18 @@ A file named `components.css` containing one rule. All button, card, form, nav, 
 - **File:** `src/styles/fas-theme.css` (utilities layer)
 
 ```css
-.font-kwajong { font-family: var(--font-display); }  /* Ethnocentric — not Kwajong */
-.font-cyber   { font-family: var(--font-label); }    /* Barlow Condensed — not Cyber Princess */
-.font-cyber3d { font-family: var(--font-display); }  /* Ethnocentric — not Cyber3D */
-.font-captain { font-family: var(--font-label); }    /* Barlow Condensed — not American Captain */
+.font-kwajong {
+  font-family: var(--font-display);
+} /* Ethnocentric — not Kwajong */
+.font-cyber {
+  font-family: var(--font-label);
+} /* Barlow Condensed — not Cyber Princess */
+.font-cyber3d {
+  font-family: var(--font-display);
+} /* Ethnocentric — not Cyber3D */
+.font-captain {
+  font-family: var(--font-label);
+} /* Barlow Condensed — not American Captain */
 ```
 
 Class names are aliases from the old font set. Tailwind's `fontFamily` config still registers `captain: ['American Captain']`, so `font-captain` renders **two competing fonts** depending on cascade order — completely unpredictable output.
@@ -273,10 +286,12 @@ Any component using Tailwind's `container` class gets zero padding. Actual spaci
 
 ```css
 html {
-  background-color: var(--color-background);  /* token-driven */
+  background-color: var(--color-background); /* token-driven */
   background-image: radial-gradient(120% 120% at 50% 0%, #000000 0%, #121212 70%); /* hardcoded */
 }
-body { /* identical rule — duplicated */ }
+body {
+  /* identical rule — duplicated */
+}
 ```
 
 Changing `--color-background` does not update the gradient. Both `html` and `body` rules are duplicated.
@@ -301,13 +316,13 @@ color: #d11219;
 - **Severity:** Medium
 - **Category:** Typography inconsistency
 
-| Page/Component | h1 style | Notes |
-|---|---|---|
-| `Hero.tsx` | `font-ethno text-3xl→text-7xl` | Ethnocentric display font |
-| `StoreHero.astro` | `font-borg italic text-5xl→text-6xl` | Borgsquad — different brand font |
-| `vendor-portal/*` | `text-3xl font-bold` | No brand font set — inherits body |
-| `press-media.astro` | `text-3xl font-bold sm:text-4xl lg:text-5xl` | No brand font |
-| `blog/[slug].astro` | `text-4xl font-bold text-white` | No brand font |
+| Page/Component      | h1 style                                     | Notes                             |
+| ------------------- | -------------------------------------------- | --------------------------------- |
+| `Hero.tsx`          | `font-ethno text-3xl→text-7xl`               | Ethnocentric display font         |
+| `StoreHero.astro`   | `font-borg italic text-5xl→text-6xl`         | Borgsquad — different brand font  |
+| `vendor-portal/*`   | `text-3xl font-bold`                         | No brand font set — inherits body |
+| `press-media.astro` | `text-3xl font-bold sm:text-4xl lg:text-5xl` | No brand font                     |
+| `blog/[slug].astro` | `text-4xl font-bold text-white`              | No brand font                     |
 
 No consistent `h1` typographic style across the site.
 
@@ -332,10 +347,8 @@ No consistent `h1` typographic style across the site.
 ```html
 class="rounded-2xl border border-white/10
 bg-[linear-gradient(180deg,rgba(24,24,24,0.96),rgba(10,10,10,0.98))]
-shadow-[0_18px_50px_rgba(0,0,0,0.28)]
-hover:border-[#c41218]/50
-hover:shadow-[0_26px_70px_rgba(0,0,0,0.4)]
-focus:ring-[#c41218]"
+shadow-[0_18px_50px_rgba(0,0,0,0.28)] hover:border-[#c41218]/50
+hover:shadow-[0_26px_70px_rgba(0,0,0,0.4)] focus:ring-[#c41218]"
 ```
 
 `rounded-2xl` (24px) while `tailwind.config.js` defines `borderRadius.card: '16px'`. Shadows don't use the `shadow-card` / `shadow-product-hover` tokens defined in the config.
@@ -352,7 +365,7 @@ focus:ring-[#c41218]"
 dark: 'rgb(var(--bg-dark-rgb) / <alpha-value>)',
 ```
 
-`--bg-dark-rgb` is not defined anywhere. Any `bg-dark`, `text-dark`, or `bg-dark/50` utility produces `rgb(/ 0.5)` — invalid CSS that renders as transparent.
+`--bg-dark-rgb` is not defined anywhere. Any `bg-dark`, `text-dark`, or `bg-dark` utility produces `rgb(/ 0.5)` — invalid CSS that renders as transparent.
 
 ---
 
@@ -360,23 +373,23 @@ dark: 'rgb(var(--bg-dark-rgb) / <alpha-value>)',
 
 ### Actual Text Styles In Use
 
-| Role | Font | Size | Weight | Where defined |
-|---|---|---|---|---|
-| **Page H1 (hero)** | Ethnocentric (`font-ethno`) | `text-3xl` → `text-7xl` | 900 | `Hero.tsx`, `ProductInfoPanel.astro` |
-| **Page H1 (store hero)** | Borgsquad Italic (`font-borg italic`) | `text-5xl` → `text-6xl` | normal | `StoreHero.astro` |
-| **Page H1 (vendor/blog)** | Inter (body default) | `text-3xl` | 700 | vendor portal pages, blog |
-| **Section H2** | Ethnocentric (`font-ethno`) | `text-2xl` → `text-3xl` | 700 | `Highlights.astro`, `FAQSection.astro` |
-| **Section H2 (alternate)** | Inter (body default) | `text-xl` → `text-2xl` | 600 | vendor portal, cart page |
-| **Product title** | Ethnocentric (`font-ethno`) | `text-sm` → `text-base` | 600 | `ProductCard.tsx`, `ProductCardLite.astro` |
-| **Body / paragraph** | Inter (`var(--font-body)`) | `text-base` (14px) | 400 | `fas-theme.css` body rule |
-| **Nav links** | Barlow Condensed | `0.78rem` | 700 | `homepage-redesign.css` |
-| **Button text (storefront)** | Ethnocentric (`font-ethno`) | `text-xs` → `text-sm` | 700 | Tailwind classes |
-| **Button text (portal)** | Inter (inherited) | `text-sm` | 600 | Tailwind |
-| **Caption / eyebrow** | Barlow Condensed | `text-xs` | 700 | `homepage-redesign.css` |
-| **Label / form** | Inter | `text-sm` | 500 | Tailwind `font-medium` |
-| **Price display** | JetBrains Mono (`font-mono`) | `text-xl` | 400 | `ProductCard.tsx` |
-| **Table text** | Inter (inherited) | `text-sm` | 400 | no explicit definition |
-| **Helper / error** | Inter | `text-xs` → `text-sm` | 400 | inline |
+| Role                         | Font                                  | Size                    | Weight | Where defined                              |
+| ---------------------------- | ------------------------------------- | ----------------------- | ------ | ------------------------------------------ |
+| **Page H1 (hero)**           | Ethnocentric (`font-ethno`)           | `text-3xl` → `text-7xl` | 900    | `Hero.tsx`, `ProductInfoPanel.astro`       |
+| **Page H1 (store hero)**     | Borgsquad Italic (`font-borg italic`) | `text-5xl` → `text-6xl` | normal | `StoreHero.astro`                          |
+| **Page H1 (vendor/blog)**    | Inter (body default)                  | `text-3xl`              | 700    | vendor portal pages, blog                  |
+| **Section H2**               | Ethnocentric (`font-ethno`)           | `text-2xl` → `text-3xl` | 700    | `Highlights.astro`, `FAQSection.astro`     |
+| **Section H2 (alternate)**   | Inter (body default)                  | `text-xl` → `text-2xl`  | 600    | vendor portal, cart page                   |
+| **Product title**            | Ethnocentric (`font-ethno`)           | `text-sm` → `text-base` | 600    | `ProductCard.tsx`, `ProductCardLite.astro` |
+| **Body / paragraph**         | Inter (`var(--font-body)`)            | `text-base` (14px)      | 400    | `fas-theme.css` body rule                  |
+| **Nav links**                | Barlow Condensed                      | `0.78rem`               | 700    | `homepage-redesign.css`                    |
+| **Button text (storefront)** | Ethnocentric (`font-ethno`)           | `text-xs` → `text-sm`   | 700    | Tailwind classes                           |
+| **Button text (portal)**     | Inter (inherited)                     | `text-sm`               | 600    | Tailwind                                   |
+| **Caption / eyebrow**        | Barlow Condensed                      | `text-xs`               | 700    | `homepage-redesign.css`                    |
+| **Label / form**             | Inter                                 | `text-sm`               | 500    | Tailwind `font-medium`                     |
+| **Price display**            | JetBrains Mono (`font-mono`)          | `text-xl`               | 400    | `ProductCard.tsx`                          |
+| **Table text**               | Inter (inherited)                     | `text-sm`               | 400    | no explicit definition                     |
+| **Helper / error**           | Inter                                 | `text-xs` → `text-sm`   | 400    | inline                                     |
 
 ### Duplicates / Near-Duplicates
 
@@ -401,18 +414,18 @@ dark: 'rgb(var(--bg-dark-rgb) / <alpha-value>)',
 
 ## 4. Top Drift Hotspots
 
-| Rank | File | Hardcoded Hex Count | Root Issue |
-|---|---|---|---|
-| 1 | `src/styles/global.css` | 94 | Master CSS file mixes every concern; never uses its own tokens |
-| 2 | `src/components/checkout/CheckoutForm.css` | 59 | Standalone checkout CSS with no token imports |
-| 3 | `src/pages/become-a-vendor.astro` | 31 | Page-level `<style>` block with full standalone design |
-| 4 | `src/pages/about.astro` | 30 | Same pattern — self-contained page styles |
-| 5 | `src/styles/fas-theme2.css` | 25 | New theme file that still hardcodes many values |
-| 6 | `src/components/header/fas-header.astro` | 23 | Entire nav hardcoded, doesn't use any token |
-| 7 | `src/styles/fas-theme.css` | 20 | Old theme file still loaded in parallel with theme2 |
-| 8 | `src/pages/schedule.astro` | 20 | Page-level self-contained styles |
-| 9 | `src/components/homepage/BilletProductGrid.astro` | 20 | Mix of `var()` with hardcoded fallbacks everywhere |
-| 10 | `src/components/banner/HellcatBanner.astro` | 15 | SVG + inline CSS with hardcoded hex |
+| Rank | File                                              | Hardcoded Hex Count | Root Issue                                                     |
+| ---- | ------------------------------------------------- | ------------------- | -------------------------------------------------------------- |
+| 1    | `src/styles/global.css`                           | 94                  | Master CSS file mixes every concern; never uses its own tokens |
+| 2    | `src/components/checkout/CheckoutForm.css`        | 59                  | Standalone checkout CSS with no token imports                  |
+| 3    | `src/pages/become-a-vendor.astro`                 | 31                  | Page-level `<style>` block with full standalone design         |
+| 4    | `src/pages/about.astro`                           | 30                  | Same pattern — self-contained page styles                      |
+| 5    | `src/styles/fas-theme2.css`                       | 25                  | New theme file that still hardcodes many values                |
+| 6    | `src/components/header/fas-header.astro`          | 23                  | Entire nav hardcoded, doesn't use any token                    |
+| 7    | `src/styles/fas-theme.css`                        | 20                  | Old theme file still loaded in parallel with theme2            |
+| 8    | `src/pages/schedule.astro`                        | 20                  | Page-level self-contained styles                               |
+| 9    | `src/components/homepage/BilletProductGrid.astro` | 20                  | Mix of `var()` with hardcoded fallbacks everywhere             |
+| 10   | `src/components/banner/HellcatBanner.astro`       | 15                  | SVG + inline CSS with hardcoded hex                            |
 
 ---
 
@@ -473,13 +486,13 @@ Four compounding problems:
 
 Smallest changes with biggest immediate visual impact:
 
-| # | Change | File | Impact |
-|---|---|---|---|
-| **1** | Fix `'#121212)'` → `'#121212'` (3 values) | `tailwind.config.js:63,68,69` | Fixes broken backgrounds site-wide |
-| **2** | Remove `import '../styles/fas-theme2.css'` from BaseLayout | `BaseLayout.astro:3` | Eliminates double-`:root` cascade immediately |
-| **3** | Change `primary: '#ea1d26'` → `'#c41218'` | `tailwind.config.js:58` | Unifies all `text-primary`/`bg-primary` utilities with CSS vars |
-| **4** | Replace `var(--fx-primary, #fb3636)` with `var(--red)` | 3 filter components | Fixes bright orange accent on filter checkboxes |
-| **5** | Fix Stripe `colorPrimary: '#dc2626'` → `'#c41218'` | `CheckoutForm.tsx:1100` | Checkout form accent matches brand |
-| **6** | Remove `font-family: Nunito, sans-serif` | `TruckGallery.astro:119` | Eliminates rogue font in gallery |
-| **7** | Add `--bg-dark-rgb: 18, 18, 18` to `fas-theme2.css` `:root` | `fas-theme2.css` | Fixes `bg-dark/*` opacity utilities |
-| **8** | Rename `fontFamily.body` → `fontFamily.american-captain` | `tailwind.config.js:85` | Eliminates font-body identity split |
+| #     | Change                                                      | File                          | Impact                                                          |
+| ----- | ----------------------------------------------------------- | ----------------------------- | --------------------------------------------------------------- |
+| **1** | Fix `'#121212)'` → `'#121212'` (3 values)                   | `tailwind.config.js:63,68,69` | Fixes broken backgrounds site-wide                              |
+| **2** | Remove `import '../styles/fas-theme2.css'` from BaseLayout  | `BaseLayout.astro:3`          | Eliminates double-`:root` cascade immediately                   |
+| **3** | Change `primary: '#ea1d26'` → `'#c41218'`                   | `tailwind.config.js:58`       | Unifies all `text-primary`/`bg-primary` utilities with CSS vars |
+| **4** | Replace `var(--fx-primary, #fb3636)` with `var(--red)`      | 3 filter components           | Fixes bright orange accent on filter checkboxes                 |
+| **5** | Fix Stripe `colorPrimary: '#dc2626'` → `'#c41218'`          | `CheckoutForm.tsx:1100`       | Checkout form accent matches brand                              |
+| **6** | Remove `font-family: Nunito, sans-serif`                    | `TruckGallery.astro:119`      | Eliminates rogue font in gallery                                |
+| **7** | Add `--bg-dark-rgb: 18, 18, 18` to `fas-theme2.css` `:root` | `fas-theme2.css`              | Fixes `bg-dark/*` opacity utilities                             |
+| **8** | Rename `fontFamily.body` → `fontFamily.american-captain`    | `tailwind.config.js:85`       | Eliminates font-body identity split                             |

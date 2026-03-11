@@ -13,11 +13,11 @@ export default function OpenCart({
   return (
     <div
       className={clsx(
-        'relative flex h-11 w-11 items-center justify-center rounded-fx-md text-white transition-colors rounded-full hover:bg-white/5',
+        'relative flex h-11 w-11 items-center justify-center text-white transition-colors hover:text-primary',
         className
       )}
     >
-      <ShoppingCartIcon className="h-5 w-5 bg-white/10 text-white/90 transition-all ease-in-out group-hover:scale-110" />
+      <ShoppingCartIcon className="h-5 w-5 transition-all ease-in-out" />
 
       {count > 0 && (
         <div className="absolute right-0 top-0 -mr-2 -mt-1 flex h-5 w-5 items-center justify-center rounded-full border border-black/40 bg-primary text-[11px] font-bold text-accent shadow">

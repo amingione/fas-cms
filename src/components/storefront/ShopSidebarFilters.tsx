@@ -154,6 +154,6 @@ export default function ShopSidebarFilters({
 #mobile-filters-capture input[type="radio"] {
   -webkit-appearance: radio !important;
   appearance: auto !important;
-  accent-color: var(--fx-primary, #fb3636) !important;
+  accent-color: var(--red) !important;
 }
 */

@@ -21,7 +21,7 @@ export default {
     'font-cyber3dfilled-italic',
     'font-kwajong',
     'font-kwajong-italic',
-    'font-body'
+    'font-american-captain'
   ],
   theme: {
     // Mobile-first screens mapped to your Figma breakpoints
@@ -50,23 +50,23 @@ export default {
     extend: {
       colors: {
         // Brand palette used by utilities like text-primary, bg-accent, etc.
-        primary: '#ea1d26',
-        'primary-hover': '#c91820',
-        'fas-red': '#ea1d26',
-        'fas-red-dark': '#c91820',
+        primary: '#c41218',
+        'primary-hover': '#e01420',
+        'fas-red': '#c41218',
+        'fas-red-dark': '#e01420',
         secondary: '#eef2fb',
         red: '#7d0107',
         accent: '#fde4b2',
         primaryB: '#7d0107',
         'accent-foreground': '#030213',
         // Site background utility color
-        background: '#121212)',
-        // Normalize common dark shades to your base background (if you want pure black globally)
+        background: '#121212',
+        // Normalize common dark shades to your base background
         dark: 'rgb(var(--bg-dark-rgb) / <alpha-value>)',
         gray: { ...colors.gray, 900: '#111111' },
         offwhite: '#FDE4B2',
-        neutral: { ...colors.neutral, 900: '#121212)' },
-        zinc: { ...colors.zinc, 900: '#121212)' }
+        neutral: { ...colors.neutral, 900: '#121212' },
+        zinc: { ...colors.zinc, 900: '#121212' }
       },
       // Keep your existing font stacks
       fontFamily: {
@@ -82,7 +82,7 @@ export default {
         'cyber3dfilled-italic': ['Cyber Princess 3D Filled', 'sans-serif'],
         kwajong: ['Kwajong', 'sans-serif'],
         'kwajong-italic': ['Kwajong', 'sans-serif'],
-        body: ['American Captain', 'sans-serif'],
+        'american-captain': ['American Captain', 'sans-serif'],
         mono: [
           'JetBrains Mono',
           'Fira Code',

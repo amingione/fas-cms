@@ -133,9 +133,7 @@ export default function AddressFormNew({
     }
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name as keyof AddressFormData]) {
@@ -144,14 +142,15 @@ export default function AddressFormNew({
   };
 
   // Common input classes (dark theme)
-  const inputClasses = (hasError?: boolean) => `
+  const inputClasses = (hasError?: boolean) =>
+    `
     w-full px-3 py-2 rounded-md text-white
-    bg-dark/50 border
+    bg-dark border
     ${hasError ? 'border-red-500/50' : 'border-white/20'}
     placeholder:text-white/40
     focus:border-primary focus:ring-2 focus:ring-primary focus:ring-offset-dark focus:outline-none
     transition
-    ${disabled ? 'opacity-50 cursor-not-allowed bg-dark/30' : ''}
+    ${disabled ? 'opacity-50 cursor-not-allowed bg-dark/70' : ''}
   `.trim();
 
   const labelClasses = 'block text-sm font-medium text-white mb-2';
@@ -203,9 +202,7 @@ export default function AddressFormNew({
                 autoComplete="given-name"
                 className={inputClasses(!!errors.first_name)}
               />
-              {errors.first_name && (
-                <p className={errorClasses}>{errors.first_name}</p>
-              )}
+              {errors.first_name && <p className={errorClasses}>{errors.first_name}</p>}
             </div>
 
             <div>
@@ -222,9 +219,7 @@ export default function AddressFormNew({
                 autoComplete="family-name"
                 className={inputClasses(!!errors.last_name)}
               />
-              {errors.last_name && (
-                <p className={errorClasses}>{errors.last_name}</p>
-              )}
+              {errors.last_name && <p className={errorClasses}>{errors.last_name}</p>}
             </div>
           </div>
 
@@ -243,9 +238,7 @@ export default function AddressFormNew({
               autoComplete="street-address"
               className={inputClasses(!!errors.address_1)}
             />
-            {errors.address_1 && (
-              <p className={errorClasses}>{errors.address_1}</p>
-            )}
+            {errors.address_1 && <p className={errorClasses}>{errors.address_1}</p>}
           </div>
 
           {/* Address Line 2 */}
@@ -303,9 +296,7 @@ export default function AddressFormNew({
                   </option>
                 ))}
               </select>
-              {errors.province && (
-                <p className={errorClasses}>{errors.province}</p>
-              )}
+              {errors.province && <p className={errorClasses}>{errors.province}</p>}
             </div>
 
             <div className="sm:col-span-1">
@@ -322,9 +313,7 @@ export default function AddressFormNew({
                 autoComplete="postal-code"
                 className={inputClasses(!!errors.postal_code)}
               />
-              {errors.postal_code && (
-                <p className={errorClasses}>{errors.postal_code}</p>
-              )}
+              {errors.postal_code && <p className={errorClasses}>{errors.postal_code}</p>}
             </div>
           </div>
 

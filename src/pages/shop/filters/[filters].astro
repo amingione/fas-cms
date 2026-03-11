@@ -252,7 +252,7 @@ const filterCollectionStructuredData = filter && productItemListElements.length
 
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
       {productsWithMedusa.map((p) => (
-        <ProductCard key={p._id} product={p} productImage={p.images?.[0]} />
+        <ProductCard product={p} productImage={p.images?.[0]} />
       ))}
     </section>
   </>

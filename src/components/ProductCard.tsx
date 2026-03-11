@@ -1,12 +1,12 @@
 import {
   normalizeSlugValue,
-  resolveSanityImageUrl,
-  type Product as SanityProduct
+  resolveSanityImageUrl
 } from '@lib/sanity-utils';
 import { addItem } from '@lib/cart';
 import { emitAddToCartSuccess } from '@/lib/add-to-cart-toast';
 import { resolveProductCartMeta } from '@/lib/product-flags';
 import { formatPrice } from '@/components/storefront/Price';
+import { portableTextToPlainText } from '@/lib/portableText';
 import {
   resolveProductCalculatedPriceAmount,
   resolveProductCalculatedOriginalAmount
@@ -14,17 +14,7 @@ import {
 import { isOnSale, getSaleBadgeText } from '@/lib/saleHelpers';
 import './ProductCard.css';
 
-type ProductCardProduct = {
-  _id?: string;
-  title?: string;
-  displayTitle?: string;
-  slug?: { current?: string } | string;
-  images?: Array<{ asset?: { url?: string } }>;
-  categories?: Array<{ _id?: string; title?: string; slug?: { current?: string } | string }>;
-  inventory?: { inStock?: boolean; lowStock?: boolean };
-  featured?: boolean | null;
-  [key: string]: any;
-};
+type ProductCardProduct = any;
 
 export interface ProductCardProps {
   product: ProductCardProduct;
@@ -70,25 +60,58 @@ function resolveBadge(product: ProductCardProduct): { text: string; variant: str
   return null;
 }
 
-/** Resolve stock status */
-function resolveStock(product: ProductCardProduct): { label: string; cls: string } {
-  const inv = (product as any)?.inventory;
-  if (!inv) return { label: 'IN STOCK', cls: 'pc-stock--instock' };
-  if (inv.inStock === false) return { label: 'OUT OF STOCK', cls: 'pc-stock--outofstock' };
-  if (inv.lowStock) return { label: 'LOW STOCK', cls: 'pc-stock--lowstock' };
-  return { label: 'IN STOCK', cls: 'pc-stock--instock' };
-}
-
 /** Resolve fitment display string */
 function resolveFitment(product: ProductCardProduct): string | null {
   const p = product as any;
-  return (
+  const explicitFitment =
     p.fitment ??
     p.seoFitment ??
     p.fitmentRange ??
-    (Array.isArray(p.fitmentYears) ? p.fitmentYears.join(', ') : p.fitmentYears) ??
-    null
-  );
+    (Array.isArray(p.fitmentYears) ? p.fitmentYears.join(', ') : p.fitmentYears);
+
+  if (typeof explicitFitment === 'string' && explicitFitment.trim()) {
+    return explicitFitment.trim();
+  }
+
+  const shortRaw =
+    portableTextToPlainText(p.shortDescription) ||
+    portableTextToPlainText(p.description) ||
+    (typeof p.excerpt === 'string' ? p.excerpt : '');
+  if (shortRaw && shortRaw.trim()) {
+    const collapsed = shortRaw.replace(/\s+/g, ' ').trim();
+    const sentenceMatch = collapsed.match(/^(.+?[.!?])(\s|$)/);
+    const firstSentence = (sentenceMatch?.[1] || collapsed).trim();
+    if (firstSentence) return firstSentence;
+  }
+
+  const firstCategory = Array.isArray(p.categories)
+    ? p.categories.find((cat: any) => typeof cat?.title === 'string' && cat.title.trim())
+    : null;
+  if (firstCategory?.title) return String(firstCategory.title).trim();
+
+  return null;
+}
+
+function resolveStockState(product: ProductCardProduct): {
+  label: 'In Stock' | 'Low Stock' | 'Out of Stock';
+  tone: 'instock' | 'lowstock' | 'outofstock';
+} {
+  const p = product as any;
+
+  if (p?.availableForSale === false || p?.inStock === false || p?.isOutOfStock === true) {
+    return { label: 'Out of Stock', tone: 'outofstock' };
+  }
+
+  const qtyRaw = p?.inventoryQuantity ?? p?.inventory ?? p?.stock ?? p?.quantityAvailable;
+  const qty = typeof qtyRaw === 'number' && Number.isFinite(qtyRaw) ? qtyRaw : null;
+  if (typeof qty === 'number') {
+    if (qty <= 0) return { label: 'Out of Stock', tone: 'outofstock' };
+    if (qty <= 5) return { label: 'Low Stock', tone: 'lowstock' };
+    return { label: 'In Stock', tone: 'instock' };
+  }
+
+  if (p?.lowStock === true) return { label: 'Low Stock', tone: 'lowstock' };
+  return { label: 'In Stock', tone: 'instock' };
 }
 
 // ── addToCart (kept for compatibility — called from PDP / quick-add) ─────
@@ -180,21 +203,23 @@ export function ProductCard({ product, productImage, className }: ProductCardPro
   const compareAt = resolveProductCalculatedOriginalAmount(product);
   const displayTitle = (product as any)?.displayTitle || product.title || 'Product';
   const brand =
-    ((product as any)?.brand as string | undefined) ||
     ((product as any)?.categories?.[0]?.title as string | undefined) ||
+    ((product as any)?.brand as string | undefined) ||
     'F.A.S. Motorsports';
   const fitment = resolveFitment(product);
+  const stock = resolveStockState(product);
   const slug = getSlug(product);
   const productUrl = slug ? `/shop/${slug}` : '#';
   const badge = resolveBadge(product);
-  const stock = resolveStock(product);
 
   const currentPriceFormatted =
     typeof price === 'number' ? formatPrice(price) : null;
 
-  // compareAtPrice from Sanity is stored in cents (matches Medusa convention)
-  const compareAtFormatted =
-    typeof compareAt === 'number' && compareAt > 0 ? formatPrice(compareAt) : null;
+  const isDiscounted =
+    typeof price === 'number' &&
+    typeof compareAt === 'number' &&
+    compareAt > price;
+  const compareAtFormatted = isDiscounted ? formatPrice(compareAt) : null;
 
   return (
     <a
@@ -244,9 +269,8 @@ export function ProductCard({ product, productImage, className }: ProductCardPro
               <span className="pc-price-unavail">Contact for price</span>
             )}
           </div>
-
-          <span className={`pc-stock ${stock.cls}`}>
-            <span className="pc-stock-dot" />
+          <span className={`pc-stock pc-stock--${stock.tone}`}>
+            <span className="pc-stock-dot" aria-hidden="true" />
             {stock.label}
           </span>
         </div>

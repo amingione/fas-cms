@@ -171,7 +171,7 @@ const vendorTier = vendorTierRaw === 'preferred' ? 'preferred' : 'standard';
 
     if (!cart.length) {
       itemsContainer.innerHTML =
-        '<div class="rounded-xl border border-white/10 bg-dark/30 p-4 text-sm text-white/70">Your cart is empty.</div>';
+        '<div class="rounded-xl border border-white/10 bg-dark/70 p-4 text-sm text-white/70">Your cart is empty.</div>';
       subtotalEl && (subtotalEl.textContent = '$0.00');
       totalEl && (totalEl.textContent = '$0.00');
       submitButton && (submitButton.disabled = true);

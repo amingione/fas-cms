@@ -3,12 +3,12 @@ const packages = [
   // ── Hellcat / Mopar ──────────────────────────────────────────────────────
   {
     platform: 'Dodge Challenger / Charger SRT',
-    stage: 'FAS800 — Street Build',
+    stage: 'FAS800',
     hp: '800',
-    price: 'From $4,299',
-    href: '/packages/powerPackages',
+    price: 'From $6,499',
+    href: '/packages/fas800',
     image: '/images/packages/Hellcat/FAS-1.webp',
-    imageLabel: 'Hellcat FAS800 — Punta Gorda shop build',
+    imageLabel: 'FAS800 — Challenger SRT Hellcat',
     featured: false,
     features: [
       'FAS Upper Pulley Kit',
@@ -19,12 +19,12 @@ const packages = [
   },
   {
     platform: 'Dodge Challenger / Charger SRT',
-    stage: 'FAS1000 — Race Ready',
+    stage: 'FAS1000',
     hp: '1000',
-    price: 'From $9,999',
-    href: '/packages/powerPackages',
+    price: 'From $16,999',
+    href: '/packages/fas1000',
     image: '/images/packages/Hellcat/FAS-fas-1000-challenger.webp',
-    imageLabel: 'Hellcat FAS1000 — Punta Gorda shop build',
+    imageLabel: 'FAS1000 — Challenger SRT Hellcat',
     featured: true,
     features: [
       'Race-Ported Supercharger',
@@ -36,12 +36,12 @@ const packages = [
   },
   {
     platform: 'Dodge Challenger / Charger SRT',
-    stage: 'FAS 1X — 1200–1500 HP',
+    stage: 'FAS 1X',
     hp: '1500',
     price: 'Call for Pricing',
-    href: '/packages/powerPackages',
-    image: '/images/packages/Hellcat/FAS-4.webp',
-    imageLabel: 'Hellcat 1X build — Punta Gorda shop build',
+    href: '/packages/fas-1x',
+    image: '/images/packages/fas-1x-2.webp',
+    imageLabel: 'FAS 1X — Challenger SRT Hellcat',
     featured: false,
     features: [
       '1200–1500 HP Custom Program',
@@ -54,12 +54,12 @@ const packages = [
   // ── RAM TRX ──────────────────────────────────────────────────────────────
   {
     platform: 'RAM TRX',
-    stage: 'FAS800 — Stage 2',
+    stage: 'FAS800',
     hp: '800',
     price: 'From $6,699',
-    href: '/packages/truckPackages',
-    image: '/images/packages/FAS-TRX-build1.webp',
-    imageLabel: 'RAM TRX FAS800 — Punta Gorda shop build',
+    href: '/packages/fas800',
+    image: '/images/packages/FAS-TRX.webp',
+    imageLabel: 'FAS800 — RAM 1500 TRX',
     featured: false,
     features: [
       'FAS Upper Pulley Kit + Billet Idler',
@@ -70,12 +70,12 @@ const packages = [
   },
   {
     platform: 'RAM TRX',
-    stage: 'FAS1000 — Stage 4',
+    stage: 'FAS1000',
     hp: '1000',
     price: 'From $17,999',
-    href: '/shop/fas-factory-freak-package-trx',
-    image: '/images/packages/D-FAS-TRX-Package.webp',
-    imageLabel: 'RAM TRX FAS1000 — Punta Gorda shop build',
+    href: '/packages/fas1000',
+    image: '/images/packages/FAS-ram-trx-build.webp',
+    imageLabel: 'FAS1000 — RAM 1500 TRX',
     featured: false,
     features: [
       'Full Race-Ported Supercharger',
@@ -88,12 +88,12 @@ const packages = [
   // ── Ford F-150 ───────────────────────────────────────────────────────────
   {
     platform: 'Ford F-150 (2018+)',
-    stage: 'FAS500 — Twin Turbo Street',
+    stage: 'FAS500',
     hp: '600',
     price: 'From $7,499',
-    href: '/packages/truckPackages',
-    image: '/images/packages/FAS-f150-10002.webp',
-    imageLabel: 'Ford F-150 Twin Turbo — Punta Gorda shop build',
+    href: '/packages/fas500',
+    image: '/images/packages/FAS-f150.webp',
+    imageLabel: 'FAS500 — Ford F-150',
     featured: false,
     features: [
       'FAS-Spec Twin 54mm Turbo System',
@@ -128,10 +128,15 @@ const packages = [
       </a>
     </div>
 
-    <!-- Grid -->
-    <div class="pp-grid">
-      {packages.map((pkg) => (
-        <div class:list={['pp-card', pkg.featured && 'pp-card--featured']}>
+    <!-- Grid (desktop 3×2) / Deck (mobile) -->
+    <div class="pp-grid" id="ppGrid">
+      {packages.map((pkg, i) => (
+        <div
+          class:list={['pp-card', pkg.featured && 'pp-card--featured']}
+          data-index={i}
+        >
+          <!-- Overlay: visible on mobile for non-active cards -->
+          <div class="pp-deck-overlay" aria-hidden="true"></div>
 
           <!-- Visual / image area -->
           <div class="pp-visual">
@@ -175,6 +180,20 @@ const packages = [
 
         </div>
       ))}
+    </div>
+
+    <!-- Mobile swipe hint -->
+    <div class="pp-swipe-hint" id="ppSwipeHint" aria-hidden="true">
+      <svg class="pp-swipe-icon" width="40" height="22" viewBox="0 0 40 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- left arrow -->
+        <path d="M10 11H3M3 11L7 7M3 11L7 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- right arrow -->
+        <path d="M30 11H37M37 11L33 7M37 11L33 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- finger -->
+        <path d="M20 5V17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="20" cy="18.5" r="1.5" fill="currentColor"/>
+      </svg>
+      <span>Swipe</span>
     </div>
 
   </div>
@@ -284,7 +303,7 @@ const packages = [
     color: #fff;
   }
 
-  /* ── Grid ── */
+  /* ── Grid — always 3 columns at 640px+ ── */
   .pp-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -293,14 +312,18 @@ const packages = [
 
   @media (min-width: 640px) {
     .pp-grid {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, 1fr);
     }
   }
 
-  @media (min-width: 1024px) {
-    .pp-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
+  /* ── Deck overlay — hidden on desktop ── */
+  .pp-deck-overlay {
+    display: none;
+  }
+
+  /* ── Swipe hint — hidden on desktop (visible only in mobile media query below) ── */
+  .pp-swipe-hint {
+    display: none;
   }
 
   /* ── Card ── */
@@ -537,11 +560,156 @@ const packages = [
     background: #c91820;
     border-color: #c91820;
   }
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     MOBILE DECK SWITCHER  (max-width: 639px)
+     Cards stack absolutely; JS sets data-deck="0|1|2|back" to position them.
+     Clicking a peeking card's overlay brings it to the front.
+     Swipe left/right and dot-tap also navigate.
+  ═══════════════════════════════════════════════════════════════════════ */
+  @media (max-width: 639px) {
+
+    /* Container becomes a fixed-height stacking context (height set by JS) */
+    .pp-grid {
+      display: block;
+      position: relative;
+    }
+
+    /* All cards are absolutely layered inside the container */
+    .pp-card {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      transition:
+        transform 0.42s cubic-bezier(0.4, 0, 0.2, 1),
+        box-shadow 0.42s ease;
+      will-change: transform;
+    }
+
+    /* Suppress the desktop lift-on-hover so deck states own the motion */
+    .pp-card:hover {
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* ─ Active (front) ─────────────────────────────────── */
+    .pp-card[data-deck="0"] {
+      transform: translateY(0) scale(1);
+      z-index: 30;
+      cursor: default;
+    }
+    .pp-card[data-deck="0"]:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 44px rgba(0, 0, 0, 0.6);
+    }
+
+    /* ─ Peek 1 ──────────────────────────────────────────── */
+    .pp-card[data-deck="1"] {
+      transform: translateY(18px) scale(0.988);
+      z-index: 20;
+      cursor: pointer;
+    }
+    .pp-card[data-deck="1"]:hover {
+      transform: translateY(14px) scale(0.988);
+    }
+
+    /* ─ Peek 2 ──────────────────────────────────────────── */
+    .pp-card[data-deck="2"] {
+      transform: translateY(32px) scale(0.976);
+      z-index: 10;
+      cursor: pointer;
+    }
+    .pp-card[data-deck="2"]:hover {
+      transform: translateY(28px) scale(0.976);
+    }
+
+    /* ─ Hidden (behind peek 2) ──────────────────────────── */
+    .pp-card[data-deck="back"] {
+      transform: translateY(44px) scale(0.964);
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    /* ── Deck overlay ───────────────────────────────────── */
+    .pp-deck-overlay {
+      display: block;
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: transparent;
+      transition: background 0.42s ease;
+      /* sits above card content so it can intercept clicks on non-active cards */
+      z-index: 40;
+    }
+
+    /* Active: invisible + passthrough so Details button stays clickable */
+    .pp-card[data-deck="0"] .pp-deck-overlay {
+      pointer-events: none;
+    }
+
+    /* Peek 1: semi-dark, captures clicks to bring this card forward */
+    .pp-card[data-deck="1"] .pp-deck-overlay {
+      background: rgba(0, 0, 0, 0.54);
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    /* Peek 2: darker */
+    .pp-card[data-deck="2"] .pp-deck-overlay {
+      background: rgba(0, 0, 0, 0.70);
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    /* Hidden: fully dimmed, non-interactive */
+    .pp-card[data-deck="back"] .pp-deck-overlay {
+      background: rgba(0, 0, 0, 0.84);
+      pointer-events: none;
+    }
+
+    /* ── Swipe hint ─────────────────────────────────────── */
+    .pp-swipe-hint {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 22px;
+      color: rgba(255, 255, 255, 0.35);
+      transition: opacity 0.6s ease;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .pp-swipe-hint.pp-swipe-hint--hidden {
+      opacity: 0;
+    }
+
+    .pp-swipe-icon {
+      flex-shrink: 0;
+      animation: ppSwipeMotion 2.2s ease-in-out infinite;
+    }
+
+    @keyframes ppSwipeMotion {
+      0%, 100% { opacity: 0.35; transform: translateX(0); }
+      25%       { opacity: 0.6;  transform: translateX(-3px); }
+      75%       { opacity: 0.6;  transform: translateX(3px); }
+    }
+
+    .pp-swipe-hint span {
+      font-family: var(--font-label, 'Barlow Condensed', sans-serif);
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.35);
+    }
+  }
 </style>
 
 <script>
-  // Stagger entrance on scroll
-  const cards = document.querySelectorAll<HTMLElement>('.pp-card');
+  // ── Stagger entrance on scroll ─────────────────────────────────────────
+  const ppCards = document.querySelectorAll<HTMLElement>('.pp-card');
   if ('IntersectionObserver' in window) {
     const io = new IntersectionObserver(
       (entries) => {
@@ -554,6 +722,127 @@ const packages = [
       },
       { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
     );
-    cards.forEach((c) => io.observe(c));
+    ppCards.forEach((c) => io.observe(c));
   }
+
+  // ── Mobile deck switcher ───────────────────────────────────────────────
+  ;(function initDeck() {
+    const BREAKPOINT = 640;
+
+    const grid      = document.getElementById('ppGrid')      as HTMLElement;
+    const swipeHint = document.getElementById('ppSwipeHint') as HTMLElement | null;
+    if (!grid) return;
+
+    const cards = Array.from(grid.querySelectorAll<HTMLElement>('.pp-card'));
+    const total = cards.length;
+
+    let hintDismissed = false;
+
+    function hideSwipeHint(): void {
+      if (hintDismissed) return;
+      hintDismissed = true;
+      swipeHint?.classList.add('pp-swipe-hint--hidden');
+    }
+
+    let activeIdx  = 0;
+    let deckActive = false;
+    let touchX0 = 0;
+    let touchY0 = 0;
+
+    // ── helpers ──────────────────────────────────────────────────────────
+
+    function isMobile(): boolean {
+      return window.innerWidth < BREAKPOINT;
+    }
+
+    /** Set container height = active card height + room for peek layers */
+    function syncHeight(): void {
+      const active = cards[activeIdx];
+      if (!active) return;
+      grid.style.height = (active.offsetHeight + 50) + 'px';
+    }
+
+    /** Assign data-deck positions for all cards */
+    function goTo(idx: number): void {
+      activeIdx = ((idx % total) + total) % total;
+
+      cards.forEach((card) => {
+        const ci  = parseInt(card.dataset.index ?? '0', 10);
+        const pos = ((ci - activeIdx) % total + total) % total;
+        card.dataset.deck = pos <= 2 ? String(pos) : 'back';
+      });
+
+      requestAnimationFrame(syncHeight);
+    }
+
+    // ── event handlers ───────────────────────────────────────────────────
+
+    /** Clicking the overlay on a non-active card brings it to front */
+    function onOverlayClick(this: HTMLElement): void {
+      const card = this.closest<HTMLElement>('.pp-card');
+      if (!card) return;
+      const ci = parseInt(card.dataset.index ?? '0', 10);
+      if (ci !== activeIdx) {
+        goTo(ci);
+        hideSwipeHint();
+      }
+    }
+
+    function onTouchStart(e: TouchEvent): void {
+      touchX0 = e.touches[0].clientX;
+      touchY0 = e.touches[0].clientY;
+    }
+
+    function onTouchEnd(e: TouchEvent): void {
+      const dx = e.changedTouches[0].clientX - touchX0;
+      const dy = e.changedTouches[0].clientY - touchY0;
+      // Only count clear horizontal swipes
+      if (Math.abs(dy) > Math.abs(dx) || Math.abs(dx) < 32) return;
+      goTo(dx < 0 ? activeIdx + 1 : activeIdx - 1);
+      hideSwipeHint();
+    }
+
+    // ── lifecycle ─────────────────────────────────────────────────────────
+
+    function enableDeck(): void {
+      if (deckActive) return;
+      deckActive = true;
+
+      goTo(0);
+
+      // Overlays on non-active cards are the click targets
+      cards.forEach((card) => {
+        card.querySelector<HTMLElement>('.pp-deck-overlay')
+          ?.addEventListener('click', onOverlayClick);
+      });
+
+      grid.addEventListener('touchstart', onTouchStart, { passive: true });
+      grid.addEventListener('touchend',   onTouchEnd,   { passive: true });
+    }
+
+    function disableDeck(): void {
+      if (!deckActive) return;
+      deckActive = false;
+
+      cards.forEach((card) => {
+        delete card.dataset.deck;
+        card.querySelector<HTMLElement>('.pp-deck-overlay')
+          ?.removeEventListener('click', onOverlayClick);
+      });
+
+      grid.style.height = '';
+      grid.removeEventListener('touchstart', onTouchStart);
+      grid.removeEventListener('touchend',   onTouchEnd);
+    }
+
+    function checkBreakpoint(): void {
+      isMobile() ? enableDeck() : disableDeck();
+    }
+
+    // Re-check on viewport resize / orientation change
+    const ro = new ResizeObserver(checkBreakpoint);
+    ro.observe(document.documentElement);
+
+    checkBreakpoint(); // run immediately on load
+  })();
 </script>

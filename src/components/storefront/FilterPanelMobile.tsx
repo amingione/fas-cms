@@ -87,7 +87,7 @@ export default function FilterPanelMobile({
               style={{
                 WebkitAppearance: 'checkbox',
                 appearance: 'auto',
-                accentColor: 'var(--fx-primary, #fb3636)'
+                accentColor: 'var(--red)'
               }}
               checked={pendingCategory === ''}
               onChange={() => {
@@ -112,7 +112,7 @@ export default function FilterPanelMobile({
                   style={{
                     WebkitAppearance: 'checkbox',
                     appearance: 'auto',
-                    accentColor: 'var(--fx-primary, #fb3636)'
+                    accentColor: 'var(--red)'
                   }}
                   checked={pendingCategory === slug}
                   onChange={() => {
@@ -142,7 +142,7 @@ export default function FilterPanelMobile({
                 type="checkbox"
                 value={f}
                 className="accent-primary"
-                style={{ accentColor: 'var(--fx-primary, #fb3636)' }}
+                style={{ accentColor: 'var(--red)' }}
                 defaultChecked={selectedFilters.includes(f)}
                 onChange={() => toggleFilter(f)}
               />

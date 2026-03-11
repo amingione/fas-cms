@@ -1,0 +1,266 @@
+{
+  "id": "prod_01KJ9ERN47R7PPEPJJZMQW1ZQH",
+  "title": "FAS Quick Change Hub",
+  "subtitle": "Quick-Change Hub Kit for Fast Pulley Swaps on Hellcat Superchargers",
+  "status": "published",
+  "external_id": null,
+  "description": "The F.A.S. Motorsports Quick Change Hub is a precision-engineered billet aluminum pulley hub system designed for Hellcat platform superchargers, allowing for fast and easy pulley swaps without the hassle of traditional hub designs. One of the most frustrating aspects of frequent pulley changes — whether for dyno tuning sessions, track events, or testing different boost levels — is the time-consuming process of removing and reinstalling the factory pulley hub. The FAS Quick Change Hub eliminates this frustration with an innovative design that features an internal ½-inch hex drive and 12-point fastener system, enabling rapid pulley ring removal and installation in a fraction of the time required by a conventional hub. The hub is machined from 6061 billet aluminum to exacting tolerances, providing a stronger, lighter, and more dimensionally accurate mounting solution than the OEM hub. The quick-change pulley ring system is compatible with a variety of pulley sizes, allowing you to simply swap rings to change boost levels rather than removing and reinstalling the entire hub and pulley assembly. This makes it an invaluable tool for anyone who regularly adjusts boost levels on a tuned Hellcat vehicle. The FAS Quick Change Hub is a direct replacement for the factory hub and is compatible with all Hellcat, Redeye, Demon, and Trackhawk platforms, as well as any other application using the 2.4L IHI supercharger drive system.",
+  "handle": "quick-change-hub",
+  "is_giftcard": false,
+  "discountable": true,
+  "thumbnail": "https://cdn.sanity.io/images/r4og35qd/production/bf6511e11dfec479d71c025e33ba920918e61901-800x800.webp",
+  "collection_id": "pcol_01KJZXRK50GX1JHECGBCGDNKTX",
+  "type_id": "ptyp_3844a8bce1a042b099050a4c447ba9f6",
+  "weight": null,
+  "length": null,
+  "height": null,
+  "width": null,
+  "hs_code": null,
+  "origin_country": null,
+  "mid_code": null,
+  "material": "6061 Billet Aluminum",
+  "created_at": "2026-02-25T03:51:27.624Z",
+  "updated_at": "2026-03-11T19:51:03.948Z",
+  "deleted_at": null,
+  "metadata": {
+    "sku": "PR-58BP-FAS",
+    "brand": "F.A.S. Motorsports",
+    "sanity_id": "product-becf9e7d-29c0-4bc4-a22e-b05f98758a0b",
+    "attributes": [
+      {
+        "_key": "34e980733f79",
+        "name": "Type",
+        "_type": "attribute",
+        "value": "Pulley Hub System"
+      },
+      {
+        "_key": "99e2e9469244",
+        "name": "Material",
+        "_type": "attribute",
+        "value": "Billet Construction"
+      },
+      {
+        "_key": "9009f0367205",
+        "name": "Drive",
+        "_type": "attribute",
+        "value": "½″ Internal Hex"
+      },
+      {
+        "_key": "ccc83cedee4e",
+        "name": "Fasteners",
+        "_type": "attribute",
+        "value": "12-Point"
+      },
+      {
+        "_key": "ae8ad2046e85",
+        "name": "Compat",
+        "_type": "attribute",
+        "value": " Hellcat, Demon (FAS pulley rings)"
+      },
+      {
+        "_key": "49122c74953c",
+        "name": "Benefit",
+        "_type": "attribute",
+        "value": "Easy Install + Fast Pulley Changes"
+      }
+    ],
+    "sanity_slug": "quick-change-hub"
+  },
+  "type": {
+    "id": "ptyp_3844a8bce1a042b099050a4c447ba9f6",
+    "value": "physical",
+    "metadata": {
+      "source": "sanity-sync-workflow"
+    },
+    "created_at": "2026-02-25T03:43:34.211Z",
+    "updated_at": "2026-02-25T03:43:34.211Z",
+    "deleted_at": null
+  },
+  "collection": {
+    "id": "pcol_01KJZXRK50GX1JHECGBCGDNKTX",
+    "title": "Hellcat Platform",
+    "handle": "hellcat-platform",
+    "metadata": null,
+    "created_at": "2026-03-05T21:16:51.738Z",
+    "updated_at": "2026-03-05T21:16:51.738Z",
+    "deleted_at": null
+  },
+  "options": [
+    {
+      "id": "opt_01KJ9ERN4701N86WQJ3D7YG548",
+      "title": "Default",
+      "metadata": null,
+      "product_id": "prod_01KJ9ERN47R7PPEPJJZMQW1ZQH",
+      "created_at": "2026-02-25T03:51:27.624Z",
+      "updated_at": "2026-02-25T03:51:27.624Z",
+      "deleted_at": null,
+      "values": [
+        {
+          "id": "optval_01KJ9ERN47P83XES460EMKA22C",
+          "value": "Default",
+          "metadata": null,
+          "option_id": "opt_01KJ9ERN4701N86WQJ3D7YG548",
+          "created_at": "2026-02-25T03:51:27.624Z",
+          "updated_at": "2026-02-25T03:51:27.624Z",
+          "deleted_at": null
+        }
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "id": "ptag_f76cff6969c34311ae6b9510d8bf9ff8",
+      "value": "supercharger",
+      "metadata": null,
+      "created_at": "2026-02-26T02:56:17.784Z",
+      "updated_at": "2026-02-26T02:56:17.784Z",
+      "deleted_at": null
+    },
+    {
+      "id": "ptag_bc8f21c81dea4bdc8088b09638fb1795",
+      "value": "hellcat",
+      "metadata": null,
+      "created_at": "2026-02-26T02:56:20.173Z",
+      "updated_at": "2026-02-26T02:56:20.173Z",
+      "deleted_at": null
+    },
+    {
+      "id": "ptag_c4ed5a9a9752402197edd24997e45509",
+      "value": "billet",
+      "metadata": null,
+      "created_at": "2026-02-26T02:56:20.875Z",
+      "updated_at": "2026-02-26T02:56:20.875Z",
+      "deleted_at": null
+    },
+    {
+      "id": "ptag_01KJZY9970V2A5HA0CMF7GJEZR",
+      "value": "performance",
+      "metadata": null,
+      "created_at": "2026-03-05T21:25:58.625Z",
+      "updated_at": "2026-03-05T21:25:58.625Z",
+      "deleted_at": null
+    },
+    {
+      "id": "ptag_01KJZY99CSYH2S1HNZXB4803H1",
+      "value": "hellcat-platform",
+      "metadata": null,
+      "created_at": "2026-03-05T21:25:58.809Z",
+      "updated_at": "2026-03-05T21:25:58.809Z",
+      "deleted_at": null
+    },
+    {
+      "id": "ptag_01KJZY9AGA706HZAZX44J14K49",
+      "value": "billet-aluminum",
+      "metadata": null,
+      "created_at": "2026-03-05T21:25:59.946Z",
+      "updated_at": "2026-03-05T21:25:59.946Z",
+      "deleted_at": null
+    },
+    {
+      "id": "ptag_01KJZY9B3N07WT3KPM1WTG7TQR",
+      "value": "pulleys",
+      "metadata": null,
+      "created_at": "2026-03-05T21:26:00.565Z",
+      "updated_at": "2026-03-05T21:26:00.565Z",
+      "deleted_at": null
+    },
+    {
+      "id": "ptag_01KJZY9BJJV4VYZ9B3ZTWJA34R",
+      "value": "hub-kit",
+      "metadata": null,
+      "created_at": "2026-03-05T21:26:01.042Z",
+      "updated_at": "2026-03-05T21:26:01.042Z",
+      "deleted_at": null
+    },
+    {
+      "id": "ptag_01KJZY9CCJVVX5KZWRV68PKNS2",
+      "value": "dodge-hellcat",
+      "metadata": null,
+      "created_at": "2026-03-05T21:26:01.874Z",
+      "updated_at": "2026-03-05T21:26:01.874Z",
+      "deleted_at": null
+    }
+  ],
+  "images": [
+    {
+      "id": "img_01KJDH2FGTF9YAPTKJD79RWBTD",
+      "url": "https://cdn.sanity.io/images/r4og35qd/production/bf6511e11dfec479d71c025e33ba920918e61901-800x800.webp",
+      "metadata": null,
+      "rank": 0,
+      "product_id": "prod_01KJ9ERN47R7PPEPJJZMQW1ZQH",
+      "created_at": "2026-02-26T17:48:44.443Z",
+      "updated_at": "2026-02-26T17:48:44.443Z",
+      "deleted_at": null
+    },
+    {
+      "id": "img_01KJDH2FGTYKA5ERN7TDS71VNZ",
+      "url": "https://cdn.sanity.io/images/r4og35qd/production/122317b4fb22901453c884428e740262e6bc55a8-800x555.webp",
+      "metadata": null,
+      "rank": 1,
+      "product_id": "prod_01KJ9ERN47R7PPEPJJZMQW1ZQH",
+      "created_at": "2026-02-26T17:48:44.443Z",
+      "updated_at": "2026-02-26T17:48:44.443Z",
+      "deleted_at": null
+    },
+    {
+      "id": "img_01KJDH2FGT3YB91FVFYMD0BQT8",
+      "url": "https://cdn.sanity.io/images/r4og35qd/production/ece3f0941d3e92ff0caff6921b82cfdaa2c1e1f8-625x800.webp",
+      "metadata": null,
+      "rank": 2,
+      "product_id": "prod_01KJ9ERN47R7PPEPJJZMQW1ZQH",
+      "created_at": "2026-02-26T17:48:44.443Z",
+      "updated_at": "2026-02-26T17:48:44.443Z",
+      "deleted_at": null
+    }
+  ],
+  "categories": [
+    {
+      "id": "pcat_01KJBT41MH0Z9V6DYW42F640NQ",
+      "name": "Tools & Accessories",
+      "description": "",
+      "handle": "tools-and-accessories",
+      "mpath": "pcat_01KJBT41MH0Z9V6DYW42F640NQ",
+      "is_active": true,
+      "is_internal": false,
+      "rank": 5,
+      "metadata": {
+        "sanity_id": "5a19ec93-5da1-4cfa-9f7e-bf5affd9a233"
+      },
+      "parent_category_id": null,
+      "parent_category": null,
+      "created_at": "2026-02-26T01:48:24.081Z",
+      "updated_at": "2026-02-26T19:03:43.164Z",
+      "deleted_at": null
+    },
+    {
+      "id": "pcat_01KJBT43KT8JKDT5MZQXENG878",
+      "name": "Pulleys",
+      "description": "",
+      "handle": "pulleys",
+      "mpath": "pcat_01KJBT43KT8JKDT5MZQXENG878",
+      "is_active": true,
+      "is_internal": false,
+      "rank": 7,
+      "metadata": {
+        "sanity_id": "f1594513-84ec-4b3b-ba92-80b88b3ac1bf"
+      },
+      "parent_category_id": null,
+      "parent_category": null,
+      "created_at": "2026-02-26T01:48:26.106Z",
+      "updated_at": "2026-02-26T19:03:57.940Z",
+      "deleted_at": null
+    }
+  ],
+  "sales_channels": [
+    {
+      "id": "sc_01KHS7NMRWSPP5YMYBJ8FFC4B6",
+      "name": "Default Sales Channel",
+      "description": "Created by Medusa",
+      "is_disabled": false,
+      "metadata": null,
+      "created_at": "2026-02-18T20:39:38.013Z",
+      "updated_at": "2026-02-18T20:39:38.013Z",
+      "deleted_at": null
+    }
+  ]
+}

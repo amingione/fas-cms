@@ -1,6 +1,36 @@
 /* =========================================================
-       DESIGN TOKENS
-    ========================================================= */
+   DESIGN TOKENS  —  fas-theme2.css
+   Single source of truth for all CSS custom properties.
+
+   IMPORT ORDER (do not change):
+     global.css  →  @import './fas-theme2.css'  (this file)
+
+   TOKEN MAP  →  Tailwind key equivalents
+   ─────────────────────────────────────────────────────────
+   CSS var               Tailwind utility        Value
+   --red                 bg-primary / text-primary   #c41218
+   --red-hover           bg-primary-hover             #e01420
+   --bg-base             bg-background                #080808
+   --bg-surface          (direct var usage)           #0d0d0d
+   --bg-elevated         (direct var usage)           #141414
+   --bg-overlay          (direct var usage)           #1a1a1a
+   --text-primary        (body text, NOT brand color) #f2efea
+   --text-secondary      (secondary text)             #aba7a2
+   --text-muted          (muted/placeholder)          #726e6a
+   --border-subtle       (6% opacity border)
+   --border-default      (12% opacity border)
+   --border-strong       (22% opacity border)
+   --font-body           font-[var(--font-body)]      Inter
+   --font-brand          font-borg / font-borg-italic Borgsquad
+   --font-display        font-ethno                   Ethnocentric
+   --font-label          font-captain / font-cyber    Barlow Condensed
+   --font-ui             (direct var usage)           Barlow
+   --amber               (accent highlight)           #c8922a
+   --container-pad-*     homepage shell widths
+   ─────────────────────────────────────────────────────────
+   DO NOT define hardcoded hex colors outside this file's
+   :root block. Use var(--red), var(--text-primary), etc.
+   ========================================================= */
 :root {
   --bg-base: #080808;
   --bg-surface: #0d0d0d;
@@ -38,6 +68,42 @@
 
   --max-w: 1280px;
   --nav-h: 64px;
+
+  /* Container spacing used by homepage and layout shells */
+  --container-pad-mobile: 28px;
+  --container-pad-tablet: 48px;
+  --container-pad-desktop: 72px;
+
+  /* Unified button sizing scale (colors/variants stay local to each button system) */
+  --btn-size-font: 0.8rem;
+  --btn-size-weight: 700;
+  --btn-size-track: 0.1em;
+  --btn-size-pad-y: 0.5rem;
+  --btn-size-pad-x: 1rem;
+  --btn-size-min-h: 36px;
+  --btn-size-pad-y-mobile: 0.42rem;
+  --btn-size-pad-x-mobile: 0.8rem;
+  --btn-size-min-h-mobile: 34px;
+
+  /* bg-dark Tailwind utility: rgb(18,18,18) */
+  --bg-dark-rgb: 18, 18, 18;
+
+  /* Legacy color aliases — kept for backward compat with global.css utilities */
+  --color-primary: var(--red);
+  --color-secondary: #eef2fb;
+  --color-accent: #fde4b2;
+  --color-graylight: #d1d0d0;
+  --color-background: var(--bg-base);
+  --color-heading: #fafafa;
+  --color-heading-muted: #ededed;
+  --color-text-longform: #d1d5db;
+  --color-text-dashboard: #f2f2f2;
+
+  /* Legacy font aliases — kept for backward compat with global.css base rules */
+  --font-body-light: 'Inter', system-ui, sans-serif;
+  --font-heading-secondary: 'Barlow', sans-serif;
+  --font-heading-tertiary: 'Barlow Condensed', sans-serif;
+  --font-quote: 'Merriweather', 'Georgia', serif;
 }
 
 @font-face {

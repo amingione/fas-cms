@@ -4,7 +4,7 @@ import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { ShoppingCartIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import LoadingDots from '@components/loading-dots.tsx';
 import Price, { formatPrice } from '@/components/storefront/Price';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useCart, type Cart } from './cart-context';
 import { formatOptionSummary } from '@/lib/cart/format-option-summary';
 import { calculateAddOnTotal, extractAddOns } from '@/lib/cart/extract-add-ons';
@@ -96,17 +96,9 @@ export default function CartModal() {
     redirectToCheckout
   } = useCart();
   const [isOpen, setIsOpen] = useState(false);
-  const quantityRef = useRef(totalQuantity);
   const pricingTotals = useMemo(() => computePricing(cart?.items || []), [cart?.items]);
 
   const closeCart = () => setIsOpen(false);
-
-  useEffect(() => {
-    if (totalQuantity && totalQuantity !== quantityRef.current && totalQuantity > 0) {
-      if (!isOpen) setIsOpen(true);
-      quantityRef.current = totalQuantity;
-    }
-  }, [isOpen, totalQuantity]);
 
   useEffect(() => {
     function handleOpen() {
@@ -127,12 +119,12 @@ export default function CartModal() {
   return (
     <>
       {isOpen && (
-        <Dialog onClose={closeCart} className="relative z-[110000]">
-          <div className="fixed inset-0 bg-[#1a1a1a]" aria-hidden="true" />
+        <Dialog open={isOpen} onClose={closeCart} className="relative z-[110000]">
+          <div className="fixed inset-0 bg-black/75 backdrop-blur-[1px]" aria-hidden="true" />
           <div className="fixed inset-0 overflow-hidden">
             <div className="absolute inset-0 overflow-hidden">
               <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-4 sm:pl-10">
-                <DialogPanel className="pointer-events-auto w-screen max-w-md transform bg-dark text-white shadow-2xl transition duration-500 ease-in-out sm:duration-700">
+                <DialogPanel className="pointer-events-auto w-[92vw] max-w-[560px] transform bg-black/70 text-white shadow-2xl transition duration-500 ease-in-out md:w-[35vw] md:min-w-[420px] sm:duration-700">
                   <div className="flex h-full flex-col">
                     <div className="flex items-start justify-between px-4 py-6 sm:px-6">
                       <DialogTitle className="text-lg font-semibold">Shopping Cart</DialogTitle>

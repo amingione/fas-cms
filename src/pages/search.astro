@@ -250,7 +250,7 @@ if (endPage < totalPages) {
         const img = getThumb(it);
         const badge = (it._type || '').toUpperCase();
         const content = `
-      <div class="border border-white/20 rounded bg-dark/30 p-3 hover:bg-dark/40 transition h-full">
+      <div class="border border-white/20 rounded bg-dark/70 p-3 hover:bg-dark/40 transition h-full">
         <div class="text-[10px] uppercase text-white/70 mb-2">${escapeHtml(badge)}</div>
         ${img ? `<div class="w-full aspect-square bg-dark/10 rounded mb-3 overflow-hidden grid place-items-center"><img src="${escapeHtml(img)}" alt="" class="max-w-full max-h-full object-contain" /></div>` : ''}
         <div class="font-semibold mb-1 hover:underline line-clamp-2">${escapeHtml(title)}</div>

@@ -2,6 +2,7 @@
 import FasTopBar from './fas-topBar.astro';
 import MobileMenu from '@/components/navbar/mobile-menu.tsx';
 import CartEntry from '@/components/cart/CartEntry.tsx';
+import CartButton from '@/components/cart/cart-button.tsx';
 
 type MenuLink = { label: string; href: string };
 
@@ -50,20 +51,7 @@ const serviceLinks = [
         </a>
 
         <div class="fas-mobile-actions">
-          <button type="button" class="fas-cart-btn js-open-cart" aria-label="Open cart drawer">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.8"
-              aria-hidden="true"
-            >
-              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"></path>
-              <line x1="3" y1="6" x2="21" y2="6"></line>
-              <path d="M16 10a4 4 0 01-8 0"></path>
-            </svg>
-            <span>Cart</span>
-          </button>
+          <CartButton client:only="react" />
 
           <div class="fas-mobile-menu" aria-label="Mobile navigation">
             <MobileMenu client:only="react" />
@@ -184,20 +172,7 @@ const serviceLinks = [
 
       <div class="desktop-actions">
         <a href="/account" class="desktop-login-btn">Login</a>
-        <button type="button" class="desktop-cart-btn js-open-cart" aria-label="Open cart drawer">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.8"
-            aria-hidden="true"
-          >
-            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"></path>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <path d="M16 10a4 4 0 01-8 0"></path>
-          </svg>
-          Cart
-        </button>
+        <CartButton client:only="react" />
       </div>
     </div>
   </header>
@@ -208,6 +183,7 @@ const serviceLinks = [
     position: sticky;
     top: 0;
     z-index: 9999;
+    --fas-mobile-header-height: 58px;
     /* Single sticky root — both mobile shell and desktop header live here.
        Topbar (FasTopBar) is a sibling above this wrapper and scrolls away normally. */
   }
@@ -255,7 +231,7 @@ const serviceLinks = [
   }
 
   .homepage-logo-mark {
-    color: #c41218;
+    color: var(--red);
     font-family: 'Borgsquad Italic', sans-serif;
     font-size: clamp(0.9rem, 3.2vw, 1.25rem);
     letter-spacing: clamp(0.04em, 0.24vw, 0.08em);
@@ -275,6 +251,16 @@ const serviceLinks = [
     gap: 8px;
   }
 
+  .fas-mobile-actions :global(button[aria-label='Open cart']),
+  .desktop-actions :global(button[aria-label='Open cart']) {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    color: inherit;
+  }
+
   .fas-cart-btn {
     text-decoration: none;
     border: none;
@@ -289,7 +275,7 @@ const serviceLinks = [
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: #c41218;
+    background: var(--red);
     color: #fff;
   }
 
@@ -368,14 +354,18 @@ const serviceLinks = [
 
   .fas-mobile-menu :global(#mobile-nav),
   .fas-mobile-menu :global(.mobile-nav) {
-    position: fixed;
-    inset: 0;
-    z-index: 190;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    z-index: 180;
     background: #080808;
     transform: translateX(100%);
     transition: transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
     display: flex;
     flex-direction: column;
+    height: calc(100dvh - var(--fas-mobile-header-height));
+    max-height: calc(100dvh - var(--fas-mobile-header-height));
     overflow: hidden;
     will-change: transform;
   }
@@ -419,7 +409,7 @@ const serviceLinks = [
     gap: 6px;
     padding: 8px 12px;
     border-radius: 10px;
-    background: #c41218;
+    background: var(--red);
     color: #fff;
     font-family: 'Ethnocentric', sans-serif;
     font-size: 0.62rem;
@@ -543,14 +533,14 @@ const serviceLinks = [
 
   .fas-mobile-menu :global(#mobile-nav .mobile-cta-primary),
   .fas-mobile-menu :global(.mobile-cta-primary) {
-    background: #c41218;
+    background: var(--red);
     color: #fff;
   }
 
   .fas-mobile-menu :global(#mobile-nav .mobile-cta-outline),
   .fas-mobile-menu :global(.mobile-cta-outline) {
     border: 1px solid rgba(196, 18, 24, 0.6);
-    color: #c41218;
+    color: var(--red);
   }
 
   .fas-desktop-header {
@@ -688,14 +678,14 @@ const serviceLinks = [
   }
 
   .desktop-login-btn:hover {
-    border-color: #c41218;
+    border-color: var(--red);
   }
 
   .desktop-cart-btn {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: #c41218;
+    background: var(--red);
     color: #fff;
     border: none;
     cursor: pointer;
@@ -708,6 +698,10 @@ const serviceLinks = [
   }
 
   @media (max-width: 520px) {
+    .fas-nav-sticky {
+      --fas-mobile-header-height: 56px;
+    }
+
     .fas-mobile-header-inner {
       width: min(100%, calc(100% - 16px));
       min-height: 56px;
@@ -734,7 +728,7 @@ const serviceLinks = [
     }
   }
 
-  @media (min-width: 980px) {
+  @media (min-width: 1024px) {
     .fas-header-mobile-shell {
       display: none;
     }
@@ -754,14 +748,3 @@ const serviceLinks = [
     }
   }
 </style>
-
-<script is:inline>
-  document.addEventListener('DOMContentLoaded', () => {
-    const cartButtons = Array.from(document.querySelectorAll('.js-open-cart'));
-    cartButtons.forEach((button) => {
-      button.addEventListener('click', () => {
-        window.dispatchEvent(new Event('open-cart'));
-      });
-    });
-  });
-</script>

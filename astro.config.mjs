@@ -33,6 +33,7 @@ const sanityApiVersion =
 const sanityStudioUrl =
   process.env.PUBLIC_SANITY_STUDIO_URL || process.env.SANITY_STUDIO_URL || undefined;
 const isLocalDev = process.env.NODE_ENV === 'development';
+const viteCacheDir = isLocalDev ? 'node_modules/.vite/dev' : 'node_modules/.vite/build';
 
 
 // Netlify's adapter injects @netlify/vite-plugin automatically in a few
@@ -138,6 +139,8 @@ export default defineConfig({
     }
   },
   vite: {
+    // Keep dev/build optimize-deps caches separate so React cannot be reused across modes.
+    cacheDir: viteCacheDir,
     plugins: [
       dedupeNetlifyVitePlugin(),
       // Conditionally include svgr if available

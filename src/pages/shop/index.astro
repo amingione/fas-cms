@@ -51,6 +51,14 @@ const resolveProductSlug = (product: any): string => {
   return '';
 };
 
+const normalizeProductSlug = (value?: string | null): string =>
+  String(value || '')
+    .replace(/^https?:\/\/[^/]+/i, '')
+    .replace(/^\/shop\//i, '')
+    .replace(/^\/+/, '')
+    .replace(/\/+$/, '')
+    .toLowerCase();
+
 const resolveProductImages = (product: any): string[] => {
   if (!product || typeof product !== 'object') return [];
   if (!Array.isArray(product.images)) return [];
@@ -92,6 +100,42 @@ const buildListingProductFromMedusa = (medusaProduct: MedusaStoreProduct): Produ
     displayTitle: medusaProduct.title || normalizedSlug || 'Product',
     slug: { current: normalizedSlug },
     images,
+    brand:
+      (typeof (medusaProduct as any)?.collection?.title === 'string'
+        ? (medusaProduct as any).collection.title
+        : '') || '',
+    shortDescription:
+      (typeof medusaProduct.subtitle === 'string' ? medusaProduct.subtitle : '') || '',
+    description:
+      (typeof medusaProduct.description === 'string' ? medusaProduct.description : '') || '',
+    excerpt:
+      (typeof medusaProduct.subtitle === 'string' ? medusaProduct.subtitle : '') ||
+      (typeof medusaProduct.description === 'string' ? medusaProduct.description : '') ||
+      '',
+    categories: Array.isArray((medusaProduct as any)?.categories)
+      ? (medusaProduct as any).categories
+          .map((category: any) => {
+            const title =
+              typeof category?.name === 'string'
+                ? category.name
+                : typeof category?.handle === 'string'
+                  ? category.handle
+                  : '';
+            if (!title) return null;
+            return {
+              _id:
+                (typeof category?.id === 'string' && category.id) ||
+                (typeof category?.handle === 'string' && category.handle) ||
+                `medusa-category-${slugify(title)}`,
+              title,
+              slug:
+                typeof category?.handle === 'string' && category.handle
+                  ? { current: category.handle }
+                  : undefined
+            };
+          })
+          .filter(Boolean)
+      : [],
     medusa: medusaProduct
   } as any;
 };
@@ -303,7 +347,7 @@ try {
 if (shouldUseMedusaPrimaryCatalog && medusaProducts.length) {
   const sanityBySlug = new Map(
     (Array.isArray(products) ? products : [])
-      .map((entry: any) => [slugify(resolveProductSlug(entry)), entry] as const)
+      .map((entry: any) => [normalizeProductSlug(resolveProductSlug(entry)), entry] as const)
       .filter(([slug]) => Boolean(slug))
   );
   const normalizedSearchTerm = String(searchTerm || '')
@@ -314,9 +358,28 @@ if (shouldUseMedusaPrimaryCatalog && medusaProducts.length) {
     .map((entry) => buildListingProductFromMedusa(entry))
     .filter((entry): entry is Product => Boolean(entry))
     .map((entry: any) => {
-      const slug = slugify(resolveProductSlug(entry));
+      const slug = normalizeProductSlug(resolveProductSlug(entry));
       const sanityMatch = sanityBySlug.get(slug);
-      return sanityMatch ? ({ ...sanityMatch, medusa: entry.medusa } as any) : entry;
+      if (!sanityMatch) return entry;
+      return {
+        ...entry,
+        ...sanityMatch,
+        slug: (sanityMatch as any)?.slug || (entry as any)?.slug,
+        medusa: entry.medusa,
+        shortDescription:
+          (sanityMatch as any)?.shortDescription ||
+          (entry as any)?.shortDescription ||
+          '',
+        description:
+          (sanityMatch as any)?.description ||
+          (entry as any)?.description ||
+          '',
+        categories:
+          (Array.isArray((sanityMatch as any)?.categories) && (sanityMatch as any).categories.length
+            ? (sanityMatch as any).categories
+            : (entry as any)?.categories) || [],
+        brand: (sanityMatch as any)?.brand || (entry as any)?.brand || ''
+      } as any;
     })
     .filter((entry: any) => {
       if (!normalizedSearchTerm) return true;

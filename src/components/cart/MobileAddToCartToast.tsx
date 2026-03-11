@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { ADD_TO_CART_SUCCESS_EVENT, type AddToCartToastDetail } from '@/lib/add-to-cart-toast';
 
 const AUTO_HIDE_DELAY = 2500;
-const MOBILE_QUERY = '(max-width: 768px)';
+const MOBILE_QUERY = '(max-width: 1023px)';
 
 export default function MobileAddToCartToast() {
   const [mounted, setMounted] = useState(false);

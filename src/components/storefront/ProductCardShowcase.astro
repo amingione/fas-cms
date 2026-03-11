@@ -166,7 +166,7 @@ const ctaText = installOnly ? 'View Build Details' : 'View Product';
     <article class="group relative">
       <a
         href={href}
-        class="group flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(24,24,24,0.96),rgba(10,10,10,0.98))] shadow-[0_18px_50px_rgba(0,0,0,0.28)] transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-[#c41218]/50 hover:shadow-[0_26px_70px_rgba(0,0,0,0.4)] focus:outline-none focus:ring-2 focus:ring-[#c41218] md:flex-row md:items-stretch"
+        class="group flex h-full flex-col overflow-hidden rounded-card border border-white/10 bg-[linear-gradient(180deg,rgba(24,24,24,0.96),rgba(10,10,10,0.98))] shadow-product-hover transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-product-hover focus:outline-none focus:ring-2 focus:ring-primary md:flex-row md:items-stretch"
         data-analytics-event="product_tile_click"
         data-analytics-category="ecommerce"
         data-analytics-label={anchorText}
@@ -180,9 +180,9 @@ const ctaText = installOnly ? 'View Build Details' : 'View Product';
                 class:list={[
                   'absolute left-5 top-5 z-[1] inline-flex min-h-[34px] items-center rounded-sm px-4 text-[0.72rem] font-semibold uppercase tracking-[0.22em]',
                   badge.tone === 'sale'
-                    ? 'bg-[#c41218] text-white'
+                    ? 'bg-primary text-white'
                     : badge.tone === 'primary'
-                      ? 'bg-[#c41218] text-white'
+                      ? 'bg-primary text-white'
                       : 'bg-white text-black'
                 ]}
               >
@@ -203,11 +203,11 @@ const ctaText = installOnly ? 'View Build Details' : 'View Product';
         </div>
 
         <div class="flex min-w-0 flex-1 flex-col">
-          <div class="border-y border-white/5 bg-black/80 px-6 py-4 text-[0.78rem] font-semibold uppercase tracking-[0.22em] text-[#d73a40]">
+          <div class="border-y border-white/5 bg-black/80 px-6 py-4 text-[0.78rem] font-semibold uppercase tracking-[0.22em] text-primary">
             {ctaText}
           </div>
           <div class="flex min-h-0 flex-1 flex-col px-6 py-6">
-            <div class="text-[0.75rem] font-semibold uppercase tracking-[0.26em] text-[#d73a40]">{eyebrow}</div>
+            <div class="text-[0.75rem] font-semibold uppercase tracking-[0.26em] text-primary">{eyebrow}</div>
             <h3 class="mt-4 text-[1.5rem] font-semibold leading-tight text-white">
               {anchorText}
             </h3>
@@ -239,7 +239,7 @@ const ctaText = installOnly ? 'View Build Details' : 'View Product';
                     : inventory.tone === 'low'
                       ? 'text-amber-400'
                       : inventory.tone === 'sale'
-                        ? 'text-[#d73a40]'
+                        ? 'text-primary'
                         : 'text-white/60'
                 ]}
               >
@@ -284,7 +284,7 @@ const ctaText = installOnly ? 'View Build Details' : 'View Product';
     <article class="group relative h-full">
       <a
         href={href}
-        class="group flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(23,23,23,0.98),rgba(10,10,10,0.98))] shadow-[0_20px_60px_rgba(0,0,0,0.3)] transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-1 hover:border-[#c41218]/55 hover:shadow-[0_34px_90px_rgba(0,0,0,0.42)] focus:outline-none focus:ring-2 focus:ring-[#c41218]"
+        class="group flex h-full flex-col overflow-hidden rounded-card border border-white/10 bg-[linear-gradient(180deg,rgba(23,23,23,0.98),rgba(10,10,10,0.98))] shadow-product-hover transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-1 hover:border-primary/55 hover:shadow-product-hover focus:outline-none focus:ring-2 focus:ring-primary"
         data-analytics-event="product_tile_click"
         data-analytics-category="ecommerce"
         data-analytics-label={anchorText}
@@ -298,9 +298,9 @@ const ctaText = installOnly ? 'View Build Details' : 'View Product';
                 class:list={[
                   'absolute left-5 top-5 z-[1] inline-flex min-h-[34px] items-center rounded-sm px-4 text-[0.72rem] font-semibold uppercase tracking-[0.22em]',
                   badge.tone === 'sale'
-                    ? 'bg-[#c41218] text-white'
+                    ? 'bg-primary text-white'
                     : badge.tone === 'primary'
-                      ? 'bg-[#c41218] text-white'
+                      ? 'bg-primary text-white'
                       : 'bg-white text-black'
                 ]}
               >
@@ -320,7 +320,7 @@ const ctaText = installOnly ? 'View Build Details' : 'View Product';
           />
         </div>
 
-        <div class="border-t border-white/5 bg-black px-6 py-4 text-[0.78rem] font-semibold uppercase tracking-[0.22em] text-[#d73a40]">
+        <div class="border-t border-white/5 bg-black px-6 py-4 text-[0.78rem] font-semibold uppercase tracking-[0.22em] text-primary">
           <span class="inline-flex items-center gap-3">
             <span class="text-[1.2rem] leading-none">+</span>
             <span>{ctaText}</span>
@@ -328,7 +328,7 @@ const ctaText = installOnly ? 'View Build Details' : 'View Product';
         </div>
 
         <div class="flex flex-1 flex-col bg-[linear-gradient(180deg,rgba(14,14,14,0.94),rgba(10,10,10,0.98))] px-6 py-6">
-          <div class="text-[0.75rem] font-semibold uppercase tracking-[0.26em] text-[#d73a40]">{eyebrow}</div>
+          <div class="text-[0.75rem] font-semibold uppercase tracking-[0.26em] text-primary">{eyebrow}</div>
           <h3 class="mt-4 text-[1.15rem] font-semibold leading-tight text-white">
             {anchorText}
           </h3>
@@ -363,7 +363,7 @@ const ctaText = installOnly ? 'View Build Details' : 'View Product';
                   : inventory.tone === 'low'
                     ? 'text-amber-400'
                     : inventory.tone === 'sale'
-                      ? 'text-[#d73a40]'
+                      ? 'text-primary'
                       : 'text-white/60'
               ]}
             >

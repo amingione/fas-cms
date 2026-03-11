@@ -81,7 +81,7 @@ const secondaryBadgeEntries = Array.isArray(pageDoc?.hero?.secondaryBadges)
         secondaryBadgeEntries.length > 0 ? (
           <div class="mt-6 flex flex-wrap gap-3 justify-center">
             {secondaryBadgeEntries.map((entry: { badge: string; idx: number }) => (
-              <span class="px-4 py-1.5 rounded-full border border-white/30 bg-dark/50 text-white/90 text-xs font-ethno uppercase tracking-[0.18em]">
+              <span class="px-4 py-1.5 rounded-full border border-white/30 bg-dark text-white/90 text-xs font-ethno uppercase tracking-[0.18em]">
                 {entry.badge}
               </span>
             ))}
