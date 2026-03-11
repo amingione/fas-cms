@@ -21,13 +21,15 @@ export function toCentsStrict(value: MoneyValue, label = 'amount'): number | nul
   const numeric = isNegative ? normalized.slice(1) : normalized;
   const [wholePart, fractional = ''] = numeric.split('.');
 
+  // Round to 2 decimal places if there are more
   let fraction = fractional;
   if (fraction.length > 2) {
-    const extra = fraction.slice(2);
-    if (extra.replace(/0/g, '') !== '') {
-      throw new Error(`[money] ${label} has more than 2 decimal places: "${normalized}"`);
-    }
-    fraction = fraction.slice(0, 2);
+    // Convert to number, round, then back to 2-digit string
+    const fullNumber = parseFloat(normalized);
+    const rounded = Math.round(fullNumber * 100) / 100;
+    const roundedStr = rounded.toFixed(2);
+    const [, roundedFraction = ''] = roundedStr.split('.');
+    fraction = roundedFraction;
   }
 
   const paddedFraction = (fraction + '00').slice(0, 2);
