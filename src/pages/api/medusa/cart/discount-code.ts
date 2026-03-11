@@ -53,6 +53,12 @@ export const POST: APIRoute = async ({ request }) => {
 
     const mutationPayload = await readJsonSafe<any>(mutationResponse);
     if (!mutationResponse.ok) {
+      console.error('[discount-code] Medusa promotion mutation failed:', {
+        status: mutationResponse.status,
+        payload: mutationPayload,
+        code,
+        action
+      });
       return new Response(
         JSON.stringify({
           error:
@@ -81,6 +87,18 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     normalizeCartTotals(cartPayload.cart);
+
+    // Debug logging to check discount data
+    console.log('[discount-code] Cart after promotion mutation:', {
+      cartId,
+      code,
+      action,
+      promotions: cartPayload.cart?.promotions,
+      discounts: cartPayload.cart?.discounts,
+      discount_total: cartPayload.cart?.discount_total,
+      subtotal: cartPayload.cart?.subtotal,
+      total: cartPayload.cart?.total
+    });
 
     return new Response(
       JSON.stringify({

@@ -219,13 +219,17 @@ export const GET: APIRoute = async ({ params }) => {
     const discounts = Array.isArray(medusaData?.cart?.discounts) ? medusaData.cart.discounts : []
 
     // Medusa v2 uses promotions; v1 uses discounts - handle both
+    // Note: Individual promotions don't have amount - use cart.discount_total instead
+    const totalPromotions = promotions.length + discounts.length
+    const amountPerPromotion = totalPromotions > 0 ? discountCents / totalPromotions : 0
+
     for (const promo of promotions) {
       const code = asString(promo?.code) || asString(promo?.promotion_code)
       if (code) {
         discountsArray.push({
           code,
           description: asString(promo?.description),
-          amount: toCentsStrict(promo?.amount, 'promo.amount'),
+          amount: amountPerPromotion, // Use calculated amount from cart total
           rule: promo?.application_method ? {
             type: asString(promo.application_method.type),
             value: typeof promo.application_method.value === 'number' ? promo.application_method.value : undefined,
@@ -241,7 +245,7 @@ export const GET: APIRoute = async ({ params }) => {
         discountsArray.push({
           code,
           description: asString(discount?.rule?.description) || asString(discount?.description),
-          amount: toCentsStrict(discount?.amount, 'discount.amount'),
+          amount: amountPerPromotion, // Use calculated amount from cart total
           rule: discount?.rule ? {
             type: asString(discount.rule.type),
             value: typeof discount.rule.value === 'number' ? discount.rule.value : undefined,
