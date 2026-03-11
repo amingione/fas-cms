@@ -1,4 +1,5 @@
 ---
+import PerformanceSection from './performanceSection.astro';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import ShopTopControls from '@components/shop/ShopTopControls';
 import ShopSidebarFilters from '@/components/storefront/ShopSidebarFilters';
@@ -351,7 +352,9 @@ const hasSaleProducts = Array.isArray(filterSource)
       const calculated = (variant as any)?.calculated_price;
       const amount = resolveProductCalculatedPriceAmount(product);
       const original =
-        typeof calculated === 'object' && calculated ? (calculated as any).original_amount : undefined;
+        typeof calculated === 'object' && calculated
+          ? (calculated as any).original_amount
+          : undefined;
       return (
         typeof amount === 'number' &&
         typeof original === 'number' &&
@@ -533,14 +536,22 @@ if (endPage < totalPages) {
 
 <BaseLayout title={metaTitle} description={pageDescription} canonical={canonical}>
   <Fragment slot="head">
-    <script is:inline type="application/ld+json" set:html={JSON.stringify(breadcrumbStructuredData)} />
+    <script
+      is:inline
+      type="application/ld+json"
+      set:html={JSON.stringify(breadcrumbStructuredData)}
+    />
     {
       productCollectionStructuredData && (
-        <script is:inline type="application/ld+json" set:html={JSON.stringify(productCollectionStructuredData)}
+        <script
+          is:inline
+          type="application/ld+json"
+          set:html={JSON.stringify(productCollectionStructuredData)}
         />
       )
     }
   </Fragment>
+  <PerformanceSection />
   <section class="max-w-full px-2 md:px-2 mt-11 pt-10">
     <div class="mb-6 mt-2 space-y-3">
       <div class="hidden md:block">

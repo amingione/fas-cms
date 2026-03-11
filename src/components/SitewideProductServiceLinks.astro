@@ -57,7 +57,7 @@ const topServiceLinks = [
           Explore our most requested billet components and performance upgrades, each engineered
           in-house and backed by track data.
         </p>
-        <nav aria-label="Top products">
+        <nav class="sitewide-links-nav" aria-label="Top products">
           <ul class="space-y-3">
             {
               topProductLinks.map((link) => (
@@ -95,7 +95,7 @@ const topServiceLinks = [
           Pair your hardware upgrades with professional installation, calibration, and security
           options from the F.A.S. Motorsports team.
         </p>
-        <nav aria-label="Top services">
+        <nav class="sitewide-links-nav" aria-label="Top services">
           <ul class="space-y-3">
             {
               topServiceLinks.map((link) => (
@@ -127,3 +127,13 @@ const topServiceLinks = [
     </div>
   </div>
 </section>
+
+<style>
+  .sitewide-links-nav {
+    display: block;
+    height: auto;
+    align-items: initial;
+    justify-content: initial;
+    gap: 0;
+  }
+</style>

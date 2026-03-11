@@ -1,0 +1,121 @@
+---
+import HomepageCartButton from './HomepageCartButton';
+---
+
+<div class="homepage-nav-wrap" data-home-nav-root>
+  <nav class="homepage-nav homepage-shell" aria-label="Primary">
+    <a href="/" class="homepage-logo" aria-label="F.A.S. Motorsports home">
+      <span class="homepage-logo-mark">F.A.S.</span>
+      <span class="homepage-logo-sub">Motorsports</span>
+    </a>
+
+    <ul class="homepage-nav-links" role="menubar">
+      <li class="homepage-nav-item" role="none">
+        <a href="/shop" class="homepage-nav-link" role="menuitem">Shop</a>
+        <div class="homepage-nav-dropdown" role="menu">
+          <a href="/shop/categories/billet-parts" role="menuitem">Billet Parts</a>
+          <a href="/shop/performance-packages" role="menuitem">Performance Packages</a>
+          <a href="/shop/storefront" role="menuitem">Wheels</a>
+          <a href="/shop/storefront" role="menuitem">All Products</a>
+        </div>
+      </li>
+      <li class="homepage-nav-item" role="none">
+        <a href="/packages" class="homepage-nav-link" role="menuitem">Packages</a>
+        <div class="homepage-nav-dropdown" role="menu">
+          <a href="/packages/truckPackages" role="menuitem">Truck Packages</a>
+          <a href="/packages/powerPackages" role="menuitem">Power Packages</a>
+          <a href="/shop/performance-packages" role="menuitem">Install Programs</a>
+        </div>
+      </li>
+      <li class="homepage-nav-item" role="none">
+        <a href="/services/overview" class="homepage-nav-link" role="menuitem">Services</a>
+        <div class="homepage-nav-dropdown" role="menu">
+          <a href="/services/customFab" role="menuitem">Custom Fabrication</a>
+          <a href="/services/porting" role="menuitem">Porting</a>
+          <a href="/services/welding" role="menuitem">Welding</a>
+          <a href="/services/igla" role="menuitem">IGLA Security</a>
+        </div>
+      </li>
+      <li role="none"><a href="/about" class="homepage-nav-link" role="menuitem">About</a></li>
+      <li role="none"><a href="/contact" class="homepage-nav-link" role="menuitem">Contact</a></li>
+    </ul>
+
+    <div class="homepage-nav-actions">
+      <a href="/account" class="homepage-vendor-link">Sign In</a>
+      <HomepageCartButton client:load />
+      <button
+        class="homepage-hamburger"
+        type="button"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="homepage-mobile-nav"
+        data-home-nav-toggle
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="homepage-mobile-nav" id="homepage-mobile-nav" data-home-nav-panel hidden>
+    <div class="homepage-mobile-nav-inner homepage-shell">
+      <a href="/shop" class="homepage-mobile-link">Shop</a>
+      <div class="homepage-mobile-subnav">
+        <a href="/shop/categories/billet-parts">Billet Parts</a>
+        <a href="/shop/performance-packages">Performance Packages</a>
+        <a href="/shop/storefront">Wheels</a>
+      </div>
+      <a href="/packages" class="homepage-mobile-link">Packages</a>
+      <div class="homepage-mobile-subnav">
+        <a href="/packages/truckPackages">Truck Packages</a>
+        <a href="/packages/powerPackages">Power Packages</a>
+      </div>
+      <a href="/services/overview" class="homepage-mobile-link">Services</a>
+      <div class="homepage-mobile-subnav">
+        <a href="/services/customFab">Custom Fabrication</a>
+        <a href="/services/porting">Porting</a>
+        <a href="/services/welding">Welding</a>
+        <a href="/services/igla">IGLA Security</a>
+      </div>
+      <a href="/about" class="homepage-mobile-link">About</a>
+      <a href="/contact" class="homepage-mobile-link">Contact</a>
+
+      <div class="homepage-mobile-cta-row">
+        <a href="/shop/categories/billet-parts" class="homepage-btn homepage-btn-primary">Shop Billet Parts</a>
+        <a href="/account" class="homepage-btn homepage-btn-secondary">Sign In</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector('[data-home-nav-root]');
+    if (!(root instanceof HTMLElement)) return;
+    const button = root.querySelector('[data-home-nav-toggle]');
+    const panel = root.querySelector('[data-home-nav-panel]');
+    if (!(button instanceof HTMLButtonElement) || !(panel instanceof HTMLElement)) return;
+
+    const setOpen = (next) => {
+      button.setAttribute('aria-expanded', String(next));
+      button.classList.toggle('is-open', next);
+      panel.hidden = !next;
+      panel.classList.toggle('is-open', next);
+      document.documentElement.classList.toggle('homepage-nav-open', next);
+    };
+
+    setOpen(false);
+    button.addEventListener('click', () => {
+      setOpen(button.getAttribute('aria-expanded') !== 'true');
+    });
+
+    panel.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => setOpen(false));
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 1024) setOpen(false);
+    });
+  })();
+</script>

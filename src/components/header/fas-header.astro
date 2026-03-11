@@ -1,0 +1,721 @@
+---
+import FasTopBar from './fas-topBar.astro';
+import MobileMenu from '@/components/navbar/mobile-menu.tsx';
+import CartEntry from '@/components/cart/CartEntry.tsx';
+
+type MenuLink = { label: string; href: string };
+
+const sortByLabel = (a: MenuLink, b: MenuLink) => a.label.localeCompare(b.label);
+
+const shopLinks = [
+  { label: 'All Products', href: '/shop' },
+  { label: 'Performance Packages', href: '/shop/performance-packages' },
+  { label: 'Wheels & Tires', href: '/wheels' },
+  { label: 'Categories', href: '/shop/categories' }
+].sort(sortByLabel);
+
+const billetLinks = [
+  { label: 'Shop Billet Parts', href: '/shop/categories/billet-parts' },
+  { label: 'Predator Pulley', href: '/specs/PredatorPulley' },
+  { label: 'Pulley Hub', href: '/specs/PulleyHub' },
+  { label: 'Billet Bearing Plate', href: '/specs/BilletBearingPlate' },
+  { label: 'Billet Snout', href: '/specs/BilletSnout' }
+];
+
+const packageLinks = [
+  { label: 'All Packages', href: '/packages' },
+  { label: 'Power Packages', href: '/packages/powerPackages' },
+  { label: 'Truck Packages', href: '/packages/truckPackages' }
+].sort(sortByLabel);
+
+const serviceLinks = [
+  { label: 'Core Exchange', href: '/services/coreExchange' },
+  { label: 'Custom Fabrication', href: '/services/customFab' },
+  { label: 'IGLA Security', href: '/services/igla' },
+  { label: 'Overview', href: '/services/overview' },
+  { label: 'Porting', href: '/services/porting' },
+  { label: 'Welding', href: '/services/welding' }
+].sort(sortByLabel);
+---
+
+<FasTopBar />
+<CartEntry client:only="react" />
+<div class="fas-nav-sticky">
+<div class="fas-header-mobile-shell">
+  <header class="fas-mobile-header" aria-label="Mobile site header">
+    <div class="fas-mobile-header-inner">
+      <a href="/" class="homepage-logo" aria-label="F.A.S. Motorsports home">
+        <span class="homepage-logo-mark">F.A.S.</span>
+        <span class="homepage-logo-sub">Motorsports</span>
+      </a>
+
+      <div class="fas-mobile-actions">
+        <button
+          type="button"
+          class="fas-cart-btn js-open-cart"
+          aria-label="Open cart drawer"
+          data-force-mobile="true"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            aria-hidden="true"
+          >
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 01-8 0"></path>
+          </svg>
+          <span>Cart</span>
+        </button>
+
+        <div class="fas-mobile-menu" aria-label="Mobile navigation">
+          <MobileMenu client:only="react" />
+        </div>
+      </div>
+    </div>
+  </header>
+</div>
+
+<header class="fas-desktop-header" aria-label="Desktop site header">
+  <div class="fas-desktop-header-inner">
+    <a href="/" class="homepage-logo" aria-label="F.A.S. Motorsports home">
+      <span class="homepage-logo-mark">F.A.S.</span>
+      <span class="homepage-logo-sub">Motorsports</span>
+    </a>
+
+    <ul class="nav-links" role="menubar">
+      <li class="nav-item" role="none">
+        <a href="/shop" class="nav-link" role="menuitem" aria-haspopup="true">
+          Shop
+          <svg viewBox="0 0 10 6" fill="none" aria-hidden="true">
+            <path
+              d="M1 1l4 4 4-4"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+        </a>
+        <div class="nav-dropdown" role="menu">
+          {
+            shopLinks.map((item) => (
+              <a href={item.href} role="menuitem">
+                {item.label}
+              </a>
+            ))
+          }
+        </div>
+      </li>
+      <li class="nav-item" role="none">
+        <a href="/shop/categories/billet-parts" class="nav-link" role="menuitem" aria-haspopup="true">
+          Billet Parts
+          <svg viewBox="0 0 10 6" fill="none" aria-hidden="true">
+            <path
+              d="M1 1l4 4 4-4"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+        </a>
+        <div class="nav-dropdown" role="menu">
+          {
+            billetLinks.map((item) => (
+              <a href={item.href} role="menuitem">
+                {item.label}
+              </a>
+            ))
+          }
+        </div>
+      </li>
+      <li class="nav-item" role="none">
+        <a href="/packages" class="nav-link" role="menuitem" aria-haspopup="true">
+          Packages
+          <svg viewBox="0 0 10 6" fill="none" aria-hidden="true">
+            <path
+              d="M1 1l4 4 4-4"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+        </a>
+        <div class="nav-dropdown" role="menu">
+          {
+            packageLinks.map((item) => (
+              <a href={item.href} role="menuitem">
+                {item.label}
+              </a>
+            ))
+          }
+        </div>
+      </li>
+      <li class="nav-item" role="none">
+        <a href="/services" class="nav-link" role="menuitem" aria-haspopup="true">
+          Services
+          <svg viewBox="0 0 10 6" fill="none" aria-hidden="true">
+            <path
+              d="M1 1l4 4 4-4"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+        </a>
+        <div class="nav-dropdown" role="menu">
+          {
+            serviceLinks.map((item) => (
+              <a href={item.href} role="menuitem">
+                {item.label}
+              </a>
+            ))
+          }
+        </div>
+      </li>
+      <li class="nav-item" role="none">
+        <a href="/about" class="nav-link" role="menuitem">About</a>
+      </li>
+      <li class="nav-item" role="none">
+        <a href="/contact" class="nav-link" role="menuitem">Contact</a>
+      </li>
+    </ul>
+
+    <div class="desktop-actions">
+      <a href="/account" class="desktop-login-btn">Login</a>
+      <button type="button" class="desktop-cart-btn js-open-cart" aria-label="Open cart drawer">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          aria-hidden="true"
+        >
+          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"></path>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <path d="M16 10a4 4 0 01-8 0"></path>
+        </svg>
+        Cart
+      </button>
+    </div>
+  </div>
+</header>
+</div>
+
+<style>
+  .fas-nav-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+    /* Single sticky root — both mobile shell and desktop header live here.
+       Topbar (FasTopBar) is a sibling above this wrapper and scrolls away normally. */
+  }
+
+  .fas-header-mobile-shell {
+    display: block;
+    overflow: visible;
+  }
+
+  .fas-mobile-header {
+    left: 0;
+    right: 0;
+    width: 100%;
+    border-bottom: 1px solid rgba(242, 239, 234, 0.08);
+    position: relative;
+  }
+
+  .fas-mobile-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    background: rgba(8, 8, 8, 0.94);
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .fas-mobile-header-inner {
+    width: min(1280px, calc(100% - 24px));
+    margin: 0 auto;
+    min-height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .homepage-logo {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .homepage-logo-mark {
+    color: #c41218;
+    font-family: 'Borgsquad Italic', sans-serif;
+    font-size: clamp(0.9rem, 3.2vw, 1.25rem);
+    letter-spacing: clamp(0.04em, 0.24vw, 0.08em);
+  }
+
+  .homepage-logo-sub {
+    color: #f2efea;
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: clamp(0.52rem, 1.85vw, 0.76rem);
+    letter-spacing: clamp(0.05em, 0.3vw, 0.11em);
+    text-transform: uppercase;
+  }
+
+  .fas-mobile-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .fas-cart-btn {
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    border-radius: 12px;
+    padding: 8px 10px;
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #c41218;
+    color: #fff;
+  }
+
+  .fas-cart-btn svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+  }
+
+  .fas-mobile-menu {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .fas-mobile-menu :global(button[aria-label='Open mobile menu']) {
+    height: 48px;
+    width: 48px;
+    border-radius: 16px;
+    border: none;
+    background: rgba(8, 8, 8, 0.9);
+    color: #f2efea;
+    box-shadow: none;
+  }
+
+  .fas-mobile-menu :global(.homepage-hamburger) {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    padding: 0;
+  }
+
+  .fas-mobile-menu :global(.homepage-hamburger span) {
+    width: 20px;
+    height: 2px;
+    background: #f2efea;
+    transition:
+      transform 220ms ease,
+      opacity 220ms ease;
+  }
+
+  .fas-mobile-menu :global(.homepage-hamburger.is-open span:nth-child(1)) {
+    transform: translateY(7px) rotate(45deg);
+  }
+
+  .fas-mobile-menu :global(.homepage-hamburger.is-open span:nth-child(2)) {
+    opacity: 0;
+  }
+
+  .fas-mobile-menu :global(.homepage-hamburger.is-open span:nth-child(3)) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  .fas-mobile-menu :global(button[aria-label='Open mobile menu']:hover) {
+    color: #ffffff;
+  }
+
+  .fas-mobile-menu :global(.mobile-nav) {
+    position: fixed;
+    inset: 0;
+    z-index: 190;
+    background: #080808;
+    transform: translateX(100%);
+    transition: transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .fas-mobile-menu :global(.mobile-nav.open) {
+    transform: translateX(0);
+  }
+
+  /* Internal drawer header: logo + cart + close */
+  .fas-mobile-menu :global(.mobile-nav-header) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    padding: 0 20px;
+    flex-shrink: 0;
+    border-bottom: 1px solid rgba(242, 239, 234, 0.08);
+    background: rgba(8, 8, 8, 0.98);
+  }
+
+  .fas-mobile-menu :global(.mobile-nav-logo img) {
+    height: 36px;
+    width: auto;
+    display: block;
+  }
+
+  .fas-mobile-menu :global(.mobile-nav-header-actions) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .fas-mobile-menu :global(.mobile-nav-cart-pill) {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: #c41218;
+    color: #fff;
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .fas-mobile-menu :global(.mobile-nav-close-btn) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    border: none;
+    background: rgba(242, 239, 234, 0.08);
+    color: #f2efea;
+    cursor: pointer;
+    transition: background 160ms ease;
+  }
+
+  .fas-mobile-menu :global(.mobile-nav-close-btn:hover) {
+    background: rgba(242, 239, 234, 0.14);
+  }
+
+  /* Scrollable content area below the internal header */
+  .fas-mobile-menu :global(.mobile-nav-inner) {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 20px 40px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .fas-mobile-menu :global(.mobile-nav-link) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 4px;
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #d3d0cb;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    text-decoration: none;
+    transition: color 160ms ease;
+  }
+
+  .fas-mobile-menu :global(.mobile-nav-link:hover) {
+    color: #f2efea;
+  }
+
+  .fas-mobile-menu :global(.mobile-nav-sub) {
+    padding: 8px 0 8px 12px;
+  }
+
+  .fas-mobile-menu :global(.mobile-nav-sub a) {
+    display: block;
+    padding: 8px 4px;
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #9f9b96;
+    text-decoration: none;
+    transition: color 160ms ease;
+  }
+
+  .fas-mobile-menu :global(.mobile-nav-sub a:hover) {
+    color: #d3d0cb;
+  }
+
+  .fas-mobile-menu :global(.mobile-nav-ctas) {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .fas-mobile-menu :global(.mobile-nav-ctas a) {
+    display: block;
+    padding: 14px;
+    text-align: center;
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 8px;
+    text-decoration: none;
+  }
+
+  .fas-mobile-menu :global(.mobile-cta-primary) {
+    background: #c41218;
+    color: #fff;
+  }
+
+  .fas-mobile-menu :global(.mobile-cta-outline) {
+    border: 1px solid rgba(196, 18, 24, 0.6);
+    color: #c41218;
+  }
+
+  .fas-desktop-header {
+    display: none;
+    left: 0;
+    right: 0;
+    width: 100%;
+    overflow: visible;
+    border-bottom: 1px solid rgba(242, 239, 234, 0.08);
+  }
+
+  .fas-desktop-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    background: rgba(8, 8, 8, 0.94);
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .fas-desktop-header-inner {
+    width: min(1280px, calc(100% - 40px));
+    margin: 0 auto;
+    min-height: 74px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  .nav-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .nav-item {
+    position: relative;
+  }
+
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    text-decoration: none;
+    color: #aba7a2;
+    border-radius: 8px;
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+  }
+
+  .nav-link:hover {
+    color: #f2efea;
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .nav-link svg {
+    width: 10px;
+    height: 6px;
+    flex-shrink: 0;
+    opacity: 0.8;
+  }
+
+  .nav-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 220px;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(242, 239, 234, 0.14);
+    background: rgba(13, 13, 13, 0.98);
+    box-shadow: 0 20px 42px rgba(0, 0, 0, 0.55);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(6px);
+    transition:
+      opacity 160ms ease,
+      transform 160ms ease;
+    z-index: 10000;
+  }
+
+  .nav-dropdown a {
+    display: block;
+    color: #aba7a2;
+    text-decoration: none;
+    font-size: 0.82rem;
+    padding: 8px 10px;
+    border-radius: 8px;
+  }
+
+  .nav-dropdown a:hover {
+    color: #f2efea;
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .nav-item:hover .nav-dropdown {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .desktop-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .desktop-login-btn,
+  .desktop-cart-btn {
+    text-decoration: none;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .desktop-login-btn {
+    border: 1px solid rgba(196, 18, 24, 0.45);
+    color: #f2efea;
+    background: transparent;
+  }
+
+  .desktop-login-btn:hover {
+    border-color: #c41218;
+  }
+
+  .desktop-cart-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #c41218;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+  }
+
+  .desktop-cart-btn svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 520px) {
+    .fas-mobile-header-inner {
+      width: min(100%, calc(100% - 16px));
+      min-height: 56px;
+    }
+
+    .fas-mobile-actions {
+      gap: 6px;
+    }
+
+    .fas-cart-btn {
+      border-radius: 10px;
+      padding: 8px;
+      font-size: 0;
+    }
+
+    .fas-cart-btn span {
+      display: none;
+    }
+
+    .fas-mobile-menu :global(button[aria-label='Open mobile menu']) {
+      height: 44px;
+      width: 44px;
+      border-radius: 14px;
+    }
+  }
+
+  @media (min-width: 980px) {
+    .fas-header-mobile-shell {
+      display: none;
+    }
+
+    .fas-desktop-header {
+      display: block;
+    }
+
+    .homepage-logo-mark {
+      font-size: clamp(1rem, 1.35vw, 1.36rem);
+      letter-spacing: clamp(0.04em, 0.12vw, 0.08em);
+    }
+
+    .homepage-logo-sub {
+      font-size: clamp(0.56rem, 0.85vw, 0.8rem);
+      letter-spacing: clamp(0.07em, 0.2vw, 0.12em);
+    }
+  }
+</style>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    const cartButtons = Array.from(document.querySelectorAll('.js-open-cart'));
+    cartButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const forceMobile = button.getAttribute('data-force-mobile') === 'true';
+        if (forceMobile) {
+          window.dispatchEvent(new CustomEvent('open-cart', { detail: { forceMobile: true } }));
+          return;
+        }
+        // This header uses the slide-in drawer pattern for desktop too.
+        window.dispatchEvent(new CustomEvent('open-cart', { detail: { forceMobile: true } }));
+      });
+    });
+  });
+</script>

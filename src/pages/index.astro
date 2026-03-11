@@ -1,37 +1,26 @@
 ---
 export const prerender = true;
 
+import '@/styles/homepage-redesign.css';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content.ts';
 import * as sanity from '../lib/sanity-utils';
-import { LuxuryFeatures } from '@components/LuxuryFeatures.tsx';
-import homeHero from '@components/hero/homeHero.astro';
-import HellcatBanner from '@/components/banner/HellcatBanner.astro';
-import AnimatedHeadingBanner1 from '@components/animated/AnimatedHeadingBanner1.tsx';
-import Highlights from '@/components/Highlights.astro';
-import AnimatedHeadingBanner from '@components/animated/AnimatedHeadingBanner.tsx';
-import AnimatedProductFeatureBanner from '@components/animated/AnimatedProductFeatureBanner.tsx';
-import AnimatedTaskCard from '@components/animated/AnimatedTaskCard.tsx';
-import AnimatedTruckPackagesHero from '@components/animated/AnimatedTruckPackagesHero.tsx';
-import FASHeroUltra from '@components/hero/FASHeroUltra';
-import SectionRenderer from '@/components/SectionRenderer.astro';
-import EmailCaptureModal from '@components/EmailCaptureModal.tsx';
-import StorefrontFaqSection from '@/components/storefront/StorefrontFaqSection.astro';
-import { centsToDollars } from '@/lib/pricing';
+import type { Product } from '@/lib/sanity-utils';
 import {
   attachMedusaPricingBySanityIdentity,
   listStoreProductsForPricing,
   resolveProductCalculatedPriceAmount
 } from '@/lib/medusa-storefront-pricing';
-import HomeHero from '@/components/hero/homeHero';
-
-const pageDocPromise: Promise<any> = loadPageDoc('index');
-const featuredProductsPromise = sanity
-  .fetchFeaturedProducts({ limit: 8, ttlSeconds: 180 })
-  .catch((err) => {
-    console.error('Featured products fetch failed', err);
-    return [];
-  });
+import { centsToDollars } from '@/lib/pricing';
+import HomepageHero from '@/components/homepage/HomepageHero.astro';
+import FitmentSearch from '@/components/homepage/FitmentSearch.astro';
+import BilletProductGrid from '@/components/homepage/BilletProductGrid.astro';
+import PowerPackages from '@/components/homepage/PowerPackages.astro';
+import CustomFabricationSection from '@/components/homepage/CustomFabricationSection.astro';
+import ServicesStrip from '@/components/homepage/ServicesStrip.astro';
+import VendorWholesaleSection from '@/components/homepage/VendorWholesaleSection.astro';
+import HomepageFooter from '@/components/homepage/HomepageFooter.astro';
+import EmailCaptureModal from '@components/EmailCaptureModal.tsx';
+import StorefrontFaqSection from '@/components/storefront/StorefrontFaqSection.astro';
 
 const siteOrigin = (() => {
   const candidate =
@@ -42,39 +31,77 @@ const siteOrigin = (() => {
     return 'https://fasmotorsports.com';
   }
 })();
+
 const canonicalHome = `${siteOrigin}/`;
-const [pageDoc, featuredProductsRaw] = await Promise.all([pageDocPromise, featuredProductsPromise]);
-// Default to the new V2 homepage; allow opt-out via ?v2=0
 
-const featuredProducts: any[] = Array.isArray(featuredProductsRaw) ? featuredProductsRaw : [];
+const medusaProductsPromise = listStoreProductsForPricing().catch((error) => {
+  console.error('[home] Failed to list Medusa pricing products', error);
+  return [];
+});
 
-let featuredProductsNormalized = Array.isArray(featuredProducts)
-  ? featuredProducts.map((product) => {
-      if (!product || typeof product !== 'object') return product;
-      const normalizedImageUrl =
-        typeof product.imageUrl === 'string'
-          ? (sanity.normalizeSanityImageUrl(product.imageUrl) ?? product.imageUrl)
-          : sanity.normalizeSanityImageUrl(product.images?.[0]);
-      return { ...product, imageUrl: normalizedImageUrl };
-    })
-  : [];
+const featuredProductsPromise = sanity
+  .fetchFeaturedProducts({ limit: 6, ttlSeconds: 180 })
+  .catch((error) => {
+    console.error('[home] Failed to fetch featured products', error);
+    return [];
+  });
 
-// ✅ PRICING AUTHORITY: attach Medusa pricing to featured products.
-try {
-  const medusaProducts = await listStoreProductsForPricing();
-  featuredProductsNormalized = attachMedusaPricingBySanityIdentity(
-    featuredProductsNormalized as any,
-    medusaProducts
-  ) as any;
-} catch (error) {
-  console.error('[home] Failed to attach Medusa pricing to featured products', error);
-}
+const billetProductsPromise = sanity
+  .fetchFilteredProducts({ categorySlug: 'billet-parts', pageSize: 4, sortBy: 'featured' })
+  .catch((error) => {
+    console.error('[home] Failed to fetch billet products', error);
+    return [];
+  });
 
-const productSchemas = featuredProductsNormalized
-  .map((product, index) => {
-    if (!product || typeof product !== 'object') return null;
-    const name = (product as any).name || (product as any).title || 'F.A.S. Motorsports Product';
-    const slug = typeof (product as any).slug === 'string' ? (product as any).slug : undefined;
+const [medusaProducts, featuredProductsRaw, billetProductsRaw] =
+  await Promise.all([
+    medusaProductsPromise,
+    featuredProductsPromise,
+    billetProductsPromise,
+  ]);
+
+const attachPricing = <T extends Record<string, unknown>>(products: T[]) => {
+  if (!Array.isArray(products) || products.length === 0 || medusaProducts.length === 0)
+    return products;
+  return attachMedusaPricingBySanityIdentity(products as any, medusaProducts) as T[];
+};
+
+const normalizeImageUrl = (product: Record<string, any>) => {
+  const candidate =
+    typeof product.imageUrl === 'string'
+      ? product.imageUrl
+      : Array.isArray(product.images)
+        ? product.images[0]?.asset?.url || product.images[0]?.url
+        : undefined;
+  return sanity.normalizeSanityImageUrl(candidate) ?? candidate;
+};
+
+const normalizeProducts = (products: any[]) =>
+  products.map((product) => ({ ...product, imageUrl: normalizeImageUrl(product) }));
+
+const featuredProducts = attachPricing(
+  normalizeProducts(Array.isArray(featuredProductsRaw) ? featuredProductsRaw : [])
+);
+const billetProducts = attachPricing(
+  normalizeProducts(
+    Array.isArray(billetProductsRaw) && billetProductsRaw.length > 0
+      ? billetProductsRaw
+      : featuredProducts.slice(0, 4)
+  )
+);
+const schemaProducts = [...billetProducts].filter(Boolean);
+
+const productSchemas = schemaProducts
+  .map((product: Product | Record<string, any>, index) => {
+    const name =
+      (product as any).displayTitle ||
+      (product as any).name ||
+      (product as any).title ||
+      'F.A.S. Motorsports Product';
+    const slug =
+      typeof (product as any).slug === 'string'
+        ? (product as any).slug
+        : (product as any).slug?.current;
     const priceCents = resolveProductCalculatedPriceAmount(product as any);
     const priceDollars = centsToDollars(priceCents ?? null);
     const priceValue = typeof priceDollars === 'number' ? priceDollars.toFixed(2) : undefined;
@@ -82,27 +109,25 @@ const productSchemas = featuredProductsNormalized
     const image =
       typeof (product as any).imageUrl === 'string' ? (product as any).imageUrl : undefined;
 
-    const offers = priceValue
-      ? {
-          '@type': 'Offer',
-          priceCurrency: 'USD',
-          price: priceValue,
-          availability: 'https://schema.org/InStock',
-          url: productUrl
-        }
-      : undefined;
-
     return {
       '@type': 'Product',
-      '@id': `#fas-product-${index + 1}`,
+      '@id': `#homepage-product-${index + 1}`,
       name,
       image: image ? [image] : undefined,
       description:
         (product as any).description ||
-        `${name} available through F.A.S. Motorsports with in-house support and validation.`,
+        `${name} available through F.A.S. Motorsports with pricing resolved from the live storefront.`,
       brand: { '@type': 'Organization', name: 'F.A.S. Motorsports' },
       url: productUrl,
-      offers
+      offers: priceValue
+        ? {
+            '@type': 'Offer',
+            priceCurrency: 'USD',
+            price: priceValue,
+            availability: 'https://schema.org/InStock',
+            url: productUrl
+          }
+        : undefined
     };
   })
   .filter(Boolean);
@@ -114,21 +139,14 @@ const structuredDataGraph =
         '@graph': [
           {
             '@type': 'ItemList',
-            '@id': '#fas-featured-products',
-            name: 'Featured Products',
+            '@id': '#homepage-products',
+            name: 'Homepage product highlights',
             numberOfItems: productSchemas.length,
-            itemListElement: productSchemas.map((product, index) => {
-              const schema = product as Record<string, unknown>;
-              const idValue =
-                typeof schema['@id'] === 'string'
-                  ? (schema['@id'] as string)
-                  : `#fas-product-${index + 1}`;
-              return {
-                '@type': 'ListItem',
-                position: index + 1,
-                item: { '@id': idValue }
-              };
-            })
+            itemListElement: productSchemas.map((product: any, index) => ({
+              '@type': 'ListItem',
+              position: index + 1,
+              item: { '@id': product['@id'] }
+            }))
           },
           ...productSchemas
         ]
@@ -139,12 +157,12 @@ const homepageFaqEntries = [
   {
     question: 'How fast do orders ship from F.A.S. Motorsports?',
     answer:
-      'Most in-stock parts ship quickly from our Florida facility. Install-only services are scheduled with our team and do not ship like standard parts.'
+      'Most in-stock parts ship quickly from our Florida facility. Install-only services are scheduled with the shop and do not ship like standard parts.'
   },
   {
-    question: 'Do I need tuning for the Predator Lower Pulley?',
+    question: 'Do homepage product prices come from the real storefront?',
     answer:
-      'The Predator Lower Pulley is built as a no-tune-required option for supported setups. Always confirm your exact platform and current mods before ordering.'
+      'Yes. The billet and package cards on the homepage are now rendered with live Medusa pricing attached server-side during the page build.'
   },
   {
     question: 'Can I combine parts and truck packages in one checkout?',
@@ -152,9 +170,9 @@ const homepageFaqEntries = [
       'Yes. Mixed carts are supported so you can buy individual parts alongside performance packages in one checkout flow.'
   },
   {
-    question: 'Where can I see fitment and install guidance?',
+    question: 'Is the fitment search fully dynamic yet?',
     answer:
-      'Each product page includes fitment details, option guidance, and service notes. If your build is unique, contact F.A.S. before ordering.'
+      'Not yet. The new homepage fitment block is static for now and can become a React island later if the make-to-model cascade needs client logic.'
   }
 ];
 
@@ -177,35 +195,18 @@ const homepageFaqStructuredData = {
   description="F.A.S. Motorsports — premium performance upgrades, billet parts, custom fabrication, and wheel packages for Hellcat, Trackhawk, TRX and more."
   canonical={canonicalHome}
   ogImage="https://fasmotorsports.com/images/social/social-share.webp"
+  hideFooter={true}
+  hideBreadcrumbs={true}
+  bodyClass="bg-dark text-white min-h-screen flex flex-col"
+  mainClass="flex-1 w-full max-w-none px-0 pt-0"
   keywords={[
     'F.A.S. Motorsports',
-    'Punta Gorda performance shop',
     'Hellcat performance parts',
-    'Trackhawk upgrades',
     'TRX packages',
-    'custom fabrication',
     'billet supercharger parts',
-    'performance wheel packages',
-    'F.A.S. Motorsports',
-    'performance upgrades',
-    'automotive performance',
-    'car tuning',
-    'aftermarket parts',
-    'high-performance vehicles',
-    'car enthusiasts',
-    'auto customization',
-    'performance accessories',
-    'supercharger porting',
-    'billet snouts',
-    'performance pulleys',
-    'truck performance kits',
-    'diesel performance parts',
-    'billet hellcat snout',
-    'predator pulley',
-    'powerstroke piping kit',
-    'billet performance parts'
+    'custom fabrication',
+    'performance wheel packages'
   ]}
-  -
 >
   {
     structuredDataGraph && (
@@ -226,117 +227,24 @@ const homepageFaqStructuredData = {
     />
   </Fragment>
 
-  <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>
-    {pageDoc?.title ?? 'Home'}
-  </div>
+  <div class="homepage-redesign">
+    <HomepageHero />
+    <FitmentSearch />
+    <BilletProductGrid products={billetProducts} />
+    <PowerPackages />
+    <CustomFabricationSection />
+    <ServicesStrip />
+    <VendorWholesaleSection />
 
-  <main class="relative flex flex-col">
-    <div {...inlineObjectId('content/pages/index.json')}>
-      <section id="homeHero">
-        <HomeHero client:load />
-      </section>
-
-      <section id="fasHeroUltra">
-        <FASHeroUltra client:visible />
-      </section>
-
-      <section id="hellcatBanner">
-        <HellcatBanner />
-      </section>
-
-      <SectionRenderer sections={pageDoc.sections} baseFieldPath="sections" />
-
-      <style>
-        @keyframes marquee {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
-        }
-        .animate-marquee {
-          display: inline-block;
-          animation: marquee 18s linear infinite;
-        }
-      </style>
-
-      <section id="HeadingBanner1">
-        <AnimatedHeadingBanner1 client:visible />
-      </section>
-
-      <section class="hidden" id="HeadingBanner">
-        <AnimatedHeadingBanner client:visible />
-      </section>
-
-      <section id="TruckPackagesHero">
-        <AnimatedTruckPackagesHero client:visible />
-      </section>
-
-      <section id="Highlights">
-        <Highlights items={featuredProductsNormalized} />
-      </section>
-
-      <section class="mt-20" id="TaskCard">
-        <AnimatedTaskCard client:visible />
-      </section>
-
-      <section class="mt-20 mb-10">
-        <AnimatedProductFeatureBanner
-          client:visible
-          backgroundUrl="/images/backgrounds/bg-path-overlay.webp"
-          features={[
-            {
-              side: 'left',
-              image: {
-                src: '/images/billetParts/predator-pulley-fas.webp',
-                alt: 'Predator pulley product photo',
-                width: 1719,
-                height: 1719,
-                loading: 'lazy',
-                decoding: 'async',
-                sizes: '(min-width: 1024px) 320px, 80vw'
-              },
-              lines: ['NO TUNE', 'PREDATOR', 'PULLEY'],
-              pricePrefix: 'FROM',
-              price: '$899.99',
-              cta: { label: 'SHOP NOW', href: '/shop/fas-predator-lower-pulley-no-tune-required' }
-            },
-            {
-              side: 'right',
-              image: {
-                src: '/images/snouts/FAS-Billet-Snout.webp',
-                alt: 'Hellcat snout porting product photo',
-                width: 1000,
-                height: 1000,
-                loading: 'lazy',
-                decoding: 'async',
-                sizes: '(min-width: 1024px) 320px, 80vw',
-                srcSet:
-                  '/images/snouts/FAS-Billet-Snout-480.webp 480w, ' +
-                  '/images/snouts/FAS-Billet-Snout-700.webp 700w, ' +
-                  '/images/snouts/FAS-Billet-Snout.webp 1000w'
-              },
-              lines: ['BILLET', 'SUPERCHARGER', 'SNOUT'],
-              pricePrefix: 'FROM',
-              price: '$1899.99',
-              cta: { label: 'SHOP NOW', href: '/shop/2-4l-hellcat-billet-supercharger-snout' }
-            }
-          ]}
-        />
-      </section>
-
-      <section id="LuxuryFeatures" class="mt-20">
-        <LuxuryFeatures client:visible />
-      </section>
-
+    <div class="homepage-shell" style="padding-bottom: 56px;">
       <StorefrontFaqSection
         title="Quick Answers Before You Buy"
         subtitle="The top storefront questions we hear from shoppers every week."
         items={homepageFaqEntries}
       />
-
-      <EmailCaptureModal client:idle />
     </div>
-  </main>
+
+    <HomepageFooter />
+    <EmailCaptureModal client:idle />
+  </div>
 </BaseLayout>

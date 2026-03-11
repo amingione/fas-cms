@@ -1,5 +1,6 @@
 ---
 import ProductCardLite from '@components/storefront/ProductCardLite.astro';
+import ProductCardShowcase from '@components/storefront/ProductCardShowcase.astro';
 
 interface Product {
   images?: any[];
@@ -9,13 +10,15 @@ const {
   emptyMessage = 'No products found.',
   view = 'grid',
   showQuickView = true,
-  clearHref = '/shop'
+  clearHref = '/shop',
+  cardVariant = 'lite'
 } = Astro.props as {
   products: Product[];
   emptyMessage?: string;
   view?: 'grid' | 'list';
   showQuickView?: boolean;
   clearHref?: string;
+  cardVariant?: 'lite' | 'showcase';
 };
 ---
 
@@ -23,16 +26,27 @@ const {
   products.length > 0 ? (
     <div
       id="product-grid"
-      class={`relative isolation-isolate z-0 ${view === 'list' ? 'space-y-3' : 'grid auto-rows-fr grid-cols-2 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-3'}`}
+      class={`relative isolation-isolate z-0 ${view === 'list' ? 'space-y-4' : 'grid auto-rows-fr grid-cols-2 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5'}`}
     >
       {products.map((p) => (
         <Fragment>
-          <ProductCardLite
-            product={p}
-            productImage={p.images?.[0]}
-            layout={view}
-            showQuickView={showQuickView}
-          />
+          {
+            cardVariant === 'showcase' ? (
+              <ProductCardShowcase
+                product={p}
+                productImage={p.images?.[0]}
+                layout={view}
+                showQuickView={showQuickView}
+              />
+            ) : (
+              <ProductCardLite
+                product={p}
+                productImage={p.images?.[0]}
+                layout={view}
+                showQuickView={showQuickView}
+              />
+            )
+          }
         </Fragment>
       ))}
     </div>

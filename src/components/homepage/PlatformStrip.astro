@@ -1,0 +1,21 @@
+---
+const items = [
+  { href: '/shop/storefront?platform=hellcat', name: 'Hellcat SRT', meta: 'Up to 1,600+ HP' },
+  { href: '/shop/storefront?platform=trx', name: 'Ram TRX', meta: 'Street and strip builds' },
+  { href: '/shop/storefront?platform=f150', name: 'Ford F-150', meta: 'Packages and billet upgrades' },
+  { href: '/shop/storefront?platform=diesel', name: 'Diesel', meta: 'Fab and airflow solutions' }
+];
+---
+
+<nav class="homepage-platform-strip" aria-label="Shop by platform">
+  <div class="homepage-shell homepage-platform-grid">
+    {
+      items.map((item) => (
+        <a href={item.href} class="homepage-platform-card">
+          <span class="homepage-platform-name">{item.name}</span>
+          <span class="homepage-platform-meta">{item.meta}</span>
+        </a>
+      ))
+    }
+  </div>
+</nav>

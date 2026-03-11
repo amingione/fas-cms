@@ -1,0 +1,165 @@
+---
+import '@/styles/fas-theme2.css';
+
+const packages = [
+  {
+    name: 'FAS 800 Performance Package | TRX',
+    price: '$6,699.00',
+    href: '/packages/fas-800-package-trx',
+    hp: '800',
+    image: '/images/packages/FAS-TRX-build1.webp',
+    featured: false,
+  },
+  {
+    name: 'FAS 1000 Performance Package | TRX',
+    price: '$17,999.00',
+    href: '/packages/fas-1000-hellcat-package-trx',
+    hp: '1000',
+    image: '/images/packages/D-FAS-TRX-Package.webp',
+    featured: true,
+  },
+  {
+    name: 'FAS 800 Performance Package | Trackhawk/Durango',
+    price: '$6,599.00',
+    href: '/packages/fas-800-performance-package-or-trackhawk-durango',
+    hp: '800',
+    image: '/images/packages/FAS-trackhawk-engine-bay.webp',
+    featured: false,
+  },
+  {
+    name: 'FAS 900 Package | RAM TRX',
+    price: '$9,999.00',
+    href: '/packages/fas-900-package-copy-e32083',
+    hp: '900',
+    image: '/images/packages/FAS-ram-trx-build.webp',
+    featured: false,
+  },
+  {
+    name: 'FAS 850 Package | Hellcat Platform',
+    price: '$6,699.00',
+    href: '/packages/fas-850-package',
+    hp: '850',
+    image: '/images/packages/Hellcat/FAS-4.webp',
+    featured: false,
+  },
+  {
+    name: 'FAS 1000 Performance Package | Charger & Challenger',
+    price: '$16,999.99',
+    href: '/packages/fas-1000-hellcat-package',
+    hp: '1000',
+    image: '/images/packages/Hellcat/FAS-fas-1000-challenger.webp',
+    featured: false,
+  },
+];
+---
+
+<section class="section packages-section" aria-labelledby="packages-heading">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <div class="kicker">
+          <div class="line"></div>
+          <span>Install-Only · FAS Parts · Dyno-Proven</span>
+        </div>
+        <h2 id="packages-heading" class="section-title">Power Packages</h2>
+        <p class="section-sub">
+          Every package is built with parts we designed and manufactured. Every install
+          happens in our shop. Every number gets proven on the dyno before your keys come
+          back.
+        </p>
+      </div>
+      <a href="/shop/performance-packages" class="btn-ghost btn-sm" style="white-space: nowrap; flex-shrink: 0">
+        All Packages →
+      </a>
+    </div>
+
+    <div class="packages-grid">
+      {packages.map((pkg, index) => (
+        <div class:list={['pkg-card', 'is-visible', pkg.featured && 'featured']} data-stagger={index}>
+          <div class="pkg-visual" data-label={`${pkg.name} — your build photo`}>
+            <img src={pkg.image} alt={pkg.name} loading="lazy" decoding="async" />
+            <div class="pkg-hp">
+              <div class="val">{pkg.hp}</div>
+              <div class="unit">HP</div>
+            </div>
+          </div>
+          <div class="pkg-body">
+            <div class="pkg-name">{pkg.name}</div>
+            <div class="pkg-footer">
+              <div>
+                <div class="pkg-from">Starting From</div>
+                <div class="pkg-price">{pkg.price}</div>
+              </div>
+              <a href={pkg.href} class:list={[pkg.featured ? 'btn-primary' : 'btn-ghost', 'btn-sm']}>
+                Details
+              </a>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ── Container — matches homepage-shell responsive system ── */
+  .container {
+    width: min(calc(100% - (2 * var(--container-pad-mobile))), var(--max-w));
+    margin: 0 auto;
+  }
+
+  @media (min-width: 640px) {
+    .container {
+      width: min(calc(100% - (2 * var(--container-pad-tablet))), var(--max-w));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container {
+      width: min(calc(100% - (2 * var(--container-pad-desktop))), var(--max-w));
+    }
+  }
+
+  /* ── Card entrance (progressive enhancement safe) ───────── */
+  .pkg-card {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .pkg-card.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .pkg-card[data-stagger='1'] {
+    transition-delay: 90ms;
+  }
+  .pkg-card[data-stagger='2'] {
+    transition-delay: 180ms;
+  }
+
+  .pkg-visual > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    position: absolute;
+    inset: 0;
+  }
+</style>
+
+<script>
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+  );
+
+  document.querySelectorAll('.pkg-card[data-stagger]').forEach((card) => {
+    observer.observe(card);
+  });
+</script>

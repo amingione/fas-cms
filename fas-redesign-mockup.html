@@ -173,17 +173,22 @@
       .announcement {
         background: var(--red);
         padding: 8px 20px;
-        text-align: center;
         position: relative;
         z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
       }
       .announcement p {
+        width: 100%;
         font-family: var(--font-label);
         font-size: 12px;
         font-weight: 700;
         letter-spacing: 0.08em;
         text-transform: uppercase;
         color: #fff;
+        text-align: center;
       }
       .announcement a {
         color: #fff;
@@ -818,57 +823,6 @@
         text-transform: uppercase;
         color: var(--text-muted);
         margin-top: 5px;
-      }
-
-      /* =========================================================
-       TRUST TICKER
-    ========================================================= */
-      .trust-ticker {
-        background: var(--bg-surface);
-        border-top: 1px solid var(--border-subtle);
-        border-bottom: 1px solid var(--border-subtle);
-        overflow: hidden;
-        height: 44px;
-        display: flex;
-        align-items: center;
-      }
-      .ticker-track {
-        display: flex;
-        align-items: center;
-        animation: ticker-scroll 36s linear infinite;
-        white-space: nowrap;
-        will-change: transform;
-      }
-      .trust-ticker:hover .ticker-track {
-        animation-play-state: paused;
-      }
-      @keyframes ticker-scroll {
-        0% {
-          transform: translateX(0);
-        }
-        100% {
-          transform: translateX(-50%);
-        }
-      }
-      .ticker-item {
-        display: inline-flex;
-        align-items: center;
-        gap: 12px;
-        padding: 0 28px;
-        font-family: var(--font-label);
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
-        color: var(--text-muted);
-        white-space: nowrap;
-      }
-      .ticker-dot {
-        width: 4px;
-        height: 4px;
-        background: var(--red);
-        border-radius: 50%;
-        flex-shrink: 0;
       }
 
       /* =========================================================
@@ -2392,49 +2346,6 @@
           </div>
         </div>
       </section>
-
-      <!-- ===================================================
-         TRUST TICKER
-    =================================================== -->
-      <div class="trust-ticker" aria-hidden="true">
-        <div class="ticker-track">
-          <span class="ticker-item"><span class="ticker-dot"></span>In-House CNC Manufactured</span>
-          <span class="ticker-item"><span class="ticker-dot"></span>Dyno-Proven Performance</span>
-          <span class="ticker-item"
-            ><span class="ticker-dot"></span>Free Shipping on Orders $200+</span
-          >
-          <span class="ticker-item"><span class="ticker-dot"></span>5–10 Day Build Lead Time</span>
-          <span class="ticker-item"
-            ><span class="ticker-dot"></span>Hard Anodized Billet Aluminum</span
-          >
-          <span class="ticker-item"
-            ><span class="ticker-dot"></span>Three Generations of Expertise</span
-          >
-          <span class="ticker-item"><span class="ticker-dot"></span>Punta Gorda, FL Shop</span>
-          <span class="ticker-item"
-            ><span class="ticker-dot"></span>No-Tune Predator Pulley Available</span
-          >
-          <span class="ticker-item"><span class="ticker-dot"></span>Fit-Verified Parts</span>
-          <!-- Duplicate set for seamless loop -->
-          <span class="ticker-item"><span class="ticker-dot"></span>In-House CNC Manufactured</span>
-          <span class="ticker-item"><span class="ticker-dot"></span>Dyno-Proven Performance</span>
-          <span class="ticker-item"
-            ><span class="ticker-dot"></span>Free Shipping on Orders $200+</span
-          >
-          <span class="ticker-item"><span class="ticker-dot"></span>5–10 Day Build Lead Time</span>
-          <span class="ticker-item"
-            ><span class="ticker-dot"></span>Hard Anodized Billet Aluminum</span
-          >
-          <span class="ticker-item"
-            ><span class="ticker-dot"></span>Three Generations of Expertise</span
-          >
-          <span class="ticker-item"><span class="ticker-dot"></span>Punta Gorda, FL Shop</span>
-          <span class="ticker-item"
-            ><span class="ticker-dot"></span>No-Tune Predator Pulley Available</span
-          >
-          <span class="ticker-item"><span class="ticker-dot"></span>Fit-Verified Parts</span>
-        </div>
-      </div>
 
       <!-- ===================================================
          FITMENT SEARCH

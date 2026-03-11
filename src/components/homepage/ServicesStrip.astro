@@ -1,0 +1,36 @@
+---
+const services = [
+  { href: '/services/customFab', name: 'Custom Fab', meta: 'Exhaust, headers, intakes, tow hooks, and stainless fabrication.' },
+  { href: '/services/porting', name: 'Porting', meta: 'Airflow-focused head and intake work matched to target power.' },
+  { href: '/services/welding', name: 'Welding', meta: 'TIG and MIG repair, fabrication, brackets, and structural work.' },
+  { href: '/services/igla', name: 'IGLA Security', meta: 'Authorized immobilizer installs for high-value street builds.' },
+  { href: '/services/coreExchange', name: 'Core Exchange', meta: 'Rebuilt unit programs that keep projects moving faster.' },
+  { href: '/contact', name: 'Schedule Service', meta: 'Bring the vehicle to Punta Gorda and have the work done in-house.' }
+];
+---
+
+<section class="homepage-section">
+  <div class="homepage-shell">
+    <div class="homepage-section-header">
+      <div>
+        <div class="homepage-kicker">
+          <span class="homepage-kicker-line"></span>
+          <span>Everything Done In-House</span>
+        </div>
+        <h2 class="homepage-section-title">Shop Services</h2>
+      </div>
+      <a href="/services/overview" class="homepage-btn homepage-btn-secondary">All Services</a>
+    </div>
+
+    <div class="homepage-services-grid">
+      {
+        services.map((service) => (
+          <a href={service.href} class="homepage-service-card">
+            <h3>{service.name}</h3>
+            <p>{service.meta}</p>
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</section>

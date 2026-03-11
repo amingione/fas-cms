@@ -728,7 +728,11 @@ if (endPage < totalPages) {
       </aside>
 
       <div class="w-full px-3 md:w-3/4">
-        <ProductGrid products={products} view={(url.searchParams.get('view') || 'grid') as 'grid' | 'list'} />
+        <ProductGrid
+          products={products}
+          view={(url.searchParams.get('view') || 'grid') as 'grid' | 'list'}
+          cardVariant="showcase"
+        />
       </div>
     </div>
 

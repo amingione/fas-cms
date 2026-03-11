@@ -12,7 +12,14 @@ const requestUrl = new URL(Astro.request.url);
 requestUrl.search = '';
 requestUrl.hash = '';
 const canonical = requestUrl.toString();
-const siteOrigin = requestUrl.origin;
+const siteOrigin = (() => {
+  const candidate = (import.meta.env.PUBLIC_SITE_URL as string | undefined) || 'https://fasmotorsports.com';
+  try {
+    return new URL(candidate).origin;
+  } catch {
+    return 'https://fasmotorsports.com';
+  }
+})();
 
 const products: Product[] = await fetchProductsFromSanity({});
 const MAX_PRODUCTS = 24;

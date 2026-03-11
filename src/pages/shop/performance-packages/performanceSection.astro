@@ -1,0 +1,225 @@
+---
+import CategoryPage from '@/components/storefront/CategoryPage.tsx';
+import * as sanityUtils from '@/lib/sanity-utils';
+import { sanityClient as client } from '@/lib/sanityClient';
+import { serializeJsonLd } from '@lib/utils';
+import { centsToDollars } from '@/lib/pricing';
+import * as medusaPricing from '@/lib/medusa-storefront-pricing';
+
+let products = await sanityUtils.fetchProductsFromSanity({});
+let medusaProducts: medusaPricing.MedusaStoreProduct[] = [];
+try {
+  medusaProducts = await medusaPricing.listStoreProductsForPricing();
+  products = medusaPricing.attachMedusaPricingBySanityIdentity(products, medusaProducts);
+} catch (error) {
+  console.error('[shop/storefront] Failed to attach Medusa pricing', error);
+}
+
+if (Array.isArray(medusaProducts) && medusaProducts.length > 0) {
+  const seenSlugs = new Set(
+    (Array.isArray(products) ? products : [])
+      .map((product: any) => sanityUtils.normalizeSlugValue(product?.slug))
+      .filter(Boolean)
+  );
+
+  const medusaOnlyProducts = medusaProducts
+    .filter((product) => typeof product?.handle === 'string' && product.handle.length > 0)
+    .filter((product) => !seenSlugs.has(sanityUtils.normalizeSlugValue(product.handle)))
+    .map((product) => ({
+      _id: product.id,
+      title: product.title ?? product.handle ?? product.id,
+      slug: { current: product.handle ?? product.id },
+      categories: [],
+      images: Array.isArray(product.images)
+        ? product.images
+            .map((image, index) => {
+              if (typeof image?.url !== 'string' || image.url.length === 0) return null;
+              return {
+                asset: {
+                  _id: `${product.id}-image-${index}`,
+                  url: image.url
+                }
+              };
+            })
+            .filter((image): image is { asset: { _id: string; url: string } } => Boolean(image))
+        : [],
+      medusa: product
+    }));
+
+  if (medusaOnlyProducts.length > 0) {
+    products = [...products, ...medusaOnlyProducts];
+  }
+}
+
+const categoriesRaw =
+  await client.fetch(`*[_type == "category" && defined(slug.current)] | order(orderRank asc){
+  _id,
+  title,
+  "slug": slug.current,
+  "imageUrl": coalesce(image.asset->url, mainImage.asset->url, images[0].asset->url),
+  description
+}`);
+
+const categories = (Array.isArray(categoriesRaw) ? categoriesRaw : [])
+  .map((category) => ({
+    id: category?._id ?? category?.slug ?? category?.title ?? '',
+    title: category?.title ?? 'Category',
+    slug: typeof category?.slug === 'string' ? category.slug : '',
+    imageUrl: sanityUtils.normalizeSanityImageUrl(category?.imageUrl) ?? null,
+    description: category?.description ?? null
+  }))
+  .filter((category) => Boolean(category.slug));
+
+const requestUrl = new URL(Astro.request.url);
+requestUrl.search = '';
+requestUrl.hash = '';
+const canonical = requestUrl.toString();
+
+const pageTitle = 'Performance Categories';
+const pageDescription =
+  'Explore performance categories curated by F.A.S. Motorsports, from billet parts to wheel programs and power packages.';
+
+const breadcrumbStructuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Home',
+      item: `${requestUrl.origin}/`
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Shop Categories',
+      item: canonical
+    }
+  ]
+};
+
+const ensureAbsoluteUrl = (value?: string | null) => {
+  if (!value) return undefined;
+  if (/^https?:/i.test(value)) return value;
+  try {
+    return new URL(value, `${requestUrl.origin}/`).toString();
+  } catch {
+    return undefined;
+  }
+};
+
+const categoryItemListElements = Array.isArray(categories)
+  ? categories
+      .map((category, index) => {
+        if (!category?.slug) return null;
+        const categoryUrl = `${requestUrl.origin}/shop/categories/${category.slug}`;
+        return {
+          '@type': 'ListItem',
+          position: index + 1,
+          url: categoryUrl,
+          item: {
+            '@type': 'CollectionPage',
+            name: category.title ?? 'Category',
+            url: categoryUrl,
+            description: category.description ?? undefined,
+            image: category.imageUrl ? [ensureAbsoluteUrl(category.imageUrl)] : undefined
+          }
+        };
+      })
+      .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
+  : [];
+
+const categoryCollectionStructuredData = categoryItemListElements.length
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: pageTitle,
+      url: canonical,
+      description: pageDescription,
+      mainEntity: {
+        '@type': 'ItemList',
+        name: 'Performance categories',
+        numberOfItems: categoryItemListElements.length,
+        itemListElement: categoryItemListElements
+      }
+    }
+  : null;
+
+const resolveProductSlug = (product: any): string => {
+  const rawSlug = product?.slug as any;
+  if (typeof rawSlug === 'string') return rawSlug;
+  if (rawSlug && typeof rawSlug === 'object' && typeof rawSlug.current === 'string') {
+    return rawSlug.current;
+  }
+  return '';
+};
+
+const resolveProductImages = (product: any): string[] => {
+  if (!product || typeof product !== 'object') return [];
+  if (!Array.isArray(product.images)) return [];
+  return product.images
+    .map((image: any) => ensureAbsoluteUrl(image?.asset?.url || image?.url))
+    .filter((value: string | undefined): value is string => Boolean(value));
+};
+
+const productItemListElements = Array.isArray(products)
+  ? products
+      .slice(0, 20)
+      .map((product: any, index: number) => {
+        const slugValue = resolveProductSlug(product);
+        if (!slugValue) return null;
+        const productUrl = `${requestUrl.origin}/shop/${slugValue}`;
+        const images = resolveProductImages(product);
+        const priceNumber = medusaPricing.resolveProductCalculatedPriceAmount(product);
+        const priceDollars = centsToDollars(priceNumber ?? undefined);
+        const offers =
+          typeof priceDollars === 'number' && priceDollars > 0
+            ? {
+                '@type': 'Offer',
+                priceCurrency: 'USD',
+                price: priceDollars.toFixed(2),
+                availability: 'https://schema.org/InStock',
+                url: productUrl,
+                itemCondition: 'https://schema.org/NewCondition'
+              }
+            : undefined;
+        return {
+          '@type': 'ListItem',
+          position: index + 1,
+          url: productUrl,
+          item: {
+            '@type': 'Product',
+            name: product?.title ?? undefined,
+            image: images.length ? images : undefined,
+            offers
+          }
+        };
+      })
+      .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
+  : [];
+
+const productCollectionStructuredData = productItemListElements.length
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      name: 'Featured performance packages',
+      itemListElement: productItemListElements
+    }
+  : null;
+---
+
+<section title={pageTitle}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={serializeJsonLd(breadcrumbStructuredData)} />
+  </Fragment>
+
+  <section class="px-5 py-5">
+    <CategoryPage
+      products={products}
+      categories={categories}
+      title="Performance Packages"
+      description="Jump into the platform that matches your build. Each category highlights curated hardware stacks, tuning paths, and proven package tiers engineered in-house by F.A.S."
+      client:idle
+    />
+  </section>
+</section>

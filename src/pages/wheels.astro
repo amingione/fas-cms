@@ -1,0 +1,222 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Wheels & Tires"
+  description="Premium aftermarket wheels for your build — Belak Wheels and JTX Forged available at F.A.S. Motorsports in Punta Gorda, FL."
+  hideBreadcrumbs={false}
+>
+  <section class="wheels-hub">
+    <div class="hub-inner">
+      <div class="hub-eyebrow">Performance Wheels</div>
+      <h1 class="hub-heading">Spec'd to Order.</h1>
+      <p class="hub-sub">
+        Belak and JTX Forged — two of the strongest names in custom forged wheels. We order direct
+        to your exact fitment, finish, and offset. Every set dialed in for your specific build.
+      </p>
+
+      <div class="hub-grid">
+        <a href="/belak/wheels" class="hub-card">
+          <div class="hub-card-badge">Forged</div>
+          <div class="hub-card-logo">BELAK</div>
+          <p class="hub-card-desc">
+            Motorsport-grade monoblock and flow-formed wheels built for performance trucks and
+            muscle cars. Custom offsets, finishes, and fitments.
+          </p>
+          <span class="hub-card-cta">
+            View Belak Wheels
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path
+                d="M3 8h10M9 4l4 4-4 4"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"></path>
+            </svg>
+          </span>
+        </a>
+
+        <a href="/jtx/wheels" class="hub-card">
+          <div class="hub-card-badge">Forged</div>
+          <div class="hub-card-logo">JTX FORGED</div>
+          <p class="hub-card-desc">
+            Fully custom billet and forged wheels with aggressive deep-dish profiles. Built for
+            Hellcats, TRXs, and anything that needs to look as fast as it is.
+          </p>
+          <span class="hub-card-cta">
+            View JTX Forged
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path
+                d="M3 8h10M9 4l4 4-4 4"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"></path>
+            </svg>
+          </span>
+        </a>
+      </div>
+
+      <p class="hub-note">
+        Bring your car in and we'll measure, spec, and quote you on the spot.
+        <a href="/contact">Contact F.A.S. Motorsports →</a>
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .wheels-hub {
+    padding: 64px 0 96px;
+  }
+
+  .hub-inner {
+    width: min(calc(100% - (2 * var(--container-pad-mobile, 28px))), var(--max-w, 1280px));
+    margin: 0 auto;
+    max-width: 860px;
+  }
+
+  @media (min-width: 640px) {
+    .hub-inner {
+      width: min(calc(100% - (2 * var(--container-pad-tablet, 48px))), var(--max-w, 1280px));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .hub-inner {
+      width: min(calc(100% - (2 * var(--container-pad-desktop, 72px))), var(--max-w, 1280px));
+    }
+  }
+
+  .hub-eyebrow {
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #c41218;
+    margin-bottom: 14px;
+  }
+
+  .hub-heading {
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: clamp(1.75rem, 5vw, 3rem);
+    font-weight: 700;
+    color: #f2efea;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin: 0 0 20px;
+    line-height: 1.1;
+  }
+
+  .hub-sub {
+    font-size: 1rem;
+    line-height: 1.65;
+    color: #9f9b96;
+    max-width: 600px;
+    margin: 0 0 48px;
+  }
+
+  .hub-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 48px;
+  }
+
+  @media (max-width: 639px) {
+    .hub-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .hub-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 28px 24px 24px;
+    background: #111;
+    border: 1px solid rgba(242, 239, 234, 0.1);
+    border-radius: 14px;
+    text-decoration: none;
+    transition:
+      border-color 200ms ease,
+      background 200ms ease;
+  }
+
+  .hub-card:hover {
+    background: #161616;
+    border-color: rgba(196, 18, 24, 0.4);
+  }
+
+  .hub-card-badge {
+    display: inline-block;
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #c41218;
+    border: 1px solid rgba(196, 18, 24, 0.4);
+    border-radius: 6px;
+    padding: 3px 8px;
+    align-self: flex-start;
+  }
+
+  .hub-card-logo {
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: clamp(1.1rem, 3vw, 1.6rem);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #f2efea;
+    line-height: 1;
+  }
+
+  .hub-card-desc {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: #9f9b96;
+    margin: 0;
+    flex: 1;
+  }
+
+  .hub-card-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #c41218;
+    margin-top: 4px;
+    transition: gap 180ms ease;
+  }
+
+  .hub-card:hover .hub-card-cta {
+    gap: 12px;
+  }
+
+  .hub-card-cta svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  .hub-note {
+    font-size: 0.875rem;
+    color: #7a7670;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .hub-note a {
+    color: #aba7a2;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .hub-note a:hover {
+    color: #f2efea;
+  }
+</style>

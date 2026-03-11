@@ -1,0 +1,581 @@
+---
+import { portableTextToPlainText } from '@/lib/portableText';
+import { formatCents } from '@/lib/pricing';
+import { resolveProductCalculatedPriceAmount } from '@/lib/medusa-storefront-pricing';
+
+const { products = [] } = Astro.props as { products?: any[] };
+
+const resolveSlug = (p: any): string =>
+  typeof p?.slug === 'string' ? p.slug : (p?.slug?.current ?? '');
+
+const resolveName = (p: any): string => p?.displayTitle ?? p?.name ?? p?.title ?? 'F.A.S. Product';
+
+const resolveImage = (p: any): string =>
+  p?.imageUrl ?? p?.images?.[0]?.asset?.url ?? p?.images?.[0]?.url ?? '/logo/fas-logo500.webp';
+
+const resolveDescription = (p: any): string => {
+  const short =
+    typeof p?.shortDescription === 'string'
+      ? p.shortDescription.trim()
+      : portableTextToPlainText(p?.shortDescription)?.trim();
+  if (short) return short.slice(0, 140) + (short.length > 140 ? '…' : '');
+  const long =
+    typeof p?.description === 'string'
+      ? p.description.trim()
+      : portableTextToPlainText(p?.description)?.trim();
+  if (long) return long.slice(0, 140) + (long.length > 140 ? '…' : '');
+  return 'CNC-machined billet aluminum. Validated fitment, no adapters required.';
+};
+
+const resolvePlatform = (p: any): string => {
+  const vehicles: { make?: string; model?: string }[] = Array.isArray(p?.compatibleVehicles)
+    ? p.compatibleVehicles
+    : [];
+  if (vehicles.length) {
+    const makes = [...new Set(vehicles.map((v) => v.make).filter(Boolean))] as string[];
+    if (makes.length) return makes.join(' / ').toUpperCase();
+  }
+  return p?.fitment ?? p?.seoFitment ?? '';
+};
+
+const resolveBadge = (p: any): { text: string; amber: boolean } | null => {
+  if (p?.badge) return { text: String(p.badge), amber: false };
+  const tags: string[] = Array.isArray(p?.tags) ? p.tags : [];
+  if (tags.some((t) => /no.?tune/i.test(t))) return { text: 'No-Tune', amber: false };
+  if (tags.some((t) => /signature/i.test(t))) return { text: 'FAS Signature', amber: true };
+  if (tags.some((t) => /fas.?made|in.?house/i.test(t))) return { text: 'FAS Made', amber: false };
+  return null;
+};
+
+const resolvePrice = (p: any): string | null => {
+  const amt = resolveProductCalculatedPriceAmount(p);
+  return amt ? formatCents(amt) : null;
+};
+---
+
+<section class="section" aria-labelledby="billet-heading">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <div class="kicker">
+          <div class="line"></div>
+          <span>Manufactured In-House</span>
+        </div>
+        <h2 id="billet-heading" class="section-title">Made In Our Shop</h2>
+        <p class="section-sub">
+          Precision CNC-machined billet aluminum components, engineered and manufactured in-house.
+          Every product is hard anodized for durability and dyno-tested for performance. Authentic
+          <span class="text-primary font-bold">F.A.S. Motorsports</span> engineering—<span
+            class="text-white font-bold">no imports, no rebrands.</span
+          >
+        </p>
+      </div>
+      <a
+        href="/shop/billet-parts"
+        class="btn-ghost btn-plain btn-sm"
+        style="white-space: nowrap; flex-shrink: 0"
+      >
+        All Billet Parts →
+      </a>
+    </div>
+
+    <div class="products-grid">
+      {
+        products.map((product, index) => {
+          const slug = resolveSlug(product);
+          const href = slug ? `/shop/${slug}` : '/shop/categories/billet-parts';
+          const badge = resolveBadge(product);
+          const platform = resolvePlatform(product);
+          const price = resolvePrice(product);
+
+          return (
+            <div class="product-card" data-stagger={index} data-href={href}>
+              {/* Image area — dark bg with product image as subtle texture */}
+              <div
+                class="product-img"
+                data-label={resolveName(product)}
+                style={`background-image: url('${resolveImage(product)}')`}
+              >
+                {badge && (
+                  <span class:list={['product-badge', badge.amber && 'amber-badge']}>
+                    {badge.text}
+                  </span>
+                )}
+              </div>
+
+              {/* Info body */}
+              <div class="product-info">
+                <div class="product-name">
+                  <a href={href}>{resolveName(product)}</a>
+                </div>
+                <p class="product-desc">{resolveDescription(product)}</p>
+                <div class="product-footer">
+                  <div class="product-price">{price ?? 'View Pricing'}</div>
+                  <button
+                    class="product-add btn-ghost btn-plain"
+                    data-href={href}
+                    aria-label={`View ${resolveName(product)} details`}
+                  >
+                    {/* → icon — view product details */}
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      aria-hidden="true"
+                    >
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                      <polyline points="12 5 19 12 12 19" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ── Section shell ─────────────────────────────── */
+  .section {
+    padding: 72px 0;
+  }
+
+  /* Mirrors homepage-shell breakpoints exactly */
+  .container {
+    width: min(calc(100% - (2 * var(--container-pad-mobile))), var(--max-w));
+    margin: 0 auto;
+  }
+
+  @media (min-width: 640px) {
+    .container {
+      width: min(calc(100% - (2 * var(--container-pad-tablet))), var(--max-w));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container {
+      width: min(calc(100% - (2 * var(--container-pad-desktop))), var(--max-w));
+    }
+  }
+
+  @media (max-width: 639px) {
+    .section {
+      padding: 48px 0;
+    }
+  }
+
+  /* ── Section header ────────────────────────────── */
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+
+  @media (max-width: 639px) {
+    .section-header {
+      flex-direction: column;
+      align-items: flex-start;
+      margin-bottom: 28px;
+    }
+  }
+
+  .kicker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--red, #c41218ae);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    font-family: var(--font-body);
+  }
+
+  .line {
+    width: 32px;
+    height: 2px;
+    background: var(--red, #c41218ae);
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-family: 'Ethnocentric-Italic', sans-serif;
+    font-size: clamp(1.5rem, 4vw, 2.3rem);
+    line-height: 1.12;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-primary, #f2efea);
+    margin: 0 0 12px;
+  }
+
+  .section-sub {
+    color: var(--text-secondary, #aba7a2);
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    max-width: 44rem;
+    margin: 0;
+  }
+
+  /* ── Ghost button ──────────────────────────────── */
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid var(--border-default, rgba(242, 239, 234, 0.12));
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-secondary, #aba7a2);
+    text-decoration: none;
+    transition:
+      border-color 160ms ease,
+      color 160ms ease,
+      transform 160ms ease;
+  }
+
+  .btn-ghost:hover {
+    border-color: var(--border-strong, rgba(242, 239, 234, 0.22));
+    color: var(--text-primary, #f2efea);
+    transform: translateY(-1px);
+  }
+
+  .btn-sm {
+    padding: 9px 16px;
+    font-size: 0.75rem;
+  }
+
+  /* ── Products grid — flush connected strip ─────── */
+  .products-grid {
+    display: grid;
+    /* Desktop + iPad: 4 columns, no gap, cards touch */
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    /* Outer border wraps the whole strip */
+    border: 1px solid var(--border-subtle, rgba(242, 239, 234, 0.06));
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  /* Mobile: 2 columns × 2 rows */
+  @media (max-width: 767px) {
+    .products-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* ── Product card ──────────────────────────────── */
+  .product-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-elevated, #141414);
+    /* Right divider between cards; last card in each row gets no divider */
+    border-right: 1px solid var(--border-subtle, rgba(242, 239, 234, 0.06));
+    border-radius: 0;
+    overflow: hidden;
+    transition:
+      background 240ms ease,
+      border-color 240ms ease;
+  }
+
+  /* Remove right border from last card in each grid row */
+  /* Desktop/iPad: every 4th card */
+  .product-card:nth-child(4n) {
+    border-right: none;
+  }
+
+  /* Mobile 2-col: every 2nd card */
+  @media (max-width: 767px) {
+    .product-card:nth-child(4n) {
+      border-right: 1px solid var(--border-subtle, rgba(242, 239, 234, 0.06));
+    }
+    .product-card:nth-child(2n) {
+      border-right: none;
+    }
+    /* Bottom border for top row of 2×2 */
+    .product-card:nth-child(-n + 2) {
+      border-bottom: 1px solid var(--border-subtle, rgba(242, 239, 234, 0.06));
+    }
+  }
+
+  .product-card:hover {
+    background: #1a1a1a;
+  }
+
+  /* ── Product image area ────────────────────────── */
+  .product-img {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    background-color: #0a0a0a;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    overflow: hidden;
+    cursor: pointer;
+    transition: background-size 380ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Dark overlay — tinted so product image reads as moody texture */
+  .product-img::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.534);
+    z-index: 1;
+    transition: background 380ms ease;
+  }
+
+  /* Hover: lift overlay slightly to reveal more of the image */
+  .product-card:hover .product-img::before {
+    background: rgba(0, 0, 0, 0.412);
+  }
+
+  /* Product name label — bottom-left of image area */
+  .product-img::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: 10px;
+    left: 12px;
+    z-index: 3;
+    font-family: var(--font-body);
+    font-size: 0.5625rem;
+    font-weight: 600;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: rgba(242, 239, 234, 0.22);
+    line-height: 1.3;
+    pointer-events: none;
+    max-width: calc(100% - 24px);
+  }
+
+  /* ── Badge ─────────────────────────────────────── */
+  .product-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 4; /* above ::before overlay (z-index: 1) */
+    font-family: var(--font-body);
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: var(--red, #c41218);
+    color: #ffffff;
+    line-height: 1.4;
+  }
+
+  .amber-badge {
+    background: transparent;
+    color: #d4af37;
+    border: 1px solid #d4af37;
+  }
+
+  /* ── Product info body ─────────────────────────── */
+  .product-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 12px 14px 14px;
+    gap: 4px;
+    border-top: 1px solid var(--border-subtle, rgba(242, 239, 234, 0.06));
+  }
+
+  .product-platform {
+    font-family: var(--font-body);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--red, #c41218);
+    line-height: 1.4;
+  }
+
+  .product-name {
+    font-family: var(--font-heading-secondary, 'Montserrat', sans-serif);
+    font-size: 0.9375rem;
+    font-weight: 800;
+    line-height: 1.25;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    color: var(--text-primary, #f2efea);
+    margin: 2px 0 4px;
+  }
+
+  .product-name a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .product-name a:hover {
+    color: #ffffff;
+  }
+
+  .product-desc {
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: var(--text-secondary, #aba7a2);
+    margin: 0;
+    flex: 1;
+  }
+
+  /* ── Product footer ────────────────────────────── */
+  .product-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: nowrap;
+    padding-top: 10px;
+    margin-top: 6px;
+  }
+
+  .product-price {
+    font-family: var(--font-heading-secondary, 'Montserrat', sans-serif);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary, #f2efea);
+    /* Prevent price from pushing button off-screen */
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1 1 auto;
+  }
+
+  /* ── Add / View button ─────────────────────────── */
+  .product-add {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    /* Hard-pin dimensions — beats any global button min-height/width */
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px;
+    min-height: unset;
+    max-width: 36px;
+    max-height: 36px;
+    padding: 0;
+    border-radius: 50%;
+    background: inherit;
+    color: var(--red, #c41218a2);
+    border: 0.5px solid var(--red, #c41218a2);
+    cursor: pointer;
+    flex-shrink: 0;
+    flex-grow: 0;
+    text-decoration: none;
+    box-sizing: border-box;
+    transition:
+      background-color 200ms ease,
+      transform 200ms ease;
+  }
+
+  .product-add:hover {
+    background: transparent;
+    transform: scale(1.1);
+  }
+
+  .product-add svg {
+    display: block;
+    width: 12px;
+    height: 12px;
+    min-width: 12px;
+    min-height: 12px;
+    stroke: currentColor;
+    pointer-events: none;
+  }
+
+  /* Mobile — explicit override in case any global rule leaks through */
+  @media (max-width: 767px) {
+    .product-footer {
+      padding-top: 10px;
+      margin-top: 6px;
+    }
+
+    .product-price {
+      font-size: 0.9375rem;
+    }
+
+    .product-add {
+      width: 36px !important;
+      height: 36px !important;
+    }
+  }
+
+  /* ── Stagger entrance animation ────────────────── */
+  .product-card {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+      opacity 0.45s ease,
+      transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 240ms ease,
+      box-shadow 240ms ease;
+  }
+
+  .product-card.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .product-card[data-stagger='1'] {
+    transition-delay: 75ms;
+  }
+  .product-card[data-stagger='2'] {
+    transition-delay: 150ms;
+  }
+  .product-card[data-stagger='3'] {
+    transition-delay: 225ms;
+  }
+</style>
+
+<script>
+  // Stagger entrance animation
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+  );
+
+  document
+    .querySelectorAll('.product-card[data-stagger]')
+    .forEach((card) => observer.observe(card));
+
+  // Image area click → navigate to product
+  document.querySelectorAll<HTMLElement>('.product-img').forEach((imgDiv) => {
+    const card = imgDiv.closest<HTMLElement>('.product-card');
+    const href = card?.dataset.href;
+    if (href) {
+      imgDiv.addEventListener('click', () => {
+        window.location.href = href;
+      });
+    }
+  });
+
+  // Button click → navigate to product
+  document.querySelectorAll<HTMLButtonElement>('button.product-add').forEach((btn) => {
+    const href = btn.dataset.href;
+    if (href) {
+      btn.addEventListener('click', () => {
+        window.location.href = href;
+      });
+    }
+  });
+</script>

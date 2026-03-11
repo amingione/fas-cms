@@ -1,0 +1,162 @@
+@font-face {
+    font-family: 'Barlow Condensed';
+    src: url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-Black.woff2') format('woff2'),
+        url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-Black.woff') format('woff');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Barlow Condensed';
+    src: url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-BlackItalic.woff2') format('woff2'),
+        url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-BlackItalic.woff') format('woff');
+    font-weight: 900;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Barlow Condensed';
+    src: url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-Bold.woff2') format('woff2'),
+        url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Barlow Condensed';
+    src: url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-BoldItalic.woff2') format('woff2'),
+        url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-BoldItalic.woff') format('woff');
+    font-weight: bold;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Barlow Condensed';
+    src: url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-ExtraBold.woff2') format('woff2'),
+        url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-ExtraBold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Barlow Condensed';
+    src: url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-ExtraBoldItalic.woff2') format('woff2'),
+        url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-ExtraBoldItalic.woff') format('woff');
+    font-weight: bold;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Barlow Condensed';
+    src: url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-ExtraLight.woff2') format('woff2'),
+        url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-ExtraLight.woff') format('woff');
+    font-weight: 200;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Barlow Condensed';
+    src: url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-Italic.woff2') format('woff2'),
+        url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-Italic.woff') format('woff');
+    font-weight: normal;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Barlow Condensed';
+    src: url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-ExtraLightItalic.woff2') format('woff2'),
+        url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-ExtraLightItalic.woff') format('woff');
+    font-weight: 200;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Barlow Condensed';
+    src: url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-Light.woff2') format('woff2'),
+        url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-Light.woff') format('woff');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Barlow Condensed';
+    src: url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-LightItalic.woff2') format('woff2'),
+        url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-LightItalic.woff') format('woff');
+    font-weight: 300;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Barlow Condensed';
+    src: url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-Medium.woff2') format('woff2'),
+        url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-Medium.woff') format('woff');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Barlow Condensed';
+    src: url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-Regular.woff2') format('woff2'),
+        url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Barlow Condensed';
+    src: url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-MediumItalic.woff2') format('woff2'),
+        url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-MediumItalic.woff') format('woff');
+    font-weight: 500;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Barlow Condensed';
+    src: url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-SemiBold.woff2') format('woff2'),
+        url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-SemiBold.woff') format('woff');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Barlow Condensed';
+    src: url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-SemiBoldItalic.woff2') format('woff2'),
+        url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-SemiBoldItalic.woff') format('woff');
+    font-weight: 600;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Barlow Condensed';
+    src: url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-Thin.woff2') format('woff2'),
+        url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-Thin.woff') format('woff');
+    font-weight: 100;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Barlow Condensed';
+    src: url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-ThinItalic.woff2') format('woff2'),
+        url('Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/public/fon/BarlowCondensed-ThinItalic.woff') format('woff');
+    font-weight: 100;
+    font-style: italic;
+    font-display: swap;
+}
+

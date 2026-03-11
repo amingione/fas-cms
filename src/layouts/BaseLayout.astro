@@ -1,8 +1,9 @@
 ---
 import '../styles/global.css';
-import Header from '../components/header/header2.astro';
-import Footer from '@/components/footer.astro';
-import Footer2 from '@/components/footer/footer2';
+import '../styles/fas-theme2.css';
+import '../styles/homepage-redesign.css';
+import Header from '../components/header/fas-header.astro';
+import HomepageFooter from '@/components/homepage/HomepageFooter.astro';
 import SitewideProductServiceLinks from '@/components/SitewideProductServiceLinks.astro';
 import CookieBanner from '@/components/notices/cookieBanner';
 import Breadcrumbs from '@/components/storefront/Breadcrumbs.astro';
@@ -22,9 +23,12 @@ const {
   ogImage,
   hideBreadcrumbs = false,
   hideHeader = false,
+  hideFooter = false,
   breadcrumbs,
   keywords,
-  breadcrumbContext
+  breadcrumbContext,
+  bodyClass = 'bg-dark text-white font-mono min-h-screen flex flex-col',
+  mainClass = 'px-5 pt-6 flex-1 container max-w-full mx-auto with-header-offset'
 } = Astro.props as {
   title?: string;
   description?: string;
@@ -33,6 +37,7 @@ const {
   ogImage?: string;
   hideBreadcrumbs?: boolean;
   hideHeader?: boolean;
+  hideFooter?: boolean;
   breadcrumbs?: Array<{ href?: string; label: string }>;
   keywords?: string | string[];
   breadcrumbContext?: {
@@ -42,6 +47,8 @@ const {
     platformLabel?: string;
     currentLabel?: string;
   };
+  bodyClass?: string;
+  mainClass?: string;
 };
 
 const normalizeNoindex = (value: unknown): boolean => {
@@ -722,7 +729,7 @@ const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
     <slot name="head" />
   </head>
 
-  <body class="bg-dark pt-3 text-white font-mono min-h-screen flex flex-col">
+  <body class={bodyClass}>
     <script is:inline type="module" src={analyticsTrackingScriptUrl}></script>
     <svg
       width="0"
@@ -772,14 +779,13 @@ const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
 
     <!-- Page content -->
     <div class="relative flex flex-col flex-1">
-      <main id="main-content" class="px-5 pt-6 flex-1 container max-w-full mx-auto with-header-offset">
+      <main id="main-content" class={mainClass}>
         {breadcrumbItems.length > 0 && <Breadcrumbs items={breadcrumbItems} />}
         <slot />
         {cmsRelatedLinks.length > 0 && <InternalLinks links={cmsRelatedLinks} />}
       </main>
-      <SitewideProductServiceLinks />
-      <Footer />
-      <Footer2 client:visible />
+      {!hideFooter && <SitewideProductServiceLinks />}
+      {!hideFooter && <HomepageFooter />}
       <CookieBanner client:idle />
       <Toaster client:idle />
     </div>
