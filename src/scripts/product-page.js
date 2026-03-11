@@ -34,26 +34,10 @@ const emitAddToCartSuccess = (detail) => {
   }
 };
 
-const prefersDesktopOverlay = () => {
-  try {
-    const hover = window.matchMedia?.('(hover: hover)').matches ?? false;
-    const coarse = window.matchMedia?.('(pointer: coarse)').matches ?? false;
-    if (hover && !coarse) return true;
-    if (hover && coarse === false) return true;
-    const maxTouch = navigator.maxTouchPoints || 0;
-    if (coarse) return false;
-    return maxTouch === 0;
-  } catch {
-    return false;
-  }
-};
-
 const normalizeCents = (value) => {
   if (value != null) {
     const numeric =
-      typeof value === 'number'
-        ? value
-        : parseFloat(String(value).replace(/[^0-9.+-]/g, ''));
+      typeof value === 'number' ? value : parseFloat(String(value).replace(/[^0-9.+-]/g, ''));
     if (Number.isFinite(numeric)) return Math.round(numeric);
   }
   return 0;
@@ -78,35 +62,35 @@ const readConfiguredOptions = () => {
     );
   };
 
-const addSelection = (group, value, label, delta, meta = {}) => {
-  const numericDeltaCents = normalizeCents(meta.priceCents);
-  const numericDelta = Number.isFinite(delta) ? delta : numericDeltaCents / 100;
-  const selection = {
-    group,
-    value,
-    label,
-    priceDelta: numericDelta,
-    priceCents: numericDeltaCents,
-    isUpgrade: Boolean(meta.isUpgrade),
-    medusaVariantId: meta.medusaVariantId || null,
-    medusaOptionId: meta.medusaOptionId || null,
-    medusaOptionValueId: meta.medusaOptionValueId || null
-  };
-  result.selections.push(selection);
-  if (selection.isUpgrade) {
-    result.upgrades.push({
+  const addSelection = (group, value, label, delta, meta = {}) => {
+    const numericDeltaCents = normalizeCents(meta.priceCents);
+    const numericDelta = Number.isFinite(delta) ? delta : numericDeltaCents / 100;
+    const selection = {
       group,
       value,
       label,
       priceDelta: numericDelta,
       priceCents: numericDeltaCents,
-      medusaVariantId: selection.medusaVariantId || undefined,
-      medusaOptionId: selection.medusaOptionId || undefined,
-      medusaOptionValueId: selection.medusaOptionValueId || undefined
-    });
-  }
-  result.extra += numericDeltaCents;
-};
+      isUpgrade: Boolean(meta.isUpgrade),
+      medusaVariantId: meta.medusaVariantId || null,
+      medusaOptionId: meta.medusaOptionId || null,
+      medusaOptionValueId: meta.medusaOptionValueId || null
+    };
+    result.selections.push(selection);
+    if (selection.isUpgrade) {
+      result.upgrades.push({
+        group,
+        value,
+        label,
+        priceDelta: numericDelta,
+        priceCents: numericDeltaCents,
+        medusaVariantId: selection.medusaVariantId || undefined,
+        medusaOptionId: selection.medusaOptionId || undefined,
+        medusaOptionValueId: selection.medusaOptionValueId || undefined
+      });
+    }
+    result.extra += numericDeltaCents;
+  };
 
   elements.forEach((node) => {
     if (handled.has(node)) return;
@@ -119,9 +103,7 @@ const addSelection = (group, value, label, delta, meta = {}) => {
       if (option) {
         const value = option.value ?? '';
         const isPlaceholder =
-          option.dataset.placeholder === 'true' ||
-          option.disabled ||
-          value === '';
+          option.dataset.placeholder === 'true' || option.disabled || value === '';
         if (!isPlaceholder) {
           const label = option.dataset.label || option.text || value;
           const priceCents = normalizeCents(
@@ -135,9 +117,7 @@ const addSelection = (group, value, label, delta, meta = {}) => {
             option.getAttribute('data-medusa-variant-id') ||
             null;
           const medusaOptionId =
-            option.dataset.medusaOptionId ||
-            option.getAttribute('data-medusa-option-id') ||
-            null;
+            option.dataset.medusaOptionId || option.getAttribute('data-medusa-option-id') || null;
           const medusaOptionValueId =
             option.dataset.medusaOptionValueId ||
             option.getAttribute('data-medusa-option-value-id') ||
@@ -188,9 +168,7 @@ const addSelection = (group, value, label, delta, meta = {}) => {
               radio.getAttribute('data-medusa-variant-id') ||
               null;
             const optionId =
-              radio.dataset.medusaOptionId ||
-              radio.getAttribute('data-medusa-option-id') ||
-              null;
+              radio.dataset.medusaOptionId || radio.getAttribute('data-medusa-option-id') || null;
             const optionValueId =
               radio.dataset.medusaOptionValueId ||
               radio.getAttribute('data-medusa-option-value-id') ||
@@ -426,8 +404,7 @@ const hydrateCartButtons = () => {
       callForQuote ||
       (typeof requiresShipping === 'boolean' && requiresShipping === false) ||
       installOnlyFromClass;
-    const selectionVariantId =
-      selections.map((sel) => sel?.medusaVariantId).find(Boolean) || '';
+    const selectionVariantId = selections.map((sel) => sel?.medusaVariantId).find(Boolean) || '';
     const medusaVariantId = (
       selectionVariantId ||
       ds.productMedusaVariantId ||
@@ -452,7 +429,8 @@ const hydrateCartButtons = () => {
       (originalPrice ?? 0) > total ||
       String(ds.productOnSale || '').toLowerCase() === 'true' ||
       String(ds.saleActive || '').toLowerCase() === 'true';
-    const resolvedSaleLabel = saleLabel || (isOnSale && (originalPrice ?? 0) > total ? 'Sale' : undefined);
+    const resolvedSaleLabel =
+      saleLabel || (isOnSale && (originalPrice ?? 0) > total ? 'Sale' : undefined);
 
     const signature = JSON.stringify(
       selections
@@ -513,9 +491,8 @@ const hydrateCartButtons = () => {
       void error;
     }
 
-    const eventName = prefersDesktopOverlay() ? 'open-desktop-cart' : 'open-cart';
     try {
-      window.dispatchEvent(new Event(eventName));
+      window.dispatchEvent(new Event('open-cart'));
     } catch {
       /* noop */
     }

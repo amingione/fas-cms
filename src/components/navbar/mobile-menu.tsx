@@ -34,23 +34,14 @@ function MobileNavContent({
             Cart
           </a>
           <button
-            className="mobile-nav-close-btn"
+            className="mobile-nav-close-btn homepage-hamburger is-open"
             onClick={onClose}
             aria-label="Close navigation menu"
             type="button"
           >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.2"
-              width="20"
-              height="20"
-              aria-hidden="true"
-            >
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
+            <span></span>
+            <span></span>
+            <span></span>
           </button>
         </div>
       </div>
@@ -197,7 +188,8 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
     <>
       <button
         onClick={() => setIsOpen((prev) => !prev)}
-        aria-label="Open mobile menu"
+        id="hamburger"
+        aria-label={isOpen ? 'Close mobile menu' : 'Open mobile menu'}
         aria-expanded={isOpen}
         aria-controls="mobile-nav"
         className={`homepage-hamburger ${isOpen ? 'is-open' : ''}`}

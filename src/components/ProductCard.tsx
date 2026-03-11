@@ -5,7 +5,6 @@ import {
 } from '@lib/sanity-utils';
 import { cn } from '@components/ui/utils';
 import { addItem } from '@lib/cart';
-import { prefersDesktopCart } from '@/lib/device';
 import { emitAddToCartSuccess } from '@/lib/add-to-cart-toast';
 import { resolveProductCartMeta } from '@/lib/product-flags';
 import Price from '@/components/storefront/Price';
@@ -100,27 +99,7 @@ function addToCart(product: SanityProduct) {
 
     emitAddToCartSuccess({ name });
 
-    if (typeof window !== 'undefined') {
-      try {
-        if (!prefersDesktopCart()) {
-          window.dispatchEvent(new Event('open-cart'));
-        }
-      } catch (err) {
-        void err;
-        try {
-          window.dispatchEvent(new Event('open-cart'));
-        } catch {
-          // ignore
-        }
-      }
-    }
-  } catch (e) {
-    console.error('addToCart failed', e);
-    if (typeof window !== 'undefined') {
-      window.alert('Unable to add this item. Please select a product variant and try again.');
-    }
-  }
-}
+
 
 export function ProductCard({ product, productImage, className }: ProductCardProps) {
   const imageUrl = getImageUrl(product, productImage ?? null);

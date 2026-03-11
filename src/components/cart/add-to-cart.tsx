@@ -3,7 +3,6 @@
 import { PlusIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import { addItem } from '@components/cart/actions';
-import { prefersDesktopCart } from '@/lib/device';
 import { emitAddToCartSuccess } from '@/lib/add-to-cart-toast';
 import * as React from 'react';
 import { resolveProductCartMeta } from '@/lib/product-flags';
@@ -174,9 +173,7 @@ export function AddToCart({ product }: { product: any }) {
     // ✅ MEDUSA-FIRST PRICING VALIDATION
     // Block cart additions if price is not a valid number from Medusa
     if (typeof activePrice !== 'number' || !Number.isFinite(activePrice) || activePrice <= 0) {
-      setError(
-        'This product is currently unavailable. Price information is missing or invalid.'
-      );
+      setError('This product is currently unavailable. Price information is missing or invalid.');
       console.error('[add-to-cart] Blocked cart addition - invalid price', {
         productId: id,
         productTitle: product?.title,
@@ -188,31 +185,29 @@ export function AddToCart({ product }: { product: any }) {
     }
 
     const { shippingClass, installOnly } = resolveProductCartMeta(product);
-    const selectedOptionsList = Object.entries(selected).map(
-      ([key, value]) => `${key}: ${value}`
-    );
+    const selectedOptionsList = Object.entries(selected).map(([key, value]) => `${key}: ${value}`);
     const originalPrice = typeof comparePrice === 'number' ? comparePrice : undefined;
 
-      const result = await addItem(null as any, {
-        id,
-        name: product?.title,
-        price: activePrice, // ✅ Guaranteed to be valid number > 0
-        stripePriceId: (product as any)?.stripePriceId,
-        medusaVariantId: variantId || (product as any)?.medusaVariantId,
-        originalPrice,
-        isOnSale: onSale,
-        saleLabel: typeof saleLabel === 'string' ? saleLabel : undefined,
-        image: product?.images?.[0]?.asset?.url || product?.images?.[0]?.url,
-        options: selected,
-        selectedOptions: selectedOptionsList,
-        selectedUpgrades: [],
-        quantity: 1,
-        productUrl,
-        shippingWeight,
-        shippingDimensions,
-        ...(shippingClass ? { shippingClass } : {}),
-        ...(installOnly ? { installOnly: true } : {})
-      });
+    const result = await addItem(null as any, {
+      id,
+      name: product?.title,
+      price: activePrice, // ✅ Guaranteed to be valid number > 0
+      stripePriceId: (product as any)?.stripePriceId,
+      medusaVariantId: variantId || (product as any)?.medusaVariantId,
+      originalPrice,
+      isOnSale: onSale,
+      saleLabel: typeof saleLabel === 'string' ? saleLabel : undefined,
+      image: product?.images?.[0]?.asset?.url || product?.images?.[0]?.url,
+      options: selected,
+      selectedOptions: selectedOptionsList,
+      selectedUpgrades: [],
+      quantity: 1,
+      productUrl,
+      shippingWeight,
+      shippingDimensions,
+      ...(shippingClass ? { shippingClass } : {}),
+      ...(installOnly ? { installOnly: true } : {})
+    });
     if (typeof result === 'string') {
       setError(result);
       return;
@@ -221,7 +216,7 @@ export function AddToCart({ product }: { product: any }) {
     emitAddToCartSuccess({ name: product?.title });
 
     try {
-      if (!prefersDesktopCart()) {
+      if (typeof window !== 'undefined') {
         window.dispatchEvent(new Event('open-cart'));
       }
     } catch (error) {

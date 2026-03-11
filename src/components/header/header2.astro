@@ -4,7 +4,6 @@ import MobileMenu from '@/components/navbar/mobile-menu.tsx';
 import CartEntry from '@/components/cart/CartEntry.tsx';
 import CartButton from '@/components/cart/cart-button.tsx';
 import { SearchBar } from '@/components/SearchBar.tsx';
-import DesktopCart from '@/components/cart/DesktopCart.tsx';
 ---
 
 <header
@@ -54,7 +53,7 @@ import DesktopCart from '@/components/cart/DesktopCart.tsx';
 
     <!-- Right: Cart button -->
     <div>
-      <CartButton client:only="react" forceMobileModal />
+      <CartButton client:only="react" />
     </div>
   </div>
 
@@ -158,7 +157,7 @@ import DesktopCart from '@/components/cart/DesktopCart.tsx';
             >Shop ➤</a
           >
         </nav>
-        <DesktopCart client:only="react" />
+        <CartButton client:only="react" />
         <button
           id="accountDashboardToggleTop"
           aria-label="Open account panel"

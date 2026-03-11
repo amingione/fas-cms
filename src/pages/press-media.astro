@@ -15,7 +15,11 @@ const canonical = requestUrl.toString();
 const siteOrigin = (() => {
   const candidate = (import.meta.env.PUBLIC_SITE_URL as string | undefined) || 'https://fasmotorsports.com';
   try {
-    return new URL(candidate).origin;
+    const origin = new URL(candidate).origin;
+    if (/localhost|127\.0\.0\.1/i.test(origin)) {
+      return 'https://fasmotorsports.com';
+    }
+    return origin;
   } catch {
     return 'https://fasmotorsports.com';
   }

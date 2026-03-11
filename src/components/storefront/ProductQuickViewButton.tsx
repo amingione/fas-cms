@@ -6,7 +6,6 @@ import { EyeIcon, ShoppingCartIcon, XMarkIcon } from '@heroicons/react/24/outlin
 import { PortableText, type PortableTextComponents } from '@portabletext/react';
 import clsx from 'clsx';
 import { addItem } from '@components/cart/actions';
-import { prefersDesktopCart } from '@/lib/device';
 import { emitAddToCartSuccess } from '@/lib/add-to-cart-toast';
 import type { QuickViewOptionGroup, QuickViewOptionValue } from '@/lib/quick-view-options';
 import { portableTextToPlainText } from '@/lib/portableText';
@@ -129,10 +128,7 @@ export default function ProductQuickViewButton({
 
     window.addEventListener('fas:quick-view-open', handleGlobalQuickViewOpen as EventListener);
     return () => {
-      window.removeEventListener(
-        'fas:quick-view-open',
-        handleGlobalQuickViewOpen as EventListener
-      );
+      window.removeEventListener('fas:quick-view-open', handleGlobalQuickViewOpen as EventListener);
     };
   }, []);
 
@@ -197,8 +193,7 @@ export default function ProductQuickViewButton({
   const [selectedOptions, setSelectedOptions] = useState<Record<string, QuickViewOptionValue>>({});
   const selectedVariantId = useMemo(() => {
     const selectedValues = Object.values(selectedOptions || {});
-    const fromSelection =
-      selectedValues.find((v) => v?.medusaVariantId)?.medusaVariantId || null;
+    const fromSelection = selectedValues.find((v) => v?.medusaVariantId)?.medusaVariantId || null;
     return fromSelection || product.medusaVariantId || undefined;
   }, [selectedOptions, product.medusaVariantId]);
   const hasMedusaVariant = Boolean(selectedVariantId);
@@ -315,9 +310,7 @@ export default function ProductQuickViewButton({
 
       if (typeof window !== 'undefined') {
         try {
-          if (!prefersDesktopCart()) {
-            window.dispatchEvent(new Event('open-cart'));
-          }
+          window.dispatchEvent(new Event('open-cart'));
         } catch (error) {
           void error;
           try {

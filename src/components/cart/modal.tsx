@@ -1,13 +1,12 @@
 'use client';
 
-import { Dialog, DialogPanel, DialogTitle, Transition, TransitionChild } from '@headlessui/react';
+import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { ShoppingCartIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import LoadingDots from '@components/loading-dots.tsx';
 import Price, { formatPrice } from '@/components/storefront/Price';
-import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useCart, type Cart } from './cart-context';
 import { formatOptionSummary } from '@/lib/cart/format-option-summary';
-import { prefersDesktopCart } from '@/lib/device';
 import { calculateAddOnTotal, extractAddOns } from '@/lib/cart/extract-add-ons';
 
 function toNumber(value: unknown, fallback = 0): number {
@@ -98,19 +97,11 @@ export default function CartModal() {
   } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const quantityRef = useRef(totalQuantity);
-  const prefersDesktopRef = useRef(false);
   const pricingTotals = useMemo(() => computePricing(cart?.items || []), [cart?.items]);
 
-  useEffect(() => {
-    prefersDesktopRef.current = prefersDesktopCart();
-  }, []);
   const closeCart = () => setIsOpen(false);
 
   useEffect(() => {
-    if (prefersDesktopRef.current) {
-      quantityRef.current = totalQuantity;
-      return;
-    }
     if (totalQuantity && totalQuantity !== quantityRef.current && totalQuantity > 0) {
       if (!isOpen) setIsOpen(true);
       quantityRef.current = totalQuantity;
@@ -118,17 +109,7 @@ export default function CartModal() {
   }, [isOpen, totalQuantity]);
 
   useEffect(() => {
-    function handleOpen(event: Event) {
-      const customEvent = event as CustomEvent<{ forceMobile?: boolean }>;
-      const forceMobile = Boolean(customEvent.detail?.forceMobile);
-      if (!forceMobile && prefersDesktopRef.current) {
-        try {
-          window.dispatchEvent(new Event('open-desktop-cart'));
-        } catch (error) {
-          void error;
-        }
-        return;
-      }
+    function handleOpen() {
       setIsOpen(true);
     }
     window.addEventListener('open-cart' as any, handleOpen as EventListener);
@@ -145,87 +126,67 @@ export default function CartModal() {
   }, [isOpen]);
   return (
     <>
-      <Transition show={isOpen}>
+      {isOpen && (
         <Dialog onClose={closeCart} className="relative z-[110000]">
-          <TransitionChild
-            as={Fragment}
-            enter="transition-all ease-in-out duration-300"
-            enterFrom="opacity-0 backdrop-blur-none"
-            enterTo="opacity-100 backdrop-blur-[.5px]"
-            leave="transition-all ease-in-out duration-200"
-            leaveFrom="opacity-100 backdrop-blur-[.5px]"
-            leaveTo="opacity-0 backdrop-blur-none"
-          >
-            <div className="fixed inset-0 bg-[#1a1a1a]" aria-hidden="true" />
-          </TransitionChild>
-          <TransitionChild
-            as={Fragment}
-            enter="transition ease-in-out duration-500 sm:duration-700"
-            enterFrom="translate-x-full"
-            enterTo="translate-x-0"
-            leave="transition ease-in-out duration-500 sm:duration-700"
-            leaveFrom="translate-x-0"
-            leaveTo="translate-x-full"
-          >
-            <div className="fixed inset-0 overflow-hidden">
-              <div className="absolute inset-0 overflow-hidden">
-                <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-4 sm:pl-10">
-                  <DialogPanel className="pointer-events-auto w-screen max-w-md transform bg-dark text-white shadow-2xl transition duration-500 ease-in-out data-closed:translate-x-full sm:duration-700">
-                    <div className="flex h-full flex-col">
-                      <div className="flex items-start justify-between px-4 py-6 sm:px-6">
-                        <DialogTitle className="text-lg font-semibold">Shopping Cart</DialogTitle>
-                        <button
-                          type="button"
-                          onClick={closeCart}
-                          className="relative -m-2 rounded-md p-2 text-white/60 transition hover:text-white"
-                        >
-                          <span className="sr-only">Close panel</span>
-                          <XMarkIcon aria-hidden="true" className="size-6" />
-                        </button>
-                      </div>
-
-                      <div className="flex-1 overflow-y-auto px-4 pb-6 sm:px-6">
-                        {!cart || !cart.items || cart.items.length === 0 ? (
-                          <div className="mt-16 flex flex-col items-center text-center">
-                            <ShoppingCartIcon className="h-16 w-16 text-white/70" />
-                            <p className="mt-6 text-2xl font-semibold">Your cart is empty.</p>
-                            <p className="mt-2 text-sm text-white/60">
-                              Add products from the storefront to see them here.
-                            </p>
-                            <a
-                              href="/shop"
-                              className="mt-8 inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold uppercase tracking-wide text-black transition hover:opacity-90"
-                            >
-                              Browse Products
-                            </a>
-                          </div>
-                        ) : (
-                          <CartItemsList
-                            cart={cart}
-                            pricing={pricingTotals.perItem}
-                            onRemove={removeCartItem}
-                            onQuantityChange={setItemQuantity}
-                          />
-                        )}
-                      </div>
-
-                      {cart && cart.items && cart.items.length > 0 ? (
-                        <CartSummary
-                          subtotal={subtotal}
-                          totals={totals}
-                          pricingTotals={pricingTotals}
-                          onCheckout={() => redirectToCheckout()}
-                          onClose={closeCart}
-                        />
-                      ) : null}
+          <div className="fixed inset-0 bg-[#1a1a1a]" aria-hidden="true" />
+          <div className="fixed inset-0 overflow-hidden">
+            <div className="absolute inset-0 overflow-hidden">
+              <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-4 sm:pl-10">
+                <DialogPanel className="pointer-events-auto w-screen max-w-md transform bg-dark text-white shadow-2xl transition duration-500 ease-in-out sm:duration-700">
+                  <div className="flex h-full flex-col">
+                    <div className="flex items-start justify-between px-4 py-6 sm:px-6">
+                      <DialogTitle className="text-lg font-semibold">Shopping Cart</DialogTitle>
+                      <button
+                        type="button"
+                        onClick={closeCart}
+                        className="relative -m-2 rounded-md p-2 text-white/60 transition hover:text-white"
+                      >
+                        <span className="sr-only">Close panel</span>
+                        <XMarkIcon aria-hidden="true" className="size-6" />
+                      </button>
                     </div>
-                  </DialogPanel>
-                </div>
+
+                    <div className="flex-1 overflow-y-auto px-4 pb-6 sm:px-6">
+                      {!cart || !cart.items || cart.items.length === 0 ? (
+                        <div className="mt-16 flex flex-col items-center text-center">
+                          <ShoppingCartIcon className="h-16 w-16 text-white/70" />
+                          <p className="mt-6 text-2xl font-semibold">Your cart is empty.</p>
+                          <p className="mt-2 text-sm text-white/60">
+                            Add products from the storefront to see them here.
+                          </p>
+                          <a
+                            href="/shop"
+                            className="mt-8 inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold uppercase tracking-wide text-black transition hover:opacity-90"
+                          >
+                            Browse Products
+                          </a>
+                        </div>
+                      ) : (
+                        <CartItemsList
+                          cart={cart}
+                          pricing={pricingTotals.perItem}
+                          onRemove={removeCartItem}
+                          onQuantityChange={setItemQuantity}
+                        />
+                      )}
+                    </div>
+
+                    {cart && cart.items && cart.items.length > 0 ? (
+                      <CartSummary
+                        subtotal={subtotal}
+                        totals={totals}
+                        pricingTotals={pricingTotals}
+                        onCheckout={() => redirectToCheckout()}
+                        onClose={closeCart}
+                      />
+                    ) : null}
+                  </div>
+                </DialogPanel>
               </div>
             </div>
-          </TransitionChild>
+          </div>
         </Dialog>
-      </Transition>
+      )}
     </>
   );
 }

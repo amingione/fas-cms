@@ -1224,3 +1224,187 @@
     display: none;
   }
 }
+
+/* =========================================================
+   FAS FOOTER — matches fas-redesign-mockup.html
+   Uses design tokens from fas-theme2.css
+   ========================================================= */
+
+.fas-footer {
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-subtle);
+  padding: 80px 0 32px;
+}
+
+.fas-footer-grid {
+  display: grid;
+  gap: 48px;
+  grid-template-columns: 1fr;
+  margin-bottom: 48px;
+}
+
+@media (min-width: 640px) {
+  .fas-footer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 1024px) {
+  .fas-footer-grid {
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+  }
+}
+
+.fas-footer-brandmark {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.fas-footer-fas {
+  font-family: var(--font-brand);
+  font-size: 24px;
+  color: var(--red);
+  letter-spacing: 0.06em;
+}
+
+.fas-footer-moto {
+  font-family: var(--font-display);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fas-footer-tagline {
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+
+.fas-footer-tagline strong {
+  color: var(--red);
+}
+
+.fas-footer-about {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  max-width: 290px;
+  margin-bottom: 20px;
+}
+
+.fas-footer-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fas-footer-contact a,
+.fas-footer-contact span {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  transition: color var(--dur-fast);
+}
+
+.fas-footer-contact a:hover {
+  color: var(--text-primary);
+}
+
+.fas-footer-contact svg {
+  width: 14px;
+  height: 14px;
+  color: var(--red);
+  flex-shrink: 0;
+}
+
+.fas-footer-col h4 {
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.fas-footer-col ul {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.fas-footer-col ul a {
+  font-size: 13px;
+  color: var(--text-muted);
+  transition: color var(--dur-fast);
+}
+
+.fas-footer-col ul a:hover {
+  color: var(--text-secondary);
+}
+
+.fas-footer-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+@media (min-width: 640px) {
+  .fas-footer-bottom {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.fas-footer-legal {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.fas-footer-social {
+  display: flex;
+  gap: 8px;
+}
+
+.fas-social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: var(--bg-overlay);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  color: var(--text-muted);
+  transition:
+    background var(--dur-fast),
+    border-color var(--dur-fast),
+    color var(--dur-fast);
+}
+
+.fas-social-btn:hover {
+  background: var(--red-dim);
+  border-color: var(--red-border);
+  color: var(--red);
+}
+
+.fas-social-btn svg {
+  width: 15px;
+  height: 15px;
+}
