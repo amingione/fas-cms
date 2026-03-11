@@ -14,15 +14,27 @@ import {
 import { isOnSale, getSaleBadgeText } from '@/lib/saleHelpers';
 import './ProductCard.css';
 
+type ProductCardProduct = {
+  _id?: string;
+  title?: string;
+  displayTitle?: string;
+  slug?: { current?: string } | string;
+  images?: Array<{ asset?: { url?: string } }>;
+  categories?: Array<{ _id?: string; title?: string; slug?: { current?: string } | string }>;
+  inventory?: { inStock?: boolean; lowStock?: boolean };
+  featured?: boolean | null;
+  [key: string]: any;
+};
+
 export interface ProductCardProps {
-  product: SanityProduct;
+  product: ProductCardProduct;
   productImage?: { asset?: { url?: string } } | string | null;
   className?: string;
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
-function getImageUrl(product: SanityProduct, productImage?: ProductCardProps['productImage']) {
+function getImageUrl(product: ProductCardProduct, productImage?: ProductCardProps['productImage']) {
   const candidates: unknown[] = [
     productImage,
     product && typeof product === 'object' ? (product as any).image : undefined,
@@ -32,12 +44,12 @@ function getImageUrl(product: SanityProduct, productImage?: ProductCardProps['pr
   return resolved ?? null;
 }
 
-function getSlug(product: SanityProduct) {
+function getSlug(product: ProductCardProduct) {
   return normalizeSlugValue((product as any)?.slug);
 }
 
 /** Resolve badge text and variant class */
-function resolveBadge(product: SanityProduct): { text: string; variant: string } | null {
+function resolveBadge(product: ProductCardProduct): { text: string; variant: string } | null {
   // 1. Custom CMS badge wins
   const custom = (product as any)?.marketing?.badgeText as string | undefined;
   if (custom?.trim()) return { text: custom.trim().toUpperCase(), variant: 'custom' };
@@ -59,7 +71,7 @@ function resolveBadge(product: SanityProduct): { text: string; variant: string }
 }
 
 /** Resolve stock status */
-function resolveStock(product: SanityProduct): { label: string; cls: string } {
+function resolveStock(product: ProductCardProduct): { label: string; cls: string } {
   const inv = (product as any)?.inventory;
   if (!inv) return { label: 'IN STOCK', cls: 'pc-stock--instock' };
   if (inv.inStock === false) return { label: 'OUT OF STOCK', cls: 'pc-stock--outofstock' };
@@ -68,7 +80,7 @@ function resolveStock(product: SanityProduct): { label: string; cls: string } {
 }
 
 /** Resolve fitment display string */
-function resolveFitment(product: SanityProduct): string | null {
+function resolveFitment(product: ProductCardProduct): string | null {
   const p = product as any;
   return (
     p.fitment ??
@@ -81,7 +93,7 @@ function resolveFitment(product: SanityProduct): string | null {
 
 // ── addToCart (kept for compatibility — called from PDP / quick-add) ─────
 
-function addToCart(product: SanityProduct) {
+function addToCart(product: ProductCardProduct) {
   try {
     const id = product._id;
     const name = product.title || 'Item';
