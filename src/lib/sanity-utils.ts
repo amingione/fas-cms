@@ -610,6 +610,7 @@ export interface Product {
   canonicalUrl?: string;
   noindex?: boolean;
   brand?: string;
+  featured?: boolean | null;
   gtin?: string;
   mpn?: string;
   // Legacy shipping fields retained for compatibility; Medusa now owns shipping metadata.

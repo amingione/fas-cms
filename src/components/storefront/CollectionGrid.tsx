@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import ProductCardLiteReact from './ProductCardLiteReact';
+import ProductCard from '@/components/ProductCard';
 
 type Collection = {
   _id: string;
@@ -48,7 +48,7 @@ export function CollectionGrid({ slug }: { slug: string }) {
 
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {products.map((product) => (
-          <ProductCardLiteReact
+          <ProductCard
             key={product._id}
             product={product}
             productImage={product.images?.[0]}

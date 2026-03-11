@@ -50,19 +50,6 @@
   --container-pad-desktop: 72px;
 }
 
-@font-face {
-  font-family: 'American Captain';
-  src:
-    local('American Captain'),
-    url('/fonts/AmericanCaptain.woff2') format('woff2'),
-    url('/fonts/AmericanCaptain.woff') format('woff'),
-    url('/fonts/AmericanCaptain.ttf') format('truetype'),
-    url('https://fasmotorsports.com/fonts/AmericanCaptain.woff2') format('woff2'),
-    url('https://fasmotorsports.com/fonts/AmericanCaptain.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
 
 @font-face {
   font-family: 'Ethnocentric';
@@ -92,117 +79,6 @@
   font-display: swap;
 }
 
-@font-face {
-  font-family: 'Kwajong';
-  src:
-    local('Kwajong'),
-    url('/fonts/Kwajong.woff2') format('woff2'),
-    url('/fonts/Kwajong.woff') format('woff'),
-    url('/fonts/Kwajong.ttf') format('truetype'),
-    url('https://fasmotorsports.com/fonts/Kwajong.woff2') format('woff2'),
-    url('https://fasmotorsports.com/fonts/Kwajong.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Kwajong';
-  src:
-    local('Kwajong Italic'),
-    url('/fonts/Kwajong-Italic.woff2') format('woff2'),
-    url('/fonts/Kwajong-Italic.woff') format('woff'),
-    url('/fonts/Kwajong-Italic.ttf') format('truetype'),
-    url('https://fasmotorsports.com/fonts/Kwajong-Italic.woff2') format('woff2'),
-    url('https://fasmotorsports.com/fonts/Kwajong-Italic.woff') format('woff');
-  font-weight: normal;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Cyber Princess';
-  src:
-    local('Cyber Princess'),
-    url('/fonts/CyberPrincess-Regular.woff2') format('woff2'),
-    url('/fonts/CyberPrincess-Regular.woff') format('woff'),
-    url('/fonts/CyberPrincess-Regular.ttf') format('truetype'),
-    url('https://fasmotorsports.com/fonts/CyberPrincess-Regular.woff2') format('woff2'),
-    url('https://fasmotorsports.com/fonts/CyberPrincess-Regular.woff') format('woff');
-  font-style: normal;
-  font-weight: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Cyber Princess';
-  src:
-    local('Cyber Princess Italic'),
-    url('/fonts/CyberPrincess-Italic.woff2') format('woff2'),
-    url('/fonts/CyberPrincess-Italic.woff') format('woff'),
-    url('/fonts/CyberPrincess-Italic.ttf') format('truetype'),
-    url('https://fasmotorsports.com/fonts/CyberPrincess-Italic.woff2') format('woff2'),
-    url('https://fasmotorsports.com/fonts/CyberPrincess-Italic.woff') format('woff');
-  font-style: italic;
-  font-weight: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Cyber Princess 3D';
-  src:
-    local('Cyber Princess 3D'),
-    url('/fonts/CyberPrincess3D-Regular.woff2') format('woff2'),
-    url('/fonts/CyberPrincess3D-Regular.woff') format('woff'),
-    url('/fonts/CyberPrincess3D-Regular.ttf') format('truetype'),
-    url('https://fasmotorsports.com/fonts/CyberPrincess3D-Regular.woff2') format('woff2'),
-    url('https://fasmotorsports.com/fonts/CyberPrincess3D-Regular.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Cyber Princess 3D';
-  src:
-    local('Cyber Princess 3D Italic'),
-    url('/fonts/CyberPrincess3D-Italic.woff2') format('woff2'),
-    url('/fonts/CyberPrincess3D-Italic.woff') format('woff'),
-    url('/fonts/CyberPrincess3D-Italic.ttf') format('truetype'),
-    url('https://fasmotorsports.com/fonts/CyberPrincess3D-Italic.woff2') format('woff2'),
-    url('https://fasmotorsports.com/fonts/CyberPrincess3D-Italic.woff') format('woff');
-  font-weight: normal;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Cyber Princess 3D Filled';
-  src:
-    local('Cyber Princess 3D Filled'),
-    url('/fonts/CyberPrincess3DFilled-Regular.woff2') format('woff2'),
-    url('/fonts/CyberPrincess3DFilled-Regular.woff') format('woff'),
-    url('/fonts/CyberPrincess3DFilled-Regular.ttf') format('truetype'),
-    url('https://fasmotorsports.com/fonts/CyberPrincess3DFilled-Regular.woff2') format('woff2'),
-    url('https://fasmotorsports.com/fonts/CyberPrincess3DFilled-Regular.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Cyber Princess 3D Filled';
-  src:
-    local('Cyber Princess 3D Filled Italic'),
-    url('/fonts/CyberPrincess3DFilled-Italic.woff2') format('woff2'),
-    url('/fonts/CyberPrincess3DFilled-Italic.woff') format('woff'),
-    url('/fonts/CyberPrincess3DFilled-Italic.ttf') format('truetype'),
-    url('https://fasmotorsports.com/fonts/CyberPrincess3DFilled-Italic.woff2') format('woff2'),
-    url('https://fasmotorsports.com/fonts/CyberPrincess3DFilled-Italic.woff') format('woff');
-  font-weight: normal;
-  font-style: italic;
-  font-display: swap;
-}
 
 @font-face {
   font-family: 'Borgsquad Italic';
@@ -602,49 +478,54 @@
     font-style: italic;
   }
 
+  /* Legacy display-class aliases → new token system */
   .font-kwajong {
-    font-family: 'Kwajong', sans-serif;
+    font-family: var(--font-display);
   }
   .font-kwajong-italic {
-    font-family: 'Kwajong', sans-serif;
+    font-family: var(--font-display);
     font-style: italic;
   }
 
   .font-borg-italic {
-    font-family: 'Borgsquad Italic', sans-serif;
-  }
-
-  .font-borg {
-    font-family: 'Borgsquad', sans-serif;
-  }
-
-  .font-cyber {
-    font-family: 'Cyber Princess', sans-serif;
-  }
-  .font-cyber-italic {
-    font-family: 'Cyber Princess', sans-serif;
+    font-family: var(--font-brand);
     font-style: italic;
   }
 
+  .font-borg {
+    font-family: var(--font-brand);
+  }
+
+  /* Cyber Princess regular → label (Barlow Condensed) */
+  .font-cyber {
+    font-family: var(--font-label);
+  }
+  .font-cyber-italic {
+    font-family: var(--font-label);
+    font-style: italic;
+  }
+
+  /* Cyber Princess 3D / 3D Filled → display (Ethnocentric) */
   .font-cyber3d {
-    font-family: 'Cyber Princess 3D', sans-serif;
+    font-family: var(--font-display);
   }
   .font-cyber3d-italic {
-    font-family: 'Cyber Princess 3D', sans-serif;
+    font-family: var(--font-display);
     font-style: italic;
   }
 
   .font-cyber3dfilled {
-    font-family: 'Cyber Princess 3D Filled', sans-serif;
+    font-family: var(--font-display);
   }
   .font-cyber3dfilled-italic {
-    font-family: 'Cyber Princess 3D Filled', sans-serif;
+    font-family: var(--font-display);
     font-style: italic;
   }
 
+  /* American Captain → label (Barlow Condensed) */
   .font-captain {
-    font-family: 'American Captain', sans-serif;
-    letter-spacing: 1.1px !important;
+    font-family: var(--font-label);
+    letter-spacing: 0.1em;
   }
 
   .text-primary {

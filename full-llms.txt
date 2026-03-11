@@ -1,0 +1,144 @@
+# FAS Storefront (`fas-cms-fresh`) - Full LLM Context
+
+Last updated: 2026-03-11  
+Canonical docs version: v2026.03.07
+
+## 1) What This Repository Is
+
+`fas-cms-fresh` is the customer-facing storefront UI layer for FAS Motorsports.
+
+Primary responsibilities:
+- Product discovery and product detail rendering.
+- Cart and checkout user experience.
+- Customer-facing account/order surfaces.
+- Marketing/content page rendering.
+
+This repository is **not** commerce authority.
+
+## 2) System Boundaries and Authority Model
+
+Role map:
+- `fas-medusa`: commerce authority, backend, webhook/order authority.
+- `fas-dash`: internal operations/admin UI.
+- `fas-cms-fresh` (this repo): storefront UI and API consumer.
+- Stripe: payment processor only.
+- Sanity: content/editorial only.
+
+Authority constraints:
+- Medusa owns products, variants, pricing, inventory, cart, shipping logic, checkout state, and orders.
+- Storefront must never become a parallel authority for totals/tax/shipping/order state.
+- Stripe must not be used as catalog, pricing, inventory, or order authority.
+- Sanity enrichment must remain optional and non-blocking for commerce-critical rendering.
+
+Canonical runtime flow:
+`Storefront -> Medusa cart/checkout -> Stripe payment processing -> Stripe webhook -> Medusa order authority -> Dash operations`
+
+## 3) Canonical Documentation (Read First)
+
+Core:
+- `README.md`
+- `docs/codex.md`
+- `docs/architecture/canonical-commerce-architecture.md`
+- `docs/architecture/migration-status.md`
+- `docs/governance/checkout-architecture-governance.md`
+- `docs/governance/commerce-authority-checklist.md`
+
+Operational/supporting:
+- `docs/commands/yarn.md`
+- `docs/WEBHOOKS.md`
+- `docs/PROGRESS.md`
+- `docs/reports/_repo-map.md`
+
+## 4) Stack and Runtime
+
+Core stack:
+- Astro 5 (`astro`) with mixed Astro + React islands.
+- TypeScript (`type: module` repo).
+- TailwindCSS + custom CSS theme files.
+- Netlify deployment target.
+
+Primary integrations observed:
+- Medusa APIs for commerce runtime.
+- Stripe for payment objects and payment lifecycle.
+- Sanity for content/query-backed rendering.
+- Shippo for shipping-related flows.
+- Resend for email notifications.
+
+## 5) Repository Map (High-Level)
+
+Top-level:
+- `src/pages/` - route surfaces.
+- `src/pages/api/` - server endpoints / BFF routes.
+- `src/components/` - reusable components and feature UI blocks.
+- `src/lib/` - clients, business helpers, query/data glue.
+- `src/server/` - server concerns (auth/http/vendor-portal utilities).
+- `src/layouts/` - shared page shells.
+- `src/styles/` - global/theme CSS.
+- `scripts/` - operational and deployment scripts.
+- `docs/` - governance, architecture, reports, runbooks.
+
+Notable `src/pages/api` coverage:
+- Auth/session: `src/pages/api/auth/*`
+- Cart/checkout: `src/pages/api/cart.ts`, `src/pages/api/cart/[id].ts`, `src/pages/api/complete-order.ts`, `src/pages/api/update-payment-intent.ts`
+- Orders/customers: `src/pages/api/orders/[id].ts`, `src/pages/api/get-user-order.ts`, `src/pages/api/customer/get.ts`
+- Catalog/search/promotions: `src/pages/api/products*`, `src/pages/api/search.ts`, `src/pages/api/promotions/*`
+- Vendor flows: `src/pages/api/vendor/*`, `src/pages/api/vendors/*`
+- Marketing/forms/attribution: `src/pages/api/contact.ts`, `src/pages/api/form-submission.ts`, `src/pages/api/attribution/track.ts`
+
+## 6) Build/Test/Quality Commands
+
+Development and build:
+- `yarn dev`
+- `yarn dev:clean`
+- `yarn build`
+- `yarn preview`
+
+Quality gates:
+- `yarn lint`
+- `yarn type-check`
+- `yarn test` (runs lint + type-check)
+- `yarn test:unit`
+- `yarn docs:check`
+
+Environment checks and deploy helpers:
+- `yarn env:check:local`
+- `yarn env:check:netlify`
+- `yarn env:sync`
+- `yarn deploy:netlify`
+
+## 7) Webhook and Payment Notes
+
+From current docs:
+- Primary webhook pattern is Stripe PaymentIntent completion flowing into Medusa order authority.
+- Webhook handlers must validate signatures and preserve idempotent processing.
+- Any order mirror written to Sanity must remain non-authoritative.
+
+See:
+- `docs/WEBHOOKS.md`
+- `docs/governance/checkout-architecture-governance.md`
+
+## 8) Current Program Status Signals
+
+`docs/PROGRESS.md` indicates:
+- Architecture lock, checkout, auth, and vendor access phases marked complete.
+- Ongoing/blocked work exists around route migration and publishable key rotation.
+
+Treat progress docs as operational status notes; authority/governance docs remain canonical for architecture constraints.
+
+## 9) Working Rules for Agents
+
+When making code or architecture changes in this repo:
+- Preserve Medusa-authoritative commerce boundaries.
+- Do not introduce direct Stripe or Sanity authority for commerce-critical state.
+- Keep Sanity content enrichment optional and resilient.
+- Prefer small, localized edits aligned with existing route/component patterns.
+- Run `yarn lint` and `yarn type-check` for meaningful changes when possible.
+
+## 10) Minimal Onboarding Path for New Agents
+
+1. Read `README.md` and `docs/codex.md`.
+2. Read canonical architecture/governance docs in `docs/architecture` and `docs/governance`.
+3. Review `src/pages/api/` for active runtime/BFF behavior.
+4. Review `src/pages/` + `src/components/` for UI composition.
+5. Use `yarn dev` locally and validate with lint/type-check before handoff.
+

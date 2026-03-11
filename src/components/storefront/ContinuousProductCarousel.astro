@@ -1,5 +1,5 @@
 ---
-import ProductCardLite from '@components/storefront/ProductCardLite.astro';
+import ProductCard from '@components/ProductCard';
 import type { Product } from '@/lib/sanity-utils.ts';
 
 const { products = [], className = '' } = Astro.props as {
@@ -18,12 +18,12 @@ const items = Array.isArray(products) ? products.filter(Boolean) : [];
     <div class="track" role="list">
       {items.map((p) => (
         <div class="slide" role="listitem">
-          <ProductCardLite product={p} productImage={p.images?.[0]} />
+          <ProductCard product={p} productImage={p.images?.[0]} />
         </div>
       ))}
       {items.map((p) => (
         <div class="slide" role="listitem" aria-hidden="true">
-          <ProductCardLite product={p} productImage={p.images?.[0]} />
+          <ProductCard product={p} productImage={p.images?.[0]} />
         </div>
       ))}
     </div>
@@ -61,4 +61,3 @@ const items = Array.isArray(products) ? products.filter(Boolean) : [];
     </style>
   </section>
 )}
-

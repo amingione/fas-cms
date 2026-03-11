@@ -1,0 +1,203 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getShopUrlEntries, getStaticUrlEntries } from '@/lib/sitemap';
+
+const requestUrl = new URL(Astro.request.url);
+requestUrl.search = '';
+requestUrl.hash = '';
+const canonical = requestUrl.toString();
+
+const pageTitle = 'Sitemap';
+const pageDescription = 'Browse all public pages on F.A.S. Motorsports.';
+
+const [staticEntries, shopEntries] = await Promise.all([getStaticUrlEntries(), getShopUrlEntries()]);
+
+const toPath = (loc: string) => {
+  try {
+    const url = new URL(loc);
+    return url.pathname;
+  } catch {
+    return loc;
+  }
+};
+
+const renderLastmod = (value?: string) => {
+  if (!value) return 'n/a';
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) return 'n/a';
+  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+};
+---
+
+<BaseLayout title={pageTitle} description={pageDescription} canonical={canonical} hideBreadcrumbs={false}>
+  <section class="sitemap-page">
+    <div class="sitemap-shell">
+      <p class="sitemap-kicker">Site Directory</p>
+      <h1>Sitemap</h1>
+      <p class="sitemap-sub">This page updates automatically as new public pages and content are added.</p>
+
+      <div class="sitemap-xml-links">
+        <a href="/sitemap.xml">Full XML Sitemap</a>
+        <a href="/sitemap_index.xml">Sitemap Index</a>
+        <a href="/sitemap-static.xml">Static XML Sitemap</a>
+        <a href="/sitemap-shop.xml">Shop XML Sitemap</a>
+      </div>
+
+      <div class="sitemap-section">
+        <h2>General Pages</h2>
+        <ul>
+          {
+            staticEntries.map((entry) => (
+              <li>
+                <a href={entry.loc}>{toPath(entry.loc)}</a>
+                <span>{renderLastmod(entry.lastmod)}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="sitemap-section">
+        <h2>Shop Pages</h2>
+        <ul>
+          {
+            shopEntries.map((entry) => (
+              <li>
+                <a href={entry.loc}>{toPath(entry.loc)}</a>
+                <span>{renderLastmod(entry.lastmod)}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .sitemap-page {
+    padding: 48px 0 88px;
+  }
+
+  .sitemap-shell {
+    width: min(calc(100% - 40px), 1100px);
+    margin: 0 auto;
+  }
+
+  .sitemap-kicker {
+    margin: 0 0 10px;
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.64rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #c41218;
+  }
+
+  h1 {
+    margin: 0;
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: clamp(1.6rem, 5vw, 2.7rem);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #f2efea;
+  }
+
+  .sitemap-sub {
+    margin: 16px 0 22px;
+    color: #a7a39d;
+    max-width: 720px;
+    line-height: 1.6;
+  }
+
+  .sitemap-xml-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .sitemap-xml-links a {
+    display: inline-block;
+    border: 1px solid rgba(242, 239, 234, 0.16);
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    color: #d3d0cb;
+    text-decoration: none;
+  }
+
+  .sitemap-xml-links a:hover {
+    color: #f2efea;
+    border-color: rgba(196, 18, 24, 0.6);
+  }
+
+  .sitemap-section {
+    margin-top: 28px;
+    border: 1px solid rgba(242, 239, 234, 0.1);
+    border-radius: 14px;
+    overflow: hidden;
+    background: rgba(13, 13, 13, 0.55);
+  }
+
+  .sitemap-section h2 {
+    margin: 0;
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(242, 239, 234, 0.1);
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.76rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #f2efea;
+  }
+
+  .sitemap-section ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sitemap-section li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 10px 16px;
+    border-top: 1px solid rgba(242, 239, 234, 0.06);
+  }
+
+  .sitemap-section li:first-child {
+    border-top: 0;
+  }
+
+  .sitemap-section a {
+    color: #d3d0cb;
+    text-decoration: none;
+    word-break: break-word;
+  }
+
+  .sitemap-section a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+
+  .sitemap-section span {
+    flex-shrink: 0;
+    color: #8c8882;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 760px) {
+    .sitemap-section li {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
+    .sitemap-section span {
+      white-space: normal;
+    }
+  }
+</style>

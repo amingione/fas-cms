@@ -1,8 +1,10 @@
-import { stat } from 'node:fs/promises';
+import { readdir, stat } from 'node:fs/promises';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { sanity } from './sanity-utils';
 
 const FALLBACK_SITE_URL = 'https://fasmotorsports.com';
+const PAGES_DIR = fileURLToPath(new URL('../pages', import.meta.url));
 
 type ChangeFreq = 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never';
 
@@ -18,11 +20,9 @@ export interface SitemapIndexEntry {
   lastmod?: string;
 }
 
-interface StaticPageConfig {
+interface RouteFileEntry {
   pathname: string;
-  source?: string;
-  changefreq?: ChangeFreq;
-  priority?: number;
+  sourceFile: string;
 }
 
 interface SanitySlugDoc {
@@ -30,254 +30,26 @@ interface SanitySlugDoc {
   updatedAt?: string;
 }
 
-const STATIC_PAGES: StaticPageConfig[] = [
-  { pathname: '/', source: '../pages/index.astro', priority: 1, changefreq: 'weekly' },
-  { pathname: '/about', source: '../pages/about.astro', changefreq: 'monthly', priority: 0.8 },
-  { pathname: '/contact', source: '../pages/contact.astro', changefreq: 'monthly', priority: 0.7 },
-  { pathname: '/faq', source: '../pages/faq.astro', changefreq: 'monthly', priority: 0.6 },
-  { pathname: '/faq2', source: '../pages/faq2.astro', changefreq: 'monthly', priority: 0.4 },
-  {
-    pathname: '/schedule',
-    source: '../pages/schedule.astro',
-    changefreq: 'monthly',
-    priority: 0.6
-  },
-  {
-    pathname: '/customBuild',
-    source: '../pages/customBuild.astro',
-    changefreq: 'monthly',
-    priority: 0.6
-  },
-  { pathname: '/search', source: '../pages/search.astro', changefreq: 'weekly', priority: 0.6 },
-  {
-    pathname: '/packages',
-    source: '../pages/packages/index.astro',
-    changefreq: 'monthly',
-    priority: 0.6
-  },
-  {
-    pathname: '/packages/powerPackages',
-    source: '../pages/packages/powerPackages.astro',
-    changefreq: 'monthly',
-    priority: 0.6
-  },
-  {
-    pathname: '/packages/truckPackages',
-    source: '../pages/packages/truckPackages.astro',
-    changefreq: 'monthly',
-    priority: 0.6
-  },
-  {
-    pathname: '/services/overview',
-    source: '../pages/services/overview.astro',
-    changefreq: 'monthly',
-    priority: 0.7
-  },
-  {
-    pathname: '/services/coreExchange',
-    source: '../pages/services/coreExchange.astro',
-    changefreq: 'monthly',
-    priority: 0.6
-  },
-  {
-    pathname: '/services/customFab',
-    source: '../pages/services/customFab.astro',
-    changefreq: 'monthly',
-    priority: 0.6
-  },
-  {
-    pathname: '/services/igla',
-    source: '../pages/services/igla.astro',
-    changefreq: 'monthly',
-    priority: 0.6
-  },
-  {
-    pathname: '/services/porting',
-    source: '../pages/services/porting.astro',
-    changefreq: 'monthly',
-    priority: 0.6
-  },
-  {
-    pathname: '/services/welding',
-    source: '../pages/services/welding.astro',
-    changefreq: 'monthly',
-    priority: 0.6
-  },
-  {
-    pathname: '/belak/wheels',
-    source: '../pages/belak/wheels.astro',
-    changefreq: 'monthly',
-    priority: 0.6
-  },
-  {
-    pathname: '/belak/series2',
-    source: '../pages/belak/series2.astro',
-    changefreq: 'monthly',
-    priority: 0.6
-  },
-  {
-    pathname: '/belak/series3',
-    source: '../pages/belak/series3.astro',
-    changefreq: 'monthly',
-    priority: 0.6
-  },
-  {
-    pathname: '/belak/skinnies',
-    source: '../pages/belak/skinnies.astro',
-    changefreq: 'monthly',
-    priority: 0.5
-  },
-  {
-    pathname: '/belak/thanks',
-    source: '../pages/belak/thanks.astro',
-    changefreq: 'monthly',
-    priority: 0.3
-  },
-  {
-    pathname: '/jtx/wheels',
-    source: '../pages/jtx/wheels.astro',
-    changefreq: 'monthly',
-    priority: 0.6
-  },
-  {
-    pathname: '/jtx/retro',
-    source: '../pages/jtx/retro.astro',
-    changefreq: 'monthly',
-    priority: 0.6
-  },
-  {
-    pathname: '/jtx/monoforged',
-    source: '../pages/jtx/monoforged.astro',
-    changefreq: 'monthly',
-    priority: 0.6
-  },
-  {
-    pathname: '/jtx/concave',
-    source: '../pages/jtx/concave.astro',
-    changefreq: 'monthly',
-    priority: 0.6
-  },
-  { pathname: '/jtx/arc', source: '../pages/jtx/arc.astro', changefreq: 'monthly', priority: 0.6 },
-  {
-    pathname: '/jtx/two-piece',
-    source: '../pages/jtx/two-piece.astro',
-    changefreq: 'monthly',
-    priority: 0.6
-  },
-  {
-    pathname: '/jtx/thanks',
-    source: '../pages/jtx/thanks.astro',
-    changefreq: 'monthly',
-    priority: 0.3
-  },
-  {
-    pathname: '/jtx/beadlock',
-    source: '../pages/jtx/beadlock.astro',
-    changefreq: 'monthly',
-    priority: 0.5
-  },
-  {
-    pathname: '/jtx/rock-ring',
-    source: '../pages/jtx/rock-ring.astro',
-    changefreq: 'monthly',
-    priority: 0.5
-  },
-  {
-    pathname: '/jtx/phantom',
-    source: '../pages/jtx/phantom.astro',
-    changefreq: 'monthly',
-    priority: 0.5
-  },
-  { pathname: '/jtx/utv', source: '../pages/jtx/utv.astro', changefreq: 'monthly', priority: 0.5 },
-  {
-    pathname: '/jtx/dually',
-    source: '../pages/jtx/dually.astro',
-    changefreq: 'monthly',
-    priority: 0.5
-  },
-  {
-    pathname: '/specs/billet-snouts',
-    source: '../pages/specs/billet-snouts.astro',
-    changefreq: 'yearly',
-    priority: 0.5
-  },
-  {
-    pathname: '/specs/BilletSnout',
-    source: '../pages/specs/BilletSnout.astro',
-    changefreq: 'yearly',
-    priority: 0.5
-  },
-  {
-    pathname: '/specs/PulleyHub',
-    source: '../pages/specs/PulleyHub.astro',
-    changefreq: 'yearly',
-    priority: 0.5
-  },
-  {
-    pathname: '/specs/BilletLid',
-    source: '../pages/specs/BilletLid.astro',
-    changefreq: 'yearly',
-    priority: 0.5
-  },
-  {
-    pathname: '/specs/PredatorPulley',
-    source: '../pages/specs/PredatorPulley.astro',
-    changefreq: 'yearly',
-    priority: 0.5
-  },
-  {
-    pathname: '/specs/BilletThrottleBody108',
-    source: '../pages/specs/BilletThrottleBody108.astro',
-    changefreq: 'yearly',
-    priority: 0.5
-  },
-  {
-    pathname: '/specs/BilletBearingPlate',
-    source: '../pages/specs/BilletBearingPlate.astro',
-    changefreq: 'yearly',
-    priority: 0.5
-  },
-  {
-    pathname: '/privacypolicy',
-    source: '../pages/privacypolicy.astro',
-    changefreq: 'yearly',
-    priority: 0.3
-  },
-  {
-    pathname: '/termsandconditions',
-    source: '../pages/termsandconditions.astro',
-    changefreq: 'yearly',
-    priority: 0.3
-  },
-  {
-    pathname: '/returnRefundPolicy',
-    source: '../pages/returnRefundPolicy.astro',
-    changefreq: 'yearly',
-    priority: 0.3
-  },
-  { pathname: '/warranty', source: '../pages/warranty.astro', changefreq: 'yearly', priority: 0.4 }
-];
+const EXCLUDED_ROUTES = new Set<string>([
+  '/_app',
+  '/cart',
+  '/checkout',
+  '/sitemap.xml',
+  '/sitemap_index.xml',
+  '/sitemap-shop.xml',
+  '/sitemap-static.xml'
+]);
 
-const SHOP_STATIC_PAGES: StaticPageConfig[] = [
-  { pathname: '/shop', source: '../pages/shop/index.astro', changefreq: 'daily', priority: 0.9 },
-  {
-    pathname: '/shop/performance-packages',
-    source: '../pages/shop/performance-packages/index.astro',
-    changefreq: 'daily',
-    priority: 0.85
-  },
-  {
-    pathname: '/shop/storefront',
-    source: '../pages/shop/storefront.astro',
-    changefreq: 'daily',
-    priority: 0.8
-  },
-  {
-    pathname: '/shop/categories',
-    source: '../pages/shop/categories.astro',
-    changefreq: 'weekly',
-    priority: 0.7
-  }
+const EXCLUDED_PREFIXES = [
+  '/api/',
+  '/account/',
+  '/admin/',
+  '/appointments/',
+  '/customerdashboard/',
+  '/dashboard/',
+  '/order/',
+  '/orders/',
+  '/vendor-portal/'
 ];
 
 function normalisePath(pathname: string): string {
@@ -289,8 +61,7 @@ function stripMilliseconds(date: Date): string {
   if (!Number.isFinite(date.getTime())) {
     throw new RangeError('Invalid date');
   }
-  const iso = date.toISOString();
-  return iso.replace(/\.\d{3}Z$/, 'Z');
+  return date.toISOString().replace(/\.\d{3}Z$/, 'Z');
 }
 
 export function getSiteBaseUrl(): string {
@@ -299,8 +70,7 @@ export function getSiteBaseUrl(): string {
     (import.meta.env?.PUBLIC_BASE_URL as string | undefined) ||
     FALLBACK_SITE_URL;
   try {
-    const url = new URL(envUrl);
-    return url.origin;
+    return new URL(envUrl).origin;
   } catch {
     return FALLBACK_SITE_URL;
   }
@@ -309,8 +79,7 @@ export function getSiteBaseUrl(): string {
 export function toAbsoluteUrl(pathname: string): string {
   if (!pathname) return getSiteBaseUrl();
   if (/^https?:/i.test(pathname)) return pathname;
-  const base = getSiteBaseUrl();
-  return new URL(normalisePath(pathname), base).toString();
+  return new URL(normalisePath(pathname), getSiteBaseUrl()).toString();
 }
 
 function escapeXml(value: string): string {
@@ -322,54 +91,140 @@ function escapeXml(value: string): string {
     .replace(/'/g, '&apos;');
 }
 
-async function getLastModifiedFromSource(source?: string): Promise<string | undefined> {
-  if (!source) return undefined;
-  try {
-    const filePath = fileURLToPath(new URL(source, import.meta.url));
-    const stats = await stat(filePath);
-    return stripMilliseconds(stats.mtime);
-  } catch (err) {
-    console.warn(`[sitemap] Unable to stat ${source}:`, err instanceof Error ? err.message : err);
-    return undefined;
-  }
+function isExcluded(pathname: string): boolean {
+  if (EXCLUDED_ROUTES.has(pathname)) return true;
+  return EXCLUDED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 }
 
-function mapStaticConfigToUrls(configs: StaticPageConfig[]): Promise<SitemapUrlEntry[]> {
-  return Promise.all(
-    configs.map(async ({ pathname, source, changefreq, priority }) => ({
-      loc: toAbsoluteUrl(pathname),
-      changefreq,
-      priority,
-      lastmod: await getLastModifiedFromSource(source)
-    }))
+function routeFromAstroPath(absoluteFilePath: string): string {
+  const relative = path.relative(PAGES_DIR, absoluteFilePath).replace(/\\/g, '/');
+  const noExt = relative.replace(/\.astro$/, '');
+  const noIndex = noExt.endsWith('/index') ? noExt.slice(0, -'/index'.length) : noExt;
+  const route = normalisePath(noIndex || '/');
+  return route;
+}
+
+async function collectAstroFiles(root: string): Promise<string[]> {
+  const entries = await readdir(root, { withFileTypes: true });
+  const files = await Promise.all(
+    entries.map(async (entry) => {
+      const resolved = path.join(root, entry.name);
+      if (entry.isDirectory()) {
+        return collectAstroFiles(resolved);
+      }
+      if (!entry.isFile() || !entry.name.endsWith('.astro')) return [];
+      return [resolved];
+    })
   );
+  return files.flat();
 }
 
-export async function getStaticUrlEntries(): Promise<SitemapUrlEntry[]> {
-  return mapStaticConfigToUrls(STATIC_PAGES);
+async function discoverPublicRouteFiles(): Promise<RouteFileEntry[]> {
+  const files = await collectAstroFiles(PAGES_DIR);
+  return files
+    .filter((filePath) => !filePath.includes('['))
+    .map((filePath) => ({
+      pathname: routeFromAstroPath(filePath),
+      sourceFile: filePath
+    }))
+    .filter(({ pathname }) => !isExcluded(pathname));
 }
 
-export async function getShopStaticEntries(): Promise<SitemapUrlEntry[]> {
-  return mapStaticConfigToUrls(SHOP_STATIC_PAGES);
+function inferChangefreq(pathname: string): ChangeFreq {
+  if (pathname === '/') return 'weekly';
+  if (pathname.startsWith('/shop')) return 'daily';
+  if (pathname.startsWith('/blog')) return 'weekly';
+  if (pathname.startsWith('/services')) return 'monthly';
+  if (pathname.startsWith('/specs')) return 'yearly';
+  if (
+    pathname.endsWith('/thanks') ||
+    pathname.endsWith('/success') ||
+    pathname === '/privacypolicy' ||
+    pathname === '/termsandconditions' ||
+    pathname === '/returnRefundPolicy' ||
+    pathname === '/internalPolicy' ||
+    pathname === '/resources/employee-sms-consent'
+  ) {
+    return 'yearly';
+  }
+  return 'monthly';
+}
+
+function inferPriority(pathname: string): number {
+  if (pathname === '/') return 1;
+  if (pathname === '/shop') return 0.9;
+  if (pathname === '/wheels') return 0.8;
+  if (pathname.startsWith('/shop')) return 0.8;
+  if (pathname.startsWith('/services') || pathname.startsWith('/packages')) return 0.7;
+  if (pathname.startsWith('/blog') || pathname.startsWith('/vendors')) return 0.7;
+  if (pathname.startsWith('/specs')) return 0.5;
+  if (pathname.endsWith('/thanks') || pathname.endsWith('/success')) return 0.2;
+  if (
+    pathname === '/privacypolicy' ||
+    pathname === '/termsandconditions' ||
+    pathname === '/returnRefundPolicy' ||
+    pathname === '/internalPolicy' ||
+    pathname === '/resources/employee-sms-consent'
+  ) {
+    return 0.3;
+  }
+  return 0.6;
+}
+
+async function toUrlEntry({ pathname, sourceFile }: RouteFileEntry): Promise<SitemapUrlEntry> {
+  let lastmod: string | undefined;
+  try {
+    const stats = await stat(sourceFile);
+    lastmod = stripMilliseconds(stats.mtime);
+  } catch (err) {
+    console.warn(
+      `[sitemap] Unable to stat ${sourceFile}:`,
+      err instanceof Error ? err.message : err
+    );
+  }
+
+  return {
+    loc: toAbsoluteUrl(pathname),
+    lastmod,
+    changefreq: inferChangefreq(pathname),
+    priority: inferPriority(pathname)
+  };
+}
+
+function dedupeByLoc(entries: SitemapUrlEntry[]): SitemapUrlEntry[] {
+  const byLoc = new Map<string, SitemapUrlEntry>();
+  for (const entry of entries) {
+    const existing = byLoc.get(entry.loc);
+    if (!existing) {
+      byLoc.set(entry.loc, entry);
+      continue;
+    }
+    const existingTime = existing.lastmod ? Date.parse(existing.lastmod) : Number.NaN;
+    const nextTime = entry.lastmod ? Date.parse(entry.lastmod) : Number.NaN;
+    if (Number.isFinite(nextTime) && (!Number.isFinite(existingTime) || nextTime > existingTime)) {
+      byLoc.set(entry.loc, entry);
+    }
+  }
+  return [...byLoc.values()].sort((a, b) => a.loc.localeCompare(b.loc));
 }
 
 async function fetchSanitySlugs(query: string): Promise<SanitySlugDoc[]> {
   if (!sanity) return [];
   try {
     const results = await sanity.fetch<SanitySlugDoc[]>(query);
-    return (results ?? []).filter((item) => typeof item?.slug === 'string');
+    return (results ?? []).filter((item) => typeof item?.slug === 'string' && item.slug.length > 0);
   } catch (err) {
     console.error('[sitemap] Failed to fetch Sanity slugs:', err);
     return [];
   }
 }
 
-export async function getProductEntries(): Promise<SitemapUrlEntry[]> {
-  const query = `*[_type == "product" && !(_id in path('drafts.**')) && status == "active" && (productType == "service" || productType == "bundle" || productType == "physical" || featured == true) && defined(slug.current) && coalesce(noindex, false) != true]{
-    "slug": slug.current,
-    "updatedAt": coalesce(_updatedAt, _createdAt)
-  }`;
-  const docs = await fetchSanitySlugs(query);
+function mapSanityDocsToEntries(
+  docs: SanitySlugDoc[],
+  pathnamePrefix: string,
+  changefreq: ChangeFreq,
+  priority: number
+): SitemapUrlEntry[] {
   return docs.map(({ slug, updatedAt }) => {
     const lastmodDate = updatedAt ? new Date(updatedAt) : undefined;
     const lastmod =
@@ -377,33 +232,98 @@ export async function getProductEntries(): Promise<SitemapUrlEntry[]> {
         ? stripMilliseconds(lastmodDate)
         : undefined;
     return {
-      loc: toAbsoluteUrl(`/shop/${slug}`),
+      loc: toAbsoluteUrl(`${pathnamePrefix}/${slug}`),
       lastmod,
-      changefreq: 'weekly',
-      priority: 0.8
+      changefreq,
+      priority
     };
   });
 }
 
-export async function getCategoryEntries(): Promise<SitemapUrlEntry[]> {
-  const query = `*[_type == "category" && !(_id in path('drafts.**')) && defined(slug.current)]{
+export async function getProductEntries(): Promise<SitemapUrlEntry[]> {
+  const docs = await fetchSanitySlugs(`*[
+    _type == "product" &&
+    !(_id in path('drafts.**')) &&
+    status == "active" &&
+    (productType == "service" || productType == "bundle" || productType == "physical" || featured == true) &&
+    defined(slug.current) &&
+    coalesce(noindex, false) != true
+  ]{
     "slug": slug.current,
     "updatedAt": coalesce(_updatedAt, _createdAt)
-  }`;
-  const docs = await fetchSanitySlugs(query);
-  return docs.map(({ slug, updatedAt }) => {
-    const lastmodDate = updatedAt ? new Date(updatedAt) : undefined;
-    const lastmod =
-      lastmodDate && Number.isFinite(lastmodDate.getTime())
-        ? stripMilliseconds(lastmodDate)
-        : undefined;
-    return {
-      loc: toAbsoluteUrl(`/shop/categories/${slug}`),
-      lastmod,
-      changefreq: 'weekly',
-      priority: 0.7
-    };
-  });
+  }`);
+  return mapSanityDocsToEntries(docs, '/shop', 'weekly', 0.8);
+}
+
+export async function getCategoryEntries(): Promise<SitemapUrlEntry[]> {
+  const docs = await fetchSanitySlugs(`*[
+    _type == "category" &&
+    !(_id in path('drafts.**')) &&
+    defined(slug.current)
+  ]{
+    "slug": slug.current,
+    "updatedAt": coalesce(_updatedAt, _createdAt)
+  }`);
+  return mapSanityDocsToEntries(docs, '/shop/categories', 'weekly', 0.7);
+}
+
+export async function getBlogEntries(): Promise<SitemapUrlEntry[]> {
+  const docs = await fetchSanitySlugs(`*[
+    _type == "post" &&
+    !(_id in path('drafts.**')) &&
+    status == "published" &&
+    publishedAt <= now() &&
+    defined(slug.current)
+  ]{
+    "slug": slug.current,
+    "updatedAt": coalesce(_updatedAt, _createdAt)
+  }`);
+  return mapSanityDocsToEntries(docs, '/blog', 'weekly', 0.7);
+}
+
+export async function getVendorEntries(): Promise<SitemapUrlEntry[]> {
+  const docs = await fetchSanitySlugs(`*[
+    _type == "vendor" &&
+    !(_id in path('drafts.**')) &&
+    status == "active" &&
+    defined(slug.current)
+  ]{
+    "slug": slug.current,
+    "updatedAt": coalesce(_updatedAt, _createdAt)
+  }`);
+  return mapSanityDocsToEntries(docs, '/vendors', 'weekly', 0.7);
+}
+
+export async function getStaticUrlEntries(): Promise<SitemapUrlEntry[]> {
+  const [publicRouteFiles, blogEntries, vendorEntries] = await Promise.all([
+    discoverPublicRouteFiles(),
+    getBlogEntries(),
+    getVendorEntries()
+  ]);
+  const nonShopRouteFiles = publicRouteFiles.filter(({ pathname }) => !pathname.startsWith('/shop'));
+  const staticEntries = await Promise.all(nonShopRouteFiles.map(toUrlEntry));
+  return dedupeByLoc([...staticEntries, ...blogEntries, ...vendorEntries]);
+}
+
+export async function getShopStaticEntries(): Promise<SitemapUrlEntry[]> {
+  const publicRouteFiles = await discoverPublicRouteFiles();
+  const shopFiles = publicRouteFiles.filter(({ pathname }) => pathname.startsWith('/shop'));
+  const entries = await Promise.all(shopFiles.map(toUrlEntry));
+  return dedupeByLoc(entries);
+}
+
+export async function getShopUrlEntries(): Promise<SitemapUrlEntry[]> {
+  const [staticEntries, categoryEntries, productEntries] = await Promise.all([
+    getShopStaticEntries(),
+    getCategoryEntries(),
+    getProductEntries()
+  ]);
+  return dedupeByLoc([...staticEntries, ...categoryEntries, ...productEntries]);
+}
+
+export async function getFullSitemapEntries(): Promise<SitemapUrlEntry[]> {
+  const [staticEntries, shopEntries] = await Promise.all([getStaticUrlEntries(), getShopUrlEntries()]);
+  return dedupeByLoc([...staticEntries, ...shopEntries]);
 }
 
 export function generateUrlsetXml(urls: SitemapUrlEntry[]): string {
@@ -439,21 +359,4 @@ export function getMostRecentLastmod(entries: SitemapUrlEntry[]): string | undef
     .filter((value): value is number => typeof value === 'number' && !Number.isNaN(value));
   if (!timestamps.length) return undefined;
   return stripMilliseconds(new Date(Math.max(...timestamps)));
-}
-
-export async function getShopUrlEntries(): Promise<SitemapUrlEntry[]> {
-  const [staticEntries, categoryEntries, productEntries] = await Promise.all([
-    getShopStaticEntries(),
-    getCategoryEntries(),
-    getProductEntries()
-  ]);
-  return [...staticEntries, ...categoryEntries, ...productEntries];
-}
-
-export async function getFullSitemapEntries(): Promise<SitemapUrlEntry[]> {
-  const [staticEntries, shopEntries] = await Promise.all([
-    getStaticUrlEntries(),
-    getShopUrlEntries()
-  ]);
-  return [...staticEntries, ...shopEntries];
 }

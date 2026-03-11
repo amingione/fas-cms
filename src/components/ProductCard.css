@@ -1,0 +1,290 @@
+.pc {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  text-decoration: none;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid rgba(242, 239, 234, 0.08);
+  background: linear-gradient(180deg, rgba(21, 21, 21, 0.98) 0%, rgba(10, 10, 10, 0.98) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  transition:
+    transform 220ms ease,
+    border-color 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.pc:hover {
+  transform: translateY(-2px);
+  border-color: rgba(196, 18, 24, 0.32);
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.pc-badge-wrap {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  z-index: 3;
+}
+
+.pc-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 3px;
+  font-family: 'Ethnocentric', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.pc-badge--new {
+  background: #c8922a;
+  color: #111;
+}
+
+.pc-badge--sale {
+  background: #c41218;
+  color: #fff;
+}
+
+.pc-badge--bestseller {
+  background: #f2efea;
+  color: #111;
+}
+
+.pc-badge--featured {
+  background: #f2efea;
+  color: #111;
+}
+
+.pc-badge--custom {
+  background: rgba(242, 239, 234, 0.2);
+  color: #fff;
+  border: 1px solid rgba(242, 239, 234, 0.25);
+}
+
+.pc-image {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(196, 18, 24, 0.08), transparent 56%),
+    linear-gradient(180deg, rgba(31, 31, 31, 0.94) 0%, rgba(18, 18, 18, 0.98) 100%);
+}
+
+.pc-image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02), transparent 30%, transparent 70%, rgba(255, 255, 255, 0.02));
+  pointer-events: none;
+}
+
+.pc-image img {
+  position: relative;
+  z-index: 1;
+  max-width: 82%;
+  max-height: 76%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  transition: transform 280ms ease;
+}
+
+.pc:hover .pc-image img {
+  transform: scale(1.03);
+}
+
+.pc-image-placeholder {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+  color: rgba(242, 239, 234, 0.18);
+}
+
+.pc-image-placeholder svg {
+  width: 58px;
+  height: 58px;
+  opacity: 0.38;
+}
+
+.pc-image-placeholder span {
+  font-family: 'Ethnocentric', sans-serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  opacity: 0.35;
+}
+
+.pc-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 18px 22px 20px;
+  border-top: 1px solid rgba(242, 239, 234, 0.04);
+  background: linear-gradient(180deg, rgba(15, 15, 15, 0.92) 0%, rgba(10, 10, 10, 0.98) 100%);
+}
+
+.pc-brand {
+  display: block;
+  margin: 0 0 12px;
+  font-family: 'Ethnocentric', sans-serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #c8922a;
+}
+
+.pc-title {
+  margin: 0;
+  font-family: 'Barlow', sans-serif;
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.24;
+  color: #f2efea;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pc-fitment {
+  margin: 12px 0 0;
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: rgba(147, 147, 147, 0.74);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pc-footer {
+  margin-top: auto;
+  padding-top: 26px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.pc-price {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+
+.pc-price-original {
+  font-family: 'Barlow', sans-serif;
+  font-size: 1.95rem;
+  line-height: 1;
+  color: rgba(147, 147, 147, 0.42);
+  text-decoration: line-through;
+}
+
+.pc-price-current {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 2.7rem;
+  font-weight: 700;
+  line-height: 0.95;
+  color: #f2efea;
+  letter-spacing: 0.01em;
+}
+
+.pc-price-unavail {
+  font-family: 'Ethnocentric', sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: rgba(147, 147, 147, 0.66);
+}
+
+.pc-stock {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  font-family: 'Ethnocentric', sans-serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.pc-stock-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: currentColor;
+}
+
+.pc-stock--instock {
+  color: #38a169;
+}
+
+.pc-stock--lowstock {
+  color: #d08b21;
+}
+
+.pc-stock--outofstock {
+  color: rgba(147, 147, 147, 0.62);
+}
+
+@media (max-width: 1024px) {
+  .pc-title {
+    font-size: 1.75rem;
+  }
+
+  .pc-price-current {
+    font-size: 2.35rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .pc-body {
+    padding: 16px 16px 18px;
+  }
+
+  .pc-title {
+    font-size: 1.45rem;
+  }
+
+  .pc-fitment {
+    font-size: 0.88rem;
+  }
+
+  .pc-footer {
+    padding-top: 18px;
+  }
+
+  .pc-price-original {
+    font-size: 1.2rem;
+  }
+
+  .pc-price-current {
+    font-size: 2rem;
+  }
+
+  .pc-stock {
+    font-size: 0.56rem;
+  }
+}

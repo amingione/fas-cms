@@ -3,13 +3,16 @@ import {
   resolveSanityImageUrl,
   type Product as SanityProduct
 } from '@lib/sanity-utils';
-import { cn } from '@components/ui/utils';
 import { addItem } from '@lib/cart';
 import { emitAddToCartSuccess } from '@/lib/add-to-cart-toast';
 import { resolveProductCartMeta } from '@/lib/product-flags';
-import Price from '@/components/storefront/Price';
-import { resolveProductCalculatedPriceAmount } from '@/lib/medusa-storefront-pricing';
-import '../styles/global.css';
+import { formatPrice } from '@/components/storefront/Price';
+import {
+  resolveProductCalculatedPriceAmount,
+  resolveProductCalculatedOriginalAmount
+} from '@/lib/medusa-storefront-pricing';
+import { isOnSale, getSaleBadgeText } from '@/lib/saleHelpers';
+import './ProductCard.css';
 
 export interface ProductCardProps {
   product: SanityProduct;
@@ -17,20 +20,66 @@ export interface ProductCardProps {
   className?: string;
 }
 
+// ── Helpers ────────────────────────────────────────────────────────────────
+
 function getImageUrl(product: SanityProduct, productImage?: ProductCardProps['productImage']) {
-  const fallback = '/logo/fas-logo500.webp';
   const candidates: unknown[] = [
     productImage,
     product && typeof product === 'object' ? (product as any).image : undefined,
     product?.images
   ];
   const resolved = resolveSanityImageUrl(candidates);
-  return resolved ?? fallback;
+  return resolved ?? null;
 }
 
 function getSlug(product: SanityProduct) {
   return normalizeSlugValue((product as any)?.slug);
 }
+
+/** Resolve badge text and variant class */
+function resolveBadge(product: SanityProduct): { text: string; variant: string } | null {
+  // 1. Custom CMS badge wins
+  const custom = (product as any)?.marketing?.badgeText as string | undefined;
+  if (custom?.trim()) return { text: custom.trim().toUpperCase(), variant: 'custom' };
+
+  // 2. Sale badge from saleHelpers
+  const saleBadge = getSaleBadgeText(product);
+  if (saleBadge) return { text: saleBadge, variant: 'sale' };
+
+  // 3. Featured / best seller
+  if ((product as any)?.isBestSeller || (product as any)?.bestSeller)
+    return { text: 'BEST SELLER', variant: 'bestseller' };
+  if (product.featured) return { text: 'BEST SELLER', variant: 'bestseller' };
+
+  // 4. New arrival
+  if ((product as any)?.isNew || (product as any)?.newArrival)
+    return { text: 'NEW', variant: 'new' };
+
+  return null;
+}
+
+/** Resolve stock status */
+function resolveStock(product: SanityProduct): { label: string; cls: string } {
+  const inv = (product as any)?.inventory;
+  if (!inv) return { label: 'IN STOCK', cls: 'pc-stock--instock' };
+  if (inv.inStock === false) return { label: 'OUT OF STOCK', cls: 'pc-stock--outofstock' };
+  if (inv.lowStock) return { label: 'LOW STOCK', cls: 'pc-stock--lowstock' };
+  return { label: 'IN STOCK', cls: 'pc-stock--instock' };
+}
+
+/** Resolve fitment display string */
+function resolveFitment(product: SanityProduct): string | null {
+  const p = product as any;
+  return (
+    p.fitment ??
+    p.seoFitment ??
+    p.fitmentRange ??
+    (Array.isArray(p.fitmentYears) ? p.fitmentYears.join(', ') : p.fitmentYears) ??
+    null
+  );
+}
+
+// ── addToCart (kept for compatibility — called from PDP / quick-add) ─────
 
 function addToCart(product: SanityProduct) {
   try {
@@ -43,7 +92,6 @@ function addToCart(product: SanityProduct) {
       }
       return;
     }
-
     const price = resolveProductCalculatedPriceAmount(product);
     if (typeof price !== 'number') {
       if (typeof window !== 'undefined') {
@@ -51,7 +99,6 @@ function addToCart(product: SanityProduct) {
       }
       return;
     }
-
     const categories = Array.isArray(product.categories)
       ? product.categories.map((c: any) => c?._ref || c?._id || '').filter(Boolean)
       : [];
@@ -96,111 +143,103 @@ function addToCart(product: SanityProduct) {
       ...(shippingClass ? { shippingClass } : {}),
       ...(installOnly ? { installOnly: true } : {})
     });
-
     emitAddToCartSuccess({ name });
+    if (typeof window !== 'undefined') {
+      try {
+        window.dispatchEvent(new Event('open-cart'));
+      } catch {
+        // ignore
+      }
+    }
+  } catch (e) {
+    console.error('addToCart failed', e);
+    if (typeof window !== 'undefined') {
+      window.alert('Unable to add this item. Please select a product variant and try again.');
+    }
+  }
+}
 
-
+// ── Component ───────────────────────────────────────────────────────────────
 
 export function ProductCard({ product, productImage, className }: ProductCardProps) {
   const imageUrl = getImageUrl(product, productImage ?? null);
   const price = resolveProductCalculatedPriceAmount(product);
+  // Compare-at is Medusa-authoritative (original_amount from calculated_price)
+  const compareAt = resolveProductCalculatedOriginalAmount(product);
   const displayTitle = (product as any)?.displayTitle || product.title || 'Product';
-  const subtitle = 'F.a.S.';
+  const brand =
+    ((product as any)?.brand as string | undefined) ||
+    ((product as any)?.categories?.[0]?.title as string | undefined) ||
+    'F.A.S. Motorsports';
+  const fitment = resolveFitment(product);
   const slug = getSlug(product);
   const productUrl = slug ? `/shop/${slug}` : '#';
+  const badge = resolveBadge(product);
+  const stock = resolveStock(product);
+
+  const currentPriceFormatted =
+    typeof price === 'number' ? formatPrice(price) : null;
+
+  // compareAtPrice from Sanity is stored in cents (matches Medusa convention)
+  const compareAtFormatted =
+    typeof compareAt === 'number' && compareAt > 0 ? formatPrice(compareAt) : null;
 
   return (
-    <div
-      className={cn(
-        'w-full luxury-hover-scale racing-stripe h-auto bg-dark/40 backdrop-blur-sm rounded-[5px] md:rounded-[10px] lg:rounded-[20px] relative overflow-hidden',
-        'shadow-card-outer border border-[rgba(154,154,154,0)] transition-shadow',
-        // Subtle default glow + drop (barely noticeable), stronger on hover (offset to upper-left)
-        'shadow-[-1px_-1px_4px_rgba(234,29,38,0.08),_-1px_-2px_6px_rgba(0,0,0,0.12)] hover:shadow-[-1px_-1px_2px_rgba(234,29,38,0.35),_-2px_-2px_3px_rgba(0,0,0,0.35)]',
-        className
-      )}
+    <a
+      href={productUrl}
+      className={`pc${className ? ` ${className}` : ''}`}
+      aria-label={displayTitle}
     >
-      {/* Product image (uniform square, flows naturally) */}
-      <div className="px-3 package-card md:px-4 lg:px-5 pt-12 md:pt-8">
-        <div className="relative mx-auto w-full aspect-square">
-          <a href={productUrl} className="inline-flex items-center justify-between gap-1">
-            <img
-              src={imageUrl}
-              alt={displayTitle}
-              className="absolute inset-0 w-full h-full object-contain"
-            />
-          </a>
+      {/* Badge */}
+      {badge && (
+        <div className="pc-badge-wrap">
+          <span className={`pc-badge pc-badge--${badge.variant}`}>{badge.text}</span>
         </div>
-      </div>
+      )}
 
-      {/* Product details section */}
-      <div className="luxury-carbon-effect rounded p-5 md:p-6 lg:p-7 shadow-card-outer border-black/30 -mt-4 flex flex-col min-h-[200px] md:min-h-[210px] lg:min-h-[220px]">
-        {/* Product info */}
-        <div className="">
-          <h2 className="relative text-white font-ethno text-[12px] md:text-sm lg:text-base font-semibold leading-snug line-clamp-3">
-            {displayTitle}
-          </h2>
-          <div>
-            <p className="relative chrome-text mt-2 text-accent font-borg text-[15px] md:text-base font-base line-clamp-2">
-              {subtitle}
-            </p>
-            <div className="mt-4 relative">
-              <button
-                className="text-white btn-glass luxury-btn font-ethno text-[10px] md:text-xs font-medium inline-flex items-center gap-1 px-3 py-1 rounded-full"
-                style={{ width: 'auto', minWidth: 0 }}
-              >
-                <a
-                  href={getSlug(product) ? `/shop/${getSlug(product)}` : '#'}
-                  className="inline-flex items-center justify-between gap-1"
-                >
-                  View Details
-                </a>
-              </button>
-            </div>
+      {/* Image */}
+      <div className="pc-image">
+        {imageUrl ? (
+          <img src={imageUrl} alt={displayTitle} loading="lazy" decoding="async" />
+        ) : (
+          <div className="pc-image-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <path d="M21 15l-5-5L5 21" />
+            </svg>
+            <span>Product Photo</span>
           </div>
-        </div>
+        )}
+      </div>
 
-        {/* Price and Add to Cart */}
-        <div className="mt-2 inline-flex items-center justify-between gap-1">
-          <span className="text-accent flex items-center font-ethno text-[12px] md:text-[13px] lg:text-[13px] font-bold whitespace-nowrap">
-            {typeof price === 'number' ? (
-              <Price amount={price} />
-            ) : (
-              <span className="text-white/70 uppercase tracking-wide text-xs font-semibold">
-                Unavailable
-              </span>
+      {/* Body */}
+      <div className="pc-body">
+        {brand && <span className="pc-brand">{brand}</span>}
+
+        <h3 className="pc-title">{displayTitle}</h3>
+
+        {fitment && <p className="pc-fitment">{fitment}</p>}
+
+        <div className="pc-footer">
+          <div className="pc-price">
+            {compareAtFormatted && (
+              <span className="pc-price-original">{compareAtFormatted}</span>
             )}
+            {currentPriceFormatted ? (
+              <span className="pc-price-current">{currentPriceFormatted}</span>
+            ) : (
+              <span className="pc-price-unavail">Contact for price</span>
+            )}
+          </div>
+
+          <span className={`pc-stock ${stock.cls}`}>
+            <span className="pc-stock-dot" />
+            {stock.label}
           </span>
-          {product._id && (
-            <button
-              className="btn-glass flex items-center gap-1.5 bg-dark/30 text-white px-1 py-2 md:px-3.5 md:py-1.5 rounded-full md:rounded-full font-cyber text-[9px] shadow-button border border-[rgba(86,86,86,0.49)] whitespace-nowrap w-auto"
-              style={{ width: 'auto', minWidth: 0 }}
-              onClick={(e) => {
-                e.preventDefault();
-                addToCart(product);
-              }}
-            >
-              Add to cart
-              <svg
-                width="13"
-                height="13"
-                viewBox="0 0 16 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="transform -rotate-60"
-              >
-                <path
-                  d="M5.66675 3.33332L10.3334 7.99999L5.66675 12.6667"
-                  stroke="white"
-                  strokeWidth="1.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-          )}
         </div>
       </div>
-    </div>
+    </a>
   );
 }
 

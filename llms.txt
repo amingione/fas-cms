@@ -1,0 +1,63 @@
+# FAS Storefront (`fas-cms-fresh`)
+
+> Customer-facing Astro storefront for FAS Motorsports. This repo renders product and content experiences, while commerce authority remains Medusa.
+
+Last updated: 2026-03-11
+Canonical docs version: v2026.03.07
+
+## Mission
+
+- Provide storefront UI for discovery, PDP, cart, and checkout UX.
+- Consume authoritative commerce state from Medusa-backed flows.
+- Use Sanity for optional content enrichment only.
+
+## Non-Negotiable Authority Rules
+
+- `fas-medusa` is the source of truth for products, variants, pricing, inventory, cart, shipping, checkout, and orders.
+- Storefront must not authoritatively compute totals, tax, shipping, or order state.
+- Stripe is payment processing only (not catalog/order authority).
+- Sanity is content only and must not block commerce-critical rendering.
+
+## Canonical References
+
+- `README.md`
+- `docs/codex.md`
+- `docs/architecture/canonical-commerce-architecture.md`
+- `docs/architecture/migration-status.md`
+- `docs/governance/checkout-architecture-governance.md`
+- `docs/governance/commerce-authority-checklist.md`
+
+## Runtime Flow (Canonical)
+
+`PDP -> canonical cart -> Medusa cart -> PaymentIntent -> Stripe webhook -> Medusa order`
+
+## Key Commands
+
+- `yarn dev`
+- `yarn build`
+- `yarn preview`
+- `yarn lint`
+- `yarn type-check`
+- `yarn test`
+- `yarn env:check:local`
+- `yarn env:check:netlify`
+- `yarn docs:check`
+
+## High-Value Code Areas
+
+- `src/pages/` - Astro routes and storefront surfaces.
+- `src/pages/api/` - BFF/API endpoints (checkout, auth, vendor, promotions, search).
+- `src/components/` - reusable UI and React/Astro islands.
+- `src/lib/` - data clients, domain helpers, and integrations.
+- `src/server/` - server-side auth/http/vendor portal helpers.
+- `src/styles/` - theme and global styling.
+
+## Integrations
+
+- Medusa (commerce authority)
+- Stripe (payments)
+- Sanity (content)
+- Shippo (shipping-related flows)
+- Resend (email)
+- Netlify (deploy/runtime)
+

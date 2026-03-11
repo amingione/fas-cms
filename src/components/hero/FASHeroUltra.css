@@ -100,7 +100,7 @@
 }
 
 .fas-hero-h1-v2 .main-v2 {
-  font-family: 'American Captain', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(2.5rem, 1.8rem + 4.2vw, 5.5rem);
   letter-spacing: 0.05em;
   line-height: 0.95;
@@ -475,7 +475,7 @@
 }
 
 .fas-hero-h1 .main {
-  font-family: 'American Captain', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(2.75rem, 2rem + 4.7vw, 6.2rem);
   letter-spacing: 0.05em;
   line-height: 0.9;

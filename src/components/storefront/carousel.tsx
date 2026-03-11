@@ -1,7 +1,7 @@
 'use client';
 
 import type { Product } from '@/lib/sanity-utils';
-import ProductCardLiteReact from '@/components/storefront/ProductCardLiteReact';
+import ProductCard from '@/components/ProductCard';
 
 export interface CarouselProps {
   images: string[];
@@ -10,7 +10,7 @@ export interface CarouselProps {
   captions?: (string | undefined)[];
   /** Speed in seconds for one full loop (lower = faster) */
   speedSec?: number;
-  /** When provided, renders ProductCardLite cards instead of raw images. */
+  /** When provided, renders product cards instead of raw images. */
   products?: Product[];
 }
 
@@ -51,7 +51,7 @@ export function Carousel({
         <div className="track" style={{ animationDuration: `${Math.max(30, speedSec)}s` }}>
           {loopSlides.map((s) => (
             <div key={s.key} className="slide">
-              <ProductCardLiteReact product={s.p} productImage={s.p?.images?.[0]} />
+              <ProductCard product={s.p} productImage={s.p?.images?.[0]} />
             </div>
           ))}
         </div>

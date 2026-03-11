@@ -26,7 +26,7 @@ import PortableTextRenderer from "../../components/PortableTextRenderer.jsx";
 import SlugCarousel from '../../components/SlugCarousel.astro';
 import TrustStrip from '../../components/TrustStrip.astro';
 import InfoTabs from '../../components/shop/InfoTabs';
-import ProductCardLite from '../../components/storefront/ProductCardLite.astro';
+import ProductCard from '../../components/ProductCard';
 import ServiceDisclaimerNotice from '../../components/storefront/ServiceDisclaimerNotice';
 import { inlineFieldAttrs, inlineObjectId } from '../../lib/content';
 import { serializeJsonLd } from '../../lib/utils';
@@ -2224,7 +2224,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
     <h2 class="text-2xl text-accent font-ethno mb-6">Related Products</h2>
     <div class="grid auto-rows-fr grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
       {(relatedProducts || []).filter(Boolean).map((p: any) => (
-        <ProductCardLite product={p} productImage={p?.images?.[0]} layout="grid" />
+        <ProductCard product={p} productImage={p?.images?.[0]} />
       ))}
     </div>
   </section>
@@ -2236,7 +2236,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
     <h2 class="text-2xl text-accent font-ethno mb-6">Recommended Upgrades</h2>
     <div class="grid auto-rows-fr grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
       {(upsellProducts || []).filter(Boolean).map((p: any) => (
-        <ProductCardLite product={p} productImage={p?.images?.[0]} layout="grid" />
+        <ProductCard product={p} productImage={p?.images?.[0]} />
       ))}
     </div>
   </section>
