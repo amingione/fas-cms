@@ -585,77 +585,58 @@ export default function CategoryPage({
 
       <main>
         {/* Category section */}
-        <section
-          aria-labelledby="category-heading"
-          className="pt-5 mt-5 bg-transparent relative isolate overflow-hidden border border-rounded rounded-lg border-black/20 drop-shadow-lg shadow-white/10 shadow-inner backdrop-blur-sm px-2 py-10 after:pointer-events-none after:absolute after:inset-0 after:inset-ring after:inset-ring-white/10 sm:rounded-3xl sm:px-10 sm:py-24 after:sm:rounded-3xl lg:py-24 xl:px-24"
-        >
-          <div className="mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
-            <div className="sm:flex sm:items-baseline sm:justify-between">
-              <h2 id="category-heading" className="text-2xl font-bold tracking-tight text-white">
-                Shop by Category
-              </h2>
-              <a
-                href="/shop/categories"
-                className="hidden text-sm font-semibold text-white hover:text-primary sm:block"
-              >
-                Browse all categories
-                <span aria-hidden="true"> &rarr;</span>
-              </a>
-            </div>
 
-            {categoryTiles.length > 0 ? (
-              <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {categoryTiles.map((category) => (
-                  <a
-                    key={category.id || category.slug}
-                    href={`/shop/categories/${category.slug}`}
-                    aria-label={`Browse ${category.title}`}
-                    className="group relative overflow-hidden rounded-xl border border-white/10 bg-black/40 p-6 transition duration-300 hover:border-primary hover:shadow-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red/5"
-                  >
-                    {category.imageUrl ? (
-                      <img
-                        alt={category.title}
-                        src={category.imageUrl}
-                        style={{ filter: 'grayscale(80%) brightness(80%)' }}
-                        className="absolute inset-0 size-full object-cover opacity-35 transition duration-500 group-hover:opacity-45"
-                      />
-                    ) : null}
-                    <div
-                      aria-hidden="true"
-                      className={`absolute inset-0 bg-gradient-to-br ${category.gradientClass} opacity-85`}
-                    />
-                    <div className="relative flex h-full flex-col justify-end">
-                      <h3 className="text-lg font-semibold text-white">
-                        <span className="absolute inset-0" aria-hidden="true" />
-                        {category.title}
-                      </h3>
-                      <p className="mt-3 text-xs font-semibold uppercase tracking-[0.32em] text-primary">
-                        {category.productCount > 0
-                          ? `${category.productCount} ${category.productCount === 1 ? 'Product' : 'Products'}`
-                          : 'View builds'}
-                      </p>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            ) : (
-              <div className="mt-10 rounded-xl border border-white/15 bg-black/40 p-10 text-center text-sm text-white/60">
-                No categories loaded yet. Confirm your Sanity credentials and publish categories to
-                populate this section.
-              </div>
-            )}
-
-            <div className="mt-6 sm:hidden">
+        {categoryTiles.length > 0 ? (
+          <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {categoryTiles.map((category) => (
               <a
-                href="/shop/categories"
-                className="block text-sm font-semibold text-white hover:text-primary"
+                key={category.id || category.slug}
+                href={`/shop/categories/${category.slug}`}
+                aria-label={`Browse ${category.title}`}
+                className="group relative overflow-hidden rounded-xl border border-white/10 bg-black/40 p-6 transition duration-300 hover:border-primary hover:shadow-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red/5"
               >
-                Browse all categories
-                <span aria-hidden="true"> &rarr;</span>
+                {category.imageUrl ? (
+                  <img
+                    alt={category.title}
+                    src={category.imageUrl}
+                    style={{ filter: 'grayscale(80%) brightness(80%)' }}
+                    className="absolute inset-0 size-full object-cover opacity-35 transition duration-500 group-hover:opacity-45"
+                  />
+                ) : null}
+                <div
+                  aria-hidden="true"
+                  className={`absolute inset-0 bg-gradient-to-br ${category.gradientClass} opacity-85`}
+                />
+                <div className="relative flex h-full flex-col justify-end">
+                  <h3 className="text-lg font-semibold text-white">
+                    <span className="absolute inset-0" aria-hidden="true" />
+                    {category.title}
+                  </h3>
+                  <p className="mt-3 text-xs font-semibold uppercase tracking-[0.32em] text-primary">
+                    {category.productCount > 0
+                      ? `${category.productCount} ${category.productCount === 1 ? 'Product' : 'Products'}`
+                      : 'View builds'}
+                  </p>
+                </div>
               </a>
-            </div>
+            ))}
           </div>
-        </section>
+        ) : (
+          <div className="mt-10 rounded-xl border border-white/15 bg-black/40 p-10 text-center text-sm text-white/60">
+            No categories loaded yet. Confirm your Sanity credentials and publish categories to
+            populate this section.
+          </div>
+        )}
+
+        <div className="mt-6 sm:hidden">
+          <a
+            href="/shop/categories"
+            className="block text-sm font-semibold text-white hover:text-primary"
+          >
+            Browse all categories
+            <span aria-hidden="true"> &rarr;</span>
+          </a>
+        </div>
 
         {/* Featured section */}
         <section aria-labelledby="cause-heading">
