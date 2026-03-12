@@ -120,7 +120,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <motion.div
-      className="relative z-0 text-white bg-dark/10 rounded-xl shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_8px_20px_rgba(234,29,38,0.3)] overflow-hidden transform transition-all duration-500 group industrial-card"
+      className="relative z-0 text-white bg-black/10 rounded-xl shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_8px_20px_rgba(234,29,38,0.3)] overflow-hidden transform transition-all duration-500 group industrial-card"
       whileHover={{ y: -5, scale: 1.02 }}
       transition={{ duration: 0.3 }}
     >

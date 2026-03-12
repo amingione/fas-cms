@@ -130,7 +130,7 @@ const DocumentLibrary: React.FC<Props> = ({ initialDocuments = [] }) => {
         </div>
       </div>
       {showUploadModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-dark/70 px-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
           <div className="bg-zinc-950 border border-white/10 rounded-xl shadow-xl w-full max-w-lg p-6">
             <div className="flex items-center justify-between mb-4">
               <div>

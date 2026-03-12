@@ -357,7 +357,7 @@ export default function ProductQuickViewButton({
         ? createPortal(
             <div className="fixed inset-0 z-[120] flex items-center justify-center px-4 py-6">
               <div
-                className="absolute inset-0 bg-dark/70"
+                className="absolute inset-0 bg-black/70"
                 aria-hidden="true"
                 onClick={() => setOpen(false)}
               />
@@ -373,7 +373,7 @@ export default function ProductQuickViewButton({
                 </button>
 
                 <div className="grid gap-6 p-6 sm:grid-cols-2 sm:gap-8 sm:p-8">
-                  <div className="flex min-h-[220px] items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-dark/40 p-3 sm:block sm:min-h-0">
+                  <div className="flex min-h-[220px] items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-black/40 p-3 sm:block sm:min-h-0">
                     <img
                       src={product.imageSrc}
                       alt={product.imageAlt || product.title}

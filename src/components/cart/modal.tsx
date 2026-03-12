@@ -260,7 +260,7 @@ function CartItemsList({ cart, pricing, onQuantityChange, onRemove }: CartItemsL
 
             return (
               <li key={item.id || item.name} className="flex py-6">
-                <div className="size-24 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-dark/40">
+                <div className="size-24 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-black/40">
                   {productHref ? (
                     <a href={productHref} className="block size-full">
                       <img

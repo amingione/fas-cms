@@ -65,7 +65,7 @@ export default function VendorBlogList({ posts }: { posts: Post[] }) {
           >
             <div className="flex gap-4">
               {post.featuredImage?.asset?.url && (
-                <div className="hidden sm:block w-40 h-28 overflow-hidden rounded-lg border border-white/10 bg-dark/40">
+                <div className="hidden sm:block w-40 h-28 overflow-hidden rounded-lg border border-white/10 bg-black/40">
                   <img
                     src={post.featuredImage.asset.url}
                     alt={post.title}

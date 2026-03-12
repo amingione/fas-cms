@@ -141,7 +141,7 @@ export default function OnboardingNavFlyout({ currentSection }: Props) {
       </nav>
 
       <Dialog open={mobileOpen} onClose={setMobileOpen} className="sm:hidden">
-        <DialogBackdrop className="fixed inset-0 z-40 bg-dark/70" />
+        <DialogBackdrop className="fixed inset-0 z-40 bg-black/70" />
         <DialogPanel className="fixed inset-y-0 right-0 z-50 w-80 max-w-[90vw] bg-[#0c0c0c] border-l border-white/10 p-4 shadow-2xl">
           <div className="flex items-center justify-between mb-4">
             <p className="text-sm font-semibold text-white">Onboarding</p>

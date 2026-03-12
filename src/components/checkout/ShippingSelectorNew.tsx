@@ -168,7 +168,7 @@ export default function ShippingSelectorNew({
                 ${
                   isSelected
                     ? 'border-primary bg-primary/5'
-                    : 'border-white/20 hover:border-white/40 bg-dark/70'
+                    : 'border-white/20 hover:border-white/40 bg-black/70'
                 }
                 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
               `}

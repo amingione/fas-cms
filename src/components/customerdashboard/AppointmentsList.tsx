@@ -196,7 +196,7 @@ export default function AppointmentsList() {
       {appointments.map((appointment) => (
         <div
           key={appointment.id}
-          className="border border-white/20 bg-dark/40 text-white rounded-lg p-4 shadow-inner shadow-black/40"
+          className="border border-white/20 bg-black/40 text-white rounded-lg p-4 shadow-inner shadow-black/40"
         >
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>

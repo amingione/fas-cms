@@ -87,7 +87,7 @@ export default function ProductCardLiteReact({
         data-analytics-label={anchorText}
         data-analytics-params={analyticsParams}
       >
-        <div className="relative flex aspect-square items-center justify-center bg-dark/70 backdrop-blur-sm md:aspect-auto md:w-56 md:min-w-56 md:max-w-56">
+        <div className="relative flex aspect-square items-center justify-center bg-black/70 backdrop-blur-sm md:aspect-auto md:w-56 md:min-w-56 md:max-w-56">
           <img
             src={img}
             alt={anchorText}
@@ -157,7 +157,7 @@ export default function ProductCardLiteReact({
         data-analytics-label={anchorText}
         data-analytics-params={analyticsParams}
       >
-        <div className="contain relative flex aspect-square justify-center pb-10 object-contain bg-dark/70 backdrop-blur-sm">
+        <div className="contain relative flex aspect-square justify-center pb-10 object-contain bg-black/70 backdrop-blur-sm">
           <img
             src={img}
             alt={anchorText}

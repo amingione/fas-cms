@@ -71,7 +71,7 @@ const AlertsRail: React.FC = () => {
             return (
               <div
                 key={n._id}
-                className={`rounded-lg border border-white/10 bg-dark/40 px-3 py-2 flex items-start gap-3 ${
+                className={`rounded-lg border border-white/10 bg-black/40 px-3 py-2 flex items-start gap-3 ${
                   n.read ? 'opacity-75' : ''
                 }`}
               >

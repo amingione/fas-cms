@@ -70,7 +70,7 @@ export default function AlertsBell() {
       </div>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-96 max-w-[90vw] rounded-2xl border border-white/10 bg-dark/90 shadow-2xl ring-1 ring-white/10 z-30">
+        <div className="absolute right-0 mt-2 w-96 max-w-[90vw] rounded-2xl border border-white/10 bg-black/90 shadow-2xl ring-1 ring-white/10 z-30">
           <div className="p-4 border-b border-white/10 flex items-center justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.12em] text-white/60 font-semibold">

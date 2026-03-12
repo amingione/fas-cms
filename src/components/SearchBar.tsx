@@ -265,8 +265,8 @@ export function SearchBar({
             className={cn(
               'absolute left-0 mt-2 w-full max-w-[380px] rounded-lg shadow-xl z-[70] max-h-[60vh] overflow-auto backdrop-blur-md',
               variant === 'storefront'
-                ? 'bg-dark/90 border-white/20'
-                : 'bg-dark/85 border border-gray-700/50'
+                ? 'bg-black/90 border-white/20'
+                : 'bg-black/85 border border-gray-700/50'
             )}
           >
             {items.slice(0, 8).map((it, idx) => {
@@ -280,7 +280,7 @@ export function SearchBar({
                 <a
                   key={String(it?._id || it?.slug?.current || idx)}
                   href={href}
-                  className={cn('block px-3 py-2 hover:bg-dark/70', isActive && 'bg-dark/70')}
+                  className={cn('block px-3 py-2 hover:bg-black/70', isActive && 'bg-black/70')}
                   onMouseEnter={() => setActive(idx)}
                 >
                   <div
@@ -316,7 +316,7 @@ export function SearchBar({
             <div className="border-t border-white/20" />
             <a
               href={`${action || '/search'}?q=${encodeURIComponent(currentValue.trim())}`}
-              className="block px-3 py-2 text-center text-xs text-white/70 hover:bg-dark/70"
+              className="block px-3 py-2 text-center text-xs text-white/70 hover:bg-black/70"
               style={{ fontFamily: 'Arial, sans-serif', fontSize: 12 }}
             >
               See all results for “{currentValue.trim()}”
@@ -328,8 +328,8 @@ export function SearchBar({
               className={cn(
                 'rounded-lg shadow-xl z-[2147483647] max-h-[60vh] overflow-auto backdrop-blur-md fixed',
                 variant === 'storefront'
-                  ? 'bg-dark/90 border-white/20'
-                  : 'bg-dark/85 border border-gray-700/50'
+                  ? 'bg-black/90 border-white/20'
+                  : 'bg-black/85 border border-gray-700/50'
               )}
               style={{ left: panelPos.left, top: panelPos.top, width: panelPos.width }}
               onMouseDown={(e) => {
@@ -348,7 +348,7 @@ export function SearchBar({
                   <a
                     key={String(it?._id || it?.slug?.current || idx)}
                     href={href}
-                    className={cn('block px-3 py-2 hover:bg-dark/70', isActive && 'bg-dark/70')}
+                    className={cn('block px-3 py-2 hover:bg-black/70', isActive && 'bg-black/70')}
                     onMouseEnter={() => setActive(idx)}
                   >
                     <div
@@ -374,7 +374,7 @@ export function SearchBar({
                           style={{ fontFamily: 'Arial, sans-serif', fontSize: 11 }}
                         >
                           <span className="uppercase">{String(it?._type || '')}</span>
-                        <span className="text-xs text-white/50 uppercase">View for pricing</span>
+                          <span className="text-xs text-white/50 uppercase">View for pricing</span>
                         </div>
                       </div>
                     </div>
@@ -384,7 +384,7 @@ export function SearchBar({
               <div className="border-t border-white/20" />
               <a
                 href={`${action || '/search'}?q=${encodeURIComponent(currentValue.trim())}`}
-                className="block px-3 py-2 text-center text-xs text-white/70 hover:bg-dark/70"
+                className="block px-3 py-2 text-center text-xs text-white/70 hover:bg-black/70"
                 style={{ fontFamily: 'Arial, sans-serif', fontSize: 12 }}
               >
                 See all results for “{currentValue.trim()}”

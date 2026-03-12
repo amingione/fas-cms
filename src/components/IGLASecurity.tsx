@@ -210,7 +210,7 @@ export function IGLASecurity() {
           >
             <div className="relative">
               {/* Elegant frame with texture */}
-              <div className="absolute -inset-8 bg-dark/40 rounded-3xl backdrop-blur-sm border border-slate-700/50 industrial-card"></div>
+              <div className="absolute -inset-8 bg-black/40 rounded-3xl backdrop-blur-sm border border-slate-700/50 industrial-card"></div>
 
               {/* Product image */}
               <motion.div
@@ -227,7 +227,7 @@ export function IGLASecurity() {
 
               {/* Premium indicators */}
               <motion.div
-                className={`absolute bg-dark/80 rounded-2xl backdrop-blur-sm border border-slate-700/50 industrial-card ${isMobile ? 'top-2 right-2 p-2' : 'top-6 right-6 p-4'}`}
+                className={`absolute bg-black/80 rounded-2xl backdrop-blur-sm border border-slate-700/50 industrial-card ${isMobile ? 'top-2 right-2 p-2' : 'top-6 right-6 p-4'}`}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={isInView ? { opacity: 1, scale: 1 } : {}}
                 transition={{ delay: 1.8, duration: 0.6 }}
@@ -243,7 +243,7 @@ export function IGLASecurity() {
               </motion.div>
 
               <motion.div
-                className={`absolute bg-dark/80 rounded-2xl backdrop-blur-sm border border-slate-700/50 industrial-card ${isMobile ? 'bottom-2 left-2 p-2' : 'bottom-6 left-6 p-4'}`}
+                className={`absolute bg-black/80 rounded-2xl backdrop-blur-sm border border-slate-700/50 industrial-card ${isMobile ? 'bottom-2 left-2 p-2' : 'bottom-6 left-6 p-4'}`}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={isInView ? { opacity: 1, scale: 1 } : {}}
                 transition={{ delay: 2, duration: 0.6 }}
@@ -295,7 +295,7 @@ export function IGLASecurity() {
                       whileHover={!isMobile ? { x: 8 } : {}}
                       className="group cursor-pointer"
                     >
-                      <Card className="border-slate-700/50 hover:border-slate-600/70 transition-all duration-700 bg-dark/40 backdrop-blur-sm hover:bg-[#1a1a1a] industrial-card">
+                      <Card className="border-slate-700/50 hover:border-slate-600/70 transition-all duration-700 bg-black/40 backdrop-blur-sm hover:bg-[#1a1a1a] industrial-card">
                         <CardHeader
                           className={`flex items-center space-y-0 ${isMobile ? 'flex-col space-y-2 p-3' : 'flex-row space-x-6 pb-3'}`}
                         >

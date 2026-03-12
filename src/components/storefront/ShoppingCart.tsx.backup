@@ -485,7 +485,7 @@ function CartContents() {
                       >
                         <QuestionMarkCircleIcon aria-hidden="true" className="size-4" />
                       </button>
-                      <span className="pointer-events-none absolute top-full left-1/2 z-10 mt-1 hidden w-max -translate-x-1/2 rounded-md border border-white/20 bg-dark/90 px-3 py-2 text-xs text-white shadow-lg transition group-hover:block group-focus-within:block">
+                      <span className="pointer-events-none absolute top-full left-1/2 z-10 mt-1 hidden w-max -translate-x-1/2 rounded-md border border-white/20 bg-black/90 px-3 py-2 text-xs text-white shadow-lg transition group-hover:block group-focus-within:block">
                         Shipping costs are calculated according to your delivery address.
                       </span>
                     </span>
@@ -503,7 +503,7 @@ function CartContents() {
                       >
                         <QuestionMarkCircleIcon aria-hidden="true" className="size-4" />
                       </button>
-                      <span className="pointer-events-none absolute top-full left-1/2 z-10 mt-1 hidden w-max -translate-x-1/2 rounded-md border border-white/20 bg-dark/90 px-3 py-2 text-xs text-white shadow-lg transition group-hover:block group-focus-within:block">
+                      <span className="pointer-events-none absolute top-full left-1/2 z-10 mt-1 hidden w-max -translate-x-1/2 rounded-md border border-white/20 bg-black/90 px-3 py-2 text-xs text-white shadow-lg transition group-hover:block group-focus-within:block">
                         Taxes are finalized during checkout based on your delivery details.
                       </span>
                     </span>

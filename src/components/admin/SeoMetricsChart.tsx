@@ -104,14 +104,14 @@ export default function SeoMetricsChart({ data }: Props) {
 
   if (!data.length) {
     return (
-      <div className="rounded-lg border border-white/10 bg-dark/40 p-6 text-sm text-white/70">
+      <div className="rounded-lg border border-white/10 bg-black/40 p-6 text-sm text-white/70">
         No SEO ranking metrics were returned from Sanity.
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border border-white/10 bg-dark/40 p-4">
+    <div className="rounded-lg border border-white/10 bg-black/40 p-4">
       {ChartComponent ? (
         <ChartComponent
           options={chartData.options}

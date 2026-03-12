@@ -139,7 +139,7 @@ export default function ProductMediaCarousel({
           type="button"
           onClick={prev}
           aria-label="Previous image"
-          className="absolute left-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-[#1a1a1a] hover:bg-dark/80 p-2 text-white border border-white/20"
+          className="absolute left-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-[#1a1a1a] hover:bg-black/80 p-2 text-white border border-white/20"
         >
           ‹
         </button>
@@ -147,7 +147,7 @@ export default function ProductMediaCarousel({
           type="button"
           onClick={next}
           aria-label="Next image"
-          className="absolute right-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-[#1a1a1a] hover:bg-dark/80 p-2 text-white border border-white/20"
+          className="absolute right-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-[#1a1a1a] hover:bg-black/80 p-2 text-white border border-white/20"
         >
           ›
         </button>

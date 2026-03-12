@@ -619,12 +619,12 @@ function renderOrdersHtml(partitions: OrderPartitions): string {
             <div class="flex flex-col gap-3 sm:flex-row sm:flex-none">
               ${
                 viewUrl
-                  ? `<a href="${viewUrl}" class="inline-flex items-center justify-center rounded-md border border-white/20 bg-dark/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white hover:border-primary hover:text-primary">View Order</a>`
+                  ? `<a href="${viewUrl}" class="inline-flex items-center justify-center rounded-md border border-white/20 bg-black/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white hover:border-primary hover:text-primary">View Order</a>`
                   : ''
               }
               ${
                 invoiceUrl
-                  ? `<a href="${invoiceUrl}" class="inline-flex items-center justify-center rounded-md border border-white/20 bg-dark/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white hover:border-primary hover:text-primary" target="_blank" rel="noopener">View Invoice</a>`
+                  ? `<a href="${invoiceUrl}" class="inline-flex items-center justify-center rounded-md border border-white/20 bg-black/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white hover:border-primary hover:text-primary" target="_blank" rel="noopener">View Invoice</a>`
                   : ''
               }
             </div>
@@ -738,7 +738,7 @@ function renderExpiredCartsHtml(expired: any[]): string {
       }, 0);
       const quantityLabel = `${itemCount} item${itemCount === 1 ? '' : 's'}`;
       return `
-        <article class="rounded-2xl border border-amber-400/40 bg-dark/40 px-4 py-4 sm:px-6" data-expired-card>
+        <article class="rounded-2xl border border-amber-400/40 bg-black/40 px-4 py-4 sm:px-6" data-expired-card>
           <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div class="flex items-start gap-4">
               <img src="${image}" alt="${name}" class="size-16 rounded-md border border-white/10 object-cover" loading="lazy" />
@@ -847,7 +847,7 @@ function renderQuotesHtml(items: any[]): string {
               if (description) metaParts.push(description);
               if (unit) metaParts.push(`Unit $${unit}`);
               if (line) metaParts.push(`Line $${line}`);
-              return `<div class="border border-white/10 rounded px-3 py-2 bg-dark/70">
+              return `<div class="border border-white/10 rounded px-3 py-2 bg-black/70">
                 <div class="flex justify-between text-sm">
                   <span class="font-medium">${label}</span>
                   ${quantity ? `<span class="opacity-70">Qty ${quantity}</span>` : ''}
@@ -858,7 +858,7 @@ function renderQuotesHtml(items: any[]): string {
             .join('')
         : '';
       return `
-        <div class="border border-white/20 rounded p-4 bg-dark/40">
+        <div class="border border-white/20 rounded p-4 bg-black/40">
           <div class="flex justify-between"><div class="font-semibold">${id}</div><div class="opacity-70">${status}</div></div>
           <div class="text-xs opacity-70 mt-1">${escapeHtml(created)}</div>
           ${billToName ? `<div class="text-xs opacity-70 mt-1">Bill To: ${billToName}</div>` : ''}
@@ -912,7 +912,7 @@ function renderInvoicesHtml(items: any[]): string {
               if (sku) metaParts.push(`SKU ${sku}`);
               if (unit) metaParts.push(`Unit $${unit}`);
               if (line) metaParts.push(`Line $${line}`);
-              return `<div class="border border-white/10 rounded px-3 py-2 bg-dark/70">
+              return `<div class="border border-white/10 rounded px-3 py-2 bg-black/70">
                 <div class="flex justify-between text-sm">
                   <span class="font-medium">${description}</span>
                   ${quantity ? `<span class="opacity-70">Qty ${quantity}</span>` : ''}
@@ -926,7 +926,7 @@ function renderInvoicesHtml(items: any[]): string {
       if (carrier) shippingBlurbs.push(`Carrier: ${carrier}`);
       if (trackingNumber) shippingBlurbs.push(`Tracking: ${trackingNumber}`);
       return `
-        <div class="border border-white/20 rounded p-4 bg-dark/40">
+        <div class="border border-white/20 rounded p-4 bg-black/40">
           <div class="flex justify-between"><div class="font-semibold">${id}</div><div class="opacity-70">${status}</div></div>
           <div class="text-xs opacity-70 mt-1">${escapeHtml(created)}</div>
           ${due ? `<div class="text-xs opacity-70">Due: ${escapeHtml(due)}</div>` : ''}
@@ -957,7 +957,7 @@ function renderAppointmentsHtml(items: any[]): string {
       const service = escapeHtml(appt.service ?? '');
       const notes = escapeHtml(appt.notes ?? '');
       return `
-        <div class="border border-white/20 rounded p-4 bg-dark/40">
+        <div class="border border-white/20 rounded p-4 bg-black/40">
           <div class="flex justify-between"><div class="font-semibold">${id}</div><div class="opacity-70">${status}</div></div>
           <div class="text-xs opacity-70 mt-1">${escapeHtml(scheduledAt)}</div>
           ${service ? `<div class="text-xs opacity-70">Service: ${service}</div>` : ''}

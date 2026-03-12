@@ -45,21 +45,21 @@ const breadcrumbs = [{ href: '/admin', label: 'Admin' }, { label: 'SEO Dashboard
     </header>
 
     <section class="grid gap-6 lg:grid-cols-4">
-      <div class="rounded-lg border border-white/10 bg-dark/40 p-4">
+      <div class="rounded-lg border border-white/10 bg-black/40 p-4">
         <p class="text-sm text-white/60">Sessions (30 days)</p>
         <p class="mt-2 text-2xl font-semibold text-white">{analytics.sessions.toLocaleString()}</p>
       </div>
-      <div class="rounded-lg border border-white/10 bg-dark/40 p-4">
+      <div class="rounded-lg border border-white/10 bg-black/40 p-4">
         <p class="text-sm text-white/60">Page Views</p>
         <p class="mt-2 text-2xl font-semibold text-white">{analytics.pageviews.toLocaleString()}</p>
       </div>
-      <div class="rounded-lg border border-white/10 bg-dark/40 p-4">
+      <div class="rounded-lg border border-white/10 bg-black/40 p-4">
         <p class="text-sm text-white/60">Avg Session Duration</p>
         <p class="mt-2 text-2xl font-semibold text-white">
           {(analytics.averageSessionDuration / 60).toFixed(1)} min
         </p>
       </div>
-      <div class="rounded-lg border border-white/10 bg-dark/40 p-4">
+      <div class="rounded-lg border border-white/10 bg-black/40 p-4">
         <p class="text-sm text-white/60">Engagement Rate</p>
         <p class="mt-2 text-2xl font-semibold text-white">{analytics.engagementRate.toFixed(1)}%</p>
       </div>
@@ -75,7 +75,7 @@ const breadcrumbs = [{ href: '/admin', label: 'Admin' }, { label: 'SEO Dashboard
 
     <SeoMetricsChart client:load data={rankingMetrics} />
 
-    <section class="rounded-lg border border-white/10 bg-dark/40 p-6">
+    <section class="rounded-lg border border-white/10 bg-black/40 p-6">
       <h2 class="text-xl font-semibold text-white">Top Ranking Keywords</h2>
       <p class="text-sm text-white/60">
         Based on the last {rankingMetrics.length} Sanity data points.

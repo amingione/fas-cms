@@ -150,7 +150,7 @@ export default function AddressFormNew({
     placeholder:text-white/40
     focus:border-primary focus:ring-2 focus:ring-primary focus:ring-offset-dark focus:outline-none
     transition
-    ${disabled ? 'opacity-50 cursor-not-allowed bg-dark/70' : ''}
+    ${disabled ? 'opacity-50 cursor-not-allowed bg-black/70' : ''}
   `.trim();
 
   const labelClasses = 'block text-sm font-medium text-white mb-2';

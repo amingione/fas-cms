@@ -89,7 +89,7 @@ export default function VendorPortalFlyoutNav() {
       </nav>
 
       <Dialog open={mobileOpen} onClose={setMobileOpen} className="lg:hidden">
-        <DialogBackdrop className="fixed inset-0 z-40 bg-dark/80" />
+        <DialogBackdrop className="fixed inset-0 z-40 bg-black/80" />
         <DialogPanel className="fixed inset-y-0 right-0 z-50 w-80 max-w-[90vw] bg-[#121212] p-4 border-l border-white/10">
           <div className="mb-4 flex items-center justify-between">
             <p className="text-sm font-semibold text-white">Menu</p>

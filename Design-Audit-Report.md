@@ -494,5 +494,5 @@ Smallest changes with biggest immediate visual impact:
 | **4** | Replace `var(--fx-primary, #fb3636)` with `var(--red)`      | 3 filter components           | Fixes bright orange accent on filter checkboxes                 |
 | **5** | Fix Stripe `colorPrimary: '#dc2626'` → `'#c41218'`          | `CheckoutForm.tsx:1100`       | Checkout form accent matches brand                              |
 | **6** | Remove `font-family: Nunito, sans-serif`                    | `TruckGallery.astro:119`      | Eliminates rogue font in gallery                                |
-| **7** | Add `--bg-dark-rgb: 18, 18, 18` to `fas-theme2.css` `:root` | `fas-theme2.css`              | Fixes `bg-dark/*` opacity utilities                             |
+| **7** | Add `--bg-dark-rgb: 18, 18, 18` to `fas-theme2.css` `:root` | `fas-theme2.css`              | Fixes `bg-black/*` opacity utilities                            |
 | **8** | Rename `fontFamily.body` → `fontFamily.american-captain`    | `tailwind.config.js:85`       | Eliminates font-body identity split                             |

@@ -138,7 +138,7 @@ export function Products() {
             </motion.div>
           )}
 
-          <div className="relative overflow-hidden bg-dark/70 flex items-center justify-center">
+          <div className="relative overflow-hidden bg-black/70 flex items-center justify-center">
             <motion.img
               src={product.image}
               alt={product.name}

@@ -33,7 +33,7 @@ export function SearchTabs({
     <Tabs value={value} onValueChange={onValueChange} className={cn('w-full', className)}>
       <TabsList
         className={cn(
-          'bg-dark/40 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-1',
+          'bg-black/40 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-1',
           fullWidth ? 'w-full' : 'w-fit'
         )}
       >

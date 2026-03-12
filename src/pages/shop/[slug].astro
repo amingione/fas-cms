@@ -1687,7 +1687,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
           </p>
         )}
         {leadingFaqAnswer && (
-          <div class="mb-4 rounded-md border border-white/20 bg-dark/40 p-3">
+          <div class="mb-4 rounded-md border border-white/20 bg-black/40 p-3">
             <p class="text-xs font-semibold uppercase tracking-wide text-white/70">Quick Answer</p>
             <p class="mt-1 text-sm font-semibold text-white">{leadingFaqAnswer.question}</p>
             <p class="mt-1 text-sm leading-relaxed text-white/80">{leadingFaqAnswer.answer}</p>
@@ -1735,7 +1735,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
 
         <!-- Short intro (truncated) -->
         {isContentDescriptor(shortDescriptionDescriptor) && (
-          <div class="break-words bg-dark/70 p-4 text-base md:text-lg text-[#F2F2F2]" {...inlineFieldAttrs('shortDescription')}>
+          <div class="break-words bg-black/70 p-4 text-base md:text-lg text-[#F2F2F2]" {...inlineFieldAttrs('shortDescription')}>
             {shortDescriptionDescriptor.type === 'portable' ? (
               <PortableTextRenderer value={shortDescriptionDescriptor.value as any[]} />
             ) : (
@@ -1744,7 +1744,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
           </div>
         )}
 
-        <form id="product-options" class="mb-6 space-y-6 bg-dark/20 p-4 sm:p-6 text-white/80">
+        <form id="product-options" class="mb-6 space-y-6 bg-black/20 p-4 sm:p-6 text-white/80">
             {/* Variant Options (radio/select) */}
             {Array.isArray(options) && options.length > 0 && options.filter(Boolean).map((group: any) => {
               const groupKey = (group?.key || group?.name || group?.title || 'option').toString();
@@ -1760,7 +1760,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                 /platform/i.test(groupLabel) ||
                 /platform/i.test(groupKey);
               return (
-                <fieldset class="rounded-xl border border-white/15 bg-dark/10 p-4 sm:p-5" aria-labelledby={`${groupKey}-legend`}>
+                <fieldset class="rounded-xl border border-white/15 bg-black/10 p-4 sm:p-5" aria-labelledby={`${groupKey}-legend`}>
                   <legend id={`${groupKey}-legend`} class="text-sm font-semibold uppercase tracking-wide text-white">
                     {groupLabel}
                   </legend>
@@ -1824,7 +1824,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                         const inputId = `${groupKey}-${i}`;
                         return (
                           <label
-                            class="relative flex min-h-[48px] cursor-pointer items-center gap-3 rounded-xl border border-white/15 bg-dark/40 px-4 py-3 shadow-inner transition hover:border-white/40 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/40"
+                            class="relative flex min-h-[48px] cursor-pointer items-center gap-3 rounded-xl border border-white/15 bg-black/40 px-4 py-3 shadow-inner transition hover:border-white/40 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/40"
                             for={inputId}
                           >
                             <input
@@ -1861,7 +1861,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
 
             {isContentDescriptor(descriptionDescriptor) && (
           <details class="group mt-4 rounded-xl border shadow-card-outer shadow-white/20 border-primaryB/40 text-white shadow-inner shadow-md" >
-            <summary class="flex cursor-pointer select-none items-center justify-between text-white/80 bg-dark/40 px-4 py-3 font-ethno text-md md:text-lg">
+            <summary class="flex cursor-pointer select-none items-center justify-between text-white/80 bg-black/40 px-4 py-3 font-ethno text-md md:text-lg">
               <span>Product Details</span>
               <span class="transition-transform group-open:rotate-180">▾</span>
             </summary>
@@ -1946,7 +1946,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
               const surchargeAmount = Number(c.priceDelta ?? c.price ?? c.delta ?? 0);
               const surchargeCents = Number.isFinite(surchargeAmount) ? Math.round(surchargeAmount * 100) : 0;
               return (
-                <div class="rounded-2xl border border-white/15 bg-dark/20 p-4 sm:p-5">
+                <div class="rounded-2xl border border-white/15 bg-black/20 p-4 sm:p-5">
                   <label for={fieldId} class="mb-2 block text-sm font-semibold uppercase tracking-wide text-white">
                     {label}
                   </label>
@@ -1979,7 +1979,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
             })}  
 
             <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div class="flex flex-1 items-center justify-items-end bg-dark/20 px-3 py-3">
+              <div class="flex flex-1 items-center justify-items-end bg-black/20 px-3 py-3">
                 <span id="price-total" class="text-lg font-bold">
                   {typeof priceValue === 'number' ? (
                     onSaleFlag && compareAtValue ? (
@@ -2081,7 +2081,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                   if (playbackId) {
                     const muxMp4 = `https://stream.mux.com/${playbackId}/medium.mp4`;
                     return (
-                      <video controls preload="metadata" class="w-64 h-36 rounded border border-white/20 bg-dark/70" src={muxMp4}></video>
+                      <video controls preload="metadata" class="w-64 h-36 rounded border border-white/20 bg-black/70" src={muxMp4}></video>
                     );
                   }
                   if (yt) {
@@ -2092,13 +2092,13 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                         title={alt}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowfullscreen
-                        class="w-64 h-36 rounded border border-white/20 bg-dark/70"
+                        class="w-64 h-36 rounded border border-white/20 bg-black/70"
                       />
                     );
                   }
                   if (isVideoFile) {
                     return (
-                      <video controls preload="metadata" class="w-64 h-36 rounded border border-white/20 bg-dark/70" src={url}></video>
+                      <video controls preload="metadata" class="w-64 h-36 rounded border border-white/20 bg-black/70" src={url}></video>
                     );
                   }
                   if (isImage) {
@@ -2128,14 +2128,14 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                         height={360}
                         loading="lazy"
                         decoding="async"
-                        class="w-64 h-36 object-cover rounded border border-white/20 bg-dark/70"
+                        class="w-64 h-36 object-cover rounded border border-white/20 bg-black/70"
                         data-thumb={thumbSrc}
                       />
                     );
                   }
                   if (url) {
                     return (
-                      <a href={url} target="_blank" rel="noopener" class="w-64 h-36 grid place-items-center rounded border border-white/20 bg-dark/20 text-sm underline">
+                      <a href={url} target="_blank" rel="noopener" class="w-64 h-36 grid place-items-center rounded border border-white/20 bg-black/20 text-sm underline">
                         View media
                       </a>
                     );
@@ -2207,7 +2207,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
 
     {hasInfoTabsContent && (
       <section class="mt-12 w-full md:w-3/4 mx-auto px-4 sm:px-8">
-        <div class="rounded-3xl bg-dark/20 p-4 sm:p-8">
+        <div class="rounded-3xl bg-black/20 p-4 sm:p-8">
           <InfoTabs
             client:only="react"
             kitItems={includedInKitItems}
@@ -2248,7 +2248,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
   
 <div
   id="mobile-add-to-cart"
-  class="md:hidden fixed bottom-0 left-0 right-0 z-[60] bg-dark/90 border-t border-white/20 backdrop-blur px-3 py-2 flex items-center justify-between"
+  class="md:hidden fixed bottom-0 left-0 right-0 z-[60] bg-black/90 border-t border-white/20 backdrop-blur px-3 py-2 flex items-center justify-between"
 >
   <div class="text-white/90 text-sm w-1/2">
     <span class="text-white/70">Total:</span>
@@ -2350,7 +2350,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
 )}
   <style>
     /* Ensure transparent overlays don’t block clicks on this product page */
-    [class~="absolute"][class~="inset-0"][class*="bg-dark/10"][class~="z-0"] { pointer-events: none; }
+    [class~="absolute"][class~="inset-0"][class*="bg-black/10"][class~="z-0"] { pointer-events: none; }
 
     /* Make sure the right column (options) sits above the sticky image on desktop */
     @media (min-width: 768px) {

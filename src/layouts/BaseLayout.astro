@@ -383,6 +383,20 @@ const LABEL_OVERRIDES: Record<string, string> = {
 };
 
 const pathSegments = Astro.url?.pathname?.replace(/\/+$/, '').split('/').filter(Boolean) ?? [];
+const currentPathname = Astro.url?.pathname ?? '/';
+const preloadedBrandFonts: string[] = (() => {
+  if (currentPathname === '/') {
+    return ['/fonts/Ethnocentric-Regular.woff2', '/fonts/Borgsquad.woff2'];
+  }
+  if (
+    currentPathname.startsWith('/builds') ||
+    currentPathname.startsWith('/packages') ||
+    currentPathname.startsWith('/wheels')
+  ) {
+    return ['/fonts/Ethnocentric-Regular.woff2'];
+  }
+  return [];
+})();
 
 const isHomeRoute = pathSegments.length === 0;
 const shouldRenderBreadcrumbs = !hideBreadcrumbs && !isHomeRoute;
@@ -589,14 +603,11 @@ const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
     <!-- Preconnect for hero video hosted on Framer CDN (LCP element) -->
     <link rel="preconnect" href="https://framerusercontent.com" crossorigin />
     <link rel="dns-prefetch" href="https://framerusercontent.com" />
-    <link
-      rel="preload"
-      href="/fonts/Ethnocentric-Regular.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
-    <link rel="preload" href="/fonts/Borgsquad.woff2" as="font" type="font/woff2" crossorigin />
+    {
+      preloadedBrandFonts.map((fontHref) => (
+        <link rel="preload" href={fontHref} as="font" type="font/woff2" crossorigin />
+      ))
+    }
 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />

@@ -33,7 +33,7 @@ const components = {
         typeof value?.caption === 'string' && value.caption.trim() ? value.caption : null;
 
       return (
-        <figure className="my-8 overflow-hidden rounded-2xl border border-white/10 bg-dark/20">
+        <figure className="my-8 overflow-hidden rounded-2xl border border-white/10 bg-black/20">
           <img src={imageUrl} alt={altText} loading="lazy" className="w-full h-auto object-cover" />
           {caption ? (
             <figcaption className="p-3 text-center text-sm text-neutral-400">{caption}</figcaption>
