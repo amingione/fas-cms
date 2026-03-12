@@ -1,8 +1,12 @@
+---
+import { Image } from 'astro:assets';
+import img_trx_hellcat from '@/assets/images/backgrounds/trx-hellcat.jpg';
+---
 <section class="homepage-hero" aria-labelledby="homepage-hero-title">
   {/* Right-side visual — absolutely positioned, fills right half, fades left */}
   <div class="homepage-hero-visual" aria-hidden="true">
-    <img
-      src="/images/backgrounds/trx-hellcat.jpg"
+    <Image
+      src={img_trx_hellcat}
       alt=""
       class="homepage-hero-visual-img"
       loading="eager"

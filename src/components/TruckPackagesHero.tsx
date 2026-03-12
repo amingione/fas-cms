@@ -2,6 +2,7 @@ import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { ArrowRight, Settings, Zap } from 'lucide-react';
 import { inlineFieldAttrs } from '@lib/content';
+import img_850_ram from '@/assets/images/packages/850-ram.webp';
 
 type TruckPackagesHeroProps = {
   fieldPathBase?: string;
@@ -130,7 +131,7 @@ export function TruckPackagesHero({
         {/* RIGHT: BIG TRUCK IMAGE */}
         <div className="relative">
           <img
-            src="/images/packages/850-ram.webp"
+            src={img_850_ram.src}
             alt="Custom RAM TRX Packages"
             width={2412}
             height={1290}

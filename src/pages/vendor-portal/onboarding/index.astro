@@ -1,6 +1,8 @@
 ---
+import { Image } from 'astro:assets';
 import OnboardingLayout from '@/layouts/OnboardingLayout.astro';
 import OnboardingProgress from '@/components/vendor-portal/OnboardingProgress';
+import img_fas_getting_started_login from '@/assets/images/vendors/fas-getting-started-login.png';
 
 const pageTitle = 'Welcome to F.A.S. Motorsports Vendor Portal';
 ---
@@ -74,8 +76,8 @@ const pageTitle = 'Welcome to F.A.S. Motorsports Vendor Portal';
       <span class="text-sm text-white/60">What you will see from your invite link</span>
     </div>
     <div class="aspect-video bg-white/5 border border-white/10 rounded-xl overflow-hidden">
-      <img
-        src="/images/vendors/fas-getting-started-login.png"
+      <Image
+        src={img_fas_getting_started_login}
         alt="FAS vendor portal login screen preview"
         class="h-full w-full object-cover"
         loading="lazy"

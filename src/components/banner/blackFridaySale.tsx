@@ -1,8 +1,13 @@
 // BlackFridayHero.tsx
+import img_blackfridaysalefas from '@/assets/images/sales/BlackFridaySaleFAS.png';
+import img_bfsalebanner from '@/assets/images/backgrounds/BFSaleBanner.png';
 export function BlackFridayHero() {
   return (
     <section className="relative overflow-hidden bg-gradient-to-r from-black via-zinc-900 to-black text-white">
-      <div className="absolute inset-0 bg-[url('/images/backgrounds/BFSaleBanner.png')] bg-cover bg-center opacity-30" />
+      <div
+        className="absolute inset-0 bg-cover bg-center opacity-30"
+        style={{ backgroundImage: `url(${img_bfsalebanner.src})` }}
+      />
       <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top,_#f97316,_transparent_60%),radial-gradient(circle_at_bottom,_#ef4444,_transparent_60%)]" />
 
       <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-10 px-4 py-16 sm:px-6 lg:flex-row lg:items-stretch lg:py-24 lg:px-8">
@@ -44,7 +49,7 @@ export function BlackFridayHero() {
               {/* Swap this block with an actual product image */}
               <div className="flex h-full items-center justify-center">
                 <img
-                  src="/images/sales/BlackFridaySaleFAS.png"
+                  src={img_blackfridaysalefas.src}
                   alt="Black Friday 2025 Featured Product"
                   className="h-full w-full object-fit"
                 />

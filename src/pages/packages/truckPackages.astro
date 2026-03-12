@@ -1,8 +1,12 @@
 ---
+import { Image } from 'astro:assets';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { loadPageDoc } from '@lib/content.ts';
 import { Button } from '@/components/ui/button.tsx';
 import TruckPackagesComponent from '@/components/packageComps/truckPackage.tsx';
+import img_trx_hellcat from '@/assets/images/backgrounds/trx-hellcat.jpg';
+import img_850_ram from '@/assets/images/packages/850-ram.webp';
+import img_fas_f150_10002 from '@/assets/images/packages/FAS-f150-10002.webp';
 
 import TruckGallery from '@/components/storefront/TruckGallery.astro';
 
@@ -52,8 +56,8 @@ const secondaryBadgeEntries = Array.isArray(pageDoc?.hero?.secondaryBadges)
     style="--hero:url('/shop')"
     aria-label="Truck Packages Hero"
   >
-    <img
-      src="/images/backgrounds/trx-hellcat.jpg"
+    <Image
+      src={img_trx_hellcat}
       alt="F.A.S. Motorsports Truck Packages"
       class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none"
     />
@@ -113,8 +117,8 @@ const secondaryBadgeEntries = Array.isArray(pageDoc?.hero?.secondaryBadges)
           class="px-4 border border-roundeded border-black rounded-md drop-shadow shadow-md shadow-white/20"
         >
           <div class="package-media">
-            <img
-              src="/images/packages/850-ram.webp"
+            <Image
+              src={img_850_ram}
               srcset="/images/packages/850-ram-600.webp 600w, /images/packages/850-ram-900.webp 900w, /images/packages/850-ram-1400.webp 1400w, /images/packages/850-ram-2000.webp 2000w, /images/packages/850-ram.webp 2412w"
               sizes="(min-width: 1280px) 360px, (min-width: 768px) 55vw, 94vw"
               width="2412"
@@ -159,8 +163,8 @@ const secondaryBadgeEntries = Array.isArray(pageDoc?.hero?.secondaryBadges)
           class="px-4 border border-roundeded border-black rounded-md shadow-inner shadow-white/20"
         >
           <div class="package-media">
-            <img
-              src="/images/packages/FAS-f150-10002.webp"
+            <Image
+              src={img_fas_f150_10002}
               alt="Ford F‑150 Packages"
               class="package-image"
             />
@@ -543,7 +547,7 @@ const secondaryBadgeEntries = Array.isArray(pageDoc?.hero?.secondaryBadges)
     }
 
     .features-bg {
-      background: url('/images/backgrounds/bg-asphalt-overlay.webp') no-repeat center/cover; /* Editable: Change image */
+      background: var(--features-bg, none) no-repeat center/cover;
     }
 
     .feature-grid {

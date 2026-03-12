@@ -1,3 +1,5 @@
+import img_fas_pred_pully from '@/assets/images/billetParts/fas-pred-pully.webp';
+import img_predator_pulley_fas from '@/assets/images/billetParts/predator-pulley-fas.webp';
 'use client';
 
 const FEATURE_TAGS = [
@@ -42,7 +44,7 @@ export default function HeadingBanner() {
             >
               <div className="absolute left-1/4 -translate-x-1/2">
                 <img
-                  src="/images/billetParts/fas-pred-pully.webp"
+                  src={img_fas_pred_pully.src}
                   alt="Predator pulley"
                   className="h-32 w-32 rounded-full object-contain"
                   loading="lazy"
@@ -50,7 +52,7 @@ export default function HeadingBanner() {
               </div>
               <div className="absolute right-1/4 translate-x-1/2">
                 <img
-                  src="/images/billetParts/predator-pulley-fas.webp"
+                  src={img_predator_pulley_fas.src}
                   alt="Predator pulley detail"
                   className="h-28 w-28 rounded-full object-contain"
                   loading="lazy"

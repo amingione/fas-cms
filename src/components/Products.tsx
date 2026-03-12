@@ -4,6 +4,7 @@ import { Badge } from './ui/badge';
 import { ArrowRight, Star } from 'lucide-react';
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
+import img_bg_asphalt_overlay from '@/assets/images/backgrounds/bg-asphalt-overlay.webp';
 
 export function Products() {
   const ref = useRef(null);
@@ -230,7 +231,7 @@ export function Products() {
       <div
         className="absolute inset-0 opacity-50"
         style={{
-          backgroundImage: `url(/images/backgrounds/bg-asphalt-overlay.webp)`,
+          backgroundImage: `url(${img_bg_asphalt_overlay.src})`,
           backgroundSize: isMobile ? '300px 225px' : '800px 600px',
           backgroundRepeat: 'repeat',
           backgroundPosition: '0 0'

@@ -1,7 +1,10 @@
 ---
+import { Image } from 'astro:assets';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content.ts';
 import SectionRenderer from '@/components/SectionRenderer.astro';
+import img_fas_ported_snout from '@/assets/images/snouts/FAS-Ported Snout.webp';
+import img_2_7l_ported_supercharger_and_snout from '@/assets/images/snouts/2.7L Ported supercharger and snout.webp';
 const pageDoc: any = await loadPageDoc('porting');
 import Button from '@/components/Button.astro';
 
@@ -149,8 +152,8 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonFallback
             <figure
               class="aspect-square overflow-hidden rounded-xl outline-1 -outline-offset-1 outline-white/10"
             >
-              <img
-                src="/images/snouts/FAS-Ported Snout.webp"
+              <Image
+                src={img_fas_ported_snout}
                 alt="Ported Snout"
                 class="object-cover w-full h-full"
               />
@@ -158,8 +161,8 @@ const ctaButtonsToRender = ctaButtonsHasContent ? ctaButtons : ctaButtonFallback
             <figure
               class="aspect-square overflow-hidden rounded-xl outline-1 -outline-offset-1 outline-white/10"
             >
-              <img
-                src="/images/snouts/2.7L Ported supercharger and snout.webp"
+              <Image
+                src={img_2_7l_ported_supercharger_and_snout}
                 alt="Snout Flow Correction"
                 class="object-cover w-full h-full"
               />

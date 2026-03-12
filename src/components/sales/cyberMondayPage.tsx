@@ -1,4 +1,5 @@
 import PricingCards from './pricingCardsCyberMonday';
+import img_cybermondaybanner from '@/assets/images/sales/cyberMondayBanner.png';
 
 export default function SalePage() {
   return (
@@ -6,7 +7,7 @@ export default function SalePage() {
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-zinc-800">
         <img
-          src="/images/sales/cyberMondayBanner.png"
+          src={img_cybermondaybanner.src}
           alt="Cyber Monday Sale Background"
           style={{ filter: 'brightness(0.2) blur(2px)' }}
           className="absolute inset-0 h-full w-full object-contain object-right"

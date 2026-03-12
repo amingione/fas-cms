@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets';
+import img_fas_hero_bg from '@/assets/images/backgrounds/hero/fas-hero-bg.webp';
 export const prerender = true;
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
@@ -26,8 +28,8 @@ const images = [
   <div class="bp-page">
     <section class="bp-hero">
       <div class="bp-hero__img-wrap">
-        <img
-          src="/images/backgrounds/hero/fas-hero-bg.webp"
+        <Image
+          src={img_fas_hero_bg}
           alt=""
           class="bp-hero__img"
           loading="eager"

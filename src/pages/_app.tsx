@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import type { AppProps } from 'next/app';
 import { motion } from 'framer-motion';
 import { Home, ShoppingBag, Wrench, Phone } from 'lucide-react';
+import img_bg_texture from '@/assets/images/backgrounds/bg-texture.webp';
 
 function AppShell({ children }: { children: React.ReactNode }) {
   const [isMobile, setIsMobile] = useState(false);
@@ -60,7 +61,7 @@ function AppShell({ children }: { children: React.ReactNode }) {
       <div
         className="fixed inset-0 z-0 opacity-20 md:opacity-20"
         style={{
-          backgroundImage: "url('/images/backgrounds/bg-texture.webp')",
+          backgroundImage: `url(${img_bg_texture.src})`,
           backgroundSize: isMobile ? '300px 225px' : '600px 450px',
           backgroundRepeat: 'repeat',
           backgroundPosition: '0 0'

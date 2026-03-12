@@ -19,6 +19,14 @@ import {
   TabPanels
 } from '@headlessui/react';
 import { ArrowDownLeftIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import img_filters from '@/assets/images/products/filters.webp';
+import img_blue_trx from '@/assets/images/products/blue-trx.webp';
+import img_supercharger_installed from '@/assets/images/products/supercharger-installed.webp';
+import img_billetparts from '@/assets/images/products/billetParts.webp';
+import img_supercharger_white from '@/assets/images/products/supercharger-white.webp';
+import img_supercharger_red from '@/assets/images/products/supercharger-red.webp';
+import img_customweldedparts from '@/assets/images/products/customWeldedParts.webp';
+import img_fas_hero_bg from '@/assets/images/backgrounds/hero/fas-hero-bg.webp';
 
 interface CategoryPreview {
   id: string;
@@ -516,14 +524,14 @@ export default function CategoryPage({
                         <div className="rounded-lg drop-shadow-md shadow-md shadow-white/20 h-64 w-44 overflow-hidden sm:opacity-0 lg:opacity-100">
                           <img
                             alt="F.A.S. Motorsports Drop in Filters"
-                            src="/images/products/filters.webp"
+                            src={img_filters.src}
                             className="size-full object-cover"
                           />
                         </div>
                         <div className="shadow-white/20 drop-shadow shadow-md h-64 w-44 overflow-hidden rounded-lg">
                           <img
                             alt="F.A.S. Motorsports Blue TRX Supercharger"
-                            src="/images/products/blue-trx.webp"
+                            src={img_blue_trx.src}
                             className="size-full object-cover"
                           />
                         </div>
@@ -532,21 +540,21 @@ export default function CategoryPage({
                         <div className="shadow-white/20 drop-shadow shadow-md h-64 w-44 overflow-hidden rounded-lg">
                           <img
                             alt="F.A.S. Motorsports Supercharger Installed"
-                            src="/images/products/supercharger-installed.webp"
+                            src={img_supercharger_installed.src}
                             className="size-full object-cover"
                           />
                         </div>
                         <div className="h-64 w-44 overflow-hidden rounded-lg">
                           <img
                             alt="F.A.S. Motorsports red coated supercharger"
-                            src="/images/products/billetParts.webp"
+                            src={img_billetparts.src}
                             className="size-full object-cover"
                           />
                         </div>
                         <div className="h-64 w-44 overflow-hidden rounded-lg">
                           <img
                             alt="F.A.S. Motorsports black coated supercharger"
-                            src="/images/products/supercharger-white.webp"
+                            src={img_supercharger_white.src}
                             className="size-full object-cover"
                           />
                         </div>
@@ -555,14 +563,14 @@ export default function CategoryPage({
                         <div className="h-64 w-44 overflow-hidden rounded-lg">
                           <img
                             alt="F.A.S. Motorsports red coated supercharger"
-                            src="/images/products/supercharger-red.webp"
+                            src={img_supercharger_red.src}
                             className="size-full object-cover"
                           />
                         </div>
                         <div className="h-64 w-44 overflow-hidden rounded-lg">
                           <img
                             alt="F.A.S. Motorsports white coated supercharger"
-                            src="/images/products/customWeldedParts.webp"
+                            src={img_customweldedparts.src}
                             className="size-full object-cover"
                           />
                         </div>
@@ -644,7 +652,7 @@ export default function CategoryPage({
             <div className="absolute inset-0 overflow-hidden">
               <img
                 alt="hellcat charger F.A.S. Motorsports"
-                src="/images/backgrounds/hero/fas-hero-bg.webp"
+                src={img_fas_hero_bg.src}
                 style={{ filter: 'grayscale(60%) brightness(80%)' }}
                 className="size-full object-cover"
               />

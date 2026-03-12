@@ -4,6 +4,7 @@ import Button from '@/components/Button.astro';
 import { Image } from 'astro:assets';
 import IglaBox from '@/assets/igla/IGLA-Category-Image.webp';
 import SchedIgla from '@/assets/igla/sched-igla-install.webp';
+import img_igla_header_page from '@/assets/images/igla/igla-header-page.webp';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content.ts';
 import BrandDivider from '@/components/divider/brandDivider.tsx';
@@ -119,7 +120,7 @@ const ogImageAbsolute = new URL('/logo/fas-logo500.webp', requestUrl.origin).toS
     <section class="relative text-white py-64 px-6 overflow-hidden">
       <div
         class="absolute inset-0 bg-full bg-center bg-no-repeat z-0"
-        style="background-image: url('/images/igla/igla-header-page.webp');"
+        style={`background-image: url('${img_igla_header_page.src}');`}
       >
       </div>
       <div class="absolute inset-0 bg-transparent z-0"></div>

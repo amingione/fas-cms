@@ -14,7 +14,11 @@
       "Bash(test:*)",
       "mcp__MCP_DOCKER__mcp-find",
       "mcp__MCP_DOCKER__mcp-add",
-      "mcp__MCP_DOCKER__mcp-config-set"
+      "mcp__MCP_DOCKER__mcp-config-set",
+      "Bash(for dir:*)",
+      "Bash(do echo:*)",
+      "Read(//Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/**)",
+      "Bash(done)"
     ]
   },
   "enableAllProjectMcpServers": true,

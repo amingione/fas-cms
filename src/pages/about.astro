@@ -1,7 +1,11 @@
 ---
+import { Image } from 'astro:assets';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
 import { serializeJsonLd } from '@lib/utils';
+import img_frank_mingione_i from '@/assets/images/Frank-Mingione-I.webp';
+import img_frank_mingione_ii from '@/assets/images/Frank-Mingione-II.webp';
+import img_fas_team_testing_day from '@/assets/images/FAS-Team-Testing-Day.webp';
 
 const pageDoc: any = await loadPageDoc('about');
 const requestUrl = new URL(Astro.request.url);
@@ -160,8 +164,8 @@ const sanitizedStructuredData = serializeJsonLd(structuredData);
           <!-- Frank II -->
           <div class="about-legacy-card">
             <div class="about-legacy-photo-wrap">
-              <img
-                src="/images/Frank-Mingione-I.webp"
+              <Image
+                src={img_frank_mingione_i}
                 alt="Frank Mingione II"
                 class="about-legacy-photo"
               />
@@ -184,8 +188,8 @@ const sanitizedStructuredData = serializeJsonLd(structuredData);
           <!-- Frank III -->
           <div class="about-legacy-card about-legacy-card--flip">
             <div class="about-legacy-photo-wrap">
-              <img
-                src="/images/Frank-Mingione-II.webp"
+              <Image
+                src={img_frank_mingione_ii}
                 alt="Frank Mingione III"
                 class="about-legacy-photo"
               />
@@ -233,8 +237,8 @@ const sanitizedStructuredData = serializeJsonLd(structuredData);
       </div>
 
       <div class="about-team-photo-wrap">
-        <img
-          src="/images/FAS-Team-Testing-Day.webp"
+        <Image
+          src={img_fas_team_testing_day}
           alt="F.A.S. Motorsports team at Bradenton Motorsports Park"
           class="about-team-photo"
         />

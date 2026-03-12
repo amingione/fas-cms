@@ -1,4 +1,5 @@
 import { CheckIcon } from '@heroicons/react/20/solid';
+import img_welding_fas from '@/assets/images/backgrounds/welding-fas.webp';
 
 const features = [
   {
@@ -44,7 +45,7 @@ export default function HeadingBanner1() {
             </div>
             <img
               alt="welding F.A.S. Motorsports custom fabrication"
-              src="/images/backgrounds/welding-fas.webp"
+              src={img_welding_fas.src}
               width={2432}
               height={1442}
               loading="eager"

@@ -3,6 +3,9 @@ import { useRef } from 'react';
 import { Badge } from './ui/badge';
 import { Zap, Award, Star } from 'lucide-react';
 import { inlineFieldAttrs } from '@lib/content';
+import img_belak_custom_red from '@/assets/images/wheels/belak/belak custom red.webp';
+import img_jtx_forged_truck_wheels from '@/assets/images/wheels/jtx-forged-truck-wheels.webp';
+import img_17x4_5_series_3 from '@/assets/images/wheels/17x4-5-Series-3.webp';
 
 type WheelsHeroProps = {
   fieldPathBase?: string;
@@ -115,7 +118,7 @@ export function WheelsHero({
               <div className="relative w-full max-w-lg mx-auto lg:max-w-none aspect-square rounded-2xl overflow-hidden industrial-glow">
                 <div className="absolute inset-0 bg-gradient-to-br from-gray-800/20 to-black/60"></div>
                 <img
-                  src="/images/wheels/belak/belak custom red.webp"
+                  src={img_belak_custom_red.src}
                   alt="BelaK Wheels - Street Performance"
                   className="w-full h-full object-contain object-center p-6 md:p-8"
                   loading="lazy"
@@ -210,7 +213,7 @@ export function WheelsHero({
               <div className="relative w-full max-w-lg mx-auto lg:max-w-none aspect-square rounded-2xl overflow-hidden industrial-glow">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-black/60"></div>
                 <img
-                  src="/images/wheels/jtx-forged-truck-wheels.webp"
+                  src={img_jtx_forged_truck_wheels.src}
                   alt="JTX Forged Wheels - Luxury Performance"
                   className="w-full h-full object-contain object-center p-6 md:p-8"
                   loading="lazy"
@@ -248,7 +251,7 @@ export function WheelsHero({
               <div className="relative w-full max-w-lg mx-auto lg:max-w-none aspect-square rounded-2xl overflow-hidden industrial-glow">
                 <div className="absolute inset-0 bg-gradient-to-br from-red-900/20 to-black/60"></div>
                 <img
-                  src="/images/wheels/17x4-5-Series-3.webp"
+                  src={img_17x4_5_series_3.src}
                   alt="BelaK Racing - Drag Strip Ready"
                   className="w-full h-full object-contain object-center p-6 md:p-8"
                   loading="lazy"

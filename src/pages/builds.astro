@@ -1,4 +1,7 @@
 ---
+import { Image } from 'astro:assets';
+import img_fas_garage from '@/assets/images/backgrounds/hero/fas-garage.webp';
+import img_bg_asphalt from '@/assets/images/backgrounds/bg-asphalt.webp';
 export const prerender = true;
 
 import BaseLayout from '../layouts/BaseLayout.astro';
@@ -354,8 +357,8 @@ const pageDescription =
   ══════════════════════════════════════════════════════════════ -->
   <section class="build-hero" aria-label="Build gallery hero">
     <div class="build-hero__bg" aria-hidden="true">
-      <img
-        src="/images/backgrounds/hero/fas-garage.webp"
+      <Image
+        src={img_fas_garage}
         alt=""
         class="build-hero__bg-img"
         loading="eager"
@@ -523,8 +526,8 @@ const pageDescription =
   ══════════════════════════════════════════════════════════════ -->
   <section class="build-cta" aria-label="Start your build">
     <div class="build-cta__bg" aria-hidden="true">
-      <img
-        src="/images/backgrounds/bg-asphalt.webp"
+      <Image
+        src={img_bg_asphalt}
         alt=""
         class="build-cta__bg-img"
         loading="lazy"

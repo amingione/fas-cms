@@ -1,6 +1,8 @@
 ---
+import { Image } from 'astro:assets';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import powerPackagesData from '../../../content/pages/powerPackages.json' assert { type: 'json' };
+import img_power_packages_banner from '@/assets/images/packages/power-packages-banner.webp';
 const pageDoc: any = powerPackagesData;
 import Button from '@/components/Button.astro';
 import PowerPackagesComponent from '@/components/packageComps/powerPackage.tsx';
@@ -51,8 +53,8 @@ const heroCtasToRender = heroCtasHasContent ? heroCtas : heroCtasFallback;
       style="--hero:url('/shop')"
       aria-label="Power Packages Hero"
     >
-      <img
-        src="/images/packages/power-packages-banner.webp"
+      <Image
+        src={img_power_packages_banner}
         alt="F.A.S. Motorsports hellcat power packages"
         class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none"
       />

@@ -1,3 +1,7 @@
+---
+import { Image } from 'astro:assets';
+import img_custfabrication from '@/assets/images/fabrication/custFabrication.webp';
+---
 <section class="homepage-section">
   <div class="homepage-shell homepage-fab-grid">
     <div>
@@ -25,8 +29,8 @@
     </div>
 
     <div class="homepage-fab-visual" aria-hidden="true">
-      <img
-        src="/images/fabrication/custFabrication.webp"
+      <Image
+        src={img_custfabrication}
         alt=""
         class="homepage-fab-visual-img"
         loading="lazy"

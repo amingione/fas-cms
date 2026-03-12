@@ -1,10 +1,15 @@
 ---
+import { Image } from 'astro:assets';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content.ts';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import { Hero } from '@/components/Hero.tsx';
 import BrandDivider from '@/components/divider/brandDivider.tsx';
 import SocialMedia from '@/components/divider/socialMedia.tsx';
+import img_fas_fabrication_2 from '@/assets/images/fabrication/FAS-Fabrication-2.webp';
+import img_fas_fabrication_installation from '@/assets/images/fabrication/FAS-Fabrication-Installation.webp';
+import img_fas_welding from '@/assets/images/fabrication/FAS-Welding.webp';
+import img_fas_fabrication_1 from '@/assets/images/fabrication/FAS-Fabrication-1.webp';
 const pageDoc: any = await loadPageDoc('customFab');
 const requestUrl = new URL(Astro.request.url);
 requestUrl.search = '';
@@ -116,30 +121,30 @@ const pageDescription =
           <div class="pt-16 lg:-mr-16 xl:mr-auto w-full">
             <div class="columns-2 gap-4 [column-fill:_balance]">
               <figure class="mb-4 break-inside-avoid overflow-hidden rounded-2xl">
-                <img
+                <Image
                   alt="Mock-up & fitment checks"
-                  src="/images/fabrication/FAS-Fabrication-2.webp"
+                  src={img_fas_fabrication_2}
                   class="w-full h-auto object-cover"
                 />
               </figure>
               <figure class="mb-4 break-inside-avoid overflow-hidden rounded-2xl">
-                <img
+                <Image
                   alt="In-house installation"
-                  src="/images/fabrication/FAS-Fabrication-Installation.webp"
+                  src={img_fas_fabrication_installation}
                   class="w-full h-auto object-cover"
                 />
               </figure>
               <figure class="mb-4 break-inside-avoid overflow-hidden rounded-2xl">
-                <img
+                <Image
                   alt="Back-purged TIG welding"
-                  src="/images/fabrication/FAS-Welding.webp"
+                  src={img_fas_welding}
                   class="w-full h-auto object-cover"
                 />
               </figure>
               <figure class="mb-4 break-inside-avoid overflow-hidden rounded-2xl">
-                <img
+                <Image
                   alt="Precision fitment and finish"
-                  src="/images/fabrication/FAS-Fabrication-1.webp"
+                  src={img_fas_fabrication_1}
                   class="w-full h-auto object-cover"
                 />
               </figure>

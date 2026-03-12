@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import BrandDivider from '../divider/brandDivider';
 import SocialMedia from '../divider/socialMedia';
+import img_fas_9 from '@/assets/images/packages/Hellcat/FAS-9.webp';
 
 const easeOut = [0.16, 1, 0.3, 1] as const;
 
@@ -203,7 +204,7 @@ export default function WeldingPage() {
           <section className="relative aspect-[4/3] mb-6 inline-flex items-center gap-2 px-4 py-2 border-t border-shadow shadow-inner shadow-white/10 inset-0 rounded-lg bg-gradient-to-br from-[#080808] to-[#000000]">
             <div className="relative inline-flex aspect-[4/3] rounded-xl overflow-hidden inset-2 shadow-black/50 drop-shadow shadow-inner bg-[#00000019]">
               <img
-                src="/images/packages/Hellcat/FAS-9.webp"
+                src={img_fas_9.src}
                 alt="1000 Package Charger"
                 className="w-full object-cover"
               />

@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 
 import type { Category } from '@lib/sanity-utils';
+import img_bg_texture from '@/assets/images/backgrounds/bg-texture.webp';
 
 export interface Product {
   _id: string;
@@ -277,7 +278,7 @@ export default function Shop({
       <div
         className="absolute inset-0 opacity-30"
         style={{
-          backgroundImage: 'url(/images/backgrounds/bg-texture.webp)',
+          backgroundImage: `url(${img_bg_texture.src})`,
           backgroundSize: '800px 600px',
           backgroundRepeat: 'repeat',
           backgroundPosition: '0 0'

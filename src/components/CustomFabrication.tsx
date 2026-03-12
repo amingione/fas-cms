@@ -4,6 +4,8 @@ import { Badge } from './ui/badge';
 import { ArrowRight, ArrowLeft, Flame, Wrench, Gauge, Settings, Award } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
+import img_custom_fab_2 from '@/assets/images/fabrication/custom-fab-2.webp';
+import img_fas_fabrication_1 from '@/assets/images/fabrication/FAS-Fabrication-1.webp';
 
 export function CustomFabrication() {
   const ref = useRef(null);
@@ -112,12 +114,12 @@ export function CustomFabrication() {
         >
           <div className="grid grid-cols-2 gap-4 items-center">
             <img
-              src="/images/fabrication/custom-fab-2.webp"
+              src={img_custom_fab_2.src}
               alt="Custom Fabricated Performance Parts"
               className="w-full h-40 sm:h-56 md:h-96 object-contain rounded-lg shadow-[0_0_30px_rgba(59,130,246,0.3)]"
             />
             <img
-              src="/images/fabrication/FAS-Fabrication-1.webp"
+              src={img_fas_fabrication_1.src}
               alt="Custom Fabricated Exhaust System"
               className="w-full h-40 sm:h-56 md:h-96 object-contain rounded-lg shadow-[0_0_30px_rgba(59,130,246,0.3)]"
             />

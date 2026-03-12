@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Shield, ShieldCheck, Lock, CheckCircle, Star, Calendar } from 'lucide-react';
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
+import img_igla_page_trackhwak from '@/assets/images/igla/igla-page-trackhwak.webp';
 
 export function IGLASecurity() {
   const ref = useRef(null);
@@ -219,7 +220,7 @@ export function IGLASecurity() {
                 transition={{ duration: 0.6, ease: 'easeOut' }}
               >
                 <img
-                  src="/images/igla/igla-page-trackhwak.webp"
+                  src={img_igla_page_trackhwak.src}
                   alt="IGLA Anti-Theft System - Premium Vehicle Protection"
                   className="w-full h-auto rounded-2xl shadow-2xl"
                 />

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import './fas-hero.css';
+import img_powerstroke_piping from '@/assets/images/powerstroke-piping.png';
 
 export default function ProductHero() {
   return (
@@ -35,7 +36,7 @@ export default function ProductHero() {
         </motion.div>
 
         <motion.img
-          src="/images/powerstroke-piping.png"
+          src={img_powerstroke_piping.src}
           alt="Powerstroke piping kit"
           className="hero-product"
           initial={{ opacity: 0, scale: 0.9 }}

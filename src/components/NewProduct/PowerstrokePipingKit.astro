@@ -1,3 +1,7 @@
+---
+import { Image } from 'astro:assets';
+import img_6_7l_product_drop from '@/assets/images/products/6.7l-product-drop.png';
+---
 <section>
   <div class="banner-container">
     <a
@@ -7,8 +11,8 @@
       <div class="badge-title">NEW Product Drop →</div>
       <div class="badge-sub">2020+ 6.7L Powerstroke Piping Kit</div>
     </a>
-    <img
-      src="/images/products/6.7l-product-drop.png"
+    <Image
+      src={img_6_7l_product_drop}
       alt="Powerstroke Piping Kit"
       width="1920"
       height="1080"

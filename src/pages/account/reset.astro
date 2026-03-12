@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import img_bg_asphalt_overlay from '@/assets/images/backgrounds/bg-asphalt-overlay.webp';
 const title = 'Reset Password';
 const token = Astro.url.searchParams.get('token') ?? '';
 const email = Astro.url.searchParams.get('email') ?? '';
@@ -7,7 +8,10 @@ const invalid = !token || !email;
 ---
 
 <BaseLayout hideBrandTag title={title}>
-  <main class="min-h-screen flex items-center justify-center px-4 text-white" style="background-image: url('/images/backgrounds/bg-asphalt-overlay.webp')">
+  <main
+    class="min-h-screen flex items-center justify-center px-4 text-white"
+    style={`background-image: url('${img_bg_asphalt_overlay.src}')`}
+  >
     <div class="bg-black/80 border border-white rounded-lg max-w-md w-full p-6">
       <h1 class="text-3xl font-ethno text-primary mb-3 text-center">Set a new password</h1>
       {invalid ? (
