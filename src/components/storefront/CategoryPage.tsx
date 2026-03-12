@@ -397,7 +397,7 @@ export default function CategoryPage({
                   {navigation.categories.map((category) => (
                     <Popover key={category.name} className="flex">
                       <div className="relative flex">
-                        <PopoverButton className="group relative flex items-center justify-center text-sm font-medium text-gray-700 transition-colors duration-200 ease-out hover:text-gray-800 data-open:text-primary">
+                        <PopoverButton className="group relative flex items-center justify-center text-sm font-medium text-white/80 transition-colors duration-200 ease-out hover:text-gray-800 data-open:text-primary">
                           {category.name}
                           <span
                             aria-hidden="true"
@@ -483,7 +483,7 @@ export default function CategoryPage({
                     <a
                       key={page.name}
                       href={page.href}
-                      className="flex items-center text-sm font-medium text-gray-700 hover:text-gray-800"
+                      className="flex items-center text-sm font-medium text-white/80 hover:text-white"
                     >
                       {page.name}
                     </a>

@@ -211,7 +211,7 @@ export default function EmailCaptureModal() {
         <button
           type="button"
           onClick={dismiss}
-          className="absolute right-3 top-3 rounded-full bg-gray-100 p-1.5 text-gray-500 transition hover:bg-gray-200 hover:text-gray-700"
+          className="absolute right-3 top-3 rounded-full bg-gray-100 p-1.5 text-gray-500 transition hover:bg-gray-200 hover:text-white/65"
           aria-label="Close email sign up popup"
         >
           <svg
@@ -318,14 +318,14 @@ export default function EmailCaptureModal() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 10.75L8.25 15 16 6" />
                 </svg>
               </div>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-white/70">
                 You\'ll hear from us soon. Feel free to keep exploring the build gallery while you
                 wait.
               </p>
               <button
                 type="button"
                 onClick={dismiss}
-                className="inline-flex items-center justify-center rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-gray-300 hover:text-gray-900"
+                className="inline-flex items-center justify-center rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-white/70 transition hover:border-gray-300 hover:text-white"
               >
                 Continue browsing
               </button>
