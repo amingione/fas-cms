@@ -18,7 +18,13 @@
       "Bash(for dir:*)",
       "Bash(do echo:*)",
       "Read(//Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/**)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(git mv:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx astro:*)",
+      "Bash(yarn lint:*)",
+      "Bash(kill %1)",
+      "Bash(pkill -f \"astro dev --port 4321\")"
     ]
   },
   "enableAllProjectMcpServers": true,

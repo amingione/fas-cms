@@ -1,0 +1,214 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import BrandDivider from '@/components/divider/brandDivider.tsx';
+import SocialMedia from '@/components/divider/socialMedia.tsx';
+
+const pageTitle = 'Custom Fabrication Inquiry';
+const pageDescription =
+  'Submit a custom fabrication inquiry to F.A.S. Motorsports — exhaust, headers, intake fabrication, tow hooks, and one-off stainless work.';
+const requestUrl = new URL(Astro.request.url);
+requestUrl.search = '';
+requestUrl.hash = '';
+const canonical = requestUrl.toString();
+---
+
+<BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
+  <!-- COMPACT HERO -->
+  <section class="relative flex items-center justify-center">
+    <div class="relative w-full overflow-hidden min-h-[280px] sm:min-h-[340px]">
+      <video
+        class="absolute inset-0 h-full w-full object-cover"
+        aria-hidden="true"
+        src="/images/fabrication/weldingMP4.mp4"
+        loop
+        preload="auto"
+        muted
+        playsinline
+        autoplay
+        style={{
+          filter: 'brightness(0.5) contrast(1.2) saturate(1.2) grayscale(100%)',
+          objectPosition: '50% 50%',
+        }}></video>
+      <div
+        aria-hidden="true"
+        class="absolute inset-0 bg-black/60 backdrop-blur-[1px] pointer-events-none"
+      ></div>
+      <div class="relative z-10 flex h-full flex-col items-center justify-center text-center px-4 py-14 sm:py-20">
+        <BrandDivider client:load className="justify-center" />
+        <p class="text-xl text-primary mt-6 font-borg text-glow pb-2 sm:text-2xl">
+          In-House Custom Work
+        </p>
+        <h1 class="text-3xl font-bold font-ethno italic sm:text-5xl">
+          Custom Fabrication <span class="text-gray-400">Inquiry</span>
+        </h1>
+        <p class="mt-3 text-base font-medium text-white/70 sm:text-lg max-w-xl">
+          Tell us what you're building — we'll figure out the rest.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FORM SECTION -->
+  <section class="bg-black/80 py-16 sm:py-20">
+    <div class="mx-auto max-w-2xl px-6">
+      <form
+        id="fab-inquiry-form"
+        name="custom-fab-inquiry"
+        method="POST"
+        action="/api/custom-fab-inquiry"
+        class="space-y-6 bg-dark backdrop-blur-md p-8 sm:p-10 rounded-sm border border-gray-700 shadow-inner shadow-white/40 relative"
+      >
+        <h2 class="text-2xl font-ethno text-accent mb-2">Describe Your Project</h2>
+        <p class="text-sm text-white/50 mb-6">
+          We'll review your inquiry and reach out to discuss scope, materials, and timeline.
+        </p>
+
+        <div>
+          <label for="fab-name" class="block text-sm text-white/60 mb-1">Name <span class="text-primary">*</span></label>
+          <input
+            type="text"
+            id="fab-name"
+            name="name"
+            autocomplete="name"
+            required
+            class="w-full px-4 py-2 bg-dark border border-gray-600 rounded transition-shadow duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:shadow-[0_0_12px_rgba(196,18,24,0.3)] text-white"
+          />
+        </div>
+
+        <div>
+          <label for="fab-phone" class="block text-sm text-white/60 mb-1">Phone <span class="text-primary">*</span></label>
+          <input
+            type="tel"
+            id="fab-phone"
+            name="phone"
+            autocomplete="tel"
+            required
+            class="w-full px-4 py-2 bg-dark border border-gray-600 rounded transition-shadow duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:shadow-[0_0_12px_rgba(196,18,24,0.3)] text-white"
+          />
+        </div>
+
+        <div>
+          <label for="fab-email" class="block text-sm text-white/60 mb-1">Email <span class="text-white/30">(optional)</span></label>
+          <input
+            type="email"
+            id="fab-email"
+            name="email"
+            autocomplete="email"
+            class="w-full px-4 py-2 bg-dark border border-gray-600 rounded transition-shadow duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:shadow-[0_0_12px_rgba(196,18,24,0.3)] text-white"
+          />
+        </div>
+
+        <div>
+          <label for="fab-description" class="block text-sm text-white/60 mb-1">What do you need fabricated? <span class="text-primary">*</span></label>
+          <textarea
+            id="fab-description"
+            name="description"
+            autocomplete="off"
+            rows="6"
+            required
+            placeholder="Describe what you'd like fabricated — exhaust, headers, intake, tow hooks, one-off parts, etc."
+            class="w-full px-4 py-2 bg-dark border border-gray-600 rounded transition-shadow duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:shadow-[0_0_12px_rgba(196,18,24,0.3)] text-white placeholder:text-white/25"
+          ></textarea>
+        </div>
+
+        <button
+          id="fab-submit"
+          type="submit"
+          class="btn-glass btn-primary btn-md text-white font-bold px-8 transition-opacity duration-200"
+        >
+          Submit Inquiry
+        </button>
+      </form>
+
+      <div
+        id="fab-status"
+        class="mt-4 rounded border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/70 opacity-0 transition-opacity duration-300"
+        aria-live="polite"
+      ></div>
+    </div>
+  </section>
+
+  <!-- SPECS STRIP -->
+  <section class="bg-black/80 border-t border-gray-800 py-12">
+    <div class="mx-auto max-w-4xl px-6">
+      <dl class="grid grid-cols-2 gap-6 sm:grid-cols-4 text-center">
+        <div>
+          <dt class="text-xs uppercase tracking-wider text-gray-500">Material</dt>
+          <dd class="mt-1 text-lg font-semibold text-white">304 / 316L</dd>
+        </div>
+        <div>
+          <dt class="text-xs uppercase tracking-wider text-gray-500">Process</dt>
+          <dd class="mt-1 text-lg font-semibold text-white">TIG Welded</dd>
+        </div>
+        <div>
+          <dt class="text-xs uppercase tracking-wider text-gray-500">Lead Time</dt>
+          <dd class="mt-1 text-lg font-semibold text-white">5-10 Days</dd>
+        </div>
+        <div>
+          <dt class="text-xs uppercase tracking-wider text-gray-500">Location</dt>
+          <dd class="mt-1 text-lg font-semibold text-white">Punta Gorda, FL</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <script is:inline>
+    const fabForm = document.getElementById('fab-inquiry-form');
+    const fabStatus = document.getElementById('fab-status');
+    const fabSubmit = document.getElementById('fab-submit');
+
+    function showStatus(message, type) {
+      if (!fabStatus) return;
+      fabStatus.textContent = message;
+      fabStatus.classList.remove('border-red-400', 'text-red-200', 'border-green-400', 'text-green-200');
+      if (type === 'error') {
+        fabStatus.classList.add('border-red-400', 'text-red-200');
+      } else if (type === 'success') {
+        fabStatus.classList.add('border-green-400', 'text-green-200');
+      }
+      fabStatus.style.opacity = '1';
+    }
+
+    function setLoading(loading) {
+      if (!fabSubmit) return;
+      fabSubmit.textContent = loading ? 'Sending\u2026' : 'Submit Inquiry';
+      fabSubmit.style.opacity = loading ? '0.7' : '1';
+      fabSubmit.style.pointerEvents = loading ? 'none' : 'auto';
+    }
+
+    if (fabForm) {
+      fabForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        setLoading(true);
+        showStatus('Sending\u2026', 'info');
+
+        try {
+          const formData = new FormData(fabForm);
+          const response = await fetch(fabForm.getAttribute('action') || '/api/custom-fab-inquiry', {
+            method: 'POST',
+            body: formData
+          });
+          const payload = await response.json().catch(() => ({}));
+
+          if (response.ok && payload && payload.ok !== false) {
+            showStatus(
+              (payload && payload.message) || "Thanks! We'll be in touch shortly.",
+              'success'
+            );
+            fabForm.reset();
+          } else {
+            showStatus(
+              (payload && payload.message) || 'Unable to send. Please verify your details and try again.',
+              'error'
+            );
+          }
+        } catch (error) {
+          console.error('Custom fab inquiry failed:', error);
+          showStatus('Something went wrong. Please try again later.', 'error');
+        } finally {
+          setLoading(false);
+        }
+      });
+    }
+  </script>
+</BaseLayout>

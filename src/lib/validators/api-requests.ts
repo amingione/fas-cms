@@ -357,3 +357,12 @@ export const trackingUpdateSchema = z
     result: z.record(z.unknown()).optional()
   })
   .passthrough();
+
+export const customFabInquirySchema = z
+  .object({
+    name: z.string().min(1),
+    phone: z.string().min(1),
+    email: z.union([z.string().email(), z.literal('')]).optional(),
+    description: z.string().min(1),
+  })
+  .passthrough();
