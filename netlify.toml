@@ -863,6 +863,8 @@
 [[plugins]]
   package = "netlify-plugin-inline-critical-css"
   [plugins.inputs]
+    fileFilter = ["*.html", "!demo.html"]
+    directoryFilter = ["!node_modules"]
     extract = true
 
 #[[plugins]]
