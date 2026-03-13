@@ -92,28 +92,6 @@ function resolveFitment(product: ProductCardProduct): string | null {
   return null;
 }
 
-function resolveStockState(product: ProductCardProduct): {
-  label: 'In Stock' | 'Low Stock' | 'Out of Stock';
-  tone: 'instock' | 'lowstock' | 'outofstock';
-} {
-  const p = product as any;
-
-  if (p?.availableForSale === false || p?.inStock === false || p?.isOutOfStock === true) {
-    return { label: 'Out of Stock', tone: 'outofstock' };
-  }
-
-  const qtyRaw = p?.inventoryQuantity ?? p?.inventory ?? p?.stock ?? p?.quantityAvailable;
-  const qty = typeof qtyRaw === 'number' && Number.isFinite(qtyRaw) ? qtyRaw : null;
-  if (typeof qty === 'number') {
-    if (qty <= 0) return { label: 'Out of Stock', tone: 'outofstock' };
-    if (qty <= 5) return { label: 'Low Stock', tone: 'lowstock' };
-    return { label: 'In Stock', tone: 'instock' };
-  }
-
-  if (p?.lowStock === true) return { label: 'Low Stock', tone: 'lowstock' };
-  return { label: 'In Stock', tone: 'instock' };
-}
-
 // ── addToCart (kept for compatibility — called from PDP / quick-add) ─────
 
 function addToCart(product: ProductCardProduct) {
@@ -207,7 +185,6 @@ export function ProductCard({ product, productImage, className }: ProductCardPro
     ((product as any)?.brand as string | undefined) ||
     'F.A.S. Motorsports';
   const fitment = resolveFitment(product);
-  const stock = resolveStockState(product);
   const slug = getSlug(product);
   const productUrl = slug ? `/shop/${slug}` : '#';
   const badge = resolveBadge(product);
@@ -269,10 +246,6 @@ export function ProductCard({ product, productImage, className }: ProductCardPro
               <span className="pc-price-unavail">Contact for price</span>
             )}
           </div>
-          <span className={`pc-stock pc-stock--${stock.tone}`}>
-            <span className="pc-stock-dot" aria-hidden="true" />
-            {stock.label}
-          </span>
         </div>
       </div>
     </a>

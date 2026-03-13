@@ -90,6 +90,24 @@ import fasLogo from '@/assets/logo/fas-logo500.webp';
 
       <!-- Right side: Mobile Search + Cart -->
       <div class="flex items-center gap-3" id="mobileHeaderRight">
+        <a
+          href="/search"
+          aria-label="Search"
+          class="inline-flex items-center justify-center p-2 rounded-lg hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+          title="Search"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="11" cy="11" r="7"></circle>
+            <line x1="16.65" y1="16.65" x2="21" y2="21"></line>
+          </svg>
+        </a>
         <!-- Cart trigger (uses global CartProvider) -->
         <CartButton client:only="react" />
       </div>
@@ -150,6 +168,24 @@ import fasLogo from '@/assets/logo/fas-logo500.webp';
         />
       </div>
       <div class="flex justify-end items-center gap-3">
+        <a
+          href="/search"
+          aria-label="Search"
+          class="hidden md:inline-flex items-center justify-center p-2 rounded-lg hover:text-accent focus:outline-none focus:ring-2 focus:ring-white/30"
+          title="Search"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="11" cy="11" r="7"></circle>
+            <line x1="16.65" y1="16.65" x2="21" y2="21"></line>
+          </svg>
+        </a>
         <!-- Account panel toggle (desktop) -->
         <button
           id="accountDashboardToggle"
