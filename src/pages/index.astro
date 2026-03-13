@@ -10,6 +10,7 @@ import {
   resolveProductCalculatedPriceAmount
 } from '@/lib/medusa-storefront-pricing';
 import { centsToDollars } from '@/lib/pricing';
+import { DEFAULT_MERCHANT_LISTING_OFFER_ENHANCEMENTS } from '@/lib/merchant-offer-structured-data';
 import HomepageHero from '@/components/homepage/HomepageHero.astro';
 import FASHeroUltra from '@/components/hero/FASHeroUltra';
 import BilletProductGrid from '@/components/homepage/BilletProductGrid.astro';
@@ -88,6 +89,37 @@ const billetProducts = attachPricing(
 );
 const schemaProducts = [...billetProducts].filter(Boolean);
 
+const normalizeSchemaDescription = (value: unknown, fallback: string): string => {
+  if (typeof value === 'string' && value.trim().length > 0) return value.trim();
+
+  if (Array.isArray(value)) {
+    const text = value
+      .map((entry) => {
+        if (!entry || typeof entry !== 'object') return '';
+        const entryObject = entry as Record<string, unknown>;
+        if (typeof entryObject.text === 'string') return entryObject.text;
+        if (Array.isArray(entryObject.children)) {
+          return entryObject.children
+            .map((child) => {
+              if (!child || typeof child !== 'object') return '';
+              const childText = (child as Record<string, unknown>).text;
+              return typeof childText === 'string' ? childText : '';
+            })
+            .join(' ')
+            .trim();
+        }
+        return '';
+      })
+      .filter((chunk) => chunk.length > 0)
+      .join(' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (text.length > 0) return text;
+  }
+
+  return fallback;
+};
+
 const productSchemas = schemaProducts
   .map((product: Product | Record<string, any>, index) => {
     const name =
@@ -111,10 +143,11 @@ const productSchemas = schemaProducts
       '@id': `#homepage-product-${index + 1}`,
       name,
       image: image ? [image] : undefined,
-      description:
-        (product as any).description ||
-        `${name} available through F.A.S. Motorsports with pricing resolved from the live storefront.`,
-      brand: { '@type': 'Organization', name: 'F.A.S. Motorsports' },
+      description: normalizeSchemaDescription(
+        (product as any).description,
+        `${name} available through F.A.S. Motorsports with pricing resolved from the live storefront.`
+      ),
+      brand: { '@type': 'Brand', name: 'F.A.S. Motorsports' },
       url: productUrl,
       offers: priceValue
         ? {
@@ -122,7 +155,8 @@ const productSchemas = schemaProducts
             priceCurrency: 'USD',
             price: priceValue,
             availability: 'https://schema.org/InStock',
-            url: productUrl
+            url: productUrl,
+            ...DEFAULT_MERCHANT_LISTING_OFFER_ENHANCEMENTS
           }
         : undefined
     };
