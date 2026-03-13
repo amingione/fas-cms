@@ -138,7 +138,7 @@ export default function ProductMediaCarousel({
         <button
           type="button"
           onClick={prev}
-          aria-label="Previous image"
+          aria-label="View previous product image in gallery"
           className="absolute left-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-[#1a1a1a] hover:bg-black/80 p-2 text-white border border-white/20"
         >
           ‹
@@ -146,7 +146,7 @@ export default function ProductMediaCarousel({
         <button
           type="button"
           onClick={next}
-          aria-label="Next image"
+          aria-label="View next product image in gallery"
           className="absolute right-2 top-1/2 -translate-y-1/2 z-10 rounded-full bg-[#1a1a1a] hover:bg-black/80 p-2 text-white border border-white/20"
         >
           ›

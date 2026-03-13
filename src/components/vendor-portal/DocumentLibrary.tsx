@@ -219,9 +219,10 @@ const DocumentLibrary: React.FC<Props> = ({ initialDocuments = [] }) => {
                 href={doc.file.asset.url}
                 target="_blank"
                 rel="noreferrer"
+                aria-label={`Download ${doc.title || 'document'}${doc.file.asset.originalFilename ? ` (${doc.file.asset.originalFilename})` : ''}`}
                 className="mt-3 inline-block text-primary text-sm underline"
               >
-                Download
+                Download document
                 {doc.file.asset.originalFilename ? ` (${doc.file.asset.originalFilename})` : ''}
               </a>
             )}

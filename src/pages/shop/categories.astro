@@ -7,6 +7,10 @@ import StoreHero from '@/components/storefront/StoreHero.astro';
 import { fetchFeaturedProducts } from '@/lib/sanity-utils';
 import { centsToDollars } from '@/lib/pricing';
 import {
+  DEFAULT_MERCHANT_LISTING_OFFER_ENHANCEMENTS,
+  type MerchantListingOfferEnhancements
+} from '@/lib/merchant-offer-structured-data';
+import {
   attachMedusaPricingBySanityIdentity,
   listStoreProductsForPricing,
   resolveProductCalculatedPriceAmount
@@ -68,7 +72,7 @@ type ProductOffer = {
   availability: string;
   url: string;
   itemCondition: string;
-};
+} & MerchantListingOfferEnhancements;
 
 type ProductListItem = {
   '@type': 'ListItem';
@@ -225,7 +229,8 @@ const featuredItemListElements: ProductListItem[] = Array.isArray(featuredProduc
               price: priceDollars.toFixed(2),
               availability: 'https://schema.org/InStock',
               url: productUrl,
-              itemCondition: 'https://schema.org/NewCondition'
+              itemCondition: 'https://schema.org/NewCondition',
+              ...DEFAULT_MERCHANT_LISTING_OFFER_ENHANCEMENTS
             }
           : undefined;
         const listItem: ProductListItem = {

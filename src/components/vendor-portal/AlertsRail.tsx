@@ -55,7 +55,7 @@ const AlertsRail: React.FC = () => {
           href="/vendor-portal/notifications"
           className="text-sm text-primary hover:text-primary/80 font-semibold"
         >
-          View all
+          View all notifications
         </a>
       </div>
 
@@ -91,7 +91,7 @@ const AlertsRail: React.FC = () => {
                   <div className="mt-2 flex items-center gap-2 text-xs">
                     {n.link && (
                       <a href={n.link} className="text-primary font-semibold hover:text-primary/80">
-                        Open →
+                        Open notification details →
                       </a>
                     )}
                     {!n.read && (

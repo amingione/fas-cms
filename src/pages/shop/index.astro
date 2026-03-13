@@ -12,6 +12,10 @@ import {
 import type { Product, Category, Vehicle } from '@lib/sanity-utils';
 import { serializeJsonLd } from '@lib/utils';
 import { centsToDollars } from '@/lib/pricing';
+import {
+  DEFAULT_MERCHANT_LISTING_OFFER_ENHANCEMENTS,
+  type MerchantListingOfferEnhancements
+} from '@/lib/merchant-offer-structured-data';
 import ProductGrid from '@/components/storefront/ProductGrid.astro';
 import FilterPanelMobile from '@/components/storefront/FilterPanelMobile.tsx';
 import Pagination from '@/components/storefront/Pagination.astro';
@@ -147,7 +151,7 @@ type StructuredProductOffer = {
   availability: string;
   url: string;
   itemCondition: string;
-};
+} & MerchantListingOfferEnhancements;
 
 type StructuredProductListItem = {
   '@type': 'ListItem';
@@ -641,7 +645,8 @@ const totalPages = Math.max(1, Math.ceil(effectiveTotal / PAGE_SIZE));
                 price: priceDollars.toFixed(2),
                 availability: 'https://schema.org/InStock',
                 url: productUrl,
-                itemCondition: 'https://schema.org/NewCondition'
+                itemCondition: 'https://schema.org/NewCondition',
+                ...DEFAULT_MERCHANT_LISTING_OFFER_ENHANCEMENTS
               }
             : undefined;
 

@@ -1,4 +1,3 @@
-
 type TrackingEvent = {
   status?: string;
   message?: string;
@@ -42,22 +41,32 @@ export function OrderTracking({ fulfillment }: { fulfillment: Fulfillment }) {
             {fulfillment.carrier} {fulfillment.service}
           </p>
           {fulfillment.trackingUrl && (
-            <a href={fulfillment.trackingUrl} target="_blank" rel="noreferrer" className="text-primary">
-              Track Package →
+            <a
+              href={fulfillment.trackingUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="text-primary"
+            >
+              View package tracking details →
             </a>
           )}
         </div>
       )}
 
       {fulfillment.estimatedDelivery && (
-        <p className="text-sm">Estimated Delivery: {new Date(fulfillment.estimatedDelivery).toLocaleDateString()}</p>
+        <p className="text-sm">
+          Estimated Delivery: {new Date(fulfillment.estimatedDelivery).toLocaleDateString()}
+        </p>
       )}
 
       {fulfillment.trackingEvents?.length ? (
         <div className="tracking-timeline space-y-3">
           <h4 className="font-semibold">Tracking History</h4>
           {fulfillment.trackingEvents.map((event, i) => (
-            <div key={`${event.timestamp}-${i}`} className="event text-sm space-y-0.5 border-l pl-3">
+            <div
+              key={`${event.timestamp}-${i}`}
+              className="event text-sm space-y-0.5 border-l pl-3"
+            >
               <span className="block text-xs text-gray-500">
                 {event.timestamp ? new Date(event.timestamp).toLocaleString() : ''}
               </span>

@@ -55,7 +55,7 @@ export default function CookieBanner() {
               className="text-xs underline opacity-80 hover:opacity-100"
               target="_self"
             >
-              Learn more
+              Review Privacy Policy
             </a>
             <button
               onClick={() => {

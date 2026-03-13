@@ -12,7 +12,7 @@ export default function SocialMedia({ className = '' }: SocialMediaProps) {
         target="_blank"
         rel="noopener noreferrer"
         className="text-gray-400 transition-colors duration-300 hover:text-white"
-        aria-label="Instagram"
+        aria-label="Visit our Instagram profile"
       >
         <svg
           className="h-4 w-4 sm:h-5 sm:w-5"
@@ -31,7 +31,7 @@ export default function SocialMedia({ className = '' }: SocialMediaProps) {
         target="_blank"
         rel="noopener noreferrer"
         className="text-gray-400 transition-colors duration-300 hover:text-white"
-        aria-label="Facebook"
+        aria-label="Visit our Facebook page"
       >
         <svg
           className="h-4 w-4 sm:h-5 sm:w-5"

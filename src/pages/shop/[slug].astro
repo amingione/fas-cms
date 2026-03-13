@@ -30,6 +30,7 @@ import ProductCard from '../../components/ProductCard';
 import ServiceDisclaimerNotice from '../../components/storefront/ServiceDisclaimerNotice';
 import { inlineFieldAttrs, inlineObjectId } from '../../lib/content';
 import { serializeJsonLd } from '../../lib/utils';
+import { DEFAULT_MERCHANT_LISTING_OFFER_ENHANCEMENTS } from '../../lib/merchant-offer-structured-data';
 
 export type KitItem = { item: string; quantity?: number };
 export type VehicleCompat = { make?: string; model?: string; trim?: string };
@@ -697,7 +698,8 @@ const buildProductListStructuredData = (items: Product[], listName: string): Rec
               price: priceDollars.toFixed(2),
               availability: 'https://schema.org/InStock',
               url: productUrl,
-              itemCondition: 'https://schema.org/NewCondition'
+              itemCondition: 'https://schema.org/NewCondition',
+              ...DEFAULT_MERCHANT_LISTING_OFFER_ENHANCEMENTS
             }
           : undefined;
       return {
@@ -1589,6 +1591,7 @@ if (product) {
     availability: 'https://schema.org/InStock',
     url: seoCanon,
     itemCondition: 'https://schema.org/NewCondition',
+    ...DEFAULT_MERCHANT_LISTING_OFFER_ENHANCEMENTS,
     price: typeof priceDollars === 'number' ? priceDollars.toFixed(2) : undefined
   };
   if (onSaleFlag && saleEndDate) {

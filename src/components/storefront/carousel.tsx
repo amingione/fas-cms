@@ -76,13 +76,17 @@ export function Carousel({
       <div className="mask-left" />
       <div className="mask-right" />
       <div className="track" style={{ animationDuration: `${Math.max(30, speedSec)}s` }}>
-        {loopSlides.map((s) => (
+        {loopSlides.map((s, index) => (
           <div key={s.key} className="slide imgSlide">
             {s.href ? (
-              <a href={s.href} aria-label={s.caption || 'Item'} className="block">
+              <a
+                href={s.href}
+                aria-label={s.caption || `View carousel item ${index + 1}`}
+                className="block"
+              >
                 <img
                   src={s.src}
-                  alt={s.caption || 'Item'}
+                  alt={s.caption || `Carousel item ${index + 1}`}
                   className="h-full w-full object-cover rounded-md"
                   loading="lazy"
                   decoding="async"
@@ -91,7 +95,7 @@ export function Carousel({
             ) : (
               <img
                 src={s.src}
-                alt={s.caption || 'Item'}
+                alt={s.caption || `Carousel item ${index + 1}`}
                 className="h-full w-full object-cover rounded-md"
                 loading="lazy"
                 decoding="async"

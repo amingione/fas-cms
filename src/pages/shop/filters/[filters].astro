@@ -4,6 +4,7 @@
 	import { sanityClient as client } from "@/lib/sanityClient.ts";
 	import BaseLayout from "@/layouts/BaseLayout.astro";
 	import { centsToDollars } from '@/lib/pricing';
+	import { DEFAULT_MERCHANT_LISTING_OFFER_ENHANCEMENTS } from '@/lib/merchant-offer-structured-data';
 	import {
 	  attachMedusaPricingBySanityIdentity,
 	  listStoreProductsForPricing,
@@ -188,7 +189,8 @@ const breadcrumbStructuredData = filter
               price: priceDollars.toFixed(2),
               availability: 'https://schema.org/InStock',
               url: productUrl,
-              itemCondition: 'https://schema.org/NewCondition'
+              itemCondition: 'https://schema.org/NewCondition',
+              ...DEFAULT_MERCHANT_LISTING_OFFER_ENHANCEMENTS
             }
           : undefined;
         return {

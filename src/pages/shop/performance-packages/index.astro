@@ -16,6 +16,10 @@ import FilterPanelMobile from '@/components/storefront/FilterPanelMobile.tsx';
 import Pagination from '@/components/storefront/Pagination.astro';
 import { centsToDollars } from '@/lib/pricing';
 import {
+  DEFAULT_MERCHANT_LISTING_OFFER_ENHANCEMENTS,
+  type MerchantListingOfferEnhancements
+} from '@/lib/merchant-offer-structured-data';
+import {
   attachMedusaPricingBySanityIdentity,
   listStoreProductsForPricing,
   resolveProductCalculatedPriceAmount,
@@ -64,7 +68,7 @@ type StructuredProductOffer = {
   availability: string;
   url: string;
   itemCondition: string;
-};
+} & MerchantListingOfferEnhancements;
 
 type StructuredProductListItem = {
   '@type': 'ListItem';
@@ -476,7 +480,8 @@ const productListElements: StructuredProductListItem[] = Array.isArray(products)
                 price: priceDollars.toFixed(2),
                 availability: 'https://schema.org/InStock',
                 url: productUrl,
-                itemCondition: 'https://schema.org/NewCondition'
+                itemCondition: 'https://schema.org/NewCondition',
+                ...DEFAULT_MERCHANT_LISTING_OFFER_ENHANCEMENTS
               }
             : undefined;
 

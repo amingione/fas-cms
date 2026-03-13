@@ -82,7 +82,7 @@ export default function AlertsBell() {
               href="/vendor-portal/notifications"
               className="text-xs text-primary font-semibold hover:text-primary/80"
             >
-              View all
+              View all notifications
             </a>
           </div>
           <div className="max-h-80 overflow-auto divide-y divide-white/10">
@@ -105,7 +105,7 @@ export default function AlertsBell() {
                     href={n.link}
                     className="text-primary text-xs font-semibold hover:text-primary/80 inline-flex items-center gap-1 mt-2"
                   >
-                    Open →
+                    Open notification details →
                   </a>
                 )}
               </div>

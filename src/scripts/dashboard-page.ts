@@ -829,7 +829,7 @@ function renderQuotesHtml(items: any[]): string {
       const shipToName = escapeHtml(quote?.shipTo?.name ?? '');
       const notes = escapeHtml(quote?.notes ?? '');
       const pdfUrl = quote?.quotePdfUrl
-        ? `<a class="text-xs text-primary" href="${escapeHtml(quote.quotePdfUrl)}" target="_blank" rel="noopener">Download PDF</a>`
+        ? `<a class="text-xs text-primary" href="${escapeHtml(quote.quotePdfUrl)}" target="_blank" rel="noopener">Download quote PDF</a>`
         : '';
       const itemsMarkup = Array.isArray(quote.items)
         ? quote.items
@@ -894,7 +894,7 @@ function renderInvoicesHtml(items: any[]): string {
         ? `<a class="text-xs text-primary" href="${escapeHtml(invoice.paymentLinkUrl)}" target="_blank" rel="noopener">Pay Invoice</a>`
         : '';
       const pdfLink = invoice?.invoicePdfUrl
-        ? `<a class="text-xs text-primary" href="${escapeHtml(invoice.invoicePdfUrl)}" target="_blank" rel="noopener">Download PDF</a>`
+        ? `<a class="text-xs text-primary" href="${escapeHtml(invoice.invoicePdfUrl)}" target="_blank" rel="noopener">Download invoice PDF</a>`
         : '';
       const itemsMarkup = Array.isArray(invoice.lineItems)
         ? invoice.lineItems

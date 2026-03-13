@@ -6,6 +6,7 @@ import { sanityClient as client } from "@/lib/sanityClient";
 import { serializeJsonLd } from '@lib/utils';
 import { centsToDollars } from "@/lib/pricing";
 import * as medusaPricing from "@/lib/medusa-storefront-pricing";
+import { DEFAULT_MERCHANT_LISTING_OFFER_ENHANCEMENTS } from '@/lib/merchant-offer-structured-data';
 
 let products = await sanityUtils.fetchProductsFromSanity({});
 let medusaProducts: medusaPricing.MedusaStoreProduct[] = [];
@@ -183,7 +184,8 @@ const productItemListElements = Array.isArray(products)
                 price: priceDollars.toFixed(2),
                 availability: 'https://schema.org/InStock',
                 url: productUrl,
-                itemCondition: 'https://schema.org/NewCondition'
+                itemCondition: 'https://schema.org/NewCondition',
+                ...DEFAULT_MERCHANT_LISTING_OFFER_ENHANCEMENTS
               }
             : undefined;
         return {

@@ -41,8 +41,11 @@ export default function RecentVendorPosts() {
     <div className="rounded-xl border border-white/10 bg-white/5 p-4">
       <div className="flex justify-between items-center mb-3">
         <h3 className="text-lg font-bold text-white">Recent Updates</h3>
-        <a href="/vendor-portal/blog" className="text-primary text-sm font-semibold hover:text-primary/80">
-          View All →
+        <a
+          href="/vendor-portal/blog"
+          className="text-primary text-sm font-semibold hover:text-primary/80"
+        >
+          View all updates →
         </a>
       </div>
       {error && <p className="text-amber-300 text-sm">{error}</p>}
@@ -66,9 +69,7 @@ export default function RecentVendorPosts() {
             </div>
           </a>
         ))}
-        {!error && posts.length === 0 && (
-          <p className="text-white/60 text-sm">No updates yet.</p>
-        )}
+        {!error && posts.length === 0 && <p className="text-white/60 text-sm">No updates yet.</p>}
       </div>
     </div>
   );

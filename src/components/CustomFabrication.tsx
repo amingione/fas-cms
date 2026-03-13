@@ -182,7 +182,7 @@ export function CustomFabrication() {
           <div className="pointer-events-none absolute inset-y-0 left-0 right-0 hidden md:flex items-center justify-between px-1">
             <button
               type="button"
-              aria-label="Previous"
+              aria-label="Previous project in capabilities carousel"
               onClick={() => {
                 const el = ref.current as unknown as HTMLElement | null;
                 if (el)
@@ -194,7 +194,7 @@ export function CustomFabrication() {
             </button>
             <button
               type="button"
-              aria-label="Next"
+              aria-label="Next project in capabilities carousel"
               onClick={() => {
                 const el = ref.current as unknown as HTMLElement | null;
                 if (el) el.scrollBy({ left: Math.round(el.clientWidth * 0.8), behavior: 'smooth' });
