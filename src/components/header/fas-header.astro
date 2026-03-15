@@ -3,6 +3,7 @@ import FasTopBar from './fas-topBar.astro';
 import MobileMenu from '@/components/navbar/mobile-menu.tsx';
 import CartEntry from '@/components/cart/CartEntry.tsx';
 import CartButton from '@/components/cart/cart-button.tsx';
+import { SearchBar } from '@/components/SearchBar.tsx';
 
 type MenuLink = { label: string; href: string };
 
@@ -51,6 +52,23 @@ const serviceLinks = [
         </a>
 
         <div class="fas-mobile-actions">
+          <a
+            href="/search"
+            class="fas-search-trigger"
+            aria-label="Search the website"
+            title="Search"
+          >
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.9"></circle>
+              <path
+                d="M16.1 16.1 21 21"
+                stroke="currentColor"
+                stroke-width="1.9"
+                stroke-linecap="round"
+              ></path>
+            </svg>
+          </a>
+
           <CartButton client:only="react" />
 
           <div class="fas-mobile-menu" aria-label="Mobile navigation">
@@ -171,6 +189,32 @@ const serviceLinks = [
       </ul>
 
       <div class="desktop-actions">
+        <div class="desktop-search-shell" aria-label="Website search">
+          <SearchBar
+            client:load
+            action="/search"
+            enableSuggestions={true}
+            size="compact"
+            variant="storefront"
+            placeholder="Search products, services, pages..."
+          />
+        </div>
+        <a
+          href="/search"
+          class="fas-search-trigger"
+          aria-label="Search the website"
+          title="Search"
+        >
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.9"></circle>
+            <path
+              d="M16.1 16.1 21 21"
+              stroke="currentColor"
+              stroke-width="1.9"
+              stroke-linecap="round"
+            ></path>
+          </svg>
+        </a>
         <a href="/account" class="desktop-login-btn">Login</a>
         <CartButton client:only="react" />
       </div>
@@ -249,6 +293,36 @@ const serviceLinks = [
     display: inline-flex;
     align-items: center;
     gap: 8px;
+  }
+
+  .fas-search-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 38px;
+    width: 38px;
+    color: #f2efea;
+    border: 1px solid rgba(242, 239, 234, 0.16);
+    border-radius: 12px;
+    text-decoration: none;
+    transition:
+      color 160ms ease,
+      border-color 160ms ease,
+      background-color 160ms ease;
+  }
+
+  .fas-search-trigger:hover,
+  .fas-search-trigger:focus-visible {
+    color: #ffffff;
+    border-color: rgba(242, 239, 234, 0.34);
+    background: rgba(255, 255, 255, 0.05);
+    outline: none;
+  }
+
+  .fas-search-trigger svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
   }
 
   .fas-mobile-actions :global(button[aria-label='Open cart']),
@@ -659,6 +733,19 @@ const serviceLinks = [
     gap: 10px;
   }
 
+  .desktop-search-shell {
+    width: min(320px, 28vw);
+    min-width: 210px;
+  }
+
+  .desktop-search-shell :global(input[name='q']) {
+    height: 38px;
+    padding-right: 2.35rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    letter-spacing: 0.03em;
+  }
+
   .desktop-login-btn,
   .desktop-cart-btn {
     text-decoration: none;
@@ -711,6 +798,12 @@ const serviceLinks = [
       gap: 6px;
     }
 
+    .fas-search-trigger {
+      height: 36px;
+      width: 36px;
+      border-radius: 10px;
+    }
+
     .fas-cart-btn {
       border-radius: 10px;
       padding: 8px;
@@ -747,4 +840,5 @@ const serviceLinks = [
       letter-spacing: clamp(0.07em, 0.2vw, 0.12em);
     }
   }
+
 </style>

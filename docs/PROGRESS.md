@@ -1,5 +1,5 @@
 # fas-cms-fresh — Phase Progress Log
-_Last updated: 2026-02-25_
+_Last updated: 2026-03-15_
 
 Tracks completion against the Strategic Execution Plan and fas-cms-fresh storefront goals.
 Full plan: `docs/nextjs-medusa-takeover-plan/`
@@ -17,21 +17,28 @@ Full plan: `docs/nextjs-medusa-takeover-plan/`
 | 4 | Customer Auth Portal | ✅ Complete |
 | 5 | Vendor Access Point | ✅ Complete (login portal) |
 | 6 | Migrate legacy routes to /store/* pattern | ⏳ In Progress (6 routes remaining) |
-| 7 | Publishable Key Rotation + Verify Cart Flow | 🔴 Blocked (Railway shell needed) |
+| 7 | Verify Cart Flow End-to-End | ✅ Complete — verified 2026-03-15 |
 
 ---
 
 ## Completed Work
 
+### Storefront — Products & Pricing
+- ✅ 75 products visible on storefront (all linked to Default Sales Channel — fixed 2026-03-15)
+- ✅ Medusa `/store/products` returns 75 products with correct pricing
+- ✅ `attachMedusaPricingBySanityIdentity()` — matches Sanity products to Medusa by `metadata.sanity_id` / `metadata.sanity_slug`
+- ✅ Add to Cart functional
+- ✅ Checkout page renders at `/checkout`
+
 ### Checkout Flow
-- ✅ `src/pages/api/create-payment-intent.ts` — BFF: Stripe + Medusa
+- ✅ `src/pages/api/create-payment-intent.ts` — BFF: Stripe + Medusa cart creation
 - ✅ `src/pages/api/update-payment-intent.ts` — Stripe update
 - ✅ `src/pages/api/complete-order.ts` — Medusa order creation + Sanity write
 - ✅ `src/pages/api/shipping-rates.ts` — Shippo + Medusa
 - ✅ `src/pages/api/cart/[id].ts` — Medusa cart proxy
 - ✅ `checkout.astro` → `CheckoutForm.tsx` (React island, Stripe Elements)
-- ✅ Stripe webhook ingress site live: `fas-webhook-ingress-20260211.netlify.app`
-  - Receives `payment_intent.succeeded` → confirms Medusa order
+- ✅ Stripe webhook ingress: `payment_intent.succeeded` → fas-medusa `completeCartWorkflow`
+- ✅ `medusa_cart_id` stored in Stripe PaymentIntent metadata → enables order creation on webhook
 
 ### Auth
 - ✅ Customer login portal (Medusa store auth)
@@ -40,48 +47,39 @@ Full plan: `docs/nextjs-medusa-takeover-plan/`
 ### Content Integration
 - ✅ Sanity GROQ queries for all content pages (blog, collections, product copy, navigation)
 - ✅ Astro ISR rebuild on Sanity publish webhook
-- ✅ Product pages pull commerce data from Medusa (`/store/products`) + content from Sanity
+- ✅ Product pages pull commerce data from Medusa + content from Sanity
 
 ### Infrastructure
 - ✅ Netlify deployment (fasmotorsports.com)
 - ✅ Nanostores for cart/auth shared state across React islands
 - ✅ Environment variables scoped correctly (PUBLIC_ prefix for client-safe keys)
-- ✅ `PHASE1_PAYMENTINTENT_IMPLEMENTATION.md` — full checkout implementation documented
 
 ---
 
 ## Remaining Work
 
-### 🔴 Blocked — Needs Railway Shell
-
-1. **Publishable key rotation**
-   - Current key returns 400 on all `/store/*` routes
-   - Cart, product listing, checkout all broken until this is fixed
-   - Scripts on fas-medusa: `src/scripts/rotate-publishable-key.ts`
-   - Propagation: `fas-medusa/scripts/propagate-publishable-key.sh <PK>`
-   - After rotation: update `PUBLIC_MEDUSA_PUBLISHABLE_KEY` in Netlify env (fas-cms-fresh)
-
 ### ⏳ In Progress
 
-2. **6 legacy routes migration** to `/store/*` pattern
+1. **6 legacy routes migration** to `/store/*` pattern
    - Routes identified and flagged in audit
    - Location: `docs/CURRENT_ARCHITECTURE-2-5-26.md`
-   - Pattern: all Medusa store calls must use `/store/` prefix with publishable key header
 
 ### 🔜 Not Started
 
-3. **Full end-to-end cart → checkout smoke test**
-   - Once publishable key is rotated: test full flow
-   - product listing → add to cart → shipping rates → Stripe → order confirmed
+2. **Order confirmation + account page**
+   - Post-checkout: customer sees order summary in account portal
 
-4. **Order confirmation + account page**
-   - Post-checkout: customer sees order summary, can view status in account portal
+3. **Product search**
+   - Medusa `/store/products?q=...` + Sanity content merge
 
-5. **Product search**
-   - Medusa `/store/products?q=...` + Sanity content merge for search results page
-
-6. **Collections / category pages**
+4. **Collections / category pages**
    - Sanity taxonomy + Medusa product filtering by tag/category
+
+---
+
+## Important Architectural Note
+
+Products created **directly in Medusa admin** without a matching Sanity document will NOT appear on fasmotorsports.com. The storefront queries Sanity first, then attaches Medusa pricing by `metadata.sanity_id` or `metadata.sanity_slug`. Always create products in Sanity first, then sync to Medusa.
 
 ---
 
@@ -92,28 +90,7 @@ Full plan: `docs/nextjs-medusa-takeover-plan/`
 | Storefront rendering (all pages) | Astro pages |
 | Cart state | Nanostores + Medusa `/store/carts` |
 | Checkout orchestration | BFF API routes in `src/pages/api/` |
-| Product display data | Medusa `/store/products` (pricing, variants, stock) |
+| Product display data (pricing, variants) | Medusa `/store/products` |
 | Product content (copy, images, SEO) | Sanity GROQ |
-| Blog, marketing, legal pages | Sanity GROQ |
 | Customer auth | Medusa store auth |
 | Vendor access point | Sanity Studio redirect |
-
-### Never In fas-cms-fresh
-- ❌ No commerce record storage
-- ❌ No price calculation
-- ❌ No inventory tracking
-- ❌ No Sanity writes for commerce data (exception: `complete-order` writes non-authoritative order snapshot)
-
----
-
-## Key Env Vars
-
-```
-MEDUSA_BACKEND_URL=https://api.fasmotorsports.com
-PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_...   ← NEEDS ROTATION (returns 400 currently)
-SANITY_PROJECT_ID=r4og35qd
-SANITY_DATASET=production
-SANITY_STUDIO_URL=https://fassanity.fasmotorsports.com
-STRIPE_SECRET_KEY=sk_...
-SHIPPO_API_KEY=shippo_...
-```
