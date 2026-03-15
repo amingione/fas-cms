@@ -54,7 +54,7 @@ const serviceLinks = [
         <div class="fas-mobile-actions">
           <a
             href="/search"
-            class="fas-search-trigger"
+            class="fas-search-trigger fas-search-mobile-trigger"
             aria-label="Search the website"
             title="Search"
           >
@@ -189,38 +189,63 @@ const serviceLinks = [
       </ul>
 
       <div class="desktop-actions">
-        <div class="desktop-search-shell" aria-label="Website search">
-          <SearchBar
-            client:load
-            action="/search"
-            enableSuggestions={true}
-            size="compact"
-            variant="storefront"
-            placeholder="Search products, services, pages..."
-          />
+        <div class="desktop-search-wrap fas-search-desktop" data-search-wrap>
+          <button
+            type="button"
+            class="fas-search-trigger fas-search-toggle"
+            aria-label="Open search"
+            aria-expanded="false"
+            aria-controls="desktopSearchPanel"
+            data-search-toggle
+          >
+            <svg class="search-icon-open" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.9"></circle>
+              <path
+                d="M16.1 16.1 21 21"
+                stroke="currentColor"
+                stroke-width="1.9"
+                stroke-linecap="round"
+              ></path>
+            </svg>
+            <svg class="search-icon-close" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M6 6 18 18M18 6 6 18"
+                stroke="currentColor"
+                stroke-width="1.9"
+                stroke-linecap="round"
+              ></path>
+            </svg>
+          </button>
+          <div
+            id="desktopSearchPanel"
+            class="desktop-search-shell"
+            aria-label="Website search"
+            data-search-panel
+          >
+            <SearchBar
+              client:load
+              action="/search"
+              enableSuggestions={true}
+              size="compact"
+              variant="storefront"
+              placeholder="Search products, services, pages..."
+            />
+          </div>
         </div>
-        <a
-          href="/search"
-          class="fas-search-trigger"
-          aria-label="Search the website"
-          title="Search"
-        >
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.9"></circle>
-            <path
-              d="M16.1 16.1 21 21"
-              stroke="currentColor"
-              stroke-width="1.9"
-              stroke-linecap="round"
-            ></path>
-          </svg>
-        </a>
         <a href="/account" class="desktop-login-btn">Login</a>
         <CartButton client:only="react" />
       </div>
     </div>
   </header>
 </div>
+<button
+  type="button"
+  class="desktop-search-scrim"
+  aria-label="Close search"
+  aria-hidden="true"
+  tabindex="-1"
+  data-search-scrim
+></button>
 
 <style>
   .fas-nav-sticky {
@@ -305,6 +330,8 @@ const serviceLinks = [
     border: 1px solid rgba(242, 239, 234, 0.16);
     border-radius: 12px;
     text-decoration: none;
+    background: transparent;
+    cursor: pointer;
     transition:
       color 160ms ease,
       border-color 160ms ease,
@@ -323,6 +350,22 @@ const serviceLinks = [
     width: 18px;
     height: 18px;
     flex-shrink: 0;
+  }
+
+  .desktop-search-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 10002;
+  }
+
+  .fas-search-mobile-trigger {
+    display: inline-flex;
+  }
+
+  .search-icon-close {
+    display: none;
   }
 
   .fas-mobile-actions :global(button[aria-label='Open cart']),
@@ -736,6 +779,16 @@ const serviceLinks = [
   .desktop-search-shell {
     width: min(320px, 28vw);
     min-width: 210px;
+    opacity: 0;
+    transform: translateX(16px) scaleX(0.9);
+    transform-origin: right center;
+    pointer-events: none;
+    max-width: 0;
+    overflow: hidden;
+    transition:
+      max-width 260ms cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 180ms ease,
+      transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .desktop-search-shell :global(input[name='q']) {
@@ -744,6 +797,46 @@ const serviceLinks = [
     border-radius: 12px;
     font-size: 0.75rem;
     letter-spacing: 0.03em;
+  }
+
+  .desktop-search-scrim {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    pointer-events: none;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    transition: opacity 220ms ease;
+    z-index: 10001;
+  }
+
+  .fas-nav-sticky.is-search-open .desktop-search-shell {
+    max-width: min(420px, 38vw);
+    opacity: 1;
+    transform: translateX(0) scaleX(1);
+    pointer-events: auto;
+  }
+
+  .fas-nav-sticky.is-search-open .search-icon-open {
+    display: none;
+  }
+
+  .fas-nav-sticky.is-search-open .search-icon-close {
+    display: block;
+  }
+
+  .fas-nav-sticky.is-search-open + .desktop-search-scrim {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .fas-nav-sticky.is-search-open .nav-links,
+  .fas-nav-sticky.is-search-open .homepage-logo,
+  .fas-nav-sticky.is-search-open .desktop-login-btn {
+    opacity: 0.45;
+    transition: opacity 200ms ease;
   }
 
   .desktop-login-btn,
@@ -839,6 +932,70 @@ const serviceLinks = [
       font-size: clamp(0.56rem, 0.85vw, 0.8rem);
       letter-spacing: clamp(0.07em, 0.2vw, 0.12em);
     }
+
+    .fas-search-mobile-trigger {
+      display: none;
+    }
+  }
+
+  @media (max-width: 1023px) {
+    .desktop-search-wrap,
+    .desktop-search-scrim {
+      display: none !important;
+    }
   }
 
 </style>
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector('.fas-nav-sticky');
+    const toggle = root?.querySelector('[data-search-toggle]');
+    const panel = root?.querySelector('[data-search-panel]');
+    const scrim = document.querySelector('[data-search-scrim]');
+    if (!root || !toggle || !panel || !scrim) return;
+    const desktopMq = window.matchMedia('(min-width: 1024px)');
+
+    const focusInput = () => {
+      const tryFocus = (attempt = 0) => {
+        const input = panel.querySelector('input[name="q"]');
+        if (input instanceof HTMLInputElement) {
+          input.focus();
+          return;
+        }
+        if (attempt < 8) {
+          window.setTimeout(() => tryFocus(attempt + 1), 45);
+        }
+      };
+      tryFocus();
+    };
+
+    const openSearch = () => {
+      if (!desktopMq.matches) return;
+      root.classList.add('is-search-open');
+      toggle.setAttribute('aria-expanded', 'true');
+      focusInput();
+    };
+
+    const closeSearch = () => {
+      root.classList.remove('is-search-open');
+      toggle.setAttribute('aria-expanded', 'false');
+    };
+
+    toggle.addEventListener('click', () => {
+      if (root.classList.contains('is-search-open')) {
+        closeSearch();
+      } else {
+        openSearch();
+      }
+    });
+
+    scrim.addEventListener('click', closeSearch);
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeSearch();
+    });
+    desktopMq.addEventListener('change', (event) => {
+      if (!event.matches) closeSearch();
+    });
+  })();
+</script>
