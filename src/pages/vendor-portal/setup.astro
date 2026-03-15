@@ -35,7 +35,8 @@ if (completed) {
 }
 
 if (expired) {
-  return Astro.redirect('/vendor-portal/login?error=expired-token');
+  const vid = encodeURIComponent((vendor as any)._id || '');
+  return Astro.redirect(`/vendor-portal/login?error=expired-token&vendorId=${vid}`);
 }
 
 const email =

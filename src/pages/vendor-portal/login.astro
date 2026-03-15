@@ -8,17 +8,21 @@ const returnTo =
     : '/vendor-portal/dashboard';
 const setupStatus = Astro.url.searchParams.get('setup');
 const errorParam = Astro.url.searchParams.get('error');
+const expiredVendorId = Astro.url.searchParams.get('vendorId') || '';
 
-let banner = null;
+let banner: { tone: string; message: string; showResend?: boolean } | null = null;
 if (setupStatus === 'success') {
-  banner = {
-    tone: 'success',
-    message: 'Account setup complete! Please log in with your new password.'
-  };
+  banner = { tone: 'success', message: 'Account setup complete! Please log in with your new password.' };
+} else if (setupStatus === 'resent') {
+  banner = { tone: 'success', message: 'A new invite link has been sent. Check your email.' };
+} else if (errorParam === 'resend-failed') {
+  banner = { tone: 'error', message: 'Could not resend invite. Please contact support.' };
 } else if (errorParam === 'missing-token') {
   banner = { tone: 'error', message: 'Invalid setup link. Please request a new invitation.' };
-} else if (errorParam === 'invalid-token' || errorParam === 'expired-token') {
-  banner = { tone: 'error', message: 'This setup link has expired. Please request a new invite.' };
+} else if (errorParam === 'invalid-token') {
+  banner = { tone: 'error', message: 'This setup link is invalid. Please request a new invite.' };
+} else if (errorParam === 'expired-token') {
+  banner = { tone: 'error', message: 'This setup link has expired.', showResend: expiredVendorId !== '' };
 } else if (errorParam === 'already-setup') {
   banner = { tone: 'info', message: 'Your account is already set up. Please log in.' };
 } else if (errorParam === 'vendor-only') {
@@ -51,7 +55,17 @@ if (setupStatus === 'success') {
                   : 'bg-red-500/10 border border-red-400/50 text-red-200'
             }`}
           >
-            {banner.message}
+            <span>{banner.message}</span>
+            {banner.showResend && (
+              <button
+                id="resend-invite-btn"
+                data-vendor-id={expiredVendorId}
+                type="button"
+                class="ml-2 underline font-semibold hover:opacity-80"
+              >
+                Send a new link
+              </button>
+            )}
           </div>
         )
       }
@@ -135,6 +149,33 @@ if (setupStatus === 'success') {
       </p>
     </div>
   </div>
+
+  <script>
+    // Resend invite handler
+    const resendBtn = document.querySelector('#resend-invite-btn') as HTMLButtonElement | null;
+    if (resendBtn) {
+      resendBtn.addEventListener('click', async () => {
+        const vendorId = resendBtn.dataset.vendorId || '';
+        if (!vendorId) return;
+        resendBtn.disabled = true;
+        resendBtn.textContent = 'Sending…';
+        try {
+          const res = await fetch('/api/vendor/auth/resend-invite', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ vendorId }),
+          });
+          if (res.ok) {
+            window.location.href = '/vendor-portal/login?setup=resent';
+          } else {
+            window.location.href = '/vendor-portal/login?error=resend-failed';
+          }
+        } catch {
+          window.location.href = '/vendor-portal/login?error=resend-failed';
+        }
+      });
+    }
+  </script>
 
   <script>
     const form = document.querySelector('#vendorPortalLogin');

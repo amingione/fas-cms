@@ -111,7 +111,16 @@ export const POST: APIRoute = async ({ request }) => {
             email,
             roles: ['vendor']
           };
-          expiresInSeconds = 60 * 60;
+          // 30-day session for vendors; update lastLogin audit field
+          expiresInSeconds = 60 * 60 * 24 * 30;
+          const vendorDocId = String((vendorByEmail as any)._id || (vendorByEmail as any).id || '');
+          if (vendorDocId) {
+            const { sanity: sanityWrite } = await import('../../../server/sanity-client');
+            sanityWrite.patch(vendorDocId)
+              .set({ 'portalAccess.lastLogin': new Date().toISOString() })
+              .commit()
+              .catch((err: unknown) => console.warn('[login] lastLogin update failed', err));
+          }
         }
 
         if (sessionUser) {
@@ -158,7 +167,16 @@ export const POST: APIRoute = async ({ request }) => {
             email: String(customer.email || email),
             roles: ['vendor']
           };
-          expiresInSeconds = 60 * 60;
+          // 30-day session for vendors; update lastLogin audit field
+          expiresInSeconds = 60 * 60 * 24 * 30;
+          const vendorDocId2 = String((vendor as any)._id || (vendor as any).id || '');
+          if (vendorDocId2) {
+            const { sanity: sanityWrite2 } = await import('../../../server/sanity-client');
+            sanityWrite2.patch(vendorDocId2)
+              .set({ 'portalAccess.lastLogin': new Date().toISOString() })
+              .commit()
+              .catch((err: unknown) => console.warn('[login] lastLogin update failed', err));
+          }
         }
         }
       }
