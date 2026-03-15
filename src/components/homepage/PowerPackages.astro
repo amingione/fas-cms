@@ -1,4 +1,9 @@
 ---
+import { Image } from 'astro:assets';
+import fas800HellcatImage from '@/assets/images/packages/Hellcat/FAS-1.webp';
+import fas1000HellcatImage from '@/assets/images/packages/Hellcat/FAS-fas-1000-challenger.webp';
+import fas1xHellcatImage from '@/assets/images/packages/fas-1x-2.webp';
+
 const packages = [
   // ── Hellcat / Mopar ──────────────────────────────────────────────────────
   {
@@ -8,6 +13,7 @@ const packages = [
     price: 'From $6,499',
     href: '/packages/fas800',
     image: '/images/packages/Hellcat/FAS-1.webp',
+    optimizedImage: fas800HellcatImage,
     imageLabel: 'FAS800 — Challenger SRT Hellcat',
     featured: false,
     features: [
@@ -24,6 +30,7 @@ const packages = [
     price: 'From $16,999',
     href: '/packages/fas1000',
     image: '/images/packages/Hellcat/FAS-fas-1000-challenger.webp',
+    optimizedImage: fas1000HellcatImage,
     imageLabel: 'FAS1000 — Challenger SRT Hellcat',
     featured: true,
     features: [
@@ -41,6 +48,7 @@ const packages = [
     price: 'Call for Pricing',
     href: '/packages/fas-1x',
     image: '/images/packages/fas-1x-2.webp',
+    optimizedImage: fas1xHellcatImage,
     imageLabel: 'FAS 1X — Challenger SRT Hellcat',
     featured: false,
     features: [
@@ -140,12 +148,28 @@ const packages = [
 
           <!-- Visual / image area -->
           <div class="pp-visual">
-            <img
-              src={pkg.image}
-              alt={pkg.stage + ' — ' + pkg.platform}
-              loading="lazy"
-              decoding="async"
-            />
+            {
+              pkg.optimizedImage ? (
+                <Image
+                  src={pkg.optimizedImage}
+                  alt={pkg.stage + ' — ' + pkg.platform}
+                  class="pp-visual-img"
+                  loading="lazy"
+                  decoding="async"
+                  widths={[360, 540, 720]}
+                  sizes="(max-width: 767px) 85vw, (max-width: 1279px) 48vw, 33vw"
+                  format="webp"
+                />
+              ) : (
+                <img
+                  src={pkg.image}
+                  alt={pkg.stage + ' — ' + pkg.platform}
+                  class="pp-visual-img"
+                  loading="lazy"
+                  decoding="async"
+                />
+              )
+            }
             <div class="pp-hp">
               <span class="pp-hp-val">{pkg.hp}</span>
               <span class="pp-hp-unit">HP</span>

@@ -2,6 +2,9 @@
 import { Image } from 'astro:assets';
 import img_fas_garage from '@/assets/images/backgrounds/hero/fas-garage.webp';
 import img_bg_asphalt from '@/assets/images/backgrounds/bg-asphalt.webp';
+import fas1000HellcatImage from '@/assets/images/packages/Hellcat/FAS-fas-1000-challenger.webp';
+import fas800HellcatImage from '@/assets/images/packages/Hellcat/FAS-1.webp';
+import fas1xHellcatImage from '@/assets/images/packages/fas-1x-2.webp';
 export const prerender = true;
 
 import BaseLayout from '../layouts/BaseLayout.astro';
@@ -20,6 +23,7 @@ const builds = [
   // ─── Hellcat / Challenger / Charger ───────────────────────────────────────
   {
     src: '/images/packages/Hellcat/FAS-fas-1000-challenger.webp',
+    optimizedImage: fas1000HellcatImage,
     alt: 'FAS Challenger build',
     title: 'FAS Challenger',
     subtitle: 'Hellcat',
@@ -29,6 +33,7 @@ const builds = [
   },
   {
     src: '/images/packages/Hellcat/FAS-1.webp',
+    optimizedImage: fas800HellcatImage,
     alt: 'FAS Hellcat build',
     title: 'FAS Hellcat',
     subtitle: 'Hellcat',
@@ -323,6 +328,7 @@ const builds = [
   },
   {
     src: '/images/packages/fas-1x-2.webp',
+    optimizedImage: fas1xHellcatImage,
     alt: 'FAS 1X package',
     title: 'FAS 1X Package',
     subtitle: 'Performance Package',
@@ -429,13 +435,32 @@ const pageDescription =
                 aria-label={build.title}
               >
                 <div class="build-featured__card-img-wrap">
-                  <img
-                    src={build.src}
-                    alt={build.alt}
-                    class="build-featured__card-img"
-                    loading={i < 2 ? 'eager' : 'lazy'}
-                    decoding="async"
-                  />
+                  {
+                    build.optimizedImage ? (
+                      <Image
+                        src={build.optimizedImage}
+                        alt={build.alt}
+                        class="build-featured__card-img"
+                        loading={i < 2 ? 'eager' : 'lazy'}
+                        decoding="async"
+                        widths={[540, 720, 960, 1280, 1600]}
+                        sizes={
+                          i === 0
+                            ? '(max-width: 1023px) 100vw, 66vw'
+                            : '(max-width: 1023px) 100vw, 33vw'
+                        }
+                        format="webp"
+                      />
+                    ) : (
+                      <img
+                        src={build.src}
+                        alt={build.alt}
+                        class="build-featured__card-img"
+                        loading={i < 2 ? 'eager' : 'lazy'}
+                        decoding="async"
+                      />
+                    )
+                  }
                   <div class="build-featured__card-overlay" aria-hidden="true" />
                 </div>
                 <div class="build-featured__card-body">
@@ -490,13 +515,28 @@ const pageDescription =
           builds.map((build) => (
             <article class="build-card" data-category={build.category} aria-label={build.title}>
               <div class="build-card__img-wrap">
-                <img
-                  src={build.src}
-                  alt={build.alt}
-                  class="build-card__img"
-                  loading="lazy"
-                  decoding="async"
-                />
+                {
+                  build.optimizedImage ? (
+                    <Image
+                      src={build.optimizedImage}
+                      alt={build.alt}
+                      class="build-card__img"
+                      loading="lazy"
+                      decoding="async"
+                      widths={[300, 420, 560, 720, 960]}
+                      sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw"
+                      format="webp"
+                    />
+                  ) : (
+                    <img
+                      src={build.src}
+                      alt={build.alt}
+                      class="build-card__img"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  )
+                }
                 <div class="build-card__shine" aria-hidden="true" />
               </div>
               <div class="build-card__overlay" aria-hidden="true">
