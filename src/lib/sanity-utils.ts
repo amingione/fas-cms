@@ -93,7 +93,13 @@ const apiVersion = '2024-01-01';
 const imageBuilder = projectId && dataset ? imageUrlBuilder({ projectId, dataset }) : null;
 
 const SANITY_CDN_HOSTS = new Set(['cdn.sanity.io', 'cdn.sanityusercontent.com']);
-const BASE_PUBLISHED_PRODUCT_FILTER = '!(_id in path("drafts.**")) && status == "active"';
+// Accept both legacy `status == "active"` (set by Medusa sync write-back) and
+// the newer `contentStatus == "published"` (set directly in Sanity Studio).
+// Products that have been published in Studio but not yet synced to Medusa will
+// have contentStatus="published" but status still unset — this ensures they
+// are visible on the storefront immediately.
+const BASE_PUBLISHED_PRODUCT_FILTER =
+  '!(_id in path("drafts.**")) && (status == "active" || contentStatus == "published")';
 const PRODUCT_TYPE_OR_FEATURED_FILTER =
   '(productType == "service" || productType == "bundle" || productType == "physical" || featured == true)';
 export const ACTIVE_PRODUCT_FILTER = `${BASE_PUBLISHED_PRODUCT_FILTER} && ${PRODUCT_TYPE_OR_FEATURED_FILTER}`;
