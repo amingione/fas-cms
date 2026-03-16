@@ -10,6 +10,7 @@
 	  listStoreProductsForPricing,
 	  resolveProductCalculatedPriceAmount
 	} from '@/lib/medusa-storefront-pricing';
+	import { ACTIVE_PRODUCT_WITH_SLUG_FILTER } from '@/lib/sanity-utils';
 
 	interface Props { params: { filter: string } }
 	const { params } = Astro as unknown as Props;
@@ -26,7 +27,7 @@ const filter = await client.fetch(filterQuery, { slug: params.filter });
 
 // Fetch products that reference this filter
 	const productsQuery = /* groq */ `
-	*[_type == "product" && !(_id in path('drafts.**')) && status == "active" && (productType == "service" || productType == "bundle" || productType == "physical" || featured == true) && defined(slug.current) && references($filterId)] | order(_createdAt desc){
+	*[_type == "product" && ${ACTIVE_PRODUCT_WITH_SLUG_FILTER} && references($filterId)] | order(_createdAt desc){
 	  _id,
 	  title,
 	  displayTitle,

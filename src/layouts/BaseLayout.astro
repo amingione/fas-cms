@@ -737,6 +737,12 @@ const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
   </head>
 
   <body class={bodyClass}>
+    <!-- Skip navigation: visually hidden until focused — WCAG 2.4.1 / 2.1.1 -->
+    <a
+      href="#main-content"
+      class="skip-to-main"
+      aria-label="Skip to main content"
+    >Skip to main content</a>
     <script is:inline type="module" src={analyticsTrackingScriptUrl}></script>
     <svg
       width="0"

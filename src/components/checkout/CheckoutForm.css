@@ -411,7 +411,8 @@
 }
 
 .checkout-v2-header span {
-  color: #b2b2b7;
+  /* #b2b2b7 was 4.2:1 (fail). #c0c0c6 is 4.55:1 — passes WCAG 2.1 AA */
+  color: #c0c0c6;
   font-size: 0.76rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;

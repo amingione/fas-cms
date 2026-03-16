@@ -1016,6 +1016,10 @@ export default function CheckoutForm() {
             ))}
 
             <div className="checkout-v2-discount">
+              {/* Visually hidden label satisfies WCAG 1.3.1 / 3.3.2 */}
+              <label htmlFor="discount-code" className="sr-only">
+                Discount code
+              </label>
               <input
                 type="text"
                 id="discount-code"

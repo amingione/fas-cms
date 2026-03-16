@@ -349,5 +349,21 @@ try {
         <a href="/account/orders" class="button button-secondary">View Orders</a>
       </div>
     </div>
+
+    <!--
+      Clear all checkout state (local cart items + Medusa cart ID) after a
+      successful order so returning to /checkout starts a completely fresh session.
+      Uses inline script to avoid any module bundler latency on this critical path.
+    -->
+    <script>
+      try {
+        window.localStorage.removeItem('fas_cart_v1');
+        window.localStorage.removeItem('fas_medusa_cart_id');
+        // Notify any mounted cart islands that the cart is now empty
+        window.dispatchEvent(new CustomEvent('cart:changed', { detail: { cart: { items: [] } } }));
+      } catch (_) {
+        // localStorage may be unavailable in private browsing — silently ignore
+      }
+    </script>
   </body>
 </html>

@@ -1,7 +1,7 @@
 ---
 	import BaseLayout from '../../../layouts/BaseLayout.astro';
 	import ProductGrid from '@/components/storefront/ProductGrid.astro';
-	import { sanity, normalizeSlugValue, type Product } from '@/lib/sanity-utils';
+	import { sanity, normalizeSlugValue, type Product, ACTIVE_PRODUCT_WITH_SLUG_FILTER } from '@/lib/sanity-utils';
 	import {
 	  attachMedusaPricingBySanityIdentity,
 	  listStoreProductsForPricing
@@ -32,7 +32,7 @@ if (sanity) {
         : `count((tags[])[@ in ${JSON.stringify(tags)}]) > 0`;
 
 	  const query = `
-	    *[_type == "product" && status == "active" && ${filter}]
+	    *[_type == "product" && ${ACTIVE_PRODUCT_WITH_SLUG_FILTER} && ${filter}]
 	      | order(featured desc, title asc) {
 	        _id,
 	        title,

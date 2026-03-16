@@ -29,7 +29,7 @@ export const fetchFromSanity = async (query: string, params = {}) => {
 };
 
 export async function fetchProducts() {
-  const query = `*[_type == "product" && !(_id in path('drafts.**')) && status == "active" && (productType == "service" || productType == "bundle" || productType == "physical" || featured == true) && defined(slug.current)] | order(_createdAt desc)[0...9] {
+  const query = `*[_type == "product" && !(_id in path('drafts.**')) && (status == "active" || contentStatus == "published") && (productType == "service" || productType == "bundle" || productType == "physical" || featured == true) && defined(slug.current)] | order(_createdAt desc)[0...9] {
     _id,
     title,
     slug,

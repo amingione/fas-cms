@@ -69,7 +69,7 @@ export const productDetailQuery = /* groq */ `
 
 // 1.2 Product Listing Query (Collection/Category Pages)
 export const productListingQuery = /* groq */ `
-*[_type == "product" && status == "active" && references($categoryId)] | order(featured desc, _createdAt desc) [0...24] {
+*[_type == "product" && !(_id in path("drafts.**")) && (status == "active" || contentStatus == "published") && references($categoryId)] | order(featured desc, _createdAt desc) [0...24] {
   _id,
   title,
   displayTitle,

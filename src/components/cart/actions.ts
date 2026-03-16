@@ -9,6 +9,7 @@ import {
   type SyncMedusaCartResult,
   type CartItem as CanonicalCartItem
 } from '@/lib/cart';
+import { MEDUSA_CART_ID_KEY } from '@/lib/medusa';
 
 export type SelectedUpgradeDetailed = {
   label: string;
@@ -259,6 +260,12 @@ export async function updateItemQuantity(
 export async function clearCart() {
   const empty: Cart = { items: [] };
   console.info('[cart-debug] cart write', { action: 'clear' });
+  // Remove the Medusa cart ID so the next checkout session gets a fresh cart.
+  // Without this, ensureMedusaCartId() would reuse a stale/completed cart ID
+  // and cause silent sync failures on the next visit.
+  if (typeof window !== 'undefined') {
+    window.localStorage.removeItem(MEDUSA_CART_ID_KEY);
+  }
   writeCartState(empty);
   const syncResult = await syncDisplayCart(empty);
   if (!syncResult.ok) return syncResult.error || 'Failed to sync your cart.';

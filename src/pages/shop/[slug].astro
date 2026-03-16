@@ -826,6 +826,11 @@ try {
   if (!product) {
     // Required path failed to resolve a product: always a controlled 404.
     Astro.response.status = 404;
+  } else if ((product as any)?.contentStatus === 'draft' || (product as any)?._id?.startsWith('drafts.')) {
+    // Draft products must never be publicly accessible.
+    // A direct URL to a draft slug should return 404, not reveal unpublished content.
+    Astro.response.status = 404;
+    product = null;
   } else {
     baseProductTitle = String((product as any)?.title || 'Product');
     displayTitle = String((product as any)?.displayTitle || (product as any)?.title || 'Product');
