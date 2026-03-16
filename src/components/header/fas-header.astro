@@ -189,6 +189,7 @@ const serviceLinks = [
       </ul>
 
       <div class="desktop-actions">
+        <a href="/account" class="desktop-login-btn">Login</a>
         <div class="desktop-search-wrap fas-search-desktop" data-search-wrap>
           <button
             type="button"
@@ -232,7 +233,6 @@ const serviceLinks = [
             />
           </div>
         </div>
-        <a href="/account" class="desktop-login-btn">Login</a>
         <CartButton client:only="react" />
       </div>
     </div>
@@ -356,7 +356,7 @@ const serviceLinks = [
     position: relative;
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 0;
     z-index: 10002;
   }
 
@@ -777,10 +777,13 @@ const serviceLinks = [
   }
 
   .desktop-search-shell {
+    position: absolute;
+    right: calc(100% + 10px);
+    top: 50%;
     width: min(320px, 28vw);
     min-width: 210px;
     opacity: 0;
-    transform: translateX(16px) scaleX(0.9);
+    transform: translate3d(16px, -50%, 0) scaleX(0.9);
     transform-origin: right center;
     pointer-events: none;
     max-width: 0;
@@ -809,13 +812,13 @@ const serviceLinks = [
     padding: 0;
     margin: 0;
     transition: opacity 220ms ease;
-    z-index: 10001;
+    z-index: 9800;
   }
 
   .fas-nav-sticky.is-search-open .desktop-search-shell {
     max-width: min(420px, 38vw);
     opacity: 1;
-    transform: translateX(0) scaleX(1);
+    transform: translate3d(0, -50%, 0) scaleX(1);
     pointer-events: auto;
   }
 
