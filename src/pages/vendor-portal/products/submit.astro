@@ -1,0 +1,286 @@
+---
+import VendorPortalLayout from '@/layouts/VendorPortalLayout.astro';
+
+const title = 'Submit a Product';
+---
+
+<VendorPortalLayout title={title} activeNav="products">
+  <div class="max-w-2xl mx-auto px-4 py-8">
+    <div class="mb-6">
+      <a href="/vendor-portal/products" class="text-sm text-primary hover:underline">
+        ← Back to Products
+      </a>
+    </div>
+
+    <h1 class="text-3xl font-bold font-ethno text-white uppercase mb-2">Submit a Product</h1>
+    <p class="text-white/70 text-sm mb-8">
+      Propose a product for inclusion in the FAS Motorsports wholesale catalog. Our team reviews
+      all submissions within 2–3 business days.
+    </p>
+
+    <!-- Success banner (hidden by default) -->
+    <div
+      id="vp-submit-success"
+      class="hidden mb-6 rounded-lg border border-green-500/40 bg-green-900/30 px-4 py-4 text-green-300 text-sm"
+    >
+      <p class="font-semibold mb-1">Product submitted!</p>
+      <p id="vp-submit-success-msg">Our team will follow up within 2–3 business days.</p>
+    </div>
+
+    <!-- Error banner (hidden by default) -->
+    <div
+      id="vp-submit-error"
+      class="hidden mb-6 rounded-lg border border-red-500/40 bg-red-900/30 px-4 py-3 text-red-300 text-sm"
+      id="vp-submit-error-banner"
+    >
+      <span id="vp-submit-error-msg">Something went wrong. Please try again.</span>
+    </div>
+
+    <form
+      id="vp-product-submit"
+      class="space-y-6 rounded-lg border border-white/20 bg-zinc-900/80 p-6 shadow-xl"
+    >
+      <!-- Product Name -->
+      <div>
+        <label class="block text-sm font-semibold text-white mb-1" for="ps-name">
+          Product Name <span class="text-red-400">*</span>
+        </label>
+        <input
+          id="ps-name"
+          name="productName"
+          type="text"
+          required
+          placeholder="e.g. Bilstein B8 5100 Shock Set"
+          class="w-full rounded-md border border-white/20 bg-zinc-800 px-3 py-2 text-white placeholder:text-zinc-500 focus:border-primary focus:outline-none"
+        />
+      </div>
+
+      <!-- Brand + SKU row -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-white mb-1" for="ps-brand">Brand / Manufacturer</label>
+          <input
+            id="ps-brand"
+            name="brandName"
+            type="text"
+            placeholder="e.g. Bilstein"
+            class="w-full rounded-md border border-white/20 bg-zinc-800 px-3 py-2 text-white placeholder:text-zinc-500 focus:border-primary focus:outline-none"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-white mb-1" for="ps-sku">SKU / Part Number</label>
+          <input
+            id="ps-sku"
+            name="sku"
+            type="text"
+            placeholder="e.g. 24-185843"
+            class="w-full rounded-md border border-white/20 bg-zinc-800 px-3 py-2 text-white placeholder:text-zinc-500 focus:border-primary focus:outline-none"
+          />
+        </div>
+      </div>
+
+      <!-- Category -->
+      <div>
+        <label class="block text-sm font-semibold text-white mb-1" for="ps-category">Category</label>
+        <select
+          id="ps-category"
+          name="category"
+          class="w-full rounded-md border border-white/20 bg-zinc-800 px-3 py-2 text-white focus:border-primary focus:outline-none"
+        >
+          <option value="">Select a category…</option>
+          <option value="Suspension">Suspension</option>
+          <option value="Wheels">Wheels</option>
+          <option value="Tires">Tires</option>
+          <option value="Exterior">Exterior</option>
+          <option value="Interior">Interior</option>
+          <option value="Engine & Performance">Engine & Performance</option>
+          <option value="Exhaust">Exhaust</option>
+          <option value="Brakes">Brakes</option>
+          <option value="Lighting">Lighting</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Accessories">Accessories</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <!-- Description -->
+      <div>
+        <label class="block text-sm font-semibold text-white mb-1" for="ps-desc">Product Description</label>
+        <textarea
+          id="ps-desc"
+          name="description"
+          rows="4"
+          placeholder="Brief product description, key features, material specs…"
+          class="w-full rounded-md border border-white/20 bg-zinc-800 px-3 py-2 text-white placeholder:text-zinc-500 focus:border-primary focus:outline-none resize-none"
+        ></textarea>
+      </div>
+
+      <!-- Pricing row -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-white mb-1" for="ps-wholesale">
+            Proposed Wholesale Price (USD)
+          </label>
+          <input
+            id="ps-wholesale"
+            name="proposedWholesalePrice"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="0.00"
+            class="w-full rounded-md border border-white/20 bg-zinc-800 px-3 py-2 text-white placeholder:text-zinc-500 focus:border-primary focus:outline-none"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-white mb-1" for="ps-msrp">MSRP (USD)</label>
+          <input
+            id="ps-msrp"
+            name="proposedMsrp"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="0.00"
+            class="w-full rounded-md border border-white/20 bg-zinc-800 px-3 py-2 text-white placeholder:text-zinc-500 focus:border-primary focus:outline-none"
+          />
+        </div>
+      </div>
+
+      <!-- MOQ + Lead Time -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-white mb-1" for="ps-moq">
+            Minimum Order Quantity
+          </label>
+          <input
+            id="ps-moq"
+            name="minimumOrderQty"
+            type="number"
+            min="1"
+            step="1"
+            value="1"
+            class="w-full rounded-md border border-white/20 bg-zinc-800 px-3 py-2 text-white focus:border-primary focus:outline-none"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-white mb-1" for="ps-lead">
+            Lead Time (business days)
+          </label>
+          <input
+            id="ps-lead"
+            name="leadTimeDays"
+            type="number"
+            min="0"
+            step="1"
+            placeholder="e.g. 5"
+            class="w-full rounded-md border border-white/20 bg-zinc-800 px-3 py-2 text-white placeholder:text-zinc-500 focus:border-primary focus:outline-none"
+          />
+        </div>
+      </div>
+
+      <!-- Fitment Notes -->
+      <div>
+        <label class="block text-sm font-semibold text-white mb-1" for="ps-fitment">
+          Fitment / Compatibility Notes
+        </label>
+        <textarea
+          id="ps-fitment"
+          name="fitmentNotes"
+          rows="3"
+          placeholder="Year/make/model fitment, vehicle requirements, incompatibilities…"
+          class="w-full rounded-md border border-white/20 bg-zinc-800 px-3 py-2 text-white placeholder:text-zinc-500 focus:border-primary focus:outline-none resize-none"
+        ></textarea>
+      </div>
+
+      <!-- UPC -->
+      <div>
+        <label class="block text-sm font-semibold text-white mb-1" for="ps-upc">UPC</label>
+        <input
+          id="ps-upc"
+          name="upc"
+          type="text"
+          placeholder="Universal Product Code"
+          class="w-full rounded-md border border-white/20 bg-zinc-800 px-3 py-2 text-white placeholder:text-zinc-500 focus:border-primary focus:outline-none"
+        />
+      </div>
+
+      <!-- Submit -->
+      <button
+        id="vp-submit-btn"
+        type="submit"
+        class="w-full rounded-md bg-primary px-4 py-3 font-semibold uppercase tracking-wide text-white hover:bg-primary/80 transition disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Submit Product for Review
+      </button>
+    </form>
+  </div>
+
+  <script>
+    const form = document.querySelector<HTMLFormElement>('#vp-product-submit');
+    const btn = document.querySelector<HTMLButtonElement>('#vp-submit-btn');
+    const successBanner = document.querySelector<HTMLElement>('#vp-submit-success');
+    const successMsg = document.querySelector<HTMLElement>('#vp-submit-success-msg');
+    const errorBanner = document.querySelector<HTMLElement>('#vp-submit-error');
+    const errorMsg = document.querySelector<HTMLElement>('#vp-submit-error-msg');
+
+    const showError = (msg: string) => {
+      if (errorMsg) errorMsg.textContent = msg;
+      errorBanner?.classList.remove('hidden');
+      successBanner?.classList.add('hidden');
+    };
+
+    const showSuccess = (msg: string) => {
+      if (successMsg) successMsg.textContent = msg;
+      successBanner?.classList.remove('hidden');
+      errorBanner?.classList.add('hidden');
+      form?.reset();
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    };
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorBanner?.classList.add('hidden');
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Submitting…';
+      }
+
+      try {
+        const data = new FormData(form!);
+        const body: Record<string, unknown> = {};
+
+        for (const [key, val] of data.entries()) {
+          const s = String(val).trim();
+          if (!s) continue;
+          const numFields = ['proposedWholesalePrice', 'proposedMsrp', 'minimumOrderQty', 'leadTimeDays'];
+          if (numFields.includes(key)) {
+            const n = parseFloat(s);
+            if (!isNaN(n)) body[key] = n;
+          } else {
+            body[key] = s;
+          }
+        }
+
+        const res = await fetch('/api/vendor/products/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(body),
+        });
+        const json = await res.json().catch(() => ({}));
+
+        if (res.ok && json.ok) {
+          showSuccess(json.message || 'Product submitted! Our team will review it within 2–3 business days.');
+        } else {
+          showError(json.message || `Submission failed (${res.status}). Please try again.`);
+        }
+      } catch (err) {
+        showError('Network error. Please check your connection and try again.');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'Submit Product for Review';
+        }
+      }
+    });
+  </script>
+</VendorPortalLayout>
