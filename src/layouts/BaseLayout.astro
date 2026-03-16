@@ -27,7 +27,8 @@ const {
   keywords,
   breadcrumbContext,
   bodyClass = 'bg-dark text-white font-sans min-h-screen flex flex-col slim-ui quiet-ui',
-  mainClass = 'px-5 pt-6 flex-1 container max-w-full mx-auto with-header-offset'
+  mainClass = 'px-5 pt-6 flex-1 container max-w-full mx-auto with-header-offset',
+  ogType,
 } = Astro.props as {
   title?: string;
   description?: string;
@@ -48,6 +49,8 @@ const {
   };
   bodyClass?: string;
   mainClass?: string;
+  /** Override og:type — defaults to 'website'. Pass 'article' for blog posts, 'product' for shop pages. */
+  ogType?: string;
 };
 
 const normalizeNoindex = (value: unknown): boolean => {
@@ -476,7 +479,14 @@ const computedPayload = {
 
 const metaEntries = buildMetaEntries(computedPayload, canonicalUrl ?? undefined);
 const computedTitle = metaEntries.title || pageTitle || FALLBACK_SITE_TITLE;
-const metaTags = [{ property: 'og:site_name', content: SITE_NAME }, ...metaEntries.meta];
+// Allow per-page ogType override (e.g. 'article' for blog posts, 'product' for shop pages).
+// buildMetaEntries always emits og:type='website'; replace it here if a prop was passed.
+const metaTagsRaw = [{ property: 'og:site_name', content: SITE_NAME }, ...metaEntries.meta];
+const metaTags = ogType
+  ? metaTagsRaw.map((t) =>
+      'property' in t && t.property === 'og:type' ? { ...t, content: ogType } : t
+    )
+  : metaTagsRaw;
 const cmsJsonLdEntries = buildJsonLd(computedPayload);
 const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
 ---

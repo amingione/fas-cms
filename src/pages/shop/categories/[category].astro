@@ -267,11 +267,16 @@ const categoryCollectionStructuredData =
             {category.description && <p class="mt-2 text-sm opacity-80">{category.description}</p>}
           </header>
 
-	          <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+	          <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6" data-category-grid>
 	            {productsWithMedusa.map((p) => (
 	              <ProductCard product={p} productImage={p.images?.[0]} />
 	            ))}
 	          </section>
+	          {productsWithMedusa.length === 0 && (
+	            <p class="py-12 text-center text-neutral-400 no-products-found">
+	              No products found in this category yet. Check back soon!
+	            </p>
+	          )}
         </>
       )
     }

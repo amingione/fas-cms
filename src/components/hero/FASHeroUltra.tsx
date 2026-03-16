@@ -59,9 +59,10 @@ export default function FASHeroUltra({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h1 className="fas-hero-h1-v2">
+          {/* Demoted from h1 → p: HomepageHero already owns the page-level h1 (WCAG 1.3.1) */}
+          <p className="fas-hero-h1-v2" aria-hidden="true">
             <span className="top-v2">{titleTop}</span>
-          </h1>
+          </p>
 
           <p className="fas-hero-p-v2">{subtitle}</p>
 

@@ -991,7 +991,7 @@ export default function CheckoutForm() {
                 <div className="checkout-v2-image-wrap">
                   <img
                     src={resolveCheckoutImageSrc(product.thumbnail)}
-                    alt={product.title}
+                    alt={product.title || 'Product image'}
                     className="checkout-v2-image"
                     onError={(event) => {
                       const image = event.currentTarget;
@@ -1346,26 +1346,38 @@ function NonReadyPaymentPane({
 
       {requiresShipping ? (
         <>
-          <label>Shipping address</label>
+          {/* fieldset/legend groups the address inputs as a unit — WCAG 1.3.1 */}
+          <fieldset className="checkout-address-fieldset">
+            <legend>Shipping address</legend>
           <div className="checkout-v2-address-grid">
-            <input
-              type="text"
-              name="given-name"
-              value={shippingAddress.firstName}
-              onChange={onAddressChange('firstName')}
-              placeholder="First name"
-              autoComplete="shipping given-name"
-            />
-            <input
-              type="text"
-              name="family-name"
-              value={shippingAddress.lastName}
-              onChange={onAddressChange('lastName')}
-              placeholder="Last name"
-              autoComplete="shipping family-name"
-            />
-            <div className="span-2" style={{ position: 'relative' }}>
+            <div>
+              <label htmlFor="addr-first-name" className="sr-only">First name</label>
               <input
+                id="addr-first-name"
+                type="text"
+                name="given-name"
+                value={shippingAddress.firstName}
+                onChange={onAddressChange('firstName')}
+                placeholder="First name"
+                autoComplete="shipping given-name"
+              />
+            </div>
+            <div>
+              <label htmlFor="addr-last-name" className="sr-only">Last name</label>
+              <input
+                id="addr-last-name"
+                type="text"
+                name="family-name"
+                value={shippingAddress.lastName}
+                onChange={onAddressChange('lastName')}
+                placeholder="Last name"
+                autoComplete="shipping family-name"
+              />
+            </div>
+            <div className="span-2" style={{ position: 'relative' }}>
+              <label htmlFor="addr-line1" className="sr-only">Address line 1</label>
+              <input
+                id="addr-line1"
                 type="text"
                 name="address-line1"
                 value={shippingAddress.address1}
@@ -1422,53 +1434,74 @@ function NonReadyPaymentPane({
                 </div>
               )}
             </div>
-            <input
-              type="text"
-              name="address-line2"
-              value={shippingAddress.address2}
-              onChange={onAddressChange('address2')}
-              placeholder="Address line 2"
-              className="span-2"
-              autoComplete="shipping address-line2"
-            />
-            <input
-              type="text"
-              name="address-level2"
-              value={shippingAddress.city}
-              onChange={onAddressChange('city')}
-              placeholder="City"
-              autoComplete="shipping address-level2"
-            />
-            <input
-              type="text"
-              name="address-level1"
-              value={shippingAddress.province}
-              onChange={onAddressChange('province')}
-              placeholder="State / Province"
-              autoComplete="shipping address-level1"
-            />
-            <input
-              type="text"
-              name="postal-code"
-              value={shippingAddress.postalCode}
-              onChange={onAddressChange('postalCode')}
-              placeholder="Postal code"
-              autoComplete="shipping postal-code"
-              inputMode="numeric"
-            />
-            <input
-              type="tel"
-              name="tel"
-              value={shippingAddress.phone}
-              onChange={onAddressChange('phone')}
-              placeholder="Phone"
-              autoComplete="shipping tel"
-              inputMode="tel"
-            />
+            <div className="span-2">
+              <label htmlFor="addr-line2" className="sr-only">Address line 2 (optional)</label>
+              <input
+                id="addr-line2"
+                type="text"
+                name="address-line2"
+                value={shippingAddress.address2}
+                onChange={onAddressChange('address2')}
+                placeholder="Address line 2"
+                autoComplete="shipping address-line2"
+              />
+            </div>
+            <div>
+              <label htmlFor="addr-city" className="sr-only">City</label>
+              <input
+                id="addr-city"
+                type="text"
+                name="address-level2"
+                value={shippingAddress.city}
+                onChange={onAddressChange('city')}
+                placeholder="City"
+                autoComplete="shipping address-level2"
+              />
+            </div>
+            <div>
+              <label htmlFor="addr-province" className="sr-only">State / Province</label>
+              <input
+                id="addr-province"
+                type="text"
+                name="address-level1"
+                value={shippingAddress.province}
+                onChange={onAddressChange('province')}
+                placeholder="State / Province"
+                autoComplete="shipping address-level1"
+              />
+            </div>
+            <div>
+              <label htmlFor="addr-postal" className="sr-only">Postal code</label>
+              <input
+                id="addr-postal"
+                type="text"
+                name="postal-code"
+                value={shippingAddress.postalCode}
+                onChange={onAddressChange('postalCode')}
+                placeholder="Postal code"
+                autoComplete="shipping postal-code"
+                inputMode="numeric"
+              />
+            </div>
+            <div>
+              <label htmlFor="addr-phone" className="sr-only">Phone</label>
+              <input
+                id="addr-phone"
+                type="tel"
+                name="tel"
+                value={shippingAddress.phone}
+                onChange={onAddressChange('phone')}
+                placeholder="Phone"
+                autoComplete="shipping tel"
+                inputMode="tel"
+              />
+            </div>
           </div>
+          </fieldset>
 
-          <label>Country or region</label>
+          <label htmlFor="addr-country">Country or region</label>
           <select
+            id="addr-country"
             name="country"
             value={shippingAddress.countryCode.toUpperCase()}
             onChange={onAddressChange('countryCode')}
@@ -1502,17 +1535,22 @@ function NonReadyPaymentPane({
 
       {requiresShipping && (
         <>
-          <label>Shipping method</label>
-          <div className="checkout-v2-rates">
+          {/* fieldset/legend for rate group — WCAG 1.3.1, roles for radio-like buttons */}
+          <fieldset className="checkout-rates-fieldset">
+            <legend>Shipping method</legend>
+          <div className="checkout-v2-rates" role="radiogroup" aria-label="Shipping method">
             {selectableRates.length === 0 ? (
               <p className="muted">Enter shipping info and calculate rates to continue.</p>
             ) : (
               selectableRates.map((rate) => {
+                const isSelected = selectedRateId === rate.id;
                 return (
                   <button
                     type="button"
                     key={rate.id}
-                    className={`rate ${selectedRateId === rate.id ? 'selected' : ''}`}
+                    role="radio"
+                    aria-checked={isSelected}
+                    className={`rate ${isSelected ? 'selected' : ''}`}
                     onClick={() => void onSelectRate(rate)}
                     disabled={selectingShipping}
                   >
@@ -1523,6 +1561,7 @@ function NonReadyPaymentPane({
               })
             )}
           </div>
+          </fieldset>
         </>
       )}
 
@@ -1725,8 +1764,9 @@ function StripePaymentPane({
         readOnly
       />
 
-      <label>Country or region</label>
+      <label htmlFor="stripe-country">Country or region</label>
       <input
+        id="stripe-country"
         type="text"
         name="country"
         value={shippingAddress.countryCode.toUpperCase()}

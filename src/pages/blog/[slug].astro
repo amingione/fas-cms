@@ -57,9 +57,48 @@ const coverImage = post?.featuredImage
   ? urlFor(post.featuredImage)?.width(1200).height(630).url()
   : post?.imageUrl;
 const publishedLabel = formatDate(post?.publishedAt);
+
+// JSON-LD structured data for Google Article indexing (WCAG / SEO)
+const canonicalUrl = `https://www.fasmotorsports.com/blog/${slug}`;
+const articleJsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: post?.title ?? '',
+  description: post?.excerpt ?? '',
+  image: coverImage ? [coverImage] : undefined,
+  datePublished: post?.publishedAt ?? undefined,
+  dateModified: post?._updatedAt ?? post?.publishedAt ?? undefined,
+  author: {
+    '@type': 'Person',
+    name: post?.authorName ?? 'FAS Motorsports',
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'FAS Motorsports',
+    logo: {
+      '@type': 'ImageObject',
+      url: 'https://www.fasmotorsports.com/fas-logo.png',
+    },
+  },
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': canonicalUrl,
+  },
+});
 ---
 
-<BaseLayout title={post?.title ?? 'Blog Post'} description={post?.excerpt ?? ''} ogImage={coverImage}>
+<BaseLayout
+  title={post?.title ?? 'Blog Post'}
+  description={post?.excerpt ?? ''}
+  ogImage={coverImage}
+  canonical={canonicalUrl}
+  ogType="article"
+>
+  <!-- JSON-LD Article structured data — helps Google index blog posts correctly -->
+  <script type="application/ld+json" set:html={articleJsonLd} slot="head" />
+  <!-- article:published_time + article:author for social previews and Google News -->
+  {post?.publishedAt && <meta property="article:published_time" content={post.publishedAt} slot="head" />}
+  {post?.authorName && <meta property="article:author" content={post.authorName} slot="head" />}
   <article class="mx-auto max-w-4xl px-4 py-12 space-y-10">
     <header class="space-y-4">
       {post?.categories?.length > 0 && (

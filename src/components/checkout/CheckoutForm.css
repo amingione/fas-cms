@@ -3,6 +3,25 @@
  * Dark theme matching FAS branding
  */
 
+/* Reset fieldset chrome — we use fieldset/legend for a11y grouping only */
+.checkout-address-fieldset,
+.checkout-rates-fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+.checkout-address-fieldset legend,
+.checkout-rates-fieldset legend {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 0.5rem;
+  padding: 0;
+  float: left;
+  width: 100%;
+}
+
 /* Loading States */
 .checkout-loading {
   display: flex;

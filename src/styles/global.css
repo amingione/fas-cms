@@ -2701,7 +2701,8 @@ input[type='checkbox'] {
 /* ── Skip navigation (WCAG 2.4.1 / 2.1.1) ───────────────────────────────── */
 .skip-to-main {
   position: absolute;
-  top: -100%;
+  /* Off-screen until focused — no CSS transition so position is instant (avoids E2E timing issues) */
+  top: -9999px;
   left: 1rem;
   z-index: 9999;
   padding: 0.6rem 1.2rem;
@@ -2711,7 +2712,6 @@ input[type='checkbox'] {
   font-weight: 600;
   border-radius: 0 0 6px 6px;
   text-decoration: none;
-  transition: top 0.15s ease;
   white-space: nowrap;
 }
 
