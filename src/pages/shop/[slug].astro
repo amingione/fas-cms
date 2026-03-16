@@ -1756,18 +1756,6 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
           </div>
         )}
 
-        {/* Important Notes — shown inline so shoppers don't miss critical purchase info */}
-        {isContentDescriptor(importantNotesDescriptor) && (
-          <div class="mb-4 rounded-xl border border-red-500/30 bg-red-950/30 px-4 py-3 text-sm text-red-200" {...inlineFieldAttrs('importantNotes')}>
-            <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-red-400">Important Notes</p>
-            {importantNotesDescriptor.type === 'portable' ? (
-              <PortableTextRenderer value={importantNotesDescriptor.value as any[]} />
-            ) : (
-              <p class="mb-0 leading-relaxed">{importantNotesDescriptor.value as string}</p>
-            )}
-          </div>
-        )}
-
         <!-- Short intro (truncated) -->
         {isContentDescriptor(shortDescriptionDescriptor) && (
           <div class="break-words bg-black/70 p-4 text-base md:text-lg text-[#F2F2F2]" {...inlineFieldAttrs('shortDescription')}>
@@ -1776,37 +1764,6 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
             ) : (
               <p class="mb-0">{shortDescriptionDescriptor.value as string}</p>
             )}
-          </div>
-        )}
-
-        {/* Key Features */}
-        {Array.isArray((product as any)?.keyFeatures) && (product as any).keyFeatures.length > 0 && (
-          <div class="mb-6" {...inlineFieldAttrs('keyFeatures')}>
-            <ul class="space-y-3">
-              {(product as any).keyFeatures.map((feature: any, idx: number) => (
-                <li key={idx}>
-                  <details class="group rounded-lg border border-white/10 bg-white/5 open:bg-white/10 transition-colors">
-                    <summary class="flex cursor-pointer select-none items-start gap-3 px-4 py-3 list-none">
-                      {feature.icon && (
-                        <span class="mt-0.5 shrink-0 text-accent text-base" aria-hidden="true">✦</span>
-                      )}
-                      <span class="flex-1 text-sm font-semibold text-white leading-snug">{feature.title}</span>
-                      {feature.details?.length > 0 && (
-                        <span class="ml-2 shrink-0 text-white/40 transition-transform group-open:rotate-180 text-xs">▾</span>
-                      )}
-                    </summary>
-                    {feature.summary && (
-                      <p class="px-4 pb-2 pt-0 text-sm text-white/70 leading-relaxed">{feature.summary}</p>
-                    )}
-                    {feature.details?.length > 0 && (
-                      <div class="px-4 pb-3 text-sm text-white/70 leading-relaxed">
-                        <PortableTextRenderer value={feature.details} />
-                      </div>
-                    )}
-                  </details>
-                </li>
-              ))}
-            </ul>
           </div>
         )}
 
