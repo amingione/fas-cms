@@ -1716,13 +1716,26 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
             </span>
           </div>
         )}
-        {(product as any)?.promotionTagline && (
-          <div class="mb-3" {...inlineFieldAttrs('promotionTagline')}>
-            <span class="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent">
-              ✦ {(product as any).promotionTagline}
-            </span>
-          </div>
-        )}
+        {(product as any)?.promotionTagline && (() => {
+          const tagline: string = String((product as any).promotionTagline);
+          // Short taglines (≤60 chars) render as a compact pill badge.
+          // Longer promotional copy renders as an inline text block to avoid
+          // multi-line text inside a rounded-full container, which looks broken.
+          const isShort = tagline.length <= 60;
+          return (
+            <div class="mb-3" {...inlineFieldAttrs('promotionTagline')}>
+              {isShort ? (
+                <span class="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent">
+                  ✦ {tagline}
+                </span>
+              ) : (
+                <div class="rounded-xl border border-accent/30 bg-accent/5 px-4 py-3 text-sm leading-relaxed text-accent/90">
+                  <span class="mr-1.5 text-accent">✦</span>{tagline}
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         <div class="mb-2" {...inlineFieldAttrs('price')}>
           {typeof priceValue === 'number' ? (
