@@ -941,6 +941,15 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
+# Product pages are SSR with live Medusa pricing — never CDN-cache them.
+# The global /* rule sets s-maxage=300+stale-while-revalidate=600, which
+# combined with the in-memory Sanity cache (also 300s) creates a staleness
+# loop where CDN revalidation always hits a warm function with cached data.
+[[headers]]
+  for = "/shop/*"
+  [headers.values]
+    Cache-Control = "no-store"
+
 # Avoid caching the account page so auth callback always runs with fresh HTML
 [[headers]]
   for = "/account"
