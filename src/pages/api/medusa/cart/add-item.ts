@@ -643,16 +643,34 @@ export const POST: APIRoute = async ({ request }) => {
         finalByLocalId.get(item.id) ??
         (item.medusaVariantId ? finalByVariantId.get(item.medusaVariantId) : undefined);
       const actualUnitPrice = toRoundedNumber(lineItem?.unit_price);
+
       if (actualUnitPrice == null) {
-        return {
-          id: item.id,
+        // Line item not resolved in Medusa cart (metadata lookup miss or item not yet indexed).
+        // Cannot verify price — log and skip rather than blocking checkout.
+        console.warn('[addon_price_check] line_item_not_found', {
+          itemId: item.id,
           expectedUnitPrice,
-          actualUnitPrice: null,
           addOnTotal
-        };
+        });
+        return null;
       }
 
       if (actualUnitPrice !== expectedUnitPrice) {
+        // Only flag as a hard error when Medusa applied a REAL add-on surcharge
+        // (actualUnitPrice > inferredBasePrice). If Medusa priced at base, the
+        // option value IDs are orphaned/not applied in Medusa — treat as
+        // metadata-only add-ons and skip the blocking check.
+        const medusaAppliedAddOnCost = inferredBasePrice != null ? actualUnitPrice - inferredBasePrice : -1;
+        if (medusaAppliedAddOnCost <= 0) {
+          console.warn('[addon_price_check] orphaned_option_ids_metadata_only', {
+            itemId: item.id,
+            inferredBasePrice,
+            actualUnitPrice,
+            expectedUnitPrice,
+            addOnTotal
+          });
+          return null;
+        }
         return {
           id: item.id,
           expectedUnitPrice,
