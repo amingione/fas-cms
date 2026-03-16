@@ -217,10 +217,31 @@ export async function requestPasswordReset(email: string, request: Request) {
     expiresAt: issued.expiresAt.toISOString()
   });
 
-  console.warn('[vendor reset] email sending handled by fas-sanity', {
-    email,
-    vendorId: vendor._id
-  });
+  // Dispatch reset email via fas-sanity Netlify function (owns Resend + email templates)
+  const baseUrl = buildBaseUrl(request);
+  const resetLink = `${baseUrl}/vendor-portal/reset-password?token=${encodeURIComponent(issued.token)}`;
+  const resetFunctionUrl =
+    process.env.SANITY_RESET_FUNCTION_URL ||
+    'https://fassanity.fasmotorsports.com/.netlify/functions/send-vendor-reset';
+
+  try {
+    const emailRes = await fetch(resetFunctionUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        vendorId: vendor._id,
+        email,
+        resetLink,
+      }),
+    });
+    if (!emailRes.ok) {
+      const errBody = await emailRes.json().catch(() => ({}));
+      console.error('[vendor reset] email function error', emailRes.status, errBody);
+    }
+  } catch (emailErr) {
+    // Non-fatal: token is stored; vendor can request again if email doesn't arrive
+    console.error('[vendor reset] failed to call send-vendor-reset function', emailErr);
+  }
 
   return jsonResponse(
     { ok: true, message: 'If an account exists, we sent a reset link.' },
