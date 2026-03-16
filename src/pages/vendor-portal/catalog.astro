@@ -15,9 +15,19 @@ type Product = {
   sku?: string;
   wholesalePriceStandard?: number;
   wholesalePricePreferred?: number;
+  wholesalePricePlatinum?: number;
   mainImage?: string;
   shortDescription?: string;
   availability?: string;
+};
+
+type VendorTier = 'standard' | 'preferred' | 'platinum' | 'custom';
+
+const TIER_LABELS: Record<VendorTier, string> = {
+  standard: 'Standard',
+  preferred: 'Preferred',
+  platinum: 'Platinum',
+  custom: 'Custom',
 };
 
 const ctx = await requireVendor(Astro.request);
@@ -26,9 +36,18 @@ if (!ctx.ok) {
 }
 
 const vendor = ctx.vendor ?? {};
-const vendorTierRaw = String(vendor?.portalAccess?.vendorTier || '').toLowerCase();
-const vendorTier = vendorTierRaw === 'preferred' ? 'preferred' : 'standard';
-const isPreferredVendor = vendorTier === 'preferred';
+// pricingTier is the authoritative root-level field; portalAccess.vendorTier is a legacy fallback
+const vendorTierRaw = String(
+  vendor?.pricingTier || vendor?.portalAccess?.vendorTier || 'standard'
+).toLowerCase().trim() as VendorTier;
+const vendorTier: VendorTier = (['preferred', 'platinum', 'custom'] as VendorTier[]).includes(vendorTierRaw)
+  ? vendorTierRaw
+  : 'standard';
+// Custom tier discount percentage (0–100). Applied as a flat % off Standard price.
+const customDiscountPct =
+  vendorTier === 'custom' && typeof vendor?.customDiscountPercentage === 'number'
+    ? Math.min(100, Math.max(0, vendor.customDiscountPercentage))
+    : 0;
 
 let products: Product[] = [];
 
@@ -79,8 +98,9 @@ try {
         title,
         "slug": slug.current,
         sku,
-        "wholesalePriceStandard": coalesce(pricing.wholesalePriceStandard, wholesalePriceStandard),
-        "wholesalePricePreferred": coalesce(pricing.wholesalePricePreferred, wholesalePricePreferred),
+        wholesalePriceStandard,
+        wholesalePricePreferred,
+        wholesalePricePlatinum,
         "mainImage": coalesce(images[0].asset->url, mainImage.asset->url, image.asset->url),
         "shortDescription": coalesce(
           shortDescription,
@@ -117,9 +137,10 @@ try {
           Wholesale Catalog
         </p>
         <h1 class="text-2xl font-bold text-white mt-1">
-          Your pricing tier: <span class="text-primary"
-            >{vendorTier === 'preferred' ? 'Preferred' : 'Standard'}</span
-          >
+          Your pricing tier: <span class="text-primary">{TIER_LABELS[vendorTier]}</span>
+          {vendorTier === 'custom' && customDiscountPct > 0 && (
+            <span class="ml-2 text-base font-normal text-emerald-300/90">({customDiscountPct}% off standard)</span>
+          )}
         </h1>
         <p class="text-sm text-white/70 mt-1">Add items to build your order.</p>
       </div>
@@ -156,7 +177,20 @@ try {
               typeof product.wholesalePricePreferred === 'number'
                 ? product.wholesalePricePreferred
                 : standardPrice;
-            const wholesalePrice = isPreferredVendor ? preferredPrice : standardPrice;
+            const platinumPrice =
+              typeof product.wholesalePricePlatinum === 'number'
+                ? product.wholesalePricePlatinum
+                : preferredPrice;
+            // Custom: apply flat percentage discount off standard price
+            const customPrice =
+              typeof standardPrice === 'number' && customDiscountPct > 0
+                ? Math.round(standardPrice * (1 - customDiscountPct / 100) * 100) / 100
+                : standardPrice;
+            const wholesalePrice =
+              vendorTier === 'platinum' ? platinumPrice
+              : vendorTier === 'preferred' ? preferredPrice
+              : vendorTier === 'custom' ? customPrice
+              : standardPrice;
             const savings =
               typeof retailPrice === 'number' && typeof wholesalePrice === 'number'
                 ? Math.max(0, retailPrice - wholesalePrice)

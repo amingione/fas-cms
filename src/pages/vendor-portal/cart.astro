@@ -8,8 +8,19 @@ if (!ctx.ok) {
 }
 
 const vendor = ctx.vendor ?? {};
-const vendorTierRaw = String(vendor?.portalAccess?.vendorTier || '').toLowerCase();
-const vendorTier = vendorTierRaw === 'preferred' ? 'preferred' : 'standard';
+type VendorTier = 'standard' | 'preferred' | 'platinum' | 'custom';
+const TIER_LABELS: Record<VendorTier, string> = {
+  standard: 'Standard',
+  preferred: 'Preferred',
+  platinum: 'Platinum',
+  custom: 'Custom',
+};
+const vendorTierRaw = String(
+  vendor?.pricingTier || vendor?.portalAccess?.vendorTier || 'standard'
+).toLowerCase().trim() as VendorTier;
+const vendorTier: VendorTier = (['preferred', 'platinum', 'custom'] as VendorTier[]).includes(vendorTierRaw)
+  ? vendorTierRaw
+  : 'standard';
 ---
 
 <VendorPortalLayout title="Wholesale Cart" description="Review and submit your wholesale order.">
@@ -23,7 +34,7 @@ const vendorTier = vendorTierRaw === 'preferred' ? 'preferred' : 'standard';
         </p>
         <h1 class="text-2xl font-bold text-white mt-1">Review your cart</h1>
         <p class="text-sm text-white/70 mt-1">
-          Pricing tier: <span class="text-primary font-semibold capitalize">{vendorTier}</span>
+          Pricing tier: <span class="text-primary font-semibold">{TIER_LABELS[vendorTier]}</span>
         </p>
       </div>
       <div class="flex items-center gap-3">
