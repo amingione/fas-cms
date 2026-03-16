@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import './CheckoutForm.css';
-import { ensureMedusaCartId, getCart, persistCartLocally, syncMedusaCart } from '@/lib/cart';
+import { abandonCheckout, ensureMedusaCartId, getCart, persistCartLocally, syncMedusaCart } from '@/lib/cart';
 import { MEDUSA_CART_ID_KEY } from '@/lib/medusa';
 
 const CHECKOUT_IMAGE_FALLBACK = '/placeholder.webp';
@@ -882,6 +882,17 @@ export default function CheckoutForm() {
     setClientSecret(payload.client_secret);
   }
 
+  /**
+   * handleCancelCheckout
+   * Wipes ALL local checkout state (cart items + Medusa cart ID) and navigates
+   * the user back to the shop. This prevents stale cart IDs from polluting
+   * the next session and eliminates ghost-cart Medusa sync errors.
+   */
+  function handleCancelCheckout() {
+    abandonCheckout();
+    window.location.href = '/shop';
+  }
+
   async function mutateDiscountCode(action: 'apply' | 'remove', codeValue: string): Promise<void> {
     if (!cartId) return;
     const code = codeValue.trim();
@@ -952,9 +963,19 @@ export default function CheckoutForm() {
     <div className="checkout-v2">
       <div className="checkout-v2-header">
         <h2>Checkout</h2>
-        <span>
-          {cartCount} item{cartCount === 1 ? '' : 's'}
-        </span>
+        <div className="checkout-v2-header-actions">
+          <span>
+            {cartCount} item{cartCount === 1 ? '' : 's'}
+          </span>
+          <button
+            type="button"
+            className="checkout-cancel-btn"
+            aria-label="Cancel checkout and return to shop"
+            onClick={handleCancelCheckout}
+          >
+            Cancel &amp; Clear Cart
+          </button>
+        </div>
       </div>
       {import.meta.env.DEV && driftDebug && (
         <p className="checkout-v2-error" style={{ marginBottom: '0.75rem', color: '#10b981' }}>

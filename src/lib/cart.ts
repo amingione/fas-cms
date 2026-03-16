@@ -292,6 +292,29 @@ export function emitCartUpdated(cart: CartItem[]): void {
   }
 }
 
+/**
+ * abandonCheckout — wipes ALL checkout session state.
+ *
+ * Call this when the user clicks "Cancel Checkout" so that:
+ *  1. The local cart items in localStorage are cleared (fas_cart_v1)
+ *  2. The stale Medusa cart ID is removed (fas_medusa_cart_id)
+ *  3. A cart:changed event is dispatched so every React island re-renders to 0
+ *
+ * The Medusa cart on the server is left orphaned intentionally — Medusa auto-expires
+ * abandoned carts and there is no customer-facing reason to DELETE the server cart.
+ */
+export function abandonCheckout(): void {
+  if (!isBrowser()) return;
+  try {
+    localStorage.removeItem(CART_KEY);
+    localStorage.removeItem(MEDUSA_CART_ID_KEY);
+    emitCartUpdated([]);
+    console.info('[cart] checkout abandoned — local cart and medusa cart ID cleared');
+  } catch (err) {
+    void err;
+  }
+}
+
 export function addItem(item: CartItem): CartItem[] {
   if (!item.medusaVariantId || typeof item.medusaVariantId !== 'string') {
     throw new Error('Please select a product variant before adding this item to your cart.');

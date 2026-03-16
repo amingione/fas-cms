@@ -417,6 +417,38 @@
   letter-spacing: 0.12em;
 }
 
+/* Header right-side cluster: item count + cancel button */
+.checkout-v2-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Cancel Checkout — ghost/destructive style, unobtrusive but accessible */
+.checkout-cancel-btn {
+  background: transparent;
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  color: rgba(220, 38, 38, 0.75);
+  font-size: 0.72rem;
+  font-family: inherit;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+  line-height: 1.4;
+}
+
+.checkout-cancel-btn:hover,
+.checkout-cancel-btn:focus-visible {
+  background: rgba(220, 38, 38, 0.1);
+  border-color: rgba(220, 38, 38, 0.7);
+  color: #dc2626;
+  outline: 2px solid rgba(220, 38, 38, 0.5);
+  outline-offset: 2px;
+}
+
 .checkout-v2-shell {
   border-radius: 24px;
   overflow: visible;
