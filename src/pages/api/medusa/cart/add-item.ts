@@ -616,6 +616,15 @@ export const POST: APIRoute = async ({ request }) => {
       }, 0);
       if (addOnTotal <= 0) return null;
 
+      // If none of the selected upgrades have a medusaOptionValueId, they are
+      // metadata-only add-ons (price tracked client-side, not via Medusa variants).
+      // Skip the strict Medusa price check — Medusa won't reflect the add-on delta
+      // and the mismatch is expected. Add-on details are stored in line item metadata.
+      const hasVariantBackedAddOns = detailed.some(
+        (entry) => typeof entry?.medusaOptionValueId === 'string' && entry.medusaOptionValueId.trim()
+      );
+      if (!hasVariantBackedAddOns) return null;
+
       const explicitBasePrice = toRoundedNumber(item.basePrice);
       const cartItemPrice = toRoundedNumber(item.price);
       const cartItemExtra = toRoundedNumber(item.extra);
