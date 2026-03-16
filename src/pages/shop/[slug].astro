@@ -1162,9 +1162,10 @@ if (product) {
   const normalizedProductType = productTypeRaw.toLowerCase().replace(/[^a-z0-9]/g, '');
   metadataRequiresShipping = getRequiresShipping(product as any);
   metadataCallForQuote = getCallForShippingQuote(product as any);
+  // call_for_shipping_quote means "custom shipping pricing needed" — NOT install-only.
+  // install_only is only triggered by: explicit requires_shipping=false, service/package product types, or filter slugs.
   const computedInstallOnly =
     metadataRequiresShipping === false ||
-    metadataCallForQuote === true ||
     normalizedProductType.includes('service') ||
     normalizedProductType.includes('performancepackage') ||
     canonicalFilterSlugs.has('performancepackages') ||
