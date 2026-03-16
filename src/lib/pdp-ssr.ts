@@ -113,38 +113,45 @@ export async function resolvePdpSsrData<TProduct = any, TMedusaProduct = any>(
     };
   }
 
-  try {
-    medusaProductsForPricing = await withTimeout(
-      deps.listStoreProductsForPricing(),
-      pricingTimeoutMs,
-      'listStoreProductsForPricing'
-    );
-    const normalizedRequestedSlug = normalizeLookupSlug(slugValue, deps.normalizeSlugValue);
-    const medusaByHandle = medusaProductsForPricing.find((entry: any) => {
-      const handle = typeof entry?.handle === 'string' ? entry.handle : '';
-      const id = typeof entry?.id === 'string' ? entry.id : '';
-      return (
-        normalizeLookupSlug(handle, deps.normalizeSlugValue) === normalizedRequestedSlug ||
-        normalizeLookupSlug(id, deps.normalizeSlugValue) === normalizedRequestedSlug
-      );
-    });
-    if (medusaByHandle) {
-      product = deps.buildFallbackProduct(medusaByHandle, slugValue);
-      source = 'medusa-fallback';
-    }
-  } catch (error) {
-    logPdp('[pdp-ssr] medusa fallback failed', { ...logBase, source: 'medusa-fallback' }, error);
+  // Fetch Sanity product and Medusa pricing list concurrently.
+  // Sanity is the authoritative content source — Medusa is only used as a
+  // last-resort fallback when Sanity has no document for this slug.
+  const [sanityResult, medusaResult] = await Promise.allSettled([
+    deps.getProductBySlug(slugValue),
+    withTimeout(deps.listStoreProductsForPricing(), pricingTimeoutMs, 'listStoreProductsForPricing')
+  ]);
+
+  if (sanityResult.status === 'fulfilled' && sanityResult.value) {
+    product = sanityResult.value;
+    source = 'sanity';
+  } else if (sanityResult.status === 'rejected') {
+    logPdp('[pdp-ssr] product fetch failed', { ...logBase }, sanityResult.reason);
   }
 
-  if (!product) {
+  if (medusaResult.status === 'fulfilled') {
+    medusaProductsForPricing = medusaResult.value;
+  } else {
+    logPdp('[pdp-ssr] medusa pricing list failed', { ...logBase }, medusaResult.reason);
+  }
+
+  // Only fall back to a Medusa-derived product shell when Sanity returned nothing.
+  if (!product && medusaProductsForPricing.length) {
     try {
-      product = await deps.getProductBySlug(slugValue);
-      if (product) {
-        source = 'sanity';
+      const normalizedRequestedSlug = normalizeLookupSlug(slugValue, deps.normalizeSlugValue);
+      const medusaByHandle = medusaProductsForPricing.find((entry: any) => {
+        const handle = typeof entry?.handle === 'string' ? entry.handle : '';
+        const id = typeof entry?.id === 'string' ? entry.id : '';
+        return (
+          normalizeLookupSlug(handle, deps.normalizeSlugValue) === normalizedRequestedSlug ||
+          normalizeLookupSlug(id, deps.normalizeSlugValue) === normalizedRequestedSlug
+        );
+      });
+      if (medusaByHandle) {
+        product = deps.buildFallbackProduct(medusaByHandle, slugValue);
+        source = 'medusa-fallback';
       }
     } catch (error) {
-      logPdp('[pdp-ssr] product fetch failed', { ...logBase }, error);
-      product = null;
+      logPdp('[pdp-ssr] medusa fallback failed', { ...logBase, source: 'medusa-fallback' }, error);
     }
   }
 
