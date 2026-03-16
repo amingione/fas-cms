@@ -77,18 +77,9 @@ type NormalizedAttribute = {
   value: string;
 };
 
-const CUSTOMER_BRAND_LABEL = 'F.A.S. Motorsports';
-
-const mapCustomerFacingAttributeValue = (label: string, value: string): string => {
-  const normalizedLabel = label.trim().toLowerCase();
-  const normalizedValue = value.trim().toLowerCase();
-  const isProductTypeLabel =
-    normalizedLabel === 'type' ||
-    normalizedLabel === 'product type' ||
-    normalizedLabel === 'product_type';
-  if (isProductTypeLabel && normalizedValue === 'physical') {
-    return CUSTOMER_BRAND_LABEL;
-  }
+const mapCustomerFacingAttributeValue = (_label: string, value: string): string => {
+  // No substitutions — return the value as-is.
+  // (Previously this mapped "physical" product type to a brand label, which was incorrect.)
   return value;
 };
 

@@ -1541,7 +1541,8 @@ if (product) {
     if (medusaBrandDisplay) {
       infoTabsAttributes.push({ label: 'Brand', value: medusaBrandDisplay });
     }
-    if (medusaTypeForDisplay) {
+    // Skip generic Medusa default type "physical" — not meaningful to customers
+    if (medusaTypeForDisplay && medusaTypeForDisplay.toLowerCase() !== 'physical') {
       infoTabsAttributes.push({ label: 'Product Type', value: medusaTypeForDisplay });
     }
     if (medusaSku) {
@@ -1581,7 +1582,7 @@ if (product) {
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: requestUrl.origin },
       { '@type': 'ListItem', position: 2, name: 'Shop', item: `${requestUrl.origin}/shop` },
-      { '@type': 'ListItem', position: 3, name: seoTitle, item: seoCanon }
+      { '@type': 'ListItem', position: 3, name: displayTitle || baseProductTitle, item: seoCanon }
     ]
   };
 
@@ -1643,7 +1644,17 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
 ---
 
 {!productNotFound ? (
-  <BaseLayout title={seoTitle} description={seoDesc} canonical={seoCanon} ogImage={seoOg}>
+  <BaseLayout
+  title={seoTitle}
+  description={seoDesc}
+  canonical={seoCanon}
+  ogImage={seoOg}
+  breadcrumbs={[
+    { href: '/', label: 'Home' },
+    { href: '/shop', label: 'Shop' },
+    { label: displayTitle || baseProductTitle }
+  ]}
+>
   <Fragment slot="head">
     <meta property="og:type" content="product" />
     {typeof priceDollars === 'number' && (
