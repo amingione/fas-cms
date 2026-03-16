@@ -141,6 +141,17 @@ export default defineConfig({
   vite: {
     // Keep dev/build optimize-deps caches separate so React cannot be reused across modes.
     cacheDir: viteCacheDir,
+    // Inject a build-time constant used to bust the Sanity in-memory cache key on every
+    // new deployment — prevents warm Netlify function instances from serving stale Sanity
+    // data that was cached before a content enrichment.
+    define: {
+      __SANITY_CACHE_VERSION__: JSON.stringify(
+        process.env.DEPLOY_ID ||
+        process.env.NETLIFY_BUILD_ID ||
+        process.env.npm_package_version ||
+        String(Date.now())
+      )
+    },
     plugins: [
       dedupeNetlifyVitePlugin(),
       // Conditionally include svgr if available

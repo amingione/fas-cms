@@ -391,6 +391,13 @@ const manualCacheEnableFlag =
 export const sanityCacheEnabled =
   !manualCacheDisableFlag && manualCacheEnableFlag && !import.meta.env.DEV && !previewDraftsEnabled;
 
+// Build-time constant injected by astro.config.mjs → vite.define.
+// Changes on every Netlify deployment so warm function instances never serve
+// Sanity data that was cached before a content enrichment in a prior deploy.
+declare const __SANITY_CACHE_VERSION__: string;
+const SANITY_CACHE_VERSION: string =
+  typeof __SANITY_CACHE_VERSION__ !== 'undefined' ? __SANITY_CACHE_VERSION__ : '';
+
 const DEFAULT_SANITY_CACHE_TTL_SECONDS = parsePositiveInt(
   (import.meta.env.PUBLIC_SANITY_CACHE_TTL_SECONDS as string | undefined) || 0,
   300
@@ -1693,7 +1700,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       return serviceResult ? normalizeProductPrice(serviceResult) : null;
     };
     return cachedSanityFetch(
-      ['getProductBySlug', config.projectId, config.dataset, perspective, slugCandidates.join('|')],
+      ['getProductBySlug', config.projectId, config.dataset, perspective, slugCandidates.join('|'), SANITY_CACHE_VERSION],
       executeQuery
     );
   } catch (err) {
