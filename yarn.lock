@@ -16987,6 +16987,7 @@ __metadata:
     eslint-config-prettier: "npm:10.1.8"
     eslint-plugin-import: "npm:2.32.0"
     eslint-plugin-react: "npm:7.37.5"
+    eventsource: "npm:^4.1.0"
     express: "npm:4.22.1"
     fast-glob: "npm:3.3.3"
     flatpickr: "npm:4.6.13"

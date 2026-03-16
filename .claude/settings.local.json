@@ -24,7 +24,16 @@
       "Bash(npx astro:*)",
       "Bash(yarn lint:*)",
       "Bash(kill %1)",
-      "Bash(pkill -f \"astro dev --port 4321\")"
+      "Bash(pkill -f \"astro dev --port 4321\")",
+      "Bash(curl:*)",
+      "WebSearch",
+      "WebFetch(domain:firehose.com)",
+      "Bash(npm search:*)",
+      "Bash(npm install:*)",
+      "Bash(yarn add:*)",
+      "Bash(export FIREHOSE_MGMT_KEY=\"fhm_j44D2QQqW0RlSoFRfnZelxKkjjuORRSjOtYWhSWb\")",
+      "Bash(chmod:*)",
+      "Bash(jq:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

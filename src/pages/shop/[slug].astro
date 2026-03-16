@@ -1151,7 +1151,7 @@ if (product) {
 
   const canonicalFilterSlugs: Set<string> = new Set<string>();
   filterSlugsForFlags.forEach((value) => {
-    if (!value) return;
+    if (!value) return
     canonicalFilterSlugs.add(value);
     canonicalFilterSlugs.add(value.replace(/_/g, '-'));
     canonicalFilterSlugs.add(value.replace(/[-_]/g, ''));
