@@ -983,6 +983,13 @@ const PRODUCT_LISTING_PROJECTION = `{
     title,
     slug
   },
+  // Key features (collapsibleFeature)
+  keyFeatures[]{
+    title,
+    icon,
+    summary,
+    details[]
+  },
   // surface selection data for quick view (normalize nested choice arrays)
   options${GROQ_OPTION_OBJECT_PROJECTION},
   optionGroups${GROQ_OPTION_OBJECT_PROJECTION},
@@ -1631,6 +1638,14 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       canonicalUrl,
       noindex,
       socialImage{ asset->{ _id, url }, alt },
+
+      // --- Key Features (collapsibleFeature array) ---
+      keyFeatures[]{
+        title,
+        icon,
+        summary,
+        details[]
+      },
 
       // --- Variants/Options (support multiple shapes w/ normalized value arrays)
       options${GROQ_OPTION_OBJECT_PROJECTION},
