@@ -45,6 +45,7 @@ export const GET: APIRoute = async ({ url }) => {
   let queryError: string | null = null;
 
   if (sanity) {
+    // Note: GROQ uses count() for array length — array::length() does not exist
     const query = `*[_type == "product" && !(_id in path("drafts.**")) && slug.current == $slug][0]{
       _id,
       _updatedAt,
@@ -56,21 +57,16 @@ export const GET: APIRoute = async ({ url }) => {
       productType,
       featured,
       "shortDescType": select(
-        array::length(shortDescription) > 0 => "portableText",
+        count(shortDescription) > 0 => "portableText",
         shortDescription != null => "string",
         "null"
       ),
       "shortDescFirst": shortDescription[0].children[0].text,
-      "shortDescStr": select(
-        shortDescription._type == "block" => shortDescription.children[0].text,
-        typeof(shortDescription) == "string" => shortDescription,
-        null
-      ),
       "kfCount": count(keyFeatures),
-      "hasImportantNotes": defined(importantNotes) && array::length(importantNotes) > 0,
-      "hasAddOns": defined(addOns) && array::length(addOns) > 0,
-      "hasSpecifications": defined(specifications) && array::length(specifications) > 0,
-      "hasAttributes": defined(attributes) && array::length(attributes) > 0,
+      "hasImportantNotes": defined(importantNotes) && count(importantNotes) > 0,
+      "hasAddOns": defined(addOns) && count(addOns) > 0,
+      "hasSpecifications": defined(specifications) && count(specifications) > 0,
+      "hasAttributes": defined(attributes) && count(attributes) > 0,
       "addOnsCount": count(addOns),
       "specificationsCount": count(specifications),
       "attributesCount": count(attributes),
