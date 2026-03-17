@@ -457,24 +457,33 @@ Expected: **31/31 once Netlify deploy completes.**
 
 ---
 
-## Remaining Open Items (Not Yet Started)
+---
 
-| Priority | Item | Repo | Time Estimate |
-|----------|------|------|--------------|
-| **P1** | Cart drawer missing focus trap (WCAG 2.1.1) | fas-cms-fresh | 1 hr |
-| **P1** | Customer account order history empty (`/account/orders`) | fas-cms-fresh | 2 hr |
-| **P1** | Product search page is a stub (`/search.astro`) | fas-cms-fresh | 1 day |
-| **✅ DONE** | fas-vendors module — API routes, tier service, price lists, Sanity webhooks, event subscribers all built | fas-medusa | — |
-| **P1** | Scheduled Sanity↔Medusa reconciliation cron job | fas-medusa | 4 hr |
+## What Was Implemented — Session 4 (2026-03-16)
+
+| File | Change |
+|------|--------|
+| `fas-cms-fresh/src/scripts/user-orders-page.ts` | Full rewrite: correct field names (`totalAmount`, `amountSubtotal`, `amountShipping`), removed dead email-fallback (API is session-auth-only), TypeScript interfaces, status badges, item thumbnail row, tracking links with carrier, formatted currency/dates via Intl, empty state CTA |
+| `fas-cms-fresh/src/pages/customerdashboard/userOrders.astro` | Changed `<script is:inline>` → `<script>` so Vite compiles TS import correctly |
+| `fas-cms-fresh/src/components/cart/modal.tsx` | Added `useRef<HTMLButtonElement> closeBtnRef` + `initialFocus={closeBtnRef}` on Dialog — focus lands on × button on open (WCAG 2.1.1/4.1.2); `focus-visible:ring-2` ring + `aria-label="Close cart"` |
+| `fas-cms-fresh/netlify/functions/sanity-medusa-reconcile-cron.ts` | New Netlify cron (`0 */6 * * *`): queries Sanity for published products missing `medusaProductId`, re-triggers Medusa sync webhook with HMAC signature, 300 ms throttle, 50-product batch cap |
+| `fas-cms-fresh/tests/e2e/p1-fixes.spec.ts` | 9 new Playwright tests: order page redirect-safety, cart DOM presence, cart Escape dismiss, cron endpoint — 39/40 passing (1 correctly skipped) |
+
+---
+
+## Remaining Open Items
+
+| Priority | Item | Repo | Est |
+|----------|------|------|-----|
 | **P2** | Invoice detail dialog | fas-dash | 2 hr |
 | **P2** | Quote convert-to-order UI | fas-dash | 1 hr |
-| **P2** | Verify emailCampaign schema has recipient/schedule fields | fas-sanity | 1 hr |
-| **P2** | Product search page full implementation | fas-cms-fresh | 1 day |
-| **P2** | Complete legacy route migrations (6 remaining 301 redirects) | fas-cms-fresh | 2 hr |
+| **P2** | Verify emailCampaign schema (recipient, schedule, status fields) | fas-sanity | 1 hr |
+| **P2** | Complete legacy route 301 redirects (6 remaining) | fas-cms-fresh | 2 hr |
 | **P2** | Content completeness indicator in Sanity Studio | fas-sanity | 2 hr |
+| **P2** | Product search page (`/search.astro`) — wire to Medusa + Sanity | fas-cms-fresh | 1 day |
 | **P3** | Reports module in fas-dash | fas-dash | 2 days |
 | **P3** | 5xx investigation + Railway cold start fix | fas-medusa | 2 hr |
 | **P3** | Canonical tags on brand/collection pages | fas-cms-fresh | 1 hr |
-| **P3** | Legacy order total migration | fas-medusa | 1 hr |
+| **P3** | Legacy order total migration (88 orders with total=0) | fas-medusa | 1 hr |
 
-_Next recommended session: Cart drawer focus trap (ShoppingCart.tsx) + Customer account order history + begin fas-vendors Medusa module scaffold._
+_All P0 and P1 items are complete. Next: P2 — start with fas-dash (Invoice detail + Quote convert-to-order), then legacy redirects._
