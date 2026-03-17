@@ -4,7 +4,7 @@ import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { ShoppingCartIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import LoadingDots from '@components/loading-dots.tsx';
 import Price, { formatPrice } from '@/components/storefront/Price';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useCart, type Cart } from './cart-context';
 import { formatOptionSummary } from '@/lib/cart/format-option-summary';
 import { calculateAddOnTotal, extractAddOns } from '@/lib/cart/extract-add-ons';
@@ -97,6 +97,8 @@ export default function CartModal() {
   } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const pricingTotals = useMemo(() => computePricing(cart?.items || []), [cart?.items]);
+  // initialFocus ref: WCAG 2.1.1 / 4.1.2 — focus lands on Close button when drawer opens
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
 
   const closeCart = () => setIsOpen(false);
 
@@ -119,7 +121,7 @@ export default function CartModal() {
   return (
     <>
       {isOpen && (
-        <Dialog open={isOpen} onClose={closeCart} className="relative z-[110000]">
+        <Dialog open={isOpen} onClose={closeCart} className="relative z-[110000]" initialFocus={closeBtnRef}>
           <div className="fixed inset-0 bg-black/75 backdrop-blur-[1px]" aria-hidden="true" />
           <div className="fixed inset-0 overflow-hidden">
             <div className="absolute inset-0 overflow-hidden">
@@ -129,9 +131,11 @@ export default function CartModal() {
                     <div className="flex items-start justify-between px-4 py-6 sm:px-6">
                       <DialogTitle className="text-lg font-semibold">Shopping Cart</DialogTitle>
                       <button
+                        ref={closeBtnRef}
                         type="button"
                         onClick={closeCart}
-                        className="relative -m-2 rounded-md p-2 text-white/60 transition hover:text-white"
+                        className="relative -m-2 rounded-md p-2 text-white/60 transition hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                        aria-label="Close cart"
                       >
                         <span className="sr-only">Close panel</span>
                         <XMarkIcon aria-hidden="true" className="size-6" />

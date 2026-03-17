@@ -75,7 +75,8 @@ import RequireLogin from '../../components/RequireLogin.jsx';
         </div>
       </section>
 
-      <script is:inline type="module">
+      <!-- Astro processes this through Vite — TypeScript and module resolution work correctly -->
+      <script>
         import '../../scripts/user-orders-page.ts';
       </script>
       <script is:inline>

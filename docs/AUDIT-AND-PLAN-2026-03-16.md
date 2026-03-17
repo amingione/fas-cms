@@ -464,7 +464,7 @@ Expected: **31/31 once Netlify deploy completes.**
 | **P1** | Cart drawer missing focus trap (WCAG 2.1.1) | fas-cms-fresh | 1 hr |
 | **P1** | Customer account order history empty (`/account/orders`) | fas-cms-fresh | 2 hr |
 | **P1** | Product search page is a stub (`/search.astro`) | fas-cms-fresh | 1 day |
-| **P1** | Build fas-vendors Medusa module (fas-dash returns 503) | fas-medusa | 3 days |
+| **✅ DONE** | fas-vendors module — API routes, tier service, price lists, Sanity webhooks, event subscribers all built | fas-medusa | — |
 | **P1** | Scheduled Sanity↔Medusa reconciliation cron job | fas-medusa | 4 hr |
 | **P2** | Invoice detail dialog | fas-dash | 2 hr |
 | **P2** | Quote convert-to-order UI | fas-dash | 1 hr |
