@@ -1,5 +1,10 @@
 ---
 import OnboardingLayout from '@/layouts/OnboardingLayout.astro';
+import {
+  BUSINESS_ADDRESS_DISPLAY,
+  BUSINESS_PHONE_E164,
+  BUSINESS_PHONE_NATIONAL
+} from '@/lib/nap';
 
 const pageTitle = 'Support & Contact';
 ---
@@ -17,7 +22,9 @@ const pageTitle = 'Support & Contact';
     <div class="border border-gray-200 rounded-lg p-6 bg-white/80">
       <h3 class="text-xl font-bold mb-4 text-primary">📞 Phone Support</h3>
       <p class="text-black mb-4">Call us during business hours</p>
-      <a href="tel:8122009012" class="text-primary font-semibold text-xl"> (812) 200-9012 </a>
+      <a href={`tel:${BUSINESS_PHONE_E164}`} class="text-primary font-semibold text-xl">
+        {BUSINESS_PHONE_NATIONAL}
+      </a>
     </div>
 
     <div class="border border-gray-200 rounded-lg p-6 bg-white/80">
@@ -28,10 +35,7 @@ const pageTitle = 'Support & Contact';
 
     <div class="border border-gray-200 rounded-lg p-6 bg-white/80">
       <h3 class="text-xl font-bold mb-4 text-primary">📍 Visit Us</h3>
-      <p class="text-gray-600">
-        6161 Riverside Dr<br />
-        Punta Gorda, FL 33982
-      </p>
+      <p class="text-gray-600">{BUSINESS_ADDRESS_DISPLAY}</p>
     </div>
   </div>
 

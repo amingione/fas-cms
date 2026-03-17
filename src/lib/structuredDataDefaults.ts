@@ -1,18 +1,28 @@
+import {
+  BUSINESS_ADDRESS_COUNTRY,
+  BUSINESS_ADDRESS_LINE1,
+  BUSINESS_ADDRESS_LOCALITY,
+  BUSINESS_ADDRESS_POSTAL_CODE,
+  BUSINESS_ADDRESS_REGION,
+  BUSINESS_EMAIL,
+  BUSINESS_PHONE_E164
+} from '@lib/nap';
+
 const FALLBACK_SITE_URL = 'https://fasmotorsports.com/';
 const FALLBACK_IMAGE_URL = `${FALLBACK_SITE_URL}images/social/social-share.webp`;
 const FALLBACK_LOGO_URL = `${FALLBACK_SITE_URL}logo/fas-logo500.webp`;
 const FALLBACK_DESCRIPTION =
   'F.A.S. Motorsports delivers billet upgrades, fabrication, installs, and premium performance packages from Punta Gorda, Florida.';
-const DEFAULT_EMAIL = 'sales@fasmotorsports.com';
-const DEFAULT_PHONE = '+1-812-200-9012';
+const DEFAULT_EMAIL = BUSINESS_EMAIL;
+const DEFAULT_PHONE = BUSINESS_PHONE_E164;
 
 const BUSINESS_ADDRESS = {
   '@type': 'PostalAddress',
-  streetAddress: '6161 Riverside Dr',
-  addressLocality: 'Punta Gorda',
-  addressRegion: 'FL',
-  postalCode: '33982',
-  addressCountry: 'US'
+  streetAddress: BUSINESS_ADDRESS_LINE1,
+  addressLocality: BUSINESS_ADDRESS_LOCALITY,
+  addressRegion: BUSINESS_ADDRESS_REGION,
+  postalCode: BUSINESS_ADDRESS_POSTAL_CODE,
+  addressCountry: BUSINESS_ADDRESS_COUNTRY
 };
 
 const DEFAULT_SAME_AS = [

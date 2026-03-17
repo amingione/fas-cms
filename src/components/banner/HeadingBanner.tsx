@@ -1,5 +1,6 @@
 import img_fas_pred_pully from '@/assets/images/billetParts/fas-pred-pully.webp';
 import img_predator_pulley_fas from '@/assets/images/billetParts/predator-pulley-fas.webp';
+import { BUSINESS_PHONE_E164, BUSINESS_PHONE_NATIONAL } from '@/lib/nap';
 'use client';
 
 const FEATURE_TAGS = [
@@ -114,10 +115,10 @@ export default function HeadingBanner() {
                 <span className="text-white">
                   Call{' '}
                   <a
-                    href="tel:4076364341"
+                    href={`tel:${BUSINESS_PHONE_E164}`}
                     className="font-semibold text-primary transition hover:text-primary/80"
                   >
-                    407-636-4341
+                    {BUSINESS_PHONE_NATIONAL}
                   </a>{' '}
                   or send your worksheet to{' '}
                   <a

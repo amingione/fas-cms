@@ -3,6 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { requireVendor } from '@/server/vendor-portal/auth';
 import OnboardingNavFlyout from '@/components/vendor-portal/OnboardingNavFlyout';
 import VendorPortalFlyoutNav from '@/components/vendor-portal/VendorPortalFlyoutNav';
+import { BUSINESS_ADDRESS_DISPLAY, BUSINESS_PHONE_NATIONAL, BUSINESS_NAME } from '@/lib/nap';
 
 type OnboardingSection =
   | 'welcome'
@@ -302,7 +303,7 @@ const breadcrumbs = [
                 <p class="text-xs uppercase tracking-[0.18em] text-white/80">Onboarding Guide</p>
                 <h1 class="text-3xl font-bold leading-tight">{title}</h1>
                 <p class="mt-2 text-sm text-white/80">
-                  F.A.S. Motorsports, 6161 Riverside Dr, Punta Gorda, FL 33982 · (812) 200-9012
+                  {BUSINESS_NAME}, {BUSINESS_ADDRESS_DISPLAY} · {BUSINESS_PHONE_NATIONAL}
                 </p>
               </div>
               <div class="flex flex-col items-end gap-2 text-sm">

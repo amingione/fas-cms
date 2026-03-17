@@ -32,6 +32,8 @@ const sanityApiVersion =
 
 const sanityStudioUrl =
   process.env.PUBLIC_SANITY_STUDIO_URL || process.env.SANITY_STUDIO_URL || undefined;
+const siteUrl =
+  process.env.PUBLIC_SITE_URL || process.env.PUBLIC_BASE_URL || 'https://fasmotorsports.com';
 const isLocalDev = process.env.NODE_ENV === 'development';
 const viteCacheDir = isLocalDev ? 'node_modules/.vite/dev' : 'node_modules/.vite/build';
 
@@ -95,6 +97,7 @@ try {
 
 export default defineConfig({
   output: 'server',
+  site: siteUrl,
   adapter: netlify({
     devFeatures: {
       images: false,

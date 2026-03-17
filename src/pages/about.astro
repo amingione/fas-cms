@@ -2,6 +2,16 @@
 import { Image } from 'astro:assets';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content';
+import {
+  BUSINESS_ADDRESS_COUNTRY,
+  BUSINESS_ADDRESS_LINE1,
+  BUSINESS_ADDRESS_LOCALITY,
+  BUSINESS_ADDRESS_POSTAL_CODE,
+  BUSINESS_ADDRESS_REGION,
+  BUSINESS_EMAIL,
+  BUSINESS_NAME,
+  BUSINESS_PHONE_E164
+} from '@lib/nap';
 import { serializeJsonLd } from '@lib/utils';
 import img_frank_mingione_i from '@/assets/images/Frank-Mingione-I.webp';
 import img_frank_mingione_ii from '@/assets/images/Frank-Mingione-II.webp';
@@ -20,18 +30,20 @@ const pageDescription =
 const structuredData = {
   '@context': 'https://schema.org',
   '@type': 'AutoRepair',
-  name: 'F.A.S. Motorsports',
+  name: BUSINESS_NAME,
   url: canonical,
   logo: 'https://fasmotorsports.com/logo/fas-logo500.webp',
   image: 'https://fasmotorsports.com/images/FAS-Team-Testing-Day.webp',
   description: pageDescription,
+  telephone: BUSINESS_PHONE_E164,
+  email: BUSINESS_EMAIL,
   address: {
     '@type': 'PostalAddress',
-    streetAddress: '6161 Riverside Dr',
-    addressLocality: 'Punta Gorda',
-    addressRegion: 'FL',
-    postalCode: '33982',
-    addressCountry: 'US'
+    streetAddress: BUSINESS_ADDRESS_LINE1,
+    addressLocality: BUSINESS_ADDRESS_LOCALITY,
+    addressRegion: BUSINESS_ADDRESS_REGION,
+    postalCode: BUSINESS_ADDRESS_POSTAL_CODE,
+    addressCountry: BUSINESS_ADDRESS_COUNTRY
   },
   areaServed: ['Punta Gorda', 'Punta Gorda', 'Southwest Florida'],
   sameAs: ['https://www.facebook.com/fasmotorsports', 'https://www.instagram.com/fasmotorsports']

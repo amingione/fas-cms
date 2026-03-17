@@ -1,6 +1,17 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content.ts';
+import {
+  BUSINESS_ADDRESS_COUNTRY,
+  BUSINESS_ADDRESS_LINE1,
+  BUSINESS_ADDRESS_LOCALITY,
+  BUSINESS_ADDRESS_POSTAL_CODE,
+  BUSINESS_ADDRESS_REGION,
+  BUSINESS_EMAIL,
+  BUSINESS_PHONE_E164,
+  BUSINESS_PHONE_NATIONAL,
+  BUSINESS_NAME
+} from '@lib/nap';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import { serializeJsonLd } from '@lib/utils';
 
@@ -17,17 +28,17 @@ const pageDescription =
 const structuredData = {
   '@context': 'https://schema.org',
   '@type': 'AutoRepair',
-  name: 'F.A.S. Motorsports',
+  name: BUSINESS_NAME,
   url: canonical,
-  telephone: '(812) 200-9012',
-  email: 'sales@fasmotorsports.com',
+  telephone: BUSINESS_PHONE_E164,
+  email: BUSINESS_EMAIL,
   address: {
     '@type': 'PostalAddress',
-    streetAddress: '6161 Riverside Dr',
-    addressLocality: 'Punta Gorda',
-    addressRegion: 'FL',
-    postalCode: '33982',
-    addressCountry: 'US'
+    streetAddress: BUSINESS_ADDRESS_LINE1,
+    addressLocality: BUSINESS_ADDRESS_LOCALITY,
+    addressRegion: BUSINESS_ADDRESS_REGION,
+    postalCode: BUSINESS_ADDRESS_POSTAL_CODE,
+    addressCountry: BUSINESS_ADDRESS_COUNTRY
   },
   openingHours: ['Mo-Fr 09:00-17:00'],
   sameAs: ['https://www.facebook.com/fasmotorsports', 'https://www.instagram.com/fasmotorsports']
@@ -150,18 +161,21 @@ const structuredData = {
             >
               <h2 class="text-3xl font-ethno text-accent mb-6">Contact Info</h2>
               <p class="mb-4 text-white/60">
-                <strong class="text-primary">Phone:</strong> (812) 200-9012
+                <strong class="text-primary">Phone:</strong>
+                <a href={`tel:${BUSINESS_PHONE_E164}`} class="text-accent hover:text-primary">
+                  {BUSINESS_PHONE_NATIONAL}
+                </a>
               </p>
               <p class="mb-4 text-white/60">
                 <strong class="text-primary">Email:</strong>
-                <a href="mailto:sales@fasmotorsports.com" class="text-accent hover:text-primary"
-                  >sales@fasmotorsports.com</a
+                <a href={`mailto:${BUSINESS_EMAIL}`} class="text-accent hover:text-primary"
+                  >{BUSINESS_EMAIL}</a
                 >
               </p>
               <p class="mb-4 text-white/60">
                 <strong class="text-primary">Sales:</strong>
-                <a href="mailto:sales@fasmotorsports.com" class="text-accent hover:text-primary"
-                  >sales@fasmotorsports.com</a
+                <a href={`mailto:${BUSINESS_EMAIL}`} class="text-accent hover:text-primary"
+                  >{BUSINESS_EMAIL}</a
                 >
               </p>
               <p class="mb-4 text-white/60">

@@ -27,6 +27,157 @@
     "www.fasmotorsports.com"
   ] }
 
+# ─────────────────────────────────────────────────────────────────────────────
+# WordPress / WooCommerce legacy URL patterns (Phase 6 — remaining 6 chains)
+# These patterns were present in the old WordPress/WooCommerce site and are
+# surfaced by Google Search Console as redirect chains. All map to their
+# closest canonical Astro equivalent in a single hop.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# WordPress tag archive pages → shop (product tags no longer map 1:1)
+[[redirects]]
+  from = "/tag/:slug"
+  to = "/shop"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tag/:slug/"
+  to = "/shop"
+  status = 301
+  force = true
+
+# WordPress blog category archive → blog index
+[[redirects]]
+  from = "/category/:slug"
+  to = "/blog"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/category/:slug/"
+  to = "/blog"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/category/:cat/:slug"
+  to = "/blog"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/category/:cat/:slug/"
+  to = "/blog"
+  status = 301
+  force = true
+
+# WordPress author archive → blog index
+[[redirects]]
+  from = "/author/:slug"
+  to = "/blog"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/author/:slug/"
+  to = "/blog"
+  status = 301
+  force = true
+
+# WordPress paginated root (/?page=N, /page/N/) → homepage
+[[redirects]]
+  from = "/page/:n"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/page/:n/"
+  to = "/"
+  status = 301
+  force = true
+
+# WordPress RSS / Atom feeds → homepage (no feed in Astro build)
+[[redirects]]
+  from = "/feed"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/feed/"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/feed/:type"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/comments/feed"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/comments/feed/"
+  to = "/"
+  status = 301
+  force = true
+
+# WordPress admin / core files → 410 Gone (suppresses crawl budget waste)
+[[redirects]]
+  from = "/wp-admin"
+  to = "/account"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/wp-admin/"
+  to = "/account"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/wp-admin/:path"
+  to = "/account"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/wp-login.php"
+  to = "/account"
+  status = 301
+  force = true
+
+# WordPress static file paths → root (no longer served)
+[[redirects]]
+  from = "/wp-content/:path"
+  to = "/"
+  status = 410
+
+[[redirects]]
+  from = "/wp-includes/:path"
+  to = "/"
+  status = 410
+
+# WordPress xmlrpc / REST endpoints → gone
+[[redirects]]
+  from = "/xmlrpc.php"
+  to = "/"
+  status = 410
+
+[[redirects]]
+  from = "/wp-json/:path"
+  to = "/"
+  status = 410
+
+# ─────────────────────────────────────────────────────────────────────────────
+
 [[redirects]]
   from = "/product/2-4l-2-7l-snout-porting"
   to = "/shop/2-4l-hellcat-billet-supercharger-snout"

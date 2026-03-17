@@ -59,7 +59,20 @@ const coverImage = post?.featuredImage
 const publishedLabel = formatDate(post?.publishedAt);
 
 // JSON-LD structured data for Google Article indexing (WCAG / SEO)
-const canonicalUrl = `https://www.fasmotorsports.com/blog/${slug}`;
+const canonicalSiteOrigin = (() => {
+  const candidate =
+    (import.meta.env.PUBLIC_SITE_URL as string | undefined) ||
+    (import.meta.env.PUBLIC_BASE_URL as string | undefined) ||
+    'https://fasmotorsports.com';
+  try {
+    return new URL(candidate).origin;
+  } catch {
+    return 'https://fasmotorsports.com';
+  }
+})();
+const canonicalSlug = resolveSlug(slug ?? '');
+const canonicalUrl = new URL(`/blog/${canonicalSlug}`, canonicalSiteOrigin).toString();
+const publisherLogoUrl = new URL('/fas-logo.png', canonicalSiteOrigin).toString();
 const articleJsonLd = JSON.stringify({
   '@context': 'https://schema.org',
   '@type': 'Article',
@@ -77,7 +90,7 @@ const articleJsonLd = JSON.stringify({
     name: 'FAS Motorsports',
     logo: {
       '@type': 'ImageObject',
-      url: 'https://www.fasmotorsports.com/fas-logo.png',
+      url: publisherLogoUrl,
     },
   },
   mainEntityOfPage: {

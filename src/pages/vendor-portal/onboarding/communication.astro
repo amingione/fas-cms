@@ -1,5 +1,6 @@
 ---
 import OnboardingLayout from '@/layouts/OnboardingLayout.astro';
+import { BUSINESS_PHONE_NATIONAL } from '@/lib/nap';
 
 const pageTitle = 'Communication';
 ---
@@ -26,8 +27,7 @@ const pageTitle = 'Communication';
       <div class="rounded-lg border border-gray-200 bg-dark p-6 shadow-sm">
         <h4 class="text-lg font-bold mb-2">Primary contacts</h4>
         <p class="text-gray-400">
-          Email <strong>vendors@fasmotorsports.com</strong> or call <strong>(812) 200-9012</strong>
-          during business hours.
+          Email <strong>vendors@fasmotorsports.com</strong> or call <strong>{BUSINESS_PHONE_NATIONAL}</strong> during business hours.
         </p>
       </div>
     </div>

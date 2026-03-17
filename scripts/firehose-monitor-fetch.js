@@ -25,7 +25,9 @@ const MANAGEMENT_KEY = process.env.FIREHOSE_MANAGEMENT_KEY || 'fhm_j44D2QQqW0RlS
  * Make authenticated request to Firehose API using fetch
  */
 async function firehoseRequest(method, endpoint, data = null, baseUrl = API_CANDIDATES[0]) {
-  const url = new URL(endpoint, baseUrl);
+  const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  const normalizedEndpoint = endpoint.replace(/^\/+/, '');
+  const url = new URL(normalizedEndpoint, normalizedBase);
 
   const options = {
     method,
@@ -54,6 +56,7 @@ async function firehoseRequest(method, endpoint, data = null, baseUrl = API_CAND
     }
 
     return {
+      url: url.toString(),
       status: response.status,
       ok: response.ok,
       statusText: response.statusText,
@@ -65,6 +68,7 @@ async function firehoseRequest(method, endpoint, data = null, baseUrl = API_CAND
     return {
       status: 0,
       ok: false,
+      url: url.toString(),
       error: error.message,
       data: null,
     };
@@ -80,12 +84,18 @@ async function testConnectivity() {
   for (const baseUrl of API_CANDIDATES) {
     console.log(`Testing: ${baseUrl}`);
     const result = await firehoseRequest('GET', '/taps', null, baseUrl);
+    const contentType = result.headers?.['content-type'] || '';
+    const looksJson = contentType.includes('application/json');
 
-    if (result.ok) {
+    if (result.ok && looksJson) {
       console.log(`✓ Success! API base URL: ${baseUrl}\n`);
       return baseUrl;
     } else {
-      console.log(`✗ Failed (${result.status} ${result.statusText})\n`);
+      if (result.ok && !looksJson) {
+        console.log(`✗ Failed (non-JSON response from ${result.url})\n`);
+      } else {
+        console.log(`✗ Failed (${result.status} ${result.statusText})\n`);
+      }
     }
   }
 
@@ -131,10 +141,11 @@ async function createFASMonitoringTap(baseUrl = API_CANDIDATES[0]) {
   const response = await firehoseRequest('POST', '/taps', tapConfig, baseUrl);
 
   if (response.ok) {
+    const tap = response.data?.data || response.data;
     console.log('✓ Tap created successfully!');
-    console.log(JSON.stringify(response.data, null, 2));
+    console.log(JSON.stringify(tap, null, 2));
     console.log('');
-    return response.data;
+    return tap;
   } else {
     console.error('✗ Failed to create tap');
     console.error('Status:', response.status, response.statusText);
@@ -262,21 +273,25 @@ function streamMatches(tapId, baseUrl = API_CANDIDATES[0]) {
 async function main() {
   const command = process.argv[2] || 'help';
 
-  // First, find working API base
+  // First, find a working API base for any command that calls the API
   let apiBase = API_CANDIDATES[0];
+  const requiresApi = command !== 'help';
 
-  if (command !== 'help') {
+  if (requiresApi) {
     console.log('────────────────────────────────────────────────────────');
     console.log('Firehose Brand Monitoring - FAS Motorsports');
     console.log('────────────────────────────────────────────────────────\n');
+
+    const detectedApiBase = await testConnectivity();
+    if (!detectedApiBase) {
+      process.exit(1);
+    }
+    apiBase = detectedApiBase;
   }
 
   switch (command) {
     case 'test':
-      apiBase = await testConnectivity();
-      if (apiBase) {
-        console.log(`Use this API base for future requests: ${apiBase}`);
-      }
+      console.log(`Use this API base for future requests: ${apiBase}`);
       break;
 
     case 'list':

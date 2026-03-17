@@ -1,51 +1,17 @@
 ---
-import type { Product as SanityProduct } from '@lib/sanity-utils.ts';
+// search.astro — all filtering/data-fetching happens client-side via /api/search
+// SSR only reads the query param to pre-populate the input and set the page title.
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SearchTabsHeader from '@/components/search/SearchTabsHeader.tsx';
-import { fetchProductsFromSanity } from '@lib/sanity-utils.ts';
-import type { Product } from '@lib/sanity-utils.ts';
 
-export interface ProductCardProps {
-  product: SanityProduct;
-  productImage?: { asset?: { url?: string } } | string | null;
-  className?: string;
-}
+export const prerender = false;
 
-// Fetch products and filter them (example: you may want to filter by query or category)
-const allProducts: Product[] = await fetchProductsFromSanity({
-  categorySlug: undefined,
-  tuneSlug: undefined,
-  vehicleSlug: undefined
-});
-const filteredProducts: Product[] = allProducts.map((product) => ({
-  ...product,
-  image: (Array.isArray(product.images) && product.images[0]?.asset?.url) || ''
-}));
-
-// Apply sorting
-// Get sort parameter from URL or set default
-const url = new URL(import.meta.env.SITE + Astro.request.url);
-const currentPage = Number(url.searchParams.get('page')) || 1;
-const pageSize = 12; // Set your desired page size
-const totalPages = Math.max(1, Math.ceil(filteredProducts.length / pageSize));
-const paginationLinks: { label: string; page: number }[] = [];
-const maxVisiblePages = 5;
-const pageGroup = Math.floor((currentPage - 1) / maxVisiblePages);
-const startPage = pageGroup * maxVisiblePages + 1;
-const endPage = Math.min(startPage + maxVisiblePages - 1, totalPages);
-
-if (startPage > 1) {
-  paginationLinks.push({ label: '←', page: startPage - 1 });
-}
-for (let page = startPage; page <= endPage; page++) {
-  paginationLinks.push({ label: page.toString(), page });
-}
-if (endPage < totalPages) {
-  paginationLinks.push({ label: '→', page: endPage + 1 });
-}
+const reqUrl = new URL(Astro.request.url);
+const initialQuery = (reqUrl.searchParams.get('q') ?? '').trim();
+const pageTitle = initialQuery ? `Search: "${initialQuery}"` : 'Search';
 ---
 
-<BaseLayout>
+<BaseLayout title={pageTitle} description="Search products, services, and pages on F.A.S. Motorsports.">
   <main class="min-h-screen text-white px-4 sm:px-8 py-10">
     <h1 class="font-ethno text-2xl sm:text-3xl mb-6">Search</h1>
 
@@ -254,7 +220,7 @@ if (endPage < totalPages) {
         <div class="text-[10px] uppercase text-white/70 mb-2">${escapeHtml(badge)}</div>
         ${img ? `<div class="w-full aspect-square bg-black/10 rounded mb-3 overflow-hidden grid place-items-center"><img src="${escapeHtml(img)}" alt="" class="max-w-full max-h-full object-contain" /></div>` : ''}
         <div class="font-semibold mb-1 hover:underline line-clamp-2">${escapeHtml(title)}</div>
-        ${it._type === 'product' ? `<div class="text-white/50 text-xs uppercase mb-1">View for pricing</div>` : ''}
+        ${it._type === 'product' ? `<div class="text-xs mt-1 mb-1 font-ethno ${it.priceDisplay ? 'text-primary' : 'text-white/50'}">${escapeHtml(it.priceDisplay || 'View for pricing')}</div>` : ''}
         ${snippet ? `<p class="text-sm text-white/70 line-clamp-3">${escapeHtml(snippet)}${fullDesc.length > 120 ? '…' : ''}</p>` : ''}
       </div>`;
         if (href)
