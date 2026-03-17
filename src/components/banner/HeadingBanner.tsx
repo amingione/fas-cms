@@ -1,7 +1,6 @@
 import img_fas_pred_pully from '@/assets/images/billetParts/fas-pred-pully.webp';
 import img_predator_pulley_fas from '@/assets/images/billetParts/predator-pulley-fas.webp';
 import { BUSINESS_PHONE_E164, BUSINESS_PHONE_NATIONAL } from '@/lib/nap';
-'use client';
 
 const FEATURE_TAGS = [
   'Billet-machined',

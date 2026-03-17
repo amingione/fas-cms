@@ -73,6 +73,39 @@ This creates a tap with the Lucene query:
 
 Streams real-time matches to your terminal.
 
+### 5. Ingest Mentions into Sanity
+
+```bash
+node scripts/firehose-monitor-fetch.js ingest <tap-id>
+```
+
+Optional bounded run for validation:
+
+```bash
+node scripts/firehose-monitor-fetch.js ingest <tap-id> --max 5
+```
+
+This writes/upserts `brandMention` documents in Sanity (deduped by URL hash).
+Requires `SANITY_WRITE_TOKEN` (or `SANITY_API_TOKEN`) with write permissions.
+
+### 6. Automated Netlify Schedule
+
+Added Netlify function:
+
+`netlify/functions/firehose-brand-ingest-cron.ts`
+
+- Schedule: every 15 minutes (`*/15 * * * *`)
+- Behavior: opens Firehose SSE stream for a bounded window, upserts up to a max number of matches, exits
+- Manual trigger: `/.netlify/functions/firehose-brand-ingest-cron` (GET/POST)
+
+Config env vars:
+
+- `FIREHOSE_TAP_ID`
+- `FIREHOSE_MANAGEMENT_KEY` (or `FIREHOSE_TAP_TOKEN`)
+- `SANITY_WRITE_TOKEN` (or `SANITY_API_TOKEN`)
+- Optional: `FIREHOSE_INGEST_MAX_EVENTS` (default `25`)
+- Optional: `FIREHOSE_INGEST_WINDOW_MS` (default `45000`)
+
 ## What I've Created for You
 
 ### Scripts

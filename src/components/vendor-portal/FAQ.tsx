@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { BUSINESS_PHONE_NATIONAL } from '@/lib/nap';
 
 type FAQItem = {
   category: string;
@@ -64,7 +65,7 @@ const faqs: FAQItem[] = [
     category: 'Support',
     question: 'Where do I get live help?',
     answer:
-      'Email vendors@fasmotorsports.com or call (812) 200-9012 during business hours.'
+      `Email vendors@fasmotorsports.com or call ${BUSINESS_PHONE_NATIONAL} during business hours.`
   }
 ];
 

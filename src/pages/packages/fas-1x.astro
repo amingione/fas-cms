@@ -2,6 +2,7 @@
 export const prerender = true;
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { BUSINESS_PHONE_E164, BUSINESS_PHONE_NATIONAL } from '@/lib/nap';
 
 const included = [
   { name: 'Complete FAS1000 Foundation', detail: 'Race ported supercharger, 108mm throttle body, upgraded fuel system, and longtube headers from the FAS1000 build — all carried forward as the platform baseline.' },
@@ -65,7 +66,7 @@ const faqs = [
         the FAS racing heritage shows up in your build.
       </p>
       <div class="pkg-hero__cta-row">
-        <a href="tel:+18122009012" class="btn-pkg-primary btn-pkg-primary--elite">Call to Consult</a>
+        <a href={`tel:${BUSINESS_PHONE_E164}`} class="btn-pkg-primary btn-pkg-primary--elite">Call to Consult</a>
         <a href="mailto:sales@fasmotorsports.com" class="btn-pkg-ghost">Email FAS</a>
       </div>
       <p class="pkg-hero__pricing-note">Pricing by consultation. Contact FAS to scope your 1X build.</p>
@@ -178,7 +179,7 @@ const faqs = [
       <h2 class="pkg-cta-final__heading" id="cta-heading">1200–1500 HP Starts with a Call.</h2>
       <p class="pkg-cta-final__sub">The FAS 1X is built to your specs. Consult with FAS before ordering — we scope every 1X build individually to match your platform, goals, and fuel strategy.</p>
       <div class="pkg-cta-final__row">
-        <a href="tel:+18122009012" class="btn-pkg-primary btn-pkg-primary--large btn-pkg-primary--elite">Call (812) 200-9012</a>
+        <a href={`tel:${BUSINESS_PHONE_E164}`} class="btn-pkg-primary btn-pkg-primary--large btn-pkg-primary--elite">Call {BUSINESS_PHONE_NATIONAL}</a>
         <a href="mailto:sales@fasmotorsports.com" class="btn-pkg-ghost">Email sales@fasmotorsports.com</a>
       </div>
       <address class="pkg-cta-final__address">

@@ -54,7 +54,14 @@ test.describe('Product slug pages', () => {
     const links = await page.locator('a[href^="/shop/"]').evaluateAll((els) =>
       els
         .map((el) => el.getAttribute('href'))
-        .filter((href): href is string => Boolean(href) && !href.includes('/categories') && !href.includes('/filters') && !href.includes('/sale'))
+        .filter((href): href is string => {
+          if (typeof href !== 'string') return false;
+          return (
+            !href.includes('/categories') &&
+            !href.includes('/filters') &&
+            !href.includes('/sale')
+          );
+        })
         .slice(0, 5)
     );
     if (links.length > 0) {

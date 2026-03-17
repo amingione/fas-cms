@@ -119,6 +119,34 @@ try {
         margin-bottom: 3rem;
       }
 
+      #order-number-display {
+        padding: 1rem;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 1rem;
+        min-height: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #order-number-display.loaded {
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid #22c55e;
+        color: #22c55e;
+      }
+
+      #order-number-display.error {
+        background: rgba(220, 38, 38, 0.1);
+        border: 1px solid #dc2626;
+        color: #ccc;
+      }
+
+      .order-number-label {
+        font-weight: 600;
+        font-size: 1.25rem;
+      }
+
       .info-box {
         background: #0a0a0a;
         border: 1px solid #1a1a1a;
@@ -262,6 +290,11 @@ try {
         A confirmation email has been sent to {orderDetails.customerEmail}
       </p>
 
+      <!-- Order Number Display -->
+      <div id="order-number-display" aria-live="polite">
+        <!-- Will be populated by client-side script -->
+      </div>
+
       <!-- Order Summary -->
       <div class="info-box">
         <h2>Order Summary</h2>
@@ -353,17 +386,59 @@ try {
     <!--
       Clear all checkout state (local cart items + Medusa cart ID) after a
       successful order so returning to /checkout starts a completely fresh session.
-      Uses inline script to avoid any module bundler latency on this critical path.
+      Also fetch and display the Medusa order ID from the payment intent.
     -->
     <script>
-      try {
-        window.localStorage.removeItem('fas_cart_v1');
-        window.localStorage.removeItem('fas_medusa_cart_id');
-        // Notify any mounted cart islands that the cart is now empty
-        window.dispatchEvent(new CustomEvent('cart:changed', { detail: { cart: { items: [] } } }));
-      } catch (_) {
-        // localStorage may be unavailable in private browsing — silently ignore
-      }
+      (async () => {
+        try {
+          // Clear checkout state
+          window.localStorage.removeItem('fas_cart_v1');
+          window.localStorage.removeItem('fas_medusa_cart_id');
+          // Notify any mounted cart islands that the cart is now empty
+          window.dispatchEvent(new CustomEvent('cart:changed', { detail: { cart: { items: [] } } }));
+        } catch (_) {
+          // localStorage may be unavailable in private browsing — silently ignore
+        }
+
+        // Fetch and display the order number from Medusa
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const paymentIntentId = params.get('payment_intent');
+
+          if (!paymentIntentId) {
+            console.warn('[confirmation] No payment_intent in URL');
+            return;
+          }
+
+          const displayDiv = document.getElementById('order-number-display');
+          if (!displayDiv) return;
+
+          // Attempt to fetch order by payment intent ID
+          const response = await fetch(`/api/orders/by-payment-intent?id=${encodeURIComponent(paymentIntentId)}`);
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data.displayId) {
+              displayDiv.classList.add('loaded');
+              displayDiv.innerHTML = `<span class="order-number-label">Order #${data.displayId}</span>`;
+            } else {
+              displayDiv.classList.add('error');
+              displayDiv.innerHTML = 'Order received — check your email for confirmation';
+            }
+          } else {
+            // 404 or error — order not yet available or not found
+            displayDiv.classList.add('error');
+            displayDiv.innerHTML = 'Order received — check your email for confirmation';
+          }
+        } catch (err) {
+          console.error('[confirmation] Failed to fetch order ID:', err);
+          const displayDiv = document.getElementById('order-number-display');
+          if (displayDiv) {
+            displayDiv.classList.add('error');
+            displayDiv.innerHTML = 'Order received — check your email for confirmation';
+          }
+        }
+      })();
     </script>
   </body>
 </html>

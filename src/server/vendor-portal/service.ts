@@ -161,7 +161,7 @@ export async function completeInvitation({
     ? vendor.portalAccess.permissions.map((p: any) => String(p || '').toLowerCase())
     : DEFAULT_VENDOR_PERMISSIONS;
   const vendorEmail = resolveVendorPortalEmail(vendor);
-  setSession(headers, { id: vendor._id, email: vendorEmail, roles }, { expiresIn: '7d' });
+  setSession(headers, { id: vendor._id, email: vendorEmail, roles }, { expiresIn: 60 * 60 * 24 * 30 });
 
   return jsonResponse(
     {

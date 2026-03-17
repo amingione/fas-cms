@@ -65,6 +65,36 @@ Snippet: FAS Motorsports announced today...
 
 Press `Ctrl+C` to stop streaming.
 
+### Ingest Mentions into Sanity
+
+Stream matches and upsert them into Sanity as `brandMention` documents:
+
+```bash
+node scripts/firehose-monitor-fetch.js ingest <tap-id>
+```
+
+Use `--max` for a bounded test run:
+
+```bash
+node scripts/firehose-monitor-fetch.js ingest <tap-id> --max 5
+```
+
+If `<tap-id>` is omitted, the script uses `FIREHOSE_TAP_ID` from `.env`.
+For Sanity writes, set `SANITY_WRITE_TOKEN` (or `SANITY_API_TOKEN`) with create/update permissions.
+
+### Automated Schedule (Netlify)
+
+A scheduled Netlify function is included:
+
+- File: `netlify/functions/firehose-brand-ingest-cron.ts`
+- Schedule: every 15 minutes
+- Manual trigger endpoint: `/.netlify/functions/firehose-brand-ingest-cron`
+
+Env controls:
+
+- `FIREHOSE_INGEST_MAX_EVENTS` (default `25`)
+- `FIREHOSE_INGEST_WINDOW_MS` (default `45000`)
+
 ## Query Syntax
 
 The monitoring uses Lucene query syntax. Key patterns:
@@ -112,20 +142,7 @@ url:"/products/*"
 
 ### 1. Sanity CMS Storage
 
-Store mentions in Sanity for content team review:
-
-```javascript
-// In the onmessage handler
-const sanityClient = require('@sanity/client');
-await sanityClient.create({
-  _type: 'brandMention',
-  url: match.url,
-  title: match.title,
-  domain: match.domain,
-  detectedAt: new Date().toISOString(),
-  source: 'firehose',
-});
-```
+Use `ingest` mode (above). It deduplicates by URL hash and updates `seenCount`/`lastDetectedAt`.
 
 ### 2. SEO Engine Integration
 
@@ -158,9 +175,9 @@ const competitorQuery = '"Competitor Motors" OR "competitor.com"';
 ## Next Steps
 
 1. **Create your first tap**: `node scripts/firehose-monitor.js create`
-2. **Start monitoring**: Use the tap ID from step 1
-3. **Customize queries**: Edit `firehose-monitor.js` to refine your Lucene queries
-4. **Add integrations**: Connect to Sanity, SEO Engine, or notification systems
+2. **Start ingestion**: `node scripts/firehose-monitor-fetch.js ingest <tap-id>`
+3. **Customize queries**: Edit `firehose-monitor-fetch.js` to refine your Lucene queries
+4. **Add notifications/reporting**: Slack, email, or dashboards using Sanity data
 
 ## Resources
 

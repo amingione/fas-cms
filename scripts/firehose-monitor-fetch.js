@@ -5,8 +5,10 @@
 
 import * as EventSourceModule from 'eventsource';
 import { config } from 'dotenv';
+import {createClient} from '@sanity/client';
+import {createHash} from 'node:crypto';
 
-const EventSource = EventSourceModule.default || EventSourceModule;
+const EventSource = EventSourceModule.EventSource || EventSourceModule.default || EventSourceModule;
 
 // Load environment variables
 config();
@@ -20,6 +22,14 @@ const API_CANDIDATES = [
 ];
 
 const MANAGEMENT_KEY = process.env.FIREHOSE_MANAGEMENT_KEY || 'fhm_j44D2QQqW0RlSoFRfnZelxKkjjuORRSjOtYWhSWb';
+const DEFAULT_TAP_ID = process.env.FIREHOSE_TAP_ID || '';
+const SANITY_PROJECT_ID =
+  process.env.SANITY_PROJECT_ID || process.env.PUBLIC_SANITY_PROJECT_ID || 'r4og35qd';
+const SANITY_DATASET =
+  process.env.SANITY_DATASET || process.env.PUBLIC_SANITY_DATASET || 'production';
+const SANITY_API_VERSION = process.env.SANITY_API_VERSION || '2024-10-01';
+const SANITY_API_TOKEN = process.env.SANITY_API_TOKEN || '';
+const SANITY_WRITE_TOKEN = process.env.SANITY_WRITE_TOKEN || SANITY_API_TOKEN;
 
 /**
  * Make authenticated request to Firehose API using fetch
@@ -42,36 +52,49 @@ async function firehoseRequest(method, endpoint, data = null, baseUrl = API_CAND
     options.body = JSON.stringify(data);
   }
 
-  try {
-    console.log(`→ ${method} ${url.toString()}`);
-    const response = await fetch(url.toString(), options);
+  const maxAttempts = 3;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      if (attempt === 1) {
+        console.log(`→ ${method} ${url.toString()}`);
+      } else {
+        console.log(`↻ Retry ${attempt}/${maxAttempts}: ${method} ${url.toString()}`);
+      }
 
-    const contentType = response.headers.get('content-type');
-    let responseData;
+      const response = await fetch(url.toString(), options);
 
-    if (contentType && contentType.includes('application/json')) {
-      responseData = await response.json();
-    } else {
-      responseData = await response.text();
+      const contentType = response.headers.get('content-type');
+      let responseData;
+
+      if (contentType && contentType.includes('application/json')) {
+        responseData = await response.json();
+      } else {
+        responseData = await response.text();
+      }
+
+      return {
+        url: url.toString(),
+        status: response.status,
+        ok: response.ok,
+        statusText: response.statusText,
+        data: responseData,
+        headers: Object.fromEntries(response.headers.entries()),
+      };
+    } catch (error) {
+      const code = error?.cause?.code || '';
+      const retryable = code === 'ECONNRESET' || code === 'ETIMEDOUT' || code === 'ENOTFOUND';
+      console.error(`✗ Request failed: ${error.message}${code ? ` (${code})` : ''}`);
+      if (!retryable || attempt === maxAttempts) {
+        return {
+          status: 0,
+          ok: false,
+          url: url.toString(),
+          error: error.message,
+          data: null,
+        };
+      }
+      await new Promise((resolve) => setTimeout(resolve, attempt * 500));
     }
-
-    return {
-      url: url.toString(),
-      status: response.status,
-      ok: response.ok,
-      statusText: response.statusText,
-      data: responseData,
-      headers: Object.fromEntries(response.headers.entries()),
-    };
-  } catch (error) {
-    console.error(`✗ Request failed: ${error.message}`);
-    return {
-      status: 0,
-      ok: false,
-      url: url.toString(),
-      error: error.message,
-      data: null,
-    };
   }
 }
 
@@ -267,6 +290,167 @@ function streamMatches(tapId, baseUrl = API_CANDIDATES[0]) {
   console.log('Press Ctrl+C to stop monitoring\n');
 }
 
+function normalizeUrl(value) {
+  if (!value || typeof value !== 'string') return '';
+  return value.trim().toLowerCase();
+}
+
+function makeMentionId(match) {
+  const canonicalKey = normalizeUrl(match?.url) || JSON.stringify(match);
+  const hash = createHash('sha1').update(canonicalKey).digest('hex').slice(0, 24);
+  return `brandMention-${hash}`;
+}
+
+function toBrandMentionDoc(match, tapId, mentionId, nowIso) {
+  const url = typeof match?.url === 'string' ? match.url : '';
+  const title = typeof match?.title === 'string' ? match.title : '';
+  const domain = typeof match?.domain === 'string' ? match.domain : '';
+  const publishedAt =
+    (typeof match?.publish_time === 'string' && match.publish_time) ||
+    (typeof match?.published === 'string' && match.published) ||
+    null;
+  const snippet =
+    (typeof match?.snippet === 'string' && match.snippet) ||
+    (typeof match?.added === 'string' && match.added) ||
+    '';
+
+  return {
+    _id: mentionId,
+    _type: 'brandMention',
+    source: 'firehose',
+    sourceTapId: tapId,
+    url,
+    title,
+    domain,
+    snippet,
+    language: typeof match?.language === 'string' ? match.language : '',
+    pageType: typeof match?.page_type === 'string' ? match.page_type : '',
+    pageCategory: typeof match?.page_category === 'string' ? match.page_category : '',
+    publishedAt,
+    firstDetectedAt: nowIso,
+    lastDetectedAt: nowIso,
+    seenCount: 0,
+    rawPayload: JSON.stringify(match),
+    readOnly: true,
+  };
+}
+
+function createSanityWriteClient() {
+  if (!SANITY_WRITE_TOKEN) {
+    throw new Error('Missing SANITY_WRITE_TOKEN (or SANITY_API_TOKEN) for Firehose ingestion.');
+  }
+  return createClient({
+    projectId: SANITY_PROJECT_ID,
+    dataset: SANITY_DATASET,
+    apiVersion: SANITY_API_VERSION,
+    token: SANITY_WRITE_TOKEN,
+    useCdn: false,
+  });
+}
+
+async function upsertBrandMention(client, match, tapId) {
+  const nowIso = new Date().toISOString();
+  const mentionId = makeMentionId(match);
+  const baseDoc = toBrandMentionDoc(match, tapId, mentionId, nowIso);
+
+  try {
+    await client
+      .transaction()
+      .createIfNotExists(baseDoc)
+      .patch(mentionId, (patch) =>
+        patch
+          .set({
+            title: baseDoc.title,
+            domain: baseDoc.domain,
+            snippet: baseDoc.snippet,
+            language: baseDoc.language,
+            pageType: baseDoc.pageType,
+            pageCategory: baseDoc.pageCategory,
+            publishedAt: baseDoc.publishedAt,
+            lastDetectedAt: nowIso,
+            rawPayload: baseDoc.rawPayload,
+          })
+          .inc({seenCount: 1})
+      )
+      .commit();
+  } catch (error) {
+    if (error?.statusCode === 403) {
+      throw new Error(
+        'Sanity write denied (403). Use a token with create/update permissions (set SANITY_WRITE_TOKEN).'
+      );
+    }
+    throw error;
+  }
+
+  return mentionId;
+}
+
+function streamAndIngestMatches(tapId, baseUrl = API_CANDIDATES[0], maxMatches = 0) {
+  const sanity = createSanityWriteClient();
+  const streamUrl = `${baseUrl}/stream/${tapId}`;
+  let received = 0;
+  let stored = 0;
+  let failed = 0;
+
+  console.log(`Connecting to SSE stream for tap ${tapId}...\n`);
+  console.log(`Stream URL: ${streamUrl}`);
+  console.log(`Sanity target: ${SANITY_PROJECT_ID}/${SANITY_DATASET}`);
+  if (maxMatches > 0) {
+    console.log(`Auto-stop after ${maxMatches} matches.`);
+  }
+  console.log('');
+
+  const eventSource = new EventSource(streamUrl, {
+    headers: {
+      Authorization: `Bearer ${MANAGEMENT_KEY}`,
+    },
+  });
+
+  const closeWithSummary = (code = 0) => {
+    eventSource.close();
+    console.log('\n──────────────────────────────────────────');
+    console.log('Ingestion summary');
+    console.log('──────────────────────────────────────────');
+    console.log(`Received: ${received}`);
+    console.log(`Stored:   ${stored}`);
+    console.log(`Failed:   ${failed}`);
+    process.exit(code);
+  };
+
+  eventSource.onopen = () => {
+    console.log('✓ Connected to Firehose stream');
+    console.log('Streaming + writing mentions into Sanity...\n');
+  };
+
+  eventSource.onmessage = async (event) => {
+    received += 1;
+    try {
+      const match = JSON.parse(event.data);
+      const mentionId = await upsertBrandMention(sanity, match, tapId);
+      stored += 1;
+      console.log(`✓ [${stored}] ${match.url || 'N/A'} -> ${mentionId}`);
+    } catch (error) {
+      failed += 1;
+      console.error(`✗ [${received}] ingest failed: ${error.message}`);
+    }
+
+    if (maxMatches > 0 && received >= maxMatches) {
+      closeWithSummary(0);
+    }
+  };
+
+  eventSource.onerror = (error) => {
+    console.error('✗ Stream error:', error.message || error);
+    closeWithSummary(1);
+  };
+
+  process.on('SIGINT', () => {
+    closeWithSummary(0);
+  });
+
+  console.log('Press Ctrl+C to stop ingestion\n');
+}
+
 /**
  * Main execution
  */
@@ -331,6 +515,21 @@ async function main() {
       streamMatches(streamTapId, apiBase);
       break;
 
+    case 'ingest':
+      const ingestTapId = process.argv[3] || DEFAULT_TAP_ID;
+      if (!ingestTapId) {
+        console.error('Error: Tap ID required for ingestion');
+        console.log('Usage: node scripts/firehose-monitor-fetch.js ingest <tap-id> [--max N]');
+        process.exit(1);
+      }
+      const maxFlagIndex = process.argv.indexOf('--max');
+      let maxMatches = 0;
+      if (maxFlagIndex > -1 && process.argv[maxFlagIndex + 1]) {
+        maxMatches = Number(process.argv[maxFlagIndex + 1]) || 0;
+      }
+      streamAndIngestMatches(ingestTapId, apiBase, maxMatches);
+      break;
+
     case 'help':
     default:
       console.log('Firehose Brand Monitoring - FAS Motorsports\n');
@@ -342,13 +541,16 @@ async function main() {
       console.log('  list              List all existing taps');
       console.log('  details <tap-id>  Get details for a specific tap');
       console.log('  stream <tap-id>   Connect to SSE stream and monitor matches');
+      console.log('  ingest <tap-id>   Stream matches and upsert them into Sanity');
       console.log('  help              Show this help message\n');
       console.log('Examples:');
       console.log('  node scripts/firehose-monitor-fetch.js test');
       console.log('  node scripts/firehose-monitor-fetch.js create');
-      console.log('  node scripts/firehose-monitor-fetch.js stream abc123\n');
+      console.log('  node scripts/firehose-monitor-fetch.js stream abc123');
+      console.log('  node scripts/firehose-monitor-fetch.js ingest abc123 --max 5\n');
       console.log('Environment:');
-      console.log(`  FIREHOSE_MANAGEMENT_KEY: ${MANAGEMENT_KEY ? '✓ Set' : '✗ Not set'}\n`);
+      console.log(`  FIREHOSE_MANAGEMENT_KEY: ${MANAGEMENT_KEY ? '✓ Set' : '✗ Not set'}`);
+      console.log(`  SANITY_WRITE_TOKEN: ${SANITY_WRITE_TOKEN ? '✓ Set' : '✗ Not set'}\n`);
   }
 }
 

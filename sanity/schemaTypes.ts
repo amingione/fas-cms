@@ -8,6 +8,7 @@ import vendorMessage from './schemas/vendorMessage';
 import vendorNotification from './schemas/vendorNotification';
 import vendorDocument from './schemas/vendorDocument';
 import vendorReturn from './schemas/vendorReturn';
+import brandMention from './schemas/brandMention';
 
 // Export Sanity schema types from the local schemas directory.
 export const schemaTypes = [
@@ -20,5 +21,6 @@ export const schemaTypes = [
   vendorMessage,
   vendorNotification,
   vendorDocument,
-  vendorReturn
+  vendorReturn,
+  brandMention
 ];

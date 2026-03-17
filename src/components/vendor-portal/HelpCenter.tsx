@@ -1,4 +1,5 @@
 import React from 'react';
+import { BUSINESS_PHONE_NATIONAL } from '@/lib/nap';
 
 type FAQ = { question: string; answer: string };
 
@@ -15,7 +16,7 @@ const HelpCenter: React.FC<{ faqs: FAQ[] }> = ({ faqs }) => {
         ))}
       </div>
       <div className="rounded-lg border border-white/10 bg-white/5 p-4 text-sm text-white/70">
-        Need more help? Email vendors@fasmotorsports.com or call (812) 200-9012 during business hours.
+        Need more help? Email vendors@fasmotorsports.com or call {BUSINESS_PHONE_NATIONAL} during business hours.
       </div>
     </div>
   );

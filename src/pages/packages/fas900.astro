@@ -2,6 +2,7 @@
 export const prerender = true;
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { BUSINESS_PHONE_E164, BUSINESS_PHONE_NATIONAL } from '@/lib/nap';
 
 const variants = [
   { platform: 'Charger & Challenger', price: '$9,999.00', slug: 'fas-900-package', note: 'Hellcat Platform' },
@@ -254,7 +255,7 @@ const faqs = [
       <p class="pkg-cta-final__sub">The FAS900 is $9,999 across all Hellcat platforms. Verified on our in-house dyno. Every car. Every time.</p>
       <div class="pkg-cta-final__row">
         <a href="/shop/fas-900-package" class="btn-pkg-primary btn-pkg-primary--large">Order the FAS900</a>
-        <a href="tel:+18122009012" class="btn-pkg-ghost">Call (812) 200-9012</a>
+        <a href={`tel:${BUSINESS_PHONE_E164}`} class="btn-pkg-ghost">Call {BUSINESS_PHONE_NATIONAL}</a>
       </div>
       <address class="pkg-cta-final__address">
         F.A.S. Motorsports · 6161 Riverside Dr, Punta Gorda, FL 33982 · Mon–Fri 9AM–5PM
