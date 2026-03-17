@@ -4,6 +4,7 @@ import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content.ts';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import ProductSpecSheet from '@components/specs/ProductSpecSheet.astro';
 import { serializeJsonLd } from '@lib/utils';
+import { buildOfferFromCtaHref } from '@/lib/structured-data-offers';
 
 // Backed by content/pages/BilletThrottleBody108Specs.json
 const pageDoc: any = await loadPageDoc('BilletThrottleBody108Specs');
@@ -45,6 +46,7 @@ const ensureAbsolute = (path?: string | null) => {
     return undefined;
   }
 };
+const schemaOffer = await buildOfferFromCtaHref(specSheet.ctaHref, canonical);
 
 const structuredData = {
   '@context': 'https://schema.org',
@@ -55,6 +57,7 @@ const structuredData = {
   image: ensureAbsolute(specSheet.imageSrc),
   brand: { '@type': 'Brand', name: 'F.A.S. Motorsports' },
   category: 'Intake Components',
+  offers: schemaOffer,
   additionalProperty: specSheet.specs.map((spec) => ({
     '@type': 'PropertyValue',
     name: spec.label,

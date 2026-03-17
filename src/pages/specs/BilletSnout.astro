@@ -4,6 +4,7 @@ import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content.ts';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import ProductSpecSheet from '@components/specs/ProductSpecSheet.astro';
 import { serializeJsonLd } from '@lib/utils';
+import { buildOfferFromCtaHref } from '@/lib/structured-data-offers';
 
 const pageDoc: any = await loadPageDoc('BilletSnoutSpecs');
 
@@ -97,6 +98,20 @@ const ensureAbsolute = (path?: string | null) => {
 };
 
 const primaryImage = ensureAbsolute(variants[0]?.imageSrc);
+const offersByVariantId = new Map<string, Awaited<ReturnType<typeof buildOfferFromCtaHref>>>(
+  await Promise.all(
+    variants.map(
+      async (variant): Promise<[string, Awaited<ReturnType<typeof buildOfferFromCtaHref>>]> => {
+        const offer = await buildOfferFromCtaHref(
+          variant.ctaHref,
+          variant.ctaHref ? ensureAbsolute(variant.ctaHref) ?? canonical : canonical
+        );
+        return [variant.id, offer];
+      }
+    )
+  )
+);
+
 const structuredData = {
   '@context': 'https://schema.org',
   '@type': 'ItemList',
@@ -114,6 +129,7 @@ const structuredData = {
       image: ensureAbsolute(variant.imageSrc),
       brand: { '@type': 'Brand', name: 'F.A.S. Motorsports' },
       category: 'Supercharger Components',
+      offers: offersByVariantId.get(variant.id),
       additionalProperty: variant.specs.map((spec) => ({
         '@type': 'PropertyValue',
         name: spec.label,

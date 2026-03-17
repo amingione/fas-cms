@@ -5,6 +5,7 @@ import SectionRenderer from '@/components/SectionRenderer.astro';
 const pageDoc: any = await loadPageDoc('HellcatPulleyHubSpecSheet');
 import ProductSpecSheet from '@components/specs/ProductSpecSheet.astro';
 import { serializeJsonLd } from '@lib/utils';
+import { buildOfferFromCtaHref } from '@/lib/structured-data-offers';
 
 const pageTitle: string = pageDoc?.title ?? 'Pulley & Hub Kit — Spec Sheet';
 const pageDescription =
@@ -46,6 +47,7 @@ const ensureAbsolute = (path?: string | null) => {
     return undefined;
   }
 };
+const schemaOffer = await buildOfferFromCtaHref(specSheet.ctaHref, canonical);
 
 const structuredData = {
   '@context': 'https://schema.org',
@@ -60,6 +62,7 @@ const structuredData = {
     '@type': 'PeopleAudience',
     audienceType: 'Hellcat/Redeye/Demon/TRX owners'
   },
+  offers: schemaOffer,
   additionalProperty: specSheet.specs.map((spec) => ({
     '@type': 'PropertyValue',
     name: spec.label,
