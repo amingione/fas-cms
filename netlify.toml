@@ -24,6 +24,7 @@
   conditions = { Host = [
     "fasmotorsports.us",
     "www.fasmotorsports.us",
+    "fas.fasmotorsports.com",
     "www.fasmotorsports.com"
   ] }
 

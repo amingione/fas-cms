@@ -219,6 +219,17 @@ const homepageFaqStructuredData = {
     }
   }))
 };
+
+const crawlSupportLinks = [
+  { href: '/services/overview', label: 'All Service Programs' },
+  { href: '/services/porting', label: 'Porting Services' },
+  { href: '/services/customFab', label: 'Custom Fabrication' },
+  { href: '/packages/powerPackages', label: 'Power Packages' },
+  { href: '/builds/challenger', label: 'Hellcat Builds' },
+  { href: '/builds/trx', label: 'TRX Builds' },
+  { href: '/builds/trackhawk', label: 'Trackhawk Builds' },
+  { href: '/shop', label: 'Shop Performance Parts' }
+];
 ---
 
 <BaseLayout
@@ -265,6 +276,28 @@ const homepageFaqStructuredData = {
     <PowerPackages />
     <CustomFabricationSection />
     <ServicesStrip />
+    <section class="mx-auto w-[min(96vw,1200px)] px-4 pb-8">
+      <div class="rounded-2xl border border-white/10 bg-black/40 p-6 md:p-8">
+        <p class="mb-3 text-xs font-semibold uppercase tracking-[0.28em] text-red-400">
+          Explore Platform Hubs
+        </p>
+        <h2 class="mb-4 font-ethno text-2xl text-white md:text-3xl">
+          Jump into the exact services and platforms you’re researching.
+        </h2>
+        <div class="flex flex-wrap gap-3">
+          {
+            crawlSupportLinks.map((link) => (
+              <a
+                href={link.href}
+                class="rounded-full border border-white/20 px-4 py-2 text-xs uppercase tracking-[0.12em] text-white/80 transition hover:border-red-500/60 hover:text-white"
+              >
+                {link.label}
+              </a>
+            ))
+          }
+        </div>
+      </div>
+    </section>
     <VendorWholesaleSection />
 
     <HomepageFooter />
