@@ -33,6 +33,7 @@ PDP -> canonical cart -> Medusa cart -> PaymentIntent -> Stripe webhook -> Medus
 - `docs/governance/commerce-authority-checklist.md`
 - `docs/architecture/canonical-commerce-architecture.md`
 - `docs/architecture/migration-status.md`
+- `docs/SEO/AHREFS_ANALYTICS_INSTALLATION.md`
 
 ## Commands
 Use existing scripts in `package.json`.
