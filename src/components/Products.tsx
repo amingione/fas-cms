@@ -25,7 +25,7 @@ export function Products() {
       id: 1,
       name: '2.4L Billet Bearing Plate',
       description:
-        'Delivers 2+PSI average gains (50-100whp) & eliminates weak points found in factory cast plates.',
+        'Billet replacement designed to address common factory cast plate limitations in high-demand setups.',
       image: '/images/billetParts/billet-bearing-plate.webp',
       popular: false,
       specHref: '/specs/BilletBearingPlate'
@@ -34,7 +34,7 @@ export function Products() {
       id: 2,
       name: 'Hellcat Pulley & Hub Kit',
       description:
-        'Built for easy swaps and maximum reliability. Grip coated billet aluminum offered in multiple sizes!',
+        'Service-friendly hub and pulley system with multiple sizing options for configuration-based setups.',
       image: '/images/billetParts/FAS-Pulley-Hub-Kit.webp',
       popular: false,
       specHref: '/specs/PulleyHub'
@@ -43,7 +43,7 @@ export function Products() {
       id: 3,
       name: 'Predator Pulley Lower Pulley',
       description:
-        'FAS “PREDATOR” Slip On Lower Pulley delivers 1.5-5psi gain depending on your pulley choice!',
+        'Lower pulley solution used to support target boost strategy when matched with the correct upper combination.',
       image: '/images/billetParts/fas-pred-pully.webp',
       popular: false,
       specHref: '/specs/PredatorPulley'
@@ -52,7 +52,7 @@ export function Products() {
       id: 4,
       name: 'Billet Supercharger Lid',
       description:
-        'CNC‑machined billet lid engineered to enhance airflow and boost efficiency. Fits all 2.4L & 3.0L IHI Hellcat Superchargers.',
+        'CNC-machined lid for 2.4L and 3.0L IHI Hellcat superchargers, built for fitment consistency and airflow support.',
       image: '/images/billetParts/HC-Billet-SC-Lid.webp',
       popular: false,
       specHref: '/specs/BilletLid'
@@ -61,7 +61,7 @@ export function Products() {
       id: 5,
       name: 'Billet Snout',
       description:
-        'Lightweight, 108mm inlet for maximum airflow, outperforming any ported OEM snout.',
+        'Billet snout with 108mm inlet designed for high-airflow configurations and precise fitment.',
       image: '/images/snouts/FAS-Billet-Snout-Front.webp',
       popular: false,
       specHref: '/specs/BilletSnout'
@@ -70,7 +70,7 @@ export function Products() {
       id: 6,
       name: '108mm Billet Throttle Body',
       description:
-        'High-flow, CNC-machined billet throttle body tuned for smooth driveability and repeatable airflow on high-boost builds.',
+        'CNC-machined 108mm throttle body focused on repeatable airflow and stable drivability on built combinations.',
       image: '/images/billetParts/108mm-TB-fas.webp',
       popular: false,
       specHref: '/specs/BilletThrottleBody108'
@@ -287,8 +287,8 @@ export function Products() {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.6, duration: 0.6 }}
           >
-            Our precision-engineered supercharger components are designed and manufactured to the
-            highest racing standards, delivering unmatched performance and reliability.
+            These billet components are built to integrate with vehicle-specific packages. Review
+            specs, verify fitment, and pair each part with the right supporting setup.
           </motion.p>
           <motion.div
             className={`font-borg text-accent tracking-widest ${isMobile ? 'text-xs px-4' : 'text-sm'}`}
@@ -296,7 +296,7 @@ export function Products() {
             animate={isInView ? { opacity: 1 } : {}}
             transition={{ delay: 0.8, duration: 0.6 }}
           >
-            — BILLET ALUMINUM • PRECISION MACHINED • TRACK TESTED —
+            — BILLET MACHINING • FITMENT FOCUSED • BUILD READY —
           </motion.div>
         </motion.div>
 

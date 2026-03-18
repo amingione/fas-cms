@@ -19,49 +19,49 @@ export function LuxuryTestimonials() {
 
   const testimonials = [
     {
-      name: 'Marcus Rodriguez',
-      title: 'Professional Racing Driver',
+      name: 'TRX Owner',
+      title: 'Street & Weekend Track Build',
       content:
-        'F.A.S. Motorsports transformed my RAM TRX into an absolute beast. The attention to detail and quality of work is unmatched. Every component is engineered to perfection.',
+        'The team mapped the package around my exact goals and explained every tradeoff before the install. The truck drives clean on the street and stays consistent when pushed.',
       rating: 5,
-      project: 'RAM TRX 850HP Build',
-      image: '/api/placeholder/60/60'
+      project: 'Vehicle-Specific TRX Package',
+      image: ''
     },
     {
-      name: 'Sarah Chen',
-      title: 'Automotive Enthusiast',
+      name: 'Hellcat Owner',
+      title: 'Daily + Performance Build',
       content:
-        'The custom supercharger setup they built for my Hellcat is incredible. The power delivery is smooth, reliable, and the craftsmanship is simply stunning.',
+        'Nothing felt generic. F.A.S. reviewed my setup, built the package around my car, and walked me through supporting mods so I knew exactly what was installed and why.',
       rating: 5,
-      project: 'Hellcat Supercharger Kit',
-      image: '/api/placeholder/60/60'
+      project: 'Custom Hellcat Configuration',
+      image: ''
     },
     {
-      name: 'David Thompson',
-      title: 'Track Day Veteran',
+      name: 'Shop Return Customer',
+      title: 'Multi-Stage Build Program',
       content:
-        "I've worked with many shops, but F.A.S. Motorsports stands in a league of their own. Their billet aluminum work is art meets engineering.",
+        'Fitment and finish were right, and the follow-up support was just as strong as the install. We updated the package as the car evolved instead of starting from scratch.',
       rating: 5,
-      project: 'Custom Billet Components',
-      image: '/api/placeholder/60/60'
+      project: 'In-House Fabrication & Refinement',
+      image: ''
     }
   ];
 
   const certifications = [
     {
       icon: Award,
-      title: 'ASE Certified',
-      description: 'Master Technicians'
+      title: 'In-House Fabrication',
+      description: 'Built and refined at F.A.S.'
     },
     {
       icon: ShieldCheck,
-      title: 'ISO 9001',
-      description: 'Quality Management'
+      title: 'Vehicle-Specific Planning',
+      description: 'No one-size-fits-all kits'
     },
     {
       icon: Star,
-      title: '5-Star Rating',
-      description: 'Customer Excellence'
+      title: 'Post-Delivery Support',
+      description: 'Real guidance after install'
     }
   ];
 
@@ -178,7 +178,7 @@ export function LuxuryTestimonials() {
             variant="outline"
             className={`bg-luxury-gold/10 border-luxury-gold/30 text-luxury-gold font-bold tracking-widest font-ethno luxury-gold-glow ${isMobile ? 'px-4 py-1 text-xs' : 'px-6 py-2 text-sm'}`}
           >
-            CLIENT TESTIMONIALS
+            CLIENT BUILD FEEDBACK
           </Badge>
 
           <h2
@@ -191,8 +191,8 @@ export function LuxuryTestimonials() {
           <p
             className={`text-white/60 max-w-2xl mx-auto font-kwajong ${isMobile ? 'text-xs leading-relaxed' : 'text-lg'}`}
           >
-            Don't just take our word for it. Hear from the drivers who trust F.A.S. Motorsports with
-            their most prized builds.
+            Feedback from customer deliveries focused on fitment, drivability, and long-term support.
+            Every build is planned around the vehicle and owner goals.
           </p>
         </motion.div>
 
@@ -250,7 +250,7 @@ export function LuxuryTestimonials() {
           <p
             className={`text-luxury-gold font-borg mb-4 tracking-widest ${isMobile ? 'text-xs' : 'text-sm'}`}
           >
-            — READY TO JOIN OUR FAMILY OF SATISFIED CLIENTS? —
+            — READY TO PLAN YOUR VEHICLE-SPECIFIC BUILD? —
           </p>
           <motion.a
             href="/contact"

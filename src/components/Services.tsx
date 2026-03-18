@@ -57,42 +57,47 @@ export function Services() {
       icon: Cog,
       title: 'Custom Engineering',
       description:
-        'Bespoke supercharger modifications tailored to your specific performance requirements.',
+        'Vehicle-specific package planning based on your platform, use case, and performance goals.',
       features: ['CAD Design', 'Prototyping', 'Testing & Validation'],
       color: 'from-primary to-red-600'
     },
     {
       icon: Wrench,
       title: 'CNC Machining',
-      description: 'State-of-the-art 5-axis CNC machining services for precision manufacturing.',
+      description:
+        'In-house machining for tight-tolerance billet parts and one-off fabrication requirements.',
       features: ['5-Axis Machining', 'Tight Tolerances', 'Quality Control'],
       color: 'from-blue-500 to-blue-600'
     },
     {
       icon: Gauge,
       title: 'Performance Tuning',
-      description: 'Expert dyno tuning services to optimize your supercharged setup.',
+      description:
+        'Calibration focused on repeatable power delivery, drivability, and reliability for your setup.',
       features: ['Dyno Testing', 'ECU Calibration', 'Performance Analysis'],
       color: 'from-green-500 to-green-600'
     },
     {
       icon: Target,
       title: 'Technical Consulting',
-      description: 'Professional consulting services for complex supercharger applications.',
+      description:
+        'Pre-build planning for parts compatibility, supporting systems, and realistic upgrade paths.',
       features: ['Technical Analysis', 'Design Review', 'Implementation Planning'],
       color: 'from-purple-500 to-purple-600'
     },
     {
       icon: Clock,
       title: 'Rapid Prototyping',
-      description: 'Fast turnaround prototyping services to quickly validate designs.',
+      description:
+        'Prototype development to validate fitment and function before final production runs.',
       features: ['3D Printing', 'Quick Iterations', 'Design Validation'],
       color: 'from-orange-500 to-orange-600'
     },
     {
       icon: Award,
       title: 'Quality Assurance',
-      description: 'Comprehensive quality control processes ensuring racing standards.',
+      description:
+        'Inspection and verification procedures before delivery so installs match build intent.',
       features: ['Material Testing', 'Dimensional Inspection', 'Performance Verification'],
       color: 'from-accent to-yellow-600'
     }
@@ -240,15 +245,15 @@ export function Services() {
             transition={{ delay: 0.4, duration: 0.8 }}
           >
             <span className={`block text-white font-mono ${isMobile ? 'text-sm' : ''}`}>
-              COMPLETE
+              VEHICLE-SPECIFIC
             </span>
             <span
               className={`block chrome-text font-cyber ${isMobile ? 'text-base' : 'text-4xl lg:text-7xl'}`}
             >
-              ENGINEERING
+              BUILD
             </span>
             <span className={`block text-blue-500 font-mono ${isMobile ? 'text-sm' : ''}`}>
-              SOLUTIONS
+              SERVICES
             </span>
           </motion.h2>
 
@@ -258,8 +263,8 @@ export function Services() {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.6, duration: 0.6 }}
           >
-            From concept to completion, we provide comprehensive engineering services to bring your
-            high-performance supercharger vision to life with racing precision.
+            From planning to final verification, we build and refine each package around your exact
+            vehicle. No off-the-shelf assumptions, no mass-produced one-size-fits-all process.
           </motion.p>
           <motion.div
             className={`font-borg text-accent tracking-widest ${isMobile ? 'text-xs px-4' : 'text-sm'}`}
@@ -267,7 +272,7 @@ export function Services() {
             animate={isInView ? { opacity: 1 } : {}}
             transition={{ delay: 0.8, duration: 0.6 }}
           >
-            — CONCEPT TO COMPLETION • RACING PRECISION • PROVEN RESULTS —
+            — CUSTOM PLANNING • IN-HOUSE FABRICATION • VERIFIED FITMENT —
           </motion.div>
         </motion.div>
 

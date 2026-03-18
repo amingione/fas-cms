@@ -5,15 +5,15 @@
   "sections": [
     {
       "blockType": "Hero",
-      "headline": "Built by Racers. Tuned for Victory.",
-      "subtext": "Unleash performance with OEM-level fit & finish.",
+      "headline": "Built Through Racing. Delivered Through Process.",
+      "subtext": "Vehicle-specific performance builds, in-house fabrication, and documented fitment from consultation to final calibration.",
       "imageSrc": "/images/backgrounds/ab-bg-FAS.webp",
       "cta": { "text": "Explore Packages", "href": "/packages/powerPackages" }
     },
     {
       "blockType": "RichText",
       "title": "Our Philosophy",
-      "body": "We build for flow, reliability, and repeatable results — on the street and track."
+      "body": "Every project starts with the vehicle, usage, and owner goals. We scope the right combination, validate fitment, and build for repeatable street and track performance."
     }
   ]
 }

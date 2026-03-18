@@ -21,9 +21,9 @@ export function IGLASecurity() {
   }, []);
 
   const certifications = [
-    { label: 'CERTIFIED', sublabel: 'INSTALLER' },
-    { label: '#1 IN SWFL', sublabel: 'VOLUME' },
-    { label: 'EXPERT', sublabel: 'TECHNICIANS' }
+    { label: 'AUTHORIZED', sublabel: 'INSTALLATION' },
+    { label: 'VEHICLE-SPECIFIC', sublabel: 'CONFIGURATION' },
+    { label: 'IN-HOUSE', sublabel: 'SUPPORT' }
   ];
 
   const keyFeatures = [
@@ -31,24 +31,25 @@ export function IGLASecurity() {
       icon: Shield,
       title: 'Undetectable Installation',
       description:
-        'Completely invisible integration with factory systems - no visible wires or components.'
+        'Integrated into factory controls without adding visible aftermarket switches or tags.'
     },
     {
       icon: Lock,
       title: 'Encrypted Communication',
-      description: 'Military-grade 128-bit AES encryption prevents signal interception and cloning.'
+      description:
+        'Encrypted communication between modules helps prevent common key-cloning and relay theft methods.'
     },
     {
       icon: ShieldCheck,
       title: 'Ghost Immobilization',
       description:
-        'Advanced algorithms create unpredictable patterns that adapt to defeat bypass attempts.'
+        'A personalized disarm sequence is required before start authorization is granted.'
     },
     {
       icon: CheckCircle,
       title: 'Zero Maintenance',
       description:
-        'Self-monitoring system with lifetime reliability - no batteries or periodic updates required.'
+        'No separate key fob battery management and minimal day-to-day maintenance overhead.'
     }
   ];
 
@@ -148,7 +149,7 @@ export function IGLASecurity() {
               variant="outline"
               className={`bg-[#121212] border-slate-600/50 text-slate-300 font-medium tracking-[0.2em] backdrop-blur-sm industrial-card font-ethno ${isMobile ? 'px-4 py-2 text-xs' : 'px-8 py-3 text-sm'}`}
             >
-              #1 IGLA INSTALLER IN SWFL
+              PROFESSIONAL IGLA INTEGRATION
             </Badge>
           </motion.div>
 
@@ -187,14 +188,13 @@ export function IGLASecurity() {
             <p
               className={`text-slate-400 leading-relaxed font-light mx-auto font-kwajong ${isMobile ? 'text-xs max-w-full' : 'text-lg max-w-3xl'}`}
             >
-              The pinnacle of vehicle security technology. Unlike traditional immobilizers that can
-              be bypassed, IGLA employs military-grade encrypted communication and advanced
-              algorithms to ensure absolute protection.
+              IGLA adds a driver-authorized start sequence through OEM controls, helping reduce theft
+              risk without changing the interior look of your vehicle.
             </p>
             <div
               className={`font-borg text-accent tracking-widest ${isMobile ? 'text-xs' : 'text-sm'}`}
             >
-              — UNBREAKABLE • UNDETECTABLE • UNSTOPPABLE —
+              — DISCREET INSTALL • DRIVER AUTHORIZATION • DAILY USABILITY —
             </div>
           </motion.div>
         </motion.div>
@@ -252,12 +252,12 @@ export function IGLASecurity() {
                 <div
                   className={`font-bold text-white font-cyber ${isMobile ? 'text-lg' : 'text-2xl'}`}
                 >
-                  100%
+                  PIN
                 </div>
                 <div
                   className={`font-medium text-slate-400 font-ethno ${isMobile ? 'text-xs' : 'text-xs'}`}
                 >
-                  PROTECTION
+                  START AUTH
                 </div>
               </motion.div>
 

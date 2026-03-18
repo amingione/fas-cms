@@ -4,7 +4,7 @@
   "title": "Power Packages",
   "hero": {
     "heading": "Power Packages",
-    "description": "Platform-tuned upgrade bundles engineered for clean installs, real gains, and factory-like drivability.",
+    "description": "Vehicle-specific package foundations built for clean integration, dependable drivability, and clear upgrade paths as your goals evolve.",
     "badges": ["Financing Available"],
     "ctas": [
       {
@@ -20,10 +20,10 @@
     ]
   },
   "highlightPills": [
-    "Dyno-Proven Options",
-    "OEM-Style Fit & Finish",
-    "Fast Turnaround",
-    "Warranty-Friendly Base Kits"
+    "Vehicle-Specific Build Planning",
+    "In-House Fitment Verification",
+    "Documented Install Workflows",
+    "Base Packages + Custom Upgrades"
   ],
   "platformHeading": "Power Packages",
   "platforms": [

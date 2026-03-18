@@ -362,7 +362,9 @@ export default function InfoTabs({
 
   const renderKitContent = () => {
     if (!normalizedKitItems.length) {
-      return <EmptyState message="Kit contents will be published soon." />;
+      return (
+        <EmptyState message="Kit contents are finalized per build. Contact F.A.S. with your year/make/model and goals for a complete parts list." />
+      );
     }
     return (
       <dl className="divide-y divide-white/10 border-t border-white/10 bg-black/70 text-sm text-white/90">
@@ -388,7 +390,9 @@ export default function InfoTabs({
 
   const renderSpecsContent = () => {
     if (!normalizedSpecs.length) {
-      return <EmptyState message="Technical specifications coming soon." />;
+      return (
+        <EmptyState message="Technical specs for this listing are available by request. Use the product inquiry form and include your vehicle details." />
+      );
     }
     return (
       <dl className="divide-y divide-white/10 border-t border-white/10 bg-black/70 text-sm text-white/90">
@@ -407,7 +411,9 @@ export default function InfoTabs({
 
   const renderAttributesContent = () => {
     if (!normalizedAttributes.length) {
-      return <EmptyState message="Attributes have not been added yet." />;
+      return (
+        <EmptyState message="No additional attributes are published for this item yet. Reach out to confirm fitment, lead time, and recommended supporting parts." />
+      );
     }
     return (
       <dl className="grid gap-3 sm:grid-cols-2">
