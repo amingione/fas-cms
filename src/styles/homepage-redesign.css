@@ -553,9 +553,61 @@
   z-index: 2;
 }
 
-@media (max-width: 900px) {
+/* ── Mobile hero layout ─────────────────────────────────────────
+   Below 900px the visual panel is no longer absolutely-positioned
+   across the right half. Instead it flows inline below the copy,
+   full-width, with a top-fade gradient so it dissolves into the bg.
+   This eliminates the "giant black void" caused by min-height:100svh
+   with the image hidden and content vertically centered.
+──────────────────────────────────────────────────────────────── */
+@media (max-width: 899px) {
+  .homepage-hero {
+    /* Let the section shrink to its content — no more full-viewport blank */
+    min-height: unset;
+    padding: 24px 0 0;   /* nav already provides top spacing via sticky offset */
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .homepage-hero-content {
+    padding: 48px 0 32px;
+  }
+
   .homepage-hero-visual {
+    /* Switch from absolute-right-half to an inline full-width image block */
+    position: relative;
+    top: auto;
+    right: auto;
+    width: 100%;
+    height: 260px;
+    border-radius: 0;   /* flush edge-to-edge */
+    background: #0a0a0a;
+    flex-shrink: 0;
+  }
+
+  /* On mobile the fade should go TOP→transparent so text above reads clearly */
+  .homepage-hero-visual::after {
+    background: linear-gradient(
+      to bottom,
+      var(--bg-base) 0%,
+      rgba(8, 8, 8, 0) 30%,
+      rgba(8, 8, 8, 0) 70%,
+      var(--bg-base) 100%
+    );
+  }
+
+  /* Hide caption label — too small to read at mobile size */
+  .homepage-hero-visual-label {
     display: none;
+  }
+}
+
+@media (max-width: 639px) {
+  .homepage-hero-content {
+    padding: 40px 0 24px;
+  }
+  .homepage-hero-visual {
+    height: 220px;
   }
 }
 
@@ -1457,4 +1509,38 @@
 .fas-social-btn svg {
   width: 15px;
   height: 15px;
+}
+
+/* ── Mobile section rhythm ─────────────────────────────────────────────────
+   Default section padding (56px) is optimised for ≥768px.
+   At mobile sizes it creates too much dead air between sections.
+   Tighten all section containers and the footer at ≤767px.
+   ─────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .homepage-section,
+  .homepage-stats-band,
+  .homepage-platform-strip {
+    padding: 32px 0;
+  }
+
+  .fas-footer {
+    padding: 44px 0 24px;
+  }
+
+  .fas-footer-grid {
+    gap: 32px;
+    margin-bottom: 32px;
+  }
+}
+
+@media (max-width: 479px) {
+  .homepage-section,
+  .homepage-stats-band,
+  .homepage-platform-strip {
+    padding: 24px 0;
+  }
+
+  .fas-footer {
+    padding: 32px 0 20px;
+  }
 }

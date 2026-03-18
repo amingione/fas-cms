@@ -13,13 +13,12 @@
 
 .checkout-address-fieldset legend,
 .checkout-rates-fieldset legend {
+  display: block;
   font-size: 0.85rem;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.7);
   margin-bottom: 0.5rem;
   padding: 0;
-  float: left;
-  width: 100%;
 }
 
 /* Loading States */
@@ -134,6 +133,10 @@
 .address-element-wrapper,
 .payment-element-wrapper {
   min-height: 200px;
+  /* Prevent Stripe Link iframe from overflowing on narrow viewports */
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* Shipping Rates */
@@ -1050,5 +1053,34 @@
 
   .checkout-v2-item {
     align-items: flex-start;
+  }
+}
+
+/* ── Stripe Link overflow containment ────────────────────────────────────────
+   Stripe's Link AddressElement renders an absolutely-positioned button overlay
+   that bleeds outside its container when the parent has no clip boundary.
+   `overflow: hidden` on .checkout-v2-pay contains it at mobile widths.
+   Stripe's autocomplete overlays use a viewport-relative portal, so they are
+   not affected by this containment.
+   ─────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .checkout-v2-pay {
+    overflow: hidden;
+    max-width: 100%;
+  }
+
+  .address-element-wrapper,
+  .payment-element-wrapper,
+  .checkout-v2-payment-element {
+    overflow: hidden;
+    max-width: 100%;
+  }
+
+  /* Ensure the checkout root itself never causes a horizontal scrollbar */
+  .checkout-v2,
+  .checkout-v2-shell,
+  .checkout-v2-grid {
+    max-width: 100%;
+    overflow-x: hidden;
   }
 }

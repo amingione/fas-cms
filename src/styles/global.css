@@ -47,6 +47,9 @@ html {
 }
 body {
   -webkit-font-smoothing: antialiased;
+  /* Mirrors html overflow-x: clip — prevents body-level horizontal scroll.
+     clip (not hidden) keeps position:sticky children functional. */
+  overflow-x: clip;
   background-color: var(--color-background);
   background-image: radial-gradient(120% 120% at 50% 0%, #000000 0%, #121212 70%);
   background-repeat: no-repeat;
