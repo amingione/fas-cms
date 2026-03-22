@@ -49,5 +49,8 @@ docs/*
 !docs/checkout/**
 !docs/projects/
 !docs/projects/**
+!docs/ai-governance/
+!docs/ai-governance/templates/
+!docs/ai-governance/templates/**
 
 .early.coverage
