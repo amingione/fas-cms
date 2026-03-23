@@ -1,6 +1,8 @@
 ---
+// SSR — rendered on demand so counts and URLs reflect live Sanity + filesystem state,
+// matching what the XML sitemaps would return at the same moment.
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { getSitemapInventory } from '@/lib/sitemap';
+import { getMostRecentLastmod, getKnownSitemapPaths, getUrlInventory } from '@/lib/sitemap';
 
 const requestUrl = new URL(Astro.request.url);
 requestUrl.search = '';
@@ -8,75 +10,95 @@ requestUrl.hash = '';
 const canonical = requestUrl.toString();
 
 const pageTitle = 'Sitemap';
-const pageDescription = 'Browse all public pages on FAS Motorsports.';
+const pageDescription = 'Browse all public pages on F.A.S. Motorsports.';
 
-// Single source of truth — same inventory used by XML sitemaps
-const sections = await getSitemapInventory();
+const sections = await getUrlInventory();
+const xmlPaths = getKnownSitemapPaths();
 
 const totalUrls = sections.reduce((sum, s) => sum + s.entries.length, 0);
 
 const toPath = (loc: string) => {
   try {
-    const url = new URL(loc);
-    return url.pathname;
+    return new URL(loc).pathname;
   } catch {
     return loc;
   }
 };
 
-const renderLastmod = (value?: string) => {
-  if (!value) return 'n/a';
-  const date = new Date(value);
-  if (!Number.isFinite(date.getTime())) return 'n/a';
-  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+const renderDate = (value?: string | null) => {
+  if (!value) return null;
+  const d = new Date(value);
+  if (!Number.isFinite(d.getTime())) return null;
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 };
 
-const XML_SITEMAPS = [
-  { href: '/sitemap_index.xml', label: 'Sitemap Index' },
-  { href: '/sitemap-core.xml', label: 'Core' },
-  { href: '/sitemap-services.xml', label: 'Services' },
-  { href: '/sitemap-platforms.xml', label: 'Platforms' },
-  { href: '/sitemap-packages.xml', label: 'Packages' },
-  { href: '/sitemap-shop-categories.xml', label: 'Shop Categories' },
-  { href: '/sitemap-shop-products.xml', label: 'Shop Products' },
-  { href: '/sitemap-blog.xml', label: 'Blog' },
-  { href: '/sitemap-vendors.xml', label: 'Vendors' },
-  { href: '/sitemap-images.xml', label: 'Images' },
-];
+const xmlLabel = (p: string) => {
+  const name = p.split('/').pop() ?? p;
+  return name.replace('.xml', '');
+};
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical} hideBreadcrumbs={false}>
   <section class="sitemap-page">
     <div class="sitemap-shell">
-      <p class="sitemap-kicker">Site Directory</p>
+
+      <p class="kicker">Site Directory</p>
       <h1>Sitemap</h1>
-      <p class="sitemap-sub">
-        {totalUrls.toLocaleString()} public URLs across {sections.length} sections.
-        This page updates automatically as new content is added.
+      <p class="sub">
+        Updates automatically as pages and content are added.
+        <span class="total-badge">{totalUrls.toLocaleString()} URLs indexed</span>
       </p>
 
-      <div class="sitemap-xml-links">
-        {XML_SITEMAPS.map((link) => (
-          <a href={link.href}>{link.label} XML</a>
-        ))}
+      <!-- XML Sitemap QA links -->
+      <div class="xml-block">
+        <p class="xml-block-label">XML Sitemaps</p>
+        <div class="xml-chips">
+          {xmlPaths.map((p) => (
+            <a href={p} class="xml-chip" target="_blank" rel="noopener noreferrer">
+              {xmlLabel(p)}
+            </a>
+          ))}
+        </div>
       </div>
 
-      {sections.map((section) => (
-        <div class="sitemap-section">
-          <h2>
-            {section.label}
-            <span class="section-count">{section.entries.length.toLocaleString()}</span>
-          </h2>
-          <ul>
-            {section.entries.map((entry) => (
-              <li>
-                <a href={entry.loc}>{toPath(entry.loc)}</a>
-                <span>{renderLastmod(entry.lastmod)}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
+      <!-- Jump links -->
+      <nav class="jump-nav" aria-label="Sitemap sections">
+        {sections.map((s) => (
+          <a href={`#${s.id}`} class="jump-item">
+            <span class="jump-label">{s.label}</span>
+            <span class="jump-count">{s.entries.length}</span>
+          </a>
+        ))}
+      </nav>
+
+      <!-- Sections -->
+      {sections.map((s) => {
+        const recentMod = getMostRecentLastmod(s.entries);
+        return (
+          <div class="sitemap-section" id={s.id}>
+            <div class="section-head">
+              <h2>{s.label}</h2>
+              <div class="section-meta">
+                <span class="section-count">{s.entries.length} URL{s.entries.length !== 1 ? 's' : ''}</span>
+                {recentMod && (
+                  <span class="section-mod">updated {renderDate(recentMod)}</span>
+                )}
+              </div>
+            </div>
+            <ul>
+              {s.entries.map((entry) => (
+                <li>
+                  <a href={entry.loc}>{toPath(entry.loc)}</a>
+                  {entry.lastmod && (
+                    <span class="entry-date">{renderDate(entry.lastmod)}</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      })}
+
     </div>
   </section>
 </BaseLayout>
@@ -91,7 +113,7 @@ const XML_SITEMAPS = [
     margin: 0 auto;
   }
 
-  .sitemap-kicker {
+  .kicker {
     margin: 0 0 10px;
     font-family: 'Ethnocentric', sans-serif;
     font-size: 0.64rem;
@@ -109,63 +131,154 @@ const XML_SITEMAPS = [
     color: #f2efea;
   }
 
-  .sitemap-sub {
-    margin: 16px 0 22px;
+  .sub {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin: 16px 0 24px;
     color: #a7a39d;
     max-width: 720px;
     line-height: 1.6;
   }
 
-  .sitemap-xml-links {
+  .total-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    background: rgba(196, 18, 24, 0.15);
+    border: 1px solid rgba(196, 18, 24, 0.35);
+    border-radius: 999px;
+    font-size: 0.75rem;
+    color: #e07b7e;
+    white-space: nowrap;
+  }
+
+  /* XML QA block */
+  .xml-block {
+    margin-bottom: 28px;
+    padding: 16px;
+    border: 1px solid rgba(242, 239, 234, 0.1);
+    border-radius: 12px;
+    background: rgba(13, 13, 13, 0.4);
+  }
+
+  .xml-block-label {
+    margin: 0 0 10px;
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #8c8882;
+  }
+
+  .xml-chips {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 28px;
+    gap: 8px;
   }
 
-  .sitemap-xml-links a {
+  .xml-chip {
     display: inline-block;
-    border: 1px solid rgba(242, 239, 234, 0.16);
+    padding: 6px 12px;
+    border: 1px solid rgba(242, 239, 234, 0.14);
     border-radius: 999px;
-    padding: 8px 12px;
-    font-size: 0.8rem;
+    font-size: 0.76rem;
     color: #d3d0cb;
     text-decoration: none;
+    transition: color 0.15s, border-color 0.15s;
   }
 
-  .sitemap-xml-links a:hover {
+  .xml-chip:hover {
     color: #f2efea;
-    border-color: rgba(196, 18, 24, 0.6);
+    border-color: rgba(196, 18, 24, 0.55);
   }
 
+  /* Jump nav */
+  .jump-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 32px;
+  }
+
+  .jump-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 13px;
+    border: 1px solid rgba(242, 239, 234, 0.12);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    color: #a7a39d;
+    text-decoration: none;
+    background: rgba(13, 13, 13, 0.3);
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+  }
+
+  .jump-item:hover {
+    color: #f2efea;
+    border-color: rgba(242, 239, 234, 0.28);
+    background: rgba(242, 239, 234, 0.04);
+  }
+
+  .jump-label {
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .jump-count {
+    padding: 1px 7px;
+    background: rgba(242, 239, 234, 0.08);
+    border-radius: 999px;
+    font-size: 0.72rem;
+    color: #8c8882;
+  }
+
+  /* Section cards */
   .sitemap-section {
-    margin-top: 28px;
+    margin-top: 24px;
     border: 1px solid rgba(242, 239, 234, 0.1);
     border-radius: 14px;
     overflow: hidden;
     background: rgba(13, 13, 13, 0.55);
+    scroll-margin-top: 24px;
   }
 
-  .sitemap-section h2 {
+  .section-head {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin: 0;
+    justify-content: space-between;
+    gap: 12px;
     padding: 14px 16px;
     border-bottom: 1px solid rgba(242, 239, 234, 0.1);
+  }
+
+  .section-head h2 {
+    margin: 0;
     font-family: 'Ethnocentric', sans-serif;
-    font-size: 0.76rem;
+    font-size: 0.74rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: #f2efea;
   }
 
+  .section-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
   .section-count {
-    margin-left: auto;
-    font-family: inherit;
-    font-size: 0.68rem;
+    font-size: 0.74rem;
     color: #8c8882;
-    letter-spacing: 0.05em;
+  }
+
+  .section-mod {
+    font-size: 0.72rem;
+    color: #6b6763;
   }
 
   .sitemap-section ul {
@@ -180,17 +293,18 @@ const XML_SITEMAPS = [
     justify-content: space-between;
     gap: 14px;
     padding: 10px 16px;
-    border-top: 1px solid rgba(242, 239, 234, 0.06);
+    border-top: 1px solid rgba(242, 239, 234, 0.05);
   }
 
   .sitemap-section li:first-child {
-    border-top: 0;
+    border-top: none;
   }
 
   .sitemap-section a {
     color: #d3d0cb;
     text-decoration: none;
     word-break: break-word;
+    font-size: 0.875rem;
   }
 
   .sitemap-section a:hover {
@@ -200,21 +314,27 @@ const XML_SITEMAPS = [
     text-underline-offset: 3px;
   }
 
-  .sitemap-section span {
+  .entry-date {
     flex-shrink: 0;
-    color: #8c8882;
-    font-size: 0.78rem;
+    color: #6b6763;
+    font-size: 0.75rem;
     white-space: nowrap;
   }
 
-  @media (max-width: 760px) {
-    .sitemap-section li {
+  @media (max-width: 640px) {
+    .section-head {
       flex-direction: column;
       align-items: flex-start;
       gap: 4px;
     }
 
-    .sitemap-section span {
+    .sitemap-section li {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 3px;
+    }
+
+    .entry-date {
       white-space: normal;
     }
   }

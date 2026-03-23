@@ -737,3 +737,137 @@ export async function getSitemapInventory(): Promise<SitemapSection[]> {
   // Only return sections that have at least one entry
   return sections.filter((s) => s.entries.length > 0);
 }
+
+export interface UrlInventorySection {
+  id: string;
+  label: string;
+  entries: SitemapUrlEntry[];
+}
+
+export async function getUrlInventory(): Promise<UrlInventorySection[]> {
+  const [core, shopStatic, services, platforms, packages, categories, products, blog, vendors] =
+    await Promise.all([
+      getCoreUrlEntries(),
+      getShopStaticEntries(),
+      getServiceUrlEntries(),
+      getPlatformUrlEntries(),
+      getPackageUrlEntries(),
+      getShopCategoryUrlEntries(),
+      getShopProductUrlEntries(),
+      getBlogUrlEntries(),
+      getVendorUrlEntries()
+    ]);
+
+  // shopStatic includes the /shop/categories index page which is already covered
+  // by the categories section — remove it to avoid duplication.
+  const shopIndexEntries = shopStatic.filter(
+    (entry) => !pathFromLoc(entry.loc).startsWith('/shop/categories')
+  );
+
+  const all: UrlInventorySection[] = [
+    { id: 'core', label: 'Core Pages', entries: core },
+    { id: 'shop', label: 'Shop', entries: shopIndexEntries },
+    { id: 'services', label: 'Services', entries: services },
+    { id: 'builds', label: 'Performance Builds', entries: platforms },
+    { id: 'packages', label: 'Packages', entries: packages },
+    { id: 'categories', label: 'Shop Categories', entries: categories },
+    { id: 'products', label: 'Products', entries: products },
+    { id: 'blog', label: 'Blog', entries: blog },
+    { id: 'vendors', label: 'Vendors', entries: vendors }
+  ];
+
+  return all.filter((section) => section.entries.length > 0);
+}
+
+export function getKnownSitemapPaths(): string[] {
+  return [
+    '/sitemap_index.xml',
+    '/sitemap-core.xml',
+    '/sitemap-services.xml',
+    '/sitemap-platforms.xml',
+    '/sitemap-packages.xml',
+    '/sitemap-shop-categories.xml',
+    '/sitemap-shop-products.xml',
+    '/sitemap-blog.xml',
+    '/sitemap-vendors.xml',
+    '/sitemap-images.xml'
+  ];
+}
+
+export async function buildSitemapIndexEntries(): Promise<SitemapIndexEntry[]> {
+  const [
+    coreUrls,
+    serviceUrls,
+    platformUrls,
+    packageUrls,
+    shopCategoryUrls,
+    shopProductChunks,
+    blogUrls,
+    vendorUrls,
+    imageEntries
+  ] = await Promise.all([
+    getCoreUrlEntries(),
+    getServiceUrlEntries(),
+    getPlatformUrlEntries(),
+    getPackageUrlEntries(),
+    getShopCategoryUrlEntries(),
+    getShopProductUrlEntryChunks(),
+    getBlogUrlEntries(),
+    getVendorUrlEntries(),
+    getImageSitemapEntries()
+  ]);
+
+  const productChunkEntries: SitemapIndexEntry[] =
+    shopProductChunks.length <= 1
+      ? shopProductChunks[0]?.length
+        ? [
+            {
+              loc: toAbsoluteUrl('/sitemap-shop-products.xml'),
+              lastmod: getMostRecentLastmod(shopProductChunks[0])
+            }
+          ]
+        : []
+      : shopProductChunks.map((chunk, index) => ({
+          loc: toAbsoluteUrl(`/sitemap-shop-products-${index + 1}.xml`),
+          lastmod: getMostRecentLastmod(chunk)
+        }));
+
+  const candidates: Array<SitemapIndexEntry | undefined> = [
+    coreUrls.length > 0
+      ? { loc: toAbsoluteUrl('/sitemap-core.xml'), lastmod: getMostRecentLastmod(coreUrls) }
+      : undefined,
+    serviceUrls.length > 0
+      ? { loc: toAbsoluteUrl('/sitemap-services.xml'), lastmod: getMostRecentLastmod(serviceUrls) }
+      : undefined,
+    platformUrls.length > 0
+      ? {
+          loc: toAbsoluteUrl('/sitemap-platforms.xml'),
+          lastmod: getMostRecentLastmod(platformUrls)
+        }
+      : undefined,
+    packageUrls.length > 0
+      ? { loc: toAbsoluteUrl('/sitemap-packages.xml'), lastmod: getMostRecentLastmod(packageUrls) }
+      : undefined,
+    shopCategoryUrls.length > 0
+      ? {
+          loc: toAbsoluteUrl('/sitemap-shop-categories.xml'),
+          lastmod: getMostRecentLastmod(shopCategoryUrls)
+        }
+      : undefined,
+    ...productChunkEntries,
+    blogUrls.length > 0
+      ? { loc: toAbsoluteUrl('/sitemap-blog.xml'), lastmod: getMostRecentLastmod(blogUrls) }
+      : undefined,
+    vendorUrls.length > 0
+      ? { loc: toAbsoluteUrl('/sitemap-vendors.xml'), lastmod: getMostRecentLastmod(vendorUrls) }
+      : undefined,
+    imageEntries.length > 0
+      ? {
+          loc: toAbsoluteUrl('/sitemap-images.xml'),
+          lastmod: getMostRecentImageLastmod(imageEntries)
+        }
+      : undefined
+  ];
+
+  return candidates.filter((entry): entry is SitemapIndexEntry => Boolean(entry));
+}
