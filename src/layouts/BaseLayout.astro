@@ -495,6 +495,27 @@ const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
 <html lang="en" class="dark">
   <head>
     <!-- Google tag (gtag.js) -->
+    {import.meta.env.PROD && GTAG_SCRIPT_URL && (
+      <>
+        <script async src={GTAG_SCRIPT_URL}></script>
+        <script is:inline>
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            // eslint-disable-next-line prefer-rest-params
+            window.dataLayer.push(arguments);
+          }
+          window.gtag = window.gtag || gtag;
+          window.gtag('js', new Date());
+          if ({JSON.stringify(GA_MEASUREMENT_ID)}) {
+            window.gtag('config', {JSON.stringify(GA_MEASUREMENT_ID)});
+          }
+          if ({JSON.stringify(GOOGLE_ADS_ID)} && {JSON.stringify(GOOGLE_ADS_ID)} !== {JSON.stringify(GA_MEASUREMENT_ID)}) {
+            window.gtag('config', {JSON.stringify(GOOGLE_ADS_ID)});
+          }
+          document.dispatchEvent(new Event('gtag:loaded'));
+        </script>
+      </>
+    )}
     <script
       src="https://analytics.ahrefs.com/analytics.js"
       data-key="RveCWnHUqOnR3X2suO6YPA"
