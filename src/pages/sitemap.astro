@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { getShopUrlEntries, getStaticUrlEntries } from '@/lib/sitemap';
+import { getSitemapInventory } from '@/lib/sitemap';
 
 const requestUrl = new URL(Astro.request.url);
 requestUrl.search = '';
@@ -10,7 +10,10 @@ const canonical = requestUrl.toString();
 const pageTitle = 'Sitemap';
 const pageDescription = 'Browse all public pages on F.A.S. Motorsports.';
 
-const [staticEntries, shopEntries] = await Promise.all([getStaticUrlEntries(), getShopUrlEntries()]);
+// Single source of truth — same inventory used by XML sitemaps
+const sections = await getSitemapInventory();
+
+const totalUrls = sections.reduce((sum, s) => sum + s.entries.length, 0);
 
 const toPath = (loc: string) => {
   try {
@@ -27,6 +30,19 @@ const renderLastmod = (value?: string) => {
   if (!Number.isFinite(date.getTime())) return 'n/a';
   return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 };
+
+const XML_SITEMAPS = [
+  { href: '/sitemap_index.xml', label: 'Sitemap Index' },
+  { href: '/sitemap-core.xml', label: 'Core' },
+  { href: '/sitemap-services.xml', label: 'Services' },
+  { href: '/sitemap-platforms.xml', label: 'Platforms' },
+  { href: '/sitemap-packages.xml', label: 'Packages' },
+  { href: '/sitemap-shop-categories.xml', label: 'Shop Categories' },
+  { href: '/sitemap-shop-products.xml', label: 'Shop Products' },
+  { href: '/sitemap-blog.xml', label: 'Blog' },
+  { href: '/sitemap-vendors.xml', label: 'Vendors' },
+  { href: '/sitemap-images.xml', label: 'Images' },
+];
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical} hideBreadcrumbs={false}>
@@ -34,49 +50,33 @@ const renderLastmod = (value?: string) => {
     <div class="sitemap-shell">
       <p class="sitemap-kicker">Site Directory</p>
       <h1>Sitemap</h1>
-      <p class="sitemap-sub">This page updates automatically as new public pages and content are added.</p>
+      <p class="sitemap-sub">
+        {totalUrls.toLocaleString()} public URLs across {sections.length} sections.
+        This page updates automatically as new content is added.
+      </p>
 
       <div class="sitemap-xml-links">
-        <a href="/sitemap_index.xml">Sitemap Index</a>
-        <a href="/sitemap-core.xml">Core XML Sitemap</a>
-        <a href="/sitemap-services.xml">Services XML Sitemap</a>
-        <a href="/sitemap-platforms.xml">Platforms XML Sitemap</a>
-        <a href="/sitemap-packages.xml">Packages XML Sitemap</a>
-        <a href="/sitemap-shop-categories.xml">Shop Categories XML Sitemap</a>
-        <a href="/sitemap-shop-products.xml">Shop Products XML Sitemap</a>
-        <a href="/sitemap-blog.xml">Blog XML Sitemap</a>
-        <a href="/sitemap-vendors.xml">Vendors XML Sitemap</a>
-        <a href="/sitemap-images.xml">Image XML Sitemap</a>
-        <a href="/sitemap.xml">Legacy Full XML Sitemap</a>
+        {XML_SITEMAPS.map((link) => (
+          <a href={link.href}>{link.label} XML</a>
+        ))}
       </div>
 
-      <div class="sitemap-section">
-        <h2>General Pages</h2>
-        <ul>
-          {
-            staticEntries.map((entry) => (
+      {sections.map((section) => (
+        <div class="sitemap-section">
+          <h2>
+            {section.label}
+            <span class="section-count">{section.entries.length.toLocaleString()}</span>
+          </h2>
+          <ul>
+            {section.entries.map((entry) => (
               <li>
                 <a href={entry.loc}>{toPath(entry.loc)}</a>
                 <span>{renderLastmod(entry.lastmod)}</span>
               </li>
-            ))
-          }
-        </ul>
-      </div>
-
-      <div class="sitemap-section">
-        <h2>Shop Pages</h2>
-        <ul>
-          {
-            shopEntries.map((entry) => (
-              <li>
-                <a href={entry.loc}>{toPath(entry.loc)}</a>
-                <span>{renderLastmod(entry.lastmod)}</span>
-              </li>
-            ))
-          }
-        </ul>
-      </div>
+            ))}
+          </ul>
+        </div>
+      ))}
     </div>
   </section>
 </BaseLayout>
@@ -147,6 +147,9 @@ const renderLastmod = (value?: string) => {
   }
 
   .sitemap-section h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     margin: 0;
     padding: 14px 16px;
     border-bottom: 1px solid rgba(242, 239, 234, 0.1);
@@ -155,6 +158,14 @@ const renderLastmod = (value?: string) => {
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: #f2efea;
+  }
+
+  .section-count {
+    margin-left: auto;
+    font-family: inherit;
+    font-size: 0.68rem;
+    color: #8c8882;
+    letter-spacing: 0.05em;
   }
 
   .sitemap-section ul {

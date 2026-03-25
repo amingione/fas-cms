@@ -74,6 +74,7 @@ const EXCLUDED_PREFIXES = [
   '/appointments/',
   '/customerdashboard/',
   '/dashboard/',
+  '/fonts/',
   '/order/',
   '/orders/',
   '/vendor-portal/'
@@ -327,7 +328,6 @@ export async function getProductEntries(): Promise<SitemapUrlEntry[]> {
     _type == "product" &&
     !(_id in path('drafts.**')) &&
     status == "active" &&
-    (productType == "service" || productType == "bundle" || productType == "physical" || featured == true) &&
     defined(slug.current) &&
     coalesce(noindex, false) != true
   ]{
@@ -603,4 +603,61 @@ export function getMostRecentImageLastmod(entries: SitemapImageEntry[]): string 
 
 export function getProductSitemapChunkSize(): number {
   return PRODUCT_SITEMAP_CHUNK_SIZE;
+}
+
+// ---------------------------------------------------------------------------
+// URL Inventory — single source of truth for both XML generation and HTML page
+// ---------------------------------------------------------------------------
+
+export interface SitemapSection {
+  /** Human-readable label for the HTML sitemap */
+  label: string;
+  /** Slug key used to identify the XML sitemap file (e.g. "core" → sitemap-core.xml) */
+  key: string;
+  entries: SitemapUrlEntry[];
+}
+
+/**
+ * Returns the full sitemap inventory grouped by section.
+ * Both the XML sitemap files and the HTML /sitemap page MUST derive their
+ * URL lists from this function so they always stay in sync.
+ *
+ * Usage in XML files: call the individual `get*Entries()` helpers (they're
+ * already backed by the same underlying fetchers).
+ * Usage in HTML page: call `getSitemapInventory()` and iterate sections.
+ */
+export async function getSitemapInventory(): Promise<SitemapSection[]> {
+  const [
+    coreEntries,
+    serviceEntries,
+    platformEntries,
+    packageEntries,
+    shopCategoryEntries,
+    shopProductEntries,
+    blogEntries,
+    vendorEntries,
+  ] = await Promise.all([
+    getCoreUrlEntries(),
+    getServiceUrlEntries(),
+    getPlatformUrlEntries(),
+    getPackageUrlEntries(),
+    getShopCategoryUrlEntries(),
+    getShopProductUrlEntries(),
+    getBlogUrlEntries(),
+    getVendorUrlEntries(),
+  ]);
+
+  const sections: SitemapSection[] = [
+    { label: 'Core Pages', key: 'core', entries: coreEntries },
+    { label: 'Services', key: 'services', entries: serviceEntries },
+    { label: 'Platform Pages', key: 'platforms', entries: platformEntries },
+    { label: 'Packages', key: 'packages', entries: packageEntries },
+    { label: 'Shop Categories', key: 'shop-categories', entries: shopCategoryEntries },
+    { label: 'Shop Products', key: 'shop-products', entries: shopProductEntries },
+    { label: 'Blog', key: 'blog', entries: blogEntries },
+    { label: 'Vendors', key: 'vendors', entries: vendorEntries },
+  ];
+
+  // Only return sections that have at least one entry
+  return sections.filter((s) => s.entries.length > 0);
 }
