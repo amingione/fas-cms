@@ -30,6 +30,7 @@ pnpm-debug.log*
 
 # Netlify build output
 .netlify/
+.netlify/plugins/
 sandbox/**
 build/
 
