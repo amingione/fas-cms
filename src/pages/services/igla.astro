@@ -16,14 +16,85 @@ requestUrl.search = '';
 requestUrl.hash = '';
 const canonical = requestUrl.toString();
 const ogImageAbsolute = new URL('/logo/fas-logo500.webp', requestUrl.origin).toString();
+
+const iglaJsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Service',
+      '@id': 'https://fasmotorsports.com/services/igla#service',
+      name: 'IGLA Anti-Theft System Installation',
+      description:
+        'Professional IGLA anti-theft system installation for cars and trucks. F.A.S. Motorsports is a certified IGLA installer in Southwest Florida providing undetectable vehicle security with no subscriptions or wiring cuts.',
+      serviceType: 'Vehicle Security Installation',
+      url: 'https://fasmotorsports.com/services/igla',
+      areaServed: [
+        { '@type': 'City', name: 'Punta Gorda', containedInPlace: { '@type': 'State', name: 'Florida' } },
+        { '@type': 'City', name: 'Cape Coral', containedInPlace: { '@type': 'State', name: 'Florida' } },
+        { '@type': 'City', name: 'Fort Myers', containedInPlace: { '@type': 'State', name: 'Florida' } },
+        { '@type': 'City', name: 'Port Charlotte', containedInPlace: { '@type': 'State', name: 'Florida' } },
+      ],
+      provider: {
+        '@type': 'AutoRepair',
+        '@id': 'https://fasmotorsports.com/#business',
+        name: 'F.A.S. Motorsports',
+        url: 'https://fasmotorsports.com',
+        telephone: '+18122009012',
+        email: 'sales@fasmotorsports.com',
+        address: {
+          '@type': 'PostalAddress',
+          streetAddress: '6161 Riverside Dr',
+          addressLocality: 'Punta Gorda',
+          addressRegion: 'FL',
+          postalCode: '33982',
+          addressCountry: 'US',
+        },
+        sameAs: [
+          'https://www.facebook.com/fasmotorsports',
+          'https://www.instagram.com/fasmotorsports',
+        ],
+      },
+    },
+    {
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'What is an IGLA anti-theft system?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'The IGLA anti-theft system is an advanced vehicle immobilizer that integrates with your car\'s CAN/LIN bus to prevent unauthorized engine start. It is undetectable to thieves, requires no wiring cuts, and does not interfere with factory systems or void warranties.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Where can I get IGLA anti-theft installed near me in Florida?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'F.A.S. Motorsports at 6161 Riverside Dr, Punta Gorda, FL is a certified IGLA installer serving all of Southwest Florida, including Charlotte County, Lee County, and Sarasota County.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Does the IGLA system require a subscription?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'No. The IGLA anti-theft system is a one-time installation with no ongoing subscription fees or hidden charges.',
+          },
+        },
+      ],
+    },
+  ],
+};
 ---
 
 <BaseLayout
-  title="IGLA Security - F.A.S. Motorsports"
-  description="IGLA Installation & Service in Southwest Florida. Advanced vehicle security with expert installation at F.A.S. Motorsports — one of Southwest Florida’s certified IGLA providers."
+  title="IGLA Anti-Theft System Installation - F.A.S. Motorsports | Punta Gorda, FL"
+  description="Certified IGLA anti-theft system installation in Punta Gorda, FL. F.A.S. Motorsports installs IGLA — Southwest Florida’s most advanced undetectable vehicle immobilizer. No subscriptions. No wiring cuts."
   canonical={canonical}
   ogImage={ogImageAbsolute}
 >
+  <script type="application/ld+json" set:html={JSON.stringify(iglaJsonLd)} />
   <div {...inlineObjectId('content/pages/services/igla.json')}>
     <div aria-hidden="true" class="hidden" {...inlineFieldAttrs('title')}>
       {pageDoc?.title ?? 'IGLA Security - F.A.S. Motorsports'}
@@ -92,9 +163,9 @@ const ogImageAbsolute = new URL('/logo/fas-logo500.webp', requestUrl.origin).toS
     <section class="luxury-particles relative text-white pt-20 pb-32 px-6">
       <div class="absolute inset-0"></div>
       <div class="relative z-10 max-w-6xl mx-auto">
-        <h1 class="text-4xl font-cyber font-bold text-primary mb-6">
+        <h2 class="text-4xl font-cyber font-bold text-primary mb-6">
           Ready to protect what moves you?
-        </h1>
+        </h2>
         <p class="text-lg font-cyber text-white/70 mb-10 max-w-2xl">
           Get advanced vehicle security backed by expert installation at F.A.S. Motorsports — one of
           Southwest Florida’s certified IGLA providers. No subscriptions. No gimmicks. Just serious
@@ -126,7 +197,7 @@ const ogImageAbsolute = new URL('/logo/fas-logo500.webp', requestUrl.origin).toS
       <div class="absolute inset-0 bg-transparent z-0"></div>
       <div class="relative z-10 max-w-8xl mx-auto text-center space-y-12">
         <div id="carousel" class="space-y-6 transition-opacity duration-500">
-          <h1 id="carousel-title" class="text-4xl font-cyber text-primary">IGLA FEATURE</h1>
+          <h2 id="carousel-title" class="text-4xl font-cyber text-primary">IGLA FEATURE</h2>
           <h2 id="carousel-subtitle" class="text-xl font-ethno text-white">
             Smart Anti-Theft with Full System Control
           </h2>
@@ -152,7 +223,7 @@ const ogImageAbsolute = new URL('/logo/fas-logo500.webp', requestUrl.origin).toS
       </script>
     </section>
     <section class="px-2 py-20 max-w-6xl mx-auto text-left">
-      <h1 class="text-xl font-cyber text-[#1d92ea]">What is IGLA?</h1>
+      <h1 class="text-xl font-cyber text-[#1d92ea]">IGLA Anti-Theft System Installation in Southwest Florida</h1>
       <div class="h-[2px] w-20 bg-[#1d92ea] my-4"></div>
       <h2 class="text-white font-mono font-bold tracking-[1.2px] text-lg mb-6">
         Unique digital anti-theft system
@@ -185,7 +256,7 @@ const ogImageAbsolute = new URL('/logo/fas-logo500.webp', requestUrl.origin).toS
     <section class="grid md:grid-cols-2 gap-10 px-6 py-20 max-w-6xl mx-auto">
       <!-- Left: Description -->
       <div>
-        <h1 class="text-xl font-cyber text-[#1d92ea]">IGLA Anti-Theft System</h1>
+        <h2 class="text-xl font-cyber text-[#1d92ea]">IGLA Anti-Theft System</h2>
         <div class="h-[2px] w-20 bg-[#1d92ea] my-4"></div>
         <h2 class="text-white font-mono tracking-[1.2px] text-lg mb-6">
           Advanced Vehicle Protection Technology
@@ -220,7 +291,7 @@ const ogImageAbsolute = new URL('/logo/fas-logo500.webp', requestUrl.origin).toS
     <section class="grid md:grid-cols-2 gap-10 px-6 py-20 max-w-6xl mx-auto">
       <!-- Left: Description -->
       <div>
-        <h1 class="text-xl font-cyber text-[#1d92ea]">IGLA Integration</h1>
+        <h2 class="text-xl font-cyber text-[#1d92ea]">IGLA Integration</h2>
         <div class="h-[2px] w-20 bg-[#1d92ea] my-2"></div>
         <h2 class="text-white font-mono tracking-[1.2px] text-lg mb-6">
           The IGLA system integrates directly with your vehicle’s digital architecture
