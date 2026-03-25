@@ -1,10 +1,7 @@
-import { readdir, stat } from 'node:fs/promises';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { stat } from 'node:fs/promises';
 import { sanity } from './sanity-utils';
 
 const FALLBACK_SITE_URL = 'https://fasmotorsports.com';
-const PAGES_DIR = fileURLToPath(new URL('../pages', import.meta.url));
 const PRODUCT_SITEMAP_CHUNK_SIZE = 5000;
 
 type ChangeFreq = 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never';
@@ -140,13 +137,96 @@ function isExcluded(pathname: string): boolean {
   return EXCLUDED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 }
 
-function routeFromAstroPath(absoluteFilePath: string): string {
-  const relative = path.relative(PAGES_DIR, absoluteFilePath).replace(/\\/g, '/');
-  const noExt = relative.replace(/\.astro$/, '');
-  const noIndex = noExt.endsWith('/index') ? noExt.slice(0, -'/index'.length) : noExt;
-  const route = normalisePath(noIndex || '/');
-  return route;
-}
+// Static route manifest — replaces filesystem-based discovery.
+// import.meta.url in a bundled Netlify function resolves to the compiled output path,
+// not src/; readdir on ../pages finds nothing. Maintain this list when adding pages.
+const KNOWN_PUBLIC_ROUTES: RouteFileEntry[] = [
+  // Root & core
+  '/',
+  '/about',
+  '/become-a-vendor',
+  '/contact',
+  '/contact/success',
+  '/faq',
+  '/faq2',
+  '/hellcat-supercharger',
+  '/internalPolicy',
+  '/press-media',
+  '/privacypolicy',
+  '/resources/employee-sms-consent',
+  '/returnRefundPolicy',
+  '/schedule',
+  '/search',
+  '/termsandconditions',
+  '/warranty',
+  '/wheels',
+  // Seasonal / sales
+  '/blackFridaySale',
+  '/sales/cyberMonday',
+  // Wheel brand pages
+  '/belak/series2',
+  '/belak/series3',
+  '/belak/skinnies',
+  '/belak/thanks',
+  '/belak/wheels',
+  '/jtx/arc',
+  '/jtx/beadlock',
+  '/jtx/concave',
+  '/jtx/dually',
+  '/jtx/monoforged',
+  '/jtx/phantom',
+  '/jtx/retro',
+  '/jtx/rock-ring',
+  '/jtx/single',
+  '/jtx/thanks',
+  '/jtx/two-piece',
+  '/jtx/utv',
+  '/jtx/wheels',
+  // Builds / platforms
+  '/builds',
+  '/builds/challenger',
+  '/builds/f150',
+  '/builds/mustang',
+  '/builds/trackhawk',
+  '/builds/trx',
+  // Packages
+  '/packages',
+  '/packages/fas-1x',
+  '/packages/fas-2x',
+  '/packages/fas500',
+  '/packages/fas800',
+  '/packages/fas850',
+  '/packages/fas900',
+  '/packages/fas1000',
+  '/packages/powerPackages',
+  '/packages/truckPackages',
+  // Services
+  '/services/overview',
+  '/services/coreExchange',
+  '/services/customFab',
+  '/services/customFab/inquiry',
+  '/services/igla',
+  '/services/porting',
+  '/services/welding',
+  // Shop static
+  '/shop',
+  '/shop/categories',
+  '/shop/performance-packages',
+  '/shop/performance-packages/performanceSection',
+  '/shop/storefront',
+  // Specs
+  '/specs/BilletBearingPlate',
+  '/specs/BilletLid',
+  '/specs/BilletSnout',
+  '/specs/BilletThrottleBody108',
+  '/specs/PredatorPulley',
+  '/specs/PulleyHub',
+  '/specs/billet-snouts',
+  // Vendors index (slug pages come from Sanity)
+  '/vendors',
+  // Blog index (slug pages come from Sanity)
+  '/blog',
+].map((pathname) => ({ pathname, sourceFile: '' }));
 
 function pathFromLoc(loc: string): string {
   try {
@@ -165,30 +245,8 @@ function splitIntoChunks<T>(items: T[], chunkSize: number): T[][] {
   return chunks;
 }
 
-async function collectAstroFiles(root: string): Promise<string[]> {
-  const entries = await readdir(root, { withFileTypes: true });
-  const files = await Promise.all(
-    entries.map(async (entry) => {
-      const resolved = path.join(root, entry.name);
-      if (entry.isDirectory()) {
-        return collectAstroFiles(resolved);
-      }
-      if (!entry.isFile() || !entry.name.endsWith('.astro')) return [];
-      return [resolved];
-    })
-  );
-  return files.flat();
-}
-
-async function discoverPublicRouteFiles(): Promise<RouteFileEntry[]> {
-  const files = await collectAstroFiles(PAGES_DIR);
-  return files
-    .filter((filePath) => !filePath.includes('['))
-    .map((filePath) => ({
-      pathname: routeFromAstroPath(filePath),
-      sourceFile: filePath
-    }))
-    .filter(({ pathname }) => !isExcluded(pathname));
+function discoverPublicRouteFiles(): Promise<RouteFileEntry[]> {
+  return Promise.resolve(KNOWN_PUBLIC_ROUTES.filter(({ pathname }) => !isExcluded(pathname)));
 }
 
 function inferChangefreq(pathname: string): ChangeFreq {
@@ -241,14 +299,16 @@ function inferPriority(pathname: string): number {
 
 async function toUrlEntry({ pathname, sourceFile }: RouteFileEntry): Promise<SitemapUrlEntry> {
   let lastmod: string | undefined;
-  try {
-    const stats = await stat(sourceFile);
-    lastmod = stripMilliseconds(stats.mtime);
-  } catch (err) {
-    console.warn(
-      `[sitemap] Unable to stat ${sourceFile}:`,
-      err instanceof Error ? err.message : err
-    );
+  if (sourceFile) {
+    try {
+      const stats = await stat(sourceFile);
+      lastmod = stripMilliseconds(stats.mtime);
+    } catch (err) {
+      console.warn(
+        `[sitemap] Unable to stat ${sourceFile}:`,
+        err instanceof Error ? err.message : err
+      );
+    }
   }
 
   return {
