@@ -1,5 +1,7 @@
 import { generateUrlsetXml, getPackageUrlEntries } from '@/lib/sitemap';
 
+export const prerender = true;
+
 export async function GET() {
   const urls = await getPackageUrlEntries();
   const xml = generateUrlsetXml(urls);

@@ -15,6 +15,8 @@ import {
 } from '@/lib/sitemap';
 import type { SitemapIndexEntry } from '@/lib/sitemap';
 
+export const prerender = true;
+
 export async function GET() {
   const [
     coreUrls,
