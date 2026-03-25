@@ -634,9 +634,7 @@ document.dispatchEvent(new Event('gtag:loaded'));
     <link rel="dns-prefetch" href="https://stats.g.doubleclick.net" />
     <link rel="dns-prefetch" href="https://analytics.google.com" />
     <link rel="dns-prefetch" href="https://www.google.com" />
-    <!-- Preconnect for hero video hosted on Framer CDN (LCP element) -->
-    <link rel="preconnect" href="https://framerusercontent.com" crossorigin />
-    <link rel="dns-prefetch" href="https://framerusercontent.com" />
+    <!-- Hero image is self-hosted (/_astro/); no external CDN preconnect needed -->
     {
       preloadedBrandFonts.map((fontHref) => (
         <link rel="preload" href={fontHref} as="font" type="font/woff2" crossorigin />
