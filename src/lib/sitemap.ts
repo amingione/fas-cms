@@ -216,6 +216,13 @@ function inferPriority(pathname: string): number {
   if (pathname === '/shop') return 0.9;
   if (pathname === '/wheels') return 0.8;
   if (pathname.startsWith('/shop')) return 0.8;
+  // High-value commercial landing pages
+  if (
+    pathname === '/hellcat-supercharger' ||
+    pathname === '/hellcat-performance' ||
+    pathname === '/trackhawk-performance' ||
+    pathname === '/trx-performance'
+  ) return 0.8;
   if (pathname.startsWith('/services') || pathname.startsWith('/packages')) return 0.7;
   if (pathname.startsWith('/blog') || pathname.startsWith('/vendors')) return 0.7;
   if (pathname.startsWith('/specs')) return 0.5;
