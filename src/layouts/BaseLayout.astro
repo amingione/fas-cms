@@ -235,10 +235,13 @@ try {
 if (canonicalUrl) {
   try {
     const parsedCanonical = new URL(canonicalUrl);
-    canonicalUrl = new URL(
-      parsedCanonical.pathname,
-      CANONICAL_SITE_ORIGIN
-    ).toString();
+    // Preserve search params — category/paginated shop pages need their query string
+    // in the canonical (e.g. /shop?categorySlug=hellcat-performance-package).
+    // Previously only parsedCanonical.pathname was used, which stripped ?categorySlug,
+    // ?page, etc., causing 32+ pages to point their canonical to bare /shop.
+    const rebuilt = new URL(parsedCanonical.pathname, CANONICAL_SITE_ORIGIN);
+    rebuilt.search = parsedCanonical.search;
+    canonicalUrl = rebuilt.toString();
   } catch {
     canonicalUrl = new URL('/', CANONICAL_SITE_ORIGIN).toString();
   }
