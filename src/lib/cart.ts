@@ -35,6 +35,7 @@ export type CartItem = {
 
 export const CART_KEY = 'fas_cart_v1';
 export const CART_EVENT = 'cart:changed';
+const CHECKOUT_DISCOUNT_STATE_KEY = 'fas_checkout_discount_state_v1';
 let hasLoggedCartCleanupThisPage = false;
 
 function isBrowser() {
@@ -308,6 +309,7 @@ export function abandonCheckout(): void {
   try {
     localStorage.removeItem(CART_KEY);
     localStorage.removeItem(MEDUSA_CART_ID_KEY);
+    localStorage.removeItem(CHECKOUT_DISCOUNT_STATE_KEY);
     emitCartUpdated([]);
     console.info('[cart] checkout abandoned — local cart and medusa cart ID cleared');
   } catch (err) {

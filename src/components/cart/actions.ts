@@ -11,6 +11,8 @@ import {
 } from '@/lib/cart';
 import { MEDUSA_CART_ID_KEY } from '@/lib/medusa';
 
+const CHECKOUT_DISCOUNT_STATE_KEY = 'fas_checkout_discount_state_v1';
+
 export type SelectedUpgradeDetailed = {
   label: string;
   priceCents: number;
@@ -265,6 +267,7 @@ export async function clearCart() {
   // and cause silent sync failures on the next visit.
   if (typeof window !== 'undefined') {
     window.localStorage.removeItem(MEDUSA_CART_ID_KEY);
+    window.localStorage.removeItem(CHECKOUT_DISCOUNT_STATE_KEY);
   }
   writeCartState(empty);
   const syncResult = await syncDisplayCart(empty);

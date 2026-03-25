@@ -6,6 +6,7 @@ import { abandonCheckout, ensureMedusaCartId, getCart, persistCartLocally, syncM
 import { MEDUSA_CART_ID_KEY } from '@/lib/medusa';
 
 const CHECKOUT_IMAGE_FALLBACK = '/placeholder.webp';
+const CHECKOUT_DISCOUNT_STATE_KEY = 'fas_checkout_discount_state_v1';
 
 interface ShippingRate {
   id: string;
@@ -312,6 +313,82 @@ function hasCheckoutCartDrift(localItems: LocalCartItem[], serverCart: Cart): bo
   return buildLocalCartSignature(localItems) !== buildServerCartSignature(serverCart);
 }
 
+type StoredDiscountState = {
+  cartId: string;
+  codes: string[];
+};
+
+function normalizeDiscountCode(value: unknown): string {
+  return typeof value === 'string' ? value.trim().toLowerCase() : '';
+}
+
+function getStoredDiscountState(cartId: string | null | undefined): StoredDiscountState | null {
+  if (typeof window === 'undefined' || !cartId) return null;
+
+  try {
+    const raw = window.localStorage.getItem(CHECKOUT_DISCOUNT_STATE_KEY);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw) as Partial<StoredDiscountState> | null;
+    if (!parsed || typeof parsed.cartId !== 'string' || parsed.cartId !== cartId) {
+      return null;
+    }
+
+    const codes = Array.isArray(parsed.codes)
+      ? parsed.codes.map(normalizeDiscountCode).filter(Boolean)
+      : [];
+
+    return {
+      cartId,
+      codes: Array.from(new Set(codes))
+    };
+  } catch {
+    return null;
+  }
+}
+
+function setStoredDiscountCodes(cartId: string, codes: string[]): void {
+  if (typeof window === 'undefined') return;
+
+  const normalizedCodes = Array.from(new Set(codes.map(normalizeDiscountCode).filter(Boolean)));
+  if (!normalizedCodes.length) {
+    window.localStorage.removeItem(CHECKOUT_DISCOUNT_STATE_KEY);
+    return;
+  }
+
+  window.localStorage.setItem(
+    CHECKOUT_DISCOUNT_STATE_KEY,
+    JSON.stringify({
+      cartId,
+      codes: normalizedCodes
+    } satisfies StoredDiscountState)
+  );
+}
+
+function clearStoredDiscountCodes(cartId?: string | null): void {
+  if (typeof window === 'undefined') return;
+  if (!cartId) {
+    window.localStorage.removeItem(CHECKOUT_DISCOUNT_STATE_KEY);
+    return;
+  }
+
+  const existing = getStoredDiscountState(cartId);
+  if (existing) {
+    window.localStorage.removeItem(CHECKOUT_DISCOUNT_STATE_KEY);
+  }
+}
+
+function getCartDiscountCodes(cart: Cart | null | undefined): string[] {
+  const explicitCodes = Array.isArray(cart?.discounts)
+    ? cart.discounts.map((discount) => normalizeDiscountCode(discount?.code)).filter(Boolean)
+    : [];
+  const appliedCodes = Array.isArray(cart?.applied_discount_codes)
+    ? cart.applied_discount_codes.map(normalizeDiscountCode).filter(Boolean)
+    : [];
+
+  return Array.from(new Set([...explicitCodes, ...appliedCodes]));
+}
+
 function isInstallOnlyLineItem(item: CartItem): boolean {
   if (item.install_only === true) return true;
   const shippingClass = String(item.shipping_class || '')
@@ -417,7 +494,9 @@ export default function CheckoutForm() {
   const [discountMessage, setDiscountMessage] = useState<string | null>(null);
   const [applyingDiscount, setApplyingDiscount] = useState(false);
   const [driftDebug, setDriftDebug] = useState<string | null>(null);
+  const [reconcilingDiscounts, setReconcilingDiscounts] = useState(false);
   const shippingSelectionRequestIdRef = useRef(0);
+  const discountReconciliationSignatureRef = useRef('');
   const stripePromise = useMemo(() => {
     const key = stripePublishableKey.trim();
     if (!key) return null;
@@ -537,6 +616,72 @@ export default function CheckoutForm() {
     reconcileLocalCartFromCheckoutCart(data.cart);
     return { loaded: true, driftDetected };
   }
+
+  useEffect(() => {
+    if (!cartId || !cart) return;
+
+    const serverCodes = getCartDiscountCodes(cart);
+    const signature = `${cartId}::${serverCodes.slice().sort().join('|')}`;
+    if (discountReconciliationSignatureRef.current === signature) return;
+    discountReconciliationSignatureRef.current = signature;
+
+    if (!serverCodes.length) {
+      clearStoredDiscountCodes(cartId);
+      return;
+    }
+
+    const storedCodes = new Set(getStoredDiscountState(cartId)?.codes ?? []);
+    const unexpectedCodes = serverCodes.filter((code) => !storedCodes.has(code));
+    if (!unexpectedCodes.length) {
+      setStoredDiscountCodes(cartId, serverCodes);
+      return;
+    }
+
+    let cancelled = false;
+
+    const removeUnexpectedDiscounts = async () => {
+      setReconcilingDiscounts(true);
+      try {
+        for (const code of unexpectedCodes) {
+          const response = await fetch('/api/medusa/cart/discount-code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              cartId,
+              code,
+              action: 'remove'
+            })
+          });
+          const payload = await response.json().catch(() => null);
+          if (!response.ok) {
+            throw new Error(payload?.error || `Unable to clear stale discount code "${code}".`);
+          }
+        }
+
+        if (cancelled) return;
+        await loadCart(cartId);
+        if (cancelled) return;
+
+        clearStoredDiscountCodes(cartId);
+        setDiscountMessage(null);
+      } catch (err) {
+        if (cancelled) return;
+        const message =
+          err instanceof Error ? err.message : 'Unable to clear stale discount codes.';
+        setDiscountMessage(message);
+      } finally {
+        if (!cancelled) {
+          setReconcilingDiscounts(false);
+        }
+      }
+    };
+
+    void removeUnexpectedDiscounts();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [cart, cartId]);
 
   async function recoverMissingCart(): Promise<string> {
     if (typeof window !== 'undefined') {
@@ -889,6 +1034,7 @@ export default function CheckoutForm() {
    * the next session and eliminates ghost-cart Medusa sync errors.
    */
   function handleCancelCheckout() {
+    clearStoredDiscountCodes(cartId);
     abandonCheckout();
     window.location.href = '/shop';
   }
@@ -906,6 +1052,17 @@ export default function CheckoutForm() {
     setError(null);
 
     try {
+      const normalizedCode = normalizeDiscountCode(code);
+      const currentStoredCodes = getStoredDiscountState(cartId)?.codes ?? [];
+      if (action === 'apply') {
+        setStoredDiscountCodes(cartId, [...currentStoredCodes, normalizedCode]);
+      } else {
+        setStoredDiscountCodes(
+          cartId,
+          currentStoredCodes.filter((storedCode) => storedCode !== normalizedCode)
+        );
+      }
+
       const response = await fetch('/api/medusa/cart/discount-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -930,6 +1087,7 @@ export default function CheckoutForm() {
         setDiscountMessage(`Code "${code}" removed.`);
       }
     } catch (err) {
+      await loadCart(cartId).catch(() => null);
       const message = err instanceof Error ? err.message : 'Unable to update discount code.';
       setDiscountMessage(message);
     } finally {
@@ -1032,10 +1190,10 @@ export default function CheckoutForm() {
               <button
                 type="button"
                 className="btn-plain"
-                disabled={applyingDiscount || !discountCode.trim()}
+                disabled={applyingDiscount || reconcilingDiscounts || !discountCode.trim()}
                 onClick={() => void mutateDiscountCode('apply', discountCode)}
               >
-                {applyingDiscount ? 'Applying...' : 'Apply'}
+                {reconcilingDiscounts ? 'Syncing...' : applyingDiscount ? 'Applying...' : 'Apply'}
               </button>
             </div>
             {Array.isArray(cart.discounts) && cart.discounts.length > 0 && (
@@ -1074,7 +1232,7 @@ export default function CheckoutForm() {
                       <button
                         type="button"
                         className="checkout-v2-discount-remove"
-                        disabled={applyingDiscount}
+                        disabled={applyingDiscount || reconcilingDiscounts}
                         onClick={() => void mutateDiscountCode('remove', discount.code)}
                         aria-label={`Remove discount ${discount.code}`}
                       >
