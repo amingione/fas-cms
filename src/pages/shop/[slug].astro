@@ -1593,16 +1593,21 @@ if (product) {
     ]
   };
 
-  const offerDetails: Record<string, any> = {
-    '@type': 'Offer',
-    priceCurrency: 'USD',
-    availability: 'https://schema.org/InStock',
-    url: seoCanon,
-    itemCondition: 'https://schema.org/NewCondition',
-    ...DEFAULT_MERCHANT_LISTING_OFFER_ENHANCEMENTS,
-    price: typeof priceDollars === 'number' ? priceDollars.toFixed(2) : undefined
-  };
-  if (onSaleFlag && saleEndDate) {
+  // Only include offers when a valid price is available — omitting offers is safer
+  // than emitting an Offer object without a price (which triggers GSC merchant errors).
+  const offerDetails: Record<string, any> | undefined =
+    typeof priceDollars === 'number'
+      ? {
+          '@type': 'Offer',
+          priceCurrency: 'USD',
+          price: priceDollars.toFixed(2),
+          availability: 'https://schema.org/InStock',
+          url: seoCanon,
+          itemCondition: 'https://schema.org/NewCondition',
+          ...DEFAULT_MERCHANT_LISTING_OFFER_ENHANCEMENTS
+        }
+      : undefined;
+  if (offerDetails && onSaleFlag && saleEndDate) {
     offerDetails.priceValidUntil = saleEndDate;
   }
 

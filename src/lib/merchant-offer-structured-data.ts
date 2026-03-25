@@ -10,6 +10,21 @@ export type MerchantListingOfferEnhancements = {
       value: number;
       currency: string;
     };
+    deliveryTime: {
+      '@type': 'ShippingDeliveryTime';
+      handlingTime: {
+        '@type': 'QuantitativeValue';
+        minValue: number;
+        maxValue: number;
+        unitCode: string;
+      };
+      transitTime: {
+        '@type': 'QuantitativeValue';
+        minValue: number;
+        maxValue: number;
+        unitCode: string;
+      };
+    };
   };
   hasMerchantReturnPolicy: {
     '@type': 'MerchantReturnPolicy';
@@ -32,6 +47,21 @@ export const DEFAULT_MERCHANT_LISTING_OFFER_ENHANCEMENTS: MerchantListingOfferEn
       '@type': 'MonetaryAmount',
       value: 0,
       currency: 'USD'
+    },
+    deliveryTime: {
+      '@type': 'ShippingDeliveryTime',
+      handlingTime: {
+        '@type': 'QuantitativeValue',
+        minValue: 0,
+        maxValue: 1,
+        unitCode: 'DAY'
+      },
+      transitTime: {
+        '@type': 'QuantitativeValue',
+        minValue: 3,
+        maxValue: 7,
+        unitCode: 'DAY'
+      }
     }
   },
   hasMerchantReturnPolicy: {
