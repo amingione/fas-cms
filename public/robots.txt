@@ -5,5 +5,4 @@ Disallow: /account
 Disallow: /dashboard
 Disallow: /vendor
 Disallow: /vendor-portal
-Disallow: /fonts/
 Sitemap: https://fasmotorsports.com/sitemap_index.xml
