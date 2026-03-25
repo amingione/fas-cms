@@ -90,7 +90,8 @@ const CORE_ROUTE_CANDIDATES = new Set<string>([
   '/privacypolicy',
   '/termsandconditions',
   '/returnRefundPolicy',
-  '/internalPolicy'
+  '/internalPolicy',
+  '/hellcat-supercharger'
 ]);
 
 const PLATFORM_ROUTE_PREFIXES = [

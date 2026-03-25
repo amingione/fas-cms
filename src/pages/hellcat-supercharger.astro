@@ -1,0 +1,274 @@
+---
+export const prerender = true;
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Button from '@/components/Button.astro';
+import { BUSINESS_PHONE_NATIONAL, BUSINESS_PHONE_E164 } from '@/lib/nap';
+
+const faqs = [
+  {
+    q: 'What supercharger does the Hellcat have from the factory?',
+    a: 'The factory Hellcat uses a 2.4L IHI twin-screw supercharger producing 6–7 psi of boost, rated at 717 hp on the standard Hellcat and 797 hp on the Redeye. The supercharger is mounted on top of the 6.2L HEMI V8 and is an integral part of the engine assembly.',
+  },
+  {
+    q: 'What is the best Hellcat supercharger upgrade?',
+    a: 'The most popular upgrade path is a ported or replaced supercharger combined with a pulley change, 108mm throttle body, and supporting fuel system work. F.A.S. Motorsports offers the FAS Dominator package — an in-house ported supercharger rotor pack with port-matched inlet, upgraded throttle body, and custom dyno tuning, built specifically for the Hellcat 6.2L platform.',
+  },
+  {
+    q: 'How much power can a Hellcat supercharger upgrade make?',
+    a: 'On a stock bottom end with porting, pulley work, and an E85 tune, a Hellcat can reliably make 800–950 WHP. With a full fuel system upgrade and supporting mods, 1,000+ WHP is achievable. F.A.S. Motorsports documents power numbers on an in-house AWD dyno for every package build.',
+  },
+  {
+    q: 'Will a Hellcat supercharger fit a 5.7 HEMI?',
+    a: 'Not directly — the factory Hellcat 2.4L supercharger is designed for the 6.2L HEMI and requires the matching intake manifold, fuel system, and engine management system. Fitting it to a 5.7L requires significant fabrication and ECM work. F.A.S. Motorsports can discuss swap feasibility on a per-project basis.',
+  },
+  {
+    q: 'How much does a Hellcat supercharger upgrade cost?',
+    a: 'A bolt-on supercharger upgrade with pulley, throttle body, and tune starts around $3,500–$6,000 installed. Full-system builds targeting 900–1,000+ WHP range from $10,000–$18,000 depending on parts and labor. Contact F.A.S. Motorsports at ' + BUSINESS_PHONE_NATIONAL + ' for a build-specific quote.',
+  },
+  {
+    q: 'Does F.A.S. Motorsports install Whipple or Magnuson superchargers on Hellcats?',
+    a: 'Yes — in addition to our proprietary Dominator ported supercharger package, we can source and install aftermarket supercharger kits including Whipple Gen 5/6 and Magnuson TVS units. We also offer hybrid builds that combine aftermarket superchargers with FAS billet components and custom tuning.',
+  },
+];
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(({ q, a }) => ({
+    '@type': 'Question',
+    name: q,
+    acceptedAnswer: { '@type': 'Answer', text: a },
+  })),
+};
+
+const productJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: 'FAS Dominator Hellcat Supercharger Package',
+  description:
+    'F.A.S. Motorsports Dominator supercharger package for Dodge Challenger and Charger SRT Hellcat 6.2L — includes race-ported supercharger rotor pack, port-matched inlet, upgraded throttle body, pulley package, and full custom dyno tune.',
+  brand: { '@type': 'Brand', name: 'F.A.S. Motorsports' },
+  url: 'https://fasmotorsports.com/hellcat-supercharger',
+  offers: {
+    '@type': 'Offer',
+    priceCurrency: 'USD',
+    availability: 'https://schema.org/InStock',
+    seller: {
+      '@type': 'AutoRepair',
+      name: 'F.A.S. Motorsports',
+      telephone: BUSINESS_PHONE_E164,
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: '6161 Riverside Dr',
+        addressLocality: 'Punta Gorda',
+        addressRegion: 'FL',
+        postalCode: '33982',
+        addressCountry: 'US',
+      },
+    },
+  },
+};
+---
+
+<BaseLayout
+  title="Hellcat Supercharger Upgrades — FAS Motorsports | Punta Gorda, FL"
+  description="Hellcat supercharger upgrades built and installed by F.A.S. Motorsports in Punta Gorda, FL. Ported supercharger packages, pulley kits, 108mm throttle body, and custom dyno tuning for Dodge Challenger and Charger SRT Hellcat 6.2L."
+  canonical="https://fasmotorsports.com/hellcat-supercharger"
+  keywords={['hellcat supercharger', 'hellcat supercharger upgrade', 'hellcat supercharger kit', 'dodge hellcat supercharger upgrade', 'hellcat 6.2 supercharger', 'hellcat supercharger install florida']}
+  bodyClass="bg-dark text-white min-h-screen flex flex-col"
+  mainClass="flex-1 w-full max-w-none px-0 pt-0"
+>
+  <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
+  <script type="application/ld+json" set:html={JSON.stringify(productJsonLd)} />
+
+  <!-- ── HERO ── -->
+  <section
+    class="relative flex items-center justify-center min-h-[480px] sm:min-h-[560px] overflow-hidden bg-black"
+    aria-label="Hellcat supercharger upgrades"
+  >
+    <div
+      class="absolute inset-0 z-0 pointer-events-none"
+      style="background: radial-gradient(ellipse 80% 60% at 60% 50%, rgba(234,29,38,0.18) 0%, transparent 70%), radial-gradient(ellipse 60% 80% at 20% 80%, rgba(30,80,200,0.08) 0%, transparent 70%);"
+      aria-hidden="true"
+    ></div>
+    <div class="relative z-10 max-w-5xl mx-auto px-6 py-20 text-center">
+      <p class="text-xs font-mono tracking-widest text-red-500 uppercase mb-4">
+        Punta Gorda, FL · In-Shop Installation
+      </p>
+      <h1 class="text-4xl sm:text-6xl font-bold font-ethno italic text-white mb-4 leading-tight">
+        Hellcat Supercharger<br />
+        <span class="text-red-500">Upgrades</span>
+      </h1>
+      <p class="text-lg font-mono text-white/70 max-w-2xl mx-auto mb-8">
+        Built and installed at F.A.S. Motorsports — ported supercharger packages, pulley kits,
+        and full-system power builds for Dodge Challenger &amp; Charger SRT Hellcat 6.2L.
+      </p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <Button href="/packages/fas1000" text="View Build Packages" variant="default" />
+        <Button href="/contact" text={`Call ${BUSINESS_PHONE_NATIONAL}`} variant="outline" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ── WHY UPGRADE ── -->
+  <section class="max-w-6xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-3">
+      Why Upgrade the Hellcat Supercharger?
+    </h2>
+    <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+    <div class="grid md:grid-cols-2 gap-10">
+      <div>
+        <p class="text-white/70 font-mono text-sm leading-relaxed mb-4">
+          The factory 2.4L IHI supercharger is a solid piece of engineering, but it leaves
+          significant power on the table. The rotor pack, inlet, and throttle body are all
+          restricting flow well before the engine runs out of capability. On a 717 hp Hellcat,
+          a properly ported supercharger with a pulley change and matching throttle body can push
+          output to 800–900+ WHP on pump gas — without touching the bottom end.
+        </p>
+        <p class="text-white/70 font-mono text-sm leading-relaxed">
+          F.A.S. Motorsports has built Hellcats at every power level from bolt-on street builds
+          to full E85 1,000 WHP race builds. Every package is verified on our in-house AWD dyno
+          in Punta Gorda, FL before the car leaves the shop.
+        </p>
+      </div>
+      <div class="space-y-4">
+        {[
+          { label: 'Stock Hellcat', power: '717 WHP (est.)', note: 'Factory 2.4L IHI, stock tune' },
+          { label: 'Ported + Pulley + Tune', power: '800–900 WHP', note: 'Same bottom end, pump gas' },
+          { label: 'Full System + E85', power: '950–1,100+ WHP', note: 'Fuel system, headers, E85 tune' },
+        ].map(({ label, power, note }) => (
+          <div class="border border-white/10 rounded p-4 bg-white/5">
+            <div class="flex justify-between items-start mb-1">
+              <span class="font-mono font-bold text-white text-sm">{label}</span>
+              <span class="font-mono text-red-400 text-sm font-bold">{power}</span>
+            </div>
+            <p class="text-white/40 font-mono text-xs">{note}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FAS DOMINATOR PACKAGE ── -->
+  <section class="bg-[#0a0b10] border-y border-white/10 px-6 py-20">
+    <div class="max-w-6xl mx-auto">
+      <p class="text-xs font-mono tracking-widest text-red-500 uppercase mb-2">Signature Package</p>
+      <h2 class="text-3xl font-cyber font-bold text-white mb-3">
+        The FAS Dominator Supercharger Package
+      </h2>
+      <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+      <div class="grid md:grid-cols-2 gap-10 items-start">
+        <div>
+          <p class="text-white/70 font-mono text-sm leading-relaxed mb-6">
+            The FAS Dominator is our in-house hellcat supercharger upgrade package —
+            built around a race-ported supercharger rotor pack with a port-matched inlet,
+            paired with our billet snout, aggressive pulley combination, and a full custom
+            dyno tune on the AWD dyno in our Punta Gorda shop.
+          </p>
+          <ul class="space-y-3">
+            {[
+              'Race-ported supercharger rotor pack with port-matched inlet',
+              'FAS billet snout & lower pulley kit',
+              '108mm throttle body (removes factory restriction)',
+              'Pulley package calibrated for target power level',
+              'Full custom AWD dyno tune — pump gas + E85 maps',
+              'Professional installation — Punta Gorda, FL',
+            ].map((item) => (
+              <li class="flex items-start gap-3 font-mono text-sm text-white/80">
+                <span class="text-red-500 mt-0.5 shrink-0">▸</span>
+                {item}
+              </li>
+            ))}
+          </ul>
+          <div class="mt-8 flex flex-wrap gap-4">
+            <Button href="/shop" text="Shop Dominator Parts" variant="default" />
+            <Button href="/packages" text="View All Packages" variant="outline" />
+          </div>
+        </div>
+        <div class="space-y-4">
+          <div class="border border-red-500/30 rounded p-5 bg-red-950/20">
+            <p class="text-xs font-mono tracking-widest text-red-400 uppercase mb-2">What makes it different</p>
+            <p class="text-white/70 font-mono text-sm leading-relaxed">
+              Unlike bolt-on kits from Whipple or Magnuson that replace the supercharger
+              entirely, the FAS Dominator upgrades and ports the factory unit. This retains
+              OEM reliability while dramatically improving airflow — and costs significantly
+              less than a full supercharger replacement at comparable power levels.
+            </p>
+          </div>
+          <div class="border border-white/10 rounded p-5 bg-white/5">
+            <p class="text-xs font-mono tracking-widest text-white/40 uppercase mb-2">Also available</p>
+            <ul class="text-white/70 font-mono text-sm space-y-2">
+              <li>▸ Whipple Gen 5/6 installation (3.0L, 3.8L)</li>
+              <li>▸ Magnuson TVS2650 installation</li>
+              <li>▸ Hybrid builds — FAS billet + aftermarket supercharger</li>
+              <li>▸ 2.7L Dominator package for max ported output</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PLATFORMS SUPPORTED ── -->
+  <section class="max-w-6xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-3">Platforms We Build</h2>
+    <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {[
+        { model: 'Dodge Challenger SRT', engine: '6.2L Hellcat / Redeye / Demon', href: '/builds/challenger' },
+        { model: 'Dodge Charger SRT', engine: '6.2L Hellcat / Redeye', href: '/builds/challenger' },
+        { model: 'RAM 1500 TRX', engine: '6.2L Supercharged HEMI', href: '/packages/truckPackages' },
+        { model: 'Jeep Trackhawk', engine: '6.2L Supercharged HEMI', href: '/contact' },
+      ].map(({ model, engine, href }) => (
+        <a
+          href={href}
+          class="block border border-white/10 rounded p-5 bg-white/5 hover:border-red-500/50 hover:bg-red-950/20 transition-colors group"
+        >
+          <p class="font-mono font-bold text-white text-sm mb-1 group-hover:text-red-400 transition-colors">{model}</p>
+          <p class="font-mono text-white/40 text-xs">{engine}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- ── FAQ ── -->
+  <section class="bg-[#0a0b10] border-t border-white/10 px-6 py-20">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-3xl font-cyber font-bold text-white mb-3">
+        Hellcat Supercharger — Common Questions
+      </h2>
+      <div class="h-[2px] w-16 bg-red-500 mb-10"></div>
+      <div class="space-y-4">
+        {faqs.map(({ q, a }) => (
+          <details class="border border-white/10 rounded bg-white/5 group">
+            <summary class="cursor-pointer px-5 py-4 font-mono font-bold text-white text-sm tracking-wide list-none flex justify-between items-center">
+              {q}
+              <span class="text-red-500 ml-4 shrink-0 group-open:rotate-180 transition-transform">▾</span>
+            </summary>
+            <p class="px-5 pb-4 pt-1 text-white/60 font-mono text-sm leading-relaxed">{a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ── -->
+  <section class="max-w-3xl mx-auto px-6 py-20 text-center">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-4">
+      Ready to Build Your Hellcat?
+    </h2>
+    <p class="text-white/60 font-mono text-sm mb-8 max-w-xl mx-auto">
+      Call or contact us at our Punta Gorda, FL shop to discuss supercharger options,
+      get a build quote, or schedule your installation. We work on Challengers, Chargers,
+      TRX, and Trackhawk platforms.
+    </p>
+    <div class="flex flex-wrap justify-center gap-4">
+      <Button href="/contact" text="Get a Build Quote" variant="default" />
+      <Button href="/builds/challenger" text="View Hellcat Builds" variant="outline" />
+    </div>
+    <p class="mt-6 text-white/30 font-mono text-xs">
+      F.A.S. Motorsports · 6161 Riverside Dr · Punta Gorda, FL 33982 · {BUSINESS_PHONE_NATIONAL}
+    </p>
+  </section>
+</BaseLayout>
