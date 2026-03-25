@@ -25,11 +25,13 @@ export default function OrderSummaryNew({ cart, isLocked = false }: OrderSummary
   const shippingTotal = typeof cart.shipping_total === 'number' ? cart.shipping_total : null;
   const taxTotal = typeof cart.tax_total === 'number' ? cart.tax_total : null;
 
-  console.log('[OrderSummary] Debug:', {
-    tax_total: cart.tax_total,
-    hasTaxTotal: taxTotal !== null,
-    hasShippingTotal: shippingTotal !== null
-  });
+  if (import.meta.env.DEV) {
+    console.log('[OrderSummary] Debug:', {
+      tax_total: cart.tax_total,
+      hasTaxTotal: taxTotal !== null,
+      hasShippingTotal: shippingTotal !== null
+    });
+  }
 
   return (
     <div className="lg:sticky lg:top-8">

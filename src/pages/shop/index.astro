@@ -709,6 +709,12 @@ if (endPage < totalPages) {
       type="application/ld+json"
       set:html={serializeJsonLd(breadcrumbStructuredData)}
     />
+    {productCollectionStructuredData && (
+      <script
+        type="application/ld+json"
+        set:html={serializeJsonLd(productCollectionStructuredData)}
+      />
+    )}
   </Fragment>
   <section class="max-w-full px-2 md:px-2 mt-11 pt-10">
     <div class="mb-6 mt-2 space-y-3">
