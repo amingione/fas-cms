@@ -135,7 +135,7 @@ const pageTitle = initialQuery ? `Search: "${initialQuery}"` : 'Search';
           case 'product':
             return slug ? `/shop/${slug}` : '';
           case 'service':
-            return slug ? `/service/${slug}` : '';
+            return slug ? `/services/${slug}` : '';
           case 'quote':
             return `/dashboard/quotes/${it._id || ''}`;
           case 'invoice':

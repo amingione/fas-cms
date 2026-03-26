@@ -3,6 +3,91 @@
   to = "/site.webmanifest"
   status = 200
 
+# Section landing aliases for legacy/internal links
+[[redirects]]
+  from = "/services"
+  to = "/services/overview"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/services/"
+  to = "/services/overview"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/service/:slug"
+  to = "/services/:slug"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/service/:slug/"
+  to = "/services/:slug"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/jtx"
+  to = "/jtx/wheels"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/jtx/"
+  to = "/jtx/wheels"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/belak"
+  to = "/belak/wheels"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/belak/"
+  to = "/belak/wheels"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/specs"
+  to = "/shop"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/specs/"
+  to = "/shop"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/packages/index"
+  to = "/packages"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/packages/index/"
+  to = "/packages"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/shop/hellcat-upper-pulley-ring-only"
+  to = "/shop/upper-pulley-ring-only"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/shop/hellcat-upper-pulley-ring-only/"
+  to = "/shop/upper-pulley-ring-only"
+  status = 301
+  force = true
+
 [[redirects]]
   from = "https://fasmotorsports.us/*"
   to = "https://fasmotorsports.com/:splat"
@@ -1066,7 +1151,7 @@
     X-Content-Type-Options = "nosniff"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
     # Keep analytics.ahrefs.com in script-src/connect-src for Ahrefs Web Analytics.
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://*.stripe.com https://www.googletagmanager.com https://apis.google.com https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://js.stripe.com https://app.netlify.com https://ve.netlify.app https://*.netlify.app https://www.googleadservices.com https://googleads.g.doubleclick.net https://www.google-analytics.com https://analytics.ahrefs.com; frame-src https://*.stripe.com https://www.google.com https://www.google.com/recaptcha/ https://js.stripe.com https://app.netlify.com https://*.netlify.app https://www.youtube.com https://youtube.com; connect-src 'self' http://localhost:* http://127.0.0.1:* ws://localhost:* ws://127.0.0.1:* https://api.fasmotorsports.com https://*.stripe.com https://api.stripe.com https://*.sanity.io https://app.netlify.com https://ve.netlify.app https://*.netlify.app wss://*.netlify.app wss://ve.netlify.app https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://www.google.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://ingesteer.services-prod.nsvcs.net https://analytics.ahrefs.com; img-src 'self' https://*.stripe.com data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://*.stripe.com https://fonts.gstatic.com https://r2cdn.perplexity.ai https://fasmotorsports.com https://www.fasmotorsports.com https://*.fasmotorsports.com data:; media-src 'self' https: http: blob: data:; frame-ancestors 'self' https://app.netlify.com https://*.netlify.app"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://*.stripe.com https://www.googletagmanager.com https://apis.google.com https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://js.stripe.com https://app.netlify.com https://ve.netlify.app https://*.netlify.app https://www.googleadservices.com https://googleads.g.doubleclick.net https://www.google-analytics.com https://analytics.ahrefs.com; frame-src https://*.stripe.com https://www.google.com https://www.google.com/recaptcha/ https://js.stripe.com https://app.netlify.com https://*.netlify.app https://www.youtube.com https://youtube.com; connect-src 'self' http://localhost:* http://127.0.0.1:* ws://localhost:* ws://127.0.0.1:* https://api.fasmotorsports.com https://*.stripe.com https://api.stripe.com https://*.sanity.io https://app.netlify.com https://ve.netlify.app https://*.netlify.app wss://*.netlify.app wss://ve.netlify.app https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://www.google.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://stats.g.doubleclick.net https://ingesteer.services-prod.nsvcs.net https://analytics.ahrefs.com; img-src 'self' https://*.stripe.com data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://*.stripe.com https://fonts.gstatic.com https://r2cdn.perplexity.ai https://fasmotorsports.com https://www.fasmotorsports.com https://*.fasmotorsports.com data:; media-src 'self' https: http: blob: data:; frame-ancestors 'self' https://app.netlify.com https://*.netlify.app"
 
 # Asset-specific long-lived cache rules override the default HTML TTL.
 [[headers]]

@@ -421,8 +421,8 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  color: var(--red);
-  font-size: 0.72rem;
+  color: #ff6b6b;
+  font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -432,7 +432,7 @@
 .homepage-kicker-line {
   width: 32px;
   height: 2px;
-  background: var(--red);
+  background: #ff6b6b;
 }
 
 .homepage-hero-title,
@@ -621,7 +621,7 @@
   border-radius: 10px;
   background: rgba(8, 8, 8, 0.6);
   color: var(--text-secondary);
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -744,7 +744,7 @@
   display: block;
   margin-top: 5px;
   color: var(--text-muted);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   font-family: var(--font-heading-tertiary);
@@ -1373,7 +1373,7 @@
 
 .fas-footer-moto {
   font-family: var(--font-display);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--text-secondary);
   letter-spacing: 0.14em;
@@ -1382,7 +1382,7 @@
 
 .fas-footer-tagline {
   font-family: var(--font-label);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -1431,7 +1431,7 @@
 
 .fas-footer-col h4 {
   font-family: var(--font-label);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
