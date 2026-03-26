@@ -1072,7 +1072,9 @@
 [[headers]]
   for = "/fonts/*"
   [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
+    # Fonts are not content-hashed (public/fonts/ static filenames) — use a
+    # 1-day TTL without immutable so updated font files can propagate.
+    Cache-Control = "public, max-age=86400"
     Access-Control-Allow-Origin = "*"
     Access-Control-Allow-Methods = "GET, OPTIONS"
     Access-Control-Allow-Headers = "Origin, Content-Type, Accept"

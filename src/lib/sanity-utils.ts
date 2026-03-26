@@ -260,6 +260,41 @@ export const optimizeSanityImageUrl = (
   }
 };
 
+/**
+ * Builds a `srcset` string for a Sanity CDN image URL.
+ *
+ * Generates entries for each width in `widths` by injecting `w=<n>` into
+ * the URL (preserving all existing transform params like auto=format, fit,
+ * and q already applied by optimizeSanityImageUrl / resolveSanityImageUrl).
+ * Falls back to the raw URL if it is not a Sanity CDN host.
+ *
+ * @example
+ * const srcset = buildSanitySrcSet(img, { widths: [300, 600, 900] });
+ * // "https://cdn.sanity.io/...?auto=format&fit=max&q=82&w=300 300w, ...900 900w"
+ */
+export const buildSanitySrcSet = (
+  rawUrl: string | null | undefined,
+  options: { widths?: number[] } = {}
+): string | undefined => {
+  if (!rawUrl || typeof rawUrl !== 'string') return undefined;
+  const widths = options.widths ?? [300, 450, 600, 900];
+  try {
+    const base = new URL(rawUrl.trim());
+    if (!SANITY_CDN_HOSTS.has(base.hostname) || !base.pathname.includes('/images/')) {
+      return undefined;
+    }
+    return widths
+      .map((w) => {
+        const u = new URL(base.toString());
+        u.searchParams.set('w', String(w));
+        return `${u.toString()} ${w}w`;
+      })
+      .join(', ');
+  } catch {
+    return undefined;
+  }
+};
+
 const studioUrlRaw =
   (import.meta.env.PUBLIC_SANITY_STUDIO_URL as string | undefined) ||
   serverEnv.SANITY_STUDIO_URL ||
