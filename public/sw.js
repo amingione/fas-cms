@@ -1,4 +1,4 @@
-const VERSION = 'v1';
+const VERSION = 'v2';
 const RUNTIME_CACHE = `fas-runtime-${VERSION}`;
 
 self.addEventListener('install', (event) => {
@@ -38,15 +38,25 @@ self.addEventListener('fetch', (event) => {
     caches.match(request).then((cached) => {
       if (cached) return cached;
 
-      return fetch(request).then((response) => {
-        if (!response || response.status !== 200 || response.type !== 'basic') {
-          return response;
-        }
+      return fetch(request)
+        .then((response) => {
+          if (!response || response.status !== 200 || response.type !== 'basic') {
+            return response;
+          }
 
-        const copy = response.clone();
-        caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, copy));
-        return response;
-      });
+          const copy = response.clone();
+          caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, copy));
+          return response;
+        })
+        .catch(async () => {
+          const fallback = await caches.match(request);
+          if (fallback) return fallback;
+
+          return new Response('Network error', {
+            status: 504,
+            statusText: 'Gateway Timeout',
+          });
+        });
     })
   );
 });
