@@ -3,7 +3,7 @@
 ## Generation Metadata
 - Created: 2026-03-26
 - Version: 4 (sales email voice corrected + 23 Charger thread added; exclamation point rule revised; core exchange UX gap flagged)
-- Sources: Homepage copy (HomepageHero, StorySection, PowerPackages, ServicesStrip, CustomFabricationSection, StatsBand), SEO Strategic Report, GBP Optimization Brief (IGLA), Competitive Brief (SEO-Clients), FAS Motorsports Competitive Brief (Notion), Keyword & Content Strategy docs, sales@fasmotorsports.com (3 email threads — Hayden Derr, Kyle Francis / 23 Charger, William Cocoma)
+- Sources: Homepage copy (HomepageHero, StorySection, PowerPackages, ServicesStrip, CustomFabricationSection, StatsBand), SEO Strategic Report, GBP Optimization Brief (IGLA), Competitive Brief (SEO-Clients), FAS Motorsports Competitive Brief (Notion), Keyword & Content Strategy docs, sales@fasmotorsports.com (3 email threads — )
 - Documents processed: 11
 - Conversations analyzed: 3 (7 FAS-authored messages across Hayden Derr race blower thread, 23 Charger hellcat last call thread, William Cocoma supercharger snout thread)
 - Discovery report used: No

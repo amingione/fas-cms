@@ -1,7 +1,10 @@
 # F.A.S. Motorsports Brand Voice + Content Optimization Plan
 
+> **Authoritative brand voice source:** `.claude/brand-voice-guidelines.md`
+> This document governs content QA and rewrite standards. For voice attributes, tone-by-context rules, terminology, and enforced language patterns, read the guidelines first.
+
 ## Summary
-This plan standardizes customer-facing copy across `fas-cms-fresh` so every page is technically credible, useful, and aligned with F.A.S. Motorsports positioning: luxury performance, vehicle-specific engineering, in-house fabrication, and durable real-world builds. Scope is UI/content only. No API, business logic, pricing logic, or checkout logic changes.
+This plan standardizes customer-facing copy across `fas-cms-fresh` so every page is technically credible, useful, and aligned with F.A.S. Motorsports positioning: shop-floor authentic, vehicle-specific engineering, in-house fabrication, and durable real-world builds. Scope is UI/content only. No API, business logic, pricing logic, or checkout logic changes.
 
 ## Audit Findings (Content Risk Categories)
 1. Placeholder or developer language
@@ -27,18 +30,22 @@ This plan standardizes customer-facing copy across `fas-cms-fresh` so every page
 
 ## Brand Voice Definition (F.A.S. Motorsports)
 ### Positioning
-- Luxury-performance engineering shop for serious enthusiasts and owners who want durable, custom-fit outcomes.
-- Every build is tailored to the customer’s exact vehicle, usage profile, and goals.
-- In-house fabrication and validation are central proof points.
+- Shop-floor authentic performance engineering for serious enthusiasts and owners who want durable, custom-fit outcomes.
+- Three generations of in-house fabrication since 2002 — every part machined and installed under one roof.
+- Vertically integrated: FAS designs, fabricates, installs, and validates. Not a reseller, not a drop-ship catalog.
+- In-house fabrication, validation, and direct technical expertise are central proof points.
+
+> **Note:** FAS is NOT a "luxury" brand. The register is shop-floor authentic + technical enthusiast-direct, not upscale/premium consumer. See `.claude/brand-voice-guidelines.md` → "We Are / We Are Not" for the full attribute set.
 
 ### Voice pillars
 1. Precision over hype
-- Write like a trusted technical advisor.
+- Write like a trusted technical advisor and peer enthusiast.
 - Prefer measurable details, constraints, and process transparency.
+- Mechanism over marketing adjective: cite the spec, not the superlative.
 
-2. Premium without exaggeration
-- Confident tone, but no unsupported absolutes.
-- Premium language should reflect workmanship, process, and outcomes.
+2. Confidence without performance
+- Direct and certain tone, but no unsupported absolutes.
+- Confidence comes from workmanship, process, and documented outcomes — not marketing language.
 
 3. Customer-specific craftsmanship
 - Emphasize per-vehicle calibration, fitment checks, fabrication options, and iterative refinement.
@@ -84,7 +91,7 @@ Apply this checklist before publishing or merging copy updates:
 3. Are fitment, prerequisites, and limitations clearly stated?
 4. Is the next step explicit (book consult, request fitment review, contact support)?
 5. Is there zero placeholder/dev language in customer-visible text?
-6. Is tone consistent with luxury + technical credibility?
+6. Is tone consistent with shop-floor authentic + technical credibility (not luxury/upscale)?
 7. Are core business facts and terminology consistent with canonical sources?
 
 ## Phased Roadmap (Customer Pages First)
@@ -129,7 +136,7 @@ Deliverable:
   - clear next-step CTA
 
 4. Voice consistency
-- 100% sampled key pages pass brand-voice checklist (precision, premium, custom-specific, transparent).
+- 100% sampled key pages pass brand-voice checklist (precision, shop-floor authentic, custom-specific, transparent). See `.claude/brand-voice-guidelines.md` for the full checklist.
 
 5. Consistency
 - Canonical company facts and terminology are standardized across audited pages.
