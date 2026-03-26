@@ -12,7 +12,7 @@ const FALLBACK_SITE_URL = 'https://fasmotorsports.com/';
 const FALLBACK_IMAGE_URL = `${FALLBACK_SITE_URL}images/social/social-share.webp`;
 const FALLBACK_LOGO_URL = `${FALLBACK_SITE_URL}logo/fas-logo500.webp`;
 const FALLBACK_DESCRIPTION =
-  'F.A.S. Motorsports delivers billet upgrades, fabrication, installs, and premium performance packages from Punta Gorda, Florida.';
+  'F.A.S. Motorsports is a three-generation, family-owned performance manufacturer in Punta Gorda, Florida. In-house supercharger systems, billet fabrication, and dyno-validated power packages from 800 to 1,000+ HP since 2002.';
 const DEFAULT_EMAIL = BUSINESS_EMAIL;
 const DEFAULT_PHONE = BUSINESS_PHONE_E164;
 
@@ -163,7 +163,7 @@ export const buildDefaultJsonLdGraph = ({
       ]
     },
     {
-      '@type': 'AutoRepair',
+      '@type': 'AutoPartsStore',
       '@id': localBusinessId,
       name: siteName,
       url: normalizedSiteUrl,
