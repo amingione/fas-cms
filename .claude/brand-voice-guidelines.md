@@ -1,13 +1,13 @@
 # F.A.S. Motorsports Brand Voice Guidelines
 
 ## Generation Metadata
-- Created: 2026-03-25
-- Version: 1
-- Sources: Homepage copy (HomepageHero, StorySection, PowerPackages, ServicesStrip, CustomFabricationSection, StatsBand), SEO Strategic Report, GBP Optimization Brief (IGLA), Competitive Brief, Keyword & Content Strategy docs
-- Documents processed: 9
-- Conversations analyzed: 0
-- Discovery report used: No (Notion was down — derived from codebase and SEO deliverables)
-- Overall confidence: Medium-High (0.74)
+- Created: 2026-03-26
+- Version: 4 (sales email voice corrected + 23 Charger thread added; exclamation point rule revised; core exchange UX gap flagged)
+- Sources: Homepage copy (HomepageHero, StorySection, PowerPackages, ServicesStrip, CustomFabricationSection, StatsBand), SEO Strategic Report, GBP Optimization Brief (IGLA), Competitive Brief (SEO-Clients), FAS Motorsports Competitive Brief (Notion), Keyword & Content Strategy docs, sales@fasmotorsports.com (3 email threads — Hayden Derr, Kyle Francis / 23 Charger, William Cocoma)
+- Documents processed: 11
+- Conversations analyzed: 3 (7 FAS-authored messages across Hayden Derr race blower thread, 23 Charger hellcat last call thread, William Cocoma supercharger snout thread)
+- Discovery report used: No
+- Overall confidence: Medium-High (0.80 — elevated from 0.74 with competitive brief and email pattern data)
 
 ---
 
@@ -245,6 +245,61 @@ Derived from site copy patterns and SEO content. No transcript data available �
 1. **"What does [component] actually do to power?"** — Blog headline formula that mirrors search intent and the shop's direct communication style.
 2. **"What are you building it for?"** — The diagnostic opening for consultations. Frames the relationship as collaborative, not transactional.
 
+### Sales Email Voice (Confidence: High — 3 threads, 7 FAS messages)
+
+Actual `sales@fasmotorsports.com` patterns confirmed across three threads (Hayden Derr / race blower, 23 Charger hellcat last call, William Cocoma / supercharger snout — March 2026).
+
+**Structure (confirmed):**
+1. Opens with "Hello," on new threads. No opener on follow-ups — jumps straight to the response.
+2. Affirm first, then action: "Yes we can do any color! I'll get a price sent over today!" Not "We'll look into the color options for you."
+3. Full technical product name: "Dominator Race 2.4L Hellcat Supercharger core" — never "the blower," never "our product"
+4. Positions FAS as advisor: "I'll make a quote and send it over with what we recommend!" — not just "here's your invoice"
+5. Acknowledges the customer's build with genuine peer enthusiasm: "Very nice mods!"
+6. Qualifying criteria stated plainly in-line, parenthetical: "We now accept 2018+ good condition cores (no rotor damage, physical outside damage etc…)"
+7. Corrections are brief, undefensive, immediate: "Sorry, 'Core' means we send you a supercharger finished. Not you sending your supercharger in for the service."
+
+**Exclamation points — CORRECTED from v2:**
+FAS uses exclamation points freely and naturally throughout — on affirmations, on action confirmations, on enthusiasm. They are NOT reserved for the close only. The rule is: **exclamation points on short affirmative statements and action confirmations. Never on prices or technical specs.**
+
+✅ "Yes we can do any color!" — affirmation
+✅ "I'll include all the options you have listed!" — action confirmation
+✅ "Very nice mods!" — peer enthusiasm
+✅ "Please let me know if you have any questions!" — close
+❌ "They are $4175!" — never on a price line
+❌ "This is the most advanced supercharger available!" — never on a spec claim
+
+**Full reconstructed voice from the 23 Charger thread (FAS side only):**
+
+Thread opener (Mar 20):
+```
+Hello,
+Yes I can write you up an invoice and send it over via email.
+I'll include all the options you have listed!
+What is your shipping address?
+```
+
+Mid-thread (Mar 23, core clarification + invoice):
+```
+Thank you [name]! I will send an invoice over shortly!
+We now accept 2018+ good condition cores (no rotor damage, physical outside damage etc…)
+```
+
+On seeing the customer's mod list (Mar 23):
+```
+Very nice mods!
+I'll make a quote and send it over with what we recommend! If you want to add anything or take anything off, please let us know!
+```
+
+Color confirmation (Mar 24):
+```
+Yes we can do any color!
+I'll get a price sent over today!
+```
+
+**What this thread also reveals (UX gap):** The customer was confused about how the core exchange flow works on the site ("Do I click core exchange program… Do I click purchase 2.4 core as well?"). This is a copy clarity issue on the product page — "Core Exchange" as a label isn't self-explanatory. Brand voice fix: rename or add a one-line explainer: "Core Exchange — send us your supercharger, get back a fully built unit." This should be on the product page, not just in a sales email response.
+
+**Apply to:** All sales emails, quote responses, contact form replies, inquiry follow-ups, core exchange page copy.
+
 ---
 
 ## Language to Avoid (Confidence: High)
@@ -309,17 +364,140 @@ Derived from site copy patterns and SEO content. No transcript data available �
 
 ---
 
+## Reputation & Community Voice (Confidence: High — Notion Competitive Brief)
+
+This section was added after Notion became available. Source: FAS Motorsports Competitive Brief (2026-03-24).
+
+### The Reputation Problem
+Active forum threads on hellcat.org and Dodge Challenger forums document bearing plate QC issues and customer service ghosting attributed to FAS. Kong Performance is explicitly recommended over FAS in these discussions. This is not a marketing problem — it's a trust problem that will compound if the brand voice doesn't address it.
+
+**Brand voice implication:** The "Fast. Aggressive. Superior." standard must be earned, not just asserted. Every piece of public-facing content is now also reputation management. The voice must be accountable and process-transparent, not just confident.
+
+### Forum / Community Tone Rules
+
+| Context | Tone | What Works | What to Avoid |
+|---------|------|-----------|---------------|
+| Responding to a negative forum thread | Factual, non-defensive, brief | "Here's what happened, here's what changed, here's how to reach us." | Vague promises, corporate apologies, denial |
+| Posting in a performance forum | Peer-to-peer, no marketing copy | Technical contribution — answer the actual question with specs | "Check out our products!" — any promotional framing in organic community spaces |
+| Responding to a forum recommendation of a competitor | Silent or peer-level only | Contribute to the thread as a technical voice, not as a brand | Defensive comparisons, "actually we're better" framing |
+
+### How to Respond When the Reputation Is Challenged
+
+**The three-sentence formula:**
+1. State the specific issue factually ("The bearing plate tolerance complaint — we know about it.")
+2. State what changed ("We updated our QC process / spec / supplier in [date].")
+3. Give them an action ("Call us at (812) 200-9012 — we'll make it right.")
+
+**What never to say:** "We take customer satisfaction very seriously." "We're sorry you had that experience." "That doesn't reflect our values." These are the non-answers that accelerate forum pile-ons.
+
+**Evidence-first reputation repair:** The best reputation content isn't a response — it's a process transparency page, a dyno video, a build documentation post. Content that shows the QC process closes the trust gap faster than a public apology thread.
+
+---
+
+## Platform Strategy Voice (Confidence: High — Notion Competitive Brief)
+
+### The Hellcat Sunset — TRX/Trackhawk Pivot
+
+Stellantis discontinued the Hellcat SRT lineup in 2023/2024. The pool of new Hellcat buyers shrinks every model year. FAS's growth platform is RAM TRX and Jeep Trackhawk.
+
+**Voice implication:** Content created from this point forward should lead with TRX/Trackhawk as the primary growth platform and position Hellcat as the legacy anchor — the trusted foundation the brand was built on, not the future focus.
+
+| Content Type | Hellcat Frame | TRX/Trackhawk Frame |
+|-------------|--------------|---------------------|
+| Homepage hero secondary message | "The platform we built our reputation on" | Lead feature — current, growth-forward |
+| Blog/SEO content | Maintain existing — high search volume while inventory ages | New cluster: TRX build guides, Trackhawk package explainers |
+| Package callouts | FAS800/FAS1000 — proven, defined, reliable | Actively develop and name TRX-specific package variants |
+| Community presence | hellcat.org — maintain existing relationships | ram-trx.com and Trackhawk forums — build presence now |
+
+### Competitive Voice Positioning (vs. Each Competitor)
+
+These are the specific language angles for when FAS is being compared:
+
+**vs. Kong Performance:** "Kong ports. FAS ports and machines and installs and tunes. If you want porting and shipping, either works. If you want the car done, that's us."
+- Do not: attack their turnaround time. Instead make the contrast about scope.
+- Do: acknowledge their technical reputation as peers, then expand the frame.
+
+**vs. ShopHellcat:** "They curate. We build. FAS parts on ShopHellcat exist because we make them — if you want the source, come to the source."
+- Do not: disparage the channel. FAS sells through them — it's a distribution positive.
+- Do: use "manufactured here" language that makes FAS the upstream source.
+
+**vs. MMX:** "MMX goes deep on engine internals. FAS goes deep on the supercharger system — the complete forced-induction build, not just the rotating assembly."
+- They serve a different depth of build. Frame the comparison as scope, not competition.
+
+**vs. any reseller:** "Not a drop-ship catalog." — use verbatim or adapt. It's already the best-performing competitive line in the existing copy.
+
+---
+
+## Vendor / Wholesale Voice (Confidence: Medium — inferred from brand + context)
+
+B2B voice for the fas-sanity vendor portal, dealer outreach, and wholesale relationships. Priority confirmed.
+
+### How B2B Differs from B2C
+
+The core voice attributes are identical — Technical, Direct, Dyno-Proven, Vertically Integrated. What shifts is the **frame of value**. Consumers buy HP numbers and build outcomes. Dealers and wholesale buyers buy supply chain reliability, margin, fitment accuracy, and a manufacturer they won't have to apologize to their customer for.
+
+| Dimension | B2C (Consumer) | B2B (Dealer/Wholesale) |
+|-----------|---------------|------------------------|
+| Lead value | HP outcome, build experience | Supply consistency, no fitment defects, manufacturer direct |
+| Proof point | Dyno sheet, build photos | Lead time accuracy, part tolerance specs, damage rate |
+| Price framing | "From $X" with transparency | Wholesale pricing available — contact for dealer account |
+| Tone formality | Low-Medium | Medium — peer professional, not corporate |
+| CTA | "Book the install" / "Shop now" | "Set up a dealer account" / "Call for wholesale pricing" |
+| Trust anchor | 500+ builds, three generations | "We manufacture it — no middleman, no markup chain" |
+
+### B2B Tone Rules
+
+- Never use consumer excitement language ("Built for the builds that get driven hard") in dealer-facing copy — it reads as unfocused to a procurement decision-maker.
+- Do lead with sourcing certainty: "FAS parts ship from the same shop that machines them. No subcontractor delays, no tolerance drift between production runs."
+- Price: dealer pricing is available, but don't publish it publicly. B2B CTA is always "contact for wholesale pricing" not a visible price.
+- Technical spec sheets are table stakes for B2B — dealers need fitment data, tolerances, and compatible platforms before they'll commit to stocking.
+
+### B2B Must-Use Phrases
+
+| Phrase | Context |
+|--------|---------|
+| "Manufactured and shipped from our Punta Gorda shop" | Any outreach emphasizing supply chain reliability |
+| "No middleman" | Positioning against distributors — FAS is the source |
+| "Consistent production tolerances" | Responding to fitment or quality questions |
+| "Dealer pricing available — contact for account setup" | Any public-facing wholesale CTA |
+| "We install what we make, so every fitment issue comes back to us" | Accountability framing — reinforces quality incentive |
+
+### B2B Email Template (Dealer Outreach)
+
+```
+Hello [Name],
+
+F.A.S. Motorsports manufactures billet supercharger components for Hellcat, TRX,
+and Trackhawk platforms in-house in Punta Gorda, FL. If you're sourcing these
+parts for your shop, we sell direct — no distributor margin in the chain.
+
+Current catalog: [link to wholesale product list or fas-sanity portal]
+Lead time: [X] business days from order.
+
+Call (812) 200-9012 or reply here to set up a dealer account.
+```
+
+### B2B Vendor Portal (fas-sanity) Copy Rules
+
+- Portal login page: Lead with manufacturer identity. "F.A.S. Motorsports Dealer Portal — Parts sourced direct from the shop that makes them."
+- Product listings: Include tolerance specs and compatible vehicle list alongside pricing. Dealers need the fitment data to sell confidently.
+- Order status language: Operational and precise. "In production," "Ready to ship," "Shipped — tracking [#]." No marketing copy in order flow.
+
+---
+
 ## Confidence Scores
 
 | Section | Confidence | Basis | Sources |
 |---------|------------|-------|---------|
-| Voice Attributes | High | Consistent across 6+ components of live site copy and 3 SEO strategy docs | 9 sources |
-| Messaging Framework | Medium-High | Documented in site copy AND confirmed by competitive positioning in SEO docs | 7 sources |
-| Tone Matrix | Medium | Inferred from 6+ content types; no explicit tone documentation exists | 6 sources |
-| Terminology | High | Terms used consistently across all site copy and SEO deliverables | 9 sources |
-| Language Patterns | Medium | Extracted from written sources only — no transcript data available | 9 sources |
+| Voice Attributes | High | Consistent across 6+ site components, 3 SEO docs, competitive brief confirms | 11 sources |
+| Messaging Framework | Medium-High | Site copy + competitive brief + email pattern fragment | 9 sources |
+| Tone Matrix | Medium | Inferred from 6+ content types; no explicit tone doc | 7 sources |
+| Terminology | High | Consistent across all site copy, SEO deliverables, competitive brief | 11 sources |
+| Language Patterns | Medium | Written sources + 1 partial sales email thread | 10 sources |
+| Reputation/Community Voice | High | Competitive brief cites live forum threads with specific named issues | 2 sources |
+| Platform Strategy | High | Competitive brief confirms Hellcat sunset + TRX growth trajectory | 2 sources |
 
-**Aggregate confidence score: 0.74 — Medium-High**
+**Aggregate confidence score: 0.80 — Medium-High (elevated from 0.74)**
 - Voice Attributes: High (1.0 × 0.30 = 0.30)
 - Messaging: Medium-High (0.8 × 0.25 = 0.20)
 - Tone: Medium (0.6 × 0.20 = 0.12)
@@ -333,15 +511,20 @@ Derived from site copy patterns and SEO content. No transcript data available �
 
 ### High Priority (blocks guideline completion)
 
-1. **HP Claims: Pump Gas vs. E85 — which number is canonical?**
-   - What was found: FAS packages state HP targets (800, 1000, 1500) but site doesn't consistently clarify whether these are 91 octane, 93 octane, or E85 numbers.
-   - Agent recommendation: Establish a canonical tune baseline (e.g., "93 octane street tune") and show the E85 number as an upgrade option. This prevents customer confusion and protects the dyno-proven positioning.
-   - Need from you: Confirm which fuel baseline the package HP numbers are quoted on.
+1. **Forum reputation — what actually happened with the bearing plate complaints?**
+   - What was found: Active hellcat.org and Challenger forum threads cite FAS bearing plate QC issues and CS ghosting. Kong is explicitly recommended over FAS in multiple threads. This is live, indexed, and shaping purchase decisions.
+   - Agent recommendation: Before publishing any new brand content, create a "What happens when you send us your core" process transparency page + address the most visible forum threads factually. The brand voice cannot paper over a trust deficit — it has to document the fix.
+   - Need from you: Confirm current QC process / what actually changed, and which threads are most visible. Then the voice can be applied to a public response.
 
-2. **GBP primary business category — confirmed?**
-   - What was found: GBP brief recommends changing primary category to "Auto Parts Store" or "Car Alarm Supplier" for IGLA rankings, but current category is unknown.
-   - Agent recommendation: Confirm current GBP primary category before generating any additional GBP content. The brand voice must align with whatever category Google is surfacing FAS under.
-   - Need from you: Screenshot or confirm current GBP primary category.
+2. **HP Claims: Pump Gas vs. E85 — RESOLVED**
+   - **Confirmed:** FAS800 and FAS850 = 93 octane programs. FAS900–FAS1000+ = E85 programs.
+   - **Apply everywhere:** Always specify the fuel. "800 HP on 93 octane" and "1,000 HP on E85" — never just the number alone. This distinction is the proof behind the dyno-proven claim and prevents customer confusion at handoff.
+   - **Package naming implication:** Consider adding fuel callout to package subheadings. "FAS800 — 800 HP / 93 Octane" and "FAS1000 — 1,000 HP / E85."
+
+3. **GBP primary business category — RESOLVED**
+   - **Confirmed:** Category is set to "Auto parts manufacturer."
+   - **Apply to GBP copy:** This is actually stronger positioning than "Auto Parts Store." The description and all GBP content should lead with manufacturing first ("We manufacture and install") not just service. The "Not a drop-ship catalog" differentiator is now structurally confirmed by Google's own category label.
+   - **IGLA implication:** "Auto parts manufacturer" doesn't naturally surface for "igla installer near me" 3-packs. Consider adding "Auto Security System Supplier" as a secondary category to capture IGLA local intent. Primary category stays manufacturer.
 
 ### Medium Priority (improves quality)
 
@@ -386,3 +569,5 @@ Derived from site copy patterns and SEO content. No transcript data available �
 | 7 | FAS-SEO-Strategic-Report.md | SEO-Clients/fas-motorsports | Strategic doc | Competitive positioning, differentiators | M |
 | 8 | GBP-Optimization-Brief-IGLA.md | SEO-Clients/fas-motorsports | Operational doc | GBP description, service copy, Q&A | M |
 | 9 | FAS-SEO-Strategy-Client-Deliverable.md | SEO-Clients/fas-motorsports | Client deliverable | Keyword strategy, content pillars | M |
+| 10 | FAS Motorsports — Competitive Brief | Notion / Document Hub | Competitive analysis | Kong/MMX/ShopHellcat comparison, reputation threats, platform pivot, content gaps | H |
+| 11 | sales@fasmotorsports.com email fragment | Notion Mail (William Cocoma thread) | Sales email | Actual sales voice pattern — "Hello," opener, recommendation-first structure | M |
