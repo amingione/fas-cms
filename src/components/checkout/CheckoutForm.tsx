@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
-import { loadStripe } from '@stripe/stripe-js';
-import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
+import { loadStripe, type PaymentRequest } from '@stripe/stripe-js';
+import {
+  Elements,
+  PaymentElement,
+  PaymentRequestButtonElement,
+  useElements,
+  useStripe
+} from '@stripe/react-stripe-js';
 import './CheckoutForm.css';
 import { abandonCheckout, ensureMedusaCartId, getCart, persistCartLocally, syncMedusaCart } from '@/lib/cart';
 import { MEDUSA_CART_ID_KEY } from '@/lib/medusa';
@@ -1293,6 +1299,7 @@ export default function CheckoutForm() {
                   <StripePaymentPane
                     cartId={cartId}
                     cart={cart}
+                    clientSecret={clientSecret}
                     shippingAddress={shippingAddress}
                     selectedRateId={selectedOptionId}
                     requiresShipping={!allItemsInstallOnly}
@@ -1480,16 +1487,6 @@ function NonReadyPaymentPane({
 
   return (
     <>
-      <button
-        type="button"
-        className="checkout-v2-pay-top btn-plain"
-        onClick={() => void onCalculateShipping()}
-      >
-        Apple Pay
-      </button>
-
-      <div className="checkout-v2-divider">Or pay another way</div>
-
       <label htmlFor="nonready-email">Email</label>
       <input
         id="nonready-email"
@@ -1743,14 +1740,6 @@ function NonReadyPaymentPane({
         autoComplete="cc-name"
         readOnly
       />
-
-      <button
-        type="button"
-        className="checkout-v2-pay-bottom btn-plain"
-        onClick={() => void onCalculateShipping()}
-      >
-        Pay
-      </button>
     </>
   );
 }
@@ -1758,6 +1747,7 @@ function NonReadyPaymentPane({
 function StripePaymentPane({
   cartId,
   cart,
+  clientSecret,
   shippingAddress,
   selectedRateId,
   requiresShipping,
@@ -1767,6 +1757,7 @@ function StripePaymentPane({
 }: {
   cartId: string;
   cart: Cart;
+  clientSecret: string;
   shippingAddress: ShippingAddress;
   selectedRateId: string | null;
   requiresShipping: boolean;
@@ -1777,6 +1768,140 @@ function StripePaymentPane({
   const stripe = useStripe();
   const elements = useElements();
   const [paymentElementReady, setPaymentElementReady] = useState(false);
+  const [applePayRequest, setApplePayRequest] = useState<PaymentRequest | null>(null);
+  const [applePayReady, setApplePayReady] = useState(false);
+
+  const handleConfirmedPaymentIntent = (paymentIntent: { id: string; status?: string } | null | undefined): boolean => {
+    if (paymentIntent?.status === 'succeeded') {
+      window.location.href = '/order/confirmation?payment_intent=' + paymentIntent.id;
+      return true;
+    }
+
+    if (paymentIntent?.status === 'processing') {
+      window.location.href = '/order/confirmation?payment_intent=' + paymentIntent.id;
+      return true;
+    }
+
+    if (paymentIntent?.status === 'requires_action') {
+      setError(
+        'Additional authentication is required. Please complete verification and try again.'
+      );
+      return true;
+    }
+
+    if (paymentIntent?.status === 'requires_payment_method') {
+      setError(
+        'Payment method was not accepted. Please review your payment details and try again.'
+      );
+      return true;
+    }
+
+    if (paymentIntent?.status) {
+      setError(`Payment did not complete (status: ${paymentIntent.status}). Please try again.`);
+      return true;
+    }
+
+    return false;
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!stripe || !clientSecret) {
+      setApplePayRequest(null);
+      setApplePayReady(false);
+      return;
+    }
+
+    const totalAmount = Math.max(0, Math.round(cart?.total_cents ?? 0));
+    if (totalAmount <= 0) {
+      setApplePayRequest(null);
+      setApplePayReady(false);
+      return;
+    }
+
+    const countryCode = normalizeCountryCode(shippingAddress.countryCode) || 'US';
+    const request = stripe.paymentRequest({
+      country: countryCode,
+      currency: 'usd',
+      total: {
+        label: 'F.A.S. Motorsports',
+        amount: totalAmount
+      },
+      requestPayerName: true,
+      requestPayerEmail: true,
+      requestShipping: false
+    });
+
+    void request
+      .canMakePayment()
+      .then((result) => {
+        if (cancelled) return;
+        const isApplePayAvailable = Boolean(result && (result as Record<string, unknown>).applePay);
+        setApplePayReady(isApplePayAvailable);
+        setApplePayRequest(isApplePayAvailable ? request : null);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setApplePayReady(false);
+        setApplePayRequest(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [stripe, clientSecret, cart?.total_cents, shippingAddress.countryCode]);
+
+  useEffect(() => {
+    if (!stripe || !applePayRequest || !clientSecret) return;
+
+    const handleApplePayMethod = async (event: any) => {
+      setProcessing(true);
+      setError(null);
+
+      try {
+        const confirmation = await stripe.confirmCardPayment(
+          clientSecret,
+          {
+            payment_method: event.paymentMethod.id
+          },
+          { handleActions: false }
+        );
+
+        if (confirmation.error) {
+          event.complete('fail');
+          setError(confirmation.error.message || 'Apple Pay failed. Please try again.');
+          return;
+        }
+
+        event.complete('success');
+
+        let resolvedIntent = confirmation.paymentIntent;
+        if (resolvedIntent?.status === 'requires_action') {
+          const actionResult = await stripe.confirmCardPayment(clientSecret);
+          if (actionResult.error) {
+            setError(actionResult.error.message || 'Authentication failed. Please try again.');
+            return;
+          }
+          resolvedIntent = actionResult.paymentIntent;
+        }
+
+        if (!handleConfirmedPaymentIntent(resolvedIntent as any)) {
+          setError('Unable to confirm Apple Pay payment. Please try another payment method.');
+        }
+      } catch (error) {
+        console.error('Apple Pay error:', error);
+        setError('Apple Pay failed. Please try another payment method.');
+      } finally {
+        setProcessing(false);
+      }
+    };
+
+    applePayRequest.on('paymentmethod', handleApplePayMethod);
+    return () => {
+      applePayRequest.off('paymentmethod', handleApplePayMethod);
+    };
+  }, [stripe, applePayRequest, clientSecret, setError, setProcessing]);
 
   const submit = async () => {
     if (!stripe || !elements) return;
@@ -1805,23 +1930,7 @@ function StripePaymentPane({
         elements,
         confirmParams: {
           return_url: `${window.location.origin}/order/confirmation`,
-          receipt_email: shippingAddress.email || cart.email,
-          shipping: requiresShipping
-            ? {
-                name:
-                  `${shippingAddress.firstName || ''} ${shippingAddress.lastName || ''}`.trim() ||
-                  'Customer',
-                phone: shippingAddress.phone,
-                address: {
-                  line1: shippingAddress.address1,
-                  line2: shippingAddress.address2 || '',
-                  city: shippingAddress.city,
-                  state: shippingAddress.province,
-                  postal_code: shippingAddress.postalCode,
-                  country: shippingAddress.countryCode
-                }
-              }
-            : undefined
+          receipt_email: shippingAddress.email || cart.email
         },
         redirect: 'if_required'
       });
@@ -1831,32 +1940,7 @@ function StripePaymentPane({
         return;
       }
 
-      if (paymentIntent?.status === 'succeeded') {
-        window.location.href = '/order/confirmation?payment_intent=' + paymentIntent.id;
-        return;
-      }
-
-      if (paymentIntent?.status === 'processing') {
-        window.location.href = '/order/confirmation?payment_intent=' + paymentIntent.id;
-        return;
-      }
-
-      if (paymentIntent?.status === 'requires_action') {
-        setError(
-          'Additional authentication is required. Please complete verification and try again.'
-        );
-        return;
-      }
-
-      if (paymentIntent?.status === 'requires_payment_method') {
-        setError(
-          'Payment method was not accepted. Please review your payment details and try again.'
-        );
-        return;
-      }
-
-      if (paymentIntent?.status) {
-        setError(`Payment did not complete (status: ${paymentIntent.status}). Please try again.`);
+      if (handleConfirmedPaymentIntent(paymentIntent as any)) {
         return;
       }
 
@@ -1876,16 +1960,25 @@ function StripePaymentPane({
 
   return (
     <>
-      <button
-        type="button"
-        className="checkout-v2-pay-top btn-plain"
-        disabled={processing || !stripe}
-        onClick={() => void submit()}
-      >
-        {processing ? 'Processing...' : 'Apple Pay'}
-      </button>
-
-      <div className="checkout-v2-divider">Or pay another way</div>
+      {applePayReady && applePayRequest && (
+        <>
+          <div className="checkout-v2-pay-top">
+            <PaymentRequestButtonElement
+              options={{
+                paymentRequest: applePayRequest,
+                style: {
+                  paymentRequestButton: {
+                    type: 'buy',
+                    theme: 'dark',
+                    height: '44px'
+                  }
+                }
+              }}
+            />
+          </div>
+          <div className="checkout-v2-divider">Or pay another way</div>
+        </>
+      )}
 
       <label htmlFor="stripe-email">Email</label>
       <input

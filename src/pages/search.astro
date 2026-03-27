@@ -220,7 +220,11 @@ const pageTitle = initialQuery ? `Search: "${initialQuery}"` : 'Search';
         <div class="text-[10px] uppercase text-white/70 mb-2">${escapeHtml(badge)}</div>
         ${img ? `<div class="w-full aspect-square bg-black/10 rounded mb-3 overflow-hidden grid place-items-center"><img src="${escapeHtml(img)}" alt="" class="max-w-full max-h-full object-contain" /></div>` : ''}
         <div class="font-semibold mb-1 hover:underline line-clamp-2">${escapeHtml(title)}</div>
-        ${it._type === 'product' ? `<div class="text-xs mt-1 mb-1 font-ethno ${it.priceDisplay ? 'text-primary' : 'text-white/50'}">${escapeHtml(it.priceDisplay || 'View for pricing')}</div>` : ''}
+        ${
+          it._type === 'product' && (it.priceDisplay || it.priceKnown === true)
+            ? `<div class="text-xs mt-1 mb-1 font-ethno ${it.priceDisplay ? 'text-primary' : 'text-white/50'}">${escapeHtml(it.priceDisplay || 'View for pricing')}</div>`
+            : ''
+        }
         ${snippet ? `<p class="text-sm text-white/70 line-clamp-3">${escapeHtml(snippet)}${fullDesc.length > 120 ? '…' : ''}</p>` : ''}
       </div>`;
         if (href)

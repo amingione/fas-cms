@@ -306,7 +306,16 @@ export function SearchBar({
                         style={{ fontFamily: 'Arial, sans-serif', fontSize: 11 }}
                       >
                         <span className="uppercase">{String(it?._type || '')}</span>
-                        <span className="text-xs text-white/50 uppercase">View for pricing</span>
+                        {it?._type === 'product' && (it?.priceDisplay || it?.priceKnown === true) ? (
+                          <span
+                            className={cn(
+                              'text-xs uppercase',
+                              it?.priceDisplay ? 'text-primary' : 'text-white/50'
+                            )}
+                          >
+                            {it?.priceDisplay || 'View for pricing'}
+                          </span>
+                        ) : null}
                       </div>
                     </div>
                   </div>
@@ -374,7 +383,17 @@ export function SearchBar({
                           style={{ fontFamily: 'Arial, sans-serif', fontSize: 11 }}
                         >
                           <span className="uppercase">{String(it?._type || '')}</span>
-                          <span className="text-xs text-white/50 uppercase">View for pricing</span>
+                          {it?._type === 'product' &&
+                          (it?.priceDisplay || it?.priceKnown === true) ? (
+                            <span
+                              className={cn(
+                                'text-xs uppercase',
+                                it?.priceDisplay ? 'text-primary' : 'text-white/50'
+                              )}
+                            >
+                              {it?.priceDisplay || 'View for pricing'}
+                            </span>
+                          ) : null}
                         </div>
                       </div>
                     </div>

@@ -3,8 +3,7 @@ import { sanityClient } from '../../lib/sanityClient';
 import {
   listStoreProductsForPricing,
   attachMedusaPricingBySanityIdentity,
-  resolveProductCalculatedPriceAmount,
-  resolveProductMedusaVariant,
+  resolveProductCalculatedPriceAmount
 } from '../../lib/medusa-storefront-pricing';
 import { SITE_PAGES } from '../../data/pages-index';
 
@@ -22,6 +21,7 @@ interface SanityProductResult {
   medusaProductId: string | null;
   metadata?: { sanity_id?: string; sanity_slug?: string };
   priceDisplay?: string | null;
+  priceKnown?: boolean;
   url: string;
 }
 
@@ -125,16 +125,17 @@ async function mergePricing(products: SanityProductResult[]): Promise<SanityProd
     const priced = attachMedusaPricingBySanityIdentity(products as any[], medusaProducts);
 
     return priced.map((p: any) => {
-      const variant = resolveProductMedusaVariant(p);
-      const amount = variant ? resolveProductCalculatedPriceAmount(variant) : null;
+      const amount = resolveProductCalculatedPriceAmount(p);
+      const hasMedusaPricing = Boolean(p?.medusa && typeof p.medusa === 'object');
       const priceDisplay = amount != null
         ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount / 100)
         : null;
-      return { ...p, priceDisplay };
+      return { ...p, priceDisplay, priceKnown: hasMedusaPricing };
     });
   } catch {
-    // Medusa unavailable — return products without pricing; storefront degrades gracefully
-    return products;
+    // Medusa unavailable — preserve product search, but keep pricing state "unknown"
+    // so clients do not render "View for pricing" for priced products.
+    return products.map((p) => ({ ...p, priceDisplay: null, priceKnown: false }));
   }
 }
 
