@@ -9,7 +9,16 @@ import SectionRenderer from '@/components/SectionRenderer.astro';
 import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content.ts';
 import BrandDivider from '@/components/divider/brandDivider.tsx';
 import SocialMedia from '@/components/divider/socialMedia.tsx';
-import { BUSINESS_EMAIL, BUSINESS_NAME, BUSINESS_PHONE_E164 } from '@/lib/nap';
+import {
+  BUSINESS_EMAIL,
+  BUSINESS_NAME,
+  BUSINESS_PHONE_E164,
+  BUSINESS_ADDRESS_LINE1,
+  BUSINESS_ADDRESS_LOCALITY,
+  BUSINESS_ADDRESS_REGION,
+  BUSINESS_ADDRESS_POSTAL_CODE,
+  BUSINESS_ADDRESS_COUNTRY
+} from '@/lib/nap';
 const pageDoc: any = await loadPageDoc('igla');
 
 const requestUrl = new URL(Astro.request.url);
@@ -43,15 +52,15 @@ const iglaJsonLd = {
         email: BUSINESS_EMAIL,
         address: {
           '@type': 'PostalAddress',
-          streetAddress: '6161 Riverside Dr',
-          addressLocality: 'Punta Gorda',
-          addressRegion: 'FL',
-          postalCode: '33982',
-          addressCountry: 'US'
+          streetAddress: BUSINESS_ADDRESS_LINE1,
+          addressLocality: BUSINESS_ADDRESS_LOCALITY,
+          addressRegion: BUSINESS_ADDRESS_REGION,
+          postalCode: BUSINESS_ADDRESS_POSTAL_CODE,
+          addressCountry: BUSINESS_ADDRESS_COUNTRY
         },
         sameAs: [
-          'https://www.facebook.com/Fasmotorsportz',
-          'https://www.instagram.com/fasmotorsports'
+          'https://www.facebook.com/fasmotorsportsfl',
+          'https://www.instagram.com/fas_moto'
         ]
       }
     },

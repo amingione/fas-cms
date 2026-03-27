@@ -30,7 +30,7 @@ const BUSINESS_ADDRESS = {
 };
 
 const DEFAULT_SAME_AS = [
-  'https://www.facebook.com/Fasmotorsportz',
+  'https://www.facebook.com/fasmotorsportsfl',
   'https://www.instagram.com/fas_moto',
   'https://www.tiktok.com/@fas_motorsports'
 ];
