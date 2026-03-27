@@ -25,7 +25,7 @@ export async function POST({ request }: { request: Request }) {
 
   try {
     await resend.emails.send({
-      from: 'F.A.S. Motorsports <sales@updates.fasmotorsports.com>',
+      from: 'FAS Motorsports <sales@updates.fasmotorsports.com>',
       to: ['sales@fasmotorsports.com'],
       subject: `New Sales Lead from ${name || 'Unknown'}`,
       replyTo: email || undefined,

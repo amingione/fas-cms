@@ -85,7 +85,7 @@ function AppShell({ children }: { children: React.ReactNode }) {
             className="fixed top-[200px] left-6 z-30 pointer-events-none transition-opacity duration-200"
           >
             <div className="text-white leading-tight tracking-wide">
-              <p className="text-sm font-borg">F.a.S.</p>
+              <p className="text-sm font-borg">FAS</p>
               <p className="text-primary font-ethno-italic engine-pulse text-sm">MOTORSPORTS</p>
             </div>
           </motion.div>

@@ -68,7 +68,7 @@ export function Hero() {
             >
               <h1 className="font-black justify-items-start leading-tight tracking-tight font-ethno">
                 <span className="block font-borg italic justify-start text-white text-3xl sm:text-4xl lg:text-6xl xl:text-7xl">
-                  F.a.S.
+                  FAS
                 </span>
                 <span className="justify-start block italic text-primary font-ethno text-base sm:text-base lg:text-3xl xl:text-4xl">
                   MOTORSPORTS

@@ -1,11 +1,11 @@
 ---
-import BaseLayout from "@/layouts/BaseLayout.astro";
-import CategoryPage from "@/components/storefront/CategoryPage.tsx";
-import * as sanityUtils from "@/lib/sanity-utils";
-import { sanityClient as client } from "@/lib/sanityClient";
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import CategoryPage from '@/components/storefront/CategoryPage.tsx';
+import * as sanityUtils from '@/lib/sanity-utils';
+import { sanityClient as client } from '@/lib/sanityClient';
 import { serializeJsonLd } from '@lib/utils';
-import { centsToDollars } from "@/lib/pricing";
-import * as medusaPricing from "@/lib/medusa-storefront-pricing";
+import { centsToDollars } from '@/lib/pricing';
+import * as medusaPricing from '@/lib/medusa-storefront-pricing';
 import { DEFAULT_MERCHANT_LISTING_OFFER_ENHANCEMENTS } from '@/lib/merchant-offer-structured-data';
 
 let products = await sanityUtils.fetchProductsFromSanity({});
@@ -25,7 +25,7 @@ if (Array.isArray(medusaProducts) && medusaProducts.length > 0) {
   );
 
   const medusaOnlyProducts = medusaProducts
-    .filter((product) => typeof product?.handle === "string" && product.handle.length > 0)
+    .filter((product) => typeof product?.handle === 'string' && product.handle.length > 0)
     .filter((product) => !seenSlugs.has(sanityUtils.normalizeSlugValue(product.handle)))
     .map((product) => ({
       _id: product.id,
@@ -43,9 +43,7 @@ if (Array.isArray(medusaProducts) && medusaProducts.length > 0) {
                 }
               };
             })
-            .filter(
-              (image): image is { asset: { _id: string; url: string } } => Boolean(image)
-            )
+            .filter((image): image is { asset: { _id: string; url: string } } => Boolean(image))
         : [],
       medusa: product
     }));
@@ -81,7 +79,7 @@ const canonical = requestUrl.toString();
 
 const pageTitle = 'Performance Categories';
 const pageDescription =
-  'Explore performance categories curated by F.A.S. Motorsports, from billet parts to wheel programs and power packages.';
+  'Explore performance categories curated by FAS Motorsports, from billet parts to wheel programs and power packages.';
 
 const breadcrumbStructuredData = {
   '@context': 'https://schema.org',
@@ -215,10 +213,7 @@ const productCollectionStructuredData = productItemListElements.length
 
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
   <Fragment slot="head">
-    <script
-      type="application/ld+json"
-      set:html={serializeJsonLd(breadcrumbStructuredData)}
-    />
+    <script type="application/ld+json" set:html={serializeJsonLd(breadcrumbStructuredData)} />
   </Fragment>
 
   <section class="px-5 py-5">
@@ -226,7 +221,7 @@ const productCollectionStructuredData = productItemListElements.length
       products={products}
       categories={categories}
       title="Performance Categories"
-      description="Jump into the platform that matches your build. Each category highlights curated hardware stacks, tuning paths, and proven package tiers engineered in-house by F.A.S."
+      description="Jump into the platform that matches your build. Each category highlights curated hardware stacks, tuning paths, and proven package tiers engineered in-house by FAS"
       client:idle
     />
   </section>

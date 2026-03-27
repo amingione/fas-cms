@@ -52,14 +52,14 @@
   "tiers": [
     {
       "image": "/images/packages/fas-1x-2.webp",
-      "alt": "F.A.S. 1X",
-      "labelTop": "F.A.S.",
+      "alt": "FAS 1X",
+      "labelTop": "FAS",
       "labelBottom": "1X"
     },
     {
       "image": "/images/packages/fas 2x.webp",
-      "alt": "F.A.S. 2X",
-      "labelTop": "F.A.S.",
+      "alt": "FAS 2X",
+      "labelTop": "FAS",
       "labelBottom": "2X"
     }
   ],

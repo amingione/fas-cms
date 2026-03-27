@@ -123,7 +123,7 @@ async function testShippo() {
 
     const shipment = await shippo.shipments.create({
       address_from: {
-        name: 'F.A.S. Motorsports',
+        name: 'FAS Motorsports',
         street1: process.env.WAREHOUSE_ADDRESS_LINE1 || '6161 Riverside Dr',
         city: process.env.WAREHOUSE_CITY || 'Punta Gorda',
         state: process.env.WAREHOUSE_STATE || 'FL',

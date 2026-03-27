@@ -43,7 +43,7 @@ export function About() {
                   variant="outline"
                   className="mb-3 md:mb-4 bg-green-500/10 border-green-500/30 text-green-400 px-4 md:px-6 py-1 md:py-2 text-xs md:text-sm font-bold tracking-widest font-borg"
                 >
-                  F.a.S. HERITAGE
+                  FAS HERITAGE
                 </Badge>
               </motion.div>
 
@@ -68,7 +68,7 @@ export function About() {
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ delay: 0.6, duration: 0.6 }}
               >
-                Founded on the core principles of Fast, Aggressive, and Superior performance, F.A.S.
+                Founded on the core principles of Fast, Aggressive, and Superior performance, FAS
                 Motorsports has been the driving force behind championship-winning supercharger
                 technology for over two decades.
               </motion.p>

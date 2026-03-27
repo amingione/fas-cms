@@ -10,7 +10,7 @@ const testimonials = [
     name: 'Jake H.',
     vehicle: 'Dodge Charger Hellcat',
     message:
-      'F.A.S. turned my stock Hellcat into a beast. Over 900hp and still daily drivable. Real pros.'
+      'FAS turned my stock Hellcat into a beast. Over 900hp and still daily drivable. Real pros.'
   },
   {
     name: 'Lindsey M.',

@@ -61,13 +61,13 @@ const navigation = {
           name: 'Power Packages',
           href: '/shop/categories/power-packages',
           imageSrc: '/images/superchargers/Supercharger-custom-coated.webp',
-          imageAlt: 'Custom coated supercharger by F.A.S. Motorsports.'
+          imageAlt: 'Custom coated supercharger by FAS Motorsports.'
         },
         {
           name: 'Truck Packages',
           href: '/shop/categories/truck-packages',
           imageSrc: '/images/packages/850-ram.webp',
-          imageAlt: 'F.A.S. Motorsports 850 Truck Package.'
+          imageAlt: 'FAS Motorsports 850 Truck Package.'
         }
       ],
       sections: [
@@ -128,13 +128,13 @@ const navigation = {
           name: 'Snout Porting',
           href: '/shop/2-4l-2-7l-snout-porting',
           imageSrc: '/images/snouts/fas-ported-snout.webp',
-          imageAlt: 'F.A.S. Motorsports ported supercharger snout.'
+          imageAlt: 'FAS Motorsports ported supercharger snout.'
         },
         {
           name: 'Supercharger Porting',
           href: '/shop?categorySlug=porting&category=porting&priceMin=0&priceMax=100000&page=1',
           imageSrc: '/images/superchargers/Dominator-race-package.webp',
-          imageAlt: 'F.A.S. Motorsports Supercharger Porting.'
+          imageAlt: 'FAS Motorsports Supercharger Porting.'
         }
       ],
       sections: [
@@ -388,9 +388,9 @@ export default function CategoryPage({
               {/* Logo */}
               <div className="ml-4 flex lg:ml-0">
                 <a href="/">
-                  <span className="sr-only">F.A.S. Motorsports</span>
+                  <span className="sr-only">FAS Motorsports</span>
                   <img
-                    alt="F.A.S. Motorsports Performance Parts and Supercharger Modifications"
+                    alt="FAS Motorsports Performance Parts and Supercharger Modifications"
                     src="/logo/fas-logo500.webp"
                     className="h-8 w-auto"
                     width={1000}
@@ -523,14 +523,14 @@ export default function CategoryPage({
                       <div className="grid shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
                         <div className="rounded-lg drop-shadow-md shadow-md shadow-white/20 h-64 w-44 overflow-hidden sm:opacity-0 lg:opacity-100">
                           <img
-                            alt="F.A.S. Motorsports Drop in Filters"
+                            alt="FAS Motorsports Drop in Filters"
                             src={img_filters.src}
                             className="size-full object-cover"
                           />
                         </div>
                         <div className="shadow-white/20 drop-shadow shadow-md h-64 w-44 overflow-hidden rounded-lg">
                           <img
-                            alt="F.A.S. Motorsports Blue TRX Supercharger"
+                            alt="FAS Motorsports Blue TRX Supercharger"
                             src={img_blue_trx.src}
                             className="size-full object-cover"
                           />
@@ -539,21 +539,21 @@ export default function CategoryPage({
                       <div className="grid shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
                         <div className="shadow-white/20 drop-shadow shadow-md h-64 w-44 overflow-hidden rounded-lg">
                           <img
-                            alt="F.A.S. Motorsports Supercharger Installed"
+                            alt="FAS Motorsports Supercharger Installed"
                             src={img_supercharger_installed.src}
                             className="size-full object-cover"
                           />
                         </div>
                         <div className="h-64 w-44 overflow-hidden rounded-lg">
                           <img
-                            alt="F.A.S. Motorsports red coated supercharger"
+                            alt="FAS Motorsports red coated supercharger"
                             src={img_billetparts.src}
                             className="size-full object-cover"
                           />
                         </div>
                         <div className="h-64 w-44 overflow-hidden rounded-lg">
                           <img
-                            alt="F.A.S. Motorsports black coated supercharger"
+                            alt="FAS Motorsports black coated supercharger"
                             src={img_supercharger_white.src}
                             className="size-full object-cover"
                           />
@@ -562,14 +562,14 @@ export default function CategoryPage({
                       <div className="grid shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
                         <div className="h-64 w-44 overflow-hidden rounded-lg">
                           <img
-                            alt="F.A.S. Motorsports red coated supercharger"
+                            alt="FAS Motorsports red coated supercharger"
                             src={img_supercharger_red.src}
                             className="size-full object-cover"
                           />
                         </div>
                         <div className="h-64 w-44 overflow-hidden rounded-lg">
                           <img
-                            alt="F.A.S. Motorsports white coated supercharger"
+                            alt="FAS Motorsports white coated supercharger"
                             src={img_customweldedparts.src}
                             className="size-full object-cover"
                           />
@@ -651,7 +651,7 @@ export default function CategoryPage({
           <div className="relative bg-gray-800 px-6 py-32 sm:px-12 sm:py-40 lg:px-16">
             <div className="absolute inset-0 overflow-hidden">
               <img
-                alt="hellcat charger F.A.S. Motorsports"
+                alt="hellcat charger FAS Motorsports"
                 src={img_fas_hero_bg.src}
                 style={{ filter: 'grayscale(60%) brightness(80%)' }}
                 className="size-full object-cover"
@@ -667,7 +667,7 @@ export default function CategoryPage({
                 <span className="text-white/60"> Performance</span>
               </h2>
               <p className="mt-3 text-xl font-mono text-white">
-                <span className="font-borg italic text-white">F.A.S.</span>
+                <span className="font-borg italic text-white">FAS</span>
                 <span className="font-ethno italic text-primaryB"> Motorsports</span> delivers
                 high-performance billet parts, superchargers, and custom packages engineered for
                 power, precision, and reliability. Explore our innovative solutions to elevate your

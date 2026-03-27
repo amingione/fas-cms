@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * F.A.S. Motorsports — Playwright E2E Configuration
+ * FAS Motorsports — Playwright E2E Configuration
  * Tests run against production (https://fasmotorsports.com)
  * unless BASE_URL env var is set to a local dev server.
  *

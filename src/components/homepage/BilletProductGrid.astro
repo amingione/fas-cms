@@ -8,7 +8,7 @@ const { products = [] } = Astro.props as { products?: any[] };
 const resolveSlug = (p: any): string =>
   typeof p?.slug === 'string' ? p.slug : (p?.slug?.current ?? '');
 
-const resolveName = (p: any): string => p?.displayTitle ?? p?.name ?? p?.title ?? 'F.A.S. Product';
+const resolveName = (p: any): string => p?.displayTitle ?? p?.name ?? p?.title ?? 'FAS Product';
 
 const resolveImage = (p: any): string =>
   p?.imageUrl ?? p?.images?.[0]?.asset?.url ?? p?.images?.[0]?.url ?? '/logo/fas-logo500.webp';
@@ -65,7 +65,7 @@ const resolvePrice = (p: any): string | null => {
         <p class="section-sub">
           Precision CNC-machined billet aluminum components, engineered and manufactured in-house.
           Every product is hard anodized for durability and dyno-tested for performance. Authentic
-          <span class="text-primary font-bold">F.A.S. Motorsports</span> engineering—<span
+          <span class="text-primary font-bold">FAS Motorsports</span> engineering—<span
             class="text-white font-bold">no imports, no rebrands.</span
           >
         </p>

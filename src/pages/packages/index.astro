@@ -7,17 +7,19 @@ requestUrl.search = '';
 requestUrl.hash = '';
 const canonical = requestUrl.toString();
 
-const pageTitle = 'Performance Packages | F.A.S. Motorsports';
-const pageDescription = 'Explore turnkey performance packages engineered by F.A.S. Motorsports for TRX, Hellcat, Trackhawk, and LS/LT platforms with proven dyno results.';
+const pageTitle = 'Performance Packages | FAS Motorsports';
+const pageDescription =
+  'Explore turnkey performance packages engineered by FAS Motorsports for TRX, Hellcat, Trackhawk, and LS/LT platforms with proven dyno results.';
 ---
 
 <BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
   <div class="container mx-auto px-5 py-10 text-white">
     <h1 class="text-3xl md:text-4xl px-5 font-borg mb-6 text-primary">
-      F.a.S. <span class="font-ethno text-white">Packages</span>
+      FAS <span class="font-ethno text-white">Packages</span>
     </h1>
     <p class="mb-8 px-10 text-white/80">
-        Packages meticulously designed to elevate your vehicle's power, handling, and overall driving experience.
+      Packages meticulously designed to elevate your vehicle's power, handling, and overall driving
+      experience.
     </p>
     <div class="mb-8 px-10">
       <a
@@ -25,7 +27,11 @@ const pageDescription = 'Explore turnkey performance packages engineered by F.A.
         class="inline-flex items-center gap-2 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-400 transition hover:border-red-500/70 hover:bg-red-500/20 hover:text-red-300"
       >
         <span>&#x26A1;</span>
-        <span>Looking for Hellcat supercharger upgrades? <strong class="font-semibold text-white">View the FAS Dominator packages &rarr;</strong></span>
+        <span
+          >Looking for Hellcat supercharger upgrades? <strong class="font-semibold text-white"
+            >View the FAS Dominator packages &rarr;</strong
+          ></span
+        >
       </a>
     </div>
     <TabLayout client:load />

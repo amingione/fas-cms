@@ -126,7 +126,7 @@ const productSchemas = schemaProducts
       (product as any).displayTitle ||
       (product as any).name ||
       (product as any).title ||
-      'F.A.S. Motorsports Product';
+      'FAS Motorsports Product';
     const slug =
       typeof (product as any).slug === 'string'
         ? (product as any).slug
@@ -145,9 +145,9 @@ const productSchemas = schemaProducts
       image: image ? [image] : undefined,
       description: normalizeSchemaDescription(
         (product as any).description,
-        `${name} available through F.A.S. Motorsports with pricing resolved from the live storefront.`
+        `${name} available through FAS Motorsports with pricing resolved from the live storefront.`
       ),
-      brand: { '@type': 'Brand', name: 'F.A.S. Motorsports' },
+      brand: { '@type': 'Brand', name: 'FAS Motorsports' },
       url: productUrl,
       offers: priceValue
         ? {
@@ -186,7 +186,7 @@ const structuredDataGraph =
 
 const homepageFaqEntries = [
   {
-    question: 'How fast do orders ship from F.A.S. Motorsports?',
+    question: 'How fast do orders ship from FAS Motorsports?',
     answer:
       'In-person builds and installs are handled in Charlotte, Lee & Sarasota Counties, FL. Parts and kits ship nationwide across the United States.'
   },
@@ -203,7 +203,7 @@ const homepageFaqEntries = [
   {
     question: 'Do you offer installation services for the parts you sell?',
     answer:
-      'Yes. F.A.S. Motorsports is a full-service performance shop in Punta Gorda, FL. Most builds, installs, and tuning services are scheduled directly with the shop — call us at (812) 200-9012 or use the Schedule page to book your appointment.'
+      'Yes. FAS Motorsports is a full-service performance shop in Punta Gorda, FL. Most builds, installs, and tuning services are scheduled directly with the shop — call us at (812) 200-9012 or use the Schedule page to book your appointment.'
   }
 ];
 
@@ -235,7 +235,7 @@ const crawlSupportLinks = [
 
 <BaseLayout
   title="Performance Parts, Wheels & Packages"
-  description="F.A.S. Motorsports — premium performance upgrades, billet parts, custom fabrication, and wheel packages for Hellcat, Trackhawk, TRX and more."
+  description="FAS Motorsports — premium performance upgrades, billet parts, custom fabrication, and wheel packages for Hellcat, Trackhawk, TRX and more."
   canonical={canonicalHome}
   ogImage="https://fasmotorsports.com/images/social/social-share.webp"
   hideFooter={true}
@@ -243,7 +243,7 @@ const crawlSupportLinks = [
   bodyClass="bg-dark text-white min-h-screen flex flex-col"
   mainClass="flex-1 w-full max-w-none px-0 pt-0"
   keywords={[
-    'F.A.S. Motorsports',
+    'FAS Motorsports',
     'Hellcat performance parts',
     'TRX packages',
     'billet supercharger parts',

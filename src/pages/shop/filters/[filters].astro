@@ -135,8 +135,8 @@ const resolvedFilterDescription =
   typeof filter?.description === 'string' && filter.description.trim()
     ? filter.description.trim()
     : filter
-      ? `Products tagged with ${resolvedFilterTitle} curated by F.A.S. Motorsports.`
-      : 'Browse performance products curated by F.A.S. Motorsports.';
+      ? `Products tagged with ${resolvedFilterTitle} curated by FAS Motorsports.`
+      : 'Browse performance products curated by FAS Motorsports.';
 const resolvedFilterLabel = collapseLabelSpaces(resolvedFilterTitle);
 const pageTitle = filter ? `${resolvedFilterLabel} Products` : 'Filter';
 const pageDescription = collapseLabelSpaces(resolvedFilterDescription);

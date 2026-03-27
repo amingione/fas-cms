@@ -32,7 +32,7 @@ export default function PowerPackagesComponent() {
             Built to Pull Hard. <span className="text-white/70">Built to Last.</span>
           </h1>
           <p className="mt-6 text-xl text-gray-300">
-            <span className="font-borg italic text-white">F.A.S. </span>
+            <span className="font-borg italic text-white">FAS </span>
             <span className="font-ethno text-primaryB italic">Motorsports</span> power packages are
             engineered for Hellcat, TRX, and Coyote platforms that actually see street miles. We
             port the chargers, upgrade fueling, and tune with real-world drivability so you get
@@ -103,7 +103,7 @@ export default function PowerPackagesComponent() {
             </h2>
             <p className="mt-6">
               Schedule a consultation to talk through your platform, fuel strategy, and timeline.
-              We’ll map out the hardware, labor, and support you need so your F.A.S. build delivers
+              We’ll map out the hardware, labor, and support you need so your FAS build delivers
               the power you expect with the manners you want.
             </p>
           </div>

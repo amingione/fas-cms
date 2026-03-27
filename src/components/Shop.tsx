@@ -303,7 +303,7 @@ export default function Shop({
               variant="outline"
               className="mb-4 bg-primary/10 border-primary/30 text-primary px-8 py-3 text-sm font-bold tracking-widest font-borg"
             >
-              F.a.S. PERFORMANCE SHOP
+              FAS PERFORMANCE SHOP
             </Badge>
           </motion.div>
 

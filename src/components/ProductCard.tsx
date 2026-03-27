@@ -183,7 +183,7 @@ export function ProductCard({ product, productImage, className }: ProductCardPro
   const brand =
     ((product as any)?.categories?.[0]?.title as string | undefined) ||
     ((product as any)?.brand as string | undefined) ||
-    'F.A.S. Motorsports';
+    'FAS Motorsports';
   const fitment = resolveFitment(product);
   const slug = getSlug(product);
   const productUrl = slug ? `/shop/${slug}` : '#';

@@ -1015,8 +1015,8 @@
   GMC_CONTENT_API_MERCHANT_ID = "5664091767"
   GMC_SFTP_USERNAME = "mc-sftp-5664091767"
   # Shippo warehouse/origin address (non-secret constants)
-  SHIPPO_ORIGIN_NAME = "F.A.S. Motorsports LLC"
-  SHIPPO_ORIGIN_COMPANY = "F.A.S. Motorsports LLC"
+  SHIPPO_ORIGIN_NAME = "FAS Motorsports LLC"
+  SHIPPO_ORIGIN_COMPANY = "FAS Motorsports LLC"
   SHIPPO_ORIGIN_STREET1 = "6161 Riverside Dr"
   SHIPPO_ORIGIN_CITY = "Punta Gorda"
   SHIPPO_ORIGIN_STATE = "FL"
@@ -1058,7 +1058,7 @@
   SESSION_SECURE = "true"
   ADMIN_EMAIL = "sales@fasmotorsports.com"
   NEXT_PUBLIC_API_BASE_URL = "https://fasmotorsports.com"
-  SITE_NAME = "F.A.S. Motorsports"
+  SITE_NAME = "FAS Motorsports"
   CORS_ALLOW = "https://fasmotorsports.com,https://fassanity.fasmotorsports.com"
   CORS_ORIGIN = "https://fassanity.fasmotorsports.com"
   # Anthropic model selection (non-secret)

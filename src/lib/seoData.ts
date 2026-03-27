@@ -61,12 +61,12 @@ export interface SeoPayload {
 }
 
 const FALLBACK_GLOBAL: GlobalSeoSettings = {
-  siteName: 'F.A.S. Motorsports',
+  siteName: 'FAS Motorsports',
   defaultDescription:
-    'F.A.S. Motorsports delivers premium performance parts, custom fabrication, installs, and wheel packages in Punta Gorda, Florida.',
+    'FAS Motorsports delivers premium performance parts, custom fabrication, installs, and wheel packages in Punta Gorda, Florida.',
   defaultOgImage: 'https://fasmotorsports.com/images/social/social-share.webp',
   defaultKeywords: [
-    'F.A.S. Motorsports',
+    'FAS Motorsports',
     'performance parts',
     'supercharger upgrades',
     'billet parts',

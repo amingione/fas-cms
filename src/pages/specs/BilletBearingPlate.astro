@@ -9,14 +9,14 @@ import { buildOfferFromCtaHref } from '@/lib/structured-data-offers';
 
 const pageTitle: string = pageDoc?.title ?? 'Billet Bearing Plate — Spec Sheet';
 const pageDescription =
-  'Review the billet bearing plate specifications engineered by F.A.S. Motorsports for high-power Gen III HEMI durability and precision.';
+  'Review the billet bearing plate specifications engineered by FAS Motorsports for high-power Gen III HEMI durability and precision.';
 
 const specSheet = {
   title: pageTitle,
   description:
-    'Engineered, fabricated, and validated by F.A.S. Motorsports to deliver superior strength, precision, and reliability under extreme conditions.',
+    'Engineered, fabricated, and validated by FAS Motorsports to deliver superior strength, precision, and reliability under extreme conditions.',
   imageSrc: '/images/billetParts/billet-bearing-plate.webp',
-  imageAlt: 'F.A.S. Motorsports Billet Bearing Plate',
+  imageAlt: 'FAS Motorsports Billet Bearing Plate',
   specs: [
     { label: 'Material', value: 'Billet aluminum, heat-treated' },
     { label: 'Manufacturing', value: '5-axis CNC, precision fit' },
@@ -54,7 +54,7 @@ const structuredData = {
   description: specSheet.description,
   url: canonical,
   image: ensureAbsolute(specSheet.imageSrc),
-  brand: { '@type': 'Brand', name: 'F.A.S. Motorsports' },
+  brand: { '@type': 'Brand', name: 'FAS Motorsports' },
   category: 'Engine Components',
   offers: schemaOffer,
   additionalProperty: specSheet.specs.map((spec) => ({

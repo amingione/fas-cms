@@ -33,7 +33,7 @@
                             - /url: /
                         - generic [ref=e45]: /
                     - listitem [ref=e46]:
-                        - generic [ref=e47]: Checkout - F.A.S. Motorsports
+                        - generic [ref=e47]: Checkout - FAS Motorsports
             - main [ref=e48]:
                 - generic [ref=e49]:
                     - link "Back to Store" [ref=e50] [cursor=pointer]:
@@ -115,7 +115,7 @@
                                 - img [ref=e88]
             - generic [ref=e90]:
                 - heading "Top Services" [level=2] [ref=e91]
-                - paragraph [ref=e92]: Pair your hardware upgrades with professional installation, calibration, and security options from the F.A.S. Motorsports team.
+                - paragraph [ref=e92]: Pair your hardware upgrades with professional installation, calibration, and security options from the FAS Motorsports team.
                 - navigation "Top services" [ref=e93]:
                     - list [ref=e94]:
                         - listitem [ref=e95]:
@@ -147,12 +147,12 @@
             - generic [ref=e123]:
                 - generic [ref=e124]:
                     - paragraph [ref=e125]: MODIFYING YOUR VEHICLE COULD LEAD TO THE LOSS OF YOUR FACTORY WARRANTY!
-                    - paragraph [ref=e126]: F.A.S. Motorsports is not responsible for any issues you may encounter with dealership warranty claims or warrantied repairs.
+                    - paragraph [ref=e126]: FAS Motorsports is not responsible for any issues you may encounter with dealership warranty claims or warrantied repairs.
                 - generic [ref=e127]:
                     - generic [ref=e128]:
-                        - img "F.A.S. Motorsports" [ref=e129]
+                        - img "FAS Motorsports" [ref=e129]
                         - generic [ref=e130]:
-                            - generic [ref=e131]: F.A.S. MOTORSPORTS
+                            - generic [ref=e131]: FAS MOTORSPORTS
                             - generic [ref=e132]: FAST • AGGRESSIVE • SUPERIOR
                     - paragraph [ref=e133]: Precision-engineered supercharger components and custom modifications for the ultimate in automotive performance.
                 - generic [ref=e134]:
@@ -173,10 +173,10 @@
                         - /url: https://instagram.com/fas_moto
                         - generic [ref=e148]: Instagram
                         - generic [ref=e149]: '@fas_moto'
-                    - link "Facebook F.A.S. Motorsports" [ref=e150] [cursor=pointer]:
-                        - /url: https://facebook.com/fasmotorsports
+                    - link "Facebook FAS Motorsports" [ref=e150] [cursor=pointer]:
+                        - /url: https://facebook.com/Fasmotorsportz
                         - generic [ref=e151]: Facebook
-                        - generic [ref=e152]: F.A.S. Motorsports
+                        - generic [ref=e152]: FAS Motorsports
                 - generic [ref=e153]:
                     - generic [ref=e154]:
                         - link "Privacy Policy" [ref=e155] [cursor=pointer]:
@@ -190,7 +190,7 @@
                         - generic [ref=e160]: '|'
                         - link "Refund Policy" [ref=e161] [cursor=pointer]:
                             - /url: /returnRefundPolicy
-                    - paragraph [ref=e162]: © 2025 F.A.S. Motorsports. All rights reserved.
+                    - paragraph [ref=e162]: © 2025 FAS Motorsports. All rights reserved.
                     - paragraph [ref=e163]:
                         - img "LaunchWell Brands" [ref=e164]
                         - generic [ref=e165]:

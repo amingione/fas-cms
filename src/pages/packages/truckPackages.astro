@@ -18,7 +18,7 @@ const canonical = requestUrl.toString();
 
 const pageTitle = 'Truck Packages';
 const pageDescription =
-  'Browse F.A.S. Motorsports truck packages for RAM TRX, Ford F-150, and 250 series builds with install, tuning, and warranty-friendly support.';
+  'Browse FAS Motorsports truck packages for RAM TRX, Ford F-150, and 250 series builds with install, tuning, and warranty-friendly support.';
 const hero = pageDoc?.hero ?? {};
 // Use plain HTML buttons/links in this SSR page to avoid React SSR for UI primitives
 const heroCtas: Array<{ label?: string; href?: string; variant?: string }> = Array.isArray(
@@ -58,7 +58,7 @@ const secondaryBadgeEntries = Array.isArray(pageDoc?.hero?.secondaryBadges)
   >
     <Image
       src={img_trx_hellcat}
-      alt="F.A.S. Motorsports Truck Packages"
+      alt="FAS Motorsports Truck Packages"
       class="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none"
     />
     <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80"></div>
@@ -144,7 +144,7 @@ const secondaryBadgeEntries = Array.isArray(pageDoc?.hero?.secondaryBadges)
           </div>
           <ul class="font-mono font-bold pt-4 text-base tracking-tight leading-snug">
             <li>
-              F.A.S. Motorsports has built more TRX’s than anyone, delivering proven power packages
+              FAS Motorsports has built more TRX’s than anyone, delivering proven power packages
               designed to dominate both street and strip.
             </li>
           </ul>

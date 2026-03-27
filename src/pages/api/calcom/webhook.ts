@@ -31,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           to: booking.customer.email,
           subject: `✅ Appointment Confirmed: ${booking.eventType.title}`,
           html: `
-            <h1>Thank you for booking with F.A.S. Motorsports</h1>
+            <h1>Thank you for booking with FAS Motorsports</h1>
             <p>Your appointment for <strong>${booking.eventType.title}</strong> has been confirmed.</p>
             <p><strong>Time:</strong> ${new Date(booking.startTime).toLocaleString()}</p>
             <p>If you need to make changes, you can <a href="${booking.rescheduleUrl}">reschedule</a> or <a href="${booking.cancelUrl}">cancel</a>.</p>

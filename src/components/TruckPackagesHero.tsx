@@ -56,7 +56,7 @@ export function TruckPackagesHero({
           <div className="flex items-center gap-3">
             <img
               src="logo/fas-logo500.webp"
-              alt="F.A.S. Motorsports"
+              alt="FAS Motorsports"
               className="w-10 h-10 object-contain accent-image drop-shadow"
             />
             <Badge

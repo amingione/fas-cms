@@ -1937,7 +1937,7 @@ function StripePaymentPane({
       country: countryCode,
       currency: 'usd',
       total: {
-        label: 'F.A.S. Motorsports',
+        label: 'FAS Motorsports',
         amount: totalAmount
       },
       requestPayerName: true,

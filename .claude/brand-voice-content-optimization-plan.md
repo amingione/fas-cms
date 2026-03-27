@@ -1,10 +1,10 @@
-# F.A.S. Motorsports Brand Voice + Content Optimization Plan
+# FAS Motorsports Brand Voice + Content Optimization Plan
 
 > **Authoritative brand voice source:** `.claude/brand-voice-guidelines.md`
 > This document governs content QA and rewrite standards. For voice attributes, tone-by-context rules, terminology, and enforced language patterns, read the guidelines first.
 
 ## Summary
-This plan standardizes customer-facing copy across `fas-cms-fresh` so every page is technically credible, useful, and aligned with F.A.S. Motorsports positioning: shop-floor authentic, vehicle-specific engineering, in-house fabrication, and durable real-world builds. Scope is UI/content only. No API, business logic, pricing logic, or checkout logic changes.
+This plan standardizes customer-facing copy across `fas-cms-fresh` so every page is technically credible, useful, and aligned with FAS Motorsports positioning: shop-floor authentic, vehicle-specific engineering, in-house fabrication, and durable real-world builds. Scope is UI/content only. No API, business logic, pricing logic, or checkout logic changes.
 
 ## Audit Findings (Content Risk Categories)
 1. Placeholder or developer language
@@ -18,7 +18,7 @@ This plan standardizes customer-facing copy across `fas-cms-fresh` so every page
 
 3. Generic copy and weak differentiation
 - Repetitive high-level language (“state-of-the-art”, “unmatched”) appears without concrete technical details.
-- Some sections read like template marketing copy rather than F.A.S.-specific expertise.
+- Some sections read like template marketing copy rather than FAS-specific expertise.
 
 4. Weak product detail depth
 - Product/service sections sometimes omit fitment, build constraints, validation process, or expected outcomes.
@@ -28,7 +28,7 @@ This plan standardizes customer-facing copy across `fas-cms-fresh` so every page
 - Repeated business/contact facts are not always centralized in copy patterns.
 - Inconsistent phrasing around services/process can create ambiguity in brand promise.
 
-## Brand Voice Definition (F.A.S. Motorsports)
+## Brand Voice Definition (FAS Motorsports)
 ### Positioning
 - Shop-floor authentic performance engineering for serious enthusiasts and owners who want durable, custom-fit outcomes.
 - Three generations of in-house fabrication since 2002 — every part machined and installed under one roof.
@@ -73,7 +73,7 @@ This plan standardizes customer-facing copy across `fas-cms-fresh` so every page
 
 ## Proof Policy (Claims Governance)
 1. Claims allowed without citation
-- Process statements about how F.A.S. works (consultation, in-house fabrication, vehicle-specific approach).
+- Process statements about how FAS works (consultation, in-house fabrication, vehicle-specific approach).
 - Non-quantified quality positioning that is not absolute.
 
 2. Claims requiring proof source

@@ -26,7 +26,7 @@ export default function SalePage() {
               <span className="italic text-black text-glow-primary font-borg">Cyber </span> Monday{' '}
               <p>
                 at
-                <span className="text-black text-glow-primary font-borg italic">F.a.S.</span>{' '}
+                <span className="text-black text-glow-primary font-borg italic">FAS</span>{' '}
               </p>
               <span className="underline italic text-primaryB/60 text-shadow-strong">
                 Motorsports

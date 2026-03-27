@@ -114,7 +114,7 @@ const buildProductImageAlt = (explicitAlt: unknown, fallback: string, index: num
   const normalizedExplicit = collapseSpaces(toPlainText(explicitAlt ?? ''));
   const base = normalizedExplicit || fallback;
   const detailLabel = index === 0 ? 'main product image' : `detail image ${index + 1}`;
-  return collapseSpaces(`${base} ${detailLabel} | F.A.S. Motorsports`);
+  return collapseSpaces(`${base} ${detailLabel} | FAS Motorsports`);
 };
 
 const normalizeFilterSlug = (value: FilterEntry): string => {
@@ -223,7 +223,7 @@ const collapseSpaces = (value: unknown): string => {
 };
 
 const META_DESCRIPTION_SUFFIX =
-  'Shop high-performance installs and upgrades with F.A.S. Motorsports. Fast shipping & expert service. Punta Gorda, Florida.';
+  'Shop high-performance installs and upgrades with FAS Motorsports. Fast shipping & expert service. Punta Gorda, Florida.';
 const META_DESCRIPTION_LIMIT = 155;
 
 const truncateForMeta = (value: string, maxLength: number): string => {
@@ -310,13 +310,12 @@ const toTitleCase = (value: string): string => {
     .split(/([\s-/]+)/g)
     .map((segment) => {
       if (/^[\s-/]+$/.test(segment)) return segment;
-      if (/^(TRX|F-150|F150|F\.A\.S\.|FAS|HEMI|HP|WHP|AWD|4WD|RWD|E85)$/i.test(segment)) {
+      if (/^(TRX|F-150|F150|FAS|HEMI|HP|WHP|AWD|4WD|RWD|E85)$/i.test(segment)) {
         return segment.toUpperCase();
       }
       return segment.charAt(0).toUpperCase() + segment.slice(1).toLowerCase();
     })
-    .join('')
-    .replace(/F\.A\.S\./gi, 'F.A.S.');
+    .join('');
 };
 
 const sanitizeFitmentPhrase = (value: string): string => {
@@ -400,7 +399,7 @@ const deriveFitmentPhrase = (
 
 const sanitizePrimaryKeyword = (value: string, productTitle: string): string => {
   const normalized = collapseSpaces(value)
-    .replace(/F\.A\.S\.\s+Motorsports/gi, '')
+    .replace(/FAS\s+Motorsports/gi, '')
     .replace(/FAS\s+Motorsports/gi, '')
     .replace(/vehicle not included/gi, '')
     .replace(new RegExp(escapeRegExp(productTitle), 'i'), '')
@@ -1238,10 +1237,10 @@ if (product) {
 
   const secondaryTitleParts = [fitmentPhrase, primaryKeyword].filter(Boolean);
   const assembledTitle = secondaryTitleParts.length
-    ? [baseProductTitle, secondaryTitleParts.join(' '), 'F.A.S. Motorsports']
+    ? [baseProductTitle, secondaryTitleParts.join(' '), 'FAS Motorsports']
         .filter(Boolean)
         .join(' | ')
-    : `${baseProductTitle} | F.A.S. Motorsports`;
+    : `${baseProductTitle} | FAS Motorsports`;
   seoTitle = collapseSpaces(assembledTitle);
 
   const descriptionSegments: string[] = [];
@@ -1255,7 +1254,7 @@ if (product) {
   }
   if (benefitsSummary) descriptionSegments.push(benefitsSummary);
   if (callToAction) descriptionSegments.push(callToAction);
-  descriptionSegments.push('F.A.S. Motorsports');
+  descriptionSegments.push('FAS Motorsports');
   if (requiresVehicleDisclaimer) {
     descriptionSegments.push('Vehicle not included.');
   }
@@ -1391,7 +1390,7 @@ if (product) {
   }
 
   const altFallback = collapseSpaces(
-    [productHeading, productSubheading, 'F.A.S. Motorsports'].filter(Boolean).join(' ')
+    [productHeading, productSubheading, 'FAS Motorsports'].filter(Boolean).join(' ')
   );
   const normalizedImageSlugSource = slugValue || baseProductTitle;
   normalizedImageSlug = slugify(normalizedImageSlugSource);
@@ -1440,7 +1439,7 @@ if (product) {
         originalUrl: fallbackUrl,
         webpUrl: fallbackUrl,
         thumbnailUrl: fallbackUrl,
-        alt: collapseSpaces(`${altFallback || baseProductTitle} placeholder image | F.A.S. Motorsports`),
+        alt: collapseSpaces(`${altFallback || baseProductTitle} placeholder image | FAS Motorsports`),
         fileName: fallbackFile,
         width: 1200,
         height: 900,

@@ -1,6 +1,6 @@
-# AI Coding Agent Guidelines for F.A.S. Motorsports CMS
+# AI Coding Agent Guidelines for FAS Motorsports CMS
 
-**Project:** F.A.S. Motorsports E-Commerce CMS  
+**Project:** FAS Motorsports E-Commerce CMS  
 **Tech Stack:** Astro (frontend), Sanity CMS (content), Medusa (commerce), Stripe (payments), Shippo (shipping)  
 **Last Updated:** January 2026
 

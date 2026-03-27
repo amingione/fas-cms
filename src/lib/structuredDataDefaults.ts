@@ -30,8 +30,9 @@ const BUSINESS_ADDRESS = {
 };
 
 const DEFAULT_SAME_AS = [
-  'https://www.facebook.com/fasmotorsports',
-  'https://www.instagram.com/fasmotorsports'
+  'https://www.facebook.com/Fasmotorsportz',
+  'https://www.instagram.com/fas_moto',
+  'https://www.tiktok.com/@fas_motorsports'
 ];
 
 const ensureTrailingSlash = (value: string) => (value.endsWith('/') ? value : `${value}/`);

@@ -95,7 +95,7 @@ export function WheelsHero({
             <span {...(fieldPathBase ? inlineFieldAttrs(`${fieldPathBase}.subtext`) : {})}>
               {intro ?? (
                 <>
-                  F.A.S. Motorsports is your authorized dealer for{' '}
+                  FAS Motorsports is your authorized dealer for{' '}
                   <span className="text-primary font-semibold">BelaK Wheels</span> and{' '}
                   <span className="text-primary font-semibold">JTX Forged Wheels</span>. From street
                   performance to show-stopping luxury, we have the perfect wheels to complete your
@@ -155,7 +155,7 @@ export function WheelsHero({
                   <span className="block text-accent font-ethno-italic">THE LOOK</span>
                 </h3>
                 <p className="text-white/90 text-base md:text-lg font-kwajong leading-relaxed mb-4">
-                  From street to strip, we have the perfect wheels to finish your F.A.S. build.
+                  From street to strip, we have the perfect wheels to finish your FAS build.
                   Every wheel is engineered for performance and crafted for style.
                 </p>
                 <div className="flex flex-wrap gap-3">
@@ -323,7 +323,7 @@ export function WheelsHero({
                 PREMIUM WHEELS FOR EVERY BUILD
               </h2>
               <p className="text-sm md:text-base text-white/60 font-kwajong max-w-2xl mx-auto">
-                Whether you're building for the street, strip, or show - F.A.S. Motorsports has the
+                Whether you're building for the street, strip, or show - FAS Motorsports has the
                 perfect wheels to complete your vision.
                 <span className="text-primary font-semibold"> BelaK</span> and
                 <span className="text-primary font-semibold"> JTX Forged</span> - engineered for

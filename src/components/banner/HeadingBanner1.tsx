@@ -38,13 +38,13 @@ export default function HeadingBanner1() {
                 Custom Fabrication. Precision Engineering.
               </h2>
               <p className="mt-6 text-lg/8 text-white/70 font-mono">
-                F.A.S. Motorsports offers in-house custom fabrication services for performance and
+                FAS Motorsports offers in-house custom fabrication services for performance and
                 diesel platforms. From pipes and cats to full exhaust systems, our welding
                 department designs and builds everything to spec — no compromises.
               </p>
             </div>
             <img
-              alt="welding F.A.S. Motorsports custom fabrication"
+              alt="welding FAS Motorsports custom fabrication"
               src={img_welding_fas.src}
               width={2432}
               height={1442}

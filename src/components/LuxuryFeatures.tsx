@@ -119,7 +119,7 @@ export function LuxuryFeatures() {
           <h2
             className={`font-black leading-tight font-mono ${isMobile ? 'text-lg' : 'text-4xl lg:text-6xl'}`}
           >
-            <span className="block text-primary font-borg">THE F.a.S.</span>
+            <span className="block text-primary font-borg">THE FAS</span>
             <span className="text-white font-ethno">DIFFERENCE</span>
           </h2>
 
@@ -178,7 +178,7 @@ export function LuxuryFeatures() {
               READY FOR THE ULTIMATE BUILD?
             </h3>
             <p className={`text-graylight font-mono mb-6 ${isMobile ? 'text-xs' : 'text-lg'}`}>
-              Join the elite circle of F.A.S. Motorsports clients and experience automotive
+              Join the elite circle of FAS Motorsports clients and experience automotive
               perfection.
             </p>
             <motion.a

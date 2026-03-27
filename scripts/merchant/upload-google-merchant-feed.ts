@@ -339,7 +339,7 @@ function buildProductDetails(input: ProductDetailsInput): ProductDetailEntry[] {
     pushDetail(
       'Service Details',
       'Installation',
-      'Professional installation service performed at F.A.S. Motorsports.'
+      'Professional installation service performed at FAS Motorsports.'
     );
   }
 
@@ -698,7 +698,7 @@ function buildRows(products: any[], baseUrl: string, currency: string): Merchant
       const baseDescription = shortDescriptionText || longDescriptionText;
       const image = sanitizeText(product?.image);
       const slug = sanitizeText(product?.slug);
-      const brand = sanitizeText(product?.brand) || 'F.A.S. Motorsports';
+      const brand = sanitizeText(product?.brand) || 'FAS Motorsports';
       const productTypeValue = sanitizeText(product?.productType);
       const categoryTitles: string[] = Array.isArray(product?.categoryTitles)
         ? product.categoryTitles.map((category: unknown) => sanitizeText(category)).filter(Boolean)

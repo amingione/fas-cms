@@ -27,5 +27,7 @@
   },
   "workbench.editor.autoLockGroups": {
     "workbench.editorinputs.browser": true
-  }
+  },
+  "search.useGlobalIgnoreFiles": true,
+  "search.useParentIgnoreFiles": true
 }

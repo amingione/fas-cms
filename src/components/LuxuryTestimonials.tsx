@@ -31,7 +31,7 @@ export function LuxuryTestimonials() {
       name: 'Hellcat Owner',
       title: 'Daily + Performance Build',
       content:
-        'Nothing felt generic. F.A.S. reviewed my setup, built the package around my car, and walked me through supporting mods so I knew exactly what was installed and why.',
+        'Nothing felt generic. FAS reviewed my setup, built the package around my car, and walked me through supporting mods so I knew exactly what was installed and why.',
       rating: 5,
       project: 'Custom Hellcat Configuration',
       image: ''
@@ -51,7 +51,7 @@ export function LuxuryTestimonials() {
     {
       icon: Award,
       title: 'In-House Fabrication',
-      description: 'Built and refined at F.A.S.'
+      description: 'Built and refined at FAS'
     },
     {
       icon: ShieldCheck,

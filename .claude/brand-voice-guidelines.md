@@ -1,4 +1,6 @@
-# F.A.S. Motorsports Brand Voice Guidelines
+# FAS Motorsports Brand Voice Guidelines
+- UPDATE: NEW CANONICAL NAP ADDED (2026-03-17)
+   - Business name: `FAS Motorsports` --> `FAS Motorsports` (no periods)
 
 ## Generation Metadata
 - Created: 2026-03-26
@@ -13,11 +15,11 @@
 
 ## Executive Summary
 
-F.A.S. Motorsports is a three-generation, family-owned performance shop in Punta Gorda, Florida, operating since 2002. The brand voice is that of a working shop that earns its reputation on the dyno, not in a copywriter's office. Every claim is anchored to something provable: a part that ships from the same floor that installs it, a horsepower number verified on the dyno before keys are handed back, a supercharger ported by the same hands that designed it.
+FAS Motorsports is a three-generation, family-owned performance shop in Punta Gorda, Florida, operating since 2002. The brand voice is that of a working shop that earns its reputation on the dyno, not in a copywriter's office. Every claim is anchored to something provable: a part that ships from the same floor that installs it, a horsepower number verified on the dyno before keys are handed back, a supercharger ported by the same hands that designed it.
 
 The voice is direct, technical, and confident without being loud. It speaks peer-to-peer — enthusiast to enthusiast — with the specificity that only comes from actually doing the work. The shop doesn't need to perform expertise because it has a 24-year paper trail of builds to stand behind. Copy reads like it came from the shop floor, not a marketing department: short, declarative, precise about materials and process, indifferent to hype.
 
-F.A.S. stands for **Fast. Aggressive. Superior.** — a tagline that also functions as a standard. Every piece of content should pass that test before it ships.
+FAS stands for **Fast. Aggressive. Superior.** — a tagline that also functions as a standard. Every piece of content should pass that test before it ships.
 
 ---
 
@@ -39,7 +41,7 @@ The foundational brand identity anchor. Voice is constant — it does not change
 
 #### Attribute 1: Technical
 
-- **What it means**: F.A.S. speaks with part-level precision. Not "a supercharger upgrade" — "a race-ported 2.7L Eaton with a 108mm throttle body and longtube headers." The specificity is the proof.
+- **What it means**: FAS speaks with part-level precision. Not "a supercharger upgrade" — "a race-ported 2.7L Eaton with a 108mm throttle body and longtube headers." The specificity is the proof.
 - **How it shows up**: Material callouts (304/316L stainless), process callouts (TIG welded, race-ported), model-specific references (Hellcat, TRX, LT4), package feature lists that name every component.
 - **What to avoid**: Adjective-heavy copy with no nouns behind it. "High-flow intake" is fine as a component name; "high-flow air system for better breathing" is not.
 - **Evidence**: PowerPackages.astro feature lists: "Race-Ported Supercharger / 108mm Throttle Body + High-Flow Intake / Longtube Headers + Race Midpipes / E85 Fuel System + ID Injectors / Custom Dyno Tune"; CustomFabricationSection: "304 and 316L stainless work, TIG welded and fitted in-house."
@@ -91,11 +93,11 @@ The foundational brand identity anchor. Voice is constant — it does not change
 
 ### Primary Value Proposition
 
-F.A.S. Motorsports is the only performance shop in the Southeast that designs, manufactures, installs, and dyno-tunes from the same floor — so every number on the spec sheet is something the shop is personally accountable for.
+FAS Motorsports is the only performance shop in the Southeast that designs, manufactures, installs, and dyno-tunes from the same floor — so every number on the spec sheet is something the shop is personally accountable for.
 
 Variations observed:
 - "Three generations of racing and fabrication, now focused on billet parts, in-house installs, and validated power packages for the builds that actually get driven hard." (HomepageHero subcopy)
-- "F.A.S. Motorsports grew out of a real racing legacy — not a drop-ship catalog." (StorySection)
+- "FAS Motorsports grew out of a real racing legacy — not a drop-ship catalog." (StorySection)
 - "The installs are done by the same people who designed and machined the parts." (StorySection)
 
 ### Key Message Pillars
@@ -194,7 +196,7 @@ Voice is constant. Tone flexes by context.
 | **In-house** | Describe manufacturing and install | "in-store," "on-site" | "machined and installed in-house" |
 | **Race-ported** | For supercharger porting work | "modified," "upgraded," "improved" | "race-ported 2.7L Eaton" |
 | **Billet** | For CNC-machined aluminum parts | "custom," "aftermarket," "performance" | "FAS billet supercharger lid" |
-| **F.A.S. Motorsports** | Full brand name on first reference | "FAS," "the shop" (on first use) | "F.A.S. Motorsports is a certified IGLA installer" |
+| **FAS Motorsports** | Full brand name on first reference | "FAS," "the shop" (on first use) | "FAS Motorsports is a certified IGLA installer" |
 | **Certified installer** | For IGLA service specifically | "authorized," "official" | "certified IGLA installer serving Southwest Florida" |
 
 ### Preferred Terms
@@ -335,7 +337,7 @@ I'll get a price sent over today!
 ---
 
 **StorySection:**
-> F.A.S. Motorsports grew out of a real racing legacy — not a drop-ship catalog.
+> FAS Motorsports grew out of a real racing legacy — not a drop-ship catalog.
 
 *Why it works:* "not a drop-ship catalog" is the sharpest competitive positioning on the site. Tells you exactly what they are not, which makes the contrast clear without naming a competitor.
 
@@ -467,7 +469,7 @@ The core voice attributes are identical — Technical, Direct, Dyno-Proven, Vert
 ```
 Hello [Name],
 
-F.A.S. Motorsports manufactures billet supercharger components for Hellcat, TRX,
+FAS Motorsports manufactures billet supercharger components for Hellcat, TRX,
 and Trackhawk platforms in-house in Punta Gorda, FL. If you're sourcing these
 parts for your shop, we sell direct — no distributor margin in the chain.
 
@@ -479,7 +481,7 @@ Call (812) 200-9012 or reply here to set up a dealer account.
 
 ### B2B Vendor Portal (fas-sanity) Copy Rules
 
-- Portal login page: Lead with manufacturer identity. "F.A.S. Motorsports Dealer Portal — Parts sourced direct from the shop that makes them."
+- Portal login page: Lead with manufacturer identity. "FAS Motorsports Dealer Portal — Parts sourced direct from the shop that makes them."
 - Product listings: Include tolerance specs and compatible vehicle list alongside pricing. Dealers need the fitment data to sell confidently.
 - Order status language: Operational and precise. "In production," "Ready to ship," "Shipped — tracking [#]." No marketing copy in order flow.
 
@@ -540,10 +542,10 @@ Call (812) 200-9012 or reply here to set up a dealer account.
 
 ### Low Priority (nice to have)
 
-5. **"F.A.S." abbreviation — does it stand for something specific?**
+5. **"FAS" abbreviation — does it stand for something specific?**
    - What was found: "Fast. Aggressive. Superior." appears to be the brand meaning, but it's unclear if this was the original acronym derivation or a backronym applied to the Mingione family name.
-   - Agent recommendation: If the acronym has a family name or founding origin story, that's a strong brand moment worth documenting. "F.A.S." as "Fast. Aggressive. Superior." works perfectly as copy regardless.
-   - Need from you: Confirm official origin of the F.A.S. name.
+   - Agent recommendation: If the acronym has a family name or founding origin story, that's a strong brand moment worth documenting. "FAS" as "Fast. Aggressive. Superior." works perfectly as copy regardless.
+   - Need from you: Confirm official origin of the FAS name.
 
 ---
 

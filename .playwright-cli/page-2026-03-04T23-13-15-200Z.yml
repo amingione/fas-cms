@@ -197,7 +197,7 @@
                 - img [ref=e138]
       - generic [ref=e140]:
         - heading "Top Services" [level=2] [ref=e141]
-        - paragraph [ref=e142]: Pair your hardware upgrades with professional installation, calibration, and security options from the F.A.S. Motorsports team.
+        - paragraph [ref=e142]: Pair your hardware upgrades with professional installation, calibration, and security options from the FAS Motorsports team.
         - navigation "Top services" [ref=e143]:
           - list [ref=e144]:
             - listitem [ref=e145]:
@@ -236,7 +236,7 @@
             - /url: https://www.instagram.com/fas_moto
             - generic [ref=e179]: Instagram
             - img [ref=e180]
-        - paragraph [ref=e182]: © 2025 F.a.S. Motorsports, Inc. All rights reserved.
+        - paragraph [ref=e182]: © 2025 FAS Motorsports, Inc. All rights reserved.
     - generic:
       - region "Notifications alt+T"
   - generic:

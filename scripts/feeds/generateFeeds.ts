@@ -117,7 +117,7 @@ export async function generateFeeds() {
       image,
       availability,
       price,
-      product.brand ?? 'F.A.S. Motorsports',
+      product.brand ?? 'FAS Motorsports',
       product.gtin ?? '',
       product.mpn ?? ''
     ]);
@@ -140,7 +140,7 @@ export async function generateFeeds() {
       price,
       productUrl: link,
       mainImage: image,
-      brand: product.brand ?? 'F.A.S. Motorsports',
+      brand: product.brand ?? 'FAS Motorsports',
       mpn: product.mpn ?? '',
       gtin: product.gtin ?? ''
     });

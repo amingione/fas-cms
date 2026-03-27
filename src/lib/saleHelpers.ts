@@ -3,7 +3,7 @@ import { formatCents } from '@/lib/pricing';
 /**
  * ⚠️⚠️⚠️ CRITICAL PRICING WARNING ⚠️⚠️⚠️
  *
- * Sale Helper Functions for F.A.S. Motorsports
+ * Sale Helper Functions for FAS Motorsports
  * Handles sale pricing logic, date validation, and badge text
  *
  * **PRICING AUTHORITY MODEL:**

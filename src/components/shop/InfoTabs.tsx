@@ -363,7 +363,7 @@ export default function InfoTabs({
   const renderKitContent = () => {
     if (!normalizedKitItems.length) {
       return (
-        <EmptyState message="Kit contents are finalized per build. Contact F.A.S. with your year/make/model and goals for a complete parts list." />
+        <EmptyState message="Kit contents are finalized per build. Contact FAS with your year/make/model and goals for a complete parts list." />
       );
     }
     return (

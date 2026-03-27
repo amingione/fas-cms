@@ -9,14 +9,14 @@ import { buildOfferFromCtaHref } from '@/lib/structured-data-offers';
 
 const pageTitle: string = pageDoc?.title ?? 'Predator Pulley — Spec Sheet';
 const pageDescription =
-  'Key specifications for the F.A.S. Motorsports Predator slip-on lower pulley, including materials, rib options, and installation details.';
+  'Key specifications for the FAS Motorsports Predator slip-on lower pulley, including materials, rib options, and installation details.';
 
 const specSheet = {
   title: 'Predator Slip-On Lower Pulley — No Tune Required',
   description:
     'Slip-on lower pulley designed for quick install and repeatable traction. Delivers additional boost without requiring a calibration change on compatible setups.',
   imageSrc: '/images/billetParts/fas-pred-pully.webp',
-  imageAlt: 'F.A.S. Motorsports Predator Pulley',
+  imageAlt: 'FAS Motorsports Predator Pulley',
   specs: [
     { label: 'Material', value: 'Aluminum billet, heat-treated' },
     { label: 'Manufacturing', value: 'Multi-axis CNC for concentricity and finish' },
@@ -53,7 +53,7 @@ const structuredData = {
   description: specSheet.description,
   url: canonical,
   image: ensureAbsolute(specSheet.imageSrc),
-  brand: { '@type': 'Brand', name: 'F.A.S. Motorsports' },
+  brand: { '@type': 'Brand', name: 'FAS Motorsports' },
   category: 'Supercharger Components',
   offers: schemaOffer,
   additionalProperty: specSheet.specs.map((spec) => ({

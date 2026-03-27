@@ -81,7 +81,7 @@ export default function ServiceDisclaimerNotice({
                       </div>
                     )}
                     <p className="text-xs text-white/60">
-                      Vehicle drop-off at F.A.S. Motorsports is required for all install-only
+                      Vehicle drop-off at FAS Motorsports is required for all install-only
                       performance packages. Our team will confirm scheduling after checkout.
                     </p>
                   </div>

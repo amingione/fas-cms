@@ -128,14 +128,14 @@
                             - button "Open menu" [ref=e115] [cursor=pointer]:
                                 - generic [ref=e117]: Open menu
                                 - img [ref=e118]
-                            - link "F.A.S. Motorsports F.A.S. Motorsports Performance Parts and Supercharger Modifications" [ref=e121] [cursor=pointer]:
+                            - link "FAS Motorsports FAS Motorsports Performance Parts and Supercharger Modifications" [ref=e121] [cursor=pointer]:
                                 - /url: /
-                                - generic [ref=e122]: F.A.S. Motorsports
-                                - img "F.A.S. Motorsports Performance Parts and Supercharger Modifications" [ref=e123]
+                                - generic [ref=e122]: FAS Motorsports
+                                - img "FAS Motorsports Performance Parts and Supercharger Modifications" [ref=e123]
                     - generic [ref=e125]:
                         - generic [ref=e126]:
                             - heading "Performance Categories" [level=1] [ref=e127]
-                            - paragraph [ref=e128]: Jump into the platform that matches your build. Each category highlights curated hardware stacks, tuning paths, and proven package tiers engineered in-house by F.A.S.
+                            - paragraph [ref=e128]: Jump into the platform that matches your build. Each category highlights curated hardware stacks, tuning paths, and proven package tiers engineered in-house by FAS
                         - generic [ref=e130]:
                             - generic:
                                 - generic:
@@ -204,10 +204,10 @@
                                 - text: Browse all categories →
                     - region "Precision. Power. Performance" [ref=e182]:
                         - generic [ref=e183]:
-                            - img "hellcat charger F.A.S. Motorsports" [ref=e185]
+                            - img "hellcat charger FAS Motorsports" [ref=e185]
                             - generic [ref=e187]:
                                 - heading "Precision. Power. Performance" [level=2] [ref=e188]
-                                - paragraph [ref=e189]: F.A.S. Motorsports delivers high-performance billet parts, superchargers, and custom packages engineered for power, precision, and reliability. Explore our innovative solutions to elevate your build and dominate the road or track.
+                                - paragraph [ref=e189]: FAS Motorsports delivers high-performance billet parts, superchargers, and custom packages engineered for power, precision, and reliability. Explore our innovative solutions to elevate your build and dominate the road or track.
                                 - link "Shop All Products ➤➤➤" [ref=e190] [cursor=pointer]:
                                     - /url: /shop
                     - region "Featured" [ref=e191]:
@@ -271,7 +271,7 @@
                                 - img [ref=e247]
             - generic [ref=e249]:
                 - heading "Top Services" [level=2] [ref=e250]
-                - paragraph [ref=e251]: Pair your hardware upgrades with professional installation, calibration, and security options from the F.A.S. Motorsports team.
+                - paragraph [ref=e251]: Pair your hardware upgrades with professional installation, calibration, and security options from the FAS Motorsports team.
                 - navigation "Top services" [ref=e252]:
                     - list [ref=e253]:
                         - listitem [ref=e254]:
@@ -310,7 +310,7 @@
                         - /url: https://www.instagram.com/fas_moto
                         - generic [ref=e288]: Instagram
                         - img [ref=e289]
-                - paragraph [ref=e291]: © 2025 F.a.S. Motorsports, Inc. All rights reserved.
+                - paragraph [ref=e291]: © 2025 FAS Motorsports, Inc. All rights reserved.
         - generic:
             - region "Notifications alt+T"
     - generic:

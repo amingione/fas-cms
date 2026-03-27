@@ -33,7 +33,7 @@ export default function TruckPackagesComponent() {
             <span className="text-white/70">Strength. Speed. Support.</span>
           </h1>
           <p className="mt-6 text-xl text-gray-300">
-            <span className="font-borg italic text-white">F.A.S. </span>
+            <span className="font-borg italic text-white">FAS </span>
             <span className="font-ethno text-primaryB italic">Motorsports</span> truck packages are
             engineered for the modern street-driven TRX, Raptor, and high-output pickup platforms.
             We upgrade the drivetrain, cooling, and calibration to withstand real payloads, real

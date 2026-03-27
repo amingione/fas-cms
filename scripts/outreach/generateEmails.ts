@@ -88,7 +88,7 @@ async function runFromCli() {
     campaignName: process.argv[2] || 'backlink-campaign',
     valueProposition:
       process.argv[3] ||
-      'F.A.S. Motorsports shares advanced performance tuning guides your readers will love.',
+      'FAS Motorsports shares advanced performance tuning guides your readers will love.',
     callToAction: process.argv[4] || 'Let us collaborate on a co-branded tech article next week.'
   };
 

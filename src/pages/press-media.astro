@@ -4,9 +4,9 @@ import DarkContentShell from '@/components/DarkContentShell.astro';
 import { fetchProductsFromSanity, type Product } from '@/lib/sanity-utils.ts';
 import { buildPrimaryKeywordAnchor, mergeAnchorFallbacks } from '@/lib/seoAnchors.ts';
 
-const pageTitle = 'Press & Media Resources | F.A.S. Motorsports';
+const pageTitle = 'Press & Media Resources | FAS Motorsports';
 const pageDescription =
-  'Official press-ready links, anchor text, and descriptions for F.A.S. Motorsports performance products.';
+  'Official press-ready links, anchor text, and descriptions for FAS Motorsports performance products.';
 
 const requestUrl = new URL(Astro.request.url);
 requestUrl.search = '';
@@ -124,7 +124,7 @@ const buildSummary = (product: Product): string => {
       return truncate(text, 155);
     }
   }
-  const fallback = `${product.title} from F.A.S. Motorsports.`;
+  const fallback = `${product.title} from FAS Motorsports.`;
   return truncate(fallback, 155);
 };
 
@@ -154,7 +154,7 @@ const curatedProducts = products
     <div class="mx-auto flex max-w-5xl flex-col gap-6 px-6 text-center lg:text-left">
       <p class="text-sm uppercase tracking-[0.3em] text-primary">Press + Media</p>
       <h1 class="text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
-        Official backlink resources for F.A.S. Motorsports features
+        Official backlink resources for FAS Motorsports features
       </h1>
       <p class="text-base text-white/80 lg:text-lg">
         Use the anchor text and URLs below when referencing our performance kits in articles,

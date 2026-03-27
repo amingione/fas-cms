@@ -215,11 +215,11 @@
                             - img [ref=e218]
                             - text: Quick View
                     - article [ref=e221]:
-                        - link "F.A.S. Predator Lower Pulley F.A.S. Predator Lower Pulley $899.99" [ref=e222] [cursor=pointer]:
+                        - link "FAS Predator Lower Pulley FAS Predator Lower Pulley $899.99" [ref=e222] [cursor=pointer]:
                             - /url: /shop/fas-predator-lower-pulley-no-tune-required
-                            - img "F.A.S. Predator Lower Pulley" [ref=e224]
+                            - img "FAS Predator Lower Pulley" [ref=e224]
                             - generic [ref=e226]:
-                                - heading "F.A.S. Predator Lower Pulley" [level=3] [ref=e227]
+                                - heading "FAS Predator Lower Pulley" [level=3] [ref=e227]
                                 - paragraph [ref=e228]:
                                     - generic [ref=e229]: $899.99
                         - button "Quick View" [ref=e230] [cursor=pointer]:
@@ -311,7 +311,7 @@
                                 - img [ref=e318]
             - generic [ref=e320]:
                 - heading "Top Services" [level=2] [ref=e321]
-                - paragraph [ref=e322]: Pair your hardware upgrades with professional installation, calibration, and security options from the F.A.S. Motorsports team.
+                - paragraph [ref=e322]: Pair your hardware upgrades with professional installation, calibration, and security options from the FAS Motorsports team.
                 - navigation "Top services" [ref=e323]:
                     - list [ref=e324]:
                         - listitem [ref=e325]:
@@ -350,7 +350,7 @@
                         - /url: https://www.instagram.com/fas_moto
                         - generic [ref=e359]: Instagram
                         - img [ref=e360]
-                - paragraph [ref=e362]: © 2025 F.a.S. Motorsports, Inc. All rights reserved.
+                - paragraph [ref=e362]: © 2025 FAS Motorsports, Inc. All rights reserved.
         - generic:
             - region "Notifications alt+T"
     - alert "Item added to cart" [ref=e391]:
@@ -374,7 +374,7 @@
                     - heading "TRX 5” High Flow Intake w/ Heat Shield" [level=2] [ref=e376]
                     - paragraph [ref=e378]: $699.99
                 - generic [ref=e379]:
-                    - paragraph [ref=e380]: The all new F.A.S. Motorsports RAM TRX 5 inch cold air intake is the ONLY 5” intake on the market with a Heat/Debris Shield!
+                    - paragraph [ref=e380]: The all new FAS Motorsports RAM TRX 5 inch cold air intake is the ONLY 5” intake on the market with a Heat/Debris Shield!
                     - paragraph [ref=e381]: Amazing supercharger whine while also keeping the Heat and debris away from the filter!
                 - generic [ref=e382]:
                     - link "View Product" [ref=e383] [cursor=pointer]:

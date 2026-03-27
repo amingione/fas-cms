@@ -118,7 +118,7 @@
                             - /url: /
                         - generic [ref=e103]: /
                     - listitem [ref=e104]:
-                        - generic [ref=e105]: Checkout - F.A.S. Motorsports
+                        - generic [ref=e105]: Checkout - FAS Motorsports
             - main [ref=e106]:
                 - generic [ref=e107]:
                     - link "Back to Store" [ref=e108] [cursor=pointer]:
@@ -200,7 +200,7 @@
                                 - img [ref=e186]
             - generic [ref=e188]:
                 - heading "Top Services" [level=2] [ref=e189]
-                - paragraph [ref=e190]: Pair your hardware upgrades with professional installation, calibration, and security options from the F.A.S. Motorsports team.
+                - paragraph [ref=e190]: Pair your hardware upgrades with professional installation, calibration, and security options from the FAS Motorsports team.
                 - navigation "Top services" [ref=e191]:
                     - list [ref=e192]:
                         - listitem [ref=e193]:
@@ -239,7 +239,7 @@
                         - /url: https://www.instagram.com/fas_moto
                         - generic [ref=e227]: Instagram
                         - img [ref=e228]
-                - paragraph [ref=e230]: © 2025 F.a.S. Motorsports, Inc. All rights reserved.
+                - paragraph [ref=e230]: © 2025 FAS Motorsports, Inc. All rights reserved.
         - generic:
             - region "Notifications alt+T"
     - generic:

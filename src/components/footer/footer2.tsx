@@ -42,7 +42,7 @@ export default function Footer2() {
           ))}
         </div>
         <p className="mt-8 text-center text-sm/6 text-gray-400 md:order-1 md:mt-0 font-mono italic">
-          &copy; 2025 <span className="font-borg italic text-white">F.a.S. </span>
+          &copy; 2025 <span className="font-borg italic text-white">FAS </span>
           <span className="font-ethno italic text-primaryB"> Motorsports</span>, Inc. All rights
           reserved.
         </p>

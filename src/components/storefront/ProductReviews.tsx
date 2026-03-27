@@ -95,7 +95,7 @@ function ReviewCard({ review }: { review: Review }) {
 
       {review.response?.content && (
         <div className="mt-4 bg-gray-50 p-4 rounded">
-          <p className="font-semibold text-sm mb-1">Response from F.A.S. Motorsports:</p>
+          <p className="font-semibold text-sm mb-1">Response from FAS Motorsports:</p>
           <p className="text-sm">{review.response.content}</p>
         </div>
       )}

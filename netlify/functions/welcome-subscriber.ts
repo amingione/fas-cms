@@ -2,8 +2,8 @@ import type { Handler } from '@netlify/functions';
 import { Resend } from 'resend';
 
 const DEFAULT_FROM =
-  process.env.RESEND_FROM || 'F.A.S. Motorsports <noreply@updates.fasmotorsports.com>';
-const DEFAULT_SUBJECT = 'Welcome to F.A.S. Motorsports — Where Real Builds Begin';
+  process.env.RESEND_FROM || 'FAS Motorsports <noreply@updates.fasmotorsports.com>';
+const DEFAULT_SUBJECT = 'Welcome to FAS Motorsports — Where Real Builds Begin';
 const PREVIEW_TEXT = 'Early access to new parts, pre-orders, and member-only pricing.';
 const CTA_URL = 'https://fasmotorsports.com/shop';
 
@@ -11,12 +11,12 @@ const buildHtml = (name?: string) => `
   <div style="display:none;visibility:hidden;opacity:0;height:0;width:0;font-size:0;line-height:0;color:transparent;">
     ${PREVIEW_TEXT}
   </div>
-  <h2 style="margin:0 0 16px;font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;">Welcome to F.A.S. Motorsports</h2>
+  <h2 style="margin:0 0 16px;font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;">Welcome to FAS Motorsports</h2>
   <p style="margin:0 0 16px;font-size:15px;line-height:22px;font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;">
     You’re in${name ? `, ${name}` : ''}.
   </p>
   <p style="margin:0 0 16px;font-size:15px;line-height:22px;font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;">
-    Thanks for subscribing to F.A.S. Motorsports. Around here, we keep things simple—high-quality parts, transparent performance data, and engineering that speaks for itself. Whether you’re building a modern muscle platform, a boosted street setup, or a truck that works harder than it should, you’ll get updates that actually matter.
+    Thanks for subscribing to FAS Motorsports. Around here, we keep things simple—high-quality parts, transparent performance data, and engineering that speaks for itself. Whether you’re building a modern muscle platform, a boosted street setup, or a truck that works harder than it should, you’ll get updates that actually matter.
   </p>
   <p style="margin:0 0 12px;font-size:15px;line-height:22px;font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;">Here’s what you’ll get from us:</p>
   <ul style="margin:0 0 16px 20px;padding:0;font-size:15px;line-height:22px;font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;">
@@ -33,19 +33,19 @@ const buildHtml = (name?: string) => `
   </p>
   <a href="${CTA_URL}"
      style="display:inline-block;padding:12px 18px;background:#e02020;color:#fff;border-radius:6px;font-weight:bold;text-decoration:none;font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;">
-    Shop F.A.S. Motorsports
+    Shop FAS Motorsports
   </a>
-  <p style="margin:20px 0 0;font-size:15px;line-height:22px;font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;">— F.A.S. Motorsports</p>
+  <p style="margin:20px 0 0;font-size:15px;line-height:22px;font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;">— FAS Motorsports</p>
 `;
 
 const buildText = (name?: string) =>
   [
     PREVIEW_TEXT,
     '',
-    'Welcome to F.A.S. Motorsports',
+    'Welcome to FAS Motorsports',
     `You’re in${name ? `, ${name}` : ''}.`,
     '',
-    'Thanks for subscribing to F.A.S. Motorsports. Around here, we keep things simple—high-quality parts, transparent performance data, and engineering that speaks for itself. Whether you’re building a modern muscle platform, a boosted street setup, or a truck that works harder than it should, you’ll get updates that actually matter.',
+    'Thanks for subscribing to FAS Motorsports. Around here, we keep things simple—high-quality parts, transparent performance data, and engineering that speaks for itself. Whether you’re building a modern muscle platform, a boosted street setup, or a truck that works harder than it should, you’ll get updates that actually matter.',
     '',
     'Here’s what you’ll get from us:',
     '- Early access to new releases and limited pre-order runs',
@@ -56,9 +56,9 @@ const buildText = (name?: string) =>
     'Everything we develop is built for reliability, repeatability, and results you can feel—not just numbers on a page.',
     'Appreciate you being here.',
     '',
-    `Shop F.A.S. Motorsports: ${CTA_URL}`,
+    `Shop FAS Motorsports: ${CTA_URL}`,
     '',
-    '— F.A.S. Motorsports'
+    '— FAS Motorsports'
   ].join('\n');
 
 type SanityWebhookBody = {

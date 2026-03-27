@@ -22,7 +22,7 @@ const products = [
     sale: true,
     handle: 'fas-predator-lower-pulley-no-tune-required',
     image: '/images/pulleys/FASpredator-lower-pulley.webp',
-    highlights: ['Billet F.A.S. Pulley', 'Patent pending design', ' complete kit'],
+    highlights: ['Billet FAS Pulley', 'Patent pending design', ' complete kit'],
     featured: true,
     href: '/shop/fas-predator-lower-pulley-no-tune-required'
   },

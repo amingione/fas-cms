@@ -11,14 +11,14 @@ const pageDoc: any = await loadPageDoc('BilletThrottleBody108Specs');
 
 const pageTitle: string = pageDoc?.title ?? '108mm Billet Throttle Body — Spec Sheet';
 const pageDescription =
-  'Comprehensive specifications for the F.A.S. Motorsports 108mm billet throttle body, covering airflow hardware, machining, and fitment.';
+  'Comprehensive specifications for the FAS Motorsports 108mm billet throttle body, covering airflow hardware, machining, and fitment.';
 
 const specSheet = {
   title: pageTitle,
   description:
     'High-flow, CNC-machined billet throttle body tuned for smooth driveability and repeatable airflow on high-boost builds.',
   imageSrc: '/images/billetParts/108mm-TB-fas.webp',
-  imageAlt: 'F.A.S. Motorsports 108mm Billet Throttle Body',
+  imageAlt: 'FAS Motorsports 108mm Billet Throttle Body',
   specs: [
     { label: 'Material', value: 'Billet aluminum, CNC-machined' },
     { label: 'Bore Class', value: '108 mm high-flow' },
@@ -55,7 +55,7 @@ const structuredData = {
   description: specSheet.description,
   url: canonical,
   image: ensureAbsolute(specSheet.imageSrc),
-  brand: { '@type': 'Brand', name: 'F.A.S. Motorsports' },
+  brand: { '@type': 'Brand', name: 'FAS Motorsports' },
   category: 'Intake Components',
   offers: schemaOffer,
   additionalProperty: specSheet.specs.map((spec) => ({

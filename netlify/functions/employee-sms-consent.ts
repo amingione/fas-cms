@@ -50,7 +50,7 @@ export const handler: Handler = async (event) => {
         email: email,
         smsConsent: sms_consent_acknowledged === true,
         consentText:
-          'I consent to receive SMS messages from F.A.S. Motorsports for internal operational notifications, including new orders, vendor or customer messages, appointment requests, and system alerts. Message frequency varies. Messages are not marketing or promotional. I may opt out at any time by replying STOP. For help, reply HELP or contact sales@fasmotorsports.com.'
+          'I consent to receive SMS messages from FAS Motorsports for internal operational notifications, including new orders, vendor or customer messages, appointment requests, and system alerts. Message frequency varies. Messages are not marketing or promotional. I may opt out at any time by replying STOP. For help, reply HELP or contact sales@fasmotorsports.com.'
       }
     });
 
@@ -76,7 +76,7 @@ export const handler: Handler = async (event) => {
     }
 
     await resend.emails.send({
-      from: 'F.A.S. Motorsports <no-reply@updates.fasmotorsports.com>',
+      from: 'FAS Motorsports <no-reply@updates.fasmotorsports.com>',
       to: ['sales@fasmotorsports.com'],
       subject: 'Employee SMS Consent Submitted',
       html: `

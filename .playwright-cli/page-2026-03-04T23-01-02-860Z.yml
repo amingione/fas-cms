@@ -215,11 +215,11 @@
               - img [ref=e219]
               - text: Quick View
           - article [ref=e222]:
-            - link "F.A.S. Predator Lower Pulley F.A.S. Predator Lower Pulley $899.99" [ref=e223] [cursor=pointer]:
+            - link "FAS Predator Lower Pulley FAS Predator Lower Pulley $899.99" [ref=e223] [cursor=pointer]:
               - /url: /shop/fas-predator-lower-pulley-no-tune-required
-              - img "F.A.S. Predator Lower Pulley" [ref=e225]
+              - img "FAS Predator Lower Pulley" [ref=e225]
               - generic [ref=e227]:
-                - heading "F.A.S. Predator Lower Pulley" [level=3] [ref=e228]
+                - heading "FAS Predator Lower Pulley" [level=3] [ref=e228]
                 - paragraph [ref=e229]:
                   - generic [ref=e230]: $899.99
             - button "Quick View" [ref=e231] [cursor=pointer]:
@@ -311,7 +311,7 @@
                 - img [ref=e319]
       - generic [ref=e321]:
         - heading "Top Services" [level=2] [ref=e322]
-        - paragraph [ref=e323]: Pair your hardware upgrades with professional installation, calibration, and security options from the F.A.S. Motorsports team.
+        - paragraph [ref=e323]: Pair your hardware upgrades with professional installation, calibration, and security options from the FAS Motorsports team.
         - navigation "Top services" [ref=e324]:
           - list [ref=e325]:
             - listitem [ref=e326]:
@@ -350,7 +350,7 @@
             - /url: https://www.instagram.com/fas_moto
             - generic [ref=e360]: Instagram
             - img [ref=e361]
-        - paragraph [ref=e363]: © 2025 F.a.S. Motorsports, Inc. All rights reserved.
+        - paragraph [ref=e363]: © 2025 FAS Motorsports, Inc. All rights reserved.
     - generic:
       - region "Notifications alt+T"
   - alert "Item added to cart" [ref=e468]:

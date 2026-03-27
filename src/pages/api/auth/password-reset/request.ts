@@ -8,7 +8,7 @@ import { rateLimit } from '@/server/vendor-portal/rateLimit';
 const resendApiKey = import.meta.env.RESEND_API_KEY as string | undefined;
 const resendFrom =
   (import.meta.env.RESEND_FROM as string | undefined) ||
-  'F.A.S. Motorsports <noreply@updates.fasmotorsports.com>';
+  'FAS Motorsports <noreply@updates.fasmotorsports.com>';
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
 const successMessage =
@@ -91,15 +91,15 @@ export const POST: APIRoute = async ({ request }) => {
     await resend.emails.send({
       from: resendFrom,
       to: email,
-      subject: 'Reset your F.A.S. Motorsports password',
+      subject: 'Reset your FAS Motorsports password',
       html: `
         <p>Hello${customer.firstName ? ` ${customer.firstName}` : ''},</p>
         <p>We received a request to reset your password. Click the link below to set a new password. This link is valid for one hour.</p>
         <p><a href="${resetUrl.toString()}">Reset your password</a></p>
         <p>If you didn't request this, you can ignore this email.</p>
-        <p>— F.A.S. Motorsports</p>
+        <p>— FAS Motorsports</p>
       `,
-      text: `Hello${customer.firstName ? ` ${customer.firstName}` : ''},\n\nWe received a request to reset your password. Use the link below within one hour to set a new password.\n\n${resetUrl.toString()}\n\nIf you didn't request this, you can safely ignore this email.\n\n— F.A.S. Motorsports`
+      text: `Hello${customer.firstName ? ` ${customer.firstName}` : ''},\n\nWe received a request to reset your password. Use the link below within one hour to set a new password.\n\n${resetUrl.toString()}\n\nIf you didn't request this, you can safely ignore this email.\n\n— FAS Motorsports`
     });
 
     return new Response(JSON.stringify({ message: successMessage }), {
