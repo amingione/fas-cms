@@ -27,7 +27,7 @@ const callRoute = async (body: string) => {
   return await POST({ request } as any);
 };
 
-describe('payment-intent webhook forwarding', () => {
+describe('payment-intent webhook endpoint deprecation', () => {
   afterEach(() => {
     vi.restoreAllMocks();
     delete process.env.STRIPE_WEBHOOK_SECRET;
@@ -37,74 +37,30 @@ describe('payment-intent webhook forwarding', () => {
     delete process.env.PAYMENT_INTENT_WEBHOOK_LOCAL_PROCESS_ENABLED;
   });
 
-  it('forwards to downstream URL when configured and stops local processing on success', async () => {
-    process.env.PAYMENT_INTENT_WEBHOOK_FORWARD_URL = 'https://relay.example.dev/stripe';
-    process.env.PAYMENT_INTENT_WEBHOOK_FORWARD_ENABLED = 'true';
-
-    const fetchMock = vi.fn(async (url: string) => {
-      if (url === 'https://relay.example.dev/stripe') {
-        return new Response(JSON.stringify({ ok: true }), { status: 200 });
-      }
-      return new Response('unexpected', { status: 500 });
-    });
+  it('returns 410 Gone with canonical Medusa webhook URL', async () => {
+    const fetchMock = vi.fn();
     vi.stubGlobal('fetch', fetchMock as any);
-
     const response = await callRoute(makeEventPayload());
     const json = await response.json();
 
-    expect(response.status).toBe(200);
-    expect(json.forwarded).toBe(true);
-    expect(json.local_processed).toBeUndefined();
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(fetchMock.mock.calls[0]?.[0]).toBe('https://relay.example.dev/stripe');
+    expect(response.status).toBe(410);
+    expect(json.error).toContain('deprecated');
+    expect(json.canonical_webhook).toBe('https://api.fasmotorsports.com/webhooks/stripe');
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it('falls back to local completion when forwarding fails and fail-open is enabled', async () => {
+  it('stays deprecated even when legacy forwarding env flags are set', async () => {
     process.env.PAYMENT_INTENT_WEBHOOK_FORWARD_URL = 'https://relay.example.dev/stripe';
     process.env.PAYMENT_INTENT_WEBHOOK_FORWARD_ENABLED = 'true';
     process.env.PAYMENT_INTENT_WEBHOOK_FORWARD_FAIL_OPEN = 'true';
-
-    const fetchMock = vi.fn(async (url: string) => {
-      if (url === 'https://relay.example.dev/stripe') {
-        throw new Error('relay unavailable');
-      }
-      if (url === 'https://example.com/api/complete-order') {
-        return new Response(JSON.stringify({ success: true, order_id: 'order_123' }), { status: 200 });
-      }
-      return new Response('unexpected', { status: 500 });
-    });
+    process.env.PAYMENT_INTENT_WEBHOOK_LOCAL_PROCESS_ENABLED = 'true';
+    const fetchMock = vi.fn();
     vi.stubGlobal('fetch', fetchMock as any);
-
     const response = await callRoute(makeEventPayload());
     const json = await response.json();
 
-    expect(response.status).toBe(200);
-    expect(json.forwarded).toBe(true);
-    expect(json.local_processed).toBe(true);
-    expect(json.local_result?.success).toBe(true);
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(fetchMock.mock.calls[1]?.[0]).toBe('https://example.com/api/complete-order');
-  });
-
-  it('rejects forward failures when fail-open is disabled', async () => {
-    process.env.PAYMENT_INTENT_WEBHOOK_FORWARD_URL = 'https://relay.example.dev/stripe';
-    process.env.PAYMENT_INTENT_WEBHOOK_FORWARD_ENABLED = 'true';
-    process.env.PAYMENT_INTENT_WEBHOOK_FORWARD_FAIL_OPEN = 'false';
-
-    const fetchMock = vi.fn(async (url: string) => {
-      if (url === 'https://relay.example.dev/stripe') {
-        return new Response('downstream error', { status: 500 });
-      }
-      return new Response('unexpected', { status: 500 });
-    });
-    vi.stubGlobal('fetch', fetchMock as any);
-
-    const response = await callRoute(makeEventPayload());
-    const json = await response.json();
-
-    expect(response.status).toBe(502);
-    expect(json.received).toBe(false);
-    expect(json.forwarded).toBe(true);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(response.status).toBe(410);
+    expect(json.message).toContain('api.fasmotorsports.com/webhooks/stripe');
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });

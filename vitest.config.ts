@@ -7,6 +7,7 @@ export default defineConfig({
     environment: 'node',
     globals: true,
     include: ['tests/**/*.spec.ts'],
+    exclude: ['tests/e2e/**/*.spec.ts'],
     env: {
       PUBLIC_BASE_URL: 'https://example.com',
       STRIPE_SECRET_KEY: 'sk_test_local',
