@@ -1,5 +1,5 @@
 ---
-import { resolveSanityImageUrl } from '@/lib/sanity-utils.ts';
+import { resolveSanityImageUrl, buildSanitySrcSet } from '@/lib/sanity-utils.ts';
 import { resolveProductCartMeta } from '@/lib/product-flags.ts';
 import { formatCents } from '@/lib/pricing';
 import {
@@ -15,6 +15,7 @@ const productPriceCents = typeof medusaPrice === 'number' ? Math.round(medusaPri
 
 const fallbackImage = '/logo/fas-logo500.webp';
 const imageUrl = resolveSanityImageUrl([productImage, product?.images]) ?? fallbackImage;
+const imgSrcSet = buildSanitySrcSet(imageUrl, { widths: [200, 300, 400, 600] });
 const cartMeta = resolveProductCartMeta(product);
 ---
 
@@ -30,6 +31,8 @@ const cartMeta = resolveProductCartMeta(product);
     >
       <img
         src={imageUrl}
+        srcset={imgSrcSet}
+        sizes="(max-width: 640px) calc(50vw - 2rem), 280px"
         alt={product.title}
         loading="lazy"
         decoding="async"

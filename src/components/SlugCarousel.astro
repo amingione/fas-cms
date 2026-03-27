@@ -1,5 +1,6 @@
 ---
 import carouselScriptUrl from '../scripts/slug-carousel.js?url';
+import { buildSanitySrcSet } from '@/lib/sanity-utils.ts';
 
 interface Props {
   images: {
@@ -29,13 +30,18 @@ const processedImages = normalizedImages.map((image) => {
   const mainHeight = Math.max(400, Math.round(mainWidth / aspect));
   const thumbWidth = Math.min(400, Math.max(160, Math.round(mainWidth / 4)));
   const thumbHeight = Math.max(120, Math.round(thumbWidth / aspect));
+  const primaryUrl = useOptimizedImages
+    ? image.webpUrl || image.originalUrl
+    : image.originalUrl || image.webpUrl;
+  const imgSrcSet = buildSanitySrcSet(primaryUrl, { widths: [640, 900, 1200, 1600] });
   return {
     ...image,
     aspect,
     mainWidth,
     mainHeight,
     thumbWidth,
-    thumbHeight
+    thumbHeight,
+    imgSrcSet
   };
 });
 
@@ -66,6 +72,8 @@ const carouselScript = shouldHydrate ? carouselScriptUrl : null;
               src={
                 useOptimizedImages ? img.webpUrl || img.originalUrl : img.originalUrl || img.webpUrl
               }
+              srcset={img.imgSrcSet}
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 640px"
               alt={img.alt || ''}
               width={img.mainWidth}
               height={img.mainHeight}
