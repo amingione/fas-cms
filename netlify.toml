@@ -1015,8 +1015,8 @@
   GMC_CONTENT_API_MERCHANT_ID = "5664091767"
   GMC_SFTP_USERNAME = "mc-sftp-5664091767"
   # Shippo warehouse/origin address (non-secret constants)
-  SHIPPO_ORIGIN_NAME = "FAS Motorsports LLC"
-  SHIPPO_ORIGIN_COMPANY = "FAS Motorsports LLC"
+  SHIPPO_ORIGIN_NAME = "FAS Motorsports"
+  SHIPPO_ORIGIN_COMPANY = "FAS Motorsports"
   SHIPPO_ORIGIN_STREET1 = "6161 Riverside Dr"
   SHIPPO_ORIGIN_CITY = "Punta Gorda"
   SHIPPO_ORIGIN_STATE = "FL"

@@ -27,7 +27,7 @@ export default function SocialMedia({ className = '' }: SocialMediaProps) {
       <span className="h-5 w-px bg-white/20 sm:h-6" aria-hidden="true"></span>
 
       <a
-        href="https://www.facebook.com/fasmotorsportz"
+        href="https://www.facebook.com/fasmotorsportsfl"
         target="_blank"
         rel="noopener noreferrer"
         className="text-gray-400 transition-colors duration-300 hover:text-white"
