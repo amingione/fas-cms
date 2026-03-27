@@ -1,4 +1,12 @@
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type AnimationEvent,
+  type ChangeEvent,
+  type FormEvent
+} from 'react';
 import { loadStripe, type PaymentRequest } from '@stripe/stripe-js';
 import {
   Elements,
@@ -143,6 +151,15 @@ const EMPTY_ADDRESS: ShippingAddress = {
   countryCode: 'US',
   phone: ''
 };
+
+function readFormControlValueById(id: string): string | null {
+  if (typeof document === 'undefined') return null;
+  const element = document.getElementById(id);
+  if (element instanceof HTMLInputElement || element instanceof HTMLSelectElement) {
+    return element.value;
+  }
+  return null;
+}
 
 function toDisplayCents(value: unknown): number | null {
   if (typeof value === 'number' && Number.isFinite(value)) {
@@ -711,6 +728,54 @@ export default function CheckoutForm() {
       setShippingAddress((prev) => ({ ...prev, [field]: event.target.value }));
     };
 
+  const updateAddressFieldValue = (field: keyof ShippingAddress, value: string) => {
+    setShippingAddress((prev) => {
+      if (prev[field] === value) return prev;
+      return { ...prev, [field]: value };
+    });
+  };
+
+  const hydrateShippingAddressFromDom = (): ShippingAddress => {
+    const nextAddress: ShippingAddress = {
+      ...shippingAddress
+    };
+
+    const email = readFormControlValueById('nonready-email');
+    const firstName = readFormControlValueById('addr-first-name');
+    const lastName = readFormControlValueById('addr-last-name');
+    const address1 = readFormControlValueById('addr-line1');
+    const address2 = readFormControlValueById('addr-line2');
+    const city = readFormControlValueById('addr-city');
+    const province = readFormControlValueById('addr-province');
+    const postalCode = readFormControlValueById('addr-postal');
+    const phone = readFormControlValueById('addr-phone');
+    const countryValue = readFormControlValueById('addr-country');
+
+    if (email !== null) nextAddress.email = email;
+    if (firstName !== null) nextAddress.firstName = firstName;
+    if (lastName !== null) nextAddress.lastName = lastName;
+    if (address1 !== null) nextAddress.address1 = address1;
+    if (address2 !== null) nextAddress.address2 = address2;
+    if (city !== null) nextAddress.city = city;
+    if (province !== null) nextAddress.province = province;
+    if (postalCode !== null) nextAddress.postalCode = postalCode;
+    if (phone !== null) nextAddress.phone = phone;
+    if (countryValue !== null) {
+      const normalizedCountry = normalizeCountryCode(countryValue);
+      nextAddress.countryCode = normalizedCountry || countryValue.toUpperCase();
+    }
+
+    const changed = (Object.keys(nextAddress) as (keyof ShippingAddress)[]).some(
+      (key) => nextAddress[key] !== shippingAddress[key]
+    );
+
+    if (changed) {
+      setShippingAddress(nextAddress);
+    }
+
+    return nextAddress;
+  };
+
   const applyAddressSuggestion = (suggestion: AddressSuggestion) => {
     setShippingAddress((prev) => ({
       ...prev,
@@ -724,6 +789,7 @@ export default function CheckoutForm() {
 
   async function handleCalculateShipping() {
     if (!cartId) return;
+    const currentAddress = hydrateShippingAddressFromDom();
 
     if (allItemsInstallOnly) {
       setLoadingRates(true);
@@ -763,7 +829,7 @@ export default function CheckoutForm() {
       return;
     }
 
-    if (!isAddressComplete(shippingAddress)) {
+    if (!isAddressComplete(currentAddress)) {
       setError('Please complete your shipping address before calculating rates.');
       return;
     }
@@ -781,17 +847,17 @@ export default function CheckoutForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           cartId,
-          email: shippingAddress.email,
+          email: currentAddress.email,
           shippingAddress: {
-            firstName: shippingAddress.firstName,
-            lastName: shippingAddress.lastName,
-            address1: shippingAddress.address1,
-            address2: shippingAddress.address2,
-            city: shippingAddress.city,
-            province: shippingAddress.province,
-            postalCode: shippingAddress.postalCode,
-            countryCode: shippingAddress.countryCode,
-            phone: shippingAddress.phone
+            firstName: currentAddress.firstName,
+            lastName: currentAddress.lastName,
+            address1: currentAddress.address1,
+            address2: currentAddress.address2,
+            city: currentAddress.city,
+            province: currentAddress.province,
+            postalCode: currentAddress.postalCode,
+            countryCode: currentAddress.countryCode,
+            phone: currentAddress.phone
           }
         })
       });
@@ -1327,6 +1393,7 @@ export default function CheckoutForm() {
                 onCalculateShipping={handleCalculateShipping}
                 onSelectRate={selectShippingRate}
                 selectingShipping={selectingShipping}
+                onAddressValueChange={updateAddressFieldValue}
               />
             )}
 
@@ -1350,7 +1417,8 @@ function NonReadyPaymentPane({
   onAddressChange,
   onApplyAddressSuggestion,
   onCalculateShipping,
-  onSelectRate
+  onSelectRate,
+  onAddressValueChange
 }: {
   shippingAddress: ShippingAddress;
   requiresShipping: boolean;
@@ -1366,6 +1434,7 @@ function NonReadyPaymentPane({
   onApplyAddressSuggestion: (suggestion: AddressSuggestion) => void;
   onCalculateShipping: () => Promise<void>;
   onSelectRate: (rate: SelectableShippingRate) => Promise<void>;
+  onAddressValueChange: (field: keyof ShippingAddress, value: string) => void;
 }) {
   const [addressSuggestions, setAddressSuggestions] = useState<AddressSuggestion[]>([]);
   const [loadingAddressSuggestions, setLoadingAddressSuggestions] = useState(false);
@@ -1384,6 +1453,19 @@ function NonReadyPaymentPane({
     () => buildSelectableRates(shippingRates, shippoRates),
     [shippingRates, shippoRates]
   );
+
+  const syncAddressFieldFromInput =
+    (field: keyof ShippingAddress) =>
+    (event: FormEvent<HTMLInputElement | HTMLSelectElement>) => {
+      onAddressValueChange(field, event.currentTarget.value);
+    };
+
+  const syncAddressFieldFromAutofill =
+    (field: keyof ShippingAddress) =>
+    (event: AnimationEvent<HTMLInputElement | HTMLSelectElement>) => {
+      if (event.animationName !== 'checkoutAutofillSync') return;
+      onAddressValueChange(field, event.currentTarget.value);
+    };
 
   useEffect(() => {
     return () => {
@@ -1494,6 +1576,9 @@ function NonReadyPaymentPane({
         name="email"
         value={shippingAddress.email}
         onChange={onAddressChange('email')}
+        onInput={syncAddressFieldFromInput('email')}
+        onBlur={(event) => onAddressValueChange('email', event.currentTarget.value)}
+        onAnimationStart={syncAddressFieldFromAutofill('email')}
         placeholder="mail@example.com"
         autoComplete="email"
         inputMode="email"
@@ -1510,9 +1595,12 @@ function NonReadyPaymentPane({
               <input
                 id="addr-first-name"
                 type="text"
-                name="given-name"
+                name="firstName"
                 value={shippingAddress.firstName}
                 onChange={onAddressChange('firstName')}
+                onInput={syncAddressFieldFromInput('firstName')}
+                onBlur={(event) => onAddressValueChange('firstName', event.currentTarget.value)}
+                onAnimationStart={syncAddressFieldFromAutofill('firstName')}
                 placeholder="First name"
                 autoComplete="shipping given-name"
               />
@@ -1522,9 +1610,12 @@ function NonReadyPaymentPane({
               <input
                 id="addr-last-name"
                 type="text"
-                name="family-name"
+                name="lastName"
                 value={shippingAddress.lastName}
                 onChange={onAddressChange('lastName')}
+                onInput={syncAddressFieldFromInput('lastName')}
+                onBlur={(event) => onAddressValueChange('lastName', event.currentTarget.value)}
+                onAnimationStart={syncAddressFieldFromAutofill('lastName')}
                 placeholder="Last name"
                 autoComplete="shipping family-name"
               />
@@ -1534,7 +1625,7 @@ function NonReadyPaymentPane({
               <input
                 id="addr-line1"
                 type="text"
-                name="address-line1"
+                name="address1"
                 value={shippingAddress.address1}
                 onChange={handleAddress1Change}
                 placeholder="Address line 1"
@@ -1542,9 +1633,12 @@ function NonReadyPaymentPane({
                 onFocus={() => {
                   if (addressSuggestions.length > 0) setShowAddressSuggestions(true);
                 }}
-                onBlur={() => {
+                onInput={syncAddressFieldFromInput('address1')}
+                onBlur={(event) => {
+                  onAddressValueChange('address1', event.currentTarget.value);
                   window.setTimeout(() => setShowAddressSuggestions(false), 120);
                 }}
+                onAnimationStart={syncAddressFieldFromAutofill('address1')}
               />
               {showAddressSuggestions && (
                 <div
@@ -1594,9 +1688,12 @@ function NonReadyPaymentPane({
               <input
                 id="addr-line2"
                 type="text"
-                name="address-line2"
+                name="address2"
                 value={shippingAddress.address2}
                 onChange={onAddressChange('address2')}
+                onInput={syncAddressFieldFromInput('address2')}
+                onBlur={(event) => onAddressValueChange('address2', event.currentTarget.value)}
+                onAnimationStart={syncAddressFieldFromAutofill('address2')}
                 placeholder="Address line 2"
                 autoComplete="shipping address-line2"
               />
@@ -1606,9 +1703,12 @@ function NonReadyPaymentPane({
               <input
                 id="addr-city"
                 type="text"
-                name="address-level2"
+                name="city"
                 value={shippingAddress.city}
                 onChange={onAddressChange('city')}
+                onInput={syncAddressFieldFromInput('city')}
+                onBlur={(event) => onAddressValueChange('city', event.currentTarget.value)}
+                onAnimationStart={syncAddressFieldFromAutofill('city')}
                 placeholder="City"
                 autoComplete="shipping address-level2"
               />
@@ -1618,9 +1718,12 @@ function NonReadyPaymentPane({
               <input
                 id="addr-province"
                 type="text"
-                name="address-level1"
+                name="province"
                 value={shippingAddress.province}
                 onChange={onAddressChange('province')}
+                onInput={syncAddressFieldFromInput('province')}
+                onBlur={(event) => onAddressValueChange('province', event.currentTarget.value)}
+                onAnimationStart={syncAddressFieldFromAutofill('province')}
                 placeholder="State / Province"
                 autoComplete="shipping address-level1"
               />
@@ -1630,9 +1733,12 @@ function NonReadyPaymentPane({
               <input
                 id="addr-postal"
                 type="text"
-                name="postal-code"
+                name="postalCode"
                 value={shippingAddress.postalCode}
                 onChange={onAddressChange('postalCode')}
+                onInput={syncAddressFieldFromInput('postalCode')}
+                onBlur={(event) => onAddressValueChange('postalCode', event.currentTarget.value)}
+                onAnimationStart={syncAddressFieldFromAutofill('postalCode')}
                 placeholder="Postal code"
                 autoComplete="shipping postal-code"
                 inputMode="numeric"
@@ -1643,9 +1749,12 @@ function NonReadyPaymentPane({
               <input
                 id="addr-phone"
                 type="tel"
-                name="tel"
+                name="phone"
                 value={shippingAddress.phone}
                 onChange={onAddressChange('phone')}
+                onInput={syncAddressFieldFromInput('phone')}
+                onBlur={(event) => onAddressValueChange('phone', event.currentTarget.value)}
+                onAnimationStart={syncAddressFieldFromAutofill('phone')}
                 placeholder="Phone"
                 autoComplete="shipping tel"
                 inputMode="tel"
@@ -1657,9 +1766,12 @@ function NonReadyPaymentPane({
           <label htmlFor="addr-country">Country or region</label>
           <select
             id="addr-country"
-            name="country"
+            name="countryCode"
             value={shippingAddress.countryCode.toUpperCase()}
             onChange={onAddressChange('countryCode')}
+            onInput={syncAddressFieldFromInput('countryCode')}
+            onBlur={(event) => onAddressValueChange('countryCode', event.currentTarget.value)}
+            onAnimationStart={syncAddressFieldFromAutofill('countryCode')}
             autoComplete="shipping country"
           >
             <option value="US">United States</option>

@@ -614,6 +614,9 @@
   min-width: 0;
   border: 0;
   background: transparent;
+  color: #fafafa;
+  caret-color: #fafafa;
+  -webkit-text-fill-color: #fafafa;
   font-size: 0.82rem;
   padding: 0.25rem 0.35rem;
   line-height: 1.25;
@@ -803,6 +806,7 @@
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-left: 1px solid rgba(65, 65, 74, 0.55);
+  color-scheme: dark;
 }
 
 .checkout-v2-pay label,
@@ -822,12 +826,52 @@
   border: 1px solid #35353f;
   background: linear-gradient(110deg, rgba(25, 25, 29, 0.96), rgba(21, 21, 24, 0.92));
   color: #fafafa;
+  caret-color: #fafafa;
+  -webkit-text-fill-color: #fafafa;
   font-size: 0.78rem;
   line-height: 1.2;
 }
 
 .checkout-v2-pay input::placeholder {
-  color: #9797a0;
+  color: #a7a7b0;
+  opacity: 1;
+}
+
+.checkout-v2-discount input::placeholder {
+  color: #8f8f99;
+  opacity: 1;
+}
+
+.checkout-v2-pay select option {
+  color: #f5f5f7;
+  background-color: #111216;
+}
+
+.checkout-v2-pay input:-webkit-autofill,
+.checkout-v2-pay input:-webkit-autofill:hover,
+.checkout-v2-pay input:-webkit-autofill:focus,
+.checkout-v2-pay select:-webkit-autofill,
+.checkout-v2-pay select:-webkit-autofill:hover,
+.checkout-v2-pay select:-webkit-autofill:focus {
+  -webkit-text-fill-color: #fafafa !important;
+  caret-color: #fafafa;
+  border: 1px solid #3f3f49;
+  box-shadow: 0 0 0 1000px rgba(18, 18, 22, 0.96) inset !important;
+  -webkit-box-shadow: 0 0 0 1000px rgba(18, 18, 22, 0.96) inset !important;
+  transition:
+    background-color 9999s ease-out,
+    color 9999s ease-out;
+  animation-name: checkoutAutofillSync;
+  animation-duration: 0.01s;
+}
+
+@keyframes checkoutAutofillSync {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .checkout-v2-pay-top,
