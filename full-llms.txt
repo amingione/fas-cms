@@ -5,7 +5,7 @@ Canonical docs version: v2026.03.07
 
 ## 1) What This Repository Is
 
-`fas-cms-fresh` is the customer-facing storefront UI layer for FAS Motorsports.
+`fas-cms-fresh` is the customer-facing storefront UI layer for F.A.S. Motorsports.
 
 Primary responsibilities:
 - Product discovery and product detail rendering.

@@ -10,6 +10,7 @@ import InternalLinks from '@/components/navigation/InternalLinks.astro';
 import { Toaster } from 'sonner';
 import { buildJsonLd, buildMetaEntries, fetchSeoForPath } from '@/lib/seoData';
 import { buildDefaultJsonLdGraph } from '@/lib/structuredDataDefaults';
+import { BUSINESS_DESCRIPTION_CANONICAL, BUSINESS_NAME } from '@lib/nap';
 import analyticsTrackingScriptUrl from '../scripts/analytics-tracking.js?url';
 
 
@@ -184,12 +185,10 @@ const FALLBACK_KEYWORDS = [
   'TRX packages'
 ];
 
-const FALLBACK_SITE_TITLE = 'F.A.S. Motorsports';
-const SITE_NAME = seoPayload.global.siteName ?? FALLBACK_SITE_TITLE;
-const SITE_AUTHOR = seoPayload.global.siteName ?? 'F.A.S. Motorsports';
-const DEFAULT_DESCRIPTION =
-  seoPayload.global.defaultDescription ??
-  'F.A.S. Motorsports delivers premium performance parts, custom fabrication, installs, and wheel packages in Punta Gorda, Florida.';
+const FALLBACK_SITE_TITLE = BUSINESS_NAME;
+const SITE_NAME = BUSINESS_NAME;
+const SITE_AUTHOR = BUSINESS_NAME;
+const DEFAULT_DESCRIPTION = BUSINESS_DESCRIPTION_CANONICAL;
 const DEFAULT_KEYWORDS =
   seoPayload.global.defaultKeywords && seoPayload.global.defaultKeywords.length
     ? seoPayload.global.defaultKeywords

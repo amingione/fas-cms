@@ -364,8 +364,8 @@ export function IGLASecurity() {
                 <p className={`font-kwajong ${isMobile ? 'text-xs' : 'text-lg'}`}>
                   In an era where professional theft rings employ increasingly sophisticated tools,
                   the IGLA Anti-Theft System provides the advanced protection your investment
-                  deserves. F.A.S. Motorsports stands as the exclusive certified installer in
-                  Southwest Florida, delivering unparalleled expertise.
+                  deserves. F.A.S. Motorsports is one of the only certified installers in Southwest
+                  Florida, delivering unparalleled expertise.
                 </p>
 
                 <div

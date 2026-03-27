@@ -4,15 +4,19 @@ import {
   BUSINESS_ADDRESS_LOCALITY,
   BUSINESS_ADDRESS_POSTAL_CODE,
   BUSINESS_ADDRESS_REGION,
+  BUSINESS_DESCRIPTION_CANONICAL,
+  BUSINESS_DOMAIN,
   BUSINESS_EMAIL,
+  BUSINESS_NAME,
+  BUSINESS_SERVICE_AREA_LOCAL,
+  BUSINESS_SERVICE_AREA_NATIONWIDE,
   BUSINESS_PHONE_E164
 } from '@lib/nap';
 
-const FALLBACK_SITE_URL = 'https://fasmotorsports.com/';
+const FALLBACK_SITE_URL = `${BUSINESS_DOMAIN}/`;
 const FALLBACK_IMAGE_URL = `${FALLBACK_SITE_URL}images/social/social-share.webp`;
 const FALLBACK_LOGO_URL = `${FALLBACK_SITE_URL}logo/fas-logo500.webp`;
-const FALLBACK_DESCRIPTION =
-  'F.A.S. Motorsports is a three-generation, family-owned performance manufacturer in Punta Gorda, Florida. In-house supercharger systems, billet fabrication, and dyno-validated power packages from 800 to 1,000+ HP since 2002.';
+const FALLBACK_DESCRIPTION = BUSINESS_DESCRIPTION_CANONICAL;
 const DEFAULT_EMAIL = BUSINESS_EMAIL;
 const DEFAULT_PHONE = BUSINESS_PHONE_E164;
 
@@ -143,7 +147,7 @@ export const buildDefaultJsonLdGraph = ({
     {
       '@type': 'Organization',
       '@id': orgId,
-      name: siteName,
+      name: BUSINESS_NAME,
       url: normalizedSiteUrl,
       logo: {
         '@type': 'ImageObject',
@@ -157,7 +161,7 @@ export const buildDefaultJsonLdGraph = ({
           contactType: 'Sales',
           email: DEFAULT_EMAIL,
           telephone: DEFAULT_PHONE,
-          areaServed: 'US',
+          areaServed: [BUSINESS_SERVICE_AREA_LOCAL, BUSINESS_SERVICE_AREA_NATIONWIDE],
           availableLanguage: ['English']
         }
       ]
@@ -165,13 +169,15 @@ export const buildDefaultJsonLdGraph = ({
     {
       '@type': 'AutoPartsStore',
       '@id': localBusinessId,
-      name: siteName,
+      name: BUSINESS_NAME,
       url: normalizedSiteUrl,
       image: resolvedImage,
+      description: FALLBACK_DESCRIPTION,
       telephone: DEFAULT_PHONE,
       email: DEFAULT_EMAIL,
       priceRange: '$$',
       address: BUSINESS_ADDRESS,
+      areaServed: [BUSINESS_SERVICE_AREA_LOCAL, BUSINESS_SERVICE_AREA_NATIONWIDE],
       openingHoursSpecification: [
         {
           '@type': 'OpeningHoursSpecification',
@@ -188,7 +194,7 @@ export const buildDefaultJsonLdGraph = ({
       '@type': 'WebSite',
       '@id': websiteId,
       url: normalizedSiteUrl,
-      name: siteName,
+      name: BUSINESS_NAME,
       description: resolvedDescription,
       inLanguage: 'en-US',
       publisher: {

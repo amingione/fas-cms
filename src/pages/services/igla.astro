@@ -9,6 +9,7 @@ import SectionRenderer from '@/components/SectionRenderer.astro';
 import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content.ts';
 import BrandDivider from '@/components/divider/brandDivider.tsx';
 import SocialMedia from '@/components/divider/socialMedia.tsx';
+import { BUSINESS_EMAIL, BUSINESS_NAME, BUSINESS_PHONE_E164 } from '@/lib/nap';
 const pageDoc: any = await loadPageDoc('igla');
 
 const requestUrl = new URL(Astro.request.url);
@@ -25,22 +26,21 @@ const iglaJsonLd = {
       '@id': 'https://fasmotorsports.com/services/igla#service',
       name: 'IGLA Anti-Theft System Installation',
       description:
-        'Professional IGLA anti-theft system installation for cars and trucks. F.A.S. Motorsports is a certified IGLA installer in Southwest Florida providing undetectable vehicle security with no subscriptions or wiring cuts.',
+        'Professional IGLA anti-theft system installation for cars and trucks. F.A.S. Motorsports serves Charlotte, Lee, and Sarasota counties in Florida and is one of the only certified IGLA installers in Southwest Florida.',
       serviceType: 'Vehicle Security Installation',
       url: 'https://fasmotorsports.com/services/igla',
       areaServed: [
-        { '@type': 'City', name: 'Punta Gorda', containedInPlace: { '@type': 'State', name: 'Florida' } },
-        { '@type': 'City', name: 'Cape Coral', containedInPlace: { '@type': 'State', name: 'Florida' } },
-        { '@type': 'City', name: 'Fort Myers', containedInPlace: { '@type': 'State', name: 'Florida' } },
-        { '@type': 'City', name: 'Port Charlotte', containedInPlace: { '@type': 'State', name: 'Florida' } },
+        { '@type': 'AdministrativeArea', name: 'Charlotte County, FL' },
+        { '@type': 'AdministrativeArea', name: 'Lee County, FL' },
+        { '@type': 'AdministrativeArea', name: 'Sarasota County, FL' }
       ],
       provider: {
         '@type': 'AutoRepair',
         '@id': 'https://fasmotorsports.com/#business',
-        name: 'F.A.S. Motorsports',
+        name: BUSINESS_NAME,
         url: 'https://fasmotorsports.com',
-        telephone: '+18122009012',
-        email: 'sales@fasmotorsports.com',
+        telephone: BUSINESS_PHONE_E164,
+        email: BUSINESS_EMAIL,
         address: {
           '@type': 'PostalAddress',
           streetAddress: '6161 Riverside Dr',
@@ -71,7 +71,7 @@ const iglaJsonLd = {
           name: 'Where can I get IGLA anti-theft installed near me in Florida?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'F.A.S. Motorsports at 6161 Riverside Dr, Punta Gorda, FL is a certified IGLA installer serving all of Southwest Florida, including Charlotte County, Lee County, and Sarasota County.',
+            text: 'F.A.S. Motorsports at 6161 Riverside Dr, Punta Gorda, FL is a certified IGLA installer serving Charlotte, Lee, and Sarasota counties in Florida.',
           },
         },
         {
@@ -90,7 +90,7 @@ const iglaJsonLd = {
 
 <BaseLayout
   title="IGLA Anti-Theft System Installation - F.A.S. Motorsports | Punta Gorda, FL"
-  description="Certified IGLA anti-theft system installation in Punta Gorda, FL. F.A.S. Motorsports installs IGLA — Southwest Florida’s most advanced undetectable vehicle immobilizer. No subscriptions. No wiring cuts."
+  description="Certified IGLA anti-theft system installation by F.A.S. Motorsports in Punta Gorda, FL serving Charlotte, Lee, and Sarasota counties. One of the only certified installers in Southwest Florida."
   canonical={canonical}
   ogImage={ogImageAbsolute}
 >
@@ -168,7 +168,7 @@ const iglaJsonLd = {
         </h2>
         <p class="text-lg font-cyber text-white/70 mb-10 max-w-2xl">
           Get advanced vehicle security backed by expert installation at F.A.S. Motorsports — one of
-          Southwest Florida’s certified IGLA providers. No subscriptions. No gimmicks. Just serious
+          the only certified IGLA installers in Southwest Florida. No subscriptions. No gimmicks. Just serious
           protection.
         </p>
 
@@ -223,7 +223,7 @@ const iglaJsonLd = {
       </script>
     </section>
     <section class="px-2 py-20 max-w-6xl mx-auto text-left">
-      <h1 class="text-xl font-cyber text-[#1d92ea]">IGLA Anti-Theft System Installation in Southwest Florida</h1>
+      <h1 class="text-xl font-cyber text-[#1d92ea]">IGLA Anti-Theft System Installation in Charlotte, Lee &amp; Sarasota Counties, FL</h1>
       <div class="h-[2px] w-20 bg-[#1d92ea] my-4"></div>
       <h2 class="text-white font-mono font-bold tracking-[1.2px] text-lg mb-6">
         Unique digital anti-theft system
@@ -241,8 +241,8 @@ const iglaJsonLd = {
 
         <br /><br />
 
-        Professional car theft is on the rise, making advanced security like IGLA essential. Fas
-        Motorsports is Southwest Florida’s exclusive certified IGLA installer, offering expert
+        Professional car theft is on the rise, making advanced security like IGLA essential. F.A.S.
+        Motorsports is one of the only certified IGLA installers in Southwest Florida, offering expert
         service and peace of mind with every installation.
 
         <br /><br />

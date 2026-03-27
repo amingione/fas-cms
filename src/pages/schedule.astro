@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { loadPageDoc, inlineFieldAttrs, inlineObjectId } from '@lib/content.ts';
 import SectionRenderer from '@/components/SectionRenderer.astro';
+import { BUSINESS_SERVICE_AREA_LOCAL } from '@/lib/nap';
 const pageDoc: any = await loadPageDoc('schedule');
 import BookingForm from '../components/BookingForm';
 import AppointmentCard from '../components/appointmentCard.astro';
@@ -20,7 +21,7 @@ const canonical = requestUrl.toString();
 
 const pageTitle = 'Schedule Service at F.A.S. Motorsports';
 const pageDescription =
-  'Book installs, dyno time, or consultation with the F.A.S. Motorsports team. Lock in service slots for TRX, Hellcat, Trackhawk, and custom builds.';
+  `Book in-person builds, installs, dyno time, or consultation with F.A.S. Motorsports. Service area: ${BUSINESS_SERVICE_AREA_LOCAL}.`;
 
 const structuredData = {
   '@context': 'https://schema.org',
@@ -31,7 +32,7 @@ const structuredData = {
     name: 'F.A.S. Motorsports',
     url: canonical
   },
-  areaServed: ['United States'],
+  areaServed: [BUSINESS_SERVICE_AREA_LOCAL],
   serviceType: 'Performance upgrades, fabrication, tuning',
   url: canonical,
   description: pageDescription

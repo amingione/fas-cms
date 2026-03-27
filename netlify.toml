@@ -1042,7 +1042,7 @@
   WEBHOOK_FORWARD_TIMEOUT_MS = "10000"
   # Email defaults (non-secret sender addresses)
   RESEND_FROM = "noreply@updates.fasmotorsports.com"
-  NOTIFY_EMAIL = "support@fasmotorsports.com"
+  NOTIFY_EMAIL = "sales@fasmotorsports.com"
   NOTIFY_FROM = "no-reply@fasmotorsports.com"
   # Public Stripe key (non-secret, baked into bundle)
   PUBLIC_STRIPE_PUBLISHABLE_KEY = "pk_live_51RCVrQP1CiCjkLwl8zRiIdemS9CGhNO8MypMRMk6UJCaxPQMwHvzbZvK3ViiR1Pb2DBFs847aefqOZwfX027c5A6005ra461fx"

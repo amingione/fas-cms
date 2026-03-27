@@ -8,9 +8,12 @@ import {
   BUSINESS_ADDRESS_LOCALITY,
   BUSINESS_ADDRESS_POSTAL_CODE,
   BUSINESS_ADDRESS_REGION,
+  BUSINESS_DESCRIPTION_CANONICAL,
   BUSINESS_EMAIL,
   BUSINESS_NAME,
-  BUSINESS_PHONE_E164
+  BUSINESS_PHONE_E164,
+  BUSINESS_SERVICE_AREA_LOCAL,
+  BUSINESS_SERVICE_AREA_NATIONWIDE
 } from '@lib/nap';
 import { serializeJsonLd } from '@lib/utils';
 import img_frank_mingione_i from '@/assets/images/Frank-Mingione-I.webp';
@@ -24,8 +27,7 @@ requestUrl.hash = '';
 const canonical = requestUrl.toString();
 
 const pageTitle = 'About F.A.S. Motorsports';
-const pageDescription =
-  'Discover the F.A.S. Motorsports legacy in Punta Gorda, FL—family-built racers delivering billet parts, custom fabrication, and high-performance installs.';
+const pageDescription = BUSINESS_DESCRIPTION_CANONICAL;
 
 const structuredData = {
   '@context': 'https://schema.org',
@@ -45,7 +47,7 @@ const structuredData = {
     postalCode: BUSINESS_ADDRESS_POSTAL_CODE,
     addressCountry: BUSINESS_ADDRESS_COUNTRY
   },
-  areaServed: ['Punta Gorda', 'Punta Gorda', 'Southwest Florida'],
+  areaServed: [BUSINESS_SERVICE_AREA_LOCAL, BUSINESS_SERVICE_AREA_NATIONWIDE],
   sameAs: ['https://www.facebook.com/fasmotorsports', 'https://www.instagram.com/fasmotorsports']
 };
 const sanitizedStructuredData = serializeJsonLd(structuredData);

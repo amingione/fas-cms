@@ -10,7 +10,9 @@ import {
   BUSINESS_EMAIL,
   BUSINESS_PHONE_E164,
   BUSINESS_PHONE_NATIONAL,
-  BUSINESS_NAME
+  BUSINESS_NAME,
+  BUSINESS_SERVICE_AREA_LOCAL,
+  BUSINESS_SERVICE_AREA_NATIONWIDE
 } from '@lib/nap';
 import SectionRenderer from '@/components/SectionRenderer.astro';
 import { serializeJsonLd } from '@lib/utils';
@@ -23,7 +25,7 @@ const canonical = requestUrl.toString();
 
 const pageTitle = 'Contact F.A.S. Motorsports';
 const pageDescription =
-  'Reach the F.A.S. Motorsports team for power packages, billet parts, installs, and service scheduling at our Punta Gorda, Florida facility.';
+  'Reach F.A.S. Motorsports for builds and installs in Charlotte, Lee & Sarasota Counties, FL, plus nationwide parts and kit shipping across the United States.';
 
 const structuredData = {
   '@context': 'https://schema.org',
@@ -41,6 +43,7 @@ const structuredData = {
     addressCountry: BUSINESS_ADDRESS_COUNTRY
   },
   openingHours: ['Mo-Fr 09:00-17:00'],
+  areaServed: [BUSINESS_SERVICE_AREA_LOCAL, BUSINESS_SERVICE_AREA_NATIONWIDE],
   sameAs: ['https://www.facebook.com/fasmotorsports', 'https://www.instagram.com/fasmotorsports']
 };
 ---
@@ -180,8 +183,8 @@ const structuredData = {
               </p>
               <p class="mb-4 text-white/60">
                 <strong class="text-primary">Orders:</strong>
-                <a href="mailto:orders@fasmotorsports.com" class="text-accent hover:text-primary"
-                  >orders@fasmotorsports.com</a
+                <a href={`mailto:${BUSINESS_EMAIL}`} class="text-accent hover:text-primary"
+                  >{BUSINESS_EMAIL}</a
                 >
               </p>
               <p class="mb-4 text-white/60">

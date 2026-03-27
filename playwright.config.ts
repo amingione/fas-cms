@@ -1,8 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * FAS Motorsports — Playwright E2E Configuration
- * Tests run against production (https://www.fasmotorsports.com)
+ * F.A.S. Motorsports — Playwright E2E Configuration
+ * Tests run against production (https://fasmotorsports.com)
  * unless BASE_URL env var is set to a local dev server.
  *
  * Usage:
@@ -26,7 +26,7 @@ export default defineConfig({
   ],
 
   use: {
-    baseURL: process.env.BASE_URL ?? 'https://www.fasmotorsports.com',
+    baseURL: process.env.BASE_URL ?? 'https://fasmotorsports.com',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',

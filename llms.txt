@@ -1,6 +1,6 @@
 # FAS Storefront (`fas-cms-fresh`)
 
-> Customer-facing Astro storefront for FAS Motorsports. This repo renders product and content experiences, while commerce authority remains Medusa.
+> Customer-facing Astro storefront for F.A.S. Motorsports. This repo renders product and content experiences, while commerce authority remains Medusa.
 
 Last updated: 2026-03-11
 Canonical docs version: v2026.03.07

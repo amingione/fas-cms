@@ -83,11 +83,11 @@ const articleJsonLd = JSON.stringify({
   dateModified: post?._updatedAt ?? post?.publishedAt ?? undefined,
   author: {
     '@type': 'Person',
-    name: post?.authorName ?? 'FAS Motorsports',
+    name: post?.authorName ?? 'F.A.S. Motorsports',
   },
   publisher: {
     '@type': 'Organization',
-    name: 'FAS Motorsports',
+    name: 'F.A.S. Motorsports',
     logo: {
       '@type': 'ImageObject',
       url: publisherLogoUrl,
