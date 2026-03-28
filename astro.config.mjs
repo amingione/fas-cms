@@ -98,6 +98,7 @@ try {
 export default defineConfig({
   output: 'server',
   site: siteUrl,
+  trailingSlash: 'always',
   adapter: netlify({
     devFeatures: {
       images: false,

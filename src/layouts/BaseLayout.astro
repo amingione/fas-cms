@@ -112,6 +112,16 @@ const resolveCanonical = (value?: string | null) => {
   return undefined;
 };
 
+// Ensure every canonical pathname ends with a trailing slash.
+// Exceptions: root path (already '/') and paths that end with a file extension
+// (e.g. /sitemap.xml, /robots.txt) which should never get a slash appended.
+const ensureTrailingSlash = (pathname: string): string => {
+  if (pathname === '/') return pathname;
+  const lastSegment = pathname.split('/').pop() ?? '';
+  if (lastSegment.includes('.')) return pathname;
+  return pathname.endsWith('/') ? pathname : pathname + '/';
+};
+
 const CANONICAL_SITE_ORIGIN = (() => {
   const candidate =
     (import.meta.env.PUBLIC_SITE_URL as string | undefined) ||
@@ -224,7 +234,7 @@ try {
     if (!url) throw new Error('No current URL available');
     url.search = '';
     url.hash = '';
-    canonicalUrl = new URL(url.pathname, CANONICAL_SITE_ORIGIN).toString();
+    canonicalUrl = new URL(ensureTrailingSlash(url.pathname), CANONICAL_SITE_ORIGIN).toString();
   }
 } catch {
   canonicalUrl =
@@ -238,7 +248,7 @@ if (canonicalUrl) {
     // in the canonical (e.g. /shop?categorySlug=hellcat-performance-package).
     // Previously only parsedCanonical.pathname was used, which stripped ?categorySlug,
     // ?page, etc., causing 32+ pages to point their canonical to bare /shop.
-    const rebuilt = new URL(parsedCanonical.pathname, CANONICAL_SITE_ORIGIN);
+    const rebuilt = new URL(ensureTrailingSlash(parsedCanonical.pathname), CANONICAL_SITE_ORIGIN);
     rebuilt.search = parsedCanonical.search;
     canonicalUrl = rebuilt.toString();
   } catch {
