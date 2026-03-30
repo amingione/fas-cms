@@ -121,12 +121,12 @@ export function toAbsoluteUrl(pathname: string): string {
   if (!pathname) return getSiteBaseUrl();
   if (/^https?:/i.test(pathname)) return pathname;
   const url = new URL(normalisePath(pathname), getSiteBaseUrl());
-  // Enforce trailing slash on every page URL for canonical consistency.
-  // Avoids duplicate-content issues when Astro's trailingSlash config or
-  // Netlify's redirects serve both /slug and /slug/ — the sitemap should
-  // always emit the canonical /slug/ form.
-  if (url.pathname !== '/' && !url.pathname.endsWith('/')) {
-    url.pathname = `${url.pathname}/`;
+  // Match Astro's trailingSlash:'always' — add a trailing slash to page-style
+  // paths (no file extension) so sitemap <loc> values equal the canonical URL
+  // and Ahrefs/Google don't see every entry as a 301 redirect.
+  const lastSegment = url.pathname.split('/').pop() ?? '';
+  if (!url.pathname.endsWith('/') && !lastSegment.includes('.')) {
+    url.pathname += '/';
   }
   return url.toString();
 }

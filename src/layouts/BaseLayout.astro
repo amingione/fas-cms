@@ -679,14 +679,26 @@ document.dispatchEvent(new Event('gtag:loaded'));
     }
     {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
     {
-      jsonLdEntries.map((entry, index) => (
-        <script
-          is:inline
-          type="application/ld+json"
-          set:html={JSON.stringify(entry)}
-          data-seo-ld-index={index}
-        />
-      ))
+      jsonLdEntries
+        // Guard: CMS can occasionally surface pre-stringified JSON or null —
+        // only render plain objects to avoid malformed LD+JSON blocks.
+        .filter((entry) => entry != null && typeof entry === 'object' && !Array.isArray(entry))
+        .map((entry, index) => (
+          <script
+            is:inline
+            type="application/ld+json"
+            set:html={
+              // Escape HTML-unsafe chars so `</script>` inside a description
+              // or title never breaks the script tag boundary in the parser
+              // (JSON.stringify does NOT escape < > & by default).
+              JSON.stringify(entry)
+                .replace(/</g, '\\u003c')
+                .replace(/>/g, '\\u003e')
+                .replace(/&/g, '\\u0026')
+            }
+            data-seo-ld-index={index}
+          />
+        ))
     }
     <script is:inline type="module">
       (function () {

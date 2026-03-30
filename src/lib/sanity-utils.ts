@@ -192,13 +192,17 @@ export interface SanityImageTransformOptions {
 }
 
 const DEFAULT_SANITY_IMAGE_PARAMS: Required<
-  Pick<SanityImageTransformOptions, 'quality' | 'fit'>
+  Pick<SanityImageTransformOptions, 'quality' | 'fit' | 'width'>
 > & {
   auto: 'format';
 } = Object.freeze({
   auto: 'format',
   fit: 'max',
-  quality: 82
+  quality: 82,
+  // Cap delivery width at 1600px — with fit:max, images narrower than this
+  // are served at their native size (no upscaling). Prevents Sanity CDN from
+  // delivering 2–3 MB full-resolution images to every page request.
+  width: 1600
 });
 
 export const optimizeSanityImageUrl = (
@@ -232,6 +236,8 @@ export const optimizeSanityImageUrl = (
 
     if (overrides.width) {
       params.set('w', String(Math.max(1, Math.round(overrides.width))));
+    } else if (!params.has('w')) {
+      params.set('w', String(DEFAULT_SANITY_IMAGE_PARAMS.width));
     }
     if (overrides.height) {
       params.set('h', String(Math.max(1, Math.round(overrides.height))));

@@ -10,10 +10,10 @@ type MenuLink = { label: string; href: string };
 const sortByLabel = (a: MenuLink, b: MenuLink) => a.label.localeCompare(b.label);
 
 const shopLinks = [
-  { label: 'All Products', href: '/shop' },
-  { label: 'Performance Packages', href: '/shop/performance-packages' },
-  { label: 'Wheels & Tires', href: '/wheels' },
-  { label: 'Categories', href: '/shop/categories' }
+  { label: 'All Products', href: '/shop/' },
+  { label: 'Performance Packages', href: '/shop/performance-packages/' },
+  { label: 'Wheels & Tires', href: '/wheels/' },
+  { label: 'Categories', href: '/shop/categories/' }
 ].sort(sortByLabel);
 
 const billetLinks = [
@@ -25,9 +25,9 @@ const billetLinks = [
 ];
 
 const packageLinks = [
-  { label: 'All Packages', href: '/packages' },
-  { label: 'Power Packages', href: '/packages/powerPackages' },
-  { label: 'Truck Packages', href: '/packages/truckPackages' }
+  { label: 'All Packages', href: '/packages/' },
+  { label: 'Power Packages', href: '/packages/powerPackages/' },
+  { label: 'Truck Packages', href: '/packages/truckPackages/' }
 ].sort(sortByLabel);
 
 const serviceLinks = [
@@ -87,7 +87,7 @@ const serviceLinks = [
 
       <ul class="nav-links" role="menubar">
         <li class="nav-item" role="none">
-          <a href="/shop" class="nav-link" role="menuitem" aria-haspopup="true">
+          <a href="/shop/" class="nav-link" role="menuitem" aria-haspopup="true">
             Shop
             <svg viewBox="0 0 10 6" fill="none" aria-hidden="true">
               <path
@@ -136,7 +136,7 @@ const serviceLinks = [
           </div>
         </li>
         <li class="nav-item" role="none">
-          <a href="/packages" class="nav-link" role="menuitem" aria-haspopup="true">
+          <a href="/packages/" class="nav-link" role="menuitem" aria-haspopup="true">
             Packages
             <svg viewBox="0 0 10 6" fill="none" aria-hidden="true">
               <path
@@ -180,10 +180,13 @@ const serviceLinks = [
           </div>
         </li>
         <li class="nav-item" role="none">
-          <a href="/about" class="nav-link" role="menuitem">About</a>
+          <a href="/about/" class="nav-link" role="menuitem">About</a>
         </li>
         <li class="nav-item" role="none">
-          <a href="/contact" class="nav-link" role="menuitem">Contact</a>
+          <a href="/blog/" class="nav-link" role="menuitem">Blog</a>
+        </li>
+        <li class="nav-item" role="none">
+          <a href="/contact/" class="nav-link" role="menuitem">Contact</a>
         </li>
       </ul>
 
