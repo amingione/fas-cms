@@ -16,17 +16,6 @@
 /fonts/barlow-condensed-stylesheet/demo    /   301
 /fonts/barlow-condensed-stylesheet/demo/   /   301
 
-# CDN-level trailing-slash enforcement for dynamic SSR paths.
-# Handles cases where the Netlify function returns 503 instead of 301 for
-# non-trailing-slash product/content URLs (trailingSlash:'always' in Astro).
-# These rules fire at edge before the SSR function is invoked.
-/shop/:slug   /shop/:slug/   301
-/blog/:slug   /blog/:slug/   301
-/vendors/:slug   /vendors/:slug/   301
-/services/:slug   /services/:slug/   301
-/packages/:slug   /packages/:slug/   301
-/builds/:slug   /builds/:slug/   301
-/specs/:slug   /specs/:slug/   301
 
 /xmlrpc.php / 410
 /wp-login.php / 410
