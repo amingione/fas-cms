@@ -120,7 +120,15 @@ export function getSiteBaseUrl(): string {
 export function toAbsoluteUrl(pathname: string): string {
   if (!pathname) return getSiteBaseUrl();
   if (/^https?:/i.test(pathname)) return pathname;
-  return new URL(normalisePath(pathname), getSiteBaseUrl()).toString();
+  const url = new URL(normalisePath(pathname), getSiteBaseUrl());
+  // Enforce trailing slash on every page URL for canonical consistency.
+  // Avoids duplicate-content issues when Astro's trailingSlash config or
+  // Netlify's redirects serve both /slug and /slug/ — the sitemap should
+  // always emit the canonical /slug/ form.
+  if (url.pathname !== '/' && !url.pathname.endsWith('/')) {
+    url.pathname = `${url.pathname}/`;
+  }
+  return url.toString();
 }
 
 function escapeXml(value: string): string {

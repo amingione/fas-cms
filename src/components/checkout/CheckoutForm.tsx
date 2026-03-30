@@ -2038,11 +2038,41 @@ function StripePaymentPane({
         return;
       }
 
+      // Build shipping for confirmParams.
+      // IMPORTANT: shipping is intentionally NOT set on the PaymentIntent at
+      // creation time (server-side). Setting it with a secret key then trying
+      // to pass it again with the publishable key on confirm triggers
+      // payment_intent_invalid_parameter (400). Passing it here (publishable
+      // key, no prior secret-key lock) is both permitted and required for BNPL
+      // methods like Klarna, Afterpay, and Link that need a shipping address.
+      const confirmShipping =
+        requiresShipping &&
+        shippingAddress.firstName &&
+        shippingAddress.address1 &&
+        shippingAddress.city &&
+        shippingAddress.postalCode &&
+        shippingAddress.countryCode
+          ? {
+              name:
+                `${shippingAddress.firstName} ${shippingAddress.lastName}`.trim() || 'Customer',
+              phone: shippingAddress.phone || undefined,
+              address: {
+                line1: shippingAddress.address1,
+                line2: shippingAddress.address2 || undefined,
+                city: shippingAddress.city,
+                state: shippingAddress.province,
+                postal_code: shippingAddress.postalCode,
+                country: shippingAddress.countryCode || 'US'
+              }
+            }
+          : undefined;
+
       const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: {
           return_url: `${window.location.origin}/order/confirmation`,
-          receipt_email: shippingAddress.email || cart.email
+          receipt_email: shippingAddress.email || cart.email,
+          shipping: confirmShipping
         },
         redirect: 'if_required'
       });
