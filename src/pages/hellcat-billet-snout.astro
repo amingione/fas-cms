@@ -1,0 +1,216 @@
+---
+export const prerender = true;
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Button from '@/components/Button.astro';
+import {
+  BUSINESS_PHONE_NATIONAL,
+  BUSINESS_PHONE_E164,
+  BUSINESS_ADDRESS_LINE1,
+  BUSINESS_ADDRESS_LOCALITY,
+  BUSINESS_ADDRESS_REGION,
+  BUSINESS_ADDRESS_POSTAL_CODE,
+  BUSINESS_ADDRESS_COUNTRY,
+} from '@/lib/nap';
+
+const faqs = [
+  {
+    q: 'What does a billet supercharger snout do?',
+    a: 'The snout is the nose casting of the supercharger — it holds the front bearing, drives the rotor pack, and routes inlet air into the blower. The factory snout is a die-cast piece that flexes under belt load and has restricted inlet geometry. A billet replacement is CNC-machined from solid 6061 aluminum for improved rigidity, concentricity, and flow.',
+  },
+  {
+    q: 'Will a billet snout increase horsepower on a Hellcat?',
+    a: "Directly, not dramatically — the snout's primary job is structural. The real gains come from reduced flex under belt load (which keeps shaft alignment and boost consistent), plus the ported inlet geometry on the FAS billet snout. On builds already pushing the OEM snout hard, the difference is measurable on the dyno.",
+  },
+  {
+    q: 'Do I need to replace the bearings when I install a billet snout?',
+    a: "If you're pulling the snout anyway, yes — upgrade the bearings while you're in there. FAS stocks upgraded snout bearings rated for high-boost Hellcat applications. Installing a billet snout with worn OEM bearings defeats part of the purpose.",
+  },
+  {
+    q: 'Is this a bolt-on replacement?',
+    a: 'Yes — the FAS 2.4L billet snout is a direct OEM replacement with factory mounting provisions and hardware compatibility. No fabrication required. Your existing belt, pulley, and throttle body mate directly.',
+  },
+  {
+    q: 'What platforms is the 2.4L billet snout compatible with?',
+    a: 'Fits all 2.4L IHI-equipped platforms: Challenger SRT Hellcat/Redeye, Charger SRT Hellcat/Redeye, RAM 1500 TRX, and Jeep Grand Cherokee Trackhawk. Does not fit the 2.7L IHI in the Demon or Demon 170.',
+  },
+];
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(({ q, a }) => ({
+    '@type': 'Question',
+    name: q,
+    acceptedAnswer: { '@type': 'Answer', text: a },
+  })),
+};
+
+const productJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: '2.4L Hellcat Billet Supercharger Snout',
+  description: 'CNC-machined billet aluminum snout replacement for the 2.4L Hellcat TVS supercharger. High-flow inlet geometry, rigid under belt load. FAS Motorsports — Punta Gorda, FL.',
+  brand: { '@type': 'Brand', name: 'FAS Motorsports' },
+  url: 'https://fasmotorsports.com/hellcat-billet-snout',
+  offers: {
+    '@type': 'Offer',
+    priceCurrency: 'USD',
+    availability: 'https://schema.org/InStock',
+    seller: { '@type': 'AutoRepair', name: 'FAS Motorsports', telephone: BUSINESS_PHONE_E164,
+      address: { '@type': 'PostalAddress', streetAddress: BUSINESS_ADDRESS_LINE1, addressLocality: BUSINESS_ADDRESS_LOCALITY, addressRegion: BUSINESS_ADDRESS_REGION, postalCode: BUSINESS_ADDRESS_POSTAL_CODE, addressCountry: BUSINESS_ADDRESS_COUNTRY },
+    },
+  },
+};
+---
+
+<BaseLayout
+  title="2.4L Hellcat Billet Supercharger Snout | FAS Motorsports"
+  description="CNC-machined billet snout for the 2.4L Hellcat TVS supercharger. Direct OEM replacement — high-flow inlet, rigid under belt load. Ships nationwide from FAS Motorsports, Punta Gorda FL."
+  canonical="https://fasmotorsports.com/hellcat-billet-snout/"
+  keywords={['hellcat billet supercharger snout', '2.4l hellcat snout', 'billet snout hellcat', 'hellcat supercharger snout upgrade', 'hellcat snout replacement']}
+  bodyClass="bg-dark text-white min-h-screen flex flex-col"
+  mainClass="flex-1 w-full max-w-none px-0 pt-0"
+>
+  <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
+  <script type="application/ld+json" set:html={JSON.stringify(productJsonLd)} />
+
+  <!-- HERO -->
+  <section class="relative flex items-center justify-center min-h-[480px] sm:min-h-[560px] overflow-hidden bg-black" aria-label="Hellcat billet supercharger snout">
+    <div class="absolute inset-0 z-0 pointer-events-none" style="background: radial-gradient(ellipse 80% 60% at 60% 50%, rgba(234,29,38,0.18) 0%, transparent 70%), radial-gradient(ellipse 60% 80% at 20% 80%, rgba(30,80,200,0.08) 0%, transparent 70%);" aria-hidden="true"></div>
+    <div class="relative z-10 max-w-5xl mx-auto px-6 py-20 text-center">
+      <p class="text-xs font-mono tracking-widest text-red-500 uppercase mb-4">Ships Nationwide · FAS Motorsports · Punta Gorda, FL</p>
+      <h1 class="text-4xl sm:text-6xl font-bold font-ethno italic text-white mb-4 leading-tight">
+        Hellcat Billet<br /><span class="text-red-500">Supercharger Snout</span>
+      </h1>
+      <p class="text-lg font-mono text-white/70 max-w-2xl mx-auto mb-8">
+        CNC-machined billet aluminum snout for the 2.4L Hellcat TVS. Direct OEM replacement with high-flow inlet geometry and rigid construction under belt load. Compatible with Challenger, Charger, TRX, and Trackhawk.
+      </p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <Button href="/shop/2-4l-hellcat-billet-supercharger-snout" text="Order Billet Snout" variant="default" />
+        <Button href="/contact" text={`Call ${BUSINESS_PHONE_NATIONAL}`} variant="outline" />
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY REPLACE THE OEM SNOUT -->
+  <section class="max-w-6xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-3">Why Replace the Factory Snout?</h2>
+    <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+    <div class="grid md:grid-cols-2 gap-10">
+      <div>
+        <p class="text-white/70 font-mono text-sm leading-relaxed mb-4">
+          The factory Hellcat supercharger snout is a die-cast aluminum piece. At stock power levels it works fine. At 800+ WHP — on aggressive pulley ratios and E85 — the OEM casting flexes under sustained belt load, affecting shaft alignment, rotor clearance, and boost consistency.
+        </p>
+        <p class="text-white/70 font-mono text-sm leading-relaxed mb-4">
+          The FAS billet snout is CNC-machined from solid billet 6061 with multi-axis precision. It holds alignment under load, supports upgraded bearings, and opens the inlet geometry for better airflow into the rotor pack — bolt-on, no fabrication.
+        </p>
+        <p class="text-white/70 font-mono text-sm leading-relaxed">
+          If you're porting the supercharger, replacing the bearings, or building past 700 WHP, the billet snout is the logical next step. It's also the foundation of the FAS Dominator package.
+        </p>
+      </div>
+      <div class="border border-white/10 rounded overflow-hidden">
+        <div class="grid grid-cols-3 bg-white/10 px-4 py-3 font-mono text-xs font-bold text-white/60 uppercase tracking-wide">
+          <span></span><span class="text-center">OEM Die-Cast</span><span class="text-center text-red-400">FAS Billet</span>
+        </div>
+        {[
+          ['Material', 'Die-cast aluminum', 'CNC billet 6061'],
+          ['Rigidity under load', 'Flexes at high boost', 'No flex — rigid'],
+          ['Inlet geometry', 'Restricted OEM casting', 'High-flow ported inlet'],
+          ['Bearing support', 'OEM only', 'Upgraded bearings supported'],
+          ['Machining tolerance', 'Cast tolerance', 'Multi-axis CNC precision'],
+          ['Finish', 'Painted/raw cast', 'Anodized'],
+        ].map(([label, oem, fas]) => (
+          <div class="grid grid-cols-3 border-t border-white/10 px-4 py-3">
+            <span class="font-mono text-xs text-white/50">{label}</span>
+            <span class="font-mono text-xs text-white/40 text-center">{oem}</span>
+            <span class="font-mono text-xs text-red-300 text-center font-bold">{fas}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- SPECS + FITMENT -->
+  <section class="bg-[#0a0b10] border-y border-white/10 px-6 py-20">
+    <div class="max-w-6xl mx-auto">
+      <p class="text-xs font-mono tracking-widest text-red-500 uppercase mb-2">Product Details</p>
+      <h2 class="text-3xl font-cyber font-bold text-white mb-3">Specs & Compatible Platforms</h2>
+      <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+      <div class="grid md:grid-cols-2 gap-10 items-start">
+        <div>
+          <ul class="space-y-3 mb-8">
+            {[
+              'CNC-machined from solid billet 6061 aluminum',
+              'Multi-axis machining for shaft concentricity',
+              'High-flow inlet geometry — ports cleanly to rotor pack',
+              'OE-style mounting — bolt-on, no fabrication',
+              'Compatible with OEM and upgraded snout bearings',
+              'Anodized finish for durability',
+              'Supports 108mm throttle body fitment',
+            ].map((item) => (
+              <li class="flex items-start gap-3 font-mono text-sm text-white/80">
+                <span class="text-red-500 mt-0.5 shrink-0">▸</span>{item}
+              </li>
+            ))}
+          </ul>
+          <div class="flex flex-wrap gap-4">
+            <Button href="/shop/2-4l-hellcat-billet-supercharger-snout" text="Order Billet Snout" variant="default" />
+            <Button href="/shop/upgraded-hellcat-supercharger-snout-bearings" text="Add Upgraded Bearings" variant="outline" />
+          </div>
+        </div>
+        <div class="space-y-4">
+          <div class="border border-white/10 rounded p-5 bg-white/5">
+            <p class="text-xs font-mono tracking-widest text-white/40 uppercase mb-3">Compatible Platforms</p>
+            <ul class="text-white/70 font-mono text-sm space-y-2">
+              <li>▸ Dodge Challenger SRT Hellcat / Redeye (2015+)</li>
+              <li>▸ Dodge Charger SRT Hellcat / Redeye (2015+)</li>
+              <li>▸ RAM 1500 TRX (2021+)</li>
+              <li>▸ Jeep Grand Cherokee Trackhawk (2018–2021)</li>
+              <li>▸ Dodge Durango SRT Hellcat (2021)</li>
+            </ul>
+          </div>
+          <div class="border border-red-500/20 rounded p-5 bg-red-950/10">
+            <p class="text-xs font-mono tracking-widest text-red-400 uppercase mb-2">Pair With</p>
+            <p class="text-white/60 font-mono text-sm leading-relaxed mb-3">
+              The billet snout is the foundation of the FAS Dominator package. Pair it with upgraded bearings and supercharger porting for the complete flow-path upgrade.
+            </p>
+            <a href="/dominator-supercharger-package" class="font-mono text-xs text-red-400 hover:text-red-300 underline underline-offset-4">View Dominator Package →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="bg-[#0a0b10] border-t border-white/10 px-6 py-20">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-3xl font-cyber font-bold text-white mb-3">Billet Snout — Common Questions</h2>
+      <div class="h-[2px] w-16 bg-red-500 mb-10"></div>
+      <div class="space-y-4">
+        {faqs.map(({ q, a }) => (
+          <details class="border border-white/10 rounded bg-white/5 group">
+            <summary class="cursor-pointer px-5 py-4 font-mono font-bold text-white text-sm tracking-wide list-none flex justify-between items-center">
+              {q}<span class="text-red-500 ml-4 shrink-0 group-open:rotate-180 transition-transform">▾</span>
+            </summary>
+            <p class="px-5 pb-4 pt-1 text-white/60 font-mono text-sm leading-relaxed">{a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="max-w-3xl mx-auto px-6 py-20 text-center">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-4">Order the Billet Snout</h2>
+    <p class="text-white/60 font-mono text-sm mb-8 max-w-xl mx-auto">
+      Ships from Punta Gorda, FL. Call the shop with fitment questions or to pair with supercharger porting and upgraded bearings.
+    </p>
+    <div class="flex flex-wrap justify-center gap-4">
+      <Button href="/shop/2-4l-hellcat-billet-supercharger-snout" text="Order Now" variant="default" />
+      <Button href="/specs/BilletSnout" text="View Spec Sheet" variant="outline" />
+    </div>
+    <p class="mt-6 text-white/30 font-mono text-xs">FAS Motorsports · {BUSINESS_ADDRESS_LINE1} · {BUSINESS_ADDRESS_LOCALITY}, {BUSINESS_ADDRESS_REGION} · {BUSINESS_PHONE_NATIONAL}</p>
+  </section>
+
+</BaseLayout>

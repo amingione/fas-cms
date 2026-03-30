@@ -1,0 +1,198 @@
+---
+export const prerender = true;
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Button from '@/components/Button.astro';
+import {
+  BUSINESS_PHONE_NATIONAL,
+  BUSINESS_PHONE_E164,
+  BUSINESS_ADDRESS_LINE1,
+  BUSINESS_ADDRESS_LOCALITY,
+  BUSINESS_ADDRESS_REGION,
+  BUSINESS_ADDRESS_POSTAL_CODE,
+  BUSINESS_ADDRESS_COUNTRY,
+} from '@/lib/nap';
+
+const faqs = [
+  {
+    q: 'What is the FAS Dominator supercharger package?',
+    a: 'The FAS Dominator is a complete 2.4L Hellcat supercharger upgrade package built entirely in-house at FAS Motorsports in Punta Gorda, FL. It combines a race-ported supercharger rotor pack, billet snout, upgraded bearings, a 108mm throttle body, pulley combination, and a full custom AWD dyno tune. Everything is installed and verified under one roof.',
+  },
+  {
+    q: 'How much power does the Dominator package make?',
+    a: 'On a stock bottom end with the full Dominator package on pump 93, expect 800–870 WHP. On E85 with supporting fuel system upgrades, 900–970+ WHP is realistic. FAS documents every build on our AWD dyno — we will give you the actual numbers for your exact setup, not a range from a spec sheet.',
+  },
+  {
+    q: 'How is the Dominator different from a Whipple or Magnuson swap?',
+    a: "Whipple and Magnuson replace the factory supercharger entirely with a larger unit. The FAS Dominator upgrades and ports the factory 2.4L IHI — retaining OEM reliability and fitment while dramatically improving airflow. At comparable power levels, the Dominator costs less than a full supercharger replacement and keeps your factory ECU integration intact.",
+  },
+  {
+    q: 'Does the Dominator package include installation?',
+    a: 'The FAS Dominator is an installed package — it is not a mail-order kit. We build it on the car at our shop in Punta Gorda, FL, tune it on our AWD dyno, and document the results before you pick it up. If you are not in Florida, call us to discuss your options.',
+  },
+  {
+    q: 'What supporting mods does the Dominator require?',
+    a: 'On a stock bottom end targeting 800–870 WHP on pump gas, the Dominator package is self-contained. For E85 builds or builds targeting 900+ WHP, FAS recommends upgraded fuel injectors, a return-style fuel system, and (optionally) stronger valve springs. We spec the supporting mods for your exact build during the consultation.',
+  },
+];
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(({ q, a }) => ({
+    '@type': 'Question',
+    name: q,
+    acceptedAnswer: { '@type': 'Answer', text: a },
+  })),
+};
+
+const productJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: 'FAS Dominator 2.4L Supercharger Package',
+  description: 'Complete 2.4L Hellcat supercharger upgrade package — race-ported rotor pack, billet snout, upgraded bearings, 108mm throttle body, pulley combo, and AWD dyno tune. Installed at FAS Motorsports, Punta Gorda FL.',
+  brand: { '@type': 'Brand', name: 'FAS Motorsports' },
+  url: 'https://fasmotorsports.com/dominator-supercharger-package',
+  offers: {
+    '@type': 'Offer',
+    priceCurrency: 'USD',
+    availability: 'https://schema.org/InStock',
+    seller: { '@type': 'AutoRepair', name: 'FAS Motorsports', telephone: BUSINESS_PHONE_E164,
+      address: { '@type': 'PostalAddress', streetAddress: BUSINESS_ADDRESS_LINE1, addressLocality: BUSINESS_ADDRESS_LOCALITY, addressRegion: BUSINESS_ADDRESS_REGION, postalCode: BUSINESS_ADDRESS_POSTAL_CODE, addressCountry: BUSINESS_ADDRESS_COUNTRY },
+    },
+  },
+};
+---
+
+<BaseLayout
+  title="FAS Dominator 2.4L Supercharger Package | Hellcat Build | FAS Motorsports"
+  description="Complete Hellcat supercharger build package from FAS Motorsports. Race-ported rotor pack, billet snout, 108mm throttle body, and AWD dyno tune. 800–970+ WHP. Punta Gorda, FL."
+  canonical="https://fasmotorsports.com/dominator-supercharger-package/"
+  keywords={['2.4l hellcat supercharger package', 'dominator supercharger package', 'hellcat supercharger kit', 'hellcat supercharger build', 'fas dominator package']}
+  bodyClass="bg-dark text-white min-h-screen flex flex-col"
+  mainClass="flex-1 w-full max-w-none px-0 pt-0"
+>
+  <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
+  <script type="application/ld+json" set:html={JSON.stringify(productJsonLd)} />
+
+  <!-- HERO -->
+  <section class="relative flex items-center justify-center min-h-[480px] sm:min-h-[560px] overflow-hidden bg-black" aria-label="FAS Dominator supercharger package">
+    <div class="absolute inset-0 z-0 pointer-events-none" style="background: radial-gradient(ellipse 80% 60% at 60% 50%, rgba(234,29,38,0.18) 0%, transparent 70%), radial-gradient(ellipse 60% 80% at 20% 80%, rgba(30,80,200,0.08) 0%, transparent 70%);" aria-hidden="true"></div>
+    <div class="relative z-10 max-w-5xl mx-auto px-6 py-20 text-center">
+      <p class="text-xs font-mono tracking-widest text-red-500 uppercase mb-4">In-Shop Installation · AWD Dyno Tuned · Punta Gorda, FL</p>
+      <h1 class="text-4xl sm:text-6xl font-bold font-ethno italic text-white mb-4 leading-tight">
+        FAS Dominator<br /><span class="text-red-500">Supercharger Package</span>
+      </h1>
+      <p class="text-lg font-mono text-white/70 max-w-2xl mx-auto mb-8">
+        Complete 2.4L Hellcat supercharger upgrade — race-ported rotor pack, billet snout, upgraded bearings, 108mm throttle body, pulley combo, and a full custom AWD dyno tune. Built and verified under one roof.
+      </p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <Button href="/shop/dominator-2-4l-supercharger-package" text="Order Dominator Package" variant="default" />
+        <Button href="/contact" text={`Call ${BUSINESS_PHONE_NATIONAL}`} variant="outline" />
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT'S IN THE PACKAGE -->
+  <section class="max-w-6xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-3">What the Dominator Package Includes</h2>
+    <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+    <div class="grid md:grid-cols-2 gap-10 items-start">
+      <div>
+        <p class="text-white/70 font-mono text-sm leading-relaxed mb-6">
+          The Dominator is not a mail-order kit. It is an in-shop build — every component is installed, fit-checked, and tuned at FAS Motorsports before the car leaves. We pull the supercharger, port the rotor pack in-house, install all hardware, and finish on the AWD dyno.
+        </p>
+        <ul class="space-y-3">
+          {[
+            'Race-ported 2.4L supercharger rotor pack — inlet, outlet, and transition blending',
+            'FAS billet snout — high-flow inlet geometry, rigid under belt load',
+            'Upgraded snout bearings — rated for sustained high-boost operation',
+            '108mm throttle body — removes factory inlet restriction',
+            'Pulley combination — sized for your target power level and fuel',
+            'Full custom AWD dyno tune — pump 93 and E85 maps included',
+            'Professional installation — FAS Motorsports, Punta Gorda FL',
+          ].map((item) => (
+            <li class="flex items-start gap-3 font-mono text-sm text-white/80">
+              <span class="text-red-500 mt-0.5 shrink-0">▸</span>{item}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div class="space-y-4">
+        <div class="border border-white/10 rounded p-5 bg-white/5">
+          <p class="text-xs font-mono tracking-widest text-white/40 uppercase mb-3">Power Targets</p>
+          {[
+            { config: 'Pump 93 — Stock Bottom End', power: '800–870 WHP', note: 'Full Dominator package, stock internals' },
+            { config: 'E85 — Stock Bottom End', power: '900–970 WHP', note: 'Requires upgraded fuel system' },
+            { config: 'E85 — Built Bottom End', power: '1,000+ WHP', note: 'Forged internals, full fuel system' },
+          ].map(({ config, power, note }) => (
+            <div class="border-t border-white/10 pt-3 mt-3 first:border-0 first:pt-0 first:mt-0">
+              <div class="flex justify-between items-start mb-1">
+                <span class="font-mono text-xs text-white/60">{config}</span>
+                <span class="font-mono text-xs text-red-400 font-bold">{power}</span>
+              </div>
+              <p class="font-mono text-xs text-white/30">{note}</p>
+            </div>
+          ))}
+        </div>
+        <div class="border border-red-500/20 rounded p-5 bg-red-950/10">
+          <p class="text-xs font-mono tracking-widest text-red-400 uppercase mb-2">Dominator vs. Full Swap</p>
+          <p class="text-white/60 font-mono text-sm leading-relaxed">
+            Whipple and Magnuson replace the factory supercharger. The Dominator upgrades it. At 800–970 WHP you get comparable output at lower cost, with OEM fitment and factory ECU integration intact.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPATIBLE PLATFORMS -->
+  <section class="max-w-6xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-3">Platforms We Build</h2>
+    <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {[
+        { model: 'Dodge Challenger SRT Hellcat', engine: '6.2L HEMI 2.4L IHI', href: '/builds/challenger' },
+        { model: 'Dodge Charger SRT Hellcat', engine: '6.2L HEMI 2.4L IHI', href: '/builds/challenger' },
+        { model: 'RAM 1500 TRX', engine: '6.2L Supercharged HEMI', href: '/packages/truckPackages' },
+        { model: 'Jeep Grand Cherokee Trackhawk', engine: '6.2L Supercharged HEMI', href: '/contact' },
+      ].map(({ model, engine, href }) => (
+        <a href={href} class="block border border-white/10 rounded p-5 bg-white/5 hover:border-red-500/50 hover:bg-red-950/20 transition-colors group">
+          <p class="font-mono font-bold text-white text-sm mb-1 group-hover:text-red-400 transition-colors">{model}</p>
+          <p class="font-mono text-white/40 text-xs">{engine}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="bg-[#0a0b10] border-t border-white/10 px-6 py-20">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-3xl font-cyber font-bold text-white mb-3">Dominator Package — Common Questions</h2>
+      <div class="h-[2px] w-16 bg-red-500 mb-10"></div>
+      <div class="space-y-4">
+        {faqs.map(({ q, a }) => (
+          <details class="border border-white/10 rounded bg-white/5 group">
+            <summary class="cursor-pointer px-5 py-4 font-mono font-bold text-white text-sm tracking-wide list-none flex justify-between items-center">
+              {q}<span class="text-red-500 ml-4 shrink-0 group-open:rotate-180 transition-transform">▾</span>
+            </summary>
+            <p class="px-5 pb-4 pt-1 text-white/60 font-mono text-sm leading-relaxed">{a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="max-w-3xl mx-auto px-6 py-20 text-center">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-4">Ready to Build Your Hellcat?</h2>
+    <p class="text-white/60 font-mono text-sm mb-8 max-w-xl mx-auto">
+      Call or contact FAS Motorsports in Punta Gorda, FL to discuss the Dominator package, get a build quote, and schedule your installation.
+    </p>
+    <div class="flex flex-wrap justify-center gap-4">
+      <Button href="/contact" text="Get a Build Quote" variant="default" />
+      <Button href="/hellcat-supercharger" text="Hellcat Supercharger Overview" variant="outline" />
+    </div>
+    <p class="mt-6 text-white/30 font-mono text-xs">FAS Motorsports · {BUSINESS_ADDRESS_LINE1} · {BUSINESS_ADDRESS_LOCALITY}, {BUSINESS_ADDRESS_REGION} · {BUSINESS_PHONE_NATIONAL}</p>
+  </section>
+
+</BaseLayout>

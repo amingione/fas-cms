@@ -1,0 +1,211 @@
+---
+export const prerender = true;
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Button from '@/components/Button.astro';
+import {
+  BUSINESS_PHONE_NATIONAL,
+  BUSINESS_PHONE_E164,
+  BUSINESS_ADDRESS_LINE1,
+  BUSINESS_ADDRESS_LOCALITY,
+  BUSINESS_ADDRESS_REGION,
+  BUSINESS_ADDRESS_POSTAL_CODE,
+  BUSINESS_ADDRESS_COUNTRY,
+} from '@/lib/nap';
+
+const faqs = [
+  {
+    q: 'What is the IHI 2.7L supercharger and which cars use it?',
+    a: 'The IHI twin-screw 2.7L supercharger is found in the Dodge Demon (2018), Dodge Demon 170 (2023), and the SRT High-Output Hellcat Redeye. It produces higher boost pressure than the standard 2.4L TVS unit and is a fundamentally different design — twin-screw rotors vs. the TVS roots-style unit. The 2.7L is the platform for builds chasing 1,000+ WHP on the factory blower.',
+  },
+  {
+    q: 'When does an IHI supercharger need to be rebuilt?',
+    a: 'Rebuild indicators: bearing noise (whine or grinding at idle or under boost), boost creep or pressure loss without tune changes, rotor-to-housing contact (metallic sounds under boost), or any blower that has had coolant or oil contamination. On high-power builds running aggressive pulley ratios, proactive rebuilds at 40,000–60,000 miles are common practice.',
+  },
+  {
+    q: 'What does the FAS IHI rebuild include?',
+    a: 'Full disassembly, inspection, rotor pack cleaning and clearance check, bearing replacement, seal replacement, discharge and inlet port cleanup, housing inspection for wear or scoring, reassembly, and flow-bench verification. Every unit is tested before ship-back. Turnaround is 3–5 business days.',
+  },
+  {
+    q: 'Can I send my blower in for a rebuild without pulling the whole engine?',
+    a: "Yes — this is a ship-in service. Pull the supercharger from the car, ship it to FAS Motorsports at 6161 Riverside Dr, Punta Gorda, FL 33982. Call before shipping to confirm current lead time and get prep instructions. We rebuild it and ship it back ready to bolt on.",
+  },
+  {
+    q: 'Should I rebuild or replace the IHI 2.7L?',
+    a: "Rebuild if the rotor pack is intact and the housing has no scoring. Replace (or upgrade) if rotor clearances are beyond spec, the housing is damaged, or you're changing power targets significantly. FAS will tell you which path makes sense after inspection — we won't charge you for a rebuild if the unit needs replacement.",
+  },
+];
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(({ q, a }) => ({
+    '@type': 'Question',
+    name: q,
+    acceptedAnswer: { '@type': 'Answer', text: a },
+  })),
+};
+
+const productJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: 'IHI 2.7L Supercharger Rebuild',
+  description: 'Full rebuild service for the IHI twin-screw 2.7L supercharger (Dodge Demon, Demon 170, Hellcat Redeye High-Output). Ship-in nationwide, 3–5 day turnaround. Flow-bench verified. FAS Motorsports, Punta Gorda FL.',
+  brand: { '@type': 'Brand', name: 'FAS Motorsports' },
+  url: 'https://fasmotorsports.com/ihi-supercharger-rebuild',
+  provider: { '@type': 'AutoRepair', name: 'FAS Motorsports', telephone: BUSINESS_PHONE_E164,
+    address: { '@type': 'PostalAddress', streetAddress: BUSINESS_ADDRESS_LINE1, addressLocality: BUSINESS_ADDRESS_LOCALITY, addressRegion: BUSINESS_ADDRESS_REGION, postalCode: BUSINESS_ADDRESS_POSTAL_CODE, addressCountry: BUSINESS_ADDRESS_COUNTRY },
+  },
+};
+---
+
+<BaseLayout
+  title="IHI 2.7L Supercharger Rebuild | Demon & Redeye | FAS Motorsports"
+  description="Full rebuild service for the IHI 2.7L twin-screw supercharger in the Dodge Demon, Demon 170, and Hellcat Redeye High-Output. Ship-in nationwide, 3–5 day turnaround. FAS Motorsports, Punta Gorda FL."
+  canonical="https://fasmotorsports.com/ihi-supercharger-rebuild/"
+  keywords={['ihi supercharger rebuild', 'demon supercharger rebuild', '2.7l ihi rebuild', 'hellcat redeye supercharger rebuild', 'dodge demon blower rebuild']}
+  bodyClass="bg-dark text-white min-h-screen flex flex-col"
+  mainClass="flex-1 w-full max-w-none px-0 pt-0"
+>
+  <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
+  <script type="application/ld+json" set:html={JSON.stringify(productJsonLd)} />
+
+  <!-- HERO -->
+  <section class="relative flex items-center justify-center min-h-[480px] sm:min-h-[560px] overflow-hidden bg-black" aria-label="IHI 2.7L supercharger rebuild service">
+    <div class="absolute inset-0 z-0 pointer-events-none" style="background: radial-gradient(ellipse 80% 60% at 60% 50%, rgba(234,29,38,0.18) 0%, transparent 70%), radial-gradient(ellipse 60% 80% at 20% 80%, rgba(30,80,200,0.08) 0%, transparent 70%);" aria-hidden="true"></div>
+    <div class="relative z-10 max-w-5xl mx-auto px-6 py-20 text-center">
+      <p class="text-xs font-mono tracking-widest text-red-500 uppercase mb-4">Ship-In Service · 3–5 Day Turnaround · FAS Motorsports · Punta Gorda, FL</p>
+      <h1 class="text-4xl sm:text-6xl font-bold font-ethno italic text-white mb-4 leading-tight">
+        IHI 2.7L<br /><span class="text-red-500">Supercharger Rebuild</span>
+      </h1>
+      <p class="text-lg font-mono text-white/70 max-w-2xl mx-auto mb-8">
+        Full rebuild service for the IHI twin-screw 2.7L supercharger in the Dodge Demon, Demon 170, and Hellcat Redeye High-Output. Ship us your blower — we rebuild it, flow-bench verify it, and ship it back in 3–5 business days.
+      </p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <Button href="/shop/2-7l-ihi-supercharger-rebuild" text="Order Rebuild Service" variant="default" />
+        <Button href="/contact" text={`Call ${BUSINESS_PHONE_NATIONAL}`} variant="outline" />
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT THE IHI IS -->
+  <section class="max-w-6xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-3">The IHI 2.7L Twin-Screw — The Demon's Blower</h2>
+    <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+    <div class="grid md:grid-cols-2 gap-10">
+      <div>
+        <p class="text-white/70 font-mono text-sm leading-relaxed mb-4">
+          The IHI 2.7L twin-screw is not the same unit as the standard Hellcat 2.4L TVS. It's a fundamentally different design — twin-screw rotors with higher displacement and higher boost capacity. The Demon made 840 hp stock. The Demon 170 made 1,025 hp on E85. The high-output IHI is the platform for 1,000+ WHP builds on the factory blower.
+        </p>
+        <p class="text-white/70 font-mono text-sm leading-relaxed mb-4">
+          That same capability means more stress on internal components. The IHI bearings, seals, and rotors run harder than the standard Hellcat unit — especially on modified builds with aggressive pulley ratios. When it's time for a rebuild, the tolerances and experience required are specific to this platform.
+        </p>
+        <p class="text-white/70 font-mono text-sm leading-relaxed">
+          FAS Motorsports has rebuilt IHI 2.7L units across all three generations: the 2018 Demon, the Redeye H.O., and the 2023 Demon 170. Ship it in — we know this blower.
+        </p>
+      </div>
+      <div class="space-y-4">
+        <div class="border border-white/10 rounded p-5 bg-white/5">
+          <p class="text-xs font-mono tracking-widest text-white/40 uppercase mb-3">Rebuild Triggers — When to Ship It In</p>
+          <ul class="text-white/70 font-mono text-sm space-y-2">
+            <li>▸ Bearing noise — whine or grinding at idle or under boost</li>
+            <li>▸ Boost pressure loss without tune changes</li>
+            <li>▸ Metallic sounds under sustained boost load</li>
+            <li>▸ Coolant or oil contamination inside the blower</li>
+            <li>▸ Proactive rebuild at 40K–60K miles on modified builds</li>
+          </ul>
+        </div>
+        <div class="border border-red-500/20 rounded p-5 bg-red-950/10">
+          <p class="text-xs font-mono tracking-widest text-red-400 uppercase mb-2">Rebuild vs. Replace</p>
+          <p class="text-white/60 font-mono text-sm leading-relaxed">
+            FAS will tell you which path makes sense after inspection. We won't charge you for a rebuild if the unit needs replacement. Call before shipping if you're not sure what you have.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT'S INCLUDED -->
+  <section class="bg-[#0a0b10] border-y border-white/10 px-6 py-20">
+    <div class="max-w-6xl mx-auto">
+      <p class="text-xs font-mono tracking-widest text-red-500 uppercase mb-2">Service Details</p>
+      <h2 class="text-3xl font-cyber font-bold text-white mb-3">What the IHI Rebuild Includes</h2>
+      <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+      <div class="grid md:grid-cols-2 gap-10 items-start">
+        <div>
+          <ul class="space-y-3 mb-8">
+            {[
+              'Full disassembly and inspection of all internal components',
+              'Rotor pack clearance check and cleaning',
+              'Bearing replacement — front and rear',
+              'Seal replacement throughout',
+              'Discharge and inlet port cleanup',
+              'Housing inspection for wear or scoring',
+              'Reassembly to specification with fresh hardware',
+              'Flow-bench verification before ship-back',
+            ].map((item) => (
+              <li class="flex items-start gap-3 font-mono text-sm text-white/80">
+                <span class="text-red-500 mt-0.5 shrink-0">▸</span>{item}
+              </li>
+            ))}
+          </ul>
+          <div class="flex flex-wrap gap-4">
+            <Button href="/shop/2-7l-ihi-supercharger-rebuild" text="Order Rebuild Service" variant="default" />
+            <Button href="/contact" text="Call Before Shipping" variant="outline" />
+          </div>
+        </div>
+        <div class="space-y-4">
+          <div class="border border-white/10 rounded p-5 bg-white/5">
+            <p class="text-xs font-mono tracking-widest text-white/40 uppercase mb-3">Shipping Instructions</p>
+            <ol class="text-white/70 font-mono text-sm space-y-2 list-none">
+              <li>1. Call before shipping — confirm lead time and what to pull</li>
+              <li>2. Remove the complete supercharger from the vehicle</li>
+              <li>3. Wrap all port openings and pack securely</li>
+              <li>4. Ship to: FAS Motorsports · {BUSINESS_ADDRESS_LINE1} · {BUSINESS_ADDRESS_LOCALITY}, {BUSINESS_ADDRESS_REGION} {BUSINESS_ADDRESS_POSTAL_CODE}</li>
+              <li>5. Rebuilt and flow-bench verified — back to you in 3–5 business days</li>
+            </ol>
+          </div>
+          <div class="border border-red-500/20 rounded p-5 bg-red-950/10">
+            <p class="text-xs font-mono tracking-widest text-red-400 uppercase mb-2">Porting Add-On</p>
+            <p class="text-white/60 font-mono text-sm leading-relaxed mb-3">
+              If you're rebuilding the IHI anyway, porting is the logical add-on — the blower is already apart. Ask about IHI discharge porting when you call to schedule.
+            </p>
+            <a href="/hellcat-supercharger-porting" class="font-mono text-xs text-red-400 hover:text-red-300 underline underline-offset-4">Supercharger Porting Service →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="bg-[#0a0b10] border-t border-white/10 px-6 py-20">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-3xl font-cyber font-bold text-white mb-3">IHI Rebuild — Common Questions</h2>
+      <div class="h-[2px] w-16 bg-red-500 mb-10"></div>
+      <div class="space-y-4">
+        {faqs.map(({ q, a }) => (
+          <details class="border border-white/10 rounded bg-white/5 group">
+            <summary class="cursor-pointer px-5 py-4 font-mono font-bold text-white text-sm tracking-wide list-none flex justify-between items-center">
+              {q}<span class="text-red-500 ml-4 shrink-0 group-open:rotate-180 transition-transform">▾</span>
+            </summary>
+            <p class="px-5 pb-4 pt-1 text-white/60 font-mono text-sm leading-relaxed">{a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="max-w-3xl mx-auto px-6 py-20 text-center">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-4">Ship It In</h2>
+    <p class="text-white/60 font-mono text-sm mb-8 max-w-xl mx-auto">
+      Call before you ship — confirm lead time, get prep instructions, and get a straight answer on rebuild vs. replace for your specific unit.
+    </p>
+    <div class="flex flex-wrap justify-center gap-4">
+      <Button href="/shop/2-7l-ihi-supercharger-rebuild" text="Order Rebuild Service" variant="default" />
+      <Button href="/contact" text={`Call ${BUSINESS_PHONE_NATIONAL}`} variant="outline" />
+    </div>
+    <p class="mt-6 text-white/30 font-mono text-xs">FAS Motorsports · {BUSINESS_ADDRESS_LINE1} · {BUSINESS_ADDRESS_LOCALITY}, {BUSINESS_ADDRESS_REGION} · {BUSINESS_PHONE_NATIONAL} · Ships Nationwide</p>
+  </section>
+
+</BaseLayout>
