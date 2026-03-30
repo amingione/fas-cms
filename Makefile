@@ -159,3 +159,14 @@ codex-promotion-groq-execution-audit:
 	@echo "NEXT STEP:"
 	@echo "  codex"
 	@echo "  (paste docs/prompts/codex-promotion-groq-execution-audit.txt)"
+
+# =========================================================
+# Architecture Compliance Check (FAS Governance System)
+# Authority: fas-sanity/AGENTS.md
+# =========================================================
+
+.PHONY: compliance-check
+
+compliance-check:
+	@echo "🔍 FAS Architecture Compliance Check"
+	@npx ts-node ../fas-sanity/scripts/compliance/fas-compliance-check.ts
