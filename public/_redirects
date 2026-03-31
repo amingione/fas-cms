@@ -1,4 +1,13 @@
-# Slug renames — target includes trailing slash to avoid double-redirect
+# ── Trailing-slash explicit 301s ──────────────────────────────────────────────
+# Astro trailingSlash: 'always' issues an implicit 301 for no-slash URLs, but
+# Google can burn crawl budget and split link equity on the un-slashed variant
+# before the redirect resolves.  Explicit entries here are served from the CDN
+# edge with no origin hit.  Add any URL the moment Ahrefs / GSC flags it as a
+# 3XX receiving traffic.
+# ──────────────────────────────────────────────────────────────────────────────
+/shop/dominator-2-4l-supercharger-package  /shop/dominator-2-4l-supercharger-package/  301
+
+# ── Slug renames — target includes trailing slash to avoid double-redirect ────
 /shop/fas-850-package-trackhawk-durango   /shop/fas-850-package-td/   301
 /shop/fas-850-package-trackhawk-durango/  /shop/fas-850-package-td/   301
 /shop/fas-850-package-hellcat-platform    /shop/fas-850-package/      301

@@ -10,6 +10,11 @@ Disallow: /vendor-portal
 # crawlable URLs on every deploy, inflating the index and burning crawl budget.
 Disallow: /.netlify/images
 
+# Block Astro build assets — /_astro/*.css?dpl=DEPLOY_ID URLs go 404 after
+# each new deploy as content hashes rotate.  These are build artifacts, not
+# indexable pages; Ahrefs was flagging them as broken CSS from old deploys.
+Disallow: /_astro/
+
 # ── /shop URL parameter explosion fix ──────────────────────────────────────────
 # Filter/sort/search/price/vehicle params generate thousands of unique URLs that
 # are not distinct index targets and actively burn crawl budget.
