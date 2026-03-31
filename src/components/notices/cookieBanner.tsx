@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 function getCookie(name: string) {
   const entries = typeof document.cookie === 'string' ? document.cookie.split('; ') : [];
@@ -30,10 +30,19 @@ function setConsentCookie() {
 
 export default function CookieBanner() {
   const [visible, setVisible] = useState(false);
+  const acceptButtonRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (getCookie('cookie-consent') !== '1') setVisible(true);
   }, []);
+
+  useEffect(() => {
+    if (!visible) return;
+    const id = window.requestAnimationFrame(() => {
+      acceptButtonRef.current?.focus();
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [visible]);
 
   if (!visible) return null;
 
@@ -58,6 +67,7 @@ export default function CookieBanner() {
               Review Privacy Policy
             </a>
             <button
+              ref={acceptButtonRef}
               onClick={() => {
                 setConsentCookie();
                 setVisible(false);

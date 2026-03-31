@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 function MobileNavContent({
   onNavigate,
@@ -117,6 +117,8 @@ function MobileNavContent({
 
 export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone' | 'inline' }) {
   const [isOpen, setIsOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
 
   // Body scroll lock when drawer is open
   useEffect(() => {
@@ -143,6 +145,58 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
 
   const close = () => setIsOpen(false);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    const previousActiveElement = document.activeElement as HTMLElement | null;
+    const getFocusable = () =>
+      Array.from(
+        dialog.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter((el) => !el.hasAttribute('disabled') && el.getAttribute('aria-hidden') !== 'true');
+
+    const focusable = getFocusable();
+    focusable[0]?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        close();
+        return;
+      }
+
+      if (event.key !== 'Tab') return;
+      const focusableItems = getFocusable();
+      if (!focusableItems.length) return;
+
+      const first = focusableItems[0];
+      const last = focusableItems[focusableItems.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+
+      if (event.shiftKey && active === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      if (triggerRef.current) {
+        triggerRef.current.focus();
+      } else {
+        previousActiveElement?.focus();
+      }
+    };
+  }, [isOpen]);
+
   if (mode === 'inline') {
     return <MobileNavContent onNavigate={undefined} />;
   }
@@ -152,6 +206,7 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
       <button
         onClick={() => setIsOpen((prev) => !prev)}
         id="hamburger"
+        ref={triggerRef}
         aria-label={isOpen ? 'Close mobile menu' : 'Open mobile menu'}
         aria-expanded={isOpen}
         aria-controls="mobile-nav"
@@ -166,10 +221,19 @@ export default function MobileMenu({ mode = 'standalone' }: { mode?: 'standalone
       <div
         className={`mobile-nav ${isOpen ? 'open' : ''}`}
         id="mobile-nav"
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-label="Site navigation"
       >
+        <button
+          type="button"
+          onClick={close}
+          className="mobile-nav-link"
+          aria-label="Close navigation menu"
+        >
+          Close menu
+        </button>
         <MobileNavContent onNavigate={close} />
       </div>
     </>

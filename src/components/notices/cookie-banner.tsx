@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 function getCookie(name: string) {
   const entries = typeof document.cookie === 'string' ? document.cookie.split('; ') : [];
@@ -31,10 +31,19 @@ function setConsentCookie() {
 
 export function CookieBanner() {
   const [visible, setVisible] = useState(false);
+  const acceptButtonRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (getCookie('cookie-consent') !== '1') setVisible(true);
   }, []);
+
+  useEffect(() => {
+    if (!visible) return;
+    const id = window.requestAnimationFrame(() => {
+      acceptButtonRef.current?.focus();
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [visible]);
 
   if (!visible) return null;
 
@@ -48,7 +57,8 @@ export function CookieBanner() {
       <div className="mx-auto max-w-5xl rounded-lg border border-white/15 bg-black/85 backdrop-blur-md p-3 sm:p-4 text-white shadow-xl">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
           <p className="text-sm leading-snug grow">
-            🍪 We use cookies to improve your experience. By using our site, you accept cookies.
+            <span aria-hidden="true">🍪</span> We use cookies to improve your experience. By using
+            our site, you accept cookies.
           </p>
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <a
@@ -59,6 +69,7 @@ export function CookieBanner() {
               Review Privacy Policy
             </a>
             <button
+              ref={acceptButtonRef}
               onClick={() => {
                 setConsentCookie();
                 setVisible(false);

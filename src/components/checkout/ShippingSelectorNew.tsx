@@ -59,8 +59,8 @@ export default function ShippingSelectorNew({
     return (
       <section className="mt-10">
         <h2 className="text-lg font-ethno text-white mb-6">Shipping Method</h2>
-        <div className="p-6 bg-dark border border-white/10 rounded-lg text-center">
-          <div className="inline-block animate-spin text-2xl mb-2">⏳</div>
+        <div className="p-6 bg-dark border border-white/10 rounded-lg text-center" role="status" aria-live="polite">
+          <div className="inline-block animate-spin text-2xl mb-2" aria-hidden="true">⏳</div>
           <p className="text-white/70 text-sm">Loading shipping options...</p>
         </div>
       </section>
@@ -230,6 +230,9 @@ export default function ShippingSelectorNew({
         >
           {isSubmitting ? 'Applying...' : 'Continue to Payment'}
         </button>
+        <span className="sr-only" role="status" aria-live="polite">
+          {isSubmitting ? 'Applying selected shipping method, please wait.' : ''}
+        </span>
       </div>
 
       {/* Helper Text */}

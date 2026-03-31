@@ -96,7 +96,7 @@ export default function VariantSelector({
   }
 
   const base =
-    'px-3 py-1 rounded-full text-sm border transition focus:outline-none focus:ring-2 focus:ring-primary/40';
+    'px-3 py-1 rounded-full text-sm border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#1a1a1a]';
   const active = 'bg-primary text-accent border-transparent';
   const idle = 'border-white/30 text-white/90 hover:bg-white/80';
   const disabled = 'opacity-50 line-through cursor-not-allowed border-white/20 text-white/80';

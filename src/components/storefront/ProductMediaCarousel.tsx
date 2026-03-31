@@ -71,11 +71,17 @@ export default function ProductMediaCarousel({
     return true;
   });
   const containerRef = React.useRef<HTMLUListElement | null>(null);
+  const wrapperRef = React.useRef<HTMLDivElement | null>(null);
   const [index, setIndex] = React.useState(0);
+  const [isInteractionPaused, setIsInteractionPaused] = React.useState(false);
+  const [isUserPaused, setIsUserPaused] = React.useState(false);
+  const [isDocumentHidden, setIsDocumentHidden] = React.useState(false);
+  const autoplayEnabled = typeof autoplayMs === 'number' && autoplayMs > 0;
+  const isAutoplayPaused = isInteractionPaused || isUserPaused || isDocumentHidden;
 
   // Optional autoplay
   React.useEffect(() => {
-    if (!autoplayMs || autoplayMs <= 0) return;
+    if (!autoplayEnabled || isAutoplayPaused) return;
     const id = window.setInterval(() => {
       if (!containerRef.current || slides.length === 0) return;
       const nextIdx = index + 1;
@@ -84,9 +90,16 @@ export default function ProductMediaCarousel({
       } else if (loop) {
         scrollToIdx(0);
       }
-    }, autoplayMs);
+    }, autoplayMs as number);
     return () => window.clearInterval(id);
-  }, [autoplayMs, index, loop, slides.length]);
+  }, [autoplayEnabled, autoplayMs, index, isAutoplayPaused, loop, slides.length]);
+
+  React.useEffect(() => {
+    const onVisibilityChange = () => setIsDocumentHidden(document.hidden);
+    onVisibilityChange();
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange);
+  }, []);
 
   React.useEffect(() => {
     const el = containerRef.current;
@@ -119,22 +132,35 @@ export default function ProductMediaCarousel({
     scrollToIdx(index - 1);
   }
 
-  // Keyboard support
-  React.useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === 'ArrowRight') next();
-      else if (e.key === 'ArrowLeft') prev();
+  function handleWrapperKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    if (!wrapperRef.current?.contains(document.activeElement)) return;
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      next();
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      prev();
     }
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  });
+  }
 
   if (!slides.length) return null;
 
   return (
     <div className={`w-full ${className}`}>
       {/* Main media carousel */}
-      <div className="relative">
+      <div
+        className="relative"
+        ref={wrapperRef}
+        onKeyDown={handleWrapperKeyDown}
+        onMouseEnter={() => setIsInteractionPaused(true)}
+        onMouseLeave={() => setIsInteractionPaused(false)}
+        onFocusCapture={() => setIsInteractionPaused(true)}
+        onBlurCapture={(event) => {
+          if (!wrapperRef.current?.contains(event.relatedTarget as Node | null)) {
+            setIsInteractionPaused(false);
+          }
+        }}
+      >
         <button
           type="button"
           onClick={prev}
@@ -151,6 +177,16 @@ export default function ProductMediaCarousel({
         >
           ›
         </button>
+        {autoplayEnabled && (
+          <button
+            type="button"
+            onClick={() => setIsUserPaused((prevPaused) => !prevPaused)}
+            aria-label={isUserPaused ? 'Resume image slideshow' : 'Pause image slideshow'}
+            className="absolute left-1/2 top-2 -translate-x-1/2 z-10 rounded-full bg-[#1a1a1a] hover:bg-black/80 px-3 py-1 text-xs text-white border border-white/20"
+          >
+            {isUserPaused ? 'Resume' : 'Pause'}
+          </button>
+        )}
 
         <ul
           ref={containerRef}
@@ -214,7 +250,7 @@ export default function ProductMediaCarousel({
                     : 'border-white/20 hover:border-white/20'
                 }`}
                 aria-label={`Go to image ${i + 1}`}
-                aria-current={index === i}
+                aria-pressed={index === i}
               >
                 <img
                   src={getUrl(img)}

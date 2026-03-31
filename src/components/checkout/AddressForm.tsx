@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import type { AddressFormData, Address } from '@/lib/checkout/types';
+import type { AddressFormData } from '@/lib/checkout/types';
 
 interface AddressFormProps {
   initialData?: Partial<AddressFormData>;
@@ -82,6 +82,8 @@ export default function AddressForm({
 
   const [errors, setErrors] = useState<Partial<Record<keyof AddressFormData, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const requiredFieldDescriptionId = 'address-form-required-note';
+  const getErrorId = (field: keyof AddressFormData) => `${String(field)}-error`;
 
   const validateForm = (): boolean => {
     const newErrors: Partial<Record<keyof AddressFormData, string>> = {};
@@ -133,8 +135,11 @@ export default function AddressForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4" aria-busy={isSubmitting}>
       <h2 className="text-2xl font-bold mb-4">Shipping Address</h2>
+      <p id={requiredFieldDescriptionId} className="sr-only">
+        Fields marked with an asterisk are required.
+      </p>
 
       <div>
         <label htmlFor="email" className="block text-sm font-medium mb-1">
@@ -148,11 +153,19 @@ export default function AddressForm({
           value={formData.email}
           onChange={handleChange}
           disabled={disabled}
+          required
+          aria-required="true"
+          aria-invalid={!!errors.email}
+          aria-describedby={`${requiredFieldDescriptionId}${errors.email ? ` ${getErrorId('email')}` : ''}`}
           className={`w-full px-3 py-2 border rounded-md ${
             errors.email ? 'border-red-500' : 'border-gray-300'
           } ${disabled ? 'bg-gray-100' : 'bg-white'}`}
         />
-        {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+        {errors.email && (
+          <p id={getErrorId('email')} role="alert" className="text-red-500 text-sm mt-1">
+            {errors.email}
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -168,12 +181,18 @@ export default function AddressForm({
             value={formData.first_name}
             onChange={handleChange}
             disabled={disabled}
+            required
+            aria-required="true"
+            aria-invalid={!!errors.first_name}
+            aria-describedby={`${requiredFieldDescriptionId}${errors.first_name ? ` ${getErrorId('first_name')}` : ''}`}
             className={`w-full px-3 py-2 border rounded-md ${
               errors.first_name ? 'border-red-500' : 'border-gray-300'
             } ${disabled ? 'bg-gray-100' : 'bg-white'}`}
           />
           {errors.first_name && (
-            <p className="text-red-500 text-sm mt-1">{errors.first_name}</p>
+            <p id={getErrorId('first_name')} role="alert" className="text-red-500 text-sm mt-1">
+              {errors.first_name}
+            </p>
           )}
         </div>
 
@@ -189,12 +208,18 @@ export default function AddressForm({
             value={formData.last_name}
             onChange={handleChange}
             disabled={disabled}
+            required
+            aria-required="true"
+            aria-invalid={!!errors.last_name}
+            aria-describedby={`${requiredFieldDescriptionId}${errors.last_name ? ` ${getErrorId('last_name')}` : ''}`}
             className={`w-full px-3 py-2 border rounded-md ${
               errors.last_name ? 'border-red-500' : 'border-gray-300'
             } ${disabled ? 'bg-gray-100' : 'bg-white'}`}
           />
           {errors.last_name && (
-            <p className="text-red-500 text-sm mt-1">{errors.last_name}</p>
+            <p id={getErrorId('last_name')} role="alert" className="text-red-500 text-sm mt-1">
+              {errors.last_name}
+            </p>
           )}
         </div>
       </div>
@@ -211,12 +236,18 @@ export default function AddressForm({
           value={formData.address_1}
           onChange={handleChange}
           disabled={disabled}
+          required
+          aria-required="true"
+          aria-invalid={!!errors.address_1}
+          aria-describedby={`${requiredFieldDescriptionId}${errors.address_1 ? ` ${getErrorId('address_1')}` : ''}`}
           className={`w-full px-3 py-2 border rounded-md ${
             errors.address_1 ? 'border-red-500' : 'border-gray-300'
           } ${disabled ? 'bg-gray-100' : 'bg-white'}`}
         />
         {errors.address_1 && (
-          <p className="text-red-500 text-sm mt-1">{errors.address_1}</p>
+          <p id={getErrorId('address_1')} role="alert" className="text-red-500 text-sm mt-1">
+            {errors.address_1}
+          </p>
         )}
       </div>
 
@@ -250,11 +281,19 @@ export default function AddressForm({
           value={formData.city}
           onChange={handleChange}
           disabled={disabled}
+          required
+          aria-required="true"
+          aria-invalid={!!errors.city}
+          aria-describedby={`${requiredFieldDescriptionId}${errors.city ? ` ${getErrorId('city')}` : ''}`}
           className={`w-full px-3 py-2 border rounded-md ${
             errors.city ? 'border-red-500' : 'border-gray-300'
           } ${disabled ? 'bg-gray-100' : 'bg-white'}`}
         />
-        {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
+        {errors.city && (
+          <p id={getErrorId('city')} role="alert" className="text-red-500 text-sm mt-1">
+            {errors.city}
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-3 gap-4">
@@ -269,6 +308,10 @@ export default function AddressForm({
             value={formData.province}
             onChange={handleChange}
             disabled={disabled}
+            required
+            aria-required="true"
+            aria-invalid={!!errors.province}
+            aria-describedby={`${requiredFieldDescriptionId}${errors.province ? ` ${getErrorId('province')}` : ''}`}
             className={`w-full px-3 py-2 border rounded-md ${
               errors.province ? 'border-red-500' : 'border-gray-300'
             } ${disabled ? 'bg-gray-100' : 'bg-white'}`}
@@ -281,7 +324,9 @@ export default function AddressForm({
             ))}
           </select>
           {errors.province && (
-            <p className="text-red-500 text-sm mt-1">{errors.province}</p>
+            <p id={getErrorId('province')} role="alert" className="text-red-500 text-sm mt-1">
+              {errors.province}
+            </p>
           )}
         </div>
 
@@ -297,12 +342,18 @@ export default function AddressForm({
             value={formData.postal_code}
             onChange={handleChange}
             disabled={disabled}
+            required
+            aria-required="true"
+            aria-invalid={!!errors.postal_code}
+            aria-describedby={`${requiredFieldDescriptionId}${errors.postal_code ? ` ${getErrorId('postal_code')}` : ''}`}
             className={`w-full px-3 py-2 border rounded-md ${
               errors.postal_code ? 'border-red-500' : 'border-gray-300'
             } ${disabled ? 'bg-gray-100' : 'bg-white'}`}
           />
           {errors.postal_code && (
-            <p className="text-red-500 text-sm mt-1">{errors.postal_code}</p>
+            <p id={getErrorId('postal_code')} role="alert" className="text-red-500 text-sm mt-1">
+              {errors.postal_code}
+            </p>
           )}
         </div>
       </div>
@@ -336,6 +387,9 @@ export default function AddressForm({
       >
         {isSubmitting ? 'Saving...' : 'Continue to Shipping'}
       </button>
+      <span className="sr-only" role="status" aria-live="polite">
+        {isSubmitting ? 'Saving shipping address, please wait.' : ''}
+      </span>
     </form>
   );
 }
