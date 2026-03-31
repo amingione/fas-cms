@@ -12,6 +12,8 @@ import {
   BUSINESS_ADDRESS_POSTAL_CODE,
   BUSINESS_ADDRESS_COUNTRY,
 } from '@/lib/nap';
+import { medusaFetch, getMedusaConfig, readJsonSafe } from '@/lib/medusa';
+import { resolveVariantCalculatedPriceAmount } from '@/lib/medusa-storefront-pricing';
 
 const faqs = [
   {
@@ -46,6 +48,14 @@ const faqJsonLd = {
   })),
 };
 
+const _medusaConfig = getMedusaConfig();
+const _pParams = new URLSearchParams({ handle: '2-7l-ihi-supercharger-rebuild', fields: '*variants.calculated_price' });
+if (_medusaConfig?.regionId) _pParams.set('region_id', _medusaConfig.regionId);
+const _pResp = _medusaConfig ? await medusaFetch(`/store/products?${_pParams.toString()}`, { method: 'GET' }) : null;
+const _pData = _pResp ? await readJsonSafe<any>(_pResp) : null;
+const _pCents = resolveVariantCalculatedPriceAmount(_pData?.products?.[0]?.variants?.[0]);
+const price = _pCents != null ? _pCents / 100 : null;
+
 const productJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Service',
@@ -55,8 +65,7 @@ const productJsonLd = {
   url: 'https://fasmotorsports.com/ihi-supercharger-rebuild',
   offers: {
     '@type': 'Offer',
-    price: 1200.00,
-    priceCurrency: 'USD',
+    ...(price != null ? { price, priceCurrency: 'USD' } : { priceCurrency: 'USD' }),
     availability: 'https://schema.org/InStock',
     url: 'https://fasmotorsports.com/shop/2-7l-ihi-supercharger-rebuild',
   },
@@ -70,7 +79,7 @@ const productJsonLd = {
   title="IHI 2.7L Supercharger Rebuild | Demon & Redeye | FAS Motorsports"
   description="Full rebuild service for the IHI 2.7L twin-screw supercharger in the Dodge Demon, Demon 170, and Hellcat Redeye High-Output. Ship-in nationwide, 3–5 day turnaround. FAS Motorsports, Punta Gorda FL."
   canonical="https://fasmotorsports.com/ihi-supercharger-rebuild/"
-  keywords={['ihi supercharger rebuild', 'demon supercharger rebuild', '2.7l ihi rebuild', 'hellcat redeye supercharger rebuild', 'dodge demon blower rebuild']}
+  keywords={['ihi supercharger rebuild', 'demon supercharger rebuild', '2.7l ihi rebuild', 'hellcat redeye supercharger rebuild', 'dodge demon blower rebuild', 'ihi supercharger']}
   bodyClass="bg-dark text-white min-h-screen flex flex-col"
   mainClass="flex-1 w-full max-w-none px-0 pt-0"
 >

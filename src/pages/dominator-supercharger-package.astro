@@ -12,6 +12,8 @@ import {
   BUSINESS_ADDRESS_POSTAL_CODE,
   BUSINESS_ADDRESS_COUNTRY,
 } from '@/lib/nap';
+import { medusaFetch, getMedusaConfig, readJsonSafe } from '@/lib/medusa';
+import { resolveVariantCalculatedPriceAmount } from '@/lib/medusa-storefront-pricing';
 
 const faqs = [
   {
@@ -46,6 +48,14 @@ const faqJsonLd = {
   })),
 };
 
+const _medusaConfig = getMedusaConfig();
+const _pParams = new URLSearchParams({ handle: 'dominator-2-4l-supercharger-package', fields: '*variants.calculated_price' });
+if (_medusaConfig?.regionId) _pParams.set('region_id', _medusaConfig.regionId);
+const _pResp = _medusaConfig ? await medusaFetch(`/store/products?${_pParams.toString()}`, { method: 'GET' }) : null;
+const _pData = _pResp ? await readJsonSafe<any>(_pResp) : null;
+const _pCents = resolveVariantCalculatedPriceAmount(_pData?.products?.[0]?.variants?.[0]);
+const price = _pCents != null ? _pCents / 100 : null;
+
 const productJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Product',
@@ -55,8 +65,7 @@ const productJsonLd = {
   url: 'https://fasmotorsports.com/dominator-supercharger-package',
   offers: {
     '@type': 'Offer',
-    price: 2175.00,
-    priceCurrency: 'USD',
+    ...(price != null ? { price, priceCurrency: 'USD' } : { priceCurrency: 'USD' }),
     availability: 'https://schema.org/InStock',
     url: 'https://fasmotorsports.com/shop/dominator-2-4l-supercharger-package',
     seller: { '@type': 'AutoRepair', name: 'FAS Motorsports', telephone: BUSINESS_PHONE_E164,
@@ -70,7 +79,7 @@ const productJsonLd = {
   title="FAS Dominator 2.4L Supercharger Package | Hellcat Build | FAS Motorsports"
   description="Complete Hellcat supercharger build package from FAS Motorsports. Race-ported rotor pack, billet snout, 108mm throttle body, and AWD dyno tune. 800–970+ WHP. Punta Gorda, FL."
   canonical="https://fasmotorsports.com/dominator-supercharger-package/"
-  keywords={['2.4l hellcat supercharger package', 'dominator supercharger package', 'hellcat supercharger kit', 'hellcat supercharger build', 'fas dominator package']}
+  keywords={['2.4l hellcat supercharger package', 'dominator supercharger package', 'hellcat supercharger kit', 'hellcat supercharger build', 'fas dominator package', '2.4 supercharger', 'hellcat ported blower', 'hellcat supercharger porting', 'ported hellcat blower']}
   bodyClass="bg-dark text-white min-h-screen flex flex-col"
   mainClass="flex-1 w-full max-w-none px-0 pt-0"
 >

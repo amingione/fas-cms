@@ -1284,6 +1284,28 @@ if (product) {
     metaKeywords = collapseSpaces([metaKeywords, primaryKeyword].filter(Boolean).join(', '));
   }
 
+  // Per-slug SEO keyword overrides — sourced from Ahrefs organic positions 4–15 (2026-03-31)
+  // These are terms the page already ranks for but can be pushed higher by reinforcing in meta.
+  const slugKeywordOverrides: Record<string, string[]> = {
+    'dominator-2-4l-supercharger-package': [
+      '2.4 supercharger',
+      'hellcat ported blower',
+      'hellcat supercharger porting',
+      'ported hellcat blower',
+    ],
+    '2-4l-hellcat-billet-supercharger-snout': ['hellcat ported snout'],
+    '2-7l-ihi-supercharger-rebuild': ['ihi supercharger'],
+    'lt4-supercharger-snout-porting': ['lt4 supercharger porting'],
+    'm122-m112-supercharger-porting': ['m122 blower'],
+    'upgraded-hellcat-supercharger-snout-bearings': ['supercharger bearings'],
+  };
+  const overrideKeywords = slug ? (slugKeywordOverrides[slug] ?? []) : [];
+  for (const kw of overrideKeywords) {
+    if (!metaKeywords.toLowerCase().includes(kw.toLowerCase())) {
+      metaKeywords = collapseSpaces([metaKeywords, kw].filter(Boolean).join(', '));
+    }
+  }
+
   const preferredCategoryLabel = resolvePreferredCategoryLabel(
     Array.isArray((product as any)?.categories) ? (product as any).categories : [],
     requestUrl.searchParams.get('categorySlug') ?? requestUrl.searchParams.get('category') ?? ''
