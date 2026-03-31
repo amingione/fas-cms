@@ -1,0 +1,194 @@
+---
+export const prerender = true;
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Button from '@/components/Button.astro';
+import {
+  BUSINESS_PHONE_NATIONAL,
+  BUSINESS_PHONE_E164,
+  BUSINESS_ADDRESS_LINE1,
+  BUSINESS_ADDRESS_LOCALITY,
+  BUSINESS_ADDRESS_REGION,
+} from '@/lib/nap';
+
+const faqs = [
+  {
+    q: 'Is the Trackhawk supercharger the same as the Hellcat?',
+    a: 'Yes — same 2.4L twin-screw unit, same snout geometry (standard Hellcat, not Redeye). All FAS Hellcat supercharger services apply directly to the Trackhawk.',
+  },
+  {
+    q: 'Can the Trackhawk AWD system handle a supercharger upgrade?',
+    a: "The AWD system has torque limits that need to be addressed in the tune when pushing power significantly beyond stock. FAS coordinates with platform-specific tuners. The drivetrain itself is strong — it's the tune that makes or breaks the AWD integration.",
+  },
+  {
+    q: 'Does porting make a noticeable difference on the Trackhawk?',
+    a: 'Yes — particularly on inlet temps in the SUV packaging environment. Owners typically report improved consistency in back-to-back runs and reduced heat soak at the track.',
+  },
+  {
+    q: "What's the realistic power ceiling on a ported stock blower in a Trackhawk?",
+    a: '800–850 whp with a solid supporting build. Above that, the Dominator package is the path.',
+  },
+  {
+    q: 'How do I ship my Trackhawk supercharger to FAS?',
+    a: 'FAS accepts shipped cores. Pull the blower, ship it to us, we rebuild/port/upgrade and ship it back. Contact us first to confirm specs.',
+  },
+];
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(({ q, a }) => ({
+    '@type': 'Question',
+    name: q,
+    acceptedAnswer: { '@type': 'Answer', text: a },
+  })),
+};
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://fasmotorsports.com/' },
+    { '@type': 'ListItem', position: 2, name: 'Platform', item: 'https://fasmotorsports.com/platform/' },
+    { '@type': 'ListItem', position: 3, name: 'Jeep Trackhawk', item: 'https://fasmotorsports.com/platform/trackhawk' },
+  ],
+};
+---
+
+<BaseLayout
+  title="Trackhawk Supercharger Upgrades | FAS Motorsports"
+  description="FAS Motorsports builds Jeep Trackhawk supercharger packages — precision porting, billet snout, and Dominator installs for the 6.2L Hellcat AWD platform."
+  canonical="https://fasmotorsports.com/platform/trackhawk"
+  keywords={['trackhawk supercharger upgrade', 'trackhawk supercharger porting', 'jeep trackhawk performance mods', 'trackhawk power upgrade', 'grand cherokee trackhawk supercharger', 'trackhawk dominator package', 'trackhawk billet snout']}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} slot="head" />
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} slot="head" />
+
+  <!-- ── HERO ── -->
+  <section class="relative bg-zinc-950 border-b border-white/10 py-20 px-6">
+    <div class="max-w-5xl mx-auto">
+      <p class="font-mono text-xs tracking-widest text-red-400 uppercase mb-4">Platform · Jeep Trackhawk</p>
+      <h1 class="text-4xl md:text-5xl font-cyber font-bold text-white leading-tight mb-6">
+        Jeep Trackhawk Supercharger<br />Upgrades & Services
+      </h1>
+      <p class="text-white/60 font-mono text-lg max-w-2xl mb-8">
+        707 hp in an SUV. The factory blower has the same ceiling it does everywhere else.
+      </p>
+      <div class="flex flex-wrap gap-4">
+        <Button href="/schedule" text="Get a Build Quote" variant="default" />
+        <Button href={`tel:${BUSINESS_PHONE_E164}`} text={BUSINESS_PHONE_NATIONAL} variant="outline" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ── WHY TRACKHAWK OWNERS COME TO FAS ── -->
+  <section class="max-w-5xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-3">Why Trackhawk Owners Come to FAS</h2>
+    <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+    <div class="font-mono text-white/70 text-sm leading-relaxed space-y-4">
+      <p>
+        The Grand Cherokee Trackhawk is the factory answer to a question nobody asked — and it's better for it. Same 6.2L Hellcat HEMI, same 2.4L supercharger, 707 hp in a 5,400-pound AWD SUV. It's one of the fastest production SUVs ever built. It's also running the exact same supercharger limitations that every Hellcat platform hits.
+      </p>
+      <p>
+        Trackhawk owners building past the factory power level face a specific set of challenges: the AWD system has torque limits that need to be accounted for in the build plan, the packaging under the hood is tight, and the thermal environment in an SUV profile is harder on inlet temps than a two-door Challenger. FAS has worked through all of it.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── TRACKHAWK SERVICES ── -->
+  <section class="bg-zinc-900/50 border-y border-white/10 py-20 px-6">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="text-3xl font-cyber font-bold text-white mb-3">Trackhawk Services</h2>
+      <div class="h-[2px] w-16 bg-red-500 mb-10"></div>
+      <div class="grid md:grid-cols-2 gap-6">
+        {[
+          {
+            title: 'Supercharger Porting',
+            body: 'Same 2.4L unit as the Hellcat — same approach, same gains. FAS precision ports inlet and outlet runners for improved airflow efficiency and reduced heat soak. Particularly impactful in the Trackhawk\'s tighter thermal environment. Best first step before a full blower swap.',
+            href: '/hellcat-supercharger-porting',
+            cta: 'View Porting Service',
+          },
+          {
+            title: 'Billet Snout Replacement',
+            body: 'The factory cast snout is the weak link on any pushed Hellcat-platform build. FAS billet snout eliminates flex and bearing wear under sustained high-boost use. Trackhawk uses standard Hellcat snout geometry (not Redeye).',
+            href: '/shop/2-4l-hellcat-billet-supercharger-snout',
+            cta: 'Shop Billet Snout',
+          },
+          {
+            title: 'Bearing Upgrade',
+            body: 'High-boost builds accelerate wear on the factory snout bearings. FAS replaces with upgraded spec bearings — standalone or included in any full build package.',
+            href: '/shop/upgraded-hellcat-supercharger-snout-bearings',
+            cta: 'Shop Bearing Upgrade',
+          },
+          {
+            title: 'Dominator 2.4L Package',
+            body: 'For Trackhawk builds targeting 900+ whp and running a supporting AWD tune, the Dominator is the clean path beyond the factory blower\'s ceiling. FAS precision ports and validates every unit before it ships.',
+            href: '/shop/dominator-2-4l-supercharger-package',
+            cta: 'Shop Dominator Package',
+          },
+        ].map(({ title, body, href, cta }) => (
+          <div class="border border-white/10 rounded p-6 bg-zinc-950/50 flex flex-col gap-4">
+            <h3 class="text-white font-cyber font-bold text-lg">{title}</h3>
+            <p class="font-mono text-sm text-white/60 leading-relaxed flex-1">{body}</p>
+            <a href={href} class="font-mono text-xs text-red-400 hover:text-red-300 underline underline-offset-4">{cta} →</a>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TRACKHAWK-SPECIFIC CONSIDERATIONS ── -->
+  <section class="max-w-5xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-3">Trackhawk-Specific Considerations</h2>
+    <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+    <div class="grid md:grid-cols-3 gap-6">
+      {[
+        {
+          heading: 'AWD Torque Management',
+          body: 'The Quadra-Trac II system has factory torque limiters that engage under hard acceleration. Builds pushing significantly past stock need a supporting torque strategy — either tune-based or with a proper AWD controller. FAS coordinates with tuners who specialize in the Trackhawk platform.',
+        },
+        {
+          heading: 'Thermal Environment',
+          body: "The Grand Cherokee engine bay runs hotter than the two-door Hellcat platforms under sustained use. Inlet temperatures climb faster. This makes the porting job more impactful on the Trackhawk — better airflow efficiency means less heat generated per boost pound, which matters more in an SUV profile.",
+        },
+        {
+          heading: 'Weight & Use Case',
+          body: 'Trackhawk owners are often daily drivers or weekend tow vehicles, not dedicated drag builds. FAS builds for reliability and sustained performance, not just peak dyno output — which aligns well with how most Trackhawks actually get used.',
+        },
+      ].map(({ heading, body }) => (
+        <div class="border border-white/10 rounded p-6 bg-zinc-950/30">
+          <p class="font-cyber font-bold text-white mb-3">{heading}</p>
+          <p class="font-mono text-sm text-white/60 leading-relaxed">{body}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- ── FAQ ── -->
+  <section class="bg-zinc-900/50 border-y border-white/10 py-20 px-6">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="text-3xl font-cyber font-bold text-white mb-3">Frequently Asked Questions</h2>
+      <div class="h-[2px] w-16 bg-red-500 mb-10"></div>
+      <div class="space-y-6">
+        {faqs.map(({ q, a }) => (
+          <div class="border border-white/10 rounded p-6 bg-zinc-950/30">
+            <p class="font-cyber font-bold text-white mb-2">{q}</p>
+            <p class="font-mono text-sm text-white/60 leading-relaxed">{a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ── -->
+  <section class="max-w-5xl mx-auto px-6 py-20 text-center">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-4">Ready to build your Trackhawk?</h2>
+    <p class="font-mono text-white/50 mb-8 max-w-xl mx-auto">
+      FAS Motorsports — {BUSINESS_ADDRESS_LINE1}, {BUSINESS_ADDRESS_LOCALITY}, {BUSINESS_ADDRESS_REGION}. Ships nationwide.
+    </p>
+    <div class="flex flex-wrap gap-4 justify-center">
+      <Button href="/schedule" text="Schedule a Consult" variant="default" />
+      <Button href="/shop/dominator-2-4l-supercharger-package" text="Shop Trackhawk Parts" variant="outline" />
+    </div>
+  </section>
+</BaseLayout>

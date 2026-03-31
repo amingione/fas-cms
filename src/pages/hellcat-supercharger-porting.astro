@@ -1,0 +1,377 @@
+---
+export const prerender = true;
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Button from '@/components/Button.astro';
+import {
+  BUSINESS_PHONE_NATIONAL,
+  BUSINESS_PHONE_E164,
+  BUSINESS_EMAIL,
+  BUSINESS_ADDRESS_LINE1,
+  BUSINESS_ADDRESS_LOCALITY,
+  BUSINESS_ADDRESS_REGION,
+  BUSINESS_ADDRESS_POSTAL_CODE,
+  BUSINESS_ADDRESS_COUNTRY,
+} from '@/lib/nap';
+
+const faqs = [
+  {
+    q: 'Do I send the whole blower or just the snout?',
+    a: 'Snout porting only? Send the snout. Full inlet and discharge porting? Send the complete blower with rotors. Call before shipping and we\'ll tell you exactly what to pull for your specific build.',
+  },
+  {
+    q: 'What kind of gains can I expect on a Hellcat?',
+    a: 'Depends on supporting mods, fuel, and tune. On built motors running E85 where the inlet restriction is the limiter, porting removes that ceiling. On a stock Hellcat below 700 rwhp, spend the money on a tune first — porting\'s gains stack on top of a proper foundation, not underneath one. Call the shop for a straight answer on your specific setup.',
+  },
+  {
+    q: 'Will this void my factory warranty?',
+    a: 'Yes. Any internal modification voids OEM warranty. This is for builds, not stock vehicles.',
+  },
+  {
+    q: 'My blower already has some porting from a previous shop — can FAS rework it?',
+    a: 'Send photos first to sales@fasmotorsports.com. If there is material left to work with, yes. We\'ve corrected rough or oversized previous porting work before — it\'s case-by-case.',
+  },
+  {
+    q: 'Do you port LSA, LS9, M122, or Audi Eaton blowers?',
+    a: 'Yes — all of them. The service page above covers Hellcat, IHI, and LT4. Call or email for LSA, LS9, M122, and Eaton platforms. Same process: ship-in, precision ported and hand finished, flow-bench verified, back in 3–5 business days.',
+  },
+  {
+    q: 'How is hellcat supercharger porting different from a full replacement?',
+    a: 'Porting improves the factory unit — it does not replace it. You keep the factory ECU integration, factory fitment, and proven reliability, while opening the airflow path for better output. A full swap (Whipple, Magnuson) costs significantly more and changes the platform architecture. Porting is the upgrade for builds that want the most from the IHI before making that decision.',
+  },
+];
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(({ q, a }) => ({
+    '@type': 'Question',
+    name: q,
+    acceptedAnswer: { '@type': 'Answer', text: a },
+  })),
+};
+
+const serviceJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: 'Hellcat Supercharger Porting Service',
+  description: 'Precision porting for 2.4L Hellcat TVS, 2.7L IHI Demon, LT4, LSA, M122, and Audi Eaton superchargers. Ship-in nationwide. Hand finished, flow-bench tested, 3–5 day turnaround. FAS Motorsports, Punta Gorda FL.',
+  brand: { '@type': 'Brand', name: 'FAS Motorsports' },
+  url: 'https://fasmotorsports.com/hellcat-supercharger-porting',
+  areaServed: 'US',
+  provider: {
+    '@type': 'AutoRepair',
+    name: 'FAS Motorsports',
+    telephone: BUSINESS_PHONE_E164,
+    email: BUSINESS_EMAIL,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: BUSINESS_ADDRESS_LINE1,
+      addressLocality: BUSINESS_ADDRESS_LOCALITY,
+      addressRegion: BUSINESS_ADDRESS_REGION,
+      postalCode: BUSINESS_ADDRESS_POSTAL_CODE,
+      addressCountry: BUSINESS_ADDRESS_COUNTRY,
+    },
+  },
+  offers: {
+    '@type': 'Offer',
+    availability: 'https://schema.org/InStock',
+    url: 'https://fasmotorsports.com/shop/lsa-ls9-lt4-supercharger-porting',
+  },
+};
+---
+
+<BaseLayout
+  title="Hellcat Supercharger Porting Service | FAS Motorsports"
+  description="Precision porting for 2.4L Hellcat TVS, 2.7L IHI Demon, and LT4 superchargers. Ship us your blower — hand finished, flow-bench tested, 3–5 day turnaround. FAS Motorsports, Punta Gorda FL."
+  canonical="https://fasmotorsports.com/hellcat-supercharger-porting/"
+  keywords={['hellcat supercharger porting', 'ported hellcat blower', 'hellcat ported blower', 'hellcat ported snout', 'lt4 supercharger porting', 'ported snout hellcat', 'hellcat supercharger porting service', 'ihi supercharger porting', 'hellcat blower porting']}
+  bodyClass="bg-dark text-white min-h-screen flex flex-col"
+  mainClass="flex-1 w-full max-w-none px-0 pt-0"
+>
+  <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
+  <script type="application/ld+json" set:html={JSON.stringify(serviceJsonLd)} />
+
+  <!-- HERO -->
+  <section class="relative flex items-center justify-center min-h-[480px] sm:min-h-[560px] overflow-hidden bg-black" aria-label="Hellcat supercharger porting service">
+    <div class="absolute inset-0 z-0 pointer-events-none" style="background: radial-gradient(ellipse 80% 60% at 60% 50%, rgba(234,29,38,0.18) 0%, transparent 70%), radial-gradient(ellipse 60% 80% at 20% 80%, rgba(30,80,200,0.08) 0%, transparent 70%);" aria-hidden="true"></div>
+    <div class="relative z-10 max-w-5xl mx-auto px-6 py-20 text-center">
+      <p class="text-xs font-mono tracking-widest text-red-500 uppercase mb-4">Ship-In Nationwide · Hand Finished · Flow-Bench Tested · Punta Gorda, FL</p>
+      <h1 class="text-4xl sm:text-6xl font-bold font-ethno italic text-white mb-4 leading-tight">
+        Hellcat Supercharger<br /><span class="text-red-500">Precision Porting</span>
+      </h1>
+      <p class="text-lg font-mono text-white/70 max-w-2xl mx-auto mb-2">
+        In-house. Dyno-proven. FAS Motorsports.
+      </p>
+      <p class="text-base font-mono text-white/50 max-w-2xl mx-auto mb-8">
+        Ship us your blower. We port it in-house, hand finish it, flow-bench test it, and ship it back in 3–5 business days. No middlemen. No outsourced machining. Built under one roof since 2002.
+      </p>
+      <p class="text-xs font-mono text-white/30 mb-8 tracking-wide uppercase">
+        Platforms: 2.4L Hellcat TVS · 2.7L IHI Demon · LT4 · LSA · M122 · Audi Eaton
+      </p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <Button href="/shop/lsa-ls9-lt4-supercharger-porting" text="Order Porting Service" variant="default" />
+        <Button href="/contact" text={`Call ${BUSINESS_PHONE_NATIONAL}`} variant="outline" />
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT PORTING DOES -->
+  <section class="max-w-6xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-3">What Porting Does — And What It Doesn't</h2>
+    <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+    <div class="grid md:grid-cols-2 gap-10 items-start">
+      <div>
+        <p class="text-white/70 font-mono text-sm leading-relaxed mb-4">
+          Porting removes casting flash, opens inlet and outlet ports, and smooths the airflow path through the supercharger housing. Less restriction means more air moves per revolution without adding boost pressure or heat.
+        </p>
+        <p class="text-white/70 font-mono text-sm leading-relaxed mb-4">
+          On a 2.4L Hellcat TVS, the biggest restriction is almost always the inlet — stock castings leave material in the airflow path that serves no structural purpose. On the 2.7L IHI, the discharge side is where most of the gain lives.
+        </p>
+        <p class="text-white/70 font-mono text-sm leading-relaxed">
+          What it doesn't do: fix a worn blower, compensate for a bad tune, or replace proper pulley sizing. If your blower is making bearing noise or losing boost, port it <em>after</em> a rebuild — not before.
+        </p>
+      </div>
+      <div class="space-y-3">
+        {[
+          { label: 'Reduces inlet restriction', detail: 'Stock castings leave material with no structural purpose' },
+          { label: 'Smooths airflow through the housing', detail: 'Less turbulence = more consistent boost delivery' },
+          { label: 'Improves discharge efficiency', detail: 'Critical on IHI twin-screw platforms (2.7L Demon)' },
+          { label: 'Hand finished and flow-bench verified', detail: 'Every unit tested before ship-back — no guessing' },
+          { label: 'Does not fix mechanical wear', detail: 'Rebuild first if the blower has bearing noise or pressure loss' },
+        ].map(({ label, detail }) => (
+          <div class="border border-white/10 rounded p-4 bg-white/5 flex gap-3">
+            <span class="text-red-500 mt-0.5 shrink-0 font-mono text-sm">▸</span>
+            <div>
+              <p class="font-mono text-sm font-bold text-white">{label}</p>
+              <p class="font-mono text-xs text-white/40 mt-0.5">{detail}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- PLATFORM-SPECIFIC PORTING -->
+  <section class="bg-[#0a0b10] border-y border-white/10 px-6 py-20">
+    <div class="max-w-6xl mx-auto">
+      <p class="text-xs font-mono tracking-widest text-red-500 uppercase mb-2">Platform-Specific Work</p>
+      <h2 class="text-3xl font-cyber font-bold text-white mb-3">Porting by Platform</h2>
+      <div class="h-[2px] w-16 bg-red-500 mb-10"></div>
+      <div class="grid lg:grid-cols-3 gap-6">
+
+        <!-- 2.4L Hellcat TVS -->
+        <div class="border border-white/10 rounded p-6 bg-white/5 flex flex-col">
+          <p class="text-xs font-mono tracking-widest text-red-500 uppercase mb-3">2.4L Hellcat TVS</p>
+          <h3 class="text-lg font-cyber font-bold text-white mb-2">Charger / Challenger / Trackhawk / Durango Hellcat</h3>
+          <p class="text-white/60 font-mono text-xs leading-relaxed mb-4 flex-1">
+            The most-ported Hellcat platform in the shop. On built motors running E85 or race fuel, inlet restriction is often the ceiling before you start spending money on bigger hardware.
+          </p>
+          <ul class="space-y-2 mb-5">
+            {[
+              'Precision inlet port opening and blending',
+              'Rotor housing smoothing',
+              'Snout outlet porting',
+              'Hand finished',
+              'Flow-bench tested before ship-back',
+            ].map((item) => (
+              <li class="flex items-start gap-2 font-mono text-xs text-white/70">
+                <span class="text-red-500 shrink-0">▸</span>{item}
+              </li>
+            ))}
+          </ul>
+          <p class="font-mono text-xs text-white/30 italic mb-4">Best for: Hellcat builds targeting 700+ rwhp where the blower is the restriction. On pump gas below 700, tune first.</p>
+          <a href="/shop/dominator-2-4l-supercharger-package" class="font-mono text-xs text-red-400 hover:text-red-300 underline underline-offset-4">Shop Dominator 2.4L Package →</a>
+        </div>
+
+        <!-- 2.7L IHI Twin-Screw -->
+        <div class="border border-white/10 rounded p-6 bg-white/5 flex flex-col">
+          <p class="text-xs font-mono tracking-widest text-red-500 uppercase mb-3">2.7L IHI Twin-Screw</p>
+          <h3 class="text-lg font-cyber font-bold text-white mb-2">Dodge Demon / Demon 170 / Hellcat Redeye High-Output</h3>
+          <p class="text-white/60 font-mono text-xs leading-relaxed mb-4 flex-1">
+            The IHI responds to inlet and discharge porting differently than the TVS — the discharge side is where most of the gain lives on this platform. FAS has rebuilt and ported all three generations of this blower.
+          </p>
+          <ul class="space-y-2 mb-5">
+            {[
+              'Inlet port cleanup and opening',
+              'Discharge channel blending',
+              'Hand finished',
+              'Flow verification post-porting',
+            ].map((item) => (
+              <li class="flex items-start gap-2 font-mono text-xs text-white/70">
+                <span class="text-red-500 shrink-0">▸</span>{item}
+              </li>
+            ))}
+          </ul>
+          <p class="font-mono text-xs text-white/30 italic mb-4">Rebuilding too? Ask about combining porting with the rebuild — blower is already apart.</p>
+          <div class="flex flex-col gap-2">
+            <a href="/shop/2-7l-ihi-supercharger-rebuild" class="font-mono text-xs text-red-400 hover:text-red-300 underline underline-offset-4">Shop 2.7L IHI Rebuild →</a>
+            <a href="/shop/2-4l-ihi-supercharger-rebuild" class="font-mono text-xs text-red-400 hover:text-red-300 underline underline-offset-4">Shop 2.4L IHI Rebuild →</a>
+          </div>
+        </div>
+
+        <!-- LT4 -->
+        <div class="border border-white/10 rounded p-6 bg-white/5 flex flex-col">
+          <p class="text-xs font-mono tracking-widest text-red-500 uppercase mb-3">LT4 Supercharger</p>
+          <h3 class="text-lg font-cyber font-bold text-white mb-2">C7 Z06 / Camaro ZL1 / CTS-V / CT5-V Blackwing</h3>
+          <p class="text-white/60 font-mono text-xs leading-relaxed mb-4 flex-1">
+            LT4 snout porting is a documented mod for Z06 and ZL1 builds chasing 700+ rwhp on the factory blower. FAS applies the same precision approach to the Eaton TVS R1740 that it applies to every platform.
+          </p>
+          <ul class="space-y-2 mb-5">
+            {[
+              'Snout porting (inlet side)',
+              'Port blending and smoothing',
+              'Hand finished',
+              'Flow verification',
+            ].map((item) => (
+              <li class="flex items-start gap-2 font-mono text-xs text-white/70">
+                <span class="text-red-500 shrink-0">▸</span>{item}
+              </li>
+            ))}
+          </ul>
+          <p class="font-mono text-xs text-white/30 italic mb-4">Typical gain: 15–30 whp on a well-supported build with more consistent boost curve and lower inlet temps.</p>
+          <a href="/shop/lt4-supercharger-snout-porting" class="font-mono text-xs text-red-400 hover:text-red-300 underline underline-offset-4">Shop LT4 Snout Porting →</a>
+        </div>
+
+      </div>
+
+      <!-- Additional platforms -->
+      <div class="mt-6 border border-white/10 rounded p-5 bg-white/5">
+        <p class="text-xs font-mono tracking-widest text-white/40 uppercase mb-3">Additional Platforms — Ship-In Available</p>
+        <div class="grid sm:grid-cols-3 gap-4">
+          {[
+            { platform: 'LSA / LS9', detail: 'CTS-V, ZL1, Camaro SS transplants', href: '/shop/lsa-ls9-lt4-supercharger-porting' },
+            { platform: 'M112 / M122', detail: 'Mustang GT500, Shelby, GM LS builds', href: '/shop/m122-m112-supercharger-porting' },
+            { platform: 'Audi Eaton', detail: 'European applications — call to confirm fitment', href: '/contact' },
+          ].map(({ platform, detail, href }) => (
+            <a href={href} class="border border-white/10 rounded p-4 hover:border-red-500/40 hover:bg-red-950/10 transition-colors group">
+              <p class="font-mono text-sm font-bold text-white group-hover:text-red-400 transition-colors">{platform}</p>
+              <p class="font-mono text-xs text-white/40 mt-1">{detail}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW TO SHIP -->
+  <section class="max-w-6xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-3">How to Ship Your Supercharger to FAS</h2>
+    <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+    <div class="grid md:grid-cols-2 gap-10 items-start">
+      <ol class="space-y-4">
+        {[
+          {
+            n: '01',
+            title: 'Call or email before you ship',
+            body: `Confirm platform, get current lead time, and we'll tell you exactly what to pull. ${BUSINESS_PHONE_NATIONAL} · ${BUSINESS_EMAIL}`,
+          },
+          {
+            n: '02',
+            title: 'Pull the right parts',
+            body: 'Snout porting only? Send the snout. Full inlet and discharge porting? Send the complete blower with rotors.',
+          },
+          {
+            n: '03',
+            title: 'Pack it right',
+            body: 'Wrap the snout and all port openings. Use original packaging if you have it. Ship to: FAS Motorsports · 6161 Riverside Dr · Punta Gorda, FL 33982.',
+          },
+          {
+            n: '04',
+            title: 'We precision port and hand finish it',
+            body: 'Every unit is precision ported, hand finished to specification, and flow-bench verified before crating. No shortcuts.',
+          },
+          {
+            n: '05',
+            title: 'Back in 3–5 business days',
+            body: 'Ready to bolt back on and tune. We\'ll confirm ship-back date when you book.',
+          },
+        ].map(({ n, title, body }) => (
+          <li class="flex gap-4">
+            <span class="font-ethno text-2xl font-bold text-red-500/40 shrink-0 w-8 leading-none mt-0.5">{n}</span>
+            <div>
+              <p class="font-mono text-sm font-bold text-white mb-1">{title}</p>
+              <p class="font-mono text-xs text-white/50 leading-relaxed">{body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+      <div class="border border-red-500/20 rounded p-6 bg-red-950/10">
+        <p class="text-xs font-mono tracking-widest text-red-400 uppercase mb-3">Before You Ship — Read This</p>
+        <p class="text-white/60 font-mono text-sm leading-relaxed mb-4">
+          If your blower has bearing noise, pressure loss, or any mechanical symptoms — call us first. Porting a blower that needs a rebuild doesn't fix the problem. The right sequence is rebuild first, then port.
+        </p>
+        <p class="text-white/60 font-mono text-sm leading-relaxed mb-4">
+          FAS does both. If you're already pulling the blower for a rebuild, porting is the logical add-on — we're already in there.
+        </p>
+        <a href="/ihi-supercharger-rebuild" class="font-mono text-xs text-red-400 hover:text-red-300 underline underline-offset-4">IHI Rebuild Service →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY FAS -->
+  <section class="bg-[#0a0b10] border-y border-white/10 px-6 py-20">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-3xl font-cyber font-bold text-white mb-3">Why FAS — Not a Generic Machine Shop</h2>
+      <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+      <p class="text-white/60 font-mono text-sm leading-relaxed mb-8 max-w-2xl">
+        Generic machine shops cut metal. FAS ports superchargers — specifically — and validates the result. Three generations of builders, every part worked and verified under one roof since 2002.
+      </p>
+      <div class="border border-white/10 rounded overflow-hidden">
+        <div class="grid grid-cols-3 bg-white/10 px-4 py-3 font-mono text-xs font-bold text-white/60 uppercase tracking-wide">
+          <span></span><span class="text-center text-red-400">FAS Motorsports</span><span class="text-center">Generic Machine Shop</span>
+        </div>
+        {[
+          ['Hellcat / IHI / LT4 experience', 'Yes — all three platforms in-house', 'Varies, often none'],
+          ['Precision porting, hand finished', 'Yes — every unit, by hand', 'Machine only, rarely hand finished'],
+          ['Flow bench verification', 'Yes — every unit before ship-back', 'Rarely included'],
+          ['In-house work', 'Yes — Punta Gorda, FL', 'Often outsourced'],
+          ['Turnaround', '3–5 business days', '1–3 weeks typical'],
+          ['Talk to a builder', 'Yes — call the shop direct', 'Usually not'],
+        ].map(([label, fas, generic]) => (
+          <div class="grid grid-cols-3 border-t border-white/10 px-4 py-3">
+            <span class="font-mono text-xs text-white/50">{label}</span>
+            <span class="font-mono text-xs text-red-300 text-center font-bold">{fas}</span>
+            <span class="font-mono text-xs text-white/30 text-center">{generic}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="bg-[#0a0b10] border-t border-white/10 px-6 py-20">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-3xl font-cyber font-bold text-white mb-3">Supercharger Porting — Common Questions</h2>
+      <div class="h-[2px] w-16 bg-red-500 mb-10"></div>
+      <div class="space-y-4">
+        {faqs.map(({ q, a }) => (
+          <details class="border border-white/10 rounded bg-white/5 group">
+            <summary class="cursor-pointer px-5 py-4 font-mono font-bold text-white text-sm tracking-wide list-none flex justify-between items-center">
+              {q}<span class="text-red-500 ml-4 shrink-0 group-open:rotate-180 transition-transform">▾</span>
+            </summary>
+            <p class="px-5 pb-4 pt-1 text-white/60 font-mono text-sm leading-relaxed">{a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="max-w-3xl mx-auto px-6 py-20 text-center">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-4">Ship It In</h2>
+    <p class="text-white/60 font-mono text-sm mb-2 max-w-xl mx-auto">
+      Call before you ship — confirm platform, get current lead time, and get a straight answer on whether to port now or rebuild first.
+    </p>
+    <p class="text-white/40 font-mono text-xs mb-8">Ship-in porting available for: 2.4L Hellcat TVS · 2.7L IHI Demon · LT4 · LSA · LS9 · M122 · Audi Eaton</p>
+    <div class="flex flex-wrap justify-center gap-4 mb-8">
+      <Button href="/shop/lsa-ls9-lt4-supercharger-porting" text="Order Porting Service" variant="default" />
+      <Button href="/contact" text="Contact the Shop" variant="outline" />
+    </div>
+    <p class="text-white/30 font-mono text-xs">
+      FAS Motorsports · {BUSINESS_ADDRESS_LINE1} · {BUSINESS_ADDRESS_LOCALITY}, {BUSINESS_ADDRESS_REGION} · {BUSINESS_PHONE_NATIONAL} · Ships Nationwide
+    </p>
+    <p class="mt-1 text-red-500/60 font-ethno text-xs italic tracking-widest uppercase">Fast. Aggressive. Superior.</p>
+  </section>
+
+</BaseLayout>

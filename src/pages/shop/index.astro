@@ -541,12 +541,13 @@ if (priceDrivenListing && Array.isArray(products) && !usedMedusaPrimaryCatalog) 
 	    })
 	  : false;
 
+const CANONICAL_PARAM_KEYS = new Set(['categorySlug', 'category', 'page']);
+
 const canonical = (() => {
   try {
     const canonicalUrl = new URL(Astro.request.url);
     const params = new URLSearchParams();
-    const keepKeys = ['categorySlug', 'category', 'page'];
-    for (const key of keepKeys) {
+    for (const key of CANONICAL_PARAM_KEYS) {
       const value = url.searchParams.get(key);
       if (value) params.set(key, value);
     }
@@ -557,6 +558,16 @@ const canonical = (() => {
   } catch {
     return undefined;
   }
+})();
+
+// True when the request URL contains params outside the canonical set (sort, filter,
+// search, price range, vehicle, view, etc.). These parameterised variants must not be
+// indexed — they duplicate content and burn crawl budget.
+const hasNonCanonicalParams = (() => {
+  for (const key of url.searchParams.keys()) {
+    if (!CANONICAL_PARAM_KEYS.has(key)) return true;
+  }
+  return false;
 })();
 
 const metaTitle = currentCategory && currentCategoryTitle && currentCategoryTitle !== 'All'
@@ -705,6 +716,13 @@ if (endPage < totalPages) {
 
 <BaseLayout title={metaTitle} description={pageDescription} canonical={canonical}>
   <Fragment slot="head">
+    {/* Parameterised filter/sort/search views are non-canonical duplicates.
+        Suppress indexing so Googlebot doesn't waste crawl budget on them.
+        The canonical tag already points to the clean URL — this noindex
+        is a belt-and-suspenders guard for aggressive crawl patterns. */}
+    {hasNonCanonicalParams && (
+      <meta name="robots" content="noindex,follow" />
+    )}
     <script
       type="application/ld+json"
       set:html={serializeJsonLd(breadcrumbStructuredData)}

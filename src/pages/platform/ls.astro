@@ -1,0 +1,249 @@
+---
+export const prerender = true;
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Button from '@/components/Button.astro';
+import {
+  BUSINESS_PHONE_NATIONAL,
+  BUSINESS_PHONE_E164,
+  BUSINESS_ADDRESS_LINE1,
+  BUSINESS_ADDRESS_LOCALITY,
+  BUSINESS_ADDRESS_REGION,
+  BUSINESS_ADDRESS_POSTAL_CODE,
+  BUSINESS_ADDRESS_COUNTRY,
+} from '@/lib/nap';
+
+const faqs = [
+  {
+    q: 'Does FAS work on stock GM trucks, or only custom builds?',
+    a: 'Both. FAS handles everything from first-time supercharger installs on stock trucks to full rebuild and porting work on established builds. If you\'re not sure where to start, call the shop — we\'ll tell you what makes sense for your build and budget.',
+  },
+  {
+    q: 'What\'s the most common supercharger on GM truck builds?',
+    a: 'The LSA 1.9L TVS from the CTS-V and ZL1 is the most popular transplant option — widely available, strong output, and well-supported by tuners. Whipple kits are common on newer LT4 and LT5 applications. FAS has hands-on experience with both.',
+  },
+  {
+    q: 'Can I supercharge a stock L83 or L86 without upgrading the bottom end?',
+    a: 'At moderate boost levels (6–8 psi), a stock bottom end handles it fine with a proper tune. Above that, connecting rod and piston upgrades are typically recommended. FAS advises on the complete build plan before any work starts.',
+  },
+  {
+    q: 'How long does an LSA blower rebuild take?',
+    a: 'Most LSA rebuilds are completed in 5–7 business days. We\'ll confirm based on current volume at time of booking. Ship-in accepted nationwide.',
+  },
+  {
+    q: 'Does FAS handle tow-duty builds?',
+    a: 'Yes. Trucks that tow see sustained load and elevated temps — a different stress profile than track or street builds. FAS specs supercharger setups with tow-duty use accounted for.',
+  },
+  {
+    q: 'What is the m122 blower and which vehicles use it?',
+    a: 'The M122 is a Roots-style supercharger used on the 2007–2012 Shelby GT500, GT500KR, and some Ford F-150 SVT Lightning applications. The M112 is the smaller variant used on older Mustang Cobras and some GM applications. FAS precision ports both for improved airflow efficiency.',
+  },
+];
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(({ q, a }) => ({
+    '@type': 'Question',
+    name: q,
+    acceptedAnswer: { '@type': 'Answer', text: a },
+  })),
+};
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://fasmotorsports.com' },
+    { '@type': 'ListItem', position: 2, name: 'Platform', item: 'https://fasmotorsports.com/platform' },
+    { '@type': 'ListItem', position: 3, name: 'GM Truck & SUV (LSA)', item: 'https://fasmotorsports.com/platform/ls' },
+  ],
+};
+---
+
+<BaseLayout
+  title="GM Truck & SUV Supercharger Upgrades | LSA, LS, LT | FAS Motorsports"
+  description="FAS Motorsports builds GM truck and SUV supercharger packages — LSA rebuilds, M112/M122 porting, and full kit installs for LS and LT platforms. Silverado, Tahoe, Escalade, and more. Punta Gorda, FL."
+  canonical="https://fasmotorsports.com/platform/ls/"
+  keywords={['ls supercharger upgrade', 'lsa supercharger rebuild', 'gm truck supercharger', 'm122 blower', 'm112 supercharger porting', 'lsa supercharger porting', 'l86 supercharger upgrade', 'ls supercharger kit', 'lsa supercharger on 5.3', 'm122 supercharger porting']}
+  bodyClass="bg-dark text-white min-h-screen flex flex-col"
+  mainClass="flex-1 w-full max-w-none px-0 pt-0"
+>
+  <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} />
+
+  <!-- HERO -->
+  <section class="relative flex items-center justify-center min-h-[480px] sm:min-h-[560px] overflow-hidden bg-black" aria-label="GM truck and SUV supercharger upgrades">
+    <div class="absolute inset-0 z-0 pointer-events-none" style="background: radial-gradient(ellipse 80% 60% at 60% 50%, rgba(234,29,38,0.18) 0%, transparent 70%), radial-gradient(ellipse 60% 80% at 20% 80%, rgba(30,80,200,0.08) 0%, transparent 70%);" aria-hidden="true"></div>
+    <div class="relative z-10 max-w-5xl mx-auto px-6 py-20 text-center">
+      <p class="text-xs font-mono tracking-widest text-red-500 uppercase mb-4">Silverado · Tahoe · Yukon · Escalade · Suburban · Camaro · CTS-V</p>
+      <h1 class="text-4xl sm:text-6xl font-bold font-ethno italic text-white mb-4 leading-tight">
+        GM Truck &amp; SUV<br /><span class="text-red-500">Supercharger Upgrades</span>
+      </h1>
+      <p class="text-lg font-mono text-white/70 max-w-2xl mx-auto mb-8">
+        The LS and LT platform has powered more builds than any engine family in American performance history. FAS keeps the tradition going — LSA rebuilds, M112/M122 precision porting, and full supercharger installs for trucks and SUVs.
+      </p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <Button href="/schedule" text="Get a Build Quote" variant="default" />
+        <Button href="/shop/m122-m112-supercharger-porting" text="Shop GM Parts" variant="outline" />
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY GM TRUCK OWNERS COME TO FAS -->
+  <section class="max-w-6xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-3">Why GM Truck &amp; SUV Owners Come to FAS</h2>
+    <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+    <div class="grid md:grid-cols-2 gap-10 items-start">
+      <div>
+        <p class="text-white/70 font-mono text-sm leading-relaxed mb-4">
+          The LS and LT engine family is the most modified platform in American performance. Silverado, Tahoe, Yukon, Suburban, Escalade — if it has a V8 and you want more from it, FAS has worked on it. The modularity of the GM truck platform means supercharger options are wide, support is deep, and there's a real upgrade path regardless of where you're starting.
+        </p>
+        <p class="text-white/70 font-mono text-sm leading-relaxed mb-4">
+          FAS handles everything from LSA blower rebuilds on factory-supercharged Camaro ZL1 transplants, to full supercharger installations on trucks making the jump from naturally aspirated to forced induction, to precision porting on M112 and M122 Roots-style assemblies looking for the next step.
+        </p>
+        <p class="text-white/70 font-mono text-sm leading-relaxed">
+          The M122 blower — used in the Shelby GT500 and select Ford SVT applications — shows up frequently in transplant builds. FAS precision ports both M112 and M122 assemblies for improved airflow efficiency. Hand finished, flow-bench verified, 3–5 day turnaround on ship-in work.
+        </p>
+      </div>
+      <div class="border border-white/10 rounded p-5 bg-white/5">
+        <p class="text-xs font-mono tracking-widest text-white/40 uppercase mb-3">Platforms FAS Works On</p>
+        {[
+          { group: 'GM Trucks & SUVs', vehicles: 'Silverado, Tahoe, Suburban, Yukon, Escalade, Denali' },
+          { group: 'LS Engine Family', vehicles: 'L83, L86, LS3, LS7, LSA, LS9' },
+          { group: 'GM Performance Cars', vehicles: 'Camaro ZL1, CTS-V (LSA transplant)' },
+          { group: 'M122 / M112 Platforms', vehicles: 'Shelby GT500 (2007–2012), GT500KR, SVT Lightning, GM LS transplants' },
+        ].map(({ group, vehicles }) => (
+          <div class="border-t border-white/10 pt-3 mt-3 first:border-0 first:pt-0 first:mt-0">
+            <p class="font-mono text-xs font-bold text-white mb-1">{group}</p>
+            <p class="font-mono text-xs text-white/40">{vehicles}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section class="bg-[#0a0b10] border-y border-white/10 px-6 py-20">
+    <div class="max-w-6xl mx-auto">
+      <p class="text-xs font-mono tracking-widest text-red-500 uppercase mb-2">What FAS Does on GM Trucks</p>
+      <h2 class="text-3xl font-cyber font-bold text-white mb-3">GM Truck &amp; SUV Services</h2>
+      <div class="h-[2px] w-16 bg-red-500 mb-10"></div>
+      <div class="grid md:grid-cols-2 gap-6">
+
+        <a href="/shop/m122-m112-supercharger-porting" class="block border border-white/10 rounded p-6 bg-white/5 hover:border-red-500/40 hover:bg-red-950/10 transition-colors group">
+          <p class="text-xs font-mono tracking-widest text-red-500 uppercase mb-2">Primary Service</p>
+          <h3 class="text-lg font-cyber font-bold text-white group-hover:text-red-400 transition-colors mb-2">M112 / M122 Supercharger Porting</h3>
+          <p class="text-white/60 font-mono text-sm leading-relaxed mb-3">
+            For builds running the Gen III or Gen IV LS with an M112 or M122 Roots-style blower, FAS precision ports the inlet and outlet for improved efficiency. Common on transplant builds and aftermarket kit installs. Hand finished, flow-bench verified. Ship-in nationwide.
+          </p>
+          <span class="font-mono text-xs text-red-400 group-hover:text-red-300">Shop M122/M112 Porting →</span>
+        </a>
+
+        <div class="border border-white/10 rounded p-6 bg-white/5">
+          <p class="text-xs font-mono tracking-widest text-white/40 uppercase mb-2">Rebuild Service</p>
+          <h3 class="text-lg font-cyber font-bold text-white mb-2">LSA Supercharger Rebuild</h3>
+          <p class="text-white/60 font-mono text-sm leading-relaxed mb-3">
+            The LSA 1.9L TVS from the CTS-V and ZL1 is frequently transplanted into truck builds. FAS rebuilds worn LSA assemblies to spec — precise rotor clearances, fresh bearings, and seal replacement. Stronger and more consistent than stock output after a proper rebuild.
+          </p>
+          <Button href="/contact" text="Inquire About LSA Rebuild" variant="outline" />
+        </div>
+
+        <a href="/shop/upgraded-hellcat-supercharger-snout-bearings" class="block border border-white/10 rounded p-6 bg-white/5 hover:border-red-500/40 hover:bg-red-950/10 transition-colors group">
+          <p class="text-xs font-mono tracking-widest text-white/40 uppercase mb-2">Upgrade</p>
+          <h3 class="text-lg font-cyber font-bold text-white group-hover:text-red-400 transition-colors mb-2">Bearing &amp; Snout Upgrades</h3>
+          <p class="text-white/60 font-mono text-sm leading-relaxed mb-3">
+            High-boost GM builds put wear on factory bearings faster than OEM expects. FAS replaces with upgraded spec bearings as a standalone or as part of a full build package. Standalone ship-in accepted.
+          </p>
+          <span class="font-mono text-xs text-red-400 group-hover:text-red-300">Shop Upgraded Bearings →</span>
+        </a>
+
+        <div class="border border-white/10 rounded p-6 bg-white/5">
+          <p class="text-xs font-mono tracking-widest text-white/40 uppercase mb-2">Installation</p>
+          <h3 class="text-lg font-cyber font-bold text-white mb-2">Supercharger Installation</h3>
+          <p class="text-white/60 font-mono text-sm leading-relaxed mb-3">
+            For GM trucks and SUVs making the jump from naturally aspirated to supercharged, FAS installs and validates kit installs for the L83, L86, LT1, and LSA platforms. We coordinate with a tuner to deliver a complete result — not just a parts install.
+          </p>
+          <Button href="/contact" text="Discuss a Kit Install" variant="outline" />
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- TECHNICAL DETAIL -->
+  <section class="max-w-6xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-3">GM LS/LT Technical Detail</h2>
+    <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+    <div class="grid md:grid-cols-2 gap-10 items-start">
+      <div>
+        <p class="text-white/70 font-mono text-sm leading-relaxed mb-4">
+          The GM LS/LT platform spans a lot of ground: iron blocks, modern aluminum Gen V LTs, transplanted LSA blowers, and everything in between. What they share is an engine family designed with modification in mind — strong bottom ends, good-flowing heads, and wide availability of supporting parts.
+        </p>
+        <p class="text-white/70 font-mono text-sm leading-relaxed mb-4">
+          <strong class="text-white">Blower choice</strong> matters on LS/LT builds. Roots-style (M112, M122, LSA) vs. twin-screw (Whipple, Magnuson) vs. centrifugal — each has a different power delivery character and different build implications. FAS works across all of them.
+        </p>
+        <p class="text-white/70 font-mono text-sm leading-relaxed mb-4">
+          <strong class="text-white">Fuel system</strong> upgrades are often needed before the supercharger becomes the limit on big LS builds. High-flow injectors and a returnless-to-return fuel system conversion are common on builds above 700 whp.
+        </p>
+        <p class="text-white/70 font-mono text-sm leading-relaxed">
+          <strong class="text-white">Intercooling</strong> is a major reliability and consistency upgrade on M112/M122 Roots-style builds, especially on trucks with towing use. The Roots blowers run hot under sustained boost — managing heat is often the difference between consistent and inconsistent output.
+        </p>
+      </div>
+      <div class="space-y-3">
+        <div class="border border-white/10 rounded p-5 bg-white/5">
+          <p class="text-xs font-mono tracking-widest text-white/40 uppercase mb-3">Common Build Variables</p>
+          {[
+            { label: 'Blower type', detail: 'Roots (M112/M122/LSA), twin-screw (Whipple), centrifugal — different character, different build needs' },
+            { label: 'Fuel system', detail: 'Often needs upgrade before blower is the limit. Injectors + return conversion common above 700 whp' },
+            { label: 'Intercooling', detail: 'Critical on Roots blowers for trucks — especially tow-duty applications' },
+            { label: 'Tuning', detail: 'FAS coordinates with a tuner for all complete kit installs' },
+          ].map(({ label, detail }) => (
+            <div class="border-t border-white/10 pt-3 mt-3 first:border-0 first:pt-0 first:mt-0">
+              <p class="font-mono text-xs font-bold text-white mb-1">{label}</p>
+              <p class="font-mono text-xs text-white/40">{detail}</p>
+            </div>
+          ))}
+        </div>
+        <div class="border border-red-500/20 rounded p-5 bg-red-950/10">
+          <p class="text-xs font-mono tracking-widest text-red-400 uppercase mb-2">lsa supercharger on 5.3?</p>
+          <p class="text-white/60 font-mono text-sm leading-relaxed">
+            Yes — the LSA 1.9L TVS transplant onto a 5.3L truck is one of the most popular builds in the LS community. FAS has done them. Call to discuss fit, fueling, and tuning requirements for your specific setup.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="bg-[#0a0b10] border-t border-white/10 px-6 py-20">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-3xl font-cyber font-bold text-white mb-3">GM Truck Supercharger — Common Questions</h2>
+      <div class="h-[2px] w-16 bg-red-500 mb-10"></div>
+      <div class="space-y-4">
+        {faqs.map(({ q, a }) => (
+          <details class="border border-white/10 rounded bg-white/5 group">
+            <summary class="cursor-pointer px-5 py-4 font-mono font-bold text-white text-sm tracking-wide list-none flex justify-between items-center">
+              {q}<span class="text-red-500 ml-4 shrink-0 group-open:rotate-180 transition-transform">▾</span>
+            </summary>
+            <p class="px-5 pb-4 pt-1 text-white/60 font-mono text-sm leading-relaxed">{a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="max-w-3xl mx-auto px-6 py-20 text-center">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-4">Ready to Build Your Truck?</h2>
+    <p class="text-white/60 font-mono text-sm mb-8 max-w-xl mx-auto">
+      Schedule a consult, shop GM parts, or call the shop to talk through your build. FAS has worked on everything from bone-stock Silverados to full LSA transplant builds.
+    </p>
+    <div class="flex flex-wrap justify-center gap-4">
+      <Button href="/schedule" text="Schedule a Consult" variant="default" />
+      <Button href="/shop/m122-m112-supercharger-porting" text="Shop M122/M112 Porting" variant="outline" />
+    </div>
+    <p class="mt-6 text-white/30 font-mono text-xs">FAS Motorsports · {BUSINESS_ADDRESS_LINE1} · {BUSINESS_ADDRESS_LOCALITY}, {BUSINESS_ADDRESS_REGION} · {BUSINESS_PHONE_NATIONAL}</p>
+  </section>
+
+</BaseLayout>

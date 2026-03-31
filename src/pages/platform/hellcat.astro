@@ -1,0 +1,242 @@
+---
+export const prerender = true;
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Button from '@/components/Button.astro';
+import {
+  BUSINESS_PHONE_NATIONAL,
+  BUSINESS_PHONE_E164,
+  BUSINESS_ADDRESS_LINE1,
+  BUSINESS_ADDRESS_LOCALITY,
+  BUSINESS_ADDRESS_REGION,
+} from '@/lib/nap';
+
+const faqs = [
+  {
+    q: 'Does the billet snout fit both Hellcat and Redeye?',
+    a: "No — the snout geometry differs between standard Hellcat and Redeye/Super Stock trims. FAS makes billet snouts for both. Specify your exact model when ordering.",
+  },
+  {
+    q: 'My Hellcat is making a whining noise from the blower. What is it?',
+    a: 'Usually bearing wear. The factory bearings degrade faster under elevated boost. Get it diagnosed before it gets worse — continued operation with worn bearings can damage the rotor pack. FAS can diagnose and rebuild.',
+  },
+  {
+    q: 'What whp can I realistically make on a ported stock 2.4L?',
+    a: 'A properly ported stock 2.4L on a dialed tune typically supports 800–850 whp on a Hellcat, slightly less on a Redeye which has less thermal headroom. Above that, the Dominator package is the clean path.',
+  },
+  {
+    q: 'Can I ship my supercharger to FAS without removing the whole car?',
+    a: 'Yes. We accept core-out supercharger assemblies for rebuild, porting, and snout replacement. Ship the blower; we\'ll turn it around and ship it back.',
+  },
+  {
+    q: 'How much power does the billet snout add on its own?',
+    a: "The billet snout isn't a power adder — it's a reliability upgrade. It eliminates flex and bearing slop that causes boost inconsistency. Owners typically see tighter boost control and improved consistency on the dyno, but the primary value is longevity.",
+  },
+  {
+    q: 'Does FAS build Durango Hellcat setups?',
+    a: 'Yes. The Durango Hellcat uses the same 2.4L supercharger as the Challenger/Charger. All FAS supercharger services apply. Note that install logistics differ due to the Durango\'s packaging.',
+  },
+];
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(({ q, a }) => ({
+    '@type': 'Question',
+    name: q,
+    acceptedAnswer: { '@type': 'Answer', text: a },
+  })),
+};
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://fasmotorsports.com/' },
+    { '@type': 'ListItem', position: 2, name: 'Platform', item: 'https://fasmotorsports.com/platform/' },
+    { '@type': 'ListItem', position: 3, name: 'Hellcat / Redeye', item: 'https://fasmotorsports.com/platform/hellcat' },
+  ],
+};
+---
+
+<BaseLayout
+  title="Hellcat Supercharger Upgrades | FAS Motorsports"
+  description="FAS Motorsports builds Hellcat and Redeye supercharger packages — billet snouts, bearing upgrades, precision porting, and Dominator swaps from our Florida performance shop."
+  canonical="https://fasmotorsports.com/platform/hellcat"
+  keywords={['hellcat supercharger upgrade', 'hellcat billet supercharger snout', 'redeye supercharger porting', '2.4l hellcat supercharger rebuild', 'hellcat supercharger bearing upgrade', 'dominator hellcat package', 'hellcat ported blower']}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} slot="head" />
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} slot="head" />
+
+  <!-- ── HERO ── -->
+  <section class="relative bg-zinc-950 border-b border-white/10 py-20 px-6">
+    <div class="max-w-5xl mx-auto">
+      <p class="font-mono text-xs tracking-widest text-red-400 uppercase mb-4">Platform · Hellcat / Redeye</p>
+      <h1 class="text-4xl md:text-5xl font-cyber font-bold text-white leading-tight mb-6">
+        Hellcat & Redeye<br />Supercharger Upgrades
+      </h1>
+      <p class="text-white/60 font-mono text-lg max-w-2xl mb-8">
+        707 is where it starts. We handle the rest.
+      </p>
+      <div class="flex flex-wrap gap-4">
+        <Button href="/schedule" text="Get a Build Quote" variant="default" />
+        <Button href={`tel:${BUSINESS_PHONE_E164}`} text={BUSINESS_PHONE_NATIONAL} variant="outline" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ── WHY HELLCAT OWNERS COME TO FAS ── -->
+  <section class="max-w-5xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-3">Why Hellcat Owners Come to FAS</h2>
+    <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+    <div class="font-mono text-white/70 text-sm leading-relaxed space-y-4">
+      <p>
+        The Hellcat platform has been FCA's performance flagship for over a decade — Charger, Challenger, Durango, and everything in between. The 2.4L twin-screw supercharger is one of the most capable factory blowers ever put in a production car. It's also one of the most modified. That means FAS has seen every failure mode, every limit, and every path through it.
+      </p>
+      <p>
+        The factory snout is the weak link on 707 builds. The factory bearings weren't spec'd for sustained high-boost use. Redeye owners pushing beyond 800 whp run into the same inlet restriction that limits every twin-screw at elevated output. FAS solves all three — billet snout replacement, bearing upgrades, and precision porting — as standalone services or as a complete platform package.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── HELLCAT SERVICES ── -->
+  <section class="bg-zinc-900/50 border-y border-white/10 py-20 px-6">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="text-3xl font-cyber font-bold text-white mb-3">Hellcat Services</h2>
+      <div class="h-[2px] w-16 bg-red-500 mb-10"></div>
+      <div class="grid md:grid-cols-2 gap-6">
+        {[
+          {
+            title: '2.4L Billet Supercharger Snout',
+            body: 'The factory cast snout is the first thing to go on a serious Hellcat build. FAS machines a billet replacement that eliminates the flex and bearing wear the stock casting allows under high-boost conditions. Direct bolt-on. No adapter required.',
+            href: '/shop/2-4l-hellcat-billet-supercharger-snout',
+            cta: 'Shop Billet Snout',
+          },
+          {
+            title: 'Snout Bearing Upgrade',
+            body: "Factory bearings in the Hellcat snout are rated for stock boost. Push past that and you're borrowing time. FAS replaces them with upgraded spec bearings as a standalone service or included in any full build package.",
+            href: '/shop/upgraded-hellcat-supercharger-snout-bearings',
+            cta: 'Shop Bearing Upgrade',
+          },
+          {
+            title: 'Dominator 2.4L Supercharger Package',
+            body: 'For Hellcat builds targeting 900+ whp, the Dominator replaces the factory 2.4L with a unit built for that output range. FAS precision ports and validates every unit before it ships.',
+            href: '/shop/dominator-2-4l-supercharger-package',
+            cta: 'Shop Dominator Package',
+          },
+          {
+            title: 'Supercharger Porting',
+            body: 'Inlet and outlet porting on the factory 2.4L for owners who want more from the stock blower without a full swap. Improves airflow efficiency across the RPM band, reduces inlet temps, extends the power curve.',
+            href: '/hellcat-supercharger-porting',
+            cta: 'View Porting Service',
+          },
+        ].map(({ title, body, href, cta }) => (
+          <div class="border border-white/10 rounded p-6 bg-zinc-950/50 flex flex-col gap-4">
+            <h3 class="text-white font-cyber font-bold text-lg">{title}</h3>
+            <p class="font-mono text-sm text-white/60 leading-relaxed flex-1">{body}</p>
+            <a href={href} class="font-mono text-xs text-red-400 hover:text-red-300 underline underline-offset-4">{cta} →</a>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ── HELLCAT VS REDEYE ── -->
+  <section class="max-w-5xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-3">Hellcat vs. Redeye: What's Different</h2>
+    <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+    <div class="font-mono text-white/70 text-sm leading-relaxed space-y-4 max-w-3xl">
+      <p>
+        The standard Hellcat (707 hp) runs the 2.4L IHI-sourced twin-screw at 11.6 psi. The Redeye (797 hp) runs the same basic architecture but with a ported throttle body, a different bypass valve, and higher factory boost — closer to 14.5 psi.
+      </p>
+      <div class="border border-yellow-500/30 rounded p-4 bg-yellow-950/20">
+        <p class="text-yellow-400 font-mono text-xs tracking-widest uppercase mb-2">Important — parts differ by trim</p>
+        <p>The snout design is different between the two. The Redeye snout is not interchangeable with the standard Hellcat unit. FAS stocks billet snout options for both. Specify your exact trim — Hellcat, Redeye, Super Stock, or Jailbreak — at checkout or when booking.</p>
+      </div>
+      <p>
+        For porting work, both units respond well. Redeye builds typically have less headroom on the stock blower (it's already closer to its limit from the factory), so Dominator packages are more common on Redeye builds targeting 900+ whp.
+      </p>
+    </div>
+
+    <!-- Spec table -->
+    <div class="mt-10 overflow-x-auto">
+      <table class="w-full text-sm font-mono border border-white/10 rounded">
+        <thead>
+          <tr class="bg-zinc-800/60 text-white/40 text-xs tracking-widest uppercase">
+            <th class="text-left p-3">Spec</th>
+            <th class="text-left p-3">Hellcat 707</th>
+            <th class="text-left p-3">Redeye 797</th>
+            <th class="text-left p-3">FAS Dominator</th>
+          </tr>
+        </thead>
+        <tbody class="text-white/60">
+          {[
+            ['Factory boost', '11.6 psi', '14.5 psi', 'Calibrated to build'],
+            ['Snout design', 'Standard', 'Redeye-specific', 'Billet (spec to trim)'],
+            ['Snout interchangeable', '—', 'No', '—'],
+            ['Max whp (ported stock)', '850', '820', '1,100+'],
+            ['FAS billet snout avail.', '✓', '✓', '✓'],
+          ].map((row) => (
+            <tr class="border-t border-white/10">
+              {row.map((cell) => <td class="p-3">{cell}</td>)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── TECHNICAL DETAIL ── -->
+  <section class="bg-zinc-900/50 border-y border-white/10 py-20 px-6">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="text-3xl font-cyber font-bold text-white mb-3">Technical Detail</h2>
+      <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+      <div class="grid md:grid-cols-2 gap-10 font-mono text-white/70 text-sm leading-relaxed">
+        <div class="space-y-4">
+          <p>
+            The 6.2L Hellcat HEMI is a strong foundation. The rotating assembly is robust, the cylinder heads flow well, and there's real headroom in the block. The supercharger is where most builds hit their ceiling.
+          </p>
+          <p>
+            The 2.4L twin-screw design is a positive-displacement blower — linear boost curve, low heat at moderate output, excellent response. The problem is the factory inlet port and bypass valve geometry, which restrict airflow above 850 whp and cause inlet temperature rise that pulls timing.
+          </p>
+        </div>
+        <div class="space-y-4">
+          <p>
+            The snout bearing failure mode is separate: the stock bearings tolerate sustained high-boost poorly, and bearing wear shows up as noise, then vibration, then catastrophic failure if ignored.
+          </p>
+          <p>
+            FAS addresses these in order: bearings first on any build where we're increasing boost, snout replacement on builds where stock casting geometry is limiting output, full precision porting for owners pushing the stock blower to its limit before upgrading. Every build gets a documented spec sheet.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FAQ ── -->
+  <section class="max-w-5xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-3">Frequently Asked Questions</h2>
+    <div class="h-[2px] w-16 bg-red-500 mb-10"></div>
+    <div class="space-y-6">
+      {faqs.map(({ q, a }) => (
+        <div class="border border-white/10 rounded p-6 bg-zinc-950/30">
+          <p class="font-cyber font-bold text-white mb-2">{q}</p>
+          <p class="font-mono text-sm text-white/60 leading-relaxed">{a}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- ── CTA ── -->
+  <section class="bg-zinc-900/50 border-t border-white/10 py-20 px-6 text-center">
+    <div class="max-w-2xl mx-auto">
+      <h2 class="text-3xl font-cyber font-bold text-white mb-4">Ready to build your Hellcat?</h2>
+      <p class="font-mono text-white/50 mb-8">
+        FAS Motorsports — {BUSINESS_ADDRESS_LINE1}, {BUSINESS_ADDRESS_LOCALITY}, {BUSINESS_ADDRESS_REGION}. Ships nationwide.
+      </p>
+      <div class="flex flex-wrap gap-4 justify-center">
+        <Button href="/schedule" text="Schedule a Consult" variant="default" />
+        <Button href="/shop/dominator-2-4l-supercharger-package" text="Shop Hellcat Parts" variant="outline" />
+      </div>
+    </div>
+  </section>
+</BaseLayout>

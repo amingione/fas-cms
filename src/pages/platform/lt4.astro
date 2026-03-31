@@ -1,0 +1,242 @@
+---
+export const prerender = true;
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Button from '@/components/Button.astro';
+import {
+  BUSINESS_PHONE_NATIONAL,
+  BUSINESS_PHONE_E164,
+  BUSINESS_ADDRESS_LINE1,
+  BUSINESS_ADDRESS_LOCALITY,
+  BUSINESS_ADDRESS_REGION,
+  BUSINESS_ADDRESS_POSTAL_CODE,
+  BUSINESS_ADDRESS_COUNTRY,
+} from '@/lib/nap';
+
+const faqs = [
+  {
+    q: 'Does the LT4 porting work apply to the C8 Corvette?',
+    a: 'The standard C8 Stingray runs the LT2 — naturally aspirated, not the LT4. LT4 service applies to C7 Z06, Camaro ZL1 (2017+), CTS-V, and CT5-V Blackwing. C8 Z06 owners with aftermarket supercharger kits should contact FAS directly to discuss kit-specific work.',
+  },
+  {
+    q: 'What gains does LT4 snout porting produce?',
+    a: 'Typically 15–30 whp on a well-supported build, with a more consistent boost curve and lower inlet temps. Not a massive number in isolation, but it\'s permanent and stacks well with pulley changes and fuel system upgrades.',
+  },
+  {
+    q: 'Can FAS rebuild a damaged LT4 supercharger, or do I need a replacement?',
+    a: 'Most LT4 failures are bearing or seal-related — both rebuildable. Rotor damage requires case-by-case evaluation. FAS can diagnose from photos before you commit to shipping.',
+  },
+  {
+    q: 'How does the LT4 Eaton TVS compare to the IHI units on Hellcat platforms?',
+    a: 'Different rotor designs. The TVS (twisted rotor) runs quieter and more efficiently at lower boost levels. The IHI twin-screw is more aggressive at high boost. Both platforms respond well to porting — the approach differs slightly. FAS has production experience on both.',
+  },
+  {
+    q: 'Can I ship the LT4 supercharger without pulling the whole engine?',
+    a: 'Yes — supercharger core-out ships. The LT4 unit is accessible without full engine removal on most platforms. FAS accepts shipped cores for snout porting and rebuild work.',
+  },
+];
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(({ q, a }) => ({
+    '@type': 'Question',
+    name: q,
+    acceptedAnswer: { '@type': 'Answer', text: a },
+  })),
+};
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://fasmotorsports.com' },
+    { '@type': 'ListItem', position: 2, name: 'Platform', item: 'https://fasmotorsports.com/platform' },
+    { '@type': 'ListItem', position: 3, name: 'C8 Corvette / LT4', item: 'https://fasmotorsports.com/platform/lt4' },
+  ],
+};
+---
+
+<BaseLayout
+  title="LT4 Supercharger Porting & Upgrades | C7 Z06, ZL1, CTS-V | FAS Motorsports"
+  description="FAS Motorsports ports, rebuilds, and upgrades LT4 and Eaton TVS superchargers for C7 Z06, Camaro ZL1, CTS-V, and CT5-V Blackwing builds. Ship-in nationwide. Punta Gorda, FL."
+  canonical="https://fasmotorsports.com/platform/lt4/"
+  keywords={['lt4 supercharger porting', 'lt4 supercharger upgrade', 'c7 z06 supercharger upgrade', 'camaro zl1 supercharger upgrade', 'ported lt4 blower', 'lt4 supercharger rebuild', 'lt4 supercharger snout porting', 'eaton tvs porting', 'lt4 supercharger kit']}
+  bodyClass="bg-dark text-white min-h-screen flex flex-col"
+  mainClass="flex-1 w-full max-w-none px-0 pt-0"
+>
+  <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} />
+
+  <!-- HERO -->
+  <section class="relative flex items-center justify-center min-h-[480px] sm:min-h-[560px] overflow-hidden bg-black" aria-label="LT4 supercharger upgrades">
+    <div class="absolute inset-0 z-0 pointer-events-none" style="background: radial-gradient(ellipse 80% 60% at 60% 50%, rgba(234,29,38,0.18) 0%, transparent 70%), radial-gradient(ellipse 60% 80% at 20% 80%, rgba(30,80,200,0.08) 0%, transparent 70%);" aria-hidden="true"></div>
+    <div class="relative z-10 max-w-5xl mx-auto px-6 py-20 text-center">
+      <p class="text-xs font-mono tracking-widest text-red-500 uppercase mb-4">C7 Z06 · Camaro ZL1 · CTS-V · CT5-V Blackwing</p>
+      <h1 class="text-4xl sm:text-6xl font-bold font-ethno italic text-white mb-4 leading-tight">
+        C8 Corvette &amp; LT4<br /><span class="text-red-500">Supercharger Upgrades</span>
+      </h1>
+      <p class="text-lg font-mono text-white/70 max-w-2xl mx-auto mb-8">
+        The LT4 is one of the best supercharged V8s GM ever built. FAS gets more out of it — precision porting, bearing upgrades, rebuilds, and full platform builds. Ship us the core or bring it in.
+      </p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <Button href="/schedule" text="Get a Build Quote" variant="default" />
+        <Button href="/shop/lt4-supercharger-snout-porting" text="Shop LT4 Parts" variant="outline" />
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY LT4 OWNERS COME TO FAS -->
+  <section class="max-w-6xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-3">Why LT4 Owners Come to FAS</h2>
+    <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+    <div class="grid md:grid-cols-2 gap-10 items-start">
+      <div>
+        <p class="text-white/70 font-mono text-sm leading-relaxed mb-4">
+          The LT4 — in the C7 Z06, Camaro ZL1, CT5-V Blackwing, and CTS-V — runs a 1.7L Eaton TVS R1740 supercharger from the factory. It's a proven, high-revving positive-displacement design that responds well to modification. It's one of the most tuned platforms in American performance.
+        </p>
+        <p class="text-white/70 font-mono text-sm leading-relaxed mb-4">
+          Where LT4 builds plateau is the same place they always do: the factory snout geometry, rotor clearances, and outlet porting aren't optimized for maximum output. FAS precision ports LT4 supercharger assemblies with the same approach we apply to every platform — tighter clearances, improved flow geometry, better sustained output.
+        </p>
+        <p class="text-white/70 font-mono text-sm leading-relaxed">
+          For C8 owners with aftermarket supercharger installations on the LT6 flat-plane V8: the service model is different — the LT6 is naturally aspirated from the factory and aftermarket kits are platform-specific. Contact FAS directly to discuss kit-specific work.
+        </p>
+      </div>
+      <div class="space-y-3">
+        <div class="border border-white/10 rounded p-5 bg-white/5">
+          <p class="text-xs font-mono tracking-widest text-white/40 uppercase mb-3">LT4 Platform Reference</p>
+          {[
+            { vehicle: 'C7 Corvette Z06', years: '2015–2019', blower: '1.7L Eaton TVS R1740' },
+            { vehicle: 'Camaro ZL1', years: '2017+', blower: '1.7L Eaton TVS R1740' },
+            { vehicle: 'Cadillac CT5-V Blackwing', years: '2022+', blower: '3.0L twin-turbo (LT4 variant)' },
+            { vehicle: 'Cadillac CTS-V', years: '2016–2019', blower: '1.7L Eaton TVS R1740' },
+          ].map(({ vehicle, years, blower }) => (
+            <div class="border-t border-white/10 pt-3 mt-3 first:border-0 first:pt-0 first:mt-0">
+              <div class="flex justify-between items-start mb-0.5">
+                <span class="font-mono text-xs text-white font-bold">{vehicle}</span>
+                <span class="font-mono text-xs text-white/40">{years}</span>
+              </div>
+              <p class="font-mono text-xs text-white/40">{blower}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section class="bg-[#0a0b10] border-y border-white/10 px-6 py-20">
+    <div class="max-w-6xl mx-auto">
+      <p class="text-xs font-mono tracking-widest text-red-500 uppercase mb-2">What FAS Does on LT4</p>
+      <h2 class="text-3xl font-cyber font-bold text-white mb-3">LT4 Services</h2>
+      <div class="h-[2px] w-16 bg-red-500 mb-10"></div>
+      <div class="grid md:grid-cols-2 gap-6">
+
+        <a href="/shop/lt4-supercharger-snout-porting" class="block border border-white/10 rounded p-6 bg-white/5 hover:border-red-500/40 hover:bg-red-950/10 transition-colors group">
+          <p class="text-xs font-mono tracking-widest text-red-500 uppercase mb-2">Primary Service</p>
+          <h3 class="text-lg font-cyber font-bold text-white group-hover:text-red-400 transition-colors mb-2">LT4 Supercharger Snout Porting</h3>
+          <p class="text-white/60 font-mono text-sm leading-relaxed mb-3">
+            The primary bottleneck on the LT4 blower is the snout inlet geometry. FAS precision ports the snout to open the airflow path and reduce turbulence at the rotor inlet — hand finished, flow-bench validated. Direct result: improved top-end response and reduced inlet temps at sustained boost.
+          </p>
+          <span class="font-mono text-xs text-red-400 group-hover:text-red-300">Shop LT4 Snout Porting →</span>
+        </a>
+
+        <div class="border border-white/10 rounded p-6 bg-white/5">
+          <p class="text-xs font-mono tracking-widest text-white/40 uppercase mb-2">Rebuild Service</p>
+          <h3 class="text-lg font-cyber font-bold text-white mb-2">LT4 Supercharger Rebuild</h3>
+          <p class="text-white/60 font-mono text-sm leading-relaxed mb-3">
+            Worn rotors, failed bearings, or oil contamination on the LT4 Eaton TVS? FAS rebuilds the assembly to tight tolerances — faster than sourcing a replacement, and the result is a unit that performs better than stock. Rebuilding? Add porting while we're in there.
+          </p>
+          <Button href="/contact" text="Inquire About Rebuild" variant="outline" />
+        </div>
+
+        <a href="/shop/upgraded-hellcat-supercharger-snout-bearings" class="block border border-white/10 rounded p-6 bg-white/5 hover:border-red-500/40 hover:bg-red-950/10 transition-colors group">
+          <p class="text-xs font-mono tracking-widest text-white/40 uppercase mb-2">Upgrade</p>
+          <h3 class="text-lg font-cyber font-bold text-white group-hover:text-red-400 transition-colors mb-2">Bearing Upgrade</h3>
+          <p class="text-white/60 font-mono text-sm leading-relaxed mb-3">
+            High-boost LT4 builds put elevated load on the factory bearings. FAS replaces with upgraded spec bearings as a standalone service or included in any full build package.
+          </p>
+          <span class="font-mono text-xs text-red-400 group-hover:text-red-300">Shop Upgraded Bearings →</span>
+        </a>
+
+        <a href="/shop/m122-m112-supercharger-porting" class="block border border-white/10 rounded p-6 bg-white/5 hover:border-red-500/40 hover:bg-red-950/10 transition-colors group">
+          <p class="text-xs font-mono tracking-widest text-white/40 uppercase mb-2">Also Available</p>
+          <h3 class="text-lg font-cyber font-bold text-white group-hover:text-red-400 transition-colors mb-2">M122 / M112 Supercharger Porting</h3>
+          <p class="text-white/60 font-mono text-sm leading-relaxed mb-3">
+            For GM builds running the legacy M112 or M122 Roots-style blower — LS-era platforms, older Corvettes, transplant builds — FAS offers precision porting on those assemblies as well. Same process.
+          </p>
+          <span class="font-mono text-xs text-red-400 group-hover:text-red-300">Shop M122/M112 Porting →</span>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- TECHNICAL DETAIL -->
+  <section class="max-w-6xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-3">LT4 Technical Detail</h2>
+    <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+    <div class="grid md:grid-cols-2 gap-10 items-start">
+      <div>
+        <p class="text-white/70 font-mono text-sm leading-relaxed mb-4">
+          The LT4's 1.7L Eaton TVS R1740 runs at a factory boost ceiling of around 9–10 psi, depending on calibration. It's a four-lobe twisted-rotor design with excellent thermal efficiency for its class — which is why it's become a popular base for modification rather than replacement.
+        </p>
+        <p class="text-white/70 font-mono text-sm leading-relaxed mb-4">
+          The performance ceiling on the stock unit comes from two sources: rotor-to-housing clearance (tighter = more efficient, stock is conservative for longevity) and inlet/outlet port geometry (factory casting leaves airflow restriction). FAS addresses both.
+        </p>
+        <p class="text-white/70 font-mono text-sm leading-relaxed mb-4">
+          Clearance work requires precision — too tight and you risk contact under thermal expansion, too loose and efficiency drops. FAS specs are validated against thermal expansion data for the operating range of a pushed LT4 build.
+        </p>
+        <p class="text-white/70 font-mono text-sm leading-relaxed">
+          Outlet porting on the LT4 blower is equally important. The exit geometry affects how well the compressed charge transfers to the intake manifold. FAS ports and blends the outlet path as part of the full porting package.
+        </p>
+      </div>
+      <div class="border border-white/10 rounded p-5 bg-white/5">
+        <p class="text-xs font-mono tracking-widest text-white/40 uppercase mb-3">Where the Power Comes From</p>
+        {[
+          { label: 'Snout inlet geometry', detail: 'Biggest restriction on most LT4 builds. Opening the inlet path is the first step.' },
+          { label: 'Rotor-to-housing clearance', detail: 'Tighter clearance = more efficiency. Stock is conservative. Precision work gets it tighter without contact risk.' },
+          { label: 'Outlet port geometry', detail: 'Poor exit geometry creates turbulence that offsets work done by rotors. Blending the outlet path recovers that efficiency.' },
+          { label: 'Hand finishing', detail: 'Smooth, burr-free surfaces reduce turbulence and allow consistent airflow under all boost conditions.' },
+        ].map(({ label, detail }) => (
+          <div class="border-t border-white/10 pt-3 mt-3 first:border-0 first:pt-0 first:mt-0">
+            <p class="font-mono text-xs font-bold text-white mb-1">{label}</p>
+            <p class="font-mono text-xs text-white/40">{detail}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="bg-[#0a0b10] border-t border-white/10 px-6 py-20">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-3xl font-cyber font-bold text-white mb-3">LT4 — Common Questions</h2>
+      <div class="h-[2px] w-16 bg-red-500 mb-10"></div>
+      <div class="space-y-4">
+        {faqs.map(({ q, a }) => (
+          <details class="border border-white/10 rounded bg-white/5 group">
+            <summary class="cursor-pointer px-5 py-4 font-mono font-bold text-white text-sm tracking-wide list-none flex justify-between items-center">
+              {q}<span class="text-red-500 ml-4 shrink-0 group-open:rotate-180 transition-transform">▾</span>
+            </summary>
+            <p class="px-5 pb-4 pt-1 text-white/60 font-mono text-sm leading-relaxed">{a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="max-w-3xl mx-auto px-6 py-20 text-center">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-4">Ready to Build Your LT4?</h2>
+    <p class="text-white/60 font-mono text-sm mb-8 max-w-xl mx-auto">
+      Schedule a consult, shop LT4 parts, or call the shop to talk through your build. FAS has worked on C7 Z06, ZL1, CTS-V, and CT5-V Blackwing platforms.
+    </p>
+    <div class="flex flex-wrap justify-center gap-4">
+      <Button href="/schedule" text="Schedule a Consult" variant="default" />
+      <Button href="/shop/lt4-supercharger-snout-porting" text="Shop LT4 Parts" variant="outline" />
+    </div>
+    <p class="mt-6 text-white/30 font-mono text-xs">FAS Motorsports · {BUSINESS_ADDRESS_LINE1} · {BUSINESS_ADDRESS_LOCALITY}, {BUSINESS_ADDRESS_REGION} · {BUSINESS_PHONE_NATIONAL}</p>
+  </section>
+
+</BaseLayout>

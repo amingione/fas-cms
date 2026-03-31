@@ -1,0 +1,224 @@
+---
+export const prerender = true;
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Button from '@/components/Button.astro';
+import {
+  BUSINESS_PHONE_NATIONAL,
+  BUSINESS_PHONE_E164,
+  BUSINESS_ADDRESS_LINE1,
+  BUSINESS_ADDRESS_LOCALITY,
+  BUSINESS_ADDRESS_REGION,
+  BUSINESS_ADDRESS_POSTAL_CODE,
+  BUSINESS_ADDRESS_COUNTRY,
+} from '@/lib/nap';
+
+const faqs = [
+  {
+    q: 'Does porting the TRX supercharger void my warranty?',
+    a: "Modifying the supercharger is likely to void the powertrain warranty on that component under Magnuson-Moss. However, FAS builds are frequently paired with a tune from a reputable shop — at that point, most owners are operating outside the warranty window anyway. We recommend discussing with your dealer before any work if warranty coverage is still a concern.",
+  },
+  {
+    q: "What's the difference between porting the IHI and installing the Dominator package?",
+    a: 'Porting the factory IHI improves flow efficiency within the existing unit — best for builds targeting 800–850 whp on a budget. The Dominator 2.4L is a full swap to a higher-capacity blower designed for 900–1,100 whp. If you\'re planning to push past the stock unit\'s limit, the Dominator is the cleaner long-term path.',
+  },
+  {
+    q: 'How long does a supercharger rebuild take?',
+    a: 'Most TRX IHI rebuilds are completed in 5–7 business days. Full Dominator package builds are typically 7–10 days. We\'ll confirm lead time at booking.',
+  },
+  {
+    q: 'Can I ship my supercharger to FAS for a rebuild?',
+    a: 'Yes. FAS accepts shipped supercharger cores for rebuild and porting services. Contact us to confirm specs before shipping.',
+  },
+  {
+    q: "What's the best first mod on a stock TRX before touching the supercharger?",
+    a: 'Intake and tune first — there\'s free power there before you need to touch the blower. Once those are done and you\'re looking for the next step, the snout bearing upgrade and IHI porting are the logical progression.',
+  },
+  {
+    q: 'Does FAS handle tuning?',
+    a: 'FAS does not provide in-house tuning. We work alongside trusted tuners who specialize in FCA/Hellcat platform calibration and can provide a referral at time of service.',
+  },
+];
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(({ q, a }) => ({
+    '@type': 'Question',
+    name: q,
+    acceptedAnswer: { '@type': 'Answer', text: a },
+  })),
+};
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://fasmotorsports.com/' },
+    { '@type': 'ListItem', position: 2, name: 'Platform', item: 'https://fasmotorsports.com/platform/' },
+    { '@type': 'ListItem', position: 3, name: 'RAM TRX', item: 'https://fasmotorsports.com/platform/trx' },
+  ],
+};
+---
+
+<BaseLayout
+  title="RAM TRX Supercharger Upgrades | FAS Motorsports"
+  description="FAS Motorsports builds high-output RAM TRX supercharger packages — IHI porting, Dominator installs, and snout bearing upgrades from our Florida performance shop."
+  canonical="https://fasmotorsports.com/platform/trx"
+  keywords={['ram trx supercharger upgrades', 'trx 2.4l supercharger porting', 'ihi supercharger rebuild trx', 'ram trx performance upgrades', 'trx dominator package', 'trx supercharger rebuild', 'trx snout bearing upgrade']}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} slot="head" />
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} slot="head" />
+
+  <!-- ── HERO ── -->
+  <section class="relative bg-zinc-950 border-b border-white/10 py-20 px-6">
+    <div class="max-w-5xl mx-auto">
+      <p class="font-mono text-xs tracking-widest text-red-400 uppercase mb-4">Platform · RAM TRX</p>
+      <h1 class="text-4xl md:text-5xl font-cyber font-bold text-white leading-tight mb-6">
+        RAM TRX Supercharger<br />Upgrades & Services
+      </h1>
+      <p class="text-white/60 font-mono text-lg max-w-2xl mb-8">
+        The TRX already does 702 horsepower. We fix the ceiling.
+      </p>
+      <div class="flex flex-wrap gap-4">
+        <Button href="/schedule" text="Get a Build Quote" variant="default" />
+        <Button href={`tel:${BUSINESS_PHONE_E164}`} text={BUSINESS_PHONE_NATIONAL} variant="outline" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ── WHY TRX OWNERS COME TO FAS ── -->
+  <section class="max-w-5xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-3">Why TRX Owners Come to FAS</h2>
+    <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+    <div class="prose prose-invert prose-zinc max-w-none font-mono text-white/70 leading-relaxed space-y-4">
+      <p>
+        The RAM TRX runs a 2.4L IHI twin-screw supercharger from the factory. It's a capable setup — until you start pushing it. The stock blower tops out fast, heat soak becomes a consistent problem above 800 whp, and the factory snout bearings aren't built for sustained boost at elevated RPM. Most TRX owners hit a wall around the same mods: tune, intake, exhaust. After that, the supercharger itself is the restriction.
+      </p>
+      <p>
+        FAS Motorsports specializes in exactly that transition point. We precision port, rebuild, and upgrade the IHI and Dominator supercharger platforms with tolerances that production lines don't hit. Every TRX build we touch is engineered for reliability first — not just peak dyno numbers.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── TRX SERVICES ── -->
+  <section class="bg-zinc-900/50 border-y border-white/10 py-20 px-6">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="text-3xl font-cyber font-bold text-white mb-3">TRX Services</h2>
+      <div class="h-[2px] w-16 bg-red-500 mb-10"></div>
+      <div class="grid md:grid-cols-2 gap-6">
+        {[
+          {
+            title: '2.4L IHI Supercharger Porting',
+            body: 'The factory IHI rotor pack leaves material on the table. Our porting process opens the inlet and outlet for improved airflow efficiency across the full RPM range. Result: more top-end pull, reduced inlet temps, no reliability compromise.',
+            href: '/shop/2-7l-ihi-supercharger-rebuild',
+            cta: 'Shop IHI Rebuild',
+          },
+          {
+            title: 'Dominator 2.4L Supercharger Package',
+            body: "Drop-in upgrade for TRX owners ready to move past the factory blower entirely. The Dominator 2.4L package delivers measurably higher airflow capacity with a bolt-on install profile. Built, precision ported, and prepped by FAS before it ships.",
+            href: '/shop/dominator-2-4l-supercharger-package',
+            cta: 'Shop Dominator Package',
+          },
+          {
+            title: 'Snout Bearing Upgrade',
+            body: "High-boost TRX builds put serious load on the factory snout bearings. Upgraded bearings eliminate the failure point before it becomes a problem — standard on all FAS TRX builds, available as a standalone service.",
+            href: '/shop/upgraded-hellcat-supercharger-snout-bearings',
+            cta: 'Shop Bearing Upgrade',
+          },
+          {
+            title: 'Full Supercharger Rebuild',
+            body: "Worn rotors, failed bearings, oil contamination — FAS rebuilds the complete IHI assembly to factory-new clearances. Faster turnaround than OEM replacement. Better result.",
+            href: '/schedule',
+            cta: 'Book a Rebuild',
+          },
+        ].map(({ title, body, href, cta }) => (
+          <div class="border border-white/10 rounded p-6 bg-zinc-950/50 flex flex-col gap-4">
+            <h3 class="text-white font-cyber font-bold text-lg">{title}</h3>
+            <p class="font-mono text-sm text-white/60 leading-relaxed flex-1">{body}</p>
+            <a href={href} class="font-mono text-xs text-red-400 hover:text-red-300 underline underline-offset-4">{cta} →</a>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TECHNICAL DETAIL ── -->
+  <section class="max-w-5xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-3">TRX Supercharger Technical Detail</h2>
+    <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+    <div class="grid md:grid-cols-2 gap-10">
+      <div class="font-mono text-white/70 text-sm leading-relaxed space-y-4">
+        <p>
+          The RAM TRX uses a 6.2L Hellcat-derived HEMI mated to a 2.4L IHI twin-screw supercharger producing 11.6 psi of factory boost. The IHI unit is a positive-displacement design — meaning boost builds proportionally with RPM — which makes it highly responsive but thermally sensitive at elevated output levels.
+        </p>
+        <p>
+          The primary constraint in stock form is the inlet port geometry. The factory casting prioritizes manufacturing consistency over flow efficiency, leaving measurable restriction in the rotor path. Under sustained wide-open-throttle at higher boost, this translates directly to inlet temps that compress the power curve and pull timing.
+        </p>
+      </div>
+      <div class="font-mono text-white/70 text-sm leading-relaxed space-y-4">
+        <p>
+          FAS addresses this at the source: precision ported inlet and outlet runners, hand finished, with precision rotor clearance matching and bearing replacement where load analysis indicates wear. On a properly built TRX, the result is a flatter torque curve, improved top-end response, and sustained reliability at power levels the stock assembly can't hold.
+        </p>
+        <p>
+          For owners targeting 900–1,100 whp, the Dominator 2.4L package replaces the factory IHI entirely with a unit designed for that output range from the start. FAS preps, precision ports, and tests every unit before delivery.
+        </p>
+      </div>
+    </div>
+
+    <!-- Platform reference -->
+    <div class="mt-12 overflow-x-auto">
+      <table class="w-full text-sm font-mono border border-white/10 rounded">
+        <thead>
+          <tr class="bg-zinc-800/60 text-white/40 text-xs tracking-widest uppercase">
+            <th class="text-left p-3">Spec</th>
+            <th class="text-left p-3">Stock IHI</th>
+            <th class="text-left p-3">FAS Ported IHI</th>
+            <th class="text-left p-3">Dominator 2.4L</th>
+          </tr>
+        </thead>
+        <tbody class="text-white/60">
+          {[
+            ['Displacement', '2.4L', '2.4L', '2.4L (upgraded rotors)'],
+            ['Max whp target', '800', '850', '1,100+'],
+            ['Inlet geometry', 'Factory cast', 'Precision ported, hand finished', 'Precision ported, hand finished'],
+            ['Bearing spec', 'OEM', 'Upgraded available', 'Upgraded std.'],
+            ['Snout', 'Cast aluminum', 'OEM or billet', 'Billet std.'],
+          ].map((row) => (
+            <tr class="border-t border-white/10">
+              {row.map((cell) => <td class="p-3">{cell}</td>)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── FAQ ── -->
+  <section class="bg-zinc-900/50 border-y border-white/10 py-20 px-6">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="text-3xl font-cyber font-bold text-white mb-3">Frequently Asked Questions</h2>
+      <div class="h-[2px] w-16 bg-red-500 mb-10"></div>
+      <div class="space-y-6">
+        {faqs.map(({ q, a }) => (
+          <div class="border border-white/10 rounded p-6 bg-zinc-950/30">
+            <p class="font-cyber font-bold text-white mb-2">{q}</p>
+            <p class="font-mono text-sm text-white/60 leading-relaxed">{a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ── -->
+  <section class="max-w-5xl mx-auto px-6 py-20 text-center">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-4">Ready to build your TRX?</h2>
+    <p class="font-mono text-white/50 mb-8 max-w-xl mx-auto">
+      FAS Motorsports — {BUSINESS_ADDRESS_LINE1}, {BUSINESS_ADDRESS_LOCALITY}, {BUSINESS_ADDRESS_REGION}. Ships nationwide.
+    </p>
+    <div class="flex flex-wrap gap-4 justify-center">
+      <Button href="/schedule" text="Schedule a Consult" variant="default" />
+      <Button href="/shop/dominator-2-4l-supercharger-package" text="Shop TRX Parts" variant="outline" />
+    </div>
+  </section>
+</BaseLayout>

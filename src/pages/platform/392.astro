@@ -1,0 +1,231 @@
+---
+export const prerender = true;
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Button from '@/components/Button.astro';
+import {
+  BUSINESS_PHONE_NATIONAL,
+  BUSINESS_PHONE_E164,
+  BUSINESS_ADDRESS_LINE1,
+  BUSINESS_ADDRESS_LOCALITY,
+  BUSINESS_ADDRESS_REGION,
+} from '@/lib/nap';
+
+const faqs = [
+  {
+    q: 'Can I supercharge the 3.6L Pentastar Wrangler?',
+    a: 'This page covers 392 HEMI builds only. FAS specializes in the 6.4L V8 platform for Wrangler and Gladiator. If you have a 3.6L, contact us and we\'ll discuss what we can support.',
+  },
+  {
+    q: "Will a supercharger affect my Wrangler's off-road capability?",
+    a: "Not in any meaningful way, when built correctly. FAS installs are engineered to work within the factory packaging and don't compromise ground clearance, approach angles, or water ford depth. The tune is calibrated for normal off-road throttle inputs, not just wide-open track scenarios.",
+  },
+  {
+    q: 'What power level is realistic on a 392 supercharger build?',
+    a: 'Depends on the kit and supporting mods, but most 392 builds with a properly sized positive-displacement blower target 550–700 whp. Above that, supporting fuel system and cooling upgrades are typically required.',
+  },
+  {
+    q: 'Does the 392 need a different tune than a Hellcat build?',
+    a: 'Yes. The 6.4L HEMI has different fuel mapping, compression ratio, and timing sensitivity than the 6.2L Hellcat. FAS works with tuners who calibrate specifically for the 392 under boost.',
+  },
+  {
+    q: 'How long does a 392 supercharger installation take?',
+    a: 'Typically 2–4 days for a full kit install with dyno validation. Contact FAS for a specific timeline based on your build spec.',
+  },
+];
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(({ q, a }) => ({
+    '@type': 'Question',
+    name: q,
+    acceptedAnswer: { '@type': 'Answer', text: a },
+  })),
+};
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://fasmotorsports.com/' },
+    { '@type': 'ListItem', position: 2, name: 'Platform', item: 'https://fasmotorsports.com/platform/' },
+    { '@type': 'ListItem', position: 3, name: 'Jeep 392 HEMI', item: 'https://fasmotorsports.com/platform/392' },
+  ],
+};
+---
+
+<BaseLayout
+  title="392 HEMI Supercharger Upgrades | FAS Motorsports"
+  description="FAS Motorsports builds Jeep Wrangler and Gladiator 392 HEMI supercharger setups — engineered for street, strip, and trail use."
+  canonical="https://fasmotorsports.com/platform/392"
+  keywords={['392 hemi supercharger', 'wrangler 392 performance mods', 'gladiator 392 supercharger', 'jeep 392 hemi power upgrade', 'wrangler 392 supercharger kit', 'rubicon 392 supercharger', '6.4l hemi supercharger']}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} slot="head" />
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} slot="head" />
+
+  <!-- ── HERO ── -->
+  <section class="relative bg-zinc-950 border-b border-white/10 py-20 px-6">
+    <div class="max-w-5xl mx-auto">
+      <p class="font-mono text-xs tracking-widest text-red-400 uppercase mb-4">Platform · Jeep 392 HEMI</p>
+      <h1 class="text-4xl md:text-5xl font-cyber font-bold text-white leading-tight mb-6">
+        Jeep Wrangler & Gladiator<br />392 Supercharger Upgrades
+      </h1>
+      <p class="text-white/60 font-mono text-lg max-w-2xl mb-8">
+        The 392 HEMI in a Wrangler or Gladiator is already something special. We take it further.
+      </p>
+      <div class="flex flex-wrap gap-4">
+        <Button href="/schedule" text="Get a Build Quote" variant="default" />
+        <Button href={`tel:${BUSINESS_PHONE_E164}`} text={BUSINESS_PHONE_NATIONAL} variant="outline" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ── WHY 392 OWNERS COME TO FAS ── -->
+  <section class="max-w-5xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-3">Why 392 Owners Come to FAS</h2>
+    <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+    <div class="font-mono text-white/70 text-sm leading-relaxed space-y-4">
+      <p>
+        The 392 HEMI in the Wrangler Rubicon 392 and Gladiator Mojave is a 470-hp naturally aspirated V8 — and it's the foundation most serious Jeep performance builds start from. Adding a supercharger to the 392 puts this platform in a different category entirely: a trail-capable, street-legal vehicle with real forced-induction output.
+      </p>
+      <p>
+        The challenge with 392 builds is packaging and reliability in a use case that includes both on-road performance and off-road exposure. FAS builds 392 supercharger setups that are dialed for the real world — not just peak dyno numbers — because Gladiator and Wrangler owners actually use their rigs in conditions that stress everything.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── 392 SERVICES ── -->
+  <section class="bg-zinc-900/50 border-y border-white/10 py-20 px-6">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="text-3xl font-cyber font-bold text-white mb-3">392 HEMI Services</h2>
+      <div class="h-[2px] w-16 bg-red-500 mb-10"></div>
+      <div class="grid md:grid-cols-2 gap-6">
+        {[
+          {
+            title: 'Supercharger Installation & Setup',
+            body: 'FAS installs and validates supercharger kits on the 392 HEMI platform. We work with leading positive-displacement blower systems designed for the 6.4L architecture, ensuring proper fit, boost target, and tune before delivery.',
+            href: '/schedule',
+            cta: 'Book a Consult',
+          },
+          {
+            title: 'Supercharger Porting',
+            body: 'For 392 builds already running a blower, FAS precision ports the inlet and outlet for improved airflow efficiency — same hand-finished approach as our Hellcat platform work, applied to the 6.4L-compatible supercharger housings.',
+            href: '/hellcat-supercharger-porting',
+            cta: 'View Porting Service',
+          },
+          {
+            title: 'Billet Snout & Bearing Upgrades',
+            body: 'Where the supercharger architecture overlaps with the Hellcat snout design, FAS billet snout and bearing upgrades apply directly. Confirm applicability at booking.',
+            href: '/shop/upgraded-hellcat-supercharger-snout-bearings',
+            cta: 'Shop Bearing Upgrade',
+          },
+          {
+            title: 'Full Supercharger Rebuild',
+            body: 'Worn or damaged supercharger on an existing 392 build? FAS rebuilds to spec with documented clearances. Faster turnaround than sourcing a replacement unit.',
+            href: '/schedule',
+            cta: 'Book a Rebuild',
+          },
+        ].map(({ title, body, href, cta }) => (
+          <div class="border border-white/10 rounded p-6 bg-zinc-950/50 flex flex-col gap-4">
+            <h3 class="text-white font-cyber font-bold text-lg">{title}</h3>
+            <p class="font-mono text-sm text-white/60 leading-relaxed flex-1">{body}</p>
+            <a href={href} class="font-mono text-xs text-red-400 hover:text-red-300 underline underline-offset-4">{cta} →</a>
+          </div>
+        ))}
+      </div>
+      <div class="mt-6 flex gap-4 flex-wrap">
+        <a href="/shop/2-4l-hellcat-billet-supercharger-snout" class="font-mono text-xs text-white/40 hover:text-red-400 underline underline-offset-4">→ 2.4L Hellcat Billet Snout</a>
+        <a href="/shop/upgraded-hellcat-supercharger-snout-bearings" class="font-mono text-xs text-white/40 hover:text-red-400 underline underline-offset-4">→ Upgraded Snout Bearings</a>
+        <a href="/shop/dominator-2-4l-supercharger-package" class="font-mono text-xs text-white/40 hover:text-red-400 underline underline-offset-4">→ Dominator 2.4L Package</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TECHNICAL DETAIL ── -->
+  <section class="max-w-5xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-3">392 HEMI Technical Detail</h2>
+    <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+    <div class="font-mono text-white/70 text-sm leading-relaxed space-y-4 max-w-3xl">
+      <p>
+        The 392 HEMI (6.4L) is a different engine family than the 6.2L Hellcat. It's a naturally aspirated design — heavier iron block, more displacement, strong torque output from low in the RPM range. Adding a supercharger to it changes the character significantly: what was a strong-pulling V8 becomes a high-output forced-induction build with markedly different boost management requirements.
+      </p>
+    </div>
+    <div class="mt-8 grid md:grid-cols-3 gap-6">
+      {[
+        {
+          heading: 'Heat Management',
+          body: 'The 6.4L runs hotter base temps than the 6.2L under boosted conditions. An intercooled setup is strongly recommended for any build targeting meaningful output gains.',
+        },
+        {
+          heading: 'Compression Ratio',
+          body: 'The 392 runs 10.9:1 compression from the factory — higher than the 6.2L Hellcat. Running positive boost on a high-compression engine requires a conservative, well-calibrated tune. FAS coordinates with tuners who know this platform.',
+        },
+        {
+          heading: 'Off-Road Use Case',
+          body: 'Wrangler and Gladiator builds are routinely exposed to dust, water crossings, and sustained load. FAS prioritizes sealing, thermal management, and reliability in the build spec — not just street/strip output.',
+        },
+      ].map(({ heading, body }) => (
+        <div class="border border-white/10 rounded p-5 bg-zinc-950/30">
+          <p class="font-cyber font-bold text-white text-sm mb-2">{heading}</p>
+          <p class="font-mono text-xs text-white/60 leading-relaxed">{body}</p>
+        </div>
+      ))}
+    </div>
+
+    <!-- Engine comparison -->
+    <div class="mt-10 overflow-x-auto">
+      <table class="w-full text-sm font-mono border border-white/10 rounded">
+        <thead>
+          <tr class="bg-zinc-800/60 text-white/40 text-xs tracking-widest uppercase">
+            <th class="text-left p-3">Spec</th>
+            <th class="text-left p-3">392 HEMI (6.4L)</th>
+            <th class="text-left p-3">6.2L Hellcat</th>
+          </tr>
+        </thead>
+        <tbody class="text-white/60">
+          {[
+            ['Displacement', '6.4L', '6.2L'],
+            ['Factory output', '470 hp (NA)', '707–840 hp'],
+            ['Compression', '10.9:1', '9.5:1'],
+            ['Block', 'Iron', 'Iron'],
+            ['Factory boost', 'None', '11.6–14.5 psi'],
+            ['Supercharger type', 'Kit-dependent', '2.4L IHI twin-screw'],
+          ].map((row) => (
+            <tr class="border-t border-white/10">
+              {row.map((cell) => <td class="p-3">{cell}</td>)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── FAQ ── -->
+  <section class="bg-zinc-900/50 border-y border-white/10 py-20 px-6">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="text-3xl font-cyber font-bold text-white mb-3">Frequently Asked Questions</h2>
+      <div class="h-[2px] w-16 bg-red-500 mb-10"></div>
+      <div class="space-y-6">
+        {faqs.map(({ q, a }) => (
+          <div class="border border-white/10 rounded p-6 bg-zinc-950/30">
+            <p class="font-cyber font-bold text-white mb-2">{q}</p>
+            <p class="font-mono text-sm text-white/60 leading-relaxed">{a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ── -->
+  <section class="max-w-5xl mx-auto px-6 py-20 text-center">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-4">Ready to build your 392?</h2>
+    <p class="font-mono text-white/50 mb-8 max-w-xl mx-auto">
+      FAS Motorsports — {BUSINESS_ADDRESS_LINE1}, {BUSINESS_ADDRESS_LOCALITY}, {BUSINESS_ADDRESS_REGION}. Ships nationwide.
+    </p>
+    <div class="flex flex-wrap gap-4 justify-center">
+      <Button href="/schedule" text="Schedule a Consult" variant="default" />
+      <Button href="/shop" text="Shop 392 Parts" variant="outline" />
+    </div>
+  </section>
+</BaseLayout>

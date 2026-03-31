@@ -5,4 +5,25 @@ Disallow: /account
 Disallow: /dashboard
 Disallow: /vendor
 Disallow: /vendor-portal
+
+# Block Netlify Image CDN transforms — the dpl= deploy-ID param creates unique
+# crawlable URLs on every deploy, inflating the index and burning crawl budget.
+Disallow: /.netlify/images
+
+# ── /shop URL parameter explosion fix ──────────────────────────────────────────
+# Filter/sort/search/price/vehicle params generate thousands of unique URLs that
+# are not distinct index targets and actively burn crawl budget.
+# Strategy: Allow canonical params (page, category, categorySlug), disallow all
+# other query-string variants. Google picks the longest matching rule (Allow wins
+# over Disallow when both match at the same length, or Allow is more specific).
+Allow: /shop/?page=
+Allow: /shop/?category=
+Allow: /shop/?categorySlug=
+Allow: /shop?page=
+Allow: /shop?category=
+Allow: /shop?categorySlug=
+# Catch-all: disallow any remaining ?param= URLs on /shop and /shop/
+Disallow: /shop/?
+Disallow: /shop?
+
 Sitemap: https://fasmotorsports.com/sitemap_index.xml

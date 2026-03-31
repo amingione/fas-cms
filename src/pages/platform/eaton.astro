@@ -1,0 +1,218 @@
+---
+export const prerender = true;
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Button from '@/components/Button.astro';
+import {
+  BUSINESS_PHONE_NATIONAL,
+  BUSINESS_PHONE_E164,
+  BUSINESS_ADDRESS_LINE1,
+  BUSINESS_ADDRESS_LOCALITY,
+  BUSINESS_ADDRESS_REGION,
+} from '@/lib/nap';
+
+const faqs = [
+  {
+    q: 'Does FAS work on Audi 2.7T biturbo builds as well as supercharged platforms?',
+    a: "The Audi 2.7T is twin-turbocharged, not supercharged — a different service category. This page covers Eaton supercharger platforms. Contact FAS to discuss turbo work availability.",
+  },
+  {
+    q: "The M62 on my S4 is making a whine. Is that the supercharger?",
+    a: "Often yes — either bearing wear or rotor-to-housing contact as clearances open up. The M62 is a precision unit; don't ignore early symptoms. FAS can diagnose from a video and sound clip before you commit to shipping.",
+  },
+  {
+    q: 'Can you rebuild an Eaton M62 with worn rotor tips?',
+    a: 'Depends on wear depth. Minor wear is often addressed by precision clearance matching. Severe tip wear requires replacement rotors, which FAS sources on a case-by-case basis. Send photos before shipping.',
+  },
+  {
+    q: 'Is the Eaton porting worth it on a stock B6 S4 build?',
+    a: 'On a supporting build with intake and tune, yes — the porting improves airflow efficiency and reduces inlet temps, which is particularly relevant on the tight packaging of the B6 engine bay. On a completely stock car with no other mods, the gains are smaller but the reliability benefit of a properly rebuilt/ported unit is still real.',
+  },
+  {
+    q: 'How do I ship an Eaton M62 to FAS?',
+    a: 'FAS accepts shipped cores. The M62 is small and ships easily in a standard box with proper padding. Contact us before shipping to confirm applicability and get a job number.',
+  },
+  {
+    q: 'Does FAS work on VW Golf/GTI supercharger builds?',
+    a: 'Yes, where the platform uses an Eaton-type blower (certain Golf R32 and G60 applications). Contact FAS with your specific model and we\'ll confirm service availability.',
+  },
+];
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(({ q, a }) => ({
+    '@type': 'Question',
+    name: q,
+    acceptedAnswer: { '@type': 'Answer', text: a },
+  })),
+};
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://fasmotorsports.com/' },
+    { '@type': 'ListItem', position: 2, name: 'Platform', item: 'https://fasmotorsports.com/platform/' },
+    { '@type': 'ListItem', position: 3, name: 'Audi / Euro (Eaton)', item: 'https://fasmotorsports.com/platform/eaton' },
+  ],
+};
+---
+
+<BaseLayout
+  title="Eaton Supercharger Porting & Rebuild | FAS Motorsports"
+  description="FAS Motorsports ports and rebuilds Eaton M62 and M90 superchargers for Audi, VW, and European platforms — precision porting, hand finished, documented specs, shipped cores accepted."
+  canonical="https://fasmotorsports.com/platform/eaton"
+  keywords={['eaton supercharger porting', 'audi supercharger rebuild', 'audi s4 supercharger porting', 'volkswagen supercharger rebuild', 'eaton m62 porting', 'eaton m90 rebuild', 'b5 s4 supercharger rebuild', 'audi eaton supercharger']}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} slot="head" />
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} slot="head" />
+
+  <!-- ── HERO ── -->
+  <section class="relative bg-zinc-950 border-b border-white/10 py-20 px-6">
+    <div class="max-w-5xl mx-auto">
+      <p class="font-mono text-xs tracking-widest text-red-400 uppercase mb-4">Platform · Audi / Euro (Eaton)</p>
+      <h1 class="text-4xl md:text-5xl font-cyber font-bold text-white leading-tight mb-6">
+        Audi & European Supercharger<br />Porting & Rebuild Services
+      </h1>
+      <p class="text-white/60 font-mono text-lg max-w-2xl mb-8">
+        The Eaton M62 and M90 are precision units. FAS treats them accordingly.
+      </p>
+      <div class="flex flex-wrap gap-4">
+        <Button href="/schedule" text="Get a Build Quote" variant="default" />
+        <Button href={`tel:${BUSINESS_PHONE_E164}`} text={BUSINESS_PHONE_NATIONAL} variant="outline" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ── WHY AUDI & EURO OWNERS COME TO FAS ── -->
+  <section class="max-w-5xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-3">Why Audi & Euro Owners Come to FAS</h2>
+    <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+    <div class="font-mono text-white/70 text-sm leading-relaxed space-y-4">
+      <p>
+        The Eaton Roots-type supercharger family — M62, M90, and related units — is used across a wide range of European performance vehicles: Audi A4/S4 (B5, B6), Audi A6/S6 (C5), Volkswagen Golf R32, and others. These are tight-tolerance, finely engineered units that respond well to skilled modification — but are less forgiving than domestic blowers if the work isn't done correctly.
+      </p>
+      <p>
+        FAS has the machining background and the precision to work on Euro supercharger platforms. Owners who have been told "we don't work on those" elsewhere find what they need here: proper porting, accurate rebuild tolerances, and a shop that understands the difference between an Eaton M62 and an American-market Roots blower.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── AUDI / EURO SERVICES ── -->
+  <section class="bg-zinc-900/50 border-y border-white/10 py-20 px-6">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="text-3xl font-cyber font-bold text-white mb-3">Audi / Euro Supercharger Services</h2>
+      <div class="h-[2px] w-16 bg-red-500 mb-10"></div>
+      <div class="grid md:grid-cols-3 gap-6">
+        {[
+          {
+            title: 'Eaton Supercharger Porting',
+            body: 'FAS precision ports the Eaton M62, M90, and compatible units for improved inlet and outlet flow efficiency — hand finished, measured, and documented. Applies to Audi S4/S6, VW applications, and compatible Euro platforms.',
+            href: '/shop/audi-eaton-supercharger-porting',
+            cta: 'Shop Eaton Porting',
+          },
+          {
+            title: 'Supercharger Rebuild',
+            body: 'The Eaton units are rebuildable — rotor packs, bearings, and seals. FAS rebuilds to precise clearances with documented specs. A rebuild restores output and extends service life significantly for owners running aging units.',
+            href: '/schedule',
+            cta: 'Book a Rebuild',
+          },
+          {
+            title: 'Bearing Replacement',
+            body: 'Bearing failure in an Eaton M62/M90 typically presents as noise or inconsistent boost. FAS replaces bearings as a standalone service before the issue progresses to rotor contact.',
+            href: '/shop/upgraded-hellcat-supercharger-snout-bearings',
+            cta: 'Shop Bearing Service',
+          },
+        ].map(({ title, body, href, cta }) => (
+          <div class="border border-white/10 rounded p-6 bg-zinc-950/50 flex flex-col gap-4">
+            <h3 class="text-white font-cyber font-bold text-lg">{title}</h3>
+            <p class="font-mono text-sm text-white/60 leading-relaxed flex-1">{body}</p>
+            <a href={href} class="font-mono text-xs text-red-400 hover:text-red-300 underline underline-offset-4">{cta} →</a>
+          </div>
+        ))}
+      </div>
+      <div class="mt-6">
+        <a href="/shop/m122-m112-supercharger-porting" class="font-mono text-xs text-white/40 hover:text-red-400 underline underline-offset-4">→ Also see: M122/M112 Supercharger Porting (LSA / GM applications)</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TECHNICAL DETAIL ── -->
+  <section class="max-w-5xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-3">Technical Detail</h2>
+    <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+    <div class="grid md:grid-cols-2 gap-10 font-mono text-white/70 text-sm leading-relaxed">
+      <div class="space-y-4">
+        <p>
+          The Eaton M62 (used in the B5/B6 Audi S4 and related applications) is a 62 cubic inch Roots-style blower. It's a compact, lightweight unit designed for the tight engine bays of European sport sedans. The M90 (90 cubic inches) appears in larger-displacement Euro applications and some GM products.
+        </p>
+        <p>
+          The Roots design in these applications is a positive-displacement blower — linear boost curve, low-end torque, good response. The limitation is the same as every Roots blower: the factory port geometry is not optimized for maximum flow efficiency. The inlet and outlet transitions leave measurable restriction that FAS addresses through precision porting, hand finished.
+        </p>
+      </div>
+      <div class="space-y-4">
+        <div class="border border-red-500/30 rounded p-4 bg-red-950/20">
+          <p class="text-xs font-mono tracking-widest text-red-400 uppercase mb-2">Key difference on Euro builds</p>
+          <p>Tolerances are tighter from the factory, and the margin for error in porting is smaller. FAS takes the same precision approach on Euro units that we apply to domestic blowers — the difference is that we don't treat them as afterthoughts. Every Eaton unit that goes through FAS gets the same documented spec sheet as a Hellcat or LT4 job.</p>
+        </div>
+        <p>
+          For owners considering a rebuild: an Eaton M62 with worn rotors and degraded seals typically loses 10–15% of its effective boost output before it becomes audibly symptomatic. A proper rebuild restores full efficiency and often outlasts the vehicle's remaining service life if maintained correctly.
+        </p>
+      </div>
+    </div>
+
+    <!-- Eaton platform reference -->
+    <div class="mt-12 overflow-x-auto">
+      <table class="w-full text-sm font-mono border border-white/10 rounded">
+        <thead>
+          <tr class="bg-zinc-800/60 text-white/40 text-xs tracking-widest uppercase">
+            <th class="text-left p-3">Unit</th>
+            <th class="text-left p-3">Displacement</th>
+            <th class="text-left p-3">Applications</th>
+            <th class="text-left p-3">FAS Services</th>
+          </tr>
+        </thead>
+        <tbody class="text-white/60">
+          {[
+            ['Eaton M62', '62 cu in', 'Audi B5/B6 S4, A4, VW', 'Porting, rebuild, bearings'],
+            ['Eaton M90', '90 cu in', 'Audi A6/S6 C5, some GM', 'Porting, rebuild, bearings'],
+            ['M122 / M112', '122/112 cu in', 'Mustang GT500, GM LSA', 'Porting (see M122 page)'],
+          ].map((row) => (
+            <tr class="border-t border-white/10">
+              {row.map((cell) => <td class="p-3">{cell}</td>)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── FAQ ── -->
+  <section class="bg-zinc-900/50 border-y border-white/10 py-20 px-6">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="text-3xl font-cyber font-bold text-white mb-3">Frequently Asked Questions</h2>
+      <div class="h-[2px] w-16 bg-red-500 mb-10"></div>
+      <div class="space-y-6">
+        {faqs.map(({ q, a }) => (
+          <div class="border border-white/10 rounded p-6 bg-zinc-950/30">
+            <p class="font-cyber font-bold text-white mb-2">{q}</p>
+            <p class="font-mono text-sm text-white/60 leading-relaxed">{a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ── -->
+  <section class="max-w-5xl mx-auto px-6 py-20 text-center">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-4">Ready to rebuild or port your Eaton supercharger?</h2>
+    <p class="font-mono text-white/50 mb-8 max-w-xl mx-auto">
+      FAS Motorsports — {BUSINESS_ADDRESS_LINE1}, {BUSINESS_ADDRESS_LOCALITY}, {BUSINESS_ADDRESS_REGION}. Shipped cores accepted nationwide.
+    </p>
+    <div class="flex flex-wrap gap-4 justify-center">
+      <Button href="/schedule" text="Schedule a Consult" variant="default" />
+      <Button href="/shop/audi-eaton-supercharger-porting" text="Shop Euro Parts" variant="outline" />
+    </div>
+  </section>
+</BaseLayout>
