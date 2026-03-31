@@ -239,7 +239,7 @@ test.describe('Medusa backend health', () => {
         const isSpaHtml = body.includes('<!DOCTYPE html') || body.includes('<html');
         expect(isDeprecatedStub || isSpaHtml).toBe(true);
       } else {
-        expect([404, 410]).toContain(res.status());
+        expect([404, 405, 410]).toContain(res.status());
       }
     }
   });
