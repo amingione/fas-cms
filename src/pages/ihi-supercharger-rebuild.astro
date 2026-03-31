@@ -53,6 +53,13 @@ const productJsonLd = {
   description: 'Full rebuild service for the IHI twin-screw 2.7L supercharger (Dodge Demon, Demon 170, Hellcat Redeye High-Output). Ship-in nationwide, 3–5 day turnaround. Flow-bench verified. FAS Motorsports, Punta Gorda FL.',
   brand: { '@type': 'Brand', name: 'FAS Motorsports' },
   url: 'https://fasmotorsports.com/ihi-supercharger-rebuild',
+  offers: {
+    '@type': 'Offer',
+    price: 1200.00,
+    priceCurrency: 'USD',
+    availability: 'https://schema.org/InStock',
+    url: 'https://fasmotorsports.com/shop/2-7l-ihi-supercharger-rebuild',
+  },
   provider: { '@type': 'AutoRepair', name: 'FAS Motorsports', telephone: BUSINESS_PHONE_E164,
     address: { '@type': 'PostalAddress', streetAddress: BUSINESS_ADDRESS_LINE1, addressLocality: BUSINESS_ADDRESS_LOCALITY, addressRegion: BUSINESS_ADDRESS_REGION, postalCode: BUSINESS_ADDRESS_POSTAL_CODE, addressCountry: BUSINESS_ADDRESS_COUNTRY },
   },
