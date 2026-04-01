@@ -19,6 +19,7 @@ interface SanityProductResult {
   images: { asset?: { url?: string } }[] | null;
   slug: string | null;
   medusaProductId: string | null;
+  medusaVariantId?: string | null;
   metadata?: { sanity_id?: string; sanity_slug?: string };
   priceDisplay?: string | null;
   priceKnown?: boolean;
@@ -59,6 +60,7 @@ const PRODUCT_SEARCH_QUERY = /* groq */ `
     images[0..0]{ asset->{ url } },
     "slug": slug.current,
     medusaProductId,
+    "medusaVariantId": coalesce(medusaVariantId, medusaVariantID),
     "metadata": {
       "sanity_id": _id,
       "sanity_slug": slug.current
