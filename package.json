@@ -34,6 +34,7 @@
     "deploy:netlify": "node ./scripts/netlify-deploy.mjs",
     "deploy:netlify:skip-env-check": "node ./scripts/netlify-deploy.mjs --skip-env-check",
     "docs:check": "node ./scripts/docs-drift-check.mjs",
+    "seo:check:category-slashes": "node ./scripts/seo/check-category-trailing-slash-links.mjs",
     "test:e2e": "playwright test",
     "test:e2e:smoke": "playwright test tests/e2e/api-smoke.spec.ts",
     "test:e2e:shop": "playwright test tests/e2e/shop.spec.ts",

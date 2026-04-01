@@ -98,7 +98,9 @@ try {
 export default defineConfig({
   output: 'server',
   site: siteUrl,
-  trailingSlash: 'always',
+  // Keep router permissive so middleware can canonicalize page URLs with 308
+  // redirects instead of Astro's dev-only trailingSlash mismatch 404 page.
+  trailingSlash: 'ignore',
   adapter: netlify({
     devFeatures: {
       images: false,

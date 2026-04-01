@@ -6,20 +6,26 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Category pages', () => {
   test('category page responds without 5xx', async ({ page }) => {
-    const response = await page.goto('/shop/categories/wheels');
+    const response = await page.goto('/shop/categories/wheels/');
     expect(response?.status()).not.toBe(500);
     expect(response?.status()).not.toBe(503);
   });
 
   test('category page shows product cards or a graceful empty state — not a blank page', async ({ page }) => {
     // Use a known-active category slug (billet-parts has live products)
-    await page.goto('/shop/categories/billet-parts');
+    await page.goto('/shop/categories/billet-parts/');
     // ProductCard root class is "pc" (see src/components/ProductCard.tsx)
     const hasProducts = await page.locator('.pc').count();
     // Empty state or category heading (present even if 0 products)
     const hasCategoryTitle = await page.locator('h1').count();
 
     expect(hasProducts + hasCategoryTitle).toBeGreaterThan(0);
+  });
+
+  test('category URL without trailing slash redirects to canonical slash URL', async ({ page }) => {
+    const response = await page.goto('/shop/categories/billet-parts');
+    expect(response?.status()).toBe(200);
+    await expect(page).toHaveURL(/\/shop\/categories\/billet-parts\/$/);
   });
 
   test('filter page responds without 5xx', async ({ page }) => {

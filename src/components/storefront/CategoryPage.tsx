@@ -59,13 +59,13 @@ const navigation = {
       featured: [
         {
           name: 'Power Packages',
-          href: '/shop/categories/power-packages',
+          href: '/shop/categories/power-packages/',
           imageSrc: '/images/superchargers/Supercharger-custom-coated.webp',
           imageAlt: 'Custom coated supercharger by FAS Motorsports.'
         },
         {
           name: 'Truck Packages',
-          href: '/shop/categories/truck-packages',
+          href: '/shop/categories/truck-packages/',
           imageSrc: '/images/packages/850-ram.webp',
           imageAlt: 'FAS Motorsports 850 Truck Package.'
         }
@@ -88,7 +88,7 @@ const navigation = {
             { name: 'Snout', href: '/shop/2-4l-2-7l-snout-rebuild' },
             {
               name: 'Supercharger',
-              href: '/shop/categories/supercharger-rebuild'
+              href: '/shop/categories/supercharger-rebuild/'
             }
           ]
         },
@@ -106,7 +106,7 @@ const navigation = {
             },
             {
               name: 'Rebuild',
-              href: '/shop/categories/supercharger-rebuild'
+              href: '/shop/categories/supercharger-rebuild/'
             },
             {
               name: 'Porting',
@@ -114,7 +114,7 @@ const navigation = {
             },
             {
               name: 'Components',
-              href: '/shop/categories/supercharger-components'
+              href: '/shop/categories/supercharger-components/'
             }
           ]
         }
@@ -599,7 +599,7 @@ export default function CategoryPage({
             {categoryTiles.map((category) => (
               <a
                 key={category.id || category.slug}
-                href={`/shop/categories/${category.slug}`}
+                href={`/shop/categories/${category.slug}/`}
                 aria-label={`Browse ${category.title}`}
                 className="group relative overflow-hidden rounded-xl border border-white/10 bg-black/40 p-6 transition duration-300 hover:border-primary hover:shadow-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red/5"
               >

@@ -71,7 +71,7 @@ const resolvePrice = (p: any): string | null => {
         </p>
       </div>
       <a
-        href="/shop/categories/billet-parts"
+        href="/shop/categories/billet-parts/"
         class="btn-ghost btn-plain btn-sm"
         style="white-space: nowrap; flex-shrink: 0"
       >
@@ -83,7 +83,7 @@ const resolvePrice = (p: any): string | null => {
       {
         products.map((product, index) => {
           const slug = resolveSlug(product);
-          const href = slug ? `/shop/${slug}` : '/shop/categories/billet-parts';
+          const href = slug ? `/shop/${slug}` : '/shop/categories/billet-parts/';
           const badge = resolveBadge(product);
           const platform = resolvePlatform(product);
           const price = resolvePrice(product);

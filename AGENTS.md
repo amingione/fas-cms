@@ -86,8 +86,24 @@ src/pages/api/
 ```bash
 npm run dev          # Astro dev server
 npm run compliance:check   # Run cross-repo compliance check
+npm run seo:check:category-slashes  # Enforce trailing slash on /shop/categories/* links
 ```
 
 ---
+
+## SEO URL Governance (Trailing Slash)
+
+- Canonical page URLs in this repo are slash-suffixed (e.g. `/path/`) for SEO.
+- Astro routing is set to `trailingSlash: 'ignore'` and canonical slash behavior is
+  enforced by middleware redirects + canonical tags.
+- Category detail URLs are canonical only with a trailing slash:
+  - Correct: `/shop/categories/<slug>/`
+  - Forbidden: `/shop/categories/<slug>`
+- Never merge hardcoded or generated category links without the trailing slash.
+- Enforcement is automated by:
+  - `scripts/seo/check-category-trailing-slash-links.mjs`
+  - `scripts/check-governance.sh` (via `make governance-guard`)
+- Runtime safety net:
+  - `src/middleware.ts` permanently redirects non-slash page URLs to slash canonical URLs (HTTP 308).
 
 *Last updated by AI governance system — $(date -u +%Y-%m-%d)*

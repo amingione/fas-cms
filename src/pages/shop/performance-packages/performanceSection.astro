@@ -113,7 +113,7 @@ const categoryItemListElements = Array.isArray(categories)
   ? categories
       .map((category, index) => {
         if (!category?.slug) return null;
-        const categoryUrl = `${requestUrl.origin}/shop/categories/${category.slug}`;
+        const categoryUrl = `${requestUrl.origin}/shop/categories/${category.slug}/`;
         return {
           '@type': 'ListItem',
           position: index + 1,

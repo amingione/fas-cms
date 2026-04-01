@@ -142,12 +142,12 @@ const pageTitle = filter ? `${resolvedFilterLabel} Products` : 'Filter';
 const pageDescription = collapseLabelSpaces(resolvedFilterDescription);
 
 const dieselPartsUrl = `${requestUrl.origin}/shop?categorySlug=diesel-parts&page=1`;
-const powerstrokeUrl = `${requestUrl.origin}/shop/categories/6-7l-powerstroke`;
+const powerstrokeUrl = `${requestUrl.origin}/shop/categories/6-7l-powerstroke/`;
 const breadcrumbContext = filter
   ? {
       dieselHref: '/shop?categorySlug=diesel-parts&page=1',
       dieselLabel: 'Diesel Parts',
-      platformHref: '/shop/categories/6-7l-powerstroke',
+      platformHref: '/shop/categories/6-7l-powerstroke/',
       platformLabel: '6.7L Powerstroke',
       currentLabel: resolvedFilterLabel
     }

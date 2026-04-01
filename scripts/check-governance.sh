@@ -67,3 +67,8 @@ if [ "$fail" -ne 0 ]; then
   echo "Codex must be run interactively from a real terminal."
   exit 1
 fi
+
+if ! node ./scripts/seo/check-category-trailing-slash-links.mjs; then
+  echo "Governance guard failed: non-canonical /shop/categories/* link(s) detected."
+  exit 1
+fi

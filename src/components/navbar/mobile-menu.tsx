@@ -29,11 +29,11 @@ function MobileNavContent({
             </div>
           </li>
           <li>
-            <a href="/shop/categories/billet-parts" className="mobile-nav-link" onClick={onNavigate}>
+            <a href="/shop/categories/billet-parts/" className="mobile-nav-link" onClick={onNavigate}>
               Billet Parts
             </a>
             <div className="mobile-nav-sub">
-              <a href="/shop/categories/billet-parts" onClick={onNavigate}>
+              <a href="/shop/categories/billet-parts/" onClick={onNavigate}>
                 Shop Billet Parts
               </a>
               <a href="/specs/PredatorPulley" onClick={onNavigate}>
@@ -103,7 +103,7 @@ function MobileNavContent({
           </li>
         </ul>
         <div className="mobile-nav-ctas">
-          <a href="/shop/categories/billet-parts" className="mobile-cta-primary" onClick={onNavigate}>
+          <a href="/shop/categories/billet-parts/" className="mobile-cta-primary" onClick={onNavigate}>
             Shop Billet Parts
           </a>
           <a href="/vendor-portal/login" className="mobile-cta-outline" onClick={onNavigate}>
