@@ -92,19 +92,20 @@ function MobileNavContent({
             </div>
           </li>
           <li>
-            <a href="/about" className="mobile-nav-link" onClick={onNavigate}>
-              About
-            </a>
-          </li>
-          <li>
             <a href="/contact" className="mobile-nav-link" onClick={onNavigate}>
               Contact
             </a>
-          </li>
-          <li>
-            <a href="/blog/" className="mobile-nav-link" onClick={onNavigate}>
-              Blog
-            </a>
+            <div className="mobile-nav-sub">
+              <a href="/contact" onClick={onNavigate}>
+                Contact
+              </a>
+              <a href="/schedule" onClick={onNavigate}>
+                Schedule
+              </a>
+              <a href="/about" onClick={onNavigate}>
+                About
+              </a>
+            </div>
           </li>
         </ul>
         <div className="mobile-nav-ctas">
