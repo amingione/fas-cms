@@ -1,0 +1,74 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import SeoLandingPage from '@/components/seo/SeoLandingPage.astro'
+import {sanityClient} from '@/lib/sanity/client'
+import {seoPageBySlugQuery, seoPageSlugsQuery} from '@/lib/sanity/queries/seoPages'
+import {getSeoProducts} from '@/lib/medusa/seoProducts'
+
+export const prerender = true
+
+type SeoPageSlug = {
+  slug: string
+}
+
+type SeoPage = {
+  title: string
+  slug: string
+  seoTitle?: string
+  seoDescription?: string
+  intro?: string
+  sections?: Array<{heading: string; body?: unknown[]}>
+  ctaHeading?: string
+  ctaText?: string
+  ctaButtonLabel?: string
+  ctaButtonHref?: string
+  medusaCollectionHandle: string
+  featuredProductHandles?: string[]
+}
+
+export async function getStaticPaths() {
+  const pages = await sanityClient.fetch<SeoPageSlug[]>(seoPageSlugsQuery)
+
+  return (pages || [])
+    .filter((page) => typeof page?.slug === 'string' && page.slug.trim().length > 0)
+    .map((page) => ({
+      params: {slug: page.slug},
+    }))
+}
+
+const {slug} = Astro.params
+
+if (!slug) {
+  throw new Error('Missing slug param')
+}
+
+const page = await sanityClient.fetch<SeoPage | null>(seoPageBySlugQuery, {slug})
+
+if (!page) {
+  return new Response(null, {status: 404})
+}
+
+let products: Awaited<ReturnType<typeof getSeoProducts>> = []
+
+try {
+  products = await getSeoProducts({
+    featuredProductHandles: page.featuredProductHandles,
+    medusaCollectionHandle: page.medusaCollectionHandle,
+  })
+} catch (error) {
+  console.error(`[seo-pages] Failed to fetch products for "${slug}"`, error)
+}
+---
+
+<BaseLayout title={page.seoTitle || page.title} description={page.seoDescription || page.intro}>
+  <SeoLandingPage
+    title={page.title}
+    intro={page.intro}
+    sections={page.sections}
+    products={products}
+    ctaHeading={page.ctaHeading}
+    ctaText={page.ctaText}
+    ctaButtonLabel={page.ctaButtonLabel}
+    ctaButtonHref={page.ctaButtonHref}
+  />
+</BaseLayout>

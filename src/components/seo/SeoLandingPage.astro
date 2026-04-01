@@ -1,0 +1,282 @@
+---
+import PortableTextRenderer from '@/components/PortableTextRenderer.jsx'
+import {formatPrice} from '@/lib/utils/formatPrice'
+
+interface Section {
+  heading: string
+  body?: unknown[]
+}
+
+interface Product {
+  id: string
+  title: string
+  handle: string
+  thumbnail: string | null
+  price: number | null
+  currencyCode: string
+}
+
+interface Props {
+  title: string
+  intro?: string
+  sections?: Section[]
+  products?: Product[]
+  ctaHeading?: string
+  ctaText?: string
+  ctaButtonLabel?: string
+  ctaButtonHref?: string
+}
+
+const {
+  title,
+  intro,
+  sections = [],
+  products = [],
+  ctaHeading = 'Start Your Build',
+  ctaText = 'Get a custom performance package built around your goals.',
+  ctaButtonLabel = 'Request a Quote',
+  ctaButtonHref = '/quote',
+} = Astro.props as Props
+---
+
+<section class="seo-hero">
+  <div class="container">
+    <p class="eyebrow">F.A.S. Motorsports</p>
+    <h1>{title}</h1>
+    {intro && <p class="intro">{intro}</p>}
+  </div>
+</section>
+
+{
+  sections.length > 0 && (
+    <section class="seo-content">
+      <div class="container content-grid">
+        {sections.map((section) => (
+          <article class="content-card">
+            <h2>{section.heading}</h2>
+            {section.body && <PortableTextRenderer value={section.body} />}
+          </article>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+{
+  products.length > 0 && (
+    <section class="seo-products">
+      <div class="container">
+        <div class="section-head">
+          <h2>Recommended Upgrades</h2>
+          <p>Shop parts and packages that match this build path.</p>
+        </div>
+
+        <div class="product-grid">
+          {products.map((product) => (
+            <a class="product-card" href={`/products/${product.handle}`}>
+              {product.thumbnail ? (
+                <img src={product.thumbnail} alt={product.title} loading="lazy" />
+              ) : (
+                <div class="product-image-fallback">FAS</div>
+              )}
+
+              <div class="product-copy">
+                <h3>{product.title}</h3>
+                <p class="price">{formatPrice(product.price, product.currencyCode)}</p>
+                <span class="product-link">View Product</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+<section class="seo-cta">
+  <div class="container cta-card">
+    <div>
+      <p class="eyebrow">Build With FAS</p>
+      <h2>{ctaHeading}</h2>
+      <p>{ctaText}</p>
+    </div>
+
+    <a class="cta-button" href={ctaButtonHref}>
+      {ctaButtonLabel}
+    </a>
+  </div>
+</section>
+
+<style>
+  .container {
+    width: min(1200px, calc(100% - 2rem));
+    margin: 0 auto;
+  }
+
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.8rem;
+    opacity: 0.7;
+    margin-bottom: 0.75rem;
+  }
+
+  .seo-hero {
+    padding: 5rem 0 3rem;
+  }
+
+  .seo-hero h1 {
+    font-size: clamp(2.2rem, 4vw, 4.5rem);
+    line-height: 1;
+    margin: 0 0 1rem;
+  }
+
+  .intro {
+    max-width: 760px;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    opacity: 0.88;
+  }
+
+  .seo-content {
+    padding: 1rem 0 3rem;
+  }
+
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .content-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    padding: 1.5rem;
+  }
+
+  .content-card h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+
+  .seo-products {
+    padding: 1rem 0 4rem;
+  }
+
+  .section-head {
+    margin-bottom: 1.25rem;
+  }
+
+  .section-head h2 {
+    margin-bottom: 0.5rem;
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .product-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    overflow: hidden;
+    transition:
+      transform 0.18s ease,
+      border-color 0.18s ease;
+  }
+
+  .product-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+
+  .product-card img,
+  .product-image-fallback {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    display: block;
+  }
+
+  .product-image-fallback {
+    display: grid;
+    place-items: center;
+    background: #111;
+    font-size: 1.5rem;
+    letter-spacing: 0.15em;
+  }
+
+  .product-copy {
+    padding: 1rem;
+  }
+
+  .product-copy h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1.05rem;
+  }
+
+  .price {
+    margin: 0 0 0.75rem;
+    font-weight: 700;
+  }
+
+  .product-link {
+    font-size: 0.95rem;
+    opacity: 0.82;
+  }
+
+  .seo-cta {
+    padding: 0 0 5rem;
+  }
+
+  .cta-card {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 22px;
+    padding: 1.5rem;
+  }
+
+  .cta-card h2 {
+    margin: 0 0 0.5rem;
+  }
+
+  .cta-card p {
+    margin: 0;
+    max-width: 720px;
+  }
+
+  .cta-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0 1.1rem;
+    border-radius: 999px;
+    text-decoration: none;
+    color: #000;
+    background: #fff;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  @media (min-width: 768px) {
+    .content-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .product-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>
