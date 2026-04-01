@@ -720,7 +720,12 @@ export interface Product {
   customPaint?: {
     enabled?: boolean;
     additionalPrice?: number;
+    price?: number;
+    label?: string;
+    description?: string;
     paintCodeRequired?: boolean;
+    paintCodeFieldLabel?: string;
+    paintCodeInstructions?: string;
     codeLabel?: string;
     instructions?: string;
   };
@@ -1065,7 +1070,12 @@ const PRODUCT_LISTING_PROJECTION = `{
   customPaint{
     enabled,
     additionalPrice,
+    price,
+    label,
+    description,
     paintCodeRequired,
+    paintCodeFieldLabel,
+    paintCodeInstructions,
     codeLabel,
     instructions
   },
@@ -1719,7 +1729,12 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       customPaint{
         enabled,
         additionalPrice,
+        price,
+        label,
+        description,
         paintCodeRequired,
+        paintCodeFieldLabel,
+        paintCodeInstructions,
         codeLabel,
         instructions
       },

@@ -1024,20 +1024,46 @@ try {
     : [];
   optionalAddOns = addOns;
   customs = Array.isArray(customs) ? customs.filter(Boolean) : [];
-  // Map Sanity customPaint object -> a custom text input with optional surcharge
+  // Map Sanity customPaint object -> optional powder-coating add-on + dependent paint-code field
   const cp = (product as any).customPaint;
   if (cp?.enabled) {
+    const customPaintPrice =
+      typeof cp.additionalPrice === 'number'
+        ? cp.additionalPrice
+        : typeof cp.price === 'number'
+          ? cp.price
+          : 0;
+    const customPaintToggleKey = 'customPaintEnabled';
+
+    optionalAddOns = Array.isArray(optionalAddOns) ? optionalAddOns.slice() : [];
+    const hasCustomPaintToggle = optionalAddOns.some(
+      (addon: any) =>
+        String(addon?.key || '') === customPaintToggleKey || String(addon?.group || '') === 'customPaint'
+    );
+    if (!hasCustomPaintToggle) {
+      optionalAddOns.push({
+        key: customPaintToggleKey,
+        group: 'customPaint',
+        label: cp.label || 'Powder Coating',
+        value: cp.label || 'Powder Coating',
+        priceDelta: customPaintPrice,
+        priceDeltaCents: Number.isFinite(customPaintPrice) ? Math.round(customPaintPrice * 100) : 0,
+        description: cp.description || ''
+      });
+    }
+
     customs = Array.isArray(customs) ? customs.slice() : [];
     customs.push({
       key: 'paintCode',
       name: 'paintCode',
-      label: cp.codeLabel || 'Custom Coating/Color Code',
+      label: cp.paintCodeFieldLabel || cp.codeLabel || 'Custom Coating/Color Code',
       placeholder: '',
       group: 'customPaint',
+      toggleKey: customPaintToggleKey,
       type: 'text',
       required: cp.paintCodeRequired === true,
-      priceDelta: typeof cp.additionalPrice === 'number' ? cp.additionalPrice : 0,
-      instructions: cp.instructions || ''
+      priceDelta: 0,
+      instructions: cp.paintCodeInstructions || cp.instructions || ''
     });
   }
   // SEO helpers
@@ -1953,7 +1979,7 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                             ? formatDollarsWithSign(a.priceDelta)
                             : 'Included';
                         return (
-                          <label for={inputId} class="flex items-center gap-3 text-sm leading-6 text-white">
+                          <label for={inputId} class="flex items-start gap-3 text-sm leading-6 text-white">
                             <span class="flex h-6 w-6 items-center justify-center">
                               <input
                                 type="checkbox"
@@ -1983,6 +2009,11 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                               <span id={descriptionId} class="text-white/60">
                                 {priceText}
                               </span>
+                              {a.description && (
+                                <span class="w-full text-xs text-white/60">
+                                  {a.description}
+                                </span>
+                              )}
                             </span>
                           </label>
                         );
@@ -1997,9 +2028,10 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
               const label = c.label || c.title || 'Custom Option';
               const fieldId = `custom-field-${String(c.key || c.name || index)}`;
               const isPaintCodeField = String(c?.key || c?.name || '').toLowerCase().includes('paint');
+              const toggleKey = typeof c?.toggleKey === 'string' ? c.toggleKey : '';
+              const startsHidden = Boolean(toggleKey);
               const helperId = `${fieldId}-helper`;
               const helperMessages: string[] = [];
-                if (isPaintCodeField) helperMessages.push('');
               if (c.instructions) helperMessages.push(String(c.instructions));
               const placeholderText = isPaintCodeField
                 ? (c.placeholder || '')
@@ -2007,7 +2039,10 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
               const surchargeAmount = Number(c.priceDelta ?? c.price ?? c.delta ?? 0);
               const surchargeCents = Number.isFinite(surchargeAmount) ? Math.round(surchargeAmount * 100) : 0;
               return (
-                <div class="rounded-2xl border border-white/15 bg-black/20 p-4 sm:p-5">
+                <div
+                  class={`rounded-2xl border border-white/15 bg-black/20 p-4 sm:p-5 ${startsHidden ? 'hidden' : ''}`}
+                  data-custom-input-for={toggleKey || undefined}
+                >
                   <label for={fieldId} class="mb-2 block text-sm font-semibold uppercase tracking-wide text-white">
                     {label}
                   </label>
@@ -2020,7 +2055,9 @@ upsellProductsStructuredData = buildProductListStructuredData(upsellProducts, 'R
                     data-group={(c.group || 'custom').toString()}
                     data-price={(typeof c.priceDelta === 'number' ? c.priceDelta : (typeof c.price === 'number' ? c.price : (typeof c.delta === 'number' ? c.delta : 0))).toString()}
                     data-price-cents={surchargeCents.toString()}
-                    required={!!c.required}
+                    data-required-when-enabled={c.required ? 'true' : 'false'}
+                    required={Boolean(c.required) && !startsHidden}
+                    disabled={startsHidden}
                     aria-describedby={helperMessages.length > 0 ? helperId : undefined}
                   />
                   {helperMessages.length > 0 && (

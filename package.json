@@ -70,7 +70,11 @@
     "@netlify/edge-functions": "npm:2.18.2",
     "esbuild": "0.27.3",
     "baseline-browser-mapping": "2.9.14",
-    "mux-embed": "5.9.0"
+    "mux-embed": "5.9.0",
+    "minimatch@npm:^9.0.0": "9.0.5",
+    "minimatch@npm:^9.0.1": "9.0.5",
+    "minimatch@npm:^9.0.4": "9.0.5",
+    "minimatch@npm:^9.0.5": "9.0.5"
   },
   "devDependencies": {
     "@babel/core": "7.28.5",

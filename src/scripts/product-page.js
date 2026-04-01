@@ -307,6 +307,45 @@ const initStickyVisibility = () => {
   window.addEventListener('menu:close', show);
 };
 
+const initCustomOptionDependencies = () => {
+  const form = document.getElementById('product-options');
+  if (!form) return;
+
+  const dependentContainers = Array.from(form.querySelectorAll('[data-custom-input-for]'));
+  if (!dependentContainers.length) return;
+
+  const resolveToggleByName = (name) =>
+    Array.from(form.querySelectorAll('input[type="checkbox"]')).find((input) => input.name === name);
+
+  const syncDependencyVisibility = () => {
+    dependentContainers.forEach((container) => {
+      const toggleName = container.getAttribute('data-custom-input-for');
+      if (!toggleName) return;
+
+      const toggleInput = resolveToggleByName(toggleName);
+      const isEnabled = Boolean(toggleInput?.checked);
+      container.classList.toggle('hidden', !isEnabled);
+
+      const input = container.querySelector('input, textarea, select');
+      if (!input) return;
+
+      input.disabled = !isEnabled;
+      const requiredWhenEnabled = input.getAttribute('data-required-when-enabled') === 'true';
+      input.required = isEnabled && requiredWhenEnabled;
+
+      if (!isEnabled && typeof input.value === 'string') {
+        input.value = '';
+      }
+    });
+
+    schedule(updateConfiguredPriceUI);
+  };
+
+  form.addEventListener('change', syncDependencyVisibility, true);
+  form.addEventListener('input', syncDependencyVisibility, true);
+  syncDependencyVisibility();
+};
+
 const hydrateCartButtons = () => {
   const win = window;
   if (win.__fasProductInit) return;
@@ -541,6 +580,7 @@ const initProductPage = () => {
   if (typeof window === 'undefined' || typeof document === 'undefined') return;
   initStickyBar();
   initStickyVisibility();
+  initCustomOptionDependencies();
   hydrateCartButtons();
 };
 
