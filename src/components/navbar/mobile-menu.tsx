@@ -101,6 +101,11 @@ function MobileNavContent({
               Contact
             </a>
           </li>
+          <li>
+            <a href="/blog/" className="mobile-nav-link" onClick={onNavigate}>
+              Blog
+            </a>
+          </li>
         </ul>
         <div className="mobile-nav-ctas">
           <a href="/shop/categories/billet-parts/" className="mobile-cta-primary" onClick={onNavigate}>

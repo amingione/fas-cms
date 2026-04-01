@@ -72,3 +72,8 @@ if ! node ./scripts/seo/check-category-trailing-slash-links.mjs; then
   echo "Governance guard failed: non-canonical /shop/categories/* link(s) detected."
   exit 1
 fi
+
+if ! node ./scripts/seo/check-netlify-self-redirects.mjs; then
+  echo "Governance guard failed: self-redirect loop(s) detected in Netlify redirects."
+  exit 1
+fi

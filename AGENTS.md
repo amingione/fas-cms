@@ -29,3 +29,11 @@ Sanity (content) -> Medusa (commerce authority) -> fas-cms-fresh (storefront) an
 ## Governance Requirement
 
 All architecture-sensitive storefront changes must map to tracker IDs in the canonical task tracker.
+
+## SEO Redirect Safety (Mandatory)
+
+- Canonical storefront page URLs are slash-suffixed (example: `/warranty/`).
+- Redirect rules must never self-target on 3xx statuses (for example `from="/warranty/"` and `to="/warranty/"` with `301`), because this creates infinite redirect loops in production.
+- Enforcement commands:
+  - `npm run seo:check:category-slashes`
+  - `npm run seo:check:netlify-self-redirects`

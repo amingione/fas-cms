@@ -83,7 +83,6 @@ const serviceLinks = [
           </a>
 
           <CartButton client:idle />
-          <BlogDrawer client:idle recentPosts={drawerPosts} categories={drawerCategories} />
 
           <div class="fas-mobile-menu" aria-label="Mobile navigation">
             <MobileMenu client:idle />
@@ -200,11 +199,13 @@ const serviceLinks = [
         <li class="nav-item" role="none">
           <a href="/contact/" class="nav-link" role="menuitem">Contact</a>
         </li>
+        <li class="nav-item" role="none">
+          <BlogDrawer client:idle recentPosts={drawerPosts} categories={drawerCategories} />
+        </li>
       </ul>
 
       <div class="desktop-actions">
         <a href="/account" class="desktop-login-btn">Login</a>
-        <BlogDrawer client:idle recentPosts={drawerPosts} categories={drawerCategories} />
         <div class="desktop-search-wrap fas-search-desktop" data-search-wrap>
           <button
             type="button"
@@ -374,6 +375,34 @@ const serviceLinks = [
 
   .fas-search-mobile-trigger {
     display: inline-flex;
+    border: none;
+    background: transparent;
+    border-radius: 0;
+  }
+
+  :global(.blog-nav-trigger) {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 12px;
+    color: #aba7a2;
+    border-radius: 8px;
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition:
+      color 160ms ease,
+      background-color 160ms ease;
+  }
+
+  :global(.blog-nav-trigger:hover),
+  :global(.blog-nav-trigger:focus-visible) {
+    color: #f2efea;
+    background: rgba(255, 255, 255, 0.05);
+    outline: none;
   }
 
   .search-icon-close {

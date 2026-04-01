@@ -56,35 +56,17 @@ export default function BlogDrawer({ recentPosts = [], categories = [] }: BlogDr
   return (
     <Drawer direction={direction}>
       <DrawerTrigger asChild>
-        <button
-          type="button"
-          aria-label="Open blog"
-          className="inline-flex items-center justify-center h-[38px] w-[38px] text-[#f2efea] border border-white/[0.16] rounded-xl bg-transparent cursor-pointer transition-colors duration-150 hover:text-white hover:border-white/30 hover:bg-white/5 focus-visible:outline-none focus-visible:border-white/30"
-        >
-          {/* Newspaper / article icon */}
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            aria-hidden="true"
-            className="w-[18px] h-[18px] shrink-0"
-          >
-            <path
-              d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Z"
-              stroke="currentColor"
-              strokeWidth="1.7"
-              strokeLinejoin="round"
-            />
-            <path d="M7 8h10M7 12h10M7 16h6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-          </svg>
+        <button type="button" className="blog-nav-trigger" aria-label="Open blog preview">
+          Blog
         </button>
       </DrawerTrigger>
 
       <DrawerPortal>
-        <DrawerOverlay className="z-[9990]" />
+        <DrawerOverlay className="z-[10000]" />
         <DrawerPrimitive.Content
           data-slot="drawer-content"
           className={[
-            'group/drawer-content bg-[rgba(8,8,8,0.97)] border-white/10 backdrop-blur-xl fixed z-[9991] flex h-auto flex-col',
+            'group/drawer-content bg-[rgba(8,8,8,0.97)] border-white/10 backdrop-blur-xl fixed z-[10001] flex h-auto flex-col',
             'data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-24 data-[vaul-drawer-direction=bottom]:max-h-[82vh] data-[vaul-drawer-direction=bottom]:rounded-t-xl data-[vaul-drawer-direction=bottom]:border-t',
             'data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=right]:w-[22rem] data-[vaul-drawer-direction=right]:border-l',
           ].join(' ')}

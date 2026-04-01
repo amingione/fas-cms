@@ -910,12 +910,6 @@
   force = true
 
 [[redirects]]
-  from = "/warranty/"
-  to = "/warranty/"
-  status = 301
-  force = true
-
-[[redirects]]
   from = "/shop/filters/platform/:platform/product_cat/:category/*"
   to = "/shop?platform=:platform&categorySlug=:category/"
   status = 301
