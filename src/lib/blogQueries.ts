@@ -73,3 +73,16 @@ export const blogCategoriesQuery = /* groq */ `
   "postCount": count(*[_type == "post" && references(^._id) && status == "published"])
 }
 `;
+
+export const recentPostsDrawerQuery = /* groq */ `
+*[_type == "post" && status == "published" && publishedAt <= now()]
+  | order(publishedAt desc) [0...3] {
+  _id,
+  title,
+  slug,
+  excerpt,
+  featuredImage,
+  publishedAt,
+  "categories": categories[]->{ _id, title, color }
+}
+`;

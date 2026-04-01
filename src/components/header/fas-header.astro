@@ -4,6 +4,20 @@ import MobileMenu from '@/components/navbar/mobile-menu.tsx';
 import CartEntry from '@/components/cart/CartEntry.tsx';
 import CartButton from '@/components/cart/cart-button.tsx';
 import { SearchBar } from '@/components/SearchBar.tsx';
+import BlogDrawer from '@/components/header/BlogDrawer.tsx';
+import { recentPostsDrawerQuery, blogCategoriesQuery } from '@/lib/blogQueries';
+import { sanityClient } from '@/lib/sanity';
+
+let drawerPosts: any[] = [];
+let drawerCategories: any[] = [];
+try {
+  [drawerPosts, drawerCategories] = await Promise.all([
+    sanityClient.fetch(recentPostsDrawerQuery),
+    sanityClient.fetch(blogCategoriesQuery),
+  ]);
+} catch {
+  // BlogDrawer degrades gracefully — shows empty state with plain link
+}
 
 type MenuLink = { label: string; href: string };
 
@@ -69,6 +83,7 @@ const serviceLinks = [
           </a>
 
           <CartButton client:idle />
+          <BlogDrawer client:idle recentPosts={drawerPosts} categories={drawerCategories} />
 
           <div class="fas-mobile-menu" aria-label="Mobile navigation">
             <MobileMenu client:idle />
@@ -183,15 +198,13 @@ const serviceLinks = [
           <a href="/about/" class="nav-link" role="menuitem">About</a>
         </li>
         <li class="nav-item" role="none">
-          <a href="/blog/" class="nav-link" role="menuitem">Blog</a>
-        </li>
-        <li class="nav-item" role="none">
           <a href="/contact/" class="nav-link" role="menuitem">Contact</a>
         </li>
       </ul>
 
       <div class="desktop-actions">
         <a href="/account" class="desktop-login-btn">Login</a>
+        <BlogDrawer client:idle recentPosts={drawerPosts} categories={drawerCategories} />
         <div class="desktop-search-wrap fas-search-desktop" data-search-wrap>
           <button
             type="button"
