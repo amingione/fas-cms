@@ -1,0 +1,14 @@
+---
+// Redirect /review to the FAS Motorsports Google Business Profile review page.
+// Used on printed materials, QR codes, and email campaigns.
+//
+// TO FILL IN: Replace PLACE_ID_HERE with the actual Google Place ID.
+// How to find it:
+//   1. Go to https://developers.google.com/maps/documentation/places/web-service/place-id
+//      and use the Place ID Finder with "FAS Motorsports, 6161 Riverside Dr, Punta Gorda, FL 33982"
+//   2. Or search Google Maps for FAS Motorsports, click Share → Copy link,
+//      and extract the ID from the URL (the string after "1s" in the /maps/place/... path)
+//
+// Final URL format: https://search.google.com/local/writereview?placeid=PLACE_ID_HERE
+return Astro.redirect('https://search.google.com/local/writereview?placeid=PLACE_ID_HERE', 302);
+---
