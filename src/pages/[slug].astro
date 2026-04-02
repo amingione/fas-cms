@@ -4,6 +4,9 @@ import SeoLandingPage from '@/components/seo/SeoLandingPage.astro'
 import {sanityClient} from '@/lib/sanity/client'
 import {seoPageBySlugQuery, seoPageSlugsQuery} from '@/lib/sanity/queries/seoPages'
 import {getSeoProducts} from '@/lib/medusa/seoProducts'
+import {existsSync, readdirSync} from 'node:fs'
+import {join} from 'node:path'
+import {fileURLToPath} from 'node:url'
 
 export const prerender = true
 
@@ -26,14 +29,77 @@ type SeoPage = {
   featuredProductHandles?: string[]
 }
 
+const STATIC_PAGE_EXTENSIONS = new Set(['.astro', '.md', '.mdx'])
+const DYNAMIC_SEGMENT_PATTERN = /^\[.*\]$/
+
+function getReservedTopLevelRouteSlugs(): Set<string> {
+  const pagesDir = fileURLToPath(new URL('.', import.meta.url))
+  const reserved = new Set<string>()
+
+  for (const entry of readdirSync(pagesDir, {withFileTypes: true})) {
+    const name = entry.name
+    if (!name || name.startsWith('.')) continue
+
+    if (entry.isDirectory()) {
+      if (DYNAMIC_SEGMENT_PATTERN.test(name)) continue
+
+      const hasIndexRoute = ['index.astro', 'index.md', 'index.mdx'].some((indexFile) =>
+        existsSync(join(pagesDir, name, indexFile))
+      )
+
+      if (hasIndexRoute) {
+        reserved.add(name.toLowerCase())
+      }
+      continue
+    }
+
+    if (!entry.isFile()) continue
+    if (DYNAMIC_SEGMENT_PATTERN.test(name)) continue
+
+    const extensionIndex = name.lastIndexOf('.')
+    if (extensionIndex <= 0) continue
+
+    const baseName = name.slice(0, extensionIndex)
+    const extension = name.slice(extensionIndex)
+
+    if (!STATIC_PAGE_EXTENSIONS.has(extension)) continue
+    if (!baseName || baseName === 'index' || baseName.includes('.')) continue
+
+    reserved.add(baseName.toLowerCase())
+  }
+
+  return reserved
+}
+
 export async function getStaticPaths() {
   const pages = await sanityClient.fetch<SeoPageSlug[]>(seoPageSlugsQuery)
+  const reservedTopLevelSlugs = getReservedTopLevelRouteSlugs()
+  const collidingSlugs = new Set<string>()
 
-  return (pages || [])
-    .filter((page) => typeof page?.slug === 'string' && page.slug.trim().length > 0)
+  const paths = (pages || [])
+    .filter((page) => {
+      if (typeof page?.slug !== 'string') return false
+      const normalizedSlug = page.slug.trim().toLowerCase()
+      if (!normalizedSlug) return false
+
+      if (reservedTopLevelSlugs.has(normalizedSlug)) {
+        collidingSlugs.add(normalizedSlug)
+        return false
+      }
+
+      return true
+    })
     .map((page) => ({
-      params: {slug: page.slug},
+      params: {slug: page.slug.trim()},
     }))
+
+  if (collidingSlugs.size > 0) {
+    console.warn(
+      `[seo-pages] Skipping ${collidingSlugs.size} SEO slug(s) that collide with static top-level routes: ${Array.from(collidingSlugs).join(', ')}`
+    )
+  }
+
+  return paths
 }
 
 const {slug} = Astro.params
