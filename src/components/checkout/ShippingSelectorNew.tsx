@@ -7,7 +7,6 @@
  * - Improved visual feedback
  * - Better disabled states
  *
- * Original preserved in checkout-legacy/ShippingSelector.tsx
  */
 
 'use client';

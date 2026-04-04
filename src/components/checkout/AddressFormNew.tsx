@@ -6,7 +6,6 @@
  * - FAS red primary colors
  * - Improved visual hierarchy
  *
- * Original preserved in checkout-legacy/AddressForm.tsx
  */
 
 'use client';

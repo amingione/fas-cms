@@ -7,7 +7,6 @@
  * - FAS dark theme styling
  * - Clean visual hierarchy
  *
- * Original preserved in checkout-legacy/OrderSummary.tsx
  */
 
 'use client';
