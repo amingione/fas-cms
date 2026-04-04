@@ -1,5 +1,4 @@
 ---
-import PortableTextRenderer from '@/components/PortableTextRenderer.jsx'
 import {formatPrice} from '@/lib/utils/formatPrice'
 
 interface Section {
@@ -27,6 +26,62 @@ interface Props {
   ctaButtonHref?: string
 }
 
+type NormalizedSection = {
+  heading: string
+  paragraphs: string[]
+}
+
+type StageCard = {
+  step: string
+  description: string
+}
+
+function normalizeText(value: string): string {
+  return value.replace(/\s+/g, ' ').trim()
+}
+
+function extractBlockText(block: unknown): string {
+  if (!block || typeof block !== 'object') return ''
+  const maybe = block as {text?: unknown; children?: unknown[]}
+
+  if (typeof maybe.text === 'string') {
+    return normalizeText(maybe.text)
+  }
+
+  if (!Array.isArray(maybe.children)) return ''
+  const text = maybe.children
+    .map((child) => {
+      if (!child || typeof child !== 'object') return ''
+      const span = child as {text?: unknown}
+      return typeof span.text === 'string' ? span.text : ''
+    })
+    .join(' ')
+  return normalizeText(text)
+}
+
+function bodyToParagraphs(body: unknown[] | undefined): string[] {
+  if (!Array.isArray(body)) return []
+  return body
+    .map(extractBlockText)
+    .map(normalizeText)
+    .filter(Boolean)
+}
+
+function tokenizeTitle(value: string): string[] {
+  const stopWords = new Set(['for', 'and', 'the', 'with', 'best', 'mods', 'build', 'how', 'your'])
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9.\s+-]/g, ' ')
+    .split(/\s+/)
+    .map((token) => token.trim())
+    .filter((token) => token.length > 1 && !stopWords.has(token))
+}
+
+function scoreProduct(product: Product, tokens: string[]): number {
+  const haystack = `${product.title} ${product.handle}`.toLowerCase()
+  return tokens.reduce((score, token) => (haystack.includes(token) ? score + 1 : score), 0)
+}
+
 const {
   title,
   intro,
@@ -37,55 +92,100 @@ const {
   ctaButtonLabel = 'Request a Quote',
   ctaButtonHref = '/quote',
 } = Astro.props as Props
+
+const normalizedSections: NormalizedSection[] = sections
+  .map((section) => ({
+    heading: normalizeText(section.heading || 'Details'),
+    paragraphs: bodyToParagraphs(section.body),
+  }))
+  .filter((section) => section.heading || section.paragraphs.length > 0)
+
+const stageSectionIndex = normalizedSections.findIndex(
+  (section) =>
+    /(build paths?|stages?|build strategy|upgrade paths?|what it takes)/i.test(section.heading) &&
+    section.paragraphs.length > 0
+)
+
+const stageSection = stageSectionIndex >= 0 ? normalizedSections[stageSectionIndex] : undefined
+const stageCards: StageCard[] = (stageSection?.paragraphs || []).map((paragraph, index) => {
+  const stageMatch = paragraph.match(/(Stage\s*\d+)/i)
+  const step = stageMatch ? stageMatch[1].toUpperCase() : `STAGE ${index + 1}`
+  const description = normalizeText(
+    paragraph
+      .replace(stageMatch?.[0] ?? '', '')
+      .replace(/^[:\-\u2013\u2014\s]+/, '')
+  ) || paragraph
+
+  return {step, description}
+})
+
+const supportingSections = normalizedSections.filter((_, index) => index !== stageSectionIndex)
+
+const relevanceTokens = tokenizeTitle(title)
+const rankedProducts = products
+  .map((product) => ({...product, relevance: scoreProduct(product, relevanceTokens)}))
+  .sort((a, b) => b.relevance - a.relevance || a.title.localeCompare(b.title))
+
+const curatedProducts = rankedProducts.slice(0, 9)
+const hasProducts = curatedProducts.length > 0
+
+const heroImage = curatedProducts.find((product) => Boolean(product.thumbnail))?.thumbnail || null
+const heroStyle = heroImage
+  ? `background:
+      linear-gradient(180deg, rgba(255,255,255,0.05), rgba(0,0,0,0.72)),
+      url('${heroImage}') center/cover;`
+  : undefined
 ---
 
 <section class="seo-hero">
-  <div class="container">
-    <p class="eyebrow">F.A.S. Motorsports</p>
-    <h1>{title}</h1>
-    {intro && <p class="intro">{intro}</p>}
+  <div class="container hero-grid">
+    <article class="hero-copy">
+      <p class="eyebrow">Performance Landing Page</p>
+      <h1>{title}</h1>
+      {intro && <p class="intro">{intro}</p>}
+
+      <div class="hero-actions">
+        <a class="btn btn-primary" href={ctaButtonHref}>{ctaButtonLabel}</a>
+        <a class="btn btn-outline" href={hasProducts ? '#recommended-upgrades' : '/shop/'}>
+          {hasProducts ? 'Shop Upgrades' : 'Browse Catalog'}
+        </a>
+      </div>
+    </article>
+
+    <aside class="hero-card" style={heroStyle}>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-label">Build Paths</span>
+          <span class="stat-value">{stageCards.length || 3}</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Curated Products</span>
+          <span class="stat-value">{curatedProducts.length}</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Intent</span>
+          <span class="stat-value">Quote + Product</span>
+        </div>
+      </div>
+    </aside>
   </div>
 </section>
 
 {
-  sections.length > 0 && (
-    <section class="seo-content">
-      <div class="container content-grid">
-        {sections.map((section) => (
-          <article class="content-card">
-            <h2>{section.heading}</h2>
-            {section.body && <PortableTextRenderer value={section.body} />}
-          </article>
-        ))}
-      </div>
-    </section>
-  )
-}
-
-{
-  products.length > 0 && (
-    <section class="seo-products">
+  stageCards.length > 0 && (
+    <section class="section">
       <div class="container">
         <div class="section-head">
-          <h2>Recommended Upgrades</h2>
-          <p>Shop parts and packages that match this build path.</p>
+          <h2>{stageSection?.heading || 'Build Paths'}</h2>
+          <p>Choose your stage and move from planning to a concrete build path.</p>
         </div>
 
-        <div class="product-grid">
-          {products.map((product) => (
-            <a class="product-card" href={`/products/${product.handle}`}>
-              {product.thumbnail ? (
-                <img src={product.thumbnail} alt={product.title} loading="lazy" />
-              ) : (
-                <div class="product-image-fallback">FAS</div>
-              )}
-
-              <div class="product-copy">
-                <h3>{product.title}</h3>
-                <p class="price">{formatPrice(product.price, product.currencyCode)}</p>
-                <span class="product-link">View Product</span>
-              </div>
-            </a>
+        <div class="path-grid">
+          {stageCards.map((card) => (
+            <article class="path-card">
+              <p class="path-step">{card.step}</p>
+              <p class="path-description">{card.description}</p>
+            </article>
           ))}
         </div>
       </div>
@@ -93,190 +193,448 @@ const {
   )
 }
 
-<section class="seo-cta">
-  <div class="container cta-card">
-    <div>
-      <p class="eyebrow">Build With FAS</p>
-      <h2>{ctaHeading}</h2>
-      <p>{ctaText}</p>
+{
+  supportingSections.length > 0 && (
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <h2>Build Support</h2>
+          <p>Everything needed to keep this package reliable, repeatable, and conversion-focused.</p>
+        </div>
+
+        <div class="content-grid">
+          {supportingSections.map((section) => (
+            <article class="content-card">
+              <h3>{section.heading}</h3>
+              {section.paragraphs.length > 1 ? (
+                <ul>
+                  {section.paragraphs.map((paragraph) => (
+                    <li>{paragraph}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>{section.paragraphs[0] || 'Details coming soon.'}</p>
+              )}
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+<section class="section" id="recommended-upgrades">
+  <div class="container">
+    <div class="section-head">
+      <h2>Recommended Upgrades</h2>
+      <p>Products linked to this SEO collection and ranked by relevance to this platform page.</p>
     </div>
 
-    <a class="cta-button" href={ctaButtonHref}>
-      {ctaButtonLabel}
-    </a>
+    {
+      hasProducts ? (
+        <div class="product-grid">
+          {curatedProducts.map((product) => (
+            <article class="product-card">
+              <a class="product-link-wrap" href={`/shop/${product.handle}/`}>
+                {product.thumbnail ? (
+                  <img src={product.thumbnail} alt={product.title} loading="lazy" class="product-media" />
+                ) : (
+                  <div class="product-media-fallback">FAS</div>
+                )}
+
+                <div class="product-body">
+                  <h3>{product.title}</h3>
+                  <p class="price">{formatPrice(product.price, product.currencyCode)}</p>
+                  <span class="btn btn-outline product-cta">View Product</span>
+                </div>
+              </a>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <article class="product-empty">
+          <h3>Collection Product Mapping In Progress</h3>
+          <p>
+            This page is wired to a valid Medusa collection handle, but there are currently no published
+            storefront products returned for this collection.
+          </p>
+          <a class="btn btn-primary" href={ctaButtonHref}>Request a Build Quote</a>
+        </article>
+      )
+    }
+  </div>
+</section>
+
+<section class="seo-cta">
+  <div class="container">
+    <div class="cta-card">
+      <div class="cta-copy">
+        <p class="eyebrow">Final Step</p>
+        <h2>{ctaHeading}</h2>
+        <p>{ctaText}</p>
+      </div>
+      <a class="btn btn-primary" href={ctaButtonHref}>{ctaButtonLabel}</a>
+    </div>
   </div>
 </section>
 
 <style>
+  .seo-hero,
+  .section,
+  .seo-cta {
+    --seo-bg-1: #060606;
+    --seo-bg-2: #111111;
+    --seo-line: rgba(255, 255, 255, 0.11);
+    --seo-text-soft: #b7b7b7;
+    --seo-shadow: 0 20px 60px rgba(0, 0, 0, 0.36);
+  }
+
   .container {
-    width: min(1200px, calc(100% - 2rem));
+    width: min(1240px, calc(100% - 2rem));
     margin: 0 auto;
   }
 
+  .btn {
+    min-height: 48px;
+    padding: 0 1.1rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    transition:
+      transform 180ms ease,
+      border-color 180ms ease,
+      background-color 180ms ease;
+  }
+
+  .btn:hover {
+    transform: translateY(-1px);
+  }
+
+  .btn-primary {
+    background: #ffffff;
+    color: #000000;
+    text-decoration: none;
+  }
+
+  .btn-outline {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
   .eyebrow {
+    margin: 0;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
-    font-size: 0.8rem;
-    opacity: 0.7;
-    margin-bottom: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--seo-text-soft);
+    font-weight: 700;
   }
 
   .seo-hero {
-    padding: 5rem 0 3rem;
+    padding: 4.5rem 0 2rem;
   }
 
-  .seo-hero h1 {
-    font-size: clamp(2.2rem, 4vw, 4.5rem);
-    line-height: 1;
-    margin: 0 0 1rem;
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.12fr 0.88fr;
+    gap: 1rem;
+  }
+
+  .hero-copy,
+  .hero-card {
+    border: 1px solid var(--seo-line);
+    border-radius: 28px;
+    box-shadow: var(--seo-shadow);
+  }
+
+  .hero-copy {
+    padding: 2rem;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+  }
+
+  .hero-copy h1 {
+    margin: 0.9rem 0 0.9rem;
+    font-size: clamp(2.3rem, 6vw, 4.7rem);
+    line-height: 0.96;
+    max-width: 11ch;
   }
 
   .intro {
-    max-width: 760px;
-    font-size: 1.05rem;
-    line-height: 1.7;
-    opacity: 0.88;
+    margin: 0;
+    max-width: 64ch;
+    color: var(--seo-text-soft);
+    line-height: 1.72;
+    font-size: 1.02rem;
   }
 
-  .seo-content {
-    padding: 1rem 0 3rem;
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-top: 1.4rem;
+  }
+
+  .hero-card {
+    min-height: 360px;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.72)),
+      radial-gradient(circle at top, rgba(255, 255, 255, 0.08), transparent 40%),
+      linear-gradient(180deg, var(--seo-bg-2) 0%, var(--seo-bg-1) 100%);
+    position: relative;
+    overflow: hidden;
+    padding: 1rem;
+  }
+
+  .hero-stats {
+    position: absolute;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.7rem;
+  }
+
+  .stat {
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(0, 0, 0, 0.42);
+    border-radius: 16px;
+    padding: 0.8rem;
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .stat-label {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.65rem;
+    color: #d4d4d4;
+    font-weight: 700;
+  }
+
+  .stat-value {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #fff;
+  }
+
+  .section {
+    padding: 1.1rem 0;
+  }
+
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .section-head h2 {
+    margin: 0;
+    font-size: clamp(1.75rem, 4vw, 2.55rem);
+    line-height: 1;
+  }
+
+  .section-head p {
+    margin: 0;
+    color: var(--seo-text-soft);
+    max-width: 64ch;
+    line-height: 1.62;
+  }
+
+  .path-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.85rem;
+  }
+
+  .path-card,
+  .content-card,
+  .product-card,
+  .product-empty,
+  .cta-card {
+    border: 1px solid var(--seo-line);
+    border-radius: 18px;
+    box-shadow: var(--seo-shadow);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+  }
+
+  .path-card {
+    padding: 1.1rem;
+  }
+
+  .path-step {
+    margin: 0 0 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.7rem;
+    color: #d1d1d1;
+    font-weight: 700;
+  }
+
+  .path-description {
+    margin: 0;
+    color: var(--seo-text-soft);
+    line-height: 1.68;
   }
 
   .content-grid {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
   }
 
   .content-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 18px;
-    padding: 1.5rem;
+    padding: 1.2rem;
   }
 
-  .content-card h2 {
-    margin-top: 0;
-    margin-bottom: 1rem;
+  .content-card h3 {
+    margin: 0 0 0.7rem;
+    font-size: 1.4rem;
   }
 
-  .seo-products {
-    padding: 1rem 0 4rem;
+  .content-card p,
+  .content-card li {
+    color: var(--seo-text-soft);
+    line-height: 1.68;
+    margin: 0;
   }
 
-  .section-head {
-    margin-bottom: 1.25rem;
-  }
-
-  .section-head h2 {
-    margin-bottom: 0.5rem;
+  .content-card ul {
+    margin: 0;
+    padding-left: 1rem;
+    display: grid;
+    gap: 0.55rem;
   }
 
   .product-grid {
     display: grid;
-    grid-template-columns: repeat(1, minmax(0, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.85rem;
   }
 
   .product-card {
-    display: block;
-    text-decoration: none;
-    color: inherit;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 18px;
     overflow: hidden;
-    transition:
-      transform 0.18s ease,
-      border-color 0.18s ease;
   }
 
-  .product-card:hover {
-    transform: translateY(-2px);
-    border-color: rgba(255, 255, 255, 0.18);
+  .product-link-wrap {
+    color: inherit;
+    text-decoration: none;
+    display: block;
+    height: 100%;
   }
 
-  .product-card img,
-  .product-image-fallback {
+  .product-media,
+  .product-media-fallback {
     width: 100%;
     aspect-ratio: 4 / 3;
+    border-bottom: 1px solid var(--seo-line);
     object-fit: cover;
     display: block;
   }
 
-  .product-image-fallback {
+  .product-media-fallback {
     display: grid;
     place-items: center;
-    background: #111;
-    font-size: 1.5rem;
-    letter-spacing: 0.15em;
+    background: linear-gradient(180deg, #1a1a1a, #0a0a0a);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
   }
 
-  .product-copy {
+  .product-body {
     padding: 1rem;
   }
 
-  .product-copy h3 {
-    margin: 0 0 0.5rem;
-    font-size: 1.05rem;
+  .product-body h3 {
+    margin: 0 0 0.4rem;
+    font-size: 1.08rem;
+    line-height: 1.3;
   }
 
   .price {
-    margin: 0 0 0.75rem;
-    font-weight: 700;
+    margin: 0 0 0.8rem;
+    font-weight: 800;
+    font-size: 1.05rem;
   }
 
-  .product-link {
-    font-size: 0.95rem;
-    opacity: 0.82;
+  .product-cta {
+    min-height: 40px;
+    padding-inline: 0.9rem;
+    font-size: 0.88rem;
+  }
+
+  .product-empty {
+    padding: 1.3rem;
+    display: grid;
+    gap: 0.8rem;
+  }
+
+  .product-empty h3 {
+    margin: 0;
+    font-size: 1.3rem;
+  }
+
+  .product-empty p {
+    margin: 0;
+    color: var(--seo-text-soft);
+    line-height: 1.68;
   }
 
   .seo-cta {
-    padding: 0 0 5rem;
+    padding: 1.2rem 0 4.8rem;
   }
 
   .cta-card {
+    padding: 1.3rem;
     display: flex;
-    gap: 1rem;
-    align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 22px;
-    padding: 1.5rem;
-  }
-
-  .cta-card h2 {
-    margin: 0 0 0.5rem;
-  }
-
-  .cta-card p {
-    margin: 0;
-    max-width: 720px;
-  }
-
-  .cta-button {
-    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    min-height: 48px;
-    padding: 0 1.1rem;
-    border-radius: 999px;
-    text-decoration: none;
-    color: #000;
-    background: #fff;
-    font-weight: 700;
-    white-space: nowrap;
+    flex-wrap: wrap;
+    gap: 1rem;
+    background:
+      radial-gradient(circle at top, rgba(255, 255, 255, 0.09), transparent 45%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015));
   }
 
-  @media (min-width: 768px) {
-    .content-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+  .cta-copy h2 {
+    margin: 0.55rem 0 0.55rem;
+    font-size: clamp(1.9rem, 4vw, 2.7rem);
+    line-height: 1.08;
+  }
+
+  .cta-copy p {
+    margin: 0;
+    color: var(--seo-text-soft);
+    max-width: 68ch;
+    line-height: 1.68;
+  }
+
+  @media (max-width: 980px) {
+    .hero-grid,
+    .path-grid,
+    .content-grid,
+    .product-grid {
+      grid-template-columns: 1fr;
     }
 
-    .product-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+    .section-head {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .hero-stats {
+      grid-template-columns: 1fr;
+      position: static;
+    }
+
+    .hero-card {
+      min-height: auto;
+      padding: 0.95rem;
     }
   }
 </style>
