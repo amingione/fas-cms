@@ -169,4 +169,4 @@ codex-promotion-groq-execution-audit:
 
 compliance-check:
 	@echo "🔍 FAS Architecture Compliance Check"
-	@npx ts-node ../fas-sanity/scripts/compliance/fas-compliance-check.ts
+	@npx tsx ../fas-sanity/scripts/compliance/fas-compliance-check.ts
