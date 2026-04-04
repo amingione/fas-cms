@@ -22,6 +22,20 @@ type SeoPage = {
   featuredProductHandles?: string[]
 }
 
+function getQuoteHref(inputHref: string | undefined, pageTitle: string, sourceSlug: string): string {
+  const baseHref = typeof inputHref === 'string' && inputHref.trim() ? inputHref.trim() : '/quote'
+  if (!baseHref.startsWith('/quote')) return baseHref
+
+  const url = new URL(baseHref, 'https://fasmotorsports.com')
+  if (!url.searchParams.get('subject')) {
+    url.searchParams.set('subject', pageTitle)
+  }
+  if (!url.searchParams.get('source')) {
+    url.searchParams.set('source', `/${sourceSlug}/`)
+  }
+  return `${url.pathname}${url.search}${url.hash}`
+}
+
 const {slug} = Astro.params
 
 if (!slug) {
@@ -44,6 +58,8 @@ try {
 } catch (error) {
   console.error(`[seo-pages] Failed to fetch products for "${slug}"`, error)
 }
+
+const ctaButtonHref = getQuoteHref(page.ctaButtonHref, page.title, slug)
 ---
 
 <BaseLayout title={page.seoTitle || page.title} description={page.seoDescription || page.intro}>
@@ -55,6 +71,6 @@ try {
     ctaHeading={page.ctaHeading}
     ctaText={page.ctaText}
     ctaButtonLabel={page.ctaButtonLabel}
-    ctaButtonHref={page.ctaButtonHref}
+    ctaButtonHref={ctaButtonHref}
   />
 </BaseLayout>

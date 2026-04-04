@@ -1,0 +1,307 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+
+const requestUrl = new URL(Astro.request.url)
+requestUrl.search = ''
+requestUrl.hash = ''
+const canonical = requestUrl.toString()
+
+const rawSubject = (new URL(Astro.request.url).searchParams.get('subject') || '').trim()
+const rawSource = (new URL(Astro.request.url).searchParams.get('source') || '').trim()
+
+const subject = rawSubject || 'General Performance Build Quote'
+const source = rawSource.startsWith('/') ? rawSource : '/'
+const continueLabel = source === '/' ? 'Continue to Homepage' : 'Continue to Build Page'
+---
+
+<BaseLayout
+  title="Request a Build Quote | FAS Motorsports"
+  description="Send your build goals to FAS Motorsports and our sales team will respond with a tailored quote."
+  canonical={canonical}
+>
+  <section class="quote-page">
+    <div class="quote-shell">
+      <h1>Request a Quote</h1>
+      <p class="quote-intro">
+        Tell us your goals and an expert from our sales team will reach out with the right path.
+      </p>
+
+      <form id="quote-form" class="quote-form">
+        <input type="hidden" name="topic" value="quotes" />
+        <input type="hidden" name="source" value={source} id="quote-source" />
+
+        <label for="quote-name">Name</label>
+        <input id="quote-name" name="name" type="text" autocomplete="name" required />
+
+        <label for="quote-email">Email</label>
+        <input id="quote-email" name="email" type="email" autocomplete="email" required />
+
+        <label for="quote-phone">Phone</label>
+        <input id="quote-phone" name="phone" type="tel" autocomplete="tel" />
+
+        <label for="quote-subject">Subject</label>
+        <input id="quote-subject" name="subject" type="text" value={subject} required />
+
+        <label for="quote-message">Message</label>
+        <textarea
+          id="quote-message"
+          name="message"
+          rows="6"
+          required
+          placeholder="Tell us about your vehicle, power goals, budget, and timeline."
+        ></textarea>
+
+        <button id="quote-submit" type="submit">Submit Quote Request</button>
+      </form>
+
+      <div id="quote-status" class="quote-status hidden"></div>
+    </div>
+  </section>
+
+  <div id="quote-toast-overlay" class="quote-toast-overlay hidden" aria-live="polite" aria-modal="true">
+    <div class="quote-toast-card">
+      <button id="quote-toast-close" class="quote-toast-close" aria-label="Close success message">X</button>
+      <h2>Thank You</h2>
+      <p id="quote-toast-message">Thank you! An expert from our sales team will contact you shortly.</p>
+      <a id="quote-toast-continue" class="quote-toast-continue" href={source}>{continueLabel} --&gt;</a>
+    </div>
+  </div>
+
+  <script is:inline>
+    const quoteForm = document.getElementById('quote-form')
+    const submitButton = document.getElementById('quote-submit')
+    const status = document.getElementById('quote-status')
+    const toastOverlay = document.getElementById('quote-toast-overlay')
+    const toastClose = document.getElementById('quote-toast-close')
+    const toastContinue = document.getElementById('quote-toast-continue')
+    const sourceInput = document.getElementById('quote-source')
+    const subjectInput = document.getElementById('quote-subject')
+    const initialSubject = subjectInput ? subjectInput.value : ''
+
+    const setStatus = (message, isError = false) => {
+      if (!status) return
+      status.textContent = message
+      status.classList.remove('hidden', 'quote-status-error', 'quote-status-success')
+      status.classList.add(isError ? 'quote-status-error' : 'quote-status-success')
+    }
+
+    const hideToast = () => {
+      if (!toastOverlay) return
+      toastOverlay.classList.add('hidden')
+      document.body.classList.remove('quote-toast-open')
+    }
+
+    const showToast = () => {
+      if (!toastOverlay || !toastContinue) return
+      const sourceValue =
+        sourceInput && typeof sourceInput.value === 'string' && sourceInput.value.startsWith('/')
+          ? sourceInput.value
+          : '/'
+      toastContinue.href = sourceValue
+      toastContinue.textContent =
+        sourceValue === '/' ? 'Continue to Homepage -->' : 'Continue to Build Page -->'
+      toastOverlay.classList.remove('hidden')
+      document.body.classList.add('quote-toast-open')
+    }
+
+    toastClose?.addEventListener('click', hideToast)
+    toastOverlay?.addEventListener('click', (event) => {
+      if (event.target === toastOverlay) hideToast()
+    })
+
+    quoteForm?.addEventListener('submit', async (event) => {
+      event.preventDefault()
+      if (!(quoteForm instanceof HTMLFormElement)) return
+
+      submitButton?.setAttribute('disabled', 'true')
+      setStatus('Sending your quote request...')
+
+      try {
+        const response = await fetch('/api/contact', {
+          method: 'POST',
+          body: new FormData(quoteForm),
+          headers: {
+            Accept: 'application/json',
+          },
+        })
+
+        const payload = await response.json().catch(() => ({}))
+        if (!response.ok || payload?.ok === false) {
+          setStatus(payload?.message || 'Unable to submit your quote request right now.', true)
+          return
+        }
+
+        quoteForm.reset()
+        if (subjectInput) {
+          subjectInput.value = initialSubject
+        }
+        setStatus('Quote request sent.', false)
+        showToast()
+      } catch (error) {
+        console.error('Quote request failed', error)
+        setStatus('Something went wrong. Please try again in a moment.', true)
+      } finally {
+        submitButton?.removeAttribute('disabled')
+      }
+    })
+  </script>
+
+  <style>
+    .quote-page {
+      min-height: calc(100vh - 120px);
+      display: grid;
+      place-items: center;
+      padding: 4rem 1rem;
+      background:
+        radial-gradient(circle at top, rgba(196, 18, 24, 0.2), transparent 45%),
+        linear-gradient(180deg, #090909 0%, #121212 100%);
+    }
+
+    .quote-shell {
+      width: min(760px, 100%);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(15, 15, 15, 0.88);
+      padding: 1.5rem;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.4);
+    }
+
+    .quote-shell h1 {
+      margin: 0 0 0.6rem;
+      font-size: clamp(2rem, 3vw, 2.8rem);
+    }
+
+    .quote-intro {
+      margin: 0 0 1rem;
+      color: rgba(255, 255, 255, 0.78);
+      line-height: 1.6;
+    }
+
+    .quote-form {
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    .quote-form label {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.72);
+      margin-top: 0.55rem;
+    }
+
+    .quote-form input,
+    .quote-form textarea {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      background: rgba(6, 6, 6, 0.8);
+      color: #fff;
+      padding: 0.7rem 0.85rem;
+      font: inherit;
+    }
+
+    .quote-form input:focus,
+    .quote-form textarea:focus {
+      outline: 2px solid rgba(196, 18, 24, 0.5);
+      outline-offset: 1px;
+    }
+
+    .quote-form button {
+      margin-top: 0.9rem;
+      min-height: 48px;
+      border-radius: 999px;
+      border: 0;
+      background: linear-gradient(90deg, #c41218, #e6383d);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .quote-form button:disabled {
+      opacity: 0.75;
+      cursor: not-allowed;
+    }
+
+    .quote-status {
+      margin-top: 0.95rem;
+      border-radius: 10px;
+      padding: 0.75rem 0.9rem;
+      font-size: 0.92rem;
+    }
+
+    .quote-status-error {
+      border: 1px solid rgba(255, 90, 90, 0.45);
+      background: rgba(140, 20, 20, 0.2);
+      color: #ffd5d5;
+    }
+
+    .quote-status-success {
+      border: 1px solid rgba(78, 194, 78, 0.5);
+      background: rgba(23, 121, 23, 0.22);
+      color: #d8ffd8;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .quote-toast-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: grid;
+      place-items: center;
+      background: rgba(0, 0, 0, 0.62);
+      padding: 1rem;
+    }
+
+    .quote-toast-card {
+      width: min(520px, 100%);
+      border-radius: 16px;
+      border: 1px solid rgba(133, 242, 133, 0.6);
+      background: linear-gradient(180deg, #145214, #0f3f0f);
+      color: #e8ffe8;
+      text-align: center;
+      padding: 1.2rem 1rem 1.1rem;
+      position: relative;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+    }
+
+    .quote-toast-card h2 {
+      margin: 0 0 0.4rem;
+    }
+
+    .quote-toast-card p {
+      margin: 0.2rem 0 1rem;
+      line-height: 1.5;
+    }
+
+    .quote-toast-close {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.55rem;
+      border: 0;
+      background: transparent;
+      color: #e8ffe8;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .quote-toast-continue {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      color: #f4fff4;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      font-weight: 700;
+    }
+
+    body.quote-toast-open {
+      overflow: hidden;
+    }
+  </style>
+</BaseLayout>

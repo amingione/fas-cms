@@ -51,8 +51,11 @@ export const POST: APIRoute = async ({ request }) => {
     const lastName = String(body.lastName || '').trim();
     const name = String(body.name || `${firstName} ${lastName}` || '').trim();
     const email = String(body.email || '').trim();
+    const phone = String(body.phone || '').trim();
     const vehicle = String(body.vehicle || '').trim();
     const topic = String(body.topic || '').trim().toLowerCase();
+    const subject = String(body.subject || '').trim();
+    const source = String(body.source || '').trim();
     const message = String(body.message || '').trim();
 
     if (!email || !message) {
@@ -84,8 +87,11 @@ export const POST: APIRoute = async ({ request }) => {
         <h2>New Website Contact</h2>
         ${name ? `<p><strong>Name:</strong> ${safe(name)}</p>` : ''}
         <p><strong>Email:</strong> ${safe(email)}</p>
+        ${phone ? `<p><strong>Phone:</strong> ${safe(phone)}</p>` : ''}
         ${vehicle ? `<p><strong>Vehicle:</strong> ${safe(vehicle)}</p>` : ''}
         ${topic ? `<p><strong>Topic:</strong> ${safe(topic)}</p>` : ''}
+        ${subject ? `<p><strong>Subject:</strong> ${safe(subject)}</p>` : ''}
+        ${source ? `<p><strong>Source:</strong> ${safe(source)}</p>` : ''}
         <p><strong>Message:</strong><br/>${safe(message).replace(/\n/g, '<br/>')}</p>
       </div>
     `;
@@ -95,7 +101,7 @@ export const POST: APIRoute = async ({ request }) => {
         from: resendFrom,
         to: [toAddress],
         replyTo: email ? [email] : undefined,
-        subject: name ? `Contact from ${name}` : 'New website contact',
+        subject: subject || (name ? `Contact from ${name}` : 'New website contact'),
         html
       });
 
@@ -105,7 +111,7 @@ export const POST: APIRoute = async ({ request }) => {
           _type: 'emailLog',
           to: email,
           from: resendFrom,
-          subject: 'Contact Form Submission',
+          subject: subject || 'Contact Form Submission',
           status: 'sent',
           sentAt: new Date().toISOString(),
           emailType: 'contact_form',

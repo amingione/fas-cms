@@ -328,8 +328,11 @@ export const contactRequestSchema = z
     lastName: z.string().optional(),
     name: z.string().optional(),
     email: z.string().optional(),
+    phone: z.string().optional(),
     vehicle: z.string().optional(),
     topic: z.string().optional(),
+    subject: z.string().optional(),
+    source: z.string().optional(),
     message: z.string().optional()
   })
   .passthrough();
