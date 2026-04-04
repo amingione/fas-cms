@@ -2,14 +2,10 @@
 import BaseLayout from '@/layouts/BaseLayout.astro'
 import SeoLandingPage from '@/components/seo/SeoLandingPage.astro'
 import {sanityClient} from '@/lib/sanity/client'
-import {seoPageBySlugQuery, seoPageSlugsQuery} from '@/lib/sanity/queries/seoPages'
+import {seoPageBySlugQuery} from '@/lib/sanity/queries/seoPages'
 import {getSeoProducts} from '@/lib/medusa/seoProducts'
 
-export const prerender = true
-
-type SeoPageSlug = {
-  slug: string
-}
+export const prerender = false
 
 type SeoPage = {
   title: string
@@ -24,54 +20,6 @@ type SeoPage = {
   ctaButtonHref?: string
   medusaCollectionHandle: string
   featuredProductHandles?: string[]
-}
-
-/**
- * Static list of top-level route slugs that already exist in src/pages/.
- * SEO page slugs that match these are skipped to prevent route collisions.
- * Update this list when adding new top-level pages or directories to src/pages/.
- */
-const RESERVED_TOP_LEVEL_SLUGS = new Set([
-  'about', 'account', 'admin', 'api', 'appointments',
-  'become-a-vendor', 'belak', 'blackfridaysale', 'blog', 'builds',
-  'cart', 'checkout', 'contact', 'customerdashboard', 'dashboard',
-  'dominator-supercharger-package', 'faq', 'faq2', 'gallery',
-  'hellcat-billet-snout', 'hellcat-supercharger', 'hellcat-supercharger-porting',
-  'ihi-supercharger-rebuild', 'internalpolicy', 'jtx', 'order', 'orders',
-  'packages', 'platform', 'press-media', 'privacypolicy', 'resources',
-  'returnrefundpolicy', 'review', 'sales', 'schedule', 'search',
-  'services', 'shop', 'sitemap', 'specs', 'termsandconditions',
-  'vendor-portal', 'vendors', 'warranty', 'wheels',
-])
-
-export async function getStaticPaths() {
-  const pages = await sanityClient.fetch<SeoPageSlug[]>(seoPageSlugsQuery)
-  const collidingSlugs: string[] = []
-
-  const paths = (pages || [])
-    .filter((page) => {
-      if (typeof page?.slug !== 'string') return false
-      const normalizedSlug = page.slug.trim().toLowerCase()
-      if (!normalizedSlug) return false
-
-      if (RESERVED_TOP_LEVEL_SLUGS.has(normalizedSlug)) {
-        collidingSlugs.push(normalizedSlug)
-        return false
-      }
-
-      return true
-    })
-    .map((page) => ({
-      params: {slug: page.slug.trim()},
-    }))
-
-  if (collidingSlugs.length > 0) {
-    console.warn(
-      `[seo-pages] Skipping ${collidingSlugs.length} SEO slug(s) that collide with static top-level routes: ${collidingSlugs.join(', ')}`
-    )
-  }
-
-  return paths
 }
 
 const {slug} = Astro.params

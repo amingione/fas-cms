@@ -9,7 +9,8 @@ if (!projectId) {
 const isServer = Boolean(import.meta.env.SSR)
 const serverEnv =
   (typeof process !== 'undefined' ? (process as any).env : {}) as Record<string, string | undefined>
-const token = isServer ? serverEnv.SANITY_API_TOKEN : undefined
+const publicReadToken = import.meta.env.PUBLIC_SANITY_API_TOKEN as string | undefined
+const token = isServer ? serverEnv.SANITY_API_TOKEN || publicReadToken : undefined
 
 export const sanityClient = createClient({
   projectId,
