@@ -28,6 +28,79 @@
   status = 301
   force = true
 
+# SEO landing canonical aliases (legacy collection-handle paths -> canonical SEO slugs)
+[[redirects]]
+  from = "/6-1-hemi-upgrades"
+  to = "/6-1-hemi-performance-upgrades/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/6-1-hemi-upgrades/"
+  to = "/6-1-hemi-performance-upgrades/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/hellcat-1000hp"
+  to = "/hellcat-1000hp-package/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/hellcat-1000hp/"
+  to = "/hellcat-1000hp-package/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/6-4-hemi-upgrades"
+  to = "/best-mods-for-6-4-hemi/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/6-4-hemi-upgrades/"
+  to = "/best-mods-for-6-4-hemi/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/hellcat-1000hp-build-guide"
+  to = "/how-to-build-a-1000hp-hellcat/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/hellcat-1000hp-build-guide/"
+  to = "/how-to-build-a-1000hp-hellcat/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/fas-custom-build-packages"
+  to = "/fas-custom-builds/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/fas-custom-build-packages/"
+  to = "/fas-custom-builds/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/hellcat-redeye-demon-comparison"
+  to = "/hellcat-vs-redeye-vs-demon/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/hellcat-redeye-demon-comparison/"
+  to = "/hellcat-vs-redeye-vs-demon/"
+  status = 301
+  force = true
+
 [[redirects]]
   from = "/jtx"
   to = "/jtx/wheels/"
