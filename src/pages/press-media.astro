@@ -13,7 +13,8 @@ requestUrl.search = '';
 requestUrl.hash = '';
 const canonical = requestUrl.toString();
 const siteOrigin = (() => {
-  const candidate = (import.meta.env.PUBLIC_SITE_URL as string | undefined) || 'https://fasmotorsports.com';
+  const candidate =
+    (import.meta.env.PUBLIC_SITE_URL as string | undefined) || 'https://fasmotorsports.com';
   try {
     const origin = new URL(candidate).origin;
     if (/localhost|127\.0\.0\.1/i.test(origin)) {
@@ -149,92 +150,120 @@ const curatedProducts = products
   });
 ---
 
-<BaseLayout title={pageTitle} description={pageDescription} canonical={canonical}>
+<BaseLayout
+  title="Press & Media | FAS Motorsports"
+  description="Featured builds, media coverage, and press resources for FAS Motorsports."
+>
   <section class="bg-dark text-white py-16 lg:py-20">
     <div class="mx-auto flex max-w-5xl flex-col gap-6 px-6 text-center lg:text-left">
-      <p class="text-sm uppercase tracking-[0.3em] text-primary">Press + Media</p>
+      <p class="text-sm uppercase tracking-[0.3em] text-primary">Press & Media</p>
       <h1 class="text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
-        Official backlink resources for FAS Motorsports features
+        Featured Builds, Coverage & Media Highlights
       </h1>
       <p class="text-base text-white/80 lg:text-lg">
-        Use the anchor text and URLs below when referencing our performance kits in articles,
-        roundups, or forum posts. Each entry follows our SEO best practices so your readers land on
-        the exact product experience.
+        Explore high-performance builds, shop highlights, and media features from FAS Motorsports.
+        From 700whp street cars to 1500+whp full builds, this is where our work gets recognized.
       </p>
     </div>
   </section>
 
-  <DarkContentShell maxWidthClass="max-w-6xl" contentClass="flex flex-col gap-10 px-6">
-    <div class="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_60px_rgba(0,0,0,0.35)] backdrop-blur-sm">
-      <h2 class="text-xl font-semibold text-white">How to use this hub</h2>
-      <ul class="mt-4 list-disc space-y-2 pl-5 text-sm text-white/75 lg:text-base">
-        <li>Copy the recommended anchor text for a natural, keyword-rich link.</li>
-        <li>Use the full product URL in your articles, social posts, or YouTube descriptions.</li>
-        <li>Optional: include the provided summary as your caption or supporting sentence.</li>
-      </ul>
-    </div>
-
-    <div class="space-y-6">
-      <h2 class="text-2xl font-semibold text-white">Featured product links</h2>
-      <p class="text-sm text-white/70 lg:text-base">
-        Need a specific kit that is not listed here? Email <a
-          class="text-primary underline decoration-primary/70 underline-offset-4"
-          href="mailto:media@fasmotorsports.com">media@fasmotorsports.com</a
-        >
-        and we will share the official link package.
+  <DarkContentShell maxWidthClass="max-w-6xl" contentClass="flex flex-col gap-12 px-6">
+    <!-- Featured Builds -->
+    <section class="space-y-6">
+      <h2 class="text-2xl font-semibold text-white">Featured Builds</h2>
+      <p class="text-white/70">
+        A look at some of the most notable FAS Motorsports builds, showcasing real-world
+        performance, drivability, and results.
       </p>
-    </div>
 
-    <div class="grid gap-6 lg:grid-cols-2">
-      {
-        curatedProducts.map((product) => (
-          <article class="flex h-full flex-col justify-between rounded-xl border border-white/10 bg-white/5 p-6 shadow-[0_24px_70px_rgba(0,0,0,0.4)] backdrop-blur-sm">
-            <div class="space-y-4">
-              <div class="space-y-1">
-                <h3 class="text-lg font-semibold text-white">{product.title}</h3>
-                {product.sku && (
-                  <p class="text-xs uppercase tracking-widest text-white/45">
-                    SKU: {product.sku}
-                  </p>
-                )}
-              </div>
-              <div>
-                <p class="text-xs font-medium uppercase tracking-[0.2em] text-primary">
-                  Recommended anchor text
-                </p>
-                <p class="mt-1 break-words rounded-md border border-white/10 bg-black/25 px-3 py-2 text-sm font-semibold text-white">
-                  {product.anchorText}
-                </p>
-              </div>
-              <div>
-                <p class="text-xs font-medium uppercase tracking-[0.2em] text-primary">
-                  Product URL
-                </p>
-                <a
-                  class="mt-1 block break-all text-sm text-white/75 underline decoration-primary decoration-2 underline-offset-4"
-                  href={product.url}
-                >
-                  {product.url}
-                </a>
-              </div>
-              <div>
-                <p class="text-xs font-medium uppercase tracking-[0.2em] text-primary">
-                  Press blurb
-                </p>
-                <p class="mt-1 text-sm text-white/70">{product.summary}</p>
-              </div>
-            </div>
-            <div class="mt-6 rounded-lg border border-white/10 bg-black/40 p-4 text-xs text-white">
-              <p class="font-semibold uppercase tracking-[0.25em] text-primary/80">
-                Copy-ready HTML
-              </p>
-              <code class="mt-2 block whitespace-pre-wrap break-words font-mono text-[11px] leading-relaxed text-white/90">
-                {`<a href="${product.url}" rel="noopener" target="_blank">${product.anchorText}</a>`}
-              </code>
-            </div>
-          </article>
-        ))
-      }
-    </div>
+      <div class="grid gap-6 lg:grid-cols-3">
+        <div class="rounded-xl border border-white/10 bg-white/5 p-5">
+          <h3 class="font-semibold text-white">1000+ WHP Hellcat Build</h3>
+          <p class="text-sm text-white/70 mt-2">
+            Fully built Redeye platform pushing over 1000whp with upgraded fueling, blower, and
+            tuning.
+          </p>
+        </div>
+
+        <div class="rounded-xl border border-white/10 bg-white/5 p-5">
+          <h3 class="font-semibold text-white">TRX Performance Upgrade</h3>
+          <p class="text-sm text-white/70 mt-2">
+            High-torque truck build focused on drivability, towing power, and reliable gains.
+          </p>
+        </div>
+
+        <div class="rounded-xl border border-white/10 bg-white/5 p-5">
+          <h3 class="font-semibold text-white">Custom Street Build</h3>
+          <p class="text-sm text-white/70 mt-2">
+            Balanced street setup combining bolt-ons, airflow improvements, and tuning for daily
+            use.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Media Coverage -->
+    <section class="space-y-6">
+      <h2 class="text-2xl font-semibold text-white">Media & Coverage</h2>
+      <p class="text-white/70">
+        FAS Motorsports builds and work featured across social media, video platforms, and
+        automotive communities.
+      </p>
+
+      <div class="grid gap-6 lg:grid-cols-2">
+        <div class="rounded-xl border border-white/10 bg-white/5 p-5">
+          <h3 class="font-semibold text-white">YouTube Features</h3>
+          <p class="text-sm text-white/70 mt-2">
+            Performance builds, dyno sessions, and customer vehicles showcased across video content.
+          </p>
+        </div>
+
+        <div class="rounded-xl border border-white/10 bg-white/5 p-5">
+          <h3 class="font-semibold text-white">Social Media Highlights</h3>
+          <p class="text-sm text-white/70 mt-2">
+            Real customer builds, shop updates, and performance clips shared across platforms.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Media Assets -->
+    <section class="space-y-6">
+      <h2 class="text-2xl font-semibold text-white">Media Assets</h2>
+      <p class="text-white/70">
+        Download logos, brand assets, and media resources for approved use.
+      </p>
+
+      <div class="grid gap-6 lg:grid-cols-2">
+        <div class="rounded-xl border border-white/10 bg-white/5 p-5">
+          <h3 class="font-semibold text-white">Brand Logos</h3>
+          <p class="text-sm text-white/70 mt-2">
+            Official FAS Motorsports logos for media and brand use.
+          </p>
+        </div>
+
+        <div class="rounded-xl border border-white/10 bg-white/5 p-5">
+          <h3 class="font-semibold text-white">Photography</h3>
+          <p class="text-sm text-white/70 mt-2">
+            High-resolution images of builds, shop work, and completed vehicles.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="text-center flex flex-col items-center space-y-4">
+      <h2 class="text-2xl font-semibold text-white">Interested in Working With FAS?</h2>
+      <p class="text-white/70 max-w-xl text-center">
+        From high-horsepower Mopar builds to truck performance and custom setups, FAS Motorsports is
+        built around proven results, clean execution, and real performance.
+      </p>
+      <a
+        href="/contact"
+        class="inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-semibold text-black"
+      >
+        Contact FAS
+      </a>
+    </section>
   </DarkContentShell>
 </BaseLayout>
