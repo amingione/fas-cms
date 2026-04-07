@@ -155,16 +155,12 @@ const heroStyle = heroImage
     <aside class="hero-card" style={heroStyle}>
       <div class="hero-stats">
         <div class="stat">
-          <span class="stat-label">Build Paths</span>
+          <span class="stat-label">Upgrade Stages</span>
           <span class="stat-value">{stageCards.length || 3}</span>
         </div>
         <div class="stat">
-          <span class="stat-label">Curated Products</span>
+          <span class="stat-label">Parts Available</span>
           <span class="stat-value">{curatedProducts.length}</span>
-        </div>
-        <div class="stat">
-          <span class="stat-label">Intent</span>
-          <span class="stat-value">Quote + Product</span>
         </div>
       </div>
     </aside>
@@ -176,7 +172,7 @@ const heroStyle = heroImage
     <section class="section">
       <div class="container">
         <div class="section-head">
-          <h2>{stageSection?.heading || 'Build Paths'}</h2>
+          <h2>{stageSection?.heading || 'Upgrade Stages'}</h2>
           <p>Choose your stage and move from planning to a concrete build path.</p>
         </div>
 
@@ -227,7 +223,7 @@ const heroStyle = heroImage
   <div class="container">
     <div class="section-head">
       <h2>Recommended Upgrades</h2>
-      <p>Products linked to this SEO collection and ranked by relevance to this platform page.</p>
+      <p>Recommended parts for this platform, ranked by fit and build relevance.</p>
     </div>
 
     {
@@ -395,7 +391,7 @@ const heroStyle = heroImage
     right: 1rem;
     bottom: 1rem;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.7rem;
   }
 
