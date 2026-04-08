@@ -347,16 +347,27 @@ if (!paymentIntentId) {
         try {
           const params = new URLSearchParams(window.location.search);
           const paymentIntentId = params.get('payment_intent');
+          const token = params.get('token');
 
           if (!paymentIntentId) {
             console.warn('[confirmation] No payment_intent in URL');
             return;
           }
 
+          if (!token) {
+            console.warn('[confirmation] No access token in URL');
+            const displayDiv = document.getElementById('order-number-display');
+            if (displayDiv) {
+              displayDiv.classList.add('error');
+              displayDiv.innerHTML = 'Order received — check your email for confirmation';
+            }
+            return;
+          }
+
           const displayDiv = document.getElementById('order-number-display');
 
-          // Attempt to fetch order by payment intent ID (Medusa-sourced)
-          const response = await fetch(`/api/orders/by-payment-intent?id=${encodeURIComponent(paymentIntentId)}`);
+          // Attempt to fetch order by payment intent ID with access token (Medusa-sourced)
+          const response = await fetch(`/api/orders/by-payment-intent?id=${encodeURIComponent(paymentIntentId)}&token=${encodeURIComponent(token)}`);
 
           if (response.ok) {
             const data = await response.json();

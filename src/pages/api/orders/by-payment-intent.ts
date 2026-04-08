@@ -1,10 +1,12 @@
 import type { APIRoute } from 'astro';
 import { getSecret } from '@/server/aws-secrets';
+import { verifyOrderConfirmationToken } from '@/server/order-confirmation-tokens';
+import { rateLimit } from '@/server/vendor-portal/rateLimit';
 
 /**
  * Look up a Medusa order by Stripe PaymentIntent ID
  *
- * GET /api/orders/by-payment-intent?id=pi_xxx
+ * GET /api/orders/by-payment-intent?id=pi_xxx&token=xxx
  *
  * This endpoint is used by the order confirmation page to display the order number
  * and order details. It polls Medusa admin API searching for an order with a payment
@@ -14,24 +16,28 @@ import { getSecret } from '@/server/aws-secrets';
  * All order details (total, email, shipping address) are sourced from Medusa,
  * never directly from Stripe.
  *
- * No authentication required (the payment intent ID is secret enough and only known
- * to the customer who completed payment).
+ * Security: Requires a short-lived JWT token issued when the order is created.
+ * This prevents PII exposure via URL leakage (logs, history, sharing).
+ * Rate limiting is applied as defense in depth.
  *
  * Returns:
  *   {
  *     orderId: string,
- *     displayId: number,
- *     total: number,           // order total in cents
- *     shippingTotal: number,   // shipping total in cents
- *     email: string,
+ *     displayId: number | null,
+ *     total: number | null,           // order total in cents when present
+ *     shippingTotal: number | null,   // shipping total in cents when present
+ *     email: string | null,
  *     shippingAddress: { name, line1, line2, city, state, postalCode, country } | null
  *   } on success
+ *   401 if token is missing or invalid
  *   404 if order not found after retries
- *   400 if payment_intent parameter missing
+ *   429 if rate limit exceeded
+ *   400 if id query parameter missing (?id=pi_xxx)
  */
 
-export const GET: APIRoute = async ({ url }) => {
+export const GET: APIRoute = async ({ url, request, clientAddress }) => {
   const paymentIntentId = url.searchParams.get('id');
+  const token = url.searchParams.get('token');
 
   if (!paymentIntentId) {
     return new Response(
@@ -39,6 +45,58 @@ export const GET: APIRoute = async ({ url }) => {
       {
         status: 400,
         headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
+
+  if (!token) {
+    return new Response(
+      JSON.stringify({ error: 'Missing "token" parameter (access token required)' }),
+      {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
+
+  // Verify the access token
+  const tokenVerification = verifyOrderConfirmationToken(token);
+  if (!tokenVerification.valid) {
+    return new Response(
+      JSON.stringify({ error: tokenVerification.error || 'Invalid access token' }),
+      {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
+
+  // Ensure the token's payment intent ID matches the requested one
+  if (tokenVerification.payload?.paymentIntentId !== paymentIntentId) {
+    return new Response(
+      JSON.stringify({ error: 'Token does not match payment intent ID' }),
+      {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
+
+  // Apply rate limiting (10 requests per minute per IP)
+  const clientIp = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const rateLimitResult = rateLimit(clientIp, { limit: 10, windowMs: 60_000 });
+
+  if (!rateLimitResult.allowed) {
+    const retryAfterSeconds = Math.ceil((rateLimitResult.retryAfter || 60_000) / 1000);
+    return new Response(
+      JSON.stringify({ error: 'Too many requests. Please try again later.' }),
+      {
+        status: 429,
+        headers: {
+          'Content-Type': 'application/json',
+          'Retry-After': String(retryAfterSeconds),
+          'X-RateLimit-Remaining': '0'
+        }
       }
     );
   }
@@ -186,7 +244,10 @@ export const GET: APIRoute = async ({ url }) => {
               }),
               {
                 status: 200,
-                headers: { 'Content-Type': 'application/json' }
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-RateLimit-Remaining': String(rateLimitResult.remaining)
+                }
               }
             );
           }

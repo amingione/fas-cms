@@ -1883,14 +1883,29 @@ function StripePaymentPane({
   const [applePayRequest, setApplePayRequest] = useState<PaymentRequest | null>(null);
   const [applePayReady, setApplePayReady] = useState(false);
 
-  const handleConfirmedPaymentIntent = (paymentIntent: { id: string; status?: string } | null | undefined): boolean => {
-    if (paymentIntent?.status === 'succeeded') {
-      window.location.href = '/order/confirmation?payment_intent=' + paymentIntent.id;
-      return true;
-    }
+  const handleConfirmedPaymentIntent = async (paymentIntent: { id: string; status?: string } | null | undefined): Promise<boolean> => {
+    if (paymentIntent?.status === 'succeeded' || paymentIntent?.status === 'processing') {
+      // Generate access token for order confirmation endpoint
+      try {
+        const tokenResponse = await fetch('/api/orders/generate-confirmation-token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paymentIntentId: paymentIntent.id })
+        });
 
-    if (paymentIntent?.status === 'processing') {
-      window.location.href = '/order/confirmation?payment_intent=' + paymentIntent.id;
+        if (tokenResponse.ok) {
+          const { token } = await tokenResponse.json();
+          window.location.href = `/order/confirmation?payment_intent=${paymentIntent.id}&token=${token}`;
+        } else {
+          // Fall back to redirect without token (will fail auth but shows order received)
+          console.warn('[checkout] Failed to generate confirmation token');
+          window.location.href = `/order/confirmation?payment_intent=${paymentIntent.id}`;
+        }
+      } catch (err) {
+        console.error('[checkout] Error generating confirmation token:', err);
+        // Fall back to redirect without token
+        window.location.href = `/order/confirmation?payment_intent=${paymentIntent.id}`;
+      }
       return true;
     }
 
@@ -1998,7 +2013,7 @@ function StripePaymentPane({
           resolvedIntent = actionResult.paymentIntent;
         }
 
-        if (!handleConfirmedPaymentIntent(resolvedIntent as any)) {
+        if (!(await handleConfirmedPaymentIntent(resolvedIntent as any))) {
           setError('Unable to confirm Apple Pay payment. Please try another payment method.');
         }
       } catch (error) {
@@ -2082,7 +2097,7 @@ function StripePaymentPane({
         return;
       }
 
-      if (handleConfirmedPaymentIntent(paymentIntent as any)) {
+      if (await handleConfirmedPaymentIntent(paymentIntent as any)) {
         return;
       }
 
